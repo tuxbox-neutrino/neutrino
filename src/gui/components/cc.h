@@ -364,11 +364,21 @@ class CComponentsItemBox : public CComponentsContainer
 class CComponentsTitleBar : public CComponentsItemBox
 {
 	private:
+		const char* tb_c_text;
+		std::string tb_s_text;
+		neutrino_locale_t tb_locale_text;
+		int tb_text_align;
+
+		bool addText();
 		void initVarTitleBar();
 	
 	public:
 		CComponentsTitleBar();
-		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const char* text = NULL,
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const char* c_text = NULL, const int text_alignment = CC_ALIGN_LEFT,
+					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const std::string& s_text ="", const int text_alignment = CC_ALIGN_LEFT,
+					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int text_alignment = CC_ALIGN_LEFT,
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
 
 		void calculateElements();

@@ -1127,7 +1127,7 @@ CComponentsTitleBar::CComponentsTitleBar()
 	initVarTitleBar();
 }
 
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const char* text,
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const char* c_text, const int text_alignment,
 					fb_pixel_t color_text, fb_pixel_t color_body)
 {
 	//CComponentsItemBox
@@ -1141,15 +1141,75 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	col_body	= color_body;
 	
 	//CComponentsTitleBar
-	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	col_text 	= color_text;
+	tb_c_text	= c_text;
+	tb_text_align	= text_alignment;
 	
-	if (text) {
-		addElement	(CC_ALIGN_LEFT, CC_ITEMBOX_TEXT, text);
+	if (addText())
 		calculateElements();
-	}
 }
 
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const string& s_text, const int text_alignment,
+					fb_pixel_t color_text, fb_pixel_t color_body)
+{
+	//CComponentsItemBox
+	initVarTitleBar();
+
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	height		= h;
+	width 		= w;
+	col_body	= color_body;
+
+	//CComponentsTitleBar
+	col_text 	= color_text;
+	tb_s_text	= s_text;
+	tb_text_align	= text_alignment;
+
+	if (addText())
+		calculateElements();
+}
+
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text, const int text_alignment,
+					fb_pixel_t color_text, fb_pixel_t color_body)
+{
+	//CComponentsItemBox
+	initVarTitleBar();
+
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	height		= h;
+	width 		= w;
+	col_body	= color_body;
+
+	//CComponentsTitleBar
+	col_text 	= color_text;
+	tb_locale_text	= locale_text;
+	tb_text_align	= text_alignment;
+
+	if (addText())
+		calculateElements();
+}
+
+bool CComponentsTitleBar::addText()
+{
+	if (tb_c_text){
+		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_c_text);
+		return true;	
+	}
+	else if (!tb_s_text.empty()){
+		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_s_text);
+		return true;
+	}
+	else if	(tb_locale_text != NONEXISTANT_LOCALE){
+		addElement	(tb_text_align, CC_ITEMBOX_TEXT, g_Locale->getText(tb_locale_text));
+		return true;
+	}
+	else
+		return false;
+}
 
 void CComponentsTitleBar::initVarTitleBar()
 {
@@ -1168,6 +1228,12 @@ void CComponentsTitleBar::initVarTitleBar()
 	col_body	= COL_MENUHEAD_PLUS_0;
 	corner_type 	= CORNER_TOP;
 	corner_rad	= RADIUS_LARGE;
+
+	//CComponentsTitleBar
+	tb_text_align	= CC_ALIGN_LEFT;
+	tb_c_text	= NULL;
+	tb_s_text	= "";
+	tb_locale_text	= NONEXISTANT_LOCALE;
 }
 
 
