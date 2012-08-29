@@ -321,6 +321,7 @@ class CComponentsDetailLine : public CComponents
 };
 
 #define FIRST_ELEMENT_INIT 10000
+#define LOGO_MAX_WIDTH width/4
 class CComponentsItemBox : public CComponentsContainer
 {
 	protected:
@@ -341,7 +342,6 @@ class CComponentsItemBox : public CComponentsContainer
 		std::vector<comp_element_data_t> v_element_data;
 
 		void clearElements();
-		void paintPic(CComponentsPicture* pic);
 		void initVarItemBox();
 		void calSizeOfElements();
 		void calPositionOfElements();
@@ -356,6 +356,8 @@ class CComponentsItemBox : public CComponentsContainer
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 		virtual bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
+		virtual void refreshElement(size_t index, const std::string& element);
+		virtual void paintElement(size_t index, bool newElement= false);
 		virtual bool addLogoOrText(int align, const std::string& logo, const std::string& text, size_t *index=NULL);
 		virtual void clearTitlebar();
 
@@ -382,7 +384,7 @@ class CComponentsTitleBar : public CComponentsItemBox
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
 
 		void calculateElements();
-					
+
 };
 
 #endif

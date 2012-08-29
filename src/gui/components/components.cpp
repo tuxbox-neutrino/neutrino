@@ -912,11 +912,6 @@ bool CComponentsItemBox::addElement(int align, int type, const std::string& elem
 			if ((dx == 0) || (dy == 0))
 				return false;
 			break;
-		case CC_ITEMBOX_PICTURE:
-			g_PicViewer->getSize(element.c_str(), &dx, &dy);
-			if ((dx == 0) || (dy == 0))
-				return false;
-			break;
 		case CC_ITEMBOX_TEXT:
 			if ((element == "") || ((onlyOneTextElement) && (has_TextElement)))
 				return false;
@@ -941,6 +936,96 @@ bool CComponentsItemBox::addElement(int align, int type, const std::string& elem
 	if (index != NULL)
 		*index = v_element_data.size()-1;
 	return true;
+}
+
+void CComponentsItemBox::refreshElement(size_t index, const std::string& element)
+{
+	CComponentsPicture* pic = NULL;
+	switch (v_element_data[index].type) {
+		case CC_ITEMBOX_PICTURE:
+			pic = static_cast<CComponentsPicture*>(v_element_data[index].handler1);
+			if (pic != NULL) {
+				pic->hide();
+				delete pic;
+			}
+			v_element_data[index].element	= element;
+			v_element_data[index].x 	= x;
+			v_element_data[index].y 	= y;
+			v_element_data[index].width 	= 0;
+			v_element_data[index].height 	= 0;
+			v_element_data[index].handler1 	= NULL;
+			v_element_data[index].handler2 	= NULL;
+			break;
+		default:
+			break;
+	}
+}
+
+void CComponentsItemBox::paintElement(size_t index, bool newElement)
+{
+	CComponentsPicture* pic = NULL;
+	CBox* box = NULL;
+	CTextBox* textbox = NULL;
+	int pw = 0, ph = 0;
+	switch (v_element_data[index].type) {
+		case CC_ITEMBOX_ICON:
+		case CC_ITEMBOX_PICTURE:
+			pic = static_cast<CComponentsPicture*>(v_element_data[index].handler1);
+			if ((newElement) || (pic == NULL)) {
+				if (pic != NULL) {
+					pic->hide();
+					delete pic;
+				}
+				if ((v_element_data[index].type) == CC_ITEMBOX_PICTURE)
+					pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].width, 
+									v_element_data[index].height, v_element_data[index].element);
+				else
+					pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].element);
+				v_element_data[index].handler1 = (void*)pic;
+			}
+			pic->getPictureSize(&pw, &ph);
+			pic->setHeight(ph);
+			pic->setWidth(pw);
+			pic->setColorBody(col_body);
+			pic->paint();
+			break;
+		case CC_ITEMBOX_TEXT:
+			box = static_cast<CBox*>(v_element_data[index].handler1);
+			if ((newElement) || (box == NULL)) {
+				if (box != NULL) {
+					delete box;
+				}
+				box = new CBox();
+				v_element_data[index].handler1 = (void*)box;
+			}
+			box->iX      = v_element_data[index].x;
+			box->iY      = v_element_data[index].y;
+			box->iWidth  = v_element_data[index].width;
+			box->iHeight = v_element_data[index].height;
+			textbox = static_cast<CTextBox*>(v_element_data[index].handler2);
+			if ((newElement) || (textbox == NULL)) {
+				if (textbox != NULL) {
+					textbox->hide();
+					delete textbox;
+				}
+				textbox = new CTextBox(v_element_data[index].element.c_str(), font_text, CTextBox::AUTO_WIDTH|CTextBox::AUTO_HIGH, box, col_body);
+				v_element_data[index].handler2 = (void*)textbox;
+			}
+			textbox->setTextBorderWidth(0);
+			textbox->enableBackgroundPaint(false);
+			textbox->setTextFont(font_text);
+			textbox->movePosition(box->iX, box->iY);
+			textbox->setTextColor(col_text);
+			if (textbox->setText(&v_element_data[index].element))
+				textbox->paint();
+			break;
+		case CC_ITEMBOX_CLOCK:
+			font_text->RenderString(v_element_data[index].x, v_element_data[index].y, v_element_data[index].width, 
+						v_element_data[index].element.c_str(), col_text);
+			break;
+		default:
+			break;
+	}
 }
 
 void CComponentsItemBox::calSizeOfElements()
@@ -985,6 +1070,8 @@ void CComponentsItemBox::calSizeOfElements()
 	}
 
 	// Calculate largest height without CC_ITEMBOX_PICTURE
+	firstElementLeft 	= FIRST_ELEMENT_INIT;
+	firstElementRight	= FIRST_ELEMENT_INIT;
 	for (i = 0; i < v_element_data.size(); i++) {
 		if ((firstElementLeft == FIRST_ELEMENT_INIT) && (v_element_data[i].align == CC_ALIGN_LEFT))
 			firstElementLeft = i;
@@ -1041,64 +1128,8 @@ void CComponentsItemBox::paint(bool do_save_bg)
 		return;
 
 	// paint elements
-	size_t i;
-	CComponentsPicture* pic = NULL;
-	CBox* box = NULL;
-	CTextBox* textbox = NULL;
-	for (i = 0; i < v_element_data.size(); i++) {
-		switch (v_element_data[i].type) {
-			case CC_ITEMBOX_ICON:
-				if (v_element_data[i].handler1 == NULL) {
-					pic = new CComponentsPicture(v_element_data[i].x, v_element_data[i].y, v_element_data[i].element);
-					v_element_data[i].handler1 = (void*)pic;
-				}
-				else
-					pic = static_cast<CComponentsPicture*>(v_element_data[i].handler1);
-				paintPic(pic);
-				break;
-			case CC_ITEMBOX_PICTURE:
-				if (v_element_data[i].handler1 == NULL) {
-					pic = new CComponentsPicture(	v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
-									v_element_data[i].height, v_element_data[i].element);
-					v_element_data[i].handler1 = (void*)pic;
-				}
-				else
-					pic = static_cast<CComponentsPicture*>(v_element_data[i].handler1);
-				paintPic(pic);
-				break;
-			case CC_ITEMBOX_TEXT:
-				if (v_element_data[i].handler1 == NULL) {
-					box = new CBox();
-					v_element_data[i].handler1 = (void*)box;
-				}
-				else
-					box = static_cast<CBox*>(v_element_data[i].handler1);
-				box->iX      = v_element_data[i].x;
-				box->iY      = v_element_data[i].y;
-				box->iWidth  = v_element_data[i].width;
-				box->iHeight = v_element_data[i].height;
-				if (v_element_data[i].handler2 == NULL) {
-					textbox = new CTextBox(v_element_data[i].element.c_str(), font_text, CTextBox::AUTO_WIDTH|CTextBox::AUTO_HIGH, box, col_body);
-					v_element_data[i].handler2 = (void*)textbox;
-				}
-				else
-					textbox = static_cast<CTextBox*>(v_element_data[i].handler2);
-				textbox->setTextBorderWidth(0);
-				textbox->enableBackgroundPaint(false);
-				textbox->setTextFont(font_text);
-				textbox->movePosition(box->iX, box->iY);
-				textbox->setTextColor(col_text);
-				if (textbox->setText(&v_element_data[i].element))
-					textbox->paint();
-				break;
-			case CC_ITEMBOX_CLOCK:
-				font_text->RenderString(v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
-							v_element_data[i].element.c_str(), col_text);
-				break;
-			default:
-				break;
-		}
-	}
+	for (size_t i = 0; i < v_element_data.size(); i++)
+		paintElement(i);
 }
 
 void CComponentsItemBox::clearTitlebar()
@@ -1107,16 +1138,6 @@ void CComponentsItemBox::clearTitlebar()
 	paintElements = false;
 	paint(false);
 	paintElements = true;
-}
-
-void CComponentsItemBox::paintPic(CComponentsPicture* pic)
-{
-	int pw, ph;
-	pic->getPictureSize(&pw, &ph);
-	pic->setHeight(ph);
-	pic->setWidth(pw);
-	pic->setColorBody(col_body);
-	pic->paint();
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -1239,8 +1260,6 @@ void CComponentsTitleBar::initVarTitleBar()
 
 void CComponentsTitleBar::calculateElements()
 {
-#define LOGO_MAX_WIDTH width/4
-
 	if (v_element_data.empty())
 		return;
 
@@ -1255,7 +1274,7 @@ void CComponentsTitleBar::calculateElements()
 	// Calculate logo
 	for (i = 0; i < v_element_data.size(); i++) {
 		if (v_element_data[i].type == CC_ITEMBOX_PICTURE) {
-			if((v_element_data[i].width > LOGO_MAX_WIDTH) || (v_element_data[i].height > hMax))
+			if ((v_element_data[i].width > LOGO_MAX_WIDTH) || (v_element_data[i].height > hMax))
 				g_PicViewer->rescaleImageDimensions(&v_element_data[i].width, &v_element_data[i].height, LOGO_MAX_WIDTH, hMax);
 		}
 	}
