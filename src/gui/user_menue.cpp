@@ -82,12 +82,14 @@ CUserMenu::~CUserMenu()
 	
 }
 
+#if 0
 #define MAINMENU_RECORDING_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MAINMENU_RECORDING_OPTIONS[MAINMENU_RECORDING_OPTION_COUNT] =
 {
 	{ 0, LOCALE_MAINMENU_RECORDING_START },
 	{ 1, LOCALE_MAINMENU_RECORDING_STOP  }
 };
+#endif
 
 // USERMENU
 bool CUserMenu::showUserMenu(int button)
@@ -461,6 +463,7 @@ bool CUserMenu::showUserMenu(int button)
 **************************************************************************************/
 bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 {
+#if 0
 	bool res = !CRecordManager::getInstance()->RecordingStatus() ? false:true;
 		
 	if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING_START)) || (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING)))
@@ -471,9 +474,11 @@ bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 			res = false;
 		else
 			res = true;
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_PAUSESECTIONSD)) {
+	} else 
+#endif
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_PAUSESECTIONSD)) {
 		g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);
 	}
 	
-	return res;
+	return false;
 }
