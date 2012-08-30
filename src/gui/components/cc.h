@@ -241,7 +241,7 @@ class CComponentsInfoBox : public CComponentsContainer
 		void paintText();
 		void initVarInfobox();
 		std::string pic_name;
-		fb_pixel_t col_text;
+		fb_pixel_t ibox_col_text;
 	public:
 		CComponentsInfoBox();
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
@@ -256,7 +256,7 @@ class CComponentsInfoBox : public CComponentsContainer
 		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		inline void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
 		inline void setTextFont(Font* font_text){font = font_text;};
-		inline void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
+		inline void setTextColor(fb_pixel_t color_text){ ibox_col_text = color_text;};
 		inline void setSpaceOffset(const int offset){x_offset = offset;};
 		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
 		void removeLineBreaks(std::string& str);
@@ -331,7 +331,7 @@ class CComponentsItemBox : public CComponentsContainer
 		int digit_offset, digit_h;
 		bool paintElements;
 		bool onlyOneTextElement;
-		fb_pixel_t col_text;
+		fb_pixel_t it_col_text;
 		Font* font_text;
 		int hMax;
 		bool has_TextElement;
@@ -345,15 +345,15 @@ class CComponentsItemBox : public CComponentsContainer
 		void initVarItemBox();
 		void calSizeOfElements();
 		void calPositionOfElements();
+		void paintItemBox(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void calculateElements();
 
 	public:
 		CComponentsItemBox();
 		virtual ~CComponentsItemBox();
 
 		inline virtual void setTextFont(Font* font){font_text = font;};
-		inline virtual void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
-
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		inline virtual void setTextColor(fb_pixel_t color_text){ it_col_text = color_text;};
 
 		virtual bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
 		virtual void refreshElement(size_t index, const std::string& element);
@@ -370,7 +370,7 @@ class CComponentsTitleBar : public CComponentsItemBox
 		std::string tb_s_text;
 		neutrino_locale_t tb_locale_text;
 		int tb_text_align;
-
+		
 		bool addText();
 		void initVarTitleBar();
 	
@@ -382,8 +382,8 @@ class CComponentsTitleBar : public CComponentsItemBox
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
 		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int text_alignment = CC_ALIGN_LEFT,
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
-
-		void calculateElements();
+					
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 };
 

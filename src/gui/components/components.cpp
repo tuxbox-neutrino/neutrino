@@ -288,7 +288,7 @@ CComponentsInfoBox::CComponentsInfoBox()
 	text 		= NULL;
 	text_mode	= CTextBox::AUTO_WIDTH;
 	font		= NULL;
-	col_text	= COL_MENUCONTENT;
+	ibox_col_text	= COL_MENUCONTENT;
 }
 
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
@@ -313,7 +313,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	text 		= info_text;
 	text_mode	= mode;
 	font		= font_text;
-	col_text	= color_text;
+	ibox_col_text	= color_text;
 }
 
 CComponentsInfoBox::~CComponentsInfoBox()
@@ -395,7 +395,7 @@ void CComponentsInfoBox::paintText()
 	//set properties
 	textbox->setTextFont(font);
 	textbox->movePosition(box->iX, box->iY);
-	textbox->setTextColor(col_text);
+	textbox->setTextColor(ibox_col_text);
 
 	//set text
 	string new_text = static_cast <string> (text);
@@ -823,7 +823,7 @@ void CComponentsItemBox::initVarItemBox()
 	initVarContainer();
 
 	//CComponentsItemBox
-	col_text 		= COL_MENUCONTENT;
+	it_col_text 		= COL_MENUCONTENT;
 	hSpacer 		= 2;
 	hOffset 		= 4;
 	vOffset 		= 1;
@@ -959,6 +959,7 @@ void CComponentsItemBox::refreshElement(size_t index, const std::string& element
 		default:
 			break;
 	}
+	calculateElements();
 }
 
 void CComponentsItemBox::paintElement(size_t index, bool newElement)
@@ -1015,13 +1016,13 @@ void CComponentsItemBox::paintElement(size_t index, bool newElement)
 			textbox->enableBackgroundPaint(false);
 			textbox->setTextFont(font_text);
 			textbox->movePosition(box->iX, box->iY);
-			textbox->setTextColor(col_text);
+			textbox->setTextColor(it_col_text);
 			if (textbox->setText(&v_element_data[index].element))
 				textbox->paint();
 			break;
 		case CC_ITEMBOX_CLOCK:
 			font_text->RenderString(v_element_data[index].x, v_element_data[index].y, v_element_data[index].width, 
-						v_element_data[index].element.c_str(), col_text);
+						v_element_data[index].element.c_str(), it_col_text);
 			break;
 		default:
 			break;
@@ -1119,146 +1120,7 @@ void CComponentsItemBox::calPositionOfElements()
 	}
 }
 
-void CComponentsItemBox::paint(bool do_save_bg)
-{
-	// paint background
-	paintInit(do_save_bg);
-
-	if ((v_element_data.empty()) || (!paintElements))
-		return;
-
-	// paint elements
-	for (size_t i = 0; i < v_element_data.size(); i++)
-		paintElement(i);
-}
-
-void CComponentsItemBox::clearTitlebar()
-{
-	clearElements();
-	paintElements = false;
-	paint(false);
-	paintElements = true;
-}
-
-//-------------------------------------------------------------------------------------------------------
-//sub class CComponentsTitleBar from CComponentsItemBox
-CComponentsTitleBar::CComponentsTitleBar()
-{
-	//CComponentsTitleBar
-	initVarTitleBar();
-}
-
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const char* c_text, const int text_alignment,
-					fb_pixel_t color_text, fb_pixel_t color_body)
-{
-	//CComponentsItemBox
-	initVarTitleBar();
-	
-	//CComponents
-	x		= x_pos;
-	y 		= y_pos;
-	height		= h;
-	width 		= w;
-	col_body	= color_body;
-	
-	//CComponentsTitleBar
-	col_text 	= color_text;
-	tb_c_text	= c_text;
-	tb_text_align	= text_alignment;
-	
-	if (addText())
-		calculateElements();
-}
-
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const string& s_text, const int text_alignment,
-					fb_pixel_t color_text, fb_pixel_t color_body)
-{
-	//CComponentsItemBox
-	initVarTitleBar();
-
-	//CComponents
-	x		= x_pos;
-	y 		= y_pos;
-	height		= h;
-	width 		= w;
-	col_body	= color_body;
-
-	//CComponentsTitleBar
-	col_text 	= color_text;
-	tb_s_text	= s_text;
-	tb_text_align	= text_alignment;
-
-	if (addText())
-		calculateElements();
-}
-
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text, const int text_alignment,
-					fb_pixel_t color_text, fb_pixel_t color_body)
-{
-	//CComponentsItemBox
-	initVarTitleBar();
-
-	//CComponents
-	x		= x_pos;
-	y 		= y_pos;
-	height		= h;
-	width 		= w;
-	col_body	= color_body;
-
-	//CComponentsTitleBar
-	col_text 	= color_text;
-	tb_locale_text	= locale_text;
-	tb_text_align	= text_alignment;
-
-	if (addText())
-		calculateElements();
-}
-
-bool CComponentsTitleBar::addText()
-{
-	if (tb_c_text){
-		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_c_text);
-		return true;	
-	}
-	else if (!tb_s_text.empty()){
-		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_s_text);
-		return true;
-	}
-	else if	(tb_locale_text != NONEXISTANT_LOCALE){
-		addElement	(tb_text_align, CC_ITEMBOX_TEXT, g_Locale->getText(tb_locale_text));
-		return true;
-	}
-	else
-		return false;
-}
-
-void CComponentsTitleBar::initVarTitleBar()
-{
-	//CComponentsItemBox
-	initVarItemBox();
-	onlyOneTextElement	= true;
-	
-	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	col_text 	= COL_MENUHEAD;
-	
-	//CComponents
-	x		= 0;
-	y 		= 0;
-	height		= font_text->getHeight() + 2*hSpacer;
-	width 		= frameBuffer->getScreenWidth(true);;
-	col_body	= COL_MENUHEAD_PLUS_0;
-	corner_type 	= CORNER_TOP;
-	corner_rad	= RADIUS_LARGE;
-
-	//CComponentsTitleBar
-	tb_text_align	= CC_ALIGN_LEFT;
-	tb_c_text	= NULL;
-	tb_s_text	= "";
-	tb_locale_text	= NONEXISTANT_LOCALE;
-}
-
-
-void CComponentsTitleBar::calculateElements()
+void CComponentsItemBox::calculateElements()
 {
 	if (v_element_data.empty())
 		return;
@@ -1299,3 +1161,149 @@ void CComponentsTitleBar::calculateElements()
 
 	calPositionOfElements();
 }
+
+void CComponentsItemBox::paintItemBox(bool do_save_bg)
+{
+	// paint background
+	paintInit(do_save_bg);
+
+	if ((v_element_data.empty()) || (!paintElements))
+		return;
+
+	// paint elements
+	for (size_t i = 0; i < v_element_data.size(); i++)
+		paintElement(i);
+}
+
+void CComponentsItemBox::clearTitlebar()
+{
+	clearElements();
+	paintElements = false;
+	paint(false);
+	paintElements = true;
+}
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsTitleBar from CComponentsItemBox
+CComponentsTitleBar::CComponentsTitleBar()
+{
+	//CComponentsTitleBar
+	initVarTitleBar();
+}
+
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const char* c_text, const int text_alignment,
+					fb_pixel_t color_text, fb_pixel_t color_body)
+{
+	//CComponentsItemBox
+	initVarTitleBar();
+	it_col_text 	= color_text;
+	
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	height		= h;
+	width 		= w;
+	col_body	= color_body;
+	
+	//CComponentsTitleBar
+	tb_c_text	= c_text;
+	tb_text_align	= text_alignment;
+	
+	if (addText())
+		calculateElements();
+}
+
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const string& s_text, const int text_alignment,
+					fb_pixel_t color_text, fb_pixel_t color_body)
+{
+	//CComponentsItemBox
+	initVarTitleBar();
+	it_col_text 	= color_text;
+
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	height		= h;
+	width 		= w;
+	col_body	= color_body;
+
+	//CComponentsTitleBar
+	tb_s_text	= s_text;
+	tb_text_align	= text_alignment;
+
+	if (addText())
+		calculateElements();
+}
+
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text, const int text_alignment,
+					fb_pixel_t color_text, fb_pixel_t color_body)
+{
+	//CComponentsItemBox
+	initVarTitleBar();
+	it_col_text 	= color_text;
+
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	height		= h;
+	width 		= w;
+	col_body	= color_body;
+
+	//CComponentsTitleBar
+	tb_locale_text	= locale_text;
+	tb_text_align	= text_alignment;
+
+	if (addText())
+		calculateElements();
+}
+
+bool CComponentsTitleBar::addText()
+{
+	if (tb_c_text){
+		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_c_text);
+		return true;	
+	}
+	else if (!tb_s_text.empty()){
+		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_s_text);
+		return true;
+	}
+	else if	(tb_locale_text != NONEXISTANT_LOCALE){
+		addElement	(tb_text_align, CC_ITEMBOX_TEXT, g_Locale->getText(tb_locale_text));
+		return true;
+	}
+	else
+		return false;
+}
+
+void CComponentsTitleBar::initVarTitleBar()
+{
+	//CComponentsItemBox
+	initVarItemBox();
+	onlyOneTextElement	= true;
+	
+	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	it_col_text 	= COL_MENUHEAD;
+	
+	//CComponents
+	x		= 0;
+	y 		= 0;
+	height		= font_text->getHeight() + 2*hSpacer;
+	width 		= frameBuffer->getScreenWidth(true);;
+	col_body	= COL_MENUHEAD_PLUS_0;
+	corner_type 	= CORNER_TOP;
+	corner_rad	= RADIUS_LARGE;
+
+	//CComponentsTitleBar
+	tb_text_align	= CC_ALIGN_LEFT;
+	tb_c_text	= NULL;
+	tb_s_text	= "";
+	tb_locale_text	= NONEXISTANT_LOCALE;
+}
+
+
+void CComponentsTitleBar::paint(bool do_save_bg)
+{
+	calculateElements();
+	paintItemBox(do_save_bg);	
+}
+
