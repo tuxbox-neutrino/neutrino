@@ -39,6 +39,7 @@
 #include <zapit/zapit.h>
 #include <zapit/bouquets.h>
 #include <zapit/getservices.h>
+#include <eitd/sectionsd.h>
 
 extern CBouquetManager *g_bouquetManager;
 extern CFrontend * frontend;
@@ -53,8 +54,6 @@ extern CZapitClient::SatelliteList satList;
 
 // nhttpd
 #include "neutrinoapi.h"
-
-void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = true, t_channel_id *chidlist = NULL, int clen = 0);
 
 //=============================================================================
 // No Class Helpers
@@ -259,7 +258,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 
 bool CNeutrinoAPI::GetChannelEvents(void)
 {
-	sectionsd_getChannelEvents(eList);
+	CEitManager::getInstance()->getChannelEvents(eList);
 	CChannelEventList::iterator eventIterator;
 
 	ChannelListEvents.clear();

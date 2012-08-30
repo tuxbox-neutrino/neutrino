@@ -73,6 +73,8 @@
 #include <zapit/femanager.h>
 #include <zapit/debug.h>
 
+#include <eitd/sectionsd.h>
+
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
@@ -88,10 +90,6 @@ extern CBouquetList   * RADIOallList;
 extern bool autoshift;
 
 extern CBouquetManager *g_bouquetManager;
-void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen);
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
-
 extern int old_b_id;
 
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist, bool )
@@ -175,7 +173,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		unsigned int count;
 		for (count = from; count < to; count++) {
 			events.clear();
-			sectionsd_getEventsServiceKey(chanlist[count]->channel_id, events);
+			CEitManager::getInstance()->getEventsServiceKey(chanlist[count]->channel_id, events);
 			chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
 			for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
 				if ((long)e->startTime > atime &&
@@ -198,7 +196,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 			p_requested_channels[count] = chanlist[count + from]->channel_id&0xFFFFFFFFFFFFULL;
 		}
 		CChannelEventList levents;
-		sectionsd_getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
+		CEitManager::getInstance()->getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
 		for (uint32_t count=0; count < chanlist_size; count++) {
 			chanlist[count]->currentEvent = CChannelEvent();
 			for (CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e) {
@@ -1544,7 +1542,7 @@ void CChannelList::paintDetails(int index)
 		char buf[128] = {0};
 		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
-		sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
+		CEitManager::getInstance()->getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
 		if (!CurrentNext.next_name.empty()) {
 			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
 			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );

@@ -140,12 +140,6 @@ void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
 
 //#define DISABLE_SECTIONSD
-extern int sectionsd_stop;
-#ifndef DISABLE_SECTIONSD
-//static pthread_t sections_thread;
-#endif
-void * sectionsd_main_thread(void *data);
-extern bool timeset; // sectionsd
 
 extern cVideo * videoDecoder;
 extern cDemux *videoDemux;
@@ -1575,9 +1569,6 @@ void CNeutrinoApp::SetupTiming()
 }
 
 
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
-bool sectionsd_isReady(void);
-
 #define LCD_UPDATE_TIME_RADIO_MODE (6 * 1000 * 1000)
 #define LCD_UPDATE_TIME_TV_MODE (60 * 1000 * 1000)
 
@@ -2669,8 +2660,7 @@ _repeat:
 				if(timer.epgID!=0) {
 					CEPGData epgdata;
 					zAddData += " :\n";
-					//if (g_Sectionsd->getEPGid(timer.epgID, timer.epg_starttime, &epgdata))
-					if (sectionsd_getEPGid(timer.epgID, timer.epg_starttime, &epgdata)) {
+					if (CEitManager::getInstance()->getEPGid(timer.epgID, timer.epg_starttime, &epgdata)) {
 						zAddData += epgdata.title;
 					}
 					else if(strlen(timer.epgTitle)!=0) {
@@ -3550,7 +3540,6 @@ bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 void stop_daemons(bool stopall)
 {
 	streamts_stop = 1;
-	sectionsd_stop = 1;
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
@@ -3568,7 +3557,6 @@ void stop_daemons(bool stopall)
 	}
 #ifndef DISABLE_SECTIONSD
 	printf("sectionsd shutdown\n");
-	//pthread_join(sections_thread, NULL);
 	CEitManager::getInstance()->Stop();
 	printf("sectionsd shutdown done\n");
 #endif

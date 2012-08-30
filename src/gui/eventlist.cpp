@@ -57,6 +57,7 @@
 #include <zapit/client/zapittools.h>
 #include <zapit/zapit.h>
 #include <daemonc/remotecontrol.h>
+#include <eitd/sectionsd.h>
 
 #include <algorithm>
 
@@ -64,10 +65,6 @@ extern CBouquetList        * bouquetList;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 
 extern CPictureViewer * g_PicViewer;
-
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
-bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 
 #if 0
 // sort operators
@@ -151,9 +148,7 @@ bool CNeutrinoEventList::HasTimerConflicts(time_t starttime, time_t duration, ev
 
 void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 {
-	//evtlist = g_Sectionsd->getEventsServiceKey(channel_id &0xFFFFFFFFFFFFULL);
-	evtlist.clear();
-	sectionsd_getEventsServiceKey(channel_id , evtlist);
+	CEitManager::getInstance()->getEventsServiceKey(channel_id , evtlist);
 	time_t azeit=time(NULL);
 
 	CChannelEventList::iterator e;
@@ -161,14 +156,12 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 
 		CEPGData epgData;
 		// todo: what if there are more than one events in the Portal
-		//if (g_Sectionsd->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData ))
-		if (sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData ))
+		if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData ))
 		{
 //			epgData.eventID;
 //			epgData.epg_times.startzeit;
 			CSectionsdClient::LinkageDescriptorList	linkedServices;
-			//if ( g_Sectionsd->getLinkageDescriptorsUniqueKey( epgData.eventID, linkedServices ) )
-			if ( sectionsd_getLinkageDescriptorsUniqueKey( epgData.eventID, linkedServices ) )
+			if (CEitManager::getInstance()->getLinkageDescriptorsUniqueKey( epgData.eventID, linkedServices ) )
 			{
 				if ( linkedServices.size()> 1 )
 				{
@@ -193,9 +186,7 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 
 						// do not add parent events
 						if (channel_id != channel_id2) {
-							//evtlist2 = g_Sectionsd->getEventsServiceKey(channel_id2);
-							evtlist2.clear();
-							sectionsd_getEventsServiceKey(channel_id2 , evtlist2);
+							CEitManager::getInstance()->getEventsServiceKey(channel_id2 , evtlist2);
 
 							for (unsigned int loop=0 ; loop<evtlist2.size(); loop++ )
 							{
@@ -1023,11 +1014,9 @@ bool CNeutrinoEventList::findEvents(void)
 	{
 		res = true;
 		m_showChannel = true;   // force the event list to paint the channel name
-		evtlist.clear();
 		if(m_search_list == SEARCH_LIST_CHANNEL)
 		{
-			//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,m_search_channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-			sectionsd_getEventsServiceKey(m_search_channel_id, evtlist, m_search_epg_item,m_search_keyword);
+			CEitManager::getInstance()->getEventsServiceKey(m_search_channel_id, evtlist, m_search_epg_item,m_search_keyword);
 		}
 		else if(m_search_list == SEARCH_LIST_BOUQUET)
 		{
@@ -1035,8 +1024,7 @@ bool CNeutrinoEventList::findEvents(void)
 			for(int channel = 0; channel < channel_nr; channel++)
 			{
 				channel_id = bouquetList->Bouquets[m_search_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
-				//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-				sectionsd_getEventsServiceKey(channel_id, evtlist, m_search_epg_item,m_search_keyword);
+				CEitManager::getInstance()->getEventsServiceKey(channel_id, evtlist, m_search_epg_item,m_search_keyword);
 			}
 		}
 		else if(m_search_list == SEARCH_LIST_ALL)
@@ -1050,8 +1038,7 @@ bool CNeutrinoEventList::findEvents(void)
 				for(int channel = 0; channel < channel_nr; channel++)
 				{
 				    channel_id = bouquetList->Bouquets[bouquet]->channelList->getChannelFromIndex(channel)->channel_id;
-					//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-					sectionsd_getEventsServiceKey(channel_id,evtlist, m_search_epg_item,m_search_keyword);
+					CEitManager::getInstance()->getEventsServiceKey(channel_id,evtlist, m_search_epg_item,m_search_keyword);
 				}
 			}
 			box.hide();

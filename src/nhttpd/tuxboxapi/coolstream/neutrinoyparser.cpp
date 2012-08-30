@@ -29,16 +29,12 @@
 #include <zapit/channel.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
+#include <eitd/sectionsd.h>
 #include <cs_api.h>
 #include <system/configure_network.h>
 
 extern CBouquetManager *g_bouquetManager;
 
-bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list);
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
-bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
 //=============================================================================
 // Constructor & Destructor & Initialization
 //=============================================================================
@@ -291,7 +287,7 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, st
 			sprintf(id,PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS,channel->channel_id);
 			std::string _sid = std::string(id);
 			sel = (_sid == achannel_id) ? "selected=\"selected\"" : "";
-			sectionsd_getActualEPGServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, &epg);
+			CEitManager::getInstance()->getActualEPGServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, &epg);
 			sprintf(buf,"<option value="PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS" %s>%.20s - %.30s</option>\n", channel->channel_id, sel.c_str(), channel->getName().c_str(),epg.title.c_str());
 			yresult += buf;
 		}
@@ -396,7 +392,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		if (channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE)
 		{
 			CSectionsdClient::NVODTimesList nvod_list;
-			if (sectionsd_getNVODTimesServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, nvod_list))
+			if (CEitManager::getInstance()->getNVODTimesServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, nvod_list))
 			{
 				CZapitClient::subServiceList subServiceList;
 
@@ -413,7 +409,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					t_channel_id channel_id = CREATE_CHANNEL_ID(cmd.service_id, cmd.original_network_id, cmd.transport_stream_id);
 
 					timestr = timeString(ni->zeit.startzeit); // FIXME: time is wrong (at least on little endian)!
-					sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epg); // FIXME: der scheissendreck geht nit!!!
+					CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epg); // FIXME: der scheissendreck geht nit!!!
 					yresult += string_printf("<tr>\n<td align=\"left\" style=\"width: 31px\" class=\"%cepg\">&nbsp;</td>", classname);
 					yresult += string_printf("<td class=\"%cepg\">%s&nbsp;", classname, timestr.c_str());
 					yresult += string_printf("%s<a href=\"javascript:do_zap('"
@@ -439,7 +435,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		else if ((event = NeutrinoAPI->ChannelListEvents[channel->channel_id]))
 		{
 			bool has_current_next = true;
-			sectionsd_getCurrentNextServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, currentNextInfo);
+			CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, currentNextInfo);
 			timestr = timeString(event->startTime);
 
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
@@ -547,8 +543,8 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 
 	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	sectionsd_getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
-	if (sectionsd_getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
+	CEitManager::getInstance()->getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
+	if (CEitManager::getInstance()->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
 	{
 		for (unsigned int i=0; i< tags.size(); i++)
 		{
@@ -811,7 +807,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 				if(timer->epgID!=0)
 				{
 					CEPGData epgdata;
-					if (sectionsd_getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+					if (CEitManager::getInstance()->getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
 						sAddData+="<br/>" + epgdata.title;
 					else
 						sAddData+=std::string("<br/>")+timer->epgTitle;

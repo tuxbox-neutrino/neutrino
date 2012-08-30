@@ -50,6 +50,7 @@
 
 #include <algorithm>
 #include <dirent.h>
+#include <eitd/sectionsd.h>
 
 
 
@@ -240,8 +241,6 @@ bool COsdLangSetup::changeNotify(const neutrino_locale_t, void *)
 	return true;
 }
 
-void sectionsd_set_languages(const std::vector<std::string>& newLanguages);
-
 bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	std::vector<std::string> v_languages;
@@ -267,8 +266,7 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 			}
 		}
 	}
-	//if(found)
-		sectionsd_set_languages(v_languages);
+	CEitManager::getInstance()->setLanguages(v_languages);
 
 	return false;
 }

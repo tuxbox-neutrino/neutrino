@@ -51,7 +51,6 @@
 #include <gui/filebrowser.h>
 #include <gui/infoviewer.h>
 
-
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
@@ -68,6 +67,8 @@
 
 #include <zapit/getservices.h>
 #include <zapit/bouquets.h>
+
+#include <eitd/sectionsd.h>
 
 extern CBouquetManager *g_bouquetManager;
 
@@ -648,7 +649,6 @@ void CTimerList::hide()
 	}
 }
 
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
 void CTimerList::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight*2;
@@ -744,8 +744,7 @@ void CTimerList::paintItem(int pos)
 			if (timer.epgID!=0)
 			{
 				CEPGData epgdata;
-				//if (g_Sectionsd->getEPGid(timer.epgID, timer.epg_starttime, &epgdata))
-				if (sectionsd_getEPGid(timer.epgID, timer.epg_starttime, &epgdata))
+				if (CEitManager::getInstance()->getEPGid(timer.epgID, timer.epg_starttime, &epgdata))
 				{
 					zAddData += " : ";
 					zAddData += epgdata.title;
@@ -1227,8 +1226,7 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 		if (it->epgID != 0)
 		{
 			CEPGData epgdata;
-			//if (g_Sectionsd->getEPGid(it->epgID, it->epg_starttime, &epgdata))
-			if (sectionsd_getEPGid(it->epgID, it->epg_starttime, &epgdata))
+			if (CEitManager::getInstance()->getEPGid(it->epgID, it->epg_starttime, &epgdata))
 			{
 				timerbuf += ":";
 				timerbuf += epgdata.title;
