@@ -2253,7 +2253,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 	/* ugly hack: retry fetching current/next by restarting dmxCN if this is true */
 	//bool change = false;//TODO remove ?
 
-	//t_channel_id * uniqueServiceKey = (t_channel_id *)data;
+	uniqueServiceKey &= 0xFFFFFFFFFFFFULL;
 
 	readLockEvents();
 	/* if the currently running program is requested... */
@@ -2504,14 +2504,15 @@ bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGD
 	return ret;
 }
 /* was  commandActualEPGchannelID(int connfd, char *data, const unsigned dataLength) */
-bool CEitManager::getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata)
+bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData * epgdata)
 {
 	bool ret = false;
 	SIevent evt;
 	SItime zeit(0, 0);
 
-	dprintf("[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	dprintf("[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
 
+	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
 	readLockEvents();
 	if (uniqueServiceKey == messaging_current_servicekey) {
 		if (myCurrentEvent) {
@@ -2567,7 +2568,7 @@ bool channel_in_requested_list(t_channel_id * clist, t_channel_id chid, int len)
 {
 	if(len == 0) return true;
 	for(int i = 0; i < len; i++) {
-		if(clist[i] == chid)
+		if((clist[i] & 0xFFFFFFFFFFFFULL) == chid)
 			return true;
 	}
 	return false;
@@ -2694,11 +2695,12 @@ bool CEitManager::getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSe
 }
 
 /* was static void commandTimesNVODservice(int connfd, char *data, const unsigned dataLength) */
-bool CEitManager::getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list)
+bool CEitManager::getNVODTimesServiceKey(const t_channel_id channel_id, CSectionsdClient::NVODTimesList& nvod_list)
 {
 	bool ret = false;
-	dprintf("Request of NVOD times for " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	dprintf("Request of NVOD times for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
 
+	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
 	nvod_list.clear();
 
 	readLockServices();
