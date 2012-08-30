@@ -52,6 +52,7 @@
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 
+#include <zapit/femanager.h>
 #include <system/debug.h>
 
 extern CRemoteControl * g_RemoteControl;
@@ -761,9 +762,11 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(mc);
 
 	// tuner icon
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, &g_settings.infobar_show_tuner, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
-	menu_infobar->addItem(mc);
+	if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE){
+		mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, &g_settings.infobar_show_tuner, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
+		menu_infobar->addItem(mc);
+	}
 
 	// show on epg change
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
