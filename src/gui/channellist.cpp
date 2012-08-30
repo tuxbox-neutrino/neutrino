@@ -2005,8 +2005,6 @@ void CChannelList::paintHead()
 		clHead->addElement(CC_ALIGN_RIGHT, CC_ITEMBOX_CLOCK);
 		clHead->addElement(CC_ALIGN_RIGHT, CC_ITEMBOX_PICTURE, "", &indexLogo);
 	}
-
-	clHead->calculateElements();
 	clHead->paint();
 }
 
@@ -2017,7 +2015,6 @@ void CChannelList::showChannelLogo()
 		int dummy;
 		g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->getName(), lname, &dummy, &dummy);
 		clHead->refreshElement(indexLogo, lname);
-		clHead->calculateElements();
 		clHead->paintElement(indexLogo, true);
 	}
 }
