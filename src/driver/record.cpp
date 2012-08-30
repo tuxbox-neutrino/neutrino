@@ -399,7 +399,7 @@ record_error_msg_t CRecordInstance::Record()
 			CEPGData epgData;
 			epgData.epg_times.startzeit = 0;
 			epgData.epg_times.dauer = 0;
-			if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData )) {
+			if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
 				g_Timerd->getRecordingSafety(pre, post);
 				if (epgData.epg_times.startzeit > 0)
 					record_end = epgData.epg_times.startzeit + epgData.epg_times.dauer + post;
@@ -799,7 +799,7 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 
 	eventinfo.eventID = 0;
 	eventinfo.channel_id = channel_id;
-	if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData )) {
+	if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
 		eventinfo.epgID = epgData.eventID;
 		eventinfo.epg_starttime = epgData.epg_times.startzeit;
 		strncpy(eventinfo.epgTitle, epgData.title.c_str(), EPG_TITLE_MAXLEN-1);

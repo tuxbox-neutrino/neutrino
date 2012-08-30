@@ -948,7 +948,7 @@ void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* st
 	if ( id!= 0 )
 		res = CEitManager::getInstance()->getEPGid(id, *startzeit, &epgData);
 	else
-		res = CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData );
+		res = CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData );
 
 	if ( res )
 	{

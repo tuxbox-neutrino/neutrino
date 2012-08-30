@@ -384,7 +384,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 
 void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 {
-	CEitManager::getInstance()->getCurrentNextServiceKey(channel_id & 0xFFFFFFFFFFFFULL, info_CurrentNext);
+	CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, info_CurrentNext);
 	if (!evtlist.empty()) {
 		if (new_chan) {
 			for ( eli=evtlist.begin(); eli!=evtlist.end(); ++eli ) {
@@ -1265,7 +1265,7 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 {
 	static CSectionsdClient::CurrentNextInfo oldinfo;
 
-	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id & 0xFFFFFFFFFFFFULL, info);
+	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
 
 //printf("CInfoViewer::getEPG: old uniqueKey %llx new %llx\n", oldinfo.current_uniqueKey, info.current_uniqueKey);
 

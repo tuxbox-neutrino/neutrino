@@ -893,7 +893,7 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 	if (event) {
 		if (event->duration > 0)
 			percentage = 100 * (time(NULL) - event->startTime) / event->duration;
-		CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id & 0xFFFFFFFFFFFFULL, currentNextInfo);
+		CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id, currentNextInfo);
 		timestr = timeString(event->startTime);
 
 		firstEPG += hh->outPair("startTime", timestr, true);
@@ -1502,7 +1502,7 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 			t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
 			CSectionsdClient::LinkageDescriptorList desc;
 			CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-			CEitManager::getInstance()->getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
+			CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
 			if (CEitManager::getInstance()->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey,desc))
 			{
 				for(unsigned int i=0; i< desc.size(); i++)
@@ -1642,7 +1642,7 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 
 	t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	CEitManager::getInstance()->getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
+	CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
 	if (CEitManager::getInstance()->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
 	{
 		for (unsigned int i=0; i< tags.size(); i++)

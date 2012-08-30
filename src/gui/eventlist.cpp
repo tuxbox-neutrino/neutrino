@@ -156,7 +156,7 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 
 		CEPGData epgData;
 		// todo: what if there are more than one events in the Portal
-		if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData ))
+		if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData ))
 		{
 //			epgData.eventID;
 //			epgData.epg_times.startzeit;

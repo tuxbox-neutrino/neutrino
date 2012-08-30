@@ -1220,7 +1220,7 @@ void CTimerEvent_Record::getEpgId()
 {
 	//TODO: Record/Zapto getEpgId code almost identical !
 	CChannelEventList evtlist;
-	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
+	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
 	// we check for a time in the middle of the recording
 	time_t check_time=alarmTime/2 + stopTime/2;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
@@ -1268,7 +1268,7 @@ void CTimerEvent_Zapto::getEpgId()
 {
 	//TODO: Record/Zapto getEpgId code almost identical !
 	CChannelEventList evtlist;
-	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
+	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
 	// we check for a time 5 min after zap
 	time_t check_time=alarmTime + 300;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )

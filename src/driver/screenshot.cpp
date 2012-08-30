@@ -369,7 +369,7 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 	}
 	pos = strlen(fname);
 
-	if(CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData)) {
+	if(CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData)) {
 		CShortEPGData epgdata;
 		if(CEitManager::getInstance()->getEPGidShort(epgData.eventID, &epgdata)) {
 			if (!(epgdata.title.empty())) {

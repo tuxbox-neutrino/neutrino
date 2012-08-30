@@ -396,7 +396,7 @@ void CRemoteControl::getNVODs()
 	if ( subChannels.empty() )
 	{
 		CSectionsdClient::NVODTimesList	NVODs;
-		if (CEitManager::getInstance()->getNVODTimesServiceKey( current_channel_id & 0xFFFFFFFFFFFFULL, NVODs))
+		if (CEitManager::getInstance()->getNVODTimesServiceKey( current_channel_id, NVODs))
 		{
 			are_subchannels = false;
 //printf("CRemoteControl::getNVODs NVODs.size %d\n", NVODs.size());

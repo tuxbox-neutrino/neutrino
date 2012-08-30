@@ -287,7 +287,7 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, st
 			sprintf(id,PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS,channel->channel_id);
 			std::string _sid = std::string(id);
 			sel = (_sid == achannel_id) ? "selected=\"selected\"" : "";
-			CEitManager::getInstance()->getActualEPGServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, &epg);
+			CEitManager::getInstance()->getActualEPGServiceKey(channel->channel_id, &epg);
 			sprintf(buf,"<option value="PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS" %s>%.20s - %.30s</option>\n", channel->channel_id, sel.c_str(), channel->getName().c_str(),epg.title.c_str());
 			yresult += buf;
 		}
@@ -392,7 +392,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		if (channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE)
 		{
 			CSectionsdClient::NVODTimesList nvod_list;
-			if (CEitManager::getInstance()->getNVODTimesServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, nvod_list))
+			if (CEitManager::getInstance()->getNVODTimesServiceKey(channel->channel_id, nvod_list))
 			{
 				CZapitClient::subServiceList subServiceList;
 
@@ -409,7 +409,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					t_channel_id channel_id = CREATE_CHANNEL_ID(cmd.service_id, cmd.original_network_id, cmd.transport_stream_id);
 
 					timestr = timeString(ni->zeit.startzeit); // FIXME: time is wrong (at least on little endian)!
-					CEitManager::getInstance()->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epg); // FIXME: der scheissendreck geht nit!!!
+					CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epg); // FIXME: der scheissendreck geht nit!!!
 					yresult += string_printf("<tr>\n<td align=\"left\" style=\"width: 31px\" class=\"%cepg\">&nbsp;</td>", classname);
 					yresult += string_printf("<td class=\"%cepg\">%s&nbsp;", classname, timestr.c_str());
 					yresult += string_printf("%s<a href=\"javascript:do_zap('"
@@ -435,7 +435,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		else if ((event = NeutrinoAPI->ChannelListEvents[channel->channel_id]))
 		{
 			bool has_current_next = true;
-			CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, currentNextInfo);
+			CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id, currentNextInfo);
 			timestr = timeString(event->startTime);
 
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
@@ -543,7 +543,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 
 	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	CEitManager::getInstance()->getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
+	CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
 	if (CEitManager::getInstance()->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
 	{
 		for (unsigned int i=0; i< tags.size(); i++)

@@ -1542,7 +1542,7 @@ void CChannelList::paintDetails(int index)
 		char buf[128] = {0};
 		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
-		CEitManager::getInstance()->getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
+		CEitManager::getInstance()->getCurrentNextServiceKey(chanlist[index]->channel_id, CurrentNext);
 		if (!CurrentNext.next_name.empty()) {
 			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
 			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
