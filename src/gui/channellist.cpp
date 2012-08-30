@@ -186,17 +186,16 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		}
 	} else {
 		t_channel_id *p_requested_channels;
-		int size_requested_channels = chanlist_size * sizeof(t_channel_id);
-		p_requested_channels = new t_channel_id[size_requested_channels];
+		p_requested_channels = new t_channel_id[chanlist_size];
 		if (! p_requested_channels) {
 			fprintf(stderr,"%s:%d allocation failed!\n", __FUNCTION__, __LINE__);
 			return;
 		}
-		for (uint32_t count = 0; count < chanlist_size; count++) {
-			p_requested_channels[count] = chanlist[count + from]->channel_id&0xFFFFFFFFFFFFULL;
-		}
+		for (uint32_t count = 0; count < chanlist_size; count++)
+			p_requested_channels[count] = chanlist[count + from]->channel_id;
+
 		CChannelEventList levents;
-		CEitManager::getInstance()->getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
+		CEitManager::getInstance()->getChannelEvents(levents, p_requested_channels, chanlist_size);
 		for (uint32_t count=0; count < chanlist_size; count++) {
 			chanlist[count]->currentEvent = CChannelEvent();
 			for (CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e) {
