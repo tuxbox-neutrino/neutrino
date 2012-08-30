@@ -397,8 +397,6 @@ record_error_msg_t CRecordInstance::Record()
 		{
 			int pre=0, post=0;
 			CEPGData epgData;
-			epgData.epg_times.startzeit = 0;
-			epgData.epg_times.dauer = 0;
 			if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
 				g_Timerd->getRecordingSafety(pre, post);
 				if (epgData.epg_times.startzeit > 0)
