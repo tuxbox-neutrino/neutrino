@@ -2563,16 +2563,13 @@ bool channel_in_requested_list(t_channel_id * clist, t_channel_id chid, int len)
 }
 
 /* was static void sendEventList(int connfd, const unsigned char serviceTyp1, const unsigned char serviceTyp2 = 0, int sendServiceName = 1, t_channel_id * chidlist = NULL, int clen = 0) */
-void CEitManager::getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen)
+void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidlist, int clen)
 {
-	clen = clen / sizeof(t_channel_id);
-
 	t_channel_id uniqueNow = 0;
 	t_channel_id uniqueOld = 0;
 	bool found_already = true;
 	time_t azeit = time(NULL);
 
-	if(tv_mode) {}
 showProfiling("sectionsd_getChannelEvents start");
 	readLockEvents();
 

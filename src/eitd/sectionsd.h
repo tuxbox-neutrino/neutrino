@@ -60,7 +60,7 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 		bool getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
 		bool getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
 		bool getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
-		void getChannelEvents(CChannelEventList &eList, const bool tv_mode = true, t_channel_id *chidlist = NULL, int clen = 0);
+		void getChannelEvents(CChannelEventList &eList, t_channel_id *chidlist = NULL, int clen = 0);
 		bool getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 		bool getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 		bool getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list);
