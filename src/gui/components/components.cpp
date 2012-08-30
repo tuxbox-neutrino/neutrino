@@ -1209,7 +1209,7 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	tb_c_text	= c_text;
 	tb_text_align	= text_alignment;
 	
-	if (addText())
+	if (initText())
 		calculateElements();
 }
 
@@ -1231,7 +1231,7 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	tb_s_text	= s_text;
 	tb_text_align	= text_alignment;
 
-	if (addText())
+	if (initText())
 		calculateElements();
 }
 
@@ -1251,13 +1251,14 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 
 	//CComponentsTitleBar
 	tb_locale_text	= locale_text;
+	tb_s_text	= g_Locale->getText(tb_locale_text);
 	tb_text_align	= text_alignment;
 
-	if (addText())
+	if (initText())
 		calculateElements();
 }
 
-bool CComponentsTitleBar::addText()
+bool CComponentsTitleBar::initText()
 {
 	if (tb_c_text){
 		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_c_text);
@@ -1265,10 +1266,6 @@ bool CComponentsTitleBar::addText()
 	}
 	else if (!tb_s_text.empty()){
 		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_s_text);
-		return true;
-	}
-	else if	(tb_locale_text != NONEXISTANT_LOCALE){
-		addElement	(tb_text_align, CC_ITEMBOX_TEXT, g_Locale->getText(tb_locale_text));
 		return true;
 	}
 	else

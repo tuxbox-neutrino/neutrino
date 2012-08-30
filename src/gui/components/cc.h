@@ -371,7 +371,7 @@ class CComponentsTitleBar : public CComponentsItemBox
 		neutrino_locale_t tb_locale_text;
 		int tb_text_align;
 		
-		bool addText();
+		bool initText();
 		void initVarTitleBar();
 	
 	public:
