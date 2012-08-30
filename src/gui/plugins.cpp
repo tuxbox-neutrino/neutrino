@@ -54,6 +54,8 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <system/helpers.h>
+
 #include <zapit/client/zapittools.h>
 
 #include "plugins.h"
@@ -375,7 +377,7 @@ void CPlugins::startScriptPlugin(int number)
 		return;
 	}
 	pid_t pid = 0;
-	FILE *f = popen2(pid,script,"r");
+	FILE *f = my_popen(pid,script,"r");
 	if (f != NULL)
 	{
 		char *output=NULL;
@@ -396,7 +398,6 @@ void CPlugins::startScriptPlugin(int number)
 	}
 }
 
-int mysystem(const char * cmd,const char * arg1,const char * arg2);
 void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
@@ -643,7 +644,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 	g_RCInput->stopInput();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
-	mysystem(plugin_list[number].pluginfile.c_str(), NULL, NULL);
+	my_system(plugin_list[number].pluginfile.c_str(), NULL, NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();

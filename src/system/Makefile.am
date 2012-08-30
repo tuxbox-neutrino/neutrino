@@ -24,7 +24,14 @@ endif
 noinst_LIBRARIES = libneutrino_system.a
 
 libneutrino_system_a_SOURCES = \
-	localize.cpp setting_helpers.cpp debug.cpp \
-	ping.c flashtool.cpp httptool.cpp \
-	settings.cpp lastchannel.cpp \
-	configure_network.cpp fsmounter.cpp
+	configure_network.cpp \
+	debug.cpp \
+	flashtool.cpp \
+	fsmounter.cpp \
+	httptool.cpp \
+	lastchannel.cpp \
+	localize.cpp \
+	helpers.cpp \
+	ping.c \
+	settings.cpp \
+	setting_helpers.cpp
