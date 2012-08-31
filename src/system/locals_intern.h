@@ -1186,6 +1186,7 @@ const char * locale_real_names[] =
 	"motorcontrol.timed_mode",
 	"motorcontrol.user_menu",
 	"motorcontrol.west_limit",
+	"moviebrowser.book_add",
 	"moviebrowser.book_clear_all",
 	"moviebrowser.book_head",
 	"moviebrowser.book_lastmoviestop",
