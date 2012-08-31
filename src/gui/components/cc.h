@@ -367,20 +367,22 @@ class CComponentsTitleBar : public CComponentsItemBox
 {
 	private:
 		const char* tb_c_text;
-		std::string tb_s_text;
+		std::string tb_s_text, tb_icon_name;
 		neutrino_locale_t tb_locale_text;
-		int tb_text_align;
+		int tb_text_align, tb_icon_align;
 		
-		bool initText();
+		void initText();
+		void initIcon();
+		void initElements();
 		void initVarTitleBar();
 	
 	public:
 		CComponentsTitleBar();
-		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const char* c_text = NULL, const int text_alignment = CC_ALIGN_LEFT,
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const char* c_text = NULL, const std::string& s_icon ="",
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
-		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const std::string& s_text ="", const int text_alignment = CC_ALIGN_LEFT,
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const std::string& s_text ="", const std::string& s_icon ="",
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
-		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int text_alignment = CC_ALIGN_LEFT,
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const std::string& s_icon ="",
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
 					
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

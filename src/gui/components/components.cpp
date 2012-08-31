@@ -1191,7 +1191,34 @@ CComponentsTitleBar::CComponentsTitleBar()
 	initVarTitleBar();
 }
 
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const char* c_text, const int text_alignment,
+void CComponentsTitleBar::initVarTitleBar()
+{
+	//CComponentsItemBox
+	initVarItemBox();
+	onlyOneTextElement	= true;
+
+	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	it_col_text 	= COL_MENUHEAD;
+
+	//CComponents
+	x		= 0;
+	y 		= 0;
+	height		= font_text->getHeight() + 2*hSpacer;
+	width 		= frameBuffer->getScreenWidth(true);;
+	col_body	= COL_MENUHEAD_PLUS_0;
+	corner_type 	= CORNER_TOP;
+	corner_rad	= RADIUS_LARGE;
+
+	//CComponentsTitleBar
+	tb_text_align	= CC_ALIGN_LEFT;
+	tb_icon_align	= CC_ALIGN_LEFT;
+	tb_c_text	= NULL;
+	tb_s_text	= "";
+	tb_locale_text	= NONEXISTANT_LOCALE;
+	tb_icon_name	= "";
+}
+
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const char* c_text, const std::string& s_icon,
 					fb_pixel_t color_text, fb_pixel_t color_body)
 {
 	//CComponentsItemBox
@@ -1207,96 +1234,79 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	
 	//CComponentsTitleBar
 	tb_c_text	= c_text;
-	tb_text_align	= text_alignment;
+	tb_icon_name	= s_icon;
 	
-	if (initText())
-		calculateElements();
+	initElements();
 }
 
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const string& s_text, const int text_alignment,
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const string& s_text, const std::string& s_icon,
 					fb_pixel_t color_text, fb_pixel_t color_body)
 {
 	//CComponentsItemBox
 	initVarTitleBar();
 	it_col_text 	= color_text;
-
+	
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
 	height		= h;
 	width 		= w;
 	col_body	= color_body;
-
+	
 	//CComponentsTitleBar
 	tb_s_text	= s_text;
-	tb_text_align	= text_alignment;
-
-	if (initText())
-		calculateElements();
+	tb_icon_name	= s_icon;
+	
+	initElements();
 }
 
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text, const int text_alignment,
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text, const std::string& s_icon,
 					fb_pixel_t color_text, fb_pixel_t color_body)
 {
 	//CComponentsItemBox
 	initVarTitleBar();
 	it_col_text 	= color_text;
-
+	
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
 	height		= h;
 	width 		= w;
 	col_body	= color_body;
-
+	
 	//CComponentsTitleBar
 	tb_locale_text	= locale_text;
 	tb_s_text	= g_Locale->getText(tb_locale_text);
-	tb_text_align	= text_alignment;
-
-	if (initText())
-		calculateElements();
+	tb_icon_name	= s_icon;
+	
+	initElements();
 }
 
-bool CComponentsTitleBar::initText()
+///basic init methodes for constructors ***************************************
+void CComponentsTitleBar::initIcon()
+{
+	if (!tb_icon_name.empty())
+		addElement	(tb_icon_align, CC_ITEMBOX_ICON, tb_icon_name);
+}
+
+void CComponentsTitleBar::initText()
 {
 	if (tb_c_text){
 		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_c_text);
-		return true;	
+		return;
 	}
 	else if (!tb_s_text.empty()){
 		addElement	(tb_text_align, CC_ITEMBOX_TEXT, tb_s_text);
-		return true;
+		return;
 	}
-	else
-		return false;
 }
 
-void CComponentsTitleBar::initVarTitleBar()
+void CComponentsTitleBar::initElements()
 {
-	//CComponentsItemBox
-	initVarItemBox();
-	onlyOneTextElement	= true;
-	
-	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	it_col_text 	= COL_MENUHEAD;
-	
-	//CComponents
-	x		= 0;
-	y 		= 0;
-	height		= font_text->getHeight() + 2*hSpacer;
-	width 		= frameBuffer->getScreenWidth(true);;
-	col_body	= COL_MENUHEAD_PLUS_0;
-	corner_type 	= CORNER_TOP;
-	corner_rad	= RADIUS_LARGE;
-
-	//CComponentsTitleBar
-	tb_text_align	= CC_ALIGN_LEFT;
-	tb_c_text	= NULL;
-	tb_s_text	= "";
-	tb_locale_text	= NONEXISTANT_LOCALE;
+	initIcon();
+	initText();
 }
-
+///*****************************************************************************
 
 void CComponentsTitleBar::paint(bool do_save_bg)
 {
