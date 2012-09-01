@@ -322,49 +322,63 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 void CTestMenu::showTestMenu()
 {
 	unsigned int system_rev = cs_get_revision();
-
+	
 	//init
 	char rev[255];
 	sprintf(rev, "Test menu, System revision %d %s", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
-	CMenuWidget * TestMenu = new CMenuWidget(rev /*"Test menu"*/);
-	TestMenu->setSelected(selected);
-	TestMenu->addIntroItems();
-	TestMenu->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, this, "vfd"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, this, "network"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Buttons", true, NULL, this, "buttons"));
+	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width);
+	w_test.addIntroItems();
+	
+	//hardware
+	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width);
+	w_test.addItem(new CMenuForwarderNonLocalized(w_hw->getName().c_str(), true, NULL, w_hw));
+	showHWTests(w_hw);
+	
+	//buttons
+	w_test.addItem(new CMenuForwarderNonLocalized("Buttons", true, NULL, this, "buttons"));
+	
+	//exit
+	w_test.exec(NULL, "");
+	selected = w_test.getSelected();
+}
 
+
+void CTestMenu::showHWTests(CMenuWidget *widget)
+{
+	widget->setSelected(selected);
+	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, this, "vfd"));
+	widget->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, this, "network"));
+	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));
+	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
+	widget->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
+	
 	CFEManager::getInstance()->setMode(CFEManager::FE_MODE_ALONE);
-
+	
 	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
 	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
-
+	
 	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 	satmap[130].configured = 1;
-
+	
 	CFrontend * frontend = CFEManager::getInstance()->getFE(0);
 	frontend->setSatellites(satmap);
-
+	
 	int count = CFEManager::getInstance()->getFrontendCount();
 	if (frontend->getInfo()->type == FE_QPSK) {
-		TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 1: Scan 12538000", true, NULL, this, "scan1"));
-		TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon1"));
-		TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff1"));
+		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: Scan 12538000", true, NULL, this, "scan1"));
+		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon1"));
+		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff1"));
 		if(count > 1) {
 			satmap = CServiceManager::getInstance()->SatelliteList();
 			satmap[192].configured = 1;
 			frontend = CFEManager::getInstance()->getFE(1);
 			frontend->setSatellites(satmap);
-
-			TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 2: Scan 12538000", true, NULL, this, "scan2"));
-			TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon2"));
-			TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff2"));
+			
+			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: Scan 12538000", true, NULL, this, "scan2"));
+			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon2"));
+			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff2"));
 		}
 	}
-	TestMenu->exec(NULL, "");
-	selected = TestMenu->getSelected();
-	delete TestMenu;
 }
 #endif

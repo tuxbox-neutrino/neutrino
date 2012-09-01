@@ -32,7 +32,7 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
 
-//#define TEST_MENU
+// #define TEST_MENU
 
 #include <string>
 
@@ -42,6 +42,7 @@ class CTestMenu : public CMenuTarget
 		int width, selected;
 
 		void showTestMenu();
+		void showHWTests(CMenuWidget *widget);
 
 	public:	
 		CTestMenu();
