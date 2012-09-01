@@ -455,8 +455,7 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
-	width 		= d;
-	height	 	= d;
+	//width = height	= d = diam;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
 	col_frame 	= color_frame;
@@ -467,7 +466,7 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 	bgMode 		= CC_BGMODE_PERMANENT;
 	
 	//CComponentsShapeCircle
-	d 		= diam;
+	width = height	= d = diam;
 	
 	//CComponentsContainer
 	corner_rad	= d/2;
@@ -1312,5 +1311,19 @@ void CComponentsTitleBar::paint(bool do_save_bg)
 {
 	calculateElements();
 	paintItemBox(do_save_bg);	
+}
+
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsForm from CComponentsItemBox
+CComponentsForm::CComponentsForm()
+{
+	//CComponentsContainer
+	initVarContainer();
+}
+
+void CComponentsForm::paint(bool do_save_bg)
+{
+	paintInit(do_save_bg);
 }
 

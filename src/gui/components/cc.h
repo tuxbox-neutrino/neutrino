@@ -389,4 +389,16 @@ class CComponentsTitleBar : public CComponentsItemBox
 
 };
 
+
+class CComponentsForm : public CComponentsContainer
+{
+	private:
+		
+	public:
+		CComponentsForm();
+		
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+};
+
 #endif
