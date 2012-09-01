@@ -54,6 +54,7 @@
 #include <zapit/femanager.h>
 #include <gui/widget/messagebox.h>
 
+
 extern int cs_test_card(int unit, char * str);
 
 #ifdef TEST_MENU
@@ -61,10 +62,18 @@ CTestMenu::CTestMenu()
 {
 	width = w_max (50, 10);
 	selected = -1;
+	circle = NULL;
+	sq = NULL;
+	pic= NULL;
+	pip = NULL;
 }
 
 CTestMenu::~CTestMenu()
 {
+	delete sq;
+	delete circle;
+	delete pic;
+	delete pip;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -311,7 +320,46 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		delete scanTs;
 		return res;
 	}
+	else if (actionKey == "circle"){
+		if (circle == NULL)
+			circle = new CComponentsShapeCircle (100, 100, 100, false);
 
+		if (!circle->isPainted())	
+			circle->paint();
+		else
+			circle->hide();			
+		return res;
+	}
+	else if (actionKey == "square"){
+		if (sq == NULL)
+			sq = new CComponentsShapeSquare (100, 220, 100, 100, false);
+
+		if (!sq->isPainted())
+			sq->paint();
+		else
+			sq->hide();
+		return res;
+	}
+	else if (actionKey == "picture"){
+		if (pic == NULL)
+			pic = new CComponentsPicture (100, 100, 200, 200, "/share/tuxbox/neutrino/icons/mp3-5.jpg");
+
+		if (!pic->isPainted() && !pic->isPicPainted())
+			pic->paint();
+		else
+			pic->hide();
+		return res;
+	}
+	else if (actionKey == "pip"){
+		if (pip == NULL)
+			pip = new CComponentsPIP (100, 100, 25);
+
+		if (!pip->isPainted())
+			pip->paint();
+		else
+			pip->hide();
+		return res;
+	}
 
 	showTestMenu();
 
@@ -337,11 +385,25 @@ void CTestMenu::showTestMenu()
 	//buttons
 	w_test.addItem(new CMenuForwarderNonLocalized("Buttons", true, NULL, this, "buttons"));
 	
+	//components
+	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width);
+	w_test.addItem(new CMenuForwarderNonLocalized(w_cc->getName().c_str(), true, NULL, w_cc));
+	showCCTests(w_cc);
+
 	//exit
 	w_test.exec(NULL, "");
 	selected = w_test.getSelected();
 }
 
+void CTestMenu::showCCTests(CMenuWidget *widget)
+{
+	widget->setSelected(selected);
+	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
+	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
+	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
+	widget->addItem(new CMenuForwarderNonLocalized("PiP", true, NULL, this, "pip"));	
+}
 
 void CTestMenu::showHWTests(CMenuWidget *widget)
 {
