@@ -131,7 +131,7 @@ class CComponents
 		CFrameBuffer * frameBuffer;
 		std::vector<comp_fbdata_t> v_fbdata;
 		fb_pixel_t	col_body, col_shadow, col_frame;
-		bool	firstPaint, shadow;
+		bool	firstPaint, shadow, is_painted;
 		BGMODE_TYPES bgMode;
 		
 		void initVarBasic();
@@ -165,6 +165,7 @@ class CComponents
 		inline virtual void setBgMode(BGMODE_TYPES mode) {bgMode = mode;};
 		
 		virtual void hide();
+		virtual bool isPainted(){return is_painted;};
 };
 
 class CComponentsContainer : public CComponents
@@ -218,7 +219,7 @@ class CComponentsPicture : public CComponentsContainer
 		inline void setPicture(const std::string& picture_name);
 		void setPictureAlign(const int alignment);
 		
-		inline bool isPainted(){return pic_painted;};
+		inline bool isPicPainted(){return pic_painted;};
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
 

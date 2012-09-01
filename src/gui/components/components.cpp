@@ -74,6 +74,7 @@ void CComponents::initVarBasic()
 	shadow_w		= SHADOW_OFFSET;
 
 	firstPaint		= true;
+	is_painted		= false;
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	bgMode 			= CC_BGMODE_STANDARD;
@@ -128,6 +129,8 @@ void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_co
 				frameBuffer->paintBoxRel(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].color, fbdata[i].r, corner_type);
 		}
 	}
+	
+	is_painted = true;
 }
 
 //screen area save
@@ -149,6 +152,7 @@ inline void CComponents::hide()
 		}
 	}
 	v_fbdata.clear();
+	is_painted = false;
 }
 
 //clean old screen buffer
@@ -238,6 +242,7 @@ void CComponentsContainer::hideContainer(bool no_restore)
 		v_fbdata.clear();
 		firstPaint = true;
 	}
+	is_painted = false;
 }
 
 void CComponentsContainer::hide(bool no_restore)
@@ -264,6 +269,7 @@ void CComponentsContainer::kill()
 	col_shadow = c_tmp2;
 	col_frame = c_tmp3;
 	firstPaint = true;
+	is_painted = false;
 }
 
 //synchronize colors for forms
