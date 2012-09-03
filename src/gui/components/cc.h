@@ -349,6 +349,7 @@ class CComponentsItemBox : public CComponentsContainer
 		void calPositionOfElements();
 		void paintItemBox(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void calculateElements();
+		bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
 
 	public:
 		CComponentsItemBox();
@@ -356,13 +357,15 @@ class CComponentsItemBox : public CComponentsContainer
 
 		inline virtual void setTextFont(Font* font){font_text = font;};
 		inline virtual void setTextColor(fb_pixel_t color_text){ it_col_text = color_text;};
-
-		virtual bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
+		
 		virtual void refreshElement(size_t index, const std::string& element);
 		virtual void paintElement(size_t index, bool newElement= false);
 		virtual bool addLogoOrText(int align, const std::string& logo, const std::string& text, size_t *index=NULL);
 		virtual void clearTitlebar();
-
+		virtual void addText(const std::string& s_text, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
+		virtual void addIcon(const std::string& s_icon_name, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
+		virtual void addPicture(const std::string& s_picture_path, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
+		virtual void addClock(const int align=CC_ALIGN_RIGHT, size_t *index=NULL);
 };
 
 class CComponentsTitleBar : public CComponentsItemBox

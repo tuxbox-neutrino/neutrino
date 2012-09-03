@@ -913,6 +913,26 @@ bool CComponentsItemBox::addLogoOrText(int align, const std::string& logo, const
 	return true;
 }
 
+void CComponentsItemBox::addText(const std::string& s_text, const int align, size_t *index)
+{
+	addElement(align, CC_ITEMBOX_TEXT, s_text, index);
+}
+
+void CComponentsItemBox::addIcon(const std::string& s_icon_name, const int align, size_t *index)
+{
+	addElement(align, CC_ITEMBOX_ICON, s_icon_name, index);
+}
+
+void CComponentsItemBox::addPicture(const std::string& s_picture_path, const int align, size_t *index)
+{
+	addElement(align, CC_ITEMBOX_PICTURE, s_picture_path, index);
+}
+
+void CComponentsItemBox::addClock(const int align, size_t *index)
+{
+	addElement(align, CC_ITEMBOX_CLOCK, "", index);
+}
+
 bool CComponentsItemBox::addElement(int align, int type, const std::string& element, size_t *index)
 {
 	comp_element_data_t data;
@@ -1195,6 +1215,8 @@ void CComponentsItemBox::clearTitlebar()
 	paint(false);
 	paintElements = true;
 }
+
+
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsTitleBar from CComponentsItemBox
