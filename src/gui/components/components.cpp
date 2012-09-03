@@ -220,6 +220,8 @@ void CComponentsContainer::paint(bool do_save_bg)
 //This could help to avoid ugly flicker efffects if it is necessary e.g. on often repaints, without changed contents.
 void CComponentsContainer::hideContainer(bool no_restore)
 {
+	is_painted = false;
+	
 	if (bgMode == CC_BGMODE_PERMANENT) {
 		if (saved_screen.pixbuf) {
 			frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
@@ -242,7 +244,6 @@ void CComponentsContainer::hideContainer(bool no_restore)
 		v_fbdata.clear();
 		firstPaint = true;
 	}
-	is_painted = false;
 }
 
 void CComponentsContainer::hide(bool no_restore)
@@ -805,6 +806,13 @@ void CComponentsPicture::paint(bool do_save_bg)
 		do_paint = false;
 	}
 }
+
+void CComponentsPicture::hide(bool no_restore)
+{
+	hideContainer(no_restore);
+	pic_painted = false;
+}
+
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsItemBox from CComponentsContainer

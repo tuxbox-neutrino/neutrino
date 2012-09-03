@@ -221,6 +221,7 @@ class CComponentsPicture : public CComponentsContainer
 		
 		inline bool isPicPainted(){return pic_painted;};
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void hide(bool no_restore = false);
 		inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
 
 };
