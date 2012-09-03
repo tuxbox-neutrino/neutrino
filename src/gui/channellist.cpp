@@ -1994,16 +1994,15 @@ void CChannelList::paintHead()
 	if (clHead == NULL) {
 		clHead = new CComponentsTitleBar();
 		clHead->setDimensionsAll(x, y, width, theight);
-
-		clHead->addElement(CC_ALIGN_LEFT, CC_ITEMBOX_TEXT, name);
-
-		clHead->addElement(CC_ALIGN_RIGHT, CC_ITEMBOX_ICON, NEUTRINO_ICON_BUTTON_INFO);
-		clHead->addElement(CC_ALIGN_RIGHT, CC_ITEMBOX_ICON, NEUTRINO_ICON_BUTTON_MENU);
+		
+		clHead->addText(name);
+		
+		clHead->addIcon(NEUTRINO_ICON_BUTTON_INFO, CC_ALIGN_RIGHT);
+		clHead->addIcon(NEUTRINO_ICON_BUTTON_MENU, CC_ALIGN_RIGHT);
 		if (g_settings.channellist_new_zap_mode)
-			clHead->addElement(CC_ALIGN_RIGHT, CC_ITEMBOX_ICON, this->new_mode_active ?
-	       			 	   NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE);
-		clHead->addElement(CC_ALIGN_RIGHT, CC_ITEMBOX_CLOCK);
-		clHead->addElement(CC_ALIGN_RIGHT, CC_ITEMBOX_PICTURE, "", &indexLogo);
+			clHead->addIcon(this->new_mode_active ? NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE, CC_ALIGN_RIGHT);
+		clHead->addClock();
+		clHead->addPicture("", CC_ALIGN_RIGHT, &indexLogo);
 	}
 	clHead->paint();
 }
