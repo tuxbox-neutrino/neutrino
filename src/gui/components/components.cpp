@@ -852,7 +852,15 @@ void CComponentsItemBox::initVarItemBox()
 	prevElementLeft 	= 0;
 	prevElementRight 	= 0;
 	onlyOneTextElement	= false;
+	isCalculated		= false;
 	v_element_data.clear();
+}
+
+int CComponentsItemBox::getHeight()
+{
+	if (!isCalculated)
+		calculateElements();
+	return height;
 }
 
 void CComponentsItemBox::clearElements()
@@ -874,6 +882,7 @@ void CComponentsItemBox::clearElements()
 				break;
 		}
 	}
+	isCalculated = false;
 	v_element_data.clear();
 }
 
@@ -911,6 +920,7 @@ bool CComponentsItemBox::addLogoOrText(int align, const std::string& logo, const
 	v_element_data.push_back(data);
 	if (index != NULL)
 		*index = v_element_data.size()-1;
+	isCalculated = false;
 	return true;
 }
 
@@ -974,6 +984,7 @@ bool CComponentsItemBox::addElement(int align, int type, const std::string& elem
 	v_element_data.push_back(data);
 	if (index != NULL)
 		*index = v_element_data.size()-1;
+	isCalculated = false;
 	return true;
 }
 
@@ -1199,6 +1210,7 @@ void CComponentsItemBox::calculateElements()
 	}
 
 	calPositionOfElements();
+	isCalculated = true;
 }
 
 void CComponentsItemBox::paintItemBox(bool do_save_bg)

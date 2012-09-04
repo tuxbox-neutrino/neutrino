@@ -342,6 +342,7 @@ class CComponentsItemBox : public CComponentsContainer
 		size_t prevElementLeft;
 		size_t prevElementRight;
 		std::vector<comp_element_data_t> v_element_data;
+		bool isCalculated;
 
 		void clearElements();
 		void initVarItemBox();
@@ -367,6 +368,7 @@ class CComponentsItemBox : public CComponentsContainer
 		virtual void addIcon(const std::string& s_icon_name, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
 		virtual void addPicture(const std::string& s_picture_path, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
 		virtual void addClock(const int align=CC_ALIGN_RIGHT, size_t *index=NULL);
+		virtual int  getHeight();
 };
 
 class CComponentsTitleBar : public CComponentsItemBox
