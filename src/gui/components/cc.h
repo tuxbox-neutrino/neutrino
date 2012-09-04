@@ -363,6 +363,7 @@ class CComponentsItemBox : public CComponentsContainer
 		virtual bool addLogoOrText(int align, const std::string& logo, const std::string& text, size_t *index=NULL);
 		virtual void clearTitlebar();
 		virtual void addText(const std::string& s_text, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
+		virtual void addText(neutrino_locale_t locale_text, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
 		virtual void addIcon(const std::string& s_icon_name, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
 		virtual void addPicture(const std::string& s_picture_path, const int align=CC_ALIGN_LEFT, size_t *index=NULL);
 		virtual void addClock(const int align=CC_ALIGN_RIGHT, size_t *index=NULL);

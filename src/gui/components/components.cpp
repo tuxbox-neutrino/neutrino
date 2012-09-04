@@ -918,6 +918,11 @@ void CComponentsItemBox::addText(const std::string& s_text, const int align, siz
 	addElement(align, CC_ITEMBOX_TEXT, s_text, index);
 }
 
+void CComponentsItemBox::addText(neutrino_locale_t locale_text, const int align, size_t *index)
+{
+	addElement(align, CC_ITEMBOX_TEXT, g_Locale->getText(locale_text), index);
+}
+
 void CComponentsItemBox::addIcon(const std::string& s_icon_name, const int align, size_t *index)
 {
 	addElement(align, CC_ITEMBOX_ICON, s_icon_name, index);
