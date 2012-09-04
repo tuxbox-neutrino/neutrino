@@ -337,7 +337,8 @@ void CComponentsInfoBox::initVarInfobox()
 {
 	//CComponents, ComponentsContainer
 	initVarContainer();
-	
+	bgMode 		= CC_BGMODE_PERMANENT;
+
 	//CComponentsInfoBox
 	box		= NULL;
 	textbox 	= NULL;
