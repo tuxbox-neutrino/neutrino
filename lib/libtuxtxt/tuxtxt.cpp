@@ -18,6 +18,7 @@
 #include "driver/framebuffer.h"
 #include <dmx.h>
 #include <video.h>
+#include <sys/stat.h>
 
 /* same as in rcinput.h... */
 #define KEY_TTTV	KEY_FN_1
@@ -82,7 +83,7 @@ void gethotlist()
 
 	hotlistchanged = 0;
 	maxhotlist = -1;
-	sprintf(line, CONFIGDIR "/tuxtxt/hotlist%d.conf", tuxtxt_cache.vtxtpid);
+	sprintf(line, TUXTXTDIR "/hotlist%d.conf", tuxtxt_cache.vtxtpid);
 #if TUXTXT_DEBUG
 	printf("TuxTxt <gethotlist %s", line);
 #endif
@@ -128,7 +129,7 @@ void savehotlist()
 	int i;
 
 	hotlistchanged = 0;
-	sprintf(line, CONFIGDIR "/tuxtxt/hotlist%d.conf", tuxtxt_cache.vtxtpid);
+	sprintf(line, TUXTXTDIR "/hotlist%d.conf", tuxtxt_cache.vtxtpid);
 #if TUXTXT_DEBUG
 	printf("TuxTxt <savehotlist %s", line);
 #endif
@@ -1914,6 +1915,10 @@ int Init(int source)
 
 	/* init lcd */
 	UpdateLCD();
+
+	/* create TUXTXTDIR if necessary */
+	if (!access(TUXTXTDIR, F_OK) == 0)
+		mkdir(TUXTXTDIR, 0755);
 
 	/* config defaults */
 	screenmode = 0;
