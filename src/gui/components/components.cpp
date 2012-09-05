@@ -1242,6 +1242,7 @@ CComponentsTitleBar::CComponentsTitleBar()
 {
 	//CComponentsTitleBar
 	initVarTitleBar();
+	bgMode = CC_BGMODE_PERMANENT;
 }
 
 void CComponentsTitleBar::initVarTitleBar()
@@ -1372,12 +1373,44 @@ void CComponentsTitleBar::paint(bool do_save_bg)
 //sub class CComponentsForm from CComponentsItemBox
 CComponentsForm::CComponentsForm()
 {
+	//CComponentsForm
+	initVarForm();
+}
+
+void CComponentsForm::initVarForm()
+{
 	//CComponentsContainer
 	initVarContainer();
+	bgMode = CC_BGMODE_PERMANENT;
+	
+	//simple default dimensions
+	width 		= 150;
+	height	 	= 150;
+	setCornerRadius(RADIUS_LARGE);
+	setCornerType(CORNER_BOTTOM);
 }
 
 void CComponentsForm::paint(bool do_save_bg)
 {
+	int ytmp = y;
+	int htmp = height;
+	tb.setXPos(x);
+	tb.setYPos(y);
+	tb.setWidth(width);
+	tb.addText("Form");
+	tb.addIcon(NEUTRINO_ICON_INFO);
+	tb.paint(do_save_bg);
+	
+	y 	= height+tb.getHeight();
+	height 	= height-tb.getHeight();
 	paintInit(do_save_bg);
+	y 	= ytmp;
+	height 	= htmp;
+}
+
+void CComponentsForm::hide(bool no_restore)
+{
+	tb.hide(no_restore);
+	hideContainer(no_restore);
 }
 

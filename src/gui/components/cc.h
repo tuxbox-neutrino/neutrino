@@ -401,12 +401,15 @@ class CComponentsTitleBar : public CComponentsItemBox
 class CComponentsForm : public CComponentsContainer
 {
 	private:
+		CComponentsTitleBar tb;
+		
+		void initVarForm();
 		
 	public:
 		CComponentsForm();
-		
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void hide(bool no_restore = false);
 };
 
 #endif
