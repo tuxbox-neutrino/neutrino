@@ -445,8 +445,6 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	firstPaint	= true;
-	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
 
 
@@ -469,8 +467,6 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	firstPaint	= true;
-	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
 	
 	//CComponentsShapeCircle
@@ -649,8 +645,6 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	col_frame 	= COL_BACKGROUND;
 	col_body	= COL_BACKGROUND;
 	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
-	firstPaint	= true;
-	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
 }
 
@@ -731,8 +725,6 @@ void CComponentsPicture::init(	int x_pos, int y_pos, const string& picture_name,
 	col_frame 	= color_frame;
 	col_body	= color_background;
 	col_shadow	= color_shadow;
-	firstPaint	= true;
-	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
 }
 
