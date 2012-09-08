@@ -57,6 +57,7 @@ void CComponents::clearSavedScreen()
 {
 	if (saved_screen.pixbuf)
 		delete[] saved_screen.pixbuf;
+	saved_screen.pixbuf = NULL;
 }
 
 void CComponents::initVarBasic()
@@ -428,6 +429,7 @@ void CComponentsInfoBox::removeLineBreaks(std::string& str)
 		spos = str.find_first_of("\r\n");
 	}
 }
+
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsShapeSquare from CComponentsContainer
