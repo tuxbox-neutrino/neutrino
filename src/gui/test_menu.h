@@ -43,6 +43,7 @@ class CTestMenu : public CMenuTarget
 		CComponentsShapeSquare* sq;
 		CComponentsPicture* pic;
 		CComponentsPIP* pip;
+		CComponentsForm *form;
 		int width, selected;
 
 		void showTestMenu();

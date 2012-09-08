@@ -66,6 +66,7 @@ CTestMenu::CTestMenu()
 	sq = NULL;
 	pic= NULL;
 	pip = NULL;
+	form = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -74,6 +75,7 @@ CTestMenu::~CTestMenu()
 	delete circle;
 	delete pic;
 	delete pip;
+	delete form;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -360,9 +362,22 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			pip->hide();
 		return res;
 	}
-
+	else if (actionKey == "form"){
+		if (form == NULL)
+			form = new CComponentsForm();
+		form->setDimensionsAll(100, 100, 250, 300);
+		form->setCaption(NONEXISTANT_LOCALE);
+		form->setIcon(NEUTRINO_ICON_INFO);
+		
+		if (form->isPainted())
+			form->hide();
+		else
+			form->paint();
+		return res;
+	}
+	
 	showTestMenu();
-
+	
 	return res;
 }
 
@@ -402,7 +417,8 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
 	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
-	widget->addItem(new CMenuForwarderNonLocalized("PiP", true, NULL, this, "pip"));	
+	widget->addItem(new CMenuForwarderNonLocalized("PiP", true, NULL, this, "pip"));
+	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)
