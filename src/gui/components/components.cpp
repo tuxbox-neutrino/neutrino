@@ -1344,39 +1344,87 @@ CComponentsForm::CComponentsForm()
 	initVarForm();
 }
 
+CComponentsForm::~CComponentsForm()
+{
+	hide();
+	clearSavedScreen();
+	delete tb;
+	clear();
+}
+
 void CComponentsForm::initVarForm()
 {
 	//CComponentsContainer
 	initVarContainer();
 	
 	//simple default dimensions
+ 	x 		= 0;
+	y 		= 0;
 	width 		= 150;
 	height	 	= 150;
-	setCornerRadius(RADIUS_LARGE);
-	setCornerType(CORNER_BOTTOM);
+	shadow		= CC_SHADOW_OFF;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= COL_MENUCONTENT_PLUS_6;
+	col_body	= COL_MENUCONTENT_PLUS_0;
+	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
+	corner_rad	= RADIUS_LARGE;
+	corner_type 	= CORNER_ALL;
+
+	//CComponentsForm
+	tb		= NULL;
+	tb_text		= "no caption";
+	tb_icon		= "";
 }
 
 void CComponentsForm::paint(bool do_save_bg)
 {
-	int ytmp = y;
-	int htmp = height;
-	tb.setXPos(x);
-	tb.setYPos(y);
-	tb.setWidth(width);
-	tb.addText("Form");
-	tb.addIcon(NEUTRINO_ICON_INFO);
-	tb.paint(do_save_bg);
-	
-	y 	= height+tb.getHeight();
-	height 	= height-tb.getHeight();
+	//paint body
 	paintInit(do_save_bg);
-	y 	= ytmp;
-	height 	= htmp;
+	
+	//paint header
+	paintHead();
+}
+
+void CComponentsForm::paintHead()
+{
+	//init header
+	if (tb == NULL){
+		tb = new CComponentsTitleBar();
+		
+		//init icon
+		if (!tb_icon.empty())
+			tb->addIcon(tb_icon, CC_ALIGN_LEFT);
+
+		//init text
+		if (!tb_text.empty())
+			tb->addText(tb_text, CC_ALIGN_LEFT);
+
+		int tbh = tb->getHeight();
+		tb->setDimensionsAll(x, y, width, tbh);
+	}
+	
+	//paint titlebar
+	tb->paint(CC_SAVE_SCREEN_NO);
+}
+
+void CComponentsForm::setCaption(const string& text)
+{
+	if (tb){
+		delete tb;
+		tb = NULL;
+	}
+	tb_text = text;
+}
+
+void CComponentsForm::setCaption(neutrino_locale_t locale_text)
+{
+	string tmptxt = g_Locale->getText(locale_text);
+	setCaption(tmptxt);
 }
 
 void CComponentsForm::hide(bool no_restore)
 {
-	tb.hide(no_restore);
+	//hide body
 	hideContainer(no_restore);
 }
 

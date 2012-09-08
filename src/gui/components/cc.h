@@ -391,15 +391,21 @@ class CComponentsTitleBar : public CComponentsItemBox
 class CComponentsForm : public CComponentsContainer
 {
 	private:
-		CComponentsTitleBar tb;
+		CComponentsTitleBar *tb;
+		std::string tb_text, tb_icon;
 		
 		void initVarForm();
+		void paintHead();
 		
 	public:
 		CComponentsForm();
+		~CComponentsForm();
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
+		void setCaption(const std::string& text);
+		void setCaption(neutrino_locale_t locale_text);
+		void setIcon(const std::string& icon_name){tb_icon = icon_name;};
 };
 
 #endif
