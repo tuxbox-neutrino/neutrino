@@ -70,14 +70,6 @@ typedef struct comp_screen_data_t
 	fb_pixel_t* pixbuf;
 } comp_screen_data_struct_t;
 
-typedef enum
-{
-	CC_BGMODE_STANDARD,
-	CC_BGMODE_PERMANENT,
-
-	CC_BGMODE_TYPES
-}BGMODE_TYPES;
-
 //align types
 enum
 {
@@ -132,7 +124,6 @@ class CComponents
 		std::vector<comp_fbdata_t> v_fbdata;
 		fb_pixel_t	col_body, col_shadow, col_frame;
 		bool	firstPaint, shadow, is_painted;
-		BGMODE_TYPES bgMode;
 		
 		void initVarBasic();
 		void paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg = true);
@@ -162,7 +153,6 @@ class CComponents
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
 		inline virtual void setColorShadow(fb_pixel_t color){col_shadow = color;};
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
-		inline virtual void setBgMode(BGMODE_TYPES mode) {bgMode = mode;};
 		
 		virtual void hide();
 		virtual bool isPainted(){return is_painted;};

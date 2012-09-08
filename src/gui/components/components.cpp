@@ -78,7 +78,6 @@ void CComponents::initVarBasic()
 	is_painted		= false;
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
-	bgMode 			= CC_BGMODE_STANDARD;
 	saved_screen.pixbuf 	= NULL;
 }
 
@@ -89,17 +88,13 @@ void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_co
 		for(int i=0; i<items_count; i++){
 			if (fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
 				//printf("\n#####[%s - %d] firstPaint: %d, fbdata_type: %d\n \n", __FUNCTION__, __LINE__, firstPaint, fbdata[i].fbdata_type);
-				if (bgMode == CC_BGMODE_PERMANENT) {
-					saved_screen.x = fbdata[i].x;
-					saved_screen.y = fbdata[i].y;
-					saved_screen.dx = fbdata[i].dx;
-					saved_screen.dy = fbdata[i].dy;
-					clearSavedScreen();
-					saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
-				}
-				else {
-					fbdata[i].pixbuf = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
-				}
+				saved_screen.x = fbdata[i].x;
+				saved_screen.y = fbdata[i].y;
+				saved_screen.dx = fbdata[i].dx;
+				saved_screen.dy = fbdata[i].dy;
+				clearSavedScreen();
+				saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
+				
 				firstPaint = false;
 				break;
 			}
@@ -223,27 +218,13 @@ void CComponentsContainer::hideContainer(bool no_restore)
 {
 	is_painted = false;
 	
-	if (bgMode == CC_BGMODE_PERMANENT) {
-		if (saved_screen.pixbuf) {
-			frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
-			if (no_restore) {
-				delete[] saved_screen.pixbuf;
-				saved_screen.pixbuf = NULL;
-				firstPaint = true;
-			}
+	if (saved_screen.pixbuf) {
+		frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
+		if (no_restore) {
+			delete[] saved_screen.pixbuf;
+			saved_screen.pixbuf = NULL;
+			firstPaint = true;
 		}
-	}
-	else {
-		if (no_restore)
-			return;
-
-		for(size_t i =0; i< v_fbdata.size() ;i++) {
-			if (v_fbdata[i].pixbuf != NULL && v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN)
-				frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
-			delete[] v_fbdata[i].pixbuf;
-		}
-		v_fbdata.clear();
-		firstPaint = true;
 	}
 }
 
@@ -338,8 +319,7 @@ void CComponentsInfoBox::initVarInfobox()
 {
 	//CComponents, ComponentsContainer
 	initVarContainer();
-	bgMode 		= CC_BGMODE_PERMANENT;
-
+	
 	//CComponentsInfoBox
 	box		= NULL;
 	textbox 	= NULL;
@@ -447,9 +427,6 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	bgMode 		= CC_BGMODE_PERMANENT;
-
-
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -469,7 +446,6 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	bgMode 		= CC_BGMODE_PERMANENT;
 	
 	//CComponentsShapeCircle
 	width = height	= d = diam;
@@ -647,7 +623,6 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	col_frame 	= COL_BACKGROUND;
 	col_body	= COL_BACKGROUND;
 	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
-	bgMode 		= CC_BGMODE_PERMANENT;
 }
 
 CComponentsPIP::~CComponentsPIP()
@@ -727,7 +702,6 @@ void CComponentsPicture::init(	int x_pos, int y_pos, const string& picture_name,
 	col_frame 	= color_frame;
 	col_body	= color_background;
 	col_shadow	= color_shadow;
-	bgMode 		= CC_BGMODE_PERMANENT;
 }
 
 void CComponentsPicture::setPicture(const std::string& picture_name)
@@ -1236,7 +1210,6 @@ CComponentsTitleBar::CComponentsTitleBar()
 {
 	//CComponentsTitleBar
 	initVarTitleBar();
-	bgMode = CC_BGMODE_PERMANENT;
 }
 
 void CComponentsTitleBar::initVarTitleBar()
@@ -1375,7 +1348,6 @@ void CComponentsForm::initVarForm()
 {
 	//CComponentsContainer
 	initVarContainer();
-	bgMode = CC_BGMODE_PERMANENT;
 	
 	//simple default dimensions
 	width 		= 150;
