@@ -341,6 +341,7 @@ class CComponentsItemBox : public CComponentsContainer
 		void paintItemBox(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void calculateElements();
 		bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
+		void paintImage(size_t index, bool newElement);
 
 	public:
 		CComponentsItemBox();
@@ -400,7 +401,7 @@ class CComponentsForm : public CComponentsContainer
 	public:
 		CComponentsForm();
 		~CComponentsForm();
-
+		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
 		void setCaption(const std::string& text);

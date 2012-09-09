@@ -980,33 +980,44 @@ void CComponentsItemBox::refreshElement(size_t index, const std::string& element
 	calculateElements();
 }
 
-void CComponentsItemBox::paintElement(size_t index, bool newElement)
+//paint image into item box
+void CComponentsItemBox::paintImage(size_t index, bool newElement)
 {
 	CComponentsPicture* pic = NULL;
+	pic = static_cast<CComponentsPicture*>(v_element_data[index].handler1);
+	
+	int pw = 0, ph = 0;
+	
+	if ((newElement) || (pic == NULL)) {
+		if (pic != NULL) {
+			pic->hide();
+			delete pic;
+			pic = NULL;
+		}
+		if ((v_element_data[index].type) == CC_ITEMBOX_PICTURE)
+			pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].width,
+							v_element_data[index].height, v_element_data[index].element);
+		else
+			pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].element);
+		v_element_data[index].handler1 = (void*)pic;
+	}
+	
+	pic->getPictureSize(&pw, &ph);
+	pic->setHeight(ph);
+	pic->setWidth(pw);
+	pic->setColorBody(col_body);
+	pic->paint();
+}
+
+void CComponentsItemBox::paintElement(size_t index, bool newElement)
+{
 	CBox* box = NULL;
 	CTextBox* textbox = NULL;
-	int pw = 0, ph = 0;
+
 	switch (v_element_data[index].type) {
 		case CC_ITEMBOX_ICON:
 		case CC_ITEMBOX_PICTURE:
-			pic = static_cast<CComponentsPicture*>(v_element_data[index].handler1);
-			if ((newElement) || (pic == NULL)) {
-				if (pic != NULL) {
-					pic->hide();
-					delete pic;
-				}
-				if ((v_element_data[index].type) == CC_ITEMBOX_PICTURE)
-					pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].width, 
-									v_element_data[index].height, v_element_data[index].element);
-				else
-					pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].element);
-				v_element_data[index].handler1 = (void*)pic;
-			}
-			pic->getPictureSize(&pw, &ph);
-			pic->setHeight(ph);
-			pic->setWidth(pw);
-			pic->setColorBody(col_body);
-			pic->paint();
+			paintImage(index,newElement);
 			break;
 		case CC_ITEMBOX_TEXT:
 			box = static_cast<CBox*>(v_element_data[index].handler1);
