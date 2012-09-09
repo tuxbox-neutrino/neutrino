@@ -333,7 +333,7 @@ class CComponentsItemBox : public CComponentsContainer
 		size_t prevElementRight;
 		std::vector<comp_element_data_t> v_element_data;
 		bool isCalculated;
-
+		
 		void clearElements();
 		void initVarItemBox();
 		void calSizeOfElements();
@@ -342,11 +342,12 @@ class CComponentsItemBox : public CComponentsContainer
 		void calculateElements();
 		bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
 		void paintImage(size_t index, bool newElement);
-
+		void paintText(size_t index, bool newElement);
+		
 	public:
 		CComponentsItemBox();
 		virtual ~CComponentsItemBox();
-
+		
 		inline virtual void setTextFont(Font* font){font_text = font;};
 		inline virtual void setTextColor(fb_pixel_t color_text){ it_col_text = color_text;};
 		

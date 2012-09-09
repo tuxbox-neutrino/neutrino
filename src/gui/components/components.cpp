@@ -1009,45 +1009,63 @@ void CComponentsItemBox::paintImage(size_t index, bool newElement)
 	pic->paint();
 }
 
+//paint text into item box
+void CComponentsItemBox::paintText(size_t index, bool newElement)
+{
+	//prepare textbox dimension instances
+	CBox* box = NULL;
+	box = static_cast<CBox*>(v_element_data[index].handler1);
+	
+	if ((newElement) || (box == NULL)) {
+		if (box != NULL) {
+			delete box;
+			box = NULL;
+		}
+		box = new CBox();
+		v_element_data[index].handler1 = (void*)box;
+	}
+	
+	box->iX      = v_element_data[index].x;
+	box->iY      = v_element_data[index].y;
+	box->iWidth  = v_element_data[index].width;
+	box->iHeight = v_element_data[index].height;
+	
+	
+	//prepare text
+	CTextBox* textbox = NULL;
+	textbox = static_cast<CTextBox*>(v_element_data[index].handler2);
+	
+	if ((newElement) || (textbox == NULL)) {
+		if (textbox != NULL) {
+			textbox->hide();
+			delete textbox;
+			textbox = NULL;
+		}
+		textbox = new CTextBox(v_element_data[index].element.c_str(), font_text, CTextBox::AUTO_WIDTH|CTextBox::AUTO_HIGH, box, col_body);
+		v_element_data[index].handler2 = (void*)textbox;
+	}
+	
+	textbox->setTextBorderWidth(0);
+	textbox->enableBackgroundPaint(false);
+	textbox->setTextFont(font_text);
+	textbox->movePosition(box->iX, box->iY);
+	textbox->setTextColor(it_col_text);
+	
+	if (textbox->setText(&v_element_data[index].element))
+		textbox->paint();
+}
+
+
+//paint available elements at one task
 void CComponentsItemBox::paintElement(size_t index, bool newElement)
 {
-	CBox* box = NULL;
-	CTextBox* textbox = NULL;
-
 	switch (v_element_data[index].type) {
 		case CC_ITEMBOX_ICON:
 		case CC_ITEMBOX_PICTURE:
 			paintImage(index,newElement);
 			break;
 		case CC_ITEMBOX_TEXT:
-			box = static_cast<CBox*>(v_element_data[index].handler1);
-			if ((newElement) || (box == NULL)) {
-				if (box != NULL) {
-					delete box;
-				}
-				box = new CBox();
-				v_element_data[index].handler1 = (void*)box;
-			}
-			box->iX      = v_element_data[index].x;
-			box->iY      = v_element_data[index].y;
-			box->iWidth  = v_element_data[index].width;
-			box->iHeight = v_element_data[index].height;
-			textbox = static_cast<CTextBox*>(v_element_data[index].handler2);
-			if ((newElement) || (textbox == NULL)) {
-				if (textbox != NULL) {
-					textbox->hide();
-					delete textbox;
-				}
-				textbox = new CTextBox(v_element_data[index].element.c_str(), font_text, CTextBox::AUTO_WIDTH|CTextBox::AUTO_HIGH, box, col_body);
-				v_element_data[index].handler2 = (void*)textbox;
-			}
-			textbox->setTextBorderWidth(0);
-			textbox->enableBackgroundPaint(false);
-			textbox->setTextFont(font_text);
-			textbox->movePosition(box->iX, box->iY);
-			textbox->setTextColor(it_col_text);
-			if (textbox->setText(&v_element_data[index].element))
-				textbox->paint();
+			paintText(index,newElement);
 			break;
 		case CC_ITEMBOX_CLOCK:
 			font_text->RenderString(v_element_data[index].x, v_element_data[index].y, v_element_data[index].width, 
