@@ -399,12 +399,13 @@ fe_status_t CFrontend::getStatus(void) const
 	return status;
 #endif
 }
-
+#if 0 
+//never used
 FrontendParameters CFrontend::getFrontend(void) const
 {
 	return currentTransponder.feparams;
 }
-
+#endif
 uint32_t CFrontend::getBitErrorRate(void) const
 {
 	uint32_t ber = 0;
@@ -427,7 +428,8 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 	fop(ioctl, FE_READ_SNR, &snr);
 	return snr;
 }
-
+#if 0 
+//never used
 uint32_t CFrontend::getUncorrectedBlocks(void) const
 {
 	uint32_t blocks = 0;
@@ -435,7 +437,7 @@ uint32_t CFrontend::getUncorrectedBlocks(void) const
 
 	return blocks;
 }
-
+#endif
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
 	struct dvb_frontend_event event;
@@ -849,11 +851,12 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 		usleep(1000 * ms);	// FIXME : is needed ?
 	}
 }
-
+#if 0 
+//never used
 void CFrontend::secResetOverload(void)
 {
 }
-
+#endif
 void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const uint32_t ms)
 {
 	printf("[fe%d] Diseqc cmd: ", fenumber);
@@ -865,12 +868,13 @@ void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const
 	if (fop(ioctl, FE_DISEQC_SEND_MASTER_CMD, cmd) == 0)
 		usleep(1000 * ms);
 }
-
+#if 0 
+//never used
 uint32_t CFrontend::getDiseqcReply(const int /*timeout_ms*/) const
 {
 	return 0;
 }
-
+#endif
 void CFrontend::sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms)
 {
 	if (slave || info.type != FE_QPSK)
@@ -1094,7 +1098,8 @@ bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 		return false;
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, false);
 }
-
+#if 0 
+//never used
 bool CFrontend::retuneTP(bool nowait)
 {
 	/* used in pip only atm */
@@ -1107,7 +1112,7 @@ bool CFrontend::retuneChannel(void)
 	setFrontend(&currentTransponder.feparams);
 	return 0;
 }
-
+#endif
 int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization, bool nowait)
 {
 	TP_params TP;

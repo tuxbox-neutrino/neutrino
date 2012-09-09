@@ -179,16 +179,9 @@ bootlogo_lcd_upload()
 	y_format_message_html
 }
 # -----------------------------------------------------------
-ucodes_upload()
-{
-	msg="$1 hochgeladen<br><a href='/Y_Settings_ucodes.htm'><u>next file</u></a>"
-	upload_copy "$y_path_ucodes/$1"
-	y_format_message_html
-}
-# -----------------------------------------------------------
 zapit_upload()
 {
-	msg="$1 hochgeladen<br><a href='/Y_Settings_zapit.htm'><u>next file</u></a>"
+	msg="$1 hochgeladen<br><a href='/Y_Settings_zapit.yhtm'><u>next file</u></a>"
 	upload_copy "$y_path_zapit/$1"
 	y_format_message_html
 }
@@ -493,35 +486,25 @@ do_fbshot_clear()
 # -----------------------------------------------------------
 do_settings_backup_restore()
 {
-	workdir="$y_path_tmp/y_save_settings"
-	yI_Version="0.1"
+	now=$(date +%Y-%m-%d_%H-%M-%S)
+	workdir="$y_path_tmp/y_save_settings/$now"
 	case "$1" in
 		backup)
-		mkdir $workdir >/dev/null
-		cp -r $y_path_config $workdir >/dev/null
-		t=`date +%y%m%d_%H%M%S`
-		filename="$y_path_tmp/y_Save_Settings_$t.tar"
-		cd $workdir
-		tar -cvf $filename ./*  >/dev/null
-		rm -r $workdir  >/dev/null
-		echo "$filename"
+			rm -rf $workdir
+			mkdir -p $workdir
+			/bin/backup.sh $workdir >/dev/null
+			filename=$(ls -1 -tr $workdir/settings_* | tail -1)
+			echo "$filename"
 		;;
 
 		restore)
-		msg="restore settings"
-		if [ -s "$y_upload_file" ]
-		then
-			# unpack /tmp/upload.tmp
-			cd $y_path_tmp
-			tar -xf "$y_upload_file"
-			rm $y_upload_file
-			cp -rf ./config /var/tuxbox/
-			rm -r ./config
-			msg="$msg ok"
-		else
-			msg="$msg error: no upload file"
-		fi
-		y_format_message_html
+			if [ -s "$y_upload_file" ]
+			then
+				msg=$(/bin/restore.sh "$y_upload_file")
+			else
+				msg="error: no upload file"
+			fi
+			y_format_message_html
 		;;
 	esac
 }
@@ -545,7 +528,6 @@ case "$1" in
 	image_delete)			image_delete_download_page ;;
 	bootlogo_upload)		bootlogo_upload ;;
 	bootlogo_lcd_upload)	bootlogo_lcd_upload ;;
-	ucodes_upload)			ucodes_upload $2 ;;
 	zapit_upload)			zapit_upload $2 ;;
 	kernel-stack)			msg=`dmesg`; y_format_message_html ;;
 	ps)						msg=`ps`; y_format_message_html ;;
@@ -566,8 +548,7 @@ case "$1" in
 	fbshot)					shift 1; do_fbshot $* ;;
 	fbshot_clear)			do_fbshot_clear ;;
 	tvshot_clear)			rm -f /tmp/screenshot.png ;;
-	get_update_version_dbox)	wget -O /tmp/version.txt "http://www.yjogol.com/download/Y_Version.txt" ;;
-	get_update_version_coolstream)	wget -O /tmp/version.txt "http://www.yjogol.com/download/coolstream/Y_Version.txt" ;;
+	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)				shift 1; $* ;;
 	automount_list)			shift 1; do_automount_list $* ;;
@@ -631,17 +612,15 @@ case "$1" in
 		cat /tmp/$2
 		;;
 
-	standby_status)
-		status=`switch -s|grep "FNC: 0"`
-		if [ "$status" = "" ]
-		then
-			echo "off"
-		else
-			echo "on"
-		fi
-		;;
-	var_space)
-		df |grep mtd2
+	mtd_space|var_space)
+		df | while read fs rest; do
+			case ${fs:0:3} in
+				mtd)
+					echo "$fs" "$rest"
+					break
+				;;
+			esac
+		done
 		;;
 	tmp_space)
 		df /tmp|grep /tmp

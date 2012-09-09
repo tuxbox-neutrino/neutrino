@@ -51,8 +51,8 @@ struct network_service
 #define SERVICE_COUNT 4
 static struct network_service services[SERVICE_COUNT] =
 {
-	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_TELNET, "", 0 },
-	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_FTPD, "", 0 },
+	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_FTPD, "", 0 },
+	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_TELNET, "", 0 },
 	{ "DjMount", "djmount", "-o iocharset=utf8 /media/00upnp/", LOCALE_MENU_HINT_NET_DJMOUNT, "", 0 },
 	{ "uShare", "ushare", "-D", LOCALE_MENU_HINT_NET_USHARE, "", 0 }
 };
@@ -142,10 +142,51 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 
 	CNetworkService * items[SERVICE_COUNT];
 
+	//telnetd used inetd
+	bool useinetd = false;
+	char *buf=NULL;
+	size_t len = 0;
+
+	FILE* fd = fopen("/etc/inetd.conf", "r");
+	    if(fd)
+	    {
+		while(!feof(fd))
+		{
+			if(getline(&buf, &len, fd)!=-1)
+			{
+				if (strstr(buf, "telnetd") != NULL)
+				{
+					useinetd = true;
+					break;
+				}
+			}
+		}
+		fclose(fd);
+		if(buf)
+			free(buf);
+	    }
+
+	//set active when found
+	bool active;
+		
 	for(unsigned i = 0; i < SERVICE_COUNT; i++) {
 		items[i] = new CNetworkService(services[i].cmd, services[i].options);
 		services[i].enabled = items[i]->Enabled();
-		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, items[i], CRCInput::convertDigitToKey(shortcut++), "");
+
+		std::string execute1 = "/bin/" + services[i].cmd;
+		std::string execute2 = "/sbin/" + services[i].cmd;
+
+		active = false;
+		if ( !(access(execute1.c_str(), F_OK)) || !(access(execute2.c_str(), F_OK)) )
+			active = true;
+			
+		if ( (services[i].name == "Telnet") && useinetd)
+			active = false;
+		
+		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut), "");
+		if (active)
+			shortcut++;
+
 		mc->setHint(services[i].icon, services[i].hint);
 		setup->addItem(mc);
 	}

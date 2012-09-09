@@ -27,8 +27,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the 
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 
@@ -40,6 +41,7 @@
 #include <system/localize.h>
 #include <gui/widget/icons.h>
 #include <gui/color.h>
+#include <gui/widget/components.h>
 
 #include <string>
 #include <vector>
@@ -92,7 +94,6 @@ class CMenuItem
 		bool           	active;
 		neutrino_msg_t 	directKey;
 		neutrino_msg_t 	msg;
-		bool		can_arrow;
 		std::string    	iconName;
 		std::string    	selected_iconName;
 		std::string    	iconName_Info_right;
@@ -173,6 +174,22 @@ class CMenuSeparator : public CMenuItem
 
 		virtual const char * getString(void);
 		void setString(const std::string& text);
+};
+
+class CNonLocalizedMenuSeparator : public CMenuSeparator
+{
+	const char * the_text;
+
+public:
+	CNonLocalizedMenuSeparator(const char * ptext, const neutrino_locale_t Text1) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text1)
+	{
+		the_text = ptext;
+	}
+
+	virtual const char * getString(void)
+	{
+		return the_text;
+	}
 };
 
 class CMenuForwarder : public CMenuItem
@@ -338,6 +355,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 class CMenuOptionStringChooser : public CMenuItem
 {
 		neutrino_locale_t        optionName;
+		std::string 		 optionNameString;
 		int                      height;
 		char *                   optionValue;
 		std::vector<std::string> options;
@@ -346,6 +364,8 @@ class CMenuOptionStringChooser : public CMenuItem
 
 	public:
 		CMenuOptionStringChooser(const neutrino_locale_t OptionName, char* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
+		CMenuOptionStringChooser(const char* OptionName, char* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
+
 		~CMenuOptionStringChooser();
 
 		void addOption(const char * value);
@@ -403,6 +423,9 @@ class CMenuWidget : public CMenuTarget
 	private: 
 		mn_widget_id_t 		widget_index;
 		CMenuGlobal		*mglobal;
+		CComponentsDetailLine	*details_line;
+		CComponentsInfoBox	*info_box;
+
 	protected:
 		std::string		nameString;
 		neutrino_locale_t       name;
@@ -435,9 +458,11 @@ class CMenuWidget : public CMenuTarget
 		bool		     exit_pressed;
 		bool		     from_wizard;
 		bool		     fade;
+		bool		     washidden;
 
 		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
+		void checkHints();
 		void calcSize();
 		void saveScreen();
 		void restoreScreen();

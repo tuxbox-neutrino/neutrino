@@ -19,7 +19,7 @@ function do_submit()
 		alert("{=L:tools.yinstaller.no_file_given=}");
 }
 function init(){
-	var res=dbox_exec_tools("var_space");
+	var res=dbox_exec_tools("mtd_space");
 	var Ausdruck = /([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*).*$/;
 	Ausdruck.exec(res);
 	var total = RegExp.$2;
@@ -27,7 +27,7 @@ function init(){
 	var avaiable = RegExp.$4;
 	var percentage = RegExp.$5;
 	if(total != "")
-		str="{=L:tools.yinstaller.space.var=}: "+total+"{=L:tools.yinstaller.space.used=}: "+used+"{=L:tools.yinstaller.space.free=}: "+avaiable+"{=L:tools.yinstaller.space.percentage=}: "+percentage;
+		str="{=L:tools.yinstaller.space.mtd=}: "+total+"kB; {=L:tools.yinstaller.space.used=}: "+used+"kB; {=L:tools.yinstaller.space.free=}: "+avaiable+"kB; {=L:tools.yinstaller.space.percentage=}: "+percentage;
 	else
 		str="{=L:tools.yinstaller.not_determine=}";
 	id("free").innerHTML=str;

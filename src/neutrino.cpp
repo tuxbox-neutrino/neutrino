@@ -403,6 +403,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 2 );//mini ca mode default
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
+	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", true);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , true );
@@ -845,6 +846,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("casystem_display"  , g_settings.casystem_display  );
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
+	configfile.setBool("volume_digits", g_settings.volume_digits);
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 	configfile.setBool("show_menu_hints" , g_settings.show_menu_hints);
 	configfile.setInt32("infobar_show_sysfs_hdd"  , g_settings.infobar_show_sysfs_hdd  );
@@ -1717,7 +1719,42 @@ void CNeutrinoApp::InitSectiondClient()
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 }
 
-extern bool timer_wakeup;//timermanager.cpp
+#if HAVE_COOL_HARDWARE
+#include <coolstream/cs_vfd.h>
+#endif
+
+void wake_up( bool &wakeup)
+{
+#if HAVE_COOL_HARDWARE
+#ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
+#define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
+#endif
+
+#define FP_IOCTL_SET_RTC         0x101
+#define FP_IOCTL_GET_RTC         0x102
+
+	int fd = open("/dev/display", O_RDONLY);
+	if (fd < 0) {
+		perror("/dev/display");
+	} else {
+		wakeup_data_t wk;
+		memset(&wk, 0, sizeof(wk));
+		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
+		if(ret >= 0)
+			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
+		close(fd);
+	}
+	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
+	if(!wakeup){
+		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
+		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
+		if (system(neutrino_leave_deepstandby_script) != 0)
+			perror( neutrino_leave_deepstandby_script );
+	}
+#endif
+
+}
+
 int CNeutrinoApp::run(int argc, char **argv)
 {
 	CmdParser(argc, argv);
@@ -1786,7 +1823,9 @@ TIMER_START();
 	g_Zapit->setStandby(false);
 
 	//timer start
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
+	bool timer_wakeup = false;
+	wake_up( timer_wakeup );
+	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) timer_wakeup);
 
 	init_cec_setting = true;
 	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
@@ -1968,7 +2007,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	}
 	g_RCInput->clearRCMsg();
 	if(g_settings.power_standby || init_cec_setting)
-		standbyMode(true);
+		standbyMode(true, true);
 
 	InfoClock = CInfoClock::getInstance();
 	if(g_settings.mode_clock)
@@ -2039,32 +2078,24 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode ) {
 				switchTvRadioMode(); //used with defined rc key TODO: do we really need this, because we already have a specified key on the remote control
 			}
-			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
+			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up || msg == (neutrino_msg_t) g_settings.key_subchannel_down) {
 				if( !g_RemoteControl->subChannels.empty() ) {
 					StopSubtitles();
-					g_RemoteControl->subChannelUp();
+					if( msg == (neutrino_msg_t) g_settings.key_subchannel_up )
+						g_RemoteControl->subChannelUp();
+					else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down )
+						g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
-				} else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+				} 
+				else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
 					g_volume->setVolume(msg, true);
-				} else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+				} 
+				else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
 					if(channelList->getSize()) {
 						showInfo();
 					}
-				} else
-					quickZap( msg );
-			}
-			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
-				if( !g_RemoteControl->subChannels.empty() ) {
-					StopSubtitles();
-					g_RemoteControl->subChannelDown();
-					g_InfoViewer->showSubchan();
-				} else if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					g_volume->setVolume(msg, true);
-				} else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
-					if(channelList->getSize()) {
-						showInfo();
-					}
-				} else
+				} 
+				else
 					quickZap( msg );
 			}
 			/* in case key_subchannel_up/down redefined */
@@ -2697,7 +2728,7 @@ _repeat:
 		if(data) {
 			skipShutdownTimer =
 				(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE,
-				      CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
+				      CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
 			if(skipShutdownTimer) {
 				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
 				skipShutdownTimer = false;
@@ -2743,7 +2774,7 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SHUTDOWN) {
 		if( mode != mode_scart )
-			skipShutdownTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 5) == CMessageBox::mbrYes);
+			skipShutdownTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 5) == CMessageBox::mbrYes);
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
@@ -2895,7 +2926,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//SDTreloadChannels = false;
 		}
 
-		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
 		delete CRecordManager::getInstance();
 
@@ -2909,6 +2939,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/) {
 			saveEpg(true);// true CVFD::MODE_SHUTDOWN
 		}
+		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
 		stop_daemons(true /*retcode*/);//need here for timer_is_rec before saveSetup
 		g_settings.shutdown_timer_record_type = timer_is_rec;
@@ -3147,7 +3178,7 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 	}
 }
 
-void CNeutrinoApp::standbyMode( bool bOnOff )
+void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 {
 	static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
@@ -3180,9 +3211,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		g_Sectionsd->setPauseScanning(true);
 		g_Sectionsd->setServiceChanged(0, false);
 
-		if(!CRecordManager::getInstance()->RecordingStatus()) {
+		if(!CRecordManager::getInstance()->RecordingStatus() ) {
 			//only save epg when not recording
-			if(g_settings.epg_save) {
+			if(g_settings.epg_save && !fromDeepStandby) {
 				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}

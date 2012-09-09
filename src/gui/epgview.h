@@ -62,6 +62,7 @@ class CEpgData
 		std::string 		epg_end;
 		int			epg_done;
 		bool			bigFonts;
+		bool 			has_follow_screenings;
 		time_t			tmp_curent_zeit;
 
 		uint64_t		prev_id;

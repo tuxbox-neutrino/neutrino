@@ -520,13 +520,13 @@ void CRemoteControl::processAPIDnames()
 		if ( current_PIDs.APIDs[count].is_ac3 )
 		{
 			if(!strstr(current_PIDs.APIDs[count].desc, " (AC3)"))
-				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
+				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 			has_ac3 = true;
 			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
 				ac3_found = count;
 		}
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
-			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
+			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
 
 	if ( has_unresolved_ctags )
@@ -548,11 +548,11 @@ void CRemoteControl::processAPIDnames()
 							// workaround for buggy ZDF ctags / or buggy sectionsd/drivers , who knows...
 							if(!tags[i].component.empty())
 							{
-								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN);
+								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN-1);
 								if (current_PIDs.APIDs[j].is_ac3 &&  !strstr(current_PIDs.APIDs[j].desc, " (AC3)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc));
+									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (AAC)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc));
+									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 							}
 							current_PIDs.APIDs[j].component_tag = -1;
 							break;

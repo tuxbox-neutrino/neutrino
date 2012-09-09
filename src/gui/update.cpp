@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the 
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -114,22 +115,6 @@ public:
 		}
 };
 
-
-class CNonLocalizedMenuSeparator : public CMenuSeparator
-{
-	const char * the_text;
-
-public:
-	CNonLocalizedMenuSeparator(const char * ptext, const neutrino_locale_t Text1) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text1)
-		{
-			the_text = ptext;
-		}
-
-	virtual const char * getString(void)
-		{
-			return the_text;
-		}
-};
 //#define DEBUG
 bool CFlashUpdate::selectHttpImage(void)
 {

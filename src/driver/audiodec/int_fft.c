@@ -84,6 +84,8 @@ fixed fix_mpy(fixed a, fixed b);
         size of data = 2**m
         set inverse to 0=dft, 1=idft
 */
+#if 0 
+//never used
 int fix_fft(fixed fr[], fixed fi[], int m, int inverse)
 {
         int mr,nn,i,j,l,k,istep, n, scale, shift;
@@ -180,7 +182,7 @@ fix_mpy(wi,fr[j]);
 
         return scale;
 }
-
+#endif
 
 /*      window() - apply a Hanning window       */
 void window(fixed fr[], int n)
@@ -203,6 +205,8 @@ void window(fixed fr[], int n)
         was obtained from an inverse FFT, 0 otherwise.
         loud[] is the loudness, in dB wrt 32767; will be +10 to -N_LOUD.
 */
+#if 0 
+//never used
 void fix_loud(fixed loud[], fixed fr[], fixed fi[], int n, int scale_shift)
 {
         int i, max;
@@ -218,7 +222,7 @@ void fix_loud(fixed loud[], fixed fr[], fixed fi[], int n, int scale_shift)
                         loud[i] = max;
         }
 }
-
+#endif
 /*      db_from_ampl() - find loudness (in dB) from
         the complex amplitude.
 */
@@ -258,6 +262,8 @@ fixed fix_mpy(fixed a, fixed b)
 /*
         iscale() - scale an integer value by (numer/denom)
 */
+#if 0 
+//never used
 int iscale(int value, int numer, int denom)
 {
 #ifdef  DOS
@@ -338,7 +344,7 @@ overflow:
 #endif
 
 }
-
+#endif
 
 #if N_WAVE != 1024
         ERROR: N_WAVE != 1024

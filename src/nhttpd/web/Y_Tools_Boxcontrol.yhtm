@@ -34,11 +34,7 @@ function goUrl(_url){
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/standby?on");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/standby?off");'/>
-		{=if-equal:{=global-var-get:boxtype=}~coolstream~
 			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/standby");'/>
-		~
-			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/exec?Y_Tools&amp;standby_status");'/>
-		=}
 			</td>
 		</tr>
 		<tr><td class="y_form_header">{=L:bc.control.playback=}</td><td class="y_form_header">{=L:bc.control.recording_mode=}</td></tr>
@@ -54,49 +50,28 @@ function goUrl(_url){
 			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/setmode?status");'/>
 			</td>
 		</tr>
-	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-		<tr><td class="y_form_header">{=L:bc.control.epg_sectiond=}</td><td class="y_form_header">{=L:bc.control.spts=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.control.epg_sectiond=}</td><td class="y_form_header">&nbsp; <!-- just a placeholder --></td></tr>
 		<tr>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/zapto?startsectionsd");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/zapto?stopsectionsd");'/>
 			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/zapto?statussectionsd");'/>
-			<input type="button" value="{=L:bc.control.restart=}" onclick='goUrl("/control/zapto?restartsectionsd");'/>
-			<input type="button" value="{=L:bc.control.freemem=}" onclick='goUrl("/control/zapto?freememsectionsd");'/>
 			</td>
 			<td>
-			<input type="button" value="{=L:on=}" onclick='goUrl("/control/system?setAViAExtPlayBack=spts");'/>
-			<input type="button" value="{=L:off=}" onclick='goUrl("/control/system?setAViAExtPlayBack=pes");'/>
-			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/system?getAViAExtPlayBack");'/>
+			&nbsp; <!-- just a placeholder -->
 			</td>
 		</tr>
-	~=}
 		<tr><td class="y_form_header">{=L:bc.control.remote=}</td><td class="y_form_header">{=L:bc.control.live_lock=}</td></tr>
 		<tr>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/rc?unlock");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/rc?lock");'/>
-			<input type="button" value="{=L:bc.control.lcd_unlock=}" onclick='goUrl("/control/exec?Y_Live&amp;live_unlock");'/>
 			</td>
 			<td>
 			<input type="button" value="{=L:bc.control.lock=}" onclick='live_lock();' />
 			<input type="button" value="{=L:bc.control.unlock=}" onclick='live_unlock();' />
 			</td>
 		</tr>
-	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-		<tr><td class="y_form_header">{=L:bc.control.optical_output=}</td><td class="y_form_header">{=L:bc.control.esound_server=}</td></tr>
-		<tr>
-			<td>
-			<input type="button" value="{=L:on=}" onclick='goUrl("/control/system?setAViAExtIec=on");'/>
-			<input type="button" value="{=L:off=}" onclick='goUrl("/control/system?setAViAExtIec=off");'/>
-			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/system?getAViAExtIec");'/>
-			</td>
-			<td>
-			<input type="button" value="{=L:on=}" onclick='goUrl("/control/esound?on");'/>
-			<input type="button" value="{=L:off=}" onclick='goUrl("/control/esound?off");'/>
-			</td>
-		</tr>
-	~=}
 		</table>
 	</form>
 	</div>

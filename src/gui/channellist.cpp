@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -54,6 +55,7 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/progressbar.h>
+#include <gui/widget/components.h>
 #include <gui/osd_setup.h>
 
 #include <system/settings.h>
@@ -583,6 +585,7 @@ int CChannelList::show()
 				loop=false;
 		}
 		else if( msg == CRCInput::RC_record) { //start direct recording from channellist 
+#if 0
 			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
 			{
 				printf("[neutrino channellist] start direct recording...\n");
@@ -599,10 +602,20 @@ int CChannelList::show()
 				}
 					
 			}		
+#endif
+			if(SameTP()) {
+				printf("[neutrino channellist] start direct recording...\n");
+				hide();
+				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
+					paintHead();
+					paint();
+				} else
+					loop=false;
 				
+			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
-			if(CRecordManager::getInstance()->RecordingStatus())
+			if(CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id))
 			{
 				if (CRecordManager::getInstance()->AskToStop(chanlist[selected]->channel_id))
 				{
@@ -844,10 +857,6 @@ int CChannelList::show()
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
-#if 0
-	/* FIXME call this somewhere after show */
-	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-#endif
 	this->new_mode_active = 0;
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
@@ -1186,6 +1195,7 @@ int CChannelList::numericZap(int key)
 				channelList->adjustToChannelID(orgList->getActiveChannel_ChannelID(), false);
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
 			delete channelList;
 			return res;
@@ -1204,6 +1214,7 @@ int CChannelList::numericZap(int key)
 			if (channelList->getSize() != 0) {
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
 			delete channelList;
 		}
@@ -1561,7 +1572,6 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
 
 	// Clear
 	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
@@ -1570,30 +1580,12 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
 		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
 		{
-			int fh = fheight > 10 ? fheight - 10: 5;
-			/* horizontal item mark */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 4, fh,     col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 1, fh,     col2);
+			//details line
+			CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			details_line.paint();
 
-			/* horizontal info mark */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 4,info_height-14, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 1,info_height-14, col2);
-
-			/* vertical connect line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 4,ypos2a-ypos1a, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 1,ypos2a-ypos1a+4, col2);
-
-			/* vertical item line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,1, col2);
-
-			/* vertical info line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,1, col2);
-
-//			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, RADIUS_LARGE);
+			//info box frame
 			frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
-
 		}
 	}
 }
@@ -1755,6 +1747,7 @@ void CChannelList::paintItem(int pos)
 
 		if (pos == 0)
 		{
+			/* FIXME move to calcSize() ? */
 			int w_max, w_min, h;
 			ChannelList_Rec = 0;
 			int recmode_icon_max = CRecordManager::RECMODE_REC, recmode_icon_min = CRecordManager::RECMODE_TSHIFT;
@@ -1771,11 +1764,11 @@ void CChannelList::paintItem(int pos)
 			for (uint32_t i = 0; i < chanlist.size(); i++)
 			{
 				rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[i]->channel_id);
-				if (rec_mode == recmode_icon_max)
+				if (rec_mode & recmode_icon_max)
 				{
 					ChannelList_Rec = w_max;
 					break;
-				} else if (rec_mode == recmode_icon_min)
+				} else if (rec_mode & recmode_icon_min)
 					ChannelList_Rec = w_min;
 			}
 			if (ChannelList_Rec > 0)
@@ -1787,9 +1780,9 @@ void CChannelList::paintItem(int pos)
 		
 		//set recording icon
 		const char * rec_icon = "";
-		if (rec_mode == CRecordManager::RECMODE_REC)
+		if (rec_mode & CRecordManager::RECMODE_REC)
 			rec_icon = NEUTRINO_ICON_REC;
-		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
 			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
 	
 		//calculating icons
@@ -1805,7 +1798,6 @@ void CChannelList::paintItem(int pos)
 				r_icon_x = r_icon_x - s_icon_w;
 		
  		//paint recording icon
- 		//bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
 		if (rec_mode != CRecordManager::RECMODE_OFF)
 			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		

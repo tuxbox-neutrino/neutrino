@@ -132,6 +132,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	scan_bat = configfile.getInt32("scan_bat", 0);
 	scan_reset_numbers = configfile.getInt32("scan_reset_numbers", 0);
 	scan_logical_numbers = configfile.getInt32("scan_logical_numbers", 0);
+	scan_logical_hd = configfile.getInt32("scan_logical_hd", 1);
 	TP_fec = configfile.getInt32("TP_fec", 1);
 	TP_pol = configfile.getInt32("TP_pol", 0);
 	TP_mod = configfile.getInt32("TP_mod", 3);
@@ -166,6 +167,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("scan_bat", scan_bat);
 	configfile.setInt32("scan_reset_numbers", scan_reset_numbers);
 	configfile.setInt32("scan_logical_numbers", scan_logical_numbers);
+	configfile.setInt32("scan_logical_hd", scan_logical_hd);
 	configfile.setInt32("TP_fec", TP_fec);
 	configfile.setInt32("TP_pol", TP_pol);
 	configfile.setInt32("TP_mod", TP_mod);

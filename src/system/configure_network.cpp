@@ -216,7 +216,7 @@ void CNetworkConfig::commitConfig(void)
 	}
 }
 
-int mysystem(char * cmd, char * arg1, char * arg2)
+int mysystem(const char * cmd, const char * arg1, const char * arg2)
 {
         int i;
 	pid_t pid;

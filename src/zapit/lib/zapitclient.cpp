@@ -312,8 +312,8 @@ void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsTo
 		if (!utf_encoded)
 		{
 			buffer[30] = (char) 0x00;
-			strncpy(buffer, response.name, 30);
-			strncpy(response.name, ZapitTools::UTF8_to_Latin1(buffer).c_str(), 30);
+			strncpy(buffer, response.name, sizeof(buffer)-1);
+			strncpy(response.name, ZapitTools::UTF8_to_Latin1(buffer).c_str(), sizeof(buffer)-1);
 		}
 		bouquets.push_back(response);
 	}
@@ -343,15 +343,16 @@ bool CZapitClient::receive_channel_list(BouquetChannelList& channels, const bool
 			{
                                 char buffer[CHANNEL_NAME_SIZE + 1];
                                 buffer[CHANNEL_NAME_SIZE] = (char) 0x00;
-                                strncpy(buffer, response.name, CHANNEL_NAME_SIZE);
-                                strncpy(response.name, ZapitTools::UTF8_to_Latin1(buffer).c_str(), CHANNEL_NAME_SIZE);
+                                strncpy(buffer, response.name, CHANNEL_NAME_SIZE-1);
+                                strncpy(response.name, ZapitTools::UTF8_to_Latin1(buffer).c_str(), CHANNEL_NAME_SIZE-1);
 			}
 			channels.push_back(response);
 		}
 	}
 	return true;
 }
-
+#if 0 
+//never used
 bool CZapitClient::receive_nchannel_list(BouquetNChannelList& channels)
 {
 	CZapitMessages::responseGeneralInteger responseInteger;
@@ -374,7 +375,7 @@ bool CZapitClient::receive_nchannel_list(BouquetNChannelList& channels)
 	}
 	return true;
 }
-
+#endif
 
 /* gets all channels that are in specified bouquet */
 /* bouquets are numbered starting at 0 */
@@ -528,7 +529,8 @@ void CZapitClient::getVolume(unsigned int *left, unsigned int *right)
 
         close_connection();
 }
-
+#if 0 
+//never used
 delivery_system_t CZapitClient::getDeliverySystem(void)
 {
 	send(CZapitMessages::CMD_GET_DELIVERY_SYSTEM, 0, 0);
@@ -542,6 +544,7 @@ delivery_system_t CZapitClient::getDeliverySystem(void)
 
 	return response.system;
 }
+#endif
 #if 0
 bool CZapitClient::get_current_TP(TP_params* TP)
 {
@@ -1024,6 +1027,8 @@ void CZapitClient::setRecordMode(const bool activate)
 	send(CZapitMessages::CMD_SET_RECORD_MODE, (char*)&msg, sizeof(msg));
 	close_connection();
 }
+#if 0 
+//never used
 void CZapitClient::setEventMode(const bool activate)
 {
 	CZapitMessages::commandSetRecordMode msg;
@@ -1031,7 +1036,7 @@ void CZapitClient::setEventMode(const bool activate)
 	send(CZapitMessages::CMD_SET_EVENT_MODE, (char*)&msg, sizeof(msg));
 	close_connection();
 }
-
+#endif
 bool CZapitClient::isRecordModeActive()
 {
 	send(CZapitMessages::CMD_GET_RECORD_MODE);

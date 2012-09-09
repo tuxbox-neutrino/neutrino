@@ -66,6 +66,11 @@ CBEBouquetWidget::CBEBouquetWidget()
 	liststart = 0;
 	state = beDefault;
 	blueFunction = beRename;
+	Bouquets = NULL;
+	iheight = 0;
+	ButtonHeight = 0;
+	fheight = 0;
+	theight = 0;
 }
 
 void CBEBouquetWidget::paintItem(int pos)
@@ -528,7 +533,7 @@ std::string CBEBouquetWidget::inputName(const char * const defaultName, const ne
 {
 	char Name[30];
 
-	strncpy(Name, defaultName, 30);
+	strncpy(Name, defaultName, sizeof(Name)-1);
 
 	CStringInputSMS * nameInput = new CStringInputSMS(caption, Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
 	nameInput->exec(this, "");

@@ -345,7 +345,7 @@ void CPlugins::startScriptPlugin(int number)
 	}
 }
 
-int mysystem(char * cmd, char * arg1, char * arg2);
+int mysystem(const char * cmd,const char * arg1,const char * arg2);
 void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
@@ -592,7 +592,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 	g_RCInput->stopInput();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
-	mysystem((char *) plugin_list[number].pluginfile.c_str(), NULL, NULL);
+	mysystem(plugin_list[number].pluginfile.c_str(), NULL, NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();

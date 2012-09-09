@@ -79,7 +79,8 @@ bool CServiceManager::ParseScanXml(void)
 	}
 	return (scanInputParser != NULL);
 }
-
+#if 0 
+//never used
 xmlDocPtr CServiceManager::ScanXml()
 {
 	if(!scanInputParser)
@@ -87,7 +88,7 @@ xmlDocPtr CServiceManager::ScanXml()
 
 	return scanInputParser;
 }
-
+#endif
 bool CServiceManager::AddChannel(CZapitChannel * &channel)
 {
 	channel_insert_res_t ret = allchans.insert (
@@ -160,12 +161,13 @@ void CServiceManager::RemoveAllChannels()
 {
 	allchans.clear();
 }
-
+#if 0 
+//never used
 void CServiceManager::RemoveNVODChannels()
 {
 	nvodchannels.clear();
 }
-
+#endif
 void CServiceManager::RemoveCurrentChannels()
 {
 	curchans.clear();
@@ -540,10 +542,10 @@ int CServiceManager::LoadMotorPositions(void)
 
 	return 0;
 }
-
+#if 0 
+//never used
 void CServiceManager::SaveMotorPositions()
 {
-#if 0
 	FILE * fd;
 	sat_iterator_t sit;
 	printf("[getservices] saving motor positions...\n");
@@ -561,9 +563,8 @@ void CServiceManager::SaveMotorPositions()
 	}
 	fdatasync(fileno(fd));
 	fclose(fd);
-#endif
 }
-
+#endif
 bool CServiceManager::InitSatPosition(t_satellite_position position, char * name, bool force)
 {
 	if(force || (satellitePositions.find(position) == satellitePositions.end())) {
@@ -580,6 +581,7 @@ bool CServiceManager::InitSatPosition(t_satellite_position position, char * name
 		satellitePositions[position].use_usals = 0;
 		satellitePositions[position].input = 0;
 		satellitePositions[position].configured = 0;
+		satellitePositions[position].cable_nid = 0;
 		if(name)
 			satellitePositions[position].name = name;
 		return true;
@@ -624,6 +626,7 @@ bool CServiceManager::LoadServices(bool only_current)
 			} else if(!(strcmp(xmlGetName(search), "cable"))) {
 				char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name);
+				satellitePositions[position].cable_nid = xmlGetNumericAttribute(search, "nid", 0);
 			}
 			ParseSatTransponders(frontendType, search, position);
 			position++;
@@ -1024,7 +1027,8 @@ bool CServiceManager::ReplaceProviderName(std::string &name, t_transport_stream_
 	}
 	return false;
 }
-
+#if 0 
+//never used
 int CServiceManager::GetFreeNumber(bool radio)
 {
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
@@ -1038,7 +1042,7 @@ int CServiceManager::GetFreeNumber(bool radio)
 		}
 	}
 }
-
+#endif
 int CServiceManager::GetMaxNumber(bool radio)
 {
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
@@ -1050,7 +1054,8 @@ int CServiceManager::GetMaxNumber(bool radio)
 	}
 	return i+1;
 }
-
+#if 0 
+//never used
 void CServiceManager::FreeNumber(int number, bool radio)
 {
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
@@ -1062,7 +1067,7 @@ void CServiceManager::UseNumber(int number, bool radio)
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
 	channel_numbers->insert(number);
 }
-
+#endif
 bool CServiceManager::GetTransponder(transponder_id_t tid, transponder &t)
 {
 	stiterator tI = transponders.find(tid);

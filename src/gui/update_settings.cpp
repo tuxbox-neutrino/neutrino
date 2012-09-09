@@ -43,9 +43,10 @@
 #include <system/debug.h>
 
 
-CUpdateSettings::CUpdateSettings()
+CUpdateSettings::CUpdateSettings(CMenuForwarder * update_item)
 {
 	width = w_max (40, 10);
+	updateItem = update_item;
 #ifdef USE_SMS_INPUT
 	input_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""$%&/()=?-. ");
 #endif
@@ -89,7 +90,7 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileFilter.addFilter("urls");
 		fileBrowser.Filter = &fileFilter;
  		if (fileBrowser.exec("/var/etc") == true)
-			strncpy(g_settings.softupdate_url_file, fileBrowser.getSelectedFile()->Name.c_str(), 31);
+			strncpy(g_settings.softupdate_url_file, fileBrowser.getSelectedFile()->Name.c_str(), 30);
 		
 		return res;
 	}
@@ -113,7 +114,7 @@ int CUpdateSettings::initMenu()
 #endif
 	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, !g_settings.softupdate_mode, g_settings.update_dir , this, "update_dir", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	
-	CUrlConfigSetupNotifier url_setup_notifier(fw_url, fw_update_dir);
+	CUrlConfigSetupNotifier url_setup_notifier(fw_url, fw_update_dir, updateItem);
 	
 	CMenuOptionChooser *oj_mode 	= new CMenuOptionChooser(LOCALE_FLASHUPDATE_UPDATEMODE, &g_settings.softupdate_mode, FLASHUPDATE_UPDATEMODE_OPTIONS, FLASHUPDATE_UPDATEMODE_OPTION_COUNT, true, &url_setup_notifier);
 	
@@ -128,10 +129,11 @@ int CUpdateSettings::initMenu()
 }
 
 
-CUrlConfigSetupNotifier::CUrlConfigSetupNotifier( CMenuItem* i1, CMenuItem* i2)
+CUrlConfigSetupNotifier::CUrlConfigSetupNotifier( CMenuItem* i1, CMenuItem* i2, CMenuForwarder * f1)
 {
 	toDisable[0] = i1;
 	toDisable[1] = i2;
+	updateItem   = f1;
 }
 
 bool CUrlConfigSetupNotifier::changeNotify(const neutrino_locale_t, void *)
@@ -139,9 +141,11 @@ bool CUrlConfigSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	if (g_settings.softupdate_mode){
 		toDisable[0]->setActive(true);
 		toDisable[1]->setActive(false);
+		updateItem->setTextLocale(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET);
 	}else{
 		toDisable[0]->setActive(false);
 		toDisable[1]->setActive(true);
+		updateItem->setTextLocale(LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL);
 	}
 	return false;
 }

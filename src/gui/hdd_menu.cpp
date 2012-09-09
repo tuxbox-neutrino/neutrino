@@ -145,12 +145,19 @@ int CHDDMenuHandler::doMenu ()
 	CHDDChkExec chkexec;
 
 	CHDDDestExec hddexec;
-	hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", &hddexec, NULL, CRCInput::RC_red,NEUTRINO_ICON_BUTTON_RED));
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", &hddexec, NULL, CRCInput::RC_red,NEUTRINO_ICON_BUTTON_RED);
+	mf->setHint("", LOCALE_MENU_HINT_HDD_APPLY);
+	hddmenu->addItem(mf);
 
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_EXTENDED_SETTINGS));
 
-	hddmenu->addItem( new CMenuOptionChooser(LOCALE_HDD_SLEEP, &g_settings.hdd_sleep, HDD_SLEEP_OPTIONS, HDD_SLEEP_OPTION_COUNT, true));
-	hddmenu->addItem( new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_HDD_SLEEP, &g_settings.hdd_sleep, HDD_SLEEP_OPTIONS, HDD_SLEEP_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_HDD_SLEEP);
+	hddmenu->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
+	hddmenu->addItem(mc);
 
 	//if(n > 0)
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
@@ -226,11 +233,19 @@ int CHDDMenuHandler::doMenu ()
 		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
 		tempMenu[i]->addIntroItems();
 		//tempMenu->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
-		tempMenu[i]->addItem(new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name));
-		tempMenu[i]->addItem(new CMenuForwarder(LOCALE_HDD_CHECK, true, "", &chkexec, namelist[i]->d_name));
+
+		mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name);
+		mf->setHint("", LOCALE_MENU_HINT_HDD_FORMAT);
+		tempMenu[i]->addItem(mf);
+
+		mf = new CMenuForwarder(LOCALE_HDD_CHECK, true, "", &chkexec, namelist[i]->d_name);
+		mf->setHint("", LOCALE_MENU_HINT_HDD_CHECK);
+		tempMenu[i]->addItem(mf);
 
 		snprintf(sstr, sizeof(sstr), "%s (%s)", g_Locale->getText(LOCALE_HDD_REMOVABLE_DEVICE),  namelist[i]->d_name);
-		hddmenu->addItem(new CMenuForwarderNonLocalized((removable ? sstr : namelist[i]->d_name), enabled /*(removable || isroot) ? false : true*/, tmp_str[i], tempMenu[i]));
+		mf = new CMenuForwarderNonLocalized((removable ? sstr : namelist[i]->d_name), enabled, tmp_str[i], tempMenu[i]);
+		mf->setHint("", LOCALE_MENU_HINT_HDD_TOOLS);
+		hddmenu->addItem(mf);
 
 		hdd_found = 1;
 		free(namelist[i]);

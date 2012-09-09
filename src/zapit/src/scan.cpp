@@ -321,7 +321,7 @@ _repeat:
 	if((flags & SCAN_NIT) && AddFromNit())
 		goto _repeat;
 
-	if (flags & (SCAN_NIT/*|SCAN_LOGICAL_NUMBERS*/) && !nit_logical_map.empty()) {
+	if ((flags & SCAN_LOGICAL_NUMBERS /*(SCAN_NIT|SCAN_LOGICAL_NUMBERS)*/) && !nit_logical_map.empty()) {
 		std::string pname = networkName;
 		INFO("network [%s] %d logical channels (%d hd)\n", pname.c_str(), nit_logical_map.size(), nit_hd_logical_map.size());
 		g_bouquetManager->loadBouquets(true);
@@ -333,13 +333,15 @@ _repeat:
 		else
 			bouquet = g_bouquetManager->Bouquets[bouquetId];
 
-		for(channel_number_map_t::iterator cit = nit_hd_logical_map.begin(); cit != nit_hd_logical_map.end(); ++cit) {
-			//nit_logical_map.erase(cit->first);
-			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(cit->first);
-			if (channel) {
-				channel->number = cit->second;
-				if (!bouquet->getChannelByChannelID(channel->getChannelID()))
-					bouquet->addService(channel);
+		if (flags & SCAN_LOGICAL_HD) {
+			for(channel_number_map_t::iterator cit = nit_hd_logical_map.begin(); cit != nit_hd_logical_map.end(); ++cit) {
+				//nit_logical_map.erase(cit->first);
+				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(cit->first);
+				if (channel) {
+					channel->number = cit->second;
+					if (!bouquet->getChannelByChannelID(channel->getChannelID()))
+						bouquet->addService(channel);
+				}
 			}
 		}
 		for(channel_number_map_t::iterator cit = nit_logical_map.begin(); cit != nit_logical_map.end(); ++cit) {
@@ -623,7 +625,8 @@ bool CServiceScan::ScanTransponder()
 
 	return (found_channels != 0);
 }
-
+#if 0 
+//never used
 bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, struct dvb_frontend_parameters * feparams, uint8_t polarization)
 {
 	bool ret = false;
@@ -641,7 +644,7 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 	}
 	return ret;
 }
-
+#endif
 void CServiceScan::SendTransponderInfo(transponder &t)
 {
 	uint32_t  actual_freq = t.feparams.dvb_feparams.frequency;

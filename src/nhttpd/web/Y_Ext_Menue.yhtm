@@ -14,13 +14,10 @@ function build_menu(){
 		var item="<a target=\"work\" title=\""+e.get('desc')+"\" href=\""+e.get('file')+"\">"+e.get('menuitem')+"</a>";
 		y_add_li_to_ul(id("ext_normal"),"ext",item);
 	});
-	var ext_normal=ext.select_type("m");
-	ext_normal.each(function(e){
-		{=if-empty:{=var-get:management=}~
-		var item="<span class=\"disabled\" title=\""+e.get('desc')+" (restricted by ManagementIP)\">"+e.get('menuitem')+"</span>";
-		~
-		var item="<a target=\"work\" title=\""+e.get('desc')+"\" href=\""+e.get('file')+"\">"+e.get('menuitem')+"</a>";
-		=}
+
+	var ext_management=ext.select_type("m");
+	ext_management.each(function(e){
+		var item='<a {=if-empty:{=var-get:management=}~class="restricted" title="{=L:restriced_by_management_ip=}" href="javascript:void(0);"~title="'+e.get("desc")+'" href="'+e.get("file")+'" target="work"=}>'+e.get("menuitem")+'</a>';
 		y_add_li_to_ul(id("ext_management"),"ext",item);
 	});
 }
@@ -44,15 +41,21 @@ function build_menu(){
 		<div class="y_menu_sec_section">{=L:administration=}</div>
 		<div class="y_menu_sec">
 			<ul>
-				{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:main.settings=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:ext.installer_updater=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:uninstaller=}</li>
-				~
-				<li><a target="work" title="" href="Y_Ext_Settings.yhtm">{=L:main.settings=}</a></li>
-				<li><a target="work" title="" href="Y_Ext_Update.yhtm">{=L:ext.installer_updater=}</a></li>
-				<li><a target="work" title="" href="Y_Ext_Uninstall.yhtm">{=L:uninstaller=}</a></li>
-				=}
+				<li>
+					{=var-set:m_link_href=Y_Ext_Settings.yhtm=}
+					{=var-set:m_link_text={=L:main.settings=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Ext_Update.yhtm=}
+					{=var-set:m_link_text={=L:ext.installer_updater=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Ext_Uninstall.yhtm=}
+					{=var-set:m_link_text={=L:uninstaller=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 			</ul>
 		</div>
 	</div>

@@ -37,6 +37,7 @@
 #include "driver/framebuffer.h"
 #include "driver/audiofile.h"
 #include "gui/filebrowser.h"
+#include "gui/widget/components.h"
 #include "gui/widget/menue.h"
 
 #include <xmltree/xmlinterface.h>
@@ -140,6 +141,8 @@ class CAudioPlayerGui : public CMenuTarget
 	bool          m_screensaver;
 	bool          m_inetmode;
 	uint32_t       stimer;
+	CComponentsDetailLine *dline;
+	CComponentsInfoBox *ibox;
 
 	SMSKeyInput    m_SMSKeyInput;
 

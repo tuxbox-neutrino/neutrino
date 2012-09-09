@@ -187,6 +187,8 @@ CAudioPlayerGui::CAudioPlayerGui(bool inetmode)
 	m_frameBuffer = CFrameBuffer::getInstance();
 	m_visible = false;
 	m_inetmode = inetmode;
+	dline = NULL;
+	ibox = NULL;
 
 	Init();
 }
@@ -236,6 +238,8 @@ CAudioPlayerGui::~CAudioPlayerGui()
 	m_title2Pos.clear();
 //	g_Zapit->setStandby (false);
 	g_Sectionsd->setPauseScanning (false);
+	delete dline;
+	delete ibox;
 }
 
 //------------------------------------------------------------------------
@@ -1869,46 +1873,34 @@ void CAudioPlayerGui::clearItemID3DetailsLine ()
 void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 {
 	int xpos  = m_x - ConnectLineBox_Width;
-	int ypos1 = m_y + m_title_height + m_theight+ 0 + pos*m_fheight;
-	int ypos2 = m_y + (m_height - m_info_height);
+	int ypos1 = m_y + m_title_height + m_theight+ 0 + pos*m_fheight + INFO_BOX_Y_OFFSET;
+	int ypos2 = m_y + (m_height - m_info_height) + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (m_fheight / 2) - 2;
 	int ypos2a = ypos2 + (m_info_height / 2) - 2;
-	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
-	int c_rad_small = RADIUS_SMALL;
 
+	// clear details line
+	if (dline != NULL)
+		dline->hide();
 
-	// Clear
-	m_frameBuffer->paintBackgroundBoxRel(xpos - 1, m_y + m_title_height, ConnectLineBox_Width + 1,
-					     m_height - m_title_height);
+	// clear infobox
+	if (ibox != NULL)
+		ibox->hide();
 
-	// paint Line if detail info (and not valid list pos)
+	// paint Line if detail info (and not valid list pos) and info box
 	if (!m_playlist.empty() && (pos >= 0))
 	{
-		int fh = m_info_height > RADIUS_MID*2 ? m_info_height - RADIUS_MID*2 : m_info_height;
-		// 1. col thick line
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos1, 4, m_fheight, col2, c_rad_small, CORNER_LEFT);
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 3, ypos1, 8, m_fheight, col1, c_rad_small, CORNER_LEFT); // item marker
+		//details line
+		if (dline == NULL)
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, m_fheight/2+1, m_fheight);
+		dline->setYPos(ypos1a);
+		dline->paint();
 
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 4, fh /*m_info_height*/, col1);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 4, ypos2a - ypos1a, col1);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 12, 4, col1);
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos2a, 12, 4, col1);
-
-		// 2. col small line
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 1, fh /*m_info_height*/, col2);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 1, ypos2a - ypos1a + 4, col2);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 12, 1, col2);
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 12, ypos2a,  8, 1, col2);
-
-		// -- small Frame around infobox
-		m_frameBuffer->paintBoxFrame(m_x, ypos2, m_width, m_info_height, 2, col1, RADIUS_MID);
 		// paint id3 infobox
-		m_frameBuffer->paintBoxRel(m_x + 2, ypos2 + 2 , m_width - 4, m_info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_MID);
+		if (ibox == NULL)
+			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height, false);
+		ibox->setYPos(ypos2);
+		ibox->paint(false, true);
+
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
 				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK, 0, true); // UTF-8
 		std::string tmp;
@@ -1937,7 +1929,10 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	}
 	else
 	{
-		m_frameBuffer->paintBackgroundBoxRel(m_x, ypos2, m_width, m_info_height);
+		if (dline != NULL)
+			dline->hide();
+		if (ibox != NULL)
+			ibox->hide();
 	}
 }
 //------------------------------------------------------------------------

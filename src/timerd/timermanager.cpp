@@ -33,9 +33,6 @@
 #include <timerdclient/timerdclient.h>
 #include <timerdclient/timerdmsg.h>
 #include <sectionsdclient/sectionsdclient.h>
-#if HAVE_COOL_HARDWARE
-#include <coolstream/cs_vfd.h>
-#endif
 
 #include <vector>
 #include <cstdlib>
@@ -43,17 +40,10 @@
 #include "debug.h"
 #include "timermanager.h"
 
-#ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
-#define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
-#endif
-
-#define FP_IOCTL_SET_RTC         0x101
-#define FP_IOCTL_GET_RTC         0x102
 
 extern bool timeset;
 time_t timer_minutes;
 bool timer_is_rec;
-bool timer_wakeup;
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
@@ -72,31 +62,6 @@ void CTimerManager::Init(void)
 	m_saveEvents = false;
 	m_isTimeSet = false;
 	wakeup = 0;
-	timer_wakeup = false;
-#if HAVE_COOL_HARDWARE
-	int fd = open("/dev/display", O_RDONLY);
-
-	if (fd < 0) {
-		perror("/dev/display");
-	} else {
-		wakeup_data_t wk;
-		memset(&wk, 0, sizeof(wk));
-		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
-		if(ret >= 0)
-			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
-		close(fd);
-	}
-	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
-	if(wakeup){
-		creat("/tmp/.wakeup", 0);
-		timer_wakeup = true;
-	}else{
-		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
-		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
-		if (system(neutrino_leave_deepstandby_script) != 0)
-			perror( neutrino_leave_deepstandby_script );
-	}
-#endif
 	loadRecordingSafety();
 
 	//thread starten

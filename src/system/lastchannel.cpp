@@ -122,13 +122,14 @@ void CLastChannel::set_store_difftime (int secs)
 {
 	secs_diff_before_store = secs;
 }
-
+#if 0 
+//never used
 int CLastChannel::get_store_difftime (void) const
 
 {
 	return    secs_diff_before_store;
 }
-
+#endif
 int CLastChannel::get_mode(t_channel_id channel_id)
 {
 	std::list<_LastCh>::iterator It;

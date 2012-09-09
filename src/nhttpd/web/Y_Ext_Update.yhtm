@@ -34,7 +34,7 @@
 	</form>
 	<br/>
 	<div id="free">?</div>
-	{=L:ext.free=}:&nbsp;<span id="avaiable">?</span>k
+	{=L:ext.free=}: <span id="avaiable">?</span>k
 	<form method="post" name="log" action="">
 	<div class="y_form_header_oline">Log</div>
 		<table class="lt_table" cellspacing="0" cellpadding="4">

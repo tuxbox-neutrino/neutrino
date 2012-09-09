@@ -236,12 +236,13 @@ void ClearFB(int /*color*/)
 	//memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
 	CFrameBuffer::getInstance()->paintBackground();
 }
-
+#if 0 
+//never used
 void ClearB(int color)
 {
 	FillRect(0,0,var_screeninfo.xres,var_screeninfo.yres*2,color);
 }
-
+#endif
 int  GetCurFontWidth()
 {
 	int mx = (displaywidth)%(40-nofirst); // # of unused pixels

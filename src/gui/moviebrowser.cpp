@@ -2884,7 +2884,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 
     if(movie_info != NULL)
     {
-        strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE);
+        strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE-1);
         snprintf(size,BUFFER_SIZE,"%5llu",movie_info->file.Size>>20);
     }
 
@@ -3113,7 +3113,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	CMenuWidgetSelection startPosSelectionMenu(LOCALE_MOVIEBROWSER_HEAD , NEUTRINO_ICON_MOVIEPLAYER);
 	startPosSelectionMenu.enableFade(false);
 
-	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD);
+	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	if(m_movieSelectionHandler->bookmarks.start != 0)
 	{
@@ -3448,7 +3448,7 @@ CMenuSelector::CMenuSelector(const char * OptionName, const bool Active , std::s
     height     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
     optionValueString = &OptionValue;
     optionName =        OptionName;
-    strncpy(buffer,OptionValue.c_str(),BUFFER_MAX);
+    strncpy(buffer,OptionValue.c_str(),BUFFER_MAX-1);
     buffer[BUFFER_MAX-1] = 0;// terminate string
     optionValue =       buffer;
     active =            Active;
@@ -3841,7 +3841,8 @@ int find_gop(unsigned char *buf, int r)
 	}
 	return -1;
 }
-
+#if 0 
+//never used
 off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize)
 {
 	off64_t cur = lseek64 (fd, 0, SEEK_CUR);
@@ -3852,7 +3853,7 @@ off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize)
 	else
 		return size;
 }
-
+#endif
 #define PSI_SIZE 188*3
 static int read_psi(char * spart, unsigned char * buf)
 {
