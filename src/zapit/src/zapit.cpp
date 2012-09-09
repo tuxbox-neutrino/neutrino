@@ -1954,7 +1954,9 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDemux = new cDemux();
 	audioDemux->Open(DMX_AUDIO_CHANNEL);
 
-	videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+	videoDecoder = cVideo::GetDecoder();
+	videoDecoder->SetDemux(videoDemux);
+	videoDecoder->SetVideoSystem(video_mode);
 	videoDecoder->Standby(false);
 
 	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
