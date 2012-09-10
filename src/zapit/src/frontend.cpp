@@ -1171,7 +1171,7 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 	//printf("[fe%d] tuner to frequency %d (offset %d timeout %d)\n", fenumber, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	//printf("[fe%d] tune to frequency %d (tuner %d offset %d timeout %d)\n", fenumber, freq, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	printf("[fe%d] tune to %d %s %s %s %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
-			TP->polarization ? "V/R" : "H/L", feparams->dvb_feparams.u.qpsk.symbol_rate, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
+			TP->polarization & 1 ? "V/R" : "H/L", feparams->dvb_feparams.u.qpsk.symbol_rate, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(feparams);
 
 #if 0
