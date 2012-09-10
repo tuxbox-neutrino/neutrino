@@ -585,10 +585,9 @@ int CScanSetup::showFrontendSetup(int number)
 	nc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_SPEED);
 	setupMenu->addItem(nc);
 
-#if 0
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_HVOLTAGE,  (int *)&fe_config.highVoltage, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_18V);
 	setupMenu->addItem(mc);
-#endif
 
 	mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &all_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_USALSALL);
