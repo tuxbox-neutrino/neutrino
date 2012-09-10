@@ -1003,6 +1003,7 @@ const char * locale_real_names[] =
 	"menu.hint_scan_longitude",
 	"menu.hint_scan_manual",
 	"menu.hint_scan_mod",
+	"menu.hint_scan_motor_18v",
 	"menu.hint_scan_motor_speed",
 	"menu.hint_scan_motorpos",
 	"menu.hint_scan_nid",

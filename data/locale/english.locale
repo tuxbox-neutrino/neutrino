@@ -976,6 +976,7 @@ menu.hint_scan_logical_hd If both SD and HD channel versions present\nput HD to 
 menu.hint_scan_longitude Enter your longtitude
 menu.hint_scan_manual Manual transponder scan using\nselected parameters
 menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_motor_18v Use 18V when moving rotor
 menu.hint_scan_motor_speed Rotor moving speed in 1/10 degree\nper second
 menu.hint_scan_motorpos Select stored position number for\nthis satellite
 menu.hint_scan_nid Enter decimal network ID
