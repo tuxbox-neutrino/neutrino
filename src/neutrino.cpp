@@ -2687,7 +2687,8 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
-		my_system(NEUTRINO_RECORDING_TIMER_SCRIPT,NULL,NULL);
+		if(file_exists(NEUTRINO_RECORDING_TIMER_SCRIPT))
+			my_system(NEUTRINO_RECORDING_TIMER_SCRIPT,NULL,NULL);
 		if (g_settings.recording_type == RECORDING_FILE) {
 			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -2701,7 +2702,7 @@ _repeat:
 				}
 			}
 			if(has_hdd) {
-				system("(rm /media/sda1/.wakeup; touch /media/sda1/.wakeup; sync) > /dev/null  2> /dev/null &"); // wakeup hdd
+				wakeup_hdd(g_settings.network_nfs_recordingdir);
 			}
 		}
 		if( g_settings.recording_zap_on_announce ) {
@@ -3225,7 +3226,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		standby_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
-		if (my_system(NEUTRINO_ENTER_STANDBY_SCRIPT,NULL,NULL) != 0)
+		if (file_exists(NEUTRINO_ENTER_STANDBY_SCRIPT) && my_system(NEUTRINO_ENTER_STANDBY_SCRIPT,NULL,NULL) != 0)
 			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
 
 		if(!CRecordManager::getInstance()->RecordingStatus())
@@ -3269,7 +3270,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
-		if (my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT,NULL,NULL) != 0)
+		if (file_exists(NEUTRINO_LEAVE_STANDBY_SCRIPT) && my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT,NULL,NULL) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);

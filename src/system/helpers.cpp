@@ -32,8 +32,32 @@
 #include <sys/types.h>
 #include <sys/vfs.h>    /* or <sys/statfs.h> */
 #include <string.h>
+#include <fcntl.h>
 
 #include <system/helpers.h>
+
+bool file_exists(const char *filename)
+{
+	struct stat stat_buf;
+	if(::stat(filename, &stat_buf) == 0)
+	{
+		return true;
+	} else
+	{
+		return false;
+	}
+}
+
+void  wakeup_hdd(const char *hdd_dir)
+{
+	if(!check_dir(hdd_dir)){
+		std::string wakeup_file = hdd_dir;
+		wakeup_file += "/.wakeup";
+		remove(wakeup_file.c_str());
+		creat(wakeup_file.c_str(),S_IREAD|S_IWRITE);
+		sync();
+	}
+}
 
 int my_system(const char * cmd, const char * arg1, const char * arg2)
 {

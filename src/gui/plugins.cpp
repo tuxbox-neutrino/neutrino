@@ -96,18 +96,6 @@ int CPlugins::find_plugin(const std::string & filename)
 	return -1;
 }
 
-bool CPlugins::pluginfile_exists(const std::string & filename)
-{
-	struct stat stat_buf;
-	if(::stat(filename.c_str(), &stat_buf) == 0)
-	{
-		return true;
-	} else
-	{
-		return false;
-	}
-}
-
 void CPlugins::scanDir(const char *dir)
 {
 	struct dirent **namelist;
@@ -370,7 +358,7 @@ void CPlugins::startScriptPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
 	printf("[CPlugins] executing script %s\n",script);
-	if (!pluginfile_exists(plugin_list[number].pluginfile))
+	if (!file_exists(script))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
 		       script, plugin_list[number].cfgfile.c_str());
@@ -423,7 +411,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		startScriptPlugin(number);
 		return;
 	}
-	if (!pluginfile_exists(plugin_list[number].pluginfile))
+	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
 		       plugin_list[number].pluginfile.c_str(), plugin_list[number].cfgfile.c_str());

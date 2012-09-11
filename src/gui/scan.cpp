@@ -249,7 +249,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	if(!manual) {
 		g_RCInput->close_click();
-                if (my_system(NEUTRINO_SCAN_START_SCRIPT,NULL,NULL) != 0)
+                if (file_exists(NEUTRINO_SCAN_START_SCRIPT) && my_system(NEUTRINO_SCAN_START_SCRIPT,NULL,NULL) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
 
@@ -311,7 +311,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	g_Zapit->stopScan();
 
 	if(!manual) {
-                if (my_system(NEUTRINO_SCAN_STOP_SCRIPT,NULL,NULL) != 0)
+                if (file_exists(NEUTRINO_SCAN_STOP_SCRIPT) && my_system(NEUTRINO_SCAN_STOP_SCRIPT,NULL,NULL) != 0)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
 		g_RCInput->open_click();
 	}
