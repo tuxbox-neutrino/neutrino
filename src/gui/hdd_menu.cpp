@@ -56,7 +56,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/progresswindow.h>
 
-#include <system/setting_helpers.h>
+#include <system/helpers.h>
 #include <system/settings.h>
 #include <system/debug.h>
 

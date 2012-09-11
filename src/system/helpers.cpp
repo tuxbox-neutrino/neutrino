@@ -28,6 +28,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/vfs.h>    /* or <sys/statfs.h> */
+#include <string.h>
 
 #include <system/helpers.h>
 
@@ -101,4 +105,45 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 			return(NULL);
 	}
 	return(fp);
+}
+
+int safe_mkdir(char * path)
+{
+	struct statfs s;
+	int ret = 0;
+	if(!strncmp(path, "/hdd", 4)) {
+		ret = statfs("/hdd", &s);
+		if((ret != 0) || (s.f_type == 0x72b6))
+			ret = -1;
+		else
+			mkdir(path, 0755);
+	} else
+		mkdir(path, 0755);
+	return ret;
+}
+
+int check_dir(const char * newdir)
+{
+  
+  	struct statfs s;
+	if (::statfs(newdir, &s) == 0) {
+		switch (s.f_type)	/* f_type is long */
+		{
+			case 0xEF53L:		/*EXT2 & EXT3*/
+			case 0x6969L:		/*NFS*/
+			case 0xFF534D42L:	/*CIFS*/
+			case 0x517BL:		/*SMB*/
+			case 0x52654973L:	/*REISERFS*/
+			case 0x65735546L:	/*fuse for ntfs*/
+			case 0x58465342L:	/*xfs*/
+			case 0x4d44L:		/*msdos*/
+			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
+			case 0x858458f6: 	/*ramfs*/
+				return 0;//ok
+			default:
+				fprintf( stderr,"%s Unknow File system type: %i\n",newdir ,s.f_type);
+				break;
+		}
+	}
+	return 1;	// error
 }

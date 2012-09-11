@@ -55,7 +55,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
-
+#include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
 
 #include <zapit/femanager.h>

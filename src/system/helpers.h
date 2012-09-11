@@ -24,5 +24,7 @@
 
 int my_system(const char * cmd, const char * arg1, const char * arg2);
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
+int safe_mkdir(char * path);
+int check_dir(const char * newdir);
 
 #endif

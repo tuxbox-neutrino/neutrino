@@ -51,7 +51,7 @@
 #include <driver/record.h>
 
 #include <system/debug.h>
-
+#include <system/helpers.h>
 
 CRecordSetup::CRecordSetup()
 {

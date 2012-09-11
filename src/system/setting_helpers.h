@@ -144,9 +144,6 @@ class COnekeyPluginChangeExec : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-int safe_mkdir(char * path);
-int check_dir(const char * newdir);
-
 class CTZChangeNotifier : public CChangeObserver
 {
 public:
