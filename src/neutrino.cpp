@@ -96,6 +96,7 @@
 #include <system/fsmounter.h>
 #include <system/setting_helpers.h>
 #include <system/settings.h>
+#include <system/helpers.h>
 
 #include <timerdclient/timerdmsg.h>
 
@@ -1745,7 +1746,7 @@ void wake_up( bool &wakeup)
 	if(!wakeup){
 		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
 		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
-		if (system(neutrino_leave_deepstandby_script) != 0)
+		if (file_exists(neutrino_leave_deepstandby_script) && my_system(neutrino_leave_deepstandby_script,NULL,NULL) != 0)
 			perror( neutrino_leave_deepstandby_script );
 	}
 #endif
@@ -2686,7 +2687,7 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
-		system(NEUTRINO_RECORDING_TIMER_SCRIPT);
+		my_system(NEUTRINO_RECORDING_TIMER_SCRIPT,NULL,NULL);
 		if (g_settings.recording_type == RECORDING_FILE) {
 			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -2946,7 +2947,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		if(retcode) {
 			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
 			printf("[%s] executing %s\n",__FILE__ ,neutrino_enter_deepstandby_script);
-			if (system(neutrino_enter_deepstandby_script) != 0)
+			if (file_exists(neutrino_enter_deepstandby_script) && my_system(neutrino_enter_deepstandby_script,NULL,NULL) != 0)
 				perror(neutrino_enter_deepstandby_script );
 
 			printf("entering off state\n");
@@ -3224,7 +3225,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		standby_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
-		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
+		if (my_system(NEUTRINO_ENTER_STANDBY_SCRIPT,NULL,NULL) != 0)
 			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
 
 		if(!CRecordManager::getInstance()->RecordingStatus())
@@ -3268,7 +3269,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
-		if (system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
+		if (my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT,NULL,NULL) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);

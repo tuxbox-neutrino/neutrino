@@ -66,6 +66,7 @@
 #include <gui/widget/stringinput_ext.h>
 
 #include <system/settings.h>
+#include <system/helpers.h>
 #include <driver/screen_max.h>
 
 #include <algorithm>
@@ -317,7 +318,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	g_Sectionsd->setPauseScanning(true);
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_START_SCRIPT ".");
-	if (system(AUDIOPLAYER_START_SCRIPT) != 0)
+	if (my_system(AUDIOPLAYER_START_SCRIPT,NULL,NULL) != 0)
 		perror("Datei " AUDIOPLAYER_START_SCRIPT " fehlt.Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_START_SCRIPT " not found. Please create if needed.\n");
 
 	show();
@@ -329,7 +330,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_frameBuffer->paintBackground();
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_END_SCRIPT ".");
-	if (system(AUDIOPLAYER_END_SCRIPT) != 0)
+	if (my_system(AUDIOPLAYER_END_SCRIPT,NULL,NULL) != 0)
 		perror("Datei " AUDIOPLAYER_END_SCRIPT " fehlt. Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_END_SCRIPT " not found. Please create if needed.\n");
 
 	g_Zapit->unlockPlayBack();

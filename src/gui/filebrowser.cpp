@@ -61,7 +61,7 @@
 #ifndef NEW_LIBCURL
 #include <curl/types.h>
 #endif
-
+#include <system/helpers.h>
 #include <xmltree/xmlinterface.h>
 
 #ifdef __USE_FILE_OFFSET64
