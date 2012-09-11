@@ -34,7 +34,7 @@
 #endif
 
 
-#include "gui/parentallock_setup.h"
+#include "parentallock_setup.h"
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>

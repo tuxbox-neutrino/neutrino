@@ -33,7 +33,6 @@
 #include <config.h>
 #endif
 
-#include <string>
 #include <algorithm>
 
 #include <gui/bouquetlist.h>

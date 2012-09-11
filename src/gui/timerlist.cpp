@@ -55,7 +55,6 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>

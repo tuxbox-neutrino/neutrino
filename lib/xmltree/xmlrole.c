@@ -18,7 +18,7 @@ James Clark. All Rights Reserved.
 Contributor(s):
 */
 
-#include "xmldef.h"
+#include "xmltok/xmldef.h"
 #include "xmlrole.h"
 
 /* Doesn't check:

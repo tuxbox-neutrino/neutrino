@@ -39,7 +39,6 @@
 #include <signal.h>
 
 #include <fstream>
-#include <string>
 
 #include "global.h"
 #include "neutrino.h"
@@ -75,7 +74,6 @@
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
 #include "gui/start_wizard.h"
-#include "gui/timerlist.h"
 #include "gui/videosettings.h"
 
 #include "gui/widget/hintbox.h"
@@ -107,12 +105,11 @@
 #include <zapit/satconfig.h>
 #include <zapit/client/zapitclient.h>
 
-#include <string.h>
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <lib/libdvbsub/dvbsub.h>
+#include <lib/libtuxtxt/teletext.h>
 #include <eitd/sectionsd.h>
 
 int old_b_id = -1;

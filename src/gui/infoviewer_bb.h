@@ -42,7 +42,6 @@
 #include <system/settings.h>
 #include "widget/menue.h"
 #include <gui/widget/progressbar.h>
-#include <gui/infoviewer.h>
 #include <string>
 
 class CInfoViewerBB

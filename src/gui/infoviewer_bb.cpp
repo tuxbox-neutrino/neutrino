@@ -32,7 +32,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <string>
+#include "infoviewer_bb.h"
+
 #include <algorithm>
 
 #include <sys/types.h>
@@ -49,7 +50,6 @@
 #include <neutrino.h>
 
 #include <gui/infoviewer.h>
-#include <gui/infoviewer_bb.h>
 #include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>

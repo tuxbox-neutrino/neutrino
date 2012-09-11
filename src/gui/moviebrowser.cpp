@@ -53,23 +53,23 @@
 #include <cstdlib>
 #include "moviebrowser.h"
 #include "filebrowser.h"
-#include "widget/hintbox.h"
-#include "widget/helpbox.h"
-#include "widget/messagebox.h"
-#include "widget/stringinput_ext.h"
+#include <gui/widget/hintbox.h>
+#include <gui/widget/helpbox.h>
+#include <gui/widget/icons.h>
+#include <gui/widget/progressbar.h>
+#include <gui/widget/messagebox.h>
+#include <gui/widget/stringinput.h>
+#include <gui/widget/stringinput_ext.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <gui/nfs.h>
-#include "neutrino.h"
+#include <neutrino.h>
 #include <sys/vfs.h> // for statfs
 #include <sys/mount.h>
 #include <utime.h>
 #include <unistd.h>
-#include <gui/widget/icons.h>
-#include <gui/widget/progressbar.h>
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
-#include <gui/widget/stringinput.h>
 #include <driver/record.h>
 
 extern CPictureViewer * g_PicViewer;

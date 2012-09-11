@@ -6,7 +6,7 @@
 #include <driver/fontrenderer.h>
 #include <system/settings.h>
 
-#include "gui/color.h"
+#include <gui/color.h>
 
 #include <string>
 

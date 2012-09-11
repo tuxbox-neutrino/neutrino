@@ -25,8 +25,8 @@
 #include <string.h>
 #include <unistd.h>
 #include "configure_network.h"
-#include "libnet.h"             /* netGetNameserver, netSetNameserver   */
-#include "network_interfaces.h" /* getInetAttributes, setInetAttributes */
+#include <lib/libnet/libnet.h>             /* netGetNameserver, netSetNameserver   */
+#include <lib/libnet/network_interfaces.h> /* getInetAttributes, setInetAttributes */
 #include <stdlib.h>             /* system                               */
 #include <iostream>
 #include <iomanip>

@@ -35,7 +35,7 @@
 #endif
 
 
-#include "gui/user_menue_setup.h"
+#include "user_menue_setup.h"
 
 #include <global.h>
 #include <neutrino.h>

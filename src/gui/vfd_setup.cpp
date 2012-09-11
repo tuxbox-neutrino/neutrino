@@ -34,7 +34,7 @@
 #endif
 
 
-#include "gui/vfd_setup.h"
+#include "vfd_setup.h"
 
 #include <global.h>
 #include <neutrino.h>

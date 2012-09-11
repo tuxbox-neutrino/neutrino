@@ -39,8 +39,8 @@
 #include <neutrino_menue.h>
 #include <mymenu.h>
 
-#include "gui/record_setup.h"
-#include "gui/filebrowser.h"
+#include "record_setup.h"
+#include <gui/filebrowser.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>

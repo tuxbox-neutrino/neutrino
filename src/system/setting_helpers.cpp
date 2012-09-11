@@ -76,8 +76,8 @@
 #include <dmx.h>
 #include <cs_api.h>
 #include <pwrmngr.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 

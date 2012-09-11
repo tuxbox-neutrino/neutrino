@@ -34,7 +34,7 @@
 
 #include <gui/widget/menue.h>
 
-#include "gui/update.h"
+#include "update.h"
 
 // #define USE_SMS_INPUT
 

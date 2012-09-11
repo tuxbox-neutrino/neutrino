@@ -48,18 +48,18 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
+#include "hdd_menu.h"
 
 #include <gui/widget/icons.h>
-#include "gui/widget/stringinput.h"
-#include "gui/widget/messagebox.h"
-#include "gui/widget/hintbox.h"
-#include "gui/widget/progresswindow.h"
+#include <gui/widget/stringinput.h>
+#include <gui/widget/messagebox.h>
+#include <gui/widget/hintbox.h>
+#include <gui/widget/progresswindow.h>
 
-#include "system/setting_helpers.h"
-#include "system/settings.h"
-#include "system/debug.h"
+#include <system/setting_helpers.h>
+#include <system/settings.h>
+#include <system/debug.h>
 
-#include <gui/hdd_menu.h>
 #include <mymenu.h>
 #include <driver/screen_max.h>
 

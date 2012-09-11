@@ -50,16 +50,14 @@
 #include <gui/color.h>
 #include <gui/eventlist.h>
 #include <gui/infoviewer.h>
+#include <gui/osd_setup.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/progressbar.h>
 #include <gui/widget/components.h>
-#include <gui/osd_setup.h>
 
 #include <system/settings.h>
-#include <system/lastchannel.h>
 #include <gui/customcolor.h>
 
 #include <gui/bouquetlist.h>

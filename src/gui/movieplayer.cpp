@@ -32,9 +32,7 @@
 
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
-#include <gui/bookmarkmanager.h>
 #include <gui/timeosd.h>
-#include <gui/moviebrowser.h>
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
@@ -42,12 +40,11 @@
 #include <driver/volume.h>
 
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
 
 #include <video.h>
-#include "libtuxtxt/teletext.h"
+#include <libtuxtxt/teletext.h>
 #include <zapit/zapit.h>
 #include <fstream>
 #include <iostream>

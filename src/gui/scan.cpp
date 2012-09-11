@@ -38,7 +38,7 @@
 #include <fcntl.h>
 
 #include <gui/scan.h>
-#include "gui/scan_setup.h"
+#include <gui/scan_setup.h>
 
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>

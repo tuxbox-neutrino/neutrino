@@ -36,16 +36,15 @@
 #include <configfile.h>
 
 #include <neutrinoMessages.h>
-#include <driver/framebuffer.h>
-#include <system/setting_helpers.h>
-#include <system/configure_network.h>
-#include <gui/timerlist.h>
-#include <timerdclient/timerdtypes.h>
-#include <gui/channellist.h>          /* CChannelList */
-#include <gui/rc_lock.h>
-#include <daemonc/remotecontrol.h>    /* st_rmsg      */
-#include <gui/personalize.h>
-#include <gui/user_menue.h>
+#include "driver/framebuffer.h"
+#include "system/setting_helpers.h"
+#include "system/configure_network.h"
+#include "daemonc/remotecontrol.h"    /* st_rmsg      */
+#include "gui/channellist.h"          /* CChannelList */
+#include "gui/personalize.h"
+#include "gui/rc_lock.h"
+#include "gui/user_menue.h"
+#include "gui/timerlist.h"
 
 #include <string>
 

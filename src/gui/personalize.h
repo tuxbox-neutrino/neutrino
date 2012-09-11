@@ -52,8 +52,8 @@
 #define __personalize__
 
 #include <gui/widget/menue.h>
-#include "gui/plugins.h"
-#include "gui/user_menue_setup.h"
+#include <gui/plugins.h>
+#include <gui/user_menue_setup.h>
 #include "widget/stringinput.h"
 #include "widget/stringinput_ext.h"
 #include <string>

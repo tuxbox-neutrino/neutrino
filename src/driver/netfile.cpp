@@ -101,7 +101,7 @@
 #endif
 
 #include "netfile.h"
-#include "global.h"
+#include <global.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/types.h>

@@ -69,8 +69,8 @@
 #endif
 
 #include <driver/abstime.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 
 /* globals */
 int sig_delay = 2; // seconds between signal check
