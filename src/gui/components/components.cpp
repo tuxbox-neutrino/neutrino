@@ -82,16 +82,16 @@ void CComponents::initVarBasic()
 }
 
 //paint framebuffer stuff and fill buffer
-void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg)
+void CComponents::paintFbItems(bool do_save_bg)
 {
 	if (firstPaint && do_save_bg)	{
-		for(int i=0; i<items_count; i++){
-			if (fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
+		for(size_t i=0; i<v_fbdata.size(); i++){
+			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
 				//printf("\n#####[%s - %d] firstPaint: %d, fbdata_type: %d\n \n", __FUNCTION__, __LINE__, firstPaint, fbdata[i].fbdata_type);
-				saved_screen.x = fbdata[i].x;
-				saved_screen.y = fbdata[i].y;
-				saved_screen.dx = fbdata[i].dx;
-				saved_screen.dy = fbdata[i].dy;
+				saved_screen.x = v_fbdata[i].x;
+				saved_screen.y = v_fbdata[i].y;
+				saved_screen.dx = v_fbdata[i].dx;
+				saved_screen.dy = v_fbdata[i].dy;
 				clearSavedScreen();
 				saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
 				
@@ -101,14 +101,13 @@ void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_co
 		}
 	}
 	
-	for(int i=0; i< items_count ;i++){
-		int fbtype = fbdata[i].fbdata_type;
+	for(size_t i=0; i< v_fbdata.size() ;i++){
+		int fbtype = v_fbdata[i].fbdata_type;
 		
 		if (firstPaint){
 			
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
-				fbdata[i].pixbuf = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
-			v_fbdata.push_back(fbdata[i]);
+				v_fbdata[i].pixbuf = getScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
 			
 			//ensure painting of all line fb items with saved screens
 			if (fbtype == CC_FBDATA_TYPE_LINE)
@@ -117,12 +116,12 @@ void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_co
 				firstPaint = false;
 		}
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN){
-			if (fbtype == CC_FBDATA_TYPE_FRAME && fbdata[i].frame_thickness > 0)
-				frameBuffer->paintBoxFrame(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].frame_thickness, fbdata[i].color, fbdata[i].r);
+			if (fbtype == CC_FBDATA_TYPE_FRAME && v_fbdata[i].frame_thickness > 0)
+				frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
-				frameBuffer->paintBackgroundBoxRel(x, y, fbdata[i].dx, fbdata[i].dy);
+				frameBuffer->paintBackgroundBoxRel(x, y, v_fbdata[i].dx, v_fbdata[i].dy);
 			else
-				frameBuffer->paintBoxRel(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].color, fbdata[i].r, corner_type);
+				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
 	
@@ -201,9 +200,10 @@ void CComponentsContainer::paintInit(bool do_save_bg)
 		{CC_FBDATA_TYPE_BOX, 		x+th,	y+th, 	width-2*th, 	height-2*th, 	col_body, 	corner_rad-th,  0, 	NULL,	NULL},
 	};
 	
-	int items_cnt = sizeof(fbdata) / sizeof(fbdata[0]);
+	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
+		v_fbdata.push_back(fbdata[i]);
 	
-	paintFbItems(fbdata, items_cnt, do_save_bg);
+	paintFbItems(do_save_bg);
 }
 
 void CComponentsContainer::paint(bool do_save_bg)
@@ -535,8 +535,6 @@ CComponentsDetailLine::~CComponentsDetailLine()
 //paint details line with current parameters
 void CComponentsDetailLine::paint(bool do_save_bg)
 {
-	int items_cnt = 0;
-	
 	clear();
 	
 	int y_mark_top = y-h_mark_top/2+thickness/2;
@@ -569,9 +567,10 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down+h_mark_down,thickness+sw, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
 	};
 	
-	items_cnt = sizeof(fbdata) / sizeof(fbdata[0]);
+	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
+		v_fbdata.push_back(fbdata[i]);
 	
-	paintFbItems(fbdata, items_cnt, do_save_bg);
+	paintFbItems(do_save_bg);
 }
 
 //remove painted fb items from screen

@@ -126,7 +126,7 @@ class CComponents
 		bool	firstPaint, shadow, is_painted;
 		
 		void initVarBasic();
-		void paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg = true);
+		void paintFbItems(bool do_save_bg = true);
 		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		comp_screen_data_t saved_screen;
 		
