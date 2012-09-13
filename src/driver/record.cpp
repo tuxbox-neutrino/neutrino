@@ -891,23 +891,25 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 
 	mutex.unlock();
 
-	if (error_msg == RECORD_OK) {
+	if (error_msg == RECORD_OK)
 		return true;
-	}
-	else if(!timeshift) {
-		RunStopScript();
-		RestoreNeutrino();
 
-		printf("[recordmanager] %s: error code: %d\n", __FUNCTION__, error_msg);
+	printf("[recordmanager] %s: error code: %d\n", __FUNCTION__, error_msg);
+	/* RestoreNeutrino must be called always if record start failed */
+	RunStopScript();
+	RestoreNeutrino();
+
+	/* FIXME show timeshift start error or not ? */
+	//if(!timeshift)
+	{
 		//FIXME: Use better error message
 		DisplayErrorMessage(g_Locale->getText(
 				      error_msg == RECORD_BUSY ? LOCALE_STREAMING_BUSY :
 				      error_msg == RECORD_INVALID_DIRECTORY ? LOCALE_STREAMING_DIR_NOT_WRITABLE :
 				      LOCALE_STREAMING_WRITE_ERROR )); // UTF-8
-		return false;
 	}
 
-	return true;
+	return false;
 }
 
 bool CRecordManager::StartAutoRecord()
