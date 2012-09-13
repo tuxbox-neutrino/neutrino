@@ -171,10 +171,10 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	record->Open();
 
 	if(!record->Start(fd, (unsigned short ) allpids.PIDs.vpid, (unsigned short *) apids, numpids, channel_id)) {
-		/* Stop do close fd */
 		record->Stop();
 		delete record;
 		record = NULL;
+		close(fd);
 		unlink(tsfile.c_str());
 		hintBox.hide();
 		return RECORD_FAILURE;
@@ -215,6 +215,7 @@ bool CRecordInstance::Stop(bool remove_event)
 
 	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
 	SaveXml();
+	/* Stop do close fd - if started */
 	record->Stop();
 
 	if(!autoshift)
