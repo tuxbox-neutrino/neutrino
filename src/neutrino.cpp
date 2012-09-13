@@ -3170,7 +3170,7 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 
 void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 {
-	static bool wasshift = false;
+	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
 	
 	if( bOnOff ) {
@@ -3188,7 +3188,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 
-		wasshift = CRecordManager::getInstance()->StopAutoRecord();
+		/* wasshift = */ CRecordManager::getInstance()->StopAutoRecord();
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
@@ -3297,11 +3297,15 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			InfoClock->StartClock();
 
 		g_volume->AudioMute(current_muted, true);
+#if 0
+		/* auto-record will be started when zap is complete
+		 * FIXME is it needed to restart manual timeshift here ? */
 		if((mode == mode_tv) && wasshift) {
 			//startAutoRecord();
 			CRecordManager::getInstance()->StartAutoRecord();
 		}
 		wasshift = false;
+#endif
 		StartSubtitles();
 	}
 }
