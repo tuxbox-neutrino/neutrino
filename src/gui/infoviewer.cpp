@@ -1358,7 +1358,8 @@ void CInfoViewer::showSNR ()
 			g_SignalFont->RenderString (posx, posy + height, sw, percent, COL_INFOBAR);
 		}
 	}
-	infoViewerBB->showSysfsHdd();
+	if(showButtonBar)
+		infoViewerBB->showSysfsHdd();
 }
 
 void CInfoViewer::display_Info(const char *current, const char *next,
