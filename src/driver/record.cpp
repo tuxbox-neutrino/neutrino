@@ -40,13 +40,15 @@
 #include <neutrino.h>
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
+#include <gui/nfs.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
 #include <daemonc/remotecontrol.h>
 #include <system/setting_helpers.h>
 #include <system/fsmounter.h>
-#include <gui/nfs.h>
+#include <system/helpers.h>
+
 
 #include <driver/record.h>
 #include <zapit/capmt.h>
@@ -1446,7 +1448,7 @@ bool CRecordManager::RunStartScript(void)
 		return false;
 
 	puts("[neutrino.cpp] executing " NEUTRINO_RECORDING_START_SCRIPT ".");
-	if (system(NEUTRINO_RECORDING_START_SCRIPT) != 0) {
+	if (file_exists(NEUTRINO_RECORDING_START_SCRIPT) && my_system(NEUTRINO_RECORDING_START_SCRIPT,NULL,NULL) != 0) {
 		perror(NEUTRINO_RECORDING_START_SCRIPT " failed");
 		return false;
 	}
@@ -1460,7 +1462,7 @@ bool CRecordManager::RunStopScript(void)
 		return false;
 
 	puts("[neutrino.cpp] executing " NEUTRINO_RECORDING_ENDED_SCRIPT ".");
-	if (system(NEUTRINO_RECORDING_ENDED_SCRIPT) != 0) {
+	if (file_exists(NEUTRINO_RECORDING_ENDED_SCRIPT) && my_system(NEUTRINO_RECORDING_ENDED_SCRIPT,NULL,NULL) != 0) {
 		perror(NEUTRINO_RECORDING_ENDED_SCRIPT " failed");
 		return false;
 	}

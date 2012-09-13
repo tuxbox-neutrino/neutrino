@@ -28,8 +28,8 @@
 #include <neutrino.h>
 
 #include <gui/widget/icons.h>
-#include "gui/network_service.h"
-#include "mymenu.h"
+#include "network_service.h"
+#include <mymenu.h>
 
 #include <driver/screen_max.h>
 

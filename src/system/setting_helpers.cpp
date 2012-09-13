@@ -33,7 +33,6 @@
 #include "configure_network.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <unistd.h>
 #include <iostream>
 #include <iomanip>
@@ -44,12 +43,9 @@
 #include <libnet.h>
 #include <linux/if.h>
 #include <sys/time.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
 
 #if HAVE_COOL_HARDWARE
 #include <coolstream/control.h>
@@ -76,8 +72,8 @@
 #include <dmx.h>
 #include <cs_api.h>
 #include <pwrmngr.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 
@@ -565,45 +561,4 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 	}
 	videoDecoder->SetAutoModes(modes);
 	return false;
-}
-
-int safe_mkdir(char * path)
-{
-	struct statfs s;
-	int ret = 0;
-	if(!strncmp(path, "/hdd", 4)) {
-		ret = statfs("/hdd", &s);
-		if((ret != 0) || (s.f_type == 0x72b6))
-			ret = -1;
-		else
-			mkdir(path, 0755);
-	} else
-		mkdir(path, 0755);
-	return ret;
-}
-
-int check_dir(const char * newdir)
-{
-  
-  	struct statfs s;
-	if (::statfs(newdir, &s) == 0) {
-		switch (s.f_type)	/* f_type is long */
-		{
-			case 0xEF53L:		/*EXT2 & EXT3*/
-			case 0x6969L:		/*NFS*/
-			case 0xFF534D42L:	/*CIFS*/
-			case 0x517BL:		/*SMB*/
-			case 0x52654973L:	/*REISERFS*/
-			case 0x65735546L:	/*fuse for ntfs*/
-			case 0x58465342L:	/*xfs*/
-			case 0x4d44L:		/*msdos*/
-			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x858458f6: 	/*ramfs*/
-				return 0;//ok
-			default:
-				fprintf( stderr,"%s Unknow File system type: %i\n",newdir ,s.f_type);
-				break;
-		}
-	}
-	return 1;	// error
 }

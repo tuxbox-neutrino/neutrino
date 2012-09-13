@@ -33,7 +33,6 @@
 #include <config.h>
 #endif
 
-#include <string>
 #include <algorithm>
 
 #include <gui/bouquetlist.h>
@@ -353,7 +352,8 @@ int CBouquetList::show(bool bShowChannelList)
 				loop = false;
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
-				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
+				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ||
+				(msg == CRCInput::RC_favorites) )
 		{
 			selected = oldselected;
 			if(fader.StartFadeOut()) {

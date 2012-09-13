@@ -35,10 +35,7 @@
 #include <config.h>
 #endif
 
-#include <gui/widget/buttons.h>
-#include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-
 #include "bouqueteditor_channels.h"
 
 #include <global.h>
@@ -53,7 +50,6 @@
 #include <zapit/getservices.h>
 #include <zapit/femanager.h>
 
-#include <zapit/client/zapitclient.h>
 extern CBouquetManager *g_bouquetManager;
 
 CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bouquet)

@@ -38,7 +38,7 @@
 #include <neutrino.h>
 #include <mymenu.h>
 
-#include "gui/subchannel_select.h"
+#include "subchannel_select.h"
 #include <driver/record.h>
 
 extern CRemoteControl * g_RemoteControl;

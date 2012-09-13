@@ -12,8 +12,8 @@
 
 
 
-#include "global.h"
-#include "driver/screen_max.h"
+#include <global.h>
+#include <driver/screen_max.h>
 
 
 // -- this is a simple odd class provided for 'static' usage

@@ -38,13 +38,13 @@
 #include <mymenu.h>
 #include <neutrino_menue.h>
 
-#include "gui/scan.h"
-#include "gui/scan_setup.h"
-#include "gui/motorcontrol.h"
-#include "gui/bedit/bouqueteditor_bouquets.h"
+#include <gui/scan.h>
+#include <gui/scan_setup.h>
+#include <gui/motorcontrol.h>
+#include <gui/bedit/bouqueteditor_bouquets.h>
 
-#include "gui/widget/hintbox.h"
-#include "gui/widget/stringinput.h"
+#include <gui/widget/hintbox.h>
+#include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
@@ -53,7 +53,6 @@
 
 #include <zapit/femanager.h>
 #include <zapit/getservices.h>
-#include <zapit/satconfig.h>
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
 #include <zapit/debug.h>

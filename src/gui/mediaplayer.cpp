@@ -31,17 +31,17 @@
 #endif
 
 
-#include "gui/mediaplayer.h"
+#include "mediaplayer.h"
 
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
 #include <neutrinoMessages.h>
 
-#include "gui/movieplayer.h"
-#include "gui/pictureviewer.h"
+#include <gui/movieplayer.h>
+#include <gui/pictureviewer.h>
 #if ENABLE_UPNP
-#include "gui/upnpbrowser.h"
+#include <gui/upnpbrowser.h>
 #endif
 
 #include <gui/widget/icons.h>

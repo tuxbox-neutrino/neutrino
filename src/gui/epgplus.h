@@ -35,7 +35,6 @@
 
 #include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
-#include <driver/rcinput.h>
 #include <system/settings.h>
 
 #include "color.h"

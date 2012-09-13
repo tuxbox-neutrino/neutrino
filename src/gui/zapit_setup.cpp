@@ -27,7 +27,7 @@
 #endif
 
 
-#include "gui/zapit_setup.h"
+#include "zapit_setup.h"
 
 #include <global.h>
 #include <neutrino.h>

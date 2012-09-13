@@ -32,22 +32,20 @@
 
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
-#include <gui/bookmarkmanager.h>
 #include <gui/timeosd.h>
-#include <gui/moviebrowser.h>
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
+#include <system/helpers.h>
 
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
 
 #include <video.h>
-#include "libtuxtxt/teletext.h"
+#include <libtuxtxt/teletext.h>
 #include <zapit/zapit.h>
 #include <fstream>
 #include <iostream>
@@ -178,7 +176,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	startposition = 0;
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
-	if (system(MOVIEPLAYER_START_SCRIPT) != 0)
+	if (file_exists(MOVIEPLAYER_START_SCRIPT) && my_system(MOVIEPLAYER_START_SCRIPT,NULL,NULL) != 0)
 		perror(MOVIEPLAYER_START_SCRIPT " failed");
 	
 	isMovieBrowser = false;
@@ -216,7 +214,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	bookmarkmanager->flush();
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
-	if (system(MOVIEPLAYER_END_SCRIPT) != 0)
+	if (file_exists(MOVIEPLAYER_END_SCRIPT) && my_system(MOVIEPLAYER_END_SCRIPT,NULL,NULL) != 0)
 		perror(MOVIEPLAYER_END_SCRIPT " failed");
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -303,7 +301,7 @@ bool CMoviePlayerGui::SelectFile()
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
 	if (has_hdd)
-		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
+		wakeup_hdd(g_settings.network_nfs_recordingdir);
 
 	if (timeshift) {
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();

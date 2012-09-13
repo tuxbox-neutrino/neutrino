@@ -41,20 +41,20 @@
 #include <config.h>
 #endif
 
-#include "gui/user_menue.h"
-#include "gui/user_menue_setup.h"
-#include "gui/subchannel_select.h"
-#include "gui/favorites.h"
-#include "gui/audio_select.h"
-#include "gui/streaminfo2.h"
-#include "gui/epgplus.h"
-#include "gui/movieplayer.h"
-#include "gui/timerlist.h"
-#include "gui/plugins.h"
-#include "gui/imageinfo.h"
-#include "gui/dboxinfo.h"
-#include "gui/cam_menu.h"
-#include "gui/pluginlist.h"
+#include "user_menue.h"
+#include "user_menue_setup.h"
+#include "subchannel_select.h"
+#include "favorites.h"
+#include "audio_select.h"
+#include "streaminfo2.h"
+#include "epgplus.h"
+#include "movieplayer.h"
+#include "timerlist.h"
+#include "plugins.h"
+#include "imageinfo.h"
+#include "dboxinfo.h"
+#include "cam_menu.h"
+#include "pluginlist.h"
 
 #include <global.h>
 #include <neutrino.h>

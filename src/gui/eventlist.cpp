@@ -48,7 +48,7 @@
 
 #include "widget/hintbox.h"
 #include "widget/buttons.h"
-#include "gui/bouquetlist.h"
+#include "bouquetlist.h"
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>

@@ -34,9 +34,9 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include "gui/info_menue.h"
-#include "gui/imageinfo.h"
-#include "gui/dboxinfo.h"
+#include <gui/info_menue.h>
+#include <gui/imageinfo.h>
+#include <gui/dboxinfo.h>
 #include <gui/streaminfo2.h>
 
 #include <driver/screen_max.h>

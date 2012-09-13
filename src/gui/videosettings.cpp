@@ -41,8 +41,8 @@
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
-#include "gui/widget/hintbox.h"
-#include "gui/widget/messagebox.h"
+#include <gui/widget/hintbox.h>
+#include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
 

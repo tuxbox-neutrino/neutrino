@@ -15,7 +15,7 @@
 
 #include "teletext.h"
 #include "tuxtxt.h"
-#include "driver/framebuffer.h"
+#include <driver/framebuffer.h>
 #include <dmx.h>
 #include <video.h>
 #include <sys/stat.h>

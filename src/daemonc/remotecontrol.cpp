@@ -41,8 +41,8 @@
 
 #include <driver/record.h>
 #include <driver/abstime.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>

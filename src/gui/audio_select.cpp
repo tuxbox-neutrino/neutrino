@@ -47,8 +47,8 @@ extern CRemoteControl		* g_RemoteControl; /* neutrino.cpp */
 extern CAudioSetupNotifier	* audioSetupNotifier;
 
 #include <gui/audio_select.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 
 //
 //  -- AUDIO Selector Menue Handler Class

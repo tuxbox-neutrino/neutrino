@@ -16,7 +16,6 @@
 
 #include "Debug.hpp"
 #include "PacketQueue.hpp"
-#include "semaphore.h"
 #include "helpers.hpp"
 #include "dvbsubtitle.h"
 

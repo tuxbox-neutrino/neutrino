@@ -31,7 +31,6 @@
 #include <gui/widget/menue.h>
 
 #include <driver/fontrenderer.h>
-#include <driver/rcinput.h>
 #include <driver/screen_max.h>
 
 #include <gui/widget/stringinput.h>

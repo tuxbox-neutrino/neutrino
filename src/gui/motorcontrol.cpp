@@ -36,7 +36,7 @@
 #include <gui/customcolor.h>
 #include <driver/rcinput.h>
 #include <gui/motorcontrol.h>
-#include "gui/scan_setup.h"
+#include <gui/scan_setup.h>
 #include <gui/color.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>

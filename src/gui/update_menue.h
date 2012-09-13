@@ -33,7 +33,7 @@
 #define __software_update__
 
 #include <gui/widget/menue.h>
-#include "gui/update.h"
+#include <gui/update.h>
 #include <string>
 
 class CSoftwareUpdate : public CMenuTarget

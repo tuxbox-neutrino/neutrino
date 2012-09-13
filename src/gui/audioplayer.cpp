@@ -60,14 +60,13 @@
 
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 
 #include <system/settings.h>
-#include <xmltree/xmlinterface.h>
+#include <system/helpers.h>
 #include <driver/screen_max.h>
 
 #include <algorithm>
@@ -145,7 +144,7 @@ void CAudiofileExt::operator=(const CAudiofileExt& src)
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-#ifndef NEW_LIBCURL
+#if LIBCURL_VERSION_NUM < 0x071507
 #include <curl/types.h>
 #endif
 
@@ -319,7 +318,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	g_Sectionsd->setPauseScanning(true);
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_START_SCRIPT ".");
-	if (system(AUDIOPLAYER_START_SCRIPT) != 0)
+	if (file_exists(AUDIOPLAYER_START_SCRIPT) && my_system(AUDIOPLAYER_START_SCRIPT,NULL,NULL) != 0)
 		perror("Datei " AUDIOPLAYER_START_SCRIPT " fehlt.Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_START_SCRIPT " not found. Please create if needed.\n");
 
 	show();
@@ -331,7 +330,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_frameBuffer->paintBackground();
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_END_SCRIPT ".");
-	if (system(AUDIOPLAYER_END_SCRIPT) != 0)
+	if (file_exists(AUDIOPLAYER_END_SCRIPT) && my_system(AUDIOPLAYER_END_SCRIPT,NULL,NULL) != 0)
 		perror("Datei " AUDIOPLAYER_END_SCRIPT " fehlt. Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_END_SCRIPT " not found. Please create if needed.\n");
 
 	g_Zapit->unlockPlayBack();

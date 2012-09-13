@@ -32,7 +32,6 @@
 #include <system/settings.h>
 
 #include <string>
-#include "gui/widget/menue.h"
 
 //#define CPU_FREQ
 
