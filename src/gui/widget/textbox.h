@@ -130,7 +130,18 @@ class CTextBox
 		CFrameBuffer * frameBuffer;
 		int max_width;
 		int text_border_width;
+		
 	public:
+		/* Variables */
+		typedef enum mode_
+		{
+			AUTO_WIDTH	= 0x01,
+			AUTO_HIGH	= 0x02,
+			SCROLL		= 0x04,
+			CENTER		= 0x40,
+			NO_AUTO_LINEBREAK = 0x80
+		} mode;
+		
 		/* Constructor */
 		CTextBox();
 		CTextBox(	const char * text);
@@ -152,6 +163,8 @@ class CTextBox
 		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int border);
 		void	setTextFont(Font* font_text);
+		void	setTextMode(const mode text_mode){m_nMode = text_mode;};
+		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
@@ -162,17 +175,6 @@ class CTextBox
 
 		void paint (void);
 		void hide (void);
-
-
-		/* Variables */
-		typedef enum mode_
-		{
-			AUTO_WIDTH	= 0x01,
-			AUTO_HIGH	= 0x02,
-			SCROLL		= 0x04,
-			CENTER		= 0x40,
-			NO_AUTO_LINEBREAK = 0x80
-		} mode;
 };
 
 #endif // !defined(AFX_TEXTBOX_H__208DED01_ABEC_491C_A632_5B21057DC5D8__INCLUDED_)
