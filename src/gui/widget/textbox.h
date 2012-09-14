@@ -152,16 +152,6 @@ class CTextBox
 		int text_border_width;
 		
 	public:
-		/* Variables */
-		typedef enum mode_
-		{
-			AUTO_WIDTH	= 0x01,
-			AUTO_HIGH	= 0x02,
-			SCROLL		= 0x04,
-			CENTER		= 0x40,
-			NO_AUTO_LINEBREAK = 0x80
-		} mode;
-		
 		/* Constructor */
 		CTextBox();
 		CTextBox(	const char * text);
