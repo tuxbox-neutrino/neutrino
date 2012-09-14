@@ -1300,9 +1300,6 @@ void CMovieBrowser::refreshLCD(void)
 	}
 	else
 	{
-		if(CVFD::getInstance()->getMode() != CVFD::MODE_MENU_UTF8)
-			CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD));
-
 		CVFD::getInstance()->showMenuText(0, m_movieSelectionHandler->epgTitle.c_str(), -1, true); // UTF-8
 		//lcd->showMenuText(1, m_movieSelectionHandler->epgInfo1.c_str(), -1, true); // UTF-8
 	}
