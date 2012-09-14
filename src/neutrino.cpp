@@ -3080,7 +3080,8 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 				CVFD::getInstance()->Clear();
 				CVFD::getInstance()->setMode(cvfd_mode ? CVFD::MODE_SHUTDOWN : CVFD::MODE_STANDBY);// true CVFD::MODE_SHUTDOWN  , false CVFD::MODE_STANDBY
 				break;
-			}
+			} else if (!cvfd_mode)
+				handleMsg(msg, data);
 		}
 	}
 }
