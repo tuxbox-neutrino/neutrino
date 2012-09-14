@@ -83,8 +83,19 @@ class CBox
 		int iHeight;
 };
 
-class CTextBox  
+class CTextBox
 {
+	public:
+		/* Variables */
+		enum textbox_modes
+		{
+			AUTO_WIDTH	= 0x01,
+			AUTO_HIGH	= 0x02,
+			SCROLL		= 0x04,
+			CENTER		= 0x40,
+			NO_AUTO_LINEBREAK = 0x80
+		};
+		
 	private:
 		/* Functions */
 		void refreshTextLineArray(void);
@@ -132,22 +143,12 @@ class CTextBox
 		int text_border_width;
 		
 	public:
-		/* Variables */
-		typedef enum mode_
-		{
-			AUTO_WIDTH	= 0x01,
-			AUTO_HIGH	= 0x02,
-			SCROLL		= 0x04,
-			CENTER		= 0x40,
-			NO_AUTO_LINEBREAK = 0x80
-		} mode;
-		
 		/* Constructor */
 		CTextBox();
 		CTextBox(	const char * text);
 		CTextBox(	const char * text, 
 					Font* font_text,
-					const int mode, 
+					const int pmode,
 					const CBox* position,
 					CFBWindow::color_t textBackgroundColor = COL_MENUCONTENT_PLUS_0);
 
@@ -163,7 +164,7 @@ class CTextBox
 		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int border);
 		void	setTextFont(Font* font_text);
-		void	setTextMode(const mode text_mode){m_nMode = text_mode;};
+		void	setTextMode(const int text_mode){m_nMode = text_mode;};
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
