@@ -80,12 +80,12 @@ int my_system(const char * cmd, const char * arg1, const char * arg2, const char
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
                                 close(i);
-			if(execlp(cmd, cmd, arg1, arg2, arg3, arg3,  arg4, arg5, arg6, NULL))
+			if(execlp(cmd, cmd, arg1, arg2, arg3,  arg4, arg5, arg6, NULL))
 			{
 				std::string txt = "ERROR: my_system \"" + (std::string) cmd + "\"";
 				perror(txt.c_str());
+				ret = -1;
 			}
-			ret = 1;
 			_exit (0); // terminate c h i l d proces s only	
 		default: /* parent returns to calling process */
 			break;
