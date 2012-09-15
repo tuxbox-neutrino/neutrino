@@ -589,10 +589,13 @@ void CPlugins::startPlugin(int number,int /*param*/)
 #else
 	g_RCInput->clearRCMsg();
 	g_RCInput->stopInput();
+	/* stop automatic updates etc. */
+	frameBuffer->Lock();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
 	mysystem((char *) plugin_list[number].pluginfile.c_str(), NULL, NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
+	frameBuffer->Unlock();
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();
 	g_RCInput->clearRCMsg();

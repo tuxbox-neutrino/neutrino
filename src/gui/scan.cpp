@@ -427,6 +427,8 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				delete (unsigned char*) data;
 			break;
 	}
+	/* almost all messages paint something, so blit here */
+	frameBuffer->blit();
 	return msg;
 }
 

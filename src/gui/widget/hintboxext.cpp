@@ -43,8 +43,6 @@
 
 #include <iostream>
 
-#define HINTBOXEXT_MAX_HEIGHT 420
-
 CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon)
 {
 	m_message = strdup(Text);
@@ -61,6 +59,7 @@ CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, const char * const Tex
 		m_lines.push_back(oneLine);
 		begin = strtok(NULL, "\n");
 	}
+	m_bbheight = 0;
 	init(Caption, Width, Icon);
 }
 
@@ -69,6 +68,7 @@ CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, ContentLines& lines, c
 {
 	m_message = NULL;
 	m_lines = lines;
+	m_bbheight = 0;
 	init(Caption, Width, Icon);
 }
 
@@ -115,6 +115,8 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	int line = 0;
 	int maxWidth = m_width > 0 ? m_width : 0;
 	int maxOverallHeight = 0;
+	int screenheight = CFrameBuffer::getInstance()->getScreenHeight() * 9 / 10 - m_bbheight;
+	m_startEntryOfPage.clear();
 	m_startEntryOfPage.push_back(0);
 	for (ContentLines::iterator it = m_lines.begin(); it!=m_lines.end(); ++it)
 	{
@@ -133,7 +135,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
                 if (lineWidth > maxWidth)
 			maxWidth = lineWidth;
 		m_height += maxHeight;
-		if (m_height > HINTBOXEXT_MAX_HEIGHT || pagebreak) {
+		if (m_height > screenheight || pagebreak) {
 			if (m_height-maxHeight > maxOverallHeight)
 				maxOverallHeight = m_height - maxHeight;
 			m_height = m_theight + m_fheight + maxHeight;
@@ -216,11 +218,10 @@ void CHintBoxExt::paint(bool toround)
 		return;
 	}
 
-        CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
-        m_window = new CFBWindow(frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - m_width ) >> 1),
-                               frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - m_height) >> 2),
-                               m_width + SHADOW_OFFSET,
-                               m_height + SHADOW_OFFSET);
+	m_window = new CFBWindow(getScreenStartX(m_width + SHADOW_OFFSET),
+				 getScreenStartY(m_height + SHADOW_OFFSET),
+				 m_width + SHADOW_OFFSET,
+				 m_height + SHADOW_OFFSET);
 
 	refresh(toround);
 }

@@ -55,6 +55,7 @@ class CHintBoxExt
 
 	int                      m_width;
 	int                      m_height;
+	int                      m_bbheight; /* a button bar at the bottom? */
 	int                      textStartX;
 
 	int                      m_fheight;
