@@ -8,10 +8,15 @@ INCLUDES = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
-	-I$(top_srcdir)/lib/libcoolstream \
 	-I$(top_srcdir)/lib/xmltree \
 	@FREETYPE_CFLAGS@
 
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
+if USE_STB_HAL
+INCLUDES += -I$(STB_HAL_INC)
+endif
 
 noinst_LIBRARIES = libneutrino_gui_bedit.a
 
