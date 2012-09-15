@@ -69,7 +69,7 @@ int my_system(const char * cmd)
 
 int my_system(const char * cmd, const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6)
 {
-        int i=0 ,ret=0;
+	int i=0 ,ret=0, childExit=0;
 	pid_t pid;
 	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
 	switch (pid = vfork())
@@ -79,8 +79,8 @@ int my_system(const char * cmd, const char * arg1, const char * arg2, const char
 			return -1;
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
-                                close(i);
-			if(execlp(cmd, cmd, arg1, arg2, arg3,  arg4, arg5, arg6, NULL))
+				close(i);
+			if(execlp(cmd, cmd, arg1, arg2, arg3, arg4, arg5, arg6, NULL))
 			{
 				std::string txt = "ERROR: my_system \"" + (std::string) cmd + "\"";
 				perror(txt.c_str());
@@ -90,7 +90,9 @@ int my_system(const char * cmd, const char * arg1, const char * arg2, const char
 		default: /* parent returns to calling process */
 			break;
 	}
-	waitpid(pid, 0, 0);
+	waitpid(pid, &childExit, 0);
+	if(childExit != 0)
+		ret = childExit;
 	return ret;
 }
 
