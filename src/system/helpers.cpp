@@ -58,10 +58,18 @@ void  wakeup_hdd(const char *hdd_dir)
 		sync();
 	}
 }
-
-int my_system(const char * cmd, const char * arg1, const char * arg2)
+//use for script with full path
+int my_system(const char * cmd)
 {
-        int i;
+	if (!file_exists(cmd))
+		return -1;
+
+	return my_system(cmd, NULL);
+}
+
+int my_system(const char * cmd, const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6)
+{
+        int i=0 ,ret=0;
 	pid_t pid;
 	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
 	switch (pid = vfork())
@@ -72,16 +80,18 @@ int my_system(const char * cmd, const char * arg1, const char * arg2)
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
                                 close(i);
-			if(execlp(cmd, cmd, arg1, arg2, NULL))
+			if(execlp(cmd, cmd, arg1, arg2, arg3, arg3,  arg4, arg5, arg6, NULL))
 			{
-				perror("exec");
+				std::string txt = "ERROR: my_system \"" + (std::string) cmd + "\"";
+				perror(txt.c_str());
 			}
-			exit(0);
+			ret = 1;
+			_exit (0); // terminate c h i l d proces s only	
 		default: /* parent returns to calling process */
 			break;
 	}
 	waitpid(pid, 0, 0);
-	return 0;
+	return ret;
 }
 
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)

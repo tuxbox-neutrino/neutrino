@@ -318,7 +318,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	g_Sectionsd->setPauseScanning(true);
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_START_SCRIPT ".");
-	if (file_exists(AUDIOPLAYER_START_SCRIPT) && my_system(AUDIOPLAYER_START_SCRIPT,NULL,NULL) != 0)
+	if (my_system(AUDIOPLAYER_START_SCRIPT) != 0)
 		perror("Datei " AUDIOPLAYER_START_SCRIPT " fehlt.Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_START_SCRIPT " not found. Please create if needed.\n");
 
 	show();
@@ -330,7 +330,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_frameBuffer->paintBackground();
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_END_SCRIPT ".");
-	if (file_exists(AUDIOPLAYER_END_SCRIPT) && my_system(AUDIOPLAYER_END_SCRIPT,NULL,NULL) != 0)
+	if (my_system(AUDIOPLAYER_END_SCRIPT) != 0)
 		perror("Datei " AUDIOPLAYER_END_SCRIPT " fehlt. Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_END_SCRIPT " not found. Please create if needed.\n");
 
 	g_Zapit->unlockPlayBack();
