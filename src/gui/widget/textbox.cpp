@@ -75,25 +75,27 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 	//TRACE("[CTextBox] new\r\n");
 	initVar();
 
-	frameBuffer = NULL;
-	max_width = 0;
+	frameBuffer 	= NULL;
+	max_width 	= 0;
 
- 	if(text != NULL)		m_cText = text;
-	if(font_text != NULL)	m_pcFontText = font_text;
+ 	if(text != NULL)
+		m_cText = text;
+	
+	if(font_text != NULL)
+		m_pcFontText = font_text;
+	
 	if(position != NULL)
 	{
-		m_cFrame	= *position;
-		m_nMaxHeight = m_cFrame.iHeight;
-		m_nMaxWidth = m_cFrame.iWidth;
+		m_cFrame 	= *position;
+		m_nMaxHeight 	= m_cFrame.iHeight;
+		m_nMaxWidth 	= m_cFrame.iWidth;
 	}
 
-	m_nMode	= pmode;
+	m_nMode		= pmode;
 
 	/* in case of auto line break, we do no support auto width  yet */
 	if( !(pmode & NO_AUTO_LINEBREAK))
-	{
 		m_nMode = m_nMode & ~AUTO_WIDTH; /* delete any AUTO_WIDTH*/
-	}
 
 #if 0
 	TRACE("  Mode: ");
@@ -106,8 +108,8 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 #endif
 	//TRACE(" CTextBox::m_cText: %d, m_nMode %d\t\r\n",m_cText.size(),m_nMode);
 
-	m_textBackgroundColor = textBackgroundColor;
-	m_nFontTextHeight  = m_pcFontText->getHeight();
+	m_textBackgroundColor 	= textBackgroundColor;
+	m_nFontTextHeight  	= m_pcFontText->getHeight();
 	//TRACE(" CTextBox::m_nFontTextHeight: %d\t\r\n",m_nFontTextHeight);
 
 	/* Initialise the window frames first */
@@ -123,7 +125,9 @@ CTextBox::CTextBox(const char * text)
 	initVar();
 
 	frameBuffer = NULL;
-	if(text != NULL)		m_cText = *text;
+	
+	if(text != NULL)
+		m_cText = *text;
 
 	/* Initialise the window frames first */
 	initFramesRel();
@@ -160,19 +164,19 @@ void CTextBox::initVar(void)
 	m_cText	= "";
 	m_nMode = SCROLL;
 
-	m_pcFontText = NULL;
-	m_pcFontText  =  g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
-	m_nFontTextHeight = m_pcFontText->getHeight();
+	m_pcFontText 		= NULL;
+	m_pcFontText  		= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
+	m_nFontTextHeight 	= m_pcFontText->getHeight();
 
-	m_nNrOfPages = 1;
-	m_nNrOfLines = 0;
-	m_nLinesPerPage = 0;
-	m_nCurrentLine = 0;
-	m_nCurrentPage = 0;
-	text_border_width = 8;
+	m_nNrOfPages 		= 1;
+	m_nNrOfLines 		= 0;
+	m_nLinesPerPage 	= 0;
+	m_nCurrentLine 		= 0;
+	m_nCurrentPage 		= 0;
+	text_border_width 	= 8;
 
 	m_cFrame.iX		= g_settings.screen_StartX + ((g_settings.screen_EndX - g_settings.screen_StartX - MIN_WINDOW_WIDTH) >>1);
-	m_cFrame.iWidth	= MIN_WINDOW_WIDTH;
+	m_cFrame.iWidth		= MIN_WINDOW_WIDTH;
 	m_cFrame.iY		= g_settings.screen_StartY + ((g_settings.screen_EndY - g_settings.screen_StartY - MIN_WINDOW_HEIGHT) >>1);
 	m_cFrame.iHeight	= MIN_WINDOW_HEIGHT;
 
@@ -181,9 +185,9 @@ void CTextBox::initVar(void)
 
 	m_textBackgroundColor 	= COL_MENUCONTENT_PLUS_0;
 	m_textColor		= COL_MENUCONTENT;
-	m_nPaintBackground = true;
-	m_nBgRadius	= 0;
-	m_nBgRadiusType = CORNER_ALL;
+	m_nPaintBackground 	= true;
+	m_nBgRadius		= 0;
+	m_nBgRadiusType 	= CORNER_ALL;
 	
 	m_cLineArray.clear();
 }
