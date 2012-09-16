@@ -2159,7 +2159,9 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
 
-	eList.clear();
+	if(!eList.empty() && search == 0)//skip on search mode
+		eList.clear();
+
 	t_channel_id serviceUniqueKey64 = serviceUniqueKey& 0xFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
 	if(serviceUniqueKey64 == 0)
 		return;
