@@ -1139,7 +1139,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 		}
 
 		selected_chid = channel->getChannelID();
-		g_RemoteControl->zapTo_ChannelID(channel->getChannelID(), channel->getName(), !channel->bAlwaysLocked);
+		g_RemoteControl->zapTo_ChannelID(selected_chid, channel->getName(), (channel->bAlwaysLocked == g_settings.parentallock_defaultlocked));
 		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(channel->getChannelID());
 	}
 	if(!this->new_mode_active) {
