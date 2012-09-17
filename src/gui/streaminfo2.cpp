@@ -807,7 +807,9 @@ int CStreamInfo2::ts_setup ()
 	if(vpid == 0 && apid == 0)
 		return -1;
 
-	dmx = new cDemux(0);//FIXME test
+	dmx = new cDemux(0);
+	if(!dmx)
+		return -1;
 
 	dmx->Open(DMX_TP_CHANNEL, NULL, 3 * 3008 * 62);
 
