@@ -3186,9 +3186,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
 
-		CVFD::getInstance()->Clear();
-		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
-
 		/* wasshift = */ CRecordManager::getInstance()->StopAutoRecord();
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
@@ -3208,6 +3205,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}
+
+		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();
