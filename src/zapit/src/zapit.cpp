@@ -465,15 +465,13 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	bool failed = false;
 	CZapitChannel* newchannel;
 
-	DBG("[zapit] zapto channel id %llx diseqcType %d\n", channel_id, diseqcType);
-
 	abort_zapit = 0;
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id, &current_is_nvod)) == NULL) {
-		DBG("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
 
-	printf("[zapit] zap to %s (%llx tp %llx)\n", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
+	INFO("[zapit] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
 	if(fe == NULL) {
@@ -624,7 +622,7 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 			}
 		}
 	}
-INFO("############################### channel %llx pid %x map size %d percent %d", channel_id, pid, vol_map.size(), percent);
+	DBG("channel %llx pid %x map size %d percent %d", channel_id, pid, vol_map.size(), percent);
 	return percent;
 }
 
@@ -637,7 +635,7 @@ void CZapit::SetVolume(int vol)
 		current_volume = 100;
 
 	int value = (current_volume * volume_percent) / 100;
-INFO("############ volume %d percent %d -> %d ############", current_volume, volume_percent, value);
+	DBG("volume %d percent %d -> %d", current_volume, volume_percent, value);
 	audioDecoder->setVolume(value, value);
 	//volume_left = volume_right = current_volume;
 }
