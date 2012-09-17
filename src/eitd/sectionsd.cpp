@@ -2159,9 +2159,11 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
 
-	eList.clear();
-	serviceUniqueKey &= 0xFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
-	if(serviceUniqueKey == 0)
+	if(!eList.empty() && search == 0)//skip on search mode
+		eList.clear();
+
+	t_channel_id serviceUniqueKey64 = serviceUniqueKey& 0xFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
+	if(serviceUniqueKey64 == 0)
 		return;
 
 	// service Found
@@ -2173,7 +2175,7 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 	{
-		if ((*e)->get_channel_id() == serviceUniqueKey) {
+		if ((*e)->get_channel_id() == serviceUniqueKey64) {
 			serviceIDfound = 1;
 
 			bool copy = true;

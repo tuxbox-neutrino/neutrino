@@ -1014,6 +1014,8 @@ bool CNeutrinoEventList::findEvents(void)
 	{
 		res = true;
 		m_showChannel = true;   // force the event list to paint the channel name
+		if(!evtlist.empty())
+			evtlist.clear();
 		if(m_search_list == SEARCH_LIST_CHANNEL)
 		{
 			CEitManager::getInstance()->getEventsServiceKey(m_search_channel_id, evtlist, m_search_epg_item,m_search_keyword);
