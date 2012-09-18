@@ -762,11 +762,18 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(mc);
 
 	// tuner icon
+	bool mc_active = false;
+	int show_tuner_icon = 0;
+	// show possible option if we in single box mode, but don't touch the real settings
+	int *p_show_tuner_icon = &show_tuner_icon;
 	if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE){
-		mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, &g_settings.infobar_show_tuner, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-		mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
-		menu_infobar->addItem(mc);
+		mc_active = true;
+		// use the real value of g_settings.infobar_show_tuner
+		p_show_tuner_icon = &g_settings.infobar_show_tuner;
 	}
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, p_show_tuner_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, mc_active);
+	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
+	menu_infobar->addItem(mc);
 
 	// show on epg change
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
