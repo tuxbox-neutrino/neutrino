@@ -295,7 +295,7 @@ void CTextBox::refreshTextLineArray(void)
 	int pos = 0;
 	int	aktWidth = 0;
 	int aktWordWidth = 0;
-	int lineBreakWidth;
+	int lineBreakWidth = 0;
 	int maxTextWidth = 0;
 
 	m_nNrOfNewLine = 0;
@@ -307,15 +307,20 @@ void CTextBox::refreshTextLineArray(void)
 	m_cLineArray.clear();
 	m_nNrOfLines = 0;
 
-	if( m_nMode & AUTO_WIDTH)
+	if( m_nMode & AUTO_WIDTH){
 		/* In case of autowidth, we calculate the max allowed width of the textbox */
 		lineBreakWidth = MAX_WINDOW_WIDTH - m_cFrameScrollRel.iWidth - 2*text_border_width;
-	else
+
+	}else{
 		/* If not autowidth, we just take the actuall textframe width */
 		lineBreakWidth = m_cFrameTextRel.iWidth - 2*text_border_width;
+	}
+	
 	if(max_width)
 		lineBreakWidth = max_width;
-	//printf("TextBox: lineBreakWidth %d\n", lineBreakWidth);
+
+	//TRACE("[CTextBox] line %d: lineBreakWidth %d\n", __LINE__, lineBreakWidth);
+
 	int TextChars = m_cText.size();
 	// do not parse, if text is empty
 	if(TextChars > 0)
