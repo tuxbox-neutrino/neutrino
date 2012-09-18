@@ -93,6 +93,7 @@ CStreamInfo2::CStreamInfo2 ()
 	rate.min_short_average = 0;
 	box_h = 0;
 	box_h2 = 0;
+	dmxbuf = NULL;
 }
 
 CStreamInfo2::~CStreamInfo2 ()
