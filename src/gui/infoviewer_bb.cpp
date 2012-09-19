@@ -86,6 +86,8 @@ CInfoViewerBB::CInfoViewerBB()
 		pthread_detach(scrambledT);
 	}
 #endif
+	hddperT			= 0;
+	hddperTflag		= false;
 	Init();
 }
 
@@ -116,6 +118,10 @@ CInfoViewerBB::~CInfoViewerBB()
 	if(scrambledT) {
 		pthread_cancel(scrambledT);
 		scrambledT = 0;
+	}
+	if(hddperT) {
+		pthread_cancel(hddperT);
+		hddperT = 0;
 	}
 }
 
@@ -589,26 +595,45 @@ void CInfoViewerBB::showIcon_Tuner()
 
 void CInfoViewerBB::showSysfsHdd()
 {
-	if ((g_settings.infobar_show_sysfs_hdd) && (is_visible)) {
-		long blocks_used;
-		struct statfs s;
-		int per = 0;
-		if (::statfs("/", &s) == 0 && s.f_blocks) {
-//			per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
-			blocks_used = s.f_blocks - s.f_bfree;
-			per = (blocks_used * 100ULL) / s.f_blocks;
+	if (g_settings.infobar_show_sysfs_hdd) {
+		//sysFS info
+		int sysper = 0;
+		sysper = get_fs_usage("/");
+		showBarSys(sysper);
+
+		//HDD info in a seperate thread
+		if(!hddperTflag) {
+			hddperTflag=true;
+			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
+			pthread_detach(hddperT);
 		}
-		varscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth , 6, per, 100);
-		per = 0;
-		//HD info
-		if(!check_dir(g_settings.network_nfs_recordingdir)){
-			if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0 && s.f_blocks) {
-				blocks_used = s.f_blocks - s.f_bfree;
-				per = (blocks_used * 100ULL) / s.f_blocks;
-			}
-		}
-		hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2, hddwidth, 6, per, 100);
 	}
+}
+
+void* CInfoViewerBB::hddperThread(void *arg)
+{
+	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
+
+	int hddper = 0;
+	hddper = get_fs_usage(g_settings.network_nfs_recordingdir);
+	infoViewerBB->showBarHdd(hddper);
+
+	infoViewerBB->hddperTflag=false;
+	pthread_exit(NULL);
+}
+
+void CInfoViewerBB::showBarSys(int percent)
+{
+	if (is_visible)
+		varscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6, percent, 100);
+}
+
+void CInfoViewerBB::showBarHdd(int percent)
+{
+	if (percent < 0)
+		percent = 0;
+	if (is_visible)
+		hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
 }
 
 void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset)

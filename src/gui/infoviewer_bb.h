@@ -121,6 +121,13 @@ class CInfoViewerBB
 		static void* scrambledThread(void *arg);
 		void scrambledCheck(bool force=false);
 
+		void showBarSys(int percent = 0);
+		void showBarHdd(int percent = 0);
+
+		pthread_t	hddperT;
+		static void*	hddperThread(void *arg);
+		bool		hddperTflag;
+
 	public:
 		CInfoViewerBB();
 		~CInfoViewerBB();
