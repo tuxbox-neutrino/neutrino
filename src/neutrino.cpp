@@ -3063,16 +3063,16 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 {
 	struct stat my_stat;
 	if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0){
-		const char *save_txt = "Saving EPG";
-		printf("%s to %s....\n",save_txt, g_settings.epg_dir.c_str());
-		neutrino_msg_t      msg;
-		neutrino_msg_data_t data;
+		printf("[neutrino] Saving EPG to %s...\n", g_settings.epg_dir.c_str());
 
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		CVFD::getInstance ()->ShowText(save_txt);
+		CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_EPG_SAVING));
 
 		g_Sectionsd->writeSI2XML(g_settings.epg_dir.c_str());
+
+		neutrino_msg_t      msg;
+		neutrino_msg_data_t data;
 		while( true ) {
 			g_RCInput->getMsg(&msg, &data, 1200); // 120 secs..
 			if (( msg == CRCInput::RC_timeout ) || (msg == NeutrinoMessages::EVT_SI_FINISHED)) {
