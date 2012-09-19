@@ -174,8 +174,8 @@ void CTextBox::initVar(void)
 	m_cFrame.iY		= g_settings.screen_StartY + ((g_settings.screen_EndY - g_settings.screen_StartY - MIN_WINDOW_HEIGHT) >>1);
 	m_cFrame.iHeight	= MIN_WINDOW_HEIGHT;
 
-	m_nMaxHeight = MAX_WINDOW_HEIGHT;
-	m_nMaxWidth = MAX_WINDOW_WIDTH;
+	m_nMaxHeight 		= MAX_WINDOW_HEIGHT;
+	m_nMaxWidth 		= MAX_WINDOW_WIDTH;
 
 	m_textBackgroundColor 	= COL_MENUCONTENT_PLUS_0;
 	m_textColor		= COL_MENUCONTENT;
