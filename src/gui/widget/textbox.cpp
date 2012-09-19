@@ -138,8 +138,6 @@ CTextBox::CTextBox()
 	//TRACE("[CTextBox] new\r\n");
 	initVar();
 	initFramesRel();
-
-	frameBuffer = NULL;
 }
 
 CTextBox::~CTextBox()
@@ -310,7 +308,6 @@ void CTextBox::refreshTextLineArray(void)
 	if( m_nMode & AUTO_WIDTH){
 		/* In case of autowidth, we calculate the max allowed width of the textbox */
 		lineBreakWidth = MAX_WINDOW_WIDTH - m_cFrameScrollRel.iWidth - 2*text_border_width;
-
 	}else{
 		/* If not autowidth, we just take the actuall textframe width */
 		lineBreakWidth = m_cFrameTextRel.iWidth - 2*text_border_width;
