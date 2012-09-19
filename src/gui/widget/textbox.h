@@ -101,6 +101,7 @@ class CTextBox
 		void refreshTextLineArray(void);
 		void initVar(void);
 		void initFramesRel(void);
+		void initFramesAndTextArray();
 		void refreshScroll(void);
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);

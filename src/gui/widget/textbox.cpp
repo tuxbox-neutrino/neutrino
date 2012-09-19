@@ -74,10 +74,8 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 {
 	//TRACE("[CTextBox] new\r\n");
 	initVar();
-	
-	max_width 	= 0;
 
- 	if(text != NULL)
+	if(text != NULL)
 		m_cText = text;
 	
 	if(font_text != NULL)
@@ -109,13 +107,11 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 
 	m_textBackgroundColor 	= textBackgroundColor;
 	m_nFontTextHeight  	= m_pcFontText->getHeight();
+
+	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
 	//TRACE(" CTextBox::m_nFontTextHeight: %d\t\r\n",m_nFontTextHeight);
-
-	/* Initialise the window frames first */
-	initFramesRel();
-
-	// than refresh text line array
-	refreshTextLineArray();
+	//Initialise the window frames first and than refresh text line array
+	initFramesAndTextArray();
 }
 
 CTextBox::CTextBox(const char * text)
@@ -125,19 +121,20 @@ CTextBox::CTextBox(const char * text)
 
 	if(text != NULL)
 		m_cText = *text;
+	
+	//TRACE_1("[CTextBox] %s Line %d text: %s\r\n", __FUNCTION__, __LINE__, text);
 
-	/* Initialise the window frames first */
-	initFramesRel();
-
-	// than refresh text line array
-	refreshTextLineArray();
+	//Initialise the window frames first and than refresh text line array
+	initFramesAndTextArray();
 }
 
 CTextBox::CTextBox()
 {
 	//TRACE("[CTextBox] new\r\n");
 	initVar();
-	initFramesRel();
+	
+	//Initialise the window frames first and than refresh text line array
+	initFramesAndTextArray();
 }
 
 CTextBox::~CTextBox()
@@ -187,6 +184,16 @@ void CTextBox::initVar(void)
 	m_nBgRadiusType 	= CORNER_ALL;
 	
 	m_cLineArray.clear();
+
+	max_width 		= 0;
+}
+
+void CTextBox::initFramesAndTextArray()
+{
+	/* Initialise the window frames first */
+	initFramesRel();
+	// than refresh text line array
+	refreshTextLineArray();
 }
 
 void CTextBox::setTextFont(Font* font_text)
@@ -194,16 +201,16 @@ void CTextBox::setTextFont(Font* font_text)
 	if ((m_pcFontText != font_text) && (font_text != NULL)) {
 		m_pcFontText = font_text;
 		m_nFontTextHeight = m_pcFontText->getHeight();
-		initFramesRel();
-		refreshTextLineArray();
+		//Initialise the window frames first and than refresh text line array
+		initFramesAndTextArray();
 	}
 }
 
 void CTextBox::setTextBorderWidth(int border)
 {
 	text_border_width = border;
-	initFramesRel();
-	refreshTextLineArray();
+	//Initialise the window frames first and than refresh text line array
+	initFramesAndTextArray();
 }
 
 void CTextBox::reSizeMainFrameWidth(int textWidth)
@@ -221,7 +228,8 @@ void CTextBox::reSizeMainFrameWidth(int textWidth)
 	m_cFrame.iWidth	= iNewWindowWidth;
 
 	/* Re-Init the children frames due to new main window */
-	initFramesRel();
+	//Initialise the window frames first and than refresh text line array
+	initFramesAndTextArray();
 }
 
 void CTextBox::reSizeMainFrameHeight(int textHeight)
@@ -239,7 +247,8 @@ void CTextBox::reSizeMainFrameHeight(int textHeight)
 	m_cFrame.iHeight	= iNewWindowHeight;
 
 	/* Re-Init the children frames due to new main window */
-	initFramesRel();
+	//Initialise the window frames first and than refresh text line array
+	initFramesAndTextArray();
 }
 
 void CTextBox::initFramesRel(void)
@@ -550,6 +559,7 @@ void CTextBox::refresh(void)
 	refreshText();
 }
 
+
 bool CTextBox::setText(const std::string* newText, int _max_width)
 {
 	//TRACE("[CTextBox]->SetText \r\n");
@@ -560,7 +570,9 @@ bool CTextBox::setText(const std::string* newText, int _max_width)
 	{
 		m_cText = *newText;
 		//m_cText = *newText + "\n"; //FIXME test
-		refreshTextLineArray();
+		reSizeMainFrameHeight(m_cFrame.iHeight);
+		//Initialise the window frames first and than refresh text line array
+		initFramesAndTextArray();
 		refresh();
 		result = true;
 	}
