@@ -158,11 +158,11 @@ int safe_mkdir(char * path)
 	return ret;
 }
 
-int check_dir(const char * newdir)
+int check_dir(const char * dir)
 {
-  
-  	struct statfs s;
-	if (::statfs(newdir, &s) == 0) {
+	int ret = 0;
+	struct statfs s;
+	if (::statfs(dir, &s) == 0) {
 		switch (s.f_type)	/* f_type is long */
 		{
 			case 0xEF53L:		/*EXT2 & EXT3*/
@@ -174,12 +174,29 @@ int check_dir(const char * newdir)
 			case 0x58465342L:	/*xfs*/
 			case 0x4d44L:		/*msdos*/
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x858458f6: 	/*ramfs*/
-				return 0;//ok
+			case 0x858458f6L: 	/*ramfs*/
+			case 0x72b6L:		/*jffs2*/
+				break; //ok
 			default:
-				fprintf( stderr,"%s Unknow File system type: %i\n",newdir ,s.f_type);
-				break;
+				fprintf(stderr, "%s Unknow File system type: %i\n" ,dir ,s.f_type);
+				ret = -1;
+				break; // error
 		}
 	}
-	return 1;	// error
+	return ret;
+}
+
+int get_fs_usage(const char * dir)
+{
+	int ret = check_dir(dir);
+	long blocks_used;
+	struct statfs s;
+
+	if (ret == 0) {
+		if (::statfs(dir, &s) == 0 && s.f_blocks) {
+			blocks_used = s.f_blocks - s.f_bfree;
+			ret = (blocks_used * 100ULL) / s.f_blocks;
+		}
+	}
+	return ret;
 }

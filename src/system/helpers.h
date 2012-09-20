@@ -28,8 +28,9 @@ int my_system(const char * cmd);
 
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 int safe_mkdir(char * path);
-int check_dir(const char * newdir);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
+int check_dir(const char * dir);
+int get_fs_usage(const char * dir);
 
 #endif

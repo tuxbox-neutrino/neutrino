@@ -84,7 +84,7 @@ class CStreamInfo2 : public CMenuTarget
 		uint64_t bit_s;
 		uint64_t abit_s;
 		uint64_t b_total;
-
+		unsigned char *dmxbuf;
 		int update_rate();
 		int ts_setup();
 		int ts_close();

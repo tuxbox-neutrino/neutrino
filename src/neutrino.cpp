@@ -3063,16 +3063,16 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 {
 	struct stat my_stat;
 	if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0){
-		const char *save_txt = "Saving EPG";
-		printf("%s to %s....\n",save_txt, g_settings.epg_dir.c_str());
-		neutrino_msg_t      msg;
-		neutrino_msg_data_t data;
+		printf("[neutrino] Saving EPG to %s...\n", g_settings.epg_dir.c_str());
 
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		CVFD::getInstance ()->ShowText(save_txt);
+		CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_EPG_SAVING));
 
 		g_Sectionsd->writeSI2XML(g_settings.epg_dir.c_str());
+
+		neutrino_msg_t      msg;
+		neutrino_msg_data_t data;
 		while( true ) {
 			g_RCInput->getMsg(&msg, &data, 1200); // 120 secs..
 			if (( msg == CRCInput::RC_timeout ) || (msg == NeutrinoMessages::EVT_SI_FINISHED)) {
@@ -3186,9 +3186,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
 
-		CVFD::getInstance()->Clear();
-		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
-
 		/* wasshift = */ CRecordManager::getInstance()->StopAutoRecord();
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
@@ -3208,6 +3205,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}
+
+		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();

@@ -1152,7 +1152,8 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				infoViewerBB->showIcon_SubT();
 				//infoViewerBB->showIcon_CA_Status(0);
 				infoViewerBB->showIcon_Resolution();
-				infoViewerBB->showIcon_Tuner();
+				if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE)
+					infoViewerBB->showIcon_Tuner();
 			}
 		}
 		return messages_return::handled;

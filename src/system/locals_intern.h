@@ -319,6 +319,7 @@ const char * locale_real_names[] =
 	"date.Thu",
 	"date.Tue",
 	"date.Wed",
+	"epg.saving",
 	"epgextended.actors",
 	"epgextended.director",
 	"epgextended.guests",
