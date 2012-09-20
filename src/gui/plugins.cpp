@@ -50,6 +50,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <errno.h>
+#include <sys/wait.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -308,52 +309,6 @@ void CPlugins::startPlugin(const char * const name)
 
 }
 
-FILE* popen2( pid_t& pid, const char *cmdstring, const char *type) {
-	int     pfd[2] ={-1,-1};
-	FILE    *fp = NULL;
-
-	/* only allow "r" or "w" */
-	if ((type[0] != 'r' && type[0] != 'w') || type[1] != 0) {
-		errno = EINVAL;     /* required by POSIX */
-		return(NULL);
-	}
-
-	if (pipe(pfd) < 0)
-		return(NULL);   /* errno set by pipe() */
-
-	if ((pid = vfork()) < 0) {
-		return(NULL);   /* errno set by vfork() */
-	} else if (pid == 0) {                           /* child */
-		if (*type == 'r') {
-			close(pfd[0]);
-			if (pfd[1] != STDOUT_FILENO) {
-				dup2(pfd[1], STDOUT_FILENO);
-				close(pfd[1]);
-			}
-		} else {
-			close(pfd[1]);
-			if (pfd[0] != STDIN_FILENO) {
-				dup2(pfd[0], STDIN_FILENO);
-				close(pfd[0]);
-			}
-		}
-		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
-		exit(0);
-	 }
-
-	/* parent continues... */
-	if (*type == 'r') {
-		close(pfd[1]);
-		if ((fp = fdopen(pfd[0], type)) == NULL)
-			return(NULL);
-		} else {
-			close(pfd[0]);
-		if ((fp = fdopen(pfd[1], type)) == NULL)
-			return(NULL);
-	}
-	return(fp);
-}
-
 void CPlugins::startScriptPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
@@ -375,8 +330,10 @@ void CPlugins::startScriptPlugin(int number)
 		{
 			scriptOutput += output;
 		}
-		kill(pid, SIGINT );
 		pclose(f);
+		int s;
+		while (waitpid(pid,&s,WNOHANG)>0);
+		kill(pid,SIGTERM);
 		if(output)
 			free(output);
 	}
