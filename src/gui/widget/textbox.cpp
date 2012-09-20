@@ -228,8 +228,7 @@ void CTextBox::reSizeMainFrameWidth(int textWidth)
 	m_cFrame.iWidth	= iNewWindowWidth;
 
 	/* Re-Init the children frames due to new main window */
-	//Initialise the window frames first and than refresh text line array
-	initFramesAndTextArray();
+	initFramesRel();
 }
 
 void CTextBox::reSizeMainFrameHeight(int textHeight)
@@ -247,8 +246,7 @@ void CTextBox::reSizeMainFrameHeight(int textHeight)
 	m_cFrame.iHeight	= iNewWindowHeight;
 
 	/* Re-Init the children frames due to new main window */
-	//Initialise the window frames first and than refresh text line array
-	initFramesAndTextArray();
+	initFramesRel();
 }
 
 void CTextBox::initFramesRel(void)
@@ -571,8 +569,8 @@ bool CTextBox::setText(const std::string* newText, int _max_width)
 		m_cText = *newText;
 		//m_cText = *newText + "\n"; //FIXME test
 		reSizeMainFrameHeight(m_cFrame.iHeight);
-		//Initialise the window frames first and than refresh text line array
-		initFramesAndTextArray();
+		//refresh text line array
+		refreshTextLineArray();
 		refresh();
 		result = true;
 	}
