@@ -159,9 +159,11 @@ int safe_mkdir(char * path)
 	return ret;
 }
 
+/* function used to check is this dir writable, i.e. not flash, for record etc */
 int check_dir(const char * dir)
 {
-	int ret = 0;
+	/* default to return, if statfs fail */
+	int ret = -1;
 	struct statfs s;
 	if (::statfs(dir, &s) == 0) {
 		switch (s.f_type)	/* f_type is long */
@@ -176,11 +178,13 @@ int check_dir(const char * dir)
 			case 0x4d44L:		/*msdos*/
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
 			case 0x858458f6L: 	/*ramfs*/
+#if 0
 			case 0x72b6L:		/*jffs2*/
+#endif
+				ret = 0;
 				break; //ok
 			default:
 				fprintf(stderr, "%s Unknow File system type: %i\n" ,dir ,s.f_type);
-				ret = -1;
 				break; // error
 		}
 	}
@@ -189,15 +193,13 @@ int check_dir(const char * dir)
 
 int get_fs_usage(const char * dir)
 {
-	int ret = check_dir(dir);
+	int ret = 0;
 	long blocks_used;
 	struct statfs s;
 
-	if (ret == 0) {
-		if (::statfs(dir, &s) == 0 && s.f_blocks) {
-			blocks_used = s.f_blocks - s.f_bfree;
-			ret = (blocks_used * 100ULL) / s.f_blocks;
-		}
+	if (::statfs(dir, &s) == 0 && s.f_blocks) {
+		blocks_used = s.f_blocks - s.f_bfree;
+		ret = (blocks_used * 100ULL) / s.f_blocks;
 	}
 	return ret;
 }
