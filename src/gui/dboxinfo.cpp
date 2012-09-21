@@ -52,6 +52,7 @@
 
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
+#include <system/helpers.h>
 
 static const int FSHIFT = 16;              /* nr of bits of precision */
 #define FIXED_1         (1<<FSHIFT)     /* 1.0 as fixed-point */
@@ -94,6 +95,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_MENU];
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout == 0 ? 0xFFFF : timeout);
+	uint32_t updateTimer = g_RCInput->addTimer(5*1000*1000, false);
 
 	while (doLoop)
 	{
@@ -102,6 +104,9 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
 			if(fader.Fade())
 				doLoop = false;
+		}
+		else if((msg == NeutrinoMessages::EVT_TIMER) && (data == updateTimer)) {
+			paint();
 		}
 		else if ( ( msg == CRCInput::RC_timeout ) ||
 				( msg == CRCInput::RC_home ) ||
@@ -143,6 +148,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 
 	hide();
 	fader.Stop();
+	g_RCInput->killTimer(updateTimer);
 	return res;
 }
 
@@ -371,8 +377,12 @@ void CDBoxInfoWidget::paint()
 						uint64_t bytes_free;
 						if (memory_flag)
 						{
-							bytes_total = info.totalram;
-							bytes_free  = info.freeram;
+							//bytes_total = info.totalram;
+							//bytes_free  = info.freeram;
+							unsigned long t, f;
+							get_mem_usage(t, f);
+							bytes_total = t*1024;
+							bytes_free = f*1024;
 						}
 						else
 						{
