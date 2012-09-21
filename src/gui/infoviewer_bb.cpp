@@ -601,12 +601,19 @@ void CInfoViewerBB::showSysfsHdd()
 		sysper = get_fs_usage("/");
 		showBarSys(sysper);
 
+#if 0
 		//HDD info in a seperate thread
 		if(!hddperTflag) {
 			hddperTflag=true;
 			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
 			pthread_detach(hddperT);
 		}
+#else
+		if (!check_dir(g_settings.network_nfs_recordingdir)) {
+			sysper = get_fs_usage(g_settings.network_nfs_recordingdir);
+			showBarHdd(sysper);
+		}
+#endif
 	}
 }
 
