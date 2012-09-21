@@ -33,6 +33,7 @@
 #include <sys/vfs.h>    /* or <sys/statfs.h> */
 #include <string.h>
 #include <fcntl.h>
+#include <zapit/debug.h>
 
 #include <system/helpers.h>
 
@@ -199,4 +200,35 @@ int get_fs_usage(const char * dir)
 		}
 	}
 	return ret;
+}
+
+bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
+{
+	unsigned long cached = 0, buffers = 0;
+	kbtotal = kbfree = 0;
+
+	FILE * f = fopen("/proc/meminfo", "r");
+	if (!f)
+		return false;
+
+	char buffer[256];
+	while (fgets(buffer, 255, f)) {
+		if (!strncmp(buffer, "Mem", 3)) {
+			if (!strncmp(buffer+3, "Total", 5))
+				kbtotal = strtoul(buffer+9, NULL, 10);
+			else if (!strncmp(buffer+3, "Free", 4))
+				kbfree = strtoul(buffer+8, NULL, 10);
+		}
+		else if (!strncmp(buffer, "Buffers", 7)) {
+			buffers = strtoul(buffer+8, NULL, 10);
+		}
+		else if (!strncmp(buffer, "Cached", 6)) {
+			cached = strtoul(buffer+7, NULL, 10);
+			break;
+		}
+	}
+	fclose(f);
+	kbfree = kbfree + cached + buffers;
+	printf("mem: total %ld cached %ld free %ld\n", kbtotal, cached, kbfree);
+	return true;
 }

@@ -32,5 +32,6 @@ bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir);
 int get_fs_usage(const char * dir);
+bool get_mem_usage(unsigned long &total, unsigned long &free);
 
 #endif
