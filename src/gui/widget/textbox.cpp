@@ -507,8 +507,8 @@ void CTextBox::refreshText(void)
 	int i;
 	int x_center = 0;
 
-	// set text y position depends of lines count
-	if (m_nNrOfLines > 1)
+	// set text y position
+	if (m_nMode & TOP)
 		// move to top of frame
 		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * m_nLinesPerPage) >> 1) - text_border_width;
 	else
