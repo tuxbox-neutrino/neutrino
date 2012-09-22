@@ -119,6 +119,10 @@ class CTextBox
 
 		int m_nMaxHeight;
 		int m_nMaxWidth;
+		int m_nMinHeight;
+		int m_nMinWidth;
+
+		int m_nMaxTextWidth;
 
 		int m_nMode;
 
@@ -140,7 +144,8 @@ class CTextBox
 		fb_pixel_t m_textColor;
 
 		CFrameBuffer * frameBuffer;
-		int max_width;
+/*		int max_width;*/
+		
 		int text_border_width;
 		
 	public:
@@ -160,7 +165,7 @@ class CTextBox
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
 		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
-		bool	setText(const std::string* newText, int _max_width = 0);
+		bool	setText(const std::string* newText, int max_width = 0);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int border);
@@ -168,6 +173,8 @@ class CTextBox
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
+		void 	setWindowMaxDimensions(const int width, const int height);
+		void 	setWindowMinDimensions(const int width, const int height);
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};

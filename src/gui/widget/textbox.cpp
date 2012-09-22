@@ -60,14 +60,15 @@
 #include "textbox.h"
 #include <gui/widget/icons.h>
 
-#define	SCROLL_FRAME_WIDTH			10
-#define	SCROLL_MARKER_BORDER		 2
+#define	SCROLL_FRAME_WIDTH	10
+#define	SCROLL_MARKER_BORDER	 2
 
 #define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX - 40)
 #define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)
 
 #define MIN_WINDOW_WIDTH  ((g_settings.screen_EndX - g_settings.screen_StartX)>>1)
 #define MIN_WINDOW_HEIGHT 40
+
 
 CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 		   const CBox* position, CFBWindow::color_t textBackgroundColor)
@@ -161,6 +162,7 @@ void CTextBox::initVar(void)
 	m_pcFontText 		= NULL;
 	m_pcFontText  		= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
 	m_nFontTextHeight 	= m_pcFontText->getHeight();
+	m_nMaxTextWidth		= 0;
 
 	m_nNrOfPages 		= 1;
 	m_nNrOfLines 		= 0;
@@ -176,6 +178,8 @@ void CTextBox::initVar(void)
 
 	m_nMaxHeight 		= MAX_WINDOW_HEIGHT;
 	m_nMaxWidth 		= MAX_WINDOW_WIDTH;
+	m_nMinHeight		= MIN_WINDOW_HEIGHT;
+	m_nMinWidth		= MIN_WINDOW_WIDTH;
 
 	m_textBackgroundColor 	= COL_MENUCONTENT_PLUS_0;
 	m_textColor		= COL_MENUCONTENT;
@@ -185,7 +189,7 @@ void CTextBox::initVar(void)
 	
 	m_cLineArray.clear();
 
-	max_width 		= 0;
+// 	max_width 		= 0;
 }
 
 void CTextBox::initFramesAndTextArray()
@@ -213,19 +217,34 @@ void CTextBox::setTextBorderWidth(int border)
 	initFramesAndTextArray();
 }
 
+void CTextBox::setWindowMaxDimensions(const int width, const int height)
+{
+	m_nMaxHeight = height;
+	m_nMaxWidth = width;
+}
+
+void CTextBox::setWindowMinDimensions(const int width, const int height)
+{
+	m_nMinHeight = height;
+	m_nMinWidth = width;
+}
+
 void CTextBox::reSizeMainFrameWidth(int textWidth)
 {
-	//TRACE("[CTextBox]->ReSizeMainFrameWidth: %d, current: %d\r\n",textWidth,m_cFrameTextRel.iWidth);
+	TRACE("[CTextBox]->%s: \ntext width: %d\n m_cFrame.iWidth: %d\n m_cFrameTextRel.iWidth: %d\n max_width: %d\n  m_nMinWidth: %d\n",__FUNCTION__, textWidth, m_cFrame.iWidth, m_cFrameTextRel.iWidth, m_nMaxWidth, m_nMinWidth);
 
 	int iNewWindowWidth = textWidth  + m_cFrameScrollRel.iWidth   + 2*text_border_width;
 
 	if( iNewWindowWidth > m_nMaxWidth)
-		iNewWindowWidth = m_nMaxWidth;
+		iNewWindowWidth = m_nMaxWidth;	
 	
-	if( iNewWindowWidth < MIN_WINDOW_WIDTH)
-		iNewWindowWidth = MIN_WINDOW_WIDTH;
+	if( iNewWindowWidth < m_nMinWidth)
+		iNewWindowWidth = m_nMinWidth;
+	
 
 	m_cFrame.iWidth	= iNewWindowWidth;
+
+	TRACE("[CTextBox]->%s: \ntext width: %d\n m_cFrame.iWidth: %d\n m_cFrameTextRel.iWidth: %d\n max_width: %d\n  m_nMinWidth: %d\n",__FUNCTION__, textWidth, m_cFrame.iWidth, m_cFrameTextRel.iWidth, m_nMaxWidth, m_nMinWidth);
 
 	/* Re-Init the children frames due to new main window */
 	initFramesRel();
@@ -240,8 +259,8 @@ void CTextBox::reSizeMainFrameHeight(int textHeight)
 	if( iNewWindowHeight > m_nMaxHeight)
 		iNewWindowHeight = m_nMaxHeight;
 	
-	if( iNewWindowHeight < MIN_WINDOW_HEIGHT)
-		iNewWindowHeight = MIN_WINDOW_HEIGHT;
+	if( iNewWindowHeight < m_nMinHeight)
+		iNewWindowHeight = m_nMinHeight;
 
 	m_cFrame.iHeight	= iNewWindowHeight;
 
@@ -307,7 +326,6 @@ void CTextBox::refreshTextLineArray(void)
 	int	aktWidth = 0;
 	int aktWordWidth = 0;
 	int lineBreakWidth = 0;
-	int maxTextWidth = 0;
 
 	m_nNrOfNewLine = 0;
 
@@ -320,14 +338,14 @@ void CTextBox::refreshTextLineArray(void)
 
 	if( m_nMode & AUTO_WIDTH){
 		/* In case of autowidth, we calculate the max allowed width of the textbox */
-		lineBreakWidth = MAX_WINDOW_WIDTH - m_cFrameScrollRel.iWidth - 2*text_border_width;
+		lineBreakWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_border_width;
 	}else{
 		/* If not autowidth, we just take the actuall textframe width */
 		lineBreakWidth = m_cFrameTextRel.iWidth - 2*text_border_width;
 	}
 	
-	if(max_width)
-		lineBreakWidth = max_width;
+	if(m_nMaxWidth)
+		lineBreakWidth = m_nMaxWidth;
 
 	//TRACE("[CTextBox] line %d: lineBreakWidth %d\n", __LINE__, lineBreakWidth);
 
@@ -376,8 +394,8 @@ void CTextBox::refreshTextLineArray(void)
 				aktLine  += aktWord;
 				aktWidth += aktWordWidth;
 
-				if (aktWidth > maxTextWidth)
-					maxTextWidth = aktWidth;
+				if (aktWidth > m_nMaxTextWidth)
+					m_nMaxTextWidth = aktWidth;
 				//TRACE_1("     aktLine : %s\r\n",aktLine.c_str());
 				//TRACE_1("     aktWidth: %d aktWordWidth:%d\r\n",aktWidth,aktWordWidth);
 
@@ -403,7 +421,7 @@ void CTextBox::refreshTextLineArray(void)
 		/* check if we have to recalculate the window frame size, due to auto width and auto height */
 		if( m_nMode & AUTO_WIDTH)
 		{
-			reSizeMainFrameWidth(maxTextWidth);
+			reSizeMainFrameWidth(m_nMaxTextWidth);
 		}
 
 		if(m_nMode & AUTO_HIGH)
@@ -558,11 +576,13 @@ void CTextBox::refresh(void)
 }
 
 
-bool CTextBox::setText(const std::string* newText, int _max_width)
+bool CTextBox::setText(const std::string* newText, int max_width)
 {
 	//TRACE("[CTextBox]->SetText \r\n");
 	bool result = false;
-	max_width = _max_width;
+	if (max_width>0)
+		m_nMaxTextWidth = max_width;
+	
 //printf("setText: _max_width %d max_width %d\n", _max_width, max_width);
 	if (newText != NULL)
 	{
