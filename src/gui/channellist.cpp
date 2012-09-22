@@ -116,7 +116,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
-	ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height);
+	ibox = NULL;
 	clHead = NULL;
 	indexLogo = 0;
 
@@ -1547,7 +1547,8 @@ void CChannelList::paintDetails(int index)
 		p_event = &chanlist[index]->currentEvent;
 
 	//infobox
-	ibox->paint(false);
+	if (ibox)
+		ibox->paint(false);
 
 	if (!p_event->description.empty()) {
 		char cNoch[50] = {0}; // UTF-8
@@ -1664,6 +1665,8 @@ void CChannelList::paintItem2DetailsLine (int pos)
 		}
 
 		//infobox
+		if (ibox == NULL)
+			ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height);
 		if (ibox){
 			ibox->setDimensionsAll(x, ypos2, width, info_height);
 			ibox->setFrameThickness(2);
