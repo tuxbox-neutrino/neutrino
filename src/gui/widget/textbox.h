@@ -89,11 +89,11 @@ class CTextBox
 		/* Variables */
 		enum textbox_modes
 		{
-			AUTO_WIDTH	= 0x01,
-			AUTO_HIGH	= 0x02,
-			SCROLL		= 0x04,
-			CENTER		= 0x40,
-			NO_AUTO_LINEBREAK = 0x80
+			AUTO_WIDTH	= 0x01, 	//auto adapt frame width to max width or max text width, text is painted with auto linebreak
+			AUTO_HIGH	= 0x02, 	//auto adapt frame height to max height, text is painted with auto linebreak
+			SCROLL		= 0x04, 	//frame box contains scrollbars on long text
+			CENTER		= 0x40, 	//paint text centered
+			NO_AUTO_LINEBREAK = 0x80  	//paint text without auto linebreak,  cutting text
 		};
 		
 	private:
