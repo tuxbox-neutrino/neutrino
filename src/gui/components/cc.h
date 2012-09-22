@@ -429,7 +429,7 @@ class CComponentsText : public CComponentsContainer
 		CComponentsText();
 		~CComponentsText();
 		
-		inline void setText(const char* text, const int text_mode=CTextBox::AUTO_WIDTH, Font* font_text=NULL){ct_text = text; ct_text_mode = text_mode, ct_font = font_text;};
+		inline void setText(const char* text, const int text_mode=~CTextBox::AUTO_WIDTH, Font* font_text=NULL){ct_text = text; ct_text_mode = text_mode, ct_font = font_text;};
 		
 		void hide(bool no_restore = false);
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
