@@ -501,6 +501,7 @@ void CTextBox::refreshText(void)
 			
 	if( m_nNrOfLines <= 0)
 		return;
+
 	
 	int y = m_cFrameTextRel.iY + text_border_width;
 	int i;
@@ -518,8 +519,14 @@ void CTextBox::refreshText(void)
 	{
 		
 		//calculate centered xpos
-		if( m_nMode & CENTER )
+		if( m_nMode & CENTER ){
 			x_center = (m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true))>>1;
+		}
+		else if ( m_nMode & RIGHT ){
+			x_center = (m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true));
+			if ( m_nMode & SCROLL )
+				x_center -= SCROLL_FRAME_WIDTH;
+		}
 
 		m_pcFontText->RenderString(m_cFrameTextRel.iX + text_border_width + x_center+m_cFrame.iX,
 				y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),

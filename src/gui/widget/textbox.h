@@ -93,6 +93,7 @@ class CTextBox
 			AUTO_HIGH	= 0x02, 	//auto adapt frame height to max height, text is painted with auto linebreak
 			SCROLL		= 0x04, 	//frame box contains scrollbars on long text
 			CENTER		= 0x40, 	//paint text centered
+			RIGHT		= 0x100, 	//paint text right
 			NO_AUTO_LINEBREAK = 0x80  	//paint text without auto linebreak,  cutting text
 		};
 		
