@@ -37,12 +37,10 @@
 #if HAVE_SPARK_HARDWARE
 #include <aotom_main.h>
 #define DISPLAY_DEV "/dev/vfd"
-#define DISPLAY_LEN 4
 #endif
 #if HAVE_AZBOX_HARDWARE
 #define DISPLAY_DEV "/proc/vfd"
 #define LED_DEV "/proc/led"
-#define DISPLAY_LEN 8
 #endif
 
 static char volume = 0;
@@ -54,6 +52,8 @@ static time_t last_display = 0;
 static char display_text[64] = { 0 };
 static bool led_r = false;
 static bool led_g = false;
+static bool upd_display = false;
+static bool vol_active = false;
 
 static inline int dev_open()
 {
@@ -87,8 +87,8 @@ printf("%s '%s'\n", __func__, s);
 		last_display = time(NULL);
 		/* increase timeout to ensure that everything is displayed
 		 * the driver displays 5 characters per second */
-		if (len > DISPLAY_LEN)
-			last_display += (len - 4) / 5;
+		if (len > g_info.hw_caps->display_xres)
+			last_display += (len - g_info.hw_caps->display_xres) / 5;
 	}
 }
 
@@ -96,6 +96,7 @@ CLCD::CLCD()
 {
 	/* do not show menu in neutrino... */
 	has_lcd = false;
+	servicename = "";
 }
 
 CLCD* CLCD::getInstance()
@@ -140,8 +141,16 @@ void CLCD::setlcdparameter(void)
 {
 }
 
-void CLCD::showServicename(std::string, bool)
+void CLCD::showServicename(std::string name, bool)
 {
+	if (g_info.hw_caps->display_type == HW_DISPLAY_LED_NUM)
+		return;
+	servicename = name;
+	if (mode != MODE_TVRADIO)
+		return;
+	strncpy(display_text, servicename.c_str(), sizeof(display_text) - 1);
+	display_text[sizeof(display_text) - 1] = '\0';
+	upd_display = true;
 }
 
 #if HAVE_SPARK_HARDWARE
@@ -208,14 +217,14 @@ void CLCD::showTime(bool force)
 	}
 
 	time_t now = time(NULL);
-	if (display_text[0])
+	if (upd_display)
 	{
 		display(display_text);
-		display_text[0] = '\0';
+		upd_display = false;
 	}
 	else if (power && (force || (showclock && (now - last_display) > 4)))
 	{
-		char timestr[DISPLAY_LEN + 1];
+		char timestr[64]; /* todo: change if we have a simple display with 63+ chars ;) */
 		struct tm *t;
 		static int hour = 0, minute = 0;
 
@@ -223,6 +232,7 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
+			int ret = -1;
 #if HAVE_SPARK_HARDWARE
 			now += t->tm_gmtoff;
 			int fd = dev_open();
@@ -236,17 +246,23 @@ void CLCD::showTime(bool force)
 			d.u.time.time[4] = t->tm_sec;
 			int ret = ioctl(fd, VFDSETTIME, &d);
 #else
-			int ret = ioctl(fd, VFDSETTIME2, &now);
+			ret = ioctl(fd, VFDSETTIME2, &now);
 #endif
 			close(fd);
-			if (ret < 0)
 #endif
+			if (ret < 0 && servicename.empty())
 			{
-				if (DISPLAY_LEN < 5)
+				if (g_info.hw_caps->display_xres < 5)
 					sprintf(timestr, "%02d%02d", hour, minute);
 				else	/* pad with spaces on the left side to center the time string */
-					sprintf(timestr, "%*s%02d:%02d",(DISPLAY_LEN - 5)/2, "", hour, minute);
+					sprintf(timestr, "%*s%02d:%02d",(g_info.hw_caps->display_xres - 5)/2, "", hour, minute);
 				display(timestr, false);
+			}
+			else
+			{
+				if (vol_active)
+					showServicename(servicename);
+				vol_active = false;
 			}
 			last_display = 0;
 		}
@@ -271,7 +287,7 @@ void CLCD::showRCLock(int)
 void CLCD::showVolume(const char vol, const bool update)
 {
 	char s[32];
-	const int type = (DISPLAY_LEN < 5);
+	const int type = (g_info.hw_caps->display_xres < 5);
 	const char *vol_fmt[] = { "Vol:%3d%%", "%4d" };
 	const char *mutestr[] = { "Vol:MUTE", "mute" };
 	if (vol == volume && update)
@@ -287,6 +303,7 @@ void CLCD::showVolume(const char vol, const bool update)
 		sprintf(s, vol_fmt[type], volume);
 
 	display(s);
+	vol_active = true;
 }
 
 void CLCD::showPercentOver(const unsigned char /*perc*/, const bool /*perform_update*/, const MODES)
@@ -299,6 +316,7 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 		return;
 	strncpy(display_text, text, sizeof(display_text) - 1);
 	display_text[sizeof(display_text) - 1] = '\0';
+	upd_display = true;
 }
 
 void CLCD::showAudioTrack(const std::string &, const std::string & /*title*/, const std::string &)
@@ -325,6 +343,11 @@ void CLCD::setMode(const MODES m, const char * const)
 		setled(0, 0);
 		showclock = true;
 		power = true;
+		if (g_info.hw_caps->display_type != HW_DISPLAY_LED_NUM) {
+			strncpy(display_text, servicename.c_str(), sizeof(display_text) - 1);
+			display_text[sizeof(display_text) - 1] = '\0';
+			upd_display = true;
+		}
 		showTime();
 		break;
 	case MODE_SHUTDOWN:

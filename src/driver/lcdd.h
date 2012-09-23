@@ -168,6 +168,7 @@ class CLCD
 #else
 		CLCD();
 		std::string	menutitle;
+		std::string	servicename;
 		MODES		mode;
 		void setled(int red, int green);
 		static void	*TimeThread(void *);
