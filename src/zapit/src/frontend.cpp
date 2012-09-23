@@ -162,6 +162,12 @@ CFrontend::CFrontend(int Number, int Adapter)
 	locked		= false;
 	usecount	= 0;
 
+	/* temporary hack to use frontend1 / frontend2 on Spark7162 */
+	if (getenv("FE_OFFSET")) {
+		int fe_offset = atoi(getenv("FE_OFFSET"));
+		fenumber += fe_offset;
+		printf("[fe%d] FE_OFFSET is %d -> use frontend%d\n", Number, fe_offset, fenumber);
+	}
 
 	memset(&curfe, 0, sizeof(curfe));
 	curfe.dvb_feparams.u.qpsk.fec_inner	= FEC_3_4;
