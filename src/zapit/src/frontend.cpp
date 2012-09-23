@@ -471,7 +471,6 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 		}
 
 		if (pfd.revents & (POLLIN | POLLPRI)) {
-			FE_TIMER_STOP("poll has event after");
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
 			//fop(ioctl, FE_READ_STATUS, &event.status);
@@ -481,6 +480,9 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 				continue;
 			}
 			//printf("[fe%d] poll events %d status %x\n", fenumber, pfd.revents, event.status);
+			if (event.status == 0) /* some drivers always deliver an empty event after tune */
+				continue;
+			FE_TIMER_STOP("poll has event after");
 
 			if (event.status & FE_HAS_LOCK) {
 				printf("[fe%d] ****************************** FE_HAS_LOCK: freq %lu\n", fenumber, (long unsigned int)event.parameters.frequency);
