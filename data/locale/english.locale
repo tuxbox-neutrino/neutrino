@@ -355,7 +355,7 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadconfig Neutrino-HD Settings: Load from
+extra.loadconfig Neutrino Settings: Load from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
 extra.longitude Longitude
@@ -366,7 +366,7 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.saveconfig Neutrino-HD Settings: Save as
+extra.saveconfig Neutrino Settings: Save as
 extra.savekeys Save keys as
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
@@ -958,7 +958,7 @@ networkmenu.setuponstartup Setup network on startup
 networkmenu.show Show active Network settings
 networkmenu.ssid Network name
 networkmenu.test Test network now
-neutrino_starting Neutrino-HD starting...
+neutrino_starting Neutrino starting...
 nfs.alreadymounted directory already mounted
 nfs.automount Mount on startup
 nfs.dir directory/share
@@ -1239,8 +1239,8 @@ settings.backup Image-Settings: Backup
 settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_pos Menu position
-settings.missingoptionsconffile The Neutrino-HD settings have been updated.\nNew Options will be set to default.
-settings.noconffile No Neutrino-HD settings found.\nUsing defaults.
+settings.missingoptionsconffile The Neutrino settings have been updated.\nNew Options will be set to default.
+settings.noconffile No Neutrino settings found.\nUsing defaults.
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
 settings.pos_default_center top center
@@ -1268,7 +1268,7 @@ streaminfo.head Stream-Information
 streaminfo.not_available not available
 streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
-streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino-HD.
+streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.caps caps / no caps
