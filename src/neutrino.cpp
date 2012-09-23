@@ -220,12 +220,10 @@ static void initGlobals(void)
 	g_Radiotext     = NULL;
 	g_volume	= NULL;
 
-#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
-	/* spark has revision == 1 like tripledragon for now */
-	can_deepstandby = true;
-#else
-	can_deepstandby = (cs_get_revision() > 7);
-#endif
+	g_info.hw_caps  = get_hwcaps();
+
+	can_deepstandby = g_info.hw_caps->can_shutdown;
+	g_info.has_fan  = g_info.hw_caps->has_fan;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1866,9 +1864,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 	g_info.delivery_system = CFEManager::getInstance()->getLiveFE()->getInfo()->type == FE_QPSK ? DVB_S : DVB_C;
-#if !HAVE_COOL_HARDWARE
-	g_info.has_fan = 0;
-#else
+#if HAVE_COOL_HARDWARE
 	/* only SAT-hd1 before rev 8 has fan */
 	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);
 #endif

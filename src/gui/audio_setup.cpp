@@ -38,7 +38,6 @@
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
-#include <cs_api.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -128,7 +127,6 @@ const CMenuOptionChooser::keyval AUDIOMENU_HDMI_DD_OPTIONS[AUDIOMENU_HDMI_DD_OPT
 /* audio settings menu */
 int CAudioSetup::showAudioSetup()
 {
-	unsigned int system_rev = cs_get_revision();
 	//menue init
 	CMenuWidget* audioSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	audioSettings->setSelected(selected);
@@ -142,11 +140,7 @@ int CAudioSetup::showAudioSetup()
 	
 	//dd via hdmi
 	CMenuOptionChooser *as_oj_dd_hdmi = NULL;
-	/* system_rev == 0x01 is a hack: no Coolstream box has this value, but libtriple
-	   defines it for the Tripledragon, so 0x01 identifies the TD. */
-#ifndef HAVE_SPARK_HARDWARE
-	if (system_rev != 0x01)
-#endif
+	if (g_info.hw_caps->has_HDMI)
 		as_oj_dd_hdmi = new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, AUDIOMENU_HDMI_DD_OPTIONS, AUDIOMENU_HDMI_DD_OPTION_COUNT, true, audioSetupNotifier);
 	
 	//dd via spdif
@@ -161,6 +155,8 @@ int CAudioSetup::showAudioSetup()
 	//clock rec
 //	CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
 
+#if HAVE_COOL_HARDWARE
+	/* only coolstream has SRS stuff, so only compile it there */
 	//SRS
 	//SRS algo
 	CMenuOptionChooser * as_oj_algo 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_ALGO, &g_settings.srs_algo, AUDIOMENU_SRS_OPTIONS, AUDIOMENU_SRS_OPTION_COUNT, g_settings.srs_enable, audioSetupNotifier);
@@ -174,6 +170,7 @@ int CAudioSetup::showAudioSetup()
 	//SRS on/off
 	CTruVolumeNotifier truevolSetupNotifier(as_oj_algo, as_oj_noise, as_oj_volrev);
 	CMenuOptionChooser * as_oj_srsonoff 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_IQ, &g_settings.srs_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &truevolSetupNotifier);
+#endif
 	
 #if 0
 	CStringInput * audio_PCMOffset = new CStringInput(LOCALE_AUDIOMENU_PCMOFFSET, g_settings.audio_PCMOffset, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ", audioSetupNotifier);
@@ -186,9 +183,7 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_analogmode);
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------------------------
-#ifndef HAVE_SPARK_HARDWARE
-	if (system_rev != 0x01)
-#endif
+	if (g_info.hw_caps->has_HDMI)
 		audioSettings->addItem(as_oj_dd_hdmi);
 	audioSettings->addItem(as_oj_dd_spdif);
 	audioSettings->addItem(as_oj_ddsubchn);
@@ -198,19 +193,14 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_vsteps);
 //	audioSettings->addItem(as_clockrec);
 	//---------------------------------------------------------
-	if (system_rev != 0x01) {
-		audioSettings->addItem(GenericMenuSeparatorLine);
-		audioSettings->addItem(as_oj_srsonoff);
-		audioSettings->addItem(as_oj_algo);
-		audioSettings->addItem(as_oj_noise);
-		audioSettings->addItem(as_oj_volrev);
-	} else {
-		/* if it's not added, we need to delete it manually */
-		delete as_oj_srsonoff;
-		delete as_oj_algo;
-		delete as_oj_noise;
-		delete as_oj_volrev;
-	}
+#if HAVE_COOL_HARDWARE
+	/* only coolstream has SRS stuff, so only compile it there */
+	audioSettings->addItem(GenericMenuSeparatorLine);
+	audioSettings->addItem(as_oj_srsonoff);
+	audioSettings->addItem(as_oj_algo);
+	audioSettings->addItem(as_oj_noise);
+	audioSettings->addItem(as_oj_volrev);
+#endif
 #if 0
 	audioSettings->addItem(mf);
 #endif

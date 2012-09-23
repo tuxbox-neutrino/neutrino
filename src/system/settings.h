@@ -40,6 +40,8 @@
 #include <zapit/client/zapitclient.h>
 #include <zapit/client/zapittools.h>
 
+#include <hardware_caps.h>
+
 #include <string>
 
 #if HAVE_COOL_HARDWARE
@@ -662,6 +664,7 @@ struct SglobalInfo
 	unsigned char     box_Type;
 	delivery_system_t delivery_system;
 	bool has_fan;
+	hw_caps_t *hw_caps;
 };
 
 const int RECORDING_OFF    = 0;

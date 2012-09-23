@@ -50,8 +50,6 @@
 
 #include <system/debug.h>
 
-#include <cs_api.h>
-
 //#define ONE_KEY_PLUGIN
 
 extern CPlugins       * g_PluginList;
@@ -172,9 +170,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	misc_menue.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, &misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	//energy, shutdown
-#if !defined(HAVE_SPARK_HARDWARE) && !defined(HAVE_AZBOX_HARDWARE)
-	if(cs_get_revision() > 7)
-#endif
+	if (g_info.hw_caps->can_shutdown)
 	{
 		CMenuWidget *misc_menue_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ENERGY);
 		showMiscSettingsMenuEnergy(misc_menue_energy);
@@ -194,14 +190,16 @@ int CMiscMenue::showMiscSettingsMenu()
 	misc_menue.addItem(GenericMenuSeparatorLine);
 
 	//cec settings
-#if !HAVE_TRIPLEDRAGON
-	CCECSetup cecsetup;
-	misc_menue.addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, &cecsetup, NULL, CRCInput::RC_1));
-#else
-	CSleepTimerWidget sleeptimer;
-	misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, &sleeptimer, "permanent", CRCInput::RC_1));
-#endif
+	if (g_info.hw_caps->can_cec) {
+		CCECSetup cecsetup;
+		misc_menue.addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, &cecsetup, NULL, CRCInput::RC_1));
+	}
 
+	if (!g_info.hw_caps->can_shutdown) {
+		/* we don't have the energy menu, but put the sleeptimer directly here */
+		CSleepTimerWidget sleeptimer;
+		misc_menue.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, &sleeptimer, "permanent", CRCInput::RC_1));
+	}
 	//channellist
 	CMenuWidget misc_menue_chanlist(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
 	showMiscSettingsMenuChanlist(&misc_menue_chanlist);
