@@ -86,7 +86,7 @@
 #define MI_XML_TAG_LENGTH 			"length"
 #define MI_XML_TAG_PRODUCT_COUNTRY  "productioncountry"
 #define MI_XML_TAG_PRODUCT_DATE 	"productiondate"
-#define MI_XML_TAG_QUALITY 			"qualitiy"
+#define MI_XML_TAG_QUALITY 			"quality"
 #define MI_XML_TAG_PARENTAL_LOCKAGE	"parentallockage"
 #define MI_XML_TAG_BOOKMARK 		"bookmark"
 #define MI_XML_TAG_BOOKMARK_START	"bookmarkstart"
