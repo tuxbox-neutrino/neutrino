@@ -40,13 +40,15 @@
 #include <neutrino.h>
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
+#include <gui/nfs.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
 #include <daemonc/remotecontrol.h>
 #include <system/setting_helpers.h>
 #include <system/fsmounter.h>
-#include <gui/nfs.h>
+#include <system/helpers.h>
+
 
 #include <driver/record.h>
 #include <zapit/capmt.h>
@@ -54,6 +56,7 @@
 #include <zapit/getservices.h>
 #include <zapit/zapit.h>
 #include <zapit/client/zapittools.h>
+#include <eitd/sectionsd.h>
 
 /* TODO:
  * nextRecording / pending recordings - needs testing
@@ -62,11 +65,6 @@
  */
 
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
-
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
-bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
-bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 
 extern "C" {
 #include <driver/genpsi.h>
@@ -173,10 +171,10 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	record->Open();
 
 	if(!record->Start(fd, (unsigned short ) allpids.PIDs.vpid, (unsigned short *) apids, numpids, channel_id)) {
-		/* Stop do close fd */
 		record->Stop();
 		delete record;
 		record = NULL;
+		close(fd);
 		unlink(tsfile.c_str());
 		hintBox.hide();
 		return RECORD_FAILURE;
@@ -217,6 +215,7 @@ bool CRecordInstance::Stop(bool remove_event)
 
 	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
 	SaveXml();
+	/* Stop do close fd - if started */
 	record->Stop();
 
 	if(!autoshift)
@@ -225,7 +224,7 @@ bool CRecordInstance::Stop(bool remove_event)
         CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
         if((autoshift && g_settings.auto_delete) /* || autoshift_delete*/) {
-                snprintf(buf,sizeof(buf), "nice -n 20 rm -f %s.ts &", filename);
+                snprintf(buf,sizeof(buf), "nice -n 20 rm -f \"%s.ts\" &", filename);
                 system(buf);
                 snprintf(buf,sizeof(buf), "%s.xml", filename);
                 //autoshift_delete = false;
@@ -353,7 +352,7 @@ void CRecordInstance::ProcessAPIDnames()
 
 	if(has_unresolved_ctags && (epgid != 0)) {
 		CSectionsdClient::ComponentTagList tags;
-		if(sectionsd_getComponentTagsUniqueKey(epgid, tags)) {
+		if(CEitManager::getInstance()->getComponentTagsUniqueKey(epgid, tags)) {
 			for(unsigned int i=0; i< tags.size(); i++) {
 				for(unsigned int j=0; j< allpids.APIDs.size(); j++) {
 					if(allpids.APIDs[j].component_tag == tags[i].componentTag) {
@@ -401,9 +400,7 @@ record_error_msg_t CRecordInstance::Record()
 		{
 			int pre=0, post=0;
 			CEPGData epgData;
-			epgData.epg_times.startzeit = 0;
-			epgData.epg_times.dauer = 0;
-			if (sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData )) {
+			if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
 				g_Timerd->getRecordingSafety(pre, post);
 				if (epgData.epg_times.startzeit > 0)
 					record_end = epgData.epg_times.startzeit + epgData.epg_times.dauer + post;
@@ -508,7 +505,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	tmpstring = "not available";
 	if (epgid != 0) {
 		CEPGData epgdata;
-		if (sectionsd_getEPGid(epgid, epg_time, &epgdata)) {
+		if (CEitManager::getInstance()->getEPGid(epgid, epg_time, &epgdata)) {
 			tmpstring = epgdata.title;
 			info1 = epgdata.info1;
 			info2 = epgdata.info2;
@@ -614,7 +611,7 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 	if (g_settings.recording_epg_for_filename) {
 		if(epgid != 0) {
 			CShortEPGData epgdata;
-			if(sectionsd_getEPGidShort(epgid, &epgdata)) {
+			if(CEitManager::getInstance()->getEPGidShort(epgid, &epgdata)) {
 				if (!(epgdata.title.empty())) {
 					strcpy(&(filename[pos]), epgdata.title.c_str());
 					ZapitTools::replace_char(&filename[pos]);
@@ -803,7 +800,7 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 
 	eventinfo.eventID = 0;
 	eventinfo.channel_id = channel_id;
-	if (sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData )) {
+	if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
 		eventinfo.epgID = epgData.eventID;
 		eventinfo.epg_starttime = epgData.epg_times.startzeit;
 		strncpy(eventinfo.epgTitle, epgData.title.c_str(), EPG_TITLE_MAXLEN-1);
@@ -894,23 +891,25 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 
 	mutex.unlock();
 
-	if (error_msg == RECORD_OK) {
+	if (error_msg == RECORD_OK)
 		return true;
-	}
-	else if(!timeshift) {
-		RunStopScript();
-		RestoreNeutrino();
 
-		printf("[recordmanager] %s: error code: %d\n", __FUNCTION__, error_msg);
+	printf("[recordmanager] %s: error code: %d\n", __FUNCTION__, error_msg);
+	/* RestoreNeutrino must be called always if record start failed */
+	RunStopScript();
+	RestoreNeutrino();
+
+	/* FIXME show timeshift start error or not ? */
+	//if(!timeshift)
+	{
 		//FIXME: Use better error message
 		DisplayErrorMessage(g_Locale->getText(
 				      error_msg == RECORD_BUSY ? LOCALE_STREAMING_BUSY :
 				      error_msg == RECORD_INVALID_DIRECTORY ? LOCALE_STREAMING_DIR_NOT_WRITABLE :
 				      LOCALE_STREAMING_WRITE_ERROR )); // UTF-8
-		return false;
 	}
 
-	return true;
+	return false;
 }
 
 bool CRecordManager::StartAutoRecord()
@@ -1452,7 +1451,7 @@ bool CRecordManager::RunStartScript(void)
 		return false;
 
 	puts("[neutrino.cpp] executing " NEUTRINO_RECORDING_START_SCRIPT ".");
-	if (system(NEUTRINO_RECORDING_START_SCRIPT) != 0) {
+	if (my_system(NEUTRINO_RECORDING_START_SCRIPT) != 0) {
 		perror(NEUTRINO_RECORDING_START_SCRIPT " failed");
 		return false;
 	}
@@ -1466,7 +1465,7 @@ bool CRecordManager::RunStopScript(void)
 		return false;
 
 	puts("[neutrino.cpp] executing " NEUTRINO_RECORDING_ENDED_SCRIPT ".");
-	if (system(NEUTRINO_RECORDING_ENDED_SCRIPT) != 0) {
+	if (my_system(NEUTRINO_RECORDING_ENDED_SCRIPT) != 0) {
 		perror(NEUTRINO_RECORDING_ENDED_SCRIPT " failed");
 		return false;
 	}

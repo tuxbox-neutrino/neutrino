@@ -3,7 +3,6 @@
 #include <neutrino.h>
 #include "pictureviewer.h"
 #include "pv_config.h"
-#include "driver/framebuffer.h"
 
 #include <unistd.h>
 #include <stdio.h>

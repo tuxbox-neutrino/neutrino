@@ -56,7 +56,6 @@ int CSectionsdClient::readResponse(char* data,unsigned int size)
 		return responseHeader.dataLength;
 }
 
-
 bool CSectionsdClient::send(const unsigned char command, const char* data, const unsigned int size)
 {
 	sectionsd::msgRequestHeader msgHead;
@@ -161,7 +160,61 @@ void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bo
 	close_connection();
 }
 
+void CSectionsdClient::freeMemory()
+{
+	send(sectionsd::freeMemory);
 
+	readResponse();
+	close_connection();
+}
+
+void CSectionsdClient::readSIfromXML(const char * epgxmlname)
+{
+	send(sectionsd::readSIfromXML, (char*) epgxmlname, strlen(epgxmlname));
+
+	readResponse();
+	close_connection();
+}
+
+void CSectionsdClient::writeSI2XML(const char * epgxmlname)
+{
+	send(sectionsd::writeSI2XML, (char*) epgxmlname, strlen(epgxmlname));
+
+	readResponse();
+	close_connection();
+}
+
+void CSectionsdClient::setConfig(const epg_config config)
+{
+	sectionsd::commandSetConfig *msg;
+	char* pData = new char[sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1 + config.epg_dir.length() + 1];
+	msg = (sectionsd::commandSetConfig *)pData;
+
+	msg->scanMode		= config.scanMode;
+	msg->epg_cache		= config.epg_cache;
+	msg->epg_old_events	= config.epg_old_events;
+	msg->epg_max_events	= config.epg_max_events;
+	msg->network_ntprefresh	= config.network_ntprefresh;
+	msg->network_ntpenable	= config.network_ntpenable;
+	msg->epg_extendedcache	= config.epg_extendedcache;
+//	config.network_ntpserver:
+	strcpy(&pData[sizeof(sectionsd::commandSetConfig)], config.network_ntpserver.c_str());
+//	config.epg_dir:
+	strcpy(&pData[sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1], config.epg_dir.c_str());
+
+	send(sectionsd::setConfig, (char*)pData, sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1 + config.epg_dir.length() + 1);
+	readResponse();
+	close_connection();
+	delete[] pData;
+}
+
+void CSectionsdClient::dumpStatus()
+{
+	send(sectionsd::dumpStatusinformation);
+	close_connection();
+}
+
+#if 0
 bool CSectionsdClient::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
 {
 	if (send(sectionsd::ComponentTagsUniqueKey, (char*)&uniqueKey, sizeof(uniqueKey)))
@@ -277,7 +330,6 @@ bool CSectionsdClient::getNVODTimesServiceKey(const t_channel_id channel_id, CSe
 	}
 }
 
-
 bool CSectionsdClient::getCurrentNextServiceKey(const t_channel_id channel_id, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next)
 {
 	if (send(sectionsd::currentNextInformationID, (char*)&channel_id, sizeof(channel_id)))
@@ -320,8 +372,6 @@ bool CSectionsdClient::getCurrentNextServiceKey(const t_channel_id channel_id, C
 		return false;
 	}
 }
-
-
 
 CChannelEventList CSectionsdClient::getChannelEvents(const bool tv_mode, t_channel_id *p_requested_channels, int size_requested_channels)
 {
@@ -375,8 +425,6 @@ CChannelEventList CSectionsdClient::getChannelEvents(const bool tv_mode, t_chann
 	 3: keyword search in EPG description (INFO2)
   In case of a match, the EPG event is added to the Eventlist eList.
   */
-#if 0 
-//never used
 bool CSectionsdClient::getEventsServiceKeySearchAdd(CChannelEventList& eList,const t_channel_id channel_id,char search_typ,std::string& search_text)
 {
 	int nBufSize=0;
@@ -437,7 +485,7 @@ bool CSectionsdClient::getEventsServiceKeySearchAdd(CChannelEventList& eList,con
 	close_connection();
 	return true;
 }
-#endif
+
 CChannelEventList CSectionsdClient::getEventsServiceKey(const t_channel_id channel_id)
 {
 	CChannelEventList eList;
@@ -481,7 +529,7 @@ CChannelEventList CSectionsdClient::getEventsServiceKey(const t_channel_id chann
 	close_connection();
 	return eList;
 }
-#if 0 
+
 //never used
 void showhexdumpa (char *label, unsigned char * from, int len)
 {
@@ -523,7 +571,7 @@ void showhexdumpa (char *label, unsigned char * from, int len)
   }
   printf ("\n");
 }
-#endif
+
 // 21.07.2005 - rainerk
 // Convert line-terminated extended events to vector of strings
 char * CSectionsdClient::parseExtendedEvents(char * dp, CEPGData * epgdata) {
@@ -617,7 +665,6 @@ bool CSectionsdClient::getActualEPGServiceKey(const t_channel_id channel_id, CEP
 	return false;
 }
 
-
 bool CSectionsdClient::getEPGid(const event_id_t eventid, const time_t starttime, CEPGData * epgdata)
 {
 	sectionsd::commandGetEPGid msg;
@@ -673,7 +720,6 @@ bool CSectionsdClient::getEPGid(const event_id_t eventid, const time_t starttime
 	return false;
 }
 
-
 bool CSectionsdClient::getEPGidShort(const event_id_t eventid, CShortEPGData * epgdata)
 {
 	if (send(sectionsd::epgEPGidShort, (char*)&eventid, sizeof(eventid)))
@@ -721,57 +767,5 @@ void CSectionsdClient::setPrivatePid(const unsigned short pid)
 	close_connection();
 }
 #endif
+#endif
 
-void CSectionsdClient::freeMemory()
-{
-	send(sectionsd::freeMemory);
-
-	readResponse();
-	close_connection();
-}
-
-void CSectionsdClient::readSIfromXML(const char * epgxmlname)
-{
-	send(sectionsd::readSIfromXML, (char*) epgxmlname, strlen(epgxmlname));
-
-	readResponse();
-	close_connection();
-}
-
-void CSectionsdClient::writeSI2XML(const char * epgxmlname)
-{
-	send(sectionsd::writeSI2XML, (char*) epgxmlname, strlen(epgxmlname));
-
-	readResponse();
-	close_connection();
-}
-
-void CSectionsdClient::setConfig(const epg_config config)
-{
-	sectionsd::commandSetConfig *msg;
-	char* pData = new char[sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1 + config.epg_dir.length() + 1];
-	msg = (sectionsd::commandSetConfig *)pData;
-
-	msg->scanMode		= config.scanMode;
-	msg->epg_cache		= config.epg_cache;
-	msg->epg_old_events	= config.epg_old_events;
-	msg->epg_max_events	= config.epg_max_events;
-	msg->network_ntprefresh	= config.network_ntprefresh;
-	msg->network_ntpenable	= config.network_ntpenable;
-	msg->epg_extendedcache	= config.epg_extendedcache;
-//	config.network_ntpserver:
-	strcpy(&pData[sizeof(sectionsd::commandSetConfig)], config.network_ntpserver.c_str());
-//	config.epg_dir:
-	strcpy(&pData[sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1], config.epg_dir.c_str());
-
-	send(sectionsd::setConfig, (char*)pData, sizeof(sectionsd::commandSetConfig) + config.network_ntpserver.length() + 1 + config.epg_dir.length() + 1);
-	readResponse();
-	close_connection();
-	delete[] pData;
-}
-
-void CSectionsdClient::dumpStatus()
-{
-	send(sectionsd::dumpStatusinformation);
-	close_connection();
-}

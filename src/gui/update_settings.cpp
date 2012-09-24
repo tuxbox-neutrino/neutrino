@@ -37,7 +37,7 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 #include "update_settings.h"
-#include "gui/filebrowser.h"
+#include "filebrowser.h"
 #include <gui/widget/icons.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>

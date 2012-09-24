@@ -44,8 +44,8 @@
 	   Nov 2005		Günther	initial implementation
 ****************************************************************************/
 
-#if !defined(LISTFRAME_H_)
-#define LISTFRAME_H_
+#ifndef __LISTFRAME_H__
+#define __LISTFRAME_H__
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>

@@ -57,6 +57,9 @@ button,input[type="button"],input[type="submit"]/*,input[type="file"],input[type
 	border: 1px solid #888888;
 	background-color: transparent;
 	border-radius: 3px;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
 }
 button:hover,input[type="button"]:hover,input[type="submit"]:hover/*,input[type="file"]:hover*/ {
 	position:relative;
@@ -114,6 +117,9 @@ tr {
 	font-size: 100.01%;
 	border: 1px solid #a0a0a0;
 	border-radius: 5px;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 .y_menu_prim_box_head {
 	margin: 0;
@@ -121,6 +127,11 @@ tr {
 	text-align: center;
 	background: #ffffff;
 	border-radius: 4px 4px 0 0;
+
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-topright: 4px;
 }
 .y_menu_prim_box_head_h2 {
 	margin: 0;
@@ -131,6 +142,11 @@ tr {
 	padding: 0 20px 5px;
 	background-color: #ffffff;
 	border-radius: 0 0 4px 4px;
+
+	-webkit-border-bottom-right-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+	-moz-border-radius-bottomright: 4px;
+	-moz-border-radius-bottomleft: 4px;
 }
 .y_menu_item {
 	margin: 0;
@@ -173,12 +189,20 @@ tr {
 	font-size: 100.01%;
 	border: 1px solid #a0a0a0;
 	border-radius: 5px;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 .y_menu_sec_box_head {
 	margin: 0;
 	padding: 0;
 	background: #ff6600;
 	border-radius: 4px 4px 0 0;
+
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-topright: 4px;
 }
 .y_menu_sec_box_head h2 {
 	margin: 0;
@@ -194,6 +218,11 @@ tr {
 	padding: 5px 0 10px;
 	background-color: #ffffff;
 	border-radius: 0 0 4px 4px;
+
+	-webkit-border-bottom-right-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+	-moz-border-radius-bottomright: 4px;
+	-moz-border-radius-bottomleft: 4px;
 }
 .y_menu_sec {
 	display: block;
@@ -254,6 +283,9 @@ tr {
 	font-size: 100.01%;
 	border: 1px solid #a0a0a0;
 	border-radius: 5px;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 .work_box_head {
 	margin: 0;
@@ -261,6 +293,11 @@ tr {
 	text-align: center;
 	background-color: #2188e0;
 	border-radius: 4px 4px 0 0;
+
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-topright: 4px;
 }
 .work_box_head h2,.work_box_head_h2 {
 	margin: 0;
@@ -276,6 +313,11 @@ tr {
 	padding: 5px 30px 10px 30px;
 	background-color: #ffffff;
 	border-radius: 0 0 4px 4px;
+
+	-webkit-border-bottom-right-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+	-moz-border-radius-bottomright: 4px;
+	-moz-border-radius-bottomleft: 4px;
 }
 .work_box_help {
 	float:right;
@@ -336,6 +378,9 @@ tr {
 	z-index : 500;
 	border: 1px solid #a0a0a0;
 	border-radius: 5px;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 .y_wait_box_visible {
 	margin: 0;
@@ -347,12 +392,20 @@ tr {
 	z-index : 500;
 	border: 1px solid #a0a0a0;
 	border-radius: 5px;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 .y_wait_box_head {
 	margin: 0;
 	padding: 0;
 	background: #ff6600;
 	border-radius: 4px 4px 0 0;
+
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-topright: 4px;
 }
 .y_wait_box_head h2 {
 	margin: 0;
@@ -367,6 +420,11 @@ tr {
 	padding: 5px 15px 20px;
 	background-color: #ffffff;
 	border-radius: 0 0 4px 4px;
+
+	-webkit-border-bottom-right-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+	-moz-border-radius-bottomright: 4px;
+	-moz-border-radius-bottomleft: 4px;
 }
 .y_wait_box_main {
 	color: #666666;
@@ -540,9 +598,11 @@ tr {
 	height: 100%;
 	font-size:8pt;
 	z-index:10;
-	-moz-opacity: 0.2;
 	opacity:.20;
-	filter: alpha(opacity=20);	
+
+	-webkit-opacity: 0.2;
+	-moz-opacity: 0.2;
+	filter: alpha(opacity=20);
 }
 .ep_bouquet_zap {
 	border-right : #BBBBBB solid 1px;
@@ -554,9 +614,11 @@ tr {
 	height: 100%;
 	font-size:8pt;
 	z-index:10;
-	-moz-opacity: 0.2;
 	opacity:.20;
-	filter: alpha(opacity=20);	
+
+	-webkit-opacity: 0.2;
+	-moz-opacity: 0.2;
+	filter: alpha(opacity=20);
 }
 .ep_bouquet_item:hover {
 	background-color : #DDDDDD;

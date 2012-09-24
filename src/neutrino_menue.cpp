@@ -48,7 +48,7 @@
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
 #include "gui/dboxinfo.h"
-#include <gui/epgplus.h>
+#include "gui/epgplus.h"
 #include "gui/favorites.h"
 #include "gui/hdd_menu.h"
 #include "gui/imageinfo.h"
@@ -59,7 +59,7 @@
 #include "gui/miscsettings_menu.h"
 #include "gui/motorcontrol.h"
 #include "gui/movieplayer.h"
-#include <gui/network_setup.h>
+#include "gui/network_setup.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
 #include "gui/parentallock_setup.h"
@@ -70,11 +70,11 @@
 #include "gui/settings_manager.h"
 #include "gui/sleeptimer.h"
 #include "gui/update_menue.h"
-#include <gui/streaminfo2.h>
+#include "gui/streaminfo2.h"
 #include "gui/test_menu.h"
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
-#include <driver/record.h>
+#include "driver/record.h"
 
 
 extern CPlugins       * g_PluginList;

@@ -31,7 +31,7 @@
 #endif
 
 
-#include "gui/cec_setup.h"
+#include "cec_setup.h"
 
 #include <global.h>
 #include <neutrino.h>

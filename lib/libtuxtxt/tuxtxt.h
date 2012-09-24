@@ -32,10 +32,6 @@
 
 #include <linux/input.h>
 
-#ifndef NEW_CST_KERNEL
-#include <linux/videodev.h>
-#endif
-
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
@@ -68,7 +64,8 @@ extern int tuxtxt_get_zipsize(int p, int sp);
 #endif
 
 
-#define TUXTXTCONF CONFIGDIR "/tuxtxt/tuxtxt2.conf"
+#define TUXTXTDIR CONFIGDIR "/tuxtxt"
+#define TUXTXTCONF TUXTXTDIR "/tuxtxt2.conf"
 
 /* fonts */
 #define TUXTXTTTF FONTDIR "/tuxtxt.ttf"

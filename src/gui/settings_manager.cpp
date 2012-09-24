@@ -34,12 +34,10 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include "gui/settings_manager.h"
-
-#include "gui/filebrowser.h"
-
-#include "gui/widget/messagebox.h"
-#include "gui/widget/stringinput.h"
+#include <gui/settings_manager.h>
+#include <gui/filebrowser.h>
+#include <gui/widget/messagebox.h>
+#include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
 #include <system/setting_helpers.h>

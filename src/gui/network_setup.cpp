@@ -34,9 +34,9 @@
 
 #include <dirent.h>
 
-#include "gui/network_setup.h"
-#include "gui/proxyserver_setup.h"
-#include "gui/nfs.h"
+#include "network_setup.h"
+#include <gui/proxyserver_setup.h>
+#include <gui/nfs.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>

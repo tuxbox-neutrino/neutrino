@@ -43,7 +43,7 @@ ChangeLog:
 #include <string.h>
 #include <stddef.h>
 
-#include "xmldef.h"
+#include "xmltok/xmldef.h"
 
 #ifdef XML_UNICODE
 #define XML_ENCODE_MAX XML_UTF16_ENCODE_MAX

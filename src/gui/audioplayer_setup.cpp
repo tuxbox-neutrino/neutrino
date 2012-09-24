@@ -34,7 +34,7 @@
 #endif
 
 
-#include "gui/audioplayer_setup.h"
+#include "audioplayer_setup.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -44,8 +44,8 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 
-#include "gui/audioplayer.h"
-#include "gui/filebrowser.h"
+#include <gui/audioplayer.h>
+#include <gui/filebrowser.h>
 
 #include <driver/screen_max.h>
 

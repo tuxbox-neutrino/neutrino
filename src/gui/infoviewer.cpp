@@ -32,7 +32,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <string>
+#include "infoviewer.h"
+
 #include <algorithm>
 
 #include <sys/types.h>
@@ -48,7 +49,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <gui/infoviewer.h>
 #include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
@@ -62,10 +62,8 @@
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
+#include <eitd/sectionsd.h>
 #include <video.h>
-
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
@@ -386,8 +384,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 
 void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 {
-	//info_CurrentNext = getEPG (channel_id);
-	sectionsd_getCurrentNextServiceKey(channel_id & 0xFFFFFFFFFFFFULL, info_CurrentNext);
+	CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, info_CurrentNext);
 	if (!evtlist.empty()) {
 		if (new_chan) {
 			for ( eli=evtlist.begin(); eli!=evtlist.end(); ++eli ) {
@@ -600,9 +597,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 			col_NumBoxText = COL_MENUHEAD;
 		}
 		if ((channel_id != new_channel_id) || (evtlist.empty())) {
-			evtlist.clear();
-			//evtlist = g_Sectionsd->getEventsServiceKey(new_channel_id & 0xFFFFFFFFFFFFULL);
-			sectionsd_getEventsServiceKey(new_channel_id, evtlist);
+			CEitManager::getInstance()->getEventsServiceKey(new_channel_id, evtlist);
 			if (!evtlist.empty())
 				sort(evtlist.begin(),evtlist.end(), sortByDateTime);
 			new_chan = true;
@@ -1157,7 +1152,8 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				infoViewerBB->showIcon_SubT();
 				//infoViewerBB->showIcon_CA_Status(0);
 				infoViewerBB->showIcon_Resolution();
-				infoViewerBB->showIcon_Tuner();
+				if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE)
+					infoViewerBB->showIcon_Tuner();
 			}
 		}
 		return messages_return::handled;
@@ -1270,8 +1266,7 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 {
 	static CSectionsdClient::CurrentNextInfo oldinfo;
 
-	//g_Sectionsd->getCurrentNextServiceKey (for_channel_id & 0xFFFFFFFFFFFFULL, info);
-	sectionsd_getCurrentNextServiceKey(for_channel_id & 0xFFFFFFFFFFFFULL, info);
+	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
 
 //printf("CInfoViewer::getEPG: old uniqueKey %llx new %llx\n", oldinfo.current_uniqueKey, info.current_uniqueKey);
 
@@ -1364,7 +1359,8 @@ void CInfoViewer::showSNR ()
 			g_SignalFont->RenderString (posx, posy + height, sw, percent, COL_INFOBAR);
 		}
 	}
-	infoViewerBB->showSysfsHdd();
+	if(showButtonBar)
+		infoViewerBB->showSysfsHdd();
 }
 
 void CInfoViewer::display_Info(const char *current, const char *next,

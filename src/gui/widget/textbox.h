@@ -59,8 +59,9 @@
 #include <string>
 #include <vector>
 
-#include <global.h>
 #include <driver/fb_window.h>
+#include <gui/color.h>
+#include <gui/customcolor.h>
 
 #define TRACE  printf
 #define TRACE_1 printf
@@ -117,12 +118,18 @@ class CTextBox
 		int m_nCurrentLine;
 		int m_nCurrentPage;
 
+		int  m_nBgRadius;
+		int  m_nBgRadiusType;
+		bool m_nPaintBackground;
+
 		Font* m_pcFontText;
 		int m_nFontTextHeight;
 		CFBWindow::color_t m_textBackgroundColor;
+		fb_pixel_t m_textColor;
 
 		CFrameBuffer * frameBuffer;
 		int max_width;
+		int text_border_width;
 	public:
 		/* Constructor */
 		CTextBox();
@@ -138,8 +145,13 @@ class CTextBox
 		/* Functions */
 		void    refresh(void);
 		void    scrollPageDown(const int pages);
-		void    scrollPageUp(const int pages);				
+		void    scrollPageUp(const int pages);
+		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
 		bool	setText(const std::string* newText, int _max_width = 0);
+		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
+		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
+		void    setTextBorderWidth(int border);
+		void	setTextFont(Font* font_text);
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};

@@ -125,6 +125,7 @@ audiomenu.pref_subs Sprache
 audiomenu.pref_subs_head Untertitelwahl
 audiomenu.spdif_dd Dolby Digital über S/PDIF
 audiomenu.stereo stereo
+audiomenu.volume_adjust Lautstärke ändern, in %
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
 audioplayer.add_ic Icecast
@@ -291,6 +292,7 @@ date.Sun  So
 date.Thu  Do
 date.Tue  Di
 date.Wed  Mi
+epg.saving Speichere EPG
 epgextended.actors Darsteller
 epgextended.director Regie
 epgextended.guests Gäste
@@ -866,7 +868,7 @@ menu.hint_misc_zapit Behandlung der Start-TV/Start-Radio Kanäle
 menu.hint_movie Wiedergabe von Filmen
 menu.hint_net_broadcast Hier können Sie die Broadcast-Adresse ändern,\nwenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische\nKonfiguration können Sie es hier einstellen
-menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem\nunter / media/00upnp
+menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem\nunter /media/00upnp
 menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Hier können Sie die Gateway-Adresse des Routers eingeben
 menu.hint_net_hostname Hier kann man den Hostnamen der Box ändern
@@ -975,6 +977,7 @@ menu.hint_scan_logical_hd Wenn der Kanal in SD und in HD verfügbar ist,\nwird H
 menu.hint_scan_longitude Geben Sie ihren Längengrad ein
 menu.hint_scan_manual Manueller Transponder-Scan mit ausgewählten Parametern
 menu.hint_scan_mod Wählen Sie eine Transponder-Modulation
+menu.hint_scan_motor_18v Benutze 18V für Motorbewegung
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
 menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten
 menu.hint_scan_nid Hier können Sie ihre Kabelnetzwerk-Id in dezimal eingeben
@@ -1158,6 +1161,7 @@ motorcontrol.store Speichere Motorposition (a)
 motorcontrol.timed_mode Zeitgesteuerter Schrittweitenmodus
 motorcontrol.user_menu Benutzermenü
 motorcontrol.west_limit Setze westliches (soft) Limit
+moviebrowser.book_add Lesezeichen setzen
 moviebrowser.book_clear_all Lösche alle
 moviebrowser.book_head Markierungen
 moviebrowser.book_lastmoviestop letzter Wiedergabestopp:

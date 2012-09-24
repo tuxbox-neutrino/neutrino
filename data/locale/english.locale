@@ -125,6 +125,7 @@ audiomenu.pref_subs Prefered subtitle language
 audiomenu.pref_subs_head Subtitle language preferences
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.stereo stereo
+audiomenu.volume_adjust Volume adjustment, in %
 audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.add_ic Icecast
@@ -291,6 +292,7 @@ date.Sun  Sun
 date.Thu  Thu
 date.Tue  Tue
 date.Wed  Wed
+epg.saving Saving EPG
 epgextended.actors Actors
 epgextended.director Director
 epgextended.guests Guests
@@ -866,7 +868,7 @@ menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
-menu.hint_net_djmount mount uPnp devices as filesystem\nunder /media/00upnp
+menu.hint_net_djmount Mount UPnP devices as filesystem\nunder /media/00upnp
 menu.hint_net_ftpd Enable file transfer using FTP
 menu.hint_net_gateway Enter gateway/router IP address
 menu.hint_net_hostname Change your box hostname
@@ -975,6 +977,7 @@ menu.hint_scan_logical_hd If both SD and HD channel versions present\nput HD to 
 menu.hint_scan_longitude Enter your longtitude
 menu.hint_scan_manual Manual transponder scan using\nselected parameters
 menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_motor_18v Use 18V when moving rotor
 menu.hint_scan_motor_speed Rotor moving speed in 1/10 degree\nper second
 menu.hint_scan_motorpos Select stored position number for\nthis satellite
 menu.hint_scan_nid Enter decimal network ID
@@ -1158,6 +1161,7 @@ motorcontrol.store Store Motor Position (a)
 motorcontrol.timed_mode Timed Step Mode
 motorcontrol.user_menu User menu
 motorcontrol.west_limit Set West (soft) Limit
+moviebrowser.book_add Add bookmark
 moviebrowser.book_clear_all Clear all
 moviebrowser.book_head Bookmarks
 moviebrowser.book_lastmoviestop Last play stop:

@@ -39,7 +39,6 @@
 #include <signal.h>
 
 #include <fstream>
-#include <string>
 
 #include "global.h"
 #include "neutrino.h"
@@ -75,7 +74,6 @@
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
 #include "gui/start_wizard.h"
-#include "gui/timerlist.h"
 #include "gui/videosettings.h"
 
 #include "gui/widget/hintbox.h"
@@ -98,6 +96,7 @@
 #include <system/fsmounter.h>
 #include <system/setting_helpers.h>
 #include <system/settings.h>
+#include <system/helpers.h>
 
 #include <timerdclient/timerdmsg.h>
 
@@ -107,12 +106,11 @@
 #include <zapit/satconfig.h>
 #include <zapit/client/zapitclient.h>
 
-#include <string.h>
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <lib/libdvbsub/dvbsub.h>
+#include <lib/libtuxtxt/teletext.h>
 #include <eitd/sectionsd.h>
 
 int old_b_id = -1;
@@ -140,12 +138,6 @@ void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
 
 //#define DISABLE_SECTIONSD
-extern int sectionsd_stop;
-#ifndef DISABLE_SECTIONSD
-//static pthread_t sections_thread;
-#endif
-void * sectionsd_main_thread(void *data);
-extern bool timeset; // sectionsd
 
 extern cVideo * videoDecoder;
 extern cDemux *videoDemux;
@@ -1575,9 +1567,6 @@ void CNeutrinoApp::SetupTiming()
 }
 
 
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
-bool sectionsd_isReady(void);
-
 #define LCD_UPDATE_TIME_RADIO_MODE (6 * 1000 * 1000)
 #define LCD_UPDATE_TIME_TV_MODE (60 * 1000 * 1000)
 
@@ -1748,7 +1737,7 @@ void wake_up( bool &wakeup)
 	if(!wakeup){
 		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
 		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
-		if (system(neutrino_leave_deepstandby_script) != 0)
+		if (my_system(neutrino_leave_deepstandby_script) != 0)
 			perror( neutrino_leave_deepstandby_script );
 	}
 #endif
@@ -1798,13 +1787,14 @@ TIMER_START();
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 	ZapStart_arg.ci_clock = g_settings.ci_clock;
+	ZapStart_arg.volume = g_settings.current_volume;
 
 	/* create decoders, read channels */
 	CZapit::getInstance()->Start(&ZapStart_arg);
 
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
-	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
+	//audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
 	audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE)g_settings.hdmi_dd);
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
@@ -2668,8 +2658,7 @@ _repeat:
 				if(timer.epgID!=0) {
 					CEPGData epgdata;
 					zAddData += " :\n";
-					//if (g_Sectionsd->getEPGid(timer.epgID, timer.epg_starttime, &epgdata))
-					if (sectionsd_getEPGid(timer.epgID, timer.epg_starttime, &epgdata)) {
+					if (CEitManager::getInstance()->getEPGid(timer.epgID, timer.epg_starttime, &epgdata)) {
 						zAddData += epgdata.title;
 					}
 					else if(strlen(timer.epgTitle)!=0) {
@@ -2688,7 +2677,8 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
-		system(NEUTRINO_RECORDING_TIMER_SCRIPT);
+		my_system(NEUTRINO_RECORDING_TIMER_SCRIPT);
+
 		if (g_settings.recording_type == RECORDING_FILE) {
 			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -2702,7 +2692,7 @@ _repeat:
 				}
 			}
 			if(has_hdd) {
-				system("(rm /media/sda1/.wakeup; touch /media/sda1/.wakeup; sync) > /dev/null  2> /dev/null &"); // wakeup hdd
+				wakeup_hdd(g_settings.network_nfs_recordingdir);
 			}
 		}
 		if( g_settings.recording_zap_on_announce ) {
@@ -2728,7 +2718,7 @@ _repeat:
 		if(data) {
 			skipShutdownTimer =
 				(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE,
-				      CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
+				      CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
 			if(skipShutdownTimer) {
 				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
 				skipShutdownTimer = false;
@@ -2774,7 +2764,7 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SHUTDOWN) {
 		if( mode != mode_scart )
-			skipShutdownTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 5) == CMessageBox::mbrYes);
+			skipShutdownTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 5) == CMessageBox::mbrYes);
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
@@ -2948,14 +2938,14 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		if(retcode) {
 			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
 			printf("[%s] executing %s\n",__FILE__ ,neutrino_enter_deepstandby_script);
-			if (system(neutrino_enter_deepstandby_script) != 0)
+			if (my_system(neutrino_enter_deepstandby_script) != 0)
 				perror(neutrino_enter_deepstandby_script );
 
 			printf("entering off state\n");
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
-			system("/etc/init.d/rcK");
+			my_system("/etc/init.d/rcK");
 			system("/bin/sync");
 			system("/bin/umount -a");
 			sleep(1);
@@ -3073,16 +3063,16 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 {
 	struct stat my_stat;
 	if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0){
-		const char *save_txt = "Saving EPG";
-		printf("%s to %s....\n",save_txt, g_settings.epg_dir.c_str());
-		neutrino_msg_t      msg;
-		neutrino_msg_data_t data;
+		printf("[neutrino] Saving EPG to %s...\n", g_settings.epg_dir.c_str());
 
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-		CVFD::getInstance ()->ShowText(save_txt);
+		CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_EPG_SAVING));
 
 		g_Sectionsd->writeSI2XML(g_settings.epg_dir.c_str());
+
+		neutrino_msg_t      msg;
+		neutrino_msg_data_t data;
 		while( true ) {
 			g_RCInput->getMsg(&msg, &data, 1200); // 120 secs..
 			if (( msg == CRCInput::RC_timeout ) || (msg == NeutrinoMessages::EVT_SI_FINISHED)) {
@@ -3090,7 +3080,8 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 				CVFD::getInstance()->Clear();
 				CVFD::getInstance()->setMode(cvfd_mode ? CVFD::MODE_SHUTDOWN : CVFD::MODE_STANDBY);// true CVFD::MODE_SHUTDOWN  , false CVFD::MODE_STANDBY
 				break;
-			}
+			} else if (!cvfd_mode)
+				handleMsg(msg, data);
 		}
 	}
 }
@@ -3180,7 +3171,7 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 
 void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 {
-	static bool wasshift = false;
+	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
 	
 	if( bOnOff ) {
@@ -3195,10 +3186,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
 
-		CVFD::getInstance()->Clear();
-		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
-
-		wasshift = CRecordManager::getInstance()->StopAutoRecord();
+		/* wasshift = */ CRecordManager::getInstance()->StopAutoRecord();
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
@@ -3218,6 +3206,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			}
 		}
 
+		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
+
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();
 		}
@@ -3226,7 +3217,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		standby_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
-		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
+		if (my_system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
 
 		if(!CRecordManager::getInstance()->RecordingStatus())
@@ -3270,7 +3261,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
-		if (system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
+		if (my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -3307,11 +3298,15 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			InfoClock->StartClock();
 
 		g_volume->AudioMute(current_muted, true);
+#if 0
+		/* auto-record will be started when zap is complete
+		 * FIXME is it needed to restart manual timeshift here ? */
 		if((mode == mode_tv) && wasshift) {
 			//startAutoRecord();
 			CRecordManager::getInstance()->StartAutoRecord();
 		}
 		wasshift = false;
+#endif
 		StartSubtitles();
 	}
 }
@@ -3549,7 +3544,6 @@ bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 void stop_daemons(bool stopall)
 {
 	streamts_stop = 1;
-	sectionsd_stop = 1;
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
@@ -3567,7 +3561,6 @@ void stop_daemons(bool stopall)
 	}
 #ifndef DISABLE_SECTIONSD
 	printf("sectionsd shutdown\n");
-	//pthread_join(sections_thread, NULL);
 	CEitManager::getInstance()->Stop();
 	printf("sectionsd shutdown done\n");
 #endif

@@ -35,17 +35,16 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include "bouqueteditor_chanselect.h"
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
 
-#include <zapit/client/zapitclient.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 
-#include "bouqueteditor_chanselect.h"
 
 extern CBouquetManager *g_bouquetManager;
 

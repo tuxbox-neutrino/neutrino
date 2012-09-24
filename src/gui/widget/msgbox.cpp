@@ -48,6 +48,8 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+
 #include "msgbox.h"
 
 #include <gui/widget/icons.h>

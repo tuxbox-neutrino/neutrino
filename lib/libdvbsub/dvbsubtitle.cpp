@@ -22,7 +22,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
 }
-#include "driver/framebuffer.h"
+#include <driver/framebuffer.h>
 #include "Debug.hpp"
 
 // Set these to 'true' for debug output:

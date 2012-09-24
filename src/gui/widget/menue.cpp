@@ -31,7 +31,6 @@
 #include <gui/widget/menue.h>
 
 #include <driver/fontrenderer.h>
-#include <driver/rcinput.h>
 #include <driver/screen_max.h>
 
 #include <gui/widget/stringinput.h>
@@ -470,6 +469,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool bAllowRepeatLR = false;
+	CVFD::MODES oldLcdMode = CVFD::getInstance()->getMode();
 	
 	int pos = 0;
 	exit_pressed = false;
@@ -734,7 +734,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	fader.Stop();
 
 	if(!parent)
-		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		if(oldLcdMode != CVFD::getInstance()->getMode())
+			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	for (unsigned int count = 0; count < items.size(); count++) 
 	{

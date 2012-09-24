@@ -18,7 +18,7 @@
 #include <errno.h>
 #include "fb_display.h"
 #include "pictureviewer.h"
-#include "driver/framebuffer.h"
+#include <driver/framebuffer.h>
 
 static unsigned char *lfb = 0;
 

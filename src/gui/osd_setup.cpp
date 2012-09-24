@@ -33,17 +33,16 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+#include <neutrino.h>
+#include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include "osd_setup.h"
 #include "themes.h"
 #include "screensetup.h"
 #include "osdlang_setup.h"
 #include "filebrowser.h"
-
-#include <global.h>
-#include <neutrino.h>
-#include <mymenu.h>
-#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
@@ -53,6 +52,7 @@
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 
+#include <zapit/femanager.h>
 #include <system/debug.h>
 
 extern CRemoteControl * g_RemoteControl;
@@ -434,7 +434,7 @@ int COsdSetup::showOsdSetup()
 
 	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
-	showOsdScreenshottSetup(&osd_menu_screenshot);
+	showOsdScreenShotSetup(&osd_menu_screenshot);
 	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::RC_3);
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
 	osd_menu->addItem(mf);
@@ -762,7 +762,16 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(mc);
 
 	// tuner icon
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, &g_settings.infobar_show_tuner, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	bool mc_active = false;
+	int show_tuner_icon = 0;
+	// show possible option if we in single box mode, but don't touch the real settings
+	int *p_show_tuner_icon = &show_tuner_icon;
+	if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE){
+		mc_active = true;
+		// use the real value of g_settings.infobar_show_tuner
+		p_show_tuner_icon = &g_settings.infobar_show_tuner;
+	}
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, p_show_tuner_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, mc_active);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
 	menu_infobar->addItem(mc);
 
@@ -923,7 +932,7 @@ const CMenuOptionChooser::keyval SCREENSHOT_OPTIONS[SCREENSHOT_OPTION_COUNT] =
 	{ 1, LOCALE_SCREENSHOT_OSD   }
 };
 
-void COsdSetup::showOsdScreenshottSetup(CMenuWidget *menu_screenshot)
+void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 {
 	menu_screenshot->addIntroItems(LOCALE_SCREENSHOT_MENU);
 	if((uint)g_settings.key_screenshot == CRCInput::RC_nokey)

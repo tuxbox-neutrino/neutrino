@@ -35,19 +35,17 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include "bouqueteditor_channels.h"
+#include "bouqueteditor_bouquets.h"
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
-#include <zapit/client/zapitclient.h>
 #include <zapit/client/zapittools.h>
 
-#include "bouqueteditor_channels.h"
-#include "bouqueteditor_bouquets.h"
 extern CBouquetManager *g_bouquetManager;
 
 CBEBouquetWidget::CBEBouquetWidget()

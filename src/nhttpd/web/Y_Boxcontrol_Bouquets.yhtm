@@ -11,7 +11,7 @@
 	</iframe>
 	<iframe src="Y_Boxcontrol_Channellist.yhtm?bouquet={=func:get_actual_bouquet_number=}" 
 		scrolling="auto" marginheight="1" marginwidth="1" frameborder="0" name="content"
-		style="height: 600px; width: 74%; float: right;">
+		style="height: 600px; width: 74%;">
 	</iframe>
 	</div>
 </div>

@@ -50,16 +50,14 @@
 #include <gui/color.h>
 #include <gui/eventlist.h>
 #include <gui/infoviewer.h>
+#include <gui/osd_setup.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/progressbar.h>
 #include <gui/widget/components.h>
-#include <gui/osd_setup.h>
 
 #include <system/settings.h>
-#include <system/lastchannel.h>
 #include <gui/customcolor.h>
 
 #include <gui/bouquetlist.h>
@@ -72,6 +70,8 @@
 #include <zapit/getservices.h>
 #include <zapit/femanager.h>
 #include <zapit/debug.h>
+
+#include <eitd/sectionsd.h>
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -88,10 +88,6 @@ extern CBouquetList   * RADIOallList;
 extern bool autoshift;
 
 extern CBouquetManager *g_bouquetManager;
-void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen);
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
-
 extern int old_b_id;
 
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist, bool )
@@ -175,7 +171,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		unsigned int count;
 		for (count = from; count < to; count++) {
 			events.clear();
-			sectionsd_getEventsServiceKey(chanlist[count]->channel_id, events);
+			CEitManager::getInstance()->getEventsServiceKey(chanlist[count]->channel_id, events);
 			chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
 			for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
 				if ((long)e->startTime > atime &&
@@ -188,17 +184,16 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		}
 	} else {
 		t_channel_id *p_requested_channels;
-		int size_requested_channels = chanlist_size * sizeof(t_channel_id);
-		p_requested_channels = new t_channel_id[size_requested_channels];
+		p_requested_channels = new t_channel_id[chanlist_size];
 		if (! p_requested_channels) {
 			fprintf(stderr,"%s:%d allocation failed!\n", __FUNCTION__, __LINE__);
 			return;
 		}
-		for (uint32_t count = 0; count < chanlist_size; count++) {
-			p_requested_channels[count] = chanlist[count + from]->channel_id&0xFFFFFFFFFFFFULL;
-		}
+		for (uint32_t count = 0; count < chanlist_size; count++)
+			p_requested_channels[count] = chanlist[count + from]->channel_id;
+
 		CChannelEventList levents;
-		sectionsd_getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
+		CEitManager::getInstance()->getChannelEvents(levents, p_requested_channels, chanlist_size);
 		for (uint32_t count=0; count < chanlist_size; count++) {
 			chanlist[count]->currentEvent = CChannelEvent();
 			for (CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e) {
@@ -1544,7 +1539,7 @@ void CChannelList::paintDetails(int index)
 		char buf[128] = {0};
 		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
-		sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
+		CEitManager::getInstance()->getCurrentNextServiceKey(chanlist[index]->channel_id, CurrentNext);
 		if (!CurrentNext.next_name.empty()) {
 			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
 			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
@@ -1574,7 +1569,7 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
 
 	// Clear
-	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
+	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {

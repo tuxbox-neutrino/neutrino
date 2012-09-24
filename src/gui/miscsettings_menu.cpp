@@ -35,13 +35,13 @@
 #include <neutrino_menue.h>
 #include <system/setting_helpers.h>
 
-#include "gui/miscsettings_menu.h"
-#include "gui/cec_setup.h"
-#include "gui/filebrowser.h"
-#include "gui/keybind_setup.h"
-#include "gui/plugins.h"
-#include "gui/sleeptimer.h"
-#include "gui/zapit_setup.h"
+#include <gui/miscsettings_menu.h>
+#include <gui/cec_setup.h>
+#include <gui/filebrowser.h>
+#include <gui/keybind_setup.h>
+#include <gui/plugins.h>
+#include <gui/sleeptimer.h>
+#include <gui/zapit_setup.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
