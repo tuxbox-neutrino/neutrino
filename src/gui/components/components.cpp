@@ -1516,8 +1516,7 @@ void CComponentsText::initText()
 	
 	//set text box properties
 	ct_textbox->setTextBorderWidth(0);
-	ct_textbox->enableBackgroundPaint(true);
-	ct_textbox->setBackGroundColor(COL_RED);
+	ct_textbox->enableBackgroundPaint(false);
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setTextMode(ct_text_mode);
 	ct_textbox->movePosition(ct_box->iX, ct_box->iY);
