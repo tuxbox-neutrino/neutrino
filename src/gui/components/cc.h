@@ -410,4 +410,30 @@ class CComponentsForm : public CComponentsContainer
 		void setIcon(const std::string& icon_name){tb_icon = icon_name;};
 };
 
+class CComponentsText : public CComponentsContainer
+{
+	private:
+		Font* ct_font;
+		CBox * ct_box;
+		CTextBox * ct_textbox;
+		
+		const char* ct_text;
+		int ct_text_mode; //see textbox.h for possible modes
+		fb_pixel_t ct_col_text;
+		bool ct_text_sended;
+		
+		void initVarText();
+		void initText();
+		
+	public:
+		CComponentsText();
+		~CComponentsText();
+		
+		inline void setText(const char* text, const int text_mode=CTextBox::AUTO_WIDTH, Font* font_text=NULL){ct_text = text; ct_text_mode = text_mode, ct_font = font_text;};
+		
+		void hide(bool no_restore = false);
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void setTextFont(Font* font_text){ct_font = font_text;};
+};
+
 #endif
