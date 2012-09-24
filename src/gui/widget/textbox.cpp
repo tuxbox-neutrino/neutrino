@@ -492,7 +492,7 @@ void CTextBox::refreshText(void)
 	if( frameBuffer == NULL)
 		return;
 
-	//TRACE("[CTextBox] m_nCurrentLine: %d, m_cLineArray[m_nCurrentLine]: %s\r\n",m_nCurrentLine, m_cLineArray[m_nCurrentLine].c_str());
+	//TRACE("[CTextBox] m_nCurrentLine: %d, m_nNrOfLines %d, m_cLineArray[m_nCurrentLine]: %s\r\n",m_nCurrentLine, m_nNrOfLines, m_cLineArray[m_nCurrentLine].c_str());
 
 	//Paint Text Background
 	if (m_nPaintBackground)
@@ -511,6 +511,10 @@ void CTextBox::refreshText(void)
 	if (m_nMode & TOP)
 		// move to top of frame
 		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * m_nLinesPerPage) >> 1) - text_border_width;
+	else if (m_nMode & BOTTOM)
+		// move to bottom of frame
+ 		y += m_cFrameTextRel.iHeight - text_border_width - (m_nNrOfLines > 1 ? (m_nNrOfLines-1)*m_nFontTextHeight : 0) ;
+		//m_nFontTextHeight + text_border_width /*- ((m_cFrameTextRel.iHeight + m_nFontTextHeight*/ * m_nLinesPerPage/*) >> 1)*/;
 	else
 		// fit into mid of frame space
 		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * std::min(m_nLinesPerPage, m_nNrOfLines)) >> 1) - text_border_width;
