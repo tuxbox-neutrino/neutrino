@@ -129,6 +129,13 @@ void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 		usleep(100000);
 }
 
+int CRecordInstance::GetStatus()
+{
+	if (record)
+		return record->GetStatus();
+	return 0;
+}
+
 record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 {
 	int fd;
@@ -642,8 +649,9 @@ void CRecordInstance::GetRecordString(std::string &str)
 		return;
 	}
 	char stime[15];
+	int err = GetStatus();
 	strftime(stime, sizeof(stime), "%H:%M:%S ", localtime(&start_time));
-	str = stime + channel->getName() + ": " + GetEpgTitle();
+	str = stime + channel->getName() + ": " + GetEpgTitle() + ((err & REC_STATUS_OVERFLOW) ? "  [!]" : "");
 }
 
 //-------------------------------------------------------------------------
@@ -660,6 +668,9 @@ CRecordManager::CRecordManager()
 	nextmap.clear();
 	autoshift = false;
 	shift_timer = 0;
+	check_timer = 0;
+	error_display = true;
+	warn_display = true;
 }
 
 CRecordManager::~CRecordManager()
@@ -891,8 +902,15 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 
 	mutex.unlock();
 
-	if (error_msg == RECORD_OK)
+	if (error_msg == RECORD_OK) {
+		if (check_timer == 0)
+			check_timer = g_RCInput->addTimer(5*1000*1000, false);
+
+		/* set flag to show record error if any */
+		error_display = true;
+		warn_display = true;
 		return true;
+	}
 
 	printf("[recordmanager] %s: error code: %d\n", __FUNCTION__, error_msg);
 	/* RestoreNeutrino must be called always if record start failed */
@@ -1115,6 +1133,8 @@ void CRecordManager::StopPostProcess()
 	RestoreNeutrino();
 	StartNextRecording();
 	RunStopScript();
+	if(!RecordingStatus())
+		g_RCInput->killTimer(check_timer);
 }
 
 bool CRecordManager::Update(const t_channel_id channel_id)
@@ -1146,6 +1166,27 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			shift_timer = 0;
 			StartAutoRecord();
 			return messages_return::handled;
+		}
+		else if(data == check_timer) {
+			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby) {
+				mutex.lock();
+				int have_err = 0;
+				for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
+					have_err |= it->second->GetStatus();
+				mutex.unlock();
+				//printf("%s: check status: show err %d warn %d have_err %d\n", __FUNCTION__, error_display, warn_display, have_err); //FIXME
+				if (have_err) {
+					if ((have_err & REC_STATUS_OVERFLOW) && error_display) {
+						error_display = false;
+						warn_display = false;
+						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_OVERFLOW));
+					} else if (warn_display) {
+						warn_display = false;
+						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_SLOW));
+					}
+				}
+				return messages_return::handled;
+			}
 		}
 	}
 	return messages_return::unhandled;
@@ -1418,7 +1459,7 @@ bool CRecordManager::ShowMenu(void)
 
 bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 {
-	int recording_id = 0;
+	//int recording_id = 0;
 	std::string title;
 	CRecordInstance * inst;
 
@@ -1429,7 +1470,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 		inst = FindInstance(channel_id);
 
 	if(inst) {
-		recording_id = inst->GetRecordingId();
+		//recording_id = inst->GetRecordingId();
 		inst->GetRecordString(title);
 	}
 	mutex.unlock();
@@ -1438,7 +1479,17 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 
 	if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
+#if 0
 		g_Timerd->stopTimerEvent(recording_id);
+#endif
+		mutex.lock();
+		if (recid)
+			inst = FindInstanceID(recid);
+		else
+			inst = FindInstance(channel_id);
+		if (inst)
+			StopInstance(inst);
+		mutex.unlock();
 		return true;
 	}
 	return false;
