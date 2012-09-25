@@ -1648,6 +1648,8 @@ streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino-HD.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
+streaming.overflow Record buffer overflow, consider to stop some records
+streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.caps caps / no caps
 stringinput.clear clear all

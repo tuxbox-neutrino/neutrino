@@ -1675,6 +1675,8 @@ const char * locale_real_names[] =
 	"streaminfo.signal",
 	"streaming.busy",
 	"streaming.dir_not_writable",
+	"streaming.overflow",
+	"streaming.slow",
 	"streaming.write_error",
 	"stringinput.caps",
 	"stringinput.clear",
