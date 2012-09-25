@@ -33,8 +33,8 @@
 #include <timerdclient/timerdclient.h>
 #include <timerdclient/timerdmsg.h>
 #include <sectionsdclient/sectionsdclient.h>
-#if HAVE_COOL_HARDWARE
-#include <coolstream/cs_vfd.h>
+#ifdef HAVE_COOLSTREAM_CS_FRONTPANEL_H
+#include <coolstream/cs_frontpanel.h>
 #endif
 
 #include <vector>
@@ -79,11 +79,11 @@ void CTimerManager::Init(void)
 	if (fd < 0) {
 		perror("/dev/display");
 	} else {
-		wakeup_data_t wk;
+		fp_wakeup_data_t wk;
 		memset(&wk, 0, sizeof(wk));
-		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
+		int ret = ioctl(fd, IOC_FP_GET_WAKEUP, &wk);
 		if(ret >= 0)
-			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
+			wakeup = ((wk.source == FP_WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
 		close(fd);
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
