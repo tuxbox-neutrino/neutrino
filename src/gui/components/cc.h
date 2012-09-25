@@ -222,7 +222,7 @@ class CComponentsInfoBox : public CComponentsContainer
 	private:
 		const char* text;
 		int text_mode; //see textbox.h for possible modes
-		int x_text, x_offset;
+		int x_offset;
 		Font* font;
 		CBox * box;
 		CTextBox * textbox;

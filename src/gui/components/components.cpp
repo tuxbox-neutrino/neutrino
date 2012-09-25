@@ -325,7 +325,6 @@ void CComponentsInfoBox::initVarInfobox()
 	textbox 	= NULL;
 	pic 		= NULL;
 	pic_name	= "";
-	x_text		= x;
 	x_offset	= 10;
 	
 }
@@ -361,8 +360,10 @@ void CComponentsInfoBox::paintText()
 		box = new CBox();
 	
 	//define text x position
-	x_text = x+fr_thickness+x_offset;
-	if (pic->isPainted()){
+	int x_text = x+fr_thickness+x_offset;
+	
+	//set text to the left border if picture not painted
+	if (pic->isPicPainted()){
 		int pic_w = pic->getWidth();
 		x_text += pic_w+x_offset;
 	}	
@@ -383,7 +384,7 @@ void CComponentsInfoBox::paintText()
 
 	//set properties
 	textbox->setTextFont(font);
-	textbox->movePosition(box->iX, box->iY);
+	textbox->setWindowPos(box);
 	textbox->setTextColor(ibox_col_text);
 
 	//set text
@@ -765,6 +766,7 @@ void CComponentsPicture::paint(bool do_save_bg)
 {
 	initVarPicture();
 	paintInit(do_save_bg);
+	pic_painted = false;
 	
 	if (do_paint){
 		if (picMode == CC_PIC_ICON)
