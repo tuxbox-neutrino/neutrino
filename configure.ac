@@ -118,7 +118,8 @@ AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
 
-AC_CHECK_HEADERS(coolstream/nevis_ir.h)
+AC_CHECK_HEADERS(coolstream/cs_ir_generic.h)
+AC_CHECK_HEADERS(coolstream/cs_frontpanel.h)
 
 #
 # Check for libtdservicedb - the new one - for testing only

@@ -35,6 +35,10 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <eitd/sectionsd.h>
 
+#ifdef HAVE_COOLSTREAM_CS_FRONTPANEL_H
+#include <coolstream/cs_frontpanel.h>
+#endif
+
 #include <vector>
 #include <cstdlib>
 
@@ -60,6 +64,32 @@ void CTimerManager::Init(void)
 	m_saveEvents = false;
 	m_isTimeSet = false;
 	wakeup = 0;
+	timer_wakeup = false;
+
+#if HAVE_COOL_HARDWARE
+	int fd = open("/dev/display", O_RDONLY);
+
+	if (fd < 0) {
+		perror("/dev/display");
+	} else {
+		fp_wakeup_data_t wk;
+		memset(&wk, 0, sizeof(wk));
+		int ret = ioctl(fd, IOC_FP_GET_WAKEUP, &wk);
+		if(ret >= 0)
+			wakeup = ((wk.source == FP_WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
+		close(fd);
+	}
+	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
+	if(wakeup){
+		creat("/tmp/.wakeup", 0);
+		timer_wakeup = true;
+	}else{
+		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
+		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
+		if (system(neutrino_leave_deepstandby_script) != 0)
+			perror( neutrino_leave_deepstandby_script );
+	}
+#endif
 	loadRecordingSafety();
 
 	//thread starten

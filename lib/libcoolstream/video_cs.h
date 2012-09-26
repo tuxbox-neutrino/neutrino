@@ -10,10 +10,12 @@
 #ifndef __VIDEO_CS_H_
 #define __VIDEO_CS_H_
 
-#include <coolstream/cs_vfd.h>
+#include <coolstream/cs_frontpanel.h>
 #include <coolstream/control.h>
 
 #include "cs_types.h"
+
+#define CS_MAX_VIDEO_DECODERS 16
 
 #ifndef CS_VIDEO_PDATA
 #define CS_VIDEO_PDATA void
@@ -33,26 +35,26 @@ typedef enum {
 
 typedef enum
 {
-   VIDEO_FORMAT_MPEG2 = 0,
-   VIDEO_FORMAT_MPEG4, /* H264 */
-   VIDEO_FORMAT_VC1,
-   VIDEO_FORMAT_JPEG,
-   VIDEO_FORMAT_GIF,
-   VIDEO_FORMAT_PNG,
-   VIDEO_FORMAT_DIVX,/* DIVX 3.11 */
-   VIDEO_FORMAT_MPEG4PART2,/* MPEG4 SVH, MPEG4 SP, MPEG4 ASP, DIVX4,5,6 */
-   VIDEO_FORMAT_REALVIDEO8,
-   VIDEO_FORMAT_REALVIDEO9,
-   VIDEO_FORMAT_ON2_VP6,
-   VIDEO_FORMAT_ON2_VP8,
-   VIDEO_FORMAT_SORENSON_SPARK,
-   VIDEO_FORMAT_H263,
-   VIDEO_FORMAT_H263_ENCODER,
-   VIDEO_FORMAT_H264_ENCODER,
-   VIDEO_FORMAT_MPEG4PART2_ENCODER,
-   VIDEO_FORMAT_AVS,  
-   VIDEO_FORMAT_VIP656,
-   VIDEO_FORMAT_UNSUPPORTED
+	VIDEO_FORMAT_MPEG2 = 0,
+	VIDEO_FORMAT_MPEG4, /* H264 */
+	VIDEO_FORMAT_VC1,
+	VIDEO_FORMAT_JPEG,
+	VIDEO_FORMAT_GIF,
+	VIDEO_FORMAT_PNG,
+	VIDEO_FORMAT_DIVX,/* DIVX 3.11 */
+	VIDEO_FORMAT_MPEG4PART2,/* MPEG4 SVH, MPEG4 SP, MPEG4 ASP, DIVX4,5,6 */
+	VIDEO_FORMAT_REALVIDEO8,
+	VIDEO_FORMAT_REALVIDEO9,
+	VIDEO_FORMAT_ON2_VP6,
+	VIDEO_FORMAT_ON2_VP8,
+	VIDEO_FORMAT_SORENSON_SPARK,
+	VIDEO_FORMAT_H263,
+	VIDEO_FORMAT_H263_ENCODER,
+	VIDEO_FORMAT_H264_ENCODER,
+	VIDEO_FORMAT_MPEG4PART2_ENCODER,
+	VIDEO_FORMAT_AVS,
+	VIDEO_FORMAT_VIP656,
+	VIDEO_FORMAT_UNSUPPORTED
 } VIDEO_FORMAT;
 
 typedef enum {
@@ -138,10 +140,17 @@ typedef enum
    VIDEO_CONTROL_MAX = VIDEO_CONTROL_SHARPNESS
 } VIDEO_CONTROL;
 
+class cDemux;
+class cAudio;
+
 class cVideo {
+friend class cAudio;
 private:
+	static cVideo *instance[CS_MAX_VIDEO_DECODERS];
+
+	unsigned int		unit;
 	CS_VIDEO_PDATA		*privateData;
-	u32			streamType;
+	VIDEO_FORMAT		streamType;
 	VIDEO_DEFINITION	VideoDefinition;
 	DISPLAY_AR		DisplayAR;
 	VIDEO_PLAY_MODE		playMode;
@@ -167,13 +176,16 @@ private:
 	int			cfd; // control driver fd
 	analog_mode_t		analog_mode_cinch;
 	analog_mode_t		analog_mode_scart;
-	vfd_icon		mode_icon;
+	fp_icon			mode_icon;
+	cDemux			*demux;
 	//
 	int SelectAutoFormat();
 	void ScalePic();
+	cVideo(unsigned int Unit);
 public:
 	/* constructor & destructor */
 	cVideo(int mode, void * hChannel, void * hBuffer);
+
 	~cVideo(void);
 
 	void * GetVPP(void);
@@ -247,6 +259,8 @@ public:
 	int  StartVBI(unsigned short pid);
 	int  StopVBI(void);
 	bool GetScreenImage(unsigned char * &data, int &xres, int &yres, bool get_video = true, bool get_osd = false, bool scale_to_video = false);
+	void SetDemux(cDemux *Demux);
+	static cVideo *GetDecoder(unsigned int Unit);
 };
 
 #endif // __VIDEO_CS_H_

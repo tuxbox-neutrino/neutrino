@@ -33,7 +33,7 @@
 #include <config.h>
 #endif
 
-#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+#ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
 /* define constants instead of #ifdef'ing the corresponding code.
  * the compiler will optimize it away anyway, but the syntax is
  * still checked */
@@ -41,7 +41,7 @@
 #else
 #define RC_HW_SELECT false
 #ifdef HAVE_COOL_HARDWARE
-#warning header coolstream/nevis_ir.h not found
+#warning header coolstream/cs_ir_generic.h not found
 #warning you probably have an old driver installation
 #warning you´ll be missing the remotecontrol selection feature!
 #endif

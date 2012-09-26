@@ -65,8 +65,7 @@
 
 #define ENABLE_REPEAT_CHECK
 
-//const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
-const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir"};
+const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/cs_ir"};
 typedef struct input_event t_input_event;
 
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
@@ -1574,8 +1573,8 @@ void CRCInput::play_click()
 }
 
 
-#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
-// hint: ir_protocol_t and other useful things are defined in nevis_ir.h
+#ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
+// hint: ir_protocol_t and other useful things are defined in cs_ir_generic.h
 void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 {
 	int ioctl_ret = -1;
@@ -1599,7 +1598,7 @@ void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 	}
 }
 
-// hint: ir_protocol_t and other useful things are defined in nevis_ir.h
+// hint: ir_protocol_t and other useful things are defined in cs_ir_generic.h
 void CRCInput::set_rc_hw(void)
 {
 	ir_protocol_t ir_protocol = IR_PROTOCOL_UNKNOWN;

@@ -432,7 +432,7 @@ void CMoviePlayerGui::PlayFile(void)
 		playback->Close();
 	} else {
 		playstate = CMoviePlayerGui::PLAY;
-		CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 		if(timeshift) {
 			first_start_timeshift = true;
 			startposition = -1;
@@ -679,8 +679,8 @@ void CMoviePlayerGui::PlayFile(void)
 	playback->SetSpeed(1);
 	playback->Close();
 
-	CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
-	CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
 
 	restoreNeutrino();
 

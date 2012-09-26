@@ -11,6 +11,7 @@
 #define __PLAYBACK_CS_H_
 
 #include <string>
+#include <stdint.h>
 
 typedef enum {
 	PLAYMODE_TS = 0,

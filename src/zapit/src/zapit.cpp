@@ -2036,12 +2036,16 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDemux = new cDemux();
 	audioDemux->Open(DMX_AUDIO_CHANNEL);
 
-	videoDecoder = cVideo::GetDecoder();
+	videoDecoder = cVideo::GetDecoder(0);
+	audioDecoder = cAudio::GetDecoder(0);
+
 	videoDecoder->SetDemux(videoDemux);
 	videoDecoder->SetVideoSystem(video_mode);
 	videoDecoder->Standby(false);
 
-	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
+	audioDecoder->SetDemux(audioDemux);
+	audioDecoder->SetVideo(videoDecoder);
+
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
 #ifdef USE_VBI

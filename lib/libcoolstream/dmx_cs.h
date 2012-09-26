@@ -36,8 +36,12 @@ typedef enum {
 } DMX_CHANNEL_TYPE;
 
 class cDemuxData;
+class cVideo;
+class cAudio;
 
 class cDemux {
+friend class cVideo;
+friend class cAudio;
 private:
 	DMX_CHANNEL_TYPE	type;
 	int			timeout;
