@@ -1709,7 +1709,7 @@ void CNeutrinoApp::InitSectiondClient()
 }
 
 #if HAVE_COOL_HARDWARE
-#include <coolstream/cs_vfd.h>
+#include <coolstream/cs_frontpanel.h>
 #endif
 
 void wake_up( bool &wakeup)
@@ -1726,11 +1726,11 @@ void wake_up( bool &wakeup)
 	if (fd < 0) {
 		perror("/dev/display");
 	} else {
-		wakeup_data_t wk;
+		fp_wakeup_data_t wk;
 		memset(&wk, 0, sizeof(wk));
-		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
+		int ret = ioctl(fd, IOC_FP_GET_WAKEUP, &wk);
 		if(ret >= 0)
-			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
+			wakeup = ((wk.source == FP_WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
 		close(fd);
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
@@ -2565,7 +2565,7 @@ _repeat:
 		}
 		recordingstatus = data;
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
-		CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, recordingstatus != 0);
+		CVFD::getInstance()->ShowIcon(FP_ICON_CAM1, recordingstatus != 0);
 
 		if( ( !g_InfoViewer->is_visible ) && data && !autoshift)
 			g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
@@ -2950,7 +2950,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			system("/bin/umount -a");
 			sleep(1);
 			{
-				standby_data_t standby;
+				fp_standby_data_t standby;
 				time_t mtime = time(NULL);
 				struct tm *tmtime = localtime(&mtime);
 				time_t fp_timer = 0;
@@ -2996,8 +2996,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 					reboot(LINUX_REBOOT_CMD_RESTART);
 				} else {
 
-					if (ioctl(fd, IOC_VFD_STANDBY, (standby_data_t *)  &standby)) {
-						perror("IOC_VFD_STANDBY");
+					if (ioctl(fd, IOC_FP_STANDBY, (fp_standby_data_t *)  &standby)) {
+						perror("IOC_FP_STANDBY");
 						reboot(LINUX_REBOOT_CMD_RESTART);
 					} else {
 						while(true) sleep(1);
@@ -3025,7 +3025,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			shutdown_cs_api();
 
 			system("/etc/init.d/rcK");
-			CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
+			CVFD::getInstance()->ShowIcon(FP_ICON_CAM1, true);
 			InfoClock->StopClock();
 
 			g_RCInput->clearRCMsg();
@@ -3098,14 +3098,14 @@ void CNeutrinoApp::tvMode( bool rezap )
 		videoDecoder->StopPicture();
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_TV_MODE, false );
-		CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, false);
+		CVFD::getInstance()->ShowIcon(FP_ICON_RADIO, false);
 		StartSubtitles(!rezap);
 	}
 
 	g_volume->Init();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-	CVFD::getInstance()->ShowIcon(VFD_ICON_TV, true);
+	CVFD::getInstance()->ShowIcon(FP_ICON_TV, true);
 
 	if( mode == mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -3318,11 +3318,11 @@ void CNeutrinoApp::radioMode( bool rezap)
 	if(mode==mode_tv ) {
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_RADIO_MODE, false );
-		CVFD::getInstance()->ShowIcon(VFD_ICON_TV, false);
+		CVFD::getInstance()->ShowIcon(FP_ICON_TV, false);
 		StopSubtitles();
 	}
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-	CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, true);
+	CVFD::getInstance()->ShowIcon(FP_ICON_RADIO, true);
 
 	if( mode == mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
