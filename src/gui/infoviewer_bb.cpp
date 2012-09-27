@@ -94,7 +94,7 @@ CInfoViewerBB::CInfoViewerBB()
 void CInfoViewerBB::Init()
 {
 	hddscale 		= NULL;
-	varscale 		= NULL;
+	sysscale 		= NULL;
 	hddwidth		= 0;
 	bbIconMaxH 		= 0;
 	bbButtonMaxH 		= 0;
@@ -597,9 +597,11 @@ void CInfoViewerBB::showSysfsHdd()
 {
 	if (g_settings.infobar_show_sysfs_hdd) {
 		//sysFS info
-		int sysper = 0;
-		sysper = get_fs_usage("/");
-		showBarSys(sysper);
+		int percent = 0;
+		long t, u;
+		if (get_fs_usage("/", t, u))
+			percent = (u * 100ULL) / t;
+		showBarSys(percent);
 
 #if 0
 		//HDD info in a seperate thread
@@ -610,8 +612,9 @@ void CInfoViewerBB::showSysfsHdd()
 		}
 #else
 		if (!check_dir(g_settings.network_nfs_recordingdir)) {
-			sysper = get_fs_usage(g_settings.network_nfs_recordingdir);
-			showBarHdd(sysper);
+			if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
+				percent = (u * 100ULL) / t;
+			showBarHdd(percent);
 		}
 #endif
 	}
@@ -621,9 +624,11 @@ void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
 
-	int hddper = 0;
-	hddper = get_fs_usage(g_settings.network_nfs_recordingdir);
-	infoViewerBB->showBarHdd(hddper);
+	int percent = 0;
+	long t, u;
+	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
+		percent = (u * 100ULL) / t;
+	infoViewerBB->showBarHdd(percent);
 
 	infoViewerBB->hddperTflag=false;
 	pthread_exit(NULL);
@@ -632,13 +637,11 @@ void* CInfoViewerBB::hddperThread(void *arg)
 void CInfoViewerBB::showBarSys(int percent)
 {
 	if (is_visible)
-		varscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6, percent, 100);
+		sysscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6, percent, 100);
 }
 
 void CInfoViewerBB::showBarHdd(int percent)
 {
-	if (percent < 0)
-		percent = 0;
 	if (is_visible)
 		hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
 }
@@ -791,16 +794,16 @@ void CInfoViewerBB::changePB()
 	if (hddscale != NULL)
 		delete hddscale;
 	hddscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
-	if (varscale != NULL)
-		delete varscale;
-	varscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
+	if (sysscale != NULL)
+		delete sysscale;
+	sysscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
 }
 
 void CInfoViewerBB::reset_allScala()
 {
 	hddscale->reset();
-	varscale->reset();
-	lasthdd = lastvar = -1;
+	sysscale->reset();
+	//lasthdd = lastsys = -1;
 }
 
 void CInfoViewerBB::setBBOffset()
