@@ -1648,6 +1648,8 @@ streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino-HD.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
+streaming.overflow Record buffer overflow, consider to stop some records
+streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.caps caps / no caps
 stringinput.clear clear all
@@ -1797,6 +1799,8 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+wizard.initial_settings Initial settings found
+wizard.install_settings Do you want to install channels for Astra 19.2°E ?
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from

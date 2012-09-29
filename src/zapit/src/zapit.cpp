@@ -2048,6 +2048,8 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
+	/* set initial volume with 100% */
+	SetVolumePercent(100);
 #ifdef USE_VBI
 	videoDecoder->OpenVBI(1);
 #endif
