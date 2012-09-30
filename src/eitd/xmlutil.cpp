@@ -276,6 +276,7 @@ void *insertEventsfromFile(void * data)
 	xmlNodePtr service = NULL;
 	xmlNodePtr event = NULL;
 	xmlNodePtr node = NULL;
+	xmlNodePtr tmp = NULL;
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
@@ -344,7 +345,11 @@ void *insertEventsfromFile(void * data)
 					node = node->xmlNextNode;
 				}
 #endif
-				while (xmlGetNextOccurence(node, "extended_text") != NULL) {
+				while ((tmp = xmlGetNextOccurence(node, "extended_text")) != NULL) {
+					/* old data could contain "item" and "item_description", if
+					 * USE_ITEM_DESCRIPTION is not set, not would now still point
+					 * to one of those and "(node, lang)" would be NULL */
+					node = tmp;
 					e.appendExtendedText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
 							std::string(xmlGetAttribute(node, "string")));
 					node = node->xmlNextNode;
