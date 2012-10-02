@@ -40,6 +40,7 @@
 
 #include <cs_api.h>
 
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <arpa/inet.h>

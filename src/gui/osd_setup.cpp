@@ -73,6 +73,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	is_wizard = wizard_mode;
 
 	width = w_max (40, 10); //%
+	show_tuner_icon = 0;
 }
 
 COsdSetup::~COsdSetup()
@@ -763,7 +764,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 
 	// tuner icon
 	bool mc_active = false;
-	int show_tuner_icon = 0;
+	show_tuner_icon = 0;
 	// show possible option if we in single box mode, but don't touch the real settings
 	int *p_show_tuner_icon = &show_tuner_icon;
 	if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE){

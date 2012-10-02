@@ -191,17 +191,18 @@ int check_dir(const char * dir)
 	return ret;
 }
 
-int get_fs_usage(const char * dir)
+bool get_fs_usage(const char * dir, long &btotal, long &bused)
 {
-	int ret = 0;
-	long blocks_used;
+	btotal = bused = 0;
 	struct statfs s;
 
 	if (::statfs(dir, &s) == 0 && s.f_blocks) {
-		blocks_used = s.f_blocks - s.f_bfree;
-		ret = (blocks_used * 100ULL) / s.f_blocks;
+		btotal = s.f_blocks;
+		bused = s.f_blocks - s.f_bfree;
+		//printf("fs (%s): total %ld used %ld\n", dir, btotal, bused);
+		return true;
 	}
-	return ret;
+	return false;
 }
 
 bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
