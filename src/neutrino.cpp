@@ -561,15 +561,17 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if(g_settings.auto_delete) {
 		if(strcmp(g_settings.timeshiftdir, g_settings.network_nfs_recordingdir)) {
 			DIR *d = opendir(timeshiftDir);
-			while (struct dirent *e = readdir(d))
-			{
-				std::string filename = e->d_name;
-				if ((filename.find("_temp.ts") == filename.size() - 8) || (filename.find("_temp.xml") == filename.size() - 9))
+			if(d){
+				while (struct dirent *e = readdir(d))
 				{
-					remove(filename.c_str());
+					std::string filename = e->d_name;
+					if ((filename.find("_temp.ts") == filename.size() - 8) || (filename.find("_temp.xml") == filename.size() - 9))
+					{
+						remove(filename.c_str());
+					}
 				}
+				closedir(d);
 			}
-			closedir(d);
 		}
 	}
 	g_settings.record_hours = configfile.getInt32( "record_hours", 4 );
