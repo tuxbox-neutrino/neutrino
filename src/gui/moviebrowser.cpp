@@ -71,6 +71,7 @@
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
 #include <driver/record.h>
+#include <system/helpers.h>
 
 extern CPictureViewer * g_PicViewer;
 static CProgressBar *timescale;
@@ -3593,10 +3594,8 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
         {
             if(dirState[number] == DIR_STATE_SERVER_DOWN)
             {
-                std::string command = "ether-wake ";
-                command += g_settings.network_nfs_mac[dirNfsMountNr[number]];
-                printf("try to start server: %s\n",command.c_str());
-                if(system(command.c_str()) != 0)
+                printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]);
+                if(my_system("ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]) != 0)
                     perror("ether-wake failed");
 
                 dirOptionText[number]="STARTE SERVER";

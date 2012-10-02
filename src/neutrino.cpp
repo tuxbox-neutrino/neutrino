@@ -37,6 +37,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <sys/mount.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include <fstream>
 
@@ -557,9 +560,16 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	if(g_settings.auto_delete) {
 		if(strcmp(g_settings.timeshiftdir, g_settings.network_nfs_recordingdir)) {
-			char buf[512];
-			sprintf(buf, "rm -f %s/*_temp.ts %s/*_temp.xml &", timeshiftDir, timeshiftDir);
-			system(buf);
+			DIR *d = opendir(timeshiftDir);
+			while (struct dirent *e = readdir(d))
+			{
+				std::string filename = e->d_name;
+				if ((filename.find("_temp.ts") == filename.size() - 8) || (filename.find("_temp.xml") == filename.size() - 9))
+				{
+					remove(filename.c_str());
+				}
+			}
+			closedir(d);
 		}
 	}
 	g_settings.record_hours = configfile.getInt32( "record_hours", 4 );
@@ -1879,10 +1889,12 @@ TIMER_START();
 	g_CamHandler->init();
 
 #ifndef ASSUME_MDEV
-	system("mkdir /media/sda1 2> /dev/null");
-	system("mount /media/sda1 2> /dev/null");
-	system("mkdir /media/sdb1 2> /dev/null");
-	system("mount /media/sdb1 2> /dev/null");
+	const char hddsda1[] = "/media/sda1";
+	const char hddsdb1[] = "/media/sdb1";
+	mkdir(hddsda1, 0755);
+	mount("/dev/sda1", hddsda1, "ext3", 0, NULL);
+	mkdir(hddsdb1,0755);
+	mount("/dev/sdb1", hddsdb1, "ext3", 0, NULL);
 #endif
 
 	CFSMounter::automount();
@@ -2684,9 +2696,7 @@ _repeat:
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
-					std::string command = "ether-wake ";
-					command += g_settings.network_nfs_mac[i];
-					if(system(command.c_str()) != 0)
+					if(my_system("ether-wake",g_settings.network_nfs_mac[i]) != 0)
 						perror("ether-wake failed");
 					break;
 				}
@@ -2946,8 +2956,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
 			my_system("/etc/init.d/rcK");
-			system("/bin/sync");
-			system("/bin/umount -a");
+			sync();
+			my_system("/bin/umount", "-a");
 			sleep(1);
 			{
 				standby_data_t standby;
@@ -3024,7 +3034,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			delete &CMoviePlayerGui::getInstance();
 			shutdown_cs_api();
 
-			system("/etc/init.d/rcK");
+			my_system("/etc/init.d/rcK");
 			CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
 			InfoClock->StopClock();
 
