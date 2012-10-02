@@ -49,6 +49,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 
 		int width;
 		bool is_wizard;
+		int show_tuner_icon;
 
 		int showOsdSetup();
  		void showOsdMenueColorSetup(CMenuWidget *menu_colors);
