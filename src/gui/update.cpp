@@ -53,6 +53,7 @@
 
 #include <system/flashtool.h>
 #include <system/httptool.h>
+#include <system/helpers.h>
 
 #define SQUASHFS
 
@@ -471,7 +472,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 		CFSMounter::umount();
 
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
-		//system("/etc/init.d/rcK");
+		//my_system("/etc/init.d/rcK");
 		ft.reboot();
 		sleep(20000);
 	}
@@ -492,13 +493,12 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	}
 	else // not image, install
 	{
-		char cmd[100];
-		sprintf(cmd, "install.sh %s %s", g_settings.update_dir, filename.c_str());
+		const char install_sh[] = "/bin/install.sh";
 #ifdef DEBUG1
-		printf("[update] calling %s\n", cmd);
+		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
 #else
-		printf("[update] calling %s\n", cmd);
-		system(cmd);
+		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
+		my_system( install_sh, g_settings.update_dir, filename.c_str() );
 #endif
 		showGlobalStatus(100);
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
