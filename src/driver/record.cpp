@@ -575,6 +575,8 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 				return RECORD_INVALID_DIRECTORY;
 			/* fallback to g_settings.network_nfs_recordingdir */
 			Directory = std::string(g_settings.network_nfs_recordingdir);
+		}else{
+			return RECORD_INVALID_DIRECTORY;
 		}
 	}
 
