@@ -33,6 +33,8 @@
 #include <config.h>
 #endif
 
+#include <unistd.h>
+
 #ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 /* define constants instead of #ifdef'ing the corresponding code.
  * the compiler will optimize it away anyway, but the syntax is

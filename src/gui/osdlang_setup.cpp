@@ -33,6 +33,7 @@
 #include <config.h>
 #endif
 
+#include <unistd.h>
 
 #include "osdlang_setup.h"
 

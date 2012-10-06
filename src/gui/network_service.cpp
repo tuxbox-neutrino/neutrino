@@ -24,6 +24,7 @@
 #include <config.h>
 #endif
 
+#include <unistd.h>
 #include <global.h>
 #include <neutrino.h>
 
