@@ -58,10 +58,6 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-#ifndef NEW_LIBCURL
-#include <curl/types.h>
-#endif
-
 #include <xmltree/xmlinterface.h>
 
 #ifdef __USE_FILE_OFFSET64

@@ -24,10 +24,6 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-#ifndef NEW_LIBCURL
-#include <curl/types.h>
-#endif
-
 #include <global.h>
 
 

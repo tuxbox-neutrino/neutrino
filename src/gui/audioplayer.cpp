@@ -146,10 +146,6 @@ void CAudiofileExt::operator=(const CAudiofileExt& src)
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-#ifndef NEW_LIBCURL
-#include <curl/types.h>
-#endif
-
 struct MemoryStruct {
 	char *memory;
 	size_t size;
