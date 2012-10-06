@@ -839,17 +839,17 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								break;
 							case NeutrinoMessages::EVT_POPUP :
 								*msg = NeutrinoMessages::EVT_POPUP;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 							case NeutrinoMessages::EVT_EXTMSG :
 								*msg = NeutrinoMessages::EVT_EXTMSG;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 							case NeutrinoMessages::CHANGEMODE :	// Change
 								*msg = NeutrinoMessages::CHANGEMODE;
-								*data = *(unsigned*) p;
+								*data = *(unsigned long*) p;
 								break;
 							case NeutrinoMessages::STANDBY_TOGGLE :
 								*msg = NeutrinoMessages::STANDBY_TOGGLE;
@@ -865,7 +865,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								break;
 							case NeutrinoMessages::EVT_START_PLUGIN :
 								*msg = NeutrinoMessages::EVT_START_PLUGIN;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 							case NeutrinoMessages::LOCK_RC :
@@ -1107,7 +1107,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 						{
 							case CTimerdClient::EVT_ANNOUNCE_RECORD :
 								*msg = NeutrinoMessages::ANNOUNCE_RECORD;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 							case CTimerdClient::EVT_ANNOUNCE_ZAPTO :
@@ -1128,17 +1128,17 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								break;
 							case CTimerdClient::EVT_RECORD_START :
 								*msg = NeutrinoMessages::RECORD_START;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 							case CTimerdClient::EVT_RECORD_STOP :
 								*msg = NeutrinoMessages::RECORD_STOP;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 							case CTimerdClient::EVT_ZAPTO :
 								*msg = NeutrinoMessages::ZAPTO;
-								*data = (unsigned)  p;
+								*data = (unsigned long)  p;
 								dont_delete_p = true;
 								break;
 							case CTimerdClient::EVT_SHUTDOWN :
@@ -1155,12 +1155,12 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								break;
 							case CTimerdClient::EVT_REMIND :
 								*msg = NeutrinoMessages::REMIND;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 							case CTimerdClient::EVT_EXEC_PLUGIN :
 								*msg = NeutrinoMessages::EVT_START_PLUGIN;
-								*data = (unsigned) p;
+								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
 

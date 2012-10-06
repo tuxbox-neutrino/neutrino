@@ -530,7 +530,7 @@ void CServiceScan::SaveServices()
 
 bool CServiceScan::ScanProviders()
 {
-	flags = (int) scan_arg;
+	flags = *((int *)scan_arg);
 	scanBouquetManager = new CBouquetManager();
 
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",

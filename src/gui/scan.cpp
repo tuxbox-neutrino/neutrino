@@ -333,7 +333,10 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	return menu_return::RETURN_REPAINT;
 }
 
-int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
+/* this is not type "int", because it does not return a code indicating success but
+ * instead returns altered "msg". This is different ot all other "handleMsg" functions
+ * and should probably be fixed somewhen... */
+neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 {
 	int w = x + width - xpos2;
 //printf("CScanTs::handleMsg: x %d xpos2 %d width %d w %d\n", x, xpos2, width, w);

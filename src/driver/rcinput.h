@@ -108,8 +108,8 @@
 */
 
 
-typedef uint32_t neutrino_msg_t;
-typedef uint32_t neutrino_msg_data_t;
+typedef unsigned long neutrino_msg_t;
+typedef unsigned long neutrino_msg_data_t;
 
 #define NEUTRINO_UDS_NAME "/tmp/neutrino.sock"
 

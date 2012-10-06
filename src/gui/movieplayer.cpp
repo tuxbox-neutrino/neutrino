@@ -681,7 +681,7 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 
 		if (playstate == CMoviePlayerGui::STOPPED) {
-			printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, (int) p_movie_info);
+			printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
 			playstate = CMoviePlayerGui::STOPPED;
 			handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_stop, position);
 		}
@@ -859,7 +859,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
 	}
 	else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 		// if we have a movie information, try to save the stop position
-		printf("CMoviePlayerGui::handleMovieBrowser: stop, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, (int) p_movie_info);
+		printf("CMoviePlayerGui::handleMovieBrowser: stop, isMovieBrowser %d p_movie_info %p\n", isMovieBrowser, p_movie_info);
 		if (isMovieBrowser && p_movie_info) {
 			timeb current_time;
 			ftime(&current_time);

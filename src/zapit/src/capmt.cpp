@@ -81,7 +81,7 @@ bool CCam::makeCaPmt(CZapitChannel * channel, uint8_t list, const CaIdVector &ca
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-	INFO("cam %x source %d camask %d list %02x buffer", (int) this, source_demux, camask, list);
+	INFO("cam %p source %d camask %d list %02x buffer", this, source_demux, camask, list);
 
 	if(!buffer)
 		return false;

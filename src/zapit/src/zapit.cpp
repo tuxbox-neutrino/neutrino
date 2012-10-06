@@ -743,7 +743,7 @@ bool CZapit::StartScan(int scan_mode)
 {
 	PrepareScan();
 
-	CServiceScan::getInstance()->Start(CServiceScan::SCAN_PROVIDER, (void *) scan_mode);
+	CServiceScan::getInstance()->Start(CServiceScan::SCAN_PROVIDER, &scan_mode);
 	return true;
 }
 

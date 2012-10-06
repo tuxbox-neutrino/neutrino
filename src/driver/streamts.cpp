@@ -225,7 +225,7 @@ void streamts_main_thread(void * /*data*/)
 					pfd[tcnt].revents = 0;
 					tcnt++;
 					exit_flag = 0;
-					pthread_create (&st, NULL, streamts_live_thread, (void *) connfd);
+					pthread_create (&st, NULL, streamts_live_thread, &connfd);
 				} else {
 					if (pfd[i].revents & (POLLHUP | POLLRDHUP)) {
 						connfd = -1;
@@ -259,7 +259,7 @@ void * streamts_live_thread(void *data)
 	int pids[MAXPIDS];
 	char cbuf[512];
 	char *bp;
-	int fd = (int) data;
+	int fd = *((int *)data);
 	FILE * fp;
 	unsigned char demuxfd_count = 0;
 
@@ -370,7 +370,7 @@ void streamts_file_thread(void *data)
 	int tsfilelen = 0;
 	int fileslice = 0;
 	int i = 0;
-	int fd = (int) data;
+	int fd = *((int *)data);
 
 	buf = (unsigned char *) malloc(IN_SIZE);
 
