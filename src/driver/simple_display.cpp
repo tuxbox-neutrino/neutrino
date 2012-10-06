@@ -42,6 +42,9 @@
 #define DISPLAY_DEV "/proc/vfd"
 #define LED_DEV "/proc/led"
 #endif
+#if HAVE_GENERIC_HARDWARE
+#define DISPLAY_DEV "/dev/null"
+#endif
 
 static char volume = 0;
 //static char percent = 0;
@@ -436,8 +439,7 @@ void CLCD::Clear()
 	close(fd);
 printf("spark_led:%s\n", __func__);
 }
-#endif
-#if HAVE_AZBOX_HARDWARE
+#else
 void CLCD::Clear()
 {
 	display(" ", false);

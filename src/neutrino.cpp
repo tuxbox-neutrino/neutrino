@@ -308,7 +308,7 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
-#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_GENERIC_HARDWARE
 #define DEFAULT_X_START_SD	32
 #define DEFAULT_Y_START_SD	26
 #define DEFAULT_X_END_SD	694
@@ -324,6 +324,12 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 #define DEFAULT_Y_START_HD	25   //5
 #define DEFAULT_X_END_HD	1235 //1275
 #define DEFAULT_Y_END_HD	690  //715
+
+#if HAVE_GENERIC_HARDWARE
+#define DEFAULT_SCREEN_PRESET 0
+#else
+#define DEFAULT_SCREEN_PRESET 1
+#endif
 
 std::string ttx_font_file = "";
 
@@ -658,7 +664,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_StartY_lcd = configfile.getInt32( "screen_StartY_lcd", DEFAULT_Y_START_HD );
 	g_settings.screen_EndX_lcd = configfile.getInt32( "screen_EndX_lcd", DEFAULT_X_END_HD);
 	g_settings.screen_EndY_lcd = configfile.getInt32( "screen_EndY_lcd", DEFAULT_Y_END_HD);
-	g_settings.screen_preset = configfile.getInt32( "screen_preset", 1);
+	g_settings.screen_preset = configfile.getInt32( "screen_preset", DEFAULT_SCREEN_PRESET);
 
 #if HAVE_TRIPLEDRAGON
 	g_settings.screen_preset = 0; /* does not make sense to have two configurations for that... */

@@ -64,6 +64,10 @@ if BOXTYPE_AZBOX
 libneutrino_driver_a_SOURCES += \
 	simple_display.cpp
 endif
+if BOXTYPE_GENERIC
+libneutrino_driver_a_SOURCES += \
+	simple_display.cpp
+endif
 if USE_STB_HAL
 INCLUDES += \
 	-I$(STB_HAL_INC) \
