@@ -47,6 +47,7 @@
 
 #define CABLES_XML      CONFIGDIR "/cables.xml"
 #define SATELLITES_XML  CONFIGDIR "/satellites.xml" 
+#define TERRESTRIAL_XML CONFIGDIR "/terrestrial.xml"
 
 #if HAVE_TRIPLEDRAGON == 0
 #define AUDIO_DEVICE          "/dev/dvb/adapter0/audio0"

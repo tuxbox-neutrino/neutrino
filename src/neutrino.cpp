@@ -1869,7 +1869,18 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-	g_info.delivery_system = CFEManager::getInstance()->getLiveFE()->getInfo()->type == FE_QPSK ? DVB_S : DVB_C;
+	switch (CFEManager::getInstance()->getLiveFE()->getInfo()->type) {
+		case FE_QPSK:
+			g_info.delivery_system = DVB_S;
+			break;
+		case FE_OFDM:
+			g_info.delivery_system = DVB_T;
+			break;
+		case FE_QAM:
+		default:
+			g_info.delivery_system = DVB_C;
+			break;
+	}
 #if HAVE_COOL_HARDWARE
 	/* only SAT-hd1 before rev 8 has fan */
 	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);

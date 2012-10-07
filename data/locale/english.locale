@@ -1188,6 +1188,7 @@ scants.abort_body Should the search really be aborted?
 scants.abort_header Abortion of channel scan
 scants.actcable Cable:
 scants.actsatellite Satellite:
+scants.actterrestrial Terrestrial:
 scants.bouquet Bouquet
 scants.bouquet_create create new
 scants.bouquet_erase erase all
@@ -1275,6 +1276,7 @@ stringinput.caps caps / no caps
 stringinput.clear clear all
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
+terrestrialsetup.provider Terrestrial Provider
 timer.eventrecord.msg   ... TO be DONE, or not to be done
 timer.eventrecord.title Schedule Record
 timer.eventtimed.msg The event is scheduled.\nThe box will power on and \nswitch to this channel at the given time.

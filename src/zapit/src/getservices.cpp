@@ -70,11 +70,12 @@ bool CServiceManager::ParseScanXml(void)
 		case FE_QPSK:
 			scanInputParser = parseXmlFile(SATELLITES_XML);
 			break;
-
 		case FE_QAM:
 			scanInputParser = parseXmlFile(CABLES_XML);
 			break;
-
+		case FE_OFDM:
+			scanInputParser = parseXmlFile(TERRESTRIAL_XML);
+			break;
 		default:
 			WARN("Unknown type %d", frontendType);
 			return false;
@@ -291,7 +292,7 @@ std::string CServiceManager::GetServiceName(t_channel_id channel_id)
                 return "";
 }
 
-void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable)
+void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, fe_type fe)
 {
 	uint8_t polarization = 0;
 
@@ -304,14 +305,18 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		feparams.dvb_feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
 		feparams.dvb_feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
 
-		if(cable) {
+		switch (fe) {
+		case FE_QAM:
 			feparams.dvb_feparams.u.qam.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
 			feparams.dvb_feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
 			feparams.dvb_feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
 
 			if (feparams.dvb_feparams.frequency > 1000*1000)
 				feparams.dvb_feparams.frequency = feparams.dvb_feparams.frequency/1000; //transponderlist was read from tuxbox
-		} else {
+			break;
+		case FE_OFDM:
+			break;
+		default:
 			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
 			feparams.dvb_feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
 
@@ -325,7 +330,8 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			else
 				feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
-		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, cable);
+
+		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, fe != FE_QPSK);
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		transponder t(frontendType, tid, feparams, polarization);
@@ -438,18 +444,19 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 void CServiceManager::FindTransponder(xmlNodePtr search)
 {
 	while (search) {
-		bool cable = false;
+		bool sat = false;
 
-		if (!(strcmp(xmlGetName(search), "cable")))
-			cable = true;
-		else if ((strcmp(xmlGetName(search), "sat"))) {
+		if (!(strcmp(xmlGetName(search), "sat")))
+			sat = true;
+		else if (strcmp(xmlGetName(search), "cable") && strcmp(xmlGetName(search), "terrestrial")) {
 			search = search->xmlNextNode;
 			continue;
 		}
 
 		t_satellite_position satellitePosition = xmlGetSignedNumericAttribute(search, "position", 10);
 		DBG("going to parse dvb-%c provider %s\n", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
-		ParseTransponders(search->xmlChildrenNode, satellitePosition, cable);
+		/* ParseTransponders is only interested in sat / not sat, sp the real type does not matter */
+		ParseTransponders(search->xmlChildrenNode, satellitePosition, sat ? FE_QPSK : FE_QAM);
 		newfound++;
 		search = search->xmlNextNode;
 	}
@@ -490,7 +497,28 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 			feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
-		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, fType == FE_QAM);
+		else if (fType == FE_OFDM) {
+			feparams.dvb_feparams.u.ofdm.bandwidth = (fe_bandwidth_t)
+							xmlGetNumericAttribute(tps, "bandwidth", 0);
+			feparams.dvb_feparams.u.ofdm.constellation = (fe_modulation_t)
+							xmlGetNumericAttribute(tps, "constellation", 0);
+			feparams.dvb_feparams.u.ofdm.transmission_mode = (fe_transmit_mode_t)
+							xmlGetNumericAttribute(tps, "transmission_mode", 0);
+			feparams.dvb_feparams.u.ofdm.code_rate_HP = (fe_code_rate_t)
+							xmlGetNumericAttribute(tps, "code_rate_HP", 0);
+			feparams.dvb_feparams.u.ofdm.code_rate_LP = (fe_code_rate_t)
+							xmlGetNumericAttribute(tps, "code_rate_LP", 0);
+			feparams.dvb_feparams.u.ofdm.guard_interval = (fe_guard_interval_t)
+							xmlGetNumericAttribute(tps, "guard_interval", 0);
+			feparams.dvb_feparams.u.ofdm.hierarchy_information = (fe_hierarchy_t)
+							xmlGetNumericAttribute(tps, "hierarchy", 0);
+			if (feparams.dvb_feparams.frequency > 1000*1000)
+				feparams.dvb_feparams.frequency /= 1000; // old transponder list
+		}
+		else	/* we'll probably crash sooner or later, so write to STDERR... */
+			fprintf(stderr, "[getservices] %s: unknown frontend type %d!\n", __func__, fType);
+
+		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, fType != FE_QPSK);
 		polarization &= 7;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
@@ -636,7 +664,8 @@ bool CServiceManager::LoadServices(bool only_current)
 				position = xmlGetSignedNumericAttribute(search, "position", 10);
 				char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name);
-			} else if(!(strcmp(xmlGetName(search), "cable"))) {
+			} else if (!strcmp(xmlGetName(search), "cable") ||
+				   !strcmp(xmlGetName(search), "terrestrial")) {
 				char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name);
 			}
@@ -726,7 +755,9 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 		case FE_QAM: /* cable */
 			fprintf(fd, "\t<cable name=\"%s\" position=\"%hd\">\n", config.name.c_str(), config.position);
 			break;
-		case FE_OFDM:
+		case FE_OFDM: /* terrestrial */
+			fprintf(fd, "\t<terrestrial name=\"%s\" position=\"%hd\">\n", config.name.c_str(), config.position);
+			break;
 		default:
 			break;
 	}
@@ -791,6 +822,9 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 					break;
 				case FE_QAM:
 					fprintf(fd, "\t</cable>\n");
+					break;
+				case FE_OFDM:
+					fprintf(fd, "\t</terrestrial>\n");
 					break;
 				default:
 					break;
@@ -913,6 +947,8 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 			sprintf(satstr, "\t<%s name=\"%s\"\n", "cable", spos_it->second.name.c_str());
 			break;
 		case FE_OFDM:
+			sprintf(satstr, "\t<%s name=\"%s\"\n", "terrestrial", spos_it->second.name.c_str());
+			break;
 		default:
 			break;
 	}

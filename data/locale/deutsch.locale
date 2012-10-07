@@ -1187,6 +1187,7 @@ scants.abort_body Scanvorgang wirklich abbrechen?
 scants.abort_header breche Scan ab...
 scants.actcable Kabelnetz:
 scants.actsatellite Satellit:
+scants.actterrestrial Terrestrisch:
 scants.bouquet Bouquets
 scants.bouquet_create neu erstellen
 scants.bouquet_erase löschen
@@ -1274,6 +1275,7 @@ stringinput.caps Groß-/Kleinbuchstaben
 stringinput.clear Alles löschen
 subtitles.head Untertitel
 subtitles.stop Untertitel aus
+terrestrialsetup.provider DVB-T Region
 timer.eventrecord.msg Die Sendung wurde zur Aufnahme vorgemerkt.
 timer.eventrecord.title Aufnahme vormerken
 timer.eventtimed.msg Die Sendung wurde vorgemerkt.

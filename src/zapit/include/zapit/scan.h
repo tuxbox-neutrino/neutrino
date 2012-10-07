@@ -60,7 +60,6 @@ class CServiceScan : public OpenThreads::Thread
 	private:
 		bool started;
 		bool running;
-		bool cable;
 		bool abort_scan;
 		scan_type_t scan_mode;
 		int flags;

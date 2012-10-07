@@ -88,7 +88,7 @@ class CServiceManager
 		sat_transponder_map_t satelliteTransponders;
 
 		bool ParseScanXml();
-		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable);
+		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, fe_type fe);
 		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization);
 		void FindTransponder(xmlNodePtr search);
 		void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition);
