@@ -93,6 +93,7 @@ CStreamInfo2::CStreamInfo2 ()
 	rate.min_short_average = 0;
 	box_h = 0;
 	box_h2 = 0;
+	yypos = -1;
 }
 
 CStreamInfo2::~CStreamInfo2 ()
@@ -897,6 +898,8 @@ void CStreamInfo2::showSNR ()
 	int barwidth = 150;
 	int sig, snr;
 	int posx, posy;
+	if (yypos < 0)
+		return; /* nothing to paint. No channel or similar */
 	int sw = g_Font[font_info]->getRenderWidth ("100%");
 	int pw = g_Font[font_info]->getRenderWidth (" SNR");
 
