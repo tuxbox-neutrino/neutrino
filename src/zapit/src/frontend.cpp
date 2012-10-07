@@ -51,17 +51,27 @@ extern int zapit_debug;
 #define FREQUENCY	1
 #define MODULATION	2
 #define INVERSION	3
+// common to S/S2/C
 #define SYMBOL_RATE	4
 #define DELIVERY_SYSTEM 5
 #define INNER_FEC	6
 // DVB-S/S2 specific
 #define PILOTS		7
 #define ROLLOFF		8
+// DVB-T specific
+#define BANDWIDTH	4
+#define CODE_RATE_HP	6
+#define CODE_RATE_LP	7
+#define TRANSMISSION_MODE 8
+#define GUARD_INTERVAL	9
+#define HIERARCHY	10
+
 
 #define FE_COMMON_PROPS	2
 #define FE_DVBS_PROPS	6
 #define FE_DVBS2_PROPS	8
 #define FE_DVBC_PROPS	6
+#define FE_DVBT_PROPS 10
 
 /* stolen from dvb.c from vlc */
 static const struct dtv_property dvbs_cmdargs[] = {
@@ -96,6 +106,21 @@ static const struct dtv_property dvbc_cmdargs[] = {
 	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
 	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBC_ANNEX_AC	} ,0},
 	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
+	{ DTV_TUNE,		{}, { 0			}, 0},
+};
+
+static const struct dtv_property dvbt_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0		} ,0},
+	{ DTV_FREQUENCY,	{}, { 0			} ,0},
+	{ DTV_MODULATION,	{}, { QAM_AUTO		} ,0},
+	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
+	{ DTV_BANDWIDTH_HZ,	{}, { 8000000		} ,0},
+	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBT		} ,0},
+	{ DTV_CODE_RATE_HP,	{}, { FEC_AUTO		} ,0},
+	{ DTV_CODE_RATE_LP,	{}, { FEC_AUTO		} ,0},
+	{ DTV_TRANSMISSION_MODE,{}, { TRANSMISSION_MODE_AUTO}, 0},
+	{ DTV_GUARD_INTERVAL,	{}, { GUARD_INTERVAL_AUTO}, 0},
+	{ DTV_HIERARCHY,	{}, { HIERARCHY_AUTO	}, 0},
 	{ DTV_TUNE,		{}, { 0			}, 0},
 };
 
@@ -500,7 +525,8 @@ void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
 
 void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, char *&mod)
 {
-	if (type == FE_QPSK) {
+	switch (type) {
+	case FE_QPSK:
 		if (f < FEC_S2_QPSK_1_2) {
 			sys = (char *)"DVB";
 			mod = (char *)"QPSK";
@@ -511,7 +537,9 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 			sys = (char *)"DVB-S2";
 			mod = (char *)"8PSK";
 		}
-	} else if (type == FE_QAM) {
+		break;
+	case FE_QAM:
+	case FE_OFDM:
 		sys = (char *)"DVB";
 		switch (m) {
 		case QAM_16:
@@ -529,11 +557,23 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 		case QAM_256:
 			mod = (char *)"QAM_256";
 			break;
+		case QPSK:
+			if (type == FE_OFDM) {
+				mod = (char *)"QPSK";
+				break;
+			}
+			/* fallthrouh for FE_QAM... */
 		case QAM_AUTO:
 		default:
 			mod = (char *)"QAM_AUTO";
 			break;
 		}
+		break;
+	default:
+		printf("[frontend] unknown type %d!\n", type);
+		sys = (char *)"UNKNOWN";
+		mod = (char *)"UNKNOWN";
+		break;
 	}
 
 	switch (f) {
@@ -613,6 +653,11 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		fec_inner = feparams->dvb_feparams.u.qam.fec_inner;
 		modulation = feparams->dvb_feparams.u.qam.modulation;
 		delsys = SYS_DVBC_ANNEX_AC;
+		break;
+	case FE_OFDM:
+		fec_inner = FEC_AUTO; /* dummy, for next switch statement */
+		modulation = feparams->dvb_feparams.u.ofdm.constellation;
+		delsys = SYS_DVBT;
 		break;
 	default:
 		printf("frontend: unknown frontend type, exiting\n");
@@ -712,6 +757,36 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		cmdseq.props[INNER_FEC].u.data	= fec_inner;
 		nrOfProps			= FE_DVBC_PROPS;
 		break;
+	case FE_OFDM:
+		memcpy(cmdseq.props, dvbt_cmdargs, sizeof(dvbt_cmdargs));
+		nrOfProps				= FE_DVBT_PROPS;
+		cmdseq.props[FREQUENCY].u.data		= feparams->dvb_feparams.frequency;
+		cmdseq.props[MODULATION].u.data		= modulation;
+		cmdseq.props[INVERSION].u.data		= feparams->dvb_feparams.inversion;
+		cmdseq.props[CODE_RATE_HP].u.data	= feparams->dvb_feparams.u.ofdm.code_rate_HP;
+		cmdseq.props[CODE_RATE_LP].u.data	= feparams->dvb_feparams.u.ofdm.code_rate_LP;
+		cmdseq.props[TRANSMISSION_MODE].u.data	= feparams->dvb_feparams.u.ofdm.transmission_mode;
+		cmdseq.props[GUARD_INTERVAL].u.data	= feparams->dvb_feparams.u.ofdm.guard_interval;
+		cmdseq.props[HIERARCHY].u.data		= feparams->dvb_feparams.u.ofdm.hierarchy_information;
+		switch (feparams->dvb_feparams.u.ofdm.bandwidth) {
+		case BANDWIDTH_6_MHZ:
+			cmdseq.props[BANDWIDTH].u.data	= 6000000;
+			break;
+		case BANDWIDTH_7_MHZ:
+			cmdseq.props[BANDWIDTH].u.data	= 7000000;
+			break;
+		case BANDWIDTH_8_MHZ:
+			cmdseq.props[BANDWIDTH].u.data	= 8000000;
+			break;
+		default:
+			printf("[fe%d] unknown bandwidth for OFDM %d\n",
+				fenumber, feparams->dvb_feparams.u.ofdm.bandwidth);
+			/* fallthrough */
+		case BANDWIDTH_AUTO:
+			cmdseq.props[BANDWIDTH].u.data	= 0;
+			break;
+		}
+		break;
 	default:
 		printf("frontend: unknown frontend type, exiting\n");
 		return false;
@@ -731,7 +806,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 
 int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
-	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBS2_PROPS]; // WARNING: increase when needed more space
+	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBT_PROPS]; // WARNING: increase when needed more space
 	struct dtv_properties cmdseq;
 
 	cmdseq.num	= FE_COMMON_PROPS;
@@ -1096,10 +1171,10 @@ int CFrontend::setParameters(TP_params *TP, bool nowait)
 	memcpy(&feparams, &TP->feparams, sizeof(feparams));
 	freq		= (int) feparams.dvb_feparams.frequency;
 	char * f, *s, *m;
+	bool high_band;
 
-	if (info.type == FE_QPSK) {
-		bool high_band;
-
+	switch (info.type) {
+	case FE_QPSK:
 		if (freq < lnbSwitch) {
 			high_band = false;
 			freq_offset = lnbOffsetLow;
@@ -1111,10 +1186,30 @@ int CFrontend::setParameters(TP_params *TP, bool nowait)
 		feparams.dvb_feparams.frequency = abs(freq - freq_offset);
 		setSec(TP->diseqc, TP->polarization, high_band);
 		getDelSys(feparams.dvb_feparams.u.qpsk.fec_inner, dvbs_get_modulation(feparams.dvb_feparams.u.qpsk.fec_inner),  f, s, m);
-	} else if (info.type == FE_QAM) {
+		break;
+	case FE_QAM:
 		if (freq < 1000*1000)
 			feparams.dvb_feparams.frequency = freq * 1000;
-		getDelSys(feparams.dvb_feparams.u.qam.fec_inner, feparams.dvb_feparams.u.qam.modulation, f, s, m);
+		getDelSys(feparams.dvb_feparams.u.qam.fec_inner,feparams.dvb_feparams.u.qam.modulation, f, s, m);
+#if 0
+		switch (TP->feparams.dvb_feparams.inversion) {
+		case INVERSION_OFF:
+			TP->feparams.dvb_feparams.inversion = INVERSION_ON;
+			break;
+		case INVERSION_ON:
+		default:
+			TP->feparams.dvb_feparams.inversion = INVERSION_OFF;
+			break;
+		}
+#endif
+	case FE_OFDM:
+		if (freq < 1000*1000)
+			feparams.dvb_feparams.frequency = freq * 1000;
+		getDelSys(feparams.dvb_feparams.u.ofdm.code_rate_HP,feparams.dvb_feparams.u.ofdm.constellation, f, s, m);
+		break;
+	default:
+		printf("[fe%d] unknown type %d\n", fenumber, info.type);
+		break;
 	}
 
 	printf("[fe%d] tune to %d %s %s %s %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,

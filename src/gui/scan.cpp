@@ -221,6 +221,18 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
 			TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.sat_TP_fec;
 			TP.polarization = scansettings.sat_TP_pol;
+		} else if (deltype == FE_OFDM) {
+			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
+			if (TP.feparams.dvb_feparams.frequency < 300000)
+				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_7_MHZ;
+			else
+				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_8_MHZ;
+			TP.feparams.dvb_feparams.u.ofdm.code_rate_HP	= FEC_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.code_rate_LP	= FEC_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.constellation	= QAM_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.transmission_mode = TRANSMISSION_MODE_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.guard_interval	= GUARD_INTERVAL_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.hierarchy_information = HIERARCHY_AUTO;
 		} else {
 			TP.feparams.dvb_feparams.frequency = atoi(scansettings.cable_TP_freq.c_str());
 			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());

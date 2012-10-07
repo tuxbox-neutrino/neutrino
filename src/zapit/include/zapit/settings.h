@@ -47,6 +47,7 @@
 
 #define CABLES_XML      CONFIGDIR "/cables.xml"
 #define SATELLITES_XML  CONFIGDIR "/satellites.xml" 
+#define TERRESTRIAL_XML CONFIGDIR "/terrestrial.xml"
 
 #define AUDIO_DEVICE          "/dev/dvb/adapter0/audio0"
 #define DEMUX_DEVICE          "/dev/dvb/adapter0/demux0"

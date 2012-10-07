@@ -476,6 +476,36 @@ int CScanSetup::showScanMenu()
 		settings->addItem(fcableScan);
 		settings->addItem(GenericMenuSeparatorLine);
 	}
+	if (CFEManager::getInstance()->haveTerr()) {
+		r_system = DVB_T;
+		// tune timeout, "Setup tuner" is not shown for only one non-sat tuner
+		if (CFEManager::getInstance()->getFrontendCount() <= 1) {
+			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
+			nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
+			settings->addItem(nc);
+		}
+
+		//auto scan
+		char autoscan[64];
+		std::string s_capt_part = g_Locale->getText(LOCALE_TERRESTRIALSETUP_PROVIDER);
+		snprintf(autoscan, 64, g_Locale->getText(LOCALE_SATSETUP_AUTO_SCAN), s_capt_part.c_str());
+		bool have_other = ! CFEManager::getInstance()->terrOnly();
+
+		/* FIXME leak, satSelect added to both auto and manual scan, so one of them cannot be deleted */
+		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_AUTO_SCAN);
+		addScanMenuAutoScan(autoScan);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_green, have_other ? NULL : NEUTRINO_ICON_BUTTON_GREEN);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
+		settings->addItem(mf);
+
+		//manual scan
+		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
+		addScanMenuManualScan(manualScan);
+		mf = new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_yellow, have_other ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
+		settings->addItem(mf);
+		settings->addItem(GenericMenuSeparatorLine);
+	}
 	//service select mode
 	mc = new CMenuOptionChooser(LOCALE_ZAPIT_SCANTYPE, (int *)&scansettings.scanType, SCANTS_ZAPIT_SCANTYPE, SCANTS_ZAPIT_SCANTYPE_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true);
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_SCANTYPE);
@@ -1266,7 +1296,6 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortCut = shortcut;
 
-
 	CMenuOptionChooser	*fec = NULL;
 	CMenuOptionChooser	*mod_pol = NULL;
 	CMenuForwarder		*Freq = NULL;
@@ -1293,13 +1322,19 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 		Rate->setHint("", LOCALE_MENU_HINT_SCAN_RATE);
 		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.cable_TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 		mod_pol->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
+        } else if (r_system == DVB_T) {
+                CStringInput *freq = new CStringInput(LOCALE_EXTRA_TP_FREQ, &scansettings.terr_TP_freq, 6, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+                Freq = new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.terr_TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
+                Freq->setHint("", LOCALE_MENU_HINT_SCAN_FREQ);
 	}
 
 	options_menu->addItem(Freq);
-	options_menu->addItem(Rate);
-	if (r_system == DVB_S)
+	if (Rate)
+		options_menu->addItem(Rate);
+	if (fec)
 		options_menu->addItem(fec);
-	options_menu->addItem(mod_pol);
+	if (mod_pol)
+		options_menu->addItem(mod_pol);
 
 	return shortCut;
 }

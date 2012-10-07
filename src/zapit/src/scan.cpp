@@ -270,7 +270,7 @@ _repeat:
 			}
 		}
 
-		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.dvb_feparams.frequency, cable);
+		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.dvb_feparams.frequency, frontendType != FE_QPSK);
 
 		CNit nit(satellitePosition, freq, cable_nid);
 		if(flags & SCAN_NIT)
@@ -480,7 +480,6 @@ bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)
 	frontend = fe;
 	CFEManager::getInstance()->setLiveFE(frontend);
 	frontendType = frontend->getInfo()->type;
-	cable = (frontend->getInfo()->type == FE_QAM);//FIXME
 	return true;
 }
 
@@ -594,9 +593,10 @@ bool CServiceScan::ScanTransponder()
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
 			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
-	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.dvb_feparams.frequency, cable);
+	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.dvb_feparams.frequency, frontendType != FE_QPSK);
 
 	fake_tid++; fake_nid++;
+
 	transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
 	transponder t(frontendType, tid, TP->feparams,  TP->polarization);
 	t.dump("[scan]");
@@ -639,7 +639,7 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 	bool ret = false;
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 		if (tI->second.satellitePosition == satellitePosition) {
-			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.dvb_feparams.frequency, cable);
+			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.dvb_feparams.frequency, frontendType != FE_QPSK);
 			if (freq == newfreq) {
 				memcpy(&tI->second.feparams, feparams, sizeof(struct dvb_frontend_parameters));
 				tI->second.polarization = polarization;
@@ -655,7 +655,7 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 void CServiceScan::SendTransponderInfo(transponder &t)
 {
 	uint32_t  actual_freq = t.feparams.dvb_feparams.frequency;
-	if (!cable)
+	if (frontendType == FE_QAM)
 		actual_freq /= 1000;
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
 
@@ -663,7 +663,7 @@ void CServiceScan::SendTransponderInfo(transponder &t)
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
 
-	if (!cable) {
+	if (frontendType == FE_QPSK) {
 		uint32_t actual_polarisation = ((t.feparams.dvb_feparams.u.qpsk.symbol_rate/1000) << 16) | (t.feparams.dvb_feparams.u.qpsk.fec_inner << 8) | (uint)t.polarization;
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
 	}
