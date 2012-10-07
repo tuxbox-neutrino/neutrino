@@ -54,16 +54,25 @@ bool CFEManager::Init()
 {
 	CFrontend * fe;
 	unsigned short fekey;
+	int type = -1;
 
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
 			fe = new CFrontend(j, i);
 			if(fe->Open()) {
-				fekey = MAKE_FE_KEY(i, j);
-				femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
-				INFO("add fe %d", fe->fenumber);
-				if(livefe == NULL)
-					livefe = fe;
+				if (type == -1)
+					type = (int)fe->getInfo()->type;
+				if (type == (int)fe->getInfo()->type) {
+					fekey = MAKE_FE_KEY(i, j);
+					femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
+					INFO("add fe %d", fe->fenumber);
+					if(livefe == NULL)
+						livefe = fe;
+				} else {
+					/* neutrino can not yet handle differing mixed frontend types... */
+					INFO("not adding fe %d of different type", fe->fenumber);
+					delete fe;
+				}
 			} else
 				delete fe;
 		}
