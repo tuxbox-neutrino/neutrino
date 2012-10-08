@@ -1648,6 +1648,8 @@ streaminfo.resolution Auflösung
 streaminfo.signal Empfangssignal
 streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart von Neutrino-HD Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
+streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
+streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.caps Groß-/Kleinbuchstaben
 stringinput.clear Alles löschen
