@@ -95,7 +95,8 @@ void CScanTs::prev_next_TP( bool up)
 			}
 		}
 	} else {
-		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); --tI ) {
+		for (tI = select_transponders.end(); tI != select_transponders.begin();) {
+			--tI;
 			if(tI->second.feparams.dvb_feparams.frequency < TP.feparams.dvb_feparams.frequency) {
 				next_tp = true;
 				break;
@@ -109,6 +110,18 @@ void CScanTs::prev_next_TP( bool up)
 			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = tI->second.feparams.dvb_feparams.u.qpsk.symbol_rate;
 			TP.feparams.dvb_feparams.u.qpsk.fec_inner =   tI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
 			TP.polarization = tI->second.polarization;
+		} else if (g_info.delivery_system == DVB_T) {
+			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
+			if (TP.feparams.dvb_feparams.frequency < 300000)
+				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_7_MHZ;
+			else
+				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_8_MHZ;
+			TP.feparams.dvb_feparams.u.ofdm.code_rate_HP	= FEC_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.code_rate_LP	= FEC_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.constellation	= QAM_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.transmission_mode = TRANSMISSION_MODE_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.guard_interval	= GUARD_INTERVAL_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.hierarchy_information = HIERARCHY_AUTO;
 		} else {
 			TP.feparams.dvb_feparams.u.qam.symbol_rate	= tI->second.feparams.dvb_feparams.u.qam.symbol_rate;
 			TP.feparams.dvb_feparams.u.qam.fec_inner	= tI->second.feparams.dvb_feparams.u.qam.fec_inner;
@@ -131,9 +144,12 @@ void CScanTs::testFunc()
 	} else if(frontend->getInfo()->type == FE_QAM) {
 		frontend->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(scansettings.TP_freq)/1000, atoi(scansettings.TP_rate)/1000, f, s, m);
+	} else if (frontend->getInfo()->type == FE_OFDM) {
+		sprintf(buffer, "%u", TP.feparams.dvb_feparams.frequency); /* no way int can overflow the buffer */
 	}
 	paintLine(xpos2, ypos_cur_satellite, w - 95, scansettings.satNameNoDiseqc);
 	paintLine(xpos2, ypos_frequency, w, buffer);
+	paintRadar();
 	success = g_Zapit->tune_TP(TP);
 }
 
