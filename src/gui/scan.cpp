@@ -183,10 +183,13 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 	width       = w_max(fw * 42, 0);
+	int tmp = (BAR_WIDTH + 4 + 7 * fw) * 2 + fw + 40; /* that's from the crazy calculation in showSNR() */
+	if (width < tmp)
+		width = w_max(tmp, 0);
 	height      = h_max(hheight + (10 * mheight), 0); //9 lines
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
-	xpos_radar = x + 36 * fw;
+	xpos_radar = x + width - 20 - 64; /* TODO: don't assume radar is 64x64... */
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
@@ -568,7 +571,7 @@ int CScanTs::greater_xpos(int xpos, const neutrino_locale_t txt)
 void CScanTs::showSNR ()
 {
 	char percent[10];
-	int barwidth = 150;
+	int barwidth = BAR_WIDTH;
 	uint16_t ssig, ssnr;
 	int sig, snr;
 	int posx, posy;
@@ -599,7 +602,7 @@ void CScanTs::showSNR ()
 	}
 	if (lastsnr != snr) {
 		lastsnr = snr;
-		posx = x + 20 + (20 * fw);
+		posx = x + 20 + barwidth + 3 + 4 * fw + 4 * fw;
 		sprintf(percent, "%d%%", snr);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100%");
 		snrscale->paintProgressBar2(posx - 1, posy+2, snr); 
