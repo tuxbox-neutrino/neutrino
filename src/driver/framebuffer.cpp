@@ -41,6 +41,12 @@
 
 #include <stdint.h>
 
+#ifdef USE_OPENGL
+#include <GL/glew.h>
+#include "rcinput.h"
+#include "glthread.h"
+#endif
+
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>
@@ -245,6 +251,34 @@ void CFrameBuffer::init(const char * const fbDevice)
 {
         int tr = 0xFF;
 
+#ifdef USE_OPENGL
+	fd = -1;
+	if(!mpGLThreadObj)
+	{
+		screeninfo.bits_per_pixel = 32;
+		screeninfo.xres = 720;
+		screeninfo.xres_virtual = screeninfo.xres;
+		screeninfo.yres = 576;
+		screeninfo.yres_virtual = screeninfo.yres;
+		screeninfo.bits_per_pixel = 32;
+		screeninfo.blue.length = 8;
+		screeninfo.blue.offset = 0;
+		screeninfo.green.length = 8;
+		screeninfo.green.offset = 8;
+		screeninfo.red.length = 8;
+		screeninfo.red.offset = 16;
+		screeninfo.transp.length = 8;
+		screeninfo.transp.offset = 24;
+		mpGLThreadObj = new GLThreadObj(screeninfo.xres, screeninfo.yres);
+		if(mpGLThreadObj)
+		{ /* kick off the GL thread for the window */
+			mpGLThreadObj->Start();
+			mpGLThreadObj->waitInit();
+		}
+	}
+	lfb = reinterpret_cast<fb_pixel_t*>(mpGLThreadObj->getOSDBuffer());
+	memset(lfb, 0x7f, screeninfo.xres * screeninfo.yres * 4);
+#else
 	fd = open(fbDevice, O_RDWR);
 	if(!fd) fd = open(fbDevice, O_RDWR);
 
@@ -291,10 +325,11 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	/* tell the GXA where the framebuffer to draw on starts */
 	smem_start = (unsigned int) fix.smem_start;
-printf("smem_start %x\n", smem_start);
+	printf("smem_start %x\n", smem_start);
 
 	setupGXA();
-#endif
+#endif /* USE_NEVIS_GXA */
+#endif /* USE_OPENGL */
 	cache_size = 0;
 
         /* Windows Colors */
@@ -415,8 +450,14 @@ CFrameBuffer::~CFrameBuffer()
 		delete[] virtual_fb;
 		virtual_fb = NULL;
 	}
+#ifdef USE_OPENGL
+	active = false; /* keep people/infoclocks from accessing */
+	mpGLThreadObj->shutDown();
+	mpGLThreadObj->join();
+#else
 	close(fd);
 	close(tty);
+#endif
 }
 
 int CFrameBuffer::getFileHandle() const
@@ -488,6 +529,7 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	if (!available&&!active)
 		return -1;
 
+#ifndef USE_OPENGL
 #if HAVE_AZBOX_HARDWARE
 #ifndef FBIO_BLIT
 #define FBIO_SET_MANUAL_BLIT _IOW('F', 0x21, __u8)
@@ -536,10 +578,14 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 		       screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
 	}
 #endif
+#endif
 
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
+#ifdef USE_OPENGL
+	stride = 4 * xRes;
+#else
 	fb_fix_screeninfo _fix;
 
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix)<0) {
@@ -548,6 +594,7 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	}
 
 	stride = _fix.line_length;
+#endif
 	printf("FB: %dx%dx%d line length %d. %s nevis GXA accelerator.\n", xRes, yRes, bpp, stride,
 #ifdef USE_NEVIS_GXA
 		"Using"
@@ -1724,6 +1771,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 
 void CFrameBuffer::switch_signal (int signal)
 {
+#ifndef USE_OPENGL /* ignore signals for GL */
 	CFrameBuffer * thiz = CFrameBuffer::getInstance();
 	if (signal == SIGUSR1) {
 		if (virtual_fb != NULL)
@@ -1745,6 +1793,7 @@ void CFrameBuffer::switch_signal (int signal)
 		else
 			memset(thiz->lfb, 0, thiz->stride * thiz->yRes);
 	}
+#endif
 }
 
 void CFrameBuffer::Clear()

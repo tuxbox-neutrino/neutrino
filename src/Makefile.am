@@ -128,6 +128,10 @@ if BOXTYPE_TRIPLE
 neutrino_LDADD += \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a
 endif
+if BOXTYPE_GENERIC
+neutrino_LDADD += \
+	-lglut -lGL -lGLU -lGLEW
+endif
 else
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \

@@ -53,6 +53,13 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define FADE_STEP 5
 #define FADE_RESET 0xFFFF
 
+#if HAVE_GENERIC_HARDWARE
+#define USE_OPENGL 1
+#endif
+#ifdef USE_OPENGL
+class GLThreadObj;
+#endif
+
 /** Ausfuehrung als Singleton */
 class CFrameBuffer
 {
@@ -121,6 +128,10 @@ class CFrameBuffer
 		void blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
 #endif
 		int m_transparent_default, m_transparent;
+#ifdef USE_OPENGL
+		GLThreadObj *mpGLThreadObj; /* the thread object */
+#endif
+
 
 	public:
 		fb_pixel_t realcolor[256];

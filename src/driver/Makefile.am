@@ -36,6 +36,10 @@ libneutrino_driver_a_SOURCES = \
 	ringbuffer.c \
 	volume.cpp
 
+if BOXTYPE_GENERIC
+libneutrino_driver_a_SOURCES += \
+	glthread.cpp
+endif
 if BOXTYPE_SPARK
 libneutrino_driver_a_SOURCES += \
 	framebuffer_spark.cpp
