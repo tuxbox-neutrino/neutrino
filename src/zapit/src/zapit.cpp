@@ -2134,10 +2134,6 @@ static bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 void CZapit::run()
 {
-#if 0
-	time_t stime = time(0);
-	time_t curtime;
-#endif
 	printf("[zapit] starting... tid %ld\n", syscall(__NR_gettid));
 
 	abort_zapit = 0;
@@ -2186,14 +2182,15 @@ void CZapit::run()
 		/* yuck, don't waste that much cpu time :) */
 		usleep(0);
 #if 0
-		if(!standby && !CServiceScan::getInstance()->Scanning() &&current_channel) {
-			curtime = time(0);
+		static time_t stime = time(0);
+		if(!standby && !CServiceScan::getInstance()->Scanning() && current_channel) {
+			time_t curtime = time(0);
+			//FIXME check if sig_delay needed */
 			if(sig_delay && (curtime - stime) > sig_delay) {
 				stime = curtime;
-				uint16_t sig  = live_fe->getSignalStrength();
-				//if(sig < 8000)
-				if(sig < 28000) {
-					printf("[monitor] signal %d, trying to re-tune...\n", sig);
+				fe_status_t status = live_fe->getStatus();
+				printf("[zapit] frontend status %d\n", status);
+				if (status != FE_HAS_LOCK) {
 					live_fe->retuneChannel();
 				}
 			}
