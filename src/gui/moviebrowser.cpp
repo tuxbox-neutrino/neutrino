@@ -2977,7 +2977,8 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
     {
         dirInput[i] =  new CFileChooser(&m_settings.storageDir[i]);
         forwarder[i] = new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR,        m_settings.storageDirUsed[i], m_settings.storageDir[i],      dirInput[i]);
-        notifier[i] =  new COnOffNotifier(forwarder[i]);
+	notifier[i] =  new COnOffNotifier();
+	notifier[i]->addItem(forwarder[i]);
         chooser[i] =   new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_DIR , &m_settings.storageDirUsed[i]  , MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,notifier[i]);
         optionsMenuDir.addItem(chooser[i] );
         optionsMenuDir.addItem(forwarder[i] );

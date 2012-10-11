@@ -1826,6 +1826,8 @@ const char * locale_real_names[] =
 	"videomenu.videoformat_169",
 	"videomenu.videoformat_43",
 	"videomenu.videomode",
+	"wizard.initial_settings",
+	"wizard.install_settings",
 	"wizard.welcome_head",
 	"wizard.welcome_text",
 	"word.from",

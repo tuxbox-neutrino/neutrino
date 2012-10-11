@@ -90,15 +90,4 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		int showContextChanlistMenu();
 };
 
-
-class COsdSetupChannelLogoNotifier : public CChangeObserver
-{
-	private:
-		CMenuForwarder* toDisable1;
-		CMenuOptionChooser* toDisable2;
-	public:
-		COsdSetupChannelLogoNotifier( CMenuForwarder*, CMenuOptionChooser* );
-		bool changeNotify(const neutrino_locale_t, void * Data);
-};
-
 #endif
