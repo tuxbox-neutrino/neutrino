@@ -264,7 +264,8 @@ int CNFSMountGui::menuEntry(int nr)
 	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (*type==CFSMounter::CIFS || CFSMounter::LUFS), NULL, &passInput);
 	CMACInput macInput(LOCALE_RECORDINGMENU_SERVER_MAC,  g_settings.network_nfs_mac[nr], LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CMenuForwarder * macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, g_settings.network_nfs_mac[nr], &macInput);
-
+	CMenuForwarder *mountnow_fwd = new CMenuForwarder(LOCALE_NFS_MOUNTNOW, true, NULL, this, cmd);
+	mountnow_fwd->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 	CNFSMountGuiNotifier notifier(username_fwd, password_fwd, type);
 
 	mountMenuEntryW.addItem(new CMenuOptionChooser(LOCALE_NFS_TYPE, type, NFS_TYPE_OPTIONS, NFS_TYPE_OPTION_COUNT, typeEnabled, &notifier));
@@ -277,7 +278,7 @@ int CNFSMountGui::menuEntry(int nr)
 	mountMenuEntryW.addItem(username_fwd);
 	mountMenuEntryW.addItem(password_fwd);
 	mountMenuEntryW.addItem(macInput_fwd);
-	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_MOUNTNOW, true, NULL                         , this     , cmd ));
+	mountMenuEntryW.addItem(mountnow_fwd);
 
 	int ret = mountMenuEntryW.exec(this,"");
 	return ret;
@@ -341,8 +342,10 @@ int CNFSSmallMenu::exec( CMenuTarget* parent, const std::string & actionKey )
 		CMenuWidget sm_menu(LOCALE_NFSMENU_HEAD, NEUTRINO_ICON_NETWORK, width);
 		CNFSMountGui mountGui;
 		CNFSUmountGui umountGui;
+		CMenuForwarder *remount_fwd = new CMenuForwarder(LOCALE_NFS_REMOUNT, true, NULL, this, "remount");
+		remount_fwd->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		sm_menu.addIntroItems();
-		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_REMOUNT, true, NULL, this, "remount"));
+		sm_menu.addItem(remount_fwd);
 		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, & mountGui));
 		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, &umountGui));
 		return sm_menu.exec(parent, actionKey);
