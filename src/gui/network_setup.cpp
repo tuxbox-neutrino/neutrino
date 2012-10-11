@@ -709,10 +709,14 @@ void CNetworkSetup::testNetworkSettings()
 	char our_gateway[16];
 	char our_nameserver[16];
 
-	std::string text, testsite;
+	std::string text, testsite, offset = "    ";
 
-	//set default testdomain and wiki-IP
-	std::string defaultsite = "www.google.de", wiki_IP = "89.31.143.1";
+	//set default testdomain
+	std::string defaultsite = "www.google.de";
+
+	//set wiki-URL and wiki-IP
+	std::string wiki_URL = "wiki.neutrino-hd.de";
+	std::string wiki_IP = "89.31.143.1";
 
 	//get www-domain testsite from /.version
 	CConfigFile config('\t');
@@ -746,7 +750,7 @@ void CNetworkSetup::testNetworkSettings()
 	printf("testNw Broadcast: %s\n", our_broadcast);
 	printf("testNw Gateway: %s\n", our_gateway);
 	printf("testNw Nameserver: %s\n", our_nameserver);
-	printf("testNw Testsite %s\n", testsite.c_str());
+	printf("testNw Testsite: %s\n", testsite.c_str());
 
 	if (our_ip[0] == 0)
 	{
@@ -754,26 +758,24 @@ void CNetworkSetup::testNetworkSettings()
 	}
 	else
 	{
-		text = "Box: " + old_mac_addr + "\n    ";
-		text += (std::string)our_ip + " " + (std::string)mypinghost(our_ip);
-		text += "\n";
-		text += g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY);
-		text += " (Router)\n    ";
-		text += (std::string)our_gateway + " " +(std::string)mypinghost(our_gateway);
-		text += "\n";
-		text += g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER);
-		text += "\n    ";
-		text += (std::string)our_nameserver + " " + (std::string)mypinghost(our_nameserver);
-		text += "\n";
-		text += "wiki.neutrino-hd.de:\n    ";
-		text += "via IP (" + wiki_IP + "): " + (std::string)mypinghost(wiki_IP.c_str());
-		text += ":\n    ";
-		if (1 == pinghost(our_nameserver))
+		//Box
+		text = "Box (" + old_mac_addr + "):\n";
+		text += offset + (std::string)our_ip + " " + (std::string)mypinghost(our_ip) + "\n";
+		//Gateway
+		text += (std::string)g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY) + " (Router):\n";
+		text += offset + (std::string)our_gateway + " " + (std::string)mypinghost(our_gateway) + "\n";
+		//Nameserver
+		text += (std::string)g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ":\n";
+		text += offset + (std::string)our_nameserver + " " + (std::string)mypinghost(our_nameserver) + "\n";
+		//Wiki
+		text += wiki_URL + ":\n";
+		text += offset + "via IP (" + wiki_IP + "): " + (std::string)mypinghost(wiki_IP.c_str()) + "\n";
+		if (pinghost(our_nameserver) == 1)
 		{
-			text += "via DNS: " + (std::string)mypinghost("wiki.neutrino-hd.de");
-			text += "\n";
-			text += testsite + ":\n    ";
-			text += "via DNS: " +  (std::string)mypinghost(testsite.c_str()) + ":\n";
+			text += offset + "via DNS: " + (std::string)mypinghost(wiki_URL.c_str()) + "\n";
+			//testsite (or defaultsite)
+			text += testsite + ":\n";
+			text += offset + "via DNS: " + (std::string)mypinghost(testsite.c_str()) + "\n";
 		}
 	}
 
