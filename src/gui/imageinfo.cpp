@@ -219,9 +219,13 @@ void CImageInfo::paint()
 	std::string Version_Kernel;
 	if( uname(&uts_info) < 0 ) {
 		Version_Kernel = releaseCycle;
+		Version_Kernel += " ";
+		Version_Kernel += versionInfo.getType();
 	}else{
 		Version_Kernel  = releaseCycle;
-		Version_Kernel += "  -  Kernel: ";
+		Version_Kernel += " ";
+		Version_Kernel += versionInfo.getType();
+		Version_Kernel += " - Kernel: ";
 		Version_Kernel += uts_info.release;
 	}
 
