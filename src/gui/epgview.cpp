@@ -544,7 +544,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				}
 			}
 			// Compare strings normally if not positively found to be equal before
-			if (false == bHide && false == (std::string::npos == epgData.info2.find(epgData.info1))) {
+			if (false == bHide && 0 == epgData.info2.find(epgData.info1)) {
 				bHide = true;
 			}
 		}
