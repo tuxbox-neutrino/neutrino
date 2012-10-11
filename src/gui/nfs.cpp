@@ -236,7 +236,7 @@ int CNFSMountGui::menuEntry(int nr)
 	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (*type != (int)CFSMounter::NFS), NULL, &passInput);
 	CMACInput macInput(LOCALE_RECORDINGMENU_SERVER_MAC,  g_settings.network_nfs_mac[nr], LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CMenuForwarder * macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, g_settings.network_nfs_mac[nr], &macInput);
-	CMenuForwarder *mountnow_fwd = new CMenuForwarder(LOCALE_NFS_MOUNTNOW, true, NULL, this, cmd);
+	CMenuForwarder *mountnow_fwd = new CMenuForwarder(LOCALE_NFS_MOUNTNOW, !(CFSMounter::isMounted(g_settings.network_nfs_local_dir[nr])), NULL, this, cmd);
 	mountnow_fwd->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 	COnOffNotifier notifier(CFSMounter::NFS);
 	notifier.addItem(username_fwd);
