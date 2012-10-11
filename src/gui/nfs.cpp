@@ -51,36 +51,8 @@
 #include <pthread.h>
 #include <sys/mount.h>
 #include <unistd.h>
-
+#include <neutrino.h>
 #include <zapit/client/zapittools.h>
-
-class CNFSMountGuiNotifier : public CChangeObserver
-{
-private:
-	CMenuForwarder *m_opt1,*m_opt2, *m_user, *m_pass;
-	int *m_type;
-public:
-	CNFSMountGuiNotifier( CMenuForwarder* a3, CMenuForwarder* a4 , int* type)
-	{
-		m_user = a3;
-		m_pass = a4;
-		m_type = type;
-	}
-	bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
-	{
-		if(*m_type == (int)CFSMounter::NFS)
-		{
-			m_user->setActive (false);
-			m_pass->setActive (false);
-		}
-		else
-		{
-			m_user->setActive (true);
-			m_pass->setActive (true);
-		}
-		return true;
-	}
-};
 
 CNFSMountGui::CNFSMountGui()
 {
@@ -266,7 +238,9 @@ int CNFSMountGui::menuEntry(int nr)
 	CMenuForwarder * macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, g_settings.network_nfs_mac[nr], &macInput);
 	CMenuForwarder *mountnow_fwd = new CMenuForwarder(LOCALE_NFS_MOUNTNOW, true, NULL, this, cmd);
 	mountnow_fwd->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
-	CNFSMountGuiNotifier notifier(username_fwd, password_fwd, type);
+	COnOffNotifier notifier(CFSMounter::NFS);
+	notifier.addItem(username_fwd);
+	notifier.addItem(password_fwd);
 
 	mountMenuEntryW.addItem(new CMenuOptionChooser(LOCALE_NFS_TYPE, type, NFS_TYPE_OPTIONS, NFS_TYPE_OPTION_COUNT, typeEnabled, &notifier));
 	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_IP      , true, g_settings.network_nfs_ip[nr], &ipInput       ));
