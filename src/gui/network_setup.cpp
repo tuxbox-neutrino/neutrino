@@ -767,6 +767,12 @@ void CNetworkSetup::testNetworkSettings()
 		//Nameserver
 		text += (std::string)g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ":\n";
 		text += offset + (std::string)our_nameserver + " " + (std::string)mypinghost(our_nameserver) + "\n";
+		//NTPserver
+		if ( (pinghost(our_nameserver) == 1) && g_settings.network_ntpenable && (g_settings.network_ntpserver != "") )
+		{
+			text += (std::string)g_Locale->getText(LOCALE_NETWORKMENU_NTPSERVER) + ":\n";
+			text += offset + g_settings.network_ntpserver + " " + (std::string)mypinghost(g_settings.network_ntpserver.c_str()) + "\n";
+		}
 		//Wiki
 		text += wiki_URL + ":\n";
 		text += offset + "via IP (" + wiki_IP + "): " + (std::string)mypinghost(wiki_IP.c_str()) + "\n";
