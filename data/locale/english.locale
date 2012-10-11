@@ -1800,7 +1800,7 @@ videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
 wizard.initial_settings Initial settings found
-wizard.install_settings Do you want to install channels for Astra 19.2°E ?
+wizard.install_settings Do you want to install channels for Astra 19.2°E?
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from
