@@ -149,10 +149,17 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	else if(actionKey.substr(0,7)=="domount")
 	{
 		int nr=atoi(actionKey.substr(7,1).c_str());
-		CFSMounter::mount(g_settings.network_nfs_ip[nr].c_str(), g_settings.network_nfs_dir[nr],
+		CFSMounter::MountRes mres = CFSMounter::mount(
+  	                                   g_settings.network_nfs_ip[nr].c_str(), g_settings.network_nfs_dir[nr],
 				  g_settings.network_nfs_local_dir[nr], (CFSMounter::FSType) g_settings.network_nfs_type[nr],
 				  g_settings.network_nfs_username[nr], g_settings.network_nfs_password[nr],
 				  g_settings.network_nfs_mount_options1[nr], g_settings.network_nfs_mount_options2[nr]);
+
+		if (mres == CFSMounter::MRES_OK || mres == CFSMounter::MRES_FS_ALREADY_MOUNTED)
+			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_MOUNTED;
+		else
+			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_NOT_MOUNTED;
+
 		// TODO show msg in case of error
 		returnval = menu_return::RETURN_EXIT;
 	}
@@ -176,15 +183,16 @@ int CNFSMountGui::menu()
 	{
 		sprintf(s2,"mountentry%d",i);
 		sprintf(ISO_8859_1_entry[i],ZapitTools::UTF8_to_Latin1(m_entry[i]).c_str());
-		CMenuForwarderNonLocalized *forwarder = new CMenuForwarderNonLocalized(ISO_8859_1_entry[i], true, NULL, this, s2);
+		mountMenuEntry[i] = new CMenuForwarderNonLocalized("", true, ISO_8859_1_entry[i], this, s2);
+		
 		if (CFSMounter::isMounted(g_settings.network_nfs_local_dir[i]))
 		{
-			forwarder->iconName = NEUTRINO_ICON_MOUNTED;
+			mountMenuEntry[i]->iconName = NEUTRINO_ICON_MOUNTED;
 		} else
 		{
-			forwarder->iconName = NEUTRINO_ICON_NOT_MOUNTED;
+			mountMenuEntry[i]->iconName = NEUTRINO_ICON_NOT_MOUNTED;
 		}
-		mountMenuW.addItem(forwarder);
+		mountMenuW.addItem(mountMenuEntry[i]);
 	}
 	int ret=mountMenuW.exec(this,"");
 	return ret;
