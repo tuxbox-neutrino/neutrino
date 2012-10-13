@@ -167,7 +167,6 @@ class CDateInput : public CExtendedInput
 {
    private:
 		time_t* time;
-		int dst;
 
 	protected:
 		virtual void onBeforeExec();
