@@ -18,23 +18,24 @@ noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
 
 libneutrino_driver_a_SOURCES = \
 	abstime.c \
-	fontrenderer.cpp \
+	audiofile.cpp \
+	audiometadata.cpp \
+	audioplay.cpp \
+	fader.cpp \
 	fb_window.cpp \
+	file.cpp \
+	fontrenderer.cpp \
+	genpsi.c \
+	radiotext.cpp \
+	radiotools.cpp \
 	rcinput.cpp \
 	record.cpp \
-	audioplay.cpp \
-	screen_max.cpp \
-	file.cpp \
-	audiometadata.cpp \
-	audiofile.cpp \
-	shutdown_count.cpp \
-	genpsi.c \
-	streamts.cpp \
-	radiotools.cpp \
-	radiotext.cpp \
-	fader.cpp \
 	ringbuffer.c \
+	screen_max.cpp \
+	shutdown_count.cpp \
+	streamts.cpp \
 	volume.cpp
+#	screenshot.cpp
 
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \

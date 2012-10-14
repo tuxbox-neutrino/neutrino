@@ -358,7 +358,8 @@ void * streamts_live_thread(void *data)
 	close(fd);
 	return 0;
 }
-
+#if 0 
+//never used
 void streamts_file_thread(void *data)
 {
 	int dvrfd;
@@ -459,3 +460,4 @@ void streamts_file_thread(void *data)
 
 	return;
 }
+#endif

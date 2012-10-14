@@ -35,17 +35,16 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include "bouqueteditor_chanselect.h"
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
 
-#include <zapit/client/zapitclient.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 
-#include "bouqueteditor_chanselect.h"
 
 extern CBouquetManager *g_bouquetManager;
 
@@ -72,6 +71,21 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsi
 	ButtonHeight = std::max(footerHeight, icol_h+4);
 
 	liststart = 0;
+	bouquetChannels = NULL;
+	dline = NULL;
+	ibox = NULL;
+}
+
+CBEChannelSelectWidget::~CBEChannelSelectWidget()
+{
+	// clear details line
+	if (dline != NULL)
+		dline->hide();
+	delete dline;
+	// clear infobox
+	if (ibox != NULL)
+		ibox->hide();
+	delete ibox;
 }
 
 uint	CBEChannelSelectWidget::getItemCount()
@@ -105,7 +119,6 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 
-		frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
 		if(itemNr < getItemCount()) {
 			paintItem2DetailsLine (paintNr, itemNr);
 			paintDetails(itemNr);
@@ -210,8 +223,8 @@ void CBEChannelSelectWidget::paintDetails(int index)
 	else
 		desc = desc + " (" + satname + ")";
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight+INFO_BOX_Y_OFFSET, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+INFO_BOX_Y_OFFSET, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 }
 
 void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
@@ -220,34 +233,30 @@ void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
-	int ypos2 = y + height;
+	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
-	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
 
-	// Clear
-	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
+	// clear details line
+	if (dline != NULL)
+		dline->hide();
+
+	// clear infobox
+	if (ibox != NULL)
+		ibox->hide();
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0)
 	{
-		int fh = fheight > 10 ? fheight - 10: 5;
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 4, fh,     col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 1, fh,     col2);
+		if (dline == NULL)
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+		dline->setYPos(ypos1a);
+		dline->paint(false);
 
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 4,info_height-14, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 1,info_height-14, col2);
-
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 4,ypos2a-ypos1a, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 1,ypos2a-ypos1a+4, col2);
-
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,4, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,1, col2);
-
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,4, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,1, col2);
-
-		frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
+		//infobox
+		if (ibox == NULL)
+			ibox = new CComponentsInfoBox(x, ypos2, width, info_height, false);
+		ibox->paint(false);
 	}
 }
+

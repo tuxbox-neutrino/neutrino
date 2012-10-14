@@ -45,6 +45,7 @@
 #include <driver/fade.h>
 #include <zapit/satconfig.h>
 #include <zapit/getservices.h>
+#include <eitd/sectionsd.h>
 
 #include <algorithm>
 #include <sstream>
@@ -290,7 +291,6 @@ bool EpgPlus::ChannelEventEntry::isSelected (time_t selectedTime) const
 	return (selectedTime >= this->channelEvent.startTime) && (selectedTime < this->channelEvent.startTime + time_t (this->channelEvent.duration));
 }
 
-bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
 void EpgPlus::ChannelEventEntry::paint (bool pisSelected, bool toggleColor)
 {
 	this->frameBuffer->paintBoxRel (this->x, this->y, this->width, this->font->getHeight()
@@ -315,7 +315,8 @@ void EpgPlus::ChannelEventEntry::paint (bool pisSelected, bool toggleColor)
 
 		CShortEPGData shortEpgData;
 
-		this->footer->paintEventDetails (this->channelEvent.description, sectionsd_getEPGidShort(this->channelEvent.eventID, &shortEpgData) ? shortEpgData.info1 : "");
+		bool ret = CEitManager::getInstance()->getEPGidShort(this->channelEvent.eventID, &shortEpgData);
+		this->footer->paintEventDetails (this->channelEvent.description, ret ? shortEpgData.info1 : "");
 
 		this->timeLine->paintGrid();
 	}
@@ -522,8 +523,6 @@ EpgPlus::~EpgPlus()
 	this->free();
 }
 
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-
 void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 {
 	for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
@@ -557,9 +556,8 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 
 			ChannelEntry *channelEntry = new ChannelEntry (channel, i, this->frameBuffer, this->footer, this->bouquetList, this->channelsTableX + 2, yPosChannelEntry, this->channelsTableWidth);
 //printf("Going to get getEventsServiceKey for %llx\n", (channel->channel_id & 0xFFFFFFFFFFFFULL));
-			//CChannelEventList channelEventList = g_Sectionsd->getEventsServiceKey (channel->channel->channel_id & 0xFFFFFFFFFFFFULL);
 			CChannelEventList channelEventList;
-			sectionsd_getEventsServiceKey(channel->channel_id, channelEventList);
+			CEitManager::getInstance()->getEventsServiceKey(channel->channel_id, channelEventList);
 //printf("channelEventList size %d\n", channelEventList.size());
 
 			int xPosEventEntry = this->eventsTableX;

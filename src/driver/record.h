@@ -4,12 +4,11 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2011 CoolStream International Ltd
 
-	License: GPL
+	License: GPLv2
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	the Free Software Foundation;
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -76,7 +75,7 @@ class CRecordInstance
 {
 	private:
 		typedef struct {
-			unsigned short apid;
+			uint32_t apid;
 			unsigned int index;//FIXME not used ?
 			bool ac3;
 		} APIDDesc;
@@ -110,7 +109,7 @@ class CRecordInstance
 		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis);
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
-		record_error_msg_t Start(CZapitChannel * channel /*, APIDList &apid_list*/);
+		record_error_msg_t Start(CZapitChannel * channel);
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
 	public:		
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
@@ -122,6 +121,7 @@ class CRecordInstance
 
 		void SetRecordingId(int id) { recording_id = id; };
 		int GetRecordingId(void) { return recording_id; };
+		t_channel_id GetChannelId(void) { return channel_id; };
 		std::string GetEpgTitle(void) { return epgTitle; };
 		MI_MOVIE_INFO * GetMovieInfo(void) { return recMovieInfo; };
 		void GetRecordString(std::string& str);
@@ -129,17 +129,19 @@ class CRecordInstance
 		bool Timeshift() { return autoshift; };
 		int tshift_mode;
 		void SetStopMessage(const char* text) {rec_stop_msg = text;} ;
+		int  GetStatus();
 
 		CFrontend *	frontend;
 };
 
-typedef std::map<t_channel_id, CRecordInstance*> recmap_t;
+typedef std::pair<int, CRecordInstance*> recmap_pair_t;
+typedef std::map<int, CRecordInstance*> recmap_t;
 typedef recmap_t::iterator recmap_iterator_t;
 
 typedef std::list<CTimerd::RecordingInfo *> nextmap_t;
 typedef nextmap_t::iterator nextmap_iterator_t;
 
-class CRecordManager : public CMenuTarget, public CChangeObserver
+class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 {
 	private:
 		static CRecordManager *  manager;
@@ -154,17 +156,23 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		int		last_mode;
 		bool		autoshift;
 		uint32_t	shift_timer;
+		uint32_t	check_timer;
+		bool		error_display;
+		bool		warn_display;
 
 		OpenThreads::Mutex mutex;
 		static OpenThreads::Mutex sm;
 
-		bool CutBackNeutrino(const t_channel_id channel_id, const int mode);
+		bool CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend);
 		void RestoreNeutrino(void);
 		bool CheckRecording(const CTimerd::RecordingInfo * const eventinfo);
 		void StartNextRecording();
 		void StopPostProcess();
+		void StopInstance(CRecordInstance * inst, bool remove_event = true);
 		CRecordInstance * FindInstance(t_channel_id);
-		void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
+		CRecordInstance * FindInstanceID(int recid);
+		CRecordInstance * FindTimeshift();
+		//void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
 		enum record_modes_t
@@ -186,13 +194,13 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
 		bool Update(const t_channel_id channel_id);
 		bool ShowMenu(void);
-		bool AskToStop(const t_channel_id channel_id);
+		bool AskToStop(const t_channel_id channel_id, const int recid = 0);
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
 		bool StartAutoRecord();
-		bool StopAutoRecord();
+		bool StopAutoRecord(bool lock = true);
 
-		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id);
-		const std::string GetFileName(const t_channel_id channel_id);
+		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
+		const std::string GetFileName(const t_channel_id channel_id, bool timeshift = true);
 
 		bool RunStartScript(void);
 		bool RunStopScript(void);
@@ -210,17 +218,19 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool Timeshift() { return (autoshift || shift_timer); };
 		bool SameTransponder(const t_channel_id channel_id);
 		int  handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
-		// old code
-		bool ChooseRecDir(std::string &dir);
-		bool MountDirectory(const char *recordingDir);
 		// mimic old behavior for start/stop menu option chooser, still actual ?
-		int recordingstatus;
-		bool doGuiRecord();
-		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 		int GetRecordCount() { return recmap.size(); };
-		bool IsTimeshift(t_channel_id channel_id=0);
 		void StartTimeshift();
 		int GetRecordMode(const t_channel_id channel_id=0);
 		bool IsFileRecord(std::string file);
+		// old code
+#if 0
+		bool IsTimeshift(t_channel_id channel_id=0);
+		bool MountDirectory(const char *recordingDir);
+		bool ChooseRecDir(std::string &dir);
+		int recordingstatus;
+		bool doGuiRecord();
+		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
+#endif
 };
 #endif

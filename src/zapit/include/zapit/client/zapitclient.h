@@ -514,6 +514,8 @@ class CZapitClient:public CBasicClient
 	  ein beliebiges Event abmelden
 	*/
 	void unRegisterEvent(const unsigned int eventID, const unsigned int clientID);
+
+	virtual ~CZapitClient() {};
 };
 
 #define PAL	0

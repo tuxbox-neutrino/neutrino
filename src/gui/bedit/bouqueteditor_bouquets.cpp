@@ -35,19 +35,17 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include "bouqueteditor_channels.h"
+#include "bouqueteditor_bouquets.h"
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
-#include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
-#include <zapit/client/zapitclient.h>
 #include <zapit/client/zapittools.h>
 
-#include "bouqueteditor_channels.h"
-#include "bouqueteditor_bouquets.h"
 extern CBouquetManager *g_bouquetManager;
 
 CBEBouquetWidget::CBEBouquetWidget()
@@ -66,6 +64,11 @@ CBEBouquetWidget::CBEBouquetWidget()
 	liststart = 0;
 	state = beDefault;
 	blueFunction = beRename;
+	Bouquets = NULL;
+	iheight = 0;
+	ButtonHeight = 0;
+	fheight = 0;
+	theight = 0;
 }
 
 void CBEBouquetWidget::paintItem(int pos)
@@ -533,7 +536,7 @@ std::string CBEBouquetWidget::inputName(const char * const defaultName, const ne
 {
 	char Name[30];
 
-	strncpy(Name, defaultName, 30);
+	strncpy(Name, defaultName, sizeof(Name)-1);
 
 	CStringInputSMS * nameInput = new CStringInputSMS(caption, Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
 	nameInput->exec(this, "");

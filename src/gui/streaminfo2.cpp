@@ -94,6 +94,7 @@ CStreamInfo2::CStreamInfo2 ()
 	box_h = 0;
 	box_h2 = 0;
 	yypos = -1;
+	dmxbuf = NULL;
 }
 
 CStreamInfo2::~CStreamInfo2 ()
@@ -511,7 +512,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			sprintf (buf, "20:9");
 			break;
 		default:
-			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_ARATIO_UNKNOWN), sizeof (buf));
+			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_ARATIO_UNKNOWN), sizeof (buf)-1);
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
 
@@ -545,7 +546,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf (buf,sizeof(buf), "60fps");
 			break;
 		default:
-			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf));
+			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf)-1);
 			break;
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
@@ -786,8 +787,6 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 /*
  * some definition
  */
-#define TS_LEN			188
-#define TS_BUF_SIZE		(TS_LEN * 2048)	/* fix dmx buffer size */
 
 static unsigned long timeval_to_ms (const struct timeval *tv)
 {
@@ -799,7 +798,6 @@ long delta_time_ms (struct timeval *tv, struct timeval *last_tv)
 	return timeval_to_ms (tv) - timeval_to_ms (last_tv);
 }
 
-uint64_t b_total;
 static cDemux * dmx;
 
 int CStreamInfo2::ts_setup ()
@@ -814,11 +812,22 @@ int CStreamInfo2::ts_setup ()
 	if( !g_RemoteControl->current_PIDs.APIDs.empty() )
 		apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;
 
+	short ret = -1;
 	if(vpid == 0 && apid == 0)
-		return -1;
+		return ret;
 
-	dmx = new cDemux(0);//FIXME test
+	dmx = new cDemux(0);
+	if(!dmx)
+		return ret;
+#define TS_LEN			188
+#define TS_BUF_SIZE		(TS_LEN * 2048)	/* fix dmx buffer size */
 
+	dmxbuf = new unsigned char[TS_BUF_SIZE];
+	if(!dmxbuf){
+		delete dmx;
+		dmx = NULL;
+		return ret;
+	}
 	dmx->Open(DMX_TP_CHANNEL, NULL, 3 * 3008 * 62);
 
 	if(vpid > 0) {
@@ -833,8 +842,8 @@ int CStreamInfo2::ts_setup ()
 	gettimeofday (&first_tv, NULL);
 	last_tv.tv_sec = first_tv.tv_sec;
 	last_tv.tv_usec = first_tv.tv_usec;
-	b_total = 0;
-	return 0;
+	ret = b_total = 0;
+	return ret;
 }
 
 int CStreamInfo2::update_rate ()
@@ -842,8 +851,6 @@ int CStreamInfo2::update_rate ()
 
 	if(!dmx)
 		return 0;
-
-	unsigned char buf[TS_BUF_SIZE] = {0};
 	long b = 0;
 
 	int ret = 0;
@@ -851,7 +858,7 @@ int CStreamInfo2::update_rate ()
 	int timeout = 100;
 
 
-	b_len = dmx->Read(buf, sizeof (buf), timeout);
+	b_len = dmx->Read(dmxbuf, TS_BUF_SIZE, timeout);
 	//printf("ts: read %d\n", b_len);
 
 	b = b_len;
@@ -889,6 +896,9 @@ int CStreamInfo2::ts_close ()
 	if(dmx)
 		delete dmx;
 	dmx = NULL;
+	if(dmxbuf)
+		delete [] dmxbuf;
+	dmxbuf = NULL;
 	return 0;
 }
 

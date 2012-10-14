@@ -17,9 +17,10 @@
 
 #include "teletext.h"
 #include "tuxtxt.h"
-#include "driver/framebuffer.h"
+#include <driver/framebuffer.h>
 #include <dmx.h>
 #include <video.h>
+#include <sys/stat.h>
 
 /* same as in rcinput.h... */
 #define KEY_TTTV	KEY_FN_1
@@ -104,7 +105,7 @@ void gethotlist()
 
 	hotlistchanged = 0;
 	maxhotlist = -1;
-	sprintf(line, CONFIGDIR "/tuxtxt/hotlist%d.conf", tuxtxt_cache.vtxtpid);
+	sprintf(line, TUXTXTDIR "/hotlist%d.conf", tuxtxt_cache.vtxtpid);
 #if TUXTXT_DEBUG
 	printf("TuxTxt <gethotlist %s", line);
 #endif
@@ -150,7 +151,7 @@ void savehotlist()
 	int i;
 
 	hotlistchanged = 0;
-	sprintf(line, CONFIGDIR "/tuxtxt/hotlist%d.conf", tuxtxt_cache.vtxtpid);
+	sprintf(line, TUXTXTDIR "/hotlist%d.conf", tuxtxt_cache.vtxtpid);
 #if TUXTXT_DEBUG
 	printf("TuxTxt <savehotlist %s", line);
 #endif
@@ -261,14 +262,15 @@ void ClearFB(int /*color*/)
 	//memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
 	CFrameBuffer::getInstance()->paintBackground();
 }
-
+#if 0 
+//never used
 void ClearB(int color)
 {
 	FillRect(0,                   0, var_screeninfo.xres, var_screeninfo.yres, color); /* framebuffer */
 	FillRect(0, var_screeninfo.yres, var_screeninfo.xres, var_screeninfo.yres, color); /* backbuffer */
 	CFrameBuffer::getInstance()->blit();
 }
-
+#endif
 int  GetCurFontWidth()
 {
 	int mx = (displaywidth)%(40-nofirst); // # of unused pixels
@@ -1955,6 +1957,10 @@ int Init(int source)
 
 	/* init lcd */
 	UpdateLCD();
+
+	/* create TUXTXTDIR if necessary */
+	if (!access(TUXTXTDIR, F_OK) == 0)
+		mkdir(TUXTXTDIR, 0755);
 
 	/* config defaults */
 	screenmode = 0;

@@ -43,24 +43,20 @@
 
 #include <driver/record.h>
 #include <driver/abstime.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
+#include <eitd/sectionsd.h>
 
 #define ZAP_GUARD_TIME 2000 // ms
 
 extern CBouquetManager *g_bouquetManager;
 
 extern uint32_t scrambled_timer;
-
-bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
-bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list);
-void sectionsd_setPrivatePid(unsigned short pid);
 
 CSubService::CSubService(const t_original_network_id anoriginal_network_id, const t_service_id aservice_id, const t_transport_stream_id atransport_stream_id, const std::string &asubservice_name)
 {
@@ -279,8 +275,6 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 		{
 			CVFD::getInstance()->showServicename(current_channel_name); // UTF-8
 			g_Zapit->getPIDS( current_PIDs );
-			//g_Sectionsd->setPrivatePid( current_PIDs.PIDs.privatepid );
-			sectionsd_setPrivatePid( current_PIDs.PIDs.privatepid );
 			//tuxtxt
 #if 1
 			tuxtxt_stop();
@@ -355,8 +349,7 @@ void CRemoteControl::getSubChannels()
 	if ( subChannels.empty() )
 	{
 		CSectionsdClient::LinkageDescriptorList	linkedServices;
-		//if ( g_Sectionsd->getLinkageDescriptorsUniqueKey( current_EPGid, linkedServices ) )
-		if ( sectionsd_getLinkageDescriptorsUniqueKey( current_EPGid, linkedServices ) )
+		if (CEitManager::getInstance()->getLinkageDescriptorsUniqueKey( current_EPGid, linkedServices))
 		{
 			if ( linkedServices.size()> 1 )
 			{
@@ -389,8 +382,7 @@ void CRemoteControl::getNVODs()
 	if ( subChannels.empty() )
 	{
 		CSectionsdClient::NVODTimesList	NVODs;
-		//if ( g_Sectionsd->getNVODTimesServiceKey( current_channel_id & 0xFFFFFFFFFFFFULL, NVODs ) )
-		if ( sectionsd_getNVODTimesServiceKey( current_channel_id & 0xFFFFFFFFFFFFULL, NVODs ) )
+		if (CEitManager::getInstance()->getNVODTimesServiceKey( current_channel_id, NVODs))
 		{
 			are_subchannels = false;
 //printf("CRemoteControl::getNVODs NVODs.size %d\n", NVODs.size());
@@ -506,13 +498,13 @@ void CRemoteControl::processAPIDnames()
 		if ( current_PIDs.APIDs[count].is_ac3 )
 		{
 			if(!strstr(current_PIDs.APIDs[count].desc, " (AC3)"))
-				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
+				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 			has_ac3 = true;
 			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
 				ac3_found = count;
 		}
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
-			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
+			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
 
 	if ( has_unresolved_ctags )
@@ -520,8 +512,7 @@ void CRemoteControl::processAPIDnames()
 		if ( current_EPGid != 0 )
 		{
 			CSectionsdClient::ComponentTagList tags;
-			//if ( g_Sectionsd->getComponentTagsUniqueKey( current_EPGid, tags ) )
-			if ( sectionsd_getComponentTagsUniqueKey( current_EPGid, tags ) )
+			if (CEitManager::getInstance()->getComponentTagsUniqueKey(current_EPGid, tags))
 			{
 				has_unresolved_ctags = false;
 
@@ -534,11 +525,11 @@ void CRemoteControl::processAPIDnames()
 							// workaround for buggy ZDF ctags / or buggy sectionsd/drivers , who knows...
 							if(!tags[i].component.empty())
 							{
-								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN);
+								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN-1);
 								if (current_PIDs.APIDs[j].is_ac3 &&  !strstr(current_PIDs.APIDs[j].desc, " (AC3)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc));
+									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (AAC)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc));
+									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 							}
 							current_PIDs.APIDs[j].component_tag = -1;
 							break;

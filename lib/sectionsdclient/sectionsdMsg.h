@@ -54,28 +54,12 @@ struct sectionsd
         enum commands
         {
                 dumpStatusinformation,          // commandDumpStatusInformation
-                allEventsChannelIDSearch,       // commandAllEventsChannelIDSearch
                 pauseScanning,                  // commandPauseScanning // for the grabbers ;)
                 getIsScanningActive,            // commandGetIsScanningActive
-                actualEPGchannelID,             // commandActualEPGchannelID
-                actualEventListTVshortIDs,      // commandEventListTVids
-                actualEventListRadioShortIDs,   // commandEventListRadioIDs
-                currentNextInformationID,       // commandCurrentNextInfoChannelID
-                epgEPGid,                       // commandEPGepgID
-                epgEPGidShort,                  // commandEPGepgIDshort
-                ComponentTagsUniqueKey,         // commandComponentTagsUniqueKey
-                allEventsChannelID_,            // commandAllEventsChannelID
-                timesNVODservice,               // commandTimesNVODservice
                 getIsTimeSet,                   // commandGetIsTimeSet
                 serviceChanged,                 // commandserviceChanged
-                LinkageDescriptorsUniqueKey,    // commandLinkageDescriptorsUniqueKey
                 CMD_registerEvents,             // commandRegisterEventClient
                 CMD_unregisterEvents,           // commandUnRegisterEventClient
-#ifdef ENABLE_PPT
-                setPrivatePid,                  // commandSetPrivatePid
-#else
-                dummy11_setPrivatePid,
-#endif
                 freeMemory,                     // commandFreeMemory
                 readSIfromXML,                  // commandReadSIfromXML
                 writeSI2XML,                    // commandWriteSI2XML
@@ -85,11 +69,13 @@ struct sectionsd
                 numberOfCommands        // <- no actual command, end of command marker
         };
 
+#if 0
 	struct commandGetEPGid
 	{
 		uint64_t eventid;
 		time_t             starttime;
 	} __attribute__ ((packed)) ;
+#endif
 
 	struct commandSetServiceChanged
 	{

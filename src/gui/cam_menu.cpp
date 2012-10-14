@@ -22,6 +22,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "cam_menu.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -31,25 +32,21 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <dirent.h>
 #include <dlfcn.h>
 #include <sys/mount.h>
 
 #include <global.h>
 #include <neutrino.h>
-#include <gui/widget/icons.h>
-#include "gui/widget/menue.h"
-#include "gui/widget/stringinput.h"
-#include "gui/widget/messagebox.h"
-#include "gui/widget/hintbox.h"
-#include "gui/widget/progresswindow.h"
+#include "widget/icons.h"
+#include "widget/stringinput.h"
+#include "widget/messagebox.h"
+#include "widget/progresswindow.h"
 
-#include "system/setting_helpers.h"
-#include "system/settings.h"
-#include "system/debug.h"
+#include <system/setting_helpers.h>
+#include <system/settings.h>
+#include <system/debug.h>
 
-#include <gui/cam_menu.h>
 #include <mymenu.h>
 #include <eitd/edvbstring.h>
 

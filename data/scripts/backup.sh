@@ -24,4 +24,4 @@ TOBACKUP=$(echo $RES)
 
 echo Backup to $1/settings_$DATE.tar
 
-tar -cf $1/settings_$DATE.tar $TOBACKUP
+tar -cf $1/settings_$DATE.tar $TOBACKUP 2>&1 >/dev/null

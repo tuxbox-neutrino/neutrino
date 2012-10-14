@@ -461,7 +461,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	return true;
 }
 
-int timerd_main_thread(void */*data*/)
+int timerd_main_thread(void *data)
 {
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 
@@ -474,6 +474,7 @@ int timerd_main_thread(void */*data*/)
 
 	// Start timer thread
 	CTimerManager::getInstance();
+	CTimerManager::getInstance()->wakeup =(bool)data;
 
 	timerd_server.run(timerd_parse_command, CTimerdMsg::ACTVERSION);
 	printf("timerd shutdown complete\n");

@@ -54,7 +54,6 @@
 #include <string>
 #include "textbox.h"
 
-#include <gui/widget/icons.h>
 #include <driver/fb_window.h>
 
 class CMsgBox  

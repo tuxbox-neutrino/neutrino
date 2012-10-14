@@ -101,12 +101,10 @@
 #endif
 
 #include "netfile.h"
-#include "global.h"
+#include <global.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <driver/audioplay.h>
 /*
 TODO:
@@ -1059,6 +1057,7 @@ FILE *f_open(const char *filename, const char *acctype)
 			for(int i=0; ((ptr != NULL) && (i<25)); ptr = strstr(ptr, "http://") )
 			{
 				strncpy(servers[i], ptr, 1023);
+				servers[i][1023] = '\0';
 				ptr2 = strchr(servers[i], '\n');
 				if(ptr2) *ptr2 = 0;
 				// change ptr so that next strstr searches in buf and not in servers[i]
@@ -1101,7 +1100,7 @@ FILE *f_open(const char *filename, const char *acctype)
 				/* magic, if there is any */
 				for (int i = 0; i < known_magic_count; i++)
 				{
-					if (((*(uint32_t *)&(magic[0])) & *(uint32_t *)&(known_magic[i].mask[0])) == *(uint32_t *)&(known_magic[i].mode[0]))
+					if (((*(unsigned char *)&(magic[0])) & *(unsigned char *)&(known_magic[i].mask[0])) == *(unsigned char *)&(known_magic[i].mode[0]))
 					{
 						f_type(fd, known_magic[i].type);
 						goto magic_found;
@@ -1300,6 +1299,7 @@ const char *f_type(FILE *stream, const char *type)
 		{
 			stream_type[i].stream = stream;
 			strncpy(stream_type[i].type, type, 64);
+			stream_type[i].type[64] = '\0';
 			dprintf(stderr, "added entry (%s) for %p\n", type, stream);
 		}
 		return type;
@@ -1720,7 +1720,8 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 		if(!ptr)
 		{
 			ptr = strchr(md, '=');
-			strncpy(state->title, ptr + 2, 4096);
+			strncpy(state->title, ptr + 2, 4095);
+			 state->title[4095] = '\0';
 			ptr = strchr(state->title, ';');
 			if(ptr)
 				*(ptr - 1) = 0;
@@ -1736,7 +1737,8 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 
 			ptr = strstr(md, "StreamTitle=");
 			ptr = strchr(ptr, '\'');
-			strncpy(state->artist, ptr + 1, 4096);
+			strncpy(state->artist, ptr + 1, 4095);
+			state->artist[4095] = '\0';
 			ptr = strstr(state->artist, " - ");
 			if(!ptr)
 				ptr = strstr(state->artist, ", ");

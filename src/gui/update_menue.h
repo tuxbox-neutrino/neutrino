@@ -33,13 +33,14 @@
 #define __software_update__
 
 #include <gui/widget/menue.h>
-#include "gui/update.h"
+#include <gui/update.h>
 #include <string>
 
 class CSoftwareUpdate : public CMenuTarget
 {
 	private:
 		int width;
+		CMenuForwarder * update_item;
 		int showSoftwareUpdate();
 		void showSoftwareUpdateExpert(CMenuWidget *w_mtd_expert);
 		

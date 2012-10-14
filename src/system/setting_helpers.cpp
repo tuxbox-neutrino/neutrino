@@ -33,7 +33,6 @@
 #include "configure_network.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <unistd.h>
 #include <iostream>
 #include <iomanip>
@@ -44,12 +43,9 @@
 #include <libnet.h>
 #include <linux/if.h>
 #include <sys/time.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/vfs.h>
 
 #if HAVE_COOL_HARDWARE
 #include <coolstream/control.h>
@@ -76,8 +72,8 @@
 #include <dmx.h>
 #include <cs_api.h>
 #include <pwrmngr.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 
@@ -92,43 +88,24 @@ extern cDemux *pcrDemux;
 
 extern "C" int pinghost( const char *hostname );
 
-// gui/moviebrowser.cpp
-COnOffNotifier::COnOffNotifier( CMenuItem* a1,CMenuItem* a2,CMenuItem* a3,CMenuItem* a4,CMenuItem* a5)
+COnOffNotifier::COnOffNotifier(int OffValue)
 {
-        number = 0;
-        if(a1 != NULL){ toDisable[0] =a1;number++;};
-        if(a2 != NULL){ toDisable[1] =a2;number++;};
-        if(a3 != NULL){ toDisable[2] =a3;number++;};
-        if(a4 != NULL){ toDisable[3] =a4;number++;};
-        if(a5 != NULL){ toDisable[4] =a5;number++;};
+	offValue = OffValue;
 }
 
 bool COnOffNotifier::changeNotify(const neutrino_locale_t, void *Data)
 {
-   if(*(int*)(Data) == 0)
-   {
-      for (int i=0; i<number ; i++)
-        toDisable[i]->setActive(false);
-   }
-   else
-   {
-      for (int i=0; i<number ; i++)
-        toDisable[i]->setActive(true);
-   }
-   return false;
+	bool active = (*(int*)(Data) != offValue);
+
+	for (std::vector<CMenuItem*>::iterator it = toDisable.begin(); it != toDisable.end(); it++)
+		(*it)->setActive(active);
+
+	return false;
 }
 
-//used in gui/miscsettings_menu.cpp
-CMiscNotifier::CMiscNotifier( CMenuItem* i1, CMenuItem* i2)
+void COnOffNotifier::addItem(CMenuItem* menuItem)
 {
-   toDisable[0]=i1;
-   toDisable[1]=i2;
-}
-bool CMiscNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-   toDisable[0]->setActive(!g_settings.shutdown_real);
-   toDisable[1]->setActive(!g_settings.shutdown_real);
-   return false;
+	toDisable.push_back(menuItem);
 }
 
 bool CSectionsdConfigNotifier::changeNotify(const neutrino_locale_t, void *)
@@ -576,46 +553,4 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 	}
 	videoDecoder->SetAutoModes(modes);
 	return false;
-}
-
-int safe_mkdir(char * path)
-{
-	struct statfs s;
-	int ret = 0;
-	if(!strncmp(path, "/hdd", 4)) {
-		ret = statfs("/hdd", &s);
-		if((ret != 0) || (s.f_type == 0x72b6))
-			ret = -1;
-		else
-			mkdir(path, 0755);
-	} else
-		mkdir(path, 0755);
-	return ret;
-}
-
-int check_dir(const char * newdir)
-{
-  
-  	struct statfs s;
-	if (::statfs(newdir, &s) == 0) {
-		switch (s.f_type)	/* f_type is long */
-		{
-			case 0xEF53L:		/*EXT2 & EXT3*/
-			case 0x6969L:		/*NFS*/
-			case 0xFF534D42L:	/*CIFS*/
-			case 0x517BL:		/*SMB*/
-			case 0x52654973L:	/*REISERFS*/
-			case 0x65735546L:	/*fuse for ntfs*/
-			case 0x58465342L:	/*xfs*/
-			case 0x4d44L:		/*msdos*/
-			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x858458f6: 	/*ramfs*/
-				return 0;//ok
-			default:
-				fprintf(stderr, "%s(%s): Unknown File system type: 0x%lx\n",
-						__func__, newdir, s.f_type);
-				break;
-		}
-	}
-	return 1;	// error
 }

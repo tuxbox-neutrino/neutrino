@@ -99,6 +99,7 @@ class CExtendedInput_Item
 		virtual bool isSelectable(){return true;};
 
 		virtual void keyPressed( int /*key*/ ){};
+		virtual ~CExtendedInput_Item() {};
 };
 
 class CExtendedInput_Item_Spacer : public CExtendedInput_Item
@@ -225,8 +226,7 @@ class CIntInput : public CExtendedInput
 		char* getValue() {
 			return myValueStringOutput;
 		}
+		void updateValue() { onBeforeExec(); }
 };
-
-
 
 #endif

@@ -33,7 +33,6 @@
 #include <config.h>
 #endif
 
-#include <string>
 #include <algorithm>
 
 #include <gui/bouquetlist.h>
@@ -354,7 +353,8 @@ int CBouquetList::show(bool bShowChannelList)
 				loop = false;
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
-				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
+				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ||
+				(msg == CRCInput::RC_favorites) )
 		{
 			selected = oldselected;
 			if(fader.StartFadeOut()) {
@@ -364,21 +364,25 @@ int CBouquetList::show(bool bShowChannelList)
 				loop=false;
 		}
 		else if(msg == CRCInput::RC_red || msg == CRCInput::RC_favorites) {
-			CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_FAV);
-			hide();
-			return -3;
+			if (CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_FAV) {
+				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_FAV);
+				hide();
+				return -3;
+			}
 		} else if(msg == CRCInput::RC_green) {
-			CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_PROV);
-			hide();
-			return -3;
+			if (CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_PROV) {
+				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_PROV);
+				hide();
+				return -3;
+			}
 		} else if(msg == CRCInput::RC_yellow || msg == CRCInput::RC_sat) {
-			if(bShowChannelList) {
+			if(bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_SAT) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_SAT);
 				hide();
 				return -3;
 			}
 		} else if(msg == CRCInput::RC_blue) {
-			if(bShowChannelList) {
+			if(bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_ALL) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_ALL);
 				hide();
 				return -3;

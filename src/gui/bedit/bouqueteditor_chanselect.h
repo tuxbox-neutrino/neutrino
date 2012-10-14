@@ -34,7 +34,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/listbox.h>
-
+#include <gui/widget/components.h>
 #include <zapit/client/zapitclient.h>
 
 #include <string>
@@ -48,6 +48,8 @@ class CBEChannelSelectWidget : public CListBox
 		unsigned int	bouquet;
 		CZapitClient::channelsMode mode;
 		bool isChannelInBouquet( int index);
+		CComponentsDetailLine *dline;
+		CComponentsInfoBox *ibox;
 
 		uint	getItemCount();
 		void paintItem(uint32_t itemNr, int paintNr, bool selected);
@@ -64,6 +66,7 @@ class CBEChannelSelectWidget : public CListBox
 		ZapitChannelList * bouquetChannels;
 
 		CBEChannelSelectWidget(const std::string & Caption, unsigned int Bouquet, CZapitClient::channelsMode Mode);
+		~CBEChannelSelectWidget();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool hasChanged();
 

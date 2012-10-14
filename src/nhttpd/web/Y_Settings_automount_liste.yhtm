@@ -41,6 +41,7 @@ function do_delete()
 	<div class="work_box_body">
 	<form action="/y/cgi" name="f" id="f">
 		{=script:Y_Tools automount_list {=if-file-exists:/var/etc/auto.net~/var/etc/auto.net~/etc/auto.net=}=}
+		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_automount.yhtm"/>
 		<input type="hidden" name="execute" value=""/>
 		<input type="hidden" name="cmd" value=""/>

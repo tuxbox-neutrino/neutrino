@@ -15,7 +15,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_tools').insert({'bottom':el}); 
+		$('secmenu_tools').insert({'bottom':el});
 	});
 	var menu=ext.select_menu('expert');
 	menu.each(function(e){
@@ -25,13 +25,23 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_expert').insert({'bottom':el}); 
+		$('secmenu_expert').insert({'bottom':el});
+	});
+	var menu=ext.select_menu('yweb');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu_yweb').insert({'bottom':el});
 	});
 }
 </script>
 </head>
-{=var-set:automount={=if-file-exists:/sbin/automount~true~{=if-file-exists:/var/bin/automount~true~=}=}=}
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+{=var-set:automount={=if-file-exists:/sbin/automount~true~{=if-file-exists:/var/bin/automount~true~=}=}=}
 {=var-set:ether-wake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}=}=}
 <body onload="init()">
 <div class="y_menu_sec_box">
@@ -40,46 +50,77 @@ function init(){
 		<div class="y_menu_sec_section">{=L:main.tools=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_tools">
-			{=if-empty:{=var-get:management=}~
-				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:tools.not_installed=}">{=L:tools.automount=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:tools.mounts=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:tools.wake_on_lan=}</li>
-				~=}
-			~
-				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstreamm~
+				<li>
 					{=if-empty:{=var-get:automount=}~
-					<li class="disabled" title="{=L:tools.not_installed=}">{=L:tools.automount=}</li>
+					<a href="javascript:void(0)" class="disabled" title="{=L:tools.not_installed=}">{=L:tools.automount=}</a>
 					~
-					<li><a target="work" title="{=L:tools.automount_desc=}" href="Y_Settings_automount_liste.yhtm">{=L:tools.automount=}</a></li>
+					{=var-set:m_link_href=Y_Settings_automount_liste.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text={=L:tools.automount=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
 					=}
-				<li><a target="work" title="{=L:tools.mounts_desc=}" href="Y_Settings_mount_liste.yhtm">{=L:tools.mounts=}</a></li>
-				~=}
-				{=if-empty:{=var-get:ether-wake=}~
-					<li class="disabled" title="{=L:tools.not_installed=}" >{=L:tools.wake_on_lan=}</li>
-				~
-					<li><a target="work" href="Y_Settings_wol.yhtm">{=L:tools.wake_on_lan=}</a></li>
-				=}
-			=}
-				<li><a target="work" href="Y_Tools_Check_Install.yhtm">{=L:tools.check_install=}</a></li>
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_mount_liste.yhtm=}
+					{=var-set:m_link_desc={=L:tools.mounts_desc=}=}
+					{=var-set:m_link_text={=L:tools.mounts=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+			~=}
+				<li>
+					{=if-empty:{=var-get:ether-wake=}~
+					<a href="javascript:void(0)" class="disabled" title="{=L:tools.not_installed=}">{=L:tools.wake_on_lan=}</a>
+					~
+					{=var-set:m_link_href=Y_Settings_wol.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text={=L:tools.wake_on_lan=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+					=}
+				</li>
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">{=L:tools.expert=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_expert">
-				<li><a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">{=L:main.info=}</a></li>
-				{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:tools.image=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:tools.command_shell=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">yInstaller</li>
-				~
-					{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-						<li><a target="work" title="{=L:tools.image_desc=}" href="Y_Tools_Flash_Menue.yhtm">{=L:tools.image=}</a></li>
-					~=}
-				<li><a target="work" href="Y_Tools_Cmd.yhtm">{=L:tools.command_shell=}</a>&nbsp;
-				<a title="command shell (popup)" href="javascript:cmd_popup()"><img src="/images/popup.png"/></a></li>
-				<li><a target="work" href="Y_Tools_Installer.yhtm">yInstaller</a></li>
-				=}
+				<li>
+					<a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">{=L:main.info=}</a>
+				</li>
+				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li>
+					{=var-set:m_link_href=Y_Tools_Bootlogo.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text={=L:tools.boot_logo=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Tools_Flash_Menue.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text={=L:tools.image=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				~=}
+				<li>
+					{=var-set:m_link_href=Y_Tools_Cmd.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text={=L:tools.command_shell=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+					<a class="y_menu_popup_link" title="{=L:tools.command_shell=} (popup)" href="javascript:cmd_popup()"><img src="/images/popup.png"/></a>
+				</li>
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">yWeb</div>
+		<div class="y_menu_sec">
+			<ul id="secmenu_yweb">
+				<li>
+					<a target="work" href="Y_Tools_Check_Install.yhtm">{=L:tools.check_install=}</a>
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Tools_Installer.yhtm=}
+					{=var-set:m_link_desc==}
+					{=var-set:m_link_text=yInstaller=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 			</ul>
 		</div>
 	</div>

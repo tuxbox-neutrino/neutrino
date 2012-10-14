@@ -90,6 +90,7 @@ struct SNeutrinoSettings
 	int casystem_display;
 	int scrambled_message;
 	int volume_pos;
+	int volume_digits;
 	int show_mute_icon;
 	int menu_pos;
 	int show_menu_hints;
@@ -476,7 +477,7 @@ struct SNeutrinoSettings
 
 
 	// Font sizes
-#define FONT_TYPE_COUNT 22
+#define FONT_TYPE_COUNT 23
 	enum FONT_TYPES {
 		FONT_TYPE_MENU                =  0,
 		FONT_TYPE_MENU_TITLE          =  1,
@@ -499,7 +500,8 @@ struct SNeutrinoSettings
 		FONT_TYPE_INFOBAR_CHANNAME    = 18,
 		FONT_TYPE_INFOBAR_INFO        = 19,
 		FONT_TYPE_INFOBAR_SMALL       = 20,
-		FONT_TYPE_FILEBROWSER_ITEM    = 21
+		FONT_TYPE_FILEBROWSER_ITEM    = 21,
+		FONT_TYPE_MENU_HINT           = 22
 	};
 
 	// lcdd
@@ -696,6 +698,7 @@ public:
 	int		scan_fta_flag;
 	int		scan_reset_numbers;
 	int		scan_logical_numbers;
+	int		scan_logical_hd;
 	int		TP_fec;
 	int		TP_pol;
 	int		TP_mod;

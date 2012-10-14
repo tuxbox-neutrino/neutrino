@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the 
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -52,11 +53,16 @@
 
 #include <system/flashtool.h>
 #include <system/httptool.h>
+#include <system/helpers.h>
 
 #define SQUASHFS
 
 #include <curl/curl.h>
 #include <curl/easy.h>
+
+#if LIBCURL_VERSION_NUM < 0x071507
+#include <curl/types.h>
+#endif
 
 #include <stdio.h>
 #include <unistd.h>
@@ -110,22 +116,6 @@ public:
 		}
 };
 
-
-class CNonLocalizedMenuSeparator : public CMenuSeparator
-{
-	const char * the_text;
-
-public:
-	CNonLocalizedMenuSeparator(const char * ptext, const neutrino_locale_t Text1) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text1)
-		{
-			the_text = ptext;
-		}
-
-	virtual const char * getString(void)
-		{
-			return the_text;
-		}
-};
 //#define DEBUG
 bool CFlashUpdate::selectHttpImage(void)
 {
@@ -482,7 +472,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 		CFSMounter::umount();
 
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
-		//system("/etc/init.d/rcK");
+		//my_system("/etc/init.d/rcK");
 		ft.reboot();
 		sleep(20000);
 	}
@@ -503,13 +493,12 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	}
 	else // not image, install
 	{
-		char cmd[100];
-		sprintf(cmd, "install.sh %s %s", g_settings.update_dir, filename.c_str());
+		const char install_sh[] = "/bin/install.sh";
 #ifdef DEBUG1
-		printf("[update] calling %s\n", cmd);
+		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
 #else
-		printf("[update] calling %s\n", cmd);
-		system(cmd);
+		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
+		my_system( install_sh, g_settings.update_dir, filename.c_str() );
 #endif
 		showGlobalStatus(100);
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8

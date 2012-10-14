@@ -24,6 +24,10 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
+#if LIBCURL_VERSION_NUM < 0x071507
+#include <curl/types.h>
+#endif
+
 #include <global.h>
 
 

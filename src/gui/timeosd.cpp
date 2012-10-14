@@ -29,8 +29,7 @@
 #include <gui/timeosd.h>
 #include <driver/fontrenderer.h>
 #include <system/settings.h>
-#include <gui/widget/progressbar.h>
-#include "gui/infoclock.h"
+#include <gui/infoclock.h>
 
 //static CProgressBar *timescale = 0;
 

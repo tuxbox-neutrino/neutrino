@@ -36,16 +36,15 @@
 #include <configfile.h>
 
 #include <neutrinoMessages.h>
-#include <driver/framebuffer.h>
-#include <system/setting_helpers.h>
-#include <system/configure_network.h>
-#include <gui/timerlist.h>
-#include <timerdclient/timerdtypes.h>
-#include <gui/channellist.h>          /* CChannelList */
-#include <gui/rc_lock.h>
-#include <daemonc/remotecontrol.h>    /* st_rmsg      */
-#include <gui/personalize.h>
-#include <gui/user_menue.h>
+#include "driver/framebuffer.h"
+#include "system/setting_helpers.h"
+#include "system/configure_network.h"
+#include "daemonc/remotecontrol.h"    /* st_rmsg      */
+#include "gui/channellist.h"          /* CChannelList */
+#include "gui/personalize.h"
+#include "gui/rc_lock.h"
+#include "gui/user_menue.h"
+#include "gui/timerlist.h"
 
 #include <string>
 
@@ -80,6 +79,7 @@ typedef struct font_sizes_groups
 	const unsigned int                          count;
 	const SNeutrinoSettings::FONT_TYPES * const content;
 	const char * const                          actionkey;
+	const neutrino_locale_t hint;
 } font_sizes_groups_struct;
 
 class CNeutrinoApp : public CMenuTarget, CChangeObserver
@@ -133,7 +133,7 @@ private:
 	void tvMode( bool rezap = true );
 	void radioMode( bool rezap = true );
 	void scartMode( bool bOnOff );
-	void standbyMode( bool bOnOff );
+	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void saveEpg(bool cvfd_mode);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);

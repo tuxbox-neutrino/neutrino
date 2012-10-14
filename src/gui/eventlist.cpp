@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -47,7 +48,7 @@
 
 #include "widget/hintbox.h"
 #include "widget/buttons.h"
-#include "gui/bouquetlist.h"
+#include "bouquetlist.h"
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
@@ -56,6 +57,7 @@
 #include <zapit/client/zapittools.h>
 #include <zapit/zapit.h>
 #include <daemonc/remotecontrol.h>
+#include <eitd/sectionsd.h>
 
 #include <algorithm>
 
@@ -63,10 +65,6 @@ extern CBouquetList        * bouquetList;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 
 extern CPictureViewer * g_PicViewer;
-
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
-bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 
 #if 0
 // sort operators
@@ -150,9 +148,7 @@ bool CNeutrinoEventList::HasTimerConflicts(time_t starttime, time_t duration, ev
 
 void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 {
-	//evtlist = g_Sectionsd->getEventsServiceKey(channel_id &0xFFFFFFFFFFFFULL);
-	evtlist.clear();
-	sectionsd_getEventsServiceKey(channel_id , evtlist);
+	CEitManager::getInstance()->getEventsServiceKey(channel_id , evtlist);
 	time_t azeit=time(NULL);
 
 	CChannelEventList::iterator e;
@@ -160,14 +156,12 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 
 		CEPGData epgData;
 		// todo: what if there are more than one events in the Portal
-		//if (g_Sectionsd->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData ))
-		if (sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData ))
+		if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData ))
 		{
 //			epgData.eventID;
 //			epgData.epg_times.startzeit;
 			CSectionsdClient::LinkageDescriptorList	linkedServices;
-			//if ( g_Sectionsd->getLinkageDescriptorsUniqueKey( epgData.eventID, linkedServices ) )
-			if ( sectionsd_getLinkageDescriptorsUniqueKey( epgData.eventID, linkedServices ) )
+			if (CEitManager::getInstance()->getLinkageDescriptorsUniqueKey( epgData.eventID, linkedServices ) )
 			{
 				if ( linkedServices.size()> 1 )
 				{
@@ -192,9 +186,7 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 
 						// do not add parent events
 						if (channel_id != channel_id2) {
-							//evtlist2 = g_Sectionsd->getEventsServiceKey(channel_id2);
-							evtlist2.clear();
-							sectionsd_getEventsServiceKey(channel_id2 , evtlist2);
+							CEitManager::getInstance()->getEventsServiceKey(channel_id2 , evtlist2);
 
 							for (unsigned int loop=0 ; loop<evtlist2.size(); loop++ )
 							{
@@ -247,12 +239,12 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 }
 
 
-int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& channelname, const std::string& channelname_prev, const std::string& channelname_next) // UTF-8
+int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& channelname, const std::string& channelname_prev, const std::string& channelname_next,const CChannelEventList &followlist) // UTF-8
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool in_search = false;
-
+	showfollow = false;
 	// Calculate iheight
 	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, NONEXISTANT_LOCALE } };
 	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
@@ -299,8 +291,13 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 
 	COSDFader fader(g_settings.menu_Content_alpha);
 	fader.StartFadeIn();
-
-	readEvents(channel_id);
+	if(!followlist.empty()){
+		insert_iterator <std::vector<CChannelEvent> >ii(evtlist,evtlist.begin());
+		copy(followlist.begin(), followlist.end(), ii);
+		showfollow = true;
+	}else{
+		readEvents(channel_id);
+	}
 	UpdateTimerList();
 
 	if(channelname_prev.empty(), channelname_next.empty()){
@@ -385,7 +382,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			showFunctionBar(paint_buttonbar, channel_id);
 		}
 		//sort
-		else if (msg == (neutrino_msg_t)g_settings.key_channelList_sort)
+		else if (!showfollow && (msg == (neutrino_msg_t)g_settings.key_channelList_sort))
 		{
 			uint64_t selected_id = evtlist[selected].eventID;
 			if(sort_mode==0)
@@ -635,7 +632,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				}
 			}
 		}
-		else if ( msg==CRCInput::RC_green )
+		else if (!showfollow  && ( msg==CRCInput::RC_green ))
 		{
 			in_search = findEvents();
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
@@ -935,9 +932,11 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 		}
 	}
 
-	buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_GREEN;
-	buttons[btn_cnt].locale = LOCALE_EVENTFINDER_SEARCH; // search button
-	btn_cnt++;
+	if(!showfollow){
+		buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_GREEN;
+		buttons[btn_cnt].locale = LOCALE_EVENTFINDER_SEARCH; // search button
+		btn_cnt++;
+	}
 
 	// Button: Timer Channelswitch
 	if ((uint) g_settings.key_channelList_addremind != CRCInput::RC_nokey) {
@@ -953,13 +952,15 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 		}
 	}
 
-	// Button: Event Re-Sort
-	if ((uint) g_settings.key_channelList_sort != CRCInput::RC_nokey) {
-		// FIXME : display other icons depending on g_settings.key_channelList_sort
-		keyhelper.get(&dummy, &icon, g_settings.key_channelList_sort);
-		buttons[btn_cnt].button = icon;
-		buttons[btn_cnt].locale = LOCALE_EVENTLISTBAR_EVENTSORT;
-		btn_cnt++;
+	if(!showfollow){
+		// Button: Event Re-Sort
+		if ((uint) g_settings.key_channelList_sort != CRCInput::RC_nokey) {
+			// FIXME : display other icons depending on g_settings.key_channelList_sort
+			keyhelper.get(&dummy, &icon, g_settings.key_channelList_sort);
+			buttons[btn_cnt].button = icon;
+			buttons[btn_cnt].locale = LOCALE_EVENTLISTBAR_EVENTSORT;
+			btn_cnt++;
+		}
 	}
 	FunctionBarHeight = std::max(::paintButtons(bx, by, bw, btn_cnt, buttons, bw), FunctionBarHeight);
 }
@@ -1008,11 +1009,11 @@ bool CNeutrinoEventList::findEvents(void)
 	{
 		res = true;
 		m_showChannel = true;   // force the event list to paint the channel name
-		evtlist.clear();
+		if(!evtlist.empty())
+			evtlist.clear();
 		if(m_search_list == SEARCH_LIST_CHANNEL)
 		{
-			//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,m_search_channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-			sectionsd_getEventsServiceKey(m_search_channel_id, evtlist, m_search_epg_item,m_search_keyword);
+			CEitManager::getInstance()->getEventsServiceKey(m_search_channel_id, evtlist, m_search_epg_item,m_search_keyword);
 		}
 		else if(m_search_list == SEARCH_LIST_BOUQUET)
 		{
@@ -1020,8 +1021,7 @@ bool CNeutrinoEventList::findEvents(void)
 			for(int channel = 0; channel < channel_nr; channel++)
 			{
 				channel_id = bouquetList->Bouquets[m_search_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
-				//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-				sectionsd_getEventsServiceKey(channel_id, evtlist, m_search_epg_item,m_search_keyword);
+				CEitManager::getInstance()->getEventsServiceKey(channel_id, evtlist, m_search_epg_item,m_search_keyword);
 			}
 		}
 		else if(m_search_list == SEARCH_LIST_ALL)
@@ -1035,8 +1035,7 @@ bool CNeutrinoEventList::findEvents(void)
 				for(int channel = 0; channel < channel_nr; channel++)
 				{
 				    channel_id = bouquetList->Bouquets[bouquet]->channelList->getChannelFromIndex(channel)->channel_id;
-					//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-					sectionsd_getEventsServiceKey(channel_id,evtlist, m_search_epg_item,m_search_keyword);
+					CEitManager::getInstance()->getEventsServiceKey(channel_id,evtlist, m_search_epg_item,m_search_keyword);
 				}
 			}
 			box.hide();

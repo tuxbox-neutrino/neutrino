@@ -70,8 +70,8 @@
 #endif
 
 #include <driver/abstime.h>
-#include "libdvbsub/dvbsub.h"
-#include "libtuxtxt/teletext.h"
+#include <libdvbsub/dvbsub.h>
+#include <libtuxtxt/teletext.h>
 
 /* globals */
 int sig_delay = 2; // seconds between signal check
@@ -110,8 +110,7 @@ CZapit::CZapit()
 {
 	started = false;
 	pmt_update_fd = -1;
-	volume_left = 0, volume_right = 0;
-	def_volume_left = 0, def_volume_right = 0;
+	//volume_left = 0, volume_right = 0;
 	audio_mode = 0;
 	aspectratio=0;
 	mode43=0;
@@ -123,6 +122,8 @@ CZapit::CZapit()
 	playing = false;
 	list_changed = false; // flag to indicate, allchans was changed
 	currentMode = 0;
+	current_volume = 100;
+	volume_percent = 0;
 }
 
 CZapit::~CZapit()
@@ -239,6 +240,38 @@ void CZapit::SaveAudioMap()
 	fclose(audio_config_file);
 }
 
+void CZapit::LoadVolumeMap()
+{
+	vol_map.clear();
+	FILE *volume_config_file = fopen(VOLUME_CONFIG_FILE, "r");
+	if (!volume_config_file) {
+		perror(VOLUME_CONFIG_FILE);
+		return;
+	}
+	t_channel_id chan;
+	int apid = 0;
+	int volume = 0;
+	char s[1000];
+	while (fgets(s, 1000, volume_config_file)) {
+		if (sscanf(s, "%llx %d %d", &chan, &apid, &volume) == 3)
+			vol_map.insert(volume_pair_t(chan, pid_pair_t(apid, volume)));
+	}
+	fclose(volume_config_file);
+}
+
+void CZapit::SaveVolumeMap()
+{
+	FILE *volume_config_file = fopen(VOLUME_CONFIG_FILE, "w");
+	if (!volume_config_file) {
+		perror(VOLUME_CONFIG_FILE);
+		return;
+	}
+	for (volume_map_iterator_t it = vol_map.begin(); it != vol_map.end(); ++it)
+		fprintf(volume_config_file, "%llx %d %d\n", (uint64_t) it->first, it->second.first, it->second.second);
+
+	fdatasync(fileno(volume_config_file));
+	fclose(volume_config_file);
+}
 
 void CZapit::LoadSettings()
 {
@@ -282,6 +315,7 @@ void CZapit::LoadSettings()
 	/**/
 
 	LoadAudioMap();
+	LoadVolumeMap();
 }
 
 void CZapit::ConfigFrontend()
@@ -313,9 +347,6 @@ void CZapit::SendPMT(bool forupdate)
 		return;
 
 	CCamManager::getInstance()->Start(current_channel->getChannelID(), CCamManager::PLAY, forupdate);
-	int len;
-	unsigned char * pmt = current_channel->getRawPmt(len);
-	ca->SendPMT(DEMUX_SOURCE_0, pmt, len);
 }
 
 void CZapit::SaveChannelPids(CZapitChannel* channel)
@@ -323,10 +354,10 @@ void CZapit::SaveChannelPids(CZapitChannel* channel)
 	if(channel == NULL)
 		return;
 
-	printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel->getAudioPid(), dvbsub_getpid(), audio_mode, volume_right);
+	printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel->getAudioPid(), dvbsub_getpid(), audio_mode, current_volume);
 	audio_map[channel->getChannelID()].apid = channel->getAudioPid();
 	audio_map[channel->getChannelID()].mode = audio_mode;
-	audio_map[channel->getChannelID()].volume = audioDecoder->getVolume();
+	audio_map[channel->getChannelID()].volume = current_volume;
 	audio_map[channel->getChannelID()].subpid = dvbsub_getpid();
 	tuxtx_subtitle_running(&audio_map[channel->getChannelID()].ttxpid, &audio_map[channel->getChannelID()].ttxpage, NULL);
 }
@@ -343,19 +374,9 @@ void CZapit::RestoreChannelPids(CZapitChannel * channel)
 				if (channel->getAudioChannel(i)->pid == pidmap->apid ) {
 					DBG("***** Setting audio!\n");
 					channel->setAudioChannel(i);
-#if 0
-					if(we_playing && (channel->getAudioChannel(i)->audioChannelType != CZapitAudioChannel::MPEG))
-						ChangeAudioPid(i);
-#endif
 				}
 			}
 		}
-#if 0 // to restore saved volume per channel if needed. after first zap its done by neutrino
-		if(firstzap) {
-			audioDecoder->setVolume(audio_map_it->second.volume, audio_map_it->second.volume);
-		}
-#endif
-		volume_left = volume_right = pidmap->volume;
 		audio_mode = pidmap->mode;
 
 		dvbsub_setpid(pidmap->subpid);
@@ -373,12 +394,10 @@ void CZapit::RestoreChannelPids(CZapitChannel * channel)
 		else
 			tuxtx_set_pid(pidmap->ttxpid, pidmap->ttxpage, (char *) tmplang.c_str());
 	} else {
-		volume_left = volume_right = def_volume_left;
 		audio_mode = def_audio_mode;
 		tuxtx_set_pid(0, 0, (char *) channel->getTeletextLang());
 	}
 	/* restore saved stereo / left / right channel mode */
-	//audioDecoder->setVolume(volume_left, volume_right);
 	audioDecoder->setChannel(audio_mode);
 }
 
@@ -393,43 +412,28 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 
 bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change)
 {
-	//CFrontend * frontend = CFEManager::getInstance()->allocateFE(channel);
-	if(frontend == NULL) {
-		ERROR("Cannot get frontend\n");
-		return false;
-	}
-	transponder_change = false;
-#if 0
-	if (!(currentMode & RECORD_MODE)) 
-#endif
-	{
-		transponder_change = frontend->setInput(channel, current_is_nvod);
-		if(transponder_change && !current_is_nvod) {
-			int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
-			if(waitForMotor > 0) {
-				printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
-				SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
-				for(int i = 0; i < waitForMotor; i++) {
-					sleep(1);
-					if(abort_zapit) {
-						abort_zapit = 0;
-						return false;
-					}
+	transponder_change = frontend->setInput(channel, current_is_nvod);
+	if(transponder_change && !current_is_nvod) {
+		int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
+		if(waitForMotor > 0) {
+			printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
+			SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
+			for(int i = 0; i < waitForMotor; i++) {
+				sleep(1);
+				if(abort_zapit) {
+					abort_zapit = 0;
+					return false;
 				}
 			}
 		}
+	}
 
-		/* if channel's transponder does not match frontend's tuned transponder ... */
-		if (transponder_change /* || current_is_nvod*/) {
-			if (frontend->tuneChannel(channel, current_is_nvod) == false) {
-				return false;
-			}
+	/* if channel's transponder does not match frontend's tuned transponder ... */
+	if (transponder_change /* || current_is_nvod*/) {
+		if (frontend->tuneChannel(channel, current_is_nvod) == false) {
+			return false;
 		}
-	} 
-#if 0
-	else if(!SAME_TRANSPONDER(channel->getChannelID(), live_channel_id))
-		return false;
-#endif
+	}
 	return true;
 }
 
@@ -457,15 +461,13 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	bool failed = false;
 	CZapitChannel* newchannel;
 
-	DBG("[zapit] zapto channel id %llx diseqcType %d\n", channel_id, diseqcType);
-
 	abort_zapit = 0;
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id, &current_is_nvod)) == NULL) {
-		DBG("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
 
-	printf("[zapit] zap to %s (%llx tp %llx)\n", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
+	INFO("[zapit] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
 	if(fe == NULL) {
@@ -484,7 +486,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	pmt_stop_update_filter(&pmt_update_fd);
 
-	ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_CI);
 	StopPlayBack(!forupdate);
 
 	if(!forupdate && current_channel)
@@ -600,6 +601,85 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	return true;
 }
 
+/* set channel/pid volume percent, using current channel_id and pid, if those params is 0 */
+void CZapit::SetPidVolume(t_channel_id channel_id, int pid, int percent)
+{
+	if (!channel_id)
+		channel_id = live_channel_id;
+
+	if (!pid && (channel_id == live_channel_id) && current_channel)
+		pid = current_channel->getAudioPid();
+
+INFO("############################### channel %llx pid %x map size %d percent %d", channel_id, pid, vol_map.size(), percent);
+	volume_map_range_t pids = vol_map.equal_range(channel_id);
+	for (volume_map_iterator_t it = pids.first; it != pids.second; ++it) {
+		if (it->second.first == pid) {
+			it->second.second = percent;
+			return;
+		}
+	}
+	vol_map.insert(volume_pair_t(channel_id, pid_pair_t(pid, percent)));
+}
+
+/* return channel/pid volume percent, using current channel_id and pid, if those params is 0 */
+int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
+{
+	int percent = -1;
+
+	if (!channel_id)
+		channel_id = live_channel_id;
+
+	if (!pid && (channel_id == live_channel_id) && current_channel)
+		pid = current_channel->getAudioPid();
+
+	volume_map_range_t pids = vol_map.equal_range(channel_id);
+	for (volume_map_iterator_t it = pids.first; it != pids.second; ++it) {
+		if (it->second.first == pid) {
+			percent = it->second.second;
+			break;
+		}
+	}
+	if (percent < 0) {
+		percent = ac3 ? VOLUME_PERCENT_AC3 : VOLUME_PERCENT_PCM;
+		if ((channel_id == live_channel_id) && current_channel) {
+			for (int  i = 0; i < current_channel->getAudioChannelCount(); i++) {
+				if (pid == current_channel->getAudioPid(i)) {
+					percent = current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3 ?
+						VOLUME_PERCENT_AC3 : VOLUME_PERCENT_PCM;
+					break;
+				}
+			}
+		}
+	}
+	DBG("channel %llx pid %x map size %d percent %d", channel_id, pid, vol_map.size(), percent);
+	return percent;
+}
+
+void CZapit::SetVolume(int vol)
+{
+	current_volume = vol;
+	if (current_volume < 0)
+		current_volume = 0;
+	if (current_volume > 100)
+		current_volume = 100;
+
+	int value = (current_volume * volume_percent) / 100;
+	DBG("volume %d percent %d -> %d", current_volume, volume_percent, value);
+	audioDecoder->setVolume(value, value);
+	//volume_left = volume_right = current_volume;
+}
+
+int CZapit::SetVolumePercent(int percent)
+{
+	int ret = volume_percent;
+
+	if (volume_percent != percent) {
+		volume_percent = percent;
+		SetVolume(current_volume);
+	}
+	return ret;
+}
+
 void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioChannelType)
 {
 	const char *audioStr = "UNKNOWN";
@@ -628,6 +708,10 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 			printf("[zapit] unknown audio channel type 0x%x\n", audioChannelType);
 			break;
 	}
+
+	/* FIXME: bigger percent for AC3 only, what about AAC etc ? */
+	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3);
+	SetVolumePercent(newpercent);
 
 	printf("[zapit] starting %s audio\n", audioStr);
 }
@@ -708,11 +792,6 @@ void CZapit::SetRecordMode(bool enable)
 		event = CZapitClient::EVT_RECORDMODE_ACTIVATED;
 	} else {
 		currentMode &= ~RECORD_MODE;
-
-		int demux = 2;
-		if(current_channel)
-			demux = current_channel->getRecordDemux();
-		ca->SendPMT(demux /*DEMUX_SOURCE_2*/, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
 		event = CZapitClient::EVT_RECORDMODE_DEACTIVATED;
 	}
 	SendEvent(event);
@@ -966,7 +1045,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CZapitChannel * channel = (requested_channel_id == 0) ? current_channel :
 			CServiceManager::getInstance()->FindChannel(requested_channel_id);
 		if(channel) {
-			strncpy(response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE);
+			strncpy(response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE-1);
 			response.name[CHANNEL_NAME_SIZE-1] = 0;
 		}
                 CBasicServer::send_data(connfd, &response, sizeof(response));
@@ -1108,7 +1187,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 		satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 		for(sat_iterator_t sit = satmap.begin(); sit != satmap.end(); sit++) {
-			strncpy(sat.satName, sit->second.name.c_str(), 50);
+			strncpy(sat.satName, sit->second.name.c_str(), 49);
 			sat.satName[49] = 0;
 			sat.satPosition = sit->first;
 			sat.motorPosition = sit->second.motor_position;
@@ -1545,15 +1624,21 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_SET_VOLUME: {
 		CZapitMessages::commandVolume msgVolume;
 		CBasicServer::receive_data(connfd, &msgVolume, sizeof(msgVolume));
+#if 0
 		audioDecoder->setVolume(msgVolume.left, msgVolume.right);
                 volume_left = msgVolume.left;
                 volume_right = msgVolume.right;
+#endif
+		SetVolume(msgVolume.left);
 		break;
 	}
         case CZapitMessages::CMD_GET_VOLUME: {
                 CZapitMessages::commandVolume msgVolume;
+#if 0
                 msgVolume.left = volume_left;
                 msgVolume.right = volume_right;
+#endif
+		msgVolume.left = msgVolume.right = current_volume;
                 CBasicServer::send_data(connfd, &msgVolume, sizeof(msgVolume));
                 break;
         }
@@ -1635,7 +1720,7 @@ void CZapit::sendAPIDs(int connfd)
 	for (uint32_t  i = 0; i < current_channel->getAudioChannelCount(); i++) {
 		CZapitClient::responseGetAPIDs response;
 		response.pid = current_channel->getAudioPid(i);
-		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN);
+		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN-1);
 		response.is_ac3 = response.is_aac = 0;
 		if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
@@ -1671,7 +1756,7 @@ void CZapit::internalSendChannels(int connfd, ZapitChannelList* channels, const 
 			}
 		} else {
 			CZapitClient::responseGetBouquetChannels response;
-			strncpy(response.name, ((*channels)[i]->getName()).c_str(), CHANNEL_NAME_SIZE);
+			strncpy(response.name, ((*channels)[i]->getName()).c_str(), CHANNEL_NAME_SIZE-1);
 			response.name[CHANNEL_NAME_SIZE-1] = 0;
 			//printf("internalSendChannels: name %s\n", response.name);
 			response.satellitePosition = (*channels)[i]->getSatellitePosition();
@@ -1714,7 +1799,7 @@ void CZapit::sendBouquets(int connfd, const bool emptyBouquetsToo, CZapitClient:
                       ((curMode & TV_MODE) && !g_bouquetManager->Bouquets[i]->tvChannels.empty()))))
 		{
 			msgBouquet.bouquet_nr = i;
-			strncpy(msgBouquet.name, g_bouquetManager->Bouquets[i]->Name.c_str(), 30);
+			strncpy(msgBouquet.name, g_bouquetManager->Bouquets[i]->Name.c_str(), 29);
 			msgBouquet.name[29] = 0;
 			msgBouquet.locked     = g_bouquetManager->Bouquets[i]->bLocked;
 			msgBouquet.hidden     = g_bouquetManager->Bouquets[i]->bHidden;
@@ -1880,17 +1965,9 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 
 bool CZapit::StopPlayBack(bool send_pmt)
 {
-#if 1
-	if(send_pmt) {
+	if(send_pmt)
 		CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
-		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
-	}
-#endif
-#if 0
-	if (send_pmt && !(currentMode & RECORD_MODE)) 
-		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
-	CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
-#endif
+
 	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);
 
 	if (!playing)
@@ -1923,6 +2000,9 @@ bool CZapit::StopPlayBack(bool send_pmt)
 	else
 		dvbsub_stop();
 
+	/* reset volume percent to 100% i.e. for media playback, should be safe
+	 * because StartPlayBack will use defaults or saved value */
+	SetVolumePercent(100);
 	return true;
 }
 
@@ -1936,6 +2016,7 @@ void CZapit::enterStandby(void)
 
 	SaveSettings(true);
 	SaveAudioMap();
+	SaveVolumeMap();
 	StopPlayBack(true);
 
 	if(!(currentMode & RECORD_MODE)) {
@@ -2027,6 +2108,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	live_fe = CFEManager::getInstance()->getFE(0);
 	/* load configuration or set defaults if no configuration file exists */
 	video_mode = ZapStart_arg->video_mode;
+	current_volume = ZapStart_arg->volume;
 
 	videoDemux = new cDemux();
 	videoDemux->Open(DMX_VIDEO_CHANNEL);
@@ -2043,6 +2125,8 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
+	/* set initial volume with 100% */
+	SetVolumePercent(100);
 #ifdef USE_VBI
 	videoDecoder->OpenVBI(1);
 #endif
@@ -2133,10 +2217,6 @@ static bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 void CZapit::run()
 {
-#if 0
-	time_t stime = time(0);
-	time_t curtime;
-#endif
 #if HAVE_SPARK_HARDWARE
 	bool v_stopped = false;
 #endif
@@ -2214,14 +2294,15 @@ void CZapit::run()
 		/* yuck, don't waste that much cpu time :) */
 		usleep(0);
 #if 0
-		if(!standby && !CServiceScan::getInstance()->Scanning() &&current_channel) {
-			curtime = time(0);
+		static time_t stime = time(0);
+		if(!standby && !CServiceScan::getInstance()->Scanning() && current_channel) {
+			time_t curtime = time(0);
+			//FIXME check if sig_delay needed */
 			if(sig_delay && (curtime - stime) > sig_delay) {
 				stime = curtime;
-				uint16_t sig  = live_fe->getSignalStrength();
-				//if(sig < 8000)
-				if(sig < 28000) {
-					printf("[monitor] signal %d, trying to re-tune...\n", sig);
+				fe_status_t status = live_fe->getStatus();
+				printf("[zapit] frontend status %d\n", status);
+				if (status != FE_HAS_LOCK) {
 					live_fe->retuneChannel();
 				}
 			}
@@ -2232,6 +2313,7 @@ void CZapit::run()
 	SaveChannelPids(current_channel);
 	SaveSettings(true);
 	SaveAudioMap();
+	SaveVolumeMap();
 	StopPlayBack(true);
 	CFEManager::getInstance()->saveSettings(true);
 
@@ -2277,13 +2359,14 @@ void CZapit::SetConfig(Zapit_config * Cfg)
 	SaveSettings(true);
 	ConfigFrontend();
 }
-
+#if 0 
+//never used
 void CZapit::SendConfig(int connfd)
 {
 	printf("[zapit] %s...\n", __FUNCTION__);
 	CBasicServer::send_data(connfd, &config, sizeof(config));
 }
-
+#endif
 void CZapit::GetConfig(Zapit_config &Cfg)
 {
 	printf("[zapit] %s...\n", __FUNCTION__);

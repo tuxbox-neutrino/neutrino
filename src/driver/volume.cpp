@@ -13,7 +13,7 @@
 	This library is free software; you can redistribute it and/or
 	modify it under the terms of the GNU Library General Public
 	License as published by the Free Software Foundation; either
-	version 3 of the License, or (at your option) any later version.
+	version 2 of the License, or (at your option) any later version.
 
 	This library is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -38,51 +38,50 @@
 #include <audio.h>
 #include <system/settings.h>
 #include <daemonc/remotecontrol.h>
-#include <driver/framebuffer.h>
 #include <driver/volume.h>
+#include <zapit/zapit.h>
 
 #if HAVE_COOL_HARDWARE
 #include <gui/widget/progressbar.h>
 #endif
 
-CFrameBuffer * frameBuffer;
 extern CRemoteControl * g_RemoteControl;
 extern cAudio * audioDecoder;
-static CProgressBar *g_volscale = NULL;
 
 CVolume::CVolume()
 {
 	frameBuffer	= CFrameBuffer::getInstance();
+	volscale 	= NULL;
 #if 0
 	g_Zapit		= new CZapitClient;
 	g_RCInput	= new CRCInput;
 	v_RemoteControl	= new CRemoteControl;
 #endif
 	VolumeFont	= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
-	paintDigits	= true;  // For future On/Off digits
 	paintShadow	= false; // For future On/Off switch shadow
 	MuteIconFrame	= false; // For future On/Off switch IconFrame
 	ShadowOffset	= 4;
 	mute_ay		= 0;
-	m_mode = CNeutrinoApp::getInstance()->getMode();
+	m_mode 		= CNeutrinoApp::getInstance()->getMode();
+	channel_id	= 0;
+	apid		= 0;
 
 	Init();
 }
 
 CVolume::~CVolume()
 {
-	if (g_volscale)
-		delete g_volscale;
-	g_volscale = NULL;
+	delete volscale;
 }
 
 void CVolume::Init()
 {
+	paintDigits	= g_settings.volume_digits;
 	mute_ay_old	= mute_ay;
 	int faktor_h	= 18; // scale * 10
 	int clock_height= 0;
 	int clock_width = 0;
-	int x_corr 	= 0;
+	
 	pB		= 2; // progress border
 	spacer		= 8;
 
@@ -108,10 +107,9 @@ void CVolume::Init()
 		progress_h	= std::max(icon_h, digit_h) - 2*pB;
 		vbar_w 		+= digit_w;
 	}
-
-	if (g_volscale)
-		delete g_volscale;
-	g_volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
+	if (volscale)
+		delete volscale;
+	volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
 
 	// mute icon
 	mute_icon_dx 	= 0;
@@ -145,7 +143,8 @@ void CVolume::Init()
 //printf("\n##### [volume.cpp Zeile %d] mute_ax %d, mute_dx %d\n \n", __LINE__, mute_ax, mute_dx);
 	switch (g_settings.volume_pos)
 	{
-		case 0:// upper right
+		case 0:{// upper right
+			int x_corr 	= 0;
 			if (( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic)) {
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + spacer;
@@ -154,6 +153,7 @@ void CVolume::Init()
 			}
 			x = sw - vbar_w - x_corr;
 			break;
+		}
 		case 1:// upper left
 			break;
 		case 2:// bottom left
@@ -219,7 +219,8 @@ void CVolume::AudioMute(int newValue, bool isEvent)
 
 void CVolume::setvol(int vol)
 {
-	audioDecoder->setVolume(vol, vol);
+	//audioDecoder->setVolume(vol, vol);
+	CZapit::getInstance()->SetVolume(vol);
 }
 
 void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowait)
@@ -248,15 +249,15 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 
 		// volumebar shadow
 		if (paintShadow)
-			frameBuffer->paintBoxRel(x+ShadowOffset , y+ShadowOffset , (paintDigits) ? vbar_w - vbar_h : vbar_w, vbar_h, colShadow, ROUNDED, CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT);
+			frameBuffer->paintBoxRel(x+ShadowOffset , y+ShadowOffset , (paintDigits) ? vbar_w - vbar_h : vbar_w + 1, vbar_h, colShadow, ROUNDED, (paintDigits) ? CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT : CORNER_ALL);
 		// volumebar
-		frameBuffer->paintBoxRel(x , y , (paintDigits) ? vbar_w - vbar_h : vbar_w, vbar_h, colBar, ROUNDED, CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT);
+		frameBuffer->paintBoxRel(x , y , (paintDigits) ? vbar_w - vbar_h : vbar_w + 1, vbar_h, colBar, ROUNDED, (paintDigits) ? CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT : CORNER_ALL);
 		// frame for progress
 		frameBuffer->paintBoxRel(progress_x-pB, progress_y-pB, progress_w+pB*1, progress_h+pB*2, colFrame);
 		// volume icon
 		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME, icon_x, icon_y, 0, colBar);
 
-		g_volscale->reset();
+		volscale->reset();
 		refreshVolumebar(vol);
 		frameBuffer->blit();
 	}
@@ -368,7 +369,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 void CVolume::refreshVolumebar(int current_volume)
 {
 	// progressbar
-	g_volscale->paintProgressBar2(progress_x, progress_y, current_volume);
+	volscale->paintProgressBar2(progress_x, progress_y, current_volume);
 	if (paintDigits) {
 		// shadow for erase digits
 		if (paintShadow)
@@ -380,4 +381,22 @@ void CVolume::refreshVolumebar(int current_volume)
 		snprintf(buff, 4, "%3d", current_volume);
 		g_Font[VolumeFont]->RenderString(digit_x, digit_y, digit_w, buff, colContent);	
 	}
+}
+
+bool CVolume::changeNotify(const neutrino_locale_t OptionName, void * data)
+{
+	bool ret = false;
+	if (ARE_LOCALES_EQUAL(OptionName, NONEXISTANT_LOCALE)) {
+		int percent = *(int *) data;
+		int vol =  CZapit::getInstance()->GetVolume();
+		/* keep resulting volume = (vol * percent)/100 not more than 115 */
+		if (vol * percent > 11500)
+			percent = 11500 / vol;
+
+		printf("CVolume::changeNotify: percent %d\n", percent);
+		CZapit::getInstance()->SetPidVolume(channel_id, apid, percent);
+		CZapit::getInstance()->SetVolumePercent(percent);
+		*(int *) data = percent;
+	}
+	return ret;
 }

@@ -40,6 +40,7 @@ typedef struct sat_config {
 	int unicable_qrg;
 	int unicable_lnb;
 	int configured;
+	int cable_nid;
 } sat_config_t;
 
 typedef enum diseqc_cmd_order {

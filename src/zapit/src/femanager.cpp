@@ -186,8 +186,7 @@ bool CFEManager::loadSettings()
 		frontend_config_t & fe_config = fe->getConfig();
 		INFO("load config for fe%d", fe->fenumber);
 
-		//fe_config.diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
-		diseqc_t diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
+		fe_config.diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
 		fe_config.diseqcRepeats		= getConfigValue(fe, "diseqcRepeats", 0);
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
@@ -195,14 +194,17 @@ bool CFEManager::loadSettings()
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
 		//fe->setDiseqcType((diseqc_t) fe_config.diseqcType);
+#if 0
+		diseqc_t diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
 		fe->setDiseqcType(diseqcType);
+#endif
 
 		char cfg_key[81];
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
-		std::vector<int> satList = configfile.getInt32Vector(cfg_key);
 		satellite_map_t & satmap = fe->getSatellites();
 		satmap.clear();
 #if 0
+		std::vector<int> satList = configfile.getInt32Vector(cfg_key);
 		for(unsigned int i = 0; i < satList.size(); i++) 
 			t_satellite_position position = satList[i];
 #endif
@@ -280,27 +282,29 @@ void CFEManager::saveSettings(bool write)
 
 void CFEManager::setMode(fe_mode_t newmode, bool initial)
 {
-	if(newmode == mode)
+	if(!initial && (newmode == mode))
 		return;
 
-	if(femap.size() == 1) {
-		mode = FE_MODE_SINGLE;
-		return;
-	}
 	mode = newmode;
-	bool setslave = (mode == FE_MODE_LOOP);
+	if(femap.size() == 1)
+		mode = FE_MODE_SINGLE;
+
+	bool setslave = (mode == FE_MODE_LOOP) || (mode == FE_MODE_SINGLE);
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		CFrontend * fe = it->second;
 		if(it != femap.begin()) {
-			CFrontend * fe = it->second;
 			INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
 			fe->setMasterSlave(setslave);
-		}
+		} else
+			fe->Init();
 	}
+#if 0
 	if(setslave && !initial) {
 		CFrontend * fe = getFE(0);
 		fe->Close();
-		fe->Open();
+		fe->Open(true);
 	}
+#endif
 }
 
 void CFEManager::Open()
@@ -308,7 +312,7 @@ void CFEManager::Open()
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(!fe->Locked())
-			fe->Open();
+			fe->Open(true);
 	}
 }
 
@@ -331,7 +335,8 @@ CFrontend * CFEManager::getFE(int index)
 	INFO("Frontend #%d not found", index);
 	return NULL;
 }
-
+#if 0 
+//never used
 transponder * CFEManager::getChannelTransponder(CZapitChannel * channel)
 {
 	transponder_list_t::iterator tpI = transponders.find(channel->getTransponderId());
@@ -341,6 +346,7 @@ transponder * CFEManager::getChannelTransponder(CZapitChannel * channel)
 	INFO("Transponder %llx not found", channel->getTransponderId());
 	return NULL;
 }
+#endif
 
 /* try to find fe with same tid, or unlocked. fe with same tid is preffered */
 CFrontend * CFEManager::findFrontend(CZapitChannel * channel)

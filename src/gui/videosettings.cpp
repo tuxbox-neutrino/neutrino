@@ -43,8 +43,8 @@
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
-#include "gui/widget/hintbox.h"
-#include "gui/widget/messagebox.h"
+#include <gui/widget/hintbox.h>
+#include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
 
@@ -62,17 +62,17 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 CVideoSettings::CVideoSettings(bool wizard_mode)
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	
+
 	is_wizard = wizard_mode;
-	
+
 	SyncControlerForwarder = NULL;
 	VcrVideoOutSignalOptionChooser = NULL;
 
 	width = w_max (35, 20);
 	selected = -1;
-	
+
 	prev_video_mode = g_settings.video_Mode;
-	
+
 	setupVideoSystem(false);
 }
 
@@ -92,7 +92,7 @@ int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	}
 
 	res = showVideoSetup();
-	
+
 	return res;
 }
 
@@ -141,7 +141,6 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS[VID
 // 	{ 2, LOCALE_VIDEOMENU_VCRSIGNAL_SVIDEO    },
 // 	{ 0, LOCALE_VIDEOMENU_VCRSIGNAL_COMPOSITE }
 // };
-
 
 #define VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT 4
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT] =
@@ -233,19 +232,23 @@ int CVideoSettings::showVideoSetup()
 
 	//analog options
 	unsigned int system_rev = cs_get_revision();
-	CMenuOptionChooser * vs_analg_ch = NULL; 
+	CMenuOptionChooser * vs_analg_ch = NULL;
 	CMenuOptionChooser * vs_scart_ch = NULL;
 	CMenuOptionChooser * vs_chinch_ch = NULL;
-	if (system_rev == 0x06) 
+	if (system_rev == 0x06)
 	{
 		vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT, true, this);
-	} 
-	else if (system_rev > 0x06) 
+		vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
+	}
+	else if (system_rev > 0x06)
 	{
-		if(system_rev != 10)
+		if(system_rev != 10) {
 			vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this);
+			vs_scart_ch->setHint("", LOCALE_MENU_HINT_VIDEO_SCART_MODE);
+		}
 
 		vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this);
+		vs_chinch_ch->setHint("", LOCALE_MENU_HINT_VIDEO_CINCH_MODE);
 	}
 	else if (system_rev == 0x01) /* TRIPLEDRAGON hack... :-) */
 	{
@@ -254,15 +257,19 @@ int CVideoSettings::showVideoSetup()
 
 	//4:3 mode
 	CMenuOptionChooser * vs_43mode_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_43MODE, &g_settings.video_43mode, VIDEOMENU_43MODE_OPTIONS, VIDEOMENU_43MODE_OPTION_COUNT, true, this);
+	vs_43mode_ch->setHint("", LOCALE_MENU_HINT_VIDEO_43MODE);
 
 	//display format
 	CMenuOptionChooser * vs_dispformat_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOFORMAT, &g_settings.video_Format, VIDEOMENU_VIDEOFORMAT_OPTIONS, VIDEOMENU_VIDEOFORMAT_OPTION_COUNT, true, this);
+	vs_dispformat_ch->setHint("", LOCALE_MENU_HINT_VIDEO_FORMAT);
 
 	//video system
 	CMenuOptionChooser * vs_videomodes_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOMODE, &g_settings.video_Mode, VIDEOMENU_VIDEOMODE_OPTIONS, VIDEOMENU_VIDEOMODE_OPTION_COUNT, true, this, CRCInput::RC_nokey, "", true);
+	vs_videomodes_ch->setHint("", LOCALE_MENU_HINT_VIDEO_MODE);
 
 	//dbdr options
 	CMenuOptionChooser * vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
+	vs_dbdropt_ch->setHint("", LOCALE_MENU_HINT_VIDEO_DBDR);
 
 	//video system modes submenue
 	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
@@ -277,6 +284,7 @@ int CVideoSettings::showVideoSetup()
 		//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 
 		vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
+		vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
 	}
 
 	//---------------------------------------
@@ -305,7 +313,6 @@ int CVideoSettings::showVideoSetup()
 	delete videosetup;
 	return res;
 }
-
 
 void CVideoSettings::setVideoSettings()
 {
@@ -339,18 +346,18 @@ void CVideoSettings::setVideoSettings()
 void CVideoSettings::setupVideoSystem(bool do_ask)
 {
 	printf("[neutrino VideoSettings] %s setup videosystem...\n", __FUNCTION__);
-	videoDecoder->SetVideoSystem(g_settings.video_Mode); //FIXME 
-	
+	videoDecoder->SetVideoSystem(g_settings.video_Mode); //FIXME
+
 	if (do_ask)
 	{
-		if (prev_video_mode != g_settings.video_Mode) 
+		if (prev_video_mode != g_settings.video_Mode)
 		{
 			frameBuffer->paintBackground();
-			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEO_MODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes) 
+			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEO_MODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes)
 			{
 				g_settings.video_Mode = prev_video_mode;
 				videoDecoder->SetVideoSystem(g_settings.video_Mode);
-			} 
+			}
 		}
 		else
 			prev_video_mode = g_settings.video_Mode;
@@ -420,8 +427,6 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 	return false;
 }
 
-
-
 void CVideoSettings::next43Mode(void)
 {
 	printf("[neutrino VideoSettings] %s setting 43Mode...\n", __FUNCTION__);
@@ -442,7 +447,6 @@ void CVideoSettings::next43Mode(void)
 	g_settings.video_43mode = VIDEOMENU_43MODE_OPTIONS[curmode].key;
 	videoDecoder->setAspectRatio(-1, g_settings.video_43mode);
 	ShowHintUTF(LOCALE_VIDEOMENU_43MODE, g_Locale->getText(text), 450, 2);
-	
 }
 
 void CVideoSettings::SwitchFormat()
@@ -530,4 +534,3 @@ void CVideoSettings::setWizardMode(bool mode)
 	printf("[neutrino VideoSettings] %s set video settings menu to mode %d...\n", __FUNCTION__, mode);
 	is_wizard = mode;
 }
-

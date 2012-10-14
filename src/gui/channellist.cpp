@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -49,15 +50,14 @@
 #include <gui/color.h>
 #include <gui/eventlist.h>
 #include <gui/infoviewer.h>
+#include <gui/osd_setup.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/progressbar.h>
-#include <gui/osd_setup.h>
+#include <gui/widget/components.h>
 
 #include <system/settings.h>
-#include <system/lastchannel.h>
 #include <gui/customcolor.h>
 
 #include <gui/bouquetlist.h>
@@ -70,6 +70,8 @@
 #include <zapit/getservices.h>
 #include <zapit/femanager.h>
 #include <zapit/debug.h>
+
+#include <eitd/sectionsd.h>
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -86,10 +88,6 @@ extern CBouquetList   * RADIOallList;
 extern bool autoshift;
 
 extern CBouquetManager *g_bouquetManager;
-void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen);
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
-
 extern int old_b_id;
 
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist, bool )
@@ -173,7 +171,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		unsigned int count;
 		for (count = from; count < to; count++) {
 			events.clear();
-			sectionsd_getEventsServiceKey(chanlist[count]->channel_id, events);
+			CEitManager::getInstance()->getEventsServiceKey(chanlist[count]->channel_id, events);
 			chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
 			for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
 				if ((long)e->startTime > atime &&
@@ -186,17 +184,16 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		}
 	} else {
 		t_channel_id *p_requested_channels;
-		int size_requested_channels = chanlist_size * sizeof(t_channel_id);
-		p_requested_channels = new t_channel_id[size_requested_channels];
+		p_requested_channels = new t_channel_id[chanlist_size];
 		if (! p_requested_channels) {
 			fprintf(stderr,"%s:%d allocation failed!\n", __FUNCTION__, __LINE__);
 			return;
 		}
-		for (uint32_t count = 0; count < chanlist_size; count++) {
-			p_requested_channels[count] = chanlist[count + from]->channel_id&0xFFFFFFFFFFFFULL;
-		}
+		for (uint32_t count = 0; count < chanlist_size; count++)
+			p_requested_channels[count] = chanlist[count + from]->channel_id;
+
 		CChannelEventList levents;
-		sectionsd_getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
+		CEitManager::getInstance()->getChannelEvents(levents, p_requested_channels, chanlist_size);
 		for (uint32_t count=0; count < chanlist_size; count++) {
 			chanlist[count + from]->currentEvent = CChannelEvent();
 			for (CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e) {
@@ -592,6 +589,7 @@ int CChannelList::show()
 				loop=false;
 		}
 		else if( msg == CRCInput::RC_record) { //start direct recording from channellist 
+#if 0
 			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
 			{
 				printf("[neutrino channellist] start direct recording...\n");
@@ -608,10 +606,20 @@ int CChannelList::show()
 				}
 					
 			}		
+#endif
+			if(SameTP()) {
+				printf("[neutrino channellist] start direct recording...\n");
+				hide();
+				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
+					paintHead();
+					paint();
+				} else
+					loop=false;
 				
+			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
-			if(CRecordManager::getInstance()->RecordingStatus())
+			if(CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id))
 			{
 				if (CRecordManager::getInstance()->AskToStop(chanlist[selected]->channel_id))
 				{
@@ -854,10 +862,6 @@ int CChannelList::show()
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
-#if 0
-	/* FIXME call this somewhere after show */
-	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-#endif
 	this->new_mode_active = 0;
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
@@ -1197,6 +1201,7 @@ int CChannelList::numericZap(int key)
 				channelList->adjustToChannelID(orgList->getActiveChannel_ChannelID(), false);
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
 			delete channelList;
 			return res;
@@ -1215,6 +1220,7 @@ int CChannelList::numericZap(int key)
 			if (channelList->getSize() != 0) {
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
 			delete channelList;
 		}
@@ -1545,7 +1551,7 @@ void CChannelList::paintDetails(int index)
 		char buf[128] = {0};
 		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
-		sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
+		CEitManager::getInstance()->getCurrentNextServiceKey(chanlist[index]->channel_id, CurrentNext);
 		if (!CurrentNext.next_name.empty()) {
 			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
 			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
@@ -1573,39 +1579,20 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
 
 	// Clear
-	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
+	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
 		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
 		{
-			int fh = fheight > 10 ? fheight - 10: 5;
-			/* item mark */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 4, fh,     col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 1, fh,     col2);
+			//details line
+			CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			details_line.paint();
 
-			/* info mark */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 4,info_height-14, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 1,info_height-14, col2);
-
-			/* vertical connect line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 4,ypos2a-ypos1a, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 1,ypos2a-ypos1a+4, col2);
-
-			/* horizontal item line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,1, col2);
-
-			/* horizontal info line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,1, col2);
-
-//			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, RADIUS_LARGE);
+			//info box frame
 			frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
-
 		}
 	}
 }
@@ -1770,6 +1757,7 @@ void CChannelList::paintItem(int pos)
 
 		if (pos == 0)
 		{
+			/* FIXME move to calcSize() ? */
 			int w_max, w_min, h;
 			ChannelList_Rec = 0;
 			int recmode_icon_max = CRecordManager::RECMODE_REC, recmode_icon_min = CRecordManager::RECMODE_TSHIFT;
@@ -1786,11 +1774,11 @@ void CChannelList::paintItem(int pos)
 			for (uint32_t i = 0; i < chanlist.size(); i++)
 			{
 				rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[i]->channel_id);
-				if (rec_mode == recmode_icon_max)
+				if (rec_mode & recmode_icon_max)
 				{
 					ChannelList_Rec = w_max;
 					break;
-				} else if (rec_mode == recmode_icon_min)
+				} else if (rec_mode & recmode_icon_min)
 					ChannelList_Rec = w_min;
 			}
 			if (ChannelList_Rec > 0)
@@ -1802,9 +1790,9 @@ void CChannelList::paintItem(int pos)
 		
 		//set recording icon
 		const char * rec_icon = "";
-		if (rec_mode == CRecordManager::RECMODE_REC)
+		if (rec_mode & CRecordManager::RECMODE_REC)
 			rec_icon = NEUTRINO_ICON_REC;
-		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
 			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
 	
 		//calculating icons
@@ -1820,7 +1808,6 @@ void CChannelList::paintItem(int pos)
 				r_icon_x = r_icon_x - s_icon_w;
 		
  		//paint recording icon
- 		//bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
 		if (rec_mode != CRecordManager::RECMODE_OFF)
 			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		

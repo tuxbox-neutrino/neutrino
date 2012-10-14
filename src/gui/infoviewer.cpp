@@ -35,7 +35,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <string>
+#include "infoviewer.h"
+
 #include <algorithm>
 
 #include <sys/types.h>
@@ -51,7 +52,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <gui/infoviewer.h>
 #include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
@@ -65,10 +65,8 @@
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
+#include <eitd/sectionsd.h>
 #include <video.h>
-
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
@@ -257,20 +255,26 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 void CInfoViewer::showRecordIcon (const bool show)
 {
 	CRecordManager * crm		= CRecordManager::getInstance();
-	int rec_mode 			= crm->GetRecordMode();
 	
-	recordModeActive		= rec_mode != CRecordManager::RECMODE_OFF; 
+	recordModeActive		= crm->RecordingStatus();
+	/* FIXME if record or timeshift stopped while infobar visible, artifacts */
 	if (recordModeActive)
 	{
 		std::string Icon_Rec = NEUTRINO_ICON_REC_GRAY, Icon_Ts = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-
 		t_channel_id cci	= g_RemoteControl->current_channel_id;
-		bool status_ts		= crm->GetRecordMode(cci) == CRecordManager::RECMODE_TSHIFT;
-		bool status_rec		= crm->GetRecordMode(cci) == CRecordManager::RECMODE_REC && !status_ts;
-		if (status_ts)
+
+		/* global record mode */
+		int rec_mode 		= crm->GetRecordMode();
+		/* channel record mode */
+		int ccrec_mode 		= crm->GetRecordMode(cci);
+
+		/* set 'active' icons for current channel */
+		if (ccrec_mode & CRecordManager::RECMODE_TSHIFT)
 			Icon_Ts		= NEUTRINO_ICON_AUTO_SHIFT;
-		if (status_rec)
+
+		if (ccrec_mode & CRecordManager::RECMODE_REC)
 			Icon_Rec	= NEUTRINO_ICON_REC;
+
 		int records		= crm->GetRecordCount();
 		
 		const int radius = RADIUS_MIN;
@@ -386,8 +390,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 
 void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 {
-	//info_CurrentNext = getEPG (channel_id);
-	sectionsd_getCurrentNextServiceKey(channel_id & 0xFFFFFFFFFFFFULL, info_CurrentNext);
+	CEitManager::getInstance()->getCurrentNextServiceKey(channel_id, info_CurrentNext);
 	if (!evtlist.empty()) {
 		if (new_chan) {
 			for ( eli=evtlist.begin(); eli!=evtlist.end(); ++eli ) {
@@ -600,9 +603,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 			col_NumBoxText = COL_MENUHEAD;
 		}
 		if ((channel_id != new_channel_id) || (evtlist.empty())) {
-			evtlist.clear();
-			//evtlist = g_Sectionsd->getEventsServiceKey(new_channel_id & 0xFFFFFFFFFFFFULL);
-			sectionsd_getEventsServiceKey(new_channel_id, evtlist);
+			CEitManager::getInstance()->getEventsServiceKey(new_channel_id, evtlist);
 			if (!evtlist.empty())
 				sort(evtlist.begin(),evtlist.end(), sortByDateTime);
 			new_chan = true;
@@ -810,14 +811,19 @@ void CInfoViewer::loop(bool show_dot)
 		} else if (!fileplay && !CMoviePlayerGui::getInstance().timeshift) {
 			CNeutrinoApp *neutrino = CNeutrinoApp::getInstance ();
 			if ((msg == (neutrino_msg_t) g_settings.key_quickzap_up) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down) || (msg == CRCInput::RC_0) || (msg == NeutrinoMessages::SHOW_INFOBAR)) {
-				if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
+				hideIt = false; // default
+				if ((g_settings.radiotext_enable) && (neutrino->getMode() == NeutrinoMessages::mode_radio))
 					hideIt =  true;
-				else
-					hideIt = false;
+
 				int rec_mode = CRecordManager::getInstance()->GetRecordMode();
+#if 0
 				if ((rec_mode == CRecordManager::RECMODE_REC) || (rec_mode == CRecordManager::RECMODE_REC_TSHIFT))
 					hideIt = true;
-				//hideIt = (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0) ? true : false;
+#endif
+				/* hide, if record (not timeshift only) is running -> neutrino will show channel list */
+				if (rec_mode & CRecordManager::RECMODE_REC)
+					hideIt = true;
+
 				g_RCInput->postMsg (msg, data);
 				res = messages_return::cancel_info;
 			} else if (msg == NeutrinoMessages::EVT_TIMESET) {
@@ -1161,7 +1167,8 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				infoViewerBB->showIcon_SubT();
 				//infoViewerBB->showIcon_CA_Status(0);
 				infoViewerBB->showIcon_Resolution();
-				infoViewerBB->showIcon_Tuner();
+				if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE)
+					infoViewerBB->showIcon_Tuner();
 			}
 		}
 		return messages_return::handled;
@@ -1282,8 +1289,7 @@ void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::Cu
 		oldinfo.current_uniqueKey = 0;
 		return;
 	}
-
-	sectionsd_getCurrentNextServiceKey(for_channel_id & 0xFFFFFFFFFFFFULL, info);
+	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
 
 	/* of there is no EPG, send an event so that parental lock can work */
 	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
@@ -1372,7 +1378,8 @@ void CInfoViewer::showSNR ()
 			g_SignalFont->RenderString (posx, posy + height, sw, percent, COL_INFOBAR);
 		}
 	}
-	infoViewerBB->showSysfsHdd();
+	if(showButtonBar)
+		infoViewerBB->showSysfsHdd();
 }
 
 void CInfoViewer::display_Info(const char *current, const char *next,

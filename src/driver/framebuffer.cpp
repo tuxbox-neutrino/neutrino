@@ -39,7 +39,7 @@
 
 #include <linux/kd.h>
 
-#include <stdint.h>
+//#include <stdint.h>
 
 #ifdef USE_OPENGL
 #include <GL/glew.h>
@@ -612,10 +612,12 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 #endif
 	return 0;
 }
-
+#if 0 
+//never used
 void CFrameBuffer::setTransparency( int /*tr*/ )
 {
 }
+#endif
 
 #if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::setBlendMode(uint8_t mode)
@@ -671,13 +673,15 @@ void CFrameBuffer::setBlendLevel(int level)
 }
 #endif
 
+#if 0 
+//never used
 void CFrameBuffer::setAlphaFade(int in, int num, int tr)
 {
 	for (int i=0; i<num; i++) {
 		cmap.transp[in+i]=tr;
 	}
 }
-
+#endif
 void CFrameBuffer::paletteFade(int i, __u32 rgb1, __u32 rgb2, int level)
 {
 	__u16 *r = cmap.red+i;
@@ -1117,7 +1121,8 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	blit();
 	return true;
 }
-
+#if 0 
+//never used
 #ifdef USE_NEVIS_GXA
 bool CFrameBuffer::blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh)
 {
@@ -1145,6 +1150,7 @@ bool CFrameBuffer::blitToPrimary(unsigned int *, int, int, int, int)
 {
 	return false;
 }
+#endif
 #endif
 
 /* paint icon at position x/y,
@@ -1488,6 +1494,8 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 }
 #endif
 
+#if 0 
+//never used
 void CFrameBuffer::setBackgroundColor(const fb_pixel_t color)
 {
 	backgroundColor = color;
@@ -1639,7 +1647,7 @@ bool CFrameBuffer::loadBackgroundPic(const std::string & filename, bool show)
 	}
 	return true;
 }
-
+#endif
 void CFrameBuffer::useBackground(bool ub)
 {
 	useBackgroundPaint = ub;
@@ -1768,7 +1776,8 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		bkpos += dx;
 	}
 }
-
+#if 0 
+//never used
 void CFrameBuffer::switch_signal (int signal)
 {
 #ifndef USE_OPENGL /* ignore signals for GL */
@@ -1795,13 +1804,15 @@ void CFrameBuffer::switch_signal (int signal)
 	}
 #endif
 }
+#endif 
 
 void CFrameBuffer::Clear()
 {
 	paintBackground();
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
-
+#if 0 
+//never used
 void CFrameBuffer::showFrame(const std::string & filename)
 {
 	std::string varpath = "/var/tuxbox/config/neutrino/icons/";
@@ -1810,7 +1821,7 @@ void CFrameBuffer::showFrame(const std::string & filename)
 	else
 		videoDecoder->ShowPicture((iconBasePath + filename).c_str());
 }
-
+#endif
 bool CFrameBuffer::Lock()
 {
 	if(locked)

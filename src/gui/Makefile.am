@@ -68,6 +68,7 @@ libneutrino_gui_a_SOURCES = \
 	moviebrowser.cpp \
 	movieinfo.cpp \
 	movieplayer.cpp \
+	network_service.cpp \
 	network_setup.cpp \
 	nfs.cpp \
 	osd_setup.cpp \
@@ -99,8 +100,7 @@ libneutrino_gui_a_SOURCES = \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
-	zapit_setup.cpp \
-	network_service.cpp
+	zapit_setup.cpp
 
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \

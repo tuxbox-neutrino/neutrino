@@ -23,5 +23,8 @@ endif
 noinst_LIBRARIES = libneutrino_pictureviewer.a
 
 libneutrino_pictureviewer_a_SOURCES = \
-			pictureviewer.cpp png.cpp bmp.cpp \
-			jpeg.cpp gif.cpp crw.cpp
+	crw.cpp \
+	gif.cpp \
+	jpeg.cpp \
+	pictureviewer.cpp \
+	png.cpp bmp.cpp

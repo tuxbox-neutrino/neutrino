@@ -49,6 +49,7 @@ tag=Tag
 empty=vazio
 check=verificar
 help=Ajuda
+directory=Diretório
 restriced_by_management_ip=restringido pela Gestão de IP
 
 #========= Menu Principal
@@ -105,17 +106,13 @@ bc.menue.volumen_display=visualizar volume
 bc.control.freemem=FreeMem
 bc.control.lock=bloquear
 bc.control.unlock=desbloquear
-bc.control.lcd_unlock=Bloqueio do LCD
 bc.control.standby_mode=modo em standby
 bc.control.recording_mode=modo de gravação
 bc.control.box=box
 bc.control.remote=remote
 bc.control.playback=playback
 bc.control.epg_sectiond=EPG Sectiond
-bc.control.spts=SPTS
 bc.control.live_lock=bloqueio do live
-bc.control.optical_output=saída optica
-bc.control.esound_server=Servidor ESound
 bc.control.reboot.ask=Quer realmente reiniciar a sua Box?
 bc.control.reboot=reiniciar 
 bc.control.shutdown.ask=Quer realmente desligar a sua Box?
@@ -222,8 +219,6 @@ set.sync_with_neutrino=Sincronização com Neutrino
 
 =======Definições General & Menu
 set.menue.webserver=Webserver
-set.menue.ucodes=Ucodes
-set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Definições do Programador
 set.menue.zapit=Zapit
 set.menue.backup_restore=Backup &amp; Restore
@@ -272,10 +267,8 @@ set.rec.audio_channels=Canais Audio
 set.rec.audio_standard=Gravar audio em modo standard
 set.rec.audio_alternate=Gravar audio em modo alternativo
 set.rec.audio_ac3=Gravar audio ac3
+set.rec.recordtime=Tempo de gravação na hora
 set.rec.timeshift_desc=Timeshift(pausar Tv ao vivo)
-set.rec.timeshift.directory=Diretório
-set.rec.timeshift.recordtime=Tempo de gravação na hora
-set.rec.timeshift.pause=Pausa
 set.rec.timeshift.auto_record=Gravação automática (em Sec, 0=desactivada)
 set.rec.timeshift.auto_delete=Eliminação automática
 set.rec.timeshift.tmp_timeshift=Timeshift temporário
@@ -385,11 +378,11 @@ tools.info.version=Versão
 
 ============ Ferramentas yInstaller
 tools.yinstaller.no_file_given=Nenhum ficheiro selecionado!
-tools.yinstaller.space.var=Total de Espaço em /var
-tools.yinstaller.space.used=k usados
-tools.yinstaller.space.free=k livres
-tools.yinstaller.space.percentage=k percentagem usada
-tools.yinstaller.not_determine=Sem puder determinar o espaço livre. /var não é uma partição! JFFS2, YADD ou USB?
+tools.yinstaller.space.mtd=Total de espaço
+tools.yinstaller.space.used=usados
+tools.yinstaller.space.free=livres
+tools.yinstaller.space.percentage=percentagem usada
+tools.yinstaller.not_determine=Sem puder determinar o espaço livre.
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-Ficheiro
 tools.yinstaller.upload_install=upload e instalar
@@ -411,6 +404,7 @@ tools.path=Path
 tools.command=Comando_Shell
 tools.cmd.enter_command=escrever comando para executar
 tools.cmd.execute_command=execute comando shell
+tools.boot_logo=Boot Logo
 
 =========== Menu LIVE
 live.heading=Live/Timer

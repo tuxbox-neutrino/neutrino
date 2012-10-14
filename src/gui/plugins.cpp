@@ -47,9 +47,15 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <errno.h>
+#include <sys/wait.h>
 
 #include <global.h>
 #include <neutrino.h>
+
+#include <system/helpers.h>
 
 #include <zapit/client/zapittools.h>
 
@@ -89,18 +95,6 @@ int CPlugins::find_plugin(const std::string & filename)
 			return i;
 	}
 	return -1;
-}
-
-bool CPlugins::pluginfile_exists(const std::string & filename)
-{
-	struct stat stat_buf;
-	if(::stat(filename.c_str(), &stat_buf) == 0)
-	{
-		return true;
-	} else
-	{
-		return false;
-	}
 }
 
 void CPlugins::scanDir(const char *dir)
@@ -318,13 +312,14 @@ void CPlugins::startScriptPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
 	printf("[CPlugins] executing script %s\n",script);
-	if (!pluginfile_exists(plugin_list[number].pluginfile))
+	if (!file_exists(script))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
-	FILE *f = popen(script,"r");
+	pid_t pid = 0;
+	FILE *f = my_popen(pid,script,"r");
 	if (f != NULL)
 	{
 		char *output=NULL;
@@ -335,6 +330,9 @@ void CPlugins::startScriptPlugin(int number)
 			scriptOutput += output;
 		}
 		pclose(f);
+		int s;
+		while (waitpid(pid,&s,WNOHANG)>0);
+		kill(pid,SIGTERM);
 		if(output)
 			free(output);
 	}
@@ -344,7 +342,6 @@ void CPlugins::startScriptPlugin(int number)
 	}
 }
 
-int mysystem(char * cmd, char * arg1, char * arg2);
 void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
@@ -370,7 +367,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		startScriptPlugin(number);
 		return;
 	}
-	if (!pluginfile_exists(plugin_list[number].pluginfile))
+	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
 		       plugin_list[number].pluginfile.c_str(), plugin_list[number].cfgfile.c_str());
@@ -593,7 +590,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 	frameBuffer->Lock();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
-	mysystem((char *) plugin_list[number].pluginfile.c_str(), NULL, NULL);
+	my_system(plugin_list[number].pluginfile.c_str(), NULL, NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->Unlock();
 	frameBuffer->paintBackground();

@@ -26,10 +26,22 @@ endif
 noinst_LIBRARIES = libzapit.a
 
 libzapit_a_SOURCES = \
-	bouquets.cpp channel.cpp dvbstring.cpp getservices.cpp \
-	transponder.cpp scan.cpp zapit.cpp capmt.cpp frontend.cpp femanager.cpp \
-	pat.cpp scanpmt.cpp scansdt.cpp scannit.cpp scanbat.cpp
-#	pat.cpp scanpmt.cpp fastscan.cpp scansdt.cpp scannit.cpp scanbat.cpp
+	bouquets.cpp \
+	capmt.cpp \
+	channel.cpp \
+	dvbstring.cpp \
+	femanager.cpp \
+	frontend.cpp \
+	getservices.cpp \
+	pat.cpp \
+	scanbat.cpp \
+	scan.cpp \
+	scannit.cpp \
+	scanpmt.cpp \
+	scansdt.cpp \
+	transponder.cpp \
+	zapit.cpp
+#	fastscan.cpp
 
 bin_PROGRAMS = pzapit
 sbin_PROGRAMS = udpstreampes

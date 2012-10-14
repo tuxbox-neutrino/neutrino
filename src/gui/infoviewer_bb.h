@@ -42,7 +42,6 @@
 #include <system/settings.h>
 #include "widget/menue.h"
 #include <gui/widget/progressbar.h>
-#include <gui/infoviewer.h>
 #include <string>
 
 class CInfoViewerBB
@@ -99,7 +98,7 @@ class CInfoViewerBB
 
 		int BBarY, BBarFontY;
 		int hddwidth;
-		int lasthdd, lastvar;
+		//int lasthdd, lastsys;
 		bool fta;
 		int minX;
 
@@ -107,7 +106,7 @@ class CInfoViewerBB
 		bool scrambledNoSig, scrambledNoSigSave;
 		pthread_t scrambledT;
 
-		CProgressBar *hddscale, *varscale;
+		CProgressBar *hddscale, *sysscale;
 
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);
@@ -121,6 +120,13 @@ class CInfoViewerBB
 
 		static void* scrambledThread(void *arg);
 		void scrambledCheck(bool force=false);
+
+		void showBarSys(int percent = 0);
+		void showBarHdd(int percent = 0);
+
+		pthread_t	hddperT;
+		static void*	hddperThread(void *arg);
+		bool		hddperTflag;
 
 	public:
 		CInfoViewerBB();

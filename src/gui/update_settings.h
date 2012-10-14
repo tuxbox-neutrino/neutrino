@@ -34,7 +34,7 @@
 
 #include <gui/widget/menue.h>
 
-#include "gui/update.h"
+#include "update.h"
 
 // #define USE_SMS_INPUT
 
@@ -49,8 +49,9 @@ class CUrlConfigSetupNotifier : public CChangeObserver
 {
 	private:
 		CMenuItem* toDisable[2];
+		CMenuForwarder * updateItem;
 	public:
-		CUrlConfigSetupNotifier( CMenuItem*, CMenuItem*);
+		CUrlConfigSetupNotifier( CMenuItem*, CMenuItem*, CMenuForwarder *);
 		bool changeNotify(const neutrino_locale_t = NONEXISTANT_LOCALE, void *data = NULL);
 };
 
@@ -58,6 +59,7 @@ class CUpdateSettings : public CMenuTarget
 {
 	private:
 		int width;
+		CMenuForwarder * updateItem;
 		int initMenu();
 		
 		CFlashExpert *fe;
@@ -66,7 +68,7 @@ class CUpdateSettings : public CMenuTarget
 #endif
 	
 	public:	
-		CUpdateSettings();
+		CUpdateSettings(CMenuForwarder * update_item);
 		~CUpdateSettings();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };

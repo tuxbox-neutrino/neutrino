@@ -164,18 +164,7 @@ function init()
 			<tr id="RecDirRow" style="display:none">
 				<td>{=L:live.timer_edit.rec_dir=}:</td>
 				<td>
-				<select name="rec_dir" id="rec_dir" class="y_live_button">
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_0;/mnt/filme~open=}" selected="selected">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_0;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_1;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_1;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_2;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_2;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_3;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_3;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_4;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_4;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_5;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_5;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_6;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_6;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_7;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_7;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_8;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_8;/mnt/filme~cache=}</option>
-				<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_9;/mnt/filme~cache=}">{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_9;/mnt/filme~cache=}</option>
-				</select>
+				{=include-block:Y_neutrino_Blocks.txt;neutrino_list_record_dirs=}
 				</td>
 			</tr>
 		</table>

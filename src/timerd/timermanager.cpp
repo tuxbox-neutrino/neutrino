@@ -33,9 +33,7 @@
 #include <timerdclient/timerdclient.h>
 #include <timerdclient/timerdmsg.h>
 #include <sectionsdclient/sectionsdclient.h>
-#if HAVE_COOL_HARDWARE
-#include <coolstream/cs_vfd.h>
-#endif
+#include <eitd/sectionsd.h>
 
 #include <vector>
 #include <cstdlib>
@@ -43,21 +41,11 @@
 #include "debug.h"
 #include "timermanager.h"
 
-#ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
-#define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
-#endif
-
-#define FP_IOCTL_SET_RTC         0x101
-#define FP_IOCTL_GET_RTC         0x102
 
 extern bool timeset;
 time_t timer_minutes;
 bool timer_is_rec;
-bool timer_wakeup;
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
 
 //------------------------------------------------------------
 CTimerManager::CTimerManager()
@@ -72,37 +60,6 @@ void CTimerManager::Init(void)
 	m_saveEvents = false;
 	m_isTimeSet = false;
 	wakeup = 0;
-	timer_wakeup = false;
-#if HAVE_COOL_HARDWARE
-	int fd = open("/dev/display", O_RDONLY);
-
-	if (fd < 0) {
-		perror("/dev/display");
-	} else {
-		wakeup_data_t wk;
-		memset(&wk, 0, sizeof(wk));
-		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
-		if(ret >= 0)
-			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
-		close(fd);
-	}
-#endif
-	/* not platform specific - this is created by the init process */
-	if (access("/tmp/.timer_wakeup", F_OK) == 0) {
-		wakeup = true;
-		unlink("/tmp/.timer_wakeup");
-	}
-
-	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
-	if(wakeup){
-		close(creat("/tmp/.wakeup", 0644));
-		timer_wakeup = true;
-	}else{
-		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
-		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
-		if (system(neutrino_leave_deepstandby_script) != 0)
-			perror( neutrino_leave_deepstandby_script );
-	}
 	loadRecordingSafety();
 
 	//thread starten
@@ -1154,7 +1111,7 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 	recordingDir = recDir;
 	epgTitle="";
 	CShortEPGData epgdata;
-	if (sectionsd_getEPGidShort(epgID, &epgdata))
+	if (CEitManager::getInstance()->getEPGidShort(epgID, &epgdata))
 		epgTitle=epgdata.title;
 
 }
@@ -1263,7 +1220,7 @@ void CTimerEvent_Record::getEpgId()
 {
 	//TODO: Record/Zapto getEpgId code almost identical !
 	CChannelEventList evtlist;
-	sectionsd_getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
+	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
 	// we check for a time in the middle of the recording
 	time_t check_time=alarmTime/2 + stopTime/2;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
@@ -1278,7 +1235,7 @@ void CTimerEvent_Record::getEpgId()
 	if(eventInfo.epgID != 0)
 	{
 		CShortEPGData epgdata;
-		if (sectionsd_getEPGidShort(eventInfo.epgID, &epgdata))
+		if (CEitManager::getInstance()->getEPGidShort(eventInfo.epgID, &epgdata))
 			epgTitle=epgdata.title;
 	}
 }
@@ -1311,7 +1268,7 @@ void CTimerEvent_Zapto::getEpgId()
 {
 	//TODO: Record/Zapto getEpgId code almost identical !
 	CChannelEventList evtlist;
-	sectionsd_getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
+	CEitManager::getInstance()->getEventsServiceKey(eventInfo.channel_id, evtlist);
 	// we check for a time 5 min after zap
 	time_t check_time=alarmTime + 300;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
@@ -1326,7 +1283,7 @@ void CTimerEvent_Zapto::getEpgId()
 	if(eventInfo.epgID != 0)
 	{
 		CShortEPGData epgdata;
-		if (sectionsd_getEPGidShort(eventInfo.epgID, &epgdata))
+		if (CEitManager::getInstance()->getEPGidShort(eventInfo.epgID, &epgdata))
 			epgTitle=epgdata.title;
 	}
 }

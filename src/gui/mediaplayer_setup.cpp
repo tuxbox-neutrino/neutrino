@@ -35,17 +35,17 @@
 #endif
 
 
-#include "gui/mediaplayer_setup.h"
+#include "mediaplayer_setup.h"
 
 #include <global.h>
 #include <neutrino.h>
 
 #include <gui/widget/icons.h>
-#include "gui/widget/stringinput.h"
+#include <gui/widget/stringinput.h>
 
 
-#include "gui/audioplayer_setup.h"
-#include "gui/pictureviewer_setup.h"
+#include <gui/audioplayer_setup.h>
+#include <gui/pictureviewer_setup.h>
 
 
 #include <driver/screen_max.h>

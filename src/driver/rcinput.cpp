@@ -300,7 +300,8 @@ void CRCInput::restartInput()
 	open();
 	input_stopped = false;
 }
-
+#if 0 
+//never used
 int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 {
 	neutrino_msg_t      msg;
@@ -351,6 +352,7 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 	}
 	return res;
 }
+#endif
 
 int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 {
@@ -1599,7 +1601,8 @@ void CRCInput::close_click()
 void CRCInput::open_click()
 {
 }
-
+#if 0 
+//never used
 void CRCInput::reset_dsp(int /*rate*/)
 {
 }
@@ -1607,7 +1610,7 @@ void CRCInput::reset_dsp(int /*rate*/)
 void CRCInput::set_dsp()
 {
 }
-
+#endif
 void CRCInput::play_click()
 {
 }

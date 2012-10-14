@@ -55,6 +55,7 @@
 
 #include <zapit/bouquets.h>
 #include <zapit/getservices.h>
+#include <eitd/sectionsd.h>
 
 extern CPictureViewer * g_PicViewer;
 
@@ -445,9 +446,6 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 	return a.startTime< b.startTime;
 }
 
-//extern char recDir[255];
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_startzeit, bool doLoop )
 {
 	int res = menu_return::RETURN_REPAINT;
@@ -470,9 +468,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		}
 		bigFonts = g_settings.bigFonts;
 		start();
-		//evtlist = g_Sectionsd->getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL);
-		evtlist.clear();
-		sectionsd_getEventsServiceKey(channel_id, evtlist);
+		CEitManager::getInstance()->getEventsServiceKey(channel_id, evtlist);
 		// Houdini added for Private Premiere EPG start sorted by start date/time 2005-08-15
 		sort(evtlist.begin(),evtlist.end(),sortByDateTime);
 	}
@@ -548,7 +544,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				}
 			}
 			// Compare strings normally if not positively found to be equal before
-			if (false == bHide && false == (std::string::npos == epgData.info2.find(epgData.info1))) {
+			if (false == bHide && 0 == epgData.info2.find(epgData.info1)) {
 				bHide = true;
 			}
 		}
@@ -591,10 +587,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// -- display more screenings on the same channel
 	// -- 2002-05-03 rasc
+	has_follow_screenings = false;
 	if (hasFollowScreenings(channel_id, epgData.title)) {
 		processTextToArray(""); // UTF-8
 		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS)) + ':'); // UTF-8
 		FollowScreenings(channel_id, epgData.title);
+		has_follow_screenings = true;
 	}
 
 	/* neat for debugging duplicate event issues etc. */
@@ -646,7 +644,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	int dummy_h,dummy_w;
 	frameBuffer->getIconSize(NEUTRINO_ICON_16_9_GREY, &dummy_w, &dummy_h);
 	if (dummy_h == 16 && dummy_w == 26){ // show only standard icon size
-		if ( sectionsd_getComponentTagsUniqueKey( epgData.eventID, tags ) )
+		if (CEitManager::getInstance()->getComponentTagsUniqueKey( epgData.eventID, tags))
 		{
 			for (unsigned int i=0; i< tags.size(); i++)
 			{
@@ -856,7 +854,24 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					printf("timerd not available\n");
 				break;
 			}
+			case CRCInput::RC_blue:
+			{	
+				if(!followlist.empty()){
+					hide();
+					CNeutrinoEventList     *ee;
+					ee = new CNeutrinoEventList;
+					ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT),"","",followlist); // UTF-8
+					delete ee;
 
+					if (!bigFonts && g_settings.bigFonts) {
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
+					}
+					bigFonts = g_settings.bigFonts;
+					show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+				}
+				break;
+			}
 			case CRCInput::RC_info:
 			case CRCInput::RC_help:
 				bigFonts = bigFonts ? false : true;
@@ -933,9 +948,6 @@ void CEpgData::hide()
 	showTimerEventBar (false);
 }
 
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
-
 void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear )
 {
 	if(clear)
@@ -945,11 +957,9 @@ void CEpgData::GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* st
 
 	bool res;
 	if ( id!= 0 )
-		//res = g_Sectionsd->getEPGid( id, *startzeit, &epgData );
-		res = sectionsd_getEPGid(id, *startzeit, &epgData);
+		res = CEitManager::getInstance()->getEPGid(id, *startzeit, &epgData);
 	else
-		//res = g_Sectionsd->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData );
-		res = sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData );
+		res = CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData );
 
 	if ( res )
 	{
@@ -1049,7 +1059,6 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 	char			tmpstr[256]={0};
 
 	screening_dates = screening_nodual = "";
-	// alredy read: evtlist = g_Sectionsd->getEventsServiceKey( channel_id&0xFFFFFFFFFFFFULL );
 
 	for (e = followlist.begin(); e != followlist.end(); ++e)
 	{
@@ -1083,7 +1092,9 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 const struct button_label EpgButtons[] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_TIMERBAR_RECORDEVENT },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERBAR_CHANNELSWITCH }
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERBAR_CHANNELSWITCH },
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT }
+
 };
 
 void CEpgData::showTimerEventBar (bool pshow)
@@ -1112,9 +1123,9 @@ void CEpgData::showTimerEventBar (bool pshow)
 	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */
 	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		::paintButtons(x, y, 0, 2, EpgButtons, aw, h);
+		::paintButtons(x, y, 0, has_follow_screenings ? 3:2, EpgButtons, aw, h);
 	else
-		::paintButtons(x, y, 0, 1, &EpgButtons[1], aw, h);
+		::paintButtons(x, y, 0, has_follow_screenings ? 2:1, &EpgButtons[1], aw, h);
 
 	frameBuffer->blit();
 #if 0

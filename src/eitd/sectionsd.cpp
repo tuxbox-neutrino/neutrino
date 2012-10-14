@@ -60,7 +60,6 @@
 #define DEBUG_SECTION_THREADS
 #define DEBUG_CN_THREAD
 
-static bool sectionsd_ready = false;
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
 static bool notify_complete = false;
@@ -142,7 +141,7 @@ static CFreeSatThread threadFSEIT;
 CSdtThread threadSDT;
 #endif
 
-int sectionsd_stop = 0;
+static int sectionsd_stop = 0;
 
 static bool slow_addevent = true;
 
@@ -150,12 +149,12 @@ inline void readLockServices(void)
 {
 	pthread_rwlock_rdlock(&servicesLock);
 }
-
+#ifdef ENABLE_SDT
 inline void writeLockServices(void)
 {
 	pthread_rwlock_wrlock(&servicesLock);
 }
-
+#endif
 inline void unlockServices(void)
 {
 	pthread_rwlock_unlock(&servicesLock);
@@ -1164,7 +1163,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength)
 {
 	sendEmptyResponse(connfd, NULL, 0);
-	if ((!reader_ready) || (dataLength > 100)){
+	if (mySIeventsOrderUniqueKey.empty() || (!reader_ready) || (dataLength > 100)){
 		eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
 		return;
 	}
@@ -1184,24 +1183,12 @@ struct s_cmd_table
 
 static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandDumpStatusInformation,		"commandDumpStatusInformation"		},
-	{	sendEmptyResponse,        "commandAllEventsChannelIDSearch"	},
 	{	commandPauseScanning,                   "commandPauseScanning"			},
 	{	commandGetIsScanningActive,             "commandGetIsScanningActive"		},
-	{	sendEmptyResponse,              "commandActualEPGchannelID"		},
-	{	sendEmptyResponse,                  "commandEventListTVids"			},
-	{	sendEmptyResponse,               "commandEventListRadioIDs"		},
-	{	sendEmptyResponse,				"commandCurrentNextInfoChannelID"	},
-	{	sendEmptyResponse,                        "commandEPGepgID"			},
-	{	sendEmptyResponse,                   "commandEPGepgIDshort"			},
-	{	sendEmptyResponse,          "commandComponentTagsUniqueKey"		},
-	{	sendEmptyResponse,              "commandAllEventsChannelID"		},
-	{	sendEmptyResponse,                "commandTimesNVODservice"		},
 	{	commandGetIsTimeSet,                    "commandGetIsTimeSet"			},
 	{	commandserviceChanged,                  "commandserviceChanged"			},
-	{	sendEmptyResponse,     "commandLinkageDescriptorsUniqueKey"	},
 	{	commandRegisterEventClient,             "commandRegisterEventClient"		},
 	{	commandUnRegisterEventClient,           "commandUnRegisterEventClient"		},
-	{	sendEmptyResponse,                          "commandSetPrivatePid"			},
 	{	commandFreeMemory,			"commandFreeMemory"			},
 	{	commandReadSIfromXML,			"commandReadSIfromXML"			},
 	{	commandWriteSI2XML,			"commandWriteSI2XML"			},
@@ -1672,8 +1659,6 @@ void CCNThread::beforeWait()
 	if (updating || eit_version == 0xff)
 		return;
 
-	updating = true;
-
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 	unsigned char mode[DMX_FILTER_SIZE];
@@ -1693,17 +1678,22 @@ void CCNThread::beforeWait()
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
 
+	update_mutex.lock();
 	eitDmx->Open(DMX_PSI_CHANNEL);
 	eitDmx->sectionFilter(0x12, filter, mask, 4, 0 /*timeout*/, mode);
+	updating = true;
+	update_mutex.unlock();
 }
 
 void CCNThread::afterWait()
 {
 	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
+	update_mutex.lock();
 	if (updating) {
 		updating = false;
 		eitDmx->Close();
 	}
+	update_mutex.unlock();
 }
 
 void CCNThread::beforeSleep()
@@ -1743,11 +1733,16 @@ void CCNThread::processSection()
 /* CN specific functions */
 bool CCNThread::checkUpdate()
 {
-	if (!updating)
-		return false;
-
 	unsigned char buf[MAX_SECTION_LENGTH];
+
+	update_mutex.lock();
+	if (!updating) {
+		update_mutex.unlock();
+		return false;
+	}
+
 	int ret = eitDmx->Read(buf, MAX_SECTION_LENGTH, 10);
+	update_mutex.unlock();
 
 	if (ret > 0) {
 		LongSection section(buf);
@@ -2099,8 +2094,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	if (sections_debug)
 		dump_sched_info("main");
 
-	sectionsd_ready = true;
-
 	while (running && sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
 		sched_yield();
 		if (threadCN.checkUpdate()) {
@@ -2162,65 +2155,71 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "")
+void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text)
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
 
-	if ((serviceUniqueKey& 0xFFFFFFFFFFFFULL) != 0) { //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
-		// service Found
-		readLockEvents();
-		int serviceIDfound = 0;
+	if(!eList.empty() && search == 0)//skip on search mode
+		eList.clear();
 
-		if (search_text.length())
-			std::transform(search_text.begin(), search_text.end(), search_text.begin(), tolower);
-		for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
-		{
-			if ((*e)->get_channel_id() == (serviceUniqueKey& 0xFFFFFFFFFFFFULL)) { //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
-				serviceIDfound = 1;
+	t_channel_id serviceUniqueKey64 = serviceUniqueKey& 0xFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
+	if(serviceUniqueKey64 == 0)
+		return;
 
-				bool copy = true;
-				if(search == 0); // nothing to do here
-				else if(search == 1) {
-					std::string eName = (*e)->getName();
-					std::transform(eName.begin(), eName.end(), eName.begin(), tolower);
-					if(eName.find(search_text) == std::string::npos)
-						copy = false;
-				}
-				else if(search == 2) {
-					std::string eText = (*e)->getText();
-					std::transform(eText.begin(), eText.end(), eText.begin(), tolower);
-					if(eText.find(search_text) == std::string::npos)
-						copy = false;
-				}
-				else if(search == 3) {
-					std::string eExtendedText = (*e)->getExtendedText();
-					std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
-					if(eExtendedText.find(search_text) == std::string::npos)
-						copy = false;
-				}
+	// service Found
+	readLockEvents();
+	int serviceIDfound = 0;
 
-				if(copy) {
-					for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
-					{
-						CChannelEvent aEvent;
-						aEvent.eventID = (*e)->uniqueKey();
-						aEvent.startTime = t->startzeit;
-						aEvent.duration = t->dauer;
-						aEvent.description = (*e)->getName();
-						if (((*e)->getText()).empty())
-							aEvent.text = (*e)->getExtendedText().substr(0, 120);
-						else
-							aEvent.text = (*e)->getText();
-						aEvent.channelID = serviceUniqueKey;
-						eList.push_back(aEvent);
-					}
-				} // if = serviceID
+	if (search_text.length())
+		std::transform(search_text.begin(), search_text.end(), search_text.begin(), tolower);
+
+	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
+	{
+		if ((*e)->get_channel_id() == serviceUniqueKey64) {
+			serviceIDfound = 1;
+
+			bool copy = true;
+			if(search == 0); // nothing to do here
+			else if(search == 1) {
+				std::string eName = (*e)->getName();
+				std::transform(eName.begin(), eName.end(), eName.begin(), tolower);
+				if(eName.find(search_text) == std::string::npos)
+					copy = false;
 			}
-			else if ( serviceIDfound )
-				break; // sind nach serviceID und startzeit sortiert -> nicht weiter suchen
+			else if(search == 2) {
+				std::string eText = (*e)->getText();
+				std::transform(eText.begin(), eText.end(), eText.begin(), tolower);
+				if(eText.find(search_text) == std::string::npos)
+					copy = false;
+			}
+			else if(search == 3) {
+				std::string eExtendedText = (*e)->getExtendedText();
+				std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
+				if(eExtendedText.find(search_text) == std::string::npos)
+					copy = false;
+			}
+
+			if(copy) {
+				for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
+				{
+					CChannelEvent aEvent;
+					aEvent.eventID = (*e)->uniqueKey();
+					aEvent.startTime = t->startzeit;
+					aEvent.duration = t->dauer;
+					aEvent.description = (*e)->getName();
+					if (((*e)->getText()).empty())
+						aEvent.text = (*e)->getExtendedText().substr(0, 120);
+					else
+						aEvent.text = (*e)->getText();
+					aEvent.channelID = serviceUniqueKey;
+					eList.push_back(aEvent);
+				}
+			} // if = serviceID
 		}
-		unlockEvents();
+		else if ( serviceIDfound )
+			break; // sind nach serviceID und startzeit sortiert -> nicht weiter suchen
 	}
+	unlockEvents();
 }
 
 /* send back the current and next event for the channel id passed to it
@@ -2234,7 +2233,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
  * TODO: the handling of "flag" should be vastly simplified.
  */
 /* was: commandCurrentNextInfoChannelID */
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next )
+void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next )
 {
 	dprintf("[sectionsd] Request of current/next information for " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
 
@@ -2244,7 +2243,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 	/* ugly hack: retry fetching current/next by restarting dmxCN if this is true */
 	//bool change = false;//TODO remove ?
 
-	//t_channel_id * uniqueServiceKey = (t_channel_id *)data;
+	uniqueServiceKey &= 0xFFFFFFFFFFFFULL;
 
 	readLockEvents();
 	/* if the currently running program is requested... */
@@ -2426,7 +2425,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 }
 
 /* commandEPGepgIDshort */
-bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
+bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 {
 	bool ret = false;
 	dprintf("Request of current EPG for 0x%llx\n", epgID);
@@ -2451,7 +2450,7 @@ bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 
 /*was getEPGid commandEPGepgID(int connfd, char *data, const unsigned dataLength) */
 /* TODO item / itemDescription */
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata)
+bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata)
 {
 	bool ret = false;
 	dprintf("Request of actual EPG for 0x%llx 0x%lx\n", epgID, startzeit);
@@ -2495,14 +2494,15 @@ bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData
 	return ret;
 }
 /* was  commandActualEPGchannelID(int connfd, char *data, const unsigned dataLength) */
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata)
+bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData * epgdata)
 {
 	bool ret = false;
 	SIevent evt;
 	SItime zeit(0, 0);
 
-	dprintf("[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	dprintf("[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
 
+	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
 	readLockEvents();
 	if (uniqueServiceKey == messaging_current_servicekey) {
 		if (myCurrentEvent) {
@@ -2558,23 +2558,20 @@ bool channel_in_requested_list(t_channel_id * clist, t_channel_id chid, int len)
 {
 	if(len == 0) return true;
 	for(int i = 0; i < len; i++) {
-		if(clist[i] == chid)
+		if((clist[i] & 0xFFFFFFFFFFFFULL) == chid)
 			return true;
 	}
 	return false;
 }
 
 /* was static void sendEventList(int connfd, const unsigned char serviceTyp1, const unsigned char serviceTyp2 = 0, int sendServiceName = 1, t_channel_id * chidlist = NULL, int clen = 0) */
-void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = true, t_channel_id *chidlist = NULL, int clen = 0)
+void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidlist, int clen)
 {
-	clen = clen / sizeof(t_channel_id);
-
 	t_channel_id uniqueNow = 0;
 	t_channel_id uniqueOld = 0;
 	bool found_already = true;
 	time_t azeit = time(NULL);
 
-	if(tv_mode) {}
 showProfiling("sectionsd_getChannelEvents start");
 	readLockEvents();
 
@@ -2624,7 +2621,7 @@ showProfiling("sectionsd_getChannelEvents end");
 }
 
 /*was static void commandComponentTagsUniqueKey(int connfd, char *data, const unsigned dataLength) */
-bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
+bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
 {
 	bool ret = false;
 	dprintf("Request of ComponentTags for 0x%llx\n", uniqueKey);
@@ -2654,7 +2651,7 @@ bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdC
 }
 
 /* was static void commandLinkageDescriptorsUniqueKey(int connfd, char *data, const unsigned dataLength) */
-bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors)
+bool CEitManager::getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors)
 {
 	bool ret = false;
 	dprintf("Request of LinkageDescriptors for 0x%llx\n", uniqueKey);
@@ -2685,11 +2682,12 @@ bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSecti
 }
 
 /* was static void commandTimesNVODservice(int connfd, char *data, const unsigned dataLength) */
-bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list)
+bool CEitManager::getNVODTimesServiceKey(const t_channel_id channel_id, CSectionsdClient::NVODTimesList& nvod_list)
 {
 	bool ret = false;
-	dprintf("Request of NVOD times for " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	dprintf("Request of NVOD times for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
 
+	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
 	nvod_list.clear();
 
 	readLockServices();
@@ -2724,17 +2722,8 @@ bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSect
 	return ret;
 }
 
-void sectionsd_setPrivatePid(unsigned short /*pid*/)
-{
-}
-
-void sectionsd_set_languages(const std::vector<std::string>& newLanguages)
+void CEitManager::setLanguages(const std::vector<std::string>& newLanguages)
 {
 	SIlanguage::setLanguages(newLanguages);
 	SIlanguage::saveLanguages();
-}
-
-bool sectionsd_isReady(void)
-{
-	return sectionsd_ready;
 }

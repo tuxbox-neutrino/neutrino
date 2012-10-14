@@ -32,7 +32,6 @@
 #include <system/settings.h>
 
 #include <string>
-#include "gui/widget/menue.h"
 
 //#define CPU_FREQ
 
@@ -41,7 +40,7 @@ class CMiscMenue : public CMenuTarget
 	private:
 		CFanControlNotifier *fanNotifier;
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
-		CMiscNotifier* miscNotifier;
+		COnOffNotifier* miscNotifier;
 
 		int width;
 

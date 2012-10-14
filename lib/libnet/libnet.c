@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <linux/route.h>
 
+#if 0 
+//never used
 static	void	scanip( char *str, unsigned char *to )
 {
 	int		val;
@@ -80,7 +82,7 @@ abbruch:
 
 	return rc;
 }
-
+#endif
 void	netGetIP( char *dev, char *ip, char *mask, char *brdcast )
 {
 	int					fd;
@@ -114,7 +116,8 @@ void	netGetIP( char *dev, char *ip, char *mask, char *brdcast )
 	close(fd);
 	return;
 }
-
+#if 0 
+//never used
 void	netSetDefaultRoute( char *gw )
 {
 	struct rtentry		re;
@@ -149,7 +152,7 @@ void	netSetDefaultRoute( char *gw )
 	close(fd);
 	return;
 }
-
+#endif
 void netGetDefaultRoute( char *ip )
 {
 	FILE *fp;
@@ -175,11 +178,12 @@ void netGetDefaultRoute( char *ip )
 	fclose(fp);
 }
 
-static	char	dombuf[256];
 static	char	hostbuf[256];
-static	char	domis=0;
 static	char	hostis=0;
-
+#if 0 
+static	char	dombuf[256];
+static	char	domis=0;
+//never used
 char	*netGetDomainname( void )
 {
 	if (!domis)
@@ -194,7 +198,7 @@ void	netSetDomainname( char *dom )
 	domis=1;
 	setdomainname(dombuf,strlen(dombuf)+1);
 }
-
+#endif
 char	*netGetHostname( void )
 {
 	if (!hostis)

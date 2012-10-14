@@ -34,12 +34,12 @@
 
 #include <config.h>
 #include <configfile.h>
-#include "driver/framebuffer.h"
-#include "gui/filebrowser.h"
-#include "gui/bookmarkmanager.h"
-#include "gui/widget/menue.h"
-#include "gui/moviebrowser.h"
-#include "gui/movieinfo.h"
+#include <driver/framebuffer.h>
+#include <gui/filebrowser.h>
+#include <gui/bookmarkmanager.h>
+#include <gui/widget/menue.h>
+#include <gui/moviebrowser.h>
+#include <gui/movieinfo.h>
 #include <gui/widget/hintbox.h>
 #include <driver/record.h>
 #include <playback.h>

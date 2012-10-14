@@ -24,14 +24,13 @@
 #include <string.h>
 #include <unistd.h>
 #include "configure_network.h"
-#include "libnet.h"             /* netGetNameserver, netSetNameserver   */
-#include "network_interfaces.h" /* getInetAttributes, setInetAttributes */
-#include <stdlib.h>             /* system                               */
+#include <lib/libnet/libnet.h>             /* netGetNameserver, netSetNameserver   */
+#include <lib/libnet/network_interfaces.h> /* getInetAttributes, setInetAttributes */
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
-#include <system/safe_system.h>
+#include <system/helpers.h>
 
 CNetworkConfig::CNetworkConfig()
 {
@@ -216,39 +215,13 @@ void CNetworkConfig::commitConfig(void)
 	}
 }
 
-int mysystem(char * cmd, char * arg1, char * arg2)
-{
-        int i;
-	pid_t pid;
-	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
-	switch (pid = vfork())
-	{
-		case -1: /* can't fork */
-			perror("vfork");
-			return -1;
-
-		case 0: /* child process */
-			for(i = 3; i < maxfd; i++)
-                                close(i);
-			if(execlp(cmd, cmd, arg1, arg2, NULL))
-			{
-				perror("exec");
-			}
-			exit(0);
-		default: /* parent returns to calling process */
-			break;
-	}
-	waitpid(pid, 0, 0);
-	return 0;
-}
-
 void CNetworkConfig::startNetwork(void)
 {
-	std::string cmd = "/sbin/ifup " + ifname;
+	const char _ifup[]  = "/sbin/ifup";
 #ifdef DEBUG
-	printf("CNetworkConfig::startNetwork: %s\n", cmd.c_str());
+	printf("CNetworkConfig::startNetwork: %s %s\n",_ifup, ifname.c_str());
 #endif
-	safe_system(cmd.c_str());
+	my_system(_ifup, ifname.c_str());
 
 	if (!inet_static) {
 		init_vars();
@@ -258,11 +231,11 @@ void CNetworkConfig::startNetwork(void)
 
 void CNetworkConfig::stopNetwork(void)
 {
-	std::string cmd = "/sbin/ifdown " + ifname;
+	const char _ifdown[] = "/sbin/ifdown";
 #ifdef DEBUG
-	printf("CNetworkConfig::stopNetwork: %s\n", cmd.c_str());
+	printf("CNetworkConfig::stopNetwork: %s %s\n",_ifdown, ifname.c_str());
 #endif
-	safe_system(cmd.c_str());
+	my_system(_ifdown, ifname.c_str());
 
 }
 

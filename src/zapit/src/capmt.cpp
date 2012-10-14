@@ -1,8 +1,8 @@
 /*
- * $Id: cam.cpp,v 1.33 2004/04/04 20:20:45 obi Exp $
- *
  * (C) 2002 by Andreas Oberritter <obi@tuxbox.org>,
  *             thegoodguy         <thegoodguy@berlios.de>
+ *
+ * Copyright (C) 2011-2012 CoolStream International Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ bool CCam::makeCaPmt(CZapitChannel * channel, uint8_t list, const CaIdVector &ca
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-	INFO("cam %p source %d camask %d list %02x buffer", this, source_demux, camask, list);
+	DBG("cam %p source %d camask %d list %02x buffer", this, source_demux, camask, list);
 
 	if(!buffer)
 		return false;
@@ -149,7 +149,7 @@ int CCam::makeMask(int demux, bool add)
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}
-	INFO("demuxes %d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], camask, mask);
+	DBG("demuxes %d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], camask, mask);
 	return mask;
 }
 
@@ -188,7 +188,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		printf("CCamManager: channel %llx not found\n", channel_id);
 		return false;
 	}
-	INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
+	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 	mutex.lock();
 
 	cammap_iterator_t it = channel_map.find(channel_id);
@@ -226,11 +226,10 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if(cam->getSource() > 0)
 		source = cam->getSource();
 
-	INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
+	INFO("channel %llx [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
+			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
+	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 	if((oldmask != newmask) || force_update) {
-#if 0
-		cam->setCaPmt(channel, source, newmask, true);
-#endif
 		cam->setCaMask(newmask);
 		cam->setSource(source);
 		if(newmask == 0) {

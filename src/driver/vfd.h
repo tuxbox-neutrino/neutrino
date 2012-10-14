@@ -86,6 +86,7 @@ class CVFD
 		int                             last_toggle_state_power;
 		bool				clearClock;
 		unsigned int                    timeout_cnt;
+		unsigned int                    switch_name_time_cnt;		
 		int fd;
 		int brightness;
 		char text[256];

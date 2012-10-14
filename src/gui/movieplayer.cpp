@@ -31,26 +31,24 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <system/safe_system.h>
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
-#include <gui/bookmarkmanager.h>
 #include <gui/timeosd.h>
-#include <gui/moviebrowser.h>
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
 #ifdef SCREENSHOT
 #include <driver/screenshot.h>
 #endif
+#include <driver/volume.h>
+#include <system/helpers.h>
 
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
 
 #include <video.h>
-#include "libtuxtxt/teletext.h"
+#include <libtuxtxt/teletext.h>
 #include <zapit/zapit.h>
 #include <fstream>
 #include <iostream>
@@ -190,7 +188,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	startposition = 0;
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
-	if (safe_system(MOVIEPLAYER_START_SCRIPT) != 0)
+	if (my_system(MOVIEPLAYER_START_SCRIPT) != 0)
 		perror(MOVIEPLAYER_START_SCRIPT " failed");
 	
 	isMovieBrowser = false;
@@ -228,7 +226,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	bookmarkmanager->flush();
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
-	if (safe_system(MOVIEPLAYER_END_SCRIPT) != 0)
+	if (my_system(MOVIEPLAYER_END_SCRIPT) != 0)
 		perror(MOVIEPLAYER_END_SCRIPT " failed");
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -315,7 +313,7 @@ bool CMoviePlayerGui::SelectFile()
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
 	if (has_hdd)
-		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
+		wakeup_hdd(g_settings.network_nfs_recordingdir);
 
 	if (timeshift) {
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -435,8 +433,11 @@ void CMoviePlayerGui::PlayFile(void)
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 
-	if(p_movie_info != NULL)
+	if(p_movie_info != NULL) {
 		duration = p_movie_info->length * 60 * 1000;
+		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, currentapid, currentac3 == 1);
+		CZapit::getInstance()->SetVolumePercent(percent);
+	}
 
 	file_prozent = 0;
 	if(!playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration)) {
@@ -804,6 +805,21 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		APIDSelector.addItem(item, defpid);
 	}
 
+	if (p_movie_info) {
+		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
+
+		CVolume::getInstance()->SetCurrentChannel(p_movie_info->epgId);
+		CVolume::getInstance()->SetCurrentPid(currentapid);
+		int percent[numpida];
+		for (uint i=0; i < numpida; i++) {
+			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
+			APIDSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
+						currentapid == apids[i],
+						0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,
+						g_RemoteControl->current_PIDs.APIDs[i].desc));
+		}
+	}
+
 	APIDSelector.exec(NULL, "");
 	delete selector;
 	printf("CMoviePlayerGui::selectAudioPid: selected %d (%x) current %x\n", select, (select >= 0) ? apids[select] : -1, currentapid);
@@ -996,13 +1012,13 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
 #define BOOKMARK_START_MENU_MAX_ITEMS 6
 			CSelectedMenu cSelectedMenuBookStart[BOOKMARK_START_MENU_MAX_ITEMS];
 
-			CMenuWidget bookStartMenu(LOCALE_MOVIEBROWSER_BOOK_NEW, NEUTRINO_ICON_STREAMING);
+			CMenuWidget bookStartMenu(LOCALE_MOVIEBROWSER_BOOK_ADD, NEUTRINO_ICON_STREAMING);
 			bookStartMenu.addIntroItems();
 #if 0 // not supported, TODO
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_HEAD, !isMovieBrowser, NULL, &cSelectedMenuBookStart[0]));
 			bookStartMenu.addItem(GenericMenuSeparatorLine);
 #endif
-			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, isMovieBrowser, NULL, &cSelectedMenuBookStart[1]));
+			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_NEW, isMovieBrowser, NULL, &cSelectedMenuBookStart[1]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE_FORWARD, isMovieBrowser, NULL, &cSelectedMenuBookStart[2]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE_BACKWARD, isMovieBrowser, NULL, &cSelectedMenuBookStart[3]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, isMovieBrowser, NULL, &cSelectedMenuBookStart[4]));

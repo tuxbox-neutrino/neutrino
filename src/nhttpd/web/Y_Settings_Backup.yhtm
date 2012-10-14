@@ -36,27 +36,28 @@ function do_backup2()
 {=var-set:wait_text=Settings=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Help-Settings-Backup_Restore=}{=var-set:menu=Backup &amp; Restore=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		{=var-set:help_url=Help-Settings-Backup_Restore=}{=var-set:menu={=L:set.menue.backup_restore=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
-		<p><div style="border: 1px solid #cccccc;margin-top:20px">
-		<img src="/images/cross.png">&nbsp;<span><font size="2" color="Red"><b>Achtung</b>&nbsp;</font>Backup &amp; Restore ist nur bei einem gleichen Image mit gleichem Stand sinnvoll.
-		</span></div></p>
-		<br />
+		<p><div style="border: 1px solid #cccccc; margin-top:20px; padding: 10px;">
+			<img src="/images/cross.png">
+			<span><font size="2" color="Red"><b>{=L:attention=}</b></font> {=L:set.settings.warning=}</span>
+		</div></p>
 		<table class="y_invisible_table" cellspacing="0" width="100%">
-		<tr><td class="y_form_header">Backup</td></tr>
+		<tr><td class="y_form_header">{=L:set.settings.backup=}</td></tr>
 		<tr>
-			<td><input id="btBackup" type="button" value ="Backup" title="backup settings" onclick="do_backup()"/>
-			<div id="down_box" style="visibility : hidden;">
-				<br/><a id="down" href="" type="application/octet-stream"><u>Download settings</u></a>
-			</div>
+			<td>
+				<input id="btBackup" type="button" value ="{=L:set.settings.backup=}" title="{=L:set.settings.backup_desc=}" onclick="do_backup()"/>
+				<div id="down_box" style="visibility: hidden;">
+					<br/><a id="down" href="" type="application/octet-stream"><u>Download</u></a>
+				</div>
 			</td>
 		</tr>
-		<tr><td class="y_form_header">Restore</td></tr>
+		<tr><td class="y_form_header">{=L:set.settings.restore=}</td></tr>
 		<tr>
 			<td>
 				<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;settings_backup_restore&amp;restore">
 					tar-File:&nbsp;<input type="file" name="filename" size="70"/>&nbsp;<br/>
-					<input type="button" name="su" value="Restore" title="upload and restore settings" onclick="do_submit()"/>
+					<input type="button" name="su" value="{=L:set.settings.restore=}" title="{=L:set.settings.restore_desc=}" onclick="do_submit()"/>
 					<br/><br/>
 				</form>
 			</td>
