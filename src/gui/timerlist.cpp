@@ -44,6 +44,7 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <driver/fade.h>
+#include <driver/record.h>
 
 #include <gui/channellist.h>
 #include <gui/color.h>
@@ -571,9 +572,27 @@ int CTimerList::show()
 		}
 		else if ((msg == CRCInput::RC_red) && !(timerlist.empty()))
 		{
-			Timer->removeTimerEvent(timerlist[selected].eventID);
-			skipEventID=timerlist[selected].eventID;
-			update=true;
+			bool killTimer = true;
+			if (CRecordManager::getInstance()->RecordingStatus(timerlist[selected].channel_id)) {
+				std::string title = "";
+				char buf1[1024];
+				CEPGData epgdata;
+				CEitManager::getInstance()->getEPGid(timerlist[selected].epgID, timerlist[selected].epg_starttime, &epgdata);
+				memset(buf1, '\0', sizeof(buf1));
+				if (epgdata.title != "")
+					title = "(" + epgdata.title + ")\n";
+				snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
+				if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
+						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo) {
+					killTimer = false;
+					update = false;
+				}
+			}
+			if (killTimer) {
+				Timer->removeTimerEvent(timerlist[selected].eventID);
+				skipEventID=timerlist[selected].eventID;
+				update = true;
+			}
 		}
 		else if (msg==CRCInput::RC_green)
 		{

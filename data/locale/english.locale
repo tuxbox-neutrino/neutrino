@@ -1664,6 +1664,7 @@ timerbar.recordevent Record
 timerlist.alarmtime Alarm time
 timerlist.apids Audio PIDs
 timerlist.apids_dflt record default audio streams
+timerlist.ask_to_delete Deleting of the timer ends the current recording\n%sTo continue anyway?
 timerlist.bouquetselect choose bouquet
 timerlist.channel Channel
 timerlist.channelselect choose channel
