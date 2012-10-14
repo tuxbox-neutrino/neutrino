@@ -173,6 +173,7 @@ class CLCD
 		void setled(int red, int green);
 		static void	*TimeThread(void *);
 		pthread_t	thrTime;
+		bool		thread_running;
 #endif
 	public:
 		bool has_lcd;
@@ -234,6 +235,9 @@ class CLCD
 		void Clear();
 		void ShowIcon(vfd_icon icon, bool show);
 		void ShowText(const char *s) { showServicename(std::string(s)); };
+#ifndef HAVE_TRIPLEDRAGON
+		~CLCD();
+#endif
 #ifdef LCD_UPDATE
 	private:
 		CFileList* m_fileList;

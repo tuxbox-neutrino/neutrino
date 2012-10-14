@@ -100,6 +100,17 @@ CLCD::CLCD()
 	/* do not show menu in neutrino... */
 	has_lcd = false;
 	servicename = "";
+	thread_running = false;
+}
+
+CLCD::~CLCD()
+{
+	if (thread_running)
+	{
+		thread_running = false;
+		pthread_cancel(thrTime);
+		pthread_join(thrTime, NULL);
+	}
 }
 
 CLCD* CLCD::getInstance()
@@ -116,7 +127,7 @@ void CLCD::wake_up()
 
 void* CLCD::TimeThread(void *)
 {
-	while(1) {
+	while (CLCD::getInstance()->thread_running) {
 		sleep(1);
 		CLCD::getInstance()->showTime();
 		/* hack, just if we missed the blit() somewhere
@@ -134,8 +145,10 @@ void* CLCD::TimeThread(void *)
 void CLCD::init(const char *, const char *, const char *, const char *, const char *, const char *)
 {
 	setMode(MODE_TVRADIO);
+	thread_running = true;
 	if (pthread_create (&thrTime, NULL, TimeThread, NULL) != 0 ) {
 		perror("[neutino] CLCD::init pthread_create(TimeThread)");
+		thread_running = false;
 		return ;
 	}
 }
