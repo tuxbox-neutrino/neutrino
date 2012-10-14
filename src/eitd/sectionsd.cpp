@@ -5,7 +5,7 @@
  * Copyright (C) 2001 by fnbrd (fnbrd@gmx.de)
  * Homepage: http://dbox2.elxsi.de
  *
- * Copyright (C) 2008, 2009 Stefan Seyfried
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012 Stefan Seyfried
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
  *
@@ -141,9 +141,14 @@ static CFreeSatThread threadFSEIT;
 CSdtThread threadSDT;
 #endif
 
+#ifdef DEBUG_EVENT_LOCK
+static time_t lockstart = 0;
+#endif
+
 static int sectionsd_stop = 0;
 
 static bool slow_addevent = true;
+
 
 inline void readLockServices(void)
 {
@@ -183,10 +188,21 @@ inline void readLockEvents(void)
 inline void writeLockEvents(void)
 {
 	pthread_rwlock_wrlock(&eventsLock);
+#ifdef DEBUG_EVENT_LOCK
+	lockstart = time_monotonic_ms();
+#endif
 }
 
 inline void unlockEvents(void)
 {
+#ifdef DEBUG_EVENT_LOCK
+	if (lockstart) {
+		time_t tmp = time_monotonic_ms() - lockstart;
+		if (tmp > 50)
+			xprintf("locked ms %d\n", tmp);
+		lockstart = 0;
+	}
+#endif
 	pthread_rwlock_unlock(&eventsLock);
 }
 
@@ -207,10 +223,11 @@ static MySIeventUniqueKeysMetaOrderServiceUniqueKey mySIeventUniqueKeysMetaOrder
 static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
 static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
 
+/* needs write lock held! */
 static bool deleteEvent(const event_id_t uniqueKey)
 {
 	bool ret = false;
-	writeLockEvents();
+	// writeLockEvents();
 	MySIeventsOrderUniqueKey::iterator e = mySIeventsOrderUniqueKey.find(uniqueKey);
 
 	if (e != mySIeventsOrderUniqueKey.end()) {
@@ -226,7 +243,7 @@ static bool deleteEvent(const event_id_t uniqueKey)
 		mySIeventsNVODorderUniqueKey.erase(uniqueKey);
 		ret = true;
 	}
-	unlockEvents();
+	// unlockEvents();
 	return ret;
 }
 
@@ -311,7 +328,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 			unlockMessaging();
 	}
 
-	readLockEvents();
+	writeLockEvents();
 	MySIeventsOrderUniqueKey::iterator si = mySIeventsOrderUniqueKey.find(evt.uniqueKey());
 	bool already_exists = (si != mySIeventsOrderUniqueKey.end());
 	if (already_exists && (evt.table_id < si->second->table_id))
@@ -424,20 +441,16 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 					to_delete.push_back(x_key);
 				}
 			}
-			unlockEvents();
 
 			while (! to_delete.empty())
 			{
 				deleteEvent(to_delete.back());
 				to_delete.pop_back();
 			}
-		} else {
-			// Damit in den nicht nach Event-ID sortierten Mengen
-			// Mehrere Events mit gleicher ID sind, diese vorher loeschen
-			unlockEvents();
 		}
+		// Damit in den nicht nach Event-ID sortierten Mengen
+		// Mehrere Events mit gleicher ID sind, diese vorher loeschen
 		deleteEvent(e->uniqueKey());
-		readLockEvents();
 		if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events && max_events != 0 ) {
 			MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
@@ -471,12 +484,8 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 				unlockMessaging();
 			}
 			// else fprintf(stderr, ">");
-			unlockEvents();
 			deleteEvent((*lastEvent)->uniqueKey());
 		}
-		else
-			unlockEvents();
-		readLockEvents();
 		// Pruefen ob es ein Meta-Event ist
 		MySIeventUniqueKeysMetaOrderServiceUniqueKey::iterator i = mySIeventUniqueKeysMetaOrderServiceUniqueKey.find(e->get_channel_id());
 
@@ -496,9 +505,6 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 					// Falls das Event in den beiden Mengen mit Zeiten nicht vorhanden
 					// ist, dieses dort einfuegen
 					MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator i2 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.find(ie->second);
-					unlockEvents();
-					writeLockEvents();
-
 					if (i2 == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
 					{
 						// nicht vorhanden -> einfuegen
@@ -511,8 +517,6 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 				}
 			}
 		}
-		unlockEvents();
-		writeLockEvents();
 //		printf("Adding: %04x\n", (int) e->uniqueKey());
 
 		// normales Event
@@ -540,22 +544,18 @@ static void addNVODevent(const SIevent &evt)
 
 	SIeventPtr e(eptr);
 
-	readLockEvents();
+	writeLockEvents();
 	MySIeventsOrderUniqueKey::iterator e2 = mySIeventsOrderUniqueKey.find(e->uniqueKey());
 
 	if (e2 != mySIeventsOrderUniqueKey.end())
 	{
 		// bisher gespeicherte Zeiten retten
-		unlockEvents();
-		writeLockEvents();
 		e->times.insert(e2->second->times.begin(), e2->second->times.end());
 	}
-	unlockEvents();
 
 	// Damit in den nicht nach Event-ID sortierten Mengen
 	// mehrere Events mit gleicher ID sind, diese vorher loeschen
 	deleteEvent(e->uniqueKey());
-	readLockEvents();
 	if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events  && max_events != 0 ) {
 		//TODO: Set Old Events to 0 if limit is reached...
 		MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
@@ -569,24 +569,18 @@ static void addNVODevent(const SIevent &evt)
 			--lastEvent;
 		}
 		unlockMessaging();
-		unlockEvents();
 		deleteEvent((*lastEvent)->uniqueKey());
 	}
-	else
-		unlockEvents();
-	writeLockEvents();
 	mySIeventsOrderUniqueKey.insert(std::make_pair(e->uniqueKey(), e));
 
 	mySIeventsNVODorderUniqueKey.insert(std::make_pair(e->uniqueKey(), e));
-	unlockEvents();
 	if (!e->times.empty())
 	{
 		// diese beiden Mengen enthalten nur Events mit Zeiten
-		writeLockEvents();
 		mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.insert(e);
 		mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.insert(e);
-		unlockEvents();
 	}
+	unlockEvents();
 }
 
 static void removeOldEvents(const long seconds)
@@ -596,7 +590,7 @@ static void removeOldEvents(const long seconds)
 	// Alte events loeschen
 	time_t zeit = time(NULL);
 
-	readLockEvents();
+	writeLockEvents();
 
 	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
@@ -614,10 +608,9 @@ static void removeOldEvents(const long seconds)
 			to_delete.push_back((*e)->uniqueKey());
 		++e;
 	}
-	unlockEvents();
-
 	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); ++i)
 		deleteEvent(*i);
+	unlockEvents();
 
 	return;
 }
