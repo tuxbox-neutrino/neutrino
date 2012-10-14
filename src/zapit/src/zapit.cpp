@@ -2205,6 +2205,7 @@ bool CZapit::Stop()
 {
 	if(!started)
 		return false;
+	pmt_stop_update_filter(&pmt_update_fd);
 	started = false;
 	int ret = join();
 	return (ret == 0);
