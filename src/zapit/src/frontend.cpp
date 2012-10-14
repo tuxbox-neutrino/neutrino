@@ -1033,7 +1033,7 @@ bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 		return false;
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, false);
 }
-
+#if 0
 bool CFrontend::retuneChannel(void)
 {
 	mutex.lock();
@@ -1044,7 +1044,7 @@ bool CFrontend::retuneChannel(void)
 	mutex.unlock();
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, true);
 }
-
+#endif
 int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization, bool nowait)
 {
 	TP_params TP;
