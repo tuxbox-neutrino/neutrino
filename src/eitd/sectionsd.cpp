@@ -1917,10 +1917,14 @@ static void *houseKeepingThread(void *)
 			count = 0;
 		}
 
-		int rc = HOUSEKEEPING_SLEEP;
+		int i = HOUSEKEEPING_SLEEP;
 
-		while (rc)
-			rc = sleep(rc);
+		while (i > 0 && !sectionsd_stop) {
+			sleep(1);
+			i--;
+		}
+		if (sectionsd_stop)
+			break;
 
 		while (!scanning) {
 			sleep(1);	// wait for streaming to end...
@@ -2119,7 +2123,12 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 
 	xprintf("pausing...\n");
 
+	/* sometimes, pthread_cancel seems to not work, maybe it is a bad idea to mix
+	 * plain pthread and OpenThreads? */
+	sectionsd_stop = 1;
 	pthread_cancel(threadHouseKeeping);
+	xprintf("join Housekeeping\n");
+	pthread_join(threadHouseKeeping, NULL);
 
 	xprintf("join TOT\n");
 	threadTIME.Stop();
