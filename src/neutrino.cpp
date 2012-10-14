@@ -437,7 +437,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
-	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", true);
+	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", false);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , true );
 	g_settings.show_mute_icon = configfile.getInt32("show_mute_icon" ,0);
 	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 0 );
