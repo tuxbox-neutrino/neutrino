@@ -3200,7 +3200,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		/* wasshift = */ CRecordManager::getInstance()->StopAutoRecord();
 
-		if(!CRecordManager::getInstance()->RecordingStatus()) {
+		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
 		} else {
 			g_Zapit->stopPlayBack();
@@ -3208,7 +3208,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		videoDecoder->Standby(true);
 
-		g_Sectionsd->setPauseScanning(true);
+		g_Sectionsd->setPauseScanning(!fromDeepStandby);
 		g_Sectionsd->setServiceChanged(0, false);
 
 		if(!CRecordManager::getInstance()->RecordingStatus() ) {
