@@ -373,7 +373,9 @@ void CNeutrinoApp::InitMenuService()
 	// TODO: this needs a neutrino restart after changing parentallock_prompt to activate :-(
 	CLockedMenuForwarder *lf;
 	lf = new CLockedMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, g_settings.parentallock_pincode, g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED, true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+/* does not work with CLockedMenuForwarder yet?
 	lf->setHint(NEUTRINO_ICON_HINT_BEDIT, LOCALE_MENU_HINT_BEDIT);
+ */
 	personalize.addItem(MENU_SERVICE, lf, &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT]);
 
 	//channel reset

@@ -1760,11 +1760,14 @@ void CNeutrinoApp::InitZapitClient()
 
 void CNeutrinoApp::InitSectiondClient()
 {
+#if 0
+	/* TODO: check if still needed */
 	/* wait for sectionsd to be able to process our registration */
 	time_t t = time_monotonic_ms();
 	while (! sectionsd_isReady())
 		sleep(0);
 	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
+#endif
 	g_Sectionsd = new CSectionsdClient;
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
