@@ -4,15 +4,15 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 							 and some other guys
 
-	Copyright (C) 2006-2011 Stefan Seyfried
-				my contributions are GPL3+ only
+	Copyright (C) 2006-2012 Stefan Seyfried
+
 	Copyright (C) 2011 CoolStream International Ltd
 
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 3 of the License, or
+	the Free Software Foundation; either version 2 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
@@ -3183,6 +3183,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				funNotifier.changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
 			}
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
+			delete CVFD::getInstance();
+			delete SHTDCNT::getInstance();
 			stop_video();
 
 			printf("[neutrino] This is the end. exiting with code %d\n", retcode);
@@ -3617,11 +3619,12 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete hintBox;
 
 			stop_daemons(true);
+			delete CVFD::getInstance();
+			delete SHTDCNT::getInstance();
 			stop_video();
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
 			delete g_Zapit; //do we really need this?
-			delete CVFD::getInstance();
 
 			for(int i = 3; i < 256; i++)
 				close(i);
@@ -3753,6 +3756,8 @@ void sighandler (int signum)
 		delete CRecordManager::getInstance();
 		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
+		delete CVFD::getInstance();
+		delete SHTDCNT::getInstance();
 		stop_video();
 		//_exit(0);
 		exit(0);
@@ -4059,7 +4064,7 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 5\n");fflush(stdout);
 	delete CEitManager::getInstance();
 	printf("cleanup 6\n");fflush(stdout);
-	delete CVFD::getInstance();
+	//delete CVFD::getInstance();
 	malloc_stats();
 #endif
 }
