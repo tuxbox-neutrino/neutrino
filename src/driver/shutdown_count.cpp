@@ -4,6 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2012 Stefan Seyfried
 
 	License: GPL
 
@@ -42,6 +43,16 @@ SHTDCNT::SHTDCNT()
 {
 }
 
+SHTDCNT::~SHTDCNT()
+{
+	if (thread_running)
+	{
+		thread_running = false;
+		pthread_cancel(thrTime);
+		pthread_join(thrTime, NULL);
+	}
+}
+
 SHTDCNT* SHTDCNT::getInstance()
 {
 	static SHTDCNT* shtdcnt = NULL;
@@ -66,9 +77,11 @@ void SHTDCNT::init()
 {
 	shutdown_cnt = atoi(g_settings.shutdown_count) * 60;
 	sleep_cnt = atoi(g_settings.shutdown_min)*60;
+	thread_running = true;
 	if (pthread_create (&thrTime, NULL, TimeThread, NULL) != 0 )
 	{
 		perror("[SHTDCNT]: pthread_create(TimeThread)");
+		thread_running = false;
 		return ;
 	}
 }

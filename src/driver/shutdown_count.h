@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-
+	Copyright (C) 2012 Stefan Seyfried
 
 	License: GPL
 
@@ -34,6 +34,7 @@ class SHTDCNT
 	private:
 
 		pthread_t	thrTime;
+		bool		thread_running;
 		unsigned int	shutdown_cnt;
 		unsigned int	sleep_cnt;
 		CConfigFile	configfile;
@@ -42,9 +43,8 @@ class SHTDCNT
 		SHTDCNT();
 
 		static void* TimeThread(void*);
-
 	public:
-
+		~SHTDCNT();
 		void setlcdparameter(void);
 
 		static SHTDCNT* getInstance();
