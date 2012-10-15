@@ -227,7 +227,8 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
-	delete miscNotifier;
+	if(cs_get_revision() > 7)
+		delete miscNotifier;
 	return res;
 }
 
