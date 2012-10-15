@@ -3200,6 +3200,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		/* wasshift = */ CRecordManager::getInstance()->StopAutoRecord();
 
+		if(mode == mode_radio && g_Radiotext)
+			g_Radiotext->radiotext_stop();
+
 		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
 		} else {
@@ -3560,6 +3563,10 @@ void stop_daemons(bool stopall)
 	tuxtxt_stop();
 	tuxtxt_close();
 
+	if (g_Radiotext) {
+		delete g_Radiotext;
+		g_Radiotext = NULL;
+	}
 	printf("httpd shutdown\n");
 	pthread_cancel(nhttpd_thread);
 	pthread_join(nhttpd_thread, NULL);
