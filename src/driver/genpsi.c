@@ -278,5 +278,6 @@ int genpsi(int fd2)
 //-- finish --
 	avPids.vpid=0;
 	avPids.nba=0;
+	fdatasync(fd2);
 	return 1;
 }
