@@ -1605,6 +1605,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		g_Zapit->setRecordMode( true );
 		if(last_mode == NeutrinoMessages::mode_standby)
 			g_Zapit->stopPlayBack();
+		if ((live_channel_id == channel_id) && g_Radiotext)
+			g_Radiotext->radiotext_stop();
 	}
 	if(last_mode == NeutrinoMessages::mode_standby) {
 		//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
