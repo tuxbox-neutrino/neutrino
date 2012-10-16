@@ -925,6 +925,7 @@ menu.hint_record_apply Apply record options
 menu.hint_record_chandir Create directory with name of channel\nto store recording
 menu.hint_record_dir Select directory to store recordings
 menu.hint_record_end Stop direct record after max. time\nor after current event end time
+menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
 menu.hint_record_time Record time before stop when\nusing direct record with record button
 menu.hint_record_timeafter Stop record after event end\nin minutes
@@ -1491,6 +1492,7 @@ recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server server
 recordingmenu.server_mac MAC address
 recordingmenu.setupnow activate changes
+recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
 recordingmenu.vcr vcr
