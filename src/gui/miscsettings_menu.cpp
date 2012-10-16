@@ -157,6 +157,7 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 int CMiscMenue::showMiscSettingsMenu()
 {
 	//misc settings
+	miscNotifier = NULL; /* for check at exit */
 	fanNotifier = new CFanControlNotifier();
 	sectionsdConfigNotifier = new CSectionsdConfigNotifier();
 	CMenuWidget misc_menue(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP);
@@ -232,7 +233,8 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
-	delete miscNotifier;
+	if (miscNotifier)
+		delete miscNotifier;
 	return res;
 }
 
