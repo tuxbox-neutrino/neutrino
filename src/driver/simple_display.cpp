@@ -450,6 +450,7 @@ void CLCD::Clear()
 	if(ret < 0)
 		perror("[neutrino] spark_led Clear() VFDDISPLAYCLR");
 	close(fd);
+	servicename.clear();
 printf("spark_led:%s\n", __func__);
 }
 #else
