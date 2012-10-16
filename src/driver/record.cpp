@@ -1182,7 +1182,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 						error_display = false;
 						warn_display = false;
 						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_OVERFLOW));
-					} else if (warn_display) {
+					} else if (g_settings.recording_slow_warning && warn_display) {
 						warn_display = false;
 						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_SLOW));
 					}
