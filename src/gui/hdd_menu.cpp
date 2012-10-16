@@ -377,8 +377,8 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		snprintf(cmd, sizeof(cmd), "/sbin/sfdisk -f -uM /dev/%s", key.c_str());
 		strcpy(cmd2, "0,\n;\n;\n;\ny\n");
 	} else {
-		snprintf(cmd, sizeof(cmd), "/sbin/fdisk /dev/%s", key.c_str());
-		strcpy(cmd2, "o\nn\np\n1\n\n\nw\n");
+		snprintf(cmd, sizeof(cmd), "/sbin/fdisk -u /dev/%s", key.c_str());
+		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
 	}
 
 	printf("CHDDFmtExec: executing %s\n", cmd);
