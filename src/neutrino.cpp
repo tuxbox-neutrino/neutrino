@@ -2289,7 +2289,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 	if( res != messages_return::unhandled ) {
 		if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
-			delete (unsigned char*) data;
+			delete[] (unsigned char*) data;
 		return( res & ( 0xFFFFFFFF - messages_return::unhandled ) );
 	}
 
@@ -2810,7 +2810,7 @@ _repeat:
 				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, text, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO, 0, atoi(timeout.c_str()));
 
 		}
-		delete (unsigned char*) data;
+		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_RECORDING_ENDED) {
