@@ -27,11 +27,11 @@
 #include "configure_network.h"
 #include <lib/libnet/libnet.h>             /* netGetNameserver, netSetNameserver   */
 #include <lib/libnet/network_interfaces.h> /* getInetAttributes, setInetAttributes */
-#include <stdlib.h>             /* system                               */
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <system/helpers.h>
 
 CNetworkConfig::CNetworkConfig()
 {
@@ -218,11 +218,11 @@ void CNetworkConfig::commitConfig(void)
 
 void CNetworkConfig::startNetwork(void)
 {
-	std::string cmd = "/sbin/ifup " + ifname;
+	const char _ifup[]  = "/sbin/ifup";
 #ifdef DEBUG
-	printf("CNetworkConfig::startNetwork: %s\n", cmd.c_str());
+	printf("CNetworkConfig::startNetwork: %s %s\n",_ifup, ifname.c_str());
 #endif
-	system(cmd.c_str());
+	my_system(_ifup, ifname.c_str());
 
 	if (!inet_static) {
 		init_vars();
@@ -232,11 +232,11 @@ void CNetworkConfig::startNetwork(void)
 
 void CNetworkConfig::stopNetwork(void)
 {
-	std::string cmd = "/sbin/ifdown " + ifname;
+	const char _ifdown[] = "/sbin/ifdown";
 #ifdef DEBUG
-	printf("CNetworkConfig::stopNetwork: %s\n", cmd.c_str());
+	printf("CNetworkConfig::stopNetwork: %s %s\n",_ifdown, ifname.c_str());
 #endif
-	system(cmd.c_str());
+	my_system(_ifdown, ifname.c_str());
 
 }
 

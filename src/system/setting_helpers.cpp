@@ -88,43 +88,24 @@ extern cDemux *pcrDemux;
 
 extern "C" int pinghost( const char *hostname );
 
-// gui/moviebrowser.cpp
-COnOffNotifier::COnOffNotifier( CMenuItem* a1,CMenuItem* a2,CMenuItem* a3,CMenuItem* a4,CMenuItem* a5)
+COnOffNotifier::COnOffNotifier(int OffValue)
 {
-        number = 0;
-        if(a1 != NULL){ toDisable[0] =a1;number++;};
-        if(a2 != NULL){ toDisable[1] =a2;number++;};
-        if(a3 != NULL){ toDisable[2] =a3;number++;};
-        if(a4 != NULL){ toDisable[3] =a4;number++;};
-        if(a5 != NULL){ toDisable[4] =a5;number++;};
+	offValue = OffValue;
 }
 
 bool COnOffNotifier::changeNotify(const neutrino_locale_t, void *Data)
 {
-   if(*(int*)(Data) == 0)
-   {
-      for (int i=0; i<number ; i++)
-        toDisable[i]->setActive(false);
-   }
-   else
-   {
-      for (int i=0; i<number ; i++)
-        toDisable[i]->setActive(true);
-   }
-   return false;
+	bool active = (*(int*)(Data) != offValue);
+
+	for (std::vector<CMenuItem*>::iterator it = toDisable.begin(); it != toDisable.end(); it++)
+		(*it)->setActive(active);
+
+	return false;
 }
 
-//used in gui/miscsettings_menu.cpp
-CMiscNotifier::CMiscNotifier( CMenuItem* i1, CMenuItem* i2)
+void COnOffNotifier::addItem(CMenuItem* menuItem)
 {
-   toDisable[0]=i1;
-   toDisable[1]=i2;
-}
-bool CMiscNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-   toDisable[0]->setActive(!g_settings.shutdown_real);
-   toDisable[1]->setActive(!g_settings.shutdown_real);
-   return false;
+	toDisable.push_back(menuItem);
 }
 
 bool CSectionsdConfigNotifier::changeNotify(const neutrino_locale_t, void *)

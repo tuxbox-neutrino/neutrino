@@ -1323,8 +1323,8 @@ networkmenu.ntpenable Zeit per INet synchronisieren
 networkmenu.ntprefresh NTP/DVB-Aktualisierung
 networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync [min]
 networkmenu.ntprefresh_hint2 braucht Reboot oder EPG-Reset
-networkmenu.ntpserver NTP-URL (Zeitserver)
-networkmenu.ntpserver_hint1 NTP-URL Beispiel: ntp1.ptb.de
+networkmenu.ntpserver NTP-Server
+networkmenu.ntpserver_hint1 NTP-Server Beispiel: ntp1.ptb.de
 networkmenu.ntpserver_hint2 braucht Reboot oder EPG-Reset
 networkmenu.ntptitle Zeitsynchronisation
 networkmenu.password Passwort (PSK)
@@ -1648,6 +1648,8 @@ streaminfo.resolution Auflösung
 streaminfo.signal Empfangssignal
 streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart von Neutrino-HD Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
+streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
+streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.caps Groß-/Kleinbuchstaben
 stringinput.clear Alles löschen

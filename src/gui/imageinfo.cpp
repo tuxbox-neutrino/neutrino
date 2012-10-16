@@ -32,6 +32,8 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 
+#include <sys/utsname.h>
+
 #include <daemonc/remotecontrol.h>
 
 #include <system/flashtool.h>
@@ -209,8 +211,24 @@ void CImageInfo::paint()
 #else
 	const char * builddate     = config.getString("builddate",     BUILT_DATE).c_str();
 #endif
+
 	static CFlashVersionInfo versionInfo(version);
 	const char * releaseCycle = versionInfo.getReleaseCycle();
+	
+	struct utsname uts_info;
+	std::string Version_Kernel;
+	if( uname(&uts_info) < 0 ) {
+		Version_Kernel = releaseCycle;
+		Version_Kernel += " ";
+		Version_Kernel += versionInfo.getType();
+	}else{
+		Version_Kernel  = releaseCycle;
+		Version_Kernel += " ";
+		Version_Kernel += versionInfo.getType();
+		Version_Kernel += " - Kernel: ";
+		Version_Kernel += uts_info.release;
+	}
+
 	snprintf((char*) imagedate,sizeof(imagedate), "%s  %s", versionInfo.getDate(), versionInfo.getTime());
 
 	ypos += iheight;
@@ -223,7 +241,7 @@ void CImageInfo::paint()
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_VERSION));
-	paintLine(xpos+offset, font_info, releaseCycle);
+	paintLine(xpos+offset, font_info, Version_Kernel.c_str());
 
 	ypos += iheight;
 #ifdef SVNVERSION

@@ -98,7 +98,7 @@ class CInfoViewerBB
 
 		int BBarY, BBarFontY;
 		int hddwidth;
-		int lasthdd, lastvar;
+		//int lasthdd, lastsys;
 		bool fta;
 		int minX;
 
@@ -106,7 +106,7 @@ class CInfoViewerBB
 		bool scrambledNoSig, scrambledNoSigSave;
 		pthread_t scrambledT;
 
-		CProgressBar *hddscale, *varscale;
+		CProgressBar *hddscale, *sysscale;
 
 		void showBBIcons(const int modus, const std::string & icon);
 		void getBBIconInfo(void);

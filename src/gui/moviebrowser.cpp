@@ -71,6 +71,7 @@
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
 #include <driver/record.h>
+#include <system/helpers.h>
 
 extern CPictureViewer * g_PicViewer;
 static CProgressBar *timescale;
@@ -2976,7 +2977,8 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
     {
         dirInput[i] =  new CFileChooser(&m_settings.storageDir[i]);
         forwarder[i] = new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR,        m_settings.storageDirUsed[i], m_settings.storageDir[i],      dirInput[i]);
-        notifier[i] =  new COnOffNotifier(forwarder[i]);
+	notifier[i] =  new COnOffNotifier();
+	notifier[i]->addItem(forwarder[i]);
         chooser[i] =   new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_DIR , &m_settings.storageDirUsed[i]  , MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,notifier[i]);
         optionsMenuDir.addItem(chooser[i] );
         optionsMenuDir.addItem(forwarder[i] );
@@ -3593,10 +3595,8 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
         {
             if(dirState[number] == DIR_STATE_SERVER_DOWN)
             {
-                std::string command = "ether-wake ";
-                command += g_settings.network_nfs_mac[dirNfsMountNr[number]];
-                printf("try to start server: %s\n",command.c_str());
-                if(system(command.c_str()) != 0)
+                printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]);
+                if(my_system("ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]) != 0)
                     perror("ether-wake failed");
 
                 dirOptionText[number]="STARTE SERVER";

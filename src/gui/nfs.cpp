@@ -51,36 +51,8 @@
 #include <pthread.h>
 #include <sys/mount.h>
 #include <unistd.h>
-
+#include <neutrino.h>
 #include <zapit/client/zapittools.h>
-
-class CNFSMountGuiNotifier : public CChangeObserver
-{
-private:
-	CMenuForwarder *m_opt1,*m_opt2, *m_user, *m_pass;
-	int *m_type;
-public:
-	CNFSMountGuiNotifier( CMenuForwarder* a3, CMenuForwarder* a4 , int* type)
-	{
-		m_user = a3;
-		m_pass = a4;
-		m_type = type;
-	}
-	bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
-	{
-		if(*m_type == (int)CFSMounter::NFS)
-		{
-			m_user->setActive (false);
-			m_pass->setActive (false);
-		}
-		else
-		{
-			m_user->setActive (true);
-			m_pass->setActive (true);
-		}
-		return true;
-	}
-};
 
 CNFSMountGui::CNFSMountGui()
 {
@@ -149,10 +121,17 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	else if(actionKey.substr(0,7)=="domount")
 	{
 		int nr=atoi(actionKey.substr(7,1).c_str());
-		CFSMounter::mount(g_settings.network_nfs_ip[nr].c_str(), g_settings.network_nfs_dir[nr],
+		CFSMounter::MountRes mres = CFSMounter::mount(
+  	                                   g_settings.network_nfs_ip[nr].c_str(), g_settings.network_nfs_dir[nr],
 				  g_settings.network_nfs_local_dir[nr], (CFSMounter::FSType) g_settings.network_nfs_type[nr],
 				  g_settings.network_nfs_username[nr], g_settings.network_nfs_password[nr],
 				  g_settings.network_nfs_mount_options1[nr], g_settings.network_nfs_mount_options2[nr]);
+
+		if (mres == CFSMounter::MRES_OK || mres == CFSMounter::MRES_FS_ALREADY_MOUNTED)
+			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_MOUNTED;
+		else
+			mountMenuEntry[nr]->iconName = NEUTRINO_ICON_NOT_MOUNTED;
+
 		// TODO show msg in case of error
 		returnval = menu_return::RETURN_EXIT;
 	}
@@ -176,15 +155,16 @@ int CNFSMountGui::menu()
 	{
 		sprintf(s2,"mountentry%d",i);
 		sprintf(ISO_8859_1_entry[i],ZapitTools::UTF8_to_Latin1(m_entry[i]).c_str());
-		CMenuForwarderNonLocalized *forwarder = new CMenuForwarderNonLocalized(ISO_8859_1_entry[i], true, NULL, this, s2);
+		mountMenuEntry[i] = new CMenuForwarderNonLocalized("", true, ISO_8859_1_entry[i], this, s2);
+		
 		if (CFSMounter::isMounted(g_settings.network_nfs_local_dir[i]))
 		{
-			forwarder->iconName = NEUTRINO_ICON_MOUNTED;
+			mountMenuEntry[i]->iconName = NEUTRINO_ICON_MOUNTED;
 		} else
 		{
-			forwarder->iconName = NEUTRINO_ICON_NOT_MOUNTED;
+			mountMenuEntry[i]->iconName = NEUTRINO_ICON_NOT_MOUNTED;
 		}
-		mountMenuW.addItem(forwarder);
+		mountMenuW.addItem(mountMenuEntry[i]);
 	}
 	int ret=mountMenuW.exec(this,"");
 	return ret;
@@ -251,13 +231,16 @@ int CNFSMountGui::menuEntry(int nr)
 	CStringInputSMS options2Input(LOCALE_NFS_MOUNT_OPTIONS, options2, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-_=.,:|!?/ ");
 	CMenuForwarder *options2_fwd = new CMenuForwarder(LOCALE_NFS_MOUNT_OPTIONS, true, options2, &options2Input);
 	CStringInputSMS userInput(LOCALE_NFS_USERNAME, username, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-_.,:|!?/ ");
-	CMenuForwarder *username_fwd = new CMenuForwarder(LOCALE_NFS_USERNAME, (*type==CFSMounter::CIFS || CFSMounter::LUFS), username, &userInput);
+	CMenuForwarder *username_fwd = new CMenuForwarder(LOCALE_NFS_USERNAME, (*type != (int)CFSMounter::NFS), username, &userInput);
 	CStringInputSMS passInput(LOCALE_NFS_PASSWORD, password, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-_.,:|!?/ ");
-	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (*type==CFSMounter::CIFS || CFSMounter::LUFS), NULL, &passInput);
+	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (*type != (int)CFSMounter::NFS), NULL, &passInput);
 	CMACInput macInput(LOCALE_RECORDINGMENU_SERVER_MAC,  g_settings.network_nfs_mac[nr], LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CMenuForwarder * macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, g_settings.network_nfs_mac[nr], &macInput);
-
-	CNFSMountGuiNotifier notifier(username_fwd, password_fwd, type);
+	CMenuForwarder *mountnow_fwd = new CMenuForwarder(LOCALE_NFS_MOUNTNOW, !(CFSMounter::isMounted(g_settings.network_nfs_local_dir[nr])), NULL, this, cmd);
+	mountnow_fwd->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+	COnOffNotifier notifier(CFSMounter::NFS);
+	notifier.addItem(username_fwd);
+	notifier.addItem(password_fwd);
 
 	mountMenuEntryW.addItem(new CMenuOptionChooser(LOCALE_NFS_TYPE, type, NFS_TYPE_OPTIONS, NFS_TYPE_OPTION_COUNT, typeEnabled, &notifier));
 	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_IP      , true, g_settings.network_nfs_ip[nr], &ipInput       ));
@@ -269,7 +252,7 @@ int CNFSMountGui::menuEntry(int nr)
 	mountMenuEntryW.addItem(username_fwd);
 	mountMenuEntryW.addItem(password_fwd);
 	mountMenuEntryW.addItem(macInput_fwd);
-	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_MOUNTNOW, true, NULL                         , this     , cmd ));
+	mountMenuEntryW.addItem(mountnow_fwd);
 
 	int ret = mountMenuEntryW.exec(this,"");
 	return ret;
@@ -333,8 +316,10 @@ int CNFSSmallMenu::exec( CMenuTarget* parent, const std::string & actionKey )
 		CMenuWidget sm_menu(LOCALE_NFSMENU_HEAD, NEUTRINO_ICON_NETWORK, width);
 		CNFSMountGui mountGui;
 		CNFSUmountGui umountGui;
+		CMenuForwarder *remount_fwd = new CMenuForwarder(LOCALE_NFS_REMOUNT, true, NULL, this, "remount");
+		remount_fwd->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		sm_menu.addIntroItems();
-		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_REMOUNT, true, NULL, this, "remount"));
+		sm_menu.addItem(remount_fwd);
 		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, & mountGui));
 		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, &umountGui));
 		return sm_menu.exec(parent, actionKey);
