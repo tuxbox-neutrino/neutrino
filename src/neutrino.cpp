@@ -582,14 +582,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_stopsectionsd         = configfile.getBool("recording_stopsectionsd"            , false );
 	g_settings.recording_audio_pids_default    = configfile.getInt32("recording_audio_pids_default", TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
 	g_settings.recording_zap_on_announce       = configfile.getBool("recording_zap_on_announce"      , false);
-	g_settings.shutdown_timer_record_type       = configfile.getBool("shutdown_timer_record_type"      , false);
+	g_settings.shutdown_timer_record_type      = configfile.getBool("shutdown_timer_record_type"      , false);
 
 	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , false);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
 	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , false);
-	g_settings.recording_save_in_channeldir      = configfile.getBool("recording_save_in_channeldir"         , false);
+	g_settings.recording_save_in_channeldir    = configfile.getBool("recording_save_in_channeldir"         , false);
+	g_settings.recording_slow_warning	   = configfile.getBool("recording_recording_slow_warning"     , true);
 
 	// default plugin for movieplayer
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
@@ -1004,6 +1005,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ("recording_epg_for_filename"         , g_settings.recording_epg_for_filename     );
 	configfile.setBool  ("recording_epg_for_end"              , g_settings.recording_epg_for_end          );
 	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir     );
+	configfile.setBool  ("recording_slow_warning"             , g_settings.recording_slow_warning     );
 
 	// default plugin for movieplayer
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
