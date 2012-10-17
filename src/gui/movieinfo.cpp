@@ -53,6 +53,8 @@
 #include <gui/widget/msgbox.h>
 #include <gui/movieinfo.h>
 
+#include <neutrino.h>
+
 //#define XMLTREE_LIB
 #ifdef XMLTREE_LIB
 #include <xmltree/xmltree.h>
@@ -481,6 +483,23 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 			print_buffer += ", ";
 		}
 		print_buffer.erase(print_buffer.size()-2);
+	}
+	if (movie_info.genreMajor != 0)
+	{
+		neutrino_locale_t locale_genre;
+		unsigned char i = (movie_info.genreMajor & 0x0F0);
+		if (i >= 0x010 && i < 0x0B0)
+		{
+			i >>= 4;
+			i--;
+			locale_genre = genre_sub_classes_list[i][((movie_info.genreMajor & 0x0F) < genre_sub_classes[i]) ? (movie_info.genreMajor & 0x0F) : 0];
+		}
+		else
+			locale_genre = LOCALE_GENRE_UNKNOWN;
+		print_buffer += "\n";
+		print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR);
+		print_buffer += ": ";
+		print_buffer += g_Locale->getText(locale_genre);
 	}
 
 	print_buffer += "\n\n";
