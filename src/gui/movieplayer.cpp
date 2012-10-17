@@ -697,6 +697,9 @@ void CMoviePlayerGui::callInfoViewer(const int duration, const int curr_pos)
 				CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 		return;
 	}
+	currentaudioname = "Unk";
+	getCurrentAudioName( is_file_player, currentaudioname);
+
 	if (isMovieBrowser && p_movie_info) {
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
 					     duration, curr_pos);
@@ -719,6 +722,68 @@ bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
 		}
 	}
 	return false;
+}
+
+void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled)
+{
+	switch(ac3flags[count])
+	{
+		case 1: /*AC3,EAC3*/
+			if (apidtitle.find("AC3") == std::string::npos || file_player)
+				apidtitle.append(" (AC3)");
+			break;
+		case 2: /*teletext*/
+			apidtitle.append(" (Teletext)");
+			enabled = false;
+			break;
+		case 3: /*MP2*/
+			apidtitle.append("( MP2)");
+			break;
+		case 4: /*MP3*/
+			apidtitle.append(" (MP3)");
+			break;
+		case 5: /*AAC*/
+			apidtitle.append(" (AAC)");
+			break;
+		case 6: /*DTS*/
+			apidtitle.append(" (DTS)");
+			enabled = false;
+			break;
+		case 7: /*MLP*/
+			apidtitle.append(" (MLP)");
+			break;
+		default:
+			break;
+	}
+}
+
+void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audioname)
+{
+  	if(file_player && !numpida){
+		playback->FindAllPids(apids, ac3flags, &numpida, language);
+		/* fix current pid in case of file play */
+		if(numpida)
+			currentapid = apids[0];
+	}
+	bool dumm = true;
+	for (unsigned int count = 0; count < numpida; count++) {
+	  
+		if(currentapid == apids[count]){
+			if(!file_player){
+				getAudioName(apids[count], audioname);
+				return ;
+			}else if (!language[count].empty()){
+				audioname = language[count];
+				addAudioFormat(count, audioname, file_player, dumm);
+				return ;
+			}
+			char apidnumber[20];
+			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
+			audioname = apidnumber;
+			addAudioFormat(count, audioname, file_player, dumm);
+			return ;
+		}
+	}
 }
 
 void CMoviePlayerGui::selectAudioPid(bool file_player)
@@ -753,36 +818,8 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
 			apidtitle = apidnumber;
 		}
+		addAudioFormat(count, apidtitle, file_player, enabled);
 
-		switch(ac3flags[count])
-		{
-			case 1: /*AC3,EAC3*/
-				if (apidtitle.find("AC3") == std::string::npos || file_player)
-					apidtitle.append(" (AC3)");
-				break;
-			case 2: /*teletext*/
-				apidtitle.append(" (Teletext)");
-				enabled = false;
-				break;
-			case 3: /*MP2*/
-				apidtitle.append("( MP2)");
-				break;
-			case 4: /*MP3*/
-				apidtitle.append(" (MP3)");
-				break;
-			case 5: /*AAC*/
-				apidtitle.append(" (AAC)");
-				break;
-			case 6: /*DTS*/
-				apidtitle.append(" (DTS)");
-				enabled = false;
-				break;
-			case 7: /*MLP*/
-				apidtitle.append(" (MLP)");
-				break;
-			default:
-				break;
-		}
 		char cnt[5];
 		sprintf(cnt, "%d", count);
 		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
