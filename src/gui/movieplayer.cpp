@@ -726,6 +726,7 @@ bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
 
 void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled)
 {
+	enabled = true;
 	switch(ac3flags[count])
 	{
 		case 1: /*AC3,EAC3*/
@@ -761,7 +762,6 @@ void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audion
 {
   	if(file_player && !numpida){
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
-		/* fix current pid in case of file play */
 		if(numpida)
 			currentapid = apids[0];
 	}
@@ -775,12 +775,20 @@ void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audion
 			}else if (!language[count].empty()){
 				audioname = language[count];
 				addAudioFormat(count, audioname, file_player, dumm);
+				if(!dumm && (count < numpida)){
+					currentapid = apids[count+1];
+					continue;
+				}
 				return ;
 			}
 			char apidnumber[20];
 			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
 			audioname = apidnumber;
 			addAudioFormat(count, audioname, file_player, dumm);
+			if(!dumm && (count < numpida)){
+				currentapid = apids[count+1];
+				continue;
+			}
 			return ;
 		}
 	}
@@ -796,7 +804,6 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 
 	if(file_player && !numpida){
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
-		/* fix current pid in case of file play */
 		if(numpida)
 			currentapid = apids[0];
 	}
@@ -819,6 +826,10 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 			apidtitle = apidnumber;
 		}
 		addAudioFormat(count, apidtitle, file_player, enabled);
+		if(defpid && !enabled && (count < numpida)){
+			currentapid = apids[count+1];
+			defpid = false;
+		}
 
 		char cnt[5];
 		sprintf(cnt, "%d", count);
