@@ -711,13 +711,21 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
+
+	if (g_settings.casystem_display == 3)
+		return;
+	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()){
+		if (g_settings.casystem_display == 2) {
+			fta = true;
+			showOne_CAIcon();
+		}
+		return;
+	}
+
 	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
 	int icon_space_offset = 0;
-
-	if (g_settings.casystem_display == 3)
-		return;
 
 	if(!g_InfoViewer->chanready) {
 		if (g_settings.casystem_display == 2) {
