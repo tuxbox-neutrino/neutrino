@@ -925,6 +925,7 @@ menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals\nin ein eigenes Verzeichnis
 menu.hint_record_dir Hier wählen Sie das Aufnahmeverzeichnis
 menu.hint_record_end Hier können Sie wählen zwischen max. Aufnahmezeit\noder anhand der EPG-Daten
+menu.hint_record_slow_warn Zeige Warnung, wenn Aufnahmepuffer zu überlaufen droht
 menu.hint_record_tdir Wählen Sie eine Verzeichnis für Ihre Timeshift-Aufnahmen\nim temporären Timeshiftmodus
 menu.hint_record_time Hier wird die maximale Zeit in Stunden eingetragen außer\nSie stoppen die Aufnahme vorzeitig
 menu.hint_record_timeafter Hier kann die Endzeit für den Aufnahmetimer eingestellt werden,\nein Wert von 2, beendet die Aufnahme 2 Minuten nach dem Sendungsende
@@ -1491,6 +1492,7 @@ recordingmenu.save_in_channeldir Speichere im Kanalverzeichnis
 recordingmenu.server Server
 recordingmenu.server_mac MAC-Adresse
 recordingmenu.setupnow Einstellungen jetzt übernehmen
+recordingmenu.slow_warn Warnung bei langsamen Aufnahmemedien
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
 recordingmenu.vcr Videorekorder
