@@ -292,24 +292,40 @@ int CBouquetList::doMenu()
 	return 0;
 }
 
+const struct button_label CBouquetListButtons[4] =
+{
+        { NEUTRINO_ICON_BUTTON_RED, LOCALE_CHANNELLIST_FAVS},
+        { NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_PROVS},
+        { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_CHANNELLIST_SATS},
+        { NEUTRINO_ICON_BUTTON_BLUE, LOCALE_CHANNELLIST_HEAD}
+};
+
 /* bShowChannelList default to true, returns new bouquet or -1/-2 */
 int CBouquetList::show(bool bShowChannelList)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	int res = -1;
+	int icol_w, icol_h;
+	int w_max_text = 0;
+	int w_max_icon = 0;
 
+	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
+		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText (CBouquetListButtons[count].locale),true);
+		w_max_text = std::max(w_max_icon, w_text);
+		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
+		w_max_icon = std::max(w_max_icon, icol_w);
+	}
 	//if(Bouquets.size()==0)
 	//	return res;
-
+	int need_width =  sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0])*(w_max_icon  + w_max_text + 20);
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 
-	width  = w_max (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*52, 20);//500
+	width  = w_max (need_width, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*52);//500
 	height = h_max (16 * fheight, 40);
 
 	/* assuming all color icons must have same size */
-	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 
 	footerHeight = std::max(icol_h+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8); //TODO get footerHeight from buttons
@@ -578,14 +594,6 @@ void CBouquetList::paintItem(int pos)
 		//CVFD::getInstance()->showMenuText(0, bouq->channelList->getName(), -1, true);
 	}
 }
-
-const struct button_label CBouquetListButtons[4] =
-{
-        { NEUTRINO_ICON_BUTTON_RED, LOCALE_CHANNELLIST_FAVS},
-        { NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_PROVS},
-        { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_CHANNELLIST_SATS},
-        { NEUTRINO_ICON_BUTTON_BLUE, LOCALE_CHANNELLIST_HEAD}
-};
 
 void CBouquetList::paintHead()
 {
