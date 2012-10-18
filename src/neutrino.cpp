@@ -227,6 +227,7 @@ CNeutrinoApp::CNeutrinoApp()
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
 	skipShutdownTimer	= false;
+	skipSleepnTimer		= false;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= 0;
@@ -2724,28 +2725,19 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SLEEPTIMER) {
-		if( mode != mode_scart )
-			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SLEEPTIMERBOX_ANNOUNCE));
+		if( mode != mode_scart && mode != mode_standby)
+		  	skipSleepnTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SLEEPTIMERBOX_ANNOUNCE,CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
-		if(data) {
-			skipShutdownTimer =
-				(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE,
-				      CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
-			if(skipShutdownTimer) {
-				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
-				skipShutdownTimer = false;
-				return messages_return::handled;
-			}
-			else {
-				printf("NeutrinoMessages::SLEEPTIMER: shutdown\n");
-				ExitRun(true, (cs_get_revision() > 7));
-			}
+		if(skipSleepnTimer) {
+			printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
+			skipSleepnTimer = false;
+			return messages_return::handled;
 		}
 		if(g_settings.shutdown_real)
 			ExitRun(true, (cs_get_revision() > 7));
-		else
+		else if(mode != mode_standby)
 			standbyMode( true );
 		return messages_return::handled;
 	}

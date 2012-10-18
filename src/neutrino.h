@@ -118,6 +118,7 @@ private:
 	int				current_muted;
 
 	bool				skipShutdownTimer;
+	bool 				skipSleepnTimer;
 	bool 				pbBlinkChange;
 
 	int tvsort[LIST_MODE_LAST];
