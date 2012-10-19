@@ -1631,7 +1631,7 @@ settings.restore Image-Einstellungen: Wiederherstellen
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
-sleeptimerbox.announce Sleeptimer in 1 min
+sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
 sleeptimerbox.hint1 Ausschaltzeit in Min. (000=aus)
 sleeptimerbox.hint2 Die Box schaltet sich nach dieser Standby-Zeit aus.
 sleeptimerbox.hint3 Die Box schaltet sich bei Nichtbenutzen der FB aus.

@@ -1631,7 +1631,7 @@ settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shutdown.recoding_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
-sleeptimerbox.announce Sleeptimer in 1 min
+sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
 sleeptimerbox.hint1 Shutdown time in min. (000=off)
 sleeptimerbox.hint2 The STB will shutdown after this time in standby.
 sleeptimerbox.hint3 The STB will shutdown, if remote not used.
