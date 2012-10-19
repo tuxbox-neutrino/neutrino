@@ -848,7 +848,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 			APIDSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
 						currentapid == apids[i],
 						0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,
-						g_RemoteControl->current_PIDs.APIDs[i].desc));
+						p_movie_info->audioPids[i].epgAudioPidName.c_str()));
 		}
 	}
 
