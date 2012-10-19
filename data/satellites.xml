@@ -1375,7 +1375,7 @@
 		<transponder frequency="10853000" symbol_rate="29900000" polarization="0" fec_inner="4" system="0" modulation="1"/>
 		<transponder frequency="10873000" symbol_rate="27500000" polarization="1" fec_inner="3" system="0" modulation="1"/>
 		<transponder frequency="10892000" symbol_rate="27500000" polarization="0" fec_inner="3" system="0" modulation="1"/>
-		<transponder frequency="10911000" symbol_rate="29900000" polarization="1" fec_inner="5" system="0" modulation="1"/>
+		<transponder frequency="10911000" symbol_rate="27500000" polarization="1" fec_inner="3" system="1" modulation="2"/>
 		<transponder frequency="10930000" symbol_rate="29900000" polarization="0" fec_inner="3" system="0" modulation="1"/>
 		<transponder frequency="10949000" symbol_rate="27500000" polarization="1" fec_inner="3" system="0" modulation="1"/>
 		<transponder frequency="10971000" symbol_rate="29700000" polarization="0" fec_inner="2" system="1" modulation="2"/>
