@@ -275,7 +275,7 @@ void CComponentsInfoBox::hide()
 	col_body = col_frame = col_shadow = COL_BACKGROUND;
 
 	//paint with background and restore, set last used colors
-	paint(false);
+	paint(false, true);
 	col_body = c_tmp1;
 	col_shadow = c_tmp2;
 	col_frame = c_tmp3;
