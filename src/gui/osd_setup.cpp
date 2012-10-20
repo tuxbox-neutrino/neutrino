@@ -890,19 +890,30 @@ int COsdSetup::showContextChanlistMenu()
 	menu_chanlist->enableFade(false);
 	menu_chanlist->setSelected(cselected);
 
-	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);//, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true));
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EPG_ALIGN);
+	menu_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
+	menu_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_FOOT);
+	menu_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_COLORED);
+	menu_chanlist->addItem(mc);
 
 	CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
 	fontSettingsSubMenu->enableSaveScreen(true);
 	fontSettingsSubMenu->enableFade(false);
 
 	int i = 1;
-	fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname);//, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	for (unsigned int j = 0; j < font_sizes_groups[i].count; j++)
 	{
@@ -910,7 +921,10 @@ int COsdSetup::showContextChanlistMenu()
 	}
 	fontSettingsSubMenu->addItem(GenericMenuSeparatorLine);
 	fontSettingsSubMenu->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[i].actionkey));
-	menu_chanlist->addItem(new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, "", CRCInput::convertDigitToKey(0)));
+
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf->setHint("", LOCALE_MENU_HINT_FONTS);
+	menu_chanlist->addItem(mf);
 
 	int res = menu_chanlist->exec(NULL, "");
 	cselected = menu_chanlist->getSelected();
