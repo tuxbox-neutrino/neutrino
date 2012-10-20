@@ -34,7 +34,7 @@ typedef volume_map_t::iterator volume_map_iterator_t;
 typedef std::pair<volume_map_iterator_t,volume_map_iterator_t> volume_map_range_t;
 
 #define VOLUME_PERCENT_AC3 100
-#define VOLUME_PERCENT_PCM 75
+#define VOLUME_PERCENT_PCM 100
 
 /* complete zapit start thread-parameters in a struct */
 typedef struct ZAPIT_start_arg
