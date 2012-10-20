@@ -689,11 +689,11 @@ int CChannelList::show()
 			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
-				if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
+				if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
 					found = false;
 					nNext = nNext < bouquetList->Bouquets.size()-1 ? nNext+1 : 0;
 					for(uint32_t i = nNext; i < bouquetList->Bouquets.size(); i++) {
-						if(bouquetList->Bouquets[i]->channelList->getSize() > 0) {
+						if( !bouquetList->Bouquets[i]->channelList->isEmpty() ) {
 							found = true;
 							nNext = i;
 							break;
@@ -711,11 +711,11 @@ int CChannelList::show()
 			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
-				if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
+				if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
 					found = false;
 					nNext = nNext > 0 ? nNext-1 : bouquetList->Bouquets.size()-1;
 					for(int i = nNext; i > 0; i--) {
-						if(bouquetList->Bouquets[i]->channelList->getSize() > 0) {
+						if(!bouquetList->Bouquets[i]->channelList->isEmpty()) {
 							found = true;
 							nNext = i;
 							break;
@@ -1186,7 +1186,7 @@ int CChannelList::numericZap(int key)
 						channelList->addChannel(orgList->chanlist[i]);
 				}
 			}
-			if (channelList->getSize() != 0) {
+			if ( !channelList->isEmpty()) {
 				channelList->adjustToChannelID(orgList->getActiveChannel_ChannelID(), false);
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
@@ -1206,7 +1206,7 @@ int CChannelList::numericZap(int key)
 					if(channel) channelList->addChannel(channel);
 				}
 			}
-			if (channelList->getSize() != 0) {
+			if ( !channelList->isEmpty() ) {
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
 				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -1966,6 +1966,11 @@ void CChannelList::paint()
 
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
 	showChannelLogo();
+}
+
+bool CChannelList::isEmpty() const
+{
+	return this->chanlist.empty();
 }
 
 int CChannelList::getSize() const

@@ -498,7 +498,7 @@ int CBouquetList::show(bool bShowChannelList)
 		}
 
 		else if ( msg == CRCInput::RC_ok ) {
-			if(!bShowChannelList || Bouquets[selected]->channelList->getSize() > 0) {
+			if(!bShowChannelList || !Bouquets[selected]->channelList->isEmpty()) {
 				zapOnExit = true;
 				loop=false;
 			}
@@ -577,7 +577,7 @@ void CBouquetList::paintItem(int pos)
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
 	} else {
 		if(npos < (int) Bouquets.size())
-			iscurrent = Bouquets[npos]->channelList->getSize() > 0;
+			iscurrent = !Bouquets[npos]->channelList->isEmpty();
                 color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
                 bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
