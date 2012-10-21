@@ -124,66 +124,66 @@ class CComponents
 		std::vector<comp_fbdata_t> v_fbdata;
 		fb_pixel_t	col_body, col_shadow, col_frame;
 		bool	firstPaint, shadow, is_painted;
-		
+
 		void initVarBasic();
 		void paintFbItems(bool do_save_bg = true);
 		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		comp_screen_data_t saved_screen;
-		
+
 		void clearSavedScreen();
 		void clear();
 	public:
 		CComponents();
 		virtual~CComponents();
-		
+
 		inline virtual void setXPos(const int& xpos){x = xpos;};
 		inline virtual void setYPos(const int& ypos){y = ypos;};
 		inline virtual void setHeight(const int& h){height = h;};
 		inline virtual void setWidth(const int& w){width = w;};
 		inline virtual void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h){x = xpos; y = ypos; width = w; height = h;};
-		
+
 		inline virtual int getXPos(){return x;};
 		inline virtual int getYPos(){return y;};
 		inline virtual int getHeight(){return height;};
 		inline virtual int getWidth(){return width;};
 		inline virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;};
-		
+
 ///		set colors: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
 		inline virtual void setColorShadow(fb_pixel_t color){col_shadow = color;};
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
-		
+
 		virtual void hide();
 		virtual bool isPainted(){return is_painted;};
 };
 
-class CComponentsContainer : public CComponents
+class CComponentsItem : public CComponents
 {
 	protected:
 		int corner_rad, fr_thickness;
 		void hideContainer(bool no_restore = false);
 		void paintInit(bool do_save_bg);
-		void initVarContainer();
-		
+		void initVarItem();
+
 	public:
-		CComponentsContainer();
-				
+		CComponentsItem();
+
 ///		set corner types: Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h).
 		inline virtual void setCornerType(const int& type){corner_type = type;};
 		inline virtual void setCornerRadius(const int& radius){corner_rad = radius;};
-		
+
 		inline virtual void setFrameThickness(const int& thickness){fr_thickness = thickness;};
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
-		
-		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		virtual void hide(bool no_restore = false);
 		virtual void kill();
 
 		virtual void syncSysColors();
 };
 
-class CComponentsPicture : public CComponentsContainer
+class CComponentsPicture : public CComponentsItem
 {
 	private:
 		std::string pic_name;
@@ -208,7 +208,7 @@ class CComponentsPicture : public CComponentsContainer
 		inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
 		inline void setPicture(const std::string& picture_name);
 		void setPictureAlign(const int alignment);
-		
+
 		inline bool isPicPainted(){return pic_painted;};
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
@@ -217,7 +217,7 @@ class CComponentsPicture : public CComponentsContainer
 };
 
 #define INFO_BOX_Y_OFFSET	2
-class CComponentsInfoBox : public CComponentsContainer
+class CComponentsInfoBox : public CComponentsItem
 {
 	private:
 		const char* text;
@@ -257,33 +257,33 @@ class CComponentsInfoBox : public CComponentsContainer
 };
 
 
-class CComponentsShapeCircle : public CComponentsContainer
+class CComponentsShapeCircle : public CComponentsItem
 {
 	private:
 		int d;
 	public:
 		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam, bool has_shadow = CC_SHADOW_ON,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-					
+
 		inline void setDiam(const int& diam){d=width=height=diam, corner_rad=d/2;};
 		inline int getDiam(){return d;};
 };
 
-class CComponentsShapeSquare : public CComponentsContainer
+class CComponentsShapeSquare : public CComponentsItem
 {
 	public:
 		CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = CC_SHADOW_ON,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
-class CComponentsPIP : public CComponentsContainer
+class CComponentsPIP : public CComponentsItem
 {
 	private:
 		int screen_w, screen_h;
 	public:
 		CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow = CC_SHADOW_OFF);
 		~CComponentsPIP();
-		
+
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
 };
@@ -295,14 +295,14 @@ class CComponentsDetailLine : public CComponents
 		int thickness, y_down, h_mark_top, h_mark_down;
 
 		void initVarDline();
-	
+
 	public:
 		CComponentsDetailLine();
 		CComponentsDetailLine(	const int x_pos,const int y_pos_top, const int y_pos_down,
 					const int h_mark_up = CC_HEIGHT_MIN , const int h_mark_down = CC_HEIGHT_MIN,
 					fb_pixel_t color_line = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsDetailLine();
-		
+
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void kill();
 		inline void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
@@ -314,7 +314,7 @@ class CComponentsDetailLine : public CComponents
 
 #define FIRST_ELEMENT_INIT 10000
 #define LOGO_MAX_WIDTH width/4
-class CComponentsItemBox : public CComponentsContainer
+class CComponentsItemBox : public CComponentsItem
 {
 	protected:
 		int hSpacer;
@@ -333,7 +333,7 @@ class CComponentsItemBox : public CComponentsContainer
 		size_t prevElementRight;
 		std::vector<comp_element_data_t> v_element_data;
 		bool isCalculated;
-		
+
 		void clearElements();
 		void initVarItemBox();
 		void calSizeOfElements();
@@ -343,14 +343,14 @@ class CComponentsItemBox : public CComponentsContainer
 		bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
 		void paintImage(size_t index, bool newElement);
 		void paintText(size_t index, bool newElement);
-		
+
 	public:
 		CComponentsItemBox();
 		virtual ~CComponentsItemBox();
-		
+
 		inline virtual void setTextFont(Font* font){font_text = font;};
 		inline virtual void setTextColor(fb_pixel_t color_text){ it_col_text = color_text;};
-		
+
 		virtual void refreshElement(size_t index, const std::string& element);
 		virtual void paintElement(size_t index, bool newElement= false);
 		virtual bool addLogoOrText(int align, const std::string& logo, const std::string& text, size_t *index=NULL);
@@ -370,12 +370,12 @@ class CComponentsTitleBar : public CComponentsItemBox
 		std::string tb_s_text, tb_icon_name;
 		neutrino_locale_t tb_locale_text;
 		int tb_text_align, tb_icon_align;
-		
+
 		void initText();
 		void initIcon();
 		void initElements();
 		void initVarTitleBar();
-	
+
 	public:
 		CComponentsTitleBar();
 		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const char* c_text = NULL, const std::string& s_icon ="",
@@ -384,25 +384,25 @@ class CComponentsTitleBar : public CComponentsItemBox
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
 		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const std::string& s_icon ="",
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
-					
+
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 };
 
 
-class CComponentsForm : public CComponentsContainer
+class CComponentsForm : public CComponentsItem
 {
 	private:
 		CComponentsTitleBar *tb;
 		std::string tb_text, tb_icon;
-		
+
 		void initVarForm();
 		void paintHead();
-		
+
 	public:
 		CComponentsForm();
 		~CComponentsForm();
-		
+
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
 		void setCaption(const std::string& text);
@@ -410,27 +410,27 @@ class CComponentsForm : public CComponentsContainer
 		void setIcon(const std::string& icon_name){tb_icon = icon_name;};
 };
 
-class CComponentsText : public CComponentsContainer
+class CComponentsText : public CComponentsItem
 {
 	private:
 		Font* ct_font;
 		CBox * ct_box;
 		CTextBox * ct_textbox;
-		
+
 		const char* ct_text;
 		int ct_text_mode; //see textbox.h for possible modes
 		fb_pixel_t ct_col_text;
 		bool ct_text_sended;
-		
+
 		void initVarText();
 		void initText();
-		
+
 	public:
 		CComponentsText();
 		~CComponentsText();
-		
+
 		inline void setText(const char* text, const int text_mode=~CTextBox::AUTO_WIDTH, Font* font_text=NULL){ct_text = text; ct_text_mode = text_mode, ct_font = font_text;};
-		
+
 		void hide(bool no_restore = false);
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void setTextFont(Font* font_text){ct_font = font_text;};

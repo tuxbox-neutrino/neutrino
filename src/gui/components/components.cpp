@@ -94,21 +94,21 @@ void CComponents::paintFbItems(bool do_save_bg)
 				saved_screen.dy = v_fbdata[i].dy;
 				clearSavedScreen();
 				saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
-				
+
 				firstPaint = false;
 				break;
 			}
 		}
 	}
-	
+
 	for(size_t i=0; i< v_fbdata.size() ;i++){
 		int fbtype = v_fbdata[i].fbdata_type;
-		
+
 		if (firstPaint){
-			
+
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
 				v_fbdata[i].pixbuf = getScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
-			
+
 			//ensure painting of all line fb items with saved screens
 			if (fbtype == CC_FBDATA_TYPE_LINE)
 				firstPaint = true;
@@ -124,7 +124,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
-	
+
 	is_painted = true;
 }
 
@@ -161,11 +161,11 @@ inline void CComponents::clear()
 
 
 //-------------------------------------------------------------------------------------------------------
-//abstract sub class CComponentsContainer from CComponents
-CComponentsContainer::CComponentsContainer()
+//abstract sub class CComponentsItem from CComponents
+CComponentsItem::CComponentsItem()
 {
-	//CComponentsContainer
-	initVarContainer();
+	//CComponentsItem
+	initVarItem();
 }
 
 // 	 y
@@ -175,23 +175,23 @@ CComponentsContainer::CComponentsContainer()
 // 	 |			|
 // 	 +--------width---------+
 
-void CComponentsContainer::initVarContainer()
+void CComponentsItem::initVarItem()
 {
 	//CComponents
 	initVarBasic();
-	
-	//ComponentsContainer
+
+	//CComponentsItem
 	corner_rad	= 0;
 	fr_thickness	= 0;
 }
 
-void CComponentsContainer::paintInit(bool do_save_bg)
+void CComponentsItem::paintInit(bool do_save_bg)
 {
 	clear();
-	
+
 	int sw = shadow ? shadow_w : 0;
 	int th = fr_thickness;
-	
+
 	comp_fbdata_t fbdata[] =
 	{
 		{CC_FBDATA_TYPE_BGSCREEN, 	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
@@ -199,25 +199,20 @@ void CComponentsContainer::paintInit(bool do_save_bg)
 		{CC_FBDATA_TYPE_FRAME, 		x, 	y, 	width, 		height, 	col_frame, 	corner_rad, 	th, 	NULL,	NULL},
 		{CC_FBDATA_TYPE_BOX, 		x+th,	y+th, 	width-2*th, 	height-2*th, 	col_body, 	corner_rad-th,  0, 	NULL,	NULL},
 	};
-	
+
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
 		v_fbdata.push_back(fbdata[i]);
-	
-	paintFbItems(do_save_bg);
-}
 
-void CComponentsContainer::paint(bool do_save_bg)
-{
-	paintInit(do_save_bg);
+	paintFbItems(do_save_bg);
 }
 
 //restore last saved screen behind form box,
 //Do use parameter 'no restore' to override temporarly the restore funtionality.
 //This could help to avoid ugly flicker efffects if it is necessary e.g. on often repaints, without changed contents.
-void CComponentsContainer::hideContainer(bool no_restore)
+void CComponentsItem::hideContainer(bool no_restore)
 {
 	is_painted = false;
-	
+
 	if (saved_screen.pixbuf) {
 		frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
 		if (no_restore) {
@@ -228,14 +223,14 @@ void CComponentsContainer::hideContainer(bool no_restore)
 	}
 }
 
-void CComponentsContainer::hide(bool no_restore)
+void CComponentsItem::hide(bool no_restore)
 {
 	hideContainer(no_restore);
 }
 
 
 //hide rendered objects
-void CComponentsContainer::kill()
+void CComponentsItem::kill()
 {
 	//save current colors
 	fb_pixel_t c_tmp1, c_tmp2, c_tmp3;
@@ -258,7 +253,7 @@ void CComponentsContainer::kill()
 //synchronize colors for forms
 //This is usefull if the system colors are changed during runtime
 //so you can ensure correct applied system colors in relevant objects with unchanged instances.
-void CComponentsContainer::syncSysColors()
+void CComponentsItem::syncSysColors()
 {
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
@@ -266,12 +261,12 @@ void CComponentsContainer::syncSysColors()
 }
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsInfoBox from CComponentsContainer
+//sub class CComponentsInfoBox from CComponentsItem
 CComponentsInfoBox::CComponentsInfoBox()
 {
-	//CComponents, ComponentsContainer
-	initVarContainer();
-	
+	//CComponents, CComponentsItem
+	initVarItem();
+
 	//CComponentsInfoBox
 	initVarInfobox();
 	text 		= NULL;
@@ -285,9 +280,9 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 				       bool has_shadow,
 				       fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponents, ComponentsContainer
-	initVarContainer();
-	
+	//CComponents, CComponentsItem
+	initVarItem();
+
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -296,7 +291,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	
+
 	//CComponentsInfoBox
 	initVarInfobox();
 	text 		= info_text;
@@ -317,16 +312,16 @@ CComponentsInfoBox::~CComponentsInfoBox()
 
 void CComponentsInfoBox::initVarInfobox()
 {
-	//CComponents, ComponentsContainer
-	initVarContainer();
-	
+	//CComponents, CComponentsItem
+	initVarItem();
+
 	//CComponentsInfoBox
 	box		= NULL;
 	textbox 	= NULL;
 	pic 		= NULL;
 	pic_name	= "";
 	x_offset	= 10;
-	
+
 }
 
 void CComponentsInfoBox::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
@@ -350,7 +345,7 @@ void CComponentsInfoBox::paintPicture()
 	//fit icon into infobox
 	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
-	
+
 	pic->paint();
 }
 
@@ -358,15 +353,15 @@ void CComponentsInfoBox::paintText()
 {
 	if (box == NULL)
 		box = new CBox();
-	
+
 	//define text x position
 	int x_text = x+fr_thickness+x_offset;
-	
+
 	//set text to the left border if picture not painted
 	if (pic->isPicPainted()){
 		int pic_w = pic->getWidth();
 		x_text += pic_w+x_offset;
-	}	
+	}
 
 	box->iX = x_text;
 	box->iY = y+fr_thickness;
@@ -413,12 +408,12 @@ void CComponentsInfoBox::removeLineBreaks(std::string& str)
 
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsShapeSquare from CComponentsContainer
+//sub class CComponentsShapeSquare from CComponentsItem
 CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//ComponentsContainer
-	initVarContainer();
-	
+	//CComponentsItem
+	initVarItem();
+
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -431,12 +426,12 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 }
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsShapeCircle from CComponentsContainer
+//sub class CComponentsShapeCircle from CComponentsItem
 CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponents, CComponentsContainer
-	initVarContainer();
+	//CComponents, CComponentsItem
+	initVarItem();
 
 	//CComponents
 	x 		= x_pos;
@@ -447,23 +442,23 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	
+
 	//CComponentsShapeCircle
 	width = height	= d = diam;
-	
-	//CComponentsContainer
+
+	//CComponentsItem
 	corner_rad	= d/2;
 }
 
 // 	 y
 // 	x+	 -	 +
-// 
-// 
-// 
+//
+//
+//
 // 	 |----d-i-a-m----|
-// 
-// 
-// 
+//
+//
+//
 // 	 +	 -	 +
 
 
@@ -472,13 +467,13 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 CComponentsDetailLine::CComponentsDetailLine()
 {
 	initVarDline();
-	
+
 	//CComponents
 	x 		= 0;
 	y 		= 0;
 	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
 	col_body	= COL_MENUCONTENT_PLUS_6;
-	
+
 	//CComponentsDetailLine
 	y_down 		= 0;
 	h_mark_top 	= CC_HEIGHT_MIN;
@@ -488,13 +483,13 @@ CComponentsDetailLine::CComponentsDetailLine()
 CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_top, const int y_pos_down, const int h_mark_top_, const int h_mark_down_, fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
 	initVarDline();
-	
+
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos_top;
 	col_shadow	= color_shadow;
 	col_body	= color_line;
-	
+
 	//CComponentsDetailLine
 	y_down 		= y_pos_down;
 	h_mark_top 	= h_mark_top_;
@@ -505,9 +500,9 @@ void CComponentsDetailLine::initVarDline()
 {
 	//CComponents
 	initVarBasic();
-	
+
 	shadow_w	= 1;
-	
+
 	//CComponentsDetailLine
 	thickness 	= 4;
 }
@@ -537,40 +532,40 @@ CComponentsDetailLine::~CComponentsDetailLine()
 void CComponentsDetailLine::paint(bool do_save_bg)
 {
 	clear();
-	
+
 	int y_mark_top = y-h_mark_top/2+thickness/2;
 	int y_mark_down = y_down-h_mark_down/2+thickness/2;
 
 	int sw = shadow_w;
-	
+
 	comp_fbdata_t fbdata[] =
 	{
 		/* vertical item mark | */
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_body, 	0, 0, NULL, NULL},
 		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_top, 		sw, 			h_mark_top, 		col_shadow, 	0, 0, NULL, NULL},
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_top+h_mark_top, 	thickness+sw, 		sw	, 		col_shadow, 	0, 0, NULL, NULL},
-		
+
 		/* horizontal item line - */
 		{CC_FBDATA_TYPE_LINE, x, 			y,			width-thickness-sw,	thickness, 		col_body, 	0, 0, NULL, NULL},
 		{CC_FBDATA_TYPE_LINE, x+thickness,		y+thickness,		width-2*thickness-sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
-		
+
 		/* vertical connect line [ */
 		{CC_FBDATA_TYPE_LINE, x,			y+thickness, 		thickness, 		y_down-y-thickness, 	col_body, 	0, 0, NULL, NULL},
 		{CC_FBDATA_TYPE_LINE, x+thickness,		y+thickness+sw,		sw, 			y_down-y-thickness-sw,	col_shadow, 	0, 0, NULL, NULL},
-		
+
 		/* horizontal info line - */
 		{CC_FBDATA_TYPE_LINE, x,			y_down, 		width-thickness-sw, 	thickness, 		col_body, 	0, 0, NULL, NULL},
 		{CC_FBDATA_TYPE_LINE, x,			y_down+thickness, 	width-thickness-sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
-		
+
 		/* vertical info mark | */
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_body, 	0, 0, NULL, NULL},
 		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_down, 		sw, 			h_mark_down, 		col_shadow, 	0, 0, NULL, NULL},
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down+h_mark_down,thickness+sw, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
 	};
-	
+
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
 		v_fbdata.push_back(fbdata[i]);
-	
+
 	paintFbItems(do_save_bg);
 }
 
@@ -603,12 +598,12 @@ void CComponentsDetailLine::syncSysColors()
 
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsPIP from CComponentsContainer
+//sub class CComponentsPIP from CComponentsItem
 CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow)
 {
-	//CComponents, CComponentsContainer
-	initVarContainer();
-	
+	//CComponents, CComponentsItem
+	initVarItem();
+
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
 	screen_h = frameBuffer->getScreenHeight(true);
@@ -648,7 +643,7 @@ void CComponentsPIP::hide(bool no_restore)
 
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsPicture from CComponentsContainer
+//sub class CComponentsPicture from CComponentsItem
 CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos,
 					const std::string& picture_name, const int alignment, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
@@ -678,9 +673,9 @@ CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos, const 
 void CComponentsPicture::init(	int x_pos, int y_pos, const string& picture_name, const int alignment, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
-	//CComponents, CComponentsContainer
-	initVarContainer();
-	
+	//CComponents, CComponentsItem
+	initVarItem();
+
 	//CComponentsPicture
 	pic_name 	= picture_name;
 	pic_align	= alignment;
@@ -691,7 +686,7 @@ void CComponentsPicture::init(	int x_pos, int y_pos, const string& picture_name,
 	do_paint	= false;
 	if (pic_name.empty())
 		pic_width = pic_height = 0;
-	
+
 	//CComponents
 	x = pic_x	= x_pos;
 	y = pic_y	= y_pos;
@@ -731,15 +726,15 @@ void CComponentsPicture::initVarPicture()
 		if((pic_width > maxWidth) || (pic_height > maxHeight))
 			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, maxWidth, maxHeight);
 	}
-	
-#ifdef DEBUG	
+
+#ifdef DEBUG
 	if (pic_width == 0 || pic_height == 0)
 		printf("CComponentsPicture: %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
 #endif
 
 	pic_x += fr_thickness;
 	pic_y += fr_thickness;
-	
+
 	if (pic_height>0 && pic_width>0){
 		if (pic_align & CC_ALIGN_LEFT)
 			pic_x = x+fr_thickness;
@@ -753,7 +748,7 @@ void CComponentsPicture::initVarPicture()
 			pic_x = x+width/2-pic_width/2;
 		if (pic_align & CC_ALIGN_VER_CENTER)
 			pic_y = y+height/2-pic_height/2;
-		
+
 		do_paint = true;
 	}
 
@@ -767,7 +762,7 @@ void CComponentsPicture::paint(bool do_save_bg)
 	initVarPicture();
 	paintInit(do_save_bg);
 	pic_painted = false;
-	
+
 	if (do_paint){
 		if (picMode == CC_PIC_ICON)
 			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0, pic_offset, pic_paint, pic_paintBg, col_body);
@@ -785,7 +780,7 @@ void CComponentsPicture::hide(bool no_restore)
 
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsItemBox from CComponentsContainer
+//sub class CComponentsItemBox from CComponentsItem
 CComponentsItemBox::CComponentsItemBox()
 {
 	//CComponentsItemBox
@@ -802,8 +797,8 @@ CComponentsItemBox::~CComponentsItemBox()
 
 void CComponentsItemBox::initVarItemBox()
 {
-	//CComponents, CComponentsContainer
-	initVarContainer();
+	//CComponents, CComponentsItem
+	initVarItem();
 
 	//CComponentsItemBox
 	it_col_text 		= COL_MENUCONTENT;
@@ -986,9 +981,9 @@ void CComponentsItemBox::paintImage(size_t index, bool newElement)
 {
 	CComponentsPicture* pic = NULL;
 	pic = static_cast<CComponentsPicture*>(v_element_data[index].handler1);
-	
+
 	int pw = 0, ph = 0;
-	
+
 	if ((newElement) || (pic == NULL)) {
 		if (pic != NULL) {
 			pic->hide();
@@ -1002,7 +997,7 @@ void CComponentsItemBox::paintImage(size_t index, bool newElement)
 			pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].element);
 		v_element_data[index].handler1 = (void*)pic;
 	}
-	
+
 	pic->getPictureSize(&pw, &ph);
 	pic->setHeight(ph);
 	pic->setWidth(pw);
@@ -1016,7 +1011,7 @@ void CComponentsItemBox::paintText(size_t index, bool newElement)
 	//prepare textbox dimension instances
 	CBox* box = NULL;
 	box = static_cast<CBox*>(v_element_data[index].handler1);
-	
+
 	if ((newElement) || (box == NULL)) {
 		if (box != NULL) {
 			delete box;
@@ -1025,17 +1020,17 @@ void CComponentsItemBox::paintText(size_t index, bool newElement)
 		box = new CBox();
 		v_element_data[index].handler1 = (void*)box;
 	}
-	
+
 	box->iX      = v_element_data[index].x;
 	box->iY      = v_element_data[index].y;
 	box->iWidth  = v_element_data[index].width;
 	box->iHeight = v_element_data[index].height;
-	
-	
+
+
 	//prepare text
 	CTextBox* textbox = NULL;
 	textbox = static_cast<CTextBox*>(v_element_data[index].handler2);
-	
+
 	if ((newElement) || (textbox == NULL)) {
 		if (textbox != NULL) {
 			textbox->hide();
@@ -1045,13 +1040,13 @@ void CComponentsItemBox::paintText(size_t index, bool newElement)
 		textbox = new CTextBox(v_element_data[index].element.c_str(), font_text, CTextBox::AUTO_WIDTH|CTextBox::AUTO_HIGH, box, col_body);
 		v_element_data[index].handler2 = (void*)textbox;
 	}
-	
+
 	textbox->setTextBorderWidth(0);
 	textbox->enableBackgroundPaint(false);
 	textbox->setTextFont(font_text);
 	textbox->movePosition(box->iX, box->iY);
 	textbox->setTextColor(it_col_text);
-	
+
 	if (textbox->setText(&v_element_data[index].element))
 		textbox->paint();
 }
@@ -1069,7 +1064,7 @@ void CComponentsItemBox::paintElement(size_t index, bool newElement)
 			paintText(index,newElement);
 			break;
 		case CC_ITEMBOX_CLOCK:
-			font_text->RenderString(v_element_data[index].x, v_element_data[index].y, v_element_data[index].width, 
+			font_text->RenderString(v_element_data[index].x, v_element_data[index].y, v_element_data[index].width,
 						v_element_data[index].element.c_str(), it_col_text);
 			break;
 		default:
@@ -1275,18 +1270,18 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	//CComponentsItemBox
 	initVarTitleBar();
 	it_col_text 	= color_text;
-	
+
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
 	height		= h;
 	width 		= w;
 	col_body	= color_body;
-	
+
 	//CComponentsTitleBar
 	tb_c_text	= c_text;
 	tb_icon_name	= s_icon;
-	
+
 	initElements();
 }
 
@@ -1296,18 +1291,18 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	//CComponentsItemBox
 	initVarTitleBar();
 	it_col_text 	= color_text;
-	
+
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
 	height		= h;
 	width 		= w;
 	col_body	= color_body;
-	
+
 	//CComponentsTitleBar
 	tb_s_text	= s_text;
 	tb_icon_name	= s_icon;
-	
+
 	initElements();
 }
 
@@ -1317,19 +1312,19 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	//CComponentsItemBox
 	initVarTitleBar();
 	it_col_text 	= color_text;
-	
+
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
 	height		= h;
 	width 		= w;
 	col_body	= color_body;
-	
+
 	//CComponentsTitleBar
 	tb_locale_text	= locale_text;
 	tb_s_text	= g_Locale->getText(tb_locale_text);
 	tb_icon_name	= s_icon;
-	
+
 	initElements();
 }
 
@@ -1362,7 +1357,7 @@ void CComponentsTitleBar::initElements()
 void CComponentsTitleBar::paint(bool do_save_bg)
 {
 	calculateElements();
-	paintItemBox(do_save_bg);	
+	paintItemBox(do_save_bg);
 }
 
 
@@ -1384,9 +1379,9 @@ CComponentsForm::~CComponentsForm()
 
 void CComponentsForm::initVarForm()
 {
-	//CComponentsContainer
-	initVarContainer();
-	
+	//CComponentsItem
+	initVarItem();
+
 	//simple default dimensions
  	x 		= 0;
 	y 		= 0;
@@ -1410,7 +1405,7 @@ void CComponentsForm::paint(bool do_save_bg)
 {
 	//paint body
 	paintInit(do_save_bg);
-	
+
 	//paint header
 	paintHead();
 }
@@ -1420,7 +1415,7 @@ void CComponentsForm::paintHead()
 	//init header
 	if (tb == NULL){
 		tb = new CComponentsTitleBar();
-		
+
 		//init icon
 		if (!tb_icon.empty())
 			tb->addIcon(tb_icon, CC_ALIGN_LEFT);
@@ -1432,7 +1427,7 @@ void CComponentsForm::paintHead()
 		int tbh = tb->getHeight();
 		tb->setDimensionsAll(x, y, width, tbh);
 	}
-	
+
 	//paint titlebar
 	tb->paint(CC_SAVE_SCREEN_NO);
 }
@@ -1459,7 +1454,7 @@ void CComponentsForm::hide(bool no_restore)
 }
 
 
-//sub class CComponentsText from CComponentsContainer
+//sub class CComponentsText from CComponentsItem
 CComponentsText::CComponentsText()
 {
 	//CComponentsText
@@ -1480,9 +1475,9 @@ CComponentsText::~CComponentsText()
 
 void CComponentsText::initVarText()
 {
-	//CComponents, CComponentsContainer
-	initVarContainer();
-	
+	//CComponents, CComponentsItem
+	initVarItem();
+
 	//CComponentsText
 	ct_font 	= NULL;
 	ct_box		= NULL;
@@ -1499,11 +1494,11 @@ void CComponentsText::initText()
 	//set default font, if is no font definied
 	if (ct_font == NULL)
 		ct_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
-	
+
 	//define height and width from font size
 	height 	= max(height, 	ct_font->getHeight()			);
 	width 	= max(width, 	ct_font->getRenderWidth(ct_text, true)	);
-	
+
 	//text box dimensions
 	if (ct_box == NULL)
 		ct_box = new CBox();
@@ -1511,11 +1506,11 @@ void CComponentsText::initText()
 	ct_box->iY 	= y+fr_thickness;
 	ct_box->iWidth 	= width-2*fr_thickness;
 	ct_box->iHeight = height-2*fr_thickness;
-	
+
 	//init textbox
-	if (ct_textbox == NULL) 
+	if (ct_textbox == NULL)
 		ct_textbox = new CTextBox(ct_text);
-	
+
 	//set text box properties
 	ct_textbox->setTextBorderWidth(0);
 	ct_textbox->enableBackgroundPaint(false);
@@ -1523,7 +1518,7 @@ void CComponentsText::initText()
 	ct_textbox->setTextMode(ct_text_mode);
 	ct_textbox->movePosition(ct_box->iX, ct_box->iY);
 	ct_textbox->setTextColor(ct_col_text);
-	
+
 	//set text
 	string new_text = static_cast <string> (ct_text);
 	ct_text_sended = ct_textbox->setText(&new_text, width);
