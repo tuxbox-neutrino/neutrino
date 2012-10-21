@@ -82,7 +82,7 @@ int my_system(const char * cmd, const char * arg1, const char * arg2, const char
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
 				close(i);
-			if(execlp(cmd, cmd, arg1, arg2, arg3, arg4, arg5, arg6, NULL))
+			if(execlp(cmd, cmd, arg1, arg2, arg3, arg4, arg5, arg6, (char*)NULL))
 			{
 				std::string txt = "ERROR: my_system \"" + (std::string) cmd + "\"";
 				perror(txt.c_str());
