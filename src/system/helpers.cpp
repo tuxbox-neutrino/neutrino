@@ -33,6 +33,7 @@
 #include <sys/vfs.h>    /* or <sys/statfs.h> */
 #include <string.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <zapit/debug.h>
 
 #include <system/helpers.h>
@@ -233,5 +234,233 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 	fclose(f);
 	kbfree = kbfree + cached + buffers;
 	printf("mem: total %ld cached %ld free %ld\n", kbtotal, cached, kbfree);
+	return true;
+}
+
+std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
+{
+	std::string result = str.erase(str.find_last_not_of(trimChars) + 1);
+	return result.erase(0, result.find_first_not_of(trimChars));
+}
+
+CFileHelpers::CFileHelpers()
+{
+	FileBufSize	= 0xFFFF;
+	FileBuf		= (char*)malloc(FileBufSize);
+	doCopyFlag	= true;
+}
+
+CFileHelpers::~CFileHelpers()
+{
+	if (FileBuf != NULL)
+		free(FileBuf);
+}
+
+CFileHelpers* CFileHelpers::getInstance()
+{
+	static CFileHelpers* FileHelpers = NULL;
+	if(!FileHelpers)
+		FileHelpers = new CFileHelpers();
+	return FileHelpers;
+}
+
+bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
+{
+	doCopyFlag = true;
+	unlink(Dst);
+	if ((fd1 = open(Src, O_RDONLY)) < 0)
+		return false;
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT)) < 0) {
+		close(fd2);
+		return false;
+	}
+
+	long block;
+	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
+	lseek64(fd1, 0, SEEK_SET);
+	if (fsizeSrc64 > 0x7FFFFFF0) { // > 2GB
+		off64_t fsize64 = fsizeSrc64;
+		block = FileBufSize;
+		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
+		while(fsize64 > 0) {
+			if(fsize64 < (off64_t)FileBufSize)
+				block = (long)fsize64;
+			read(fd1, FileBuf, block);
+			write(fd2, FileBuf, block);
+			fsize64 -= block;
+			if (!doCopyFlag)
+				break;
+		}
+		if (doCopyFlag) {
+			lseek64(fd2, 0, SEEK_SET);
+			off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
+			if (fsizeSrc64 != fsizeDst64)
+				return false;
+		}
+	}
+	else { // < 2GB
+		long fsizeSrc = lseek(fd1, 0, SEEK_END);
+		lseek(fd1, 0, SEEK_SET);
+		long fsize = fsizeSrc;
+		block = FileBufSize;
+		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
+		while(fsize > 0) {
+			if(fsize < (long)FileBufSize)
+				block = fsize;
+			read(fd1, FileBuf, block);
+			write(fd2, FileBuf, block);
+			fsize -= block;
+			if (!doCopyFlag)
+				break;
+		}
+		if (doCopyFlag) {
+			lseek(fd2, 0, SEEK_SET);
+			long fsizeDst = lseek(fd2, 0, SEEK_END);
+			if (fsizeSrc != fsizeDst)
+				return false;
+		}
+	}
+	close(fd1);
+	close(fd2);
+
+	if (!doCopyFlag) {
+		sync();
+		unlink(Dst);
+		return false;
+	}
+
+	chmod(Dst, mode);
+	return true;
+}
+
+bool CFileHelpers::copyDir(const char *Src, const char *Dst)
+{
+	DIR *Directory;
+	struct dirent *CurrentFile;
+	static struct stat FileInfo;
+	char srcPath[PATH_MAX];
+	char dstPath[PATH_MAX];
+	char buf[PATH_MAX];
+
+	//open directory
+	if ((Directory = opendir(Src)) == NULL)
+		return false;
+	if (lstat(Src, &FileInfo) == -1) {
+		closedir(Directory);
+		return false;
+	}
+	// create directory
+		// is symlink
+	if (S_ISLNK(FileInfo.st_mode)) {
+		int len = readlink(Src, buf, sizeof(buf)-1);
+		if (len != -1) {
+			buf[len] = '\0';
+			symlink(buf, Dst);
+		}
+	}
+	else {
+		// directory
+		if (createDir(Dst, FileInfo.st_mode & 0x0FFF) == false) {
+			if (errno != EEXIST) {
+				closedir(Directory);
+				return false;
+			}
+		}
+	}
+
+	// read directory
+	while ((CurrentFile = readdir(Directory)) != NULL) {
+		// ignore '.' and '..'
+		if (strcmp(CurrentFile->d_name, ".") && strcmp(CurrentFile->d_name, "..")) {
+			strcpy(srcPath, Src);
+			strcat(srcPath, "/");
+			strcat(srcPath, CurrentFile->d_name);
+			if (lstat(srcPath, &FileInfo) == -1) {
+				closedir(Directory);
+				return false;
+			}
+			strcpy(dstPath, Dst);
+			strcat(dstPath, "/");
+			strcat(dstPath, CurrentFile->d_name);
+			// is symlink
+			if (S_ISLNK(FileInfo.st_mode)) {
+				int len = readlink(srcPath, buf, sizeof(buf)-1);
+				if (len != -1) {
+					buf[len] = '\0';
+					symlink(buf, dstPath);
+				}
+			}
+			// is directory
+			else if (S_ISDIR(FileInfo.st_mode)) {
+				copyDir(srcPath, dstPath);
+			}
+			// is file
+			else if (S_ISREG(FileInfo.st_mode)) {
+				copyFile(srcPath, dstPath, FileInfo.st_mode & 0x0FFF);
+			}
+		}
+	}
+	closedir(Directory);
+	return true;
+}
+
+bool CFileHelpers::createDir(const char *Dir, mode_t mode)
+{
+	char dirPath[PATH_MAX];
+	DIR *dir;
+	if ((dir = opendir(Dir)) != NULL) {
+		closedir(dir);
+		errno = EEXIST;
+		return false;
+	}
+
+	int ret = -1;
+	while (ret == -1) {
+		strcpy(dirPath, Dir);
+		ret = mkdir(dirPath, mode);
+		if ((errno == ENOENT) && (ret == -1)) {
+			char * pos = strrchr(dirPath,'/');
+			if (pos != NULL) {
+				pos[0] = '\0';
+				createDir(dirPath, mode);
+			}
+		}
+		else {
+			if (ret == 0)
+				return true;
+			if (errno == EEXIST)
+				return true;
+			else
+				return false;
+		}
+	}
+	errno = 0;
+	return true;
+}
+
+bool CFileHelpers::removeDir(const char *Dir)
+{
+	DIR *dir;
+	struct dirent *entry;
+	char path[PATH_MAX];
+
+	dir = opendir(Dir);
+	if (dir == NULL) {
+		printf("Error opendir()\n");
+		return false;
+	}
+	while ((entry = readdir(dir)) != NULL) {
+		if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, "..")) {
+			snprintf(path, (size_t) PATH_MAX, "%s/%s", Dir, entry->d_name);
+			if (entry->d_type == DT_DIR)
+				removeDir(path);
+			else
+				unlink(path);
+		}
+	}
+	closedir(dir);
+	rmdir(Dir);
+
+	errno = 0;
 	return true;
 }
