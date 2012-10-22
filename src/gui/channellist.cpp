@@ -622,13 +622,15 @@ int CChannelList::show()
 		else if ((msg == CRCInput::RC_red) || (msg == CRCInput::RC_epg)) {
 			hide();
 
+			/* RETURN_EXIT_ALL on FAV/SAT buttons or messages_return::cancel_all from CNeutrinoApp::getInstance()->handleMsg() */
 			if ( g_EventList->exec(chanlist[selected]->channel_id, chanlist[selected]->getName()) == menu_return::RETURN_EXIT_ALL) {
 				res = -2;
 				loop = false;
+			} else {
+				paintHead();
+				paint();
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 			}
-			paintHead();
-			paint();
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 		}
 		else if (msg == CRCInput::RC_yellow) {
 			bShowBouquetList = true;
