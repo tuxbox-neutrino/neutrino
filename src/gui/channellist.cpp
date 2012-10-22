@@ -738,9 +738,11 @@ int CChannelList::show()
 			}
 		}
 		else if (( msg == CRCInput::RC_spkr ) && g_settings.channellist_new_zap_mode ) {
-			this->new_mode_active = (this->new_mode_active ? 0 : 1);
-			paintHead();
-			showChannelLogo();
+			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) {
+				this->new_mode_active = (this->new_mode_active ? 0 : 1);
+				paintHead();
+				showChannelLogo();
+			}
 		}
 		else if (CRCInput::isNumeric(msg) && (this->historyMode || g_settings.sms_channel)) {
 			if (this->historyMode) { //numeric zap
