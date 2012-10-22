@@ -37,6 +37,8 @@
 #include "gui/plugins.h"//for relodplugins
 #include <neutrino.h>
 #include <driver/screenshot.h>
+#include "gui/rc_lock.h"
+
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -456,20 +458,17 @@ void CControlAPI::RCCGI(CyhookHandler *hh)
 {
 	if (!(hh->ParamList.empty()))
 	{
-		static bool on_off = false;
 		if (hh->ParamList["1"] == "lock"){	// lock remote control
-			if(!on_off){
+			if(!CRCLock::locked){
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD);
-				on_off = true;
 			}else{
 				hh->WriteLn("remote is already locked");
 				return;
 			}
 		}
 		else if (hh->ParamList["1"] == "unlock"){// unlock remote control
-			if(on_off){
+			if(CRCLock::locked){
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD);
-				on_off = false;
 			  
 			}else{
 				hh->WriteLn("remote is already unlocked");
