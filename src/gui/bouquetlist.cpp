@@ -71,9 +71,9 @@ CBouquetList::CBouquetList(const char * const Name)
 
 CBouquetList::~CBouquetList()
 {
-        for (std::vector<CBouquet *>::iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
-               	delete (*it);
-        }
+	for (std::vector<CBouquet *>::iterator it = Bouquets.begin(); it != Bouquets.end(); ++it)
+		delete (*it);
+
 	Bouquets.clear();
 }
 
@@ -144,7 +144,6 @@ bool CBouquetList::hasChannelID(t_channel_id channel_id)
 	return false;
 }
 
-extern CBouquetList   * TVfavList;
 bool CBouquetList::adjustToChannelID(t_channel_id channel_id)
 {
 //printf("CBouquetList::adjustToChannelID [%s] to %llx, selected %d size %d\n", name.c_str(), channel_id, selected, Bouquets.size());
@@ -294,11 +293,28 @@ int CBouquetList::doMenu()
 
 const struct button_label CBouquetListButtons[4] =
 {
-        { NEUTRINO_ICON_BUTTON_RED, LOCALE_CHANNELLIST_FAVS},
-        { NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_PROVS},
-        { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_CHANNELLIST_SATS},
-        { NEUTRINO_ICON_BUTTON_BLUE, LOCALE_CHANNELLIST_HEAD}
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_CHANNELLIST_FAVS},
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_PROVS},
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_CHANNELLIST_SATS},
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_CHANNELLIST_HEAD}
 };
+
+void CBouquetList::updateSelection(int newpos)
+{
+	if((int) selected != newpos) {
+		int prev_selected = selected;
+		unsigned int oldliststart = liststart;
+
+		selected = newpos;
+		liststart = (selected/listmaxshow)*listmaxshow;
+		if (oldliststart != liststart)
+			paint();
+		else {
+			paintItem(prev_selected - liststart);
+			paintItem(selected - liststart);
+		}
+	}
+}
 
 /* bShowChannelList default to true, returns new bouquet or -1/-2 */
 int CBouquetList::show(bool bShowChannelList)
@@ -415,72 +431,37 @@ int CBouquetList::show(bool bShowChannelList)
 				paint();
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_list_start ) {
-			selected=0;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			paint();
+			updateSelection(0);
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_list_end ) {
-			selected=Bouquets.size()-1;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			paint();
+			updateSelection(Bouquets.size()-1);
 		}
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
-			int step = 0;
-			int prev_selected = selected;
-
-			step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-			selected -= step;
-#if 0
-			if((prev_selected-step) < 0)            // because of uint
-				selected = Bouquets.size()-1;
-#endif
-			if((prev_selected-step) < 0) {
-				if(prev_selected != 0 && step != 1)
-					selected = 0;
+			int step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+			int new_selected = selected - step;
+			if (new_selected < 0) {
+				if (selected != 0 && step != 1)
+					new_selected = 0;
 				else
-					selected = Bouquets.size() - 1;
+					new_selected = Bouquets.size() - 1;
 			}
 
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-				paint();
-			else
-				paintItem(selected - liststart);
+			updateSelection(new_selected);
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
-			unsigned int step = 0;
-			unsigned int prev_selected = selected;
-
-			step = ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-#if 0
-			if(selected >= Bouquets.size()) {
-				if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Bouquets.size() / listmaxshow) + 1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
-			}
-#endif
-			if(selected >= Bouquets.size()) {
-				if((Bouquets.size() - listmaxshow -1 < prev_selected) && (prev_selected != (Bouquets.size() - 1)) && (step != 1))
-					selected = Bouquets.size() - 1;
+			int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+			int new_selected = selected + step;
+			if (new_selected >= (int) Bouquets.size()) {
+				if ((Bouquets.size() - listmaxshow -1 < selected) && (selected != (Bouquets.size() - 1)) && (step != 1))
+					new_selected = Bouquets.size() - 1;
 				else if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
-					selected = 0;
+					new_selected = 0;
 				else
-					selected = ((step == listmaxshow) && (selected < (((Bouquets.size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
+					new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((Bouquets.size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
 			}
-
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-				paint();
-			else
-				paintItem(selected - liststart);
+			updateSelection(new_selected);
 		}
 		else if(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
 			if(bShowChannelList) {
@@ -522,17 +503,8 @@ int CBouquetList::show(bool bShowChannelList)
 				pos = lmaxpos;
 			}
 
-			int prevselected=selected;
-			selected = (chn - 1) % Bouquets.size(); // is % necessary (i.e. can firstselected be > Bouquets.size()) ?
-			paintItem(prevselected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart) {
-				paint();
-			} else {
-				paintItem(selected - liststart);
-			}
-
+			int new_selected = (chn - 1) % Bouquets.size(); // is % necessary (i.e. can firstselected be > Bouquets.size()) ?
+			updateSelection(new_selected);
 		} else {
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 				loop = false;
@@ -578,8 +550,8 @@ void CBouquetList::paintItem(int pos)
 	} else {
 		if(npos < (int) Bouquets.size())
 			iscurrent = !Bouquets[npos]->channelList->isEmpty();
-                color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
-                bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
+		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
+		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
 	}
 

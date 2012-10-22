@@ -99,6 +99,7 @@ class CBouquetList
 		void paintHead();
 		void hide();
 		int doMenu();
+		void updateSelection(int newpos);
 
 	public:
 		CBouquetList(const char * const Name = NULL);
