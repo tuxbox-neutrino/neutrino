@@ -802,20 +802,19 @@ int CChannelList::show()
 		else if ( msg == CRCInput::RC_blue )
 		{
 			displayNext = !displayNext;
-			paint();
 			paintHead(); // update button bar
-			showChannelLogo();
+			paint();
 		}
 		else if ( msg == CRCInput::RC_green )
 		{
 			int mode = CNeutrinoApp::getInstance()->GetChannelMode();
-			if(mode){
+			if(mode != LIST_MODE_FAV) {
 				g_settings.channellist_sort_mode++;
 				if(g_settings.channellist_sort_mode > 2)
 					g_settings.channellist_sort_mode = 0;
 				CNeutrinoApp::getInstance()->SetChannelMode(mode);
-				paint();
 				paintHead(); // update button bar
+				paint();
 			}
 		}
 
@@ -1624,7 +1623,7 @@ void CChannelList::paintButtonBar(bool is_current)
 {
 	//printf("[neutrino channellist] %s...%d, selected %d\n", __FUNCTION__, __LINE__, selected);
 	unsigned int smode = CNeutrinoApp::getInstance()->GetChannelMode();
-	int num_buttons = smode ? NUM_LIST_BUTTONS_SORT : NUM_LIST_BUTTONS;
+	int num_buttons = smode != LIST_MODE_FAV ? NUM_LIST_BUTTONS_SORT : NUM_LIST_BUTTONS;
 
 	struct button_label Button[num_buttons];
 	const neutrino_locale_t button_ids[] = {LOCALE_INFOVIEWER_NOW,LOCALE_INFOVIEWER_NEXT,LOCALE_MAINMENU_RECORDING,LOCALE_MAINMENU_RECORDING_STOP,NONEXISTANT_LOCALE,
