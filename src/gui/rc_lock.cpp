@@ -38,6 +38,7 @@
 #include <gui/widget/stringinput.h>
 
 const std::string CRCLock::NO_USER_INPUT = "noUserInput";
+bool CRCLock::locked = false;
 
 // -- Menue Handler Interface
 // -- Infinite Loop to lock remote control (until release lock key pressed)
@@ -45,6 +46,9 @@ const std::string CRCLock::NO_USER_INPUT = "noUserInput";
 
 int CRCLock::exec(CMenuTarget* parent, const std::string &actionKey)
 {
+	if(locked)
+		return menu_return::RETURN_EXIT_ALL;
+
 	if (parent)
 		parent->hide();
 
@@ -55,7 +59,9 @@ int CRCLock::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 
 	// -- Lockup Box
+	locked = true;
 	lockBox();
+	locked = false;
 
 	ShowLocalizedMessage(LOCALE_RCLOCK_TITLE, LOCALE_RCLOCK_UNLOCKMSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO,450, no_input ? 5 : -1);
 	return  menu_return::RETURN_EXIT_ALL;

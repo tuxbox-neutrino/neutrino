@@ -37,6 +37,8 @@
 #include "gui/plugins.h"//for relodplugins
 #include <neutrino.h>
 #include <driver/screenshot.h>
+#include "gui/rc_lock.h"
+
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -425,13 +427,21 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 	{
 		if (hh->ParamList["1"] == "on")	// standby mode on
 		{
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD);
-			hh->SendOk();
+			if(CNeutrinoApp::getInstance()->getMode() == 4){
+				hh->WriteLn("standby is already on");
+			}else {
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD);
+				hh->SendOk();
+			}
 		}
 		else if (hh->ParamList["1"] == "off")// standby mode off
 		{
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
-			hh->SendOk();
+			if(CNeutrinoApp::getInstance()->getMode() != 4){
+				hh->WriteLn("standby is already off");
+			}else {
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
+				hh->SendOk();
+			}
 		}
 		else
 			hh->SendError();
@@ -448,12 +458,26 @@ void CControlAPI::RCCGI(CyhookHandler *hh)
 {
 	if (!(hh->ParamList.empty()))
 	{
-		if (hh->ParamList["1"] == "lock")	// lock remote control
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD);
-		else if (hh->ParamList["1"] == "unlock")// unlock remote control
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD);
-		else
+		if (hh->ParamList["1"] == "lock"){	// lock remote control
+			if(!CRCLock::locked){
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD);
+			}else{
+				hh->WriteLn("remote is already locked");
+				return;
+			}
+		}
+		else if (hh->ParamList["1"] == "unlock"){// unlock remote control
+			if(CRCLock::locked){
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD);
+			  
+			}else{
+				hh->WriteLn("remote is already unlocked");
+				return;
+			}
+		}
+		else{
 			hh->SendError();
+		}
 	}
 	hh->SendOk();
 }
@@ -1472,16 +1496,25 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 			SendAllCurrentVAPid(hh);
 		else if (hh->ParamList["1"] == "stopplayback")
 		{
-			NeutrinoAPI->Zapit->stopPlayBack();
-			NeutrinoAPI->Sectionsd->setPauseScanning(true);
-			hh->SendOk();
+			if(!NeutrinoAPI->Zapit->isPlayBackActive()){
+				hh->WriteLn("playback is already off");
+			}else{
+				NeutrinoAPI->Zapit->stopPlayBack();
+				NeutrinoAPI->Sectionsd->setPauseScanning(true);
+				hh->SendOk();
+			}
 		}
 		else if (hh->ParamList["1"] == "startplayback")
 		{
-			NeutrinoAPI->Zapit->startPlayBack();
-			NeutrinoAPI->Sectionsd->setPauseScanning(false);
-			dprintf("start playback requested..\n");
-			hh->SendOk();
+			if(NeutrinoAPI->Zapit->isPlayBackActive()){
+				hh->WriteLn("playback is already on");
+			}else{
+				NeutrinoAPI->Zapit->startPlayBack();
+				NeutrinoAPI->Sectionsd->setPauseScanning(false);
+				dprintf("start playback requested..\n");
+				hh->SendOk();
+			}
+			
 		}
 		else if (hh->ParamList["1"] == "statusplayback")
 			hh->Write((char *) (NeutrinoAPI->Zapit->isPlayBackActive() ? "1" : "0"));

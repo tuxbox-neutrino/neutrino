@@ -3197,6 +3197,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(mode == mode_radio && g_Radiotext)
 			g_Radiotext->radiotext_stop();
 
+		lastMode = mode;
+		mode = mode_standby;
+
 		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
 		} else {
@@ -3232,8 +3235,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(!CRecordManager::getInstance()->RecordingStatus())
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 
-		lastMode = mode;
-		mode = mode_standby;
 		//fan speed
 		if (g_info.has_fan) {
 			int fspeed = 1;
