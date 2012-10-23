@@ -274,9 +274,15 @@ CComponentsText::~CComponentsText()
 {
 	hide();
 	clearSavedScreen();
-	delete ct_font;
-	delete ct_box;
-	delete ct_textbox;
+	
+	if (ct_box)
+		delete ct_box;
+	ct_box = NULL;
+	
+	if (ct_textbox)
+		delete ct_textbox;
+	ct_textbox = NULL;
+	
 	clear();
 }
 
@@ -343,7 +349,8 @@ void CComponentsText::paint(bool do_save_bg)
 
 void CComponentsText::hide(bool no_restore)
 {
-	ct_textbox->hide();
+	if (ct_textbox)
+		ct_textbox->hide();
 	hideContainer(no_restore);
 }
 
@@ -351,14 +358,13 @@ void CComponentsText::hide(bool no_restore)
 //sub class CComponentsInfoBox from CComponentsItem
 CComponentsInfoBox::CComponentsInfoBox()
 {
-	//CComponents, CComponentsItem
-	initVarItem();
+	//CComponents, CComponentsItem,  CComponentsText
+	initVarText();
 
 	//CComponentsInfoBox
 	initVarInfobox();
 	text 		= NULL;
 	text_mode	= CTextBox::AUTO_WIDTH;
-	font		= NULL;
 	ibox_col_text	= COL_MENUCONTENT;
 }
 
@@ -367,8 +373,8 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 				       bool has_shadow,
 				       fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponents, CComponentsItem
-	initVarItem();
+	//CComponents, CComponentsItem,  CComponentsText
+	initVarText();
 
 	x 		= x_pos;
 	y 		= y_pos;
@@ -383,7 +389,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	initVarInfobox();
 	text 		= info_text;
 	text_mode	= mode;
-	font		= font_text;
+	ct_font		= font_text;
 	ibox_col_text	= color_text;
 }
 
@@ -391,8 +397,15 @@ CComponentsInfoBox::~CComponentsInfoBox()
 {
 	hide();
 	clearSavedScreen();
-	delete textbox;
-	delete box;
+	
+	if (ct_textbox)
+		delete ct_textbox;
+	ct_textbox = NULL;
+	
+	if (ct_box)
+		delete ct_box;
+	ct_box = NULL;
+	
 	delete pic;
 	clear();
 }
@@ -400,11 +413,9 @@ CComponentsInfoBox::~CComponentsInfoBox()
 void CComponentsInfoBox::initVarInfobox()
 {
 	//CComponents, CComponentsItem
-	initVarItem();
+	initVarText();
 
 	//CComponentsInfoBox
-	box		= NULL;
-	textbox 	= NULL;
 	pic 		= NULL;
 	pic_name	= "";
 	x_offset	= 10;
@@ -416,7 +427,7 @@ void CComponentsInfoBox::setText(neutrino_locale_t locale_text, int mode, Font* 
 {
 	text = g_Locale->getText(locale_text);
 	text_mode = mode;
-	font = font_text;
+	ct_font = font_text;
 }
 
 void CComponentsInfoBox::paintPicture()
@@ -439,32 +450,32 @@ void CComponentsInfoBox::paintPicture()
 
 void CComponentsInfoBox::paintText()
 {
-	if (box == NULL)
-		box = new CBox();
+	if (ct_box == NULL)
+		ct_box = new CBox();
 
-	box->iX = x_text;
-	box->iY = y+fr_thickness;
+	ct_box->iX = x_text;
+	ct_box->iY = y+fr_thickness;
 
 	//text width and height
-	box->iWidth = width-2*fr_thickness-(x_text-x);
-	box->iHeight = height-2*fr_thickness;
+	ct_box->iWidth = width-2*fr_thickness-(x_text-x);
+	ct_box->iHeight = height-2*fr_thickness;
 
 	//init textbox
-	if (textbox == NULL) {
-		textbox = new CTextBox(text, font, text_mode, box, col_body);
-		textbox->setTextBorderWidth(0);
-		textbox->enableBackgroundPaint(false);
+	if (ct_textbox == NULL) {
+		ct_textbox = new CTextBox(text, ct_font, text_mode, ct_box, col_body);
+		ct_textbox->setTextBorderWidth(0);
+		ct_textbox->enableBackgroundPaint(false);
 	}
 
 	//set properties
-	textbox->setTextFont(font);
-	textbox->setWindowPos(box);
-	textbox->setTextColor(ibox_col_text);
+	ct_textbox->setTextFont(ct_font);
+	ct_textbox->setWindowPos(ct_box);
+	ct_textbox->setTextColor(ibox_col_text);
 
 	//set text
 	string new_text = static_cast <string> (text);
-	if (textbox->setText(&new_text))
-		textbox->paint();
+	if (ct_textbox->setText(&new_text))
+		ct_textbox->paint();
 }
 
 void CComponentsInfoBox::paint(bool do_save_bg)
