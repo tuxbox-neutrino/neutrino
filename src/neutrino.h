@@ -120,7 +120,7 @@ private:
 	bool				skipShutdownTimer;
 	bool 				skipSleepnTimer;
 	bool 				pbBlinkChange;
-
+	bool				lockStandbyCall;
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 

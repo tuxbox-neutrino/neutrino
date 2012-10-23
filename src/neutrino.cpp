@@ -228,6 +228,7 @@ CNeutrinoApp::CNeutrinoApp()
 	RADIOchannelList	= NULL;
 	skipShutdownTimer	= false;
 	skipSleepnTimer		= false;
+	lockStandbyCall		= false;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= 0;
@@ -3179,7 +3180,11 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 {
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
-	
+
+	if(lockStandbyCall)
+		return;
+
+	lockStandbyCall = true;
 	if( bOnOff ) {
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
@@ -3197,8 +3202,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(mode == mode_radio && g_Radiotext)
 			g_Radiotext->radiotext_stop();
 
-		lastMode = mode;
-		mode = mode_standby;
 
 		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
@@ -3234,6 +3237,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		if(!CRecordManager::getInstance()->RecordingStatus())
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
+
+		lastMode = mode;
+		mode = mode_standby;
 
 		//fan speed
 		if (g_info.has_fan) {
@@ -3319,6 +3325,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 #endif
 		StartSubtitles();
 	}
+	lockStandbyCall = false;
 }
 
 void CNeutrinoApp::radioMode( bool rezap)
