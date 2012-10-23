@@ -260,6 +260,94 @@ void CComponentsItem::syncSysColors()
 	col_frame 	= COL_MENUCONTENT_PLUS_6;
 }
 
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsText from CComponentsItem
+CComponentsText::CComponentsText()
+{
+	//CComponentsText
+	initVarText();
+}
+
+
+CComponentsText::~CComponentsText()
+{
+	hide();
+	clearSavedScreen();
+	delete ct_font;
+	delete ct_box;
+	delete ct_textbox;
+	clear();
+}
+
+
+void CComponentsText::initVarText()
+{
+	//CComponents, CComponentsItem
+	initVarItem();
+
+	//CComponentsText
+	ct_font 	= NULL;
+	ct_box		= NULL;
+	ct_textbox	= NULL;
+	ct_text 	= NULL;
+	ct_text_mode	= CTextBox::SCROLL;
+	ct_col_text	= COL_MENUCONTENT;
+	ct_text_sended	= false;
+}
+
+
+void CComponentsText::initText()
+{
+	//set default font, if is no font definied
+	if (ct_font == NULL)
+		ct_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+
+	//define height and width from font size
+	height 	= max(height, 	ct_font->getHeight()			);
+	width 	= max(width, 	ct_font->getRenderWidth(ct_text, true)	);
+
+	//text box dimensions
+	if (ct_box == NULL)
+		ct_box = new CBox();
+	ct_box->iX 	= x+fr_thickness;
+	ct_box->iY 	= y+fr_thickness;
+	ct_box->iWidth 	= width-2*fr_thickness;
+	ct_box->iHeight = height-2*fr_thickness;
+
+	//init textbox
+	if (ct_textbox == NULL)
+		ct_textbox = new CTextBox(ct_text);
+
+	//set text box properties
+	ct_textbox->setTextBorderWidth(0);
+	ct_textbox->enableBackgroundPaint(false);
+	ct_textbox->setTextFont(ct_font);
+	ct_textbox->setTextMode(ct_text_mode);
+	ct_textbox->movePosition(ct_box->iX, ct_box->iY);
+	ct_textbox->setTextColor(ct_col_text);
+
+	//set text
+	string new_text = static_cast <string> (ct_text);
+	ct_text_sended = ct_textbox->setText(&new_text, width);
+}
+
+void CComponentsText::paint(bool do_save_bg)
+{
+	initText();
+	paintInit(do_save_bg);
+	if (ct_text_sended)
+		ct_textbox->paint();
+	ct_text_sended = false;
+}
+
+void CComponentsText::hide(bool no_restore)
+{
+	ct_textbox->hide();
+	hideContainer(no_restore);
+}
+
+
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox from CComponentsItem
 CComponentsInfoBox::CComponentsInfoBox()
@@ -1454,88 +1542,4 @@ void CComponentsForm::hide(bool no_restore)
 }
 
 
-//sub class CComponentsText from CComponentsItem
-CComponentsText::CComponentsText()
-{
-	//CComponentsText
-	initVarText();
-}
-
-
-CComponentsText::~CComponentsText()
-{
-	hide();
-	clearSavedScreen();
-	delete ct_font;
-	delete ct_box;
-	delete ct_textbox;
-	clear();
-}
-
-
-void CComponentsText::initVarText()
-{
-	//CComponents, CComponentsItem
-	initVarItem();
-
-	//CComponentsText
-	ct_font 	= NULL;
-	ct_box		= NULL;
-	ct_textbox	= NULL;
-	ct_text 	= NULL;
-	ct_text_mode	= CTextBox::SCROLL;
-	ct_col_text	= COL_MENUCONTENT;
-	ct_text_sended	= false;
-}
-
-
-void CComponentsText::initText()
-{
-	//set default font, if is no font definied
-	if (ct_font == NULL)
-		ct_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
-
-	//define height and width from font size
-	height 	= max(height, 	ct_font->getHeight()			);
-	width 	= max(width, 	ct_font->getRenderWidth(ct_text, true)	);
-
-	//text box dimensions
-	if (ct_box == NULL)
-		ct_box = new CBox();
-	ct_box->iX 	= x+fr_thickness;
-	ct_box->iY 	= y+fr_thickness;
-	ct_box->iWidth 	= width-2*fr_thickness;
-	ct_box->iHeight = height-2*fr_thickness;
-
-	//init textbox
-	if (ct_textbox == NULL)
-		ct_textbox = new CTextBox(ct_text);
-
-	//set text box properties
-	ct_textbox->setTextBorderWidth(0);
-	ct_textbox->enableBackgroundPaint(false);
-	ct_textbox->setTextFont(ct_font);
-	ct_textbox->setTextMode(ct_text_mode);
-	ct_textbox->movePosition(ct_box->iX, ct_box->iY);
-	ct_textbox->setTextColor(ct_col_text);
-
-	//set text
-	string new_text = static_cast <string> (ct_text);
-	ct_text_sended = ct_textbox->setText(&new_text, width);
-}
-
-void CComponentsText::paint(bool do_save_bg)
-{
-	initText();
-	paintInit(do_save_bg);
-	if (ct_text_sended)
-		ct_textbox->paint();
-	ct_text_sended = false;
-}
-
-void CComponentsText::hide(bool no_restore)
-{
-	ct_textbox->hide();
-	hideContainer(no_restore);
-}
 
