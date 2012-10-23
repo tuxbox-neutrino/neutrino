@@ -2349,7 +2349,7 @@ _repeat:
 				SetChannelMode(old_mode);
 				bouquetList->activateBouquet(old_b, false);
 				if(!bouquetList->Bouquets.empty())
-					bouquetList->Bouquets[old_b]->channelList->setSelected(old_num);
+					bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->setSelected(old_num);
 				StartSubtitles(mode == mode_tv);
 			}
 			else if(nNewChannel == -3) { // list mode changed
