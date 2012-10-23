@@ -248,7 +248,7 @@ class CComponentsInfoBox : public CComponentsItem
 	private:
 		const char* text;
 		int text_mode; //see textbox.h for possible modes
-		int x_offset;
+		int x_text, x_offset;
 		Font* font;
 		CBox * box;
 		CTextBox * textbox;
@@ -277,9 +277,9 @@ class CComponentsInfoBox : public CComponentsItem
 		inline void setTextColor(fb_pixel_t color_text){ ibox_col_text = color_text;};
 		inline void setSpaceOffset(const int offset){x_offset = offset;};
 		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
-		void removeLineBreaks(std::string& str);
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void removeLineBreaks(std::string& str);
 };
 
 

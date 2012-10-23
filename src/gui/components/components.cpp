@@ -347,7 +347,6 @@ void CComponentsText::hide(bool no_restore)
 	hideContainer(no_restore);
 }
 
-
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox from CComponentsItem
 CComponentsInfoBox::CComponentsInfoBox()
@@ -409,6 +408,7 @@ void CComponentsInfoBox::initVarInfobox()
 	pic 		= NULL;
 	pic_name	= "";
 	x_offset	= 10;
+	x_text		= x+fr_thickness+x_offset;;
 
 }
 
@@ -426,30 +426,21 @@ void CComponentsInfoBox::paintPicture()
 		pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, "");
 	pic->setXPos(x+fr_thickness+x_offset);
 	pic->setYPos(y+fr_thickness);
-
+	
 	//define icon
 	pic->setPicture(pic_name);
-
+	
 	//fit icon into infobox
 	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
-
-	pic->paint();
+	
+	pic->paint();	
 }
 
 void CComponentsInfoBox::paintText()
 {
 	if (box == NULL)
 		box = new CBox();
-
-	//define text x position
-	int x_text = x+fr_thickness+x_offset;
-
-	//set text to the left border if picture not painted
-	if (pic->isPicPainted()){
-		int pic_w = pic->getWidth();
-		x_text += pic_w+x_offset;
-	}
 
 	box->iX = x_text;
 	box->iY = y+fr_thickness;
@@ -480,6 +471,16 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 {
 	paintInit(do_save_bg);
 	paintPicture();
+	
+	//define text x position
+	x_text = x+fr_thickness+x_offset;
+	
+	//set text to the left border if picture is not painted
+	if (pic->isPicPainted()){
+		int pic_w = pic->getWidth();
+		x_text += pic_w+x_offset;
+	}
+	
 	if (text)
 		paintText();
 	text = NULL;
@@ -493,6 +494,8 @@ void CComponentsInfoBox::removeLineBreaks(std::string& str)
 		spos = str.find_first_of("\r\n");
 	}
 }
+
+
 
 
 //-------------------------------------------------------------------------------------------------------
