@@ -262,12 +262,12 @@ colormenusetup.menucontent_selected Content selected
 colormenusetup.menuhead Header
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
-colorthememenu.head2 Themes laden
-colorthememenu.name Themename
+colorthememenu.head2 Load themes
+colorthememenu.name Theme name
 colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.question Aktuelles Theme beibehalten?
-colorthememenu.save aktuelles Theme speichern
-colorthememenu.select1 Benutzer Theme
+colorthememenu.question Use selected theme ?
+colorthememenu.save Save current theme
+colorthememenu.select1 User Theme
 colorthememenu.select2 Standard Theme
 cpu.freq Cpu frequency
 cpu.freq_default default frequency
