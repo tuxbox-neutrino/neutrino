@@ -2711,7 +2711,8 @@ _repeat:
 				wakeup_hdd(g_settings.network_nfs_recordingdir);
 			}
 		}
-		if( g_settings.recording_zap_on_announce ) {
+
+		if( g_settings.recording_zap_on_announce && (mode != mode_standby) ) {
 			//TODO check transponder ?
 			CRecordManager::getInstance()->StopAutoRecord();
 			if(!CRecordManager::getInstance()->RecordingStatus()) {
