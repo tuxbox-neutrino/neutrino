@@ -171,7 +171,7 @@ bool CBouquetList::adjustToChannelID(t_channel_id channel_id)
 /* used in channellist to switch bouquets up/down */
 int CBouquetList::showChannelList( int nBouquet)
 {
-	if (nBouquet == -1)
+	if ((nBouquet < 0)|| (nBouquet >= (int) Bouquets.size()))
 		nBouquet = selected;
 
 	int nNewChannel = Bouquets[nBouquet]->channelList->exec();
@@ -186,7 +186,7 @@ int CBouquetList::activateBouquet( int id, bool bShowChannelList)
 {
 	int res = -1;
 
-	if(id < (int) Bouquets.size())
+	if((id >= 0) && (id < (int) Bouquets.size()))
 		selected = id;
 
 	if (bShowChannelList) {
