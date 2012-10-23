@@ -513,6 +513,12 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 	col_shadow	= color_shadow;
 }
 
+void CComponentsShapeSquare::paint(bool do_save_bg)
+{
+	paintInit(do_save_bg);
+}
+
+
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsShapeCircle from CComponentsItem
 CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, bool has_shadow,
@@ -548,6 +554,11 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 //
 //
 // 	 +	 -	 +
+
+void CComponentsShapeCircle::paint(bool do_save_bg)
+{
+	paintInit(do_save_bg);
+}
 
 
 //-------------------------------------------------------------------------------------------------------
