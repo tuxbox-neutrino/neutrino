@@ -243,7 +243,7 @@ class CComponentsText : public CComponentsItem
 };
 
 #define INFO_BOX_Y_OFFSET	2
-class CComponentsInfoBox : public CComponentsItem
+class CComponentsInfoBox : public CComponentsText
 {
 	private:
 		const char* text;
