@@ -121,7 +121,6 @@ install_DATA += \
 	hint_vfd.png \
 	hint_video.png \
 	home.png \
-	hungarian.png \
 	icon_green.png \
 	icon_movieplayer.png \
 	icon_red.png \
