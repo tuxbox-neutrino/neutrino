@@ -67,7 +67,6 @@ install_DATA += \
 	dd_gray.png \
 	ddfill.png \
 	down.png \
-	ellinika.png \
 	error.png \
 	features.png \
 	file.png \
@@ -169,7 +168,6 @@ install_DATA += \
 	nds_white.png \
 	nds_yellow.png \
 	network.png \
-	norsk.png \
 	not_mounted.png \
 	notyet.png \
 	numericpad.png \
@@ -216,7 +214,6 @@ install_DATA += \
 	res_hd.png \
 	res_sd.png \
 	right.png \
-	romania.png \
 	rot.png \
 	scan.jpg \
 	seca_green.png \
