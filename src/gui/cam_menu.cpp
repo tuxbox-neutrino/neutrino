@@ -49,6 +49,8 @@
 
 #include <mymenu.h>
 #include <eitd/edvbstring.h>
+#include <zapit/capmt.h>
+#include <zapit/zapit.h>
 
 void CCAMMenuHandler::init(void)
 {
@@ -269,6 +271,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		snprintf(str, sizeof(str), "%s %d: %s", 
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_OK : LOCALE_SC_INIT_OK), (int)curslot+1, name);
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
+		CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::PLAY, true);
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
