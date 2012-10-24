@@ -1096,6 +1096,18 @@ bool CRecordManager::Stop(const t_channel_id channel_id)
 	return (inst != NULL);
 }
 
+bool CRecordManager::IsRecording(const CTimerd::RecordingStopInfo * recinfo)
+{
+	bool ret = false;
+	mutex.lock();
+	CRecordInstance * inst = FindInstanceID(recinfo->eventID);
+	if(inst != NULL && recinfo->eventID == inst->GetRecordingId())
+		ret = true;
+	mutex.unlock();
+	printf("[%s] eventID: %d, channel_id: 0x%llx, ret: %d\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id, ret);
+	return ret;
+}
+
 bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 {
 	bool ret = false;
