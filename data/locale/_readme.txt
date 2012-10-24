@@ -17,7 +17,7 @@ english.locale is considered the master file.
 
 Verfication of .locale files:
 -----------------------------
-Use the check.locale.files shell script for detecting
+Use ./helpers/check-locale for detecting in master file
 - violations of the sorting order,
 - missing translations and
 - legacy strings.
@@ -51,7 +51,7 @@ Or use for item 3-6 'make locals'
 
 8.)
 To the extent possible, update other locale file. For this, the
-Perl-script create-locals-update.pl may be useful. 
+Perl-script ./helpers/create-locals-work may be useful.
 
 9.)
 If committing the changes to Git, commit both the involved

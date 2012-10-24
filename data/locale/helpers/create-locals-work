@@ -9,7 +9,7 @@
 
 $masterfilename = "english.locale";
 
-$#ARGV == 0 || die("Usage: create-locals-update.pl file.locale.");
+$#ARGV == 0 || die("Usage: create-locals-work file.locale.");
 
 $no_errors = 0;
 $last_was_ok = 1;

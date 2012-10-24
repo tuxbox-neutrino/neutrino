@@ -43,11 +43,11 @@ ordercheck: $(top_srcdir)/data/locale/$(master.locale)
 
 locals.h: ordercheck
 	cut -d' ' -f1 $(top_srcdir)/data/locale/$(master.locale) | LC_ALL=C sort | uniq | tr [:lower:] [:upper:] | tr \. \_  | tr \- \_ | tr -d \? | \
-		$(top_srcdir)/data/locale/create.locals.h
+		$(top_srcdir)/data/locale/helpers/create-locals.h
 
 locals_intern.h: ordercheck
 	cut -d' ' -f1 $(top_srcdir)/data/locale/$(master.locale) | LC_ALL=C sort | uniq | \
-		$(top_srcdir)/data/locale/create.locals_intern.h
+		$(top_srcdir)/data/locale/helpers/create-locals_intern.h
 
 check: locals.h locals_intern.h
 	diff locals.h $(top_srcdir)/src/system
