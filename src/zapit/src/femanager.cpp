@@ -170,8 +170,7 @@ bool CFEManager::loadSettings()
 		frontend_config_t & fe_config = fe->getConfig();
 		INFO("load config for fe%d", fe->fenumber);
 
-		//fe_config.diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
-		diseqc_t diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
+		fe_config.diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
 		fe_config.diseqcRepeats		= getConfigValue(fe, "diseqcRepeats", 0);
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
@@ -181,7 +180,10 @@ bool CFEManager::loadSettings()
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
 		//fe->setDiseqcType((diseqc_t) fe_config.diseqcType);
+#if 0
+		diseqc_t diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
 		fe->setDiseqcType(diseqcType);
+#endif
 
 		char cfg_key[81];
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
@@ -265,27 +267,29 @@ void CFEManager::saveSettings(bool write)
 
 void CFEManager::setMode(fe_mode_t newmode, bool initial)
 {
-	if(newmode == mode)
+	if(!initial && (newmode == mode))
 		return;
 
-	if(femap.size() == 1) {
-		mode = FE_MODE_SINGLE;
-		return;
-	}
 	mode = newmode;
-	bool setslave = (mode == FE_MODE_LOOP);
+	if(femap.size() == 1)
+		mode = FE_MODE_SINGLE;
+
+	bool setslave = (mode == FE_MODE_LOOP) || (mode == FE_MODE_SINGLE);
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		CFrontend * fe = it->second;
 		if(it != femap.begin()) {
-			CFrontend * fe = it->second;
 			INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
 			fe->setMasterSlave(setslave);
-		}
+		} else
+			fe->Init();
 	}
+#if 0
 	if(setslave && !initial) {
 		CFrontend * fe = getFE(0);
 		fe->Close();
-		fe->Open();
+		fe->Open(true);
 	}
+#endif
 }
 
 void CFEManager::Open()
@@ -293,7 +297,7 @@ void CFEManager::Open()
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(!fe->Locked())
-			fe->Open();
+			fe->Open(true);
 	}
 }
 

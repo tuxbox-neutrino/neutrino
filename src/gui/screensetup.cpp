@@ -37,7 +37,7 @@
 
 #include <gui/color.h>
 #include <gui/widget/messagebox.h>
-#include "gui/widget/icons.h"
+#include <gui/widget/icons.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>

@@ -35,13 +35,13 @@
 #include <neutrino_menue.h>
 #include <system/setting_helpers.h>
 
-#include "gui/miscsettings_menu.h"
-#include "gui/cec_setup.h"
-#include "gui/filebrowser.h"
-#include "gui/keybind_setup.h"
-#include "gui/plugins.h"
-#include "gui/sleeptimer.h"
-#include "gui/zapit_setup.h"
+#include <gui/miscsettings_menu.h>
+#include <gui/cec_setup.h>
+#include <gui/filebrowser.h>
+#include <gui/keybind_setup.h>
+#include <gui/plugins.h>
+#include <gui/sleeptimer.h>
+#include <gui/zapit_setup.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -227,7 +227,8 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
-	delete miscNotifier;
+	if(cs_get_revision() > 7)
+		delete miscNotifier;
 	return res;
 }
 
@@ -281,8 +282,10 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, g_settings.shutdown_count, miscSettings_shutdown_count);
 	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
-
-	miscNotifier = new CMiscNotifier( m1, m2 );
+	
+	miscNotifier = new COnOffNotifier(1);
+	miscNotifier->addItem(m1);
+	miscNotifier->addItem(m2);
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_SHUTDOWN_REAL);

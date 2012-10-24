@@ -28,12 +28,14 @@
 #include <neutrino.h>
 
 #include <gui/widget/icons.h>
-#include "gui/network_service.h"
-#include "mymenu.h"
+#include "network_service.h"
+#include <mymenu.h>
 
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
+#include <system/helpers.h>
+
 #include <unistd.h>
 
 #define TOUCH_BASE "/var/etc/."
@@ -70,18 +72,17 @@ CNetworkService::CNetworkService(std::string cmd, std::string opts)
 
 void CNetworkService::Start()
 {
-	std::string cmd = command + " " + options;
-	printf("CNetworkService::Start: %s\n", cmd.c_str());
-	system(cmd.c_str());
+	printf("CNetworkService::Start: %s %s\n", command.c_str(), options.c_str());
+	my_system( command.c_str(), options.c_str());
 	enabled = true;
 	TouchFile();
 }
 
 void CNetworkService::Stop()
 {
-	std::string cmd = "killall " + command;
-	printf("CNetworkService::Stop: %s\n", cmd.c_str());
-	system(cmd.c_str());
+	const char killall []= "killall";
+	printf("CNetworkService::Stop: %s %s\n", killall, command.c_str());
+	my_system(killall, command.c_str());
 	enabled = false;
 	TouchFile();
 }

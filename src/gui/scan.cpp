@@ -38,7 +38,7 @@
 #include <fcntl.h>
 
 #include <gui/scan.h>
-#include "gui/scan_setup.h"
+#include <gui/scan_setup.h>
 
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -52,6 +52,7 @@
 #include <gui/widget/progressbar.h>
 
 #include <system/settings.h>
+#include <system/helpers.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -248,7 +249,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	if(!manual) {
 		g_RCInput->close_click();
-                if (system(NEUTRINO_SCAN_START_SCRIPT) != 0)
+                if (my_system(NEUTRINO_SCAN_START_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
 
@@ -310,7 +311,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	g_Zapit->stopScan();
 
 	if(!manual) {
-                if (system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
+                if (my_system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
 		g_RCInput->open_click();
 	}
@@ -430,7 +431,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			break;
 		default:
 			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-				delete (unsigned char*) data;
+				delete[] (unsigned char*) data;
 			break;
 	}
 	return msg;

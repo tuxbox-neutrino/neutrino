@@ -14,6 +14,10 @@
 
 class cRecordData;
 
+#define REC_STATUS_OK 0
+#define REC_STATUS_SLOW 1
+#define REC_STATUS_OVERFLOW 2
+
 class cRecord {
 private:
 	cRecordData * rd;
@@ -29,6 +33,8 @@ public:
 	bool Start(int fd, unsigned short vpid, unsigned short * apids, int numapids, uint64_t chid);
 	bool Stop(void);
 	bool AddPid(unsigned short pid);
+	int  GetStatus();
+	void ResetStatus();
 };
 
 #endif // __RECORD_CS_H_

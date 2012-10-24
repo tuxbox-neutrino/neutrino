@@ -38,13 +38,13 @@
 #include <mymenu.h>
 #include <neutrino_menue.h>
 
-#include "gui/scan.h"
-#include "gui/scan_setup.h"
-#include "gui/motorcontrol.h"
-#include "gui/bedit/bouqueteditor_bouquets.h"
+#include <gui/scan.h>
+#include <gui/scan_setup.h>
+#include <gui/motorcontrol.h>
+#include <gui/bedit/bouqueteditor_bouquets.h>
 
-#include "gui/widget/hintbox.h"
-#include "gui/widget/stringinput.h"
+#include <gui/widget/hintbox.h>
+#include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
@@ -53,7 +53,6 @@
 
 #include <zapit/femanager.h>
 #include <zapit/getservices.h>
-#include <zapit/satconfig.h>
 #include <zapit/scan.h>
 #include <zapit/zapit.h>
 #include <zapit/debug.h>
@@ -585,10 +584,9 @@ int CScanSetup::showFrontendSetup(int number)
 	nc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_SPEED);
 	setupMenu->addItem(nc);
 
-#if 0
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_HVOLTAGE,  (int *)&fe_config.highVoltage, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_18V);
 	setupMenu->addItem(mc);
-#endif
 
 	mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &all_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_USALSALL);

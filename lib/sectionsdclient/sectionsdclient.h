@@ -36,13 +36,6 @@ class CShortEPGData
 	std::string title;
 	std::string info1;
 	std::string info2;
-
-	CShortEPGData()
-		{
-			title = "";
-			info1 = "";
-			info2 = "";
-		};
 };
 
 class CEPGData;
@@ -69,7 +62,7 @@ class CSectionsdClient : private CBasicClient
 
 	int readResponse(char* data = NULL, unsigned int size = 0);
 	bool send(const unsigned char command, const char* data = NULL, const unsigned int size = 0);
-	char * parseExtendedEvents(char * dp, CEPGData * epgdata);
+	//char * parseExtendedEvents(char * dp, CEPGData * epgdata);
 
  public:
 	virtual ~CSectionsdClient() {};
@@ -86,8 +79,10 @@ class CSectionsdClient : private CBasicClient
 		{
 			EVT_TIMESET,
 			EVT_GOT_CN_EPG,
+#if 0
 			EVT_SERVICES_UPDATE,
 			EVT_BOUQUETS_UPDATE,
+#endif
 			EVT_WRITE_SI_FINISHED
 		};
 
@@ -126,6 +121,10 @@ class CSectionsdClient : private CBasicClient
 	{
 		time_t startzeit;
 		unsigned dauer;
+		sectionsdTime() {
+			startzeit = 0;
+			dauer = 0;
+		}
 	} __attribute__ ((packed)) ;
 
 	struct responseGetNVODTimes
@@ -165,35 +164,25 @@ class CSectionsdClient : private CBasicClient
 		std::string epg_dir;
 	} epg_config;
 
+#if 0
 	bool getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-
 	bool getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
-
 	bool getNVODTimesServiceKey(const t_channel_id channel_id, CSectionsdClient::NVODTimesList& nvod_list);
-
 	bool getCurrentNextServiceKey(const t_channel_id channel_id, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next);
+	CChannelEventList getChannelEvents(const bool tv_mode = true, t_channel_id* = NULL, int size = 0);
+	CChannelEventList getEventsServiceKey(const t_channel_id channel_id);
+	bool getEventsServiceKeySearchAdd(CChannelEventList& evtlist,const t_channel_id channel_id,char m_search_typ,std::string& m_search_text);
+	bool getEPGid(const event_id_t eventid, const time_t starttime, CEPGData * epgdata);
+	bool getActualEPGServiceKey(const t_channel_id channel_id, CEPGData * epgdata);
+	bool getEPGidShort(const event_id_t eventid, CShortEPGData * epgdata);
+	void setPrivatePid(const unsigned short pid);
+#endif
 
 	bool getIsTimeSet();
-
 	void setPauseScanning(const bool doPause);
-
-	bool getIsScanningActive();
-
 	void setServiceChanged(const t_channel_id channel_id, const bool requestEvent);
 
-	CChannelEventList getChannelEvents(const bool tv_mode = true, t_channel_id* = NULL, int size = 0);
-
-	CChannelEventList getEventsServiceKey(const t_channel_id channel_id);
-
-	bool getEventsServiceKeySearchAdd(CChannelEventList& evtlist,const t_channel_id channel_id,char m_search_typ,std::string& m_search_text);
-
-	bool getEPGid(const event_id_t eventid, const time_t starttime, CEPGData * epgdata);
-
-	bool getActualEPGServiceKey(const t_channel_id channel_id, CEPGData * epgdata);
-
-	bool getEPGidShort(const event_id_t eventid, CShortEPGData * epgdata);
-
-	void setPrivatePid(const unsigned short pid);
+	bool getIsScanningActive();
 
 	void freeMemory();
 
@@ -235,15 +224,9 @@ class CEPGData
 	CEPGData()
 		{
 			eventID               =  0;
-			title                 = "";
-			info1                 = "";
-			info2                 = "";
 			fsk                   =  0;
 			table_id              = 0xff;
-			contentClassification = "";
-			userClassification    = "";
 		};
-
 };
 
 #endif

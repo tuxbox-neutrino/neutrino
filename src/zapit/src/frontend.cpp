@@ -137,19 +137,6 @@ typedef enum dvb_fec {
 #define TIME_STEP 200
 #define TIMEOUT_MAX_MS (feTimeout*100)
 /*********************************************************************************************************/
-#if 0
-// Global fe instance
-CFrontend *CFrontend::currentFe = NULL;
-
-CFrontend *CFrontend::getInstance(int Number, int Adapter)
-{
-	if (!currentFe) {
-		currentFe = new CFrontend(Number, Adapter);
-		currentFe->Open();
-	}
-	return currentFe;
-}
-#endif
 CFrontend::CFrontend(int Number, int Adapter)
 {
 	printf("[fe%d] New frontend on adapter %d\n", Number, Adapter);
@@ -161,15 +148,10 @@ CFrontend::CFrontend(int Number, int Adapter)
 	locked		= false;
 	usecount	= 0;
 
-
-	memset(&curfe, 0, sizeof(curfe));
-	curfe.dvb_feparams.u.qpsk.fec_inner	= FEC_3_4;
-	curfe.dvb_feparams.u.qam.fec_inner	= FEC_3_4;
-	curfe.dvb_feparams.u.qam.modulation	= QAM_64;
-
 	tuned					= false;
 	uncommitedInput				= 255;
-	diseqc					= 255;
+
+	memset(&currentTransponder, 0, sizeof(currentTransponder));
 	currentTransponder.polarization		= 1;
 	currentTransponder.feparams.dvb_feparams.frequency	= 0;
 	currentTransponder.TP_id		= 0;
@@ -183,27 +165,21 @@ CFrontend::CFrontend(int Number, int Adapter)
 	config.motorRotationSpeed = 0; //in 0.1 degrees per second
 
 	feTimeout = 40;
-	// to allow Open() switch it off
-	currentVoltage = SEC_VOLTAGE_OFF; //SEC_VOLTAGE_13;
+	currentVoltage = SEC_VOLTAGE_OFF;
 	currentToneMode = SEC_TONE_ON;
 }
 
 CFrontend::~CFrontend(void)
 {
 	printf("[fe%d] close frontend fd %d\n", fenumber, fd);
-	if(fd >= 0) {
+	if(fd >= 0)
 		Close();
-		close(fd);
-	}
-	//currentFe = NULL;
 }
 
-bool CFrontend::Open(void)
+bool CFrontend::Open(bool init)
 {
 	if(!standby)
 		return false;
-
-	printf("[fe%d] open frontend\n", fenumber);
 
 	char filename[128];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/frontend%d", adapter, fenumber);
@@ -219,20 +195,24 @@ bool CFrontend::Open(void)
 	}
 
 	//FIXME info.type = FE_QAM;
-	//currentVoltage = SEC_VOLTAGE_OFF;
-	//secSetVoltage(SEC_VOLTAGE_OFF, 15);
-	secSetVoltage(SEC_VOLTAGE_13, 15);
-	secSetTone(SEC_TONE_OFF, 15);
 
-	diseqc_t diseqcType = (diseqc_t) config.diseqcType;
-	config.diseqcType = NO_DISEQC;
-	setDiseqcType(diseqcType);
+	if (init)
+		Init();
 
 	currentTransponder.TP_id = 0;
 
 	standby = false;
 
 	return true;
+}
+
+void CFrontend::Init(void)
+{
+	mutex.lock();
+	secSetVoltage(SEC_VOLTAGE_13, 100);
+	secSetTone(SEC_TONE_OFF, 15);
+	setDiseqcType((diseqc_t) config.diseqcType, true);
+	mutex.unlock();
 }
 
 void CFrontend::Close(void)
@@ -261,16 +241,10 @@ void CFrontend::setMasterSlave(bool _slave)
 	if(_slave) {
 		secSetVoltage(SEC_VOLTAGE_OFF, 0);
 		secSetTone(SEC_TONE_OFF, 15);
-	} 
-	slave = _slave;
-	if(!slave) {
-		secSetVoltage(SEC_VOLTAGE_13, 0);
-#if 1
-		diseqc_t diseqcType = (diseqc_t) config.diseqcType;
-		config.diseqcType = NO_DISEQC;
-		setDiseqcType(diseqcType);
-#endif
 	}
+	slave = _slave;
+	if(!slave)
+		Init();
 }
 
 void CFrontend::reset(void)
@@ -293,11 +267,10 @@ void CFrontend::Unlock()
 
 fe_code_rate_t CFrontend::getCFEC()
 {
-	if (info.type == FE_QPSK) {
-		return curfe.dvb_feparams.u.qpsk.fec_inner;
-	} else {
-		return curfe.dvb_feparams.u.qam.fec_inner;
-	}
+	if (info.type == FE_QPSK)
+		return currentTransponder.feparams.dvb_feparams.u.qpsk.fec_inner;
+	else
+		return currentTransponder.feparams.dvb_feparams.u.qam.fec_inner;
 }
 
 fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, int system)
@@ -380,25 +353,19 @@ uint8_t CFrontend::getPolarization(void) const
 
 uint32_t CFrontend::getRate()
 {
-	if (info.type == FE_QPSK) {
-		return curfe.dvb_feparams.u.qpsk.symbol_rate;
-	} else {
-		return curfe.dvb_feparams.u.qam.symbol_rate;
-	}
+	if (info.type == FE_QPSK)
+		return currentTransponder.feparams.dvb_feparams.u.qpsk.symbol_rate;
+	else
+		return currentTransponder.feparams.dvb_feparams.u.qam.symbol_rate;
 }
 
 fe_status_t CFrontend::getStatus(void) const
 {
-#if 1 // FIXME FE_READ_STATUS works ?
 	struct dvb_frontend_event event;
 	fop(ioctl, FE_READ_STATUS, &event.status);
-	//printf("CFrontend::getStatus: %x\n", event.status);
 	return (fe_status_t) (event.status & FE_HAS_LOCK);
-#else
-	fe_status_t status = (fe_status_t) tuned;
-	return status;
-#endif
 }
+
 #if 0 
 //never used
 FrontendParameters CFrontend::getFrontend(void) const
@@ -406,6 +373,7 @@ FrontendParameters CFrontend::getFrontend(void) const
 	return currentTransponder.feparams;
 }
 #endif
+
 uint32_t CFrontend::getBitErrorRate(void) const
 {
 	uint32_t ber = 0;
@@ -452,12 +420,9 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 	memset(&event, 0, sizeof(struct dvb_frontend_event));
 
-	//printf("[fe%d] getEvent: max timeout: %d\n", fenumber, TIMEOUT_MAX_MS);
 	FE_TIMER_START();
 
-	//while (msec <= TIMEOUT_MAX_MS ) {
 	while ((int) timer_msec < TIMEOUT_MAX_MS) {
-		//int ret = poll(&pfd, 1, TIME_STEP);
 		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS - timer_msec);
 		if (ret < 0) {
 			perror("CFrontend::getEvent poll");
@@ -472,7 +437,6 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			FE_TIMER_STOP("poll has event after");
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
-			//fop(ioctl, FE_READ_STATUS, &event.status);
 			ret = ioctl(fd, FE_GET_EVENT, &event);
 			if (ret < 0) {
 				perror("CFrontend::getEvent ioctl");
@@ -746,7 +710,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	return true;
 }
 
-int CFrontend::setFrontend(const FrontendParameters *feparams, bool /*nowait*/)
+int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
 	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBS2_PROPS]; // WARNING: increase when needed more space
 	struct dtv_properties cmdseq;
@@ -756,7 +720,6 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool /*nowait*/)
 
 	tuned = false;
 
-	//printf("[fe%d] DEMOD: FEC %s system %s modulation %s pilot %s\n", fenumber, f, s, m, pilot == PILOT_ON ? "on" : "off");
 	struct dvb_frontend_event ev;
 	{
 		// Erase previous events
@@ -767,7 +730,6 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool /*nowait*/)
 		}
 	}
 
-	//printf("[fe%d] DEMOD: FEC %s system %s modulation %s pilot %s, freq %d\n", fenumber, f, s, m, pilot == PILOT_ON ? "on" : "off", p->props[FREQUENCY].u.data);
 	if (!buildProperties(feparams, cmdseq))
 		return 0;
 
@@ -780,6 +742,8 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool /*nowait*/)
 		}
 		FE_TIMER_STOP("FE_SET_PROPERTY took");
 	}
+	if (nowait)
+		return 0;
 	{
 		FE_TIMER_INIT();
 		FE_TIMER_START();
@@ -832,12 +796,6 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 		return;
 
 	printf("[fe%d] voltage %s\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
-	//printf("[fe%d] voltage %s high %d\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18", config.highVoltage);
-	//int val = config.highVoltage;
-	//fop(ioctl, FE_ENABLE_HIGH_LNB_VOLTAGE, val);
-
-	//FE_TIMER_INIT();
-	//FE_TIMER_START();
 	if (config.uni_scr >= 0) {
 		/* see my comment in secSetTone... */
 		currentVoltage = voltage; /* need to know polarization for unicable */
@@ -847,34 +805,23 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 
 	if (fop(ioctl, FE_SET_VOLTAGE, voltage) == 0) {
 		currentVoltage = voltage;
-		//FE_TIMER_STOP("[frontend] FE_SET_VOLTAGE took");
-		usleep(1000 * ms);	// FIXME : is needed ?
+		usleep(1000 * ms);
 	}
 }
-#if 0 
-//never used
-void CFrontend::secResetOverload(void)
-{
-}
-#endif
+
 void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const uint32_t ms)
 {
+	if (slave || info.type != FE_QPSK)
+		return;
+
 	printf("[fe%d] Diseqc cmd: ", fenumber);
 	for (int i = 0; i < cmd->msg_len; i++)
 		printf("0x%X ", cmd->msg[i]);
 	printf("\n");
-	if (slave || info.type != FE_QPSK)
-		return;
 	if (fop(ioctl, FE_DISEQC_SEND_MASTER_CMD, cmd) == 0)
 		usleep(1000 * ms);
 }
-#if 0 
-//never used
-uint32_t CFrontend::getDiseqcReply(const int /*timeout_ms*/) const
-{
-	return 0;
-}
-#endif
+
 void CFrontend::sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms)
 {
 	if (slave || info.type != FE_QPSK)
@@ -883,7 +830,7 @@ void CFrontend::sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms)
 		usleep(1000 * ms);
 }
 
-void CFrontend::setDiseqcType(const diseqc_t newDiseqcType)
+void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 {
 	switch (newDiseqcType) {
 	case NO_DISEQC:
@@ -923,19 +870,13 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType)
 		return;
 	}
 
-#if 0
-	if (!slave && (config.diseqcType <= MINI_DISEQC)
-	    && (newDiseqcType > MINI_DISEQC)) {
+	if (force || ((config.diseqcType <= MINI_DISEQC)
+	    && (newDiseqcType > MINI_DISEQC))) {
+		secSetTone(SEC_TONE_OFF, 15);
 		sendDiseqcPowerOn();
 		sendDiseqcReset();
+		secSetTone(SEC_TONE_ON, 20);
 	}
-#else
-
-	if (config.diseqcType != newDiseqcType) {
-		sendDiseqcPowerOn();
-		sendDiseqcReset();
-	}
-#endif
 
 	config.diseqcType = newDiseqcType;
 }
@@ -966,8 +907,8 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 	cmd.msg_len = 3 + num_parameters;
 
 	//secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
-	secSetVoltage(SEC_VOLTAGE_13, 15);
 	secSetTone(SEC_TONE_OFF, 15);
+	secSetVoltage(SEC_VOLTAGE_13, 100);
 
 	for(i = 0; i <= repeat; i++)
 		sendDiseqcCommand(&cmd, 50);
@@ -985,12 +926,12 @@ void CFrontend::positionMotor(uint8_t motorPosition)
 	};
 
 	if (motorPosition != 0) {
-		secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
 		secSetTone(SEC_TONE_OFF, 25);
+		secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
 		cmd.msg[3] = motorPosition;
 
 		for (int i = 0; i <= repeatUsals; ++i)
-			     sendDiseqcCommand(&cmd, 50);
+			sendDiseqcCommand(&cmd, 50);
 
 		printf("[fe%d] motor positioning command sent.\n", fenumber);
 	}
@@ -999,12 +940,10 @@ void CFrontend::positionMotor(uint8_t motorPosition)
 bool CFrontend::setInput(CZapitChannel * channel, bool nvod)
 {
 	transponder_list_t::iterator tpI;
-	//transponder_id_t ct = channel->getTransponderId();
 	transponder_id_t ct = nvod ? (channel->getTransponderId() & 0xFFFFFFFFULL) : channel->getTransponderId();
 	transponder_id_t current_id = nvod ? (currentTransponder.TP_id & 0xFFFFFFFFULL) : currentTransponder.TP_id;
 	//printf("CFrontend::setInput tuned %d nvod %d current_id %llx new %llx\n\n", tuned, nvod, current_id, ct);
 
-	//if (tuned && (ct == currentTransponder.TP_id))
 	if (tuned && (ct == current_id))
 		return false;
 
@@ -1022,6 +961,7 @@ bool CFrontend::setInput(CZapitChannel * channel, bool nvod)
 	}
 
 	currentTransponder.TP_id = tpI->first;
+	currentTransponder.polarization = tpI->second.polarization;
 
 	currentSatellitePosition = channel->getSatellitePosition();
 	setInput(channel->getSatellitePosition(), tpI->second.feparams.dvb_feparams.frequency, tpI->second.polarization);
@@ -1032,11 +972,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 {
 	sat_iterator_t sit = satellites.find(satellitePosition);
 
-#if 0
-	printf("[fe%d] setInput: SatellitePosition %d -> %d\n", fenumber, currentSatellitePosition, satellitePosition);
-	if (currentSatellitePosition != satellitePosition)
-#endif
-		setLnbOffsets(sit->second.lnbOffsetLow, sit->second.lnbOffsetHigh, sit->second.lnbSwitch);
+	setLnbOffsets(sit->second.lnbOffsetLow, sit->second.lnbOffsetHigh, sit->second.lnbSwitch);
 	if (config.diseqcType != DISEQC_ADVANCED) {
 		setDiseqc(sit->second.diseqc, polarization, frequency);
 		return;
@@ -1047,7 +983,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 		sendUncommittedSwitchesCommand(sit->second.uncommited);
 	} else {
 		if (sendUncommittedSwitchesCommand(sit->second.uncommited))
-			diseqc = -1;
+			currentTransponder.diseqc = -1;
 		setDiseqcSimple(sit->second.commited, polarization, frequency);
 	}
 }
@@ -1092,49 +1028,42 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 
 bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 {
-//printf("tuneChannel: tpid %llx\n", currentTransponder.TP_id);
 	transponder_list_t::iterator transponder = transponders.find(currentTransponder.TP_id);
 	if (transponder == transponders.end())
 		return false;
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, false);
 }
-#if 0 
-//never used
-bool CFrontend::retuneTP(bool nowait)
-{
-	/* used in pip only atm */
-	tuneFrequency(&curfe, currentTransponder.polarization, nowait);
-	return 0;
-}
-
+#if 0
 bool CFrontend::retuneChannel(void)
 {
-	setFrontend(&currentTransponder.feparams);
-	return 0;
+	mutex.lock();
+	setInput(currentSatellitePosition, currentTransponder.feparams.dvb_feparams.frequency, currentTransponder.polarization);
+	transponder_list_t::iterator transponder = transponders.find(currentTransponder.TP_id);
+	if (transponder == transponders.end())
+		return false;
+	mutex.unlock();
+	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, true);
 }
 #endif
 int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization, bool nowait)
 {
 	TP_params TP;
-	//printf("[fe%d] tune to frequency %d pol %s srate %d\n", fenumber, feparams->dvb_feparams.frequency, polarization ? "Vertical/Right" : "Horizontal/Left", feparams->dvb_feparams.u.qpsk.symbol_rate);
 
-	memmove(&curfe, feparams, sizeof(struct dvb_frontend_parameters));
+	memmove(&currentTransponder.feparams, feparams, sizeof(struct dvb_frontend_parameters));
 	memmove(&TP.feparams, feparams, sizeof(struct dvb_frontend_parameters));
 
 	TP.polarization = polarization;
 	return setParameters(&TP, nowait);
 }
 
-int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
+int CFrontend::setParameters(TP_params *TP, bool nowait)
 {
 	int freq_offset = 0, freq;
-	TP_params currTP;
-	FrontendParameters *feparams;
+	FrontendParameters feparams;
 
 	/* Copy the data for local use */
-	currTP		= *TP;
-	feparams	= &currTP.feparams;
-	freq		= (int) feparams->dvb_feparams.frequency;
+	memcpy(&feparams, &TP->feparams, sizeof(feparams));
+	freq		= (int) feparams.dvb_feparams.frequency;
 	char * f, *s, *m;
 
 	if (info.type == FE_QPSK) {
@@ -1148,49 +1077,18 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 			freq_offset = lnbOffsetHigh;
 		}
 
-		feparams->dvb_feparams.frequency = abs(freq - freq_offset);
+		feparams.dvb_feparams.frequency = abs(freq - freq_offset);
 		setSec(TP->diseqc, TP->polarization, high_band);
-		getDelSys(feparams->dvb_feparams.u.qpsk.fec_inner, dvbs_get_modulation(feparams->dvb_feparams.u.qpsk.fec_inner),  f, s, m);
+		getDelSys(feparams.dvb_feparams.u.qpsk.fec_inner, dvbs_get_modulation(feparams.dvb_feparams.u.qpsk.fec_inner),  f, s, m);
 	} else if (info.type == FE_QAM) {
 		if (freq < 1000*1000)
-			feparams->dvb_feparams.frequency = freq * 1000;
-		getDelSys(feparams->dvb_feparams.u.qam.fec_inner,feparams->dvb_feparams.u.qam.modulation, f, s, m);
-#if 0
-		switch (TP->feparams.dvb_feparams.inversion) {
-		case INVERSION_OFF:
-			TP->feparams.dvb_feparams.inversion = INVERSION_ON;
-			break;
-		case INVERSION_ON:
-		default:
-			TP->feparams.dvb_feparams.inversion = INVERSION_OFF;
-			break;
-		}
-#endif
+			feparams.dvb_feparams.frequency = freq * 1000;
+		getDelSys(feparams.dvb_feparams.u.qam.fec_inner, feparams.dvb_feparams.u.qam.modulation, f, s, m);
 	}
 
-	//printf("[fe%d] tuner to frequency %d (offset %d timeout %d)\n", fenumber, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
-	//printf("[fe%d] tune to frequency %d (tuner %d offset %d timeout %d)\n", fenumber, freq, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	printf("[fe%d] tune to %d %s %s %s %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
-			TP->polarization ? "V/R" : "H/L", feparams->dvb_feparams.u.qpsk.symbol_rate, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
-	setFrontend(feparams);
-
-#if 0
-	if (tuned) {
-		ret = diff(event.parameters.frequency, TP->feparams.dvb_feparams.frequency);
-		/* if everything went ok, then it is a good idea to copy the real
-		 * frontend parameters, so we can update the service list, if it differs.
-		 * TODO: set a flag to indicate a change in the service list */
-		memmove(&currentTransponder.feparams, &event.parameters, sizeof(struct dvb_frontend_parameters));
-	}
-#endif
-
-#if 0
-	/* add the frequency offset to the frontend parameters again
-	 * because they are used for the channel list and were given
-	 * to this method as a pointer */
-	if (info.type == FE_QPSK)
-		TP->feparams.dvb_feparams.frequency += freq_offset;
-#endif
+			TP->polarization & 1 ? "V/R" : "H/L", feparams.dvb_feparams.u.qpsk.symbol_rate, feparams.dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
+	setFrontend(&feparams, nowait);
 
 	return tuned;
 }
@@ -1216,7 +1114,6 @@ bool CFrontend::sendUncommittedSwitchesCommand(int input)
 /* off = low band, on - hi band , vertical 13v, horizontal 18v */
 bool CFrontend::setDiseqcSimple(int sat_no, const uint8_t pol, const uint32_t frequency)
 {
-	//for monoblock
 	fe_sec_voltage_t v = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
 	//fe_sec_mini_cmd_t b = (sat_no & 1) ? SEC_MINI_B : SEC_MINI_A;
 	bool high_band = ((int)frequency >= lnbSwitch);
@@ -1225,20 +1122,15 @@ bool CFrontend::setDiseqcSimple(int sat_no, const uint8_t pol, const uint32_t fr
 		{0xe0, 0x10, 0x38, 0x00, 0x00, 0x00}, 4
 	};
 
-	INFO("[fe%d] diseqc input  %d -> %d", fenumber, diseqc, sat_no);
+	INFO("[fe%d] diseqc input  %d -> %d", fenumber, currentTransponder.diseqc, sat_no);
 	currentTransponder.diseqc = sat_no;
 	if (slave)
 		return true;
-	if ((sat_no >= 0) && (diseqc != sat_no)) {
-		diseqc = sat_no;
-		printf("[fe%d] diseqc no. %d\n", fenumber, sat_no);
-
+	if ((sat_no >= 0) /* && (diseqc != sat_no)*/) {
 		cmd.msg[3] = 0xf0 | (((sat_no * 4) & 0x0f) | (high_band ? 1 : 0) | ((pol & 1) ? 0 : 2));
 
-		//for monoblock - needed ??
-		secSetVoltage(v, 15);
-		//secSetVoltage(SEC_VOLTAGE_13, 15);//FIXME for test
 		secSetTone(SEC_TONE_OFF, 20);
+		secSetVoltage(v, 100);
 
 		sendDiseqcCommand(&cmd, 100);
 		return true;
@@ -1259,21 +1151,23 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	uint8_t loop;
 	bool high_band = ((int)frequency >= lnbSwitch);
 	struct dvb_diseqc_master_cmd cmd = { {0xE0, 0x10, 0x38, 0xF0, 0x00, 0x00}, 4 };
-	//fe_sec_voltage_t polarity = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
-	//fe_sec_tone_mode_t tone = high_band ? SEC_TONE_ON : SEC_TONE_OFF;//seems needed?
 	fe_sec_mini_cmd_t b = (sat_no & 1) ? SEC_MINI_B : SEC_MINI_A;
 	int delay = 0;
 
-	printf("[fe%d] diseqc input  %d -> %d\n", fenumber, diseqc, sat_no);
+	if ((config.diseqcType == NO_DISEQC) || sat_no < 0)
+		return;
+
+	printf("[fe%d] diseqc input  %d -> %d\n", fenumber, currentTransponder.diseqc, sat_no);
+	currentTransponder.diseqc = sat_no;
 	if (slave)
 		return;
 
-	//secSetVoltage(polarity, 15);	/* first of all set the "polarization" */
-	//secSetTone(tone, 1);                /* set the "band" */
-
-	//secSetVoltage(SEC_VOLTAGE_13, 15);//FIXME for test
 	secSetTone(SEC_TONE_OFF, 20);
-
+#if 1
+	fe_sec_voltage_t v = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
+	secSetVoltage(v, 100);
+#endif
+	sendDiseqcReset();
 	for (loop = 0; loop <= config.diseqcRepeats; loop++) {
 		//usleep(50*1000);                  /* sleep at least 50 milli seconds */
 
@@ -1316,13 +1210,6 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 
 	if (config.diseqcType == SMATV_REMOTE_TUNING)
 		sendDiseqcSmatvRemoteTuningCommand(frequency);
-
-#if 0	// setSec do this, when tune called
-	if (high_band)
-		secSetTone(SEC_TONE_ON, 20);
-#endif
-	//secSetTone(tone, 20);
-	currentTransponder.diseqc = sat_no;
 }
 
 void CFrontend::setSec(const uint8_t /*sat_no*/, const uint8_t pol, const bool high_band)
@@ -1330,33 +1217,29 @@ void CFrontend::setSec(const uint8_t /*sat_no*/, const uint8_t pol, const bool h
 	fe_sec_voltage_t v = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
 	fe_sec_tone_mode_t t = high_band ? SEC_TONE_ON : SEC_TONE_OFF;
 
-	secSetVoltage(v, 15);
+	currentTransponder.polarization = pol;
 	secSetTone(t, 15);
-	currentTransponder.polarization = pol;// & 1;
+	secSetVoltage(v, 100);
 }
 
 void CFrontend::sendDiseqcPowerOn(void)
 {
 	// FIXME power on can take a while. Should be wait
 	// more time here ? 15 ms enough for some switches ?
-#if 1
 	printf("[fe%d] diseqc power on\n", fenumber);
 	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x03);
-#else
-	struct dvb_diseqc_master_cmd cmd = {
-		{0xE0, 0x10, 0x03, 0x00, 0x00, 0x00}, 3
-	};
-	sendDiseqcCommand(&cmd, 100);
-#endif
 }
 
 void CFrontend::sendDiseqcReset(void)
 {
 	printf("[fe%d] diseqc reset\n", fenumber);
+#if 0
 	/* Reset && Clear Reset */
 	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x00);
 	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x01);
-	//sendDiseqcZeroByteCommand(0xe0, 0x00, 0x00); // enigma
+#else
+	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x00); // enigma
+#endif
 }
 
 void CFrontend::sendDiseqcStandby(void)
@@ -1402,7 +1285,6 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 
 	//if(config.diseqcType == DISEQC_ADVANCED) //FIXME testing
 	{
-		//printf("[fe%d] SatellitePosition %d -> %d\n", fenumber, rotorSatellitePosition, satellitePosition);
 		bool moved = false;
 
 		sat_iterator_t sit = satellites.find(satellitePosition);
@@ -1417,7 +1299,6 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 		if (sit != satellites.end())
 			old_position = sit->second.motor_position;
 
-		//printf("[fe%d] motorPosition %d -> %d usals %s\n", fenumber, old_position, new_position, use_usals ? "on" : "off");
 		printf("[fe%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", fenumber, rotorSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
 
 		if (rotorSatellitePosition == satellitePosition)

@@ -56,21 +56,15 @@ class CGenericMenuActivate
 
 class COnOffNotifier : public CChangeObserver
 {
-        private:
-                int number;
-                CMenuItem* toDisable[5];
-        public:
-                COnOffNotifier (CMenuItem* a1,CMenuItem* a2 = NULL,CMenuItem* a3 = NULL,CMenuItem* a4 = NULL,CMenuItem* a5 = NULL);
-                bool changeNotify(const neutrino_locale_t, void *Data);
-};
-
-class CMiscNotifier : public CChangeObserver
-{
 	private:
-		CMenuItem* toDisable[2];
+		int offValue;
+		std::vector<CMenuItem*> toDisable;
+
 	public:
-		CMiscNotifier( CMenuItem*, CMenuItem* );
-		bool changeNotify(const neutrino_locale_t, void *);
+		COnOffNotifier(int OffValue = 0);
+		bool changeNotify(const neutrino_locale_t, void *Data);
+
+		void addItem(CMenuItem* menuItem);
 };
 
 class CSectionsdConfigNotifier : public CChangeObserver
@@ -143,9 +137,6 @@ class COnekeyPluginChangeExec : public CMenuTarget
 	public:
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
-
-int safe_mkdir(char * path);
-int check_dir(const char * newdir);
 
 class CTZChangeNotifier : public CChangeObserver
 {

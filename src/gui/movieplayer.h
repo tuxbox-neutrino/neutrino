@@ -34,12 +34,12 @@
 
 #include <config.h>
 #include <configfile.h>
-#include "driver/framebuffer.h"
-#include "gui/filebrowser.h"
-#include "gui/bookmarkmanager.h"
-#include "gui/widget/menue.h"
-#include "gui/moviebrowser.h"
-#include "gui/movieinfo.h"
+#include <driver/framebuffer.h>
+#include <gui/filebrowser.h>
+#include <gui/bookmarkmanager.h>
+#include <gui/widget/menue.h>
+#include <gui/moviebrowser.h>
+#include <gui/movieinfo.h>
 #include <gui/widget/hintbox.h>
 #include <driver/record.h>
 #include <playback.h>
@@ -69,7 +69,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	std::string	full_name;
 	std::string	file_name;
-
+	std::string    	currentaudioname;
 	bool		playing;
 	CMoviePlayerGui::state playstate;
 	int speed;
@@ -112,6 +112,8 @@ class CMoviePlayerGui : public CMenuTarget
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
 	void selectAudioPid(bool file_player);
+	void getCurrentAudioName( bool file_player, std::string &audioname);
+	void addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled );
 
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
@@ -127,6 +129,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
+	std::string CurrentAudioName() { return currentaudioname; };
 	int timeshift;
 	int file_prozent;
 };

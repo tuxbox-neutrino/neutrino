@@ -30,7 +30,7 @@
 #include <vector>
 #include <stdio.h>    /* printf       */
 #include <sys/time.h> /* gettimeofday */
-#include "driver/framebuffer.h"
+#include <driver/framebuffer.h>
 class CPictureViewer
 {
 	struct cformathandler 

@@ -30,8 +30,8 @@
 #define __MEDIAPLAYER__
 
 #include <gui/widget/menue.h>
-#include "gui/audioplayer.h"
-#include "gui/personalize.h"
+#include <gui/audioplayer.h>
+#include <gui/personalize.h>
 
 #include <string>
 

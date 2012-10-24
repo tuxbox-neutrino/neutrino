@@ -39,8 +39,8 @@
 #include <neutrino_menue.h>
 #include <mymenu.h>
 
-#include "gui/record_setup.h"
-#include "gui/filebrowser.h"
+#include "record_setup.h"
+#include <gui/filebrowser.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
@@ -51,7 +51,7 @@
 #include <driver/record.h>
 
 #include <system/debug.h>
-
+#include <system/helpers.h>
 
 CRecordSetup::CRecordSetup()
 {
@@ -198,6 +198,10 @@ int CRecordSetup::showRecordSetup()
 	CMenuOptionChooser* end_of_recording = new CMenuOptionChooser(LOCALE_RECORDINGMENU_END_OF_RECORDING_NAME, &g_settings.recording_epg_for_end, END_OF_RECORDING, END_OF_RECORDING_COUNT, true);
 	end_of_recording->setHint("", LOCALE_MENU_HINT_RECORD_END);
 	recordingSettings->addItem(end_of_recording);
+
+	CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	slow_warn->setHint("", LOCALE_MENU_HINT_RECORD_SLOW_WARN);
+	recordingSettings->addItem(slow_warn);
 
 	//template
 	//CStringInput recordingSettings_filenameTemplate(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");

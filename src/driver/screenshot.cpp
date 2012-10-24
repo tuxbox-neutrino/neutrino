@@ -40,6 +40,7 @@
 #include <daemonc/remotecontrol.h>
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
+#include <eitd/sectionsd.h>
 
 #include <video.h>
 #include <cs_api.h>
@@ -345,8 +346,6 @@ bool CScreenShot::SaveBmp()
 	return true;
 
 }
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
-bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
 
 /* 
  * create filename member from channel name and its current EPG data,
@@ -370,9 +369,9 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 	}
 	pos = strlen(fname);
 
-	if(sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData)) {
+	if(CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData)) {
 		CShortEPGData epgdata;
-		if(sectionsd_getEPGidShort(epgData.eventID, &epgdata)) {
+		if(CEitManager::getInstance()->getEPGidShort(epgData.eventID, &epgdata)) {
 			if (!(epgdata.title.empty())) {
 				strcpy(&(fname[pos]), epgdata.title.c_str());
 				ZapitTools::replace_char(&fname[pos]);

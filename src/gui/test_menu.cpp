@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include "gui/test_menu.h"
+#include "test_menu.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -40,14 +40,15 @@
 
 #include <cs_api.h>
 
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <xmlinterface.h>
 
-#include "gui/widget/hintbox.h"
-#include "gui/scan.h"
-#include "gui/scan_setup.h"
+#include <gui/widget/hintbox.h>
+#include <gui/scan.h>
+#include <gui/scan_setup.h>
 #include <zapit/zapit.h>
 #include <zapit/scan.h>
 #include <zapit/femanager.h>

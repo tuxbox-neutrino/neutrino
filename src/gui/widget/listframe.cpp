@@ -49,7 +49,9 @@
 #include <config.h>
 #endif
 
-#include "stdlib.h"
+#include <global.h>
+
+#include <stdlib.h>
 #include "listframe.h"
 #include <gui/widget/icons.h>
 

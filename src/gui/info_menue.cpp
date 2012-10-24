@@ -34,9 +34,9 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include "gui/info_menue.h"
-#include "gui/imageinfo.h"
-#include "gui/dboxinfo.h"
+#include <gui/info_menue.h>
+#include <gui/imageinfo.h>
+#include <gui/dboxinfo.h>
 #include <gui/streaminfo2.h>
 
 #include <driver/screen_max.h>
@@ -79,7 +79,7 @@ int CInfoMenu::showMenu()
 	mf->setHint(NEUTRINO_ICON_HINT_DBOXINFO, LOCALE_MENU_HINT_DBOXINFO);
 	info->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_STREAMINFO_HEAD,        true, NULL, &streaminfo, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_STREAMINFO_HEAD,        !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, &streaminfo, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	mf->setHint(NEUTRINO_ICON_HINT_STREAMINFO, LOCALE_MENU_HINT_STREAMINFO);
 	info->addItem(mf);
 

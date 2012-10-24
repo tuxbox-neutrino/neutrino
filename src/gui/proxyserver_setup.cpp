@@ -32,7 +32,7 @@
 #include <config.h>
 #endif
 
-#include "gui/proxyserver_setup.h"
+#include "proxyserver_setup.h"
 
 #include <global.h>
 #include <neutrino.h>

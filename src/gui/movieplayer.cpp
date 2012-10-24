@@ -32,21 +32,20 @@
 
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
-#include <gui/bookmarkmanager.h>
 #include <gui/timeosd.h>
-#include <gui/moviebrowser.h>
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
 #include <driver/screenshot.h>
+#include <driver/volume.h>
+#include <system/helpers.h>
 
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
 
 #include <video.h>
-#include "libtuxtxt/teletext.h"
+#include <libtuxtxt/teletext.h>
 #include <zapit/zapit.h>
 #include <fstream>
 #include <iostream>
@@ -177,7 +176,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	startposition = 0;
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
-	if (system(MOVIEPLAYER_START_SCRIPT) != 0)
+	if (my_system(MOVIEPLAYER_START_SCRIPT) != 0)
 		perror(MOVIEPLAYER_START_SCRIPT " failed");
 	
 	isMovieBrowser = false;
@@ -215,7 +214,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	bookmarkmanager->flush();
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
-	if (system(MOVIEPLAYER_END_SCRIPT) != 0)
+	if (my_system(MOVIEPLAYER_END_SCRIPT) != 0)
 		perror(MOVIEPLAYER_END_SCRIPT " failed");
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -302,7 +301,7 @@ bool CMoviePlayerGui::SelectFile()
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
 	if (has_hdd)
-		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
+		wakeup_hdd(g_settings.network_nfs_recordingdir);
 
 	if (timeshift) {
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -422,8 +421,11 @@ void CMoviePlayerGui::PlayFile(void)
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 
-	if(p_movie_info != NULL)
+	if(p_movie_info != NULL) {
 		duration = p_movie_info->length * 60 * 1000;
+		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, currentapid, currentac3 == 1);
+		CZapit::getInstance()->SetVolumePercent(percent);
+	}
 
 	file_prozent = 0;
 	if(!playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration)) {
@@ -695,6 +697,9 @@ void CMoviePlayerGui::callInfoViewer(const int duration, const int curr_pos)
 				CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 		return;
 	}
+	currentaudioname = "Unk";
+	getCurrentAudioName( is_file_player, currentaudioname);
+
 	if (isMovieBrowser && p_movie_info) {
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
 					     duration, curr_pos);
@@ -719,6 +724,76 @@ bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
 	return false;
 }
 
+void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled)
+{
+	enabled = true;
+	switch(ac3flags[count])
+	{
+		case 1: /*AC3,EAC3*/
+			if (apidtitle.find("AC3") == std::string::npos || file_player)
+				apidtitle.append(" (AC3)");
+			break;
+		case 2: /*teletext*/
+			apidtitle.append(" (Teletext)");
+			enabled = false;
+			break;
+		case 3: /*MP2*/
+			apidtitle.append("( MP2)");
+			break;
+		case 4: /*MP3*/
+			apidtitle.append(" (MP3)");
+			break;
+		case 5: /*AAC*/
+			apidtitle.append(" (AAC)");
+			break;
+		case 6: /*DTS*/
+			apidtitle.append(" (DTS)");
+			enabled = false;
+			break;
+		case 7: /*MLP*/
+			apidtitle.append(" (MLP)");
+			break;
+		default:
+			break;
+	}
+}
+
+void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audioname)
+{
+  	if(file_player && !numpida){
+		playback->FindAllPids(apids, ac3flags, &numpida, language);
+		if(numpida)
+			currentapid = apids[0];
+	}
+	bool dumm = true;
+	for (unsigned int count = 0; count < numpida; count++) {
+	  
+		if(currentapid == apids[count]){
+			if(!file_player){
+				getAudioName(apids[count], audioname);
+				return ;
+			}else if (!language[count].empty()){
+				audioname = language[count];
+				addAudioFormat(count, audioname, file_player, dumm);
+				if(!dumm && (count < numpida)){
+					currentapid = apids[count+1];
+					continue;
+				}
+				return ;
+			}
+			char apidnumber[20];
+			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
+			audioname = apidnumber;
+			addAudioFormat(count, audioname, file_player, dumm);
+			if(!dumm && (count < numpida)){
+				currentapid = apids[count+1];
+				continue;
+			}
+			return ;
+		}
+	}
+}
+
 void CMoviePlayerGui::selectAudioPid(bool file_player)
 {
 	CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
@@ -729,7 +804,6 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 
 	if(file_player && !numpida){
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
-		/* fix current pid in case of file play */
 		if(numpida)
 			currentapid = apids[0];
 	}
@@ -751,40 +825,31 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
 			apidtitle = apidnumber;
 		}
-
-		switch(ac3flags[count])
-		{
-			case 1: /*AC3,EAC3*/
-				if (apidtitle.find("AC3") == std::string::npos || file_player)
-					apidtitle.append(" (AC3)");
-				break;
-			case 2: /*teletext*/
-				apidtitle.append(" (Teletext)");
-				enabled = false;
-				break;
-			case 3: /*MP2*/
-				apidtitle.append("( MP2)");
-				break;
-			case 4: /*MP3*/
-				apidtitle.append(" (MP3)");
-				break;
-			case 5: /*AAC*/
-				apidtitle.append(" (AAC)");
-				break;
-			case 6: /*DTS*/
-				apidtitle.append(" (DTS)");
-				enabled = false;
-				break;
-			case 7: /*MLP*/
-				apidtitle.append(" (MLP)");
-				break;
-			default:
-				break;
+		addAudioFormat(count, apidtitle, file_player, enabled);
+		if(defpid && !enabled && (count < numpida)){
+			currentapid = apids[count+1];
+			defpid = false;
 		}
+
 		char cnt[5];
 		sprintf(cnt, "%d", count);
 		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		APIDSelector.addItem(item, defpid);
+	}
+
+	if (p_movie_info) {
+		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
+
+		CVolume::getInstance()->SetCurrentChannel(p_movie_info->epgId);
+		CVolume::getInstance()->SetCurrentPid(currentapid);
+		int percent[numpida];
+		for (uint i=0; i < numpida; i++) {
+			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
+			APIDSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
+						currentapid == apids[i],
+						0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,
+						p_movie_info->audioPids[i].epgAudioPidName.c_str()));
+		}
 	}
 
 	APIDSelector.exec(NULL, "");
@@ -979,13 +1044,13 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
 #define BOOKMARK_START_MENU_MAX_ITEMS 6
 			CSelectedMenu cSelectedMenuBookStart[BOOKMARK_START_MENU_MAX_ITEMS];
 
-			CMenuWidget bookStartMenu(LOCALE_MOVIEBROWSER_BOOK_NEW, NEUTRINO_ICON_STREAMING);
+			CMenuWidget bookStartMenu(LOCALE_MOVIEBROWSER_BOOK_ADD, NEUTRINO_ICON_STREAMING);
 			bookStartMenu.addIntroItems();
 #if 0 // not supported, TODO
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_HEAD, !isMovieBrowser, NULL, &cSelectedMenuBookStart[0]));
 			bookStartMenu.addItem(GenericMenuSeparatorLine);
 #endif
-			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, isMovieBrowser, NULL, &cSelectedMenuBookStart[1]));
+			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_NEW, isMovieBrowser, NULL, &cSelectedMenuBookStart[1]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE_FORWARD, isMovieBrowser, NULL, &cSelectedMenuBookStart[2]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE_BACKWARD, isMovieBrowser, NULL, &cSelectedMenuBookStart[3]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, isMovieBrowser, NULL, &cSelectedMenuBookStart[4]));

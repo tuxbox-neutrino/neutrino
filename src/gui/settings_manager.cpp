@@ -34,15 +34,13 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include "gui/settings_manager.h"
-
-#include "gui/filebrowser.h"
-
-#include "gui/widget/messagebox.h"
-#include "gui/widget/stringinput.h"
+#include <gui/settings_manager.h>
+#include <gui/filebrowser.h>
+#include <gui/widget/messagebox.h>
+#include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
-#include <system/setting_helpers.h>
+#include <system/helpers.h>
 
 #include <sys/vfs.h>
 
@@ -104,14 +102,13 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Dir_Mode = true;
 		if (fileBrowser.exec("/media") == true)
 		{
-			char  fname[256];
 			struct statfs s;
 			int ret = ::statfs(fileBrowser.getSelectedFile()->Name.c_str(), &s);
 			if(ret == 0 && s.f_type != 0x72b6L) /*jffs2*/
 			{
-				sprintf(fname, "/bin/backup.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
-				printf("backup: executing [%s]\n", fname);
-				system(fname);
+				const char backup_sh[] = "/bin/backup.sh";
+				printf("backup: executing [%s %s]\n",backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
+				my_system( backup_sh, fileBrowser.getSelectedFile()->Name.c_str() );
 			}
 			else
 				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
@@ -127,10 +124,9 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			int result = ShowMsgUTF(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
 			if(result == CMessageBox::mbrYes)
 			{
-				char  fname[256];
-				sprintf(fname, "/bin/restore.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
-				printf("restore: executing [%s]\n", fname);
-				system(fname);
+				const char restore_sh[] = "/bin/restore.sh";
+				printf("restore: executing [%s %s]\n", restore_sh, fileBrowser.getSelectedFile()->Name.c_str());
+				my_system( restore_sh, fileBrowser.getSelectedFile()->Name.c_str() );
 			}
 		}
 		return res;

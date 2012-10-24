@@ -33,7 +33,7 @@
 #endif
 
 
-#include "gui/audio_setup.h"
+#include "audio_setup.h"
 
 #include <global.h>
 #include <neutrino.h>

@@ -47,28 +47,31 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+
 #include <algorithm>
 #include <cstdlib>
 #include "moviebrowser.h"
 #include "filebrowser.h"
-#include "widget/hintbox.h"
-#include "widget/helpbox.h"
-#include "widget/messagebox.h"
-#include "widget/stringinput_ext.h"
+#include <gui/widget/hintbox.h>
+#include <gui/widget/helpbox.h>
+#include <gui/widget/icons.h>
+#include <gui/widget/progressbar.h>
+#include <gui/widget/messagebox.h>
+#include <gui/widget/stringinput.h>
+#include <gui/widget/stringinput_ext.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <gui/nfs.h>
-#include "neutrino.h"
+#include <neutrino.h>
 #include <sys/vfs.h> // for statfs
 #include <sys/mount.h>
 #include <utime.h>
 #include <unistd.h>
-#include <gui/widget/icons.h>
-#include <gui/widget/progressbar.h>
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
-#include <gui/widget/stringinput.h>
 #include <driver/record.h>
+#include <system/helpers.h>
 
 extern CPictureViewer * g_PicViewer;
 static CProgressBar *timescale;
@@ -2974,7 +2977,8 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
     {
         dirInput[i] =  new CFileChooser(&m_settings.storageDir[i]);
         forwarder[i] = new CMenuForwarder(LOCALE_MOVIEBROWSER_DIR,        m_settings.storageDirUsed[i], m_settings.storageDir[i],      dirInput[i]);
-        notifier[i] =  new COnOffNotifier(forwarder[i]);
+	notifier[i] =  new COnOffNotifier();
+	notifier[i]->addItem(forwarder[i]);
         chooser[i] =   new CMenuOptionChooser(LOCALE_MOVIEBROWSER_USE_DIR , &m_settings.storageDirUsed[i]  , MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true,notifier[i]);
         optionsMenuDir.addItem(chooser[i] );
         optionsMenuDir.addItem(forwarder[i] );
@@ -3591,10 +3595,8 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
         {
             if(dirState[number] == DIR_STATE_SERVER_DOWN)
             {
-                std::string command = "ether-wake ";
-                command += g_settings.network_nfs_mac[dirNfsMountNr[number]];
-                printf("try to start server: %s\n",command.c_str());
-                if(system(command.c_str()) != 0)
+                printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]);
+                if(my_system("ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]) != 0)
                     perror("ether-wake failed");
 
                 dirOptionText[number]="STARTE SERVER";
@@ -3946,7 +3948,7 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 	char spart[255];
 	char dpart[255];
 	char npart[255];
-	unsigned char * buf;
+
 	unsigned char psi[PSI_SIZE];
 	int r, i;
 	off64_t sdone, spos;
@@ -3963,9 +3965,9 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 	time_t tt1;
 	off64_t bpos, bskip;
 
-	buf = (unsigned char *) malloc(BUF_SIZE);
+	unsigned char * buf = new unsigned char[BUF_SIZE];
 	if(buf == 0) {
-		perror("malloc");
+		perror("new");
 		return 0;
 	}
 
@@ -4017,7 +4019,10 @@ printf("cut: end bookmark %d at %lld\n", bcount, books[bcount].pos);
 			bcount++;
 	}
 printf("\n");
-	if(!bcount) return 0;
+	if(!bcount){
+		delete [] buf;
+		return 0;
+	}
 	qsort(books, bcount, sizeof(struct mybook), compare_book);
 	for(i = 0; i < bcount; i++) {
 		if(books[i].ok) {
@@ -4049,6 +4054,7 @@ printf("\n********* new file %s expected size %lld, start time %s", dpart, newsi
 	dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE, 0644);
 	if(dstfd < 0) {
 		perror(dpart);
+		delete [] buf;
 		return 0;
 	}
 	part = 0;
@@ -4177,7 +4183,7 @@ printf("********* total written %lld tooks %ld secs end time %s", spos, tt1-tt, 
 	lseek64 (dstfd, 0, SEEK_SET);
 ret_err:
 	close(dstfd);
-	free(buf);
+	delete [] buf;
 	if(was_cancel)
 		g_RCInput->postMsg(CRCInput::RC_home, 0);
 	return retval;
@@ -4193,7 +4199,6 @@ static off64_t copy_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 	char spart[255];
 	char dpart[255];
 	char npart[255];
-	unsigned char * buf;
 	unsigned char psi[PSI_SIZE];
 	int r, i;
 	off64_t sdone, spos = 0, btotal = 0;
@@ -4207,9 +4212,9 @@ static off64_t copy_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 	bool was_cancel = false;
 	int retval = 0;
 
-	buf = (unsigned char *) malloc(BUF_SIZE);
+	unsigned char * buf = new unsigned char[BUF_SIZE];
 	if(buf == 0) {
-		perror("malloc");
+		perror("new");
 		return 0;
 	}
 
@@ -4245,8 +4250,10 @@ printf("copy: jump bookmark %d at %lld len %lld\n", bcount, books[bcount].pos, b
 			bcount++;
 		}
 	}
-	if(!bcount) return 0;
-
+	if(!bcount){
+		delete [] buf;
+		return 0;
+	}
 tt = time(0);
 printf("********* %d boormarks, to %s file(s), expected size to copy %lld, start time %s", bcount, onefile ? "one" : "many", newsize, ctime (&tt));
 	snprintf(npart, sizeof(npart), "%s", name);
@@ -4387,7 +4394,7 @@ printf("copy: ********* %s: total written %lld took %ld secs\n", dpart, spos, tt
 	}
 	retval = 1;
 ret_err:
-	free(buf);
+	delete [] buf;
 	if(was_cancel)
 		g_RCInput->postMsg(CRCInput::RC_home, 0);
 	return retval;

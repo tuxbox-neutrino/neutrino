@@ -41,20 +41,20 @@
 #include <config.h>
 #endif
 
-#include "gui/user_menue.h"
-#include "gui/user_menue_setup.h"
-#include "gui/subchannel_select.h"
-#include "gui/favorites.h"
-#include "gui/audio_select.h"
-#include "gui/streaminfo2.h"
-#include "gui/epgplus.h"
-#include "gui/movieplayer.h"
-#include "gui/timerlist.h"
-#include "gui/plugins.h"
-#include "gui/imageinfo.h"
-#include "gui/dboxinfo.h"
-#include "gui/cam_menu.h"
-#include "gui/pluginlist.h"
+#include "user_menue.h"
+#include "user_menue_setup.h"
+#include "subchannel_select.h"
+#include "favorites.h"
+#include "audio_select.h"
+#include "streaminfo2.h"
+#include "epgplus.h"
+#include "movieplayer.h"
+#include "timerlist.h"
+#include "plugins.h"
+#include "imageinfo.h"
+#include "dboxinfo.h"
+#include "cam_menu.h"
+#include "pluginlist.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -82,12 +82,14 @@ CUserMenu::~CUserMenu()
 	
 }
 
+#if 0
 #define MAINMENU_RECORDING_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MAINMENU_RECORDING_OPTIONS[MAINMENU_RECORDING_OPTION_COUNT] =
 {
 	{ 0, LOCALE_MAINMENU_RECORDING_START },
 	{ 1, LOCALE_MAINMENU_RECORDING_STOP  }
 };
+#endif
 
 // USERMENU
 bool CUserMenu::showUserMenu(int button)
@@ -286,7 +288,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_TECHINFO;
 			streamInfo = new CStreamInfo2();
 			keyhelper.get(&key,&icon,CRCInput::RC_blue);
-			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, true, NULL, streamInfo, "-1", key, icon );
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, streamInfo, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
 		case SNeutrinoSettings::ITEM_GAMES:
@@ -461,6 +463,7 @@ bool CUserMenu::showUserMenu(int button)
 **************************************************************************************/
 bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 {
+#if 0
 	bool res = !CRecordManager::getInstance()->RecordingStatus() ? false:true;
 		
 	if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING_START)) || (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING)))
@@ -471,9 +474,11 @@ bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 			res = false;
 		else
 			res = true;
-	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_PAUSESECTIONSD)) {
+	} else 
+#endif
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_PAUSESECTIONSD)) {
 		g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);
 	}
 	
-	return res;
+	return false;
 }

@@ -80,7 +80,7 @@ class CComponentsDetailLine : public CComponents
 					fb_pixel_t color_line = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsDetailLine();
 
-		void paint(bool do_save_bg = true);
+		void paint(bool do_save_bg = false);
 		void hide();
 		void setColor(fb_pixel_t color_line, fb_pixel_t color_shadow){col_line = color_line; col_shadow = color_shadow;};
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
@@ -101,7 +101,7 @@ class CComponentsInfoBox : public CComponents
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = true, 
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENTDARK_PLUS_0,fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
-		void paint(bool do_save_bg = true, bool fullPaint = false);
+		void paint(bool do_save_bg = false, bool fullPaint = false);
 		void hide();
 		void restore(bool clear_ = true);
 		void setColor(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};

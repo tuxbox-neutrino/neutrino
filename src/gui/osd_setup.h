@@ -49,6 +49,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 
 		int width;
 		bool is_wizard;
+		int show_tuner_icon;
 
 		int showOsdSetup();
  		void showOsdMenueColorSetup(CMenuWidget *menu_colors);
@@ -56,7 +57,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		void showOsdTimeoutSetup(CMenuWidget *menu_timeout);
 		void showOsdInfobarSetup(CMenuWidget *menu_infobar);
 		void showOsdChanlistSetup(CMenuWidget *menu_chanlist);
-		void showOsdScreenshottSetup(CMenuWidget *menu_screenshot);
+		void showOsdScreenShotSetup(CMenuWidget *menu_screenshot);
 
  		void AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);
  
@@ -87,17 +88,6 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 		int showContextChanlistMenu();
-};
-
-
-class COsdSetupChannelLogoNotifier : public CChangeObserver
-{
-	private:
-		CMenuForwarder* toDisable1;
-		CMenuOptionChooser* toDisable2;
-	public:
-		COsdSetupChannelLogoNotifier( CMenuForwarder*, CMenuOptionChooser* );
-		bool changeNotify(const neutrino_locale_t, void * Data);
 };
 
 #endif

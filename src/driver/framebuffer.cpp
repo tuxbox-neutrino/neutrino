@@ -38,8 +38,6 @@
 
 #include <linux/kd.h>
 
-#include <stdint.h>
-
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>

@@ -33,7 +33,7 @@
 #include <config.h>
 #endif
 
-#include "gui/pictureviewer_setup.h"
+#include "pictureviewer_setup.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -43,8 +43,8 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 
-#include "gui/pictureviewer.h"
-#include "gui/filebrowser.h"
+#include <gui/pictureviewer.h>
+#include <gui/filebrowser.h>
 
 #include <driver/screen_max.h>
 

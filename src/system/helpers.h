@@ -1,7 +1,9 @@
+
+#ifndef __system_helpers__
+#define __system_helpers__
+
 /*
-	Neutrino-GUI  -   DBoxII-Project
-
-
+	Neutrino-HD
 
 	License: GPL
 
@@ -20,29 +22,16 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+int my_system(const char * cmd, const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL, const char * arg6 = NULL);
 
-#ifndef _remoteLock_
-#define _remoteLock_
+int my_system(const char * cmd);
 
-#include <gui/widget/menue.h>
-
-#include <string>
-
-
-//
-// -- Implements RemoteControl Locking...
-// -- ... usefull, if you want to protect your box against unintented zapping
-// -- 2003-12-01 rasc
-//
-class CRCLock: public CMenuTarget
-{
-private:
-	void lockBox();
-
-public:
-	static const std::string NO_USER_INPUT; 
-	int  exec(CMenuTarget* parent, const std::string & actionKey);
-	static bool locked;
-};
+FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
+int safe_mkdir(char * path);
+bool file_exists(const char *filename);
+void wakeup_hdd(const char *hdd_dir);
+int check_dir(const char * dir);
+bool get_fs_usage(const char * dir, long &total, long &used);
+bool get_mem_usage(unsigned long &total, unsigned long &free);
 
 #endif

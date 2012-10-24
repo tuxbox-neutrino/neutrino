@@ -18,9 +18,9 @@ James Clark. All Rights Reserved.
 Contributor(s):
 */
 
-#include "xmldef.h"
+#include "xmltok/xmldef.h"
 #include "xmltok.h"
-#include "nametab.h"
+#include "xmltok/nametab.h"
 
 #define VTABLE1 \
   { PREFIX(prologTok), PREFIX(contentTok), PREFIX(cdataSectionTok) }, \
@@ -265,7 +265,7 @@ static const struct normal_encoding utf8_encoding = {
   { VTABLE1, utf8_toUtf8, utf8_toUtf16, 1, 1, 0 },
   {
 #include "asciitab.h"
-#include "utf8tab.h"
+#include "xmltok/utf8tab.h"
   },
   NORMAL_VTABLE(utf8_)
 };
@@ -274,7 +274,7 @@ static const struct normal_encoding internal_utf8_encoding = {
   { VTABLE1, utf8_toUtf8, utf8_toUtf16, 1, 1, 0 },
   {
 #include "iasctab.h"
-#include "utf8tab.h"
+#include "xmltok/utf8tab.h"
   },
   NORMAL_VTABLE(utf8_)
 };
@@ -319,7 +319,7 @@ static const struct normal_encoding latin1_encoding = {
   { VTABLE1, latin1_toUtf8, latin1_toUtf16, 1, 0, 0 },
   {
 #include "asciitab.h"
-#include "latin1tab.h"
+#include "xmltok/latin1tab.h"
   },
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
@@ -490,7 +490,7 @@ static const struct normal_encoding little2_encoding = {
   },
   {
 #include "asciitab.h"
-#include "latin1tab.h"
+#include "xmltok/latin1tab.h"
   },
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
@@ -501,7 +501,7 @@ static const struct normal_encoding internal_little2_encoding = {
   { VTABLE, 2, 0, 1 },
   {
 #include "iasctab.h"
-#include "latin1tab.h"
+#include "xmltok/latin1tab.h"
   },
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
@@ -559,7 +559,7 @@ static const struct normal_encoding big2_encoding = {
   },
   {
 #include "asciitab.h"
-#include "latin1tab.h"
+#include "xmltok/latin1tab.h"
   },
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };

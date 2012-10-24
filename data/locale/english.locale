@@ -125,6 +125,7 @@ audiomenu.pref_subs Prefered subtitle language
 audiomenu.pref_subs_head Subtitle language preferences
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.stereo stereo
+audiomenu.volume_adjust Volume adjustment, in %
 audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.add_ic Icecast
@@ -261,12 +262,12 @@ colormenusetup.menucontent_selected Content selected
 colormenusetup.menuhead Header
 colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
-colorthememenu.head2 Themes laden
-colorthememenu.name Themename
+colorthememenu.head2 Load themes
+colorthememenu.name Theme name
 colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.question Aktuelles Theme beibehalten?
-colorthememenu.save aktuelles Theme speichern
-colorthememenu.select1 Benutzer Theme
+colorthememenu.question Use selected theme ?
+colorthememenu.save Save current theme
+colorthememenu.select1 User Theme
 colorthememenu.select2 Standard Theme
 cpu.freq Cpu frequency
 cpu.freq_default default frequency
@@ -291,6 +292,7 @@ date.Sun  Sun
 date.Thu  Thu
 date.Tue  Tue
 date.Wed  Wed
+epg.saving Saving EPG
 epgextended.actors Actors
 epgextended.director Director
 epgextended.guests Guests
@@ -866,7 +868,7 @@ menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
-menu.hint_net_djmount mount uPnp devices as filesystem\nunder /media/00upnp
+menu.hint_net_djmount Mount UPnP devices as filesystem\nunder /media/00upnp
 menu.hint_net_ftpd Enable file transfer using FTP
 menu.hint_net_gateway Enter gateway/router IP address
 menu.hint_net_hostname Change your box hostname
@@ -923,6 +925,7 @@ menu.hint_record_apply Apply record options
 menu.hint_record_chandir Create directory with name of channel\nto store recording
 menu.hint_record_dir Select directory to store recordings
 menu.hint_record_end Stop direct record after max. time\nor after current event end time
+menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
 menu.hint_record_time Record time before stop when\nusing direct record with record button
 menu.hint_record_timeafter Stop record after event end\nin minutes
@@ -975,6 +978,7 @@ menu.hint_scan_logical_hd If both SD and HD channel versions present\nput HD to 
 menu.hint_scan_longitude Enter your longtitude
 menu.hint_scan_manual Manual transponder scan using\nselected parameters
 menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_motor_18v Use 18V when moving rotor
 menu.hint_scan_motor_speed Rotor moving speed in 1/10 degree\nper second
 menu.hint_scan_motorpos Select stored position number for\nthis satellite
 menu.hint_scan_nid Enter decimal network ID
@@ -1158,6 +1162,7 @@ motorcontrol.store Store Motor Position (a)
 motorcontrol.timed_mode Timed Step Mode
 motorcontrol.user_menu User menu
 motorcontrol.west_limit Set West (soft) Limit
+moviebrowser.book_add Add bookmark
 moviebrowser.book_clear_all Clear all
 moviebrowser.book_head Bookmarks
 moviebrowser.book_lastmoviestop Last play stop:
@@ -1487,6 +1492,7 @@ recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server server
 recordingmenu.server_mac MAC address
 recordingmenu.setupnow activate changes
+recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
 recordingmenu.vcr vcr
@@ -1625,7 +1631,7 @@ settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shutdown.recoding_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
-sleeptimerbox.announce Sleeptimer in 1 min
+sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
 sleeptimerbox.hint1 Shutdown time in min. (000=off)
 sleeptimerbox.hint2 The STB will shutdown after this time in standby.
 sleeptimerbox.hint3 The STB will shutdown, if remote not used.
@@ -1644,6 +1650,8 @@ streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino-HD.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
+streaming.overflow Record buffer overflow, consider to stop some records
+streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.caps caps / no caps
 stringinput.clear clear all
@@ -1658,6 +1666,7 @@ timerbar.recordevent Record
 timerlist.alarmtime Alarm time
 timerlist.apids Audio PIDs
 timerlist.apids_dflt record default audio streams
+timerlist.ask_to_delete Deletion of timer stops current recording!\n%sContinue anyway?
 timerlist.bouquetselect choose bouquet
 timerlist.channel Channel
 timerlist.channelselect choose channel
@@ -1793,6 +1802,8 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+wizard.initial_settings Initial settings found
+wizard.install_settings Do you want to install channels for Astra 19.2°E?
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from

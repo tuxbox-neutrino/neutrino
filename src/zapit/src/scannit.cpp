@@ -293,12 +293,17 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	newSat += ((sd->getOrbitalPosition() >> 8) & 0xF) * 100;
 	newSat += ((sd->getOrbitalPosition() >> 4) & 0xF) * 10;
 	newSat += ((sd->getOrbitalPosition()) & 0xF);
-	if (newSat && (!sd->getWestEastFlag()))
+
+	if (newSat > 1800)
 		newSat = 3600 - newSat;
+	if (!sd->getWestEastFlag())
+		newSat = -newSat;
+	if (abs(newSat - satellitePosition) < 5)
+		newSat = satellitePosition;
 
 	if(satellitePosition != newSat) {
-		printf("NIT: different satellite position: our %d nit %d\n",
-				satellitePosition, sd->getOrbitalPosition());
+		printf("NIT: different satellite position: our %d nit %d (%X)\n",
+				satellitePosition, newSat, sd->getOrbitalPosition());
 		return false;
 	}
 
@@ -320,7 +325,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 		break;
 	default:
 #ifdef DEBUG_NIT
-		printf("NIT: undefined modulation system %08x\n", modulation_system;
+		printf("NIT: undefined modulation system %08x\n", modulation_system);
 #endif
 		feparams.delsys = SYS_UNDEFINED;
 		break;

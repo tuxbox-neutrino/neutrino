@@ -58,10 +58,10 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-#ifndef NEW_LIBCURL
+#if LIBCURL_VERSION_NUM < 0x071507
 #include <curl/types.h>
 #endif
-
+#include <system/helpers.h>
 #include <xmltree/xmlinterface.h>
 
 #ifdef __USE_FILE_OFFSET64
@@ -232,7 +232,7 @@ unsigned char SMSKeyInput::getOldKey() const
 {
 	return m_oldKey;
 }
-
+#if 0
 const timeval* SMSKeyInput::getOldKeyTime() const
 {
  	return &m_oldKeyTime;
@@ -248,7 +248,7 @@ int SMSKeyInput::getTimeout() const
 {
 	return m_timeout;
 }
-
+#endif
 void SMSKeyInput::setTimeout(int timeout)
 {
 	m_timeout = timeout;

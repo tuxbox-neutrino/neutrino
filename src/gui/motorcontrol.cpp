@@ -36,7 +36,7 @@
 #include <gui/customcolor.h>
 #include <driver/rcinput.h>
 #include <gui/motorcontrol.h>
-#include "gui/scan_setup.h"
+#include <gui/scan_setup.h>
 #include <gui/color.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
@@ -308,7 +308,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 					default:
 						//printf("[motorcontrol] message received...\n");
 						if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-							delete (unsigned char*) data;
+							delete[] (unsigned char*) data;
 						break;
 				}
 			}
@@ -424,7 +424,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 					default:
 						//printf("[motorcontrol] message received...\n");
 						if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-							delete (unsigned char*) data;
+							delete[] (unsigned char*) data;
 						break;
 				}
 			}

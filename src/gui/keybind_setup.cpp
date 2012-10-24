@@ -47,7 +47,7 @@
 #endif
 #endif
 
-#include "gui/keybind_setup.h"
+#include "keybind_setup.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -58,7 +58,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 
-#include "gui/filebrowser.h"
+#include <gui/filebrowser.h>
 
 #include <driver/screen_max.h>
 #include <driver/screenshot.h>

@@ -28,11 +28,15 @@
 #ifndef __CVOLUME__
 #define __CVOLUME__
 
+#include <driver/framebuffer.h>
+
 #define ROUNDED g_settings.rounded_corners ? vbar_h/2 : 0
 
-class CVolume
+class CVolume : public CChangeObserver
 {
 	private:
+		CFrameBuffer * frameBuffer;
+		CProgressBar *volscale;
 		void refreshVolumebar(int current_volume);
 
 		int x, y, sy, sw, sh;
@@ -47,12 +51,15 @@ class CVolume
 		int rounded;
 		int m_mode;
 		bool paintShadow, paintDigits, MuteIconFrame;
+		/* volume adjustment variables */
+		t_channel_id channel_id;
+		int apid;
 
 	public:
 		CVolume();
 		~CVolume();
 		static CVolume* getInstance();
-
+		
 		int spacer, mute_dx;
 		void Init();
 		void AudioMute(int newValue, bool isEvent= false);
@@ -60,7 +67,10 @@ class CVolume
 		void setVolume(const neutrino_msg_t key, const bool bDoPaint = true, bool nowait = false);
 		int getStartPosTop(){ return sy; }
 		int getEndPosRight(){ return sw; }
-};
 
+		void SetCurrentPid(int pid) { apid = pid; }
+		void SetCurrentChannel(t_channel_id id) { channel_id = id; }
+		bool changeNotify(const neutrino_locale_t OptionName, void *);
+};
 
 #endif // __CVOLUME__

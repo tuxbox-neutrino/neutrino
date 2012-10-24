@@ -33,7 +33,6 @@
 #include <config.h>
 #endif
 
-#include <string>
 #include <algorithm>
 
 #include <gui/bouquetlist.h>
@@ -72,9 +71,9 @@ CBouquetList::CBouquetList(const char * const Name)
 
 CBouquetList::~CBouquetList()
 {
-        for (std::vector<CBouquet *>::iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
-               	delete (*it);
-        }
+	for (std::vector<CBouquet *>::iterator it = Bouquets.begin(); it != Bouquets.end(); ++it)
+		delete (*it);
+
 	Bouquets.clear();
 }
 
@@ -145,7 +144,6 @@ bool CBouquetList::hasChannelID(t_channel_id channel_id)
 	return false;
 }
 
-extern CBouquetList   * TVfavList;
 bool CBouquetList::adjustToChannelID(t_channel_id channel_id)
 {
 //printf("CBouquetList::adjustToChannelID [%s] to %llx, selected %d size %d\n", name.c_str(), channel_id, selected, Bouquets.size());
@@ -173,7 +171,7 @@ bool CBouquetList::adjustToChannelID(t_channel_id channel_id)
 /* used in channellist to switch bouquets up/down */
 int CBouquetList::showChannelList( int nBouquet)
 {
-	if (nBouquet == -1)
+	if ((nBouquet < 0)|| (nBouquet >= (int) Bouquets.size()))
 		nBouquet = selected;
 
 	int nNewChannel = Bouquets[nBouquet]->channelList->exec();
@@ -188,7 +186,7 @@ int CBouquetList::activateBouquet( int id, bool bShowChannelList)
 {
 	int res = -1;
 
-	if(id < (int) Bouquets.size())
+	if((id >= 0) && (id < (int) Bouquets.size()))
 		selected = id;
 
 	if (bShowChannelList) {
@@ -293,24 +291,56 @@ int CBouquetList::doMenu()
 	return 0;
 }
 
+const struct button_label CBouquetListButtons[4] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_CHANNELLIST_FAVS},
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_PROVS},
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_CHANNELLIST_SATS},
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_CHANNELLIST_HEAD}
+};
+
+void CBouquetList::updateSelection(int newpos)
+{
+	if((int) selected != newpos) {
+		int prev_selected = selected;
+		unsigned int oldliststart = liststart;
+
+		selected = newpos;
+		liststart = (selected/listmaxshow)*listmaxshow;
+		if (oldliststart != liststart)
+			paint();
+		else {
+			paintItem(prev_selected - liststart);
+			paintItem(selected - liststart);
+		}
+	}
+}
+
 /* bShowChannelList default to true, returns new bouquet or -1/-2 */
 int CBouquetList::show(bool bShowChannelList)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	int res = -1;
+	int icol_w, icol_h;
+	int w_max_text = 0;
+	int w_max_icon = 0;
 
-	//if(Bouquets.size()==0)
-	//	return res;
+	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
+		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText (CBouquetListButtons[count].locale),true);
+		w_max_text = std::max(w_max_icon, w_text);
+		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
+		w_max_icon = std::max(w_max_icon, icol_w);
+	}
 
+	int need_width =  sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0])*(w_max_icon  + w_max_text + 20);
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 
-	width  = w_max (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*52, 20);//500
+	width  = w_max (need_width, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*52);//500
 	height = h_max (16 * fheight, 40);
 
 	/* assuming all color icons must have same size */
-	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 
 	footerHeight = std::max(icol_h+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8); //TODO get footerHeight from buttons
@@ -353,7 +383,8 @@ int CBouquetList::show(bool bShowChannelList)
 				loop = false;
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
-				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
+				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ||
+				(msg == CRCInput::RC_favorites) )
 		{
 			selected = oldselected;
 			if(fader.StartFadeOut()) {
@@ -387,84 +418,54 @@ int CBouquetList::show(bool bShowChannelList)
 				return -3;
 			}
 		}
-		else if(Bouquets.empty())
-			continue; //FIXME msgs not forwarded to neutrino !!
 		else if ( msg == CRCInput::RC_setup) {
-			int ret = doMenu();
-			if(ret > 0) {
-				CNeutrinoApp::getInstance ()->g_channel_list_changed = true;
-				res = -4;
-				loop = false;
-			} else if(ret < 0)
-				paint();
+			if (!Bouquets.empty()) {
+				int ret = doMenu();
+				if(ret > 0) {
+					CNeutrinoApp::getInstance ()->g_channel_list_changed = true;
+					res = -4;
+					loop = false;
+				} else if(ret < 0)
+					paint();
+			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_list_start ) {
-			selected=0;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			paint();
+			if (!Bouquets.empty())
+				updateSelection(0);
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_list_end ) {
-			selected=Bouquets.size()-1;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			paint();
+			if (!Bouquets.empty())
+				updateSelection(Bouquets.size()-1);
 		}
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
-			int step = 0;
-			int prev_selected = selected;
-
-			step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-			selected -= step;
-#if 0
-			if((prev_selected-step) < 0)            // because of uint
-				selected = Bouquets.size()-1;
-#endif
-			if((prev_selected-step) < 0) {
-				if(prev_selected != 0 && step != 1)
-					selected = 0;
-				else
-					selected = Bouquets.size() - 1;
+			if (!Bouquets.empty()) {
+				int step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+				int new_selected = selected - step;
+				if (new_selected < 0) {
+					if (selected != 0 && step != 1)
+						new_selected = 0;
+					else
+						new_selected = Bouquets.size() - 1;
+				}
+				updateSelection(new_selected);
 			}
-
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-				paint();
-			else
-				paintItem(selected - liststart);
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
-			unsigned int step = 0;
-			unsigned int prev_selected = selected;
-
-			step = ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-#if 0
-			if(selected >= Bouquets.size()) {
-				if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Bouquets.size() / listmaxshow) + 1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
+			if (!Bouquets.empty()) {
+				int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+				int new_selected = selected + step;
+				if (new_selected >= (int) Bouquets.size()) {
+					if ((Bouquets.size() - listmaxshow -1 < selected) && (selected != (Bouquets.size() - 1)) && (step != 1))
+						new_selected = Bouquets.size() - 1;
+					else if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
+						new_selected = 0;
+					else
+						new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((Bouquets.size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
+				}
+				updateSelection(new_selected);
 			}
-#endif
-			if(selected >= Bouquets.size()) {
-				if((Bouquets.size() - listmaxshow -1 < prev_selected) && (prev_selected != (Bouquets.size() - 1)) && (step != 1))
-					selected = Bouquets.size() - 1;
-				else if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Bouquets.size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
-			}
-
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-				paint();
-			else
-				paintItem(selected - liststart);
 		}
 		else if(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
 			if(bShowChannelList) {
@@ -478,45 +479,36 @@ int CBouquetList::show(bool bShowChannelList)
 				hide();
 				return -3;
 			}
-
 		}
-
 		else if ( msg == CRCInput::RC_ok ) {
-			if(!bShowChannelList || Bouquets[selected]->channelList->getSize() > 0) {
+			if(!Bouquets.empty() && (!bShowChannelList || !Bouquets[selected]->channelList->isEmpty())) {
 				zapOnExit = true;
 				loop=false;
 			}
 		}
 		else if (CRCInput::isNumeric(msg)) {
-			if (pos == lmaxpos) {
-				if (msg == CRCInput::RC_0) {
+			if (!Bouquets.empty()) {
+				if (pos == lmaxpos) {
+					if (msg == CRCInput::RC_0) {
+						chn = firstselected;
+						pos = lmaxpos;
+					} else {
+						chn = CRCInput::getNumericValue(msg);
+						pos = 1;
+					}
+				} else {
+					chn = chn * 10 + CRCInput::getNumericValue(msg);
+					pos++;
+				}
+
+				if (chn > Bouquets.size()) {
 					chn = firstselected;
 					pos = lmaxpos;
-				} else {
-					chn = CRCInput::getNumericValue(msg);
-					pos = 1;
 				}
-			} else {
-				chn = chn * 10 + CRCInput::getNumericValue(msg);
-				pos++;
-			}
 
-			if (chn > Bouquets.size()) {
-				chn = firstselected;
-				pos = lmaxpos;
+				int new_selected = (chn - 1) % Bouquets.size(); // is % necessary (i.e. can firstselected be > Bouquets.size()) ?
+				updateSelection(new_selected);
 			}
-
-			int prevselected=selected;
-			selected = (chn - 1) % Bouquets.size(); // is % necessary (i.e. can firstselected be > Bouquets.size()) ?
-			paintItem(prevselected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart) {
-				paint();
-			} else {
-				paintItem(selected - liststart);
-			}
-
 		} else {
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 				loop = false;
@@ -561,9 +553,9 @@ void CBouquetList::paintItem(int pos)
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
 	} else {
 		if(npos < (int) Bouquets.size())
-			iscurrent = Bouquets[npos]->channelList->getSize() > 0;
-                color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
-                bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
+			iscurrent = !Bouquets[npos]->channelList->isEmpty();
+		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
+		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
 	}
 
@@ -578,14 +570,6 @@ void CBouquetList::paintItem(int pos)
 		//CVFD::getInstance()->showMenuText(0, bouq->channelList->getName(), -1, true);
 	}
 }
-
-const struct button_label CBouquetListButtons[4] =
-{
-        { NEUTRINO_ICON_BUTTON_RED, LOCALE_CHANNELLIST_FAVS},
-        { NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_PROVS},
-        { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_CHANNELLIST_SATS},
-        { NEUTRINO_ICON_BUTTON_BLUE, LOCALE_CHANNELLIST_HEAD}
-};
 
 void CBouquetList::paintHead()
 {

@@ -21,10 +21,20 @@
 #define PAL	0
 #define NTSC	1
 #define AUDIO_CONFIG_FILE "/var/tuxbox/config/zapit/audio.conf"
+#define VOLUME_CONFIG_FILE "/var/tuxbox/config/zapit/volume.conf"
 
 typedef std::map<t_channel_id, audio_map_set_t> audio_map_t;
 typedef audio_map_t::iterator audio_map_iterator_t;
 typedef std::map<transponder_id_t, time_t> sdt_tp_map_t;
+
+typedef std::pair<int, int> pid_pair_t;
+typedef std::pair<t_channel_id, pid_pair_t> volume_pair_t;
+typedef std::multimap<t_channel_id, pid_pair_t> volume_map_t;
+typedef volume_map_t::iterator volume_map_iterator_t;
+typedef std::pair<volume_map_iterator_t,volume_map_iterator_t> volume_map_range_t;
+
+#define VOLUME_PERCENT_AC3 100
+#define VOLUME_PERCENT_PCM 100
 
 /* complete zapit start thread-parameters in a struct */
 typedef struct ZAPIT_start_arg
@@ -33,6 +43,7 @@ typedef struct ZAPIT_start_arg
         t_channel_id startchannelradio_id;
         int uselastchannel;
         int video_mode;
+	int volume;
         int ci_clock;
 } Z_start_arg;
 
@@ -89,6 +100,7 @@ class CZapit : public OpenThreads::Thread
 			RECORD_MODE = 0x04
 		};
 
+		OpenThreads::Mutex	mutex;
 		bool started;
 		bool event_mode;
 		bool firstzap;
@@ -99,10 +111,12 @@ class CZapit : public OpenThreads::Thread
 		int def_audio_mode;
 		int aspectratio;
 		int mode43;
+#if 0
 		unsigned int volume_left;
 		unsigned int volume_right;
-		unsigned int def_volume_left;
-		unsigned int def_volume_right;
+#endif
+		int current_volume;
+		int volume_percent;
 
 		int currentMode;
 		bool playbackStopForced;
@@ -121,6 +135,7 @@ class CZapit : public OpenThreads::Thread
 		CFrontend * live_fe;
 
 		audio_map_t audio_map;
+		volume_map_t vol_map;
 		//bool current_is_nvod;
 		//bool standby;
 		t_channel_id  lastChannelRadio;
@@ -130,6 +145,7 @@ class CZapit : public OpenThreads::Thread
 
 		//void LoadAudioMap();
 		void SaveAudioMap();
+		void SaveVolumeMap();
 		void SaveSettings(bool write_conf);
 		//void SaveChannelPids(CZapitChannel* channel);
 		void RestoreChannelPids(CZapitChannel* channel);
@@ -171,6 +187,7 @@ class CZapit : public OpenThreads::Thread
 		Zapit_config config;
 		CZapitSdtMonitor SdtMonitor;
 		void LoadAudioMap();
+		void LoadVolumeMap();
 		void SaveChannelPids(CZapitChannel* channel);
 		virtual void ConfigFrontend();
 		bool StopPlayBack(bool send_pmt);
@@ -224,5 +241,11 @@ class CZapit : public OpenThreads::Thread
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
 		CFrontend * GetLiveFrontend() { return live_fe; };
+
+		int GetPidVolume(t_channel_id channel_id, int pid, bool ac3 = false);
+		void SetPidVolume(t_channel_id channel_id, int pid, int percent);
+		void SetVolume(int vol);
+		int GetVolume() { return current_volume; };
+		int SetVolumePercent(int percent);
 };
 #endif /* __zapit_h__ */

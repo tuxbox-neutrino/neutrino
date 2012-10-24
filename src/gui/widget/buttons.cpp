@@ -132,7 +132,7 @@ int paintButtons(	const int &x,
 
 	//workaround for to small screen (1)
 	int skip_last_button_txt = false;
-	if( (w_footer > 0) && ( (w_button*cnt) > (uint) w_footer) ){
+	if( (w_footer > 0) && ( ((w_button*cnt) + ((cnt -1) * w_space)) > (uint) w_footer) ){
 		w_button= ((w_footer+w_max_icon)/(cnt));
 		skip_last_button_txt = true;
 	}

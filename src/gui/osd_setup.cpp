@@ -33,17 +33,16 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+#include <neutrino.h>
+#include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include "osd_setup.h"
 #include "themes.h"
 #include "screensetup.h"
 #include "osdlang_setup.h"
 #include "filebrowser.h"
-
-#include <global.h>
-#include <neutrino.h>
-#include <mymenu.h>
-#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
@@ -53,6 +52,7 @@
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 
+#include <zapit/femanager.h>
 #include <system/debug.h>
 
 extern CRemoteControl * g_RemoteControl;
@@ -73,6 +73,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	is_wizard = wizard_mode;
 
 	width = w_max (40, 10); //%
+	show_tuner_icon = 0;
 }
 
 COsdSetup::~COsdSetup()
@@ -434,7 +435,7 @@ int COsdSetup::showOsdSetup()
 
 	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
-	showOsdScreenshottSetup(&osd_menu_screenshot);
+	showOsdScreenShotSetup(&osd_menu_screenshot);
 	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::RC_3);
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
 	osd_menu->addItem(mf);
@@ -762,7 +763,16 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(mc);
 
 	// tuner icon
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, &g_settings.infobar_show_tuner, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	bool mc_active = false;
+	show_tuner_icon = 0;
+	// show possible option if we in single box mode, but don't touch the real settings
+	int *p_show_tuner_icon = &show_tuner_icon;
+	if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE){
+		mc_active = true;
+		// use the real value of g_settings.infobar_show_tuner
+		p_show_tuner_icon = &g_settings.infobar_show_tuner;
+	}
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, p_show_tuner_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, mc_active);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_TUNER);
 	menu_infobar->addItem(mc);
 
@@ -880,19 +890,30 @@ int COsdSetup::showContextChanlistMenu()
 	menu_chanlist->enableFade(false);
 	menu_chanlist->setSelected(cselected);
 
-	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);//, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true));
-	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EPG_ALIGN);
+	menu_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EXTENDED);
+	menu_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_FOOT);
+	menu_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_COLORED);
+	menu_chanlist->addItem(mc);
 
 	CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
 	fontSettingsSubMenu->enableSaveScreen(true);
 	fontSettingsSubMenu->enableFade(false);
 
 	int i = 1;
-	fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname);//, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	for (unsigned int j = 0; j < font_sizes_groups[i].count; j++)
 	{
@@ -900,7 +921,10 @@ int COsdSetup::showContextChanlistMenu()
 	}
 	fontSettingsSubMenu->addItem(GenericMenuSeparatorLine);
 	fontSettingsSubMenu->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[i].actionkey));
-	menu_chanlist->addItem(new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, "", CRCInput::convertDigitToKey(0)));
+
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf->setHint("", LOCALE_MENU_HINT_FONTS);
+	menu_chanlist->addItem(mf);
 
 	int res = menu_chanlist->exec(NULL, "");
 	cselected = menu_chanlist->getSelected();
@@ -923,7 +947,7 @@ const CMenuOptionChooser::keyval SCREENSHOT_OPTIONS[SCREENSHOT_OPTION_COUNT] =
 	{ 1, LOCALE_SCREENSHOT_OSD   }
 };
 
-void COsdSetup::showOsdScreenshottSetup(CMenuWidget *menu_screenshot)
+void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 {
 	menu_screenshot->addIntroItems(LOCALE_SCREENSHOT_MENU);
 	if((uint)g_settings.key_screenshot == CRCInput::RC_nokey)

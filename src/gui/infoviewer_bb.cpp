@@ -32,7 +32,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <string>
+#include "infoviewer_bb.h"
+
 #include <algorithm>
 
 #include <sys/types.h>
@@ -49,13 +50,13 @@
 #include <neutrino.h>
 
 #include <gui/infoviewer.h>
-#include <gui/infoviewer_bb.h>
 #include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
-
+#include <gui/movieplayer.h>
+#include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
 
 #include <zapit/femanager.h>
@@ -86,13 +87,15 @@ CInfoViewerBB::CInfoViewerBB()
 		pthread_detach(scrambledT);
 	}
 #endif
+	hddperT			= 0;
+	hddperTflag		= false;
 	Init();
 }
 
 void CInfoViewerBB::Init()
 {
 	hddscale 		= NULL;
-	varscale 		= NULL;
+	sysscale 		= NULL;
 	hddwidth		= 0;
 	bbIconMaxH 		= 0;
 	bbButtonMaxH 		= 0;
@@ -116,6 +119,10 @@ CInfoViewerBB::~CInfoViewerBB()
 	if(scrambledT) {
 		pthread_cancel(scrambledT);
 		scrambledT = 0;
+	}
+	if(hddperT) {
+		pthread_cancel(hddperT);
+		hddperT = 0;
 	}
 }
 
@@ -180,8 +187,10 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
-			if (g_settings.infobar_show_tuner == 1) {
-				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
+			if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE) {
+				if (g_settings.infobar_show_tuner == 1) {
+					iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
+				}
 			}
 			break;
 		default:
@@ -225,10 +234,13 @@ void CInfoViewerBB::getBBButtonInfo()
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
+			if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+				text = CMoviePlayerGui::getInstance().CurrentAudioName();
+			}else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
-				if (text.empty())
+				if (text.empty()){
 					text = g_RemoteControl->current_PIDs.APIDs[selected].desc;
+				}
 			}
 			break;
 		case CInfoViewerBB::BUTTON_SUBS:
@@ -587,26 +599,55 @@ void CInfoViewerBB::showIcon_Tuner()
 
 void CInfoViewerBB::showSysfsHdd()
 {
-	if ((g_settings.infobar_show_sysfs_hdd) && (is_visible)) {
-		long blocks_used;
-		struct statfs s;
-		int per = 0;
-		if (::statfs("/", &s) == 0 && s.f_blocks) {
-//			per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
-			blocks_used = s.f_blocks - s.f_bfree;
-			per = (blocks_used * 100ULL) / s.f_blocks;
+	if (g_settings.infobar_show_sysfs_hdd) {
+		//sysFS info
+		int percent = 0;
+		long t, u;
+		if (get_fs_usage("/", t, u))
+			percent = (u * 100ULL) / t;
+		showBarSys(percent);
+
+#if 0
+		//HDD info in a seperate thread
+		if(!hddperTflag) {
+			hddperTflag=true;
+			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
+			pthread_detach(hddperT);
 		}
-		varscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth , 6, per, 100);
-		per = 0;
-		//HD info
-		if(!check_dir(g_settings.network_nfs_recordingdir)){
-			if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0 && s.f_blocks) {
-				blocks_used = s.f_blocks - s.f_bfree;
-				per = (blocks_used * 100ULL) / s.f_blocks;
-			}
+#else
+		if (!check_dir(g_settings.network_nfs_recordingdir)) {
+			if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
+				percent = (u * 100ULL) / t;
+			showBarHdd(percent);
 		}
-		hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2, hddwidth, 6, per, 100);
+#endif
 	}
+}
+
+void* CInfoViewerBB::hddperThread(void *arg)
+{
+	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
+
+	int percent = 0;
+	long t, u;
+	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
+		percent = (u * 100ULL) / t;
+	infoViewerBB->showBarHdd(percent);
+
+	infoViewerBB->hddperTflag=false;
+	pthread_exit(NULL);
+}
+
+void CInfoViewerBB::showBarSys(int percent)
+{
+	if (is_visible)
+		sysscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6, percent, 100);
+}
+
+void CInfoViewerBB::showBarHdd(int percent)
+{
+	if (is_visible)
+		hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
 }
 
 void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
@@ -674,13 +715,20 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
+	if (g_settings.casystem_display == 3)
+		return;
+	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+		if (g_settings.casystem_display == 2) {
+			fta = true;
+			showOne_CAIcon();
+		}
+		return;
+	}
+
 	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
 	int icon_space_offset = 0;
-
-	if (g_settings.casystem_display == 3)
-		return;
 
 	if(!g_InfoViewer->chanready) {
 		if (g_settings.casystem_display == 2) {
@@ -757,16 +805,16 @@ void CInfoViewerBB::changePB()
 	if (hddscale != NULL)
 		delete hddscale;
 	hddscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
-	if (varscale != NULL)
-		delete varscale;
-	varscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
+	if (sysscale != NULL)
+		delete sysscale;
+	sysscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
 }
 
 void CInfoViewerBB::reset_allScala()
 {
 	hddscale->reset();
-	varscale->reset();
-	lasthdd = lastvar = -1;
+	sysscale->reset();
+	//lasthdd = lastsys = -1;
 }
 
 void CInfoViewerBB::setBBOffset()
