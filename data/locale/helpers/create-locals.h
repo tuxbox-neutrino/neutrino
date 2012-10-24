@@ -1,6 +1,6 @@
 #!/bin/bash
 # usage: cut -d' ' -f1 english.locale | LC_ALL=C sort | uniq | tr [:lower:] [:upper:] | tr \. \_  | tr \- \_ | tr -d \? | ./helpers/create-locals.h
-cat > locals.h <<EOF
+cat > locals.h <<EOH
 #ifndef __locals__
 #define __locals__
 
@@ -28,15 +28,12 @@ cat > locals.h <<EOF
 typedef enum
 {
 	NONEXISTANT_LOCALE,
-EOF
+EOH
+
 while read id; do
-	if [[ \
-	      "$id" != "CAM_WRONG"                       \
-	      ]] ;
-	then
-		echo $'\t'"LOCALE_$id," >> locals.h;
-	fi
+	echo $'\t'"LOCALE_$id," >> locals.h;
 done
+
 cat >> locals.h <<EOF
 } neutrino_locale_t;
 #endif

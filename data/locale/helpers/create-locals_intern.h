@@ -1,6 +1,6 @@
 #!/bin/bash
 # usage: cut -d' ' -f1 english.locale | LC_ALL=C sort | uniq | ./helpers/create-locals_intern.h
-cat > locals_intern.h <<EOF
+cat > locals_intern.h <<EOH
 #ifndef __locals_intern__
 #define __locals_intern__
 
@@ -28,22 +28,13 @@ cat > locals_intern.h <<EOF
 const char * locale_real_names[] =
 {
 	"INTERNAL ERROR - PLEASE REPORT",
-EOF
+EOH
+
 while read id; do
-	if [[ \
-	      "$id" != "cam.wrong"                       \
-	      ]] ;
-	then
-		echo $'\t'"\"$id\"," >> locals_intern.h;
-	fi
+	echo $'\t'"\"$id\"," >> locals_intern.h;
 done
+
 cat >> locals_intern.h <<EOF
 };
 #endif
 EOF
-# // infoviewer.cantdecode
-# miscsettings.startbhdriver: only for HAVE_DVB_API_VERSION == 1
-# // parentallock.onstart
-# // streamfeatures.info
-# streaminfo.signal: // streaminfo2.cpp
-# // timerlist.empty
