@@ -367,7 +367,7 @@ CComponentsInfoBox::CComponentsInfoBox()
 	//CComponentsInfoBox
 	initVarInfobox();
 	text 		= NULL;
-	text_mode	= CTextBox::AUTO_WIDTH;
+	ct_text_mode	= CTextBox::AUTO_WIDTH;
 }
 
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
@@ -390,7 +390,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	//CComponentsInfoBox
 	initVarInfobox();
 	text 		= info_text;
-	text_mode	= mode;
+	ct_text_mode	= mode;
 	ct_font		= font_text;
 	ct_col_text	= color_text;
 }
@@ -420,7 +420,7 @@ void CComponentsInfoBox::initVarInfobox()
 void CComponentsInfoBox::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
 {
 	text = g_Locale->getText(locale_text);
-	text_mode = mode;
+	ct_text_mode = mode;
 	ct_font = font_text;
 }
 
@@ -456,7 +456,7 @@ void CComponentsInfoBox::paintText()
 
 	//init textbox
 	if (ct_textbox == NULL) {
-		ct_textbox = new CTextBox(text, ct_font, text_mode, ct_box, col_body);
+		ct_textbox = new CTextBox(text, ct_font, ct_text_mode, ct_box, col_body);
 		ct_textbox->setTextBorderWidth(0);
 		ct_textbox->enableBackgroundPaint(false);
 	}

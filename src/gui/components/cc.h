@@ -224,16 +224,15 @@ class CComponentsText : public CComponentsItem
 		Font		* ct_font;
 
 		fb_pixel_t ct_col_text;
+		int ct_text_mode; //see textbox.h for possible modes
 
 		void initVarText();
 		void clearCCText();
 	private:
 		const char* ct_text;
-		int ct_text_mode; //see textbox.h for possible modes
 		
 		bool ct_text_sended;
 
-		
 		void initCCText();
 
 	public:
@@ -244,8 +243,9 @@ class CComponentsText : public CComponentsItem
 
 		void hide(bool no_restore = false);
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		inline void setTextFont(Font* font_text){ct_font = font_text;};
+		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
+		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};//see textbox.h for possible modes
 };
 
 #define INFO_BOX_Y_OFFSET	2
@@ -253,7 +253,6 @@ class CComponentsInfoBox : public CComponentsText
 {
 	private:
 		const char* text;
-		int text_mode; //see textbox.h for possible modes
 		int x_text, x_offset;
 
 		CComponentsPicture * pic;
@@ -273,11 +272,11 @@ class CComponentsInfoBox : public CComponentsText
 
 		~CComponentsInfoBox();
 
-		inline void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; text_mode = mode, ct_font = font_text;};
-		inline void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, ct_font = font_text;};
+		inline void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; ct_text_mode = mode, ct_font = font_text;};
+		inline void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); ct_text_mode = mode, ct_font = font_text;};
 		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		inline void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
-		inline void setTextFont(Font* font_text){ct_font = font_text;};
+// 		inline void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
+// 		inline void setTextFont(Font* font_text){ct_font = font_text;};
 // 		inline void setTextColor(fb_pixel_t color_text){ ibox_col_text = color_text;};
 		inline void setSpaceOffset(const int offset){x_offset = offset;};
 		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
