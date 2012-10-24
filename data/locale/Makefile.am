@@ -34,7 +34,6 @@ sort-locals: $(top_srcdir)/data/locale/$(master.locale)
 	for locale in $(locale); do \
 		cat $(top_srcdir)/data/locale/$${locale} | LC_ALL=C sort | uniq > $${locale}; \
 	done
-	cp -f $(locale) $(top_srcdir)/data/locale
 
 ordercheck: $(top_srcdir)/data/locale/$(master.locale)
 	cut -d' ' -f1 $(top_srcdir)/data/locale/$(master.locale) | LC_ALL=C sort | uniq > /tmp/log
@@ -53,7 +52,7 @@ check: locals.h locals_intern.h
 	diff locals.h $(top_srcdir)/src/system
 	diff locals_intern.h $(top_srcdir)/src/system
 
-install-locals: locals.h locals_intern.h
+install-locals: sort-locals locals.h locals_intern.h
 	cp locals.h locals_intern.h $(top_srcdir)/src/system
 	@echo "Consider committing src/system/[locals.h locals_intern.h]"
 	cp -f $(locale) $(top_srcdir)/data/locale
