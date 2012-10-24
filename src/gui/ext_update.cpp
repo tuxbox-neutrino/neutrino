@@ -41,7 +41,6 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <system/flashtool.h>
-#include <system/helpers.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -72,12 +71,15 @@ CExtUpdate::CExtUpdate()
 	fLogEnabled     = 1;
 	fLogfile        = "/tmp/update.log";
 	mountPkt 	= "/tmp/image_mount";
+	FileHelpers 	= NULL;
 }
 
 CExtUpdate::~CExtUpdate()
 {
 	if (MTDBuf != NULL)
 		free(MTDBuf);
+	if(FileHelpers)
+		delete[] FileHelpers;
 }
 
 CExtUpdate* CExtUpdate::getInstance()
@@ -121,10 +123,12 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 bool CExtUpdate::writemtdExt(const std::string & filename)
 {
+	if(!FileHelpers)
+		FileHelpers = new CFileHelpers();
 	imgFilename = (std::string)g_settings.update_dir + "/" + FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
 	DBG_TIMER_START()
 	bool ret = writemtdExt();
-	DBG_TIMER_STOP("Image bearbeiten")
+	DBG_TIMER_STOP("Image editing")
 	if (!ret) {
 		if (mtdRamError != "")
 			DisplayErrorMessage(mtdRamError.c_str());
@@ -137,9 +141,9 @@ bool CExtUpdate::writemtdExt(const std::string & filename)
 			WRITE_UPDATE_LOG("ERROR: %s", err);
 			return false;
 		}
-		DisplayInfoMessage("Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.");
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.", CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 		WRITE_UPDATE_LOG("\n");
-		WRITE_UPDATE_LOG("##### Settingsübernahme erfolgreich. #####\n");
+		WRITE_UPDATE_LOG("##### Settings taken. #####\n");
 		CFlashExpert::getInstance()->writemtd(filename, mtdNumber);
 	}
 	return ret;
@@ -281,7 +285,7 @@ bool CExtUpdate::writemtdExt()
 	close(fd1);
 	close(fd2);
 
-	CFileHelpers::getInstance()->createDir(mountPkt.c_str(), 0755);
+	FileHelpers->createDir(mountPkt.c_str(), 0755);
 	int res = mount(mtdBlockFileName.c_str(), mountPkt.c_str(), "jffs2", 0, NULL);
 	if (res)
 		return ErrorReset(RESET_UNLOAD, "mount error");
@@ -360,7 +364,7 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 	int n = scandir(fList.c_str(), &namelist, fileSelect, 0);
 	if (n > 0) {
 		dst = dstPath + fList;
-		CFileHelpers::getInstance()->createDir(dst.c_str(), 0755);
+		FileHelpers->createDir(dst.c_str(), 0755);
 		while (n--) {
 			std::string dName = namelist[n]->d_name;
 			if (lstat((fList+"/"+dName).c_str(), &FileInfo) != -1) {
@@ -375,7 +379,7 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 				else
 					if (S_ISREG(FileInfo.st_mode)) {
 						WRITE_UPDATE_LOG("copy %s => %s\n", (fList+"/"+dName).c_str(), (dst+"/"+dName).c_str());
-						if (!CFileHelpers::getInstance()->copyFile((fList+"/"+dName).c_str(), (dst+"/"+dName).c_str(), FileInfo.st_mode & 0x0FFF))
+						if (!FileHelpers->copyFile((fList+"/"+dName).c_str(), (dst+"/"+dName).c_str(), FileInfo.st_mode & 0x0FFF))
 							return ErrorReset(0, "copyFile error");
 					}
 			}
@@ -464,9 +468,9 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 		// special folders
 		else if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 
 			 (line.find("/sys") == 0) || (line.find("/mnt") == 0) || (line.find("/tmp") == 0)) {
-			snprintf(buf, sizeof(buf), "Ordner [%s] kann nicht übertragen werden. Eintrag wird übersprungen.\n", line.c_str());
-			WRITE_UPDATE_LOG("%s", buf);
-			DisplayInfoMessage(buf);
+			snprintf(buf, sizeof(buf), "Ordner [%s] kann nicht übertragen werden. Eintrag wird übersprungen.", line.c_str());
+			WRITE_UPDATE_LOG("%s%s", buf, "\n");
+			ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 			continue;
 		}
 		// remove '/' from line end
@@ -489,12 +493,12 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					// one file only
 					pos = dst.find_last_of("/");
 					std::string dir = dst.substr(0, pos);
-					CFileHelpers::getInstance()->createDir(dir.c_str(), 0755);
+					FileHelpers->createDir(dir.c_str(), 0755);
 					DBG_MSG("file: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("\n");
 					WRITE_UPDATE_LOG("file: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("--------------------\n");
-					if (!CFileHelpers::getInstance()->copyFile(line.c_str(), dst.c_str(), FileInfo.st_mode & 0x0FFF))
+					if (!FileHelpers->copyFile(line.c_str(), dst.c_str(), FileInfo.st_mode & 0x0FFF))
 						return ErrorReset(0, "copyFile error");
 				}
 				else if (S_ISDIR(FileInfo.st_mode)) {
@@ -503,7 +507,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					WRITE_UPDATE_LOG("\n");
 					WRITE_UPDATE_LOG("directory: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("--------------------\n");
-					CFileHelpers::getInstance()->copyDir(line.c_str(), dst.c_str());
+					FileHelpers->copyDir(line.c_str(), dst.c_str());
 				}
 			}
 		

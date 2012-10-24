@@ -29,8 +29,7 @@
 #define __CEXTUPDATE__
 
 #include <gui/widget/menue.h>
-
-#include <driver/framebuffer.h>
+#include <system/helpers.h>
 
 #include <string>
 
@@ -54,6 +53,7 @@ class CExtUpdate
 		std::string mtdramDriver;
 		std::string backupList, defaultBackup;
 		std::string mountPkt;
+		CFileHelpers* FileHelpers;
 
 		bool writemtdExt(void);
 		bool readBackupList(const std::string & dstPath);
