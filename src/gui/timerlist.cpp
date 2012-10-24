@@ -574,18 +574,23 @@ int CTimerList::show()
 		{
 			bool killTimer = true;
 			if (CRecordManager::getInstance()->RecordingStatus(timerlist[selected].channel_id)) {
-				std::string title = "";
-				char buf1[1024];
-				CEPGData epgdata;
-				CEitManager::getInstance()->getEPGid(timerlist[selected].epgID, timerlist[selected].epg_starttime, &epgdata);
-				memset(buf1, '\0', sizeof(buf1));
-				if (epgdata.title != "")
-					title = "(" + epgdata.title + ")\n";
-				snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
-				if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
-						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo) {
-					killTimer = false;
-					update = false;
+				CTimerd::RecordingStopInfo recinfo;
+				recinfo.channel_id = timerlist[selected].channel_id;
+				recinfo.eventID = timerlist[selected].eventID;
+				if (CRecordManager::getInstance()->IsRecording(&recinfo)) {
+					std::string title = "";
+					char buf1[1024];
+					CEPGData epgdata;
+					CEitManager::getInstance()->getEPGid(timerlist[selected].epgID, timerlist[selected].epg_starttime, &epgdata);
+					memset(buf1, '\0', sizeof(buf1));
+					if (epgdata.title != "")
+						title = "(" + epgdata.title + ")\n";
+					snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
+					if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
+							CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo) {
+						killTimer = false;
+						update = false;
+					}
 				}
 			}
 			if (killTimer) {
