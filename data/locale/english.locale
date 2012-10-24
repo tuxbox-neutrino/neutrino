@@ -254,18 +254,18 @@ colormenu.menucolors Colors
 colormenu.osd_preset TV preset
 colormenu.sd_preset CRT
 colormenu.textcolor Text color
-colormenu.themeselect select theme
+colormenu.themeselect Select theme
 colormenu.timing OSD Timeouts
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
 colormenusetup.menuhead Header
 colorstatusbar.text Infobar
-colorthememenu.head Theme auswählen
+colorthememenu.head Select theme
 colorthememenu.head2 Load themes
 colorthememenu.name Theme name
 colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.question Use selected theme ?
+colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
 colorthememenu.select1 User Theme
 colorthememenu.select2 Standard Theme
