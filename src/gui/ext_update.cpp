@@ -141,7 +141,7 @@ bool CExtUpdate::writemtdExt(const std::string & filename)
 			WRITE_UPDATE_LOG("ERROR: %s", err);
 			return false;
 		}
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.", CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SUCCESSFULLY), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 		WRITE_UPDATE_LOG("\n");
 		WRITE_UPDATE_LOG("##### Settings taken. #####\n");
 		CFlashExpert::getInstance()->writemtd(filename, mtdNumber);
@@ -152,7 +152,7 @@ bool CExtUpdate::writemtdExt(const std::string & filename)
 bool CExtUpdate::writemtdExt()
 {
 	if(!hintBox)
-		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Image wird bearbeitet...");
+		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_PROCESSED));
 	hintBox->paint();
 	mtdRamError = "";
 	std::string osrelease = "";
@@ -468,7 +468,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 		// special folders
 		else if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 
 			 (line.find("/sys") == 0) || (line.find("/mnt") == 0) || (line.find("/tmp") == 0)) {
-			snprintf(buf, sizeof(buf), "Ordner [%s] kann nicht übertragen werden. Eintrag wird übersprungen.", line.c_str());
+			snprintf(buf, sizeof(buf), g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SKIPPED), line.c_str());
 			WRITE_UPDATE_LOG("%s%s", buf, "\n");
 			ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 			continue;
