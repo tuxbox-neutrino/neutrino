@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: cut -d' ' -f1 deutsch.locale | LC_ALL=C sort | uniq | ./create.locals_intern.h
+# usage: cut -d' ' -f1 english.locale | LC_ALL=C sort | uniq | ./create.locals_intern.h
 cat > locals_intern.h <<EOF
 #ifndef __locals_intern__
 #define __locals_intern__

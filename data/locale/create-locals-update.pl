@@ -7,7 +7,7 @@
 
 # Written by Barf on 2005-12-10.
 
-$masterfilename = "deutsch.locale";
+$masterfilename = "english.locale";
 
 $#ARGV == 0 || die("Usage: create-locals-update.pl file.locale.");
 

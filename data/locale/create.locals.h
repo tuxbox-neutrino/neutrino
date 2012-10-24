@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: cut -d' ' -f1 deutsch.locale | LC_ALL=C sort | uniq | tr [:lower:] [:upper:] | tr \. \_  | tr \- \_ | tr -d \? | ./create.locals.h
+# usage: cut -d' ' -f1 english.locale | LC_ALL=C sort | uniq | tr [:lower:] [:upper:] | tr \. \_  | tr \- \_ | tr -d \? | ./create.locals.h
 cat > locals.h <<EOF
 #ifndef __locals__
 #define __locals__
