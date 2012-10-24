@@ -67,7 +67,6 @@ install_DATA += \
 	dd_gray.png \
 	ddfill.png \
 	down.png \
-	dutch.png \
 	ellinika.png \
 	error.png \
 	features.png \
