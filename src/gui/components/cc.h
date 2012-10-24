@@ -224,6 +224,7 @@ class CComponentsText : public CComponentsItem
 		Font		* ct_font;
 
 		void initVarText();
+		void clearCCText();
 	private:
 		const char* ct_text;
 		int ct_text_mode; //see textbox.h for possible modes
@@ -231,7 +232,7 @@ class CComponentsText : public CComponentsItem
 		bool ct_text_sended;
 
 		
-		void initText();
+		void initCCText();
 
 	public:
 		CComponentsText();

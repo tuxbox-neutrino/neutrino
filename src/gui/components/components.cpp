@@ -274,15 +274,7 @@ CComponentsText::~CComponentsText()
 {
 	hide();
 	clearSavedScreen();
-	
-	if (ct_box)
-		delete ct_box;
-	ct_box = NULL;
-	
-	if (ct_textbox)
-		delete ct_textbox;
-	ct_textbox = NULL;
-	
+	clearCCText();
 	clear();
 }
 
@@ -303,7 +295,7 @@ void CComponentsText::initVarText()
 }
 
 
-void CComponentsText::initText()
+void CComponentsText::initCCText()
 {
 	//set default font, if is no font definied
 	if (ct_font == NULL)
@@ -338,9 +330,20 @@ void CComponentsText::initText()
 	ct_text_sended = ct_textbox->setText(&new_text, width);
 }
 
+void CComponentsText::clearCCText()
+{
+	if (ct_box)
+		delete ct_box;
+	ct_box = NULL;
+
+	if (ct_textbox)
+		delete ct_textbox;
+	ct_textbox = NULL;
+}
+
 void CComponentsText::paint(bool do_save_bg)
 {
-	initText();
+	initCCText();
 	paintInit(do_save_bg);
 	if (ct_text_sended)
 		ct_textbox->paint();
@@ -397,15 +400,7 @@ CComponentsInfoBox::~CComponentsInfoBox()
 {
 	hide();
 	clearSavedScreen();
-	
-	if (ct_textbox)
-		delete ct_textbox;
-	ct_textbox = NULL;
-	
-	if (ct_box)
-		delete ct_box;
-	ct_box = NULL;
-	
+	clearCCText();
 	delete pic;
 	clear();
 }
