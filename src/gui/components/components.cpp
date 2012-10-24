@@ -341,6 +341,13 @@ void CComponentsText::clearCCText()
 	ct_textbox = NULL;
 }
 
+void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
+{
+	ct_text = g_Locale->getText(locale_text);
+	ct_text_mode = mode;
+	ct_font = font_text;
+}
+
 void CComponentsText::paint(bool do_save_bg)
 {
 	initCCText();
@@ -361,13 +368,8 @@ void CComponentsText::hide(bool no_restore)
 //sub class CComponentsInfoBox from CComponentsItem
 CComponentsInfoBox::CComponentsInfoBox()
 {
-	//CComponents, CComponentsItem,  CComponentsText
-	initVarText();
-
 	//CComponentsInfoBox
 	initVarInfobox();
-	text 		= NULL;
-	ct_text_mode	= CTextBox::AUTO_WIDTH;
 }
 
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
@@ -375,9 +377,9 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 				       bool has_shadow,
 				       fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponents, CComponentsItem,  CComponentsText
-	initVarText();
-
+	//CComponentsInfoBox
+	initVarInfobox();
+	
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -387,9 +389,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 
-	//CComponentsInfoBox
-	initVarInfobox();
-	text 		= info_text;
+	ct_text 	= info_text;
 	ct_text_mode	= mode;
 	ct_font		= font_text;
 	ct_col_text	= color_text;
@@ -406,8 +406,9 @@ CComponentsInfoBox::~CComponentsInfoBox()
 
 void CComponentsInfoBox::initVarInfobox()
 {
-	//CComponents, CComponentsItem
+	//CComponents, CComponentsItem,  CComponentsText
 	initVarText();
+	ct_text_mode	= CTextBox::AUTO_WIDTH;
 
 	//CComponentsInfoBox
 	pic 		= NULL;
@@ -415,13 +416,6 @@ void CComponentsInfoBox::initVarInfobox()
 	x_offset	= 10;
 	x_text		= x+fr_thickness+x_offset;;
 
-}
-
-void CComponentsInfoBox::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
-{
-	text = g_Locale->getText(locale_text);
-	ct_text_mode = mode;
-	ct_font = font_text;
 }
 
 void CComponentsInfoBox::paintPicture()
@@ -456,7 +450,7 @@ void CComponentsInfoBox::paintText()
 
 	//init textbox
 	if (ct_textbox == NULL) {
-		ct_textbox = new CTextBox(text, ct_font, ct_text_mode, ct_box, col_body);
+		ct_textbox = new CTextBox(ct_text, ct_font, ct_text_mode, ct_box, col_body);
 		ct_textbox->setTextBorderWidth(0);
 		ct_textbox->enableBackgroundPaint(false);
 	}
@@ -467,7 +461,7 @@ void CComponentsInfoBox::paintText()
 	ct_textbox->setTextColor(ct_col_text);
 
 	//set text
-	string new_text = static_cast <string> (text);
+	string new_text = static_cast <string> (ct_text);
 	if (ct_textbox->setText(&new_text))
 		ct_textbox->paint();
 }
@@ -486,9 +480,9 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		x_text += pic_w+x_offset;
 	}
 	
-	if (text)
+	if (ct_text)
 		paintText();
-	text = NULL;
+	ct_text = NULL;
 }
 
 void CComponentsInfoBox::removeLineBreaks(std::string& str)

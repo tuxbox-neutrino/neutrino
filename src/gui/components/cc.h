@@ -225,12 +225,11 @@ class CComponentsText : public CComponentsItem
 
 		fb_pixel_t ct_col_text;
 		int ct_text_mode; //see textbox.h for possible modes
+		const char* ct_text;
 
 		void initVarText();
 		void clearCCText();
-	private:
-		const char* ct_text;
-		
+	private:		
 		bool ct_text_sended;
 
 		void initCCText();
@@ -239,20 +238,22 @@ class CComponentsText : public CComponentsItem
 		CComponentsText();
 		~CComponentsText();
 
-		inline void setText(const char* text, const int text_mode=~CTextBox::AUTO_WIDTH, Font* font_text=NULL){ct_text = text; ct_text_mode = text_mode, ct_font = font_text;};
+// 		inline void setText(const char* text, const int text_mode=~CTextBox::AUTO_WIDTH, Font* font_text=NULL){ct_text = text; ct_text_mode = text_mode, ct_font = font_text;};
 
 		void hide(bool no_restore = false);
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
 		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};//see textbox.h for possible modes
+		virtual	inline void setText(const char* ctext, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){ct_text = ctext; ct_text_mode = mode, ct_font = font_text;};
+		virtual inline void setText(const std::string& stext, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){ct_text = stext.c_str(); ct_text_mode = mode, ct_font = font_text;};
+		virtual void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 };
 
 #define INFO_BOX_Y_OFFSET	2
 class CComponentsInfoBox : public CComponentsText
 {
 	private:
-		const char* text;
 		int x_text, x_offset;
 
 		CComponentsPicture * pic;
@@ -272,9 +273,9 @@ class CComponentsInfoBox : public CComponentsText
 
 		~CComponentsInfoBox();
 
-		inline void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; ct_text_mode = mode, ct_font = font_text;};
-		inline void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); ct_text_mode = mode, ct_font = font_text;};
-		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+// 		inline void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; ct_text_mode = mode, ct_font = font_text;};
+// 		inline void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); ct_text_mode = mode, ct_font = font_text;};
+// 		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 // 		inline void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
 // 		inline void setTextFont(Font* font_text){ct_font = font_text;};
 // 		inline void setTextColor(fb_pixel_t color_text){ ibox_col_text = color_text;};
