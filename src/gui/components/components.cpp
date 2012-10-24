@@ -368,7 +368,6 @@ CComponentsInfoBox::CComponentsInfoBox()
 	initVarInfobox();
 	text 		= NULL;
 	text_mode	= CTextBox::AUTO_WIDTH;
-	ibox_col_text	= COL_MENUCONTENT;
 }
 
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
@@ -393,7 +392,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	text 		= info_text;
 	text_mode	= mode;
 	ct_font		= font_text;
-	ibox_col_text	= color_text;
+	ct_col_text	= color_text;
 }
 
 CComponentsInfoBox::~CComponentsInfoBox()
@@ -465,7 +464,7 @@ void CComponentsInfoBox::paintText()
 	//set properties
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setWindowPos(ct_box);
-	ct_textbox->setTextColor(ibox_col_text);
+	ct_textbox->setTextColor(ct_col_text);
 
 	//set text
 	string new_text = static_cast <string> (text);

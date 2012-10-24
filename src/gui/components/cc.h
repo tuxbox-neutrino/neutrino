@@ -223,12 +223,14 @@ class CComponentsText : public CComponentsItem
 		CBox 		* ct_box;
 		Font		* ct_font;
 
+		fb_pixel_t ct_col_text;
+
 		void initVarText();
 		void clearCCText();
 	private:
 		const char* ct_text;
 		int ct_text_mode; //see textbox.h for possible modes
-		fb_pixel_t ct_col_text;
+		
 		bool ct_text_sended;
 
 		
@@ -242,7 +244,8 @@ class CComponentsText : public CComponentsItem
 
 		void hide(bool no_restore = false);
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void setTextFont(Font* font_text){ct_font = font_text;};
+		inline void setTextFont(Font* font_text){ct_font = font_text;};
+		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
 };
 
 #define INFO_BOX_Y_OFFSET	2
@@ -260,7 +263,7 @@ class CComponentsInfoBox : public CComponentsText
 		void paintText();
 		void initVarInfobox();
 		std::string pic_name;
-		fb_pixel_t ibox_col_text;
+
 	public:
 		CComponentsInfoBox();
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
@@ -275,7 +278,7 @@ class CComponentsInfoBox : public CComponentsText
 		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		inline void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
 		inline void setTextFont(Font* font_text){ct_font = font_text;};
-		inline void setTextColor(fb_pixel_t color_text){ ibox_col_text = color_text;};
+// 		inline void setTextColor(fb_pixel_t color_text){ ibox_col_text = color_text;};
 		inline void setSpaceOffset(const int offset){x_offset = offset;};
 		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
 
