@@ -474,7 +474,9 @@ int CCAMMenuHandler::doMenu(int slot, CA_SLOT_TYPE slotType)
 					res = menu_return::RETURN_EXIT_ALL;
 				}
 			} else if (ret == 1) {
-				timeoutEnd = CRCInput::calcTimeoutEnd(10);
+				/* workaround: dont cycle here on timers */
+				if (msg != NeutrinoMessages::EVT_TIMER)
+					timeoutEnd = CRCInput::calcTimeoutEnd(10);
 				continue;
 			} else if (ret == 2) {
 				doexit = true;
