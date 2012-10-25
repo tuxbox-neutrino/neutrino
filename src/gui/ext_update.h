@@ -60,6 +60,7 @@ class CExtUpdate
 		bool copyFileList(const std::string & fileList, const std::string & dstPath);
 		bool readConfig(const std::string & Config);
 		bool findConfigEntry(std::string & line, std::string find);
+		bool isMtdramLoad();
 
 		FILE * fUpdate;
 		char updateLogBuf[1024];

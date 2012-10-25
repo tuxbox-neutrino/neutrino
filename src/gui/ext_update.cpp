@@ -53,6 +53,7 @@
 #include <dirent.h>
 #include <fnmatch.h>
 #include <fstream>
+#include <sys/utsname.h>
 
 CHintBox * hintBox = 0;
 
@@ -96,8 +97,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 	if (modus & RESET_UNLOAD) {
 		umount(mountPkt.c_str());
-		snprintf(buf, sizeof(buf), "rmmod %s", mtdramDriver.c_str());
-		my_system(buf);
+		my_system("rmmod", mtdramDriver.c_str());
 	}
 	if (modus & RESET_FD1)
 		close(fd1);
@@ -148,7 +148,24 @@ bool CExtUpdate::writemtdExt(const std::string & filename)
 	}
 	return ret;
 }
-	
+
+bool CExtUpdate::isMtdramLoad()
+{
+	char buf[256] = "";
+	bool ret = false;
+	FILE* f = fopen("/proc/modules", "r");
+	if (f) {
+		while(fgets(buf, sizeof(buf), f) != NULL) {
+			if (strstr(buf, "mtdram") != NULL) {
+				ret = true;
+				break;
+			}
+		}
+		fclose(f);
+	}
+	return ret;
+}
+
 bool CExtUpdate::writemtdExt()
 {
 	if(!hintBox)
@@ -167,51 +184,26 @@ bool CExtUpdate::writemtdExt()
 	mtdNumber = mtdInfo->findMTDNumber(mtdFilename);
 
 	// get osrelease
-	f1 = fopen("/proc/sys/kernel/osrelease", "r");
-	if (f1) {
-		fgets(buf1, sizeof(buf1), f1);
-		buf1[strlen(buf1)-1] = '\0';
-		osrelease = buf1;
-		fclose(f1);
-	}
+	struct utsname uts_info;
+	if( uname(&uts_info) == 0 )
+		osrelease = uts_info.release;
 	else
-		return ErrorReset(0, "error with open /proc/sys/kernel/osrelease");
+		return ErrorReset(0, "error no kernel info");
 
 	// check if mtdram driver is already loaded
-	f1 = fopen("/proc/modules", "r");
-	bool mtdramLoad = false;
-	if (f1) {
-		while(fgets(buf1, sizeof(buf1), f1) != NULL) {
-			if (strstr(buf1, "mtdram") != NULL) {
-				mtdramLoad = true;
-				break;
-			}
-		}
-	}
-	else
-		return ErrorReset(0, "error with open /proc/modules");
-
-	if (!mtdramLoad) {
+	if (!isMtdramLoad()) {
 		// check if exist mtdram driver
 		snprintf(buf1, sizeof(buf1), "/lib/modules/%s/mtdram.ko", osrelease.c_str());
 		mtdramDriver = buf1;
-		f1 = fopen(mtdramDriver.c_str(), "r");
-		if (f1)
-			fclose(f1);
-		else
+		if ( !file_exists(mtdramDriver.c_str()) )
 			return ErrorReset(0, "no mtdram driver available");
 		// load mtdram driver
-		snprintf(buf1, sizeof(buf1), "insmod %s total_size=%d erase_size=%d 2>&1", mtdramDriver.c_str(), mtdSize/1024, mtdEraseSize/1024);
-		f1 = popen(buf1, "r");
-		if (f1) {
-			buf1[0] = '\0';
-			while (fgets(buf1, sizeof(buf1), f1) != NULL) {}
-			if (strstr(buf1, "insmod:") != NULL)
-				return ErrorReset(RESET_F1, buf1);
-		}
-		else
-			return ErrorReset(0, "error open mtdram driver");
-		pclose(f1);
+		snprintf(buf1, sizeof(buf1), "total_size=%d", mtdSize/1024);
+		snprintf(buf2, sizeof(buf2), "erase_size=%d", mtdEraseSize/1024);
+		my_system("insmod", mtdramDriver.c_str(), buf1, buf2);
+		// check if mtdram driver is now loaded
+		if (!isMtdramLoad())
+			return ErrorReset(0, "error load mtdram driver");
 	}
 	else {
 		DBG_MSG("mtdram driver is already loaded");
