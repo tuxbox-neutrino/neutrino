@@ -129,6 +129,7 @@ void CInfoViewer::Init()
 
 	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 	lcdUpdateTimer = 0;
+	rt_x = rt_y = rt_h = rt_w = 0;
 }
 
 /*
@@ -997,7 +998,9 @@ void CInfoViewer::showMotorMoving (int duration)
 
 void CInfoViewer::killRadiotext()
 {
-	frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+	if (g_Radiotext->S_RtOsd)
+		frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+	rt_x = rt_y = rt_h = rt_w = 0;
 }
 
 void CInfoViewer::showRadiotext()
@@ -1132,7 +1135,6 @@ void CInfoViewer::showRadiotext()
 	g_Radiotext->RT_MsgShow = false;
 
 }
-
 
 int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
