@@ -3352,6 +3352,10 @@ void CNeutrinoApp::radioMode( bool rezap)
 
 	g_RemoteControl->radioMode();
 	SetChannelMode(g_settings.channel_mode_radio);
+
+	if (g_settings.radiotext_enable && !g_Radiotext)
+		g_Radiotext = new CRadioText;
+
 	if( rezap ) {
 		t_channel_id last_chid = CZapit::getInstance()->GetLastRADIOChannel();
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
@@ -3361,10 +3365,6 @@ void CNeutrinoApp::radioMode( bool rezap)
 			channelList->zapTo(0);
 	}
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
-
-	if (g_settings.radiotext_enable) {
-		g_Radiotext = new CRadioText;
-	}
 }
 
 //switching from current mode to tv or radio mode or to optional parameter prev_mode
