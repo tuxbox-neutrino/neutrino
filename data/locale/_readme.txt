@@ -37,21 +37,21 @@ Enter the directory build_tmp/neutrino-hd/data/locale.
 Use for sorting 'make sort-locals', use 'make ordercheck' to for verification.
 
 4.)
+To the extent possible, update other locale file. For this, 'make work-locals'
+may be useful. if you find a file called *.locale-work, merge this into *.locale
+
+5.)
 Create new versions of the files src/system/locals.h and src/system/locals_intern.h
 using the command 'make locals.h locals_intern.h'.
 
-5.)
-Check the modifications with 'make check'
-
 6.)
-Copy the replacement file to their destination with 'make install-locals'
+Check the modifications with 'make check'
 
 7.)
 Or use for item 3-6 'make locals'
 
 8.)
-To the extent possible, update other locale file. For this, the
-Perl-script ./helpers/create-locals-work may be useful.
+Copy the replacement file to their destination with 'make install-locals'
 
 9.)
 If committing the changes to Git, commit both the involved

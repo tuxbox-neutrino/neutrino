@@ -28,16 +28,22 @@ if MAINTAINER_MODE
 
 master.locale=english.locale
 
-locals: sort-locals locals.h locals_intern.h install-locals
+locals: sort-locals work-locals locals.h locals_intern.h
 
+$(master.locale) \
 sort-locals: $(top_srcdir)/data/locale/$(master.locale)
 	for locale in $(locale); do \
 		cat $(top_srcdir)/data/locale/$${locale} | LC_ALL=C sort | uniq > $${locale}; \
 	done
 
-ordercheck: $(top_srcdir)/data/locale/$(master.locale)
-	cut -d' ' -f1 $(top_srcdir)/data/locale/$(master.locale) | LC_ALL=C sort | uniq > /tmp/log
-	cut -d' ' -f1 $(top_srcdir)/data/locale/$(master.locale) | uniq  | diff - /tmp/log || \
+work-locals: $(master.locale)
+	for locale in $(locale); do \
+		$(top_srcdir)/data/locale/helpers/create-locals-work $${locale}; \
+	done
+
+ordercheck: $(master.locale)
+	cut -d' ' -f1 $(master.locale) | LC_ALL=C sort | uniq > /tmp/log
+	cut -d' ' -f1 $(master.locale) | uniq  | diff - /tmp/log || \
 		(echo "ERROR: $(master.locale) not ordered or contains empty lines" && false)
 
 locals.h: ordercheck
@@ -52,7 +58,7 @@ check: locals.h locals_intern.h
 	diff locals.h $(top_srcdir)/src/system
 	diff locals_intern.h $(top_srcdir)/src/system
 
-install-locals: sort-locals locals.h locals_intern.h
+install-locals: $(locale) locals.h locals_intern.h
 	cp locals.h locals_intern.h $(top_srcdir)/src/system
 	@echo "Consider committing src/system/[locals.h locals_intern.h]"
 	cp -f $(locale) $(top_srcdir)/data/locale
