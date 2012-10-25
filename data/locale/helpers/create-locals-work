@@ -43,7 +43,7 @@ while (<masterfile>) {
 
 close(outfile);
 
-print "There were ", $no_errors, " error(s).\n";
+print "There were ", $no_errors, " error(s) in ", $localefilename, ".\n";
 
 if ($no_errors == 0) {
     unlink($outfilename);
