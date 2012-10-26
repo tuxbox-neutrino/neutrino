@@ -289,9 +289,9 @@ void CComponentsText::initVarText()
 	ct_box		= NULL;
 	ct_textbox	= NULL;
 	ct_text 	= NULL;
-	ct_text_mode	= CTextBox::SCROLL;
+	ct_text_mode	= CTextBox::AUTO_WIDTH;
 	ct_col_text	= COL_MENUCONTENT;
-	ct_text_sended	= false;
+	ct_text_sent	= false;
 }
 
 
@@ -301,9 +301,8 @@ void CComponentsText::initCCText()
 	if (ct_font == NULL)
 		ct_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 
-	//define height and width from font size
-	height 	= max(height, 	ct_font->getHeight()			);
-	width 	= max(width, 	ct_font->getRenderWidth(ct_text, true)	);
+	//define height from font size
+	height 	= max(height, 	ct_font->getHeight());
 
 	//text box dimensions
 	if (ct_box == NULL)
@@ -315,19 +314,24 @@ void CComponentsText::initCCText()
 
 	//init textbox
 	if (ct_textbox == NULL)
-		ct_textbox = new CTextBox(ct_text);
+		ct_textbox = new CTextBox();
 
 	//set text box properties
-	ct_textbox->setTextBorderWidth(0);
-	ct_textbox->enableBackgroundPaint(false);
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setTextMode(ct_text_mode);
-	ct_textbox->movePosition(ct_box->iX, ct_box->iY);
+	ct_textbox->setWindowPos(ct_box);
+	ct_textbox->setTextBorderWidth(0);
+	ct_textbox->enableBackgroundPaint(false);
+	//ct_textbox->setBackGroundColor(COL_RED);
+	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
+	//ct_textbox->movePosition(ct_box->iX, ct_box->iY);
 	ct_textbox->setTextColor(ct_col_text);
+	ct_textbox->setWindowMaxDimensions(ct_box->iWidth, ct_box->iHeight);
+	ct_textbox->setWindowMinDimensions(ct_box->iWidth, ct_box->iHeight);
 
 	//set text
 	string new_text = static_cast <string> (ct_text);
-	ct_text_sended = ct_textbox->setText(&new_text, width);
+	ct_text_sent = ct_textbox->setText(&new_text, ct_box->iWidth);
 }
 
 void CComponentsText::clearCCText()
@@ -348,13 +352,18 @@ void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* fon
 	ct_font = font_text;
 }
 
+void CComponentsText::paintText(bool do_save_bg)
+{
+	paintInit(do_save_bg);
+	initCCText();
+	if (ct_text_sent)
+		ct_textbox->paint();
+	ct_text_sent = false;
+}
+
 void CComponentsText::paint(bool do_save_bg)
 {
-	initCCText();
-	paintInit(do_save_bg);
-	if (ct_text_sended)
-		ct_textbox->paint();
-	ct_text_sended = false;
+	paintText(do_save_bg);
 }
 
 void CComponentsText::hide(bool no_restore)
@@ -408,7 +417,6 @@ void CComponentsInfoBox::initVarInfobox()
 {
 	//CComponents, CComponentsItem,  CComponentsText
 	initVarText();
-	ct_text_mode	= CTextBox::AUTO_WIDTH;
 
 	//CComponentsInfoBox
 	pic 		= NULL;
@@ -433,38 +441,38 @@ void CComponentsInfoBox::paintPicture()
 	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
 	
-	pic->paint();	
+	pic->paint(CC_SAVE_SCREEN_NO);	
 }
 
-void CComponentsInfoBox::paintText()
-{
-	if (ct_box == NULL)
-		ct_box = new CBox();
-
-	ct_box->iX = x_text;
-	ct_box->iY = y+fr_thickness;
-
-	//text width and height
-	ct_box->iWidth = width-2*fr_thickness-(x_text-x);
-	ct_box->iHeight = height-2*fr_thickness;
-
-	//init textbox
-	if (ct_textbox == NULL) {
-		ct_textbox = new CTextBox(ct_text, ct_font, ct_text_mode, ct_box, col_body);
-		ct_textbox->setTextBorderWidth(0);
-		ct_textbox->enableBackgroundPaint(false);
-	}
-
-	//set properties
-	ct_textbox->setTextFont(ct_font);
-	ct_textbox->setWindowPos(ct_box);
-	ct_textbox->setTextColor(ct_col_text);
-
-	//set text
-	string new_text = static_cast <string> (ct_text);
-	if (ct_textbox->setText(&new_text))
-		ct_textbox->paint();
-}
+// void CComponentsInfoBox::paintText()
+// {
+// 	if (ct_box == NULL)
+// 		ct_box = new CBox();
+// 
+// 	ct_box->iX = x_text;
+// 	ct_box->iY = y+fr_thickness;
+// 
+// 	//text width and height
+// 	ct_box->iWidth = width-2*fr_thickness-(x_text-x);
+// 	ct_box->iHeight = height-2*fr_thickness;
+// 
+// 	//init textbox
+// 	if (ct_textbox == NULL) {
+// 		ct_textbox = new CTextBox(ct_text, ct_font, ct_text_mode, ct_box, col_body);
+// 		ct_textbox->setTextBorderWidth(0);
+// 		ct_textbox->enableBackgroundPaint(false);
+// 	}
+// 
+// 	//set properties
+// 	ct_textbox->setTextFont(ct_font);
+// 	ct_textbox->setWindowPos(ct_box);
+// 	ct_textbox->setTextColor(ct_col_text);
+// 
+// 	//set text
+// 	string new_text = static_cast <string> (ct_text);
+// 	if (ct_textbox->setText(&new_text))
+// 		ct_textbox->paint();
+// }
 
 void CComponentsInfoBox::paint(bool do_save_bg)
 {
@@ -481,7 +489,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	}
 	
 	if (ct_text)
-		paintText();
+		paintText(CC_SAVE_SCREEN_NO);
 	ct_text = NULL;
 }
 
