@@ -246,14 +246,14 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 CFileHelpers::CFileHelpers()
 {
 	FileBufSize	= 0xFFFF;
-	FileBuf		= (char*)malloc(FileBufSize);
+	FileBuf		= new char[FileBufSize];
 	doCopyFlag	= true;
 }
 
 CFileHelpers::~CFileHelpers()
 {
 	if (FileBuf != NULL)
-		free(FileBuf);
+		delete [] FileBuf;
 }
 
 CFileHelpers* CFileHelpers::getInstance()
@@ -271,7 +271,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
 	if ((fd2 = open(Dst, O_WRONLY | O_CREAT)) < 0) {
-		close(fd2);
+		close(fd1);
 		return false;
 	}
 
@@ -294,8 +294,11 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		if (doCopyFlag) {
 			lseek64(fd2, 0, SEEK_SET);
 			off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
-			if (fsizeSrc64 != fsizeDst64)
+			if (fsizeSrc64 != fsizeDst64){
+				close(fd1);
+				close(fd2);
 				return false;
+			}
 		}
 	}
 	else { // < 2GB
@@ -316,8 +319,11 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		if (doCopyFlag) {
 			lseek(fd2, 0, SEEK_SET);
 			long fsizeDst = lseek(fd2, 0, SEEK_END);
-			if (fsizeSrc != fsizeDst)
+			if (fsizeSrc != fsizeDst){
+				close(fd1);
+				close(fd2);
 				return false;
+			}
 		}
 	}
 	close(fd1);
