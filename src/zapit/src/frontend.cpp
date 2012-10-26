@@ -870,7 +870,7 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 		return;
 	}
 
-	if (force || ((config.diseqcType <= MINI_DISEQC)
+	if ((force && (newDiseqcType != NO_DISEQC)) || ((config.diseqcType <= MINI_DISEQC)
 	    && (newDiseqcType > MINI_DISEQC))) {
 		secSetTone(SEC_TONE_OFF, 15);
 		sendDiseqcPowerOn();
