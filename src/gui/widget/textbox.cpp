@@ -95,15 +95,6 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 	if( !(pmode & NO_AUTO_LINEBREAK))
 		m_nMode = m_nMode & ~AUTO_WIDTH; /* delete any AUTO_WIDTH*/
 
-#if 0
-	TRACE("  Mode: ");
-	if(pmode & SCROLL)		TRACE("SCROLL ");
-	if(pmode & NO_AUTO_LINEBREAK)	TRACE("NO_AUTO_LINEBREAK ");
-	if(pmode & AUTO_WIDTH)		TRACE("AUTO_WIDTH ");
-	if(pmode & AUTO_HIGH)		TRACE("AUTO_HIGH");
-	TRACE("\r\n");
-
-#endif
 	//TRACE(" CTextBox::m_cText: %d, m_nMode %d\t\r\n",m_cText.size(),m_nMode);
 
 	m_textBackgroundColor 	= textBackgroundColor;
@@ -111,6 +102,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 
 	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
 	//TRACE(" CTextBox::m_nFontTextHeight: %d\t\r\n",m_nFontTextHeight);
+	
 	//Initialise the window frames first and than refresh text line array
 	initFramesAndTextArray();
 }
@@ -231,7 +223,7 @@ void CTextBox::setWindowMinDimensions(const int width, const int height)
 
 void CTextBox::reSizeMainFrameWidth(int textWidth)
 {
-	TRACE("[CTextBox]->%s: \ntext width: %d\n m_cFrame.iWidth: %d\n m_cFrameTextRel.iWidth: %d\n max_width: %d\n  m_nMinWidth: %d\n",__FUNCTION__, textWidth, m_cFrame.iWidth, m_cFrameTextRel.iWidth, m_nMaxWidth, m_nMinWidth);
+	//TRACE("[CTextBox]->%s: \ntext width: %d\n m_cFrame.iWidth: %d\n m_cFrameTextRel.iWidth: %d\n m_nMaxWidth: %d\n  m_nMinWidth: %d\n",__FUNCTION__, textWidth, m_cFrame.iWidth, m_cFrameTextRel.iWidth, m_nMaxWidth, m_nMinWidth);
 
 	int iNewWindowWidth = textWidth  + m_cFrameScrollRel.iWidth   + 2*text_border_width;
 
@@ -243,8 +235,6 @@ void CTextBox::reSizeMainFrameWidth(int textWidth)
 	
 
 	m_cFrame.iWidth	= iNewWindowWidth;
-
-	TRACE("[CTextBox]->%s: \ntext width: %d\n m_cFrame.iWidth: %d\n m_cFrameTextRel.iWidth: %d\n max_width: %d\n  m_nMinWidth: %d\n",__FUNCTION__, textWidth, m_cFrame.iWidth, m_cFrameTextRel.iWidth, m_nMaxWidth, m_nMinWidth);
 
 	/* Re-Init the children frames due to new main window */
 	initFramesRel();
@@ -320,14 +310,14 @@ void CTextBox::initFramesRel(void)
 void CTextBox::refreshTextLineArray(void)
 {
 	//TRACE("[CTextBox]->RefreshLineArray \r\n");
-	int loop = true;
-	int pos_prev = 0;
-	int pos = 0;
-	int	aktWidth = 0;
-	int aktWordWidth = 0;
-	int lineBreakWidth = 0;
+	int loop 		= true;
+	int pos_prev 		= 0;
+	int pos 		= 0;
+	int aktWidth 		= 0;
+	int aktWordWidth 	= 0;
+	int lineBreakWidth 	= 0;
 
-	m_nNrOfNewLine = 0;
+	m_nNrOfNewLine 		= 0;
 
 	std::string	aktLine = "";
 	std::string	aktWord = "";
@@ -341,20 +331,29 @@ void CTextBox::refreshTextLineArray(void)
 		lineBreakWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_border_width;
 	}else{
 		/* If not autowidth, we just take the actuall textframe width */
-		lineBreakWidth = m_cFrameTextRel.iWidth - 2*text_border_width;
+		lineBreakWidth = std::max(m_nMaxWidth, m_cFrameTextRel.iWidth - 2*text_border_width);
 	}
 	
-	if(m_nMaxWidth)
-		lineBreakWidth = m_nMaxWidth;
+// 	if(m_nMaxWidth)
+// 		lineBreakWidth = m_nMaxWidth;
 
 	//TRACE("[CTextBox] line %d: lineBreakWidth %d\n", __LINE__, lineBreakWidth);
 
 	int TextChars = m_cText.size();
 	// do not parse, if text is empty
-	if(TextChars > 0)
+	if(TextChars == 0)
+	{
+		m_nNrOfPages = 0;
+		m_nNrOfLines = 0;
+		m_nCurrentPage = 0;
+		m_nCurrentLine = 0;
+		m_nLinesPerPage = 1;
+	}
+	else
 	{
 		while(loop)
 		{
+			//manage auto linebreak,
 			if(m_nMode & NO_AUTO_LINEBREAK)
 				pos = m_cText.find_first_of("\n",pos_prev);
 			else
@@ -369,16 +368,20 @@ void CTextBox::refreshTextLineArray(void)
 				//TRACE_1(" Textend found\r\n");
 			}
 
+			//find current word between start pos and next pos (next possible \n)
 			aktWord = m_cText.substr(pos_prev, pos - pos_prev + 1);
+
+			//calculate length of current found word
 			aktWordWidth = m_pcFontText->getRenderWidth(aktWord, true);
+
+			//set next start pos
 			pos_prev = pos + 1;
 			//if(aktWord.find("&quot;") == )
 			if(1)
 			{
 				//TRACE_1("     aktWord: >%s< pos:%d\r\n",aktWord.c_str(),pos);
 
-				if( aktWidth + aktWordWidth > lineBreakWidth &&
-						!(m_nMode & NO_AUTO_LINEBREAK))
+				if( (aktWidth + aktWordWidth) > lineBreakWidth && !(m_nMode & NO_AUTO_LINEBREAK))
 				{
 					/* we need a new line before we can continue */
 					m_cLineArray.push_back(aktLine);
@@ -391,16 +394,19 @@ void CTextBox::refreshTextLineArray(void)
 						loop = false;
 				}
 
+				//add current word to current line
 				aktLine  += aktWord;
+				//set current line width 
 				aktWidth += aktWordWidth;
-
+				
+				//set max text width, if required
 				if (aktWidth > m_nMaxTextWidth)
 					m_nMaxTextWidth = aktWidth;
+				
 				//TRACE_1("     aktLine : %s\r\n",aktLine.c_str());
 				//TRACE_1("     aktWidth: %d aktWordWidth:%d\r\n",aktWidth,aktWordWidth);
 
-				if( ((pos < TextChars) && (m_cText[pos] == '\n')) ||
-						loop == false)
+				if( ((pos < TextChars) && (m_cText[pos] == '\n')) || loop == false)
 				{
 					// current line ends with an carriage return, make new line
 					if ((pos < TextChars) && (m_cText[pos] == '\n'))
@@ -421,7 +427,7 @@ void CTextBox::refreshTextLineArray(void)
 		/* check if we have to recalculate the window frame size, due to auto width and auto height */
 		if( m_nMode & AUTO_WIDTH)
 		{
-			reSizeMainFrameWidth(m_nMaxTextWidth);
+ 			reSizeMainFrameWidth(m_nMaxTextWidth);
 		}
 
 		if(m_nMode & AUTO_HIGH)
@@ -438,14 +444,7 @@ void CTextBox::refreshTextLineArray(void)
 			m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 		}
 	}
-	else
-	{
-		m_nNrOfPages = 0;
-		m_nNrOfLines = 0;
-		m_nCurrentPage = 0;
-		m_nCurrentLine = 0;
-		m_nLinesPerPage = 1;
-	}
+
 #if 0
 	TRACE_1(" m_nNrOfPages:     %d\r\n",m_nNrOfPages);
 	TRACE_1(" m_nNrOfLines:     %d\r\n",m_nNrOfLines);
@@ -531,8 +530,9 @@ void CTextBox::refreshText(void)
 			if ( m_nMode & SCROLL )
 				x_center -= SCROLL_FRAME_WIDTH;
 		}
-
-		m_pcFontText->RenderString(m_cFrameTextRel.iX + text_border_width + x_center+m_cFrame.iX,
+		
+		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
+		m_pcFontText->RenderString(m_cFrame.iX + m_cFrameTextRel.iX + text_border_width + x_center,
 				y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
 				m_textColor, 0, true); // UTF-8
 		y += m_nFontTextHeight;
@@ -617,6 +617,19 @@ bool CTextBox::setText(const std::string* newText, int max_width)
 void CTextBox::paint (void)
 {
 	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
+#if 0
+	TRACE("  Mode: ");
+	if(m_nMode & SCROLL)		TRACE("SCROLL ");
+	if(m_nMode & NO_AUTO_LINEBREAK)	TRACE("NO_AUTO_LINEBREAK ");
+	if(m_nMode & AUTO_WIDTH)	TRACE("AUTO_WIDTH ");
+	if(m_nMode & AUTO_HIGH)		TRACE("AUTO_HIGH ");
+	if(m_nMode & CENTER)		TRACE("CENTER ");
+	if(m_nMode & RIGHT)		TRACE("RIGHT ");
+	if(m_nMode & TOP)		TRACE("TOP ");
+	if(m_nMode & BOTTOM)		TRACE("BOTTOM ");
+	TRACE("\r\n");
+
+#endif
 	if(frameBuffer != NULL)
 		return;
 
