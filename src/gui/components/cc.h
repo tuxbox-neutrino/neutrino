@@ -245,6 +245,7 @@ class CComponentsText : public CComponentsItem
 		virtual	inline void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL){ct_text = ctext; ct_text_mode = mode, ct_font = font_text;};
 		virtual inline void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL){ct_text = stext.c_str(); ct_text_mode = mode, ct_font = font_text;};
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+		virtual void removeLineBreaks(std::string& str);
 };
 
 #define INFO_BOX_Y_OFFSET	2
@@ -252,7 +253,7 @@ class CComponentsInfoBox : public CComponentsText
 {
 	private:
 		int x_text, x_offset;
-
+		CComponentsText * cctext;
 		CComponentsPicture * pic;
 		std::string pic_default_name;
 
@@ -274,7 +275,6 @@ class CComponentsInfoBox : public CComponentsText
 		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void removeLineBreaks(std::string& str);
 };
 
 

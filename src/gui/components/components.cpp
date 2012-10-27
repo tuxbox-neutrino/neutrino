@@ -305,8 +305,12 @@ void CComponentsText::initCCText()
 	height 	= max(height, 	ct_font->getHeight());
 
 	//text box dimensions
-	if (ct_box == NULL)
-		ct_box = new CBox();
+	if (ct_box){
+		//ensure that we have a new instance
+		delete ct_box;
+		ct_box = NULL;
+	}
+	ct_box = new CBox();
 	ct_box->iX 	= x+fr_thickness;
 	ct_box->iY 	= y+fr_thickness;
 	ct_box->iWidth 	= width-2*fr_thickness;
@@ -322,9 +326,7 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowPos(ct_box);
 	ct_textbox->setTextBorderWidth(0);
 	ct_textbox->enableBackgroundPaint(false);
-	//ct_textbox->setBackGroundColor(COL_RED);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
-	//ct_textbox->movePosition(ct_box->iX, ct_box->iY);
 	ct_textbox->setTextColor(ct_col_text);
 	ct_textbox->setWindowMaxDimensions(ct_box->iWidth, ct_box->iHeight);
 	ct_textbox->setWindowMinDimensions(ct_box->iWidth, ct_box->iHeight);
@@ -373,6 +375,16 @@ void CComponentsText::hide(bool no_restore)
 	hideContainer(no_restore);
 }
 
+//small helper to remove excessiv linbreaks
+void CComponentsText::removeLineBreaks(std::string& str)
+{
+	std::string::size_type spos = str.find_first_of("\r\n");
+	while (spos != std::string::npos) {
+		str.replace(spos, 1, " ");
+		spos = str.find_first_of("\r\n");
+	}
+}
+
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox from CComponentsItem
 CComponentsInfoBox::CComponentsInfoBox()
@@ -410,6 +422,7 @@ CComponentsInfoBox::~CComponentsInfoBox()
 	clearSavedScreen();
 	clearCCText();
 	delete pic;
+	delete cctext;
 	clear();
 }
 
@@ -420,6 +433,7 @@ void CComponentsInfoBox::initVarInfobox()
 
 	//CComponentsInfoBox
 	pic 		= NULL;
+	cctext		= NULL;
 	pic_name	= "";
 	x_offset	= 10;
 	x_text		= x+fr_thickness+x_offset;;
@@ -444,41 +458,11 @@ void CComponentsInfoBox::paintPicture()
 	pic->paint(CC_SAVE_SCREEN_NO);	
 }
 
-// void CComponentsInfoBox::paintText()
-// {
-// 	if (ct_box == NULL)
-// 		ct_box = new CBox();
-// 
-// 	ct_box->iX = x_text;
-// 	ct_box->iY = y+fr_thickness;
-// 
-// 	//text width and height
-// 	ct_box->iWidth = width-2*fr_thickness-(x_text-x);
-// 	ct_box->iHeight = height-2*fr_thickness;
-// 
-// 	//init textbox
-// 	if (ct_textbox == NULL) {
-// 		ct_textbox = new CTextBox(ct_text, ct_font, ct_text_mode, ct_box, col_body);
-// 		ct_textbox->setTextBorderWidth(0);
-// 		ct_textbox->enableBackgroundPaint(false);
-// 	}
-// 
-// 	//set properties
-// 	ct_textbox->setTextFont(ct_font);
-// 	ct_textbox->setWindowPos(ct_box);
-// 	ct_textbox->setTextColor(ct_col_text);
-// 
-// 	//set text
-// 	string new_text = static_cast <string> (ct_text);
-// 	if (ct_textbox->setText(&new_text))
-// 		ct_textbox->paint();
-// }
-
 void CComponentsInfoBox::paint(bool do_save_bg)
 {
 	paintInit(do_save_bg);
 	paintPicture();
-	
+
 	//define text x position
 	x_text = x+fr_thickness+x_offset;
 	
@@ -487,23 +471,16 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		int pic_w = pic->getWidth();
 		x_text += pic_w+x_offset;
 	}
-	
-	if (ct_text)
-		paintText(CC_SAVE_SCREEN_NO);
-	ct_text = NULL;
-}
 
-void CComponentsInfoBox::removeLineBreaks(std::string& str)
-{
-	std::string::size_type spos = str.find_first_of("\r\n");
-	while (spos != std::string::npos) {
-		str.replace(spos, 1, " ");
-		spos = str.find_first_of("\r\n");
+	//set text and paint text lines
+ 	if (ct_text){
+		if (cctext == NULL)
+			cctext = new CComponentsText();
+		cctext->setText(ct_text, ct_text_mode, ct_font);
+		cctext->setDimensionsAll(x_text, y+fr_thickness, width-(x_text-x+x_offset+fr_thickness), height-2*fr_thickness);
+ 		cctext->paint(CC_SAVE_SCREEN_NO);
 	}
 }
-
-
-
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsShapeSquare from CComponentsItem
