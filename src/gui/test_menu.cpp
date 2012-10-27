@@ -67,6 +67,7 @@ CTestMenu::CTestMenu()
 	pic= NULL;
 	pip = NULL;
 	form = NULL;
+	txt = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -76,6 +77,7 @@ CTestMenu::~CTestMenu()
 	delete pic;
 	delete pip;
 	delete form;
+	delete txt;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -375,6 +377,18 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			form->paint();
 		return res;
 	}
+	else if (actionKey == "text"){
+		if (txt == NULL)
+			txt = new CComponentsText();
+		txt->setDimensionsAll(100, 100, 250, 100);
+		txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
+
+		if (txt->isPainted())
+			txt->hide();
+		else
+			txt->paint();
+		return res;
+	}
 	
 	showTestMenu();
 	
@@ -419,6 +433,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
 	widget->addItem(new CMenuForwarderNonLocalized("PiP", true, NULL, this, "pip"));
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
+	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)
