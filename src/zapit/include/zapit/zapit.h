@@ -17,6 +17,7 @@
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 #include <zapit/femanager.h>
+#include <zapit/fastscan.h>
 
 #define PAL	0
 #define NTSC	1
@@ -130,7 +131,9 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
+		/* scan params */
 		TP_params TP;
+		fast_scan_type_t scant;
 
 		CFrontend * live_fe;
 
