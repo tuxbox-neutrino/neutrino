@@ -1,8 +1,7 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 #AM_CPPFLAGS = -fno-rtti
-.PHONY:git_version.h
 BUILT_SOURCES  = git_version.h
-git_version.h:
+git_version.h: makeversion
 	@if test -d ../../.git; then \
 		echo "#define GITVERSION \"$$(git describe --dirty || echo `date` )\" " > git_version.h.tmp ; \
 		if diff -q git_version.h git_version.h.tmp >/dev/null 2>&1 ; then \
@@ -14,8 +13,10 @@ git_version.h:
 	else \
 		rm git_version.h; echo '#define BUILT_DATE "'`date`'"' > git_version.h ; \
 	fi
-
 noinst_HEADERS = git_version.h
+
+.PHONY: makeversion
+
 
 SUBDIRS = widget bedit
 
