@@ -2630,8 +2630,7 @@ _repeat:
 		return res;
 	}
 	else if( msg == NeutrinoMessages::ZAPTO) {
-		CTimerd::EventInfo * eventinfo;
-		eventinfo = (CTimerd::EventInfo *) data;
+		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		if(recordingstatus==0) {
 			bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
@@ -2653,52 +2652,19 @@ _repeat:
 			standbyMode( false );
 		}
 		if( mode != mode_scart ) {
+			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
 			std::string name = g_Locale->getText(LOCALE_ZAPTOTIMER_ANNOUNCE);
-
-			CTimerd::TimerList tmpTimerList;
-			CTimerdClient tmpTimerdClient;
-
-			tmpTimerList.clear();
-			tmpTimerdClient.getTimerList( tmpTimerList );
-
-			if( !tmpTimerList.empty() ) {
-				sort( tmpTimerList.begin(), tmpTimerList.end() );
-
-				CTimerd::responseGetTimer &timer = tmpTimerList[0];
-
-				name += "\n";
-
-				std::string zAddData = CServiceManager::getInstance()->GetServiceName(timer.channel_id);
-				if( zAddData.empty()) {
-					zAddData = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
-				}
-
-				if(timer.epgID!=0) {
-					CEPGData epgdata;
-					zAddData += " :\n";
-					if (CEitManager::getInstance()->getEPGid(timer.epgID, timer.epg_starttime, &epgdata)) {
-						zAddData += epgdata.title;
-					}
-					else if(strlen(timer.epgTitle)!=0) {
-						zAddData += timer.epgTitle;
-					}
-				}
-				else if(strlen(timer.epgTitle)!=0) {
-					zAddData += timer.epgTitle;
-				}
-
-				name += zAddData;
-			}
+			getAnnounceEpgName( eventinfo, name);
 			ShowHintUTF( LOCALE_MESSAGEBOX_INFO, name.c_str() );
 		}
-
+		delete [] (unsigned char*) data;
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
 		my_system(NEUTRINO_RECORDING_TIMER_SCRIPT);
-
+		CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
 		if (g_settings.recording_type == RECORDING_FILE) {
-			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
+			char * recordingDir = eventinfo->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
@@ -2717,13 +2683,16 @@ _repeat:
 			CRecordManager::getInstance()->StopAutoRecord();
 			if(!CRecordManager::getInstance()->RecordingStatus()) {
 				dvbsub_stop(); //FIXME if same channel ?
-				t_channel_id channel_id=((CTimerd::RecordingInfo*)data)->channel_id;
+				t_channel_id channel_id=eventinfo->channel_id;
 				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 			}
 		}
+		if(( mode != mode_scart ) && ( mode != mode_standby )){
+			std::string name = g_Locale->getText(LOCALE_RECORDTIMER_ANNOUNCE);
+			getAnnounceEpgName(eventinfo, name);
+			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, name.c_str());
+		}
 		delete[] (unsigned char*) data;
-		if( mode != mode_scart )
-			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDTIMER_ANNOUNCE));
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SLEEPTIMER) {
@@ -3868,6 +3837,33 @@ void CNeutrinoApp::SDT_ReloadChannels()
 		old_b_id = -1;
 		g_RCInput->postMsg(CRCInput::RC_ok, 0);
 	}
+}
+
+void CNeutrinoApp::getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name)
+{
+
+	name += "\n";
+
+	std::string zAddData = CServiceManager::getInstance()->GetServiceName(eventinfo->channel_id);
+	if( zAddData.empty()) {
+		zAddData = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
+	}
+
+	if(eventinfo->epgID!=0) {
+		CEPGData epgdata;
+		zAddData += " :\n";
+		if (CEitManager::getInstance()->getEPGid(eventinfo->epgID, eventinfo->epg_starttime, &epgdata)) {
+			zAddData += epgdata.title;
+		}
+		else if(strlen(eventinfo->epgTitle)!=0) {
+			zAddData += eventinfo->epgTitle;
+		}
+	}
+	else if(strlen(eventinfo->epgTitle)!=0) {
+		zAddData += eventinfo->epgTitle;
+	}
+
+	name += zAddData;
 }
 
 void CNeutrinoApp::Cleanup()
