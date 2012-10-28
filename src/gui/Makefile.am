@@ -4,7 +4,7 @@ AM_CPPFLAGS = -fno-rtti -fno-exceptions
 BUILT_SOURCES  = git_version.h
 git_version.h:
 	@if test -d ../../.git; then \
-		echo "#define GITVERSION \"$$(git describe --dirty || echo '#define BUILT_DATE "'`date`'"' )\" " > git_version.h.tmp ; \
+		echo "#define GITVERSION \"$$(git describe --dirty || echo `date` )\" " > git_version.h.tmp ; \
 		if diff -q git_version.h git_version.h.tmp >/dev/null 2>&1 ; then \
 			rm -f git_version.h.tmp ; \
 		else \
