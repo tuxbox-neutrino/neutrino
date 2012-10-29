@@ -2678,11 +2678,11 @@ _repeat:
 			}
 		}
 
-		if( g_settings.recording_zap_on_announce && (mode != mode_standby) ) {
+		if( g_settings.recording_zap_on_announce && (mode != mode_standby) && (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID())) {
 			//TODO check transponder ?
 			CRecordManager::getInstance()->StopAutoRecord();
 			if(!CRecordManager::getInstance()->RecordingStatus()) {
-				dvbsub_stop(); //FIXME if same channel ?
+				dvbsub_stop();
 				t_channel_id channel_id=eventinfo->channel_id;
 				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 			}
