@@ -216,10 +216,10 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 		delete dmx;
 		return false;
 	}
-
+#if 0
 	g_bouquetManager->clearAll();
 	CServiceManager::getInstance()->RemoveAllChannels();
-
+#endif
 	do {
 		if (dmx->Read(buffer, SEC_SIZE) < 0) {
 			delete dmx;
