@@ -1751,10 +1751,9 @@ void wake_up( bool &wakeup)
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(!wakeup){
-		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
-		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
-		if (my_system(neutrino_leave_deepstandby_script) != 0)
-			perror( neutrino_leave_deepstandby_script );
+		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT ".");
+		if (my_system(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT) != 0)
+			perror(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT " failed");
 	}
 #endif
 
@@ -1858,9 +1857,9 @@ TIMER_START();
 	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
 	//fan speed
 	if (g_info.has_fan) {
-		CFanControlNotifier * funNotifier= new CFanControlNotifier();
-		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-		delete funNotifier;
+		CFanControlNotifier * fanNotifier= new CFanControlNotifier();
+		fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+		delete fanNotifier;
 	}
 
 	dvbsub_init();
@@ -2630,8 +2629,7 @@ _repeat:
 		return res;
 	}
 	else if( msg == NeutrinoMessages::ZAPTO) {
-		CTimerd::EventInfo * eventinfo;
-		eventinfo = (CTimerd::EventInfo *) data;
+		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		if(recordingstatus==0) {
 			bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
@@ -2653,52 +2651,19 @@ _repeat:
 			standbyMode( false );
 		}
 		if( mode != mode_scart ) {
+			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
 			std::string name = g_Locale->getText(LOCALE_ZAPTOTIMER_ANNOUNCE);
-
-			CTimerd::TimerList tmpTimerList;
-			CTimerdClient tmpTimerdClient;
-
-			tmpTimerList.clear();
-			tmpTimerdClient.getTimerList( tmpTimerList );
-
-			if( !tmpTimerList.empty() ) {
-				sort( tmpTimerList.begin(), tmpTimerList.end() );
-
-				CTimerd::responseGetTimer &timer = tmpTimerList[0];
-
-				name += "\n";
-
-				std::string zAddData = CServiceManager::getInstance()->GetServiceName(timer.channel_id);
-				if( zAddData.empty()) {
-					zAddData = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
-				}
-
-				if(timer.epgID!=0) {
-					CEPGData epgdata;
-					zAddData += " :\n";
-					if (CEitManager::getInstance()->getEPGid(timer.epgID, timer.epg_starttime, &epgdata)) {
-						zAddData += epgdata.title;
-					}
-					else if(strlen(timer.epgTitle)!=0) {
-						zAddData += timer.epgTitle;
-					}
-				}
-				else if(strlen(timer.epgTitle)!=0) {
-					zAddData += timer.epgTitle;
-				}
-
-				name += zAddData;
-			}
+			getAnnounceEpgName( eventinfo, name);
 			ShowHintUTF( LOCALE_MESSAGEBOX_INFO, name.c_str() );
 		}
-
+		delete [] (unsigned char*) data;
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
 		my_system(NEUTRINO_RECORDING_TIMER_SCRIPT);
-
+		CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
 		if (g_settings.recording_type == RECORDING_FILE) {
-			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
+			char * recordingDir = eventinfo->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
@@ -2712,18 +2677,21 @@ _repeat:
 			}
 		}
 
-		if( g_settings.recording_zap_on_announce && (mode != mode_standby) ) {
+		if( g_settings.recording_zap_on_announce && (mode != mode_standby) && (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID())) {
 			//TODO check transponder ?
 			CRecordManager::getInstance()->StopAutoRecord();
 			if(!CRecordManager::getInstance()->RecordingStatus()) {
-				dvbsub_stop(); //FIXME if same channel ?
-				t_channel_id channel_id=((CTimerd::RecordingInfo*)data)->channel_id;
+				dvbsub_stop();
+				t_channel_id channel_id=eventinfo->channel_id;
 				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 			}
 		}
+		if(( mode != mode_scart ) && ( mode != mode_standby )){
+			std::string name = g_Locale->getText(LOCALE_RECORDTIMER_ANNOUNCE);
+			getAnnounceEpgName(eventinfo, name);
+			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, name.c_str());
+		}
 		delete[] (unsigned char*) data;
-		if( mode != mode_scart )
-			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDTIMER_ANNOUNCE));
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SLEEPTIMER) {
@@ -2944,10 +2912,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
 		if(retcode) {
-			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
-			printf("[%s] executing %s\n",__FILE__ ,neutrino_enter_deepstandby_script);
-			if (my_system(neutrino_enter_deepstandby_script) != 0)
-				perror(neutrino_enter_deepstandby_script );
+			puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
+			if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
+				perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
 
 			printf("entering off state\n");
 			mode = mode_off;
@@ -3020,9 +2987,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			powerManager->SetStandby(true, true);
 			if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
 				int fspeed = 0;
-				CFanControlNotifier * funNotifier= new CFanControlNotifier();
-				funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
-				delete funNotifier;
+				CFanControlNotifier * fanNotifier= new CFanControlNotifier();
+				fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+				delete fanNotifier;
 			}
 			if (powerManager) {
 				powerManager->Close();
@@ -3055,8 +3022,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//fan speed
 			if (g_info.has_fan) {
 				int fspeed = 0;
-				CFanControlNotifier funNotifier;
-				funNotifier.changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+				CFanControlNotifier fanNotifier;
+				fanNotifier.changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
 			}
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 			stop_video();
@@ -3245,9 +3212,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		//fan speed
 		if (g_info.has_fan) {
 			int fspeed = 1;
-			CFanControlNotifier * funNotifier= new CFanControlNotifier();
-			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
-			delete funNotifier;
+			CFanControlNotifier * fanNotifier= new CFanControlNotifier();
+			fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+			delete fanNotifier;
 		}
 		frameBuffer->setActive(false);
 		// Active standby on
@@ -3272,9 +3239,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->setActive(true);
 		//fan speed
 		if (g_info.has_fan) {
-			CFanControlNotifier * funNotifier= new CFanControlNotifier();
-			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-			delete funNotifier;
+			CFanControlNotifier * fanNotifier= new CFanControlNotifier();
+			fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+			delete fanNotifier;
 		}
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
@@ -3868,6 +3835,33 @@ void CNeutrinoApp::SDT_ReloadChannels()
 		old_b_id = -1;
 		g_RCInput->postMsg(CRCInput::RC_ok, 0);
 	}
+}
+
+void CNeutrinoApp::getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name)
+{
+
+	name += "\n";
+
+	std::string zAddData = CServiceManager::getInstance()->GetServiceName(eventinfo->channel_id);
+	if( zAddData.empty()) {
+		zAddData = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
+	}
+
+	if(eventinfo->epgID!=0) {
+		CEPGData epgdata;
+		zAddData += " :\n";
+		if (CEitManager::getInstance()->getEPGid(eventinfo->epgID, eventinfo->epg_starttime, &epgdata)) {
+			zAddData += epgdata.title;
+		}
+		else if(strlen(eventinfo->epgTitle)!=0) {
+			zAddData += eventinfo->epgTitle;
+		}
+	}
+	else if(strlen(eventinfo->epgTitle)!=0) {
+		zAddData += eventinfo->epgTitle;
+	}
+
+	name += zAddData;
 }
 
 void CNeutrinoApp::Cleanup()

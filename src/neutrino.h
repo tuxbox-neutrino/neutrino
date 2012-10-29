@@ -136,6 +136,7 @@ private:
 	void scartMode( bool bOnOff );
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void saveEpg(bool cvfd_mode);
+	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
