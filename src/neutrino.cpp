@@ -1751,10 +1751,9 @@ void wake_up( bool &wakeup)
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(!wakeup){
-		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
-		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
-		if (my_system(neutrino_leave_deepstandby_script) != 0)
-			perror( neutrino_leave_deepstandby_script );
+		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT ".");
+		if (my_system(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT) != 0)
+			perror(NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT " failed");
 	}
 #endif
 
@@ -2913,10 +2912,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
 		if(retcode) {
-			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
-			printf("[%s] executing %s\n",__FILE__ ,neutrino_enter_deepstandby_script);
-			if (my_system(neutrino_enter_deepstandby_script) != 0)
-				perror(neutrino_enter_deepstandby_script );
+			puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
+			if (my_system(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT) != 0)
+				perror(NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT " failed");
 
 			printf("entering off state\n");
 			mode = mode_off;

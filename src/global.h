@@ -66,6 +66,8 @@
 #define NEUTRINO_RECORDING_ENDED_SCRIPT CONFIGDIR "/recording.end"
 #define NEUTRINO_ENTER_STANDBY_SCRIPT   CONFIGDIR "/standby.on"
 #define NEUTRINO_LEAVE_STANDBY_SCRIPT   CONFIGDIR "/standby.off"
+#define NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.on"
+#define NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.off"
 #define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
 #define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
 
