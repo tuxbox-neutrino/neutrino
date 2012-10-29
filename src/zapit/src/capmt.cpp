@@ -32,7 +32,7 @@
 #include <dvbsi++/program_map_section.h>
 #include <dvbsi++/ca_program_map_section.h>
 
-//#define DEBUG_CAPMT
+#define DEBUG_CAPMT
 
 CCam::CCam()
 {
@@ -76,12 +76,12 @@ bool CCam::sendMessage(const char * const data, const size_t length, bool update
 	return send_data(data, length);
 }
 
-bool CCam::makeCaPmt(CZapitChannel * channel, uint8_t list, const CaIdVector &caids)
+bool CCam::makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list, const CaIdVector &caids)
 {
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-	DBG("cam %x source %d camask %d list %02x buffer", (int) this, source_demux, camask, list);
+	INFO("cam %x source %d camask %d list %02x buffer", (int) this, source_demux, camask, list);
 
 	if(!buffer)
 		return false;
@@ -89,32 +89,34 @@ bool CCam::makeCaPmt(CZapitChannel * channel, uint8_t list, const CaIdVector &ca
 	ProgramMapSection pmt(buffer);
 	CaProgramMapSection capmt(&pmt, list, 0x01, caids);
 
-	uint8_t tmp[10];
-	tmp[0] = 0x84;
-	tmp[1] = 0x02;
-	tmp[2] = channel->getPmtPid() >> 8;
-	tmp[3] = channel->getPmtPid() & 0xFF;
-	capmt.injectDescriptor(tmp, false);
+	if (add_private) {
+		uint8_t tmp[10];
+		tmp[0] = 0x84;
+		tmp[1] = 0x02;
+		tmp[2] = channel->getPmtPid() >> 8;
+		tmp[3] = channel->getPmtPid() & 0xFF;
+		capmt.injectDescriptor(tmp, false);
 
-	tmp[0] = 0x82;
-	tmp[1] = 0x02;
-	tmp[2] = camask;
-	tmp[3] = source_demux;
-	capmt.injectDescriptor(tmp, false);
+		tmp[0] = 0x82;
+		tmp[1] = 0x02;
+		tmp[2] = camask;
+		tmp[3] = source_demux;
+		capmt.injectDescriptor(tmp, false);
 
-	memset(tmp, 0, sizeof(tmp));
-	tmp[0] = 0x81;
-	tmp[1] = 0x08;
-	tmp[2] = channel->getSatellitePosition() >> 8;
-	tmp[3] = channel->getSatellitePosition() & 0xFF;
-	tmp[4] = channel->getFreqId() >> 8;
-	tmp[5] = channel->getFreqId() & 0xFF;
-	tmp[6] = channel->getTransportStreamId() >> 8;
-	tmp[7] = channel->getTransportStreamId() & 0xFF;
-	tmp[8] = channel->getOriginalNetworkId() >> 8;
-	tmp[9] = channel->getOriginalNetworkId() & 0xFF;
+		memset(tmp, 0, sizeof(tmp));
+		tmp[0] = 0x81;
+		tmp[1] = 0x08;
+		tmp[2] = channel->getSatellitePosition() >> 8;
+		tmp[3] = channel->getSatellitePosition() & 0xFF;
+		tmp[4] = channel->getFreqId() >> 8;
+		tmp[5] = channel->getFreqId() & 0xFF;
+		tmp[6] = channel->getTransportStreamId() >> 8;
+		tmp[7] = channel->getTransportStreamId() & 0xFF;
+		tmp[8] = channel->getOriginalNetworkId() >> 8;
+		tmp[9] = channel->getOriginalNetworkId() & 0xFF;
 
-	capmt.injectDescriptor(tmp, false);
+		capmt.injectDescriptor(tmp, false);
+	}
 
 	calen = capmt.writeToBuffer(cabuf);
 #ifdef DEBUG_CAPMT
@@ -235,7 +237,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		if(newmask == 0) {
 			cam->sendMessage(NULL, 0, false);
 		} else {
-			cam->makeCaPmt(channel);
+			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
 		}
 	}
@@ -249,7 +251,10 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	}
 	CaIdVector caids;
 	cCA::GetInstance()->GetCAIDS(caids);
-	uint8_t list = CCam::CAPMT_FIRST;
+	//uint8_t list = CCam::CAPMT_FIRST;
+	uint8_t list = CCam::CAPMT_ONLY;
+	if (channel_map.size() > 1)
+		list = CCam::CAPMT_ADD;
 	for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
 	{
 		cam = it->second;
@@ -258,14 +263,16 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		if(!channel)
 			continue;
 
+#if 0
 		if (it == channel_map.end())
 			list |= CCam::CAPMT_LAST; // FIRST->ONLY or MORE->LAST
+#endif
 
-		cam->makeCaPmt(channel, list, caids);
+		cam->makeCaPmt(channel, false, list, caids);
 		int len;
 		unsigned char * buffer = channel->getRawPmt(len);
 		cam->sendCaPmt(channel->getTransponderId(), buffer, len);
-		list = CCam::CAPMT_MORE;
+		//list = CCam::CAPMT_MORE;
 	}
 	mutex.unlock();
 
