@@ -3862,6 +3862,7 @@ void CNeutrinoApp::getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::s
 			zAddData += epgdata.title;
 		}
 		else if(strlen(eventinfo->epgTitle)!=0) {
+			zAddData += " :\n";
 			zAddData += eventinfo->epgTitle;
 		}
 	}
