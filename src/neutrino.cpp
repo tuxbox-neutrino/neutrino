@@ -2627,20 +2627,24 @@ _repeat:
 #endif
 		return res;
 	}
+
 	else if( msg == NeutrinoMessages::ZAPTO) {
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
-		if(recordingstatus==0) {
-			bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
+		if (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID()){
+		 /* FIXME zapto if recordingstatus == 1 && haveFreeFrontend == 0 on same transponder and check for twin box in loop and independet mode */
+			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingstatus && CFEManager::getInstance()->haveFreeFrontend()) ) {
+				bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
-			dvbsub_stop();
+				dvbsub_stop();
 
-			if ((!isTVMode) && (mode != mode_radio)) {
-				radioMode(false);
+				if ((!isTVMode) && (mode != mode_radio)) {
+					radioMode(false);
+				}
+				else if (isTVMode && (mode != mode_tv)) {
+					tvMode(false);
+				}
+				channelList->zapTo_ChannelID(eventinfo->channel_id);
 			}
-			else if (isTVMode && (mode != mode_tv)) {
-				tvMode(false);
-			}
-			channelList->zapTo_ChannelID(eventinfo->channel_id);
 		}
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
