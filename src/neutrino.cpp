@@ -227,8 +227,7 @@ CNeutrinoApp::CNeutrinoApp()
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
 	skipShutdownTimer	= false;
-	skipSleepnTimer		= false;
-	lockStandbyCall		= false;
+	skipSleepTimer		= false;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= 0;
@@ -2696,13 +2695,13 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SLEEPTIMER) {
 		if( mode != mode_scart && mode != mode_standby)
-		  	skipSleepnTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SLEEPTIMERBOX_ANNOUNCE,CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
+		  	skipSleepTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SLEEPTIMERBOX_ANNOUNCE,CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
-		if(skipSleepnTimer) {
+		if(skipSleepTimer) {
 			printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
-			skipSleepnTimer = false;
+			skipSleepTimer = false;
 			return messages_return::handled;
 		}
 		if(g_settings.shutdown_real)
@@ -3038,6 +3037,16 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 {
 	struct stat my_stat;
 	if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0){
+		if(!cvfd_mode){//skip saveepg in standby mode, if last saveepg time < 15 Min.
+			std::string index_xml = g_settings.epg_dir.c_str();
+			index_xml += "/index.xml";
+			time_t t=0;
+			if(stat(index_xml.c_str(), &my_stat) == 0){
+				if(difftime(time(&t), my_stat.st_ctime) < 900){
+					return;
+				}
+			}
+		}
 		printf("[neutrino] Saving EPG to %s...\n", g_settings.epg_dir.c_str());
 
 		CVFD::getInstance()->Clear();
@@ -3055,8 +3064,10 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 				CVFD::getInstance()->Clear();
 				CVFD::getInstance()->setMode(cvfd_mode ? CVFD::MODE_SHUTDOWN : CVFD::MODE_STANDBY);// true CVFD::MODE_SHUTDOWN  , false CVFD::MODE_STANDBY
 				break;
-			} else if (!cvfd_mode)
+			} else if (!cvfd_mode){
+				printf("wait for epg saving, Msg %x \n", (int) msg);
 				handleMsg(msg, data);
+			}
 		}
 	}
 }
@@ -3149,10 +3160,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
 
-	if(lockStandbyCall)
-		return;
-
-	lockStandbyCall = true;
 	if( bOnOff ) {
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
@@ -3182,6 +3189,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_Sectionsd->setPauseScanning(!fromDeepStandby);
 		g_Sectionsd->setServiceChanged(0, false);
 
+		lastMode = mode;
+		mode = mode_standby;
+
 		if(!CRecordManager::getInstance()->RecordingStatus() ) {
 			//only save epg when not recording
 			if(g_settings.epg_save && !fromDeepStandby) {
@@ -3189,8 +3199,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			}
 		}
 
-		CVFD::getInstance()->Clear();
-		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
+		if(CVFD::getInstance()->getMode() != CVFD::MODE_STANDBY){
+			CVFD::getInstance()->Clear();
+			CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
+		}
 
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();
@@ -3205,9 +3217,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		if(!CRecordManager::getInstance()->RecordingStatus())
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
-
-		lastMode = mode;
-		mode = mode_standby;
 
 		//fan speed
 		if (g_info.has_fan) {
@@ -3293,7 +3302,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 #endif
 		StartSubtitles();
 	}
-	lockStandbyCall = false;
 }
 
 void CNeutrinoApp::radioMode( bool rezap)
