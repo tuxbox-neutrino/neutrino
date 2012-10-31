@@ -108,6 +108,7 @@ CRemoteControl::CRemoteControl()
 //	current_programm_timer = 0;
 	is_video_started = true;
 	//next_EPGid = 	0;
+	are_subchannels = false;
 }
 
 
@@ -484,7 +485,8 @@ void CRemoteControl::processAPIDnames()
 
 	for(unsigned int count=0; count< current_PIDs.APIDs.size(); count++)
 	{
-		printf("Neutrino: apid name= %s (%s) pid= %X\n", current_PIDs.APIDs[count].desc, getISO639Description( current_PIDs.APIDs[count].desc ), current_PIDs.APIDs[count].pid);
+		const char *iso = getISO639Description(current_PIDs.APIDs[count].desc);
+		printf("Neutrino: apid name= %s (%s) pid= %X\n", current_PIDs.APIDs[count].desc, iso, current_PIDs.APIDs[count].pid);
 		if ( current_PIDs.APIDs[count].component_tag != 0xFF )
 		{
 			has_unresolved_ctags= true;
@@ -492,7 +494,9 @@ void CRemoteControl::processAPIDnames()
 		if ( strlen( current_PIDs.APIDs[count].desc ) == 3 )
 		{
 			// unaufgeloeste Sprache...
-			strcpy( current_PIDs.APIDs[count].desc, getISO639Description( current_PIDs.APIDs[count].desc ) );
+			/* getISO639Description returns same pointer as input if nothing is found */
+			if (current_PIDs.APIDs[count].desc != iso)
+				strcpy(current_PIDs.APIDs[count].desc, iso);
 		}
 
 		if ( current_PIDs.APIDs[count].is_ac3 )
