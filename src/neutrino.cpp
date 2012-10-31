@@ -2681,9 +2681,10 @@ _repeat:
 		}
 
 		if( g_settings.recording_zap_on_announce && (mode != mode_standby) && (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID())) {
-			//TODO check transponder ?
 			CRecordManager::getInstance()->StopAutoRecord();
-			if(!CRecordManager::getInstance()->RecordingStatus()) {
+			bool recordingStatus = CRecordManager::getInstance()->RecordingStatus();
+			if ( !recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingStatus && CFEManager::getInstance()->haveFreeFrontend()) || 
+			    (recordingStatus && channelList->SameTP(eventinfo->channel_id)) ){
 				dvbsub_stop();
 				t_channel_id channel_id=eventinfo->channel_id;
 				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
