@@ -858,7 +858,7 @@ void CMenuWidget::calcSize()
 		{
 			const char *tmp;
 			if (items[i]->iconName.empty())
-				tmp = CRCInput::getKeyName(items[i]->directKey).c_str();
+				tmp = CRCInput::getKeyNameC(items[i]->directKey);
 			else
 				tmp = items[i]->iconName.c_str();
 			int w, h;

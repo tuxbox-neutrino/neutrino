@@ -282,6 +282,7 @@ class CRCInput
 		static int getUnicodeValue(const neutrino_msg_t key);
 
 		static const char * getSpecialKeyName(const unsigned int key);
+		static const char *getKeyNameC(const unsigned int key);
 		static std::string getKeyName(const unsigned int key);
 
 		int addTimer(uint64_t Interval, bool oneshot= true, bool correct_time= true );

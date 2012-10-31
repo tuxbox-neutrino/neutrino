@@ -1568,15 +1568,20 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 
 std::string CRCInput::getKeyName(const unsigned int key)
 {
+	return (std::string)getKeyNameC(key);
+}
+
+const char *CRCInput::getKeyNameC(const unsigned int key)
+{
 	int lunicode_value = getUnicodeValue(key);
 	if (lunicode_value == -1)
 		return getSpecialKeyName(key);
 	else
 	{
-		char tmp[2];
+		static char tmp[2];
 		tmp[0] = lunicode_value;
 		tmp[1] = 0;
-		return std::string(tmp);
+		return tmp;
 	}
 }
 
