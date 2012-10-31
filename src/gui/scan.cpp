@@ -72,8 +72,8 @@ CScanTs::CScanTs()
 	total = done = 0;
 	freqready = 0;
 
-	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
+	sigscale = NULL;
+	snrscale = NULL;
 }
 
 void CScanTs::prev_next_TP( bool up)
@@ -195,12 +195,14 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
-	sigscale->reset();
-	snrscale->reset();
-	lastsig = lastsnr = -1;
-
 	if (!frameBuffer->getActive())
 		return menu_return::RETURN_EXIT_ALL;
+
+	if (!sigscale)
+		sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
+	if (!snrscale)
+		snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
+	lastsig = lastsnr = -1;
 
 	CRecordManager::getInstance()->StopAutoRecord();
 	g_Zapit->stopPlayBack();
@@ -356,6 +358,10 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	}
 
 	hide();
+	delete sigscale;
+	sigscale = NULL;
+	delete snrscale;
+	snrscale = NULL;
 
 	CZapit::getInstance()->scanPids(scan_pids);
 	videoDecoder->StopPicture();
@@ -459,10 +465,10 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			CVolume::getInstance()->setVolume(msg, true, true);
 			break;
 		default:
-			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-				delete (unsigned char*) data;
 			break;
 	}
+	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
+		delete[] (unsigned char*) data;
 	/* almost all messages paint something, so blit here */
 	frameBuffer->blit();
 	return msg;
