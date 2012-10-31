@@ -229,8 +229,10 @@ void GLThreadObj::setupOSDBuffer()
 	// mMutex.lock();
 	if(mState.width && mState.height)
 	{
-		mOSDBuffer.resize(mState.width * mState.height * 4);
-		printf("OSD buffer set to %d bytes\n", mState.width * mState.height * 4);
+		/* 32bit FB depth, *2 because tuxtxt uses a shadow buffer */
+		int fbmem = mState.width * mState.height * 4 * 2;
+		mOSDBuffer.resize(fbmem);
+		printf("OSD buffer set to %d bytes\n", fbmem);
 	}
 }
 
