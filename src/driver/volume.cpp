@@ -96,10 +96,11 @@ void CVolume::Init()
 	sh		= frameBuffer->getScreenHeight();
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_w, &icon_h);
-	vbar_h		= std::max((icon_h * faktor_h) / 10, digit_h+digit_offset);
 	progress_h	= icon_h - 2*pB;
 	progress_w	= 200;
 	vbar_w		= spacer + icon_w + spacer + progress_w + spacer;
+	digit_h		= 0;
+	digit_offset	= 0;
 	if (paintDigits) {
 		digit_w		= g_Font[VolumeFont]->getRenderWidth("100");
 		digit_offset	= g_Font[VolumeFont]->getDigitOffset();
@@ -107,6 +108,7 @@ void CVolume::Init()
 		progress_h	= std::max(icon_h, digit_h) - 2*pB;
 		vbar_w 		+= digit_w;
 	}
+	vbar_h		= std::max((icon_h * faktor_h) / 10, digit_h+digit_offset);
 	if (volscale)
 		delete volscale;
 	volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
