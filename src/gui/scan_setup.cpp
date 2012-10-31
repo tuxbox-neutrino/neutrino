@@ -822,12 +822,13 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 	temp_sat->addItem(comm);
 	temp_sat->addItem(uncomm);
 	temp_sat->addItem(uniscr);
-	temp_sat->addItem(new CMenuForwarder(LOCALE_UNICABLE_QRG, true, uniqrg->getValue(), uniqrg));
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_UNICABLE_QRG, true, uniqrg->getValue(), uniqrg);
+	temp_sat->addItem(mf);
 	temp_sat->addItem(unilnb);
 	temp_sat->addItem(motor);
 	temp_sat->addItem(usals);
 
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFL, true, lofL->getValue(), lofL);
+	mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFL, true, lofL->getValue(), lofL);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_LOFL);
 	temp_sat->addItem(mf);
 	mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFH, true, lofH->getValue(), lofH);
