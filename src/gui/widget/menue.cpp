@@ -882,8 +882,15 @@ void CMenuWidget::calcSize()
 	if(total_pages > 1)
 		sb_width=15;
 
-	full_width = ConnectLineBox_Width+width+sb_width+SHADOW_OFFSET;
+	/* 2 times ConnectLineBox_Width for symmetry */
+	full_width = ConnectLineBox_Width * 2 + width + sb_width + SHADOW_OFFSET;
 	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2+hint_height+INFO_BOX_Y_OFFSET;
+	if (full_width > (int)frameBuffer->getScreenWidth())
+	{
+		width -= (full_width - frameBuffer->getScreenWidth());
+		/* subtract the additional connectlineboxwidth we added above */
+		full_width = frameBuffer->getScreenWidth() - ConnectLineBox_Width;
+	}
 
 	setMenuPos(full_width);
 }
@@ -951,6 +958,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 			x = /*offx +*/ scr_x + scr_w - menu_width - 10;
 			break;
 	}
+	x += ConnectLineBox_Width;
 }
 
 void CMenuWidget::paintItems()
