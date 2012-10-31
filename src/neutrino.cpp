@@ -3176,6 +3176,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			}
 
 			delete g_RCInput;
+			g_RCInput = NULL;
 			//fan speed
 			if (g_info.has_fan) {
 				int fspeed = 0;

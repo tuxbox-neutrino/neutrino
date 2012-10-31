@@ -218,6 +218,9 @@ CFrameBuffer::CFrameBuffer()
 	memset(green, 0, 256*sizeof(__u16));
 	memset(blue, 0, 256*sizeof(__u16));
 	memset(trans, 0, 256*sizeof(__u16));
+#ifdef USE_OPENGL
+	mpGLThreadObj = NULL;
+#endif
 }
 
 CFrameBuffer* CFrameBuffer::getInstance()

@@ -109,6 +109,7 @@ CRemoteControl::CRemoteControl()
 	is_video_started = true;
 	//next_EPGid = 	0;
 	are_subchannels = false;
+	has_unresolved_ctags = false;
 }
 
 

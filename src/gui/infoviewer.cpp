@@ -99,6 +99,7 @@ CInfoViewer::CInfoViewer ()
 
 	Init();
 	infoViewerBB->Init();
+	strcpy(old_timestr, "");
 }
 
 CInfoViewer::~CInfoViewer()

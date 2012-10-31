@@ -408,6 +408,7 @@ bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* d
 #else
 		/* if we have a good input device, we don't need the private ioctl above */
 		struct input_event ie;
+		memset(&ie, 0, sizeof(ie));
 		ie.type = EV_REP;
 		/* increase by 10 ms to trick the repeat checker code in the
 		 * rcinput loop into accepting the key event... */
