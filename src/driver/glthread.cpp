@@ -121,8 +121,8 @@ void GLThreadObj::initKeys()
 
 	mSpecialMap[GLUT_KEY_F1] = CRCInput::RC_red;
 	mSpecialMap[GLUT_KEY_F2] = CRCInput::RC_green;
-	mSpecialMap[GLUT_KEY_F3] = CRCInput::RC_blue;
-	mSpecialMap[GLUT_KEY_F4] = CRCInput::RC_yellow;
+	mSpecialMap[GLUT_KEY_F3] = CRCInput::RC_yellow;
+	mSpecialMap[GLUT_KEY_F4] = CRCInput::RC_blue;
 
 	mSpecialMap[GLUT_KEY_PAGE_UP]   = CRCInput::RC_page_up;
 	mSpecialMap[GLUT_KEY_PAGE_DOWN] = CRCInput::RC_page_down;
@@ -132,7 +132,9 @@ void GLThreadObj::initKeys()
 	mKeyMap['i']  = CRCInput::RC_info;
 	mKeyMap['m']  = CRCInput::RC_setup;
 
-	mKeyMap['-']  = CRCInput::RC_spkr;
+	mKeyMap['+']  = CRCInput::RC_plus;
+	mKeyMap['-']  = CRCInput::RC_minus;
+	mKeyMap['.']  = CRCInput::RC_spkr;
 	mKeyMap['h']  = CRCInput::RC_help;
 
 	mKeyMap['0']  = CRCInput::RC_0;
