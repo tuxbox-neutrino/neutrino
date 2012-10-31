@@ -88,13 +88,13 @@ CInfoViewerBB::CInfoViewerBB()
 #endif
 	hddperT			= 0;
 	hddperTflag		= false;
+	hddscale 		= NULL;
+	sysscale 		= NULL;
 	Init();
 }
 
 void CInfoViewerBB::Init()
 {
-	hddscale 		= NULL;
-	sysscale 		= NULL;
 	hddwidth		= 0;
 	bbIconMaxH 		= 0;
 	bbButtonMaxH 		= 0;
@@ -123,6 +123,10 @@ CInfoViewerBB::~CInfoViewerBB()
 		pthread_cancel(hddperT);
 		hddperT = 0;
 	}
+	if (hddscale)
+		delete hddscale;
+	if (sysscale)
+		delete sysscale;
 }
 
 CInfoViewerBB* CInfoViewerBB::getInstance()
