@@ -36,6 +36,12 @@
 #include <zapit/client/msgtypes.h>
 #include <zapit/client/zapittools.h>
 
+#ifdef PEDANTIC_VALGRIND_SETUP
+#define VALGRIND_PARANOIA memset(&msg, 0, sizeof(msg))
+#else
+#define VALGRIND_PARANOIA {}
+#endif
+
 unsigned char CZapitClient::getVersion() const
 {
 	return CZapitMessages::ACTVERSION;
@@ -63,6 +69,7 @@ void CZapitClient::shutdown()
 void CZapitClient::zapTo(const unsigned int bouquet, const unsigned int channel)
 {
 	CZapitMessages::commandZapto msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet = bouquet;
 	msg.channel = channel - 1;
@@ -76,6 +83,7 @@ void CZapitClient::zapTo(const unsigned int bouquet, const unsigned int channel)
 void CZapitClient::zapTo(const unsigned int channel)
 {
 	CZapitMessages::commandZaptoChannelNr msg;
+	VALGRIND_PARANOIA;
 
 	msg.channel = channel - 1;
 
@@ -137,6 +145,7 @@ int32_t CZapitClient::getCurrentSatellitePosition(void)
 void CZapitClient::setAudioChannel(const unsigned int channel)
 {
 	CZapitMessages::commandSetAudioChannel msg;
+	VALGRIND_PARANOIA;
 
 	msg.channel = channel;
 
@@ -149,6 +158,7 @@ void CZapitClient::setAudioChannel(const unsigned int channel)
 unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 {
 	CZapitMessages::commandZaptoServiceID msg;
+	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
 	msg.record = false;
@@ -166,6 +176,7 @@ unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 unsigned int CZapitClient::zapTo_record(const t_channel_id channel_id)
 {
 	CZapitMessages::commandZaptoServiceID msg;
+	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
 	msg.record = true;
@@ -183,6 +194,7 @@ unsigned int CZapitClient::zapTo_record(const t_channel_id channel_id)
 unsigned int CZapitClient::zapTo_subServiceID(const t_channel_id channel_id)
 {
 	CZapitMessages::commandZaptoServiceID msg;
+	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
 
@@ -200,6 +212,7 @@ unsigned int CZapitClient::zapTo_subServiceID(const t_channel_id channel_id)
 void CZapitClient::zapTo_serviceID_NOWAIT(const t_channel_id channel_id)
 {
 	CZapitMessages::commandZaptoServiceID msg;
+	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
 
@@ -212,6 +225,7 @@ void CZapitClient::zapTo_serviceID_NOWAIT(const t_channel_id channel_id)
 void CZapitClient::zapTo_subServiceID_NOWAIT(const t_channel_id channel_id)
 {
 	CZapitMessages::commandZaptoServiceID msg;
+	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
 
@@ -224,6 +238,7 @@ void CZapitClient::zapTo_subServiceID_NOWAIT(const t_channel_id channel_id)
 void CZapitClient::setMode(const channelsMode mode)
 {
 	CZapitMessages::commandSetMode msg;
+	VALGRIND_PARANOIA;
 
 	msg.mode = mode;
 
@@ -283,6 +298,7 @@ void CZapitClient::getPIDS(responseGetPIDs& pids)
 void CZapitClient::zaptoNvodSubService(const int num)
 {
 	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
 
 	msg.val = num;
 
@@ -298,6 +314,7 @@ void CZapitClient::getBouquets(BouquetList& bouquets, const bool emptyBouquetsTo
 	char buffer[30 + 1];
 
 	CZapitMessages::commandGetBouquets msg;
+	VALGRIND_PARANOIA;
 
 	msg.emptyBouquetsToo = emptyBouquetsToo;
 	msg.mode = mode;
@@ -384,6 +401,7 @@ bool CZapitClient::getBouquetChannels(const unsigned int bouquet, BouquetChannel
 {
 	bool                                      return_value;
 	CZapitMessages::commandGetBouquetChannels msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet = bouquet;
 	msg.mode = mode;
@@ -414,6 +432,7 @@ bool CZapitClient::getChannels( BouquetChannelList& channels, channelsMode mode,
 {
 	bool                               return_value;
 	CZapitMessages::commandGetChannels msg;
+	VALGRIND_PARANOIA;
 
 	msg.mode = mode;
 	msg.order = order;
@@ -488,6 +507,7 @@ void CZapitClient::reloadCurrentServices()
 void CZapitClient::muteAudio(const bool mute)
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 
 	msg.truefalse = mute;
 
@@ -499,6 +519,7 @@ void CZapitClient::muteAudio(const bool mute)
 bool CZapitClient::getMuteStatus()
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 
 	send(CZapitMessages::CMD_GET_MUTE_STATUS, (char*)&msg, sizeof(msg));
 	CBasicClient::receive_data((char*)&msg, sizeof(msg));
@@ -509,6 +530,7 @@ bool CZapitClient::getMuteStatus()
 void CZapitClient::setVolume(const unsigned int left, const unsigned int right)
 {
 	CZapitMessages::commandVolume msg;
+	VALGRIND_PARANOIA;
 
 	msg.left = left;
 	msg.right = right;
@@ -521,6 +543,7 @@ void CZapitClient::setVolume(const unsigned int left, const unsigned int right)
 void CZapitClient::getVolume(unsigned int *left, unsigned int *right)
 {
         CZapitMessages::commandVolume msg;
+	VALGRIND_PARANOIA;
 
         send(CZapitMessages::CMD_GET_VOLUME, 0, 0);
 
@@ -561,6 +584,7 @@ bool CZapitClient::get_current_TP(TP_params* TP)
 void CZapitClient::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t cmd, uint8_t num_parameters, uint8_t param1, uint8_t param2)
 {
 	CZapitMessages::commandMotor msg;
+	VALGRIND_PARANOIA;
 
 	msg.cmdtype = cmdtype;
 	msg.address = address;
@@ -766,6 +790,7 @@ void CZapitClient::addBouquet(const char * const name)
 void CZapitClient::moveBouquet(const unsigned int bouquet, const unsigned int newPos)
 {
 	CZapitMessages::commandMoveBouquet msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet = bouquet;
 	msg.newPos = newPos;
@@ -779,6 +804,7 @@ void CZapitClient::moveBouquet(const unsigned int bouquet, const unsigned int ne
 void CZapitClient::deleteBouquet(const unsigned int bouquet)
 {
 	CZapitMessages::commandDeleteBouquet msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet = bouquet;
 
@@ -792,6 +818,7 @@ void CZapitClient::deleteBouquet(const unsigned int bouquet)
 void CZapitClient::renameBouquet(const unsigned int bouquet, const char * const newName)
 {
 	CZapitMessages::commandRenameBouquet msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet = bouquet;
 
@@ -861,6 +888,7 @@ void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsig
 void CZapitClient::addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id)
 {
 	CZapitMessages::commandAddChannelToBouquet msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet    = bouquet;
 	msg.channel_id = channel_id;
@@ -875,6 +903,7 @@ void CZapitClient::addChannelToBouquet(const unsigned int bouquet, const t_chann
 void CZapitClient::removeChannelFromBouquet(const unsigned int bouquet, const t_channel_id channel_id)
 {
 	CZapitMessages::commandRemoveChannelFromBouquet msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet    = bouquet;
 	msg.channel_id = channel_id;
@@ -889,6 +918,7 @@ void CZapitClient::removeChannelFromBouquet(const unsigned int bouquet, const t_
 void CZapitClient::setBouquetLock(const unsigned int bouquet, const bool lock)
 {
 	CZapitMessages::commandBouquetState msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet = bouquet;
 	msg.state   = lock;
@@ -903,6 +933,7 @@ void CZapitClient::setBouquetLock(const unsigned int bouquet, const bool lock)
 void CZapitClient::setBouquetHidden(const unsigned int bouquet, const bool hidden)
 {
 	CZapitMessages::commandBouquetState msg;
+	VALGRIND_PARANOIA;
 
 	msg.bouquet = bouquet;
 	msg.state   = hidden;
@@ -925,6 +956,7 @@ void CZapitClient::renumChannellist()
 void CZapitClient::saveBouquets(const bool saveall)
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 	msg.truefalse = saveall;
 
 	send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS, (char*)&msg, sizeof(msg));
@@ -938,6 +970,7 @@ void CZapitClient::saveBouquets(const bool saveall)
 void CZapitClient::setStandby(const bool enable)
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 	msg.truefalse = enable;
 	send(CZapitMessages::CMD_SET_STANDBY, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
@@ -948,6 +981,7 @@ void CZapitClient::setStandby(const bool enable)
 void CZapitClient::setVideoSystem(int video_system)
 {
 	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
 	msg.val = video_system;
 	send(CZapitMessages::CMD_SET_VIDEO_SYSTEM, (char*)&msg, sizeof(msg));
 	close_connection();
@@ -956,6 +990,7 @@ void CZapitClient::setVideoSystem(int video_system)
 void CZapitClient::startPlayBack(const bool sendpmt)
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	send(CZapitMessages::CMD_SB_START_PLAYBACK, (char*)&msg, sizeof(msg));
 	close_connection();
@@ -964,6 +999,7 @@ void CZapitClient::startPlayBack(const bool sendpmt)
 void CZapitClient::stopPlayBack(const bool sendpmt)
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	send(CZapitMessages::CMD_SB_STOP_PLAYBACK, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
@@ -974,6 +1010,7 @@ void CZapitClient::stopPlayBack(const bool sendpmt)
 void CZapitClient::lockPlayBack(const bool sendpmt)
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	send(CZapitMessages::CMD_SB_LOCK_PLAYBACK, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
@@ -983,6 +1020,7 @@ void CZapitClient::lockPlayBack(const bool sendpmt)
 void CZapitClient::unlockPlayBack(const bool sendpmt)
 {
 	CZapitMessages::commandBoolean msg;
+	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	send(CZapitMessages::CMD_SB_UNLOCK_PLAYBACK, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
@@ -1012,6 +1050,7 @@ void CZapitClient::setDisplayFormat(const video_display_format_t format)
 void CZapitClient::setAudioMode(const int mode)
 {
 	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
 	msg.val = mode;
 	send(CZapitMessages::CMD_SET_AUDIO_MODE, (char*)&msg, sizeof(msg));
 	close_connection();
@@ -1030,6 +1069,7 @@ void CZapitClient::getAudioMode(int * mode)
 void CZapitClient::setRecordMode(const bool activate)
 {
 	CZapitMessages::commandSetRecordMode msg;
+	VALGRIND_PARANOIA;
 	msg.activate = activate;
 	send(CZapitMessages::CMD_SET_RECORD_MODE, (char*)&msg, sizeof(msg));
 	close_connection();
@@ -1067,6 +1107,7 @@ void CZapitClient::getAspectRatio(int *ratio)
 void CZapitClient::setAspectRatio(int ratio)
 {
 	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
 	msg.val = ratio;
 	send(CZapitMessages::CMD_SET_ASPECTRATIO, (char*)&msg, sizeof(msg));
 	close_connection();
@@ -1075,6 +1116,7 @@ void CZapitClient::setAspectRatio(int ratio)
 void CZapitClient::getMode43(int *m43)
 {
 	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
 	send(CZapitMessages::CMD_GET_MODE43, 0, 0);
 	CBasicClient::receive_data((char* )&msg, sizeof(msg));
 	* m43 = msg.val;
@@ -1084,6 +1126,7 @@ void CZapitClient::getMode43(int *m43)
 void CZapitClient::setMode43(int m43)
 {
 	CZapitMessages::commandInt msg;
+	VALGRIND_PARANOIA;
 	msg.val = m43;
 	send(CZapitMessages::CMD_SET_MODE43, (char*)&msg, sizeof(msg));
 	close_connection();
@@ -1092,6 +1135,7 @@ void CZapitClient::setMode43(int m43)
 void CZapitClient::registerEvent(const unsigned int eventID, const unsigned int clientID, const char * const udsName)
 {
 	CEventServer::commandRegisterEvent msg;
+	VALGRIND_PARANOIA;
 
 	msg.eventID = eventID;
 	msg.clientID = clientID;
@@ -1106,6 +1150,7 @@ void CZapitClient::registerEvent(const unsigned int eventID, const unsigned int 
 void CZapitClient::unRegisterEvent(const unsigned int eventID, const unsigned int clientID)
 {
 	CEventServer::commandUnRegisterEvent msg;
+	VALGRIND_PARANOIA;
 
 	msg.eventID = eventID;
 	msg.clientID = clientID;

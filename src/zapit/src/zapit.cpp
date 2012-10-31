@@ -73,6 +73,12 @@
 #include <libdvbsub/dvbsub.h>
 #include <libtuxtxt/teletext.h>
 
+#ifdef PEDANTIC_VALGRIND_SETUP
+#define VALGRIND_PARANOIA(x) memset(&x, 0, sizeof(x))
+#else
+#define VALGRIND_PARANOIA(x) {}
+#endif
+
 /* globals */
 int sig_delay = 2; // seconds between signal check
 
@@ -852,6 +858,7 @@ bool CZapit::StartFastScan(int scan_mode, int opid)
 void CZapit::SendCmdReady(int connfd)
 {
 	CZapitMessages::responseCmd response;
+	VALGRIND_PARANOIA(response);
 	response.cmd = CZapitMessages::CMD_READY;
 	CBasicServer::send_data(connfd, &response, sizeof(response));
 }
@@ -892,6 +899,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_ZAPTO_SUBSERVICEID: {
 		CZapitMessages::commandZaptoServiceID msgZaptoServiceID;
 		CZapitMessages::responseZapComplete msgResponseZapComplete;
+		VALGRIND_PARANOIA(msgResponseZapComplete);
 		CBasicServer::receive_data(connfd, &msgZaptoServiceID, sizeof(msgZaptoServiceID));
 		if(msgZaptoServiceID.record) {
 			msgResponseZapComplete.zapStatus = ZapForRecord(msgZaptoServiceID.channel_id);
@@ -946,6 +954,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_MODE: {
 		CZapitMessages::responseGetMode msgGetMode;
+		VALGRIND_PARANOIA(msgGetMode);
 		msgGetMode.mode = (CZapitClient::channelsMode) getMode();
 		CBasicServer::send_data(connfd, &msgGetMode, sizeof(msgGetMode));
 		break;
@@ -953,6 +962,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_CURRENT_SERVICEID: {
 		CZapitMessages::responseGetCurrentServiceID msgCurrentSID;
+		VALGRIND_PARANOIA(msgCurrentSID);
 		msgCurrentSID.channel_id = (current_channel != 0) ? current_channel->getChannelID() : 0;
 		CBasicServer::send_data(connfd, &msgCurrentSID, sizeof(msgCurrentSID));
 		break;
@@ -960,6 +970,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_CURRENT_SERVICEINFO: {
 		CZapitClient::CCurrentServiceInfo msgCurrentServiceInfo;
+		VALGRIND_PARANOIA(msgCurrentServiceInfo);
 		memset(&msgCurrentServiceInfo, 0, sizeof(CZapitClient::CCurrentServiceInfo));
 		if(current_channel) {
 			msgCurrentServiceInfo.onid = current_channel->getOriginalNetworkId();
@@ -990,6 +1001,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_DELIVERY_SYSTEM: {
 		CZapitMessages::responseDeliverySystem response;
+		VALGRIND_PARANOIA(response);
 		switch (live_fe->getInfo()->type) {
 		case FE_QAM:
 			response.system = DVB_C;
@@ -1040,6 +1052,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
         case CZapitMessages::CMD_GET_CHANNEL_NAME: {
                 t_channel_id requested_channel_id;
                 CZapitMessages::responseGetChannelName response;
+		VALGRIND_PARANOIA(response);
                 CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
 		response.name[0] = 0;
 		CZapitChannel * channel = (requested_channel_id == 0) ? current_channel :
@@ -1169,6 +1182,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_SCANREADY: {
 		CZapitMessages::responseIsScanReady msgResponseIsScanReady;
+		VALGRIND_PARANOIA(msgResponseIsScanReady);
 #if 0 //FIXME used only when scanning done using pzapit client, is it really needed ?
 		msgResponseIsScanReady.satellite = curr_sat;
 		msgResponseIsScanReady.transponder = found_transponders;
@@ -1183,6 +1197,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_SCANGETSATLIST: {
 		uint32_t  satlength;
 		CZapitClient::responseGetSatelliteList sat;
+		VALGRIND_PARANOIA(sat);
 		satlength = sizeof(sat);
 
 		satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
@@ -1268,6 +1283,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_RECORD_MODE: {
 		CZapitMessages::responseGetRecordModeState msgGetRecordModeState;
+		VALGRIND_PARANOIA(msgGetRecordModeState);
 		msgGetRecordModeState.activated = (currentMode & RECORD_MODE);
 		CBasicServer::send_data(connfd, &msgGetRecordModeState, sizeof(msgGetRecordModeState));
 		break;
@@ -1276,6 +1292,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_SB_GET_PLAYBACK_ACTIVE: {
 		/* FIXME check if needed */
 		CZapitMessages::responseGetPlaybackState msgGetPlaybackState;
+		VALGRIND_PARANOIA(msgGetPlaybackState);
                 msgGetPlaybackState.activated = playing;
 		msgGetPlaybackState.activated = videoDecoder->getPlayState();
 		CBasicServer::send_data(connfd, &msgGetPlaybackState, sizeof(msgGetPlaybackState));
@@ -1310,6 +1327,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_BQ_EXISTS_BOUQUET: {
 		CZapitMessages::responseGeneralInteger responseInteger;
+		VALGRIND_PARANOIA(responseInteger);
 
 		char * name = CBasicServer::receive_string(connfd);
 		responseInteger.number = g_bouquetManager->existsBouquet(name);
@@ -1508,6 +1526,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_ASPECTRATIO: {
 		CZapitMessages::commandInt msg;
+		VALGRIND_PARANOIA(msg);
 		aspectratio=videoDecoder->getAspectRatio();
 		msg.val = aspectratio;
 		CBasicServer::send_data(connfd, &msg, sizeof(msg));
@@ -1536,6 +1555,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_GETPIDS: {
 		if (current_channel) {
 			CZapitClient::responseGetOtherPIDs responseGetOtherPIDs;
+			VALGRIND_PARANOIA(responseGetOtherPIDs);
 			responseGetOtherPIDs.vpid = current_channel->getVideoPid();
 			responseGetOtherPIDs.ecmpid = 0; // TODO: remove
 			responseGetOtherPIDs.vtxtpid = current_channel->getTeletextPid();
@@ -1634,6 +1654,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	}
         case CZapitMessages::CMD_GET_VOLUME: {
                 CZapitMessages::commandVolume msgVolume;
+		VALGRIND_PARANOIA(msgVolume);
 #if 0
                 msgVolume.left = volume_left;
                 msgVolume.right = volume_right;
@@ -1644,6 +1665,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
         }
 	case CZapitMessages::CMD_GET_MUTE_STATUS: {
 		CZapitMessages::commandBoolean msgBoolean;
+		VALGRIND_PARANOIA(msgBoolean);
 		msgBoolean.truefalse = audioDecoder->getMuteStatus();
 		CBasicServer::send_data(connfd, &msgBoolean, sizeof(msgBoolean));
 		break;
@@ -1705,6 +1727,7 @@ void CZapit::addChannelToBouquet(const unsigned int bouquet, const t_channel_id 
 bool CZapit::send_data_count(int connfd, int data_count)
 {
 	CZapitMessages::responseGeneralInteger responseInteger;
+	VALGRIND_PARANOIA(responseInteger);
 	responseInteger.number = data_count;
 	if (CBasicServer::send_data(connfd, &responseInteger, sizeof(responseInteger)) == false) {
 		ERROR("could not send any return");
@@ -1719,6 +1742,7 @@ void CZapit::sendAPIDs(int connfd)
 		return;
 	for (uint32_t  i = 0; i < current_channel->getAudioChannelCount(); i++) {
 		CZapitClient::responseGetAPIDs response;
+		VALGRIND_PARANOIA(response);
 		response.pid = current_channel->getAudioPid(i);
 		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN-1);
 		response.is_ac3 = response.is_aac = 0;
@@ -1745,6 +1769,7 @@ void CZapit::internalSendChannels(int connfd, ZapitChannelList* channels, const 
 	for (uint32_t  i = 0; i < channels->size();i++) {
 		if(nonames) {
 			CZapitClient::responseGetBouquetNChannels response;
+			VALGRIND_PARANOIA(response);
 			response.nr = first_channel_nr + i;
 
 			if (CBasicServer::send_data(connfd, &response, sizeof(response)) == false) {
@@ -1756,6 +1781,7 @@ void CZapit::internalSendChannels(int connfd, ZapitChannelList* channels, const 
 			}
 		} else {
 			CZapitClient::responseGetBouquetChannels response;
+			VALGRIND_PARANOIA(response);
 			strncpy(response.name, ((*channels)[i]->getName()).c_str(), CHANNEL_NAME_SIZE-1);
 			response.name[CHANNEL_NAME_SIZE-1] = 0;
 			//printf("internalSendChannels: name %s\n", response.name);
@@ -1778,6 +1804,7 @@ void CZapit::internalSendChannels(int connfd, ZapitChannelList* channels, const 
 void CZapit::sendBouquets(int connfd, const bool emptyBouquetsToo, CZapitClient::channelsMode mode)
 {
 	CZapitClient::responseGetBouquets msgBouquet;
+	VALGRIND_PARANOIA(msgBouquet);
         int curMode;
         switch(mode) {
                 case CZapitClient::MODE_TV:
