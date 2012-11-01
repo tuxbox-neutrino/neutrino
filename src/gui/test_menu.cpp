@@ -346,7 +346,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "picture"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 200, "/share/tuxbox/neutrino/icons/mp3-5.jpg");
+			pic = new CComponentsPicture (100, 100, 200, 200, "/share/tuxbox/neutrino/icons/mp3-5.jpg", CC_PIC_IMAGE_MODE_AUTO);
 
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
@@ -367,12 +367,32 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "form"){
 		if (form == NULL)
 			form = new CComponentsForm();
-		form->setDimensionsAll(100, 100, 250, 300);
-		form->setCaption(NONEXISTANT_LOCALE);
-		form->setIcon(NEUTRINO_ICON_INFO);
+		form->setColorBody(COL_LIGHT_GRAY);
+		form->setDimensionsAll(100, 100, 250, 100);
+
+		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
+		ptmp->setWidth(28);
+		ptmp->setHeight(28);
+		ptmp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+		ptmp->setColorBody(COL_BLUE);
+ 		ptmp->setCornerRadius(RADIUS_MID);
+ 		ptmp->setCornerType(CORNER_TOP_LEFT);
+		form->addCCItem(ptmp);
+
+		CComponentsText *t1 = new CComponentsText(28, 0, 100, 28, "Text1", CTextBox::NO_AUTO_LINEBREAK);
 		
-		if (form->isPainted())
+		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 100, 28, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
+ 		form->addCCItem(t1);
+ 		form->addCCItem(t2);
+		
+// 		form->setCaption(NONEXISTANT_LOCALE);
+//		form->setIcon(NEUTRINO_ICON_INFO);
+		
+		if (form->isPainted()) {
 			form->hide();
+			delete form;
+			form = NULL;
+		}
 		else
 			form->paint();
 		return res;
@@ -381,7 +401,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (txt == NULL)
 			txt = new CComponentsText();
 		txt->setDimensionsAll(100, 100, 250, 100);
-		txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
+ 		txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
 
 		if (txt->isPainted())
 			txt->hide();
