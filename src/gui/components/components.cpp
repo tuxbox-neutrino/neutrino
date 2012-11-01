@@ -1574,26 +1574,39 @@ void CComponentsForm::paint(bool do_save_bg)
 void CComponentsForm::paintCCItems()
 {	
 	size_t items_count = v_cc_items.size();
-	int x_tmp 	= x-fr_thickness;
-	int y_tmp 	= y-fr_thickness;
-// 	int w_tmp 	= (width-2*fr_thickness)/items_count;
-// 	int h_tmp 	= (height-2*fr_thickness)/items_count;
+	int x_tmp 	= x+fr_thickness;
+	int y_tmp 	= y+fr_thickness;
 	
+	int xx		= x+width-fr_thickness; //right form border
+	int yy		= y+height-fr_thickness; //bottom form border
+		
 	for(size_t i=0; i<items_count; i++) {
-		//cache original item position
-		int x_item = v_cc_items[i]->getXPos();
-		int y_item = v_cc_items[i]->getYPos();
-
+		//cache original item position and dimensions
+		int x_item, y_item, w_item, h_item;
+		v_cc_items[i]->getDimensions(&x_item, &y_item, &w_item, &h_item);
+		
 		//set adapted position onto form
 		v_cc_items[i]->setXPos(x_tmp+x_item);
 		v_cc_items[i]->setYPos(y_tmp+y_item);
 
+		//watch dimensions of items
+		int xx_item = v_cc_items[i]->getXPos()+w_item; //right item border
+		if (xx_item > xx){
+			v_cc_items[i]->setWidth(w_item-(xx_item-xx));
+			printf("[CComponentsForm] %s: item %d too large, definied width=%d, possible width=%d \n", __FUNCTION__, i, w_item, v_cc_items[i]->getWidth());
+		}
+		
+		int yy_item = v_cc_items[i]->getYPos()+h_item; //bottom item border
+		if (yy_item > yy){
+			v_cc_items[i]->setHeight(h_item-(yy_item-yy));
+			printf("[CComponentsForm] %s: item %d too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, v_cc_items[i]->getHeight());
+		}
+
 		//paint element without saved screen!
 		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
 
-		//restore position
-		v_cc_items[i]->setXPos(x_item);
-		v_cc_items[i]->setYPos(y_item);
+		//restore dimensions and position
+		v_cc_items[i]->setDimensionsAll(x_item, y_item, w_item, h_item);
 	}
 }
 
