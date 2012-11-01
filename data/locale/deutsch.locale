@@ -774,7 +774,7 @@ menu.hint_hdd_tools Hier können Sie die gefundenen Festplatten formatieren bzw.
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software
-menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Deep-Standby
+menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Standby-Modus
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
