@@ -346,7 +346,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "picture"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 200, "/share/tuxbox/neutrino/icons/mp3-5.jpg", CC_PIC_IMAGE_MODE_AUTO);
+			pic = new CComponentsPicture (100, 100, 200, 200, "/share/tuxbox/neutrino/icons/mp3-5.jpg");
 
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
@@ -369,6 +369,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			form = new CComponentsForm();
 		form->setColorBody(COL_LIGHT_GRAY);
 		form->setDimensionsAll(100, 100, 250, 100);
+		form->setFrameThickness(2);
+		form->setColorFrame(COL_WHITE);
 
 		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
 		ptmp->setWidth(28);
@@ -380,13 +382,16 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		form->addCCItem(ptmp);
 
 		CComponentsText *t1 = new CComponentsText(28, 0, 100, 28, "Text1", CTextBox::NO_AUTO_LINEBREAK);
+		form->addCCItem(t1);
 		
-		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 100, 28, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
- 		form->addCCItem(t1);
+		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 200, 50, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
+		t2->setCornerRadius(RADIUS_MID);
+ 		t2->setCornerType(CORNER_TOP_RIGHT);
  		form->addCCItem(t2);
-		
-// 		form->setCaption(NONEXISTANT_LOCALE);
-//		form->setIcon(NEUTRINO_ICON_INFO);
+
+		CComponentsShapeCircle *c1 = new CComponentsShapeCircle(28, 40, 28);
+		c1->setColorBody(COL_RED);
+		form->addCCItem(c1);
 		
 		if (form->isPainted()) {
 			form->hide();
