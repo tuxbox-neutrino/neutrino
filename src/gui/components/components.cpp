@@ -35,6 +35,8 @@
 
 #include <video.h>
 
+#define DEBUG_CC
+
 extern cVideo * videoDecoder;
 extern CPictureViewer * g_PicViewer;
 
@@ -849,7 +851,7 @@ void CComponentsPicture::initVarPicture()
 			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, maxWidth, maxHeight);
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG_CC
 	if (pic_width == 0 || pic_height == 0)
 		printf("CComponentsPicture: %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
 #endif
@@ -1593,13 +1595,17 @@ void CComponentsForm::paintCCItems()
 		int xx_item = v_cc_items[i]->getXPos()+w_item; //right item border
 		if (xx_item > xx){
 			v_cc_items[i]->setWidth(w_item-(xx_item-xx));
+#ifdef DEBUG_CC
 			printf("[CComponentsForm] %s: item %d too large, definied width=%d, possible width=%d \n", __FUNCTION__, i, w_item, v_cc_items[i]->getWidth());
+#endif
 		}
 		
 		int yy_item = v_cc_items[i]->getYPos()+h_item; //bottom item border
 		if (yy_item > yy){
 			v_cc_items[i]->setHeight(h_item-(yy_item-yy));
+#ifdef DEBUG_CC
 			printf("[CComponentsForm] %s: item %d too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, v_cc_items[i]->getHeight());
+#endif
 		}
 
 		//paint element without saved screen!
