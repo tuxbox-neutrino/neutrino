@@ -269,6 +269,42 @@ CComponentsText::CComponentsText()
 	initVarText();
 }
 
+CComponentsText::CComponentsText(const char* text, const int mode, Font* font_text)
+{
+	//CComponentsText
+	initVarText();
+	
+	ct_text 	= text;
+	ct_text_mode	= mode;
+	ct_font 	= font_text;
+}
+
+CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
+					const char* text, const int mode, Font* font_text,
+					bool has_shadow,
+					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	//CComponentsText
+	initVarText();
+
+	//CComponents
+	x 		= x_pos,
+	y 		= y_pos,
+	width		= w;
+	height		= h;
+	
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	shadow		= has_shadow;
+	
+	ct_font 	= font_text;
+	ct_text 	= text;
+	ct_text_mode	= mode;
+	ct_col_text	= color_text;
+}
+
+
 
 CComponentsText::~CComponentsText()
 {
@@ -444,7 +480,7 @@ void CComponentsInfoBox::paintPicture()
 {
 	//init and set icon paint position
 	if (pic == NULL)
-		pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, "");
+		pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, 0, 0, "");
 	pic->setXPos(x+fr_thickness+x_offset);
 	pic->setYPos(y+fr_thickness);
 	
@@ -730,40 +766,27 @@ void CComponentsPIP::hide(bool no_restore)
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsItem
-CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos,
-					const std::string& picture_name, const int alignment, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
-{
-	init(x_pos, y_pos, picture_name, alignment, has_shadow, color_frame, color_background, color_shadow);
-
-	maxWidth	= 0;
-	maxHeight	= 0;
-	picMode		= CC_PIC_ICON;
-
-	initVarPicture();
-}
-
 CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos, const int w_max, const int h_max,
-					const std::string& picture_name, const int alignment, bool has_shadow,
+					const std::string& image_name, const int alignment, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
-	init(x_pos, y_pos, picture_name, alignment, has_shadow, color_frame, color_background, color_shadow);
+	init(x_pos, y_pos, image_name, alignment, has_shadow, color_frame, color_background, color_shadow);
 
 	maxWidth	= w_max;
 	maxHeight	= h_max;
-	picMode		= CC_PIC_IMAGE;
+	pic_paint_mode 	= CC_PIC_IMAGE_MODE_AUTO,
 
 	initVarPicture();
 }
 
-void CComponentsPicture::init(	int x_pos, int y_pos, const string& picture_name, const int alignment, bool has_shadow,
+void CComponentsPicture::init(	int x_pos, int y_pos, const string& image_name, const int alignment, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
 	initVarItem();
 
 	//CComponentsPicture
-	pic_name 	= picture_name;
+	pic_name 	= image_name;
 	pic_align	= alignment;
 	pic_offset	= 1;
 	pic_paint	= true;
@@ -805,9 +828,22 @@ void CComponentsPicture::initVarPicture()
 	pic_painted = false;
 	do_paint = false;
 
-	if (picMode == CC_PIC_ICON)
+	//set the image mode depends of name syntax, icon names contains no path,
+	//so we can detect the required image mode
+	if (pic_paint_mode == CC_PIC_IMAGE_MODE_AUTO){
+		if (!access(pic_name.c_str(), F_OK ))
+			pic_paint_mode = CC_PIC_IMAGE_MODE_ON;
+		else
+			pic_paint_mode = CC_PIC_IMAGE_MODE_OFF;
+	}
+
+	if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF){
 		frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
-	else {
+		pic_width = max(pic_width, maxWidth);
+		pic_height = max(pic_height, maxHeight);
+	}
+	
+	if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON) {
 		g_PicViewer->getSize(pic_name.c_str(), &pic_width, &pic_height);
 		if((pic_width > maxWidth) || (pic_height > maxHeight))
 			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, maxWidth, maxHeight);
@@ -850,9 +886,9 @@ void CComponentsPicture::paint(bool do_save_bg)
 	pic_painted = false;
 
 	if (do_paint){
-		if (picMode == CC_PIC_ICON)
+		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
 			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0, pic_offset, pic_paint, pic_paintBg, col_body);
-		else
+		else if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON)
 			pic_painted = g_PicViewer->DisplayImage(pic_name, pic_x, pic_y, pic_width, pic_height);
 		do_paint = false;
 	}
@@ -1080,7 +1116,7 @@ void CComponentsItemBox::paintImage(size_t index, bool newElement)
 			pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].width,
 							v_element_data[index].height, v_element_data[index].element);
 		else
-			pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, v_element_data[index].element);
+			pic = new CComponentsPicture(	v_element_data[index].x, v_element_data[index].y, 0, 0, v_element_data[index].element);
 		v_element_data[index].handler1 = (void*)pic;
 	}
 
@@ -1448,18 +1484,53 @@ void CComponentsTitleBar::paint(bool do_save_bg)
 
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsForm from CComponentsItemBox
+//sub class CComponentsForm from CComponentsItem
 CComponentsForm::CComponentsForm()
 {
 	//CComponentsForm
 	initVarForm();
 }
 
+CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, const int h)
+{
+	//CComponentsForm
+	initVarForm();
+
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height	 	= h;
+	
+}
+
+CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow,
+				fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	//CComponentsForm
+	initVarForm();
+
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height	 	= h;
+
+	shadow		= has_shadow;
+	col_frame 	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+}
+
 CComponentsForm::~CComponentsForm()
 {
 	hide();
 	clearSavedScreen();
-	delete tb;
+	for(size_t i=0; i<v_cc_items.size(); i++) {
+		delete v_cc_items[i];
+		v_cc_items[i] = NULL;
+	}
+	v_cc_items.clear();
 	clear();
 }
 
@@ -1467,9 +1538,9 @@ void CComponentsForm::initVarForm()
 {
 	//CComponentsItem
 	initVarItem();
-
+	
 	//simple default dimensions
- 	x 		= 0;
+	x 		= 0;
 	y 		= 0;
 	width 		= 150;
 	height	 	= 150;
@@ -1480,57 +1551,50 @@ void CComponentsForm::initVarForm()
 	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
 	corner_rad	= RADIUS_LARGE;
 	corner_type 	= CORNER_ALL;
-
+	
 	//CComponentsForm
-	tb		= NULL;
-	tb_text		= "no caption";
-	tb_icon		= "";
+	v_cc_items.clear();
+	
+}
+
+void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
+{
+	v_cc_items.push_back(cc_Item);
 }
 
 void CComponentsForm::paint(bool do_save_bg)
 {
 	//paint body
 	paintInit(do_save_bg);
-
-	//paint header
-	paintHead();
+	
+	//paint items
+	paintCCItems();	
 }
 
-void CComponentsForm::paintHead()
-{
-	//init header
-	if (tb == NULL){
-		tb = new CComponentsTitleBar();
+void CComponentsForm::paintCCItems()
+{	
+	size_t items_count = v_cc_items.size();
+	int x_tmp 	= x-fr_thickness;
+	int y_tmp 	= y-fr_thickness;
+// 	int w_tmp 	= (width-2*fr_thickness)/items_count;
+// 	int h_tmp 	= (height-2*fr_thickness)/items_count;
+	
+	for(size_t i=0; i<items_count; i++) {
+		//get current item position
+		int ccx = v_cc_items[i]->getXPos();
+		int ccy = v_cc_items[i]->getYPos();
 
-		//init icon
-		if (!tb_icon.empty())
-			tb->addIcon(tb_icon, CC_ALIGN_LEFT);
+		//set adapted position onto form
+		v_cc_items[i]->setXPos(x_tmp+ccx);
+		v_cc_items[i]->setYPos(y_tmp+ccy);
 
-		//init text
-		if (!tb_text.empty())
-			tb->addText(tb_text, CC_ALIGN_LEFT);
+		//paint element without saved screen!
+		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
 
-		int tbh = tb->getHeight();
-		tb->setDimensionsAll(x, y, width, tbh);
+		//restore position
+		v_cc_items[i]->setXPos(ccx);
+		v_cc_items[i]->setYPos(ccy);
 	}
-
-	//paint titlebar
-	tb->paint(CC_SAVE_SCREEN_NO);
-}
-
-void CComponentsForm::setCaption(const string& text)
-{
-	if (tb){
-		delete tb;
-		tb = NULL;
-	}
-	tb_text = text;
-}
-
-void CComponentsForm::setCaption(neutrino_locale_t locale_text)
-{
-	string tmptxt = g_Locale->getText(locale_text);
-	setCaption(tmptxt);
 }
 
 void CComponentsForm::hide(bool no_restore)
@@ -1538,6 +1602,3 @@ void CComponentsForm::hide(bool no_restore)
 	//hide body
 	hideContainer(no_restore);
 }
-
-
-
