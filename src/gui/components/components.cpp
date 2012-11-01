@@ -1580,20 +1580,20 @@ void CComponentsForm::paintCCItems()
 // 	int h_tmp 	= (height-2*fr_thickness)/items_count;
 	
 	for(size_t i=0; i<items_count; i++) {
-		//get current item position
-		int ccx = v_cc_items[i]->getXPos();
-		int ccy = v_cc_items[i]->getYPos();
+		//cache original item position
+		int x_item = v_cc_items[i]->getXPos();
+		int y_item = v_cc_items[i]->getYPos();
 
 		//set adapted position onto form
-		v_cc_items[i]->setXPos(x_tmp+ccx);
-		v_cc_items[i]->setYPos(y_tmp+ccy);
+		v_cc_items[i]->setXPos(x_tmp+x_item);
+		v_cc_items[i]->setYPos(y_tmp+y_item);
 
 		//paint element without saved screen!
 		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
 
 		//restore position
-		v_cc_items[i]->setXPos(ccx);
-		v_cc_items[i]->setYPos(ccy);
+		v_cc_items[i]->setXPos(x_item);
+		v_cc_items[i]->setYPos(y_item);
 	}
 }
 
