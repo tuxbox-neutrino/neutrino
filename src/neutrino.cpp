@@ -188,27 +188,6 @@ extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 // USERMENU
 const char* usermenu_button_def[SNeutrinoSettings::BUTTON_MAX]={"red","green","yellow","blue"};
 
-static void initGlobals(void)
-{
-	g_fontRenderer  = NULL;
-
-	g_RCInput       = NULL;
-	g_Timerd        = NULL;
-	g_RemoteControl = NULL;
-
-	g_EpgData       = NULL;
-	g_InfoViewer    = NULL;
-	g_EventList     = NULL;
-	g_videoSettings = NULL;
-
-	g_Locale        = new CLocaleManager;
-	g_PluginList    = NULL;
-	InfoClock 	= NULL;
-	g_CamHandler 	= NULL;
-	g_Radiotext     = NULL;
-	g_volume	= NULL;
-}
-
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 +          CNeutrinoApp - Constructor, initialize g_fontRenderer                      +
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
@@ -1762,6 +1741,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 TIMER_START();
 	cs_api_init();
 	cs_register_messenger(CSSendMessage);
+
+	g_Locale        = new CLocaleManager;
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
 
@@ -3611,7 +3592,6 @@ int main(int argc, char **argv)
 		close(i);
 #endif
 	tzset();
-	initGlobals();
 
 	return CNeutrinoApp::getInstance()->run(argc, argv);
 }
