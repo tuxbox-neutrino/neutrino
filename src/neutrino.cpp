@@ -1782,8 +1782,7 @@ TIMER_START();
 	SetupFonts();
 	SetupTiming();
 	g_PicViewer = new CPictureViewer();
-	colorSetupNotifier        = new CColorSetupNotifier;
-	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+	CColorSetupNotifier::setPalette();
 
 	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 	hintBox->paint();
@@ -1855,11 +1854,8 @@ TIMER_START();
 #endif
 	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
 	//fan speed
-	if (g_info.has_fan) {
-		CFanControlNotifier * fanNotifier= new CFanControlNotifier();
-		fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-		delete fanNotifier;
-	}
+	if (g_info.has_fan)
+		CFanControlNotifier::setSpeed(g_settings.fan_speed);
 
 	dvbsub_init();
 
@@ -2990,10 +2986,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 			powerManager->SetStandby(true, true);
 			if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
-				int fspeed = 0;
-				CFanControlNotifier * fanNotifier= new CFanControlNotifier();
-				fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
-				delete fanNotifier;
+				CFanControlNotifier::setSpeed(0);
 			}
 			if (powerManager) {
 				powerManager->Close();
@@ -3025,9 +3018,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			delete g_RCInput;
 			//fan speed
 			if (g_info.has_fan) {
-				int fspeed = 0;
-				CFanControlNotifier fanNotifier;
-				fanNotifier.changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+				CFanControlNotifier::setSpeed(0);
 			}
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 			stop_video();
@@ -3224,12 +3215,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 
 		//fan speed
-		if (g_info.has_fan) {
-			int fspeed = 1;
-			CFanControlNotifier * fanNotifier= new CFanControlNotifier();
-			fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
-			delete fanNotifier;
-		}
+		if (g_info.has_fan)
+			CFanControlNotifier::setSpeed(1);
+
 		frameBuffer->setActive(false);
 		// Active standby on
 		powerManager->SetStandby(true, false);
@@ -3252,11 +3240,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 		frameBuffer->setActive(true);
 		//fan speed
-		if (g_info.has_fan) {
-			CFanControlNotifier * fanNotifier= new CFanControlNotifier();
-			fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-			delete fanNotifier;
-		}
+		if (g_info.has_fan)
+			CFanControlNotifier::setSpeed(g_settings.fan_speed);
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
 		if (my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
