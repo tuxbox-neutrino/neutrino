@@ -674,10 +674,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	if ( doLoop )
 	{
-		neutrino_msg_t      msg;
-		neutrino_msg_data_t data;
+		neutrino_msg_t      msg = 0;
+		neutrino_msg_data_t data = 0;
 
-		int scrollCount;
+		int scrollCount = 0;
 
 		bool loop = true;
 
@@ -849,14 +849,16 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			{	
 				if(!followlist.empty()){
 					hide();
-					CNeutrinoEventList     *ee;
-					ee = new CNeutrinoEventList;
-					ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT),"","",followlist); // UTF-8
+					CNeutrinoEventList *ee = new CNeutrinoEventList;
+					res = ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT),"","",followlist); // UTF-8
 					delete ee;
-
-					if (!bigFonts && g_settings.bigFonts) {
-						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
-						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
+					if (res == menu_return::RETURN_EXIT_ALL)
+						loop = false;
+					else {
+						if (!bigFonts && g_settings.bigFonts) {
+							g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
+							g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
+						}
 					}
 					bigFonts = g_settings.bigFonts;
 					show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);

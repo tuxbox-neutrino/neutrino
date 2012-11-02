@@ -973,16 +973,11 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int           res = menu_return::RETURN_EXIT_ALL;
-	CNeutrinoEventList     *e;
-	CChannelList  *channelList;
-
-
 	if (parent) {
 		parent->hide();
 	}
-	e = new CNeutrinoEventList;
-
-	channelList = CNeutrinoApp::getInstance()->channelList;
+	CNeutrinoEventList *e = new CNeutrinoEventList;
+	CChannelList  *channelList = CNeutrinoApp::getInstance()->channelList;
 	e->exec(CZapit::getInstance()->GetCurrentChannelID(), channelList->getActiveChannelName()); // UTF-8
 	delete e;
 
