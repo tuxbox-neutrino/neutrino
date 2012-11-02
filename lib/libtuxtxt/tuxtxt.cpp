@@ -1648,11 +1648,14 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 	printf("TuxTxt %s\n", versioninfo);
 	printf("for 32bpp framebuffer\n");
 
+	fb = -1;
+#ifdef USE_FBPAN
         if ((fb=open("/dev/fb/0", O_RDWR)) == -1)
         {
                 perror("TuxTxt <open /dev/fb/0>");
                 return 0;
         }
+#endif
 
 	rc = _rc;
 	CFrameBuffer *fbp = CFrameBuffer::getInstance();
@@ -1668,7 +1671,7 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 
 	fcntl(rc, F_SETFL, fcntl(rc, F_GETFL) | O_EXCL | O_NONBLOCK);
 
-#ifndef HAVE_SPARK_HARDWARE
+#if 0 /* just get it from the framebuffer class */
 	/* get fixed screeninfo */
 	if (ioctl(fb, FBIOGET_FSCREENINFO, &fix_screeninfo) == -1)
 	{
@@ -1868,7 +1871,8 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 	/* exit */
 	CleanUp();
 
-	close(fb);
+	if (fb >= 0)
+		close(fb);
 
 #if 1
 	if ( initialized )
