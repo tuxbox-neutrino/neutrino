@@ -1621,13 +1621,10 @@ void CNeutrinoApp::InitZapper()
 	channelsInit();
 
 	if(tvmode)
-	{
 		tvMode(true);
-	} else {
-		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
-		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_RADIO_MODE, false );
+	else
 		radioMode(true);
-	}
+
 	if(g_settings.cacheTXT)
 		tuxtxt_init();
 
@@ -3071,18 +3068,17 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 void CNeutrinoApp::tvMode( bool rezap )
 {
 	INFO("rezap %d current mode %d", rezap, mode);
-	if(mode==mode_radio ) {
+	if (mode == mode_radio) {
 		if (g_settings.radiotext_enable && g_Radiotext) {
 			delete g_Radiotext;
 			g_Radiotext = NULL;
 		}
 		
 		videoDecoder->StopPicture();
-		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
-		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_TV_MODE, false );
 		CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, false);
 		StartSubtitles(!rezap);
 	}
+	g_InfoViewer->setUpdateTimer(LCD_UPDATE_TIME_TV_MODE);
 
 	g_volume->Init();
 
@@ -3160,6 +3156,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
 		}
+		g_InfoViewer->setUpdateTimer(0); // delete timer
 		StopSubtitles();
 		if(SDTreloadChannels && !CRecordManager::getInstance()->RecordingStatus()){
 			SDT_ReloadChannels();
@@ -3298,12 +3295,11 @@ void CNeutrinoApp::radioMode( bool rezap)
 {
 	//printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 	INFO("rezap %d current mode %d", rezap, mode);
-	if(mode==mode_tv ) {
-		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
-		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_RADIO_MODE, false );
+	if (mode == mode_tv) {
 		CVFD::getInstance()->ShowIcon(VFD_ICON_TV, false);
 		StopSubtitles();
 	}
+	g_InfoViewer->setUpdateTimer(LCD_UPDATE_TIME_RADIO_MODE);
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, true);
 
