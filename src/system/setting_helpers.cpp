@@ -189,10 +189,12 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
 
 	frameBuffer->paletteSet();
+#if 0
 	/* recalculate volumebar */
 	CVolume::getInstance()->Init();
 	/* recalculate infoclock */
 	CInfoClock::getInstance()->Init();
+#endif
 	return false;
 }
 
