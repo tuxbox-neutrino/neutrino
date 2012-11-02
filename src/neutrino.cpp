@@ -3766,7 +3766,6 @@ void CNeutrinoApp::Cleanup()
 	delete g_Radiotext; g_Radiotext = NULL;
 
 	printf("cleanup 13\n");fflush(stdout);
-	delete colorSetupNotifier; colorSetupNotifier = NULL;
 	delete audioSetupNotifier; audioSetupNotifier = NULL;
 	delete MoviePluginChanger; MoviePluginChanger = NULL;
 	printf("cleanup 14\n");fflush(stdout);
