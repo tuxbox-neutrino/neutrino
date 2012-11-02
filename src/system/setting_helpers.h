@@ -88,6 +88,7 @@ class CColorSetupNotifier : public CChangeObserver
 {
 	public:
 		bool changeNotify(const neutrino_locale_t, void *);
+		static void setPalette();
 };
 
 class CAudioSetupNotifier : public CChangeObserver
