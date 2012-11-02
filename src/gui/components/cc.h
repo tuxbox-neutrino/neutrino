@@ -428,7 +428,6 @@ class CComponentsForm : public CComponentsItem
 	protected:
 		std::vector<CComponentsItem*>	v_cc_items;	
 		void paintCCItems();		
-	private:
 		void initVarForm();
 	public:
 		
@@ -438,9 +437,9 @@ class CComponentsForm : public CComponentsItem
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsForm();
 
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void hide(bool no_restore = false);
-		void addCCItem(CComponentsItem* cc_Item);
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		virtual void hide(bool no_restore = false);
+		virtual void addCCItem(CComponentsItem* cc_Item);
 };
 
 #endif
