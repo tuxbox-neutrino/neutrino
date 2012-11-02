@@ -494,24 +494,26 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	return ret;
 }
 
-bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
+void CFanControlNotifier::setSpeed(unsigned int speed)
 {
-	int cfd, ret;
-	//unsigned char speed = (unsigned char) g_settings.fan_speed;
-	unsigned int speed = * (int *) data;
+	int cfd;
 
 	printf("FAN Speed %d\n", speed);
 	cfd = open("/dev/cs_control", O_RDONLY);
 	if(cfd < 0) {
 		perror("Cannot open /dev/cs_control");
-		return false;
+		return;
 	}
-	ret = ioctl(cfd, IOC_CONTROL_PWM_SPEED, speed);
-	close(cfd);
-	if(ret < 0) {
+	if (ioctl(cfd, IOC_CONTROL_PWM_SPEED, speed) < 0)
 		perror("IOC_CONTROL_PWM_SPEED");
-		return false;
-	}
+
+	close(cfd);
+}
+
+bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
+{
+	unsigned int speed = * (int *) data;
+	setSpeed(speed);
 	return false;
 }
 
