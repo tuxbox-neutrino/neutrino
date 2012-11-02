@@ -193,10 +193,6 @@ void CInfoViewer::start ()
 	time_left_width = 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getWidth(); /* still a kludge */
 	time_dot_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
 	time_width = time_left_width* 2+ time_dot_width;
-
-	const int lcd_update_time_tv_mode = (60 * 1000 * 1000);
-	if (lcdUpdateTimer == 0)
-		lcdUpdateTimer = g_RCInput->addTimer (lcd_update_time_tv_mode, false, true);
 }
 
 void CInfoViewer::changePB()
@@ -1891,6 +1887,13 @@ void CInfoViewer::showEpgInfo()   //message on event change
 			showLcdPercentOver();
 #endif
 	}
+}
+
+void CInfoViewer::setUpdateTimer(uint64_t interval)
+{
+	g_RCInput->killTimer(lcdUpdateTimer);
+	if (interval)
+		lcdUpdateTimer = g_RCInput->addTimer(interval, false);
 }
 
 #if 0
