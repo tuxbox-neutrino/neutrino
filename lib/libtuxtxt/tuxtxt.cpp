@@ -21,6 +21,7 @@
 #include <dmx.h>
 #include <video.h>
 #include <sys/stat.h>
+#include <global.h>
 
 /* same as in rcinput.h... */
 #define KEY_TTTV	KEY_FN_1
@@ -1836,7 +1837,7 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 			case RC_7:
 			case RC_8:
 			case RC_9:
-				PageInput(RCCode - RC_0);
+				PageInput(CRCInput::getNumericValue(RCCode));
 				break;
 			case RC_RED:	 ColorKey(prev_100);		break;
 			case RC_GREEN:	 ColorKey(prev_10);		break;
@@ -1850,6 +1851,7 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 					RCCode = RC_HOME;
 				SwitchTranspMode();
 				break;
+			case RC_INFO:
 			case RC_HELP:	 SwitchHintMode();		break;
 			case RC_DBOX:	 ConfigMenu(0);			break;
 			case RC_HOME:
@@ -2891,15 +2893,14 @@ void ConfigMenu(int Init)
 	do {
 		if (GetRCCode() == 1)
 		{
+			int rc_num = -1;
 
-			if (
-#if (RC_1 > 0)
-				RCCode >= RC_1 && /* generates a warning... */
-#endif
-				RCCode <= RC_1+M_MaxDirect) /* direct access */
+			if (CRCInput::isNumeric(RCCode))
+				rc_num = CRCInput::getNumericValue(RCCode) -1; /* valid: 1 to M_MaxDirect */
+			if (rc_num >= 0 && rc_num <= M_MaxDirect) /* direct access */
 			{
 				Menu_HighlightLine(menu, MenuLine[menuitem], 0);
-				menuitem = RCCode-RC_1;
+				menuitem = rc_num;
 				Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 
 				if (menuitem != M_PID) /* just select */
@@ -6434,6 +6435,21 @@ void DecodePage()
 /******************************************************************************
  * GetRCCode                                                                  *
  ******************************************************************************/
+int GetRCCode()
+{
+	neutrino_msg_t msg;
+	neutrino_msg_data_t data;
+	g_RCInput->getMsg_ms(&msg, &data, 40);
+	RCCode = -1;
+
+	if (msg <= CRCInput::RC_MaxRC) {
+		RCCode = msg;
+		return 1;
+	}
+	return 0;
+}
+
+#if 0
 #if 1
 int GetRCCode()
 {
@@ -6571,6 +6587,7 @@ int GetRCCode()
 	}
 	return 1;
 }
+#endif
 #endif
 /* Local Variables: */
 /* indent-tabs-mode:t */
