@@ -252,7 +252,6 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF);
 		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
 		ms_general->addItem(mn);
-		fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
 	}
 
 	//rotor
