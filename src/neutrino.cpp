@@ -1243,16 +1243,6 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				}
 			}
 			printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
-#if 0
-			if(tvi)
-				tmp1->channelList->SortAlpha();
-			else
-				TVsatList->deleteBouquet(tmp1);
-			if(ri)
-				tmp2->channelList->SortAlpha();
-			else
-				RADIOsatList->deleteBouquet(tmp2);
-#endif
 			if(!tvi)
 				TVsatList->deleteBouquet(tmp1);
 			if(!ri)
@@ -1656,11 +1646,6 @@ void CNeutrinoApp::InitZapitClient()
 		CZapitClient::EVT_ZAP_SUB_COMPLETE,
 		CZapitClient::EVT_ZAP_SUB_FAILED,
 		CZapitClient::EVT_ZAP_MOTOR,
-#if 0
-		CZapitClient::EVT_ZAP_CA_CLEAR,
-		CZapitClient::EVT_ZAP_CA_LOCK,
-		CZapitClient::EVT_ZAP_CA_FTA,
-#endif
 		CZapitClient::EVT_ZAP_CA_ID,
 		CZapitClient::EVT_RECORDMODE_ACTIVATED,
 		CZapitClient::EVT_RECORDMODE_DEACTIVATED,
@@ -1676,9 +1661,6 @@ void CNeutrinoApp::InitZapitClient()
 		CZapitClient::EVT_BOUQUETS_CHANGED,
 		CZapitClient::EVT_SERVICES_CHANGED,
 		CZapitClient::EVT_SCAN_SERVICENAME,
-#if 0
-		CZapitClient::EVT_SCAN_FOUND_A_CHAN,
-#endif
 		CZapitClient::EVT_SCAN_FOUND_TV_CHAN,
 		CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN,
 		CZapitClient::EVT_SCAN_FOUND_DATA_CHAN,
@@ -1860,9 +1842,6 @@ TIMER_START();
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new CNeutrinoEventList;
 
-	int dx, dy;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &dx, &dy);
-
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
@@ -1941,14 +1920,8 @@ void CNeutrinoApp::quickZap(int msg)
 	int res;
 
 	StopSubtitles();
-#if 0
-	CRecordManager::getInstance()->StopAutoRecord();
-	if(CRecordManager::getInstance()->RecordingStatus())
-#else
-	//if(recordingstatus && !autoshift)
 	printf("CNeutrinoApp::quickZap haveFreeFrontend %d\n", CFEManager::getInstance()->haveFreeFrontend());
 	if(!CFEManager::getInstance()->haveFreeFrontend())
-#endif
 	{
 		res = channelList->numericZap(g_settings.key_zaphistory);
 		StartSubtitles(res < 0);
@@ -2231,13 +2204,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(g_settings.audio_AnalogMode < 0 || g_settings.audio_AnalogMode > 2)
 			g_settings.audio_AnalogMode = 0;
 
-#if 0 // per-channel auto volume save/restore
-		unsigned int volume;
-		g_Zapit->getVolume(&volume, &volume);
-		current_volume = 100 - volume*100/63;
-		printf("zapit volume %d new current %d mode %d\n", volume, current_volume, g_settings.audio_AnalogMode);
-		g_volume->setvol(current_volume);
-#endif
 		g_RCInput->killTimer(scrambled_timer);
 
 		scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);
@@ -2513,12 +2479,7 @@ _repeat:
 	}
 #endif
 	else if( msg == NeutrinoMessages::EVT_MUTECHANGED ) {
-#if 0
-		CControldMsg::commandMute* cmd = (CControldMsg::commandMute*) data;
-		if(cmd->type == (CControld::volume_type)g_settings.audio_avs_Control)
-			g_volume->AudioMute(cmd->mute, true );
-		delete[] (unsigned char*) data;
-#endif
+		//FIXME unused ?
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::EVT_SERVICESCHANGED ) {
@@ -2581,11 +2542,8 @@ _repeat:
 		CTimerd::RecordingStopInfo* recinfo = (CTimerd::RecordingStopInfo*)data;
 		printf("NeutrinoMessages::RECORD_STOP: eventID %d channel_id %llx\n", recinfo->eventID, recinfo->channel_id);
 		CRecordManager::getInstance()->Stop(recinfo);
-#if 0 // done when EVT_RECORDMODE received ?
-		if((mode == mode_standby) && !CRecordManager::getInstance()->RecordingStatus())
-			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
-#endif
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
@@ -2593,12 +2551,6 @@ _repeat:
 		res = messages_return::handled;
 		t_channel_id channel_id = *(t_channel_id*) data;
 		CRecordManager::getInstance()->Update(channel_id);
-#if 0 //TODO ?
-		/* if new vpid */
-		if(CMoviePlayerGui::getInstance().timeshift)
-			res |= messages_return::cancel_all;
-	}
-#endif
 		return res;
 	}
 
@@ -2957,41 +2909,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 					}
 				}
 			}
-#if 0
-			neutrino_msg_t      msg;
-			neutrino_msg_data_t data;
-
-			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
-			powerManager->SetStandby(true, true);
-			if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
-				CFanControlNotifier::setSpeed(0);
-			}
-			if (powerManager) {
-				powerManager->Close();
-				delete powerManager;
-			}
-
-			delete &CMoviePlayerGui::getInstance();
-			shutdown_cs_api();
-
-			my_system("/etc/init.d/rcK");
-			CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
-			InfoClock->StopClock();
-
-			g_RCInput->clearRCMsg();
-			while( true ) {
-				g_RCInput->getMsg(&msg, &data, 10000);
-				if( msg == CRCInput::RC_standby ) {
-					printf("Power key, going to reboot...\n");
-					sleep(2);
-					reboot(LINUX_REBOOT_CMD_RESTART);
-				} else if( ( msg == NeutrinoMessages::ANNOUNCE_RECORD) || ( msg == NeutrinoMessages::ANNOUNCE_ZAPTO) ) {
-					printf("Zap/record timer, going to reboot...\n");
-					sleep(2);
-					reboot(LINUX_REBOOT_CMD_RESTART);
-				}
-			}
-#endif
 		} else {
 			delete g_RCInput;
 			//fan speed
@@ -3259,15 +3176,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			InfoClock->StartClock();
 
 		g_volume->AudioMute(current_muted, true);
-#if 0
-		/* auto-record will be started when zap is complete
-		 * FIXME is it needed to restart manual timeshift here ? */
-		if((mode == mode_tv) && wasshift) {
-			//startAutoRecord();
-			CRecordManager::getInstance()->StartAutoRecord();
-		}
-		wasshift = false;
-#endif
 		StartSubtitles();
 	}
 }
@@ -3471,12 +3379,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		MoviePluginSelector.exec(NULL, "");
 		return menu_return::RETURN_REPAINT;
 	}
-#if 0 // commented in menu, needed ?
-	else if(actionKey == "autolink") {
-		CRecordManager::getInstance()->LinkTimeshift();
-		returnval = menu_return::RETURN_EXIT_ALL;
-	}
-#endif
 	else if(actionKey == "clearSectionsd")
 	{
 		g_Sectionsd->freeMemory();
@@ -3587,10 +3489,7 @@ int main(int argc, char **argv)
 	signal(SIGHUP, SIG_IGN);	//        process are unspecified (signal(2))
 	/* don't die in streamts.cpp from a SIGPIPE if client disconnects */
 	signal(SIGPIPE, SIG_IGN);
-#if 0
-	for(int i = 3; i < 256; i++)
-		close(i);
-#endif
+
 	tzset();
 
 	return CNeutrinoApp::getInstance()->run(argc, argv);
@@ -3747,10 +3646,6 @@ void CNeutrinoApp::StartSubtitles(bool show)
 
 void CNeutrinoApp::SelectSubtitles()
 {
-#if 0
-	int curnum = channelList->getActiveChannelNumber();
-	CZapitChannel * cc = channelList->getChannel(curnum);
-#endif
 	/* called on NeutrinoMessages::EVT_ZAP_COMPLETE, should be safe to use zapit current channel */
 	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
 
