@@ -547,7 +547,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 					std::string filename = e->d_name;
 					if ((filename.find("_temp.ts") == filename.size() - 8) || (filename.find("_temp.xml") == filename.size() - 9))
 					{
-						remove(filename.c_str());
+						std::string timeshiftDir_filename= timeshiftDir;
+						timeshiftDir_filename+= "/" + filename;
+						remove(timeshiftDir_filename.c_str());
 					}
 				}
 				closedir(d);
