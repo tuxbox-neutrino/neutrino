@@ -165,7 +165,7 @@ int push(int ev, unsigned int code, unsigned int value)
 		errmsg = "write() event";
 		goto error;
 	}
- out:
+
 	close(fd);
 	return 0;
 
