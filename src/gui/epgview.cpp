@@ -152,7 +152,7 @@ void CEpgData::start()
 	toph = topboxheight;
 }
 
-void CEpgData::addTextToArray(const std::string & text, bool screening) // UTF-8
+void CEpgData::addTextToArray(const std::string & text, int screening) // UTF-8
 {
 	//printf("line: >%s<\n", text.c_str() );
 	if (text==" ")
@@ -170,7 +170,7 @@ void CEpgData::addTextToArray(const std::string & text, bool screening) // UTF-8
 	}
 }
 
-void CEpgData::processTextToArray(std::string text, bool screening) // UTF-8
+void CEpgData::processTextToArray(std::string text, int screening) // UTF-8
 {
 	std::string	aktLine = "";
 	std::string	aktWord = "";
@@ -249,7 +249,6 @@ void CEpgData::showText( int startPos, int ypos )
 		if(epgText[i].second){
 			std::string::size_type pos1 = epgText[i].first.find_first_not_of(tok, 0);
 			std::string::size_type pos2 = epgText[i].first.find_first_of(tok, pos1);
- 
 			while( pos2 != string::npos || pos1 != string::npos ){
 				switch(count){
 					case 1:
@@ -262,7 +261,7 @@ void CEpgData::showText( int startPos, int ypos )
 					offset += digi;
 					break;
 				}
-				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10+offset, y+medlineheight, ox- 15- 15, epgText[i].first.substr(pos1, pos2 - pos1), COL_MENUCONTENT, 0, true); // UTF-8
+				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10+offset, y+medlineheight, ox- 15- 15, epgText[i].first.substr(pos1, pos2 - pos1), (epgText[i].second==2)? COL_MENUCONTENTINACTIVE: COL_MENUCONTENT, 0, true); // UTF-8
 				count++;
 				pos1 = epgText[i].first.find_first_not_of(tok, pos2);
 				pos2 = epgText[i].first.find_first_of(tok, pos1);
@@ -270,8 +269,9 @@ void CEpgData::showText( int startPos, int ypos )
 			offset = 0;
 			count = 0;
 		}
-		else
+		else{
 			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10, y+medlineheight, ox- 15- 15, epgText[i].first, COL_MENUCONTENT, 0, true); // UTF-8
+		}
 	}
 
 	int sbc = ((textSize - 1)/ medlinecount) + 1;
@@ -1030,7 +1030,7 @@ bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std:
 	followlist.clear();
 	for (e = evtlist.begin(); e != evtlist.end(); ++e)
 	{
-		if (e->startTime <= tmp_curent_zeit)
+		if (e->startTime == tmp_curent_zeit)
 			continue;
 		if (! e->eventID)
 			continue;
@@ -1047,6 +1047,7 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 	struct  tm		*tmStartZeit;
 	std::string		screening_dates,screening_nodual;
 	int			count = 0;
+	int 			flag = 1;
 	char			tmpstr[256]={0};
 
 	screening_dates = screening_nodual = "";
@@ -1066,9 +1067,14 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 
 		strftime(tmpstr, sizeof(tmpstr), ". %H:%M", tmStartZeit );
 		screening_dates += tmpstr;
+		if (e->startTime <= tmp_curent_zeit)
+			flag = 2;
+		else
+			flag = 1;
+
 		if (screening_dates != screening_nodual) {
 			screening_nodual=screening_dates;
-			processTextToArray(screening_dates, true ); // UTF-8
+			processTextToArray(screening_dates, flag ); // UTF-8
 		}
 	}
 	return count;

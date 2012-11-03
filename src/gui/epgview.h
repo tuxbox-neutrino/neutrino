@@ -73,7 +73,7 @@ class CEpgData
 		int			ox, oy, sx, sy, toph, sb;
 		int			emptyLineCount, info1_lines;
 		int         		textCount;
-		typedef std::pair<std::string,bool> epg_pair;
+		typedef std::pair<std::string,int> epg_pair;
 		std::vector<epg_pair> epgText;
 		int			topheight,topboxheight;
 		int			buttonheight,botboxheight;
@@ -81,8 +81,8 @@ class CEpgData
 
 		void GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear = true );
 		void GetPrevNextEPGData( uint64_t id, time_t* startzeit );
-		void addTextToArray( const std::string & text, bool screening );
-		void processTextToArray(std::string text, bool screening = false);
+		void addTextToArray( const std::string & text, int screening );
+		void processTextToArray(std::string text, int screening = 0);
 		void showText( int startPos, int ypos );
 		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
 		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
