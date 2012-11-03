@@ -7,6 +7,8 @@
  *             rasc       <rasc@berlios.de>,
  *             thegoodguy <thegoodguy@berlios.de>
  *
+ * (C) 2009, 2011-2012 Stefan Seyfried
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -386,7 +388,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				newBouquet->sortBouquet();
 			search = search->xmlNextNode;
 		}
-		INFO("total: %d bouquets", Bouquets.size());
+		INFO("total: %d bouquets", (int)Bouquets.size());
 	}
 	xmlFreeDoc(parser);
 }

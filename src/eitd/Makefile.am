@@ -21,7 +21,7 @@ endif
 endif
 
 #AM_CPPFLAGS =
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 noinst_LIBRARIES = libsectionsd.a
 libsectionsd_a_SOURCES = \

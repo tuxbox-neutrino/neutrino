@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2011-2012 Stefan Seyfried
+
    $Id: timermanager.cpp,v 1.86 2006/03/04 09:51:47 zwen Exp $
 
 	License: GPL
@@ -419,7 +421,7 @@ void CTimerManager::loadEventsFromConfig()
 	{
 		std::vector<int> savedIDs;
 		savedIDs = config.getInt32Vector ("IDS");
-		dprintf("%d timer(s) in config\n",savedIDs.size());
+		dprintf("%d timer(s) in config\n", (int)savedIDs.size());
 		for(unsigned int i=0; i < savedIDs.size(); i++)
 		{
 			std::stringstream ostr;
@@ -640,7 +642,7 @@ void CTimerManager::saveEventsToConfig()
 	// Sperren !!!
 	CConfigFile config(',');
 	config.clear();
-	dprintf("save %d events to config ...\n", events.size());
+	dprintf("save %d events to config ...\n", (int)events.size());
 	CTimerEventMap::iterator pos = events.begin();
 	for(;pos != events.end();++pos)
 	{
@@ -950,7 +952,7 @@ void CTimerEvent::printEvent(void)
 		case CTimerd::TIMER_ZAPTO :
 			dprintf(" Zapto: "
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				" epg: %s (%llx)\n",
+				" epg: %s (%" PRIx64 ")\n",
 				static_cast<CTimerEvent_Zapto*>(this)->eventInfo.channel_id,
 				static_cast<CTimerEvent_Zapto*>(this)->epgTitle.c_str(),
 				static_cast<CTimerEvent_Zapto*>(this)->eventInfo.epgID);
@@ -959,7 +961,7 @@ void CTimerEvent::printEvent(void)
 		case CTimerd::TIMER_RECORD :
 			dprintf(" Record: "
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				" epg: %s(%llx) apids: 0x%X\n dir: %s\n",
+				" epg: %s(%" PRIx64 ") apids: 0x%X\n dir: %s\n",
 					  static_cast<CTimerEvent_Record*>(this)->eventInfo.channel_id,
 					  static_cast<CTimerEvent_Record*>(this)->epgTitle.c_str(),
 					  static_cast<CTimerEvent_Record*>(this)->eventInfo.epgID,

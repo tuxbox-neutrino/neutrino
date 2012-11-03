@@ -3,7 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2011 Stefan Seyfried
+	Copyright (C) 2011-2012 Stefan Seyfried
 
 	License: GPLv2
 
@@ -220,7 +220,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
 	hintBox.paint();
 
-	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
+	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
 	SaveXml();
 	/* Stop do close fd - if started */
 	record->Stop();
@@ -255,7 +255,7 @@ bool CRecordInstance::Update()
 
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 	if(channel == NULL) {
-		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+		printf("%s: channel %" PRIx64 " not found!\n", __func__, channel_id);
 		return false;
 	}
 
@@ -383,10 +383,10 @@ record_error_msg_t CRecordInstance::Record()
 {
 	APIDList apid_list;
 
-	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
+	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 	if(channel == NULL) {
-		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+		printf("%s: channel %" PRIx64 " not found!\n", __func__, channel_id);
 		return RECORD_INVALID_CHANNEL;
 	}
 
@@ -414,7 +414,7 @@ record_error_msg_t CRecordInstance::Record()
 			}
 		}
 		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epgid, epg_time, apidmode);
-		printf("%s: channel %llx -> timer eventID %d\n", __FUNCTION__, channel_id, recording_id);
+		printf("%s: channel %" PRIx64 " -> timer eventID %d\n", __func__, channel_id, recording_id);
 	}
 	return ret;
 }
@@ -646,7 +646,7 @@ void CRecordInstance::GetRecordString(std::string &str)
 {
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 	if(channel == NULL) {
-		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+		printf("%s: channel %" PRIx64 " not found!\n", __func__, channel_id);
 		str = "Unknown channel : " + GetEpgTitle();
 		return;
 	}
@@ -838,7 +838,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	 * neutrino check if this channel_id already recording, may be not needed */
 	bool direct_record = timeshift || strlen(eventinfo->recordingDir) == 0;
 
-	printf("%s channel_id %llx epg: %llx, apidmode 0x%X\n", __FUNCTION__,
+	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
 #if 0
@@ -896,7 +896,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			}
 		} else if(!direct_record) {
 			CTimerd::RecordingInfo * evt = new CTimerd::RecordingInfo(*eventinfo);
-			printf("%s add %llx : %s to pending\n", __FUNCTION__, evt->channel_id, evt->epgTitle);
+			printf("%s add %" PRIx64 " : %s to pending\n", __func__, evt->channel_id, evt->epgTitle);
 			nextmap.push_back((CTimerd::RecordingInfo *)evt);
 		}
 	} else
@@ -977,7 +977,7 @@ bool CRecordManager::CheckRecording(const CTimerd::RecordingInfo * const eventin
 void CRecordManager::StartNextRecording()
 {
 	CTimerd::RecordingInfo * eventinfo = NULL;
-	printf("%s: pending count %d\n", __FUNCTION__, nextmap.size());
+	printf("%s: pending count %d\n", __func__, (int)nextmap.size());
 
 	for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 		eventinfo = *it;
@@ -1078,7 +1078,7 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 
 bool CRecordManager::Stop(const t_channel_id channel_id)
 {
-	printf("%s: %llx\n", __FUNCTION__, channel_id);
+	printf("%s: %" PRIx64 "\n", __func__, channel_id);
 
 	mutex.lock();
 
@@ -1087,7 +1087,7 @@ bool CRecordManager::Stop(const t_channel_id channel_id)
 	if(inst != NULL)
 		StopInstance(inst);
 	else
-		printf("%s: channel %llx not recording\n", __FUNCTION__, channel_id);
+		printf("%s: channel %" PRIx64 " not recording\n", __func__, channel_id);
 
 	mutex.unlock();
 
@@ -1104,7 +1104,7 @@ bool CRecordManager::IsRecording(const CTimerd::RecordingStopInfo * recinfo)
 	if(inst != NULL && recinfo->eventID == inst->GetRecordingId())
 		ret = true;
 	mutex.unlock();
-	printf("[%s] eventID: %d, channel_id: 0x%llx, ret: %d\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id, ret);
+	printf("[%s] eventID: %d, channel_id: 0x%" PRIx64 ", ret: %d\n", __func__, recinfo->eventID, recinfo->channel_id, ret);
 	return ret;
 }
 
@@ -1112,7 +1112,7 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 {
 	bool ret = false;
 
-	printf("%s: eventID %d channel_id %llx\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id);
+	printf("%s: eventID %d channel_id %" PRIx64 "\n", __func__, recinfo->eventID, recinfo->channel_id);
 
 	mutex.lock();
 
@@ -1123,7 +1123,7 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 	} else {
 		for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 			if((*it)->eventID == recinfo->eventID) {
-				printf("%s: removing pending eventID %d channel_id %llx\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id);
+				printf("%s: removing pending eventID %d channel_id %" PRIx64 "\n", __func__, recinfo->eventID, recinfo->channel_id);
 				/* Note: CTimerd::RecordingInfo is a class! => typecast to avoid destructor call */
 				delete[] (unsigned char *) (*it);
 				nextmap.erase(it);
@@ -1133,7 +1133,7 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 		}
 	}
 	if(!ret)
-		printf("%s: eventID %d channel_id %llx : not found\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id);
+		printf("%s: eventID %d channel_id %" PRIx64 " : not found\n", __func__, recinfo->eventID, recinfo->channel_id);
 
 	mutex.unlock();
 
@@ -1159,7 +1159,7 @@ bool CRecordManager::Update(const t_channel_id channel_id)
 	if(inst != NULL)
 		inst->Update();
 	else
-		printf("%s: channel %llx not recording\n", __FUNCTION__, channel_id);
+		printf("%s: channel %" PRIx64 " not recording\n", __func__, channel_id);
 
 	mutex.unlock();
 	return (inst != NULL);
@@ -1323,7 +1323,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 				snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records-i, records);
 				inst->SetStopMessage(rec_msg);
 
-				printf("CRecordManager::exec(ExitAll line %d) found channel %llx recording_id %d\n", __LINE__, channel_id, inst->GetRecordingId());
+				printf("CRecordManager::exec(ExitAll line %d) found channel %" PRIx64 " recording_id %d\n", __LINE__, channel_id, inst->GetRecordingId());
 				g_Timerd->stopTimerEvent(inst->GetRecordingId());
 				i++;
 			}
@@ -1461,7 +1461,7 @@ bool CRecordManager::ShowMenu(void)
 		mutex.lock();
 		CRecordInstance * inst = FindInstanceID(recording_ids[select]);
 		if(inst == NULL || recording_ids[select] != inst->GetRecordingId()) {
-			printf("%s: channel %llx event id %d not found\n", __FUNCTION__, channel_ids[select], recording_ids[select]);
+			printf("%s: channel %" PRIx64 " event id %d not found\n", __func__, channel_ids[select], recording_ids[select]);
 			mutex.unlock();
 			return false;
 		}
@@ -1558,7 +1558,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
 		NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
 
-	printf("%s channel_id %llx mode %d\n", __FUNCTION__, channel_id, mode);
+	printf("%s channel_id %" PRIx64 " mode %d\n", __func__, channel_id, mode);
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
 	if(last_mode == NeutrinoMessages::mode_standby && recmap.empty()) {
@@ -1591,7 +1591,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, channel_id);
 		if(found) {
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
-			printf("%s found same tp, zapTo_record channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
+			printf("%s found same tp, zapTo_record channel_id %" PRIx64 " result %d\n", __func__, channel_id, ret);
 		}
 		else {
 			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
@@ -1602,7 +1602,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 			}
 
 			ret = g_Zapit->zapTo_serviceID(channel_id) > 0;
-			printf("%s zapTo_serviceID channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
+			printf("%s zapTo_serviceID channel_id %" PRIx64 " result %d\n", __func__, channel_id, ret);
 		}
 		if (unlock)
 			CFEManager::getInstance()->unlockFrontend(live_fe);
@@ -1626,7 +1626,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	} else if(!ret && mode_changed /*mode != last_mode*/)
 		CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , last_mode);
 
-	printf("%s channel_id %llx mode %d : result %s\n", __FUNCTION__, channel_id, mode, ret ? "OK" : "BAD");
+	printf("%s channel_id %" PRIx64 " mode %d : result %s\n", __func__, channel_id, mode, ret ? "OK" : "BAD");
 	return ret;
 }
 

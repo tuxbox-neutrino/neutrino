@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 #AM_CPPFLAGS = -fno-rtti
 BUILT_SOURCES  = git_version.h
 git_version.h: makeversion

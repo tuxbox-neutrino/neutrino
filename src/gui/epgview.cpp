@@ -2,15 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2007-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -597,7 +589,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	/* neat for debugging duplicate event issues etc. */
 	char *epgid;
-	if (asprintf(&epgid, "EPG ID:%04llX.%02X", (epgData.eventID)&0x0FFFF, epgData.table_id) >= 0)
+	if (asprintf(&epgid, "EPG ID:%04X.%02X", (int)((epgData.eventID)&0x0FFFF), epgData.table_id) >= 0)
 	{
 		processTextToArray(""); // UTF-8
 		processTextToArray(epgid);

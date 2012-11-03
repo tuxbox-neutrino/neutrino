@@ -634,7 +634,7 @@ int CScanSetup::showScanMenuLnbSetup()
 	sat_setup->addIntroItems();
 
 	satellite_map_t & satmap = fe->getSatellites();
-	INFO("satmap size = %d", satmap.size());
+	INFO("satmap size = %d", (int)satmap.size());
 
 	CMenuWidget *tmp[satmap.size()];
 	for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); ++sit)

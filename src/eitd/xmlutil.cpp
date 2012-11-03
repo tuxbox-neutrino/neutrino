@@ -1,6 +1,6 @@
 /*
  * (C) 2001 by fnbrd,
- * Copyright (C) 2008, 2009 Stefan Seyfried
+ * Copyright (C) 2008-2009, 2012 Stefan Seyfried
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
  *
@@ -149,7 +149,7 @@ static void addBlacklist(t_original_network_id onid, t_transport_stream_id tsid,
 				);
 	if (!checkBlacklist(channel_id))
 	{
-		xprintf("Add Channel Blacklist for channel 0x%012llx, mask 0x%012llx\n", channel_id, mask);
+		xprintf("Add Channel Blacklist for channel 0x%012" PRIx64 ", mask 0x%012" PRIx64 "\n", channel_id, mask);
 		ChannelBlacklist *node = new ChannelBlacklist;
 		node->chan = channel_id;
 		node->mask = mask;
@@ -168,7 +168,7 @@ static void addNoDVBTimelist(t_original_network_id onid, t_transport_stream_id t
 				);
 	if (!checkNoDVBTimelist(channel_id))
 	{
-		xprintf("Add channel 0x%012llx, mask 0x%012llx to NoDVBTimelist\n", channel_id, mask);
+		xprintf("Add channel 0x%012" PRIx64 ", mask 0x%012" PRIx64 " to NoDVBTimelist\n", channel_id, mask);
 		ChannelNoDVBTimelist *node = new ChannelNoDVBTimelist;
 		node->chan = channel_id;
 		node->mask = mask;

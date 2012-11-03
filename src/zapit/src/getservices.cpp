@@ -406,7 +406,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			have_numbers = true;
 			service_number_map_t::iterator it = channel_numbers->find(number);
 			if(it != channel_numbers->end()) {
-				printf("[zapit] duplicate channel number %d: %s id %llx freq %d\n", number,
+				printf("[zapit] duplicate channel number %d: %s id %" PRIx64 " freq %d\n", number,
 						name.c_str(), chid, freq);
 				number = 0;
 				dup_numbers = true; // force save after loading
@@ -417,7 +417,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		bool ret = AddChannel(channel);
 		//printf("INS CHANNEL %s %x\n", name.c_str(), (int) &ret.first->second);
 		if(ret == false) {
-			printf("[zapit] duplicate channel %s id %llx freq %d (old %s at %d)\n",
+			printf("[zapit] duplicate channel %s id %" PRIx64 " freq %d (old %s at %d)\n",
 					name.c_str(), chid, freq, channel->getName().c_str(), channel->getFreqId());
 		} else {
 			service_count++;
@@ -637,7 +637,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	xmlDocPtr parser;
 	static bool satcleared = 0;//clear only once, because menu is static
 	service_count = 0;
-	printf("[zapit] Loading services, channel size %d ..\n", sizeof(CZapitChannel));
+	printf("[zapit] Loading services, channel size %d ..\n", (int)sizeof(CZapitChannel));
 	frontendType = CFEManager::getInstance()->getLiveFE()->getInfo()->type;
 
 	if(only_current)
@@ -699,13 +699,13 @@ bool CServiceManager::LoadServices(bool only_current)
 	}
 
 	LoadProviderMap();
-	printf("[zapit] %d services loaded (%d)...\n", service_count, allchans.size());
+	printf("[zapit] %d services loaded (%d)...\n", service_count, (int)allchans.size());
 	TIMER_STOP("[zapit] service loading took");
 
 	if(0) { //zapit_debug) {//FIXME
 		sat_iterator_t sit;
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit)
-			printf("satelliteName = %s (%d), satellitePosition = %d motor position = %d usals %d\n", sit->second.name.c_str(), sit->second.name.size(), sit->first, sit->second.motor_position, sit->second.use_usals);
+			printf("satelliteName = %s (%d), satellitePosition = %d motor position = %d usals %d\n", sit->second.name.c_str(), (int)sit->second.name.size(), sit->first, sit->second.motor_position, sit->second.use_usals);
 	}
 	/* reset flag after loading services.xml */
 	services_changed = false;
@@ -776,7 +776,7 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 #ifdef SAVE_DEBUG
 	set<t_channel_id> chans_processed;
 #endif
-	printf("CServiceManager::SaveServices: total channels: %d\n", allchans.size());
+	printf("CServiceManager::SaveServices: total channels: %d\n", (int)allchans.size());
 	FILE * fd = fopen(SERVICES_TMP, "w");
 	if(!fd) {
 		perror(SERVICES_TMP);

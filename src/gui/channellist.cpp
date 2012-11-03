@@ -986,7 +986,7 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 	unsigned int i;
 
 	selected_chid = channel_id;
-	printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %llx\n", this, getName(), chanlist.size(), channel_id);
+	printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %" PRIx64 "\n", this, getName(), (int)chanlist.size(), channel_id);
 	fflush(stdout);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
@@ -1080,7 +1080,7 @@ void CChannelList::setSelected( int nChannelNr)
 // -- Zap to channel with channel_id
 bool CChannelList::zapTo_ChannelID(const t_channel_id channel_id)
 {
-	printf("**************************** CChannelList::zapTo_ChannelID %llx\n", channel_id);
+	printf("**************************** CChannelList::zapTo_ChannelID %" PRIx64 "\n", channel_id);
 	for (unsigned int i = 0; i < chanlist.size(); i++) {
 		if (chanlist[i]->channel_id == channel_id) {
 			zapTo(i);
@@ -1134,7 +1134,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 	if (tuned < chanlist.size() && chanlist[tuned]->last_unlocked_time != 0)
 		chanlist[tuned]->last_unlocked_time = time_monotonic();
 
-	printf("**************************** CChannelList::zapToChannel me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, channel->getName().c_str(), channel->channel_id);
+	printf("**************************** CChannelList::zapToChannel me %p %s tuned %d new %s -> %" PRIx64 "\n", this, name.c_str(), tuned, channel->getName().c_str(), channel->channel_id);
 	if(tuned < chanlist.size())
 		selected_chid = chanlist[tuned]->getChannelID();
 
@@ -1338,7 +1338,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 	if(!g_settings.zap_cycle && bsize > 1) {
 		size_t cactive = sl;
 
-		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d\n", cactive, chanlist.size(), bactive, bsize);
+		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d\n", (int)cactive, (int)chanlist.size(), bactive, bsize);
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
 			if(cactive == 0) {
 				if(bactive == 0)
@@ -1361,7 +1361,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		sl = cactive;
 		channel = bouquetList->Bouquets[bactive]->channelList->getChannelFromIndex(cactive);
 		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d channel %p (%s)\n",
-				cactive, chanlist.size(), bactive, bsize, channel, channel ? channel->getName().c_str(): "");
+				(int)cactive, (int)chanlist.size(), bactive, bsize, channel, channel ? channel->getName().c_str(): "");
 	} else {
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
 			if(sl == 0)

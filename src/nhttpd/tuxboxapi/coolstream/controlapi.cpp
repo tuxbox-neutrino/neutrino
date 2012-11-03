@@ -1395,7 +1395,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	else if (hh->ParamList["eventid"] != "") {
 		//special epg query
 		uint64_t epgid;
-		sscanf(hh->ParamList["eventid"].c_str(), "%llu", &epgid);
+		sscanf(hh->ParamList["eventid"].c_str(), "%" SCNu64 "", &epgid);
 		CShortEPGData epg;
 		if (CEitManager::getInstance()->getEPGidShort(epgid, &epg)) {
 			hh->WriteLn(epg.title);
@@ -1407,7 +1407,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 		if (hh->ParamList["starttime"] != "") {
 			uint64_t epgid;
 			time_t starttime;
-			sscanf(hh->ParamList["fskid"].c_str(), "%llu", &epgid);
+			sscanf(hh->ParamList["fskid"].c_str(), "%" SCNu64 "", &epgid);
 			sscanf(hh->ParamList["starttime"].c_str(), "%lu", &starttime);
 			CEPGData longepg;
 			if (CEitManager::getInstance()->getEPGid(epgid, starttime, &longepg)) {
