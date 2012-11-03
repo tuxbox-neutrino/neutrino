@@ -667,8 +667,10 @@ void CServiceScan::SendTransponderInfo(transponder &t)
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
+#if 0
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
+#endif
 
 	if (frontendType == FE_QPSK) {
 		uint32_t actual_polarisation = ((t.feparams.dvb_feparams.u.qpsk.symbol_rate/1000) << 16) | (t.feparams.dvb_feparams.u.qpsk.fec_inner << 8) | (uint)t.polarization;
