@@ -802,6 +802,10 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 {
 	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBT_PROPS]; // WARNING: increase when needed more space
 	struct dtv_properties cmdseq;
+#ifdef PEDANTIC_VALGRIND_SETUP
+	memset(&cmdargs, 0, sizeof(cmdargs));
+	memset(&cmdseq, 0, sizeof(cmdseq));
+#endif
 
 	cmdseq.num	= FE_COMMON_PROPS;
 	cmdseq.props	= cmdargs;
