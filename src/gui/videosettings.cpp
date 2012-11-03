@@ -151,16 +151,29 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VID
 	{ ANALOG_HD_YPRPB_CINCH, LOCALE_VIDEOMENU_ANALOG_HD_YPRPB_CINCH }
 };
 
+/*
+ * key value of -1 means the mode is not available
+ * TODO: instead of #ifdef select at run time
+ */
 #if HAVE_TRIPLEDRAGON
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
-	{ VID_DISPFMT_PAL,   NONEXISTANT_LOCALE, "PAL"		},
 	{ VID_DISPFMT_SECAM, NONEXISTANT_LOCALE, "SECAM"	},
+	{ VID_DISPFMT_PAL,   NONEXISTANT_LOCALE, "PAL"		},
+	{ -1,                NONEXISTANT_LOCALE, "576p"		},
+	{ -1,                NONEXISTANT_LOCALE, "720p 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080i 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080p 24Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080p 25Hz"	},
 	{ VID_DISPFMT_NTSC,  NONEXISTANT_LOCALE, "NTSC"		}
+	{ -1,                NONEXISTANT_LOCALE, "480p"		},
+	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
 };
-#endif
+#elif HAVE_COOL_HARDWARE
 /* numbers corresponding to video.cpp from zapit */
-#if HAVE_COOL_HARDWARE
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
 	{ VIDEO_STD_SECAM,   NONEXISTANT_LOCALE, "SECAM"	},
@@ -174,30 +187,44 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ VIDEO_STD_480P,    NONEXISTANT_LOCALE, "480p"		},
 	{ VIDEO_STD_720P60,  NONEXISTANT_LOCALE, "720p 60Hz"	},
 	{ VIDEO_STD_1080I60, NONEXISTANT_LOCALE, "1080i 60Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
 	{ VIDEO_STD_AUTO,    NONEXISTANT_LOCALE, "Auto"         }
 };
-#endif
-
-#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
+#elif HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
+	{ -1,                NONEXISTANT_LOCALE, "SECAM"	},
 	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		},
 	{ VIDEO_STD_576P,    NONEXISTANT_LOCALE, "576p"		},
 	{ VIDEO_STD_720P50,  NONEXISTANT_LOCALE, "720p 50Hz"	},
 	{ VIDEO_STD_1080I50, NONEXISTANT_LOCALE, "1080i 50Hz"	},
 	{ VIDEO_STD_1080P24, NONEXISTANT_LOCALE, "1080p 24Hz"	},
 	{ VIDEO_STD_1080P25, NONEXISTANT_LOCALE, "1080p 25Hz"	},
-	{ VIDEO_STD_1080P50, NONEXISTANT_LOCALE, "1080p 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "NTSC"		},
+	{ -1,                NONEXISTANT_LOCALE, "480p"		},
 	{ VIDEO_STD_720P60,  NONEXISTANT_LOCALE, "720p 60Hz"	},
-	{ VIDEO_STD_1080I60, NONEXISTANT_LOCALE, "1080i 60Hz"	}
+	{ VIDEO_STD_1080I60, NONEXISTANT_LOCALE, "1080i 60Hz"	},
+	{ VIDEO_STD_1080P50, NONEXISTANT_LOCALE, "1080p 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
 };
-#endif
+#else
 
 /* dummy entry, for generic hardware */
-#if VIDEOMENU_VIDEOMODE_OPTION_COUNT == 1
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
-	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		}
+	{ VIDEO_STD_SECAM,   NONEXISTANT_LOCALE, "SECAM"	},
+	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		},
+	{ -1,                NONEXISTANT_LOCALE, "576p"		},
+	{ -1,                NONEXISTANT_LOCALE, "720p 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080i 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080p 24Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080p 25Hz"	},
+	{ VIDEO_STD_NTSC,    NONEXISTANT_LOCALE, "NTSC"		},
+	{ -1,                NONEXISTANT_LOCALE, "480p"		},
+	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "1080p 50Hz"	},
+	{ -1,                NONEXISTANT_LOCALE, "Auto"         }
 };
 #endif
 
@@ -229,6 +256,16 @@ int CVideoSettings::showVideoSetup()
 	CMenuWidget * videosetup = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	videosetup->setSelected(selected);
 	videosetup->setWizardMode(is_wizard);
+
+	CMenuOptionChooser::keyval_ext vmode_options[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
+	int vmode_option_count = 0;
+	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+	{
+		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key == -1)
+			continue;
+		vmode_options[vmode_option_count] = VIDEOMENU_VIDEOMODE_OPTIONS[i];
+		vmode_option_count++;
+	}
 
 	//analog options
 	unsigned int system_rev = cs_get_revision();
@@ -264,7 +301,7 @@ int CVideoSettings::showVideoSetup()
 	vs_dispformat_ch->setHint("", LOCALE_MENU_HINT_VIDEO_FORMAT);
 
 	//video system
-	CMenuOptionChooser * vs_videomodes_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOMODE, &g_settings.video_Mode, VIDEOMENU_VIDEOMODE_OPTIONS, VIDEOMENU_VIDEOMODE_OPTION_COUNT, true, this, CRCInput::RC_nokey, "", true);
+	CMenuOptionChooser * vs_videomodes_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOMODE, &g_settings.video_Mode, vmode_options, vmode_option_count, true, this, CRCInput::RC_nokey, "", true);
 	vs_videomodes_ch->setHint("", LOCALE_MENU_HINT_VIDEO_MODE);
 
 	//dbdr options
@@ -284,7 +321,8 @@ int CVideoSettings::showVideoSetup()
 		videomodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
 
 		for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
-			videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
+			if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key != -1)
+				videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
 		//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 
 		vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
@@ -506,6 +544,8 @@ void CVideoSettings::nextMode(void)
 				curmode++;
 				if (curmode >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
 					curmode = 0;
+				if (VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key == -1)
+					continue;
 				if (g_settings.enabled_video_modes[curmode])
 					break;
 				i++;
