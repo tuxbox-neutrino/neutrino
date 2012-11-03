@@ -63,7 +63,7 @@ CExtUpdate::CExtUpdate()
 	mtdRamError     = "";
 	mtdNumber       = -1;
 	MTDBufSize      = 0xFFFF;
-	MTDBuf          = (char*)malloc(MTDBufSize);
+	MTDBuf          = new char[MTDBufSize];
 	backupList      = CONFIGDIR "/settingsupdate.conf";
 	defaultBackup   = CONFIGDIR;
 
@@ -78,7 +78,7 @@ CExtUpdate::CExtUpdate()
 CExtUpdate::~CExtUpdate()
 {
 	if (MTDBuf != NULL)
-		free(MTDBuf);
+		delete[] MTDBuf;
 	if(FileHelpers)
 		delete[] FileHelpers;
 }
