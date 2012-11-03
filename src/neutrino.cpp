@@ -1734,7 +1734,7 @@ void CNeutrinoApp::InitSectiondClient()
 #include <coolstream/cs_vfd.h>
 #endif
 
-void wake_up( bool &wakeup)
+void wake_up(long &wakeup)
 {
 #if HAVE_COOL_HARDWARE
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
@@ -1759,7 +1759,7 @@ void wake_up( bool &wakeup)
 #endif
 	/* not platform specific - this is created by the init process */
 	if (access("/tmp/.timer_wakeup", F_OK) == 0) {
-		wakeup = true;
+		wakeup = 1;
 		unlink("/tmp/.timer_wakeup");
 	}
 
@@ -1852,9 +1852,8 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_Zapit->setStandby(false);
 
 	//timer start
-	bool timer_wakeup = false;
+	long timer_wakeup = 0;
 	wake_up( timer_wakeup );
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) timer_wakeup);
 
 	init_cec_setting = true;
 	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
@@ -1864,7 +1863,8 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 		init_cec_setting = false;
 	}
 	g_settings.shutdown_timer_record_type = false;
-	timer_wakeup = false;
+	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timer_wakeup);
+	// timer_wakeup = false;
 
 	powerManager = new cPowerManager;
 	powerManager->Open();
@@ -1954,6 +1954,11 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	InitSectiondClient();
 #endif
 
+	/* wait until timerd is ready... */
+	time_t timerd_wait = time_monotonic_ms();
+	while (timer_wakeup >= 0)
+		usleep(100);
+	dprintf(DEBUG_NORMAL, "had to wait %ld ms for timerd start...\n", time_monotonic_ms() - timerd_wait);
 	InitTimerdClient();
 
 	g_volume = CVolume::getInstance();
