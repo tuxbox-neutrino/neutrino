@@ -21,7 +21,7 @@ locale_unmaintained = \
 	unmaintained/svenska.locale
 
 install_DATA  = $(locale)
-install_DATA += $(locale_unmaintained)
+# install_DATA += $(locale_unmaintained)
 
 
 if MAINTAINER_MODE
@@ -31,7 +31,7 @@ master.locale=english.locale
 locals: sort-locals work-locals locals.h locals_intern.h
 
 $(master.locale) \
-sort-locals: $(top_srcdir)/data/locale/$(master.locale)
+sort-locals:
 	for locale in $(locale); do \
 		cat $(top_srcdir)/data/locale/$${locale} | LC_ALL=C sort | uniq > $${locale}; \
 	done
