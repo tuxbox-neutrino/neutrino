@@ -867,7 +867,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			case CRCInput::RC_info:
 			case CRCInput::RC_help:
 				bigFonts = bigFonts ? false : true;
-				frameBuffer->paintBackgroundBox (sx, sy- toph, sx+ ox, sy+ oy);
+				frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
 				showTimerEventBar (false);
 				start();
 //				textypos = sy;
