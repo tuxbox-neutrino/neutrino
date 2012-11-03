@@ -522,6 +522,10 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return false;
 }
 #else
+void CFanControlNotifier::setSpeed(unsigned int)
+{
+}
+
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	return false;
