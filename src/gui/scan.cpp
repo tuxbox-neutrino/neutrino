@@ -408,7 +408,7 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			sprintf(buffer, "%u", data);
 			xpos_frequency = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(buffer, true);
 			paintLine(xpos2, ypos_frequency, xpos_frequency, buffer);
-			paintRadar();
+			//paintRadar();
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCYP:
