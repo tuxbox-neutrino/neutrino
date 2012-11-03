@@ -330,7 +330,14 @@ void * streamts_live_thread(void *data)
 		return 0;
 	}
 
+#ifndef HAVE_COOL_HARDWARE
+	/* right now, only one stream is possible anyway and it is not possible
+	 * to stream a different channel than the live channel AFAICT, so we can
+	 * as well use the live demux */
+	cDemux * dmx = new cDemux(0);
+#else
 	cDemux * dmx = new cDemux(STREAM_DEMUX);//FIXME
+#endif
 
 	dmx->Open(DMX_TP_CHANNEL, NULL, DMX_BUFFER_SIZE);
 
