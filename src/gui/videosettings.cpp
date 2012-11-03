@@ -250,7 +250,7 @@ int CVideoSettings::showVideoSetup()
 		vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this);
 		vs_chinch_ch->setHint("", LOCALE_MENU_HINT_VIDEO_CINCH_MODE);
 	}
-	else if (system_rev == 0x01) /* TRIPLEDRAGON hack... :-) */
+	else if (g_info.hw_caps->has_SCART) /* TRIPLEDRAGON hack... :-) TODO: SPARK? */
 	{
 		vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TD_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TD_OPTION_COUNT, true, this);
 	}
@@ -268,14 +268,18 @@ int CVideoSettings::showVideoSetup()
 	vs_videomodes_ch->setHint("", LOCALE_MENU_HINT_VIDEO_MODE);
 
 	//dbdr options
-	CMenuOptionChooser * vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
-	vs_dbdropt_ch->setHint("", LOCALE_MENU_HINT_VIDEO_DBDR);
+	CMenuOptionChooser *vs_dbdropt_ch = NULL;
+	if (system_rev != 0x01)	/* dbdr options only on COOLSTREAM */
+	{
+		vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
+		vs_dbdropt_ch->setHint("", LOCALE_MENU_HINT_VIDEO_DBDR);
+	}
 
 	//video system modes submenue
 	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
 	CAutoModeNotifier anotify;
 	CMenuForwarder *vs_videomodes_fw = NULL;
-	if (system_rev != 0x01) /* Tripledragon */
+	if (g_info.hw_caps->has_HDMI) /* does this make sense on a box without HDMI? */
 	{
 		videomodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
 
@@ -302,11 +306,10 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(vs_43mode_ch);	  //4:3 mode
 	videosetup->addItem(vs_dispformat_ch);	  //display format
 	videosetup->addItem(vs_videomodes_ch);	  //video system
-	if (system_rev != 0x01)	/* TRIPLEDRAGON hack... :-) */
-	{
+	if (vs_dbdropt_ch != NULL)
 		videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
+	if (vs_videomodes_fw != NULL)
 		videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
-	}
 
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
