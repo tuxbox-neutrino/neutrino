@@ -185,8 +185,12 @@ bool CExtUpdate::writemtdExt()
 
 	// get osrelease
 	struct utsname uts_info;
-	if( uname(&uts_info) == 0 )
+	if( uname(&uts_info) == 0 ) {
 		osrelease = uts_info.release;
+		size_t pos = osrelease.find_first_of(" "); 
+		if (pos != std::string::npos) 
+			osrelease = osrelease.substr(0, pos); 
+	}
 	else
 		return ErrorReset(0, "error no kernel info");
 
