@@ -2311,7 +2311,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 	res = res | g_RemoteControl->handleMsg(msg, data);
 	res = res | g_InfoViewer->handleMsg(msg, data);
-	res = res | channelList->handleMsg(msg, data);
+	if (channelList) /* can be not yet ready during startup */
+		res = res | channelList->handleMsg(msg, data);
+	// else fprintf(stderr, "channelList = NULL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	res = res | CRecordManager::getInstance()->handleMsg(msg, data);
 
 	if( res != messages_return::unhandled ) {
