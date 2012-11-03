@@ -168,7 +168,9 @@ void CZapit::SaveSettings(bool write)
 			configfile.setInt64("lastChannel", live_channel_id);
 		}
 
+#if 0 // unused
 		configfile.setBool("writeChannelsNames", config.writeChannelsNames);
+#endif
 		configfile.setBool("makeRemainingChannelsBouquet", config.makeRemainingChannelsBouquet);
 		configfile.setInt32("feTimeout", config.feTimeout);
 
