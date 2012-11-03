@@ -1273,14 +1273,14 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_NEW), false, true);
 				newBouquet->channelList->SetChannelList(&zapitList);
 				TVallList->Bouquets.push_back(newBouquet);
-				printf("[neutrino] got %d new TV channels\n", zapitList.size()); fflush(stdout);
+				printf("[neutrino] got %d new TV channels\n", (int)zapitList.size()); fflush(stdout);
 			}
 			CServiceManager::getInstance()->GetAllRadioChannels(zapitList, CZapitChannel::NEW);
 			if (!zapitList.empty()) {
 				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_NEW), false, true);
 				newBouquet->channelList->SetChannelList(&zapitList);
 				RADIOallList->Bouquets.push_back(newBouquet);
-				printf("[neutrino] got %d new RADIO channels\n", zapitList.size()); fflush(stdout);
+				printf("[neutrino] got %d new RADIO channels\n", (int)zapitList.size()); fflush(stdout);
 			}
 		}
 		if (g_settings.make_removed_list) {
@@ -1289,14 +1289,14 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_REMOVED), false, true);
 				newBouquet->channelList->SetChannelList(&zapitList);
 				TVallList->Bouquets.push_back(newBouquet);
-				printf("[neutrino] got %d removed TV channels\n", zapitList.size()); fflush(stdout);
+				printf("[neutrino] got %d removed TV channels\n", (int)zapitList.size()); fflush(stdout);
 			}
 			CServiceManager::getInstance()->GetAllRadioChannels(zapitList, CZapitChannel::REMOVED);
 			if (!zapitList.empty()) {
 				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_REMOVED), false, true);
 				newBouquet->channelList->SetChannelList(&zapitList);
 				RADIOallList->Bouquets.push_back(newBouquet);
-				printf("[neutrino] got %d removed RADIO channels\n", zapitList.size()); fflush(stdout);
+				printf("[neutrino] got %d removed RADIO channels\n", (int)zapitList.size()); fflush(stdout);
 			}
 		}
 		TIMER_STOP("[neutrino] sats took");
@@ -1327,7 +1327,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 			hdBouquet->channelList->SetChannelList(&zapitList);
 			hdBouquet->channelList->SortSat();
 			TVfavList->Bouquets.push_back(hdBouquet);
-			printf("[neutrino] got %d HD channels\n", zapitList.size()); fflush(stdout);
+			printf("[neutrino] got %d HD channels\n", (int)zapitList.size()); fflush(stdout);
 		}
 	}
 	TIMER_STOP("[neutrino] tv took");
@@ -1412,7 +1412,7 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
 	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < CChannelList::SORT_MAX) {
 		sortmode[newmode] = g_settings.channellist_sort_mode;
-		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, bouquetList->Bouquets.size());
+		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, (int)bouquetList->Bouquets.size());
 		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
 			if(g_settings.channellist_sort_mode == CChannelList::SORT_ALPHA)
 				bouquetList->Bouquets[i]->channelList->SortAlpha();
@@ -2316,7 +2316,7 @@ _show:
 			int old_b = bouquetList->getActiveBouquetNumber();
 			//int old_mode = g_settings.channel_mode;
 			int old_mode = GetChannelMode();
-			printf("************************* ZAP START: bouquetList %p size %d old_b %d\n", bouquetList, bouquetList->Bouquets.size(), old_b);fflush(stdout);
+			printf("************************* ZAP START: bouquetList %p size %d old_b %d\n", bouquetList, (int)bouquetList->Bouquets.size(), old_b);fflush(stdout);
 
 			if(!bouquetList->Bouquets.empty()) {
 				old_num = bouquetList->Bouquets[old_b]->channelList->getSelected();
@@ -2352,7 +2352,7 @@ _repeat:
 				StartSubtitles(mode == mode_tv);
 			}
 			else if(nNewChannel == -3) { // list mode changed
-				printf("************************* ZAP NEW MODE: bouquetList %p size %d\n", bouquetList, bouquetList->Bouquets.size());fflush(stdout);
+				printf("************************* ZAP NEW MODE: bouquetList %p size %d\n", bouquetList, (int)bouquetList->Bouquets.size());fflush(stdout);
 				nNewChannel = bouquetList->exec(true);
 				goto _repeat;
 			}
@@ -2601,7 +2601,7 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::RECORD_STOP) {
 		CTimerd::RecordingStopInfo* recinfo = (CTimerd::RecordingStopInfo*)data;
-		printf("NeutrinoMessages::RECORD_STOP: eventID %d channel_id %llx\n", recinfo->eventID, recinfo->channel_id);
+		printf("NeutrinoMessages::RECORD_STOP: eventID %d channel_id %" PRIx64 "\n", recinfo->eventID, recinfo->channel_id);
 		CRecordManager::getInstance()->Stop(recinfo);
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 

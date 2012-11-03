@@ -1,18 +1,6 @@
 /***************************************************************************
 	Neutrino-GUI  -   DBoxII-Project
 
- 	Homepage: http://dbox.cyberphoria.org/
-
-	$Id: moviebrowser.cpp,v 1.10 2006/09/11 21:11:35 guenther Exp $
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
-
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -41,6 +29,9 @@
 
 	Author: Günther@tuxbox.berlios.org
 		based on code of Steffen Hehn 'McClean'
+
+	(C) 2009-2012 Stefan Seyfried
+
 ****************************************************************************/
 
 #ifdef HAVE_CONFIG_H
@@ -2129,7 +2120,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 			g_RCInput->clearRCMsg();
 
 			m_vMovieInfo.erase( (std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
-			TRACE("List size: %d\n", m_vMovieInfo.size());
+			TRACE("List size: %d\n", (int)m_vMovieInfo.size());
 			//if(m_vMovieInfo.empty()) fileInfoStale();
 			//if(m_vMovieInfo.empty()) onSetGUIWindow(m_settings.gui);
 			updateSerienames();
@@ -2441,7 +2432,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 			loadTsFileNamesFromDir(m_dir[i].name);
 	}
 
-	TRACE("[mb] Dir%d, Files:%d \r\n",m_dirNames.size(),m_vMovieInfo.size());
+	TRACE("[mb] Dir%d, Files:%d\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size());
 	/*
 	   if(m_vMovieInfo.empty())
 	   {
@@ -2927,8 +2918,8 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 
     if(movie_info != NULL)
     {
-        strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE-1);
-        snprintf(size,BUFFER_SIZE,"%5llu",movie_info->file.Size>>20);
+	strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE-1);
+	snprintf(size,BUFFER_SIZE,"%5" PRIu64 "",movie_info->file.Size>>20);
     }
 
     CStringInputSMS titelUserInput(LOCALE_MOVIEBROWSER_INFO_TITLE,            &movie_info->epgTitle, (movie_info->epgTitle.empty() || (movie_info->epgTitle.size() < MAX_STRING)) ? MAX_STRING:movie_info->epgTitle.size(), NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.: ");
@@ -3332,7 +3323,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 #if 1  // MB_INFO_AUDIO test
 			// we just return the number of audiopids
 			char ltext[10];
-			snprintf(ltext, 8,"%d",movie_info.audioPids.size());
+			snprintf(ltext, 8,"%d", (int)movie_info.audioPids.size());
 			ltext[9] = 0; // just to make sure string is terminated
 			*item_string = ltext;
 #else // MB_INFO_AUDIO test
@@ -3409,7 +3400,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_SIZE: 					// 		= 19,
-			snprintf(str_tmp,MAX_STR_TMP,"%4llu",movie_info.file.Size>>20);
+			snprintf(str_tmp,MAX_STR_TMP,"%4" PRIu64 "",movie_info.file.Size>>20);
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_MAX_NUMBER: 			//		= 20
@@ -3443,7 +3434,7 @@ void CMovieBrowser::updateSerienames(void)
                 m_vHandleSerienames.push_back(&m_vMovieInfo[i]);
 		}
 	}
-    TRACE("[mb]->updateSerienames: %d\r\n",m_vHandleSerienames.size());
+	TRACE("[mb]->updateSerienames: %d\n", (int)m_vHandleSerienames.size());
 	// TODO sort(m_serienames.begin(), m_serienames.end(), my_alphasort);
 	m_seriename_stale = false;
 }
@@ -3831,7 +3822,7 @@ static off64_t truncate_movie(MI_MOVIE_INFO * minfo)
 			snprintf(spart, sizeof(spart), "%s.%03d", name, tpart);
 		else
 			snprintf(spart, sizeof(spart), "%s", name);
-printf("truncate: part %s to size %lld\n", spart, secoffset);
+printf("truncate: part %s to size %" PRId64 "\n", spart, secoffset);
 		truncate(spart, secoffset);
 		minfo->file.Size = newsize;
 		minfo->length = minfo->bookmarks.end/60;
@@ -4035,7 +4026,7 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 			if(books[bcount].len > SAFE_GOP)
 				books[bcount].len -= SAFE_GOP;
 			books[bcount].ok = 1;
-printf("cut: start bookmark %d at %lld len %lld\n", bcount, books[bcount].pos, books[bcount].len);
+printf("cut: start bookmark %d at %" PRId64 " len %" PRId64 "\n", bcount, books[bcount].pos, books[bcount].len);
 			bcount++;
 	}
 	for(int book_nr = 0; book_nr < MI_MOVIE_BOOK_USER_MAX; book_nr++) {
@@ -4045,7 +4036,7 @@ printf("cut: start bookmark %d at %lld len %lld\n", bcount, books[bcount].pos, b
 			if(books[bcount].len > SAFE_GOP)
 				books[bcount].len -= SAFE_GOP;
 			books[bcount].ok = 1;
-printf("cut: jump bookmark %d at %lld len %lld -> skip to %lld\n", bcount, books[bcount].pos, books[bcount].len, books[bcount].pos+books[bcount].len);
+printf("cut: jump bookmark %d at %" PRId64 " len %" PRId64 " -> skip to %" PRId64 "\n", bcount, books[bcount].pos, books[bcount].len, books[bcount].pos+books[bcount].len);
 			bcount++;
 		}
 	}
@@ -4055,7 +4046,7 @@ printf("cut: jump bookmark %d at %lld len %lld -> skip to %lld\n", bcount, books
 			//if(books[bcount].pos > SAFE_GOP)
 			//	books[bcount].pos -= SAFE_GOP;
 			books[bcount].ok = 1;
-printf("cut: end bookmark %d at %lld\n", bcount, books[bcount].pos);
+printf("cut: end bookmark %d at %" PRId64 "\n", bcount, books[bcount].pos);
 			bcount++;
 	}
 printf("\n");
@@ -4066,18 +4057,18 @@ printf("\n");
 	qsort(books, bcount, sizeof(struct mybook), compare_book);
 	for(i = 0; i < bcount; i++) {
 		if(books[i].ok) {
-			printf("cut: bookmark %d at %lld len %lld -> skip to %lld\n", i, books[i].pos, books[i].len, books[i].pos+books[i].len);
+			printf("cut: bookmark %d at %" PRId64 " len %" PRId64 " -> skip to %" PRId64 "\n", i, books[i].pos, books[i].len, books[i].pos+books[i].len);
 			newsize -= books[i].len;
 			off64_t curend = books[i].pos + books[i].len;
 			for(int j = i + 1; j < bcount; j++) {
 				if((books[j].pos > books[i].pos) && (books[j].pos < curend)) {
 					off64_t newend = books[j].pos + books[j].len;
 					if(newend > curend) {
-						printf("cut: bad bookmark %d, position %lld len %lld, ajusting..\n", j, books[j].pos, books[j].len);
+						printf("cut: bad bookmark %d, position %" PRId64 " len %" PRId64 ", ajusting..\n", j, books[j].pos, books[j].len);
 						books[j].pos = curend;
 						books[j].len = newend - curend;
 					} else {
-						printf("cut: bad bookmark %d, position %lld len %lld, skipping..\n", j, books[j].pos, books[j].len);
+						printf("cut: bad bookmark %d, position %" PRId64 " len %" PRId64 ", skipping..\n", j, books[j].pos, books[j].len);
 						books[j].ok = 0;
 					}
 				}
@@ -4090,7 +4081,7 @@ printf("\n");
 		*ptr = 0;
 	find_new_part(npart, dpart, sizeof(dpart) );
 tt = time(0);
-printf("\n********* new file %s expected size %lld, start time %s", dpart, newsize, ctime (&tt));
+printf("\n********* new file %s expected size %" PRId64 ", start time %s", dpart, newsize, ctime (&tt));
 	dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE, 0644);
 	if(dstfd < 0) {
 		perror(dpart);
@@ -4110,7 +4101,7 @@ printf("\n********* new file %s expected size %lld, start time %s", dpart, newsi
 	bpos = books[i].pos;
 	bskip = books[i].len;
 	while (!stat64(spart, &s)) {
-printf("cut: open part %d file %s size %lld offset %lld book pos %lld\n", part, spart, s.st_size, offset, bpos);
+printf("cut: open part %d file %s size %" PRId64 " offset %" PRId64 " book pos %" PRId64 "\n", part, spart, s.st_size, offset, bpos);
 		srcfd = open (spart, O_RDONLY | O_LARGEFILE);
 		if(srcfd < 0) {
 			perror(spart);
@@ -4125,7 +4116,7 @@ printf("cut: open part %d file %s size %lld offset %lld book pos %lld\n", part, 
 		sdone = offset;
 		while(true) {
 			off64_t until = bpos;
-printf("\ncut: reading from %lld to %lld (%lld) want gop %d\n", sdone, until, until - sdone, need_gop);
+printf("\ncut: reading from %" PRId64 " to %" PRId64 " (%" PRId64 ") want gop %d\n", sdone, until, until - sdone, need_gop);
 			while(sdone < until) {
 				bool stop;
 				int msg = get_input(&stop);
@@ -4150,11 +4141,11 @@ printf("\ncut: reading from %lld to %lld (%lld) want gop %d\n", sdone, until, un
 					int wptr = 0;
 // FIXME: TEST
 if(r != BUF_SIZE) printf("****** short read ? %d\n", r);
-if(buf[0] != 0x47) printf("cut: buffer not aligned at %lld\n", sdone);
+if(buf[0] != 0x47) printf("cut: buffer not aligned at %" PRId64 "\n", sdone);
 					if(need_gop) {
 						int gop = find_gop(buf, r);
 						if(gop >= 0) {
-							printf("cut: GOP found at %lld offset %d\n", (off64_t)(sdone+gop), gop);
+							printf("cut: GOP found at %" PRId64 " offset %d\n", (off64_t)(sdone+gop), gop);
 							newsize -= gop;
 							wptr = gop;
 						} else
@@ -4179,13 +4170,13 @@ if(buf[0] != 0x47) printf("cut: buffer not aligned at %lld\n", sdone);
 					perror(spart);
 					goto ret_err;
 				} else {
-printf("cut: next file -> sdone %lld spos %lld bpos %lld\n", sdone, spos, bpos);
+printf("cut: next file -> sdone %" PRId64 " spos %" PRId64 " bpos %" PRId64 "\n", sdone, spos, bpos);
 					offset = 0;
 					bpos -= sdone;
 					goto next_file;
 				}
 			}
-printf("cut: current file pos %lld write pos %lld book pos %lld still to read %lld\n", sdone, spos, bpos, sdone - bpos);
+printf("cut: current file pos %" PRId64 " write pos %" PRId64 " book pos %" PRId64 " still to read %" PRId64 "\n", sdone, spos, bpos, sdone - bpos);
 			need_gop = 1;
 			offset = bpos + bskip;
 			i++;
@@ -4200,7 +4191,7 @@ printf("cut: current file pos %lld write pos %lld book pos %lld still to read %l
 				bskip = books[i].len;
 			} else
 				bpos = size;
-printf("cut: next bookmark pos: %lld abs %lld relative next file pos %lld cur file size %lld\n", bpos, bpos - tdone, offset, s.st_size);
+printf("cut: next bookmark pos: %" PRId64 " abs %" PRId64 " relative next file pos %" PRId64 " cur file size %" PRId64 "\n", bpos, bpos - tdone, offset, s.st_size);
 			bpos -= tdone; /* all books from 0, converting to 0 + total size skipped */
 			if(offset >= s.st_size) {
 				offset -= s.st_size;
@@ -4216,7 +4207,7 @@ next_file:
 		snprintf(spart, sizeof(spart), "%s.%03d", name, ++part);
 	}
 	 tt1 = time(0);
-printf("********* total written %lld tooks %ld secs end time %s", spos, tt1-tt, ctime (&tt1));
+printf("********* total written %" PRId64 " tooks %ld secs end time %s", spos, tt1-tt, ctime (&tt1));
 
 	save_info(cmovie, minfo, dpart, spos, secsize);
 	retval = 1;
@@ -4266,7 +4257,7 @@ static off64_t copy_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 		minuteoffset = MINUTEOFFSET;
 	off64_t secsize = minuteoffset/60;
 	//off64_t secsize = len ? size/len/60 : 511040;
-printf("copy: len %d minute %lld second %lld\n", len, len ? size/len : 511040*60, secsize);
+printf("copy: len %d minute %" PRId64 " second %" PRId64 "\n", len, len ? size/len : 511040*60, secsize);
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
@@ -4285,7 +4276,7 @@ printf("copy: len %d minute %lld second %lld\n", len, len ? size/len : 511040*60
 				books[bcount].pos -= SAFE_GOP;
 			books[bcount].len = (minfo->bookmarks.user[book_nr].length * secsize)/188 * 188;
 			books[bcount].ok = 1;
-printf("copy: jump bookmark %d at %lld len %lld\n", bcount, books[bcount].pos, books[bcount].len);
+printf("copy: jump bookmark %d at %" PRId64 " len %" PRId64 "\n", bcount, books[bcount].pos, books[bcount].len);
 			newsize += books[bcount].len;
 			bcount++;
 		}
@@ -4295,7 +4286,7 @@ printf("copy: jump bookmark %d at %lld len %lld\n", bcount, books[bcount].pos, b
 		return 0;
 	}
 tt = time(0);
-printf("********* %d boormarks, to %s file(s), expected size to copy %lld, start time %s", bcount, onefile ? "one" : "many", newsize, ctime (&tt));
+printf("********* %d boormarks, to %s file(s), expected size to copy %" PRId64 ", start time %s", bcount, onefile ? "one" : "many", newsize, ctime (&tt));
 	snprintf(npart, sizeof(npart), "%s", name);
 	char * ptr = strstr(npart, ".ts");
 	if(ptr)
@@ -4307,7 +4298,7 @@ printf("********* %d boormarks, to %s file(s), expected size to copy %lld, start
 		goto ret_err;
 	}
 	for(i = 0; i < bcount; i++) {
-printf("\ncopy: processing bookmark %d at %lld len %lld\n", i, books[i].pos, books[i].len);
+printf("\ncopy: processing bookmark %d at %" PRId64 " len %" PRId64 "\n", i, books[i].pos, books[i].len);
 		off64_t bpos = books[i].pos;
 		off64_t bskip = books[i].len;
 		part = 0;
@@ -4323,7 +4314,7 @@ printf("\ncopy: processing bookmark %d at %lld len %lld\n", i, books[i].pos, boo
 			break;
 		}
 		if(sres != 0) {
-			printf("file for bookmark %d with offset %lld not found\n", i, books[i].pos);
+			printf("file for bookmark %d with offset %" PRId64 " not found\n", i, books[i].pos);
 			continue;
 		}
 		if(!dst_done || !onefile) {
@@ -4341,7 +4332,7 @@ printf("copy: new file %s fd %d\n", dpart, dstfd);
 		need_gop = 1;
 next_file:
 		stat64(spart, &s);
-printf("copy: open part %d file %s size %lld offset %lld\n", part, spart, s.st_size, bpos);
+printf("copy: open part %d file %s size %" PRId64 " offset %" PRId64 "\n", part, spart, s.st_size, bpos);
 		srcfd = open (spart, O_RDONLY | O_LARGEFILE);
 		if(srcfd < 0) {
 			printf("failed to open %s\n", spart);
@@ -4351,7 +4342,7 @@ printf("copy: open part %d file %s size %lld offset %lld\n", part, spart, s.st_s
 		lseek64 (srcfd, bpos, SEEK_SET);
 		sdone = bpos;
 		off64_t until = bpos + bskip;
-printf("copy: read from %lld to %lld read size %d want gop %d\n", bpos, until, BUF_SIZE, need_gop);
+printf("copy: read from %" PRId64 " to %" PRId64 " read size %d want gop %d\n", bpos, until, BUF_SIZE, need_gop);
 		while(sdone < until) {
 			size_t toread = (until-sdone) > BUF_SIZE ? BUF_SIZE : until - sdone;
 			bool stop;
@@ -4377,11 +4368,11 @@ printf("copy: read from %lld to %lld read size %d want gop %d\n", bpos, until, B
 				int wptr = 0;
 // FIXME: TEST
 if(r != BUF_SIZE) printf("****** short read ? %d\n", r);
-if(buf[0] != 0x47) printf("copy: buffer not aligned at %lld\n", sdone);
+if(buf[0] != 0x47) printf("copy: buffer not aligned at %" PRId64 "\n", sdone);
 				if(need_gop) {
 					int gop = find_gop(buf, r);
 					if(gop >= 0) {
-						printf("cut: GOP found at %lld offset %d\n", (off64_t)(sdone+gop), gop);
+						printf("cut: GOP found at %" PRId64 " offset %d\n", (off64_t)(sdone+gop), gop);
 						newsize -= gop;
 						wptr = gop;
 					} else
@@ -4410,7 +4401,7 @@ if(buf[0] != 0x47) printf("copy: buffer not aligned at %lld\n", sdone);
 				close(dstfd);
 				goto ret_err;
 			} else {
-printf("copy: -> next file, file pos %lld written %lld left %lld\n", sdone, spos, bskip);
+printf("copy: -> next file, file pos %" PRId64 " written %" PRId64 " left %" PRId64 "\n", sdone, spos, bskip);
 				bpos = 0;
 				close(srcfd);
 				snprintf(spart, sizeof(spart), "%s.%03d", name, ++part);
@@ -4423,14 +4414,14 @@ printf("copy: -> next file, file pos %lld written %lld left %lld\n", sdone, spos
 			close(dstfd);
 			save_info(cmovie, minfo, dpart, spos, secsize);
 time_t tt1 = time(0);
-printf("copy: ********* %s: total written %lld took %ld secs\n", dpart, spos, tt1-tt);
+printf("copy: ********* %s: total written %" PRId64 " took %ld secs\n", dpart, spos, tt1-tt);
 		}
 	} /* for all books */
 	if(onefile) {
 		close(dstfd);
 		save_info(cmovie, minfo, dpart, spos, secsize);
 time_t tt1 = time(0);
-printf("copy: ********* %s: total written %lld took %ld secs\n", dpart, spos, tt1-tt);
+printf("copy: ********* %s: total written %" PRId64 " took %ld secs\n", dpart, spos, tt1-tt);
 	}
 	retval = 1;
 ret_err:

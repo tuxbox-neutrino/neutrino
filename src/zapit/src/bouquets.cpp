@@ -389,7 +389,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				newBouquet->sortBouquet();
 			search = search->xmlNextNode;
 		}
-		INFO("total: %d bouquets", Bouquets.size());
+		INFO("total: %d bouquets", (int)Bouquets.size());
 	}
 	xmlFreeDoc(parser);
 }

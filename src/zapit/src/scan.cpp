@@ -3,6 +3,8 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
+ * (C) 2009, 2001-2012 Stefan Seyfried
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -206,7 +208,7 @@ bool CServiceScan::AddFromNit()
 		}
 	}
 	nittransponders.clear();
-	printf("\n\n[scan] found %d additional transponders from nit\n", scantransponders.size());
+	printf("\n\n[scan] found %d additional transponders from nit\n", (int)scantransponders.size());
 	return !scantransponders.empty();
 }
 
@@ -297,7 +299,7 @@ _repeat:
 			bouquet_map_t & tmp = bat.getBouquets();
 			for(bouquet_map_t::iterator it = tmp.begin(); it != tmp.end(); ++it) {
 				bouquet_map[it->first].insert(it->second.begin(), it->second.end());
-				printf("########### CServiceScan::ReadNitSdt: bouquet_map [%s] size %d ###########\n", it->first.c_str(), bouquet_map[it->first].size());
+				printf("########### CServiceScan::ReadNitSdt: bouquet_map [%s] size %d ###########\n", it->first.c_str(), (int)bouquet_map[it->first].size());
 			}
 			channel_number_map_t &lcn = bat.getLogicalMap();
 			logical_map.insert(lcn.begin(), lcn.end());
@@ -316,14 +318,14 @@ _repeat:
 			transponder t2(frontendType, TsidOnid, tI->second.feparams, tI->second.polarization);
 			transponders.insert(transponder_pair_t(TsidOnid, t2));
 		}
-		printf("[scan] tpid ready: %llx\n", TsidOnid);
+		printf("[scan] tpid ready: %" PRIx64 "\n", TsidOnid);
 	}
 	if((flags & SCAN_NIT) && AddFromNit())
 		goto _repeat;
 
 	if ((flags & SCAN_LOGICAL_NUMBERS /*(SCAN_NIT|SCAN_LOGICAL_NUMBERS)*/) && !nit_logical_map.empty()) {
 		std::string pname = networkName;
-		INFO("network [%s] %d logical channels (%d hd)\n", pname.c_str(), nit_logical_map.size(), nit_hd_logical_map.size());
+		INFO("network [%s] %d logical channels (%d hd)\n", pname.c_str(), (int)nit_logical_map.size(), (int)nit_hd_logical_map.size());
 		g_bouquetManager->loadBouquets(true);
 		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
 		CZapitBouquet* bouquet;
@@ -375,7 +377,7 @@ _repeat:
 			CZapitBouquet* bouquet;
 			std::string pname = it->first;
 			int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
-			printf("########### CServiceScan::ReadNitSdt: bouquet [%s] size %d id %d ###########\n", it->first.c_str(), bouquet_map[it->first].size(), bouquetId);
+			printf("########### CServiceScan::ReadNitSdt: bouquet [%s] size %d id %d ###########\n", it->first.c_str(), (int)bouquet_map[it->first].size(), bouquetId);
 			if (bouquetId == -1)
 				bouquet = g_bouquetManager->addBouquet(pname, true);
 			else

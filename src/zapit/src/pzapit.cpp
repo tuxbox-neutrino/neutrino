@@ -273,7 +273,7 @@ int main (int argc, char** argv)
 		{
 			if (i < argc - 2)
 			{
-				sscanf(argv[++i], "%lld", &satmask);
+				sscanf(argv[++i], "%" SCNd64 "", &satmask);
 				sscanf(argv[++i], "%d", &diseqc[0]);
 				/*
 								diseqc[0] = strlen(argv[i+1]);
@@ -347,7 +347,7 @@ int main (int argc, char** argv)
 		{
 			if (i < argc - 1)
 			{
-				sscanf(argv[++i], "%llx", &zapsid);
+				sscanf(argv[++i], "%" SCNx64 "", &zapsid);
 				continue;
 			}
 		}
@@ -509,7 +509,7 @@ int main (int argc, char** argv)
 
 		std::vector<CZapitClient::responseGetSatelliteList>::const_iterator rI;
 		for ( ii = 0, rI = satelliteList.begin(); rI != satelliteList.end(); ii++, rI++)
-			printf("%lld : %s %d\n", ii, rI->satName, rI->satPosition);
+			printf("%" PRId64 " : %s %d\n", ii, rI->satName, rI->satPosition);
 		//std::cout << (1 << ii) << ": " << rI->satName << std::endl;
 
 		return 0;
@@ -577,7 +577,7 @@ int main (int argc, char** argv)
 	if (getchannel)
 	{
 		t_channel_id channelid = zapit.getCurrentServiceID();
-		printf("%llx (%s)\n", channelid, (zapit.getChannelName(channelid)).c_str());
+		printf("%" PRIx64 " (%s)\n", channelid, (zapit.getChannelName(channelid)).c_str());
 		return 0;
 	}
 
@@ -587,7 +587,7 @@ int main (int argc, char** argv)
 
 	if (zapsid > 0)
 	{
-		printf("Zapping to: %llx (%s) ", zapsid, (zapit.getChannelName(zapsid)).c_str());
+		printf("Zapping to: %" PRIx64 " (%s) ", zapsid, (zapit.getChannelName(zapsid)).c_str());
 		tmp = zapit.zapTo_serviceID(zapsid);
 		if (!tmp)
 		  printf("failed");

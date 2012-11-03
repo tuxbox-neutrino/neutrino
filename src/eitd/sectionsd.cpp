@@ -255,12 +255,12 @@ static bool deleteEvent(const event_id_t uniqueKey)
 	}
 
 	if (cn) { // current-next => fill current or next event...
-//xprintf("addEvent: current %016llx event %016llx messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
+//xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
 		readLockMessaging();
 		// only if it is the current channel... and if we don't have them already.
 		if (evt.get_channel_id() == messaging_current_servicekey && 
 				(messaging_got_CN != 0x03)) { 
-xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), evt.runningStatus(), messaging_got_CN);
+xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), evt.runningStatus(), messaging_got_CN);
 
 			unlockMessaging();
 			writeLockEvents();
@@ -318,7 +318,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 	{
 		/* if the new event has a lower (== more recent) table ID, replace the old one */
 		already_exists = false;
-		dprintf("replacing event %016llx:%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
+		dprintf("replacing event %016" PRIx64 ":%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
 			si->second->table_id, evt.eventID, evt.table_id, evt.getName().c_str());
 	}
 	else if (already_exists && ( (evt.table_id == 0x51 || evt.table_id == 0x50 || evt.table_id == 0x4e) && evt.table_id == si->second->table_id && evt.version != si->second->version ))
@@ -419,7 +419,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 					if ((*x)->times.begin()->startzeit + (long)(*x)->times.begin()->dauer <= start_time)
 						break;
 					/* here we have an overlapping event */
-					dprintf("%s: delete 0x%016llx.%02x time = 0x%016llx.%02x\n", __func__,
+					dprintf("%s: delete 0x%016" PRIx64 ".%02x time = 0x%016" PRIx64 ".%02x\n", __func__,
 						x_key, (*x)->table_id, e_key, e->table_id);
 					to_delete.push_back(x_key);
 				}
@@ -1310,7 +1310,7 @@ void CTimeThread::setSystemTime(time_t tim)
 	gettimeofday(&tv, NULL);
 	timediff = (int64_t)tim * (int64_t)1000000 - (tv.tv_usec + tv.tv_sec * (int64_t)1000000);
 
-	xprintf("%s: timediff %lld, current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
+	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
 			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
 			tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
 
@@ -1369,7 +1369,7 @@ void CTimeThread::run()
 				Sleep();
 #else
 				int rs = Sleep();
-				xprintf("%s: wakeup, running %d scanning %d channel %llx reason %d\n",
+				xprintf("%s: wakeup, running %d scanning %d channel %" PRIx64 " reason %d\n",
 						name.c_str(), running, scanning, current_service, rs);
 #endif
 			} while (running && !scanning);
@@ -1516,7 +1516,7 @@ void CSectionThread::run()
 		if (timeoutsDMX < 0 || timeoutsDMX >= skipTimeouts) {
 #ifdef DEBUG_SECTION_THREADS
 			xprintf("%s: skipping to next filter %d from %d (timeouts %d)\n",
-					name.c_str(), filter_index+1, filters.size(), timeoutsDMX);
+				name.c_str(), filter_index+1, (int)filters.size(), timeoutsDMX);
 #endif
 			timeoutsDMX = 0;
 			need_change = true;
@@ -1524,7 +1524,7 @@ void CSectionThread::run()
 		if (zeit > lastChanged + skipTime) {
 #ifdef DEBUG_SECTION_THREADS
 			xprintf("%s: skipping to next filter %d from %d (seconds %d)\n", 
-					name.c_str(), filter_index+1, filters.size(), (int) (zeit - lastChanged));
+				name.c_str(), filter_index+1, (int)filters.size(), (int)(zeit - lastChanged));
 #endif
 			need_change = true;
 		}
@@ -1550,7 +1550,7 @@ bool CEventsThread::addEvents()
 	if (!eit.is_parsed())
 		return false;
 
-	dprintf("[%s] adding %d events (begin)\n", name.c_str(), eit.events().size());
+	dprintf("[%s] adding %d events (begin)\n", name.c_str(), (int)eit.events().size());
 	time_t zeit = time(NULL);
 
 	for (SIevents::const_iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
@@ -1699,7 +1699,7 @@ void CCNThread::addFilters()
 
 void CCNThread::beforeWait()
 {
-	xprintf("%s: set eit update filter, service = 0x%016llx, current version 0x%x got events %d (%s)\n",
+	xprintf("%s: set eit update filter, service = 0x%016" PRIx64 ", current version 0x%x got events %d (%s)\n",
 			name.c_str(), messaging_current_servicekey, eit_version, messaging_have_CN,
 			updating ? "active" : "not active");
 
@@ -1996,11 +1996,11 @@ static void *houseKeepingThread(void *)
 		removeOldEvents(oldEventsAre); // alte Events
 		dprintf("after removeoldevents\n");
 		readLockEvents();
-		printf("[sectionsd] Removed %d old events (%d left).\n", anzEventsAlt - mySIeventsOrderUniqueKey.size(), mySIeventsOrderUniqueKey.size());
+		printf("[sectionsd] Removed %d old events (%d left).\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()), (int)mySIeventsOrderUniqueKey.size());
 		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 		{
 			print_meminfo();
-			dprintf("Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
+			dprintf("Removed %d old events.\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()));
 		}
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
 		unlockEvents();
@@ -2009,14 +2009,14 @@ static void *houseKeepingThread(void *)
 		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 		{
 			print_meminfo();
-			dprintf("Removed %d waste events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
+			dprintf("Removed %d waste events.\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()));
 		}
 
-		dprintf("Number of sptr events (event-ID): %u\n", mySIeventsOrderUniqueKey.size());
-		dprintf("Number of sptr events (service-id, start time, event-id): %u\n", mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.size());
-		dprintf("Number of sptr events (end time, service-id, event-id): %u\n", mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.size());
-		dprintf("Number of sptr nvod events (event-ID): %u\n", mySIeventsNVODorderUniqueKey.size());
-		dprintf("Number of cached meta-services: %u\n", mySIeventUniqueKeysMetaOrderServiceUniqueKey.size());
+		dprintf("Number of sptr events (event-ID): %u\n", (unsigned)mySIeventsOrderUniqueKey.size());
+		dprintf("Number of sptr events (service-id, start time, event-id): %u\n", (unsigned)mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.size());
+		dprintf("Number of sptr events (end time, service-id, event-id): %u\n", (unsigned)mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.size());
+		dprintf("Number of sptr nvod events (event-ID): %u\n", (unsigned)mySIeventsNVODorderUniqueKey.size());
+		dprintf("Number of cached meta-services: %u\n", (unsigned)mySIeventUniqueKeysMetaOrderServiceUniqueKey.size());
 
 		unlockEvents();
 
@@ -2097,7 +2097,7 @@ void CEitManager::run()
 	int rc;
 
 	xprintf("[sectionsd] starting\n");
-printf("SIevent size: %d\n", sizeof(SIevent));
+printf("SIevent size: %d\n", (int)sizeof(SIevent));
 
 	/* "export NO_SLOW_ADDEVENT=true" to disable this */
 	slow_addevent = (getenv("NO_SLOW_ADDEVENT") == NULL);
@@ -2476,7 +2476,7 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 {
 	bool ret = false;
-	dprintf("Request of current EPG for 0x%llx\n", epgID);
+	dprintf("Request of current EPG for 0x%" PRIx64 "\n", epgID);
 
 	readLockEvents();
 
@@ -2501,7 +2501,7 @@ bool CEitManager::getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata)
 {
 	bool ret = false;
-	dprintf("Request of actual EPG for 0x%llx 0x%lx\n", epgID, startzeit);
+	dprintf("Request of actual EPG for 0x%" PRIx64 " 0x%lx\n", epgID, startzeit);
 
 	const SIevent& evt = findSIeventForEventUniqueKey(epgID);
 
@@ -2672,7 +2672,7 @@ showProfiling("sectionsd_getChannelEvents end");
 bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
 {
 	bool ret = false;
-	dprintf("Request of ComponentTags for 0x%llx\n", uniqueKey);
+	dprintf("Request of ComponentTags for 0x%" PRIx64 "\n", uniqueKey);
 
 	tags.clear();
 
@@ -2702,7 +2702,7 @@ bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSection
 bool CEitManager::getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors)
 {
 	bool ret = false;
-	dprintf("Request of LinkageDescriptors for 0x%llx\n", uniqueKey);
+	dprintf("Request of LinkageDescriptors for 0x%" PRIx64 "\n", uniqueKey);
 
 	descriptors.clear();
 	readLockEvents();
@@ -2744,7 +2744,7 @@ bool CEitManager::getNVODTimesServiceKey(const t_channel_id channel_id, CSection
 	MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(uniqueServiceKey);
 	if (si != mySIservicesNVODorderUniqueKey.end())
 	{
-		dprintf("NVODServices: %u\n", si->second->nvods.size());
+		dprintf("NVODServices: %u\n", (unsigned)si->second->nvods.size());
 
 		if (!si->second->nvods.empty()) {
 			for (SInvodReferences::iterator ni = si->second->nvods.begin(); ni != si->second->nvods.end(); ++ni) {

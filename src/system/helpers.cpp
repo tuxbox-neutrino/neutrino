@@ -189,7 +189,7 @@ int check_dir(const char * dir)
 				ret = 0;
 				break; //ok
 			default:
-				fprintf(stderr, "%s Unknow File system type: %i\n" ,dir ,s.f_type);
+				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
 				break; // error
 		}
 	}

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 CoolStream International Ltd
+ * Copyright (C) 2012 Stefan Seyfried
  *
  * License: GPLv2
  *
@@ -112,11 +113,11 @@ void transponder::dump(std::string label)
 	struct dvb_frontend_parameters *dvb_feparams = &feparams.dvb_feparams;
 
 	if (type == FE_QAM)
-		printf("%s tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
+		printf("%s tp-id %016" PRIx64 " freq %d rate %d fec %d mod %d\n", label.c_str(),
 				transponder_id, dvb_feparams->frequency, dvb_feparams->u.qam.symbol_rate,
 				dvb_feparams->u.qam.fec_inner, dvb_feparams->u.qam.modulation);
 	else
-		printf("%s tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
+		printf("%s tp-id %016" PRIx64 " freq %d rate %d fec %d pol %d\n", label.c_str(),
 				transponder_id, dvb_feparams->frequency, dvb_feparams->u.qpsk.symbol_rate,
 				dvb_feparams->u.qpsk.fec_inner, polarization);
 }

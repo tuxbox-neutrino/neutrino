@@ -6,6 +6,8 @@
 	Homepage: http://dbox.cyberphoria.org/
 	License: GPL
 
+	Copyright (C) 2011-2012 Stefan Seyfried
+
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -125,7 +127,7 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 	{
 		unsigned int cnr = 0;
 		t_channel_id channel_id = 0;
-		sscanf(&(actionKey[4]),"%u|%llx", &cnr,&channel_id);
+		sscanf(&(actionKey[4]),"%u|%" SCNx64 "", &cnr, &channel_id);
 
 		if (strncmp(actionKey.c_str(), "ZCT:", 4) == 0)//...tv
 		{
@@ -161,7 +163,7 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 		for(int j = 0; j < (int) channels.size(); j++) {
 			CZapitChannel * channel = channels[j];
 			char cChannelId[60] = {0};
-			snprintf(cChannelId,sizeof(cChannelId),"ZC%c:%d|%llx#",(mode==CZapitClient::MODE_TV)?'T':'R',channel->number,channel->channel_id);
+			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode==CZapitClient::MODE_TV)?'T':'R', channel->number, channel->channel_id);
 
 			CMenuForwarderNonLocalized * chan_item = new CMenuForwarderNonLocalized(channel->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ?NEUTRINO_ICON_SCRAMBLED:NULL);
 			chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
