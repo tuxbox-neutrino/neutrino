@@ -889,11 +889,15 @@ void CMenuWidget::calcSize()
 
 	full_width = /*ConnectLineBox_Width+*/width+sb_width+SHADOW_OFFSET;
 	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
-	/* 2 times ConnectLineBox_Width for symmetry */
-	if (full_width + 2 * ConnectLineBox_Width > (int)frameBuffer->getScreenWidth())
+	/* + ConnectLineBox_Width for the hintbox connection line
+	 * + center_offset for symmetry
+	 * + 20 for setMenuPos calculates 10 pixels border left and right */
+	int center_offset = (g_settings.menu_pos == MENU_POS_CENTER) ? ConnectLineBox_Width : 0;
+	int max_possible = (int)frameBuffer->getScreenWidth() - ConnectLineBox_Width - center_offset - 20;
+	if (full_width > max_possible)
 	{
-		width = frameBuffer->getScreenWidth() - 2 * ConnectLineBox_Width - sb_width - SHADOW_OFFSET;
-		full_width = frameBuffer->getScreenWidth() - ConnectLineBox_Width;
+		width = max_possible - sb_width - SHADOW_OFFSET;
+		full_width = max_possible + center_offset; /* symmetry in MENU_POS_CENTER case */
 	}
 
 	setMenuPos(full_width);
@@ -934,17 +938,21 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
 
+	int real_h = full_height + hint_height;
+
 	//configured positions 
 	switch(g_settings.menu_pos) 
 	{
 		case MENU_POS_CENTER:
 			x = offx + scr_x + ((scr_w - menu_width ) >> 1 );
-			y = offy + scr_y + ((scr_h - full_height) >> 1 );
+			y = offy + scr_y + ((scr_h - real_h) >> 1 );
+			x += ConnectLineBox_Width;
 			break;
 			
 		case MENU_POS_TOP_LEFT: 
 			y = offy + scr_y + 10;
 			x = offx + scr_x + 10;
+			x += ConnectLineBox_Width;
 			break;
 			
 		case MENU_POS_TOP_RIGHT: 
@@ -953,16 +961,16 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 			break;
 			
 		case MENU_POS_BOTTOM_LEFT: 
-			y = /*offy +*/ scr_y + scr_h - full_height - 10;
+			y = /*offy +*/ scr_y + scr_h - real_h - 10;
 			x = offx + scr_x + 10;
+			x += ConnectLineBox_Width;
 			break;
 			
 		case MENU_POS_BOTTOM_RIGHT: 
-			y = /*offy +*/ scr_y + scr_h - full_height - 10;
+			y = /*offy +*/ scr_y + scr_h - real_h - 10;
 			x = /*offx +*/ scr_x + scr_w - menu_width - 10;
 			break;
 	}
-	x += ConnectLineBox_Width;
 }
 
 void CMenuWidget::paintItems()
