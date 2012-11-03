@@ -1,16 +1,22 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 #AM_CPPFLAGS = -fno-rtti
-
-BUILT_SOURCES  = svn_version.h
-
-svn_version.h:
-	@if test -d .svn ; then \
-		sleep 180 && rm svn_version.h & echo "#define SVNVERSION \"$$(svnversion -n || echo svn_oops!)\" " > svn_version.h ; \
+BUILT_SOURCES  = git_version.h
+git_version.h: makeversion
+	@if test -d ../../.git; then \
+		echo "#define GITVERSION \"$$(git describe --dirty || echo `date` )\" " > git_version.h.tmp ; \
+		if diff -q git_version.h git_version.h.tmp >/dev/null 2>&1 ; then \
+			rm -f git_version.h.tmp ; \
+		else \
+			rm -f git_version.h ; \
+			mv git_version.h.tmp git_version.h ; \
+		fi; \
 	else \
-		rm svn_version.h; echo '#define BUILT_DATE "'`date`'"' > svn_version.h ; \
+		rm git_version.h; echo '#define BUILT_DATE "'`date`'"' > git_version.h ; \
 	fi
+noinst_HEADERS = git_version.h
 
-noinst_HEADERS = svn_version.h
+.PHONY: makeversion
+
 
 SUBDIRS = widget bedit
 
@@ -23,6 +29,7 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
+	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@CURL_CFLAGS@ \
@@ -55,6 +62,7 @@ libneutrino_gui_a_SOURCES = \
 	epgplus.cpp \
 	epgview.cpp \
 	eventlist.cpp \
+	ext_update.cpp \
 	favorites.cpp \
 	filebrowser.cpp \
 	imageinfo.cpp \

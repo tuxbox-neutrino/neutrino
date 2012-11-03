@@ -457,6 +457,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	int spaceoffset = 0,i = 0;
 	int ypos1 = ypos;
 	int box_width = width*2/3 - 10;
+
+	yypos = ypos;
 	if(box_h > 0)
 		frameBuffer->paintBoxRel (0, ypos, box_width, box_h, COL_MENUHEAD_PLUS_0);
 

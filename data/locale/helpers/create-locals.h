@@ -1,8 +1,8 @@
 #!/bin/bash
-# usage: cut -d' ' -f1 deutsch.locale | LC_ALL=C sort | uniq | ./create.locals_intern.h
-cat > locals_intern.h <<EOF
-#ifndef __locals_intern__
-#define __locals_intern__
+# usage: cut -d' ' -f1 english.locale | LC_ALL=C sort | uniq | tr [:lower:] [:upper:] | tr \. \_  | tr \- \_ | tr -d \? | ./helpers/create-locals.h
+cat > locals.h <<EOH
+#ifndef __locals__
+#define __locals__
 
 /*
  * \$Id\$
@@ -25,25 +25,16 @@ cat > locals_intern.h <<EOF
  *
  */
 
-const char * locale_real_names[] =
+typedef enum
 {
-	"INTERNAL ERROR - PLEASE REPORT",
-EOF
+	NONEXISTANT_LOCALE,
+EOH
+
 while read id; do
-	if [[ \
-	      "$id" != "cam.wrong"                       \
-	      ]] ;
-	then
-		echo $'\t'"\"$id\"," >> locals_intern.h;
-	fi
+	echo $'\t'"LOCALE_$id," >> locals.h;
 done
-cat >> locals_intern.h <<EOF
-};
+
+cat >> locals.h <<EOF
+} neutrino_locale_t;
 #endif
 EOF
-# // infoviewer.cantdecode
-# miscsettings.startbhdriver: only for HAVE_DVB_API_VERSION == 1
-# // parentallock.onstart
-# // streamfeatures.info
-# streaminfo.signal: // streaminfo2.cpp
-# // timerlist.empty

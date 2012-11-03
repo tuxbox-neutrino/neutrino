@@ -44,6 +44,7 @@ void correctTime(struct tm *zt) {
 	zt->tm_hour = minmax(zt->tm_hour, 0, 23);
 	zt->tm_min = minmax(zt->tm_min, 0, 59);
 	zt->tm_sec = minmax(zt->tm_sec, 0, 59);
+	zt->tm_isdst = -1;
 }
 //=============================================================================
 // Strings

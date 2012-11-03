@@ -36,12 +36,13 @@
 //
 class CRCLock: public CMenuTarget
 {
+private:
+	void lockBox();
 
 public:
 	static const std::string NO_USER_INPUT; 
 	int  exec(CMenuTarget* parent, const std::string & actionKey);
-	void lockBox();
+	static bool locked;
 };
-
 
 #endif

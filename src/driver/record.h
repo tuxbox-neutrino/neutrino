@@ -192,6 +192,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false);
 		bool Stop(const t_channel_id channel_id); 
 		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
+		bool IsRecording(const CTimerd::RecordingStopInfo * recinfo);
 		bool Update(const t_channel_id channel_id);
 		bool ShowMenu(void);
 		bool AskToStop(const t_channel_id channel_id, const int recid = 0);

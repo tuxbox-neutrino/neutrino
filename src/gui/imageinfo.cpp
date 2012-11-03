@@ -39,8 +39,8 @@
 #include <system/flashtool.h>
 #include <video.h>
 
-#include "svn_version.h"
-#define SVN_REV "SVN Rev.:"
+#include "git_version.h"
+#define GIT_DESC "GIT Desc.:"
 #define GIT_REV "GIT Build:"
 extern cVideo * videoDecoder;
 
@@ -92,8 +92,8 @@ void CImageInfo::Init(void)
 			offset = tmpoffset;
 		}
 	}
-#ifdef SVNVERSION
-	int off_tmp = g_Font[font_info]->getRenderWidth(SVN_REV);
+#ifdef GITVERSION
+	int off_tmp = g_Font[font_info]->getRenderWidth(GIT_DESC);
 #else
 	int off_tmp = g_Font[font_info]->getRenderWidth(GIT_REV);
 #endif
@@ -208,8 +208,8 @@ void CImageInfo::paint()
 	const char * version   = config.getString("version",   "no version").c_str();
 	const char * docs      = config.getString("docs",      "http://wiki.neutrino-hd.de").c_str();
 	const char * forum     = config.getString("forum",     "http://forum.tuxbox.org").c_str();
-#ifdef SVNVERSION
-	const char * builddate     = config.getString("builddate",     SVNVERSION).c_str();
+#ifdef GITVERSION
+	const char * builddate     = GITVERSION;
 #else
 	const char * builddate     = config.getString("builddate",     BUILT_DATE).c_str();
 #endif
@@ -246,8 +246,8 @@ void CImageInfo::paint()
 	paintLine(xpos+offset, font_info, Version_Kernel.c_str());
 
 	ypos += iheight;
-#ifdef SVNVERSION
-	paintLine(xpos    , font_info, SVN_REV);
+#ifdef GITVERSION
+	paintLine(xpos    , font_info, GIT_DESC);
 #else
 	paintLine(xpos    , font_info, GIT_REV);
 #endif

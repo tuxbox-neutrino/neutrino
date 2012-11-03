@@ -129,10 +129,9 @@ bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return true;
 }
 
-bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
+void CColorSetupNotifier::setPalette()
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-//	unsigned char r,g,b;
 	//setting colors-..
 	frameBuffer->paletteGenFade(COL_MENUHEAD,
 	                              convertSetupColor2RGB(g_settings.menu_Head_red, g_settings.menu_Head_green, g_settings.menu_Head_blue),
@@ -165,13 +164,6 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	                              convertSetupColor2RGB(g_settings.infobar_Text_red, g_settings.infobar_Text_green, g_settings.infobar_Text_blue),
 	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
 
-/*	frameBuffer->paletteSetColor( COL_INFOBAR_SHADOW,
-	                                convertSetupColor2RGB(
-	                                    int(g_settings.infobar_red*0.4),
-	                                    int(g_settings.infobar_green*0.4),
-	                                    int(g_settings.infobar_blue*0.4)),
-	                                g_settings.infobar_alpha);
-*/
 	frameBuffer->paletteGenFade(COL_INFOBAR_SHADOW,
 	                              convertSetupColor2RGB(int(g_settings.infobar_red*0.4), int(g_settings.infobar_green*0.4), int(g_settings.infobar_blue*0.4)),
 	                              convertSetupColor2RGB(g_settings.infobar_Text_red, g_settings.infobar_Text_green, g_settings.infobar_Text_blue),
@@ -189,10 +181,17 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
 
 	frameBuffer->paletteSet();
+}
+
+bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
+{
+	setPalette();
+#if 0
 	/* recalculate volumebar */
 	CVolume::getInstance()->Init();
 	/* recalculate infoclock */
 	CInfoClock::getInstance()->Init();
+#endif
 	return false;
 }
 
@@ -488,8 +487,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		//CNeutrinoApp::getInstance()->loadColors(NEUTRINO_SETTINGS_FILE);
 		CNeutrinoApp::getInstance()->SetupFonts();
 		CNeutrinoApp::getInstance()->SetupTiming();
-		CColorSetupNotifier colorSetupNotifier;
-		colorSetupNotifier.changeNotify(NONEXISTANT_LOCALE, NULL);
+		CColorSetupNotifier::setPalette();
 		CVFD::getInstance()->setlcdparameter();
 		CFrameBuffer::getInstance()->Clear();
 	}
@@ -501,24 +499,26 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 }
 
 #if HAVE_COOL_HARDWARE
-bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
+void CFanControlNotifier::setSpeed(unsigned int speed)
 {
-	int cfd, ret;
-	//unsigned char speed = (unsigned char) g_settings.fan_speed;
-	unsigned int speed = * (int *) data;
+	int cfd;
 
 	printf("FAN Speed %d\n", speed);
 	cfd = open("/dev/cs_control", O_RDONLY);
 	if(cfd < 0) {
 		perror("Cannot open /dev/cs_control");
-		return false;
+		return;
 	}
-	ret = ioctl(cfd, IOC_CONTROL_PWM_SPEED, speed);
-	close(cfd);
-	if(ret < 0) {
+	if (ioctl(cfd, IOC_CONTROL_PWM_SPEED, speed) < 0)
 		perror("IOC_CONTROL_PWM_SPEED");
-		return false;
-	}
+
+	close(cfd);
+}
+
+bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
+{
+	unsigned int speed = * (int *) data;
+	setSpeed(speed);
 	return false;
 }
 #else

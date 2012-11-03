@@ -703,7 +703,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			switch ( msg )
 			{
 			case NeutrinoMessages::EVT_TIMER:
-				if (data == g_InfoViewer->lcdUpdateTimer) {
+				if (data == g_InfoViewer->getUpdateTimer()) {
 					GetEPGData(channel_id, id, &startzeit, false);
 					if ( epg_done!= -1 ) {
 						CProgressBar pb(true, -1, -1, 30, 100, 70, true);

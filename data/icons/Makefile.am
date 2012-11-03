@@ -1,6 +1,29 @@
 installdir = $(DATADIR)/neutrino/icons
 
-install_DATA = \
+locale = \
+	locale/deutsch.png \
+	locale/english.png
+
+locale_unmaintained = \
+	locale/unmaintained/bayrisch.png \
+	locale/unmaintained/bosanski.png \
+	locale/unmaintained/ch-baslerdeutsch.png \
+	locale/unmaintained/ch-berndeutsch.png \
+	locale/unmaintained/czech.png \
+	locale/unmaintained/francais.png \
+	locale/unmaintained/italiano.png \
+	locale/unmaintained/nederlands.png \
+	locale/unmaintained/polski.png \
+	locale/unmaintained/portugues.png \
+	locale/unmaintained/russkij.png \
+	locale/unmaintained/slovak.png \
+	locale/unmaintained/suomi.png \
+	locale/unmaintained/svenska.png
+
+install_DATA  = $(locale)
+install_DATA += $(locale_unmaintained)
+
+install_DATA += \
 	0.png \
 	1.png \
 	16_9.png \
@@ -16,7 +39,6 @@ install_DATA = \
 	ats.png \
 	ats_gray.png \
 	audio.png \
-	bayrisch.png \
 	biss_green.png \
 	biss_white.png \
 	biss_yellow.png \
@@ -24,15 +46,12 @@ install_DATA = \
 	bookmarkmanager.png \
 	border_lr.png \
 	border_ul.png \
-	bosanski.png \
 	btn_record_active.png \
 	btn_record_inactive.png \
 	btn_stop.png \
 	ca.png \
 	ca2.png \
 	ca2_gray.png \
-	ch-baslerdeutsch.png \
-	ch-berndeutsch.png \
 	colors.png \
 	conax_green.png \
 	conax_white.png \
@@ -40,7 +59,6 @@ install_DATA = \
 	cw_green.png \
 	cw_white.png \
 	cw_yellow.png \
-	czech.png \
 	d_green.png \
 	d_white.png \
 	d_yellow.png \
@@ -48,17 +66,11 @@ install_DATA = \
 	dd_avail.png \
 	dd_gray.png \
 	ddfill.png \
-	deutsch.png \
 	down.png \
-	dutch.png \
-	ellinika.png \
-	english.png \
 	error.png \
 	features.png \
 	file.png \
 	folder.png \
-	francais.png \
-	french.png \
 	games.png \
 	gelb.png \
 	gruen.png \
@@ -108,7 +120,6 @@ install_DATA = \
 	hint_vfd.png \
 	hint_video.png \
 	home.png \
-	hungarian.png \
 	icon_green.png \
 	icon_movieplayer.png \
 	icon_red.png \
@@ -120,7 +131,6 @@ install_DATA = \
 	ird_green.png \
 	ird_white.png \
 	ird_yellow.png \
-	italiano.png \
 	keybinding.png \
 	language.png \
 	lcd.png \
@@ -157,16 +167,12 @@ install_DATA = \
 	nds_green.png \
 	nds_white.png \
 	nds_yellow.png \
-	nederlands.png \
 	network.png \
-	norsk.png \
 	not_mounted.png \
 	notyet.png \
 	numericpad.png \
 	ok.png \
 	personalize.png \
-	polski.png \
-	portugues.png \
 	power.png \
 	powervu_green.png \
 	powervu_white.png \
@@ -208,9 +214,7 @@ install_DATA = \
 	res_hd.png \
 	res_sd.png \
 	right.png \
-	romania.png \
 	rot.png \
-	russkij.png \
 	scan.jpg \
 	seca_green.png \
 	seca_white.png \
@@ -218,14 +222,11 @@ install_DATA = \
 	settings.png \
 	shell.png \
 	shutdown.jpg \
-	slovak.png \
 	softupdate.png \
 	start.jpg \
 	streaming.png \
 	subt.png \
 	subt_gray.png \
-	suomi.png \
-	svenska.png \
 	timer.png \
 	tuner_1.png \
 	tuner_2.png \

@@ -491,10 +491,14 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
+#if 0
 	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
+#endif
 	checkHints();
+#if 0
 	if (has_hints)
 		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+#endif
 
 	if(savescreen) {
 		calcSize();
@@ -761,8 +765,9 @@ void CMenuWidget::hide()
 		restoreScreen();//FIXME
 	else {
 		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height);
-		paintHint(-1);
+		//paintHint(-1);
 	}
+	paintHint(-1);
 	frameBuffer->blit();
 
 	/* setActive() paints item for hidden parent menu, if called from child menu */
@@ -882,13 +887,12 @@ void CMenuWidget::calcSize()
 	if(total_pages > 1)
 		sb_width=15;
 
+	full_width = /*ConnectLineBox_Width+*/width+sb_width+SHADOW_OFFSET;
+	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
 	/* 2 times ConnectLineBox_Width for symmetry */
-	full_width = ConnectLineBox_Width * 2 + width + sb_width + SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2+hint_height+INFO_BOX_Y_OFFSET;
-	if (full_width > (int)frameBuffer->getScreenWidth())
+	if (full_width + 2 * ConnectLineBox_Width > (int)frameBuffer->getScreenWidth())
 	{
-		width -= (full_width - frameBuffer->getScreenWidth());
-		/* subtract the additional connectlineboxwidth we added above */
+		width = frameBuffer->getScreenWidth() - 2 * ConnectLineBox_Width - sb_width - SHADOW_OFFSET;
 		full_width = frameBuffer->getScreenWidth() - ConnectLineBox_Width;
 	}
 
@@ -1051,14 +1055,14 @@ void CMenuWidget::saveScreen()
 
 	background = new fb_pixel_t [full_width * full_height];
 	if(background)
-		frameBuffer->SaveScreen(x-ConnectLineBox_Width, y, full_width, full_height, background);
+		frameBuffer->SaveScreen(x /*-ConnectLineBox_Width*/, y, full_width, full_height, background);
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
 		if(savescreen)
-			frameBuffer->RestoreScreen(x-ConnectLineBox_Width, y, full_width, full_height, background);
+			frameBuffer->RestoreScreen(x /*-ConnectLineBox_Width*/, y, full_width, full_height, background);
 	}
 }
 
@@ -1087,12 +1091,22 @@ void CMenuWidget::paintHint(int pos)
 
 	if (hint_painted) {
 		/* clear detailsline line */
-		if (details_line != NULL)
-			details_line->restore();
+		// TODO CComponents::hide with param restore ? or auto (if it have saved screens) ?
+		if (details_line != NULL) {
+			if (savescreen)
+				details_line->restore();
+			else
+				details_line->hide();
+		}
 		/* clear info box */
-		if (info_box != NULL)
-			if (pos == -1)
-				info_box->restore();
+		if (info_box != NULL) {
+			if (pos == -1) {
+				if (savescreen)
+					info_box->restore();
+				else
+					info_box->hide();
+			}
+		}
 		hint_painted = false;
 	}
 	if (pos < 0)
@@ -1102,8 +1116,12 @@ void CMenuWidget::paintHint(int pos)
 //printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
 
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
-		if (info_box != NULL)
-			info_box->restore();
+		if (info_box != NULL) {
+			if (savescreen)
+				info_box->restore();
+			else
+				info_box->hide();
+		}
 		return;
 	}
 
@@ -1126,7 +1144,7 @@ void CMenuWidget::paintHint(int pos)
 		details_line->setYPosDown(ypos2a);
  		details_line->setHMarkDown(markh);
 	}
-	details_line->paint();
+	details_line->paint(savescreen);
 
 	if (info_box == NULL)
 		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height);
@@ -1135,7 +1153,8 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setYPos(ypos2);
 		info_box->setWidth(iwidth);
 	}
-	info_box->paint();
+	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
+	info_box->paint(savescreen, true);
 
 	int offset = 10;
 	if (!item->hintIcon.empty()) {

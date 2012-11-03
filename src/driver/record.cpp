@@ -1096,6 +1096,18 @@ bool CRecordManager::Stop(const t_channel_id channel_id)
 	return (inst != NULL);
 }
 
+bool CRecordManager::IsRecording(const CTimerd::RecordingStopInfo * recinfo)
+{
+	bool ret = false;
+	mutex.lock();
+	CRecordInstance * inst = FindInstanceID(recinfo->eventID);
+	if(inst != NULL && recinfo->eventID == inst->GetRecordingId())
+		ret = true;
+	mutex.unlock();
+	printf("[%s] eventID: %d, channel_id: 0x%llx, ret: %d\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id, ret);
+	return ret;
+}
+
 bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 {
 	bool ret = false;
@@ -1182,7 +1194,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 						error_display = false;
 						warn_display = false;
 						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_OVERFLOW));
-					} else if (warn_display) {
+					} else if (g_settings.recording_slow_warning && warn_display) {
 						warn_display = false;
 						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_SLOW));
 					}
@@ -1605,6 +1617,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		g_Zapit->setRecordMode( true );
 		if(last_mode == NeutrinoMessages::mode_standby)
 			g_Zapit->stopPlayBack();
+		if ((live_channel_id == channel_id) && g_Radiotext)
+			g_Radiotext->radiotext_stop();
 	}
 	if(last_mode == NeutrinoMessages::mode_standby) {
 		//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);

@@ -35,6 +35,7 @@
 #endif
 
 #include <gui/update.h>
+#include <gui/ext_update.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -518,6 +519,14 @@ CFlashExpert::CFlashExpert()
 	width = w_max (40, 10);
 }
 
+CFlashExpert* CFlashExpert::getInstance()
+{
+	static CFlashExpert* FlashExpert = NULL;
+	if(!FlashExpert)
+		FlashExpert = new CFlashExpert();
+	return FlashExpert;
+}
+
 void CFlashExpert::readmtd(int preadmtd)
 {
 	char tmpStr[256];
@@ -525,11 +534,11 @@ void CFlashExpert::readmtd(int preadmtd)
 	gettimeofday(&tv, NULL);	
 	strftime(tmpStr, sizeof(tmpStr), "_%Y%m%d_%H%M.img", localtime(&tv.tv_sec));
 	CMTDInfo* mtdInfo = CMTDInfo::getInstance();
-	std::string filename = "/tmp/" + mtdInfo->getMTDName(preadmtd);
+	std::string filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd);
 	filename += tmpStr;
 
 	if (preadmtd == -1) {
-		filename = "/tmp/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
+		filename = (std::string)g_settings.update_dir + "/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
 		preadmtd = MTD_OF_WHOLE_IMAGE;
 	}
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
@@ -558,7 +567,7 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 {
 	char message[500];
 
-	sprintf(message,
+	snprintf(message, sizeof(message),
 		g_Locale->getText(LOCALE_FLASHUPDATE_REALLYFLASHMTD),
 		FILESYSTEM_ENCODING_TO_UTF8_STRING(filename).c_str(),
 		CMTDInfo::getInstance()->getMTDName(mtdNumber).c_str());
@@ -576,7 +585,7 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 	CFlashTool ft;
 	ft.setStatusViewer( this );
 	ft.setMTDDevice( CMTDInfo::getInstance()->getMTDFileName(mtdNumber) );
-	if(!ft.program( "/tmp/" + filename, 50, 100)) {
+	if(!ft.program( (std::string)g_settings.update_dir + "/" + filename, 50, 100)) {
 		showStatusMessageUTF(ft.getErrorMessage()); // UTF-8
 		sleep(10);
 	} else {
@@ -613,6 +622,8 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
+	if (actionkey == "writemtd")
+		mtdselector->addItem(new CMenuForwarderNonLocalized("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
 	mtdselector->exec(NULL,"");
 	delete mtdselector;
 }
@@ -623,7 +634,7 @@ void CFlashExpert::showFileSelector(const std::string & actionkey)
 	fileselector->addIntroItems(LOCALE_FLASHUPDATE_FILESELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	struct dirent **namelist;
-	int n = scandir("/tmp", &namelist, 0, alphasort);
+	int n = scandir(g_settings.update_dir, &namelist, 0, alphasort);
 	if (n < 0)
 	{
 		perror("no flashimages available");
@@ -678,7 +689,10 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 			selectedMTD = iWritemtd;
 			showFileSelector("");
 		} else {
-			if(selectedMTD==-1) {
+			if(selectedMTD == 10) {
+				CExtUpdate::getInstance()->writemtdExt(actionKey);
+			}
+			else if(selectedMTD==-1) {
 				writemtd(actionKey, MTD_OF_WHOLE_IMAGE);
 			} else {
 				writemtd(actionKey, selectedMTD);

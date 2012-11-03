@@ -55,6 +55,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
+#include <gui/movieplayer.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
 
@@ -237,10 +238,13 @@ void CInfoViewerBB::getBBButtonInfo()
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
+			if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+				text = CMoviePlayerGui::getInstance().CurrentAudioName();
+			}else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
-				if (text.empty())
+				if (text.empty()){
 					text = g_RemoteControl->current_PIDs.APIDs[selected].desc;
+				}
 			}
 			break;
 		case CInfoViewerBB::BUTTON_SUBS:
@@ -715,13 +719,20 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
+	if (g_settings.casystem_display == 3)
+		return;
+	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+		if (g_settings.casystem_display == 2) {
+			fta = true;
+			showOne_CAIcon();
+		}
+		return;
+	}
+
 	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
 	int icon_space_offset = 0;
-
-	if (g_settings.casystem_display == 3)
-		return;
 
 	if(!g_InfoViewer->chanready) {
 		if (g_settings.casystem_display == 2) {

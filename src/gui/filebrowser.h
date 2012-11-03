@@ -92,7 +92,7 @@ public:
 	 * @return the last key calculated by #handleMsg(neutrino_msg_t)
 	 */
 	unsigned char getOldKey() const;
-	
+#if 0	
 	/**
 	 * Returns time of last key push.
 	 * resolution: usecs
@@ -106,7 +106,7 @@ public:
 	time_t getOldKeyTimeSec() const;
 
 	int getTimeout() const;
-
+#endif
 	/**
 	 * Sets the timeout.
 	 * @param timeout keypresses within this period are taken as a

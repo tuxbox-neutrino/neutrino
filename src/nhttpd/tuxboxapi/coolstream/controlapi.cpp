@@ -39,6 +39,8 @@
 #ifdef SCREENSHOT
 #include <driver/screenshot.h>
 #endif
+#include "gui/rc_lock.h"
+
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -429,12 +431,14 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 	{
 		if (hh->ParamList["1"] == "on")	// standby mode on
 		{
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD);
+			if(CNeutrinoApp::getInstance()->getMode() != 4)
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD);
 			hh->SendOk();
 		}
 		else if (hh->ParamList["1"] == "off")// standby mode off
 		{
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
+			if(CNeutrinoApp::getInstance()->getMode() == 4)
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
 			hh->SendOk();
 		}
 		else
@@ -452,12 +456,18 @@ void CControlAPI::RCCGI(CyhookHandler *hh)
 {
 	if (!(hh->ParamList.empty()))
 	{
-		if (hh->ParamList["1"] == "lock")	// lock remote control
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD);
-		else if (hh->ParamList["1"] == "unlock")// unlock remote control
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD);
-		else
+		if (hh->ParamList["1"] == "lock"){	// lock remote control
+			if(!CRCLock::locked)
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD);
+		}
+		else if (hh->ParamList["1"] == "unlock"){// unlock remote control
+			if(CRCLock::locked)
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD);
+			  
+		}
+		else{
 			hh->SendError();
+		}
 	}
 	hh->SendOk();
 }
@@ -1478,15 +1488,19 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 			SendAllCurrentVAPid(hh);
 		else if (hh->ParamList["1"] == "stopplayback")
 		{
-			NeutrinoAPI->Zapit->stopPlayBack();
-			NeutrinoAPI->Sectionsd->setPauseScanning(true);
+			if(NeutrinoAPI->Zapit->isPlayBackActive()){
+				NeutrinoAPI->Zapit->stopPlayBack();
+				NeutrinoAPI->Sectionsd->setPauseScanning(true);
+			}
 			hh->SendOk();
 		}
 		else if (hh->ParamList["1"] == "startplayback")
 		{
-			NeutrinoAPI->Zapit->startPlayBack();
-			NeutrinoAPI->Sectionsd->setPauseScanning(false);
-			dprintf("start playback requested..\n");
+			if(!NeutrinoAPI->Zapit->isPlayBackActive()){
+				NeutrinoAPI->Zapit->startPlayBack();
+				NeutrinoAPI->Sectionsd->setPauseScanning(false);
+				dprintf("start playback requested..\n");
+			}
 			hh->SendOk();
 		}
 		else if (hh->ParamList["1"] == "statusplayback")

@@ -32,6 +32,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <system/settings.h>
+#include <system/helpers.h>
 
 #include <sys/timeb.h>
 #include <time.h>
@@ -119,6 +120,11 @@ void SHTDCNT::shutdown_counter()
 			sleep_cnt--;
 		} else if(sleeptimer_active && !CNeutrinoApp::getInstance ()->recordingstatus) {
 			sleeptimer_active = false;
+
+			puts("[SHTDCNT] executing " NEUTRINO_ENTER_INACTIVITY_SCRIPT ".");
+			if (my_system(NEUTRINO_ENTER_INACTIVITY_SCRIPT) != 0)
+				perror(NEUTRINO_ENTER_INACTIVITY_SCRIPT " failed");
+
 			printf("[SHTDCNT] sleep-timer send NeutrinoMessages::SLEEPTIMER\n");
 			g_RCInput->postMsg(NeutrinoMessages::SLEEPTIMER, 1);
 		}

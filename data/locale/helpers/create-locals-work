@@ -7,9 +7,9 @@
 
 # Written by Barf on 2005-12-10.
 
-$masterfilename = "deutsch.locale";
+$masterfilename = "english.locale";
 
-$#ARGV == 0 || die("Usage: create-locals-update.pl file.locale.");
+$#ARGV == 0 || die("Usage: create-locals-work file.locale.");
 
 $no_errors = 0;
 $last_was_ok = 1;
@@ -43,7 +43,7 @@ while (<masterfile>) {
 
 close(outfile);
 
-print "There were ", $no_errors, " error(s).\n";
+print "There were ", $no_errors, " error(s) in ", $localefilename, ".\n";
 
 if ($no_errors == 0) {
     unlink($outfilename);

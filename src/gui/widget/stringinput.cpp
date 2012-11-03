@@ -171,7 +171,7 @@ void CStringInput::init()
 	}
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	iheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
-	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
+	//footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
 	height = hheight+ mheight + 50;
 	if (hint_1 != NONEXISTANT_LOCALE)
 	{
@@ -577,7 +577,7 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 
 void CStringInput::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height + footerHeight);
+	frameBuffer->paintBackgroundBoxRel(x, y, width, height + hheight);
 	frameBuffer->blit();
 }
 

@@ -345,6 +345,7 @@ struct SNeutrinoSettings
 	int recording_epg_for_end;
 	int recording_save_in_channeldir;
 	int  recording_zap_on_announce;
+	int  recording_slow_warning;
 	int shutdown_timer_record_type;
 
 	int filesystem_is_utf8;

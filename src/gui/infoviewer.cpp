@@ -136,6 +136,7 @@ void CInfoViewer::Init()
 
 	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 	lcdUpdateTimer = 0;
+	rt_x = rt_y = rt_h = rt_w = 0;
 }
 
 /*
@@ -199,10 +200,6 @@ void CInfoViewer::start ()
 	time_left_width = 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getWidth(); /* still a kludge */
 	time_dot_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
 	time_width = time_left_width* 2+ time_dot_width;
-
-	const int lcd_update_time_tv_mode = (60 * 1000 * 1000);
-	if (lcdUpdateTimer == 0)
-		lcdUpdateTimer = g_RCInput->addTimer (lcd_update_time_tv_mode, false, true);
 }
 
 void CInfoViewer::changePB()
@@ -1008,7 +1005,9 @@ void CInfoViewer::showMotorMoving (int duration)
 
 void CInfoViewer::killRadiotext()
 {
-	frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+	if (g_Radiotext->S_RtOsd)
+		frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+	rt_x = rt_y = rt_h = rt_w = 0;
 	frameBuffer->blit();
 }
 
@@ -1148,7 +1147,6 @@ void CInfoViewer::showRadiotext()
 	g_Radiotext->RT_MsgShow = false;
 
 }
-
 
 int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
@@ -1953,6 +1951,13 @@ void CInfoViewer::showEpgInfo()   //message on event change
 			showLcdPercentOver();
 #endif
 	}
+}
+
+void CInfoViewer::setUpdateTimer(uint64_t interval)
+{
+	g_RCInput->killTimer(lcdUpdateTimer);
+	if (interval)
+		lcdUpdateTimer = g_RCInput->addTimer(interval, false);
 }
 
 #if 0

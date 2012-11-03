@@ -958,7 +958,7 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 		return;
 	}
 
-	if (force || ((config.diseqcType <= MINI_DISEQC)
+	if ((force && (newDiseqcType != NO_DISEQC)) || ((config.diseqcType <= MINI_DISEQC)
 	    && (newDiseqcType > MINI_DISEQC))) {
 		secSetTone(SEC_TONE_OFF, 15);
 		sendDiseqcPowerOn();
@@ -1121,7 +1121,7 @@ bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 		return false;
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, false);
 }
-
+#if 0
 bool CFrontend::retuneChannel(void)
 {
 	mutex.lock();
@@ -1132,7 +1132,7 @@ bool CFrontend::retuneChannel(void)
 	mutex.unlock();
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, true);
 }
-
+#endif
 int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization, bool nowait)
 {
 	TP_params TP;

@@ -1,5 +1,5 @@
 #!/bin/sh
-cut -d' ' -f1 deutsch.locale | sort | uniq > /tmp/log
+cut -d' ' -f1 english.locale | sort | uniq > /tmp/log
 for i in *.locale; do                          \
 	echo $i:;                              \
 	echo "----------------";               \
