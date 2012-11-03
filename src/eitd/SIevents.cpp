@@ -250,7 +250,11 @@ void SIevent::parseShortEventDescriptor(const uint8_t *buf, unsigned maxlen)
 
         int tsidonid = (transport_stream_id << 16) | original_network_id;
 
-        char lang[] = {tolower(evt->language_code_hi), tolower(evt->language_code_mid), tolower(evt->language_code_lo), '\0'};
+	char lang[4];
+	lang[0] = tolower(evt->language_code_hi);
+	lang[1] = tolower(evt->language_code_mid);
+	lang[2] = tolower(evt->language_code_lo);
+	lang[3] = '\0';
         std::string language(lang);
 	int table = getCountryCodeDefaultMapping(language);
 
@@ -273,7 +277,11 @@ void SIevent::parseExtendedEventDescriptor(const uint8_t *buf, unsigned maxlen)
 
         int tsidonid = (transport_stream_id << 16) | original_network_id;
 
-        char lang[] = {tolower(evt->iso_639_2_language_code_hi), tolower(evt->iso_639_2_language_code_mid), tolower(evt->iso_639_2_language_code_lo), '\0'};
+	char lang[4];
+	lang[0] = tolower(evt->iso_639_2_language_code_hi);
+	lang[1] = tolower(evt->iso_639_2_language_code_mid);
+	lang[2] = tolower(evt->iso_639_2_language_code_lo);
+	lang[3] = '\0';
         std::string language(lang);
 	int table = getCountryCodeDefaultMapping(language);
 
