@@ -385,7 +385,7 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 
 bool CExtUpdate::findConfigEntry(std::string & line, std::string find)
 {
-	if (line.find(find + "=") == 0) {
+	if (line.find("#:" + find + "=") == 0) {
 		size_t pos = line.find_first_of('=');
 		line = line.substr(pos+1);
 		line = trim(line);
@@ -442,20 +442,19 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	size_t pos;
 	while(fgets(buf, sizeof(buf), f1) != NULL) {
 		std::string line = buf;
-		// remove comments
 		line = trim(line);
-		if (line.find_first_of("#") == 0)
+		// remove comments
+		if (line.find_first_of("#") == 0) {
+			if (line.find_first_of(":") == 1) { // config vars
+				if (line.length() > 1)
+					readConfig(line);
+			}
 			continue;
+		}
 		pos = line.find_first_of("#");
 		if (pos != std::string::npos) {
 			line = line.substr(0, pos);
 			line = trim(line);
-		}
-		// config vars
-		if (line.find_first_of("/+-~") != 0) {
-			if (line.length() > 1)
-				readConfig(line);
-			continue;
 		}
 		// special folders
 		else if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 
