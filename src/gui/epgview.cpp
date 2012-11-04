@@ -446,12 +446,12 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 	return a.startTime< b.startTime;
 }
 
-int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_startzeit, bool doLoop )
+int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_startzeit, bool doLoop, bool callFromfollowlist )
 {
 	int res = menu_return::RETURN_REPAINT;
 	static uint64_t id;
 	static time_t startzeit;
-
+	call_fromfollowlist = callFromfollowlist;
 	if (a_startzeit)
 		startzeit=*a_startzeit;
 	id=a_id;
@@ -660,13 +660,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	}
 
 	GetPrevNextEPGData( epgData.eventID, &epgData.epg_times.startzeit );
-	if (prev_id != 0)
+	if ((prev_id != 0) && !call_fromfollowlist)
 	{
 		frameBuffer->paintBoxRel(sx+ 5, sy+ oy- botboxheight+ 4, botboxheight- 8, botboxheight- 8,  COL_MENUCONTENT_PLUS_3);
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ 10, sy+ oy- 3, widthr, "<", COL_MENUCONTENT + 3);
 	}
 
-	if (next_id != 0)
+	if ((next_id != 0) && !call_fromfollowlist)
 	{
 		frameBuffer->paintBoxRel(sx+ ox- botboxheight+ 8- 5, sy+ oy- botboxheight+ 4, botboxheight- 8, botboxheight- 8,  COL_MENUCONTENT_PLUS_3);
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ ox- botboxheight+ 8, sy+ oy- 3, widthr, ">", COL_MENUCONTENT + 3);
@@ -717,7 +717,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				CNeutrinoApp::getInstance()->handleMsg(msg, data);
 				break;
 			case CRCInput::RC_left:
-				if (prev_id != 0)
+				if ((prev_id != 0) && !call_fromfollowlist)
 				{
 					frameBuffer->paintBoxRel(sx+ 5, sy+ oy- botboxheight+ 4, botboxheight- 8, botboxheight- 8,  COL_MENUCONTENT_PLUS_1);
 					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ 10, sy+ oy- 3, widthr, "<", COL_MENUCONTENT + 1);
@@ -728,7 +728,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 
 			case CRCInput::RC_right:
-				if (next_id != 0)
+				if ((next_id != 0) && !call_fromfollowlist)
 				{
 					frameBuffer->paintBoxRel(sx+ ox- botboxheight+ 8- 5, sy+ oy- botboxheight+ 4, botboxheight- 8, botboxheight- 8,  COL_MENUCONTENT_PLUS_1);
 					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ ox- botboxheight+ 8, sy+ oy- 3, widthr, ">", COL_MENUCONTENT + 1);
@@ -847,8 +847,11 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			}
 			case CRCInput::RC_blue:
 			{	
-				if(!followlist.empty()){
+				if(!followlist.empty() && !call_fromfollowlist){
 					hide();
+					time_t tmp_sZeit  = epgData.epg_times.startzeit;
+					uint64_t  tmp_eID = epgData.eventID;
+
 					CNeutrinoEventList *ee = new CNeutrinoEventList;
 					res = ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT),"","",followlist); // UTF-8
 					delete ee;
@@ -861,7 +864,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						}
 					}
 					bigFonts = g_settings.bigFonts;
-					show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+					show(channel_id,tmp_eID,&tmp_sZeit,false);
 				}
 				break;
 			}
@@ -897,8 +900,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 			case CRCInput::RC_favorites:
 			case CRCInput::RC_sat:
-				g_RCInput->postMsg (msg, 0);
-				loop = false;
+				if( !call_fromfollowlist){
+					g_RCInput->postMsg (msg, 0);
+					loop = false;
+				}
 				break;
 
 			default:
@@ -1027,7 +1032,8 @@ void CEpgData::GetPrevNextEPGData( uint64_t id, time_t* startzeit )
 bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std::string &title)
 {
 	CChannelEventList::iterator e;
-	followlist.clear();
+	if(!followlist.empty())
+		followlist.clear();
 	for (e = evtlist.begin(); e != evtlist.end(); ++e)
 	{
 		if (e->startTime == tmp_curent_zeit)
@@ -1116,9 +1122,9 @@ void CEpgData::showTimerEventBar (bool pshow)
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		::paintButtons(x, y, 0, has_follow_screenings ? 3:2, EpgButtons, h);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 3:2, EpgButtons, h);
 	else
-		::paintButtons(x, y, 0, has_follow_screenings ? 2:1, &EpgButtons[1], h);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], h);
 
 #if 0
 	// Button: Timer Record & Channelswitch

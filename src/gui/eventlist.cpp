@@ -606,7 +606,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				hide();
 
 				//FIXME res = g_EpgData->show(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id, evtlist[selected].eventID, &evtlist[selected].startTime);
-				res = g_EpgData->show(evtlist[selected].channelID, evtlist[selected].eventID, &evtlist[selected].startTime);
+				res = g_EpgData->show(evtlist[selected].channelID, evtlist[selected].eventID, &evtlist[selected].startTime, true, showfollow );
 				if ( res == menu_return::RETURN_EXIT_ALL )
 				{
 					loop = false;

@@ -63,6 +63,7 @@ class CEpgData
 		int			epg_done;
 		bool			bigFonts;
 		bool 			has_follow_screenings;
+		bool 			call_fromfollowlist;
 		time_t			tmp_curent_zeit;
 
 		uint64_t		prev_id;
@@ -92,7 +93,7 @@ class CEpgData
 
 		CEpgData();
 		void start( );
-		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true );
+		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true, bool callFromfollowlist = false );
 		void hide();
 };
 
