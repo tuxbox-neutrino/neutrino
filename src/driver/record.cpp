@@ -231,9 +231,9 @@ bool CRecordInstance::Stop(bool remove_event)
         CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
         if((autoshift && g_settings.auto_delete) /* || autoshift_delete*/) {
-                snprintf(buf,sizeof(buf), "\"%s.ts\"", filename);
-                my_system("nice", "-n20", "rm", "-f", buf);
-                snprintf(buf,sizeof(buf), "%s.xml", filename);
+		snprintf(buf,sizeof(buf), "nice -n 20 rm -f \"%s.ts\" &", filename);
+		my_system("/bin/sh", "-c", buf);
+		snprintf(buf,sizeof(buf), "%s.xml", filename);
                 //autoshift_delete = false;
                 unlink(buf);
         }
