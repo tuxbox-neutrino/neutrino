@@ -68,6 +68,7 @@ CTestMenu::CTestMenu()
 	pip = NULL;
 	form = NULL;
 	txt = NULL;
+	header = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -78,6 +79,7 @@ CTestMenu::~CTestMenu()
 	delete pip;
 	delete form;
 	delete txt;
+	delete header;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -414,6 +416,16 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			txt->paint();
 		return res;
 	}
+	else if (actionKey == "header"){
+		if (header == NULL)
+			header = new CComponentsHeader (100, 100, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "Test-Header", NEUTRINO_ICON_INFO);
+		
+		if (!header->isPainted())
+			header->paint();
+		else
+			header->hide();
+		return res;
+	}
 	
 	showTestMenu();
 	
@@ -459,6 +471,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("PiP", true, NULL, this, "pip"));
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
+	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

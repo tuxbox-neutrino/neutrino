@@ -45,6 +45,7 @@ class CTestMenu : public CMenuTarget
 		CComponentsPIP* pip;
 		CComponentsForm *form;
 		CComponentsText *txt;
+		CComponentsHeader *header;
 		int width, selected;
 
 		void showTestMenu();
