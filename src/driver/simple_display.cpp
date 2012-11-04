@@ -76,6 +76,29 @@ static inline int led_open()
 }
 #endif
 
+static void replace_umlauts(std::string &s)
+{
+	/* this is crude, it just replaces ÄÖÜ with AOU since the display can't show them anyway */
+	/*                       Ä           ä           Ö           ö           Ü           ü   */
+	char tofind[][3] = { "\xc3\x84", "\xc3\xa4", "\xc3\x96", "\xc3\xb6", "\xc3\x9c", "\xc3\xbc" };
+	char toreplace[] = { "AaOoUu" };
+	char repl[2];
+	repl[1] = '\0';
+	int i = 0;
+	size_t pos;
+	// print("%s:>> '%s'\n", __func__, s.c_str());
+	while (toreplace[i] != 0x0) {
+		pos = s.find(tofind[i]);
+		if (pos == std::string::npos) {
+			i++;
+			continue;
+		}
+		repl[0] = toreplace[i];
+		s.replace(pos, 2, std::string(repl));
+	}
+	// printf("%s:<< '%s'\n", __func__, s.c_str());
+}
+
 static void display(const char *s, bool update_timestamp = true)
 {
 	int fd = dev_open();
@@ -164,6 +187,7 @@ void CLCD::showServicename(std::string name, bool)
 	servicename = name;
 	if (mode != MODE_TVRADIO)
 		return;
+	replace_umlauts(servicename);
 	strncpy(display_text, servicename.c_str(), sizeof(display_text) - 1);
 	display_text[sizeof(display_text) - 1] = '\0';
 	upd_display = true;
@@ -330,7 +354,9 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 {
 	if (mode != MODE_MENU_UTF8)
 		return;
-	strncpy(display_text, text, sizeof(display_text) - 1);
+	std::string tmp = text;
+	replace_umlauts(tmp);
+	strncpy(display_text, tmp.c_str(), sizeof(display_text) - 1);
 	display_text[sizeof(display_text) - 1] = '\0';
 	upd_display = true;
 }
