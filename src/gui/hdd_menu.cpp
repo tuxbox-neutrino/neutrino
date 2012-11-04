@@ -155,8 +155,12 @@ int CHDDMenuHandler::doMenu ()
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
 
 	ret = stat("/", &s);
-	if (ret != -1)
-		root_dev = (s.st_dev & 0x0ffc0); /* hda = 0x0300, hdb = 0x0340 */
+	int drive_mask = 0xfff0;
+	if (ret != -1) {
+		if ((s.st_dev & drive_mask) == 0x0300) /* hda, hdb,... has max 63 partitions */
+			drive_mask = 0xffc0; /* hda: 0x0300, hdb: 0x0340, sda: 0x0800, sdb: 0x0810 */
+		root_dev = (s.st_dev & drive_mask);
+	}
 	printf("HDD: root_dev: 0x%04x\n", root_dev);
 	std::string tmp_str[n];
 	CMenuWidget * tempMenu[n];
@@ -182,9 +186,9 @@ int CHDDMenuHandler::doMenu ()
 
 		ret = fstat(fd, &s);
 		if (ret != -1) {
-			if ((int)(s.st_rdev & 0x0ffc0) == root_dev) {
+			if ((int)(s.st_rdev & drive_mask) == root_dev) {
 				isroot = true;
-				printf("-> root device is on this disk, skipping\n");
+				printf("-> root device is on this disk 0x%04" PRIx64 ", skipping\n", s.st_rdev);
 			}
 		}
 		close(fd);
