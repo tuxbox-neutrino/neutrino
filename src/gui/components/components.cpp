@@ -271,16 +271,6 @@ CComponentsText::CComponentsText()
 	initVarText();
 }
 
-CComponentsText::CComponentsText(const char* text, const int mode, Font* font_text)
-{
-	//CComponentsText
-	initVarText();
-	
-	ct_text 	= text;
-	ct_text_mode	= mode;
-	ct_font 	= font_text;
-}
-
 CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
 					const char* text, const int mode, Font* font_text,
 					bool has_shadow,
@@ -1528,13 +1518,19 @@ CComponentsForm::~CComponentsForm()
 {
 	hide();
 	clearSavedScreen();
+	clearCCForm();
+	clear();
+}
+
+void CComponentsForm::clearCCForm()
+{
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		delete v_cc_items[i];
 		v_cc_items[i] = NULL;
 	}
 	v_cc_items.clear();
-	clear();
 }
+
 
 void CComponentsForm::initVarForm()
 {
@@ -1621,3 +1617,156 @@ void CComponentsForm::hide(bool no_restore)
 	//hide body
 	hideContainer(no_restore);
 }
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsWindows inherit from CComponentsForm
+CComponentsHeader::CComponentsHeader()
+{
+	//CComponentsHeader
+	initVarHeader();
+}
+
+CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, const std::string& caption, const char* icon_name, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	//CComponentsHeader
+	initVarHeader();
+
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height 		= h > 0 ? h : g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	shadow		= has_shadow;
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	
+	cch_text	= caption;
+	cch_icon_name	= icon_name;
+}
+
+CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t caption_locale, const char* icon_name, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	//CComponentsHeader
+	initVarHeader();
+	
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height 		= h;
+	shadow		= has_shadow;
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	
+	cch_locale_text = caption_locale;
+	cch_icon_name	= icon_name;
+}
+
+CComponentsHeader::~CComponentsHeader()
+{
+	hide();
+	clearSavedScreen();
+	clearCCForm();
+
+	delete cch_icon_obj;
+	cch_icon_obj = NULL;
+
+	delete cch_text_obj;
+	cch_text_obj = NULL;
+	
+	clear();
+}
+
+void CComponentsHeader::initVarHeader()
+{
+	//CComponentsHeader
+	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	cch_icon_obj		= NULL;
+	cch_text_obj		= NULL;
+	cch_icon_name		= NULL;
+	cch_text		= "header";
+	cch_locale_text 	= NONEXISTANT_LOCALE;
+	cch_col_text		= COL_MENUHEAD;
+	
+	//CComponentsForm
+	initVarForm();
+	height 			= cch_font->getHeight();
+	
+	col_body 		= COL_MENUHEAD_PLUS_0;
+	corner_rad		= RADIUS_LARGE,
+	corner_type		= CORNER_TOP;
+	
+
+}
+
+void CComponentsHeader::setHeaderText(const std::string& caption)
+{
+	cch_text	= caption;
+}
+
+void CComponentsHeader::setHeaderText(neutrino_locale_t caption_locale)
+{
+	cch_text	= g_Locale->getText(caption_locale);
+}
+
+void CComponentsHeader::setHeaderIcon(const char* icon_name)
+{
+	cch_icon_name 	= icon_name;
+}
+
+void CComponentsHeader::paint(bool do_save_bg)
+{
+	//paint body
+	paintInit(do_save_bg);
+	
+	int cch_items_y = 0;
+	
+	//init icon
+	if (cch_icon_obj){
+		delete cch_icon_obj;
+		cch_icon_obj = NULL;
+	}
+	int cch_icon_x = 0;
+	if (cch_icon_name)
+		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
+	cch_icon_obj->setWidth(48);
+	cch_icon_obj->setHeight(height);
+	cch_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+	cch_icon_obj->setColorBody(col_body);
+	
+	//corner of icon item
+	cch_icon_obj->setCornerRadius(corner_rad-fr_thickness);
+	int cc_icon_corner_type = corner_type;
+	if (corner_type == CORNER_TOP_LEFT || corner_type == CORNER_TOP)
+		cc_icon_corner_type = CORNER_TOP_LEFT;
+	else
+		cc_icon_corner_type = CORNER_LEFT;
+	cch_icon_obj->setCornerType(cc_icon_corner_type);
+	
+	
+	//init text
+	if (cch_text_obj){
+		delete cch_text_obj;
+		cch_text_obj = NULL;
+	}
+	int cch_text_x = cch_icon_x+cch_icon_obj->getWidth();
+	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_obj->getWidth()-fr_thickness, height-2*fr_thickness, cch_text.c_str());
+	cch_text_obj->setTextFont(cch_font);
+	cch_text_obj->setTextColor(cch_col_text);
+	cch_text_obj->setColorBody(col_body);
+	
+	//corner of text item
+	cch_text_obj->setCornerRadius(corner_rad-fr_thickness);
+	cch_text_obj->setCornerType(corner_type);
+	
+	//add elements
+	addCCItem(cch_icon_obj);
+	addCCItem(cch_text_obj);
+
+	//paint
+	paintCCItems();
+}
+
+
