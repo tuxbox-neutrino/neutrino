@@ -25,6 +25,7 @@
 #include <config.h>
 #endif
 
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -33,6 +34,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/swap.h>
 #include <dirent.h>
 #include <dlfcn.h>
 #include <sys/mount.h>
@@ -306,6 +308,132 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	return 1;
 }
 
+static int dev_umount(char *dev)
+{
+	char buffer[255];
+	FILE *f = fopen("/proc/mounts", "r");
+	if(f == NULL)
+		return -1;
+	while (fgets (buffer, 255, f) != NULL) {
+		char *p = buffer + strlen(dev);
+		if (strstr(buffer, dev) == buffer && *p == ' ') {
+			p++;
+			char *q = strchr(p, ' ');
+			if (q == NULL)
+				continue;
+			*q = 0x0;
+			fclose(f);
+			printf("dev_umount %s: umounting %s\n", dev, p);
+			return umount(p);
+		}
+	}
+#ifndef ASSUME_MDEV
+	/* with mdev, we hopefully don't have to umount anything here... */
+	printf("dev_umount %s: not found\n", dev);
+#endif
+	errno = ENOENT;
+	fclose(f);
+	return -1;
+}
+
+/* unmounts all partitions of a given block device, dev can be /dev/sda, sda or sda4 */
+static int umount_all(const char *dev)
+{
+	char buffer[255];
+	int i;
+	char *d = strdupa(dev);
+	char *p = d + strlen(d) - 1;
+	while (isdigit(*p))
+		p--;
+	*++p = 0x0;
+	if (strstr(d, "/dev/") == d)
+		d += strlen("/dev/");
+	printf("HDD: %s dev = '%s' d = '%s'\n", __func__, dev, d);
+	for (i = 1; i < 16; i++)
+	{
+		sprintf(buffer, "/dev/%s%d", d, i);
+		// printf("checking for '%s'\n", buffer);
+		if (access(buffer, R_OK))
+			continue;	/* device does not exist? */
+#ifdef ASSUME_MDEV
+		/* we can't use a 'remove' uevent, as that would also remove the device node
+		 * which we certainly need for formatting :-) */
+		if (! access("/etc/mdev/mdev-mount.sh", X_OK)) {
+			sprintf(buffer, "MDEV=%s%d ACTION=remove /etc/mdev/mdev-mount.sh block", d, i);
+			printf("-> running '%s'\n", buffer);
+			my_system("/bin/sh", "-c", buffer);
+		}
+#endif
+		sprintf(buffer, "/dev/%s%d", d, i);
+		/* just to make sure */
+		swapoff(buffer);
+		if (dev_umount(buffer) && errno != ENOENT)
+			fprintf(stderr, "could not umount %s: %m\n", buffer);
+	}
+	return 0;
+}
+
+/* triggers a uevent for all partitions of a given blockdev, dev can be /dev/sda, sda or sda4 */
+static int mount_all(const char *dev)
+{
+	char buffer[255];
+	int i, ret = -1;
+	char *d = strdupa(dev);
+	char *p = d + strlen(d) - 1;
+	while (isdigit(*p))
+		p--;
+	if (strstr(d, "/dev/") == d)
+		d += strlen("/dev/");
+	*++p = 0x0;
+	printf("HDD: %s dev = '%s' d = '%s'\n", __func__, dev, d);
+	for (i = 1; i < 16; i++)
+	{
+#ifdef ASSUME_MDEV
+		sprintf(buffer, "/sys/block/%s/%s%d/uevent", d, d, i);
+		if (!access(buffer, W_OK)) {
+			FILE *f = fopen(buffer, "w");
+			if (!f)
+				fprintf(stderr, "HDD: %s could not open %s: %m\n", __func__, buffer);
+			else {
+				printf("-> triggering add uevent in %s\n", buffer);
+				fprintf(f, "add\n");
+				fclose(f);
+				ret = 0;
+			}
+		}
+#endif
+	}
+	return ret;
+}
+
+#ifdef ASSUME_MDEV
+static void waitfordev(const char *src, int maxwait)
+{
+	int waitcount = 0;
+	/* wait for the device to show up... */
+	while (access(src, W_OK)) {
+		if (!waitcount)
+			printf("CHDDFmtExec: waiting for %s", src);
+		else
+			printf(".");
+		fflush(stdout);
+		waitcount++;
+		if (waitcount > maxwait) {
+			fprintf(stderr, "CHDDFmtExec: device %s did not appear!\n", src);
+			break;
+		}
+		sleep(1);
+	}
+	if (waitcount && waitcount <= maxwait)
+		printf("\n");
+}
+#else
+static void waitfordev(const char *, int)
+{
+}
+#endif
+
+#if 0
 static int check_and_umount(char * dev, char * path)
 {
 	char buffer[255];
@@ -323,6 +451,7 @@ static int check_and_umount(char * dev, char * path)
 	printf("HDD: %s not mounted\n", path);
 	return 0;
 }
+#endif
 
 int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 {
@@ -346,7 +475,8 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	bool srun = my_system("killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
-	res = check_and_umount(src, dst);
+	//res = check_and_umount(src, dst);
+	res = umount_all(key.c_str());
 	printf("CHDDFmtExec: umount res %d\n", res);
 
 	if(res) {
@@ -357,11 +487,15 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		goto _return;
 	}
 
+#ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
 		fprintf(f, "none\n");
 		fclose(f);
 	}
+#else
+	creat("/tmp/.nomdevmount", 00660);
+#endif
 
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_FORMAT);
@@ -377,6 +511,10 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
 	}
 
+#ifdef ASSUME_MDEV
+	/* mdev will create it and waitfordev will wait for it... */
+	unlink(src);
+#endif
 	printf("CHDDFmtExec: executing %s\n", cmd);
 	f=popen(cmd, "w");
 	if (!f) {
@@ -401,6 +539,8 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		default:
 			return 0;
 	}
+
+	waitfordev(src, 30);
 
 	printf("CHDDFmtExec: executing %s\n", cmd);
 
@@ -478,14 +618,19 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	progress->showGlobalStatus(100);
 	sleep(2);
 
+	waitfordev(src, 30); /* mdev can somtimes takes long to create devices, especially after mkfs? */
+
 	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
 	my_system("/sbin/tune2fs", "-r 0", "-c 0", "-i 0", src);
 
 _remount:
+	unlink("/tmp/.nomdevmount");
 	progress->hide();
 	delete progress;
 
-        switch(g_settings.hdd_fs) {
+	if ((res = mount_all(key.c_str())))
+	{
+		switch(g_settings.hdd_fs) {
                 case 0:
 			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
@@ -496,12 +641,15 @@ _remount:
                         break;
 		default:
                         break;
-        }
+		}
+	}
+#ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
 		fprintf(f, "/sbin/hotplug\n");
 		fclose(f);
 	}
+#endif
 
 	if(!res) {
 		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
@@ -571,7 +719,8 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 	bool srun = my_system("killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
-	res = check_and_umount(src, dst);
+	//res = check_and_umount(src, dst);
+	res = umount_all(key.c_str());
 	printf("CHDDChkExec: umount res %d\n", res);
 	if(res) {
 		hintbox = new CHintBox(LOCALE_HDD_CHECK, g_Locale->getText(LOCALE_HDD_UMOUNT_WARN));
@@ -640,7 +789,10 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 	delete progress;
 
 ret1:
-        switch(g_settings.hdd_fs) {
+
+	if ((res = mount_all(key.c_str())))
+	{
+		switch(g_settings.hdd_fs) {
                 case 0:
 			res = mount(src, dst, "ext3", 0, NULL);
                         break;
@@ -649,7 +801,8 @@ ret1:
                         break;
 		default:
                         break;
-        }
+		}
+	}
 	printf("CHDDChkExec: mount res %d\n", res);
 
 	if(!srun) my_system("smbd",NULL);
