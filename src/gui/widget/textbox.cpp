@@ -74,8 +74,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 {
 	//TRACE("[CTextBox] new\r\n");
 	initVar();
-
-	frameBuffer 	= NULL;
+	
 	max_width 	= 0;
 
  	if(text != NULL)
@@ -124,8 +123,6 @@ CTextBox::CTextBox(const char * text)
 	//TRACE("[CTextBox] new\r\n");
 	initVar();
 
-	frameBuffer = NULL;
-	
 	if(text != NULL)
 		m_cText = *text;
 
@@ -156,6 +153,8 @@ CTextBox::~CTextBox()
 void CTextBox::initVar(void)
 {
 	//TRACE("[CTextBox]->InitVar\r\n");
+	frameBuffer 	= NULL;
+	
 	m_showTextFrame = 0;
 	m_nNrOfNewLine = 0;
 	m_nMaxLineWidth = 0;
