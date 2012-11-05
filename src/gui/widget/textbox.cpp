@@ -152,6 +152,11 @@ CTextBox::~CTextBox()
 void CTextBox::initVar(void)
 {
 	//TRACE("[CTextBox]->InitVar\r\n");
+	m_showTextFrame = 0;
+	m_nNrOfNewLine = 0;
+	m_nMaxLineWidth = 0;
+	max_width = 0;
+
 	m_cText	= "";
 	m_nMode = SCROLL;
 

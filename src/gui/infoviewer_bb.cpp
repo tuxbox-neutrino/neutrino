@@ -89,6 +89,11 @@ CInfoViewerBB::CInfoViewerBB()
 #endif
 	hddperT			= 0;
 	hddperTflag		= false;
+	bbIconInfo[0].x = 0;
+	bbIconInfo[0].h = 0;
+	BBarY = 0;
+	BBarFontY = 0;
+
 	Init();
 }
 

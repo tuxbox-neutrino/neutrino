@@ -39,6 +39,8 @@
 
 CZapitSetup::CZapitSetup()
 {
+	zapit1 = NULL;
+	zapit2 = NULL;
 	width = w_max (40, 10); //%
 }
 
