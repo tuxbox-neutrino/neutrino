@@ -213,7 +213,6 @@ CMsgBox::~CMsgBox()
 void CMsgBox::initVar(void)
 {
 	//TRACE("->CMsgBox::InitVar\r\n");
-	mode = AUTO_WIDTH;
 	m_nResult = mbrYes;
 	m_cTitle = "";
 	m_cIcon = "";
