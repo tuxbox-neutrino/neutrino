@@ -146,7 +146,7 @@ void CTextBox::initVar(void)
 	m_showTextFrame = 0;
 	m_nNrOfNewLine = 0;
 	m_nMaxLineWidth = 0;
-	max_width = 0;
+	m_nMaxTextWidth = 0;
 
 	m_cText	= "";
 	m_nMode = SCROLL;
