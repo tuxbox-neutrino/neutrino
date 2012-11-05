@@ -384,7 +384,7 @@ int CBouquetList::show(bool bShowChannelList)
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
 				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ||
-				(msg == CRCInput::RC_favorites) )
+				((msg == CRCInput::RC_favorites) && (CNeutrinoApp::getInstance()->GetChannelMode() == LIST_MODE_FAV)))
 		{
 			selected = oldselected;
 			if(fader.StartFadeOut()) {
