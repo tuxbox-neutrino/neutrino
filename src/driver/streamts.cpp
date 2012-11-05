@@ -259,11 +259,10 @@ void * streamts_live_thread(void *data)
 	char cbuf[512];
 	char *bp;
 	int fd = (int) data;
-	FILE * fp;
 	unsigned char demuxfd_count = 0;
 
 	printf("Starting LIVE STREAM thread, fd %d\n", fd);
-	fp = fdopen(fd, "r+");
+	FILE * fp = fdopen(fd, "r+");
 	if(fp == NULL) {
 		perror("fdopen");
 		return 0;
@@ -323,9 +322,9 @@ void * streamts_live_thread(void *data)
 			pids[demuxfd_count++] = channel->getAudioChannel(i)->pid;
 	}
 
-	buf = (unsigned char *) malloc(IN_SIZE);
+	buf =  new unsigned char [IN_SIZE];
 	if (buf == NULL) {
-		perror("malloc");
+		perror("NEW");
 		return 0;
 	}
 
@@ -353,7 +352,7 @@ void * streamts_live_thread(void *data)
 	CCamManager::getInstance()->Stop(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::STREAM);
 
 	delete dmx;
-	free(buf);
+	delete []buf;
 	close(fd);
 	return 0;
 }
