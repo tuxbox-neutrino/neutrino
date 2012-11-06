@@ -124,6 +124,7 @@ class CInfoViewerBB
 		void showBarSys(int percent = 0);
 		void showBarHdd(int percent = 0);
 
+		int		hddpercent;
 		pthread_t	hddperT;
 		static void*	hddperThread(void *arg);
 		bool		hddperTflag;
