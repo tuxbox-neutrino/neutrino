@@ -3184,6 +3184,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	INFO("%s", bOnOff ? "ON" : "OFF" );
 
 	if( bOnOff ) {
+		CVFD::getInstance()->ShowText("standby...        ");
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
 		}
@@ -3253,6 +3254,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		// Active standby off
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		powerManager->SetStandby(false, false);
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance()->ShowText("resume...        ");
 		videoDecoder->Standby(false);
 
 		if(init_cec_setting){
@@ -3275,7 +3278,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if (my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
 
-		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		g_Zapit->setStandby(false);
 		/* the old code did:
 		   if(was_record) g_Zapit->startPlayBack()
