@@ -329,8 +329,11 @@ int CVideoSettings::showVideoSetup()
 		vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
 	}
 
+	neutrino_locale_t tmp_locale = NONEXISTANT_LOCALE;
+	if (vs_analg_ch != NULL || vs_scart_ch != NULL || vs_chinch_ch != NULL)
+		tmp_locale = LOCALE_VIDEOMENU_TV_SCART;
 	//---------------------------------------
-	videosetup->addIntroItems(LOCALE_MAINSETTINGS_VIDEO, LOCALE_VIDEOMENU_TV_SCART);
+	videosetup->addIntroItems(LOCALE_MAINSETTINGS_VIDEO, tmp_locale);
 	//---------------------------------------
 	//videosetup->addItem(vs_scart_sep);	  //separator scart
 	if (vs_analg_ch != NULL)
@@ -339,7 +342,8 @@ int CVideoSettings::showVideoSetup()
 		videosetup->addItem(vs_scart_ch); //scart
 	if (vs_chinch_ch != NULL)
 		videosetup->addItem(vs_chinch_ch);//chinch
-	videosetup->addItem(GenericMenuSeparatorLine);
+	if (tmp_locale != NONEXISTANT_LOCALE)
+		videosetup->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------
 	videosetup->addItem(vs_43mode_ch);	  //4:3 mode
 	videosetup->addItem(vs_dispformat_ch);	  //display format
