@@ -112,8 +112,12 @@ CPictureViewerGui::~CPictureViewerGui()
 }
 
 //------------------------------------------------------------------------
-int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 {
+	audioplayer = false;
+	if (actionKey == "audio")
+		audioplayer = true;
+
 	selected = 0;
 	width  = w_max (710, 0);
 	height = h_max (570, 0);
@@ -159,14 +163,16 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	// remember last mode
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
 
-	//g_Zapit->setStandby(true);
-	g_Zapit->lockPlayBack();
+	if (!audioplayer) { // !!! why? !!!
+		//g_Zapit->setStandby(true);
+		g_Zapit->lockPlayBack();
 
-	// blank background screen
-	videoDecoder->setBlank(true);
+		// blank background screen
+		videoDecoder->setBlank(true);
 
-	// Stop Sectionsd
-	g_Sectionsd->setPauseScanning(true);
+		// Stop Sectionsd
+		g_Sectionsd->setPauseScanning(true);
+	}
 
 	// Save and Clear background
 	bool usedBackground = frameBuffer->getuseBackground();
@@ -180,11 +186,13 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	// free picviewer mem
 	m_viewer->Cleanup();
 
-	//g_Zapit->setStandby(false);
-	g_Zapit->unlockPlayBack();
+	if (!audioplayer) { // !!! why? !!!
+		//g_Zapit->setStandby(false);
+		g_Zapit->unlockPlayBack();
 
-	// Start Sectionsd
-	g_Sectionsd->setPauseScanning(false);
+		// Start Sectionsd
+		g_Sectionsd->setPauseScanning(false);
+	}
 
 	// Restore previous background
 	if (usedBackground) {
@@ -225,6 +233,9 @@ int CPictureViewerGui::show()
 			update=false;
 			paint();
 		}
+
+		if (audioplayer)
+			m_audioPlayer->wantNextPlay();
 
 		if (m_state!=SLIDESHOW)
 			timeout=50; // egal

@@ -251,11 +251,15 @@ class CAudioPlayerGui : public CMenuTarget
 	bool playNext(bool allow_rotate = false);
 	bool playPrev(bool allow_rotate = false);
 
+	bool pictureviewer;
+
  public:
 	CAudioPlayerGui(bool inetmode = false);
 	~CAudioPlayerGui();
 	int show();
 	int exec(CMenuTarget* parent, const std::string & actionKey);
+
+	void wantNextPlay();
 };
 
 
