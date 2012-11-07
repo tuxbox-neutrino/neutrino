@@ -1516,16 +1516,20 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 
 CComponentsForm::~CComponentsForm()
 {
+#ifdef DEBUG_CC
+	printf("[CComponents] calling %s...\n", __FUNCTION__);
+#endif
 	hide();
 	clearSavedScreen();
-	clearCCForm();
+	clearCCItems();
 	clear();
 }
 
-void CComponentsForm::clearCCForm()
+void CComponentsForm::clearCCItems()
 {
 	for(size_t i=0; i<v_cc_items.size(); i++) {
-		delete v_cc_items[i];
+		if (v_cc_items[i])
+			delete v_cc_items[i];
 		v_cc_items[i] = NULL;
 	}
 	v_cc_items.clear();
@@ -1664,20 +1668,15 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	cch_icon_name	= icon_name;
 }
 
+#if 0 
 CComponentsHeader::~CComponentsHeader()
 {
 	hide();
 	clearSavedScreen();
-	clearCCForm();
-
-	delete cch_icon_obj;
-	cch_icon_obj = NULL;
-
-	delete cch_text_obj;
-	cch_text_obj = NULL;
-	
+	clearCCItems();
 	clear();
 }
+#endif
 
 void CComponentsHeader::initVarHeader()
 {
@@ -1722,12 +1721,11 @@ void CComponentsHeader::paint(bool do_save_bg)
 	paintInit(do_save_bg);
 	
 	int cch_items_y = 0;
+
+	//clean up first possible old item objects, includes delete and clean up vector
+	clearCCItems();
 	
 	//init icon
-	if (cch_icon_obj){
-		delete cch_icon_obj;
-		cch_icon_obj = NULL;
-	}
 	int cch_icon_x = 0;
 	if (cch_icon_name)
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
@@ -1747,10 +1745,6 @@ void CComponentsHeader::paint(bool do_save_bg)
 	
 	
 	//init text
-	if (cch_text_obj){
-		delete cch_text_obj;
-		cch_text_obj = NULL;
-	}
 	int cch_text_x = cch_icon_x+cch_icon_obj->getWidth();
 	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_obj->getWidth()-fr_thickness, height-2*fr_thickness, cch_text.c_str());
 	cch_text_obj->setTextFont(cch_font);
@@ -1760,7 +1754,7 @@ void CComponentsHeader::paint(bool do_save_bg)
 	//corner of text item
 	cch_text_obj->setCornerRadius(corner_rad-fr_thickness);
 	cch_text_obj->setCornerType(corner_type);
-	
+
 	//add elements
 	addCCItem(cch_icon_obj);
 	addCCItem(cch_text_obj);
