@@ -150,7 +150,6 @@ void CTextBox::initVar(void)
 	m_cText	= "";
 	m_nMode = SCROLL;
 
-	m_pcFontText 		= NULL;
 	m_pcFontText  		= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
 	m_nFontTextHeight 	= m_pcFontText->getHeight();
 	m_nMaxTextWidth		= 0;
