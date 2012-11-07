@@ -436,6 +436,7 @@ filesystem.is.utf8 Dateisystem
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
+flashupdate.apply_settings Sollen die aktuellen Einstellungen in das neue Image übernommen werden?
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen

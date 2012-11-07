@@ -55,7 +55,7 @@ class CExtUpdate
 		std::string mountPkt;
 		CFileHelpers* FileHelpers;
 
-		bool writemtdExt(void);
+		bool applySettings(void);
 		bool readBackupList(const std::string & dstPath);
 		bool copyFileList(const std::string & fileList, const std::string & dstPath);
 		bool readConfig(const std::string & Config);
@@ -69,11 +69,16 @@ class CExtUpdate
 		void updateLog(const char *buf);
 
  	public:
+		enum
+		{
+			MODE_EXPERT	= 0,
+			MODE_SOFTUPDATE	= 1
+		};
 		CExtUpdate();
 		~CExtUpdate();
 		static CExtUpdate* getInstance();
 
-		bool writemtdExt(const std::string & filename);
+		bool applySettings(const std::string & filename, int mode);
 		bool ErrorReset(bool modus, const std::string & msg1="", const std::string & msg2="");
 
 };
