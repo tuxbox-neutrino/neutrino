@@ -238,7 +238,7 @@ int CNetworkSetup::showNetworkSetup()
 	CIPInput networkSettings_NameServer(LOCALE_NETWORKMENU_NAMESERVER, network_nameserver, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 
 	//hostname
-	CStringInputSMS networkSettings_Hostname(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 30, LOCALE_NETWORKMENU_NTPSERVER_HINT1, LOCALE_NETWORKMENU_NTPSERVER_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
+	CStringInputSMS networkSettings_Hostname(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 30, LOCALE_NETWORKMENU_HOSTNAME_HINT1, LOCALE_NETWORKMENU_HOSTNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
 
 	//auto start
 	CMenuOptionChooser* o1 = new CMenuOptionChooser(LOCALE_NETWORKMENU_SETUPONSTARTUP, &network_automatic_start, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);

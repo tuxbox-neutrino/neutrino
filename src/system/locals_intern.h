@@ -1345,6 +1345,8 @@ const char * locale_real_names[] =
 	"networkmenu.error_no_address",
 	"networkmenu.gateway",
 	"networkmenu.hostname",
+	"networkmenu.hostname_hint1",
+	"networkmenu.hostname_hint2",
 	"networkmenu.inactive_network",
 	"networkmenu.ipaddress",
 	"networkmenu.mount",
