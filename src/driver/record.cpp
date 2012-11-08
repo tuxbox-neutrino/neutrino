@@ -51,6 +51,7 @@
 
 
 #include <driver/record.h>
+#include <driver/streamts.h>
 #include <zapit/capmt.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
@@ -1591,12 +1592,16 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		 * needed, if record frontend same as live, and its on different TP */
 		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, channel_id);
 		if(found) {
+			/* stop stream for this channel */
+			CStreamManager::getInstance()->StopStream(channel_id);
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
 			printf("%s found same tp, zapTo_record channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
 		}
 		else {
 			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
 			StopAutoRecord(false);
+			/* stop all streams */
+			CStreamManager::getInstance()->StopStream();
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
 				mode_changed = true;
@@ -1620,6 +1625,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 			g_Zapit->stopPlayBack();
 		if ((live_channel_id == channel_id) && g_Radiotext)
 			g_Radiotext->radiotext_stop();
+		/* in case channel_id == live_channel_id */
+		CStreamManager::getInstance()->StopStream(channel_id);
 	}
 	if(last_mode == NeutrinoMessages::mode_standby) {
 		//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
