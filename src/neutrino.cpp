@@ -207,6 +207,7 @@ CNeutrinoApp::CNeutrinoApp()
 	RADIOchannelList	= NULL;
 	skipShutdownTimer	= false;
 	skipSleepTimer		= false;
+	lockStandbyCall         = false;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= 0;
@@ -3079,6 +3080,11 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
 
+	if(lockStandbyCall)
+		return;
+
+	lockStandbyCall = true;
+
 	if( bOnOff ) {
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
@@ -3207,6 +3213,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_volume->AudioMute(current_muted, true);
 		StartSubtitles();
 	}
+	lockStandbyCall = false;
 }
 
 void CNeutrinoApp::radioMode( bool rezap)
