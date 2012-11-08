@@ -332,8 +332,8 @@ void CTextBox::refreshTextLineArray(void)
 		lineBreakWidth = std::max(m_nMaxWidth, m_cFrameTextRel.iWidth - 2*text_border_width);
 	}
 	
-// 	if(m_nMaxWidth)
-// 		lineBreakWidth = m_nMaxWidth;
+ 	if(m_nMaxTextWidth)
+ 		lineBreakWidth = m_nMaxTextWidth;
 
 	//TRACE("[CTextBox] line %d: lineBreakWidth %d\n", __LINE__, lineBreakWidth);
 
@@ -595,8 +595,7 @@ bool CTextBox::setText(const std::string* newText, int max_width)
 {
 	//TRACE("[CTextBox]->SetText \r\n");
 	bool result = false;
-	if (max_width>0)
-		m_nMaxTextWidth = max_width;
+	m_nMaxTextWidth = max_width;
 	
 //printf("setText: _max_width %d max_width %d\n", _max_width, max_width);
 	if (newText != NULL)
