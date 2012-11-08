@@ -218,11 +218,11 @@ void CNetworkConfig::commitConfig(void)
 
 void CNetworkConfig::startNetwork(void)
 {
-	const char _ifup[]  = "/sbin/ifup";
+	std::string cmd = "/sbin/ifup " + ifname;
 #ifdef DEBUG
-	printf("CNetworkConfig::startNetwork: %s %s\n",_ifup, ifname.c_str());
+	printf("CNetworkConfig::startNetwork: %s\n", cmd.c_str());
 #endif
-	my_system(_ifup, ifname.c_str());
+	my_system("/bin/sh", "-c", cmd.c_str());
 
 	if (!inet_static) {
 		init_vars();
@@ -232,11 +232,11 @@ void CNetworkConfig::startNetwork(void)
 
 void CNetworkConfig::stopNetwork(void)
 {
-	const char _ifdown[] = "/sbin/ifdown";
+	std::string cmd = "/sbin/ifdown " + ifname;
 #ifdef DEBUG
-	printf("CNetworkConfig::stopNetwork: %s %s\n",_ifdown, ifname.c_str());
+	printf("CNetworkConfig::stopNetwork: %s\n", cmd.c_str());
 #endif
-	my_system(_ifdown, ifname.c_str());
+	my_system("/bin/sh", "-c", cmd.c_str());
 
 }
 
