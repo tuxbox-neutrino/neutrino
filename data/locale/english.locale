@@ -436,6 +436,7 @@ filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash reading
+flashupdate.apply_settings Import current settings into new image?
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Check for online updates
@@ -1318,6 +1319,8 @@ networkmenu.dhcp DHCP
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway default gateway
 networkmenu.hostname Hostname
+networkmenu.hostname_hint1 enter hostname
+networkmenu.hostname_hint2 need reboot after change
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
 networkmenu.mount Edit network shares
