@@ -749,6 +749,7 @@ menu.hint_epg_fonts Change EPG details window font sizes
 menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cache will remove future events
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
+menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
@@ -1100,6 +1101,7 @@ miscsettings.epg_old_events EPG remove after (std.)
 miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they timed out?
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
+miscsettings.epg_save_standby Save epg on soft standby
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar

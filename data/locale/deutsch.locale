@@ -749,6 +749,7 @@ menu.hint_epg_fonts Ändern Sie für die EPG-Details die Schriftgrößen
 menu.hint_epg_max_events Maximum an Events im Zwischenspeicher. Nach Erreichen der\nGrenze werden EPG-Daten für zukünftige gelöscht
 menu.hint_epg_old_events EPG im Speicher behalten in Stunden,\nauch wenn es veraltet ist
 menu.hint_epg_save Speichert die EPG-Daten auf einer Harddisk oder USB-Stick\nund läd es nach einen Neustart
+menu.hint_epg_save_standby Speichert die EPG-Daten in Bereitschaft Modus
 menu.hint_event_textcolor Ändern Sie die Event-Farbe für farbige Event-Optionen in Kanalliste und Infobar
 menu.hint_eventlist_fonts Ändern Sie in der Event-Liste die Schriftgrößen
 menu.hint_extended Energiespar-, EPG-Speicher- / Lade-Optionen,\nHDMI-CEC, Startkanal, Zap-Optionen
@@ -1100,6 +1101,7 @@ miscsettings.epg_old_events EPG verwerfen nach (Std.)
 miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
+miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar

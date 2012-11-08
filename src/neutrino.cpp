@@ -424,7 +424,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	snprintf(g_settings.ifname, sizeof(g_settings.ifname), "%s", configfile.getString("ifname", "eth0").c_str());;
 
 	g_settings.epg_save = configfile.getBool("epg_save", false);
-
+	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -864,6 +864,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("timezone", g_settings.timezone);
 	// epg
 	configfile.setBool("epg_save", g_settings.epg_save);
+	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
 	configfile.setString("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setString("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setString("epg_old_events"           ,g_settings.epg_old_events );
@@ -3120,7 +3121,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		if(!CRecordManager::getInstance()->RecordingStatus() ) {
 			//only save epg when not recording
-			if(g_settings.epg_save && !fromDeepStandby) {
+			if(g_settings.epg_save && !fromDeepStandby && g_settings.epg_save_standby) {
 				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}
