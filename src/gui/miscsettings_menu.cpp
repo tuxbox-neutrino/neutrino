@@ -229,6 +229,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	delete sectionsdConfigNotifier;
 	if(cs_get_revision() > 7)
 		delete miscNotifier;
+	delete miscEpgNotifier;
 	return res;
 }
 
@@ -303,37 +304,48 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 {
 	ms_epg->addIntroItems(LOCALE_MISCSETTINGS_EPG_HEAD);
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
-	ms_epg->addItem(mc);
 
-	CMenuOptionChooser * mc1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_STANDBY, &g_settings.epg_save_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionChooser * mc1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_STANDBY, &g_settings.epg_save_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_save);
 	mc1->setHint("", LOCALE_MENU_HINT_EPG_SAVE_STANDBY);
-	ms_epg->addItem(mc1);
 
 	CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &g_settings.epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, g_settings.epg_cache, miscSettings_epg_cache);
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, g_settings.epg_save, g_settings.epg_cache, miscSettings_epg_cache);
 	mf->setHint("", LOCALE_MENU_HINT_EPG_CACHE);
-	ms_epg->addItem(mf);
 
 	CStringInput * miscSettings_epg_cache_e = new CStringInput(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, &g_settings.epg_extendedcache, 3,LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT1, LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, g_settings.epg_extendedcache, miscSettings_epg_cache_e);
-	mf->setHint("", LOCALE_MENU_HINT_EPG_EXTENDEDCACHE);
-	ms_epg->addItem(mf);
+	CMenuForwarder * mf1  = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, g_settings.epg_save, g_settings.epg_extendedcache, miscSettings_epg_cache_e);
+	mf1->setHint("", LOCALE_MENU_HINT_EPG_EXTENDEDCACHE);
 
 	CStringInput * miscSettings_epg_old_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, &g_settings.epg_old_events, 3,LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, g_settings.epg_old_events, miscSettings_epg_old_events);
-	mf->setHint("", LOCALE_MENU_HINT_EPG_OLD_EVENTS);
-	ms_epg->addItem(mf);
+	CMenuForwarder * mf2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, g_settings.epg_save, g_settings.epg_old_events, miscSettings_epg_old_events);
+	mf2->setHint("", LOCALE_MENU_HINT_EPG_OLD_EVENTS);
 
 	CStringInput * miscSettings_epg_max_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, &g_settings.epg_max_events, 6,LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, g_settings.epg_max_events, miscSettings_epg_max_events);
-	mf->setHint("", LOCALE_MENU_HINT_EPG_MAX_EVENTS);
-	ms_epg->addItem(mf);
+	CMenuForwarder * mf3 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, g_settings.epg_save, g_settings.epg_max_events, miscSettings_epg_max_events);
+	mf3->setHint("", LOCALE_MENU_HINT_EPG_MAX_EVENTS);
 
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, true, g_settings.epg_dir, this, "epgdir");
-	mf->setHint("", LOCALE_MENU_HINT_EPG_DIR);
+	CMenuForwarder * mf4 = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, g_settings.epg_save, g_settings.epg_dir, this, "epgdir");
+	mf4->setHint("", LOCALE_MENU_HINT_EPG_DIR);
+
+	miscEpgNotifier = new COnOffNotifier();
+	miscEpgNotifier->addItem(mc1);
+	miscEpgNotifier->addItem(mf);
+	miscEpgNotifier->addItem(mf1);
+	miscEpgNotifier->addItem(mf2);
+	miscEpgNotifier->addItem(mf3);
+	miscEpgNotifier->addItem(mf4);
+
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true,miscEpgNotifier);
+	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
+
+	ms_epg->addItem(mc);
+	ms_epg->addItem(mc1);
 	ms_epg->addItem(mf);
+	ms_epg->addItem(mf1);
+	ms_epg->addItem(mf2);
+	ms_epg->addItem(mf3);
+	ms_epg->addItem(mf4);
+
 }
 
 //filebrowser settings
