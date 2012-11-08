@@ -156,15 +156,16 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		return RECORD_INVALID_DIRECTORY;
 	}
 
+	CGenPsi psi;
 	if (allpids.PIDs.vpid != 0)
-		transfer_pids(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
+		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
 
 	numpids = 0;
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
 		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
-		transfer_pids(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
+		psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
 	}
-	genpsi(fd);
+	psi.genpsi(fd);
 
 	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0))
 		apids[numpids++] = allpids.PIDs.vtxtpid;
