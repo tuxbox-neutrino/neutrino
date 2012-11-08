@@ -56,6 +56,7 @@
 #include <driver/record.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
+#include <driver/streamts.h>
 
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
@@ -132,10 +133,6 @@ t_channel_id standby_channel_id;
 //NEW
 static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
-
-extern int streamts_stop;
-void * streamts_main_thread(void *data);
-static pthread_t stream_thread ;
 
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
@@ -1825,7 +1822,7 @@ TIMER_START();
 
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
 
-	pthread_create (&stream_thread, NULL, streamts_main_thread, (void *) NULL);
+	CStreamManager::getInstance()->Start();
 
 #ifndef DISABLE_SECTIONSD
 	CSectionsdClient::epg_config config;
@@ -3105,7 +3102,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			g_Radiotext->radiotext_stop();
 
 
-		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus()) {
+		bool stream_status = CStreamManager::getInstance()->StreamStatus();
+		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
 			g_Zapit->setStandby(true);
 		} else {
 			g_Zapit->stopPlayBack();
@@ -3442,7 +3440,6 @@ bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 **************************************************************************************/
 void stop_daemons(bool stopall)
 {
-	streamts_stop = 1;
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
@@ -3455,7 +3452,7 @@ void stop_daemons(bool stopall)
 	pthread_cancel(nhttpd_thread);
 	pthread_join(nhttpd_thread, NULL);
 	printf("httpd shutdown done\n");
-	pthread_join(stream_thread, NULL);
+	CStreamManager::getInstance()->Stop();
 	if(stopall) {
 		printf("timerd shutdown\n");
 		g_Timerd->shutdown();
