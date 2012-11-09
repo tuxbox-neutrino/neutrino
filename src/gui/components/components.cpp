@@ -73,9 +73,11 @@ void CComponents::initVarBasic()
 	col_shadow 		= COL_MENUCONTENTDARK_PLUS_0;
 	col_frame 		= COL_MENUCONTENT_PLUS_6;
 	corner_type 		= CORNER_ALL;
+	corner_rad		= 0;
 	shadow			= CC_SHADOW_OFF;
 	shadow_w		= SHADOW_OFFSET;
-
+	fr_thickness		= 0;
+	
 	firstPaint		= true;
 	is_painted		= false;
 	frameBuffer 		= CFrameBuffer::getInstance();
@@ -181,10 +183,6 @@ void CComponentsItem::initVarItem()
 {
 	//CComponents
 	initVarBasic();
-
-	//CComponentsItem
-	corner_rad	= 0;
-	fr_thickness	= 0;
 }
 
 void CComponentsItem::paintInit(bool do_save_bg)
