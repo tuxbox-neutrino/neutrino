@@ -1735,7 +1735,7 @@ void CComponentsHeader::paint(bool do_save_bg)
 	int cch_icon_x = 0;
 	if (cch_icon_name)
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
-	cch_icon_obj->setWidth(48);
+	cch_icon_obj->setWidth(height-2*fr_thickness);
 	cch_icon_obj->setHeight(height);
 	cch_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 	cch_icon_obj->doPaintBg(false);
