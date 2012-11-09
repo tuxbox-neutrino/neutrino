@@ -1694,6 +1694,8 @@ void CComponentsHeader::initVarHeader()
 	cch_text		= "header";
 	cch_locale_text 	= NONEXISTANT_LOCALE;
 	cch_col_text		= COL_MENUHEAD;
+	cch_items_y 		= 0;
+	cch_icon_x 		= 0;
 	
 	//CComponentsForm
 	initVarForm();
@@ -1721,25 +1723,15 @@ void CComponentsHeader::setHeaderIcon(const char* icon_name)
 	cch_icon_name 	= icon_name;
 }
 
-void CComponentsHeader::paint(bool do_save_bg)
+void CComponentsHeader::initCCHeaderIcon()
 {
-	//paint body
-	paintInit(do_save_bg);
-	
-	int cch_items_y = 0;
-
-	//clean up first possible old item objects, includes delete and clean up vector
-	clearCCItems();
-	
-	//init icon
-	int cch_icon_x = 0;
 	if (cch_icon_name)
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
 	cch_icon_obj->setWidth(height-2*fr_thickness);
 	cch_icon_obj->setHeight(height);
 	cch_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 	cch_icon_obj->doPaintBg(false);
-	
+
 	//corner of icon item
 	cch_icon_obj->setCornerRadius(corner_rad-fr_thickness);
 	int cc_icon_corner_type = corner_type;
@@ -1748,18 +1740,34 @@ void CComponentsHeader::paint(bool do_save_bg)
 	else
 		cc_icon_corner_type = CORNER_LEFT;
 	cch_icon_obj->setCornerType(cc_icon_corner_type);
-	
-	
-	//init text
+}
+
+void CComponentsHeader::initCCHeaderText()
+{
 	int cch_text_x = cch_icon_x+cch_icon_obj->getWidth();
 	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_obj->getWidth()-fr_thickness, height-2*fr_thickness, cch_text.c_str());
 	cch_text_obj->setTextFont(cch_font);
 	cch_text_obj->setTextColor(cch_col_text);
 	cch_text_obj->doPaintBg(false);
-	
+
 	//corner of text item
 	cch_text_obj->setCornerRadius(corner_rad-fr_thickness);
 	cch_text_obj->setCornerType(corner_type);
+}
+
+void CComponentsHeader::paint(bool do_save_bg)
+{
+	//paint body
+	paintInit(do_save_bg);
+
+	//clean up first possible old item objects, includes delete and clean up vector
+	clearCCItems();
+	
+	//init icon
+	initCCHeaderIcon();
+	
+	//init text
+	initCCHeaderText();
 
 	//add elements
 	addCCItem(cch_icon_obj);

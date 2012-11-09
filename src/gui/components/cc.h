@@ -453,8 +453,14 @@ class CComponentsHeader : public CComponentsForm
 		neutrino_locale_t cch_locale_text;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
+		int cch_icon_x, cch_items_y;
+		
+		void initCCHeaderIcon();
+		void initCCHeaderText();
+		
 	protected:
 		void initVarHeader();
+		
 	public:
 
 		CComponentsHeader();
