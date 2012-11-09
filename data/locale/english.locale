@@ -211,7 +211,7 @@ channellist.foot_freq Sat/Freq Info
 channellist.foot_next next Event
 channellist.foot_off off
 channellist.foot_sort_alpha sorted[alpha]
-channellist.foot_sort_chnum Sortiert[number]
+channellist.foot_sort_chnum sorted[number]
 channellist.foot_sort_freq sorted[freq]
 channellist.foot_sort_sat sorted[sat]
 channellist.head All Services
