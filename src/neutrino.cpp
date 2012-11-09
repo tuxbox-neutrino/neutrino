@@ -2658,10 +2658,21 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
-		if(skipSleepTimer) {
-			printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
-			skipSleepTimer = false;
-			return messages_return::handled;
+		if(data) {//INACTIVITY SLEEPTIMER
+			skipShutdownTimer =
+				(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE,
+				      CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
+			if(skipShutdownTimer) {
+				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skiping\n");
+				skipShutdownTimer = false;
+				return messages_return::handled;
+                       }
+		}else{ //MAIN-MENU SLEEPTIMER
+			if(skipSleepTimer) {
+				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
+				skipSleepTimer = false;
+				return messages_return::handled;
+			}
 		}
 		if(g_settings.shutdown_real)
 			ExitRun(true, (cs_get_revision() > 7));
