@@ -211,6 +211,7 @@ channellist.foot_freq Tuning-Parameter
 channellist.foot_next Nachfolgesendung
 channellist.foot_off aus
 channellist.foot_sort_alpha Sortiert[alpha]
+channellist.foot_sort_chnum Sortiert[nummer]
 channellist.foot_sort_freq Sortiert[freq]
 channellist.foot_sort_sat Sortiert[sat]
 channellist.head Alle Kanäle

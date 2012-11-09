@@ -153,6 +153,7 @@ public:
 	void SortAlpha(void);
 	void SortSat(void);
 	void SortTP(void);
+	void SortChNumber(void);
 	void ClearList(void);
 	bool SameTP(t_channel_id channel_id);
 	bool SameTP(CZapitChannel * channel = NULL);
@@ -161,5 +162,14 @@ public:
 	int getSelected() { return selected; }
 	CZapitChannel* getPrevNextChannel(int key, unsigned int &sl);
 	//friend class CZapitChannel;
+	enum
+	{
+		SORT_ALPHA = 0,
+		SORT_TP,
+		SORT_SAT,
+		SORT_CH_NUMBER,
+		SORT_MAX
+	};
+
 };
 #endif

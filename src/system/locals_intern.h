@@ -238,6 +238,7 @@ const char * locale_real_names[] =
 	"channellist.foot_next",
 	"channellist.foot_off",
 	"channellist.foot_sort_alpha",
+	"channellist.foot_sort_chnum",
 	"channellist.foot_sort_freq",
 	"channellist.foot_sort_sat",
 	"channellist.head",

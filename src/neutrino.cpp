@@ -1395,16 +1395,18 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 			break;
 	}
 	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
-	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < 3) {
+	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < CChannelList::SORT_MAX) {
 		sortmode[newmode] = g_settings.channellist_sort_mode;
 		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, bouquetList->Bouquets.size());
 		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
-			if(g_settings.channellist_sort_mode == 0)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_ALPHA)
 				bouquetList->Bouquets[i]->channelList->SortAlpha();
-			if(g_settings.channellist_sort_mode == 1)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_TP)
 				bouquetList->Bouquets[i]->channelList->SortTP();
-			if(g_settings.channellist_sort_mode == 2)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_SAT)
 				bouquetList->Bouquets[i]->channelList->SortSat();
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_CH_NUMBER)
+				bouquetList->Bouquets[i]->channelList->SortChNumber();
 		}
 		channelList->adjustToChannelID(channelList->getActiveChannel_ChannelID());
 	}
