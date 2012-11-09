@@ -114,6 +114,7 @@ class CComponents
 {
 	protected:
 		int x, y, height, width, corner_type, shadow_w;
+		int corner_rad, fr_thickness;
 		CFrameBuffer * frameBuffer;
 		std::vector<comp_fbdata_t> v_fbdata;
 		fb_pixel_t	col_body, col_shadow, col_frame;
@@ -151,22 +152,7 @@ class CComponents
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};
 		inline virtual fb_pixel_t getColorBody(){return col_body;};
 		inline virtual fb_pixel_t getColorShadow(){return col_shadow;};
-
-		virtual void hide();
-		virtual bool isPainted(){return is_painted;};
-};
-
-class CComponentsItem : public CComponents
-{
-	protected:
-		int corner_rad, fr_thickness;
-		void hideContainer(bool no_restore = false);
-		void paintInit(bool do_save_bg);
-		void initVarItem();
-
-	public:
-		CComponentsItem();
-
+		
 ///		set corner types: Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h).
 		inline virtual void setCornerType(const int& type){corner_type = type;};
 		inline virtual void setCornerRadius(const int& radius){corner_rad = radius;};
@@ -176,7 +162,21 @@ class CComponentsItem : public CComponents
 		
 		inline virtual void setFrameThickness(const int& thickness){fr_thickness = thickness;};
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
+		
+		virtual void hide();
+		virtual bool isPainted(){return is_painted;};
+};
 
+class CComponentsItem : public CComponents
+{
+	protected:		
+		void hideCCItem(bool no_restore = false);
+		void paintInit(bool do_save_bg);
+		void initVarItem();
+		
+	public:
+		CComponentsItem();
+		
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		virtual void hide(bool no_restore = false);
 		virtual void kill();

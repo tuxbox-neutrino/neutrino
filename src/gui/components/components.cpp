@@ -211,7 +211,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 //restore last saved screen behind form box,
 //Do use parameter 'no restore' to override temporarly the restore funtionality.
 //This could help to avoid ugly flicker efffects if it is necessary e.g. on often repaints, without changed contents.
-void CComponentsItem::hideContainer(bool no_restore)
+void CComponentsItem::hideCCItem(bool no_restore)
 {
 	is_painted = false;
 
@@ -227,7 +227,7 @@ void CComponentsItem::hideContainer(bool no_restore)
 
 void CComponentsItem::hide(bool no_restore)
 {
-	hideContainer(no_restore);
+	hideCCItem(no_restore);
 }
 
 
@@ -400,7 +400,7 @@ void CComponentsText::hide(bool no_restore)
 {
 	if (ct_textbox)
 		ct_textbox->hide();
-	hideContainer(no_restore);
+	hideCCItem(no_restore);
 }
 
 //small helper to remove excessiv linbreaks
@@ -751,7 +751,7 @@ void CComponentsPIP::paint(bool do_save_bg)
 
 void CComponentsPIP::hide(bool no_restore)
 {
-	hideContainer(no_restore);
+	hideCCItem(no_restore);
 	videoDecoder->Pig(-1, -1, -1, -1);
 }
 
@@ -888,7 +888,7 @@ void CComponentsPicture::paint(bool do_save_bg)
 
 void CComponentsPicture::hide(bool no_restore)
 {
-	hideContainer(no_restore);
+	hideCCItem(no_restore);
 	pic_painted = false;
 }
 
@@ -1619,7 +1619,7 @@ void CComponentsForm::paintCCItems()
 void CComponentsForm::hide(bool no_restore)
 {
 	//hide body
-	hideContainer(no_restore);
+	hideCCItem(no_restore);
 }
 
 //-------------------------------------------------------------------------------------------------------
