@@ -80,6 +80,7 @@ void CComponents::initVarBasic()
 	
 	firstPaint		= true;
 	is_painted		= false;
+	paint_bg		= true;
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
@@ -185,9 +186,15 @@ void CComponentsItem::initVarItem()
 	initVarBasic();
 }
 
+// Paint container background in cc-items with shadow, background and frame.
+// This member must be called first in all paint() members before paint other items into the container.
+// If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(bool do_save_bg)
 {
 	clear();
+
+	if(!paint_bg)
+		return;
 
 	int sw = shadow ? shadow_w : 0;
 	int th = fr_thickness;
@@ -391,6 +398,7 @@ void CComponentsText::paintText(bool do_save_bg)
 
 void CComponentsText::paint(bool do_save_bg)
 {
+
 	paintText(do_save_bg);
 }
 
@@ -1730,7 +1738,7 @@ void CComponentsHeader::paint(bool do_save_bg)
 	cch_icon_obj->setWidth(48);
 	cch_icon_obj->setHeight(height);
 	cch_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
-	cch_icon_obj->setColorBody(col_body);
+	cch_icon_obj->doPaintBg(false);
 	
 	//corner of icon item
 	cch_icon_obj->setCornerRadius(corner_rad-fr_thickness);
@@ -1747,7 +1755,7 @@ void CComponentsHeader::paint(bool do_save_bg)
 	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_obj->getWidth()-fr_thickness, height-2*fr_thickness, cch_text.c_str());
 	cch_text_obj->setTextFont(cch_font);
 	cch_text_obj->setTextColor(cch_col_text);
-	cch_text_obj->setColorBody(col_body);
+	cch_text_obj->doPaintBg(false);
 	
 	//corner of text item
 	cch_text_obj->setCornerRadius(corner_rad-fr_thickness);

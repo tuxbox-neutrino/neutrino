@@ -118,8 +118,8 @@ class CComponents
 		CFrameBuffer * frameBuffer;
 		std::vector<comp_fbdata_t> v_fbdata;
 		fb_pixel_t	col_body, col_shadow, col_frame;
-		bool	firstPaint, shadow, is_painted;
-
+		bool	firstPaint, shadow, is_painted, paint_bg;
+		
 		void initVarBasic();
 		void paintFbItems(bool do_save_bg = true);
 		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
@@ -164,16 +164,17 @@ class CComponents
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
 		
 		virtual void hide();
-		virtual bool isPainted(){return is_painted;};
+		virtual bool isPainted(){return is_painted;}
+		virtual void doPaintBg(bool do_paint){paint_bg = do_paint;};
 };
 
 class CComponentsItem : public CComponents
 {
-	protected:		
+	protected:
 		void hideCCItem(bool no_restore = false);
 		void paintInit(bool do_save_bg);
 		void initVarItem();
-		
+
 	public:
 		CComponentsItem();
 		
