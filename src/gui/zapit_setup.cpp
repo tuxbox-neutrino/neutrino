@@ -65,17 +65,17 @@ void CZapitSetup::showMenu()
 	//menue init
 	CMenuWidget *zapit = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_ZAPIT);
 	zapit->addIntroItems(LOCALE_ZAPITSETUP_INFO);
-	COnOffNotifier* miscZapitNotifier = new COnOffNotifier(0);
+	COnOffNotifier* miscZapitNotifier = new COnOffNotifier(1);
 	//zapit
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscZapitNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	mc->setHint("", LOCALE_MENU_HINT_LAST_USE);
 
 	CSelectChannelWidget select;
 
-	CMenuForwarder 	*zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN );
+	CMenuForwarder 	*zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN );
 	zapit1->setHint("", LOCALE_MENU_HINT_LAST_TV);
 
-	CMenuForwarder 	*zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW );
+	CMenuForwarder 	*zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW );
 	zapit2->setHint("", LOCALE_MENU_HINT_LAST_RADIO);
 
 	miscZapitNotifier->addItem(zapit1);
