@@ -7,7 +7,7 @@
 	Homepage: http://dbox.cyberphoria.org/
 
 	Copyright (C) 2008 Novell, Inc. Author: Stefan Seyfried
-		  (C) 2009 Stefan Seyfried
+		  (C) 2009-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -543,7 +543,7 @@ void CLCD::showTextScreen(const std::string & big, const std::string & small, co
 	displayUpdate();
 }
 
-void CLCD::showServicename(const std::string name, const bool perform_wakeup)
+void CLCD::showServicename(const std::string name, const bool clear_epg)
 {
 	/*
 	   1 = show servicename
@@ -558,11 +558,13 @@ void CLCD::showServicename(const std::string name, const bool perform_wakeup)
 
 	if (!name.empty())
 		servicename = name;
+	if (clear_epg)
+		epg_title.clear();
 
 	if (mode != MODE_TVRADIO)
 		return;
 
-	showTextScreen(servicename, epg_title, showmode, perform_wakeup, true);
+	showTextScreen(servicename, epg_title, showmode, true, true);
 	return;
 }
 
