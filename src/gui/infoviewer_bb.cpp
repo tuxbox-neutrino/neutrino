@@ -498,7 +498,7 @@ void CInfoViewerBB::showIcon_Resolution()
 			case 1920:
 				icon_name = NEUTRINO_ICON_RESOLUTION_1920;
 				break;
-			case 1088:
+			case 1080:
 				icon_name = NEUTRINO_ICON_RESOLUTION_1080;
 				break;
 			case 1440:
@@ -545,7 +545,7 @@ void CInfoViewerBB::showIcon_Resolution()
 			case 1920:
 			case 1440:
 			case 1280:
-			case 1088:
+			case 1080:
 			case 720:
 				icon_name = NEUTRINO_ICON_RESOLUTION_HD;
 				break;
