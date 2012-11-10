@@ -165,7 +165,7 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ -1,                NONEXISTANT_LOCALE, "1080i 50Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080p 24Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080p 25Hz"	},
-	{ VID_DISPFMT_NTSC,  NONEXISTANT_LOCALE, "NTSC"		}
+	{ VID_DISPFMT_NTSC,  NONEXISTANT_LOCALE, "NTSC"		},
 	{ -1,                NONEXISTANT_LOCALE, "480p"		},
 	{ -1,                NONEXISTANT_LOCALE, "720p 60Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080i 60Hz"	},
