@@ -544,6 +544,8 @@ int CServiceManager::LoadMotorPositions(void)
 
 	printf("[getservices] loading motor positions...\n");
 
+	/* this is only read and never written, so it only serves for
+	 * upgrading from old pre-multituner capable neutrino */
 	if ((fd = fopen(SATCONFIG, "r"))) {
 		fgets(buffer, 255, fd);
 		while(!feof(fd)) {
@@ -554,6 +556,9 @@ int CServiceManager::LoadMotorPositions(void)
 				uniscr = -1;
 			}
 
+			int configured = 0;
+			if (diseqc != -1 || com != -1 || uncom != -1 || usals != 0 || mpos != 0)
+				configured = 1;
 			satellitePosition = spos;
 			sat_iterator_t sit = satellitePositions.find(satellitePosition);
 			if(sit != satellitePositions.end()) {
@@ -571,6 +576,7 @@ int CServiceManager::LoadMotorPositions(void)
 				sit->second.unicable_scr = uniscr;
 				sit->second.unicable_qrg = uniqrg;
 				sit->second.unicable_lnb = unilnb;
+				sit->second.configured = configured;
 			}
 			fgets(buffer, 255, fd);
 		}
