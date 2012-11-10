@@ -428,8 +428,7 @@ class CComponentsTitleBar : public CComponentsItemBox
 class CComponentsForm : public CComponentsItem
 {
 	protected:
-		std::vector<CComponentsItem*>	v_cc_items;	
-		void paintCCItems();		
+		std::vector<CComponentsItem*>	v_cc_items;			
 		void initVarForm();
 		void clearCCItems();
 	public:
@@ -443,6 +442,7 @@ class CComponentsForm : public CComponentsItem
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
 		virtual void addCCItem(CComponentsItem* cc_Item);
+		virtual void paintCCItems();
 };
 
 class CComponentsHeader : public CComponentsForm
