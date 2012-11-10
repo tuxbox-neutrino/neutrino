@@ -1905,6 +1905,9 @@ void CInfoViewer::showLcdPercentOver()
 			old_interval = interval;
 		}
 		CLCD::getInstance()->showPercentOver(runningPercent);
+		int mode = CNeutrinoApp::getInstance()->getMode();
+		if ((mode == NeutrinoMessages::mode_radio || mode == NeutrinoMessages::mode_tv))
+			CVFD::getInstance()->setEPGTitle(info_CurrentNext.current_name);
 	}
 }
 #else
