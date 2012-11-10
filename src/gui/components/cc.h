@@ -454,7 +454,7 @@ class CComponentsHeader : public CComponentsForm
 		neutrino_locale_t cch_locale_text;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
-		int cch_icon_x, cch_items_y;
+		int cch_icon_x, cch_items_y, cch_text_x;
 		
 		void initCCHeaderIcon();
 		void initCCHeaderText();
@@ -463,7 +463,6 @@ class CComponentsHeader : public CComponentsForm
 		void initVarHeader();
 		
 	public:
-
 		CComponentsHeader();
 		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, const std::string& caption = "header", const char* icon_name = NULL, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);

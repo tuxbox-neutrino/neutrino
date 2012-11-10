@@ -1693,6 +1693,7 @@ void CComponentsHeader::initVarHeader()
 	cch_col_text		= COL_MENUHEAD;
 	cch_items_y 		= 0;
 	cch_icon_x 		= 0;
+	cch_text_x		= 0;
 	
 	//CComponentsForm
 	initVarForm();
@@ -1741,7 +1742,7 @@ void CComponentsHeader::initCCHeaderIcon()
 
 void CComponentsHeader::initCCHeaderText()
 {
-	int cch_text_x = cch_icon_x+cch_icon_obj->getWidth();
+	cch_text_x = cch_icon_x+cch_icon_obj->getWidth();
 	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_obj->getWidth()-fr_thickness, height-2*fr_thickness, cch_text.c_str());
 	cch_text_obj->setTextFont(cch_font);
 	cch_text_obj->setTextColor(cch_col_text);
@@ -1762,10 +1763,10 @@ void CComponentsHeader::paint(bool do_save_bg)
 	
 	//init icon
 	initCCHeaderIcon();
-	
+
 	//init text
 	initCCHeaderText();
-
+	
 	//add elements
 	addCCItem(cch_icon_obj);
 	addCCItem(cch_text_obj);
