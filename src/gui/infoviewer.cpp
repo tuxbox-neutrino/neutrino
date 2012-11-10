@@ -96,7 +96,24 @@ CInfoViewer::CInfoViewer ()
 	info_CurrentNext.flags = 0;
 	frameBuffer = CFrameBuffer::getInstance();
 	infoViewerBB = CInfoViewerBB::getInstance();
-
+	InfoHeightY = 0;
+	ButtonWidth = 0;
+	rt_dx = 0;
+	rt_dy = 0;
+	ChanNameX = 0;
+	ChanNameY = 0;
+	ChanWidth = 0;
+	ChanHeight = 0;
+	time_left_width = 0;
+	time_dot_width = 0;
+	time_width = 0;
+	time_height = 0;
+	old_timestr[0] = 0;
+	lastsnr = 0;
+	lastsig = 0;
+	lasttime = 0;
+	aspectRatio = 0;
+	ChanInfoX = 0;
 	Init();
 	infoViewerBB->Init();
 	strcpy(old_timestr, "");

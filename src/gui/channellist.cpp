@@ -223,6 +223,11 @@ void CChannelList::SortTP(void)
 	sort(chanlist.begin(), chanlist.end(), CmpChannelByFreq());
 }
 
+void CChannelList::SortChNumber(void)
+{
+	sort(chanlist.begin(), chanlist.end(), CmpChannelByChNum());
+}
+
 CZapitChannel* CChannelList::getChannel(int number)
 {
 	for (uint32_t i=0; i< chanlist.size(); i++) {
@@ -823,8 +828,8 @@ int CChannelList::show()
 			int mode = CNeutrinoApp::getInstance()->GetChannelMode();
 			if(mode != LIST_MODE_FAV) {
 				g_settings.channellist_sort_mode++;
-				if(g_settings.channellist_sort_mode > 2)
-					g_settings.channellist_sort_mode = 0;
+				if(g_settings.channellist_sort_mode > SORT_MAX-1)
+					g_settings.channellist_sort_mode = SORT_ALPHA;
 				CNeutrinoApp::getInstance()->SetChannelMode(mode);
 				paintHead(); // update button bar
 				paint();
@@ -1643,7 +1648,7 @@ void CChannelList::paintButtonBar(bool is_current)
 
 	struct button_label Button[num_buttons];
 	const neutrino_locale_t button_ids[] = {LOCALE_INFOVIEWER_NOW,LOCALE_INFOVIEWER_NEXT,LOCALE_MAINMENU_RECORDING,LOCALE_MAINMENU_RECORDING_STOP,NONEXISTANT_LOCALE,
-						LOCALE_CHANNELLIST_FOOT_SORT_ALPHA,LOCALE_CHANNELLIST_FOOT_SORT_FREQ,LOCALE_CHANNELLIST_FOOT_SORT_SAT};
+						LOCALE_CHANNELLIST_FOOT_SORT_ALPHA,LOCALE_CHANNELLIST_FOOT_SORT_FREQ,LOCALE_CHANNELLIST_FOOT_SORT_SAT,LOCALE_CHANNELLIST_FOOT_SORT_CHNUM};
 	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
 
 	for (int i = 0;i<num_buttons;i++)
@@ -1682,14 +1687,19 @@ void CChannelList::paintButtonBar(bool is_current)
 	{
 		switch (g_settings.channellist_sort_mode)
 		{
-			case 0:
+			case SORT_ALPHA:
 				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
 			break;
-			case 1:
+			case SORT_TP:
 				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_FREQ;
 			break;
-			case 2:
+			case SORT_SAT:
 				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_SAT;
+			break;
+			case SORT_CH_NUMBER:
+				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_CHNUM;
+			break;
+			default:
 			break;
 		}
 	}

@@ -607,7 +607,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				hide();
 
 				//FIXME res = g_EpgData->show(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id, evtlist[selected].eventID, &evtlist[selected].startTime);
-				res = g_EpgData->show(evtlist[selected].channelID, evtlist[selected].eventID, &evtlist[selected].startTime);
+				res = g_EpgData->show(evtlist[selected].channelID, evtlist[selected].eventID, &evtlist[selected].startTime, true, showfollow );
 				if ( res == menu_return::RETURN_EXIT_ALL )
 				{
 					loop = false;
@@ -968,16 +968,11 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int           res = menu_return::RETURN_EXIT_ALL;
-	CNeutrinoEventList     *e;
-	CChannelList  *channelList;
-
-
 	if (parent) {
 		parent->hide();
 	}
-	e = new CNeutrinoEventList;
-
-	channelList = CNeutrinoApp::getInstance()->channelList;
+	CNeutrinoEventList *e = new CNeutrinoEventList;
+	CChannelList  *channelList = CNeutrinoApp::getInstance()->channelList;
 	e->exec(CZapit::getInstance()->GetCurrentChannelID(), channelList->getActiveChannelName()); // UTF-8
 	delete e;
 

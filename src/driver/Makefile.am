@@ -25,7 +25,7 @@ libneutrino_driver_a_SOURCES = \
 	fb_window.cpp \
 	file.cpp \
 	fontrenderer.cpp \
-	genpsi.c \
+	genpsi.cpp \
 	radiotext.cpp \
 	radiotools.cpp \
 	rcinput.cpp \

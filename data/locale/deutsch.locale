@@ -211,6 +211,7 @@ channellist.foot_freq Tuning-Parameter
 channellist.foot_next Nachfolgesendung
 channellist.foot_off aus
 channellist.foot_sort_alpha Sortiert[alpha]
+channellist.foot_sort_chnum Sortiert[nummer]
 channellist.foot_sort_freq Sortiert[freq]
 channellist.foot_sort_sat Sortiert[sat]
 channellist.head Alle Kanäle
@@ -436,6 +437,7 @@ filesystem.is.utf8 Dateisystem
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
+flashupdate.apply_settings Sollen die aktuellen Einstellungen in das neue Image übernommen werden?
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen
@@ -748,6 +750,7 @@ menu.hint_epg_fonts Ändern Sie für die EPG-Details die Schriftgrößen
 menu.hint_epg_max_events Maximum an Events im Zwischenspeicher. Nach Erreichen der\nGrenze werden EPG-Daten für zukünftige gelöscht
 menu.hint_epg_old_events EPG im Speicher behalten in Stunden,\nauch wenn es veraltet ist
 menu.hint_epg_save Speichert die EPG-Daten auf einer Harddisk oder USB-Stick\nund läd es nach einen Neustart
+menu.hint_epg_save_standby Speichert die EPG-Daten in Bereitschaft Modus
 menu.hint_event_textcolor Ändern Sie die Event-Farbe für farbige Event-Optionen in Kanalliste und Infobar
 menu.hint_eventlist_fonts Ändern Sie in der Event-Liste die Schriftgrößen
 menu.hint_extended Energiespar-, EPG-Speicher- / Lade-Optionen,\nHDMI-CEC, Startkanal, Zap-Optionen
@@ -1099,6 +1102,7 @@ miscsettings.epg_old_events EPG verwerfen nach (Std.)
 miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
+miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
@@ -1318,6 +1322,8 @@ networkmenu.dhcp DHCP
 networkmenu.error_no_address Keine %s-Adresse angegeben!
 networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname
+networkmenu.hostname_hint1 Geben sie den Hostnamen ein
+networkmenu.hostname_hint2 Eine Änderung benötigt einen Neustart
 networkmenu.inactive_network Netzwerk nicht aktiviert!
 networkmenu.ipaddress IP
 networkmenu.mount Netzwerkfreigaben bearbeiten

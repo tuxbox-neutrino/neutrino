@@ -108,7 +108,7 @@ class CExtendedInput_Item_Spacer : public CExtendedInput_Item
 		int mSpacingX;
 		int mSpacingY;
 	public:
-		CExtendedInput_Item_Spacer(){};
+		CExtendedInput_Item_Spacer(){mSpacingY = 0;mSpacingX = 0;};
 		CExtendedInput_Item_Spacer(int spaceX, int spaceY=0){mSpacingX=spaceX;mSpacingY=spaceY;};
 		virtual void init(int &x, int &y){x+=mSpacingX;y+=mSpacingY;};
 		virtual bool isSelectable(){return false;};
@@ -119,7 +119,7 @@ class CExtendedInput_Item_newLiner : public CExtendedInput_Item
 	protected:
 		int mSpacingY;
 	public:
-		CExtendedInput_Item_newLiner(){};
+		CExtendedInput_Item_newLiner(){mSpacingY=0;};
 		CExtendedInput_Item_newLiner(int spaceY){mSpacingY=spaceY;};
 		virtual void init(int &x, int &y){x=0;y+=mSpacingY;};
 		virtual bool isSelectable(){return false;};

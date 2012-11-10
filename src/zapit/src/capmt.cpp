@@ -33,7 +33,7 @@
 #include <dvbsi++/program_map_section.h>
 #include <dvbsi++/ca_program_map_section.h>
 
-#define DEBUG_CAPMT
+//#define DEBUG_CAPMT
 
 CCam::CCam()
 {

@@ -63,7 +63,7 @@ CExtUpdate::CExtUpdate()
 	mtdRamError     = "";
 	mtdNumber       = -1;
 	MTDBufSize      = 0xFFFF;
-	MTDBuf          = (char*)malloc(MTDBufSize);
+	MTDBuf          = new char[MTDBufSize];
 	backupList      = CONFIGDIR "/settingsupdate.conf";
 	defaultBackup   = CONFIGDIR;
 
@@ -78,7 +78,7 @@ CExtUpdate::CExtUpdate()
 CExtUpdate::~CExtUpdate()
 {
 	if (MTDBuf != NULL)
-		free(MTDBuf);
+		delete[] MTDBuf;
 	if(FileHelpers)
 		delete[] FileHelpers;
 }
@@ -121,30 +121,38 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 	return false;
 }
 
-bool CExtUpdate::writemtdExt(const std::string & filename)
+bool CExtUpdate::applySettings(const std::string & filename, int mode)
 {
 	if(!FileHelpers)
 		FileHelpers = new CFileHelpers();
-	imgFilename = (std::string)g_settings.update_dir + "/" + FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
+
+	if (mode == MODE_EXPERT)
+		imgFilename = (std::string)g_settings.update_dir + "/" + FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
+	else
+		imgFilename = FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
+
 	DBG_TIMER_START()
-	bool ret = writemtdExt();
+	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
 	if (!ret) {
 		if (mtdRamError != "")
 			DisplayErrorMessage(mtdRamError.c_str());
 	}
 	else {
-		if ((mtdNumber < 3) || (mtdNumber > 4)) {
-			const char *err = "invalid mtdNumber\n";
-			printf(err);
-			DisplayErrorMessage(err);
-			WRITE_UPDATE_LOG("ERROR: %s", err);
-			return false;
+		if (mode == MODE_EXPERT) {
+			if ((mtdNumber < 3) || (mtdNumber > 4)) {
+				const char *err = "invalid mtdNumber\n";
+				printf(err);
+				DisplayErrorMessage(err);
+				WRITE_UPDATE_LOG("ERROR: %s", err);
+				return false;
+			}
 		}
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SUCCESSFULLY), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 		WRITE_UPDATE_LOG("\n");
 		WRITE_UPDATE_LOG("##### Settings taken. #####\n");
-		CFlashExpert::getInstance()->writemtd(filename, mtdNumber);
+		if (mode == MODE_EXPERT)
+			CFlashExpert::getInstance()->writemtd(filename, mtdNumber);
 	}
 	return ret;
 }
@@ -166,7 +174,7 @@ bool CExtUpdate::isMtdramLoad()
 	return ret;
 }
 
-bool CExtUpdate::writemtdExt()
+bool CExtUpdate::applySettings()
 {
 	if(!hintBox)
 		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_PROCESSED));
@@ -185,8 +193,12 @@ bool CExtUpdate::writemtdExt()
 
 	// get osrelease
 	struct utsname uts_info;
-	if( uname(&uts_info) == 0 )
+	if( uname(&uts_info) == 0 ) {
 		osrelease = uts_info.release;
+		size_t pos = osrelease.find_first_of(" "); 
+		if (pos != std::string::npos) 
+			osrelease = osrelease.substr(0, pos); 
+	}
 	else
 		return ErrorReset(0, "error no kernel info");
 
@@ -385,7 +397,7 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 
 bool CExtUpdate::findConfigEntry(std::string & line, std::string find)
 {
-	if (line.find(find + "=") == 0) {
+	if (line.find("#:" + find + "=") == 0) {
 		size_t pos = line.find_first_of('=');
 		line = line.substr(pos+1);
 		line = trim(line);
@@ -442,20 +454,19 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	size_t pos;
 	while(fgets(buf, sizeof(buf), f1) != NULL) {
 		std::string line = buf;
-		// remove comments
 		line = trim(line);
-		if (line.find_first_of("#") == 0)
+		// remove comments
+		if (line.find_first_of("#") == 0) {
+			if (line.find_first_of(":") == 1) { // config vars
+				if (line.length() > 1)
+					readConfig(line);
+			}
 			continue;
+		}
 		pos = line.find_first_of("#");
 		if (pos != std::string::npos) {
 			line = line.substr(0, pos);
 			line = trim(line);
-		}
-		// config vars
-		if (line.find_first_of("/+-~") != 0) {
-			if (line.length() > 1)
-				readConfig(line);
-			continue;
 		}
 		// special folders
 		else if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 

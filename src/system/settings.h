@@ -128,6 +128,7 @@ struct SNeutrinoSettings
 
 	// EPG
 	int epg_save;
+	int epg_save_standby;
 	std::string epg_cache;
 	std::string epg_old_events;
 	std::string epg_max_events;
@@ -147,9 +148,11 @@ struct SNeutrinoSettings
 		
 		//user menu
 		P_MAIN_BLUE_BUTTON,
- 		P_MAIN_RED_BUTTON,
- 		
- 		//main menu
+		P_MAIN_YELLOW_BUTTON,
+		P_MAIN_GREEN_BUTTON,
+		P_MAIN_RED_BUTTON,
+		
+		//main menu
 		P_MAIN_TV_MODE,
 		P_MAIN_TV_RADIO_MODE, //togglemode
 		P_MAIN_RADIO_MODE,

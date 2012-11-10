@@ -87,10 +87,16 @@ CInfoViewerBB::CInfoViewerBB()
 		pthread_detach(scrambledT);
 	}
 #endif
+	hddpercent		= 0;
 	hddperT			= 0;
 	hddperTflag		= false;
 	hddscale 		= NULL;
 	sysscale 		= NULL;
+	bbIconInfo[0].x = 0;
+	bbIconInfo[0].h = 0;
+	BBarY = 0;
+	BBarFontY = 0;
+
 	Init();
 }
 
@@ -596,20 +602,17 @@ void CInfoViewerBB::showSysfsHdd()
 			percent = (u * 100ULL) / t;
 		showBarSys(percent);
 
-#if 0
 		//HDD info in a seperate thread
 		if(!hddperTflag) {
 			hddperTflag=true;
 			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
 			pthread_detach(hddperT);
 		}
-#else
-		if (!check_dir(g_settings.network_nfs_recordingdir)) {
-			if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
-				percent = (u * 100ULL) / t;
-			showBarHdd(percent);
-		}
-#endif
+
+		if (check_dir(g_settings.network_nfs_recordingdir) == 0)
+			showBarHdd(hddpercent);
+		else
+			showBarHdd(-1);
 	}
 }
 
@@ -617,11 +620,10 @@ void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
 
-	int percent = 0;
+	infoViewerBB->hddpercent = 0;
 	long t, u;
 	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
-		percent = (u * 100ULL) / t;
-	infoViewerBB->showBarHdd(percent);
+		infoViewerBB->hddpercent = (u * 100ULL) / t;
 
 	infoViewerBB->hddperTflag=false;
 	pthread_exit(NULL);
@@ -635,8 +637,14 @@ void CInfoViewerBB::showBarSys(int percent)
 
 void CInfoViewerBB::showBarHdd(int percent)
 {
-	if (is_visible)
-		hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
+	if (is_visible) {
+		if (percent >= 0)
+			hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
+		else {
+			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
+			hddscale->reset();
+		}
+	}
 }
 
 void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset)

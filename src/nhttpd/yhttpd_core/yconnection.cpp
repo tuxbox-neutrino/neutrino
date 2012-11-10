@@ -22,6 +22,11 @@ long CWebserverConnection::GConnectionNumber = 0;
 // Constructor & Destructor & Initialization
 //=============================================================================
 CWebserverConnection::CWebserverConnection(CWebserver *pWebserver) {
+	sock = 0;
+	ConnectionNumber = 0;
+	enlapsed_request = 0;
+	enlapsed_response = 0;
+
 	Webserver = pWebserver;
 	Request.Webserver = pWebserver;
 	Request.Connection = this;
@@ -39,6 +44,12 @@ CWebserverConnection::CWebserverConnection(CWebserver *pWebserver) {
 //-------------------------------------------------------------------------
 CWebserverConnection::CWebserverConnection() {
 	//	aprintf("test CWebserverConnection::CWebserverConnection()\n");
+	sock = 0;
+	RequestCanceled = 0;
+	keep_alive = 0;
+	HttpStatus = 0;
+	enlapsed_request = 0;
+	enlapsed_response = 0;
 	ConnectionNumber = ++GConnectionNumber;
 }
 //-------------------------------------------------------------------------

@@ -59,6 +59,7 @@
 #include <driver/screenshot.h>
 #endif
 #include <driver/volume.h>
+#include <driver/streamts.h>
 
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
@@ -135,10 +136,6 @@ t_channel_id standby_channel_id;
 //NEW
 static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
-
-extern int streamts_stop;
-void * streamts_main_thread(void *data);
-static pthread_t stream_thread ;
 
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
@@ -217,6 +214,7 @@ CNeutrinoApp::CNeutrinoApp()
 	RADIOchannelList	= NULL;
 	skipShutdownTimer	= false;
 	skipSleepTimer		= false;
+	lockStandbyCall         = false;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= 0;
@@ -455,7 +453,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	snprintf(g_settings.ifname, sizeof(g_settings.ifname), "%s", configfile.getString("ifname", "eth0").c_str());;
 
 	g_settings.epg_save = configfile.getBool("epg_save", false);
-
+	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -579,7 +577,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 					std::string filename = e->d_name;
 					if ((filename.find("_temp.ts") == filename.size() - 8) || (filename.find("_temp.xml") == filename.size() - 9))
 					{
-						remove(filename.c_str());
+						std::string timeshiftDir_filename= timeshiftDir;
+						timeshiftDir_filename+= "/" + filename;
+						remove(timeshiftDir_filename.c_str());
 					}
 				}
 				closedir(d);
@@ -900,6 +900,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("timezone", g_settings.timezone);
 	// epg
 	configfile.setBool("epg_save", g_settings.epg_save);
+	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
 	configfile.setString("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setString("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setString("epg_old_events"           ,g_settings.epg_old_events );
@@ -1434,16 +1435,18 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 			break;
 	}
 	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
-	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < 3) {
+	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < CChannelList::SORT_MAX) {
 		sortmode[newmode] = g_settings.channellist_sort_mode;
 		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, (int)bouquetList->Bouquets.size());
 		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
-			if(g_settings.channellist_sort_mode == 0)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_ALPHA)
 				bouquetList->Bouquets[i]->channelList->SortAlpha();
-			if(g_settings.channellist_sort_mode == 1)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_TP)
 				bouquetList->Bouquets[i]->channelList->SortTP();
-			if(g_settings.channellist_sort_mode == 2)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_SAT)
 				bouquetList->Bouquets[i]->channelList->SortSat();
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_CH_NUMBER)
+				bouquetList->Bouquets[i]->channelList->SortChNumber();
 		}
 		channelList->adjustToChannelID(channelList->getActiveChannel_ChannelID());
 	}
@@ -1896,7 +1899,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
 
-	pthread_create (&stream_thread, NULL, streamts_main_thread, (void *) NULL);
+	CStreamManager::getInstance()->Start();
 
 #ifndef DISABLE_SECTIONSD
 	CSectionsdClient::epg_config config;
@@ -2202,6 +2205,33 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				}
 					else
 						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
+			}
+			else if ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player)
+			{
+				StopSubtitles();
+				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+				StartSubtitles();
+			}
+			else if( msg == CRCInput::RC_green)
+			{
+				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_GREEN_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)
+				{
+					StopSubtitles();
+					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+					StartSubtitles();
+				}
+				else
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
+			}
+			else if( msg == CRCInput::RC_yellow ) {       // NVODs
+				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_YELLOW_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)
+				{
+					StopSubtitles();
+					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_YELLOW);
+					StartSubtitles();
+				}
+				else
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
 			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
@@ -2720,14 +2750,25 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SLEEPTIMER) {
 		if( mode != mode_scart && mode != mode_standby)
-		  	skipSleepTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SLEEPTIMERBOX_ANNOUNCE,CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
+		  	skipSleepTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
-		if(skipSleepTimer) {
-			printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
-			skipSleepTimer = false;
-			return messages_return::handled;
+		if(data) {//INACTIVITY SLEEPTIMER
+			skipShutdownTimer =
+				(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,
+				      CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
+			if(skipShutdownTimer) {
+				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skiping\n");
+				skipShutdownTimer = false;
+				return messages_return::handled;
+                       }
+		}else{ //MAIN-MENU SLEEPTIMER
+			if(skipSleepTimer) {
+				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
+				skipSleepTimer = false;
+				return messages_return::handled;
+			}
 		}
 		if (g_settings.shutdown_real && can_deepstandby)
 			ExitRun(true, can_deepstandby);
@@ -3183,6 +3224,11 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
 
+	if(lockStandbyCall)
+		return;
+
+	lockStandbyCall = true;
+
 	if( bOnOff ) {
 		CVFD::getInstance()->ShowText("standby...        ");
 		if( mode == mode_scart ) {
@@ -3203,7 +3249,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			g_Radiotext->radiotext_stop();
 
 
-		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus()) {
+		bool stream_status = CStreamManager::getInstance()->StreamStatus();
+		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
 			g_Zapit->setStandby(true);
 		} else {
 			g_Zapit->stopPlayBack();
@@ -3219,7 +3266,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		if(!CRecordManager::getInstance()->RecordingStatus() ) {
 			//only save epg when not recording
-			if(g_settings.epg_save && !fromDeepStandby) {
+			if(g_settings.epg_save && !fromDeepStandby && g_settings.epg_save_standby) {
 				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}
@@ -3314,6 +3361,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_volume->AudioMute(current_muted, true);
 		StartSubtitles();
 	}
+	lockStandbyCall = false;
 }
 
 void CNeutrinoApp::radioMode( bool rezap)
@@ -3542,7 +3590,6 @@ bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 **************************************************************************************/
 void stop_daemons(bool stopall)
 {
-	streamts_stop = 1;
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
@@ -3555,7 +3602,7 @@ void stop_daemons(bool stopall)
 	pthread_cancel(nhttpd_thread);
 	pthread_join(nhttpd_thread, NULL);
 	printf("httpd shutdown done\n");
-	pthread_join(stream_thread, NULL);
+	CStreamManager::getInstance()->Stop();
 	if(stopall) {
 		printf("timerd shutdown\n");
 		g_Timerd->shutdown();

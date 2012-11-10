@@ -211,6 +211,7 @@ channellist.foot_freq Sat/Freq Info
 channellist.foot_next next Event
 channellist.foot_off off
 channellist.foot_sort_alpha sorted[alpha]
+channellist.foot_sort_chnum sorted[number]
 channellist.foot_sort_freq sorted[freq]
 channellist.foot_sort_sat sorted[sat]
 channellist.head All Services
@@ -436,6 +437,7 @@ filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash reading
+flashupdate.apply_settings Import current settings into new image?
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Check for online updates
@@ -748,6 +750,7 @@ menu.hint_epg_fonts Change EPG details window font sizes
 menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cache will remove future events
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
+menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
@@ -1099,6 +1102,7 @@ miscsettings.epg_old_events EPG remove after (std.)
 miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they timed out?
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
+miscsettings.epg_save_standby Save epg on soft standby
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
@@ -1318,6 +1322,8 @@ networkmenu.dhcp DHCP
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway default gateway
 networkmenu.hostname Hostname
+networkmenu.hostname_hint1 enter hostname
+networkmenu.hostname_hint2 need reboot after change
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
 networkmenu.mount Edit network shares
