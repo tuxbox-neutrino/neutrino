@@ -114,6 +114,7 @@ endif
 
 if BOXTYPE_COOL
 neutrino_LDADD += \
+	$(top_builddir)/lib/libcoolstream/libhwcaps.a \
 	-lcoolstream-mt \
 	-lnxp
 

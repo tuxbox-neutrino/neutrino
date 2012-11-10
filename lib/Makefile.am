@@ -21,4 +21,8 @@ if BOXTYPE_TRIPLE
 SUBDIRS += \
 	libtriple
 endif
+if BOXTYPE_COOL
+SUBDIRS += \
+	libcoolstream
+endif
 endif

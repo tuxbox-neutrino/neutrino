@@ -167,6 +167,7 @@ lib/libnet/Makefile
 lib/xmltree/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
+lib/libcoolstream/Makefile
 lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
