@@ -1499,19 +1499,6 @@ CComponentsForm::CComponentsForm()
 	initVarForm();
 }
 
-CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, const int h)
-{
-	//CComponentsForm
-	initVarForm();
-
-	//CComponents
-	x		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	height	 	= h;
-	
-}
-
 CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
