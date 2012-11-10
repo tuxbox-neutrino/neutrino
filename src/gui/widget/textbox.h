@@ -146,7 +146,7 @@ class CTextBox
 		void    refresh(void);
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
-		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
+		void    enableBackgroundPaint(bool enable = true) { m_nPaintBackground = enable; };
 		bool	setText(const std::string* newText, int _max_width = 0);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
