@@ -199,14 +199,14 @@ class CComponentsPicture : public CComponentsItem
 		unsigned char pic_offset;
 		bool pic_paint, pic_paintBg, pic_painted, do_paint;
 		int pic_align, pic_x, pic_y, pic_width, pic_height;
-		int maxWidth, maxHeight, pic_paint_mode;
+		int pic_max_w, pic_max_h, pic_paint_mode;
 		
 		void initVarPicture();
 		void init(	const int x_pos, const int y_pos, const std::string& image_name, const int alignment, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow);
 		
 	public:
-		CComponentsPicture( 	const int x_pos, const int y_pos, const int w_max, const int h_max,
+		CComponentsPicture( 	const int x_pos, const int y_pos, const int w, const int h,
 					const std::string& image_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		
@@ -220,6 +220,8 @@ class CComponentsPicture : public CComponentsItem
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
 		inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
+		void setMaxWidth(const int w_max){pic_max_w = w_max;};
+		void setMaxHeight(const int h_max){pic_max_h = h_max;};
 };
 
 class CComponentsText : public CComponentsItem

@@ -764,14 +764,14 @@ void CComponentsPIP::hide(bool no_restore)
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsItem
-CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos, const int w_max, const int h_max,
+CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos, const int w, const int h,
 					const std::string& image_name, const int alignment, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
 	init(x_pos, y_pos, image_name, alignment, has_shadow, color_frame, color_background, color_shadow);
 
-	maxWidth	= w_max;
-	maxHeight	= h_max;
+	width	= w;
+	height	= h;
 	pic_paint_mode 	= CC_PIC_IMAGE_MODE_AUTO,
 
 	initVarPicture();
@@ -791,6 +791,8 @@ void CComponentsPicture::init(	int x_pos, int y_pos, const string& image_name, c
 	pic_paintBg	= false;
 	pic_painted	= false;
 	do_paint	= false;
+	pic_max_w	= 0;
+	pic_max_h	= 0;
 	if (pic_name.empty())
 		pic_width = pic_height = 0;
 
@@ -826,6 +828,12 @@ void CComponentsPicture::initVarPicture()
 	pic_painted = false;
 	do_paint = false;
 
+	if (pic_max_w == 0)
+		pic_max_w = width-2*fr_thickness;
+
+	if (pic_max_h == 0)
+		pic_max_h = height-2*fr_thickness;
+
 	//set the image mode depends of name syntax, icon names contains no path,
 	//so we can detect the required image mode
 	if (pic_paint_mode == CC_PIC_IMAGE_MODE_AUTO){
@@ -837,14 +845,16 @@ void CComponentsPicture::initVarPicture()
 
 	if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF){
 		frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
-		pic_width = max(pic_width, maxWidth);
-		pic_height = max(pic_height, maxHeight);
+#if 0
+		pic_width = max(pic_width, pic_max_w);
+		pic_height = max(pic_height, pic_max_h);
+#endif
 	}
 	
 	if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON) {
 		g_PicViewer->getSize(pic_name.c_str(), &pic_width, &pic_height);
-		if((pic_width > maxWidth) || (pic_height > maxHeight))
-			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, maxWidth, maxHeight);
+		if((pic_width > pic_max_w) || (pic_height > pic_max_h))
+			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, pic_max_w, pic_max_h);
 	}
 
 #ifdef DEBUG_CC
@@ -885,7 +895,7 @@ void CComponentsPicture::paint(bool do_save_bg)
 
 	if (do_paint){
 		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
-			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0, pic_offset, pic_paint, pic_paintBg, col_body);
+			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0 /*pic_max_h*/, pic_offset, pic_paint, pic_paintBg, col_body);
 		else if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON)
 			pic_painted = g_PicViewer->DisplayImage(pic_name, pic_x, pic_y, pic_width, pic_height);
 		do_paint = false;
