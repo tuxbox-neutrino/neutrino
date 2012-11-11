@@ -54,6 +54,7 @@ class CExtUpdate
 		std::string backupList, defaultBackup;
 		std::string mountPkt;
 		CFileHelpers* FileHelpers;
+		std::vector<std::string> BlackList;
 
 		bool applySettings(void);
 		bool readBackupList(const std::string & dstPath);
@@ -80,6 +81,7 @@ class CExtUpdate
 
 		bool applySettings(const std::string & filename, int mode);
 		bool ErrorReset(bool modus, const std::string & msg1="", const std::string & msg2="");
+		bool isBlacklistEntry(const std::string & file);
 
 };
 

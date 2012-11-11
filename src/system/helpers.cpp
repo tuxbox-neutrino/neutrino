@@ -37,6 +37,7 @@
 #include <zapit/debug.h>
 
 #include <system/helpers.h>
+#include <gui/ext_update.h>
 
 bool file_exists(const char *filename)
 {
@@ -339,7 +340,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	return true;
 }
 
-bool CFileHelpers::copyDir(const char *Src, const char *Dst)
+bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 {
 	DIR *Directory;
 	struct dirent *CurrentFile;
@@ -402,7 +403,10 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst)
 			}
 			// is file
 			else if (S_ISREG(FileInfo.st_mode)) {
-				copyFile(srcPath, dstPath, FileInfo.st_mode & 0x0FFF);
+				std::string save = "";
+				if (backupMode && (CExtUpdate::getInstance()->isBlacklistEntry(srcPath)))
+					save = ".save";
+				copyFile(srcPath, (dstPath + save).c_str(), FileInfo.st_mode & 0x0FFF);
 			}
 		}
 	}

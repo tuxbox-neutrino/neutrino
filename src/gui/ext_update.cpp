@@ -25,8 +25,8 @@
 	Boston, MA  02110-1301, USA.
 */
 
-#define UPDATE_DEBUG_TIMER
-#define UPDATE_DEBUG
+//#define UPDATE_DEBUG_TIMER
+//#define UPDATE_DEBUG
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -73,6 +73,7 @@ CExtUpdate::CExtUpdate()
 	fLogfile        = "/tmp/update.log";
 	mountPkt 	= "/tmp/image_mount";
 	FileHelpers 	= NULL;
+	BlackList.clear();
 }
 
 CExtUpdate::~CExtUpdate()
@@ -81,6 +82,7 @@ CExtUpdate::~CExtUpdate()
 		delete[] MTDBuf;
 	if(FileHelpers)
 		delete[] FileHelpers;
+	BlackList.clear();
 }
 
 CExtUpdate* CExtUpdate::getInstance()
@@ -159,10 +161,10 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 
 bool CExtUpdate::isMtdramLoad()
 {
-	char buf[256] = "";
 	bool ret = false;
 	FILE* f = fopen("/proc/modules", "r");
 	if (f) {
+		char buf[256] = "";
 		while(fgets(buf, sizeof(buf), f) != NULL) {
 			if (strstr(buf, "mtdram") != NULL) {
 				ret = true;
@@ -294,7 +296,8 @@ bool CExtUpdate::applySettings()
 	if (res)
 		return ErrorReset(RESET_UNLOAD, "mount error");
 
-	readBackupList(mountPkt);
+	if (!readBackupList(mountPkt))
+		return ErrorReset(0, "error readBackupList");
 
 	res = umount(mountPkt.c_str());
 	if (res)
@@ -359,7 +362,6 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 	struct dirent **namelist;
 	std::string fList = fileList, dst;
 	static struct stat FileInfo;
-	char buf[PATH_MAX];
 
 	size_t pos = fileList.find_last_of("/");
 	fList = fileList.substr(0, pos);
@@ -373,6 +375,7 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 			std::string dName = namelist[n]->d_name;
 			if (lstat((fList+"/"+dName).c_str(), &FileInfo) != -1) {
 				if (S_ISLNK(FileInfo.st_mode)) {
+					char buf[PATH_MAX];
 					int len = readlink((fList+"/"+dName).c_str(), buf, sizeof(buf)-1);
 					if (len != -1) {
 						buf[len] = '\0';
@@ -383,7 +386,8 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 				else
 					if (S_ISREG(FileInfo.st_mode)) {
 						WRITE_UPDATE_LOG("copy %s => %s\n", (fList+"/"+dName).c_str(), (dst+"/"+dName).c_str());
-						if (!FileHelpers->copyFile((fList+"/"+dName).c_str(), (dst+"/"+dName).c_str(), FileInfo.st_mode & 0x0FFF))
+						std::string save = (isBlacklistEntry(fList+"/"+dName)) ? ".save" : "";
+						if (!FileHelpers->copyFile((fList+"/"+dName).c_str(), (dst + "/" + dName + save).c_str(), FileInfo.st_mode & 0x0FFF))
 							return ErrorReset(0, "copyFile error");
 					}
 			}
@@ -424,6 +428,18 @@ bool CExtUpdate::readConfig(const std::string & line)
 	return true;
 }
 
+bool CExtUpdate::isBlacklistEntry(const std::string & file)
+{
+	for(vector<std::string>::iterator it = BlackList.begin(); it != BlackList.end(); ++it) {
+		if (*it == file) {
+			DBG_MSG("BlacklistEntry %s\n", (*it).c_str());
+			WRITE_UPDATE_LOG("BlacklistEntry: %s\n", (*it).c_str());
+			return true;
+		}
+	}
+	return false;
+}
+
 bool CExtUpdate::readBackupList(const std::string & dstPath)
 {
 	char buf[PATH_MAX];
@@ -452,10 +468,37 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	if (fz.__pos == 0)
 		return ErrorReset(RESET_F1, "backuplist filesize is 0");
 	size_t pos;
+	std::string line;
+
+	// read blacklist
+	BlackList.clear();
 	while(fgets(buf, sizeof(buf), f1) != NULL) {
-		std::string line = buf;
+		line = buf;
 		line = trim(line);
-		// remove comments
+		// ignore comments
+		if (line.find_first_of("#") == 0)
+			continue;
+		pos = line.find_first_of("#");
+		if (pos != std::string::npos) {
+			line = line.substr(0, pos);
+			line = trim(line);
+		}
+		// find blacklist entry
+		if (line.find_first_of("-") == 0) {
+			line = line.substr(1);
+			if ((line.length() > 1) && (lstat(line.c_str(), &FileInfo) != -1)) {
+				if (S_ISREG(FileInfo.st_mode))
+					BlackList.push_back(line);
+			}
+		}
+	}
+
+	// read backuplist
+	fseek(f1, 0, SEEK_SET);
+	while(fgets(buf, sizeof(buf), f1) != NULL) {
+		line = buf;
+		line = trim(line);
+		// ignore comments
 		if (line.find_first_of("#") == 0) {
 			if (line.find_first_of(":") == 1) { // config vars
 				if (line.length() > 1)
@@ -468,6 +511,19 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 			line = line.substr(0, pos);
 			line = trim(line);
 		}
+
+		// '+' add entry = default
+		if (line.find_first_of("+") == 0)
+			line = line.substr(1);
+
+		// '-' blacklist entry
+		if (line.find_first_of("-") == 0)
+			continue;
+
+		// Entry '~' (delete) ignore currently still
+		if (line.find_first_of("~") == 0)
+			continue;
+
 		// special folders
 		else if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 
 			 (line.find("/sys") == 0) || (line.find("/mnt") == 0) || (line.find("/tmp") == 0)) {
@@ -501,7 +557,8 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					WRITE_UPDATE_LOG("\n");
 					WRITE_UPDATE_LOG("file: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("--------------------\n");
-					if (!FileHelpers->copyFile(line.c_str(), dst.c_str(), FileInfo.st_mode & 0x0FFF))
+					std::string save = (isBlacklistEntry(line)) ? ".save" : "";
+					if (!FileHelpers->copyFile(line.c_str(), (dst + save).c_str(), FileInfo.st_mode & 0x0FFF))
 						return ErrorReset(0, "copyFile error");
 				}
 				else if (S_ISDIR(FileInfo.st_mode)) {
@@ -510,7 +567,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					WRITE_UPDATE_LOG("\n");
 					WRITE_UPDATE_LOG("directory: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("--------------------\n");
-					FileHelpers->copyDir(line.c_str(), dst.c_str());
+					FileHelpers->copyDir(line.c_str(), dst.c_str(), true);
 				}
 			}
 		
