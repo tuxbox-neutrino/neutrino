@@ -40,7 +40,7 @@
 						 in __USE_FILE_OFFSET64 mode */
 
 #ifndef __USE_FILE_OFFSET64
-#define __USE_FILE_OFFSET64
+#error not using 64 bit file offsets
 #endif /* __USE_FILE__OFFSET64 */
 #endif
 
