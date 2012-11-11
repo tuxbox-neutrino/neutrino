@@ -72,7 +72,7 @@
 
 CStreamInstance::CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &_pids)
 {
-	printf("CStreamInstance:: new channel %llx fd %d\n", chid, clientfd);
+	printf("CStreamInstance:: new channel %" PRIx64 " fd %d\n", chid, clientfd);
 	fds.insert(clientfd);
 	pids = _pids;
 	channel_id = chid;
@@ -98,7 +98,7 @@ bool CStreamInstance::Start()
 		return false;
 	}
 	running = true;
-	printf("CStreamInstance::Start: %llx\n", channel_id);
+	printf("CStreamInstance::Start: %" PRIx64 "\n", channel_id);
 	return (OpenThreads::Thread::start() == 0);
 }
 
@@ -107,7 +107,7 @@ bool CStreamInstance::Stop()
 	if (!running)
 		return false;
 
-	printf("CStreamInstance::Stop: %llx\n", channel_id);
+	printf("CStreamInstance::Stop: %" PRIx64 "\n", channel_id);
 	running = false;
 	return (OpenThreads::Thread::join() == 0);
 }
@@ -127,7 +127,7 @@ bool CStreamInstance::Send(ssize_t r)
 		if (ret != r) {
 			if (r < 0)
 				perror("send");
-			printf("send err, fd %d: %d\n", *it, r);
+			printf("send err, fd %d: %d\n", *it, (int)r);
 		}
 	}
 	mutex.unlock();
@@ -145,7 +145,7 @@ void CStreamInstance::AddClient(int clientfd)
 {
 	mutex.lock();
 	fds.insert(clientfd);
-	printf("CStreamInstance::AddClient: %d (count %d)\n", clientfd, fds.size());
+	printf("CStreamInstance::AddClient: %d (count %d)\n", clientfd, (int)fds.size());
 	mutex.unlock();
 }
 
@@ -154,13 +154,13 @@ void CStreamInstance::RemoveClient(int clientfd)
 	mutex.lock();
 	fds.erase(clientfd);
 	close(clientfd);
-	printf("CStreamInstance::RemoveClient: %d (count %d)\n", clientfd, fds.size());
+	printf("CStreamInstance::RemoveClient: %d (count %d)\n", clientfd, (int)fds.size());
 	mutex.unlock();
 }
 
 void CStreamInstance::run()
 {
-	printf("CStreamInstance::run: %llx\n", channel_id);
+	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
 
 #ifndef HAVE_COOL_HARDWARE
 	/* right now, only one stream is possible anyway and it is not possible
@@ -198,7 +198,7 @@ void CStreamInstance::run()
 
 	CCamManager::getInstance()->Stop(channel_id, CCamManager::STREAM);
 
-	printf("CStreamInstance::run: exiting %llx (%d fds)\n", channel_id, fds.size());
+	printf("CStreamInstance::run: exiting %" PRIx64 " (%d fds)\n", channel_id, (int)fds.size());
 
 	Close();
 	delete dmx;
@@ -340,12 +340,12 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 #ifdef ENABLE_MULTI_CHANNEL
 		t_channel_id tmpid;
 		bp = &cbuf[5];
-		if (sscanf(bp, "id=%llx", &tmpid) == 1) {
-			printf("############################# channel_id %llx\n", tmpid);
+		if (sscanf(bp, "id=%" SCNx64, &tmpid) == 1) {
+			printf("############################# channel_id %" PRIx64 "\n", tmpid);
 
 			CZapitChannel * tmpchan = CServiceManager::getInstance()->FindChannel(tmpid);
 			if (tmpchan && (tmpid != chid) && SAME_TRANSPONDER(tmpid, chid)) {
-				printf("############################# channel_id %llx -> zap\n", tmpid);
+				printf("############################# channel_id %" PRIx64 " -> zap\n", tmpid);
 				bool ret = g_Zapit->zapTo_record(tmpid) > 0;
 				if (ret) {
 					channel = tmpchan;
@@ -354,12 +354,12 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 			}
 		}
 		if(CRecordManager::getInstance()->RecordingStatus(tmpid)) {
-			printf("CStreamManager::Parse: channel %llx recorded, aborting..\n", tmpid);
+			printf("CStreamManager::Parse: channel %" PRIx64 " recorded, aborting..\n", tmpid);
 			return false;
 		}
 #endif
 
-		printf("CStreamManager::Parse: no pids in url, using channel %llx pids\n", chid);
+		printf("CStreamManager::Parse: no pids in url, using channel %" PRIx64 " pids\n", chid);
 		if(!channel)
 			return false;
 		//pids.insert(0);
