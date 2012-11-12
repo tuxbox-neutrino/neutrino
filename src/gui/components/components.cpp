@@ -1530,6 +1530,9 @@ CComponentsForm::~CComponentsForm()
 
 void CComponentsForm::clearCCItems()
 {
+	if (v_cc_items.empty())
+		return;
+	
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i])
 			delete v_cc_items[i];
@@ -1626,7 +1629,7 @@ void CComponentsForm::hide(bool no_restore)
 }
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsWindows inherit from CComponentsForm
+//sub class CComponentsHeader inherit from CComponentsForm
 CComponentsHeader::CComponentsHeader()
 {
 	//CComponentsHeader
@@ -1702,8 +1705,6 @@ void CComponentsHeader::initVarHeader()
 	col_body 		= COL_MENUHEAD_PLUS_0;
 	corner_rad		= RADIUS_LARGE,
 	corner_type		= CORNER_TOP;
-	
-
 }
 
 void CComponentsHeader::setHeaderText(const std::string& caption)
@@ -1776,3 +1777,137 @@ void CComponentsHeader::paint(bool do_save_bg)
 }
 
 
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsIconForm inherit from CComponentsForm
+CComponentsIconForm::CComponentsIconForm()
+{
+	initVarIconForm();
+}
+
+CComponentsIconForm::CComponentsIconForm(const int x_pos, const int y_pos, const int w, const int h, const std::vector<std::string> v_icon_names, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	initVarIconForm();
+
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height 		= h;
+	shadow		= has_shadow;
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+		
+	v_icons		= v_icon_names;
+}
+
+void CComponentsIconForm::initVarIconForm()
+{
+	//CComponentsForm
+	initVarForm();
+
+	//set default width and height to 0, this causes a dynamic adaptation of width and height of form
+	width 		= 0;
+	height 		= 0;
+
+	v_icons.clear();
+	ccif_offset 	= 2;
+}
+
+void CComponentsIconForm::addIcon(const std::string& icon_name)
+{
+	v_icons.push_back(icon_name);
+}
+
+void CComponentsIconForm::addIcon(std::vector<std::string> icon_name)
+{
+	for (size_t i= 0; i< icon_name.size(); i++)
+		v_icons.push_back(icon_name[i]);
+}
+
+void CComponentsIconForm::insertIcon(const uint& icon_id, const std::string& icon_name)
+{
+	v_icons.insert(v_icons.begin()+icon_id, icon_name);
+}
+
+void CComponentsIconForm::removeIcon(const uint& icon_id)
+{
+	v_icons.erase(v_icons.begin()+icon_id);
+}
+
+void CComponentsIconForm::removeIcon(const std::string& icon_name)
+{
+	int id = getIconId(icon_name);
+	removeIcon(id);
+}
+
+int CComponentsIconForm::getIconId(const std::string& icon_name)
+{
+	for (size_t i= 0; i< v_icons.size(); i++)
+		if (v_icons[i] == icon_name)
+			return i;
+	return -1;
+}
+
+//For existing instances it's recommended
+//to remove old items before add new icons, otherwise icons will be appended.
+void CComponentsIconForm::removeAllIcons()
+{
+	clearCCItems();
+	if (!v_icons.empty())
+		v_icons.clear();
+}
+
+void CComponentsIconForm::initCCIcons()
+{
+	//clean up first possible old item objects, includes delete and clean up vector and icons
+	clearCCItems();
+	
+	int ccp_x = 0+fr_thickness;
+	int ccp_y = 0;
+	int ccp_w = 0;
+	int ccp_h = 0;
+
+	//detect maximal form height
+	int h = height;
+	for (size_t i= 0; i< v_icons.size(); i++){
+		frameBuffer->getIconSize(v_icons[i].c_str(), &ccp_w, &ccp_h);
+		h = max(ccp_h, h)/*+2*fr_thickness*/;
+	}
+
+	//init and add item objects
+	for (size_t i= 0; i< v_icons.size(); i++){
+		frameBuffer->getIconSize(v_icons[i].c_str(), &ccp_w, &ccp_h);
+
+		CComponentsPicture *ccp = NULL;
+		ccp = new CComponentsPicture(ccp_x, ccp_y, ccp_w, h, v_icons[i]);
+		ccp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+		ccp->doPaintBg(false);
+		
+		addCCItem(ccp);
+		
+		ccp_x += ccif_offset + ccp_w;
+	}
+
+	//calculate form width and height
+	int w_tmp = 0;
+	int h_tmp = 0;
+	for (size_t i= 0; i< v_cc_items.size(); i++){
+		w_tmp += v_cc_items[i]->getWidth()+ccif_offset+fr_thickness;
+		h_tmp = max(h_tmp, v_cc_items[i]->getHeight()+2*fr_thickness);
+	}
+	width = max(w_tmp, width)-ccif_offset; //terminate last offset
+	height = max(h_tmp, height);
+}
+
+void CComponentsIconForm::paint(bool do_save_bg)
+{
+	//init and add icons
+	initCCIcons();
+
+	//paint body
+	paintInit(do_save_bg);
+
+	//paint
+	paintCCItems();
+}

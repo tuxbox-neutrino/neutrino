@@ -102,6 +102,7 @@ typedef struct comp_element_data_t
 	void*		handler2;
 }comp_element_data_struct_t;
 
+
 #define CC_WIDTH_MIN		16
 #define CC_HEIGHT_MIN		16
 #define CC_SHADOW_ON 		true
@@ -476,6 +477,34 @@ class CComponentsHeader : public CComponentsForm
 		void setHeaderText(neutrino_locale_t caption_locale);
 		void setColorHeaderBody(fb_pixel_t text_color){cch_col_text = text_color;};
 		void setHeaderIcon(const char* icon_name);
+};
+
+class CComponentsIconForm : public CComponentsForm
+{
+	private:
+		std::vector<std::string> v_icons;
+		int ccif_offset;
+
+	protected:
+ 		void initVarIconForm();
+
+	public:
+		CComponentsIconForm();
+		CComponentsIconForm(const int x_pos, const int y_pos, const int w, const int h, const std::vector<std::string> v_icon_names, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void initCCIcons();
+		void addIcon(const std::string& icon_name);
+		void addIcon(std::vector<std::string> icon_name);
+		void removeIcons(){v_icons.clear();};
+		void insertIcon(const uint& icon_id, const std::string& icon_name);
+		void removeIcon(const uint& icon_id);
+		void removeIcon(const std::string& icon_name);
+		void removeAllIcons();
+		int getIconId(const std::string& icon_name);
+
+		void setIconOffset(const int offset){ccif_offset = offset;};
 };
 
 #endif
