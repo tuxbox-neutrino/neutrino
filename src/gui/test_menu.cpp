@@ -69,6 +69,7 @@ CTestMenu::CTestMenu()
 	form = NULL;
 	txt = NULL;
 	header = NULL;
+	iconform = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -80,6 +81,7 @@ CTestMenu::~CTestMenu()
 	delete form;
 	delete txt;
 	delete header;
+	delete iconform;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -418,7 +420,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "header"){
 		if (header == NULL)
-			header = new CComponentsHeader (100, 100, 300, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "Test-Header", NEUTRINO_ICON_INFO);
+			header = new CComponentsHeader (100, 50, 480, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "Test-Header", NEUTRINO_ICON_INFO);
+// 			header->setFrameThickness(5);
+// 			header->setColorFrame(COL_WHITE);
+// 			header->setCornerType(CORNER_TOP);
 		
 		if (!header->isPainted())
 			header->paint();
@@ -426,6 +431,42 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			header->hide();
 		return res;
 	}
+	else if (actionKey == "iconform"){
+		if (iconform == NULL)
+			iconform = new CComponentsIconForm();
+		iconform->setColorBody(COL_LIGHT_GRAY);
+		iconform->setDimensionsAll(100, 100, 0, 60);
+		iconform->setFrameThickness(2);
+		iconform->setColorFrame(COL_WHITE);
+		iconform->setIconOffset(5);
+		//For existing instances it's recommended
+		//to remove old items before add new icons, otherwise icons will be appended.
+		iconform->removeAllIcons();
+
+		//you can...
+		//add icons step by step
+		iconform->addIcon(NEUTRINO_ICON_INFO);
+		iconform->addIcon(NEUTRINO_ICON_INFO);
+		iconform->addIcon(NEUTRINO_ICON_HINT_MEDIA);
+		//...or
+		//add icons with vector
+		std::vector<std::string> v_icons;
+		v_icons.push_back(NEUTRINO_ICON_HINT_VIDEO);
+		v_icons.push_back(NEUTRINO_ICON_HINT_AUDIO);
+		iconform->addIcon(v_icons);
+
+		//insert any icon, here as first (index = 0)
+		iconform->insertIcon(0, NEUTRINO_ICON_HINT_APLAY);
+
+		
+		if (iconform->isPainted())
+			iconform->hide();
+		else{
+			iconform->paint();
+		}
+		return res;
+	}
+	
 	
 	showTestMenu();
 	
@@ -472,6 +513,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));
+	widget->addItem(new CMenuForwarderNonLocalized("Icon-Form", true, NULL, this, "iconform"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)
