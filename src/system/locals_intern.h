@@ -513,6 +513,7 @@ const char * locale_real_names[] =
 	"flashupdate.squashfs.noversion",
 	"flashupdate.titlereadflash",
 	"flashupdate.titlewriteflash",
+	"flashupdate.update_with_settings_del_skipped",
 	"flashupdate.update_with_settings_processed",
 	"flashupdate.update_with_settings_skipped",
 	"flashupdate.update_with_settings_successfully",

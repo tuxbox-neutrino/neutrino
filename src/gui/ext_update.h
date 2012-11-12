@@ -54,14 +54,16 @@ class CExtUpdate
 		std::string backupList, defaultBackup;
 		std::string mountPkt;
 		CFileHelpers* FileHelpers;
-		std::vector<std::string> BlackList;
+		std::vector<std::string> copyList, blackList, deleteList;
 
 		bool applySettings(void);
 		bool readBackupList(const std::string & dstPath);
 		bool copyFileList(const std::string & fileList, const std::string & dstPath);
+		bool deleteFileList(const std::string & fileList);
 		bool readConfig(const std::string & Config);
 		bool findConfigEntry(std::string & line, std::string find);
 		bool isMtdramLoad();
+		bool checkSpecialFolders(std::string line, bool copy);
 
 		FILE * fUpdate;
 		char updateLogBuf[1024];
