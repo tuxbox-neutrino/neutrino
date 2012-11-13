@@ -3587,8 +3587,11 @@ void stop_daemons(bool stopall)
 	printf("zapit shutdown done\n");
 	CVFD::getInstance()->Clear();
 	if(stopall) {
-		if (cpuFreq)
+		if (cpuFreq) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+			delete cpuFreq;
+		}
+
 		if (powerManager) {
 			/* if we were in standby, leave it otherwise, the next
 			   start of neutrino will fail in "_write_gxa" in
