@@ -48,6 +48,9 @@ elif test "$TARGET" = "cdk"; then
 	if test "$prefix" = "NONE"; then
 		AC_MSG_ERROR(invalid prefix, you need to specify one in cdk mode)
 	fi
+	if test "$targetprefix" != "NONE"; then
+		AC_DEFINE_UNQUOTED(TARGETPREFIX, "${targetprefix}",[The targets prefix])
+	fi
 	if test "$targetprefix" = "NONE"; then
 		targetprefix=""
 	fi
@@ -216,18 +219,18 @@ if test "$$1_CONFIG" != "no"; then
 	if test "$TARGET" = "cdk" && check_path "$$1_CONFIG"; then
 		AC_MSG_$3([could not find a suitable version of $2]);
 	else
-                if test "$1" = "CURL"; then
-                	$1_CFLAGS=$($$1_CONFIG --cflags)
+		if test "$1" = "CURL"; then
+			$1_CFLAGS=$($$1_CONFIG --cflags)
 			$1_LIBS=$($$1_CONFIG --libs)
 		else
-	    		if test "$1" = "FREETYPE"; then
-	            		$1_CFLAGS=$($$1_CONFIG --cflags)
-	            		$1_LIBS=$($$1_CONFIG --libs)
-	    		else
-	            		$1_CFLAGS=$($$1_CONFIG --prefix=$targetprefix --cflags)
-	            		$1_LIBS=$($$1_CONFIG --prefix=$targetprefix --libs)
+			if test "$1" = "FREETYPE"; then
+			$1_CFLAGS=$($$1_CONFIG --cflags)
+				$1_LIBS=$($$1_CONFIG --libs)
+			else
+				$1_CFLAGS=$($$1_CONFIG --prefix=$targetprefix --cflags)
+				$1_LIBS=$($$1_CONFIG --prefix=$targetprefix --libs)
 			fi
-	        fi
+		fi
 	fi
 fi
 

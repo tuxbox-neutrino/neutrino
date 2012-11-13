@@ -12,6 +12,10 @@
 #include <sys/types.h> //ntohs
 #include <netinet/in.h> //ntohs
 #include <inttypes.h> //ntohs
+
+#include <global.h>
+#include <neutrino.h>
+#include <system/settings.h>
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -22,9 +26,6 @@
 #include "neutrinoyparser.h"
 #include "neutrinoapi.h"
 
-#include <global.h>
-#include <neutrino.h>
-#include <system/settings.h>
 
 #include <zapit/channel.h>
 #include <zapit/zapit.h>

@@ -101,26 +101,30 @@
 #define HTTPD_DEFAULT_LANGUAGE 			"English"
 #define AUTHUSER						"root"
 
-#define HTTPD_CONFIGDIR 				"/var/tuxbox/config"
-#define HTTPD_CONFIGFILE HTTPD_CONFIGDIR "/nhttpd.conf"
-#define YWEB_CONFIGFILE HTTPD_CONFIGDIR "/Y-Web.conf"
-#define PUBLICDOCUMENTROOT				"/var/httpd"
-#define NEUTRINO_CONFIGFILE				"/var/tuxbox/config/neutrino.conf"
+#ifndef TARGETPREFIX
+#define TARGETPREFIX					""
+#endif
+
+#define HTTPD_CONFIGDIR 				TARGETPREFIX"/var/tuxbox/config"
+#define HTTPD_CONFIGFILE				HTTPD_CONFIGDIR"/nhttpd.conf"
+#define YWEB_CONFIGFILE					HTTPD_CONFIGDIR"/Y-Web.conf"
+#define PUBLICDOCUMENTROOT				TARGETPREFIX"/var/httpd"
+#define NEUTRINO_CONFIGFILE				TARGETPREFIX"/var/tuxbox/config/neutrino.conf"
 #define HOSTEDDOCUMENTROOT				"/mnt/hosted"
 #define EXTRASDOCUMENTROOT				"/mnt/hosted/extras"
 #define EXTRASDOCUMENTURL				"/hosted/extras"
-#define ZAPITXMLPATH					"/var/tuxbox/config/zapit"
-#define TUXBOX_LOGOS_URL				"/usr/share/tuxbox/neutrino/icons/logos"
+#define ZAPITXMLPATH					TARGETPREFIX"/var/tuxbox/config/zapit"
+#define TUXBOX_LOGOS_URL				TARGETPREFIX"/usr/share/neutrino/icons/logos"
 
 // switch for Box differences
 #ifdef CONFIG_SYSTEM_TUXBOX
 #define AUTHPASSWORD					"dbox2"
-#define PRIVATEDOCUMENTROOT				"/share/tuxbox/neutrino/httpd-y"
+#define PRIVATEDOCUMENTROOT				TARGETPREFIX"/share/tuxbox/neutrino/httpd-y"
 #endif
 
 #ifdef CONFIG_SYSTEM_TUXBOX_COOLSTREAM
 #define AUTHPASSWORD					"coolstream"
-#define PRIVATEDOCUMENTROOT				"/share/tuxbox/neutrino/httpd"
+#define PRIVATEDOCUMENTROOT				TARGETPREFIX"/share/tuxbox/neutrino/httpd"
 #undef Y_CONFIG_BUILD_AS_DAEMON			// No Daemon
 #endif
 //-----------------------------------------------------------------------------
