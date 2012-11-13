@@ -883,11 +883,11 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 					bool found = true;
 					uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
 //printf("**************************** EpgPlus::exec current bouquet %d new %d\n", bouquetList->getActiveBouquetNumber(), nNext);
-					if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
+					if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
 						found = false;
 						nNext = nNext < bouquetList->Bouquets.size()-1 ? nNext+1 : 0;
 						for(uint32_t i = nNext; i < bouquetList->Bouquets.size(); i++) {
-							if(bouquetList->Bouquets[i]->channelList->getSize() > 0) {
+							if(!bouquetList->Bouquets[i]->channelList->isEmpty() ) {
 								found = true;
 								nNext = i;
 								break;
@@ -909,11 +909,11 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				if (!bouquetList->Bouquets.empty()) {
 					bool found = true;
 					int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
-					if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
+					if(bouquetList->Bouquets[nNext]->channelList->isEmpty()) {
 						found = false;
 						nNext = nNext > 0 ? nNext-1 : bouquetList->Bouquets.size()-1;
 						for(int i = nNext; i > 0; i--) {
-							if(bouquetList->Bouquets[i]->channelList->getSize() > 0) {
+							if(!bouquetList->Bouquets[i]->channelList->isEmpty()) {
 								found = true;
 								nNext = i;
 								break;
@@ -1261,7 +1261,7 @@ int CEPGplusHandler::exec (CMenuTarget * parent, const std::string & /*actionKey
 	//channelList = CNeutrinoApp::getInstance()->channelList;
 	int bnum = bouquetList->getActiveBouquetNumber();
 	current_bouquet = bnum;
-	if(!bouquetList->Bouquets.empty() && bouquetList->Bouquets[bnum]->channelList->getSize() > 0)
+	if(!bouquetList->Bouquets.empty() && !bouquetList->Bouquets[bnum]->channelList->isEmpty() )
 		channelList = bouquetList->Bouquets[bnum]->channelList;
 	else
 		channelList = CNeutrinoApp::getInstance()->channelList;

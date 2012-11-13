@@ -107,6 +107,8 @@ class CInfoViewer
 	CProgressBar *snrscale, *sigscale, *timescale;
 	bool casysChange;
 	bool channellogoChange;
+	uint32_t lcdUpdateTimer;
+
 	void paintBackground(int col_Numbox);
 	void show_Data( bool calledFromEvent = false );
 	void display_Info(const char *current, const char *next, bool UTF8 = true,
@@ -136,7 +138,6 @@ class CInfoViewer
 	bool     chanready;
 	bool	 is_visible;
 	bool	 virtual_zap_mode;
-	uint32_t lcdUpdateTimer;
 	char     aspectRatio;
 	uint32_t sec_timer_id;
 
@@ -170,6 +171,8 @@ class CInfoViewer
 	void    showSNR();
 	void    Init(void);
 	bool    SDT_freq_update;
+	void	setUpdateTimer(uint64_t interval);
+	uint32_t getUpdateTimer(void) { return lcdUpdateTimer; }
 };
 #if 0
 class CInfoViewerHandler : public CMenuTarget

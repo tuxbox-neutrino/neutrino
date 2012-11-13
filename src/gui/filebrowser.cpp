@@ -232,7 +232,7 @@ unsigned char SMSKeyInput::getOldKey() const
 {
 	return m_oldKey;
 }
-
+#if 0
 const timeval* SMSKeyInput::getOldKeyTime() const
 {
  	return &m_oldKeyTime;
@@ -248,7 +248,7 @@ int SMSKeyInput::getTimeout() const
 {
 	return m_timeout;
 }
-
+#endif
 void SMSKeyInput::setTimeout(int timeout)
 {
 	m_timeout = timeout;

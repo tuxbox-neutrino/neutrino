@@ -146,6 +146,7 @@ public:
 	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 
 	int getSize() const;
+	bool isEmpty() const;
 	int getSelectedChannelIndex() const;
 	void setSize(int newsize);
 	int doChannelMenu(void);

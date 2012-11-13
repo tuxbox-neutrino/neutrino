@@ -436,8 +436,9 @@ filesystem.is.utf8 Dateisystem
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
+flashupdate.apply_settings Sollen die aktuellen Einstellungen in das neue Image übernommen werden?
 flashupdate.cantopenfile kann Datei nicht öffnen
-flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
+flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen
 flashupdate.checkupdate_local Lokales Update
 flashupdate.currentversion_sep Installierte Version
@@ -484,6 +485,9 @@ flashupdate.settings Update-Einstellungen
 flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
+flashupdate.update_with_settings_processed Image wird bearbeitet...
+flashupdate.update_with_settings_skipped Ordner [%s] kann nicht gesichert werden. Eintrag wird übersprungen.
+flashupdate.update_with_settings_successfully Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.
 flashupdate.updatemode Updatemodus
 flashupdate.updatemode_internet Internet
 flashupdate.updatemode_manual von lokalem Update-Verzeichnis 
@@ -538,7 +542,7 @@ hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Festplattenprüfung fehlgeschlagen
-hdd_ext3 Ext3fs
+hdd_ext3 ext3
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Festplatte
@@ -771,7 +775,7 @@ menu.hint_hdd_tools Hier können Sie die gefundenen Festplatten formatieren bzw.
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software
-menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Deep-Standby
+menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Standby-Modus
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
@@ -925,6 +929,7 @@ menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals\nin ein eigenes Verzeichnis
 menu.hint_record_dir Hier wählen Sie das Aufnahmeverzeichnis
 menu.hint_record_end Hier können Sie wählen zwischen max. Aufnahmezeit\noder anhand der EPG-Daten
+menu.hint_record_slow_warn Zeige Warnung, wenn Aufnahmepuffer zu überlaufen droht
 menu.hint_record_tdir Wählen Sie eine Verzeichnis für Ihre Timeshift-Aufnahmen\nim temporären Timeshiftmodus
 menu.hint_record_time Hier wird die maximale Zeit in Stunden eingetragen außer\nSie stoppen die Aufnahme vorzeitig
 menu.hint_record_timeafter Hier kann die Endzeit für den Aufnahmetimer eingestellt werden,\nein Wert von 2, beendet die Aufnahme 2 Minuten nach dem Sendungsende
@@ -1314,6 +1319,8 @@ networkmenu.dhcp DHCP
 networkmenu.error_no_address Keine %s-Adresse angegeben!
 networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname
+networkmenu.hostname_hint1 Geben sie den Hostnamen ein
+networkmenu.hostname_hint2 Eine Änderung benötigt einen Neustart
 networkmenu.inactive_network Netzwerk nicht aktiviert!
 networkmenu.ipaddress IP
 networkmenu.mount Netzwerkfreigaben bearbeiten
@@ -1491,6 +1498,7 @@ recordingmenu.save_in_channeldir Speichere im Kanalverzeichnis
 recordingmenu.server Server
 recordingmenu.server_mac MAC-Adresse
 recordingmenu.setupnow Einstellungen jetzt übernehmen
+recordingmenu.slow_warn Warnung bei langsamen Aufnahmemedien
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
 recordingmenu.vcr Videorekorder
@@ -1513,7 +1521,7 @@ satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Erweiterte Auswahl
 satsetup.diseqc_com_uncom Committed/Uncommitted
-satsetup.diseqc_input Diseqc Einspeisung
+satsetup.diseqc_input DiSEqC Einspeisung
 satsetup.diseqc_uncom_com Uncommitted/Committed
 satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.extended DiSEqC-Einstellungen
@@ -1629,7 +1637,7 @@ settings.restore Image-Einstellungen: Wiederherstellen
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
-sleeptimerbox.announce Sleeptimer in 1 min
+sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
 sleeptimerbox.hint1 Ausschaltzeit in Min. (000=aus)
 sleeptimerbox.hint2 Die Box schaltet sich nach dieser Standby-Zeit aus.
 sleeptimerbox.hint3 Die Box schaltet sich bei Nichtbenutzen der FB aus.
@@ -1664,6 +1672,7 @@ timerbar.recordevent Aufnehmen
 timerlist.alarmtime Alarmzeit
 timerlist.apids Audio PIDs
 timerlist.apids_dflt Voreingestellte Tonspuren aufn.
+timerlist.ask_to_delete Das Löschen des Timers beendet auch die laufende Aufnahme!\n%sTrotzdem fortsetzen?
 timerlist.bouquetselect Bouquet wählen
 timerlist.channel Kanal
 timerlist.channelselect Kanal wählen
@@ -1799,6 +1808,8 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
+wizard.initial_settings Grundeinstellungen gefunden
+wizard.install_settings Kanalliste für Astra 19.2°E installieren?
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
 wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer Coolstream. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nBeachten Sie: Ihre Coolstream Set-Top-Box lässt sich bequem per Webinterface\nsteuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nZugriff erhalten Sie mit dem Benutzernamen: root und dem Passwort: coolstream\nAchten Sie darauf, dass Ihre Gerät nicht von aussen zugänglich ist,\nda sonst ein Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
 word.from ab

@@ -51,6 +51,7 @@
 
 
 #include <driver/record.h>
+#include <driver/streamts.h>
 #include <zapit/capmt.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
@@ -156,15 +157,16 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		return RECORD_INVALID_DIRECTORY;
 	}
 
+	CGenPsi psi;
 	if (allpids.PIDs.vpid != 0)
-		transfer_pids(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
+		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
 
 	numpids = 0;
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
 		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
-		transfer_pids(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
+		psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
 	}
-	genpsi(fd);
+	psi.genpsi(fd);
 
 	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0))
 		apids[numpids++] = allpids.PIDs.vtxtpid;
@@ -231,9 +233,9 @@ bool CRecordInstance::Stop(bool remove_event)
         CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
         if((autoshift && g_settings.auto_delete) /* || autoshift_delete*/) {
-                snprintf(buf,sizeof(buf), "\"%s.ts\"", filename);
-                my_system("nice", "-n20", "rm", "-f", buf);
-                snprintf(buf,sizeof(buf), "%s.xml", filename);
+		snprintf(buf,sizeof(buf), "nice -n 20 rm -f \"%s.ts\" &", filename);
+		my_system("/bin/sh", "-c", buf);
+		snprintf(buf,sizeof(buf), "%s.xml", filename);
                 //autoshift_delete = false;
                 unlink(buf);
         }
@@ -1096,6 +1098,18 @@ bool CRecordManager::Stop(const t_channel_id channel_id)
 	return (inst != NULL);
 }
 
+bool CRecordManager::IsRecording(const CTimerd::RecordingStopInfo * recinfo)
+{
+	bool ret = false;
+	mutex.lock();
+	CRecordInstance * inst = FindInstanceID(recinfo->eventID);
+	if(inst != NULL && recinfo->eventID == inst->GetRecordingId())
+		ret = true;
+	mutex.unlock();
+	printf("[%s] eventID: %d, channel_id: 0x%llx, ret: %d\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id, ret);
+	return ret;
+}
+
 bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 {
 	bool ret = false;
@@ -1182,7 +1196,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 						error_display = false;
 						warn_display = false;
 						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_OVERFLOW));
-					} else if (warn_display) {
+					} else if (g_settings.recording_slow_warning && warn_display) {
 						warn_display = false;
 						DisplayErrorMessage(g_Locale->getText(LOCALE_STREAMING_SLOW));
 					}
@@ -1578,12 +1592,16 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		 * needed, if record frontend same as live, and its on different TP */
 		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, channel_id);
 		if(found) {
+			/* stop stream for this channel */
+			CStreamManager::getInstance()->StopStream(channel_id);
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
 			printf("%s found same tp, zapTo_record channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
 		}
 		else {
 			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
 			StopAutoRecord(false);
+			/* stop all streams */
+			CStreamManager::getInstance()->StopStream();
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
 				mode_changed = true;
@@ -1605,6 +1623,10 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		g_Zapit->setRecordMode( true );
 		if(last_mode == NeutrinoMessages::mode_standby)
 			g_Zapit->stopPlayBack();
+		if ((live_channel_id == channel_id) && g_Radiotext)
+			g_Radiotext->radiotext_stop();
+		/* in case channel_id == live_channel_id */
+		CStreamManager::getInstance()->StopStream(channel_id);
 	}
 	if(last_mode == NeutrinoMessages::mode_standby) {
 		//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);

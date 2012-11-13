@@ -65,7 +65,7 @@ class CCam : public CBasicClient
 		CCam();
 		virtual ~CCam() {};
 		bool sendMessage(const char * const data, const size_t length, bool update = false);
-		bool makeCaPmt(CZapitChannel * channel, uint8_t list = CAPMT_ONLY, const CaIdVector &caids = CaIdVector());
+		bool makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list = CAPMT_ONLY, const CaIdVector &caids = CaIdVector());
 		bool setCaPmt(bool update = false);
 		bool sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen);
 		int  makeMask(int demux, bool add);

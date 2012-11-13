@@ -99,13 +99,10 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			res = CNetworkSetup::getInstance()->exec(NULL, "");
 			CNetworkSetup::getInstance()->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD_NO);
 		}
-		if(res != menu_return::RETURN_EXIT_ALL) 
-		{
-			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD);
-			res = CScanSetup::getInstance()->exec(NULL, "");
-			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD_NO);
-		}
-		bool init_settings = file_exists("/var/tuxbox/config/initial/");
+		bool init_settings = false;
+		if (g_info.delivery_system == DVB_S)
+			init_settings = file_exists("/var/tuxbox/config/initial/");
+
 		if(init_settings && (res != menu_return::RETURN_EXIT_ALL))
 		{
 			if (ShowMsgUTF(LOCALE_WIZARD_INITIAL_SETTINGS, g_Locale->getText(LOCALE_WIZARD_INSTALL_SETTINGS),
@@ -116,9 +113,13 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 				CZapit::getInstance()->PrepareChannels();
 			}
 		}
+		if(res != menu_return::RETURN_EXIT_ALL) 
+		{
+			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD);
+			res = CScanSetup::getInstance()->exec(NULL, "");
+			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD_NO);
+		}
 	}
-
-	
 	
 	killBackgroundLogo();
 	return res;

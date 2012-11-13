@@ -1254,8 +1254,15 @@ void CTimerEvent_Record::Refresh()
 //=============================================================
 void CTimerEvent_Zapto::announceEvent()
 {
+	Refresh();
+	CTimerd::RecordingInfo ri=eventInfo;
+	ri.eventID=eventID;
+	ri.recordingDir[0] = 0;
+	strcpy(ri.epgTitle, epgTitle.substr(0,sizeof(ri.epgTitle)-1).c_str());
+
 	CTimerManager::getInstance()->getEventServer()->sendEvent(CTimerdClient::EVT_ANNOUNCE_ZAPTO,
-								  CEventServer::INITID_TIMERD);
+								  CEventServer::INITID_TIMERD,
+								  &ri,sizeof(CTimerd::RecordingInfo));
 }
 //------------------------------------------------------------
 void CTimerEvent_Zapto::fireEvent()

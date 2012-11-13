@@ -1120,7 +1120,7 @@ int CMovieBrowser::paint(void)
 	m_pcFilter = new CListFrame(&m_FilterLines, font, CListFrame::SCROLL | CListFrame::TITLE,
 			&m_cBoxFrameFilter, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD_FILTER),
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]);
-	m_pcInfo = new CTextBox(" ", NULL, CTextBox::SCROLL, &m_cBoxFrameInfo);
+	m_pcInfo = new CTextBox(" ", NULL, CTextBox::TOP | CTextBox::SCROLL, &m_cBoxFrameInfo);
 
 
 	if( m_pcBrowser == NULL || m_pcLastPlay == NULL ||
@@ -1631,7 +1631,7 @@ void CMovieBrowser::refreshFoot(void)
 	m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*2 + 10 + iw, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, ok_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
 
 	if (IsRecord == false) {
-		//delte icon
+		//delete icon
 		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, m_cBoxFrame.iX+xpos1+width*3, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
 		m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*3 + 10 + iw , m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color, 0, true); // UTF-8
@@ -2059,7 +2059,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
 
 		msg += "\r\n ";
 		msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
-		if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
+		if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
 		{
 			delFile(movieSelectionHandler.file);
 

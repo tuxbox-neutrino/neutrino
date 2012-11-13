@@ -37,6 +37,7 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/menue.h>
 #include <gui/filebrowser.h>
+#include <gui/audioplayer.h>
 
 #include <string>
 
@@ -109,10 +110,14 @@ class CPictureViewerGui : public CMenuTarget
 		void showHelp();
 		void deletePicFile(unsigned int index, bool mode);
 
+		bool audioplayer;
+
 	public:
 		CPictureViewerGui();
 		~CPictureViewerGui();
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
+
+		CAudioPlayerGui *m_audioPlayer;
 };
 
 

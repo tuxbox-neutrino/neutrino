@@ -288,7 +288,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_TECHINFO;
 			streamInfo = new CStreamInfo2();
 			keyhelper.get(&key,&icon,CRCInput::RC_blue);
-			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, true, NULL, streamInfo, "-1", key, icon );
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, streamInfo, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
 		case SNeutrinoSettings::ITEM_GAMES:

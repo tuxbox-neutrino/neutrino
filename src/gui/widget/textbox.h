@@ -72,7 +72,7 @@ class CBox
 
 	public:
 		/* Constructor */
-		inline CBox(){;};
+		inline CBox(){iY = 0; iX = 0; iWidth = 0;iHeight = 0;};
 		inline CBox( const int _iX, const int _iY, const int _iWidth, const int _iHeight){iX=_iX; iY=_iY; iWidth=_iWidth; iHeight=_iHeight;};
 		inline ~CBox(){;};
 		/* Functions */
@@ -83,13 +83,28 @@ class CBox
 		int iHeight;
 };
 
-class CTextBox  
+class CTextBox
 {
+	public:
+		/* Variables */
+		enum textbox_modes
+		{
+			AUTO_WIDTH	= 0x01, 	//auto adapt frame width to max width or max text width, text is painted with auto linebreak
+			AUTO_HIGH	= 0x02, 	//auto adapt frame height to max height, text is painted with auto linebreak
+			SCROLL		= 0x04, 	//frame box contains scrollbars on long text
+			CENTER		= 0x40, 	//paint text centered
+			RIGHT		= 0x80, 	//paint text right
+			TOP		= 0x100,	//paint text on top of frame
+			BOTTOM		= 0x200,	//paint text on bottom of frame
+			NO_AUTO_LINEBREAK = 0x400  	//paint text without auto linebreak,  cutting text
+		};
+		
 	private:
 		/* Functions */
 		void refreshTextLineArray(void);
 		void initVar(void);
 		void initFramesRel(void);
+		void initFramesAndTextArray();
 		void refreshScroll(void);
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
@@ -107,6 +122,10 @@ class CTextBox
 
 		int m_nMaxHeight;
 		int m_nMaxWidth;
+		int m_nMinHeight;
+		int m_nMinWidth;
+
+		int m_nMaxTextWidth;
 
 		int m_nMode;
 
@@ -128,15 +147,17 @@ class CTextBox
 		fb_pixel_t m_textColor;
 
 		CFrameBuffer * frameBuffer;
-		int max_width;
+/*		int max_width;*/
+		
 		int text_border_width;
+		
 	public:
 		/* Constructor */
 		CTextBox();
 		CTextBox(	const char * text);
 		CTextBox(	const char * text, 
 					Font* font_text,
-					const int mode, 
+					const int pmode,
 					const CBox* position,
 					CFBWindow::color_t textBackgroundColor = COL_MENUCONTENT_PLUS_0);
 
@@ -147,11 +168,16 @@ class CTextBox
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
 		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
-		bool	setText(const std::string* newText, int _max_width = 0);
+		bool	setText(const std::string* newText, int max_width = 0);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int border);
 		void	setTextFont(Font* font_text);
+		void	setTextMode(const int text_mode){m_nMode = text_mode;};
+		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
+		void	setWindowPos(const CBox* position){m_cFrame = *position;};
+		void 	setWindowMaxDimensions(const int width, const int height);
+		void 	setWindowMinDimensions(const int width, const int height);
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
@@ -162,17 +188,6 @@ class CTextBox
 
 		void paint (void);
 		void hide (void);
-
-
-		/* Variables */
-		typedef enum mode_
-		{
-			AUTO_WIDTH	= 0x01,
-			AUTO_HIGH	= 0x02,
-			SCROLL		= 0x04,
-			CENTER		= 0x40,
-			NO_AUTO_LINEBREAK = 0x80
-		} mode;
 };
 
 #endif // !defined(AFX_TEXTBOX_H__208DED01_ABEC_491C_A632_5B21057DC5D8__INCLUDED_)

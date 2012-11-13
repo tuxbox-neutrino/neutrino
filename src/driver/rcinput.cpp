@@ -1084,7 +1084,8 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								break;
 							case CTimerdClient::EVT_ANNOUNCE_ZAPTO :
 								*msg = NeutrinoMessages::ANNOUNCE_ZAPTO;
-								*data = 0;
+								*data = (neutrino_msg_data_t)p;
+								dont_delete_p = true;
 								break;
 							case CTimerdClient::EVT_ANNOUNCE_SHUTDOWN :
 								*msg = NeutrinoMessages::ANNOUNCE_SHUTDOWN;

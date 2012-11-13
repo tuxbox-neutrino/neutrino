@@ -75,7 +75,7 @@ class CMsgBox
 			mbAll =		0x07,
 			mbBack =	0x08
 		};
-		 enum mode_
+		enum modes
 		{
 			AUTO_WIDTH	= 0x01,
 			AUTO_HIGH	= 0x02,
@@ -85,7 +85,7 @@ class CMsgBox
 			BORDER		= 0x20,
 			CENTER		= 0x40,
 			NO_AUTO_LINEBREAK= 0x80
-		}mode;
+		};
 
 	private:
 		/* Functions */

@@ -63,13 +63,13 @@ void CServiceScan::InitFastscanLnb(int id)
 	switch(id) {
 		default:
 		case CD_OPERATOR_ID:
-		case OPERATOR_TVV:
+		case TVV_OPERATOR_ID:
 			satmap[192].diseqc = 0;
 			satmap[235].diseqc = 1;
 			satmap[282].diseqc = 2;
 			satmap[130].diseqc = 3;
 			break;
-		case OPERATOR_TELESAT:
+		case TELESAT_OPERATOR_ID:
 			satmap[130].diseqc = 0;
 			satmap[192].diseqc = 1;
 			satmap[235].diseqc = 2;
@@ -216,10 +216,10 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 		delete dmx;
 		return false;
 	}
-
+#if 0
 	g_bouquetManager->clearAll();
 	CServiceManager::getInstance()->RemoveAllChannels();
-
+#endif
 	do {
 		if (dmx->Read(buffer, SEC_SIZE) < 0) {
 			delete dmx;

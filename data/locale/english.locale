@@ -254,23 +254,23 @@ colormenu.menucolors Colors
 colormenu.osd_preset TV preset
 colormenu.sd_preset CRT
 colormenu.textcolor Text color
-colormenu.themeselect select theme
+colormenu.themeselect Select theme
 colormenu.timing OSD Timeouts
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
 colormenusetup.menuhead Header
 colorstatusbar.text Infobar
-colorthememenu.head Theme auswählen
-colorthememenu.head2 Themes laden
-colorthememenu.name Themename
+colorthememenu.head Select theme
+colorthememenu.head2 Load themes
+colorthememenu.name Theme name
 colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.question Aktuelles Theme beibehalten?
-colorthememenu.save aktuelles Theme speichern
-colorthememenu.select1 Benutzer Theme
+colorthememenu.question Use selected theme?
+colorthememenu.save Save current theme
+colorthememenu.select1 User Theme
 colorthememenu.select2 Standard Theme
-cpu.freq Cpu frequency
-cpu.freq_default default frequency
+cpu.freq CPU frequency
+cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
 cpu.freq_standby Standby frequency
 date.Apr  Apr
@@ -303,7 +303,7 @@ epglist.noevents EPG is not available...
 epgviewer.More_Screenings More Screenings on this Channel
 epgviewer.More_Screenings_short More Screenings
 epgviewer.nodetailed No detailed informations available
-epgviewer.notfound no epg found
+epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
 eventfinder.keyword Keyword
 eventfinder.search Search
@@ -436,8 +436,9 @@ filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash reading
+flashupdate.apply_settings Import current settings into new image?
 flashupdate.cantopenfile can't open file
-flashupdate.cantopenmtd can't open mtd-device
+flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Check for online updates
 flashupdate.checkupdate_local Local update
 flashupdate.currentversion_sep Current version
@@ -484,6 +485,9 @@ flashupdate.settings Update settings
 flashupdate.squashfs.noversion SquashFS version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
+flashupdate.update_with_settings_processed Image is being processed...
+flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
+flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
 flashupdate.updatemode_manual from local update directory
@@ -538,7 +542,7 @@ hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed HDD-check failed!
-hdd_ext3 Ext3fs
+hdd_ext3 ext3
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Formating drive...
@@ -925,6 +929,7 @@ menu.hint_record_apply Apply record options
 menu.hint_record_chandir Create directory with name of channel\nto store recording
 menu.hint_record_dir Select directory to store recordings
 menu.hint_record_end Stop direct record after max. time\nor after current event end time
+menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
 menu.hint_record_time Record time before stop when\nusing direct record with record button
 menu.hint_record_timeafter Stop record after event end\nin minutes
@@ -1314,6 +1319,8 @@ networkmenu.dhcp DHCP
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway default gateway
 networkmenu.hostname Hostname
+networkmenu.hostname_hint1 enter hostname
+networkmenu.hostname_hint2 need reboot after change
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
 networkmenu.mount Edit network shares
@@ -1491,6 +1498,7 @@ recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server server
 recordingmenu.server_mac MAC address
 recordingmenu.setupnow activate changes
+recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
 recordingmenu.vcr vcr
@@ -1513,7 +1521,7 @@ satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Advanced
 satsetup.diseqc_com_uncom Commited/Uncommited
-satsetup.diseqc_input Diseqc input
+satsetup.diseqc_input DiSEqC input
 satsetup.diseqc_uncom_com Uncommited/Commited
 satsetup.diseqcrepeat DiSEqC-repeats
 satsetup.extended DiSEqC-Settings
@@ -1629,7 +1637,7 @@ settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shutdown.recoding_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
-sleeptimerbox.announce Sleeptimer in 1 min
+sleeptimerbox.announce Box will standby in 1 min.\nCancel Standby ?
 sleeptimerbox.hint1 Shutdown time in min. (000=off)
 sleeptimerbox.hint2 The STB will shutdown after this time in standby.
 sleeptimerbox.hint3 The STB will shutdown, if remote not used.
@@ -1664,6 +1672,7 @@ timerbar.recordevent Record
 timerlist.alarmtime Alarm time
 timerlist.apids Audio PIDs
 timerlist.apids_dflt record default audio streams
+timerlist.ask_to_delete Deletion of timer stops current recording!\n%sContinue anyway?
 timerlist.bouquetselect choose bouquet
 timerlist.channel Channel
 timerlist.channelselect choose channel
@@ -1800,7 +1809,7 @@ videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
 wizard.initial_settings Initial settings found
-wizard.install_settings Do you want to install channels for Astra 19.2°E ?
+wizard.install_settings Do you want to install channels for Astra 19.2°E?
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from

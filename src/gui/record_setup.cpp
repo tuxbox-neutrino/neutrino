@@ -199,6 +199,10 @@ int CRecordSetup::showRecordSetup()
 	end_of_recording->setHint("", LOCALE_MENU_HINT_RECORD_END);
 	recordingSettings->addItem(end_of_recording);
 
+	CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	slow_warn->setHint("", LOCALE_MENU_HINT_RECORD_SLOW_WARN);
+	recordingSettings->addItem(slow_warn);
+
 	//template
 	//CStringInput recordingSettings_filenameTemplate(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
 	//CMenuForwarder* mf11 = new CMenuForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template[0], &recordingSettings_filenameTemplate);

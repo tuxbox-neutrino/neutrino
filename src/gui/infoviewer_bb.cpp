@@ -55,6 +55,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
+#include <gui/movieplayer.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
 
@@ -86,8 +87,14 @@ CInfoViewerBB::CInfoViewerBB()
 		pthread_detach(scrambledT);
 	}
 #endif
+	hddpercent		= 0;
 	hddperT			= 0;
 	hddperTflag		= false;
+	bbIconInfo[0].x = 0;
+	bbIconInfo[0].h = 0;
+	BBarY = 0;
+	BBarFontY = 0;
+
 	Init();
 }
 
@@ -233,10 +240,13 @@ void CInfoViewerBB::getBBButtonInfo()
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
+			if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+				text = CMoviePlayerGui::getInstance().CurrentAudioName();
+			}else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
-				if (text.empty())
+				if (text.empty()){
 					text = g_RemoteControl->current_PIDs.APIDs[selected].desc;
+				}
 			}
 			break;
 		case CInfoViewerBB::BUTTON_SUBS:
@@ -603,20 +613,17 @@ void CInfoViewerBB::showSysfsHdd()
 			percent = (u * 100ULL) / t;
 		showBarSys(percent);
 
-#if 0
 		//HDD info in a seperate thread
 		if(!hddperTflag) {
 			hddperTflag=true;
 			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
 			pthread_detach(hddperT);
 		}
-#else
-		if (!check_dir(g_settings.network_nfs_recordingdir)) {
-			if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
-				percent = (u * 100ULL) / t;
-			showBarHdd(percent);
-		}
-#endif
+
+		if (check_dir(g_settings.network_nfs_recordingdir) == 0)
+			showBarHdd(hddpercent);
+		else
+			showBarHdd(-1);
 	}
 }
 
@@ -624,11 +631,10 @@ void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
 
-	int percent = 0;
+	infoViewerBB->hddpercent = 0;
 	long t, u;
 	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
-		percent = (u * 100ULL) / t;
-	infoViewerBB->showBarHdd(percent);
+		infoViewerBB->hddpercent = (u * 100ULL) / t;
 
 	infoViewerBB->hddperTflag=false;
 	pthread_exit(NULL);
@@ -642,8 +648,14 @@ void CInfoViewerBB::showBarSys(int percent)
 
 void CInfoViewerBB::showBarHdd(int percent)
 {
-	if (is_visible)
-		hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
+	if (is_visible) {
+		if (percent >= 0)
+			hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
+		else {
+			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
+			hddscale->reset();
+		}
+	}
 }
 
 void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
@@ -711,13 +723,20 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
+	if (g_settings.casystem_display == 3)
+		return;
+	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+		if (g_settings.casystem_display == 2) {
+			fta = true;
+			showOne_CAIcon();
+		}
+		return;
+	}
+
 	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
 	int icon_space_offset = 0;
-
-	if (g_settings.casystem_display == 3)
-		return;
 
 	if(!g_InfoViewer->chanready) {
 		if (g_settings.casystem_display == 2) {

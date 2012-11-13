@@ -2288,97 +2288,31 @@ eOSState cRTplusList::ProcessKey(eKeys Key)
 //--------------- End -----------------------------------------------------------------
 #endif
 
-
-//static int pes_SyncBufferRead (cDemux *audioDemux, ringbuffer_t *buf, u_long *skipped_bytes);
-
-static bool rtThreadRunning;
-
-void *RadioTextThread(void *data)
-{
-	CRadioText *rt = ((CRadioText::s_rt_thread*)data)->rt_object;
-	int fd = ((CRadioText::s_rt_thread*)data)->fd;
-	//	struct dmx_pes_filter_params flt;
-	cDemux *audioDemux = rt->audioDemux;
-	printf("in RadioTextThread fd = %d\n", fd);
-
-	bool ret = false;
-
-	printf("\nRadioTextThread: ###################### Setting PID 0x%x ######################\n", rt->getPid());
-
-	audioDemux->Stop();
-	if (audioDemux->pesFilter(rt->getPid()))
-	{
-		/* start demux filter */
-		if (audioDemux->Start())
-			ret = true;
-	}
-	if (!ret) {
-		perror("RadiotextThread Audiodemuxer");
-		perror("DMX_SET_PES_FILTER");
-		audioDemux->Stop();
-		pthread_exit(NULL);
-	}
-	/*
-	   -- read PES packet for pid
-	   */
-#if 0
-	ringbuffer_t *buf_in = ringbuffer_create(0x1FFFF);
-	char  *b;				/* ptr to packet start */
-	long    count = 0;
-#endif
-	rtThreadRunning = true;
-	while(rtThreadRunning)
-	{
-		int n;
-		unsigned char buf[0x1FFFF];
-#if 0
-		int offset;
-		size_t rd;
-		u_long  skipped_bytes = 0;
-#endif
-		//printf("."); fflush(stdout);
-		//  -- Read PES packet  (sync Read)
-		//n = pes_SyncBufferRead (audioDemux, buf_in, &skipped_bytes);
-		n = audioDemux->Read(buf, sizeof(buf), 500 /*5000*/);
-
-		// -- error or eof?
-		if (n <= 0) {
-			usleep(10000); /* save CPU if nothing read */
-			continue;
-		}
-		rt->PES_Receive(buf, n);
-#if 0
-		rd = ringbuffer_get_readpointer(buf_in, &b, n);
-		/* this can not happen, because pes_SyncBufferRead() returns -1 if ringbuffer is empty
-		   if (rd <= 0) {
-		   continue;
-		   }
-		   */
-		count ++;
-		// -- skipped Data to get sync byte?
-		offset = rt->PES_Receive(b, n);
-
-		ringbuffer_read_advance(buf_in, offset);
-#endif
-	}
-
-	audioDemux->Stop();
-
-#if 0
-	ringbuffer_free(buf_in);
-	fprintf(stderr, "RT %s: exit\n", __FUNCTION__);
-#endif
-	printf("\nRadioTextThread: ###################### exit ######################\n");
-	pthread_exit(NULL);
-}
-
 CRadioText::CRadioText(void)
 {
-	pid 		= 0;
-	dmxfd 		= -1;
+	pid = 0;
+	audioDemux = NULL;
+	init();
+
+	running = true;
+	start();
+}
+
+CRadioText::~CRadioText(void)
+{
+	printf("CRadioText::~CRadioText\n");
+	running = false;
+	radiotext_stop();
+	cond.broadcast();
+	OpenThreads::Thread::join();
+	printf("CRadioText::~CRadioText done\n");
+}
+
+void CRadioText::init()
+{
 	S_Verbose 	= 0;
 	S_RtFunc 	= 1;
-	S_RtOsd 	= 1;
+	S_RtOsd 	= 0;
 	S_RtOsdTitle 	= 1;
 	S_RtOsdTags 	= 2;
 	S_RtOsdPos 	= 2;
@@ -2391,7 +2325,6 @@ CRadioText::CRadioText(void)
 	S_RtFgCol 	= 1;
 	S_RtDispl 	= 1;
 	S_RtMsgItems 	= 0;
-//int S_RtpMemNo = 25;
 	RT_Index 	= 0;
 	RT_PTY 		= 0;
 
@@ -2401,265 +2334,87 @@ CRadioText::CRadioText(void)
 	RT_PlusShow 	= false;
 	RT_Replay 	= false;
 	RT_ReOpen 	= false;
-	for (int i=0; i<5; i++) strcpy(RT_Text[i], "");
-	strcpy(RDS_PTYN, "");
+	for (int i = 0; i < 5; i++)
+		RT_Text[i][0] = 0;
+	RDS_PTYN[0] = 0;
+
+#if ENABLE_RASS
+	// Rass ...
+	Rass_Show = -1;		// -1=No, 0=Yes, 1=display
+	Rass_Archiv = -1;	// -1=Off, 0=Index, 1000-9990=Slidenr.
+#endif
+	RT_MsgShow = false; // clear entries from old channel
 	have_radiotext	= false;
-   audioDemux = NULL;
 }
 
 void CRadioText::radiotext_stop(void)
 {
-	printf("\nCRadioText::radiotext_stop: ###################### pid 0x%x ######################\n", getPid());
+	printf("CRadioText::radiotext_stop: ###################### pid 0x%x ######################\n", getPid());
 	if (getPid() != 0) {
-		// this stuff takes a while sometimes - look for a better syncronisation
-		printf("Stopping RT Thread\n");
-		rtThreadRunning = false;
-		pthread_join(getThread(), NULL);
+		mutex.lock();
 		pid = 0;
 		have_radiotext = false;
-		audioDemux->Stop();
 		S_RtOsd = 0;
+		mutex.unlock();
 	}
-
 }
-
-CRadioText::~CRadioText(void)
-{
-	radiotext_stop();
-	pid = 0;
-//	printf("Deleting RT object\n");
-
-//	close(dmxfd);
-	delete audioDemux;
-	audioDemux = NULL;
-	dmxfd = -1;
-}
-
 
 void CRadioText::setPid(uint inPid)
 {
-	uint oldPid = pid;
-
-	printf("\nCRadioText::setPid: ###################### old pid 0x%x new pid 0x%x ######################\n", oldPid, inPid);
-	if (pid != inPid)
-	{
-		int rc;
-
-		printf("CRadioText::setPid: setting pid 0x%x\n", inPid);
+	printf("CRadioText::setPid: ###################### old pid 0x%x new pid 0x%x ######################\n", pid, inPid);
+	if (pid != inPid) {
+		mutex.lock();
 		pid = inPid;
-
-		// open the device if first pid
-		if (0 == oldPid)
-		{
-			if (audioDemux == NULL) {
-				audioDemux = new cDemux(1);
-				//audioDemux->Open(DMX_TP_CHANNEL /*DMX_AUDIO_CHANNEL*/,0,128*1024);
-				audioDemux->Open(DMX_PES_CHANNEL,0,128*1024);
-#if 0
-				bool ret = false;
-				if (audioDemux->pesFilter(pid))
-				{
-					/* start demux filter */
-					if (audioDemux->Start())
-						ret = true;
-				}
-				if (!ret) {
-					perror("Radiotext Audiodemuxer");
-					return;
-				}
-#endif
-				//            audioDemux->Stop()
-#if 0
-				dmxfd = open(DMXDEV, O_RDWR|O_NONBLOCK);
-				if (dmxfd < 0) {
-					perror(DMXDEV);
-					pthread_exit(NULL);
-				}
-#endif
-			}
-			rt.rt_object = this;
-			rt.fd = dmxfd;
-		}
-
-		// Setup-Params
-		//		S_Activate = false;
-		//		S_HMEntry = false;
-		S_RtFunc = 1;
-		S_RtOsd = 0;
-		S_RtOsdTitle = 1;
-		S_RtOsdTags = 2;
-		S_RtOsdPos = 2;
-		S_RtOsdRows = 3;
-		S_RtOsdLoop = 1;
-		S_RtOsdTO = 60;
-		S_RtSkinColor = false;
-		S_RtBgCol = 0;
-		S_RtBgTra = 0xA0;
-		S_RtFgCol = 1;
-		S_RtDispl = 1;
-		S_RtMsgItems = 0;
-		//int S_RtpMemNo = 25;
-		RT_Index = RT_PTY = 0;
-
-		// Radiotext
-		RTP_ItemToggle = 1;
-		RTP_TToggle = 0;
-		RT_PlusShow = false;
-		RT_Replay = false;
-		RT_ReOpen = false;
-		for (int i=0; i<5; i++) strcpy(RT_Text[i], "");
-		strcpy(RDS_PTYN, "");
-
-#if ENABLE_RASS
-		// Rass ...
-		Rass_Show = -1;		// -1=No, 0=Yes, 1=display
-		Rass_Archiv = -1;	// -1=Off, 0=Index, 1000-9990=Slidenr.
-#endif
-		RT_MsgShow = false; // clear entries from old channel
-
-		rc = pthread_create(&threadRT, 0, RadioTextThread, (void *) &rt);
-
-		if (rc) {
-			printf("failed to create RadioText Thread (rc=%d)\n", rc);
-			return;
-		}
+		init();
+		mutex.unlock();
+		cond.broadcast();
 	}
 }
 
-
-// -----------------------------------------------------------
-// following functions are ripped from dvbsnoop: http://dvbsnoop.sourceforge.net
-
-/*
-  -- read PES packet (Synced)
-  -- buffer pre-read bytes for next execution
-  -- return: len // read()-return code
-*/
-
-#if 0
-static int pes_SyncBufferRead(cDemux *audioDemux, ringbuffer_t *buf, /*u_long max_len,*/ u_long *skipped_bytes)
+void CRadioText::run()
 {
-	ringbuffer_data_t vec;
-	int rd;
-	char *ppes;
+	uint current_pid = 0;
 
-	// -- simple PES sync... seek for 0x000001 (PES_SYNC_BYTE)
-	// ISO/IEC 13818-1:
-	// -- packet_start_code_prefix -- The packet_start_code_prefix is
-	// -- a 24-bit code. Together with the stream_id that follows it constitutes
-	// -- a packet start code that identifies the beginning of a packet.
-	// -- The packet_start_code_prefix  is the bit stream
-	// -- '0000 0000 0000 0000 0000 0001' (0x000001).
+	printf("CRadioText::run: ###################### Starting thread ######################\n");
+	audioDemux = new cDemux(1);
+	audioDemux->Open(DMX_PES_CHANNEL,0,128*1024);
 
-	*skipped_bytes = 0;
-	ringbuffer_get_write_vector(buf, &vec);
-	if (vec.len == 0)
-	{
-		fprintf(stderr, "RT %s: ringbuffer full\n", __FUNCTION__);
-		/* do not read anything from demux, but continue with sync */
-	}
-	else
-	{
-		rd = audioDemux->Read((unsigned char*)vec.buf, vec.len, 5000);
-		if (rd < 0)
-		{
-			if (errno != EAGAIN)
-			{
-				fprintf(stderr, "RT %s: read %d errno %d (%m)\n", __FUNCTION__, rd, errno);
-				return rd;
-			}
-			/* if EAGAIN, still process contents of ringbuffer */
-			rd = 0;
+	while(running) {
+		mutex.lock();
+		if (pid == 0) {
+			mutex.unlock();
+			audioDemux->Stop();
+			pidmutex.lock();
+			printf("CRadioText::run: ###################### waiting for pid.. ######################\n");
+			cond.wait(&pidmutex);
+			pidmutex.unlock();
+			mutex.lock();
 		}
-
-		ringbuffer_write_advance(buf, rd);
-	}
-
-	rd = ringbuffer_get_readpointer(buf, &ppes, 6);
-	if (rd < 6)
-	{
-//		fprintf(stderr, "RT %s: ringbuffer empty (%d < 6)\n", __FUNCTION__, rd);
-		return -1;
-	}
-
-	if ((ppes[0] != 0x00) || (ppes[1] != 0x00) || (ppes[2] != 0x01))
-	{
-		//INFO("async, not 000001: %02x%02x%02x ", ppes[0], ppes[1], ppes[2]);
-		int deleted = 0;
-		do {
-			ringbuffer_read_advance(buf, 1); // remove 1 Byte
-			rd = ringbuffer_get_readpointer(buf, &ppes, 6);
-			deleted++;
-			(*skipped_bytes)++;
-			//fprintf(stderr, "%d", rd);
-			if ((ppes[0] == 0x00) || (ppes[1] == 0x00) || (ppes[2] == 0x01))
-			{
-				deleted = 0;
-				break;
+		if (pid && (current_pid != pid)) {
+			current_pid = pid;
+			printf("CRadioText::run: ###################### Setting PID 0x%x ######################\n", getPid());
+			audioDemux->Stop();
+			if (!audioDemux->pesFilter(getPid()) || !audioDemux->Start()) {
+				pid = 0;
+				printf("CRadioText::run: ###################### failed to start PES filter ######################\n");
 			}
 		}
-		while (rd == 6);
-		//fprintf(stderr, "\n");
-		if (deleted > 0)
-		{
-//			fprintf(stderr, "RT %s: No valid PES signature found. %d Bytes deleted.\n", __FUNCTION__, deleted);
-			return -1;
+		mutex.unlock();
+		if (pid) {
+			int n;
+			unsigned char buf[0x1FFFF];
+
+			n = audioDemux->Read(buf, sizeof(buf), 500 /*5000*/);
+
+			if (n > 0) {
+				//printf("."); fflush(stdout);
+				mutex.lock();
+				PES_Receive(buf, n);
+				mutex.unlock();
+			}
 		}
 	}
-
-	// -- Sync found!
-	// -- evaluate packet_id and seek packet end (next sync)
-	if (ppes[3] >= 0xBC) {			// PES system packet with length
-		unsigned int l;
-		l = (ppes[4] << 8) + ppes[5];		// PES packet size...
-
-		if (l > 0) {
-			if (ringbuffer_read_space(buf) >= l + 6)
-				return (l + 6);
-			else
-				return 0;
-		} else
-			ringbuffer_read_advance(buf, 6);
-	} else {
-		// will resync automatically on next invocation. Enough?
-		ringbuffer_read_advance(buf, 4);
-	}
-
-#if 0
-	// -- seek packet end (sync to next packet)
-	// -- ISO 13818-1 length=0 packets (unbound video streams)
-	// -- ISO 13818-2 packets
-
-	sync = 0xFFFFFFFF;
-	while (max_len > 0) {
-		u_char c;
-		int    n;
-
-		// $$$ TODO: may be optimized 
-		n = pes_rawBufferedRead (fd, buf,1);
-		if (n < 0) return n;
-
-		c = *buf++;
-		max_len -= n;
-
-		// -- EOF
-		if (n == 0) {
-			return (long) (buf - org_buf);
-		}
-
-
-		// -- next packet found? (sync detected)
-		sync = (sync << 8) | c;
-		if ( (sync & 0x00FFFFFF) == 0x000001 ) {
-			pes_rawBufferedPushByte (*(--buf));	 // push back sync bytes
-			pes_rawBufferedPushByte (*(--buf));
-			pes_rawBufferedPushByte (*(--buf));
-			return (long) (buf - org_buf);
-		}
-	}
-#endif
-
-//	fprintf(stderr, "RT %s: unsynced, ret = -1! (this never happens) ppes[3] = 0x%02x\n", __FUNCTION__, ppes[3]);
-	return -1;					// buffer overflow
+	delete audioDemux;
+	audioDemux = NULL;
+	printf("CRadioText::run: ###################### exit ######################\n");
 }
-#endif

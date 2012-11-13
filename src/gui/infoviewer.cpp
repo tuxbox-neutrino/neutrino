@@ -90,7 +90,24 @@ CInfoViewer::CInfoViewer ()
 	timescale = NULL;
 	frameBuffer = CFrameBuffer::getInstance();
 	infoViewerBB = CInfoViewerBB::getInstance();
-
+	InfoHeightY = 0;
+	ButtonWidth = 0;
+	rt_dx = 0;
+	rt_dy = 0;
+	ChanNameX = 0;
+	ChanNameY = 0;
+	ChanWidth = 0;
+	ChanHeight = 0;
+	time_left_width = 0;
+	time_dot_width = 0;
+	time_width = 0;
+	time_height = 0;
+	old_timestr[0] = 0;
+	lastsnr = 0;
+	lastsig = 0;
+	lasttime = 0;
+	aspectRatio = 0;
+	ChanInfoX = 0;
 	Init();
 	infoViewerBB->Init();
 }
@@ -129,6 +146,7 @@ void CInfoViewer::Init()
 
 	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 	lcdUpdateTimer = 0;
+	rt_x = rt_y = rt_h = rt_w = 0;
 }
 
 /*
@@ -192,10 +210,6 @@ void CInfoViewer::start ()
 	time_left_width = 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getWidth(); /* still a kludge */
 	time_dot_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
 	time_width = time_left_width* 2+ time_dot_width;
-
-	const int lcd_update_time_tv_mode = (60 * 1000 * 1000);
-	if (lcdUpdateTimer == 0)
-		lcdUpdateTimer = g_RCInput->addTimer (lcd_update_time_tv_mode, false, true);
 }
 
 void CInfoViewer::changePB()
@@ -997,7 +1011,9 @@ void CInfoViewer::showMotorMoving (int duration)
 
 void CInfoViewer::killRadiotext()
 {
-	frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+	if (g_Radiotext->S_RtOsd)
+		frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+	rt_x = rt_y = rt_h = rt_w = 0;
 }
 
 void CInfoViewer::showRadiotext()
@@ -1132,7 +1148,6 @@ void CInfoViewer::showRadiotext()
 	g_Radiotext->RT_MsgShow = false;
 
 }
-
 
 int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
@@ -1273,16 +1288,16 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 	/* of there is no EPG, send an event so that parental lock can work */
 	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
 		oldinfo = info;
-		t_channel_id *p = new t_channel_id;
-		*p = for_channel_id;
+		char *p = new char[sizeof(t_channel_id)];
+		memcpy(p, &for_channel_id, sizeof(t_channel_id));
 		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
 		return info;
 	}
 
 	if (info.current_uniqueKey != oldinfo.current_uniqueKey || info.next_uniqueKey != oldinfo.next_uniqueKey) {
 		if (info.flags & (CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::has_next)) {
-			CSectionsdClient::CurrentNextInfo * _info = new CSectionsdClient::CurrentNextInfo;
-			*_info = info;
+			char *_info = new char[sizeof(CSectionsdClient::CurrentNextInfo)];
+			memcpy(_info, &info, sizeof(CSectionsdClient::CurrentNextInfo));
 			neutrino_msg_t msg;
 			if (info.flags & CSectionsdClient::epgflags::has_current)
 				msg = NeutrinoMessages::EVT_CURRENTEPG;
@@ -1290,8 +1305,8 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 				msg = NeutrinoMessages::EVT_NEXTEPG;
 			g_RCInput->postMsg(msg, (unsigned) _info, false );
 		} else {
-			t_channel_id *p = new t_channel_id;
-			*p = for_channel_id;
+			char *p = new char[sizeof(t_channel_id)];
+			memcpy(p, &for_channel_id, sizeof(t_channel_id));
 			g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);	// data is pointer to allocated memory
 		}
 		oldinfo = info;
@@ -1889,6 +1904,13 @@ void CInfoViewer::showEpgInfo()   //message on event change
 			showLcdPercentOver();
 #endif
 	}
+}
+
+void CInfoViewer::setUpdateTimer(uint64_t interval)
+{
+	g_RCInput->killTimer(lcdUpdateTimer);
+	if (interval)
+		lcdUpdateTimer = g_RCInput->addTimer(interval, false);
 }
 
 #if 0

@@ -73,8 +73,10 @@ CVFD::CVFD()
 
 CVFD::~CVFD()
 {
-	if(fd > 0)
+	if(fd > 0){
 		close(fd);
+		fd = -1;
+	}
 }
 
 CVFD* CVFD::getInstance()
@@ -678,7 +680,7 @@ void CVFD::Clear()
 
 void CVFD::ShowIcon(fp_icon icon, bool show)
 {
-	if(!has_lcd) return;
+	if(!has_lcd || fd < 0) return;
 //printf("CVFD::ShowIcon %s %x\n", show ? "show" : "hide", (int) icon);
 	int ret = ioctl(fd, show ? IOC_FP_SET_ICON : IOC_FP_CLEAR_ICON, icon);
 	if(ret < 0)

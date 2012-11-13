@@ -213,6 +213,7 @@ CMsgBox::~CMsgBox()
 void CMsgBox::initVar(void)
 {
 	//TRACE("->CMsgBox::InitVar\r\n");
+	m_nResult = mbrYes;
 	m_cTitle = "";
 	m_cIcon = "";
 	m_nMode = SCROLL | TITLE | BORDER ;

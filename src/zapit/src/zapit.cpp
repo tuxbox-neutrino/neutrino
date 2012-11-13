@@ -807,8 +807,6 @@ bool CZapit::StartScanTP(TP_params * TPparams)
 
 bool CZapit::StartFastScan(int scan_mode, int opid)
 {
-	fast_scan_type_t scant;
-
 	scant.type = scan_mode;
 	scant.op = (fs_operator_t) opid;
 
