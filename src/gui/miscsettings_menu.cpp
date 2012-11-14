@@ -207,8 +207,9 @@ int CMiscMenue::showMiscSettingsMenu()
 
 	if (!g_info.hw_caps->can_shutdown) {
 		/* we don't have the energy menu, but put the sleeptimer directly here */
-		CSleepTimerWidget sleeptimer;
-		misc_menue.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, &sleeptimer, "permanent", CRCInput::RC_1));
+		mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent", CRCInput::RC_1);
+		mf->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
+		misc_menue.addItem(mf);
 	}
 	//channellist
 	CMenuWidget misc_menue_chanlist(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
