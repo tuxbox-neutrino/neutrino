@@ -421,7 +421,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		return res;
 	}
         oldval[size] = 0;
-        dispval[size] = 0;
+	memset(dispval, 0, size + 1);
 
 	if (parent)
 		parent->hide();
