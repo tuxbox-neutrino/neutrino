@@ -542,29 +542,12 @@ void CInfoViewerBB::showIcon_Resolution()
 		}
 		if (g_settings.infobar_show_res == 1) {//show simple resolution icon on infobar
 			videoDecoder->getPictureInfo(xres, yres, framerate);
-			switch (yres) {
-			case 1920:
-			case 1440:
-			case 1280:
-			case 1080:
-			case 1088:
-			case 720:
+			if (yres > 704)
 				icon_name = NEUTRINO_ICON_RESOLUTION_HD;
-				break;
-			case 704:
-			case 576:
-			case 544:
-			case 528:
-			case 480:
-			case 382:
-			case 352:
-			case 288:
+			else if (yres >= 288)
 				icon_name = NEUTRINO_ICON_RESOLUTION_SD;
-				break;
-			default:
+			else
 				icon_name = NEUTRINO_ICON_RESOLUTION_000;
-				break;
-			}
 		}
 	}
 	showBBIcons(CInfoViewerBB::ICON_RES, icon_name);
