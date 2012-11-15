@@ -127,7 +127,7 @@ bool CStreamInstance::Send(ssize_t r)
 		if (ret != r) {
 			if (r < 0)
 				perror("send");
-			printf("send err, fd %d: %d\n", *it, r);
+			printf("send err, fd %d: (%d from %d)\n", *it, ret, r);
 		}
 	}
 	mutex.unlock();
