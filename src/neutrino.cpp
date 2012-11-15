@@ -287,6 +287,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if(!configfile.loadConfig(fname)) {
 		//file existiert nicht
 		erg = 1;
+	} else {
+		/* try to detect bad / broken config file */
+		if (!configfile.getInt32("screen_EndX_crt", 0) ||
+				!configfile.getInt32("screen_EndY_crt", 0) ||
+				!configfile.getInt32("screen_EndX_lcd", 0) ||
+				!configfile.getInt32("screen_EndY_lcd", 0)) {
+			printf("[neutrino] config file %s is broken, using defaults\n", fname);
+			configfile.clear();
+		}
 	}
 	std::ifstream checkParentallocked(NEUTRINO_PARENTALLOCKED_FILE);
 	if(checkParentallocked) {
@@ -3518,7 +3527,7 @@ void sighandler (int signum)
 	case SIGTERM:
 	case SIGINT:
 		delete CRecordManager::getInstance();
-		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
+		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
 		stop_video();
 		//_exit(0);
