@@ -303,6 +303,7 @@ class CMovieBrowser : public CMenuTarget
 		std::string getScreenshotName(std::string movie);
 
 		//bool restart_mb_timeout;
+		int menu_ret;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(const char* path); //P1
@@ -324,6 +325,7 @@ class CMovieBrowser : public CMenuTarget
 		bool delFile(CFile& file);
 		bool delFile_vlc(CFile& file);
 		bool delFile_std(CFile& file);
+		int  getMenuRet() { return menu_ret; }
 
 	private: //Functions
 		///// MovieBrowser init ///////////////

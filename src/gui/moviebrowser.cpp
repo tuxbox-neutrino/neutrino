@@ -912,6 +912,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 int CMovieBrowser::exec(const char* path)
 {
 	bool res = false;
+	menu_ret = menu_return::RETURN_REPAINT;
 
 	TRACE("[mb] start MovieBrowser\r\n");
 	int timeout = -1;
@@ -1034,10 +1035,18 @@ int CMovieBrowser::exec(const char* path)
 			else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
 				//FIXME do nothing ?
 			}
+			else if ( msg == NeutrinoMessages::STANDBY_ON ||
+					msg == NeutrinoMessages::SHUTDOWN ||
+					msg == NeutrinoMessages::SLEEPTIMER)
+			{
+				menu_ret = menu_return::RETURN_EXIT_ALL;
+				loop = false;
+				g_RCInput->postMsg(msg, data);
+			}
 			else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 			{
 				TRACE("[mb]->exec: getInstance\r\n");
-				//res  = menu_return::RETURN_EXIT_ALL;
+				menu_ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
 		}
