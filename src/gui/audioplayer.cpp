@@ -325,7 +325,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (my_system(AUDIOPLAYER_START_SCRIPT) != 0)
 		perror("Datei " AUDIOPLAYER_START_SCRIPT " fehlt.Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_START_SCRIPT " not found. Please create if needed.\n");
 
-	show();
+	int res = show();
 
 	// Restore previous background
 	if (usedBackground)
@@ -346,8 +346,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	CNeutrinoApp::getInstance()->StartSubtitles();
 
-	// always exit all
-	return menu_return::RETURN_EXIT_ALL;
+	return res;
 }
 
 //------------------------------------------------------------------------
@@ -359,7 +358,7 @@ int CAudioPlayerGui::show()
 
 	int pic_index = 0;
 
-	int ret = -1;
+	int ret = menu_return::RETURN_REPAINT;
 
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
@@ -878,8 +877,11 @@ int CAudioPlayerGui::show()
 				msg == NeutrinoMessages::SHUTDOWN ||
 				msg == NeutrinoMessages::SLEEPTIMER)
 		{
+			if(msg != NeutrinoMessages::RECORD_START )
+				ret = menu_return::RETURN_EXIT_ALL;
 			// Exit for Record/Zapto Timers
 			loop = false;
+			
 			g_RCInput->postMsg(msg, data);
 		}
 		else if (msg == NeutrinoMessages::EVT_TIMER)
@@ -890,6 +892,7 @@ int CAudioPlayerGui::show()
 		{
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 			{
+				ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
 			// update mute icon
