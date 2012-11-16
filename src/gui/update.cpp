@@ -243,7 +243,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	else
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 
-	SelectionWidget.exec(NULL, "");
+	menu_ret = SelectionWidget.exec(NULL, "");
 
 	for (std::vector<CUpdateMenuTarget*>::iterator it = update_t_list.begin(); it != update_t_list.end(); ++it)
 		delete (*it);
@@ -343,8 +343,10 @@ printf("[update] mode is %d\n", g_settings.softupdate_mode);
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
 		CFile * CFileSelected = NULL;
-		if (!(UpdatesBrowser.exec(g_settings.update_dir)))
+		if (!(UpdatesBrowser.exec(g_settings.update_dir))) {
+			menu_ret = UpdatesBrowser.getMenuRet();
 			return false;
+		}
 
 		CFileSelected = UpdatesBrowser.getSelectedFile();
 
@@ -386,6 +388,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	if(parent)
 		parent->hide();
 
+	menu_ret = menu_return::RETURN_REPAINT;
 	paint();
 
 	if(sysfs.size() < 8) {
@@ -395,7 +398,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	}
 	if(!checkVersion4Update()) {
 		hide();
-		return menu_return::RETURN_REPAINT;
+		return menu_ret; //menu_return::RETURN_REPAINT;
 	}
 
 #ifdef VFD_UPDATE
