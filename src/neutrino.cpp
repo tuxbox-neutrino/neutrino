@@ -2363,7 +2363,7 @@ _repeat:
 	else if (msg == CRCInput::RC_standby_on) {
 		if (data == 0)
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
-		return messages_return::handled;
+		return messages_return::cancel_all | messages_return::handled;
 	}
 	else if ((msg == CRCInput::RC_standby_off) || (msg == CRCInput::RC_power_on)) {
 		if (data == 0)
@@ -2372,7 +2372,7 @@ _repeat:
 	}
 	else if (msg == CRCInput::RC_power_off) {
 		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
-		return messages_return::handled;
+		return messages_return::cancel_all | messages_return::handled;
 	}
 	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
 		if (data == 0) {
