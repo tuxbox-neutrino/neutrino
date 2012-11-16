@@ -1035,7 +1035,8 @@ menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn der Powerknopf\nlän
 menu.hint_shutdown_real Aktivieren des Soft-Standby-Modus, wenn diese Option\ndeaktiviert ist, geht die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren.\nDie Box geht dann in den Standby-Modus
 menu.hint_soft_restart Neustarten von Neutrino-HD ohne zu Rebooten
-menu.hint_softupdate_check Im Internet oder lokal nach verfügbaren Updates suchen
+menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
+menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
 menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen / in den Flash schreiben
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
