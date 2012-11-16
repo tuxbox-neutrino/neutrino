@@ -287,9 +287,9 @@ bool CFlashUpdate::checkVersion4Update()
 	CFlashVersionInfo * versionInfo;
 	neutrino_locale_t msg_body;
 #ifdef DEBUG
-printf("[update] mode is %d\n", g_settings.softupdate_mode);
+printf("[update] mode is %d\n", softupdate_mode);
 #endif
-	if(g_settings.softupdate_mode==1) //internet-update
+	if(softupdate_mode==1) //internet-update
 	{
 		if(!selectHttpImage())
 			return false;
@@ -383,8 +383,14 @@ printf("[update] mode is %d\n", g_settings.softupdate_mode);
 	return (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, msg, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes); // UTF-8
 }
 
-int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
+int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 {
+	printf("CFlashUpdate::exec: [%s]\n", actionKey.c_str());
+	if (actionKey == "local")
+		softupdate_mode = 0;
+	else
+		softupdate_mode = 1;
+
 	if(parent)
 		parent->hide();
 
@@ -410,7 +416,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	paint();
 	showGlobalStatus(20);
 
-	if(g_settings.softupdate_mode==1) //internet-update
+	if(softupdate_mode==1) //internet-update
 	{
 		char const * fname = rindex(filename.c_str(), '/') +1;
 		char fullname[255];
@@ -432,12 +438,12 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	ft.setStatusViewer(this);
 
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MD5CHECK)); // UTF-8
-	if((g_settings.softupdate_mode==1) && !ft.check_md5(filename, file_md5)) {
+	if((softupdate_mode==1) && !ft.check_md5(filename, file_md5)) {
 		hide();
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_MD5SUMERROR)); // UTF-8
 		return menu_return::RETURN_REPAINT;
 	}
-	if(g_settings.softupdate_mode==1) { //internet-update
+	if(softupdate_mode==1) { //internet-update
 		if ( ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? "Flash downloaded image ?" : "Install downloaded pack ?", CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
 		{
 			hide();
