@@ -91,39 +91,27 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		if (audioPlayer == NULL)
 			audioPlayer = new CAudioPlayerGui();
-		audioPlayer->exec(NULL, "init");
+		int res = audioPlayer->exec(NULL, "init");
 		
-		return menu_return::RETURN_REPAINT;
+		return res /*menu_return::RETURN_REPAINT*/;
 	}
 	else if	(actionKey == "inetplayer")
 	{
 		if (inetPlayer == NULL)
 			inetPlayer = new CAudioPlayerGui(true);
-		inetPlayer->exec(NULL, "init");
+		int res = inetPlayer->exec(NULL, "init");
 		
-		return menu_return::RETURN_REPAINT;
+		return res; //menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "movieplayer")
 	{
-#if 0		//Is it really necessary to lock here? Moviebrowser got its own configurable parental lock.
-		bool show = true;
-		if ((g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_ONSIGNAL) || (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED)) {
-			CZapProtection zapProtection( g_settings.parentallock_pincode, 0x100 );
-			show = zapProtection.check();
-		}
-		
-		if(show){
-#endif			
-			int mode = CNeutrinoApp::getInstance()->getMode();
-			if( mode == NeutrinoMessages::mode_radio )
-				videoDecoder->StopPicture();
-			CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
-				if( mode == NeutrinoMessages::mode_radio )
-					videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
-#if 0
-		}
-#endif		
-		return menu_return::RETURN_REPAINT;;
+		int mode = CNeutrinoApp::getInstance()->getMode();
+		if( mode == NeutrinoMessages::mode_radio )
+			videoDecoder->StopPicture();
+		int res = CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
+		if( mode == NeutrinoMessages::mode_radio )
+			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+		return res;
 	}
 	
 	int res = initMenuMedia();
@@ -236,7 +224,6 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 
 		setUsageMode();//set default usage_mode
 	}
-	
 	return res;
 }
 
