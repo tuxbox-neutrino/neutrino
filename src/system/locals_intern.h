@@ -1063,6 +1063,7 @@ const char * locale_real_names[] =
 	"menu.hint_sleeptimer",
 	"menu.hint_soft_restart",
 	"menu.hint_softupdate_check",
+	"menu.hint_softupdate_check_local",
 	"menu.hint_softupdate_expert",
 	"menu.hint_softupdate_expert_read",
 	"menu.hint_softupdate_expert_write",
