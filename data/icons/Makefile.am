@@ -94,6 +94,7 @@ install_DATA += \
 	hint_keys.png \
 	hint_language.png \
 	hint_manage.png \
+	hint_mb.png \
 	hint_media.png \
 	hint_movie.png \
 	hint_network.png \
