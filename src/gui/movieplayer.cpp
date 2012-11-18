@@ -178,6 +178,7 @@ void CMoviePlayerGui::restoreNeutrino()
 	playing = false;
 #ifdef HAVE_AZBOX_HARDWARE
 	g_Zapit->setStandby(false);
+	CZapit::getInstance()->SetVolume(CZapit::getInstance()->GetVolume());
 #endif
 
 	g_Zapit->unlockPlayBack();
