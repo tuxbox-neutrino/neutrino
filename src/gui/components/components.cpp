@@ -1691,12 +1691,16 @@ void CComponentsHeader::initVarHeader()
 	cch_icon_obj		= NULL;
 	cch_text_obj		= NULL;
 	cch_icon_name		= NULL;
+	cch_btn_obj		= NULL;
 	cch_text		= "header";
 	cch_locale_text 	= NONEXISTANT_LOCALE;
 	cch_col_text		= COL_MENUHEAD;
 	cch_items_y 		= 0;
 	cch_icon_x 		= 0;
+	cch_icon_w		= 5;
 	cch_text_x		= 0;
+	ccif_width 		= 5;
+	v_cch_btn.clear();
 	
 	//CComponentsForm
 	initVarForm();
@@ -1724,6 +1728,11 @@ void CComponentsHeader::setHeaderIcon(const char* icon_name)
 
 void CComponentsHeader::initCCHeaderIcon()
 {
+	if (cch_icon_name == NULL) {
+// 		cch_icon_w = 5;
+		return;
+	}
+
 	if (cch_icon_name)
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
 	cch_icon_obj->setWidth(height-2*fr_thickness);
@@ -1739,12 +1748,50 @@ void CComponentsHeader::initCCHeaderIcon()
 	else
 		cc_icon_corner_type = CORNER_LEFT;
 	cch_icon_obj->setCornerType(cc_icon_corner_type);
+
+	//set width of icon object
+	cch_icon_w = cch_icon_obj->getWidth();
+}
+
+void CComponentsHeader::addHeaderButton(const std::string& button_name)
+{
+	v_cch_btn.push_back(button_name);
+}
+
+void CComponentsHeader::initCCHeaderButtons()
+{
+	//exit here, if no icons added
+	if (v_cch_btn.empty())
+		return;
+	
+	int ccbtn_offset = 8;
+	int btnw = 0;
+	
+	// calculate minimal width of icon form
+	size_t btncnt = v_cch_btn.size();
+	for(size_t i=0; i<btncnt; i++){
+		int bw, bh;
+		frameBuffer->getIconSize(v_cch_btn[i].c_str(), &bw, &bh);
+		btnw += bw;
+		if (i < (btncnt-1))
+			btnw += ccbtn_offset;
+	}
+	btnw = max(btnw, ccif_width);
+
+	cch_btn_obj = new CComponentsIconForm();
+	cch_btn_obj->setDimensionsAll(0+width-btnw, 0, btnw-ccbtn_offset, height);
+	cch_btn_obj->doPaintBg(false);
+	cch_btn_obj->setIconOffset(ccbtn_offset);
+	cch_btn_obj->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
+	cch_btn_obj->removeAllIcons();
+	cch_btn_obj->addIcon(v_cch_btn);
+
 }
 
 void CComponentsHeader::initCCHeaderText()
 {
-	cch_text_x = cch_icon_x+cch_icon_obj->getWidth();
-	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_obj->getWidth()-fr_thickness, height-2*fr_thickness, cch_text.c_str());
+	cch_text_x = cch_icon_x+cch_icon_w;
+	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness, cch_text.c_str());
 	cch_text_obj->setTextFont(cch_font);
 	cch_text_obj->setTextColor(cch_col_text);
 	cch_text_obj->doPaintBg(false);
@@ -1752,6 +1799,7 @@ void CComponentsHeader::initCCHeaderText()
 	//corner of text item
 	cch_text_obj->setCornerRadius(corner_rad-fr_thickness);
 	cch_text_obj->setCornerType(corner_type);
+		
 }
 
 void CComponentsHeader::paint(bool do_save_bg)
@@ -1767,10 +1815,17 @@ void CComponentsHeader::paint(bool do_save_bg)
 
 	//init text
 	initCCHeaderText();
+
+	//init buttons
+	initCCHeaderButtons();
 	
 	//add elements
-	addCCItem(cch_icon_obj);
-	addCCItem(cch_text_obj);
+	if (cch_icon_obj)
+		addCCItem(cch_icon_obj); //icon
+	if (cch_text_obj)
+		addCCItem(cch_text_obj); //text
+	if (cch_btn_obj)
+		addCCItem(cch_btn_obj); //buttons
 
 	//paint
 	paintCCItems();
@@ -1812,6 +1867,7 @@ void CComponentsIconForm::initVarIconForm()
 
 	v_icons.clear();
 	ccif_offset 	= 2;
+	ccif_icon_align = CC_ICONS_FRM_ALIGN_LEFT;
 }
 
 void CComponentsIconForm::addIcon(const std::string& icon_name)
@@ -1862,41 +1918,71 @@ void CComponentsIconForm::initCCIcons()
 {
 	//clean up first possible old item objects, includes delete and clean up vector and icons
 	clearCCItems();
-	
-	int ccp_x = 0+fr_thickness;
-	int ccp_y = 0;
-	int ccp_w = 0;
-	int ccp_h = 0;
 
-	//detect maximal form height
+	//icon count
+	size_t i_cnt = 	v_icons.size();
+
+	//calculate start pos of first icon
+	int ccp_x = 0;
+	if (ccif_icon_align == CC_ICONS_FRM_ALIGN_RIGHT)
+		ccp_x = width-fr_thickness;
+	else
+		ccp_x = 0+fr_thickness; //CC_ICONS_FRM_ALIGN_LEFT
+	
+	int ccp_y = 0;
+	int ccp_h = 0;
+	int ccp_w = 0;
+	
+	//get width of first icon
+	frameBuffer->getIconSize(v_icons[0].c_str(), &ccp_w, &ccp_h);
+	
+	//get maximal form height depends of biggest icon height, but don't touch defined form height
 	int h = height;
-	for (size_t i= 0; i< v_icons.size(); i++){
-		frameBuffer->getIconSize(v_icons[i].c_str(), &ccp_w, &ccp_h);
+	for (size_t i= 0; i< i_cnt; i++){
+ 		int dummy;
+		frameBuffer->getIconSize(v_icons[i].c_str(), &dummy, &ccp_h);
 		h = max(ccp_h, h)/*+2*fr_thickness*/;
 	}
 
-	//init and add item objects
-	for (size_t i= 0; i< v_icons.size(); i++){
-		frameBuffer->getIconSize(v_icons[i].c_str(), &ccp_w, &ccp_h);
+	//set xpos of first icon with right alignment, icon must positionized on the right border reduced with icon width
+	if (ccif_icon_align == CC_ICONS_FRM_ALIGN_RIGHT)
+		ccp_x -= ccp_w;
 
+	//init and add item objects
+
+	for (size_t i= 0; i< i_cnt; i++){
+		//create new cc-picture item object
 		CComponentsPicture *ccp = NULL;
 		ccp = new CComponentsPicture(ccp_x, ccp_y, ccp_w, h, v_icons[i]);
 		ccp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
-		ccp->doPaintBg(false);
-		
+ 		ccp->doPaintBg(false);
+		//add item to form
 		addCCItem(ccp);
-		
-		ccp_x += ccif_offset + ccp_w;
+
+		//reset current width for next object
+		ccp_w = 0;
+		//get next icon size if available
+		size_t next_i = i+1;
+		if (next_i < i_cnt)
+			frameBuffer->getIconSize(v_icons[next_i].c_str(), &ccp_w, &ccp_h);
+
+		//set next icon position
+		int tmp_offset = ( i<i_cnt ? ccif_offset : 0 );
+
+		if (ccif_icon_align == CC_ICONS_FRM_ALIGN_LEFT)
+			ccp_x += (ccp->getWidth() + tmp_offset);
+		if (ccif_icon_align == CC_ICONS_FRM_ALIGN_RIGHT)
+			ccp_x -= (ccp_w + tmp_offset);
 	}
 
-	//calculate form width and height
+	//calculate width and height of form
 	int w_tmp = 0;
 	int h_tmp = 0;
-	for (size_t i= 0; i< v_cc_items.size(); i++){
+	for (size_t i= 0; i< i_cnt; i++){
 		w_tmp += v_cc_items[i]->getWidth()+ccif_offset+fr_thickness;
 		h_tmp = max(h_tmp, v_cc_items[i]->getHeight()+2*fr_thickness);
 	}
-	width = max(w_tmp, width)-ccif_offset; //terminate last offset
+	width = max(w_tmp, width);
 	height = max(h_tmp, height);
 }
 
