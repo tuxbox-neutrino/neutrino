@@ -155,7 +155,6 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 				return false;
 			}
 		}
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SUCCESSFULLY), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 		WRITE_UPDATE_LOG("\n");
 		WRITE_UPDATE_LOG("##### Settings taken. #####\n");
 		if (mode == MODE_EXPERT)
