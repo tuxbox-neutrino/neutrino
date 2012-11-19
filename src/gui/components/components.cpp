@@ -1570,6 +1570,36 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 	v_cc_items.push_back(cc_Item);
 }
 
+void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item)
+{
+	v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
+}
+
+int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
+{
+	for (size_t i= 0; i< v_cc_items.size(); i++)
+		if (v_cc_items[i] == cc_Item)
+			return i;
+	return -1;
+}
+
+CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
+{
+	if (v_cc_items[cc_item_id])
+		return v_cc_items[cc_item_id];
+	return NULL;
+}
+
+void CComponentsForm::removeCCItem(const uint& cc_item_id)
+{
+	if (v_cc_items[cc_item_id]) {
+		delete v_cc_items[cc_item_id];
+		v_cc_items[cc_item_id] = NULL;
+		v_cc_items.erase(v_cc_items.begin()+cc_item_id);
+	}
+
+}
+
 void CComponentsForm::paint(bool do_save_bg)
 {
 	//paint body

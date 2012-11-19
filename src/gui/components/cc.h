@@ -442,6 +442,10 @@ class CComponentsForm : public CComponentsItem
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
 		virtual void addCCItem(CComponentsItem* cc_Item);
+		virtual void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
+		virtual void removeCCItem(const uint& cc_item_id);
+		virtual int getCCItemId(CComponentsItem* cc_Item);
+		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
 		virtual void paintCCItems();
 };
 
