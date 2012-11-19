@@ -1832,14 +1832,8 @@ void CComponentsHeader::initCCHeaderText()
 		
 }
 
-void CComponentsHeader::paint(bool do_save_bg)
+void CComponentsHeader::initCCHItems()
 {
-	//paint body
-	paintInit(do_save_bg);
-
-	//clean up first possible old item objects, includes delete and clean up vector
-	clearCCItems();
-	
 	//init icon
 	initCCHeaderIcon();
 
@@ -1848,7 +1842,7 @@ void CComponentsHeader::paint(bool do_save_bg)
 
 	//init buttons
 	initCCHeaderButtons();
-	
+
 	//add elements
 	if (cch_icon_obj)
 		addCCItem(cch_icon_obj); //icon
@@ -1856,6 +1850,18 @@ void CComponentsHeader::paint(bool do_save_bg)
 		addCCItem(cch_text_obj); //text
 	if (cch_btn_obj)
 		addCCItem(cch_btn_obj); //buttons
+}
+
+void CComponentsHeader::paint(bool do_save_bg)
+{
+	//paint body
+	paintInit(do_save_bg);
+
+	//clean up first possible old item objects, includes delete and clean up vector
+	clearCCItems();
+
+	//init default header ccitems
+	initCCHItems();
 
 	//paint
 	paintCCItems();
