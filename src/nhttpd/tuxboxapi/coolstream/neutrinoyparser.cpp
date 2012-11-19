@@ -647,48 +647,43 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 	return yresult;
 }
 //-------------------------------------------------------------------------
-// y-func : get boxtypetext (Nokia, Philips, Sagem)
+// y-func : get boxtypetext
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	unsigned int system_rev = cs_get_revision();
-	std::string  boxname;
-	static CNetAdapter netadapter; 
-	std::string eth_id = netadapter.getMacAddr();
-	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
+	std::string boxname = "Coolstream ";
 
-	if("00:c5:5c" == eth_id.substr(0, 8) )
-		boxname = "Coolstream ";
-	else if("ba:dd:ad"  == eth_id.substr(0, 8) )
-		boxname = "Armas ";
+#if HAVE_TRIPLEDRAGON
+	boxname = "Armas ";
+#endif
 
 	switch(system_rev)
 	{
-	case 1:
-		if( boxname == "Armas ")
-			boxname += "TripleDragon";
-		break;
-	  case 6:
-		boxname += "HD1";
-		break;
-	case 7:
-		boxname += "BSE";
-		break;
-	case 8:
-	case 9:
-		boxname += "Neo";
-		break;
-	case 10:
-		boxname += "Zee";
-		break;
+		case 1:
+			if( boxname == "Armas ")
+				boxname += "TripleDragon";
+			break;
+		case 6:
+			boxname += "HD1";
+			break;
+		case 7:
+			boxname += "BSE";
+			break;
+		case 8:
+		case 9:
+			boxname += "Neo";
+			break;
+		case 10:
+			boxname += "Zee";
+			break;
 
-	default: {
-		char buffer[10];
-		snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
-		boxname += "Unknown nr. ";
-		boxname += buffer;
-	}
-	break;
+		default:
+			char buffer[10];
+			snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
+			boxname += "Unknown nr. ";
+			boxname += buffer;
+			break;
 	}
 
 	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
