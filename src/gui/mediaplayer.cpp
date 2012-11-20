@@ -141,7 +141,9 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	CMenuForwarder *fw_inet = NULL;
 	CMenuForwarder *fw_mp = NULL;
 	CMenuForwarder *fw_pviewer = NULL;
+	CPictureViewerGui *pictureviewergui = NULL;
 #if ENABLE_UPNP
+	CUpnpBrowserGui *upnpbrowsergui = NULL;
 	CMenuForwarder *fw_upnp = NULL;
 #endif
 	CMenuWidget *moviePlayer = NULL;
@@ -170,11 +172,13 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		fw_mp->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MENU_HINT_MOVIE);
 
  		//pictureviewer
- 		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		pictureviewergui = new CPictureViewerGui();
+ 		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, pictureviewergui, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		fw_pviewer->setHint(NEUTRINO_ICON_HINT_PICVIEW, LOCALE_MENU_HINT_PICVIEW);
 #if ENABLE_UPNP
 		//upnp browser
-		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
+		upnpbrowsergui = new CUpnpBrowserGui();
+		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, upnpbrowsergui, NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
 #endif
 //  		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
 	}
@@ -221,6 +225,10 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		res = media->exec(NULL, "");
 		delete media;
 		delete personalize;
+		delete pictureviewergui;
+#if ENABLE_UPNP
+		delete upnpbrowsergui;
+#endif
 
 		setUsageMode();//set default usage_mode
 	}
