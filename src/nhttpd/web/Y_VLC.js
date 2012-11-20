@@ -51,14 +51,15 @@ CyVLC.prototype = {
 			return words[0];
 		}
 		else
-			if(navigator.plugins) {
-				var plug = navigator.plugins['VLC multimedia plugin'];
-				if(typeof plug == 'undefined')
-					var plug = navigator.plugins['VLC Multimedia Plugin'];
-				if(typeof plug == 'undefined')
-					var plug = navigator.plugins['VLC Multimedia Plug-in'];
-				var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
-				var ve = ex.exec(plug.description);
+			if (navigator.plugins && (navigator.plugins.length > 0)) {
+				var name = "VLC";
+				for(var i=0;i<navigator.plugins.length;++i) 
+					if (navigator.plugins[i].name.indexOf(name) != -1) 
+						var plug = navigator.plugins[navigator.plugins[i].name];
+				if(typeof plug != 'undefined') {
+					var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
+					var ve = ex.exec(plug.description);
+				}
 				if(ve[1])
 					return ve[1];
 				else
