@@ -3304,6 +3304,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText("resume...        ");
 		videoDecoder->Standby(false);
+		CSectionsdClient::CurrentNextInfo dummy;
+		g_InfoViewer->getEPG(0, dummy);
 
 		if(init_cec_setting){
 			//init cec settings
