@@ -1586,8 +1586,25 @@ const char *CRCInput::getKeyNameC(const unsigned int key)
 **************************************************************************/
 int CRCInput::translate(int code, int /*num*/)
 {
-	if(code == 0x100) code = RC_up;
-	else if(code == 0x101) code = RC_down;
+	switch(code)
+	{
+		case 0x100:
+			return RC_up;
+		case 0x101:
+			return RC_down;
+#ifdef HAVE_AZBOX_HARDWARE
+		case KEY_HOME:
+			return RC_favorites;
+		case KEY_TV:
+			return RC_stop;
+		case KEY_RADIO:
+			return RC_record;
+		case KEY_PLAY:
+			return RC_pause;
+#endif
+		default:
+			break;
+	}
 	if ((code >= 0) && (code <= KEY_MAX))
 		return code;
 	else
