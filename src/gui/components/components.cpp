@@ -1570,11 +1570,6 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 	v_cc_items.push_back(cc_Item);
 }
 
-void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item)
-{
-	v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
-}
-
 int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
 {
 	for (size_t i= 0; i< v_cc_items.size(); i++)
@@ -1590,6 +1585,17 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 	return NULL;
 }
 
+void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item)
+{
+#ifdef DEBUG_CC
+	if (cc_Item == NULL){
+		printf("CComponentsForm: %s parameter: cc_Item = %d...\n", __FUNCTION__, (int)cc_Item);
+		return;
+	}
+#endif
+	v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
+}
+
 void CComponentsForm::removeCCItem(const uint& cc_item_id)
 {
 	if (v_cc_items[cc_item_id]) {
@@ -1597,7 +1603,6 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 		v_cc_items[cc_item_id] = NULL;
 		v_cc_items.erase(v_cc_items.begin()+cc_item_id);
 	}
-
 }
 
 void CComponentsForm::paint(bool do_save_bg)
@@ -1666,7 +1671,7 @@ CComponentsHeader::CComponentsHeader()
 	initVarHeader();
 }
 
-CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, const std::string& caption, const char* icon_name, bool has_shadow,
+CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, const std::string& caption, const char* icon_name, const int buttons, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponentsHeader
@@ -1683,9 +1688,12 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
+	cch_buttons	= buttons;
+
+	initCCHItems();
 }
 
-CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t caption_locale, const char* icon_name, bool has_shadow,
+CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t caption_locale, const char* icon_name, const int buttons, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponentsHeader
@@ -1702,6 +1710,9 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	
 	cch_locale_text = caption_locale;
 	cch_icon_name	= icon_name;
+	cch_buttons	= buttons;
+
+	initCCHItems();
 }
 
 #if 0 
@@ -1730,6 +1741,7 @@ void CComponentsHeader::initVarHeader()
 	cch_icon_w		= 5;
 	cch_text_x		= 0;
 	ccif_width 		= 5;
+	cch_buttons		= 0;
 	v_cch_btn.clear();
 	
 	//CComponentsForm
@@ -1739,6 +1751,8 @@ void CComponentsHeader::initVarHeader()
 	col_body 		= COL_MENUHEAD_PLUS_0;
 	corner_rad		= RADIUS_LARGE,
 	corner_type		= CORNER_TOP;
+
+	initCCHItems();
 }
 
 void CComponentsHeader::setHeaderText(const std::string& caption)
@@ -1755,6 +1769,8 @@ void CComponentsHeader::setHeaderIcon(const char* icon_name)
 {
 	cch_icon_name 	= icon_name;
 }
+
+
 
 void CComponentsHeader::initCCHeaderIcon()
 {
@@ -1790,7 +1806,16 @@ void CComponentsHeader::addHeaderButton(const std::string& button_name)
 
 void CComponentsHeader::initCCHeaderButtons()
 {
-	//exit here, if no icons added
+	if (cch_buttons & CC_BTN_EXIT)
+		addHeaderButton(NEUTRINO_ICON_BUTTON_HOME);
+	if (cch_buttons & CC_BTN_HELP)
+		addHeaderButton(NEUTRINO_ICON_BUTTON_HELP);
+	if (cch_buttons & CC_BTN_INFO)
+		addHeaderButton(NEUTRINO_ICON_BUTTON_INFO);
+	if (cch_buttons & CC_BTN_MENU)
+		addHeaderButton(NEUTRINO_ICON_BUTTON_MENU);
+	
+	//exit if no button defined
 	if (v_cch_btn.empty())
 		return;
 	
@@ -1807,7 +1832,7 @@ void CComponentsHeader::initCCHeaderButtons()
 			btnw += ccbtn_offset;
 	}
 	btnw = max(btnw, ccif_width);
-
+	
 	cch_btn_obj = new CComponentsIconForm();
 	cch_btn_obj->setDimensionsAll(0+width-btnw, 0, btnw-ccbtn_offset, height);
 	cch_btn_obj->doPaintBg(false);
@@ -1815,7 +1840,6 @@ void CComponentsHeader::initCCHeaderButtons()
 	cch_btn_obj->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
 	cch_btn_obj->removeAllIcons();
 	cch_btn_obj->addIcon(v_cch_btn);
-
 }
 
 void CComponentsHeader::initCCHeaderText()
@@ -1825,15 +1849,17 @@ void CComponentsHeader::initCCHeaderText()
 	cch_text_obj->setTextFont(cch_font);
 	cch_text_obj->setTextColor(cch_col_text);
 	cch_text_obj->doPaintBg(false);
-
+	
 	//corner of text item
 	cch_text_obj->setCornerRadius(corner_rad-fr_thickness);
-	cch_text_obj->setCornerType(corner_type);
-		
+	cch_text_obj->setCornerType(corner_type);		
 }
 
 void CComponentsHeader::initCCHItems()
 {
+	//clean up first possible old item objects, includes delete and clean up vector
+	clearCCItems();
+	
 	//init icon
 	initCCHeaderIcon();
 
@@ -1850,6 +1876,7 @@ void CComponentsHeader::initCCHItems()
 		addCCItem(cch_text_obj); //text
 	if (cch_btn_obj)
 		addCCItem(cch_btn_obj); //buttons
+
 }
 
 void CComponentsHeader::paint(bool do_save_bg)
@@ -1857,11 +1884,8 @@ void CComponentsHeader::paint(bool do_save_bg)
 	//paint body
 	paintInit(do_save_bg);
 
-	//clean up first possible old item objects, includes delete and clean up vector
-	clearCCItems();
-
-	//init default header ccitems
-	initCCHItems();
+	/*//init default header ccitems
+	*/initCCHItems();
 
 	//paint
 	paintCCItems();

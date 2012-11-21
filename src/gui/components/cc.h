@@ -484,6 +484,8 @@ class CComponentsIconForm : public CComponentsForm
 		int getIconId(const std::string& icon_name);		
 };
 
+
+
 class CComponentsHeader : public CComponentsForm
 {
 	private:
@@ -495,7 +497,7 @@ class CComponentsHeader : public CComponentsForm
 		neutrino_locale_t cch_locale_text;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
-		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w;
+		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons;
 		std::vector<std::string> v_cch_btn;
 		
 		void initCCHeaderIcon();
@@ -507,10 +509,18 @@ class CComponentsHeader : public CComponentsForm
 		void initVarHeader();
 		
 	public:
+		enum
+		{
+			CC_BTN_HELP = 0x02,
+			CC_BTN_INFO = 0x04,
+			CC_BTN_MENU = 0x40,
+			CC_BTN_EXIT = 0x80
+			
+		};
 		CComponentsHeader();
-		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, const std::string& caption = "header", const char* icon_name = NULL, bool has_shadow = CC_SHADOW_OFF,
+		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, const std::string& caption = "header", const char* icon_name = NULL, const int buttons = 0, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, neutrino_locale_t caption_locale = NONEXISTANT_LOCALE, const char* icon_name = NULL, bool has_shadow = CC_SHADOW_OFF,
+		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, neutrino_locale_t caption_locale = NONEXISTANT_LOCALE, const char* icon_name = NULL, const int buttons = 0,bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 // 		~CComponentsHeader();
@@ -520,7 +530,6 @@ class CComponentsHeader : public CComponentsForm
 		void setHeaderText(neutrino_locale_t caption_locale);
 		void setColorHeaderBody(fb_pixel_t text_color){cch_col_text = text_color;};
 		void setHeaderIcon(const char* icon_name);
-
 		void addHeaderButton(const std::string& button_name);
 		void removeHeaderButtons(){v_cch_btn.clear();};
 };

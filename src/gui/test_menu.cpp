@@ -396,6 +396,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CComponentsShapeCircle *c1 = new CComponentsShapeCircle(28, 40, 28);
 		c1->setColorBody(COL_RED);
 		form->addCCItem(c1);
+
+// 		form->removeCCItem(form->getCCItemId(t1));
+//  		form->insertCCItem(1,  new CComponentsPicture(28, 0, 0, 0, NEUTRINO_ICON_BUTTON_RED));
+		
 		
 		if (form->isPainted()) {
 			form->hide();
@@ -419,17 +423,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if (actionKey == "header"){
+		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL)
-			header = new CComponentsHeader (100, 50, 480, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "Test-Header", NEUTRINO_ICON_INFO);
+			header = new CComponentsHeader (100, 50, 480, hh, "Test-Header", NEUTRINO_ICON_INFO/*, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT */);
+		else	//For existing instances it's recommended
+			//to remove old button icons before add new buttons, otherwise icons will be appended.
+			header->removeHeaderButtons();
 // 		header->setFrameThickness(5);
 // 		header->setColorFrame(COL_WHITE);
 // 		header->setCornerType(CORNER_TOP);
-		//For existing instances it's recommended
-		//to remove old button icons before add new buttons, otherwise icons will be appended.
-		header->removeHeaderButtons();
-		header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
-		header->addHeaderButton(NEUTRINO_ICON_BUTTON_HELP);
-		header->addHeaderButton(NEUTRINO_ICON_BUTTON_MENU);
+// 		header->setHeaderText("Test");
+ 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+// 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_HELP);
+// 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_MENU);
+		
+// 		header->removeCCItem(2); //remove text
+// 		CComponentsPicture *logo  = new CComponentsPicture(5, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/tmp/media/sda1/var/share/tuxbox/neutrino/icons/logo/100850010.png");
+// 		logo->doPaintBg(false);
+// 		header->insertCCItem(0, logo); //replace text with logo
+
 		
 		if (!header->isPainted())
 			header->paint();
