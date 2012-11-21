@@ -56,13 +56,23 @@ CyVLC.prototype = {
 				for(var i=0;i<navigator.plugins.length;++i) 
 					if (navigator.plugins[i].name.indexOf(name) != -1) 
 						var plug = navigator.plugins[navigator.plugins[i].name];
+
 				if(typeof plug != 'undefined') {
-					var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
-					var ve = ex.exec(plug.description);
+					var Suche = /(PLUGIN)/gi;
+					var Ergebnis = Suche.test(plug.description);
+					if (Ergebnis == true){
+						var ex = /^.*[pP]lugin [\"]*([^ \"]*)[\"]*.*$/;
+						var ve = ex.exec(plug.description);
+					}else{
+						var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
+						var ve = ex.exec(plug.description);
+					}
 				}
-				if(ve[1])
-					return ve[1];
-				else
+				var Suche = /([0-9])/g;
+				var Ergebnis = Suche.test(ve);
+				if (Ergebnis == true)
+						return ve[1];
+					else
 					return "0.0.0";
 			}
 			else
