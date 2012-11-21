@@ -117,6 +117,8 @@ CInfoViewer::CInfoViewer ()
 	Init();
 	infoViewerBB->Init();
 	strcpy(old_timestr, "");
+	oldinfo.current_uniqueKey = 0;
+	oldinfo.next_uniqueKey = 0;
 }
 
 CInfoViewer::~CInfoViewer()
@@ -1297,8 +1299,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 
 void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
-	static CSectionsdClient::CurrentNextInfo oldinfo;
-
 	/* to clear the oldinfo for channels without epg, call getEPG() with for_channel_id = 0 */
 	if (for_channel_id == 0)
 	{
