@@ -334,18 +334,16 @@ void *insertEventsfromFile(void * data)
 							std::string(xmlGetAttribute(node, "string")));
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "item") != NULL) {
 #ifdef USE_ITEM_DESCRIPTION
+				while (xmlGetNextOccurence(node, "item") != NULL) {
 					e.item = std::string(xmlGetAttribute(node, "string"));
-#endif
 					node = node->xmlNextNode;
 				}
 				while (xmlGetNextOccurence(node, "item_description") != NULL) {
-#ifdef USE_ITEM_DESCRIPTION
 					e.itemDescription = std::string(xmlGetAttribute(node, "string"));
-#endif
 					node = node->xmlNextNode;
 				}
+#endif
 				while (xmlGetNextOccurence(node, "extended_text") != NULL) {
 					e.appendExtendedText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
 							std::string(xmlGetAttribute(node, "string")));
