@@ -1055,6 +1055,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
    		PrepareChannels();
 
 		current_channel = CServiceManager::getInstance()->FindChannel(cid);
+		ParsePatPmt(current_channel);//reinit pids 
 
 		SendCmdReady(connfd);
 		SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
