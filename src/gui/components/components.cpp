@@ -1617,41 +1617,55 @@ void CComponentsForm::paint(bool do_save_bg)
 void CComponentsForm::paintCCItems()
 {	
 	size_t items_count = v_cc_items.size();
-	int x_tmp 	= x+fr_thickness;
-	int y_tmp 	= y+fr_thickness;
-	
-	int xx		= x+width-fr_thickness; //right form border
-	int yy		= y+height-fr_thickness; //bottom form border
+	int x_frm_left 		= x+fr_thickness; //left form border
+	int y_frm_top 		= y+fr_thickness; //top form border
+	int x_frm_right		= x+width-fr_thickness; //right form border
+	int y_frm_bottom	= y+height-fr_thickness; //bottom form border
 		
 	for(size_t i=0; i<items_count; i++) {
 		//cache original item position and dimensions
 		int x_item, y_item, w_item, h_item;
 		v_cc_items[i]->getDimensions(&x_item, &y_item, &w_item, &h_item);
+
+		int xy_ref = 0+fr_thickness; //allowed minimal x and y start position
+		if (x_item < xy_ref){
+#ifdef DEBUG_CC
+			printf("[CComponentsForm] %s: item %d position is out of form dimensions\ndefinied x=%d\nallowed x>=%d\n", __FUNCTION__, i, x_item, xy_ref);
+#endif
+			x_item = xy_ref;
+		}
+		if (y_item < xy_ref){
+#ifdef DEBUG_CC
+			printf("[CComponentsForm] %s: item %d position is out of form dimensions\ndefinied y=%d\nallowed y>=%d\n", __FUNCTION__, i, y_item, xy_ref);
+#endif
+			y_item = xy_ref;
+		}
 		
 		//set adapted position onto form
-		v_cc_items[i]->setXPos(x_tmp+x_item);
-		v_cc_items[i]->setYPos(y_tmp+y_item);
+		v_cc_items[i]->setXPos(x_frm_left+x_item);
+		v_cc_items[i]->setYPos(y_frm_top+y_item);
 
-		//watch dimensions of items
-		int xx_item = v_cc_items[i]->getXPos()+w_item; //right item border
-		if (xx_item > xx){
-			v_cc_items[i]->setWidth(w_item-(xx_item-xx));
+		//watch horizontal x dimensions of items
+		int x_item_right = v_cc_items[i]->getXPos()+w_item; //right item border
+		if (x_item_right > x_frm_right){
+			v_cc_items[i]->setWidth(w_item-(x_item_right-x_frm_right));
 #ifdef DEBUG_CC
 			printf("[CComponentsForm] %s: item %d too large, definied width=%d, possible width=%d \n", __FUNCTION__, i, w_item, v_cc_items[i]->getWidth());
 #endif
 		}
-		
-		int yy_item = v_cc_items[i]->getYPos()+h_item; //bottom item border
-		if (yy_item > yy){
-			v_cc_items[i]->setHeight(h_item-(yy_item-yy));
+
+		//watch vertical y dimensions
+		int y_item_bottom = v_cc_items[i]->getYPos()+h_item; //bottom item border
+		if (y_item_bottom > y_frm_bottom){
+			v_cc_items[i]->setHeight(h_item-(y_item_bottom-y_frm_bottom));
 #ifdef DEBUG_CC
 			printf("[CComponentsForm] %s: item %d too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, v_cc_items[i]->getHeight());
 #endif
 		}
-
+		
 		//paint element without saved screen!
 		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
-
+		
 		//restore dimensions and position
 		v_cc_items[i]->setDimensionsAll(x_item, y_item, w_item, h_item);
 	}
