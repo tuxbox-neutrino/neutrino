@@ -127,7 +127,7 @@ bool CStreamInstance::Send(ssize_t r)
 		if (ret != r) {
 			if (r < 0)
 				perror("send");
-			printf("send err, fd %d: %d\n", *it, (int)r);
+			printf("send err, fd %d: (%d from %d)\n", *it, ret, (int)r);
 		}
 	}
 	mutex.unlock();
@@ -353,8 +353,8 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 				}
 			}
 		}
-		if(CRecordManager::getInstance()->RecordingStatus(tmpid)) {
-			printf("CStreamManager::Parse: channel %" PRIx64 " recorded, aborting..\n", tmpid);
+		if(CRecordManager::getInstance()->RecordingStatus(chid)) {
+			printf("CStreamManager::Parse: channel %" PRIx64 " recorded, aborting..\n", chid);
 			return false;
 		}
 #endif

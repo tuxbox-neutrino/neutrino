@@ -1248,11 +1248,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 							(trkey == RC_plus   ) || (trkey == RC_minus  ) ||
 							(trkey == RC_page_down   ) || (trkey == RC_page_up  ) ||
 							((bAllowRepeatLR) && ((trkey == RC_left ) || (trkey == RC_right))) ||
-							((trkey == RC_standby)
-#ifndef HAVE_SPARK_HARDWARE
-							   && (cs_get_revision() > 7)
-#endif
-							))
+							(g_settings.shutdown_real_rcdelay && ((trkey == RC_standby) && (g_info.hw_caps->can_shutdown))))
 						{
 #ifdef ENABLE_REPEAT_CHECK
 							if (rc_last_repeat_key != ev.code) {

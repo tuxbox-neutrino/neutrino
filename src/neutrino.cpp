@@ -310,6 +310,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if(!configfile.loadConfig(fname)) {
 		//file existiert nicht
 		erg = 1;
+	} else {
+		/* try to detect bad / broken config file */
+		if (!configfile.getInt32("screen_EndX_crt", 0) ||
+				!configfile.getInt32("screen_EndY_crt", 0) ||
+				!configfile.getInt32("screen_EndX_lcd", 0) ||
+				!configfile.getInt32("screen_EndY_lcd", 0)) {
+			printf("[neutrino] config file %s is broken, using defaults\n", fname);
+			configfile.clear();
+		}
 	}
 	std::ifstream checkParentallocked(NEUTRINO_PARENTALLOCKED_FILE);
 	if(checkParentallocked) {
@@ -2446,7 +2455,7 @@ _repeat:
 	else if (msg == CRCInput::RC_standby_on) {
 		if (data == 0)
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
-		return messages_return::handled;
+		return messages_return::cancel_all | messages_return::handled;
 	}
 	else if ((msg == CRCInput::RC_standby_off) || (msg == CRCInput::RC_power_on)) {
 		if (data == 0)
@@ -2455,7 +2464,7 @@ _repeat:
 	}
 	else if (msg == CRCInput::RC_power_off) {
 		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
-		return messages_return::handled;
+		return messages_return::cancel_all | messages_return::handled;
 	}
 	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
 		if (data == 0) {
@@ -3657,7 +3666,7 @@ void sighandler (int signum)
 	case SIGTERM:
 	case SIGINT:
 		delete CRecordManager::getInstance();
-		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
+		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
 		delete CVFD::getInstance();
 		delete SHTDCNT::getInstance();

@@ -243,7 +243,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	else
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 
-	SelectionWidget.exec(NULL, "");
+	menu_ret = SelectionWidget.exec(NULL, "");
 
 	for (std::vector<CUpdateMenuTarget*>::iterator it = update_t_list.begin(); it != update_t_list.end(); ++it)
 		delete (*it);
@@ -287,9 +287,9 @@ bool CFlashUpdate::checkVersion4Update()
 	CFlashVersionInfo * versionInfo;
 	neutrino_locale_t msg_body;
 #ifdef DEBUG
-printf("[update] mode is %d\n", g_settings.softupdate_mode);
+printf("[update] mode is %d\n", softupdate_mode);
 #endif
-	if(g_settings.softupdate_mode==1) //internet-update
+	if(softupdate_mode==1) //internet-update
 	{
 		if(!selectHttpImage())
 			return false;
@@ -343,8 +343,10 @@ printf("[update] mode is %d\n", g_settings.softupdate_mode);
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
 		CFile * CFileSelected = NULL;
-		if (!(UpdatesBrowser.exec(g_settings.update_dir)))
+		if (!(UpdatesBrowser.exec(g_settings.update_dir))) {
+			menu_ret = UpdatesBrowser.getMenuRet();
 			return false;
+		}
 
 		CFileSelected = UpdatesBrowser.getSelectedFile();
 
@@ -381,11 +383,18 @@ printf("[update] mode is %d\n", g_settings.softupdate_mode);
 	return (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, msg, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes); // UTF-8
 }
 
-int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
+int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 {
+	printf("CFlashUpdate::exec: [%s]\n", actionKey.c_str());
+	if (actionKey == "local")
+		softupdate_mode = 0;
+	else
+		softupdate_mode = 1;
+
 	if(parent)
 		parent->hide();
 
+	menu_ret = menu_return::RETURN_REPAINT;
 	paint();
 
 	if(sysfs.size() < 8) {
@@ -395,7 +404,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	}
 	if(!checkVersion4Update()) {
 		hide();
-		return menu_return::RETURN_REPAINT;
+		return menu_ret; //menu_return::RETURN_REPAINT;
 	}
 
 #ifdef VFD_UPDATE
@@ -407,7 +416,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	paint();
 	showGlobalStatus(20);
 
-	if(g_settings.softupdate_mode==1) //internet-update
+	if(softupdate_mode==1) //internet-update
 	{
 		char const * fname = rindex(filename.c_str(), '/') +1;
 		char fullname[255];
@@ -429,12 +438,12 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	ft.setStatusViewer(this);
 
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MD5CHECK)); // UTF-8
-	if((g_settings.softupdate_mode==1) && !ft.check_md5(filename, file_md5)) {
+	if((softupdate_mode==1) && !ft.check_md5(filename, file_md5)) {
 		hide();
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_MD5SUMERROR)); // UTF-8
 		return menu_return::RETURN_REPAINT;
 	}
-	if(g_settings.softupdate_mode==1) { //internet-update
+	if(softupdate_mode==1) { //internet-update
 		if ( ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? "Flash downloaded image ?" : "Install downloaded pack ?", CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
 		{
 			hide();

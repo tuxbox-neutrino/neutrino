@@ -1269,9 +1269,8 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	secSetVoltage(v, 100);
 #endif
 	sendDiseqcReset();
+	usleep(50*1000);                  /* sleep at least 50 milli seconds */
 	for (loop = 0; loop <= config.diseqcRepeats; loop++) {
-		//usleep(50*1000);                  /* sleep at least 50 milli seconds */
-
 		if (config.diseqcType == MINI_DISEQC)
 			sendToneBurst(b, 1);
 

@@ -58,7 +58,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/infoclock.h>
 #include <driver/volume.h>
-
+#include <system/helpers.h>
 // obsolete #include <gui/streaminfo.h>
 
 #include <gui/widget/messagebox.h>
@@ -472,7 +472,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		return true;
 
 	if(delete_all) {
-		system("rm -f /var/tuxbox/config/zapit/*.conf");
+		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.conf");
 		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
@@ -492,7 +492,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
-		system("rm -f /var/tuxbox/config/zapit/*.xml");
+		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.xml");
 		g_Zapit->reinitChannels();
 	}
 	return ret;

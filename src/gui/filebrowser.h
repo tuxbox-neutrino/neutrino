@@ -177,6 +177,7 @@ class CFileBrowser
 
 		int 			x;
 		int 			y;
+		int			menu_ret;
 
 		SMSKeyInput m_SMSKeyInput;
 
@@ -229,6 +230,7 @@ class CFileBrowser
 			{
 				return Path;
 			}
+		int  getMenuRet() { return menu_ret; }
 
 //		size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 	private:

@@ -599,44 +599,43 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 {
 	unsigned int system_rev = cs_get_revision();
-	std::string  boxname;
+	std::string boxname = "Coolstream ";
 	static CNetAdapter netadapter; 
 	std::string eth_id = netadapter.getMacAddr();
 	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
 
-	if("00:c5:5c" == eth_id.substr(0, 8) )
-		boxname = "Coolstream ";
-	else if("ba:dd:ad"  == eth_id.substr(0, 8) )
-		boxname = "Armas ";
+#if HAVE_TRIPLEDRAGON
+	boxname = "Armas ";
+#endif
 
 	switch(system_rev)
 	{
-	case 1:
-		if( boxname == "Armas ")
-			boxname += "TripleDragon";
-		break;
-	  case 6:
-		boxname += "HD1";
-		break;
-	case 7:
-		boxname += "BSE";
-		break;
-	case 8:
-	case 9:
-		boxname += "Neo";
-		break;
-	case 10:
-		boxname += "Zee";
-		break;
+		case 1:
+			if( boxname == "Armas ")
+				boxname += "TripleDragon";
+			break;
+		case 6:
+			boxname += "HD1";
+			break;
+		case 7:
+			boxname += "BSE";
+			break;
+		case 8:
+		case 9:
+			boxname += "Neo";
+			break;
+		case 10:
+			boxname += "Zee";
+			break;
 
-	default: {
-		char buffer[10];
-		snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
-		boxname += "Unknown nr. ";
-		boxname += buffer;
+		default:
+			char buffer[10];
+			snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
+			boxname += "Unknown nr. ";
+			boxname += buffer;
+			break;
 	}
-	break;
-	}
+
 	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	hh->printf("%s\nMAC:%s\n", boxname.c_str(),eth_id.c_str());
 

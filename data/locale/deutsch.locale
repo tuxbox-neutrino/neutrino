@@ -486,6 +486,7 @@ flashupdate.settings Update-Einstellungen
 flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
+flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht werden. Eintrag wird übersprungen.
 flashupdate.update_with_settings_processed Image wird bearbeitet...
 flashupdate.update_with_settings_skipped Ordner [%s] kann nicht gesichert werden. Eintrag wird übersprungen.
 flashupdate.update_with_settings_successfully Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.
@@ -1034,11 +1035,12 @@ menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn der Powerknopf\nlän
 menu.hint_shutdown_real Aktivieren des Soft-Standby-Modus, wenn diese Option\ndeaktiviert ist, geht die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren.\nDie Box geht dann in den Standby-Modus
 menu.hint_soft_restart Neustarten von Neutrino-HD ohne zu Rebooten
-menu.hint_softupdate_check Im Internet oder lokal nach verfügbaren Updates suchen
+menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
+menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
 menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen / in den Flash schreiben
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
-menu.hint_softupdate_settings Den Updatemodus, das lokale Verzeichnis und die Konfigurationsdatei festlegen
+menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
 menu.hint_start_tostandby Aktiviert den Standby-Modus nach dem starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen: PIDs, SNR-Verhältnis\nBitrate grafisch
 menu.hint_subchannel_pos Hier können Sie die Anzeigeposition der Untertitel auswählen
