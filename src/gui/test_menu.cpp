@@ -425,15 +425,15 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "header"){
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL)
-			header = new CComponentsHeader (100, 50, 480, hh, "Test-Header", NEUTRINO_ICON_INFO/*, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT */);
+			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header", NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		else	//For existing instances it's recommended
 			//to remove old button icons before add new buttons, otherwise icons will be appended.
-			header->removeHeaderButtons();
+ 			header->removeHeaderButtons();
 // 		header->setFrameThickness(5);
 // 		header->setColorFrame(COL_WHITE);
 // 		header->setCornerType(CORNER_TOP);
 // 		header->setHeaderText("Test");
- 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+//  		header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
 // 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_HELP);
 // 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_MENU);
 		
@@ -457,7 +457,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		iconform->setFrameThickness(2);
 		iconform->setColorFrame(COL_WHITE);
 		iconform->setIconOffset(5);
-		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_LEFT);
+		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
 		//For existing instances it's recommended
 		//to remove old items before add new icons, otherwise icons will be appended.
 		iconform->removeAllIcons();
