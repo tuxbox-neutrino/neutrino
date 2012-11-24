@@ -454,6 +454,7 @@ class CComponentsIconForm : public CComponentsForm
 	private:
 		std::vector<std::string> v_icons;
 		int ccif_offset, ccif_icon_align;
+		void initMaxHeight(int *pheight);
 
 	protected:
  		void initVarIconForm();
@@ -497,7 +498,7 @@ class CComponentsHeader : public CComponentsForm
 		neutrino_locale_t cch_locale_text;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
-		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons;
+		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons, cch_btn_offset;
 		std::vector<std::string> v_cch_btn;
 		
 		void initCCHeaderIcon();
@@ -529,9 +530,10 @@ class CComponentsHeader : public CComponentsForm
 		void setHeaderText(const std::string& caption);
 		void setHeaderText(neutrino_locale_t caption_locale);
 		void setColorHeaderBody(fb_pixel_t text_color){cch_col_text = text_color;};
+		void setHeaderButtonOffset(const int offset){cch_btn_offset = offset;};
 		void setHeaderIcon(const char* icon_name);
 		void addHeaderButton(const std::string& button_name);
-		void removeHeaderButtons(){v_cch_btn.clear();};
+		void removeHeaderButtons();
 };
 
 #endif
