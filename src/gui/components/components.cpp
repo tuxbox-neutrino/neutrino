@@ -1819,7 +1819,7 @@ void CComponentsHeader::removeHeaderButtons()
 		cch_btn_obj->removeAllIcons();
 }
 
-void CComponentsHeader::initCCHeaderButtons()
+void CComponentsHeader::initCCHDefaultButtons()
 {
 	if (cch_buttons & CC_BTN_EXIT)
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_HOME);
@@ -1829,6 +1829,11 @@ void CComponentsHeader::initCCHeaderButtons()
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_INFO);
 	if (cch_buttons & CC_BTN_MENU)
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_MENU);
+}
+
+void CComponentsHeader::initCCHeaderButtons()
+{
+	initCCHDefaultButtons();
 	
 	//exit if no button defined
 	if (v_cch_btn.empty())
