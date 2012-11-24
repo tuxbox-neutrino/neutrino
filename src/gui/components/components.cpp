@@ -1831,6 +1831,17 @@ void CComponentsHeader::initCCHDefaultButtons()
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_MENU);
 }
 
+// calculate minimal width of icon form
+void CComponentsHeader::initCCButtonFormSize()
+{
+	ccif_width = 0;
+	for(size_t i=0; i<v_cch_btn.size(); i++){
+		int bw, bh;
+		frameBuffer->getIconSize(v_cch_btn[i].c_str(), &bw, &bh);
+		ccif_width += (bw + cch_btn_offset);
+	}
+}
+
 void CComponentsHeader::initCCHeaderButtons()
 {
 	initCCHDefaultButtons();
@@ -1838,15 +1849,8 @@ void CComponentsHeader::initCCHeaderButtons()
 	//exit if no button defined
 	if (v_cch_btn.empty())
 		return;
-
-	// calculate minimal width of icon form
-	size_t btncnt = v_cch_btn.size();
-	ccif_width = 0;
-	for(size_t i=0; i<btncnt; i++){
-		int bw, bh;
-		frameBuffer->getIconSize(v_cch_btn[i].c_str(), &bw, &bh);
-		ccif_width += (bw + cch_btn_offset);
-	}
+	
+	initCCButtonFormSize();
 
 	cch_btn_obj = new CComponentsIconForm();
 	cch_btn_obj->setDimensionsAll(0+width-ccif_width, 0, ccif_width-cch_btn_offset, height);

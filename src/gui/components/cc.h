@@ -506,6 +506,7 @@ class CComponentsHeader : public CComponentsForm
 		void initCCHeaderButtons();
 		void initCCHItems();
 		void initCCHDefaultButtons();
+		void initCCButtonFormSize();
 		
 	protected:
 		void initVarHeader();
