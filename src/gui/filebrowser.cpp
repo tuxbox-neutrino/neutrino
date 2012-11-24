@@ -1233,16 +1233,13 @@ void CFileBrowser::hide()
 
 void CFileBrowser::paintItem(unsigned int pos)
 {
-	int colwidth1, colwidth2, colwidth3, colwidth1_dir, colwidth2_dir;
+	int colwidth1, colwidth2, colwidth3;
 	int c_rad_small;
 	uint8_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	CFile * actual_file = NULL;
 	std::string fileicon;
-
-	colwidth2_dir = 180;
-	colwidth1_dir = width - 35 - colwidth2_dir - 10;
 
 	if (liststart + pos == selected)
 	{
@@ -1271,15 +1268,10 @@ void CFileBrowser::paintItem(unsigned int pos)
 		}
 
 		if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
-		{
 			colwidth2 = 0;
-			colwidth3 = 90;
-		}
 		else
-		{
-			colwidth2 = 90;
-			colwidth3 = 90;
-		}
+			colwidth2 = fnt_item->getRenderWidth("rwxrwxrwx");
+		colwidth3 = fnt_item->getRenderWidth("222.222G");
 		colwidth1 = width - 35 - colwidth2 - colwidth3 - 10;
 
 		if ( actual_file->Name.length() > 0 )
@@ -1325,7 +1317,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 					}
 					modestring[9] = 0;
 
-					fnt_item->RenderString(x + 35 + colwidth1 , ypos+ fheight, colwidth2 - 10, modestring, color, 0, true); // UTF-8
+					fnt_item->RenderString(x + width - 25 - colwidth3 - colwidth2 , ypos+ fheight, colwidth2, modestring, color, 0, true); // UTF-8
 				}
 
 #define GIGABYTE 1073741824LL
@@ -1358,18 +1350,20 @@ void CFileBrowser::paintItem(unsigned int pos)
 				else
 					snprintf(tmpstr,sizeof(tmpstr),"%d", (int)actual_file->Size);
 
-				fnt_item->RenderString(x + 35 + colwidth1 + colwidth2, ypos+ fheight, colwidth3 - 10, tmpstr, color);
+				/* right align file size */
+				int sz_w = fnt_item->getRenderWidth(tmpstr);
+				fnt_item->RenderString(x + width - sz_w - 25, ypos+ fheight, sz_w, tmpstr, color);
 			}
 
 			if( S_ISDIR(actual_file->Mode) )
 			{
 				char timestring[18];
 				time_t rawtime;
-
 				rawtime = actual_file->Time;
 				strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&rawtime));
-
-				fnt_item->RenderString(x + 35 + colwidth1_dir, ypos+ fheight, colwidth2_dir - 10, timestring, color);
+				/* right align directory time */
+				int time_w = fnt_item->getRenderWidth(timestring);
+				fnt_item->RenderString(x + width - time_w - 25, ypos+ fheight, time_w, timestring, color);
 			}
 		}
 	}
