@@ -1826,14 +1826,21 @@ void CComponentsHeader::initCCHeaderIcon()
 
 void CComponentsHeader::addHeaderButton(const std::string& button_name)
 {
+	if (cch_btn_obj){
+		delete cch_btn_obj;
+		cch_btn_obj = NULL;
+	}
 	v_cch_btn.push_back(button_name);
+	initCCHeaderButtons();
 }
 
 void CComponentsHeader::removeHeaderButtons()
 {
 	v_cch_btn.clear();
-	if (cch_btn_obj)
-		cch_btn_obj->removeAllIcons();
+	if (cch_btn_obj){
+		delete cch_btn_obj;
+		cch_btn_obj = NULL;
+	}
 }
 
 void CComponentsHeader::initCCHDefaultButtons()
