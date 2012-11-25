@@ -426,9 +426,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL)
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header", NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
-		else	//For existing instances it's recommended
-			//to remove old button icons before add new buttons, otherwise icons will be appended.
- 			header->removeHeaderButtons();
+// 		else	//For existing instances it's recommended
+// 			//to remove old button icons before add new buttons, otherwise icons will be appended.
+// 			header->removeHeaderButtons();
+
+//		example to manipulate header items
 // 		header->setFrameThickness(5);
 // 		header->setColorFrame(COL_WHITE);
 // 		header->setCornerType(CORNER_TOP);
@@ -436,11 +438,18 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //  		header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
 // 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_HELP);
 // 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_MENU);
-		
-// 		header->removeCCItem(2); //remove text
-// 		CComponentsPicture *logo  = new CComponentsPicture(5, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/tmp/media/sda1/var/share/tuxbox/neutrino/icons/logo/100850010.png");
-// 		logo->doPaintBg(false);
-// 		header->insertCCItem(0, logo); //replace text with logo
+
+//		example to replace the text item with an image item
+//		get text x position
+		int logo_x = header->getCCItem(1)->getXPos();
+//		remove text item
+		header->removeCCItem(1); //then remove text item
+//		create picture object with the last x position of text
+		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/share/tuxbox/neutrino/icons/hint_tvmode.png");
+//		set the transparent background for picture item
+		logo->doPaintBg(false);
+//		insert the ne object
+		header->insertCCItem(1, logo); //replace text with logo
 
 		
 		if (!header->isPainted())
