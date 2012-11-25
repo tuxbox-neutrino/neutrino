@@ -883,8 +883,8 @@ void CComponentsPicture::initVarPicture()
 	}
 
 	int sw = (shadow ? shadow_w :0);
-	width = max(pic_width, width)  + sw ;
-	height = max(pic_height, height)  + sw ;
+	width = max(max(pic_width, pic_max_w), width)  + sw ;
+	height = max(max(pic_height, pic_max_h), height)  + sw ;
 }
 
 void CComponentsPicture::paint(bool do_save_bg)
