@@ -520,6 +520,13 @@ class CComponentsHeader : public CComponentsForm
 			CC_BTN_EXIT = 0x80
 			
 		};
+		
+		enum
+		{
+			CC_HEADER_ITEM_ICON 	= 0,
+			CC_HEADER_ITEM_TEXT 	= 1,
+			CC_HEADER_ITEM_BUTTONS	= 2
+		};
 		CComponentsHeader();
 		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, const std::string& caption = "header", const char* icon_name = NULL, const int buttons = 0, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
