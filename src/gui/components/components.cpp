@@ -1800,7 +1800,7 @@ void CComponentsHeader::setHeaderIcon(const char* icon_name)
 void CComponentsHeader::initCCHeaderIcon()
 {
 	if (cch_icon_name == NULL) {
-// 		cch_icon_w = 5;
+ 		cch_icon_w = cch_btn_offset;
 		return;
 	}
 
