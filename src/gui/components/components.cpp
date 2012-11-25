@@ -1607,7 +1607,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 void CComponentsForm::removeCCItem(const uint& cc_item_id)
 {
 	if (!v_cc_items.empty()){
-		if (v_cc_items.at(cc_item_id)) {
+		if (v_cc_items[cc_item_id]) {
 			delete v_cc_items[cc_item_id];
 			v_cc_items[cc_item_id] = NULL;
 			v_cc_items.erase(v_cc_items.begin()+cc_item_id);
@@ -1718,6 +1718,8 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
 	cch_buttons	= buttons;
+	initCCHDefaultButtons();
+	initCCHItems();
 }
 
 CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t caption_locale, const char* icon_name, const int buttons, bool has_shadow,
@@ -1738,6 +1740,8 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	cch_locale_text = caption_locale;
 	cch_icon_name	= icon_name;
 	cch_buttons	= buttons;
+	initCCHDefaultButtons();
+	initCCHItems();
 }
 
 #if 0 
@@ -1772,8 +1776,7 @@ void CComponentsHeader::initVarHeader()
 	
 	//CComponentsForm
 	initVarForm();
-	height 			= cch_font->getHeight();
-	
+	height 			= cch_font->getHeight();	
 	col_body 		= COL_MENUHEAD_PLUS_0;
 	corner_rad		= RADIUS_LARGE,
 	corner_type		= CORNER_TOP;
@@ -1858,8 +1861,6 @@ void CComponentsHeader::initCCButtonFormSize()
 
 void CComponentsHeader::initCCHeaderButtons()
 {
-	initCCHDefaultButtons();
-	
 	//exit if no button defined
 	if (v_cch_btn.empty())
 		return;
@@ -1890,8 +1891,10 @@ void CComponentsHeader::initCCHeaderText()
 
 void CComponentsHeader::initCCHItems()
 {
-	//clean up first possible old item objects, includes delete and clean up vector
-	clearCCItems();
+#if 0
+ 	//clean up first possible old item objects, includes delete and clean up vector
+ 	clearCCItems();
+#endif
 	
 	//init icon
 	initCCHeaderIcon();
@@ -1916,9 +1919,6 @@ void CComponentsHeader::paint(bool do_save_bg)
 {
 	//paint body
 	paintInit(do_save_bg);
-
-	//init default header ccitems
-	initCCHItems();
 
 	//paint
 	paintCCItems();
