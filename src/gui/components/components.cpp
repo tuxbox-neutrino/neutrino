@@ -1587,22 +1587,36 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 
 void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item)
 {
-#ifdef DEBUG_CC
+
 	if (cc_Item == NULL){
+#ifdef DEBUG_CC
 		printf("CComponentsForm: %s parameter: cc_Item = %d...\n", __FUNCTION__, (int)cc_Item);
+#endif
 		return;
 	}
+	
+	if (v_cc_items.empty()){
+		v_cc_items.push_back(cc_Item);
+#ifdef DEBUG_CC
+		printf("CComponentsForm: %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
 #endif
-	v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
+	}else
+		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
 }
 
 void CComponentsForm::removeCCItem(const uint& cc_item_id)
 {
-	if (v_cc_items[cc_item_id]) {
-		delete v_cc_items[cc_item_id];
-		v_cc_items[cc_item_id] = NULL;
-		v_cc_items.erase(v_cc_items.begin()+cc_item_id);
+	if (!v_cc_items.empty()){
+		if (v_cc_items.at(cc_item_id)) {
+			delete v_cc_items[cc_item_id];
+			v_cc_items[cc_item_id] = NULL;
+			v_cc_items.erase(v_cc_items.begin()+cc_item_id);
+		}
 	}
+#ifdef DEBUG_CC
+	else
+		printf("CComponentsForm: %s removing cc_Item not possible, v_cc_items is empty...\n", __FUNCTION__);
+#endif
 }
 
 void CComponentsForm::paint(bool do_save_bg)
