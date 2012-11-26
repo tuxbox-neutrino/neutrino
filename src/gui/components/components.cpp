@@ -859,7 +859,7 @@ void CComponentsPicture::initVarPicture()
 
 #ifdef DEBUG_CC
 	if (pic_width == 0 || pic_height == 0)
-		printf("CComponentsPicture: %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
+		printf("[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
 #endif
 
 	pic_x += fr_thickness;
@@ -1596,7 +1596,7 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 	}
 #ifdef DEBUG_CC
 	else
-		printf("CComponentsForm: %s replace cc_Item not possible, v_cc_items is empty\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __FUNCTION__);
 #endif
 
 }
@@ -1611,7 +1611,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 
 	if (cc_Item == NULL){
 #ifdef DEBUG_CC
-		printf("CComponentsForm: %s parameter: cc_Item = %d...\n", __FUNCTION__, (int)cc_Item);
+		printf("[CComponentsForm]  %s parameter: cc_Item = %d...\n", __FUNCTION__, (int)cc_Item);
 #endif
 		return;
 	}
@@ -1619,7 +1619,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 	if (v_cc_items.empty()){
 		v_cc_items.push_back(cc_Item);
 #ifdef DEBUG_CC
-		printf("CComponentsForm: %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
 #endif
 	}else
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
@@ -1636,7 +1636,7 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 	}
 #ifdef DEBUG_CC
 	else
-		printf("CComponentsForm: %s removing cc_Item not possible, v_cc_items is empty...\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __FUNCTION__);
 #endif
 }
 
