@@ -1743,7 +1743,11 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 						CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo)
 					onDelete = false;
 				else {
-					g_Timerd->removeTimerEvent(inst->GetRecordingId());
+					CTimerd::RecordingStopInfo recinfo;
+					recinfo.channel_id = inst->GetChannelId();
+					recinfo.eventID = inst->GetRecordingId();
+					CRecordManager::getInstance()->Stop(&recinfo);
+					g_Timerd->removeTimerEvent(recinfo.eventID);
 					skipAsk = true;
 				}
 			}
