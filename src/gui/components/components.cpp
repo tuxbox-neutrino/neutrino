@@ -1585,6 +1585,27 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 	return NULL;
 }
 
+void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item)
+{
+	if (!v_cc_items.empty()){
+		if (v_cc_items[cc_item_id]){
+			delete v_cc_items[cc_item_id];
+			v_cc_items[cc_item_id] = NULL;
+			v_cc_items[cc_item_id] = new_cc_Item;
+		}
+	}
+#ifdef DEBUG_CC
+	else
+		printf("CComponentsForm: %s replace cc_Item not possible, v_cc_items is empty\n", __FUNCTION__);
+#endif
+
+}
+
+void CComponentsForm::replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item)
+{
+	replaceCCItem(getCCItemId(old_cc_Item), new_cc_Item);
+}
+
 void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item)
 {
 

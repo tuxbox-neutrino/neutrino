@@ -444,6 +444,8 @@ class CComponentsForm : public CComponentsItem
 		virtual void addCCItem(CComponentsItem* cc_Item);
 		virtual void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
 		virtual void removeCCItem(const uint& cc_item_id);
+		virtual void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
+		virtual void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
 		virtual int getCCItemId(CComponentsItem* cc_Item);
 		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
 		virtual void paintCCItems();
