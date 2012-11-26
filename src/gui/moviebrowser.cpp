@@ -520,7 +520,6 @@ void CMovieBrowser::init(void)
 	refreshBrowserList();
 	refreshFilterList();
 	g_PicViewer->getSupportedImageFormats(PicExts);
-	IsRecord = false;
 #if 0
 	TRACE_1("Frames\r\n\tScren:\t%3d,%3d,%3d,%3d\r\n\tMain:\t%3d,%3d,%3d,%3d\r\n\tTitle:\t%3d,%3d,%3d,%3d \r\n\tBrowsr:\t%3d,%3d,%3d,%3d \r\n\tPlay:\t%3d,%3d,%3d,%3d \r\n\tRecord:\t%3d,%3d,%3d,%3d\r\n\r\n",
 	g_settings.screen_StartX,
@@ -1229,13 +1228,6 @@ void CMovieBrowser::refreshMovieInfo(void)
 		m_pcInfo->setText(&emptytext);
 	}
 	else {
-		// Is record?
-		bool tmp = CRecordManager::getInstance()->IsFileRecord(m_movieSelectionHandler->file.Name);
-		if (tmp != IsRecord) {
-			IsRecord = tmp;
-			refreshFoot();
-		}
-
 		bool logo_ok = false;
 		int picw = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
 		int pich = m_cBoxFrameInfo.iHeight;
@@ -1638,13 +1630,9 @@ void CMovieBrowser::refreshFoot(void)
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &iw, &ih);
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, m_cBoxFrame.iX+xpos1+width*2, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
 	m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*2 + 10 + iw, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, ok_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
-
-	if (IsRecord == false) {
-		//delete icon
-		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
-		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, m_cBoxFrame.iX+xpos1+width*3, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
-		m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*3 + 10 + iw , m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color, 0, true); // UTF-8
-	}
+	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
+	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, m_cBoxFrame.iX+xpos1+width*3, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
+	m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*3 + 10 + iw , m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color, 0, true); // UTF-8
 
 }
 
@@ -1740,8 +1728,28 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_spkr)
 	{
-		if ((!m_vMovieInfo.empty()) && (m_movieSelectionHandler != NULL) && (IsRecord == false))
-		 	onDeleteFile(*m_movieSelectionHandler);
+		if ((!m_vMovieInfo.empty()) && (m_movieSelectionHandler != NULL)) {
+			bool onDelete = true;
+			bool skipAsk = false;
+			CRecordInstance* inst = CRecordManager::getInstance()->getRecordInstance(m_movieSelectionHandler->file.Name);
+			if (inst != NULL) {
+				std::string delName = m_movieSelectionHandler->epgTitle;
+				if (delName == "")
+					delName = m_movieSelectionHandler->file.getFileName();
+				char buf1[1024];
+				memset(buf1, '\0', sizeof(buf1));
+				snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_MOVIEBROWSER_ASK_REC_TO_DELETE), delName.c_str());
+				if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
+						CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo)
+					onDelete = false;
+				else {
+					g_Timerd->removeTimerEvent(inst->GetRecordingId());
+					skipAsk = true;
+				}
+			}
+		 	if (onDelete)
+		 		onDeleteFile(*m_movieSelectionHandler, skipAsk);
+		}
 	}
 	else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
 	{
@@ -2045,7 +2053,7 @@ bool CMovieBrowser::onButtonPressMovieInfoList(neutrino_msg_t msg)
 	return (result);
 }
 
-void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
+void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skipAsk)
 {
 	//TRACE( "[onDeleteFile] ");
 	int test= movieSelectionHandler.file.Name.find(".ts");
@@ -2068,7 +2076,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
 
 		msg += "\r\n ";
 		msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
-		if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
+		if ((skipAsk) || (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes))
 		{
 			delFile(movieSelectionHandler.file);
 
