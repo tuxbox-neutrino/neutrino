@@ -63,6 +63,7 @@ typedef struct
 	std::string lineHeader[LF_MAX_ROWS];
 	std::vector<std::string> lineArray[LF_MAX_ROWS];
 	int rowWidth[LF_MAX_ROWS];
+	std::vector<std::string> Icon;
 }LF_LINES;
 
 class CListFrame  
@@ -78,6 +79,7 @@ class CListFrame
 		void refreshHeaderList(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
+		int  paintListIcon(int x, int y, int line);
 
 		/* Variables */
 		LF_LINES* m_pLines;

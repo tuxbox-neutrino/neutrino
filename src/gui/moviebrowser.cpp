@@ -380,6 +380,7 @@ CMovieBrowser::~CMovieBrowser()
 		m_playListLines.lineArray[i].clear();
 		m_FilterLines.lineArray[i].clear();
 	}
+	m_browserListLines.Icon.clear();
 }
 
 void CMovieBrowser::fileInfoStale(void)
@@ -408,6 +409,7 @@ void CMovieBrowser::fileInfoStale(void)
 		m_playListLines.lineArray[i].clear();
 		m_FilterLines.lineArray[i].clear();
 	}
+	m_browserListLines.Icon.clear();
 };
 
 void CMovieBrowser::init(void)
@@ -937,6 +939,7 @@ int CMovieBrowser::exec(const char* path)
 		m_recordListLines.lineArray[i].clear();
 		m_playListLines.lineArray[i].clear();
 	}
+	m_browserListLines.Icon.clear();
 
 	m_selectedDir = path;
 
@@ -1508,6 +1511,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 		m_browserListLines.lineArray[row].clear();
 		m_browserListLines.rowWidth[row] = m_settings.browserRowWidth[row];
 		m_browserListLines.lineHeader[row]= g_Locale->getText(m_localizedItemName[m_settings.browserRowItem[row]]);
+		m_browserListLines.Icon.clear();
 	}
 	m_vHandleBrowserList.clear();
 
@@ -1545,8 +1549,13 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 				if(m_settings.browserRowItem[row] == MB_INFO_TITLE)
 					getMovieInfoItem(*m_vHandleBrowserList[handle], MB_INFO_FILENAME, &string_item);
 			}
+
 			m_browserListLines.lineArray[row].push_back(string_item);
 		}
+		if (CRecordManager::getInstance()->getRecordInstance(m_vHandleBrowserList[handle]->file.Name) != NULL)
+			m_browserListLines.Icon.push_back(NEUTRINO_ICON_REC);
+		else
+			m_browserListLines.Icon.push_back("");
 	}
 	m_pcBrowser->setLines(&m_browserListLines);
 
