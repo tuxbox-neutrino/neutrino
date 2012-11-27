@@ -2091,6 +2091,8 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 		msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
 		if ((skipAsk) || (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes))
 		{
+			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
+			hintBox->paint();
 			delFile(movieSelectionHandler.file);
 
 #if 1
@@ -2117,6 +2119,9 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 				//delFile(file_xml);
 				unlink(file_xml.Name.c_str());
 	    		}
+			hintBox->hide();
+			delete hintBox;
+			g_RCInput->clearRCMsg();
 
 			m_vMovieInfo.erase( (std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
 			TRACE("List size: %d\n", m_vMovieInfo.size());

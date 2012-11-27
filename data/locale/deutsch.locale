@@ -1189,6 +1189,7 @@ moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
 moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
+moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern

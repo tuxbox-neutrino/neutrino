@@ -1189,6 +1189,7 @@ moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
 moviebrowser.browser_row_width Row width (% of screenwidth)
+moviebrowser.delete_info Delete files, please wait...
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark change
