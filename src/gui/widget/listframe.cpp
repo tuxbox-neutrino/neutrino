@@ -392,7 +392,7 @@ void CListFrame::refreshScroll(void)
 int CListFrame::paintListIcon(int x, int y, int line)
 {
 	int xDiff = 0;
-	if (m_pLines->Icon[line] != "") {
+	if ((!m_pLines->Icon.empty()) && (m_pLines->Icon[line] != "")) {
 		int icol_w, icol_h;
 		frameBuffer->getIconSize(m_pLines->Icon[line].c_str(), &icol_w, &icol_h);
 		if ((icol_w > 0) && (icol_h > 0)) {
