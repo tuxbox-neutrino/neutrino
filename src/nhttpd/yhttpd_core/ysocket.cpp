@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 // yhttpd
-#include "yhttpd.h"
+#include <yhttpd.h>
 #include "ysocket.h"
 #include "ylogging.h"
 // system
@@ -64,6 +64,7 @@ CySocket::~CySocket() {
 // initialize
 //-----------------------------------------------------------------------------
 void CySocket::init(void) {
+	BytesSend = 0;
 	handling = false;
 	isOpened = false;
 	isValid = true;
@@ -194,8 +195,8 @@ CySocket* CySocket::accept() {
 #else
 		set_tcp_nodelay();
 #endif
+		new_ySocket->isOpened = true;
 	}
-	new_ySocket->isOpened = true;
 	//	handling = true;
 	return new_ySocket;
 }

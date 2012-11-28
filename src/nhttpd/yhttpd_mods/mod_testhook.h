@@ -6,7 +6,7 @@
 #define TESTHOOK_H_
 
 
-#include "yhook.h"
+#include <yhook.h>
 class CTesthook : public Cyhook
 {
 public:

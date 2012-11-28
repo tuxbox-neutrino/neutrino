@@ -16,10 +16,10 @@
 
 #include <configfile.h>
 // yhttpd
-#include "helper.h"
-#include "yconfig.h"
-#include "ytypes_globals.h"
-#include "yhook.h"
+#include <helper.h>
+#include <yconfig.h>
+#include <ytypes_globals.h>
+#include <yhook.h>
 
 // forward declaration
 class CWebserverConnection;

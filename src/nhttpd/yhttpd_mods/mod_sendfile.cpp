@@ -47,9 +47,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 // yhttpd
-#include "yconfig.h"
-#include "ytypes_globals.h"
-#include "helper.h"
+#include <yconfig.h>
+#include <ytypes_globals.h>
+#include <helper.h>
 #include "mod_sendfile.h"
 
 //=============================================================================
@@ -64,7 +64,6 @@ CStringList CmodSendfile::sendfileTypes;
 THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 	hh->status = HANDLED_NONE;
 
-	int filed;
 	log_level_printf(4, "mod_sendfile prepare hook start url:%s\n", hh->UrlData["fullurl"].c_str());
 	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
 	if (((mime != "") || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
@@ -73,7 +72,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 		// build filename
 		std::string fullfilename = GetFileName(hh, hh->UrlData["path"],
 				hh->UrlData["filename"]);
-
+		int filed;
 		if ((filed = OpenFile(hh, fullfilename)) != -1) //can access file?
 		{
 			struct stat statbuf;
@@ -180,7 +179,6 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 //-----------------------------------------------------------------------------
 int CmodSendfile::OpenFile(CyhookHandler *, std::string fullfilename) {
 	int fd = -1;
-	std::string tmpstring;
 	if (fullfilename.length() > 0) {
 		fd = open(fullfilename.c_str(), O_RDONLY | O_LARGEFILE);
 		if (fd <= 0) {

@@ -116,7 +116,7 @@ bool CWebserverRequest::HandleRequest(void) {
 //	Split URL into path, filename, fileext .. UrlData[]
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::ParseStartLine(std::string start_line) {
-	std::string method, url, http, tmp;
+	std::string method, url, tmp;
 
 	log_level_printf(8, "<ParseStartLine>: line: %s\n", start_line.c_str());
 	if (ySplitString(start_line, " ", method, tmp)) {

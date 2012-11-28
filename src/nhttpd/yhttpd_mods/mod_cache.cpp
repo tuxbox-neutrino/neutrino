@@ -8,9 +8,9 @@
 #include <pthread.h>
 #include <sys/stat.h>
 // yhttpd
-#include "yconfig.h"
-#include "ytypes_globals.h"
-#include "helper.h"
+#include <yconfig.h>
+#include <ytypes_globals.h>
+#include <helper.h>
 #include "mod_cache.h"
 
 //=============================================================================
@@ -128,7 +128,7 @@ void CmodCache::AddToCache(CyhookHandler *, std::string url,
 			CacheList[url].mime_type = mime_type;
 			CacheList[url].category = category;
 			CacheList[url].created = time(NULL);
-			std::string test = CacheList[url].filename;
+//			std::string test = CacheList[url].filename;
 		}
 		fflush(fd); // flush and close file
 		fclose(fd);
@@ -154,7 +154,7 @@ void CmodCache::RemoveCategoryFromCache(std::string category) {
 	do {
 		restart = false;
 		TCacheList::iterator i = CacheList.begin();
-		for (; i != CacheList.end(); i++) {
+		for (; i != CacheList.end(); ++i) {
 			TCache *item = &((*i).second);
 			if (item->category == category) {
 				CacheList.erase(((*i).first));
@@ -198,7 +198,7 @@ void CmodCache::yshowCacheInfo(CyhookHandler *hh) {
 					"<tr><td>URL</td><td>Mime</td><td>Filename</td><td>Category</td><td>Created</td><td>Remove</td></tr>\n");
 	pthread_mutex_lock(&mutex);
 	TCacheList::iterator i = CacheList.begin();
-	for (; i != CacheList.end(); i++) {
+	for (; i != CacheList.end(); ++i) {
 		TCache *item = &((*i).second);
 		char timeStr[80];
 		strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&(item->created)));

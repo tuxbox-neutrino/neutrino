@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <configfile.h>
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "ywebserver.h"
 
