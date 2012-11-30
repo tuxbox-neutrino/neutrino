@@ -1650,18 +1650,18 @@ void CRecordManager::RestoreNeutrino(void)
 		g_Sectionsd->setPauseScanning(false);
 }
 
-bool CRecordManager::IsFileRecord(std::string file)
+CRecordInstance* CRecordManager::getRecordInstance(std::string file)
 {
 	mutex.lock();
 	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
 		CRecordInstance * inst = it->second;
 		if ((((std::string)inst->GetFileName()) + ".ts") == file) {
 			mutex.unlock();
-			return true;
+			return inst;
 		}
 	}
 	mutex.unlock();
-	return false;
+	return NULL;
 }
 
 #if 0

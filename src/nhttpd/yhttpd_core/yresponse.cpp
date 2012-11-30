@@ -15,8 +15,8 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 // yhttpd
-#include "yconfig.h"
-#include "yhttpd.h"
+#include <yconfig.h>
+#include <yhttpd.h>
 #include "ytypes_globals.h"
 #include "ylogging.h"
 #include "ywebserver.h"

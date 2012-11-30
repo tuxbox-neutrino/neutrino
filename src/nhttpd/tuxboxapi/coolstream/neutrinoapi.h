@@ -12,7 +12,7 @@
 #include <zapit/client/zapitclient.h>
 
 // nhttpd
-#include "helper.h"
+#include <helper.h>
 #include "neutrinoyparser.h"
 #include "controlapi.h"
 

@@ -5,8 +5,8 @@
 #ifndef __yhttpd_mod_weblog_h__
 #define __yhttpd_mod_weblog_h__
 
-#include "yconfig.h"
-#include "yhook.h"
+#include <yconfig.h>
+#include <yhook.h>
 //-----------------------------------------------------------------------------
 // Defaults
 #ifndef LOG_FILE

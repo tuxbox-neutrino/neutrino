@@ -13,9 +13,9 @@
 #include <netinet/in.h> //ntohs
 #include <inttypes.h> //ntohs
 // yhttpd
-#include "yhttpd.h"
-#include "ytypes_globals.h"
-#include "mod_yparser.h"
+#include <yhttpd.h>
+#include <ytypes_globals.h>
+#include <mod_yparser.h>
 // tuxbox
 #include <zapit/client/zapittools.h> //timer list
 // nhttpd
@@ -209,7 +209,7 @@ std::string  CNeutrinoYParser::func_mount_set_values(CyhookHandler *hh, std::str
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, std::string para)
 {
-	std::string ynr, yresult, sel, nr_str, do_show_hidden;
+	std::string yresult, sel, nr_str, do_show_hidden;
 	int nr=1;
 
 	ySplitString(para," ",nr_str, do_show_hidden);
@@ -268,7 +268,7 @@ std::string  CNeutrinoYParser::func_get_actual_bouquet_number(CyhookHandler *, s
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, std::string para)
 {
-	std::string abouquet, achannel_id, yresult, sel, sid;
+	std::string abouquet, achannel_id, yresult, sel;
 
 	int bnumber = 1;
 	int mode = NeutrinoAPI->Zapit->getMode();
@@ -596,7 +596,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler *, std::string)
 {
-	std::string ysel, ymount, ylocal_dir, yfstype, ynr, yresult, mounts;
+	std::string ysel, ymount, ylocal_dir, yfstype, yresult, mounts;
 
 	std::ifstream in;
 	in.open("/proc/mounts", std::ifstream::in);
@@ -832,7 +832,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 		yresult += string_printf(para.c_str(), classname, zAlarmTime, zStopTime, zRep.c_str(), zRepCount.c_str(),
 					zType.c_str(), sAddData.c_str(),timer->eventID,timer->eventID);
 	}
-	classname = (i++&1)?'a':'b';
+	//classname = (i++&1)?'a':'b';
 
 	return yresult;
 }

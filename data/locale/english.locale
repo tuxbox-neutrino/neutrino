@@ -1171,6 +1171,7 @@ motorcontrol.store Store Motor Position (a)
 motorcontrol.timed_mode Timed Step Mode
 motorcontrol.user_menu User menu
 motorcontrol.west_limit Set West (soft) Limit
+moviebrowser.ask_rec_to_delete Deletion of movie stops current recording!\n[%s]\nContinue anyway?
 moviebrowser.book_add Add bookmark
 moviebrowser.book_clear_all Clear all
 moviebrowser.book_head Bookmarks
@@ -1188,6 +1189,7 @@ moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
 moviebrowser.browser_row_width Row width (% of screenwidth)
+moviebrowser.delete_info Delete files, please wait...
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark change

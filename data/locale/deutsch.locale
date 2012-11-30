@@ -1171,6 +1171,7 @@ motorcontrol.store Speichere Motorposition (a)
 motorcontrol.timed_mode Zeitgesteuerter Schrittweitenmodus
 motorcontrol.user_menu Benutzermenü
 motorcontrol.west_limit Setze westliches (soft) Limit
+moviebrowser.ask_rec_to_delete Das Löschen des Films beendet auch die laufende Aufnahme!\n[%s]\nTrotzdem fortsetzen?
 moviebrowser.book_add Lesezeichen setzen
 moviebrowser.book_clear_all Lösche alle
 moviebrowser.book_head Markierungen
@@ -1188,6 +1189,7 @@ moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
 moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
+moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
