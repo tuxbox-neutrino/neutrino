@@ -545,6 +545,7 @@ class CComponentsHeader : public CComponentsForm
 		void setHeaderIcon(const char* icon_name);
 		void addHeaderButton(const std::string& button_name);
 		void removeHeaderButtons();
+		void setHeaderButtons(const int buttons){cch_buttons = buttons;};
 };
 
 class CComponentsWindow : public CComponentsForm
