@@ -547,4 +547,31 @@ class CComponentsHeader : public CComponentsForm
 		void removeHeaderButtons();
 };
 
+class CComponentsWindow : public CComponentsForm
+{
+	private:
+		CComponentsHeader * ccw_head;
+		std::string ccw_caption;
+		const char* ccw_icon_name;
+
+		void initHeader();
+		void initCCWItems();
+		
+	protected:
+		void initVarWindow();
+		
+	public:
+		enum
+		{
+			CC_WINDOW_ITEM_HEADER 	= 0
+		};
+		CComponentsWindow();
+		~CComponentsWindow();
+		
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void refresh(){initCCWItems();};
+		void setWindowCaption(const std::string& text){ccw_caption = text;};
+		void setWindowIcon(const char* iconname){ccw_icon_name = iconname;};
+};
+
 #endif

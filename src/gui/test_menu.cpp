@@ -70,6 +70,7 @@ CTestMenu::CTestMenu()
 	txt = NULL;
 	header = NULL;
 	iconform = NULL;
+	window = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -82,6 +83,7 @@ CTestMenu::~CTestMenu()
 	delete txt;
 	delete header;
 	delete iconform;
+	delete window;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -498,6 +500,27 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "window"){
+		if (window == NULL){
+			window = new CComponentsWindow();
+			window->setWindowCaption("|.....................|");
+			window->setDimensionsAll(50, 50, 800, 480);
+			window->setWindowIcon(NEUTRINO_ICON_INFO);
+		}
+		else{
+// 			window->setDimensionsAll(50, 50, 800, 480);
+			window->setWindowIcon(NEUTRINO_ICON_LOCK);
+			window->setWindowCaption("Test");
+		}
+		window->refresh();
+		
+		if (!window->isPainted())
+			window->paint();
+		else
+			window->hide();
+
+		return res;
+	}
 	
 	
 	showTestMenu();
@@ -546,6 +569,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));
 	widget->addItem(new CMenuForwarderNonLocalized("Icon-Form", true, NULL, this, "iconform"));
+	widget->addItem(new CMenuForwarderNonLocalized("Window", true, NULL, this, "window"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

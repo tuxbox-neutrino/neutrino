@@ -359,6 +359,7 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowPos(ct_box);
 	ct_textbox->setTextBorderWidth(0);
 	ct_textbox->enableBackgroundPaint(false);
+	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
 	ct_textbox->setTextColor(ct_col_text);
 	ct_textbox->setWindowMaxDimensions(ct_box->iWidth, ct_box->iHeight);
@@ -404,6 +405,7 @@ void CComponentsText::paint(bool do_save_bg)
 
 void CComponentsText::hide(bool no_restore)
 {
+
 	if (ct_textbox)
 		ct_textbox->hide();
 	hideCCItem(no_restore);
@@ -1532,7 +1534,9 @@ void CComponentsForm::clearCCItems()
 {
 	if (v_cc_items.empty())
 		return;
-	
+#ifdef DEBUG_CC
+	printf("[CComponentsForm] %s... cleanup %d form cc-items\n", __FUNCTION__, v_cc_items.size());
+#endif	
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i])
 			delete v_cc_items[i];
@@ -1910,6 +1914,7 @@ void CComponentsHeader::initCCHeaderText()
 	cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness, cch_text.c_str());
 	cch_text_obj->setTextFont(cch_font);
 	cch_text_obj->setTextColor(cch_col_text);
+	cch_text_obj->setColorBody(col_body);
 	cch_text_obj->doPaintBg(false);
 	
 	//corner of text item
@@ -1920,10 +1925,10 @@ void CComponentsHeader::initCCHeaderText()
 void CComponentsHeader::initCCHItems()
 {
 #if 0
- 	//clean up first possible old item objects, includes delete and clean up vector
- 	clearCCItems();
+	//clean up first possible old item objects, includes delete and clean up vector
+	clearCCItems();
 #endif
-	
+
 	//init icon
 	initCCHeaderIcon();
 
@@ -1942,7 +1947,7 @@ void CComponentsHeader::initCCHItems()
 		addCCItem(cch_btn_obj); //buttons
 
 }
-
+	
 void CComponentsHeader::paint(bool do_save_bg)
 {
 	//paint body
@@ -2118,6 +2123,60 @@ void CComponentsIconForm::paint(bool do_save_bg)
 	//paint body
 	paintInit(do_save_bg);
 
+	//paint
+	paintCCItems();
+}
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsWindow inherit from CComponentsForm
+CComponentsWindow::CComponentsWindow()
+{
+	initVarWindow();
+}
+
+void CComponentsWindow::initVarWindow()
+{
+	//CComponentsForm
+	initVarForm();
+	
+	ccw_head 	= NULL;
+	ccw_caption 	= "";
+	ccw_icon_name	= NULL;
+	
+	setShadowOnOff(true);
+}
+
+CComponentsWindow::~CComponentsWindow()
+{
+	if (ccw_head)
+		delete ccw_head;
+}
+
+void CComponentsWindow::initHeader()
+{
+	if (ccw_head == NULL)
+		ccw_head = new CComponentsHeader();
+
+	ccw_head->setXPos(0);
+	ccw_head->setYPos(0);
+	ccw_head->setWidth(width);
+	ccw_head->setHeaderIcon(ccw_icon_name);
+	ccw_head->setHeaderText(ccw_caption);
+}
+
+void CComponentsWindow::initCCWItems()
+{
+	initHeader();
+
+	if (ccw_head)
+		addCCItem(ccw_head);
+}
+
+void CComponentsWindow::paint(bool do_save_bg)
+{
+	//paint body
+	paintInit(do_save_bg);
+	
 	//paint
 	paintCCItems();
 }
