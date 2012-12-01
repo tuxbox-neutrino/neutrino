@@ -124,7 +124,9 @@ drivertool_SOURCES = drivertool.c
 endif
 if USE_STB_HAL
 neutrino_LDADD += \
-	$(STB_HAL_LIB)/libstb-hal.a
+	-lstb-hal
+neutrino_LDFLAGS = \
+	-L$(STB_HAL_LIB)
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a
