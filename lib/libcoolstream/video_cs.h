@@ -22,16 +22,20 @@
 #endif
 
 typedef enum {
-	ANALOG_SD_RGB_CINCH = 0x00,
-	ANALOG_SD_YPRPB_CINCH,
-	ANALOG_HD_RGB_CINCH,
-	ANALOG_HD_YPRPB_CINCH,
-	ANALOG_SD_RGB_SCART = 0x10,
-	ANALOG_SD_YPRPB_SCART,
-	ANALOG_HD_RGB_SCART,
-	ANALOG_HD_YPRPB_SCART,
-	ANALOG_SCART_MASK = 0x10
+	// Video modes
+	ANALOG_xD_CVBS		= (1 << 0), // Turns off fastblank on SCART
+	ANALOG_SD_RGB		= (1 << 1), // Output SD in RGB format
+	ANALOG_SD_YPRPB		= (1 << 2), // Output SD in YPbPr format (component)
+	ANALOG_HD_RGB		= (1 << 3), // Output HD in RGB format
+	ANALOG_HD_YPRPB		= (1 << 4), // Output HD in YPbPr format (component)
+	// Output types
+	ANALOG_xD_SCART		= (1 << 8), // Output is SCART
+	ANALOG_xD_CINCH		= (1 << 9), // Output is Cinch
+	ANALOG_xD_BOTH		= (3 << 8), // Output cannot individually control scart, cinch outputs
+					    // due to limited amount of DACs (ie TANK, Trinity)
 } analog_mode_t;
+
+#define ANALOG_MODE(conn, def, sys)	(ANALOG_##def##_##sys | ANALOG_xD_##conn)
 
 typedef enum
 {
@@ -185,7 +189,6 @@ private:
 public:
 	/* constructor & destructor */
 	cVideo(int mode, void * hChannel, void * hBuffer);
-
 	~cVideo(void);
 
 	void * GetVPP(void);
