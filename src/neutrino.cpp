@@ -2050,13 +2050,16 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
 				} 
-				else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					g_volume->setVolume(msg, true);
-				} 
-				else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
-					if(channelList->getSize()) {
-						showInfo();
-					}
+				else if ( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
+					if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+						g_volume->setVolume(msg, true);
+					} 
+					else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
+							|| (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+						if(channelList->getSize()) {
+							showInfo();
+						}
+					} 
 				} 
 				else
 					quickZap( msg );
