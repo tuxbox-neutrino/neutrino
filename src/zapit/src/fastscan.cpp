@@ -288,7 +288,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 
 						std::string providerName = convertDVBUTF8((const char*)&(dbuf[4]), service_provider_name_length, 1, 1);
 						std::string serviceName  = convertDVBUTF8((const char*)&(dbuf[4 + service_provider_name_length + 1]), service_name_length, 1, 1);
-						
+
 #ifdef SCAN_DEBUG
 						printf("[FST] #%04d at %04d: net %04x tp %04x sid %04x v %04x a %04x pcr %04x frq %05d type %d prov [%s] name [%s]\n", num, satellitePosition, original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid, freq, service_type, providerName.c_str(), serviceName.c_str());
 #endif
@@ -297,8 +297,20 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						channel_id = CREATE_CHANNEL_ID64;
 
 						CZapitChannel * newchannel;
-
+#if 0
 						newchannel = CServiceManager::getInstance()->FindChannel(channel_id);
+#else
+
+						int flist[5] = { freq, freq-1, freq+1, freq-2, freq+2 };
+						for(int i = 0; i < 5; i++) {
+							freq_id_t freq_id = flist[i];
+							t_channel_id newid = CZapitChannel::makeChannelId(satellitePosition,
+									freq_id, transport_stream_id, original_network_id, service_id);
+							newchannel = CServiceManager::getInstance()->FindChannel(newid);
+							if(newchannel)
+								break;
+						}
+#endif
 						if(newchannel == NULL) {
 							newchannel = new CZapitChannel (
 									serviceName,
@@ -338,10 +350,13 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						if (bouquetId == -1) {
 							bouquet = g_bouquetManager->addBouquet(std::string(op->name), true);
+							bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						}
 						else
 							bouquet = g_bouquetManager->Bouquets[bouquetId];
-						bouquet->addService(newchannel);
+
+						if (!(g_bouquetManager->existsChannelInBouquet(bouquetId, newchannel->getChannelID())))
+							bouquet->addService(newchannel);
 					}
 					break;
 				default:
