@@ -171,6 +171,7 @@ CComponentsItem::CComponentsItem()
 {
 	//CComponentsItem
 	initVarItem();
+	cc_item_type = CC_ITEMTYPE_BASE;
 }
 
 // 	 y
@@ -267,6 +268,19 @@ void CComponentsItem::syncSysColors()
 	col_frame 	= COL_MENUCONTENT_PLUS_6;
 }
 
+//returns current item element type, if no available, return -1 as unknown type
+int CComponentsItem::getItemType()
+{
+	for(int i =0; i< (CC_ITEMTYPES) ;i++){
+		if (i == cc_item_type)
+			return i;
+	}
+#ifdef DEBUG_CC
+	printf("[CComponentsItem] %s: unknown item type requested...\n", __FUNCTION__);
+#endif
+	return -1;
+}
+
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsText from CComponentsItem
@@ -316,6 +330,7 @@ void CComponentsText::initVarText()
 {
 	//CComponents, CComponentsItem
 	initVarItem();
+	cc_item_type 	= CC_ITEMTYPE_TEXT;
 
 	//CComponentsText
 	ct_font 	= NULL;
@@ -466,6 +481,7 @@ void CComponentsInfoBox::initVarInfobox()
 {
 	//CComponents, CComponentsItem,  CComponentsText
 	initVarText();
+	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
 
 	//CComponentsInfoBox
 	pic 		= NULL;
@@ -524,6 +540,7 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 {
 	//CComponentsItem
 	initVarItem();
+	cc_item_type 	= CC_ITEMTYPE_SHAPE_SQUARE;
 
 	x 		= x_pos;
 	y 		= y_pos;
@@ -549,6 +566,7 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 {
 	//CComponents, CComponentsItem
 	initVarItem();
+	cc_item_type 	= CC_ITEMTYPE_SHAPE_CIRCLE;
 
 	//CComponents
 	x 		= x_pos;
@@ -725,6 +743,7 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 {
 	//CComponents, CComponentsItem
 	initVarItem();
+	cc_item_type 	= CC_ITEMTYPE_PIP;
 
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
@@ -784,6 +803,7 @@ void CComponentsPicture::init(	int x_pos, int y_pos, const string& image_name, c
 {
 	//CComponents, CComponentsItem
 	initVarItem();
+	cc_item_type 	= CC_ITEMTYPE_PICTURE;
 
 	//CComponentsPicture
 	pic_name 	= image_name;
@@ -1550,6 +1570,7 @@ void CComponentsForm::initVarForm()
 {
 	//CComponentsItem
 	initVarItem();
+	  
 	
 	//simple default dimensions
 	x 		= 0;
@@ -1801,6 +1822,7 @@ void CComponentsHeader::initVarHeader()
 	
 	//CComponentsForm
 	initVarForm();
+	cc_item_type 		= CC_ITEMTYPE_FRM_HERADER;
 	height 			= cch_font->getHeight();	
 	col_body 		= COL_MENUHEAD_PLUS_0;
 	corner_rad		= RADIUS_LARGE,
@@ -1986,6 +2008,7 @@ void CComponentsIconForm::initVarIconForm()
 {
 	//CComponentsForm
 	initVarForm();
+	cc_item_type 	= CC_ITEMTYPE_FRM_ICONFORM;
 
 	//set default width and height to 0, this causes a dynamic adaptation of width and height of form
 	width 		= 0;
@@ -2138,6 +2161,7 @@ void CComponentsWindow::initVarWindow()
 {
 	//CComponentsForm
 	initVarForm();
+	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 	
 	ccw_head 	= NULL;
 	ccw_caption 	= "";

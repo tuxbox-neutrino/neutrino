@@ -172,17 +172,35 @@ class CComponents
 class CComponentsItem : public CComponents
 {
 	protected:
+		int cc_item_type;
+		
 		void hideCCItem(bool no_restore = false);
 		void paintInit(bool do_save_bg);
 		void initVarItem();
 
 	public:
+		enum
+		{
+			CC_ITEMTYPE_BASE,
+			CC_ITEMTYPE_PICTURE,
+			CC_ITEMTYPE_TEXT,
+			CC_ITEMTYPE_TEXT_INFOBOX,
+			CC_ITEMTYPE_SHAPE_SQUARE,
+			CC_ITEMTYPE_SHAPE_CIRCLE,
+			CC_ITEMTYPE_PIP,
+			CC_ITEMTYPE_FRM,
+			CC_ITEMTYPE_FRM_HERADER,
+			CC_ITEMTYPE_FRM_ICONFORM,
+			CC_ITEMTYPE_FRM_WINDOW,
+
+			CC_ITEMTYPES
+		};
 		CComponentsItem();
 		
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		virtual void hide(bool no_restore = false);
 		virtual void kill();
-		
+		virtual int getItemType();
 		virtual void syncSysColors();
 };
 
