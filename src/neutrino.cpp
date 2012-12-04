@@ -1858,12 +1858,10 @@ TIMER_START();
 	g_CamHandler->init();
 
 #ifndef ASSUME_MDEV
-	const char hddsda1[] = "/media/sda1";
-	const char hddsdb1[] = "/media/sdb1";
-	mkdir(hddsda1, 0755);
-	mount("/dev/sda1", hddsda1, "ext3", 0, NULL);
-	mkdir(hddsdb1,0755);
-	mount("/dev/sdb1", hddsdb1, "ext3", 0, NULL);
+	mkdir("/media/sda1", 0755);
+	mkdir("/media/sdb1", 0755);
+	my_system("mount", "/dev/sda1", "/media/sda1");
+	my_system("mount", "/dev/sdb1", "/media/sdb1");
 #endif
 
 	CFSMounter::automount();
