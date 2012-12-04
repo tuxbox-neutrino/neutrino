@@ -1437,21 +1437,18 @@ personalize.visible sichtbar
 pictureviewer.defdir Start-Verz.
 pictureviewer.head Bildbetrachter
 pictureviewer.help1 Menü-Modus
-pictureviewer.help10 Anzeige-Modus
-pictureviewer.help11 Bild neu einlesen
-pictureviewer.help12 vorheriges Bild
-pictureviewer.help13 nächstes Bild
-pictureviewer.help14 Zoom out
-pictureviewer.help15 Zoom in
-pictureviewer.help16 Scroll hoch
-pictureviewer.help17 Scroll links
-pictureviewer.help18 Scroll rechts
-pictureviewer.help19 Scroll herunter
+pictureviewer.help10 Bild neu einlesen
+pictureviewer.help11 vorheriges Bild
+pictureviewer.help12 nächstes Bild
+pictureviewer.help13 Zoom out
+pictureviewer.help14 Zoom in
+pictureviewer.help15 Scroll hoch
+pictureviewer.help16 Scroll links
+pictureviewer.help17 Scroll rechts
+pictureviewer.help18 Scroll herunter
+pictureviewer.help19 Bild unskaliert einlesen
 pictureviewer.help2 Bild anzeigen
-pictureviewer.help20 Sortierung andern
-pictureviewer.help21 Bild unskaliert einlesen
-pictureviewer.help22 Modus verlassen
-pictureviewer.help3 Sortierung andern
+pictureviewer.help3 Sortierung ändern
 pictureviewer.help30 Audioplayer-Modus
 pictureviewer.help31 Startet die Wiedergabe
 pictureviewer.help32 Pausiert die Wiedergabe
@@ -1462,8 +1459,8 @@ pictureviewer.help4 Bild unskaliert einlesen
 pictureviewer.help5 Diashow-Modus
 pictureviewer.help6 vorheriges Bild
 pictureviewer.help7 nächstes Bild
-pictureviewer.help8 Sortierung ändern
-pictureviewer.help9 Modus verlassen
+pictureviewer.help8 Modus verlassen
+pictureviewer.help9 Anzeige-Modus
 pictureviewer.resize.color_average aufwendig
 pictureviewer.resize.none keine
 pictureviewer.resize.simple einfach
