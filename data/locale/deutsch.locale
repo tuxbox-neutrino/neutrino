@@ -911,7 +911,7 @@ menu.hint_osd_preset Hier können Sie zwischen Röhren-TV (CRT) oder Flachbildsc
 menu.hint_parentallock_changepin Hier wird der 4 stellige PIN Code eingegeben,\nder dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Hier wird festgelegt, bei welcher Altersklasse\ndie PIN Abfrage kommt
 menu.hint_parentallock_prompt Hier wird definiert, wann eine PIN Eingabe erfolgen soll
-menu.hint_personalize aktivieren, deaktivieren, schützen von Menüpunkten\nkonfigurieren der Farb-Tasten in den Benutzermenüs
+menu.hint_personalize Personalisieren Sie ihre Menüs, konfigurieren Sie die Farb-Tasten in den Benutzermenüs
 menu.hint_pictureviewer_defdir Hier wählen Sie das Startverzeichnis für den Bildbetrachter
 menu.hint_pictureviewer_scaling Hier kann die Bildauflösung eingestellt werden
 menu.hint_pictureviewer_slide_time Hier kann der Slideshow-Intervall geändert werden,\nStandardmässig ist ein Intervall von 10 Sekunden eingstellt
