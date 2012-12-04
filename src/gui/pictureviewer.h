@@ -111,6 +111,14 @@ class CPictureViewerGui : public CMenuTarget
 		void deletePicFile(unsigned int index, bool mode);
 
 		bool audioplayer;
+		int m_currentTitle;
+
+		pthread_t	decodeT;
+		static void*	decodeThread(void *arg);
+		bool		decodeTflag;
+
+		void thrView();
+		bool m_unscaled;
 
 	public:
 		CPictureViewerGui();

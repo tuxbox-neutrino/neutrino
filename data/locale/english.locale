@@ -1452,6 +1452,12 @@ pictureviewer.help20 change sort order
 pictureviewer.help21 reread image (no scaling)
 pictureviewer.help22 exit
 pictureviewer.help3 change sort order
+pictureviewer.help30 audioplayer mode
+pictureviewer.help31 starts the playback
+pictureviewer.help32 pauses the playback
+pictureviewer.help33 stops the playback
+pictureviewer.help34 next title
+pictureviewer.help35 previous title
 pictureviewer.help4 do not scale picture
 pictureviewer.help5 diashow mode
 pictureviewer.help6 previous image
