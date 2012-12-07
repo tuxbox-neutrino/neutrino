@@ -694,8 +694,8 @@ void EpgPlus::init()
 
         CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 	CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &h2);
-	if(icol_h < h2)
-		icol_h = h2;
+// 	if(icol_h < h2)
+// 		icol_h = h2;
 
 	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //TODO get height from buttons/*std::max (icol_h+8, fonts[EPGPlus_footer_fontbuttons]->getHeight());*/
 	int footerHeight = Footer::getUsedHeight() + buttonHeight;

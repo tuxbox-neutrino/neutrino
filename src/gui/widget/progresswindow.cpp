@@ -166,7 +166,7 @@ void CProgressWindow::paint()
 	ypos+= mheight;
 
 	globalstatusY = ypos+ mheight-20;
-	ypos+= mheight >>1;
+	//ypos+= mheight >>1;
 	showGlobalStatus(global_progress);
 }
 

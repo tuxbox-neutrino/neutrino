@@ -61,7 +61,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			rspGetSleeptimer.eventID = 0;
 			if (CTimerManager::getInstance()->listEvents(events))
 			{
-				for (pos = events.begin(); pos != events.end(); pos++)
+				for (pos = events.begin(); pos != events.end(); ++pos)
 				{
 					printf("ID: %u type: %u\n",pos->second->eventID,pos->second->eventType);
 					if(pos->second->eventType == CTimerd::TIMER_SLEEPTIMER)
