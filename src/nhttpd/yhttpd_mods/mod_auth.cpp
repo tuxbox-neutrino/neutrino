@@ -65,6 +65,8 @@ bool CmAuth::CheckAuth(CyhookHandler *hh) {
 // decode Base64 buffer to String
 //-----------------------------------------------------------------------------
 std::string CmAuth::decodeBase64(const char *b64buffer) {
+	if(b64buffer==NULL)
+		return "";
 	char *newString; //shorter then b64buffer
 	std::string result;
 	if ((newString = (char *) malloc(sizeof(char) * strlen(b64buffer) + 1))

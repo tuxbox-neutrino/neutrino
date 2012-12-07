@@ -330,8 +330,7 @@ std::string CyParser::cgi_cmd_parsing(CyhookHandler *hh,
 				if (ydebug)
 					hh->printf("[ycgi debug]: CMD:[%s]<br/>\n", ycmd.c_str());
 				yresult = YWeb_cgi_cmd(hh, ycmd); // 4. execute cmd
-//				log_level_printf(5, "<yLoop>: ycmd...:%s\n", ycmd.c_str());//FIXME  <tr class="%ctimer"> <td>%s</td> <td>%s</td> ... segfault
-
+				log_level_printf(5, "<yLoop>: ycmd...:%s\n", ycmd.c_str());
 				log_level_printf(6, "<yLoop>: yresult:%s\n", yresult.c_str());
 				if (ydebug)
 					hh->printf("[ycgi debug]: RESULT:[%s]<br/>\n",
