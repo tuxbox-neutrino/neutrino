@@ -838,6 +838,7 @@ bool CFileBrowser::exec(const char * const dirname)
 	neutrino_msg_data_t data;
 
 	bool res = false;
+	menu_ret = menu_return::RETURN_REPAINT;
 
 #ifdef ENABLE_INTERNETRADIO
 	if (m_Mode == ModeSC) {
@@ -1105,10 +1106,20 @@ bool CFileBrowser::exec(const char * const dirname)
 		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
 			//FIXME do nothing ?
 		}
+		else if (msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::SHUTDOWN ||
+				msg == NeutrinoMessages::SLEEPTIMER)
+		{
+			menu_ret = menu_return::RETURN_EXIT_ALL;
+			loop = false;
+			g_RCInput->postMsg(msg, data);
+		}
+
 		else
 		{
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 			{
+				menu_ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
 		}

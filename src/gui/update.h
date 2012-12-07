@@ -53,6 +53,8 @@ class CFlashUpdate : public CProgressWindow
 	
 	std::string installedVersion;
 	std::string newVersion;
+	int	menu_ret;
+	int softupdate_mode;
 	
 	bool selectHttpImage(void);
 	bool getUpdateImage(const std::string & version);

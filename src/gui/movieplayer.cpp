@@ -223,7 +223,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		timeshift = 0;
 		return menu_return::RETURN_EXIT_ALL;
 	}
-	return menu_return::RETURN_REPAINT;
+	return menu_ret; //menu_return::RETURN_REPAINT;
 }
 
 void CMoviePlayerGui::updateLcd()
@@ -286,6 +286,7 @@ void CMoviePlayerGui::fillPids()
 bool CMoviePlayerGui::SelectFile()
 {
 	bool ret = false;
+	menu_ret = menu_return::RETURN_REPAINT;
 
 	/*clear audiopids */
 	for (int i = 0; i < numpida; i++) {
@@ -344,7 +345,8 @@ bool CMoviePlayerGui::SelectFile()
 
 				ret = true;
 			}
-		}
+		} else
+			menu_ret = moviebrowser->getMenuRet();
 	} 
 	else { // filebrowser
 		if (filebrowser->exec(Path_local.c_str()) == true) {
@@ -380,7 +382,8 @@ bool CMoviePlayerGui::SelectFile()
 					}
 				}
 			}
-		}
+		} else
+			menu_ret = filebrowser->getMenuRet();
 	}
 	if(ret && file_name.empty()) {
 		std::string::size_type pos = full_name.find_last_of('/');
@@ -403,6 +406,7 @@ void CMoviePlayerGui::PlayFile(void)
 {
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
+	menu_ret = menu_return::RETURN_REPAINT;
 
 	int position = 0, duration = 0;
 	bool first_start_timeshift = false;
@@ -496,7 +500,9 @@ void CMoviePlayerGui::PlayFile(void)
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
-				if (duration - position < 1000 && !timeshift)
+				/* in case ffmpeg report incorrect values */
+				int posdiff = duration - position;
+				if ((posdiff > 0) && (posdiff < 1000) && !timeshift)
 				{
 					/* 10 seconds after end-of-file, stop */
 					if (++eof > 10)
@@ -651,6 +657,9 @@ void CMoviePlayerGui::PlayFile(void)
 				msg == NeutrinoMessages::SHUTDOWN ||
 				msg == NeutrinoMessages::SLEEPTIMER) {	// Exit for Record/Zapto Timers
 			printf("CMoviePlayerGui::PlayFile: ZAPTO etc..\n");
+			if(msg != NeutrinoMessages::ZAPTO)
+				menu_ret = menu_return::RETURN_EXIT_ALL;
+
 			playstate = CMoviePlayerGui::STOPPED;
 			g_RCInput->postMsg(msg, data);
 		} else if (msg == CRCInput::RC_timeout) {
@@ -661,6 +670,7 @@ void CMoviePlayerGui::PlayFile(void)
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all) {
 				printf("CMoviePlayerGui::PlayFile: neutrino handleMsg messages_return::cancel_all\n");
 				playstate = CMoviePlayerGui::STOPPED;
+				menu_ret = menu_return::RETURN_EXIT_ALL;
 			}
 			else if ( msg <= CRCInput::RC_MaxRC ) {
 				update_lcd = true;

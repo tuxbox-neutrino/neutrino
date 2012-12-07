@@ -389,6 +389,20 @@ void CListFrame::refreshScroll(void)
 	}
 }
 
+int CListFrame::paintListIcon(int x, int y, int line)
+{
+	int xDiff = 0;
+	if ((!m_pLines->Icon.empty()) && (m_pLines->Icon[line] != "")) {
+		int icol_w, icol_h;
+		frameBuffer->getIconSize(m_pLines->Icon[line].c_str(), &icol_w, &icol_h);
+		if ((icol_w > 0) && (icol_h > 0)) {
+			frameBuffer->paintIcon(m_pLines->Icon[line], x+m_cFrame.iX, y+m_cFrame.iY-m_nFontListHeight, m_nFontListHeight);
+			xDiff = icol_w + TEXT_BORDER_WIDTH;
+		}
+	}
+	return xDiff;
+}
+
 void CListFrame::refreshList(void)
 {
 	//TRACE("[CListFrame]->refreshList: %d\r\n",m_nCurrentLine);
@@ -417,6 +431,9 @@ void CListFrame::refreshList(void)
 		int width;
 		int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
 		y += m_nFontListHeight;
+
+		int xDiff = paintListIcon(x, y, line);
+
 		int net_width = m_cFrameListRel.iWidth - ROW_BORDER_WIDTH * (m_pLines->rows - 1);
 		for(int row = 0; row < m_pLines->rows; row++)
 		{
@@ -426,8 +443,10 @@ void CListFrame::refreshList(void)
 				width = m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH;
 				//TRACE("   normalize width to %d , x:%d \r\n",width,x);
 			}
-			m_pcFontList->RenderString(x+m_cFrame.iX, y+m_cFrame.iY,
-					width, m_pLines->lineArray[row][line].c_str(),
+			if (row > 0)
+				xDiff = 0;
+			m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
+					width-xDiff, m_pLines->lineArray[row][line].c_str(),
 					color, 0, true); // UTF-8
 			x += width + ROW_BORDER_WIDTH;
 		}
@@ -462,13 +481,18 @@ void CListFrame::refreshLine(int line)
 	int width;
 	int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
 	y += m_nFontListHeight;
+
+	int xDiff = paintListIcon(x, y, line);
+
 	int net_width = m_cFrameListRel.iWidth - ROW_BORDER_WIDTH * (m_pLines->rows - 1);
 	for(int row = 0; row < m_pLines->rows; row++)
 	{
 		width = std::min(m_pLines->rowWidth[row] * net_width / 100,
 				 m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH);
-		m_pcFontList->RenderString(x+m_cFrame.iX, y+m_cFrame.iY,
-				width, m_pLines->lineArray[row][line].c_str(),
+		if (row > 0)
+			xDiff = 0;
+		m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
+				width-xDiff, m_pLines->lineArray[row][line].c_str(),
 				color, 0, true); // UTF-8
 		x += width + ROW_BORDER_WIDTH;
 	}

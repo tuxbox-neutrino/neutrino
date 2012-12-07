@@ -9,9 +9,9 @@
 // c++
 #include <string>
 // yhttpd
-#include "yhttpd.h"
-#include "ytypes_globals.h"
-#include "mod_yparser.h"
+#include <yhttpd.h>
+#include <ytypes_globals.h>
+#include <mod_yparser.h>
 
 // forward declaration
 class CNeutrinoAPI;

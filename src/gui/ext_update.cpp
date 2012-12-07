@@ -25,8 +25,8 @@
 	Boston, MA  02110-1301, USA.
 */
 
-#define UPDATE_DEBUG_TIMER
-#define UPDATE_DEBUG
+//#define UPDATE_DEBUG_TIMER
+//#define UPDATE_DEBUG
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -73,6 +73,9 @@ CExtUpdate::CExtUpdate()
 	fLogfile        = "/tmp/update.log";
 	mountPkt 	= "/tmp/image_mount";
 	FileHelpers 	= NULL;
+	copyList.clear();
+	blackList.clear();
+	deleteList.clear();
 }
 
 CExtUpdate::~CExtUpdate()
@@ -81,6 +84,9 @@ CExtUpdate::~CExtUpdate()
 		delete[] MTDBuf;
 	if(FileHelpers)
 		delete[] FileHelpers;
+	copyList.clear();
+	blackList.clear();
+	deleteList.clear();
 }
 
 CExtUpdate* CExtUpdate::getInstance()
@@ -118,6 +124,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 	}
 	if(hintBox)
 		hintBox->hide();
+	sync();
 	return false;
 }
 
@@ -148,7 +155,6 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 				return false;
 			}
 		}
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SUCCESSFULLY), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 		WRITE_UPDATE_LOG("\n");
 		WRITE_UPDATE_LOG("##### Settings taken. #####\n");
 		if (mode == MODE_EXPERT)
@@ -159,10 +165,10 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 
 bool CExtUpdate::isMtdramLoad()
 {
-	char buf[256] = "";
 	bool ret = false;
 	FILE* f = fopen("/proc/modules", "r");
 	if (f) {
+		char buf[256] = "";
 		while(fgets(buf, sizeof(buf), f) != NULL) {
 			if (strstr(buf, "mtdram") != NULL) {
 				ret = true;
@@ -294,7 +300,8 @@ bool CExtUpdate::applySettings()
 	if (res)
 		return ErrorReset(RESET_UNLOAD, "mount error");
 
-	readBackupList(mountPkt);
+	if (!readBackupList(mountPkt))
+		return ErrorReset(0, "error readBackupList");
 
 	res = umount(mountPkt.c_str());
 	if (res)
@@ -336,6 +343,7 @@ bool CExtUpdate::applySettings()
 	if(hintBox)
 		hintBox->hide();
 
+	sync();
 	return true;
 }
 
@@ -359,7 +367,6 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 	struct dirent **namelist;
 	std::string fList = fileList, dst;
 	static struct stat FileInfo;
-	char buf[PATH_MAX];
 
 	size_t pos = fileList.find_last_of("/");
 	fList = fileList.substr(0, pos);
@@ -373,6 +380,7 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 			std::string dName = namelist[n]->d_name;
 			if (lstat((fList+"/"+dName).c_str(), &FileInfo) != -1) {
 				if (S_ISLNK(FileInfo.st_mode)) {
+					char buf[PATH_MAX];
 					int len = readlink((fList+"/"+dName).c_str(), buf, sizeof(buf)-1);
 					if (len != -1) {
 						buf[len] = '\0';
@@ -383,7 +391,8 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 				else
 					if (S_ISREG(FileInfo.st_mode)) {
 						WRITE_UPDATE_LOG("copy %s => %s\n", (fList+"/"+dName).c_str(), (dst+"/"+dName).c_str());
-						if (!FileHelpers->copyFile((fList+"/"+dName).c_str(), (dst+"/"+dName).c_str(), FileInfo.st_mode & 0x0FFF))
+						std::string save = (isBlacklistEntry(fList+"/"+dName)) ? ".save" : "";
+						if (!FileHelpers->copyFile((fList+"/"+dName).c_str(), (dst + "/" + dName + save).c_str(), FileInfo.st_mode & 0x0FFF))
 							return ErrorReset(0, "copyFile error");
 					}
 			}
@@ -392,6 +401,40 @@ bool CExtUpdate::copyFileList(const std::string & fileList, const std::string & 
 		free(namelist);
 	}
 
+	return true;
+}
+
+bool CExtUpdate::deleteFileList(const std::string & fileList)
+{
+	Wildcard = "";
+	struct dirent **namelist;
+	std::string fList = fileList;
+	static struct stat FileInfo;
+
+	size_t pos = fileList.find_last_of("/");
+	fList = fileList.substr(0, pos);
+	Wildcard = fileList.substr(pos+1);
+
+	int n = scandir(fList.c_str(), &namelist, fileSelect, 0);
+	if (n > 0) {
+		while (n--) {
+			std::string dName = namelist[n]->d_name;
+			if (lstat((fList+"/"+dName).c_str(), &FileInfo) != -1) {
+				if (S_ISDIR(FileInfo.st_mode)) {
+					// Directory
+					WRITE_UPDATE_LOG("delete directory: %s\n", (fList+"/"+dName).c_str());
+					FileHelpers->removeDir((fList+"/"+dName).c_str());
+				}
+				else if (S_ISREG(FileInfo.st_mode)) {
+					// File
+					WRITE_UPDATE_LOG("delete file: %s\n", (fList+"/"+dName).c_str());
+					unlink((fList+"/"+dName).c_str());
+				}
+			}
+			free(namelist[n]);
+		}
+		free(namelist);
+	}
 	return true;
 }
 
@@ -424,6 +467,32 @@ bool CExtUpdate::readConfig(const std::string & line)
 	return true;
 }
 
+bool CExtUpdate::isBlacklistEntry(const std::string & file)
+{
+	for(vector<std::string>::iterator it = blackList.begin(); it != blackList.end(); ++it) {
+		if (*it == file) {
+			DBG_MSG("BlacklistEntry %s\n", (*it).c_str());
+			WRITE_UPDATE_LOG("BlacklistEntry: %s\n", (*it).c_str());
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CExtUpdate::checkSpecialFolders(std::string line, bool copy)
+{
+	if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 
+			(line.find("/sys") == 0) || (line.find("/mnt") == 0) || (line.find("/tmp") == 0)) {
+		char buf[PATH_MAX];
+		neutrino_locale_t msg = (copy) ? LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SKIPPED : LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_DEL_SKIPPED;
+		snprintf(buf, sizeof(buf), g_Locale->getText(msg), line.c_str());
+		WRITE_UPDATE_LOG("%s%s", buf, "\n");
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+		return true;
+	}
+	return false;
+}
+
 bool CExtUpdate::readBackupList(const std::string & dstPath)
 {
 	char buf[PATH_MAX];
@@ -452,12 +521,20 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	if (fz.__pos == 0)
 		return ErrorReset(RESET_F1, "backuplist filesize is 0");
 	size_t pos;
+	std::string line;
+
+	// read blacklist and config vars
+	copyList.clear();
+	blackList.clear();
+	deleteList.clear();
 	while(fgets(buf, sizeof(buf), f1) != NULL) {
-		std::string line = buf;
+		std::string tmpLine;
+		line = buf;
 		line = trim(line);
-		// remove comments
+		// ignore comments
 		if (line.find_first_of("#") == 0) {
-			if (line.find_first_of(":") == 1) { // config vars
+			// config vars
+			if (line.find_first_of(":") == 1) {
 				if (line.length() > 1)
 					readConfig(line);
 			}
@@ -468,14 +545,39 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 			line = line.substr(0, pos);
 			line = trim(line);
 		}
-		// special folders
-		else if ((line == "/") || (line == "/*") || (line == "/*.*") || (line.find("/dev") == 0) || (line.find("/proc") == 0) || 
-			 (line.find("/sys") == 0) || (line.find("/mnt") == 0) || (line.find("/tmp") == 0)) {
-			snprintf(buf, sizeof(buf), g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_SKIPPED), line.c_str());
-			WRITE_UPDATE_LOG("%s%s", buf, "\n");
-			ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
-			continue;
+		// find blackList entry
+		if (line.find_first_of("-") == 0) {
+			tmpLine = line.substr(1);
+			if ((tmpLine.length() > 1) && (lstat(tmpLine.c_str(), &FileInfo) != -1)) {
+				if (S_ISREG(FileInfo.st_mode))
+					blackList.push_back(tmpLine);
+			}
 		}
+		// find deleteList entry
+		else if (line.find_first_of("~") == 0) {
+			tmpLine = line.substr(1);
+			if (checkSpecialFolders(tmpLine, false))
+				continue;
+			tmpLine = dstPath + tmpLine;
+			if (line.length() > 2)
+				deleteList.push_back(tmpLine);
+		}
+		// find copyList entry
+		else {
+			tmpLine = (line.find_first_of("+") == 0) ? line.substr(1) : line; // '+' add entry = default
+			if (checkSpecialFolders(tmpLine, true))
+				continue;
+			if (tmpLine.length() > 1)
+				copyList.push_back(tmpLine);
+		}
+	}
+	fclose(f1);
+
+	// read copyList
+	vector<std::string>::iterator it;
+	for(it = copyList.begin(); it != copyList.end(); ++it) {
+		line = *it;
+		line = trim(line);
 		// remove '/' from line end
 		size_t len = line.length();
 		pos = line.find_last_of("/");
@@ -501,7 +603,8 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					WRITE_UPDATE_LOG("\n");
 					WRITE_UPDATE_LOG("file: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("--------------------\n");
-					if (!FileHelpers->copyFile(line.c_str(), dst.c_str(), FileInfo.st_mode & 0x0FFF))
+					std::string save = (isBlacklistEntry(line)) ? ".save" : "";
+					if (!FileHelpers->copyFile(line.c_str(), (dst + save).c_str(), FileInfo.st_mode & 0x0FFF))
 						return ErrorReset(0, "copyFile error");
 				}
 				else if (S_ISDIR(FileInfo.st_mode)) {
@@ -510,14 +613,35 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 					WRITE_UPDATE_LOG("\n");
 					WRITE_UPDATE_LOG("directory: %s => %s\n", line.c_str(), dst.c_str());
 					WRITE_UPDATE_LOG("--------------------\n");
-					FileHelpers->copyDir(line.c_str(), dst.c_str());
+					FileHelpers->copyDir(line.c_str(), dst.c_str(), true);
 				}
 			}
 		
 		}
 	}
-	fclose(f1);
 
+	// read DeleteList
+	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
+		line = *it;
+		if (lstat(line.c_str(), &FileInfo) != -1) {
+			if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
+				// Wildcards
+				WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
+				deleteFileList(line.c_str());
+			}
+			else if (S_ISREG(FileInfo.st_mode)) {
+				// File
+				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
+				unlink(line.c_str());
+			}
+			else if (S_ISDIR(FileInfo.st_mode)){
+				// Directory
+				WRITE_UPDATE_LOG("delete directory: %s\n", line.c_str());
+				FileHelpers->removeDir(line.c_str());
+			}
+		}
+	}
+	sync();
 	return true;
 }
 

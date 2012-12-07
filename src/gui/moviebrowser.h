@@ -294,8 +294,6 @@ class CMovieBrowser : public CMenuTarget
 		MB_SETTINGS m_settings;
 		std::vector<MB_DIR> m_dir;
 
-		bool IsRecord;
-
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
 
@@ -303,6 +301,7 @@ class CMovieBrowser : public CMenuTarget
 		std::string getScreenshotName(std::string movie);
 
 		//bool restart_mb_timeout;
+		int menu_ret;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(const char* path); //P1
@@ -324,6 +323,7 @@ class CMovieBrowser : public CMenuTarget
 		bool delFile(CFile& file);
 		bool delFile_vlc(CFile& file);
 		bool delFile_std(CFile& file);
+		int  getMenuRet() { return menu_ret; }
 
 	private: //Functions
 		///// MovieBrowser init ///////////////
@@ -366,7 +366,7 @@ class CMovieBrowser : public CMenuTarget
 		void onSetGUIWindow(MB_GUI gui);
 		void onSetGUIWindowNext(void);
 		void onSetGUIWindowPrev(void);
-		void onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler);  // P4
+		void onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skipAsk = false);  // P4
 		bool onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& pv_handle_list, MB_INFO_ITEM sort_type, MB_DIRECTION direction);
 
 		///// parse Storage Directories /////////////

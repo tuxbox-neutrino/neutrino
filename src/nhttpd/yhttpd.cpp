@@ -34,22 +34,22 @@ CStringList Cyhttpd::ConfigList;
 //=============================================================================
 
 #ifdef Y_CONFIG_USE_AUTHHOOK
-#include "mod_auth.h"
+#include <mod_auth.h>
 static CmAuth *auth = NULL;
 #endif
 
 #ifdef Y_CONFIG_USE_WEBLOG
-#include "mod_weblog.h"
+#include <mod_weblog.h>
 static CmWebLog *weblog = NULL;
 #endif
 
 #ifdef Y_CONFIG_USE_SENDFILE
-#include "mod_sendfile.h"
+#include <mod_sendfile.h>
 static CmodSendfile *mod_sendfile = NULL;
 #endif
 
 #ifdef Y_CONFIG_USE_CACHE
-#include "mod_cache.h"
+#include <mod_cache.h>
 static CmodCache mod_cache; // static instance
 #endif
 

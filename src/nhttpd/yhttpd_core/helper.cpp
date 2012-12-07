@@ -12,7 +12,7 @@
 #include <iomanip>
 
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "helper.h"
 #include "ylogging.h"
@@ -220,10 +220,10 @@ std::string encodeString(std::string decodedString) {
 	unsigned int len = sizeof(char) * decodedString.length() * 5 + 1;
 	std::string result(len, '\0');
 	char *newString = (char *) result.c_str();
-	char *dstring = (char *) decodedString.c_str();
 	char one_char;
 	if (len == result.length()) // got memory needed
 	{
+		char *dstring = (char *) decodedString.c_str();
 		while ((one_char = *dstring++)) /* use the null character as a loop terminator */
 		{
 			if (isalnum(one_char))

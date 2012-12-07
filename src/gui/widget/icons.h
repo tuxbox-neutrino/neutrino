@@ -61,6 +61,10 @@
 #define NEUTRINO_ICON_BUTTON_DOWN_SMALL	"down_small"
 #define NEUTRINO_ICON_BUTTON_LEFT	"left"
 
+#define NEUTRINO_ICON_BUTTON_BACKWARD	"btn_backward"
+#define NEUTRINO_ICON_BUTTON_FORWARD	"btn_forward"
+#define NEUTRINO_ICON_BUTTON_PAUSE	"btn_pause"
+#define NEUTRINO_ICON_BUTTON_PLAY	"btn_play"
 #define NEUTRINO_ICON_BUTTON_RECORD_ACTIVE	"btn_record_active"
 #define NEUTRINO_ICON_BUTTON_RECORD_INACTIVE	"btn_record_inactive"
 #define NEUTRINO_ICON_BUTTON_STOP	"btn_stop"

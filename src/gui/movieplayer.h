@@ -94,6 +94,7 @@ class CMoviePlayerGui : public CMenuTarget
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
 	std::string Path_local;
+	int menu_ret;
 
 	/* playback from bookmark */
 	CBookmarkManager * bookmarkmanager;

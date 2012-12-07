@@ -50,7 +50,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CZapitClient::SatelliteList satList;
 
 // yhttpd
-#include "ylogging.h"
+#include <ylogging.h>
 
 // nhttpd
 #include "neutrinoapi.h"
@@ -266,7 +266,7 @@ bool CNeutrinoAPI::GetChannelEvents(void)
 	if (eList.begin() == eList.end())
 		return false;
 
-	for (eventIterator = eList.begin(); eventIterator != eList.end(); eventIterator++)
+	for (eventIterator = eList.begin(); eventIterator != eList.end(); ++eventIterator)
 		ChannelListEvents[(*eventIterator).get_channel_id()] = &(*eventIterator);
 
 	return true;
@@ -457,14 +457,13 @@ std::string CNeutrinoAPI::getAudioInfoAsString(void) {
 
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getCryptInfoAsString(void) {
-	unsigned short i;
 	std::stringstream out;
 	std::string casys[11]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
 
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
-                for (i = 0; i < 11; i++) {
+                for (unsigned short i = 0; i < 11; i++) {
                         for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
                                 int caid = (*it) & 0xFF00;
                                 if(caid == caids[i])

@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 #include "mod_weblog.h"
-#include "helper.h"
+#include <helper.h>
 
 //=============================================================================
 // Initialization of static variables
@@ -97,8 +97,8 @@ bool CmWebLog::printf(const char *fmt, ...) {
 	if (!OpenLogFile())
 		return false;
 	bool success = false;
-	char buffer[bufferlen];
 	if (WebLogFile != NULL) {
+		char buffer[bufferlen]={0};
 		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
 		va_list arglist;
 		va_start(arglist, fmt);
@@ -130,6 +130,8 @@ bool CmWebLog::printf(const char *fmt, ...) {
 //-----------------------------------------------------------------------------
 void CmWebLog::AddLogEntry_CLF(CyhookHandler *hh)
 {
+#if 0
+//never used
 	std::string cs_method;
 	switch (hh->Method)
 	{
@@ -141,6 +143,7 @@ void CmWebLog::AddLogEntry_CLF(CyhookHandler *hh)
 			cs_method = "unknown";
 			break;
 	}
+#endif
 	std::string c_ip = 			hh->UrlData["clientaddr"].c_str();
 	std::string request_startline = 	hh->UrlData["startline"].c_str();
 	int s_status = hh->httpStatus;
@@ -315,7 +318,6 @@ void CmWebLog::AddLogEntry_ELF(CyhookHandler *hh)
 	std::string c_ip = 			hh->UrlData["clientaddr"].c_str();
 	std::string request_startline = 	hh->UrlData["startline"].c_str();
 	std::string cs_uri			= hh->UrlData["fullurl"];
-	std::string cs_uri_stem			= hh->UrlData["url"];
 	int sc_status = hh->httpStatus;
 	int bytes	= hh->GetContentLength();
 	int cached = (hh->HookVarList["CacheCategory"].empty()) ? 0 : 1;

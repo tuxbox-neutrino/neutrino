@@ -204,6 +204,7 @@ CNeutrinoApp::CNeutrinoApp()
 	RADIOchannelList	= NULL;
 	skipShutdownTimer	= false;
 	skipSleepTimer		= false;
+	lockStandbyCall         = false;
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= 0;
@@ -286,6 +287,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	if(!configfile.loadConfig(fname)) {
 		//file existiert nicht
 		erg = 1;
+	} else {
+		/* try to detect bad / broken config file */
+		if (!configfile.getInt32("screen_EndX_crt", 0) ||
+				!configfile.getInt32("screen_EndY_crt", 0) ||
+				!configfile.getInt32("screen_EndX_lcd", 0) ||
+				!configfile.getInt32("screen_EndY_lcd", 0)) {
+			printf("[neutrino] config file %s is broken, using defaults\n", fname);
+			configfile.clear();
+		}
 	}
 	std::ifstream checkParentallocked(NEUTRINO_PARENTALLOCKED_FILE);
 	if(checkParentallocked) {
@@ -420,7 +430,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	snprintf(g_settings.ifname, sizeof(g_settings.ifname), "%s", configfile.getString("ifname", "eth0").c_str());;
 
 	g_settings.epg_save = configfile.getBool("epg_save", false);
-
+	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -860,6 +870,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("timezone", g_settings.timezone);
 	// epg
 	configfile.setBool("epg_save", g_settings.epg_save);
+	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
 	configfile.setString("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setString("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setString("epg_old_events"           ,g_settings.epg_old_events );
@@ -1393,16 +1404,18 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 			break;
 	}
 	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
-	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < 3) {
+	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < CChannelList::SORT_MAX) {
 		sortmode[newmode] = g_settings.channellist_sort_mode;
 		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, bouquetList->Bouquets.size());
 		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
-			if(g_settings.channellist_sort_mode == 0)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_ALPHA)
 				bouquetList->Bouquets[i]->channelList->SortAlpha();
-			if(g_settings.channellist_sort_mode == 1)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_TP)
 				bouquetList->Bouquets[i]->channelList->SortTP();
-			if(g_settings.channellist_sort_mode == 2)
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_SAT)
 				bouquetList->Bouquets[i]->channelList->SortSat();
+			if(g_settings.channellist_sort_mode == CChannelList::SORT_CH_NUMBER)
+				bouquetList->Bouquets[i]->channelList->SortChNumber();
 		}
 		channelList->adjustToChannelID(channelList->getActiveChannel_ChannelID());
 	}
@@ -1845,12 +1858,10 @@ TIMER_START();
 	g_CamHandler->init();
 
 #ifndef ASSUME_MDEV
-	const char hddsda1[] = "/media/sda1";
-	const char hddsdb1[] = "/media/sdb1";
-	mkdir(hddsda1, 0755);
-	mount("/dev/sda1", hddsda1, "ext3", 0, NULL);
-	mkdir(hddsdb1,0755);
-	mount("/dev/sdb1", hddsdb1, "ext3", 0, NULL);
+	mkdir("/media/sda1", 0755);
+	mkdir("/media/sdb1", 0755);
+	my_system("mount", "/dev/sda1", "/media/sda1");
+	my_system("mount", "/dev/sdb1", "/media/sdb1");
 #endif
 
 	CFSMounter::automount();
@@ -2039,13 +2050,16 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
 				} 
-				else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					g_volume->setVolume(msg, true);
-				} 
-				else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
-					if(channelList->getSize()) {
-						showInfo();
-					}
+				else if ( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
+					if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+						g_volume->setVolume(msg, true);
+					} 
+					else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
+							|| (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+						if(channelList->getSize()) {
+							showInfo();
+						}
+					} 
 				} 
 				else
 					quickZap( msg );
@@ -2350,7 +2364,7 @@ _repeat:
 	else if (msg == CRCInput::RC_standby_on) {
 		if (data == 0)
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
-		return messages_return::handled;
+		return messages_return::cancel_all | messages_return::handled;
 	}
 	else if ((msg == CRCInput::RC_standby_off) || (msg == CRCInput::RC_power_on)) {
 		if (data == 0)
@@ -2359,7 +2373,7 @@ _repeat:
 	}
 	else if (msg == CRCInput::RC_power_off) {
 		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
-		return messages_return::handled;
+		return messages_return::cancel_all | messages_return::handled;
 	}
 	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
 		if (data == 0) {
@@ -2652,14 +2666,25 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_SLEEPTIMER) {
 		if( mode != mode_scart && mode != mode_standby)
-		  	skipSleepTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SLEEPTIMERBOX_ANNOUNCE,CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
+		  	skipSleepTimer = (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
-		if(skipSleepTimer) {
-			printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
-			skipSleepTimer = false;
-			return messages_return::handled;
+		if(data) {//INACTIVITY SLEEPTIMER
+			skipShutdownTimer =
+				(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, g_settings.shutdown_real ? LOCALE_SHUTDOWNTIMER_ANNOUNCE:LOCALE_SLEEPTIMERBOX_ANNOUNCE,
+				      CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
+			if(skipShutdownTimer) {
+				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skiping\n");
+				skipShutdownTimer = false;
+				return messages_return::handled;
+                       }
+		}else{ //MAIN-MENU SLEEPTIMER
+			if(skipSleepTimer) {
+				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
+				skipSleepTimer = false;
+				return messages_return::handled;
+			}
 		}
 		if(g_settings.shutdown_real)
 			ExitRun(true, (cs_get_revision() > 7));
@@ -3076,6 +3101,11 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 	//static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
 
+	if(lockStandbyCall)
+		return;
+
+	lockStandbyCall = true;
+
 	if( bOnOff ) {
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
@@ -3112,7 +3142,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		if(!CRecordManager::getInstance()->RecordingStatus() ) {
 			//only save epg when not recording
-			if(g_settings.epg_save && !fromDeepStandby) {
+			if(g_settings.epg_save && !fromDeepStandby && g_settings.epg_save_standby) {
 				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}
@@ -3205,6 +3235,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_volume->AudioMute(current_muted, true);
 		StartSubtitles();
 	}
+	lockStandbyCall = false;
 }
 
 void CNeutrinoApp::radioMode( bool rezap)
@@ -3500,7 +3531,7 @@ void sighandler (int signum)
 	case SIGTERM:
 	case SIGINT:
 		delete CRecordManager::getInstance();
-		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
+		//CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
 		stop_video();
 		//_exit(0);

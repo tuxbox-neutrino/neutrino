@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <cstring>
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "ywebserver.h"
 #include "yconnection.h"
@@ -44,6 +44,7 @@ CWebserverConnection::CWebserverConnection(CWebserver *pWebserver) {
 //-------------------------------------------------------------------------
 CWebserverConnection::CWebserverConnection() {
 	//	aprintf("test CWebserverConnection::CWebserverConnection()\n");
+	Method = M_UNKNOWN;
 	sock = 0;
 	RequestCanceled = 0;
 	keep_alive = 0;

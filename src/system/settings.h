@@ -123,6 +123,7 @@ struct SNeutrinoSettings
 
 	// EPG
 	int epg_save;
+	int epg_save_standby;
 	std::string epg_cache;
 	std::string epg_old_events;
 	std::string epg_max_events;
