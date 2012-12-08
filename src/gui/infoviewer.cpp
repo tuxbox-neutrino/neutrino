@@ -567,21 +567,38 @@ void CInfoViewer::check_channellogo_ca_SettingsChange()
 void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap, int epgpos)
 {
 	if(channel) {
+		std::string pname = "";
+		if(g_settings.infobar_show_channeldesc){
+			if(channel->pname){
+				pname = channel->pname;
+				pname=pname.substr(pname.find_first_of("]")+1);
+			}
+		}
+
 		showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
-				channel->getChannelID(), calledFromNumZap, epgpos);
+				channel->getChannelID(), calledFromNumZap, epgpos, pname);
 	}
 }
 
 void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int epgpos)
 {
+  
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(chid);
+	std::string pname = "";
+
 	if(channel) {
+		if(g_settings.infobar_show_channeldesc){
+			if(channel->pname){
+				pname = channel->pname;
+				pname=pname.substr(pname.find_first_of("]")+1);
+			}
+		}
 		showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
-				channel->getChannelID(), calledFromNumZap, epgpos);
+				channel->getChannelID(), calledFromNumZap, epgpos, pname);
 	}
 }
 
-void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id, const bool calledFromNumZap, int epgpos)
+void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id, const bool calledFromNumZap, int epgpos, std::string pname)
 {
 	check_channellogo_ca_SettingsChange();
 	aspectRatio = 0;
@@ -709,6 +726,15 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 				ChanNameX + 10 + ChanNumWidth, ChanNameY + time_height,
 				BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth,
 				ChannelName, color /*COL_INFOBAR*/, 0, true);	// UTF-8
+			if(g_settings.infobar_show_channeldesc && !pname.empty()){
+				int chname_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (ChannelName);
+				chname_width += (chname_width/(ChannelName.size()-1)/2);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
+					ChanNameX + 10 + ChanNumWidth + chname_width, ChanNameY + time_height -SHADOW_OFFSET/2,
+					BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth - chname_width,
+					pname, color /*COL_INFOBAR*/, 0, true);	// UTF-8
+			}
+
 		}
 	}
 
