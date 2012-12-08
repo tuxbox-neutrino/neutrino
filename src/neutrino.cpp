@@ -1955,18 +1955,16 @@ void CNeutrinoApp::numericZap(int msg)
 void CNeutrinoApp::showInfo()
 {
 	StopSubtitles();
-	std::string name = channelList->getActiveChannelName();
-	std::string pname = "";
 
+	char *pname = NULL;
 	if(g_settings.infobar_show_channeldesc){
-		CZapitChannel* channel= channelList->getActiveChannel();
+		CZapitChannel* channel = channelList->getActiveChannel();
 		if(channel->pname){
 			pname = channel->pname;
-			pname=pname.substr(pname.find_first_of("]")+1);
 		}
 	}
 
-	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), name, channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID(), false, 0, pname);
+	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID(), false, 0, pname);
 	StartSubtitles();
 }
 
