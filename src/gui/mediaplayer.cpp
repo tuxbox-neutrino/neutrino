@@ -91,39 +91,27 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		if (audioPlayer == NULL)
 			audioPlayer = new CAudioPlayerGui();
-		audioPlayer->exec(NULL, "init");
+		int res = audioPlayer->exec(NULL, "init");
 		
-		return menu_return::RETURN_REPAINT;
+		return res /*menu_return::RETURN_REPAINT*/;
 	}
 	else if	(actionKey == "inetplayer")
 	{
 		if (inetPlayer == NULL)
 			inetPlayer = new CAudioPlayerGui(true);
-		inetPlayer->exec(NULL, "init");
+		int res = inetPlayer->exec(NULL, "init");
 		
-		return menu_return::RETURN_REPAINT;
+		return res; //menu_return::RETURN_REPAINT;
 	}
 	else if (actionKey == "movieplayer")
 	{
-#if 0		//Is it really necessary to lock here? Moviebrowser got its own configurable parental lock.
-		bool show = true;
-		if ((g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_ONSIGNAL) || (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED)) {
-			CZapProtection zapProtection( g_settings.parentallock_pincode, 0x100 );
-			show = zapProtection.check();
-		}
-		
-		if(show){
-#endif			
-			int mode = CNeutrinoApp::getInstance()->getMode();
-			if( mode == NeutrinoMessages::mode_radio )
-				videoDecoder->StopPicture();
-			CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
-				if( mode == NeutrinoMessages::mode_radio )
-					videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
-#if 0
-		}
-#endif		
-		return menu_return::RETURN_REPAINT;;
+		int mode = CNeutrinoApp::getInstance()->getMode();
+		if( mode == NeutrinoMessages::mode_radio )
+			videoDecoder->StopPicture();
+		int res = CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
+		if( mode == NeutrinoMessages::mode_radio )
+			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+		return res;
 	}
 	
 	int res = initMenuMedia();
@@ -153,7 +141,9 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	CMenuForwarder *fw_inet = NULL;
 	CMenuForwarder *fw_mp = NULL;
 	CMenuForwarder *fw_pviewer = NULL;
+	CPictureViewerGui *pictureviewergui = NULL;
 #if ENABLE_UPNP
+	CUpnpBrowserGui *upnpbrowsergui = NULL;
 	CMenuForwarder *fw_upnp = NULL;
 #endif
 	CMenuWidget *moviePlayer = NULL;
@@ -182,11 +172,13 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		fw_mp->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MENU_HINT_MOVIE);
 
  		//pictureviewer
- 		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		pictureviewergui = new CPictureViewerGui();
+ 		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, pictureviewergui, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		fw_pviewer->setHint(NEUTRINO_ICON_HINT_PICVIEW, LOCALE_MENU_HINT_PICVIEW);
 #if ENABLE_UPNP
 		//upnp browser
-		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
+		upnpbrowsergui = new CUpnpBrowserGui();
+		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, upnpbrowsergui, NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
 #endif
 //  		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
 	}
@@ -233,10 +225,13 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		res = media->exec(NULL, "");
 		delete media;
 		delete personalize;
+		delete pictureviewergui;
+#if ENABLE_UPNP
+		delete upnpbrowsergui;
+#endif
 
 		setUsageMode();//set default usage_mode
 	}
-	
 	return res;
 }
 

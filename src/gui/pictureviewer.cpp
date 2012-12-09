@@ -101,6 +101,9 @@ CPictureViewerGui::CPictureViewerGui()
 	picture_filter.addFilter("jpeg");
 	picture_filter.addFilter("gif");
 	picture_filter.addFilter("crw");
+
+	decodeT		= 0;
+	decodeTflag	= false;
 }
 
 //------------------------------------------------------------------------
@@ -109,11 +112,21 @@ CPictureViewerGui::~CPictureViewerGui()
 {
 	playlist.clear();
 	delete m_viewer;
+
+	if (decodeT)
+	{
+		pthread_cancel(decodeT);
+		decodeT = 0;
+	}
 }
 
 //------------------------------------------------------------------------
-int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
+int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 {
+	audioplayer = false;
+	if (actionKey == "audio")
+		audioplayer = true;
+
 	selected = 0;
 	width  = w_max (710, 0);
 	height = h_max (570, 0);
@@ -159,14 +172,16 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	// remember last mode
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
 
-	//g_Zapit->setStandby(true);
-	g_Zapit->lockPlayBack();
+	if (!audioplayer) { // !!! why? !!!
+		//g_Zapit->setStandby(true);
+		g_Zapit->lockPlayBack();
 
-	// blank background screen
-	videoDecoder->setBlank(true);
+		// blank background screen
+		videoDecoder->setBlank(true);
 
-	// Stop Sectionsd
-	g_Sectionsd->setPauseScanning(true);
+		// Stop Sectionsd
+		g_Sectionsd->setPauseScanning(true);
+	}
 
 	// Save and Clear background
 	bool usedBackground = frameBuffer->getuseBackground();
@@ -180,11 +195,13 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	// free picviewer mem
 	m_viewer->Cleanup();
 
-	//g_Zapit->setStandby(false);
-	g_Zapit->unlockPlayBack();
+	if (!audioplayer) { // !!! why? !!!
+		//g_Zapit->setStandby(false);
+		g_Zapit->unlockPlayBack();
 
-	// Start Sectionsd
-	g_Sectionsd->setPauseScanning(false);
+		// Start Sectionsd
+		g_Sectionsd->setPauseScanning(false);
+	}
 
 	// Restore previous background
 	if (usedBackground) {
@@ -217,6 +234,9 @@ int CPictureViewerGui::show()
 	bool loop=true;
 	bool update=true;
 
+	if (audioplayer)
+		m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+
 	while (loop)
 	{
 		if (update)
@@ -225,6 +245,9 @@ int CPictureViewerGui::show()
 			update=false;
 			paint();
 		}
+
+		if (audioplayer)
+			m_audioPlayer->wantNextPlay();
 
 		if (m_state!=SLIDESHOW)
 			timeout=50; // egal
@@ -533,6 +556,35 @@ int CPictureViewerGui::show()
 				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD));
 			}
 		}
+		else if (((msg==CRCInput::RC_plus) || (msg==CRCInput::RC_minus)) && decodeTflag)
+		{
+			// FIXME: do not accept volume-keys while decoding
+		}
+		// control keys for audioplayer
+		else if (audioplayer && msg==CRCInput::RC_pause)
+		{
+			m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+			m_audioPlayer->pause();
+		}
+		else if (audioplayer && msg==CRCInput::RC_stop)
+		{
+			m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+			m_audioPlayer->stop();
+		}
+		else if (audioplayer && msg==CRCInput::RC_play)
+		{
+			m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+			if (m_currentTitle > -1)
+				m_audioPlayer->play((unsigned int)m_currentTitle);
+		}
+		else if (audioplayer && msg==CRCInput::RC_forward)
+		{
+			m_audioPlayer->playNext();
+		}
+		else if (audioplayer && msg==CRCInput::RC_rewind)
+		{
+			m_audioPlayer->playPrev();
+		}
 		else if (msg == NeutrinoMessages::CHANGEMODE)
 		{
 			if ((data & NeutrinoMessages::mode_mask) !=NeutrinoMessages::mode_pic)
@@ -715,6 +767,10 @@ void CPictureViewerGui::paint()
 
 void CPictureViewerGui::view(unsigned int index, bool unscaled)
 {
+	if (decodeTflag)
+		return;
+
+	m_unscaled = unscaled;
 	selected=index;
 
 	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
@@ -722,26 +778,59 @@ void CPictureViewerGui::view(unsigned int index, bool unscaled)
 	strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[index].Date));
 	//CVFD::getInstance()->showMenuText(1, timestring); //FIXME
 
-	if (unscaled)
-		m_viewer->DecodeImage(playlist[index].Filename, true, unscaled);
-	m_viewer->ShowImage(playlist[index].Filename, unscaled);
+	if (m_state==MENU)
+		m_state=VIEW;
 
+	//decode and view in a seperate thread
+	if (!decodeTflag) {
+		decodeTflag=true;
+		pthread_create(&decodeT, NULL, decodeThread, (void*) this);
+		pthread_detach(decodeT);
+	}
+}
+
+void* CPictureViewerGui::decodeThread(void *arg)
+{
+	CPictureViewerGui *PictureViewerGui = (CPictureViewerGui*) arg;
+
+	pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	PictureViewerGui->thrView();
+
+	PictureViewerGui->decodeTflag=false;
+	pthread_exit(NULL);
+}
+
+void CPictureViewerGui::thrView()
+{
+	if (m_unscaled)
+		m_viewer->DecodeImage(playlist[selected].Filename, true, m_unscaled);
+
+	m_viewer->ShowImage(playlist[selected].Filename, m_unscaled);
+
+#if 0
 	//Decode next
 	unsigned int next=selected+1;
 	if (next > playlist.size()-1)
 		next=0;
-	if (m_state==MENU)
-		m_state=VIEW;
 	if (m_state==VIEW)
 		m_viewer->DecodeImage(playlist[next].Filename,true);
 	else
 		m_viewer->DecodeImage(playlist[next].Filename,false);
+#endif
 }
 
 void CPictureViewerGui::endView()
 {
 	if (m_state != MENU)
 		m_state=MENU;
+
+	if (decodeTflag)
+	{
+		decodeTflag=false;
+		pthread_cancel(decodeT);
+	}
 }
 
 void CPictureViewerGui::deletePicFile(unsigned int index, bool mode)
@@ -771,24 +860,32 @@ void CPictureViewerGui::showHelp()
 	helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP5));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP6));
 	helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP7));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP8));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_HOME, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP9));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP3));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_HOME, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP8));
 	helpbox.addPagebreak();
-	helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP10));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP11));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP12));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP13));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_1, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP14));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_3, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP15));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_2, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP16));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_4, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP17));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_6, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP18));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_8, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP19));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP20));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_0, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP21));
-	helpbox.addLine(NEUTRINO_ICON_BUTTON_HOME, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP22));
-
-	helpbox.addLine("Version: $Revision: 1.57 $");
+	helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP9));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_OKAY, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP10));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_LEFT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP11));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_RIGHT, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP12));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_1, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP13));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_3, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP14));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_2, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP15));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_4, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP16));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_6, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP17));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_8, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP18));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_5, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP3));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_0, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP19));
+	helpbox.addLine(NEUTRINO_ICON_BUTTON_HOME, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP8));
+	if(audioplayer)
+	{
+		helpbox.addPagebreak();
+		helpbox.addLine(g_Locale->getText(LOCALE_PICTUREVIEWER_HELP30));
+		helpbox.addLine(NEUTRINO_ICON_BUTTON_PLAY, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP31));
+		helpbox.addLine(NEUTRINO_ICON_BUTTON_PAUSE, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP32));
+		helpbox.addLine(NEUTRINO_ICON_BUTTON_STOP, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP33));
+		helpbox.addLine(NEUTRINO_ICON_BUTTON_FORWARD, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP34));
+		helpbox.addLine(NEUTRINO_ICON_BUTTON_BACKWARD, g_Locale->getText(LOCALE_PICTUREVIEWER_HELP35));
+	}
 	hide();
 	helpbox.show(LOCALE_MESSAGEBOX_INFO);
 }

@@ -51,7 +51,7 @@
 #include <string>
 #include <list>
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "ylogging.h"
 // tuxbox
@@ -141,7 +141,7 @@ public:
 	CStringList 	HookVarList;		// Variables in Hook-Handling passing to other Hooks
 	THttp_Method 	Method;				// HTTP Method (requested)
 	// constructor & deconstructor
-	CyhookHandler(){};
+	CyhookHandler(){ContentLength = 0; keep_alive = 0; _outIndent = 0;status = HANDLED_NONE;Method = M_UNKNOWN;httpStatus =  HTTP_NIL;outType = plain;};
 	virtual ~CyhookHandler(){};
 
 	// hook slot handler

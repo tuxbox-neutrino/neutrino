@@ -11,9 +11,9 @@
 // c++
 #include <string>
 // yhttpd
-#include "yconfig.h"
-#include "ytypes_globals.h"
-#include "yhook.h"
+#include <yconfig.h>
+#include <ytypes_globals.h>
+#include <yhook.h>
 
 //-----------------------------------------------------------------------------
 class CmodSendfile : public Cyhook

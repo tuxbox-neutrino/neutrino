@@ -13,9 +13,9 @@
 #include <netinet/in.h> //ntohs
 #include <inttypes.h> //ntohs
 // yhttpd
-#include "yhttpd.h"
-#include "ytypes_globals.h"
-#include "mod_yparser.h"
+#include <yhttpd.h>
+#include <ytypes_globals.h>
+#include <mod_yparser.h>
 // tuxbox
 #include <zapit/client/zapittools.h> //timer list
 // nhttpd
@@ -209,7 +209,7 @@ std::string  CNeutrinoYParser::func_mount_set_values(CyhookHandler *hh, std::str
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, std::string para)
 {
-	std::string ynr, yresult, sel, nr_str, do_show_hidden;
+	std::string yresult, sel, nr_str, do_show_hidden;
 	int nr=1;
 
 	ySplitString(para," ",nr_str, do_show_hidden);
@@ -268,7 +268,7 @@ std::string  CNeutrinoYParser::func_get_actual_bouquet_number(CyhookHandler *, s
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, std::string para)
 {
-	std::string abouquet, achannel_id, yresult, sel, sid;
+	std::string abouquet, achannel_id, yresult, sel;
 
 	int bnumber = 1;
 	int mode = NeutrinoAPI->Zapit->getMode();
@@ -596,7 +596,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler *, std::string)
 {
-	std::string ysel, ymount, ylocal_dir, yfstype, ynr, yresult, mounts;
+	std::string ysel, ymount, ylocal_dir, yfstype, yresult, mounts;
 
 	std::ifstream in;
 	in.open("/proc/mounts", std::ifstream::in);
@@ -647,48 +647,43 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 	return yresult;
 }
 //-------------------------------------------------------------------------
-// y-func : get boxtypetext (Nokia, Philips, Sagem)
+// y-func : get boxtypetext
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	unsigned int system_rev = cs_get_revision();
-	std::string  boxname;
-	static CNetAdapter netadapter; 
-	std::string eth_id = netadapter.getMacAddr();
-	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
+	std::string boxname = "Coolstream ";
 
-	if("00:c5:5c" == eth_id.substr(0, 8) )
-		boxname = "Coolstream ";
-	else if("ba:dd:ad"  == eth_id.substr(0, 8) )
-		boxname = "Armas ";
+#if HAVE_TRIPLEDRAGON
+	boxname = "Armas ";
+#endif
 
 	switch(system_rev)
 	{
-	case 1:
-		if( boxname == "Armas ")
-			boxname += "TripleDragon";
-		break;
-	  case 6:
-		boxname += "HD1";
-		break;
-	case 7:
-		boxname += "BSE";
-		break;
-	case 8:
-	case 9:
-		boxname += "Neo";
-		break;
-	case 10:
-		boxname += "Zee";
-		break;
+		case 1:
+			if( boxname == "Armas ")
+				boxname += "TripleDragon";
+			break;
+		case 6:
+			boxname += "HD1";
+			break;
+		case 7:
+			boxname += "BSE";
+			break;
+		case 8:
+		case 9:
+			boxname += "Neo";
+			break;
+		case 10:
+			boxname += "Zee";
+			break;
 
-	default: {
-		char buffer[10];
-		snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
-		boxname += "Unknown nr. ";
-		boxname += buffer;
-	}
-	break;
+		default:
+			char buffer[10];
+			snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
+			boxname += "Unknown nr. ";
+			boxname += buffer;
+			break;
 	}
 
 	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
@@ -837,7 +832,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 		yresult += string_printf(para.c_str(), classname, zAlarmTime, zStopTime, zRep.c_str(), zRepCount.c_str(),
 					zType.c_str(), sAddData.c_str(),timer->eventID,timer->eventID);
 	}
-	classname = (i++&1)?'a':'b';
+	//classname = (i++&1)?'a':'b';
 
 	return yresult;
 }

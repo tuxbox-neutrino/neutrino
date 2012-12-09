@@ -211,6 +211,7 @@ channellist.foot_freq Tuning-Parameter
 channellist.foot_next Nachfolgesendung
 channellist.foot_off aus
 channellist.foot_sort_alpha Sortiert[alpha]
+channellist.foot_sort_chnum Sortiert[nummer]
 channellist.foot_sort_freq Sortiert[freq]
 channellist.foot_sort_sat Sortiert[sat]
 channellist.head Alle Kanäle
@@ -436,8 +437,9 @@ filesystem.is.utf8 Dateisystem
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
+flashupdate.apply_settings Sollen die aktuellen Einstellungen in das neue Image übernommen werden?
 flashupdate.cantopenfile kann Datei nicht öffnen
-flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
+flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen
 flashupdate.checkupdate_local Lokales Update
 flashupdate.currentversion_sep Installierte Version
@@ -484,6 +486,10 @@ flashupdate.settings Update-Einstellungen
 flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
+flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht werden. Eintrag wird übersprungen.
+flashupdate.update_with_settings_processed Image wird bearbeitet...
+flashupdate.update_with_settings_skipped Ordner [%s] kann nicht gesichert werden. Eintrag wird übersprungen.
+flashupdate.update_with_settings_successfully Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.
 flashupdate.updatemode Updatemodus
 flashupdate.updatemode_internet Internet
 flashupdate.updatemode_manual von lokalem Update-Verzeichnis 
@@ -538,7 +544,7 @@ hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Festplattenprüfung fehlgeschlagen
-hdd_ext3 Ext3fs
+hdd_ext3 ext3
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Festplatte
@@ -745,6 +751,7 @@ menu.hint_epg_fonts Ändern Sie für die EPG-Details die Schriftgrößen
 menu.hint_epg_max_events Maximum an Events im Zwischenspeicher. Nach Erreichen der\nGrenze werden EPG-Daten für zukünftige gelöscht
 menu.hint_epg_old_events EPG im Speicher behalten in Stunden,\nauch wenn es veraltet ist
 menu.hint_epg_save Speichert die EPG-Daten auf einer Harddisk oder USB-Stick\nund läd es nach einen Neustart
+menu.hint_epg_save_standby Speichert die EPG-Daten in Bereitschaft Modus
 menu.hint_event_textcolor Ändern Sie die Event-Farbe für farbige Event-Optionen in Kanalliste und Infobar
 menu.hint_eventlist_fonts Ändern Sie in der Event-Liste die Schriftgrößen
 menu.hint_extended Energiespar-, EPG-Speicher- / Lade-Optionen,\nHDMI-CEC, Startkanal, Zap-Optionen
@@ -771,7 +778,7 @@ menu.hint_hdd_tools Hier können Sie die gefundenen Festplatten formatieren bzw.
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software
-menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Deep-Standby
+menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Standby-Modus
 menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
 menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
@@ -904,7 +911,7 @@ menu.hint_osd_preset Hier können Sie zwischen Röhren-TV (CRT) oder Flachbildsc
 menu.hint_parentallock_changepin Hier wird der 4 stellige PIN Code eingegeben,\nder dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Hier wird festgelegt, bei welcher Altersklasse\ndie PIN Abfrage kommt
 menu.hint_parentallock_prompt Hier wird definiert, wann eine PIN Eingabe erfolgen soll
-menu.hint_personalize aktivieren, deaktivieren, schützen von Menüpunkten\nkonfigurieren der Farb-Tasten in den Benutzermenüs
+menu.hint_personalize Personalisieren Sie ihre Menüs, konfigurieren Sie die Farb-Tasten in den Benutzermenüs
 menu.hint_pictureviewer_defdir Hier wählen Sie das Startverzeichnis für den Bildbetrachter
 menu.hint_pictureviewer_scaling Hier kann die Bildauflösung eingestellt werden
 menu.hint_pictureviewer_slide_time Hier kann der Slideshow-Intervall geändert werden,\nStandardmässig ist ein Intervall von 10 Sekunden eingstellt
@@ -1028,11 +1035,12 @@ menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn der Powerknopf\nlän
 menu.hint_shutdown_real Aktivieren des Soft-Standby-Modus, wenn diese Option\ndeaktiviert ist, geht die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren.\nDie Box geht dann in den Standby-Modus
 menu.hint_soft_restart Neustarten von Neutrino-HD ohne zu Rebooten
-menu.hint_softupdate_check Im Internet oder lokal nach verfügbaren Updates suchen
+menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
+menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
 menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen / in den Flash schreiben
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
-menu.hint_softupdate_settings Den Updatemodus, das lokale Verzeichnis und die Konfigurationsdatei festlegen
+menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
 menu.hint_start_tostandby Aktiviert den Standby-Modus nach dem starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen: PIDs, SNR-Verhältnis\nBitrate grafisch
 menu.hint_subchannel_pos Hier können Sie die Anzeigeposition der Untertitel auswählen
@@ -1096,6 +1104,7 @@ miscsettings.epg_old_events EPG verwerfen nach (Std.)
 miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
+miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
@@ -1162,6 +1171,7 @@ motorcontrol.store Speichere Motorposition (a)
 motorcontrol.timed_mode Zeitgesteuerter Schrittweitenmodus
 motorcontrol.user_menu Benutzermenü
 motorcontrol.west_limit Setze westliches (soft) Limit
+moviebrowser.ask_rec_to_delete Das Löschen des Films beendet auch die laufende Aufnahme!\n[%s]\nTrotzdem fortsetzen?
 moviebrowser.book_add Lesezeichen setzen
 moviebrowser.book_clear_all Lösche alle
 moviebrowser.book_head Markierungen
@@ -1179,6 +1189,7 @@ moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
 moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
+moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
@@ -1315,6 +1326,8 @@ networkmenu.dhcp DHCP
 networkmenu.error_no_address Keine %s-Adresse angegeben!
 networkmenu.gateway Standard Gateway
 networkmenu.hostname Hostname
+networkmenu.hostname_hint1 Geben sie den Hostnamen ein
+networkmenu.hostname_hint2 Eine Änderung benötigt einen Neustart
 networkmenu.inactive_network Netzwerk nicht aktiviert!
 networkmenu.ipaddress IP
 networkmenu.mount Netzwerkfreigaben bearbeiten
@@ -1424,27 +1437,30 @@ personalize.visible sichtbar
 pictureviewer.defdir Start-Verz.
 pictureviewer.head Bildbetrachter
 pictureviewer.help1 Menü-Modus
-pictureviewer.help10 Anzeige-Modus
-pictureviewer.help11 Bild neu einlesen
-pictureviewer.help12 vorheriges Bild
-pictureviewer.help13 nächstes Bild
-pictureviewer.help14 Zoom out
-pictureviewer.help15 Zoom in
-pictureviewer.help16 Scroll hoch
-pictureviewer.help17 Scroll links
-pictureviewer.help18 Scroll rechts
-pictureviewer.help19 Scroll herunter
+pictureviewer.help10 Bild neu einlesen
+pictureviewer.help11 vorheriges Bild
+pictureviewer.help12 nächstes Bild
+pictureviewer.help13 Zoom out
+pictureviewer.help14 Zoom in
+pictureviewer.help15 Scroll hoch
+pictureviewer.help16 Scroll links
+pictureviewer.help17 Scroll rechts
+pictureviewer.help18 Scroll herunter
+pictureviewer.help19 Bild unskaliert einlesen
 pictureviewer.help2 Bild anzeigen
-pictureviewer.help20 Sortierung andern
-pictureviewer.help21 Bild unskaliert einlesen
-pictureviewer.help22 Modus verlassen
-pictureviewer.help3 Sortierung andern
+pictureviewer.help3 Sortierung ändern
+pictureviewer.help30 Audioplayer-Modus
+pictureviewer.help31 Startet die Wiedergabe
+pictureviewer.help32 Pausiert die Wiedergabe
+pictureviewer.help33 Stoppt die Wiedergabe
+pictureviewer.help34 nächster Titel
+pictureviewer.help35 vorheriger Titel
 pictureviewer.help4 Bild unskaliert einlesen
 pictureviewer.help5 Diashow-Modus
 pictureviewer.help6 vorheriges Bild
 pictureviewer.help7 nächstes Bild
-pictureviewer.help8 Sortierung ändern
-pictureviewer.help9 Modus verlassen
+pictureviewer.help8 Modus verlassen
+pictureviewer.help9 Anzeige-Modus
 pictureviewer.resize.color_average aufwendig
 pictureviewer.resize.none keine
 pictureviewer.resize.simple einfach
@@ -1515,7 +1531,7 @@ satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Erweiterte Auswahl
 satsetup.diseqc_com_uncom Committed/Uncommitted
-satsetup.diseqc_input Diseqc Einspeisung
+satsetup.diseqc_input DiSEqC Einspeisung
 satsetup.diseqc_uncom_com Uncommitted/Committed
 satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.extended DiSEqC-Einstellungen

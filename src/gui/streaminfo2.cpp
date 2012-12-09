@@ -473,6 +473,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	if(channel->getVideoPid() && !(videoDecoder->getBlank())){
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
+		 if (yres == 1088)
+		 	yres = 1080;
 		 aspectRatio = videoDecoder->getAspectRatio();
 	}
 

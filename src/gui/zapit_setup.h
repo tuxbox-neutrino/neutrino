@@ -31,10 +31,9 @@
 #include <string>
 #include <zapit/client/zapitclient.h>
 
-class CZapitSetup : public CMenuTarget, CChangeObserver
+class CZapitSetup : public CMenuTarget
 {
 private:
-	CMenuForwarder 	*zapit1, *zapit2;
 
 	int width;
 
@@ -44,7 +43,6 @@ public:
 	CZapitSetup();
 	~CZapitSetup();
 	int exec(CMenuTarget* parent, const std::string & actionKey);
-	virtual bool changeNotify(const neutrino_locale_t , void *);
 };
 
 class CSelectChannelWidget : public CMenuWidget

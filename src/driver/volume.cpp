@@ -63,6 +63,8 @@ CVolume::CVolume()
 	m_mode 		= CNeutrinoApp::getInstance()->getMode();
 	channel_id	= 0;
 	apid		= 0;
+	digit_h 	= 0;
+	digit_offset	= 0;
 
 	Init();
 }
@@ -92,16 +94,18 @@ void CVolume::Init()
 	y = sy		= frameBuffer->getScreenY() + spacer / 2;
 	sw		= g_settings.screen_EndX - spacer;
 	sh		= frameBuffer->getScreenHeight();
-
+	icon_w = icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_w, &icon_h);
-	vbar_h		= std::max((icon_h * faktor_h) / 10, digit_h+digit_offset);
+	if (paintDigits) {
+		digit_offset	= g_Font[VolumeFont]->getDigitOffset();
+		digit_h		= g_Font[VolumeFont]->getDigitHeight();
+	}
+	vbar_h		= std::max((icon_h * faktor_h) / 10, digit_h + digit_offset);
 	progress_h	= icon_h - 2*pB;
 	progress_w	= 200;
 	vbar_w		= spacer + icon_w + spacer + progress_w + spacer;
 	if (paintDigits) {
 		digit_w		= g_Font[VolumeFont]->getRenderWidth("100");
-		digit_offset	= g_Font[VolumeFont]->getDigitOffset();
-		digit_h		= g_Font[VolumeFont]->getDigitHeight();
 		progress_h	= std::max(icon_h, digit_h) - 2*pB;
 		vbar_w 		+= digit_w;
 	}

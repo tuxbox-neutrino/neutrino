@@ -51,7 +51,6 @@ class CStringInput : public CMenuTarget
 		int hheight; // head font height
 		int mheight; // menu font height
 		int iheight;
-		int footerHeight;
 		int lower_bound;
 		int upper_bound;
 

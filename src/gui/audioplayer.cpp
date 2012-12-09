@@ -65,6 +65,8 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 
+#include "gui/pictureviewer.h"
+
 #include <system/settings.h>
 #include <system/helpers.h>
 #include <driver/screen_max.h>
@@ -198,6 +200,8 @@ void CAudioPlayerGui::Init(void)
 	m_selected = 0;
 	m_metainfo.clear();
 
+	pictureviewer = false;
+
 	m_select_title_by_name = g_settings.audioplayer_select_title_by_name==1;
 
 	if (strlen(g_settings.network_nfs_audioplayerdir)!=0)
@@ -321,7 +325,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (my_system(AUDIOPLAYER_START_SCRIPT) != 0)
 		perror("Datei " AUDIOPLAYER_START_SCRIPT " fehlt.Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_START_SCRIPT " not found. Please create if needed.\n");
 
-	show();
+	int res = show();
 
 	// Restore previous background
 	if (usedBackground)
@@ -342,8 +346,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	CNeutrinoApp::getInstance()->StartSubtitles();
 
-	// always exit all
-	return menu_return::RETURN_EXIT_ALL;
+	return res;
 }
 
 //------------------------------------------------------------------------
@@ -355,7 +358,7 @@ int CAudioPlayerGui::show()
 
 	int pic_index = 0;
 
-	int ret = -1;
+	int ret = menu_return::RETURN_REPAINT;
 
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
@@ -753,6 +756,22 @@ int CAudioPlayerGui::show()
 				}
 			}
 		}
+		else if ( (msg == CRCInput::RC_info) && (!m_playlist.empty()) )
+		{
+			pictureviewer = true;
+			m_frameBuffer->Clear();
+			videoDecoder->StopPicture();
+			CPictureViewerGui * picture = new CPictureViewerGui();
+			picture->m_audioPlayer = this;
+			picture->exec(this, "audio");
+			delete picture;
+			pictureviewer = false;
+			videoDecoder->setBlank(true);
+			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
+			CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
+			paintLCD();
+			screensaver(false);
+		}
 		else if (msg == CRCInput::RC_help)
 		{
 			if (m_key_level == 2)
@@ -858,8 +877,11 @@ int CAudioPlayerGui::show()
 				msg == NeutrinoMessages::SHUTDOWN ||
 				msg == NeutrinoMessages::SLEEPTIMER)
 		{
+			if(msg != NeutrinoMessages::RECORD_START )
+				ret = menu_return::RETURN_EXIT_ALL;
 			// Exit for Record/Zapto Timers
 			loop = false;
+			
 			g_RCInput->postMsg(msg, data);
 		}
 		else if (msg == NeutrinoMessages::EVT_TIMER)
@@ -870,6 +892,7 @@ int CAudioPlayerGui::show()
 		{
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 			{
+				ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
 			// update mute icon
@@ -902,6 +925,17 @@ bool CAudioPlayerGui::playNext(bool allow_rotate)
 	}
 
 	return(result);
+}
+
+void CAudioPlayerGui::wantNextPlay()
+{
+	if ((m_state != CAudioPlayerGui::STOP) &&
+		(CAudioPlayer::getInstance()->getState() == CBaseDec::STOP) &&
+		(!m_playlist.empty()))
+	{
+		if (m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
+			playNext();
+	}
 }
 
 bool CAudioPlayerGui::playPrev(bool allow_rotate)
@@ -1698,10 +1732,11 @@ const struct button_label AudioPlayerButtons[][4] =
 void CAudioPlayerGui::paintFoot()
 {
 	//	printf("paintFoot{\n");
-const struct button_label ScondLineButtons[2] =
+const struct button_label ScondLineButtons[3] =
 {
 	{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_AUDIOPLAYER_PLAY        },
 	{ NEUTRINO_ICON_BUTTON_HELP , LOCALE_AUDIOPLAYER_KEYLEVEL        },
+	{ NEUTRINO_ICON_BUTTON_INFO , LOCALE_PICTUREVIEWER_HEAD},
 };
 
 	int top;
@@ -1717,8 +1752,7 @@ const struct button_label ScondLineButtons[2] =
 	m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_1);
 
 	if (!m_playlist.empty())
-  		::paintButtons(m_x, top+m_buttonHeight, m_width, 2, ScondLineButtons, m_buttonHeight, ButtonWidth);
-
+		::paintButtons(m_x, top+m_buttonHeight, m_width, 3, ScondLineButtons, m_buttonHeight, ButtonWidth);
 
 	if (m_key_level == 0)
 	{
@@ -1943,12 +1977,16 @@ void CAudioPlayerGui::stop()
 {
 	m_state = CAudioPlayerGui::STOP;
 	m_current = 0;
-	//LCD
-	paintLCD();
-	//Display
-	paintInfo();
-	m_key_level = 0;
-	paintFoot();
+
+	if (!pictureviewer)
+	{
+		//LCD
+		paintLCD();
+		//Display
+		paintInfo();
+		m_key_level = 0;
+		paintFoot();
+	}
 
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
@@ -2022,31 +2060,31 @@ void CAudioPlayerGui::play(unsigned int pos)
 	if (m_selected - m_liststart >= m_listmaxshow && g_settings.audioplayer_follow)
 	{
 		m_liststart = m_selected;
-		if (!m_screensaver)
+		if (!m_screensaver && !pictureviewer)
 			paint();
 	}
 	else if (m_liststart < m_selected && g_settings.audioplayer_follow)
 	{
 		m_liststart = m_selected - m_listmaxshow + 1;
-		if (!m_screensaver)
+		if (!m_screensaver && !pictureviewer)
 			paint();
 	}
 	else
 	{
 		if (old_current >= m_liststart && old_current - m_liststart < m_listmaxshow)
 		{
-			if (!m_screensaver)
+			if (!m_screensaver && !pictureviewer)
 				paintItem(old_current - m_liststart);
 		}
 		if (pos >= m_liststart && pos - m_liststart < m_listmaxshow)
 		{
-			if (!m_screensaver)
+			if (!m_screensaver && !pictureviewer)
 				paintItem(pos - m_liststart);
 		}
 		if (g_settings.audioplayer_follow)
 		{
 			if (old_selected >= m_liststart && old_selected - m_liststart < m_listmaxshow)
-				if (!m_screensaver)
+				if (!m_screensaver && !pictureviewer)
 					paintItem(old_selected - m_liststart);
 		}
 	}
@@ -2065,14 +2103,18 @@ void CAudioPlayerGui::play(unsigned int pos)
 	m_curr_audiofile = m_playlist[m_current];
 	// Play
 	CAudioPlayer::getInstance()->play(&m_curr_audiofile, g_settings.audioplayer_highprio == 1);
-	//LCD
-	paintLCD();
-	// Display
-	if (!m_screensaver)
-		paintInfo();
-	m_key_level = 1;
-	if (!m_screensaver)
-		paintFoot();
+
+	if (!pictureviewer)
+	{
+		//LCD
+		paintLCD();
+		// Display
+		if (!m_screensaver)
+			paintInfo();
+		m_key_level = 1;
+		if (!m_screensaver)
+			paintFoot();
+	}
 }
 //------------------------------------------------------------------------
 

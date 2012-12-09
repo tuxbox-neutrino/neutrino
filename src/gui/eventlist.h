@@ -134,9 +134,10 @@ class CEventListHandler : public CMenuTarget
 
 };
 
-class CEventFinderMenu : public CMenuTarget
+class CEventFinderMenu : public CMenuTarget, CChangeObserver
 {
         private:
+		CMenuForwarderNonLocalized* m_search_channelname_mf;
                 int*                    m_event;
                 int*                    m_search_epg_item;
                 std::string*    m_search_keyword;
@@ -153,6 +154,7 @@ class CEventFinderMenu : public CMenuTarget
                                                                         t_channel_id* search_channel_id,
                                                                         t_bouquet_id* search_bouquet_id);
                 int  exec( CMenuTarget* parent,  const std::string &actionkey);
+		bool changeNotify(const neutrino_locale_t OptionName, void *);
 
 };
 #endif

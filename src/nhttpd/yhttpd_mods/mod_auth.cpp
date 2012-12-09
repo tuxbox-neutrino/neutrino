@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cstdlib>
 #include "mod_auth.h"
-#include "helper.h"
+#include <helper.h>
 
 //-----------------------------------------------------------------------------
 // HOOK: response_hook
@@ -65,11 +65,13 @@ bool CmAuth::CheckAuth(CyhookHandler *hh) {
 // decode Base64 buffer to String
 //-----------------------------------------------------------------------------
 std::string CmAuth::decodeBase64(const char *b64buffer) {
-	char *newString, *org_newString; //shorter then b64buffer
+	if(b64buffer==NULL)
+		return "";
+	char *newString; //shorter then b64buffer
 	std::string result;
 	if ((newString = (char *) malloc(sizeof(char) * strlen(b64buffer) + 1))
 			!= NULL) {
-		org_newString = newString;
+		char *org_newString = newString;
 		int i = 0;
 		unsigned long c = 0;
 

@@ -34,16 +34,16 @@
 #include <system/configure_network.h>
 #include <cs_api.h>
 #include <global.h>
-#include "gui/plugins.h"//for relodplugins
+#include <gui/plugins.h>//for relodplugins
 #include <neutrino.h>
 #include <driver/screenshot.h>
-#include "gui/rc_lock.h"
+#include <gui/rc_lock.h>
 
 // yhttpd
-#include "yhttpd.h"
-#include "ytypes_globals.h"
-#include "ylogging.h"
-#include "helper.h"
+#include <yhttpd.h>
+#include <ytypes_globals.h>
+#include <ylogging.h>
+#include <helper.h>
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
@@ -220,7 +220,6 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 void CControlAPI::Execute(CyhookHandler *hh)
 {
 	int index = -1;
-	std::string yresult;
 	std::string filename = hh->UrlData["filename"];
 
 	log_level_printf(4,"ControlAPI.Execute filename:(%s)\n",filename.c_str());
@@ -595,44 +594,43 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 {
 	unsigned int system_rev = cs_get_revision();
-	std::string  boxname;
+	std::string boxname = "Coolstream ";
 	static CNetAdapter netadapter; 
 	std::string eth_id = netadapter.getMacAddr();
 	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
 
-	if("00:c5:5c" == eth_id.substr(0, 8) )
-		boxname = "Coolstream ";
-	else if("ba:dd:ad"  == eth_id.substr(0, 8) )
-		boxname = "Armas ";
+#if HAVE_TRIPLEDRAGON
+	boxname = "Armas ";
+#endif
 
 	switch(system_rev)
 	{
-	case 1:
-		if( boxname == "Armas ")
-			boxname += "TripleDragon";
-		break;
-	  case 6:
-		boxname += "HD1";
-		break;
-	case 7:
-		boxname += "BSE";
-		break;
-	case 8:
-	case 9:
-		boxname += "Neo";
-		break;
-	case 10:
-		boxname += "Zee";
-		break;
+		case 1:
+			if( boxname == "Armas ")
+				boxname += "TripleDragon";
+			break;
+		case 6:
+			boxname += "HD1";
+			break;
+		case 7:
+			boxname += "BSE";
+			break;
+		case 8:
+		case 9:
+			boxname += "Neo";
+			break;
+		case 10:
+			boxname += "Zee";
+			break;
 
-	default: {
-		char buffer[10];
-		snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
-		boxname += "Unknown nr. ";
-		boxname += buffer;
+		default:
+			char buffer[10];
+			snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
+			boxname += "Unknown nr. ";
+			boxname += buffer;
+			break;
 	}
-	break;
-	}
+
 	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	hh->printf("%s\nMAC:%s\n", boxname.c_str(),eth_id.c_str());
 
@@ -893,7 +891,6 @@ void CControlAPI::ChannellistCGI(CyhookHandler *hh)
 std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel) {
 	std::string result, firstEPG, secondEPG = "";
 	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
-	int percentage = 100;
 	std::string timestr;
 
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
@@ -901,6 +898,7 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 	event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
 
 	if (event) {
+		int percentage = 100;
 		if (event->duration > 0)
 			percentage = 100 * (time(NULL) - event->startTime) / event->duration;
 		CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id, currentNextInfo);
@@ -1367,7 +1365,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	else if (hh->ParamList.empty() || hh->ParamList["1"] == "ext") {
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
 		bool isExt = (hh->ParamList["1"] == "ext");
-		CChannelEvent *event;
+		CChannelEvent *event = NULL;
 		NeutrinoAPI->GetChannelEvents();
 
 		int mode = NeutrinoAPI->Zapit->getMode();
@@ -1390,7 +1388,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	// query details for given eventid
 	else if (hh->ParamList["eventid"] != "") {
 		//special epg query
-		uint64_t epgid;
+		uint64_t epgid = 0;
 		sscanf(hh->ParamList["eventid"].c_str(), "%llu", &epgid);
 		CShortEPGData epg;
 		if (CEitManager::getInstance()->getEPGidShort(epgid, &epg)) {
@@ -1401,8 +1399,8 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	}
 	else if (hh->ParamList["eventid2fsk"] != "") {
 		if (hh->ParamList["starttime"] != "") {
-			uint64_t epgid;
-			time_t starttime;
+			uint64_t epgid = 0;
+			time_t starttime = 0;
 			sscanf(hh->ParamList["fskid"].c_str(), "%llu", &epgid);
 			sscanf(hh->ParamList["starttime"].c_str(), "%lu", &starttime);
 			CEPGData longepg;
@@ -1415,7 +1413,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	}
 	// list EPG for channel id
 	else if (!(hh->ParamList["id"].empty())) {
-		t_channel_id channel_id;
+		t_channel_id channel_id = 0;
 		sscanf(hh->ParamList["id"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
 		CEitManager::getInstance()->getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 		CChannelEventList::iterator eventIterator;
@@ -1432,7 +1430,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 	// list EPG for channelID 64Bit
 	else {
 		//eventlist for a chan
-		t_channel_id channel_id;
+		t_channel_id channel_id = 0;
 		sscanf(hh->ParamList["1"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
 		SendEventList(hh, channel_id);
 	}
@@ -2007,10 +2005,9 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 void CControlAPI::YWebCGI(CyhookHandler *hh)
 {
 	bool status=true;
-	int para;
 	if (hh->ParamList["video_stream_pids"] != "")
 	{
-		para=0;
+		int para=0;
 		sscanf( hh->ParamList["video_stream_pids"].c_str(), "%d", &para);
 		YWeb_SendVideoStreamingPids(hh, para);
 	}
@@ -2073,7 +2070,7 @@ std::string CControlAPI::YexecuteScript(CyhookHandler *, std::string cmd)
 	// get file
 	std::string fullfilename;
 	script += ".sh"; //add script extention
-	char cwd[255];
+	char cwd[255]={0};
 	getcwd(cwd, 254);
 
 	for (unsigned int i=0; i<PLUGIN_DIR_COUNT && !found; i++)
@@ -2122,7 +2119,6 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		alarmTimeT = 0,
 		tnull = 0;
 	unsigned int repCount = 0;
-	int alHour=0;
 
 	// if alarm given then in parameters im time_t format
 	if(hh->ParamList["alarm"] != "")
@@ -2146,7 +2142,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		// Alarm Time - Format exact! HH:MM
 		if(hh->ParamList["alTime"] != "")
 			strptime(hh->ParamList["alTime"].c_str(), "%H:%M", alarmTime);
-		alHour = alarmTime->tm_hour;
+		int  alHour = alarmTime->tm_hour;
 
 		correctTime(alarmTime);
 		alarmTimeT = mktime(alarmTime);
@@ -2390,10 +2386,8 @@ void CControlAPI::moveBouquetCGI(CyhookHandler *hh)
 //-------------------------------------------------------------------------
 void CControlAPI::deleteBouquetCGI(CyhookHandler *hh)
 {
-	int selected = -1;
-
 	if (hh->ParamList["selected"] != "") {
-		selected = atoi(hh->ParamList["selected"].c_str());
+		int selected = atoi(hh->ParamList["selected"].c_str());
 		NeutrinoAPI->Zapit->deleteBouquet(selected - 1);
 		hh->SendOk();
 	}
@@ -2480,7 +2474,7 @@ void CControlAPI::updateBouquetCGI(CyhookHandler *hh)
 // host : (optional) ip of dbox
 void CControlAPI::build_live_url(CyhookHandler *hh)
 {
-	std::string xpids,port,yresult;
+	std::string xpids;
 	int mode = NeutrinoAPI->Zapit->getMode();
 
 	if ( mode == CZapitClient::MODE_TV)
@@ -2736,18 +2730,13 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 
 	if (hh->ParamList["action"] == "list") { // directory list: action=list&path=<path>
 		DIR *dirp;
-		struct dirent*entry;
-		struct stat statbuf;
-		struct passwd *pwd;
-		struct group *grp;
-		struct tm *tm;
-		char datestring[256];
 
 		TOutType outType = hh->outStart();
 
 		std::string path = hh->ParamList["path"];
 		if ((dirp = opendir(path.c_str()))) {
 			bool isFirstLine = true;
+			struct dirent *entry;
 			while ((entry = readdir(dirp))) {
 				std::string item = "";
 				item += hh->outPair("name",
@@ -2768,6 +2757,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 				std::string fullname = path + entry->d_name;
 				item += hh->outPair("fullname", hh->outValue(fullname), true);
 
+				struct stat statbuf;
 				if (stat(fullname.c_str(), &statbuf) != -1) {
 					item
 							+= hh->outPair(
@@ -2781,6 +2771,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 							string_printf("%d", statbuf.st_nlink), true);
 
 					/* Print out owner's name if it is found using getpwuid(). */
+					struct passwd *pwd;
 					if ((pwd = getpwuid(statbuf.st_uid)) != NULL) {
 						item += hh->outPair("user", pwd->pw_name, true);
 					}
@@ -2789,6 +2780,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 								string_printf("%d", statbuf.st_uid), true);
 					}
 					/* Print out group name if it is found using getgrgid(). */
+					struct group *grp;
 					if ((grp = getgrgid(statbuf.st_gid)) != NULL)
 						item += hh->outPair("group", grp->gr_name, true);
 					else {
@@ -2799,7 +2791,8 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 					item += hh->outPair("size",
 							string_printf("%jd", (intmax_t) statbuf.st_size),
 							true);
-					tm = localtime(&statbuf.st_mtime);
+					struct tm *tm = localtime(&statbuf.st_mtime);
+					char datestring[256] = {0};
 					/* Get localized date string. */
 					strftime(datestring, sizeof(datestring),
 							nl_langinfo(D_T_FMT), tm);

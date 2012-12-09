@@ -68,9 +68,12 @@ extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 class CUserMenuNotifier : public CChangeObserver
 {
 	private:
-		CMenuItem* toDisable[2];
+
+		CMenuItem* toDisable[4];
+	
 	public:
-		CUserMenuNotifier( CMenuItem*, CMenuItem*);
+		CUserMenuNotifier( CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*);
+
 		bool changeNotify(const neutrino_locale_t = NONEXISTANT_LOCALE, void *data = NULL);
 };
 

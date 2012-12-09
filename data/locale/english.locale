@@ -211,6 +211,7 @@ channellist.foot_freq Sat/Freq Info
 channellist.foot_next next Event
 channellist.foot_off off
 channellist.foot_sort_alpha sorted[alpha]
+channellist.foot_sort_chnum sorted[number]
 channellist.foot_sort_freq sorted[freq]
 channellist.foot_sort_sat sorted[sat]
 channellist.head All Services
@@ -254,23 +255,23 @@ colormenu.menucolors Colors
 colormenu.osd_preset TV preset
 colormenu.sd_preset CRT
 colormenu.textcolor Text color
-colormenu.themeselect select theme
+colormenu.themeselect Select theme
 colormenu.timing OSD Timeouts
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
 colormenusetup.menuhead Header
 colorstatusbar.text Infobar
-colorthememenu.head Theme auswählen
+colorthememenu.head Select theme
 colorthememenu.head2 Load themes
 colorthememenu.name Theme name
 colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.question Use selected theme ?
+colorthememenu.question Use selected theme?
 colorthememenu.save Save current theme
 colorthememenu.select1 User Theme
 colorthememenu.select2 Standard Theme
-cpu.freq Cpu frequency
-cpu.freq_default default frequency
+cpu.freq CPU frequency
+cpu.freq_default Default frequency
 cpu.freq_normal Normal frequency
 cpu.freq_standby Standby frequency
 date.Apr  Apr
@@ -303,7 +304,7 @@ epglist.noevents EPG is not available...
 epgviewer.More_Screenings More Screenings on this Channel
 epgviewer.More_Screenings_short More Screenings
 epgviewer.nodetailed No detailed informations available
-epgviewer.notfound no epg found
+epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
 eventfinder.keyword Keyword
 eventfinder.search Search
@@ -436,8 +437,9 @@ filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash reading
+flashupdate.apply_settings Import current settings into new image?
 flashupdate.cantopenfile can't open file
-flashupdate.cantopenmtd can't open mtd-device
+flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Check for online updates
 flashupdate.checkupdate_local Local update
 flashupdate.currentversion_sep Current version
@@ -484,6 +486,10 @@ flashupdate.settings Update settings
 flashupdate.squashfs.noversion SquashFS version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
+flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Entry is skipped.
+flashupdate.update_with_settings_processed Image is being processed...
+flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
+flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
 flashupdate.updatemode_manual from local update directory
@@ -538,7 +544,7 @@ hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed HDD-check failed!
-hdd_ext3 Ext3fs
+hdd_ext3 ext3
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Formating drive...
@@ -745,6 +751,7 @@ menu.hint_epg_fonts Change EPG details window font sizes
 menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cache will remove future events
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
+menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_fonts Change event list font sizes
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
@@ -1028,11 +1035,12 @@ menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more th
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_soft_restart Restart Neutrino-HD without reboot
-menu.hint_softupdate_check In the Internet or local check for available updates
+menu.hint_softupdate_check Check online update, download and flash firmware
+menu.hint_softupdate_check_local Select and flash firmware from local file
 menu.hint_softupdate_expert Separate partitions from the flash read / write to the flash
 menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
 menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash
-menu.hint_softupdate_settings Update mode, the local directory and the configuration file to set
+menu.hint_softupdate_settings The local update directory and the configuration file to set
 menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
 menu.hint_subchannel_pos Select subchannels menu position
@@ -1096,6 +1104,7 @@ miscsettings.epg_old_events EPG remove after (std.)
 miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they timed out?
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
+miscsettings.epg_save_standby Save epg on soft standby
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
@@ -1162,6 +1171,7 @@ motorcontrol.store Store Motor Position (a)
 motorcontrol.timed_mode Timed Step Mode
 motorcontrol.user_menu User menu
 motorcontrol.west_limit Set West (soft) Limit
+moviebrowser.ask_rec_to_delete Deletion of movie stops current recording!\n[%s]\nContinue anyway?
 moviebrowser.book_add Add bookmark
 moviebrowser.book_clear_all Clear all
 moviebrowser.book_head Bookmarks
@@ -1179,6 +1189,7 @@ moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
 moviebrowser.browser_row_width Row width (% of screenwidth)
+moviebrowser.delete_info Delete files, please wait...
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark change
@@ -1315,6 +1326,8 @@ networkmenu.dhcp DHCP
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway default gateway
 networkmenu.hostname Hostname
+networkmenu.hostname_hint1 enter hostname
+networkmenu.hostname_hint2 need reboot after change
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
 networkmenu.mount Edit network shares
@@ -1424,27 +1437,30 @@ personalize.visible Visible
 pictureviewer.defdir start dir.
 pictureviewer.head Picture viewer
 pictureviewer.help1 menu mode
-pictureviewer.help10 show mode
-pictureviewer.help11 reread image
-pictureviewer.help12 previous image
-pictureviewer.help13 next image
-pictureviewer.help14 Zoom out
-pictureviewer.help15 Zoom in
-pictureviewer.help16 scroll up
-pictureviewer.help17 scroll left
-pictureviewer.help18 scroll right
-pictureviewer.help19 scroll down
+pictureviewer.help10 reread image
+pictureviewer.help11 previous image
+pictureviewer.help12 next image
+pictureviewer.help13 Zoom out
+pictureviewer.help14 Zoom in
+pictureviewer.help15 scroll up
+pictureviewer.help16 scroll left
+pictureviewer.help17 scroll right
+pictureviewer.help18 scroll down
+pictureviewer.help19 reread image (no scaling)
 pictureviewer.help2 display image
-pictureviewer.help20 change sort order
-pictureviewer.help21 reread image (no scaling)
-pictureviewer.help22 exit
 pictureviewer.help3 change sort order
+pictureviewer.help30 audioplayer mode
+pictureviewer.help31 starts the playback
+pictureviewer.help32 pauses the playback
+pictureviewer.help33 stops the playback
+pictureviewer.help34 next title
+pictureviewer.help35 previous title
 pictureviewer.help4 do not scale picture
 pictureviewer.help5 diashow mode
 pictureviewer.help6 previous image
 pictureviewer.help7 next image
-pictureviewer.help8 change sort order
-pictureviewer.help9 exit
+pictureviewer.help8 exit
+pictureviewer.help9 show mode
 pictureviewer.resize.color_average advanced
 pictureviewer.resize.none none
 pictureviewer.resize.simple simple
@@ -1515,7 +1531,7 @@ satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Advanced
 satsetup.diseqc_com_uncom Commited/Uncommited
-satsetup.diseqc_input Diseqc input
+satsetup.diseqc_input DiSEqC input
 satsetup.diseqc_uncom_com Uncommited/Commited
 satsetup.diseqcrepeat DiSEqC-repeats
 satsetup.extended DiSEqC-Settings

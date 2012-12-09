@@ -337,7 +337,7 @@ int CBouquetList::show(bool bShowChannelList)
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 
-	width  = w_max (need_width, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*52);//500
+	width  = w_max (need_width, 20);//500
 	height = h_max (16 * fheight, 40);
 
 	/* assuming all color icons must have same size */
@@ -384,7 +384,7 @@ int CBouquetList::show(bool bShowChannelList)
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
 				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ||
-				(msg == CRCInput::RC_favorites) )
+				((msg == CRCInput::RC_favorites) && (CNeutrinoApp::getInstance()->GetChannelMode() == LIST_MODE_FAV)))
 		{
 			selected = oldselected;
 			if(fader.StartFadeOut()) {

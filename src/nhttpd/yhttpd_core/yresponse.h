@@ -9,7 +9,7 @@
 // c++
 #include <string>
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "yhook.h"
 
@@ -42,8 +42,8 @@ public:
 	void printf(const char *fmt, ...);
 	bool Write(char const *text);
 	bool WriteLn(char const *text);
-	bool Write(const std::string text) { return Write(text.c_str()); }
-	bool WriteLn(const std::string text) { return WriteLn(text.c_str()); }
+	bool Write(const std::string &text) { return Write(text.c_str()); }
+	bool WriteLn(const std::string &text) { return WriteLn(text.c_str()); }
 
 	// Headers
 	void SendError(HttpResponseType responseType) {SendHeader(responseType, false, "text/html");}

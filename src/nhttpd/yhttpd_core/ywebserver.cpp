@@ -19,7 +19,7 @@
 #include <configfile.h>
 
 // yhttpd
-#include "yhttpd.h"
+#include <yhttpd.h>
 #include "ytypes_globals.h"
 #include "ywebserver.h"
 #include "ylogging.h"
@@ -241,7 +241,6 @@ bool CWebserver::run(void) {
 int CWebserver::AcceptNewConnectionSocket() {
 	int slot = -1;
 	CySocket *connectionSock = NULL;
-	int newfd;
 
 	if (!(connectionSock = listenSocket.accept())) // Blocking wait
 	{
@@ -265,7 +264,7 @@ int CWebserver::AcceptNewConnectionSocket() {
 		SocketList[slot] = connectionSock; // put it to list
 		fcntl(connectionSock->get_socket(), F_SETFD, O_NONBLOCK); // set non-blocking
 		open_connections++; // count open connectins
-		newfd = connectionSock->get_socket();
+		int newfd = connectionSock->get_socket();
 		if (newfd > fdmax) // keep track of the maximum fd
 			fdmax = newfd;
 	}
@@ -377,7 +376,7 @@ bool CWebserver::CheckKeepAliveAllowedByIP(std::string client_ip) {
 	while (it != conf_no_keep_alive_ips.end()) {
 		if (trim(*it) == client_ip)
 			do_keep_alive = false;
-		it++;
+		++it;
 	}
 	pthread_mutex_unlock(&mutex);
 	return do_keep_alive;

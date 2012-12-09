@@ -63,6 +63,7 @@ typedef struct
 	std::string lineHeader[LF_MAX_ROWS];
 	std::vector<std::string> lineArray[LF_MAX_ROWS];
 	int rowWidth[LF_MAX_ROWS];
+	std::vector<std::string> Icon;
 }LF_LINES;
 
 class CListFrame  
@@ -78,6 +79,7 @@ class CListFrame
 		void refreshHeaderList(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
+		int  paintListIcon(int x, int y, int line);
 
 		/* Variables */
 		LF_LINES* m_pLines;
@@ -96,7 +98,6 @@ class CListFrame
 		int m_nNrOfPages;
 		int m_nNrOfLines;
 		int m_nNrOfRows;
-		int	m_nMaxLineWidth;
 		int m_nLinesPerPage;
 		int m_nCurrentLine;
 		int m_nCurrentPage;
@@ -142,7 +143,6 @@ class CListFrame
 		void	paint(void);
 
 inline	CBox	getWindowsPos(void)			{return(m_cFrame);};
-inline	int		getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
 inline  int     getSelectedLine(void)		{return(m_nSelectedLine);};
 inline  int     getLines(void)				{return(m_nNrOfLines);};
 inline  int     getPages(void)				{return(m_nNrOfPages);};

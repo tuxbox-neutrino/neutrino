@@ -59,6 +59,8 @@
 #endif
 
 #include <dmx.h>
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
 
 //#define ENABLE_RASS
 
@@ -88,13 +90,8 @@ public:
 #define RT_MEL 65
 #define tr(a) a
 
-class CRadioText {
-
-public:
-	typedef struct {
-		CRadioText *rt_object;
-		int fd;
-	} s_rt_thread;
+class CRadioText : public OpenThreads::Thread
+{
 
 private:
 	bool enabled;
@@ -107,17 +104,26 @@ private:
 	int first_packets;
 
 	//Radiotext
+#if 0
 //	cDevice *rdsdevice;
 	void RadiotextCheckPES(const uchar *Data, int Length);
-	void RadioStatusMsg(void);
 	void AudioRecorderService(void);
+#endif
+	void RadioStatusMsg(void);
 	void RassDecode(uchar *Data, int Length);
 	bool DividePes(unsigned char *data, int length, int *substart, int *subend);
 
 	uint pid;
-	pthread_t threadRT;
-	int dmxfd;
+	//pthread_t threadRT;
+	//int dmxfd;
 
+	OpenThreads::Mutex mutex;
+	OpenThreads::Mutex pidmutex;
+	OpenThreads::Condition cond;
+	bool running;
+
+	void run();
+	void init();
 public:
 	CRadioText(void);
 	~CRadioText(void);
@@ -133,15 +139,11 @@ public:
 
 	void setPid(uint inPid);
 	uint getPid(){ return pid; }
-	int  run(void);
-	int  getDMXfd(void) { return dmxfd; }
-//	s_rt_thread& getThreadParams(void) { return rt; }
-	pthread_t getThread(void) { return threadRT; }
+
 	void radiotext_stop(void);
 	bool haveRadiotext(void) {return have_radiotext; }
 
 	cDemux *audioDemux;
-	s_rt_thread rt;
 
 	//Setup-Params
 	int S_RtFunc;

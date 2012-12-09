@@ -156,7 +156,7 @@ void CPlugins::loadPlugins()
 	frameBuffer = CFrameBuffer::getInstance();
 	number_of_plugins = 0;
 	plugin_list.clear();
-
+	sindex = 100;
 	scanDir(g_settings.plugin_hdd_dir.c_str());
 	scanDir(PLUGINDIR_USB);
 	scanDir(PLUGINDIR_VAR);
@@ -184,7 +184,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	while (linecount < 20 && getline(inFile, line[linecount++]))
 	{};
 
-	plugin_data->index = 0;
+	plugin_data->index = sindex++;
 	plugin_data->key = 0; //CRCInput::RC_nokey
 	plugin_data->fb = false;
 	plugin_data->rc = false;

@@ -82,14 +82,24 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	
 	//flashing
 	CFlashUpdate flash;
+#if 0
 	neutrino_locale_t up_text = (g_settings.softupdate_mode == 0) ? LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL : LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET;
 	update_item = new CMenuForwarder(up_text, true, NULL, &flash, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK);
 	softUpdate.addItem(update_item);
+#endif
+
+	update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET, true, NULL, &flash, "inet", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK);
+	softUpdate.addItem(update_item);
+
+	update_item = new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL, true, NULL, &flash, "local", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK_LOCAL);
+	softUpdate.addItem(update_item);
 
 	//settings
 	CUpdateSettings update_settings(update_item);
-	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
 	softUpdate.addItem(mf);
 
@@ -98,7 +108,7 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	//expert-functions
 	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
 	showSoftwareUpdateExpert(&mtdexpert); 
-	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
 	softUpdate.addItem(mf);
 

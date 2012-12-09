@@ -159,9 +159,6 @@ class CAudioPlayerGui : public CMenuTarget
 	CFileFilter audiofilefilter;
 	void paintItemID3DetailsLine (int pos);
 	void clearItemID3DetailsLine ();
-	void play(unsigned int pos);
-	void stop();
-	void pause();
 	void ff(unsigned int seconds=0);
 	void rev(unsigned int seconds=0);
 	int getNext();
@@ -248,14 +245,22 @@ class CAudioPlayerGui : public CMenuTarget
 	bool openSCbrowser(void);
 	bool clearPlaylist(void);
 	bool shufflePlaylist(void);
-	bool playNext(bool allow_rotate = false);
-	bool playPrev(bool allow_rotate = false);
+
+	bool pictureviewer;
 
  public:
 	CAudioPlayerGui(bool inetmode = false);
 	~CAudioPlayerGui();
 	int show();
 	int exec(CMenuTarget* parent, const std::string & actionKey);
+
+	void wantNextPlay();
+	void pause();
+	void play(unsigned int pos);
+	void stop();
+	bool playNext(bool allow_rotate = false);
+	bool playPrev(bool allow_rotate = false);
+	int getAdioPayerM_currend() {return m_current;}
 };
 
 

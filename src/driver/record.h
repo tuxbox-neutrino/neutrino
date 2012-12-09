@@ -187,6 +187,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool Record(const t_channel_id channel_id, const char * dir = NULL, bool timeshift = false);
 		bool Stop(const t_channel_id channel_id); 
 		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
+		bool IsRecording(const CTimerd::RecordingStopInfo * recinfo);
 		bool Update(const t_channel_id channel_id);
 		bool ShowMenu(void);
 		bool AskToStop(const t_channel_id channel_id, const int recid = 0);
@@ -217,7 +218,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		int GetRecordCount() { return recmap.size(); };
 		void StartTimeshift();
 		int GetRecordMode(const t_channel_id channel_id=0);
-		bool IsFileRecord(std::string file);
+		CRecordInstance* getRecordInstance(std::string file);
 		// old code
 #if 0
 		bool IsTimeshift(t_channel_id channel_id=0);

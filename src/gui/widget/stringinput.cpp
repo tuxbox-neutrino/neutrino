@@ -169,7 +169,7 @@ void CStringInput::init()
 	}
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	iheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
-	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
+	//footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
 	height = hheight+ mheight + 50;
 	if (hint_1 != NONEXISTANT_LOCALE)
 	{
@@ -525,7 +525,7 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 
 void CStringInput::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height + footerHeight);
+	frameBuffer->paintBackgroundBoxRel(x, y, width, height + hheight);
 }
 
 const char * CStringInput::getHint1(void)
@@ -755,7 +755,9 @@ void CStringInputSMS::paint(bool /*unused*/)
 {
 	CStringInput::paint(true);
 
-	frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x+20+140, y+ hheight+ mheight+ iheight* 3+ 30, 0, COL_MENUCONTENT);
+	int w = 0, h = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_NUMERIC_PAD, &w, &h);
+	frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (w/2), y+ hheight+ mheight+ iheight* 3+ 30, 0, COL_MENUCONTENT);
 
 	//buttonbar
 	::paintButtons(x, y + height, width, 2, CStringInputSMSButtons);

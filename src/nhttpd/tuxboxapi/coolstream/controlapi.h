@@ -8,7 +8,7 @@
 #include <string>
 // yhttpd
 #include <zapit/channel.h>
-#include "yhook.h"
+#include <yhook.h>
 
 // forward declaration
 class CNeutrinoAPI;

@@ -88,7 +88,7 @@ class CPlugins
 		};
 
 		int number_of_plugins;
-
+		int sindex;
 		std::vector<plugin> plugin_list;
 		std::string plugin_dir;
 		std::string scriptOutput;

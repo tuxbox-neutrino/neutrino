@@ -118,13 +118,12 @@ private:
 	int				current_muted;
 
 	bool				skipShutdownTimer;
-	bool 				skipSleepnTimer;
+	bool 				skipSleepTimer;
+	bool                            lockStandbyCall;
 	bool 				pbBlinkChange;
-	bool				lockStandbyCall;
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
-	CColorSetupNotifier		*colorSetupNotifier;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
 
 	void SDT_ReloadChannels();
@@ -136,6 +135,7 @@ private:
 	void scartMode( bool bOnOff );
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void saveEpg(bool cvfd_mode);
+	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);

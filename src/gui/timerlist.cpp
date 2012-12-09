@@ -574,18 +574,23 @@ int CTimerList::show()
 		{
 			bool killTimer = true;
 			if (CRecordManager::getInstance()->RecordingStatus(timerlist[selected].channel_id)) {
-				std::string title = "";
-				char buf1[1024];
-				CEPGData epgdata;
-				CEitManager::getInstance()->getEPGid(timerlist[selected].epgID, timerlist[selected].epg_starttime, &epgdata);
-				memset(buf1, '\0', sizeof(buf1));
-				if (epgdata.title != "")
-					title = "(" + epgdata.title + ")\n";
-				snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
-				if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
-						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo) {
-					killTimer = false;
-					update = false;
+				CTimerd::RecordingStopInfo recinfo;
+				recinfo.channel_id = timerlist[selected].channel_id;
+				recinfo.eventID = timerlist[selected].eventID;
+				if (CRecordManager::getInstance()->IsRecording(&recinfo)) {
+					std::string title = "";
+					char buf1[1024];
+					CEPGData epgdata;
+					CEitManager::getInstance()->getEPGid(timerlist[selected].epgID, timerlist[selected].epg_starttime, &epgdata);
+					memset(buf1, '\0', sizeof(buf1));
+					if (epgdata.title != "")
+						title = "(" + epgdata.title + ")\n";
+					snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
+					if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
+							CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo) {
+						killTimer = false;
+						update = false;
+					}
 				}
 			}
 			if (killTimer) {
@@ -729,6 +734,21 @@ void CTimerList::paintItem(int pos)
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*23)/2,ypos+fheight, (real_width-fw*13)/2-5, srepeatcount, color, fheight, true); // UTF-8
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*13)/2,ypos+fheight, (real_width-fw*13)/2-5, convertTimerType2String(timer.eventType), color, fheight, true); // UTF-8
+
+		// paint rec icon when recording in progress
+		if ((timer.eventType == CTimerd::TIMER_RECORD) && (CRecordManager::getInstance()->RecordingStatus(timer.channel_id))) {
+			CTimerd::RecordingStopInfo recinfo;
+			recinfo.channel_id = timer.channel_id;
+			recinfo.eventID = timer.eventID;
+			if (CRecordManager::getInstance()->IsRecording(&recinfo)) {
+				int icol_w, icol_h;
+				frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icol_w, &icol_h);
+				if ((icol_w > 0) && (icol_h > 0)) {
+					frameBuffer->paintIcon(NEUTRINO_ICON_REC, (x + real_width) - (icol_w + 8), ypos, 2*fheight);
+				}
+			}
+		}
+
 		std::string zAddData("");
 		switch (timer.eventType)
 		{
@@ -756,7 +776,7 @@ void CTimerList::paintItem(int pos)
 				{
 					zAddData += sep;
 					zAddData += "AC3";
-					sep = "/";
+//					sep = "/";
 				}
 				zAddData += ')';
 			}

@@ -65,8 +65,6 @@ extern std::string ttx_font_file;
 COsdSetup::COsdSetup(bool wizard_mode)
 {
 	colorSetupNotifier = new CColorSetupNotifier();
-	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-
 	fontsizenotifier = new CFontSizeNotifier;
 	osd_menu = NULL;
 

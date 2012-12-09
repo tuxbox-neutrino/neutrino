@@ -77,7 +77,10 @@ void CLogging::printf(const char *fmt, ...) {
 	va_end(arglist);
 
 	pthread_mutex_lock(&Log_mutex);
-	::printf(buffer);
+	buffer[bufferlen-1]='\0';
+	::printf("%s",buffer);
+	fflush(stdout);
+
 	if (LogToFile) {
 		; //FIXME Logging to File
 	}

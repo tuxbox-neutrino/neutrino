@@ -5,11 +5,12 @@
 #ifndef __yhttpd_mod_auth_h__
 #define __yhttpd_mod_auth_h__
 
-#include "yhook.h"
+#include <yhook.h>
 class CmAuth: public Cyhook {
 public:
 	bool authenticate;
 	CmAuth() {
+		authenticate = false;
 	}
 	;
 	~CmAuth() {

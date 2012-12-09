@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <cstring>
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "ywebserver.h"
 #include "yconnection.h"
@@ -22,6 +22,11 @@ long CWebserverConnection::GConnectionNumber = 0;
 // Constructor & Destructor & Initialization
 //=============================================================================
 CWebserverConnection::CWebserverConnection(CWebserver *pWebserver) {
+	sock = 0;
+	ConnectionNumber = 0;
+	enlapsed_request = 0;
+	enlapsed_response = 0;
+
 	Webserver = pWebserver;
 	Request.Webserver = pWebserver;
 	Request.Connection = this;
@@ -39,6 +44,13 @@ CWebserverConnection::CWebserverConnection(CWebserver *pWebserver) {
 //-------------------------------------------------------------------------
 CWebserverConnection::CWebserverConnection() {
 	//	aprintf("test CWebserverConnection::CWebserverConnection()\n");
+	Method = M_UNKNOWN;
+	sock = 0;
+	RequestCanceled = 0;
+	keep_alive = 0;
+	HttpStatus = 0;
+	enlapsed_request = 0;
+	enlapsed_response = 0;
 	ConnectionNumber = ++GConnectionNumber;
 }
 //-------------------------------------------------------------------------

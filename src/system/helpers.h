@@ -34,4 +34,26 @@ int check_dir(const char * dir);
 bool get_fs_usage(const char * dir, long &total, long &used);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
 
+std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+
+class CFileHelpers
+{
+	private:
+		int FileBufSize;
+		char *FileBuf;
+		int fd1, fd2;
+
+	public:
+		CFileHelpers();
+		~CFileHelpers();
+		static CFileHelpers* getInstance();
+		bool doCopyFlag;
+
+		bool copyFile(const char *Src, const char *Dst, mode_t mode);
+		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
+		bool createDir(const char *Dir, mode_t mode);
+		bool removeDir(const char *Dir);
+
+};
+
 #endif

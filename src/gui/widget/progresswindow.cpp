@@ -49,6 +49,10 @@ CProgressWindow::CProgressWindow()
 
 	global_progress = local_progress = 101;
 	statusText = "";
+	globalstatusX = 0;
+	globalstatusY = 0;
+	localstatusY = 0;
+	statusTextY = 0;
 
 	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width ) >> 1 );
 	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >>1 );
@@ -162,7 +166,7 @@ void CProgressWindow::paint()
 	ypos+= mheight;
 
 	globalstatusY = ypos+ mheight-20;
-	ypos+= mheight >>1;
+	//ypos+= mheight >>1;
 	showGlobalStatus(global_progress);
 }
 

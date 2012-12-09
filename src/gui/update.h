@@ -53,6 +53,8 @@ class CFlashUpdate : public CProgressWindow
 	
 	std::string installedVersion;
 	std::string newVersion;
+	int	menu_ret;
+	int softupdate_mode;
 	
 	bool selectHttpImage(void);
 	bool getUpdateImage(const std::string & version);
@@ -74,11 +76,12 @@ class CFlashExpert : public CProgressWindow
 		void showFileSelector(const std::string & actionkey);
 
 		void readmtd(int readmtd);
-		void writemtd(const std::string & filename, int mtdNumber);
 
 	public:
 		CFlashExpert();
+		static CFlashExpert* getInstance();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void writemtd(const std::string & filename, int mtdNumber);
 
 };
 
