@@ -1696,7 +1696,7 @@ void CNeutrinoApp::InitSectiondClient()
 }
 
 #if HAVE_COOL_HARDWARE
-#include <coolstream/cs_vfd.h>
+#include <cs_vfd.h>
 #endif
 
 void wake_up( bool &wakeup)
