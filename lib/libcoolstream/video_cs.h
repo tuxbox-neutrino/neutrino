@@ -9,8 +9,8 @@
 #ifndef __VIDEO_CS_H_
 #define __VIDEO_CS_H_
 
-#include <coolstream/cs_vfd.h>
-#include <coolstream/control.h>
+#include <cs_vfd.h>
+#include <control.h>
 
 #include "cs_types.h"
 

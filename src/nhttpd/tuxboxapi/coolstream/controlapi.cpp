@@ -2119,6 +2119,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		alarmTimeT = 0,
 		tnull = 0;
 	unsigned int repCount = 0;
+	int alHour=0;
 
 	// if alarm given then in parameters im time_t format
 	if(hh->ParamList["alarm"] != "")
@@ -2137,13 +2138,16 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		tnull = time(NULL);
 		struct tm *alarmTime=localtime(&tnull);
 		alarmTime->tm_sec = 0;
-		strptime(hh->ParamList["alDate"].c_str(), "%d.%m.%Y", alarmTime);
+		if(sscanf(hh->ParamList["alDate"].c_str(),"%2d.%2d.%4d",&(alarmTime->tm_mday), &(alarmTime->tm_mon), &(alarmTime->tm_year)) == 3)
+		{
+			alarmTime->tm_mon -= 1;
+			alarmTime->tm_year -= 1900;
+		}
 
 		// Alarm Time - Format exact! HH:MM
 		if(hh->ParamList["alTime"] != "")
-			strptime(hh->ParamList["alTime"].c_str(), "%H:%M", alarmTime);
-		int  alHour = alarmTime->tm_hour;
-
+			sscanf(hh->ParamList["alTime"].c_str(),"%2d.%2d",&(alarmTime->tm_hour), &(alarmTime->tm_min));
+		alHour = alarmTime->tm_hour;
 		correctTime(alarmTime);
 		alarmTimeT = mktime(alarmTime);
 		announceTimeT = alarmTimeT;
@@ -2151,12 +2155,15 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		stopTime->tm_sec = 0;
 		// Stop Time - Format exact! HH:MM
 		if(hh->ParamList["stTime"] != "")
-			strptime(hh->ParamList["stTime"].c_str(), "%H:%M", stopTime);
+			sscanf(hh->ParamList["stTime"].c_str(),"%2d.%2d",&(stopTime->tm_hour), &(stopTime->tm_min));
 
 		// Stop Date - Format exact! DD.MM.YYYY
 		if(hh->ParamList["stDate"] != "")
-			strptime(hh->ParamList["stDate"].c_str(), "%d.%m.%Y", stopTime);
-		stopTime->tm_sec = 0;
+			if(sscanf(hh->ParamList["stDate"].c_str(),"%2d.%2d.%4d",&(stopTime->tm_mday), &(stopTime->tm_mon), &(stopTime->tm_year)) == 3)
+			{
+				stopTime->tm_mon -= 1;
+				stopTime->tm_year -= 1900;
+			}
 		correctTime(stopTime);
 		stopTimeT = mktime(stopTime);
 		if(hh->ParamList["stDate"] == "" && alHour > stopTime->tm_hour)
@@ -2218,9 +2225,9 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		rep = (CTimerd::CTimerEventRepeat) atoi(hh->ParamList["rep"].c_str());
 	else // default: no repeat
 		rep = (CTimerd::CTimerEventRepeat)0;
-
 	if(((int)rep) >= ((int)CTimerd::TIMERREPEAT_WEEKDAYS) && hh->ParamList["wd"] != "")
 		NeutrinoAPI->Timerd->getWeekdaysFromStr(&rep, hh->ParamList["wd"].c_str());
+
 	// apids
 	bool changeApids=false;
 	unsigned char apids=0;
@@ -2247,6 +2254,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 			apids |= TIMERD_APIDS_AC3;
 		}
 	}
+
 	CTimerd::RecordingInfo recinfo;
 	CTimerd::EventInfo eventinfo;
 	eventinfo.epgID = 0;
@@ -2257,8 +2265,8 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 	// channel by Id or name
 	if(hh->ParamList["channel_id"] != "")
 		sscanf(hh->ParamList["channel_id"].c_str(),
-		       SCANF_CHANNEL_ID_TYPE,
-		       &eventinfo.channel_id);
+		SCANF_CHANNEL_ID_TYPE,
+		&eventinfo.channel_id);
 	else
 		eventinfo.channel_id = NeutrinoAPI->ChannelNameToChannelId(hh->ParamList["channel_name"]);
 
@@ -2281,7 +2289,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 			CConfigFile *Config = new CConfigFile(',');
 			Config->loadConfig(NEUTRINO_CONFIGFILE);
 			_rec_dir = Config->getString("network_nfs_recordingdir", "/mnt/filme");
-			delete Config;//Memory leak: Config
+			delete Config;
 		}
 		if(changeApids)
 			eventinfo.apids = apids;
@@ -2309,7 +2317,13 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		if(hh->ParamList["id"] != "")
 		{
 			unsigned modyId = atoi(hh->ParamList["id"].c_str());
-			NeutrinoAPI->Timerd->removeTimerEvent(modyId);
+			if(type == CTimerd::TIMER_RECORD)
+				NeutrinoAPI->Timerd->modifyRecordTimerEvent(modyId, announceTimeT, alarmTimeT, stopTimeT, rep,repCount,_rec_dir.c_str());
+			else
+				NeutrinoAPI->Timerd->modifyTimerEvent(modyId, announceTimeT, alarmTimeT, stopTimeT, rep,repCount);
+//					NeutrinoAPI->Timerd->removeTimerEvent(modyId);
+			if(changeApids)
+				NeutrinoAPI->Timerd->modifyTimerAPid(modyId,apids);
 		}
 		else
 		{
@@ -2327,15 +2341,18 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 				real_alarmTimeT -= pre;
 			}
 
-			for(; timer != timerlist.end(); ++timer)
+			for(; timer != timerlist.end();++timer)
 				if(timer->alarmTime == real_alarmTimeT)
 				{
 					NeutrinoAPI->Timerd->removeTimerEvent(timer->eventID);
 					break;
 				}
+			NeutrinoAPI->Timerd->addTimerEvent(type,data,announceTimeT,alarmTimeT,stopTimeT,rep,repCount);
 		}
 	}
-	NeutrinoAPI->Timerd->addTimerEvent(type,data,announceTimeT,alarmTimeT,stopTimeT,rep,repCount);
+	else
+		NeutrinoAPI->Timerd->addTimerEvent(type,data,announceTimeT,alarmTimeT,stopTimeT,rep,repCount);
+
 	hh->SendOk();
 }
 //-------------------------------------------------------------------------

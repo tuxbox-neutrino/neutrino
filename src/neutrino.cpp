@@ -378,6 +378,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
+	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
@@ -833,6 +834,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("shutdown_count"           , g_settings.shutdown_count);
 	configfile.setString("shutdown_min"  , g_settings.shutdown_min  );
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
+	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
@@ -1694,7 +1696,7 @@ void CNeutrinoApp::InitSectiondClient()
 }
 
 #if HAVE_COOL_HARDWARE
-#include <coolstream/cs_vfd.h>
+#include <cs_vfd.h>
 #endif
 
 void wake_up( bool &wakeup)
@@ -1953,7 +1955,16 @@ void CNeutrinoApp::numericZap(int msg)
 void CNeutrinoApp::showInfo()
 {
 	StopSubtitles();
-	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
+
+	char *pname = NULL;
+	if(g_settings.infobar_show_channeldesc){
+		CZapitChannel* channel = channelList->getActiveChannel();
+		if(channel->pname){
+			pname = channel->pname;
+		}
+	}
+
+	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID(), false, 0, pname);
 	StartSubtitles();
 }
 
