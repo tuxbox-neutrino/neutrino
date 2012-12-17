@@ -315,9 +315,9 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 				g_settings.video_Mode = prev_video_mode;
 				videoDecoder->SetVideoSystem(g_settings.video_Mode);
 			}
+			else
+				prev_video_mode = g_settings.video_Mode;
 		}
-		else
-			prev_video_mode = g_settings.video_Mode;
 	}
 }
 
@@ -358,6 +358,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VIDEOMODE))
 	{
 		setupVideoSystem(true/*ask*/);
+		return true;
 	}
 #if 0
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
