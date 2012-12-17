@@ -161,11 +161,7 @@ bool CWebserverRequest::ParseParams(std::string param_string) {
 		if (!ySplitStringExact(param_string, "&", param, param_string))
 			ende = true;
 		if (ySplitStringExact(param, "=", name, value)) {
-			if("channelname" == name){//skip doubles decode on channlename
-				value = trim((value));
-			}else{
-				value = trim(decodeString(value));
-			}
+			value = trim(decodeString(value));
 			if (ParameterList[name].empty())
 				ParameterList[name] = value;
 			else {
@@ -215,7 +211,7 @@ bool CWebserverRequest::ParseHeader(std::string header) {
 void CWebserverRequest::analyzeURL(std::string url) {
 	ParameterList.clear();
 	// URI decode
-	url = decodeString(url);
+	//url = decodeString(url);
 	url = trim(url, "\r\n"); // non-HTTP-Standard: allow \r or \n in URL. Delete it.
 	UrlData["fullurl"] = url;
 	// split Params
