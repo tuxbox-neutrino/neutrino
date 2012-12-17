@@ -203,12 +203,9 @@ std::string decodeString(std::string encodedString) {
 			iStr = strtoul(hex, NULL, 16); /* convert to Hex char */
 			result += (char) iStr;
 			count += 3;
-#if 0
-//why decode '+' to ' ' ?
 		} else if (string[count] == '+') {
 			result += ' ';
 			count++;
-#endif
 		} else {
 			result += string[count];
 			count++;

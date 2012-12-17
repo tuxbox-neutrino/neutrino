@@ -161,7 +161,11 @@ bool CWebserverRequest::ParseParams(std::string param_string) {
 		if (!ySplitStringExact(param_string, "&", param, param_string))
 			ende = true;
 		if (ySplitStringExact(param, "=", name, value)) {
-			value = trim(decodeString(value));
+			if("channelname" == name){//skip doubles decode on channlename
+				value = trim((value));
+			}else{
+				value = trim(decodeString(value));
+			}
 			if (ParameterList[name].empty())
 				ParameterList[name] = value;
 			else {
