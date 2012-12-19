@@ -1235,7 +1235,12 @@ void CMovieBrowser::refreshMovieInfo(void)
 		int picw = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
 		int pich = m_cBoxFrameInfo.iHeight;
 		std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
-		logo_ok = (fname != "");
+		if(fname.empty()) {
+			std::string cover = m_movieSelectionHandler->file.Name;
+			cover.replace((cover.length()-18),15,""); //covername without yyyymmdd_hhmmss
+			fname = getScreenshotName(cover);
+		}
+		logo_ok = (!fname.empty());
 		int flogo_w = 0, flogo_h = 0;
 		if(logo_ok) {
 			g_PicViewer->getSize(fname.c_str(), &flogo_w, &flogo_h);

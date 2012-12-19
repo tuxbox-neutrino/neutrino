@@ -211,7 +211,7 @@ bool CWebserverRequest::ParseHeader(std::string header) {
 void CWebserverRequest::analyzeURL(std::string url) {
 	ParameterList.clear();
 	// URI decode
-	url = decodeString(url);
+	//url = decodeString(url);
 	url = trim(url, "\r\n"); // non-HTTP-Standard: allow \r or \n in URL. Delete it.
 	UrlData["fullurl"] = url;
 	// split Params
