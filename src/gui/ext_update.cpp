@@ -506,6 +506,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 {
 	char buf[PATH_MAX];
 	static struct stat FileInfo;
+	vector<std::string>::iterator it;
 	
 	f1 = fopen(backupList.c_str(), "r");
 	if (f1 == NULL) {
@@ -582,8 +583,30 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	}
 	fclose(f1);
 
+	// read DeleteList
+	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
+		line = *it;
+		if (lstat(line.c_str(), &FileInfo) != -1) {
+			if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
+				// Wildcards
+				WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
+				deleteFileList(line.c_str());
+			}
+			else if (S_ISREG(FileInfo.st_mode)) {
+				// File
+				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
+				unlink(line.c_str());
+			}
+			else if (S_ISDIR(FileInfo.st_mode)){
+				// Directory
+				WRITE_UPDATE_LOG("delete directory: %s\n", line.c_str());
+				FileHelpers->removeDir(line.c_str());
+			}
+		}
+	}
+	sync();
+
 	// read copyList
-	vector<std::string>::iterator it;
 	for(it = copyList.begin(); it != copyList.end(); ++it) {
 		line = *it;
 		line = trim(line);
@@ -626,28 +649,6 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 				}
 			}
 		
-		}
-	}
-
-	// read DeleteList
-	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
-		line = *it;
-		if (lstat(line.c_str(), &FileInfo) != -1) {
-			if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
-				// Wildcards
-				WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
-				deleteFileList(line.c_str());
-			}
-			else if (S_ISREG(FileInfo.st_mode)) {
-				// File
-				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
-				unlink(line.c_str());
-			}
-			else if (S_ISDIR(FileInfo.st_mode)){
-				// Directory
-				WRITE_UPDATE_LOG("delete directory: %s\n", line.c_str());
-				FileHelpers->removeDir(line.c_str());
-			}
 		}
 	}
 	sync();
