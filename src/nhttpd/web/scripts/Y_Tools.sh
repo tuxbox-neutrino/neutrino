@@ -530,7 +530,7 @@ case "$1" in
 	bootlogo_lcd_upload)	bootlogo_lcd_upload ;;
 	zapit_upload)			zapit_upload $2 ;;
 	kernel-stack)			msg=`dmesg`; y_format_message_html ;;
-	ps)						msg=`ps`; y_format_message_html ;;
+	ps)						msg=`ps aux`; y_format_message_html ;;
 	free)					f=`free`; p=`df -h`; msg="RAM Memory use\n-------------------\n$f\n\nPartitions\n-------------------\n$p"
 							y_format_message_html ;;
 	yreboot)				reboot; echo "Reboot..." ;;
