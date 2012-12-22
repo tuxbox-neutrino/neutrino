@@ -215,16 +215,16 @@ void CWebserverRequest::analyzeURL(std::string url) {
 	if(!ParameterList.empty())
 		ParameterList.clear();
 	// URI decode
-	//url = decodeString(url);
 	url = trim(url, "\r\n"); // non-HTTP-Standard: allow \r or \n in URL. Delete it.
 	UrlData["fullurl"] = url;
 	// split Params
-	if (ySplitString(url, "?", UrlData["url"], UrlData["paramstring"])) // split pure URL and all Params
+	if (ySplitString(url, "?", UrlData["url"], UrlData["paramstring"])){ // split pure URL and all Params
 		ParseParams( UrlData["paramstring"]); // split params to ParameterList
-	else
+	}else{
 		// No Params
+		url = decodeString(url);
 		UrlData["url"] = url;
-
+	}
 	if (!ySplitStringLast(UrlData["url"], "/", UrlData["path"],
 			UrlData["filename"])) {
 		UrlData["path"] = "/"; // Set "/" if not contained
