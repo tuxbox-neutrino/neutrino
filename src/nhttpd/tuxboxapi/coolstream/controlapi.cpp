@@ -163,6 +163,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"epg", 			&CControlAPI::EpgCGI,			""},
 	{"zapto", 			&CControlAPI::ZaptoCGI,			"text/plain"},
 	{"getonidsid", 		&CControlAPI::GetChannel_IDCGI,	"text/plain"},
+	{"currenttpchannels", 	&CControlAPI::GetTPChannel_IDCGI,	"text/plain"},
 	// boxcontrol - system
 	{"standby", 		&CControlAPI::StandbyCGI,		"text/plain"},
 	{"shutdown", 		&CControlAPI::ShutdownCGI,		"text/plain"},
@@ -529,6 +530,12 @@ void CControlAPI::GetChannel_IDCGI(CyhookHandler *hh)
 {
 	CZapitClient::CCurrentServiceInfo current_pids = NeutrinoAPI->Zapit->getCurrentServiceInfo();
 	hh->printf("%x%04x%04x\n",current_pids.tsid, current_pids.onid, current_pids.sid);
+}
+
+// get actual channel_id
+void CControlAPI::GetTPChannel_IDCGI(CyhookHandler *hh)
+{
+	SendChannelList(hh, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -1597,17 +1604,22 @@ void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 }
 
 //-----------------------------------------------------------------------------
-void CControlAPI::SendChannelList(CyhookHandler *hh)
+void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 {
+	t_channel_id current_channel = 0;
+	if(currentTP){
+		current_channel = CZapit::getInstance()->GetCurrentChannelID();
+		current_channel=(current_channel>>16);
+	}
+
 	int mode = NeutrinoAPI->Zapit->getMode();
 	hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
 	CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
 		CZapitChannel * channel = *cit;
-		hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-			   " %s\n",
-			   channel->channel_id,
-			   channel->getName().c_str());
+		if(!currentTP || (channel->channel_id >>16) == current_channel){
+			hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s\n", channel->channel_id, channel->getName().c_str());
+		}
 	}
 }
 
