@@ -54,6 +54,11 @@ extern CPictureViewer * g_PicViewer;
 
 #define BACKGROUNDIMAGEWIDTH 720
 
+#ifdef ISAPOLLO
+#ifndef FB_HW_ACCELERATION
+#define FB_HW_ACCELERATION
+#endif
+#endif
 //#undef USE_NEVIS_GXA //FIXME
 /*******************************************************************************/
 #ifdef USE_NEVIS_GXA
@@ -265,7 +270,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	/* tell the GXA where the framebuffer to draw on starts */
 	smem_start = (unsigned int) fix.smem_start;
-printf("smem_start %x\n", smem_start);
+	printf("smem_start %x\n", smem_start);
 
 	setupGXA();
 #endif
@@ -720,7 +725,12 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		ofl = corner_bl ? ofs : 0;
 		ofr = corner_br ? ofs : 0;
 	    }
-#ifdef USE_NEVIS_GXA
+#if defined(FB_HW_ACCELERATION)
+	    if (dx-ofr-ofl == 0)
+		    printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, dx-ofr-ofl, y+line);
+
+	    paintHLine(x+ofl, x+dx-ofr, y+line, col);
+#elif defined(USE_NEVIS_GXA)
 	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx - ofr, y + line));		/* endig point */
 	    _write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));		/* start point */
 #else
@@ -735,6 +745,25 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     }
     else
     {
+#ifdef FB_HW_ACCELERATION
+	/* FIXME small size faster to do by software */
+        if (dx > 10 || dy > 10) {
+		fb_fillrect fillrect;
+		fillrect.dx = x;
+		fillrect.dy = y;
+		fillrect.width = dx;
+		fillrect.height = dy;
+		fillrect.color = col;
+		fillrect.rop = ROP_COPY;
+		if (dx == 0 || dy == 0) {
+			printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, x+dy);
+			return;
+		}
+		ioctl(fd, FBIO_FILL_RECT, &fillrect);
+		paintHLine(x, x+dx, y+line, col);
+		return;
+	}
+#endif
 	while (line < dy)
 	{
 #ifdef USE_NEVIS_GXA
@@ -746,9 +775,9 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		*(fbp + pos) = col;
 	    }
 	    fbp += swidth;
-#endif
 	    line++;
 	}
+#endif
     }
 #ifdef USE_NEVIS_GXA
     /* the GXA seems to do asynchronous rendering, so we add a sync marker
@@ -757,37 +786,21 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 #endif
 }
 
-void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-#ifdef USE_NEVIS_GXA
-    /* draw a single vertical line from point x/ya to x/yb */
-    unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-    _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-    _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, ya + (yb - ya)));	/* end point */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, ya));		/* start point */
-#else /* USE_NEVIS_GXA */
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * ya;
-
-	int dy = yb-ya;
-	for (int count = 0; count < dy; count++) {
-		*(fb_pixel_t *)pos = col;
-		pos += stride;
-	}
-#endif	/* USE_NEVIS_GXA */
-}
-
 void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 {
 	if (!getActive())
 		return;
 
-#ifdef USE_NEVIS_GXA
+#if defined(FB_HW_ACCELERATION)
+	fb_fillrect fillrect;
+	fillrect.dx = x;
+	fillrect.dy = y;
+	fillrect.width = 1;
+	fillrect.height = dy;
+	fillrect.color = col;
+	fillrect.rop = ROP_COPY;
+	ioctl(fd, FBIO_FILL_RECT, &fillrect);
+#elif defined(USE_NEVIS_GXA)
 	/* draw a single vertical line from point x/y with hight dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
@@ -805,36 +818,21 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 #endif /* USE_NEVIS_GXA */
 }
 
-void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-#ifdef USE_NEVIS_GXA
-	/* draw a single horizontal line from point xa/y to xb/y */
-	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-	_write_gxa(gxa_base, cmd, GXA_POINT(xa + (xb - xa), y));	/* end point */
-	_write_gxa(gxa_base, cmd, GXA_POINT(xa, y));		/* start point */
-#else /* USE_NEVIS_GXA */
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + xa * sizeof(fb_pixel_t) + stride * y;
-
-	int dx = xb -xa;
-	fb_pixel_t * dest = (fb_pixel_t *)pos;
-	for (int i = 0; i < dx; i++)
-		*(dest++) = col;
-#endif /* USE_NEVIS_GXA */
-}
-
 void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 {
 	if (!getActive())
 		return;
 
-#ifdef USE_NEVIS_GXA
+#if defined(FB_HW_ACCELERATION)
+	fb_fillrect fillrect;
+	fillrect.dx = x;
+	fillrect.dy = y;
+	fillrect.width = dx;
+	fillrect.height = 1;
+	fillrect.color = col;
+	fillrect.rop = ROP_COPY;
+	ioctl(fd, FBIO_FILL_RECT, &fillrect);
+#elif defined(USE_NEVIS_GXA)
 	/* draw a single horizontal line from point x/y with width dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
@@ -927,37 +925,6 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	close(lfd);
 	return true;
 }
-#if 0 
-//never used
-#ifdef USE_NEVIS_GXA
-bool CFrameBuffer::blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh)
-{
-	u32 cmd;
-	void * uKva;
-
-	uKva = cs_phys_addr(data);
-printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", (int) data, (int) uKva);
-	if(uKva == NULL)
-		return false;
-
-	cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
-
-	_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | sw);
-	_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
-
-	_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));   /* destination pos */
-	_write_gxa(gxa_base, cmd, GXA_POINT(sw, sh));   /* source width */
-	_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));   /* source pos */
-
-	return true;
-}
-#else
-bool CFrameBuffer::blitToPrimary(unsigned int *, int, int, int, int)
-{
-	return false;
-}
-#endif
-#endif
 
 /* paint icon at position x/y,
    if height h is given, center vertically between y and y+h
@@ -1064,37 +1031,7 @@ _display:
 		paintBoxRel(x, yy, width, height, colBg);
 	blit2FB(data, width, height, x, yy, 0, 0, true);
 	return true;
- 
-#if 0
-	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
-	fb_pixel_t * d2;
-
-	for (int count = 0; count < height; count++ ) {
-		fb_pixel_t *pixpos = &data[count * width];
-		d2 = (fb_pixel_t *) d;
-		for (int count2 = 0; count2 < width; count2++ ) {
-			fb_pixel_t pix = *pixpos;
-			if (pix != 0) {
-				*d2 = pix;
-			}
-			d2++;
-			pixpos++;
-		}
-		d += stride;
-	}
-
-	return true;
-#endif
 }
-
-#if 0
-bool CFrameBuffer::paintIcon(const char * const filename, const int x, const int y,
-			     const int h, const unsigned char offset)
-{
-//printf("%s(%s, %d, %d, %d)\n", __FUNCTION__, filename, x, y, offset);
-	return paintIcon(std::string(filename), x, y, h, offset);
-}
-#endif
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
 {
@@ -1690,7 +1627,32 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	xc = (width > xRes) ? xRes : width;
 	yc = (height > yRes) ? yRes : height;
 
-#ifdef USE_NEVIS_GXA
+#if defined(FB_HW_ACCELERATION)
+	if(!(width%4)) {
+		fb_image image;
+		image.dx = xoff;
+		image.dy = yoff;
+		image.width = xc;
+		image.height = yc;
+		image.cmap.len = 0;
+		image.depth = 32;
+#if 1
+		image.data = (const char*)fbbuff;
+		ioctl(fd, FBIO_IMAGE_BLT, &image);
+#else
+		for (int count = 0; count < yc; count++ ) {
+			fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
+			fb_pixel_t *pixpos = &data[(count + yp) * width];
+			image.data = (const char*) pixpos; //fbbuff +(count + yp)*width;
+			image.dy = yoff+count;
+			image.height = 1;
+			ioctl(fd, FBIO_IMAGE_BLT, &image);
+		}
+#endif
+		return;
+	}
+	
+#elif defined(USE_NEVIS_GXA)
         u32 cmd;
         void * uKva;
 
@@ -1710,7 +1672,6 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 		return;
 	}
 #endif
-
 	fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
 
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + xoff * sizeof(fb_pixel_t) + stride * yoff;
