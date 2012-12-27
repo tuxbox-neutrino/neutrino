@@ -446,8 +446,11 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 		std::string cmd = "cp /usr/share/zoneinfo/" + zone + " /etc/localtime";
 		printf("exec %s\n", cmd.c_str());
 		my_system("/bin/sh", "-c", cmd.c_str());
+#if 0
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
+#endif
+		tzset();
 	}
 
 	return false;
