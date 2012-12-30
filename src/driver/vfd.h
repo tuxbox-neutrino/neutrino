@@ -42,7 +42,7 @@
 
 #include <pthread.h>
 #include <string>
-#include <coolstream/cs_vfd.h>
+#include <cs_vfd.h>
 
 class CVFD
 {

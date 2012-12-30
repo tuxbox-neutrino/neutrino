@@ -46,6 +46,10 @@ install_DATA += \
 	bookmarkmanager.png \
 	border_lr.png \
 	border_ul.png \
+	btn_backward.png \
+	btn_forward.png \
+	btn_pause.png \
+	btn_play.png \
 	btn_record_active.png \
 	btn_record_inactive.png \
 	btn_stop.png \

@@ -13,9 +13,9 @@
 #include <netinet/in.h> //ntohs
 #include <inttypes.h> //ntohs
 // yhttpd
-#include "yhttpd.h"
-#include "ytypes_globals.h"
-#include "mod_yparser.h"
+#include <yhttpd.h>
+#include <ytypes_globals.h>
+#include <mod_yparser.h>
 // tuxbox
 #include <zapit/client/zapittools.h> //timer list
 // nhttpd
@@ -209,7 +209,7 @@ std::string  CNeutrinoYParser::func_mount_set_values(CyhookHandler *hh, std::str
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, std::string para)
 {
-	std::string ynr, yresult, sel, nr_str, do_show_hidden;
+	std::string yresult, sel, nr_str, do_show_hidden;
 	int nr=1;
 
 	ySplitString(para," ",nr_str, do_show_hidden);
@@ -222,7 +222,7 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, st
 		sel=(nr==(i+1)) ? "selected=\"selected\"" : "";
 		if(!channels->empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true"))
 			yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(),
-				(encodeString(std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
+				std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()).c_str());
 			//yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), (encodeString(std::string(g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
 	}
 	return yresult;
@@ -268,7 +268,7 @@ std::string  CNeutrinoYParser::func_get_actual_bouquet_number(CyhookHandler *, s
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, std::string para)
 {
-	std::string abouquet, achannel_id, yresult, sel, sid;
+	std::string abouquet, achannel_id, yresult, sel;
 
 	int bnumber = 1;
 	int mode = NeutrinoAPI->Zapit->getMode();
@@ -556,7 +556,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 					{
 						if(!(isalnum(tags[i].component[0])))
 							tags[i].component=tags[i].component.substr(1,tags[i].component.length()-1);
-						yresult += string_printf("<option value=%05u>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,encodeString(tags[i].component).c_str());
+						yresult += string_printf("<option value=%05u>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,tags[i].component.c_str());
 					}
 					else
 					{
@@ -564,7 +564,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 						{
 							strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
 						}
-			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,encodeString(std::string(pids.APIDs[j].desc)).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": " ");
+			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": " ");
 					}
 					eit_not_ok=false;
 					break;
@@ -596,7 +596,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler *, std::string)
 {
-	std::string ysel, ymount, ylocal_dir, yfstype, ynr, yresult, mounts;
+	std::string ysel, ymount, ylocal_dir, yfstype, yresult, mounts;
 
 	std::ifstream in;
 	in.open("/proc/mounts", std::ifstream::in);
@@ -832,7 +832,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 		yresult += string_printf(para.c_str(), classname, zAlarmTime, zStopTime, zRep.c_str(), zRepCount.c_str(),
 					zType.c_str(), sAddData.c_str(),timer->eventID,timer->eventID);
 	}
-	classname = (i++&1)?'a':'b';
+	//classname = (i++&1)?'a':'b';
 
 	return yresult;
 }

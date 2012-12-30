@@ -420,6 +420,9 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 
 bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change)
 {
+	if(channel  == NULL || frontend == NULL)
+		return false;
+
 	transponder_change = frontend->setInput(channel, current_is_nvod);
 	if(transponder_change && !current_is_nvod) {
 		int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
@@ -447,6 +450,9 @@ bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &tr
 
 bool CZapit::ParsePatPmt(CZapitChannel * channel)
 {
+	if(channel == NULL)
+		return false;
+
 	CPat pat(channel->getRecordDemux());
 	CPmt pmt(channel->getRecordDemux());
 	DBG("looking up pids for channel_id " PRINTF_CHANNEL_ID_TYPE "\n", channel->getChannelID());

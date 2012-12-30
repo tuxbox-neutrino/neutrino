@@ -410,6 +410,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
+	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
@@ -872,6 +873,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("shutdown_count"           , g_settings.shutdown_count);
 	configfile.setString("shutdown_min"  , g_settings.shutdown_min  );
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
+	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
@@ -1743,7 +1745,7 @@ void CNeutrinoApp::InitSectiondClient()
 }
 
 #if HAVE_COOL_HARDWARE
-#include <coolstream/cs_vfd.h>
+#include <cs_vfd.h>
 #endif
 
 void wake_up(long &wakeup)
@@ -1934,12 +1936,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	g_CamHandler->init();
 
 #ifndef ASSUME_MDEV
-	const char hddsda1[] = "/media/sda1";
-	const char hddsdb1[] = "/media/sdb1";
-	mkdir(hddsda1, 0755);
-	mount("/dev/sda1", hddsda1, "ext3", 0, NULL);
-	mkdir(hddsdb1,0755);
-	mount("/dev/sdb1", hddsdb1, "ext3", 0, NULL);
+	mkdir("/media/sda1", 0755);
+	mkdir("/media/sdb1", 0755);
+	my_system("mount", "/dev/sda1", "/media/sda1");
+	my_system("mount", "/dev/sdb1", "/media/sdb1");
 #endif
 
 	CFSMounter::automount();
@@ -2041,7 +2041,16 @@ void CNeutrinoApp::numericZap(int msg)
 void CNeutrinoApp::showInfo()
 {
 	StopSubtitles();
-	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
+
+	char *pname = NULL;
+	if(g_settings.infobar_show_channeldesc){
+		CZapitChannel* channel = channelList->getActiveChannel();
+		if(channel->pname){
+			pname = channel->pname;
+		}
+	}
+
+	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID(), false, 0, pname);
 	StartSubtitles();
 }
 
@@ -2138,13 +2147,16 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
 				} 
-				else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					g_volume->setVolume(msg, true);
-				} 
-				else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
-					if(channelList->getSize()) {
-						showInfo();
-					}
+				else if ( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
+					if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+						g_volume->setVolume(msg, true);
+					} 
+					else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
+							|| (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+						if(channelList->getSize()) {
+							showInfo();
+						}
+					} 
 				} 
 				else
 					quickZap( msg );

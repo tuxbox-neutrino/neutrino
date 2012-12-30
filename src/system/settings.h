@@ -68,6 +68,7 @@ struct SNeutrinoSettings
 	char record_safety_time_after[3];
 	int zapto_pre_time;
 	int infobar_sat_display;
+	int infobar_show_channeldesc;
 	int infobar_subchan_disp_pos;
 	int fan_speed;
 	int infobar_show;

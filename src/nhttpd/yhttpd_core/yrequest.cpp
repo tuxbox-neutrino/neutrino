@@ -75,9 +75,8 @@ bool CWebserverRequest::HandleRequest(void) {
 		return false;
 
 	if (Connection->Method == M_GET || Connection->Method == M_HEAD) {
-		std::string tmp_line;
 		//read header (speed up: read rest of request in blockmode)
-		tmp_line = Connection->sock->ReceiveBlock();
+		std::string tmp_line = Connection->sock->ReceiveBlock();
 		if (!Connection->sock->isValid) {
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
@@ -116,7 +115,7 @@ bool CWebserverRequest::HandleRequest(void) {
 //	Split URL into path, filename, fileext .. UrlData[]
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::ParseStartLine(std::string start_line) {
-	std::string method, url, http, tmp;
+	std::string method = "", url = "", tmp = "";
 
 	log_level_printf(8, "<ParseStartLine>: line: %s\n", start_line.c_str());
 	if (ySplitString(start_line, " ", method, tmp)) {
@@ -155,7 +154,7 @@ bool CWebserverRequest::ParseStartLine(std::string start_line) {
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::ParseParams(std::string param_string) {
 	bool ende = false;
-	std::string param, name = "", value, number;
+	std::string param, name = "", value = "", number = "";
 
 	while (!ende) {
 		if (!ySplitStringExact(param_string, "&", param, param_string))
@@ -171,6 +170,9 @@ bool CWebserverRequest::ParseParams(std::string param_string) {
 		}
 		number = string_printf("%d", ParameterList.size() + 1);
 		log_level_printf(7, "ParseParams: name: %s value: %s\n", name.c_str(), value.c_str());
+		if(value.empty()){
+			name = trim(decodeString(name));
+		}
 		ParameterList[number] = name;
 	}
 	return true;
@@ -188,8 +190,9 @@ bool CWebserverRequest::ParseParams(std::string param_string) {
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::ParseHeader(std::string header) {
 	bool ende = false;
-	std::string sheader, name, value;
-	HeaderList.clear();
+	std::string sheader = "", name = "", value = "";
+	if(!HeaderList.empty())
+		HeaderList.clear();
 
 	while (!ende) {
 		if (!ySplitStringExact(header, "\r\n", sheader, header))
@@ -209,18 +212,19 @@ bool CWebserverRequest::ParseHeader(std::string header) {
 // query data is splitted and stored in ParameterList
 //-----------------------------------------------------------------------------
 void CWebserverRequest::analyzeURL(std::string url) {
-	ParameterList.clear();
+	if(!ParameterList.empty())
+		ParameterList.clear();
 	// URI decode
-	url = decodeString(url);
 	url = trim(url, "\r\n"); // non-HTTP-Standard: allow \r or \n in URL. Delete it.
 	UrlData["fullurl"] = url;
 	// split Params
-	if (ySplitString(url, "?", UrlData["url"], UrlData["paramstring"])) // split pure URL and all Params
+	if (ySplitString(url, "?", UrlData["url"], UrlData["paramstring"])){ // split pure URL and all Params
 		ParseParams( UrlData["paramstring"]); // split params to ParameterList
-	else
+	}else{
 		// No Params
+		url = decodeString(url);
 		UrlData["url"] = url;
-
+	}
 	if (!ySplitStringLast(UrlData["url"], "/", UrlData["path"],
 			UrlData["filename"])) {
 		UrlData["path"] = "/"; // Set "/" if not contained
@@ -240,7 +244,7 @@ void CWebserverRequest::analyzeURL(std::string url) {
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::HandlePost() {
 	//read header: line by line
-	std::string raw_header, tmp_line;
+	std::string raw_header = "", tmp_line = "";
 	do {
 		tmp_line = Connection->sock->ReceiveLine();
 		if (tmp_line == "") // Socket empty
@@ -270,7 +274,6 @@ bool CWebserverRequest::HandlePost() {
 	{
 #ifdef Y_CONFIG_FEATURE_UPLOAD
 		std::string boundary = "--" + HeaderList["Content-Type"].substr(t.length(),HeaderList["Content-Type"].length() - t.length());
-		std::string post_header;
 		do
 		{
 			content_len = HandlePostBoundary(boundary, content_len);
@@ -285,9 +288,9 @@ bool CWebserverRequest::HandlePost() {
 	{
 		// handle normal form POST
 		log_level_printf(6, "Handle POST application/x-www-form-urlencoded\n");
-		std::string post_header;
+
 		// get message-body
-		post_header = Connection->sock->ReceiveBlock();
+		std::string post_header = Connection->sock->ReceiveBlock();
 		while (post_header.length() < content_len) {
 			post_header += Connection->sock->ReceiveBlock();
 			/*			aprintf("POST form less data then expected\n");
@@ -384,10 +387,9 @@ bool CWebserverRequest::HandlePost() {
 //-----------------------------------------------------------------------------
 unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 		unsigned int content_len) {
-	std::string tmp_line;
 
 	// read boundary
-	tmp_line = Connection->sock->ReceiveLine();
+	std::string tmp_line = Connection->sock->ReceiveLine();
 	content_len -= tmp_line.length();
 
 	log_level_printf(2, "<POST Boundary> Start\n");
@@ -412,7 +414,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 			log_level_printf(2,"<POST Boundary> disposition !!this is a file!! found. line:(%s)\n", tmp_line.c_str());
 			// get para from 'content-disposition: form-data; name="pics"; filename="file1.txt"'
 			// set to ParameterList["<name>"]="<filename>"
-			std::string left, right, var_name, var_value;
+			std::string left = "", right = "", var_name = "", var_value = "";
 			if(!ySplitStringExact(tmp_line, "name=\"", left, right))
 			{
 				log_level_printf(7,"<POST Boundary> no var_name START found. line:(%s)\n", tmp_line.c_str());
@@ -461,8 +463,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 			}
 			log_level_printf(7,"<POST Boundary> read file Start\n");
 
-			std::string upload_filename;
-			upload_filename = UPLOAD_TMP_FILE;
+			std::string upload_filename = UPLOAD_TMP_FILE;
 			// Hook for Filename naming
 			Connection->HookHandler.Hooks_UploadSetFilename(upload_filename);
 			// Set upload filename to ParameterList["<name>_upload_filename"]="<upload_filename>"
@@ -543,7 +544,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 		// this part is a POST variable/parameter
 		{
 			// get var_name from 'content-disposition: form-data; name="var_name"'
-			std::string left, right, var_name, var_value;
+			std::string left = "", right = "", var_name = "", var_value = "";
 			if (!ySplitStringExact(tmp_line, "name=\"", left, right)) {
 				log_level_printf(7, "<POST Boundary> no var_name START found. line:(%s)\n", tmp_line.c_str());
 				return 0;

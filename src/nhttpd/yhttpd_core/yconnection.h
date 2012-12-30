@@ -14,7 +14,7 @@
 // c++
 #include <string>
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "ywebserver.h"
 #include "yrequest.h"

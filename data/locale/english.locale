@@ -1171,6 +1171,7 @@ motorcontrol.store Store Motor Position (a)
 motorcontrol.timed_mode Timed Step Mode
 motorcontrol.user_menu User menu
 motorcontrol.west_limit Set West (soft) Limit
+moviebrowser.ask_rec_to_delete Deletion of movie stops current recording!\n[%s]\nContinue anyway?
 moviebrowser.book_add Add bookmark
 moviebrowser.book_clear_all Clear all
 moviebrowser.book_head Bookmarks
@@ -1188,6 +1189,7 @@ moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
 moviebrowser.browser_row_width Row width (% of screenwidth)
+moviebrowser.delete_info Delete files, please wait...
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark change
@@ -1438,27 +1440,30 @@ personalize.visible Visible
 pictureviewer.defdir start dir.
 pictureviewer.head Picture viewer
 pictureviewer.help1 menu mode
-pictureviewer.help10 show mode
-pictureviewer.help11 reread image
-pictureviewer.help12 previous image
-pictureviewer.help13 next image
-pictureviewer.help14 Zoom out
-pictureviewer.help15 Zoom in
-pictureviewer.help16 scroll up
-pictureviewer.help17 scroll left
-pictureviewer.help18 scroll right
-pictureviewer.help19 scroll down
+pictureviewer.help10 reread image
+pictureviewer.help11 previous image
+pictureviewer.help12 next image
+pictureviewer.help13 Zoom out
+pictureviewer.help14 Zoom in
+pictureviewer.help15 scroll up
+pictureviewer.help16 scroll left
+pictureviewer.help17 scroll right
+pictureviewer.help18 scroll down
+pictureviewer.help19 reread image (no scaling)
 pictureviewer.help2 display image
-pictureviewer.help20 change sort order
-pictureviewer.help21 reread image (no scaling)
-pictureviewer.help22 exit
 pictureviewer.help3 change sort order
+pictureviewer.help30 audioplayer mode
+pictureviewer.help31 starts the playback
+pictureviewer.help32 pauses the playback
+pictureviewer.help33 stops the playback
+pictureviewer.help34 next title
+pictureviewer.help35 previous title
 pictureviewer.help4 do not scale picture
 pictureviewer.help5 diashow mode
 pictureviewer.help6 previous image
 pictureviewer.help7 next image
-pictureviewer.help8 change sort order
-pictureviewer.help9 exit
+pictureviewer.help8 exit
+pictureviewer.help9 show mode
 pictureviewer.resize.color_average advanced
 pictureviewer.resize.none none
 pictureviewer.resize.simple simple

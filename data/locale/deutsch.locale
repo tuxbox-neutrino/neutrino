@@ -911,7 +911,7 @@ menu.hint_osd_preset Hier können Sie zwischen Röhren-TV (CRT) oder Flachbildsc
 menu.hint_parentallock_changepin Hier wird der 4 stellige PIN Code eingegeben,\nder dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Hier wird festgelegt, bei welcher Altersklasse\ndie PIN Abfrage kommt
 menu.hint_parentallock_prompt Hier wird definiert, wann eine PIN Eingabe erfolgen soll
-menu.hint_personalize aktivieren, deaktivieren, schützen von Menüpunkten\nkonfigurieren der Farb-Tasten in den Benutzermenüs
+menu.hint_personalize Personalisieren Sie ihre Menüs, konfigurieren Sie die Farb-Tasten in den Benutzermenüs
 menu.hint_pictureviewer_defdir Hier wählen Sie das Startverzeichnis für den Bildbetrachter
 menu.hint_pictureviewer_scaling Hier kann die Bildauflösung eingestellt werden
 menu.hint_pictureviewer_slide_time Hier kann der Slideshow-Intervall geändert werden,\nStandardmässig ist ein Intervall von 10 Sekunden eingstellt
@@ -1171,6 +1171,7 @@ motorcontrol.store Speichere Motorposition (a)
 motorcontrol.timed_mode Zeitgesteuerter Schrittweitenmodus
 motorcontrol.user_menu Benutzermenü
 motorcontrol.west_limit Setze westliches (soft) Limit
+moviebrowser.ask_rec_to_delete Das Löschen des Films beendet auch die laufende Aufnahme!\n[%s]\nTrotzdem fortsetzen?
 moviebrowser.book_add Lesezeichen setzen
 moviebrowser.book_clear_all Lösche alle
 moviebrowser.book_head Markierungen
@@ -1188,6 +1189,7 @@ moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
 moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
+moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
@@ -1438,27 +1440,30 @@ personalize.visible sichtbar
 pictureviewer.defdir Start-Verz.
 pictureviewer.head Bildbetrachter
 pictureviewer.help1 Menü-Modus
-pictureviewer.help10 Anzeige-Modus
-pictureviewer.help11 Bild neu einlesen
-pictureviewer.help12 vorheriges Bild
-pictureviewer.help13 nächstes Bild
-pictureviewer.help14 Zoom out
-pictureviewer.help15 Zoom in
-pictureviewer.help16 Scroll hoch
-pictureviewer.help17 Scroll links
-pictureviewer.help18 Scroll rechts
-pictureviewer.help19 Scroll herunter
+pictureviewer.help10 Bild neu einlesen
+pictureviewer.help11 vorheriges Bild
+pictureviewer.help12 nächstes Bild
+pictureviewer.help13 Zoom out
+pictureviewer.help14 Zoom in
+pictureviewer.help15 Scroll hoch
+pictureviewer.help16 Scroll links
+pictureviewer.help17 Scroll rechts
+pictureviewer.help18 Scroll herunter
+pictureviewer.help19 Bild unskaliert einlesen
 pictureviewer.help2 Bild anzeigen
-pictureviewer.help20 Sortierung andern
-pictureviewer.help21 Bild unskaliert einlesen
-pictureviewer.help22 Modus verlassen
-pictureviewer.help3 Sortierung andern
+pictureviewer.help3 Sortierung ändern
+pictureviewer.help30 Audioplayer-Modus
+pictureviewer.help31 Startet die Wiedergabe
+pictureviewer.help32 Pausiert die Wiedergabe
+pictureviewer.help33 Stoppt die Wiedergabe
+pictureviewer.help34 nächster Titel
+pictureviewer.help35 vorheriger Titel
 pictureviewer.help4 Bild unskaliert einlesen
 pictureviewer.help5 Diashow-Modus
 pictureviewer.help6 vorheriges Bild
 pictureviewer.help7 nächstes Bild
-pictureviewer.help8 Sortierung ändern
-pictureviewer.help9 Modus verlassen
+pictureviewer.help8 Modus verlassen
+pictureviewer.help9 Anzeige-Modus
 pictureviewer.resize.color_average aufwendig
 pictureviewer.resize.none keine
 pictureviewer.resize.simple einfach

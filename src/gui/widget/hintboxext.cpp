@@ -108,6 +108,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	int maxLineWidth = 0;
 	int scrollWidth = 0;
 	textStartX = 0;
+	bgPainted = false;
 
 	m_caption = Caption;
 
@@ -148,6 +149,11 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 			{
 				m_maxEntriesPerPage = m_startEntryOfPage[page] - m_startEntryOfPage[page-1];
 			}
+		}
+		else {
+			if (m_height > maxOverallHeight)
+				maxOverallHeight = m_height;
+			m_maxEntriesPerPage = maxOverallHeight / m_fheight;
 		}
 		line++;
 	}
@@ -218,6 +224,7 @@ void CHintBoxExt::paint(bool toround)
 		return;
 	}
 
+	bgPainted = false;
 	m_window = new CFBWindow(getScreenStartX(m_width + SHADOW_OFFSET),
 				 getScreenStartY(m_height + SHADOW_OFFSET),
 				 m_width + SHADOW_OFFSET,
@@ -233,8 +240,11 @@ void CHintBoxExt::refresh(bool toround)
 		return;
 	}
 	
-	// bottom, right shadow
-	m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
+	if (!bgPainted) {
+		// bottom, right shadow
+		m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
+		bgPainted = true;
+	}
 	
 	// title bar
 	m_window->paintBoxRel(0, 0, m_width, m_theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round

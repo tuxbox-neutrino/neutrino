@@ -29,10 +29,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <coolstream/cs_vfd.h>
+#include <cs_vfd.h>
 
 #ifdef HAVE_COOLSTREAM_NEVIS_IR_H
-#include <coolstream/nevis_ir.h>
+#include <nevis_ir.h>
 #endif
 
 #ifndef IOC_IR_SET_PRI_PROTOCOL

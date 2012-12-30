@@ -51,7 +51,8 @@ public:
 		{
 			return uniqueKey() < ref.uniqueKey();
 		}
-
+#if 0
+//unused
 	void toStream(char * &p) const
 		{
 			*(t_service_id          *)p = service_id;			p += sizeof(t_service_id);
@@ -63,7 +64,7 @@ public:
 		{
 			return service_id;
 		}
-
+#endif
 	t_channel_id uniqueKey(void) const {
 		return CREATE_CHANNEL_ID(service_id, original_network_id, transport_stream_id); // cf. zapittypes.h
 	}
@@ -115,11 +116,16 @@ public:
 		is_actual = 0;
 	}
 
+#if 0 
+// unused
 	int eitScheduleFlag(void)	{ return (int)flags.EIT_schedule_flag; }
 	int eitPresentFollowingFlag(void) { return (int)flags.EIT_present_following_flag; }
+#endif
 	int runningStatus(void)		{ return (int)flags.running_status; }
+#if 0 
+// unused
 	int freeCAmode(void)		{ return (int)flags.free_CA_mode; }
-
+#endif
 	bool operator < (const SIservice& s) const {
 		return uniqueKey() < s.uniqueKey();
 	}

@@ -39,7 +39,7 @@
 #include <string>
 #include <vector>
 #ifdef HAVE_COOLSTREAM_NEVIS_IR_H
-#include <coolstream/nevis_ir.h>
+#include <nevis_ir.h>
 #endif
 
 #ifndef KEY_OK

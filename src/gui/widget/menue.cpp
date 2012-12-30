@@ -562,6 +562,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
 									items[selected]->paint( false );
 									item->paint( true );
+									paintHint(pos);
 									selected = pos;
 								} else {
 									selected=pos;
@@ -579,6 +580,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
 									items[selected]->paint( false );
 									item->paint( true );
+									paintHint(pos);
 									selected = pos;
 								} else {
 									selected=pos;
@@ -1151,6 +1153,7 @@ void CMenuWidget::paintHint(int pos)
 		details_line->setYPos(ypos1a);
 		details_line->setYPosDown(ypos2a);
  		details_line->setHMarkDown(markh);
+ 		details_line->setColor(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0);
 	}
 	details_line->paint(savescreen);
 
@@ -1160,6 +1163,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setXPos(x);
 		info_box->setYPos(ypos2);
 		info_box->setWidth(iwidth);
+		info_box->setColor(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
 	}
 	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
 	info_box->paint(savescreen, true);

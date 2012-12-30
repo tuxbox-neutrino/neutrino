@@ -9,7 +9,7 @@
 #ifndef __CS_API_H_
 #define __CS_API_H_
 
-#include <coolstream/control.h>
+#include <control.h>
 #include <sys/types.h>
 
 typedef void (*cs_messenger) (unsigned int msg, unsigned int data);

@@ -18,12 +18,12 @@
 // tuxbox
 #include <configfile.h>
 // yhttpd
-#include "yconfig.h"
-#include "ytypes_globals.h"
-#include "helper.h"
-#include "ylogging.h"
+#include <yconfig.h>
+#include <ytypes_globals.h>
+#include <helper.h>
+#include <ylogging.h>
 #include "mod_yparser.h"
-#include "ylanguage.h"
+#include <ylanguage.h>
 
 //=============================================================================
 // Initialization of static variables
@@ -111,7 +111,7 @@ void CyParser::Execute(CyhookHandler *hh) {
 	if (CLogging::getInstance()->getDebug()) {
 		dprintf("Execute CGI : %s\n", filename.c_str());
 		for (CStringList::iterator it = hh->ParamList.begin(); it
-				!= hh->ParamList.end(); it++)
+				!= hh->ParamList.end(); ++it)
 			dprintf("  Parameter %s : %s\n", it->first.c_str(),
 					it->second.c_str());
 	}
@@ -156,7 +156,6 @@ void CyParser::Execute(CyhookHandler *hh) {
 // mini cgi Engine (Entry for ycgi)
 //-----------------------------------------------------------------------------
 void CyParser::cgi(CyhookHandler *hh) {
-	bool ydebug = false;
 	std::string htmlfilename, yresult, ycmd;
 
 	if ( !hh->ParamList.empty() ) {
@@ -164,6 +163,7 @@ void CyParser::cgi(CyhookHandler *hh) {
 			htmlfilename = hh->ParamList["tmpl"];
 		else
 			htmlfilename = hh->ParamList["1"];
+		bool ydebug = false;
 		if (hh->ParamList["debug"] != "") // switch debug on
 			ydebug = true;
 
@@ -171,7 +171,6 @@ void CyParser::cgi(CyhookHandler *hh) {
 		{
 			ycmd = hh->ParamList["execute"];
 			ycmd = YPARSER_ESCAPE_START + ycmd + YPARSER_ESCAPE_END;
-			ycmd = ycmd;
 			yresult = cgi_cmd_parsing(hh, ycmd, ydebug); // parsing engine
 		}
 		// parsing given file
@@ -471,7 +470,7 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 				pthread_mutex_unlock(&yParser_mutex);
 			}
 		} else if (ycmd_type == "file-action") {
-			std::string filename, actionname, content, tmp, ydefault;
+			std::string filename, actionname, content, tmp;
 			if (ySplitString(ycmd_name, ";", filename, tmp)) {
 				ySplitString(tmp, ";", actionname, content);
 				replace(content, "\r\n", "\n");
@@ -522,7 +521,6 @@ std::string CyParser::YWeb_cgi_get_ini(CyhookHandler *, std::string filename,
 //-------------------------------------------------------------------------
 void CyParser::YWeb_cgi_set_ini(CyhookHandler *, std::string filename,
 		std::string varname, std::string varvalue, std::string yaccess) {
-	std::string result;
 	if ((yaccess == "open") || (yaccess == "")) {
 		yConfig->clear();
 		yConfig->loadConfig(filename);
@@ -738,11 +736,11 @@ std::string CyParser::func_get_languages_as_dropdown(CyhookHandler *,
 		std::string para) {
 	std::string yresult, sel;
 	DIR *d;
-	struct dirent *dir;
 
 	std::string act_language = CLanguage::getInstance()->language;
 	d = opendir((CLanguage::getInstance()->language_dir).c_str());
 	if (d != NULL) {
+		struct dirent *dir;
 		while ((dir = readdir(d))) {
 			if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
 				continue;

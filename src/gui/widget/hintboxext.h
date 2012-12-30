@@ -64,6 +64,7 @@ class CHintBoxExt
 	char *                   m_message;
 	ContentLines             m_lines;
 	std::string              m_iconfile;
+	bool			 bgPainted;
 	
 	void refresh(bool toround = 1);
 

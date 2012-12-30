@@ -524,7 +524,9 @@ void CMoviePlayerGui::PlayFile(void)
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
-				if (duration - position < 1000 && !timeshift)
+				/* in case ffmpeg report incorrect values */
+				int posdiff = duration - position;
+				if ((posdiff > 0) && (posdiff < 1000) && !timeshift)
 				{
 					/* 10 seconds after end-of-file, stop */
 					if (++eof > 10)
