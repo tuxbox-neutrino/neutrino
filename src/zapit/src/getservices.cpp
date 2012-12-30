@@ -591,9 +591,6 @@ bool CServiceManager::InitSatPosition(t_satellite_position position, char * name
 
 bool CServiceManager::LoadServices(bool only_current)
 {
-	if(CFEManager::getInstance()->getLiveFE() == NULL)
-		return false;
-
 	xmlDocPtr parser;
 	static bool satcleared = 0;//clear only once, because menu is static
 	service_count = 0;

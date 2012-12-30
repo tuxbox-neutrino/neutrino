@@ -1819,12 +1819,6 @@ TIMER_START();
 
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-
-	g_info.delivery_system = DVB_S;
-	if(CFEManager::getInstance()->getLiveFE() != NULL){
-		g_info.delivery_system = CFEManager::getInstance()->getLiveFE()->getInfo()->type == FE_QPSK ? DVB_S : DVB_C;
-	}
-
 	g_info.delivery_system = CFEManager::getInstance()->getLiveFE()->getInfo()->type == FE_QPSK ? DVB_S : DVB_C;
 #if HAVE_TRIPLEDRAGON
 	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
