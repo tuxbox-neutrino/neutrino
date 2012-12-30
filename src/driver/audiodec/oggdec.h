@@ -38,7 +38,6 @@
 #include <pthread.h>
 #include <driver/audiometadata.h>
 #ifdef USE_TREMOR
-#include <tremor/ogg.h>
 #include <tremor/ivorbisfile.h>
 #else
 #include <ogg/ogg.h>
