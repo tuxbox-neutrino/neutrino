@@ -36,9 +36,6 @@ typedef struct sat_config {
 	std::string name;
 	int have_channels;
 	int input;
-	int unicable_scr;
-	int unicable_qrg;
-	int unicable_lnb;
 	int configured;
 	int cable_nid;
 } sat_config_t;

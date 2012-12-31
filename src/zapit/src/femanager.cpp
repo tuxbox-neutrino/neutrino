@@ -115,7 +115,7 @@ void CFEManager::setConfigValue(CFrontend * fe, const char * name, uint32_t val)
 	configfile.setInt32(cfg_key, val);
 }
 
-#define SATCONFIG_SIZE 15
+#define SATCONFIG_SIZE 12
 void CFEManager::setSatelliteConfig(CFrontend * fe, sat_config_t &satconfig)
 {
 	char cfg_key[81];
@@ -133,9 +133,6 @@ void CFEManager::setSatelliteConfig(CFrontend * fe, sat_config_t &satconfig)
 	satConfig.push_back(satconfig.use_in_scan);
 	satConfig.push_back(satconfig.use_usals);
 	satConfig.push_back(satconfig.configured);
-	satConfig.push_back(satconfig.unicable_scr);
-	satConfig.push_back(satconfig.unicable_qrg);
-	satConfig.push_back(satconfig.unicable_lnb);
 
 	sprintf(cfg_key, "fe%d_position_%d", fe->fenumber, satconfig.position);
 	//INFO("set %s", cfg_key);
@@ -162,10 +159,6 @@ bool CFEManager::getSatelliteConfig(CFrontend * fe, sat_config_t &satconfig)
 		satconfig.use_in_scan		= satConfig[i++];
 		satconfig.use_usals		= satConfig[i++];
 		satconfig.configured		= satConfig[i++];
-		satconfig.unicable_scr		= satConfig[i++];
-		satconfig.unicable_qrg		= satConfig[i++];
-		satconfig.unicable_lnb		= satConfig[i++];
-
 		return true;
 	}
 	return false;
@@ -191,6 +184,8 @@ bool CFEManager::loadSettings()
 		fe_config.diseqcRepeats		= getConfigValue(fe, "diseqcRepeats", 0);
 		fe_config.motorRotationSpeed	= getConfigValue(fe, "motorRotationSpeed", 18);
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
+		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
+		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
@@ -229,9 +224,6 @@ bool CFEManager::loadSettings()
 			satconfig.use_usals = 0;
 			satconfig.input = 0;
 			satconfig.configured = 0;
-			satconfig.unicable_scr = -1;
-			satconfig.unicable_qrg = 0;
-			satconfig.unicable_lnb = 0;
 
 			satmap.insert(satellite_pair_t(position, satconfig));
 
@@ -262,6 +254,8 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "diseqcRepeats", fe_config.diseqcRepeats);
 		setConfigValue(fe, "motorRotationSpeed", fe_config.motorRotationSpeed);
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
+		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
+		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 
 		std::vector<int> satList;

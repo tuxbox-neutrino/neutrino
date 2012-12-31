@@ -539,7 +539,6 @@ int CServiceManager::LoadMotorPositions(void)
 	char buffer[256] = "";
 	t_satellite_position satellitePosition;
 	int spos = 0, mpos = 0, diseqc = 0, uncom = 0, com = 0, usals = 0, inuse, input = 0;
-	int uniscr = -1, uniqrg = 0, unilnb = 0;
 	int offH = 10600, offL = 9750, sw = 11700;
 
 	printf("[getservices] loading motor positions...\n");
@@ -549,12 +548,7 @@ int CServiceManager::LoadMotorPositions(void)
 	if ((fd = fopen(SATCONFIG, "r"))) {
 		fgets(buffer, 255, fd);
 		while(!feof(fd)) {
-			if (sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
-					&spos, &mpos, &diseqc, &com, &uncom, &offL, &offH,
-					&sw, &inuse, &usals, &input, &uniscr, &uniqrg, &unilnb) < 14) {
-				uniqrg = unilnb = 0;
-				uniscr = -1;
-			}
+			sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d %d", &spos, &mpos, &diseqc, &com, &uncom, &offL, &offH, &sw, &inuse, &usals, &input);
 
 			int configured = 0;
 			if (diseqc != -1 || com != -1 || uncom != -1 || usals != 0 || mpos != 0)
@@ -573,9 +567,6 @@ int CServiceManager::LoadMotorPositions(void)
 				sit->second.use_usals = usals;
 				sit->second.input = input;
 				sit->second.position = satellitePosition;
-				sit->second.unicable_scr = uniscr;
-				sit->second.unicable_qrg = uniqrg;
-				sit->second.unicable_lnb = unilnb;
 				sit->second.configured = configured;
 			}
 			fgets(buffer, 255, fd);
@@ -600,12 +591,11 @@ void CServiceManager::SaveMotorPositions()
 		printf("[zapit] cannot open %s\n", SATCONFIG);
 		return;
 	}
-	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals, input, unicable_scr, unicable_freq, unicable_lnb\n");
+	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals, input\n");
 	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit) {
-		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
+		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
 				sit->second.diseqc, sit->second.commited, sit->second.uncommited, sit->second.lnbOffsetLow,
-				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals, sit->second.input,
-				sit->second.unicable_scr, sit->second.unicable_qrg, sit->second.unicable_lnb);
+				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals, sit->second.input);
 	}
 	fdatasync(fileno(fd));
 	fclose(fd);
@@ -626,9 +616,6 @@ bool CServiceManager::InitSatPosition(t_satellite_position position, char * name
 		satellitePositions[position].use_in_scan = 0;
 		satellitePositions[position].use_usals = 0;
 		satellitePositions[position].input = 0;
-		satellitePositions[position].unicable_scr = -1;
-		satellitePositions[position].unicable_qrg = 0;
-		satellitePositions[position].unicable_lnb = 0;
 		satellitePositions[position].configured = 0;
 		satellitePositions[position].cable_nid = 0;
 		if(name)

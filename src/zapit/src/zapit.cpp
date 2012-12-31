@@ -511,7 +511,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	SaveSettings(false);
 
 	/* retry tuning twice when using unicable */
-	int retry = (live_fe->getUniSCR() >= 0) * 2;
+	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
  again:
 	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
 		if (retry < 1) {
@@ -578,7 +578,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	CZapitChannel* newchannel;
 	bool transponder_change;
 	/* retry tuning twice when using unicable */
-	int retry = (live_fe->getUniSCR() >= 0) * 2;
+	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);

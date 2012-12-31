@@ -148,7 +148,7 @@ bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarizat
 		}
 	}
 	/* for unicable, retry tuning two times before assuming it failed */
-	int retry = (frontend->getUniSCR() >= 0) * 2 + 1;
+	int retry = (frontend->getDiseqcType() == DISEQC_UNICABLE) * 2 + 1;
 	do {
 		ret = frontend->tuneFrequency(feparams, polarization, false);
 		if (ret)

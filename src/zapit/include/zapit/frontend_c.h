@@ -156,7 +156,6 @@ class CFrontend
 		uint8_t				getDiseqcPosition(void) const		{ return currentTransponder.diseqc; }
 		uint8_t				getDiseqcRepeats(void) const		{ return config.diseqcRepeats; }
 		diseqc_t			getDiseqcType(void) const		{ return (diseqc_t) config.diseqcType; }
-		int				getUniSCR(void) const			{ return config.uni_scr; }
 		uint32_t			getFrequency(void) const		{ return currentTransponder.feparams.dvb_feparams.frequency; }
 		bool				getHighBand()				{ return (int) getFrequency() >= lnbSwitch; }
 		static fe_modulation_t		getModulation(const uint8_t modulation);

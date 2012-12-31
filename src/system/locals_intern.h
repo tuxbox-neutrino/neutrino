@@ -1596,6 +1596,8 @@ const char * locale_real_names[] =
 	"satsetup.select_sat",
 	"satsetup.smatvremote",
 	"satsetup.uncomm_input",
+	"satsetup.uni_settings",
+	"satsetup.unicable",
 	"satsetup.usals_repeat",
 	"satsetup.use_bat",
 	"satsetup.use_fta_flag",
