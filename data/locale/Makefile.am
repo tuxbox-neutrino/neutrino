@@ -42,8 +42,8 @@ work-locals: $(master.locale)
 	done
 
 ordercheck: $(master.locale)
-	cut -d' ' -f1 $(master.locale) | LC_ALL=C sort | uniq > /tmp/log
-	cut -d' ' -f1 $(master.locale) | uniq  | diff - /tmp/log || \
+	cut -d' ' -f1 $(top_srcdir)/data/locale/$(master.locale) | LC_ALL=C sort | uniq > /tmp/log
+	cut -d' ' -f1 $(top_srcdir)/data/locale/$(master.locale) | uniq  | diff - /tmp/log || \
 		(echo "ERROR: $(master.locale) not ordered or contains empty lines" && false)
 
 locals.h: ordercheck
@@ -61,8 +61,8 @@ check: locals.h locals_intern.h
 install-locals: $(locale) locals.h locals_intern.h
 	cp locals.h locals_intern.h $(top_srcdir)/src/system
 	@echo "Consider committing src/system/[locals.h locals_intern.h]"
-	cp -f $(locale) $(top_srcdir)/data/locale
-	@echo "Consider committing data/locale/[$(locale)]"
+	## ??? cp -f $(locale) $(top_srcdir)/data/locale
+	## @echo "Consider committing data/locale/[$(locale)]"
 
 locals-clean:
 	rm -f locals.h locals_intern.h $(locale)
