@@ -27,14 +27,15 @@ cat > locals.h <<EOH
 
 typedef enum
 {
-	NONEXISTANT_LOCALE,
 EOH
+printf "\tNONEXISTANT_LOCALE" >> locals.h
 
 while read id; do
-	echo $'\t'"LOCALE_$id," >> locals.h;
+	printf ",\n\tLOCALE_$id" >> locals.h;
 done
 
 cat >> locals.h <<EOF
+
 } neutrino_locale_t;
 #endif
 EOF
