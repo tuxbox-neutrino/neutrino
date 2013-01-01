@@ -31,7 +31,7 @@ int safe_mkdir(char * path);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir);
-bool get_fs_usage(const char * dir, long &total, long &used);
+bool get_fs_usage(const char * dir, long &total, long &used, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
 
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
