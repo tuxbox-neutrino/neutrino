@@ -130,6 +130,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 bool CExtUpdate::applySettings(const std::string & filename, int mode)
 {
+#define ORGFILE_EXT ".org"
 	if(!FileHelpers)
 		FileHelpers = new CFileHelpers();
 
@@ -139,11 +140,19 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 		imgFilename = FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
 
 	DBG_TIMER_START()
+
+	// make backup file
+	FileHelpers->copyFile(imgFilename.c_str(), (imgFilename + ORGFILE_EXT).c_str(), 0644);
+
 	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
 	if (!ret) {
 		if (mtdRamError != "")
 			DisplayErrorMessage(mtdRamError.c_str());
+
+		// error, restore original file
+		unlink(imgFilename.c_str());
+		rename((imgFilename + ORGFILE_EXT).c_str(), imgFilename.c_str());
 	}
 	else {
 		if (mode == MODE_EXPERT) {
