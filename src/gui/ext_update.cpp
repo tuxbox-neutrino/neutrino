@@ -5,7 +5,7 @@
 	and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2012 M. Liebmann (micha-bbg)
+	Copyright (C) 2012-2013 M. Liebmann (micha-bbg)
 
 	License: GPL
 
@@ -73,6 +73,10 @@ CExtUpdate::CExtUpdate()
 	fLogfile        = "/tmp/update.log";
 	mountPkt 	= "/tmp/image_mount";
 	FileHelpers 	= NULL;
+	flashErrorFlag	= false;
+	total = bsize = used = 0;
+	free1 = free2 = free3 = 0;
+
 	copyList.clear();
 	blackList.clear();
 	deleteList.clear();
@@ -130,6 +134,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 bool CExtUpdate::applySettings(const std::string & filename, int mode)
 {
+#define ORGFILE_EXT ".org"
 	if(!FileHelpers)
 		FileHelpers = new CFileHelpers();
 
@@ -139,11 +144,19 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 		imgFilename = FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
 
 	DBG_TIMER_START()
+
+	// make backup file
+	FileHelpers->copyFile(imgFilename.c_str(), (imgFilename + ORGFILE_EXT).c_str(), 0644);
+
 	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
 	if (!ret) {
-		if (mtdRamError != "")
+		if ((mtdRamError != "") && (!flashErrorFlag))
 			DisplayErrorMessage(mtdRamError.c_str());
+
+		// error, restore original file
+		unlink(imgFilename.c_str());
+		rename((imgFilename + ORGFILE_EXT).c_str(), imgFilename.c_str());
 	}
 	else {
 		if (mode == MODE_EXPERT) {
@@ -300,8 +313,14 @@ bool CExtUpdate::applySettings()
 	if (res)
 		return ErrorReset(RESET_UNLOAD, "mount error");
 
-	if (!readBackupList(mountPkt))
+	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize))
+		free1 = (total * bsize) / 1024 - (used * bsize) / 1024;
+
+	if (!readBackupList(mountPkt)) {
+		if (flashErrorFlag)
+			return false;
 		return ErrorReset(0, "error readBackupList");
+	}
 
 	res = umount(mountPkt.c_str());
 	if (res)
@@ -497,6 +516,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 {
 	char buf[PATH_MAX];
 	static struct stat FileInfo;
+	vector<std::string>::iterator it;
 	
 	f1 = fopen(backupList.c_str(), "r");
 	if (f1 == NULL) {
@@ -573,8 +593,33 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	}
 	fclose(f1);
 
+	// read DeleteList
+	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
+		line = *it;
+		if (lstat(line.c_str(), &FileInfo) != -1) {
+			if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
+				// Wildcards
+				WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
+				deleteFileList(line.c_str());
+			}
+			else if (S_ISREG(FileInfo.st_mode)) {
+				// File
+				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
+				unlink(line.c_str());
+			}
+			else if (S_ISDIR(FileInfo.st_mode)){
+				// Directory
+				WRITE_UPDATE_LOG("delete directory: %s\n", line.c_str());
+				FileHelpers->removeDir(line.c_str());
+			}
+		}
+	}
+	sync();
+
+	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize))
+		free2 = (total * bsize) / 1024 - (used * bsize) / 1024;
+
 	// read copyList
-	vector<std::string>::iterator it;
 	for(it = copyList.begin(); it != copyList.end(); ++it) {
 		line = *it;
 		line = trim(line);
@@ -619,29 +664,30 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 		
 		}
 	}
+	sync();
 
-	// read DeleteList
-	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
-		line = *it;
-		if (lstat(line.c_str(), &FileInfo) != -1) {
-			if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
-				// Wildcards
-				WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
-				deleteFileList(line.c_str());
-			}
-			else if (S_ISREG(FileInfo.st_mode)) {
-				// File
-				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
-				unlink(line.c_str());
-			}
-			else if (S_ISDIR(FileInfo.st_mode)){
-				// Directory
-				WRITE_UPDATE_LOG("delete directory: %s\n", line.c_str());
-				FileHelpers->removeDir(line.c_str());
-			}
+	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize)) {
+		long flashWarning = 1000; // 1MB
+		long flashError   = 600;  // 600KB
+		char buf1[1024];
+		total = (total * bsize) / 1024;
+		free3 = total - (used * bsize) / 1024;
+		printf("##### [%s] %ld KB free org, %ld KB free after delete, %ld KB free now\n", __FUNCTION__, free1, free2, free3);
+		memset(buf1, '\0', sizeof(buf1));
+		if (free3 <= flashError) {
+			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_ERROR), free3, total);
+			ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, buf1, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_ERROR);
+			flashErrorFlag = true;
+			return false;
+		}
+		else if (free3 <= flashWarning) {
+			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_WARNING), free3, total);
+		    	if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf1, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes) {
+				flashErrorFlag = true;
+				return false;
+		    	}
 		}
 	}
-	sync();
 	return true;
 }
 

@@ -34,6 +34,8 @@
 
 #include <string>
 #include <map>
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
 
 #define fb_pixel_t uint32_t
 
@@ -66,6 +68,7 @@ class CFrameBuffer
 	private:
 
 		CFrameBuffer();
+		OpenThreads::Mutex mutex;
 
 		struct rgbData
 		{
