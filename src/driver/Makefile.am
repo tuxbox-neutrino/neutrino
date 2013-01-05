@@ -46,7 +46,7 @@ libneutrino_driver_a_SOURCES += \
 	framebuffer_spark.cpp
 else
 libneutrino_driver_a_SOURCES += \
-	framebuffer.cpp
+	framebuffer_ng.cpp
 endif
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \

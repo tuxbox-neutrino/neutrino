@@ -23,8 +23,6 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "framebuffer_ng.h"
-#if 0
 
 #ifndef __framebuffer__
 #define __framebuffer__
@@ -273,5 +271,4 @@ class CFrameBuffer
 		void SetTransparentDefault(){ m_transparent = m_transparent_default; }
 };
 
-#endif
 #endif
