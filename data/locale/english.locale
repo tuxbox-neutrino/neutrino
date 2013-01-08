@@ -1568,6 +1568,8 @@ satsetup.satellite Satellite
 satsetup.select_sat Select satellites
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommited input
+satsetup.uni_settings Unicable Settings
+satsetup.unicable Unicable
 satsetup.usals_repeat USALS command repeat
 satsetup.use_bat Use BAT
 satsetup.use_fta_flag just free Channels
@@ -1758,6 +1760,9 @@ timing.infobar_movieplayer Infobar (movie mode)
 timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
+unicable.lnb Unicable Input
+unicable.qrg Unicable Frequency
+unicable.scr Unicable SCR
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again
