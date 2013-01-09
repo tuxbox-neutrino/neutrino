@@ -304,7 +304,9 @@ void CFEManager::saveSettings(bool write)
 void CFEManager::copySettings(CFrontend * from, CFrontend * to)
 {
 	INFO("Copy settings fe %d -> fe %d", from->fenumber, to->fenumber);
-	to->config.diseqcType = from->config.diseqcType;
+	if (to->config.diseqcType != DISEQC_UNICABLE || to->getMode() == CFrontend::FE_MODE_LINK_LOOP)
+		to->config.diseqcType = from->config.diseqcType;
+
 	to->config.diseqcRepeats = from->config.diseqcRepeats;
 	to->config.motorRotationSpeed = from->config.motorRotationSpeed;
 	to->config.highVoltage = from->config.highVoltage;
@@ -313,7 +315,6 @@ void CFEManager::copySettings(CFrontend * from, CFrontend * to)
 
 void CFEManager::copySettings(CFrontend * fe)
 {
-	//FIXME copy on master settings change too
 	if (CFrontend::linked(fe->getMode())) {
 		for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 			if (it->second->fenumber == fe->getMaster()) {
