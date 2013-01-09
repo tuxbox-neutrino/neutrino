@@ -5,7 +5,7 @@
 	and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2012 M. Liebmann (micha-bbg)
+	Copyright (C) 2012-2013 M. Liebmann (micha-bbg)
 
 	License: GPL
 
@@ -55,6 +55,10 @@ class CExtUpdate
 		std::string mountPkt;
 		CFileHelpers* FileHelpers;
 		std::vector<std::string> copyList, blackList, deleteList;
+
+		bool flashErrorFlag;
+		long total, bsize, used;
+		long free1, free2, free3; 
 
 		bool applySettings(void);
 		bool readBackupList(const std::string & dstPath);

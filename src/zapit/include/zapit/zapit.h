@@ -70,7 +70,8 @@ typedef struct Zapit_config {
         int highVoltage;
         int motorRotationSpeed;
         int uni_scr;
-        int uni_qrg;
+	int uni_qrg;       /* the unicable frequency in MHz */
+	int uni_lnb;       /* the input (0/1) of a twin-position switch */
 } t_zapit_config;
 
 

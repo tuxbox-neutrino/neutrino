@@ -13,7 +13,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <iconv.h>
 #include <poll.h>
 #include <stddef.h>
 #include <stdint.h>

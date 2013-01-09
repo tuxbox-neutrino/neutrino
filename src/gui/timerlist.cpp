@@ -776,7 +776,7 @@ void CTimerList::paintItem(int pos)
 				{
 					zAddData += sep;
 					zAddData += "AC3";
-					sep = "/";
+//					sep = "/";
 				}
 				zAddData += ')';
 			}

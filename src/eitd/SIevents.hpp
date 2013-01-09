@@ -89,10 +89,13 @@ struct descr_linkage_header {
 
 struct descr_pdc_header {
 	unsigned descriptor_tag                 : 8;
+#if 0
+	// unused
 	unsigned descriptor_length              : 8;
 	unsigned pil0                           : 8;
 	unsigned pil1                           : 8;
 	unsigned pil2                           : 8;
+#endif
 } __attribute__ ((packed)) ;
 
 class SIlinkage {

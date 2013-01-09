@@ -192,8 +192,6 @@ void CZapit::SaveSettings(bool write)
 		configfile.setInt32("diseqcRepeats", live_fe->getDiseqcRepeats());
 		configfile.setInt32("diseqcType", live_fe->getDiseqcType());
 		configfile.setInt32("motorRotationSpeed", config.motorRotationSpeed);
-		configfile.setInt32("uni_scr", config.uni_scr);
-		configfile.setInt32("uni_qrg", config.uni_qrg);
 #endif
 		if (configfile.getModifiedFlag())
 			configfile.saveConfig(CONFIGFILE);
@@ -309,8 +307,6 @@ void CZapit::LoadSettings()
 	/* FIXME FE specific, to be removed */
 	diseqcType				= (diseqc_t)configfile.getInt32("diseqcType", NO_DISEQC);
 	config.motorRotationSpeed		= configfile.getInt32("motorRotationSpeed", 18); // default: 1.8 degrees per second
-	config.uni_scr				= configfile.getInt32("uni_scr", -1);
-	config.uni_qrg				= configfile.getInt32("uni_qrg", 0);
 
 	printf("[zapit.cpp] diseqc type = %d\n", diseqcType);
 
@@ -336,7 +332,6 @@ void CZapit::ConfigFrontend()
 		if(!CFEManager::getInstance()->configExist()) {
 			INFO("New frontend config not exist");
 			fe->configRotor(config.motorRotationSpeed, config.highVoltage);
-			fe->configUnicable(config.uni_scr, config.uni_qrg);
 			fe->setDiseqcType(diseqcType);
 			fe->setDiseqcRepeats(configfile.getInt32("diseqcRepeats", 0));
 			fe->setRotorSatellitePosition(configfile.getInt32("lastSatellitePosition", 0));
@@ -416,6 +411,9 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 
 bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change)
 {
+	if(channel  == NULL || frontend == NULL)
+		return false;
+
 	transponder_change = frontend->setInput(channel, current_is_nvod);
 	if(transponder_change && !current_is_nvod) {
 		int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
@@ -443,6 +441,9 @@ bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &tr
 
 bool CZapit::ParsePatPmt(CZapitChannel * channel)
 {
+	if(channel == NULL)
+		return false;
+
 	CPat pat(channel->getRecordDemux());
 	CPmt pmt(channel->getRecordDemux());
 	DBG("looking up pids for channel_id " PRINTF_CHANNEL_ID_TYPE "\n", channel->getChannelID());

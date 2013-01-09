@@ -487,9 +487,11 @@ flashupdate.squashfs.noversion SquashFS version checks are currently only suppor
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Entry is skipped.
+flashupdate.update_with_settings_error Flash Error!\n \nNew Image only has %ld KB (out of %ld KB) left. Not\nenough space to complete this operation.\n \nCanceling operation!
 flashupdate.update_with_settings_processed Image is being processed...
 flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
 flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
+flashupdate.update_with_settings_warning Flash Warning!\n \nNew Image only has %ld KB (out of %ld KB) left. Probably not\nenough space to complete this operation...\n \nDo you really want to proceed?
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
 flashupdate.updatemode_manual from local update directory
@@ -1437,20 +1439,17 @@ personalize.visible Visible
 pictureviewer.defdir start dir.
 pictureviewer.head Picture viewer
 pictureviewer.help1 menu mode
-pictureviewer.help10 show mode
-pictureviewer.help11 reread image
-pictureviewer.help12 previous image
-pictureviewer.help13 next image
-pictureviewer.help14 Zoom out
-pictureviewer.help15 Zoom in
-pictureviewer.help16 scroll up
-pictureviewer.help17 scroll left
-pictureviewer.help18 scroll right
-pictureviewer.help19 scroll down
+pictureviewer.help10 reread image
+pictureviewer.help11 previous image
+pictureviewer.help12 next image
+pictureviewer.help13 Zoom out
+pictureviewer.help14 Zoom in
+pictureviewer.help15 scroll up
+pictureviewer.help16 scroll left
+pictureviewer.help17 scroll right
+pictureviewer.help18 scroll down
+pictureviewer.help19 reread image (no scaling)
 pictureviewer.help2 display image
-pictureviewer.help20 change sort order
-pictureviewer.help21 reread image (no scaling)
-pictureviewer.help22 exit
 pictureviewer.help3 change sort order
 pictureviewer.help30 audioplayer mode
 pictureviewer.help31 starts the playback
@@ -1462,8 +1461,8 @@ pictureviewer.help4 do not scale picture
 pictureviewer.help5 diashow mode
 pictureviewer.help6 previous image
 pictureviewer.help7 next image
-pictureviewer.help8 change sort order
-pictureviewer.help9 exit
+pictureviewer.help8 exit
+pictureviewer.help9 show mode
 pictureviewer.resize.color_average advanced
 pictureviewer.resize.none none
 pictureviewer.resize.simple simple
@@ -1570,6 +1569,8 @@ satsetup.satellite Satellite
 satsetup.select_sat Select satellites
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommited input
+satsetup.uni_settings Unicable Settings
+satsetup.unicable Unicable
 satsetup.usals_repeat USALS command repeat
 satsetup.use_bat Use BAT
 satsetup.use_fta_flag just free Channels
@@ -1760,6 +1761,9 @@ timing.infobar_movieplayer Infobar (movie mode)
 timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
+unicable.lnb Unicable Input
+unicable.qrg Unicable Frequency
+unicable.scr Unicable SCR
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again

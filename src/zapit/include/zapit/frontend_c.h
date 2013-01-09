@@ -200,8 +200,7 @@ class CFrontend
 			repeatUsals = _repeatUsals;
 		};
 		void				configRotor(int _motorRotationSpeed, bool _highVoltage)
-		{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
-		void				configUnicable(int scr, int qrg) { config.uni_scr = scr; config.uni_qrg = qrg; };
+							{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
 
 		frontend_config_t&		getConfig() { return config; };
 		void				setConfig(frontend_config_t cfg) { setDiseqcType((diseqc_t) cfg.diseqcType); config = cfg; };

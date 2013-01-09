@@ -47,10 +47,6 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 
-#if HAVE_COOL_HARDWARE
-#include <coolstream/control.h>
-#endif
-
 #include <config.h>
 
 #include <global.h>

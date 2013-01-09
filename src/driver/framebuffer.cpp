@@ -637,7 +637,9 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     int corner_bl = (type & CORNER_BOTTOM_LEFT)  ? 1 : 0;
     int corner_br = (type & CORNER_BOTTOM_RIGHT) ? 1 : 0;
 
-#ifndef USE_NEVIS_GXA
+#ifdef USE_NEVIS_GXA
+    OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+#else
     int swidth = stride / sizeof(fb_pixel_t);
     fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
 #endif
@@ -801,6 +803,7 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 	fillrect.rop = ROP_COPY;
 	ioctl(fd, FBIO_FILL_RECT, &fillrect);
 #elif defined(USE_NEVIS_GXA)
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	/* draw a single vertical line from point x/y with hight dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
@@ -833,6 +836,7 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 	fillrect.rop = ROP_COPY;
 	ioctl(fd, FBIO_FILL_RECT, &fillrect);
 #elif defined(USE_NEVIS_GXA)
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	/* draw a single horizontal line from point x/y with width dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
@@ -1660,6 +1664,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	//printf("CFrameBuffer::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
 
 	if(uKva != NULL) {
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
 
 		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);

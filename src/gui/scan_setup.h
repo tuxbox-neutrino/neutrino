@@ -59,6 +59,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *fsatSetup;
 		CMenuForwarder  *fsatSelect;
 		CMenuOptionChooser * dtype;
+		CMenuForwarder  *uniSetup;
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 		CIntInput * nid;
 		CMenuOptionChooser * lcnhd;
@@ -93,6 +94,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int showFrontendSetup(int number);
 		int showFrontendSelect(int number);
 		int showScanMenuLnbSetup();
+		int showUnicableSetup();
 		int showScanMenuSatFind();
 		void fillSatSelect(CMenuOptionStringChooser *select);
 		void fillCableSelect(CMenuOptionStringChooser *select);
