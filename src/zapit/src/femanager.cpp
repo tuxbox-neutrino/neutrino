@@ -311,11 +311,9 @@ void CFEManager::copySettings(CFrontend * fe)
 {
 	//FIXME copy on master settings change too
 	if (CFrontend::linked(fe->getMode())) {
-		int mnum = fe->getMaster();
-		CFrontend * mfe = NULL;
 		for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 			if (it->second->fenumber == fe->getMaster()) {
-				copySettings(mfe, fe);
+				copySettings(it->second, fe);
 				break;
 			}
 		}
