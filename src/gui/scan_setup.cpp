@@ -616,7 +616,8 @@ int CScanSetup::showFrontendSetup(int number)
 
 	/* diseqc type select */
 	dtype = new CMenuOptionChooser(LOCALE_SATSETUP_DISEQC, (int *)&dmode, SATSETUP_DISEQC_OPTIONS, SATSETUP_DISEQC_OPTION_COUNT,
-			allow_moptions, this, CRCInput::convertDigitToKey(shortcut++), "", true);
+			femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP,
+			this, CRCInput::convertDigitToKey(shortcut++), "", true);
 	dtype->setHint("", LOCALE_MENU_HINT_SCAN_DISEQCTYPE);
 	setupMenu->addItem(dtype);
 
@@ -1247,6 +1248,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		fe->setDiseqcType((diseqc_t) dmode);
 
+#if 0
 		if(femode !=  CFEManager::FE_MODE_ALONE)
 			CFEManager::getInstance()->saveSettings(true);
 
@@ -1275,6 +1277,10 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			}
 			ojDiseqcRepeats->setActive(true);
 		}
+#endif
+		uniSetup->setActive(dmode == DISEQC_UNICABLE);
+		bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
+		ojDiseqcRepeats->setActive(enable);
 
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE)) {
@@ -1298,10 +1304,13 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		if (fe) {
 			linkfe->setActive(CFrontend::linked(femode));
-			dtype->setActive(!CFrontend::linked(femode));
-			fsatSelect->setActive(!CFrontend::linked(femode));
-			fsatSetup->setActive(!CFrontend::linked(femode));
-			ojDiseqcRepeats->setActive(!CFrontend::linked(femode) && dmode > NO_DISEQC);
+			//dtype->setActive(!CFrontend::linked(femode));
+			dtype->setActive(femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
+			uniSetup->setActive(dmode == DISEQC_UNICABLE && femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
+			fsatSelect->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
+			fsatSetup->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
+			bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
+			ojDiseqcRepeats->setActive(!CFrontend::linked(femode) && enable);
 
 			fe->setMode(femode);
 			/* if mode changed, set current master too */
