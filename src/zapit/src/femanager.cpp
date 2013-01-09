@@ -37,8 +37,39 @@
 #include <zapit/client/zapittools.h>
 #include <zapit/femanager.h>
 #include <dmx_cs.h>
+#include <OpenThreads/ScopedLock>
 
-extern transponder_list_t transponders;
+static int fedebug = 0;
+#define FEDEBUG(fmt, args...)					\
+        do {							\
+                if (fedebug)					\
+                        fprintf(stdout, "[%s:%s:%d] " fmt "\n",	\
+                                __FILE__, __FUNCTION__,		\
+                                __LINE__ , ## args);		\
+        } while (0)
+
+CFeDmx::CFeDmx(int i)
+{
+	num = i;
+	tpid = 0;
+	usecount = 0;
+}
+
+void CFeDmx::Lock(transponder_id_t id)
+{
+	tpid = id;
+	usecount++;
+	INFO("[dmx%d] lock, usecount %d tp %llx", num, usecount, tpid);
+}
+
+void CFeDmx::Unlock()
+{
+	if(usecount > 0)
+		usecount--;
+	else
+		tpid = 0;
+	INFO("[dmx%d] unlock, usecount %d tp %llx", num, usecount, tpid);
+}
 
 CFEManager * CFEManager::manager = NULL;
 
@@ -68,13 +99,13 @@ bool CFEManager::Init()
 				delete fe;
 		}
 	}
-	INFO("found %d frontends\n", femap.size());
+	for (int i = 0; i < MAX_DMX_UNITS; i++)
+		dmap.push_back(CFeDmx(i));
+
+	INFO("found %d frontends, %d demuxes\n", femap.size(), dmap.size());
 	if( femap.empty() )
 		return false;
-#if 0
-	if(femap.size() == 1)
-		mode = FE_MODE_SINGLE;
-#endif
+
 	return true;
 }
 
@@ -164,7 +195,9 @@ bool CFEManager::loadSettings()
 		//return false;
 	}
 
+#if 0
 	fe_mode_t newmode = (fe_mode_t) configfile.getInt32("mode", (int) FE_MODE_SINGLE);
+#endif
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -178,22 +211,15 @@ bool CFEManager::loadSettings()
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
-
-		//fe->setDiseqcType((diseqc_t) fe_config.diseqcType);
-#if 0
-		diseqc_t diseqcType		= (diseqc_t) getConfigValue(fe, "diseqcType", NO_DISEQC);
-		fe->setDiseqcType(diseqcType);
-#endif
+		int def_mode = fe->fenumber ? CFrontend::FE_MODE_UNUSED : CFrontend::FE_MODE_INDEPENDENT;
+		fe->setMode(getConfigValue(fe, "mode", def_mode));
+		fe->setMaster(getConfigValue(fe, "master", 0));
 
 		char cfg_key[81];
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
 		satellite_map_t & satmap = fe->getSatellites();
 		satmap.clear();
-#if 0
-		std::vector<int> satList = configfile.getInt32Vector(cfg_key);
-		for(unsigned int i = 0; i < satList.size(); i++) 
-			t_satellite_position position = satList[i];
-#endif
+
 		satellite_map_t satlist = CServiceManager::getInstance()->SatelliteList();
 		for(sat_iterator_t sit = satlist.begin(); sit != satlist.end(); ++sit)
 		{
@@ -222,7 +248,9 @@ bool CFEManager::loadSettings()
 
 		}
 	}
-	setMode(newmode, true);
+	//setMode(newmode, true);
+	//FIXME backward compatible settings for mode ?
+	linkFrontends();
 	return true;
 }
 
@@ -234,11 +262,13 @@ void CFEManager::saveSettings(bool write)
 		frontend_config_t & fe_config = fe->getConfig();
 
 		INFO("fe%d", fe->fenumber);
+#if 0
 		if(fe->fenumber && mode != FE_MODE_ALONE) {
 			CFrontend * fe0 = getFE(0);
 			fe->setConfig(fe0->getConfig());
 			fe->setSatellites(fe0->getSatellites());
 		}
+#endif
 
 		setConfigValue(fe, "diseqcType", fe_config.diseqcType);
 		setConfigValue(fe, "diseqcRepeats", fe_config.diseqcRepeats);
@@ -247,6 +277,8 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
+		setConfigValue(fe, "mode", fe->getMode());
+		setConfigValue(fe, "master", fe->getMaster());
 
 		std::vector<int> satList;
 		satellite_map_t satellites = fe->getSatellites();
@@ -265,6 +297,94 @@ void CFEManager::saveSettings(bool write)
 	}
 }
 
+void CFEManager::copySettings(CFrontend * from, CFrontend * to)
+{
+	INFO("Copy settings fe %d -> fe %d", from->fenumber, to->fenumber);
+	to->config.diseqcType = from->config.diseqcType;
+	to->config.diseqcRepeats = from->config.diseqcRepeats;
+	to->config.motorRotationSpeed = from->config.motorRotationSpeed;
+	to->config.highVoltage = from->config.highVoltage;
+	to->setSatellites(from->getSatellites());
+}
+
+void CFEManager::copySettings(CFrontend * fe)
+{
+	//FIXME copy on master settings change too
+	if (CFrontend::linked(fe->getMode())) {
+		int mnum = fe->getMaster();
+		CFrontend * mfe = NULL;
+		for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+			if (it->second->fenumber == fe->getMaster()) {
+				copySettings(mfe, fe);
+				break;
+			}
+		}
+	} else if (fe->getMode() == CFrontend::FE_MODE_MASTER) {
+		for (unsigned int i = 1; i < fe->linkmap.size(); i++) {
+			CFrontend * lfe = fe->linkmap[i];
+			copySettings(fe, lfe);
+		}
+	}
+}
+
+void CFEManager::linkFrontends(bool init)
+{
+	INFO("linking..");
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		CFrontend * fe = it->second;
+		if (fe->getInfo()->type != FE_QPSK)
+			fe->setMode(CFrontend::FE_MODE_INDEPENDENT);
+
+		int femode = fe->getMode();
+		fe->slave = false;
+		fe->linkmap.clear();
+		if (femode == CFrontend::FE_MODE_MASTER) {
+			INFO("Frontend #%d: is master", fe->fenumber);
+			fe->linkmap.push_back(fe);
+			/* fe is master, find all linked */
+			for(fe_map_iterator_t it2 = femap.begin(); it2 != femap.end(); it2++) {
+				CFrontend * fe2 = it2->second;
+				if (!CFrontend::linked(fe2->getMode()))
+					continue;
+				if (fe2->getMaster() != fe->fenumber)
+					continue;
+#if 0
+				int mnum = fe2->getMaster();
+				if (mnum != fe->fenumber)
+					continue;
+				CFrontend * mfe = getFE(mnum);
+				if (!mfe) {
+					INFO("Frontend %d: master %d not found", fe->fenumber, mnum);
+					continue;
+				}
+
+				mfe->linkmap.push_back(fe2);
+#endif
+				fe->linkmap.push_back(fe2);
+				if (fe2->getMode() == CFrontend::FE_MODE_LINK_LOOP) {
+					INFO("Frontend #%d: link to master %d as LOOP", fe2->fenumber, fe->fenumber);
+				} else {
+					INFO("Frontend #%d: link to master %d as TWIN", fe2->fenumber, fe->fenumber);
+				}
+				
+			}
+		} else if (femode == CFrontend::FE_MODE_LINK_LOOP) {
+			INFO("Frontend #%d: is LOOP, master %d", fe->fenumber, fe->getMaster());
+			if (init)
+				fe->setMasterSlave(true);
+			//fe->slave = true;
+		} else if (femode == CFrontend::FE_MODE_LINK_TWIN) {
+			INFO("Frontend #%d: is TWIN, master %d", fe->fenumber, fe->getMaster());
+		} else if (femode == CFrontend::FE_MODE_INDEPENDENT) {
+			INFO("Frontend #%d: is independent", fe->fenumber);
+		}
+		if (init && femode != CFrontend::FE_MODE_UNUSED)
+			fe->Init();
+	}
+}
+
+#if 0
 void CFEManager::setMode(fe_mode_t newmode, bool initial)
 {
 	if(!initial && (newmode == mode))
@@ -283,15 +403,8 @@ void CFEManager::setMode(fe_mode_t newmode, bool initial)
 		} else
 			fe->Init();
 	}
-#if 0
-	if(setslave && !initial) {
-		CFrontend * fe = getFE(0);
-		fe->Close();
-		fe->Open(true);
-	}
-#endif
 }
-
+#endif
 void CFEManager::Open()
 {
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
@@ -303,7 +416,7 @@ void CFEManager::Open()
 
 void CFEManager::Close()
 {
-	if(have_locked && (mode == FE_MODE_LOOP))
+	if(have_locked)
 		return;
 
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
@@ -320,41 +433,6 @@ CFrontend * CFEManager::getFE(int index)
 	INFO("Frontend #%d not found", index);
 	return NULL;
 }
-#if 0 
-//never used
-transponder * CFEManager::getChannelTransponder(CZapitChannel * channel)
-{
-	transponder_list_t::iterator tpI = transponders.find(channel->getTransponderId());
-	if(tpI != transponders.end())
-		return &tpI->second;
-
-	INFO("Transponder %llx not found", channel->getTransponderId());
-	return NULL;
-}
-#endif
-
-/* try to find fe with same tid, or unlocked. fe with same tid is preffered */
-CFrontend * CFEManager::findFrontend(CZapitChannel * channel)
-{
-	CFrontend * same_tid_fe = NULL;
-	CFrontend * free_frontend = NULL;
-	transponder_id_t channel_tid = channel->getTransponderId();
-
-	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-		CFrontend * fe = it->second;
-		INFO("Check fe%d: locked %d TP %llx - channel TP %llx", fe->fenumber, fe->Locked(), fe->getTsidOnid(), channel_tid);
-		if(fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
-			same_tid_fe = fe;
-			break;
-		}
-		else if(!fe->Locked() && !free_frontend)
-			free_frontend = fe;
-	}
-
-	CFrontend * ret = same_tid_fe ? same_tid_fe : free_frontend;
-	INFO("Selected fe: %d", ret ? ret->fenumber : -1);
-	return ret;
-}
 
 /* compare polarization and band with fe values */
 bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
@@ -365,17 +443,8 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 	if(fe->tuned && (fe->getCurrentSatellitePosition() != channel->getSatellitePosition()))
 		return false;
 
-#if 0
-	transponder * tp = getChannelTransponder(channel);
-	if(tp == NULL)
-		return false;
-
-	bool tp_band = ((int)tp->feparams.frequency >= fe->lnbSwitch);
-	uint8_t tp_pol = tp->polarization & 1;
-#else
 	bool tp_band = ((int)channel->getFreqId()*1000 >= fe->lnbSwitch);
 	uint8_t tp_pol = channel->polarization & 1;
-#endif
 	uint8_t fe_pol = fe->getPolarization() & 1;
 
 	DBG("Check fe%d: locked %d pol:band %d:%d vs %d:%d (%d:%d)", fe->fenumber, fe->Locked(), fe_pol, fe->getHighBand(), tp_pol, tp_band, fe->getFrequency(), channel->getFreqId()*1000);
@@ -384,218 +453,212 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 	return false;
 }
 
-CFrontend * CFEManager::getLoopFE(CZapitChannel * channel)
+CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
 	CFrontend * free_frontend = NULL;
 	CFrontend * same_tid_fe = NULL;
 
-	/* check is there any locked fe, remember fe with same transponder */
-	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-		CFrontend * fe = it->second;
-		INFO("Check fe%d: locked %d freq %d TP %llx - channel freq %d TP %llx", fe->fenumber, fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
-#if 0
-		if(fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
-			same_tid_fe = fe; // first with same tp id
-			break;
-		}
-#endif
-		if(fe->Locked() /* && !same_tid_fe*/) {
-			INFO("fe %d locked", fe->fenumber);
-			if(!loopCanTune(fe, channel)) {
-				free_frontend = NULL;
-				break;
-			}
-			if(fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
-				same_tid_fe = fe; // first with same tp id
-			}
-		} else if(!free_frontend)
-			free_frontend = fe; // first unlocked
-	}
-
-	CFrontend * ret = same_tid_fe ? same_tid_fe : free_frontend;
-	INFO("Selected fe: %d", ret ? ret->fenumber : -1);
-	return ret;
-}
-
-CFrontend * CFEManager::getIndependentFE(CZapitChannel * channel)
-{
-	CFrontend * free_frontend = NULL;
-	CFrontend * same_tid_fe = NULL;
+	if (livefe && livefe->sameTsidOnid(channel->getTransponderId()))
+		return livefe;
 
 	t_satellite_position satellitePosition = channel->getSatellitePosition();
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-		CFrontend * fe = it->second;
-		satellite_map_t & satmap = fe->getSatellites();
-		sat_iterator_t sit = satmap.find(satellitePosition);
-		bool configured = ((sit != satmap.end()) && sit->second.configured);
-		INFO("Check fe%d: locked %d freq %d TP %llx - channel freq %d TP %llx has sat %d: %s",
-				fe->fenumber, fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), 
-				channel->getFreqId(), channel->getTransponderId(), satellitePosition, configured ? "yes" : "no");
-		if(!configured)
+		CFrontend * mfe = it->second;
+
+		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 			continue;
 
-		if(fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
-			same_tid_fe = fe;
-			break;
+		if (mfe->getInfo()->type == FE_QPSK) {
+			satellite_map_t & satmap = mfe->getSatellites();
+			sat_iterator_t sit = satmap.find(satellitePosition);
+			if ((sit == satmap.end()) || !sit->second.configured)
+				continue;
 		}
-		else if(!fe->Locked() && !free_frontend)
-			free_frontend = fe;
+
+		if (mfe->getMode() == CFrontend::FE_MODE_MASTER) {
+			bool have_loop = false;
+			for (unsigned int i = 0; i < mfe->linkmap.size(); i++) {
+				CFrontend * fe = mfe->linkmap[i];
+				if (fe->getMode() == CFrontend::FE_MODE_LINK_LOOP) {
+					have_loop = true;
+					break;
+				}
+			}
+			CFrontend * free_twin = NULL;
+			bool loop_busy = false;
+			for (unsigned int i = 0; i < mfe->linkmap.size(); i++) {
+				CFrontend * fe = mfe->linkmap[i];
+				FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %llx - channel freq %d TP %llx", fe->fenumber, fe->getMode(),
+						fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
+
+				if(fe->Locked()) {
+					if ((fe->getCurrentSatellitePosition() != satellitePosition)) {
+						free_frontend = NULL;
+						free_twin = NULL;
+						break;
+					}
+					if (fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
+						FEDEBUG("fe %d on the same TP", fe->fenumber);
+						return same_tid_fe;
+					}
+					if (!loop_busy && fe->getMode() != CFrontend::FE_MODE_LINK_TWIN) {
+						if (have_loop && !loopCanTune(fe, channel)) {
+							free_frontend = NULL;
+							loop_busy = true;
+						}
+					}
+				} else {
+					if (fe->getMode() == CFrontend::FE_MODE_LINK_TWIN) {
+						if (!free_twin)
+							free_twin = fe;
+					} else if(!loop_busy && !free_frontend) {
+						free_frontend = fe;
+					}
+				}
+			}
+			if (!free_frontend)
+				free_frontend = free_twin;
+		}
+		if (mfe->getMode() == CFrontend::FE_MODE_INDEPENDENT) {
+			FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %llx - channel freq %d TP %llx", mfe->fenumber, mfe->getMode(),
+					mfe->Locked(), mfe->getFrequency(), mfe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
+			if(mfe->Locked()) {
+				if(mfe->tuned && mfe->sameTsidOnid(channel->getTransponderId())) {
+					FEDEBUG("fe %d on the same TP", mfe->fenumber);
+					return same_tid_fe;
+				}
+			} else if(!free_frontend)
+				free_frontend = mfe;
+		}
 	}
 	CFrontend * ret = same_tid_fe ? same_tid_fe : free_frontend;
-	INFO("Selected fe: %d", ret ? ret->fenumber : -1);
+	FEDEBUG("Selected fe: %d", ret ? ret->fenumber : -1);
 	return ret;
 }
 
-CFrontend * CFEManager::allocateFE(CZapitChannel * channel)
+int CFEManager::getDemux(transponder_id_t id)
 {
-	CFrontend * frontend = NULL, *fe;
+	for (unsigned int i = 1; i < dmap.size(); i++) {
+		if((dmap[i].usecount == 0) || dmap[i].tpid == id)
+			return i;
+	}
+	return 0;
+}
 
-	mutex.lock();
-	switch(mode) {
-		case FE_MODE_SINGLE:
-			if((fe = getFE(0))) {
-				if(!fe->Locked() || fe->sameTsidOnid(channel->getTransponderId()))
-					frontend = fe;
-			}
-			break;
-		case FE_MODE_LOOP:
-			frontend = getLoopFE(channel);
-			break;
-		case FE_MODE_TWIN:
-			frontend = findFrontend(channel);
-			break;
-		case FE_MODE_ALONE:
-			frontend = getIndependentFE(channel);
-			break;
+bool CFEManager::lockDemux(int i, transponder_id_t id)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if ((unsigned int) i < dmap.size()) {
+		if ((dmap[i].usecount == 0) || (dmap[i].tpid == id)) {
+			dmap[i].Lock(id);
+			return true;
+		}
+		INFO("faled to lock demux %d (on tp %llx, new %llx)", i, dmap[i].tpid, id);
 	}
-	//FIXME for testing only
-	if(frontend) {
-		channel->setRecordDemux(frontend->fenumber+1);
-		if(femap.size() > 1)
-			cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
+	return false;
+}
+
+void CFEManager::unlockDemux(int i)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if ((unsigned int) i < dmap.size())
+		dmap[i].Unlock();
+}
+
+bool CFEManager::haveFreeDemux()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	for (unsigned int i = 1; i < dmap.size(); i++) {
+		if (dmap[i].usecount == 0)
+			return true;
 	}
-	mutex.unlock();
+	return false;
+}
+
+CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+
+	fedebug = 1;
+	CFrontend * frontend = getFrontend(channel);
+	if (frontend) {
+		int dnum = getDemux(channel->getTransponderId());
+		INFO("record demux: %d", dnum);
+		channel->setRecordDemux(dnum);
+		if (forrecord && !dnum) {
+			frontend = NULL;
+		} else {
+			cDemux::SetSource(dnum, frontend->fenumber);
+		}
+	}
 	return frontend;
 }
 
 void CFEManager::setLiveFE(CFrontend * fe)
 {
-	mutex.lock();
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	livefe = fe; 
 	if(femap.size() > 1)
 		cDemux::SetSource(0, livefe->fenumber);
-	mutex.unlock();
 }
 
 bool CFEManager::canTune(CZapitChannel * channel)
 {
-	/* TODO: for faster processing, cache ? FE_MODE_LOOP: pol and band, 
-	 * is there unlocked or not, what else ?
-	 */
-	CFrontend * fe;
-	bool ret = false;
-#if 0
-	if(!have_locked)
-		return true;
-#endif
-	switch(mode) {
-		case FE_MODE_SINGLE:
-			if((fe = getFE(0))) {
-				if(!fe->Locked() || fe->sameTsidOnid(channel->getTransponderId()))
-					ret = true;
-			}
-			break;
-		case FE_MODE_LOOP:
-#if 1
-			for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-				fe = it->second;
-				if(fe->tuned && fe->sameTsidOnid(channel->getTransponderId()))
-					return true;
-				if(fe->Locked()) {
-					if(!loopCanTune(fe, channel)) {
-						return false;
-					}
-				} else
-					ret = true;
-			}
-#else
-			ret = (getLoopFE(channel) != NULL);
-#endif
-			break;
-		case FE_MODE_TWIN:
-			for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-				fe = it->second;
-				if(!fe->Locked() || fe->sameTsidOnid(channel->getTransponderId()))
-					return true;
-			}
-			break;
-		case FE_MODE_ALONE:
-			for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-				fe = it->second;
-				satellite_map_t & satmap = fe->getSatellites();
-				sat_iterator_t sit = satmap.find(channel->getSatellitePosition());
-				if(((sit != satmap.end()) && sit->second.configured)) {
-					if(!fe->Locked() || fe->sameTsidOnid(channel->getTransponderId()))
-						return true;
-				}
-			}
-			break;
-	}
-	return ret;
+	fedebug = 0;
+	CFrontend * fe = getFrontend(channel);
+	return (fe != NULL);
 }
 
 CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 {
 	CFrontend * frontend = NULL;
-	switch(mode) {
-		case FE_MODE_SINGLE:
-		case FE_MODE_LOOP:
-		//FIXME scan while recording ?
-		case FE_MODE_TWIN:
-			frontend = getFE(0);
+	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		CFrontend * mfe = it->second;
+		satellite_map_t & satmap = mfe->getSatellites();
+		sat_iterator_t sit = satmap.find(satellitePosition);
+		if ((sit != satmap.end()) && sit->second.configured) {
+			frontend = mfe;
 			break;
-		case FE_MODE_ALONE:
-			for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-				CFrontend * fe = it->second;
-				satellite_map_t & satmap = fe->getSatellites();
-				sat_iterator_t sit = satmap.find(satellitePosition);
-				if(((sit != satmap.end()) && sit->second.configured)) {
-					frontend = fe;
-					break;
-				}
-			}
-			break;
+		}
 	}
 	INFO("Selected fe: %d", frontend ? frontend->fenumber : -1);
 	return frontend;
 }
 
-bool CFEManager::lockFrontend(CFrontend * frontend)
+bool CFEManager::lockFrontend(CFrontend * frontend, CZapitChannel * channel)
 {
-	mutex.lock();
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	frontend->Lock();
 	have_locked = true;
-	polarization = frontend->getPolarization() & 1;
-	high_band = frontend->getHighBand();
-	mutex.unlock();
+
+	if (channel) {
+		int di = channel->getRecordDemux();
+		if ((unsigned int) di < dmap.size())
+			dmap[di].Lock(channel->getTransponderId());
+	}
 	return true;
 }
 
-bool CFEManager::unlockFrontend(CFrontend * frontend)
+bool CFEManager::unlockFrontend(CFrontend * frontend, bool unlock_demux)
 {
-	mutex.lock();
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	have_locked = false;
 	frontend->Unlock();
+	if (unlock_demux) {
+		for (unsigned int i = 1; i < dmap.size(); i++) {
+			if(dmap[i].tpid == frontend->getTsidOnid()) {
+				dmap[i].Unlock();
+				break;
+			}
+		}
+	}
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(fe->Locked()) {
 			have_locked = true;
-			polarization = fe->getPolarization() & 1;
-			high_band = fe->getHighBand();
 			break;
 		}
 	}
-	mutex.unlock();
 	return true;
 }
 
@@ -611,10 +674,6 @@ bool CFEManager::haveFreeFrontend()
 					return true;
 			}
 		}
-#if 0
-		if(mode == FE_MODE_LOOP)
-			return false;
-#endif
 		return false;
 	}
 	return true;
