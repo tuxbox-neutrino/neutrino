@@ -3172,7 +3172,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		frameBuffer->setActive(false);
 		// Active standby on
-		powerManager->SetStandby(true, false);
+		powerManager->SetStandby(false, false);
 	} else {
 		// Active standby off
 		powerManager->SetStandby(false, false);
