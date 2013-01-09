@@ -189,8 +189,9 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		return RECORD_FAILURE;
 	}
 
+printf("CRecordInstance::Start: fe %d demux %d\n", frontend->getNumber(), channel->getRecordDemux());
 	if(!autoshift)
-		CFEManager::getInstance()->lockFrontend(frontend);//FIXME testing
+		CFEManager::getInstance()->lockFrontend(frontend, channel);//FIXME testing
 
 	start_time = time(0);
 	SaveXml();
@@ -228,7 +229,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	record->Stop();
 
 	if(!autoshift)
-		CFEManager::getInstance()->unlockFrontend(frontend);//FIXME testing
+		CFEManager::getInstance()->unlockFrontend(frontend, true);//FIXME testing
 
         CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
@@ -1578,12 +1579,12 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		/* first try to get frontend for record with locked live */
 		bool unlock = true;
 		CFEManager::getInstance()->lockFrontend(live_fe);
-		frontend = CFEManager::getInstance()->allocateFE(channel);
+		frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		if (frontend == NULL) {
 			/* no frontend, try again with unlocked live */
 			unlock = false;
 			CFEManager::getInstance()->unlockFrontend(live_fe);
-			frontend = CFEManager::getInstance()->allocateFE(channel);
+			frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		}
 		if (frontend == NULL)
 			return false;
@@ -1612,7 +1613,12 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		}
 		if (unlock)
 			CFEManager::getInstance()->unlockFrontend(live_fe);
+	} else {
+		frontend = CFEManager::getInstance()->allocateFE(channel, true);
 	}
+	printf("%s: record demux: %d\n", __FUNCTION__, channel->getRecordDemux());
+	if (channel->getRecordDemux() == 0)
+		ret = false;
 	if(ret) {
 		if(StopSectionsd) {
 			printf("%s: g_Sectionsd->setPauseScanning(true)\n", __FUNCTION__);
