@@ -143,10 +143,13 @@ CFrontend::CFrontend(int Number, int Adapter)
 	fd		= -1;
 	fenumber	= Number;
 	adapter		= Adapter;
-	slave		= (Number != 0); //false;
+	slave		= false; //(Number != 0); //false;
 	standby		= true;
 	locked		= false;
 	usecount	= 0;
+
+	femode		= FE_MODE_INDEPENDENT;
+	masterkey	= 0;
 
 	tuned					= false;
 	uncommitedInput				= 255;

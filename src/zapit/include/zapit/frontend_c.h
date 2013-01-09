@@ -55,6 +55,8 @@
 #define FEC_S2_8PSK_9_10 (fe_code_rate_t)(FEC_S2_8PSK_BASE+8)	//27
 #define FEC_S2_AUTO      (fe_code_rate_t)(FEC_S2_8PSK_BASE+9)	//28
 
+#define MAKE_FE_KEY(adapter, number) ((adapter << 8) | (number & 0xFF))
+
 static inline fe_modulation_t dvbs_get_modulation(fe_code_rate_t fec)
 {
 	if((fec < FEC_S2_QPSK_1_2) || (fec < FEC_S2_8PSK_1_2))
@@ -81,8 +83,20 @@ static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 
 class CFEManager;
 
+class CFrontend;
+typedef std::vector<CFrontend*> fe_linkmap_t;
+
 class CFrontend
 {
+	public:
+		typedef enum {
+			FE_MODE_INDEPENDENT,
+			FE_MODE_MASTER,
+			FE_MODE_LINK_LOOP,
+			FE_MODE_LINK_TWIN,
+			FE_MODE_UNUSED,
+		} fe_work_mode_t;
+
 	private:
 		/* frontend filedescriptor */
 		int fd;
@@ -123,6 +137,9 @@ class CFrontend
 		/* current Transponderdata */
 		TP_params currentTransponder;
 		bool slave;
+		fe_work_mode_t femode;
+		int masterkey;
+		fe_linkmap_t linkmap;
 		int fenumber;
 		bool standby;
 		bool buildProperties(const FrontendParameters*, struct dtv_properties &);
@@ -175,15 +192,15 @@ class CFrontend
 		void				setDiseqcType(const diseqc_t type, bool force = false);
 		void				setTimeout(int timeout) { feTimeout = timeout; };
 		void				configUsals(double Latitude, double Longitude, int LaDirection, int LoDirection, bool _repeatUsals)
-						{
-							gotoXXLatitude = Latitude;
-							gotoXXLongitude = Longitude;
-							gotoXXLaDirection = LaDirection;
-							gotoXXLoDirection = LoDirection;
-							repeatUsals = _repeatUsals;
-						};
+		{
+			gotoXXLatitude = Latitude;
+			gotoXXLongitude = Longitude;
+			gotoXXLaDirection = LaDirection;
+			gotoXXLoDirection = LoDirection;
+			repeatUsals = _repeatUsals;
+		};
 		void				configRotor(int _motorRotationSpeed, bool _highVoltage)
-							{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
+		{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
 		void				configUnicable(int scr, int qrg) { config.uni_scr = scr; config.uni_qrg = qrg; };
 
 		frontend_config_t&		getConfig() { return config; };
@@ -204,10 +221,10 @@ class CFrontend
 		fe_code_rate_t 			getCFEC ();
 		transponder_id_t		getTsidOnid() { return currentTransponder.TP_id; }
 		bool				sameTsidOnid(transponder_id_t tpid)
-						{
-							return (currentTransponder.TP_id == 0)
-								|| (tpid == currentTransponder.TP_id);
-						}
+		{
+			return (currentTransponder.TP_id == 0)
+				|| (tpid == currentTransponder.TP_id);
+		}
 		void 				setTsidOnid(transponder_id_t newid)  { currentTransponder.TP_id = newid; }
 		uint32_t 			getRate ();
 
@@ -228,5 +245,16 @@ class CFrontend
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
 		int				getNumber() { return fenumber; };
 		static void			getDelSys(uint8_t type, int f, int m, char * &fec, char * &sys, char * &mod);
+		fe_work_mode_t			getMode() { return femode; }
+		void				setMode(int mode) {femode = (fe_work_mode_t) mode; }
+		int				getMaster() { return masterkey; }
+		void				setMaster(int key) { masterkey = key; }
+		bool				hasLinks() { return (femode == FE_MODE_MASTER) && (linkmap.size() > 1); }
+		static bool			linked(int mode)
+		{
+			if ((mode == FE_MODE_LINK_LOOP) || (mode == FE_MODE_LINK_TWIN))
+				return true;
+			return false;
+		}
 };
 #endif /* __zapit_frontend_h__ */
