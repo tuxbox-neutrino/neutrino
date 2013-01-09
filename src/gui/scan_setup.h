@@ -57,14 +57,23 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *fautoScanAll;
 		CMenuForwarder  *frontendSetup;
 		CMenuForwarder  *fsatSetup;
+		CMenuForwarder  *fsatSelect;
+		CMenuOptionChooser * dtype;
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 		CIntInput * nid;
 		CMenuOptionChooser * lcnhd;
 
+		CMenuOptionChooser * linkfe;
+
 		/* variables for selected frontend */
 		/* diseqc mode */
 		int dmode;
+		/* frontend setup menu current fe number */
 		int fenumber;
+		/* frontend mode */
+		int femode;
+		/* frontend link to number */
+		int femaster;
 
 		/* flag to allow any operations which can damage recordings */
 		bool allow_start;
@@ -74,7 +83,6 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int fec_count;
 		int freq_length;
 		int r_system;
-		int femode;
 
 		neutrino_locale_t satprov_locale;
 
@@ -83,6 +91,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int showScanMenu();
 
 		int showFrontendSetup(int number);
+		int showFrontendSelect(int number);
 		int showScanMenuLnbSetup();
 		int showScanMenuSatFind();
 		void fillSatSelect(CMenuOptionStringChooser *select);
