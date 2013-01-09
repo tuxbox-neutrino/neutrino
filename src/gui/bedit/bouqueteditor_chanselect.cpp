@@ -254,7 +254,7 @@ void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 		//infobox
 		if (ibox == NULL)
 			ibox = new CComponentsInfoBox(x, ypos2, width, info_height, false);
-		ibox->paint(false);
+		ibox->paint(false,true);
 	}
 }
 
