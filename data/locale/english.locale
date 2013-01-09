@@ -1549,10 +1549,11 @@ satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
 satsetup.fe_mode Tuner mode
-satsetup.fe_mode_alone independent
-satsetup.fe_mode_loop loop
-satsetup.fe_mode_single single
-satsetup.fe_mode_twin twin
+satsetup.fe_mode_independent Independent
+satsetup.fe_mode_link_loop Loop
+satsetup.fe_mode_link_twin TWIN
+satsetup.fe_mode_master Master
+satsetup.fe_mode_unused Unused
 satsetup.fe_setup Setup tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
