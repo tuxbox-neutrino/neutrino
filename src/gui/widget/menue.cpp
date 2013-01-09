@@ -663,6 +663,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					if(hasItem() && selected > -1 && (int)items.size() > selected) {
 						//exec this item...
 						CMenuItem* item = items[selected];
+						if (!item->isSelectable())
+							break;
 						item->msg = msg;
 						fader.Stop();
 						int rv = item->exec( this );
