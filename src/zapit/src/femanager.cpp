@@ -192,12 +192,24 @@ bool CFEManager::loadSettings()
 	if (!configfile.loadConfig(FECONFIGFILE)) {
 		WARN("%s not found", FECONFIGFILE);
 		config_exist = false;
-		//return false;
 	}
 
-#if 0
-	fe_mode_t newmode = (fe_mode_t) configfile.getInt32("mode", (int) FE_MODE_SINGLE);
-#endif
+	int def_mode0 = CFrontend::FE_MODE_INDEPENDENT;
+	int def_modeX = CFrontend::FE_MODE_UNUSED;
+	fe_mode_t newmode = (fe_mode_t) configfile.getInt32("mode", -1);
+	if (newmode >= 0) {
+		INFO("old mode param: %d\n", newmode);
+		if (newmode == FE_MODE_LOOP) {
+			def_mode0 = CFrontend::FE_MODE_MASTER;
+			def_modeX = CFrontend::FE_MODE_LINK_LOOP;
+		} else if (newmode == FE_MODE_TWIN) {
+			def_mode0 = CFrontend::FE_MODE_MASTER;
+			def_modeX = CFrontend::FE_MODE_LINK_TWIN;
+		} else if (newmode == FE_MODE_ALONE) {
+			def_mode0 = CFrontend::FE_MODE_MASTER;
+			def_modeX = CFrontend::FE_MODE_INDEPENDENT;
+		}
+	}
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -211,7 +223,8 @@ bool CFEManager::loadSettings()
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
-		int def_mode = fe->fenumber ? CFrontend::FE_MODE_UNUSED : CFrontend::FE_MODE_INDEPENDENT;
+
+		int def_mode = fe->fenumber ? def_modeX : def_mode0;
 		fe->setMode(getConfigValue(fe, "mode", def_mode));
 		fe->setMaster(getConfigValue(fe, "master", 0));
 
@@ -256,23 +269,12 @@ bool CFEManager::loadSettings()
 
 void CFEManager::saveSettings(bool write)
 {
-	configfile.setInt32("mode", (int) mode);
+	configfile.clear();
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
 
 		INFO("fe%d", fe->fenumber);
-#if 0
-		if(fe->fenumber && mode != FE_MODE_ALONE) {
-			CFrontend * fe0 = getFE(0);
-			fe->setSatellites(fe0->getSatellites());
-			//fe->setConfig(fe0->getConfig());
-			fe->config.diseqcType = fe0->config.diseqcType;
-			fe->config.diseqcRepeats = fe0->config.diseqcRepeats;
-			fe->config.motorRotationSpeed = fe0->config.motorRotationSpeed;
-			fe->config.highVoltage = fe0->config.highVoltage;
-		}
-#endif
 
 		setConfigValue(fe, "diseqcType", fe_config.diseqcType);
 		setConfigValue(fe, "diseqcRepeats", fe_config.diseqcRepeats);
@@ -287,8 +289,10 @@ void CFEManager::saveSettings(bool write)
 		std::vector<int> satList;
 		satellite_map_t satellites = fe->getSatellites();
 		for(sat_iterator_t sit = satellites.begin(); sit != satellites.end(); ++sit) {
-			satList.push_back(sit->first);
-			setSatelliteConfig(fe, sit->second);
+			if (sit->second.configured) {
+				satList.push_back(sit->first);
+				setSatelliteConfig(fe, sit->second);
+			}
 		}
 		char cfg_key[81];
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
