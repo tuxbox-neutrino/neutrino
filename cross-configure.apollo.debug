@@ -14,12 +14,12 @@ export STRIP=$CCPATH$HOST-strip
 
 export CFLAGS="-Wall -Wextra -Wshadow -g -ggdb3 \
 	-mcpu=cortex-a9 -mfpu=vfpv3-d16 -mfloat-abi=hard \
-	 -D__KERNEL_STRICT_NAMES -DISAPOLLO -DFB_HW_ACCELERATION \
+	 -D__KERNEL_STRICT_NAMES -DFB_HW_ACCELERATION \
 	-I"$PWD"/include -I"$PWD"/include/linux/dvb -I"$PREFIX"/include/freetype2"
 
 export CXXFLAGS="-Wall -Wextra -Wshadow -g -ggdb3 \
 	-mcpu=cortex-a9 -mfpu=vfpv3-d16 -mfloat-abi=hard \
-	 -D__KERNEL_STRICT_NAMES -DISAPOLLO -DFB_HW_ACCELERATION \
+	 -D__KERNEL_STRICT_NAMES -DFB_HW_ACCELERATION \
 	-I"$PWD"/include -I"$PWD"/include/linux/dvb -I"$PREFIX"/include/freetype2"
 
 export LDFLAGS="-L"$PREFIX"/lib -lcurl -lssl -lcrypto -ldl"
@@ -29,5 +29,5 @@ export FREETYPE_CONFIG=$PREFIX/bin/freetype-config
 export CURL_CONFIG=$PREFIX/bin/curl-config
 
 ./autogen.sh
-./configure --prefix=${PREFIX} --build=i386-pc-linux-gnu --host=$HOST --enable-flac --with-target=cdk --with-targetprefix="" --enable-mdev "$*"
+./configure --prefix=${PREFIX} --build=i386-pc-linux-gnu --host=$HOST --enable-flac --with-target=cdk --with-targetprefix="" --with-boxmodel=apollo --enable-mdev "$*"
 
