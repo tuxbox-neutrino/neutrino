@@ -72,5 +72,7 @@ int cs_get_tsp_config(unsigned int port, tsrouter_tsp_config_t *tsp_config);
 unsigned long long cs_get_serial(void);
 unsigned int cs_get_revision(void);
 
+unsigned int cs_get_chip_id(void);
+unsigned int cs_get_chip_rev_id(void);
 
 #endif //__CS_API_H_
