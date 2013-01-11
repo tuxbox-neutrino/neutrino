@@ -122,8 +122,15 @@ AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
 
-AC_CHECK_HEADERS(coolstream/cs_ir_generic.h)
-AC_CHECK_HEADERS(coolstream/cs_frontpanel.h)
+if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
+	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
+fi
+if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
+	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
+fi
+if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
+	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
+fi
 
 #
 # Check for libtdservicedb - the new one - for testing only
