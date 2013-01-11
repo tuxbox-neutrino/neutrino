@@ -21,6 +21,10 @@ if test "$DEBUG" = "yes"; then
 	DEBUG_CFLAGS="-g3 -ggdb"
 	AC_DEFINE(DEBUG,1,[Enable debug messages])
 fi
+AC_ARG_ENABLE(tmsdk,
+        AS_HELP_STRING(--enable-tmsdk,         compile inside sdk),
+        ,[enable_tmsdk=no])
+AM_CONDITIONAL(ENABLE_TMSDK,test "$enable_tmsdk" = "yes")
 
 AC_MSG_CHECKING(target)
 
@@ -401,9 +405,17 @@ AC_ARG_WITH(boxtype,
 	esac], [BOXTYPE="coolstream"])
 
 AC_ARG_WITH(boxmodel,
-	[  --with-boxmodel         valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
+	[  --with-boxmodel         valid for coolstream: nevis, apollo
+                          valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
                           valid for ipbox: ip200, ip250, ip350, ip400],
 	[case "${withval}" in
+		nevis|apollo)
+			if test "$BOXTYPE" = "coolstream"; then
+				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
 		dm500|dm500plus|dm600pvr|dm56x0|dm7000|dm7020|dm7025)
 			if test "$BOXTYPE" = "dreambox"; then
 				BOXMODEL="$withval"
@@ -436,6 +448,9 @@ AM_CONDITIONAL(BOXTYPE_IPBOX, test "$BOXTYPE" = "ipbox")
 AM_CONDITIONAL(BOXTYPE_COOL, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
 
+AM_CONDITIONAL(BOXMODEL_NEVIS,test "$BOXMODEL" = "nevis")
+AM_CONDITIONAL(BOXMODEL_APOLLO,test "$BOXMODEL" = "apollo")
+
 AM_CONDITIONAL(BOXMODEL_DM500,test "$BOXMODEL" = "dm500")
 AM_CONDITIONAL(BOXMODEL_DM500PLUS,test "$BOXMODEL" = "dm500plus")
 AM_CONDITIONAL(BOXMODEL_DM600PVR,test "$BOXMODEL" = "dm600pvr")
@@ -462,7 +477,11 @@ elif test "$BOXTYPE" = "generic"; then
 fi
 
 # TODO: do we need more defines?
-if test "$BOXMODEL" = "dm500"; then
+if test "$BOXMODEL" = "nevis"; then
+	AC_DEFINE(BOXMODEL_NEVIS, 1, [coolstream hd1/neo/neo2/zee])
+elif test "$BOXMODEL" = "apollo"; then
+	AC_DEFINE(BOXMODEL_APOLLO, 1, [coolstream tank])
+elif test "$BOXMODEL" = "dm500"; then
 	AC_DEFINE(BOXMODEL_DM500, 1, [dreambox 500])
 elif test "$BOXMODEL" = "ip200"; then
 	AC_DEFINE(BOXMODEL_IP200, 1, [ipbox 200])
