@@ -5,15 +5,12 @@
 /*                                                                             */
 /* (C) 2010 CoolStream International                                           */
 /*                                                                             */
-/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __CS_API_H_
 #define __CS_API_H_
 
-#include <coolstream/control.h>
+#include <control.h>
 #include <sys/types.h>
-#include <stdio.h>
-#include <stdint.h>
 
 typedef void (*cs_messenger) (unsigned int msg, unsigned int data);
 
@@ -33,7 +30,7 @@ enum CS_LOG_MODULE {
 	CS_LOG_POWER_CLK,
 	CS_LOG_MEM,
 	CS_LOG_API,
-	CS_LOG_CA,
+	CS_LOG_CA
 };
 
 // Initialization
@@ -61,18 +58,12 @@ void cs_log_module_message(enum CS_LOG_MODULE module, const char *fmt, ...);
 // TS Routing
 unsigned int cs_get_ts_output(void);
 int cs_set_ts_output(unsigned int port);
-int cs_set_ts_ci_clock(unsigned int speed);
-int cs_get_ts_ci_clock(unsigned int *speed);
 int cs_set_ts_config(unsigned int port, tsrouter_hsdp_config_t *hsdp_config);
 int cs_get_ts_config(unsigned int port, tsrouter_hsdp_config_t *hsdp_config);
-int cs_set_tsp_config(unsigned int port, tsrouter_tsp_config_t *tsp_config);
-int cs_get_tsp_config(unsigned int port, tsrouter_tsp_config_t *tsp_config);
 
 // Serial nr and revision accessors
 unsigned long long cs_get_serial(void);
 unsigned int cs_get_revision(void);
 
-unsigned int cs_get_chip_id(void);
-unsigned int cs_get_chip_rev_id(void);
 
 #endif //__CS_API_H_

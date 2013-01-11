@@ -11,8 +11,6 @@
 #define __DEMUX_CS_H_
 
 #include <string>
-
-#include <video_cs.h>
 #include "cs_types.h"
 
 #define DEMUX_POLL_TIMEOUT		0  // timeout in ms
@@ -36,12 +34,8 @@ typedef enum {
 } DMX_CHANNEL_TYPE;
 
 class cDemuxData;
-class cVideo;
-class cAudio;
 
 class cDemux {
-friend class cVideo;
-friend class cAudio;
 private:
 	DMX_CHANNEL_TYPE	type;
 	int			timeout;
@@ -60,8 +54,6 @@ public:
 	bool		Start(bool record = false);
 	bool		Stop(void);
 	int		Read(unsigned char *buff, int len, int Timeout = 0);
-
-	bool		SetVideoFormat(VIDEO_FORMAT VideoFormat);
 	bool		SetSource(int source);
 
 	bool		sectionFilter(unsigned short Pid, const unsigned char * const Tid, const unsigned char * const Mask, int len, int Timeout = DEMUX_POLL_TIMEOUT, const unsigned char * const nMask = NULL);
@@ -72,7 +64,7 @@ public:
 	void		SetSyncMode(AVSYNC_TYPE SyncMode);
 	void		*getBuffer(void);
 	void		*getChannel(void);
-	void		getSTC(s64 *STC);
+	void		getSTC(int64_t *STC);
 
 	DMX_CHANNEL_TYPE getChannelType(void) { return type; };
 	int		getUnit(void) { return unit; };

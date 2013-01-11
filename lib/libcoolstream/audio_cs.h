@@ -56,7 +56,6 @@ typedef enum
 	HDMI_AUDIO_FMT_ATRAC
 } HDMI_AUDIO_FORMAT;
 
-#define CS_MAX_AUDIO_DECODERS	1
 #define CS_MAX_AUDIO_FORMATS 10
 
 typedef struct cs_audio_format {
@@ -69,17 +68,10 @@ typedef struct cs_audio_caps {
 	cs_audio_format_t formats[CS_MAX_AUDIO_FORMATS];
 } cs_audio_caps_t;
 
-class cDemux;
-class cVideo;
-
 class cAudio {
 private:
-	static cAudio		*instance[CS_MAX_AUDIO_DECODERS];
-	unsigned int		unit;
-	cDemux			*demux;
-	cVideo			*video;
 	CS_AUDIO_PDATA	*privateData;
-	//unsigned int		cEncodedDataOnSPDIF, cEncodedDataOnHDMI;
+	unsigned int		cEncodedDataOnSPDIF, cEncodedDataOnHDMI;
 	bool			muted;
 
 	AUDIO_FORMAT		streamType;
@@ -100,8 +92,6 @@ private:
 	bool spdifDD;
 	bool hasMuteScheduled;
 	bool analogOut;
-	//
-	cAudio(unsigned int Unit);
 public:
 	/* construct & destruct */
 	cAudio(void *hBuffer, void *encHD, void *encSD);
@@ -158,10 +148,6 @@ public:
 	bool GetHdmiAudioCaps(cs_audio_caps_t &caps);
 	bool IsHdmiAudioFormatSupported(HDMI_AUDIO_FORMAT format);
 	void SetHdmiDD(HDMI_ENCODED_MODE type);
-	bool IsHdmiDTSSupported(void);
-	void SetDemux(cDemux *Demux);
-	void SetVideo(cVideo *Video);
-	static cAudio *GetDecoder(unsigned int Unit);
 };
 
 #endif //__AUDIO_CS_H_

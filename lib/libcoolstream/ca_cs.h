@@ -11,8 +11,8 @@
 #define __CA_CS_H_
 
 #include <OpenThreads/Thread>
-#include <vector>
 #include "cs_types.h"
+#include <vector>
 
 enum CA_INIT_MASK {
 	CA_INIT_SC	= 1,
@@ -23,7 +23,7 @@ enum CA_INIT_MASK {
 enum CA_SLOT_TYPE {
 	CA_SLOT_TYPE_SMARTCARD,
 	CA_SLOT_TYPE_CI,
-	CA_SLOT_TYPE_ALL,
+	CA_SLOT_TYPE_ALL
 };
 
 enum CA_MESSAGE_FLAGS {
@@ -49,7 +49,7 @@ enum CA_MESSAGE_FLAGS {
 	CA_MESSAGE_HAS_PARAM1_LONG	= (1 << 19),
 	CA_MESSAGE_HAS_PARAM2_LONG	= (1 << 20),
 	CA_MESSAGE_HAS_PARAM3_LONG	= (1 << 21),
-	CA_MESSAGE_HAS_PARAM4_LONG	= (1 << 22),
+	CA_MESSAGE_HAS_PARAM4_LONG	= (1 << 22)
 };
 
 enum CA_MESSAGE_MSGID {
@@ -72,7 +72,7 @@ enum CA_MESSAGE_MSGID {
 	CA_MESSAGE_MSG_EMM_ARRIVED,
 	CA_MESSAGE_MSG_CHANNEL_CHANGE,
 	CA_MESSAGE_MSG_GUI_READY,
-	CA_MESSAGE_MSG_EXIT,
+	CA_MESSAGE_MSG_EXIT
 };
 
 typedef struct CA_MESSAGE {

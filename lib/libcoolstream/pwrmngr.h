@@ -5,7 +5,6 @@
 /*                                                                             */
 /* (C) 2010 CoolStream International                                           */
 /*                                                                             */
-/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __PWRMNGR_H_
 #define __PWRMNGR_H_
@@ -27,7 +26,7 @@ public:
 	unsigned long GetDelta(void);
 	//
 	cCpuFreqManager(void);
-	~cCpuFreqManager();
+
 };
 
 // -- cPowerManageger ----------------------------------------------------------
@@ -46,6 +45,7 @@ private:
 	bool			opened;
 	PWR_STATE		powerState;
 	//
+	static void ApplicationCallback(void * /*hHandle*/, void */*pUserData*/, signed long /*eEvent*/, void */*pEventData*/, void */*pTag*/) {}
 	bool SetState(PWR_STATE PowerState);
 public:
 	bool Open(void);

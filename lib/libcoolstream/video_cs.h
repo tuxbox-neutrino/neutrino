@@ -5,60 +5,38 @@
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
-/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __VIDEO_CS_H_
 #define __VIDEO_CS_H_
 
-#include <coolstream/cs_frontpanel.h>
-#include <coolstream/control.h>
+#include <cs_vfd.h>
+#include <control.h>
 
 #include "cs_types.h"
-
-#define CS_MAX_VIDEO_DECODERS 16
 
 #ifndef CS_VIDEO_PDATA
 #define CS_VIDEO_PDATA void
 #endif
 
 typedef enum {
-	// Video modes
-	ANALOG_xD_CVBS		= (1 << 0), // Turns off fastblank on SCART
-	ANALOG_SD_RGB		= (1 << 1), // Output SD in RGB format
-	ANALOG_SD_YPRPB		= (1 << 2), // Output SD in YPbPr format (component)
-	ANALOG_HD_RGB		= (1 << 3), // Output HD in RGB format
-	ANALOG_HD_YPRPB		= (1 << 4), // Output HD in YPbPr format (component)
-	// Output types
-	ANALOG_xD_SCART		= (1 << 8), // Output is SCART
-	ANALOG_xD_CINCH		= (1 << 9), // Output is Cinch
-	ANALOG_xD_BOTH		= (3 << 8), // Output cannot individually control scart, cinch outputs
-					    // due to limited amount of DACs (ie TANK, Trinity)
+	ANALOG_SD_RGB_CINCH = 0x00,
+	ANALOG_SD_YPRPB_CINCH,
+	ANALOG_HD_RGB_CINCH,
+	ANALOG_HD_YPRPB_CINCH,
+	ANALOG_SD_RGB_SCART = 0x10,
+	ANALOG_SD_YPRPB_SCART,
+	ANALOG_HD_RGB_SCART,
+	ANALOG_HD_YPRPB_SCART,
+	ANALOG_SCART_MASK = 0x10
 } analog_mode_t;
 
-#define ANALOG_MODE(conn, def, sys)	(ANALOG_##def##_##sys | ANALOG_xD_##conn)
-
-typedef enum
-{
+typedef enum {
 	VIDEO_FORMAT_MPEG2 = 0,
-	VIDEO_FORMAT_MPEG4, /* H264 */
+	VIDEO_FORMAT_MPEG4,
 	VIDEO_FORMAT_VC1,
 	VIDEO_FORMAT_JPEG,
 	VIDEO_FORMAT_GIF,
-	VIDEO_FORMAT_PNG,
-	VIDEO_FORMAT_DIVX,/* DIVX 3.11 */
-	VIDEO_FORMAT_MPEG4PART2,/* MPEG4 SVH, MPEG4 SP, MPEG4 ASP, DIVX4,5,6 */
-	VIDEO_FORMAT_REALVIDEO8,
-	VIDEO_FORMAT_REALVIDEO9,
-	VIDEO_FORMAT_ON2_VP6,
-	VIDEO_FORMAT_ON2_VP8,
-	VIDEO_FORMAT_SORENSON_SPARK,
-	VIDEO_FORMAT_H263,
-	VIDEO_FORMAT_H263_ENCODER,
-	VIDEO_FORMAT_H264_ENCODER,
-	VIDEO_FORMAT_MPEG4PART2_ENCODER,
-	VIDEO_FORMAT_AVS,
-	VIDEO_FORMAT_VIP656,
-	VIDEO_FORMAT_UNSUPPORTED
+	VIDEO_FORMAT_PNG
 } VIDEO_FORMAT;
 
 typedef enum {
@@ -144,17 +122,10 @@ typedef enum
    VIDEO_CONTROL_MAX = VIDEO_CONTROL_SHARPNESS
 } VIDEO_CONTROL;
 
-class cDemux;
-class cAudio;
-
 class cVideo {
-friend class cAudio;
 private:
-	static cVideo *instance[CS_MAX_VIDEO_DECODERS];
-
-	unsigned int		unit;
 	CS_VIDEO_PDATA		*privateData;
-	VIDEO_FORMAT		streamType;
+	VIDEO_FORMAT		StreamType;
 	VIDEO_DEFINITION	VideoDefinition;
 	DISPLAY_AR		DisplayAR;
 	VIDEO_PLAY_MODE		playMode;
@@ -165,7 +136,7 @@ private:
 	VIDEO_FRAME_RATE	FrameRate;
 	VIDEO_HDMI_CEC_MODE	hdmiCECMode;
 	bool			Interlaced;
-	unsigned int		uVPPDisplayDelay;
+	unsigned int		uDRMDisplayDelay;
 	unsigned int		uVideoPTSDelay;
 	int			StcPts;
 	bool			started;
@@ -175,23 +146,21 @@ private:
 	bool			auto_format;
 	int			uFormatIndex;
 	bool			vbi_started;
-	bool			receivedVPPDelay;
+	bool			receivedDRMDelay;
 	bool			receivedVideoDelay;
 	int			cfd; // control driver fd
 	analog_mode_t		analog_mode_cinch;
 	analog_mode_t		analog_mode_scart;
-	fp_icon			mode_icon;
-	cDemux			*demux;
+	vfd_icon		mode_icon;
 	//
 	int SelectAutoFormat();
 	void ScalePic();
-	cVideo(unsigned int Unit);
 public:
 	/* constructor & destructor */
 	cVideo(int mode, void * hChannel, void * hBuffer);
 	~cVideo(void);
 
-	void * GetVPP(void);
+	void * GetDRM(void);
 	void * GetTVEnc();
 	void * GetTVEncSD();
 	void * GetHandle();
@@ -209,7 +178,7 @@ public:
 	/* stream source */
 	int getSource(void);
 	int setSource(void);
-	int GetStreamType(void);
+	int GetStreamType(void) { return StreamType; };
 
 	/* blank on freeze */
 	int getBlank(void);
@@ -217,10 +186,10 @@ public:
 
 	/* get play state */
 	int getPlayState(void);
-	void SetVPPDelay(unsigned int delay) { uVPPDisplayDelay = delay;};
+	void SetDRMDelay(unsigned int delay) { uDRMDisplayDelay = delay;};
 	void SetVideoDelay(unsigned int delay) { uVideoPTSDelay = delay;};
 	/* Notification handlers */
-	void HandleVPPMessage(int Event, void *pData);
+	void HandleDRMMessage(int Event, void *pData);
 	void HandleVideoMessage(void * hHandle, int Event, void *pData);
 	void HandleEncoderMessage(void *hHandle, int Event, void *pData);
 	VIDEO_DEFINITION   GetVideoDef(void) { return VideoDefinition; }
@@ -247,9 +216,9 @@ public:
 	void Standby(bool bOn);
 	void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);
 	void SetControl(int num, int val);
-	bool ReceivedVPPDelay(void) { return receivedVPPDelay; }
+	bool ReceivedDRMDelay(void) { return receivedDRMDelay; }
 	bool ReceivedVideoDelay(void) { return receivedVideoDelay; }
-	void SetReceivedVPPDelay(bool Received) { receivedVPPDelay = Received; }
+	void SetReceivedDRMDelay(bool Received) { receivedDRMDelay = Received; }
 	void SetReceivedVideoDelay(bool Received) { receivedVideoDelay = Received; }
 	void SetFastBlank(bool onoff);
 	void SetTVAV(bool onoff);
@@ -262,8 +231,6 @@ public:
 	int  StartVBI(unsigned short pid);
 	int  StopVBI(void);
 	bool GetScreenImage(unsigned char * &data, int &xres, int &yres, bool get_video = true, bool get_osd = false, bool scale_to_video = false);
-	void SetDemux(cDemux *Demux);
-	static cVideo *GetDecoder(unsigned int Unit);
 };
 
 #endif // __VIDEO_CS_H_
