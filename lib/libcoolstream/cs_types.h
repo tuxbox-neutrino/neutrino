@@ -1,3 +1,12 @@
+/*******************************************************************************/
+/*                                                                             */
+/* libcoolstream/cs_types.h                                                    */
+/*   Public header file for CoolStream Public API                              */
+/*                                                                             */
+/* (C) 2010 CoolStream International                                           */
+/*                                                                             */
+/* $Id::                                                                     $ */
+/*******************************************************************************/
 #ifndef __CS_TYPES_H_
 #define __CS_TYPES_H_
 
