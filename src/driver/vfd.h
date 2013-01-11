@@ -42,7 +42,11 @@
 
 #include <pthread.h>
 #include <string>
-#include <coolstream/cs_frontpanel.h>
+#ifdef BOXMODEL_APOLLO
+#include <cs_frontpanel.h>
+#else
+#include <cs_vfd.h>
+#endif
 
 class CVFD
 {
