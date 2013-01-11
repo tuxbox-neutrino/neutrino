@@ -38,11 +38,15 @@
 #include <sys/types.h>
 #include <string>
 #include <vector>
+
+#ifdef BOXMODEL_APOLLO
 #ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
-#include <coolstream/cs_ir_generic.h>
+#include <cs_ir_generic.h>
 #endif
+#else
 #ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 #include <nevis_ir.h>
+#endif
 #endif
 
 #ifndef KEY_OK
