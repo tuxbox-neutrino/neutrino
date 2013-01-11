@@ -41,6 +41,9 @@
 #ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
 #include <coolstream/cs_ir_generic.h>
 #endif
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+#include <nevis_ir.h>
+#endif
 
 #ifndef KEY_OK
 #define KEY_OK           0x160
@@ -152,7 +155,7 @@ class CRCInput
 		int translate(int code, int num);
 		void calculateMaxFd(void);
 		int checkTimers();
-#ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
+#ifdef IOC_IR_SET_PRI_PROTOCOL
 		void set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address);
 #endif
 	public:

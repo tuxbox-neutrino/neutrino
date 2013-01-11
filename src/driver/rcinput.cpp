@@ -1574,7 +1574,7 @@ void CRCInput::play_click()
 }
 
 
-#ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
+#ifdef IOC_IR_SET_PRI_PROTOCOL
 // hint: ir_protocol_t and other useful things are defined in cs_ir_generic.h
 void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 {
