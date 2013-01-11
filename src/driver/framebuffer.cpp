@@ -54,7 +54,7 @@ extern CPictureViewer * g_PicViewer;
 
 #define BACKGROUNDIMAGEWIDTH 720
 
-#ifdef ISAPOLLO
+#ifdef BOXMODEL_APOLLO
 #ifndef FB_HW_ACCELERATION
 #define FB_HW_ACCELERATION
 #endif
