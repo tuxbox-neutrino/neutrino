@@ -29,11 +29,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <coolstream/cs_frontpanel.h>
+#include <cs_frontpanel.h>
 
+#ifdef BOXMODEL_APOLLO
 #ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
-#include <coolstream/cs_ir_generic.h>
+#include <cs_ir_generic.h>
 #endif
+#else
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+#include <nevis_ir.h>
+#endif
+#endif
+
 
 #ifndef IOC_IR_SET_PRI_PROTOCOL
 /* unfortunately, the shipped headers seem to be still incomplete...
