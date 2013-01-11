@@ -777,9 +777,9 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		*(fbp + pos) = col;
 	    }
 	    fbp += swidth;
+#endif
 	    line++;
 	}
-#endif
     }
 #ifdef USE_NEVIS_GXA
     /* the GXA seems to do asynchronous rendering, so we add a sync marker
