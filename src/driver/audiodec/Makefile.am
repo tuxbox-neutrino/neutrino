@@ -12,7 +12,11 @@ INCLUDES = \
 	@VORBISIDEC_CFLAGS@
 
 if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+else
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
 endif
 if BOXTYPE_TRIPLE
 INCLUDES += -I$(top_srcdir)/lib/libtriple

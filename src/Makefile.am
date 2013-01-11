@@ -19,7 +19,11 @@ INCLUDES = \
 	@LIBCS_CFLAGS@
 
 if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+else
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
 endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
@@ -105,8 +109,12 @@ neutrino_LDADD += \
 endif
 
 if BOXTYPE_COOL
-neutrino_LDADD += \
-	-lcoolstream-mt
+neutrino_LDADD += -lcoolstream-mt
+if ENABLE_TMSDK 
+else
+neutrino_LDADD += -lnxp
+endif
+
 
 bin_PROGRAMS += drivertool
 

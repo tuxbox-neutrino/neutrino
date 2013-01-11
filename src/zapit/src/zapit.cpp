@@ -2036,6 +2036,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDemux = new cDemux();
 	audioDemux->Open(DMX_AUDIO_CHANNEL);
 
+#ifdef BOXMODEL_APOLLO
 	videoDecoder = cVideo::GetDecoder(0);
 	audioDecoder = cAudio::GetDecoder(0);
 
@@ -2045,6 +2046,12 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 	audioDecoder->SetDemux(audioDemux);
 	audioDecoder->SetVideo(videoDecoder);
+#else
+        videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+        videoDecoder->Standby(false);
+
+        audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
+#endif
 
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
