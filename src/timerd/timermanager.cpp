@@ -35,10 +35,6 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <eitd/sectionsd.h>
 
-#ifdef HAVE_COOLSTREAM_CS_FRONTPANEL_H
-#include <coolstream/cs_frontpanel.h>
-#endif
-
 #include <vector>
 #include <cstdlib>
 
