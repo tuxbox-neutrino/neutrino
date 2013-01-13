@@ -71,8 +71,8 @@ void sanalyzer_render_freq(short data[1024]);
    finish_file function. */
 extern "C"
 {
-void id3_tag_addref(struct id3_tag *);
-void id3_tag_delref(struct id3_tag *);
+//void id3_tag_addref(struct id3_tag *);
+void my_id3_tag_delref(struct id3_tag *);
 struct filetag {
 	struct id3_tag *tag;
 	unsigned long location;
@@ -1349,7 +1349,7 @@ void id3_finish_file(struct id3_file* file)
 		free(file->path);
 
 	if (file->primary) {
-		id3_tag_delref(file->primary);
+		my_id3_tag_delref(file->primary);
 		id3_tag_delete(file->primary);
 	}
 
@@ -1358,7 +1358,7 @@ void id3_finish_file(struct id3_file* file)
 
 		tag = file->tags[i].tag;
 		if (tag) {
-			id3_tag_delref(tag);
+			my_id3_tag_delref(tag);
 			id3_tag_delete(tag);
 		}
 	}
@@ -1369,3 +1369,10 @@ void id3_finish_file(struct id3_file* file)
 	free(file);
 }
 
+/* copy of id3_tag_delref, since a properly built libid3tag does
+ * not export this (it's not part of the public API... */
+void my_id3_tag_delref(struct id3_tag *tag)
+{
+	assert(tag && tag->refcount > 0);
+	--tag->refcount;
+}
