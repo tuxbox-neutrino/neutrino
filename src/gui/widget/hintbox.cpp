@@ -3,14 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2008-2009, 2011, 2013 Stefan Seyfried
 
 	License: GPL
 
@@ -25,8 +18,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -177,7 +169,7 @@ void CHintBox::refresh(void)
 
 	//window->paintBoxRel(borderwidth, height, width, borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
 	//window->paintBoxRel(width, borderwidth, borderwidth, height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	window->paintBoxRel(width-20, borderwidth, borderwidth+20, height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
+	window->paintBoxRel(width - 20, borderwidth, borderwidth + 20, height - borderwidth - 20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
 	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); // bottom
 
 	//window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
