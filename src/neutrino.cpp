@@ -1840,7 +1840,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	ZapStart_arg.volume = g_settings.current_volume;
 
 	/* create decoders, read channels */
-	CZapit::getInstance()->Start(&ZapStart_arg);
+	bool zapit_init = CZapit::getInstance()->Start(&ZapStart_arg);
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	// init audio settings
@@ -1861,6 +1861,12 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	g_RCInput = new CRCInput();
+
+	/* later on, we'll crash anyway, so tell about it. */
+	if (! zapit_init)
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO,
+				"Zapit initialization failed.\nThis is a fatal error, sorry.",
+				CMessageBox::mbrBack, CMessageBox::mbBack);
 
 	InitZapitClient();
 	g_Zapit->setStandby(false);
