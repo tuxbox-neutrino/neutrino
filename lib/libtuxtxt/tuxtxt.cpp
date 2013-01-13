@@ -11,7 +11,7 @@
  * 									      *
  *		ported 2009 to HD1 by Coolstream LTD 			      *
  *                                                                            *
- *		TD and SPARK port (C) 2010-2012 Stefan Seyfried		      *
+ *	    TD, SPARK and AZbox port (C) 2010-2013 Stefan Seyfried	      *
  *                                                                            *
  ******************************************************************************/
 
@@ -245,6 +245,13 @@ void RenderClearMenuLineBB(char *p, tstPageAttr *attrcol, tstPageAttr *attr)
 #if 0
 	RenderCharBB(' ', attr); /* separator */
 #endif
+	/* the fontwidth_topmenusmall is not correctly calculated: the navigation
+	 * indicator ' ' is not considered and thus the font is slightly too wide.
+	 * Shift the topmenu to the left instead of using a smaller font, since
+	 * the worst that can happen is that the indicator is partly obscured and
+	 * that looks better than empty space on the right of the topmenu.
+	 */
+	PosX = screen_x + screen_w - TOPMENUCHARS * fontwidth_topmenusmall;
 	for(col = 0; col < TOPMENUCHARS; col++)
 	{
 		RenderCharBB(*p++, attr);

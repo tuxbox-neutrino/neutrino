@@ -13,7 +13,7 @@
  *                   by Seddi <seddi@i-have-a-dreambox.com>                   *
  *                                                                            *
  *                                                                            *
- *      ported to Tripledragon, SPARK and AZbox 2010-2012 Stefan Seyfried     *
+ *      ported to Tripledragon, SPARK and AZbox 2010-2013 Stefan Seyfried     *
  ******************************************************************************/
 
 #define TUXTXT_CFG_STANDALONE 0  // 1:plugin only 0:use library
@@ -98,7 +98,7 @@ int tv_pip_y;
 //#define TV169FULLWIDTH  (ex - sx)/2
 #define TV169FULLWIDTH  (screen_w / 2)
 #define TV169FULLHEIGHT (ey - sy)
-#define TOPMENUSTARTX TV43STARTX+2
+#define TOPMENUSTARTX (TV43STARTX+2)
 //#define TOPMENUENDX TVENDX
 #define TOPMENUSTARTY StartY
 #define TOPMENUENDY TV43STARTY
