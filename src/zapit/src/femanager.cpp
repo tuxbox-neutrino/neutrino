@@ -236,12 +236,8 @@ void CFEManager::saveSettings(bool write)
 		INFO("fe%d", fe->fenumber);
 		if(fe->fenumber && mode != FE_MODE_ALONE) {
 			CFrontend * fe0 = getFE(0);
+			fe->setConfig(fe0->getConfig());
 			fe->setSatellites(fe0->getSatellites());
-			//fe->setConfig(fe0->getConfig());
-			fe->config.diseqcType = fe0->config.diseqcType;
-			fe->config.diseqcRepeats = fe0->config.diseqcRepeats;
-			fe->config.motorRotationSpeed = fe0->config.motorRotationSpeed;
-			fe->config.highVoltage = fe0->config.highVoltage;
 		}
 
 		setConfigValue(fe, "diseqcType", fe_config.diseqcType);
