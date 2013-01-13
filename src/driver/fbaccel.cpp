@@ -413,8 +413,11 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 
 void CFbAccel::paintPixel(const int x, const int y, const fb_pixel_t col)
 {
-#if HAVE_TRIPLEDRAGON || defined (USE_NEVIS_GXA)
-	paintLine(x, y, x, y, col);
+#if HAVE_TRIPLEDRAGON
+	setColor(col);
+	dfbdest->DrawLine(dfbdest, x, y, x, y);
+#elif defined (USE_NEVIS_GXA)
+	paintLine(x, y, x + 1, y, col);
 #else
 	fb_pixel_t *pos = fb->getFrameBufferPointer();
 	pos += (fb->stride / sizeof(fb_pixel_t)) * y;
