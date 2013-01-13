@@ -46,6 +46,7 @@ libneutrino_driver_a_SOURCES += \
 	framebuffer_spark.cpp
 else
 libneutrino_driver_a_SOURCES += \
+	fbaccel.cpp \
 	framebuffer_ng.cpp
 endif
 if BOXTYPE_COOL

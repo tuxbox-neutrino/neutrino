@@ -3,7 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
                       2003 thegoodguy
-	Copyright (C) 2007-2012 Stefan Seyfried
+	Copyright (C) 2007-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -18,8 +18,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -55,127 +54,27 @@
 #ifdef HAVE_COOL_HARDWARE
 #include <cnxtfb.h>
 #endif
-
-extern cVideo * videoDecoder;
+#if HAVE_TRIPLEDRAGON
+#include <tdgfx/stb04gfx.h>
+extern int gfxfd;
+#endif
 
 extern CPictureViewer * g_PicViewer;
 #define ICON_CACHE_SIZE 1024*1024*2 // 2mb
 
 #define BACKGROUNDIMAGEWIDTH 720
 
-//#undef USE_NEVIS_GXA //FIXME
+/* note that it is *not* enough to just change those values */
+#define DEFAULT_XRES 1280
+#define DEFAULT_YRES 720
+#define DEFAULT_BPP  32
+
 /*******************************************************************************/
-#ifdef USE_NEVIS_GXA
 
-#ifdef GXA_FG_COLOR_REG
-#undef GXA_FG_COLOR_REG
-#endif
-#ifdef GXA_BG_COLOR_REG
-#undef GXA_BG_COLOR_REG
-#endif
-#ifdef GXA_LINE_CONTROL_REG
-#undef GXA_LINE_CONTROL_REG
-#endif
-#ifdef GXA_DEPTH_REG
-#undef GXA_DEPTH_REG
-#endif
-#ifdef GXA_CONTENT_ID_REG
-#undef GXA_CONTENT_ID_REG
-#endif
-
-#define GXA_POINT(x, y)         (((y) & 0x0FFF) << 16) | ((x) & 0x0FFF)
-#define GXA_SRC_BMP_SEL(x)      (x << 8)
-#define GXA_DST_BMP_SEL(x)      (x << 5)
-#define GXA_PARAM_COUNT(x)      (x << 2)
-
-#define GXA_CMD_REG		0x001C
-#define GXA_FG_COLOR_REG	0x0020
-#define GXA_BG_COLOR_REG        0x0024
-#define GXA_LINE_CONTROL_REG    0x0038
-#define GXA_BMP2_TYPE_REG       0x0050
-#define GXA_BMP2_ADDR_REG       0x0054
-#define GXA_DEPTH_REG		0x00F4
-#define GXA_CONTENT_ID_REG      0x0144
-
-#define GXA_CMD_BLT             0x00010800
-#define GXA_CMD_NOT_ALPHA       0x00011000
-#define GXA_CMD_NOT_TEXT        0x00018000
-#define GXA_CMD_QMARK		0x00001000
-
-#define GXA_BMP1_TYPE_REG      0x0048
-#define GXA_BMP1_ADDR_REG      0x004C
-
-#define GXA_BLEND_CFG_REG       0x003C
-#define GXA_CFG_REG             0x0030
-#define GXA_CFG2_REG            0x00FC
-/*
-static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int offset)
-{
-    return *(volatile unsigned int *)(base_addr + offset);
-}
-*/
-
-static unsigned int _mark = 0;
-
-static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, unsigned int value)
-{
-    while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000)
-    {};
-    *(volatile unsigned int *)(base_addr + offset) = value;
-}
-
-/* this adds a tagged marker into the GXA queue. Once this comes out
-   of the other end of the queue, all commands before it are finished */
-void CFrameBuffer::add_gxa_sync_marker(void)
-{
-	unsigned int cmd = GXA_CMD_QMARK | GXA_PARAM_COUNT(1);
-	// TODO: locking?
-	_mark++;
-	_mark &= 0x0000001F; /* bit 0x20 crashes the kernel, if set */
-	_write_gxa(gxa_base, cmd, _mark);
-	//fprintf(stderr, "%s: wrote %02x\n", __FUNCTION__, _mark);
-}
-
-/* wait until the current marker comes out of the GXA command queue */
 void CFrameBuffer::waitForIdle(void)
 {
-	unsigned int cfg, count = 0;
-	do {
-		cfg = *(volatile unsigned int *)(gxa_base + GXA_CMD_REG);
-		cfg >>= 24;	/* the token is stored in bits 31...24 */
-		if (cfg == _mark)
-			break;
-		/* usleep is too coarse, because of CONFIG_HZ=100 in kernel
-		   so use sched_yield to at least give other threads a chance to run */
-		sched_yield();
-		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
-	} while(++count < 2048); /* don't deadlock here if there is an error */
-
-	if (count > 512) /* more than 100 are unlikely, */
-		fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+	accel->waitForIdle();
 }
-#endif /* USE_NEVIS_GXA */
-
-#if HAVE_TRIPLEDRAGON
-#include <directfb.h>
-#include <tdgfx/stb04gfx.h>
-extern IDirectFB *dfb;
-extern IDirectFBSurface *dfbdest;
-extern int gfxfd;
-void CFrameBuffer::waitForIdle(void)
-{
-#if 0
-	struct timeval ts, te;
-	gettimeofday(&ts, NULL);
-#endif
-	/* does not work: DFBResult r = dfb->WaitForSync(dfb); */
-	ioctl(gfxfd, STB04GFX_ENGINE_SYNC);
-#if 0
-	gettimeofday(&te, NULL);
-	printf("STB04GFX_ENGINE_SYNC took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
-#endif
-}
-#endif
 
 /*******************************************************************************/
 
@@ -239,6 +138,8 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #ifdef USE_NEVIS_GXA
 void CFrameBuffer::setupGXA(void)
 {
+	accel->setupGXA();
+#if 0
         // We (re)store the GXA regs here in case DFB override them and was not
         // able to restore them.
         _write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
@@ -248,6 +149,7 @@ void CFrameBuffer::setupGXA(void)
         _write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
         _write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);
+#endif
 }
 #endif
 void CFrameBuffer::init(const char * const fbDevice)
@@ -272,6 +174,8 @@ void CFrameBuffer::init(const char * const fbDevice)
 		screeninfo.red.offset = 16;
 		screeninfo.transp.length = 8;
 		screeninfo.transp.offset = 24;
+		stride = 4 * screeninfo.xres;
+		available = stride * screeninfo.yres * 2; /* allocated in glthread */
 		mpGLThreadObj = new GLThreadObj(screeninfo.xres, screeninfo.yres);
 		if(mpGLThreadObj)
 		{ /* kick off the GL thread for the window */
@@ -306,11 +210,14 @@ void CFrameBuffer::init(const char * const fbDevice)
 	printf("%dk video mem\n", available/1024);
 	lfb=(fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
 
-	if (!lfb) {
+	if (lfb == MAP_FAILED) {
 		perror("mmap");
 		goto nolfb;
 	}
 
+	memset(lfb, 0, available);
+
+#if 0
 #ifdef USE_NEVIS_GXA
 	/* Open /dev/mem for HW-register access */
 	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -332,6 +239,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	setupGXA();
 #endif /* USE_NEVIS_GXA */
+#endif
 #endif /* USE_OPENGL */
 	cache_size = 0;
 
@@ -405,7 +313,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 		goto nolfb;
 	}
 #endif
-
+	accel = new CFbAccel(this);
 	return;
 
 nolfb:
@@ -453,6 +361,7 @@ CFrameBuffer::~CFrameBuffer()
 		delete[] virtual_fb;
 		virtual_fb = NULL;
 	}
+	delete accel;
 #ifdef USE_OPENGL
 	active = false; /* keep people/infoclocks from accessing */
 	mpGLThreadObj->shutDown();
@@ -502,14 +411,14 @@ unsigned int CFrameBuffer::getScreenY()
 fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
 {
 	if (active || (virtual_fb == NULL))
-		return lfb;
+		return accel->lbb;
 	else
-		return (fb_pixel_t *) virtual_fb;
+		return (fb_pixel_t *)virtual_fb;
 }
 
 fb_pixel_t * CFrameBuffer::getBackBufferPointer() const
 {
-	return lfb + xRes * yRes;
+	return accel->backbuffer;
 }
 
 bool CFrameBuffer::getActive() const
@@ -529,10 +438,10 @@ t_fb_var_screeninfo *CFrameBuffer::getScreenInfo()
 
 int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsigned int /*nbpp*/)
 {
+fprintf(stderr, "CFrameBuffer::setMode avail: %d active: %d\n", available, active);
 	if (!available&&!active)
 		return -1;
 
-#ifndef USE_OPENGL
 #if HAVE_AZBOX_HARDWARE
 #ifndef FBIO_BLIT
 #define FBIO_SET_MANUAL_BLIT _IOW('F', 0x21, __u8)
@@ -543,15 +452,15 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	if (ioctl(fd, FBIO_SET_MANUAL_BLIT, &tmp)<0)
 		perror("FBIO_SET_MANUAL_BLIT");
 
-	const unsigned int nxRes = 1280;
-	const unsigned int nyRes = 720;
-	const unsigned int nbpp  = 32;
-	screeninfo.xres_virtual=screeninfo.xres=nxRes;
+	const unsigned int nxRes = DEFAULT_XRES;
+	const unsigned int nyRes = DEFAULT_YRES;
+	const unsigned int nbpp  = DEFAULT_BPP;
+	screeninfo.xres_virtual = screeninfo.xres = nxRes;
 	screeninfo.yres_virtual = (screeninfo.yres = nyRes) * 2;
-	screeninfo.height=0;
-	screeninfo.width=0;
-	screeninfo.xoffset=screeninfo.yoffset=0;
-	screeninfo.bits_per_pixel=nbpp;
+	screeninfo.height = 0;
+	screeninfo.width = 0;
+	screeninfo.xoffset = screeninfo.yoffset = 0;
+	screeninfo.bits_per_pixel = nbpp;
 
 	screeninfo.transp.offset = 24;
 	screeninfo.transp.length = 8;
@@ -581,23 +490,18 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 		       screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
 	}
 #endif
-#endif
-
-	xRes = screeninfo.xres;
-	yRes = screeninfo.yres;
-	bpp  = screeninfo.bits_per_pixel;
-#ifdef USE_OPENGL
-	stride = 4 * xRes;
-#else
+#ifndef USE_OPENGL
 	fb_fix_screeninfo _fix;
 
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix)<0) {
 		perror("FBIOGET_FSCREENINFO");
 		return -1;
 	}
-
 	stride = _fix.line_length;
 #endif
+	xRes = screeninfo.xres;
+	yRes = screeninfo.yres;
+	bpp  = screeninfo.bits_per_pixel;
 	printf("FB: %dx%dx%d line length %d. %s nevis GXA accelerator.\n", xRes, yRes, bpp, stride,
 #ifdef USE_NEVIS_GXA
 		"Using"
@@ -605,6 +509,7 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 		"Not using"
 #endif
 	);
+	accel->update(); /* just in case we need to update stuff */
 
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 	paintBackground();
@@ -742,26 +647,9 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
 	}
 }
 
-#if 0
-void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-	for (int count = 0; count < dy; count++) {
-		fb_pixel_t * dest = (fb_pixel_t *)pos;
-		for (int i = 0; i < dx; i++)
-			*(dest++) = col;
-		pos += stride;
-	}
-}
-#endif
-
 void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
 {
     /* draw a filled rectangle (with additional round corners) */
-
     if (!getActive())
         return;
 
@@ -769,18 +657,6 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     int corner_tr = (type & CORNER_TOP_RIGHT)    ? 1 : 0;
     int corner_bl = (type & CORNER_BOTTOM_LEFT)  ? 1 : 0;
     int corner_br = (type & CORNER_BOTTOM_RIGHT) ? 1 : 0;
-
-#if HAVE_TRIPLEDRAGON
-    char *c = (char *)&col;
-    dfbdest->SetColor(dfbdest, c[1], c[2], c[3], c[0]);
-#else
-#ifdef USE_NEVIS_GXA
-    OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-#else
-    int swidth = stride / sizeof(fb_pixel_t);
-    fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
-#endif
-#endif
 
     /* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
        radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
@@ -816,13 +692,6 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	 23};
 
     int line = 0;
-#ifdef USE_NEVIS_GXA
-    unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-    _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);		/* setup the drawing color */
-    _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 		/* X is major axis, skip last pixel */
-#endif
-
     if ((type) && (radius))
     {
 	#define MUL 32768	/* just an multiplicator for all math to reduce rounding errors */
@@ -865,160 +734,31 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		ofl = corner_bl ? ofs : 0;
 		ofr = corner_br ? ofs : 0;
 	    }
-#if HAVE_TRIPLEDRAGON
 	    else
 	    {
 		int height = dy - ((corner_tl|corner_tr) + (corner_bl|corner_br)) * radius;
-		dfbdest->FillRectangle(dfbdest, x, y + line, dx, height);
+		accel->paintRect(x, y + line, dx, height, col);
 		line += height;
 		continue;
 	    }
-	    dfbdest->DrawLine(dfbdest, x + ofl, y + line, x + dx - ofr - 1, y + line);
-#else
-#ifdef USE_NEVIS_GXA
-	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx - ofr, y + line));		/* endig point */
-	    _write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));		/* start point */
-#else
-	    for (int pos = x + ofl; pos < x + dx - ofr; pos++)
-	    {
-		*(fbp + pos) = col;
-	    }
-	    fbp += swidth;
-#endif
-#endif
+	    accel->paintLine(x + ofl, y + line, x + dx - ofr, y + line, col);
 	    line++;
 	}
     }
     else
     {
-#if !HAVE_TRIPLEDRAGON
-	while (line < dy)
-	{
-#ifdef USE_NEVIS_GXA
-    	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y + line));		/* endig point */
-    	    _write_gxa(gxa_base, cmd, GXA_POINT(x,      y + line));		/* start point */
-#else
-	    for (int pos = x; pos < x + dx; pos++)
-	    {
-		*(fbp + pos) = col;
-	    }
-	    fbp += swidth;
-#endif
-	    line++;
-	}
-#else
-	dfbdest->FillRectangle(dfbdest, x, y + line, dx, dy - line);
-#endif
+	accel->paintRect(x, y + line, dx, dy - line, col);
     }
-#ifdef USE_NEVIS_GXA
-    /* the GXA seems to do asynchronous rendering, so we add a sync marker
-       to which the fontrenderer code can synchronize */
-    add_gxa_sync_marker();
-#endif
 }
 
-#if !HAVE_TRIPLEDRAGON
-void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-#ifdef USE_NEVIS_GXA
-    OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-    /* draw a single vertical line from point x/ya to x/yb */
-    unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-    _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-    _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, ya + (yb - ya)));	/* end point */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, ya));		/* start point */
-#else /* USE_NEVIS_GXA */
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * ya;
-
-	int dy = yb-ya;
-	for (int count = 0; count < dy; count++) {
-		*(fb_pixel_t *)pos = col;
-		pos += stride;
-	}
-#endif	/* USE_NEVIS_GXA */
-}
-
-void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-#ifdef USE_NEVIS_GXA
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	/* draw a single vertical line from point x/y with hight dx */
-	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x, y + dy));		/* end point */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */
-#else /* USE_NEVIS_GXA */
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-
-	for(int count=0;count<dy;count++) {
-		*(fb_pixel_t *)pos = col;
-		pos += stride;
-	}
-#endif /* USE_NEVIS_GXA */
-}
-
-void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-#ifdef USE_NEVIS_GXA
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	/* draw a single horizontal line from point xa/y to xb/y */
-	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-	_write_gxa(gxa_base, cmd, GXA_POINT(xa + (xb - xa), y));	/* end point */
-	_write_gxa(gxa_base, cmd, GXA_POINT(xa, y));		/* start point */
-#else /* USE_NEVIS_GXA */
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + xa * sizeof(fb_pixel_t) + stride * y;
-
-	int dx = xb -xa;
-	fb_pixel_t * dest = (fb_pixel_t *)pos;
-	for (int i = 0; i < dx; i++)
-		*(dest++) = col;
-#endif /* USE_NEVIS_GXA */
-}
-
-void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-#ifdef USE_NEVIS_GXA
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	/* draw a single horizontal line from point x/y with width dx */
-	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y));		/* end point */
-	_write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */
-#else /* USE_NEVIS_GXA */
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-
-	fb_pixel_t * dest = (fb_pixel_t *)pos;
-	for (int i = 0; i < dx; i++)
-		*(dest++) = col;
-#endif /* USE_NEVIS_GXA */
-}
-#else /* TRIPLEDRAGON */
 void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 {
-	paintLine(x, y, x, y, col);
+	if (!getActive())
+		return;
+	if (x > (int)xRes || y > (int)yRes || x < 0 || y < 0)
+		return;
+
+	accel->paintPixel(x, y, col);
 }
 
 void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
@@ -1026,10 +766,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 	if (!getActive())
 		return;
 
-	char *c = (char *)&col;
-	dfbdest->SetColor(dfbdest, c[1], c[2], c[3], c[0]);
-	dfbdest->DrawLine(dfbdest, xa, ya, xb, yb);
-	return;
+	accel->paintLine(xa, ya, xb, yb, col);
 }
 
 void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
@@ -1051,7 +788,6 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 {
 	paintLine(x, y, x + dx, y, col);
 }
-#endif /* TRIPLEDRAGON */
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 {
@@ -1067,7 +803,6 @@ void CFrameBuffer::getIconSize(const char * const filename, int* width, int *hei
 		return;
 
 	std::map<std::string, rawIcon>::iterator it;
-
 
 	/* if code ask for size, lets cache it. assume we have enough ram for cache */
 	/* FIXME offset seems never used in code, always default = 1 ? */
@@ -1130,37 +865,6 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	blit();
 	return true;
 }
-#if 0 
-//never used
-#ifdef USE_NEVIS_GXA
-bool CFrameBuffer::blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh)
-{
-	u32 cmd;
-	void * uKva;
-
-	uKva = cs_phys_addr(data);
-printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", (int) data, (int) uKva);
-	if(uKva == NULL)
-		return false;
-
-	cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
-
-	_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | sw);
-	_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
-
-	_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));   /* destination pos */
-	_write_gxa(gxa_base, cmd, GXA_POINT(sw, sh));   /* source width */
-	_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));   /* source pos */
-
-	return true;
-}
-#else
-bool CFrameBuffer::blitToPrimary(unsigned int *, int, int, int, int)
-{
-	return false;
-}
-#endif
-#endif
 
 /* paint icon at position x/y,
    if height h is given, center vertically between y and y+h
@@ -1268,36 +972,7 @@ _display:
 	blit2FB(data, width, height, x, yy, 0, 0, true);
 	return true;
  
-#if 0
-	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
-	fb_pixel_t * d2;
-
-	for (int count = 0; count < height; count++ ) {
-		fb_pixel_t *pixpos = &data[count * width];
-		d2 = (fb_pixel_t *) d;
-		for (int count2 = 0; count2 < width; count2++ ) {
-			fb_pixel_t pix = *pixpos;
-			if (pix != 0) {
-				*d2 = pix;
-			}
-			d2++;
-			pixpos++;
-		}
-		d += stride;
-	}
-
-	return true;
-#endif
 }
-
-#if 0
-bool CFrameBuffer::paintIcon(const char * const filename, const int x, const int y,
-			     const int h, const unsigned char offset)
-{
-//printf("%s(%s, %d, %d, %d)\n", __FUNCTION__, filename, x, y, offset);
-	return paintIcon(std::string(filename), x, y, h, offset);
-}
-#endif
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
 {
@@ -1331,26 +1006,6 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 	paletteSet(&cmap);
 	close(lfd);
 }
-
-#if !HAVE_TRIPLEDRAGON
-void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-	#ifdef USE_NEVIS_GXA
-	paintHLineRel(x, 1, y, col);
-	#else
-	if (x > xRes || y > yRes || x < 0 || y < 0)
-		return;
-	fb_pixel_t * pos = getFrameBufferPointer();
-	pos += (stride / sizeof(fb_pixel_t)) * y;
-	pos += x;
-
-	*pos = col;
-	#endif
-}
-#endif
 
 void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad)
 {
@@ -1413,250 +1068,6 @@ void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const
 
 }
 
-#if !HAVE_TRIPLEDRAGON
-void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-//printf("%s(%d, %d, %d, %d, %.8X)\n", __FUNCTION__, xa, ya, xb, yb, col);
-
-	int dx = abs (xa - xb);
-	int dy = abs (ya - yb);
-	int x;
-	int y;
-	int End;
-	int step;
-
-	if ( dx > dy )
-	{
-		int	p = 2 * dy - dx;
-		int	twoDy = 2 * dy;
-		int	twoDyDx = 2 * (dy-dx);
-
-		if ( xa > xb )
-		{
-			x = xb;
-			y = yb;
-			End = xa;
-			step = ya < yb ? -1 : 1;
-		}
-		else
-		{
-			x = xa;
-			y = ya;
-			End = xb;
-			step = yb < ya ? -1 : 1;
-		}
-
-		paintPixel (x, y, col);
-
-		while( x < End )
-		{
-			x++;
-			if ( p < 0 )
-				p += twoDy;
-			else
-			{
-				y += step;
-				p += twoDyDx;
-			}
-			paintPixel (x, y, col);
-		}
-	}
-	else
-	{
-		int	p = 2 * dx - dy;
-		int	twoDx = 2 * dx;
-		int	twoDxDy = 2 * (dx-dy);
-
-		if ( ya > yb )
-		{
-			x = xb;
-			y = yb;
-			End = ya;
-			step = xa < xb ? -1 : 1;
-		}
-		else
-		{
-			x = xa;
-			y = ya;
-			End = yb;
-			step = xb < xa ? -1 : 1;
-		}
-
-		paintPixel (x, y, col);
-
-		while( y < End )
-		{
-			y++;
-			if ( p < 0 )
-				p += twoDx;
-			else
-			{
-				x += step;
-				p += twoDxDy;
-			}
-			paintPixel (x, y, col);
-		}
-	}
-}
-#endif
-
-#if 0 
-//never used
-void CFrameBuffer::setBackgroundColor(const fb_pixel_t color)
-{
-	backgroundColor = color;
-}
-
-bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t width, const uint16_t height, const uint16_t pstride, fb_pixel_t * memp)
-{
-	struct rawHeader header;
-	int              lfd;
-
-//printf("%s(%d, %d, memp)\n", __FUNCTION__, width, height);
-
-	lfd = open((iconBasePath + filename).c_str(), O_RDONLY );
-
-	if (lfd == -1)
-	{
-		printf("error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
-		return false;
-	}
-
-	read(lfd, &header, sizeof(struct rawHeader));
-
-	if ((width  != ((header.width_hi  << 8) | header.width_lo)) ||
-	    (height != ((header.height_hi << 8) | header.height_lo)))
-	{
-		printf("error while loading icon: %s - invalid resolution = %hux%hu\n", filename.c_str(), width, height);
-		close(lfd);
-		return false;
-	}
-
-	if ((pstride == 0) || (pstride == width * sizeof(fb_pixel_t)))
-		read(lfd, memp, height * width * sizeof(fb_pixel_t));
-	else
-		for (int i = 0; i < height; i++)
-			read(lfd, ((uint8_t *)memp) + i * pstride, width * sizeof(fb_pixel_t));
-
-	close(lfd);
-	return true;
-}
-
-bool CFrameBuffer::loadPicture2Mem(const std::string & filename, fb_pixel_t * memp)
-{
-	return loadPictureToMem(filename, BACKGROUNDIMAGEWIDTH, 576, 0, memp);
-}
-
-bool CFrameBuffer::loadPicture2FrameBuffer(const std::string & filename)
-{
-	if (!getActive())
-		return false;
-
-	return loadPictureToMem(filename, BACKGROUNDIMAGEWIDTH, 576, getStride(), getFrameBufferPointer());
-}
-
-bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pixel_t * const memp)
-{
-	struct rawHeader header;
-	uint16_t         width, height;
-	int              lfd;
-
-	width = BACKGROUNDIMAGEWIDTH;
-	height = 576;
-
-	header.width_lo  = width  &  0xFF;
-	header.width_hi  = width  >>    8;
-	header.height_lo = height &  0xFF;
-	header.height_hi = height >>    8;
-	header.transp    =              0;
-
-	lfd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT, 0644);
-
-	if (lfd==-1)
-	{
-		printf("error while saving icon: %s%s", iconBasePath.c_str(), filename.c_str() );
-		return false;
-	}
-
-	write(lfd, &header, sizeof(struct rawHeader));
-
-	write(lfd, memp, width * height * sizeof(fb_pixel_t));
-
-	close(lfd);
-	return true;
-}
-
-bool CFrameBuffer::loadBackground(const std::string & filename, const unsigned char offset)
-{
-	if ((backgroundFilename == filename) && (background))
-		return true;
-
-	if (background)
-		delete[] background;
-
-	background = new fb_pixel_t[BACKGROUNDIMAGEWIDTH * 576];
-
-	if (!loadPictureToMem(filename, BACKGROUNDIMAGEWIDTH, 576, 0, background))
-	{
-		delete[] background;
-		background=0;
-		return false;
-	}
-
-	if (offset != 0)//pic-offset
-	{
-		fb_pixel_t * bpos = background;
-		int pos = BACKGROUNDIMAGEWIDTH * 576;
-		while (pos > 0)
-		{
-			*bpos += offset;
-			bpos++;
-			pos--;
-		}
-	}
-
-	fb_pixel_t * dest = background + BACKGROUNDIMAGEWIDTH * 576;
-	uint8_t    * src  = ((uint8_t * )background)+ BACKGROUNDIMAGEWIDTH * 576;
-	for (int i = 576 - 1; i >= 0; i--)
-		for (int j = BACKGROUNDIMAGEWIDTH - 1; j >= 0; j--)
-		{
-			dest--;
-			src--;
-			paintPixel(dest, *src);
-		}
-	backgroundFilename = filename;
-
-	return true;
-}
-
-bool CFrameBuffer::loadBackgroundPic(const std::string & filename, bool show)
-{
-	if ((backgroundFilename == filename) && (background))
-		return true;
-
-//printf("loadBackgroundPic: %s\n", filename.c_str());
-	if (background){
-		delete[] background;
-		background = NULL;
-	}
-	background = g_PicViewer->getImage(iconBasePath + filename, BACKGROUNDIMAGEWIDTH, 576);
-
-	if (background == NULL) {
-		background=0;
-		return false;
-	}
-
-	backgroundFilename = filename;
-	if(show) {
-		useBackgroundPaint = true;
-		paintBackground();
-	}
-	return true;
-}
-#endif
 void CFrameBuffer::useBackground(bool ub)
 {
 	useBackgroundPaint = ub;
@@ -1785,52 +1196,13 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		bkpos += dx;
 	}
 }
-#if 0 
-//never used
-void CFrameBuffer::switch_signal (int signal)
-{
-#ifndef USE_OPENGL /* ignore signals for GL */
-	CFrameBuffer * thiz = CFrameBuffer::getInstance();
-	if (signal == SIGUSR1) {
-		if (virtual_fb != NULL)
-			delete[] virtual_fb;
-		virtual_fb = new uint8_t[thiz->stride * thiz->yRes];
-		thiz->active = false;
-		if (virtual_fb != NULL)
-			memmove(virtual_fb, thiz->lfb, thiz->stride * thiz->yRes);
-		ioctl(thiz->tty, VT_RELDISP, 1);
-		printf ("release display\n");
-	}
-	else if (signal == SIGUSR2) {
-		ioctl(thiz->tty, VT_RELDISP, VT_ACKACQ);
-		thiz->active = true;
-		printf ("acquire display\n");
-		thiz->paletteSet(NULL);
-		if (virtual_fb != NULL)
-			memmove(thiz->lfb, virtual_fb, thiz->stride * thiz->yRes);
-		else
-			memset(thiz->lfb, 0, thiz->stride * thiz->yRes);
-	}
-#endif
-}
-#endif 
 
 void CFrameBuffer::Clear()
 {
 	paintBackground();
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
-#if 0 
-//never used
-void CFrameBuffer::showFrame(const std::string & filename)
-{
-	std::string varpath = "/var/tuxbox/config/neutrino/icons/";
-	if(!access((varpath + filename).c_str(), F_OK))
-		videoDecoder->ShowPicture((varpath + filename).c_str());
-	else
-		videoDecoder->ShowPicture((iconBasePath + filename).c_str());
-}
-#endif
+
 bool CFrameBuffer::Lock()
 {
 	if(locked)
@@ -1896,107 +1268,10 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
-#if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
-	int  xc, yc;
-
-	xc = (width > xRes) ? xRes : width;
-	yc = (height > yRes) ? yRes : height;
-
-#ifdef USE_NEVIS_GXA
-        u32 cmd;
-        void * uKva;
-
-        uKva = cs_phys_addr(fbbuff);
-	//printf("CFrameBuffer::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
-
-	if(uKva != NULL) {
-		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
-
-		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
-		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
-
-		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff));   /* destination pos */
-		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));   /* source width, FIXME real or adjusted xc, yc ? */
-		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp));   /* source pos */
-
-		return;
-	}
-#endif
-
-	fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
-
-	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + xoff * sizeof(fb_pixel_t) + stride * yoff;
-	fb_pixel_t * d2;
-
-	for (int count = 0; count < yc; count++ ) {
-		fb_pixel_t *pixpos = &data[(count + yp) * width];
-		d2 = (fb_pixel_t *) d;
-		for (int count2 = 0; count2 < xc; count2++ ) {
-			fb_pixel_t pix = *(pixpos + xp);
-			if (!transp || (pix & 0xff000000) == 0xff000000)
-				*d2 = pix;
-			else {
-				uint8_t *in = (uint8_t *)(pixpos + xp);
-				uint8_t *out = (uint8_t *)d2;
-				int a = in[3];	/* TODO: big/little endian */
-				*out = (*out + ((*in - *out) * a) / 256);
-				in++; out++;
-				*out = (*out + ((*in - *out) * a) / 256);
-				in++; out++;
-				*out = (*out + ((*in - *out) * a) / 256);
-			}
-			d2++;
-			pixpos++;
-		}
-		d += stride;
-	}
-#if 0
-	for(int i = 0; i < yc; i++){
-		memmove(clfb + (i + yoff)*stride + xoff*4, ip + (i + yp)*width + xp, xc*4);
-	}
-#endif
+	accel->blit2FB(fbbuff, width, height, xoff, yoff, xp, yp, transp);
 }
-#else
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
-{
-	DFBRectangle src;
-	DFBResult err;
-	IDirectFBSurface *surf;
-	DFBSurfaceDescription dsc;
-
-	src.x = xp;
-	src.y = yp;
-	src.w = width - xp;
-	src.h = height - yp;
-
-	dsc.flags  = (DFBSurfaceDescriptionFlags)(DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PREALLOCATED);
-	dsc.caps   = DSCAPS_NONE;
-	dsc.width  = width;
-	dsc.height = height;
-	dsc.preallocated[0].data  = fbbuff;
-	dsc.preallocated[0].pitch = width * sizeof(fb_pixel_t);
-	err = dfb->CreateSurface(dfb, &dsc, &surf);
-	/* TODO: maybe we should not die if this fails? */
-	if (err != DFB_OK) {
-		fprintf(stderr, "CFrameBuffer::blit2FB: ");
-		DirectFBErrorFatal("dfb->CreateSurface(dfb, &dsc, &surf)", err);
-	}
-
-	if (transp)
-	{
-		surf->SetSrcColorKey(surf, 0, 0, 0);
-		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
-	}
-	else
-		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_NOFX);
-	dfbdest->Blit(dfbdest, surf, &src, xoff, yoff);
-	surf->Release(surf);
-	return;
-}
-#endif
 
 void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)
 {
@@ -2026,25 +1301,6 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
         blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
         cs_free_uncached(fbbuff);
 }
-
-#ifdef HAVE_AZBOX_HARDWARE
-#ifndef FBIO_WAITFORVSYNC
-#define FBIO_WAITFORVSYNC _IOW('F', 0x20, __u32)
-#endif
-
-void CFrameBuffer::blit()
-{
-	// blit
-	if (ioctl(fd, FBIO_BLIT) < 0)
-		perror("FBIO_BLIT");
-#if 0
-	// sync bliter
-	int c = 0;
-	if( ioctl(fd, FBIO_WAITFORVSYNC, &c) < 0 )
-		perror("FBIO_WAITFORVSYNC");
-#endif
-}
-#endif
 
 void CFrameBuffer::paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame)
 {

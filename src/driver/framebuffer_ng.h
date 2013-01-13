@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2007-2012 Stefan Seyfried
+	Copyright (C) 2007-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -19,8 +19,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -62,13 +61,44 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 class GLThreadObj;
 #endif
 
+class CFrameBuffer;
+class CFbAccel
+{
+	private:
+		CFrameBuffer *fb;
+		fb_pixel_t lastcol;
+		OpenThreads::Mutex mutex;
+#ifdef USE_NEVIS_GXA
+		int		  devmem_fd;	/* to access the GXA register we use /dev/mem */
+		unsigned int	  smem_start;	/* as aquired from the fbdev, the framebuffers physical start address */
+		volatile uint8_t *gxa_base;	/* base address for the GXA's register access */
+		void add_gxa_sync_marker(void);
+#endif /* USE_NEVIS_GXA */
+		void setColor(fb_pixel_t col);
+	public:
+		fb_pixel_t *backbuffer;
+		fb_pixel_t *lbb;
+		CFbAccel(CFrameBuffer *fb);
+		~CFbAccel();
+		void paintPixel(int x, int y, const fb_pixel_t col);
+		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
+		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
+		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
+		void waitForIdle(void);
+		void mark(int x, int y, int dx, int dy);
+		void blit();
+		void update();
+#ifdef USE_NEVIS_GXA
+		void setupGXA(void);
+#endif
+};
+
 /** Ausfuehrung als Singleton */
 class CFrameBuffer
 {
+	friend class CFbAccel;
 	private:
-
 		CFrameBuffer();
-		OpenThreads::Mutex mutex;
 
 		struct rgbData
 		{
@@ -116,25 +146,15 @@ class CFrameBuffer
 		bool	active;
 		static	void switch_signal (int);
 		fb_fix_screeninfo fix;
-		#ifdef USE_NEVIS_GXA
-		int		  devmem_fd;		/* to access the GXA register we use /dev/mem */
-		unsigned int	  smem_start;		/* as aquired from the fbdev, the framebuffers physical start address */
-		volatile uint8_t *gxa_base;		/* base address for the GXA's register access */
-
-		#endif /* USE_NEVIS_GXA */
 		bool locked;
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
-#if HAVE_SPARK_HARDWARE
-		void blitRect(int x, int y, int width, int height, unsigned long color);
-		void blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
-#endif
 		int m_transparent_default, m_transparent;
 #ifdef USE_OPENGL
 		GLThreadObj *mpGLThreadObj; /* the thread object */
 #endif
-
+		CFbAccel *accel;
 
 	public:
 		fb_pixel_t realcolor[256];
@@ -142,9 +162,9 @@ class CFrameBuffer
 		~CFrameBuffer();
 
 		static CFrameBuffer* getInstance();
-		#ifdef USE_NEVIS_GXA
+#ifdef USE_NEVIS_GXA
 		void setupGXA(void);
-		#endif
+#endif
 
 		void init(const char * const fbDevice = "/dev/fb/0");
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
@@ -232,32 +252,15 @@ class CFrameBuffer
 		bool Lock(void);
 		void Unlock(void);
 		bool Locked(void) { return locked; };
-#ifdef USE_NEVIS_GXA
-		void add_gxa_sync_marker(void);
 		void waitForIdle(void);
-#else
-#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE
-		void waitForIdle(void);
-#else
-		inline void waitForIdle(void) {};
-#endif
-#endif
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 
-#if HAVE_SPARK_HARDWARE
-		void mark(int x, int y, int dx, int dy);
-		void blit(void);
-#elif HAVE_AZBOX_HARDWARE
-		void mark(int, int, int, int) {};
-		void blit(void);
-#else
-		void mark(int, int, int, int) {};
-		void blit(void) {};
-#endif
+		void mark(int x, int y, int dx, int dy) { accel->mark(x, y, dx, dy); };
+		void blit() { accel->blit(); };
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
 		enum 
