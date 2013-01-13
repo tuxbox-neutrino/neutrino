@@ -47,6 +47,10 @@
 #include <cs_api.h>
 #include <cnxtfb.h>
 #endif
+#if HAVE_SPARK_HARDWARE
+#include <linux/stmfb.h>
+#include <bpamem.h>
+#endif
 
 //#undef USE_NEVIS_GXA //FIXME
 /*******************************************************************************/
@@ -147,6 +151,18 @@ void CFbAccel::waitForIdle(void)
 	printf("STB04GFX_ENGINE_SYNC took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
 #endif
 }
+#elif HAVE_SPARK_HARDWARE
+
+static int bpafd = -1;
+static size_t lbb_sz = 1920 * 1080;	/* offset from fb start in 'pixels' */
+static size_t lbb_off = lbb_sz * sizeof(fb_pixel_t);	/* same in bytes */
+static int backbuf_sz = 0;
+
+void CFbAccel::waitForIdle(void)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	ioctl(fb->fd, STMFBIO_SYNC_BLITTER);
+}
 #else
 void CFbAccel::waitForIdle(void)
 {
@@ -158,6 +174,63 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 	fb = _fb;
 	lastcol = 0xffffffff;
 	lbb = fb->lfb;	/* the memory area to draw to... */
+#ifdef HAVE_SPARK_HARDWARE
+	if (fb->available < 12*1024*1024)
+	{
+		/* for old installations that did not upgrade their module config
+		 * it will still work good enough to display the message below */
+		fprintf(stderr, "[neutrino] WARNING: not enough framebuffer memory available!\n");
+		fprintf(stderr, "[neutrino]          I need at least 12MB.\n");
+		FILE *f = fopen("/tmp/infobar.txt", "w");
+		if (f) {
+			fprintf(f, "NOT ENOUGH FRAMEBUFFER MEMORY!");
+			fclose(f);
+		}
+		lbb_sz = 0;
+		lbb_off = 0;
+	}
+	lbb = fb->lfb + lbb_sz;
+	bpafd = open("/dev/bpamem0", O_RDWR);
+	if (bpafd < 0)
+	{
+		fprintf(stderr, "[neutrino] FB: cannot open /dev/bpamem0: %m\n");
+		return;
+	}
+	backbuf_sz = 1280 * 720 * sizeof(fb_pixel_t);
+	BPAMemAllocMemData bpa_data;
+	bpa_data.bpa_part = (char *)"LMI_VID";
+	bpa_data.mem_size = backbuf_sz;
+	int res;
+	res = ioctl(bpafd, BPAMEMIO_ALLOCMEM, &bpa_data);
+	if (res)
+	{
+		fprintf(stderr, "[neutrino] FB: cannot allocate from bpamem: %m\n");
+		fprintf(stderr, "backbuf_sz: %d\n", backbuf_sz);
+		close(bpafd);
+		bpafd = -1;
+		return;
+	}
+	close(bpafd);
+
+	char bpa_mem_device[30];
+	sprintf(bpa_mem_device, "/dev/bpamem%d", bpa_data.device_num);
+	bpafd = open(bpa_mem_device, O_RDWR);
+	if (bpafd < 0)
+	{
+		fprintf(stderr, "[neutrino] FB: cannot open secondary %s: %m\n", bpa_mem_device);
+		return;
+	}
+
+	backbuffer = (fb_pixel_t *)mmap(0, bpa_data.mem_size, PROT_WRITE|PROT_READ, MAP_SHARED, bpafd, 0);
+	if (backbuffer == MAP_FAILED)
+	{
+		fprintf(stderr, "[neutrino] FB: cannot map from bpamem: %m\n");
+		ioctl(bpafd, BPAMEMIO_FREEMEM);
+		close(bpafd);
+		bpafd = -1;
+		return;
+	}
+#endif
 
 #ifdef USE_NEVIS_GXA
 	/* Open /dev/mem for HW-register access */
@@ -183,6 +256,19 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 
 CFbAccel::~CFbAccel()
 {
+#if HAVE_SPARK_HARDWARE
+	if (backbuffer)
+	{
+		fprintf(stderr, "CFbAccel: unmap backbuffer\n");
+		munmap(backbuffer, backbuf_sz);
+	}
+	if (bpafd != -1)
+	{
+		fprintf(stderr, "CFbAccel: BPAMEMIO_FREEMEM\n");
+		ioctl(bpafd, BPAMEMIO_FREEMEM);
+		close(bpafd);
+	}
+#endif
 #ifdef USE_NEVIS_GXA
 	if (gxa_base != MAP_FAILED)
 		munmap((void *)gxa_base, 0x40000);
@@ -193,6 +279,16 @@ CFbAccel::~CFbAccel()
 
 void CFbAccel::update()
 {
+#ifndef HAVE_SPARK_HARDWARE
+	int needmem = fb->stride * fb->yRes * 2;
+	if (fb->available >= needmem)
+	{
+		backbuffer = fb->lfb + fb->stride / sizeof(fb_pixel_t) * fb->yRes;
+		return;
+	}
+	fprintf(stderr, "CFbAccel: not enough FB memory (have %d, need %d)\n", fb->available, needmem);
+	backbuffer = fb->lfb; /* will not work well, but avoid crashes */
+#endif
 }
 
 void CFbAccel::setColor(fb_pixel_t col)
@@ -232,6 +328,74 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	/* the GXA seems to do asynchronous rendering, so we add a sync marker
 	   to which the fontrenderer code can synchronize */
 	add_gxa_sync_marker();
+#elif HAVE_SPARK_HARDWARE
+	if (dx <= 0 || dy <= 0)
+		return;
+
+	/* function has const parameters, so copy them here... */
+	int width = dx;
+	int height = dy;
+	int xx = x;
+	int yy = y;
+	/* maybe we should just return instead of fixing this up... */
+	if (x < 0) {
+		fprintf(stderr, "[neutrino] fb::%s: x < 0 (%d)\n", __func__, x);
+		width += x;
+		if (width <= 0)
+			return;
+		xx = 0;
+	}
+
+	if (y < 0) {
+		fprintf(stderr, "[neutrino] fb::%s: y < 0 (%d)\n", __func__, y);
+		height += y;
+		if (height <= 0)
+			return;
+		yy = 0;
+	}
+
+	int right = xx + width;
+	int bottom = yy + height;
+
+	if (right > (int)fb->xRes) {
+		if (xx >= (int)fb->xRes) {
+			fprintf(stderr, "[neutrino] fb::%s: x >= xRes (%d > %d)\n", __func__, xx, fb->xRes);
+			return;
+		}
+		fprintf(stderr, "[neutrino] fb::%s: x+w > xRes! (%d+%d > %d)\n", __func__, xx, width, fb->xRes);
+		right = fb->xRes;
+	}
+	if (bottom > (int)fb->yRes) {
+		if (yy >= (int)fb->yRes) {
+			fprintf(stderr, "[neutrino] fb::%s: y >= yRes (%d > %d)\n", __func__, yy, fb->yRes);
+			return;
+		}
+		fprintf(stderr, "[neutrino] fb::%s: y+h > yRes! (%d+%d > %d)\n", __func__, yy, height, fb->yRes);
+		bottom = fb->yRes;
+	}
+
+	STMFBIO_BLT_DATA bltData;
+	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
+
+	bltData.operation  = BLT_OP_FILL;
+	bltData.dstOffset  = lbb_off;
+	bltData.dstPitch   = fb->stride;
+
+	bltData.dst_left   = xx;
+	bltData.dst_top    = yy;
+	bltData.dst_right  = right;
+	bltData.dst_bottom = bottom;
+
+	bltData.dstFormat  = SURF_ARGB8888;
+	bltData.srcFormat  = SURF_ARGB8888;
+	bltData.dstMemBase = STMFBGP_FRAMEBUFFER;
+	bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
+	bltData.colour     = col;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (ioctl(fb->fd, STMFBIO_BLT, &bltData ) < 0)
+		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", xx,yy,width,height,fb->stride);
+	// update_dirty(xx, yy, bltData.dst_right, bltData.dst_bottom);
 #else
 	int line = 0;
 	int swidth = fb->stride / sizeof(fb_pixel_t);
@@ -276,6 +440,18 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 #else
 	int dx = abs (xa - xb);
 	int dy = abs (ya - yb);
+#if HAVE_SPARK_HARDWARE
+	if (dy == 0) /* horizontal line */
+	{
+		paintRect(xa, ya, xb - xa, 1, col);
+		return;
+	}
+	if (dx == 0) /* vertical line */
+	{
+		paintRect(xa, ya, 1, yb - ya, col);
+		return;
+	}
+#endif
 	int x;
 	int y;
 	int End;
@@ -384,6 +560,51 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 
 		return;
 	}
+#elif HAVE_SPARK_HARDWARE
+	int x, y, dw, dh;
+	x = xoff;
+	y = yoff;
+	dw = width - xp;
+	dh = height - yp;
+
+	size_t mem_sz = width * height * sizeof(fb_pixel_t);
+	unsigned long ulFlags = 0;
+	if (transp) /* transp == false (default) means: color "0x0" is transparent (??) */
+		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
+
+	STMFBIO_BLT_EXTERN_DATA blt_data;
+	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
+	blt_data.operation  = BLT_OP_COPY;
+	blt_data.ulFlags    = ulFlags;
+	blt_data.srcOffset  = 0;
+	blt_data.srcPitch   = width * 4;
+	blt_data.dstOffset  = lbb_off;
+	blt_data.dstPitch   = fb->stride;
+	blt_data.src_left   = xp;
+	blt_data.src_top    = yp;
+	blt_data.src_right  = width;
+	blt_data.src_bottom = height;
+	blt_data.dst_left   = x;
+	blt_data.dst_top    = y;
+	blt_data.dst_right  = x + dw;
+	blt_data.dst_bottom = y + dh;
+	blt_data.srcFormat  = SURF_ARGB8888;
+	blt_data.dstFormat  = SURF_ARGB8888;
+	blt_data.srcMemBase = (char *)backbuffer;
+	blt_data.dstMemBase = (char *)fb->lfb;
+	blt_data.srcMemSize = mem_sz;
+	blt_data.dstMemSize = fb->stride * fb->yRes + lbb_off;
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (fbbuff != backbuffer)
+		memmove(backbuffer, fbbuff, mem_sz);
+	// icons are so small that they will still be in cache
+	msync(backbuffer, backbuf_sz, MS_SYNC);
+
+	if (ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
+		perror("CFbAccel blit2FB STMFBIO_BLT_EXTERN");
+	//update_dirty(x, y, blt_data.dst_right, blt_data.dst_bottom);
+	return;
 #else
 	fb_pixel_t *data = (fb_pixel_t *) fbbuff;
 
@@ -473,7 +694,102 @@ void CFbAccel::setupGXA()
 }
 #endif
 
-#if HAVE_AZBOX_HARDWARE
+#if HAVE_SPARK_HARDWARE
+void CFbAccel::blit()
+{
+#ifdef PARTIAL_BLIT
+	if (to_blit.xs == INT_MAX)
+		return;
+
+	int srcXa = to_blit.xs;
+	int srcYa = to_blit.ys;
+	int srcXb = to_blit.xe;
+	int srcYb = to_blit.ye;
+#else
+	const int srcXa = 0;
+	const int srcYa = 0;
+	int srcXb = fb->xRes;
+	int srcYb = fb->yRes;
+#endif
+	STMFBIO_BLT_DATA  bltData;
+	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
+
+	bltData.operation  = BLT_OP_COPY;
+	//bltData.ulFlags  = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
+	// src
+	bltData.srcOffset  = lbb_off;
+	bltData.srcPitch   = fb->stride;
+
+	bltData.src_left   = srcXa;
+	bltData.src_top    = srcYa;
+	bltData.src_right  = srcXb;
+	bltData.src_bottom = srcYb;
+
+	bltData.srcFormat = SURF_BGRA8888;
+	bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
+
+	/* calculate dst/blit factor */
+	fb_var_screeninfo s;
+	if (ioctl(fb->fd, FBIOGET_VSCREENINFO, &s) == -1)
+		perror("CFbAccel <FBIOGET_VSCREENINFO>");
+
+#ifdef PARTIAL_BLIT
+	if (s.xres != last_xres) /* fb resolution has changed -> clear artifacts */
+	{
+		last_xres = s.xres;
+		bltData.src_left   = 0;
+		bltData.src_top    = 0;
+		bltData.src_right  = xRes;
+		bltData.src_bottom = yRes;
+	}
+
+	double xFactor = (double)s.xres/(double)xRes;
+	double yFactor = (double)s.yres/(double)yRes;
+
+	int desXa = xFactor * bltData.src_left;
+	int desYa = yFactor * bltData.src_top;
+	int desXb = xFactor * bltData.src_right;
+	int desYb = yFactor * bltData.src_bottom;
+#else
+	const int desXa = 0;
+	const int desYa = 0;
+	int desXb = s.xres;
+	int desYb = s.yres;
+#endif
+
+	/* dst */
+	bltData.dstOffset  = 0;
+	bltData.dstPitch   = s.xres * 4;
+
+	bltData.dst_left   = desXa;
+	bltData.dst_top    = desYa;
+	bltData.dst_right  = desXb;
+	bltData.dst_bottom = desYb;
+
+	bltData.dstFormat = SURF_BGRA8888;
+	bltData.dstMemBase = STMFBGP_FRAMEBUFFER;
+
+	//printf("CFbAccel::blit: sx:%d sy:%d sxe:%d sye: %d dx:%d dy:%d dxe:%d dye:%d\n", srcXa, srcYa, srcXb, srcYb, desXa, desYa, desXb, desYb);
+	if ((bltData.dst_right > s.xres) || (bltData.dst_bottom > s.yres))
+		printf("CFbAccel::blit: values out of range desXb:%d desYb:%d\n",
+			bltData.dst_right, bltData.dst_bottom);
+
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if(ioctl(fb->fd, STMFBIO_SYNC_BLITTER) < 0)
+		perror("CFbAccel::blit ioctl STMFBIO_SYNC_BLITTER 1");
+	msync(lbb, fb->xRes * 4 * fb->yRes, MS_SYNC);
+	if (ioctl(fb->fd, STMFBIO_BLT, &bltData ) < 0)
+		perror("STMFBIO_BLT");
+	if(ioctl(fb->fd, STMFBIO_SYNC_BLITTER) < 0)
+		perror("CFbAccel::blit ioctl STMFBIO_SYNC_BLITTER 2");
+
+#ifdef PARTIAL_BLIT
+	to_blit.xs = to_blit.ys = INT_MAX;
+	to_blit.xe = to_blit.ye = 0;
+#endif
+}
+
+#elif HAVE_AZBOX_HARDWARE
 
 #ifndef FBIO_WAITFORVSYNC
 #define FBIO_WAITFORVSYNC _IOW('F', 0x20, __u32)

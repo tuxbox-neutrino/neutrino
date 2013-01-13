@@ -23,8 +23,10 @@ libneutrino_driver_a_SOURCES = \
 	audioplay.cpp \
 	fade.cpp \
 	fb_window.cpp \
+	fbaccel.cpp \
 	file.cpp \
 	fontrenderer.cpp \
+	framebuffer_ng.cpp \
 	genpsi.cpp \
 	radiotext.cpp \
 	radiotools.cpp \
@@ -40,14 +42,6 @@ libneutrino_driver_a_SOURCES = \
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \
 	glthread.cpp
-endif
-if BOXTYPE_SPARK
-libneutrino_driver_a_SOURCES += \
-	framebuffer_spark.cpp
-else
-libneutrino_driver_a_SOURCES += \
-	fbaccel.cpp \
-	framebuffer_ng.cpp
 endif
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
