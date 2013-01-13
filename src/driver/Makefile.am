@@ -21,7 +21,7 @@ libneutrino_driver_a_SOURCES = \
 	audiofile.cpp \
 	audiometadata.cpp \
 	audioplay.cpp \
-	fader.cpp \
+	fade.cpp \
 	fb_window.cpp \
 	file.cpp \
 	fontrenderer.cpp \
