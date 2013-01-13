@@ -822,12 +822,13 @@ int CScanSetup::showScanMenuSatFind()
 void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satconfig)
 {
 	temp_sat->addIntroItems();
-	CMenuOptionNumberChooser	*diseqc = NULL;
-	CMenuOptionNumberChooser	*comm = NULL;
-	CMenuOptionNumberChooser	*uncomm = NULL;
-	CMenuOptionNumberChooser	*unilnb = NULL;
-	CMenuOptionNumberChooser	*motor = NULL;
-	CMenuOptionChooser		*usals = NULL;
+	CMenuOptionNumberChooser	*diseqc;
+	CMenuOptionNumberChooser	*comm;
+	CMenuOptionNumberChooser	*uncomm;
+	CMenuOptionNumberChooser	*unilnb;
+	CMenuOptionNumberChooser	*motor;
+	CMenuOptionChooser		*usals;
+	CMenuForwarder			*mf;
 	bool unicable = (dmode == DISEQC_UNICABLE);
 
 	if (!unicable) {
@@ -863,7 +864,7 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 		temp_sat->addItem(unilnb);
 	}
 
-	CMenuForwarder	*mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFL, true, lofL->getValue(), lofL);
+	mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFL, true, lofL->getValue(), lofL);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_LOFL);
 	temp_sat->addItem(mf);
 	mf = new CMenuDForwarder(LOCALE_SATSETUP_LOFH, true, lofH->getValue(), lofH);
