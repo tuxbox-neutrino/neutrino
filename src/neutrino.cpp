@@ -1777,7 +1777,8 @@ TIMER_START();
 	ZapStart_arg.volume = g_settings.current_volume;
 
 	/* create decoders, read channels */
-	bool zapit_init = CZapit::getInstance()->Start(&ZapStart_arg);
+	CZapit::getInstance()->Start(&ZapStart_arg);
+
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	//audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
@@ -1794,12 +1795,6 @@ TIMER_START();
 	g_videoSettings->setVideoSettings();
 
 	g_RCInput = new CRCInput();
-
-	/* later on, we'll crash anyway, so tell about it. */
-	if (! zapit_init)
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO,
-				"Zapit initialization failed.\nThis is a fatal error, sorry.",
-				CMessageBox::mbrBack, CMessageBox::mbBack);
 
 	InitZapitClient();
 	g_Zapit->setStandby(false);
