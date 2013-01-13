@@ -82,7 +82,7 @@ bool CScreenShot::GetData()
 #endif
 	if (videoDecoder->getBlank()) 
 		get_video = false;
-#if 1 // to enable after libcs/drivers update
+#ifdef SCREENSHOT
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
 
@@ -90,7 +90,7 @@ bool CScreenShot::GetData()
 	/* sort of hack. GXA used to transfer/convert live image to RGB,
 	 * so setup GXA back */
 	CFrameBuffer::getInstance()->setupGXA();
-	CFrameBuffer::getInstance()->add_gxa_sync_marker();
+	//CFrameBuffer::getInstance()->add_gxa_sync_marker();
 	CFrameBuffer::getInstance()->setActive(true);
 #endif
 	mutex.unlock();

@@ -49,9 +49,7 @@
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
-#ifdef SCREENSHOT
 #include <driver/screenshot.h>
-#endif
 #include <driver/volume.h>
 
 #include <zapit/femanager.h>

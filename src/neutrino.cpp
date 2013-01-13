@@ -55,9 +55,7 @@
 #include <driver/rcinput.h>
 #include <driver/shutdown_count.h>
 #include <driver/record.h>
-#ifdef SCREENSHOT
 #include <driver/screenshot.h>
-#endif
 #include <driver/volume.h>
 #include <driver/streamts.h>
 

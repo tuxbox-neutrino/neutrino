@@ -37,9 +37,7 @@
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
-#ifdef SCREENSHOT
 #include <driver/screenshot.h>
-#endif
 #include <driver/volume.h>
 #include <system/helpers.h>
 

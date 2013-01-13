@@ -34,10 +34,10 @@ libneutrino_driver_a_SOURCES = \
 	record.cpp \
 	ringbuffer.c \
 	screen_max.cpp \
+	screenshot.cpp \
 	shutdown_count.cpp \
 	streamts.cpp \
 	volume.cpp
-#	screenshot.cpp
 
 if BOXTYPE_GENERIC
 libneutrino_driver_a_SOURCES += \

@@ -18,6 +18,8 @@
 #define CS_VIDEO_PDATA void
 #endif
 
+#define SCREENSHOT 1
+
 typedef enum {
 	ANALOG_SD_RGB_CINCH = 0x00,
 	ANALOG_SD_YPRPB_CINCH,

@@ -63,9 +63,7 @@
 #include <gui/filebrowser.h>
 
 #include <driver/screen_max.h>
-#ifdef SCREENSHOT
 #include <driver/screenshot.h>
-#endif
 
 #include <system/debug.h>
 

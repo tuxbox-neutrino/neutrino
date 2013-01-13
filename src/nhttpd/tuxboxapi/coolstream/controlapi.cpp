@@ -36,9 +36,7 @@
 #include <global.h>
 #include <gui/plugins.h>//for relodplugins
 #include <neutrino.h>
-#ifdef SCREENSHOT
 #include <driver/screenshot.h>
-#endif
 #include <gui/rc_lock.h>
 
 // yhttpd
