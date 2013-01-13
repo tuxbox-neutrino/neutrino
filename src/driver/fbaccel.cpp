@@ -691,6 +691,7 @@ void CFbAccel::setupGXA()
 	_write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
 	_write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int)fb->backgroundColor);
+	add_gxa_sync_marker();
 }
 #endif
 
