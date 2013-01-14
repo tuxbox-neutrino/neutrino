@@ -633,7 +633,7 @@ int CScanSetup::showUnicableSetup()
 	uni_setup->addIntroItems();
 
 	uni_setup->addItem(uniscr);
-	CMenuForwarder *mf = new CMenuForwarder(LOCALE_UNICABLE_QRG, true, uniqrg->getValue(), uniqrg);
+	CMenuForwarder *mf = new CMenuDForwarder(LOCALE_UNICABLE_QRG, true, uniqrg->getValue(), uniqrg);
 	uni_setup->addItem(mf);
 	res = uni_setup->exec(NULL, "");
 	delete uni_setup;
