@@ -572,7 +572,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 
 	size_t mem_sz = width * height * sizeof(fb_pixel_t);
 	unsigned long ulFlags = 0;
-	if (transp) /* transp == false (default) means: color "0x0" is transparent (??) */
+	if (!transp) /* transp == false (default): use transparency from source alphachannel */
 		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
 
 	STMFBIO_BLT_EXTERN_DATA blt_data;
@@ -619,7 +619,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 		d2 = (fb_pixel_t *) d;
 		for (int count2 = 0; count2 < xc; count2++ ) {
 			fb_pixel_t pix = *(pixpos + xp);
-			if (!transp || (pix & 0xff000000) == 0xff000000)
+			if (transp || (pix & 0xff000000) == 0xff000000)
 				*d2 = pix;
 			else {
 				uint8_t *in = (uint8_t *)(pixpos + xp);
@@ -675,7 +675,8 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
 	}
 	else
-		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_NOFX);
+		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_BLEND_ALPHACHANNEL);
+
 	dfbdest->Blit(dfbdest, surf, &src, xoff, yoff);
 	surf->Release(surf);
 	return;
