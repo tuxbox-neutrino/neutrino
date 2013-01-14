@@ -127,9 +127,9 @@ void CFbAccel::waitForIdle(void)
 		   so use sched_yield to at least give other threads a chance to run */
 		sched_yield();
 		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
-	} while(++count < 2048); /* don't deadlock here if there is an error */
+	} while(++count < 8192); /* don't deadlock here if there is an error */
 
-	if (count > 512) /* more than 100 are unlikely, */
+	if (count > 2048) /* more than 2000 are unlikely, even for large BMP6 blits */
 		fprintf(stderr, "CFbAccel::waitForIdle: count is big (%d)!\n", count);
 }
 #elif HAVE_TRIPLEDRAGON
