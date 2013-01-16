@@ -28,6 +28,8 @@ typedef enum {
 	ANALOG_SD_YPRPB		= (1 << 2), // Output SD in YPbPr format (component)
 	ANALOG_HD_RGB		= (1 << 3), // Output HD in RGB format
 	ANALOG_HD_YPRPB		= (1 << 4), // Output HD in YPbPr format (component)
+	ANALOG_xD_AUTO		= (1 << 5), // Output is automatically determined based on
+					    // content. (TANK/Trinity only)
 	// Output types
 	ANALOG_xD_SCART		= (1 << 8), // Output is SCART
 	ANALOG_xD_CINCH		= (1 << 9), // Output is Cinch
