@@ -317,8 +317,8 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 									channel_id,
 									service_type,
 									satellitePosition,
-									freq
-									);
+									freq);
+							newchannel->deltype = FE_QPSK;
 							CServiceManager::getInstance()->AddChannel(newchannel);
 						}
 						newchannel->setName(serviceName);
