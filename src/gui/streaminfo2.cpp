@@ -566,9 +566,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	//satellite
 	ypos += iheight;
-	if(t.type == FE_QPSK)
+	if(t.deltype == FE_QPSK)
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_SATSETUP_SATELLITE));//swiped locale
-	else if(t.type == FE_QAM)
+	else if(t.deltype == FE_QAM)
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
 
 	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
@@ -588,7 +588,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	ypos += iheight;
 
 	scaling = 27000;
-	if (t.type == FE_QPSK && t.feparams.dvb_feparams.u.qpsk.fec_inner < FEC_S2_QPSK_1_2)
+	if (t.deltype == FE_QPSK && t.feparams.dvb_feparams.u.qpsk.fec_inner < FEC_S2_QPSK_1_2)
 		scaling = 15000;
 
 	sprintf (buf, "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
