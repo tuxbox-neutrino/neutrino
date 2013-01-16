@@ -33,7 +33,7 @@ public:
 	t_original_network_id original_network_id;
 	transponder_id_t transponder_id;
 	t_satellite_position satellitePosition;
-	uint8_t type;
+	uint8_t deltype;
 
 	FrontendParameters feparams;
 	unsigned char polarization;
