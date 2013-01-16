@@ -198,7 +198,8 @@ bool CFrontend::Open(bool init)
 		printf("[fe%d] frontend fd %d type %d\n", fenumber, fd, info.type);
 	}
 
-	//FIXME info.type = FE_QAM;
+	//FIXME 
+	if (fenumber > 1) info.type = FE_QAM;
 
 	if (init)
 		Init();
@@ -886,7 +887,7 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 		secSetTone(SEC_TONE_OFF, 15);
 		sendDiseqcPowerOn();
 		sendDiseqcReset();
-		secSetTone(SEC_TONE_ON, 20);
+		secSetTone(SEC_TONE_ON, 50);
 	}
 
 	config.diseqcType = newDiseqcType;
@@ -1113,7 +1114,7 @@ bool CFrontend::sendUncommittedSwitchesCommand(int input)
 	};
 
 	printf("[fe%d] uncommitted  %d -> %d\n", fenumber, uncommitedInput, input);
-	if ((input < 0) || (uncommitedInput == input))
+	if ((input < 0) /* || (uncommitedInput == input) */)
 		return false;
 
 	uncommitedInput = input;
@@ -1180,8 +1181,10 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	fe_sec_voltage_t v = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
 	secSetVoltage(v, 100);
 #endif
+#if 0
 	sendDiseqcReset();
 	usleep(50*1000);                  /* sleep at least 50 milli seconds */
+#endif
 	for (loop = 0; loop <= config.diseqcRepeats; loop++) {
 		if (config.diseqcType == MINI_DISEQC)
 			sendToneBurst(b, 1);
