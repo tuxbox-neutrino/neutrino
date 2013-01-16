@@ -35,7 +35,7 @@
 #endif
 
 #include <gui/update.h>
-#include <gui/ext_update.h>
+#include <gui/update_ext.h>
 
 #include <global.h>
 #include <neutrino.h>

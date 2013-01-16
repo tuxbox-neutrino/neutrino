@@ -560,7 +560,7 @@ case "$1" in
 	timer_get_tvinfo)
 		shift 1
 		rm -r /tmp/tvinfo.xml
-		res=`wget -O /tmp/tvinfo.xml "http://www.tvinfo.de/share/vidac/rec_info.php?username=$1&password=$2" 2>&1`
+		res=$(wget -O /tmp/tvinfo.xml "http://www.tvinfo.de/share/openepg/schedule.php?username=$1&password=$2" 2>&1)
 		if  ! [ -s /tmp/tvinfo.xml ]
 		then
 			res="$res File empty!"

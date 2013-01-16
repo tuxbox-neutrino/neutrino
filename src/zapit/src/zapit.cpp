@@ -2024,6 +2024,10 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 	CFEManager::getInstance()->Init();
 	live_fe = CFEManager::getInstance()->getFE(0);
+
+	if (live_fe == NULL) /* no frontend found? */
+		return false;
+
 	/* load configuration or set defaults if no configuration file exists */
 	video_mode = ZapStart_arg->video_mode;
 	current_volume = ZapStart_arg->volume;
