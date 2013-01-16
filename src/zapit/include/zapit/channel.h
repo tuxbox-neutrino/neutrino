@@ -183,6 +183,7 @@ class CZapitChannel
 		bool				has_bouquet;
 		uint8_t				polarization;
 		int				flags;
+		int				deltype;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);

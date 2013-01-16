@@ -67,6 +67,7 @@ void CZapitChannel::Init()
 	record_demux = 2;
 	polarization = 0;
 	flags = 0;
+	deltype = FE_QPSK;
 }
 
 CZapitChannel::~CZapitChannel(void)
