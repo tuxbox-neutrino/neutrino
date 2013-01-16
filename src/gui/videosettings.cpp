@@ -118,13 +118,15 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS[VIDEOMENU_VID
 	{ ANALOG_MODE(CINCH,HD,YPRPB), LOCALE_VIDEOMENU_ANALOG_HD_YPRPB_CINCH }
 };
 
-#define VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT 4
+#define VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT 6
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_TANK_OPTIONS[VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT] =
 {
-	{ ANALOG_MODE(BOTH ,SD,RGB  ), LOCALE_VIDEOMENU_ANALOG_SD_RGB   }, /* Scart and Cinch */
-	{ ANALOG_MODE(BOTH ,SD,YPRPB), LOCALE_VIDEOMENU_ANALOG_SD_YPRPB }, /*                 */
-	{ ANALOG_MODE(BOTH ,HD,RGB  ), LOCALE_VIDEOMENU_ANALOG_HD_RGB   }, /*                 */
-	{ ANALOG_MODE(BOTH ,HD,YPRPB), LOCALE_VIDEOMENU_ANALOG_HD_YPRPB }, /*                 */
+	{ ANALOG_MODE(BOTH ,xD,AUTO  ),LOCALE_VIDEOMENU_ANALOG_AUTO     }, /* Encoder automatically adjusts based on content   */
+	{ ANALOG_MODE(BOTH ,xD,CVBS  ),LOCALE_VIDEOMENU_ANALOG_CVBS     }, /* CVBS on SCART (disables fastblank, un-used dacs) */
+	{ ANALOG_MODE(BOTH ,SD,RGB  ), LOCALE_VIDEOMENU_ANALOG_SD_RGB   }, /* SD RGB on Cinch and SCART                        */
+	{ ANALOG_MODE(BOTH ,SD,YPRPB), LOCALE_VIDEOMENU_ANALOG_SD_YPRPB }, /* SD YPrPb on Cinch and SCART                      */
+	{ ANALOG_MODE(BOTH ,HD,RGB  ), LOCALE_VIDEOMENU_ANALOG_HD_RGB   }, /* HD RGB on Cinch and SCART                        */
+	{ ANALOG_MODE(BOTH ,HD,YPRPB), LOCALE_VIDEOMENU_ANALOG_HD_YPRPB }, /* HD YPrPb on Cinch and SCART                      */
 };
 
 #define VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT 4
@@ -230,8 +232,8 @@ int CVideoSettings::showVideoSetup()
 	}
 	else if (system_rev > 0x06)
 	{
-		if (system_rev == 9) {
 #ifdef ANALOG_MODE
+		if (system_rev == 9 || system_rev == 11) { // Tank, Trinity.
 			vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TANK_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT, true, this);
 			vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
 #endif

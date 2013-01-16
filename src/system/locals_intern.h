@@ -1819,6 +1819,8 @@ const char * locale_real_names[] =
 	"videomenu.analog_sd_rgb_scart",
 	"videomenu.analog_sd_yprpb_cinch",
 	"videomenu.analog_sd_yprpb_scart",
+	"videomenu.analog_auto",
+	"videomenu.analog_cvbs",
 	"videomenu.analog_hd_rgb",
 	"videomenu.analog_hd_yprpb",
 	"videomenu.analog_sd_rgb",

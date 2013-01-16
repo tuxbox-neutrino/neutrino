@@ -1792,6 +1792,8 @@ videomenu.analog_sd_rgb_cinch RGB on cinch (SD)
 videomenu.analog_sd_rgb_scart RGB on scart (SD)
 videomenu.analog_sd_yprpb_cinch YPbPr on cinch (SD)
 videomenu.analog_sd_yprpb_scart YPbPr on scart (SD)
+videomenu.analog_auto AUTO
+videomenu.analog_cvbs CVBS
 videomenu.analog_hd_rgb RGB (HD)
 videomenu.analog_hd_yprpb YPbPr(HD)
 videomenu.analog_sd_rgb RGB (SD)
