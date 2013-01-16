@@ -100,7 +100,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			CNetworkSetup::getInstance()->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD_NO);
 		}
 		bool init_settings = false;
-		if (g_info.delivery_system == DVB_S)
+		if (CFEManager::getInstance()->haveSat())
 			init_settings = file_exists("/var/tuxbox/config/initial/");
 
 		if(init_settings && (res != menu_return::RETURN_EXIT_ALL))
