@@ -256,7 +256,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CScanTs * scanTs = new CScanTs();
 		int freq = (actionKey == "22kon1") ? 12000*1000: 11000*1000;
 		sprintf(scansettings.TP_freq, "%d", freq);
-                strncpy(scansettings.satNameNoDiseqc,
+                strncpy(scansettings.satName,
                         CServiceManager::getInstance()->GetSatelliteName(130).c_str(), 50);
 
 		scanTs->exec(NULL, "test");
@@ -267,7 +267,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		int freq = (actionKey == "22kon2") ? 12000*1000: 11000*1000;
 		sprintf(scansettings.TP_freq, "%d", freq);
-                strncpy(scansettings.satNameNoDiseqc,
+                strncpy(scansettings.satName,
                         CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
 
 		CScanTs * scanTs = new CScanTs();
@@ -278,7 +278,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "scan1" || actionKey == "scan2") 
 	{
 		int fnum = actionKey == "scan1" ? 0 : 1;
-                strncpy(scansettings.satNameNoDiseqc, actionKey == "scan1" ?
+                strncpy(scansettings.satName, actionKey == "scan1" ?
                         CServiceManager::getInstance()->GetSatelliteName(130).c_str() :
                         CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
 
