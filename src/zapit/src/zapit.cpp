@@ -1545,6 +1545,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 					satellitePosition,
 					0
 					);
+			channel->deltype = live_fe->getType();
 			CServiceManager::getInstance()->AddNVODChannel(channel);
 		}
 
