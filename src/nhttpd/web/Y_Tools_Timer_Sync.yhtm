@@ -14,9 +14,8 @@
 		<table border="0" cellspacing="0" cellpadding="4" width="100%">
 		<tr>
 		<td>
-			<input type="radio" name="planer" value="TVInfo" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_username=}~disabled~=}/>TVInfo<br/>
-			<input type="radio" name="planer" value="Klack" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}~disabled~=}/>Klack
-
+			<input type="radio" name="planer" value="TVInfo" checked="checked" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_username=}~disabled~=}/>TVInfo<br/>
+			<input type="radio" name="planer" value="Klack" disabled="disabled" style="display: none;" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}~disabled~=}/><!--Klack// -->&nbsp;
 		</td>
 		<td>
 		<!--

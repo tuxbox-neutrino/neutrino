@@ -5,8 +5,8 @@
 //<![CDATA[
 function do_submit() {
 	show_waitbox(true);
-	var t = document.f.klack_url.value.replace(/&/gi,";");
-	document.f.klack_url.value = t;
+//	var t = document.f.klack_url.value.replace(/&/gi,";");
+//	document.f.klack_url.value = t;
 	document.f.submit();
 }
 //]]>
@@ -31,6 +31,7 @@ function do_submit() {
 				<td>{=L:set.timer.password=}</td>
 				<td><input type="password" name="tvinfo_password" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_password=}"/></td>
 			</tr>
+<!--
 			<tr>
 				<td colspan="2" class="y_form_header">klack.de (V2)</td>
 			</tr>
@@ -43,6 +44,7 @@ function do_submit() {
 				<td>{=L:set.timer.klack.security_code=}</td>
 				<td><input type="password" name="klack_securitycode" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_securitycode=}" title="{=L:set.timer.klack.security_code_desc=}"/></td>
 			</tr>
+// -->
 			<tr>
 				<td colspan="2" class="y_form_header">{=L:set.timer.channel_name_replacelist=}</td>
 			</tr>

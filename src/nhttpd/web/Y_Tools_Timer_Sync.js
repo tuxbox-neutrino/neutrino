@@ -72,44 +72,38 @@ function processReqChange()
 			if (document.f.planer[0].checked == true)
 			{
 				var xml = g_req.responseXML;
-				var recProg_NodeList = xml.getElementsByTagName('recProg');
+				var recProg_NodeList = xml.getElementsByTagName('epg_schedule')[0].childNodes;
 
-				for(i=0;i<recProg_NodeList.length;i++)
+				var counter = 0;
+				for(i = 0; i < recProg_NodeList.length; i++)
 				{
 					var recProg_Node = recProg_NodeList[i];
+					if ((recProg_Node.nodeName == 'epg_schedule_entry') && (recProg_Node.getAttribute('eventtype') == 'rec'))
+					{
+						var sender		= recProg_Node.getAttribute('channel');
+						var progStartTime 	= recProg_Node.getAttribute('starttime');
+						var progEndTime 	= recProg_Node.getAttribute('endtime');
+						var progName	 	= getXMLNodeItemValue(recProg_Node, 'title');
 
-					var sender		= getXMLNodeItemValue(recProg_Node, 'sender');
-					var progName 		= getXMLNodeItemValue(recProg_Node, 'progName');
-					var progStartDate 	= getXMLNodeItemValue(recProg_Node, 'progStartDate');
-					var progStartTime 	= getXMLNodeItemValue(recProg_Node, 'progStartTime');
-					var progEndDate 	= getXMLNodeItemValue(recProg_Node, 'progEndDate');
-					var progEndTime 	= getXMLNodeItemValue(recProg_Node, 'progEndTime');
+						progName = decodeURI(progName);
+						var Ausdruck = /(.*)-(.*)-(.*) (.*):(.*):(.*) +(.*)*$/;
+						/*convert startdate*/
+						Ausdruck.exec(progStartTime);
+						var alDate = RegExp.$3+"."+RegExp.$2+"."+RegExp.$1;
+						var alTime = RegExp.$4+":"+RegExp.$5;
+						/*convert enddate*/
+						Ausdruck.exec(progEndTime);
+						var stDate = RegExp.$3+"."+RegExp.$2+"."+RegExp.$1;
+						var stTime = RegExp.$4+":"+RegExp.$5;
 
-					progName = decodeURI(progName);
-					/*convert startdate*/
-					var Ausdruck = /(.*)-(.*)-(.*).*$/;
-					Ausdruck.exec(progStartDate);
-					var alDate = RegExp.$3+"."+RegExp.$2+"."+RegExp.$1;
-
-					Ausdruck = /(.*):(.*):(.*).*$/;
-					Ausdruck.exec(progStartTime);
-					var alTime = RegExp.$1+":"+RegExp.$2;
-
-					/*convert enddate*/
-					Ausdruck = /(.*)-(.*)-(.*).*$/;
-					Ausdruck.exec(progEndDate);
-					var stDate = RegExp.$3+"."+RegExp.$2+"."+RegExp.$1;
-
-					Ausdruck = /(.*):(.*):(.*).*$/;
-					Ausdruck.exec(progEndTime);
-					var stTime = RegExp.$1+":"+RegExp.$2;
-
-					timer_list_addRow(timer_body, i, alDate, alTime, stDate, stTime, sender, progName, "TVInfo");
-					if(document.f.debug.checked == true)
-						sLog_addRow(sLog_body, "green", "- Timer "+i+": "+alDate+" "+alTime+" "+sender+" "+progName, "analyzed");
+						timer_list_addRow(timer_body, i, alDate, alTime, stDate, stTime, sender, progName, "TVInfo");
+						if(document.f.debug.checked == true)
+							sLog_addRow(sLog_body, "green", "- Timer "+i+": "+alDate+" "+alTime+" "+sender+" "+progName, "analyzed");
+						counter++;
+					}
 				}
-				if(recProg_NodeList.length>0)
-					sLog_addRow(sLog_body, "green", "Analyze "+recProg_NodeList.length+" Timers", "finished");
+				if(counter > 0)
+					sLog_addRow(sLog_body, "green", "Analyze "+counter+" Timers", "finished");
 				else
 					sLog_addRow(sLog_body, "yellow", "No Timers found", "finished");
 			}
@@ -274,20 +268,24 @@ function do_set_timer()
 				if(Ergebnis)
 					channel_name = RegExp.$1;
 			}
+
+			var tmpTime = rowNode.childNodes[2].firstChild.nodeValue;
+			var alTime = tmpTime.replace(/:/gi,".");
+			tmpTime = rowNode.childNodes[4].firstChild.nodeValue;
+			var stTime = tmpTime.replace(/:/gi,".");
+
 			var _urlt = "/control/timer?action=new&alDate="+rowNode.childNodes[1].firstChild.nodeValue
-				+"&alTime="+rowNode.childNodes[2].firstChild.nodeValue
+				+"&alTime="+alTime
 				+"&stDate="+rowNode.childNodes[3].firstChild.nodeValue
-				+"&stTime="+rowNode.childNodes[4].firstChild.nodeValue
+				+"&stTime="+stTime
 				+"&channel_name="+channel_name
 				+"&rec_dir="+document.f.rec_dir.value
 				+"&rs=1"
 				+"&update=1";
-//			_url = _urlt.replace(/:/gi,".");
 			_url = encodeURI(_urlt);
 			loadSyncURL(_url);
 			channels++;
 			if(document.f.debug.checked)
-				/*sLog_addRow(sLog_body, "green", "Sync Timer to box: "+channel_name+" "+rowNode.childNodes[6].firstChild.nodeValue, "added");*/
 				sLog_addRow(sLog_body, "green", "Sync Timer to box url: "+_url, "added");
 		}
 	}

@@ -57,7 +57,6 @@ libneutrino_gui_a_SOURCES = \
 	epgplus.cpp \
 	epgview.cpp \
 	eventlist.cpp \
-	ext_update.cpp \
 	favorites.cpp \
 	filebrowser.cpp \
 	imageinfo.cpp \
@@ -97,6 +96,7 @@ libneutrino_gui_a_SOURCES = \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
+	update_ext.cpp \
 	update_menue.cpp \
 	update_settings.cpp \
 	user_menue.cpp \
