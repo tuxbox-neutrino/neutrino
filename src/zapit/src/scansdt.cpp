@@ -49,6 +49,7 @@ CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 	current = curr;
 	transport_stream_id = 0;
 	original_network_id = 0;
+	//FIXME sdt update ??
 	cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
 }
 
@@ -277,6 +278,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 
 		CZapitChannel * channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
+		channel->deltype = cable ? FE_QAM : FE_QPSK;
 
 		CServiceManager::getInstance()->AddCurrentChannel(channel);
 
@@ -324,6 +326,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	} else {
 		channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
+		channel->deltype = cable ? FE_QAM : FE_QPSK;
 
 		CServiceManager::getInstance()->AddChannel(channel);
 		/* mark channel as new, if this satellite already have channels */
