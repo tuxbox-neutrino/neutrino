@@ -669,34 +669,40 @@ const int PARENTALLOCK_PROMPT_ONSIGNAL       = 3;
 
 class CScanSettings
 {
-public:
-	CConfigFile	configfile;
-	int		bouquetMode;
-	int		scanType;
+	public:
+		CConfigFile	configfile;
+		int		bouquetMode;
+		int		scanType;
 
-	char                      satNameNoDiseqc[50];
-	delivery_system_t         delivery_system;
-	int		scan_nit;
-	int		scan_nit_manual;
-	int		scan_bat;
-	int		scan_fta_flag;
-	int		scan_reset_numbers;
-	int		scan_logical_numbers;
-	int		scan_logical_hd;
-	int		TP_fec;
-	int		TP_pol;
-	int		TP_mod;
-	char		TP_freq[10];
-	char		TP_rate[9];
-	int		fast_type;
-	int		fast_op;
-	int		cable_nid;
+		delivery_system_t         delivery_system;
+		int		scan_nit;
+		int		scan_nit_manual;
+		int		scan_bat;
+		int		scan_fta_flag;
+		int		scan_reset_numbers;
+		int		scan_logical_numbers;
+		int		scan_logical_hd;
+		int		fast_type;
+		int		fast_op;
+		int		cable_nid;
 
-	CScanSettings();
+		char		satName[50];
+		int		sat_TP_fec;
+		int		sat_TP_pol;
+		char		sat_TP_freq[10];
+		char		sat_TP_rate[9];
 
-	//void useDefaults(const delivery_system_t _delivery_system);
-	bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
-	bool saveSettings(const char * const fileName);
+		char		cableName[50];
+		int		cable_TP_mod;
+		int		cable_TP_fec;
+		char		cable_TP_freq[10];
+		char		cable_TP_rate[9];
+
+		CScanSettings();
+
+		//void useDefaults(const delivery_system_t _delivery_system);
+		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
+		bool saveSettings(const char * const fileName);
 };
 
 
