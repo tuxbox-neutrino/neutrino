@@ -133,5 +133,9 @@ class CFEManager
 		bool		lockDemux(int i, transponder_id_t id);
 		void		unlockDemux(int i);
 		bool		haveFreeDemux();
+		bool		haveSat();
+		bool		haveCable();
+		bool		satOnly() { return (haveSat() && !haveCable()); }
+		bool		cableOnly() { return (haveCable() && !haveSat()); }
 };
 #endif /* __femanager_h__ */

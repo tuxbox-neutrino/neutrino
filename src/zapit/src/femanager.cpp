@@ -196,7 +196,7 @@ bool CFEManager::loadSettings()
 
 	int def_mode0 = CFrontend::FE_MODE_INDEPENDENT;
 	int def_modeX = CFrontend::FE_MODE_UNUSED;
-	fe_mode_t newmode = (fe_mode_t) configfile.getInt32("mode", -1);
+	int newmode = (fe_mode_t) configfile.getInt32("mode", -1);
 	if (newmode >= 0) {
 		INFO("old mode param: %d\n", newmode);
 		if (newmode == FE_MODE_LOOP) {
@@ -206,10 +206,12 @@ bool CFEManager::loadSettings()
 			def_mode0 = CFrontend::FE_MODE_MASTER;
 			def_modeX = CFrontend::FE_MODE_LINK_TWIN;
 		} else if (newmode == FE_MODE_ALONE) {
-			def_mode0 = CFrontend::FE_MODE_MASTER;
+			def_mode0 = CFrontend::FE_MODE_INDEPENDENT;
 			def_modeX = CFrontend::FE_MODE_INDEPENDENT;
 		}
 	}
+	bool fsat = true;
+	bool fcable = true;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -224,7 +226,21 @@ bool CFEManager::loadSettings()
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
-		int def_mode = fe->fenumber ? def_modeX : def_mode0;
+		/* default mode for first / next frontends */
+		int def_mode = def_modeX;
+		if (fe->isSat() && fsat) {
+			fsat = false;
+			def_mode = def_mode0;
+		}
+		if (fe->isCable()) {
+			if (fcable) {
+				fcable = false;
+				def_mode = def_mode0;
+			}
+			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
+				def_mode = CFrontend::FE_MODE_INDEPENDENT;
+		}
+
 		fe->setMode(getConfigValue(fe, "mode", def_mode));
 		fe->setMaster(getConfigValue(fe, "master", 0));
 
@@ -236,6 +252,9 @@ bool CFEManager::loadSettings()
 		satellite_map_t satlist = CServiceManager::getInstance()->SatelliteList();
 		for(sat_iterator_t sit = satlist.begin(); sit != satlist.end(); ++sit)
 		{
+			if (fe->getInfo()->type != sit->second.deltype)
+				continue;
+
 			t_satellite_position position = sit->first;
 			sat_config_t satconfig;
 			/* defaults, to replace CServiceManager::InitSatPosition/LoadMotorPositions
@@ -340,9 +359,10 @@ void CFEManager::linkFrontends(bool init)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
+#if 0
 		if (fe->getInfo()->type != FE_QPSK)
 			fe->setMode(CFrontend::FE_MODE_INDEPENDENT);
-
+#endif
 		int femode = fe->getMode();
 		fe->slave = false;
 		fe->linkmap.clear();
@@ -354,7 +374,7 @@ void CFEManager::linkFrontends(bool init)
 				CFrontend * fe2 = it2->second;
 				if (!CFrontend::linked(fe2->getMode()))
 					continue;
-				if (fe2->getMaster() != fe->fenumber)
+				if (fe2->getType() != fe->getType() || (fe2->getMaster() != fe->fenumber))
 					continue;
 #if 0
 				int mnum = fe2->getMaster();
@@ -472,6 +492,8 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
 
+		if (mfe->getType() != channel->deltype)
+			continue;
 		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 			continue;
 
@@ -499,7 +521,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 						fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
 
 				if(fe->Locked()) {
-					if ((fe->getCurrentSatellitePosition() != satellitePosition)) {
+					if (fe->isSat() && (fe->getCurrentSatellitePosition() != satellitePosition)) {
 						free_frontend = NULL;
 						free_twin = NULL;
 						break;
@@ -621,11 +643,18 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	CFrontend * frontend = NULL;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
-		satellite_map_t & satmap = mfe->getSatellites();
-		sat_iterator_t sit = satmap.find(satellitePosition);
-		if ((sit != satmap.end()) && sit->second.configured) {
-			frontend = mfe;
-			break;
+		if(mfe->isCable()) {
+			if ((satellitePosition & 0xF00) == 0xF00) {
+				frontend = mfe;
+				break;
+			}
+		} else {
+			satellite_map_t & satmap = mfe->getSatellites();
+			sat_iterator_t sit = satmap.find(satellitePosition);
+			if ((sit != satmap.end()) && sit->second.configured) {
+				frontend = mfe;
+				break;
+			}
 		}
 	}
 	INFO("Selected fe: %d", frontend ? frontend->fenumber : -1);
@@ -669,6 +698,7 @@ bool CFEManager::unlockFrontend(CFrontend * frontend, bool unlock_demux)
 	return true;
 }
 
+// FIXME
 bool CFEManager::haveFreeFrontend()
 {
 	if(have_locked) {
@@ -684,4 +714,24 @@ bool CFEManager::haveFreeFrontend()
 		return false;
 	}
 	return true;
+}
+
+bool CFEManager::haveSat()
+{
+	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		CFrontend * fe = it->second;
+		if (fe->getInfo()->type == FE_QPSK)
+			return true;
+	}
+	return false;
+}
+
+bool CFEManager::haveCable()
+{
+	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
+		CFrontend * fe = it->second;
+		if (fe->getInfo()->type == FE_QAM)
+			return true;
+	}
+	return false;
 }
