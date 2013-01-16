@@ -1347,7 +1347,8 @@ void CInfoViewer::showSNR ()
 			newfreq = false;
 
 			std::string polarisation = "";
-			if (g_info.delivery_system == DVB_S)
+			
+			if (CFEManager::getInstance()->getLiveFE()->getType() == FE_QPSK)
 				polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
 
 			int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
