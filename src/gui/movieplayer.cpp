@@ -780,7 +780,9 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool fil
 			break;
 		case 6: /*DTS*/
 			apidtitle.append(" (DTS)");
+#ifndef BOXMODEL_APOLLO
 			enabled = false;
+#endif
 			break;
 		case 7: /*MLP*/
 			apidtitle.append(" (MLP)");
