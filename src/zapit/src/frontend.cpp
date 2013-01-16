@@ -198,8 +198,7 @@ bool CFrontend::Open(bool init)
 		printf("[fe%d] frontend fd %d type %d\n", fenumber, fd, info.type);
 	}
 
-	//FIXME 
-	if (fenumber > 1) info.type = FE_QAM;
+	//FIXME if (fenumber > 1) info.type = FE_QAM;
 
 	if (init)
 		Init();
