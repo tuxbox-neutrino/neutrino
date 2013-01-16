@@ -90,11 +90,11 @@ class CFrontend
 {
 	public:
 		typedef enum {
+			FE_MODE_UNUSED,
 			FE_MODE_INDEPENDENT,
 			FE_MODE_MASTER,
 			FE_MODE_LINK_LOOP,
-			FE_MODE_LINK_TWIN,
-			FE_MODE_UNUSED,
+			FE_MODE_LINK_TWIN
 		} fe_work_mode_t;
 
 	private:
@@ -255,5 +255,8 @@ class CFrontend
 				return true;
 			return false;
 		}
+		bool				isCable() { return (info.type == FE_QAM); }
+		bool				isSat() { return (info.type == FE_QPSK); }
+		fe_type_t			getType() { return info.type; }
 };
 #endif /* __zapit_frontend_h__ */
