@@ -49,6 +49,7 @@
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
+#include <zapit/femanager.h>
 
 #include <cs_api.h>
 
@@ -257,7 +258,7 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 
 	//rotor
 	//don't show rotor settings on cable box
-	if (g_info.delivery_system == DVB_S) {
+	if (CFEManager::getInstance()->haveSat()) {
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_ROTOR_SWAP);
 		ms_general->addItem(mc);
