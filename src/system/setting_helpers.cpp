@@ -495,6 +495,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
+#ifndef BOXMODEL_APOLLO
 	int cfd;
 
 	printf("FAN Speed %d\n", speed);
@@ -507,6 +508,7 @@ void CFanControlNotifier::setSpeed(unsigned int speed)
 		perror("IOC_CONTROL_PWM_SPEED");
 
 	close(cfd);
+#endif
 }
 
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
