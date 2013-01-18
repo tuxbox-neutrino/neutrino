@@ -118,6 +118,9 @@ class CFrameBuffer
 		int cache_size;
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
 		int m_transparent_default, m_transparent;
+		// Unlocked versions (no mutex)
+		void paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col);
+		void paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col);
 
 	public:
 		fb_pixel_t realcolor[256];
@@ -175,7 +178,6 @@ class CFrameBuffer
 
 		inline void paintHLine(int xa, int xb, int y, const fb_pixel_t col) { paintHLineRel(xa, xb - xa, y, col); }
 		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
-
 
 		void setIconBasePath(const std::string & iconPath);
 
