@@ -29,4 +29,9 @@ extern void cs_tsx_tsp_get_port_config(tsrouter_tsp_config_t *conf);
 extern void cs_tsx_hsdp_set_port_config(const tsrouter_hsdp_config_t *conf);
 extern void cs_tsx_tsp_set_port_config(const tsrouter_tsp_config_t *conf);
 
+extern void cs_tsx_hsdp_get_port_pll(unsigned int port, unsigned int *pll_index);
+extern void cs_tsx_hsdp_set_port_pll(unsigned int port, unsigned int pll_index);
+
+extern void cs_tsx_hsdp_get_port_speed(unsigned int port, unsigned int *speed);
+extern void cs_tsx_hsdp_set_port_speed(unsigned int port, unsigned int speed);
 #endif /* __TSROUTER_H */

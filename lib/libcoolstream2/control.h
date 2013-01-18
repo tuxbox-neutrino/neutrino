@@ -33,28 +33,12 @@ typedef struct _scart_status {
 	bool	fastblank;
 } scart_status_t;
 
-typedef struct _pwm_status {
-	u16	pwm_pulse_first;
-	u16	pwm_pulse_second;
-	u32	pwm_clock;
-} pwm_status_t;
-
-typedef struct cs_control_data {
-	scart_status_t scart_status;
-	pwm_status_t pwm_status;
-	bool hdd_power;
-	u32 readers;
-	u32 sys_serial_high, sys_serial_low;
-	u32 sys_revision;
-} cs_control_data_t;
-
 /* ioctls */
 #define CS_CONTROL_MAGIC		0xDE
 #define IOC_CONTROL_WIDESCREEN		_IOW(CS_CONTROL_MAGIC, 20, unsigned int)
 #define IOC_CONTROL_TVAV		_IOW(CS_CONTROL_MAGIC, 21, unsigned int)
 #define IOC_CONTROL_RGB			_IOW(CS_CONTROL_MAGIC, 22, unsigned int)
 #define IOC_CONTROL_SCART_STATUS	_IOR(CS_CONTROL_MAGIC, 23, scart_status_t *)
-#define IOC_CONTROL_PWM_SPEED		_IOW(CS_CONTROL_MAGIC, 24, unsigned int)
 #define IOC_CONTROL_HDDPOWER		_IOW(CS_CONTROL_MAGIC, 25, unsigned int)
 
 /* ioctl for getting board serial and revision */
