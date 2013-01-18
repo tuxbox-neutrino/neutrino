@@ -485,7 +485,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 	CFrontend * free_frontend = NULL;
 	CFrontend * same_tid_fe = NULL;
 
-	if (livefe && livefe->sameTsidOnid(channel->getTransponderId()))
+	if (livefe && livefe->tuned && livefe->sameTsidOnid(channel->getTransponderId()))
 		return livefe;
 
 	t_satellite_position satellitePosition = channel->getSatellitePosition();
