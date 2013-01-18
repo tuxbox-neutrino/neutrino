@@ -769,7 +769,6 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 
 void CFrameBuffer::paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col)
 {
-
 #if defined(FB_HW_ACCELERATION)
 	fb_fillrect fillrect;
 	fillrect.dx = x;
@@ -811,14 +810,22 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 void CFrameBuffer::paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col)
 {
 #if defined(FB_HW_ACCELERATION)
-	fb_fillrect fillrect;
-	fillrect.dx = x;
-	fillrect.dy = y;
-	fillrect.width = dx;
-	fillrect.height = 1;
-	fillrect.color = col;
-	fillrect.rop = ROP_COPY;
-	ioctl(fd, FBIO_FILL_RECT, &fillrect);
+	if (dx >= 10) {
+		fb_fillrect fillrect;
+		fillrect.dx = x;
+		fillrect.dy = y;
+		fillrect.width = dx;
+		fillrect.height = 1;
+		fillrect.color = col;
+		fillrect.rop = ROP_COPY;
+		ioctl(fd, FBIO_FILL_RECT, &fillrect);
+	} else {
+		uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
+
+		fb_pixel_t * dest = (fb_pixel_t *)pos;
+		for (int i = 0; i < dx; i++)
+			*(dest++) = col;
+	}
 #elif defined(USE_NEVIS_GXA)
 	/* draw a single horizontal line from point x/y with width dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
