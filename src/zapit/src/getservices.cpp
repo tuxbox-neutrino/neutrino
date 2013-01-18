@@ -598,7 +598,7 @@ bool CServiceManager::LoadScanXml(fe_type_t delsys)
 {
 	if (ParseScanXml(delsys)) {
 		/* fake position for non-satellite */
-		t_satellite_position position;
+		t_satellite_position position = 0;
 
 		xmlNodePtr search = xmlDocGetRootElement(scanInputParser)->xmlChildrenNode;
 		while (search) {
@@ -929,7 +929,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		return false;
 	}
 
-	const char * footer; 
+	const char * footer = "";
 	switch (tI->second.deltype) {
 		case FE_QPSK: /* satellite */
 			sprintf(satstr, "\t<%s name=\"%s\" position=\"%hd\">\n", "sat", spos_it->second.name.c_str(), satellitePosition);
