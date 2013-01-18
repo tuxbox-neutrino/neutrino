@@ -59,6 +59,9 @@ extern CPictureViewer * g_PicViewer;
 #define FB_HW_ACCELERATION
 #endif
 #endif
+#if defined(FB_HW_ACCELERATION) && defined(USE_NEVIS_GXA)
+#error
+#endif
 //#undef USE_NEVIS_GXA //FIXME
 /*******************************************************************************/
 #ifdef USE_NEVIS_GXA
@@ -92,6 +95,7 @@ extern CPictureViewer * g_PicViewer;
 #define GXA_BMP2_ADDR_REG	   0x0054
 #define GXA_DEPTH_REG		0x00F4
 #define GXA_CONTENT_ID_REG	  0x0144
+#define GXA_BLT_CONTROL_REG     0x0034
 
 #define GXA_CMD_BLT		 0x00010800
 #define GXA_CMD_NOT_ALPHA	   0x00011000
@@ -100,6 +104,7 @@ extern CPictureViewer * g_PicViewer;
 
 #define GXA_BMP1_TYPE_REG	  0x0048
 #define GXA_BMP1_ADDR_REG	  0x004C
+#define GXA_BMP7_TYPE_REG         0x0078
 
 #define GXA_BLEND_CFG_REG	   0x003C
 #define GXA_CFG_REG		 0x0030
@@ -218,6 +223,7 @@ void CFrameBuffer::setupGXA(void)
 	_write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
 	_write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);
+	_write_gxa(gxa_base, GXA_BMP7_TYPE_REG, (3 << 16) | screeninfo.xres | (1 << 27));
 }
 #endif
 void CFrameBuffer::init(const char * const fbDevice)
@@ -620,54 +626,64 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	if (!getActive())
 		return;
 
-#if defined(USE_NEVIS_GXA)
+	if (dx == 0 || dy == 0) {
+		printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, x+dy);
+		return;
+	}
+#if defined(FB_HW_ACCELERATION)
+	fb_fillrect fillrect;
+	fillrect.color	= col;
+	fillrect.rop	= ROP_COPY;
+#elif defined(USE_NEVIS_GXA)
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	/* solid fill with background color */
+	unsigned int cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(7) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
 #endif
-
-	bool corner_tl = (type & CORNER_TOP_LEFT)    == CORNER_TOP_LEFT;
-	bool corner_tr = (type & CORNER_TOP_RIGHT)   == CORNER_TOP_RIGHT;
-	bool corner_bl = (type & CORNER_BOTTOM_LEFT) == CORNER_BOTTOM_LEFT;
-	bool corner_br = (type & CORNER_BOTTOM_RIGHT)== CORNER_BOTTOM_RIGHT;
 
 	/* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
 	   radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
 	   ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
 	static const int q_circle[541] = {
-	540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
-	540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
-	539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
-	537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
-	534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
-	531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
-	527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
-	522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
-	516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
-	509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
-	502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
-	493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
-	484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
-	473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
-	462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
-	449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
-	435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
-	420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
-	403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
-	384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
-	363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
-	340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
-	314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
-	283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
-	248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
-	204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
-	147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
-	 23};
+		540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
+		540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
+		539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
+		537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
+		534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
+		531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
+		527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
+		522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
+		516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
+		509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
+		502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
+		493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
+		484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
+		473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
+		462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
+		449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
+		435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
+		420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
+		403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
+		384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
+		363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
+		340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
+		314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
+		283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
+		248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
+		204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
+		147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
+		23};
 
 	int line = 0;
 
 	if (type && radius) {
+		bool corner_tl = (type & CORNER_TOP_LEFT)    == CORNER_TOP_LEFT;
+		bool corner_tr = (type & CORNER_TOP_RIGHT)   == CORNER_TOP_RIGHT;
+		bool corner_bl = (type & CORNER_BOTTOM_LEFT) == CORNER_BOTTOM_LEFT;
+		bool corner_br = (type & CORNER_BOTTOM_RIGHT)== CORNER_BOTTOM_RIGHT;
 		int ofs, scf, scl, ofl, ofr;
 		/* just an multiplicator for all math to reduce rounding errors */
-		#define MUL 32768
+#define MUL 32768
 
 		/* limit the radius */
 		if (radius > dx)
@@ -703,63 +719,66 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 				ofr = corner_br ? ofs : 0;
 			} else {
 				//printf("3: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
-#ifdef FB_HW_ACCELERATION
-				/* FIXME small size faster to do by software */
-				fb_fillrect fillrect;
+#if defined(FB_HW_ACCELERATION) || defined(USE_NEVIS_GXA)
 				int rect_height_mult = (((type & (CORNER_BOTTOM | CORNER_TOP)) == (CORNER_BOTTOM | CORNER_TOP)) ? 2 : 1);
-
+#if defined(FB_HW_ACCELERATION)
 				fillrect.dx	= x;
 				fillrect.dy	= y + line;
 				fillrect.width	= dx;
 				fillrect.height	= dy - (radius * rect_height_mult);
-				fillrect.color	= col;
-				fillrect.rop	= ROP_COPY;
-				if (dx == 0 || dy == 0) {
-					printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, x+dy);
-					return;
-				}
 
 				ioctl(fd, FBIO_FILL_RECT, &fillrect);
+#elif defined(USE_NEVIS_GXA)
+				_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
+				_write_gxa(gxa_base, cmd, GXA_POINT(x, y + line));               /* destination x/y */
+				_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy - (radius * rect_height_mult))); /* width/height */
+#endif
 				line += dy - (radius * rect_height_mult);
 				continue;
 #endif
-
 			}
 
 			if (dx-ofr-ofl == 0)
 				printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, dx-ofr-ofl, y+line);
-
+#ifdef USE_NEVIS_GXA
+			_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
+			_write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));               /* destination x/y */
+			_write_gxa(gxa_base, cmd, GXA_POINT(dx-ofr-ofr,   1));                      /* width/height */
+#else
 			paintHLineRelInternal(x+ofl, dx-ofl-ofr, y+line, col);
+#endif
 			line++;
 		}
 	} else {
-#ifdef FB_HW_ACCELERATION
+#if defined(FB_HW_ACCELERATION)
 		/* FIXME small size faster to do by software */
 		if (dx > 10 || dy > 10) {
-			fb_fillrect fillrect;
-
 			fillrect.dx	= x;
 			fillrect.dy	= y;
 			fillrect.width	= dx;
 			fillrect.height	= dy;
-			fillrect.color	= col;
-			fillrect.rop	= ROP_COPY;
-			if (dx == 0 || dy == 0) {
-				printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, x+dy);
-				return;
-			}
-
 			ioctl(fd, FBIO_FILL_RECT, &fillrect);
 			return;
 		}
 #endif
+#if defined(USE_NEVIS_GXA)
+		_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
+		_write_gxa(gxa_base, cmd, GXA_POINT(x,  y));   /* destination x/y */
+		_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));  /* width/height */
+#else
+		int swidth = stride / sizeof(fb_pixel_t);
+		fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
 		while (line < dy) {
-			paintHLineRelInternal(x, dx, y+line, col);
+			for (int pos = x; pos < x + dx; pos++)
+				*(fbp + pos) = col;
+
+			fbp += swidth;
 			line++;
 		}
+#endif
 	}
-
 #ifdef USE_NEVIS_GXA
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor); //FIXME needed ?
 	/* the GXA seems to do asynchronous rendering, so we add a sync marker
 	 * to which the fontrenderer code can synchronize
 	 */
@@ -769,6 +788,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 
 void CFrameBuffer::paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col)
 {
+
 #if defined(FB_HW_ACCELERATION)
 	fb_fillrect fillrect;
 	fillrect.dx = x;
@@ -819,14 +839,10 @@ void CFrameBuffer::paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t 
 		fillrect.color = col;
 		fillrect.rop = ROP_COPY;
 		ioctl(fd, FBIO_FILL_RECT, &fillrect);
-	} else {
-		uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-
-		fb_pixel_t * dest = (fb_pixel_t *)pos;
-		for (int i = 0; i < dx; i++)
-			*(dest++) = col;
+		return;
 	}
-#elif defined(USE_NEVIS_GXA)
+#endif
+#if defined(USE_NEVIS_GXA)
 	/* draw a single horizontal line from point x/y with width dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
