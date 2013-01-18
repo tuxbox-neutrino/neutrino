@@ -750,12 +750,13 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 			}
 
 			ioctl(fd, FBIO_FILL_RECT, &fillrect);
+			return;
 		}
-	}
-#else
-	while (line < dy) {
-		paintHLineRelInternal(x+ofl, dx-ofl-ofr, y+line col);
-		line++;
+#endif
+		while (line < dy) {
+			paintHLineRelInternal(x, dx, y+line, col);
+			line++;
+		}
 	}
 
 #ifdef USE_NEVIS_GXA
@@ -763,7 +764,6 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	 * to which the fontrenderer code can synchronize
 	 */
 	add_gxa_sync_marker();
-#endif
 #endif
 }
 
