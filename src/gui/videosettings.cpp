@@ -236,8 +236,9 @@ int CVideoSettings::showVideoSetup()
 		if (system_rev == 9 || system_rev == 11) { // Tank, Trinity.
 			vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TANK_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT, true, this);
 			vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
+		} else 
 #endif
-		} else {
+		{
 			if(system_rev != 10) {
 				vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this);
 				vs_scart_ch->setHint("", LOCALE_MENU_HINT_VIDEO_SCART_MODE);
