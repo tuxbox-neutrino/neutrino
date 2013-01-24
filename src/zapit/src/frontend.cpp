@@ -213,8 +213,10 @@ bool CFrontend::Open(bool init)
 void CFrontend::Init(void)
 {
 	mutex.lock();
+	// Set the voltage to On, and wait voltage to become stable
+	// and wait for diseqc equipment to be ready.
 	secSetVoltage(SEC_VOLTAGE_13, 100);
-	secSetTone(SEC_TONE_OFF, 15);
+	secSetTone(SEC_TONE_OFF, 20);
 	setDiseqcType((diseqc_t) config.diseqcType, true);
 	mutex.unlock();
 }
@@ -228,11 +230,15 @@ void CFrontend::Close(void)
 
 	if (!slave && config.diseqcType > MINI_DISEQC)
 		sendDiseqcStandby();
+	// Disable tone first as it's imposed on voltage
+	secSetTone(SEC_TONE_OFF, 20);
+	// Disable voltage immediately and wait 50ms to prevent
+	// a fast power-off -> power-on sequence where diseqc equipment
+	// might not reset properly.
+	secSetVoltage(SEC_VOLTAGE_OFF, 50);
 
-	secSetVoltage(SEC_VOLTAGE_OFF, 0);
-	secSetTone(SEC_TONE_OFF, 15);
-	tuned = false;
-	standby = true;;
+	tuned	= false;
+	standby	= true;;
 	close(fd);
 	fd = -1;
 }
@@ -243,8 +249,12 @@ void CFrontend::setMasterSlave(bool _slave)
 		return;
 
 	if(_slave) {
-		secSetVoltage(SEC_VOLTAGE_OFF, 0);
-		secSetTone(SEC_TONE_OFF, 15);
+		// Disable tone first as it's imposed on voltage
+		secSetTone(SEC_TONE_OFF, 20);
+		// Disable voltage immediately and wait 50ms to prevent
+		// a fast power-off -> power-on sequence where diseqc equipment
+		// might not reset properly.
+		secSetVoltage(SEC_VOLTAGE_OFF, 50);
 	}
 	slave = _slave;
 	if(!slave)
@@ -400,6 +410,7 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 	fop(ioctl, FE_READ_SNR, &snr);
 	return snr;
 }
+
 #if 0 
 //never used
 uint32_t CFrontend::getUncorrectedBlocks(void) const
@@ -410,6 +421,7 @@ uint32_t CFrontend::getUncorrectedBlocks(void) const
 	return blocks;
 }
 #endif
+
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
 	struct dvb_frontend_event event;
@@ -822,6 +834,7 @@ void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const
 	for (int i = 0; i < cmd->msg_len; i++)
 		printf("0x%X ", cmd->msg[i]);
 	printf("\n");
+
 	if (fop(ioctl, FE_DISEQC_SEND_MASTER_CMD, cmd) == 0)
 		usleep(1000 * ms);
 }
@@ -881,11 +894,11 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 		secSetTone(SEC_TONE_OFF, 0);
 		secSetVoltage(SEC_VOLTAGE_13, 0);
 	}
-	else if ((force && (newDiseqcType != NO_DISEQC)) || ((config.diseqcType <= MINI_DISEQC)
-	    && (newDiseqcType > MINI_DISEQC))) {
+	else if ((force && (newDiseqcType != NO_DISEQC)) ||
+		 ((config.diseqcType <= MINI_DISEQC) && (newDiseqcType > MINI_DISEQC))) {
 		secSetTone(SEC_TONE_OFF, 15);
-		sendDiseqcPowerOn();
 		sendDiseqcReset();
+		sendDiseqcPowerOn();
 		secSetTone(SEC_TONE_ON, 50);
 	}
 
@@ -1144,7 +1157,6 @@ bool CFrontend::setDiseqcSimple(int sat_no, const uint8_t pol, const uint32_t fr
 
 		secSetTone(SEC_TONE_OFF, 20);
 		secSetVoltage(v, 100);
-
 		sendDiseqcCommand(&cmd, 100);
 		return true;
 	}
@@ -1175,31 +1187,32 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	if (slave)
 		return;
 
+	// Disable tone for at least 15ms
 	secSetTone(SEC_TONE_OFF, 20);
-#if 1
-	fe_sec_voltage_t v = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
-	secSetVoltage(v, 100);
-#endif
-#if 0
-	sendDiseqcReset();
-	usleep(50*1000);                  /* sleep at least 50 milli seconds */
-#endif
-	for (loop = 0; loop <= config.diseqcRepeats; loop++) {
-		if (config.diseqcType == MINI_DISEQC)
-			sendToneBurst(b, 1);
+	// Set wanted voltage and wait at least 100 ms, in case voltage was off.
+	secSetVoltage((pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18, 100);
 
+#if 0 /* FIXME: is this necessary ? */
+	sendDiseqcReset();
+	sendDiseqcPowerOn();
+#endif
+
+	for (loop = 0; loop <= config.diseqcRepeats; loop++) {
 		delay = 0;
+
 		if (config.diseqcType == DISEQC_1_1) {	/* setup the uncommited switch first */
 
-			delay = 60;	// delay for 1.0 after 1.1 command
+			delay = 100;	// delay for 1.0 after 1.1 command
 			cmd.msg[2] = 0x39;	/* port group = uncommited switches */
 #if 1
 			/* for 16 inputs */
 			cmd.msg[3] = 0xF0 | ((sat_no / 4) & 0x03);
-			sendDiseqcCommand(&cmd, 100);	/* send the command to setup second uncommited switch and wait 100 ms !!! */
+			//send the command to setup second uncommited switch and
+			// wait 100 ms.
+			sendDiseqcCommand(&cmd, 100);	
 #else
 			/* for 64 inputs */
-			uint8_t cascade_input[16] = { 0xF0, 0xF4, 0xF8, 0xFC, 0xF1, 0xF5, 0xF9, 0xFD, 0xF2, 0xF6, 0xFA,
+			uint8_t cascade_input[16] = {0xF0, 0xF4, 0xF8, 0xFC, 0xF1, 0xF5, 0xF9, 0xFD, 0xF2, 0xF6, 0xFA,
 				0xFE, 0xF3, 0xF7, 0xFB, 0xFF
 			};
 			cmd.msg[3] = cascade_input[(sat_no / 4) & 0xFF];
@@ -1208,22 +1221,30 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 			sendDiseqcCommand(&cmd, 100);	/* send the command to setup second uncommited switch and wait 100 ms !!! */
 #endif
 		}
-		if (config.diseqcType >= DISEQC_1_0) {	/* DISEQC 1.0 */
 
+		if (config.diseqcType >= DISEQC_1_0) {	/* DISEQC 1.0 */
 			usleep(delay * 1000);
 			//cmd.msg[0] |= 0x01;	/* repeated transmission */
 			cmd.msg[2] = 0x38;	/* port group = commited switches */
-			cmd.msg[3] = 0xF0 | ((sat_no % 4) << 2) | ((pol & 1) ? 0 : 2) | (high_band ? 1 : 0);
+			cmd.msg[3] = 0xF0 | ((sat_no & 0x0F) << 2) | ((pol & 1) ? 0 : 2) | (high_band ? 1 : 0);
 			sendDiseqcCommand(&cmd, 100);	/* send the command to setup second commited switch */
 		}
 		cmd.msg[0] = 0xE1;
 		usleep(50 * 1000);	/* sleep at least 50 milli seconds */
 	}
 
+	// Toneburst should not be repeated and should be sent AFTER
+	// all diseqc, this means we don't support a toneburst switch 
+	// before any diseqc equipment.
+	if (config.diseqcType == MINI_DISEQC)
+		sendToneBurst(b, 1);
+
 	usleep(25 * 1000);
 
 	if (config.diseqcType == SMATV_REMOTE_TUNING)
 		sendDiseqcSmatvRemoteTuningCommand(frequency);
+
+	usleep(25 * 1000);
 }
 
 void CFrontend::setSec(const uint8_t /*sat_no*/, const uint8_t pol, const bool high_band)
@@ -1232,43 +1253,42 @@ void CFrontend::setSec(const uint8_t /*sat_no*/, const uint8_t pol, const bool h
 	fe_sec_tone_mode_t t = high_band ? SEC_TONE_ON : SEC_TONE_OFF;
 
 	currentTransponder.polarization = pol;
-	secSetTone(t, 15);
+	// set tone off first
+	secSetTone(SEC_TONE_OFF, 20);
+	// set the desired voltage
 	secSetVoltage(v, 100);
+	// set tone according to what's needed.
+	secSetTone(t, 15);
 }
 
-void CFrontend::sendDiseqcPowerOn(void)
+void CFrontend::sendDiseqcPowerOn(uint32_t ms)
 {
-	// FIXME power on can take a while. Should be wait
-	// more time here ? 15 ms enough for some switches ?
 	printf("[fe%d] diseqc power on\n", fenumber);
-	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x03);
+	// Send power on to 'all' equipment
+	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x03, ms);
 }
 
-void CFrontend::sendDiseqcReset(void)
+void CFrontend::sendDiseqcReset(uint32_t ms)
 {
 	printf("[fe%d] diseqc reset\n", fenumber);
-#if 0
-	/* Reset && Clear Reset */
-	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x00);
-	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x01);
-#else
-	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x00); // enigma
-#endif
+	// Send reset to 'all' equipment
+	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x00, ms);
 }
 
-void CFrontend::sendDiseqcStandby(void)
+void CFrontend::sendDiseqcStandby(uint32_t ms)
 {
 	printf("[fe%d] diseqc standby\n", fenumber);
-	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x02);
+	// Send power off to 'all' equipment
+	sendDiseqcZeroByteCommand(0xe0, 0x00, 0x02, ms);
 }
 
-void CFrontend::sendDiseqcZeroByteCommand(uint8_t framing_byte, uint8_t address, uint8_t command)
+void CFrontend::sendDiseqcZeroByteCommand(uint8_t framing_byte, uint8_t address, uint8_t command, uint32_t ms)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = {
 		{framing_byte, address, command, 0x00, 0x00, 0x00}, 3
 	};
 
-	sendDiseqcCommand(&diseqc_cmd, 15);
+	sendDiseqcCommand(&diseqc_cmd, ms);
 }
 
 void CFrontend::sendDiseqcSmatvRemoteTuningCommand(const uint32_t frequency)

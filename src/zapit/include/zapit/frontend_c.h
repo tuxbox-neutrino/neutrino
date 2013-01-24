@@ -26,6 +26,7 @@
 
 #include <inttypes.h>
 #include <OpenThreads/Thread>
+
 #include <zapit/types.h>
 #include <zapit/channel.h>
 #include <zapit/satconfig.h>
@@ -148,12 +149,12 @@ class CFrontend
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
 		void				secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms);
 		void				sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const uint32_t ms);
-		void				sendDiseqcPowerOn(void);
-		void				sendDiseqcReset(void);
+		void				sendDiseqcStandby(uint32_t ms = 100);
+		void				sendDiseqcPowerOn(uint32_t ms = 100);
+		void				sendDiseqcReset(uint32_t ms = 40);
 		void				sendDiseqcSmatvRemoteTuningCommand(const uint32_t frequency);
 		uint32_t			sendEN50494TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank);
-		void				sendDiseqcStandby(void);
-		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd);
+		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd, uint32_t ms = 15);
 		void				sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms);
 		int				setFrontend(const FrontendParameters *feparams, bool nowait = false);
 		void				setSec(const uint8_t sat_no, const uint8_t pol, const bool high_band);
