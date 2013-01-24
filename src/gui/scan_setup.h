@@ -60,6 +60,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *fsatSetup;
 		CMenuForwarder  *fsatSelect;
 		CMenuOptionChooser * dtype;
+		CMenuOptionChooser * dorder;
 		CMenuForwarder  *uniSetup;
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 		CIntInput * nid;
