@@ -995,7 +995,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 		setDiseqc(sit->second.diseqc, polarization, frequency);
 		return;
 	}
-	if (sit->second.diseqc_order == COMMITED_FIRST) {
+	if (config.diseqc_order /*sit->second.diseqc_order*/ == COMMITED_FIRST) {
 		if (setDiseqcSimple(sit->second.commited, polarization, frequency))
 			uncommitedInput = 255;
 		sendUncommittedSwitchesCommand(sit->second.uncommited);
