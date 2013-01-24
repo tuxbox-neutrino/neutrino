@@ -240,6 +240,8 @@ bool CFEManager::loadSettings()
 			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
 				def_mode = CFrontend::FE_MODE_INDEPENDENT;
 		}
+		if (femap.size() == 1)
+			def_mode = CFrontend::FE_MODE_INDEPENDENT;
 
 		fe->setMode(getConfigValue(fe, "mode", def_mode));
 		fe->setMaster(getConfigValue(fe, "master", 0));

@@ -385,7 +385,7 @@ int CScanSetup::showScanMenu()
 
 	//sat/provider selector
 
-	if(CFEManager::getInstance()->getFrontendCount() > 1) {
+	if(CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1) {
 		CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
 		addScanMenuFrontendSetup(setupMenu);
 		mf = new CMenuDForwarder(LOCALE_SATSETUP_FE_SETUP, allow_start, NULL, setupMenu, "", CRCInput::convertDigitToKey(shortcut++));
@@ -681,7 +681,7 @@ int CScanSetup::showFrontendSetup(int number)
 	bool enable = true;
 	/* disable mode option, if fe is master and there are links - prevent master mode change
 	   and hence linked in undefined state */
-	if (fe->hasLinks())
+	if (fe->hasLinks() || fecount == 1)
 		enable = false;
 
 	if (CFrontend::linked(femode))
@@ -696,9 +696,11 @@ int CScanSetup::showFrontendSetup(int number)
 		/* disable all but mode option for linked frontends */
 		bool allow_moptions = !CFrontend::linked(femode);
 
-		/* link to master select */
-		linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, !allow_moptions, this, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
-		setupMenu->addItem(linkfe);
+		if (fecount > 1) {
+			/* link to master select */
+			linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, !allow_moptions, this, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+			setupMenu->addItem(linkfe);
+		}
 		/* diseqc type select */
 		dtype = new CMenuOptionChooser(LOCALE_SATSETUP_DISEQC, (int *)&dmode, SATSETUP_DISEQC_OPTIONS, SATSETUP_DISEQC_OPTION_COUNT,
 				femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP,
@@ -759,6 +761,7 @@ int CScanSetup::showFrontendSetup(int number)
 		fillSatSelect(satSelect);
 
 	delete setupMenu;
+	linkfe = NULL;
 	/* re-link in case mode changed, without fe init */
 	CFEManager::getInstance()->linkFrontends(false);
 	/* copy settings from master, if it set and fe linked */
@@ -1399,7 +1402,8 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		fe->setMode(femode);
 		if (fe && fe->getType() == FE_QPSK) {
-			linkfe->setActive(CFrontend::linked(femode));
+			if (linkfe)
+				linkfe->setActive(CFrontend::linked(femode));
 			dtype->setActive(femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
 			uniSetup->setActive(dmode == DISEQC_UNICABLE && femode != CFrontend::FE_MODE_UNUSED && femode != CFrontend::FE_MODE_LINK_LOOP);
 			fsatSelect->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);

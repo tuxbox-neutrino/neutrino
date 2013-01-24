@@ -53,7 +53,7 @@ void COSDFader::StartFadeIn()
 	fadeIn = true;
 	fadeOut = false;
 	fadeValue = 100;
-#ifdef HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_APOLLO
 	frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_UNIFORM_ALPHA); // Global alpha multiplied with pixel alpha
 #else
 	frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
@@ -74,7 +74,7 @@ bool COSDFader::StartFadeOut()
 	if ((!fadeOut) && g_settings.widget_fade) {
 		fadeOut = true;
 		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
-#ifdef HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_APOLLO
 		frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_UNIFORM_ALPHA); // Global alpha multiplied with pixel alpha
 #else
 		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
@@ -88,7 +88,7 @@ void COSDFader::Stop()
 {
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-#ifdef HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_APOLLO
 	frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
 #else
 	frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
@@ -116,7 +116,7 @@ bool COSDFader::Fade()
 			fadeValue = max_alpha;
 			g_RCInput->killTimer (fadeTimer);
 			fadeIn = false;
-#ifdef HAVE_COOL_HARDWARE
+#ifdef BOXMODEL_APOLLO
 			frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
 #else
 			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
