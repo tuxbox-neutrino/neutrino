@@ -964,13 +964,15 @@ menu.hint_scan_cable Select cable network to scan
 menu.hint_scan_cable_simple Cable scan with optional\nprovider channel numbering
 menu.hint_scan_commited Select commited input for\nthis satellite
 menu.hint_scan_diseqc Select diseqc switch input for\nthis satellite
+menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat Diseqc repeat for cascaded switches
 menu.hint_scan_diseqctype Select your diseqc switch protocol\nwith 'advanced' you can use uncommited switches
 menu.hint_scan_fast CanalDigitaal/TéléSAT/TV Vlaanderen provider scan\nWARNING: diseqc config will be overwritten
 menu.hint_scan_fastprov Select provider to scan
 menu.hint_scan_fasttype Select fast scan type
 menu.hint_scan_fec Select transponder FEC
-menu.hint_scan_femode Select second tuner connection type
+menu.hint_scan_femode Select tuner connection type
+menu.hint_scan_felink Select tuner to link tuner to
 menu.hint_scan_fesetup Configure tuner(s)
 menu.hint_scan_fetimeout Time to wait for signal, in 1/10 of second
 menu.hint_scan_freq Enter transponder frequency
@@ -1534,6 +1536,7 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Advanced
 satsetup.diseqc_com_uncom Commited/Uncommited
 satsetup.diseqc_input DiSEqC input
+satsetup.diseqc_order DiSEqC command order
 satsetup.diseqc_uncom_com Uncommited/Commited
 satsetup.diseqcrepeat DiSEqC-repeats
 satsetup.extended DiSEqC-Settings
