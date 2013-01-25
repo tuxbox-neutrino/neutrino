@@ -71,7 +71,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/var/tuxbox/config") == true)
+		if (fileBrowser.exec(CONFIGDIR "") == true)
 		{
 			CNeutrinoApp::getInstance()->loadSetup(fileBrowser.getSelectedFile()->Name.c_str());
 			CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier;

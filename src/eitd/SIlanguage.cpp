@@ -32,7 +32,7 @@
 
 #include "SIlanguage.hpp"
 
-#define LANGUAGEFILE "/var/tuxbox/config/epglanguages.conf"
+#define LANGUAGEFILE CONFIGDIR "/epglanguages.conf"
 
 std::vector<std::string> SIlanguage::languages;
 pthread_mutex_t SIlanguage::languages_lock = PTHREAD_MUTEX_INITIALIZER;

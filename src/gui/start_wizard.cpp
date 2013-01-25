@@ -101,7 +101,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		}
 		bool init_settings = false;
 		if (CFEManager::getInstance()->haveSat())
-			init_settings = file_exists("/var/tuxbox/config/initial/");
+			init_settings = file_exists(CONFIGDIR "/initial/");
 
 		if(init_settings && (res != menu_return::RETURN_EXIT_ALL))
 		{
