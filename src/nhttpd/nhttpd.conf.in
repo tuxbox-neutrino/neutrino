@@ -1,5 +1,5 @@
 Language.directory=languages
-Language.selected=Deutsch
+Language.selected=English
 Tuxbox.LogosURL=@TARGET_ICONSDIR@/logo
 WebsiteMain.directory= @TARGET_PRIVATE_HTTPDDIR@
 WebsiteMain.override_directory=@TARGET_PUBLIC_HTTPDDIR@
