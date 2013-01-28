@@ -157,6 +157,26 @@ void CZapitBouquet::moveService(const unsigned int oldPosition, const unsigned i
 	}
 }
 
+bool CZapitBouquet::getTvChannels(ZapitChannelList &list, int flags)
+{
+	list.clear();
+	for (ZapitChannelList::iterator it = tvChannels.begin(); it != tvChannels.end(); ++it) {
+		if ((*it)->flags & flags)
+			list.push_back(*it);
+	}
+	return (!list.empty());
+}
+
+bool CZapitBouquet::getRadioChannels(ZapitChannelList &list, int flags)
+{
+	list.clear();
+	for (ZapitChannelList::iterator it = tvChannels.begin(); it != tvChannels.end(); ++it) {
+		if ((*it)->flags & flags)
+			list.push_back(*it);
+	}
+	return (!list.empty());
+}
+
 #if 0
 size_t CZapitBouquet::recModeRadioSize(const transponder_id_t transponder_id)
 {
@@ -262,7 +282,7 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 	if (bouquetMode == CZapitClient::BM_DELETEBOUQUETS) {
 		INFO("removing existing bouquets");
 		//unlink(BOUQUETS_XML);
-		g_bouquetManager->clearAll();
+		g_bouquetManager->clearAll(false);
 	}
 	if (bouquetMode == CZapitClient::BM_DONTTOUCHBOUQUETS)
 		return;
@@ -279,7 +299,7 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 			Bouquets[0]->Name = providerName;
 	}
 
-	if ((bouquetMode == CZapitClient::BM_UPDATEBOUQUETS) || (bouquetMode == CZapitClient::BM_CREATESATELLITEBOUQUET)) {
+	if ((bouquetMode == CZapitClient::BM_UPDATEBOUQUETS) || (bouquetMode == CZapitClient::BM_DELETEBOUQUETS)) {
 		while (!(Bouquets.empty())) {
 			CZapitBouquet* bouquet;
 			int dest = g_bouquetManager->existsBouquet(Bouquets[0]->Name.c_str());
@@ -376,6 +396,13 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 
+					chan->bAlwaysLocked = newBouquet->bLocked;
+					newBouquet->addService(chan);
+				} else if (bUser) {
+					chan = new CZapitChannel(name2, CREATE_CHANNEL_ID64, 1 /*service_type*/,
+							satellitePosition, freq);
+					CServiceManager::getInstance()->AddChannel(chan);
+					chan->flags = CZapitChannel::NOT_FOUND;
 					chan->bAlwaysLocked = newBouquet->bLocked;
 					newBouquet->addService(chan);
 				}
@@ -616,12 +643,19 @@ void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int n
 	}
 }
 
-void CBouquetManager::clearAll()
+void CBouquetManager::clearAll(bool user)
 {
-	for (unsigned int i =0; i < Bouquets.size(); i++)
-		delete Bouquets[i];
+	BouquetList tmplist;
+	for (unsigned int i =0; i < Bouquets.size(); i++) {
+		if (!user || !Bouquets[i]->bFav)
+			delete Bouquets[i];
+		else
+			tmplist.push_back(Bouquets[i]);
+	}
 
 	Bouquets.clear();
+	if (!user)
+		Bouquets = tmplist;
 	remainChannels = NULL;
 }
 
