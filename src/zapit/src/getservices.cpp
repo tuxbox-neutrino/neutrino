@@ -225,7 +225,7 @@ bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list, int flags)
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE &&
-				((flags == 0) || (it->second.flags & flags)))
+				(it->second.flags & flags))
 			list.push_back(&(it->second));
 	}
 	return (!list.empty());
@@ -236,47 +236,47 @@ bool CServiceManager::GetAllTvChannels(ZapitChannelList &list, int flags)
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE &&
-				((flags == 0) || (it->second.flags & flags)))
+				(it->second.flags & flags))
 			list.push_back(&(it->second));
 	}
 	return (!list.empty());
 }
 
-bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
+bool CServiceManager::GetAllHDChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if (it->second.isHD())
+		if ((it->second.flags & flags) && it->second.isHD())
 			list.push_back(&(it->second));
 	}
 	return (!list.empty());
 }
 
-bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
+bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if (it->second.has_bouquet == false)
+		if ((it->second.flags & flags) && it->second.has_bouquet == false)
 			list.push_back(&(it->second));
 	}
 	return (!list.empty());
 }
 
-bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position)
+bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position, int flags)
 {
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if(it->second.getSatellitePosition() == position)
+		if((it->second.flags & flags) && it->second.getSatellitePosition() == position)
 			list.push_back(&(it->second));
 	}
 	return (!list.empty());
 }
 
-bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid)
+bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid, int flags)
 {
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if(it->second.getTransponderId() == tpid)
+		if((it->second.flags & flags) && it->second.getTransponderId() == tpid)
 			list.push_back(&(it->second));
 	}
 	return (!list.empty());
@@ -368,6 +368,9 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		uint16_t scrambled = xmlGetNumericAttribute(node, "s", 16);
 		int number = xmlGetNumericAttribute(node, "num", 10);
 		int flags = xmlGetNumericAttribute(node, "f", 10);
+		/* default if no flags present */
+		if (flags == 0)
+			flags = CZapitChannel::UPDATED;
 
 		t_channel_id chid = CREATE_CHANNEL_ID64;
 		char *ptr = xmlGetAttribute(node, "action");
@@ -789,6 +792,8 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 				continue;
 			}
 			for (channel_map_iterator_t ccI = allchans.begin(); ccI != allchans.end(); ++ccI) {
+				if(ccI->second.flags & CZapitChannel::NOT_FOUND)
+					continue;
 				if(ccI->second.getTransponderId() == tI->first) {
 					if(!satdone) {
 						WriteSatHeader(fd, spos_it->second);
@@ -848,16 +853,16 @@ bool CServiceManager::CopyCurrentServices(transponder_id_t tpid)
 		aI = allchans.find(cI->second.getChannelID());
 		if(aI == allchans.end()) {
 			channel_insert_res_t ret = allchans.insert(channel_pair_t (cI->second.getChannelID(), cI->second));
-			ret.first->second.flags |= CZapitChannel::NEW;
+			ret.first->second.flags = CZapitChannel::NEW;
 			updated = true;
-printf("CServiceManager::CopyCurrentServices: [%s] add\n", cI->second.getName().c_str());
+			printf("CServiceManager::CopyCurrentServices: [%s] add\n", cI->second.getName().c_str());
 		} else {
 			if(cI->second.scrambled != aI->second.scrambled || cI->second.getName() != aI->second.getName()) {
 				aI->second.setName(cI->second.getName());
 				aI->second.scrambled = cI->second.scrambled;
-				aI->second.flags |= CZapitChannel::UPDATED;
+				aI->second.flags = CZapitChannel::UPDATED;
 				updated = true;
-printf("CServiceManager::CopyCurrentServices: [%s] replace\n", cI->second.getName().c_str());
+				printf("CServiceManager::CopyCurrentServices: [%s] replace\n", cI->second.getName().c_str());
 			}
 		}
 	}
@@ -865,12 +870,12 @@ printf("CServiceManager::CopyCurrentServices: [%s] replace\n", cI->second.getNam
 		if(aI->second.getTransponderId() == tpid) {
 			channel_map_iterator_t dI = curchans.find(aI->second.getChannelID());
 			if(dI == curchans.end()) {
-				aI->second.flags |= CZapitChannel::REMOVED;
+				aI->second.flags = CZapitChannel::REMOVED;
 				updated = true;
-printf("CServiceManager::CopyCurrentServices: [%s] remove\n", aI->second.getName().c_str());
+				printf("CServiceManager::CopyCurrentServices: [%s] remove\n", aI->second.getName().c_str());
 			} else if(aI->second.flags & CZapitChannel::REMOVED) {
-printf("CServiceManager::CopyCurrentServices: [%s] restore\n", aI->second.getName().c_str());
-				aI->second.flags = 0;
+				printf("CServiceManager::CopyCurrentServices: [%s] restore\n", aI->second.getName().c_str());
+				aI->second.flags = CZapitChannel::UPDATED;
 				updated = true;
 			}
 		}
