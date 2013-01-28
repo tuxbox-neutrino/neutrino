@@ -1593,7 +1593,7 @@ scants.actcable Cable:
 scants.actsatellite Satellite:
 scants.bouquet Bouquet
 scants.bouquet_create create new
-scants.bouquet_erase erase all
+scants.bouquet_erase erase old
 scants.bouquet_leave leave current
 scants.bouquet_satellite Satellite-Bouquet
 scants.bouquet_update update
