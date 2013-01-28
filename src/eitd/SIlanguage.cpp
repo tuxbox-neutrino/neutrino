@@ -22,6 +22,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <string>
 #include <vector>
 #include <map>
@@ -32,7 +36,7 @@
 
 #include "SIlanguage.hpp"
 
-#define LANGUAGEFILE CONFIGDIR "/epglanguages.conf"
+static const char LANGUAGEFILE[] =  CONFIGDIR "/epglanguages.conf";
 
 std::vector<std::string> SIlanguage::languages;
 pthread_mutex_t SIlanguage::languages_lock = PTHREAD_MUTEX_INITIALIZER;
