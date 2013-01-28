@@ -327,6 +327,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 				real_type, satellitePosition, freq_id);
 		CServiceManager::getInstance()->AddChannel(channel);
 		channel->deltype = cable ? FE_QAM : FE_QPSK;
+		channel->flags = CZapitChannel::UPDATED;
 		/* mark channel as new, if this satellite already have channels */
 		if (CServiceScan::getInstance()->SatHaveChannels())
 			channel->flags = CZapitChannel::NEW;
