@@ -11,7 +11,7 @@ AC_ARG_WITH(target,
 
 AC_ARG_WITH(targetprefix,
 	[  --with-targetprefix=PATH  prefix relative to target root (only applicable in cdk mode)],
-	[targetprefix="$withval"],[targetprefix="NONE"])
+	[TARGET_PREFIX="$withval"],[TARGET_PREFIX="NONE"])
 
 AC_ARG_WITH(debug,
 	[  --without-debug         disable debugging code],
@@ -21,6 +21,7 @@ if test "$DEBUG" = "yes"; then
 	DEBUG_CFLAGS="-g3 -ggdb"
 	AC_DEFINE(DEBUG,1,[Enable debug messages])
 fi
+
 AC_ARG_ENABLE(tmsdk,
         AS_HELP_STRING(--enable-tmsdk,         compile inside sdk),
         ,[enable_tmsdk=no])
@@ -38,7 +39,7 @@ if test "$TARGET" = "native"; then
 	if test "$prefix" = "NONE"; then
 		prefix=/usr/local
 	fi
-	targetprefix=$prefix
+	TARGET_PREFIX=$prefix
 elif test "$TARGET" = "cdk"; then
 	AC_MSG_RESULT(cdk)
 
@@ -50,13 +51,14 @@ elif test "$TARGET" = "cdk"; then
 		CXXFLAGS="-Wall -Os -mcpu=823 -pipe $DEBUG_CFLAGS"
 	fi
 	if test "$prefix" = "NONE"; then
-		AC_MSG_ERROR(invalid prefix, you need to specify one in cdk mode)
+		AC_MSG_ERROR([invalid prefix, you need to specify one in cdk mode])
 	fi
-	if test "$targetprefix" != "NONE"; then
-		AC_DEFINE_UNQUOTED(TARGETPREFIX, "${targetprefix}",[The targets prefix])
+	if test "$TARGET_PREFIX" != "NONE"; then
+		AC_DEFINE_UNQUOTED(TARGET_PREFIX, "$TARGET_PREFIX",[The targets prefix])
 	fi
-	if test "$targetprefix" = "NONE"; then
-		targetprefix=""
+	if test "$TARGET_PREFIX" = "NONE"; then
+		AC_MSG_ERROR([invalid targetprefix, you need to specify one in cdk mode])
+		TARGET_PREFIX=""
 	fi
 	if test "$host_alias" = ""; then
 		cross_compiling=yes
@@ -80,7 +82,7 @@ AC_DEFUN([TUXBOX_APPS_DIRECTORY_ONE],[
 AC_ARG_WITH($1,[  $6$7 [[PREFIX$4$5]]],[
 	_$2=$withval
 	if test "$TARGET" = "cdk"; then
-		$2=`eval echo "${targetprefix}$withval"`
+		$2=`eval echo "$TARGET_PREFIX$withval"`
 	else
 		$2=$withval
 	fi
@@ -95,7 +97,6 @@ AC_ARG_WITH($1,[  $6$7 [[PREFIX$4$5]]],[
 	TARGET_$2=$_$2
 ])
 
-dnl automake <= 1.6 don't support this
 dnl AC_SUBST($2)
 AC_DEFINE_UNQUOTED($2,"$_$2",$7)
 AC_SUBST(TARGET_$2)
@@ -109,10 +110,10 @@ if test "$TARGET" = "cdk"; then
 	sysconfdir="\${prefix}/etc"
 	localstatedir="\${prefix}/var"
 	libdir="\${prefix}/lib"
-	targetdatadir="\${targetprefix}/share"
-	targetsysconfdir="\${targetprefix}/etc"
-	targetlocalstatedir="\${targetprefix}/var"
-	targetlibdir="\${targetprefix}/lib"
+	targetdatadir="\${TARGET_PREFIX}/share"
+	targetsysconfdir="\${TARGET_PREFIX}/etc"
+	targetlocalstatedir="\${TARGET_PREFIX}/var"
+	targetlibdir="\${TARGET_PREFIX}/lib"
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir,CONFIGDIR,localstatedir,/var,/tuxbox/config,
@@ -136,8 +137,17 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
 	[--with-ucodedir=PATH    ],[where to find the ucodes])
 
-TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share,/tuxbox/neutrino/themes,
+TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share/tuxbox, /neutrino/themes,
 	[--with-themesdir=PATH     ],[where to find the themes (don't change)])
+
+TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share/tuxbox, /neutrino/icons,
+	[--with-iconssdir=PATH     ],[where to find the icons (don't change)])
+
+TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxbox/neutrino/httpd,
+	[--with-private_httpddir=PATH     ],[where to find the the private httpd files])
+
+TUXBOX_APPS_DIRECTORY_ONE(public_httpddir,PUBLIC_HTTPDDIR,localstatedir,/var,/httpd,
+	[--with-public_httpddir=PATH     ],[where to find the the public httpd files])
 ])
 
 dnl automake <= 1.6 needs this specifications
@@ -149,6 +159,9 @@ AC_SUBST(LIBDIR)
 AC_SUBST(PLUGINDIR)
 AC_SUBST(UCODEDIR)
 AC_SUBST(THEMESDIR)
+AC_SUBST(ICONSDIR)
+AC_SUBST(PRIVATE_HTTPDDIR)
+AC_SUBST(PUBLIC_HTTPDDIR)
 dnl end workaround
 
 AC_DEFUN([TUXBOX_APPS_ENDIAN],[
@@ -231,8 +244,8 @@ if test "$$1_CONFIG" != "no"; then
 			$1_CFLAGS=$($$1_CONFIG --cflags)
 				$1_LIBS=$($$1_CONFIG --libs)
 			else
-				$1_CFLAGS=$($$1_CONFIG --prefix=$targetprefix --cflags)
-				$1_LIBS=$($$1_CONFIG --prefix=$targetprefix --libs)
+				$1_CFLAGS=$($$1_CONFIG --prefix=$TARGET_PREFIX --cflags)
+				$1_LIBS=$($$1_CONFIG --prefix=$TARGET_PREFIX --libs)
 			fi
 		fi
 	fi
