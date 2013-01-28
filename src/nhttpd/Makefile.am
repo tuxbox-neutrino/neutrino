@@ -18,5 +18,10 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/connection \
 	@FREETYPE_CFLAGS@
 
+
 noinst_LIBRARIES = libnhttpd.a
 libnhttpd_a_SOURCES = yhttpd.cpp
+
+libnhttpd_adir = @CONFIGDIR@
+libnhttpd_a_DATA = nhttpd.conf
+EXTRA_DIST = nhttpd.conf nhttpd.conf.in
