@@ -543,7 +543,7 @@ void CFrameBuffer::setBlendLevel(int level)
 
 	if (ioctl(fd, FBIO_SETOPACITY, value))
 		printf("FBIO_SETOPACITY failed.\n");
-#ifndef ISAPOLLO
+#if 0
 	   if(level == 100) // TODO: sucks.
 		   usleep(20000);
 #endif

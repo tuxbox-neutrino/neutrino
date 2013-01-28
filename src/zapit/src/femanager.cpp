@@ -223,6 +223,7 @@ bool CFEManager::loadSettings()
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
 		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", -1);
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
+		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
@@ -303,6 +304,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
+		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 		setConfigValue(fe, "mode", fe->getMode());
 		setConfigValue(fe, "master", fe->getMaster());

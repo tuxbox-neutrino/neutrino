@@ -135,12 +135,12 @@ class CServiceManager
 		std::string GetServiceName(t_channel_id channel_id);
 
 		tallchans* GetAllChannels(){ return &allchans; };
-		bool GetAllRadioChannels(ZapitChannelList &list, int flags = 0);
-		bool GetAllTvChannels(ZapitChannelList &list, int flags = 0);
-		bool GetAllHDChannels(ZapitChannelList &list);
-		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position);
-		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid);
-		bool GetAllUnusedChannels(ZapitChannelList &list);
+		bool GetAllRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllHDChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position, int flags = CZapitChannel::PRESENT);
+		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid, int flags = CZapitChannel::PRESENT);
+		bool GetAllUnusedChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 
 		bool IsChannelTVChannel(const t_channel_id channel_id);
 
