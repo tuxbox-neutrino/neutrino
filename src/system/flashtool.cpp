@@ -285,6 +285,9 @@ bool CFlashTool::getInfo()
 		ErrorMessage = "can't get mtd-info";
 		return false;
 	}
+	if (meminfo.writesize < 1024)
+		meminfo.writesize = 1024;
+
 	isnand = (meminfo.type == MTD_NANDFLASH);
 	printf("CFlashTool::getInfo: NAND: %s\n", isnand ? "yes" : "no");
 	return true;
