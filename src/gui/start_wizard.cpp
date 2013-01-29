@@ -107,7 +107,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		{
 			if (ShowMsgUTF(LOCALE_WIZARD_INITIAL_SETTINGS, g_Locale->getText(LOCALE_WIZARD_INSTALL_SETTINGS),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
-				system("/bin/cp /var/tuxbox/config/initial/* /var/tuxbox/config/zapit/");
+				system("/bin/cp " CONFIGDIR "/initial/* " CONFIGDIR "/zapit/");
 				CFEManager::getInstance()->loadSettings();
 				CFEManager::getInstance()->saveSettings();
 				CZapit::getInstance()->PrepareChannels();
