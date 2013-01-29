@@ -7,7 +7,7 @@
  *             rasc       <rasc@berlios.de>,
  *             thegoodguy <thegoodguy@berlios.de>
  *
- * (C) 2009, 2011-2012 Stefan Seyfried
+ * (C) 2009, 2011-2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -365,10 +365,11 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					freq = freq/1000;
 
 				CZapitChannel* chan;
+				t_channel_id chid = CREATE_CHANNEL_ID64;
 				if(bUser)
-					chan = CServiceManager::getInstance()->FindChannel48(CREATE_CHANNEL_ID64);
+					chan = CServiceManager::getInstance()->FindChannelFuzzy(chid, satellitePosition, freq);
 				else
-					chan = CServiceManager::getInstance()->FindChannel(CREATE_CHANNEL_ID64);
+					chan = CServiceManager::getInstance()->FindChannel(chid);
 				if (chan != NULL) {
 					DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
 #if 0
