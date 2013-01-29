@@ -1569,7 +1569,7 @@ void CFrameBuffer::Clear()
 //never used
 void CFrameBuffer::showFrame(const std::string & filename)
 {
-	std::string varpath = "/var/tuxbox/config/neutrino/icons/";
+	std::string varpath = CONFIGDIR "/neutrino/icons/";
 	if(!access((varpath + filename).c_str(), F_OK))
 		videoDecoder->ShowPicture((varpath + filename).c_str());
 	else

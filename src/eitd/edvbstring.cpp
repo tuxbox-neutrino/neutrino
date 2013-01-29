@@ -17,7 +17,7 @@ std::set<int> TransponderUseTwoCharMapping;
 
 int readEncodingFile()
 {
-	FILE *f = fopen("/var/tuxbox/config/encoding.conf", "rt");
+	FILE *f = fopen(CONFIGDIR "/encoding.conf", "rt");
 	if (f) {
 		CountryCodeDefaultMapping.clear();
 		TransponderDefaultMapping.clear();

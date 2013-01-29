@@ -122,14 +122,21 @@ AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
 
+if test "$BOXTYPE" = "coolstream"; then
+if test "$BOXMODEL" = "nevis"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
 fi
+fi
+
+if test "$BOXMODEL" = "apollo"; then
 if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
 fi
 if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
+fi
+fi
 fi
 
 #
@@ -179,6 +186,7 @@ src/nhttpd/tuxboxapi/Makefile
 src/nhttpd/tuxboxapi/coolstream/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
+src/nhttpd/nhttpd.conf
 src/Makefile
 src/daemonc/Makefile
 src/driver/pictureviewer/Makefile

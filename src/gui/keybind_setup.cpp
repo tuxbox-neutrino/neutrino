@@ -91,7 +91,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileFilter fileFilter;
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/var/tuxbox/config") == true) {
+		if (fileBrowser.exec(CONFIGDIR "") == true) {
 			CNeutrinoApp::getInstance()->loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino keybind_setup] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 		}

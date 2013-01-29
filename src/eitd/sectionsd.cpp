@@ -92,7 +92,7 @@ static bool messaging_zap_detected = false;
 /*static*/ bool dvb_time_update = false;
 
 //NTP-Config
-#define CONF_FILE "/var/tuxbox/config/neutrino.conf"
+#define CONF_FILE CONFIGDIR "/neutrino.conf"
 
 #ifdef USE_BB_NTPD
 const std::string ntp_system_cmd_prefix = "/sbin/ntpd -q -p ";
@@ -1629,7 +1629,7 @@ void CEitThread::beforeSleep()
 	messaging_zap_detected = false;
 	unlockMessaging();
 	if(notify_complete)
-		system("/var/tuxbox/config/epgdone.sh");
+		system(CONFIGDIR "/epgdone.sh");
 }
 
 /********************************************************************************/
