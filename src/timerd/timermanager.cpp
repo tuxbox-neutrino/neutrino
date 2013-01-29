@@ -1143,6 +1143,7 @@ CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
 //------------------------------------------------------------
 void CTimerEvent_Record::fireEvent()
 {
+	Refresh();
 	CTimerd::RecordingInfo ri=eventInfo;
 	ri.eventID=eventID;
 	strcpy(ri.recordingDir, recordingDir.substr(0,sizeof(ri.recordingDir)-1).c_str());
