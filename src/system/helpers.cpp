@@ -37,7 +37,7 @@
 #include <zapit/debug.h>
 
 #include <system/helpers.h>
-#include <gui/ext_update.h>
+#include <gui/update_ext.h>
 
 bool file_exists(const char *filename)
 {
