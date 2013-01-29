@@ -467,7 +467,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		return true;
 
 	if(delete_all) {
-		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.conf");
+		my_system("/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.conf");
 		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
@@ -487,7 +487,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
-		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.xml");
+		my_system("/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.xml");
 		g_Zapit->reinitChannels();
 	}
 	return ret;
