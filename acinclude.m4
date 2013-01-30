@@ -446,7 +446,7 @@ AC_ARG_WITH(boxmodel,
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
-	esac],
+	esac], [BOXMODEL="nevis"]
 	[if test "$BOXTYPE" = "dreambox" -o "$BOXTYPE" = "ipbox" && test -z "$BOXMODEL"; then
 		AC_MSG_ERROR([Dreambox/IPBox needs --with-boxmodel])
 	fi])
