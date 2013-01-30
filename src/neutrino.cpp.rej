@@ -1,9 +1,0 @@
-diff a/src/neutrino.cpp b/src/neutrino.cpp	(rejected hunks)
-@@ -690,6 +690,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
- 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
- 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
- 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat
-+	g_settings.channellist_minitv = configfile.getInt32("channellist_minitv", 0); //default off
- 
- 	//screen configuration
- 	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
