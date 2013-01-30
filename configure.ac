@@ -123,10 +123,8 @@ AC_ARG_ENABLE(cleanup,
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
 
 if test "$BOXTYPE" = "coolstream"; then
-if test "$BOXMODEL" = "nevis"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
-fi
 fi
 
 if test "$BOXMODEL" = "apollo"; then
