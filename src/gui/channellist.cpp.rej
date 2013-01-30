@@ -1,0 +1,27 @@
+diff a/src/gui/channellist.cpp b/src/gui/channellist.cpp	(rejected hunks)
+@@ -553,6 +576,11 @@ int CChannelList::show()
+ 	COSDFader fader(g_settings.menu_Content_alpha);
+ 	fader.StartFadeIn();
+ 
++	if (g_settings.channellist_minitv)
++	{
++    frameBuffer->paintBoxRel(x,y,widthDetails,height + info_height,COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_ALL);
++	}
++
+ 	paintHead();
+ 	paint();
+ 	frameBuffer->blit();
+@@ -886,7 +914,12 @@ int CChannelList::show()
+ 
+ void CChannelList::hide()
+ {
+-	frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
++    if (g_settings.channellist_minitv)
++	{
++	widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
++	videoDecoder->Pig(-1, -1, -1, -1);
++	}
++	frameBuffer->paintBackgroundBoxRel(x, y, widthDetails, height+ info_height+ 5);
+ 	clearItem2DetailsLine();
+ 	frameBuffer->blit();
+ }
