@@ -172,7 +172,7 @@ bool CZapitBouquet::getTvChannels(ZapitChannelList &list, int flags)
 bool CZapitBouquet::getRadioChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
-	for (ZapitChannelList::iterator it = tvChannels.begin(); it != tvChannels.end(); ++it) {
+	for (ZapitChannelList::iterator it = radioChannels.begin(); it != radioChannels.end(); ++it) {
 		if ((*it)->flags & flags)
 			list.push_back(*it);
 	}
