@@ -495,11 +495,9 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
-#ifndef BOXMODEL_APOLLO
-	int cfd;
-
 	printf("FAN Speed %d\n", speed);
-	cfd = open("/dev/cs_control", O_RDONLY);
+#ifndef BOXMODEL_APOLLO
+	int cfd = open("/dev/cs_control", O_RDONLY);
 	if(cfd < 0) {
 		perror("Cannot open /dev/cs_control");
 		return;
