@@ -2126,12 +2126,15 @@ void CChannelList::paint_events(int index)
 			do
 			{
 				//printf("%d seconds in the past - deleted %s\n", dif, e->description.c_str());
-				if(!evtlist.empty())
-					e = evtlist.erase(e);
+				e = evtlist.erase( e );
+				if (e == evtlist.end())
+					break;
 				dif = azeit - e->startTime;
 			}
-			while (!evtlist.empty() && dif > 0 );
+			while ( dif > 0 );
 		}
+		if (e == evtlist.end()) 
+			break;
 		//Display the remaining events
 		struct tm *tmStartZeit = localtime(&e->startTime);
 		strftime(text1, sizeof(text1), "%H:%M", tmStartZeit );
