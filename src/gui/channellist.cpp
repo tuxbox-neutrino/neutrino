@@ -467,7 +467,6 @@ void CChannelList::calcSize()
 	widthDetails = width;
 	if (g_settings.channellist_minitv){
 		widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
-		infozone_width = widthDetails - width;
 	}
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
 	if (g_settings.channellist_minitv)
@@ -510,7 +509,7 @@ void CChannelList::calcSize()
 		y = frameBuffer->getScreenY();
 		pig_width  = widthDetails / 3 - 16;
 		pig_height = pig_width / 16 * 9;
-
+//		infozone_width  = pig_width - 8;
 		infozone_height = height - theight - pig_height;
 	}
 	else
@@ -2100,7 +2099,7 @@ void CChannelList::paint_pig (int _x, int _y, int w, int h)
 void CChannelList::paint_events(int index)
 {
 	readEvents(chanlist[index]->channel_id);
-	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, widthDetails - width, infozone_height,COL_MENUHEAD_PLUS_0);
 
 	char text1[10];
 	CChannelEventList::iterator e;
@@ -2141,7 +2140,7 @@ void CChannelList::paint_events(int index)
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ height))
 		{
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTDARK, 0, true);
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, infozone_width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, widthDetails - width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
 		else
 		{
