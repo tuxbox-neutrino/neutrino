@@ -73,6 +73,8 @@
 
 #include <eitd/sectionsd.h>
 
+#include <video.h>
+
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
@@ -89,6 +91,8 @@ extern bool autoshift;
 
 extern CBouquetManager *g_bouquetManager;
 extern int old_b_id;
+
+extern cVideo * videoDecoder;
 
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist, bool )
 {
@@ -460,7 +464,13 @@ void CChannelList::calcSize()
 	const int pic_h = 39;
 	int  fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
 	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * (fw+6)):(frameBuffer->getScreenWidth() / 20 * (fw+5))), 100);
+	widthDetails = width;
+	if (g_settings.channellist_minitv){
+		widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
+	}
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
+	if (g_settings.channellist_minitv)
+		height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
 
@@ -492,8 +502,21 @@ void CChannelList::calcSize()
 	height = theight + footerHeight + listmaxshow * fheight;
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
+	if (g_settings.channellist_minitv)
+	{
+		width = frameBuffer->getScreenWidth() / 3 * 2;
+		x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - widthDetails) / 2;
+		y = frameBuffer->getScreenY();
+		pig_width  = widthDetails / 3 - 16;
+		pig_height = pig_width / 16 * 9;
+//		infozone_width  = pig_width - 8;
+		infozone_height = height - theight - pig_height;
+	}
+	else
+	{
+		x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
+		y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
+	}
 }
 
 bool CChannelList::updateSelection(int newpos)
@@ -544,6 +567,11 @@ int CChannelList::show()
 
 	COSDFader fader(g_settings.menu_Content_alpha);
 	fader.StartFadeIn();
+
+	if (g_settings.channellist_minitv)
+	{
+		frameBuffer->paintBoxRel(x,y,widthDetails,height + info_height,COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_ALL);
+	}
 
 	paintHead();
 	paint();
@@ -876,7 +904,12 @@ int CChannelList::show()
 
 void CChannelList::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
+	if (g_settings.channellist_minitv)
+	{
+// 		widthDetails = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
+		videoDecoder->Pig(-1, -1, -1, -1);
+	}
+	frameBuffer->paintBackgroundBoxRel(x, y, widthDetails, height+ info_height+ 5);
 	clearItem2DetailsLine();
 }
 
@@ -1465,7 +1498,7 @@ void CChannelList::paintDetails(int index)
 		p_event = &chanlist[index]->currentEvent;
 	}
 
-	frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
+	frameBuffer->paintBoxRel(x+2, y + height + 2, widthDetails-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
 
 	if (!p_event->description.empty()) {
 		char cNoch[50] = {0}; // UTF-8
@@ -1489,7 +1522,7 @@ void CChannelList::paintDetails(int index)
 		std::string text2= p_event->text;
 
 		int xstart = 10;
-		if (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (width - 30 - seit_len) )
+		if (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (widthDetails - 30 - seit_len) )
 		{
 			// zu breit, Umbruch versuchen...
 			int pos;
@@ -1497,7 +1530,7 @@ void CChannelList::paintDetails(int index)
 				pos = text1.find_last_of("[ -.]+");
 				if ( pos!=-1 )
 					text1 = text1.substr( 0, pos );
-			} while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (width - 30 - seit_len) ) );
+			} while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (widthDetails - 30 - seit_len) ) );
 
 			std::string text3 = ""; /* not perfect, but better than crashing... */
 			if (p_event->description.length() > text1.length())
@@ -1507,7 +1540,7 @@ void CChannelList::paintDetails(int index)
 				text3= text3+ " - ";
 
 			xstart += g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text3, true);
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2* fheight, width - 30- noch_len, text3, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2* fheight, widthDetails - 30- noch_len, text3, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
 		}
 
 		if (!(text2.empty())) {
@@ -1516,7 +1549,7 @@ void CChannelList::paintDetails(int index)
 			text2 = text2.substr( 0, text2.find('\n') );
 #if 0 //FIXME: to discuss, eat too much cpu time if string long enough
 			int pos = 0;
-			while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (width - 30 - noch_len) ) ) {
+			while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (widthDetails - 30 - noch_len) ) ) {
 				pos = text2.find_last_of(" ");
 
 				if ( pos!=-1 ) {
@@ -1524,12 +1557,12 @@ void CChannelList::paintDetails(int index)
 				}
 			}
 #endif
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ 2* fheight, width- xstart- 30- noch_len, text2, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ 2* fheight, widthDetails- xstart- 30- noch_len, text2, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
 		}
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30 - seit_len, text1, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- noch_len, y+ height+ 5+ 2* fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, widthDetails - 30 - seit_len, text1, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ widthDetails- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ widthDetails- 10- noch_len, y+ height+ 5+ 2* fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	if(g_settings.channellist_foot == 0) {
 		transponder t;
@@ -1541,7 +1574,7 @@ void CChannelList::paintDetails(int index)
 		else
 			desc = desc + " (" + CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()) + ")";
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, widthDetails - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 	}
 	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
 		char buf[128] = {0};
@@ -1554,10 +1587,12 @@ void CChannelList::paintDetails(int index)
 			snprintf(buf, sizeof(buf), "%s", CurrentNext.next_name.c_str());
 			int from_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cFrom, true); // UTF-8
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30 - from_len, buf, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST :COL_MENUCONTENTDARK, 0, true);
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- from_len, y+ height+ 5+ 3*fheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, widthDetails - 30 - from_len, buf, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST :COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ widthDetails- 10- from_len, y+ height+ 5+ 3*fheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
 		}
 	}
+	if ((g_settings.channellist_minitv) && (p_event != NULL))
+		paint_events(index);
 }
 
 void CChannelList::clearItem2DetailsLine()
@@ -1575,7 +1610,6 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-
 	// Clear
 	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
 
@@ -1588,13 +1622,15 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 			details_line.paint();
 
 			//info box frame
-			frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
+			frameBuffer->paintBoxFrame(x, ypos2, widthDetails, info_height, 2, col1, RADIUS_LARGE);
 		}
 	}
 }
 
 void CChannelList::showChannelLogo()
 {
+	if (g_settings.channellist_minitv)
+		return;
 	if(g_settings.infobar_show_channellogo){
 		static int logo_w = 0;
 		static int logo_h = 0;
@@ -1921,7 +1957,6 @@ void CChannelList::paintHead()
 	char timestr[10] = {0};
 	time_t now = time(NULL);
 	struct tm *tm = localtime(&now);
-
 	bool gotTime = g_Sectionsd->getIsTimeSet();
 
 	if(gotTime) {
@@ -1936,7 +1971,7 @@ void CChannelList::paintHead()
 		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &iw3, &ih);
 
 	// head
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
+	frameBuffer->paintBoxRel(x,y, widthDetails,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + width - iw1 - 4, y, theight); //y+ 5 );
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + width - iw1 - iw2 - 8, y, theight);//y + 5); // icon for bouquet list button
@@ -1947,7 +1982,11 @@ void CChannelList::paintHead()
 
 	if (gotTime) {
 		int iw3x = (g_settings.channellist_new_zap_mode) ? iw3 : -4;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + width - iw1 - iw2 - iw3x - 16 -timestr_len,
+		if (g_settings.channellist_minitv)
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + widthDetails - 16 -timestr_len,
+				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
+		else
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + width - iw1 - iw2 - iw3x - 16 -timestr_len,
 				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
 		timestr_len += 4;
 	}
@@ -1956,11 +1995,16 @@ void CChannelList::paintHead()
 	if (g_settings.channellist_new_zap_mode)
 		timestr_len += iw3 + 4;
 	logo_off = timestr_len + 4;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, widthDetails - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
 }
 
 void CChannelList::paint()
 {
+	if (g_settings.channellist_minitv)
+	{
+		paint_pig(x+width, y+theight+1, pig_width, pig_height);
+	}
+
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr().c_str());
 
 	liststart = (selected/listmaxshow)*listmaxshow;
@@ -2043,4 +2087,89 @@ std::string  CChannelList::MaxChanNr()
 	ss << chan_nr_max;
 	ss >> maxchansize;
 	return maxchansize;
+}
+
+void CChannelList::paint_pig (int _x, int _y, int w, int h)
+{
+	frameBuffer->paintBackgroundBoxRel (_x, _y, w, h);
+	printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", _x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	videoDecoder->Pig(_x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+}
+
+void CChannelList::paint_events(int index)
+{
+	readEvents(chanlist[index]->channel_id);
+	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, widthDetails - width, infozone_height,COL_MENUHEAD_PLUS_0);
+
+	char text1[10];
+	CChannelEventList::iterator e;
+	time_t azeit;
+	time(&azeit);
+	int ffheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
+
+	if ( evtlist.empty() )
+	{
+		CChannelEvent evt;
+
+		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
+		evt.eventID = 0;
+		evtlist.push_back(evt);
+	}
+
+	int i=1;
+	for (e=evtlist.begin(); e!=evtlist.end(); ++e )
+	{
+		//Remove events in the past
+		time_t dif = azeit - e->startTime;
+		if ( (dif > 0) && (!(e->eventID == 0)))
+		{
+			do
+			{
+				//printf("%d seconds in the past - deleted %s\n", dif, e->description.c_str());
+				if(!evtlist.empty())
+					e = evtlist.erase(e);
+				dif = azeit - e->startTime;
+			}
+			while (!evtlist.empty() && dif > 0 );
+		}
+		//Display the remaining events
+		struct tm *tmStartZeit = localtime(&e->startTime);
+		strftime(text1, sizeof(text1), "%H:%M", tmStartZeit );
+		//printf("%s %s\n", text1, e->description.c_str());
+		int timewidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(text1, true);
+		if ((y+ theight+ pig_height + i*ffheight) < (y+ height))
+		{
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, widthDetails - width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
+		}
+		else
+		{
+			break;
+		}
+		i++;
+	}
+	if ( !evtlist.empty() )
+		evtlist.clear();
+}
+
+static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
+{
+	return a.startTime < b.startTime;
+}
+
+void CChannelList::readEvents(const t_channel_id channel_id)
+{
+	CEitManager::getInstance()->getEventsServiceKey(channel_id , evtlist);
+
+	if ( evtlist.empty() )
+	{
+		CChannelEvent evt;
+		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
+		evt.eventID = 0;
+		evtlist.push_back(evt);
+	}
+	else
+		sort(evtlist.begin(),evtlist.end(),sortByDateTime);
+
+	return;
 }
