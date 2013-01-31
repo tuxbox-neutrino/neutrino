@@ -220,6 +220,7 @@ channellist.keep_numbers Persistent channel numbers
 channellist.make_hdlist Create list of HD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
+channellist.minitv Channellist with MiniTV
 channellist.new_zap_mode Quickzap in list
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
 channellist.provs Providers

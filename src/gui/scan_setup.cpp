@@ -1005,7 +1005,6 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 	CMenuOptionNumberChooser	*unilnb = NULL;
 	CMenuOptionNumberChooser	*motor = NULL;
 	CMenuOptionChooser		*usals = NULL;
-	CMenuForwarder			*mf = NULL;
 	bool unicable = (dmode == DISEQC_UNICABLE);
 
 	if (!unicable) {
