@@ -739,6 +739,7 @@ menu.hint_channellist_epg_align Hier kann man festlegen, wie der Text für das E
 menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen ein Balken eingeblendet,\nder den Sendungsfortschritt anzeigt
 menu.hint_channellist_fonts Ändern Sie in der Kanalliste die Schriftgrößen
 menu.hint_channellist_foot Definiert welche Informationen im unteren Sendungsfenster angezeigt werden sollen
+menu.hint_channellist_minitv Schaltet den MiniTV Modus ein/aus
 menu.hint_channellist_setup Hier können Sie Anzeigeoptionen für die Kanalliste auswählen
 menu.hint_ci Conditional-Access-Menü zum Einrichten\nIhres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_colors Konfigurieren Sie die Menü-Farben

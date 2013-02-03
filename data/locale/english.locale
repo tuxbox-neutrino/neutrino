@@ -739,6 +739,7 @@ menu.hint_channellist_epg_align EPG event align
 menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
 menu.hint_channellist_foot Show additional information\nin bottom box
+menu.hint_channellist_minitv Switches the MiniTV mode on/off
 menu.hint_channellist_setup Configure channe list GUI options
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_colors Configure GUI colors
