@@ -304,6 +304,7 @@ int CChannelList::doChannelMenu(void)
 {
 	int i = 0;
 	int select = -1;
+	int shortcut = 0;
 	static int old_selected = 0;
 	char cnt[5];
 	bool enabled = true;
@@ -333,9 +334,10 @@ int CChannelList::doChannelMenu(void)
 	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
 	bool reset_enabled = chanlist[selected]->flags & CZapitChannel::NEW;
-	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_FLAGS, reset_enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(0)), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_FLAGS, reset_enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, selector, cnt, CRCInput::convertDigitToKey(0)), old_selected == i++);
+	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE));
+	menu->addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
 	menu->exec(NULL, "");
 	delete menu;
 	delete selector;
