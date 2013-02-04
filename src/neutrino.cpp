@@ -610,6 +610,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat 
+	g_settings.channellist_minitv = configfile.getInt32("channellist_minitv", 0); //default off
 
 	//screen configuration
 	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
@@ -1030,6 +1031,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("channellist_extended"                 , g_settings.channellist_extended);
 	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
+	configfile.setInt32("channellist_minitv", g_settings.channellist_minitv);
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 	configfile.setInt32("channellist_sort_mode", g_settings.channellist_sort_mode);
@@ -1777,8 +1779,7 @@ TIMER_START();
 	ZapStart_arg.volume = g_settings.current_volume;
 
 	/* create decoders, read channels */
-	CZapit::getInstance()->Start(&ZapStart_arg);
-
+	bool zapit_init = CZapit::getInstance()->Start(&ZapStart_arg);
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	//audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
@@ -1795,6 +1796,12 @@ TIMER_START();
 	g_videoSettings->setVideoSettings();
 
 	g_RCInput = new CRCInput();
+
+	/* later on, we'll crash anyway, so tell about it. */
+	if (! zapit_init)
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO,
+				"Zapit initialization failed.\nThis is a fatal error, sorry.",
+				CMessageBox::mbrBack, CMessageBox::mbBack);
 
 	InitZapitClient();
 	g_Zapit->setStandby(false);
@@ -1819,6 +1826,9 @@ TIMER_START();
 
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+
+	g_info.delivery_system = CFEManager::getInstance()->getLiveFE()->getInfo()->type == FE_QPSK ? DVB_S : DVB_C;
+
 	g_info.delivery_system = CFEManager::getInstance()->getLiveFE()->getInfo()->type == FE_QPSK ? DVB_S : DVB_C;
 #if HAVE_TRIPLEDRAGON
 	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
@@ -3589,11 +3599,11 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig.getInt32( "key_list_start", CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig.getInt32( "key_list_end", CRCInput::RC_nokey );
-	g_settings.key_timeshift = configfile.getInt32( "key_timeshift", CRCInput::RC_pause );
-	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
-	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
-	g_settings.key_screenshot = configfile.getInt32( "key_screenshot", CRCInput::RC_nokey );
-	g_settings.key_current_transponder = configfile.getInt32( "key_current_transponder", CRCInput::RC_games );
+	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_pause );
+	g_settings.key_plugin = tconfig.getInt32( "key_plugin", CRCInput::RC_nokey );
+	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
+	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", CRCInput::RC_nokey );
+	g_settings.key_current_transponder = tconfig.getInt32( "key_current_transponder", CRCInput::RC_games );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
 	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );

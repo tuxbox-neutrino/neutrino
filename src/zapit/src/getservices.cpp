@@ -3,6 +3,8 @@
  *
  * (C) 2002, 2003 by Andreas Oberritter <obi@tuxbox.org>
  *
+ * (C) 2007-2009, 2013 Stefan Seyfried
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -217,6 +219,18 @@ CZapitChannel * CServiceManager::FindChannel48(const t_channel_id channel_id)
 		if((it->second.getChannelID() & 0xFFFFFFFFFFFFULL) == (channel_id & 0xFFFFFFFFFFFFULL))
 			return &it->second;
 	}
+	return NULL;
+}
+
+CZapitChannel* CServiceManager::FindChannelFuzzy(const t_channel_id channel_id,
+						 const t_satellite_position pos, const freq_id_t freq)
+{
+	CZapitChannel *ret;
+	ret = FindChannel48(channel_id);
+	if (!ret || !(pos == ret->getSatellitePosition()))
+		return NULL;
+	if (abs((int)ret->getFreqId() - (int)freq) < 3)
+		return ret;
 	return NULL;
 }
 
@@ -591,6 +605,9 @@ bool CServiceManager::InitSatPosition(t_satellite_position position, char * name
 
 bool CServiceManager::LoadServices(bool only_current)
 {
+	if(CFEManager::getInstance()->getLiveFE() == NULL)
+		return false;
+
 	xmlDocPtr parser;
 	static bool satcleared = 0;//clear only once, because menu is static
 	service_count = 0;

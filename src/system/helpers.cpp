@@ -37,7 +37,7 @@
 #include <zapit/debug.h>
 
 #include <system/helpers.h>
-#include <gui/ext_update.h>
+#include <gui/update_ext.h>
 
 bool file_exists(const char *filename)
 {
@@ -193,7 +193,7 @@ int check_dir(const char * dir)
 	return ret;
 }
 
-bool get_fs_usage(const char * dir, long &btotal, long &bused)
+bool get_fs_usage(const char * dir, long &btotal, long &bused, long *bsize/*=NULL*/)
 {
 	btotal = bused = 0;
 	struct statfs s;
@@ -201,6 +201,8 @@ bool get_fs_usage(const char * dir, long &btotal, long &bused)
 	if (::statfs(dir, &s) == 0 && s.f_blocks) {
 		btotal = s.f_blocks;
 		bused = s.f_blocks - s.f_bfree;
+		if (bsize != NULL)
+			*bsize = s.f_bsize;
 		//printf("fs (%s): total %ld used %ld\n", dir, btotal, bused);
 		return true;
 	}

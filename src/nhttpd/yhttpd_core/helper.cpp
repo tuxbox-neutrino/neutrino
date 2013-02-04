@@ -214,7 +214,7 @@ std::string decodeString(std::string encodedString) {
 	return result;
 }
 //-----------------------------------------------------------------------------
-// Encode URLEncoded std::string
+// HTMLEncode std::string
 //-----------------------------------------------------------------------------
 std::string encodeString(std::string decodedString) {
 	unsigned int len = sizeof(char) * decodedString.length() * 5 + 1;

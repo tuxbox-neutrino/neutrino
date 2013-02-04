@@ -220,6 +220,7 @@ channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
+channellist.minitv Kanalliste mit MiniTV
 channellist.new_zap_mode Quickzap in Liste
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
@@ -487,9 +488,11 @@ flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzei
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
 flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht werden. Eintrag wird übersprungen.
+flashupdate.update_with_settings_error Error Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nDer Vorgang wird abgebrochen!
 flashupdate.update_with_settings_processed Image wird bearbeitet...
 flashupdate.update_with_settings_skipped Ordner [%s] kann nicht gesichert werden. Eintrag wird übersprungen.
 flashupdate.update_with_settings_successfully Settingsübernahme erfolgreich.\nDas Image kann jetzt geflasht werden.
+flashupdate.update_with_settings_warning Warnung Flashspeicher!\n \nIm neuen Image sind nur noch %ld KB (von %ld KB) frei,\ndas ist möglicherweise zu wenig, um einen sicheren Betrieb zu gewährleisten.\n \nSoll der Vorgang trotzdem fortgesetzt werden?
 flashupdate.updatemode Updatemodus
 flashupdate.updatemode_internet Internet
 flashupdate.updatemode_manual von lokalem Update-Verzeichnis 
@@ -1566,6 +1569,8 @@ satsetup.satellite Satellit
 satsetup.select_sat Auswahl Satellit
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommitted
+satsetup.uni_settings Unicable Einstellungen
+satsetup.unicable Unicable
 satsetup.usals_repeat USALS wiederholen
 satsetup.use_bat Benutze BAT
 satsetup.use_fta_flag nur FTA Kanäle
@@ -1756,6 +1761,9 @@ timing.infobar_movieplayer Infobar (Filmwiedergabe)
 timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
+unicable.lnb Unicable Eingang
+unicable.qrg Unicable Frequenz
+unicable.scr Unicable SCR
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Kein UPnP-Server gefunden
 upnpbrowser.rescan Neue Suche

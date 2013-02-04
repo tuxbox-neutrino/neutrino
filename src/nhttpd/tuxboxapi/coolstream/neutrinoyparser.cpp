@@ -222,7 +222,7 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, st
 		sel=(nr==(i+1)) ? "selected=\"selected\"" : "";
 		if(!channels->empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true"))
 			yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(),
-				(encodeString(std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
+				std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()).c_str());
 			//yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), (encodeString(std::string(g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
 	}
 	return yresult;
@@ -556,7 +556,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 					{
 						if(!(isalnum(tags[i].component[0])))
 							tags[i].component=tags[i].component.substr(1,tags[i].component.length()-1);
-						yresult += string_printf("<option value=%05u>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,encodeString(tags[i].component).c_str());
+						yresult += string_printf("<option value=%05u>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,tags[i].component.c_str());
 					}
 					else
 					{
@@ -564,7 +564,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 						{
 							strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
 						}
-			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,encodeString(std::string(pids.APIDs[j].desc)).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": " ");
+			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": " ");
 					}
 					eit_not_ok=false;
 					break;

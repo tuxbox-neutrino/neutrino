@@ -220,6 +220,7 @@ channellist.keep_numbers Persistent channel numbers
 channellist.make_hdlist Create list of HD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
+channellist.minitv Channellist with MiniTV
 channellist.new_zap_mode Quickzap in list
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
 channellist.provs Providers
@@ -487,9 +488,11 @@ flashupdate.squashfs.noversion SquashFS version checks are currently only suppor
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Entry is skipped.
+flashupdate.update_with_settings_error Flash Error!\n \nNew Image only has %ld KB (out of %ld KB) left. Not\nenough space to complete this operation.\n \nCanceling operation!
 flashupdate.update_with_settings_processed Image is being processed...
 flashupdate.update_with_settings_skipped Folder [%s] can not be saved. Entry is skipped.
 flashupdate.update_with_settings_successfully Setting takeover successfully.\nThe image can now be flashed.
+flashupdate.update_with_settings_warning Flash Warning!\n \nNew Image only has %ld KB (out of %ld KB) left. Probably not\nenough space to complete this operation...\n \nDo you really want to proceed?
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
 flashupdate.updatemode_manual from local update directory
@@ -1566,6 +1569,8 @@ satsetup.satellite Satellite
 satsetup.select_sat Select satellites
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommited input
+satsetup.uni_settings Unicable Settings
+satsetup.unicable Unicable
 satsetup.usals_repeat USALS command repeat
 satsetup.use_bat Use BAT
 satsetup.use_fta_flag just free Channels
@@ -1756,6 +1761,9 @@ timing.infobar_movieplayer Infobar (movie mode)
 timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
+unicable.lnb Unicable Input
+unicable.qrg Unicable Frequency
+unicable.scr Unicable SCR
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again

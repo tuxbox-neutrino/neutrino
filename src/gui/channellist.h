@@ -73,10 +73,15 @@ private:
 	CZapProtection* 	zapProtection;
 
 	int 			width;
+	int				widthDetails;
 	int 			height;
 	int 			x;
 	int 			y;
 	int			logo_off;
+	int				pig_width;
+	int				pig_height;
+	int				infozone_width;
+	int				infozone_height;
 
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet
@@ -98,6 +103,10 @@ private:
 	void showChannelLogo();
 	void calcSize();
 	std::string   MaxChanNr();
+	void paint_pig(int x, int y, int w, int h);
+    void paint_events(int index);
+    CChannelEventList	evtlist;
+    void readEvents(const t_channel_id channel_id);
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
