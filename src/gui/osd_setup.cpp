@@ -354,6 +354,14 @@ const CMenuOptionChooser::keyval INFOBAR_SHOW_RES_MODE_OPTIONS[INFOBAR_SHOW_RES_
 	{ 2, LOCALE_OPTIONS_OFF }
 };
 
+#define CHANNELLIST_ADDITIONAL_OPTION_COUNT 3
+const CMenuOptionChooser::keyval CHANNELLIST_ADDITIONAL_OPTIONS[CHANNELLIST_ADDITIONAL_OPTION_COUNT] =
+{
+	{ 0, LOCALE_CHANNELLIST_ADDITIONAL_OFF },
+	{ 1, LOCALE_CHANNELLIST_ADDITIONAL_ON },
+	{ 2, LOCALE_CHANNELLIST_ADDITIONAL_ON_MINITV }
+};
+
 #define CHANNELLIST_FOOT_OPTIONS_COUNT 3
 const CMenuOptionChooser::keyval  CHANNELLIST_FOOT_OPTIONS[CHANNELLIST_FOOT_OPTIONS_COUNT]=
 {
@@ -796,9 +804,10 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	CMenuOptionChooser * mc;
 
 	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
-	// channel list with minitv
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MINITV, &g_settings.channellist_minitv, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_MINITV);
+
+	// channellist additional
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_ADDITIONAL, &g_settings.channellist_additional, CHANNELLIST_ADDITIONAL_OPTIONS, CHANNELLIST_ADDITIONAL_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ADDITIONAL);
 	menu_chanlist->addItem(mc);
 
 	// epg align

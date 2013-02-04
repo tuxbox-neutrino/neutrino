@@ -416,12 +416,12 @@ struct SNeutrinoSettings
 	int pip_y;
 	int bigFonts;
 	int big_windows;
+	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_extended;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
-	int channellist_minitv;
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
 	int remote_control_hardware;
