@@ -222,15 +222,27 @@ CZapitChannel * CServiceManager::FindChannel48(const t_channel_id channel_id)
 	return NULL;
 }
 
+/* TODO: those FindChannel* functions are naive at best. By using a different construction
+ * scheme for the channel_id,they could easily be made much more efficient. Side effects would
+ * need to be checked first, though */
 CZapitChannel* CServiceManager::FindChannelFuzzy(const t_channel_id channel_id,
 						 const t_satellite_position pos, const freq_id_t freq)
 {
-	CZapitChannel *ret;
-	ret = FindChannel48(channel_id);
-	if (!ret || !(pos == ret->getSatellitePosition()))
-		return NULL;
-	if (abs((int)ret->getFreqId() - (int)freq) < 3)
-		return ret;
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		CZapitChannel *ret = &it->second;
+		if ((ret->getChannelID() & 0xFFFFFFFFFFFFULL) != (channel_id & 0xFFFFFFFFFFFFULL))
+			continue;
+		/* use position only on SAT boxes.
+		 * Cable/terr does not need thix: There usually is no second cable provider
+		 * to choose from and people are wondering why their ubouquets are no longer
+		 * working => because they had the wrong 's="x"' attribute.
+		 * TODO: think about mixed-mode (sat/cable/terrestrial) operation */
+		if (frontendType == FE_QPSK && pos != ret->getSatellitePosition())
+			continue;
+		/* match +-2MHz to make old ubouquets work with updated satellites.xml */
+		if (abs((int)ret->getFreqId() - (int)freq) < 3)
+			return ret;
+	}
 	return NULL;
 }
 
