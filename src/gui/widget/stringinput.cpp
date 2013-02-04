@@ -147,7 +147,9 @@ void CStringInput::init()
 
 	if (width<420)
 		width = 420;
-
+#ifdef DEBUG_STRINGINPUT
+	printf("HEAD: %s (len: %d)\n", head, strlen(head));
+#endif
 	int neededWidth;
 	if(head) {
 		neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(head, true); // UTF-8
@@ -854,6 +856,14 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 	}
 
 	return res;
+}
+
+void CEnquiryInput::paintChar(int pos)
+{
+	if (blind)
+		CStringInput::paintChar(pos, (value[pos] == ' ') ? ' ' : '*');
+	else
+			CStringInput::paintChar(pos, value[pos]);
 }
 
 int CPLPINInput::handleOthers(neutrino_msg_t msg, neutrino_msg_data_t data)
