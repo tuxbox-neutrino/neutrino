@@ -37,8 +37,12 @@ function do_clearshot2(){
 		</div>
 		<table cellpadding="0">
 		<tr>
-			<td>{=include-block:Y_Blocks.txt;remote=}</td>
-			<td><img id="shot" src="" {=if-empty:{=full=}~style="width:600px"~=}/></td>
+			<td>
+				{=include-block:Y_Blocks.txt;remote=}
+			</td>
+			<td class="shot">
+				<img id="shot" src="" />
+			</td>
 		</tr>
 		</table>
 	</div>
