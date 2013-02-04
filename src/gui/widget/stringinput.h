@@ -140,6 +140,21 @@ class CPINInput : public CStringInput
 		 int exec( CMenuTarget* parent, const std::string & actionKey );
 };
 
+// For CI
+class CEnquiryInput : public CPINInput
+{
+	private:
+		bool blind;
+	protected:
+		virtual void paintChar(int pos);
+	public:
+		CEnquiryInput(const neutrino_locale_t Name, char* Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
+		 : CPINInput(Name, (char *)Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { blind = Blind; }
+		CEnquiryInput(char * Head, char* Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
+		 : CPINInput(Head, (char *)Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { blind = Blind; }
+};
+
+
 class CPLPINInput : public CPINInput
 {
 	protected:
