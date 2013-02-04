@@ -113,6 +113,7 @@ CFEManager::~CFEManager()
 {
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++)
 		delete it->second;
+	dmap.clear();
 }
 
 CFEManager * CFEManager::getInstance()
