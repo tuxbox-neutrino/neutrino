@@ -450,6 +450,13 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 						unlockEvents();
 						return;
 					}
+					/* SRF special case: advertising is inserted with start time of
+					 * an existing event. Duration may differ. To avoid holes in EPG caused
+					 * by the (not useful) advertising event, don't delete the (useful)
+					 * original event */
+					if ((*x)->table_id == e->table_id && (e->table_id & 0xFE) == 0x4e &&
+					    (*x)->times.begin()->startzeit == start_time)
+						continue;
 					/* here we have an overlapping event */
 					dprintf("%s: delete 0x%016" PRIx64 ".%02x time = 0x%016" PRIx64 ".%02x\n", __func__,
 						x_key, (*x)->table_id, e_key, e->table_id);
