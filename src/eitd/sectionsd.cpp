@@ -5,7 +5,7 @@
  * Copyright (C) 2001 by fnbrd (fnbrd@gmx.de)
  * Homepage: http://dbox2.elxsi.de
  *
- * Copyright (C) 2008, 2009, 2010, 2011, 2012 Stefan Seyfried
+ * Copyright (C) 2008-2013 Stefan Seyfried
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
  *
@@ -425,9 +425,16 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 				else
 				{
 					event_id_t x_key = (*x)->uniqueKey();
-					/* do we need this check? */
 					if (x_key == e_key)
-						continue;
+					{
+						/* the present event has a higher table_id than the new one
+						 * => delete and insert the new one */
+						if ((*x)->table_id >= e->table_id)
+							continue;
+						/* else: keep the old event with the lower table_id */
+						unlockEvents();
+						return;
+					}
 					if ((*x)->times.begin()->startzeit >= end_time)
 						continue;
 					/* iterating backwards: if the endtime of the stored events
@@ -435,6 +442,14 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 					 * find an identical one => bail out */
 					if ((*x)->times.begin()->startzeit + (long)(*x)->times.begin()->dauer <= start_time)
 						break;
+					if ((*x)->table_id < e->table_id)
+					{
+						/* don't add the higher table_id */
+						dprintf("%s: don't replace 0x%016" PRIx64 ".%02x with 0x%016" PRIx64 ".%02x\n",
+							__func__, x_key, (*x)->table_id, e_key, e->table_id);
+						unlockEvents();
+						return;
+					}
 					/* here we have an overlapping event */
 					dprintf("%s: delete 0x%016" PRIx64 ".%02x time = 0x%016" PRIx64 ".%02x\n", __func__,
 						x_key, (*x)->table_id, e_key, e->table_id);
