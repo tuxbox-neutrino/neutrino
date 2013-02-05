@@ -2145,8 +2145,8 @@ void CChannelList::paint_events(int index)
 			{
 				struct tm *tmStartZeit = localtime(&e->startTime);
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
-				//printf("%s %s\n", text1, e->description.c_str());
-				startTimeWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(startTime, true);
+				//printf("%s %s\n", startTime, e->description.c_str());
+				startTimeWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth("88:88"); // use a fixed value
 				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, COL_MENUCONTENTINACTIVE, 0, true);
 				startTimeWidth = startTimeWidth +5;
 			}
