@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Bugfixes/cleanups (C) 2007-2012 Stefan Seyfried
+	Bugfixes/cleanups (C) 2007-2013 Stefan Seyfried
 	(C) 2008 Novell, Inc. Author: Stefan Seyfried
 
 	Kommentar:
@@ -1525,11 +1525,15 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 		info_CurrentNext.current_zeit.startzeit = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].startzeit;
 		info_CurrentNext.current_zeit.dauer = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].dauer;
 	} else {
+#if 0
+/* this triggers false positives on some channels.
+ * TODO: test on real NVOD channels, if this was even necessary at all */
 		if ((info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) && (info_CurrentNext.flags & CSectionsdClient::epgflags::has_next) && (showButtonBar)) {
 			if ((uint) info_CurrentNext.next_zeit.startzeit < (info_CurrentNext.current_zeit.startzeit + info_CurrentNext.current_zeit.dauer)) {
 				is_nvod = true;
 			}
 		}
+#endif
 	}
 
 	time_t jetzt = time (NULL);
