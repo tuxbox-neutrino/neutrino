@@ -1,6 +1,6 @@
 /*
  * (C) 2001 by fnbrd,
- * Copyright (C) 2008, 2009 Stefan Seyfried
+ * Copyright (C) 2008-2009, 2012-2013 Stefan Seyfried
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
  *
@@ -321,6 +321,7 @@ void *insertEventsfromFile(void * data)
 				uint8_t tid = xmlGetNumericAttribute(event, "tid", 16);
 				if(tid)
 					e.table_id = tid;
+				e.table_id |= 0x80; /* make sure on-air data has a lower table_id */
 
 				node = event->xmlChildrenNode;
 
