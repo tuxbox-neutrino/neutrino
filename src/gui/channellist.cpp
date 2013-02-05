@@ -2102,7 +2102,8 @@ void CChannelList::paint_events(int index)
 	readEvents(chanlist[index]->channel_id);
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
-	char text1[10];
+	char startTime[10];
+	int startTimeWidth = 0;
 	CChannelEventList::iterator e;
 	time_t azeit;
 	time(&azeit);
@@ -2114,7 +2115,6 @@ void CChannelList::paint_events(int index)
 
 		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 		evt.eventID = 0;
-		evt.startTime = time_t(82800);
 		evtlist.push_back(evt);
 	}
 
@@ -2137,15 +2137,20 @@ void CChannelList::paint_events(int index)
 		}
 		if (e == evtlist.end()) 
 			break;
+
 		//Display the remaining events
-		struct tm *tmStartZeit = localtime(&e->startTime);
-		strftime(text1, sizeof(text1), "%H:%M", tmStartZeit );
-		//printf("%s %s\n", text1, e->description.c_str());
-		int timewidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(text1, true);
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height))
 		{
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, timewidth, text1, COL_MENUCONTENTINACTIVE, 0, true);
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+timewidth+5, y+ theight+ pig_height + i*ffheight, infozone_width - timewidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
+			if (e->eventID)
+			{
+				struct tm *tmStartZeit = localtime(&e->startTime);
+				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
+				//printf("%s %s\n", text1, e->description.c_str());
+				startTimeWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(startTime, true);
+				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, COL_MENUCONTENTINACTIVE, 0, true);
+				startTimeWidth = startTimeWidth +5;
+			}
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
 		else
 		{
@@ -2171,7 +2176,6 @@ void CChannelList::readEvents(const t_channel_id channel_id)
 		CChannelEvent evt;
 		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 		evt.eventID = 0;
-		evt.startTime = time_t(82800);
 		evtlist.push_back(evt);
 	}
 	else
