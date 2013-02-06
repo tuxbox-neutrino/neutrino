@@ -82,6 +82,7 @@ private:
 	int			pig_height;
 	int			infozone_width;
 	int			infozone_height;
+	int			previous_channellist_additional;
 
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet

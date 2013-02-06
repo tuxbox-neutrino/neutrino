@@ -110,6 +110,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	selected_chid = 0;
 	this->new_mode_active = false;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
+	previous_channellist_additional = -1;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -433,6 +434,7 @@ int CChannelList::doChannelMenu(void)
 			break;
 		case 5: // settings
 			{
+				previous_channellist_additional = g_settings.channellist_additional;
 				COsdSetup osd_setup;
 				osd_setup.showContextChanlistMenu();
 				//FIXME check font/options changed ?
@@ -904,9 +906,8 @@ int CChannelList::show()
 
 void CChannelList::hide()
 {
-	if (g_settings.channellist_additional == 2) // with miniTV
+	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
-// 		full_width = frameBuffer->getScreenWidth() - frameBuffer->getScreenX();
 		videoDecoder->Pig(-1, -1, -1, -1);
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height+ info_height+ 5);
