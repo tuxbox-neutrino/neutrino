@@ -853,4 +853,8 @@ td.shot {
 }
 img#shot {
 	width: 100%;
+	background-color: #ffffff;
+}
+img#shot:hover {
+	cursor: pointer;
 }

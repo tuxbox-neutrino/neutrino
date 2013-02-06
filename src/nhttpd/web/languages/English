@@ -51,6 +51,7 @@ check=check
 help=Help
 attention=Attention!
 directory=Directory
+filename=Filename
 restriced_by_management_ip=restricted by ManagementIP
 
 #========= MAIN Menue
@@ -130,6 +131,7 @@ bc.msg.send_message=send message
 ======== Boxcontrol - Remote & OSD
 bc.osd.shot=Shot
 bc.osd.delete_shots=Delete shots
+bc.osd.zoom_shot=Zoom shot
 bc.osd.shap_wait_text=Take Snapshot
 
 ======== Boxcontrol - TV-Screenshot

@@ -75,7 +75,6 @@ install_DATA =	channels.js \
 		Y_Tools_Boxcontrol.yhtm \
 		Y_Tools_Check_Install.yhtm \
 		Y_Tools_Cmd.yhtm \
-		Y_Tools_fbshot.yhtm \
 		Y_Tools_Flash_Menue.yhtm \
 		Y_Tools_Flash_Upload.yhtm \
 		Y_Tools_Info_Menue.yhtm \
