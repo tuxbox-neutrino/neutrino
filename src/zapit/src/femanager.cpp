@@ -654,6 +654,8 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 				break;
 			}
 		} else {
+			if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
+				continue;
 			satellite_map_t & satmap = mfe->getSatellites();
 			sat_iterator_t sit = satmap.find(satellitePosition);
 			if ((sit != satmap.end()) && sit->second.configured) {
