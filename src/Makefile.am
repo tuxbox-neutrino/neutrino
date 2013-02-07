@@ -106,7 +106,7 @@ endif
 
 if BOXTYPE_COOL
 neutrino_LDADD += \
-	-lcoolstream-mt \
+	-lcoolstream-mt -lca-sc \
 	-lnxp
 
 bin_PROGRAMS += drivertool
