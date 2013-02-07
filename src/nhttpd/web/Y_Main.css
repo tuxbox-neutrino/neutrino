@@ -846,3 +846,15 @@ a.timer {
 .lt_table td {
 	white-space: pre-wrap;
 }
+
+/* screenshots */
+td.shot {
+	vertical-align: top;
+}
+img#shot {
+	width: 100%;
+	background-color: #ffffff;
+}
+img#shot:hover {
+	cursor: pointer;
+}

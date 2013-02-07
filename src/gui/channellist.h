@@ -72,16 +72,17 @@ private:
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
 
-	int 			width;
-	int				widthDetails;
-	int 			height;
-	int 			x;
-	int 			y;
+	int			full_width;
+	int			width;
+	int			height;
+	int			x;
+	int			y;
 	int			logo_off;
-	int				pig_width;
-	int				pig_height;
-	int				infozone_width;
-	int				infozone_height;
+	int			pig_width;
+	int			pig_height;
+	int			infozone_width;
+	int			infozone_height;
+	int			previous_channellist_additional;
 
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet

@@ -200,6 +200,10 @@ bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
 cablesetup.provider Kabelanbieter
+channellist.additional Zusatzinformationen
+channellist.additional_off aus
+channellist.additional_on ein
+channellist.additional_on_minitv ein (mit MiniTV)
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
 channellist.epgtext_align_left links
@@ -220,7 +224,6 @@ channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
-channellist.minitv Kanalliste mit MiniTV
 channellist.new_zap_mode Quickzap in Liste
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
@@ -734,12 +737,12 @@ menu.hint_cache_txt Startet das Zwischenspeichern des Teletext nach\nKanalwechse
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
+menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_channellist_colored Definiert ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
 menu.hint_channellist_epg_align Hier kann man festlegen, wie der Text für das EPG in der Liste\nrechts vom Programmnamen ausgerichtet wird
 menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen ein Balken eingeblendet,\nder den Sendungsfortschritt anzeigt
 menu.hint_channellist_fonts Ändern Sie in der Kanalliste die Schriftgrößen
 menu.hint_channellist_foot Definiert welche Informationen im unteren Sendungsfenster angezeigt werden sollen
-menu.hint_channellist_minitv Schaltet den MiniTV Modus ein/aus
 menu.hint_channellist_setup Hier können Sie Anzeigeoptionen für die Kanalliste auswählen
 menu.hint_ci Conditional-Access-Menü zum Einrichten\nIhres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_colors Konfigurieren Sie die Menü-Farben
