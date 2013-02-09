@@ -452,6 +452,7 @@ int CChannelList::doChannelMenu(void)
 int CChannelList::exec()
 {
 	displayNext = 0; // always start with current events
+	displayList = 1; // always start with event list
 	int nNewChannel = show();
 	if ( nNewChannel > -1 && nNewChannel < (int) chanlist.size()) {
 		if(this->historyMode && chanlist[nNewChannel]) {
@@ -698,6 +699,7 @@ int CChannelList::show()
 		}
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
+			displayList = 1;
 			int step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
 			int new_selected = selected - step;
 			if (new_selected < 0) {
@@ -710,6 +712,7 @@ int CChannelList::show()
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
+			displayList = 1;
 			int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
 			int new_selected = selected + step;
 			if (new_selected >= (int) chanlist.size()) {
@@ -840,9 +843,16 @@ int CChannelList::show()
 		}
 		else if ( msg == CRCInput::RC_blue )
 		{
-			displayNext = !displayNext;
+			if (g_settings.channellist_additional)
+				displayList = !displayList;
+			else
+				displayNext = !displayNext;
+
 			paintHead(); // update button bar
 			paint();
+
+			if (!displayList && g_settings.channellist_additional)
+				showdescription(selected);
 		}
 		else if ( msg == CRCInput::RC_green )
 		{
@@ -1683,10 +1693,20 @@ void CChannelList::paintButtonBar(bool is_current)
 	int Bindex = 2 + (smode ? 1:0);
 
 	//manage now/next button
-	if (displayNext)
-		Button[Bindex].locale = LOCALE_INFOVIEWER_NOW;
+	if (g_settings.channellist_additional)
+	{
+		if (displayList)
+			Button[Bindex].locale = LOCALE_FONTSIZE_CHANNELLIST_DESCR;
+		else
+			Button[Bindex].locale = LOCALE_FONTMENU_EVENTLIST;
+	}
 	else
-		Button[Bindex].locale = LOCALE_INFOVIEWER_NEXT;
+	{
+		if (displayNext)
+			Button[Bindex].locale = LOCALE_INFOVIEWER_NOW;
+		else
+			Button[Bindex].locale = LOCALE_INFOVIEWER_NEXT;
+	}
 
 	Bindex++;
 	//manage record button
@@ -2176,4 +2196,91 @@ void CChannelList::readEvents(const t_channel_id channel_id)
 		sort(evtlist.begin(),evtlist.end(),sortByDateTime);
 
 	return;
+}
+
+void CChannelList::showdescription(int index)
+{
+	CZapitChannel* chan = chanlist[index];
+	CChannelEvent *p_event=NULL;
+	p_event = &chan->currentEvent;
+	epgData.info2.clear();
+	epgText.clear();
+	CEitManager::getInstance()->getEPGid(p_event->eventID, p_event->startTime, &epgData);
+	if (!(epgData.info2.empty()))
+	{
+		int ffheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
+		frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
+		processTextToArray(epgData.info2);
+		for (unsigned int i = 1; (i < epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
+		{
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
+		}
+	}
+}
+
+void CChannelList::addTextToArray(const std::string & text, int screening) // UTF-8
+{
+	//printf("line: >%s<\n", text.c_str() );
+	if (text==" ")
+	{
+		emptyLineCount ++;
+		if (emptyLineCount<2)
+		{
+			epgText.push_back(epg_pair(text,screening));
+		}
+	}
+	else
+	{
+		emptyLineCount = 0;
+		epgText.push_back(epg_pair(text,screening));
+	}
+}
+
+void CChannelList::processTextToArray(std::string text, int screening) // UTF-8
+{
+	std::string	aktLine = "";
+	std::string	aktWord = "";
+	int	aktWidth = 0;
+	text += ' ';
+	char* text_= (char*) text.c_str();
+
+	while (*text_!=0)
+	{
+		if ( (*text_==' ') || (*text_=='\n') || (*text_=='-') || (*text_=='.') )
+		{
+			if (*text_!='\n')
+				aktWord += *text_;
+
+			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(aktWord, true);
+			if ((aktWordWidth+aktWidth)<(infozone_width - 20))
+			{//space ok, add
+				aktWidth += aktWordWidth;
+				aktLine += aktWord;
+
+				if (*text_=='\n')
+				{	//enter-handler
+					addTextToArray( aktLine, screening );
+					aktLine = "";
+					aktWidth= 0;
+				}
+				aktWord = "";
+			}
+			else
+			{//new line needed
+				addTextToArray( aktLine, screening);
+				aktLine = aktWord;
+				aktWidth = aktWordWidth;
+				aktWord = "";
+				if (*text_=='\n')
+					continue;
+			}
+		}
+		else
+		{
+			aktWord += *text_;
+		}
+		text_++;
+	}
+	//add the rest
+	addTextToArray( aktLine + aktWord, screening );
 }
