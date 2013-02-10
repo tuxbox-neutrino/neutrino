@@ -596,13 +596,13 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	// read DeleteList
 	for(it = deleteList.begin(); it != deleteList.end(); ++it) {
 		line = *it;
-		if (lstat(line.c_str(), &FileInfo) != -1) {
-			if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
-				// Wildcards
-				WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
-				deleteFileList(line.c_str());
-			}
-			else if (S_ISREG(FileInfo.st_mode)) {
+		if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
+			// Wildcards
+			WRITE_UPDATE_LOG("delete file list: %s\n", line.c_str());
+			deleteFileList(line.c_str());
+		}
+		else if (lstat(line.c_str(), &FileInfo) != -1) {
+			if (S_ISREG(FileInfo.st_mode)) {
 				// File
 				WRITE_UPDATE_LOG("delete file: %s\n", line.c_str());
 				unlink(line.c_str());
