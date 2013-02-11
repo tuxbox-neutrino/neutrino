@@ -717,7 +717,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 				std::string prov_name = pname;
 				prov_name=prov_name.substr(prov_name.find_first_of("]")+1);
 
-				int chname_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (ChannelName);
+				int chname_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (ChannelName, true);// UTF-8
 				chname_width += (chname_width/(ChannelName.size()-1)/2);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
 					ChanNameX + 10 + ChanNumWidth + chname_width, ChanNameY + time_height -SHADOW_OFFSET/2,
