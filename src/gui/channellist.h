@@ -72,23 +72,25 @@ private:
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
 
-	int 			width;
-	int				widthDetails;
-	int 			height;
-	int 			x;
-	int 			y;
+	int			full_width;
+	int			width;
+	int			height;
+	int			x;
+	int			y;
 	int			logo_off;
-	int				pig_width;
-	int				pig_height;
-	int				infozone_width;
-	int				infozone_height;
+	int			pig_width;
+	int			pig_height;
+	int			infozone_width;
+	int			infozone_height;
+	int			previous_channellist_additional;
 
+	CEPGData		epgData;
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet
 	bool displayNext;
+	bool displayList;
 
 	int info_height;
-	bool new_mode_active;
 	int ChannelList_Rec;
 
 	void paintDetails(int index);
@@ -107,9 +109,15 @@ private:
     void paint_events(int index);
     CChannelEventList	evtlist;
     void readEvents(const t_channel_id channel_id);
+	void showdescription(int index);
+	typedef std::pair<std::string,int> epg_pair;
+	std::vector<epg_pair> epgText;
+	int emptyLineCount;
+	void addTextToArray( const std::string & text, int screening );
+	void processTextToArray(std::string text, int screening = 0);
 
 public:
-	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
+	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false);
 	~CChannelList();
 
 	void SetChannelList(ZapitChannelList* channels);

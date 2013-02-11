@@ -51,6 +51,7 @@ check=Prüfen
 help=Hilfe
 attention=Achtung!
 directory=Verzeichnis
+filename=Dateiname
 restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 
 # ==========Main Menue
@@ -128,6 +129,7 @@ bc.msg.send_message=Nachricht senden
 ======== Boxcontrol - Remote & OSD
 bc.osd.shot=Schnappschuss
 bc.osd.delete_shots=Schnappschuss löschen
+bc.osd.zoom_shot=Schnappschuss zoomen
 bc.osd.shap_wait_text=Schnappschuss wird erstellt
 
 ======== Boxcontrol - TV-Screenshot

@@ -115,7 +115,6 @@ else
 neutrino_LDADD += -lnxp
 endif
 
-
 bin_PROGRAMS += drivertool
 
 drivertool_SOURCES = drivertool.c
