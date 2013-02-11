@@ -225,6 +225,9 @@ channellist.make_hdlist Create list of HD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
 channellist.new_zap_mode Quickzap in list
+channellist.new_zap_mode_active active
+channellist.new_zap_mode_allow allow
+channellist.new_zap_mode_off off
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
