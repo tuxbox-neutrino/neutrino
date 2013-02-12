@@ -99,7 +99,7 @@ function do_submit()
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 			<tr>
 				<td>{=L:set.nhttpd.ips_without_keep_alive=}<br/>{=L:set.nhttpd.ips_without_keep_alive_desc=} </td>
-				<td><input type="text" name="no_keep_alive_ips" size="30" maxsize="254" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;~cache=}" "/>
+				<td><input type="text" name="no_keep_alive_ips" size="30" maxsize="254" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;~cache=}" />
 				</td>
 			</tr>
 			=}
