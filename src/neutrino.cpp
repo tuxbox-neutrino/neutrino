@@ -317,6 +317,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
+#ifdef BOXMODEL_APOLLO
+	g_settings.brightness = configfile.getInt32("brightness", 0);
+	g_settings.contrast = configfile.getInt32("contrast", 0);
+	g_settings.saturation = configfile.getInt32("saturation", 0);
+#endif
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
@@ -786,6 +791,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "analog_mode2", g_settings.analog_mode2 );
 	configfile.setInt32( "video_Format", g_settings.video_Format );
 	configfile.setInt32( "video_43mode", g_settings.video_43mode );
+#ifdef BOXMODEL_APOLLO
+	configfile.setInt32( "brightness", g_settings.brightness );
+	configfile.setInt32( "contrast", g_settings.contrast );
+	configfile.setInt32( "saturation", g_settings.saturation );
+#endif
 	configfile.setInt32( "hdmi_cec_mode", g_settings.hdmi_cec_mode );
 	configfile.setInt32( "hdmi_cec_view_on", g_settings.hdmi_cec_view_on );
 	configfile.setInt32( "hdmi_cec_standby", g_settings.hdmi_cec_standby );

@@ -49,6 +49,11 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
+#ifdef BOXMODEL_APOLLO
+	int brightness;
+	int contrast;
+	int saturation;
+#endif
 	char current_volume;
 	int current_volume_step;
 	int channel_mode;
