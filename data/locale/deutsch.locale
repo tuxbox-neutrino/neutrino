@@ -1132,6 +1132,11 @@ miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo Verz.
+miscsettings.infobar_progressbar Fortschrittsbalken Opt.
+miscsettings.infobar_progressbar_0 Standard
+miscsettings.infobar_progressbar_1 unterhalb Kanalname
+miscsettings.infobar_progressbar_2 unterhalb Kanalname schmal
+miscsettings.infobar_progressbar_3 zwischen EPG-Events schmal
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen

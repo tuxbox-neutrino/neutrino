@@ -450,6 +450,22 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 		// nicht gefunden / noch nicht geladen
 		/* see the comment in display_Info() for a reasoning for this calculation */
 		int CurrInfoY = (BoxEndY + ChanNameY + time_height) / 2; // lower end of current info box
+		if(g_settings.infobar_progressbar){
+			int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
+			switch(g_settings.infobar_progressbar)
+			{
+				case 1:
+				case 2:
+					CurrInfoY += (pb_h/3);
+				break;
+				case 3:
+					CurrInfoY -= (pb_h/3);
+				break;
+				default:
+				break;
+			}
+		}
+
 		neutrino_locale_t loc;
 		if (! gotTime)
 			loc = LOCALE_INFOVIEWER_WAITTIME;
@@ -1415,30 +1431,67 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
 	int CurrInfoY = (BoxEndY + ChanNameY + time_height) / 2;
 	int NextInfoY = CurrInfoY + height;	// lower end of next info box
-	int xStart;
 	int InfoX = ChanInfoX + 10;
 
-	xStart = InfoX;
+	int xStart = InfoX;
 	if (starttimes)
 		xStart += info_time_width + 10;
 
-	//colored_events init
-	bool colored_event_C = false;
-	bool colored_event_N = false;
-	if (g_settings.colored_events_infobar == 1)
-		colored_event_C = true;
-	if (g_settings.colored_events_infobar == 2)
-		colored_event_N = true;
+	int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
+	switch(g_settings.infobar_progressbar)
+	{
+		case 1:
+		case 2:
+			CurrInfoY += (pb_h/3);
+			NextInfoY += (pb_h/3);
+		break;
+		case 3:
+			CurrInfoY -= (pb_h/3);
+			NextInfoY += (pb_h/3);
+		break;
+		default:
+		break;
+	}
 
 	if (pb_pos > -1)
 	{
 		int pb_w = 112;
+		int pb_startx = BoxEndX - pb_w - SHADOW_OFFSET;
+		int pb_starty = ChanNameY - (pb_h + 10);
+		int pb_shadow = COL_INFOBAR_SHADOW_PLUS_0;
+		int pb_color = g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0;
+		if(g_settings.infobar_progressbar){
+			pb_startx = xStart;
+			pb_w = BoxEndX - 10 - xStart;
+			pb_shadow = 0;
+		}
+		switch(g_settings.infobar_progressbar)
+		{
+			case 1:
+
+				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 6)) ;
+				pb_h = (pb_h/3);
+				pb_color = COL_INFOBAR_SHADOW_PLUS_0;
+			break;
+			case 2:
+				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 5)) ;
+				pb_h = (pb_h/5);
+				pb_color = COL_INFOBAR_SHADOW_PLUS_0;
+			break;
+			case 3:
+				pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
+				pb_h = (pb_h/5);
+			break;
+			default:
+			break;
+		}
+
 		int pb_p = pb_pos * pb_w / 100;
-		int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
 		if (pb_p > pb_w)
 			pb_p = pb_w;
-		timescale->paintProgressBar(BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h, pb_p, pb_w,
-					    0, 0, g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0, COL_INFOBAR_SHADOW_PLUS_0, "", COL_INFOBAR);
+
+		timescale->paintProgressBar(pb_startx, pb_starty, pb_w, pb_h, pb_p, pb_w,
+					    0, 0, pb_color, pb_shadow, "", COL_INFOBAR);
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h);
 	}
 
@@ -1451,6 +1504,14 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int currTimeX = BoxEndX - currTimeW - 10;
 	int nextTimeX = BoxEndX - nextTimeW - 10;
 	static int oldCurrTimeX = currTimeX; // remember the last pos. of remaining time, in case we change from 20/100min to 21/99min
+
+	//colored_events init
+	bool colored_event_C = false;
+	bool colored_event_N = false;
+	if (g_settings.colored_events_infobar == 1)
+		colored_event_C = true;
+	if (g_settings.colored_events_infobar == 2)
+		colored_event_N = true;
 
 	if (current != NULL && update_current)
 	{

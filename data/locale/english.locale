@@ -928,6 +928,11 @@ menu.hint_pictureviewer_scaling Picture scaling algorithm
 menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
 menu.hint_picview View pictures
 menu.hint_plugins_hdd_dir Select directory to load\nplugins from
+miscsettings.infobar_progressbar progressbar options
+miscsettings.infobar_progressbar_0 standard
+miscsettings.infobar_progressbar_1 below channel name
+miscsettings.infobar_progressbar_2 small below channel name
+miscsettings.infobar_progressbar_3 narrow between EPG-Events
 menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
