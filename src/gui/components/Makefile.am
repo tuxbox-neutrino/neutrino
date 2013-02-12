@@ -21,26 +21,8 @@ INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 endif
 
-noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a 
+noinst_LIBRARIES = libneutrino_gui_components.a
 
-libneutrino_gui_widget_a_SOURCES = \
-	buttons.cpp \
-	colorchooser.cpp \
-	drawable.cpp \
-	helpbox.cpp \
-	hintbox.cpp \
-	hintboxext.cpp \
-	keychooser.cpp \
-	listbox.cpp \
-	listframe.cpp \
-	menue.cpp \
-	messagebox.cpp \
-	mountchooser.cpp \
-	msgbox.cpp \
-	progressbar.cpp \
-	stringinput.cpp \
-	stringinput_ext.cpp \
-	textbox.cpp
 
-libneutrino_gui_widget2_a_SOURCES = \
-	progresswindow.cpp
+libneutrino_gui_components_a_SOURCES = \
+	components.cpp

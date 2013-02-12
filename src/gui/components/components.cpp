@@ -1,7 +1,8 @@
 /*
 	GUI window component classes - Neutrino-GUI
 
-	Copyright(C) 2012, Thilo Graf (dbt)
+	Copyright(C) 2012, 2013, Thilo Graf
+	Copyright(C) 2012, Michael Liebmann
 
 	This class contains generic components for GUI-related parts.
 
@@ -29,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <gui/widget/components.h>
+#include "cc.h"
 
 
 

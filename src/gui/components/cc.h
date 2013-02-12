@@ -1,7 +1,7 @@
 /*
 	GUI window component classes - Neutrino-GUI
 
-	Copyright(C) 2012, Thilo Graf (dbt)
+	Copyright(C) 2012, 2013, Thilo Graf
 
 	This class contains generic components for GUI-related parts.
 
