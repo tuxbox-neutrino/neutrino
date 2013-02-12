@@ -480,7 +480,13 @@ do_fbshot_clear()
 	rm /tmp/*.bmp
 	rm /tmp/*.png
 }
-
+# -----------------------------------------------------------
+# delete screenshots
+# -----------------------------------------------------------
+do_screenshot_clear()
+{
+	rm -f /tmp/*.png
+}
 # -----------------------------------------------------------
 # Settings Backup/Restore
 # -----------------------------------------------------------
@@ -547,7 +553,7 @@ case "$1" in
 	lcshot)					shift 1; do_lcshot $* ;;
 	fbshot)					shift 1; do_fbshot $* ;;
 	fbshot_clear)			do_fbshot_clear ;;
-	tvshot_clear)			rm -f /tmp/screenshot.png ;;
+	screenshot_clear)		do_screenshot_clear ;;
 	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)				shift 1; $* ;;
