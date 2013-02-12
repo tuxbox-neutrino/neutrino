@@ -765,7 +765,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 
 	// infobar progress
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR, &g_settings.infobar_progressbar, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT, true);
-	mc->setHint("", LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR);
+	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR);
 	menu_infobar->addItem(mc);
 
 	// flash/hdd progress

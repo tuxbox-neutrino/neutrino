@@ -803,6 +803,7 @@ menu.hint_infobar_fonts Ändern Sie in der Infobar die Schriftgrößen
 menu.hint_infobar_logo Logo- und Signal-Optionen
 menu.hint_infobar_logo_dir Hier wählen Sie das Verzeichnis für die Senderlogos
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
+menu.hint_infobar_progressbar Wählt die Optionen des Fortschrittsbalken in der Infobar
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
 menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
 menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider

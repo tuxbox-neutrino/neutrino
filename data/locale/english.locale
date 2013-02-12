@@ -803,6 +803,7 @@ menu.hint_infobar_fonts Change infobar font sizes
 menu.hint_infobar_logo Logo / signal options
 menu.hint_infobar_logo_dir Select directory to search for channels logo
 menu.hint_infobar_on_epg Show infobar on current EPG event change
+menu.hint_infobar_progressbar Selects the options of Progressbar in the Infobar
 menu.hint_infobar_radiotext Show radiotext window
 menu.hint_infobar_res Show channel resolution icons
 menu.hint_infobar_sat Show current satellite or cable provider
