@@ -294,6 +294,15 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
 	videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
 
+#ifdef BOXMODEL_APOLLO
+	/* values are from -128 to 127, but brightness really no sense after +/- 40. changeNotify multiply contrast and saturation to 3 */
+	CMenuOptionNumberChooser * bcont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_BRIGHTNESS, &g_settings.brightness, true, -42, 42, this);
+	CMenuOptionNumberChooser * ccont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_CONTRAST, &g_settings.contrast, true, -42, 42, this);
+	CMenuOptionNumberChooser * scont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_SATURATION, &g_settings.saturation, true, -42, 42, this);
+	videosetup->addItem(bcont);
+	videosetup->addItem(ccont);
+	videosetup->addItem(scont);
+#endif
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
 	delete videosetup;
@@ -327,6 +336,11 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
 	CAutoModeNotifier anotify;
 	anotify.changeNotify(NONEXISTANT_LOCALE, 0);
+#ifdef BOXMODEL_APOLLO
+	changeNotify(LOCALE_VIDEOMENU_BRIGHTNESS, NULL);
+	changeNotify(LOCALE_VIDEOMENU_CONTRAST, NULL);
+	changeNotify(LOCALE_VIDEOMENU_SATURATION, NULL);
+#endif
 }
 
 void CVideoSettings::setupVideoSystem(bool do_ask)
@@ -389,22 +403,24 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		setupVideoSystem(true/*ask*/);
 		return true;
 	}
-#if 0
-        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
-	{
-		videoDecoder->SetControl(VIDEO_CONTROL_CONTRAST, val);
-	}
+#ifdef BOXMODEL_APOLLO
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_BRIGHTNESS))
 	{
-		videoDecoder->SetControl(VIDEO_CONTROL_BRIGHTNESS, val);
+		videoDecoder->SetControl(VIDEO_CONTROL_BRIGHTNESS, g_settings.brightness);
 	}
-        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SHARPNESS))
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
 	{
-		videoDecoder->SetControl(VIDEO_CONTROL_SHARPNESS, val);
+		videoDecoder->SetControl(VIDEO_CONTROL_CONTRAST, g_settings.contrast*3);
 	}
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SATURATION))
 	{
-		videoDecoder->SetControl(VIDEO_CONTROL_SATURATION, val);
+		videoDecoder->SetControl(VIDEO_CONTROL_SATURATION, g_settings.saturation*3);
+	}
+#endif
+#if 0
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SHARPNESS))
+	{
+		videoDecoder->SetControl(VIDEO_CONTROL_SHARPNESS, val);
 	}
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HUE))
 	{
