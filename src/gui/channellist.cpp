@@ -2125,6 +2125,7 @@ void CChannelList::paint_events(int index)
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	char startTime[10];
+	int eventStartTimeWidth = g_Font[eventFont]->getRenderWidth("22:22") + 5; // use a fixed value
 	int startTimeWidth = 0;
 	CChannelEventList::iterator e;
 	time_t azeit;
@@ -2167,9 +2168,8 @@ void CChannelList::paint_events(int index)
 				struct tm *tmStartZeit = localtime(&e->startTime);
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
 				//printf("%s %s\n", startTime, e->description.c_str());
-				startTimeWidth = g_Font[eventFont]->getRenderWidth("88:88"); // use a fixed value
+				startTimeWidth = eventStartTimeWidth;
 				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, COL_MENUCONTENTINACTIVE, 0, true);
-				startTimeWidth = startTimeWidth +5;
 			}
 			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
@@ -2218,10 +2218,8 @@ void CChannelList::showdescription(int index)
 	{
 		frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 		processTextToArray(epgData.info2);
-		for (unsigned int i = 1; (i < epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
-		{
+		for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
 			g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
-		}
 	}
 }
 
