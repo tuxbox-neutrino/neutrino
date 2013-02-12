@@ -523,6 +523,7 @@ fontmenu.sizes Schriftgrössen
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
 fontsize.channellist_descr Beschreibung
+fontsize.channellist_event Eventliste
 fontsize.channellist_number Nummer
 fontsize.epg_date EPG Datum
 fontsize.epg_info1 EPG Info 1

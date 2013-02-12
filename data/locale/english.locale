@@ -523,12 +523,13 @@ fontmenu.sizes Font sizes
 fontsize.channel_num_zap direct selection
 fontsize.channellist Channellist
 fontsize.channellist_descr Description
+fontsize.channellist_event Event list
 fontsize.channellist_number Number
 fontsize.epg_date EPG Date
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Title
-fontsize.eventlist_datetime Date / Dime
+fontsize.eventlist_datetime Date / Time
 fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title

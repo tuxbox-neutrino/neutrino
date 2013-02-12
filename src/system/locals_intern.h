@@ -550,6 +550,7 @@ const char * locale_real_names[] =
 	"fontsize.channel_num_zap",
 	"fontsize.channellist",
 	"fontsize.channellist_descr",
+	"fontsize.channellist_event",
 	"fontsize.channellist_number",
 	"fontsize.epg_date",
 	"fontsize.epg_info1",

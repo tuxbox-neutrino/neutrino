@@ -110,6 +110,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	selected_chid = 0;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
 	previous_channellist_additional = -1;
+	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -2119,6 +2120,7 @@ void CChannelList::paint_pig (int _x, int _y, int w, int h)
 
 void CChannelList::paint_events(int index)
 {
+	ffheight = g_Font[eventFont]->getHeight();
 	readEvents(chanlist[index]->channel_id);
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
@@ -2127,7 +2129,6 @@ void CChannelList::paint_events(int index)
 	CChannelEventList::iterator e;
 	time_t azeit;
 	time(&azeit);
-	int ffheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 
 	if ( evtlist.empty() )
 	{
@@ -2166,11 +2167,11 @@ void CChannelList::paint_events(int index)
 				struct tm *tmStartZeit = localtime(&e->startTime);
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
 				//printf("%s %s\n", startTime, e->description.c_str());
-				startTimeWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth("88:88"); // use a fixed value
-				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, COL_MENUCONTENTINACTIVE, 0, true);
+				startTimeWidth = g_Font[eventFont]->getRenderWidth("88:88"); // use a fixed value
+				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, COL_MENUCONTENTINACTIVE, 0, true);
 				startTimeWidth = startTimeWidth +5;
 			}
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
+			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
 		else
 		{
@@ -2206,6 +2207,7 @@ void CChannelList::readEvents(const t_channel_id channel_id)
 
 void CChannelList::showdescription(int index)
 {
+	ffheight = g_Font[eventFont]->getHeight();
 	CZapitChannel* chan = chanlist[index];
 	CChannelEvent *p_event=NULL;
 	p_event = &chan->currentEvent;
@@ -2214,12 +2216,11 @@ void CChannelList::showdescription(int index)
 	CEitManager::getInstance()->getEPGid(p_event->eventID, p_event->startTime, &epgData);
 	if (!(epgData.info2.empty()))
 	{
-		int ffheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 		frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 		processTextToArray(epgData.info2);
 		for (unsigned int i = 1; (i < epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
 		{
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
+			g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
 		}
 	}
 }
@@ -2257,7 +2258,7 @@ void CChannelList::processTextToArray(std::string text, int screening) // UTF-8
 			if (*text_!='\n')
 				aktWord += *text_;
 
-			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getRenderWidth(aktWord, true);
+			int aktWordWidth = g_Font[eventFont]->getRenderWidth(aktWord, true);
 			if ((aktWordWidth+aktWidth)<(infozone_width - 20))
 			{//space ok, add
 				aktWidth += aktWordWidth;

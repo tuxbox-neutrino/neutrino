@@ -81,11 +81,12 @@ COsdSetup::~COsdSetup()
 }
 
 //font settings
-const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[4] =
+const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[5] =
 {
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST,
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR,
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER,
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT,
 	SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP
 };
 
@@ -131,7 +132,7 @@ const SNeutrinoSettings::FONT_TYPES other_font_sizes[5] =
 font_sizes_groups font_sizes_groups[6] =
 {
 	{LOCALE_FONTMENU_MENU       , 5, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
-	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
+	{LOCALE_FONTMENU_CHANNELLIST, 5, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
 	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
@@ -160,6 +161,7 @@ font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_CHANNELLIST        ,  20, FONT_STYLE_BOLD   , 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
+	{LOCALE_FONTSIZE_CHANNELLIST_EVENT  ,  17, FONT_STYLE_REGULAR, 2},
 	{LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  50, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
