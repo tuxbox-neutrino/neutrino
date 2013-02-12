@@ -929,11 +929,6 @@ menu.hint_pictureviewer_scaling Picture scaling algorithm
 menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
 menu.hint_picview View pictures
 menu.hint_plugins_hdd_dir Select directory to load\nplugins from
-miscsettings.infobar_progressbar progressbar options
-miscsettings.infobar_progressbar_0 standard
-miscsettings.infobar_progressbar_1 below channel name
-miscsettings.infobar_progressbar_2 small below channel name
-miscsettings.infobar_progressbar_3 narrow between EPG-Events
 menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
@@ -1138,6 +1133,11 @@ miscsettings.infobar_disp_5 Logo+signal
 miscsettings.infobar_disp_6 Logo+channel number+signal
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo dir
+miscsettings.infobar_progressbar progressbar options
+miscsettings.infobar_progressbar_0 standard
+miscsettings.infobar_progressbar_1 below channel name
+miscsettings.infobar_progressbar_2 small below channel name
+miscsettings.infobar_progressbar_3 narrow between EPG-Events
 miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_dd_available show DD availability
