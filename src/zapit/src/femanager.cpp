@@ -86,6 +86,7 @@ bool CFEManager::Init()
 	CFrontend * fe;
 	unsigned short fekey;
 
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
 			fe = new CFrontend(j, i);
@@ -488,7 +489,7 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
 	CFrontend * free_frontend = NULL;
-	CFrontend * same_tid_fe = NULL;
+	//CFrontend * same_tid_fe = NULL;
 
 	if (livefe && livefe->tuned && livefe->sameTsidOnid(channel->getTransponderId()))
 		return livefe;
@@ -533,7 +534,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 					}
 					if (fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
 						FEDEBUG("fe %d on the same TP", fe->fenumber);
-						return same_tid_fe;
+						return fe;
 					}
 					if (!loop_busy && fe->getMode() != CFrontend::FE_MODE_LINK_TWIN) {
 						if (have_loop && !loopCanTune(fe, channel)) {
@@ -559,15 +560,14 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 			if(mfe->Locked()) {
 				if(mfe->tuned && mfe->sameTsidOnid(channel->getTransponderId())) {
 					FEDEBUG("fe %d on the same TP", mfe->fenumber);
-					return same_tid_fe;
+					return mfe;
 				}
 			} else if(!free_frontend)
 				free_frontend = mfe;
 		}
 	}
-	CFrontend * ret = same_tid_fe ? same_tid_fe : free_frontend;
-	FEDEBUG("Selected fe: %d", ret ? ret->fenumber : -1);
-	return ret;
+	FEDEBUG("Selected fe: %d", free_frontend ? free_frontend->fenumber : -1);
+	return free_frontend;
 }
 
 int CFEManager::getDemux(transponder_id_t id)
