@@ -512,6 +512,7 @@ void CChannelList::calcSize()
 	listmaxshow = (height - theight - footerHeight -0)/fheight;
 	height = theight + footerHeight + listmaxshow * fheight;
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
+	y += (frameBuffer->getScreenHeight() - height - info_height) / 2;
 
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
