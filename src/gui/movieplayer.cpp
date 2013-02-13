@@ -84,13 +84,11 @@ CMoviePlayerGui::CMoviePlayerGui()
 
 CMoviePlayerGui::~CMoviePlayerGui()
 {
-#if 0
 	playback->Close();
-	delete playback;
-#endif
 	delete moviebrowser;
 	delete filebrowser;
 	delete bookmarkmanager;
+	delete playback;
 	instance_mp = NULL;
 }
 
@@ -100,9 +98,7 @@ void CMoviePlayerGui::Init(void)
 
 	frameBuffer = CFrameBuffer::getInstance();
 
-#if 0
 	playback = new cPlayback(3);
-#endif
 	moviebrowser = new CMovieBrowser();
 	bookmarkmanager = new CBookmarkManager();
 
@@ -410,7 +406,6 @@ void CMoviePlayerGui::PlayFile(void)
 {
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
-	bool post_msg = false;
 	menu_ret = menu_return::RETURN_REPAINT;
 
 	int position = 0, duration = 0;
@@ -425,14 +420,7 @@ void CMoviePlayerGui::PlayFile(void)
 	printf("Startplay at %d seconds\n", startposition/1000);
 	handleMovieBrowser(CRCInput::RC_nokey, position);
 
-	int dnum = CFEManager::getInstance()->getDemux(0);
-	printf("CMoviePlayerGui::PlayFile: playback demux: %d\n", dnum);
-	if (!dnum) {
-		return;
-	}
-	CFEManager::getInstance()->lockDemux(dnum, 0);
 	cutNeutrino();
-	playback = new cPlayback(dnum);
 	playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
@@ -661,14 +649,8 @@ void CMoviePlayerGui::PlayFile(void)
 				sc->EnableVideo(true);
 			sc->Start();
 
-		} else if ( msg == NeutrinoMessages::RECORD_START) {
-			CTimerd::RecordingInfo * info = (CTimerd::RecordingInfo *) data;
-			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(info->channel_id);
-			if (channel && (CFEManager::getInstance()->getDemux(channel->getTransponderId() == 0))) {
-				playstate = CMoviePlayerGui::STOPPED;
-				post_msg = true;
-			}
-		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
+		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||
+				msg == NeutrinoMessages::RECORD_START) {
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		} else if ( msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
@@ -706,10 +688,6 @@ void CMoviePlayerGui::PlayFile(void)
 
 	playback->SetSpeed(1);
 	playback->Close();
-	delete playback;
-	CFEManager::getInstance()->unlockDemux(dnum);
-	if (post_msg)
-		g_RCInput->postMsg(msg, data);
 
 	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
