@@ -85,14 +85,8 @@ bc.menue.remote=Fernbedienung
 bc.menue.lcd_screenshot_desc=LCD Screenshot erstellen
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot nicht installiert in /bin oder /var/bin
-bc.menue.osd_screenshot_desc=OSD Screenshot erstellen
-bc.menue.osd_screenshot=OSD Screenshot
-bc.menue.osd_screenshot_desc_ni=fbshot nicht installiert in /bin oder /var/bin
-bc.menue.tv_screenshot_desc=TV Screenshot erstellen
-bc.menue.tv_screenshot=TV Screenshot
-bc.menue.remote_osd_desc=Fernbedienung und On Screen Display
-bc.menue.remote_osd=Fernbed. & OSD
-bc.menue.remote_osd_desc_ni=dboxshot nicht installiert in /bin oder /var/bin
+bc.menue.screenshot=Screenshot
+bc.menue.screenshot_desc=Screenshot des OSDs und/oder des TV-Bildes erstellen
 
 bc.menue.decrease_volume=Lautstärke verringern
 bc.menue.increase_volume=Lautstärke erhöhen
@@ -126,16 +120,12 @@ bc.msg.message_to_screen=Meldung auf Bildschirm
 bc.msg.popup_to_screen=Popup auf Bildschirm
 bc.msg.send_message=Nachricht senden
 
-======== Boxcontrol - Remote & OSD
-bc.osd.shot=Schnappschuss
-bc.osd.delete_shots=Schnappschuss löschen
-bc.osd.zoom_shot=Schnappschuss zoomen
-bc.osd.shap_wait_text=Schnappschuss wird erstellt
-
-======== Boxcontrol - TV-Screenshot
-bc.tv.shot=Schnappschuss
-bc.tv.delete_shot=Schnappschuss löschen
-bc.tv.shap_wait_text=Schnappschuss wird erstellt
+======== Boxcontrol - Screenshot
+bc.screenshot.create=Schnappschuss
+bc.screenshot.delete=Schnappschuss löschen
+bc.screenshot.zoom=Schnappschuss zoomen
+bc.screenshot.wait_text=Schnappschuss wird erstellt
+bc.screenshot.checkenable=OSD und/oder TV muss aktiviert sein!
 
 ========= Boxcontrol - Others
 bc.channels=Sender

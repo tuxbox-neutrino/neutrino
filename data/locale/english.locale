@@ -523,12 +523,13 @@ fontmenu.sizes Font sizes
 fontsize.channel_num_zap direct selection
 fontsize.channellist Channellist
 fontsize.channellist_descr Description
+fontsize.channellist_event Event list
 fontsize.channellist_number Number
 fontsize.epg_date EPG Date
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Title
-fontsize.eventlist_datetime Date / Dime
+fontsize.eventlist_datetime Date / Time
 fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title
@@ -802,6 +803,7 @@ menu.hint_infobar_fonts Change infobar font sizes
 menu.hint_infobar_logo Logo / signal options
 menu.hint_infobar_logo_dir Select directory to search for channels logo
 menu.hint_infobar_on_epg Show infobar on current EPG event change
+menu.hint_infobar_progressbar Selects the options of Progressbar in the Infobar
 menu.hint_infobar_radiotext Show radiotext window
 menu.hint_infobar_res Show channel resolution icons
 menu.hint_infobar_sat Show current satellite or cable provider
@@ -1131,6 +1133,11 @@ miscsettings.infobar_disp_5 Logo+signal
 miscsettings.infobar_disp_6 Logo+channel number+signal
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo dir
+miscsettings.infobar_progressbar progressbar options
+miscsettings.infobar_progressbar_0 standard
+miscsettings.infobar_progressbar_1 below channel name
+miscsettings.infobar_progressbar_2 small below channel name
+miscsettings.infobar_progressbar_3 narrow between EPG-Events
 miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_dd_available show DD availability
