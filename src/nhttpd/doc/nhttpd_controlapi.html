@@ -1829,11 +1829,17 @@ Die Pluginliste wird neu geladen.
 <div class="title1"><a name="screenshot"></a>42. Screenshot erstellen</div>
 <div class="URL">Handler: http://dbox/control/screenshot</div>
 <br>
-<b>Parameter:</b> keine<br>
-<b>Rükgabe</b>: ok<br>
+<b>Parameter:</b> name=&lt;dateiname&gt;&amp;osd=1|0&amp;video=1|0<br><br>
+<b>Rückgabe</b>: ok<br>
 <br>
-Screenshot mit TV Bild und OSD wird erstellt und unter /tmp/screenshot.png abgelegt.
+Screenshot mit TV Bild und OSD wird erstellt und unter /tmp/&lt;dateiname&gt;.png abgelegt.
 <br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/screenshot?osd=0&amp;video=1<br>
+ok<br>
+&nbsp;</div>
 &nbsp;&nbsp;</p>
 
 

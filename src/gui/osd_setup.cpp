@@ -81,11 +81,12 @@ COsdSetup::~COsdSetup()
 }
 
 //font settings
-const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[4] =
+const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[5] =
 {
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST,
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR,
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER,
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT,
 	SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP
 };
 
@@ -131,7 +132,7 @@ const SNeutrinoSettings::FONT_TYPES other_font_sizes[5] =
 font_sizes_groups font_sizes_groups[6] =
 {
 	{LOCALE_FONTMENU_MENU       , 5, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
-	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
+	{LOCALE_FONTMENU_CHANNELLIST, 5, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
 	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
@@ -160,6 +161,7 @@ font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_CHANNELLIST        ,  20, FONT_STYLE_BOLD   , 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
+	{LOCALE_FONTSIZE_CHANNELLIST_EVENT  ,  17, FONT_STYLE_REGULAR, 2},
 	{LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  50, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
@@ -725,6 +727,14 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
    { 5 , LOCALE_MISCSETTINGS_INFOBAR_DISP_5 },
    { 6 , LOCALE_MISCSETTINGS_INFOBAR_DISP_6 }
 };
+#define LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT 4
+const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT]=
+{
+   { 0 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_0 },
+   { 1 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_1 },
+   { 2 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_2 },
+   { 3 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_3 }
+};
 
 //infobar
 void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
@@ -751,6 +761,11 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	// satellite
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_SAT);
+	menu_infobar->addItem(mc);
+
+	// infobar progress
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR, &g_settings.infobar_progressbar, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR);
 	menu_infobar->addItem(mc);
 
 	// flash/hdd progress

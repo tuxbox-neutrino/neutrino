@@ -67,6 +67,8 @@ private:
 	int			fheight; // Fonthoehe Channellist-Inhalt
 	int			theight; // Fonthoehe Channellist-Titel
 	int			footerHeight;
+	int			eventFont;
+	int			ffheight;
 
 	std::string             name;
 	ZapitChannelList	chanlist;

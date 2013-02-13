@@ -1545,8 +1545,19 @@ bool CEventsThread::addEvents()
 
 	for (SIevents::const_iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
 		if (!(e->times.empty())) {
+#if 0
 			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
+					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) &&
+					( e->times.begin()->dauer < 60 ) ) {
+				char x_startTime[10];
+				struct tm *x_tmStartTime = localtime(&e->times.begin()->startzeit);
+				strftime(x_startTime, sizeof(x_startTime)-1, "%H:%M", x_tmStartTime );
+				printf("####[%s - #%d] - startzeit: %s, dauer: %d, channel_id: 0x%llX\n", __FUNCTION__, __LINE__, x_startTime, e->times.begin()->dauer, e->get_channel_id());
+			}
+#endif
+			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
+					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) &&
+					( e->times.begin()->dauer > 1 ) )
 			{
 				addEvent(*e, wait_for_time ? zeit: 0, e->table_id == 0x4e);
 				event_count++;
