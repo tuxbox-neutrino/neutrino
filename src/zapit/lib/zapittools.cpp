@@ -128,7 +128,7 @@ namespace ZapitTools {
 	
 	void replace_char(char * p_act)
 	{
-		const char repchars[]="/ \"%&-\t`'~<>!,:;?^°$\\=*#@|";
+		const char repchars[]="/ \"%&-\t`'~<>!,:;?^$\\=*#@|";
 		do {
 			p_act +=  strcspn(p_act, repchars );
 			if (*p_act) {
