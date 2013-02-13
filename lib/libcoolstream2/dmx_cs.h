@@ -23,7 +23,7 @@
 #endif
 #define DMX_FILTER_SIZE			MAX_FILTER_LENGTH
 
-#define MAX_DMX_UNITS			4
+#define MAX_DMX_UNITS			5
 
 typedef enum {
 	DMX_VIDEO_CHANNEL  = 1,
