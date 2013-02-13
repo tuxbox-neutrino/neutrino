@@ -37,7 +37,8 @@
 CCam::CCam()
 {
 	camask = 0;
-	demuxes[0] = demuxes[1] = demuxes[2] =  demuxes[3] = 0;
+	for(int i = 0; i < MAX_DMX_UNITS; i++)
+		demuxes[i] = 0;
 	source_demux = -1;
 	calen = 0;
 }
@@ -147,11 +148,11 @@ int CCam::makeMask(int demux, bool add)
 	else if(demuxes[demux] > 0)
 		demuxes[demux]--;
 
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < MAX_DMX_UNITS; i++) {
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}
-	DBG("demuxes %d:%d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], demuxes[3], camask, mask);
+	//DBG("demuxes %d:%d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], demuxes[3], camask, mask);
 	return mask;
 }
 

@@ -28,6 +28,7 @@
 #include <OpenThreads/Mutex>
 #include <zapit/channel.h>
 #include <dvbsi++/ca_program_map_section.h>
+#include <dmx_cs.h>
 
 #define DEMUX_DECODE_0 1
 #define DEMUX_DECODE_1 2
@@ -47,7 +48,7 @@ class CCam : public CBasicClient
 	private:
 		virtual unsigned char getVersion(void) const;
 		virtual const char *getSocketName(void) const;
-		int camask, demuxes[4];
+		int camask, demuxes[MAX_DMX_UNITS];
 		int source_demux;
 		uint8_t cabuf[2048];
 		int calen;
