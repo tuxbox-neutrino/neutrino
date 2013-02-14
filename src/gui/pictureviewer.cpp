@@ -235,7 +235,7 @@ int CPictureViewerGui::show()
 	bool update=true;
 
 	if (audioplayer)
-		m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+		m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 
 	while (loop)
 	{
@@ -563,17 +563,17 @@ int CPictureViewerGui::show()
 		// control keys for audioplayer
 		else if (audioplayer && msg==CRCInput::RC_pause)
 		{
-			m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 			m_audioPlayer->pause();
 		}
 		else if (audioplayer && msg==CRCInput::RC_stop)
 		{
-			m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 			m_audioPlayer->stop();
 		}
 		else if (audioplayer && msg==CRCInput::RC_play)
 		{
-			m_currentTitle = m_audioPlayer->getAdioPayerM_currend();
+			m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 			if (m_currentTitle > -1)
 				m_audioPlayer->play((unsigned int)m_currentTitle);
 		}
