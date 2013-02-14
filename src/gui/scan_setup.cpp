@@ -698,7 +698,7 @@ int CScanSetup::showFrontendSetup(int number)
 
 		if (fecount > 1) {
 			/* link to master select */
-			linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, !allow_moptions, this, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+			linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, CFrontend::linked(femode), this, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
 			linkfe->setHint("", LOCALE_MENU_HINT_SCAN_FELINK);
 			setupMenu->addItem(linkfe);
 		}
