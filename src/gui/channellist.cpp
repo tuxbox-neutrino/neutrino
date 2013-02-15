@@ -96,7 +96,7 @@ extern cVideo * videoDecoder;
 
 #define ConnectLineBox_Width	16
 
-CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
+CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist, bool )
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	name = pName;
@@ -108,6 +108,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	this->historyMode = phistoryMode;
 	vlist = _vlist;
 	selected_chid = 0;
+	this->new_mode_active = false;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
@@ -540,7 +541,7 @@ bool CChannelList::updateSelection(int newpos)
 			showChannelLogo();
 		}
 
-		if((g_settings.channellist_new_zap_mode == 2 /* active */) && SameTP()) {
+		if(this->new_mode_active && SameTP()) {
 			actzap = true;
 			zapTo(selected);
 		}
@@ -563,6 +564,8 @@ int CChannelList::show()
 	if (chanlist.empty()) {
 		return res;
 	}
+
+	this->new_mode_active = 0;
 
 	calcSize();
 	displayNext = false;
@@ -776,17 +779,7 @@ int CChannelList::show()
 		}
 		else if (( msg == CRCInput::RC_spkr ) && g_settings.channellist_new_zap_mode ) {
 			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) {
-				switch (g_settings.channellist_new_zap_mode) {
-					case 2: /* active */
-						g_settings.channellist_new_zap_mode = 1; /* allow */
-						break;
-					case 1: /* allow */
-						g_settings.channellist_new_zap_mode = 2; /* active */
-						break;
-					default:
-						break;
-
-				}
+				this->new_mode_active = (this->new_mode_active ? 0 : 1);
 				paintHead();
 				showChannelLogo();
 			}
@@ -909,6 +902,7 @@ int CChannelList::show()
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
+	this->new_mode_active = 0;
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
@@ -1159,7 +1153,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 
 	zapToChannel(chan);
 	tuned = pos;
-	if(g_settings.channellist_new_zap_mode == 2 /* active */)
+	if(this->new_mode_active)
 		selected_in_new_mode = pos;
 	else
 		selected = pos;
@@ -1195,7 +1189,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 		g_RemoteControl->zapTo_ChannelID(channel->getChannelID(), channel->getName(), !channel->bAlwaysLocked);
 		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(channel->getChannelID());
 	}
-	if(g_settings.channellist_new_zap_mode != 2 /* not active */) {
+	if(!this->new_mode_active) {
 		/* remove recordModeActive from infobar */
 		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
@@ -2002,7 +1996,7 @@ void CChannelList::paintHead()
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + full_width - iw1 - 10, y, theight); //y+ 5 );
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + full_width - iw1 - iw2 - 14, y, theight);//y + 5); // icon for bouquet list button
 	if (g_settings.channellist_new_zap_mode)
-		frameBuffer->paintIcon((g_settings.channellist_new_zap_mode == 2 /* active */) ?
+		frameBuffer->paintIcon(this->new_mode_active ?
 				       NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE,
 				       x + full_width - iw1 - iw2 - iw3 - 18, y, theight);
 
