@@ -1668,7 +1668,7 @@ void CChannelList::paintItem2DetailsLine (int pos)
 		if (ibox == NULL)
 			ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height);
 		if (ibox){
-			ibox->setDimensionsAll(x, ypos2, width, info_height);
+			ibox->setDimensionsAll(x, ypos2, full_width, info_height);
 			ibox->setFrameThickness(2);
 			ibox->setCornerRadius(RADIUS_LARGE);
 			ibox->setShadowOnOff(CC_SHADOW_OFF);
@@ -1996,7 +1996,7 @@ void CChannelList::paintHead()
 {
 	if (clHead == NULL) {
 		clHead = new CComponentsTitleBar();
-		clHead->setDimensionsAll(x, y, width, theight);
+		clHead->setDimensionsAll(x, y, full_width, theight);
 		
 		clHead->addText(name);
 		
