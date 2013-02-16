@@ -1151,6 +1151,7 @@ void CMenuWidget::paintHint(int pos)
 		details_line->setHMarkTop(imarkh);
 		details_line->setHMarkDown(markh);
 		details_line->syncSysColors();
+	}
 #if 0
 	details_line->paint(savescreen);
 #endif
@@ -1166,6 +1167,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->syncSysColors();
 		info_box->setShadowOnOff(CC_SHADOW_ON);
 		info_box->setPicture(item->hintIcon);
+	}
 #if 0	
 	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
 	info_box->paint(savescreen, true);
