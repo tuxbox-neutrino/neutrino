@@ -163,6 +163,7 @@ install_DATA += \
 	mp3-5.jpg \
 	mp3-6.jpg \
 	mp3-7.jpg \
+	multimedia.png \
 	mute.png \
 	mute_small.png \
 	mute_zap_gray.png \
