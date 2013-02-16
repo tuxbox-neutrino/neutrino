@@ -110,6 +110,7 @@ install_DATA += \
 	hint_reboot.png \
 	hint_recording.png \
 	hint_reload.png \
+	hint_restart.png \
 	hint_save.png \
 	hint_scan.png \
 	hint_scripts.png \
