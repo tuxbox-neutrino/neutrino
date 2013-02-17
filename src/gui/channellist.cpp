@@ -2164,7 +2164,7 @@ void CChannelList::paint_events(int index)
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
 				//printf("%s %s\n", startTime, e->description.c_str());
 				startTimeWidth = eventStartTimeWidth;
-				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, COL_MENUCONTENTINACTIVE, 0, true);
+				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, (g_settings.colored_events_channellist == 2 /* next */) ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTINACTIVE, 0, true);
 			}
 			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
 		}
