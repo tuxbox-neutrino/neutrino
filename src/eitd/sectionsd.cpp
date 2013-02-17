@@ -1404,7 +1404,12 @@ void CTimeThread::run()
 				change(0);
 
 			xprintf("%s: getting DVB time (isOpen %d)\n", name.c_str(), isOpen());
-			int rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
+			int rc;
+			time_t start = time_monotonic_ms();
+			/* speed up shutdown by looping around Read() */
+			do {
+				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
+			} while (running && rc == 0 && (time_monotonic_ms() - start) < timeoutInMSeconds);
 			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
 				SIsectionTIME st(static_buf);
