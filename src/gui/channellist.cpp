@@ -107,6 +107,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	zapProtection = NULL;
 	this->historyMode = phistoryMode;
 	vlist = _vlist;
+	new_zap_mode = 0;
 	selected_chid = 0;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
 	previous_channellist_additional = -1;
@@ -499,7 +500,7 @@ void CChannelList::calcSize()
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
-	if(g_settings.channellist_new_zap_mode)
+	if(new_zap_mode)
 	{
 		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &icol_w, &icol_h);
 		theight = std::max(theight, icol_h);
@@ -540,7 +541,7 @@ bool CChannelList::updateSelection(int newpos)
 			showChannelLogo();
 		}
 
-		if((g_settings.channellist_new_zap_mode == 2 /* active */) && SameTP()) {
+		if((new_zap_mode == 2 /* active */) && SameTP()) {
 			actzap = true;
 			zapTo(selected);
 		}
@@ -563,6 +564,8 @@ int CChannelList::show()
 	if (chanlist.empty()) {
 		return res;
 	}
+
+	new_zap_mode = g_settings.channellist_new_zap_mode;
 
 	calcSize();
 	displayNext = false;
@@ -774,14 +777,14 @@ int CChannelList::show()
 				loop=false;
 			}
 		}
-		else if (( msg == CRCInput::RC_spkr ) && g_settings.channellist_new_zap_mode ) {
+		else if (( msg == CRCInput::RC_spkr ) && new_zap_mode ) {
 			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) {
-				switch (g_settings.channellist_new_zap_mode) {
+				switch (new_zap_mode) {
 					case 2: /* active */
-						g_settings.channellist_new_zap_mode = 1; /* allow */
+						new_zap_mode = 1; /* allow */
 						break;
 					case 1: /* allow */
-						g_settings.channellist_new_zap_mode = 2; /* active */
+						new_zap_mode = 2; /* active */
 						break;
 					default:
 						break;
@@ -901,6 +904,10 @@ int CChannelList::show()
 			}
 		}
 	}
+	if (g_settings.channellist_new_zap_mode != new_zap_mode)
+		g_settings.channellist_new_zap_mode = new_zap_mode;
+	new_zap_mode = 0;
+
 	hide();
 
 	fader.Stop();
@@ -1159,7 +1166,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 
 	zapToChannel(chan);
 	tuned = pos;
-	if(g_settings.channellist_new_zap_mode == 2 /* active */)
+	if(new_zap_mode == 2 /* active */)
 		selected_in_new_mode = pos;
 	else
 		selected = pos;
@@ -1195,7 +1202,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 		g_RemoteControl->zapTo_ChannelID(channel->getChannelID(), channel->getName(), !channel->bAlwaysLocked);
 		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(channel->getChannelID());
 	}
-	if(g_settings.channellist_new_zap_mode != 2 /* not active */) {
+	if(new_zap_mode != 2 /* not active */) {
 		/* remove recordModeActive from infobar */
 		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
@@ -1993,7 +2000,7 @@ void CChannelList::paintHead()
 	int iw1, iw2, iw3, ih = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw1, &ih);
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw2, &ih);
-	if (g_settings.channellist_new_zap_mode)
+	if (new_zap_mode)
 		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &iw3, &ih);
 
 	// head
@@ -2001,20 +2008,20 @@ void CChannelList::paintHead()
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + full_width - iw1 - 10, y, theight); //y+ 5 );
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + full_width - iw1 - iw2 - 14, y, theight);//y + 5); // icon for bouquet list button
-	if (g_settings.channellist_new_zap_mode)
-		frameBuffer->paintIcon((g_settings.channellist_new_zap_mode == 2 /* active */) ?
+	if (new_zap_mode)
+		frameBuffer->paintIcon((new_zap_mode == 2 /* active */) ?
 				       NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE,
 				       x + full_width - iw1 - iw2 - iw3 - 18, y, theight);
 
 	if (gotTime) {
-		int iw3x = (g_settings.channellist_new_zap_mode) ? iw3 : -4;
+		int iw3x = (new_zap_mode) ? iw3 : -4;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + full_width - iw1 - iw2 - iw3x - 28 -timestr_len,
 				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
 		timestr_len += 4;
 	}
 
 	timestr_len += iw1 + iw2 + 12;
-	if (g_settings.channellist_new_zap_mode)
+	if (new_zap_mode)
 		timestr_len += iw3 + 10;
 	logo_off = timestr_len + 10;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, full_width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8

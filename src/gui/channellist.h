@@ -64,6 +64,7 @@ private:
 	unsigned int		liststart;
 	unsigned int		listmaxshow;
 	unsigned int		numwidth;
+	int			new_zap_mode;
 	int			fheight; // Fonthoehe Channellist-Inhalt
 	int			theight; // Fonthoehe Channellist-Titel
 	int			footerHeight;
