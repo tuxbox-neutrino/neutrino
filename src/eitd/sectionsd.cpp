@@ -1575,6 +1575,23 @@ bool CEventsThread::addEvents()
 	return true;
 }
 
+bool CCNThread::shouldSleep()
+{
+	if (!scanning || channel_is_blacklisted)
+		return true;
+	if (!sendToSleepNow)
+		return false;
+	if (eit_version != 0xff)
+		return true;
+
+	if (++eit_retry > 1) {
+		xprintf("%s::%s eit_retry > 1 (%d) -> going to sleep\n", name.c_str(), __func__, eit_retry);
+		return true;
+	}
+	sendToSleepNow = false;
+	return false;
+}
+
 /* default check if thread should go to sleep */
 bool CEventsThread::shouldSleep()
 {
@@ -1648,6 +1665,7 @@ CCNThread::CCNThread()
 
 	updating = false;
 	eitDmx = new cDemux(0);
+	eit_retry = 0;
 }
 
 /* CN thread hooks */
@@ -1713,6 +1731,7 @@ void CCNThread::beforeSleep()
 		/* send a "no epg" event anyway before going to sleep */
 		sendCNEvent();
 	}
+	eit_retry = 0;
 }
 
 void CCNThread::processSection()
