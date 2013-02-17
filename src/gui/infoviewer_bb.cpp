@@ -631,12 +631,11 @@ void CInfoViewerBB::showSysfsHdd()
 void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
-
-	infoViewerBB->hddpercent = 0;
 	long t, u;
 	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
 		infoViewerBB->hddpercent = (u * 100ULL) / t;
-
+	else
+		infoViewerBB->hddpercent = 0;
 	infoViewerBB->hddperTflag=false;
 	pthread_exit(NULL);
 }
