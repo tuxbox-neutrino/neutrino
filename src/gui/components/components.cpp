@@ -92,13 +92,18 @@ void CComponents::paintFbItems(bool do_save_bg)
 	if (firstPaint && do_save_bg)	{
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
-				//printf("\n#####[%s - %d] firstPaint: %d, fbdata_type: %d\n \n", __FUNCTION__, __LINE__, firstPaint, fbdata[i].fbdata_type);
+#ifdef DEBUG_CC
+	printf("[CComponents]\n#####[%s - %d] firstPaint: %d, fbdata_type: %d\n \n", __FUNCTION__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
+#endif
 				saved_screen.x = v_fbdata[i].x;
 				saved_screen.y = v_fbdata[i].y;
 				saved_screen.dx = v_fbdata[i].dx;
 				saved_screen.dy = v_fbdata[i].dy;
 				clearSavedScreen();
 				saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
+#ifdef DEBUG_CC
+	printf("[CComponents]\n#####[%s - %d], fbdata_[%d] \nx = %d\ny = %d\ndx = %d\n dy = %d\n\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+#endif
 
 				firstPaint = false;
 				break;
@@ -210,7 +215,9 @@ void CComponentsItem::paintInit(bool do_save_bg)
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
 		v_fbdata.push_back(fbdata[i]);
-
+#ifdef DEBUG_CC
+	printf("[CComponentsItem] %s: init paint cc_item_type: %d\n", __FUNCTION__, cc_item_type);
+#endif
 	paintFbItems(do_save_bg);
 }
 
@@ -1822,7 +1829,7 @@ void CComponentsHeader::initVarHeader()
 	
 	//CComponentsForm
 	initVarForm();
-	cc_item_type 		= CC_ITEMTYPE_FRM_HERADER;
+	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
 	height 			= cch_font->getHeight();	
 	col_body 		= COL_MENUHEAD_PLUS_0;
 	corner_rad		= RADIUS_LARGE,
