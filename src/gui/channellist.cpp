@@ -2014,7 +2014,7 @@ void CChannelList::paintHead()
 				       x + full_width - iw1 - iw2 - iw3 - 18, y, theight);
 
 	if (gotTime) {
-		int iw3x = (new_zap_mode) ? iw3 : -4;
+		int iw3x = (new_zap_mode) ? iw3 : -10;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + full_width - iw1 - iw2 - iw3x - 28 -timestr_len,
 				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
 		timestr_len += 4;
