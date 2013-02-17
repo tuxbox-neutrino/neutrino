@@ -93,7 +93,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
 #ifdef DEBUG_CC
-	printf("[CComponents]\n#####[%s - %d] firstPaint: %d, fbdata_type: %d\n \n", __FUNCTION__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
+	printf("    [CComponents]\n    [%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n", __FUNCTION__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
 #endif
 				saved_screen.x = v_fbdata[i].x;
 				saved_screen.y = v_fbdata[i].y;
@@ -101,10 +101,6 @@ void CComponents::paintFbItems(bool do_save_bg)
 				saved_screen.dy = v_fbdata[i].dy;
 				clearSavedScreen();
 				saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
-#ifdef DEBUG_CC
-	printf("[CComponents]\n#####[%s - %d], fbdata_[%d] \nx = %d\ny = %d\ndx = %d\n dy = %d\n\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
-#endif
-
 				firstPaint = false;
 				break;
 			}
@@ -113,7 +109,9 @@ void CComponents::paintFbItems(bool do_save_bg)
 
 	for(size_t i=0; i< v_fbdata.size() ;i++){
 		int fbtype = v_fbdata[i].fbdata_type;
-
+#ifdef DEBUG_CC
+	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+#endif
 		if (firstPaint){
 
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
@@ -190,6 +188,7 @@ void CComponentsItem::initVarItem()
 {
 	//CComponents
 	initVarBasic();
+	cc_item_index = CC_NO_INDEX;
 }
 
 // Paint container background in cc-items with shadow, background and frame.
@@ -216,7 +215,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
 		v_fbdata.push_back(fbdata[i]);
 #ifdef DEBUG_CC
-	printf("[CComponentsItem] %s: init paint cc_item_type: %d\n", __FUNCTION__, cc_item_type);
+	printf("[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __FUNCTION__, cc_item_type,  cc_item_index, height, width);
 #endif
 	paintFbItems(do_save_bg);
 }

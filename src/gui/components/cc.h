@@ -110,6 +110,7 @@ typedef struct comp_element_data_t
 #define CC_SAVE_SCREEN_YES 	true
 #define CC_SAVE_SCREEN_NO 	false
 
+#define CC_NO_INDEX	 	-1
 
 class CComponents
 {
@@ -173,6 +174,7 @@ class CComponentsItem : public CComponents
 {
 	protected:
 		int cc_item_type;
+		int cc_item_index;
 		
 		void hideCCItem(bool no_restore = false);
 		void paintInit(bool do_save_bg);
@@ -335,11 +337,13 @@ class CComponentsPIP : public CComponentsItem
 	private:
 		int screen_w, screen_h;
 	public:
-		CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow = CC_SHADOW_OFF);
+		CComponentsPIP(	const int x_pos, const int y_pos, const int percent = 30, bool has_shadow = CC_SHADOW_OFF);
 		~CComponentsPIP();
 		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
+		void setScreenWidth(int screen_width){screen_w = screen_width;};
+		void setScreenHeight(int screen_heigth){screen_h = screen_heigth;};
 };
 
 
