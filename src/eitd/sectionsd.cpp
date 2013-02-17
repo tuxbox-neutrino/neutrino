@@ -1294,7 +1294,8 @@ void CTimeThread::sendTimeEvent(bool ntp, time_t tim)
 	eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &actTime, sizeof(actTime) );
 #endif
 	if(ntp || tim) {}
-	eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &timediff, sizeof(timediff));
+	if (timediff)
+		eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &timediff, sizeof(timediff));
 	setTimeSet();
 }
 
@@ -1327,9 +1328,23 @@ void CTimeThread::setSystemTime(time_t tim)
 	xprintf("%s: timediff %" PRId64 ", current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
 			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
 			tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
-
+#if 0
 	/* if new time less than current for less than 1 second, ignore */
 	if(timediff < 0 && timediff > (int64_t) -1000000) {
+		timediff = 0;
+		return;
+	}
+#endif
+	if (timediff == 0) /* very unlikely... :-) */
+		return;
+	if (abs(timediff) < 120000000LL) {
+		struct timeval oldd;
+		tv.tv_sec = timediff / 1000000LL;
+		tv.tv_usec = timediff % 1000000LL;
+		if (adjtime(&tv, &oldd))
+			perror("adjtime");
+		xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
+			(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
 		timediff = 0;
 		return;
 	}
