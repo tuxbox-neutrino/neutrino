@@ -55,7 +55,7 @@
 //#define ENABLE_SDT //FIXME
 
 //#define DEBUG_SDT_THREAD
-#define DEBUG_TIME_THREAD
+//#define DEBUG_TIME_THREAD
 
 #define DEBUG_SECTION_THREADS
 #define DEBUG_CN_THREAD
@@ -899,7 +899,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 
 	t_channel_id uniqueServiceKey = (((sectionsd::commandSetServiceChanged *)data)->channel_id);
 
-	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
 
 	static t_channel_id time_trigger_last = 0;
 
@@ -942,7 +942,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	else
 		dprintf("[sectionsd] commandserviceChanged: no change...\n");
 
-	xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
 }
 
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
@@ -1461,7 +1461,7 @@ int CSectionThread::Sleep()
 		TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
 		abs_wait.tv_sec += sleep_time;
 	}
-	xprintf("%s: going to sleep for %d seconds...\n", name.c_str(), sleep_time);
+	dprintf("%s: going to sleep for %d seconds...\n", name.c_str(), sleep_time);
 	pthread_mutex_lock(&start_stop_mutex);
 
 	beforeWait();
@@ -1509,7 +1509,7 @@ void CSectionThread::run()
 				real_pause();
 				rs = Sleep();
 #ifdef DEBUG_SECTION_THREADS
-				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n\n",
+				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n",
 						name.c_str(), running, scanning, channel_is_blacklisted, rs);
 #endif
 			} while (checkSleep());
@@ -1754,7 +1754,7 @@ void CCNThread::processSection()
 		unlockMessaging();
 
 #ifdef DEBUG_CN_THREAD
-		xprintf("%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n\n",
+		xprintf("%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n",
 				name.c_str(), timeoutsDMX, messaging_have_CN, messaging_got_CN);
 #endif
 		dprintf("[cnThread] got current_next (0x%x) - sending event!\n", messaging_have_CN);
