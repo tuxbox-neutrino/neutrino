@@ -93,7 +93,6 @@ private:
 	bool displayList;
 
 	int info_height;
-	bool new_mode_active;
 	int ChannelList_Rec;
 
 	void paintDetails(int index);
@@ -120,7 +119,7 @@ private:
 	void processTextToArray(std::string text, int screening = 0);
 
 public:
-	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
+	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false);
 	~CChannelList();
 
 	void SetChannelList(ZapitChannelList* channels);

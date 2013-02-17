@@ -134,6 +134,13 @@ const CMenuOptionChooser::keyval MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS[MISCSET
 	{ 1, LOCALE_FILESYSTEM_IS_UTF8_OPTION_UTF8      }
 };
 
+#define CHANNELLIST_NEW_ZAP_MODE_OPTION_COUNT 3
+const CMenuOptionChooser::keyval CHANNELLIST_NEW_ZAP_MODE_OPTIONS[CHANNELLIST_NEW_ZAP_MODE_OPTION_COUNT] =
+{
+	{ 0, LOCALE_CHANNELLIST_NEW_ZAP_MODE_OFF	},
+	{ 1, LOCALE_CHANNELLIST_NEW_ZAP_MODE_ALLOW	},
+	{ 2, LOCALE_CHANNELLIST_NEW_ZAP_MODE_ACTIVE	}
+};
 
 #ifdef CPU_FREQ
 #define CPU_FREQ_OPTION_COUNT 13
@@ -392,7 +399,7 @@ void CMiscMenue::showMiscSettingsMenuChanlist(CMenuWidget *ms_chanlist)
 	mc->setHint("", LOCALE_MENU_HINT_ZAP_CYCLE);
 	ms_chanlist->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_NEW_ZAP_MODE,     &g_settings.channellist_new_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_NEW_ZAP_MODE,     &g_settings.channellist_new_zap_mode, CHANNELLIST_NEW_ZAP_MODE_OPTIONS, CHANNELLIST_NEW_ZAP_MODE_OPTION_COUNT, true );
 	mc->setHint("", LOCALE_MENU_HINT_NEW_ZAP_MODE);
 	ms_chanlist->addItem(mc);
 }
