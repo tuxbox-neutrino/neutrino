@@ -347,12 +347,21 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	}
 
 	if (paint) {
+		int last_x = minX;
 		frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, minX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
-		for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
+		for (i = BUTTON_MAX; i > 0;) {
+			--i;
 			if ((bbButtonInfo[i].x <= g_InfoViewer->ChanInfoX) || (bbButtonInfo[i].x >= g_InfoViewer->BoxEndX) || (!bbButtonInfo[i].paint))
 				continue;
-			if ((bbButtonInfo[i].x > 0) && ((bbButtonInfo[i].x + bbButtonInfo[i].w) <= minX)) {
-				
+			if (bbButtonInfo[i].x > 0) {
+				if (bbButtonInfo[i].x + bbButtonInfo[i].w > last_x) /* text too long */
+					bbButtonInfo[i].w = last_x - bbButtonInfo[i].x;
+				last_x = bbButtonInfo[i].x;
+				if (bbButtonInfo[i].w - bbButtonInfo[i].cx <= 0) {
+					printf("[infoviewer_bb:%d cannot paint icon %d (not enough space)\n",
+							__LINE__, i);
+					continue;
+				}
 				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY, 
