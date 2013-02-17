@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2012-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -276,7 +270,7 @@ void CInfoViewerBB::getBBButtonInfo()
 	minX = std::min(bbIconMinX, g_InfoViewer->ChanInfoX + (((g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX) * 75) / 100));
 	int MaxBr = minX - (g_InfoViewer->ChanInfoX + 10);
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
-	int br = 0;
+	int br = 0, count = 0;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		if ((i == CInfoViewerBB::BUTTON_SUBS) && (g_RemoteControl->subChannels.empty())) { // no subchannels
 			bbButtonInfo[i].paint = false;
@@ -284,15 +278,17 @@ void CInfoViewerBB::getBBButtonInfo()
 //			continue;
 		}
 		else
+		{
+			count++;
 			bbButtonInfo[i].paint = true;
-		br += bbButtonInfo[i].w;
-		bbButtonInfo[i].x = bbButtonMaxX;
-		bbButtonMaxX += bbButtonInfo[i].w;
-		bbButtonMaxW = std::max(bbButtonMaxW, bbButtonInfo[i].w);
+			br += bbButtonInfo[i].w;
+			bbButtonInfo[i].x = bbButtonMaxX;
+			bbButtonMaxX += bbButtonInfo[i].w;
+			bbButtonMaxW = std::max(bbButtonMaxW, bbButtonInfo[i].w);
+		}
 	}
-	if (br > MaxBr) { // TODO: Cut to long strings
-		printf("[infoviewer.cpp - %s, line #%d] width ColorButtons (%d) > MaxBr (%d)\n", __FUNCTION__, __LINE__, br, MaxBr);
-	}
+	if (br > MaxBr)
+		printf("[infoviewer_bb:%s#%d] width br (%d) > MaxBr (%d) count %d\n", __func__, __LINE__, br, MaxBr, count);
 #if 0
 	int Btns = 0;
 	// counting buttons
@@ -321,14 +317,25 @@ void CInfoViewerBB::getBBButtonInfo()
 								bbButtonInfo[CInfoViewerBB::BUTTON_AUDIO].w + rest;
 	}
 #endif
-#if 1
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
 	int step = MaxBr / 4;
-	bbButtonInfo[CInfoViewerBB::BUTTON_EPG].x   = bbButtonMaxX;
-	bbButtonInfo[CInfoViewerBB::BUTTON_AUDIO].x = bbButtonMaxX + step;
-	bbButtonInfo[CInfoViewerBB::BUTTON_SUBS].x  = bbButtonMaxX + 2*step;
-	bbButtonInfo[CInfoViewerBB::BUTTON_FEAT].x  = bbButtonMaxX + 3*step;
-#endif
+	if (count > 0) { /* avoid div-by-zero :-) */
+		step = MaxBr / count;
+		count = 0;
+		for (int i = 0; i < BUTTON_MAX; i++) {
+			if (!bbButtonInfo[i].paint)
+				continue;
+			bbButtonInfo[i].x = bbButtonMaxX + step * count;
+			// printf("%s: i = %d count = %d b.x = %d\n", __func__, i, count, bbButtonInfo[i].x);
+			count++;
+		}
+	} else {
+		printf("[infoviewer_bb:%s#%d: count <= 0???\n", __func__, __LINE__);
+		bbButtonInfo[BUTTON_EPG].x   = bbButtonMaxX;
+		bbButtonInfo[BUTTON_AUDIO].x = bbButtonMaxX + step;
+		bbButtonInfo[BUTTON_SUBS].x  = bbButtonMaxX + 2*step;
+		bbButtonInfo[BUTTON_FEAT].x  = bbButtonMaxX + 3*step;
+	}
 }
 
 void CInfoViewerBB::showBBButtons(const int modus)
