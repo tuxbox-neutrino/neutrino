@@ -114,6 +114,13 @@ void CInfoViewerBB::Init()
 		tmp_bbButtonInfoText[i] = "";
 	}
 
+	// get HDD info in a separate thread
+	if (g_settings.infobar_show_sysfs_hdd && !hddperTflag) {
+		hddperTflag=true;
+		pthread_create(&hddperT, NULL, hddperThread, (void*) this);
+		pthread_detach(hddperT);
+	}
+
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
 	setBBOffset();
 
@@ -601,13 +608,6 @@ void CInfoViewerBB::showSysfsHdd()
 		if (get_fs_usage("/", t, u))
 			percent = (u * 100ULL) / t;
 		showBarSys(percent);
-
-		//HDD info in a seperate thread
-		if(!hddperTflag) {
-			hddperTflag=true;
-			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
-			pthread_detach(hddperT);
-		}
 
 		if (check_dir(g_settings.network_nfs_recordingdir) == 0)
 			showBarHdd(hddpercent);
