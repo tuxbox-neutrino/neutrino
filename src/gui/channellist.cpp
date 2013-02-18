@@ -2032,7 +2032,12 @@ void CChannelList::paint()
 	if (g_settings.channellist_additional == 2) // with miniTV
 	{
 		// 5px offset - same value as in list below
-		paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
+		if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
+			paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
+		}
+		else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
+			g_PicViewer->DisplayImage(DATADIR "/neutrino/icons/radiomode.jpg", x+width+5, y+theight+5, pig_width-10, pig_height-10, frameBuffer->TM_NONE);
+		}
 	}
 
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr().c_str());
