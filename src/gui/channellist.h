@@ -35,6 +35,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
+#include <gui/widget/components.h>
 #include <system/lastchannel.h>
 
 #include <sectionsdclient/sectionsdclient.h>
@@ -74,7 +75,8 @@ private:
 	std::string             name;
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
-
+	CComponentsDetailLine *dline;
+	
 	int			full_width;
 	int			width;
 	int			height;
@@ -95,10 +97,6 @@ private:
 
 	int info_height;
 	int ChannelList_Rec;
-	CComponentsDetailLine *dline;
-	CComponentsInfoBox *ibox;
-	CComponentsTitleBar* clHead;
-	size_t indexLogo;
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
@@ -112,7 +110,6 @@ private:
 	void showChannelLogo();
 	void calcSize();
 	std::string   MaxChanNr();
-	std::string   getInfoTextTransponder(int index);
 	void paint_pig(int x, int y, int w, int h);
     void paint_events(int index);
     CChannelEventList	evtlist;
