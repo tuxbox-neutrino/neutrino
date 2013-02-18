@@ -573,11 +573,6 @@ int CChannelList::show()
 	COSDFader fader(g_settings.menu_Content_alpha);
 	fader.StartFadeIn();
 
-	if (g_settings.channellist_additional)
-	{
-		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUCONTENT_PLUS_0);
-	}
-
 	paintHead();
 	paint();
 
@@ -2029,23 +2024,17 @@ void CChannelList::paintHead()
 
 void CChannelList::paint()
 {
-	if (g_settings.channellist_additional == 2) // with miniTV
-	{
-		// 5px offset - same value as in list below
-		if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
-			paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
-		}
-		else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
-			g_PicViewer->DisplayImage(DATADIR "/neutrino/icons/radiomode.jpg", x+width+5, y+theight+5, pig_width-10, pig_height-10, frameBuffer->TM_NONE);
-		}
-	}
-
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr().c_str());
 
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
-	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0, 0, CORNER_BOTTOM);
+	// paint background for main box
+	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0);
+	if (g_settings.channellist_additional)
+		// paint background for right box
+		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUCONTENT_PLUS_0);
+
 	for(unsigned int count = 0; count < listmaxshow; count++) {
 		paintItem(count);
 	}
@@ -2058,6 +2047,19 @@ void CChannelList::paint()
 
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
 	showChannelLogo();
+
+	if (g_settings.channellist_additional == 2) // with miniTV
+	{
+		// paint box for miniTV again - important!
+		frameBuffer->paintBoxRel(x+width, y+theight , pig_width, pig_height, COL_MENUCONTENT_PLUS_0);
+		// 5px offset - same value as in list below
+		if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
+			paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
+		}
+		else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
+			g_PicViewer->DisplayImage(DATADIR "/neutrino/icons/radiomode.jpg", x+width+5, y+theight+5, pig_width-10, pig_height-10, frameBuffer->TM_NONE);
+		}
+	}
 }
 
 bool CChannelList::isEmpty() const
@@ -2127,7 +2129,7 @@ std::string  CChannelList::MaxChanNr()
 void CChannelList::paint_pig (int _x, int _y, int w, int h)
 {
 	frameBuffer->paintBackgroundBoxRel (_x, _y, w, h);
-	printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", _x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	//printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", _x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 	videoDecoder->Pig(_x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
