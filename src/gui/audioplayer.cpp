@@ -420,8 +420,6 @@ int CAudioPlayerGui::show()
 						videoDecoder->ShowPicture(fname);
 					} else if (pic_index) {
 						pic_index = 0;
-						videoDecoder->StopPicture();
-						videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 					}
 				} else
 					pic_index = 0;
@@ -2330,11 +2328,8 @@ void CAudioPlayerGui::screensaver(bool on)
 	{
 		g_RCInput->killTimer(stimer);
 		m_screensaver = false;
-#if 0
-		m_frameBuffer->loadPal("radiomode.pal", 18, COL_MAXFREE);
-		m_frameBuffer->useBackground(m_frameBuffer->loadBackground(NEUTRINO_ICON_RADIOMODE));// set useBackground true or false
-		m_frameBuffer->paintBackground();
-#endif
+		videoDecoder->StopPicture();
+		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 		paint();
 		m_idletime = time(NULL);
 	}
