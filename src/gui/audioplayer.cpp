@@ -360,6 +360,9 @@ int CAudioPlayerGui::show()
 
 	int ret = menu_return::RETURN_REPAINT;
 
+	// clear whole screen
+	m_frameBuffer->paintBackground();
+
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
 
@@ -898,9 +901,6 @@ int CAudioPlayerGui::show()
 				ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
-			// update mute icon
-			//paintHead();
-			//paintLCD();
 		}
 	}
 	hide();
@@ -1668,20 +1668,6 @@ void CAudioPlayerGui::paintHead()
 		xpos -= (iw + 10);
 	}
 		//m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, m_x + m_width - 30, ypos);
-#endif
-#if 1
-	if ( CNeutrinoApp::getInstance()->isMuted() )
-	{
-#if 0
-		int xpos = m_x + m_width - 75;
-		ypos = m_y + m_title_height;
-		if (m_theight > 32)
-			ypos = (m_theight - 32) / 2 + m_y + m_title_height;
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos, ypos);
-#endif
-		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &iw, &ih);
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos - iw, ypos, m_theight);
-	}
 #endif
 }
 
