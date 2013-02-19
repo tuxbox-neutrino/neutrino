@@ -55,7 +55,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/progressbar.h>
-#include <gui/widget/components.h>
+#include <gui/components/cc.h>
 
 #include <system/settings.h>
 #include <gui/customcolor.h>
