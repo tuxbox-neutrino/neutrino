@@ -1588,6 +1588,7 @@ void CAudioPlayerGui::paintItem(int pos)
 		c_rad_small = 0;
 	}
 
+	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, COL_MENUCONTENT_PLUS_0);
 	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, bgcolor, c_rad_small);
 
 	if ((pos + m_liststart) < m_playlist.size())
