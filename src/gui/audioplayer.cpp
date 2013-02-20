@@ -275,7 +275,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 		m_current = 0;
 
 	m_selected = 0;
-	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - ConnectLineBox_Width - 5;
+	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - 2*ConnectLineBox_Width - 5;
 
 	m_height = (g_settings.screen_EndY - g_settings.screen_StartY - 5);
 	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
@@ -293,7 +293,9 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_listmaxshow = (m_height - m_info_height - m_title_height - m_theight - 2*m_buttonHeight) / (m_fheight);
 	m_height = m_theight + m_info_height + m_title_height + 2*m_buttonHeight + m_listmaxshow * m_fheight; // recalc height
 
-	m_x = getScreenStartX( m_width + ConnectLineBox_Width ) + ConnectLineBox_Width;
+	m_x = getScreenStartX( m_width );
+	if (m_x < ConnectLineBox_Width)
+		m_x = ConnectLineBox_Width;
 	m_y = getScreenStartY( m_height );
 
 	m_idletime=time(NULL);
