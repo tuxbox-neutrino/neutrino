@@ -1721,7 +1721,9 @@ const struct button_label AudioPlayerButtons[][4] =
 
 void CAudioPlayerGui::paintFoot()
 {
-	//	printf("paintFoot{\n");
+	if (m_screensaver)
+		return;
+
 const struct button_label ScondLineButtons[3] =
 {
 	{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_AUDIOPLAYER_PLAY        },
@@ -1786,6 +1788,9 @@ const struct button_label ScondLineButtons[3] =
 //------------------------------------------------------------------------
 void CAudioPlayerGui::paintInfo()
 {
+	if (m_screensaver)
+		return;
+
 	int c_rad_mid = RADIUS_MID;
 	if (m_state == CAudioPlayerGui::STOP && m_show_playlist)
 		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
@@ -1882,8 +1887,8 @@ void CAudioPlayerGui::paint()
 		m_frameBuffer->paintBoxRel(m_x + m_width - 13, ypos + 2 + sbs*(sb-4)/sbc , 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
 	}
 
-	paintFoot();
 	paintInfo();
+	paintFoot();
 	m_visible = true;
 
 }
@@ -2099,11 +2104,9 @@ void CAudioPlayerGui::play(unsigned int pos)
 		//LCD
 		paintLCD();
 		// Display
-		if (!m_screensaver)
-			paintInfo();
+		paintInfo();
 		m_key_level = 1;
-		if (!m_screensaver)
-			paintFoot();
+		paintFoot();
 	}
 }
 //------------------------------------------------------------------------
