@@ -1365,8 +1365,8 @@ void CTimeThread::run()
 				if(!scanning)
 					sleep_time = 0;
 				real_pause();
-				int rs = Sleep();
 #ifdef DEBUG_TIME_THREAD
+				int rs = Sleep();
 				xprintf("%s: wakeup, running %d scanning %d channel %llx reason %d\n",
 						name.c_str(), running, scanning, current_service, rs);
 #endif
