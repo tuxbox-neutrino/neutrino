@@ -1739,49 +1739,49 @@ const struct button_label ScondLineButtons[3] =
 		top = m_y + (m_height - 2 * m_buttonHeight);
 
  	int ButtonWidth = (m_width - 20) / 5;
-	//int ButtonWidth2 = (m_width - 50) / 2;
-	m_frameBuffer->paintBoxRel(m_x, top, m_width, 2 * m_buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, CORNER_BOTTOM);
-	m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_1);
+
+	m_frameBuffer->paintBoxRel(m_x, top, m_width, 2 * m_buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
+	// why? m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_1);
 
 	if (!m_playlist.empty())
-		::paintButtons(m_x, top+m_buttonHeight, m_width, 3, ScondLineButtons, m_buttonHeight, ButtonWidth);
+		::paintButtons(m_x + c_rad_mid, top+m_buttonHeight, m_width - (2*c_rad_mid), 3, ScondLineButtons, m_buttonHeight, ButtonWidth);
 
 	if (m_key_level == 0)
 	{
 		if (m_playlist.empty())
 		{
 			if (m_inetmode)
-				::paintButtons(m_x, top, m_width, 2, AudioPlayerButtons[7], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[7], m_buttonHeight, ButtonWidth);
 			else
-				::paintButtons(m_x, top, m_width, 1, &(AudioPlayerButtons[7][0]), m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 1, &(AudioPlayerButtons[7][0]), m_buttonHeight, ButtonWidth);
 		}
 		else if (m_inetmode)
-			::paintButtons(m_x, top, m_width, 4, AudioPlayerButtons[8], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 4, AudioPlayerButtons[8], m_buttonHeight, ButtonWidth);
 		else
-			::paintButtons(m_x, top, m_width, 4, AudioPlayerButtons[1], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 4, AudioPlayerButtons[1], m_buttonHeight, ButtonWidth);
 	}
 	else if (m_key_level == 1)
 	{
 		if (m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
-			::paintButtons(m_x, top, m_width, 4, AudioPlayerButtons[0], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 4, AudioPlayerButtons[0], m_buttonHeight, ButtonWidth);
 		else
-			::paintButtons( m_x, top, m_width, 2, AudioPlayerButtons[6], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[6], m_buttonHeight, ButtonWidth);
 	}
 	else
 	{ // key_level == 2
 		if (m_state == CAudioPlayerGui::STOP)
 		{
 			if (m_select_title_by_name)
-				::paintButtons(m_x /*+ ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[5], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[5], m_buttonHeight, ButtonWidth);
 			else
-				::paintButtons(m_x/* + ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[4], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[4], m_buttonHeight, ButtonWidth);
 		}
 		else
 		{
 			if (m_select_title_by_name)
-				::paintButtons(m_x/* + ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[3], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[3], m_buttonHeight, ButtonWidth);
 			else
-				::paintButtons(m_x/* + ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[2], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[2], m_buttonHeight, ButtonWidth);
 		}
 	}
 }
