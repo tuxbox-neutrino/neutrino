@@ -129,6 +129,9 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 				close(pfd[0]);
 			}
 		}
+		int maxfd = getdtablesize();
+		for(int i = 3; i < maxfd; i++)
+			close(i);
 		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
 		exit(0);
 	 }
