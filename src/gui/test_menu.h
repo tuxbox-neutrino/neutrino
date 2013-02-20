@@ -31,7 +31,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
-#include <gui/widget/components.h>
+#include <gui/components/cc.h>
  #define TEST_MENU
 
 #include <string>

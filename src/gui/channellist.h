@@ -35,7 +35,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
-#include <gui/widget/components.h>
+#include <gui/components/cc.h>
 #include <system/lastchannel.h>
 
 #include <sectionsdclient/sectionsdclient.h>

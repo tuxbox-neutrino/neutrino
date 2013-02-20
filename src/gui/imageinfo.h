@@ -28,7 +28,7 @@
 #include <gui/widget/menue.h>
 #include <system/localize.h>
 #include <driver/framebuffer.h>
-#include <gui/widget/components.h>
+#include <gui/components/cc.h>
 
 
 class CImageInfo : public CMenuTarget

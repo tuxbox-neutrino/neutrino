@@ -29,7 +29,7 @@
 #include <driver/framebuffer.h>
 #include <gui/color.h>
 #include <gui/customcolor.h>
-#include "textbox.h"
+#include <gui/widget/textbox.h>
 #include <vector>
 #include <string>
 

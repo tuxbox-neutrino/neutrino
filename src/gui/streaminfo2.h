@@ -26,7 +26,7 @@
 #include <gui/widget/menue.h>
 
 #include <driver/framebuffer.h>
-#include <gui/widget/components.h>
+#include <gui/components/cc.h>
 #include <gui/widget/progressbar.h>
 #include <zapit/femanager.h>
 
