@@ -200,6 +200,10 @@ bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
 cablesetup.provider Kabelanbieter
+channellist.additional Zusatzinformationen
+channellist.additional_off aus
+channellist.additional_on ein
+channellist.additional_on_minitv ein (mit MiniTV)
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
 channellist.epgtext_align_left links
@@ -221,6 +225,9 @@ channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
 channellist.new_zap_mode Quickzap in Liste
+channellist.new_zap_mode_active aktiv
+channellist.new_zap_mode_allow erlauben
+channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
@@ -516,6 +523,7 @@ fontmenu.sizes Schriftgrössen
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
 fontsize.channellist_descr Beschreibung
+fontsize.channellist_event Eventliste
 fontsize.channellist_number Nummer
 fontsize.epg_date EPG Datum
 fontsize.epg_info1 EPG Info 1
@@ -733,6 +741,7 @@ menu.hint_cache_txt Startet das Zwischenspeichern des Teletext nach\nKanalwechse
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
+menu.hint_channellist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_channellist_colored Definiert ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
 menu.hint_channellist_epg_align Hier kann man festlegen, wie der Text für das EPG in der Liste\nrechts vom Programmnamen ausgerichtet wird
 menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen ein Balken eingeblendet,\nder den Sendungsfortschritt anzeigt
@@ -794,6 +803,7 @@ menu.hint_infobar_fonts Ändern Sie in der Infobar die Schriftgrößen
 menu.hint_infobar_logo Logo- und Signal-Optionen
 menu.hint_infobar_logo_dir Hier wählen Sie das Verzeichnis für die Senderlogos
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
+menu.hint_infobar_progressbar Wählt die Optionen des Fortschrittsbalken in der Infobar
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
 menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
 menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
@@ -1123,6 +1133,11 @@ miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo Verz.
+miscsettings.infobar_progressbar Fortschrittsbalken Opt.
+miscsettings.infobar_progressbar_0 Standard
+miscsettings.infobar_progressbar_1 unterhalb Kanalname
+miscsettings.infobar_progressbar_2 unterhalb Kanalname schmal
+miscsettings.infobar_progressbar_3 zwischen EPG-Events schmal
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen

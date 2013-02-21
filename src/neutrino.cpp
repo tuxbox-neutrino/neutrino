@@ -413,6 +413,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
+	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 0 );
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 2 );//mini ca mode default
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
@@ -635,6 +636,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
+	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 0); //default off
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
@@ -876,6 +878,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
+	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
 	configfile.setInt32("casystem_display"  , g_settings.casystem_display  );
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
@@ -1063,6 +1066,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
+	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setBool("channellist_extended"                 , g_settings.channellist_extended);
 	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);

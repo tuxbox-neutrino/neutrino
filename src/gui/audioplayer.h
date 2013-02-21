@@ -260,7 +260,7 @@ class CAudioPlayerGui : public CMenuTarget
 	void stop();
 	bool playNext(bool allow_rotate = false);
 	bool playPrev(bool allow_rotate = false);
-	int getAdioPayerM_currend() {return m_current;}
+	int getAudioPlayerM_current() {return m_current;}
 };
 
 

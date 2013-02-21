@@ -51,6 +51,7 @@ check=check
 help=Help
 attention=Attention!
 directory=Directory
+filename=Filename
 restriced_by_management_ip=restricted by ManagementIP
 
 #========= MAIN Menue
@@ -86,14 +87,8 @@ bc.menue.remote=Remote
 bc.menue.lcd_screenshot_desc=make lcd screenshot
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot not installed at /bin or /var/bin
-bc.menue.osd_screenshot_desc=make osd screenshot
-bc.menue.osd_screenshot=OSD Screenshot
-bc.menue.osd_screenshot_desc_ni=fbshot not installed at /bin or /var/bin
-bc.menue.tv_screenshot_desc=make tv screenshot
-bc.menue.tv_screenshot=TV Screenshot
-bc.menue.remote_osd_desc=remote and osd
-bc.menue.remote_osd=Remote & OSD
-bc.menue.remote_osd_desc_ni=dboxshot not installed at /bin or /var/bin
+bc.menue.screenshot=Screenshot
+bc.menue.screenshot_desc=make screenshots from OSD and/or TV
 
 bc.menue.decrease_volume=decrease volumen
 bc.menue.increase_volume=increase volumen
@@ -127,15 +122,12 @@ bc.msg.message_to_screen=Message on screen
 bc.msg.popup_to_screen=Message as popup
 bc.msg.send_message=send message
 
-======== Boxcontrol - Remote & OSD
-bc.osd.shot=Shot
-bc.osd.delete_shots=Delete shots
-bc.osd.shap_wait_text=Take Snapshot
-
-======== Boxcontrol - TV-Screenshot
-bc.tv.shot=Shot
-bc.tv.delete_shot=Delete shot
-bc.tv.shap_wait_text=Take Snapshot
+======== Boxcontrol - Screenshot
+bc.screenshot.create=Screenshot
+bc.screenshot.delete=Delete screenshot
+bc.screenshot.zoom=Zoom screenshot
+bc.screenshot.wait_text=Create screenshot
+bc.screenshot.checkenable=OSD and/or TV must be enabled!
 
 ========= Boxcontrol - Others
 bc.channels=Channels

@@ -1,0 +1,118 @@
+{=var-set:fbshot={=if-file-exists:/bin/fbshot~true~{=if-file-exists:/var/bin/fbshot~true~false=}=}=}
+
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+var enableOSD;
+var enableVideo;
+function checkEnable() {
+	enableOSD	= (document.getElementById('checkOSD').checked == true)		? 1 : 0;
+	enableVideo	= (document.getElementById('checkVideo').checked == true)	? 1 : 0;
+
+	if (enableOSD == 0 && enableVideo == 0) {
+		alert("{=L:bc.screenshot.checkenable=}");
+		return false;
+	}
+	return true;
+}
+function rcsim(_key) {
+	if(!checkEnable()) return;
+
+	if(_key == "KEY_POWER"){
+		var __result = trim(loadSyncURL("/control/standby"));
+		if (__result == "off")	{
+			if(confirm("{=L:bc.control.shutdown.ask=}") != true)
+			return;
+		}
+	}
+	loadSyncURL("/control/rcem?" + _key);
+	window.setTimeout("do_snapshot()", 750);
+}
+function do_snapshot() {
+	if(!checkEnable()) return;
+
+	$('shot').hide();
+	$('shot').src = "";
+	$('buttons').hide();
+	$('status').show();
+
+	var filename = "screenshot";
+	if (id("filename").value != "") {
+		filename = id("filename").value;
+	}
+
+	if ({=var-get:fbshot=} == true && enableVideo == 0)
+		dbox_exec_tools("fbshot fb /tmp/"+filename+".png");
+	else
+		loadSyncURL("/control/screenshot?name="+filename+"&osd="+enableOSD+"&video="+enableVideo);
+
+	window.setTimeout("do_showshot('"+filename+"');", (enableVideo == 1) ? 6500 : 3000);
+}
+function do_showshot(_filename) {
+	if (_filename == "")
+		_filename = "screenshot";
+
+	$('status').hide();
+	$('buttons').show();
+	$('shot').src = "/tmp/"+_filename+".png?"+Math.random();
+	$('shot').show();
+}
+function do_clearshot(){
+	$('shot').hide();
+	$('shot').src = "";
+
+	loadSyncURL("/control/exec?Y_Tools&screenshot_clear");
+}
+function do_zoomshot(){
+	// not a really zoom-function
+	if (id('remote').style.display == 'none')
+		$('remote').show();
+	else
+		$('remote').hide();
+}
+//]]>
+</script>
+</head>
+<body onload="do_snapshot();">
+<div class="work_box" id="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url==}{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="screenshot_header">
+		<div id="buttons" style="display: block">
+			<div class="left">
+				<button name="snapshot" ytype="snapshot" onclick="do_snapshot()">{=L:bc.screenshot.create=}</button>&nbsp;
+				<button name="clearshot" ytype="clearshot" onclick="do_clearshot()">{=L:bc.screenshot.delete=}</button>&nbsp;
+				<button name="zoomshot" ytype="zoomshot" onclick="do_zoomshot()">{=L:bc.screenshot.zoom=}</button>&nbsp;
+			</div>
+			<div class="right">
+				<form onsubmit="do_snapshot(); return false">
+				{=L:filename=}: <input type="text" value="screenshot" id="filename" size="16" />
+				OSD: <input id="checkOSD" name="checkOSD" type="checkbox" {=if-empty:{=osd=}~~checked="checked"=} />
+				TV: <input id="checkVideo" name="checkVideo" type="checkbox" {=if-empty:{=video=}~~checked="checked"=} />
+				</form>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div id="status" style="display: none">
+				<img src="/images/wait.gif" alt="{=L:bc.screenshot.wait_text=}"/>
+				{=L:bc.screenshot.wait_text=}
+		</div>
+		</div>
+
+		<table cellpadding="0">
+		<tr>
+			<td id="remote" {=if-empty:{=noremote=}~~style="display: none"=}>
+				{=include-block:Y_Blocks.txt;remote=}
+			</td>
+			<td class="shot">
+				<img id="shot" src="" onclick="do_zoomshot()" style="display: none" />
+			</td>
+		</tr>
+		</table>
+	</div>
+</div>
+</body>
+</html>

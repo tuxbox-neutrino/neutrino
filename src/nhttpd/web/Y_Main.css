@@ -12,6 +12,18 @@ button,input,select,form,td {
 	font-family: Verdana, Geneva, Arial, 'Lucida Grande',Tahoma, Helvetica, sans-serif;
 	color:#555555;
 }
+.left {
+	float: left;
+}
+.right {
+	float: right;
+}
+.clear {
+	clear: both;
+	line-height: 0px;
+	height: 0;
+	overflow: hidden;
+}
 /* buttons */
 a img:hover {
 	position:relative;
@@ -37,8 +49,9 @@ button[ytype="zap"]{background-image:url(/images/zap.png);}
 button[ytype="timeup"]{background-image:url(/images/time_up.png);}
 button[ytype="timedown"]{background-image:url(/images/time_down.png);}
 button[ytype="timeadd"]{background-image:url(/images/time_add.png);}
-button[ytype="shot"]{background-image:url(/images/snapshot.png);}
+button[ytype="snapshot"]{background-image:url(/images/snapshot.png);}
 button[ytype="clearshot"]{background-image:url(/images/remove.png);}
+button[ytype="zoomshot"]{background-image:url(/images/fullscreen.png);}
 button[ytype="go"]{background-image:url(/images/accept.png);}
 button[ytype="download"]{background-image:url(/images/wget.gif);}
 button[ytype="clear"]{background-image:url(/images/remove.png);}
@@ -845,4 +858,21 @@ a.timer {
 }
 .lt_table td {
 	white-space: pre-wrap;
+}
+
+/* screenshots */
+#screenshot_header {
+	height: 30px;
+}
+td.shot {
+	vertical-align: top;
+}
+img#shot {
+	width: 100%;
+	background-color: #ffffff;
+	border: 1px solid #f5f5f5;
+	margin: 10px 0;
+}
+img#shot:hover {
+	cursor: pointer;
 }

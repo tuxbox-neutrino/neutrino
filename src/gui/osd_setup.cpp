@@ -82,11 +82,12 @@ COsdSetup::~COsdSetup()
 }
 
 //font settings
-const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[4] =
+const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[5] =
 {
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST,
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR,
 	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER,
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT,
 	SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP
 };
 
@@ -132,7 +133,7 @@ const SNeutrinoSettings::FONT_TYPES other_font_sizes[5] =
 font_sizes_groups font_sizes_groups[6] =
 {
 	{LOCALE_FONTMENU_MENU       , 5, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
-	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
+	{LOCALE_FONTMENU_CHANNELLIST, 5, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
 	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
@@ -161,6 +162,7 @@ font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_CHANNELLIST        ,  20, FONT_STYLE_BOLD   , 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
+	{LOCALE_FONTSIZE_CHANNELLIST_EVENT  ,  17, FONT_STYLE_REGULAR, 2},
 	{LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  50, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
@@ -353,6 +355,14 @@ const CMenuOptionChooser::keyval INFOBAR_SHOW_RES_MODE_OPTIONS[INFOBAR_SHOW_RES_
 	{ 0, LOCALE_OPTIONS_ON },
 	{ 1, LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES_SIMPLE },
 	{ 2, LOCALE_OPTIONS_OFF }
+};
+
+#define CHANNELLIST_ADDITIONAL_OPTION_COUNT 3
+const CMenuOptionChooser::keyval CHANNELLIST_ADDITIONAL_OPTIONS[CHANNELLIST_ADDITIONAL_OPTION_COUNT] =
+{
+	{ 0, LOCALE_CHANNELLIST_ADDITIONAL_OFF },
+	{ 1, LOCALE_CHANNELLIST_ADDITIONAL_ON },
+	{ 2, LOCALE_CHANNELLIST_ADDITIONAL_ON_MINITV }
 };
 
 #define CHANNELLIST_FOOT_OPTIONS_COUNT 3
@@ -722,6 +732,14 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
    { 5 , LOCALE_MISCSETTINGS_INFOBAR_DISP_5 },
    { 6 , LOCALE_MISCSETTINGS_INFOBAR_DISP_6 }
 };
+#define LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT 4
+const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT]=
+{
+   { 0 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_0 },
+   { 1 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_1 },
+   { 2 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_2 },
+   { 3 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_3 }
+};
 
 //infobar
 void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
@@ -748,6 +766,11 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	// satellite
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_SAT);
+	menu_infobar->addItem(mc);
+
+	// infobar progress
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR, &g_settings.infobar_progressbar, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR);
 	menu_infobar->addItem(mc);
 
 	// flash/hdd progress
@@ -801,6 +824,12 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	CMenuOptionChooser * mc;
 
 	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
+
+	// channellist additional
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_ADDITIONAL, &g_settings.channellist_additional, CHANNELLIST_ADDITIONAL_OPTIONS, CHANNELLIST_ADDITIONAL_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ADDITIONAL);
+	menu_chanlist->addItem(mc);
+
 	// epg align
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EPG_ALIGN);
@@ -893,9 +922,15 @@ int COsdSetup::showContextChanlistMenu()
 	menu_chanlist->enableFade(false);
 	menu_chanlist->setSelected(cselected);
 
+	CMenuOptionChooser * mc;
+
 	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);//, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_ADDITIONAL, &g_settings.channellist_additional, CHANNELLIST_ADDITIONAL_OPTIONS, CHANNELLIST_ADDITIONAL_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_ADDITIONAL);
+	menu_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_EPG_ALIGN);
 	menu_chanlist->addItem(mc);
 
@@ -911,6 +946,8 @@ int COsdSetup::showContextChanlistMenu()
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_COLORED);
 	menu_chanlist->addItem(mc);
 
+	menu_chanlist->addItem(new CMenuSeparator(CMenuSeparator::LINE));
+
 	CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
 	fontSettingsSubMenu->enableSaveScreen(true);
 	fontSettingsSubMenu->enableFade(false);
@@ -925,7 +962,7 @@ int COsdSetup::showContextChanlistMenu()
 	fontSettingsSubMenu->addItem(GenericMenuSeparatorLine);
 	fontSettingsSubMenu->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[i].actionkey));
 
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	mf->setHint("", LOCALE_MENU_HINT_FONTS);
 	menu_chanlist->addItem(mf);
 

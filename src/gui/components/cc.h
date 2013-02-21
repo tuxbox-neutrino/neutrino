@@ -1,9 +1,9 @@
 /*
-	GUI window component classes - Neutrino-GUI
+	Based up Neutrino-GUI - Tuxbox-Project 
+	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	Copyright(C) 2012, 2013, Thilo Graf
-
-	This class contains generic components for GUI-related parts.
+	Classes for generic for GUI-related components.
+	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
 
 	License: GPL
 
