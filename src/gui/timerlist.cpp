@@ -375,7 +375,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		parent->hide();
 		const char *action_str = "RecDir1";
 		if(chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1)) {
-			printf("[%s] new %s dir %s\n",__FILE__, action_str, timerlist[selected].recordingDir);
+			printf("[timerlist] new %s dir %s\n", action_str, timerlist[selected].recordingDir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
@@ -383,7 +383,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		parent->hide();
 		const char *action_str = "RecDir2";
 		if(chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1)) {
-			printf("[%s] new %s dir %s\n",__FILE__, action_str, timerNew.recordingDir);
+			printf("[timerlist] new %s dir %s\n", action_str, timerNew.recordingDir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
