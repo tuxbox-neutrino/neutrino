@@ -101,7 +101,6 @@ libneutrino_gui_a_SOURCES = \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
-	update_ext.cpp \
 	update_menue.cpp \
 	update_settings.cpp \
 	user_menue.cpp \
@@ -109,6 +108,11 @@ libneutrino_gui_a_SOURCES = \
 	vfd_setup.cpp \
 	videosettings.cpp \
 	zapit_setup.cpp
+
+if ENABLE_EXTUPDATE
+libneutrino_gui_a_SOURCES += \
+	update_ext.cpp
+endif
 
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \

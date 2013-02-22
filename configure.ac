@@ -114,6 +114,15 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
+AC_ARG_ENABLE(extupdate,
+	AS_HELP_STRING(--enable-extupdate,include extended update routine),
+	,[enable_extupdate=no])
+
+AM_CONDITIONAL(ENABLE_EXTUPDATE,test "$enable_extupdate" = "yes")
+if test "$enable_extupdate" = "yes"; then
+	AC_DEFINE(ENABLE_EXTUPDATE,1,[include extended update routine])
+fi
+
 AC_ARG_WITH(stb-hal-includes,
 	[  --with-stb-hal-includes=PATH  path for libstb-hal includes [[NONE]]],
 	[STB_HAL_INC="$withval"],[STB_HAL_INC=""])
