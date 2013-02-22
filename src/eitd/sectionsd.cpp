@@ -1411,6 +1411,10 @@ void CTimeThread::run()
 			/* speed up shutdown by looping around Read() */
 			do {
 				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
+#if HAVE_COOL_HARDWARE
+				if (rc < 0)	/* libcoolstream returns -1 on timeout ??? ... */
+					rc = 0;	/* ...and does not set a useful errno (EINVAL) */
+#endif
 			} while (running && rc == 0 && (time_monotonic_ms() - start) < timeoutInMSeconds);
 			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
