@@ -1626,7 +1626,7 @@ void CChannelList::paintDetails(int index)
 
 void CChannelList::clearItem2DetailsLine()
 {
-	paintItem2DetailsLine (-1, 0);
+	paintItem2DetailsLine (-1);
 }
 
 void CChannelList::paintItem2DetailsLine (int pos)
