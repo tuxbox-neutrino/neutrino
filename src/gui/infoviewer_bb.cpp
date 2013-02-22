@@ -106,6 +106,7 @@ void CInfoViewerBB::Init()
 
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		tmp_bbButtonInfoText[i] = "";
+		bbButtonInfo[i].x   = -1;
 	}
 
 	// get HDD info in a separate thread
