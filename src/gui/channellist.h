@@ -98,7 +98,7 @@ private:
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
-	void paintItem2DetailsLine (int pos, int ch_index);
+	void paintItem2DetailsLine (int pos);
 	void paintItem(int pos);
 	bool updateSelection(int newpos);
 	void paint();
