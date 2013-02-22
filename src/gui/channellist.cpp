@@ -2177,6 +2177,7 @@ void CChannelList::paint_events(int index)
 
 		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 		evt.eventID = 0;
+		evt.startTime = 0;
 		evtlist.push_back(evt);
 	}
 
@@ -2237,6 +2238,7 @@ void CChannelList::readEvents(const t_channel_id channel_id)
 		CChannelEvent evt;
 		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 		evt.eventID = 0;
+		evt.startTime = 0;
 		evtlist.push_back(evt);
 	}
 	else
