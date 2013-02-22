@@ -99,6 +99,8 @@ extern cVideo * videoDecoder;
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
 {
 	frameBuffer = CFrameBuffer::getInstance();
+	x = y = 0;
+	info_height = 0;
 	name = pName;
 	selected = 0;
 	selected_in_new_mode = 0;
@@ -110,6 +112,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	new_zap_mode = 0;
 	selected_chid = 0;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
+	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
@@ -521,7 +524,10 @@ void CChannelList::calcSize()
 	listmaxshow = (height - theight - footerHeight -0)/fheight;
 	height = theight + footerHeight + listmaxshow * fheight;
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
-	y += (frameBuffer->getScreenHeight() - height - info_height) / 2;
+
+	int sh = frameBuffer->getScreenHeight();
+	int  ytmp = (sh - height - info_height) / 2;
+	y += ytmp;
 
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
@@ -1630,10 +1636,10 @@ void CChannelList::paintDetails(int index)
 
 void CChannelList::clearItem2DetailsLine()
 {
-	paintItem2DetailsLine (-1, 0);
+	paintItem2DetailsLine (-1);
 }
 
-void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
+void CChannelList::paintItem2DetailsLine (int pos)
 {
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
@@ -1797,7 +1803,7 @@ void CChannelList::paintItem(int pos)
 	if (curr == selected) {
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		paintItem2DetailsLine (pos, curr);
+		paintItem2DetailsLine (pos);
 		paintDetails(curr);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 		paintbuttons = true;
