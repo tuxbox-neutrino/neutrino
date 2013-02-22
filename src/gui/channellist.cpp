@@ -486,9 +486,13 @@ void CChannelList::calcSize()
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
 	else
+	{
+		/* don't use 100% of screen if additional info / minitv is not used */
+		full_width = full_width * 76 / 99; /* same width as the old code with my settings :-) */
 		width = full_width;
+	}
 
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
+	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), 0);
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - full_width) / 2;
 	if (x < ConnectLineBox_Width)
