@@ -44,18 +44,21 @@
 /* zapit.cpp */
 extern int zapit_debug;
 
+static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
+#define __SHORTFILE__ (__FILE__ + __striplen)
+
 #define DBG(fmt, args...)					\
 	do {							\
 		if (zapit_debug)					\
 			fprintf(stdout, "[%s:%s:%d] " fmt,	\
-				strrchr(__FILE__, '/'), __FUNCTION__,		\
+				__SHORTFILE__, __FUNCTION__,	\
 				__LINE__ , ## args);		\
 	} while (0)
 
 #define ERROR(str)						\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] %s: %s\n",		\
-			strrchr(__FILE__, '/'), __FUNCTION__,		\
+			__SHORTFILE__, __FUNCTION__,		\
 			__LINE__, str, strerror(errno));	\
 	} while (0)
 
@@ -64,14 +67,14 @@ extern int zapit_debug;
 #define INFO(fmt, args...)					\
 	do {							\
 		fprintf(stdout, "[%s:%s:%d] " fmt "\n",		\
-			strrchr(__FILE__, '/'), __FUNCTION__,		\
+			__SHORTFILE__, __FUNCTION__,		\
 			__LINE__ , ## args);			\
 	} while (0)
 
 #define WARN(fmt, args...)					\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] " fmt "\n",		\
-			strrchr(__FILE__, '/'), __FUNCTION__,		\
+			__SHORTFILE__, __FUNCTION__,		\
 			__LINE__ , ## args);			\
 	} while (0)
 
