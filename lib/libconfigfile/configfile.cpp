@@ -105,6 +105,7 @@ bool CConfigFile::saveConfig(const char * const filename)
 
 		chmod(filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
+		modifiedFlag = false;
 		return true;
 	}
 	else
