@@ -1474,12 +1474,12 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 
 				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 6)) ;
 				pb_h = (pb_h/3);
-				pb_color = COL_INFOBAR_SHADOW_PLUS_0;
+				pb_color = 0;
 			break;
 			case 2:
 				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 5)) ;
 				pb_h = (pb_h/5);
-				pb_color = COL_INFOBAR_SHADOW_PLUS_0;
+				pb_color = 0;
 			break;
 			case 3:
 				pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
