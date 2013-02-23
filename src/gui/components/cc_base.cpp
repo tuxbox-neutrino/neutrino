@@ -2,7 +2,7 @@
 	Based up Neutrino-GUI - Tuxbox-Project 
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	Classes for generic for GUI-related components.
+	Classes for generic GUI-related components.
 	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 

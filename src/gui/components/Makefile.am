@@ -17,4 +17,4 @@ noinst_LIBRARIES = libneutrino_gui_components.a
 
 
 libneutrino_gui_components_a_SOURCES = \
-	components.cpp
+	cc_base.cpp
