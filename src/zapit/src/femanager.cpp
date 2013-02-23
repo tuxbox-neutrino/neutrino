@@ -49,21 +49,24 @@ CFEManager::CFEManager() : configfile(',', true)
 	mode = FE_MODE_SINGLE;
 	config_exist = false;
 	have_locked = false;
+	fe_type = -1;
+	loadSettings(); /* set fe_type */
+	other_fe.clear();
 }
 
 bool CFEManager::Init()
 {
 	CFrontend * fe;
 	unsigned short fekey;
-	int type = -1;
 
+	other_fe.clear();
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
 			fe = new CFrontend(j, i);
 			if(fe->Open()) {
-				if (type == -1)
-					type = (int)fe->getInfo()->type;
-				if (type == (int)fe->getInfo()->type) {
+				if (fe_type == -1)
+					fe_type = (int)fe->getInfo()->type;
+				if (fe_type == (int)fe->getInfo()->type) {
 					fekey = MAKE_FE_KEY(i, j);
 					femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
 					INFO("add fe %d", fe->fenumber);
@@ -72,6 +75,7 @@ bool CFEManager::Init()
 				} else {
 					/* neutrino can not yet handle differing mixed frontend types... */
 					INFO("not adding fe %d of different type", fe->fenumber);
+					other_fe.insert(fe->getInfo()->type);
 					delete fe;
 				}
 			} else
@@ -174,6 +178,12 @@ bool CFEManager::loadSettings()
 		//return false;
 	}
 
+	fe_type = configfile.getInt32("fe_type", -1);
+	if (fe_type < -1 || fe_type > (int)FE_OFDM)
+		fe_type = -1; /* invalid value => default */
+	if (femap.empty()) /* first call from constructor */
+		return false;
+
 	fe_mode_t newmode = (fe_mode_t) configfile.getInt32("mode", (int) FE_MODE_SINGLE);
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
@@ -239,6 +249,7 @@ bool CFEManager::loadSettings()
 void CFEManager::saveSettings(bool write)
 {
 	configfile.setInt32("mode", (int) mode);
+	configfile.setInt32("fe_type", fe_type);
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -324,8 +335,15 @@ void CFEManager::Close()
 
 CFrontend * CFEManager::getFE(int index)
 {
-	if((unsigned int) index < femap.size())
-		return femap[index];
+	int i = 0;
+	/* the naive approach of just returning "femap[index]" does not work, since
+	 * the first frontend (index = 0) does not necessary live on adapter0/frontend0 */
+	for (fe_map_iterator_t it = femap.begin(); it != femap.end(); it++)
+	{
+		if (index == i)
+			return it->second;
+		i++;
+	}
 	INFO("Frontend #%d not found", index);
 	return NULL;
 }
@@ -480,7 +498,10 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel)
 	//FIXME for testing only
 	if(frontend) {
 		channel->setRecordDemux(frontend->fenumber+1);
+#if HAVE_COOL_HARDWARE
+		/* I don't know if this check is necessary on cs, but it hurts on other hardware */
 		if(femap.size() > 1)
+#endif
 			cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
 	}
 	mutex.unlock();
@@ -491,7 +512,9 @@ void CFEManager::setLiveFE(CFrontend * fe)
 {
 	mutex.lock();
 	livefe = fe; 
+#if HAVE_COOL_HARDWARE
 	if(femap.size() > 1)
+#endif
 		cDemux::SetSource(0, livefe->fenumber);
 	mutex.unlock();
 }

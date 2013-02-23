@@ -43,6 +43,8 @@ typedef fe_map_t::iterator fe_map_iterator_t;
 typedef std::map<CFrontend*, t_channel_id> fe_channel_map_t;
 typedef fe_channel_map_t::iterator fe_channel_map_iterator_t;
 
+typedef std::set<fe_type_t> fe_type_list_t;
+
 typedef struct common_fe_config {
 	double gotoXXLatitude, gotoXXLongitude;
 	int gotoXXLaDirection, gotoXXLoDirection;
@@ -62,6 +64,8 @@ class CFEManager
 	private:
 		fe_map_t		femap;
 		fe_mode_t		mode;
+		int			fe_type; /* fe_type_t, but -1 for "take what's there" */
+		fe_type_list_t		other_fe;
 		CConfigFile		configfile;
 		common_fe_config_t	config;
 		bool			config_exist;
@@ -115,5 +119,7 @@ class CFEManager
 		bool		lockFrontend(CFrontend * fe);
 		bool		unlockFrontend(CFrontend * fe);
 		bool		haveFreeFrontend();
+		fe_type_list_t	getOtherFE() { return other_fe; };
+		void		setFrontendType(fe_type_t f) { fe_type = (int)f; };
 };
 #endif /* __femanager_h__ */
