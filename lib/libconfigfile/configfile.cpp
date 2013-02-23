@@ -387,6 +387,9 @@ void CConfigFile::setString(const std::string & key, const std::string & val)
 
 void CConfigFile::setInt32Vector(const std::string & key, const std::vector<int32_t> vec)
 {
+	bool tmpUnknownKeyQueryedFlag = unknownKeyQueryedFlag;
+	unknownKeyQueryedFlag = false;
+	std::string oldVal = getString(key);
 	std::stringstream s;
 
 	for (std::vector<int32_t>::const_iterator it = vec.begin(); ; )
@@ -399,21 +402,35 @@ void CConfigFile::setInt32Vector(const std::string & key, const std::vector<int3
 			break;
 		s << delimiter;
 	}
-	s >> configData[key];
+	if (oldVal != s.str() || unknownKeyQueryedFlag)
+	{
+		modifiedFlag = true;
+		configData[key] = s.str();
+	}
+	unknownKeyQueryedFlag = tmpUnknownKeyQueryedFlag;
 }
 
 void CConfigFile::setStringVector(const std::string & key, const std::vector<std::string> vec)
 {
-	configData[key] = "";
+	bool tmpUnknownKeyQueryedFlag = unknownKeyQueryedFlag;
+	unknownKeyQueryedFlag = false;
+	std::string oldVal = getString(key);
+	std::string newVal = "";
 
 	for (std::vector<std::string>::const_iterator it = vec.begin(); ; )
 	{
 		if (it == vec.end())
 			break;
-		configData[key] += *it;
+		newVal += *it;
 		++it;
 		if (it == vec.end())
 			break;
-		configData[key] += delimiter;
+		newVal += delimiter;
 	}
+	if (oldVal != newVal || unknownKeyQueryedFlag)
+	{
+		modifiedFlag = true;
+		configData[key] = newVal;
+	}
+	unknownKeyQueryedFlag = tmpUnknownKeyQueryedFlag;
 }
