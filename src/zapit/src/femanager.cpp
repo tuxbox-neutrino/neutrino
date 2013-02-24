@@ -290,6 +290,7 @@ void CFEManager::setMode(fe_mode_t newmode, bool initial)
 	if(!initial && (newmode == mode))
 		return;
 
+	fe_mode_t oldmode = mode;
 	mode = newmode;
 	if(femap.size() == 1)
 		mode = FE_MODE_SINGLE;
@@ -298,8 +299,15 @@ void CFEManager::setMode(fe_mode_t newmode, bool initial)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		if(it != femap.begin()) {
-			INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
-			fe->setMasterSlave(setslave);
+			if (mode != FE_MODE_SINGLE) {
+				if (oldmode == FE_MODE_SINGLE)
+					fe->Open(true); /* secondary FE is not opened in single mode */
+				INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
+				fe->setMasterSlave(setslave);
+			} else {
+				INFO("Frontend %d not used in single mode, closing", fe->fenumber);
+				fe->Close();
+			}
 		} else
 			fe->Init();
 	}
@@ -318,6 +326,8 @@ void CFEManager::Open()
 		CFrontend * fe = it->second;
 		if(!fe->Locked())
 			fe->Open(true);
+		if (mode == FE_MODE_SINGLE)
+			break;	/* don't open secondary frontends if only first one is used */
 	}
 }
 
