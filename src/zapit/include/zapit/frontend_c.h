@@ -4,6 +4,7 @@
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
  * Copyright (C) 2011 CoolStream International Ltd
+ * Copyright (C) 2009,2010,2012,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,6 +123,7 @@ class CFrontend
 		TP_params currentTransponder;
 		bool slave;
 		int fenumber;
+		int feindex; /* the index (starts with 0) of this FE, not always the same as fenumber */
 		bool standby;
 		bool buildProperties(const FrontendParameters*, struct dtv_properties &);
 
@@ -226,7 +228,10 @@ class CFrontend
 		bool				Locked() { return usecount; };
 		satellite_map_t &		getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
-		int				getNumber() { return fenumber; };
+		/* getNumber is now only used for displaying the tuner ID in the infobar,
+		 * which wants the index. If the fenumber is needed, call "getNumber(true)" */
+		int				getNumber(bool real = false) { return real?fenumber:feindex; }
+		void				setIndex(int i) { feindex = i; };
 		static void			getDelSys(uint8_t type, int f, int m, char * &fec, char * &sys, char * &mod);
 };
 #endif /* __zapit_frontend_h__ */

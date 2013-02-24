@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012 Stefan Seyfried
+	Copyright (C) 2012,2013 Stefan Seyfried
 
 	License: GPLv2
 
@@ -59,6 +59,7 @@ bool CFEManager::Init()
 	CFrontend * fe;
 	unsigned short fekey;
 
+	int idx = 0;
 	other_fe.clear();
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
@@ -72,6 +73,7 @@ bool CFEManager::Init()
 					INFO("add fe %d", fe->fenumber);
 					if(livefe == NULL)
 						livefe = fe;
+					fe->setIndex(idx++);
 				} else {
 					/* neutrino can not yet handle differing mixed frontend types... */
 					INFO("not adding fe %d of different type", fe->fenumber);
