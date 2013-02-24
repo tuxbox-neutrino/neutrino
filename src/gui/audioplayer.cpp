@@ -275,7 +275,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 		m_current = 0;
 
 	m_selected = 0;
-	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - ConnectLineBox_Width - 5;
+	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - 2*ConnectLineBox_Width - 5;
 
 	m_height = (g_settings.screen_EndY - g_settings.screen_StartY - 5);
 	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
@@ -293,7 +293,9 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_listmaxshow = (m_height - m_info_height - m_title_height - m_theight - 2*m_buttonHeight) / (m_fheight);
 	m_height = m_theight + m_info_height + m_title_height + 2*m_buttonHeight + m_listmaxshow * m_fheight; // recalc height
 
-	m_x = getScreenStartX( m_width + ConnectLineBox_Width ) + ConnectLineBox_Width;
+	m_x = getScreenStartX( m_width );
+	if (m_x < ConnectLineBox_Width)
+		m_x = ConnectLineBox_Width;
 	m_y = getScreenStartY( m_height );
 
 	m_idletime=time(NULL);
@@ -360,6 +362,9 @@ int CAudioPlayerGui::show()
 
 	int ret = menu_return::RETURN_REPAINT;
 
+	// clear whole screen
+	m_frameBuffer->paintBackground();
+
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 	paintLCD();
 
@@ -420,8 +425,6 @@ int CAudioPlayerGui::show()
 						videoDecoder->ShowPicture(fname);
 					} else if (pic_index) {
 						pic_index = 0;
-						videoDecoder->StopPicture();
-						videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 					}
 				} else
 					pic_index = 0;
@@ -434,6 +437,11 @@ int CAudioPlayerGui::show()
 			if (m_screensaver)
 			{
 				screensaver(false);
+				if (msg < CRCInput::RC_MaxRC) {
+					// ignore first keypress - just quit the screensaver
+					g_RCInput->clearRCMsg();
+					continue;
+				}
 			}
 		}
 
@@ -895,9 +903,6 @@ int CAudioPlayerGui::show()
 				ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
-			// update mute icon
-			//paintHead();
-			//paintLCD();
 		}
 	}
 	hide();
@@ -1590,6 +1595,7 @@ void CAudioPlayerGui::paintItem(int pos)
 		c_rad_small = 0;
 	}
 
+	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, COL_MENUCONTENT_PLUS_0);
 	m_frameBuffer->paintBoxRel(m_x, ypos, m_width - 15, m_fheight, bgcolor, c_rad_small);
 
 	if ((pos + m_liststart) < m_playlist.size())
@@ -1665,20 +1671,6 @@ void CAudioPlayerGui::paintHead()
 	}
 		//m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, m_x + m_width - 30, ypos);
 #endif
-#if 1
-	if ( CNeutrinoApp::getInstance()->isMuted() )
-	{
-#if 0
-		int xpos = m_x + m_width - 75;
-		ypos = m_y + m_title_height;
-		if (m_theight > 32)
-			ypos = (m_theight - 32) / 2 + m_y + m_title_height;
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos, ypos);
-#endif
-		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &iw, &ih);
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos - iw, ypos, m_theight);
-	}
-#endif
 }
 
 //------------------------------------------------------------------------
@@ -1731,7 +1723,9 @@ const struct button_label AudioPlayerButtons[][4] =
 
 void CAudioPlayerGui::paintFoot()
 {
-	//	printf("paintFoot{\n");
+	if (m_screensaver)
+		return;
+
 const struct button_label ScondLineButtons[3] =
 {
 	{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_AUDIOPLAYER_PLAY        },
@@ -1747,55 +1741,58 @@ const struct button_label ScondLineButtons[3] =
 		top = m_y + (m_height - 2 * m_buttonHeight);
 
  	int ButtonWidth = (m_width - 20) / 5;
-	//int ButtonWidth2 = (m_width - 50) / 2;
-	m_frameBuffer->paintBoxRel(m_x, top, m_width, 2 * m_buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, CORNER_BOTTOM);
-	m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_1);
+
+	m_frameBuffer->paintBoxRel(m_x, top, m_width, 2 * m_buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, (m_show_playlist ? CORNER_BOTTOM : CORNER_ALL));
+	// why? m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_1);
 
 	if (!m_playlist.empty())
-		::paintButtons(m_x, top+m_buttonHeight, m_width, 3, ScondLineButtons, m_buttonHeight, ButtonWidth);
+		::paintButtons(m_x + c_rad_mid, top+m_buttonHeight, m_width - (2*c_rad_mid), 3, ScondLineButtons, m_buttonHeight, ButtonWidth);
 
 	if (m_key_level == 0)
 	{
 		if (m_playlist.empty())
 		{
 			if (m_inetmode)
-				::paintButtons(m_x, top, m_width, 2, AudioPlayerButtons[7], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[7], m_buttonHeight, ButtonWidth);
 			else
-				::paintButtons(m_x, top, m_width, 1, &(AudioPlayerButtons[7][0]), m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 1, &(AudioPlayerButtons[7][0]), m_buttonHeight, ButtonWidth);
 		}
 		else if (m_inetmode)
-			::paintButtons(m_x, top, m_width, 4, AudioPlayerButtons[8], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 4, AudioPlayerButtons[8], m_buttonHeight, ButtonWidth);
 		else
-			::paintButtons(m_x, top, m_width, 4, AudioPlayerButtons[1], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 4, AudioPlayerButtons[1], m_buttonHeight, ButtonWidth);
 	}
 	else if (m_key_level == 1)
 	{
 		if (m_curr_audiofile.FileType != CFile::STREAM_AUDIO)
-			::paintButtons(m_x, top, m_width, 4, AudioPlayerButtons[0], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 4, AudioPlayerButtons[0], m_buttonHeight, ButtonWidth);
 		else
-			::paintButtons( m_x, top, m_width, 2, AudioPlayerButtons[6], m_buttonHeight, ButtonWidth);
+			::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[6], m_buttonHeight, ButtonWidth);
 	}
 	else
 	{ // key_level == 2
 		if (m_state == CAudioPlayerGui::STOP)
 		{
 			if (m_select_title_by_name)
-				::paintButtons(m_x /*+ ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[5], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[5], m_buttonHeight, ButtonWidth);
 			else
-				::paintButtons(m_x/* + ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[4], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[4], m_buttonHeight, ButtonWidth);
 		}
 		else
 		{
 			if (m_select_title_by_name)
-				::paintButtons(m_x/* + ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[3], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[3], m_buttonHeight, ButtonWidth);
 			else
-				::paintButtons(m_x/* + ButtonWidth*/, top, m_width, 2, AudioPlayerButtons[2], m_buttonHeight, ButtonWidth);
+				::paintButtons(m_x + c_rad_mid, top, m_width - (2*c_rad_mid), 2, AudioPlayerButtons[2], m_buttonHeight, ButtonWidth);
 		}
 	}
 }
 //------------------------------------------------------------------------
 void CAudioPlayerGui::paintInfo()
 {
+	if (m_screensaver)
+		return;
+
 	int c_rad_mid = RADIUS_MID;
 	if (m_state == CAudioPlayerGui::STOP && m_show_playlist)
 		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
@@ -1892,8 +1889,8 @@ void CAudioPlayerGui::paint()
 		m_frameBuffer->paintBoxRel(m_x + m_width - 13, ypos + 2 + sbs*(sb-4)/sbc , 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
 	}
 
-	paintFoot();
 	paintInfo();
+	paintFoot();
 	m_visible = true;
 
 }
@@ -2109,11 +2106,9 @@ void CAudioPlayerGui::play(unsigned int pos)
 		//LCD
 		paintLCD();
 		// Display
-		if (!m_screensaver)
-			paintInfo();
+		paintInfo();
 		m_key_level = 1;
-		if (!m_screensaver)
-			paintFoot();
+		paintFoot();
 	}
 }
 //------------------------------------------------------------------------
@@ -2330,11 +2325,8 @@ void CAudioPlayerGui::screensaver(bool on)
 	{
 		g_RCInput->killTimer(stimer);
 		m_screensaver = false;
-#if 0
-		m_frameBuffer->loadPal("radiomode.pal", 18, COL_MAXFREE);
-		m_frameBuffer->useBackground(m_frameBuffer->loadBackground(NEUTRINO_ICON_RADIOMODE));// set useBackground true or false
-		m_frameBuffer->paintBackground();
-#endif
+		videoDecoder->StopPicture();
+		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 		paint();
 		m_idletime = time(NULL);
 	}

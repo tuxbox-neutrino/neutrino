@@ -129,6 +129,9 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 				close(pfd[0]);
 			}
 		}
+		int maxfd = getdtablesize();
+		for(int i = 3; i < maxfd; i++)
+			close(i);
 		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
 		exit(0);
 	 }
@@ -186,7 +189,7 @@ int check_dir(const char * dir)
 				ret = 0;
 				break; //ok
 			default:
-				fprintf(stderr, "%s Unknow File system type: %i\n" ,dir ,s.f_type);
+				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
 				break; // error
 		}
 	}

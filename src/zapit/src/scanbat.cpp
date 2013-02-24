@@ -162,7 +162,7 @@ bool CBat::Parse()
 		const DescriptorList * dlist = bat->getDescriptors();
 		DescriptorConstIterator dit;
 #ifdef DEBUG_BAT
-		printf("BAT: section %d, %d descriptors\n", bat->getSectionNumber(), dlist->size());
+		printf("BAT: section %d, %d descriptors\n", bat->getSectionNumber(), (int)dlist->size());
 #endif
 		unsigned int pdsd = 0;
 		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
@@ -220,7 +220,7 @@ bool CBat::Parse()
 			dlist = b->getDescriptors();
 #if 1
 			printf("BAT: bouquet_id %04x tsid %04x onid %04x %d descriptors\n", bouquet_id, b->getTransportStreamId(),
-					b->getOriginalNetworkId(), dlist->size());
+					b->getOriginalNetworkId(), (int)dlist->size());
 #endif
 			for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
 				Descriptor * d = *dit;
@@ -322,7 +322,7 @@ bool CBat::ParseLogicalChannels(LogicalChannelDescriptor * ld, BouquetAssociatio
 		CZapitChannel * chan = CServiceManager::getInstance()->FindChannel48(channel_id);
 		if(chan)
 			name = chan->getName();
-		printf("BAT: logical channel %05d: tsid %04x onid %04x %016llx [%s] visible %d\n", lcn, transport_stream_id, original_network_id, channel_id, name.c_str(), (*it)->getVisibleServiceFlag());
+		printf("BAT: logical channel %05d: tsid %04x onid %04x %016" PRIx64 " [%s] visible %d\n", lcn, transport_stream_id, original_network_id, channel_id, name.c_str(), (*it)->getVisibleServiceFlag());
 #endif
 	}
 	return true;

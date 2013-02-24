@@ -37,9 +37,7 @@
 
 	Author: Günther@tuxbox.berlios.org
 
-	Revision History:
-	Date			Author		Change Description
-	Nov 2005		Günther	initial start
+	Copyright(C) 2009, 2012 Stefan Seyfried
 
 ****************************************************************************/
 #ifdef HAVE_CONFIG_H
@@ -135,7 +133,7 @@ bool CMovieInfo::convertTs2XmlName(std::string * filename)
 #define XML_ADD_TAG_LONG(_xml_text_,_tag_name_,_tag_content_){\
 	_xml_text_ +=	"\t\t<"_tag_name_">";\
 	char _tmp_[50];\
-	sprintf(_tmp_, "%llu", _tag_content_);\
+	sprintf(_tmp_, "%" PRIu64 "", (uint64_t)_tag_content_);\
 	_xml_text_ +=	_tmp_;\
 	_xml_text_ +=	"</"_tag_name_">\n";}
 
@@ -501,7 +499,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 		print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_SIZE);
 		print_buffer += ": ";
 		//snprintf(date_char, 12,"%4llu",movie_info.file.Size>>20);
-		sprintf(date_char, "%llu", movie_info.file.Size >> 20);
+		sprintf(date_char, "%" PRIu64 "", movie_info.file.Size >> 20);
 		print_buffer += date_char;
 		//print_buffer += "\n";
 	}
@@ -619,9 +617,9 @@ int find_next_char(char to_find, char *text, int start_pos, int end_pos)
 void strReplace(std::string & orig, const char *fstr, const std::string rstr)
 {
 //      replace all occurrence of fstr with rstr and, and returns a reference to itself
-	unsigned int index = 0;
-	unsigned int fstrlen = strlen(fstr);
-	int rstrlen = rstr.size();
+	size_t index = 0;
+	size_t fstrlen = strlen(fstr);
+	size_t rstrlen = rstr.size();
 
 	while ((index = orig.find(fstr, index)) != std::string::npos) {
 		orig.replace(index, fstrlen, rstr);

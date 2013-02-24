@@ -212,7 +212,7 @@ void CZapit::LoadAudioMap()
 	int volume = 0;
 	char s[1000];
 	while (fgets(s, 1000, audio_config_file)) {
-		sscanf(s, "%llx %d %d %d %d %d %d", &chan, &apid, &mode, &volume, &subpid, &ttxpid, &ttxpage);
+		sscanf(s, "%" SCNx64 " %d %d %d %d %d %d", &chan, &apid, &mode, &volume, &subpid, &ttxpid, &ttxpage);
 		audio_map[chan].apid = apid;
 		audio_map[chan].subpid = subpid;
 		audio_map[chan].mode = mode;
@@ -231,7 +231,7 @@ void CZapit::SaveAudioMap()
 		return;
 	}
 	for (audio_map_iterator_t audio_map_it = audio_map.begin(); audio_map_it != audio_map.end(); audio_map_it++) {
-		fprintf(audio_config_file, "%llx %d %d %d %d %d %d\n", (uint64_t) audio_map_it->first,
+		fprintf(audio_config_file, "%" PRIx64 " %d %d %d %d %d %d\n", (uint64_t) audio_map_it->first,
 			(int) audio_map_it->second.apid, (int) audio_map_it->second.mode, (int) audio_map_it->second.volume, 
 			(int) audio_map_it->second.subpid, (int) audio_map_it->second.ttxpid, (int) audio_map_it->second.ttxpage);
 	}
@@ -252,7 +252,7 @@ void CZapit::LoadVolumeMap()
 	int volume = 0;
 	char s[1000];
 	while (fgets(s, 1000, volume_config_file)) {
-		if (sscanf(s, "%llx %d %d", &chan, &apid, &volume) == 3)
+		if (sscanf(s, "%" SCNx64 " %d %d", &chan, &apid, &volume) == 3)
 			vol_map.insert(volume_pair_t(chan, pid_pair_t(apid, volume)));
 	}
 	fclose(volume_config_file);
@@ -266,7 +266,7 @@ void CZapit::SaveVolumeMap()
 		return;
 	}
 	for (volume_map_iterator_t it = vol_map.begin(); it != vol_map.end(); ++it)
-		fprintf(volume_config_file, "%llx %d %d\n", (uint64_t) it->first, it->second.first, it->second.second);
+		fprintf(volume_config_file, "%" PRIx64 " %d %d\n", (uint64_t) it->first, it->second.first, it->second.second);
 
 	fdatasync(fileno(volume_config_file));
 	fclose(volume_config_file);
@@ -472,7 +472,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		return false;
 	}
 
-	INFO("[zapit] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
+	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
 	if(fe == NULL) {
@@ -557,7 +557,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
-	printf("%s: %s (%llx)\n", __FUNCTION__, newchannel->getName().c_str(), channel_id);
+	printf("%s: %s (%" PRIx64 ")\n", __FUNCTION__, newchannel->getName().c_str(), channel_id);
 
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
 	if(frontend == NULL) {
@@ -582,7 +582,7 @@ void CZapit::SetPidVolume(t_channel_id channel_id, int pid, int percent)
 	if (!pid && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
 
-INFO("############################### channel %llx pid %x map size %d percent %d", channel_id, pid, vol_map.size(), percent);
+INFO("############################### channel %" PRIx64 " pid %x map size %d percent %d", channel_id, pid, (int)vol_map.size(), percent);
 	volume_map_range_t pids = vol_map.equal_range(channel_id);
 	for (volume_map_iterator_t it = pids.first; it != pids.second; ++it) {
 		if (it->second.first == pid) {
@@ -623,7 +623,7 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 			}
 		}
 	}
-	DBG("channel %llx pid %x map size %d percent %d", channel_id, pid, vol_map.size(), percent);
+	DBG("channel %" PRIx64 " pid %x map size %d percent %d", channel_id, pid, (int)vol_map.size(), percent);
 	return percent;
 }
 
@@ -1984,20 +1984,20 @@ unsigned int CZapit::ZapTo(t_channel_id channel_id, bool isSubService)
 	unsigned int result = 0;
 
 	if (!ZapIt(channel_id)) {
-		DBG("[zapit] zapit failed, chid %llx\n", channel_id);
+		DBG("[zapit] zapit failed, chid %" PRIx64 "\n", channel_id);
 		SendEvent((isSubService ? CZapitClient::EVT_ZAP_SUB_FAILED : CZapitClient::EVT_ZAP_FAILED), &channel_id, sizeof(channel_id));
 		return result;
 	}
 
 	result |= CZapitClient::ZAP_OK;
 
-	DBG("[zapit] zapit OK, chid %llx\n", channel_id);
+	DBG("[zapit] zapit OK, chid %" PRIx64 "\n", channel_id);
 	if (isSubService) {
-		DBG("[zapit] isSubService chid %llx\n", channel_id);
+		DBG("[zapit] isSubService chid %" PRIx64 "\n", channel_id);
 		SendEvent(CZapitClient::EVT_ZAP_SUB_COMPLETE, &channel_id, sizeof(channel_id));
 	}
 	else if (current_is_nvod) {
-		DBG("[zapit] NVOD chid %llx\n", channel_id);
+		DBG("[zapit] NVOD chid %" PRIx64 "\n", channel_id);
 		SendEvent(CZapitClient::EVT_ZAP_COMPLETE_IS_NVOD, &channel_id, sizeof(channel_id));
 		result |= CZapitClient::ZAP_IS_NVOD;
 	}

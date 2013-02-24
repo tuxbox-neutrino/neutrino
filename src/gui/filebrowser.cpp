@@ -2,15 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2007-2009, 2011-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -686,7 +678,7 @@ and add to neutrino playlist
 
 	if (!answer.empty() && httpres == 0)
 	{
-printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
+printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 		xmlDocPtr answer_parser = parseXml(answer.c_str());
 
 		if (answer_parser != NULL) {

@@ -191,10 +191,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 		int maxi = active_pb_width / ITEMW;	/* how many POINTs is the active bar */
 		int total = width / ITEMW;		/* total number of POINTs */
 
-		int i, j;
 		uint32_t rgb;
 		fb_pixel_t color;
-		int b = 0;
 
 		if (last_width == -1 && backgroundbar_col != 0) /* first paint */
 		{
@@ -206,6 +204,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 
 		if (active_pb_width != last_width) {
 			int step;
+			int i, j;
+			int b = 0;
 			if (active_pb_width > last_width) {
 				for (i = 0; (i < rd) && (i < maxi); i++) {
 					step = 255 / rd;

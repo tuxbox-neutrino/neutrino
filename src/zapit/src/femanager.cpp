@@ -2,6 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
+	Copyright (C) 2012 Stefan Seyfried
 
 	License: GPLv2
 
@@ -68,7 +69,7 @@ bool CFEManager::Init()
 				delete fe;
 		}
 	}
-	INFO("found %d frontends\n", femap.size());
+	INFO("found %d frontends\n", (int)femap.size());
 	if( femap.empty() )
 		return false;
 #if 0
@@ -346,7 +347,7 @@ CFrontend * CFEManager::findFrontend(CZapitChannel * channel)
 
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
-		INFO("Check fe%d: locked %d TP %llx - channel TP %llx", fe->fenumber, fe->Locked(), fe->getTsidOnid(), channel_tid);
+		INFO("Check fe%d: locked %d TP %" PRIx64 " - channel TP %" PRIx64 "", fe->fenumber, fe->Locked(), fe->getTsidOnid(), channel_tid);
 		if(fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
 			same_tid_fe = fe;
 			break;
@@ -396,7 +397,7 @@ CFrontend * CFEManager::getLoopFE(CZapitChannel * channel)
 	/* check is there any locked fe, remember fe with same transponder */
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
-		INFO("Check fe%d: locked %d freq %d TP %llx - channel freq %d TP %llx", fe->fenumber, fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
+		INFO("Check fe%d: locked %d freq %d TP %" PRIx64 " - channel freq %d TP %" PRIx64 "", fe->fenumber, fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
 #if 0
 		if(fe->tuned && fe->sameTsidOnid(channel->getTransponderId())) {
 			same_tid_fe = fe; // first with same tp id
@@ -432,7 +433,7 @@ CFrontend * CFEManager::getIndependentFE(CZapitChannel * channel)
 		satellite_map_t & satmap = fe->getSatellites();
 		sat_iterator_t sit = satmap.find(satellitePosition);
 		bool configured = ((sit != satmap.end()) && sit->second.configured);
-		INFO("Check fe%d: locked %d freq %d TP %llx - channel freq %d TP %llx has sat %d: %s",
+		INFO("Check fe%d: locked %d freq %d TP %" PRIx64 " - channel freq %d TP %" PRIx64 " has sat %d: %s",
 				fe->fenumber, fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), 
 				channel->getFreqId(), channel->getTransponderId(), satellitePosition, configured ? "yes" : "no");
 		if(!configured)
