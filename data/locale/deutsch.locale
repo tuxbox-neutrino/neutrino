@@ -769,6 +769,7 @@ menu.hint_extended Energiespar-, EPG-Speicher- / Lade-Optionen,\nHDMI-CEC, Start
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen\nBox wird nach einem Reset neu gestartet
 menu.hint_fade Bei aktivierter Funktion werden die Menüfenster\n'weich' ein- bzw. ausgeblendet
 menu.hint_fan_speed Steuerung der Lüftergeschwindigkeit für die CPU
+menu.hint_fe_type Ändert die Empfangsart\n(Neustart notwendig)
 menu.hint_filebrowser_denydirectoryleave Verhindert das Verlassen des Startverzeichnisses
 menu.hint_filebrowser_showrights Anzeige der Dateirechte der Dateien im Filebrowser
 menu.hint_fileplay Spielen Sie verschiedene Video-Dateien
@@ -1571,6 +1572,8 @@ satsetup.fe_mode_loop loop
 satsetup.fe_mode_single single
 satsetup.fe_mode_twin twin
 satsetup.fe_setup Setup Tuner
+satsetup.fe_type Tunertyp wechseln
+satsetup.fe_type_confirm Um die Empfangsart zu wechseln, muss neutrino\nneu gestartet werden. Jetzt neu starten?
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset

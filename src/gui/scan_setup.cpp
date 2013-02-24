@@ -45,6 +45,7 @@
 #include <gui/bedit/bouqueteditor_bouquets.h>
 
 #include <gui/widget/hintbox.h>
+#include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
@@ -207,6 +208,14 @@ const CMenuOptionChooser::keyval SATSETUP_FRONTEND_MODE[SATSETUP_FRONTEND_MODE_C
 	{ CFEManager::FE_MODE_ALONE,  LOCALE_SATSETUP_FE_MODE_ALONE  }
 };
 
+#define SATSETUP_FRONTEND_TYPE_COUNT 3
+const CMenuOptionChooser::keyval_ext SATSETUP_FRONTEND_TYPE[SATSETUP_FRONTEND_TYPE_COUNT] =
+{
+	{ FE_QPSK, NONEXISTANT_LOCALE, "DVB-S" },
+	{ FE_QAM,  NONEXISTANT_LOCALE, "DVB-C" },
+	{ FE_OFDM, NONEXISTANT_LOCALE, "DVB-T" }
+};
+
 CScanSetup::CScanSetup(bool wizard_mode)
 {
 	width = w_max (40, 10);
@@ -364,6 +373,8 @@ int CScanSetup::showScanMenu()
 {
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortcut = 1;
+	CMenuOptionChooser::keyval_ext key[SATSETUP_FRONTEND_TYPE_COUNT];
+	fe_type_t fetype = CFEManager::getInstance()->getFE(0)->getInfo()->type;
 
 	CMenuForwarder  * mf;
 	CMenuOptionChooser * mc;
@@ -424,11 +435,33 @@ int CScanSetup::showScanMenu()
 		if(CFEManager::getInstance()->getFrontendCount() > 1) {
 			femode = CFEManager::getInstance()->getMode();
 			mc = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE, (int *)&femode, SATSETUP_FRONTEND_MODE, 2, true, this);
+	mc = new CMenuOptionChooser(LOCALE_SCANTS_BOUQUET, (int *)&scansettings.bouquetMode, SCANTS_BOUQUET_OPTIONS, SCANTS_BOUQUET_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true);
 			mc->setHint("", LOCALE_MENU_HINT_SCAN_FEMODE);
 			settings->addItem(mc);
 		}
 		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	}
+
+	fe_type_list_t other_fe = CFEManager::getInstance()->getOtherFE();
+	if (! other_fe.empty())
+	{
+		int i = 0;
+		for (int j = 0; j < SATSETUP_FRONTEND_TYPE_COUNT; j++)
+		{
+			if ((fe_type_t)SATSETUP_FRONTEND_TYPE[j].key != fetype &&
+			    other_fe.find((fe_type_t)SATSETUP_FRONTEND_TYPE[j].key) == other_fe.end())
+				continue;
+			key[i] = SATSETUP_FRONTEND_TYPE[j];
+			i++;
+		}
+
+		if (i > 0) {
+			mc = new CMenuOptionChooser(LOCALE_SATSETUP_FE_TYPE, (int *)&fetype, key, i, true, this, CRCInput::RC_nokey, "", true);
+			mc->setHint("", LOCALE_MENU_HINT_FE_TYPE);
+			settings->addItem(mc);
+		}
+	}
+
 	//--------------------------------------------------------------
 	settings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SCANTS_PREVERENCES_SCAN));
 	//--------------------------------------------------------------
@@ -482,6 +515,17 @@ int CScanSetup::showScanMenu()
 
 	int res = settings->exec(NULL, "");
 
+	if (fetype != CFEManager::getInstance()->getFE(0)->getInfo()->type)
+	{
+		int result = ShowLocalizedMessage(LOCALE_SATSETUP_FE_TYPE, LOCALE_SATSETUP_FE_TYPE_CONFIRM, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo);
+
+		if (result == CMessageBox::mbrYes)
+		{
+			CFEManager::getInstance()->setFrontendType(fetype);
+			CFEManager::getInstance()->saveSettings(true);
+			CNeutrinoApp::getInstance()->exec(NULL, "restart");
+		}
+	}
 	//delete satSelect;
 	delete satOnOff;
 	delete settings;
