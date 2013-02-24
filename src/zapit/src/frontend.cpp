@@ -283,14 +283,14 @@ void CFrontend::reset(void)
 void CFrontend::Lock()
 {
 	usecount++;
-	INFO("[fe%d] usecount %d tp %" PRIx64 "\n", fenumber, usecount, getTsidOnid());
+	INFO("[fe%d] usecount %d tp %" PRIx64, fenumber, usecount, getTsidOnid());
 }
 
 void CFrontend::Unlock()
 {
 	if(usecount > 0)
 		usecount--;
-	INFO("[fe%d] usecount %d tp %" PRIx64 "\n", fenumber, usecount, getTsidOnid());
+	INFO("[fe%d] usecount %d tp %" PRIx64, fenumber, usecount, getTsidOnid());
 }
 
 fe_code_rate_t CFrontend::getCFEC()
