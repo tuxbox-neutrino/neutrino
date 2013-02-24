@@ -169,17 +169,10 @@ CFrontend::CFrontend(int Number, int Adapter)
 	fd		= -1;
 	fenumber	= Number;
 	adapter		= Adapter;
-	slave		= (Number != 0); //false;
+	slave		= false; /* is set in frontend->setMode() */
 	standby		= true;
 	locked		= false;
 	usecount	= 0;
-
-	/* temporary hack to use frontend1 / frontend2 on Spark7162 */
-	if (getenv("FE_OFFSET")) {
-		int fe_offset = atoi(getenv("FE_OFFSET"));
-		fenumber += fe_offset;
-		printf("[fe%d] FE_OFFSET is %d -> use frontend%d\n", Number, fe_offset, fenumber);
-	}
 
 	tuned					= false;
 	uncommitedInput				= 255;
