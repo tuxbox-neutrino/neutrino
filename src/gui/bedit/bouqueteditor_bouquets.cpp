@@ -123,6 +123,7 @@ void CBEBouquetWidget::paint()
 	float sbh= (sb- 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 
+	//scrollbar
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
 }
 
@@ -226,9 +227,8 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	iconoffset = std::max(iconoffset, icol_w);
 
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	width  = w_max (64 * fw, 20);
-	height = h_max (20 * fh, 50);
+	width  = w_max ((frameBuffer->getScreenWidth() / 20 * (fw+6)), 100);
+	height = h_max ((frameBuffer->getScreenHeight() / 20 * 18), (frameBuffer->getScreenHeight() / 20 * 2));
 	listmaxshow = (height-theight-0)/iheight;
 	height = theight+0+listmaxshow*iheight; // recalc height
         x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;

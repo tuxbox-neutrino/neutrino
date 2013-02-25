@@ -84,7 +84,7 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	bouquet = Bouquet;
 	mode = CZapitClient::MODE_TV;
 	dline = NULL;
-	ibox = new CComponentsInfoBox();
+	ibox = NULL;
 	Channels = NULL;
 }
 
@@ -211,7 +211,7 @@ void CBEChannelWidget::paintDetails(int index)
 	
 	//info box
 	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
-	ibox->paint(false);
+	ibox->paint(CC_SAVE_SCREEN_YES);
 }
 
 void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
@@ -235,15 +235,19 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 		dline->setYPos(ypos1a);
 		
 		//infobox
-		if (ibox){
-			ibox->setDimensionsAll(x, ypos2, width, info_height);
-			ibox->setFrameThickness(2);
+		if (ibox == NULL)
+			ibox = new CComponentsInfoBox();
+
+		if (ibox->isPainted())
+			ibox->hide(CC_SAVE_SCREEN_NO);
+		
+		ibox->setDimensionsAll(x, ypos2, width, info_height);
+		ibox->setFrameThickness(2);
 #if 0			
 		ibox->paint(false,true);
 #endif
-			ibox->setCornerRadius(RADIUS_LARGE);
-			ibox->setShadowOnOff(CC_SHADOW_OFF);
-		}
+		ibox->setCornerRadius(RADIUS_LARGE);
+		ibox->setShadowOnOff(CC_SHADOW_OFF);
 	}
 }
 
@@ -295,10 +299,10 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
 	width  = w_max ((frameBuffer->getScreenWidth() / 20 * (fw+6)), 100);
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), (frameBuffer->getScreenHeight() / 20 * 2));
+	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
 	listmaxshow = (height-theight-footerHeight-0)/iheight;
 	height = theight+footerHeight+listmaxshow*iheight; // recalc height
-	info_height = 2*iheight + 10;
+	info_height = 2*iheight + 4;
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height + info_height)) / 2;
