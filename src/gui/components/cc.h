@@ -31,6 +31,9 @@
 #include <gui/widget/textbox.h>
 #include <vector>
 #include <string>
+#include <driver/pictureviewer/pictureviewer.h>
+
+//#define DEBUG_CC
 
 class CComponents
 {
@@ -48,7 +51,7 @@ class CComponents
 		comp_screen_data_t saved_screen;
 
 		void clearSavedScreen();
-		void clear();
+		virtual void clear();
 	public:
 		CComponents();
 		virtual~CComponents();
@@ -154,7 +157,7 @@ class CComponentsPicture : public CComponentsItem
 		inline void setPictureOffset(const unsigned char offset){pic_offset = offset;};
 		inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
 		inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
-		inline void setPicture(const std::string& picture_name);
+		void setPicture(const std::string& picture_name);
 		void setPictureAlign(const int alignment);
 		
 		inline bool isPicPainted(){return pic_painted;};

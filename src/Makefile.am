@@ -48,7 +48,6 @@ endif
 neutrino_LDADD = \
 	daemonc/libneutrino_daemonc.a \
 	gui/bedit/libneutrino_gui_bedit.a \
-	gui/components/libneutrino_gui_components.a \
 	gui/libtimerlist.a \
 	gui/libneutrino_gui.a \
 	gui/widget/libneutrino_gui_widget.a \
@@ -57,6 +56,7 @@ neutrino_LDADD = \
 	system/libneutrino_system.a \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
+	gui/components/libneutrino_gui_components.a \
 	eitd/libsectionsd.a \
 	driver/libneutrino_driver.a \
 	driver/audiodec/libneutrino_driver_audiodec.a \
