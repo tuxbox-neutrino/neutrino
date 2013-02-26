@@ -479,9 +479,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
-	live_fe = fe;
-	CFEManager::getInstance()->setLiveFE(live_fe);
-
 	sig_delay = 2;
 	if (!firstzap && current_channel)
 		SaveChannelPids(current_channel);
@@ -491,7 +488,12 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	pmt_stop_update_filter(&pmt_update_fd);
 
+	/* stop playback on the old frontend... */
 	StopPlayBack(!forupdate);
+
+	/* then select the new one... */
+	live_fe = fe;
+	CFEManager::getInstance()->setLiveFE(live_fe);
 
 	if(!forupdate && current_channel)
 		current_channel->resetPids();
