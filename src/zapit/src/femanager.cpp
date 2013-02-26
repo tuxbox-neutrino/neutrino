@@ -263,8 +263,7 @@ void CFEManager::saveSettings(bool write)
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
 		configfile.setInt32Vector(cfg_key, satList);
 	}
-	//setInt32Vector dont set modified flag !
-	if (write /*&& configfile.getModifiedFlag()*/) {
+	if (write && configfile.getModifiedFlag()) {
 		config_exist = configfile.saveConfig(FECONFIGFILE);
 		//configfile.setModifiedFlag(false);
 	}
