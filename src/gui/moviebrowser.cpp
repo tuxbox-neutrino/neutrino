@@ -806,7 +806,8 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 		configfile.setInt32(cfg_key, settings->browserRowWidth[i]);
 	}
 
-	configfile.saveConfig(MOVIEBROWSER_SETTINGS_FILE);
+	if (configfile.getModifiedFlag())
+		configfile.saveConfig(MOVIEBROWSER_SETTINGS_FILE);
 	return (result);
 }
 
