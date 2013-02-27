@@ -86,6 +86,11 @@ extern cAudio *audioDecoder;
 extern cDemux *audioDemux;
 extern cDemux *videoDemux;
 
+#ifdef BOXMODEL_APOLLO
+cVideo *pipDecoder;
+cDemux *pipDemux;
+#endif
+
 cDemux *pcrDemux = NULL;
 
 /* the map which stores the wanted cable/satellites */
@@ -123,6 +128,8 @@ CZapit::CZapit()
 	currentMode = 0;
 	current_volume = 100;
 	volume_percent = 0;
+	pip_channel_id = 0;
+	pip_fe = NULL;
 }
 
 CZapit::~CZapit()
@@ -508,6 +515,11 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	}
 	SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 
+#ifdef BOXMODEL_APOLLO
+	if (transponder_change && (live_fe == pip_fe))
+		StopPip();
+#endif
+
 	if (current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
 		current_is_nvod = true;
 		return true;
@@ -548,6 +560,75 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	return true;
 }
 
+#ifdef BOXMODEL_APOLLO
+bool CZapit::StopPip()
+{
+	if (pip_channel_id) {
+		INFO("[pip] stop %llx", pip_channel_id);
+		CCamManager::getInstance()->Stop(pip_channel_id, CCamManager::RECORD);
+		pipDemux->Stop();
+		pipDecoder->Stop();
+		pip_fe = NULL;
+		pip_channel_id = 0;
+		return true;
+	}
+	return false;
+}
+
+bool CZapit::StartPip(const t_channel_id channel_id)
+{
+	CZapitChannel* newchannel;
+	bool transponder_change;
+
+	StopPip();
+
+	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
+		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		return false;
+	}
+	INFO("[pip] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
+
+	CFEManager::getInstance()->lockFrontend(live_fe);
+	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
+	CFEManager::getInstance()->unlockFrontend(live_fe);
+	if(frontend == NULL) {
+		ERROR("Cannot get frontend\n");
+		return false;
+	}
+	if(!TuneChannel(frontend, newchannel, transponder_change))
+		return false;
+
+	if(!ParsePatPmt(newchannel))
+		return false;
+
+	pip_fe = frontend;
+
+	INFO("[pip] vpid %X apid %X pcr %X", newchannel->getVideoPid(), newchannel->getAudioPid(), newchannel->getPcrPid());
+	if (pipDemux && (pipDemux->getUnit() != newchannel->getRecordDemux())) {
+		pipDecoder->SetDemux(NULL);
+		delete pipDemux;
+		pipDemux = new cDemux(newchannel->getRecordDemux());
+		pipDemux->Open(DMX_PIP_CHANNEL);
+		pipDecoder->SetDemux(pipDemux);
+	}
+#if 0
+	pipDecoder->SetSyncMode(AVSYNC_DISABLED);
+	pipDemux->SetSyncMode(AVSYNC_DISABLED);
+#endif
+
+	pipDecoder->SetStreamType((VIDEO_FORMAT)newchannel->type);
+	pipDemux->pesFilter(newchannel->getVideoPid());
+	pipDecoder->Start(0, newchannel->getPcrPid(), newchannel->getVideoPid());
+	pipDemux->Start();
+	pip_channel_id = channel_id;
+
+	//pipDecoder->setBlank(false);
+
+	CCamManager::getInstance()->Start(newchannel->getChannelID(), CCamManager::RECORD);
+	return true;
+}
+#endif
+
 bool CZapit::ZapForRecord(const t_channel_id channel_id)
 {
 	CZapitChannel* newchannel;
@@ -567,6 +648,10 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	if(!TuneChannel(frontend, newchannel, transponder_change))
 		return false;
 
+#ifdef BOXMODEL_APOLLO
+	if (transponder_change && (frontend == pip_fe))
+		StopPip();
+#endif
 	if(!ParsePatPmt(newchannel))
 		return false;
 
@@ -1936,6 +2021,9 @@ void CZapit::enterStandby(void)
 	SaveAudioMap();
 	SaveVolumeMap();
 	StopPlayBack(true);
+#ifdef BOXMODEL_APOLLO
+	StopPip();
+#endif
 
 	if(!(currentMode & RECORD_MODE)) {
 		pmt_stop_update_filter(&pmt_update_fd);
@@ -2051,6 +2139,11 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 	audioDecoder->SetDemux(audioDemux);
 	audioDecoder->SetVideo(videoDecoder);
+
+	pipDemux = new cDemux();
+	pipDemux->Open(DMX_PIP_CHANNEL);
+	pipDecoder = cVideo::GetDecoder(1);
+	pipDecoder->SetDemux(pipDemux);
 #else
         videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
         videoDecoder->Standby(false);
@@ -2235,6 +2328,11 @@ void CZapit::run()
 	delete pmtDemux;
 	delete audioDecoder;
 	delete audioDemux;
+#ifdef BOXMODEL_APOLLO
+	StopPip();
+	delete pipDecoder;
+	delete pipDemux;
+#endif
 
 	INFO("demuxes/decoders deleted");
 
