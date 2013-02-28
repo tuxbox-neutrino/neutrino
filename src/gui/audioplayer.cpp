@@ -437,7 +437,7 @@ int CAudioPlayerGui::show()
 			if (m_screensaver)
 			{
 				screensaver(false);
-				if (msg < CRCInput::RC_MaxRC) {
+				if (msg <= CRCInput::RC_MaxRC) {
 					// ignore first keypress - just quit the screensaver
 					g_RCInput->clearRCMsg();
 					continue;
