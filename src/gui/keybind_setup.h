@@ -76,6 +76,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			/*KEY_PLUGIN,*/
 			KEY_UNLOCK,
 			KEY_SCREENSHOT,
+			KEY_PIP,
 			
 			KEYBINDS_COUNT
 		};

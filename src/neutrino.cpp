@@ -317,11 +317,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
-#ifdef BOXMODEL_APOLLO
-	g_settings.brightness = configfile.getInt32("brightness", 0);
-	g_settings.contrast = configfile.getInt32("contrast", 0);
-	g_settings.saturation = configfile.getInt32("saturation", 0);
-#endif
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
@@ -770,6 +765,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.screen_width = frameBuffer->getScreenWidth(true);
 		g_settings.screen_height = frameBuffer->getScreenHeight(true);
 	}
+#ifdef BOXMODEL_APOLLO
+	g_settings.brightness = configfile.getInt32("brightness", 0);
+	g_settings.contrast = configfile.getInt32("contrast", 0);
+	g_settings.saturation = configfile.getInt32("saturation", 0);
+	g_settings.pip_x = configfile.getInt32("pip_x", 50);
+	g_settings.pip_y = configfile.getInt32("pip_y", 50);
+	g_settings.pip_width = configfile.getInt32("pip_width", 365);
+	g_settings.pip_height = configfile.getInt32("pip_height", 200);
+#endif
 	if(erg)
 		configfile.setModifiedFlag(true);
 	return erg;
@@ -792,11 +796,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "analog_mode2", g_settings.analog_mode2 );
 	configfile.setInt32( "video_Format", g_settings.video_Format );
 	configfile.setInt32( "video_43mode", g_settings.video_43mode );
-#ifdef BOXMODEL_APOLLO
-	configfile.setInt32( "brightness", g_settings.brightness );
-	configfile.setInt32( "contrast", g_settings.contrast );
-	configfile.setInt32( "saturation", g_settings.saturation );
-#endif
 	configfile.setInt32( "hdmi_cec_mode", g_settings.hdmi_cec_mode );
 	configfile.setInt32( "hdmi_cec_view_on", g_settings.hdmi_cec_view_on );
 	configfile.setInt32( "hdmi_cec_standby", g_settings.hdmi_cec_standby );
@@ -1147,7 +1146,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setInt32("bigFonts", g_settings.bigFonts);
 	configfile.setInt32("big_windows", g_settings.big_windows);
-#if 0
+#ifdef BOXMODEL_APOLLO
+	configfile.setInt32("brightness", g_settings.brightness );
+	configfile.setInt32("contrast", g_settings.contrast );
+	configfile.setInt32("saturation", g_settings.saturation );
 	configfile.setInt32("pip_x", g_settings.pip_x);
 	configfile.setInt32("pip_y", g_settings.pip_y);
 	configfile.setInt32("pip_width", g_settings.pip_width);
@@ -2109,6 +2111,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder){
 				numericZap( msg );
 			}
+#ifdef BOXMODEL_APOLLO
+			else if (msg == (neutrino_msg_t) g_settings.key_pip) {
+				CZapit::getInstance()->StopPip();
+			}
+#endif
 			else if (CRCInput::isNumeric(msg)) {
 				numericZap( msg );
 			}
@@ -2686,7 +2693,7 @@ _repeat:
 				printf("NeutrinoMessages::INACTIVITY SLEEPTIMER: skiping\n");
 				skipShutdownTimer = false;
 				return messages_return::handled;
-                       }
+			}
 		}else{ //MAIN-MENU SLEEPTIMER
 			if(skipSleepTimer) {
 				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
@@ -3593,6 +3600,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_plugin = tconfig.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", CRCInput::RC_nokey );
+	g_settings.key_pip = tconfig.getInt32( "key_pip", CRCInput::RC_help );
 	g_settings.key_current_transponder = tconfig.getInt32( "key_current_transponder", CRCInput::RC_games );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
@@ -3651,6 +3659,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
 	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
 	tconfig.setInt32( "key_screenshot", g_settings.key_screenshot );
+	tconfig.setInt32( "key_pip", g_settings.key_pip );
 	tconfig.setInt32( "key_current_transponder", g_settings.key_current_transponder );
 
 	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );

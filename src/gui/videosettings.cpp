@@ -54,6 +54,10 @@
 #include <video.h>
 
 extern cVideo *videoDecoder;
+#ifdef BOXMODEL_APOLLO
+extern cVideo *pipDecoder;
+#include <gui/pipsetup.h>
+#endif
 extern int prev_video_mode;
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -297,11 +301,19 @@ int CVideoSettings::showVideoSetup()
 #ifdef BOXMODEL_APOLLO
 	/* values are from -128 to 127, but brightness really no sense after +/- 40. changeNotify multiply contrast and saturation to 3 */
 	CMenuOptionNumberChooser * bcont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_BRIGHTNESS, &g_settings.brightness, true, -42, 42, this);
+	bcont->setHint("", LOCALE_MENU_HINT_VIDEO_BRIGHTNESS);
 	CMenuOptionNumberChooser * ccont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_CONTRAST, &g_settings.contrast, true, -42, 42, this);
+	ccont->setHint("", LOCALE_MENU_HINT_VIDEO_CONTRAST);
 	CMenuOptionNumberChooser * scont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_SATURATION, &g_settings.saturation, true, -42, 42, this);
+	scont->setHint("", LOCALE_MENU_HINT_VIDEO_SATURATION);
 	videosetup->addItem(bcont);
 	videosetup->addItem(ccont);
 	videosetup->addItem(scont);
+
+	CPipSetup pip;
+	CMenuForwarder * pipsetup = new CMenuForwarder(LOCALE_VIDEOMENU_PIP, true, NULL, &pip);
+	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
+	videosetup->addItem(pipsetup);
 #endif
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
@@ -332,6 +344,9 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
 #endif
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+#ifdef BOXMODEL_APOLLO
+	pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+#endif
 
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
 	CAutoModeNotifier anotify;
@@ -340,6 +355,7 @@ void CVideoSettings::setVideoSettings()
 	changeNotify(LOCALE_VIDEOMENU_BRIGHTNESS, NULL);
 	changeNotify(LOCALE_VIDEOMENU_CONTRAST, NULL);
 	changeNotify(LOCALE_VIDEOMENU_SATURATION, NULL);
+	pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 #endif
 }
 
@@ -397,6 +413,9 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		if (g_settings.video_Format != 1 && g_settings.video_Format != 3 && g_settings.video_Format != 2)
 			g_settings.video_Format = 3;
 		videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+#ifdef BOXMODEL_APOLLO
+		pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+#endif
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VIDEOMODE))
 	{
@@ -449,6 +468,9 @@ void CVideoSettings::next43Mode(void)
 	text =  VIDEOMENU_43MODE_OPTIONS[curmode].value;
 	g_settings.video_43mode = VIDEOMENU_43MODE_OPTIONS[curmode].key;
 	videoDecoder->setAspectRatio(-1, g_settings.video_43mode);
+#ifdef BOXMODEL_APOLLO
+	pipDecoder->setAspectRatio(-1, g_settings.video_43mode);
+#endif
 	ShowHintUTF(LOCALE_VIDEOMENU_43MODE, g_Locale->getText(text), 450, 2);
 }
 
@@ -472,6 +494,9 @@ void CVideoSettings::SwitchFormat()
 	g_settings.video_Format = VIDEOMENU_VIDEOFORMAT_OPTIONS[curmode].key;
 
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
+#ifdef BOXMODEL_APOLLO
+	pipDecoder->setAspectRatio(g_settings.video_Format, -1);
+#endif
 	ShowHintUTF(LOCALE_VIDEOMENU_VIDEOFORMAT, g_Locale->getText(text), 450, 2);
 }
 

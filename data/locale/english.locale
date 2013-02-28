@@ -360,6 +360,7 @@ extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_current_transponder Current Transponder Key
 extra.key_list_end end
 extra.key_list_start home
+extra.key_pip PiP
 extra.key_plugin One touch plugin
 extra.key_screenshot Screenshot key
 extra.key_timeshift Timeshift
@@ -843,6 +844,7 @@ menu.hint_key_mptime Assign button to show play time\nleft time
 menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
 menu.hint_key_pageup Assign button to show previous items page
+menu.hint_key_pip Assign button to top PiP
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
@@ -1078,11 +1080,15 @@ menu.hint_vfd_statusline Choose what to display in short\nVFD status line
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
 menu.hint_video_43mode Display mode for 4:3 content\non 16:9 TV
 menu.hint_video_analog_mode Select analog output mode\nfor SCART and CINCH connectors
+menu.hint_video_brightness Change picture brightness
 menu.hint_video_cinch_mode Select analog output mode for\ncomposite video out
+menu.hint_video_contrast Change picture contrast
 menu.hint_video_dbdr MPEG2 enhancement filters
 menu.hint_video_format TV aspect ratio
 menu.hint_video_mode HDMI output video mode
 menu.hint_video_modes VF key will cycle between enabled modes 
+menu.hint_video_pip Picture in picture size and position
+menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
@@ -1837,6 +1843,8 @@ videomenu.hue Hue
 videomenu.letterbox Letterbox
 videomenu.panscan Pan&Scan
 videomenu.panscan2 14:9 Pan&Scan
+videomenu.pip PiP setup
+videomenu.pip_error PiP start failed
 videomenu.saturation Saturation
 videomenu.scart Scart
 videomenu.screensetup Screen Setup

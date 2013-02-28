@@ -184,7 +184,8 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MPKEY_PLUGIN,			&g_settings.mpkey_plugin,		LOCALE_MENU_HINT_KEY_MPPLUGIN },
 	/*{LOCALE_EXTRA_KEY_PLUGIN,		&g_settings.key_plugin,			},*/
 	{LOCALE_EXTRA_KEY_UNLOCK,		&g_settings.key_unlock,			LOCALE_MENU_HINT_KEY_UNLOCK},
-	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT }
+	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT },
+	{LOCALE_EXTRA_KEY_PIP,			&g_settings.key_pip,			LOCALE_MENU_HINT_KEY_PIP }
 };
 
 
@@ -311,6 +312,12 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf = new CMenuDForwarder(key_settings[KEY_SCREENSHOT].keydescription, true, keychooser[KEY_SCREENSHOT]->getKeyName(), keychooser[KEY_SCREENSHOT]);
 	mf->setHint("", key_settings[KEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);
+#ifdef BOXMODEL_APOLLO
+	// pip
+	mf = new CMenuDForwarder(key_settings[KEY_PIP].keydescription, true, keychooser[KEY_PIP]->getKeyName(), keychooser[KEY_PIP]);
+	mf->setHint("", key_settings[KEY_PIP].hint);
+	bindSettings->addItem(mf);
+#endif
 
 	//bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	// left-exit, FIXME is this option really change anything ??

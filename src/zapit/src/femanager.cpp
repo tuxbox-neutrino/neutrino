@@ -570,6 +570,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 	return free_frontend;
 }
 
+#ifdef DYNAMIC_DEMUX
 int CFEManager::getDemux(transponder_id_t id)
 {
 	for (unsigned int i = 1; i < dmap.size(); i++) {
@@ -608,14 +609,18 @@ bool CFEManager::haveFreeDemux()
 	}
 	return false;
 }
+#endif // DYNAMIC_DEMUX
 
 CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
 	fedebug = 1;
+	if (forrecord)
+		fedebug = 1;
 	CFrontend * frontend = getFrontend(channel);
 	if (frontend) {
+#ifdef DYNAMIC_DEMUX
 		int dnum = getDemux(channel->getTransponderId());
 		INFO("record demux: %d", dnum);
 		channel->setRecordDemux(dnum);
@@ -624,6 +629,11 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 		} else {
 			cDemux::SetSource(dnum, frontend->fenumber);
 		}
+#else
+		channel->setRecordDemux(frontend->fenumber+1);
+		cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
+#endif
+
 	}
 	return frontend;
 }
@@ -675,9 +685,11 @@ bool CFEManager::lockFrontend(CFrontend * frontend, CZapitChannel * channel)
 	have_locked = true;
 
 	if (channel) {
+#ifdef DYNAMIC_DEMUX
 		int di = channel->getRecordDemux();
 		if ((unsigned int) di < dmap.size())
 			dmap[di].Lock(channel->getTransponderId());
+#endif
 	}
 	return true;
 }
@@ -688,12 +700,14 @@ bool CFEManager::unlockFrontend(CFrontend * frontend, bool unlock_demux)
 	have_locked = false;
 	frontend->Unlock();
 	if (unlock_demux) {
+#ifdef DYNAMIC_DEMUX
 		for (unsigned int i = 1; i < dmap.size(); i++) {
 			if(dmap[i].tpid == frontend->getTsidOnid()) {
 				dmap[i].Unlock();
 				break;
 			}
 		}
+#endif
 	}
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;

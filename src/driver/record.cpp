@@ -1613,13 +1613,21 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		}
 		if (unlock)
 			CFEManager::getInstance()->unlockFrontend(live_fe);
-	} else {
+	}
+#ifdef DYNAMIC_DEMUX
+	else {
 		frontend = CFEManager::getInstance()->allocateFE(channel, true);
 	}
 	printf("%s: record demux: %d\n", __FUNCTION__, channel->getRecordDemux());
 	if (channel->getRecordDemux() == 0)
 		ret = false;
+#endif
 	if(ret) {
+#ifdef BOXMODEL_APOLLO
+		if (CZapit::getInstance()->GetPipChannelID() == channel_id)
+			CZapit::getInstance()->StopPip();
+#endif
+
 		if(StopSectionsd) {
 			printf("%s: g_Sectionsd->setPauseScanning(true)\n", __FUNCTION__);
 			g_Sectionsd->setPauseScanning(true);

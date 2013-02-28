@@ -163,6 +163,7 @@
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
 #define NEUTRINO_ICON_RECORDING_EVENT_MARKER	"rec_event_marker"
 #define NEUTRINO_ICON_ZAP		"zap"
+#define NEUTRINO_ICON_PIP		"pip"
 
 #define DUMMY_ICON			"dummy"
 

@@ -778,6 +778,21 @@ int CChannelList::show()
 				loop=false;
 			}
 		}
+#ifdef BOXMODEL_APOLLO
+		else if ( msg == CRCInput::RC_play) {
+			if(SameTP() && CRecordManager::getInstance()->GetRecordMode(chanlist[selected]->channel_id) == CRecordManager::RECMODE_OFF) {
+				if (CZapit::getInstance()->GetPipChannelID() == chanlist[selected]->getChannelID()) {
+					CZapit::getInstance()->StopPip();
+					paint();
+				} else {
+					if (CZapit::getInstance()->StartPip(chanlist[selected]->getChannelID()))
+						paint();
+					else
+						DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
+				}
+			}
+		}
+#endif
 		else if (( msg == CRCInput::RC_spkr ) && new_zap_mode ) {
 			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) {
 				switch (new_zap_mode) {
@@ -1856,11 +1871,19 @@ void CChannelList::paintItem(int pos)
 		rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[curr]->channel_id);
 		
 		//set recording icon
-		const char * rec_icon = "";
+		std::string rec_icon;
 		if (rec_mode & CRecordManager::RECMODE_REC)
 			rec_icon = NEUTRINO_ICON_REC;
 		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
 			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
+#ifdef BOXMODEL_APOLLO
+		else if (chanlist[curr]->channel_id == CZapit::getInstance()->GetPipChannelID()) {
+			int h;
+			frameBuffer->getIconSize(NEUTRINO_ICON_PIP, &ChannelList_Rec, &h);
+			rec_icon = NEUTRINO_ICON_PIP;
+			ChannelList_Rec += 8;
+		}
+#endif
 	
 		//calculating icons
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
@@ -1875,7 +1898,8 @@ void CChannelList::paintItem(int pos)
 				r_icon_x = r_icon_x - s_icon_w;
 		
  		//paint recording icon
-		if (rec_mode != CRecordManager::RECMODE_OFF)
+		//if (rec_mode != CRecordManager::RECMODE_OFF)
+		if (!rec_icon.empty())
 			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		
 		//paint buttons

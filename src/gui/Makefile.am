@@ -108,6 +108,7 @@ libneutrino_gui_a_SOURCES = \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
+	pipsetup.cpp \
 	zapit_setup.cpp
 
 libneutrino_gui2_a_SOURCES = \
