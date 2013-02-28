@@ -8,9 +8,16 @@ INCLUDES = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
-	-I$(top_srcdir)/lib/libcoolstream \
 	-I$(top_srcdir)/lib/xmltree \
 	@FREETYPE_CFLAGS@
+
+if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+else
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
+endif
 
 
 noinst_LIBRARIES = libneutrino_gui_components.a
