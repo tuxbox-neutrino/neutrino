@@ -200,6 +200,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	CRecordManager::getInstance()->StopAutoRecord();
 	g_Zapit->stopPlayBack();
+#ifdef BOXMODEL_APOLLO
+	CZapit::getInstance()->StopPip();
+#endif
 
 	frameBuffer->paintBackground();
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/scan.jpg");
@@ -342,6 +345,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	videoDecoder->StopPicture();
 	frameBuffer->Clear();
 	g_Sectionsd->setPauseScanning(false);
+	CNeutrinoApp::getInstance()->channelList->setSelected(0xfffffff);
+	CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(CZapit::getInstance()->GetCurrentChannelID());
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	return menu_return::RETURN_REPAINT;
