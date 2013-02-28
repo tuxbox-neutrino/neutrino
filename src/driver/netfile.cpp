@@ -2,6 +2,8 @@
 |	Neutrino-GUI  -   DBoxII-Project
 |
 |	Copyright (C) 2004 by Sanaia <sanaia at freenet dot de>
+|	Copyright (C) 2010-2012 Stefan Seyfried
+|
 |	netfile - remote file access mapper
 |
 |
@@ -400,7 +402,7 @@ int request_file(URL *url)
 				/* if we have a entity, announce it to the server */
 				if(url->entity[0])
 				{
-					snprintf(str, sizeof(str)-1, "Content-Length: %d\r\n", strlen(url->entity));
+					snprintf(str, sizeof(str)-1, "Content-Length: %d\r\n", (int)strlen(url->entity));
 					dprintf(stderr, "> %s", str);
 					send(url->fd, str, strlen(str), 0);
 				}

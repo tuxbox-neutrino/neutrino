@@ -2,6 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
+	Copyright (C) 2012 Stefan Seyfried
 
 	License: GPLv2
 
@@ -103,7 +104,7 @@ bool CFEManager::Init()
 	for (int i = 0; i < MAX_DMX_UNITS; i++)
 		dmap.push_back(CFeDmx(i));
 
-	INFO("found %d frontends, %d demuxes\n", femap.size(), dmap.size());
+	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
 	if( femap.empty() )
 		return false;
 
@@ -323,8 +324,7 @@ void CFEManager::saveSettings(bool write)
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
 		configfile.setInt32Vector(cfg_key, satList);
 	}
-	//setInt32Vector dont set modified flag !
-	if (write /*&& configfile.getModifiedFlag()*/) {
+	if (write && configfile.getModifiedFlag()) {
 		config_exist = configfile.saveConfig(FECONFIGFILE);
 		//configfile.setModifiedFlag(false);
 	}

@@ -344,7 +344,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 #endif
 	else if (msg == NeutrinoMessages::EVT_TUNE_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
-printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016llx)\n", chid);
+printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016" PRIx64 ")\n", chid);
 		if(chid)
 			g_Sectionsd->setServiceChanged( chid, true );
 		else

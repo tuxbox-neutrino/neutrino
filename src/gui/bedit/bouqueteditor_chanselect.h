@@ -34,7 +34,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/listbox.h>
-#include <gui/widget/components.h>
+#include <gui/components/cc.h>
 #include <zapit/client/zapitclient.h>
 
 #include <string>

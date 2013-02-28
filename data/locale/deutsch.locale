@@ -1627,17 +1627,17 @@ scants.transponders Transponder:
 scrambled_channel Verschlüsselung aktiv
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
-screenshot.count Screenshot Anzahl
+screenshot.count Anzahl
 screenshot.cover Erzeuge Filmcover für Moviebrowser
-screenshot.defdir Screenshot Verzeichnis
-screenshot.format Screenshot Format
+screenshot.defdir Ziel-Verzeichnis
+screenshot.format Format
 screenshot.info Screenshot Taste ist nicht belegt
 screenshot.menu Screenshot
-screenshot.osd OSD Auflösung
-screenshot.res Screenshot Auflösung
-screenshot.scale Screenshot Skalierung
-screenshot.tv TV Auflösung
-screenshot.video Screenshot mit Video Hintergrund
+screenshot.osd OSD-Auflösung
+screenshot.res Auflösung
+screenshot.scale Skalierung
+screenshot.tv TV-Auflösung
+screenshot.video Video im Hintergrund
 servicemenu.getplugins Plugins neu laden
 servicemenu.getplugins_hint Plugins werden neu geladen,\nbitte warten...
 servicemenu.head Service

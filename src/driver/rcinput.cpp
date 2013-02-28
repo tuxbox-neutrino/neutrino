@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
                       2003 thegoodguy
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2008-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -894,7 +888,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								p = new unsigned char[sizeof(int64_t)];
 								*(int64_t*) p = timeNew - timeOld;
 #endif
-								printf("[neutrino] CSectionsdClient::EVT_TIMESET: timediff %lld\n", *(int64_t*) p);
+								printf("[neutrino] CSectionsdClient::EVT_TIMESET: timediff %" PRId64 "\n", *(int64_t*) p);
 								/* FIXME what this code really do ? */
 								if ((int64_t)last_keypress > *(int64_t*)p)
 									last_keypress += *(int64_t *)p;

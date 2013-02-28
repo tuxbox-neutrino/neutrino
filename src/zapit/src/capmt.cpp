@@ -3,6 +3,7 @@
  *             thegoodguy         <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
+ * Copyright (C) 2012 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,7 +189,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 
 	if(channel == NULL) {
-		printf("CCamManager: channel %llx not found\n", channel_id);
+		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
 		return false;
 	}
 	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
@@ -229,7 +230,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if(cam->getSource() > 0)
 		source = cam->getSource();
 
-	INFO("channel %llx [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
+	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 	if((oldmask != newmask) || force_update) {

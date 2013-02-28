@@ -269,14 +269,14 @@ void CFrontend::reset(void)
 void CFrontend::Lock()
 {
 	usecount++;
-	INFO("[fe%d] usecount %d tp %llx\n", fenumber, usecount, getTsidOnid());
+	INFO("[fe%d] usecount %d tp %" PRIx64 "\n", fenumber, usecount, getTsidOnid());
 }
 
 void CFrontend::Unlock()
 {
 	if(usecount > 0)
 		usecount--;
-	INFO("[fe%d] usecount %d tp %llx\n", fenumber, usecount, getTsidOnid());
+	INFO("[fe%d] usecount %d tp %" PRIx64 "\n", fenumber, usecount, getTsidOnid());
 }
 
 fe_code_rate_t CFrontend::getCFEC()
@@ -980,7 +980,7 @@ bool CFrontend::setInput(CZapitChannel * channel, bool nvod)
 		tpI = transponders.find(channel->getTransponderId());
 
 	if (tpI == transponders.end()) {
-		printf("Transponder %llx for channel %llx not found\n", ct, channel->getChannelID());
+		printf("Transponder %" PRIx64 " for channel %" PRIx64 " not found\n", ct, channel->getChannelID());
 		return false;
 	}
 

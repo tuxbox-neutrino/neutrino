@@ -192,6 +192,7 @@ src/driver/audiodec/Makefile
 src/driver/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
+src/gui/components/Makefile
 src/gui/widget/Makefile
 src/system/Makefile
 data/Makefile

@@ -1,6 +1,7 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
+	Copyright (C) 2010, 2012 Stefan Seyfried
 	Copyright (C) 2011 CoolStream International Ltd
 
 	License: GPLv2

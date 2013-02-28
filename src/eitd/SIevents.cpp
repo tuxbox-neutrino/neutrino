@@ -5,6 +5,7 @@
  * Homepage: http://dbox2.elxsi.de
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
+ * Copyright (C) 2008, 2012 Stefan Seyfried
  *
  * License: GPLv2
  *
@@ -529,7 +530,7 @@ int SIevent::saveXML2(FILE *file) const
 
 void SIevent::dump(void) const
 {
-	printf("Unique key: %llx\n", uniqueKey());
+	printf("Unique key: %" PRIx64 "\n", uniqueKey());
 	if(original_network_id)
 		printf("Original-Network-ID: %hu\n", original_network_id);
 	if (service_id)

@@ -69,7 +69,6 @@ install_DATA += \
 	dd.png \
 	dd_avail.png \
 	dd_gray.png \
-	ddfill.png \
 	down.png \
 	error.png \
 	features.png \
@@ -81,6 +80,7 @@ install_DATA += \
 	help.png \
 	help_small.png \
 	hidden.png \
+	hint_a_pic.png \
 	hint_aplay.png \
 	hint_audio.png \
 	hint_back.png \
@@ -110,6 +110,7 @@ install_DATA += \
 	hint_reboot.png \
 	hint_recording.png \
 	hint_reload.png \
+	hint_restart.png \
 	hint_save.png \
 	hint_scan.png \
 	hint_scripts.png \
@@ -162,6 +163,7 @@ install_DATA += \
 	mp3-5.jpg \
 	mp3-6.jpg \
 	mp3-7.jpg \
+	multimedia.png \
 	mute.png \
 	mute_small.png \
 	mute_zap_gray.png \

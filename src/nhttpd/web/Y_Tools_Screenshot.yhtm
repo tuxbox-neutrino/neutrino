@@ -1,3 +1,5 @@
+{=var-set:fbshot={=if-file-exists:/bin/fbshot~true~{=if-file-exists:/var/bin/fbshot~true~false=}=}=}
+
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/prototype.js"></script>
@@ -41,8 +43,12 @@ function do_snapshot() {
 		filename = id("filename").value;
 	}
 
-	var _null = loadSyncURL("/control/screenshot?name="+filename+"&osd="+enableOSD+"&video="+enableVideo);
-	window.setTimeout("do_showshot('"+filename+"');", (enableVideo == 1) ? 3500 : 1500);
+	if ({=var-get:fbshot=} == true && enableVideo == 0)
+		dbox_exec_tools("fbshot fb /tmp/"+filename+".png");
+	else
+		loadSyncURL("/control/screenshot?name="+filename+"&osd="+enableOSD+"&video="+enableVideo);
+
+	window.setTimeout("do_showshot('"+filename+"');", (enableVideo == 1) ? 6500 : 3000);
 }
 function do_showshot(_filename) {
 	if (_filename == "")
@@ -102,7 +108,7 @@ function do_zoomshot(){
 				{=include-block:Y_Blocks.txt;remote=}
 			</td>
 			<td class="shot">
-				<img id="shot" src="" onclick="do_zoomshot()" style="display: none" title="Click to zoom" />
+				<img id="shot" src="" onclick="do_zoomshot()" style="display: none" />
 			</td>
 		</tr>
 		</table>

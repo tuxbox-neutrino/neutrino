@@ -1631,17 +1631,17 @@ scants.transponders Transponders:
 scrambled_channel Scrambled channel
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
-screenshot.count Screenshot count
+screenshot.count Count
 screenshot.cover Create Moviecover for Moviebrowser
-screenshot.defdir Screenshot directory
-screenshot.format Screenshot format
+screenshot.defdir Destination directory
+screenshot.format Format
 screenshot.info Screenshot key is unused
 screenshot.menu Screenshot
 screenshot.osd OSD resolution
-screenshot.res Screenshot resolution
-screenshot.scale Screenshot scale
+screenshot.res Resolution
+screenshot.scale Scale
 screenshot.tv TV resolution
-screenshot.video Screenshot with video background
+screenshot.video Video in the background
 servicemenu.getplugins Reload plugins
 servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
 servicemenu.head Service

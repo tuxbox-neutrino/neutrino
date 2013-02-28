@@ -64,6 +64,7 @@ private:
 	unsigned int		liststart;
 	unsigned int		listmaxshow;
 	unsigned int		numwidth;
+	int			new_zap_mode;
 	int			fheight; // Fonthoehe Channellist-Inhalt
 	int			theight; // Fonthoehe Channellist-Titel
 	int			footerHeight;
@@ -97,7 +98,7 @@ private:
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
-	void paintItem2DetailsLine (int pos, int ch_index);
+	void paintItem2DetailsLine (int pos);
 	void paintItem(int pos);
 	bool updateSelection(int newpos);
 	void paint();
