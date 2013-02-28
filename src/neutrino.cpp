@@ -2111,6 +2111,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder){
 				numericZap( msg );
 			}
+#ifdef BOXMODEL_APOLLO
+			else if (msg == (neutrino_msg_t) g_settings.key_pip) {
+				CZapit::getInstance()->StopPip();
+			}
+#endif
 			else if (CRCInput::isNumeric(msg)) {
 				numericZap( msg );
 			}
@@ -3595,6 +3600,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_plugin = tconfig.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", CRCInput::RC_nokey );
+	g_settings.key_pip = tconfig.getInt32( "key_pip", CRCInput::RC_help );
 	g_settings.key_current_transponder = tconfig.getInt32( "key_current_transponder", CRCInput::RC_games );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
@@ -3653,6 +3659,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
 	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
 	tconfig.setInt32( "key_screenshot", g_settings.key_screenshot );
+	tconfig.setInt32( "key_pip", g_settings.key_pip );
 	tconfig.setInt32( "key_current_transponder", g_settings.key_current_transponder );
 
 	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
