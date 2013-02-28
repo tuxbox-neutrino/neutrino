@@ -401,6 +401,7 @@ struct SNeutrinoSettings
 	std::string screenshot_dir;
 
 	int key_current_transponder;
+	int key_pip;
 
 	int cacheTXT;
 	int minimode;
