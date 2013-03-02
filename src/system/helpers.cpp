@@ -3,6 +3,9 @@
 
 	License: GPL
 
+	(C) 2012-2013 the neutrino-hd developers
+	(C) 2012,2013 Stefan Seyfried
+
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -83,6 +86,8 @@ int my_system(const char * cmd, const char * arg1, const char * arg2, const char
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
 				close(i);
+			if (setsid() == -1)
+				perror("my_system setsid");
 			if(execlp(cmd, cmd, arg1, arg2, arg3, arg4, arg5, arg6, (char*)NULL))
 			{
 				std::string txt = "ERROR: my_system \"" + (std::string) cmd + "\"";
@@ -132,6 +137,8 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 		int maxfd = getdtablesize();
 		for(int i = 3; i < maxfd; i++)
 			close(i);
+		if (setsid() == -1)
+			perror("my_popen setsid");
 		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
 		exit(0);
 	 }
