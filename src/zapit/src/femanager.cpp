@@ -84,7 +84,7 @@ bool CFEManager::Init()
 				delete fe;
 		}
 	}
-	INFO("found %d frontends\n", (int)femap.size());
+	INFO("found %d frontends", (int)femap.size());
 	if( femap.empty() )
 		return false;
 #if 0
