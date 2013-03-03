@@ -455,7 +455,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 	while ((int) timer_msec < TIMEOUT_MAX_MS) {
 		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS - timer_msec);
 		if (ret < 0) {
-			perror("CFrontend::getEvent poll");
+			ERROR("poll");
 			continue;
 		}
 		if (ret == 0) {
@@ -468,22 +468,22 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 			ret = ioctl(fd, FE_GET_EVENT, &event);
 			if (ret < 0) {
-				perror("CFrontend::getEvent ioctl");
+				ERROR("ioctl");
 				continue;
 			}
 			//printf("[fe%d] poll events %d status %x\n", fenumber, pfd.revents, event.status);
 			if (event.status == 0) /* some drivers always deliver an empty event after tune */
 				continue;
-			FE_TIMER_STOP("poll has event after");
+			//FE_TIMER_STOP("poll has event after");
 
 			if (event.status & FE_HAS_LOCK) {
-				printf("[fe%d] ****************************** FE_HAS_LOCK: freq %lu\n", fenumber, (long unsigned int)event.parameters.frequency);
+				INFO("[fe%d] ******** FE_HAS_LOCK: freq %lu", fenumber, (long unsigned int)event.parameters.frequency);
 				tuned = true;
 				break;
 			} else if (event.status & FE_TIMEDOUT) {
 				if(timedout < timer_msec)
 					timedout = timer_msec;
-				printf("[fe%d] ############################## FE_TIMEDOUT (max %d)\n", fenumber, timedout);
+				INFO("[fe%d] ######## FE_TIMEDOUT (max %d)", fenumber, timedout);
 				/*break;*/
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
@@ -820,13 +820,13 @@ int CFrontend::setFrontend(const FrontendParameters *feparams, bool nowait)
 		return 0;
 
 	{
-		FE_TIMER_INIT();
-		FE_TIMER_START();
+		//FE_TIMER_INIT();
+		//FE_TIMER_START();
 		if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
-			perror("FE_SET_PROPERTY failed");
+			ERROR("FE_SET_PROPERTY");
 			return false;
 		}
-		FE_TIMER_STOP("FE_SET_PROPERTY took");
+		//FE_TIMER_STOP("FE_SET_PROPERTY took");
 	}
 	if (nowait)
 		return 0;
