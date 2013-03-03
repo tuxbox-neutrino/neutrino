@@ -91,7 +91,9 @@ bool CConfigFile::loadConfig(const std::string & filename)
 
 bool CConfigFile::saveConfig(const char * const filename)
 {
-	std::fstream configFile(filename);
+	const char *tmpname = (std::string(filename) + ".tmp").c_str();
+	unlink(tmpname);
+	std::fstream configFile(tmpname, std::ios::out);
 
 	if (configFile != NULL)
 	{
@@ -104,7 +106,9 @@ bool CConfigFile::saveConfig(const char * const filename)
 		configFile.sync();
 		configFile.close();
 
-		chmod(filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		chmod(tmpname, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		/* TODO: check available space? */
+		rename(tmpname, filename);
 
 		modifiedFlag = false;
 		return true;
