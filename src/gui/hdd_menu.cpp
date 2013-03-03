@@ -468,7 +468,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	sleep(2);
 
 	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
-	my_system(5, "/sbin/tune2fs", "-r 0", "-c 0", "-i 0", src);
+	my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
 
 _remount:
 	progress->hide();
