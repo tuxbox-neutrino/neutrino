@@ -198,6 +198,7 @@ bool CFEManager::loadSettings()
 		fe_config.highVoltage		= getConfigValue(fe, "highVoltage", 0);
 		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", 0);
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
+		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
@@ -269,6 +270,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
+		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 
 		std::vector<int> satList;

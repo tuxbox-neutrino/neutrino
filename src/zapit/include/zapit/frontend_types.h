@@ -35,6 +35,7 @@ typedef struct frontend_config {
 	int uni_scr;
 	int uni_qrg;
 	int uni_lnb;
+	int uni_pin;
 	int motorRotationSpeed;
 	int highVoltage;
 } frontend_config_t;

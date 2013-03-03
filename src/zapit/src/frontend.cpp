@@ -188,6 +188,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	config.uni_scr = 0;        /* the unicable SCR address 0-7 */
 	config.uni_qrg = 0;        /* the unicable frequency in MHz */
 	config.uni_lnb = 0;        /* for two-position switches */
+	config.uni_pin = -1;       /* for MDU setups */
 	config.highVoltage = false;
 	config.motorRotationSpeed = 0; //in 0.1 degrees per second
 
@@ -1095,6 +1096,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 					     const int horizontal, const int bank)
 {
 	uint32_t bpf = config.uni_qrg;
+	int pin = config.uni_pin;
 	if (config.uni_scr < 0 || config.uni_scr > 7) {
 		WARN("uni_scr out of range (%d)", config.uni_scr);
 		return 0;
@@ -1109,9 +1111,14 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 		WARN("ooops. t > 1024? (%d)", t);
 		return 0;
 	}
+	if (pin >= 0 && pin < 0x100) {
+		cmd.msg[2] = 0x5c;
+		cmd.msg[5] = config.uni_pin;
+		cmd.msg_len = 6;
+	}
 	uint32_t ret = (t + 350) * 4000 - frequency;
-	INFO("[fe%d] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d ret=%d",
-		fenumber, horizontal, high_band, frequency, bpf, config.uni_scr, bank, ret);
+	INFO("[fe%d] 18V=%d 22k=%d freq=%d qrg=%d scr=%d bank=%d pin=%d ret=%d",
+		fenumber, horizontal, high_band, frequency, bpf, config.uni_scr, bank, pin, ret);
 	if (!slave && info.type == FE_QPSK) {
 		cmd.msg[3] = (config.uni_scr << 5);		/* adress */
 		if (bank < 2) { /* bank = 0/1 => tune, bank = 2 => standby */
