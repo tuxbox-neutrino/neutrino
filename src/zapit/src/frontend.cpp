@@ -165,7 +165,7 @@ typedef enum dvb_fec {
 /*********************************************************************************************************/
 CFrontend::CFrontend(int Number, int Adapter)
 {
-	printf("[fe%d] New frontend on adapter %d\n", Number, Adapter);
+	DBG("[fe%d] New frontend on adapter %d\n", Number, Adapter);
 	fd		= -1;
 	fenumber	= Number;
 	adapter		= Adapter;
@@ -199,7 +199,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 
 CFrontend::~CFrontend(void)
 {
-	printf("[fe%d] close frontend fd %d\n", fenumber, fd);
+	DBG("[fe%d] close frontend fd %d\n", fenumber, fd);
 	if(fd >= 0)
 		Close();
 }
@@ -211,7 +211,7 @@ bool CFrontend::Open(bool init)
 
 	char filename[128];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/frontend%d", adapter, fenumber);
-	printf("[fe%d] open %s\n", fenumber, filename);
+	DBG("[fe%d] open %s\n", fenumber, filename);
 
 	if (fd < 0) {
 		if ((fd = open(filename, O_RDWR | O_NONBLOCK | O_CLOEXEC)) < 0) {
@@ -219,7 +219,7 @@ bool CFrontend::Open(bool init)
 			return false;
 		}
 		fop(ioctl, FE_GET_INFO, &info);
-		printf("[fe%d] frontend fd %d type %d\n", fenumber, fd, info.type);
+		INFO("[fe%d] %s fd %d type %d", fenumber, filename, fd, info.type);
 	}
 
 	//FIXME info.type = FE_QAM;
@@ -248,7 +248,7 @@ void CFrontend::Close(void)
 	if(standby)
 		return;
 
-	printf("[fe%d] close frontend\n", fenumber);
+	INFO("[fe%d] close frontend fd %d", fenumber, fd);
 
 	if (!slave && config.diseqcType > MINI_DISEQC)
 		sendDiseqcStandby();
@@ -559,7 +559,7 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 		}
 		break;
 	default:
-		printf("[frontend] unknown type %d!\n", type);
+		INFO("unknown type %d!", type);
 		sys = (char *)"UNKNOWN";
 		mod = (char *)"UNKNOWN";
 		break;
@@ -613,7 +613,7 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 		fec = (char *)"9/10";
 		break;
 	default:
-		printf("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
+		INFO("unknown FEC: %d!", f);
 	case FEC_AUTO:
 		fec = (char *)"AUTO";
 		break;
@@ -648,7 +648,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		delsys = SYS_DVBT;
 		break;
 	default:
-		printf("frontend: unknown frontend type, exiting\n");
+		INFO("unknown frontend type %d, exiting", (int)info.type);
 		return 0;
 	}
 
@@ -710,7 +710,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		fec = FEC_9_10;
 		break;
 	default:
-		printf("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
+		INFO("[fe%d] unknown FEC: %d", fenumber, fec_inner);
 	case FEC_AUTO:
 	case FEC_S2_AUTO:
 		fec = FEC_AUTO;
@@ -767,7 +767,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			cmdseq.props[BANDWIDTH].u.data	= 8000000;
 			break;
 		default:
-			printf("[fe%d] unknown bandwidth for OFDM %d\n",
+			INFO("[fe%d] unknown OFDM bandwidth %d",
 				fenumber, feparams->dvb_feparams.u.ofdm.bandwidth);
 			/* fallthrough */
 		case BANDWIDTH_AUTO:
@@ -776,7 +776,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		}
 		break;
 	default:
-		printf("frontend: unknown frontend type, exiting\n");
+		INFO("unknown frontend type, exiting");
 		return false;
 	}
 
