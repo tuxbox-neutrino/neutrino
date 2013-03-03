@@ -729,7 +729,7 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 	int newpercent = GetPidVolume(0, 0, audioChannelType == CZapitAudioChannel::AC3);
 	SetVolumePercent(newpercent);
 
-	printf("[zapit] starting %s audio\n", audioStr);
+	DBG("starting %s audio\n", audioStr);
 }
 
 bool CZapit::ChangeAudioPid(uint8_t index)
@@ -1951,7 +1951,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		pcrDemux->pesFilter(thisChannel->getPcrPid());
 	}
 	if (have_pcr) {
-		printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
+		//printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
 		pcrDemux->Start();
 	}
 #else
@@ -1973,7 +1973,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 	}
 #endif
 	if (have_pcr) {
-		printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
+		//printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
 		pcrDemux->Start();
 	}
 
