@@ -156,8 +156,11 @@ bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarizat
 		if (abort_scan)
 			break;
 		retry--;
-		if (retry)
-			printf("[unicable] [scan] retrying tune, retry=%d\n", retry);
+		if (retry) {
+			int rand_us = (rand() * 1000000LL / RAND_MAX);
+			printf("[scan] SCR retrying tune, retry=%d after %dms\n", retry, rand_us/1000);
+			usleep(rand_us);
+		}
 	} while (retry > 0);
 	return false;
 }
