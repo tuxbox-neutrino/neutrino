@@ -150,6 +150,7 @@ class CLCD
 		bool				movie_is_ac3;
 		CConfigFile			configfile;
 		pthread_t			thrTime;
+		bool				thread_started;
 		int                             last_toggle_state_power;
 		int				clearClock;
 		unsigned int                    timeout_cnt;
@@ -235,9 +236,7 @@ class CLCD
 		void Clear();
 		void ShowIcon(vfd_icon icon, bool show);
 		void ShowText(const char *s) { showServicename(std::string(s), true); };
-#ifndef HAVE_TRIPLEDRAGON
 		~CLCD();
-#endif
 #ifdef LCD_UPDATE
 	private:
 		CFileList* m_fileList;

@@ -109,6 +109,17 @@ CLCD::CLCD()
 	 */
 	has_lcd = false;
 	clearClock = 0;
+	fontRenderer = NULL;
+	thread_started = false;
+}
+
+CLCD::~CLCD()
+{
+	if (thread_started) {
+		thread_started = false;
+		pthread_join(thrTime, NULL);
+	}
+	delete fontRenderer;
 }
 
 CLCD* CLCD::getInstance()
@@ -140,9 +151,10 @@ void CLCD::wake_up() {
 }
 
 #ifndef BOXMODEL_DM500
-void* CLCD::TimeThread(void *)
+void* CLCD::TimeThread(void *p)
 {
-	while(1)
+	((CLCD *)p)->thread_started = true;
+	while (((CLCD *)p)->thread_started)
 	{
 		sleep(1);
 		struct stat buf;
@@ -152,6 +164,7 @@ void* CLCD::TimeThread(void *)
 		} else
 			CLCD::getInstance()->wake_up();
 	}
+	printf("CLCD::TimeThread exit\n");
 	return NULL;
 }
 #else
@@ -202,7 +215,7 @@ void CLCD::init(const char * fontfile, const char * fontname,
 #endif
 	}
 
-	if (pthread_create (&thrTime, NULL, TimeThread, NULL) != 0 )
+	if (pthread_create (&thrTime, NULL, TimeThread, this) != 0 )
 	{
 		perror("[lcdd]: pthread_create(TimeThread)");
 		return ;
