@@ -29,6 +29,8 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <cerrno>
+#include <cstring>
 
 #include <sys/stat.h>
 #include <unistd.h>
@@ -91,9 +93,9 @@ bool CConfigFile::loadConfig(const std::string & filename)
 
 bool CConfigFile::saveConfig(const char * const filename)
 {
-	const char *tmpname = (std::string(filename) + ".tmp").c_str();
-	unlink(tmpname);
-	std::fstream configFile(tmpname, std::ios::out);
+	std::string tmpname = std::string(filename) + ".tmp";
+	unlink(tmpname.c_str());
+	std::fstream configFile(tmpname.c_str(), std::ios::out);
 
 	if (configFile != NULL)
 	{
@@ -106,16 +108,17 @@ bool CConfigFile::saveConfig(const char * const filename)
 		configFile.sync();
 		configFile.close();
 
-		chmod(tmpname, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		chmod(tmpname.c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		/* TODO: check available space? */
-		rename(tmpname, filename);
+		rename(tmpname.c_str(), filename);
 
 		modifiedFlag = false;
 		return true;
 	}
 	else
 	{
-		std::cerr << "[ConfigFile] Unable to open file " << filename << " for writing." << std::endl;
+		std::cerr << "[ConfigFile] Unable to open file " << tmpname << " for writing: "
+				<< strerror(errno) << std::endl;
 		return false;
 	}
 }
