@@ -134,9 +134,11 @@ t_channel_id standby_channel_id;
 //NEW
 static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
+static bool timerd_thread_started = false;
 
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
+static bool nhttpd_thread_started = false;
 
 //#define DISABLE_SECTIONSD
 
@@ -1886,6 +1888,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	}
 	g_settings.shutdown_timer_record_type = false;
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *)&timer_wakeup);
+	timerd_thread_started = true;
 	// timer_wakeup = false;
 
 	powerManager = new cPowerManager;
@@ -1917,6 +1920,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	dvbsub_init();
 
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
+	nhttpd_thread_started = true;
 
 	CStreamManager::getInstance()->Start();
 
@@ -3630,14 +3634,18 @@ void stop_daemons(bool stopall)
 		g_Radiotext = NULL;
 	}
 	printf("httpd shutdown\n");
-	pthread_cancel(nhttpd_thread);
-	pthread_join(nhttpd_thread, NULL);
+	if (nhttpd_thread_started) {
+		pthread_cancel(nhttpd_thread);
+		pthread_join(nhttpd_thread, NULL);
+	}
 	printf("httpd shutdown done\n");
 	CStreamManager::getInstance()->Stop();
 	if(stopall) {
 		printf("timerd shutdown\n");
-		g_Timerd->shutdown();
-		pthread_join(timer_thread, NULL);
+		if (g_Timerd)
+			g_Timerd->shutdown();
+		if (timerd_thread_started)
+			pthread_join(timer_thread, NULL);
 		printf("timerd shutdown done\n");
 	}
 #ifndef DISABLE_SECTIONSD
@@ -3703,6 +3711,9 @@ void sighandler (int signum)
 
 int main(int argc, char **argv)
 {
+	g_Timerd = NULL;
+	g_Radiotext = NULL;
+	g_Zapit = NULL;
 	setDebugLevel(DEBUG_NORMAL);
 	signal(SIGTERM, sighandler);	// TODO: consider the following
 	signal(SIGINT, sighandler);	// NOTES: The effects of signal() in a multithreaded
