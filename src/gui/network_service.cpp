@@ -74,7 +74,7 @@ void CNetworkService::Start()
 {
 	std::string cmd = command + " " + options;
 	printf("CNetworkService::Start: %s %s\n", command.c_str(), options.c_str());
-	my_system("/bin/sh", "-c", cmd.c_str());
+	my_system(3, "/bin/sh", "-c", cmd.c_str());
 	enabled = true;
 	TouchFile();
 }
@@ -83,7 +83,7 @@ void CNetworkService::Stop()
 {
 	const char killall []= "killall";
 	printf("CNetworkService::Stop: %s %s\n", killall, command.c_str());
-	my_system(killall, command.c_str());
+	my_system(2, killall, command.c_str());
 	enabled = false;
 	TouchFile();
 }

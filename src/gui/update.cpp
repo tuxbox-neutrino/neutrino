@@ -512,7 +512,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
 #else
 		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
-		my_system( install_sh, g_settings.update_dir, filename.c_str() );
+		my_system(3, install_sh, g_settings.update_dir, filename.c_str());
 #endif
 		showGlobalStatus(100);
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8

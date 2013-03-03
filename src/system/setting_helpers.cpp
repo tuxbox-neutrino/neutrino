@@ -441,7 +441,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
 		std::string cmd = "cp /usr/share/zoneinfo/" + zone + " /etc/localtime";
 		printf("exec %s\n", cmd.c_str());
-		my_system("/bin/sh", "-c", cmd.c_str());
+		my_system(3,"/bin/sh", "-c", cmd.c_str());
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
 	}
@@ -464,7 +464,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		return true;
 
 	if(delete_all) {
-		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.conf");
+		my_system(3, "/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.conf");
 		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
@@ -484,7 +484,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
-		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.xml");
+		my_system(3, "/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.xml");
 		g_Zapit->reinitChannels();
 	}
 	return ret;
