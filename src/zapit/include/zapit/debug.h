@@ -2,6 +2,7 @@
  * $Id: debug.h,v 1.7 2003/04/30 04:39:03 obi Exp $
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
+ * (C) 2011,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +45,7 @@
 /* zapit.cpp */
 extern int zapit_debug;
 
-static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
+static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
 #define __SHORTFILE__ (__FILE__ + __striplen)
 
 #define DBG(fmt, args...)					\
