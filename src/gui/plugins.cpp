@@ -590,7 +590,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 	frameBuffer->Lock();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
-	my_system(plugin_list[number].pluginfile.c_str(), NULL, NULL);
+	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->Unlock();
 	frameBuffer->paintBackground();

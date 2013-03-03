@@ -22,9 +22,8 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-int my_system(const char * cmd, const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL, const char * arg6 = NULL);
-
 int my_system(const char * cmd);
+int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 int safe_mkdir(char * path);

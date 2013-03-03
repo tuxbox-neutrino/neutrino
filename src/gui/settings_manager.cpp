@@ -108,7 +108,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			{
 				const char backup_sh[] = "/bin/backup.sh";
 				printf("backup: executing [%s %s]\n",backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
-				my_system( backup_sh, fileBrowser.getSelectedFile()->Name.c_str() );
+				my_system(2, backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
 			}
 			else
 				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
@@ -126,7 +126,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			{
 				const char restore_sh[] = "/bin/restore.sh";
 				printf("restore: executing [%s %s]\n", restore_sh, fileBrowser.getSelectedFile()->Name.c_str());
-				my_system( restore_sh, fileBrowser.getSelectedFile()->Name.c_str() );
+				my_system(2, restore_sh, fileBrowser.getSelectedFile()->Name.c_str());
 			}
 		}
 		return res;

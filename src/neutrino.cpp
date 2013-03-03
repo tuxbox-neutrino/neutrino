@@ -1946,8 +1946,8 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);
 	mkdir("/media/sdb1", 0755);
-	my_system("mount", "/dev/sda1", "/media/sda1");
-	my_system("mount", "/dev/sdb1", "/media/sdb1");
+	my_system(3, "mount", "/dev/sda1", "/media/sda1");
+	my_system(3, "mount", "/dev/sdb1", "/media/sdb1");
 #endif
 
 	CFSMounter::automount();
@@ -2749,7 +2749,7 @@ _repeat:
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
-					if(my_system("ether-wake",g_settings.network_nfs_mac[i]) != 0)
+					if (my_system(2, "ether-wake", g_settings.network_nfs_mac[i]) != 0)
 						perror("ether-wake failed");
 					break;
 				}

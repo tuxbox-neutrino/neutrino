@@ -3630,7 +3630,7 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
             if(dirState[number] == DIR_STATE_SERVER_DOWN)
             {
                 printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]);
-                if(my_system("ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]) != 0)
+                if (my_system(2, "ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]) != 0)
                     perror("ether-wake failed");
 
                 dirOptionText[number]="STARTE SERVER";
