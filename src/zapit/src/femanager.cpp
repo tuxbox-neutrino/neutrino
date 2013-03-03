@@ -223,6 +223,8 @@ bool CFEManager::loadSettings()
 
 		}
 	}
+	if (configfile.getUnknownKeyQueryedFlag())
+		configfile.saveConfig(FECONFIGFILE);
 	setMode(newmode, true);
 	return true;
 }
