@@ -3,7 +3,7 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
- * (C) 2007-2012 Stefan Seyfried
+ * (C) 2007-2013 Stefan Seyfried
  * Copyright (C) 2011 CoolStream International Ltd 
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1089,36 +1089,44 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 
 /* frequency is the IF-frequency (950-2100), what a stupid spec...
    high_band, horizontal, bank are actually bool (0/1)
-   bank specifies the "switch bank" (as in Mini-DiSEqC A/B) */
+   bank specifies the "switch bank" (as in Mini-DiSEqC A/B)
+   bank == 2 => send standby command */
 uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
 					     const int horizontal, const int bank)
 {
 	uint32_t bpf = config.uni_qrg;
+	if (config.uni_scr < 0 || config.uni_scr > 7) {
+		WARN("uni_scr out of range (%d)", config.uni_scr);
+		return 0;
+	}
 
 	struct dvb_diseqc_master_cmd cmd = {
 		{0xe0, 0x10, 0x5a, 0x00, 0x00, 0x00}, 5
 	};
 	unsigned int t = (frequency / 1000 + bpf + 2) / 4 - 350;
-	if (t < 1024 && config.uni_scr >= 0 && config.uni_scr < 8)
+	if (bank < 2 && t >= 1024)
 	{
-		uint32_t ret = (t + 350) * 4000 - frequency;
-		INFO("[unicable] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, config.uni_scr, bank, ret);
-		if (!slave && info.type == FE_QPSK) {
-			cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
-				(config.uni_scr << 5)	|	/* adress */
+		WARN("ooops. t > 1024? (%d)", t);
+		return 0;
+	}
+	uint32_t ret = (t + 350) * 4000 - frequency;
+	INFO("[fe%d] 18V=%d TONE=%d, freq=%d qrg=%d scr=%d bank=%d ret=%d",
+		fenumber, horizontal, high_band, frequency, bpf, config.uni_scr, bank, ret);
+	if (!slave && info.type == FE_QPSK) {
+		cmd.msg[3] = (config.uni_scr << 5);		/* adress */
+		if (bank < 2) { /* bank = 0/1 => tune, bank = 2 => standby */
+			cmd.msg[3] |= (t >> 8)		|	/* highest 3 bits of t */
 				(bank << 4)		|	/* input 0/1 */
 				(horizontal << 3)	|	/* horizontal == 0x08 */
 				(high_band) << 2;		/* high_band  == 0x04 */
 			cmd.msg[4] = t & 0xFF;
-			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
-			usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
-			sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
-			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
 		}
-		return ret;
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
+		usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
+		sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
 	}
-	WARN("ooops. t > 1024? (%d) or uni_scr out of range? (%d)", t, config.uni_scr);
-	return 0;
+	return ret;
 }
 
 bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
@@ -1348,6 +1356,9 @@ void CFrontend::sendDiseqcReset(void)
 void CFrontend::sendDiseqcStandby(void)
 {
 	printf("[fe%d] diseqc standby\n", fenumber);
+	if (config.diseqcType == DISEQC_UNICABLE)
+		sendEN50494TuningCommand(0, 0, 0, 2);
+	/* en50494 switches don't seem to be hurt by this */
 	sendDiseqcZeroByteCommand(0xe0, 0x10, 0x02);
 }
 
