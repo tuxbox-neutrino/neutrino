@@ -3,7 +3,7 @@
  *             thegoodguy         <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
- * Copyright (C) 2012 Stefan Seyfried
+ * Copyright (C) 2012,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ bool CCam::makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list, co
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-	INFO("cam %p source %d camask %d list %02x buffer", this, source_demux, camask, list);
+	DBG("cam %p source %d camask %d list %02x buffer\n", this, source_demux, camask, list);
 
 	if(!buffer)
 		return false;
