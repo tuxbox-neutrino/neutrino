@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	(C) 2008-2012 Stefan Seyfried
+	(C) 2008-2013 Stefan Seyfried
 
 	Kommentar:
 
@@ -484,10 +484,12 @@ void CRemoteControl::processAPIDnames()
 			pref_ac3_found = -1;
 	}
 
+	if (! current_PIDs.APIDs.empty())
+		printf("Neutrino: ");
 	for(unsigned int count=0; count< current_PIDs.APIDs.size(); count++)
 	{
 		const char *iso = getISO639Description(current_PIDs.APIDs[count].desc);
-		printf("Neutrino: apid name= %s (%s) pid= %X\n", current_PIDs.APIDs[count].desc, iso, current_PIDs.APIDs[count].pid);
+		printf("apid=%04x/%s/%s ", current_PIDs.APIDs[count].pid, current_PIDs.APIDs[count].desc, iso);
 		if ( current_PIDs.APIDs[count].component_tag != 0xFF )
 		{
 			has_unresolved_ctags= true;
@@ -511,6 +513,8 @@ void CRemoteControl::processAPIDnames()
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
 			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
+	if (! current_PIDs.APIDs.empty())
+		printf("\n");
 
 	if ( has_unresolved_ctags )
 	{
