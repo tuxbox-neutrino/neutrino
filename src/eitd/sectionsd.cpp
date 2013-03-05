@@ -255,12 +255,12 @@ static bool deleteEvent(const event_id_t uniqueKey)
 	}
 
 	if (cn) { // current-next => fill current or next event...
-//xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
+//xprintf("addEvent: current %012" PRIx64 " event %012" PRIx64 " messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), messaging_got_CN);
 		readLockMessaging();
 		// only if it is the current channel... and if we don't have them already.
 		if (evt.get_channel_id() == messaging_current_servicekey && 
 				(messaging_got_CN != 0x03)) { 
-xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messaging_got_CN %d\n", messaging_current_servicekey, evt.get_channel_id(), evt.runningStatus(), messaging_got_CN);
+xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_channel_id(), evt.runningStatus(), evt.runningStatus() > 2 ? "curr" : "next", messaging_got_CN);
 
 			unlockMessaging();
 			writeLockEvents();
@@ -318,7 +318,7 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 	{
 		/* if the new event has a lower (== more recent) table ID, replace the old one */
 		already_exists = false;
-		dprintf("replacing event %016" PRIx64 ":%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
+		dprintf("replacing event %012" PRIx64 ":%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
 			si->second->table_id, evt.eventID, evt.table_id, evt.getName().c_str());
 	}
 	else if (already_exists && ( (evt.table_id == 0x51 || evt.table_id == 0x50 || evt.table_id == 0x4e) && evt.table_id == si->second->table_id && evt.version != si->second->version ))
@@ -428,13 +428,13 @@ xprintf("addEvent: current %016" PRIx64 " event %016" PRIx64 " running %d messag
 					if ((*x)->table_id < e->table_id)
 					{
 						/* don't add the higher table_id */
-						dprintf("%s: don't replace 0x%016" PRIx64 ".%02x with 0x%016" PRIx64 ".%02x\n",
+						dprintf("%s: don't replace 0x%012" PRIx64 ".%02x with 0x%012" PRIx64 ".%02x\n",
 							__func__, x_key, (*x)->table_id, e_key, e->table_id);
 						unlockEvents();
 						return;
 					}
 					/* here we have an overlapping event */
-					dprintf("%s: delete 0x%016" PRIx64 ".%02x time = 0x%016" PRIx64 ".%02x\n", __func__,
+					dprintf("%s: delete 0x%012" PRIx64 ".%02x time = 0x%012" PRIx64 ".%02x\n", __func__,
 						x_key, (*x)->table_id, e_key, e->table_id);
 					to_delete.push_back(x_key);
 				}
@@ -1716,7 +1716,7 @@ void CCNThread::addFilters()
 
 void CCNThread::beforeWait()
 {
-	xprintf("%s: set eit update filter, service = 0x%016" PRIx64 ", current version 0x%x got events %d (%s)\n",
+	xprintf("%s: set eit update filter, service = 0x%012" PRIx64 ", current version 0x%x got events %d (%s)\n",
 			name.c_str(), messaging_current_servicekey, eit_version, messaging_have_CN,
 			updating ? "active" : "not active");
 
