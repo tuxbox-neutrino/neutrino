@@ -1576,7 +1576,7 @@ satsetup.logical_numbers Nutze logische Nummern
 satsetup.manual_scan Manueller Frequenzscan
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor-Position
-satsetup.nodiseqc Kein DiSEqC
+satsetup.nodiseqc kein DiSEqC
 satsetup.reset_numbers Reset Kanalnummern
 satsetup.sat_setup LNB-Konfiguration
 satsetup.satellite Satellit
