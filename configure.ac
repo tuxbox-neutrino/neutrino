@@ -122,6 +122,11 @@ AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
 
+AC_ARG_ENABLE(pip,
+	[  --enable-pip                  enable picture in picture support],
+	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
+
+
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
