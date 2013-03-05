@@ -58,7 +58,7 @@
 //#define DEBUG_TIME_THREAD
 
 #define DEBUG_SECTION_THREADS
-#define DEBUG_CN_THREAD
+//#define DEBUG_CN_THREAD
 
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
@@ -1716,7 +1716,7 @@ void CCNThread::addFilters()
 
 void CCNThread::beforeWait()
 {
-	xprintf("%s: set eit update filter, service = 0x%012" PRIx64 ", current version 0x%x got events %d (%s)\n",
+	xprintf("%s: eit update filter, ch 0x%012" PRIx64 ", current ver 0x%02x  got events %d (%s)\n",
 			name.c_str(), messaging_current_servicekey, eit_version, messaging_have_CN,
 			updating ? "active" : "not active");
 
@@ -1811,7 +1811,6 @@ bool CCNThread::checkUpdate()
 
 	if (ret > 0) {
 		LongSection section(buf);
-		printdate_ms(stdout);
 		xprintf("%s: eit update filter: ### new version 0x%02x ###, Activate thread\n",
 				name.c_str(), section.getVersionNumber());
 
