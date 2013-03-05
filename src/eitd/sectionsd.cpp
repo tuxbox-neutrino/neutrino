@@ -1343,11 +1343,13 @@ void CTimeThread::setSystemTime(time_t tim)
 		tv.tv_sec = timediff / 1000000LL;
 		tv.tv_usec = timediff % 1000000LL;
 		if (adjtime(&tv, &oldd))
-			perror("adjtime");
-		xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
-			(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
-		timediff = 0;
-		return;
+			xprintf("adjtime(%d, %d) failed: %m\n", (int)tv.tv_sec, (int)tv.tv_usec);
+		else {
+			xprintf("difference is < 120s, using adjtime(%d, %d). oldd(%d, %d)\n",
+				(int)tv.tv_sec, (int)tv.tv_usec, (int)oldd.tv_sec, (int)oldd.tv_usec);
+			timediff = 0;
+			return;
+		}
 	}
 
 	tv.tv_sec = tim;
