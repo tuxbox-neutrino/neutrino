@@ -1132,7 +1132,7 @@ miscsettings.infobar_disp_4 Logo+Kanalname/Kanalnummer
 miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
-miscsettings.infobar_logo_hdd_dir Logo Verz.
+miscsettings.infobar_logo_hdd_dir Logo-Verz.
 miscsettings.infobar_progressbar Fortschrittsbalken Opt.
 miscsettings.infobar_progressbar_0 Standard
 miscsettings.infobar_progressbar_1 unterhalb Kanalname
@@ -1493,7 +1493,7 @@ ping.socket ist nicht erreichbar (Socket-Fehler)
 ping.unreachable ist nicht erreichbar (unerreichbar)
 pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
-plugins.hdd_dir Plugin HDD Verz.
+plugins.hdd_dir Externes Plugin-Verz.
 plugins.result Pluginausgabe
 progressbar.color Fortschrittsbalken Farbe
 rclock.lockmsg Die Fernbedienung der Coolstream wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
