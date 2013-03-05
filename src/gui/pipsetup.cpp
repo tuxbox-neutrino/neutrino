@@ -12,12 +12,13 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/pipsetup.h>
+#include <video.h>
 
 #define PERCENT 5
 #define XMOVE 10
 #define YMOVE 10
 
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 
 extern cVideo *pipDecoder;
 
@@ -216,4 +217,4 @@ void CPipSetup::paint()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*4, mwidth, hpos, COL_MENUCONTENT);
 }
 
-#endif //BOXMODEL_APOLLO
+#endif //#ifdef ENABLE_PIP

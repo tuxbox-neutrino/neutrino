@@ -86,7 +86,7 @@ extern cAudio *audioDecoder;
 extern cDemux *audioDemux;
 extern cDemux *videoDemux;
 
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 cVideo *pipDecoder;
 cDemux *pipDemux;
 #endif
@@ -517,7 +517,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	}
 	SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	if (transponder_change && (live_fe == pip_fe))
 		StopPip();
 #endif
@@ -562,7 +562,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	return true;
 }
 
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 bool CZapit::StopPip()
 {
 	if (pip_channel_id) {
@@ -582,7 +582,6 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 	CZapitChannel* newchannel;
 	bool transponder_change;
 
-	StopPip();
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
@@ -597,6 +596,7 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
+	StopPip();
 	if(!TuneChannel(frontend, newchannel, transponder_change))
 		return false;
 
@@ -650,7 +650,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	if(!TuneChannel(frontend, newchannel, transponder_change))
 		return false;
 
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	if (transponder_change && (frontend == pip_fe))
 		StopPip();
 #endif
@@ -2023,7 +2023,7 @@ void CZapit::enterStandby(void)
 	SaveAudioMap();
 	SaveVolumeMap();
 	StopPlayBack(true);
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	StopPip();
 #endif
 
@@ -2142,15 +2142,23 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDecoder->SetDemux(audioDemux);
 	audioDecoder->SetVideo(videoDecoder);
 
+#ifdef ENABLE_PIP
 	pipDemux = new cDemux();
 	pipDemux->Open(DMX_PIP_CHANNEL);
 	pipDecoder = cVideo::GetDecoder(1);
 	pipDecoder->SetDemux(pipDemux);
+#endif
 #else
         videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
         videoDecoder->Standby(false);
 
         audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
+
+#ifdef ENABLE_PIP
+	pipDemux = new cDemux();
+	pipDemux->Open(DMX_PIP_CHANNEL);
+	pipDecoder = new cVideo(video_mode, pipDemux->getChannel(), pipDemux->getBuffer(), 1);
+#endif
 #endif
 
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
@@ -2330,7 +2338,7 @@ void CZapit::run()
 	delete pmtDemux;
 	delete audioDecoder;
 	delete audioDemux;
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	StopPip();
 	delete pipDecoder;
 	delete pipDemux;

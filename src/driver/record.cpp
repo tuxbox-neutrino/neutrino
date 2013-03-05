@@ -1623,7 +1623,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 		ret = false;
 #endif
 	if(ret) {
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 		if (CZapit::getInstance()->GetPipChannelID() == channel_id)
 			CZapit::getInstance()->StopPip();
 #endif

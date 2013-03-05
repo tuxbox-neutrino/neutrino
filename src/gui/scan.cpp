@@ -200,7 +200,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	CRecordManager::getInstance()->StopAutoRecord();
 	g_Zapit->stopPlayBack();
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	CZapit::getInstance()->StopPip();
 #endif
 

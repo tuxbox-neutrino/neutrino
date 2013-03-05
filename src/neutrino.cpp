@@ -769,6 +769,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.brightness = configfile.getInt32("brightness", 0);
 	g_settings.contrast = configfile.getInt32("contrast", 0);
 	g_settings.saturation = configfile.getInt32("saturation", 0);
+#endif
+#ifdef ENABLE_PIP
 	g_settings.pip_x = configfile.getInt32("pip_x", 50);
 	g_settings.pip_y = configfile.getInt32("pip_y", 50);
 	g_settings.pip_width = configfile.getInt32("pip_width", 365);
@@ -1150,6 +1152,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("brightness", g_settings.brightness );
 	configfile.setInt32("contrast", g_settings.contrast );
 	configfile.setInt32("saturation", g_settings.saturation );
+#endif
+#ifdef ENABLE_PIP
 	configfile.setInt32("pip_x", g_settings.pip_x);
 	configfile.setInt32("pip_y", g_settings.pip_y);
 	configfile.setInt32("pip_width", g_settings.pip_width);
@@ -2111,7 +2115,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder){
 				numericZap( msg );
 			}
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 			else if (msg == (neutrino_msg_t) g_settings.key_pip) {
 				CZapit::getInstance()->StopPip();
 			}

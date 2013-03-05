@@ -54,7 +54,7 @@
 #include <video.h>
 
 extern cVideo *videoDecoder;
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 extern cVideo *pipDecoder;
 #include <gui/pipsetup.h>
 #endif
@@ -309,7 +309,8 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(bcont);
 	videosetup->addItem(ccont);
 	videosetup->addItem(scont);
-
+#endif
+#ifdef ENABLE_PIP
 	CPipSetup pip;
 	CMenuForwarder * pipsetup = new CMenuForwarder(LOCALE_VIDEOMENU_PIP, true, NULL, &pip);
 	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
@@ -344,7 +345,7 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
 #endif
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #endif
 
@@ -355,6 +356,8 @@ void CVideoSettings::setVideoSettings()
 	changeNotify(LOCALE_VIDEOMENU_BRIGHTNESS, NULL);
 	changeNotify(LOCALE_VIDEOMENU_CONTRAST, NULL);
 	changeNotify(LOCALE_VIDEOMENU_SATURATION, NULL);
+#endif
+#ifdef ENABLE_PIP
 	pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 #endif
 }
@@ -413,7 +416,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
 		if (g_settings.video_Format != 1 && g_settings.video_Format != 3 && g_settings.video_Format != 2)
 			g_settings.video_Format = 3;
 		videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 		pipDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 #endif
 	}
@@ -468,7 +471,7 @@ void CVideoSettings::next43Mode(void)
 	text =  VIDEOMENU_43MODE_OPTIONS[curmode].value;
 	g_settings.video_43mode = VIDEOMENU_43MODE_OPTIONS[curmode].key;
 	videoDecoder->setAspectRatio(-1, g_settings.video_43mode);
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	pipDecoder->setAspectRatio(-1, g_settings.video_43mode);
 #endif
 	ShowHintUTF(LOCALE_VIDEOMENU_43MODE, g_Locale->getText(text), 450, 2);
@@ -494,7 +497,7 @@ void CVideoSettings::SwitchFormat()
 	g_settings.video_Format = VIDEOMENU_VIDEOFORMAT_OPTIONS[curmode].key;
 
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
-#ifdef BOXMODEL_APOLLO
+#ifdef ENABLE_PIP
 	pipDecoder->setAspectRatio(g_settings.video_Format, -1);
 #endif
 	ShowHintUTF(LOCALE_VIDEOMENU_VIDEOFORMAT, g_Locale->getText(text), 450, 2);
