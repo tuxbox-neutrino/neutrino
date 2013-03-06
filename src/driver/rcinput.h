@@ -232,6 +232,9 @@ class CRCInput
 			RC_next		= KEY_NEXT,
 			RC_prev		= KEY_PREVIOUS,
 			RC_www		= KEY_WWW,
+			RC_sub		= KEY_SUBTITLE,
+			RC_pos		= KEY_MOVE,
+			RC_sleep	= KEY_SLEEP,
 
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,
