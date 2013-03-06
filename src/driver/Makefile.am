@@ -72,12 +72,6 @@ if USE_STB_HAL
 INCLUDES += \
 	-I$(STB_HAL_INC) \
 	@DIRECTFB_CFLAGS@
-else
-if BOXTYPE_TRIPLE
-INCLUDES += \
-	-I$(top_srcdir)/lib/libtriple \
-	@DIRECTFB_CFLAGS@
-endif
 endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp

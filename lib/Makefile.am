@@ -15,14 +15,7 @@ SUBDIRS += \
 	libupnpclient
 endif
 
-if USE_STB_HAL
-else
-if BOXTYPE_TRIPLE
-SUBDIRS += \
-	libtriple
-endif
 if BOXTYPE_COOL
 SUBDIRS += \
 	libcoolstream
-endif
 endif

@@ -130,9 +130,12 @@ AC_ARG_WITH(stb-hal-build,
 	[  --with-stb-hal-build=PATH   path where libstb-hal is built [[NONE]]],
 	[STB_HAL_LIB="$withval"],[STB_HAL_LIB=""])
 
-AM_CONDITIONAL(USE_STB_HAL, test "$STB_HAL_INC")
-if test "$STB_HAL_INC"; then
+AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
+if test "$BOXTYPE" != coolstream; then
 	AC_DEFINE(USE_STB_HAL, 1,[use libstb-hal])
+	if test "$STB_HAL_INC" = ""; then
+		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
+	fi
 fi
 
 AC_ARG_ENABLE(cleanup,
@@ -179,7 +182,6 @@ lib/xmltree/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
 lib/libcoolstream/Makefile
-lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile

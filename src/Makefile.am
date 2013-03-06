@@ -23,10 +23,6 @@ INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
 if USE_STB_HAL
 INCLUDES += -I$(STB_HAL_INC)
-else
-if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
-endif
 endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
@@ -123,25 +119,16 @@ bin_PROGRAMS += drivertool
 
 drivertool_SOURCES = drivertool.c
 endif
+
 if USE_STB_HAL
 neutrino_LDADD += \
 	-lstb-hal
 neutrino_LDFLAGS = \
 	-L$(STB_HAL_LIB)
-if BOXTYPE_TRIPLE
-neutrino_LDADD += \
-	$(top_builddir)/src/lcddisplay/liblcddisplay.a
 endif
 if BOXTYPE_GENERIC
 neutrino_LDADD += \
 	-lglut -lGL -lGLU -lGLEW
-endif
-else
-if BOXTYPE_TRIPLE
-neutrino_LDADD += \
-	$(top_builddir)/lib/libtriple/libtriple.a \
-	$(top_builddir)/src/lcddisplay/liblcddisplay.a
-endif
 endif
 if BOXTYPE_SPARK
 neutrino_LDADD += \
@@ -149,5 +136,6 @@ neutrino_LDADD += \
 endif
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
+	$(top_builddir)/src/lcddisplay/liblcddisplay.a \
 	@DIRECTFB_LIBS@
 endif

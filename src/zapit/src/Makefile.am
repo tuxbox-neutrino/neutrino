@@ -17,10 +17,6 @@ endif
 
 if USE_STB_HAL
 INCLUDES += -I$(STB_HAL_INC)
-else
-if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
-endif
 endif
 
 noinst_LIBRARIES = libzapit.a

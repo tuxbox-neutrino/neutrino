@@ -14,10 +14,6 @@ INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
 if USE_STB_HAL
 INCLUDES += -I$(STB_HAL_INC)
-else
-if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
-endif
 endif
 
 #AM_CPPFLAGS =
