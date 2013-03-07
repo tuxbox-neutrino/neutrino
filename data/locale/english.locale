@@ -1634,17 +1634,17 @@ scants.transponders Transponders:
 scrambled_channel Scrambled channel
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
-screenshot.count Screenshot count
+screenshot.count Count
 screenshot.cover Create Moviecover for Moviebrowser
-screenshot.defdir Screenshot directory
-screenshot.format Screenshot format
+screenshot.defdir Destination directory
+screenshot.format Format
 screenshot.info Screenshot key is unused
 screenshot.menu Screenshot
 screenshot.osd OSD resolution
-screenshot.res Screenshot resolution
-screenshot.scale Screenshot scale
+screenshot.res Resolution
+screenshot.scale Scale
 screenshot.tv TV resolution
-screenshot.video Screenshot with video background
+screenshot.video Video in the background
 servicemenu.getplugins Reload plugins
 servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
 servicemenu.head Service
@@ -1700,7 +1700,7 @@ stringinput.clear clear all
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
 terrestrialsetup.provider Terrestrial Provider
-timer.eventrecord.msg   ... TO be DONE, or not to be done
+timer.eventrecord.msg The event is scheduled for recording.\nTo edit the schedule open the timer list.
 timer.eventrecord.title Schedule Record
 timer.eventtimed.msg The event is scheduled.\nThe box will power on and \nswitch to this channel at the given time.
 timer.eventtimed.title Schedule Event

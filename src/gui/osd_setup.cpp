@@ -994,6 +994,10 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	if((uint)g_settings.key_screenshot == CRCInput::RC_nokey)
 		menu_screenshot->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SCREENSHOT_INFO));
 
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCREENSHOT_DEFDIR, true, g_settings.screenshot_dir, this, "screenshot_dir");
+	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_DIR);
+	menu_screenshot->addItem(mf);
+
 	CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_SCREENSHOT_COUNT, &g_settings.screenshot_count, true, 1, 5, NULL);
 	nc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_COUNT);
 	menu_screenshot->addItem(nc);
@@ -1001,10 +1005,6 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_FORMAT, &g_settings.screenshot_format, SCREENSHOT_FMT_OPTIONS, SCREENSHOT_FMT_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_FORMAT);
 	menu_screenshot->addItem(mc);
-
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCREENSHOT_DEFDIR, true, g_settings.screenshot_dir, this, "screenshot_dir");
-	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_DIR);
-	menu_screenshot->addItem(mf);
 
 	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_RES, &g_settings.screenshot_mode, SCREENSHOT_OPTIONS, SCREENSHOT_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_RES);
