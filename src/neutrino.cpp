@@ -133,9 +133,11 @@ t_channel_id standby_channel_id;
 //NEW
 static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
+static bool timerd_thread_started = false;
 
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
+static bool nhttpd_thread_started = false;
 
 //#define DISABLE_SECTIONSD
 
@@ -1805,6 +1807,7 @@ TIMER_START();
 	bool timer_wakeup = false;
 	wake_up( timer_wakeup );
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) timer_wakeup);
+	timerd_thread_started = true;
 
 	init_cec_setting = true;
 	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
@@ -1837,6 +1840,7 @@ TIMER_START();
 	dvbsub_init();
 
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
+	nhttpd_thread_started = true;
 
 	CStreamManager::getInstance()->Start();
 
@@ -1865,8 +1869,8 @@ TIMER_START();
 #ifndef ASSUME_MDEV
 	mkdir("/media/sda1", 0755);
 	mkdir("/media/sdb1", 0755);
-	my_system("mount", "/dev/sda1", "/media/sda1");
-	my_system("mount", "/dev/sdb1", "/media/sdb1");
+	my_system(3, "mount", "/dev/sda1", "/media/sda1");
+	my_system(3, "mount", "/dev/sdb1", "/media/sdb1");
 #endif
 
 	CFSMounter::automount();
@@ -2065,25 +2069,39 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					g_InfoViewer->showSubchan();
 				} 
 				else if ( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
-					if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-						g_volume->setVolume(msg, true);
-					} 
-					else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP)
-							|| (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
-						if(channelList->getSize()) {
-							showInfo();
-						}
-					} 
+					switch (g_settings.mode_left_right_key_tv)
+					{
+						case SNeutrinoSettings::INFOBAR:
+						case SNeutrinoSettings::VZAP:
+							if (channelList->getSize())
+								showInfo();
+							break;
+						case SNeutrinoSettings::VOLUME:
+							g_volume->setVolume(msg, true);
+							break;
+						default: /* SNeutrinoSettings::ZAP */
+							quickZap(msg);
+							break;
+					}
 				} 
 				else
 					quickZap( msg );
 			}
 			/* in case key_subchannel_up/down redefined */
 			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
-			    if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					g_volume->setVolume(msg, true);
-				} else if(channelList->getSize()) {
-					showInfo();
+				switch (g_settings.mode_left_right_key_tv)
+				{
+					case SNeutrinoSettings::INFOBAR:
+					case SNeutrinoSettings::VZAP:
+						if (channelList->getSize())
+							showInfo();
+						break;
+					case SNeutrinoSettings::VOLUME:
+						g_volume->setVolume(msg, true);
+						break;
+					default: /* SNeutrinoSettings::ZAP */
+						quickZap(msg);
+						break;
 				}
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
@@ -2655,7 +2673,7 @@ _repeat:
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
-					if(my_system("ether-wake",g_settings.network_nfs_mac[i]) != 0)
+					if (my_system(2, "ether-wake", g_settings.network_nfs_mac[i]) != 0)
 						perror("ether-wake failed");
 					break;
 				}
@@ -2920,9 +2938,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
-			my_system("/etc/init.d/rcK");
+			my_system(2,"/etc/init.d/rcK");
 			sync();
-			my_system("/bin/umount", "-a");
+			my_system(2,"/bin/umount", "-a");
 			sleep(1);
 			{
 				fp_standby_data_t standby;
@@ -3491,14 +3509,18 @@ void stop_daemons(bool stopall)
 		g_Radiotext = NULL;
 	}
 	printf("httpd shutdown\n");
-	pthread_cancel(nhttpd_thread);
-	pthread_join(nhttpd_thread, NULL);
+	if (nhttpd_thread_started) {
+		pthread_cancel(nhttpd_thread);
+		pthread_join(nhttpd_thread, NULL);
+	}
 	printf("httpd shutdown done\n");
 	CStreamManager::getInstance()->Stop();
 	if(stopall) {
 		printf("timerd shutdown\n");
-		g_Timerd->shutdown();
-		pthread_join(timer_thread, NULL);
+		if (g_Timerd)
+			g_Timerd->shutdown();
+		if (timerd_thread_started)
+			pthread_join(timer_thread, NULL);
 		printf("timerd shutdown done\n");
 	}
 #ifndef DISABLE_SECTIONSD
@@ -3562,6 +3584,9 @@ void sighandler (int signum)
 
 int main(int argc, char **argv)
 {
+	g_Timerd = NULL;
+	g_Radiotext = NULL;
+	g_Zapit = NULL;
 	setDebugLevel(DEBUG_NORMAL);
 	signal(SIGTERM, sighandler);	// TODO: consider the following
 	signal(SIGINT, sighandler);	// NOTES: The effects of signal() in a multithreaded

@@ -441,7 +441,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
 		std::string cmd = "cp /usr/share/zoneinfo/" + zone + " /etc/localtime";
 		printf("exec %s\n", cmd.c_str());
-		my_system("/bin/sh", "-c", cmd.c_str());
+		my_system(3,"/bin/sh", "-c", cmd.c_str());
 #if 0
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
@@ -467,7 +467,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		return true;
 
 	if(delete_all) {
-		my_system("/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.conf");
+		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.conf");
 		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
@@ -487,7 +487,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
-		my_system("/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.xml");
+		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.xml");
 		g_Zapit->reinitChannels();
 	}
 	return ret;

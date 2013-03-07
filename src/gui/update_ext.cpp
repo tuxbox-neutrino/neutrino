@@ -107,7 +107,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 	if (modus & RESET_UNLOAD) {
 		umount(mountPkt.c_str());
-		my_system("rmmod", mtdramDriver.c_str());
+		my_system(2,"rmmod", mtdramDriver.c_str());
 	}
 	if (modus & RESET_FD1)
 		close(fd1);
@@ -231,7 +231,7 @@ bool CExtUpdate::applySettings()
 		// load mtdram driver
 		snprintf(buf1, sizeof(buf1), "total_size=%d", mtdSize/1024);
 		snprintf(buf2, sizeof(buf2), "erase_size=%d", mtdEraseSize/1024);
-		my_system("insmod", mtdramDriver.c_str(), buf1, buf2);
+		my_system(4, "insmod", mtdramDriver.c_str(), buf1, buf2);
 		// check if mtdram driver is now loaded
 		if (!isMtdramLoad())
 			return ErrorReset(0, "error load mtdram driver");

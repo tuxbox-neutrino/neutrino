@@ -3,6 +3,9 @@
 
 	License: GPL
 
+	(C) 2012-2013 the neutrino-hd developers
+	(C) 2012,2013 Stefan Seyfried
+
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -34,7 +37,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <zapit/debug.h>
+#include <stdarg.h>
 
 #include <system/helpers.h>
 #include <gui/update_ext.h>
@@ -67,12 +70,32 @@ int my_system(const char * cmd)
 	if (!file_exists(cmd))
 		return -1;
 
-	return my_system(cmd, NULL);
+	return my_system(1, cmd);
 }
 
-int my_system(const char * cmd, const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6)
+int my_system(int argc, const char *arg, ...)
 {
-	int i=0 ,ret=0, childExit=0;
+	int i = 0, ret = 0, childExit = 0;
+#define ARGV_MAX 64
+	/* static right now but could be made dynamic if necessary */
+	int argv_max = ARGV_MAX;
+	const char *argv[ARGV_MAX];
+	va_list args;
+	argv[0] = arg;
+	va_start(args, arg);
+
+	while(++i < argc)
+	{
+		if (i == argv_max)
+		{
+			fprintf(stderr, "my_system: too many arguments!\n");
+			return -1;
+		}
+		argv[i] = va_arg(args, const char *);
+	}
+	argv[i] = NULL; /* sentinel */
+	//fprintf(stderr,"%s:", __func__);for(i=0;argv[i];i++)fprintf(stderr," '%s'",argv[i]);fprintf(stderr,"\n");
+
 	pid_t pid;
 	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
 	switch (pid = vfork())
@@ -83,9 +106,11 @@ int my_system(const char * cmd, const char * arg1, const char * arg2, const char
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
 				close(i);
-			if(execlp(cmd, cmd, arg1, arg2, arg3, arg4, arg5, arg6, (char*)NULL))
+			if (setsid() == -1)
+				perror("my_system setsid");
+			if (execvp(argv[0], (char * const *)argv))
 			{
-				std::string txt = "ERROR: my_system \"" + (std::string) cmd + "\"";
+				std::string txt = "ERROR: my_system \"" + (std::string) argv[0] + "\"";
 				perror(txt.c_str());
 				ret = -1;
 			}
@@ -96,6 +121,7 @@ int my_system(const char * cmd, const char * arg1, const char * arg2, const char
 	waitpid(pid, &childExit, 0);
 	if(childExit != 0)
 		ret = childExit;
+	va_end(args);
 	return ret;
 }
 
@@ -132,6 +158,8 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 		int maxfd = getdtablesize();
 		for(int i = 3; i < maxfd; i++)
 			close(i);
+		if (setsid() == -1)
+			perror("my_popen setsid");
 		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
 		exit(0);
 	 }

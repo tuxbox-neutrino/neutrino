@@ -286,9 +286,9 @@ bool CFEManager::loadSettings()
 
 		}
 	}
-	//setMode(newmode, true);
-	//FIXME backward compatible settings for mode ?
 	linkFrontends();
+	if (configfile.getUnknownKeyQueryedFlag())
+		configfile.saveConfig(FECONFIGFILE);
 	return true;
 }
 
