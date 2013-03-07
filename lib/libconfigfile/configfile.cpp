@@ -97,7 +97,7 @@ bool CConfigFile::saveConfig(const char * const filename)
 	unlink(tmpname.c_str());
 	std::fstream configFile(tmpname.c_str(), std::ios::out);
 
-	if (configFile != NULL())
+	if (configFile != NULL)
 	{
 		std::cout << "[ConfigFile] saving " << filename << std::endl;
 		for (ConfigDataMap::const_iterator it = configData.begin(); it != configData.end(); ++it)
