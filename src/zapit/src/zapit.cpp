@@ -948,11 +948,15 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CZapitMessages::commandZaptoServiceID msgZaptoServiceID;
 		CZapitMessages::responseZapComplete msgResponseZapComplete;
 		CBasicServer::receive_data(connfd, &msgZaptoServiceID, sizeof(msgZaptoServiceID));
-		if(msgZaptoServiceID.record) {
+		if(msgZaptoServiceID.record)
 			msgResponseZapComplete.zapStatus = ZapForRecord(msgZaptoServiceID.channel_id);
-		} else {
+#ifdef ENABLE_PIP
+		else if(msgZaptoServiceID.pip)
+			msgResponseZapComplete.zapStatus = StartPip(msgZaptoServiceID.channel_id);
+#endif
+		else
 			msgResponseZapComplete.zapStatus = ZapTo(msgZaptoServiceID.channel_id, (rmsg.cmd == CZapitMessages::CMD_ZAPTO_SUBSERVICEID));
-		}
+
 		CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
 		break;
 	}
@@ -1496,6 +1500,13 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		StopPlayBack(false);
 		SendCmdReady(connfd);
 		break;
+
+#ifdef ENABLE_PIP
+	case CZapitMessages::CMD_STOP_PIP:
+		StopPip();
+		SendCmdReady(connfd);
+		break;
+#endif
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
 		/* hack. if standby true, dont blank video */
