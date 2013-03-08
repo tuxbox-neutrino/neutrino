@@ -360,7 +360,9 @@ extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_current_transponder Current Transponder Key
 extra.key_list_end end
 extra.key_list_start home
-extra.key_pip PiP
+extra.key_pip_close Close PiP
+extra.key_pip_setup Configure PiP
+extra.key_pip_swap Swap PiP/live
 extra.key_plugin One touch plugin
 extra.key_screenshot Screenshot key
 extra.key_timeshift Timeshift
@@ -844,7 +846,9 @@ menu.hint_key_mptime Assign button to show play time\nleft time
 menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
 menu.hint_key_pageup Assign button to show previous items page
-menu.hint_key_pip Assign button to top PiP
+menu.hint_key_pip_close Assign button to stop PiP
+menu.hint_key_pip_setup Assign button to configure PiP
+menu.hint_key_pip_swap Assign button to swap PiP and live channel
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
