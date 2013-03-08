@@ -110,7 +110,7 @@ neutrino_LDADD += \
 endif
 
 if BOXTYPE_COOL
-neutrino_LDADD += -lcoolstream-mt
+neutrino_LDADD += -lcoolstream-mt -lca-sc
 if ENABLE_TMSDK 
 else
 neutrino_LDADD += -lnxp
