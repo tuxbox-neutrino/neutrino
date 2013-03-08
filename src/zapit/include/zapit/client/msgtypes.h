@@ -148,7 +148,8 @@ class CZapitMessages
 			CMD_GET_ASPECTRATIO		   = 107,
 			CMD_SET_ASPECTRATIO		   = 108,
 			CMD_GET_MODE43			   = 109,
-			CMD_SET_MODE43			   = 110
+			CMD_SET_MODE43			   = 110,
+			CMD_STOP_PIP			   = 111
 
 		};
 
@@ -188,6 +189,7 @@ class CZapitMessages
 	{
 		t_channel_id channel_id;
 		bool record;
+		bool pip;
 	};
 
 	struct commandSetAudioChannel
