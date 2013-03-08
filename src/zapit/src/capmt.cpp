@@ -238,6 +238,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->setSource(source);
 		if(newmask == 0) {
 			cam->sendMessage(NULL, 0, false);
+			cam->sendCaPmt(channel->getChannelID(), NULL, 0);
 		} else {
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
@@ -273,7 +274,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->makeCaPmt(channel, false, list, caids);
 		int len;
 		unsigned char * buffer = channel->getRawPmt(len);
-		cam->sendCaPmt(channel->getTransponderId(), buffer, len);
+		cam->sendCaPmt(channel->getChannelID(), buffer, len);
 		//list = CCam::CAPMT_MORE;
 	}
 	mutex.unlock();
