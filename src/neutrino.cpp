@@ -85,6 +85,9 @@
 #include "gui/widget/menue.h"
 #include "gui/widget/messagebox.h"
 #include "gui/infoclock.h"
+#ifdef ENABLE_PIP
+#include "gui/pipsetup.h"
+#endif
 
 #if HAVE_COOL_HARDWARE
 #include "gui/widget/progressbar.h"
@@ -2134,8 +2137,24 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				numericZap( msg );
 			}
 #ifdef ENABLE_PIP
-			else if (msg == (neutrino_msg_t) g_settings.key_pip) {
+			else if (msg == (neutrino_msg_t) g_settings.key_pip_close) {
 				CZapit::getInstance()->StopPip();
+			}
+			else if (msg == (neutrino_msg_t) g_settings.key_pip_setup) {
+				CPipSetup pipsetup;
+				pipsetup.exec(NULL, "");
+			}
+			else if (msg == (neutrino_msg_t) g_settings.key_pip_swap) {
+				t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+				if (pip_channel_id) {
+					g_Zapit->stopPip();
+					channelList->zapTo_ChannelID(pip_channel_id);
+					if (CRecordManager::getInstance()->GetRecordMode(live_channel_id) == CRecordManager::RECMODE_OFF) {
+						if (!g_Zapit->zapTo_pip(live_channel_id))
+							DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
+					}
+				}
 			}
 #endif
 			else if (CRCInput::isNumeric(msg)) {
@@ -3629,7 +3648,11 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_plugin = tconfig.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", CRCInput::RC_nokey );
-	g_settings.key_pip = tconfig.getInt32( "key_pip", CRCInput::RC_help );
+#ifdef ENABLE_PIP
+	g_settings.key_pip_close = tconfig.getInt32( "key_pip_close", CRCInput::RC_help );
+	g_settings.key_pip_setup = tconfig.getInt32( "key_pip_setup", CRCInput::RC_pos );
+	g_settings.key_pip_swap = tconfig.getInt32( "key_pip_swap", CRCInput::RC_recall );
+#endif
 	g_settings.key_current_transponder = tconfig.getInt32( "key_current_transponder", CRCInput::RC_games );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
@@ -3688,7 +3711,11 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
 	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
 	tconfig.setInt32( "key_screenshot", g_settings.key_screenshot );
-	tconfig.setInt32( "key_pip", g_settings.key_pip );
+#ifdef ENABLE_PIP
+	tconfig.setInt32( "key_pip_close", g_settings.key_pip_close );
+	tconfig.setInt32( "key_pip_setup", g_settings.key_pip_setup );
+	tconfig.setInt32( "key_pip_swap", g_settings.key_pip_swap );
+#endif
 	tconfig.setInt32( "key_current_transponder", g_settings.key_current_transponder );
 
 	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
