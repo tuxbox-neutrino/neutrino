@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc.h"
+#include <driver/screen_max.h>
 
 using namespace std;
 
@@ -50,6 +51,12 @@ void CComponentsWindow::initVarWindow()
 	ccw_head 	= NULL;
 	ccw_caption 	= "";
 	ccw_icon_name	= NULL;
+
+	//using current screen settings for default dimensions
+	width = frameBuffer->getScreenWidth();
+	height = frameBuffer->getScreenHeight();
+	x=getScreenStartX(width);
+	y=getScreenStartY(height);
 	
 	setShadowOnOff(true);
 }
