@@ -11,6 +11,7 @@
 
 #include <cs_vfd.h>
 #include <control.h>
+#include <dmx_cs.h>
 
 #include "cs_types.h"
 
@@ -152,12 +153,14 @@ private:
 	analog_mode_t		analog_mode_cinch;
 	analog_mode_t		analog_mode_scart;
 	vfd_icon		mode_icon;
+	unsigned int		unit;
+	cDemux			*demux;
 	//
 	int SelectAutoFormat();
 	void ScalePic();
 public:
 	/* constructor & destructor */
-	cVideo(int mode, void * hChannel, void * hBuffer);
+	cVideo(int mode, void * hChannel, void * hBuffer, unsigned int Unit = 0);
 	~cVideo(void);
 
 	void * GetDRM(void);
@@ -231,6 +234,7 @@ public:
 	int  StartVBI(unsigned short pid);
 	int  StopVBI(void);
 	bool GetScreenImage(unsigned char * &data, int &xres, int &yres, bool get_video = true, bool get_osd = false, bool scale_to_video = false);
+	void SetDemux(cDemux *Demux);
 };
 
 #endif // __VIDEO_CS_H_
