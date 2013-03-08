@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc.h"
+#include <unistd.h>
 
 extern CPictureViewer * g_PicViewer;
 
