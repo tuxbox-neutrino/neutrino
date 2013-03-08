@@ -118,58 +118,35 @@ int CPipSetup::exec(CMenuTarget* parent, const std::string &)
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-		switch (msg) {
-			case CRCInput::RC_timeout:
-			case CRCInput::RC_ok:
+		if ((msg == (neutrino_msg_t) g_settings.key_pip_setup) ||
+			(msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok)) {
 				loop = false;
 				break;
-			case CRCInput::RC_setup:
+		} else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_spkr)) {
+			clear();
+			move(oldx, oldy, true);
+			resize(oldw, oldh, true);
+			paint();
+			if (msg == CRCInput::RC_home)
+				loop = false;
+		} else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)) {
+			clear();
+			move(0, (msg == CRCInput::RC_up) ? -YMOVE : YMOVE);
+			paint();
+		} else if ((msg == CRCInput::RC_left) || (msg == CRCInput::RC_right)) {
+			clear();
+			move((msg == CRCInput::RC_left) ? -XMOVE : XMOVE, 0);
+			paint();
+		} else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus)) {
+			clear();
+			int percent = (msg == CRCInput::RC_plus) ? PERCENT : -PERCENT;
+			resize(percent, percent);
+			paint();
+		} else if (msg >  CRCInput::RC_MaxRC) {
+			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+				loop = false;
 				res = menu_return::RETURN_EXIT_ALL;
-				loop = false;
-				break;
-			case CRCInput::RC_home:
-				loop = false;
-			case CRCInput::RC_spkr:
-				clear();
-				move(oldx, oldy, true);
-				resize(oldw, oldh, true);
-				paint();
-				break;
-			case CRCInput::RC_up:
-				clear();
-				move(0, -YMOVE);
-				paint();
-				break;
-			case CRCInput::RC_down:
-				clear();
-				move(0, YMOVE);
-				paint();
-				break;
-			case CRCInput::RC_left:
-				clear();
-				move(-XMOVE, 0);
-				paint();
-				break;
-			case CRCInput::RC_right:
-				clear();
-				move(XMOVE, 0);
-				paint();
-				break;
-			case CRCInput::RC_plus:
-				clear();
-				resize(PERCENT, PERCENT);
-				paint();
-				break;
-			case CRCInput::RC_minus:
-				clear();
-				resize(-PERCENT, -PERCENT);
-				paint();
-				break;
-			default:
-				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
-					loop = false;
-					res = menu_return::RETURN_EXIT_ALL;
-				}
+			}
 		}
 	}
 	hide();
