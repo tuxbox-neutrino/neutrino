@@ -782,9 +782,9 @@ int CChannelList::show()
 		else if ( msg == CRCInput::RC_play) {
 			if(SameTP() && CRecordManager::getInstance()->GetRecordMode(chanlist[selected]->channel_id) == CRecordManager::RECMODE_OFF) {
 				if (CZapit::getInstance()->GetPipChannelID() == chanlist[selected]->getChannelID()) {
-					CZapit::getInstance()->StopPip();
+					g_Zapit->stopPip();
 				} else {
-					if (!CZapit::getInstance()->StartPip(chanlist[selected]->getChannelID()))
+					if (!g_Zapit->zapTo_pip(chanlist[selected]->getChannelID()))
 						DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
 				}
 				paint();
