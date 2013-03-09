@@ -102,7 +102,8 @@ int my_system(int argc, const char *arg, ...)
 	{
 		case -1: /* can't vfork */
 			perror("vfork");
-			return -1;
+			ret = -errno;
+			goto out;
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
 				close(i);
@@ -110,17 +111,21 @@ int my_system(int argc, const char *arg, ...)
 				perror("my_system setsid");
 			if (execvp(argv[0], (char * const *)argv))
 			{
-				std::string txt = "ERROR: my_system \"" + (std::string) argv[0] + "\"";
-				perror(txt.c_str());
-				ret = -1;
+				if (errno != ENOENT) { /* don't complain if argv[0] only does not exist */
+					std::string txt = "ERROR: my_system \"" + (std::string) argv[0] + "\"";
+					perror(txt.c_str());
+				}
+				ret = -errno;
 			}
 			_exit (0); // terminate c h i l d proces s only	
 		default: /* parent returns to calling process */
 			break;
 	}
+	/* it is probably pure luck that ret gets propagated back from child to parent */
 	waitpid(pid, &childExit, 0);
 	if(childExit != 0)
 		ret = childExit;
+ out:
 	va_end(args);
 	return ret;
 }
