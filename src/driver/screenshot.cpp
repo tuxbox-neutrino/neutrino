@@ -99,7 +99,7 @@ bool CScreenShot::GetData()
 		return false;
 	}
 
-	printf("CScreenShot::GetData: data: %x %d x %d\n", (int) pixel_data, xres, yres);
+	printf("CScreenShot::GetData: data: %p %d x %d\n", pixel_data, xres, yres);
 	return true;
 }
 
