@@ -67,10 +67,18 @@ CComponentsWindow::~CComponentsWindow()
 		delete ccw_head;
 }
 
+void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text)
+{
+	ccw_caption = g_Locale->getText(locale_text);
+}
+
 void CComponentsWindow::initHeader()
 {
-	if (ccw_head == NULL)
-		ccw_head = new CComponentsHeader();
+	if (ccw_head){
+		delete ccw_head;
+		ccw_head = NULL;
+	}	
+	ccw_head = new CComponentsHeader();
 
 	ccw_head->setXPos(0);
 	ccw_head->setYPos(0);
@@ -89,6 +97,9 @@ void CComponentsWindow::initCCWItems()
 
 void CComponentsWindow::paint(bool do_save_bg)
 {
+	//prepare items before paint
+	initCCWItems();
+	
 	//paint body
 	paintInit(do_save_bg);
 	

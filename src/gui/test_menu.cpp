@@ -512,7 +512,6 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			window->setWindowIcon(NEUTRINO_ICON_LOCK);
 			window->setWindowCaption("Test");
 		}
-		window->refresh();
 		
 		if (!window->isPainted())
 			window->paint();

@@ -33,7 +33,7 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
-//#define DEBUG_CC
+#define DEBUG_CC
 
 class CComponents
 {
@@ -515,8 +515,8 @@ class CComponentsWindow : public CComponentsForm
 		~CComponentsWindow();
 		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void refresh(){initCCWItems();};
 		void setWindowCaption(const std::string& text){ccw_caption = text;};
+		void setWindowCaption(neutrino_locale_t locale_text);
 		void setWindowIcon(const char* iconname){ccw_icon_name = iconname;};
 };
 
