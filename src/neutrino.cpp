@@ -2394,7 +2394,9 @@ _repeat:
 			//else if(nNewChannel == -4)
 			if(g_channel_list_changed)
 			{
-				SetChannelMode(old_mode);
+				/* don't change bouquet after adding a channel to favorites */
+				if (nNewChannel != -5)
+					SetChannelMode(old_mode);
 				g_channel_list_changed = 0;
 				if(old_b_id < 0) old_b_id = old_b;
 				//g_Zapit->saveBouquets();
