@@ -192,7 +192,6 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	else
 	{
 		int itemw = ITEMW, itemh = ITEMW, pointx = POINT, pointy = POINT;
-		int hcnt = height / itemh;		/* how many POINTs is the bar high */
 		switch ((pb_color_t)g_settings.progressbar_color)
 		{
 			default:
@@ -201,7 +200,6 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 			case PB_LINES_V: /* vert. lines */
 				itemh = height;
 				pointy = height;
-				hcnt = 0;
 				break;
 			case PB_LINES_H: /* horiz. lines */
 				itemw = POINT;
@@ -210,9 +208,12 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 				itemw = POINT;
 				itemh = height;
 				pointy = height;
-				hcnt = 0;
 				break;
 		}
+		const int spc = itemh - pointy;			/* space between horizontal lines / points */
+		int hcnt = (height + spc) / itemh;		/* how many POINTs is the bar high */
+		int yoff = (height + spc - itemh * hcnt) / 2;
+		//printf("height: %d itemh: %d hcnt: %d yoff: %d spc: %d\n", height, itemh, hcnt, yoff, spc);
 		/* red, yellow, green are given in percent */
 		int rd = red * width / (100 * itemw);		/* how many POINTs red */
 		int yw = yellow * width / (100 * itemw);	/* how many POINTs yellow */
@@ -234,6 +235,7 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 
 		if (active_pb_width != last_width) {
 			int i, j;
+			const int py = pos_y + yoff;
 			if (active_pb_width > last_width) {
 				int step, off;
 				int b = 0;
@@ -245,8 +247,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 					else
 						rgb = RED + (diff << 8); // adding green
 					color = make16color(rgb);
-					for(j = 0; j <= hcnt; j++)
-						frameBuffer->paintBoxRel(pos_x + i * itemw, pos_y + j * itemh,
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
 									 pointx, pointy, color);
 				}
 				step = yw - rd - 1;
@@ -259,8 +261,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 					else
 						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
-					for(j = 0; j <= hcnt; j++)
-						frameBuffer->paintBoxRel(pos_x + i * itemw, pos_y + j * itemh,
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
 									 pointx, pointy, color);
 				}
 				off = diff;
@@ -275,14 +277,14 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 					else
 						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
-					for(j = 0; j <= hcnt; j++)
-						frameBuffer->paintBoxRel(pos_x + i * itemw, pos_y + j * itemh,
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
 									 pointx, pointy, color);
 				}
 			}
 			for(i = maxi; i < total; i++) {
-				for(j = 0; j <= hcnt; j++)
-					frameBuffer->paintBoxRel(pos_x + i * itemw, pos_y + j * itemh,
+				for (j = 0; j < hcnt; j++)
+					frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
 								 pointx, pointy, COL_INFOBAR_PLUS_3);//fill passive
 			}
 			last_width = active_pb_width;
