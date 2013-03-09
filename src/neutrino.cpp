@@ -1355,14 +1355,17 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	/* Favorites and providers TV bouquets */
 	bnum = 0;
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
-		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->tvChannels.empty())
+		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
+		/* allow empty user bouquets to be added, otherwise they are not
+		 * available from the channellist->add_favorite context menus */
+		if (!b->bHidden && (!b->tvChannels.empty() || b->bUser))
 		{
-			if(g_bouquetManager->Bouquets[i]->bUser)
-				tmp = TVfavList->addBouquet(g_bouquetManager->Bouquets[i]);
+			if (b->bUser)
+				tmp = TVfavList->addBouquet(b);
 			else
-				tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
+				tmp = TVbouquetList->addBouquet(b);
 
-			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->tvChannels);
+			ZapitChannelList* channels = &(b->tvChannels);
 			tmp->channelList->SetChannelList(channels);
 			bnum++;
 		}
