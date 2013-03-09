@@ -255,7 +255,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 		// volumebar
 		frameBuffer->paintBoxRel(x , y , (paintDigits) ? vbar_w - vbar_h : vbar_w + 1, vbar_h, colBar, ROUNDED, (paintDigits) ? CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT : CORNER_ALL);
 		// frame for progress
-		frameBuffer->paintBoxRel(progress_x-pB, progress_y-pB, progress_w+pB*1, progress_h+pB*2, colFrame);
+		frameBuffer->paintBoxRel(progress_x-pB, progress_y-pB, progress_w+pB*2, progress_h+pB*2, colFrame);
 		// volume icon
 		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME, icon_x, icon_y, 0, colBar);
 
