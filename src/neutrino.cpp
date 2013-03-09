@@ -1330,21 +1330,22 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	/* Favorites and providers bouquets */
 	tvi = ri = 0;
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
-		if (!g_bouquetManager->Bouquets[i]->bHidden) {
-			if (g_bouquetManager->Bouquets[i]->getTvChannels(zapitList)) {
-				if(g_bouquetManager->Bouquets[i]->bUser)
-					tmp = TVfavList->addBouquet(g_bouquetManager->Bouquets[i]);
+		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
+		if (!b->bHidden) {
+			if (b->getTvChannels(zapitList) || b->bUser) {
+				if(b->bUser)
+					tmp = TVfavList->addBouquet(b);
 				else
-					tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
+					tmp = TVbouquetList->addBouquet(b);
 
 				tmp->channelList->SetChannelList(&zapitList);
 				tvi++;
 			}
-			if (g_bouquetManager->Bouquets[i]->getRadioChannels(zapitList)) {
-				if(g_bouquetManager->Bouquets[i]->bUser)
-					tmp = RADIOfavList->addBouquet(g_bouquetManager->Bouquets[i]);
+			if (b->getRadioChannels(zapitList) || b->bUser) {
+				if(b->bUser)
+					tmp = RADIOfavList->addBouquet(b);
 				else
-					tmp = RADIObouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
+					tmp = RADIObouquetList->addBouquet(b);
 
 				tmp->channelList->SetChannelList(&zapitList);
 				ri++;
