@@ -45,7 +45,13 @@
 /* zapit.cpp */
 extern int zapit_debug;
 
+#if defined __NFILE__
+/* this is ugly. __FILE__ here is always zapit/include/debug.h, if it is called from
+ * src/neutrino.cpp, src/gui/... simply strip less characters */
+static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
+#else
 static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
+#endif
 #define __SHORTFILE__ (__FILE__ + __striplen)
 
 #define DBG(fmt, args...)					\
