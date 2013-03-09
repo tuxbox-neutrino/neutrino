@@ -88,7 +88,7 @@ CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 	else
 		bname = zapitBouquet->Name.c_str();
 
-	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked);
+	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked, !zapitBouquet->bUser);
 	tmp->zapitBouquet = zapitBouquet;
 	Bouquets.push_back(tmp);
 	return tmp;
