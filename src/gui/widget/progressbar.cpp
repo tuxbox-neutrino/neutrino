@@ -56,7 +56,7 @@ CProgressBar::~CProgressBar()
 {
 }
 
-inline unsigned int make16color(__u32 rgb)
+static inline unsigned int make16color(__u32 rgb)
 {
         return 0xFF000000 | rgb;
 }
@@ -233,38 +233,47 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 		}
 
 		if (active_pb_width != last_width) {
-			int step;
 			int i, j;
-			int b = 0;
 			if (active_pb_width > last_width) {
+				int step, off;
+				int b = 0;
+				uint8_t diff = 0;
 				for (i = 0; (i < rd) && (i < maxi); i++) {
-					step = 255 / rd;
+					diff = i * 255 / rd;
 					if (invert)
-						rgb = GREEN + ((unsigned char)(step * i) << 16); // adding red
+						rgb = GREEN + (diff << 16); // adding red
 					else
-						rgb = RED + ((unsigned char)(step * i) << 8); // adding green
+						rgb = RED + (diff << 8); // adding green
 					color = make16color(rgb);
 					for(j = 0; j <= hcnt; j++)
 						frameBuffer->paintBoxRel(pos_x + i * itemw, pos_y + j * itemh,
 									 pointx, pointy, color);
 				}
+				step = yw - rd - 1;
+				if (step < 1)
+					step = 1;
 				for (; (i < yw) && (i < maxi); i++) {
-					step = 255 / yw / 2;
+					diff = b++ * 255 / step / 2;
 					if (invert)
-						rgb = YELLOW - ((unsigned char)(step * (b++)) << 8); // removing green
+						rgb = YELLOW - (diff << 8); // removing green
 					else
-						rgb = YELLOW - ((unsigned char)(step * (b++)) << 16); // removing red
+						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
 					for(j = 0; j <= hcnt; j++)
 						frameBuffer->paintBoxRel(pos_x + i * itemw, pos_y + j * itemh,
 									 pointx, pointy, color);
 				}
+				off = diff;
+				b = 0;
+				step = gn - yw - 1;
+				if (step < 1)
+					step = 1;
 				for (; (i < gn) && (i < maxi); i++) {
-					step = 255 / gn;
+					diff = b++ * 255 / step / 2 + off;
 					if (invert)
-						rgb = YELLOW - ((unsigned char) (step * (b++)) << 8); // removing green
+						rgb = YELLOW - (diff << 8); // removing green
 					else
-						rgb = YELLOW - ((unsigned char) (step * (b++)) << 16); // removing red
+						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
 					for(j = 0; j <= hcnt; j++)
 						frameBuffer->paintBoxRel(pos_x + i * itemw, pos_y + j * itemh,
