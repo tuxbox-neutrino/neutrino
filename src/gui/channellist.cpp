@@ -427,7 +427,7 @@ int CChannelList::doChannelMenu(void)
 			}
 			if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
 				CZapit::getInstance()->addChannelToBouquet(bouquet_id, channel_id);
-				return 1;
+				return 2;
 			}
 
 			break;
@@ -685,9 +685,10 @@ int CChannelList::show()
 		else if ( msg == CRCInput::RC_setup) {
 			old_b_id = bouquetList->getActiveBouquetNumber();
 			fader.Stop();
-			CNeutrinoApp::getInstance()->g_channel_list_changed = doChannelMenu();
-			if(CNeutrinoApp::getInstance()->g_channel_list_changed) {
-				res = -4;
+			int ret = doChannelMenu();
+			CNeutrinoApp::getInstance()->g_channel_list_changed = (ret != 0);
+			if (ret) {
+				res = -3 - ret; /* -5 == add to fav, -5 == all other change */
 				loop = false;
 			} else {
 				old_b_id = -1;
