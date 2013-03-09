@@ -4,13 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
 
 	License: GPL
 
@@ -37,6 +30,7 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
+#include <driver/screen_max.h>
 
 #include <gui/color.h>
 
@@ -61,22 +55,41 @@ CExtendedInput::CExtendedInput(const neutrino_locale_t Name, char* Value, const 
 
 void CExtendedInput::Init(void)
 {
-
 	frameBuffer = CFrameBuffer::getInstance();
+
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	iheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
+	input_h = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight() + 2;		// font height + border
+	input_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("M") + 2;	// hack font width + border
+	offset  = 20;
 
-	width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name), true) + 20; // UTF-8
-	height = hheight+ mheight+ 20;
+	width = frameBuffer->getScreenWidth() / 100 * 45;
 
-	if (hint_1 != NONEXISTANT_LOCALE)
-		height += iheight;
-	if (hint_2 != NONEXISTANT_LOCALE)
-		height += iheight;
+	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name), true); // UTF-8
+	width = std::max(width, tmp_w + offset);
 
-	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width)>>1);
-	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height)>>1);
+	bheight = input_h + 2*offset;
+	if ((hint_1 != NONEXISTANT_LOCALE) || (hint_2 != NONEXISTANT_LOCALE))
+	{
+		if (hint_1 != NONEXISTANT_LOCALE)
+		{
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1), true);
+			width = std::max(width, tmp_w + 2*offset);
+			bheight += iheight;
+		}
+		if (hint_2 != NONEXISTANT_LOCALE)
+		{
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2), true);
+			width = std::max(width, tmp_w + 2*offset);
+			bheight += iheight;
+		}
+		bheight += offset;
+	}
+
+	height = hheight+ bheight;
+
+	x = getScreenStartX(width);
+	y = getScreenStartY(height);
 }
 
 CExtendedInput::~CExtendedInput()
@@ -107,32 +120,15 @@ void CExtendedInput::calculateDialog()
 		{
 			selectedChar = i;
 		}
-		maxX = ix > maxX ? ix : maxX;
-		maxY = iy > maxY ? iy : maxY;
+		maxX = std::max(ix, maxX);
+		maxY = std::max(iy, maxY);
 	}
 
-	width = width > maxX+40 ? width : maxX+40;
-	height = height > maxY + hheight + mheight ? height : maxY + hheight + mheight;
+	width = std::max(width, maxX + 2*offset);
+	height = std::max(height, maxY + bheight);
 
-	hintPosY = height -10;
-
-	if (hint_1 != NONEXISTANT_LOCALE) {
-		height += iheight;
-		int hw =  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1), true);
-		if(width < hw + 40)
-			width = hw + 40;
-	}
-	if (hint_2 != NONEXISTANT_LOCALE) {
-		height += iheight;
-		int hw =  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2), true);
-		if(width < hw)
-			width = hw;
-	}
-
-	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width)>>1);
-	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height)>>1);
-
-	hintPosY += y;
+	x = getScreenStartX(width);
+	y = getScreenStartY(height);
 }
 
 
@@ -162,8 +158,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	strcpy(dispval, value);
 	paint();
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop)
@@ -198,8 +193,8 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				}
 			}
 			if(found) {
-				inputFields[oldSelectedChar]->paint( x+20, y+hheight +20, false );
-				inputFields[selectedChar]->paint( x+20, y+hheight +20, true );
+				inputFields[oldSelectedChar]->paint(x+ offset, y+ hheight+ offset, false );
+				inputFields[selectedChar]->paint(x+ offset, y+ hheight+ offset, true );
 				std::string tmp = value;
 				CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
 			}
@@ -226,8 +221,8 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				}
 			}
 			if(found) {
-				inputFields[oldSelectedChar]->paint( x+20, y+hheight +20, false );
-				inputFields[selectedChar]->paint( x+20, y+hheight +20, true );
+				inputFields[oldSelectedChar]->paint(x+ offset, y+ hheight+ offset, false );
+				inputFields[selectedChar]->paint(x+ offset, y+ hheight+ offset, true );
 				std::string tmp = value;
 				CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
 			}
@@ -236,7 +231,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 					|| (msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
 		{
 			inputFields[selectedChar]->keyPressed(msg);
-			inputFields[selectedChar]->paint( x+20, y+hheight +20, true );
+			inputFields[selectedChar]->paint(x+ offset, y+ hheight+ offset, true );
 		}
 		else if (msg==CRCInput::RC_ok)
 		{
@@ -301,23 +296,29 @@ void CExtendedInput::hide()
 void CExtendedInput::paint()
 {
 	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ 10, y+ hheight, width- 10, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2), y+ hheight, width- (offset/2), g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
 
-	if (hint_1 != NONEXISTANT_LOCALE)
+	int tmp_y = y+ hheight+ offset+ input_h+ offset;
+
+	if ((hint_1 != NONEXISTANT_LOCALE) || (hint_2 != NONEXISTANT_LOCALE))
 	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ 20, hintPosY, width- 20, g_Locale->getText(hint_1), COL_MENUCONTENT, 0, true); // UTF-8
+		if (hint_1 != NONEXISTANT_LOCALE)
+		{
+			tmp_y += iheight;
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_1), COL_MENUCONTENT, 0, true); // UTF-8
+		}
 		if (hint_2 != NONEXISTANT_LOCALE)
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ 20, hintPosY + iheight, width- 20, g_Locale->getText(hint_2), COL_MENUCONTENT, 0, true); // UTF-8
+		{
+			tmp_y += iheight;
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT, 0, true); // UTF-8
+		}
+		tmp_y += offset;
 	}
 
 	for(unsigned int i=0; i<inputFields.size();i++)
-	{
-		inputFields[i]->paint( x+20, y+hheight +20, (i== (unsigned int) selectedChar) );
-	}
-
-
+		inputFields[i]->paint(x+ offset, y+ hheight+ offset, (i== (unsigned int) selectedChar) );
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -326,8 +327,8 @@ void CExtendedInput::paint()
 CExtendedInput_Item_Char::CExtendedInput_Item_Char(const std::string & Chars, bool Selectable )
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	idx = 20;
-	idy = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	input_h = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight() + 2;		// font height + border
+	input_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("M") + 2;	// hack font width + border
 	allowedChars = Chars;
 	selectable = Selectable;
 }
@@ -336,7 +337,7 @@ void CExtendedInput_Item_Char::init(int &x, int &y)
 {
 	ix = x;
 	iy = y;
-	x += idx;
+	x += input_w;
 }
 
 void CExtendedInput_Item_Char::setAllowedChars( const std::string & ac )
@@ -346,8 +347,10 @@ void CExtendedInput_Item_Char::setAllowedChars( const std::string & ac )
 
 void CExtendedInput_Item_Char::paint(int x, int y, bool focusGained )
 {
-	int startx = ix + x;
-	int starty = iy + y;
+	int xpos = ix + x;
+	int ypos = iy + y;
+
+	char ch[2] = {*data, 0};
 
 	uint8_t    color;
 	fb_pixel_t bgcolor;
@@ -363,15 +366,12 @@ void CExtendedInput_Item_Char::paint(int x, int y, bool focusGained )
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel( startx, starty, idx, idy, COL_MENUCONTENT_PLUS_4);
-	frameBuffer->paintBoxRel( startx+1, starty+1, idx-2, idy-2, bgcolor);
+	frameBuffer->paintBoxRel(xpos, ypos, input_w, input_h, COL_MENUCONTENT_PLUS_2);
+	frameBuffer->paintBoxRel(xpos+ 1, ypos+ 1, input_w- 2, input_h- 2, bgcolor);
 
-	char text[2];
-	text[0] = *data;
-	text[1] = 0;
-	int xfpos = startx + 1 + ((idx- g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth( text ))>>1);
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(xfpos,starty+idy, idx, text, color);
+	int ch_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(ch);
+	int ch_x = xpos + std::max(input_w/2 - ch_w/2, 0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(ch_x, ypos+ input_h, ch_w, ch, color);
 }
 
 bool CExtendedInput_Item_Char::isAllowedChar( char ch )
