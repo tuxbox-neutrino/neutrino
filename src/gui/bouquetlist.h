@@ -94,6 +94,8 @@ class CBouquetList
 		int		x;
 		int		y;
 
+		bool		favonly;
+
 		void paintItem(int pos);
 		void paint();
 		void paintHead();
