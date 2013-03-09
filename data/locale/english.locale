@@ -933,7 +933,7 @@ menu.hint_plugins_hdd_dir Select directory to load\nplugins from
 menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
-menu.hint_progressbar_color Show colored progress bars
+menu.hint_progressbar_color Change appearance of progress bars
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
 menu.hint_radiomode Switch box to radio mode
 menu.hint_reboot Reboot box\nNo confirmation
@@ -1499,7 +1499,12 @@ pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
 plugins.hdd_dir Plugin HDD dir.
 plugins.result plugin output
-progressbar.color Progressbar Color
+progressbar.color Progressbardesign
+progressbar.color.full colored
+progressbar.color.horizontal colored horizontal lines
+progressbar.color.matrix colored dots
+progressbar.color.mono monochrome
+progressbar.color.vertical colored vertical lines
 rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
 rclock.menueadd Lock RC
 rclock.title Lock Remote Control

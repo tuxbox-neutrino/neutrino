@@ -10,6 +10,7 @@
 	Copyright (C) 2010 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2010, 2012-2103 Stefan Seyfried
 
 	License: GPL
 
@@ -388,6 +389,15 @@ const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_
 	{ 2, LOCALE_MISCSETTINGS_COLORED_EVENTS_2 },	//next
 };
 
+#define PROGRESSBAR_COLOR_OPTION_COUNT 5
+const CMenuOptionChooser::keyval PROGRESSBAR_COLOR_OPTIONS[PROGRESSBAR_COLOR_OPTION_COUNT] =
+{
+	{ CProgressBar::PB_MONO,	LOCALE_PROGRESSBAR_COLOR_MONO },
+	{ CProgressBar::PB_MATRIX,	LOCALE_PROGRESSBAR_COLOR_MATRIX },
+	{ CProgressBar::PB_LINES_V,	LOCALE_PROGRESSBAR_COLOR_VERTICAL },
+	{ CProgressBar::PB_LINES_H,	LOCALE_PROGRESSBAR_COLOR_HORIZONTAL },
+	{ CProgressBar::PB_COLOR,	LOCALE_PROGRESSBAR_COLOR_FULL }
+};
 
 //show osd setup
 int COsdSetup::showOsdSetup()
@@ -512,7 +522,7 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mc);
 
 	// color progress bar
-	mc = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
 	osd_menu->addItem(mc);
 

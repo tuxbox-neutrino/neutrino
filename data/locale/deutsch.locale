@@ -933,7 +933,7 @@ menu.hint_plugins_hdd_dir Auswahl des Verzeichnisses zum Laden der Plugins von e
 menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_pref_subs Wählen Sie ihre bevorzugte Untertitel-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
-menu.hint_progressbar_color Bei aktivierter Option werden alle Fortschrittsbalken in Farbe und nicht im klassischen Weiß angezeigt
+menu.hint_progressbar_color Erscheinungsbild der Fortschrittsbalken auswählen
 menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
 menu.hint_radiomode Schaltet zum Radio-Modus
 menu.hint_reboot Startet die Box neu\nDer Neustart erfolgt ohne Bestätigung!
@@ -1499,7 +1499,12 @@ pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
 plugins.result Pluginausgabe
-progressbar.color Fortschrittsbalken Farbe
+progressbar.color Fortschrittsbalkendesign
+progressbar.color.full farbig
+progressbar.color.horizontal farbige horizontale Linien
+progressbar.color.matrix farbige Punkte
+progressbar.color.mono monochrom
+progressbar.color.vertical farbige vertikale Linien
 rclock.lockmsg Die Fernbedienung wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
