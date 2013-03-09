@@ -298,7 +298,7 @@ void CExtendedInput::paint()
 	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2), y+ hheight, width- (offset/2), g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2), y+ hheight, width- offset, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
 
 	int tmp_y = y+ hheight+ offset+ input_h+ offset;
 
