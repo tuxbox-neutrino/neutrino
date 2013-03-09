@@ -412,7 +412,16 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
-	g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
+	/* progressbar_color was bool before, so migrate old true/false setting over */
+	std::string tmp = configfile.getString("progressbar_color", "1");
+	if (tmp.compare("false") == 0) {
+		/* setString works around libconfigfile "feature" that it does not change "false" to "0" */
+		configfile.setString("progressbar_color", "0");
+		g_settings.progressbar_color = 0;
+	} else if (tmp.compare("true") == 0)
+		g_settings.progressbar_color = 1;
+	else	/* the config file already contains an int or nothing at all */
+		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 0 );
