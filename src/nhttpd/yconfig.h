@@ -118,7 +118,7 @@
 // switch for Box differences
 #ifdef CONFIG_SYSTEM_TUXBOX
 #define AUTHPASSWORD					"dbox2"
-#define PRIVATEDOCUMENTROOT				DATADIR"/httpd-y"
+#define PRIVATEDOCUMENTROOT				DATADIR "/neutrino/httpd-y"
 #endif
 
 #ifdef CONFIG_SYSTEM_TUXBOX_COOLSTREAM

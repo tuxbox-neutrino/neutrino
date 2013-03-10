@@ -29,6 +29,8 @@
 
 #include <sectionsdclient/sectionsdclient.h>
 
+#define LANGUAGEFILE CONFIGDIR "/epglanguages.conf"
+
 class SIlanguage {
 public:
 	static void filter(const std::map<std::string, std::string>& s, int max, std::string& retval);

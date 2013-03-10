@@ -111,7 +111,7 @@ CLocaleManager::~CLocaleManager()
 	delete[] defaultData;
 }
 
-const char * path[2] = {CONFIGDIR "/locale/", DATADIR "/neutrino/locale/"};
+const char * path[2] = { CONFIGDIR "/locale/", DATADIR "/neutrino/locale/"};
 
 CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const locale, bool asdefault)
 {
