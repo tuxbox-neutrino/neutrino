@@ -40,6 +40,10 @@ if test "$TARGET" = "native"; then
 		prefix=/usr/local
 	fi
 	TARGET_PREFIX=$prefix
+	if test "$exec_prefix" = "NONE"; then
+		exec_prefix=$prefix
+	fi
+	targetprefix=$prefix
 elif test "$TARGET" = "cdk"; then
 	AC_MSG_RESULT(cdk)
 
