@@ -22,6 +22,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+#include <config.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -31,8 +32,6 @@
 #include <sectionsdclient/sectionsdclient.h>
 
 #include "SIlanguage.hpp"
-
-#define LANGUAGEFILE "/var/tuxbox/config/epglanguages.conf"
 
 std::vector<std::string> SIlanguage::languages;
 pthread_mutex_t SIlanguage::languages_lock = PTHREAD_MUTEX_INITIALIZER;

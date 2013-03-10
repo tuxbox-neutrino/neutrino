@@ -514,14 +514,14 @@ void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 // send services.xml
 void CControlAPI::GetServicesxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile("/var/tuxbox/config/zapit/services.xml");
+	hh->SendFile(CONFIGDIR "/zapit/services.xml");
 }
 
 //-----------------------------------------------------------------------------
 // send bouquets.xml
 void CControlAPI::GetBouquetsxmlCGI(CyhookHandler *hh)
 {
-	hh->SendFile("/var/tuxbox/config/zapit/bouquets.xml");
+	hh->SendFile(CONFIGDIR "/zapit/bouquets.xml");
 }
 
 //-----------------------------------------------------------------------------

@@ -29,7 +29,7 @@
 
 #include <sectionsdclient/sectionsdclient.h>
 
-#define LANGUAGEFILE "/var/tuxbox/config/epglanguages.conf"
+#define LANGUAGEFILE CONFIGDIR "/epglanguages.conf"
 
 class SIlanguage {
 public:
