@@ -43,7 +43,7 @@
 #include <gui/widget/menue.h>
 
 #define MAXBOOKMARKS 10
-#define BOOKMARKFILE "/var/tuxbox/config/bookmarks"
+#define BOOKMARKFILE CONFIGDIR "/bookmarks"
 
 class CBookmark
 {

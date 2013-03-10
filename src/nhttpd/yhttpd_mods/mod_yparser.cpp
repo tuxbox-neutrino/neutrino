@@ -3,6 +3,8 @@
 // yParser
 //=============================================================================
 // C
+#include <config.h>
+
 #include <cstdlib>
 #include <cstring>
 #include <stdio.h>

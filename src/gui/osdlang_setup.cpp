@@ -169,7 +169,7 @@ void COsdLangSetup::showLanguageSetup(CMenuWidget *osdl_setup)
 	struct dirent **namelist;
 	int n;
 	//		printf("scanning locale dir now....(perhaps)\n");
-	char *pfad[] = {(char *) DATADIR "/neutrino/locale",(char *) "/var/tuxbox/config/locale"};
+	char *pfad[] = {(char *) DATADIR "/neutrino/locale",(char *) CONFIGDIR "/locale"};
 
 	osdl_setup->addIntroItems();
 

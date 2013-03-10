@@ -1692,7 +1692,7 @@ void CEitThread::beforeSleep()
 	messaging_zap_detected = false;
 	unlockMessaging();
 	if(notify_complete)
-		system("/var/tuxbox/config/epgdone.sh");
+		system(CONFIGDIR "/epgdone.sh");
 }
 
 /********************************************************************************/
