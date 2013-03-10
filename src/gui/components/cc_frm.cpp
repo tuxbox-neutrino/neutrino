@@ -62,6 +62,11 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 
 CComponentsForm::~CComponentsForm()
 {
+	cleanCCForm();
+}
+
+void CComponentsForm::cleanCCForm()
+{
 #ifdef DEBUG_CC
 	printf("[CComponents] calling %s...\n", __FUNCTION__);
 #endif

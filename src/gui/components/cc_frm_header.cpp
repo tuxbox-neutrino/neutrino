@@ -86,16 +86,7 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	initCCHItems();
 }
 
-#if 0 
-CComponentsHeader::~CComponentsHeader()
-{
-	hide();
-	clearSavedScreen();
-	clearCCItems();
-	clear();
-}
-#endif
-
+ 
 void CComponentsHeader::initVarHeader()
 {
 	//CComponentsHeader

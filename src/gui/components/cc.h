@@ -394,6 +394,7 @@ class CComponentsForm : public CComponentsItem
 		virtual int getCCItemId(CComponentsItem* cc_Item);
 		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
 		virtual void paintCCItems();
+		virtual void cleanCCForm();
 };
 
 class CComponentsIconForm : public CComponentsForm
@@ -410,6 +411,7 @@ class CComponentsIconForm : public CComponentsForm
 		CComponentsIconForm();
 		CComponentsIconForm(const int x_pos, const int y_pos, const int w, const int h, const std::vector<std::string> v_icon_names, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+// 		~CComponentsIconForm(); //inherited from CComponentsForm
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void initCCIcons();
@@ -479,8 +481,7 @@ class CComponentsHeader : public CComponentsForm
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, neutrino_locale_t caption_locale = NONEXISTANT_LOCALE, const char* icon_name = NULL, const int buttons = 0,bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-
-// 		~CComponentsHeader();
+//  		~CComponentsHeader(); //inherited from CComponentsForm
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void setHeaderText(const std::string& caption);
@@ -512,7 +513,7 @@ class CComponentsWindow : public CComponentsForm
 			CC_WINDOW_ITEM_HEADER 	= 0
 		};
 		CComponentsWindow();
-		~CComponentsWindow();
+		~CComponentsWindow(); 
 		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void setWindowCaption(const std::string& text){ccw_caption = text;};

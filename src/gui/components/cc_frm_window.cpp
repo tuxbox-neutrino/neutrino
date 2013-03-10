@@ -42,6 +42,13 @@ CComponentsWindow::CComponentsWindow()
 	initVarWindow();
 }
 
+CComponentsWindow::~CComponentsWindow()
+{
+	if (ccw_head)
+		delete ccw_head;
+	cleanCCForm();
+}
+
 void CComponentsWindow::initVarWindow()
 {
 	//CComponentsForm
@@ -59,12 +66,6 @@ void CComponentsWindow::initVarWindow()
 	y=getScreenStartY(height);
 	
 	setShadowOnOff(true);
-}
-
-CComponentsWindow::~CComponentsWindow()
-{
-	if (ccw_head)
-		delete ccw_head;
 }
 
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text)
