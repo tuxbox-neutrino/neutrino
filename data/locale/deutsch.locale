@@ -803,7 +803,9 @@ menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
 menu.hint_infobar_logo Logo- und Signal-Optionen
 menu.hint_infobar_logo_dir Wählen Sie das Verzeichnis für die Senderlogos
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
-menu.hint_infobar_progressbar Wählt die Optionen des Fortschrittsbalken in der Infobar
+menu.hint_infobar_position Wählt die Optionen des Fortschrittsbalken in der Infobar
+menu.hint_infobar_progressbar Wählen sie die Optionen für die Progressbar-Anzeige
+menu.hint_infobar_progressbar_design Stellen Sie das Design des Fortschrittsbalkens ein
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
 menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
 menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
@@ -1133,11 +1135,15 @@ miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo-Verz.
-miscsettings.infobar_progressbar Fortschrittsbalken Opt.
-miscsettings.infobar_progressbar_0 Standard
-miscsettings.infobar_progressbar_1 unterhalb Kanalname
-miscsettings.infobar_progressbar_2 unterhalb Kanalname schmal
-miscsettings.infobar_progressbar_3 zwischen EPG-Events schmal
+miscsettings.infobar_position Progessbarposition
+miscsettings.infobar_position_0 Standard
+miscsettings.infobar_position_1 unterhalb Kanalname
+miscsettings.infobar_position_2 unterhalb Kanalname (schmal)
+miscsettings.infobar_position_3 zwischen EPG-Events (schmal)
+miscsettings.infobar_progressbar Fortschrittsbalken
+miscsettings.infobar_progressbar_design Progressbar
+miscsettings.infobar_progressbar_design_0 Punktdesign
+miscsettings.infobar_progressbar_design_1 Balkendesign
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
