@@ -1143,7 +1143,9 @@ miscsettings.infobar_position_3 zwischen EPG-Events (schmal)
 miscsettings.infobar_progressbar Fortschrittsbalken
 miscsettings.infobar_progressbar_design Progressbar
 miscsettings.infobar_progressbar_design_0 Punktdesign
-miscsettings.infobar_progressbar_design_1 Balkendesign
+miscsettings.infobar_progressbar_design_1 Balkendesign Vertikal
+miscsettings.infobar_progressbar_design_2 Balkendesign Horizontal
+miscsettings.infobar_progressbar_design_3 farbig
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
