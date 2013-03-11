@@ -75,6 +75,7 @@ struct SNeutrinoSettings
 	int infobar_show_channellogo;
 	int infobar_progressbar;
 	int progressbar_color;
+	int progressbar_design;
 	int casystem_display;
 	int scrambled_message;
 	int volume_pos;

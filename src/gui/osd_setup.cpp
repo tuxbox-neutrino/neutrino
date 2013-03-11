@@ -43,6 +43,7 @@
 #include "screensetup.h"
 #include "osdlang_setup.h"
 #include "filebrowser.h"
+#include "progressbar_setup.h"
 
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
@@ -427,24 +428,29 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_SCREEN_SETUP);
 	osd_menu->addItem(mf);
 
+	//progressbar
+	CMenuForwarder * progress = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR, true, NULL, new CProgressbarSetup(), NULL, CRCInput::RC_1);
+	progress->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR);
+	osd_menu->addItem(progress);
+
 	//infobar
 	CMenuWidget osd_menu_infobar(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_INFOBAR);
 	showOsdInfobarSetup(&osd_menu_infobar);
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, &osd_menu_infobar, NULL, CRCInput::RC_1);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, &osd_menu_infobar, NULL, CRCInput::RC_2);
 	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_SETUP);
 	osd_menu->addItem(mf);
 
 	//channellist
 	CMenuWidget osd_menu_chanlist(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_CHANNELLIST);
 	showOsdChanlistSetup(&osd_menu_chanlist);
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, &osd_menu_chanlist, NULL, CRCInput::RC_2);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, &osd_menu_chanlist, NULL, CRCInput::RC_3);
 	mf->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SETUP);
 	osd_menu->addItem(mf);
 
 	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
 	showOsdScreenShotSetup(&osd_menu_screenshot);
-	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::RC_3);
+	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::RC_4);
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
 	osd_menu->addItem(mf);
 
@@ -504,11 +510,6 @@ int COsdSetup::showOsdSetup()
 	// big windows
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_BIGWINDOWS, &g_settings.big_windows, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_BIGWINDOWS);
-	osd_menu->addItem(mc);
-
-	// color progress bar
-	mc = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
 	osd_menu->addItem(mc);
 
 	int res = osd_menu->exec(NULL, "");
@@ -727,14 +728,6 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
    { 5 , LOCALE_MISCSETTINGS_INFOBAR_DISP_5 },
    { 6 , LOCALE_MISCSETTINGS_INFOBAR_DISP_6 }
 };
-#define LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT 4
-const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT]=
-{
-   { 0 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_0 },
-   { 1 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_1 },
-   { 2 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_2 },
-   { 3 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_3 }
-};
 
 //infobar
 void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
@@ -761,11 +754,6 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	// satellite
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_SAT);
-	menu_infobar->addItem(mc);
-
-	// infobar progress
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR, &g_settings.infobar_progressbar, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR);
 	menu_infobar->addItem(mc);
 
 	// flash/hdd progress

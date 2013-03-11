@@ -86,6 +86,7 @@ libneutrino_gui_a_SOURCES = \
 	pictureviewer_setup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
+	progressbar_setup.cpp \
 	proxyserver_setup.cpp \
 	rc_lock.cpp \
 	record_setup.cpp \
