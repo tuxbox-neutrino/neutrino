@@ -1,5 +1,6 @@
 /*
  * (C) 2008 by dbt <info@dbox2-tuning.de>
+ * (C) 2009-2010, 2012-2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +56,7 @@ CProgressBar::~CProgressBar()
 {
 }
 
-inline unsigned int make16color(__u32 rgb)
+static inline unsigned int make16color(__u32 rgb)
 {
         return 0xFF000000 | rgb;
 }
@@ -106,7 +107,7 @@ void CProgressBar::paintProgressBar2(const int pos_x,
 }
 
 void CProgressBar::realpaint(const int pos_x, const int pos_y,
-			     const int value, const int max_value,
+			     const int val,   const int max_value,
 			     const fb_pixel_t activebar_col,
 			     const fb_pixel_t passivebar_col,
 			     const fb_pixel_t backgroundbar_col,
@@ -120,6 +121,14 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 		bl_changed = g_settings.progressbar_color;
 		reset();
 	}
+
+	/* stupid callers give invalid values like "-1"... */
+	int value = val;
+	if (value < 0)
+		value = 0;
+	if (value > max_value)
+		value = max_value;
+
 	// set colors
 	fb_pixel_t active_col = activebar_col != 0 ? activebar_col : COL_INFOBAR_PLUS_7;
 	fb_pixel_t passive_col = passivebar_col != 0 ? passivebar_col : COL_INFOBAR_PLUS_3;
@@ -153,11 +162,11 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	// max height progressbar bar, if icon height larger than pb_height then get height from icon
 	int pb_max_height = icon_h > height ? icon_h + 2* frame_widht : height;
 
-	// max height of active/passive bar
-	int bar_height = pb_max_height - 2*frame_widht;
-
 	if (!blink || !g_settings.progressbar_color)
 	{
+		// max height of active/passive bar
+		int bar_height = pb_max_height - 2*frame_widht;
+
 		int start_x_passive_bar = start_x + active_pb_width;
 		int width_passive_bar = pb_max_width - active_pb_width;
 
@@ -182,14 +191,37 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	}
 	else
 	{
+		int itemw = ITEMW, itemh = ITEMW, pointx = POINT, pointy = POINT;
+		if(g_settings.progressbar_color){
+			switch ((pb_color_t)g_settings.progressbar_design){
+				default:
+				case PB_MATRIX: /* matrix */
+					break;
+				case PB_LINES_V: /* vert. lines */
+					itemh = height;
+					pointy = height;
+					break;
+				case PB_LINES_H: /* horiz. lines */
+					itemw = POINT;
+					break;
+				case PB_COLOR: /* filled color */
+					itemw = POINT;
+					itemh = height;
+					pointy = height;
+					break;
+			}
+		}
+		const int spc = itemh - pointy;			/* space between horizontal lines / points */
+		int hcnt = (height + spc) / itemh;		/* how many POINTs is the bar high */
+		int yoff = (height + spc - itemh * hcnt) / 2;
+		//printf("height: %d itemh: %d hcnt: %d yoff: %d spc: %d\n", height, itemh, hcnt, yoff, spc);
 		/* red, yellow, green are given in percent */
-		int rd = red * width / (100 * ITEMW);		/* how many POINTs red */
-		int yw = yellow * width / (100 * ITEMW);	/* how many POINTs yellow */
-		int gn = green * width / (100 * ITEMW);		/* how many POINTs green */
+		int rd = red * width / (100 * itemw);		/* how many POINTs red */
+		int yw = yellow * width / (100 * itemw);	/* how many POINTs yellow */
+		int gn = green * width / (100 * itemw);		/* how many POINTs green */
 
-		int hcnt = height / ITEMW;		/* how many POINTs is the bar high */
-		int maxi = active_pb_width / ITEMW;	/* how many POINTs is the active bar */
-		int total = width / ITEMW;		/* total number of POINTs */
+		int maxi = active_pb_width / itemw;	/* how many POINTs is the active bar */
+		int total = width / itemw;		/* total number of POINTs */
 
 		uint32_t rgb;
 		fb_pixel_t color;
@@ -202,85 +234,73 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 							 width, pb_max_height, shadowbar_col, c_rad); // shadow
 		}
 
-		if (active_pb_width != last_width)
-		{
-			int step;
+		if (active_pb_width != last_width) {
 			int i, j;
-			int b = 0;
-			if (active_pb_width > last_width)
-			{
-				for (i = 0; (i < rd) && (i < maxi); i++)
-				{ //green section
-					step = 255 / rd;
+			const int py = pos_y + yoff;
+			if (active_pb_width > last_width) {
+				int step, off;
+				int b = 0;
+				uint8_t diff = 0;
+				for (i = 0; (i < rd) && (i < maxi); i++) {
+					diff = i * 255 / rd;
 					if (invert)
-						rgb = GREEN + ((unsigned char)(step * i) << 16); // adding red
+						rgb = GREEN + (diff << 16); // adding red
 					else
-						rgb = RED + ((unsigned char)(step * i) << 8); // adding green
+						rgb = RED + (diff << 8); // adding green
 					color = make16color(rgb);
-					if (g_settings.progressbar_design == 0)
-					{
-						for(j = 0; j <= hcnt; j++)
-							frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, color);
-					}
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW,start_y, POINT, bar_height, color);
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+									 pointx, pointy, color);
 				}
-				for (; (i < yw) && (i < maxi); i++)
-				{ //yello section
-					step = 255 / yw / 2;
+				step = yw - rd - 1;
+				if (step < 1)
+					step = 1;
+				for (; (i < yw) && (i < maxi); i++) {
+					diff = b++ * 255 / step / 2;
 					if (invert)
-						rgb = YELLOW - ((unsigned char)(step * (b++)) << 8); // removing green
+						rgb = YELLOW - (diff << 8); // removing green
 					else
-						rgb = YELLOW - ((unsigned char)(step * (b++)) << 16); // removing red
+						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
-					if (g_settings.progressbar_design == 0)
-					{
-						for(j = 0; j <= hcnt; j++)
-							frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, color);
-					}
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, color);
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+									 pointx, pointy, color);
 				}
-				for (; (i < gn) && (i < maxi); i++)
-				{ //red section
-					step = 255 / gn;
+				off = diff;
+				b = 0;
+				step = gn - yw - 1;
+				if (step < 1)
+					step = 1;
+				for (; (i < gn) && (i < maxi); i++) {
+					diff = b++ * 255 / step / 2 + off;
 					if (invert)
-						rgb = YELLOW - ((unsigned char) (step * (b++)) << 8); // removing green
+						rgb = YELLOW - (diff << 8); // removing green
 					else
-						rgb = YELLOW - ((unsigned char) (step * (b++)) << 16); // removing red
+						rgb = YELLOW - (diff << 16); // removing red
 					color = make16color(rgb);
-					if (g_settings.progressbar_design == 0)
-					{
-						for(j = 0; j <= hcnt; j++)
-							frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, color);
-					}
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, color);
+					for (j = 0; j < hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+									 pointx, pointy, color);
 				}
 			}
-			for(i = maxi; i < total; i++)
-			{
-				for(j = 0; j <= hcnt; j++)
-					if (g_settings.progressbar_design == 0)
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, COL_INFOBAR_PLUS_3);//fill passive
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, COL_INFOBAR_PLUS_3);//fill passive
+			for(i = maxi; i < total; i++) {
+				for (j = 0; j < hcnt; j++)
+					frameBuffer->paintBoxRel(pos_x + i * itemw, py + j * itemh,
+								 pointx, pointy, COL_INFOBAR_PLUS_3);//fill passive
 			}
 			last_width = active_pb_width;
 		}
 	}
 
 	// paint icon if present
-	if (iconfile != NULL)
-	{
+	if (iconfile != NULL){
 		int icon_y = pos_y + pb_max_height / 2 - icon_h / 2;
 		frameBuffer->paintIcon(iconfile, pos_x + frame_widht, icon_y);
 	}
 
 	// upper text
 	int upper_labeltext_y = start_y - frame_widht;
-	if (upper_labeltext != NULL)
-	{
+	if (upper_labeltext != NULL) {
 		g_Font[font_pbar]->RenderString(start_x +2,
 						upper_labeltext_y,
 						width,
