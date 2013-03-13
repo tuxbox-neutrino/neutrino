@@ -567,7 +567,7 @@ bool CZapit::StopPip()
 {
 	if (pip_channel_id) {
 		INFO("[pip] stop %llx", pip_channel_id);
-		CCamManager::getInstance()->Stop(pip_channel_id, CCamManager::RECORD);
+		CCamManager::getInstance()->Stop(pip_channel_id, CCamManager::PIP);
 		pipDemux->Stop();
 		pipDecoder->Stop();
 		pip_fe = NULL;
@@ -606,10 +606,12 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 	pip_fe = frontend;
 
 	INFO("[pip] vpid %X apid %X pcr %X", newchannel->getVideoPid(), newchannel->getAudioPid(), newchannel->getPcrPid());
-	if (pipDemux && (pipDemux->getUnit() != newchannel->getRecordDemux())) {
+	/* FIXME until proper demux management */
+	int dnum = newchannel->getPipDemux();
+	if (pipDemux && (pipDemux->getUnit() != dnum)) {
 		pipDecoder->SetDemux(NULL);
 		delete pipDemux;
-		pipDemux = new cDemux(newchannel->getRecordDemux());
+		pipDemux = new cDemux(dnum);
 		pipDemux->Open(DMX_PIP_CHANNEL);
 		pipDecoder->SetDemux(pipDemux);
 	}
@@ -626,7 +628,7 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 
 	//pipDecoder->setBlank(false);
 
-	CCamManager::getInstance()->Start(newchannel->getChannelID(), CCamManager::RECORD);
+	CCamManager::getInstance()->Start(newchannel->getChannelID(), CCamManager::PIP);
 	return true;
 }
 #endif
@@ -2142,6 +2144,12 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDemux = new cDemux();
 	audioDemux->Open(DMX_AUDIO_CHANNEL);
 
+#ifdef ENABLE_PIP
+	/* FIXME until proper demux management */
+	int dnum = 1;
+	if (CFEManager::getInstance()->getFrontendCount() < MAX_DMX_UNITS)
+		dnum = PIP_DEMUX;
+#endif
 #ifdef BOXMODEL_APOLLO
 	videoDecoder = cVideo::GetDecoder(0);
 	audioDecoder = cAudio::GetDecoder(0);
@@ -2154,7 +2162,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDecoder->SetVideo(videoDecoder);
 
 #ifdef ENABLE_PIP
-	pipDemux = new cDemux();
+	pipDemux = new cDemux(dnum);
 	pipDemux->Open(DMX_PIP_CHANNEL);
 	pipDecoder = cVideo::GetDecoder(1);
 	pipDecoder->SetDemux(pipDemux);
@@ -2166,7 +2174,7 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
         audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
 
 #ifdef ENABLE_PIP
-	pipDemux = new cDemux();
+	pipDemux = new cDemux(dnum);
 	pipDemux->Open(DMX_PIP_CHANNEL);
 	pipDecoder = new cVideo(video_mode, pipDemux->getChannel(), pipDemux->getBuffer(), 1);
 #endif
