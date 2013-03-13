@@ -3116,11 +3116,10 @@ void CNeutrinoApp::tvMode( bool rezap )
 	SetChannelMode(g_settings.channel_mode);
 	if( rezap ) {
 		t_channel_id last_chid = CZapit::getInstance()->GetLastTVChannel();
-		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		if(CServiceManager::getInstance()->FindChannel(last_chid))
-			channelList->zapTo_ChannelID(last_chid);
+			channelList->zapTo_ChannelID(last_chid, true); /* force re-zap */
 		else
-			channelList->zapTo(0);
+			channelList->zapTo(0, true);
 	}
 #ifdef USEACTIONLOG
 	g_ActionLog->println("mode: tv");
@@ -3285,8 +3284,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(!recordingstatus) { //only switch to standby_channel_id when not recording
 			live_channel_id = standby_channel_id;
 		}
-		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
-		channelList->zapTo_ChannelID(live_channel_id);
+		channelList->zapTo_ChannelID(live_channel_id, true); /* force re-zap */
 
 		g_Sectionsd->setPauseScanning(false);
 		//g_Sectionsd->setServiceChanged(live_channel_id, true );
@@ -3328,11 +3326,10 @@ void CNeutrinoApp::radioMode( bool rezap)
 
 	if( rezap ) {
 		t_channel_id last_chid = CZapit::getInstance()->GetLastRADIOChannel();
-		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		if(CServiceManager::getInstance()->FindChannel(last_chid))
-			channelList->zapTo_ChannelID(last_chid);
+			channelList->zapTo_ChannelID(last_chid, true); /* force re-zap */
 		else
-			channelList->zapTo(0);
+			channelList->zapTo(0, true); /* force re-zap */
 	}
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
 }
