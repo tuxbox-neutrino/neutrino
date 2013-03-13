@@ -2141,7 +2141,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 #ifdef ENABLE_PIP
 			else if (msg == (neutrino_msg_t) g_settings.key_pip_close) {
-				CZapit::getInstance()->StopPip();
+				t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+				if (pip_channel_id)
+					g_Zapit->stopPip();
+				else 
+					StartPip(CZapit::getInstance()->GetCurrentChannelID());
 			}
 			else if (msg == (neutrino_msg_t) g_settings.key_pip_setup) {
 				CPipSetup pipsetup;
@@ -2150,13 +2154,10 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if (msg == (neutrino_msg_t) g_settings.key_pip_swap) {
 				t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-				if (pip_channel_id) {
+				if (pip_channel_id && (pip_channel_id != live_channel_id)) {
 					g_Zapit->stopPip();
 					channelList->zapTo_ChannelID(pip_channel_id);
-					if (CRecordManager::getInstance()->GetRecordMode(live_channel_id) == CRecordManager::RECMODE_OFF) {
-						if (!g_Zapit->zapTo_pip(live_channel_id))
-							DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
-					}
+					StartPip(live_channel_id);
 				}
 			}
 #endif
@@ -3871,6 +3872,25 @@ void CNeutrinoApp::getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::s
 
 	name += zAddData;
 }
+
+#ifdef ENABLE_PIP
+bool CNeutrinoApp::StartPip(const t_channel_id channel_id)
+{
+	bool ret = false;
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (!channel)
+		return ret;
+
+	int recmode = CRecordManager::getInstance()->GetRecordMode(channel_id);
+	if ((channel->getRecordDemux() != channel->getPipDemux()) || (recmode == CRecordManager::RECMODE_OFF)) {
+		if (!g_Zapit->zapTo_pip(channel_id))
+			DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
+		else
+			ret = true;
+	}
+	return ret;
+}
+#endif
 
 void CNeutrinoApp::Cleanup()
 {
