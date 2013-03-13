@@ -37,6 +37,7 @@
 #include <zapit/zapit.h>
 #include <zapit/client/zapittools.h>
 #include <zapit/femanager.h>
+#include <zapit/capmt.h>
 #include <dmx_cs.h>
 #include <OpenThreads/ScopedLock>
 
@@ -80,6 +81,7 @@ CFEManager::CFEManager() : configfile(',', true)
 	mode = FE_MODE_SINGLE;
 	config_exist = false;
 	have_locked = false;
+	enabled_count = 0;
 }
 
 bool CFEManager::Init()
@@ -105,7 +107,7 @@ bool CFEManager::Init()
 		dmap.push_back(CFeDmx(i));
 
 	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
-	if( femap.empty() )
+	if (femap.empty())
 		return false;
 
 	return true;
@@ -363,6 +365,7 @@ void CFEManager::linkFrontends(bool init)
 {
 	INFO("linking..");
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	enabled_count = 0;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 #if 0
@@ -414,6 +417,8 @@ void CFEManager::linkFrontends(bool init)
 		}
 		if (init && femode != CFrontend::FE_MODE_UNUSED)
 			fe->Init();
+		if (femode != CFrontend::FE_MODE_UNUSED)
+			enabled_count++;
 	}
 }
 
@@ -631,7 +636,16 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 		}
 #else
 		channel->setRecordDemux(frontend->fenumber+1);
+		channel->setPipDemux(frontend->fenumber+1);
 		cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
+#ifdef ENABLE_PIP
+		/* FIXME until proper demux management */
+		if (enabled_count < 4) {
+			channel->setPipDemux(PIP_DEMUX);
+			cDemux::SetSource(PIP_DEMUX, frontend->fenumber);
+		}
+		INFO("pip demux: %d", channel->getPipDemux());
+#endif
 #endif
 
 	}
@@ -755,4 +769,10 @@ bool CFEManager::haveCable()
 			return true;
 	}
 	return false;
+}
+
+int CFEManager::getEnabledCount()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	return enabled_count;
 }

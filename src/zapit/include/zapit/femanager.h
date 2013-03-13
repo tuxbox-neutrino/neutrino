@@ -77,6 +77,7 @@ class CFEManager
 	private:
 		fe_map_t		femap;
 		fe_mode_t		mode;
+		int			enabled_count;
 		CConfigFile		configfile;
 		common_fe_config_t	config;
 		bool			config_exist;
@@ -117,6 +118,7 @@ class CFEManager
 		void		setMode(fe_mode_t newmode, bool initial = false);
 
 		int		getFrontendCount() { return femap.size(); };
+		int		getEnabledCount();
 
 		CFrontend *	getScanFrontend(t_satellite_position satellitePosition);
 		bool		canTune(CZapitChannel * channel);
