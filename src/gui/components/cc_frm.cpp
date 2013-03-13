@@ -68,25 +68,32 @@ CComponentsForm::~CComponentsForm()
 void CComponentsForm::cleanCCForm()
 {
 #ifdef DEBUG_CC
-	printf("[CComponents] calling %s...\n", __FUNCTION__);
+	printf("[CComponentsForm]   [%s - %d] clean up...\n", __FUNCTION__, __LINE__);
 #endif
-	hide();
-	clearSavedScreen();
+// 	hide();
 	clearCCItems();
+	clearSavedScreen();
 	clear();
 }
 
+
+
 void CComponentsForm::clearCCItems()
 {
-	if (v_cc_items.empty())
+ 	if (v_cc_items.empty())
 		return;
 #ifdef DEBUG_CC
-	printf("[CComponentsForm] %s... cleanup %d form cc-items\n", __FUNCTION__, v_cc_items.size());
+	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __FUNCTION__, v_cc_items.size());
 #endif	
+	
 	for(size_t i=0; i<v_cc_items.size(); i++) {
-		if (v_cc_items[i])
-			delete v_cc_items[i];
-		v_cc_items[i] = NULL;
+		if (v_cc_items[i]){
+#ifdef DEBUG_CC
+	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __FUNCTION__, i+1, v_cc_items.size(), v_cc_items[i]->getItemType());
+#endif
+ 			delete v_cc_items[i];
+			v_cc_items[i] = NULL;
+		}
 	}
 	v_cc_items.clear();
 }
@@ -118,7 +125,16 @@ void CComponentsForm::initVarForm()
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
-	v_cc_items.push_back(cc_Item);
+	if (cc_Item){
+#ifdef DEBUG_CC
+		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] [current count %d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), v_cc_items.size());
+#endif
+		v_cc_items.push_back(cc_Item);
+	}
+#ifdef DEBUG_CC
+	else
+		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __FUNCTION__, __LINE__);
+#endif
 }
 
 int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
@@ -191,13 +207,18 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 #endif
 }
 
-void CComponentsForm::paint(bool do_save_bg)
+void CComponentsForm::paintForm(bool do_save_bg)
 {
 	//paint body
 	paintInit(do_save_bg);
-	
-	//paint items
-	paintCCItems();	
+
+	//paint
+	paintCCItems();
+}
+
+void CComponentsForm::paint(bool do_save_bg)
+{
+	paintForm(do_save_bg);
 }
 
 void CComponentsForm::paintCCItems()

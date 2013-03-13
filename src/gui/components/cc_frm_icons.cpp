@@ -40,6 +40,7 @@ CComponentsIconForm::CComponentsIconForm()
 	initVarIconForm();
 }
 
+
 CComponentsIconForm::CComponentsIconForm(const int x_pos, const int y_pos, const int w, const int h, const std::vector<std::string> v_icon_names, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
@@ -111,9 +112,8 @@ int CComponentsIconForm::getIconId(const std::string& icon_name)
 //to remove old items before add new icons, otherwise icons will be appended.
 void CComponentsIconForm::removeAllIcons()
 {
-	if (!v_icons.empty())
-		v_icons.clear();
 	clearCCItems();
+	v_icons.clear();
 }
 
 //get maximal form height depends of biggest icon height, but don't touch defined form height
@@ -128,9 +128,6 @@ void CComponentsIconForm::initMaxHeight(int *pheight)
 
 void CComponentsIconForm::initCCIcons()
 {
-	//clean up first possible old item objects, includes delete and clean up vector and icons
-	clearCCItems();
-
 	int ccp_y = 0;
 	int ccp_h = 0;
 	int ccp_w = 0;
@@ -156,8 +153,7 @@ void CComponentsIconForm::initCCIcons()
 	
 	for (size_t i= 0; i< i_cnt; i++){
 		//create new cc-picture item object
-		CComponentsPicture *ccp = NULL;
-		ccp = new CComponentsPicture(ccp_x, ccp_y, ccp_w, h, v_icons[i]);
+		CComponentsPicture *ccp = new CComponentsPicture(ccp_x, ccp_y, ccp_w, h, v_icons[i]);
 		ccp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
  		ccp->doPaintBg(false);
 		//add item to form
@@ -195,10 +191,7 @@ void CComponentsIconForm::paint(bool do_save_bg)
 {
 	//init and add icons
 	initCCIcons();
-
-	//paint body
-	paintInit(do_save_bg);
-
-	//paint
-	paintCCItems();
+	
+	//paint form contents
+	paintForm(do_save_bg);
 }

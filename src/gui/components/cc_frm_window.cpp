@@ -44,8 +44,9 @@ CComponentsWindow::CComponentsWindow()
 
 CComponentsWindow::~CComponentsWindow()
 {
-	if (ccw_head)
-		delete ccw_head;
+#ifdef DEBUG_CC
+	printf("[~CComponentsWindow]   [%s - %d] delete...\n", __FUNCTION__, __LINE__);
+#endif
 	cleanCCForm();
 }
 
@@ -75,25 +76,29 @@ void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text)
 
 void CComponentsWindow::initHeader()
 {
-	if (ccw_head){
-		delete ccw_head;
-		ccw_head = NULL;
-	}	
-	ccw_head = new CComponentsHeader();
+	if (ccw_head == NULL){
+		ccw_head = new CComponentsHeader();
+		initHeader();
+		//add header item only one time
+		addCCItem(ccw_head);
+	}
 
-	ccw_head->setXPos(0);
-	ccw_head->setYPos(0);
-	ccw_head->setWidth(width);
-	ccw_head->setHeaderIcon(ccw_icon_name);
-	ccw_head->setHeaderText(ccw_caption);
+	//set header properties
+	if (ccw_head){
+		ccw_head->setXPos(0);
+		ccw_head->setYPos(0);
+		ccw_head->setWidth(width);
+		ccw_head->setHeaderIcon(ccw_icon_name);
+		ccw_head->setHeaderText(ccw_caption);
+	}
 }
 
 void CComponentsWindow::initCCWItems()
 {
+#ifdef DEBUG_CC
+	printf("[CComponentsWindow]   [%s - %d] init items...\n", __FUNCTION__, __LINE__);
+#endif
 	initHeader();
-
-	if (ccw_head)
-		addCCItem(ccw_head);
 }
 
 void CComponentsWindow::paint(bool do_save_bg)
@@ -101,9 +106,6 @@ void CComponentsWindow::paint(bool do_save_bg)
 	//prepare items before paint
 	initCCWItems();
 	
-	//paint body
-	paintInit(do_save_bg);
-	
-	//paint
-	paintCCItems();
+	//paint form contents
+	paintForm(do_save_bg);
 }
