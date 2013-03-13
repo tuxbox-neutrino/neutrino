@@ -148,10 +148,10 @@ public:
 	t_channel_id         getActiveChannel_ChannelID(void) const;
 	CZapitChannel*	     getActiveChannel	       (void) const;
 
-	void zapTo(int pos, bool forceStoreToLastChannels = false);
-	void zapToChannel(CZapitChannel *channel);
+	void zapTo(int pos, bool force = false);
+	void zapToChannel(CZapitChannel *channel, bool force = false);
 	void virtual_zap_mode(bool up);
-	bool zapTo_ChannelID(const t_channel_id channel_id);
+	bool zapTo_ChannelID(const t_channel_id channel_id, bool force = false);
 	bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
 	bool showInfo(int pos, int epgpos = 0);
 	void updateEvents(unsigned int from, unsigned int to);

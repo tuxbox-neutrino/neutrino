@@ -1150,12 +1150,12 @@ void CChannelList::setSelected( int nChannelNr)
 }
 
 // -- Zap to channel with channel_id
-bool CChannelList::zapTo_ChannelID(const t_channel_id channel_id)
+bool CChannelList::zapTo_ChannelID(const t_channel_id channel_id, bool force)
 {
 	printf("**************************** CChannelList::zapTo_ChannelID %" PRIx64 "\n", channel_id);
 	for (unsigned int i = 0; i < chanlist.size(); i++) {
 		if (chanlist[i]->channel_id == channel_id) {
-			zapTo(i);
+			zapTo(i, force);
 			return true;
 		}
 	}
@@ -1173,7 +1173,7 @@ bool CChannelList::showEmptyError()
 
 /* forceStoreToLastChannels defaults to false */
 /* TODO make this private to call only from "current" list, where selected/pos not means channel number */
-void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
+void CChannelList::zapTo(int pos, bool force)
 {
 	if(showEmptyError())
 		return;
@@ -1183,7 +1183,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 	}
 	CZapitChannel* chan = chanlist[pos];
 
-	zapToChannel(chan);
+	zapToChannel(chan, force);
 	tuned = pos;
 	if(new_zap_mode == 2 /* active */)
 		selected_in_new_mode = pos;
@@ -1192,7 +1192,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 }
 
 /* to replace zapTo_ChannelID and zapTo from "whole" list ? */
-void CChannelList::zapToChannel(CZapitChannel *channel)
+void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 {
 	if(showEmptyError())
 		return;
@@ -1210,7 +1210,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 	if(tuned < chanlist.size())
 		selected_chid = chanlist[tuned]->getChannelID();
 
-	if(selected_chid != channel->getChannelID()) {
+	if(force || (selected_chid != channel->getChannelID())) {
 		if ((g_settings.radiotext_enable) && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio) && (g_Radiotext))
 		{
 			// stop radiotext PES decoding before zapping
