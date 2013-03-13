@@ -41,6 +41,7 @@
 #define LIVE_DEMUX	0
 #define STREAM_DEMUX	1
 #define RECORD_DEMUX	2
+#define PIP_DEMUX	3
 
 
 class CCam : public CBasicClient
@@ -85,7 +86,8 @@ class CCamManager
 		enum runmode {
 			PLAY,
 			RECORD,
-			STREAM
+			STREAM,
+			PIP
 		};
 	private:
 		cammap_t		channel_map;
