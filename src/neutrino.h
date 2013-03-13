@@ -223,6 +223,7 @@ public:
 	void numericZap(int msg);
 	void StopSubtitles();
 	void StartSubtitles(bool show = true);
+	bool StartPip(const t_channel_id channel_id);
 	void SelectSubtitles();
 	void showInfo(void);
 	CConfigFile* getConfigFile() {return &configfile;};
