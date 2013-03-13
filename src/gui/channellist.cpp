@@ -785,14 +785,14 @@ int CChannelList::show()
 		}
 #ifdef ENABLE_PIP
 		else if ( msg == CRCInput::RC_play) {
-			if(SameTP() && CRecordManager::getInstance()->GetRecordMode(chanlist[selected]->channel_id) == CRecordManager::RECMODE_OFF) {
+			if(SameTP()) {
 				if (CZapit::getInstance()->GetPipChannelID() == chanlist[selected]->getChannelID()) {
 					g_Zapit->stopPip();
+					paint();
 				} else {
-					if (!g_Zapit->zapTo_pip(chanlist[selected]->getChannelID()))
-						DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
+					if(CNeutrinoApp::getInstance()->StartPip(chanlist[selected]->getChannelID()))
+						paint();
 				}
-				paint();
 			}
 		}
 #endif
