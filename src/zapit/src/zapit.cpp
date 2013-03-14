@@ -87,7 +87,7 @@ extern cDemux *audioDemux;
 extern cDemux *videoDemux;
 
 #ifdef ENABLE_PIP
-cVideo *pipDecoder;
+extern cVideo *pipDecoder;
 cDemux *pipDemux;
 #endif
 
