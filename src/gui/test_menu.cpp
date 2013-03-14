@@ -428,11 +428,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header", NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
-//			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);	
+			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
 		}
 // 		else	//For existing instances it's recommended
 // 			//to remove old button icons before add new buttons, otherwise icons will be appended.
-// 			header->removeHeaderButtons();
+//  			header->removeHeaderButtons();
 
 //		example to manipulate header items
 // 		header->setFrameThickness(5);
@@ -440,22 +440,23 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		header->setCornerType(CORNER_TOP);
 
 //		change text of header
-// 		header->setHeaderText("Test");
+		header->setHeaderText("Test");
 
 //		add any other button icon
-//  		header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+//   		header->addHeaderButton(NEUTRINO_ICON_BUTTON_BLUE);
+// 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_GREEN);
 
 //		example to replace the text item with an image item
 //		get text x position
-		int logo_x = header->getCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT)->getXPos();
+// 		int logo_x = header->getCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT)->getXPos();
 //		remove text item
-		header->removeCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT); //then remove text item
+// 		header->removeCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT); //then remove text item
 //		create picture object with the last x position of text
-		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/share/tuxbox/neutrino/icons/hint_tvmode.png");
+// 		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/share/tuxbox/neutrino/icons/hint_tvmode.png");
 //		set the transparent background for picture item
-		logo->doPaintBg(false);
+// 		logo->doPaintBg(false);
 //		insert the ne object
-		header->insertCCItem(1, logo); //replace text with logo
+// 		header->insertCCItem(1, logo); //replace text with logo
 
 		
 		if (!header->isPainted())
