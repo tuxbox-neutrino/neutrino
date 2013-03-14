@@ -80,6 +80,8 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 
 		/* flag to allow any operations which can damage recordings */
 		bool allow_start;
+		/* flag to re-init frontends */
+		bool fe_restart;
 
 		bool is_wizard;
 		
@@ -101,7 +103,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		void fillSatSelect(CMenuOptionStringChooser *select);
 		void fillCableSelect(CMenuOptionStringChooser *select);
 
-		void addScanMenuFrontendSetup(CMenuWidget *settings);
+		int showScanMenuFrontendSetup();
  		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
  		void addScanMenuManualScan(CMenuWidget *manual_Scan);
  		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);

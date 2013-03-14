@@ -244,13 +244,13 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 
 	printf("[neutrino] CScanSetup::%s: %s \n", __FUNCTION__, actionKey.c_str());
-	if(actionKey=="save_scansettings")
+	if(actionKey == "save_scansettings")
 	{
 		printf("[neutrino] CScanSetup::%s save_scansettings...\n", __FUNCTION__);
 		saveScanSetup();
 		return res;
 	}
-	else if(actionKey=="reloadchannels")
+	else if(actionKey == "reloadchannels")
 	{
 		printf("[neutrino] CScanSetup::%s reloadchannels...\n", __FUNCTION__);
 		if (reloadhintBox)
@@ -261,17 +261,21 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CNeutrinoApp::getInstance ()->SDTreloadChannels = false;
 		return res;
 	}
-	else if(actionKey=="satsetup")
+	else if(actionKey == "satsetup")
 	{
 		return showScanMenuLnbSetup();
 	}
-	else if(actionKey=="unisetup")
+	else if(actionKey == "unisetup")
 	{
 		return showUnicableSetup();
 	}
-	else if(actionKey=="satfind")
+	else if(actionKey == "satfind")
 	{
 		return showScanMenuSatFind();
+	}
+	else if(actionKey == "setup_frontend")
+	{
+		return showScanMenuFrontendSetup();
 	}
 	else if((loc = actionKey.find("config_frontend", 0)) != std::string::npos)
 	{
@@ -281,7 +285,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	//starting scan
-	if(actionKey=="cable") {
+	if(actionKey == "cable") {
 		printf("[neutrino] CScanSetup::%s: simple cable scan\n", __FUNCTION__);
 		saveScanSetup();
 		/* for simple cable scan, force some options */
@@ -386,9 +390,12 @@ int CScanSetup::showScanMenu()
 	//sat/provider selector
 
 	if(CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1) {
+#if 0
 		CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
 		addScanMenuFrontendSetup(setupMenu);
 		mf = new CMenuDForwarder(LOCALE_SATSETUP_FE_SETUP, allow_start, NULL, setupMenu, "", CRCInput::convertDigitToKey(shortcut++));
+#endif
+		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_SETUP, allow_start, NULL, this, "setup_frontend", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FESETUP);
 		settings->addItem(mf);
 	}
@@ -550,11 +557,14 @@ int CScanSetup::showScanMenu()
 	return res;
 }
 
-void CScanSetup::addScanMenuFrontendSetup(CMenuWidget * setupMenu)
+int CScanSetup::showScanMenuFrontendSetup()
 {
 	CMenuForwarder * mf;
 	int shortcut = 1;
 
+	fe_restart = false;
+
+	CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
 	setupMenu->addIntroItems();
 
 	int count = CFEManager::getInstance()->getFrontendCount();
@@ -618,6 +628,17 @@ void CScanSetup::addScanMenuFrontendSetup(CMenuWidget * setupMenu)
 	nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 	nc->setHint("", LOCALE_MENU_HINT_SCAN_USALS_REPEAT);
 	setupMenu->addItem(nc);
+
+	int res = setupMenu->exec(NULL, "");
+	delete setupMenu;
+	if (fe_restart) {
+		fe_restart = false;
+		CFEManager::getInstance()->linkFrontends(true);
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		if (live_channel_id)
+			CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(live_channel_id, true);
+	}
+	return res;
 }
 
 int CScanSetup::showFrontendSetup(int number)
@@ -1351,7 +1372,12 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_DISEQC)) {
 		printf("[neutrino] CScanSetup::%s: diseqc %d fenumber %d\n", __FUNCTION__, dmode, fenumber);
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
+		if (fe->getDiseqcType() == (diseqc_t)dmode)
+			return ret;
+
+		fe_restart = true;
 		fe->setDiseqcType((diseqc_t) dmode);
+		fe->setTsidOnid(0);
 
 #if 0
 		if(femode !=  CFEManager::FE_MODE_ALONE)
@@ -1408,6 +1434,10 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			fillSatSelect(satSelect);
 #endif
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
+		if (fe->getMode() == femode)
+			return ret;
+
+		fe_restart = true;
 		fe->setMode(femode);
 		if (fe && fe->getType() == FE_QPSK) {
 			if (linkfe)
