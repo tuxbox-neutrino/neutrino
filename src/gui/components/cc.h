@@ -514,6 +514,8 @@ class CComponentsWindow : public CComponentsForm
 			CC_WINDOW_ITEM_HEADER 	= 0
 		};
 		CComponentsWindow();
+		CComponentsWindow(const std::string& caption, const char* iconname = NULL);
+		CComponentsWindow(neutrino_locale_t locale_caption, const char* iconname = NULL);
 		~CComponentsWindow(); 
 		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

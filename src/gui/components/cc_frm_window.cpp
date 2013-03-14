@@ -42,6 +42,22 @@ CComponentsWindow::CComponentsWindow()
 	initVarWindow();
 }
 
+CComponentsWindow::CComponentsWindow(const std::string& caption, const char* iconname)
+{
+	initVarWindow();
+	
+	ccw_caption 	= caption;
+	ccw_icon_name	= iconname;
+}
+
+CComponentsWindow::CComponentsWindow(neutrino_locale_t locale_caption, const char* iconname)
+{
+	initVarWindow();
+	
+	ccw_caption 	= g_Locale->getText(locale_caption);
+	ccw_icon_name	= iconname;
+}
+
 CComponentsWindow::~CComponentsWindow()
 {
 #ifdef DEBUG_CC
