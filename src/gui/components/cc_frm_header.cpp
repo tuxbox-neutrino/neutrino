@@ -263,13 +263,15 @@ void CComponentsHeader::initCCHeaderText()
 #ifdef DEBUG_CC
 	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s\n", __FUNCTION__, __LINE__, cch_text.c_str());
 #endif
-		cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness, cch_text.c_str());
+		cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness/*, cch_text.c_str()*/);
 		//add text item
 		addCCItem(cch_text_obj); //text
 	}
 
 	//set header text properties
 	if (cch_text_obj){
+		cch_text_obj->setText(cch_text);
+		cch_text_obj->setTextMode(CTextBox::AUTO_WIDTH);
 		cch_text_obj->setTextFont(cch_font);
 		cch_text_obj->setTextColor(cch_col_text);
 		cch_text_obj->setColorBody(col_body);
