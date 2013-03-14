@@ -65,7 +65,6 @@ CTestMenu::CTestMenu()
 	circle = NULL;
 	sq = NULL;
 	pic= NULL;
-	pip = NULL;
 	form = NULL;
 	txt = NULL;
 	header = NULL;
@@ -78,7 +77,6 @@ CTestMenu::~CTestMenu()
 	delete sq;
 	delete circle;
 	delete pic;
-	delete pip;
 	delete form;
 	delete txt;
 	delete header;
@@ -360,16 +358,6 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			pic->hide();
 		return res;
 	}
-	else if (actionKey == "pip"){
-		if (pip == NULL)
-			pip = new CComponentsPIP (100, 100, 25);
-
-		if (!pip->isPainted())
-			pip->paint();
-		else
-			pip->hide();
-		return res;
-	}
 	else if (actionKey == "form"){
 		if (form == NULL)
 			form = new CComponentsForm();
@@ -564,7 +552,6 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
 	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
-	widget->addItem(new CMenuForwarderNonLocalized("PiP", true, NULL, this, "pip"));
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));

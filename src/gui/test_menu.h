@@ -42,7 +42,6 @@ class CTestMenu : public CMenuTarget
 		CComponentsShapeCircle * circle;
 		CComponentsShapeSquare* sq;
 		CComponentsPicture* pic;
-		CComponentsPIP* pip;
 		CComponentsForm *form;
 		CComponentsText *txt;
 		CComponentsHeader *header;
