@@ -198,8 +198,8 @@ class CComponentsText : public CComponentsItem
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
 		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};//see textbox.h for possible modes
-		virtual	inline void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL){ct_text = ctext; ct_text_mode = mode, ct_font = font_text;};
-		virtual inline void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL){ct_text = stext.c_str(); ct_text_mode = mode, ct_font = font_text;};
+		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void removeLineBreaks(std::string& str);
 };
@@ -454,7 +454,6 @@ class CComponentsHeader : public CComponentsForm
 		void initCCHeaderIcon();
 		void initCCHeaderText();
 		void initCCHeaderButtons();
-		void initCCHItems();
 		void initCCHDefaultButtons();
 		void initCCButtonFormSize();
 		
@@ -493,6 +492,7 @@ class CComponentsHeader : public CComponentsForm
 		void addHeaderButton(const std::string& button_name);
 		void removeHeaderButtons();
 		void setHeaderButtons(const int buttons){cch_buttons = buttons;};
+		void initCCHeaderItems();
 };
 
 class CComponentsWindow : public CComponentsForm
@@ -501,6 +501,7 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsHeader * ccw_head;
 		std::string ccw_caption;
 		const char* ccw_icon_name;
+		int ccw_start_y;
 
 		void initHeader();
 		void initCCWItems();
@@ -522,6 +523,8 @@ class CComponentsWindow : public CComponentsForm
 		void setWindowCaption(const std::string& text){ccw_caption = text;};
 		void setWindowCaption(neutrino_locale_t locale_text);
 		void setWindowIcon(const char* iconname){ccw_icon_name = iconname;};
+
+		int getStartY(); //y value for start of the area below header
 };
 
 #endif

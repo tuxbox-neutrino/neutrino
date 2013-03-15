@@ -71,16 +71,17 @@ void CComponentsWindow::initVarWindow()
 	//CComponentsForm
 	initVarForm();
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
-	
-	ccw_head 	= NULL;
-	ccw_caption 	= "";
-	ccw_icon_name	= NULL;
 
 	//using current screen settings for default dimensions
 	width = frameBuffer->getScreenWidth();
 	height = frameBuffer->getScreenHeight();
 	x=getScreenStartX(width);
 	y=getScreenStartY(height);
+
+	ccw_head 	= NULL;
+	ccw_caption 	= "";
+	ccw_icon_name	= NULL;
+	ccw_start_y	= 0;
 	
 	setShadowOnOff(true);
 }
@@ -106,7 +107,15 @@ void CComponentsWindow::initHeader()
 		ccw_head->setWidth(width);
 		ccw_head->setHeaderIcon(ccw_icon_name);
 		ccw_head->setHeaderText(ccw_caption);
+		ccw_head->initCCHeaderItems();
+		ccw_start_y = ccw_head->getHeight();
 	}
+}
+
+int CComponentsWindow::getStartY()
+{
+	initHeader();
+	return ccw_start_y;
 }
 
 void CComponentsWindow::initCCWItems()

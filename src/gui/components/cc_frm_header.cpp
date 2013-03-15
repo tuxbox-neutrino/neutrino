@@ -61,7 +61,7 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	cch_icon_name	= icon_name;
 	cch_buttons	= buttons;
 	initCCHDefaultButtons();
-	initCCHItems();
+	initCCHeaderItems();
 }
 
 CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t caption_locale, const char* icon_name, const int buttons, bool has_shadow,
@@ -84,13 +84,23 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	cch_buttons	= buttons;
 
 	initCCHDefaultButtons();
-	initCCHItems();
+	initCCHeaderItems();
 }
 
 void CComponentsHeader::initVarHeader()
 {
-	//CComponentsHeader
+	//CComponentsForm
+	initVarForm();
+	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
+	col_body 		= COL_MENUHEAD_PLUS_0;
+	corner_rad		= RADIUS_LARGE,
+	corner_type		= CORNER_TOP;
+	
+	//init header height
 	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	height 			= cch_font->getHeight();
+	
+	//CComponentsHeader
 	cch_icon_obj		= NULL;
 	cch_text_obj		= NULL;
 	cch_icon_name		= NULL;
@@ -107,13 +117,7 @@ void CComponentsHeader::initVarHeader()
 	cch_btn_offset		= 8;
 	v_cch_btn.clear();
 	
-	//CComponentsForm
-	initVarForm();
-	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
-	height 			= cch_font->getHeight();	
-	col_body 		= COL_MENUHEAD_PLUS_0;
-	corner_rad		= RADIUS_LARGE,
-	corner_type		= CORNER_TOP;
+
 }
 
 CComponentsHeader::~CComponentsHeader()
@@ -182,6 +186,9 @@ void CComponentsHeader::initCCHeaderIcon()
 
 		//set width of icon object
 		cch_icon_w = cch_icon_obj->getWidth();
+
+		//adapt height
+		height 	= max(height, cch_icon_obj->getHeight());
 	}
 }
 
@@ -250,6 +257,7 @@ void CComponentsHeader::initCCHeaderButtons()
 		cch_btn_obj->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
 		cch_btn_obj->removeAllIcons();
 		cch_btn_obj->addIcon(v_cch_btn);
+		height 	= max(height, cch_btn_obj->getHeight());
 	}
 }
 
@@ -263,27 +271,32 @@ void CComponentsHeader::initCCHeaderText()
 #ifdef DEBUG_CC
 	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s\n", __FUNCTION__, __LINE__, cch_text.c_str());
 #endif
-		cch_text_obj = new CComponentsText(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness/*, cch_text.c_str()*/);
+		cch_text_obj = new CComponentsText();
 		//add text item
 		addCCItem(cch_text_obj); //text
 	}
 
 	//set header text properties
 	if (cch_text_obj){
-		cch_text_obj->setText(cch_text);
-		cch_text_obj->setTextMode(CTextBox::AUTO_WIDTH);
-		cch_text_obj->setTextFont(cch_font);
+		cch_text_obj->setText(cch_text, CTextBox::AUTO_WIDTH, cch_font);
+		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness);
+// 		cch_text_obj->setTextFont(cch_font)
 		cch_text_obj->setTextColor(cch_col_text);
+// 		cch_text_obj->setTextMode(CTextBox::AUTO_WIDTH);
+
 		cch_text_obj->setColorBody(col_body);
 		cch_text_obj->doPaintBg(false);
 
 		//corner of text item
 		cch_text_obj->setCornerRadius(corner_rad-fr_thickness);
 		cch_text_obj->setCornerType(corner_type);
+
+		//get height
+		height 	= max(height, cch_text_obj->getHeight());
 	}
 }
 
-void CComponentsHeader::initCCHItems()
+void CComponentsHeader::initCCHeaderItems()
 {
 	//init icon
 	initCCHeaderIcon();
@@ -298,7 +311,7 @@ void CComponentsHeader::initCCHItems()
 void CComponentsHeader::paint(bool do_save_bg)
 {
 	//prepare items
-	initCCHItems();
+	initCCHeaderItems();
 	
 	//paint form contents
 	paintForm(do_save_bg);
