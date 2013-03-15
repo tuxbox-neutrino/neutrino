@@ -104,7 +104,7 @@ void CComponentsText::initCCText()
 	height 	= max(height, 	ct_font->getHeight());
 
 	//text box dimensions
-	if (ct_box){
+	if (ct_box== NULL){
 		//ensure that we have a new instance
 		delete ct_box;
 		ct_box = NULL;
@@ -134,6 +134,9 @@ void CComponentsText::initCCText()
 	//set text
 	string new_text = static_cast <string> (ct_text);
 	ct_text_sent = ct_textbox->setText(&new_text, ct_box->iWidth);
+#ifdef DEBUG_CC
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text, ct_box->iX, ct_box->iY, height, width);
+#endif
 }
 
 void CComponentsText::clearCCText()
@@ -152,6 +155,23 @@ void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* fon
 	ct_text = g_Locale->getText(locale_text);
 	ct_text_mode = mode;
 	ct_font = font_text;
+
+}
+
+void CComponentsText::setText(const char* ctext, const int mode, Font* font_text)
+{
+	ct_text = ctext;
+	ct_text_mode = mode;
+	ct_font = font_text;
+
+}
+
+void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text)
+{
+	ct_text = stext.c_str();
+	ct_text_mode = mode;
+	ct_font = font_text;
+	
 }
 
 void CComponentsText::paintText(bool do_save_bg)
@@ -165,7 +185,6 @@ void CComponentsText::paintText(bool do_save_bg)
 
 void CComponentsText::paint(bool do_save_bg)
 {
-
 	paintText(do_save_bg);
 }
 
