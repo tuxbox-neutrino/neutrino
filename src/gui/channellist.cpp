@@ -113,6 +113,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	selected_chid = 0;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
@@ -476,31 +477,37 @@ int CChannelList::exec()
 
 void CChannelList::calcSize()
 {
-	const int pic_h = 39;
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
 
+	// recalculate theight, fheight and footerHeight for a possilble change of fontsize factor
+	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+	if (fheight == 0)
+		fheight = 1; /* avoid div-by-zero crash on invalid font */
+	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
+
+	// calculate width
 	full_width = frameBuffer->getScreenWidth() - frameBuffer->getScreenX() - 2*ConnectLineBox_Width;
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
 	else
 		width = full_width;
 
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), 0);
+	// calculate height (the infobox below mainbox is handled outside height)
+	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
+	height = h_max ((frameBuffer->getScreenHeight() / 20 * 18) - info_height, 0);
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - full_width) / 2;
+	// calculate x/y positions
+	x = getScreenStartX(full_width);
 	if (x < ConnectLineBox_Width)
 		x = ConnectLineBox_Width;
-	y = frameBuffer->getScreenY();
+	y = getScreenStartY(height + info_height);
 
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
-
-	/* assuming all color icons must have same size */
-	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-
-	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-
+	// calculate header height
+	const int pic_h = 39;
 	theight = std::max(theight, pic_h);
 
+	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
@@ -513,18 +520,10 @@ void CChannelList::calcSize()
 		theight = std::max(theight, icol_h);
 	}
 
-	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
-	if (fheight == 0)
-		fheight = 1; /* avoid crash on invalid font */
+	// calculate max entrys in mainbox
+	listmaxshow = (height - theight - footerHeight) / fheight;
 
-	listmaxshow = (height - theight - footerHeight -0)/fheight;
-	height = theight + footerHeight + listmaxshow * fheight;
-	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
-
-	int sh = frameBuffer->getScreenHeight();
-	int  ytmp = (sh - height - info_height) / 2;
-	y += ytmp;
-
+	// calculate width/height of right info_zone and pip-box
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
 	if (g_settings.channellist_additional == 2) // with miniTV
@@ -954,7 +953,7 @@ void CChannelList::hide()
 	{
 		videoDecoder->Pig(-1, -1, -1, -1);
 	}
-	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height+ info_height+ 5);
+	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
 }
 
@@ -1669,7 +1668,7 @@ void CChannelList::clearItem2DetailsLine()
 void CChannelList::paintItem2DetailsLine (int pos)
 {
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos1 = y + theight+0 + pos*fheight;
+	int ypos1 = y + theight + pos*fheight;
 	int ypos2 = y + height;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
@@ -1807,7 +1806,7 @@ void CChannelList::paintButtonBar(bool is_current)
 
 void CChannelList::paintItem(int pos)
 {
-	int ypos = y+ theight+0 + pos*fheight;
+	int ypos = y+ theight + pos*fheight;
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 	bool iscurrent = true;
@@ -2093,7 +2092,7 @@ void CChannelList::paint()
 		paintItem(count);
 	}
 	const int ypos = y+ theight;
-	const int sb = fheight* listmaxshow;
+	const int sb = height - theight - footerHeight; // paint scrollbar over full height of main box
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	const int sbc= ((chanlist.size()- 1)/ listmaxshow)+ 1;

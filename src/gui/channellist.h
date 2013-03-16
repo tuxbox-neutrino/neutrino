@@ -78,6 +78,7 @@ private:
 	int			full_width;
 	int			width;
 	int			height;
+	int			info_height; // the infobox below mainbox is handled outside height
 	int			x;
 	int			y;
 	int			logo_off;
@@ -94,7 +95,6 @@ private:
 	bool displayList;
 	int  first_mode_found;
 
-	int info_height;
 	int ChannelList_Rec;
 
 	void paintDetails(int index);
