@@ -287,6 +287,6 @@ void CImageInfo::paint()
 	paintLine(xpos+offset, font_small, "Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.");
 
 	if (pip == NULL)
-		pip = new CComponentsPIP(width-width/3-10, y+10, 30);
+		pip = new CComponentsPIP(width-width/3-10, y+10, 33);
 	pip->paint();
 }

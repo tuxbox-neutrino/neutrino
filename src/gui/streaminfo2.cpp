@@ -419,7 +419,7 @@ void CStreamInfo2::paint (int /*mode*/)
 		ypos += hheight;
 
 		if (pip == NULL)
-			pip = new CComponentsPIP(width-width/3-10, y+10, 30);
+			pip = new CComponentsPIP(width-width/3-10, y+10, 33);
 		pip->paint();
 
 		paint_techinfo (xpos, ypos);
