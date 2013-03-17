@@ -190,7 +190,7 @@ class CComponentsText : public CComponentsItem
 					const char* text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		~CComponentsText();
+		virtual ~CComponentsText();
 
 		void hide(bool no_restore = false);
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
@@ -202,6 +202,21 @@ class CComponentsText : public CComponentsItem
 		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void removeLineBreaks(std::string& str);
+};
+
+class CComponentsLabel : public CComponentsText
+{
+	public:
+		CComponentsLabel(	const int x_pos, const int y_pos, const int w, const int h,
+					const char* text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, has_shadow, color_text, color_frame, color_body, color_shadow){};
+		CComponentsLabel():CComponentsText()
+		{
+			initVarText();
+			ct_col_text = COL_MENUCONTENTINACTIVE;
+		};
 };
 
 #define INFO_BOX_Y_OFFSET	2
