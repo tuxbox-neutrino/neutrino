@@ -497,11 +497,10 @@ void CChannelList::calcSize()
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 18) - info_height, 0);
 
-	// calculate x/y positions
+	// calculate x position
 	x = getScreenStartX(full_width);
 	if (x < ConnectLineBox_Width)
 		x = ConnectLineBox_Width;
-	y = getScreenStartY(height + info_height);
 
 	// calculate header height
 	const int pic_h = 39;
@@ -522,6 +521,12 @@ void CChannelList::calcSize()
 
 	// calculate max entrys in mainbox
 	listmaxshow = (height - theight - footerHeight) / fheight;
+
+	// recalculate height to avoid spaces between last entry in mainbox and footer
+	height = theight + listmaxshow*fheight + footerHeight;
+
+	// calculate y position
+	y = getScreenStartY(height + info_height);
 
 	// calculate width/height of right info_zone and pip-box
 	infozone_width = full_width - width;
