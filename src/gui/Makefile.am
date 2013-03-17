@@ -110,6 +110,9 @@ libneutrino_gui_a_SOURCES += \
 	update_ext.cpp
 endif
 
+libneutrino_gui_a_SOURCES += \
+	luainstance.cpp
+
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \
 	color.cpp \

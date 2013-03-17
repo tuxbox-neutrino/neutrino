@@ -70,6 +70,8 @@
 #endif
 
 #include <daemonc/remotecontrol.h>
+#include <gui/luainstance.h>
+
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -126,11 +128,11 @@ void CPlugins::scanDir(const char *dir)
 			{
 				new_plugin.pluginfile = fname;
 				if (new_plugin.type == CPlugins::P_TYPE_SCRIPT)
-				{
 					new_plugin.pluginfile.append(".sh");
-				} else {
+				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
+					new_plugin.pluginfile.append(".lua");
+				else
 					new_plugin.pluginfile.append(".so");
-				}
 				// We do not check if new_plugin.pluginfile exists since .cfg in
 				// PLUGINDIR_VAR can overwrite settings in read only dir
 				// PLUGINDIR. This needs PLUGINDIR_VAR to be scanned at
@@ -342,6 +344,21 @@ void CPlugins::startScriptPlugin(int number)
 	}
 }
 
+void CPlugins::startLuaPlugin(int number)
+{
+	const char *script = plugin_list[number].pluginfile.c_str();
+	printf("[CPlugins] executing lua script %s\n",script);
+	if (!file_exists(script))
+	{
+		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
+		       script, plugin_list[number].cfgfile.c_str());
+		return;
+	}
+	CLUAInstance *lua = new CLUAInstance();
+	lua->runScript(script);
+	delete lua;
+}
+
 void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
@@ -365,6 +382,11 @@ void CPlugins::startPlugin(int number,int /*param*/)
 	if (plugin_list[number].type == CPlugins::P_TYPE_SCRIPT)
 	{
 		startScriptPlugin(number);
+		return;
+	}
+	if (plugin_list[number].type == CPlugins::P_TYPE_LUA)
+	{
+		startLuaPlugin(number);
 		return;
 	}
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
@@ -636,6 +658,8 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 	case PLUGIN_TYPE_SCRIPT:
 		return P_TYPE_SCRIPT;
 		break;
+	case PLUGIN_TYPE_LUA:
+		return P_TYPE_LUA;
 	default:
 		return P_TYPE_DISABLED;
 	}
