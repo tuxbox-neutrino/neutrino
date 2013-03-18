@@ -358,12 +358,12 @@ bool CMoviePlayerGui::SelectFile()
 				ret = true;
 				if(file->getType() == CFile::FILE_PLAYLIST) {
 					std::ifstream infile;
-					char cLine[256];
-					char name[255] = { 0 };
+					char cLine[1024];
+					char name[1024] = { 0 };
 					infile.open(file->Name.c_str(), std::ifstream::in);
 					while (infile.good())
 					{
-						infile.getline(cLine, 255);
+						infile.getline(cLine, sizeof(cLine));
 						if (cLine[strlen(cLine)-1]=='\r')
 							cLine[strlen(cLine)-1]=0;
 
