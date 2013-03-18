@@ -27,12 +27,19 @@ extern "C" {
 }
 #include <driver/fb_window.h>
 
+/* this is stored as userdata in the lua_State */
+struct CLuaData
+{
+	CFBWindow *fbwin;
+	CRCInput *rcinput;
+};
+
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
 {
 	static const char className[];
 	static const luaL_Reg methods[];
-	static CFBWindow *CheckWindow(lua_State *L, int narg);
+	static CLuaData *CheckData(lua_State *L, int narg);
 public:
 	CLuaInstance();
 	~CLuaInstance();
@@ -46,6 +53,7 @@ private:
 	static int PaintBox(lua_State *L);
 	static int PaintIcon(lua_State *L);
 	static int RenderString(lua_State *L);
+	static int GetInput(lua_State *L);
 	static int GCWindow(lua_State *L);
 };
 
