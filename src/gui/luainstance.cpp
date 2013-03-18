@@ -36,9 +36,9 @@
 #define lua_unboxpointer(L, i) \
 	(*(void **)(lua_touserdata(L, i)))
 
-const char CLUAInstance::className[] = "neutrino";
+const char CLuaInstance::className[] = "neutrino";
 
-CLUAInstance::CLUAInstance()
+CLuaInstance::CLuaInstance()
 {
 	/* Create the intepreter object.  */
 	lua = luaL_newstate();
@@ -47,7 +47,7 @@ CLUAInstance::CLUAInstance()
 	registerFunctions();
 }
 
-CLUAInstance::~CLUAInstance()
+CLuaInstance::~CLuaInstance()
 {
 	if (lua != NULL)
 	{
@@ -67,13 +67,13 @@ CLUAInstance::~CLUAInstance()
 	lua_setglobal(lua, #NAME);
 
 /* Run the given script. */
-void CLUAInstance::runScript(const char *fileName)
+void CLuaInstance::runScript(const char *fileName)
 {
 	// luaL_dofile(lua, fileName);
 	/* run the script */
 	int status = luaL_loadfile(lua, fileName);
 	if (status) {
-		fprintf(stderr, "[CLUAInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
+		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
 		return;
 	}
 
@@ -121,19 +121,19 @@ void CLUAInstance::runScript(const char *fileName)
 
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
 	if (status)
-		fprintf(stderr, "[CLUAInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
+		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
 }
 
-const luaL_Reg CLUAInstance::methods[] =
+const luaL_Reg CLuaInstance::methods[] =
 {
-	{ "PaintBox", CLUAInstance::PaintBox },
-	{ "RenderString", CLUAInstance::RenderString },
-	{ "PaintIcon", CLUAInstance::PaintIcon },
+	{ "PaintBox", CLuaInstance::PaintBox },
+	{ "RenderString", CLuaInstance::RenderString },
+	{ "PaintIcon", CLuaInstance::PaintIcon },
 	{ NULL, NULL }
 };
 
 /* load basic functions and register our own C callbacks */
-void CLUAInstance::registerFunctions()
+void CLuaInstance::registerFunctions()
 {
 	luaL_openlibs(lua);
 	luaopen_table(lua);
@@ -165,16 +165,16 @@ void CLUAInstance::registerFunctions()
 	lua_register(lua, className, NewWindow);
 }
 
-CFBWindow *CLUAInstance::CheckWindow(lua_State *L, int narg)
+CFBWindow *CLuaInstance::CheckWindow(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
 	if (!ud)
-		fprintf(stderr, "[CLUAInstance::%s] wrong type %p, %d, %s\n", __func__, L, narg, className);
+		fprintf(stderr, "[CLuaInstance::%s] wrong type %p, %d, %s\n", __func__, L, narg, className);
 	return *(CFBWindow **)ud;  // unbox pointer
 }
 
-int CLUAInstance::NewWindow(lua_State *L)
+int CLuaInstance::NewWindow(lua_State *L)
 {
 	int count = lua_gettop(L);
 	int x = g_settings.screen_StartX;
@@ -196,9 +196,9 @@ int CLUAInstance::NewWindow(lua_State *L)
 	return 1;
 }
 
-int CLUAInstance::PaintBox(lua_State *L)
+int CLuaInstance::PaintBox(lua_State *L)
 {
-	DBG("CLUAInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, w, h;
 	unsigned int c;
 
@@ -225,9 +225,9 @@ int CLUAInstance::PaintBox(lua_State *L)
 	return 0;
 }
 
-int CLUAInstance::PaintIcon(lua_State *L)
+int CLuaInstance::PaintIcon(lua_State *L)
 {
-	DBG("CLUAInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	int x, y, h;
 	unsigned int o;
 	const char *fname;
@@ -244,13 +244,13 @@ int CLUAInstance::PaintIcon(lua_State *L)
 	return 0;
 }
 
-int CLUAInstance::RenderString(lua_State *L)
+int CLuaInstance::RenderString(lua_State *L)
 {
 	int x, y, w, boxh, utf8, f;
 	unsigned int c;
 	const char *text;
 	int numargs = lua_gettop(L);
-	DBG("CLUAInstance::%s %d\n", __func__, numargs);
+	DBG("CLuaInstance::%s %d\n", __func__, numargs);
 	c = COL_MENUCONTENT;
 	boxh = 0;
 	utf8 = 1;
@@ -278,9 +278,9 @@ int CLUAInstance::RenderString(lua_State *L)
 	return 0;
 }
 
-int CLUAInstance::GCWindow(lua_State *L)
+int CLuaInstance::GCWindow(lua_State *L)
 {
-	DBG("CLUAInstance::%s %d\n", __func__, lua_gettop(L));
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CFBWindow *w = (CFBWindow *)lua_unboxpointer(L, 1);
 	delete w;
 	return 0;

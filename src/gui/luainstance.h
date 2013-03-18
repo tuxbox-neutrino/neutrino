@@ -28,14 +28,14 @@ extern "C" {
 #include <driver/fb_window.h>
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
-class CLUAInstance
+class CLuaInstance
 {
 	static const char className[];
 	static const luaL_Reg methods[];
 	static CFBWindow *CheckWindow(lua_State *L, int narg);
 public:
-	CLUAInstance();
-	~CLUAInstance();
+	CLuaInstance();
+	~CLuaInstance();
 	void runScript(const char *fileName);
 
 private:
