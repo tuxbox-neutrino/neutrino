@@ -33,7 +33,7 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
-#define DEBUG_CC
+// #define DEBUG_CC
 
 class CComponents
 {
@@ -235,7 +235,7 @@ class CComponentsInfoBox : public CComponentsText
 	public:
 		CComponentsInfoBox();
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
-					const char* info_text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					const char* info_text = NULL, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		
@@ -391,7 +391,6 @@ class CComponentsForm : public CComponentsItem
 	protected:
 		std::vector<CComponentsItem*>	v_cc_items;			
 		void initVarForm();
-		void clearCCItems();
 		void paintForm(bool do_save_bg);
 	public:
 		
@@ -410,6 +409,7 @@ class CComponentsForm : public CComponentsItem
 		virtual int getCCItemId(CComponentsItem* cc_Item);
 		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
 		virtual void paintCCItems();
+		virtual	void clearCCItems();
 		virtual void cleanCCForm();
 };
 
