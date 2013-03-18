@@ -25,6 +25,7 @@
 
 #include <global.h>
 #include <system/settings.h>
+#include <neutrino.h>
 
 #include "luainstance.h"
 
@@ -129,6 +130,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "PaintBox", CLuaInstance::PaintBox },
 	{ "RenderString", CLuaInstance::RenderString },
 	{ "PaintIcon", CLuaInstance::PaintIcon },
+	{ "GetInput", CLuaInstance::GetInput },
 	{ NULL, NULL }
 };
 
@@ -165,13 +167,13 @@ void CLuaInstance::registerFunctions()
 	lua_register(lua, className, NewWindow);
 }
 
-CFBWindow *CLuaInstance::CheckWindow(lua_State *L, int narg)
+CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
 	if (!ud)
 		fprintf(stderr, "[CLuaInstance::%s] wrong type %p, %d, %s\n", __func__, L, narg, className);
-	return *(CFBWindow **)ud;  // unbox pointer
+	return *(CLuaData **)ud;  // unbox pointer
 }
 
 int CLuaInstance::NewWindow(lua_State *L)
@@ -181,6 +183,7 @@ int CLuaInstance::NewWindow(lua_State *L)
 	int y = g_settings.screen_StartY;
 	int w = g_settings.screen_EndX - x;
 	int h = g_settings.screen_EndY - y;
+	CLuaData *D = new CLuaData();
 	if (count > 0)
 		x = luaL_checkint(L, 1);
 	if (count > 1)
@@ -190,7 +193,9 @@ int CLuaInstance::NewWindow(lua_State *L)
 	if (count > 3)
 		h = luaL_checkint(L, 4);
 	CFBWindow *W = new CFBWindow(x, y, w, h);
-	lua_boxpointer(L, W);
+	D->fbwin = W;
+	D->rcinput = g_RCInput;
+	lua_boxpointer(L, D);
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
 	return 1;
@@ -202,8 +207,8 @@ int CLuaInstance::PaintBox(lua_State *L)
 	int x, y, w, h;
 	unsigned int c;
 
-	CFBWindow *W = CheckWindow(L, 1);
-	if (!W)
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
 		return 0;
 	x = luaL_checkint(L, 2);
 	y = luaL_checkint(L, 3);
@@ -215,13 +220,13 @@ int CLuaInstance::PaintBox(lua_State *L)
 		x = 0;
 	if (y < 0)
 		y = 0;
-	if (w < 0 || x + w > W->dx)
-		w = W->dx - x;
-	if (h < 0 || y + h > W->dy)
-		h = W->dy - y;
+	if (w < 0 || x + w > W->fbwin->dx)
+		w = W->fbwin->dx - x;
+	if (h < 0 || y + h > W->fbwin->dy)
+		h = W->fbwin->dy - y;
 	/* use the color constants */
 	c = CFrameBuffer::getInstance()->realcolor[c & 0xff];
-	W->paintBoxRel(x, y, w, h, c);
+	W->fbwin->paintBoxRel(x, y, w, h, c);
 	return 0;
 }
 
@@ -232,15 +237,15 @@ int CLuaInstance::PaintIcon(lua_State *L)
 	unsigned int o;
 	const char *fname;
 
-	CFBWindow *W = CheckWindow(L, 1);
-	if (!W)
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
 		return 0;
 	fname = luaL_checkstring(L, 2);
 	x = luaL_checkint(L, 3);
 	y = luaL_checkint(L, 4);
 	h = luaL_checkint(L, 5);
 	o = luaL_checkint(L, 6);
-	W->paintIcon(fname, x, y, h, o);
+	W->fbwin->paintIcon(fname, x, y, h, o);
 	return 0;
 }
 
@@ -255,8 +260,8 @@ int CLuaInstance::RenderString(lua_State *L)
 	boxh = 0;
 	utf8 = 1;
 
-	CFBWindow *W = CheckWindow(L, 1);
-	if (!W)
+	CLuaData *W = CheckData(L, 1);
+	if (!W || !W->fbwin)
 		return 0;
 	f = luaL_checkint(L, 2);	/* font number, use FONT_TYPE_XXX in the script */
 	text = luaL_checkstring(L, 3);	/* text */
@@ -267,21 +272,48 @@ int CLuaInstance::RenderString(lua_State *L)
 	if (numargs > 6)
 		w = luaL_checkint(L, 7);
 	else
-		w = W->dx - x;
+		w = W->fbwin->dx - x;
 	if (numargs > 7)
 		boxh = luaL_checkint(L, 8);
 	if (numargs > 8)
 		utf8 = luaL_checkint(L, 9);
 	if (f >= FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
-	W->RenderString(g_Font[f], x, y, w, text, c, boxh, utf8);
+	W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, utf8);
 	return 0;
+}
+
+int CLuaInstance::GetInput(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	int timeout = 0;
+	neutrino_msg_t msg;
+	neutrino_msg_data_t data;
+	CLuaData *W = CheckData(L, 1);
+	if (!W)
+		return 0;
+	if (numargs > 1)
+		timeout = luaL_checkint(L, 2);
+	W->rcinput->getMsg_ms(&msg, &data, timeout);
+	/* TODO: I'm not sure if this works... */
+	if (msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC)
+	{
+		DBG("CLuaInstance::%s: msg 0x%08lx data 0x%08lx\n", __func__, msg, data);
+		CNeutrinoApp::getInstance()->handleMsg(msg, data);
+	}
+	/* signed int is debatable, but the "big" messages can't yet be handled
+	 * inside lua scripts anyway. RC_timeout == -1, RC_nokey == -2 */
+	lua_pushinteger(L, (int)msg);
+	lua_pushunsigned(L, data);
+	return 2;
 }
 
 int CLuaInstance::GCWindow(lua_State *L)
 {
 	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
-	CFBWindow *w = (CFBWindow *)lua_unboxpointer(L, 1);
+	CLuaData *w = (CLuaData *)lua_unboxpointer(L, 1);
+	delete w->fbwin;
+	w->rcinput = NULL;
 	delete w;
 	return 0;
 }
