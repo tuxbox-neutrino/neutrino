@@ -345,7 +345,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	videoDecoder->StopPicture();
 	frameBuffer->Clear();
 	g_Sectionsd->setPauseScanning(false);
-	CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(CZapit::getInstance()->GetCurrentChannelID(), true); /* force re-zap */
+	if (CNeutrinoApp::getInstance()->channelList)
+		CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(CZapit::getInstance()->GetCurrentChannelID(), true); /* force re-zap */
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	return menu_return::RETURN_REPAINT;
