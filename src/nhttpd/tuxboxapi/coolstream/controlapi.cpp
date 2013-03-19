@@ -1477,9 +1477,15 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	CScreenShot * sc = new CScreenShot("/tmp/" + filename + ".png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
 	sc->EnableOSD(enableOSD);
 	sc->EnableVideo(enableVideo);
+#if 0
 	sc->Start();
-
 	hh->SendOk(); // FIXME what if sc->Start() failed?
+#else
+	if (sc->StartSync())
+		hh->SendOk();
+	else
+		hh->SendError();
+#endif
 }
 
 //-----------------------------------------------------------------------------
