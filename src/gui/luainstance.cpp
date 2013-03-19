@@ -25,6 +25,7 @@
 
 #include <global.h>
 #include <system/settings.h>
+#include <gui/widget/msgbox.h>
 #include <neutrino.h>
 
 #include "luainstance.h"
@@ -122,7 +123,11 @@ void CLuaInstance::runScript(const char *fileName)
 
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
 	if (status)
+	{
 		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
+		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+	}
+
 }
 
 const luaL_Reg CLuaInstance::methods[] =
