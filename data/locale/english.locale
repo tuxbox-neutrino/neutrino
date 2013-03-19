@@ -952,6 +952,9 @@ menu.hint_record_apid_std Record first audio pid
 menu.hint_record_apids Configure audio pids to record
 menu.hint_record_apply Apply record options
 menu.hint_record_chandir Create directory with name of channel\nto store recording
+menu.hint_record_data Record (VideoText, subtitles) data streams
+menu.hint_record_data_dvbsub subtitle stream
+menu.hint_record_data_vtxt VideoText stream
 menu.hint_record_dir Select directory to store recordings
 menu.hint_record_end Stop direct record after max. time\nor after current event end time
 menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
@@ -1532,7 +1535,9 @@ recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream
+recordingmenu.datapdis Data streams
 recordingmenu.defdir Recording directory
+recordingmenu.dvbsub_pids record dvbsub stream
 recordingmenu.end_of_recording_epg EPG act. Event
 recordingmenu.end_of_recording_max max. Recordingtime
 recordingmenu.end_of_recording_name Endtime of Recording
@@ -1554,6 +1559,7 @@ recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
 recordingmenu.vcr vcr
+recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
 repeatblocker.hint_1 Shortest time (in ms) to recognize 2 keystrokes

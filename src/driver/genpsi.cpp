@@ -1,6 +1,7 @@
 /*
  Copyright (c) 2004 gmo18t, Germany. All rights reserved.
  Copyright (C) 2012 CoolStream International Ltd
+ Copyright (C) 2013 Jacek Jendrzej
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published
@@ -124,8 +125,15 @@ CGenPsi::CGenPsi()
 	nba = 0;
 	vpid = 0;
 	vtype = 0;
+
+	vtxtpid = 0;
+	vtxtlang[0] = 'g';
+	vtxtlang[1] = 'e';
+	vtxtlang[2] = 'r';
 	memset(apid, 0, sizeof(apid));
 	memset(atypes, 0, sizeof(atypes));
+	nsub = 0;
+	memset(dvbsubpid, 0, sizeof(dvbsubpid));
 }
 
 uint32_t CGenPsi::calc_crc32psi(uint8_t *dst, const uint8_t *src, uint32_t len)
@@ -147,7 +155,7 @@ uint32_t CGenPsi::calc_crc32psi(uint8_t *dst, const uint8_t *src, uint32_t len)
 	return crc;
 }
 
-void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3)
+void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *data)
 {
 	switch(pidtype)
 	{
@@ -165,8 +173,22 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3)
 			nba++;
 			break;
 		case EN_TYPE_TELTEX:
+			vtxtpid = pid;
+			if(data != NULL){
+				vtxtlang[0] = data[0];
+				vtxtlang[1] = data[1];
+				vtxtlang[2] = data[2];
+			}
 			break;
-
+		case EN_TYPE_DVBSUB:
+			dvbsubpid[nsub] = pid;
+			if(data != NULL){
+				dvbsublang[nsub][0] = data[0];
+				dvbsublang[nsub][1] = data[1];
+				dvbsublang[nsub][2] = data[2];
+			}
+			nsub++;
+			break;
 		default:
 			break;
 	}
@@ -232,6 +254,8 @@ int CGenPsi::genpsi(int fd)
 
 	//-- (II) build PAT --
 	data_len = COPY_TEMPLATE(pkt, pkt_pat);
+// 	pkt[0xf]= 0xE0 | (pmtpid>>8);
+// 	pkt[0x10] = pmtpid & 0xFF;
 	//-- calculate CRC --
 	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
 	//-- write TS packet --
@@ -241,6 +265,12 @@ int CGenPsi::genpsi(int fd)
 	data_len = COPY_TEMPLATE(pkt, pkt_pmt);
 	//-- adjust len dependent to count of audio streams --
 	data_len += (SIZE_STREAM_TAB_ROW * (nba-1));
+	if(vtxtpid){
+		data_len += (SIZE_STREAM_TAB_ROW * (1))+10;//add teletext row length
+	}
+	if(nsub){
+		data_len += ((SIZE_STREAM_TAB_ROW+10) * nsub);//add dvbsub row length
+	}
 	patch_len = data_len - OFS_HDR_2 + 1;
 	pkt[OFS_HDR_2+1] |= (patch_len>>8);
 	pkt[OFS_HDR_2+2]  = (patch_len & 0xFF);
@@ -266,13 +296,61 @@ int CGenPsi::genpsi(int fd)
 		pkt[ofs+3] = 0xF0;
 		pkt[ofs+4] = 0x00;
 	}
+
+	//teletext
+	if(vtxtpid){
+		ofs += SIZE_STREAM_TAB_ROW;
+		pkt[ofs] = 0x06;		//teletext stream type;
+		pkt[ofs+1] = 0xE0 | vtxtpid>>8;
+		pkt[ofs+2] = vtxtpid&0xff;
+		pkt[ofs+3] = 0xf0;
+		pkt[ofs+4] = 0x0A;		// ES_info_length
+		pkt[ofs+5] = 0x52;		//DVB-DescriptorTag: 82 (0x52)  [= stream_identifier_descriptor]
+		pkt[ofs+6] = 0x01;		// descriptor_length
+		pkt[ofs+7] = 0x03;		//component_tag
+		pkt[ofs+8] = 0x56;		// DVB teletext tag
+		pkt[ofs+9] = 0x05;		// descriptor length
+		pkt[ofs+10] = vtxtlang[0];	//language code[0]
+		pkt[ofs+11] = vtxtlang[1];	//language code[1]
+		pkt[ofs+12] = vtxtlang[2];	//language code[2]
+		pkt[ofs+13] = (/*descriptor_magazine_number*/ 0x01 & 0x06) | ((/*descriptor_type*/ 0x01 << 3) & 0xF8);
+		pkt[ofs+14] = 0x00 ;		//Teletext_page_number
+	}
+
+	//dvbsub
+	for (i=0; i<nsub; i++)
+	{
+		ofs += SIZE_STREAM_TAB_ROW;
+		if(i > 0 || vtxtpid)
+			ofs += 10;
+
+		pkt[ofs]   = 0x06;//subtitle stream type;
+		pkt[ofs+1] = 0xE0 | dvbsubpid[i]>>8;
+		pkt[ofs+2] = dvbsubpid[i] & 0xFF;
+		pkt[ofs+3] = 0xF0;
+		pkt[ofs+4] = 0x0A;		// es info length
+		pkt[ofs+5] = 0x59;		// DVB sub tag
+		pkt[ofs+6] = 0x08;		// descriptor length
+		pkt[ofs+7] = dvbsublang[i][0];	//language code[0]
+		pkt[ofs+8] = dvbsublang[i][1];	//language code[1]
+		pkt[ofs+9] = dvbsublang[i][2];	//language code[2]
+		pkt[ofs+10] = 0x20;		//subtitle_stream.subtitling_type
+		pkt[ofs+11] = 0x01>>8;		//composition_page_id
+		pkt[ofs+12] = 0x01&0xff; 	//composition_page_id
+		pkt[ofs+13] = 0x01>>8; 		//ancillary_page_id
+		pkt[ofs+14] = 0x01&0xff;	//ancillary_page_id
+	}
+
 	//-- calculate CRC --
 	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
 	//-- write TS packet --
 	write(fd, pkt, SIZE_TS_PKT);
+
 	//-- finish --
 	vpid=0;
 	nba=0;
+	nsub = 0;
+	vtxtpid = 0;
 	fdatasync(fd);
 	return 1;
 }
