@@ -28,21 +28,26 @@
 #define EN_TYPE_TELTEX          0x02
 #define EN_TYPE_PCR             0x03
 #define EN_TYPE_AVC           0x04
+#define EN_TYPE_DVBSUB          0x06
 
 class CGenPsi
 {
 	private:
-		short  nba;
+		short  nba, nsub;
 		uint16_t       vpid;
 		uint8_t        vtype;
+		uint16_t       vtxtpid;
+		char           vtxtlang[3];
 		uint16_t       apid[10];
 		short          atypes[10];
+		uint16_t       dvbsubpid[10];
+		char           dvbsublang[10][3];
 		static int copy_template(uint8_t *dst, uint8_t *src, int len);
 		uint32_t calc_crc32psi(uint8_t *dst, const uint8_t *src, uint32_t len);
 
 	public:
 		CGenPsi();
-		void addPid(uint16_t pid,uint16_t pidtype, short isAC3);
+		void addPid(uint16_t pid,uint16_t pidtype, short isAC3, const char *data = NULL);
 		int genpsi(int fd);
 };
 #endif

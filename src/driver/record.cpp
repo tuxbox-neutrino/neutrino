@@ -72,7 +72,7 @@ extern "C" {
 }
 
 //-------------------------------------------------------------------------
-CRecordInstance::CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift, bool stream_vtxt_pid, bool stream_pmt_pid)
+CRecordInstance::CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift, bool stream_vtxt_pid, bool stream_pmt_pid, bool stream_subtitle_pids )
 {
 	channel_id = eventinfo->channel_id;
 	epgid = eventinfo->epgID;
@@ -86,6 +86,8 @@ CRecordInstance::CRecordInstance(const CTimerd::RecordingInfo * const eventinfo,
 
 	StreamVTxtPid = stream_vtxt_pid;
 	StreamPmtPid = stream_pmt_pid;
+	StreamSubtitlePids = stream_subtitle_pids;
+
 	Directory = dir;
 	autoshift = timeshift;
 	numpids = 0;
@@ -166,10 +168,26 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
 		psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
 	}
+	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0)){
+		apids[numpids++] = allpids.PIDs.vtxtpid;
+		psi.addPid(allpids.PIDs.vtxtpid, EN_TYPE_TELTEX, 0, channel->getTeletextLang());
+	}
+	if (StreamSubtitlePids){
+		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
+			CZapitAbsSub* s = channel->getChannelSub(i);
+			if (s->thisSubType == CZapitAbsSub::DVB) {
+				if(i>9)//max sub pids
+					break;
+
+				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
+				apids[numpids++] = sd->pId;
+				psi.addPid( sd->pId, EN_TYPE_DVBSUB, 0, sd->ISO639_language_code.c_str() );
+			}
+		}
+
+	}
 	psi.genpsi(fd);
 
-	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0))
-		apids[numpids++] = allpids.PIDs.vtxtpid;
 
 	if ((StreamPmtPid) && (allpids.PIDs.pmtpid != 0))
 		apids[numpids++] = allpids.PIDs.pmtpid;
@@ -666,6 +684,7 @@ CRecordManager::CRecordManager()
 {
 	StreamVTxtPid = false;
 	StreamPmtPid = false;
+	StreamSubtitlePids = false;
 	StopSectionsd = false;
 	//recordingstatus = 0;
 	recmap.clear();
@@ -879,7 +898,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			else
 				newdir = Directory;
 
-			inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid);
+			inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid, StreamSubtitlePids);
 
 			inst->frontend = frontend;
 			error_msg = inst->Record();

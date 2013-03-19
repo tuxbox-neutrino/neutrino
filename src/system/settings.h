@@ -325,14 +325,15 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
-	int  recording_stream_vtxt_pid;
-	int  recording_stream_pmt_pid;
+	int recording_stream_vtxt_pid;
+	int recording_stream_subtitle_pids;
+	int recording_stream_pmt_pid;
 	int recording_choose_direct_rec_dir;
 	int recording_epg_for_filename;
 	int recording_epg_for_end;
 	int recording_save_in_channeldir;
-	int  recording_zap_on_announce;
-	int  recording_slow_warning;
+	int recording_zap_on_announce;
+	int recording_slow_warning;
 	int shutdown_timer_record_type;
 
 	int filesystem_is_utf8;
