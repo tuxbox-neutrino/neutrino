@@ -254,7 +254,7 @@ void CImageInfo::InitSupportInfos()
 void CImageInfo::InitLicenseText()
 {
 	license_txt = "";
-	char line[256];
+	char line[1024];
 	string file = LICENSEDIR;
 	file += g_settings.language;
 	file += ".license";
@@ -265,14 +265,13 @@ void CImageInfo::InitLicenseText()
 		return;
 	}
 
-	while (in.getline (line, 256)){
+	while (in.getline (line, sizeof(line)-1)){
 		string lline = (string)line;
 		license_txt += lline + '\n';
 	}
 	in.close();
 
 	CComponentsInfoBox *cc_lic = new CComponentsInfoBox(item_offset, item_top, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top);
-	cc_lic->removeLineBreaks(license_txt);
 	cc_lic->setText(license_txt, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	//add text to container
