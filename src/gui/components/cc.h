@@ -27,7 +27,6 @@
 #define __COMPONENTS__
 
 #include "cc_types.h"
-#include <driver/framebuffer.h>
 #include <gui/widget/textbox.h>
 #include <vector>
 #include <string>

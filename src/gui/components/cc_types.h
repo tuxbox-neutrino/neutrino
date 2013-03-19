@@ -26,6 +26,9 @@
 #ifndef __CC_TYPES__
 #define __CC_TYPES__
 
+#include <driver/framebuffer.h>
+#include <system/localize.h>
+
 //required typedefs
 typedef struct comp_fbdata_t
 {
