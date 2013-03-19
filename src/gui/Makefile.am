@@ -73,6 +73,7 @@ libneutrino_gui_a_SOURCES = \
 	network_service.cpp \
 	network_setup.cpp \
 	nfs.cpp \
+	osd_progressbar_setup.cpp \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
 	parentallock_setup.cpp \
@@ -81,7 +82,6 @@ libneutrino_gui_a_SOURCES = \
 	pictureviewer_setup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
-	progressbar_setup.cpp \
 	proxyserver_setup.cpp \
 	rc_lock.cpp \
 	record_setup.cpp \
