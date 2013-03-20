@@ -554,8 +554,10 @@ void CTextBox::scrollPageDown(const int pages)
 	{
 		m_nCurrentPage = m_nNrOfPages - 1;
 	}
+	int oldCurrentLine = m_nCurrentLine;
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-	refresh();
+	if (oldCurrentLine != m_nCurrentLine)
+		refresh();
 }
 
 void CTextBox::scrollPageUp(const int pages)
@@ -575,8 +577,10 @@ void CTextBox::scrollPageUp(const int pages)
 	{
 		m_nCurrentPage = 0;
 	}
+	int oldCurrentLine = m_nCurrentLine;
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-	refresh();
+	if (oldCurrentLine != m_nCurrentLine)
+		refresh();
 }
 
 void CTextBox::refresh(void)
