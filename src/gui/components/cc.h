@@ -201,6 +201,8 @@ class CComponentsText : public CComponentsItem
 		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void removeLineBreaks(std::string& str);
+
+		CTextBox* getCCItemTextBoxInst() { return ct_textbox; };
 };
 
 class CComponentsLabel : public CComponentsText
@@ -223,7 +225,6 @@ class CComponentsInfoBox : public CComponentsText
 {
 	private:
 		int x_text, x_offset;
-		CComponentsText * cctext;
 		CComponentsPicture * pic;
 		std::string pic_default_name;
 		
@@ -232,6 +233,8 @@ class CComponentsInfoBox : public CComponentsText
 		std::string pic_name;
 		
 	public:
+		CComponentsText * cctext;
+
 		CComponentsInfoBox();
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
 					const char* info_text = NULL, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,

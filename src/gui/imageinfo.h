@@ -54,8 +54,10 @@ class CImageInfo : public CMenuTarget
 		void InitSupportInfos();
 		void ShowWindow();
 		void InitLicenseText();
+		void ScrollLic(bool scrollDown);
 		
 		CComponentsWindow  	*cc_win;
+		CComponentsInfoBox 	*cc_lic;
 		CConfigFile     	config;
 
 	public:

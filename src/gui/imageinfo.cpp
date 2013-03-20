@@ -59,6 +59,7 @@ CImageInfo::CImageInfo(): config ('\t')
 void CImageInfo::Init(void)
 {
 	cc_win 		= NULL;
+	cc_lic 		= NULL;
 	item_offset 	= 20;
 	item_top 	= item_offset;
 	license_txt 	= "";
@@ -71,6 +72,21 @@ CImageInfo::~CImageInfo()
 {
 	//deallocate window object, deletes also added cc_items
 	delete cc_win;
+}
+
+void CImageInfo::ScrollLic(bool scrollDown)
+{
+	if (cc_lic && (cc_lic->cctext)) {
+		CTextBox* ctb = cc_lic->cctext->getCCItemTextBoxInst();
+		if (ctb) {
+			ctb->enableBackgroundPaint(true);
+			if (scrollDown)
+				ctb->scrollPageDown(1);
+			else
+				ctb->scrollPageUp(1);
+			ctb->enableBackgroundPaint(false);
+		}
+	}
 }
 
 int CImageInfo::exec(CMenuTarget* parent, const std::string &)
@@ -97,6 +113,12 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
+		}
+		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_page_up)) {
+			ScrollLic(false);
+		}
+		else if ((msg == CRCInput::RC_down) || (msg == CRCInput::RC_page_down)) {
+			ScrollLic(true);
 		}
 		else if (msg <= CRCInput::RC_MaxRC){
 			break;
@@ -271,8 +293,8 @@ void CImageInfo::InitLicenseText()
 	}
 	in.close();
 
-	CComponentsInfoBox *cc_lic = new CComponentsInfoBox(item_offset, item_top, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top);
-	cc_lic->setText(license_txt, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+	cc_lic = new CComponentsInfoBox(item_offset, item_top, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top);
+	cc_lic->setText(license_txt, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	//add text to container
 	cc_win->addCCItem(cc_lic);
