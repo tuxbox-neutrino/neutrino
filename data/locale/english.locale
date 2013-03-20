@@ -1535,7 +1535,7 @@ recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream
-recordingmenu.datapdis Data streams
+recordingmenu.data_pids Data streams
 recordingmenu.defdir Recording directory
 recordingmenu.dvbsub_pids record dvbsub stream
 recordingmenu.end_of_recording_epg EPG act. Event

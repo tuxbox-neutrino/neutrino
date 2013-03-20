@@ -232,7 +232,7 @@ int CRecordSetup::showRecordSetup()
 	//datasettings
 	CMenuWidget recordingaDataSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_DATASETTINGS);
 	showRecordDataSetup(&recordingaDataSettings);
-	mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATAPIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_1);
+	mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_1);
 	mf->setHint("", LOCALE_MENU_HINT_RECORD_DATA);
 	recordingSettings->addItem(mf);
 
@@ -309,7 +309,7 @@ void CRecordSetup::showRecordDataSetup(CMenuWidget *menu_datasettings)
 	doj1->setHint("", LOCALE_MENU_HINT_RECORD_DATA_VTXT);
 	doj2->setHint("", LOCALE_MENU_HINT_RECORD_DATA_DVBSUB);
 
-	menu_datasettings->addIntroItems(LOCALE_RECORDINGMENU_DATAPIDS);
+	menu_datasettings->addIntroItems(LOCALE_RECORDINGMENU_DATA_PIDS);
 	menu_datasettings->addItem(doj1);
 	menu_datasettings->addItem(doj2);
 }

@@ -1562,7 +1562,7 @@ const char * locale_real_names[] =
 	"recordingmenu.apids_ac3",
 	"recordingmenu.apids_alt",
 	"recordingmenu.apids_std",
-	"recordingmenu.datapdis",
+	"recordingmenu.data_pids",
 	"recordingmenu.dvbsub_pids",
 	"recordingmenu.defdir",
 	"recordingmenu.end_of_recording_epg",
