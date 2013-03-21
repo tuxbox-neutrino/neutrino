@@ -326,6 +326,7 @@ int CBouquetList::show(bool bShowChannelList)
 	int icol_w, icol_h;
 	int w_max_text = 0;
 	int w_max_icon = 0;
+	int h_max_icon = 0;
 	favonly = !bShowChannelList;
 
 	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
@@ -333,6 +334,7 @@ int CBouquetList::show(bool bShowChannelList)
 		w_max_text = std::max(w_max_text, w_text);
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
 		w_max_icon = std::max(w_max_icon, icol_w);
+		h_max_icon = std::max(h_max_icon, icol_h);
 	}
 
 	int need_width =  sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0])*(w_max_icon  + w_max_text + 20);
@@ -342,10 +344,7 @@ int CBouquetList::show(bool bShowChannelList)
 	width  = w_max (need_width, 20);//500
 	height = h_max (16 * fheight, 40);
 
-	/* assuming all color icons must have same size */
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-
-	footerHeight = std::max(icol_h+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8); //TODO get footerHeight from buttons
+	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8);
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	listmaxshow = (height - theight - footerHeight)/fheight;
 	height      = theight + footerHeight + listmaxshow * fheight; // recalc height
