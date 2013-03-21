@@ -290,7 +290,7 @@ void CImageInfo::ScrollLic(bool scrollDown)
 {
 	if (cc_lic && (cc_lic->cctext)) {
 		//get the textbox instance from infobox object and use CTexBbox scroll methods
-		CTextBox* ctb = cc_lic->cctext->getCCItemTextBoxInst();
+		CTextBox* ctb = cc_lic->cctext->getCTextBoxObject();
 		if (ctb) {
 			ctb->enableBackgroundPaint(true);
 			if (scrollDown)

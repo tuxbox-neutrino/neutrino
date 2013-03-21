@@ -202,7 +202,8 @@ class CComponentsText : public CComponentsItem
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void removeLineBreaks(std::string& str);
 
-		CTextBox* getCCItemTextBoxInst() { return ct_textbox; };
+		//get a Text Box object, so it's possible to get access directly to its methods
+		CTextBox* getCTextBoxObject() { return ct_textbox; };
 };
 
 class CComponentsLabel : public CComponentsText
