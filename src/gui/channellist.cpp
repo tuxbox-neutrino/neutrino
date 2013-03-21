@@ -740,6 +740,8 @@ int CChannelList::show()
 			actzap = updateSelection(new_selected);
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up) {
+			if (dline)
+				dline->kill(); //kill details line on change to next page
 			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
@@ -762,6 +764,8 @@ int CChannelList::show()
 			}
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
+			if (dline)
+				dline->kill(); //kill details line on change to previous page
 			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
