@@ -74,21 +74,6 @@ CImageInfo::~CImageInfo()
 	delete cc_win;
 }
 
-void CImageInfo::ScrollLic(bool scrollDown)
-{
-	if (cc_lic && (cc_lic->cctext)) {
-		CTextBox* ctb = cc_lic->cctext->getCCItemTextBoxInst();
-		if (ctb) {
-			ctb->enableBackgroundPaint(true);
-			if (scrollDown)
-				ctb->scrollPageDown(1);
-			else
-				ctb->scrollPageUp(1);
-			ctb->enableBackgroundPaint(false);
-		}
-	}
-}
-
 int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 {
 	int res = menu_return::RETURN_REPAINT;
@@ -298,6 +283,23 @@ void CImageInfo::InitLicenseText()
 
 	//add text to container
 	cc_win->addCCItem(cc_lic);
+}
+
+//scroll licens text
+void CImageInfo::ScrollLic(bool scrollDown)
+{
+	if (cc_lic && (cc_lic->cctext)) {
+		//get the textbox instance from infobox object and use CTexBbox scroll methods
+		CTextBox* ctb = cc_lic->cctext->getCCItemTextBoxInst();
+		if (ctb) {
+			ctb->enableBackgroundPaint(true);
+			if (scrollDown)
+				ctb->scrollPageDown(1);
+			else
+				ctb->scrollPageUp(1);
+			ctb->enableBackgroundPaint(false);
+		}
+	}
 }
 
 
