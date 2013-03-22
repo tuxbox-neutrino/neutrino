@@ -673,7 +673,7 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	unsigned int system_rev = cs_get_revision();
-	std::string boxname = "Coolstream ";
+	std::string boxname = "CST ";
 
 #if HAVE_TRIPLEDRAGON
 	boxname = "Armas ";

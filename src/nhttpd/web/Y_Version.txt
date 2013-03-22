@@ -1,4 +1,4 @@
 version=2.8.0.33
 date=06.02.2013
 type=Release
-info=Port Coolstream
+info=Port CST

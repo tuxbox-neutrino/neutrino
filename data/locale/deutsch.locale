@@ -626,7 +626,7 @@ keybindingmenu.pageup Seite zurück
 keybindingmenu.poweroff Standby EIN/AUS
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.remotecontrol_hardware Hardware
-keybindingmenu.remotecontrol_hardware_coolstream Coolstream
+keybindingmenu.remotecontrol_hardware_coolstream CST
 keybindingmenu.remotecontrol_hardware_dbox DBox Nokia (alt)
 keybindingmenu.remotecontrol_hardware_msg_part1 Die Fernbedienung wurde von '
 keybindingmenu.remotecontrol_hardware_msg_part2 ' auf '
@@ -914,7 +914,7 @@ menu.hint_net_setupnow Weisen Sie die aktuellen Einstellungen zu oder übernehme
 menu.hint_net_setuponstartup Startet das Netzwerk automatisch beim Starten der Box
 menu.hint_net_show Zeigen Ihnen die aktuellen Netzwerkeinstellungen
 menu.hint_net_ssid Geben Sie die SSID des WLAN ein, mit dem Sie eine Verbindung herstellen möchten
-menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box\nLogin mit Benutzer 'root' und Passwort 'coolstream'
+menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box
 menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server und externe IP-Adressen
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
@@ -1504,7 +1504,7 @@ pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
 plugins.result Pluginausgabe
 progressbar.color Fortschrittsbalken Farbe
-rclock.lockmsg Die Fernbedienung der Coolstream wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
+rclock.lockmsg Die Fernbedienung der CST wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert...
@@ -1855,7 +1855,7 @@ videomenu.videomode Videosystem
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
-wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer Coolstream. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nBeachten Sie: Ihre Coolstream Set-Top-Box lässt sich bequem per Webinterface\nsteuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nZugriff erhalten Sie mit dem Benutzernamen: root und dem Passwort: coolstream\nAchten Sie darauf, dass Ihre Gerät nicht von aussen zugänglich ist,\nda sonst ein Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
+wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer CST. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nBeachten Sie: Ihre CST Set-Top-Box lässt sich bequem per Webinterface\nsteuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie darauf, dass Ihre Gerät nicht von aussen zugänglich ist,\nda sonst ein Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
 word.from ab
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services

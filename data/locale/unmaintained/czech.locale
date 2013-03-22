@@ -1256,4 +1256,4 @@ cpu.freq_normal Normal kmitočet
 cpu.freq_standby Standby kmitočet
 cpu.freq_default default kmitočet
 wizard.welcome_head Vítejte v Průvodci nastavení
-wizard.welcome_text Další kroky provedou základní instalaci tohoto zařízení.\nChceš pokračovat?\nGratulujeme k zakoupení Coolstream. Následující \nkroky tě provedou počáteční instalací nastavení přístroje.\nPřejeme ti hodně radosti s tímto přijímačem!\nDalší krok ?
+wizard.welcome_text Další kroky provedou základní instalaci tohoto zařízení.\nChceš pokračovat?\nGratulujeme k zakoupení CST. Následující \nkroky tě provedou počáteční instalací nastavení přístroje.\nPřejeme ti hodně radosti s tímto přijímačem!\nDalší krok ?

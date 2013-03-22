@@ -1250,7 +1250,7 @@ videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Obrazový mód
 wizard.welcome_head Vitajte v Sprievodcovi nastavenia
-wizard.welcome_text Ďaľšie kroky prevedú základnú inštaláciu tohto zariadenia.\nChceš pokračovať?\nBlahoželáme k zakúpeniu Coolstream. Nasledujúce \nkroky ťa prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme ti veľa radosti s týmto príjmačom!\nĎaľší krok ?
+wizard.welcome_text Ďaľšie kroky prevedú základnú inštaláciu tohto zariadenia.\nChceš pokračovať?\nBlahoželáme k zakúpeniu CST. Nasledujúce \nkroky ťa prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme ti veľa radosti s týmto príjmačom!\nĎaľší krok ?
 zapit.scantype Vyhľadávanie kanálov
 zapit.scantype.all všetkých
 zapit.scantype.radio len Radio
