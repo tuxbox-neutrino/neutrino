@@ -262,6 +262,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "RenderString", CLuaInstance::RenderString },
 	{ "PaintIcon", CLuaInstance::PaintIcon },
 	{ "GetInput", CLuaInstance::GetInput },
+	{ "FontHeight", CLuaInstance::FontHeight },
 	{ NULL, NULL }
 };
 
@@ -437,6 +438,21 @@ int CLuaInstance::GetInput(lua_State *L)
 	lua_pushinteger(L, (int)msg);
 	lua_pushunsigned(L, data);
 	return 2;
+}
+
+int CLuaInstance::FontHeight(lua_State *L)
+{
+	int f;
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+
+	CLuaData *W = CheckData(L, 1);
+	if (!W)
+		return 0;
+	f = luaL_checkint(L, 2);	/* font number, use FONT['xxx'] for FONT_TYPE_xxx in the script */
+	if (f >= FONT_TYPE_COUNT || f < 0)
+		f = SNeutrinoSettings::FONT_TYPE_MENU;
+	lua_pushinteger(L, (int)g_Font[f]->getHeight());
+	return 1;
 }
 
 int CLuaInstance::GCWindow(lua_State *L)

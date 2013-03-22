@@ -53,6 +53,7 @@ private:
 	static int PaintBox(lua_State *L);
 	static int PaintIcon(lua_State *L);
 	static int RenderString(lua_State *L);
+	static int FontHeight(lua_State *L);
 	static int GetInput(lua_State *L);
 	static int GCWindow(lua_State *L);
 };
