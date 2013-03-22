@@ -277,6 +277,7 @@ class CComponentsPIP : public CComponentsItem
 {
 	private:
 		int screen_w, screen_h;
+		std::string pic_name; //alternate picture if is no tv picture available
 	public:
 		CComponentsPIP(	const int x_pos, const int y_pos, const int percent = 30, bool has_shadow = CC_SHADOW_OFF);
 		~CComponentsPIP();
@@ -285,6 +286,7 @@ class CComponentsPIP : public CComponentsItem
 		void hide(bool no_restore = false);
 		void setScreenWidth(int screen_width){screen_w = screen_width;};
 		void setScreenHeight(int screen_heigth){screen_h = screen_heigth;};
+		void setPicture(const std::string& image){pic_name = image;};
 };
 
 

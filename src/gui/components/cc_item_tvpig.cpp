@@ -49,6 +49,8 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
 	screen_h = frameBuffer->getScreenHeight(true);
+	pic_name = DATADIR;
+	pic_name += "/neutrino/icons/start.jpg";
 
 	//CComponents
 	x 		= x_pos;
@@ -72,8 +74,21 @@ CComponentsPIP::~CComponentsPIP()
 
 void CComponentsPIP::paint(bool do_save_bg)
 {
+	int pig_x = x+fr_thickness;
+	int pig_y = y+fr_thickness;
+	int pig_w = width-2*fr_thickness;
+	int pig_h = height-2*fr_thickness;
+	
 	paintInit(do_save_bg);
-	videoDecoder->Pig(x+fr_thickness, y+fr_thickness, width-2*fr_thickness, height-2*fr_thickness, screen_w, screen_h);
+
+	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv){
+		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h);
+	}
+	else{ //paint an alternate image if no tv mode available
+		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name);
+		pic.paint();
+	}
+	
 }
 
 
