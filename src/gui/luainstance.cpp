@@ -30,6 +30,98 @@
 
 #include "luainstance.h"
 
+struct table_key {
+	const char *name;
+	long code;
+};
+
+struct lua_envexport {
+	const char *name;
+	table_key *t;
+};
+
+static void set_lua_variables(lua_State *L)
+{
+	/* list of colors, exported e.g. as COL['INFOBAR_SHADOW'] */
+	static table_key colorlist[] =
+	{
+		{ "COLORED_EVENTS_CHANNELLIST",	COL_COLORED_EVENTS_CHANNELLIST },
+		{ "COLORED_EVENTS_INFOBAR",	COL_COLORED_EVENTS_INFOBAR },
+		{ "INFOBAR_SHADOW",		COL_INFOBAR_SHADOW },
+		{ "INFOBAR",			COL_INFOBAR },
+		{ "MENUHEAD",			COL_MENUHEAD },
+		{ "MENUCONTENT",		COL_MENUCONTENT },
+		{ "MENUCONTENTDARK",		COL_MENUCONTENTDARK },
+		{ "MENUCONTENTSELECTED",	COL_MENUCONTENTSELECTED },
+		{ "MENUCONTENTINACTIVE",	COL_MENUCONTENTINACTIVE },
+		{ "BACKGROUND",			COL_BACKGROUND },
+		{ NULL, 0 }
+	};
+
+	/* font list, the _TYPE_ is redundant, exported e.g. as FONT['MENU'] */
+	static table_key fontlist[] =
+	{
+		{ "MENU",		SNeutrinoSettings::FONT_TYPE_MENU },
+		{ "MENU_TITLE",		SNeutrinoSettings::FONT_TYPE_MENU_TITLE },
+		{ "MENU_INFO",		SNeutrinoSettings::FONT_TYPE_MENU_INFO },
+		{ "EPG_TITLE",		SNeutrinoSettings::FONT_TYPE_EPG_TITLE },
+		{ "EPG_INFO1",		SNeutrinoSettings::FONT_TYPE_EPG_INFO1 },
+		{ "EPG_INFO2",		SNeutrinoSettings::FONT_TYPE_EPG_INFO2 },
+		{ "EPG_DATE",		SNeutrinoSettings::FONT_TYPE_EPG_DATE },
+		{ "EVENTLIST_TITLE",	SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE },
+		{ "EVENTLIST_ITEMLARGE",SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE },
+		{ "EVENTLIST_ITEMSMALL",SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL },
+		{ "EVENTLIST_DATETIME",	SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME },
+		{ "GAMELIST_ITEMLARGE",	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE },
+		{ "GAMELIST_ITEMSMALL",	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL },
+		{ "CHANNELLIST",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST },
+		{ "CHANNELLIST_DESCR",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR },
+		{ "CHANNELLIST_NUMBER",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER },
+		{ "CHANNELLIST_EVENT",	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT },
+		{ "CHANNEL_NUM_ZAP",	SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP },
+		{ "INFOBAR_NUMBER",	SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER },
+		{ "INFOBAR_CHANNAME",	SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME },
+		{ "INFOBAR_INFO",	SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO },
+		{ "INFOBAR_SMALL",	SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL },
+		{ "FILEBROWSER_ITEM",	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM },
+		{ "MENU_HINT",		SNeutrinoSettings::FONT_TYPE_MENU_HINT },
+		{ NULL, 0 }
+	};
+
+	/* screen offsets, exported as e.g. SCREEN['END_Y'] */
+	static table_key screenopts[] =
+	{
+		{ "OFF_X", g_settings.screen_StartX },
+		{ "OFF_Y", g_settings.screen_StartY },
+		{ "END_X", g_settings.screen_EndX },
+		{ "END_Y", g_settings.screen_EndY },
+		{ NULL, 0 }
+	};
+
+	/* list of environment variable arrays to be exported */
+	static lua_envexport e[] =
+	{
+		{ "COL",	colorlist },
+		{ "SCREEN",	screenopts },
+		{ "FONT",	fontlist },
+		{ NULL, NULL }
+	};
+
+	int i = 0;
+	while (e[i].name) {
+		int j = 0;
+		lua_newtable(L);
+		while (e[i].t[j].name) {
+			lua_pushstring(L, e[i].t[j].name);
+			lua_pushinteger(L, e[i].t[j].code);
+			lua_settable(L, -3);
+			j++;
+		}
+		lua_setglobal(L, e[i].name);
+		i++;
+	}
+}
+
 #define DBG printf
 
 #define lua_boxpointer(L, u) \
@@ -64,9 +156,6 @@ CLuaInstance::~CLuaInstance()
 #define SET_VAR2(NAME, VALUE) \
 	lua_pushinteger(lua, VALUE); \
 	lua_setglobal(lua, #NAME);
-#define SET_FONT(NAME) \
-	lua_pushinteger(lua, SNeutrinoSettings::NAME); \
-	lua_setglobal(lua, #NAME);
 
 /* Run the given script. */
 void CLuaInstance::runScript(const char *fileName)
@@ -79,56 +168,13 @@ void CLuaInstance::runScript(const char *fileName)
 		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
 		return;
 	}
-
-	/* set variables */
-	SET_VAR1(COL_COLORED_EVENTS_CHANNELLIST);
-	SET_VAR1(COL_COLORED_EVENTS_INFOBAR);
-	SET_VAR1(COL_INFOBAR_SHADOW);
-	SET_VAR1(COL_INFOBAR);
-	SET_VAR1(COL_MENUHEAD);
-	SET_VAR1(COL_MENUCONTENT);
-	SET_VAR1(COL_MENUCONTENTDARK);
-	SET_VAR1(COL_MENUCONTENTSELECTED);
-	SET_VAR1(COL_MENUCONTENTINACTIVE);
-	SET_VAR1(COL_BACKGROUND);
-
-	SET_VAR2(SCREEN_OFF_X, g_settings.screen_StartX);
-	SET_VAR2(SCREEN_OFF_Y, g_settings.screen_StartY);
-	SET_VAR2(SCREEN_END_X, g_settings.screen_EndX);
-	SET_VAR2(SCREEN_END_Y, g_settings.screen_EndY);
-
-	SET_FONT(FONT_TYPE_MENU);
-	SET_FONT(FONT_TYPE_MENU_TITLE);
-	SET_FONT(FONT_TYPE_MENU_INFO);
-	SET_FONT(FONT_TYPE_EPG_TITLE);
-	SET_FONT(FONT_TYPE_EPG_INFO1);
-	SET_FONT(FONT_TYPE_EPG_INFO2);
-	SET_FONT(FONT_TYPE_EPG_DATE);
-	SET_FONT(FONT_TYPE_EVENTLIST_TITLE);
-	SET_FONT(FONT_TYPE_EVENTLIST_ITEMLARGE);
-	SET_FONT(FONT_TYPE_EVENTLIST_ITEMSMALL);
-	SET_FONT(FONT_TYPE_EVENTLIST_DATETIME);
-	SET_FONT(FONT_TYPE_GAMELIST_ITEMLARGE);
-	SET_FONT(FONT_TYPE_GAMELIST_ITEMSMALL);
-	SET_FONT(FONT_TYPE_CHANNELLIST);
-	SET_FONT(FONT_TYPE_CHANNELLIST_DESCR);
-	SET_FONT(FONT_TYPE_CHANNELLIST_NUMBER);
-	SET_FONT(FONT_TYPE_CHANNELLIST_EVENT);
-	SET_FONT(FONT_TYPE_CHANNEL_NUM_ZAP);
-	SET_FONT(FONT_TYPE_INFOBAR_NUMBER);
-	SET_FONT(FONT_TYPE_INFOBAR_CHANNAME);
-	SET_FONT(FONT_TYPE_INFOBAR_INFO);
-	SET_FONT(FONT_TYPE_INFOBAR_SMALL);
-	SET_FONT(FONT_TYPE_FILEBROWSER_ITEM);
-	SET_FONT(FONT_TYPE_MENU_HINT);
-
+	set_lua_variables(lua);
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
 	if (status)
 	{
 		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
 		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
 	}
-
 }
 
 const luaL_Reg CLuaInstance::methods[] =
