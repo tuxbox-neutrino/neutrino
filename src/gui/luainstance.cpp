@@ -42,6 +42,84 @@ struct lua_envexport {
 
 static void set_lua_variables(lua_State *L)
 {
+	/* keyname table created with
+	 * sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/ {
+	 * 	s#^[[:space:]]*RC_\([^[:space:]]*\).*#	{ "\1",	CRCInput::RC_\1 },#p
+	 * }' driver/rcinput.h
+	 */
+	static table_key keyname[] =
+	{
+		{ "0",			CRCInput::RC_0 },
+		{ "1",			CRCInput::RC_1 },
+		{ "2",			CRCInput::RC_2 },
+		{ "3",			CRCInput::RC_3 },
+		{ "4",			CRCInput::RC_4 },
+		{ "5",			CRCInput::RC_5 },
+		{ "6",			CRCInput::RC_6 },
+		{ "7",			CRCInput::RC_7 },
+		{ "8",			CRCInput::RC_8 },
+		{ "9",			CRCInput::RC_9 },
+		{ "backspace",		CRCInput::RC_backspace },
+		{ "up",			CRCInput::RC_up },
+		{ "left",		CRCInput::RC_left },
+		{ "right",		CRCInput::RC_right },
+		{ "down",		CRCInput::RC_down },
+		{ "spkr",		CRCInput::RC_spkr },
+		{ "minus",		CRCInput::RC_minus },
+		{ "plus",		CRCInput::RC_plus },
+		{ "standby",		CRCInput::RC_standby },
+		{ "help",		CRCInput::RC_help },
+		{ "home",		CRCInput::RC_home },
+		{ "setup",		CRCInput::RC_setup },
+		{ "topleft",		CRCInput::RC_topleft },
+		{ "topright",		CRCInput::RC_topright },
+		{ "page_up",		CRCInput::RC_page_up },
+		{ "page_down",		CRCInput::RC_page_down },
+		{ "ok",			CRCInput::RC_ok },
+		{ "red",		CRCInput::RC_red },
+		{ "green",		CRCInput::RC_green },
+		{ "yellow",		CRCInput::RC_yellow },
+		{ "blue",		CRCInput::RC_blue },
+		{ "top_left",		CRCInput::RC_top_left },
+		{ "top_right",		CRCInput::RC_top_right },
+		{ "bottom_left",	CRCInput::RC_bottom_left },
+		{ "bottom_right",	CRCInput::RC_bottom_right },
+		{ "audio",		CRCInput::RC_audio },
+		{ "video",		CRCInput::RC_video },
+		{ "tv",			CRCInput::RC_tv },
+		{ "radio",		CRCInput::RC_radio },
+		{ "text",		CRCInput::RC_text },
+		{ "info",		CRCInput::RC_info },
+		{ "epg",		CRCInput::RC_epg },
+		{ "recall",		CRCInput::RC_recall },
+		{ "favorites",		CRCInput::RC_favorites },
+		{ "sat",		CRCInput::RC_sat },
+		{ "sat2",		CRCInput::RC_sat2 },
+		{ "record",		CRCInput::RC_record },
+		{ "play",		CRCInput::RC_play },
+		{ "pause",		CRCInput::RC_pause },
+		{ "forward",		CRCInput::RC_forward },
+		{ "rewind",		CRCInput::RC_rewind },
+		{ "stop",		CRCInput::RC_stop },
+		{ "timeshift",		CRCInput::RC_timeshift },
+		{ "mode",		CRCInput::RC_mode },
+		{ "games",		CRCInput::RC_games },
+		{ "next",		CRCInput::RC_next },
+		{ "prev",		CRCInput::RC_prev },
+		{ "www",		CRCInput::RC_www },
+		{ "power_on",		CRCInput::RC_power_on },
+		{ "power_off",		CRCInput::RC_power_off },
+		{ "standby_on",		CRCInput::RC_standby_on },
+		{ "standby_off",	CRCInput::RC_standby_off },
+		{ "mute_on",		CRCInput::RC_mute_on },
+		{ "mute_off",		CRCInput::RC_mute_off },
+		{ "analog_on",		CRCInput::RC_analog_on },
+		{ "analog_off",		CRCInput::RC_analog_off },
+		/* to check if it is in our range */
+		{ "MaxRC",		CRCInput::RC_MaxRC },
+		{ NULL, 0 }
+	};
+
 	/* list of colors, exported e.g. as COL['INFOBAR_SHADOW'] */
 	static table_key colorlist[] =
 	{
@@ -101,6 +179,7 @@ static void set_lua_variables(lua_State *L)
 	/* list of environment variable arrays to be exported */
 	static lua_envexport e[] =
 	{
+		{ "RC",		keyname },
 		{ "COL",	colorlist },
 		{ "SCREEN",	screenopts },
 		{ "FONT",	fontlist },
