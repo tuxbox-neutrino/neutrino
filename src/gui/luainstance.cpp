@@ -76,6 +76,7 @@ void CLuaInstance::runScript(const char *fileName)
 	int status = luaL_loadfile(lua, fileName);
 	if (status) {
 		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
+		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
 		return;
 	}
 
