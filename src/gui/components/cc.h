@@ -511,7 +511,7 @@ class CComponentsHeader : public CComponentsForm
 		void setHeaderIcon(const char* icon_name);
 		void addHeaderButton(const std::string& button_name);
 		void removeHeaderButtons();
-		void setHeaderButtons(const int buttons){cch_buttons = buttons;};
+		void setHeaderDefaultButtons(const int buttons);
 		void initCCHeaderItems();
 };
 
@@ -522,6 +522,7 @@ class CComponentsWindow : public CComponentsForm
 		std::string ccw_caption;
 		const char* ccw_icon_name;
 		int ccw_start_y;
+		int ccw_buttons;
 
 		void initHeader();
 		void initCCWItems();
@@ -543,6 +544,7 @@ class CComponentsWindow : public CComponentsForm
 		void setWindowCaption(const std::string& text){ccw_caption = text;};
 		void setWindowCaption(neutrino_locale_t locale_text);
 		void setWindowIcon(const char* iconname){ccw_icon_name = iconname;};
+		void setWindowHeaderButtons(const int& buttons){ccw_buttons = buttons;};
 
 		int getStartY(); //y value for start of the area below header
 };

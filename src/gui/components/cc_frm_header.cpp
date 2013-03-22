@@ -221,6 +221,13 @@ void CComponentsHeader::initCCHDefaultButtons()
 #endif
 }
 
+void CComponentsHeader::setHeaderDefaultButtons(const int buttons)
+{
+	cch_buttons = buttons;
+	v_cch_btn.clear();
+	initCCHDefaultButtons();
+}
+
 // calculate minimal width of icon form
 void CComponentsHeader::initCCButtonFormSize()
 {

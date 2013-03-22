@@ -82,6 +82,7 @@ void CComponentsWindow::initVarWindow()
 	ccw_caption 	= "";
 	ccw_icon_name	= NULL;
 	ccw_start_y	= 0;
+	ccw_buttons	= 0; //no header buttons
 	
 	setShadowOnOff(true);
 }
@@ -109,6 +110,7 @@ void CComponentsWindow::initHeader()
 		ccw_head->setHeaderText(ccw_caption);
 		ccw_head->initCCHeaderItems();
 		ccw_start_y = ccw_head->getHeight();
+		ccw_head->setHeaderDefaultButtons(ccw_buttons);
 	}
 }
 
