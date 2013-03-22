@@ -131,6 +131,7 @@ void CImageInfo::ShowWindow()
 	if (cc_win == NULL){
 		cc_win = new CComponentsWindow(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO);
 		item_top = cc_win->getStartY() + item_offset;
+		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 	}
 
 	//prepare minitv: important! init the minitv object as first
