@@ -538,12 +538,13 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 #if !HAVE_TRIPLEDRAGON
 void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
+#if !HAVE_SPARK_HARDWARE
 	int  xc, yc;
-
 	xc = (width > fb->xRes) ? fb->xRes : width;
 	yc = (height > fb->yRes) ? fb->yRes : height;
-
+#endif
 #ifdef USE_NEVIS_GXA
+	(void)transp;
 	u32 cmd;
 	void *uKva;
 
@@ -611,7 +612,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 #else
 	fb_pixel_t *data = (fb_pixel_t *) fbbuff;
 
-	uint8_t *d = ((uint8_t *)fb->getFrameBufferPointer()) + xoff * sizeof(fb_pixel_t) + fb->stride * yoff;
+	uint8_t *d = (uint8_t *)lbb + xoff * sizeof(fb_pixel_t) + fb->stride * yoff;
 	fb_pixel_t * d2;
 
 	for (int count = 0; count < yc; count++ ) {

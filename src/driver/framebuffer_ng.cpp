@@ -146,6 +146,7 @@ void CFrameBuffer::init(const char * const fbDevice)
         int tr = 0xFF;
 
 #ifdef USE_OPENGL
+	(void)fbDevice;
 	fd = -1;
 	if(!mpGLThreadObj)
 	{
@@ -171,6 +172,8 @@ void CFrameBuffer::init(const char * const fbDevice)
 			mpGLThreadObj->Start();
 			mpGLThreadObj->waitInit();
 		}
+		else
+			goto nolfb;
 	}
 	lfb = reinterpret_cast<fb_pixel_t*>(mpGLThreadObj->getOSDBuffer());
 	memset(lfb, 0x7f, screeninfo.xres * screeninfo.yres * 4);
@@ -445,6 +448,7 @@ void CFrameBuffer::setTransparency( int /*tr*/ )
 #if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::setBlendMode(uint8_t mode)
 {
+	(void)mode;
 #ifdef HAVE_COOL_HARDWARE
 	if (ioctl(fd, FBIO_SETBLENDMODE, mode))
 		printf("FBIO_SETBLENDMODE failed.\n");
@@ -453,6 +457,7 @@ void CFrameBuffer::setBlendMode(uint8_t mode)
 
 void CFrameBuffer::setBlendLevel(int level)
 {
+	(void)level;
 #ifdef HAVE_COOL_HARDWARE
 	//printf("CFrameBuffer::setBlendLevel %d\n", level);
 	unsigned char value = 0xFF;
