@@ -1651,8 +1651,11 @@ void CChannelList::paintItem2DetailsLine (int pos)
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
 
-	if (dline)
+	if (dline){
 		dline->kill(); //kill details line
+		delete dline;
+		dline = NULL;
+	}
 // 	// Clear
 // 	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
 
@@ -1663,7 +1666,6 @@ void CChannelList::paintItem2DetailsLine (int pos)
 			//details line
 			if (dline == NULL)
 				dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
-			dline->setYPos(ypos1a);
 			dline->paint();
 			
 			//info box frame
