@@ -166,6 +166,19 @@ static void set_lua_variables(lua_State *L)
 		{ NULL, 0 }
 	};
 
+	table_key corners[] =
+	{
+		{ "TOP_LEFT",		CORNER_TOP_LEFT },
+		{ "TOP_RIGHT",		CORNER_TOP_RIGHT },
+		{ "BOTTOM_LEFT",	CORNER_BOTTOM_LEFT },
+		{ "BOTTOM_RIGHT",	CORNER_BOTTOM_RIGHT },
+		{ "RADIUS_LARGE",	RADIUS_LARGE },	/* those depend on g_settings.rounded_corners */
+		{ "RADIUS_MID",		RADIUS_MID },
+		{ "RADIUS_SMALL",	RADIUS_SMALL },
+		{ "RADIUS_MIN",		RADIUS_MIN },
+		{ NULL, 0 }
+	};
+
 	/* screen offsets, exported as e.g. SCREEN['END_Y'] */
 	table_key screenopts[] =
 	{
@@ -183,6 +196,7 @@ static void set_lua_variables(lua_State *L)
 		{ "COL",	colorlist },
 		{ "SCREEN",	screenopts },
 		{ "FONT",	fontlist },
+		{ "CORNER",	corners },
 		{ NULL, NULL }
 	};
 
@@ -266,6 +280,11 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ NULL, NULL }
 };
 
+#ifndef DYNAMIC_LUAPOSIX
+/* hack: we link against luaposix, which is included in our
+ * custom built lualib */
+extern "C" { LUAMOD_API int (luaopen_posix_c) (lua_State *L); }
+#endif
 /* load basic functions and register our own C callbacks */
 void CLuaInstance::registerFunctions()
 {
@@ -274,6 +293,9 @@ void CLuaInstance::registerFunctions()
 	luaopen_io(lua);
 	luaopen_string(lua);
 	luaopen_math(lua);
+#ifndef DYNAMIC_LUAPOSIX
+	luaopen_posix_c(lua);
+#endif
 
 	lua_newtable(lua);
 	int methodtable = lua_gettop(lua);
@@ -335,8 +357,9 @@ int CLuaInstance::NewWindow(lua_State *L)
 
 int CLuaInstance::PaintBox(lua_State *L)
 {
-	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
-	int x, y, w, h;
+	int count = lua_gettop(L);
+	DBG("CLuaInstance::%s %d\n", __func__, count);
+	int x, y, w, h, radius = 0, corner = CORNER_ALL;
 	unsigned int c;
 
 	CLuaData *W = CheckData(L, 1);
@@ -347,6 +370,10 @@ int CLuaInstance::PaintBox(lua_State *L)
 	w = luaL_checkint(L, 4);
 	h = luaL_checkint(L, 5);
 	c = luaL_checkint(L, 6);
+	if (count > 6)
+		radius = luaL_checkint(L, 7);
+	if (count > 7)
+		corner = luaL_checkint(L, 8);
 	/* those checks should be done in CFBWindow instead... */
 	if (x < 0)
 		x = 0;
@@ -358,7 +385,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 		h = W->fbwin->dy - y;
 	/* use the color constants */
 	c = CFrameBuffer::getInstance()->realcolor[c & 0xff];
-	W->fbwin->paintBoxRel(x, y, w, h, c);
+	W->fbwin->paintBoxRel(x, y, w, h, c, radius, corner);
 	return 0;
 }
 
