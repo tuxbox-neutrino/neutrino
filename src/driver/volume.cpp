@@ -270,12 +270,12 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 	do {
 		if (msg <= CRCInput::RC_MaxRC) 
 		{
-			int sub_chan_keybind = 0;
-			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME && g_RemoteControl && g_RemoteControl->subChannels.size() < 1)
- 			     sub_chan_keybind = 1;
-			
-			if ((msg == CRCInput::RC_plus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_right))) {
-				if(CNeutrinoApp::getInstance()->isMuted()) {
+			bool sub_chan_keybind = g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME
+						&& g_RemoteControl && g_RemoteControl->subChannels.size() < 1;
+			if ((msg == CRCInput::RC_plus || msg == CRCInput::RC_minus) ||
+			    (sub_chan_keybind && (msg == CRCInput::RC_right || msg == CRCInput::RC_left))) {
+				int dir = (msg == CRCInput::RC_plus || msg == CRCInput::RC_right) ? 1 : -1;
+				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0)) {
 					if ((bDoPaint) && (pixbuf!= NULL)) {
 						frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
 						delete [] pixbuf;
@@ -286,46 +286,29 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 					return;
 				}
 				
-				if(!CNeutrinoApp::getInstance()->isMuted()) {
-					if (g_settings.current_volume < 100 - g_settings.current_volume_step)
-						g_settings.current_volume += g_settings.current_volume_step;
-					else
-						g_settings.current_volume = 100;
-				}				
-			}
-			else if ((msg == CRCInput::RC_minus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_left))) {
-				if(CNeutrinoApp::getInstance()->isMuted() && g_settings.current_volume > 0) {
-					if ((bDoPaint) && (pixbuf!= NULL)) {
-						frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
-						delete [] pixbuf;
-					}
-					AudioMute(false, true);
-					Init();
-					setVolume(msg);
-					return;
-				}
-				
-				if(!CNeutrinoApp::getInstance()->isMuted()) {
-					if (g_settings.current_volume > g_settings.current_volume_step)
-						g_settings.current_volume -= g_settings.current_volume_step;
-						
-					else if  (g_settings.show_mute_icon == 1) {
-						if ((bDoPaint) && (pixbuf!= NULL)) {
-							frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
-							delete [] pixbuf;
+				if (!CNeutrinoApp::getInstance()->isMuted()) {
+					/* current_volume is char, we need signed to catch v < 0 */
+					int v = g_settings.current_volume;
+					v += dir * g_settings.current_volume_step;
+					if (v > 100)
+						v = 100;
+					else if (v < 1) {
+						v = 0;
+						g_settings.current_volume = 0;
+						if (g_settings.show_mute_icon) {
+							if (bDoPaint && pixbuf != NULL) {
+								frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
+								delete []pixbuf;
+							}
+							AudioMute(true, true);
+							Init();
+							setVolume(msg);
+							return;
 						}
-						g_settings.current_volume = 0;
-						AudioMute( true, true);
-						Init();
-						setVolume(msg);
-						return;						
 					}
-					
-					else if (g_settings.show_mute_icon == 0)
-						g_settings.current_volume = 0;
-				}				
+					g_settings.current_volume = v;
+				}
 			}
-
 			else if (msg == CRCInput::RC_home)
 				break;
 			else {
