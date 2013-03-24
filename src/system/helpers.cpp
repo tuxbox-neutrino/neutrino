@@ -438,6 +438,7 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 			// is file
 			else if (S_ISREG(FileInfo.st_mode)) {
 				std::string save = "";
+				(void)backupMode; /* squelch unused parameter warning */
 #if ENABLE_EXTUPDATE
 				if (backupMode && (CExtUpdate::getInstance()->isBlacklistEntry(srcPath)))
 					save = ".save";
