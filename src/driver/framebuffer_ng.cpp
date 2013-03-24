@@ -1068,7 +1068,7 @@ void CFrameBuffer::paintBackground()
 
 void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
 {
-	if (!getActive())
+	if (!getActive() || memp == NULL)
 		return;
 
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
@@ -1095,7 +1095,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 
 void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
 {
-	if (!getActive())
+	if (!getActive() || memp == NULL)
 		return;
 
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
