@@ -116,6 +116,7 @@ class CComponentsItem : public CComponents
 			CC_ITEMTYPE_FRM_HEADER,
 			CC_ITEMTYPE_FRM_ICONFORM,
 			CC_ITEMTYPE_FRM_WINDOW,
+			CC_ITEMTYPE_LABEL,
 
 			CC_ITEMTYPES
 		};
@@ -213,10 +214,14 @@ class CComponentsLabel : public CComponentsText
 					const char* text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, has_shadow, color_text, color_frame, color_body, color_shadow){};
+					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, has_shadow, color_text, color_frame, color_body, color_shadow)
+		{
+			cc_item_type 	= CC_ITEMTYPE_LABEL;
+		};
 		CComponentsLabel():CComponentsText()
 		{
 			initVarText();
+			cc_item_type 	= CC_ITEMTYPE_LABEL;
 			ct_col_text = COL_MENUCONTENTINACTIVE;
 		};
 };
