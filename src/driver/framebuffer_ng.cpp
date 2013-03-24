@@ -139,17 +139,6 @@ CFrameBuffer* CFrameBuffer::getInstance()
 void CFrameBuffer::setupGXA(void)
 {
 	accel->setupGXA();
-#if 0
-        // We (re)store the GXA regs here in case DFB override them and was not
-        // able to restore them.
-        _write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
-        _write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
-        _write_gxa(gxa_base, GXA_BLEND_CFG_REG, 0x00089064);
-	// TODO check mono-flip, bit 8
-        _write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
-        _write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
-	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);
-#endif
 }
 #endif
 void CFrameBuffer::init(const char * const fbDevice)
@@ -216,30 +205,6 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 
 	memset(lfb, 0, available);
-
-#if 0
-#ifdef USE_NEVIS_GXA
-	/* Open /dev/mem for HW-register access */
-	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC);
-	if (devmem_fd < 0) {
-		perror("Unable to open /dev/mem");
-		goto nolfb;
-	}
-
-	/* mmap the GXA's base address */
-	gxa_base = (volatile unsigned char*) mmap(0, 0x00040000, PROT_READ | PROT_WRITE, MAP_SHARED, devmem_fd, 0xE0600000);
-	if (gxa_base == (void*) -1){
-		perror("Unable to mmap /dev/mem");
-		goto nolfb;
-	}
-
-	/* tell the GXA where the framebuffer to draw on starts */
-	smem_start = (unsigned int) fix.smem_start;
-	printf("smem_start %x\n", smem_start);
-
-	setupGXA();
-#endif /* USE_NEVIS_GXA */
-#endif
 #endif /* USE_OPENGL */
 	cache_size = 0;
 
@@ -267,52 +232,6 @@ void CFrameBuffer::init(const char * const fbDevice)
 
         useBackground(false);
 	m_transparent = m_transparent_default;
-#if 0
-	if ((tty=open("/dev/vc/0", O_RDWR))<0) {
-		perror("open (tty)");
-		goto nolfb;
-	}
-
-	struct sigaction act;
-
-	memset(&act,0,sizeof(act));
-	act.sa_handler  = switch_signal;
-	sigemptyset(&act.sa_mask);
-	sigaction(SIGUSR1,&act,NULL);
-	sigaction(SIGUSR2,&act,NULL);
-
-	struct vt_mode mode;
-
-	if (-1 == ioctl(tty,KDGETMODE, &kd_mode)) {
-		perror("ioctl KDGETMODE");
-		goto nolfb;
-	}
-
-	if (-1 == ioctl(tty,VT_GETMODE, &vt_mode)) {
-		perror("ioctl VT_GETMODE");
-		goto nolfb;
-	}
-
-	if (-1 == ioctl(tty,VT_GETMODE, &mode)) {
-		perror("ioctl VT_GETMODE");
-		goto nolfb;
-	}
-
-	mode.mode   = VT_PROCESS;
-	mode.waitv  = 0;
-	mode.relsig = SIGUSR1;
-	mode.acqsig = SIGUSR2;
-
-	if (-1 == ioctl(tty,VT_SETMODE, &mode)) {
-		perror("ioctl VT_SETMODE");
-		goto nolfb;
-	}
-
-	if (-1 == ioctl(tty,KDSETMODE, KD_GRAPHICS)) {
-		perror("ioctl KDSETMODE");
-		goto nolfb;
-	}
-#endif
 	accel = new CFbAccel(this);
 	return;
 
@@ -342,18 +261,6 @@ CFrameBuffer::~CFrameBuffer()
 		backupBackground = NULL;
 	}
 
-#if 0
-#ifdef RETURN_FROM_GRAPHICS_MODE
-	if (-1 == ioctl(tty,KDSETMODE, kd_mode))
-		perror("ioctl KDSETMODE");
-#endif
-
-	if (-1 == ioctl(tty,VT_SETMODE, &vt_mode))
-		perror("ioctl VT_SETMODE");
-
-	if (available)
-		ioctl(fd, FBIOPUT_VSCREENINFO, &oldscreen);
-#endif
 	if (lfb)
 		munmap(lfb, available);
 
@@ -1169,15 +1076,11 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	for (int count = 0; count < dy; count++) {
 		fb_pixel_t * dest = (fb_pixel_t *)pos;
 		for (int i = 0; i < dx; i++)
-			//*(dest++) = col;
 			*(bkpos++) = *(dest++);
 		pos += stride;
 	}
-#if 0 //FIXME test to flush cache
-        if (ioctl(fd, 1, FB_BLANK_UNBLANK) < 0);
-#endif
-	//RestoreScreen(x, y, dx, dy, memp); //FIXME
 #if 0
+	/* todo: check what the problem with this is, it should be better -- probably caching issue */
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++)
