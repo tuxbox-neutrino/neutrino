@@ -157,23 +157,26 @@ void netGetDefaultRoute( char *ip )
 {
 	FILE *fp;
 	char interface[9];
-	unsigned char destination[4];
-	unsigned char gateway[4];
+	uint32_t destination;
+	uint32_t gw;
+	uint8_t gateway[4];
 	char zeile[256];
 
 	*ip = 0 ;
 	fp = fopen("/proc/net/route","r");
 	if (fp == NULL)
 		return;
-	fgets(zeile,sizeof(zeile),fp);
+	fgets(zeile,sizeof(zeile),fp); /* skip header */
 	while(fgets(zeile,sizeof(zeile),fp))
 	{
-		sscanf(zeile,"%8s %x %x",interface,(unsigned *) destination,(unsigned *) gateway);
-		if (*(unsigned *)destination == 0)
-		{
-			sprintf(ip,"%d.%d.%d.%d",gateway[0],gateway[1],gateway[2],gateway[3]);
-			break;
-		}
+		destination = 1; /* in case sscanf fails */
+		sscanf(zeile,"%8s %x %x", interface, &destination, &gw);
+		if (destination)
+			continue;
+		/* big/little endian kernels have reversed entries, so this is correct */
+		memcpy(gateway, &gw, 4);
+		sprintf(ip, "%d.%d.%d.%d", gateway[0], gateway[1], gateway[2], gateway[3]);
+		break;
 	}
 	fclose(fp);
 }
