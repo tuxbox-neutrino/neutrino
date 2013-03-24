@@ -336,7 +336,8 @@ void CMsgBox::refreshFoot(void)
 								m_cBoxFrameFootRel.iY+m_cBoxFrame.iY,
 								m_cBoxFrameFootRel.iWidth,
 								m_cBoxFrameFootRel.iHeight,
-								(CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
+								(CFBWindow::color_t)COL_MENUHEAD_PLUS_0,
+								RADIUS_LARGE, CORNER_BOTTOM);
 
 	//const char* text;
 
@@ -358,7 +359,7 @@ void CMsgBox::refreshFoot(void)
 			color   = COL_INFOBAR_SHADOW;
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
-		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor);
+		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
 		/*m_pcWindow->RenderString(*/
 		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 4 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth - 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
@@ -380,7 +381,7 @@ void CMsgBox::refreshFoot(void)
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 
-		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor);
+		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos + 14+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
 		/*m_pcWindow->RenderString(*/
 		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 4 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_NO), (CFBWindow::color_t)color, 0, true); // UTF-8
@@ -402,7 +403,7 @@ void CMsgBox::refreshFoot(void)
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 
-		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor);
+		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+10+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
 		/*m_pcWindow->RenderString(*/
 		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 2 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth- 53, g_Locale->getText((m_nFootButtons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : LOCALE_MESSAGEBOX_BACK), (CFBWindow::color_t)color, 0, true); // UTF-8
@@ -427,7 +428,8 @@ void CMsgBox::refreshTitle(void)
 							m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY,
 							m_cBoxFrameTitleRel.iWidth,
 							m_cBoxFrameTitleRel.iHeight,
-							(CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
+							(CFBWindow::color_t)COL_MENUHEAD_PLUS_0,
+							RADIUS_LARGE, CORNER_TOP);
 
 	if (!m_cIcon.empty())
 	{
@@ -472,17 +474,19 @@ void CMsgBox::refreshBorder(void)
 
 	//draw bottom shadow
 	m_pcWindow->paintBoxRel(	m_nWindowFrameBorderWidth+m_cBoxFrame.iX,
-							m_cBoxFrame.iHeight - m_nWindowFrameBorderWidth+m_cBoxFrame.iY,
-							m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth,
-							m_nWindowFrameBorderWidth,
-							COL_INFOBAR_SHADOW_PLUS_0);
+							m_cBoxFrame.iHeight - m_nWindowFrameBorderWidth+m_cBoxFrame.iY - RADIUS_LARGE,
+							m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth - RADIUS_LARGE,
+							m_nWindowFrameBorderWidth + RADIUS_LARGE,
+							COL_INFOBAR_SHADOW_PLUS_0,
+							RADIUS_LARGE, CORNER_BOTTOM_LEFT);
 
 	//draw right shadow
-	m_pcWindow->paintBoxRel(	m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth+m_cBoxFrame.iX,
+	m_pcWindow->paintBoxRel(	m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth+m_cBoxFrame.iX - RADIUS_LARGE,
 							m_nWindowFrameBorderWidth+m_cBoxFrame.iY,
-							m_nWindowFrameBorderWidth,
+							m_nWindowFrameBorderWidth + RADIUS_LARGE,
 							m_cBoxFrame.iHeight - m_nWindowFrameBorderWidth,
-							COL_INFOBAR_SHADOW_PLUS_0);
+							COL_INFOBAR_SHADOW_PLUS_0,
+							RADIUS_LARGE, CORNER_RIGHT);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -582,11 +586,11 @@ bool CMsgBox::paint(void)
 	// create new window
 	//m_pcWindow = new CFBWindow( m_cBoxFrame.iX, m_cBoxFrame.iY, m_cBoxFrame.iWidth, m_cBoxFrame.iHeight);
 	m_pcWindow = CFrameBuffer::getInstance();
+	refresh();
 	if(m_pcTextBox != NULL)
 	{
 		m_pcTextBox->paint();
 	}
-	refresh();
 	return (true);
 }
 
@@ -609,9 +613,9 @@ void CMsgBox::refresh(void)
 	}
 
 	//re-draw message box window
+	refreshBorder();
 	refreshTitle();
 	refreshFoot();
-	refreshBorder();
 
 	// rep-draw textbox if there is one
 	if(m_pcTextBox != NULL)
