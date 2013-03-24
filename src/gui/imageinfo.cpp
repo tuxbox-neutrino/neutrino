@@ -279,7 +279,7 @@ void CImageInfo::InitLicenseText()
 	}
 	in.close();
 
-	cc_lic = new CComponentsInfoBox(item_offset, item_top, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top);
+	cc_lic = new CComponentsInfoBox(item_offset, item_top, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top-item_offset);
 	cc_lic->setText(license_txt, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	//add text to container
