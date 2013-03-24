@@ -37,6 +37,7 @@
 /* compat header from zapit/include */
 #include <audio.h>
 #include <system/settings.h>
+#include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
 #include <driver/volume.h>
 #include <zapit/zapit.h>
@@ -44,6 +45,8 @@
 #if HAVE_COOL_HARDWARE
 #include <gui/widget/progressbar.h>
 #endif
+
+#define VOLUME_SCRIPT	CONFIGDIR "/volume.sh"
 
 extern CRemoteControl * g_RemoteControl;
 extern cAudio * audioDecoder;
@@ -230,6 +233,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 	if (!g_RCInput) /* don't die... */
 		return;
 	neutrino_msg_t msg	= key;
+	static bool do_vol = true; /* false if volume is handled by external script */
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	
 	if (msg <= CRCInput::RC_MaxRC) {
@@ -244,7 +248,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 	int vol			= g_settings.current_volume;
 	fb_pixel_t * pixbuf	= NULL;
 
-	if(bDoPaint) {
+	if (bDoPaint && do_vol) {
 		pixbuf = new fb_pixel_t[(vbar_w+ShadowOffset) * (vbar_h+ShadowOffset)];
 		if(pixbuf!= NULL)
 			frameBuffer->SaveScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
@@ -275,18 +279,31 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 			if ((msg == CRCInput::RC_plus || msg == CRCInput::RC_minus) ||
 			    (sub_chan_keybind && (msg == CRCInput::RC_right || msg == CRCInput::RC_left))) {
 				int dir = (msg == CRCInput::RC_plus || msg == CRCInput::RC_right) ? 1 : -1;
+				if (my_system(2, VOLUME_SCRIPT, dir > 0 ? "up" : "down") == 0)
+				{
+					do_vol = false;
+					/* clear all repeated events */
+					neutrino_msg_t tmp = msg;
+					while (msg == tmp)
+						g_RCInput->getMsg(&tmp, &data, 0);
+					if (tmp != CRCInput::RC_timeout)
+						g_RCInput->postMsg(tmp, data);
+				} else
+					do_vol = true;
 				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0)) {
-					if ((bDoPaint) && (pixbuf!= NULL)) {
+					if (pixbuf != NULL) {
 						frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
 						delete [] pixbuf;
 					}
-					AudioMute(false, true);
-					Init();
-					setVolume(msg);
-					return;
+					if (do_vol) {
+						AudioMute(false, true);
+						Init();
+						setVolume(msg);
+						return;
+					}
 				}
 				
-				if (!CNeutrinoApp::getInstance()->isMuted()) {
+				if (do_vol && !CNeutrinoApp::getInstance()->isMuted()) {
 					/* current_volume is char, we need signed to catch v < 0 */
 					int v = g_settings.current_volume;
 					v += dir * g_settings.current_volume_step;
@@ -296,7 +313,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 						v = 0;
 						g_settings.current_volume = 0;
 						if (g_settings.show_mute_icon) {
-							if (bDoPaint && pixbuf != NULL) {
+							if (pixbuf != NULL) {
 								frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
 								delete []pixbuf;
 							}
@@ -316,7 +333,8 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 				break;
 			}
 
-			setvol(g_settings.current_volume);
+			if (do_vol)
+				setvol(g_settings.current_volume);
 			timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : 3);
 		}
 		else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
@@ -327,15 +345,13 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 			break;
 		}
 
-		if (bDoPaint) {
+		if (pixbuf) {
 			if(vol != g_settings.current_volume) {
 				vol = g_settings.current_volume;
 				refreshVolumebar(g_settings.current_volume);
+				frameBuffer->blit();
 			}
 		}
-
-		if (bDoPaint)
-			frameBuffer->blit();
 
 		CVFD::getInstance()->showVolume(g_settings.current_volume);
 		if (msg != CRCInput::RC_timeout) {
@@ -343,12 +359,10 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 		}
 	} while (msg != CRCInput::RC_timeout);
 
-	if( (bDoPaint) && (pixbuf!= NULL) ) {
+	if (pixbuf != NULL) {
 		frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
 		delete [] pixbuf;
 	}
-	if (bDoPaint)
-		frameBuffer->blit();
 }
 
 void CVolume::refreshVolumebar(int current_volume)
