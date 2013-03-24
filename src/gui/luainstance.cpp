@@ -167,7 +167,7 @@ static void set_lua_variables(lua_State *L)
 	};
 
 	/* screen offsets, exported as e.g. SCREEN['END_Y'] */
-	static table_key screenopts[] =
+	table_key screenopts[] =
 	{
 		{ "OFF_X", g_settings.screen_StartX },
 		{ "OFF_Y", g_settings.screen_StartY },
@@ -177,7 +177,7 @@ static void set_lua_variables(lua_State *L)
 	};
 
 	/* list of environment variable arrays to be exported */
-	static lua_envexport e[] =
+	lua_envexport e[] =
 	{
 		{ "RC",		keyname },
 		{ "COL",	colorlist },
