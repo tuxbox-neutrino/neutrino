@@ -834,11 +834,11 @@ int ShowMsg2UTF(	const char * const Title,
 	int mode =  CMsgBox::SCROLL |
 				CMsgBox::TITLE |
 				CMsgBox::FOOT |
-				CMsgBox::BORDER;// |
+				CMsgBox::BORDER |
+				CMsgBox::AUTO_HIGH;
 				//CMsgBox::NO_AUTO_LINEBREAK |
 				//CMsgBox::CENTER |
 				//CMsgBox::AUTO_WIDTH |
-				//CMsgBox::AUTO_HIGH;
 	CBox position (	g_settings.screen_StartX+30,
 					g_settings.screen_StartY+30,
 					g_settings.screen_EndX - g_settings.screen_StartX-60,
