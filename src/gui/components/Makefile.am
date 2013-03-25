@@ -29,4 +29,4 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_item_picture.cpp \
 	cc_item_shapes.cpp \
 	cc_item_text.cpp \
-	cc_item_tvpig.cpp
+	cc_item_tvpic.cpp
