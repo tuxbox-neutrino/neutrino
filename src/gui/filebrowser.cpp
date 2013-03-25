@@ -361,6 +361,9 @@ CFileBrowser::CFileBrowser(const char * const _base, const tFileBrowserMode mode
 void CFileBrowser::commonInit()
 {
 	frameBuffer = CFrameBuffer::getInstance();
+	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE];
+	fnt_item  = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM];
+	fnt_small = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 	//shoutcast
 	sc_init_dir = "/legacy/genrelist?k="  + g_settings.shoutcast_dev_id;
 
@@ -377,11 +380,11 @@ void CFileBrowser::commonInit()
 	height = frameBuffer->getScreenHeightRel();
 	x = getScreenStartX(width);
 
-	theight = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
-	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight();
+	theight = fnt_title->getHeight();
+	fheight = fnt_item->getHeight();
 	if (fheight == 0)
 		fheight = 1; /* avoid div by zero on invalid font */
-	foheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar; TODO get value from buttonbar
+	foheight = fnt_small->getHeight()+6; //initial height value for buttonbar; TODO get value from buttonbar
 
 	liststart = 0;
 	listmaxshow = std::max(1,(int)(height - theight - 2 * foheight)/fheight);
@@ -1227,16 +1230,13 @@ void CFileBrowser::hide()
 
 void CFileBrowser::paintItem(unsigned int pos)
 {
-	int colwidth1, colwidth2, colwidth3, colwidth1_dir, colwidth2_dir;
+	int colwidth1, colwidth2, colwidth3;
 	int c_rad_small;
 	uint8_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	CFile * actual_file = NULL;
 	std::string fileicon;
-
-	colwidth2_dir = 180;
-	colwidth1_dir = width - 35 - colwidth2_dir - 10;
 
 	if (liststart + pos == selected)
 	{
@@ -1265,15 +1265,10 @@ void CFileBrowser::paintItem(unsigned int pos)
 		}
 
 		if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
-		{
 			colwidth2 = 0;
-			colwidth3 = 90;
-		}
 		else
-		{
-			colwidth2 = 90;
-			colwidth3 = 90;
-		}
+			colwidth2 = fnt_item->getRenderWidth("rwxrwxrwx");
+		colwidth3 = fnt_item->getRenderWidth("222.222G");
 		colwidth1 = width - 35 - colwidth2 - colwidth3 - 10;
 
 		if ( actual_file->Name.length() > 0 )
@@ -1305,7 +1300,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			}
 			frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color, 0, true); // UTF-8
+			fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color, 0, true); // UTF-8
 
 			if( S_ISREG(actual_file->Mode) )
 			{
@@ -1319,7 +1314,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 					}
 					modestring[9] = 0;
 
-					g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(x + 35 + colwidth1 , ypos+ fheight, colwidth2 - 10, modestring, color, 0, true); // UTF-8
+					fnt_item->RenderString(x + width - 25 - colwidth3 - colwidth2 , ypos+ fheight, colwidth2, modestring, color, 0, true); // UTF-8
 				}
 
 #define GIGABYTE 1073741824LL
@@ -1352,18 +1347,20 @@ void CFileBrowser::paintItem(unsigned int pos)
 				else
 					snprintf(tmpstr,sizeof(tmpstr),"%d", (int)actual_file->Size);
 
-				g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(x + 35 + colwidth1 + colwidth2, ypos+ fheight, colwidth3 - 10, tmpstr, color);
+				/* right align file size */
+				int sz_w = fnt_item->getRenderWidth(tmpstr);
+				fnt_item->RenderString(x + width - sz_w - 25, ypos+ fheight, sz_w, tmpstr, color);
 			}
 
 			if( S_ISDIR(actual_file->Mode) )
 			{
 				char timestring[18];
 				time_t rawtime;
-
 				rawtime = actual_file->Time;
 				strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&rawtime));
-
-				g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(x + 35 + colwidth1_dir, ypos+ fheight, colwidth2_dir - 10, timestring, color);
+				/* right align directory time */
+				int time_w = fnt_item->getRenderWidth(timestring);
+				fnt_item->RenderString(x + width - time_w - 25, ypos+ fheight, time_w, timestring, color);
 			}
 		}
 	}
@@ -1394,17 +1391,17 @@ void CFileBrowser::paintHead()
 
 	/* too long? Leave out the "Filebrowser" or "Shoutcast" prefix
 	 * the allocated space is sufficient since it is surely shorter than before */
-	if (g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(l_name) > width - 11)
+	if (fnt_title->getRenderWidth(l_name) > width - 11)
 		l = sprintf(l_name, "%s", FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
 	if (l_name[l - 1] == '/')
 		l_name[--l] = '\0';
 
 	/* still too long? the last part is probably more interesting than the first part... */
-	while ((g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(&l_name[i]) > width - 11)
+	while ((fnt_title->getRenderWidth(&l_name[i]) > width - 11)
 		&& (i < l))
 		i++;
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+10,y+theight+1, width-11, &l_name[i], COL_MENUHEAD, 0, true);
+	fnt_title->RenderString(x+10,y+theight+1, width-11, &l_name[i], COL_MENUHEAD, 0, true);
 	free(l_name);
 }
 
@@ -1495,7 +1492,9 @@ void CFileBrowser::paintFoot()
 		if(m_SMSKeyInput.getOldKey()!=0)
 		{
 			char cKey[2]={m_SMSKeyInput.getOldKey(),0};
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + width - 16, by2 , 16, cKey, COL_MENUHEAD, 0, true); // UTF-8
+			cKey[0] = toupper(cKey[0]);
+			int len = fnt_small->getRenderWidth(cKey);
+			fnt_small->RenderString(x + width - 10 - len, by2 + foheight, len, cKey, COL_MENUHEAD, 0, true);
 		}
 	}
 }
