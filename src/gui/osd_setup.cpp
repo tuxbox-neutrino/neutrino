@@ -429,9 +429,9 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mf);
 
 	//progressbar
-	CMenuForwarder * progress = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR, true, NULL, new CProgressbarSetup(), NULL, CRCInput::RC_1);
-	progress->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR);
-	osd_menu->addItem(progress);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_PROGRESSBAR, true, NULL, new CProgressbarSetup(), NULL, CRCInput::RC_1);
+	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR);
+	osd_menu->addItem(mf);
 
 	//infobar
 	CMenuWidget osd_menu_infobar(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_INFOBAR);

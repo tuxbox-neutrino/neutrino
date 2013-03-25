@@ -39,22 +39,22 @@
 
 #include <system/debug.h>
 
-#define LOCALE_MISCSETTINGS_INFOBAR_POSITION_COUNT 4
-const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_POSITION_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_POSITION_COUNT]=
+#define PROGRESSBAR_INFOBAR_POSITION_COUNT 4
+const CMenuOptionChooser::keyval PROGRESSBAR_INFOBAR_POSITION_OPTIONS[PROGRESSBAR_INFOBAR_POSITION_COUNT]=
 {
-   { 0 , LOCALE_MISCSETTINGS_INFOBAR_POSITION_0 },
-   { 1 , LOCALE_MISCSETTINGS_INFOBAR_POSITION_1 },
-   { 2 , LOCALE_MISCSETTINGS_INFOBAR_POSITION_2 },
-   { 3 , LOCALE_MISCSETTINGS_INFOBAR_POSITION_3 }
+   { 0 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_0 },
+   { 1 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_1 },
+   { 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_2 },
+   { 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_3 }
 };
 
-#define LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_COUNT 4
-const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_COUNT]=
+#define PROGRESSBAR_DESIGN_COUNT 4
+const CMenuOptionChooser::keyval PROGRESSBAR_DESIGN_OPTIONS[PROGRESSBAR_DESIGN_COUNT]=
 {
-   { 0 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_0 },
-   { 1 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_1 },
-   { 2 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_2 },
-   { 3 , LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_3 }
+   { 0 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_0 },
+   { 1 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_1 },
+   { 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_2 },
+   { 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_3 }
 };
 
 CProgressbarSetup::CProgressbarSetup()
@@ -83,31 +83,32 @@ int CProgressbarSetup::showMenu()
 	CMenuWidget *progress = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_PROGRESSBAR);
 
 	//intros: back ande save
-	progress->addIntroItems(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR);
+	progress->addIntroItems(LOCALE_MISCSETTINGS_PROGRESSBAR);
 
-	//infobar progresscolor on/off
 	COnOffNotifier* miscProgressNotifier = new COnOffNotifier(0);
 
-	CMenuOptionChooser *progresscolor;
-	progresscolor = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscProgressNotifier);
-	progresscolor->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
+	//color on/off
+	CMenuOptionChooser *color;
+	color = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscProgressNotifier);
+	color->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
 
-	//infobar design
-	CMenuOptionChooser *progressdesign = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN, &g_settings.progressbar_design, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_PROGRESSBAR_DESIGN_COUNT, g_settings.progressbar_color);
-	progressdesign->setHint("", LOCALE_MENU_HINT_INFOBAR_PROGRESSBAR_DESIGN);
+	//design
+	CMenuOptionChooser *design;
+	design = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN, &g_settings.progressbar_design, PROGRESSBAR_DESIGN_OPTIONS, PROGRESSBAR_DESIGN_COUNT, g_settings.progressbar_color);
+	design->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_DESIGN);
 
-	//infobar progressbarposition
-	CMenuOptionChooser *progressbarposition;
-	progressbarposition = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_POSITION, &g_settings.infobar_progressbar, LOCALE_MISCSETTINGS_INFOBAR_POSITION_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_POSITION_COUNT, true);
-	progressbarposition->setHint("", LOCALE_MENU_HINT_INFOBAR_POSITION);
+	//infobar position
+	CMenuOptionChooser *infobar_position;
+	infobar_position = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION, &g_settings.infobar_progressbar, PROGRESSBAR_INFOBAR_POSITION_OPTIONS, PROGRESSBAR_INFOBAR_POSITION_COUNT, true);
+	infobar_position->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_INFOBAR_POSITION);
 
-	miscProgressNotifier->addItem(progressdesign);
+	miscProgressNotifier->addItem(design);
 
 	//paint items
-	progress->addItem(progresscolor);
-	progress->addItem(progressdesign);
+	progress->addItem(color);
+	progress->addItem(design);
 	progress->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_INFOBAR));
-	progress->addItem(progressbarposition);
+	progress->addItem(infobar_position);
 
 	int res = progress->exec (NULL, "");
 	delete miscProgressNotifier;
