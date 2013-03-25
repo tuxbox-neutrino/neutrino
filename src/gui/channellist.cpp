@@ -735,37 +735,18 @@ int CChannelList::show()
 			}
 			actzap = updateSelection(new_selected);
 		}
-		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up) {
+		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up ||
+			 msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
 			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
-				uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
+				int dir = msg == (neutrino_msg_t)g_settings.key_bouquet_up ? 1 : -1;
+				int b_size = bouquetList->Bouquets.size();
+				int nNext = (bouquetList->getActiveBouquetNumber() + b_size + dir) % b_size;
 				if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
 					found = false;
-					nNext = nNext < bouquetList->Bouquets.size()-1 ? nNext+1 : 0;
-					for(uint32_t i = nNext; i < bouquetList->Bouquets.size(); i++) {
+					nNext = (nNext + b_size + dir) % b_size;
+					for (int i = nNext; i < b_size; i++) {
 						if( !bouquetList->Bouquets[i]->channelList->isEmpty() ) {
-							found = true;
-							nNext = i;
-							break;
-						}
-					}
-				}
-				if(found) {
-					bouquetList->activateBouquet(nNext, false);
-					res = bouquetList->showChannelList();
-					loop = false;
-				}
-			}
-		}
-		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
-			if (!bouquetList->Bouquets.empty()) {
-				bool found = true;
-				int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
-				if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
-					found = false;
-					nNext = nNext > 0 ? nNext-1 : bouquetList->Bouquets.size()-1;
-					for(int i = nNext; i > 0; i--) {
-						if(!bouquetList->Bouquets[i]->channelList->isEmpty()) {
 							found = true;
 							nNext = i;
 							break;
