@@ -110,6 +110,8 @@ CInfoViewer::CInfoViewer ()
 	ChanInfoX = 0;
 	Init();
 	infoViewerBB->Init();
+	oldinfo.current_uniqueKey = 0;
+	oldinfo.next_uniqueKey = 0;
 }
 
 CInfoViewer::~CInfoViewer()
@@ -1342,8 +1344,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 
 CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
-	static CSectionsdClient::CurrentNextInfo oldinfo;
-
 	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
 
 //printf("CInfoViewer::getEPG: old uniqueKey %llx new %llx\n", oldinfo.current_uniqueKey, info.current_uniqueKey);
