@@ -69,11 +69,6 @@
 #include <video.h>
 extern cVideo * videoDecoder;
 
-#ifdef ConnectLineBox_Width
-#undef ConnectLineBox_Width
-#endif
-#define ConnectLineBox_Width    15
-
 const struct button_label RescanButton = {NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_UPNPBROWSER_RESCAN};
 const struct button_label StopButton   = {NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_AUDIOPLAYER_STOP};
 const struct button_label PUpButton    = {NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE};
@@ -127,8 +122,8 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 #endif
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
 
-	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - 2*ConnectLineBox_Width;
-	m_height = (g_settings.screen_EndY - g_settings.screen_StartY);
+	m_width = m_frameBuffer->getScreenWidthRel();
+	m_height = m_frameBuffer->getScreenHeightRel();
 
 	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 	m_buttonHeight = std::min(25, m_sheight);

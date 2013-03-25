@@ -201,8 +201,6 @@ void CBEChannelWidget::paintDetails(int index)
 
 void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 {
-#define ConnectLineBox_Width	16
-
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
@@ -272,15 +270,16 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	if (parent)
 		parent->hide();
 
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	width  = w_max ((frameBuffer->getScreenWidth() / 20 * (fw+6)), 100);
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), (frameBuffer->getScreenHeight() / 20 * 2));
+	width  = frameBuffer->getScreenWidthRel();
+	info_height = 2*iheight + 4;
+	height = frameBuffer->getScreenHeightRel() - info_height;
 	listmaxshow = (height-theight-footerHeight-0)/iheight;
 	height = theight+footerHeight+listmaxshow*iheight; // recalc height
-	info_height = 2*iheight + 10;
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height + info_height)) / 2;
+	x = getScreenStartX(width);
+	if (x < ConnectLineBox_Width)
+		x = ConnectLineBox_Width;
+	y = getScreenStartY(height + info_height);
 
 	Channels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
 	paintHead();

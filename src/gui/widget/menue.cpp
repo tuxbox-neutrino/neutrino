@@ -42,8 +42,6 @@
 
 #include <cctype>
 
-#define ConnectLineBox_Width    16
-
 /* the following generic menu items are integrated into multiple menus at the same time */
 CMenuSeparator CGenericMenuSeparator;
 CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE);

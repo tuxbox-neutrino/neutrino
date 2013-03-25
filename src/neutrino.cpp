@@ -648,7 +648,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
-	g_settings.big_windows = configfile.getInt32("big_windows", 0);
+	g_settings.big_windows = configfile.getInt32("big_windows", 1);
 
 	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CRCInput::RC_HW_COOLSTREAM);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);

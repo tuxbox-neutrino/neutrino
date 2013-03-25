@@ -123,6 +123,7 @@ void CBEBouquetWidget::paint()
 	float sbh= (sb- 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 
+	//scrollbar
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
 }
 
@@ -225,14 +226,12 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	iheight = std::max(iheight, icol_h+2);
 	iconoffset = std::max(iconoffset, icol_w);
 
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	width  = w_max (64 * fw, 20);
-	height = h_max (20 * fh, 50);
+	width  = frameBuffer->getScreenWidthRel();
+	height = frameBuffer->getScreenHeightRel() - ButtonHeight;
 	listmaxshow = (height-theight-0)/iheight;
 	height = theight+0+listmaxshow*iheight; // recalc height
-        x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-        y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
+        x = getScreenStartX(width);
+        y = getScreenStartY(height + ButtonHeight);
 
 	Bouquets = &g_bouquetManager->Bouquets;
 	paintHead();

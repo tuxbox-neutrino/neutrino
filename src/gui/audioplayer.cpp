@@ -98,11 +98,6 @@
 #include <video.h>
 extern cVideo * videoDecoder;
 
-#ifdef ConnectLineBox_Width
-#undef ConnectLineBox_Width
-#endif
-#define ConnectLineBox_Width	16
-
 #define AUDIOPLAYERGUI_SMSKEY_TIMEOUT 1000
 #define SHOW_FILE_LOAD_LIMIT 50
 
@@ -275,9 +270,10 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 		m_current = 0;
 
 	m_selected = 0;
-	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - 2*ConnectLineBox_Width - 5;
 
-	m_height = (g_settings.screen_EndY - g_settings.screen_StartY - 5);
+	m_width = m_frameBuffer->getScreenWidthRel();
+	m_height = m_frameBuffer->getScreenHeightRel();
+
 	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
 	m_buttonHeight = std::max(25, m_sheight);

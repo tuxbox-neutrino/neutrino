@@ -117,17 +117,8 @@ CEpgData::CEpgData()
 
 void CEpgData::start()
 {
-	/* This defines the size of the EPG window. We use 90% of the screen width and
-	 * 90% of the screen height. It adjusts itself to the "visible screen" settings
-	 */
-	float epgwin_scale_factor = BIG_FONT_FAKTOR; /* stupid useless use of float */
-	if (g_settings.big_windows)
-		epgwin_scale_factor = 1;
-
-	ox = (frameBuffer->getScreenWidth()  / 20 * 18) / (bigFonts ? 1 : epgwin_scale_factor);
-	oy = (frameBuffer->getScreenHeight() / 20 * 18) / (bigFonts ? 1 : epgwin_scale_factor);
-	sx = getScreenStartX(ox);
-	sy = getScreenStartY(oy);
+	ox = frameBuffer->getScreenWidthRel();
+	oy = frameBuffer->getScreenHeightRel();
 
 	topheight    = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
 	topboxheight = topheight + 6;
@@ -142,6 +133,9 @@ void CEpgData::start()
 	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 	medlinecount  = sb / medlineheight;
 	toph = topboxheight;
+
+	sx = getScreenStartX(ox);
+	sy = getScreenStartY(oy + buttonheight/2); /* button box is handled separately (why?) */
 }
 
 void CEpgData::addTextToArray(const std::string & text, int screening) // UTF-8

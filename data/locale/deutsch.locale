@@ -736,7 +736,7 @@ menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Spr
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
-menu.hint_bigwindows EPG-Informationen werden immer im großen Fenster angezeigt. Dies erreichen Sie auch mit der Taste 'Info'
+menu.hint_bigwindows Kanalliste, EPG-Infos, Audioplayer und einige andere Fenster werden bildschirmfüllend angezeigt
 menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
