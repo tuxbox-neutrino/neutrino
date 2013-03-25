@@ -94,8 +94,6 @@ extern int old_b_id;
 
 extern cVideo * videoDecoder;
 
-#define ConnectLineBox_Width	16
-
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -489,7 +487,7 @@ void CChannelList::calcSize()
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
 
 	// calculate width
-	full_width = frameBuffer->getScreenWidth() - frameBuffer->getScreenX() - 2*ConnectLineBox_Width;
+	full_width = frameBuffer->getScreenWidthRel();
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
 	else
@@ -497,7 +495,7 @@ void CChannelList::calcSize()
 
 	// calculate height (the infobox below mainbox is handled outside height)
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 18) - info_height, 0);
+	height = frameBuffer->getScreenHeightRel() - info_height;
 
 	// calculate x position
 	x = getScreenStartX(full_width);

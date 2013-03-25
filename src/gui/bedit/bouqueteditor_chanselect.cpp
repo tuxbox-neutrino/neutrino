@@ -45,7 +45,6 @@
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 
-
 extern CBouquetManager *g_bouquetManager;
 
 CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsigned int Bouquet, CZapitClient::channelsMode Mode)
@@ -162,15 +161,16 @@ void CBEChannelSelectWidget::onOkKeyPressed()
 
 int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & actionKey)
 {
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	width  = w_max ((frameBuffer->getScreenWidth() / 20 * (fw+6)), 100);
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
+	width  = frameBuffer->getScreenWidthRel();
+	height = frameBuffer->getScreenHeightRel();
 	listmaxshow = (height-theight-footerHeight-0)/iheight;
 	height = theight+footerHeight+listmaxshow*iheight; // recalc height
 	info_height = 2*iheight + 4;
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height + info_height)) / 2;
+	x = getScreenStartX(width);
+	if (x < ConnectLineBox_Width)
+		x = ConnectLineBox_Width;
+	y = getScreenStartY(height + info_height);
 
 	bouquetChannels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
 
@@ -236,8 +236,6 @@ void CBEChannelSelectWidget::paintDetails(int index)
 
 void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
-#define ConnectLineBox_Width	16
-
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;

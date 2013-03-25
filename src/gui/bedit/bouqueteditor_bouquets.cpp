@@ -226,13 +226,12 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	iheight = std::max(iheight, icol_h+2);
 	iconoffset = std::max(iconoffset, icol_w);
 
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	width  = w_max ((frameBuffer->getScreenWidth() / 20 * (fw+6)), 100);
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 18), (frameBuffer->getScreenHeight() / 20 * 2));
+	width  = frameBuffer->getScreenWidthRel();
+	height = frameBuffer->getScreenHeightRel() - ButtonHeight;
 	listmaxshow = (height-theight-0)/iheight;
 	height = theight+0+listmaxshow*iheight; // recalc height
-        x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-        y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
+        x = getScreenStartX(width);
+        y = getScreenStartY(height + ButtonHeight);
 
 	Bouquets = &g_bouquetManager->Bouquets;
 	paintHead();

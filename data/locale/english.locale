@@ -736,7 +736,7 @@ menu.hint_auto_subs Auto-start subtitles for preferred language
 menu.hint_back Return to previous menu\nPress menu key to close all menus
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
-menu.hint_bigwindows Always show big epg detail window\nelse 'info' button switch big font + window size
+menu.hint_bigwindows Channellist, EPG-infos, audioplayer and some other windows are displayed full screen
 menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
