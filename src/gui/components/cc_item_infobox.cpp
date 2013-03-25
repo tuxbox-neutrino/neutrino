@@ -92,10 +92,9 @@ void CComponentsInfoBox::initVarInfobox()
 void CComponentsInfoBox::paintPicture()
 {
 	//init and set icon paint position
-	if (pic == NULL)
-		pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, 0, 0, "");
-	pic->setXPos(x+fr_thickness+x_offset);
-	pic->setYPos(y+fr_thickness);
+	if (pic)
+		delete pic;
+	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, 0, 0, "");
 	
 	//define icon
 	pic->setPicture(pic_name);
