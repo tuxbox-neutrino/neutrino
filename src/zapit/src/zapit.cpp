@@ -615,6 +615,7 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 		pipDemux->Open(DMX_PIP_CHANNEL);
 		pipDecoder->SetDemux(pipDemux);
 	}
+	cDemux::SetSource(dnum, pip_fe->getNumber());
 #if 0
 	pipDecoder->SetSyncMode(AVSYNC_DISABLED);
 	pipDemux->SetSyncMode(AVSYNC_DISABLED);
