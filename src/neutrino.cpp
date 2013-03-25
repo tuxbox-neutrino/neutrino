@@ -3878,8 +3878,11 @@ bool CNeutrinoApp::StartPip(const t_channel_id channel_id)
 	if (!channel)
 		return ret;
 
+	if (channel->getRecordDemux() == channel->getPipDemux())
+		CStreamManager::getInstance()->StopStream(channel_id);
+
 	int recmode = CRecordManager::getInstance()->GetRecordMode(channel_id);
-	if ((channel->getRecordDemux() != channel->getPipDemux()) || (recmode == CRecordManager::RECMODE_OFF)) {
+	if ((recmode == CRecordManager::RECMODE_OFF) || (channel->getRecordDemux() != channel->getPipDemux())) {
 		if (!g_Zapit->zapTo_pip(channel_id))
 			DisplayErrorMessage(g_Locale->getText(LOCALE_VIDEOMENU_PIP_ERROR));
 		else
