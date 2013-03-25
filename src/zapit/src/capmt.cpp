@@ -213,14 +213,17 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 			break;
+		case STREAM:
 		case RECORD:
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
 			break;
+#if 0
 		case STREAM:
 			source = DEMUX_SOURCE_0;
 			demux = STREAM_DEMUX;
 			break;
+#endif
 		case PIP:
 			source = channel->getRecordDemux();
 			demux = channel->getPipDemux();
