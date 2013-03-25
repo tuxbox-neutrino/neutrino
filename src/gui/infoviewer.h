@@ -82,6 +82,7 @@ class CInfoViewer
 	int            ChanHeight;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
+	CSectionsdClient::CurrentNextInfo oldinfo;
         t_channel_id   channel_id;
 
 	//uint32_t           fadeTimer;
