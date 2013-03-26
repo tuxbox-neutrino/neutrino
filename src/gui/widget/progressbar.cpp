@@ -153,11 +153,11 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	// max height progressbar bar, if icon height larger than pb_height then get height from icon
 	int pb_max_height = icon_h > height ? icon_h + 2* frame_widht : height;
 
-	// max height of active/passive bar
-	int bar_height = pb_max_height - 2*frame_widht;
-
 	if (!blink || !g_settings.progressbar_color)
 	{
+		// max height of active/passive bar
+		int bar_height = pb_max_height - 2*frame_widht;
+
 		int start_x_passive_bar = start_x + active_pb_width;
 		int width_passive_bar = pb_max_width - active_pb_width;
 
@@ -202,85 +202,63 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 							 width, pb_max_height, shadowbar_col, c_rad); // shadow
 		}
 
-		if (active_pb_width != last_width)
-		{
+		if (active_pb_width != last_width) {
 			int step;
 			int i, j;
 			int b = 0;
-			if (active_pb_width > last_width)
-			{
-				for (i = 0; (i < rd) && (i < maxi); i++)
-				{ //green section
+			if (active_pb_width > last_width) {
+				for (i = 0; (i < rd) && (i < maxi); i++) {
 					step = 255 / rd;
 					if (invert)
 						rgb = GREEN + ((unsigned char)(step * i) << 16); // adding red
 					else
 						rgb = RED + ((unsigned char)(step * i) << 8); // adding green
 					color = make16color(rgb);
-					if (g_settings.progressbar_design == 0)
-					{
-						for(j = 0; j <= hcnt; j++)
-							frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, color);
-					}
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW,start_y, POINT, bar_height, color);
+					for(j = 0; j <= hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
+									 POINT, POINT, color);
 				}
-				for (; (i < yw) && (i < maxi); i++)
-				{ //yello section
+				for (; (i < yw) && (i < maxi); i++) {
 					step = 255 / yw / 2;
 					if (invert)
 						rgb = YELLOW - ((unsigned char)(step * (b++)) << 8); // removing green
 					else
 						rgb = YELLOW - ((unsigned char)(step * (b++)) << 16); // removing red
 					color = make16color(rgb);
-					if (g_settings.progressbar_design == 0)
-					{
-						for(j = 0; j <= hcnt; j++)
-							frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, color);
-					}
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, color);
+					for(j = 0; j <= hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
+									 POINT, POINT, color);
 				}
-				for (; (i < gn) && (i < maxi); i++)
-				{ //red section
+				for (; (i < gn) && (i < maxi); i++) {
 					step = 255 / gn;
 					if (invert)
 						rgb = YELLOW - ((unsigned char) (step * (b++)) << 8); // removing green
 					else
 						rgb = YELLOW - ((unsigned char) (step * (b++)) << 16); // removing red
 					color = make16color(rgb);
-					if (g_settings.progressbar_design == 0)
-					{
-						for(j = 0; j <= hcnt; j++)
-							frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, color);
-					}
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, color);
+					for(j = 0; j <= hcnt; j++)
+						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
+									 POINT, POINT, color);
 				}
 			}
-			for(i = maxi; i < total; i++)
-			{
+			for(i = maxi; i < total; i++) {
 				for(j = 0; j <= hcnt; j++)
-					if (g_settings.progressbar_design == 0)
-						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW, POINT, POINT, COL_INFOBAR_PLUS_3);//fill passive
-					else
-					frameBuffer->paintBoxRel(pos_x + i * ITEMW, start_y, POINT, bar_height, COL_INFOBAR_PLUS_3);//fill passive
+					frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
+								 POINT, POINT, COL_INFOBAR_PLUS_3);//fill passive
 			}
 			last_width = active_pb_width;
 		}
 	}
 
 	// paint icon if present
-	if (iconfile != NULL)
-	{
+	if (iconfile != NULL){
 		int icon_y = pos_y + pb_max_height / 2 - icon_h / 2;
 		frameBuffer->paintIcon(iconfile, pos_x + frame_widht, icon_y);
 	}
 
 	// upper text
 	int upper_labeltext_y = start_y - frame_widht;
-	if (upper_labeltext != NULL)
-	{
+	if (upper_labeltext != NULL) {
 		g_Font[font_pbar]->RenderString(start_x +2,
 						upper_labeltext_y,
 						width,
