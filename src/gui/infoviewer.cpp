@@ -1244,8 +1244,18 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		} else if (data == lcdUpdateTimer) {
 //printf("CInfoViewer::handleMsg: lcdUpdateTimer\n");
-			if ( is_visible )
-				show_Data( true );
+			if (is_visible) {
+				if (fileplay) {
+					CMoviePlayerGui::getInstance().UpdatePosition();
+					char runningRest[32]; // %d can be 10 digits max...
+					int curr_pos = CMoviePlayerGui::getInstance().GetPosition(); 
+					int duration = CMoviePlayerGui::getInstance().GetDuration();
+					sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
+					display_Info(NULL, NULL, true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
+				} else {
+					show_Data( true );
+				}
+			}
 			showLcdPercentOver ();
 			return messages_return::handled;
 		} else if (data == sec_timer_id) {
