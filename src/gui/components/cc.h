@@ -103,23 +103,6 @@ class CComponentsItem : public CComponents
 		void initVarItem();
 
 	public:
-		enum
-		{
-			CC_ITEMTYPE_BASE,
-			CC_ITEMTYPE_PICTURE,
-			CC_ITEMTYPE_TEXT,
-			CC_ITEMTYPE_TEXT_INFOBOX,
-			CC_ITEMTYPE_SHAPE_SQUARE,
-			CC_ITEMTYPE_SHAPE_CIRCLE,
-			CC_ITEMTYPE_PIP,
-			CC_ITEMTYPE_FRM,
-			CC_ITEMTYPE_FRM_HEADER,
-			CC_ITEMTYPE_FRM_ICONFORM,
-			CC_ITEMTYPE_FRM_WINDOW,
-			CC_ITEMTYPE_LABEL,
-
-			CC_ITEMTYPES
-		};
 		CComponentsItem();
 		
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
