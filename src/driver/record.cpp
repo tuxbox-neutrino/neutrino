@@ -144,7 +144,8 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 
 	time_t msg_start_time = time(0);
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_START));
-	hintBox.paint();
+	if (!(autoshift && g_settings.auto_timeshift))
+		hintBox.paint();
 
 	tsfile = std::string(filename) + ".ts";
 
@@ -221,7 +222,8 @@ bool CRecordInstance::Stop(bool remove_event)
 	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
 
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
-	hintBox.paint();
+	if (!(autoshift && g_settings.auto_timeshift))
+		hintBox.paint();
 
 	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
 	SaveXml();
@@ -1292,7 +1294,7 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
-			if(g_settings.temp_timeshift)
+			if(g_settings.temp_timeshift && !g_settings.auto_timeshift)
 				ShowMenu();
 		}
 	}
