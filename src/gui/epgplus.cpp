@@ -647,8 +647,8 @@ void EpgPlus::init()
 	currentViewMode = ViewMode_Scroll;
 	currentSwapMode = SwapMode_ByPage;
 #endif
-	usableScreenWidth = w_max (g_settings.screen_EndX, 0);
-	usableScreenHeight = h_max (g_settings.screen_EndY, 0);
+	usableScreenWidth = frameBuffer->getScreenWidthRel();
+	usableScreenHeight = frameBuffer->getScreenHeightRel();
 	std::string FileName = std::string (g_settings.font_file);
 	for (size_t i = 0; i < NumberOfFontSettings; ++i) {
 		int size = fontSettingTable[i].size;
@@ -703,8 +703,8 @@ void EpgPlus::init()
 	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - horGap1Height - horGap2Height - footerHeight) / this->entryHeight;
 
 	this->usableScreenHeight = headerHeight + timeLineHeight + horGap1Height + this->maxNumberOfDisplayableEntries * this->entryHeight + horGap2Height + footerHeight;	// recalc deltaY
-	this->usableScreenX = (((g_settings.screen_EndX - g_settings.screen_StartX) - this->usableScreenWidth) / 2) + g_settings.screen_StartX;
-	this->usableScreenY = (((g_settings.screen_EndY - g_settings.screen_StartY) - this->usableScreenHeight) / 2) + g_settings.screen_StartY;
+	this->usableScreenX = getScreenStartX(this->usableScreenWidth);
+	this->usableScreenY = getScreenStartY(this->usableScreenHeight);
 
 	this->headerX = this->usableScreenX;
 	this->headerY = this->usableScreenY;
