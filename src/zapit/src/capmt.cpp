@@ -138,7 +138,8 @@ bool CCam::setCaPmt(bool update)
 
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
 {
-	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask, cabuf, calen, rawpmt, rawlen);
+	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawlen);
 }
 
 int CCam::makeMask(int demux, bool add)
