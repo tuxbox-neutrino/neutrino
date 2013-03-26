@@ -776,7 +776,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	show_tuner_icon = 0;
 	// show possible option if we in single box mode, but don't touch the real settings
 	int *p_show_tuner_icon = &show_tuner_icon;
-	if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE){
+	if (CFEManager::getInstance()->getFrontendCount() > 1) {
 		mc_active = true;
 		// use the real value of g_settings.infobar_show_tuner
 		p_show_tuner_icon = &g_settings.infobar_show_tuner;
