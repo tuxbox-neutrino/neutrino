@@ -43,7 +43,7 @@
 #include "screensetup.h"
 #include "osdlang_setup.h"
 #include "filebrowser.h"
-#include "osd_progressbar_setup.h"
+#include "progressbar_setup.h"
 
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
