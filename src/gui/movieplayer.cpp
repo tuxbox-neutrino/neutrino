@@ -239,14 +239,21 @@ void CMoviePlayerGui::updateLcd()
 
 	switch (playstate) {
 		case CMoviePlayerGui::PAUSE:
-			lcd = "|| ";
+			if (speed < 0) {
+				sprintf(tmp, "%dx<| ", abs(speed));
+				lcd = tmp;
+			} else if (speed > 0) {
+				sprintf(tmp, "%dx|> ", abs(speed));
+				lcd = tmp;
+			} else
+				lcd = "|| ";
 			break;
 		case CMoviePlayerGui::REW:
-			sprintf(tmp, "%dx<< ", speed);
+			sprintf(tmp, "%dx<< ", abs(speed));
 			lcd = tmp;
 			break;
 		case CMoviePlayerGui::FF:
-			sprintf(tmp, "%dx>> ", speed);
+			sprintf(tmp, "%dx>> ", abs(speed));
 			lcd = tmp;
 			break;
 		case CMoviePlayerGui::PLAY:
@@ -497,6 +504,11 @@ void CMoviePlayerGui::PlayFile(void)
 #endif
 
 				playback->GetSpeed(speed);
+				/* at BOF lib set speed 1, check it */
+				if ((playstate != CMoviePlayerGui::PLAY) && (speed == 1)) {
+					playstate = CMoviePlayerGui::PLAY;
+					update_lcd = true;
+				}
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
@@ -521,10 +533,11 @@ void CMoviePlayerGui::PlayFile(void)
 			playstate = CMoviePlayerGui::STOPPED;
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (playstate > CMoviePlayerGui::PLAY) {
-				update_lcd = true;
 				playstate = CMoviePlayerGui::PLAY;
 				speed = 1;
 				playback->SetSpeed(speed);
+				//update_lcd = true;
+				updateLcd();
 				if (!timeshift)
 					callInfoViewer(duration, position);
 			}
@@ -533,7 +546,6 @@ void CMoviePlayerGui::PlayFile(void)
 				FileTime.hide();
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
-			update_lcd = true;
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
@@ -545,6 +557,8 @@ void CMoviePlayerGui::PlayFile(void)
 				speed = 0;
 				playback->SetSpeed(speed);
 			}
+			//update_lcd = true;
+			updateLcd();
 			if (!timeshift)
 				callInfoViewer(duration, position);
 
@@ -558,16 +572,23 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_rewind) ||
 				(msg == (neutrino_msg_t) g_settings.mpkey_forward)) {
 
+			int newspeed;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
-				speed = (speed >= 0) ? -1 : speed - 1;
-				playstate = CMoviePlayerGui::REW;
+				newspeed = (speed >= 0) ? -1 : speed - 1;
+				if (playstate != CMoviePlayerGui::PAUSE)
+					playstate = CMoviePlayerGui::REW;
 			} else {
-				speed = (speed <= 0) ? 2 : speed + 1;
-				playstate = CMoviePlayerGui::FF;
+				newspeed = (speed <= 0) ? 2 : speed + 1;
+				if (playstate != CMoviePlayerGui::PAUSE)
+					playstate = CMoviePlayerGui::FF;
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
-			playback->SetSpeed(speed);
-			update_lcd = true;
+			if (playback->SetSpeed(newspeed)) {
+				printf("SetSpeed: update speed\n");
+				speed = newspeed;
+				updateLcd();
+			}
+			//update_lcd = true;
 
 			if (!timeshift)
 				callInfoViewer(duration, position);

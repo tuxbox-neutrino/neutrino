@@ -131,6 +131,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
 	std::string CurrentAudioName() { return currentaudioname; };
+	int GetSpeed() { return speed; }
 	int timeshift;
 	int file_prozent;
 };
