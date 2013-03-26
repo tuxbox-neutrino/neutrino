@@ -1,6 +1,7 @@
 /*
+ * $Id$
+ *
  * (C) 2008 by dbt <info@dbox2-tuning.de>
- * (C) 2009,2010,2013 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,13 +131,6 @@ class CProgressBar
 		void reset() { last_width = -1; } /* force update on next paint */
 		
 		void hide();
-
-		enum pb_color_t {
-			PB_MATRIX = 0,	/* 0 */
-			PB_LINES_V,	/* 1 */
-			PB_LINES_H,	/* 2 */
-			PB_COLOR	/* 3 */
-		};
 };
 					
 #endif /* __gui_widget_progressbar_h__ */

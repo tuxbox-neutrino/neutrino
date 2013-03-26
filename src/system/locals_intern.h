@@ -1174,8 +1174,6 @@ const char * locale_real_names[] =
 	"miscsettings.infobar_progressbar_design",
 	"miscsettings.infobar_progressbar_design_0",
 	"miscsettings.infobar_progressbar_design_1",
-	"miscsettings.infobar_progressbar_design_2",
-	"miscsettings.infobar_progressbar_design_3",
 	"miscsettings.infobar_sat_display",
 	"miscsettings.infobar_show",
 	"miscsettings.infobar_show_dd_available",
