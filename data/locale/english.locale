@@ -803,6 +803,9 @@ menu.hint_infobar_fonts Change infobar font sizes
 menu.hint_infobar_logo Logo / signal options
 menu.hint_infobar_logo_dir Select directory to search for channels logo
 menu.hint_infobar_on_epg Show infobar on current EPG event change
+menu.hint_infobar_position Selects the options of Progressbar in the Infobar
+menu.hint_infobar_progressbar Select the options for the Progressbar
+menu.hint_infobar_progressbar_design Here you can choose the design of the Progressbar with active color option.
 menu.hint_infobar_radiotext Show radiotext window
 menu.hint_infobar_res Show channel resolution icons
 menu.hint_infobar_sat Show current satellite or cable provider
@@ -931,10 +934,7 @@ menu.hint_plugins_hdd_dir Select directory to load\nplugins from
 menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
-menu.hint_progressbar Select the options for the progressbar
-menu.hint_progressbar_color Show colored progressbar
-menu.hint_progressbar_design Here you can choose the design of progressbar with active color option
-menu.hint_progressbar_infobar_position Selects the options of progressbar in the infobar
+menu.hint_progressbar_color Show colored progress bars
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
 menu.hint_radiomode Switch box to radio mode
 menu.hint_reboot Reboot box\nNo confirmation
@@ -1138,18 +1138,17 @@ miscsettings.infobar_disp_5 Logo+signal
 miscsettings.infobar_disp_6 Logo+channel number+signal
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo dir
-miscsettings.progressbar Progressbar
-miscsettings.progressbar_color Color
-miscsettings.progressbar_design Design
-miscsettings.progressbar_design_0 points
-miscsettings.progressbar_design_1 vertical bars
-miscsettings.progressbar_design_2 horizontal bars
-miscsettings.progressbar_design_3 colored
-miscsettings.progressbar_infobar_position Position
-miscsettings.progressbar_infobar_position_0 standard
-miscsettings.progressbar_infobar_position_1 below channel name
-miscsettings.progressbar_infobar_position_2 small below channel name
-miscsettings.progressbar_infobar_position_3 narrow between EPG-Events
+miscsettings.infobar_position Progressbar Position
+miscsettings.infobar_position_0 standard
+miscsettings.infobar_position_1 below channel name
+miscsettings.infobar_position_2 small below channel name
+miscsettings.infobar_position_3 narrow between EPG-Events
+miscsettings.infobar_progressbar Progressbar
+miscsettings.infobar_progressbar_design Progressbar
+miscsettings.infobar_progressbar_design_0 point Design
+miscsettings.infobar_progressbar_design_1 bar Design vertical
+miscsettings.infobar_progressbar_design_2 bar Design horizontal
+miscsettings.infobar_progressbar_design_3 colored
 miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_dd_available show DD availability
@@ -1507,6 +1506,7 @@ pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
 plugins.hdd_dir Plugin HDD dir.
 plugins.result plugin output
+progressbar.color Progressbar Color
 rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
 rclock.menueadd Lock RC
 rclock.title Lock Remote Control
