@@ -529,29 +529,48 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
 	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
 
+	int speed = CMoviePlayerGui::getInstance().GetSpeed();
 	const char *playicon = NULL;
 	switch (playState) {
 	case CMoviePlayerGui::PLAY:
 		playicon = NEUTRINO_ICON_PLAY;
+		speed = 0;
 		break;
 	case CMoviePlayerGui::PAUSE:
 		playicon = NEUTRINO_ICON_PAUSE;
 		break;
 	case CMoviePlayerGui::REW:
 		playicon = NEUTRINO_ICON_REW;
+		speed = abs(speed);
 		break;
 	case CMoviePlayerGui::FF:
 		playicon = NEUTRINO_ICON_FF;
+		speed = abs(speed);
 		break;
 	default:
 		/* NULL crashes in getIconSize, just use something */
 		playicon = NEUTRINO_ICON_BUTTON_HELP;
 		break;
 	}
+
 	int icon_w = 0,icon_h = 0;
 	frameBuffer->getIconSize(playicon, &icon_w, &icon_h);
+
+	int speedw = 0;
+	if (speed) {
+		sprintf(runningRest, "%dx", speed);
+		speedw = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest);
+		icon_w += speedw;
+	}
+
 	int icon_x = BoxStartX + ChanWidth / 2 - icon_w / 2;
 	int icon_y = BoxStartY + ChanHeight / 2 - icon_h / 2;
+	if (speed) {
+		int sh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
+		int sy = BoxStartY + ChanHeight/2 - sh/2 + sh;
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR, 0, true);
+		icon_x += speedw;
+	}
 	frameBuffer->paintIcon(playicon, icon_x, icon_y);
 
 	showLcdPercentOver ();
