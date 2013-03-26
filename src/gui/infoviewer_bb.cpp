@@ -195,11 +195,8 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
-			if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE) {
-				if (g_settings.infobar_show_tuner == 1) {
-					iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
-				}
-			}
+			if (g_settings.infobar_show_tuner == 1)
+				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 			break;
 		default:
 			break;
@@ -599,6 +596,9 @@ void CInfoViewerBB::showOne_CAIcon()
 
 void CInfoViewerBB::showIcon_Tuner()
 {
+	if(CFEManager::getInstance()->getFrontendCount() <= 1)
+		return;
+
 	std::string icon_name;
 	switch (CFEManager::getInstance()->getLiveFE()->getNumber()) {
 		case 1:
