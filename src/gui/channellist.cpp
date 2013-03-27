@@ -745,11 +745,21 @@ int CChannelList::show()
 				if(bouquetList->Bouquets[nNext]->channelList->isEmpty() ) {
 					found = false;
 					nNext = (nNext + b_size + dir) % b_size;
-					for (int i = nNext; i < b_size; i++) {
-						if( !bouquetList->Bouquets[i]->channelList->isEmpty() ) {
-							found = true;
-							nNext = i;
-							break;
+					if(msg == (neutrino_msg_t)g_settings.key_bouquet_down){
+						for (int i = nNext; i > 0; i--) {
+							if( !bouquetList->Bouquets[i]->channelList->isEmpty() ) {
+								found = true;
+								nNext = i;
+								break;
+							}
+						}
+					}else{
+						for (int i = nNext; i < b_size; i++) {
+							if( !bouquetList->Bouquets[i]->channelList->isEmpty() ) {
+								found = true;
+								nNext = i;
+								break;
+							}
 						}
 					}
 				}
