@@ -481,7 +481,19 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
+#ifdef ENABLE_PIP
+	if (pip_fe)
+		CFEManager::getInstance()->lockFrontend(pip_fe);
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
+	if (pip_fe)
+		CFEManager::getInstance()->unlockFrontend(pip_fe);
+	if (fe == NULL) {
+		StopPip();
+		fe = CFEManager::getInstance()->allocateFE(newchannel);
+	}
+#else
+	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
+#endif
 	if(fe == NULL) {
 		ERROR("Cannot get frontend\n");
 		return false;
@@ -517,7 +529,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	}
 	SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 
-#ifdef ENABLE_PIP
+#if 0 // def ENABLE_PIP
 	if (transponder_change && (live_fe == pip_fe))
 		StopPip();
 #endif
