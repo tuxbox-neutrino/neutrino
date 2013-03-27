@@ -604,6 +604,12 @@ void CInfoViewerBB::showIcon_Tuner()
 		case 1:
 			icon_name = NEUTRINO_ICON_TUNER_2;
 			break;
+		case 2:
+			icon_name = NEUTRINO_ICON_TUNER_3;
+			break;
+		case 3:
+			icon_name = NEUTRINO_ICON_TUNER_4;
+			break;
 		case 0:
 		default:
 			icon_name = NEUTRINO_ICON_TUNER_1;
