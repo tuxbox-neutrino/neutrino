@@ -743,7 +743,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 #ifdef USE_NEVIS_GXA
 			_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
 			_write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));               /* destination x/y */
-			_write_gxa(gxa_base, cmd, GXA_POINT(dx-ofr-ofr,   1));                      /* width/height */
+			_write_gxa(gxa_base, cmd, GXA_POINT(dx-ofl-ofr,   1));                      /* width/height */
 #else
 			paintHLineRelInternal(x+ofl, dx-ofl-ofr, y+line, col);
 #endif
