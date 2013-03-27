@@ -238,6 +238,8 @@ install_DATA += \
 	timer.png \
 	tuner_1.png \
 	tuner_2.png \
+	tuner_3.png \
+	tuner_4.png \
 	up.png \
 	upnp.png \
 	via_green.png \
