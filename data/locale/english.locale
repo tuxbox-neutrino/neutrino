@@ -1239,7 +1239,10 @@ moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
 moviebrowser.error_no_movies No movies found
 moviebrowser.foot_filter Filter:
+moviebrowser.foot_focus Switch window
+moviebrowser.foot_options Options
 moviebrowser.foot_play Start movie
+moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
 moviebrowser.head TS MovieBrowser
 moviebrowser.head_filter Filter movies by category:
