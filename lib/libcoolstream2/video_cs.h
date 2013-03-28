@@ -38,6 +38,9 @@ typedef enum {
 } analog_mode_t;
 
 #define ANALOG_MODE(conn, def, sys)	(ANALOG_##def##_##sys | ANALOG_xD_##conn)
+#define ANALOG_MODE_VIDEO(mode)		(mode & ((1 << 6) - 1))
+#define ANALOG_MODE_OUTPUT(mode)	(mode & ANALOG_xD_BOTH)
+#define ANALOG_MODE_HD(mode)		(mode & (ANALOG_HD_RGB | ANALOG_HD_YPRPB))
 
 typedef enum
 {
@@ -126,6 +129,8 @@ typedef enum {
 	VIDEO_STD_1080P30,
 	VIDEO_STD_1080P24,
 	VIDEO_STD_1080P25,
+	VIDEO_STD_1080P50,
+	VIDEO_STD_1080P60,
 	VIDEO_STD_AUTO,
 	VIDEO_STD_MAX = VIDEO_STD_AUTO
 } VIDEO_STD;
