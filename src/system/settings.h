@@ -39,7 +39,11 @@
 
 #include <string>
 
+#ifdef BOXMODEL_APOLLO
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 14
+#else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 12
+#endif
 
 struct SNeutrinoSettings
 {
