@@ -26,6 +26,7 @@
 #include <global.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
+#include <unistd.h>
 
 #ifdef HAVE_COOL_HARDWARE
 #include <cnxtfb.h>
