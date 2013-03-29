@@ -168,10 +168,10 @@ void CBEChannelSelectWidget::onOkKeyPressed()
 int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	width  = frameBuffer->getScreenWidthRel();
-	height = frameBuffer->getScreenHeightRel();
+	info_height = 2*iheight + 4;
+	height = frameBuffer->getScreenHeightRel() - info_height;
 	listmaxshow = (height-theight-footerHeight-0)/iheight;
 	height = theight+footerHeight+listmaxshow*iheight; // recalc height
-	info_height = 2*iheight + 10;
 
 	x = getScreenStartX(width);
 	if (x < ConnectLineBox_Width)
