@@ -194,11 +194,11 @@ public:
 
 class CMenuForwarder : public CMenuItem
 {
-	const char *        option;
-	const std::string * option_string;
 	std::string         actionKey;
 
  protected:
+	const char *        option;
+	const std::string * option_string;
 	CMenuTarget *       jumpTarget;
 	neutrino_locale_t text;
 

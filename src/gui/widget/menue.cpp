@@ -1846,6 +1846,15 @@ void CMenuForwarderNonLocalized::setText(const char * const Text)
 int CMenuForwarderNonLocalized::getWidth(void)
 {
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(the_text, true);
+	const char * option_text = NULL;
+	if (option)
+		option_text = option;
+	else if (option_string)
+		option_text = option_string->c_str();
+
+        if (option_text != NULL)
+                tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+
 	return tw;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
