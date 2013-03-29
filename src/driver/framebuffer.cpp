@@ -720,7 +720,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 			} else {
 				//printf("3: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
 #if defined(FB_HW_ACCELERATION) || defined(USE_NEVIS_GXA)
-				int rect_height_mult = (((type & (CORNER_BOTTOM | CORNER_TOP)) == (CORNER_BOTTOM | CORNER_TOP)) ? 2 : 1);
+				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
 #if defined(FB_HW_ACCELERATION)
 				fillrect.dx	= x;
 				fillrect.dy	= y + line;
