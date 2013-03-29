@@ -557,6 +557,21 @@ int CScanSetup::showScanMenu()
 	return res;
 }
 
+neutrino_locale_t CScanSetup::getModeLocale(int mode)
+{
+	neutrino_locale_t lmode = LOCALE_SATSETUP_FE_MODE_UNUSED;
+	if (mode == CFrontend::FE_MODE_INDEPENDENT)
+		lmode =  LOCALE_SATSETUP_FE_MODE_INDEPENDENT;
+	else if (mode == CFrontend::FE_MODE_MASTER)
+		lmode =  LOCALE_SATSETUP_FE_MODE_MASTER;
+	else if (mode == CFrontend::FE_MODE_LINK_LOOP)
+		lmode =  LOCALE_SATSETUP_FE_MODE_LINK_LOOP;
+	else if (mode == CFrontend::FE_MODE_LINK_TWIN)
+		lmode =  LOCALE_SATSETUP_FE_MODE_LINK_TWIN;
+
+	return lmode;
+}
+
 int CScanSetup::showScanMenuFrontendSetup()
 {
 	CMenuForwarder * mf;
@@ -574,6 +589,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 
 		char tmp[32];
 		snprintf(tmp, sizeof(tmp), "config_frontend%d", i);
+
 		char name[255];
 		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1, fe->getInfo()->name);
 
@@ -593,7 +609,8 @@ int CScanSetup::showScanMenuFrontendSetup()
 			icon = NEUTRINO_ICON_BUTTON_BLUE;
 		}
 
-		mf = new CMenuForwarderNonLocalized(name, true, NULL, this, tmp, key, icon);
+		modestr[i] = g_Locale->getText(getModeLocale(fe->getMode()));
+		mf = new CMenuForwarderNonLocalized(name, true, modestr[i], this, tmp, key, icon);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SETUP_FE);
 		setupMenu->addItem(mf);
 		if(i != 0)
@@ -1437,6 +1454,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		if (fe->getMode() == femode)
 			return ret;
 
+		modestr[fenumber] = g_Locale->getText(getModeLocale(femode));
 		fe_restart = true;
 		fe->setMode(femode);
 		if (fe && fe->getType() == FE_QPSK) {

@@ -67,6 +67,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuOptionChooser * lcnhd;
 
 		CMenuOptionChooser * linkfe;
+		std::string modestr[4];
 
 		/* variables for selected frontend */
 		/* diseqc mode */
@@ -103,6 +104,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		void fillSatSelect(CMenuOptionStringChooser *select);
 		void fillCableSelect(CMenuOptionStringChooser *select);
 
+		neutrino_locale_t getModeLocale(int mode);
 		int showScanMenuFrontendSetup();
  		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
  		void addScanMenuManualScan(CMenuWidget *manual_Scan);
