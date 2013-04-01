@@ -228,6 +228,7 @@ channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active active
 channellist.new_zap_mode_allow allow
 channellist.new_zap_mode_off off
+channellist.numeric_adjust Numeric zap adjust
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
@@ -925,6 +926,7 @@ menu.hint_net_test Test network connection: ping gateway,\n name server and exte
 menu.hint_net_ushare Share connected HDD over uPnp
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
+menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
