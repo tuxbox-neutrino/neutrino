@@ -436,6 +436,7 @@ struct SNeutrinoSettings
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
+	int channellist_numeric_adjust;
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
 	int remote_control_hardware;
