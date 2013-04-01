@@ -40,7 +40,7 @@
 #include <mntent.h>
 
 #include <gui/dboxinfo.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -442,8 +442,11 @@ void CDBoxInfoWidget::paint()
 //fprintf(stderr, "width: %d offsetw: %d pbw: %d\n", width, offsetw, pbw);
 						if (pbw > 8) /* smaller progressbar is not useful ;) */
 						{
-							CProgressBar pb(true, -1, -1, 30, 100, 70, true);
-							pb.paintProgressBarDefault(x+offsetw, ypos+3, pbw, mheight-10, percent_used, 100);
+							CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
+							pb.setFrameThickness(0);
+							pb.setBlink();
+							pb.setValues(percent_used, 100);
+							pb.paint(false);
 						}
 						ypos+= mheight;
 					}

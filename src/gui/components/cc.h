@@ -32,7 +32,7 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
-// #define DEBUG_CC
+ #define DEBUG_CC
 
 class CComponents
 {
@@ -46,7 +46,7 @@ class CComponents
 		
 		void initVarBasic();
 		void paintFbItems(bool do_save_bg = true);
-		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
+		virtual fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		comp_screen_data_t saved_screen;
 
 		void clearSavedScreen();

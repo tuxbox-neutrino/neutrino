@@ -42,7 +42,7 @@ CComponents::CComponents()
 
 CComponents::~CComponents()
 {
-	hide();
+ 	hide();
 	clearSavedScreen();
 	clear();
 }

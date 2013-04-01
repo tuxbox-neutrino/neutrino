@@ -42,7 +42,6 @@
 #include <system/settings.h>
 #include "widget/menue.h"
 #include <gui/infoviewer_bb.h>
-#include <gui/widget/progressbar.h>
 #include <string>
 #include <zapit/channel.h>
 

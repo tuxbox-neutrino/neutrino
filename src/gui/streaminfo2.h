@@ -27,7 +27,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/components/cc.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 #include <zapit/femanager.h>
 
 

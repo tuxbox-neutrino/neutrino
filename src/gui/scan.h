@@ -33,11 +33,11 @@
 #define __scants__
 
 #include <gui/widget/menue.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 #include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <string>
-
+#include <system/settings.h>
 
 class CScanTs : public CMenuTarget
 {
