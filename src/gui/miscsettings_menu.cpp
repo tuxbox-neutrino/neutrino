@@ -403,6 +403,10 @@ void CMiscMenue::showMiscSettingsMenuChanlist(CMenuWidget *ms_chanlist)
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_NEW_ZAP_MODE,     &g_settings.channellist_new_zap_mode, CHANNELLIST_NEW_ZAP_MODE_OPTIONS, CHANNELLIST_NEW_ZAP_MODE_OPTION_COUNT, true );
 	mc->setHint("", LOCALE_MENU_HINT_NEW_ZAP_MODE);
 	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_NUMERIC_ADJUST,   &g_settings.channellist_numeric_adjust, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_NUMERIC_ADJUST);
+	ms_chanlist->addItem(mc);
 }
 
 #ifdef CPU_FREQ
