@@ -4,13 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
 
 	License: GPL
 
@@ -41,6 +34,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <system/settings.h>
+#include <gui/components/cc.h>
 
 #include "color.h"
 #include "infoviewer.h"
@@ -100,14 +94,17 @@ class CNeutrinoEventList
 	int		key;
 	std::string	search_head_name;
 
-	int 		width, fw;
-	int 		height, fh;
+	int 		full_width, width, infozone_width, fw;
+	int 		height, infozone_height, fh;
 	int 		x;
 	int 		y;
+	std::string	infozone_text;
 	int      	sort_mode;
 	event_id_t 	item_event_ID;
+	CComponentsInfoBox	*cc_infozone;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
+	void paintDescription(int index);
 	void paint(t_channel_id channel_id = 0);
 	void paintHead(t_channel_id channel_id, std::string name);
 	void paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next);
