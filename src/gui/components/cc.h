@@ -32,7 +32,7 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
- #define DEBUG_CC
+// #define DEBUG_CC
 
 class CComponents
 {
