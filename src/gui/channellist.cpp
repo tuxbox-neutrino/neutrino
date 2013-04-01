@@ -1059,7 +1059,6 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 
 	selected_chid = channel_id;
 	printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %" PRIx64 "\n", this, getName(), (int)chanlist.size(), channel_id);
-	fflush(stdout);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
 			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
@@ -1075,29 +1074,47 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 				int old_mode = CNeutrinoApp::getInstance()->GetChannelMode();
 				int new_mode = old_mode;
 				bool has_channel;
+				first_mode_found = -1;
 				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
 					has_channel = TVfavList->adjustToChannelID(channel_id);
+					if (has_channel && first_mode_found < 0)
+						first_mode_found = LIST_MODE_FAV;
 					if(!has_channel && old_mode == LIST_MODE_FAV)
 						new_mode = LIST_MODE_PROV;
+
 					has_channel = TVbouquetList->adjustToChannelID(channel_id);
-					if(!has_channel && old_mode == LIST_MODE_PROV) {
+					if (has_channel && first_mode_found < 0)
+						first_mode_found = LIST_MODE_PROV;
+					if(!has_channel && old_mode == LIST_MODE_PROV)
 						new_mode = LIST_MODE_SAT;
-					}
+
 					has_channel = TVsatList->adjustToChannelID(channel_id);
+					if (has_channel && first_mode_found < 0)
+						first_mode_found = LIST_MODE_SAT;
 					if(!has_channel && old_mode == LIST_MODE_SAT)
 						new_mode = LIST_MODE_ALL;
+
 					has_channel = TVallList->adjustToChannelID(channel_id);
 				}
 				else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 					has_channel = RADIOfavList->adjustToChannelID(channel_id);
+					if (has_channel && first_mode_found < 0)
+						first_mode_found = LIST_MODE_FAV;
 					if(!has_channel && old_mode == LIST_MODE_FAV)
 						new_mode = LIST_MODE_PROV;
+
 					has_channel = RADIObouquetList->adjustToChannelID(channel_id);
+					if (has_channel && first_mode_found < 0)
+						first_mode_found = LIST_MODE_PROV;
 					if(!has_channel && old_mode == LIST_MODE_PROV)
 						new_mode = LIST_MODE_SAT;
+
 					has_channel = RADIOsatList->adjustToChannelID(channel_id);
+					if (has_channel && first_mode_found < 0)
+						first_mode_found = LIST_MODE_SAT;
 					if(!has_channel && old_mode == LIST_MODE_SAT)
 						new_mode = LIST_MODE_ALL;
+
 					has_channel = RADIOallList->adjustToChannelID(channel_id);
 				}
 				if(old_mode != new_mode)
@@ -1387,6 +1404,10 @@ int CChannelList::numericZap(int key)
 
 		if(chan && SameTP(chan)) {
 			zapToChannel(chan);
+			if (g_settings.channellist_numeric_adjust && first_mode_found >= 0) {
+				CNeutrinoApp::getInstance()->SetChannelMode(first_mode_found);
+				CNeutrinoApp::getInstance()->channelList->getLastChannels().set_mode(chan->channel_id);
+			}
 			res = 0;
 		} else
 			g_InfoViewer->killTitle();

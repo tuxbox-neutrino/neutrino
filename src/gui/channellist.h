@@ -92,6 +92,7 @@ private:
 	bool vlist; // "virtual" list, not bouquet
 	bool displayNext;
 	bool displayList;
+	int  first_mode_found;
 
 	int info_height;
 	int ChannelList_Rec;
