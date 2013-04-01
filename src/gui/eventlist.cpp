@@ -37,7 +37,6 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
-#include <gui/widget/textbox.h> // FIXME should be included by cc.h in eventlist.h
 #include <gui/pictureviewer.h>
 
 #include "widget/hintbox.h"
