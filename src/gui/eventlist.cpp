@@ -662,12 +662,11 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		}
 	}
 
-	hide();
-	fader.Stop();
-
 	delete cc_infozone;
 	cc_infozone = NULL;
 
+	hide();
+	fader.Stop();
 	return res;
 }
 
