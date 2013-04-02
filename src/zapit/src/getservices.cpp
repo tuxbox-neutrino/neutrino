@@ -237,7 +237,7 @@ CZapitChannel* CServiceManager::FindChannelFuzzy(const t_channel_id channel_id,
 		 * to choose from and people are wondering why their ubouquets are no longer
 		 * working => because they had the wrong 's="x"' attribute.
 		 * TODO: think about mixed-mode (sat/cable/terrestrial) operation */
-		if (frontendType == FE_QPSK && pos != ret->getSatellitePosition())
+		if (ret->deltype == FE_QPSK && pos != ret->getSatellitePosition())
 			continue;
 		/* match +-2MHz to make old ubouquets work with updated satellites.xml */
 		if (abs((int)ret->getFreqId() - (int)freq) < 3)
