@@ -386,7 +386,8 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 
 				CZapitChannel* chan;
 				t_channel_id chid = CREATE_CHANNEL_ID64;
-				if(bUser)
+				/* FIXME to load old cable settings with new cable "positions" started from 0xF00 */
+				if(bUser || CFEManager::getInstance()->cableOnly())
 					chan = CServiceManager::getInstance()->FindChannelFuzzy(chid, satellitePosition, freq);
 				else
 					chan = CServiceManager::getInstance()->FindChannel(chid);
