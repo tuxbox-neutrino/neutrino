@@ -90,6 +90,7 @@ bool CFEManager::Init()
 	unsigned short fekey;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	have_sat = have_cable = false;
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
 			fe = new CFrontend(j, i);
@@ -99,6 +100,10 @@ bool CFEManager::Init()
 				INFO("add fe %d", fe->fenumber);
 				if(livefe == NULL)
 					livefe = fe;
+				if (fe->getInfo()->type == FE_QPSK)
+					have_sat = true;
+				else if (fe->getInfo()->type == FE_QAM)
+					have_cable = true;
 			} else
 				delete fe;
 		}
@@ -749,26 +754,6 @@ bool CFEManager::haveFreeFrontend()
 		return false;
 	}
 	return true;
-}
-
-bool CFEManager::haveSat()
-{
-	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-		CFrontend * fe = it->second;
-		if (fe->getInfo()->type == FE_QPSK)
-			return true;
-	}
-	return false;
-}
-
-bool CFEManager::haveCable()
-{
-	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-		CFrontend * fe = it->second;
-		if (fe->getInfo()->type == FE_QAM)
-			return true;
-	}
-	return false;
 }
 
 int CFEManager::getEnabledCount()

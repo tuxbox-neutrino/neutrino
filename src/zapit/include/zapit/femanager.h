@@ -82,6 +82,8 @@ class CFEManager
 		common_fe_config_t	config;
 		bool			config_exist;
 
+		bool			have_sat;
+		bool			have_cable;
 		bool			have_locked;
 		OpenThreads::Mutex	mutex;
 
@@ -136,9 +138,9 @@ class CFEManager
 		bool		lockDemux(int i, transponder_id_t id);
 		void		unlockDemux(int i);
 		bool		haveFreeDemux();
-		bool		haveSat();
-		bool		haveCable();
-		bool		satOnly() { return (haveSat() && !haveCable()); }
-		bool		cableOnly() { return (haveCable() && !haveSat()); }
+		bool		haveSat() { return have_sat; }
+		bool		haveCable() { return have_cable; }
+		bool		satOnly() { return (have_sat && !have_cable); }
+		bool		cableOnly() { return (have_cable && !have_sat); }
 };
 #endif /* __femanager_h__ */
