@@ -72,6 +72,9 @@ class CNeutrinoEventList
         t_bouquet_id    m_search_bouquet_id;
         bool m_showChannel;
 	int FunctionBarHeight;
+	int oldIndex;
+	event_id_t oldEventID;
+	bool bgRightBoxPaint;
 
 	bool findEvents(void);
     // Eventfinder end

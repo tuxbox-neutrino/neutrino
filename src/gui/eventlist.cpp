@@ -106,6 +106,9 @@ CNeutrinoEventList::CNeutrinoEventList()
 	infozone_text = "";
 	item_event_ID = 0;
 	FunctionBarHeight = 0;
+	oldIndex = -1;
+	oldEventID = -1;
+	bgRightBoxPaint = false;
 }
 
 CNeutrinoEventList::~CNeutrinoEventList()
@@ -598,6 +601,9 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			g_Timerd->getTimerList (timerlist);
 
 			paintHead(channel_id, channelname);
+			oldIndex = -1;
+			oldEventID = -1;
+			bgRightBoxPaint = false;
 			paint(channel_id);
 			showFunctionBar(true, channel_id);
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
@@ -635,6 +641,9 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					timerlist.clear();
 					g_Timerd->getTimerList (timerlist);
 					paintHead(channel_id,in_search ? search_head_name: channelname);
+					oldIndex = -1;
+					oldEventID = -1;
+					bgRightBoxPaint = false;
 					paint(channel_id);
 					showFunctionBar(true, channel_id);
 					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
@@ -643,6 +652,9 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		}
 		else if (!showfollow  && ( msg==CRCInput::RC_green ))
 		{
+			oldIndex = -1;
+			oldEventID = -1;
+			bgRightBoxPaint = false;
 			in_search = findEvents();
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
@@ -663,6 +675,9 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 
 	delete cc_infozone;
 	cc_infozone = NULL;
+	oldIndex = -1;
+	oldEventID = -1;
+	bgRightBoxPaint = false;
 
 	hide();
 	fader.Stop();
@@ -800,6 +815,17 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 
 void CNeutrinoEventList::paintDescription(int index)
 {
+	if (evtlist[index].eventID == oldEventID) {
+		if (oldEventID == 0) {
+			if (index == oldIndex)
+				return;
+		}
+		else
+			return;
+	}
+	oldEventID = evtlist[index].eventID;
+	oldIndex = index;
+
 	CEPGData epgData;
 	if ( evtlist[index].eventID != 0 )
 		CEitManager::getInstance()->getEPGid(evtlist[index].eventID, evtlist[index].startTime, &epgData);
@@ -874,7 +900,10 @@ void CNeutrinoEventList::paint(t_channel_id channel_id)
 	}
 
 	// paint background for right box
-	frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,listmaxshow*fheight,COL_MENUCONTENT_PLUS_0);
+	if (!bgRightBoxPaint) {
+		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,listmaxshow*fheight,COL_MENUCONTENT_PLUS_0);
+		bgRightBoxPaint = true;
+	}
 
 	for(unsigned int count=0;count<listmaxshow;count++)
 	{
