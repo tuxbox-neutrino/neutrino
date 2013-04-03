@@ -279,7 +279,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	infozone_width = full_width - width;
 
 	// init right info_zone
-	cc_infozone = new CComponentsInfoBox(x+width+5, y+theight+10, infozone_width-10, listmaxshow*fheight-20);
+	cc_infozone = new CComponentsText(x+width+5, y+theight+10, infozone_width-10, listmaxshow*fheight-20);
 
 	int res = menu_return::RETURN_REPAINT;
 	//printf("CNeutrinoEventList::exec: channel_id %llx\n", channel_id);
@@ -812,7 +812,8 @@ void CNeutrinoEventList::paintDescription(int index)
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
 	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
-	cc_infozone->paint();
+	cc_infozone->doPaintBg(false);
+	cc_infozone->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next)

@@ -101,7 +101,7 @@ class CNeutrinoEventList
 	std::string	infozone_text;
 	int      	sort_mode;
 	event_id_t 	item_event_ID;
-	CComponentsInfoBox	*cc_infozone;
+	CComponentsText	*cc_infozone;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
 	void paintDescription(int index);
