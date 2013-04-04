@@ -161,7 +161,7 @@ class CComponentsText : public CComponentsItem
 		fb_pixel_t ct_col_text;
 		int ct_text_mode; //see textbox.h for possible modes
 		const char* ct_text;
-		bool ct_text_sent;
+		bool ct_text_sent, ct_paint_textbg;
 
 		void initVarText();
 		void clearCCText();
@@ -181,6 +181,7 @@ class CComponentsText : public CComponentsItem
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
 		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};//see textbox.h for possible modes
+		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
 		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
