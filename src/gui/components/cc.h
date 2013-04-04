@@ -45,6 +45,7 @@ class CComponents
 		bool	firstPaint, shadow, is_painted, paint_bg;
 		
 		void initVarBasic();
+		bool allowPaint(int i);
 		void paintFbItems(bool do_save_bg = true);
 		virtual fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		comp_screen_data_t saved_screen;
