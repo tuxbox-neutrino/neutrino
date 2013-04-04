@@ -1478,6 +1478,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			pb_w = BoxEndX - 10 - xStart;
 			pb_shadow = 0;
 			timescale->setShadowOnOff(false);
+			timescale->setFrameThickness(0);
 		}
 		switch(g_settings.infobar_progressbar) //set progressbar position
 		{
