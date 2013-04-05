@@ -119,6 +119,7 @@ void CTimeOSD::updatePos(short runningPercent)
 
 	timescale->setProgress(m_xstart, m_y, BARLEN, m_height -5, runningPercent, 100);
 	timescale->setBlink();
+	timescale->setRgb(0, 100, 70);
 	timescale->paint();
 }
 

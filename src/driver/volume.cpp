@@ -106,12 +106,13 @@ void CVolume::Init()
 	vbar_w		= spacer + icon_w + spacer + progress_w + spacer;
 	if (paintDigits) {
 		digit_w		= g_Font[VolumeFont]->getRenderWidth("100");
-		progress_h	= std::max(icon_h, digit_h) - 2*pB;
+		progress_h	= std::max(icon_h, digit_h);
 		vbar_w 		+= digit_w;
 	}
 	if (volscale)
 		delete volscale;
 	volscale = new CProgressBar(progress_x, progress_y, progress_w, progress_h, colFrame, colBar, colShadow, COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1, true);
+	volscale->setInvert();
 
 	// mute icon
 	mute_icon_dx 	= 0;

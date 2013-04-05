@@ -122,8 +122,10 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	int res = menu_return::RETURN_REPAINT;
 	sigscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
 	sigscale->setBlink();
+	sigscale->setFrameThickness(0);
 	snrscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
 	snrscale->setBlink();
+	snrscale->setFrameThickness(0);
 	lastsnr = lastsig = -1;
 
 	neutrino_msg_t msg;

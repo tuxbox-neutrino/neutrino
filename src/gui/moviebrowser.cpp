@@ -1288,6 +1288,7 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 		CProgressBar pb(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw,  m_cBoxFrameTitleRel.iHeight/2);
 		pb.setBlink();
 		pb.setInvert();
+		pb.setFrameThickness(0);
 		pb.setValues( blocks_percent_used, 100);
 		pb.paint(false);		
 	}
