@@ -78,7 +78,6 @@ void CProgressBar::initVarProgressbar()
 	//CComponentsItem
 	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_PROGRESSBAR;
-	fr_thickness 	= 2;
 
 	//CProgressBar
 	pb_blink 		= false;
