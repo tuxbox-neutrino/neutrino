@@ -220,13 +220,11 @@ void CInfoViewer::changePB()
 		delete sigscale;
 	sigscale = new CProgressBar();
 	sigscale->setBlink();
-	sigscale->setFrameThickness(0);
 	
 	if (snrscale)
 		delete snrscale;
 	snrscale = new CProgressBar();
 	snrscale->setBlink();
-	snrscale->setFrameThickness(0);
 	
 	if (timescale)
 		delete timescale;
@@ -1479,7 +1477,6 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			pb_w = BoxEndX - 10 - xStart;
 			pb_shadow = 0;
 			timescale->setShadowOnOff(false);
-			timescale->setFrameThickness(0);
 		}
 		switch(g_settings.infobar_progressbar) //set progressbar position
 		{

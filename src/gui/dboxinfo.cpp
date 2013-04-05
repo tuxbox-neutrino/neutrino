@@ -443,7 +443,6 @@ void CDBoxInfoWidget::paint()
 						if (pbw > 8) /* smaller progressbar is not useful ;) */
 						{
 							CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
-							pb.setFrameThickness(0);
 							pb.setBlink();
 							pb.setInvert();
 							pb.setValues(percent_used, 100);

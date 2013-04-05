@@ -819,14 +819,12 @@ void CInfoViewerBB::changePB()
 	if (hddscale)
 		delete hddscale;
 	hddscale = new CProgressBar();
-	hddscale->setFrameThickness(0);
 	hddscale->setBlink();
 	hddscale->setInvert();
 	
 	if (sysscale)
 		delete sysscale;
 	sysscale = new CProgressBar();
-	sysscale->setFrameThickness(0);
 	sysscale->setBlink();
 	sysscale->setInvert();
 }
