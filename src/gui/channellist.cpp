@@ -511,12 +511,13 @@ void CChannelList::calcSize()
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
+#if 0
 	if(new_zap_mode)
 	{
 		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &icol_w, &icol_h);
 		theight = std::max(theight, icol_h);
 	}
-
+#endif
 	// calculate max entrys in mainbox
 	listmaxshow = (height - theight - footerHeight) / fheight;
 
@@ -776,19 +777,6 @@ int CChannelList::show()
 				loop=false;
 			}
 		}
-#ifdef ENABLE_PIP
-		else if ( msg == CRCInput::RC_play) {
-			if(SameTP()) {
-				if (CZapit::getInstance()->GetPipChannelID() == chanlist[selected]->getChannelID()) {
-					g_Zapit->stopPip();
-					paint();
-				} else {
-					if(CNeutrinoApp::getInstance()->StartPip(chanlist[selected]->getChannelID()))
-						paint();
-				}
-			}
-		}
-#endif
 		else if (( msg == CRCInput::RC_spkr ) && new_zap_mode ) {
 			if(CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) {
 				switch (new_zap_mode) {
@@ -802,8 +790,11 @@ int CChannelList::show()
 						break;
 
 				}
+#if 0
 				paintHead();
 				showChannelLogo();
+#endif
+				paintButtonBar(SameTP());
 			}
 		}
 		else if (CRCInput::isNumeric(msg) && (this->historyMode || g_settings.sms_channel)) {
@@ -890,7 +881,19 @@ int CChannelList::show()
 				paint();
 			}
 		}
-
+#ifdef ENABLE_PIP
+		else if ((msg == CRCInput::RC_play) || (msg == (neutrino_msg_t) g_settings.key_pip_close)) {
+			if(SameTP()) {
+				if (CZapit::getInstance()->GetPipChannelID() == chanlist[selected]->getChannelID()) {
+					g_Zapit->stopPip();
+					paint();
+				} else {
+					if(CNeutrinoApp::getInstance()->StartPip(chanlist[selected]->getChannelID()))
+						paint();
+				}
+			}
+		}
+#endif
 		else if ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help)) {
 			hide();
 			CChannelEvent *p_event=NULL;
@@ -1701,101 +1704,110 @@ void CChannelList::showChannelLogo()
 	}
 }
 
-#define NUM_LIST_BUTTONS 4
-struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
-{
-	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETLIST_HEAD},
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_INFOVIEWER_NEXT},
-	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE}
-};
-#define NUM_LIST_BUTTONS_SORT 5
+#define NUM_LIST_BUTTONS_SORT 9
 struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
 {
-	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
-	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_FOOT_SORT_ALPHA},
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETLIST_HEAD},
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_INFOVIEWER_NEXT},
-	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE}
+	{ NEUTRINO_ICON_BUTTON_RED,             LOCALE_INFOVIEWER_EVENTLIST},
+	{ NEUTRINO_ICON_BUTTON_GREEN,           LOCALE_CHANNELLIST_FOOT_SORT_ALPHA},
+	{ NEUTRINO_ICON_BUTTON_YELLOW,          LOCALE_BOUQUETLIST_HEAD},
+	{ NEUTRINO_ICON_BUTTON_BLUE,            LOCALE_INFOVIEWER_NEXT},
+	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE},
+	{ NEUTRINO_ICON_BUTTON_PLAY,            LOCALE_EXTRA_KEY_PIP_CLOSE},
+	{ NEUTRINO_ICON_BUTTON_INFO,            NONEXISTANT_LOCALE},
+	{ NEUTRINO_ICON_BUTTON_MENU_SMALL,      NONEXISTANT_LOCALE},
+	{ NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, NONEXISTANT_LOCALE}
 };
 
 void CChannelList::paintButtonBar(bool is_current)
 {
 	//printf("[neutrino channellist] %s...%d, selected %d\n", __FUNCTION__, __LINE__, selected);
 	unsigned int smode = CNeutrinoApp::getInstance()->GetChannelMode();
-	int num_buttons = smode != LIST_MODE_FAV ? NUM_LIST_BUTTONS_SORT : NUM_LIST_BUTTONS;
 
+#if 0
+	int num_buttons = smode != LIST_MODE_FAV ? NUM_LIST_BUTTONS_SORT : NUM_LIST_BUTTONS;
 	struct button_label Button[num_buttons];
-	const neutrino_locale_t button_ids[] = {LOCALE_INFOVIEWER_NOW,LOCALE_INFOVIEWER_NEXT,LOCALE_MAINMENU_RECORDING,LOCALE_MAINMENU_RECORDING_STOP,NONEXISTANT_LOCALE,
+	const neutrino_locale_t button_ids[] = {LOCALE_INFOVIEWER_NOW,LOCALE_INFOVIEWER_NEXT,LOCALE_MAINMENU_RECORDING,LOCALE_MAINMENU_RECORDING_STOP,LOCALE_EXTRA_KEY_PIP_CLOSE,
 						LOCALE_CHANNELLIST_FOOT_SORT_ALPHA,LOCALE_CHANNELLIST_FOOT_SORT_FREQ,LOCALE_CHANNELLIST_FOOT_SORT_SAT,LOCALE_CHANNELLIST_FOOT_SORT_CHNUM};
 	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
-
-	for (int i = 0;i<num_buttons;i++)
-	{
-		if(smode)
-			Button[i] = SChannelListButtons_SMode[i];
-		else
-			Button[i] = SChannelListButtons[i];
-	}
-
-	int Bindex = 2 + (smode ? 1:0);
-
-	//manage now/next button
-	if (g_settings.channellist_additional)
-	{
-		if (displayList)
-			Button[Bindex].locale = LOCALE_FONTSIZE_CHANNELLIST_DESCR;
-		else
-			Button[Bindex].locale = LOCALE_FONTMENU_EVENTLIST;
-	}
-	else
-	{
-		if (displayNext)
-			Button[Bindex].locale = LOCALE_INFOVIEWER_NOW;
-		else
-			Button[Bindex].locale = LOCALE_INFOVIEWER_NEXT;
-	}
-
-	Bindex++;
-	//manage record button
+#endif
+	struct button_label Button[NUM_LIST_BUTTONS_SORT];
 	bool do_record = CRecordManager::getInstance()->RecordingStatus(getActiveChannel_ChannelID());
-	
-	if (g_settings.recording_type != RECORDING_OFF && !displayNext){
-		if (is_current && !do_record){
-			Button[Bindex].locale = LOCALE_MAINMENU_RECORDING;
-			Button[Bindex].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE;
-		}else if (do_record){
-			Button[Bindex].locale = LOCALE_MAINMENU_RECORDING_STOP;
-			Button[Bindex].button = NEUTRINO_ICON_BUTTON_STOP;
-		}else{
-			Button[Bindex].locale = NONEXISTANT_LOCALE;
-			Button[Bindex].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE;
-		}
-	}
-	if(smode)
-	{
-		switch (g_settings.channellist_sort_mode)
-		{
-			case SORT_ALPHA:
-				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
-			break;
-			case SORT_TP:
-				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_FREQ;
-			break;
-			case SORT_SAT:
-				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_SAT;
-			break;
-			case SORT_CH_NUMBER:
-				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_CHNUM;
-			break;
-			default:
-			break;
-		}
-	}
 
+	int bcnt = 0;
+	for (int i = 0; i < NUM_LIST_BUTTONS_SORT; i++) {
+		Button[bcnt] = SChannelListButtons_SMode[i];
+		if (i == 1) {
+			/* check green / sort */
+			if(smode) {
+				switch (g_settings.channellist_sort_mode) {
+					case SORT_ALPHA:
+						Button[bcnt].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
+						break;
+					case SORT_TP:
+						Button[bcnt].locale = LOCALE_CHANNELLIST_FOOT_SORT_FREQ;
+						break;
+					case SORT_SAT:
+						Button[bcnt].locale = LOCALE_CHANNELLIST_FOOT_SORT_SAT;
+						break;
+					case SORT_CH_NUMBER:
+						Button[bcnt].locale = LOCALE_CHANNELLIST_FOOT_SORT_CHNUM;
+						break;
+					default:
+						break;
+				}
+			} else
+				continue;
+		}
+		if (i == 3) {
+			//manage now/next button
+			if (g_settings.channellist_additional) {
+				if (displayList)
+					Button[bcnt].locale = LOCALE_FONTSIZE_CHANNELLIST_DESCR;
+				else
+					Button[bcnt].locale = LOCALE_FONTMENU_EVENTLIST;
+			} else {
+				if (displayNext)
+					Button[bcnt].locale = LOCALE_INFOVIEWER_NOW;
+				else
+					Button[bcnt].locale = LOCALE_INFOVIEWER_NEXT;
+			}
+		}
+		if (i == 4) {
+			//manage record button
+			if (g_settings.recording_type != RECORDING_OFF && !displayNext){
+				if (do_record){
+					Button[bcnt].locale = LOCALE_MAINMENU_RECORDING_STOP;
+					Button[bcnt].button = NEUTRINO_ICON_BUTTON_STOP;
+				} else if (is_current) {
+					Button[bcnt].locale = LOCALE_MAINMENU_RECORDING;
+					Button[bcnt].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE;
+				} else {
+					Button[bcnt].locale = NONEXISTANT_LOCALE;
+					Button[bcnt].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE;
+				}
+			}
+		}
+		if (i == 5) {
+			//manage pip button
+#ifdef ENABLE_PIP
+			if (!is_current)
+#endif
+				continue;
+		}
+
+		if (i == 8) {
+			/* check mute / zap mode */
+			if (new_zap_mode)
+				Button[bcnt].button = new_zap_mode == 2 /* active */ ?
+					NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE;
+			else
+				continue;
+		}
+		bcnt++;
+	}
 	//paint buttons
 	int y_foot = y + (height - footerHeight);
-	::paintButtons(x, y_foot, width, num_buttons, Button, width, footerHeight);
+	::paintButtons(x, y_foot, full_width, bcnt, Button, full_width, footerHeight);
 }
 
 void CChannelList::paintItem(int pos)
@@ -2038,7 +2050,7 @@ void CChannelList::paintHead()
 		strftime(timestr, 10, "%H:%M", tm);
 		timestr_len = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(timestr, true); // UTF-8
 	}
-
+#if 0
 	int iw1, iw2, iw3, ih = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw1, &ih);
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw2, &ih);
@@ -2065,6 +2077,13 @@ void CChannelList::paintHead()
 	timestr_len += iw1 + iw2 + 12;
 	if (new_zap_mode)
 		timestr_len += iw3 + 10;
+#endif
+	frameBuffer->paintBoxRel(x,y, full_width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
+	if (gotTime) {
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + full_width - timestr_len - 10,
+				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
+		timestr_len += 4;
+	}
 	logo_off = timestr_len + 10;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, full_width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
 }
