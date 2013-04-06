@@ -91,12 +91,16 @@ void CComponentsInfoBox::initVarInfobox()
 
 void CComponentsInfoBox::paintPicture()
 {
-	if (pic_name == "")
-		return;
-
-	//init and set icon paint position
+	//ensure empty pic object
 	if (pic)
 		delete pic;
+	pic = NULL;
+
+	//exit if no image definied
+	if (pic_name == "")
+		return;
+	
+	//init pic object and set icon paint position
 	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, 0, 0, "");
 	
 	//define icon
