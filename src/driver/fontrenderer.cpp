@@ -432,7 +432,10 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	static fb_pixel_t oldbgcolor = 0, oldfgcolor = 0;
 	static fb_pixel_t colors[256]={0};
 
-	fb_pixel_t bgcolor = frameBuffer->realcolor[color];
+	/* fetch bgcolor from framebuffer, using lower left edge of the font... */
+	fb_pixel_t bgcolor = *(frameBuffer->getFrameBufferPointer() + x +
+			       y * frameBuffer->getStride() / sizeof(fb_pixel_t));
+	// fb_pixel_t bgcolor = frameBuffer->realcolor[color];
 	fb_pixel_t fgcolor = frameBuffer->realcolor[(((((int)color) + 2) | 7) - 2)];
 
 	if((oldbgcolor != bgcolor) || (oldfgcolor != fgcolor)) {
