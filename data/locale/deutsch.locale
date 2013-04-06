@@ -1138,11 +1138,6 @@ miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo-Verz.
-miscsettings.infobar_progressbar Fortschrittsbalken Opt.
-miscsettings.infobar_progressbar_0 Standard
-miscsettings.infobar_progressbar_1 unterhalb Kanalname
-miscsettings.infobar_progressbar_2 unterhalb Kanalname (schmal)
-miscsettings.infobar_progressbar_3 zwischen EPG-Events (schmal)
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
@@ -1150,6 +1145,20 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
+miscsettings.progressbar Fortschrittsbalken
+miscsettings.progressbar_color Farbe
+miscsettings.progressbar_design Design
+miscsettings.progressbar_design_0 farbige Punkte
+miscsettings.progressbar_design_1 farbige vertikale Linien
+miscsettings.progressbar_design_2 farbige horizontale Linien
+miscsettings.progressbar_design_3 Farbverlauf
+miscsettings.progressbar_design_4 monochrom
+miscsettings.progressbar_design_long Progressbardesign
+miscsettings.progressbar_infobar_position Position
+miscsettings.progressbar_infobar_position_0 Standard
+miscsettings.progressbar_infobar_position_1 unterhalb Kanalname
+miscsettings.progressbar_infobar_position_2 unterhalb Kanalname (schmal)
+miscsettings.progressbar_infobar_position_3 zwischen EPG-Events (schmal)
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
@@ -1503,12 +1512,6 @@ pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
 plugins.result Pluginausgabe
-progressbar.color Fortschrittsbalkendesign
-progressbar.color.full farbig
-progressbar.color.horizontal farbige horizontale Linien
-progressbar.color.matrix farbige Punkte
-progressbar.color.mono monochrom
-progressbar.color.vertical farbige vertikale Linien
 rclock.lockmsg Die Fernbedienung wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren

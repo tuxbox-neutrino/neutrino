@@ -1138,11 +1138,6 @@ miscsettings.infobar_disp_5 Logo+signal
 miscsettings.infobar_disp_6 Logo+channel number+signal
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo dir
-miscsettings.infobar_progressbar progressbar options
-miscsettings.infobar_progressbar_0 standard
-miscsettings.infobar_progressbar_1 below channel name
-miscsettings.infobar_progressbar_2 small below channel name
-miscsettings.infobar_progressbar_3 narrow between EPG-Events
 miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_dd_available show DD availability
@@ -1150,6 +1145,20 @@ miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
 miscsettings.infobar_show_tuner Display active tuner
+miscsettings.progressbar Progressbar
+miscsettings.progressbar_color Color
+miscsettings.progressbar_design Design
+miscsettings.progressbar_design_0 colored points
+miscsettings.progressbar_design_1 colored vertical lines
+miscsettings.progressbar_design_2 colored horizontal lines
+miscsettings.progressbar_design_3 colored bar
+miscsettings.progressbar_design_4 monochrome
+miscsettings.progressbar_design_long Progressbardesign
+miscsettings.progressbar_infobar_position Position
+miscsettings.progressbar_infobar_position_0 standard
+miscsettings.progressbar_infobar_position_1 below channel name
+miscsettings.progressbar_infobar_position_2 small below channel name
+miscsettings.progressbar_infobar_position_3 narrow between EPG-Events
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
@@ -1503,12 +1512,6 @@ pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
 plugins.hdd_dir Plugin HDD dir.
 plugins.result plugin output
-progressbar.color Progressbardesign
-progressbar.color.full colored
-progressbar.color.horizontal colored horizontal lines
-progressbar.color.matrix colored dots
-progressbar.color.mono monochrome
-progressbar.color.vertical colored vertical lines
 rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
 rclock.menueadd Lock RC
 rclock.title Lock Remote Control
