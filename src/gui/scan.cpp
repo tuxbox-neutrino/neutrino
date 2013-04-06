@@ -198,14 +198,12 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
+	sigscale->reset();
+	snrscale->reset();
+	lastsig = lastsnr = -1;
+
 	if (!frameBuffer->getActive())
 		return menu_return::RETURN_EXIT_ALL;
-
-	if (!sigscale)
-		sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	if (!snrscale)
-		snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	lastsig = lastsnr = -1;
 
 	CRecordManager::getInstance()->StopAutoRecord();
 	g_Zapit->stopPlayBack();
@@ -361,10 +359,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	}
 
 	hide();
-	delete sigscale;
-	sigscale = NULL;
-	delete snrscale;
-	snrscale = NULL;
 
 	CZapit::getInstance()->scanPids(scan_pids);
 	videoDecoder->StopPicture();
