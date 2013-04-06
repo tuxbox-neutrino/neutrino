@@ -33,7 +33,6 @@ libneutrino_gui_widget_a_SOURCES = \
 	messagebox.cpp \
 	mountchooser.cpp \
 	msgbox.cpp \
-	progressbar.cpp \
 	stringinput.cpp \
 	stringinput_ext.cpp \
 	textbox.cpp

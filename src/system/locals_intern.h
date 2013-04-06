@@ -605,6 +605,7 @@ const char * locale_real_names[] =
 	"imageinfo.head",
 	"imageinfo.homepage",
 	"imageinfo.image",
+	"imageinfo.kernel",
 	"imageinfo.license",
 	"imageinfo.version",
 	"inetradio.name",

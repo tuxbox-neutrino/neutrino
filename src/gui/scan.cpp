@@ -40,7 +40,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 
 #include <system/settings.h>
 #include <system/helpers.h>
@@ -72,8 +72,11 @@ CScanTs::CScanTs()
 	total = done = 0;
 	freqready = 0;
 
-	sigscale = NULL;
-	snrscale = NULL;
+	sigscale = new CProgressBar();
+	sigscale->setBlink();
+	
+	snrscale = new CProgressBar();
+	snrscale->setBlink();
 }
 
 void CScanTs::prev_next_TP( bool up)
@@ -592,13 +595,14 @@ void CScanTs::showSNR ()
 	sig = (ssig & 0xFFFF) * 100 / 65535;
 
 	posy = y + height - mheight - 5;
-
-	if (lastsig != sig) {
+	//TODO: move sig/snr display into its own class, similar or same code also to find in motorcontrol
+	if (lastsig != sig) { 
 		lastsig = sig;
 		posx = x + 20;
 		sprintf(percent, "%d%%", sig);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100%");
-		sigscale->paintProgressBar2(posx - 1, posy+2, sig);
+		sigscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, sig, 100);
+		sigscale->paint();
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUCONTENT_PLUS_0);
@@ -613,7 +617,8 @@ void CScanTs::showSNR ()
 		posx = x + 20 + barwidth + 3 + 4 * fw + 4 * fw;
 		sprintf(percent, "%d%%", snr);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100%");
-		snrscale->paintProgressBar2(posx - 1, posy+2, snr); 
+		snrscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, snr, 100);
+		snrscale->paint();
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUCONTENT_PLUS_0, 0, true);

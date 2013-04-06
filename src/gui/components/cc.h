@@ -45,8 +45,9 @@ class CComponents
 		bool	firstPaint, shadow, is_painted, paint_bg;
 		
 		void initVarBasic();
+		bool allowPaint(int i);
 		void paintFbItems(bool do_save_bg = true);
-		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
+		virtual fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		comp_screen_data_t saved_screen;
 
 		void clearSavedScreen();
@@ -103,23 +104,6 @@ class CComponentsItem : public CComponents
 		void initVarItem();
 
 	public:
-		enum
-		{
-			CC_ITEMTYPE_BASE,
-			CC_ITEMTYPE_PICTURE,
-			CC_ITEMTYPE_TEXT,
-			CC_ITEMTYPE_TEXT_INFOBOX,
-			CC_ITEMTYPE_SHAPE_SQUARE,
-			CC_ITEMTYPE_SHAPE_CIRCLE,
-			CC_ITEMTYPE_PIP,
-			CC_ITEMTYPE_FRM,
-			CC_ITEMTYPE_FRM_HEADER,
-			CC_ITEMTYPE_FRM_ICONFORM,
-			CC_ITEMTYPE_FRM_WINDOW,
-			CC_ITEMTYPE_LABEL,
-
-			CC_ITEMTYPES
-		};
 		CComponentsItem();
 		
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
@@ -178,7 +162,7 @@ class CComponentsText : public CComponentsItem
 		fb_pixel_t ct_col_text;
 		int ct_text_mode; //see textbox.h for possible modes
 		const char* ct_text;
-		bool ct_text_sent;
+		bool ct_text_sent, ct_paint_textbg;
 
 		void initVarText();
 		void clearCCText();
@@ -198,6 +182,7 @@ class CComponentsText : public CComponentsItem
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
 		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};//see textbox.h for possible modes
+		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
 		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);

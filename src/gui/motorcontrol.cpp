@@ -99,8 +99,10 @@ void CMotorControl::Init(void)
 	motorPosition = 1;
 	satellitePosition = 0;
 	stepDelay = 10;
-	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
+	sigscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
+	sigscale->setBlink();
+	snrscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
+	snrscale->setBlink();
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)
@@ -720,7 +722,7 @@ void CMotorControl::showSNR()
 	int barwidth = 100;
 	uint16_t ssig, ssnr;
 	int sig, snr;
-	int posx, posy;
+	int posx_sig, posx_snr, posy;
 
 	int sw;
 
@@ -735,29 +737,32 @@ void CMotorControl::showSNR()
 	g_snr = snr;
 
 	posy = y + height - mheight - 5;
-
+	//TODO: move sig/snr display into its own class, similar or same code also to find in scan.cpp
 	if (lastsig != sig) {
 		lastsig = sig;
-		posx = x + 10;
+		posx_sig = x + 10;
 		sprintf(percent, "%d%% SIG", sig);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SIG");
 
-		sigscale->paintProgressBar2(posx-1, posy, sig);
+		sigscale->setProgress(posx_sig-1, posy, BAR_WIDTH, BAR_HEIGHT, sig, 100);
+		sigscale->paint();
 
-		posx = posx + barwidth + 3;
-		frameBuffer->paintBoxRel(posx, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx+2, posy + mheight, sw, percent, COL_MENUCONTENT);
+		posx_sig += barwidth + 3;
+		frameBuffer->paintBoxRel(posx_sig, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_sig+2, posy + mheight, sw, percent, COL_MENUCONTENT);
 	}
 
 	if (lastsnr != snr) {
 		lastsnr = snr;
-		posx = x + 10 + 210;
+		posx_snr = x + 10 + 210;
 		sprintf(percent, "%d%% SNR", snr);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SNR");
-		snrscale->paintProgressBar2(posx-1, posy, snr);
+		
+		snrscale->setProgress(posx_snr-1, posy, BAR_WIDTH, BAR_HEIGHT, snr, 100);
+ 		snrscale->paint();
 
-		posx = posx + barwidth + 3;
-		frameBuffer->paintBoxRel(posx, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx+2, posy + mheight, sw, percent, COL_MENUCONTENT);
+		posx_snr += barwidth + 3;
+		frameBuffer->paintBoxRel(posx_snr, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_snr+2, posy + mheight, sw, percent, COL_MENUCONTENT);
 	}
 }

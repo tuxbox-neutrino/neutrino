@@ -88,10 +88,6 @@
 #include "gui/widget/messagebox.h"
 #include "gui/infoclock.h"
 
-#if HAVE_COOL_HARDWARE
-#include "gui/widget/progressbar.h"
-#endif
-
 #include <audio.h>
 #include <ca_cs.h>
 #include <cs_api.h>

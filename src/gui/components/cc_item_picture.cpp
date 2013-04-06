@@ -105,6 +105,9 @@ void CComponentsPicture::initVarPicture()
 	pic_painted = false;
 	do_paint = false;
 
+	if (pic_name == "")
+		return;
+
 	if (pic_max_w == 0)
 		pic_max_w = width-2*fr_thickness;
 

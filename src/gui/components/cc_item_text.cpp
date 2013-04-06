@@ -91,6 +91,7 @@ void CComponentsText::initVarText()
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
 	ct_col_text	= COL_MENUCONTENT;
 	ct_text_sent	= false;
+	ct_paint_textbg = true;
 }
 
 
@@ -124,7 +125,7 @@ void CComponentsText::initCCText()
 	ct_textbox->setTextMode(ct_text_mode);
 	ct_textbox->setWindowPos(ct_box);
 	ct_textbox->setTextBorderWidth(0);
-	ct_textbox->enableBackgroundPaint(false);
+	ct_textbox->enableBackgroundPaint(ct_paint_textbg);
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
 	ct_textbox->setTextColor(ct_col_text);

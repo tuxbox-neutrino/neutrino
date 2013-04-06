@@ -32,6 +32,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_item_box.cpp \
 	cc_item_infobox.cpp \
 	cc_item_picture.cpp \
+	cc_item_progressbar.cpp \
 	cc_item_shapes.cpp \
 	cc_item_text.cpp \
-	cc_item_tvpig.cpp
+	cc_item_tvpic.cpp

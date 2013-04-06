@@ -58,13 +58,13 @@ CImageInfo::CImageInfo(): config ('\t')
 //init all var members
 void CImageInfo::Init(void)
 {
-	cc_win 		= NULL;
-	cc_lic 		= NULL;
-	item_offset 	= 20;
-	item_top 	= item_offset;
-	license_txt 	= "";
+	cc_win		= NULL;
+	cc_tv		= NULL;
+	cc_lic		= NULL;
+	item_offset	= 20;
+	item_top	= item_offset;
+	license_txt	= "";
 	v_info.clear();
-	v_info_supp.clear();
 	config.loadConfig("/.version");
 }
 
@@ -140,12 +140,6 @@ void CImageInfo::ShowWindow()
 	//prepare infos
 	InitInfos();
 
-	//add section space
-	item_top += 5;
-
-	//prepare suppoprt infos
-	InitSupportInfos();
-
 	//prepare license text
 	InitLicenseText();
 
@@ -157,7 +151,11 @@ void CImageInfo::ShowWindow()
 void CImageInfo::InitMinitv()
 {
 	//init the minitv object
-	CComponentsPIP *cc_tv = new CComponentsPIP (0, item_top, 33/*%*/);
+	cc_tv = new CComponentsPIP (0, item_top);
+
+	//init width and height
+	cc_tv->setWidth(cc_win->getWidth()/3);
+	cc_tv->setHeight(cc_win->getHeight()/3);
 
 	//init x pos and use as parameter for setXPos
 	int cc_tv_x = (cc_win->getWidth() - cc_tv->getWidth()) - item_offset;
@@ -173,89 +171,85 @@ void CImageInfo::InitInfos()
 	v_info.clear();
 
 #ifdef GITVERSION
-	const char * builddate     = GITVERSION;
+	const char * builddate = GITVERSION;
 #else
-	const char * builddate     = config.getString("builddate",     BUILT_DATE).c_str();
+	const char * builddate = config.getString("builddate", BUILT_DATE).c_str();
 #endif
 
-	const char * version   = config.getString("version",   "no version").c_str();
-	config.getString("version",   "no version");
-	static CFlashVersionInfo versionInfo(version);
-	const char * releaseCycle = versionInfo.getReleaseCycle();
+	const char * _version = config.getString("version", "no version").c_str();
+	static CFlashVersionInfo versionInfo(_version);
+
+	std::string version_string;
+	version_string = versionInfo.getReleaseCycle();
+	version_string += " ";
+	version_string += versionInfo.getType();
 
 	struct utsname uts_info;
-	std::string Version_Kernel;
-	if( uname(&uts_info) < 0 ) {
-		Version_Kernel = releaseCycle;
-		Version_Kernel += " ";
-		Version_Kernel += versionInfo.getType();
-	}else{
-		Version_Kernel  = releaseCycle;
-		Version_Kernel += " ";
-		Version_Kernel += versionInfo.getType();
-		Version_Kernel += " - Kernel: ";
-		Version_Kernel += uts_info.release;
-	}
 
-	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE, 	config.getString("imagename", "Neutrino-HD")};
+	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", "Neutrino-HD")};
 	v_info.push_back(imagename);
 	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
 	v_info.push_back(date);
-	image_info_t kversion	= {LOCALE_IMAGEINFO_VERSION,	Version_Kernel};
-	v_info.push_back(kversion);
-	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator",   "n/a")};
+	image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
+	v_info.push_back(version);
+	if (uname(&uts_info) == 0) {
+		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
+		v_info.push_back(kernel);
+	}
+	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
 	v_info.push_back(creator);
+	image_info_t www	= {LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")};
+	v_info.push_back(www);
+	image_info_t doc	= {LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")};
+	v_info.push_back(doc);
+	image_info_t forum	= {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")};
+	v_info.push_back(forum);
+	image_info_t license	= {LOCALE_IMAGEINFO_LICENSE,	"GPL"};
+	v_info.push_back(license);
+
+	Font * item_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+
+	//calculate max width of caption and info_text
+	int w_caption = 0, w_info_text = 0, w = 0;
+	for (size_t i = 0; i < v_info.size(); i++) {
+		w = item_font->getRenderWidth(g_Locale->getText(v_info[i].caption), true);
+		w_caption = std::max(w_caption, w);
+
+		w = item_font->getRenderWidth(v_info[i].info_text.c_str(), true);
+		w_info_text = std::max(w_info_text, w);
+	}
+
+	int x_caption = item_offset;
+	int x_info_text = x_caption + w_caption + item_offset;
+	int item_height = item_font->getHeight();
+
+	//recalc w_info_text to avoid an overlap with pip
+	w_info_text = std::min(w_info_text, cc_win->getWidth() - x_info_text - cc_tv->getWidth() - 2*item_offset);
 
 	//create label and text items
 	for (size_t i = 0; i < v_info.size(); i++) {
-		CComponentsLabel *cc_txt = new CComponentsLabel();
-		cc_txt->setDimensionsAll(item_offset, item_top, 200, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-		cc_txt->setText(v_info[i].caption, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+		// add an offset before homepage and license
+		if (v_info[i].caption == LOCALE_IMAGEINFO_HOMEPAGE || v_info[i].caption == LOCALE_IMAGEINFO_LICENSE)
+			item_top += item_offset;
+
+		CComponentsLabel *cc_label = new CComponentsLabel();
+		cc_label->setDimensionsAll(x_caption, item_top, w_caption, item_height);
+		cc_label->setText(v_info[i].caption, CTextBox::NO_AUTO_LINEBREAK, item_font);
 
 		//add label to container
-		cc_win->addCCItem(cc_txt);
+		cc_win->addCCItem(cc_label);
 
-		CComponentsText *cc_info = new CComponentsText();
-		cc_info->setDimensionsAll(item_offset+cc_txt->getWidth(), item_top, 450, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-		cc_info->setText(v_info[i].info_text.c_str(), CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+		CComponentsText *cc_text = new CComponentsText();
+		cc_text->setDimensionsAll(x_info_text, item_top, w_info_text, item_height);
+		cc_text->setText(v_info[i].info_text.c_str(), CTextBox::NO_AUTO_LINEBREAK, item_font);
 
 		//add text to container
-		cc_win->addCCItem(cc_info);
+		cc_win->addCCItem(cc_text);
 
-		item_top += item_offset*2-5;
+		item_top += item_height;
 	}
-}
 
-//prepare support infos
-void CImageInfo::InitSupportInfos()
-{
-	v_info_supp.clear();
-
-	image_info_t www	= {LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage",  "n/a")};
-	v_info_supp.push_back(www);
-	image_info_t doc	= {LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs",      "http://wiki.neutrino-hd.de")};
-	v_info_supp.push_back(doc);
-	image_info_t forum	= {LOCALE_IMAGEINFO_FORUM,	config.getString("forum",     "http://forum.tuxbox.org")};
-	v_info_supp.push_back(forum);
-	image_info_t license	= {LOCALE_IMAGEINFO_LICENSE,	"GPL"};
-	v_info_supp.push_back(license);
-
-	//create text an label items
-	for (size_t i = 0; i < v_info_supp.size(); i++) {
-		CComponentsLabel *cc_txt = new CComponentsLabel();
-		cc_txt->setDimensionsAll(item_offset, item_top, 200, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-		cc_txt->setText(v_info_supp[i].caption, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
-		
-		cc_win->addCCItem(cc_txt);
-
-		CComponentsText *cc_info = new CComponentsText();
-		cc_info->setDimensionsAll(item_offset+cc_txt->getWidth(), item_top, 450, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
-		cc_info->setText(v_info_supp[i].info_text.c_str(), CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
-		
-		cc_win->addCCItem(cc_info);
-
-		item_top += item_offset*2-5;
-	}
+	item_top += item_offset;
 }
 
 //prepare license infos
@@ -279,7 +273,9 @@ void CImageInfo::InitLicenseText()
 	}
 	in.close();
 
-	cc_lic = new CComponentsInfoBox(item_offset, item_top, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top-item_offset);
+	//calc y pos of license box to avoid an overlap with pip
+	int y_lic = std::max(item_top, cc_tv->getHeight() + 2*item_offset);
+	cc_lic = new CComponentsInfoBox(item_offset, y_lic, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top-item_offset);
 	cc_lic->setText(license_txt, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	//add text to container

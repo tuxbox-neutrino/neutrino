@@ -46,17 +46,16 @@ class CImageInfo : public CMenuTarget
 		std::string license_txt;
 
 		std::vector<image_info_t> v_info;
-		std::vector<image_info_t> v_info_supp;
 		
 		void Init();
 		void InitMinitv();
 		void InitInfos();
-		void InitSupportInfos();
-		void ShowWindow();
 		void InitLicenseText();
+		void ShowWindow();
 		void ScrollLic(bool scrollDown);
 		
 		CComponentsWindow  	*cc_win;
+		CComponentsPIP		*cc_tv;
 		CComponentsInfoBox 	*cc_lic;
 		CConfigFile     	config;
 

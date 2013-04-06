@@ -91,9 +91,16 @@ void CComponentsInfoBox::initVarInfobox()
 
 void CComponentsInfoBox::paintPicture()
 {
-	//init and set icon paint position
+	//ensure empty pic object
 	if (pic)
 		delete pic;
+	pic = NULL;
+
+	//exit if no image definied
+	if (pic_name == "")
+		return;
+	
+	//init pic object and set icon paint position
 	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, 0, 0, "");
 	
 	//define icon
@@ -115,7 +122,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	x_text = x+fr_thickness+x_offset;
 	
 	//set text to the left border if picture is not painted
-	if (pic->isPicPainted()){
+	if ((pic) && (pic->isPicPainted())){
 		int pic_w = pic->getWidth();
 		x_text += pic_w+x_offset;
 	}
@@ -127,6 +134,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		
 		cctext = new CComponentsText();
 		cctext->setText(ct_text, ct_text_mode, ct_font);
+		cctext->doPaintTextBoxBg(false);
 		cctext->setDimensionsAll(x_text, y+fr_thickness, width-(x_text-x+x_offset+fr_thickness), height-2*fr_thickness);
  		cctext->paint(CC_SAVE_SCREEN_NO);
 	}

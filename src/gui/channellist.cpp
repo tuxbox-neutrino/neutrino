@@ -54,7 +54,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 #include <gui/components/cc.h>
 
 #include <system/settings.h>
@@ -1913,8 +1913,9 @@ void CChannelList::paintItem(int pos)
 		else
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
-		CProgressBar pb(false); /* never colored */
 		int pb_space = prg_offset - title_offset;
+		CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4, pb_space + 2, fheight/2); /* never colored */
+		pb.setFrameThickness(2);
 		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
@@ -1955,15 +1956,12 @@ void CChannelList::paintItem(int pos)
 							runningPercent = pb_max;	// later on which can be fatal...
 					}
 
-					int pb_activeCol , pb_passiveCol;
-					if (liststart + pos != selected) {
-						pb_activeCol = COL_MENUCONTENT_PLUS_3;
-						pb_passiveCol = COL_MENUCONTENT_PLUS_1;
-					} else {
-						pb_activeCol = COL_MENUCONTENTSELECTED_PLUS_2;
-						pb_passiveCol = COL_MENUCONTENTSELECTED_PLUS_0;
-					}
-					pb.paintProgressBar(x+5+numwidth + title_offset, ypos + fheight/4, pb_space + 2, fheight/2, runningPercent, pb_max, pb_activeCol, pb_passiveCol, pb_activeCol);
+					if (liststart + pos != selected)
+						pb.setStatusColors(COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1);
+					else
+						pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENTSELECTED_PLUS_0);
+					pb.setValues(runningPercent, pb_max);
+					pb.paint();
 				}
 			}
 
@@ -1979,15 +1977,13 @@ void CChannelList::paintItem(int pos)
 		}
 		else {
 			if(g_settings.channellist_extended) {
-				int pbz_activeCol, pbz_passiveCol;
-				if (liststart + pos != selected) {
-					pbz_activeCol = COL_MENUCONTENT_PLUS_1;
-					pbz_passiveCol = COL_MENUCONTENT_PLUS_0;
-				} else {
-					pbz_activeCol = COL_MENUCONTENTSELECTED_PLUS_2;
-					pbz_passiveCol = COL_MENUCONTENTSELECTED_PLUS_0;
-				}
-				pb.paintProgressBar(x+5+numwidth + title_offset, ypos + fheight/4, pb_space + 2, fheight/2, 0, pb_max, pbz_activeCol, pbz_passiveCol, pbz_activeCol, 0, NULL, 0, NULL, true);
+				if (liststart + pos != selected)
+					pb.setStatusColors(COL_MENUCONTENT_PLUS_2, COL_MENUCONTENT_PLUS_1);
+				else
+					pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENTSELECTED_PLUS_0);
+				pb.setValues(0, pb_max);
+				pb.setZeroLine();
+ 				pb.paint();
 			}
 			//name
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color, 0, true); // UTF-8

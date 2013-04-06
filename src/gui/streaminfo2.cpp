@@ -121,8 +121,13 @@ int CStreamInfo2::doSignalStrengthLoop ()
 #define BAR_WIDTH 150
 #define BAR_HEIGHT 12
 	int res = menu_return::RETURN_REPAINT;
-	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
+	
+	sigscale = new CProgressBar();
+	sigscale->setBlink();
+	
+	snrscale = new CProgressBar();
+	snrscale->setBlink();
+	
 	lastsnr = lastsig = -1;
 
 	neutrino_msg_t msg;
@@ -919,7 +924,8 @@ void CStreamInfo2::showSNR ()
 		posy = yypos + (mheight/2)-5;
 		posx = x + 10;
 		sprintf(percent, "%d%%", sig);
-		sigscale->paintProgressBar2(posx - 1, posy, sig);
+		sigscale->setProgress(posx - 1, posy, BAR_WIDTH, BAR_HEIGHT, sig, 100);
+		sigscale->paint();
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUHEAD_PLUS_0);
@@ -931,7 +937,9 @@ void CStreamInfo2::showSNR ()
 		posy = yypos + mheight + 5;
 		posx = x + 10;
 		sprintf(percent, "%d%% SNR", snr);
-		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
+		snrscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, snr, 100);
+		snrscale->paint();
+// 		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUHEAD_PLUS_0, 0, true);
