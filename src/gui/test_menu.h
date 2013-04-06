@@ -31,17 +31,27 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
-
-//#define TEST_MENU
+#include <gui/components/cc.h>
+ #define TEST_MENU
 
 #include <string>
 
 class CTestMenu : public CMenuTarget
 {
 	private:
+		CComponentsShapeCircle * circle;
+		CComponentsShapeSquare* sq;
+		CComponentsPicture* pic;
+		CComponentsForm *form;
+		CComponentsText *txt;
+		CComponentsHeader *header;
+		CComponentsIconForm *iconform;
+		CComponentsWindow *window;
 		int width, selected;
 
 		void showTestMenu();
+		void showHWTests(CMenuWidget *widget);
+		void showCCTests(CMenuWidget *widget);
 
 	public:	
 		CTestMenu();

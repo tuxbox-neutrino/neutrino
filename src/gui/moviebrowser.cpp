@@ -39,6 +39,7 @@
 #endif
 
 #include <global.h>
+#include <driver/screen_max.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -602,10 +603,10 @@ void CMovieBrowser::initFrames(void)
 	m_pcFontTitle = TITLE_FONT;
 
 	//TRACE("[mb]->initFrames\r\n");
-	m_cBoxFrame.iX = 			g_settings.screen_StartX + 10;
-	m_cBoxFrame.iY = 			g_settings.screen_StartY + 10;
-	m_cBoxFrame.iWidth = 			g_settings.screen_EndX - g_settings.screen_StartX - 20;
-	m_cBoxFrame.iHeight = 			g_settings.screen_EndY - g_settings.screen_StartY - 20;
+	m_cBoxFrame.iWidth = 			m_pcWindow->getScreenWidthRel();
+	m_cBoxFrame.iHeight = 			m_pcWindow->getScreenHeightRel();
+	m_cBoxFrame.iX = 			getScreenStartX(m_cBoxFrame.iWidth);
+	m_cBoxFrame.iY = 			getScreenStartY(m_cBoxFrame.iHeight);
 
 	m_cBoxFrameTitleRel.iX =		0;
 	m_cBoxFrameTitleRel.iY = 		0;

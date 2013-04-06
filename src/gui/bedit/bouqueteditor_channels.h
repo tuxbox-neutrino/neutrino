@@ -84,7 +84,7 @@ class CBEChannelWidget : public CMenuTarget
 
 		void paintItem(int pos);
 		void paintDetails(int index);
-		void paintItem2DetailsLine (int pos, int ch_index);
+		void initItem2DetailsLine (int pos, int ch_index);
 		void clearItem2DetailsLine ();
 		void paint();
 		void paintHead();
@@ -99,6 +99,7 @@ class CBEChannelWidget : public CMenuTarget
 		void cancelMoveChannel();
 		void internalMoveChannel( unsigned int fromPosition, unsigned int toPosition);
 
+		std::string getInfoText(int index);
 	public:
 		CBEChannelWidget( const std::string & Caption, unsigned int Bouquet);
 		~CBEChannelWidget();

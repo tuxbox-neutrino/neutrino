@@ -1,6 +1,9 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
+	Implementation of component classes
+	Copyright (C) 2013, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -14,47 +17,48 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 
 #ifndef __imageinfo__
 #define __imageinfo__
 
+#include <gui/widget/menue.h>
+#include <gui/components/cc.h>
 #include <configfile.h>
 
-#include <gui/widget/menue.h>
-#include <system/localize.h>
-#include <driver/framebuffer.h>
+typedef struct image_info_t
+{
+	neutrino_locale_t caption;
+	std::string info_text;
+	
+} image_info_struct_t;
 
 class CImageInfo : public CMenuTarget
 {
 	private:
-		void Init(void);
-		CConfigFile     * configfile;
-		CFrameBuffer	*frameBuffer;
-		int x;
-		int y;
-		int ypos;
-		int width;
-		int height;
-		int hheight,iheight,sheight; 	// head/info/small font height
+		int item_offset; //distance between items and to boarder
+		int item_top; //start line in y below header
+		std::string license_txt;
 
-		int max_height;	// Frambuffer 0.. max
-		int max_width;
+		std::vector<image_info_t> v_info;
+		std::vector<image_info_t> v_info_supp;
 		
-		neutrino_locale_t name;
-		int offset;
-
-		int font_head;
-		int font_info;
-		int font_small;
-
-		void paint();
-		void paint_pig(int x, int y, int w, int h);
-		void paintLine(int xpos, int font, const char* text);
+		void Init();
+		void InitMinitv();
+		void InitInfos();
+		void InitSupportInfos();
+		void ShowWindow();
+		void InitLicenseText();
+		void ScrollLic(bool scrollDown);
+		
+		CComponentsWindow  	*cc_win;
+		CComponentsInfoBox 	*cc_lic;
+		CConfigFile     	config;
 
 	public:
 

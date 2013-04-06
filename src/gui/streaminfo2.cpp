@@ -56,7 +56,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 CStreamInfo2::CStreamInfo2 ()
 {
 	frameBuffer = CFrameBuffer::getInstance ();
-
+	pip        = NULL;
 	font_head = SNeutrinoSettings::FONT_TYPE_MENU_TITLE;
 	font_info = SNeutrinoSettings::FONT_TYPE_MENU;
 	font_small = SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL;
@@ -99,7 +99,7 @@ CStreamInfo2::CStreamInfo2 ()
 
 CStreamInfo2::~CStreamInfo2 ()
 {
-	videoDecoder->Pig(-1, -1, -1, -1);
+	delete pip;
 	ts_close();
 }
 
@@ -251,17 +251,9 @@ int CStreamInfo2::doSignalStrengthLoop ()
 
 void CStreamInfo2::hide ()
 {
-	videoDecoder->Pig(-1, -1, -1, -1);
+	pip->hide(true);
 	frameBuffer->paintBackgroundBoxRel (0, 0, max_width, max_height);
 	frameBuffer->blit();
-}
-
-void CStreamInfo2::paint_pig (int px, int py, int w, int h)
-{
-	frameBuffer->paintBackgroundBoxRel (px,py, w, h);
-	frameBuffer->blit();
-	printf("CStreamInfo2::paint_pig x %d y %d w %d h %d\n", px, py, w, h);
-	videoDecoder->Pig(px, py, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
 void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
@@ -435,7 +427,10 @@ void CStreamInfo2::paint (int /*mode*/)
 		g_Font[font_head]->RenderString (xpos, ypos + hheight + 1, width, head_string, COL_MENUHEAD, 0, true);	// UTF-8
 		ypos += hheight;
 
-		paint_pig (width - width/3 - 10, y + 10, width/3, height/3);
+		if (pip == NULL)
+			pip = new CComponentsPIP(width-width/3-10, y+10, 33);
+		pip->paint();
+
 		paint_techinfo (xpos, ypos);
 		paint_signal_fe_box (width - width/3 - 10, (y + 10 + height/3 + hheight), width/3, height/3 + hheight);
 	} else {

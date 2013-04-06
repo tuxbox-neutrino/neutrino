@@ -128,8 +128,9 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 		audioplayer = true;
 
 	selected = 0;
-	width  = w_max (710, 0);
-	height = h_max (570, 0);
+
+	width = frameBuffer->getScreenWidthRel();
+	height = frameBuffer->getScreenHeightRel();
 
 	sheight      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 

@@ -45,7 +45,6 @@
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 
-
 extern CBouquetManager *g_bouquetManager;
 
 CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsigned int Bouquet, CZapitClient::channelsMode Mode)
@@ -73,18 +72,12 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsi
 	liststart = 0;
 	bouquetChannels = NULL;
 	dline = NULL;
-	ibox = NULL;
+	ibox = new CComponentsInfoBox();
 }
 
 CBEChannelSelectWidget::~CBEChannelSelectWidget()
 {
-	// clear details line
-	if (dline != NULL)
-		dline->hide();
 	delete dline;
-	// clear infobox
-	if (ibox != NULL)
-		ibox->hide();
 	delete ibox;
 }
 
@@ -120,7 +113,7 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 
 		if(itemNr < getItemCount()) {
-			paintItem2DetailsLine (paintNr, itemNr);
+			initItem2DetailsLine (paintNr, itemNr);
 			paintDetails(itemNr);
 		}
 
@@ -169,15 +162,16 @@ void CBEChannelSelectWidget::onOkKeyPressed()
 
 int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & actionKey)
 {
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	width  = w_max ((frameBuffer->getScreenWidth() / 20 * (fw+6)), 100);
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), (frameBuffer->getScreenHeight() / 20 * 2));
+	width  = frameBuffer->getScreenWidthRel();
+	height = frameBuffer->getScreenHeightRel();
 	listmaxshow = (height-theight-footerHeight-0)/iheight;
 	height = theight+footerHeight+listmaxshow*iheight; // recalc height
-	info_height = 2*iheight + 10;
+	info_height = 2*iheight + 4;
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height + info_height)) / 2;
+	x = getScreenStartX(width);
+	if (x < ConnectLineBox_Width)
+		x = ConnectLineBox_Width;
+	y = getScreenStartY(height + info_height);
 
 	bouquetChannels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
 
@@ -212,8 +206,10 @@ void CBEChannelSelectWidget::paintFoot()
 #endif
 }
 
-void CBEChannelSelectWidget::paintDetails(int index)
+std::string CBEChannelSelectWidget::getInfoText(int index)
 {
+	std::string res = "";
+	
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName(Channels[index]->getSatellitePosition());
 	transponder t;
 	CServiceManager::getInstance()->GetTransponder(Channels[index]->getTransponderId(), t);
@@ -222,41 +218,49 @@ void CBEChannelSelectWidget::paintDetails(int index)
 		desc = desc + " (" + std::string(Channels[index]->pname) + ")";
 	else
 		desc = desc + " (" + satname + ")";
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight+INFO_BOX_Y_OFFSET, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+INFO_BOX_Y_OFFSET, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+	
+	res = satname + "\n" + desc;
+	
+	return res;
 }
 
-void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
+void CBEChannelSelectWidget::paintDetails(int index)
 {
-#define ConnectLineBox_Width	16
+	//details line
+	dline->paint();
+	
+	std::string str = getInfoText(index);
+	
+	//info box
+	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
+	ibox->paint(false);
+}
 
+void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
+{
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 
-	// clear details line
-	if (dline != NULL)
-		dline->hide();
+	if (dline)
+		dline->kill(); //kill details line
 
-	// clear infobox
-	if (ibox != NULL)
-		ibox->hide();
-
-	// paint Line if detail info (and not valid list pos)
+	// init Line if detail info (and not valid list pos)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
-		dline->paint(false);
 
 		//infobox
-		if (ibox == NULL)
-			ibox = new CComponentsInfoBox(x, ypos2, width, info_height, false);
-		ibox->paint(false,true);
+		if (ibox){
+			ibox->setDimensionsAll(x, ypos2, width, info_height);
+			ibox->setFrameThickness(2);
+			ibox->setCornerRadius(RADIUS_LARGE);
+			ibox->setShadowOnOff(CC_SHADOW_OFF);
+		}
 	}
 }
 

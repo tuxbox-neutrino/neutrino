@@ -98,11 +98,6 @@
 #include <video.h>
 extern cVideo * videoDecoder;
 
-#ifdef ConnectLineBox_Width
-#undef ConnectLineBox_Width
-#endif
-#define ConnectLineBox_Width	16
-
 #define AUDIOPLAYERGUI_SMSKEY_TIMEOUT 1000
 #define SHOW_FILE_LOAD_LIMIT 50
 
@@ -275,9 +270,10 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 		m_current = 0;
 
 	m_selected = 0;
-	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - 2*ConnectLineBox_Width - 5;
 
-	m_height = (g_settings.screen_EndY - g_settings.screen_StartY - 5);
+	m_width = m_frameBuffer->getScreenWidthRel();
+	m_height = m_frameBuffer->getScreenHeightRel();
+
 	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
 	m_buttonHeight = std::max(25, m_sheight);
@@ -1935,9 +1931,10 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 
 		// paint id3 infobox
 		if (ibox == NULL)
-			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height, false);
+			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height);
+		ibox->setCornerRadius(RADIUS_LARGE);
 		ibox->setYPos(ypos2);
-		ibox->paint(false, true);
+		ibox->paint(false);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
 				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK, 0, true); // UTF-8

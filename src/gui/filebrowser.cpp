@@ -38,6 +38,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <driver/screen_max.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -375,11 +376,9 @@ void CFileBrowser::commonInit()
 	selected = 0;
 	selections.clear();
 
-	x = g_settings.screen_StartX + 20;
-	y = g_settings.screen_StartY + 20;
-
-	width = (g_settings.screen_EndX - g_settings.screen_StartX - 40);
-	height = (g_settings.screen_EndY - g_settings.screen_StartY - 40);
+	width = frameBuffer->getScreenWidthRel();
+	height = frameBuffer->getScreenHeightRel();
+	x = getScreenStartX(width);
 
 	theight = fnt_title->getHeight();
 	fheight = fnt_item->getHeight();
@@ -392,6 +391,7 @@ void CFileBrowser::commonInit()
 
 	//recalc height
 	height = theight + listmaxshow * fheight + 2 * foheight;
+	y = getScreenStartY(height);
 
 	m_SMSKeyInput.setTimeout(SMSKEY_TIMEOUT);
 

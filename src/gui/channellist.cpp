@@ -94,8 +94,6 @@ extern int old_b_id;
 
 extern cVideo * videoDecoder;
 
-#define ConnectLineBox_Width	16
-
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -113,8 +111,10 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	selected_chid = 0;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
+	dline = NULL;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -122,6 +122,7 @@ CChannelList::~CChannelList()
 {
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
+	delete dline;
 }
 
 void CChannelList::ClearList(void)
@@ -484,9 +485,17 @@ int CChannelList::exec()
 
 void CChannelList::calcSize()
 {
-	const int pic_h = 39;
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
 
-	full_width = frameBuffer->getScreenWidth() - frameBuffer->getScreenX() - 2*ConnectLineBox_Width;
+	// recalculate theight, fheight and footerHeight for a possilble change of fontsize factor
+	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+	if (fheight == 0)
+		fheight = 1; /* avoid div-by-zero crash on invalid font */
+	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
+
+	// calculate width
+	full_width = frameBuffer->getScreenWidthRel();
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
 	else
@@ -496,23 +505,20 @@ void CChannelList::calcSize()
 		width = full_width;
 	}
 
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), 0);
+	// calculate height (the infobox below mainbox is handled outside height)
+	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
+	height = frameBuffer->getScreenHeightRel() - info_height;
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - full_width) / 2;
+	// calculate x position
+	x = getScreenStartX(full_width);
 	if (x < ConnectLineBox_Width)
 		x = ConnectLineBox_Width;
-	y = frameBuffer->getScreenY();
 
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
-
-	/* assuming all color icons must have same size */
-	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-
-	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-
+	// calculate header height
+	const int pic_h = 39;
 	theight = std::max(theight, pic_h);
 
+	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
@@ -525,18 +531,16 @@ void CChannelList::calcSize()
 		theight = std::max(theight, icol_h);
 	}
 
-	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
-	if (fheight == 0)
-		fheight = 1; /* avoid crash on invalid font */
+	// calculate max entrys in mainbox
+	listmaxshow = (height - theight - footerHeight) / fheight;
 
-	listmaxshow = (height - theight - footerHeight -0)/fheight;
-	height = theight + footerHeight + listmaxshow * fheight;
-	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
+	// recalculate height to avoid spaces between last entry in mainbox and footer
+	height = theight + listmaxshow*fheight + footerHeight;
 
-	int sh = frameBuffer->getScreenHeight();
-	int  ytmp = (sh - height - info_height) / 2;
-	y += ytmp;
+	// calculate y position
+	y = getScreenStartY(height + info_height);
 
+	// calculate width/height of right info_zone and pip-box
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
 	if (g_settings.channellist_additional == 2) // with miniTV
@@ -635,9 +639,9 @@ int CChannelList::show()
 			} else
 				loop=false;
 		}
-		else if( msg == CRCInput::RC_record) { //start direct recording from channellist 
+		else if( msg == CRCInput::RC_record) { //start direct recording from channellist
 #if 0
-			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
+			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id))
 			{
 				printf("[neutrino channellist] start direct recording...\n");
 				hide();
@@ -649,10 +653,10 @@ int CChannelList::show()
 						loop=false;
 					}
 					else
-						DisplayInfoMessage(g_Locale->getText(LOCALE_CHANNELLIST_RECORDING_NOT_POSSIBLE)); // UTF-8	
+						DisplayInfoMessage(g_Locale->getText(LOCALE_CHANNELLIST_RECORDING_NOT_POSSIBLE)); // UTF-8
 				}
-					
-			}		
+
+			}
 #endif
 			if(SameTP()) {
 				printf("[neutrino channellist] start direct recording...\n");
@@ -662,7 +666,7 @@ int CChannelList::show()
 					paint();
 				} else
 					loop=false;
-				
+
 			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
@@ -748,6 +752,8 @@ int CChannelList::show()
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up ||
 			 msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
+			if (dline)
+				dline->kill(); //kill details line on change to next page
 			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				int dir = msg == (neutrino_msg_t)g_settings.key_bouquet_up ? 1 : -1;
@@ -800,7 +806,7 @@ int CChannelList::show()
 				zapOnExit = true;
 				loop = false;
 			}
-			else if(g_settings.sms_channel) { 				
+			else if(g_settings.sms_channel) {
 				unsigned char smsKey = 0;
 				SMSKeyInput smsInput;
 				smsInput.setTimeout(CHANNEL_SMSKEY_TIMEOUT);
@@ -936,7 +942,7 @@ void CChannelList::hide()
 	{
 		videoDecoder->Pig(-1, -1, -1, -1);
 	}
-	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height+ info_height+ 5);
+	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
 	frameBuffer->blit();
 }
@@ -1402,7 +1408,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 					bactive--;
 				bouquetList->activateBouquet(bactive, false);
 				cactive = bouquetList->Bouquets[bactive]->channelList->getSize() - 1;
-			} else 
+			} else
 				--cactive;
 		}
 		else if ((key == g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
@@ -1632,22 +1638,29 @@ void CChannelList::clearItem2DetailsLine()
 void CChannelList::paintItem2DetailsLine (int pos)
 {
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos1 = y + theight+0 + pos*fheight;
+	int ypos1 = y + theight + pos*fheight;
 	int ypos2 = y + height;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	// Clear
-	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
+
+	if (dline){
+		dline->kill(); //kill details line
+		delete dline;
+		dline = NULL;
+	}
+// 	// Clear
+// 	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
 		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
 		{
 			//details line
-			CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
-			details_line.paint();
-
+			if (dline == NULL)
+				dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			dline->paint();
+			
 			//info box frame
 			frameBuffer->paintBoxFrame(x, ypos2, full_width, info_height, 2, col1, RADIUS_LARGE);
 		}
@@ -1729,7 +1742,7 @@ void CChannelList::paintButtonBar(bool is_current)
 	Bindex++;
 	//manage record button
 	bool do_record = CRecordManager::getInstance()->RecordingStatus(getActiveChannel_ChannelID());
-	
+
 	if (g_settings.recording_type != RECORDING_OFF && !displayNext){
 		if (is_current && !do_record){
 			Button[Bindex].locale = LOCALE_MAINMENU_RECORDING;
@@ -1773,7 +1786,7 @@ void CChannelList::paintButtonBar(bool is_current)
 
 void CChannelList::paintItem(int pos)
 {
-	int ypos = y+ theight+0 + pos*fheight;
+	int ypos = y+ theight + pos*fheight;
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 	bool iscurrent = true;
@@ -1859,34 +1872,34 @@ void CChannelList::paintItem(int pos)
 
 		//record check
 		rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[curr]->channel_id);
-		
+
 		//set recording icon
 		const char * rec_icon = "";
 		if (rec_mode & CRecordManager::RECMODE_REC)
 			rec_icon = NEUTRINO_ICON_REC;
 		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
 			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
-	
+
 		//calculating icons
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
 		int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
 		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
 		r_icon_w = ChannelList_Rec;
 		int r_icon_x = icon_x;
-		
+
 		//paint scramble icon
 		if(chan->scrambled)
 			if (frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, icon_x - s_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
 				r_icon_x = r_icon_x - s_icon_w;
-		
+
  		//paint recording icon
 		if (rec_mode != CRecordManager::RECMODE_OFF)
 			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
-		
+
 		//paint buttons
 		if (paintbuttons)
 			paintButtonBar(iscurrent);
-		
+
 		int icon_space = r_icon_w+s_icon_w;
 
 		//number
@@ -1910,7 +1923,7 @@ void CChannelList::paintItem(int pos)
 			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 20; // 15 = scrollbar, 20 = spaces
 			if (chan->scrambled || (g_settings.channellist_extended ||g_settings.channellist_epgtext_align_right))
 				max_desc_len -= icon_space; /* do we need space for the lock/rec icon? */
-				
+
 			if (max_desc_len < 0)
 				max_desc_len = 0;
 			if ((int) ch_desc_len > max_desc_len)
@@ -2050,7 +2063,7 @@ void CChannelList::paint()
 		paintItem(count);
 	}
 	const int ypos = y+ theight;
-	const int sb = fheight* listmaxshow;
+	const int sb = height - theight - footerHeight; // paint scrollbar over full height of main box
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	const int sbc= ((chanlist.size()- 1)/ listmaxshow)+ 1;
@@ -2184,7 +2197,7 @@ void CChannelList::paint_events(int index)
 			}
 			while ( dif > 0 );
 		}
-		if (e == evtlist.end()) 
+		if (e == evtlist.end())
 			break;
 
 		//Display the remaining events

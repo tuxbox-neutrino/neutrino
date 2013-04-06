@@ -618,6 +618,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.shutdown_timer_record_type      = configfile.getBool("shutdown_timer_record_type"      , false);
 
 	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , false);
+	g_settings.recording_stream_subtitle_pids  = configfile.getBool("recordingmenu.stream_subtitle_pids", false);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
@@ -683,7 +684,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
-	g_settings.big_windows = configfile.getInt32("big_windows", 0);
+	g_settings.big_windows = configfile.getInt32("big_windows", 1);
 
 	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CRCInput::RC_HW_COOLSTREAM);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
@@ -1039,17 +1040,18 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32 ("recording_type",                      g_settings.recording_type);
 	configfile.setBool  ("recording_stopsectionsd"            , g_settings.recording_stopsectionsd        );
 
-	configfile.setInt32 ("recording_audio_pids_default"       , g_settings.recording_audio_pids_default);
+	configfile.setInt32 ("recording_audio_pids_default"       , g_settings.recording_audio_pids_default   );
 	configfile.setBool  ("recording_zap_on_announce"          , g_settings.recording_zap_on_announce      );
-	configfile.setBool  ("shutdown_timer_record_type"          , g_settings.shutdown_timer_record_type      );
+	configfile.setBool  ("shutdown_timer_record_type"          , g_settings.shutdown_timer_record_type    );
 
 	configfile.setBool  ("recordingmenu.stream_vtxt_pid"      , g_settings.recording_stream_vtxt_pid      );
-	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid      );
+	configfile.setBool  ("recordingmenu.stream_subtitle_pids" , g_settings.recording_stream_subtitle_pids );
+	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid       );
 	configfile.setInt32 ("recording_choose_direct_rec_dir"    , g_settings.recording_choose_direct_rec_dir);
 	configfile.setBool  ("recording_epg_for_filename"         , g_settings.recording_epg_for_filename     );
 	configfile.setBool  ("recording_epg_for_end"              , g_settings.recording_epg_for_end          );
-	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir     );
-	configfile.setBool  ("recording_slow_warning"             , g_settings.recording_slow_warning     );
+	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir   );
+	configfile.setBool  ("recording_slow_warning"             , g_settings.recording_slow_warning         );
 
 	// default plugin for movieplayer
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
@@ -1677,7 +1679,7 @@ void CNeutrinoApp::InitZapper()
 void CNeutrinoApp::setupRecordingDevice(void)
 {
 	CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
-	CRecordManager::getInstance()->Config(g_settings.recording_stopsectionsd, g_settings.recording_stream_vtxt_pid, g_settings.recording_stream_pmt_pid);
+	CRecordManager::getInstance()->Config(g_settings.recording_stopsectionsd, g_settings.recording_stream_vtxt_pid, g_settings.recording_stream_pmt_pid, g_settings.recording_stream_subtitle_pids);
 }
 
 static void CSSendMessage(uint32_t msg, uint32_t data)
