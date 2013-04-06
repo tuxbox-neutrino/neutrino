@@ -29,6 +29,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <GL/gl.h>
+#include "rcinput.h"
 
 //class SWDecoder;
 
@@ -51,6 +52,7 @@ public:
 
 	int getOSDWidth() { return mState.width; }
 	int getOSDHeight() { return mState.height; }
+	void blit() { mState.blit = true; }
 
 	void clear();
 
@@ -92,6 +94,7 @@ private:
 		// GLuint displaytex;	/* holds the display texture */
 		// GLuint displaypbo;
 		int go3d;
+		bool blit;
 	} mState;
 
 	// boost::shared_ptr<SWDecoder>mpSWDecoder; /* our Decoder-Object that runs in its own thread */

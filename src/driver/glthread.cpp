@@ -338,7 +338,12 @@ void GLThreadObj::render() {
 	}
 
 	// bltDisplayBuffer(); /* decoded video stream */
-	bltOSDBuffer(); /* OSD */
+	if (mState.blit) {
+		/* only blit manually after fb->blit(), this helps to find missed blit() calls */
+		mState.blit = false;
+		//fprintf(stderr, "blit!\n");
+		bltOSDBuffer(); /* OSD */
+	}
 
 	glBindTexture(GL_TEXTURE_2D, mState.osdtex);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
