@@ -86,6 +86,7 @@ CScanTs::CScanTs()
 	
 	snrscale = new CProgressBar();
 	snrscale->setBlink();
+	memset(&TP, 0, sizeof(TP)); // valgrind
 }
 
 CScanTs::~CScanTs()
@@ -236,6 +237,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		CServiceScan::getInstance()->SetCableNID(scansettings.cable_nid);
 
 	CZapitClient::commandSetScanSatelliteList sat;
+	memset(&sat, 0, sizeof(sat)); // valgrind
 	CZapitClient::ScanSatelliteList satList;
 	satList.clear();
 	if(fast) {
