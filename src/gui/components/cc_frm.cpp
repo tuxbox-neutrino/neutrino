@@ -178,7 +178,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 
 	if (cc_Item == NULL){
 #ifdef DEBUG_CC
-		printf("[CComponentsForm]  %s parameter: cc_Item = %d...\n", __FUNCTION__, (int)cc_Item);
+		printf("[CComponentsForm]  %s parameter: cc_Item = %p...\n", __func__, cc_Item);
 #endif
 		return;
 	}
