@@ -278,7 +278,7 @@ AC_SUBST($1_LIBS)
 
 AC_DEFUN([TUXBOX_APPS_LIB_PKGCONFIG],[
 _TUXBOX_APPS_LIB_PKGCONFIG($1,$2)
-if test -z "$$1_CFLAGS" ; then
+if test -z "$$1_CFLAGS" && test -z "$$1_LIBS"; then
 	AC_MSG_ERROR([could not find package $2]);
 fi
 ])
