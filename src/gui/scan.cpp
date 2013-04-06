@@ -79,6 +79,12 @@ CScanTs::CScanTs()
 	snrscale->setBlink();
 }
 
+CScanTs::~CScanTs()
+{
+	delete sigscale;
+	delete snrscale;
+}
+
 void CScanTs::prev_next_TP( bool up)
 {
 	t_satellite_position position = 0;
