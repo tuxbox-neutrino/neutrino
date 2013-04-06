@@ -392,7 +392,7 @@ const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_
 #define PROGRESSBAR_COLOR_OPTION_COUNT 5
 const CMenuOptionChooser::keyval PROGRESSBAR_COLOR_OPTIONS[PROGRESSBAR_COLOR_OPTION_COUNT] =
 {
-	{ CProgressBar::PB_MONO,	LOCALE_PROGRESSBAR_COLOR_MONO },
+	{ -1,				LOCALE_PROGRESSBAR_COLOR_MONO },
 	{ CProgressBar::PB_MATRIX,	LOCALE_PROGRESSBAR_COLOR_MATRIX },
 	{ CProgressBar::PB_LINES_V,	LOCALE_PROGRESSBAR_COLOR_VERTICAL },
 	{ CProgressBar::PB_LINES_H,	LOCALE_PROGRESSBAR_COLOR_HORIZONTAL },
@@ -522,12 +522,19 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mc);
 
 	// color progress bar
-	mc = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true);
+	int pb_color = g_settings.progressbar_color ? g_settings.progressbar_design : -1;
+	mc = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &pb_color, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
 	osd_menu->addItem(mc);
 
 	int res = osd_menu->exec(NULL, "");
 
+	if (pb_color == -1)
+		g_settings.progressbar_color = 0;
+	else {
+		g_settings.progressbar_color = 1;
+		g_settings.progressbar_design = pb_color;
+	}
 	delete osd_menu;
 	return res;
 }

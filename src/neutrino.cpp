@@ -419,6 +419,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.progressbar_color = 1;
 	else	/* the config file already contains an int or nothing at all */
 		g_settings.progressbar_color = configfile.getInt32("progressbar_color", 1);
+	g_settings.progressbar_design = configfile.getInt32("progressbar_design", -1);
+	if (g_settings.progressbar_design == -1) {
+		/* new setting -> not present before. migrate old progressbar_color value */
+		if (g_settings.progressbar_color == 0)
+			g_settings.progressbar_design = 0;
+		else	/* the values changed... :-( */
+			g_settings.progressbar_design = g_settings.progressbar_color - 1;
+		g_settings.progressbar_color = !!g_settings.progressbar_color;
+	}
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 0 );
@@ -885,6 +894,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setInt32("progressbar_color", g_settings.progressbar_color);
+	configfile.setInt32("progressbar_design", g_settings.progressbar_design);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
