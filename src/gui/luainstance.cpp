@@ -30,6 +30,10 @@
 
 #include "luainstance.h"
 
+/* the magic color that tells us we are using one of the palette colors */
+#define MAGIC_COLOR 0x42424200
+#define MAGIC_MASK  0xFFFFFF00
+
 struct table_key {
 	const char *name;
 	long code;
@@ -123,16 +127,16 @@ static void set_lua_variables(lua_State *L)
 	/* list of colors, exported e.g. as COL['INFOBAR_SHADOW'] */
 	static table_key colorlist[] =
 	{
-		{ "COLORED_EVENTS_CHANNELLIST",	COL_COLORED_EVENTS_CHANNELLIST },
-		{ "COLORED_EVENTS_INFOBAR",	COL_COLORED_EVENTS_INFOBAR },
-		{ "INFOBAR_SHADOW",		COL_INFOBAR_SHADOW },
-		{ "INFOBAR",			COL_INFOBAR },
-		{ "MENUHEAD",			COL_MENUHEAD },
-		{ "MENUCONTENT",		COL_MENUCONTENT },
-		{ "MENUCONTENTDARK",		COL_MENUCONTENTDARK },
-		{ "MENUCONTENTSELECTED",	COL_MENUCONTENTSELECTED },
-		{ "MENUCONTENTINACTIVE",	COL_MENUCONTENTINACTIVE },
-		{ "BACKGROUND",			COL_BACKGROUND },
+		{ "COLORED_EVENTS_CHANNELLIST",	MAGIC_COLOR | (COL_COLORED_EVENTS_CHANNELLIST) },
+		{ "COLORED_EVENTS_INFOBAR",	MAGIC_COLOR | (COL_COLORED_EVENTS_INFOBAR) },
+		{ "INFOBAR_SHADOW",		MAGIC_COLOR | (COL_INFOBAR_SHADOW) },
+		{ "INFOBAR",			MAGIC_COLOR | (COL_INFOBAR) },
+		{ "MENUHEAD",			MAGIC_COLOR | (COL_MENUHEAD) },
+		{ "MENUCONTENT",		MAGIC_COLOR | (COL_MENUCONTENT) },
+		{ "MENUCONTENTDARK",		MAGIC_COLOR | (COL_MENUCONTENTDARK) },
+		{ "MENUCONTENTSELECTED",	MAGIC_COLOR | (COL_MENUCONTENTSELECTED) },
+		{ "MENUCONTENTINACTIVE",	MAGIC_COLOR | (COL_MENUCONTENTINACTIVE) },
+		{ "BACKGROUND",			MAGIC_COLOR | (COL_BACKGROUND) },
 		{ NULL, 0 }
 	};
 
@@ -215,7 +219,8 @@ static void set_lua_variables(lua_State *L)
 	}
 }
 
-#define DBG printf
+//#define DBG printf
+#define DBG(...)
 
 #define lua_boxpointer(L, u) \
 	(*(void **)(lua_newuserdata(L, sizeof(void *))) = (u))
@@ -384,7 +389,8 @@ int CLuaInstance::PaintBox(lua_State *L)
 	if (h < 0 || y + h > W->fbwin->dy)
 		h = W->fbwin->dy - y;
 	/* use the color constants */
-	c = CFrameBuffer::getInstance()->realcolor[c & 0xff];
+	if ((c & MAGIC_MASK) == MAGIC_COLOR)
+		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
 	W->fbwin->paintBoxRel(x, y, w, h, c, radius, corner);
 	return 0;
 }
@@ -438,6 +444,7 @@ int CLuaInstance::RenderString(lua_State *L)
 		utf8 = luaL_checkint(L, 9);
 	if (f >= FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
+	c &= 0x000000FF; /* TODO: colors that are not in the palette? */
 	W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, utf8);
 	return 0;
 }
