@@ -1905,6 +1905,7 @@ void CChannelList::paintItem(int pos)
 
 		int pb_space = prg_offset - title_offset;
 		CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4, pb_space + 2, fheight/2); /* never colored */
+		pb.setFrameThickness(2);
 		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
