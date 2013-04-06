@@ -55,7 +55,9 @@
 #include <gui/widget/messagebox.h>
 
 
+#if HAVE_COOL_HARDWARE
 extern int cs_test_card(int unit, char * str);
+#endif
 
 #ifdef TEST_MENU
 CTestMenu::CTestMenu()
@@ -165,6 +167,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
+#if HAVE_COOL_HARDWARE
 	else if (actionKey == "card0") 
 	{
 		char str[255];
@@ -211,6 +214,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
+#endif
 	else if (actionKey == "hdd") 
 	{
 		char buffer[255];
@@ -565,8 +569,10 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	widget->addIntroItems();
 	widget->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, this, "vfd"));
 	widget->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, this, "network"));
+#if HAVE_COOL_HARDWARE
 	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));
 	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
+#endif
 	widget->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
 	
 	CFEManager::getInstance()->setMode(CFEManager::FE_MODE_ALONE);
