@@ -85,6 +85,7 @@ class CScanTs : public CMenuTarget
 
 	public:
 		CScanTs(int dtype = FE_QPSK);
+		~CScanTs();
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
