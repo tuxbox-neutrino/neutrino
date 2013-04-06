@@ -112,7 +112,6 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 		if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout){
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 		}
-		frameBuffer->blit();
 	}
 
 	//hide window
@@ -152,7 +151,6 @@ void CImageInfo::ShowWindow()
 
 	//paint window
 	cc_win->paint();
-	frameBuffer->blit();
 }
 
 //prepare minitv
