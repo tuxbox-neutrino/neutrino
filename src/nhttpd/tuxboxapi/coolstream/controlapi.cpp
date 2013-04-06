@@ -2559,6 +2559,10 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 		url = "http://"+hh->ParamList["host"];
 	else
 		url = "http://"+hh->HeaderList["Host"];
+	/* strip off optional custom port */
+	if (url.rfind(":") != 4)
+		url = url.substr(0, url.rfind(":"));
+
 	//url += (mode == CZapitClient::MODE_TV) ? ":31339/0," : ":31338/";
 	url += ":31339/0,";
 	url += xpids;
