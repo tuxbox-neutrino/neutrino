@@ -519,6 +519,25 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		if ( msg <= CRCInput::RC_MaxRC ) {
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
+			std::map<neutrino_msg_t, keyAction>::iterator it = keyActionMap.find(msg);
+			if (it != keyActionMap.end()) {
+				int rv = it->second.menue->exec(parent, it->second.action);
+				switch ( rv ) {
+					case menu_return::RETURN_EXIT_ALL:
+						retval = menu_return::RETURN_EXIT_ALL;
+					case menu_return::RETURN_EXIT:
+						msg = CRCInput::RC_timeout;
+						break;
+					case menu_return::RETURN_REPAINT:
+					case menu_return::RETURN_EXIT_REPAINT:
+						if (fade && washidden)
+							fader.StartFadeIn();
+						checkHints();
+						paint();
+						break;
+				}
+				continue;
+			}
 			for (unsigned int i= 0; i< items.size(); i++) {
 				CMenuItem* titem = items[i];
 				if ((titem->directKey != CRCInput::RC_nokey) && (titem->directKey == msg)) {
@@ -534,10 +553,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				}
 			}
 #ifdef MARTII
-		if (msg == (uint32_t) g_settings.key_channelList_pageup)
-			msg = CRCInput::RC_page_up;
-		else if (msg == (uint32_t) g_settings.key_channelList_pagedown)
-			msg = CRCInput::RC_page_down;
+			if (msg == (uint32_t) g_settings.key_channelList_pageup)
+				msg = CRCInput::RC_page_up;
+			else if (msg == (uint32_t) g_settings.key_channelList_pagedown)
+				msg = CRCInput::RC_page_down;
 #endif
 		}
 
@@ -1145,6 +1164,12 @@ void CMenuWidget::paintHint(int pos)
 	
 	hint_painted = true;
 	
+}
+
+void CMenuWidget::addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string & action)
+{
+	keyActionMap[key].menue = menue;
+	keyActionMap[key].action = action;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
