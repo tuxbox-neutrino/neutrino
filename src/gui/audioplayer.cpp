@@ -1055,9 +1055,6 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 	/* get it! */
 	curl_easy_perform(curl_handle);
 
-	/* cleanup curl stuff */
-	curl_easy_cleanup(curl_handle);
-
 	/*
 	* Now, our chunk.memory points to a memory block that is chunk.size
 	* bytes big and contains the remote file.
@@ -1097,6 +1094,9 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 			}
 		}
 	}
+
+	/* cleanup curl stuff */
+	curl_easy_cleanup(curl_handle);
 
 	if (chunk.memory)
 		free(chunk.memory);
