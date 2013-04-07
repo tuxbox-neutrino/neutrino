@@ -430,14 +430,14 @@ int CLuaInstance::PaintIcon(lua_State *L)
 
 int CLuaInstance::RenderString(lua_State *L)
 {
-	int x, y, w, boxh, utf8, f;
+	int x, y, w, boxh, f, center;
 	unsigned int c;
 	const char *text;
 	int numargs = lua_gettop(L);
 	DBG("CLuaInstance::%s %d\n", __func__, numargs);
 	c = COL_MENUCONTENT;
 	boxh = 0;
-	utf8 = 1;
+	center = 0;
 
 	CLuaData *W = CheckData(L, 1);
 	if (!W || !W->fbwin)
@@ -455,11 +455,16 @@ int CLuaInstance::RenderString(lua_State *L)
 	if (numargs > 7)
 		boxh = luaL_checkint(L, 8);
 	if (numargs > 8)
-		utf8 = luaL_checkint(L, 9);
+		center = luaL_checkint(L, 9);
 	if (f >= FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
+	if (center) { /* center the text inside the box */
+		int rwidth = g_Font[f]->getRenderWidth(text, true);
+		if (rwidth < w)
+			x += (w - rwidth) / 2;
+	}
 	c &= 0x000000FF; /* TODO: colors that are not in the palette? */
-	W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, utf8);
+	W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
 	return 0;
 }
 
