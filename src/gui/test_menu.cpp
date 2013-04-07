@@ -354,7 +354,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "picture"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 200, "/share/tuxbox/neutrino/icons/mp3-5.jpg");
+			pic = new CComponentsPicture (100, 100, 200, 200, DATADIR "/neutrino/icons/mp3-5.jpg");
 
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
