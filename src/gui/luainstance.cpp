@@ -458,14 +458,16 @@ int CLuaInstance::RenderString(lua_State *L)
 		center = luaL_checkint(L, 9);
 	if (f >= FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
+	int rwidth = g_Font[f]->getRenderWidth(text, true);
 	if (center) { /* center the text inside the box */
-		int rwidth = g_Font[f]->getRenderWidth(text, true);
 		if (rwidth < w)
 			x += (w - rwidth) / 2;
 	}
 	c &= 0x000000FF; /* TODO: colors that are not in the palette? */
-	W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
-	return 0;
+	if (boxh > -1) /* if boxh < 0, don't paint string */
+		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
+	lua_pushinteger(L, rwidth); /* return renderwidth */
+	return 1;
 }
 
 int CLuaInstance::GetInput(lua_State *L)
