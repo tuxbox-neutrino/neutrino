@@ -1525,8 +1525,8 @@ void CAudioPlayerGui::hide()
 	//	printf("hide(){\n");
 	if (m_visible)
 	{
-		m_frameBuffer->paintBackgroundBoxRel(m_x - ConnectLineBox_Width-1, m_y + m_title_height - 1,
-						     m_width + ConnectLineBox_Width+2, m_height + 2 - m_title_height);
+		m_frameBuffer->paintBackgroundBoxRel(m_x - ConnectLineBox_Width, m_y + m_title_height,
+						     m_width + ConnectLineBox_Width, m_height - m_title_height);
 		clearItemID3DetailsLine();
 		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
 		m_visible = false;
