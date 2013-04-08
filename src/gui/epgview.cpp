@@ -860,10 +860,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
 							g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
 						}
+						bigFonts = g_settings.bigFonts;
+						show(channel_id,tmp_eID,&tmp_sZeit,false);
+						showPos=0;
 					}
-					bigFonts = g_settings.bigFonts;
-					show(channel_id,tmp_eID,&tmp_sZeit,false);
-					showPos=0;
 				}
 				break;
 			}
