@@ -251,7 +251,11 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	{
 		frameBuffer->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 
+#ifdef MARTII
+		if (icon_w>0 && icon_h>0)
+#else
 		if (active  && icon_w>0 && icon_h>0)
+#endif
 		{
 			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
 		}
@@ -521,6 +525,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 			std::map<neutrino_msg_t, keyAction>::iterator it = keyActionMap.find(msg);
 			if (it != keyActionMap.end()) {
+				fader.Stop();
 				int rv = it->second.menue->exec(parent, it->second.action);
 				switch ( rv ) {
 					case menu_return::RETURN_EXIT_ALL:
@@ -536,6 +541,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						paint();
 						break;
 				}
+				frameBuffer->blit();
 				continue;
 			}
 			for (unsigned int i= 0; i< items.size(); i++) {
