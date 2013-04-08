@@ -735,7 +735,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			case CRCInput::RC_up:
 				showPos -= scrollCount;
 				if (showPos<0)
-					showPos = 0;
+					showPos=0;
 				else
 					showText(showPos, sy + toph);
 				break;
@@ -759,7 +759,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								strcpy(recDir, b.getSelectedFile()->Name.c_str());
 							} else
 								doRecord = false;
+							if (!bigFonts && g_settings.bigFonts) {
+								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
+								g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
+							}
+							bigFonts = g_settings.bigFonts;
 							show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+							showPos=0;
 						}
 						else if (g_settings.recording_choose_direct_rec_dir == 1)
 						{
@@ -769,7 +775,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							{
 								hide();
 								recDirs.exec(NULL,"");
+								if (!bigFonts && g_settings.bigFonts) {
+									g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
+									g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
+								}
+								bigFonts = g_settings.bigFonts;
 								show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+								showPos=0;
 								timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 							} else
 							{
@@ -851,6 +863,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					}
 					bigFonts = g_settings.bigFonts;
 					show(channel_id,tmp_eID,&tmp_sZeit,false);
+					showPos=0;
 				}
 				break;
 			}
