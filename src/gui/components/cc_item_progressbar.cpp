@@ -146,7 +146,7 @@ void CProgressBar::paintSimple()
 	}
 	
 	if (pb_paint_zero && pb_value == 0)
-		frameBuffer->paintLine(x+fr_thickness , y+fr_thickness, x+width-3, y+height-3, pb_active_col); // zero line
+		frameBuffer->paintLine(pb_x , pb_y, pb_x+width-3, pb_y+height-3, pb_active_col); // zero line
 }
 
 void CProgressBar::paintAdvanced()
