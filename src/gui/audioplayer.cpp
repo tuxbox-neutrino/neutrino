@@ -1797,13 +1797,13 @@ void CAudioPlayerGui::paintInfo()
 		if (!m_show_playlist)
 		{
 			// no playlist -> smaller Info-Box
-			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight,2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
-			m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2 , m_width - 4, m_title_height - 14 - m_fheight, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, m_title_height - 12 - m_fheight, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
 		}
 		else
 		{
-			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10,2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
-			m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2 , m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, m_title_height - 12, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
 		}
 
 		// first line (Track number)
