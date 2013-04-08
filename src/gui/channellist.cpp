@@ -1267,12 +1267,12 @@ int CChannelList::numericZap(int key)
 		}
 		return res;
 	}
-	if ((key == g_settings.key_zaphistory) || (key == CRCInput::RC_games)) {
-		if((!autoshift && CNeutrinoApp::getInstance()->recordingstatus) || (key == CRCInput::RC_games)) {
+	if ((key == g_settings.key_zaphistory) || (key == g_settings.key_current_transponder)) {
+		if((!autoshift && CNeutrinoApp::getInstance()->recordingstatus) || (key == g_settings.key_current_transponder)) {
 			CChannelList * orgList = CNeutrinoApp::getInstance()->channelList;
 			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
 
-			if(key == CRCInput::RC_games) {
+			if(key == g_settings.key_current_transponder) {
 				t_channel_id recid = chanlist[selected]->channel_id >> 16;
 				for ( unsigned int i = 0 ; i < orgList->chanlist.size(); i++) {
 					if((orgList->chanlist[i]->channel_id >> 16) == recid)
