@@ -224,10 +224,10 @@ void CEpgData::showText( int startPos, int ypos )
 	int max_mon_w = 0, max_wday_w = 0;
 	int digi = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth("29..");
 	for(int i = 0; i < 12;i++){
-		max_mon_w = std::max(max_mon_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(g_Locale->getText(CLocaleManager::getMonth(i))));
+		max_mon_w = std::max(max_mon_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getMonth(i))) + ".", true)); // UTF-8
 		if(i > 6)
 		      continue;
-		max_wday_w = std::max(max_wday_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(g_Locale->getText(CLocaleManager::getWeekday(i))));
+		max_wday_w = std::max(max_wday_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + ".", true)); // UTF-8
 	}
 	frameBuffer->paintBoxRel(sx, y, ox- 15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
@@ -878,7 +878,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() / BIG_FONT_FAKTOR));
 				}
 				g_settings.bigFonts = bigFonts;
-				show(channel_id, id, &startzeit, false);
+				show(channel_id, id, &startzeit, false, call_fromfollowlist);
 				showPos=0;
 				break;
 
