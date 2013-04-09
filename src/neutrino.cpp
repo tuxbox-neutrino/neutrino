@@ -2357,15 +2357,17 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 _show:
 			int nNewChannel = -1;
-			int old_num = 0;
 			int old_b = bouquetList->getActiveBouquetNumber();
 			//int old_mode = g_settings.channel_mode;
 			int old_mode = GetChannelMode();
 			printf("************************* ZAP START: bouquetList %p size %d old_b %d\n", bouquetList, (int)bouquetList->Bouquets.size(), old_b);fflush(stdout);
 
+#if 0
+			int old_num = 0;
 			if(!bouquetList->Bouquets.empty()) {
 				old_num = bouquetList->Bouquets[old_b]->channelList->getSelected();
 			}
+#endif
 //_show:
 			if(msg == CRCInput::RC_ok)
 			{
