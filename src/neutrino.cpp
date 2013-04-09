@@ -2392,8 +2392,14 @@ _repeat:
 				 * other modes selected bouquet not restored */
 				SetChannelMode(old_mode);
 				bouquetList->activateBouquet(old_b, false);
+#if 0
 				if(!bouquetList->Bouquets.empty())
 					bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->setSelected(old_num);
+#endif
+				if(!bouquetList->Bouquets.empty()) {
+					t_channel_id old_id = bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->getActiveChannel_ChannelID();
+					bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->adjustToChannelID(old_id, false);
+				}
 				StartSubtitles(mode == mode_tv);
 			}
 			else if(nNewChannel == -3) { // list mode changed
