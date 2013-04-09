@@ -3192,6 +3192,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			g_Radiotext->radiotext_stop();
 
 
+#ifdef ENABLE_PIP
+		g_Zapit->stopPip();
+#endif
 		bool stream_status = CStreamManager::getInstance()->StreamStatus();
 		if(!fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
 			g_Zapit->setStandby(true);
