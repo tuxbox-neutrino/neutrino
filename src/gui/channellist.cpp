@@ -876,6 +876,7 @@ int CChannelList::show()
 				if(g_settings.channellist_sort_mode > SORT_MAX-1)
 					g_settings.channellist_sort_mode = SORT_ALPHA;
 				CNeutrinoApp::getInstance()->SetChannelMode(mode);
+				oldselected = selected;
 				paintHead(); // update button bar
 				paint();
 			}
@@ -1063,9 +1064,11 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 			selected = i;
 			tuned = i;
 
-			lastChList.store (selected, channel_id, false);
+			//lastChList.store (selected, channel_id, false);
 
 			if (bToo) {
+				lastChList.store (selected, channel_id, false);
+
 				int old_mode = CNeutrinoApp::getInstance()->GetChannelMode();
 				int new_mode = old_mode;
 				bool has_channel;
