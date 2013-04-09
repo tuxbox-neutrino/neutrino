@@ -1031,15 +1031,15 @@ const CMenuOptionChooser::keyval TIMERLIST_STANDBY_OPTIONS[TIMERLIST_STANDBY_OPT
 #endif
 const CMenuOptionChooser::keyval TIMERLIST_TYPE_OPTIONS[TIMERLIST_TYPE_OPTION_COUNT] =
 {
-	{ CTimerd::TIMER_SHUTDOWN,	LOCALE_TIMERLIST_TYPE_SHUTDOWN },
 #if 0
 	{ CTimerd::TIMER_NEXTPROGRAM,	LOCALE_TIMERLIST_TYPE_NEXTPROGRAM },
 #endif
+	{ CTimerd::TIMER_RECORD,	LOCALE_TIMERLIST_TYPE_RECORD },
 	{ CTimerd::TIMER_ZAPTO,		LOCALE_TIMERLIST_TYPE_ZAPTO },
 	{ CTimerd::TIMER_STANDBY,	LOCALE_TIMERLIST_TYPE_STANDBY },
-	{ CTimerd::TIMER_RECORD,	LOCALE_TIMERLIST_TYPE_RECORD },
 	{ CTimerd::TIMER_SLEEPTIMER,	LOCALE_TIMERLIST_TYPE_SLEEPTIMER },
 	{ CTimerd::TIMER_REMIND,	LOCALE_TIMERLIST_TYPE_REMIND },
+	{ CTimerd::TIMER_SHUTDOWN,	LOCALE_TIMERLIST_TYPE_SHUTDOWN },
 	{ CTimerd::TIMER_EXEC_PLUGIN,	LOCALE_TIMERLIST_TYPE_EXECPLUGIN }
 };
 
@@ -1133,6 +1133,9 @@ int CTimerList::newTimer()
 	std::vector<CMenuWidget *> toDelete;
 	// Defaults
 	timerNew.eventType = CTimerd::TIMER_RECORD ;
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+		timerNew.eventType = CTimerd::TIMER_ZAPTO;
+
 	timerNew.eventRepeat = CTimerd::TIMERREPEAT_ONCE ;
 	timerNew.repeatCount = 0;
 	timerNew.alarmTime = (time(NULL)/60)*60;
@@ -1220,7 +1223,11 @@ int CTimerList::newTimer()
 	CTimerListNewNotifier notifier2((int *)&timerNew.eventType,
 					&timerNew.stopTime,m2,m6,m8,m9,m10,m7,
 					timerSettings_stopTime.getValue());
-	CMenuOptionChooser* m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2);
+	CMenuOptionChooser* m0;
+	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2);
+	else
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, &TIMERLIST_TYPE_OPTIONS[1], TIMERLIST_TYPE_OPTION_COUNT-1, true, &notifier2);
 
 	timerSettings.addItem( m0);
 	timerSettings.addItem( m1);

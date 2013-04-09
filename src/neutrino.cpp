@@ -2178,7 +2178,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				}
 			}
 			else if( msg == CRCInput::RC_record) {
-				CRecordManager::getInstance()->exec(NULL, "Record");
+				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
+					CRecordManager::getInstance()->exec(NULL, "Record");
 			}
 			else if( msg == CRCInput::RC_stop ) {
 				CRecordManager::getInstance()->exec(NULL, "Stop_record");
@@ -2251,7 +2252,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play ) {
 				//open moviebrowser via media player menu object
-				CMediaPlayerMenu::getInstance()->exec(NULL,"movieplayer");
+				if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
+					CMediaPlayerMenu::getInstance()->exec(NULL,"movieplayer");
 			}
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
 				g_RemoteControl->setSubChannel(CRCInput::getNumericValue(msg));
@@ -2648,8 +2650,10 @@ _repeat:
 				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
 		}
-		CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
-		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
+			CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
+			autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+		}
 
 		delete[] (unsigned char*) data;
 		return messages_return::handled | messages_return::cancel_all;

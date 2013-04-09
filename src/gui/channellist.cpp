@@ -652,7 +652,7 @@ int CChannelList::show()
 					
 			}		
 #endif
-			if(SameTP()) {
+			if((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) && SameTP()) {
 				printf("[neutrino channellist] start direct recording...\n");
 				hide();
 				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
@@ -1776,7 +1776,9 @@ void CChannelList::paintButtonBar(bool is_current)
 		}
 		if (i == 4) {
 			//manage record button
-			if (g_settings.recording_type != RECORDING_OFF && !displayNext){
+			if (g_settings.recording_type == RECORDING_OFF)
+				continue;
+			if (!displayNext){
 				if (do_record){
 					Button[bcnt].locale = LOCALE_MAINMENU_RECORDING_STOP;
 					Button[bcnt].button = NEUTRINO_ICON_BUTTON_STOP;

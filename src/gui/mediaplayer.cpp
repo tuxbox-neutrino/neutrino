@@ -166,10 +166,12 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	if (usage_mode == MODE_DEFAULT)
 	{
 		//movieplayer
-		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MOVIEPLAYER, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
-		personalize->addWidget(moviePlayer);
-		fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-		fw_mp->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MENU_HINT_MOVIE);
+		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
+			moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MOVIEPLAYER, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
+			personalize->addWidget(moviePlayer);
+			fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+			fw_mp->setHint(NEUTRINO_ICON_HINT_MOVIE, LOCALE_MENU_HINT_MOVIE);
+		}
 
  		//pictureviewer
 		pictureviewergui = new CPictureViewerGui();
@@ -204,8 +206,10 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		personalize->addItem(media, fw_inet, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
 		
 		//movieplayer
-		showMoviePlayer(moviePlayer,  personalize);
-		personalize->addItem(media, fw_mp, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_MPLAYER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
+		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
+			showMoviePlayer(moviePlayer,  personalize);
+			personalize->addItem(media, fw_mp, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_MPLAYER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
+		}
 		
 		//picture viewer
 		personalize->addItem(media, fw_pviewer, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_PVIEWER]);

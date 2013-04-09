@@ -298,9 +298,11 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_NETWORK]);
 
 	// record settings
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_RECORDING, true, NULL, new CRecordSetup());
-	mf->setHint(NEUTRINO_ICON_HINT_RECORDING, LOCALE_MENU_HINT_RECORDING);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_RECORDING]);
+	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_RECORDING, true, NULL, new CRecordSetup());
+		mf->setHint(NEUTRINO_ICON_HINT_RECORDING, LOCALE_MENU_HINT_RECORDING);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_RECORDING]);
+	}
 
 	// osdlang
 	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_LANGUAGE, true, NULL, new COsdLangSetup());
@@ -320,9 +322,11 @@ void CNeutrinoApp::InitMenuSettings()
 	}
 
 	// drive settings
-	mf = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, new CHDDMenuHandler());
-	mf->setHint(NEUTRINO_ICON_HINT_HDD, LOCALE_MENU_HINT_HDD);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_DRIVES]);
+	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
+		mf = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, new CHDDMenuHandler());
+		mf->setHint(NEUTRINO_ICON_HINT_HDD, LOCALE_MENU_HINT_HDD);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_DRIVES]);
+	}
 
 	// cisettings
 	mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler);

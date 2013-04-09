@@ -868,6 +868,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+		return false;
 #if 0
 	if(!CheckRecording(eventinfo))
 		return false;
@@ -1324,6 +1326,9 @@ void CRecordManager::StartTimeshift()
 
 int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 {
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+		return menu_return::RETURN_REPAINT;
+
 	if(parent)
 		parent->hide();
 
