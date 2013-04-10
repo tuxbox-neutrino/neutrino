@@ -233,7 +233,6 @@ void CComponentsForm::paintCCItems()
 		//cache original item position and dimensions
 		int x_item, y_item, w_item, h_item;
 		v_cc_items[i]->getDimensions(&x_item, &y_item, &w_item, &h_item);
-		
 
 		int xy_ref = 0+fr_thickness; //allowed minimal x and y start position
 		if (x_item < xy_ref){
@@ -270,6 +269,11 @@ void CComponentsForm::paintCCItems()
 			printf("[CComponentsForm] %s: item %d too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, v_cc_items[i]->getHeight());
 #endif
 		}
+
+		//set real position dimension to item
+		int real_x = v_cc_items[i]->getXPos();
+		int real_y = v_cc_items[i]->getYPos();
+		v_cc_items[i]->setRealPos(real_x, real_y);
 		
 		//paint element without saved screen!
 		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
