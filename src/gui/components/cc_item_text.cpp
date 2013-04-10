@@ -176,6 +176,12 @@ void CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 	
 }
 
+void CComponentsText::setText(const int digit, const int mode, Font* font_text)
+{
+	string s_digit = iToString(digit);
+	setText(s_digit, mode, font_text);
+}
+
 void CComponentsText::paintText(bool do_save_bg)
 {
 	paintInit(do_save_bg);
@@ -212,9 +218,9 @@ void CComponentsText::removeLineBreaks(std::string& str)
 //helper, converts int to string
 string CComponentsText::iToString(int int_val)
 {
-    int i = int_val;
-    ostringstream i_str;
-    i_str << i;
-    string i_string(i_str.str());
-    return i_string;
+	int i = int_val;
+	ostringstream i_str;
+	i_str << i;
+	string i_string(i_str.str());
+	return i_string;
 }
