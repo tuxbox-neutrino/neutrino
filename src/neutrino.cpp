@@ -2981,7 +2981,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
-			my_system(2,"/etc/init.d/rcK");
+			my_system("/etc/init.d/rcK");
 			sync();
 			my_system(2,"/bin/umount", "-a");
 			sleep(1);
