@@ -164,6 +164,8 @@ class CComponentsText : public CComponentsItem
 		const char* ct_text;
 		bool ct_text_sent, ct_paint_textbg;
 
+		std::string iToString(int int_val); //helper to convert int to string
+
 		void initVarText();
 		void clearCCText();
 		void initCCText();

@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc.h"
+#include <sstream>
 
 using namespace std;
 
@@ -205,4 +206,15 @@ void CComponentsText::removeLineBreaks(std::string& str)
 		str.replace(spos, 1, " ");
 		spos = str.find_first_of("\r\n");
 	}
+}
+
+
+//helper, converts int to string
+string CComponentsText::iToString(int int_val)
+{
+    int i = int_val;
+    ostringstream i_str;
+    i_str << i;
+    string i_string(i_str.str());
+    return i_string;
 }
