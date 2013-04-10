@@ -14,7 +14,7 @@ function do_init(){
 	switch(val){
 		case "default": sel=0; break;
 		case "Nokia": sel=1; break;
-		case "Coolstream": sel=3; break;
+		case "CST": sel=3; break;
 	}
 	document.f.fb.selectedIndex = sel;
 	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;start_page;bouquets~cache=}";
@@ -82,7 +82,7 @@ function do_init(){
 					<option value="default" selected="selected">default</option>
 					<option value="Nokia">Nokia</option>
 					<option value="Sagem">Sagem/Philips</option>
-					<option value="Coolstream">Coolstream</option>
+					<option value="CST">CST</option>
 					</select></td>
 			</tr>
 			<tr>
