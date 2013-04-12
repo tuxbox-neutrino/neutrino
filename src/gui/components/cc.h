@@ -32,7 +32,7 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
-//#define DEBUG_CC
+#define DEBUG_CC
 
 class CComponents
 {
@@ -111,6 +111,8 @@ class CComponentsItem : public CComponents
 
 		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
 		virtual void setRealPos(const int& xr, const int& yr){cc_item_xr = xr; cc_item_yr = yr;};
+		virtual int getRealXPos(){return cc_item_xr;};
+		virtual int getRealYPos(){return cc_item_yr;};
 		
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		virtual void hide(bool no_restore = false);
