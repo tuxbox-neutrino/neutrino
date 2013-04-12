@@ -157,7 +157,9 @@ void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* fon
 	ct_text = g_Locale->getText(locale_text);
 	ct_text_mode = mode;
 	ct_font = font_text;
-
+#ifdef DEBUG_CC
+	printf("    [CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text);
+#endif
 }
 
 void CComponentsText::setText(const char* ctext, const int mode, Font* font_text)
@@ -165,21 +167,26 @@ void CComponentsText::setText(const char* ctext, const int mode, Font* font_text
 	ct_text = ctext;
 	ct_text_mode = mode;
 	ct_font = font_text;
-
+#ifdef DEBUG_CC
+	printf("    [CComponentsText]   [%s - %d] text: %s \n", __FUNCTION__, __LINE__, ctext);
+#endif
 }
 
 void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text)
 {
-	ct_text = stext.c_str();
-	ct_text_mode = mode;
-	ct_font = font_text;
-	
+ 	setText(stext.c_str(), mode, font_text);
+#ifdef DEBUG_CC
+	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text);
+#endif
 }
 
 void CComponentsText::setText(const int digit, const int mode, Font* font_text)
 {
 	string s_digit = iToString(digit);
 	setText(s_digit, mode, font_text);
+#ifdef DEBUG_CC
+	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text);
+#endif
 }
 
 void CComponentsText::paintText(bool do_save_bg)
@@ -218,9 +225,8 @@ void CComponentsText::removeLineBreaks(std::string& str)
 //helper, converts int to string
 string CComponentsText::iToString(int int_val)
 {
-	int i = int_val;
 	ostringstream i_str;
-	i_str << i;
+	i_str << int_val;
 	string i_string(i_str.str());
 	return i_string;
 }
