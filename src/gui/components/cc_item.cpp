@@ -55,6 +55,8 @@ void CComponentsItem::initVarItem()
 	initVarBasic();
 	cc_item_index = CC_NO_INDEX;
 	cc_item_xr = cc_item_yr = -1;
+	cc_item_enabled = true;
+	cc_item_selected = false;
 }
 
 // Paint container background in cc-items with shadow, background and frame.

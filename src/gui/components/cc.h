@@ -98,6 +98,7 @@ class CComponentsItem : public CComponents
 	protected:
 		int cc_item_type;
 		int cc_item_index;
+		bool cc_item_enabled, cc_item_selected;
 
 		///contains real position and dimensions on screen,
 		int cc_item_xr, cc_item_yr;
@@ -119,6 +120,13 @@ class CComponentsItem : public CComponents
 		virtual void kill();
 		virtual int getItemType();
 		virtual void syncSysColors();
+
+		///setters for item select stats
+		virtual void setSelected(bool selected){cc_item_selected = selected;};
+		virtual void setEnable(bool enabled){cc_item_enabled = enabled;};
+		///getters for item enable stats
+		virtual bool isSelected(){return cc_item_selected;};
+		virtual bool isEnabled(){return cc_item_enabled;};
 };
 
 class CComponentsPicture : public CComponentsItem
