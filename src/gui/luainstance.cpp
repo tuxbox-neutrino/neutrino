@@ -456,7 +456,7 @@ int CLuaInstance::RenderString(lua_State *L)
 		boxh = luaL_checkint(L, 8);
 	if (numargs > 8)
 		center = luaL_checkint(L, 9);
-	if (f >= FONT_TYPE_COUNT || f < 0)
+	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
 	int rwidth = g_Font[f]->getRenderWidth(text, true);
 	if (center) { /* center the text inside the box */
@@ -504,7 +504,7 @@ int CLuaInstance::FontHeight(lua_State *L)
 	if (!W)
 		return 0;
 	f = luaL_checkint(L, 2);	/* font number, use FONT['xxx'] for FONT_TYPE_xxx in the script */
-	if (f >= FONT_TYPE_COUNT || f < 0)
+	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
 		f = SNeutrinoSettings::FONT_TYPE_MENU;
 	lua_pushinteger(L, (int)g_Font[f]->getHeight());
 	return 1;
