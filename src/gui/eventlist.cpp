@@ -717,12 +717,13 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 	unsigned int curpos = liststart + pos;
 	const char * icontype = 0;
 
+	if(RADIUS_LARGE)
+		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
+
 	if (curpos==selected)
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		if(RADIUS_LARGE)
-			frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
 	}
 	else if (curpos == current_event )
 	{
@@ -735,7 +736,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, color == COL_MENUCONTENTSELECTED ? RADIUS_LARGE : 0);
+	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 
 	if(curpos<evtlist.size())
 	{
