@@ -749,7 +749,7 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 	}
 }
 
-void CServiceManager::SaveServices(bool tocopy, bool if_changed)
+void CServiceManager::SaveServices(bool tocopy, bool if_changed, bool no_deleted)
 {
 	int processed = 0;
 
@@ -792,7 +792,9 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 						tpdone = 1;
 					}
 
-					ccI->second.dumpServiceXml(fd);
+					/* don't dump removed channels if no_deleted == true */
+					if (!no_deleted || !(ccI->second.flags & CZapitChannel::REMOVED))
+						ccI->second.dumpServiceXml(fd);
 					processed++;
 #ifdef SAVE_DEBUG
 					chans_processed.insert(ccI->second.getChannelID());
