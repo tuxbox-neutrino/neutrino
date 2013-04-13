@@ -109,7 +109,7 @@ class CServiceManager
 
 		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false);
 		bool LoadServices(bool only_current);
-		void SaveServices(bool tocopy, bool if_changed = false);
+		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
 		void SaveMotorPositions();
 		bool SaveCurrentServices(transponder_id_t tpid);
 		bool CopyCurrentServices(transponder_id_t tpid);
