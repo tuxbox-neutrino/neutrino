@@ -319,6 +319,8 @@ eventfinder.search_within_epg Search within
 eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...
 eventfinder.start_search  Start Search
+eventlist.additional Additional informations
+eventlist.name Eventlist
 eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
 eventlistbar.recordevent record
@@ -530,6 +532,7 @@ fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Title
 fontsize.eventlist_datetime Date / Time
+fontsize.eventlist_event Event Info
 fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title
@@ -765,7 +768,9 @@ menu.hint_epg_old_events Hours after event end time to consider\nevent old and r
 menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
 menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
+menu.hint_eventlist_additional Show additional informations\nin main box
 menu.hint_eventlist_fonts Change event list font sizes
+menu.hint_eventlist_setup Configure event list GUI options
 menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
 menu.hint_factory Reset box to factory state\nBox will reboot after reset
 menu.hint_fade Fade GUI windows
