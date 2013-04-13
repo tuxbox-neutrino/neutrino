@@ -249,7 +249,10 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	full_width = frameBuffer->getScreenWidthRel();
 	x = getScreenStartX(full_width);
 
-	width = full_width / 3 * 2;
+	if (g_settings.eventlist_additional)
+		width = full_width / 3 * 2;
+	else
+		width = full_width;
 	height = frameBuffer->getScreenHeightRel();
 
 	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
@@ -282,7 +285,8 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	infozone_width = full_width - width;
 
 	// init right info_zone
-	cc_infozone = new CComponentsText(x+width+5, y+theight+10, infozone_width-10, listmaxshow*fheight-20);
+	if (g_settings.eventlist_additional)
+		cc_infozone = new CComponentsText(x+width+10, y+theight, infozone_width-20, listmaxshow*fheight);
 
 	int res = menu_return::RETURN_REPAINT;
 	//printf("CNeutrinoEventList::exec: channel_id %llx\n", channel_id);
@@ -675,7 +679,8 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		frameBuffer->blit();
 	}
 
-	delete cc_infozone;
+	if (cc_infozone)
+		delete cc_infozone;
 	cc_infozone = NULL;
 	oldIndex = -1;
 	oldEventID = -1;
@@ -720,12 +725,13 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 	unsigned int curpos = liststart + pos;
 	const char * icontype = 0;
 
+	if(RADIUS_LARGE)
+		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
+
 	if (curpos==selected)
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		if(RADIUS_LARGE)
-			frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
 	}
 	else if (curpos == current_event )
 	{
@@ -738,7 +744,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, color == COL_MENUCONTENTSELECTED ? RADIUS_LARGE : 0);
+	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 
 	if(curpos<evtlist.size())
 	{
@@ -819,6 +825,9 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 
 void CNeutrinoEventList::paintDescription(int index)
 {
+	if (!g_settings.eventlist_additional)
+		return;
+
 	if (evtlist[index].eventID == oldEventID) {
 		if (oldEventID == 0) {
 			if (index == oldIndex)
@@ -841,7 +850,7 @@ void CNeutrinoEventList::paintDescription(int index)
 	else
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
-	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]);
+	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
 	cc_infozone->doPaintBg(false);
 	cc_infozone->paint(CC_SAVE_SCREEN_NO);
 }
@@ -904,7 +913,7 @@ void CNeutrinoEventList::paint(t_channel_id channel_id)
 	}
 
 	// paint background for right box
-	if (!bgRightBoxPaint) {
+	if (g_settings.eventlist_additional && !bgRightBoxPaint) {
 		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,listmaxshow*fheight,COL_MENUCONTENT_PLUS_0);
 		bgRightBoxPaint = true;
 	}

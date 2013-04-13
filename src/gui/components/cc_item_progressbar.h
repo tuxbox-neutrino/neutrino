@@ -111,7 +111,7 @@ class CProgressBar : public CComponentsItem
 		CProgressBar();
 		CProgressBar(	const int x_pos, const int y_pos,
 				const int w = -1, const int h = -1,
-				fb_pixel_t color_frame = 0, fb_pixel_t color_body = COL_INFOBAR_PLUS_3, fb_pixel_t color_shadow = COL_INFOBAR_PLUS_7,
+				fb_pixel_t color_frame = 0, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
 				const fb_pixel_t active_col = COL_INFOBAR_PLUS_7, const fb_pixel_t passive_col = COL_INFOBAR_PLUS_3,
 				const bool blinkenlights = false,
 				const int r = 40, const int g = 100, const int b =70,

@@ -68,6 +68,7 @@ private:
 	int			new_zap_mode;
 	int			fheight; // Fonthoehe Channellist-Inhalt
 	int			theight; // Fonthoehe Channellist-Titel
+	int			fdescrheight;
 	int			footerHeight;
 	int			eventFont;
 	int			ffheight;
