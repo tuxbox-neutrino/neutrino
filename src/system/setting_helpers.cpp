@@ -82,6 +82,8 @@ extern cDemux *videoDemux;
 extern cDemux *audioDemux;
 extern cDemux *pcrDemux;
 
+extern CHintBox *reloadhintBox;
+
 extern "C" int pinghost( const char *hostname );
 
 COnOffNotifier::COnOffNotifier(int OffValue)
@@ -492,7 +494,11 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		g_Zapit->reinitChannels();
 	}
 	if (delete_removed) {
+		if (reloadhintBox)
+			reloadhintBox->paint();
 		CServiceManager::getInstance()->SaveServices(true, false, true);
+		if (reloadhintBox)
+			reloadhintBox->hide(); /* reinitChannels also triggers a reloadhintbox */
 		g_Zapit->reinitChannels();
 	}
 	return ret;
