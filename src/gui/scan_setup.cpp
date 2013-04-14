@@ -282,6 +282,9 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		printf("[neutrino] CScanSetup::%s reloadchannels...\n", __FUNCTION__);
 		if (reloadhintBox)
 			reloadhintBox->paint();
+		/* save if changed, to make sure NEW/REMOVED/... flags are updated */
+		CServiceManager::getInstance()->SaveServices(true, true);
+		/* Z->reinitChannels triggers EVT_SERVICESCHANGED and this triggers channelsInit() */
 		g_Zapit->reinitChannels();
 		if (reloadhintBox)
 			reloadhintBox->hide();

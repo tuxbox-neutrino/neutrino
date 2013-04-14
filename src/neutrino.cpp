@@ -2498,6 +2498,7 @@ _repeat:
 				//g_Zapit->saveBouquets();
 				/* lets do it in sync */
 				reloadhintBox->paint();
+				CServiceManager::getInstance()->SaveServices(true, true);
 				g_bouquetManager->saveBouquets();
 				g_bouquetManager->saveUBouquets();
 				g_bouquetManager->renumServices();
