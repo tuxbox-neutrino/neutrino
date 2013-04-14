@@ -421,7 +421,7 @@ int CChannelList::doChannelMenu(void)
 				return 0;
 			if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
 				CZapit::getInstance()->addChannelToBouquet(bouquet_id, channel_id);
-				return 1;
+				return 2;
 			}
 			break;
 		case 3: // add to my favorites
@@ -441,7 +441,7 @@ int CChannelList::doChannelMenu(void)
 			CServiceManager::getInstance()->SetServicesChanged(true);
 			/* if make_new_list == ON, signal to re-init services */
 			if(g_settings.make_new_list)
-				return 1;
+				return 2;
 			break;
 		case 5: // settings
 			{
@@ -604,6 +604,7 @@ int CChannelList::show()
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
+	bool bouquet_changed = false;
 	bool loop=true;
 	while (loop) {
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
@@ -697,10 +698,16 @@ int CChannelList::show()
 			fader.Stop();
 			int ret = doChannelMenu();
 			CNeutrinoApp::getInstance()->g_channel_list_changed = (ret != 0);
-			if (ret) {
-				res = -3 - ret; /* -5 == add to fav, -5 == all other change */
+			if (ret == 1) {
+				res = -3 - ret; /* -5 == add to fav or bouquet, -4 == all other change */
 				loop = false;
 			} else {
+				if (ret > 1) {
+					bouquet_changed = true;
+					/* select next entry */
+					if (selected + 1 < chanlist.size())
+						selected++;
+				}
 				old_b_id = -1;
 				paintHead();
 				paint();
@@ -905,6 +912,9 @@ int CChannelList::show()
 	if (g_settings.channellist_new_zap_mode != new_zap_mode)
 		g_settings.channellist_new_zap_mode = new_zap_mode;
 	new_zap_mode = 0;
+
+	if (bouquet_changed)
+		res = -5; /* in neutrino.cpp: -5 == "don't change bouquet after adding a channel to fav" */
 
 	hide();
 
