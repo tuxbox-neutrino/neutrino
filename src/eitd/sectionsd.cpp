@@ -433,6 +433,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 							continue;
 						/* else: keep the old event with the lower table_id */
 						unlockEvents();
+						delete eptr;
 						return;
 					}
 					if ((*x)->times.begin()->startzeit >= end_time)
@@ -448,6 +449,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 						dprintf("%s: don't replace 0x%012" PRIx64 ".%02x with 0x%012" PRIx64 ".%02x\n",
 							__func__, x_key, (*x)->table_id, e_key, e->table_id);
 						unlockEvents();
+						delete eptr;
 						return;
 					}
 					/* SRF special case: advertising is inserted with start time of
