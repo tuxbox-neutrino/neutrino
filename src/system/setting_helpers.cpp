@@ -459,12 +459,16 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	bool delete_all = (actionKey == "all");
 	bool delete_chan = (actionKey == "channels") || delete_all;
 	bool delete_set = (actionKey == "settings") || delete_all;
+	bool delete_removed = (actionKey == "delete_removed");
 	neutrino_locale_t msg = delete_all ? LOCALE_RESET_ALL : delete_chan ? LOCALE_RESET_CHANNELS : LOCALE_RESET_SETTINGS;
 	int ret = menu_return::RETURN_REPAINT;
 
-	int result = ShowMsgUTF(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-	if(result != CMessageBox::mbrYes)
-		return true;
+	/* no need to confirm if we only remove deleted channels */
+	if (!delete_removed) {
+		int result = ShowMsgUTF(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+		if (result != CMessageBox::mbrYes)
+			return true;
+	}
 
 	if(delete_all) {
 		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.conf");
@@ -488,6 +492,10 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	}
 	if(delete_chan) {
 		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.xml");
+		g_Zapit->reinitChannels();
+	}
+	if (delete_removed) {
+		CServiceManager::getInstance()->SaveServices(true, false, true);
 		g_Zapit->reinitChannels();
 	}
 	return ret;

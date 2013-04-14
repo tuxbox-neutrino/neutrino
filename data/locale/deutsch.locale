@@ -755,6 +755,7 @@ menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
 menu.hint_contrast_fonts Wählen Sie einen höheren Schriftkontrast
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box
 menu.hint_delete_channels Löschen aller Kanäle
+menu.hint_delete_removed Lösche das Bouquet 'Gelöschte Kanäle'
 menu.hint_epg_cache Maximum in Tagen zukünftiger EPG-Daten
 menu.hint_epg_dir Speicherverzeichnis auf einem externen Datenträger zum Speichern von EPG-Daten
 menu.hint_epg_extendedcache Maximum in Stunden, die die EPG-Daten bzw. die Event-Beschreibungen zwischengespeichert werden
@@ -1553,6 +1554,7 @@ repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
+reset_removed Entferne gelöschte Kanäle
 reset_settings Einstellungen auf Standardwerte
 satsetup.auto_scan Automatisch einen gewählten %s
 satsetup.auto_scan_all Automatisch alle Satelliten
