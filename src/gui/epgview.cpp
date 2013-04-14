@@ -126,6 +126,7 @@ void CEpgData::start()
 	buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;
 	if (buttonheight < 30)
 		buttonheight = 30; // the buttons and icons need space
+	oy-=buttonheight/2;
 	/* this is the text box height - and the height of the scroll bar */
 	sb = oy - topboxheight - botboxheight - buttonheight;
 	/* button box is handled separately (why?) */
@@ -135,7 +136,7 @@ void CEpgData::start()
 	toph = topboxheight;
 
 	sx = getScreenStartX(ox);
-	sy = getScreenStartY(oy + buttonheight/2); /* button box is handled separately (why?) */
+	sy = getScreenStartY(oy + buttonheight); /* button box is handled separately (why?) */
 }
 
 void CEpgData::addTextToArray(const std::string & text, int screening) // UTF-8
