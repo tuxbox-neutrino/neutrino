@@ -378,6 +378,10 @@ void CNeutrinoApp::InitMenuService()
 	mf = new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 	mf->setHint(NEUTRINO_ICON_HINT_DELETE_CHANNELS, LOCALE_MENU_HINT_DELETE_CHANNELS);
 	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESET_CHANNELS]);
+	/* todo: only show if (g_settings.make_removed_list) */
+	mf = new CMenuForwarder(LOCALE_RESET_REMOVED, true, NULL, resetNotifier, "delete_removed");
+	mf->setHint(NEUTRINO_ICON_HINT_DELETE_CHANNELS, LOCALE_MENU_HINT_DELETE_REMOVED);
+	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESET_CHANNELS]);
 
 	//separator
 	personalize.addSeparator(MENU_SERVICE);
