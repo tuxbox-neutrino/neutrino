@@ -1557,7 +1557,7 @@ void CNeutrinoApp::SetupFonts()
 	g_fontRenderer->AddFont(font.filename, true);  // make italics
 	style[2] = "Italic";
 
-	for (int i = 0; i < FONT_TYPE_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++)
 	{
 		if(g_Font[i]) delete g_Font[i];
 		g_Font[i] = g_fontRenderer->getFont(font.name, style[neutrino_font[i].style], configfile.getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize) + neutrino_font[i].size_offset * font.size_offset);
@@ -2424,6 +2424,7 @@ _repeat:
 				//g_Zapit->saveBouquets();
 				/* lets do it in sync */
 				reloadhintBox->paint();
+				CServiceManager::getInstance()->SaveServices(true, true);
 				g_bouquetManager->saveBouquets();
 				g_bouquetManager->saveUBouquets();
 				g_bouquetManager->renumServices();
@@ -3965,7 +3966,7 @@ void CNeutrinoApp::Cleanup()
 	delete RADIOsatList; RADIOsatList = NULL;
 
 	printf("cleanup 1\n");fflush(stdout);
-	for (int i = 0; i < FONT_TYPE_COUNT; i++) {
+	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++) {
 		delete g_Font[i];
 		g_Font[i] = NULL;
 	}
