@@ -2445,6 +2445,8 @@ bool CZapitSdtMonitor::Start()
 
 bool CZapitSdtMonitor::Stop()
 {
+	if (!started)
+		return false;
 	started = false;
 	int ret = join();
 	return (ret == 0);
