@@ -119,6 +119,7 @@ CInfoViewer::~CInfoViewer()
 	delete sigscale;
 	delete snrscale;
 	delete timescale;
+	delete infoViewerBB;
 }
 
 void CInfoViewer::Init()
