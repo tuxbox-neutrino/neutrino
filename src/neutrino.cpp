@@ -2167,7 +2167,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 				}
 			}
-			else if( ((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && ((neutrino_msg_t)g_settings.key_tvradio_mode == CRCInput::RC_nokey)) {
+			else if (((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && (g_settings.key_tvradio_mode == (int)CRCInput::RC_nokey)) {
 				switchTvRadioMode();//used with defined default tv/radio rc key
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode ) {
