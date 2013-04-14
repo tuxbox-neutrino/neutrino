@@ -214,7 +214,7 @@ CNeutrinoApp::CNeutrinoApp()
 	lockStandbyCall         = false;
 	current_muted		= 0;
 	recordingstatus		= 0;
-	g_channel_list_changed	= 0;
+	g_channel_list_changed	= false;
 	memset(&font, 0, sizeof(neutrino_font_descr_struct));
 }
 
@@ -2493,7 +2493,7 @@ _repeat:
 				/* don't change bouquet after adding a channel to favorites */
 				if (nNewChannel != -5)
 					SetChannelMode(old_mode);
-				g_channel_list_changed = 0;
+				g_channel_list_changed = false;
 				if(old_b_id < 0) old_b_id = old_b;
 				//g_Zapit->saveBouquets();
 				/* lets do it in sync */

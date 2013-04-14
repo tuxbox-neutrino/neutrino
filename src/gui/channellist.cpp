@@ -710,7 +710,8 @@ int CChannelList::show()
 			old_b_id = bouquetList->getActiveBouquetNumber();
 			fader.Stop();
 			int ret = doChannelMenu();
-			CNeutrinoApp::getInstance()->g_channel_list_changed = (ret != 0);
+			if (ret != 0)
+				CNeutrinoApp::getInstance()->MarkChannelListChanged();
 			if (ret == 1) {
 				res = -3 - ret; /* -5 == add to fav or bouquet, -4 == all other change */
 				loop = false;
