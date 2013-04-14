@@ -759,6 +759,7 @@ menu.hint_content_textcolor Change GUI window text color
 menu.hint_contrast_fonts Make fonts contrast (do not blend with background)
 menu.hint_dboxinfo Information about box cpu and storage
 menu.hint_delete_channels Remove all channels
+menu.hint_delete_removed Delete the channels in the 'Removed channels' boquet
 menu.hint_epg_cache Maximum days to cache for future events
 menu.hint_epg_dir Select directory on harddisk or usb flash\nto save EPG.
 menu.hint_epg_extendedcache Maximum hours to cache extended\nevents descriptions
@@ -1556,6 +1557,7 @@ repeatblocker.hint_2 Enter 0 to switch of the blocker (red is space)
 reset_all Factory reset and reboot
 reset_channels Delete all channels
 reset_confirm Are you sure ?
+reset_removed Delete removed channels
 reset_settings Reset settings to defaults
 satsetup.auto_scan Auto-Scan selected %s
 satsetup.auto_scan_all Auto-Scan multiple Satellites
