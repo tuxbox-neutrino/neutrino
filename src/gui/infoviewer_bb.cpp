@@ -128,9 +128,10 @@ CInfoViewerBB::~CInfoViewerBB()
 		pthread_cancel(scrambledT);
 		scrambledT = 0;
 	}
-	if(hddperT) {
+	if (hddperTflag) {
 		pthread_cancel(hddperT);
 		hddperT = 0;
+		hddperTflag = false;
 	}
 	if (hddscale)
 		delete hddscale;
