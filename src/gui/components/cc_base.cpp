@@ -78,7 +78,7 @@ void CComponents::initVarBasic()
 	saved_screen.pixbuf 	= NULL;
 }
 
-bool CComponents::allowPaint(int i)
+bool CComponents::allowPaint(const int& i)
 {
 	if(v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)
 		return true;
