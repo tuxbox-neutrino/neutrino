@@ -448,6 +448,12 @@ void CPictureViewer::Cleanup ()
 		free (m_CurrentPic_Buffer);
 		m_CurrentPic_Buffer = NULL;
 	}
+	CFormathandler *fh = fh_root;
+	while (fh) {
+		CFormathandler *tmp = fh->next;
+		free(fh);
+		fh = tmp;
+	}
 }
 
 void CPictureViewer::getSize(const char* name, int* width, int *height)
