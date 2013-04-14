@@ -423,7 +423,7 @@ int CBouquetList::show(bool bShowChannelList)
 			if (!Bouquets.empty()) {
 				int ret = doMenu();
 				if(ret > 0) {
-					CNeutrinoApp::getInstance ()->g_channel_list_changed = true;
+					CNeutrinoApp::getInstance()->MarkChannelListChanged();
 					res = -4;
 					loop = false;
 				} else if(ret < 0)
