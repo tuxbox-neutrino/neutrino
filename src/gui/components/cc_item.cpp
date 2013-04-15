@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -53,10 +53,11 @@ void CComponentsItem::initVarItem()
 {
 	//CComponents
 	initVarBasic();
-	cc_item_index = CC_NO_INDEX;
+	cc_item_index 		= CC_NO_INDEX;
 	cc_item_xr = cc_item_yr = -1;
-	cc_item_enabled = true;
-	cc_item_selected = false;
+	cc_item_enabled 	= true;
+	cc_item_selected 	= false;
+	cc_parent 		= NULL;
 }
 
 // Paint container background in cc-items with shadow, background and frame.

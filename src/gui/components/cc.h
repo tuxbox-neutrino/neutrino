@@ -101,6 +101,10 @@ class CComponentsItem : public CComponents
 		int cc_item_index;
 		bool cc_item_enabled, cc_item_selected;
 
+		///Pointer to the form object in which this item is embedded.
+		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
+		CComponents *cc_parent;
+
 		///contains real position and dimensions on screen,
 		int cc_item_xr, cc_item_yr;
 		
@@ -110,6 +114,9 @@ class CComponentsItem : public CComponents
 
 	public:
 		CComponentsItem();
+
+		///sets pointer to the form object in which this item is embedded.
+		virtual void setParent(CComponents *parent){cc_parent = parent;};
 
 		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
 		virtual void setRealPos(const int& xr, const int& yr){cc_item_xr = xr; cc_item_yr = yr;};

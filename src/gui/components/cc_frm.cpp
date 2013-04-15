@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -129,6 +129,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 #ifdef DEBUG_CC
 		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] [current count %d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), v_cc_items.size());
 #endif
+		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
 	}
 #ifdef DEBUG_CC
