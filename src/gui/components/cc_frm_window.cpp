@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -30,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc.h"
+#include "cc_frm.h"
 #include <driver/screen_max.h>
 
 using namespace std;
