@@ -1,9 +1,12 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 #AM_CPPFLAGS = -fno-rtti
 BUILT_SOURCES  = git_version.h
-git_version.h: makeversion
-	@if test -d ../../.git; then \
-		echo "#define GITVERSION \"$$(git describe --dirty || echo `date` )\" " > git_version.h.tmp ; \
+git_version.h:
+	@if test -d $(top_srcdir)/.git ; then \
+		pushd $(top_srcdir) ; \
+		GITDESCRIBE=$$(git describe --always --dirty || echo `date`) ; \
+		popd ; \
+		echo "#define GITVERSION \"$${GITDESCRIBE}\" " > git_version.h.tmp ; \
 		if diff -q git_version.h git_version.h.tmp >/dev/null 2>&1 ; then \
 			rm -f git_version.h.tmp ; \
 		else \
@@ -11,12 +14,10 @@ git_version.h: makeversion
 			mv git_version.h.tmp git_version.h ; \
 		fi; \
 	else \
-		rm git_version.h; echo '#define BUILT_DATE "'`date`'"' > git_version.h ; \
+		rm -f git_version.h; \
+		echo '#define BUILT_DATE "'`date`'"' > git_version.h ; \
 	fi
 noinst_HEADERS = git_version.h
-
-.PHONY: makeversion
-
 
 SUBDIRS = bedit components widget
 
