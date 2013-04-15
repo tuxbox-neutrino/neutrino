@@ -144,7 +144,7 @@ font_sizes_groups font_sizes_groups[6] =
 #define FONT_STYLE_BOLD    1
 #define FONT_STYLE_ITALIC  2
 
-font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
+font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 {
 	{LOCALE_FONTSIZE_MENU               ,  20, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_MENU_TITLE         ,  30, FONT_STYLE_BOLD   , 0},

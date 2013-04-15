@@ -87,7 +87,7 @@ NEUTRINO_CPP  CTimerdClient	*g_Timerd;
 
 NEUTRINO_CPP  FBFontRenderClass	*g_fontRenderer;
 
-NEUTRINO_CPP  Font * g_Font[FONT_TYPE_COUNT];
+NEUTRINO_CPP  Font * g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
 NEUTRINO_CPP  Font * g_SignalFont;
 
 NEUTRINO_CPP  CRCInput		*g_RCInput;
