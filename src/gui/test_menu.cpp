@@ -70,6 +70,7 @@ CTestMenu::CTestMenu()
 	header = NULL;
 	iconform = NULL;
 	window = NULL;
+	button = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -82,6 +83,7 @@ CTestMenu::~CTestMenu()
 	delete header;
 	delete iconform;
 	delete window;
+	delete button;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -328,6 +330,21 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		delete scanTs;
 		return res;
 	}
+	else if (actionKey == "button"){
+		if (button == NULL)
+			button = new CComponentsButtonRed(100, 100, 100, 40, "Test");
+
+		if (!button->isPainted()){
+			if (button->isSelected())
+				button->setSelected(false);
+			else
+				button->setSelected(true);
+			button->paint();
+		}else			
+			button->hide();
+		
+		return res;
+	}
 	else if (actionKey == "circle"){
 		if (circle == NULL)
 			circle = new CComponentsShapeCircle (100, 100, 100, false);
@@ -415,8 +432,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "header"){
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
-			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header", NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
-			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
+// 			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+			header->setHeaderDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
 // 		else	//For existing instances it's recommended
 // 			//to remove old button icons before add new buttons, otherwise icons will be appended.
@@ -549,6 +567,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 {
 	widget->setSelected(selected);
 	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("Button", true, NULL, this, "button"));
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
 	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
