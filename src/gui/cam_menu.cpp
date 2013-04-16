@@ -110,6 +110,7 @@ int CCAMMenuHandler::doMainMenu()
 	if(true /* CiSlots */) {
 		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		cammenu->addItem( new CMenuOptionNumberChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock, true, 6, 12, this));
+		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		cammenu->addItem( GenericMenuSeparatorLine );
 	}
 
@@ -222,6 +223,9 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 
 	if (msg != NeutrinoMessages::EVT_CA_MESSAGE)
 		return from_menu ? 1 : -1;
+
+	if (g_settings.ci_ignore_messages && !from_menu)
+		return 1;
 
 	rMsg	= (CA_MESSAGE *)data;
 	if (!rMsg)
