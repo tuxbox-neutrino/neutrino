@@ -1371,7 +1371,7 @@ void CScanSetup::saveScanSetup()
 
 	CZapit::getInstance()->SetConfig(&zapitCfg);
 	CFEManager::getInstance()->saveSettings(true);
-	CFEManager::getInstance()->linkFrontends();
+	//CFEManager::getInstance()->linkFrontends();
 }
 
 bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
