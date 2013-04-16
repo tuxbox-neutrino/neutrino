@@ -40,10 +40,10 @@ class CComponents
 		bool allowPaint(const int& i);
 	protected:
 		int x, y, height, width, corner_type, shadow_w;
-		int corner_rad, fr_thickness;
+		int corner_rad, fr_thickness, fr_thickness_sel;
 		CFrameBuffer * frameBuffer;
 		std::vector<comp_fbdata_t> v_fbdata;
-		fb_pixel_t	col_body, col_shadow, col_frame;
+		fb_pixel_t	col_body, col_shadow, col_frame, col_frame_sel;
 		bool	firstPaint, shadow, is_painted, paint_bg;
 		
 		void initVarBasic();
@@ -128,7 +128,7 @@ class CComponentsItem : public CComponents
 		virtual void kill();
 		virtual int getItemType();
 		virtual void syncSysColors();
-
+		
 		///setters for item select stats
 		virtual void setSelected(bool selected){cc_item_selected = selected;};
 		virtual void setEnable(bool enabled){cc_item_enabled = enabled;};
@@ -216,7 +216,7 @@ class CComponentsText : public CComponentsItem
 		virtual void removeLineBreaks(std::string& str);
 
 		//get a Text Box object, so it's possible to get access directly to its methods
-		CTextBox* getCTextBoxObject() { return ct_textbox; };
+		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
 };
 
 class CComponentsLabel : public CComponentsText

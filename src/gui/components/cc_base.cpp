@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -64,11 +64,13 @@ void CComponents::initVarBasic()
 	col_body 		= COL_MENUCONTENT_PLUS_0;
 	col_shadow 		= COL_MENUCONTENTDARK_PLUS_0;
 	col_frame 		= COL_MENUCONTENT_PLUS_6;
+	col_frame_sel 		= COL_MENUCONTENTSELECTED_PLUS_0;
 	corner_type 		= CORNER_ALL;
 	corner_rad		= 0;
 	shadow			= CC_SHADOW_OFF;
 	shadow_w		= SHADOW_OFFSET;
 	fr_thickness		= 0;
+	fr_thickness_sel	= 3;
 	
 	firstPaint		= true;
 	is_painted		= false;
