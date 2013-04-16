@@ -218,6 +218,7 @@ void CFrontend::Init(void)
 	secSetVoltage(SEC_VOLTAGE_13, 100);
 	secSetTone(SEC_TONE_OFF, 20);
 	setDiseqcType((diseqc_t) config.diseqcType, true);
+	setTsidOnid(0);
 	mutex.unlock();
 }
 
