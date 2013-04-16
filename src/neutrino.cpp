@@ -353,6 +353,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
 	g_settings.ci_clock = configfile.getInt32("ci_clock", 7);
+	g_settings.ci_ignore_messages = configfile.getInt32("ci_ignore_messages", 0);
 
 #ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
@@ -837,6 +838,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("rounded_corners", g_settings.rounded_corners);
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
 	configfile.setInt32("ci_clock", g_settings.ci_clock);
+	configfile.setInt32("ci_ignore_messages", g_settings.ci_ignore_messages);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	configfile.setInt32( "make_new_list", g_settings.make_new_list);

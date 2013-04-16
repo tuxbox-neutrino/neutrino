@@ -121,6 +121,7 @@ struct SNeutrinoSettings
 	int rounded_corners;
 	int ci_standby_reset;
 	int ci_clock;
+	int ci_ignore_messages;
 	int radiotext_enable;
 	
 	//vcr
