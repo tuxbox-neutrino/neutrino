@@ -229,6 +229,7 @@ channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben
 channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
+channellist.numeric_adjust Numeric zap adjust
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
@@ -237,6 +238,7 @@ channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
 ci.empty Kein CAM im Slot
+ci.ignore_msg CA Meldungen ignorieren
 ci.init_failed CAM-Init fehlgeschlagen
 ci.init_ok CAM-Init beendet
 ci.inserted CAM im Slot
@@ -360,6 +362,9 @@ extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
 extra.key_current_transponder Aktuelle Transponder Taste
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
+extra.key_pip_close Stop/Start PiP
+extra.key_pip_setup PiP Konfiguration
+extra.key_pip_swap Umschalten PiP/live
 extra.key_plugin One-touch-Plugin
 extra.key_screenshot Screenshot Taste
 extra.key_timeshift Timeshift
@@ -843,6 +848,9 @@ menu.hint_key_mptime Weisen Sie eine Taste für die Restzeitanzeige ihrer Aufnah
 menu.hint_key_mptimeshift Weisen Sie eine Taste für das Starten von Timeshift zu
 menu.hint_key_pagedown Weisen Sie eine Taste für das Herunterblättern zu
 menu.hint_key_pageup Weisen Sie eine Taste für das Hochblättern zu
+menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
+menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
+menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
 menu.hint_key_repeatblock Die Verzögerung nach einem Tastendruck bis die Box reagieren soll
@@ -917,6 +925,7 @@ menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
+menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
@@ -980,12 +989,14 @@ menu.hint_scan_cable Wählen Sie ihr Kabelnetz für den Suchlauf
 menu.hint_scan_cable_simple Kabel-Suchlauf mit optionaler Anbieter- und Kanal-Nummerierung
 menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
 menu.hint_scan_diseqc Wählen Sie das DiSEqC-Schalter-Eingangssignal für diesen Satelliten
+menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat DiSEqC-Wiederholungen für kaskadierte Schaltungen
 menu.hint_scan_diseqctype Wählen Sie ihr DiSEqC-Protokoll\nMit 'Erweitert' können Sie ihre Anlage einbinden
 menu.hint_scan_fast Schnell-Suchlauf eines ausgewählten Anbieters\nWARNUNG: DiSEqC-Einstellung wird überschrieben
 menu.hint_scan_fastprov Wählen Sie einen Anbieter (Provider) für den Suchlauf
 menu.hint_scan_fasttype Wählen Sie das Sendeformat
 menu.hint_scan_fec Wählen Sie eine Transponder-FEC
+menu.hint_scan_felink Select tuner to link tuner to
 menu.hint_scan_femode Wählen Sie den Verbindungstyp für den zweiten Tuner
 menu.hint_scan_fesetup Konfigurieren des oder der Tuner
 menu.hint_scan_fetimeout Maximale Wartezeit auf das Signal in 1/10 Sekunden
@@ -1082,11 +1093,15 @@ menu.hint_vfd_statusline Wählen Sie, was in der Statuszeile angezeigt werden so
 menu.hint_video Video-Ausgang, Auflösung, Format, Seitenverhältnisse und mehr
 menu.hint_video_43mode Anzeige-Modus für 4:3-Inhalte auf 16:9-Fernsehern
 menu.hint_video_analog_mode Wählen Sie den Modus des Ausgangssignals für den CINCH-Anschluss
+menu.hint_video_brightness Change picture brightness
 menu.hint_video_cinch_mode Wählen Sie den Modus des Ausgangssignals für den Composite-Video-Anschluss
+menu.hint_video_contrast Change picture contrast
 menu.hint_video_dbdr Verwendeter MPEG2 Filter
 menu.hint_video_format Wählen Sie das Bildschirmformat ihres Fernsehgerätes
 menu.hint_video_mode Wählen Sie den Modus des Ausgangssignals für den HDMI-Anschluss
 menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbedienung ausgewählt werden können
+menu.hint_video_pip Bild in Bild Größe und Position
+menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
@@ -1232,7 +1247,10 @@ moviebrowser.edit_book_type_info2 <0 zurück , >0 vor, 0: kein
 moviebrowser.edit_serie Name der Serie
 moviebrowser.error_no_movies Keine Filme gefunden
 moviebrowser.foot_filter Filter:
+moviebrowser.foot_focus Fenster umschalten
+moviebrowser.foot_options Optionen
 moviebrowser.foot_play Film starten
+moviebrowser.foot_refresh Liste neu laden
 moviebrowser.foot_sort Sortieren:
 moviebrowser.head TS Filmarchiv (eigene Aufnahmen)
 moviebrowser.head_filter Filme nach Kategorie filtern:
@@ -1568,6 +1586,7 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Erweiterte Auswahl
 satsetup.diseqc_com_uncom Committed/Uncommitted
 satsetup.diseqc_input DiSEqC Einspeisung
+satsetup.diseqc_order DiSEqC command order
 satsetup.diseqc_uncom_com Uncommitted/Committed
 satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.extended DiSEqC-Einstellungen
@@ -1582,10 +1601,11 @@ satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fe_mode Tuner Modus
-satsetup.fe_mode_alone independent
-satsetup.fe_mode_loop loop
-satsetup.fe_mode_single single
-satsetup.fe_mode_twin twin
+satsetup.fe_mode_independent Independent
+satsetup.fe_mode_link_loop Loop
+satsetup.fe_mode_link_twin TWIN
+satsetup.fe_mode_master Master
+satsetup.fe_mode_unused Nicht genutzt
 satsetup.fe_setup Setup Tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
@@ -1816,6 +1836,8 @@ usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü ange
 usermenu.name Name
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
+videomenu.analog_auto AUTO
+videomenu.analog_cvbs CVBS
 videomenu.analog_hd_rgb RGB (HD)
 videomenu.analog_hd_rgb_cinch RGB -> Cinch (HD)
 videomenu.analog_hd_rgb_scart RGB -> Scart (HD)
@@ -1850,6 +1872,8 @@ videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.panscan Pan & Scan
 videomenu.panscan2 14:9 Pan & Scan
+videomenu.pip PiP Setup
+videomenu.pip_error PiP Startfehler
 videomenu.saturation Sättigung
 videomenu.scart Scart
 videomenu.screensetup Bildbereich
