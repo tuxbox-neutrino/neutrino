@@ -72,7 +72,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 
 	int sw = shadow ? shadow_w : 0;
 	int th = fr_thickness;
-	int col_frame_cur = col_frame;
+	fb_pixel_t col_frame_cur = col_frame;
 
 	if (cc_item_selected){
 		col_frame_cur = col_frame_sel;
