@@ -294,8 +294,6 @@ bool CFEManager::loadSettings()
 		}
 	}
 	linkFrontends();
-	if (configfile.getUnknownKeyQueryedFlag())
-		configfile.saveConfig(FECONFIGFILE);
 	return true;
 }
 
