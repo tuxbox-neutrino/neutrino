@@ -640,7 +640,8 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 #else
 		channel->setRecordDemux(frontend->fenumber+1);
 		channel->setPipDemux(frontend->fenumber+1);
-		cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
+		if(femap.size() > 1)
+			cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
 #ifdef ENABLE_PIP
 		/* FIXME until proper demux management */
 		if (enabled_count < 4) {
