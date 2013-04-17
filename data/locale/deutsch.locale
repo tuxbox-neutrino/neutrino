@@ -1822,19 +1822,19 @@ usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü ange
 usermenu.name Name
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
+videomenu.analog_hd_rgb RGB (HD)
 videomenu.analog_hd_rgb_cinch RGB -> Cinch (HD)
 videomenu.analog_hd_rgb_scart RGB -> Scart (HD)
+videomenu.analog_hd_yprpb YPbPr(HD)
 videomenu.analog_hd_yprpb_cinch YPbPr -> Cinch (HD)
 videomenu.analog_hd_yprpb_scart YPbPr -> Scart (HD)
 videomenu.analog_mode Videomodus
+videomenu.analog_sd_rgb RGB (SD)
 videomenu.analog_sd_rgb_cinch RGB -> Cinch (SD)
 videomenu.analog_sd_rgb_scart RGB -> Scart (SD)
+videomenu.analog_sd_yprpb YPbPr (SD)
 videomenu.analog_sd_yprpb_cinch YPbPr -> Cinch (SD)
 videomenu.analog_sd_yprpb_scart YPbPr -> Scart (SD)
-videomenu.analog_hd_rgb RGB (HD)
-videomenu.analog_hd_yprpb YPbPr(HD)
-videomenu.analog_sd_rgb RGB (SD)
-videomenu.analog_sd_yprpb YPbPr (SD)
 videomenu.auto Automatisch
 videomenu.brightness Helligkeit
 videomenu.cinch Cinch
