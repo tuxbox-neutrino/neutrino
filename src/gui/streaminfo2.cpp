@@ -56,7 +56,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 CStreamInfo2::CStreamInfo2 ()
 {
 	frameBuffer = CFrameBuffer::getInstance ();
-
+	pip        = NULL;
 	font_head = SNeutrinoSettings::FONT_TYPE_MENU_TITLE;
 	font_info = SNeutrinoSettings::FONT_TYPE_MENU;
 	font_small = SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL;
@@ -98,7 +98,7 @@ CStreamInfo2::CStreamInfo2 ()
 
 CStreamInfo2::~CStreamInfo2 ()
 {
-	videoDecoder->Pig(-1, -1, -1, -1);
+	delete pip;
 	ts_close();
 }
 
@@ -120,8 +120,13 @@ int CStreamInfo2::doSignalStrengthLoop ()
 #define BAR_WIDTH 150
 #define BAR_HEIGHT 12
 	int res = menu_return::RETURN_REPAINT;
-	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
+	
+	sigscale = new CProgressBar();
+	sigscale->setBlink();
+	
+	snrscale = new CProgressBar();
+	snrscale->setBlink();
+	
 	lastsnr = lastsig = -1;
 
 	neutrino_msg_t msg;
@@ -252,15 +257,8 @@ int CStreamInfo2::doSignalStrengthLoop ()
 
 void CStreamInfo2::hide ()
 {
-	videoDecoder->Pig(-1, -1, -1, -1);
+	pip->hide(true);
 	frameBuffer->paintBackgroundBoxRel (0, 0, max_width, max_height);
-}
-
-void CStreamInfo2::paint_pig (int px, int py, int w, int h)
-{
-	frameBuffer->paintBackgroundBoxRel (px,py, w, h);
-	printf("CStreamInfo2::paint_pig x %d y %d w %d h %d\n", px, py, w, h);
-	videoDecoder->Pig(px, py, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
 void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
@@ -425,7 +423,10 @@ void CStreamInfo2::paint (int /*mode*/)
 		g_Font[font_head]->RenderString (xpos, ypos + hheight + 1, width, head_string, COL_MENUHEAD, 0, true);	// UTF-8
 		ypos += hheight;
 
-		paint_pig (width - width/3 - 10, y + 10, width/3, height/3);
+		if (pip == NULL)
+			pip = new CComponentsPIP(width-width/3-10, y+10, 33);
+		pip->paint();
+
 		paint_techinfo (xpos, ypos);
 		paint_signal_fe_box (width - width/3 - 10, (y + 10 + height/3 + hheight), width/3, height/3 + hheight);
 	} else {
@@ -914,7 +915,8 @@ void CStreamInfo2::showSNR ()
 		posy = yypos + (mheight/2)-5;
 		posx = x + 10;
 		sprintf(percent, "%d%%", sig);
-		sigscale->paintProgressBar2(posx - 1, posy, sig);
+		sigscale->setProgress(posx - 1, posy, BAR_WIDTH, BAR_HEIGHT, sig, 100);
+		sigscale->paint();
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUHEAD_PLUS_0);
@@ -926,7 +928,9 @@ void CStreamInfo2::showSNR ()
 		posy = yypos + mheight + 5;
 		posx = x + 10;
 		sprintf(percent, "%d%% SNR", snr);
-		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
+		snrscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, snr, 100);
+		snrscale->paint();
+// 		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUHEAD_PLUS_0, 0, true);

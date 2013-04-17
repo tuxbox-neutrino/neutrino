@@ -217,19 +217,21 @@ void CInfoViewer::start ()
 
 void CInfoViewer::changePB()
 {
-	const short red_bar = 40;
-	const short yellow_bar = 70;
-	const short green_bar = 100;
-
-	if (sigscale != NULL)
+	if (sigscale)
 		delete sigscale;
-	sigscale = new CProgressBar(true, bar_width, 10, red_bar, green_bar, yellow_bar);
-	if (snrscale != NULL)
+	sigscale = new CProgressBar();
+	sigscale->setBlink();
+	
+	if (snrscale)
 		delete snrscale;
-	snrscale = new CProgressBar(true, bar_width, 10, red_bar, green_bar, yellow_bar);
-	if (timescale != NULL)
+	snrscale = new CProgressBar();
+	snrscale->setBlink();
+	
+	if (timescale)
 		delete timescale;
-	timescale = new CProgressBar(true, -1,       -1, 30,      green_bar, yellow_bar, true);
+	timescale = new CProgressBar();
+	timescale->setBlink();
+	timescale->setRgb(0, 100, 70);
 }
 
 void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
@@ -1420,7 +1422,10 @@ void CInfoViewer::showSNR ()
 			lastsig = sig;
 			posx = BoxStartX + (ChanWidth - (bar_width + 2 + (g_SignalFont->getWidth() * 4))) / 2;
 			posy = freqStartY;
-			sigscale->paintProgressBar(posx, posy+4, bar_width, 10 * g_settings.screen_yres / 100, sig, 100);
+			sigscale->setDimensionsAll(posx, posy+4, bar_width, 10 * g_settings.screen_yres / 100);
+			sigscale->setColorBody(COL_INFOBAR_PLUS_0);
+			sigscale->setValues(sig, 100);
+			sigscale->paint();
 			snprintf (percent, sizeof(percent), "%d%%S", sig);
 			posx = posx + bar_width + 2;
 			sw = BoxStartX + ChanWidth - posx;
@@ -1431,7 +1436,10 @@ void CInfoViewer::showSNR ()
 			lastsnr = snr;
 			posx = BoxStartX + (ChanWidth - (bar_width + 2 + (g_SignalFont->getWidth() * 4))) / 2;
 			posy = freqStartY + height - (2 * g_settings.screen_yres / 100);
-			snrscale->paintProgressBar(posx, posy+4, bar_width, 10 * g_settings.screen_yres / 100, snr, 100);
+			snrscale->setDimensionsAll(posx, posy+4, bar_width, 10 * g_settings.screen_yres / 100);
+			snrscale->setColorBody(COL_INFOBAR_PLUS_0);
+			snrscale->setValues(snr, 100);
+			snrscale->paint();
 			snprintf (percent, sizeof(percent), "%d%%Q", snr);
 			posx = posx + bar_width + 2;
 			sw = BoxStartX + ChanWidth - posx -4;
@@ -1473,12 +1481,12 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
 	switch(g_settings.infobar_progressbar)
 	{
-		case 1:
-		case 2:
+		case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME:
+		case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL:
 			CurrInfoY += (pb_h/3);
 			NextInfoY += (pb_h/3);
 		break;
-		case 3:
+		case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS:
 			CurrInfoY -= (pb_h/3);
 			NextInfoY += (pb_h/3);
 		break;
@@ -1492,26 +1500,27 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		int pb_startx = BoxEndX - pb_w - SHADOW_OFFSET;
 		int pb_starty = ChanNameY - (pb_h + 10);
 		int pb_shadow = COL_INFOBAR_SHADOW_PLUS_0;
+		timescale->setShadowOnOff(true);
 		int pb_color = g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0;
 		if(g_settings.infobar_progressbar){
 			pb_startx = xStart;
 			pb_w = BoxEndX - 10 - xStart;
 			pb_shadow = 0;
+			timescale->setShadowOnOff(false);
 		}
-		switch(g_settings.infobar_progressbar)
+		switch(g_settings.infobar_progressbar) //set progressbar position
 		{
-			case 1:
-
+			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME:
 				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 6)) ;
 				pb_h = (pb_h/3);
-				pb_color = 0;
+// 				pb_color = 0;
 			break;
-			case 2:
+			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL:
 				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 5)) ;
 				pb_h = (pb_h/5);
-				pb_color = 0;
+// 				pb_color = 0;
 			break;
-			case 3:
+			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS:
 				pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
 				pb_h = (pb_h/5);
 			break;
@@ -1523,8 +1532,10 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		if (pb_p > pb_w)
 			pb_p = pb_w;
 
-		timescale->paintProgressBar(pb_startx, pb_starty, pb_w, pb_h, pb_p, pb_w,
-					    0, 0, pb_color, pb_shadow, "", COL_INFOBAR);
+		timescale->setDimensionsAll(pb_startx, pb_starty, pb_w, pb_h);
+		timescale->setColorAll(pb_color, pb_color, pb_shadow);
+		timescale->setValues(pb_p, pb_w);
+		timescale->paint();
 		//printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, ChanNameY - (pb_h + 10) , pb_w, pb_h);
 	}
 

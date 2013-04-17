@@ -40,7 +40,7 @@
 #include <zapit/zapit.h>
 
 #if HAVE_COOL_HARDWARE
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 #endif
 
 extern CRemoteControl * g_RemoteControl;
@@ -106,12 +106,14 @@ void CVolume::Init()
 	vbar_w		= spacer + icon_w + spacer + progress_w + spacer;
 	if (paintDigits) {
 		digit_w		= g_Font[VolumeFont]->getRenderWidth("100");
-		progress_h	= std::max(icon_h, digit_h) - 2*pB;
+		progress_h	= std::max(icon_h, digit_h);
 		vbar_w 		+= digit_w;
 	}
 	if (volscale)
 		delete volscale;
-	volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
+	volscale = new CProgressBar(progress_x, progress_y, progress_w, progress_h, colFrame, colBar, colShadow, COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1, true);
+	volscale->setInvert();
+	volscale->setFrameThickness(2);
 
 	// mute icon
 	mute_icon_dx 	= 0;
@@ -250,8 +252,6 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 			frameBuffer->paintBoxRel(x+ShadowOffset , y+ShadowOffset , (paintDigits) ? vbar_w - vbar_h : vbar_w + 1, vbar_h, colShadow, ROUNDED, (paintDigits) ? CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT : CORNER_ALL);
 		// volumebar
 		frameBuffer->paintBoxRel(x , y , (paintDigits) ? vbar_w - vbar_h : vbar_w + 1, vbar_h, colBar, ROUNDED, (paintDigits) ? CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT : CORNER_ALL);
-		// frame for progress
-		frameBuffer->paintBoxRel(progress_x-pB, progress_y-pB, progress_w+pB*2, progress_h+pB*2, colFrame);
 		// volume icon
 		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME, icon_x, icon_y, 0, colBar);
 
@@ -343,8 +343,6 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 
 void CVolume::refreshVolumebar(int current_volume)
 {
-	// progressbar
-	volscale->paintProgressBar2(progress_x, progress_y, current_volume);
 	if (paintDigits) {
 		// shadow for erase digits
 		if (paintShadow)
@@ -356,6 +354,9 @@ void CVolume::refreshVolumebar(int current_volume)
 		snprintf(buff, 4, "%3d", current_volume);
 		g_Font[VolumeFont]->RenderString(digit_x, digit_y, digit_w, buff, colContent);	
 	}
+	// progressbar
+	volscale->setValues(current_volume, 100);
+	volscale->paint();
 }
 
 bool CVolume::changeNotify(const neutrino_locale_t OptionName, void * data)

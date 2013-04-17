@@ -1798,13 +1798,13 @@ void CAudioPlayerGui::paintInfo()
 		if (!m_show_playlist)
 		{
 			// no playlist -> smaller Info-Box
-			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight,2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
-			m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2 , m_width - 4, m_title_height - 14 - m_fheight, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, m_title_height - 12 - m_fheight, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
 		}
 		else
 		{
-			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10,2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
-			m_frameBuffer->paintBoxRel(m_x + 2, m_y + 2 , m_width - 4, m_title_height - 14, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, m_title_height - 12, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
 		}
 
 		// first line (Track number)
@@ -1927,9 +1927,10 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 
 		// paint id3 infobox
 		if (ibox == NULL)
-			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height, false);
+			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height);
+		ibox->setCornerRadius(RADIUS_LARGE);
 		ibox->setYPos(ypos2);
-		ibox->paint(false, true);
+		ibox->paint(false);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
 				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK, 0, true); // UTF-8

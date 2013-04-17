@@ -54,6 +54,7 @@
 #include <zapit/femanager.h>
 #include <gui/widget/messagebox.h>
 
+
 extern int cs_test_card(int unit, char * str);
 
 #ifdef TEST_MENU
@@ -61,10 +62,26 @@ CTestMenu::CTestMenu()
 {
 	width = w_max (50, 10);
 	selected = -1;
+	circle = NULL;
+	sq = NULL;
+	pic= NULL;
+	form = NULL;
+	txt = NULL;
+	header = NULL;
+	iconform = NULL;
+	window = NULL;
 }
 
 CTestMenu::~CTestMenu()
 {
+	delete sq;
+	delete circle;
+	delete pic;
+	delete form;
+	delete txt;
+	delete header;
+	delete iconform;
+	delete window;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -311,10 +328,191 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		delete scanTs;
 		return res;
 	}
+	else if (actionKey == "circle"){
+		if (circle == NULL)
+			circle = new CComponentsShapeCircle (100, 100, 100, false);
 
+		if (!circle->isPainted())	
+			circle->paint();
+		else
+			circle->hide();			
+		return res;
+	}
+	else if (actionKey == "square"){
+		if (sq == NULL)
+			sq = new CComponentsShapeSquare (100, 220, 100, 100, false);
 
+		if (!sq->isPainted())
+			sq->paint();
+		else
+			sq->hide();
+		return res;
+	}
+	else if (actionKey == "picture"){
+		if (pic == NULL)
+			pic = new CComponentsPicture (100, 100, 200, 200, DATADIR "/neutrino/icons/mp3-5.jpg");
+
+		if (!pic->isPainted() && !pic->isPicPainted())
+			pic->paint();
+		else
+			pic->hide();
+		return res;
+	}
+	else if (actionKey == "form"){
+		if (form == NULL)
+			form = new CComponentsForm();
+		form->setColorBody(COL_LIGHT_GRAY);
+		form->setDimensionsAll(100, 100, 250, 100);
+		form->setFrameThickness(2);
+		form->setColorFrame(COL_WHITE);
+
+		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
+		ptmp->setWidth(28);
+		ptmp->setHeight(28);
+		ptmp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+		ptmp->setColorBody(COL_BLUE);
+ 		ptmp->setCornerRadius(RADIUS_MID);
+ 		ptmp->setCornerType(CORNER_TOP_LEFT);
+		form->addCCItem(ptmp);
+
+		CComponentsText *t1 = new CComponentsText(28, 0, 100, 28, "Text1", CTextBox::NO_AUTO_LINEBREAK);
+		form->addCCItem(t1);
+		
+		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 200, 50, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
+		t2->setCornerRadius(RADIUS_MID);
+ 		t2->setCornerType(CORNER_TOP_RIGHT);
+ 		form->addCCItem(t2);
+
+		CComponentsShapeCircle *c1 = new CComponentsShapeCircle(28, 40, 28);
+		c1->setColorBody(COL_RED);
+		form->addCCItem(c1);
+
+// 		form->removeCCItem(form->getCCItemId(t1));
+//  		form->insertCCItem(1,  new CComponentsPicture(28, 0, 0, 0, NEUTRINO_ICON_BUTTON_RED));
+		
+		
+		if (form->isPainted()) {
+			form->hide();
+			delete form;
+			form = NULL;
+		}
+		else
+			form->paint();
+		return res;
+	}
+	else if (actionKey == "text"){
+		if (txt == NULL)
+			txt = new CComponentsText();
+		txt->setDimensionsAll(100, 100, 250, 100);
+ 		txt->setText("This is a text for testing textbox", CTextBox::NO_AUTO_LINEBREAK);
+
+		if (txt->isPainted())
+			txt->hide();
+		else
+			txt->paint();
+		return res;
+	}
+	else if (actionKey == "header"){
+		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+		if (header == NULL){
+			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header", NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
+			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+		}
+// 		else	//For existing instances it's recommended
+// 			//to remove old button icons before add new buttons, otherwise icons will be appended.
+//  			header->removeHeaderButtons();
+
+//		example to manipulate header items
+// 		header->setFrameThickness(5);
+// 		header->setColorFrame(COL_WHITE);
+// 		header->setCornerType(CORNER_TOP);
+
+//		change text of header
+		header->setHeaderText("Test");
+
+//		add any other button icon
+//   		header->addHeaderButton(NEUTRINO_ICON_BUTTON_BLUE);
+// 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_GREEN);
+
+//		example to replace the text item with an image item
+//		get text x position
+// 		int logo_x = header->getCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT)->getXPos();
+//		remove text item
+// 		header->removeCCItem(CComponentsHeader::CC_HEADER_ITEM_TEXT); //then remove text item
+//		create picture object with the last x position of text
+// 		CComponentsPicture *logo  = new CComponentsPicture(logo_x, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight(), "/share/tuxbox/neutrino/icons/hint_tvmode.png");
+//		set the transparent background for picture item
+// 		logo->doPaintBg(false);
+//		insert the ne object
+// 		header->insertCCItem(1, logo); //replace text with logo
+
+		
+		if (!header->isPainted())
+			header->paint();
+		else
+			header->hide();
+		return res;
+	}
+	else if (actionKey == "iconform"){
+		if (iconform == NULL)
+			iconform = new CComponentsIconForm();
+		iconform->setColorBody(COL_LIGHT_GRAY);
+		iconform->setDimensionsAll(100, 100, 480, 60);
+		iconform->setFrameThickness(2);
+		iconform->setColorFrame(COL_WHITE);
+		iconform->setIconOffset(5);
+		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
+		//For existing instances it's recommended
+		//to remove old items before add new icons, otherwise icons will be appended.
+		iconform->removeAllIcons();
+
+		//you can...
+		//add icons step by step
+		iconform->addIcon(NEUTRINO_ICON_INFO);
+		iconform->addIcon(NEUTRINO_ICON_INFO);
+		iconform->addIcon(NEUTRINO_ICON_HINT_MEDIA);
+		//...or
+		//add icons with vector
+		std::vector<std::string> v_icons;
+		v_icons.push_back(NEUTRINO_ICON_HINT_VIDEO);
+		v_icons.push_back(NEUTRINO_ICON_HINT_AUDIO);
+		iconform->addIcon(v_icons);
+
+		//insert any icon, here as first (index = 0...n)
+		iconform->insertIcon(0, NEUTRINO_ICON_HINT_APLAY);
+// 		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
+		
+		if (iconform->isPainted())
+			iconform->hide();
+		else{
+			iconform->paint();
+		}
+		return res;
+	}
+	else if (actionKey == "window"){
+		if (window == NULL){
+			window = new CComponentsWindow();
+			window->setWindowCaption("|.....................|");
+			window->setDimensionsAll(50, 50, 800, 480);
+			window->setWindowIcon(NEUTRINO_ICON_INFO);
+		}
+		else{
+// 			window->setDimensionsAll(50, 50, 800, 480);
+			window->setWindowIcon(NEUTRINO_ICON_LOCK);
+			window->setWindowCaption("Test");
+		}
+		
+		if (!window->isPainted())
+			window->paint();
+		else
+			window->hide();
+
+		return res;
+	}
+	
+	
 	showTestMenu();
-
+	
 	return res;
 }
 
@@ -322,49 +520,81 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 void CTestMenu::showTestMenu()
 {
 	unsigned int system_rev = cs_get_revision();
-
+	
 	//init
 	char rev[255];
 	sprintf(rev, "Test menu, System revision %d %s", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
-	CMenuWidget * TestMenu = new CMenuWidget(rev /*"Test menu"*/);
-	TestMenu->setSelected(selected);
-	TestMenu->addIntroItems();
-	TestMenu->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, this, "vfd"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, this, "network"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Buttons", true, NULL, this, "buttons"));
+	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width);
+	w_test.addIntroItems();
+	
+	//hardware
+	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width);
+	w_test.addItem(new CMenuForwarderNonLocalized(w_hw->getName().c_str(), true, NULL, w_hw));
+	showHWTests(w_hw);
+	
+	//buttons
+	w_test.addItem(new CMenuForwarderNonLocalized("Buttons", true, NULL, this, "buttons"));
+	
+	//components
+	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width);
+	w_test.addItem(new CMenuForwarderNonLocalized(w_cc->getName().c_str(), true, NULL, w_cc));
+	showCCTests(w_cc);
 
+	//exit
+	w_test.exec(NULL, "");
+	selected = w_test.getSelected();
+}
+
+void CTestMenu::showCCTests(CMenuWidget *widget)
+{
+	widget->setSelected(selected);
+	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
+	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
+	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
+	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
+	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
+	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));
+	widget->addItem(new CMenuForwarderNonLocalized("Icon-Form", true, NULL, this, "iconform"));
+	widget->addItem(new CMenuForwarderNonLocalized("Window", true, NULL, this, "window"));
+}
+
+void CTestMenu::showHWTests(CMenuWidget *widget)
+{
+	widget->setSelected(selected);
+	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, this, "vfd"));
+	widget->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, this, "network"));
+	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));
+	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
+	widget->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
+	
 	//CFEManager::getInstance()->setMode(CFEManager::FE_MODE_ALONE);
-
+	
 	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
 	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
-
+	
 	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 	satmap[130].configured = 1;
-
+	
 	CFrontend * frontend = CFEManager::getInstance()->getFE(0);
 	frontend->setSatellites(satmap);
-
+	
 	int count = CFEManager::getInstance()->getFrontendCount();
 	if (frontend->getInfo()->type == FE_QPSK) {
-		TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 1: Scan 12538000", true, NULL, this, "scan1"));
-		TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon1"));
-		TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff1"));
+		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: Scan 12538000", true, NULL, this, "scan1"));
+		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon1"));
+		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff1"));
 		if(count > 1) {
 			satmap = CServiceManager::getInstance()->SatelliteList();
 			satmap[192].configured = 1;
 			frontend = CFEManager::getInstance()->getFE(1);
 			frontend->setSatellites(satmap);
-
-			TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 2: Scan 12538000", true, NULL, this, "scan2"));
-			TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon2"));
-			TestMenu->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff2"));
+			
+			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: Scan 12538000", true, NULL, this, "scan2"));
+			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon2"));
+			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff2"));
 		}
 	}
-	TestMenu->exec(NULL, "");
-	selected = TestMenu->getSelected();
-	delete TestMenu;
 }
 #endif

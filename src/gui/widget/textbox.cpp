@@ -644,6 +644,8 @@ void CTextBox::hide (void)
 	if(frameBuffer == NULL)
 		return;
 	
-	frameBuffer->paintBackgroundBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight);
+	if (m_nPaintBackground)
+		frameBuffer->paintBackgroundBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight);
+	
 	frameBuffer = NULL;
 }

@@ -432,6 +432,7 @@ struct SNeutrinoSettings
 	int pip_y;
 	int bigFonts;
 	int big_windows;
+	int eventlist_additional;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_extended;
@@ -616,6 +617,15 @@ struct SNeutrinoSettings
 	} USER_ITEM;
 	std::string usermenu_text[BUTTON_MAX];
 	int usermenu[BUTTON_MAX][ITEM_MAX];  // (USER_ITEM)  [button][position in Menue] = feature item
+
+	//progressbar arrangement for infobar
+	typedef enum
+	{
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT = 0,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME = 1,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL = 2,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS = 3	
+	}INFOBAR_PROGRESSBAR_ARRANGEMENT_TYPES;
 
 };
 

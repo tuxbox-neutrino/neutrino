@@ -208,6 +208,7 @@ data/iso-codes/Makefile
 data/lcd/Makefile
 data/lcd/icons/Makefile
 data/lcd/clock/Makefile
+data/license/Makefile
 data/locale/Makefile
 data/scripts/Makefile
 data/themes/Makefile

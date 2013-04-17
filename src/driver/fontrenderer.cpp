@@ -432,8 +432,20 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	static fb_pixel_t oldbgcolor = 0, oldfgcolor = 0;
 	static fb_pixel_t colors[256]={0};
 
-	fb_pixel_t bgcolor = frameBuffer->realcolor[color];
-	fb_pixel_t fgcolor = frameBuffer->realcolor[(((((int)color) + 2) | 7) - 2)];
+	// fb_pixel_t bgcolor = frameBuffer->realcolor[color];
+	uint8_t fgindex = color;		/* index of font color in the palette */
+	if (color > COL_BLACK0 && color < 254)	/* bigger than 254 would result in  > 255 */
+		fgindex = ((((int)color) + 2) | 7) - 2; /* no idea what this does exactly... */
+	fb_pixel_t fgcolor = frameBuffer->realcolor[fgindex];
+#ifndef USE_NEVIS_GXA
+	/* the GXA seems to do it's job asynchonously, so we need to wait until
+	   it's ready, otherwise the font will sometimes "be overwritten" with
+	   background color or bgcolor will be wrong */
+	frameBuffer->waitForIdle();
+#endif
+	/* fetch bgcolor from framebuffer, using lower left edge of the font... */
+	fb_pixel_t bgcolor = *(frameBuffer->getFrameBufferPointer() + x +
+			       y * frameBuffer->getStride() / sizeof(fb_pixel_t));
 
 	if((oldbgcolor != bgcolor) || (oldfgcolor != fgcolor)) {
 
@@ -478,12 +490,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 			spread_by = 1;
 	}
 
-	/* the GXA seems to do it's job asynchonously, so we need to wait until
-	   it's ready, otherwise the font will sometimes "be overwritten" with
-	   background color */
-#ifndef USE_NEVIS_GXA
-	frameBuffer->waitForIdle();
-#endif
 	for (; *text; text++)
 	{
 		FTC_SBit glyph;

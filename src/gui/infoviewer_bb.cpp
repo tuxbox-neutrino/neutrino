@@ -649,17 +649,22 @@ void* CInfoViewerBB::hddperThread(void *arg)
 }
 
 void CInfoViewerBB::showBarSys(int percent)
-{
-	if (is_visible)
-		sysscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6, percent, 100);
+{	
+	if (is_visible){
+		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6);
+		sysscale->setValues(percent, 100);
+		sysscale->paint();
+	}
 }
 
 void CInfoViewerBB::showBarHdd(int percent)
 {
 	if (is_visible) {
-		if (percent >= 0)
-			hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
-		else {
+		if (percent >= 0){
+			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6);
+			hddscale->setValues(percent, 100);
+			hddscale->paint();
+		}else {
 			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
 			hddscale->reset();
 		}
@@ -818,12 +823,17 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 void CInfoViewerBB::changePB()
 {
 	hddwidth = frameBuffer->getScreenWidth(true) * ((g_settings.screen_preset == 1) ? 10 : 8) / 128; /* 80(CRT)/100(LCD) pix if screen is 1280 wide */
-	if (hddscale != NULL)
+	if (hddscale)
 		delete hddscale;
-	hddscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
-	if (sysscale != NULL)
+	hddscale = new CProgressBar();
+	hddscale->setBlink();
+	hddscale->setInvert();
+	
+	if (sysscale)
 		delete sysscale;
-	sysscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
+	sysscale = new CProgressBar();
+	sysscale->setBlink();
+	sysscale->setInvert();
 }
 
 void CInfoViewerBB::reset_allScala()

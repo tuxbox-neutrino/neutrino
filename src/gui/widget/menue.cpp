@@ -322,9 +322,9 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
-	details_line = NULL;
-	info_box = NULL;
-	 
+	details_line = new CComponentsDetailLine();
+	info_box = new CComponentsInfoBox();
+	
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
 		//error
@@ -816,13 +816,14 @@ void CMenuWidget::calcSize()
 	}
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
+		hint_height = 60; //TODO: rework calculation of hint_height
 		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
-		hint_height = 10 + 2*fheight;
+		int h_tmp = 16 + 2*fheight;
 		/* assuming all hint icons has the same size ! */
 		int iw, ih;
 		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &iw, &ih);
-		if(hint_height < (ih+10))
-			hint_height = ih+10;
+		h_tmp = std::max(h_tmp, ih+10);
+		hint_height = std::max(h_tmp, hint_height);
 	}
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */
@@ -1070,16 +1071,16 @@ void CMenuWidget::paintHint(int pos)
 {
 	if (!g_settings.show_menu_hints)
 		return;
-
+	
 	if (pos < 0 && !hint_painted)
 		return;
-
+	
 	int rad = RADIUS_LARGE;
 
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
 	int iwidth = width+sb_width;
-
+#if 0
 	if (hint_painted) {
 		/* clear detailsline line */
 		// TODO CComponents::hide with param restore ? or auto (if it have saved screens) ?
@@ -1099,134 +1100,86 @@ void CMenuWidget::paintHint(int pos)
 			}
 		}
 		hint_painted = false;
+#endif
+	if (hint_painted) {
+		/* clear detailsline line */
+		if (details_line)
+			details_line->hide();
+		/* clear info box */
+		if ((info_box) && (pos == -1))
+			info_box->hide(true);
+		hint_painted = false;
 	}
 	if (pos < 0)
 		return;
-
+	
 	CMenuItem* item = items[pos];
-//printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
-
+	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
+#if 0
 		if (info_box != NULL) {
 			if (savescreen)
+#endif
+		if (info_box)
+			info_box->hide(false);	
+#if 0				
 				info_box->restore();
 			else
 				info_box->hide();
 		}
+#endif
 		return;
 	}
-
-	hint_painted = true;
-
+	
+	if (item->hint == NONEXISTANT_LOCALE)
+		return;
+	
 	int iheight = item->getHeight();
-
-	//details line
+	
+	//init details line and infobox dimensions
 	int ypos1 = item->getYPosition();
 	int ypos1a = ypos1 + (iheight/2)-2;
 	int ypos2a = ypos2 + (hint_height/2) - INFO_BOX_Y_OFFSET;
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
 	
-	if (details_line == NULL){
-		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
-	}else{
+	//init details line
+	if (details_line){
 		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
 		details_line->setYPosDown(ypos2a);
- 		details_line->setHMarkDown(markh);
- 		details_line->setColor(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0);
+		details_line->setHMarkTop(imarkh);
+		details_line->setHMarkDown(markh);
+		details_line->syncSysColors();
 	}
+#if 0
 	details_line->paint(savescreen);
+#endif
 
-	if (info_box == NULL)
-		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height);
-	else {
-		info_box->setXPos(x);
-		info_box->setYPos(ypos2);
-		info_box->setWidth(iwidth);
-		info_box->setColor(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	//init infobox
+	std::string str = g_Locale->getText(item->hint);
+	if (info_box){
+		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
+		info_box->setFrameThickness(2);
+		info_box->removeLineBreaks(str);
+		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+		info_box->setCornerRadius(RADIUS_LARGE);
+		info_box->syncSysColors();
+		info_box->setShadowOnOff(CC_SHADOW_ON);
+		info_box->setPicture(item->hintIcon);
 	}
+#if 0	
 	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
 	info_box->paint(savescreen, true);
+#endif
 
-	int offset = 10;
-	if (!item->hintIcon.empty()) {
-		int iw, ih;
-		frameBuffer->getIconSize(item->hintIcon.c_str(), &iw, &ih);
-		if (iw && ih) {
-			int ix = x + offset;
-			int iy = ypos2 + (hint_height - ih)/2;
-			frameBuffer->paintIcon(item->hintIcon.c_str(), ix, iy);
-			offset += iw + 10;
-		}
-	}
-	if (item->hint == NONEXISTANT_LOCALE)
-		return;
-
-	int HintFont = SNeutrinoSettings::FONT_TYPE_MENU_HINT;
-	int fheight = g_Font[HintFont]->getHeight();
-
-	std::string str1, str2;
-	std::string str = g_Locale->getText(item->hint);
-	std::string::size_type spos = str.find_first_of("\n");
-	if (spos != std::string::npos) {
-		str1 = str.substr(0, spos);
-		str2 = str.substr(spos+1);
-	}
-	else
-		str1 = str;
-
-	if ((!str1.empty()) || (!str1.empty())) {
-		int wBox = iwidth - 6 - offset;
-		int wStr1 = 0, wStr2 = 0;
-		if (!str1.empty())
-			wStr1 = g_Font[HintFont]->getRenderWidth(str1);
-		if (!str2.empty())
-			wStr2 = g_Font[HintFont]->getRenderWidth(str2);
-		if ((wStr1 > wBox) || (wStr2 > wBox)) {
-			str = g_Locale->getText(item->hint);
-			// replace "\n" with " "
-			spos = str.find_first_of("\n");
-			if (spos != std::string::npos)
-				str.replace(spos, 1, " ");
-			spos = str.length();
-			if (spos >= 1) {
-				std::string BreakChars = "+-/";
-				str1 = str;
-				wStr1 = g_Font[HintFont]->getRenderWidth(str1);
-				int count = 0;
-				std::string bChar;
-				while (wStr1 > wBox) {
-					spos = str1.find_last_of(BreakChars + " ");
-					if (spos != std::string::npos) {
-						str1 = str1.substr(0, spos+1);
-						// Last delimiter remember if it's not a whitespace
-						size_t len = str1.length();
-						size_t spos2 = str1.find_last_of(BreakChars);
-						if (len == spos2+1)
-							bChar = str1.substr(spos2, spos2+1);
-						else
-							bChar = "";
-						// Remove last delimiter
-						str1 = str1.substr(0, spos);
-					}
-					// Width of string with delimiter
-					wStr1 = g_Font[HintFont]->getRenderWidth(str1 + bChar);
-					count++;
-					if (count > 20)
-						break;
-				}
-				// Last delimiter append again
-				str1 += bChar;
-				str2 = str.substr(spos+1);
-			}
-		}
-		ypos2 += (hint_height-fheight*2)/2;
-		if (!str1.empty())
-			g_Font[HintFont]->RenderString(x+offset, ypos2+fheight, wBox, str1, COL_MENUCONTENT, 0, true); // UTF-8
-		if (!str2.empty())
-			g_Font[HintFont]->RenderString(x+offset, ypos2+fheight*2, wBox, str2, COL_MENUCONTENT, 0, true); // UTF-8
-	}
+	
+	//paint result
+	details_line->paint();
+	info_box->paint();
+	
+	hint_painted = true;
+	
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------

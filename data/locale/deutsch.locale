@@ -319,6 +319,8 @@ eventfinder.search_within_epg Suche innerhalb EPG-Daten
 eventfinder.search_within_list Suche innerhalb Text
 eventfinder.searching Suche...
 eventfinder.start_search Suche starten
+eventlist.additional Zusatzinformationen
+eventlist.name Eventliste
 eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
@@ -530,6 +532,7 @@ fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Titel
 fontsize.eventlist_datetime Datum/Zeit
+fontsize.eventlist_event Event Info
 fontsize.eventlist_itemlarge Groß
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
@@ -578,6 +581,7 @@ imageinfo.forum Forum:
 imageinfo.head Image Info:
 imageinfo.homepage Homepage:
 imageinfo.image Image:
+imageinfo.kernel Kernel:
 imageinfo.license Lizenz:
 imageinfo.version Version:
 inetradio.name Internetradio
@@ -765,7 +769,9 @@ menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden
 menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
 menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
+menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
+menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
 menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal und mehr
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen.\nDie Box wird danach neu gestartet
 menu.hint_fade Bei aktivierter Funktion werden die Menüfenster 'weich' ein- bzw. ausgeblendet
@@ -1139,6 +1145,13 @@ miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo-Verz.
+miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
+miscsettings.infobar_show Info bei EPG Änderungen
+miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
+miscsettings.infobar_show_res Auflösung anzeigen
+miscsettings.infobar_show_res_simple einfach
+miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
+miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
@@ -1151,13 +1164,6 @@ miscsettings.progressbar_infobar_position_0 Standard
 miscsettings.progressbar_infobar_position_1 unterhalb Kanalname
 miscsettings.progressbar_infobar_position_2 unterhalb Kanalname (schmal)
 miscsettings.progressbar_infobar_position_3 zwischen EPG-Events (schmal)
-miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
-miscsettings.infobar_show Info bei EPG Änderungen
-miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
-miscsettings.infobar_show_res Auflösung anzeigen
-miscsettings.infobar_show_res_simple einfach
-miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
-miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in

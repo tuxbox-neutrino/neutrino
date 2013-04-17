@@ -49,7 +49,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc_item_progressbar.h>
 
 #include <system/settings.h>
 #include <system/helpers.h>
@@ -81,9 +81,13 @@ CScanTs::CScanTs(int dtype)
 	total = done = 0;
 	freqready = 0;
 
-	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 	deltype = dtype;
+	sigscale = new CProgressBar();
+	sigscale->setBlink();
+	
+	snrscale = new CProgressBar();
+	snrscale->setBlink();
+	memset(&TP, 0, sizeof(TP)); // valgrind
 }
 
 CScanTs::~CScanTs()
@@ -243,6 +247,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		CServiceScan::getInstance()->SetCableNID(scansettings.cable_nid);
 
 	CZapitClient::commandSetScanSatelliteList sat;
+	memset(&sat, 0, sizeof(sat)); // valgrind
 	CZapitClient::ScanSatelliteList satList;
 	satList.clear();
 	if(fast) {
@@ -573,13 +578,14 @@ void CScanTs::showSNR ()
 	sig = (ssig & 0xFFFF) * 100 / 65535;
 
 	posy = y + height - mheight - 5;
-
-	if (lastsig != sig) {
+	//TODO: move sig/snr display into its own class, similar or same code also to find in motorcontrol
+	if (lastsig != sig) { 
 		lastsig = sig;
 		posx = x + 20;
 		sprintf(percent, "%d%%", sig);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100%");
-		sigscale->paintProgressBar2(posx - 1, posy+2, sig);
+		sigscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, sig, 100);
+		sigscale->paint();
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUCONTENT_PLUS_0);
@@ -594,7 +600,8 @@ void CScanTs::showSNR ()
 		posx = x + 20 + (20 * fw);
 		sprintf(percent, "%d%%", snr);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100%");
-		snrscale->paintProgressBar2(posx - 1, posy+2, snr); 
+		snrscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, snr, 100);
+		snrscale->paint();
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUCONTENT_PLUS_0, 0, true);

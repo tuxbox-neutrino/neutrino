@@ -24,4 +24,17 @@ noinst_LIBRARIES = libneutrino_gui_components.a
 
 
 libneutrino_gui_components_a_SOURCES = \
-	components.cpp
+	cc_base.cpp \
+	cc_detailsline.cpp \
+	cc_frm.cpp \
+	cc_frm_header.cpp \
+	cc_frm_icons.cpp \
+	cc_frm_window.cpp \
+	cc_item.cpp \
+	cc_item_box.cpp \
+	cc_item_infobox.cpp \
+	cc_item_picture.cpp \
+	cc_item_progressbar.cpp \
+	cc_item_shapes.cpp \
+	cc_item_text.cpp \
+	cc_item_tvpic.cpp

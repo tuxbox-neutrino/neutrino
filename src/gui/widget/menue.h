@@ -425,6 +425,7 @@ class CMenuWidget : public CMenuTarget
 		CMenuGlobal		*mglobal;
 		CComponentsDetailLine	*details_line;
 		CComponentsInfoBox	*info_box;
+		int			hint_height;
 
 	protected:
 		std::string		nameString;
@@ -448,7 +449,6 @@ class CMenuWidget : public CMenuTarget
 		fb_pixel_t		*background;
 		int			full_width, full_height;
 		bool			savescreen;
-		int			hint_height;
 		bool			has_hints; // is any items has hints
 		bool			hint_painted; // is hint painted
 

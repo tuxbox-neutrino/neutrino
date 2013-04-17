@@ -106,7 +106,7 @@ void CBEChannelWidget::paintItem(int pos)
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 
 		if(current < Channels->size()) {
-			paintItem2DetailsLine (pos, current);
+			initItem2DetailsLine (pos, current);
 			paintDetails(current);
 		}
 	
@@ -184,58 +184,83 @@ void CBEChannelWidget::paintFoot()
 	::paintButtons(x, y + (height-footerHeight), width, 4, CBEChannelWidgetButtons, width, footerHeight);
 }
 
-void CBEChannelWidget::paintDetails(int index)
+std::string CBEChannelWidget::getInfoText(int index)
 {
+	std::string res = "";
+	
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName((*Channels)[index]->getSatellitePosition());
 	transponder t;
 	CServiceManager::getInstance()->GetTransponder((*Channels)[index]->getTransponderId(), t);
 	std::string desc = t.description();
 	if((*Channels)[index]->pname)
 		desc = desc + " (" + std::string((*Channels)[index]->pname) + ")";
-	else    
+	else
 		desc = desc + " (" + satname + ")";
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight+INFO_BOX_Y_OFFSET, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+INFO_BOX_Y_OFFSET, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+	
+	res = satname + "\n" + desc;
+	
+	return res;
 }
 
-void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
+void CBEChannelWidget::paintDetails(int index)
+{
+	//details line
+	dline->paint();
+	
+	std::string str = getInfoText(index);
+	
+	//info box
+	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
+	ibox->paint(CC_SAVE_SCREEN_YES);
+}
+
+void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
-
-	clearItem2DetailsLine();
-
-	// paint Line if detail info (and not valid list pos)
+	
+	if (dline)
+		dline->kill(); //kill details line
+		
+	// init Line if detail info (and not valid list pos)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
-		dline->paint();
-
+		
 		//infobox
 		if (ibox == NULL)
-			ibox = new CComponentsInfoBox(x, ypos2, width, info_height, false);
+			ibox = new CComponentsInfoBox();
+
+		if (ibox->isPainted())
+			ibox->hide(CC_SAVE_SCREEN_NO);
+		
+		ibox->setDimensionsAll(x, ypos2, width, info_height);
+		ibox->setFrameThickness(2);
+#if 0			
 		ibox->paint(false,true);
+#endif
+		ibox->setCornerRadius(RADIUS_LARGE);
+		ibox->setShadowOnOff(CC_SHADOW_OFF);
 	}
 }
 
 void CBEChannelWidget::clearItem2DetailsLine()
 {
-	if (dline != NULL)
-		dline->hide();
-	if (ibox != NULL)
-		ibox->hide();
+	if (dline)
+		dline->kill(); //kill details line
+	if (ibox)
+		ibox->kill(); //kill info box
 }
 
 void CBEChannelWidget::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight+info_height);
-	clearItem2DetailsLine ();
+	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight);
+ 	clearItem2DetailsLine ();
 }
 
 void CBEChannelWidget::updateSelection(unsigned int newpos)
