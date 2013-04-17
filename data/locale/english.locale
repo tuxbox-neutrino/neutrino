@@ -228,8 +228,8 @@ channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active active
 channellist.new_zap_mode_allow allow
 channellist.new_zap_mode_off off
-channellist.numeric_adjust Numeric zap adjust
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
+channellist.numeric_adjust Numeric zap adjust
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
 channellist.reset_flags Reset 'new' channel flag
@@ -997,8 +997,8 @@ menu.hint_scan_fast CanalDigitaal/TéléSAT/TV Vlaanderen provider scan\nWARNING
 menu.hint_scan_fastprov Select provider to scan
 menu.hint_scan_fasttype Select fast scan type
 menu.hint_scan_fec Select transponder FEC
-menu.hint_scan_femode Select tuner connection type
 menu.hint_scan_felink Select tuner to link tuner to
+menu.hint_scan_femode Select tuner connection type
 menu.hint_scan_fesetup Configure tuner(s)
 menu.hint_scan_fetimeout Time to wait for signal, in 1/10 of second
 menu.hint_scan_freq Enter transponder frequency
@@ -1838,21 +1838,21 @@ usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!
 usermenu.name Name
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode
-videomenu.analog_hd_rgb_cinch RGB on cinch (HD)
-videomenu.analog_hd_rgb_scart RGB on scart (HD)
-videomenu.analog_hd_yprpb_cinch YPbPr on cinch (HD)
-videomenu.analog_hd_yprpb_scart YPbPr on scart (HD)
-videomenu.analog_mode Analog Video Output
-videomenu.analog_sd_rgb_cinch RGB on cinch (SD)
-videomenu.analog_sd_rgb_scart RGB on scart (SD)
-videomenu.analog_sd_yprpb_cinch YPbPr on cinch (SD)
-videomenu.analog_sd_yprpb_scart YPbPr on scart (SD)
 videomenu.analog_auto AUTO
 videomenu.analog_cvbs CVBS
 videomenu.analog_hd_rgb RGB (HD)
+videomenu.analog_hd_rgb_cinch RGB on cinch (HD)
+videomenu.analog_hd_rgb_scart RGB on scart (HD)
 videomenu.analog_hd_yprpb YPbPr(HD)
+videomenu.analog_hd_yprpb_cinch YPbPr on cinch (HD)
+videomenu.analog_hd_yprpb_scart YPbPr on scart (HD)
+videomenu.analog_mode Analog Video Output
 videomenu.analog_sd_rgb RGB (SD)
+videomenu.analog_sd_rgb_cinch RGB on cinch (SD)
+videomenu.analog_sd_rgb_scart RGB on scart (SD)
 videomenu.analog_sd_yprpb YPbPr (SD)
+videomenu.analog_sd_yprpb_cinch YPbPr on cinch (SD)
+videomenu.analog_sd_yprpb_scart YPbPr on scart (SD)
 videomenu.auto Auto
 videomenu.brightness Brightness
 videomenu.cinch Cinch
