@@ -34,7 +34,7 @@
  *
  */
 
-bool read_file(const std::string filename, std::list<std::string> &line)
+bool read_file(const std::string &filename, std::list<std::string> &line)
 {
 	std::string   s;
 	std::ifstream in(filename.c_str());
@@ -50,7 +50,7 @@ bool read_file(const std::string filename, std::list<std::string> &line)
 	return true;
 }
 
-bool write_file(const std::string filename, const std::list<std::string> line)
+bool write_file(const std::string &filename, const std::list<std::string> &line)
 {
 	std::ofstream out(filename.c_str());
 
@@ -63,7 +63,7 @@ bool write_file(const std::string filename, const std::list<std::string> line)
 	return true;
 }
 
-std::list<std::string>::iterator add_attributes(const std::map<std::string, std::string> attribute, std::list<std::string> &line, std::list<std::string>::iterator here)
+std::list<std::string>::iterator add_attributes(const std::map<std::string, std::string> &attribute, std::list<std::string> &line, std::list<std::string>::iterator here)
 {
 	for (std::map<std::string, std::string>::const_iterator it = attribute.begin(); it != attribute.end(); ++it)
 	{
@@ -74,7 +74,7 @@ std::list<std::string>::iterator add_attributes(const std::map<std::string, std:
 	return here;
 }
 
-std::string remove_interface_from_line(const std::string interface, const std::string line)
+std::string remove_interface_from_line(const std::string &interface, const std::string &line)
 {
 	std::string        s;
 	std::istringstream in(line.c_str());
@@ -98,7 +98,7 @@ std::string remove_interface_from_line(const std::string interface, const std::s
 	return (contains_at_least_one_interface ? out.str() : "");
 }
 
-bool write_interface(const std::string filename, const std::string name, const bool automatic_start, const std::string family, const std::string method, const std::map<std::string, std::string> attribute)
+bool write_interface(const std::string &filename, const std::string &name, const bool automatic_start, const std::string &family, const std::string &method, const std::map<std::string, std::string> &attribute)
 {
 	std::string            s;
 	std::list<std::string> line;
@@ -215,7 +215,7 @@ bool write_interface(const std::string filename, const std::string name, const b
 	return write_file(filename, line);
 }
 
-bool read_interface(const std::string filename, const std::string name, bool &automatic_start, std::string &family, std::string &method, std::map<std::string, std::string> &attribute)
+bool read_interface(const std::string &filename, const std::string &name, bool &automatic_start, std::string &family, std::string &method, std::map<std::string, std::string> &attribute)
 {
 	std::string   s;
 	std::string   t;
@@ -309,7 +309,7 @@ bool read_interface(const std::string filename, const std::string name, bool &au
 	return true;
 }
 
-bool getInetAttributes(const std::string name, bool &automatic_start, std::string &address, std::string &netmask, std::string &broadcast, std::string &gateway)
+bool getInetAttributes(const std::string &name, bool &automatic_start, std::string &address, std::string &netmask, std::string &broadcast, std::string &gateway)
 {
 	std::string family;
 	std::string method;
@@ -343,14 +343,14 @@ bool getInetAttributes(const std::string name, bool &automatic_start, std::strin
 	return true;
 }
 
-bool addLoopbackDevice(const std::string name, const bool automatic_start)
+bool addLoopbackDevice(const std::string &name, const bool automatic_start)
 {
 	std::map<std::string, std::string> attribute;
 
 	return write_interface("/etc/network/interfaces", name, automatic_start, "inet", "loopback", attribute);
 }
 
-bool setStaticAttributes(const std::string name, const bool automatic_start, const std::string address, const std::string netmask, const std::string broadcast, const std::string gateway, bool wireless)
+bool setStaticAttributes(const std::string &name, const bool automatic_start, const std::string &address, const std::string &netmask, const std::string &broadcast, const std::string &gateway, bool wireless)
 {
 	std::map<std::string, std::string> attribute;
 
@@ -371,7 +371,7 @@ bool setStaticAttributes(const std::string name, const bool automatic_start, con
 	return write_interface("/etc/network/interfaces", name, automatic_start, "inet", "static", attribute);
 }
 
-bool setDhcpAttributes(const std::string name, const bool automatic_start, bool wireless)
+bool setDhcpAttributes(const std::string &name, const bool automatic_start, bool wireless)
 {
 	std::map<std::string, std::string> attribute;
 	char hostname[100];

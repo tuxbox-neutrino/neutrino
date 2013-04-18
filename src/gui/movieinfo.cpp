@@ -614,7 +614,7 @@ int find_next_char(char to_find, char *text, int start_pos, int end_pos)
 	}
 
 //void CMovieInfo::strReplace(std::string& orig, const char* fstr, const std::string rstr)
-void strReplace(std::string & orig, const char *fstr, const std::string rstr)
+void strReplace(std::string & orig, const char *fstr, const std::string &rstr)
 {
 //      replace all occurrence of fstr with rstr and, and returns a reference to itself
 	size_t index = 0;
