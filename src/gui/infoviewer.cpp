@@ -835,6 +835,14 @@ void CInfoViewer::loop(bool show_dot)
 	while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
+#ifdef ENABLE_PIP
+		if ((msg == (neutrino_msg_t) g_settings.key_pip_close) || 
+		    (msg == (neutrino_msg_t) g_settings.key_pip_setup) || 
+		    (msg == (neutrino_msg_t) g_settings.key_pip_swap)) {
+			g_RCInput->postMsg(msg, data);
+			res = messages_return::cancel_info;
+		} else
+#endif
 		if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		  
