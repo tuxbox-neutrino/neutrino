@@ -97,6 +97,7 @@ GENRE.TRAVEL_HOBBIES.5 Koken
 GENRE.TRAVEL_HOBBIES.6 Adverteren / Winkelen
 GENRE.TRAVEL_HOBBIES.7 Tuinieren
 GENRE.UNKNOWN Onbekend
+U kunt uw ontvanger ook eenvoudig bedienen via de web-interface. Raadpleeg de handleiding\n
 apids.hint_1 Geef APIDs om te streamen
 apids.hint_2 in HEX in gescheiden door ' '
 apidselector.head Selecteer taal
@@ -272,13 +273,13 @@ colormenusetup.menucontent_inactive Inactieve content
 colormenusetup.menucontent_selected Geselecteerde content
 colormenusetup.menuhead Menu kop
 colorstatusbar.text Infobalk 
+colorthememenu.classic_theme Klassiek Thema
+colorthememenu.dblue_theme Donkerblauw Thema
+colorthememenu.dvb2k_theme DVB2000 Thema
 colorthememenu.head Selecteer thema
 colorthememenu.head2 Thema's laden
 colorthememenu.name Naam thema
 colorthememenu.neutrino_theme Neutrino Thema
-colorthememenu.classic_theme Klassiek Thema
-colorthememenu.dblue_theme Donkerblauw Thema
-colorthememenu.dvb2k_theme DVB2000 Thema
 colorthememenu.question Geselecteerde thema gebruiken?
 colorthememenu.save Huidige thema opslaan
 colorthememenu.select1 Gebruikers Thema
@@ -287,25 +288,25 @@ cpu.freq CPU Frequentie
 cpu.freq_default Standaard frequentie
 cpu.freq_normal Normale frequentie
 cpu.freq_standby Stand-by frequentie
-date.Jan  Jan
-date.Feb  Feb
-date.Mar  Mrt
 date.Apr  Apr
-date.May  Mei
-date.Jun  Jun
-date.Jul  Jul
 date.Aug  Aug
-date.Sep  Sep
-date.Oct  Okt
-date.Nov  Nov
 date.Dec  Dec
+date.Feb  Feb
+date.Fri  Vr
+date.Jan  Jan
+date.Jul  Jul
+date.Jun  Jun
+date.Mar  Mrt
+date.May  Mei
 date.Mon  Ma
+date.Nov  Nov
+date.Oct  Okt
+date.Sat  Za
+date.Sep  Sep
+date.Sun  Zo
+date.Thu  Do
 date.Tue  Di
 date.Wed  Wo
-date.Thu  Do
-date.Fri  Vr
-date.Sat  Za
-date.Sun  Zo
 epg.saving Opslaan EPG
 epgextended.actors Acteurs
 epgextended.director Regisseur 
@@ -313,8 +314,8 @@ epgextended.guests Gasten
 epgextended.original_title Originele Titel
 epgextended.presenter Presentator
 epgextended.year_of_production Productie jaar
-epglist.noevents EPG is niet beschikbaar...
 epglist.head programma-gids- %s
+epglist.noevents EPG is niet beschikbaar...
 epgviewer.More_Screenings More Volgend scherm
 epgviewer.More_Screenings_short Volgend scherm
 epgviewer.nodetailed Geen gedetailleerde informatie aanwezig
@@ -339,18 +340,18 @@ extra.chadded het huidige kanaal is toegevoegd aan de geselecteerde favorietenli
 extra.chalreadyinbq het huidige kanaal bevindt zich al in de geselecteerde favorietenlijst...\n
 extra.dboxinfo Box Info
 extra.dvbsnoop DVB Stream Info
-extra.dvbsnoop_pat Toon PAT
-extra.dvbsnoop_cat Toon CAT
-extra.dvbsnoop_tsdt Toon TSDT
-extra.dvbsnoop_nit Toon NIT
-extra.dvbsnoop_sdt Toon SDT
-extra.dvbsnoop_eit Toon EIT
-extra.dvbsnoop_rst Toon RST
-extra.dvbsnoop_tdt Toon TDT
-extra.dvbsnoop_sit Toon SIT
-extra.dvbsnoop_pid Toon manual PID
-extra.dvbsnoop_scan Scan PIDs
 extra.dvbsnoop_band Toon pid bandbreedte
+extra.dvbsnoop_cat Toon CAT
+extra.dvbsnoop_eit Toon EIT
+extra.dvbsnoop_nit Toon NIT
+extra.dvbsnoop_pat Toon PAT
+extra.dvbsnoop_pid Toon manual PID
+extra.dvbsnoop_rst Toon RST
+extra.dvbsnoop_scan Scan PIDs
+extra.dvbsnoop_sdt Toon SDT
+extra.dvbsnoop_sit Toon SIT
+extra.dvbsnoop_tdt Toon TDT
+extra.dvbsnoop_tsdt Toon TSDT
 extra.east Oost
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
@@ -389,8 +390,8 @@ extra.latitude Breedtegraad (latitude)
 extra.loadconfig Neutrino-HD Settings: Laden van
 extra.loadkeys Toetsen laden van
 extra.lodirection LO richting
-extra.longitude Lengtegraad (Longitude)
 extra.logview Bekijk Log
+extra.longitude Lengtegraad (Longitude)
 extra.menu_left_exit "Links" = Terug
 extra.north Noord
 extra.record_time Max. opname tijd in uren
@@ -714,8 +715,8 @@ mainmenu.sleeptimer Slaaptimer
 mainmenu.tvmode TV-Mode
 mainmenu.tvradio_switch TV-Radio Schakelaar
 mainsettings.audio Audio
-mainsettings.head Instellingen
 mainsettings.colors Kleur / thema / font
+mainsettings.head Instellingen
 mainsettings.keybinding Sneltoetsen aanpassen
 mainsettings.language Taal / Tijdzone
 mainsettings.lcd Display instellingen
@@ -1287,8 +1288,8 @@ moviebrowser.menu_main_saveandback Opslaan en terug
 moviebrowser.menu_nfs_head NFS instellingen
 moviebrowser.menu_parental_lock_activated geactiveerd
 moviebrowser.menu_parental_lock_activated_no nee
-moviebrowser.menu_parental_lock_activated_yes ja
 moviebrowser.menu_parental_lock_activated_no_temp nee (tijdelijk)
+moviebrowser.menu_parental_lock_activated_yes ja
 moviebrowser.menu_parental_lock_head Kinderslot
 moviebrowser.menu_parental_lock_rate_head Lock films van
 moviebrowser.menu_save Wijzigingen opslaan
@@ -1860,12 +1861,11 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+wanneer u vragen heeft over het gebruik van uw ontvanger. Wilt u beginnen met de installatie?
 wizard.initial_settings Initiële instellingen gevonden
 wizard.install_settings Wilt u de kanalen van Astra 1 (19.2º oost) inscannen?
 wizard.welcome_head Welkom in de installatie wizard
 wizard.welcome_text In de volgende stappen zullen we u begeleiden bij de eerste installatie van uw ontvanger.\n 
-U kunt uw ontvanger ook eenvoudig bedienen via de web-interface. Raadpleeg de handleiding\n
-wanneer u vragen heeft over het gebruik van uw ontvanger. Wilt u beginnen met de installatie?
 word.from Van
 zapit.scantype scan naar services
 zapit.scantype.all alle services
