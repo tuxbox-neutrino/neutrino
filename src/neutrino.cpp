@@ -3045,6 +3045,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			}
 		} else {
 			delete g_RCInput;
+			my_system("/etc/init.d/rcK");
 			//fan speed
 			if (g_info.has_fan) {
 				CFanControlNotifier::setSpeed(0);
