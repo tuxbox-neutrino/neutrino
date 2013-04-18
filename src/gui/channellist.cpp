@@ -518,23 +518,6 @@ void CChannelList::calcSize()
 	const int pic_h = 39;
 	theight = std::max(theight, pic_h);
 
-	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
-	theight = std::max(theight, icol_h);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &icol_h);
-	theight = std::max(theight, icol_h);
-
-#if 0
-	if(new_zap_mode)
-	{
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &icol_w, &icol_h);
-		theight = std::max(theight, icol_h);
-	}
-#endif
-	// calculate max entrys in mainbox
-	listmaxshow = (height - theight - footerHeight) / fheight;
-
 	// calculate max entrys in mainbox
 	listmaxshow = (height - theight - footerHeight) / fheight;
 
