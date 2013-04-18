@@ -84,7 +84,7 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		{CC_FBDATA_TYPE_BGSCREEN, 	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
 		{CC_FBDATA_TYPE_SHADOW, 	x+sw,	y+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},
 		{CC_FBDATA_TYPE_FRAME, 		x, 	y, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},
-		{CC_FBDATA_TYPE_BOX, 		x+th,	y+th, 	width-2*th, 	height-2*th, 	col_body, 	corner_rad-th,  0, 	NULL,	NULL},
+		{CC_FBDATA_TYPE_BOX,            x+th,   y+th,   width-2*th,     height-2*th,    col_body,       (corner_rad>th) ? corner_rad-th : corner_rad, 0, NULL, NULL},
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
