@@ -74,17 +74,21 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	int th = fr_thickness;
 	fb_pixel_t col_frame_cur = col_frame;
 
+	//calculate current needed frame thickeness and color, if item selected or not
 	if (cc_item_selected){
 		col_frame_cur = col_frame_sel;
 		th = max(fr_thickness_sel, fr_thickness);
 	}
+
+	//calculate current needed corner radius for body box, depends of frame thickness
+	int rad = (corner_rad>th) ? corner_rad-th : corner_rad;	
 	
 	comp_fbdata_t fbdata[] =
 	{
 		{CC_FBDATA_TYPE_BGSCREEN, 	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
 		{CC_FBDATA_TYPE_SHADOW, 	x+sw,	y+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},
 		{CC_FBDATA_TYPE_FRAME, 		x, 	y, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},
-		{CC_FBDATA_TYPE_BOX,            x+th,   y+th,   width-2*th,     height-2*th,    col_body,       (corner_rad>th) ? corner_rad-th : corner_rad, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_BOX,            x+th,   y+th,   width-2*th,     height-2*th,    col_body,       rad, 		0, NULL, NULL},
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
