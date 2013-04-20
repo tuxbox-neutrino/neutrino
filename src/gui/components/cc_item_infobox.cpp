@@ -42,7 +42,7 @@ CComponentsInfoBox::CComponentsInfoBox()
 }
 
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
-				       const char* info_text, const int mode, Font* font_text,
+				       std::string info_text, const int mode, Font* font_text,
 				       bool has_shadow,
 				       fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
@@ -128,7 +128,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	}
 
 	//set text and paint text lines
- 	if (ct_text){
+ 	if (!ct_text.empty()){
  		if (cctext)
 			delete cctext;
 		

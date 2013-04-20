@@ -185,7 +185,7 @@ class CComponentsText : public CComponentsItem
 
 		fb_pixel_t ct_col_text;
 		int ct_text_mode; //see textbox.h for possible modes
-		const char* ct_text;
+		std::string ct_text;
 		bool ct_text_sent, ct_paint_textbg;
 
 		std::string iToString(int int_val); //helper to convert int to string
@@ -197,7 +197,7 @@ class CComponentsText : public CComponentsItem
 	public:
 		CComponentsText();
 		CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
-					const char* text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsText();
@@ -255,7 +255,7 @@ class CComponentsInfoBox : public CComponentsText
 
 		CComponentsInfoBox();
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
-					const char* info_text = NULL, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					std::string info_text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		
