@@ -15,7 +15,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -45,6 +45,11 @@ typedef enum
 	CC_ITEMTYPE_FRM_WINDOW,
 	CC_ITEMTYPE_LABEL,
 	CC_ITEMTYPE_PROGRESSBAR,
+	CC_ITEMTYPE_BUTTON,
+	CC_ITEMTYPE_BUTTON_RED,
+	CC_ITEMTYPE_BUTTON_GREEN,
+	CC_ITEMTYPE_BUTTON_YELLOW,
+	CC_ITEMTYPE_BUTTON_BLUE,
 
 	CC_ITEMTYPES
 }CC_ITEMTYPES_T;

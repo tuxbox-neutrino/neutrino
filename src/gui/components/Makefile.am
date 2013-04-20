@@ -26,6 +26,7 @@ noinst_LIBRARIES = libneutrino_gui_components.a
 libneutrino_gui_components_a_SOURCES = \
 	cc_base.cpp \
 	cc_detailsline.cpp \
+	cc_frm_button.cpp \
 	cc_frm.cpp \
 	cc_frm_header.cpp \
 	cc_frm_icons.cpp \
