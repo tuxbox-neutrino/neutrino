@@ -73,7 +73,6 @@ typedef struct comp_fbdata_t
 typedef enum
 {
 	CC_FBDATA_TYPE_BGSCREEN,
-	CC_FBDATA_TYPE_SHADOW,
 	CC_FBDATA_TYPE_BOX,
 	CC_FBDATA_TYPE_FRAME,
 	CC_FBDATA_TYPE_LINE,
