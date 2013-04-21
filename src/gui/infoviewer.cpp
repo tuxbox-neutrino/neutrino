@@ -1065,7 +1065,6 @@ void CInfoViewer::killRadiotext()
 	if (g_Radiotext->S_RtOsd)
 		frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
 	rt_x = rt_y = rt_h = rt_w = 0;
-	frameBuffer->blit();
 }
 
 void CInfoViewer::showRadiotext()
@@ -1846,11 +1845,11 @@ void CInfoViewer::killTitle()
 			bottom += infoViewerBB->InfoHeightY_Info;
 		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET-BoxStartX, bottom-BoxStartY);
 		frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
-		frameBuffer->blit();
 		if (g_settings.radiotext_enable && g_Radiotext) {
 			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
 			killRadiotext();
 		}
+		frameBuffer->blit();
 	}
 	showButtonBar = false;
 }
