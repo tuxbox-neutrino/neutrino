@@ -36,8 +36,6 @@
 
 #include <sys/utsname.h>
 #include <string>
-#include <fstream>
-#include <errno.h>
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
 
@@ -255,28 +253,14 @@ void CImageInfo::InitInfos()
 //prepare license infos
 void CImageInfo::InitLicenseText()
 {
-	license_txt = "";
-	char line[1024];
 	string file = LICENSEDIR;
 	file += g_settings.language;
 	file += ".license";
-	ifstream in (file.c_str(), ios::in);
-
-	if (!in){
-		printf("[CImageInfo]    [%s - %d] error while open %s -> %s\n", __FUNCTION__, __LINE__, file.c_str(), strerror(errno));
-		return;
-	}
-
-	while (in.getline (line, sizeof(line)-1)){
-		string lline = (string)line;
-		license_txt += lline + '\n';
-	}
-	in.close();
 
 	//calc y pos of license box to avoid an overlap with pip
 	int y_lic = std::max(item_top, cc_tv->getHeight() + 2*item_offset);
 	cc_lic = new CComponentsInfoBox(item_offset, y_lic, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top-item_offset);
-	cc_lic->setText(license_txt, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+	cc_lic->setTextFromFile(file, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	//add text to container
 	cc_win->addCCItem(cc_lic);
