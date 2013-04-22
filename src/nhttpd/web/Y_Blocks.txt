@@ -572,7 +572,7 @@ start-block~remote_zee
   <area shape="rect" href="javascript:rcsim('KEY_INFO')" coords="310, 268, 334, 291" />
   <area shape="rect" href="javascript:rcsim('KEY_SETUP')" coords="210, 368, 234, 393" />
   <area shape="rect" href="javascript:rcsim('KEY_EPG')" coords="210, 267, 233, 290" />
-  <area shape="rect" href="javascript:rcsim('KEY_FAVORITES')" coords="211, 236, 333, 257" />
+  <area shape="rect" href="javascript:rcsim('KEY_FAVORITES')" coords="301, 236, 333, 257" />
   <area shape="rect" href="javascript:rcsim('KEY_HOME')" coords="312, 368, 333, 391" />
   <area shape="rect" href="javascript:rcsim('KEY_UP')" coords="255, 277, 290, 299" />
   <area shape="rect" href="javascript:rcsim('KEY_LEFT')" coords="219, 312, 242, 348" />
