@@ -32,6 +32,8 @@
 #include <neutrino.h>
 #include "cc.h"
 #include <sstream>
+#include <fstream>
+#include <errno.h>
 
 using namespace std;
 
@@ -137,7 +139,7 @@ void CComponentsText::initCCText()
 	string new_text = static_cast <string> (ct_text);
 	ct_text_sent = ct_textbox->setText(&new_text, ct_box->iWidth);
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text, ct_box->iX, ct_box->iY, height, width);
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, height, width);
 #endif
 }
 
@@ -158,7 +160,7 @@ void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* fon
 	ct_text_mode = mode;
 	ct_font = font_text;
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text);
+	printf("    [CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text.c_str());
 #endif
 }
 
@@ -187,6 +189,27 @@ void CComponentsText::setText(const int digit, const int mode, Font* font_text)
 #ifdef DEBUG_CC
 	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text.c_str());
 #endif
+}
+
+//set text lines directly from a file
+void CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text)
+{
+	string file = path_to_textfile;
+	string txt = "";
+	
+	ifstream in (file.c_str(), ios::in);
+	if (!in){
+		printf("[CComponentsText]    [%s - %d] error while open %s -> %s\n", __FUNCTION__, __LINE__, file.c_str(), strerror(errno));
+		return;
+	}
+	string line;
+	
+	while(getline(in, line)){
+		txt += line + '\n';
+	}
+	in.close();
+
+	setText(txt, mode, font_text);
 }
 
 void CComponentsText::paintText(bool do_save_bg)
