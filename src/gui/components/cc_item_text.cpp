@@ -191,8 +191,8 @@ void CComponentsText::setText(const int digit, const int mode, Font* font_text)
 #endif
 }
 
-//set text lines directly from a file
-void CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text)
+//set text lines directly from a file, returns true on succsess
+bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text)
 {
 	string file = path_to_textfile;
 	string txt = "";
@@ -200,7 +200,7 @@ void CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 	ifstream in (file.c_str(), ios::in);
 	if (!in){
 		printf("[CComponentsText]    [%s - %d] error while open %s -> %s\n", __FUNCTION__, __LINE__, file.c_str(), strerror(errno));
-		return;
+		return false;
 	}
 	string line;
 	
@@ -210,6 +210,8 @@ void CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 	in.close();
 
 	setText(txt, mode, font_text);
+	
+	return true;
 }
 
 void CComponentsText::paintText(bool do_save_bg)

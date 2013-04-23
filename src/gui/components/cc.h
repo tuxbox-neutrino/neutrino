@@ -213,7 +213,7 @@ class CComponentsText : public CComponentsItem
 		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		virtual void setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+		virtual bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void removeLineBreaks(std::string& str);
 
 		//get a Text Box object, so it's possible to get access directly to its methods
