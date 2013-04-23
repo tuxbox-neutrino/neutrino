@@ -55,6 +55,9 @@
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
+#include <gui/components/cc.h>
+
+#include <system/helpers.h>
 
 #include <daemonc/remotecontrol.h>
 #include <driver/record.h>
@@ -120,6 +123,7 @@ CInfoViewer::~CInfoViewer()
 	delete snrscale;
 	delete timescale;
 	delete infoViewerBB;
+	delete infobar_txt;
 }
 
 void CInfoViewer::Init()
@@ -150,6 +154,8 @@ void CInfoViewer::Init()
 	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 	lcdUpdateTimer = 0;
 	rt_x = rt_y = rt_h = rt_w = 0;
+
+	infobar_txt = NULL;
 }
 
 /*
@@ -866,6 +872,7 @@ void CInfoViewer::loop(bool show_dot)
 			paintTime (show_dot, false);
 			showRecordIcon (show_dot);
 			show_dot = !show_dot;
+			showInfoFile();
 			if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
 				showRadiotext();
 
@@ -1806,44 +1813,43 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 
 void CInfoViewer::showInfoFile()
 {
-	/*if (recordModeActive)
-		return;*/
-	char infotext[80];
-	int fd, xStart, yStart, width, height, iOffset, oOffset, tWidth, tIndent, pb_w;
-	ssize_t cnt;
+	//read textcontent from this file
+	std::string infobar_file = "/tmp/infobar.txt"; 
 
-	fd = open("/tmp/infobar.txt", O_RDONLY); //read textcontent from this file
-
-	if (fd < 0)
-		return;
-
-	cnt = read(fd, infotext, 79);
-	close(fd);
-	if (cnt < 1) { //EOF == 0
-		fprintf(stderr, "CInfoViewer::showInfoFile: could not read from infobar.txt: %m");
+	//exit if file not found, don't create an info object, delete old instance if required
+	if (!file_exists(infobar_file.c_str()))	{
+		if (infobar_txt)
+			delete infobar_txt;
+		infobar_txt = NULL;
 		return;
 	}
-	infotext[cnt-1] = '\0';
 
-	iOffset	= RADIUS_SMALL; // inner left/right offset
-	oOffset	= 140; // outer left/right offset
-	pb_w	= 112; // same value as int pb_w in display_Info()
-	xStart	= BoxStartX + ChanWidth + oOffset;
-	yStart	= BoxStartY;
-	width	= BoxEndX - xStart - (g_settings.infobar_progressbar ? oOffset : oOffset + pb_w);
-	height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
-	tWidth	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(infotext);
-	if (tWidth < (width - (iOffset * 2)) )
-		tIndent	= (width - (iOffset * 2) - tWidth) / 2;
-	else
-		tIndent	= 0;
-	//shadow
-	frameBuffer->paintBoxRel(xStart + SHADOW_OFFSET, yStart + SHADOW_OFFSET, width, height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL, CORNER_ALL);
-	//background
-	frameBuffer->paintBoxRel(xStart, yStart, width, height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_ALL);
-	//content
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
-		xStart + iOffset + tIndent, yStart + height, width - iOffset, (std::string)infotext, COL_INFOBAR, height, false);
+	//get position of info area
+	const int oOffset	= 140; // outer left/right offset
+	const int pb_w		= 112; // same value as int pb_w in display_Info()
+	const int xStart	= BoxStartX + ChanWidth + oOffset;
+	const int yStart	= BoxStartY;
+	const int width		= BoxEndX - xStart - (g_settings.infobar_progressbar ? oOffset : oOffset + pb_w);
+	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
+
+	//create info object
+	if (infobar_txt == NULL)
+		infobar_txt = new CComponentsInfoBox();
+
+	//get text from file and set it to info object, exit and delete object if failed
+	if (!infobar_txt->setTextFromFile(infobar_file, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO])){
+		delete infobar_txt;
+		infobar_txt = NULL;
+		return;
+	}
+
+	//set some properties for info object
+	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
+	infobar_txt->setCornerRadius(RADIUS_SMALL);
+	infobar_txt->setShadowOnOff(true);	
+
+	//paint info, don't save backscreen, hide not needed, is already done by killTitle()
+	infobar_txt->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CInfoViewer::killTitle()

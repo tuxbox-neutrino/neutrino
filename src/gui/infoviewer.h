@@ -127,7 +127,10 @@ class CInfoViewer
 	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
 	void showRadiotext();
 	void killRadiotext();
+
+	CComponentsInfoBox *infobar_txt;
 	void showInfoFile();
+
 	//void loop(int fadeValue, bool show_dot ,bool fadeIn);
 	void loop(bool show_dot);
 	std::string eventname;
