@@ -4029,13 +4029,13 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
-		timescale = new CProgressBar();//new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
+		timescale = new CProgressBar();
 	timescale->setBlink();
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;
  	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);//TODO: remove unneeded box paints
-	timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+	timescale->setProgress(x + 41, y + 12, 200, 15, percent, 100);
 	timescale->paint();
 	int len = minfo->length;
 	off64_t size = minfo->file.Size;
@@ -4182,7 +4182,7 @@ if(buf[0] != 0x47) printf("cut: buffer not aligned at %" PRId64 "\n", sdone);
 					sdone += r;
 					spos += r - wptr;
 					percent = (int) ((float)(spos)/(float)(newsize)*100.);
-					timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+					timescale->setProgress(x + 41, y + 12, 200, 15, percent, 100);
 					timescale->paint();
 #if REAL_CUT
 					int wr = write(dstfd, &buf[wptr], r-wptr);
@@ -4289,13 +4289,13 @@ printf("copy: len %d minute %" PRId64 " second %" PRId64 "\n", len, len ? size/l
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
-		timescale = new CProgressBar();//new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
+		timescale = new CProgressBar();
 	timescale->setBlink();
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;
 	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0); //TODO: remove unneeded box paints
-	timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+	timescale->setProgress(x + 41, y + 12, 200, 15, percent, 100);
 	timescale->paint();
 
 	newsize = 0;
@@ -4414,7 +4414,7 @@ if(buf[0] != 0x47) printf("copy: buffer not aligned at %" PRId64 "\n", sdone);
 				spos += r - wptr;
 				btotal += r;
 				percent = (int) ((float)(btotal)/(float)(newsize)*100.);
-				timescale->setProgress(x + 41, y + 12, 200, 15, percent, 200);
+				timescale->setProgress(x + 41, y + 12, 200, 15, percent, 100);
 				timescale->paint();
 #if REAL_CUT
 				int wr = write(dstfd, &buf[wptr], r-wptr);
