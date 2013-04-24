@@ -1817,7 +1817,7 @@ void CInfoViewer::showInfoFile()
 	std::string infobar_file = "/tmp/infobar.txt"; 
 
 	//exit if file not found, don't create an info object, delete old instance if required
-	if (!file_exists(infobar_file.c_str()))	{
+	if (!file_size(infobar_file.c_str()))	{
 		if (infobar_txt)
 			delete infobar_txt;
 		infobar_txt = NULL;
