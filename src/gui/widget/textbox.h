@@ -109,6 +109,7 @@ class CTextBox
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
+		int  setFontTextHeight();
 
 		/* Variables */
 		std::string m_cText;
@@ -150,6 +151,7 @@ class CTextBox
 /*		int max_width;*/
 		
 		int text_border_width;
+		bool m_FontUseDigitHeight;
 		
 	public:
 		/* Constructor */
@@ -178,6 +180,7 @@ class CTextBox
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);
 		void 	setWindowMinDimensions(const int width, const int height);
+		void    setFontUseDigitHeight(bool set=true);
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
