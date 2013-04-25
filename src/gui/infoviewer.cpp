@@ -1818,8 +1818,11 @@ void CInfoViewer::showInfoFile()
 
 	//exit if file not found, don't create an info object, delete old instance if required
 	if (!file_size(infobar_file.c_str()))	{
-		if (infobar_txt)
+		if (infobar_txt){
+			if (infobar_txt->isPainted())
+				infobar_txt->hide();
 			delete infobar_txt;
+		}
 		infobar_txt = NULL;
 		return;
 	}
@@ -1846,10 +1849,14 @@ void CInfoViewer::showInfoFile()
 	//set some properties for info object
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
 	infobar_txt->setCornerRadius(RADIUS_SMALL);
-	infobar_txt->setShadowOnOff(true);	
+	infobar_txt->setShadowOnOff(true);
+	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
+	infobar_txt->doPaintTextBoxBg(false);
 
-	//paint info, don't save backscreen, hide not needed, is already done by killTitle()
-	infobar_txt->paint(CC_SAVE_SCREEN_NO);
+	//paint info, don't save backscreen, if already painted, global hide is done by killTitle()
+	bool save_bg = !infobar_txt->isPainted();
+	infobar_txt->paint(save_bg);
+
 }
 
 void CInfoViewer::killTitle()
