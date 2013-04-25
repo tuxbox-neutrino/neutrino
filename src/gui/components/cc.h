@@ -224,7 +224,7 @@ class CComponentsLabel : public CComponentsText
 {
 	public:
 		CComponentsLabel(	const int x_pos, const int y_pos, const int w, const int h,
-					const char* text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
 					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, has_shadow, color_text, color_frame, color_body, color_shadow)
