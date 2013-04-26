@@ -95,7 +95,7 @@ void CComponentsText::initVarText()
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
 	ct_col_text	= COL_MENUCONTENT;
 	ct_text_sent	= false;
-	ct_paint_textbg = true;
+	ct_paint_textbg = false;
 	ct_force_text_paint = false;
 }
 
