@@ -32,7 +32,7 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
-// #define DEBUG_CC
+//#define DEBUG_CC
 
 class CComponents
 {
@@ -185,8 +185,8 @@ class CComponentsText : public CComponentsItem
 
 		fb_pixel_t ct_col_text;
 		int ct_text_mode; //see textbox.h for possible modes
-		std::string ct_text;
-		bool ct_text_sent, ct_paint_textbg;
+		std::string ct_text, ct_old_text;
+		bool ct_text_sent, ct_paint_textbg, ct_force_text_paint;
 
 		static std::string iToString(int int_val); //helper to convert int to string
 
@@ -202,21 +202,38 @@ class CComponentsText : public CComponentsItem
 					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsText();
 
-		void hide(bool no_restore = false);
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		
+		//default members to paint a text box and hide painted text
+		//hide textbox
+		void hide(bool no_restore = false); 
+		//paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES); 
+
+		//send options for text font (size and type), color and mode (allignment)
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
-		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};//see textbox.h for possible modes
+		//see textbox.h for possible allignment modes
+		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};
+
+		//send option to CTextBox object to paint background box behind text or not
 		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
-		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+
+		//sets text mainly with string also possible with overloades members for loacales, const char and text file
 		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+		
+		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual void setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		virtual bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		virtual void removeLineBreaks(std::string& str);
 
-		//get a Text Box object, so it's possible to get access directly to its methods
+		//helper to remove linebreak chars from a string if needed
+		virtual void removeLineBreaks(std::string& str);
+		
+		//returns true, if text was changed
+		virtual bool textChanged(){return ct_old_text != ct_text;};
+		//force paint of text even if text was changed or not
+		virtual void forceTextPaint(bool force_text_paint = true){ct_force_text_paint = force_text_paint;};
+
+		//gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
 		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
 };
 

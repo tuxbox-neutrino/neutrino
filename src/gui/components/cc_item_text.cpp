@@ -91,10 +91,12 @@ void CComponentsText::initVarText()
 	ct_box		= NULL;
 	ct_textbox	= NULL;
 	ct_text 	= "";
+	ct_old_text	= ct_text;
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
 	ct_col_text	= COL_MENUCONTENT;
 	ct_text_sent	= false;
 	ct_paint_textbg = true;
+	ct_force_text_paint = false;
 }
 
 
@@ -135,9 +137,9 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowMaxDimensions(ct_box->iWidth, ct_box->iHeight);
 	ct_textbox->setWindowMinDimensions(ct_box->iWidth, ct_box->iHeight);
 
-	//set text
-	string new_text = static_cast <string> (ct_text);
-	ct_text_sent = ct_textbox->setText(&new_text, ct_box->iWidth);
+	//send text to CTextBox object, but paint text only if text has changed or force option is enabled
+	if ((ct_old_text != ct_text) || ct_force_text_paint)
+		ct_text_sent = ct_textbox->setText(&ct_text, ct_box->iWidth);
 #ifdef DEBUG_CC
 	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, height, width);
 #endif
@@ -154,26 +156,10 @@ void CComponentsText::clearCCText()
 	ct_textbox = NULL;
 }
 
-void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
-{
-	ct_text = g_Locale->getText(locale_text);
-	ct_text_mode = mode;
-	ct_font = font_text;
-#ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text.c_str());
-#endif
-}
-
-void CComponentsText::setText(const char* ctext, const int mode, Font* font_text)
-{
- 	setText((string)ctext, mode, font_text);
-#ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] text: %s \n", __FUNCTION__, __LINE__, ctext);
-#endif
-}
 
 void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text)
 {
+	ct_old_text = ct_text;
 	ct_text = stext;
 	ct_text_mode = mode;
 	ct_font = font_text;
@@ -182,13 +168,21 @@ void CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 #endif
 }
 
+void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
+{
+	string stext = g_Locale->getText(locale_text);
+	setText(stext, mode, font_text);
+}
+
+void CComponentsText::setText(const char* ctext, const int mode, Font* font_text)
+{
+ 	setText((string)ctext, mode, font_text);
+}
+
 void CComponentsText::setText(const int digit, const int mode, Font* font_text)
 {
 	string s_digit = iToString(digit);
 	setText(s_digit, mode, font_text);
-#ifdef DEBUG_CC
-	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text.c_str());
-#endif
 }
 
 //set text lines directly from a file, returns true on succsess
