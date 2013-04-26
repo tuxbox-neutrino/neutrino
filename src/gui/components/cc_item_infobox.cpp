@@ -136,6 +136,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		cctext->setText(ct_text, ct_text_mode, ct_font);
 		cctext->doPaintTextBoxBg(ct_paint_textbg);
 		cctext->doPaintBg(false);
+		cctext->setTextColor(ct_col_text);
 		cctext->setDimensionsAll(x_text, y+fr_thickness, width-(x_text-x+x_offset+fr_thickness), height-2*fr_thickness);
  		cctext->paint(CC_SAVE_SCREEN_NO);
 	}
