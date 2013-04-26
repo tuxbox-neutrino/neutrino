@@ -59,6 +59,7 @@ class CComponents
 
 		inline virtual void setXPos(const int& xpos){x = xpos;};
 		inline virtual void setYPos(const int& ypos){y = ypos;};
+		inline virtual void setPos(const int& xpos, const int& ypos){x = xpos; y = ypos;};
 		inline virtual void setHeight(const int& h){height = h;};
 		inline virtual void setWidth(const int& w){width = w;};
 		inline virtual void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h){x = xpos; y = ypos; width = w; height = h;};
@@ -67,6 +68,7 @@ class CComponents
 		inline virtual int getYPos(){return y;};
 		inline virtual int getHeight(){return height;};
 		inline virtual int getWidth(){return width;};
+		inline virtual void getSize(int* w, int* h){*w=width; *h=height;};
 		inline virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;};
 
 ///		set colors: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
