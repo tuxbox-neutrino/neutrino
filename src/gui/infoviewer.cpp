@@ -1855,6 +1855,7 @@ void CInfoViewer::showInfoFile()
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
 	infobar_txt->setCornerRadius(RADIUS_SMALL);
 	infobar_txt->setShadowOnOff(true);
+	infobar_txt->setTextColor(COL_INFOBAR);
 	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
 	infobar_txt->doPaintTextBoxBg(false);
 
