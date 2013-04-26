@@ -1811,6 +1811,17 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 #endif
 }
 
+void CInfoViewer::killInfobarText()
+{
+	if (infobar_txt){
+		if (infobar_txt->isPainted())
+			infobar_txt->hide();
+		delete infobar_txt;
+	}
+	infobar_txt = NULL;
+}
+
+
 void CInfoViewer::showInfoFile()
 {
 	//read textcontent from this file
@@ -1818,16 +1829,11 @@ void CInfoViewer::showInfoFile()
 
 	//exit if file not found, don't create an info object, delete old instance if required
 	if (!file_size(infobar_file.c_str()))	{
-		if (infobar_txt){
-			if (infobar_txt->isPainted())
-				infobar_txt->hide();
-			delete infobar_txt;
-		}
-		infobar_txt = NULL;
+		killInfobarText();
 		return;
 	}
 
-	//get position of info area
+	//set position of info area
 	const int oOffset	= 140; // outer left/right offset
 	const int pb_w		= 112; // same value as int pb_w in display_Info()
 	const int xStart	= BoxStartX + ChanWidth + oOffset;
@@ -1841,8 +1847,7 @@ void CInfoViewer::showInfoFile()
 
 	//get text from file and set it to info object, exit and delete object if failed
 	if (!infobar_txt->setTextFromFile(infobar_file, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO])){
-		delete infobar_txt;
-		infobar_txt = NULL;
+		killInfobarText();
 		return;
 	}
 
@@ -1853,9 +1858,10 @@ void CInfoViewer::showInfoFile()
 	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
 	infobar_txt->doPaintTextBoxBg(false);
 
-	//paint info, don't save backscreen, if already painted, global hide is done by killTitle()
+	//paint info, don't save background, if already painted, global hide is also done by killTitle()
 	bool save_bg = !infobar_txt->isPainted();
-	infobar_txt->paint(save_bg);
+	if (infobar_txt->textChanged())
+		infobar_txt->paint(save_bg);
 
 }
 
@@ -1874,6 +1880,8 @@ void CInfoViewer::killTitle()
 			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
 			killRadiotext();
 		}
+
+		killInfobarText();
 	}
 	showButtonBar = false;
 }
