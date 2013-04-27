@@ -268,6 +268,7 @@ if $PKG_CONFIG --exists "$2" ; then
 	AC_MSG_RESULT(yes)
 	$1_CFLAGS=$($PKG_CONFIG --cflags "$2")
 	$1_LIBS=$($PKG_CONFIG --libs "$2")
+	$1_EXISTS=yes
 else
 	AC_MSG_RESULT(no)
 fi
@@ -278,7 +279,7 @@ AC_SUBST($1_LIBS)
 
 AC_DEFUN([TUXBOX_APPS_LIB_PKGCONFIG],[
 _TUXBOX_APPS_LIB_PKGCONFIG($1,$2)
-if test -z "$$1_CFLAGS" && test -z "$$1_LIBS"; then
+if test x"$$1_EXISTS" != xyes; then
 	AC_MSG_ERROR([could not find package $2]);
 fi
 ])
