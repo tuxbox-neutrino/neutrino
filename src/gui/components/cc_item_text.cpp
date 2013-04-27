@@ -140,6 +140,7 @@ void CComponentsText::initCCText()
 	//send text to CTextBox object, but paint text only if text has changed or force option is enabled
 	if ((ct_old_text != ct_text) || ct_force_text_paint)
 		ct_text_sent = ct_textbox->setText(&ct_text, ct_box->iWidth);
+	ct_old_text = ct_text;
 #ifdef DEBUG_CC
 	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, height, width);
 #endif
@@ -224,9 +225,9 @@ void CComponentsText::paint(bool do_save_bg)
 
 void CComponentsText::hide(bool no_restore)
 {
-
 	if (ct_textbox)
 		ct_textbox->hide();
+	ct_old_text = "";
 	hideCCItem(no_restore);
 }
 
