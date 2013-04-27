@@ -141,7 +141,9 @@ class CComponentsItem : public CComponents
 
 class CComponentsPicture : public CComponentsItem
 {
-	private:
+	protected:
+		void initVarPicture();
+		
 		enum
 		{
 			CC_PIC_IMAGE_MODE_OFF 	= 0, //paint pictures in icon mode, mainly not scaled
@@ -155,7 +157,6 @@ class CComponentsPicture : public CComponentsItem
 		int pic_align, pic_x, pic_y, pic_width, pic_height;
 		int pic_max_w, pic_max_h, pic_paint_mode;
 		
-		void initVarPicture();
 		void init(	const int x_pos, const int y_pos, const std::string& image_name, const int alignment, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow);
 		
@@ -164,18 +165,18 @@ class CComponentsPicture : public CComponentsItem
 					const std::string& image_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		
-		inline void setPictureOffset(const unsigned char offset){pic_offset = offset;};
-		inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
-		inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
-		void setPicture(const std::string& picture_name);
-		void setPictureAlign(const int alignment);
+		virtual inline void setPictureOffset(const unsigned char offset){pic_offset = offset;};
+		virtual inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
+		virtual inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
+		virtual void setPicture(const std::string& picture_name);
+		virtual void setPictureAlign(const int alignment);
 		
-		inline bool isPicPainted(){return pic_painted;};
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void hide(bool no_restore = false);
-		inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
-		void setMaxWidth(const int w_max){pic_max_w = w_max;};
-		void setMaxHeight(const int h_max){pic_max_h = h_max;};
+		virtual inline bool isPicPainted(){return pic_painted;};
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		virtual void hide(bool no_restore = false);
+		virtual inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
+		virtual void setMaxWidth(const int w_max){pic_max_w = w_max;};
+		virtual void setMaxHeight(const int h_max){pic_max_h = h_max;};
 };
 
 class CComponentsText : public CComponentsItem
