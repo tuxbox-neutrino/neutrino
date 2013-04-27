@@ -111,7 +111,7 @@ void CComponentsButton::initCaption()
 	int cap_y = this->getRealYPos();
 
 	if (cc_btn_icon_obj)
-		cap_x = this->getRealXPos()+(width/2)-(cc_btn_icon_obj->getWidth()+cc_btn_text_w)/2+cc_btn_icon_obj->getWidth();
+		cap_x = this->getRealXPos()+cc_btn_icon_obj->getWidth();
 	
 	if (cc_btn_capt_obj){			
 		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, width-cap_x, cap_h);
