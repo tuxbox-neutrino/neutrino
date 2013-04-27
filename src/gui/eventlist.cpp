@@ -847,6 +847,7 @@ void CNeutrinoEventList::paintDescription(int index)
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
 	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
+	cc_infozone->doPaintTextBoxBg(true);
 	cc_infozone->doPaintBg(false);
 	cc_infozone->paint(CC_SAVE_SCREEN_NO);
 }
