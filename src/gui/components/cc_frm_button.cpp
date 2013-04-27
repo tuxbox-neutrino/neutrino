@@ -117,6 +117,7 @@ void CComponentsButton::initCaption()
 		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, width-cap_x, cap_h);
 		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE);
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
+		cc_btn_capt_obj->forceTextPaint(); //here required;
 		cc_btn_capt_obj->doPaintBg(false);
 
 		//corner of text item
