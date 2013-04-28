@@ -302,6 +302,30 @@ const luaL_Reg CLuaInstance::methods[] =
 /* hack: we link against luaposix, which is included in our
  * custom built lualib */
 extern "C" { LUAMOD_API int (luaopen_posix_c) (lua_State *L); }
+#else
+static int dolibrary (lua_State *L, const char *name)
+{
+	int status = 0;
+	const char *msg = "";
+	lua_getglobal(L, "require");
+	lua_pushstring(L, name);
+	status = lua_pcall(L, 1, 0, 0);
+	if (status && !lua_isnil(L, -1))
+	{
+		msg = lua_tostring(L, -1);
+		if (NULL == msg)
+		{
+			msg = "(error object is not a string)";
+		}
+		fprintf(stderr, "[CLuaInstance::%s] error in dolibrary: %s (%s)\n", __func__, name,msg);
+		lua_pop(L, 1);
+	}
+	else
+	{
+		printf("[CLuaInstance::%s] loaded library: %s\n", __func__, name);
+	}
+	return status;
+}
 #endif
 /* load basic functions and register our own C callbacks */
 void CLuaInstance::registerFunctions()
@@ -313,6 +337,8 @@ void CLuaInstance::registerFunctions()
 	luaopen_math(lua);
 #ifndef DYNAMIC_LUAPOSIX
 	luaopen_posix_c(lua);
+#else
+	dolibrary(lua,"posix");
 #endif
 
 	lua_newtable(lua);
