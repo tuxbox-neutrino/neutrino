@@ -190,9 +190,6 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	bool selected = select_mode;
 	bool icon_painted = false;
 	
-	int w = 0;
-	int h = 0;
-
 	std::string icon_name = iconName;
 	int icon_w = 0;
 	int icon_h = 0;
@@ -223,11 +220,9 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	//get data of number icon and paint
 	if (!icon_name.empty())
 	{
-		frameBuffer->getIconSize(icon_name.c_str(), &w, &h);
-		icon_w = w;
-		icon_h = h;
-		
-		if (active  && icon_w>0 && icon_h>0)
+		frameBuffer->getIconSize(icon_name.c_str(), &icon_w, &icon_h);
+
+		if (active  && icon_w>0 && icon_h>0 && icon_space_x >= icon_w)
 		{
 			icon_x = icon_space_mid - (icon_w/2); 
 
@@ -248,9 +243,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	//get data of number right info icon and paint
 	if (!iconName_Info_right.empty())
 	{
-		frameBuffer->getIconSize(iconName_Info_right.c_str(), &w, &h);
-		icon_w = w;
-		icon_h = h;
+		frameBuffer->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 
 		if (active  && icon_w>0 && icon_h>0)
 		{
