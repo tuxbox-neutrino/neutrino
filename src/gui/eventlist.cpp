@@ -855,15 +855,13 @@ void CNeutrinoEventList::paintDescription(int index)
 void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {
 	const short font_h = 8;
-	int iw = 0, ih = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw, &ih);
 	frameBuffer->paintBoxRel(x,y, full_width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	int name_width =((full_width-8-iw)/3);
+	int name_width = full_width/3 ;
 
 	short prev_len = g_Font[font_h]->getRenderWidth(_channelname_prev.c_str(),true);
 	short next_len = g_Font[font_h]->getRenderWidth(_channelname_next.c_str(),true);
 	short middle_len = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(_channelname.c_str(),true);
-	short middle_offset =  (full_width- next_len- prev_len- middle_len-iw-8)/2;
+	short middle_offset = (full_width- next_len- prev_len- middle_len)/2;
 	if(middle_offset < 0){
 		int fw_h = g_Font[font_h]->getWidth();
 		int newsize = abs(middle_offset / fw_h) + 1;
@@ -903,12 +901,6 @@ void CNeutrinoEventList::paint(t_channel_id channel_id)
 {
 	liststart = (selected/listmaxshow)*listmaxshow;
 
-	int iw = 0, ih = 0;
-	if (evtlist[0].eventID != 0) {
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw, &ih);
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x+ full_width - 4 - iw, y, theight);
-	}
-
 	// paint background for right box
 	if (g_settings.eventlist_additional && !bgRightBoxPaint) {
 		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,listmaxshow*fheight,COL_MENUCONTENT_PLUS_0);
@@ -935,31 +927,6 @@ void CNeutrinoEventList::paint(t_channel_id channel_id)
 
 }
 
-
-#define NUM_EVENTLIST_FIRST_BUTTON 1
-struct button_label EventListFirstButton[NUM_EVENTLIST_FIRST_BUTTON] =
-{
- 	{ "", LOCALE_EVENTLISTBAR_RECORDEVENT				}  // record button
-};
-
-#define NUM_EVENTLIST_SECOND_BUTTON 1
-struct button_label EventListSecondButton[NUM_EVENTLIST_SECOND_BUTTON] =
-{
- 	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_EVENTFINDER_SEARCH		}  // search button
-};
-
-#define NUM_EVENTLIST_THIRD_BUTTON 1
-struct button_label EventListThirdButton[NUM_EVENTLIST_THIRD_BUTTON] =
-{
- 	{ "", LOCALE_EVENTLISTBAR_CHANNELSWITCH				}  // timer event channel switch button
-};
-
-#define NUM_EVENTLIST_FOURTH_BUTTON 1
-struct button_label EventListFourthButton[NUM_EVENTLIST_FOURTH_BUTTON] =
-{
- 	{ "", LOCALE_EVENTLISTBAR_EVENTSORT				}  // sort event button
-};
-
 void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 {
 	int border_space = 4;
@@ -971,7 +938,7 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
 	const char * icon = NULL;
-	struct button_label buttons[4];
+	struct button_label buttons[5];
 	int btn_cnt = 0;
 
 	bh = std::max(FunctionBarHeight, bh);
@@ -1031,6 +998,14 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 			btn_cnt++;
 		}
 	}
+
+	// info button
+	if (evtlist[0].eventID != 0) {
+		buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
+		buttons[btn_cnt].locale = LOCALE_EPGMENU_EVENTINFO;
+		btn_cnt++;
+	}
+
 	FunctionBarHeight = std::max(::paintButtons(bx, by, bw, btn_cnt, buttons, bw), FunctionBarHeight);
 }
 
