@@ -844,6 +844,7 @@ menu.hint_key_mpplay Assign button to resume record/file playback
 menu.hint_key_mpplugin Assign button to start selected plugin\nwhile playing record/file
 menu.hint_key_mprewind Assign button to rewind record playback
 menu.hint_key_mpstop Assign button to stop record/file playback
+menu.hint_key_mpsubtitle Assign button to show subtitle selection
 menu.hint_key_mptime Assign button to show play time\nleft time
 menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
@@ -1366,6 +1367,7 @@ mpkey.play Play
 mpkey.plugin Run plugin
 mpkey.rewind Rewind
 mpkey.stop Stop
+mpkey.subtitle Subtitles
 mpkey.time Show time
 networkmenu.apply_settings Changes are applied...
 networkmenu.apply_settings_now Do you want to apply settings now?
