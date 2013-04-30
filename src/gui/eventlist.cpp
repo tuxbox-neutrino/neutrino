@@ -97,15 +97,14 @@ CNeutrinoEventList::CNeutrinoEventList()
 	m_search_channel_id = 1;
 	m_search_bouquet_id= 1;
 	
-	full_width = width = fw = 0;
-	height = fh = 0;
+	full_width = width = 0;
+	height = 0;
 	
 	x = y = 0;
 	
 	cc_infozone = NULL;
 	infozone_text = "";
 	item_event_ID = 0;
-	FunctionBarHeight = 0;
 	oldIndex = -1;
 	oldEventID = -1;
 	bgRightBoxPaint = false;
@@ -240,11 +239,6 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	neutrino_msg_data_t data;
 	bool in_search = false;
 	showfollow = false;
-	// Calculate iheight
-	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, NONEXISTANT_LOCALE } };
-
-	fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth(); //font width
-	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight(); //font height
 
 	full_width = frameBuffer->getScreenWidthRel();
 	x = getScreenStartX(full_width);
@@ -255,17 +249,14 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		width = full_width;
 	height = frameBuffer->getScreenHeightRel();
 
+	// Calculate iheight (we assume the red button is the largest one?)
+	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, LOCALE_EVENTLISTBAR_RECORDEVENT } };
 	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
-	if(iheight < fh)
-		iheight = fh;
 
 	// Calculate theight
-	theight  = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
+	theight = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
 	const int pic_h = 39;
 	theight = std::max(theight, pic_h);
-	int icol_w = 0, icol_h = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
-	theight = std::max(theight, icol_h);
 
 	fheight1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->getHeight();
 	{
@@ -692,8 +683,6 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 void CNeutrinoEventList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, full_width,height);
-	showFunctionBar (false, 0);
-
 }
 
 CTimerd::CTimerEventTypes CNeutrinoEventList::isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID)
@@ -929,11 +918,16 @@ void CNeutrinoEventList::paint(t_channel_id channel_id)
 
 void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 {
-	int border_space = 4;
-	int bx = x + 2*border_space;
-	int bw = full_width - 16;
+	int bx = x;
+	int bw = full_width;
 	int bh = iheight;
-	int by = y + height-iheight;
+	int by = y + height - bh;
+
+	if (! show) {
+		// -- hide only?
+		frameBuffer->paintBackgroundBoxRel(bx,by,bw,bh);
+		return;
+	}
 
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
@@ -941,17 +935,6 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 	struct button_label buttons[5];
 	int btn_cnt = 0;
 
-	bh = std::max(FunctionBarHeight, bh);
-	frameBuffer->paintBackgroundBoxRel(x,by,full_width,bh);
-	// -- hide only?
-	if (! show) return;
-
-	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-// 	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-
-	frameBuffer->paintBoxRel(x, by, full_width, iheight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
-	
 	int tID = -1; //any value, not NULL
 	CTimerd::CTimerEventTypes is_timer = isScheduled(channel_id, &evtlist[selected], &tID);
 
@@ -1006,7 +989,7 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 		btn_cnt++;
 	}
 
-	FunctionBarHeight = std::max(::paintButtons(bx, by, bw, btn_cnt, buttons, bw), FunctionBarHeight);
+	::paintButtons(bx, by, bw, btn_cnt, buttons, bw, bh);
 }
 
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
