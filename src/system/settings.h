@@ -393,6 +393,7 @@ struct SNeutrinoSettings
 	int mpkey_time;
 	int mpkey_bookmark;
 	int mpkey_plugin;
+	int mpkey_subtitle;
 	int key_timeshift;
 	int key_plugin;
 

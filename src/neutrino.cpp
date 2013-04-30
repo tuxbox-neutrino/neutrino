@@ -3701,6 +3701,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
 	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
 	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
+	g_settings.mpkey_subtitle = tconfig.getInt32( "mpkey.subtitle", CRCInput::RC_sub );
 
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
@@ -3764,6 +3765,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "mpkey.time", g_settings.mpkey_time );
 	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
 	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
+	tconfig.setInt32( "mpkey.subtitle", g_settings.mpkey_subtitle );
 
 	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
 	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );
