@@ -69,6 +69,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			MPKEY_STOP,
 			MPKEY_PLAY,
 			MPKEY_AUDIO,
+			MPKEY_SUBTITLE,
 			MPKEY_TIME,
 			MPKEY_BOOKMARK,
 			KEY_TIMESHIFT,
