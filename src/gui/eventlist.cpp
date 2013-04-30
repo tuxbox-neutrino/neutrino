@@ -854,10 +854,10 @@ void CNeutrinoEventList::paintDescription(int index)
 
 void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {
-	const short font_h = 8;
 	frameBuffer->paintBoxRel(x,y, full_width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	int name_width = full_width/3 ;
 
+	const short font_h = 8 /* FONT_TYPE_EVENTLIST_ITEMLARGE */;
+	short pn_y_off = std::max((theight - g_Font[font_h]->getHeight()) / 2, 0);
 	short prev_len = g_Font[font_h]->getRenderWidth(_channelname_prev.c_str(),true);
 	short next_len = g_Font[font_h]->getRenderWidth(_channelname_next.c_str(),true);
 	short middle_len = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(_channelname.c_str(),true);
@@ -873,9 +873,9 @@ void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channe
 		middle_offset = 0;
 	}
 
-	g_Font[font_h]->RenderString(x+4,y+theight+1, full_width, _channelname_prev.c_str(), COL_INFOBAR, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+prev_len+middle_offset,y+theight+1, full_width, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
-	g_Font[font_h]->RenderString(x+(name_width*3)- next_len,y+theight+1, full_width, _channelname_next.c_str(), COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_h]->RenderString(x+10,y+theight-pn_y_off+1, prev_len, _channelname_prev.c_str(), COL_INFOBAR, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+prev_len+middle_offset,y+theight+1, middle_len, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[font_h]->RenderString(x+full_width-next_len-10,y+theight-pn_y_off+1, next_len, _channelname_next.c_str(), COL_INFOBAR, 0, true); // UTF-8
 
 }
 
