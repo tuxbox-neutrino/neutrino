@@ -110,6 +110,7 @@ struct NeutrinoMessages {
 		EVT_PMT_CHANGED				 = CRCInput::RC_Events + 40,
 		/* NEVER CHANGE THIS */
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
+		EVT_SUBT_MESSAGE                         = CRCInput::RC_Events + 61, /* data = subtitles pointer */
 		/* END */
 
 		EVT_CURRENTEPG                           = CRCInput::RC_WithData +  1,
