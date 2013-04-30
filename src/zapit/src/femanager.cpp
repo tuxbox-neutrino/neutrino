@@ -206,6 +206,9 @@ bool CFEManager::loadSettings()
 
 	int def_mode0 = CFrontend::FE_MODE_INDEPENDENT;
 	int def_modeX = CFrontend::FE_MODE_UNUSED;
+	if (cableOnly())
+		def_modeX = CFrontend::FE_MODE_INDEPENDENT;
+
 	int newmode = (fe_mode_t) configfile.getInt32("mode", -1);
 	if (newmode >= 0) {
 		INFO("old mode param: %d\n", newmode);
