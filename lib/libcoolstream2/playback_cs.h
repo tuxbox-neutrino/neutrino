@@ -62,7 +62,8 @@ public:
 	bool IsEnabled(void) const { return enabled; }
 	void FindAllPids(playback_audio_pid_info_t *audiopids, uint16_t size, uint16_t *numpida);
 	void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language);
-
+	void FindAllSubs(uint16_t *pids, unsigned short *supported, uint16_t *numpida, std::string *language);
+	bool SelectSubtitles(int pid);
 };
 
 #endif // __PLAYBACK_CS_H_
