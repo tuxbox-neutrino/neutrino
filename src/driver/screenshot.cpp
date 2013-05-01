@@ -194,11 +194,7 @@ bool CScreenShot::SavePng()
 
 	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)NULL, (png_error_ptr)NULL, (png_error_ptr)NULL);
 	info_ptr = png_create_info_struct(png_ptr);
-#if (PNG_LIBPNG_VER < 10500)
-	if (setjmp(png_ptr->jmpbuf))
-#else
 	if (setjmp(png_jmpbuf(png_ptr)))
-#endif
 	{
 		printf("CScreenShot::SavePng: %s save error\n", filename.c_str());
 		png_destroy_write_struct(&png_ptr, &info_ptr);
