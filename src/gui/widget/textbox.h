@@ -109,7 +109,7 @@ class CTextBox
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
-		int  setFontTextHeight();
+		int  getFontTextHeight();
 
 		/* Variables */
 		std::string m_cText;
