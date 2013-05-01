@@ -61,6 +61,7 @@ void CTimerManager::Init(void)
 	eventServer = new CEventServer;
 	m_saveEvents = false;
 	m_isTimeSet = false;
+	timer_is_rec = false;
 	wakeup = 0;
 	loadRecordingSafety();
 
@@ -706,6 +707,8 @@ bool CTimerManager::shutdown()
 				dprintf("shutdown: nextAnnounceTime %ld\n", nextAnnounceTime);
 				if ( event->eventType == CTimerd::TIMER_RECORD )
 					timer_is_rec = true;
+				else
+					timer_is_rec = false;
 			}
 		}
 	}

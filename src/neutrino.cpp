@@ -1820,7 +1820,7 @@ TIMER_START();
 	//timer start
 	bool timer_wakeup = false;
 	wake_up( timer_wakeup );
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) timer_wakeup);
+	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) (timer_wakeup && g_settings.shutdown_timer_record_type));
 	timerd_thread_started = true;
 
 	init_cec_setting = true;
