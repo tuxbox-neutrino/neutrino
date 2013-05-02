@@ -1114,11 +1114,11 @@ void CEpgData::showTimerEventBar (bool pshow)
         frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 	h = std::max(fh, icol_h+4);
 
-	frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
 	// hide only?
-	if (! pshow) 
+	if (! pshow){ 
+		frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
 		return;
-
+	}
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */
