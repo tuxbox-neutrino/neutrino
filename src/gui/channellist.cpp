@@ -1567,7 +1567,8 @@ void CChannelList::paintDetails(int index)
 		p_event = &chanlist[index]->currentEvent;
 	}
 
-	frameBuffer->paintBoxRel(x+2, y + height + 2, full_width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
+	frameBuffer->paintBoxRel(x+1, y + height + 1, full_width-2, info_height - 2, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
+	frameBuffer->paintBoxFrame(x, y + height, full_width, info_height, 2, COL_MENUCONTENT_PLUS_6, RADIUS_LARGE);
 
 	if (!p_event->description.empty()) {
 		char cNoch[50] = {0}; // UTF-8
@@ -1672,32 +1673,20 @@ void CChannelList::clearItem2DetailsLine()
 void CChannelList::paintItem2DetailsLine (int pos)
 {
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos1 = y + theight + pos*fheight;
-	int ypos2 = y + height;
-	int ypos1a = ypos1 + (fheight/2)-2;
-	int ypos2a = ypos2 + (info_height/2)-2;
-	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
+	int ypos1 = y + theight + pos*fheight + (fheight/2)-2;
+	int ypos2 = y + height + (info_height/2)-2;
 
 	if (dline){
 		dline->kill(); //kill details line
 		delete dline;
 		dline = NULL;
 	}
-// 	// Clear
-// 	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
 
 	// paint Line if detail info (and not valid list pos)
-	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
-		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
-		{
-			//details line
-			if (dline == NULL)
-				dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
-			dline->paint();
-			
-			//info box frame
-			frameBuffer->paintBoxFrame(x, ypos2, full_width, info_height, 2, col1, RADIUS_LARGE);
-		}
+	if (pos >= 0) {
+		if (dline == NULL)
+			dline = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2+1, info_height-RADIUS_LARGE*2);
+		dline->paint();
 	}
 }
 
