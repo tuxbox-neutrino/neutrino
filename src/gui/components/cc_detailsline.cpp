@@ -113,8 +113,8 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 	{
 		/* vertical item mark | */
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_top, 		sw, 			h_mark_top, 		col_shadow, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_top+h_mark_top, 	thickness+sw, 		sw	, 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_top+sw, 		sw, 			h_mark_top, 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness,	y_mark_top+h_mark_top, 	thickness, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
 
 		/* horizontal item line - */
 		{CC_FBDATA_TYPE_LINE, x, 			y,			width-thickness-sw,	thickness, 		col_body, 	0, 0, NULL, NULL},
@@ -126,12 +126,12 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 
 		/* horizontal info line - */
 		{CC_FBDATA_TYPE_LINE, x,			y_down, 		width-thickness-sw, 	thickness, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x,			y_down+thickness, 	width-thickness-sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+sw,			y_down+thickness, 	width-thickness-2*sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
 
 		/* vertical info mark | */
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_down, 		sw, 			h_mark_down, 		col_shadow, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down+h_mark_down,thickness+sw, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_down+sw,		sw, 			h_mark_down, 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness,	y_mark_down+h_mark_down,thickness, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
