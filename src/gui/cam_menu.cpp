@@ -315,6 +315,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		int selected = -1;
 		if(pMenu->choice_nb) {
 			CMenuWidget* menu = new CMenuWidget(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), NEUTRINO_ICON_SETTINGS);
+			menu->enableSaveScreen(true);
 
 			CMenuSelectorTarget * selector = new CMenuSelectorTarget(&selected);
 			int slen = strlen(pMenu->subtitle);
