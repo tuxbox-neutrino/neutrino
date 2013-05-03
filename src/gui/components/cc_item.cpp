@@ -129,28 +129,6 @@ void CComponentsItem::hide(bool no_restore)
 	hideCCItem(no_restore);
 }
 
-
-//hide rendered objects
-void CComponentsItem::kill()
-{
-	//save current colors
-	fb_pixel_t c_tmp1, c_tmp2, c_tmp3;
-	c_tmp1 = col_body;
-	c_tmp2 = col_shadow;
-	c_tmp3 = col_frame;
-
-	//set background color
-	col_body = col_frame = col_shadow = COL_BACKGROUND;
-
-	//paint with background and restore last used colors
-	paint(CC_SAVE_SCREEN_NO);
-	col_body = c_tmp1;
-	col_shadow = c_tmp2;
-	col_frame = c_tmp3;
-	firstPaint = true;
-	is_painted = false;
-}
-
 //synchronize colors for forms
 //This is usefull if the system colors are changed during runtime
 //so you can ensure correct applied system colors in relevant objects with unchanged instances.

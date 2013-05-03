@@ -71,29 +71,35 @@ class CComponents
 		inline virtual void getSize(int* w, int* h){*w=width; *h=height;};
 		inline virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;};
 
-///		set colors: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
+		///set colors: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
 		inline virtual void setColorShadow(fb_pixel_t color){col_shadow = color;};
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
-///		get colors
+		///get colors
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};
 		inline virtual fb_pixel_t getColorBody(){return col_body;};
 		inline virtual fb_pixel_t getColorShadow(){return col_shadow;};
 		
-///		set corner types: Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h).
+		///set corner types: Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h).
 		inline virtual void setCornerType(const int& type){corner_type = type;};
 		inline virtual void setCornerRadius(const int& radius){corner_rad = radius;};
-///		get corner types:
+		///get corner types:
 		inline virtual int getCornerType(){return corner_type;};
 		inline virtual int getCornerRadius(){return corner_rad;};
 		
 		inline virtual void setFrameThickness(const int& thickness){fr_thickness = thickness;};
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
-		
+
+		///hide current screen and restore background
 		virtual void hide();
+		///erase current screen without restore of background, as similar to paintBackgroundBoxRel() from CFrameBuffer
+		virtual void kill();
+		///returns paint mode, true=item was painted
 		virtual bool isPainted(){return is_painted;}
+		///allows paint of elemetary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
 		virtual void doPaintBg(bool do_paint){paint_bg = do_paint;};
+
 };
 
 class CComponentsItem : public CComponents
@@ -127,7 +133,6 @@ class CComponentsItem : public CComponents
 		
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		virtual void hide(bool no_restore = false);
-		virtual void kill();
 		virtual int getItemType();
 		virtual void syncSysColors();
 		
@@ -343,7 +348,6 @@ class CComponentsDetailLine : public CComponents
 		~CComponentsDetailLine();
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void kill();
 		inline void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
 		void syncSysColors();
 		inline void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};

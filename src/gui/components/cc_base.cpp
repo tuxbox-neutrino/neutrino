@@ -140,7 +140,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 				frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
 				frameBuffer->paintBackgroundBoxRel(x, y, v_fbdata[i].dx, v_fbdata[i].dy);
-			else if( allowPaint(i) )
+			else if( allowPaint(i) || fbtype == CC_FBDATA_TYPE_LINE)
 				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
@@ -167,6 +167,16 @@ inline void CComponents::hide()
 		}
 	}
 	v_fbdata.clear();
+	is_painted = false;
+}
+
+//erase rendered objects
+void CComponents::kill()
+{
+	for(size_t i =0; i< v_fbdata.size() ;i++) 
+		frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);	
+	clear();
+	firstPaint = true;
 	is_painted = false;
 }
 
