@@ -100,7 +100,7 @@ private:
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
 	void paintItem2DetailsLine (int pos);
-	void paintItem(int pos);
+	void paintItem(int pos,const bool firstpaint = false);
 	bool updateSelection(int newpos);
 	void paint();
 	void paintHead();

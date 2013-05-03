@@ -1811,7 +1811,7 @@ void CChannelList::paintButtonBar(bool is_current)
 	::paintButtons(x, y_foot, full_width, bcnt, Button, full_width, footerHeight);
 }
 
-void CChannelList::paintItem(int pos)
+void CChannelList::paintItem(int pos, const bool firstpaint)
 {
 	int ypos = y+ theight + pos*fheight;
 	uint8_t    color;
@@ -1820,7 +1820,7 @@ void CChannelList::paintItem(int pos)
 	bool paintbuttons = false;
 	unsigned int curr = liststart + pos;
 	int rec_mode;
-
+	fb_pixel_t c_rad_small = 0;
 #if 0
 	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift && curr < chanlist.size()) {
 		iscurrent = (chanlist[curr]->channel_id >> 16) == (rec_channel_id >> 16);
@@ -1835,12 +1835,15 @@ void CChannelList::paintItem(int pos)
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		paintItem2DetailsLine (pos);
 		paintDetails(curr);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
+		c_rad_small = RADIUS_LARGE;
 		paintbuttons = true;
 	} else {
 		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, 0);
+	}
+
+	if(!firstpaint || (curr == selected)){
+		  frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 	}
 
 	if(curr < chanlist.size()) {
@@ -2103,7 +2106,7 @@ void CChannelList::paint()
 		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	for(unsigned int count = 0; count < listmaxshow; count++) {
-		paintItem(count);
+		paintItem(count, true);
 	}
 	const int ypos = y+ theight;
 	const int sb = height - theight - footerHeight; // paint scrollbar over full height of main box
