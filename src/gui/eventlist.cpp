@@ -420,11 +420,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				liststart=0;
 			else
 				liststart=(selected/listmaxshow)*listmaxshow;
-			hide();
-			paintHead(channel_id, channelname);
 			paint(channel_id);
-			showFunctionBar(true, channel_id);
-
 		}
 
 		//  -- I commented out the following part (code is working)
@@ -831,13 +827,14 @@ void CNeutrinoEventList::paintDescription(int index)
 		CEitManager::getInstance()->getActualEPGServiceKey(evtlist[index].channelID, &epgData );
 
 	if(!epgData.info2.empty())
-		infozone_text = epgData.info2.c_str();
+		infozone_text = epgData.info2;
 	else
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
 	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
 	cc_infozone->doPaintTextBoxBg(true);
 	cc_infozone->doPaintBg(false);
+	cc_infozone->forceTextPaint();
 	cc_infozone->paint(CC_SAVE_SCREEN_NO);
 }
 
