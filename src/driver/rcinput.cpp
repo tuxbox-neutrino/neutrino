@@ -165,12 +165,8 @@ void CRCInput::open(int dev)
 			if (i != dev || fd_rc[i] != -1)
 				continue;
 		}
-		if ((fd_rc[i] = ::open(RC_EVENT_DEVICE[i], O_RDWR)) == -1)
+		if ((fd_rc[i] = ::open(RC_EVENT_DEVICE[i], O_RDWR|O_NONBLOCK|O_CLOEXEC)) == -1)
 			perror(RC_EVENT_DEVICE[i]);
-		else
-		{
-			fcntl(fd_rc[i], F_SETFL, O_NONBLOCK);
-		}
 		printf("CRCInput::open: %s fd %d\n", RC_EVENT_DEVICE[i], fd_rc[i]);
 	}
 
