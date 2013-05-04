@@ -39,10 +39,6 @@ libneutrino_driver_a_SOURCES = \
 	streamts.cpp \
 	volume.cpp
 
-if BOXTYPE_GENERIC
-libneutrino_driver_a_SOURCES += \
-	glthread.cpp
-endif
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	vfd.cpp

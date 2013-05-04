@@ -91,6 +91,7 @@ neutrino_LDADD = \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
+	@SWSCALE_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS) \
 	-ldvbsi++ \
@@ -129,7 +130,7 @@ neutrino_LDFLAGS = \
 endif
 if BOXTYPE_GENERIC
 neutrino_LDADD += \
-	-lglut -lGL -lGLU -lGLEW
+	-lglut -lGL -lGLU -lGLEW -lao
 endif
 if BOXTYPE_SPARK
 neutrino_LDADD += \
