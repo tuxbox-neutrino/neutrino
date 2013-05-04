@@ -184,12 +184,6 @@ void CColorSetupNotifier::setPalette()
 bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	setPalette();
-#if 0
-	/* recalculate volumebar */
-	CVolume::getInstance()->Init();
-	/* recalculate infoclock */
-	CInfoClock::getInstance()->Init();
-#endif
 	return false;
 }
 
@@ -249,8 +243,6 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CNeutrinoApp::getInstance()->SetupFonts();
 
 	hintBox.hide();
-	/* recalculate volumebar */
-	CVolume::getInstance()->Init();
 	/* recalculate infoclock */
 	CInfoClock::getInstance()->Init();
 	return true;

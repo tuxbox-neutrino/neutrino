@@ -1758,18 +1758,3 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
 	blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
 	cs_free_uncached(fbbuff);
 }
-
-void CFrameBuffer::paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame)
-{
-	if(paint) {
-		if (paintFrame) {
-			paintBackgroundBoxRel(ax, ay, dx, dy);
-			paintBoxRel(ax, ay, dx, dy, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
-		}
-		int icon_dx=0, icon_dy=0;
-		getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &icon_dx, &icon_dy);
-		paintIcon(NEUTRINO_ICON_BUTTON_MUTE, ax+((dx-icon_dx)/2), ay+((dy-icon_dy)/2));
-	}
-	else
-		paintBackgroundBoxRel(ax, ay, dx, dy);
-}

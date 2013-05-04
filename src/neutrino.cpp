@@ -58,6 +58,7 @@
 #include <driver/volume.h>
 #include <driver/streamts.h>
 
+#include "gui/audiomute.h"
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
@@ -173,6 +174,7 @@ CRemoteControl * g_RemoteControl;
 CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
 CVolume        * g_volume;
+CAudioMute     * g_audioMute;
 
 // Globale Variablen - to use import global.h
 
@@ -1909,6 +1911,7 @@ TIMER_START();
 	InitTimerdClient();
 
 	g_volume = CVolume::getInstance();
+	g_audioMute = CAudioMute::getInstance();
 
 	if (show_startwizard) {
 		hintBox->hide();
@@ -1932,7 +1935,7 @@ TIMER_START();
 	cCA::GetInstance()->Ready(true);
 	InitZapper();
 
-	g_volume->AudioMute(current_muted, true);
+	g_audioMute->AudioMute(current_muted, true);
 	SHTDCNT::getInstance()->init();
 
 	hintBox->hide();
@@ -2045,7 +2048,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				g_RCInput->clearRCMsg();
 				// restore mute symbol
 				if (current_muted)
-					g_volume->AudioMute(current_muted, true);
+					g_audioMute->AudioMute(current_muted, true);
 				if(g_settings.mode_clock)
 					InfoClock->StartClock();
 				StartSubtitles();
@@ -2058,7 +2061,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					mainMenu.exec(NULL, "");
 					// restore mute symbol
 					if (current_muted)
-						g_volume->AudioMute(current_muted, true);
+						g_audioMute->AudioMute(current_muted, true);
 					if(g_settings.mode_clock)
 						InfoClock->StartClock();
 					StartSubtitles();
@@ -2379,7 +2382,7 @@ _show:
 					nNewChannel = bouquetList->exec(true);
 				// restore mute symbol
 				if (current_muted)
-					g_volume->AudioMute(current_muted, true);
+					g_audioMute->AudioMute(current_muted, true);
 			} else if(msg == CRCInput::RC_sat) {
 				SetChannelMode(LIST_MODE_SAT);
 				nNewChannel = bouquetList->exec(true);
@@ -2539,16 +2542,16 @@ _repeat:
 		}
 		else {
 			//mute
-			g_volume->AudioMute(!current_muted, true);
+			g_audioMute->AudioMute(!current_muted, true);
 		}
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_on ) {
-		g_volume->AudioMute(true, true);
+		g_audioMute->AudioMute(true, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_off ) {
-		g_volume->AudioMute(false, true);
+		g_audioMute->AudioMute(false, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_analog_on ) {
@@ -3111,8 +3114,6 @@ void CNeutrinoApp::tvMode( bool rezap )
 	}
 	g_InfoViewer->setUpdateTimer(LCD_UPDATE_TIME_TV_MODE);
 
-	g_volume->Init();
-
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	CVFD::getInstance()->ShowIcon(FP_ICON_TV, true);
 
@@ -3315,7 +3316,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(g_settings.mode_clock)
 			InfoClock->StartClock();
 
-		g_volume->AudioMute(current_muted, true);
+		g_audioMute->AudioMute(current_muted, true);
 		StartSubtitles();
 	}
 	lockStandbyCall = false;
@@ -3935,6 +3936,8 @@ void CNeutrinoApp::Cleanup()
 	delete g_CamHandler; g_CamHandler = NULL;
 	printf("cleanup 17\n");fflush(stdout);
 	delete g_volume; g_volume = NULL;
+	printf("cleanup 17a\n");fflush(stdout);
+	delete g_audioMute; g_audioMute = NULL;
 	printf("cleanup 18\n");fflush(stdout);
 	delete g_EpgData; g_EpgData = NULL;
 	printf("cleanup 19\n");fflush(stdout);

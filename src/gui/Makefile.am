@@ -53,6 +53,7 @@ noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 libneutrino_gui_a_SOURCES = \
 	audio_select.cpp \
 	audio_setup.cpp \
+	audiomute.cpp \
 	audioplayer.cpp \
 	audioplayer_setup.cpp\
 	bookmarkmanager.cpp \
@@ -110,6 +111,7 @@ libneutrino_gui_a_SOURCES = \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
+	volumebar.cpp \
 	pipsetup.cpp \
 	zapit_setup.cpp
 

@@ -62,6 +62,7 @@ neutrino_LDADD = \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \
 	eitd/libsectionsd.a \
+	gui/volumebar.o \
 	driver/libneutrino_driver.a \
 	driver/audiodec/libneutrino_driver_audiodec.a \
 	driver/libneutrino_driver_netfile.a \

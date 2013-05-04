@@ -2,8 +2,8 @@
 	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	volume bar - Neutrino-GUI
-	Copyright (C) 2011-2013 M. Liebmann (micha-bbg)
+	audioMute - Neutrino-GUI
+	Copyright (C) 2013 M. Liebmann (micha-bbg)
 
 	License: GPL
 
@@ -23,35 +23,26 @@
 	Boston, MA  02110-1301, USA.
 */
 
-#ifndef __CVOLUME__
-#define __CVOLUME__
 
-#include <driver/framebuffer.h>
-#include <gui/volumebar.h>
+#ifndef __CAUDIOMUTE__
+#define __CAUDIOMUTE__
 
-class CVolume : public CChangeObserver
+#include <gui/components/cc.h>
+
+class CAudioMute
 {
 	private:
-		CFrameBuffer * frameBuffer;
-		CVolumeBar *volscale;
-
+		int mute_ay_old;
 		int mute_ax, mute_ay, mute_dx, mute_dy;
-		int m_mode;
-		/* volume adjustment variables */
-		t_channel_id channel_id;
-		int apid;
+		CComponentsPicture *mIcon;
 
 	public:
-		CVolume();
-		~CVolume();
-		static CVolume* getInstance();
 
-		void setvol(int vol);
-		void setVolume(const neutrino_msg_t key, bool nowait = false);
+		CAudioMute();
+		~CAudioMute();
+		static CAudioMute* getInstance();
 
-		void SetCurrentPid(int pid) { apid = pid; }
-		void SetCurrentChannel(t_channel_id id) { channel_id = id; }
-		bool changeNotify(const neutrino_locale_t OptionName, void *);
+		void AudioMute(int newValue, bool isEvent= false);
 };
 
-#endif // __CVOLUME__
+#endif // __CAUDIOMUTE__

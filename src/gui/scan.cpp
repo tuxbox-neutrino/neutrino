@@ -450,7 +450,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 		case CRCInput::RC_minus:
 		case CRCInput::RC_left:
 		case CRCInput::RC_right:
-			CVolume::getInstance()->setVolume(msg, true, true);
+			CVolume::getInstance()->setVolume(msg, true /*nowait = true*/);
 			break;
 		default:
 			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))

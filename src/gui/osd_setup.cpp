@@ -891,15 +891,9 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		g_InfoViewer->changePB();
 		return true;
 	}
-	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_POS)) || 
-		 (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_DIGITS))){
-		CVolume::getInstance()->Init();
-		return false;
-	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_ROUNDED_CORNERS)) {
 		osd_menu->hide();
 		g_settings.rounded_corners = * (int*) data;
-		CVolume::getInstance()->Init();
 		return true;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_RADIOTEXT)) {
