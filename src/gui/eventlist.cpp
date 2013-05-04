@@ -703,9 +703,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
-	std::string datetime1_str, datetime2_str, duration_str;
 	unsigned int curpos = liststart + pos;
-	const char * icontype = 0;
 
 	if(RADIUS_LARGE)
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
@@ -726,10 +724,12 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
+       if (!RADIUS_LARGE || (curpos==selected && RADIUS_LARGE) || (curpos==current_event && RADIUS_LARGE))
+		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 
 	if(curpos<evtlist.size())
 	{
+		std::string datetime1_str, datetime2_str, duration_str;
 		if ( evtlist[curpos].eventID != 0 )
 		{
 			char tmpstr[256];
@@ -777,7 +777,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		// 2nd line
 		// set status icons
 		CTimerd::CTimerEventTypes etype = isScheduled(m_showChannel ? evtlist[curpos].channelID : channel_idI, &evtlist[curpos]);
-		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_RECORDING_EVENT_MARKER : 0;
+		const char * icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_RECORDING_EVENT_MARKER : 0;
 		
 		int iw = 0, ih;
 		if(icontype != 0) {
