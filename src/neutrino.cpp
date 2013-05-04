@@ -4032,8 +4032,11 @@ void CNeutrinoApp::Cleanup()
 	printf("cleanup 18\n");fflush(stdout);
 	delete g_EpgData; g_EpgData = NULL;
 	printf("cleanup 19\n");fflush(stdout);
+#if 0
+	/* crashes in destructor???? very strange */
 	delete g_InfoViewer; g_InfoViewer = NULL;
 	printf("cleanup 11\n");fflush(stdout);
+#endif
 	delete g_EventList; g_EventList = NULL;
 	printf("cleanup 12\n");fflush(stdout);
 	delete g_Locale; g_Locale = NULL;
