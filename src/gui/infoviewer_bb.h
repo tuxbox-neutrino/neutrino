@@ -128,9 +128,9 @@ class CInfoViewerBB
 		pthread_t	hddperT;
 		static void*	hddperThread(void *arg);
 		bool		hddperTflag;
+		CInfoViewerBB();
 
 	public:
-		CInfoViewerBB();
 		~CInfoViewerBB();
 		static CInfoViewerBB* getInstance();
 		void Init(void);
