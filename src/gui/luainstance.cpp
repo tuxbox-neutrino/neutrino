@@ -398,6 +398,7 @@ void CLuaInstance::registerFunctions()
 #ifdef MARTII
 	MenueRegister(lua);
 	HintboxRegister(lua);
+	MessageboxRegister(lua);
 #endif
 }
 
@@ -964,7 +965,7 @@ void CLuaInstance::HintboxRegister(lua_State *L)
 {
 	luaL_Reg meth[] = {
 		{ "new", CLuaInstance::HintboxNew },
-		{ "show", CLuaInstance::HintboxShow },
+		{ "exec", CLuaInstance::HintboxExec },
 		{ "paint", CLuaInstance::HintboxPaint },
 		{ "hide", CLuaInstance::HintboxHide },
 		{ "__gc", CLuaInstance::HintboxDelete },
@@ -1037,7 +1038,7 @@ int CLuaInstance::HintboxHide(lua_State *L)
 	return 0;
 }
 
-int CLuaInstance::HintboxShow(lua_State *L)
+int CLuaInstance::HintboxExec(lua_State *L)
 {
 	CLuaHintbox *m = HintboxCheck(L, 1);
 	int timeout = -1;
@@ -1096,5 +1097,75 @@ int CLuaInstance::HintboxShow(lua_State *L)
 	}
 	m->b->hide();
 	return 0;
+}
+
+void CLuaInstance::MessageboxRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "exec", CLuaInstance::MessageboxExec },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, "messagebox");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "messagebox");
+}
+
+// messagebox.exec{caption="Title", text="text", icon="settings", width=500,timeout=-1,return_default_on_timeout=0,
+//	default = "yes", buttons = { "yes", "no", "cancel", "all", "back", "ok" }, align="center1|center2|left|right" }
+int CLuaInstance::MessageboxExec(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+
+	std::string name, text, icon = std::string(NEUTRINO_ICON_INFO);
+	tableLookupString(L, "name", name) || tableLookupString(L, "title", name) || tableLookupString(L, "caption", name);
+	tableLookupString(L, "text", text);
+	tableLookupString(L, "icon", icon);
+	int timeout = -1, width = 450, return_default_on_timeout = 0, show_buttons = 0, default_button = 0;
+	tableLookupInt(L, "timeout", timeout);
+	tableLookupInt(L, "width", width);
+	tableLookupInt(L, "return_default_on_timeout", return_default_on_timeout);
+
+	std::string tmp;
+	if (tableLookupString(L, "align", tmp)) {
+		if (tmp == "center1") show_buttons |= CMessageBox::mbBtnAlignCenter1;
+		else if (tmp == "center2") show_buttons |= CMessageBox::mbBtnAlignCenter2;
+		else if (tmp == "left") show_buttons |= CMessageBox::mbBtnAlignLeft;
+		else if (tmp == "right") show_buttons |= CMessageBox::mbBtnAlignRight;
+	}
+	lua_pushstring(L, "buttons");
+	lua_gettable(L, -2);
+	for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 2)) {
+		lua_pushvalue(L, -2);
+		const char *val = lua_tostring(L, -2);
+		if (!strcmp(val, "yes")) show_buttons |= CMessageBox::mbYes;
+		else if (!strcmp(val, "no")) show_buttons |= CMessageBox::mbNo;
+		else if (!strcmp(val, "cancel")) show_buttons |= CMessageBox::mbCancel;
+		else if (!strcmp(val, "all")) show_buttons |= CMessageBox::mbAll;
+		else if (!strcmp(val, "back")) show_buttons |= CMessageBox::mbBack;
+		else if (!strcmp(val, "ok")) show_buttons |= CMessageBox::mbOk;
+	}
+	lua_pop(L, 1);
+
+	if (tableLookupString(L, "default", tmp)) {
+		if (tmp == "yes") default_button = CMessageBox::mbrYes;
+		else if (tmp == "no") default_button = CMessageBox::mbrNo;
+		else if (tmp == "cancel") default_button = CMessageBox::mbrCancel;
+		else if (tmp == "back") default_button = CMessageBox::mbrBack;
+		else if (tmp == "ok") default_button = CMessageBox::mbrOk;
+	}
+
+	int res = ShowMsgUTF(name.c_str(), text.c_str(), (CMessageBox::result_) default_button, (CMessageBox::buttons_) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
+
+	if (res == CMessageBox::mbrYes) tmp = "yes";
+	else if (res == CMessageBox::mbrNo) tmp = "no";
+	else if (res == CMessageBox::mbrBack) tmp = "back";
+	else if (res == CMessageBox::mbrOk) tmp = "ok";
+	else tmp = "cancel";
+	lua_pushstring(L, tmp.c_str());
+
+	return 1;
 }
 #endif

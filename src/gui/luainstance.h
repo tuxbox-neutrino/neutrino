@@ -118,6 +118,14 @@ class CLuaHintbox
 		~CLuaHintbox();
 };
 
+class CLuaMessagebox
+{
+	public:
+		CMessageBox *b;
+		CLuaMessagebox();
+		~CLuaMessagebox();
+};
+
 #endif
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
@@ -157,10 +165,14 @@ private:
 	void HintboxRegister(lua_State *L);
 	static int HintboxNew(lua_State *L);
 	static int HintboxDelete(lua_State *L);
-	static int HintboxShow(lua_State *L);
+	static int HintboxExec(lua_State *L);
 	static int HintboxPaint(lua_State *L);
 	static int HintboxHide(lua_State *L);
 	static CLuaHintbox *HintboxCheck(lua_State *L, int n);
+
+	void MessageboxRegister(lua_State *L);
+	static int MessageboxExec(lua_State *L);
+	static CLuaMessagebox *MessageboxCheck(lua_State *L, int n);
 
 	static bool tableLookupString(lua_State*, const char*, std::string&);
 	static bool tableLookupInt(lua_State*, const char*, int&);
