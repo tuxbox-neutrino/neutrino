@@ -28,6 +28,8 @@ extern "C" {
 #include <driver/fb_window.h>
 #ifdef MARTII
 #include <gui/widget/menue.h>
+#include <gui/widget/hintbox.h>
+#include <gui/widget/messagebox.h>
 #endif
 
 /* this is stored as userdata in the lua_State */
@@ -45,8 +47,6 @@ struct CLuaMenueItem
 		char s[255];
 	};
 	std::string name;
-	std::string Icon;
-	std::string right_Icon;
 };
 
 class CLuaMenueChangeObserver : public CChangeObserver
@@ -84,8 +84,9 @@ class CLuaMenueFilebrowser : public CMenuTarget
 		lua_State *L;
 		std::string luaAction;
 		char *value;
+		bool dirMode;
 	public:
-		CLuaMenueFilebrowser(lua_State *L, std::string _luaAction, char *_value);
+		CLuaMenueFilebrowser(lua_State *L, std::string _luaAction, char *_value, bool _dirMode);
 		~CLuaMenueFilebrowser();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
@@ -101,11 +102,22 @@ class CLuaMenueStringinput : public CMenuTarget
 		std::string valid_chars;
 		CChangeObserver *observ;
 		const char *icon;
+		bool sms;
 	public:
-		CLuaMenueStringinput(lua_State *_L, std::string _luaAction, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon);
+		CLuaMenueStringinput(lua_State *_L, std::string _luaAction, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
 		~CLuaMenueStringinput();
 		int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/);
 };
+
+class CLuaHintbox
+{
+	public:
+		CHintBox *b;
+		char *caption;
+		CLuaHintbox();
+		~CLuaHintbox();
+};
+
 #endif
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
@@ -141,6 +153,15 @@ private:
 	static int MenueHide(lua_State *L);
 	static int MenueExec(lua_State *L);
 	static CLuaMenue *MenueCheck(lua_State *L, int n);
+
+	void HintboxRegister(lua_State *L);
+	static int HintboxNew(lua_State *L);
+	static int HintboxDelete(lua_State *L);
+	static int HintboxShow(lua_State *L);
+	static int HintboxPaint(lua_State *L);
+	static int HintboxHide(lua_State *L);
+	static CLuaHintbox *HintboxCheck(lua_State *L, int n);
+
 	static bool tableLookupString(lua_State*, const char*, std::string&);
 	static bool tableLookupInt(lua_State*, const char*, int&);
 #endif
