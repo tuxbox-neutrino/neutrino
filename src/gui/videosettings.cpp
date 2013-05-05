@@ -209,14 +209,14 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 };
 #else
 
-/* dummy entry, for generic hardware */
+/* generic PC -> 4 different resolutions, 480, 576, 720 and 1080 lines */
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
-	{ VIDEO_STD_SECAM,   NONEXISTANT_LOCALE, "SECAM"	},
+	{ -1,                NONEXISTANT_LOCALE, "SECAM"	},
 	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		},
 	{ -1,                NONEXISTANT_LOCALE, "576p"		},
-	{ -1,                NONEXISTANT_LOCALE, "720p 50Hz"	},
-	{ -1,                NONEXISTANT_LOCALE, "1080i 50Hz"	},
+	{ VIDEO_STD_720P50,  NONEXISTANT_LOCALE, "720p 50Hz"	},
+	{ VIDEO_STD_1080I50, NONEXISTANT_LOCALE, "1080i 50Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080p 24Hz"	},
 	{ -1,                NONEXISTANT_LOCALE, "1080p 25Hz"	},
 	{ VIDEO_STD_NTSC,    NONEXISTANT_LOCALE, "NTSC"		},
