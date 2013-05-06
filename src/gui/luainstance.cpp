@@ -918,7 +918,7 @@ int CLuaInstance::MenueAddItem(lua_State *L)
 
 		} else if (type == "stringinput") {
 			strncpy((*it).s, value.c_str(), sizeof((*it).s));
-			std::string valid_chars = " 0123456789. ";
+			std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"§$%&/()=?-. ";
 			tableLookupString(L, "valid_chars", valid_chars);
 			int sms = 0;
 			tableLookupInt(L, "sms", sms);
