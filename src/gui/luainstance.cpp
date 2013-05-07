@@ -662,7 +662,6 @@ m:exec()
 
 bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &value)
 {
-fprintf(stderr, "tableLookupString\n");
 	bool res = false;
 	lua_pushstring(L, what);
 	lua_gettable(L, -2);
@@ -670,13 +669,11 @@ fprintf(stderr, "tableLookupString\n");
 	if (res)
 		value = lua_tostring(L, -1);
 	lua_pop(L, 1);
-fprintf(stderr, "res=%d\n", res);
 	return res;
 }
 
 bool CLuaInstance::tableLookup(lua_State *L, const char *what, int &value)
 {
-fprintf(stderr, "tableLookupInt\n");
 	bool res = false;
 	lua_pushstring(L, what);
 	lua_gettable(L, -2);
@@ -684,7 +681,6 @@ fprintf(stderr, "tableLookupInt\n");
 	if (res)
 		value = (int) lua_tonumber(L, -1);
 	lua_pop(L, 1);
-fprintf(stderr, "res=%d\n", res);
 	return res;
 }
 
