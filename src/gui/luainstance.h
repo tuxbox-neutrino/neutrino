@@ -41,7 +41,7 @@ struct CLuaData
 #ifdef MARTII
 struct CLuaMenueItem
 {
-	union
+	union //value
 	{
 		int i;
 		char s[255];
@@ -69,44 +69,39 @@ class CLuaMenue
 
 class CLuaMenueForwarder : public CMenuTarget
 {
-	private:
+	public:
 		lua_State *L;
 		std::string luaAction;
-	public:
 		CLuaMenueForwarder(lua_State *L, std::string _luaAction);
 		~CLuaMenueForwarder();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-class CLuaMenueFilebrowser : public CMenuTarget
+class CLuaMenueFilebrowser : public CLuaMenueForwarder
 {
 	private:
-		lua_State *L;
-		std::string luaAction;
 		char *value;
 		bool dirMode;
+		std::vector<std::string> filter;
 	public:
-		CLuaMenueFilebrowser(lua_State *L, std::string _luaAction, char *_value, bool _dirMode);
-		~CLuaMenueFilebrowser();
+		CLuaMenueFilebrowser(lua_State *_L, std::string _luaAction, char *_value, bool _dirMode);
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void addFilter(std::string s) { filter.push_back(s); };
 };
 
-class CLuaMenueStringinput : public CMenuTarget
+class CLuaMenueStringinput : public CLuaMenueForwarder
 {
 	private:
-		lua_State *L;
-		std::string luaAction;
-		const char *name;
 		char *value;
-		int size;
 		std::string valid_chars;
-		CChangeObserver *observ;
+		const char *name;
 		const char *icon;
 		bool sms;
+		int size;
+		CChangeObserver *observ;
 	public:
 		CLuaMenueStringinput(lua_State *_L, std::string _luaAction, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
-		~CLuaMenueStringinput();
-		int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/);
+		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
 class CLuaHintbox
@@ -154,6 +149,9 @@ private:
 	static int GetInput(lua_State *L);
 	static int GCWindow(lua_State *L);
 #ifdef MARTII
+	static int Blit(lua_State *L);
+	static int GetLanguage(lua_State *L);
+
 	void MenueRegister(lua_State *L);
 	static int MenueNew(lua_State *L);
 	static int MenueDelete(lua_State *L);
@@ -174,8 +172,8 @@ private:
 	static int MessageboxExec(lua_State *L);
 	static CLuaMessagebox *MessageboxCheck(lua_State *L, int n);
 
-	static bool tableLookupString(lua_State*, const char*, std::string&);
-	static bool tableLookupInt(lua_State*, const char*, int&);
+	static bool tableLookup(lua_State*, const char*, std::string&);
+	static bool tableLookup(lua_State*, const char*, int&);
 #endif
 };
 
