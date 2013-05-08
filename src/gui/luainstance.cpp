@@ -1255,7 +1255,7 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 	tmp = "cancel";
 	for (int i = 0; mbr[i].name; i++)
 		if (res == mbr[i].code) {
-			tmp == mbr[i].name;
+			tmp = mbr[i].name;
 			break;
 		}
 	lua_pushstring(L, tmp.c_str());
