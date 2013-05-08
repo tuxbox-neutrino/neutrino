@@ -120,6 +120,10 @@ void CComponents::paintFbItems(bool do_save_bg)
 	}
 
 	for(size_t i=0; i< v_fbdata.size() ;i++){
+		// Don't paint if dx or dy are 0
+		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0))
+			continue;
+
 		int fbtype = v_fbdata[i].fbdata_type;
 #ifdef DEBUG_CC
 	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
