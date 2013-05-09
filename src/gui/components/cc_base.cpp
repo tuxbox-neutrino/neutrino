@@ -80,24 +80,6 @@ void CComponents::initVarBasic()
 	saved_screen.pixbuf 	= NULL;
 }
 
-bool CComponents::allowPaint(const int& i)
-{
-	if(v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)
-		return true;
-
-
-	if (v_fbdata[CC_FBDATA_TYPE_BOX].x != v_fbdata[i].x)
-		return true;
-	else if (v_fbdata[CC_FBDATA_TYPE_BOX].y != v_fbdata[i].y)
-		return true;
-	else if (v_fbdata[CC_FBDATA_TYPE_BOX].dx != v_fbdata[i].dx)
-		return true;
-	else if (v_fbdata[CC_FBDATA_TYPE_BOX].dy != v_fbdata[i].dy)
-		return true;
-
-	return false;
-}
-
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(bool do_save_bg)
 {
@@ -140,11 +122,13 @@ void CComponents::paintFbItems(bool do_save_bg)
 				firstPaint = false;
 		}
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN){
-			if (fbtype == CC_FBDATA_TYPE_FRAME && v_fbdata[i].frame_thickness > 0)
-				frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
+			if (fbtype == CC_FBDATA_TYPE_FRAME) {
+				if (v_fbdata[i].frame_thickness > 0)
+					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
+			}
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
 				frameBuffer->paintBackgroundBoxRel(x, y, v_fbdata[i].dx, v_fbdata[i].dy);
-			else if( allowPaint(i) || fbtype == CC_FBDATA_TYPE_LINE)
+			else
 				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
