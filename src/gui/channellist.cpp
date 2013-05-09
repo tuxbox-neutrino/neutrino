@@ -595,6 +595,7 @@ int CChannelList::show()
 
 	bool bouquet_changed = false;
 	bool loop=true;
+	bool dont_hide = false;
 	while (loop) {
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 		if ( msg <= CRCInput::RC_MaxRC )
@@ -762,6 +763,7 @@ int CChannelList::show()
 					res = bouquetList->showChannelList();
 					loop = false;
 				}
+				dont_hide = true;
 			}
 		}
 		else if ( msg == CRCInput::RC_ok ) {
@@ -919,10 +921,10 @@ int CChannelList::show()
 
 	if (bouquet_changed)
 		res = -5; /* in neutrino.cpp: -5 == "don't change bouquet after adding a channel to fav" */
-
-	hide();
-
-	fader.Stop();
+	if(!dont_hide){
+		hide();
+		fader.Stop();
+	}
 
 	if (bShowBouquetList) {
 		res = bouquetList->exec(true);
