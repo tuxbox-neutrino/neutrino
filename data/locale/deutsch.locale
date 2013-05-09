@@ -1109,6 +1109,7 @@ menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbe
 menu.hint_video_pip Bild in Bild Größe und Position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
+menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
@@ -1186,6 +1187,7 @@ miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
+miscsettings.volume Lautstärke
 miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit

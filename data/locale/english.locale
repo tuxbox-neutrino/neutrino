@@ -1109,6 +1109,7 @@ menu.hint_video_modes VF key will cycle between enabled modes
 menu.hint_video_pip Picture in picture size and position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
+menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
@@ -1186,6 +1187,7 @@ miscsettings.shutdown_count_hint2 to deep standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
+miscsettings.volume Volume
 miscsettings.zapto_pre_time Zapto Start Time Correction (minutes)
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
