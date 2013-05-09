@@ -951,9 +951,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 }
 
 void CMenuWidget::paintItems()
-{
-	int item_height=height-(item_start_y-y);
-	
+{	
 	//Item not currently on screen
 	if (selected >= 0)
 	{
@@ -966,10 +964,13 @@ void CMenuWidget::paintItems()
 	// Scrollbar
 	if(total_pages>1)
 	{
+		int item_height=height-(item_start_y-y);
 		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
 		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
+		if(current_page==total_pages-1){
+			frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
+		}
 	}
-	frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	int ypos=item_start_y;
 	for (unsigned int count = 0; count < items.size(); count++)
 	{
@@ -1068,11 +1069,6 @@ void CMenuWidget::paintHint(int pos)
 	if (pos < 0 && !hint_painted)
 		return;
 	
-	int rad = RADIUS_LARGE;
-
-	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
-	int iwidth = width+sb_width;
 #if 0
 	if (hint_painted) {
 		/* clear detailsline line */
@@ -1105,7 +1101,7 @@ void CMenuWidget::paintHint(int pos)
 	}
 	if (pos < 0)
 		return;
-	
+
 	CMenuItem* item = items[pos];
 	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
@@ -1128,6 +1124,10 @@ void CMenuWidget::paintHint(int pos)
 		return;
 	
 	int iheight = item->getHeight();
+	int rad = RADIUS_LARGE;
+	int xpos  = x - ConnectLineBox_Width;
+	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
+	int iwidth = width+sb_width;
 	
 	//init details line and infobox dimensions
 	int ypos1 = item->getYPosition();
@@ -1847,9 +1847,8 @@ int CMenuSeparator::getWidth(void)
 
 int CMenuSeparator::paint(bool selected)
 {
-	int height;
+	int height = getHeight();
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-	height = getHeight();
 	
 	if ((type & SUB_HEAD))
 	{
@@ -1870,8 +1869,7 @@ int CMenuSeparator::paint(bool selected)
 	}
 	if ((type & STRING))
 	{
-		const char * l_text;
-		l_text = getString();
+		const char * l_text = getString();
 	
 		if (text != NONEXISTANT_LOCALE || strlen(l_text) != 0)
 		{
