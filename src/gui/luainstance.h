@@ -52,7 +52,7 @@ struct CLuaMenueItem
 class CLuaMenueChangeObserver : public CChangeObserver
 {
 	public:
-		bool changeNotify(lua_State *, const std::string &, void *);
+		bool changeNotify(lua_State *, const std::string &, const std::string &, void *);
 };
 
 class CLuaMenue
@@ -72,7 +72,8 @@ class CLuaMenueForwarder : public CMenuTarget
 	public:
 		lua_State *L;
 		std::string luaAction;
-		CLuaMenueForwarder(lua_State *L, std::string _luaAction);
+		std::string luaId;
+		CLuaMenueForwarder(lua_State *L, std::string _luaAction, std::string _luaId);
 		~CLuaMenueForwarder();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
@@ -84,7 +85,7 @@ class CLuaMenueFilebrowser : public CLuaMenueForwarder
 		bool dirMode;
 		std::vector<std::string> filter;
 	public:
-		CLuaMenueFilebrowser(lua_State *_L, std::string _luaAction, char *_value, bool _dirMode);
+		CLuaMenueFilebrowser(lua_State *_L, std::string _luaAction, std::string _luaId, char *_value, bool _dirMode);
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		void addFilter(std::string s) { filter.push_back(s); };
 };
@@ -100,7 +101,7 @@ class CLuaMenueStringinput : public CLuaMenueForwarder
 		int size;
 		CChangeObserver *observ;
 	public:
-		CLuaMenueStringinput(lua_State *_L, std::string _luaAction, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
+		CLuaMenueStringinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 

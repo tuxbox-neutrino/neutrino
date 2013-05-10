@@ -631,9 +631,9 @@ local m = menue.new{name="mytitle", icon="myicon", hide_parent=true}
 m:addItem{type="back"}
 m:addItem{type="separator"}
 
-function talk(a)
+function talk(a, b)
 	print(">talk")
-	print(a)
+	print(a .. " => " b)
 	print("<talk")
 	return MENU_RETURN["RETURN_REPAINT"]
 end
@@ -652,11 +652,11 @@ end
 m:addItem{type="chooser", name="testchooser", action="talk", options={ "on", "off", "auto" }, icon=
 m:addItem{type="forwarder", name="testforwarder", action="anotherMenue", icon="network"}
 m:addItem{type="separator"}
-m:addItem{type="numeric", name="testnumeric", action="talk"}
+m:addItem{type="numeric", name="testnumeric", id="a", action="talk"}
 m:addItem{type="separator"}
-m:addItem{type="filebrowser", name="fbrowser", action="talk"}
+m:addItem{type="filebrowser", name="fbrowser", id="b", action="talk"}
 m:addItem{type="separator"}
-m:addItem{type="stringinput", name="stringinput", action="talk"}
+m:addItem{type="stringinput", name="stringinput", id="c", action="talk"}
 m:exec()
 #endif
 
@@ -684,16 +684,17 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, int &value)
 	return res;
 }
 
-bool CLuaMenueChangeObserver::changeNotify(lua_State *L, const std::string &luaAction, void *Data)
+bool CLuaMenueChangeObserver::changeNotify(lua_State *L, const std::string &luaAction, const std::string &luaId, void *Data)
 {
 	const char *optionValue = (const char *) Data;
 	lua_pushglobaltable(L);
 	lua_getfield(L, -1, luaAction.c_str());
 	lua_remove(L, -2);
+	lua_pushstring(L, luaId.c_str());
 	lua_pushstring(L, optionValue);
-	lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
+	lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
-	lua_pop(L, 1);
+	lua_pop(L, 2);
 	return res == menu_return::RETURN_REPAINT || res == menu_return::RETURN_EXIT_REPAINT;
 }
 
@@ -732,10 +733,11 @@ CLuaMenue::~CLuaMenue()
 	delete observ;
 }
 
-CLuaMenueForwarder::CLuaMenueForwarder(lua_State *_L, std::string _luaAction)
+CLuaMenueForwarder::CLuaMenueForwarder(lua_State *_L, std::string _luaAction, std::string _luaId)
 {
 	L = _L;
 	luaAction = _luaAction;
+	luaId = _luaId;
 }
 
 CLuaMenueForwarder::~CLuaMenueForwarder()
@@ -759,7 +761,7 @@ int CLuaMenueForwarder::exec(CMenuTarget* /*parent*/, const std::string & /*acti
 	return menu_return::RETURN_REPAINT;
 }
 
-CLuaMenueFilebrowser::CLuaMenueFilebrowser(lua_State *_L, std::string _luaAction, char *_value, bool _dirMode) : CLuaMenueForwarder(_L, _luaAction)
+CLuaMenueFilebrowser::CLuaMenueFilebrowser(lua_State *_L, std::string _luaAction, std::string _luaId, char *_value, bool _dirMode) : CLuaMenueForwarder(_L, _luaAction, _luaId)
 {
 	value = _value;
 	dirMode = _dirMode;
@@ -791,7 +793,7 @@ int CLuaMenueFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*act
 	return menu_return::RETURN_REPAINT;
 }
 
-CLuaMenueStringinput::CLuaMenueStringinput(lua_State *_L, std::string _luaAction, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms) : CLuaMenueForwarder(_L, _luaAction)
+CLuaMenueStringinput::CLuaMenueStringinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms) : CLuaMenueForwarder(_L, _luaAction, _luaId)
 {
 	name = _name;
 	value = _value;
@@ -811,18 +813,17 @@ int CLuaMenueStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*ac
 	else
 		i = new CStringInput((char *)name, value, size,
 			NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, valid_chars.c_str(), observ, icon);
-	i->luaAction = luaAction;
-	i->luaState = L;
 	i->exec(NULL, "");
 	delete i;
 	if (!luaAction.empty()){
 		lua_pushglobaltable(L);
 		lua_getfield(L, -1, luaAction.c_str());
 		lua_remove(L, -2);
+		lua_pushstring(L, luaId.c_str());
 		lua_pushstring(L, value);
-		lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
+		lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 		//double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
-		lua_pop(L, 1);
+		lua_pop(L, 2);
 	}
 	return menu_return::RETURN_REPAINT;
 }
@@ -896,6 +897,7 @@ int CLuaInstance::MenueAddItem(lua_State *L)
 		std::string right_icon;	tableLookup(L, "right_icon", right_icon);
 		std::string action;	tableLookup(L, "action", action);
 		std::string value;	tableLookup(L, "value", value);
+		std::string id;		tableLookup(L, "id", id);
 		std::string tmp;
 		int directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
 		int pulldown = false; 	tableLookup(L, "pulldown", pulldown);
@@ -908,11 +910,10 @@ int CLuaInstance::MenueAddItem(lua_State *L)
 
 		if (type == "forwarder") {
 			strncpy(b->s, value.c_str(), sizeof(b->s));
-			CLuaMenueForwarder *forwarder = new CLuaMenueForwarder(L, action);
+			CLuaMenueForwarder *forwarder = new CLuaMenueForwarder(L, action, id);
 			CMenuItem *mi = new CMenuForwarderNonLocalized(
 				b->name.c_str(), enabled, b->s, forwarder, NULL/*ActionKey*/, directkey, icon.c_str(), right_icon.c_str());
-			mi->luaAction = action;
-			mi->luaState = L;
+			mi->setLua(L, action, id);
 			m->m->addItem(mi);
 			m->targets.push_back(forwarder);
 		} else if (type == "chooser") {
@@ -947,41 +948,36 @@ int CLuaInstance::MenueAddItem(lua_State *L)
 				}
 			lua_pop(L, 1);
 			CMenuItem *mi = new CMenuOptionChooser(b->name.c_str(), &b->i, kext, options_count, enabled, m->observ, directkey, icon.c_str(), pulldown);
-			mi->luaAction = action;
-			mi->luaState = L;
+			mi->setLua(L, action, id);
 			m->m->addItem(mi);
 		} else if (type == "numeric") {
 			b->i = range_from;
 			sscanf(value.c_str(), "%d", &b->i);
 			CMenuItem *mi = new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &b->i, enabled, range_from, range_to, m->observ,
 				0, 0, NONEXISTANT_LOCALE, b->name.c_str(), pulldown);
-			mi->luaAction = action;
-			mi->luaState = L;
+			mi->setLua(L, action, id);
 			m->m->addItem(mi);
 		} else if (type == "string") {
 			strncpy(b->s, value.c_str(), sizeof(b->s));
 			CMenuItem *mi = new CMenuOptionStringChooser(b->name.c_str(), b->s, enabled, m->observ, directkey, icon.c_str(), pulldown);
-			mi->luaAction = action;
-			mi->luaState = L;
+			mi->setLua(L, action, id);
 			m->m->addItem(mi);
-
 		} else if (type == "stringinput") {
 			strncpy(b->s, value.c_str(), sizeof(b->s));
 			std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"§$%&/()=?-. ";
 			tableLookup(L, "valid_chars", valid_chars);
 			int sms = 0;	tableLookup(L, "sms", sms);
 			int size = 30;	tableLookup(L, "size", size);
-			CLuaMenueStringinput *stringinput = new CLuaMenueStringinput(L, action, b->name.c_str(), b->s, size, valid_chars, m->observ, icon.c_str(), sms);
+			CLuaMenueStringinput *stringinput = new CLuaMenueStringinput(L, action, id, b->name.c_str(), b->s, size, valid_chars, m->observ, icon.c_str(), sms);
 			CMenuItem *mi = new CMenuForwarderNonLocalized(
 				b->name.c_str(), enabled, b->s, stringinput, NULL/*ActionKey*/, directkey, icon.c_str(), right_icon.c_str());
-			mi->luaAction = action;
-			mi->luaState = L;
+			mi->setLua(L, action, id);
 			m->m->addItem(mi);
 			m->targets.push_back(stringinput);
 		} else if (type == "filebrowser") {
 			strncpy(b->s, value.c_str(), sizeof(b->s));
 			int dirMode = 0; tableLookup(L, "dir_mode", dirMode);
-			CLuaMenueFilebrowser *filebrowser = new CLuaMenueFilebrowser(L, action, b->s, dirMode);
+			CLuaMenueFilebrowser *filebrowser = new CLuaMenueFilebrowser(L, action, id, b->s, dirMode);
 			lua_pushstring(L, "filter");
 			lua_gettable(L, -2);
 			if (lua_istable(L, -1))
@@ -994,8 +990,7 @@ int CLuaInstance::MenueAddItem(lua_State *L)
 
 			CMenuItem *mi = new CMenuForwarderNonLocalized(
 				b->name.c_str(), enabled, b->s, filebrowser, NULL/*ActionKey*/, directkey, icon.c_str(), right_icon.c_str());
-			mi->luaAction = action;
-			mi->luaState = L;
+			mi->setLua(L, action, id);
 			m->m->addItem(mi);
 			m->targets.push_back(filebrowser);
 		}
