@@ -23,7 +23,7 @@ enum CA_INIT_MASK {
 enum CA_SLOT_TYPE {
 	CA_SLOT_TYPE_SMARTCARD,
 	CA_SLOT_TYPE_CI,
-	CA_SLOT_TYPE_ALL,
+	CA_SLOT_TYPE_ALL
 };
 
 enum CA_MESSAGE_FLAGS {
@@ -49,7 +49,7 @@ enum CA_MESSAGE_FLAGS {
 	CA_MESSAGE_HAS_PARAM1_LONG	= (1 << 19),
 	CA_MESSAGE_HAS_PARAM2_LONG	= (1 << 20),
 	CA_MESSAGE_HAS_PARAM3_LONG	= (1 << 21),
-	CA_MESSAGE_HAS_PARAM4_LONG	= (1 << 22),
+	CA_MESSAGE_HAS_PARAM4_LONG	= (1 << 22)
 };
 
 enum CA_MESSAGE_MSGID {
@@ -72,7 +72,7 @@ enum CA_MESSAGE_MSGID {
 	CA_MESSAGE_MSG_EMM_ARRIVED,
 	CA_MESSAGE_MSG_CHANNEL_CHANGE,
 	CA_MESSAGE_MSG_GUI_READY,
-	CA_MESSAGE_MSG_EXIT,
+	CA_MESSAGE_MSG_EXIT
 };
 
 typedef struct CA_MESSAGE {
@@ -117,13 +117,13 @@ private:
 	/// Thread method
 	virtual void run(void);
 public:
-	/// Returns the number of CI slots
-	u32 GetNumberCISlots(void);
-	/// Returns the number of Smartcard slots
-	u32 GetNumberSmartCardSlots(void);
+	/// Returns the number of CA slots (CI+SC, CI, SC)
+	u32 GetNumberSlots(enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
+	u32 GetNumberCISlots(void) { return GetNumberSlots(CA_SLOT_TYPE_CI); }
+	u32 GetNumberSmartCardSlots(void) { return GetNumberSlots(CA_SLOT_TYPE_SMARTCARD); }
 	/// Singleton
 	static cCA *GetInstance(void);
-	/// Send PMT to a individual or to all available modules
+	/// Send PMT to a individual or to all available modules (DEPRECATED)
 	bool SendPMT(int Unit, unsigned char *Data, int Len, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
 	/// Sends a message to the CA thread
 	bool SendMessage(const CA_MESSAGE *Msg);
@@ -154,9 +154,9 @@ public:
 	/// Notify the module we closed the menu
 	void MenuClose(enum CA_SLOT_TYPE, u32 Slot);
 	/// Get the supported CAIDs
-	int GetCAIDS(CaIdVector & Caids);
+	int GetCAIDS(CaIdVector & Caids, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
 	/// Send a CA-PMT object and Raw unparsed PMT to the CA layer
-	bool SendCAPMT(u64 Source, u8 DemuxSource, u8 DemuxMask, const unsigned char *CAPMT, u32 CAPMTLen, const unsigned char *RawPMT, u32 RawPMTLen);
+	bool SendCAPMT(u64 ChannelId, u8 DemuxSource, u8 DemuxMask, const unsigned char *CAPMT, u32 CAPMTLen, const unsigned char *RawPMT, u32 RawPMTLen, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
 	/// Virtual destructor
 	virtual ~cCA();
 };

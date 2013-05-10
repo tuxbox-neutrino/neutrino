@@ -12,6 +12,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <vector>
 
 typedef enum {
 	PLAYMODE_TS = 0,
@@ -64,6 +65,7 @@ public:
 	void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language);
 	void FindAllSubs(uint16_t *pids, unsigned short *supported, uint16_t *numpida, std::string *language);
 	bool SelectSubtitles(int pid);
+	void GetChapters(std::vector<int> &positions, std::vector<std::string> &titles);
 };
 
 #endif // __PLAYBACK_CS_H_
