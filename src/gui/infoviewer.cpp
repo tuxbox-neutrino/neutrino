@@ -527,7 +527,7 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	paintTime (show_dot, true);
 	showRecordIcon (show_dot);
 	show_dot = !show_dot;
-	showInfoFile();
+
 	infoViewerBB->paintshowButtonBar();
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 ,ChannelName, COL_INFOBAR, 0, true);	// UTF-8
@@ -585,6 +585,8 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	frameBuffer->paintIcon(playicon, icon_x, icon_y);
 
 	showLcdPercentOver ();
+	showInfoFile();
+
 	//loop(fadeValue, show_dot , fadeIn);
 	loop(show_dot);
 	aspectRatio = 0;
@@ -685,7 +687,6 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	showRecordIcon (show_dot);
 	show_dot = !show_dot;
 
-	showInfoFile();
 	if (showButtonBar) {
 		infoViewerBB->paintshowButtonBar();
 	}
@@ -782,7 +783,9 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	} else {
 		show_current_next(new_chan,epgpos);
 	}
+
 	showLcdPercentOver ();
+	showInfoFile();
 
 #if 0
 	if ((g_RemoteControl->current_channel_id == channel_id) && !(((info_CurrentNext.flags & CSectionsdClient::epgflags::has_next) && (info_CurrentNext.flags & (CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::has_no_current))) || (info_CurrentNext.flags & CSectionsdClient::epgflags::not_broadcast))) {
@@ -1833,12 +1836,17 @@ void CInfoViewer::showInfoFile()
 		return;
 	}
 
+	//get width of progressbar timescale
+	int pb_w = 0;
+	if ( (timescale != NULL) && (g_settings.infobar_progressbar == 0) ) {
+		pb_w = timescale->getWidth();
+	}
+
 	//set position of info area
 	const int oOffset	= 140; // outer left/right offset
-	const int pb_w		= 112; // same value as int pb_w in display_Info()
 	const int xStart	= BoxStartX + ChanWidth + oOffset;
 	const int yStart	= BoxStartY;
-	const int width		= BoxEndX - xStart - (g_settings.infobar_progressbar ? oOffset : oOffset + pb_w);
+	const int width		= BoxEndX - xStart - oOffset - pb_w;
 	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
 
 	//create info object
