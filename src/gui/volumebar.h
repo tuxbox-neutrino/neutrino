@@ -44,7 +44,7 @@ class CVolumeBar : public CComponentsForm
 		int h_spacer, v_spacer;
 
 		//clock
-		int clock_height;
+		int clock_y, clock_width, clock_height;
 
 		//volume value
 		char *vb_vol;
@@ -82,7 +82,15 @@ class CVolumeHelper
 	private:
 		int x, y, sw, sh;
 		int mute_ax, mute_ay, mute_dx, mute_dy, mute_corrY;
+		int clock_ax, clock_ay, clock_dx, clock_dy, digit_h, digit_offset;
 		int h_spacer, v_spacer;
+		int vol_ay, vol_height;
+		CFrameBuffer *frameBuffer;
+
+		void Init();
+		void initVolBarHeight();
+		void initMuteIcon();
+		void initInfoClock();
 
 	public:
 
@@ -92,7 +100,10 @@ class CVolumeHelper
 		void getSpacer(int *h, int *v) { *h = h_spacer; *v = v_spacer; }
 		void getDimensions(int *_x, int *_y, int *_sw, int *_sh) { *_x = x; *_y = y; *_sw = sw; *_sh = sh; }
 		void getMuteIconDimensions(int *_x, int *_y, int *w, int *h) { *_x = mute_ax; *_y = mute_ay+mute_corrY; *w = mute_dx; *h = mute_dy; }
+		void getInfoClockDimensions(int *_x, int *_y, int *w, int *h, int *d_h, int *d_o) { *_x = clock_ax; *_y = clock_ay; *w = clock_dx; *h = clock_dy, *d_h = digit_h, *d_o = digit_offset; }
+		void getVolBarDimensions(int *_y, int *_dy) { *_y = vol_ay; *_dy = vol_height; }
 		void setMuteIconCorrY(int corr) { mute_corrY = corr; }
+		void refresh();
 };
 
 #endif

@@ -39,6 +39,7 @@ CAudioMute::CAudioMute()
 	mute_dx		= 0;
 	mute_dy		= 0;
 	mute_ay_old	= -1;
+	CVolumeHelper::getInstance()->refresh();
 	CVolumeHelper::getInstance()->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
 	mIcon		= new CComponentsPicture(mute_ax, mute_ay, mute_dx, mute_dy, NEUTRINO_ICON_BUTTON_MUTE);
 }
@@ -74,7 +75,7 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			mute_ay_old = mute_ay;
 		}
 		if ((g_settings.mode_clock) && (doInit))
-			CInfoClock::getInstance(true)->ClearDisplay();
+			CInfoClock::getInstance()->ClearDisplay();
 
 		if (newValue)
 			mIcon->paint();
@@ -82,6 +83,6 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			mIcon->hide();
 
 		if (doInit)
-			CInfoClock::getInstance(true)->Init(true);
+			CVolumeHelper::getInstance()->refresh();
 	}
 }

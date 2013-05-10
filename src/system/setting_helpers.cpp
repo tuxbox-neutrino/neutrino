@@ -243,8 +243,8 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CNeutrinoApp::getInstance()->SetupFonts();
 
 	hintBox.hide();
-	/* recalculate infoclock */
-	CInfoClock::getInstance()->Init();
+	/* recalculate infoclock/muteicon/volumebar */
+	CVolumeHelper::getInstance()->refresh();
 	return true;
 }
 
