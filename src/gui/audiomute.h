@@ -29,17 +29,15 @@
 
 #include <gui/components/cc.h>
 
-class CAudioMute
+class CAudioMute : public CComponentsPicture
 {
 	private:
-		int mute_ay_old;
-		int mute_ax, mute_ay, mute_dx, mute_dy;
-		CComponentsPicture *mIcon;
+		int y_old;
 
 	public:
 
 		CAudioMute();
-		~CAudioMute();
+// 		~CAudioMute();
 		static CAudioMute* getInstance();
 
 		void AudioMute(int newValue, bool isEvent= false);

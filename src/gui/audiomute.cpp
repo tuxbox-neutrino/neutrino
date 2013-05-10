@@ -4,6 +4,8 @@
 
 	audioMute - Neutrino-GUI
 	Copyright (C) 2013 M. Liebmann (micha-bbg)
+	CComponents implementation
+	Copyright (C) 2013 Thilo Graf
 
 	License: GPL
 
@@ -32,21 +34,11 @@
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
 
-CAudioMute::CAudioMute()
+CAudioMute::CAudioMute():CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_MUTE)
 {
-	mute_ax		= 0;
-	mute_ay		= 0;
-	mute_dx		= 0;
-	mute_dy		= 0;
-	mute_ay_old	= -1;
+	y_old		= -1;
 	CVolumeHelper::getInstance()->refresh();
-	CVolumeHelper::getInstance()->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
-	mIcon		= new CComponentsPicture(mute_ax, mute_ay, mute_dx, mute_dy, NEUTRINO_ICON_BUTTON_MUTE);
-}
-
-CAudioMute::~CAudioMute()
-{
-	delete mIcon;
+	CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 }
 
 CAudioMute* CAudioMute::getInstance()
@@ -68,19 +60,18 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	if( isEvent && ( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic))
 	{
-		CVolumeHelper::getInstance()->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
-		if ((mIcon) && (mute_ay_old != mute_ay)) {
-			mIcon->hide();
-			mIcon->setYPos(mute_ay);
-			mute_ay_old = mute_ay;
+		CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
+		if ((y_old != y)) {
+			this->hide();
+			y_old = y;
 		}
 		if ((g_settings.mode_clock) && (doInit))
 			CInfoClock::getInstance()->ClearDisplay();
 
 		if (newValue)
-			mIcon->paint();
+			this->paint();
 		else
-			mIcon->hide();
+			this->hide();
 
 		if (doInit)
 			CVolumeHelper::getInstance()->refresh();
