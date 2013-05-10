@@ -572,34 +572,35 @@ void CMoviePlayerGui::PlayFile(void)
 				callInfoViewer(/*duration, position*/);
 
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
-			handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
+			if (is_file_player)
+				selectChapter();
+			else
+				handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_audio) {
 			selectAudioPid(is_file_player);
 			update_lcd = true;
 			clearSubtitle();
 		} else if ( msg == (neutrino_msg_t) g_settings.mpkey_subtitle) {
-			selectSubtitle(is_file_player);
+			selectSubtitle();
 			clearSubtitle();
 			update_lcd = true;
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_time) {
 			FileTime.switchMode(position, duration);
-		} else if (!is_file_player && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind) ||
+		} else if (/*!is_file_player &&*/ ((msg == (neutrino_msg_t) g_settings.mpkey_rewind) ||
 				(msg == (neutrino_msg_t) g_settings.mpkey_forward))) {
 
 			int newspeed;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
 				newspeed = (speed >= 0) ? -1 : speed - 1;
-				if (playstate != CMoviePlayerGui::PAUSE)
-					playstate = CMoviePlayerGui::REW;
 			} else {
 				newspeed = (speed <= 0) ? 2 : speed + 1;
-				if (playstate != CMoviePlayerGui::PAUSE)
-					playstate = CMoviePlayerGui::FF;
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
 			if (playback->SetSpeed(newspeed)) {
 				printf("SetSpeed: update speed\n");
 				speed = newspeed;
+				if (playstate != CMoviePlayerGui::PAUSE)
+					playstate = msg == (neutrino_msg_t) g_settings.mpkey_rewind ? CMoviePlayerGui::REW : CMoviePlayerGui::FF;
 				updateLcd();
 			}
 			//update_lcd = true;
@@ -785,13 +786,13 @@ bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
 	return false;
 }
 
-void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled)
+void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool& enabled)
 {
 	enabled = true;
 	switch(ac3flags[count])
 	{
 		case 1: /*AC3,EAC3*/
-			if (apidtitle.find("AC3") == std::string::npos || file_player)
+			if (apidtitle.find("AC3") == std::string::npos)
 				apidtitle.append(" (AC3)");
 			break;
 		case 2: /*teletext*/
@@ -808,7 +809,8 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool fil
 			apidtitle.append(" (AAC)");
 			break;
 		case 6: /*DTS*/
-			apidtitle.append(" (DTS)");
+			if (apidtitle.find("DTS") == std::string::npos)
+				apidtitle.append(" (DTS)");
 #ifndef BOXMODEL_APOLLO
 			enabled = false;
 #endif
@@ -834,9 +836,9 @@ void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audion
 			if(!file_player){
 				getAudioName(apids[count], audioname);
 				return ;
-			}else if (!language[count].empty()){
+			} else if (!language[count].empty()){
 				audioname = language[count];
-				addAudioFormat(count, audioname, file_player, dumm);
+				addAudioFormat(count, audioname, dumm);
 				if(!dumm && (count < numpida)){
 					currentapid = apids[count+1];
 					continue;
@@ -846,7 +848,7 @@ void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audion
 			char apidnumber[20];
 			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
 			audioname = apidnumber;
-			addAudioFormat(count, audioname, file_player, dumm);
+			addAudioFormat(count, audioname, dumm);
 			if(!dumm && (count < numpida)){
 				currentapid = apids[count+1];
 				continue;
@@ -887,7 +889,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 			sprintf(apidnumber, "Stream %d %X", count + 1, apids[count]);
 			apidtitle = apidnumber;
 		}
-		addAudioFormat(count, apidtitle, file_player, enabled);
+		addAudioFormat(count, apidtitle, enabled);
 		if(defpid && !enabled && (count < numpida)){
 			currentapid = apids[count+1];
 			defpid = false;
@@ -1209,9 +1211,37 @@ void CMoviePlayerGui::showHelpTS()
 	helpbox.show(LOCALE_MESSAGEBOX_INFO);
 }
 
-void CMoviePlayerGui::selectSubtitle(bool file_player)
+void CMoviePlayerGui::selectChapter()
 {
-	if (!file_player)
+	if (!is_file_player)
+		return;
+
+	std::vector<int> positions; std::vector<std::string> titles;
+	playback->GetChapters(positions, titles);
+	if (positions.empty())
+		return;
+
+	CMenuWidget ChSelector(LOCALE_MOVIEBROWSER_MENU_MAIN_BOOKMARKS, NEUTRINO_ICON_AUDIO);
+	ChSelector.addIntroItems();
+
+	int select = -1;
+	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+	char cnt[5];
+	for (unsigned i = 0; i < positions.size(); i++) {
+		sprintf(cnt, "%d", i);
+		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
+		ChSelector.addItem(item, position > positions[i]);
+	}
+	ChSelector.exec(NULL, "");
+	delete selector;
+	printf("CMoviePlayerGui::selectChapter: selected %d (%d)\n", select, (select >= 0) ? positions[select] : -1);
+	if(select >= 0)
+		playback->SetPosition(positions[select], true);
+}
+
+void CMoviePlayerGui::selectSubtitle()
+{
+	if (!is_file_player)
 		return;
 
 	CMenuWidget APIDSelector(LOCALE_SUBTITLES_HEAD, NEUTRINO_ICON_AUDIO);
@@ -1235,6 +1265,7 @@ void CMoviePlayerGui::selectSubtitle(bool file_player)
 		}
 		sprintf(cnt, "%d", count);
 		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
+		item->setItemButton(NEUTRINO_ICON_BUTTON_STOP, false);
 		APIDSelector.addItem(item, defpid);
 	}
 	sprintf(cnt, "%d", count);

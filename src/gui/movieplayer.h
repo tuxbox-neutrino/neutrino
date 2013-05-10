@@ -127,15 +127,16 @@ class CMoviePlayerGui : public CMenuTarget
 	bool getAudioName(int pid, std::string &apidtitle);
 	void selectAudioPid(bool file_player);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
-	void addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled );
+	void addAudioFormat(int count, std::string &apidtitle, bool& enabled );
 
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
 	void updateLcd();
 
-	void selectSubtitle(bool file_player);
+	void selectSubtitle();
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle();
+	void selectChapter();
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
