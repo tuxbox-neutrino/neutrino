@@ -117,8 +117,8 @@ CEpgData::CEpgData()
 
 void CEpgData::start()
 {
-	ox = frameBuffer->getScreenWidthRel();
-	oy = frameBuffer->getScreenHeightRel();
+	ox = frameBuffer->getScreenWidthRel(bigFonts ? false /* big */ : true /* small */);
+	oy = frameBuffer->getScreenHeightRel(bigFonts ? false /* big */ : true /* small */);
 
 	topheight    = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
 	topboxheight = topheight + 6;
