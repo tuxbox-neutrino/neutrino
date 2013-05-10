@@ -518,7 +518,6 @@ int COsdSetup::showOsdSetup()
 
 	int res = osd_menu->exec(NULL, "");
 
-	delete submenu_menus;
 	delete osd_menu;
 	return res;
 }
