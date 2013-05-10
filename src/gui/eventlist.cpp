@@ -300,11 +300,11 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	}
 	UpdateTimerList();
 
+	bool dont_hide = false;
 	if(channelname_prev.empty(), channelname_next.empty()){
 		paintHead(channel_id, channelname);
 	}else{
 		paintHead(channelname, channelname_prev, channelname_next);
-
 	}
 	paint(channel_id);
 	showFunctionBar(true, channel_id);
@@ -576,6 +576,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				}
 			}
 			loop = false;
+			dont_hide = true;
 			exec(_channel_id, current_channel_name, prev_channel_name, next_channel_name);
 		}
 		else if (msg == CRCInput::RC_0) {
@@ -651,8 +652,10 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		}
 	}
 
-	hide();
-	fader.Stop();
+	if(!dont_hide){
+		hide();
+		fader.Stop();
+	}
 	return res;
 }
 
