@@ -93,6 +93,11 @@ extern cAudio *audioDecoder;
 extern cDemux *audioDemux;
 extern cDemux *videoDemux;
 
+#ifdef ENABLE_PIP
+extern cVideo *pipDecoder;
+cDemux *pipDemux;
+#endif
+
 cDemux *pcrDemux = NULL;
 
 /* the map which stores the wanted cable/satellites */
@@ -130,6 +135,8 @@ CZapit::CZapit()
 	currentMode = 0;
 	current_volume = 100;
 	volume_percent = 0;
+	pip_channel_id = 0;
+	pip_fe = NULL;
 }
 
 CZapit::~CZapit()
@@ -483,7 +490,19 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
+#ifdef ENABLE_PIP
+	if (pip_fe)
+		CFEManager::getInstance()->lockFrontend(pip_fe);
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
+	if (pip_fe)
+		CFEManager::getInstance()->unlockFrontend(pip_fe);
+	if (fe == NULL) {
+		StopPip();
+		fe = CFEManager::getInstance()->allocateFE(newchannel);
+	}
+#else
+	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
+#endif
 	if(fe == NULL) {
 		ERROR("Cannot get frontend\n");
 		return false;
@@ -532,6 +551,11 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		goto again;
 	}
 	SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &live_channel_id, sizeof(t_channel_id));
+
+#if 0 // def ENABLE_PIP
+	if (transponder_change && (live_fe == pip_fe))
+		StopPip();
+#endif
 
 	if (current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
 		current_is_nvod = true;
@@ -582,6 +606,79 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	return true;
 }
 
+#ifdef ENABLE_PIP
+bool CZapit::StopPip()
+{
+	if (pip_channel_id) {
+		INFO("[pip] stop %llx", pip_channel_id);
+		CCamManager::getInstance()->Stop(pip_channel_id, CCamManager::PIP);
+		pipDemux->Stop();
+		pipDecoder->Stop();
+		pip_fe = NULL;
+		pip_channel_id = 0;
+		return true;
+	}
+	return false;
+}
+
+bool CZapit::StartPip(const t_channel_id channel_id)
+{
+	CZapitChannel* newchannel;
+	bool transponder_change;
+
+
+	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
+		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		return false;
+	}
+	INFO("[pip] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
+
+	CFEManager::getInstance()->lockFrontend(live_fe);
+	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
+	CFEManager::getInstance()->unlockFrontend(live_fe);
+	if(frontend == NULL) {
+		ERROR("Cannot get frontend\n");
+		return false;
+	}
+	StopPip();
+	if(!TuneChannel(frontend, newchannel, transponder_change))
+		return false;
+
+	if(!ParsePatPmt(newchannel))
+		return false;
+
+	pip_fe = frontend;
+
+	INFO("[pip] vpid %X apid %X pcr %X", newchannel->getVideoPid(), newchannel->getAudioPid(), newchannel->getPcrPid());
+	/* FIXME until proper demux management */
+	int dnum = newchannel->getPipDemux();
+	if (pipDemux && (pipDemux->getUnit() != dnum)) {
+		pipDecoder->SetDemux(NULL);
+		delete pipDemux;
+		pipDemux = new cDemux(dnum);
+		pipDemux->Open(DMX_PIP_CHANNEL);
+		pipDecoder->SetDemux(pipDemux);
+	}
+	if (CFEManager::getInstance()->getFrontendCount() > 1)
+		cDemux::SetSource(dnum, pip_fe->getNumber());
+#if 0
+	pipDecoder->SetSyncMode(AVSYNC_DISABLED);
+	pipDemux->SetSyncMode(AVSYNC_DISABLED);
+#endif
+
+	pipDecoder->SetStreamType((VIDEO_FORMAT)newchannel->type);
+	pipDemux->pesFilter(newchannel->getVideoPid());
+	pipDecoder->Start(0, newchannel->getPcrPid(), newchannel->getVideoPid());
+	pipDemux->Start();
+	pip_channel_id = channel_id;
+
+	//pipDecoder->setBlank(false);
+
+	CCamManager::getInstance()->Start(newchannel->getChannelID(), CCamManager::PIP);
+	return true;
+}
+#endif
+
 bool CZapit::ZapForRecord(const t_channel_id channel_id)
 {
 	CZapitChannel* newchannel;
@@ -611,6 +708,10 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 		goto again;
 	}
 
+#ifdef ENABLE_PIP
+	if (transponder_change && (frontend == pip_fe))
+		StopPip();
+#endif
 	if(!ParsePatPmt(newchannel))
 	{
 		if (retry < 1)
@@ -916,11 +1017,15 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CZapitMessages::responseZapComplete msgResponseZapComplete;
 		VALGRIND_PARANOIA(msgResponseZapComplete);
 		CBasicServer::receive_data(connfd, &msgZaptoServiceID, sizeof(msgZaptoServiceID));
-		if(msgZaptoServiceID.record) {
+		if(msgZaptoServiceID.record)
 			msgResponseZapComplete.zapStatus = ZapForRecord(msgZaptoServiceID.channel_id);
-		} else {
+#ifdef ENABLE_PIP
+		else if(msgZaptoServiceID.pip)
+			msgResponseZapComplete.zapStatus = StartPip(msgZaptoServiceID.channel_id);
+#endif
+		else
 			msgResponseZapComplete.zapStatus = ZapTo(msgZaptoServiceID.channel_id, (rmsg.cmd == CZapitMessages::CMD_ZAPTO_SUBSERVICEID));
-		}
+
 		CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
 		break;
 	}
@@ -1130,7 +1235,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
   	        SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 		live_fe->setTsidOnid(0);
-		ZapIt(live_channel_id, current_is_nvod);
+		//ZapIt(live_channel_id, current_is_nvod);
 		//SendEvent(CZapitClient::EVT_BOUQUETS_CHANGED);
   	        break;
   	}
@@ -1485,6 +1590,13 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 
+#ifdef ENABLE_PIP
+	case CZapitMessages::CMD_STOP_PIP:
+		StopPip();
+		SendCmdReady(connfd);
+		break;
+#endif
+
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
 	{
 		CZapitMessages::commandBoolean msgBool;
@@ -1631,6 +1743,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 					satellitePosition,
 					0
 					);
+			channel->deltype = live_fe->getType();
 			CServiceManager::getInstance()->AddNVODChannel(channel);
 		}
 
@@ -2061,6 +2174,9 @@ void CZapit::enterStandby(void)
 	SaveAudioMap();
 	SaveVolumeMap();
 	StopPlayBack(true);
+#ifdef ENABLE_PIP
+	StopPip();
+#endif
 
 	if(!(currentMode & RECORD_MODE)) {
 		pmt_stop_update_filter(&pmt_update_fd);
@@ -2166,10 +2282,42 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	audioDemux = new cDemux();
 	audioDemux->Open(DMX_AUDIO_CHANNEL);
 
-	videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+#ifdef ENABLE_PIP
+	/* FIXME until proper demux management */
+	int dnum = 1;
+	if (CFEManager::getInstance()->getFrontendCount() < MAX_DMX_UNITS)
+		dnum = PIP_DEMUX;
+#endif
+#ifdef BOXMODEL_APOLLO
+	videoDecoder = cVideo::GetDecoder(0);
+	audioDecoder = cAudio::GetDecoder(0);
+
+	videoDecoder->SetDemux(videoDemux);
+	videoDecoder->SetVideoSystem(video_mode);
 	videoDecoder->Standby(false);
 
-	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
+	audioDecoder->SetDemux(audioDemux);
+	audioDecoder->SetVideo(videoDecoder);
+
+#ifdef ENABLE_PIP
+	pipDemux = new cDemux(dnum);
+	pipDemux->Open(DMX_PIP_CHANNEL);
+	pipDecoder = cVideo::GetDecoder(1);
+	pipDecoder->SetDemux(pipDemux);
+#endif
+#else
+        videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());
+        videoDecoder->Standby(false);
+
+        audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), NULL /*videoDecoder->GetTVEncSD()*/);
+
+#ifdef ENABLE_PIP
+	pipDemux = new cDemux(dnum);
+	pipDemux->Open(DMX_PIP_CHANNEL);
+	pipDecoder = new cVideo(video_mode, pipDemux->getChannel(), pipDemux->getBuffer(), 1);
+#endif
+#endif
+
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
 	/* set initial volume with 100% */
@@ -2377,6 +2525,11 @@ void CZapit::run()
 	delete pmtDemux;
 	delete audioDecoder;
 	delete audioDemux;
+#ifdef ENABLE_PIP
+	StopPip();
+	delete pipDecoder;
+	delete pipDemux;
+#endif
 
 	INFO("demuxes/decoders deleted");
 

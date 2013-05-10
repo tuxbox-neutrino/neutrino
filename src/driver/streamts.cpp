@@ -162,15 +162,21 @@ void CStreamInstance::run()
 {
 	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
 
-#ifndef HAVE_COOL_HARDWARE
+#if 0
+// TODO: check if this works... #ifndef HAVE_COOL_HARDWARE
 	/* right now, only one stream is possible anyway and it is not possible
 	 * to stream a different channel than the live channel AFAICT, so we can
 	 * as well use the live demux */
 	dmx = new cDemux(0);
-#else
+#endif
+#if 0
 	dmx = new cDemux(STREAM_DEMUX);//FIXME
 #endif
+	CZapitChannel * tmpchan = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (!tmpchan)
+		return;
 
+	dmx = new cDemux(tmpchan->getRecordDemux());//FIXME
 	dmx->Open(DMX_TP_CHANNEL, NULL, DMX_BUFFER_SIZE);
 
 	/* pids here cannot be empty */
@@ -357,6 +363,13 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 			printf("CStreamManager::Parse: channel %" PRIx64 " recorded, aborting..\n", chid);
 			return false;
 		}
+#ifdef ENABLE_PIP
+		t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+		if ((chid == pip_channel_id) && (channel->getRecordDemux() == channel->getPipDemux())) {
+			printf("CStreamManager::Parse: channel %llx used for pip, aborting..\n", chid);
+			return false;
+		}
+#endif
 #endif
 
 		printf("CStreamManager::Parse: no pids in url, using channel %" PRIx64 " pids\n", chid);

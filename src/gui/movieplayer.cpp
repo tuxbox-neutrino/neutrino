@@ -166,6 +166,8 @@ void CMoviePlayerGui::cutNeutrino()
 
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_ts);
 	m_LastMode = (CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
+	/* set g_InfoViewer update timer to 1 sec, should be reset to default from restoreNeutrino->set neutrino mode  */
+	g_InfoViewer->setUpdateTimer(1000 * 1000);
 }
 
 void CMoviePlayerGui::restoreNeutrino()
@@ -261,14 +263,21 @@ void CMoviePlayerGui::updateLcd()
 
 	switch (playstate) {
 		case CMoviePlayerGui::PAUSE:
-			lcd = "|| ";
+			if (speed < 0) {
+				sprintf(tmp, "%dx<| ", abs(speed));
+				lcd = tmp;
+			} else if (speed > 0) {
+				sprintf(tmp, "%dx|> ", abs(speed));
+				lcd = tmp;
+			} else
+				lcd = "|| ";
 			break;
 		case CMoviePlayerGui::REW:
-			sprintf(tmp, "%dx<< ", speed);
+			sprintf(tmp, "%dx<< ", abs(speed));
 			lcd = tmp;
 			break;
 		case CMoviePlayerGui::FF:
-			sprintf(tmp, "%dx>> ", speed);
+			sprintf(tmp, "%dx>> ", abs(speed));
 			lcd = tmp;
 			break;
 		case CMoviePlayerGui::PLAY:
@@ -380,22 +389,22 @@ bool CMoviePlayerGui::SelectFile()
 				ret = true;
 				if(file->getType() == CFile::FILE_PLAYLIST) {
 					std::ifstream infile;
-					char cLine[256];
-					char name[255] = { 0 };
+					char cLine[1024];
+					char name[1024] = { 0 };
 					infile.open(file->Name.c_str(), std::ifstream::in);
 					while (infile.good())
 					{
-						infile.getline(cLine, 255);
+						infile.getline(cLine, sizeof(cLine));
 						if (cLine[strlen(cLine)-1]=='\r')
 							cLine[strlen(cLine)-1]=0;
 
-						int duration;
-						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &duration, name);
+						int dur;
+						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
 						if (strlen(cLine) > 0 && cLine[0]!='#')
 						{
 							char *url = strstr(cLine, "http://");
 							if (url != NULL) {
-								printf("name %s [%d] url: %s\n", name, duration, url);
+								printf("name %s [%d] url: %s\n", name, dur, url);
 								full_name = url;
 								if(strlen(name))
 									file_name = name;
@@ -430,13 +439,13 @@ void CMoviePlayerGui::PlayFile(void)
 	neutrino_msg_data_t data;
 	menu_ret = menu_return::RETURN_REPAINT;
 
-	int position = 0, duration = 0;
 	bool first_start_timeshift = false;
 	bool time_forced = false;
 	bool update_lcd = true;
 	int eof = 0;
 
-	CTimeOSD FileTime;
+	//CTimeOSD FileTime;
+	position = 0, duration = 0;
 
 	playstate = CMoviePlayerGui::STOPPED;
 	printf("Startplay at %d seconds\n", startposition/1000);
@@ -458,7 +467,7 @@ void CMoviePlayerGui::PlayFile(void)
 		playback->Close();
 	} else {
 		playstate = CMoviePlayerGui::PLAY;
-		CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, true);
+		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 		if(timeshift) {
 			first_start_timeshift = true;
 			startposition = -1;
@@ -504,7 +513,7 @@ void CMoviePlayerGui::PlayFile(void)
 			updateLcd();
 		}
 		if (first_start_timeshift) {
-			callInfoViewer(duration, position);
+			callInfoViewer(/*duration, position*/);
 			first_start_timeshift = false;
 		}
 
@@ -519,6 +528,11 @@ void CMoviePlayerGui::PlayFile(void)
 #endif
 
 				playback->GetSpeed(speed);
+				/* at BOF lib set speed 1, check it */
+				if ((playstate != CMoviePlayerGui::PLAY) && (speed == 1)) {
+					playstate = CMoviePlayerGui::PLAY;
+					update_lcd = true;
+				}
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 #endif
@@ -543,19 +557,19 @@ void CMoviePlayerGui::PlayFile(void)
 			playstate = CMoviePlayerGui::STOPPED;
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (playstate > CMoviePlayerGui::PLAY) {
-				update_lcd = true;
 				playstate = CMoviePlayerGui::PLAY;
 				speed = 1;
 				playback->SetSpeed(speed);
+				//update_lcd = true;
+				updateLcd();
 				if (!timeshift)
-					callInfoViewer(duration, position);
+					callInfoViewer(/*duration, position*/);
 			}
 			if (time_forced) {
 				time_forced = false;
 				FileTime.hide();
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
-			update_lcd = true;
 			if (playstate == CMoviePlayerGui::PAUSE) {
 				playstate = CMoviePlayerGui::PLAY;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
@@ -567,8 +581,10 @@ void CMoviePlayerGui::PlayFile(void)
 				speed = 0;
 				playback->SetSpeed(speed);
 			}
+			//update_lcd = true;
+			updateLcd();
 			if (!timeshift)
-				callInfoViewer(duration, position);
+				callInfoViewer(/*duration, position*/);
 
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
 			handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
@@ -580,19 +596,26 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if ((msg == (neutrino_msg_t) g_settings.mpkey_rewind) ||
 				(msg == (neutrino_msg_t) g_settings.mpkey_forward)) {
 
+			int newspeed;
 			if (msg == (neutrino_msg_t) g_settings.mpkey_rewind) {
-				speed = (speed >= 0) ? -1 : speed - 1;
-				playstate = CMoviePlayerGui::REW;
+				newspeed = (speed >= 0) ? -1 : speed - 1;
+				if (playstate != CMoviePlayerGui::PAUSE)
+					playstate = CMoviePlayerGui::REW;
 			} else {
-				speed = (speed <= 0) ? 2 : speed + 1;
-				playstate = CMoviePlayerGui::FF;
+				newspeed = (speed <= 0) ? 2 : speed + 1;
+				if (playstate != CMoviePlayerGui::PAUSE)
+					playstate = CMoviePlayerGui::FF;
 			}
 			/* if paused, playback->SetSpeed() start slow motion */
-			playback->SetSpeed(speed);
-			update_lcd = true;
+			if (playback->SetSpeed(newspeed)) {
+				printf("SetSpeed: update speed\n");
+				speed = newspeed;
+				updateLcd();
+			}
+			//update_lcd = true;
 
 			if (!timeshift)
-				callInfoViewer(duration, position);
+				callInfoViewer(/*duration, position*/);
 
 			if (!FileTime.IsVisible()) {
 				FileTime.show(position);
@@ -623,7 +646,7 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if (msg == CRCInput::RC_0) {	// cancel bookmark jump
 			handleMovieBrowser(CRCInput::RC_0, position);
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
-			callInfoViewer(duration, position);
+			callInfoViewer(/*duration, position*/);
 			update_lcd = true;
 			//showHelpTS();
 		} else if(timeshift && (msg == CRCInput::RC_text || msg == CRCInput::RC_epg || msg == NeutrinoMessages::SHOW_EPG)) {
@@ -713,8 +736,8 @@ void CMoviePlayerGui::PlayFile(void)
 	playback->SetSpeed(1);
 	playback->Close();
 
-	CVFD::getInstance()->ShowIcon(VFD_ICON_PLAY, false);
-	CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
+	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
 
 	restoreNeutrino();
 
@@ -722,7 +745,7 @@ void CMoviePlayerGui::PlayFile(void)
 		InfoClock->StartClock();
 }
 
-void CMoviePlayerGui::callInfoViewer(const int duration, const int curr_pos)
+void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 {
 	if(timeshift) {
 		g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(),
@@ -736,12 +759,12 @@ void CMoviePlayerGui::callInfoViewer(const int duration, const int curr_pos)
 
 	if (isMovieBrowser && p_movie_info) {
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
-					     duration, curr_pos);
+					     duration, position);
 		return;
 	}
 
 	/* not moviebrowser => use the filename as title */
-	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, curr_pos);
+	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, position);
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
@@ -782,7 +805,7 @@ void CMoviePlayerGui::addAudioFormat(int count, std::string &apidtitle, bool fil
 			break;
 		case 6: /*DTS*/
 			apidtitle.append(" (DTS)");
-#ifndef HAVE_SPARK_HARDWARE
+#if ! defined(HAVE_SPARK_HARDWARE) && ! defined (BOXMODEL_APOLLO)
 			enabled = false;
 #endif
 			break;
@@ -899,7 +922,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 	}
 }
 
-void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
+void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 {
 	CMovieInfo cMovieInfo;	// funktions to save and load movie info
 
@@ -1151,6 +1174,18 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int position)
 		}
 	}
 	return;
+}
+
+void CMoviePlayerGui::UpdatePosition()
+{
+	if(playback->GetPosition(position, duration)) {
+		if(duration > 100)
+			file_prozent = (unsigned char) (position / (duration / 100));
+		FileTime.update(position, duration);
+#ifdef DEBUG
+		printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+#endif
+	}
 }
 
 void CMoviePlayerGui::showHelpTS()

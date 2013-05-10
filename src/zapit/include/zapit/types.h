@@ -47,6 +47,13 @@ typedef uint64_t t_channel_id;
 #define CREATE_CHANNEL_ID(service_id,original_network_id,transport_stream_id) ((((t_channel_id)transport_stream_id) << 32) | (((t_channel_id)original_network_id) << 16) | (t_channel_id)service_id)
 #define CREATE_CHANNEL_ID64 (((uint64_t)(satellitePosition+freq*4) << 48) | ((uint64_t) transport_stream_id << 32) | ((uint64_t)original_network_id << 16) | (uint64_t)service_id)
 
+#ifndef PRIx64
+#define PRIx64 "llx"
+#define PRId64 "lld"
+#define SCNx64 "llx"
+#define SCNd64 "lld"
+#endif
+
 #define PRINTF_CHANNEL_ID_TYPE "%16" PRIx64
 #define PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "%" PRIx64
 #define SCANF_CHANNEL_ID_TYPE "%" SCNx64

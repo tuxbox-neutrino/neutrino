@@ -68,6 +68,7 @@ class CServiceManager
 		int tp_count;
 		uint32_t fake_tid;
 		uint32_t fake_nid;
+		uint32_t fake_pos;
 		int newfound;
 
 		tallchans allchans;
@@ -87,12 +88,14 @@ class CServiceManager
 		satellite_map_t satellitePositions;
 		sat_transponder_map_t satelliteTransponders;
 
-		bool ParseScanXml();
-		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, fe_type fe);
-		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization);
+		bool ParseScanXml(fe_type_t delsys);
+		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, fe_type_t delsys);
+		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization, fe_type_t delsys);
 		void FindTransponder(xmlNodePtr search);
 		void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition);
 		int LoadMotorPositions(void);
+
+		bool LoadScanXml(fe_type_t delsys);
 
 		void WriteSatHeader(FILE * fd, sat_config_t &config);
 		void WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
@@ -107,7 +110,7 @@ class CServiceManager
 
 		static void CopyFile(char * from, char * to);
 
-		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false);
+		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false, int deltype = FE_QPSK);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
 		void SaveMotorPositions();
@@ -134,12 +137,12 @@ class CServiceManager
 		std::string GetServiceName(t_channel_id channel_id);
 
 		tallchans* GetAllChannels(){ return &allchans; };
-		bool GetAllRadioChannels(ZapitChannelList &list, int flags = 0);
-		bool GetAllTvChannels(ZapitChannelList &list, int flags = 0);
-		bool GetAllHDChannels(ZapitChannelList &list);
-		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position);
-		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid);
-		bool GetAllUnusedChannels(ZapitChannelList &list);
+		bool GetAllRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllHDChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position, int flags = CZapitChannel::PRESENT);
+		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid, int flags = CZapitChannel::PRESENT);
+		bool GetAllUnusedChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 
 		bool IsChannelTVChannel(const t_channel_id channel_id);
 

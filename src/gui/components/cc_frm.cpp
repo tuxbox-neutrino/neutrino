@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -30,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc.h"
+#include "cc_frm.h"
 
 using namespace std;
 
@@ -129,6 +129,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 #ifdef DEBUG_CC
 		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] [current count %d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), v_cc_items.size());
 #endif
+		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
 	}
 #ifdef DEBUG_CC
@@ -233,7 +234,6 @@ void CComponentsForm::paintCCItems()
 		//cache original item position and dimensions
 		int x_item, y_item, w_item, h_item;
 		v_cc_items[i]->getDimensions(&x_item, &y_item, &w_item, &h_item);
-		
 
 		int xy_ref = 0+fr_thickness; //allowed minimal x and y start position
 		if (x_item < xy_ref){
@@ -270,6 +270,11 @@ void CComponentsForm::paintCCItems()
 			printf("[CComponentsForm] %s: item %d too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, v_cc_items[i]->getHeight());
 #endif
 		}
+
+		//set real position dimension to item
+		int real_x = v_cc_items[i]->getXPos();
+		int real_y = v_cc_items[i]->getYPos();
+		v_cc_items[i]->setRealPos(real_x, real_y);
 		
 		//paint element without saved screen!
 		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);

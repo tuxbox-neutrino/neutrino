@@ -127,8 +127,6 @@ void CScreenShot::run()
 }
 
 /* save file in sync mode, return true if save ok, or false */
-#if 0 
-//never used
 bool CScreenShot::StartSync()
 {
 	bool ret = false;
@@ -139,7 +137,7 @@ bool CScreenShot::StartSync()
 	printf("CScreenShot::StartSync: %s finished: %d\n", filename.c_str(), ret);
 	return ret;
 }
-#endif
+
 /* save file in selected format, free data received from video decoder */
 bool CScreenShot::SaveFile()
 {
@@ -216,7 +214,9 @@ bool CScreenShot::SavePng()
 	png_set_compression_level(png_ptr, Z_BEST_SPEED);
 
 	png_set_bgr(png_ptr);
-	//png_set_invert_alpha(png_ptr);
+#ifdef BOXMODEL_APOLLO
+	png_set_invert_alpha(png_ptr);
+#endif
 	png_write_info(png_ptr, info_ptr);
 	png_write_image(png_ptr, row_pointers);
 	png_write_end(png_ptr, info_ptr);

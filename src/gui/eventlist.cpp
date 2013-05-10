@@ -97,15 +97,14 @@ CNeutrinoEventList::CNeutrinoEventList()
 	m_search_channel_id = 1;
 	m_search_bouquet_id= 1;
 	
-	full_width = width = fw = 0;
-	height = fh = 0;
+	full_width = width = 0;
+	height = 0;
 	
 	x = y = 0;
 	
 	cc_infozone = NULL;
 	infozone_text = "";
 	item_event_ID = 0;
-	FunctionBarHeight = 0;
 	oldIndex = -1;
 	oldEventID = -1;
 	bgRightBoxPaint = false;
@@ -240,11 +239,6 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	neutrino_msg_data_t data;
 	bool in_search = false;
 	showfollow = false;
-	// Calculate iheight
-	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, NONEXISTANT_LOCALE } };
-
-	fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth(); //font width
-	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight(); //font height
 
 	full_width = frameBuffer->getScreenWidthRel();
 	x = getScreenStartX(full_width);
@@ -255,17 +249,14 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		width = full_width;
 	height = frameBuffer->getScreenHeightRel();
 
+	// Calculate iheight (we assume the red button is the largest one?)
+	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, LOCALE_EVENTLISTBAR_RECORDEVENT } };
 	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
-	if(iheight < fh)
-		iheight = fh;
 
 	// Calculate theight
-	theight  = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
+	theight = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
 	const int pic_h = 39;
 	theight = std::max(theight, pic_h);
-	int icol_w = 0, icol_h = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
-	theight = std::max(theight, icol_h);
 
 	fheight1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->getHeight();
 	{
@@ -430,11 +421,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				liststart=0;
 			else
 				liststart=(selected/listmaxshow)*listmaxshow;
-			hide();
-			paintHead(channel_id, channelname);
 			paint(channel_id);
-			showFunctionBar(true, channel_id);
-
 		}
 
 		//  -- I commented out the following part (code is working)
@@ -694,9 +681,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 void CNeutrinoEventList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, full_width,height);
-	showFunctionBar (false, 0);
 	frameBuffer->blit();
-
 }
 
 CTimerd::CTimerEventTypes CNeutrinoEventList::isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID)
@@ -721,9 +706,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
-	std::string datetime1_str, datetime2_str, duration_str;
 	unsigned int curpos = liststart + pos;
-	const char * icontype = 0;
 
 	if(RADIUS_LARGE)
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
@@ -744,10 +727,12 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
+       if (!RADIUS_LARGE || (curpos==selected && RADIUS_LARGE) || (curpos==current_event && RADIUS_LARGE))
+		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 
 	if(curpos<evtlist.size())
 	{
+		std::string datetime1_str, datetime2_str, duration_str;
 		if ( evtlist[curpos].eventID != 0 )
 		{
 			char tmpstr[256];
@@ -795,7 +780,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		// 2nd line
 		// set status icons
 		CTimerd::CTimerEventTypes etype = isScheduled(m_showChannel ? evtlist[curpos].channelID : channel_idI, &evtlist[curpos]);
-		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_RECORDING_EVENT_MARKER : 0;
+		const char * icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_RECORDING_EVENT_MARKER : 0;
 		
 		int iw = 0, ih;
 		if(icontype != 0) {
@@ -846,27 +831,27 @@ void CNeutrinoEventList::paintDescription(int index)
 		CEitManager::getInstance()->getActualEPGServiceKey(evtlist[index].channelID, &epgData );
 
 	if(!epgData.info2.empty())
-		infozone_text = epgData.info2.c_str();
+		infozone_text = epgData.info2;
 	else
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
 	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
+	cc_infozone->doPaintTextBoxBg(true);
 	cc_infozone->doPaintBg(false);
+	cc_infozone->forceTextPaint();
 	cc_infozone->paint(CC_SAVE_SCREEN_NO);
 }
 
 void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {
-	const short font_h = 8;
-	int iw = 0, ih = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw, &ih);
 	frameBuffer->paintBoxRel(x,y, full_width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	int name_width =((full_width-8-iw)/3);
 
+	const short font_h = 8 /* FONT_TYPE_EVENTLIST_ITEMLARGE */;
+	short pn_y_off = std::max((theight - g_Font[font_h]->getHeight()) / 2, 0);
 	short prev_len = g_Font[font_h]->getRenderWidth(_channelname_prev.c_str(),true);
 	short next_len = g_Font[font_h]->getRenderWidth(_channelname_next.c_str(),true);
 	short middle_len = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(_channelname.c_str(),true);
-	short middle_offset =  (full_width- next_len- prev_len- middle_len-iw-8)/2;
+	short middle_offset = (full_width- next_len- prev_len- middle_len)/2;
 	if(middle_offset < 0){
 		int fw_h = g_Font[font_h]->getWidth();
 		int newsize = abs(middle_offset / fw_h) + 1;
@@ -878,9 +863,9 @@ void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channe
 		middle_offset = 0;
 	}
 
-	g_Font[font_h]->RenderString(x+4,y+theight+1, full_width, _channelname_prev.c_str(), COL_INFOBAR, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+prev_len+middle_offset,y+theight+1, full_width, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
-	g_Font[font_h]->RenderString(x+(name_width*3)- next_len,y+theight+1, full_width, _channelname_next.c_str(), COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_h]->RenderString(x+10,y+theight-pn_y_off+1, prev_len, _channelname_prev.c_str(), COL_INFOBAR, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+prev_len+middle_offset,y+theight+1, middle_len, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[font_h]->RenderString(x+full_width-next_len-10,y+theight-pn_y_off+1, next_len, _channelname_next.c_str(), COL_INFOBAR, 0, true); // UTF-8
 
 }
 
@@ -905,12 +890,6 @@ void CNeutrinoEventList::paintHead(t_channel_id _channel_id, std::string _channe
 void CNeutrinoEventList::paint(t_channel_id channel_id)
 {
 	liststart = (selected/listmaxshow)*listmaxshow;
-
-	int iw = 0, ih = 0;
-	if (evtlist[0].eventID != 0) {
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw, &ih);
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x+ full_width - 4 - iw, y, theight);
-	}
 
 	// paint background for right box
 	if (g_settings.eventlist_additional && !bgRightBoxPaint) {
@@ -937,56 +916,25 @@ void CNeutrinoEventList::paint(t_channel_id channel_id)
 
 }
 
-
-#define NUM_EVENTLIST_FIRST_BUTTON 1
-struct button_label EventListFirstButton[NUM_EVENTLIST_FIRST_BUTTON] =
-{
- 	{ "", LOCALE_EVENTLISTBAR_RECORDEVENT				}  // record button
-};
-
-#define NUM_EVENTLIST_SECOND_BUTTON 1
-struct button_label EventListSecondButton[NUM_EVENTLIST_SECOND_BUTTON] =
-{
- 	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_EVENTFINDER_SEARCH		}  // search button
-};
-
-#define NUM_EVENTLIST_THIRD_BUTTON 1
-struct button_label EventListThirdButton[NUM_EVENTLIST_THIRD_BUTTON] =
-{
- 	{ "", LOCALE_EVENTLISTBAR_CHANNELSWITCH				}  // timer event channel switch button
-};
-
-#define NUM_EVENTLIST_FOURTH_BUTTON 1
-struct button_label EventListFourthButton[NUM_EVENTLIST_FOURTH_BUTTON] =
-{
- 	{ "", LOCALE_EVENTLISTBAR_EVENTSORT				}  // sort event button
-};
-
 void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 {
-	int border_space = 4;
-	int bx = x + 2*border_space;
-	int bw = full_width - 16;
+	int bx = x;
+	int bw = full_width;
 	int bh = iheight;
-	int by = y + height-iheight;
+	int by = y + height - bh;
+
+	if (! show) {
+		// -- hide only?
+		frameBuffer->paintBackgroundBoxRel(bx,by,bw,bh);
+		return;
+	}
 
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
 	const char * icon = NULL;
-	struct button_label buttons[4];
+	struct button_label buttons[5];
 	int btn_cnt = 0;
 
-	bh = std::max(FunctionBarHeight, bh);
-	frameBuffer->paintBackgroundBoxRel(x,by,full_width,bh);
-	// -- hide only?
-	if (! show) return;
-
-	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-// 	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-
-	frameBuffer->paintBoxRel(x, by, full_width, iheight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
-	
 	int tID = -1; //any value, not NULL
 	CTimerd::CTimerEventTypes is_timer = isScheduled(channel_id, &evtlist[selected], &tID);
 
@@ -1034,7 +982,15 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 			btn_cnt++;
 		}
 	}
-	FunctionBarHeight = std::max(::paintButtons(bx, by, bw, btn_cnt, buttons, bw), FunctionBarHeight);
+
+	// info button
+	if (evtlist[0].eventID != 0) {
+		buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
+		buttons[btn_cnt].locale = LOCALE_EPGMENU_EVENTINFO;
+		btn_cnt++;
+	}
+
+	::paintButtons(bx, by, bw, btn_cnt, buttons, bw, bh);
 }
 
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)

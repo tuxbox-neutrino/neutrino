@@ -27,6 +27,7 @@
 
 #include <inttypes.h>
 #include <OpenThreads/Thread>
+
 #include <zapit/types.h>
 #include <zapit/channel.h>
 #include <zapit/satconfig.h>
@@ -56,6 +57,8 @@
 #define FEC_S2_8PSK_9_10 (fe_code_rate_t)(FEC_S2_8PSK_BASE+8)	//27
 #define FEC_S2_AUTO      (fe_code_rate_t)(FEC_S2_8PSK_BASE+9)	//28
 
+#define MAKE_FE_KEY(adapter, number) ((adapter << 8) | (number & 0xFF))
+
 static inline fe_modulation_t dvbs_get_modulation(fe_code_rate_t fec)
 {
 	if((fec < FEC_S2_QPSK_1_2) || (fec < FEC_S2_8PSK_1_2))
@@ -82,8 +85,20 @@ static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 
 class CFEManager;
 
+class CFrontend;
+typedef std::vector<CFrontend*> fe_linkmap_t;
+
 class CFrontend
 {
+	public:
+		typedef enum {
+			FE_MODE_UNUSED,
+			FE_MODE_INDEPENDENT,
+			FE_MODE_MASTER,
+			FE_MODE_LINK_LOOP,
+			FE_MODE_LINK_TWIN
+		} fe_work_mode_t;
+
 	private:
 		/* frontend filedescriptor */
 		int fd;
@@ -122,6 +137,9 @@ class CFrontend
 		/* current Transponderdata */
 		TP_params currentTransponder;
 		bool slave;
+		fe_work_mode_t femode;
+		int masterkey;
+		fe_linkmap_t linkmap;
 		int fenumber;
 		int feindex; /* the index (starts with 0) of this FE, not always the same as fenumber */
 		bool standby;
@@ -131,12 +149,12 @@ class CFrontend
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
 		void				secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms);
 		void				sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const uint32_t ms);
-		void				sendDiseqcPowerOn(void);
-		void				sendDiseqcReset(void);
+		void				sendDiseqcStandby(uint32_t ms = 100);
+		void				sendDiseqcPowerOn(uint32_t ms = 100);
+		void				sendDiseqcReset(uint32_t ms = 40);
 		void				sendDiseqcSmatvRemoteTuningCommand(const uint32_t frequency);
 		uint32_t			sendEN50494TuningCommand(const uint32_t frequency, const int high_band, const int horizontal, const int bank);
-		void				sendDiseqcStandby(void);
-		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd);
+		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd, uint32_t ms = 15);
 		void				sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms);
 		int				setFrontend(const FrontendParameters *feparams, bool nowait = false);
 		void				setSec(const uint8_t sat_no, const uint8_t pol, const bool high_band);
@@ -178,13 +196,13 @@ class CFrontend
 		void				setDiseqcType(const diseqc_t type, bool force = false);
 		void				setTimeout(int timeout) { feTimeout = timeout; };
 		void				configUsals(double Latitude, double Longitude, int LaDirection, int LoDirection, bool _repeatUsals)
-						{
-							gotoXXLatitude = Latitude;
-							gotoXXLongitude = Longitude;
-							gotoXXLaDirection = LaDirection;
-							gotoXXLoDirection = LoDirection;
-							repeatUsals = _repeatUsals;
-						};
+		{
+			gotoXXLatitude = Latitude;
+			gotoXXLongitude = Longitude;
+			gotoXXLaDirection = LaDirection;
+			gotoXXLoDirection = LoDirection;
+			repeatUsals = _repeatUsals;
+		};
 		void				configRotor(int _motorRotationSpeed, bool _highVoltage)
 							{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
 
@@ -206,10 +224,10 @@ class CFrontend
 		fe_code_rate_t 			getCFEC ();
 		transponder_id_t		getTsidOnid() { return currentTransponder.TP_id; }
 		bool				sameTsidOnid(transponder_id_t tpid)
-						{
-							return (currentTransponder.TP_id == 0)
-								|| (tpid == currentTransponder.TP_id);
-						}
+		{
+			return (currentTransponder.TP_id == 0)
+				|| (tpid == currentTransponder.TP_id);
+		}
 		void 				setTsidOnid(transponder_id_t newid)  { currentTransponder.TP_id = newid; }
 		uint32_t 			getRate ();
 
@@ -233,5 +251,19 @@ class CFrontend
 		int				getNumber(bool real = false) { return real?fenumber:feindex; }
 		void				setIndex(int i) { feindex = i; };
 		static void			getDelSys(uint8_t type, int f, int m, char * &fec, char * &sys, char * &mod);
+		fe_work_mode_t			getMode() { return femode; }
+		void				setMode(int mode) {femode = (fe_work_mode_t) mode; }
+		int				getMaster() { return masterkey; }
+		void				setMaster(int key) { masterkey = key; }
+		bool				hasLinks() { return (femode == FE_MODE_MASTER) && (linkmap.size() > 1); }
+		static bool			linked(int mode)
+		{
+			if ((mode == FE_MODE_LINK_LOOP) || (mode == FE_MODE_LINK_TWIN))
+				return true;
+			return false;
+		}
+		bool				isCable() { return (info.type == FE_QAM); }
+		bool				isSat() { return (info.type == FE_QPSK); }
+		fe_type_t			getType() { return info.type; }
 };
 #endif /* __zapit_frontend_h__ */

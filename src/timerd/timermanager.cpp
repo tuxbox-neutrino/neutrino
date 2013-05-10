@@ -61,6 +61,7 @@ void CTimerManager::Init(void)
 	eventServer = new CEventServer;
 	m_saveEvents = false;
 	m_isTimeSet = false;
+	timer_is_rec = false;
 	wakeup = 0;
 	loadRecordingSafety();
 
@@ -706,6 +707,8 @@ bool CTimerManager::shutdown()
 				dprintf("shutdown: nextAnnounceTime %ld\n", nextAnnounceTime);
 				if ( event->eventType == CTimerd::TIMER_RECORD )
 					timer_is_rec = true;
+				else
+					timer_is_rec = false;
 			}
 		}
 	}
@@ -1103,7 +1106,7 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 				       event_id_t epgID,
 				       time_t epg_starttime, unsigned char apids,
 				       CTimerd::CTimerEventRepeat evrepeat,
-				       uint32_t repeatcount, const std::string recDir) :
+				       uint32_t repeatcount, const std::string &recDir) :
 	CTimerEvent(getEventType(), announce_Time, alarm_Time, stop_Time, evrepeat, repeatcount)
 {
 	eventInfo.epgID = epgID;

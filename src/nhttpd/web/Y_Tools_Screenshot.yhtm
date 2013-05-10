@@ -48,7 +48,7 @@ function do_snapshot() {
 	else
 		loadSyncURL("/control/screenshot?name="+filename+"&osd="+enableOSD+"&video="+enableVideo);
 
-	window.setTimeout("do_showshot('"+filename+"');", (enableVideo == 1) ? 6500 : 3000);
+	do_showshot(filename);	
 }
 function do_showshot(_filename) {
 	if (_filename == "")

@@ -80,9 +80,11 @@ class CScanTs : public CMenuTarget
 		void testFunc();
 		void prev_next_TP(bool);
 		TP_params TP;
+		int deltype;
+		char * pname;
 
 	public:
-		CScanTs();
+		CScanTs(int dtype = FE_QPSK);
 		~CScanTs();
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);

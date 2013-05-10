@@ -44,7 +44,11 @@
 
 #include <string>
 
+#ifdef BOXMODEL_APOLLO
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 14
+#else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
+#endif
 
 struct SNeutrinoSettings
 {
@@ -54,6 +58,11 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
+#ifdef BOXMODEL_APOLLO
+	int brightness;
+	int contrast;
+	int saturation;
+#endif
 	char current_volume;
 	int current_volume_step;
 	int channel_mode;
@@ -117,6 +126,7 @@ struct SNeutrinoSettings
 	int rounded_corners;
 	int ci_standby_reset;
 	int ci_clock;
+	int ci_ignore_messages;
 	int radiotext_enable;
 	
 	//vcr
@@ -403,6 +413,9 @@ struct SNeutrinoSettings
 	std::string screenshot_dir;
 
 	int key_current_transponder;
+	int key_pip_close;
+	int key_pip_setup;
+	int key_pip_swap;
 
 	int cacheTXT;
 	int minimode;
@@ -431,6 +444,7 @@ struct SNeutrinoSettings
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
+	int channellist_numeric_adjust;
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
 	int remote_control_hardware;
@@ -692,34 +706,40 @@ const int PARENTALLOCK_PROMPT_ONSIGNAL       = 3;
 
 class CScanSettings
 {
-public:
-	CConfigFile	configfile;
-	int		bouquetMode;
-	int		scanType;
+	public:
+		CConfigFile	configfile;
+		int		bouquetMode;
+		int		scanType;
 
-	char                      satNameNoDiseqc[50];
-	delivery_system_t         delivery_system;
-	int		scan_nit;
-	int		scan_nit_manual;
-	int		scan_bat;
-	int		scan_fta_flag;
-	int		scan_reset_numbers;
-	int		scan_logical_numbers;
-	int		scan_logical_hd;
-	int		TP_fec;
-	int		TP_pol;
-	int		TP_mod;
-	char		TP_freq[10];
-	char		TP_rate[9];
-	int		fast_type;
-	int		fast_op;
-	int		cable_nid;
+		delivery_system_t         delivery_system;
+		int		scan_nit;
+		int		scan_nit_manual;
+		int		scan_bat;
+		int		scan_fta_flag;
+		int		scan_reset_numbers;
+		int		scan_logical_numbers;
+		int		scan_logical_hd;
+		int		fast_type;
+		int		fast_op;
+		int		cable_nid;
 
-	CScanSettings();
+		char		satName[50];
+		int		sat_TP_fec;
+		int		sat_TP_pol;
+		char		sat_TP_freq[10];
+		char		sat_TP_rate[9];
 
-	//void useDefaults(const delivery_system_t _delivery_system);
-	bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
-	bool saveSettings(const char * const fileName);
+		char		cableName[50];
+		int		cable_TP_mod;
+		int		cable_TP_fec;
+		char		cable_TP_freq[10];
+		char		cable_TP_rate[9];
+
+		CScanSettings();
+
+		//void useDefaults(const delivery_system_t _delivery_system);
+		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
+		bool saveSettings(const char * const fileName);
 };
 
 

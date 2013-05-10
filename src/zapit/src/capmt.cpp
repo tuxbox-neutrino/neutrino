@@ -26,6 +26,7 @@
 #include <zapit/capmt.h>
 #include <zapit/settings.h> /* CAMD_UDS_NAME         */
 #include <zapit/getservices.h>
+#include <zapit/femanager.h>
 #include <zapit/debug.h>
 
 #include <ca_cs.h>
@@ -41,7 +42,8 @@
 CCam::CCam()
 {
 	camask = 0;
-	demuxes[0] = demuxes[1] = demuxes[2] = 0;
+	for(int i = 0; i < MAX_DMX_UNITS; i++)
+		demuxes[i] = 0;
 	source_demux = -1;
 	calen = 0;
 }
@@ -139,7 +141,8 @@ bool CCam::setCaPmt(bool update)
 
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
 {
-	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask, cabuf, calen, rawpmt, rawlen);
+	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawlen);
 }
 
 int CCam::makeMask(int demux, bool add)
@@ -151,11 +154,11 @@ int CCam::makeMask(int demux, bool add)
 	else if(demuxes[demux] > 0)
 		demuxes[demux]--;
 
-	for(int i = 0; i < 3; i++) {
+	for(int i = 0; i < MAX_DMX_UNITS; i++) {
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}
-	DBG("demuxes %d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], camask, mask);
+	//DBG("demuxes %d:%d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], demuxes[3], camask, mask);
 	return mask;
 }
 
@@ -208,6 +211,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		return false;
 	}
 
+	/* FIXME until proper demux management */
 	switch(mode) {
 		case PLAY:
 #if HAVE_COOL_HARDWARE
@@ -215,22 +219,30 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			demux = LIVE_DEMUX;
 #else
 		/* see the comment in src/driver/streamts.cpp:CStreamInstance::run() */
+		/* TODO: FIXME */
 		case STREAM:
 			/* this might be SPARK-specific, not tested elsewhere */
 			source = cDemux::GetSource(0); /* demux0 is always the live demux */
 			demux = source;
 #endif
 			break;
-		case RECORD:
-			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
-			demux = channel->getRecordDemux(); //RECORD_DEMUX;//FIXME
-			break;
 #if HAVE_COOL_HARDWARE
 		case STREAM:
+#endif
+		case RECORD:
+			source = channel->getRecordDemux();
+			demux = channel->getRecordDemux();
+			break;
+#if 0
+		case STREAM:
 			source = DEMUX_SOURCE_0;
-			demux = STREAM_DEMUX;//FIXME
+			demux = STREAM_DEMUX;
 			break;
 #endif
+		case PIP:
+			source = channel->getRecordDemux();
+			demux = channel->getPipDemux();
+			break;
 	}
 
 	oldmask = cam->getCaMask();
@@ -250,6 +262,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->setSource(source);
 		if(newmask == 0) {
 			cam->sendMessage(NULL, 0, false);
+			cam->sendCaPmt(channel->getChannelID(), NULL, 0);
 		} else {
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
@@ -285,7 +298,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->makeCaPmt(channel, false, list, caids);
 		int len;
 		unsigned char * buffer = channel->getRawPmt(len);
-		cam->sendCaPmt(channel->getTransponderId(), buffer, len);
+		cam->sendCaPmt(channel->getChannelID(), buffer, len);
 		//list = CCam::CAPMT_MORE;
 	}
 	mutex.unlock();

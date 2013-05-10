@@ -63,5 +63,13 @@ typedef struct cs_control_data {
 #define IOC_CONTROL_TSROUTE_SET_HSDP_CONFIG	_IOW(CS_CONTROL_MAGIC, 30, tsrouter_tsp_config_t *)
 #define IOC_CONTROL_TSROUTE_GET_TSP_CONFIG	_IOR(CS_CONTROL_MAGIC, 31, tsrouter_hsdp_config_t *)
 #define IOC_CONTROL_TSROUTE_SET_TSP_CONFIG	_IOW(CS_CONTROL_MAGIC, 32, tsrouter_tsp_config_t *)
+/* Gets the current TS port frequency of the CI */
+#define IOC_CONTROL_TSROUTE_GET_CI_SPEED	_IOR(CS_CONTROL_MAGIC, 33, unsigned int *)
+/* Sets the current TS port frequency of the CI in Hz (max=12Mhz) */
+#define IOC_CONTROL_TSROUTE_SET_CI_SPEED	_IOW(CS_CONTROL_MAGIC, 34, unsigned int)
+/* Gets the current TS port base PLL of the CI */
+#define IOC_CONTROL_TSROUTE_GET_CI_PLL		_IOR(CS_CONTROL_MAGIC, 35, unsigned int *)
+/* Sets the current TS port base PLL of the CI */
+#define IOC_CONTROL_TSROUTE_SET_CI_PLL		_IOW(CS_CONTROL_MAGIC, 36, unsigned int)
 
 #endif /* __CONTROL_H */

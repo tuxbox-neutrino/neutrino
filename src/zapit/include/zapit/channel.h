@@ -160,6 +160,7 @@ class CZapitChannel
 		std::string			ttx_language_code;
 
 		uint8_t				record_demux;
+		uint8_t				pip_demux;
 
 		void				Init();
 		friend class CChannelList;
@@ -168,7 +169,10 @@ class CZapitChannel
 		typedef enum channel_flags {
 			NEW		= 0x01,
 			REMOVED		= 0x02,
-			UPDATED		= 0x04
+			UPDATED		= 0x04,
+			NOT_FOUND	= 0x08,
+			PRESENT		= 0x05, // NEW + UPDATED
+			ANY		= 0xFF
 		} channel_flags_t;
 		casys_map_t			camap;
 
@@ -183,6 +187,7 @@ class CZapitChannel
 		bool				has_bouquet;
 		uint8_t				polarization;
 		int				flags;
+		int				deltype;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
@@ -252,7 +257,9 @@ class CZapitChannel
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
 		void dumpBouquetXml(FILE * fd);
 		void setRecordDemux(int num) { record_demux = num; };
+		void setPipDemux(int num) { pip_demux = num; };
 		int  getRecordDemux() { return record_demux; };
+		int  getPipDemux() { return pip_demux; };
 		static t_channel_id makeChannelId(t_satellite_position sat, freq_id_t freq,
 				t_transport_stream_id tsid, t_original_network_id onid, t_service_id sid)
 		{

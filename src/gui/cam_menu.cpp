@@ -110,6 +110,7 @@ int CCAMMenuHandler::doMainMenu()
 	if(true /* CiSlots */) {
 		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		cammenu->addItem( new CMenuOptionNumberChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock, true, 6, 12, this));
+		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_IGNORE_MSG, &g_settings.ci_ignore_messages, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		cammenu->addItem( GenericMenuSeparatorLine );
 	}
 
@@ -223,6 +224,9 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 	if (msg != NeutrinoMessages::EVT_CA_MESSAGE)
 		return from_menu ? 1 : -1;
 
+	if (g_settings.ci_ignore_messages && !from_menu)
+		return 1;
+
 	rMsg	= (CA_MESSAGE *)data;
 	if (!rMsg)
 		return -1;
@@ -311,6 +315,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		int selected = -1;
 		if(pMenu->choice_nb) {
 			CMenuWidget* menu = new CMenuWidget(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), NEUTRINO_ICON_SETTINGS);
+			menu->enableSaveScreen(true);
 
 			CMenuSelectorTarget * selector = new CMenuSelectorTarget(&selected);
 			int slen = strlen(pMenu->subtitle);
@@ -403,21 +408,21 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str());
 		hideHintBox();
 
-		char cPIN[pMmiEnquiry->answerlen+1];
-		cPIN[0] = 0;
+		char ENQAnswer[pMmiEnquiry->answerlen+1];
+		ENQAnswer[0] = 0;
 
-		CPINInput* PINInput = new CPINInput((char *) convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str(), cPIN, 4, NONEXISTANT_LOCALE);
-		PINInput->exec(NULL, "");
-		delete PINInput;
+		CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str(), ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
+		Inquiry->exec(NULL, "");
+		delete Inquiry;
 
-		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", cPIN);
+		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer);
 
-		if((int) strlen(cPIN) != pMmiEnquiry->answerlen) {
+		if((int) strlen(ENQAnswer) != pMmiEnquiry->answerlen) {
 			printf("CCAMMenuHandler::handleCamMsg: wrong input len\n");
-			ca->InputAnswer(SlotType, curslot, (unsigned char *) cPIN, 0);
+			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer, 0);
 			return 1; //FIXME
 		} else {
-			ca->InputAnswer(SlotType, curslot, (unsigned char *) cPIN, pMmiEnquiry->answerlen);
+			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer, pMmiEnquiry->answerlen);
 			return 1;
 		}
 	}

@@ -38,8 +38,15 @@
 #include <sys/types.h>
 #include <string>
 #include <vector>
+
+#ifdef BOXMODEL_APOLLO
+#ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
+#include <cs_ir_generic.h>
+#endif
+#else
 #ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 #include <nevis_ir.h>
+#endif
 #endif
 
 #ifndef KEY_OK
@@ -156,7 +163,7 @@ class CRCInput
 		int translate(int code, int num);
 		void calculateMaxFd(void);
 		int checkTimers();
-#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+#ifdef IOC_IR_SET_PRI_PROTOCOL
 		void set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address);
 #endif
 	public:
@@ -229,6 +236,9 @@ class CRCInput
 			RC_next		= KEY_NEXT,
 			RC_prev		= KEY_PREVIOUS,
 			RC_www		= KEY_WWW,
+			RC_sub		= KEY_SUBTITLE,
+			RC_pos		= KEY_MOVE,
+			RC_sleep	= KEY_SLEEP,
 
 			RC_power_on	= KEY_POWERON,
 			RC_power_off	= KEY_POWEROFF,

@@ -51,31 +51,44 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 	
 	private:
 		CMenuOptionStringChooser 	*satSelect;
+		CMenuOptionStringChooser 	*cableSelect;
 		CMenuWidget			*satOnOff;
 
 		/* global items to be enabled/disabled in notify */
 		CMenuForwarder  *fautoScanAll;
 		CMenuForwarder  *frontendSetup;
 		CMenuForwarder  *fsatSetup;
+		CMenuForwarder  *fsatSelect;
+		CMenuOptionChooser * dtype;
+		CMenuOptionChooser * dorder;
 		CMenuForwarder  *uniSetup;
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 		CIntInput * nid;
 		CMenuOptionChooser * lcnhd;
 
+		CMenuOptionChooser * linkfe;
+		std::string modestr[4];
+
 		/* variables for selected frontend */
 		/* diseqc mode */
 		int dmode;
+		/* frontend setup menu current fe number */
 		int fenumber;
+		/* frontend mode */
+		int femode;
+		/* frontend link to number */
+		int femaster;
 
 		/* flag to allow any operations which can damage recordings */
 		bool allow_start;
+		/* flag to re-init frontends */
+		bool fe_restart;
 
 		bool is_wizard;
 		
 		int fec_count;
 		int freq_length;
 		int r_system;
-		int femode;
 
 		neutrino_locale_t satprov_locale;
 
@@ -84,13 +97,15 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int showScanMenu();
 
 		int showFrontendSetup(int number);
+		int showFrontendSelect(int number);
 		int showScanMenuLnbSetup();
 		int showUnicableSetup();
 		int showScanMenuSatFind();
 		void fillSatSelect(CMenuOptionStringChooser *select);
 		void fillCableSelect(CMenuOptionStringChooser *select);
 
-		void addScanMenuFrontendSetup(CMenuWidget *settings);
+		neutrino_locale_t getModeLocale(int mode);
+		int showScanMenuFrontendSetup();
  		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
  		void addScanMenuManualScan(CMenuWidget *manual_Scan);
  		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);

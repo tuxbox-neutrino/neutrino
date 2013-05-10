@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <sys/param.h>
 #include <driver/volume.h>
+#include <gui/volumebar.h>
 #include <gui/infoclock.h>
 
 #define YOFF 0
@@ -33,14 +34,18 @@ CInfoClock::~CInfoClock()
 
 void CInfoClock::Init(bool noVolume)
 {
-	static int mute_dx = 0;
-	static int spacer = 0;
+	static int mute_dx = 0, mute_dy = 0, y_org = 0, spacer = 0;
+	int mute_corrY = 0;
 	if (!noVolume) {
-		x = CVolume::getInstance()->getEndPosRight();
-		y = CVolume::getInstance()->getStartPosTop();
-		mute_dx = CVolume::getInstance()->mute_dx;
-		spacer = CVolume::getInstance()->spacer;
+		CVolumeHelper *vh = CVolumeHelper::getInstance();
+		int dummy;
+		vh->getDimensions(&dummy, &y, &x, &dummy);
+		vh->getMuteIconDimensions(&dummy, &dummy, &mute_dx, &mute_dy);
+		vh->getSpacer(&spacer, &dummy);
+		y_org = y;
 	}
+	else
+		y = y_org;
 
 	digit_offset = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset();
 	digit_h      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitHeight();
@@ -49,8 +54,14 @@ void CInfoClock::Init(bool noVolume)
 	time_height  = digit_h + (int)((float)digit_offset * 1.5);
 	time_width   = t1*6 + t2*2;
 	clock_x      = x - time_width;
-	if (CNeutrinoApp::getInstance()->isMuted())
+	if (CNeutrinoApp::getInstance()->isMuted()) {
 		clock_x -= (mute_dx + spacer);
+		if (mute_dy > time_height)
+			y += (mute_dy - time_height) / 2;
+		else
+			mute_corrY = (time_height - mute_dy) / 2;
+		CVolumeHelper::getInstance()->setMuteIconCorrY(mute_corrY);
+	}
 }
 
 CInfoClock* CInfoClock::getInstance(bool noVolume)
@@ -99,7 +110,6 @@ void CInfoClock::ClearDisplay()
 void CInfoClock::StartClock()
 {
 	Init();
-	CVolume::getInstance()->Init();
 	
 	if(!thrTimer) {
 		pthread_create (&thrTimer, NULL, TimerProc, (void*) this) ;
@@ -109,7 +119,6 @@ void CInfoClock::StartClock()
 
 void CInfoClock::StopClock()
 {
-	CVolume::getInstance()->Init();
 	if(thrTimer) {
 		pthread_cancel(thrTimer);
 		thrTimer = 0;

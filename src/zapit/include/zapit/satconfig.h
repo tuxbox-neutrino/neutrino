@@ -38,6 +38,7 @@ typedef struct sat_config {
 	int input;
 	int configured;
 	int cable_nid;
+	int deltype;
 } sat_config_t;
 
 typedef enum diseqc_cmd_order {

@@ -229,8 +229,11 @@ cDvbSubtitleConverter::cDvbSubtitleConverter(void)
 
 cDvbSubtitleConverter::~cDvbSubtitleConverter()
 {
-	avcodec_close(avctx);
-	av_free(avctx);
+	if (avctx) {
+		avcodec_close(avctx);
+		av_free(avctx);
+		avctx = NULL;
+	}
 	delete bitmaps;
 }
 

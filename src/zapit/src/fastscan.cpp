@@ -317,10 +317,12 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 									channel_id,
 									service_type,
 									satellitePosition,
-									freq
-									);
+									freq);
+							newchannel->deltype = FE_QPSK;
 							CServiceManager::getInstance()->AddChannel(newchannel);
 						}
+						// FIXME detect new/removed
+						newchannel->flags = CZapitChannel::UPDATED;
 						newchannel->setName(serviceName);
 						newchannel->setServiceType(service_type);
 						newchannel->setVideoPid(video_pid);

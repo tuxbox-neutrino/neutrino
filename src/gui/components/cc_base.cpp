@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -64,11 +64,13 @@ void CComponents::initVarBasic()
 	col_body 		= COL_MENUCONTENT_PLUS_0;
 	col_shadow 		= COL_MENUCONTENTDARK_PLUS_0;
 	col_frame 		= COL_MENUCONTENT_PLUS_6;
+	col_frame_sel 		= COL_MENUCONTENTSELECTED_PLUS_0;
 	corner_type 		= CORNER_ALL;
 	corner_rad		= 0;
 	shadow			= CC_SHADOW_OFF;
 	shadow_w		= SHADOW_OFFSET;
 	fr_thickness		= 0;
+	fr_thickness_sel	= 3;
 	
 	firstPaint		= true;
 	is_painted		= false;
@@ -78,7 +80,7 @@ void CComponents::initVarBasic()
 	saved_screen.pixbuf 	= NULL;
 }
 
-bool CComponents::allowPaint(int i)
+bool CComponents::allowPaint(const int& i)
 {
 	if(v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)
 		return true;
@@ -118,6 +120,10 @@ void CComponents::paintFbItems(bool do_save_bg)
 	}
 
 	for(size_t i=0; i< v_fbdata.size() ;i++){
+		// Don't paint if dx or dy are 0
+		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0))
+			continue;
+
 		int fbtype = v_fbdata[i].fbdata_type;
 #ifdef DEBUG_CC
 	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
@@ -138,7 +144,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 				frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
 				frameBuffer->paintBackgroundBoxRel(x, y, v_fbdata[i].dx, v_fbdata[i].dy);
-			else if( allowPaint(i) )
+			else if( allowPaint(i) || fbtype == CC_FBDATA_TYPE_LINE)
 				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
@@ -165,6 +171,16 @@ inline void CComponents::hide()
 		}
 	}
 	v_fbdata.clear();
+	is_painted = false;
+}
+
+//erase rendered objects
+void CComponents::kill()
+{
+	for(size_t i =0; i< v_fbdata.size() ;i++) 
+		frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);	
+	clear();
+	firstPaint = true;
 	is_painted = false;
 }
 

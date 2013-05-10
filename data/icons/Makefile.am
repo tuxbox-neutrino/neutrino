@@ -180,6 +180,7 @@ install_DATA += \
 	numericpad.png \
 	ok.png \
 	personalize.png \
+	pip.png \
 	power.png \
 	powervu_green.png \
 	powervu_white.png \
@@ -237,6 +238,8 @@ install_DATA += \
 	timer.png \
 	tuner_1.png \
 	tuner_2.png \
+	tuner_3.png \
+	tuner_4.png \
 	up.png \
 	upnp.png \
 	via_green.png \

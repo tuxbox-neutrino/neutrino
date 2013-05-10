@@ -184,12 +184,6 @@ void CColorSetupNotifier::setPalette()
 bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	setPalette();
-#if 0
-	/* recalculate volumebar */
-	CVolume::getInstance()->Init();
-	/* recalculate infoclock */
-	CInfoClock::getInstance()->Init();
-#endif
 	return false;
 }
 
@@ -249,8 +243,6 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CNeutrinoApp::getInstance()->SetupFonts();
 
 	hintBox.hide();
-	/* recalculate volumebar */
-	CVolume::getInstance()->Init();
 	/* recalculate infoclock */
 	CInfoClock::getInstance()->Init();
 	return true;
@@ -448,8 +440,11 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 			perror("unlink failed");
 		if (symlink(cmd.c_str(), "/etc/localtime"))
 			perror("symlink failed");
+#if 0
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
+#endif
+		tzset();
 	}
 
 	return false;
@@ -511,10 +506,9 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 #if HAVE_COOL_HARDWARE
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
-	int cfd;
-
 	printf("FAN Speed %d\n", speed);
-	cfd = open("/dev/cs_control", O_RDONLY);
+#ifndef BOXMODEL_APOLLO
+	int cfd = open("/dev/cs_control", O_RDONLY);
 	if(cfd < 0) {
 		perror("Cannot open /dev/cs_control");
 		return;
@@ -523,6 +517,7 @@ void CFanControlNotifier::setSpeed(unsigned int speed)
 		perror("IOC_CONTROL_PWM_SPEED");
 
 	close(cfd);
+#endif
 }
 
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)

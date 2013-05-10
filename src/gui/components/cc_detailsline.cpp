@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -113,8 +113,8 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 	{
 		/* vertical item mark | */
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_top, 		sw, 			h_mark_top, 		col_shadow, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_top+h_mark_top, 	thickness+sw, 		sw	, 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_top+sw, 		sw, 			h_mark_top-sw, 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness,	y_mark_top+h_mark_top, 	thickness, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
 
 		/* horizontal item line - */
 		{CC_FBDATA_TYPE_LINE, x, 			y,			width-thickness-sw,	thickness, 		col_body, 	0, 0, NULL, NULL},
@@ -126,36 +126,18 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 
 		/* horizontal info line - */
 		{CC_FBDATA_TYPE_LINE, x,			y_down, 		width-thickness-sw, 	thickness, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x,			y_down+thickness, 	width-thickness-sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+sw,			y_down+thickness, 	width-thickness-2*sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
 
 		/* vertical info mark | */
 		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_body, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_down, 		sw, 			h_mark_down, 		col_shadow, 	0, 0, NULL, NULL},
-		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down+h_mark_down,thickness+sw, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_down+sw,		sw, 			h_mark_down-sw,		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness,	y_mark_down+h_mark_down,thickness, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
 		v_fbdata.push_back(fbdata[i]);
 
 	paintFbItems(do_save_bg);
-}
-
-//remove painted fb items from screen
-void CComponentsDetailLine::kill()
-{
-	//save current colors
-	fb_pixel_t c_tmp1, c_tmp2;
-	c_tmp1 = col_body;
-	c_tmp2 = col_shadow;
-
-	//set background color
-	col_body = col_shadow = COL_BACKGROUND;
-
-	//paint with background and restore, set last used colors
-	paint(CC_SAVE_SCREEN_NO);
-	col_body = c_tmp1;
-	col_shadow = c_tmp2;
-	firstPaint = true;
 }
 
 //synchronize colors for details line

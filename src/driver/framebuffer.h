@@ -4,8 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2007-2012 Stefan Seyfried
-
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -59,13 +57,6 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 
 #define NON_BIG_WINDOWS		85 // %
 #define ConnectLineBox_Width	16 // px
-
-#if HAVE_GENERIC_HARDWARE
-#define USE_OPENGL 1
-#endif
-#ifdef USE_OPENGL
-class GLThreadObj;
-#endif
 
 /** Ausfuehrung als Singleton */
 class CFrameBuffer
@@ -131,15 +122,10 @@ class CFrameBuffer
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
-#if HAVE_SPARK_HARDWARE
-		void blitRect(int x, int y, int width, int height, unsigned long color);
-		void blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
-#endif
 		int m_transparent_default, m_transparent;
-#ifdef USE_OPENGL
-		GLThreadObj *mpGLThreadObj; /* the thread object */
-#endif
-
+		// Unlocked versions (no mutex)
+		void paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col);
+		void paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col);
 
 	public:
 		fb_pixel_t realcolor[256];
@@ -159,7 +145,6 @@ class CFrameBuffer
 		t_fb_var_screeninfo *getScreenInfo();
 
 		fb_pixel_t * getFrameBufferPointer() const; // pointer to framebuffer
-		fb_pixel_t * getBackBufferPointer() const;  // pointer to backbuffer
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
 		unsigned int getScreenHeight(bool real = false); 
@@ -195,12 +180,11 @@ class CFrameBuffer
 		void paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad = 0);
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
 
-		void paintVLine(int x, int ya, int yb, const fb_pixel_t col);
+		inline void paintVLine(int x, int ya, int yb, const fb_pixel_t col) { paintVLineRel(x, ya, yb - ya, col); }
 		void paintVLineRel(int x, int y, int dy, const fb_pixel_t col);
 
-		void paintHLine(int xa, int xb, int y, const fb_pixel_t col);
+		inline void paintHLine(int xa, int xb, int y, const fb_pixel_t col) { paintHLineRel(xa, xb - xa, y, col); }
 		void paintHLineRel(int x, int dx, int y, const fb_pixel_t col);
-
 
 		void setIconBasePath(const std::string & iconPath);
 
@@ -243,29 +227,13 @@ class CFrameBuffer
 		void add_gxa_sync_marker(void);
 		void waitForIdle(void);
 #else
-#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE
-		void waitForIdle(void);
-#else
 		inline void waitForIdle(void) {};
-#endif
 #endif
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
-
-#if HAVE_SPARK_HARDWARE
-		void mark(int x, int y, int dx, int dy);
-		void blit(void);
-#elif HAVE_AZBOX_HARDWARE
-		void mark(int, int, int, int) {};
-		void blit(void);
-#else
-		void mark(int, int, int, int) {};
-		void blit(void) {};
-#endif
-		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
 		enum 
 			{

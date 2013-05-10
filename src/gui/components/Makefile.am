@@ -12,8 +12,13 @@ INCLUDES = \
 	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+else
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
+endif
+
 if USE_STB_HAL
 INCLUDES += -I$(STB_HAL_INC)
 endif
@@ -24,6 +29,7 @@ noinst_LIBRARIES = libneutrino_gui_components.a
 libneutrino_gui_components_a_SOURCES = \
 	cc_base.cpp \
 	cc_detailsline.cpp \
+	cc_frm_button.cpp \
 	cc_frm.cpp \
 	cc_frm_header.cpp \
 	cc_frm_icons.cpp \

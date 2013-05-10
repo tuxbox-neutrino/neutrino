@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -30,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc.h"
+#include "cc_frm.h"
 
 using namespace std;
 
@@ -286,6 +286,7 @@ void CComponentsHeader::initCCHeaderText()
 	//set header text properties
 	if (cch_text_obj){
 		cch_text_obj->setText(cch_text, CTextBox::AUTO_WIDTH, cch_font);
+		cch_text_obj->forceTextPaint(); //here required
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness);
 		cch_text_obj->setTextColor(cch_col_text);
 		cch_text_obj->setColorBody(col_body);

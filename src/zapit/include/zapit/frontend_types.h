@@ -38,6 +38,7 @@ typedef struct frontend_config {
 	int uni_pin;
 	int motorRotationSpeed;
 	int highVoltage;
+	int diseqc_order;
 } frontend_config_t;
 
 #endif // __FRONTEND_TYPES_H__

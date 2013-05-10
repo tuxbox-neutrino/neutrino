@@ -31,6 +31,9 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc.h"
+#include <sstream>
+#include <fstream>
+#include <errno.h>
 
 using namespace std;
 
@@ -42,7 +45,7 @@ CComponentsText::CComponentsText()
 }
 
 CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
-					const char* text, const int mode, Font* font_text,
+					std::string text, const int mode, Font* font_text,
 					bool has_shadow,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
@@ -87,11 +90,13 @@ void CComponentsText::initVarText()
 	ct_font 	= NULL;
 	ct_box		= NULL;
 	ct_textbox	= NULL;
-	ct_text 	= NULL;
+	ct_text 	= "";
+	ct_old_text	= ct_text;
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
 	ct_col_text	= COL_MENUCONTENT;
 	ct_text_sent	= false;
-	ct_paint_textbg = true;
+	ct_paint_textbg = false;
+	ct_force_text_paint = false;
 }
 
 
@@ -132,11 +137,12 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowMaxDimensions(ct_box->iWidth, ct_box->iHeight);
 	ct_textbox->setWindowMinDimensions(ct_box->iWidth, ct_box->iHeight);
 
-	//set text
-	string new_text = static_cast <string> (ct_text);
-	ct_text_sent = ct_textbox->setText(&new_text, ct_box->iWidth);
+	//send text to CTextBox object, but paint text only if text has changed or force option is enabled
+	if ((ct_old_text != ct_text) || ct_force_text_paint)
+		ct_text_sent = ct_textbox->setText(&ct_text, ct_box->iWidth);
+	ct_old_text = ct_text;
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text, ct_box->iX, ct_box->iY, height, width);
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, height, width);
 #endif
 }
 
@@ -151,28 +157,56 @@ void CComponentsText::clearCCText()
 	ct_textbox = NULL;
 }
 
-void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
+
+void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text)
 {
-	ct_text = g_Locale->getText(locale_text);
+	ct_old_text = ct_text;
+	ct_text = stext;
 	ct_text_mode = mode;
 	ct_font = font_text;
+#ifdef DEBUG_CC
+	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text.c_str());
+#endif
+}
 
+void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
+{
+	string stext = g_Locale->getText(locale_text);
+	setText(stext, mode, font_text);
 }
 
 void CComponentsText::setText(const char* ctext, const int mode, Font* font_text)
 {
-	ct_text = ctext;
-	ct_text_mode = mode;
-	ct_font = font_text;
-
+ 	setText((string)ctext, mode, font_text);
 }
 
-void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text)
+void CComponentsText::setText(const int digit, const int mode, Font* font_text)
 {
-	ct_text = stext.c_str();
-	ct_text_mode = mode;
-	ct_font = font_text;
+	string s_digit = iToString(digit);
+	setText(s_digit, mode, font_text);
+}
+
+//set text lines directly from a file, returns true on succsess
+bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text)
+{
+	string file = path_to_textfile;
+	string txt = "";
 	
+	ifstream in (file.c_str(), ios::in);
+	if (!in){
+		printf("[CComponentsText]    [%s - %d] error while open %s -> %s\n", __FUNCTION__, __LINE__, file.c_str(), strerror(errno));
+		return false;
+	}
+	string line;
+	
+	while(getline(in, line)){
+		txt += line + '\n';
+	}
+	in.close();
+
+	setText(txt, mode, font_text);
+	
+	return true;
 }
 
 void CComponentsText::paintText(bool do_save_bg)
@@ -191,9 +225,9 @@ void CComponentsText::paint(bool do_save_bg)
 
 void CComponentsText::hide(bool no_restore)
 {
-
 	if (ct_textbox)
 		ct_textbox->hide();
+	ct_old_text = "";
 	hideCCItem(no_restore);
 }
 
@@ -205,4 +239,14 @@ void CComponentsText::removeLineBreaks(std::string& str)
 		str.replace(spos, 1, " ");
 		spos = str.find_first_of("\r\n");
 	}
+}
+
+
+//helper, converts int to string
+string CComponentsText::iToString(int int_val)
+{
+	ostringstream i_str;
+	i_str << int_val;
+	string i_string(i_str.str());
+	return i_string;
 }

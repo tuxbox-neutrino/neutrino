@@ -1,1000 +1,1233 @@
-EPGMenu.epgplus Elec. Programma Gids 
-EPGMenu.eventinfo Details aktuele uitzending
-EPGMenu.eventlist Programmagids aktuele zender
-EPGMenu.head EPG - EPG
-EPGMenu.streaminfo technische informatie
-EPGPlus.actions Akties 
-EPGPlus.bybouquet_mode per bouquet
-EPGPlus.bypage_mode per pagina
-EPGPlus.head Programma gids Overzicht (EPG Plus)
-EPGPlus.next_bouquet volgend bouquet
+AUDIOSelectMenue.head Audio Selectie
+EPGMenu.epgplus Elektronische Programma Gids
+EPGMenu.eventinfo Details huidige programma
+EPGMenu.eventlist Eventlijst huidige programma
+EPGMenu.head EPG - Programma Informatie
+EPGMenu.streaminfo Technische informatie
+EPGPlus.actions Acties
+EPGPlus.bybouquet_mode Per favorietenlijst
+EPGPlus.bypage_mode Per pagina
+EPGPlus.head Programmagids overzicht (EPG Plus)
+EPGPlus.next_bouquet Volgende favorietenlijst
 EPGPlus.options opties
-EPGPlus.page_down pagina terug
-EPGPlus.page_up pagina op
-EPGPlus.prev_bouquet vorig bouquet
-EPGPlus.record opnemen
-EPGPlus.refresh_epg ververs de epg
-EPGPlus.remind Herinnering
-EPGPlus.scroll_mode Scroll Mode
-EPGPlus.select_font_name font naam
-EPGPlus.stretch_mode Uitstrek Mode
-EPGPlus.swap_mode swap mode
-EPGPlus.view_mode kijk mode
-GENRE.ARTS.0 kunst / kultuur
-GENRE.ARTS.1 uitvoerende kunst
-GENRE.ARTS.10 kunst/kultuur series
-GENRE.ARTS.11 mode
-GENRE.ARTS.2 klein kunst
-GENRE.ARTS.3 geloof
-GENRE.ARTS.4 volks kunst
-GENRE.ARTS.5 literatuur
-GENRE.ARTS.6 film/bioscoop
+EPGPlus.page_down Pagina omlaag
+EPGPlus.page_up Pagina omhoog
+EPGPlus.prev_bouquet Vorige favorietenlijst
+EPGPlus.record Opnemen
+EPGPlus.refresh_epg Herlaad EPG
+EPGPlus.remind Plannen
+EPGPlus.scroll_mode Scroll modus
+EPGPlus.select_font_name Lettertype naam
+EPGPlus.stretch_mode Uitgestrekte modus
+EPGPlus.swap_mode Verwissel modus
+EPGPlus.view_mode Bekijk modus
+GENRE.ARTS.0 Kunst / cultuur
+GENRE.ARTS.1 Uitvoerende kunsten
+GENRE.ARTS.10 Kunst/cultuur magazines
+GENRE.ARTS.11 Mode
+GENRE.ARTS.2 Beeldende kunst
+GENRE.ARTS.3 Religie
+GENRE.ARTS.4 Populaire cultuur/traditionele kunst
+GENRE.ARTS.5 Literatuur
+GENRE.ARTS.6 Film/bioscoop
 GENRE.ARTS.7 experimentele film/video
-GENRE.ARTS.8 radio/pers
-GENRE.ARTS.9 nieuwe media
-GENRE.CHILDRENs_PROGRAMMES.0 kinder / jeugd programma
-GENRE.CHILDRENs_PROGRAMMES.1 kleuter programma's
-GENRE.CHILDRENs_PROGRAMMES.2 ontwikkelings programma's voor 6 to 14
-GENRE.CHILDRENs_PROGRAMMES.3 ontwikkelings programma's voor 10 to 16
-GENRE.CHILDRENs_PROGRAMMES.4 informatie/educatie/school programma's
-GENRE.CHILDRENs_PROGRAMMES.5 teken/poppen
-GENRE.DOCUS_MAGAZINES.0 documentatie / series
-GENRE.DOCUS_MAGAZINES.1 natuur/dieren/omgeving
-GENRE.DOCUS_MAGAZINES.2 technologie/natuur wetenschappen
-GENRE.DOCUS_MAGAZINES.3 medisch/physiologie/psychologie
-GENRE.DOCUS_MAGAZINES.4 buitenland/expedities
-GENRE.DOCUS_MAGAZINES.5 sociale/geestelijke wetenschappen
-GENRE.DOCUS_MAGAZINES.6 verdere ontwikkeling
-GENRE.DOCUS_MAGAZINES.7 talen
-GENRE.MOVIE.0 film/drama
-GENRE.MOVIE.1 detective/thriller
-GENRE.MOVIE.2 avontuur/western/oorlog
-GENRE.MOVIE.3 science fiction/fantasy/horror
-GENRE.MOVIE.4 komedie
-GENRE.MOVIE.5 soap/melodrama/folklore
-GENRE.MOVIE.6 romantiek
-GENRE.MOVIE.7 serieus/klassiek/geloof/histories film/drama
-GENRE.MOVIE.8 volwassen film/drama
-GENRE.MUSIC_DANCE.0 musiek / ballet / dans
-GENRE.MUSIC_DANCE.1 rock/pop
-GENRE.MUSIC_DANCE.2 serieuze muziek/klassieke muziek
-GENRE.MUSIC_DANCE.3 volks/traditionele muziek
-GENRE.MUSIC_DANCE.4 jazz
-GENRE.MUSIC_DANCE.5 musical/opera
-GENRE.MUSIC_DANCE.6 ballet
-GENRE.NEWS.0 nieuws
-GENRE.NEWS.1 nieuws/weer verslag
-GENRE.NEWS.2 nieuws serie
-GENRE.NEWS.3 documentatie
-GENRE.NEWS.4 discussie/interview/debat
+GENRE.ARTS.8 Omroep/Pers
+GENRE.ARTS.9 New media
+GENRE.CHILDRENs_PROGRAMMES.0 Kinder / jeugd programma
+GENRE.CHILDRENs_PROGRAMMES.1 Peuter kinderprogramma's
+GENRE.CHILDRENs_PROGRAMMES.2 entertainment programma (Voor 6 tot 14 jaar)
+GENRE.CHILDRENs_PROGRAMMES.3 entertainment programma (Voor 10 tot 16 jaar)
+GENRE.CHILDRENs_PROGRAMMES.4 informatieve / educatieve/school programma's
+GENRE.CHILDRENs_PROGRAMMES.5 Tekenfilms / poppen
+GENRE.DOCUS_MAGAZINES.0 documentatie / magazine
+GENRE.DOCUS_MAGAZINES.1 natuur / dieren/omgeving
+GENRE.DOCUS_MAGAZINES.2 Technologie / Natuurkunde
+GENRE.DOCUS_MAGAZINES.3 Medicatie / Fysiologie / Psychologie
+GENRE.DOCUS_MAGAZINES.4 Buitenland / Expedities
+GENRE.DOCUS_MAGAZINES.5 Sociaal/spirituele wetenschappen
+GENRE.DOCUS_MAGAZINES.6 Verdere educatie
+GENRE.DOCUS_MAGAZINES.7 Talen
+GENRE.MOVIE.0 Film / drama
+GENRE.MOVIE.1 Detective / Thriller
+GENRE.MOVIE.2 Avontuur / Western / Oorlog
+GENRE.MOVIE.3 Science fiction / Fantasie / Horror
+GENRE.MOVIE.4 Humor
+GENRE.MOVIE.5 Soap / Melodrama / Folklore
+GENRE.MOVIE.6 Romantiek
+GENRE.MOVIE.7 Serieus / Klassiek / Religieus / Historische film / Drama
+GENRE.MOVIE.8 Volwassen film / Drama
+GENRE.MUSIC_DANCE.0 Muziek / Ballet / Dans
+GENRE.MUSIC_DANCE.1 Rock/pop
+GENRE.MUSIC_DANCE.2 Serieuze muziek/ Klassieke muziek
+GENRE.MUSIC_DANCE.3 Volks / Traditionele muziek
+GENRE.MUSIC_DANCE.4 Jazz
+GENRE.MUSIC_DANCE.5 Musical / Opera
+GENRE.MUSIC_DANCE.6 Ballet
+GENRE.NEWS.0 Nieuws
+GENRE.NEWS.1 Nieuws / Weersverwachting
+GENRE.NEWS.2 Nieuws magazine
+GENRE.NEWS.3 Documentaire
+GENRE.NEWS.4 Discussie / Interview / Debat
 GENRE.SHOW.0 Show / Spelshow
-GENRE.SHOW.1 spel show/quiz/wedstrijd
-GENRE.SHOW.2 varietee show
-GENRE.SHOW.3 praat show
-GENRE.SOCIAL_POLITICAL.0 sociaal & politieke evenement / zakelijk
-GENRE.SOCIAL_POLITICAL.1 series/verslag/documentaire
-GENRE.SOCIAL_POLITICAL.2 economisch/sociaal advies
-GENRE.SOCIAL_POLITICAL.3 buitengewone mensen
-GENRE.SPORTS.0 sport
-GENRE.SPORTS.1 speciale uitzendingen (Olympische Spelen,Wereld Cup etc.)
-GENRE.SPORTS.10 equestrian
-GENRE.SPORTS.11 vecht sporten
-GENRE.SPORTS.2 sport series
-GENRE.SPORTS.3 voetbal
-GENRE.SPORTS.4 tennis/squash
-GENRE.SPORTS.5 team sport (uitgezonderd voetbal)
-GENRE.SPORTS.6 athletiek
-GENRE.SPORTS.7 motor sport
-GENRE.SPORTS.8 water sport
-GENRE.SPORTS.9 winter sport
-GENRE.TRAVEL_HOBBIES.0 reis & recreatie
-GENRE.TRAVEL_HOBBIES.1 tourisme/reisen
-GENRE.TRAVEL_HOBBIES.2 handwerken
-GENRE.TRAVEL_HOBBIES.3 motor
+GENRE.SHOW.1 Spelshow / Quiz / Wedstrijd
+GENRE.SHOW.2 Variété show
+GENRE.SHOW.3 Talk show
+GENRE.SOCIAL_POLITICAL.0 sociale & politieke zaken
+GENRE.SOCIAL_POLITICAL.1 Magazines / Verslaggeving / Documentaire
+GENRE.SOCIAL_POLITICAL.2 Economisch / Sociaal advies
+GENRE.SOCIAL_POLITICAL.3 Bijzondere personen
+GENRE.SPORTS.0 Sport
+GENRE.SPORTS.1 Bijzondere evenementen (Olympische spelen, Wereldkampioenschap, etc.)
+GENRE.SPORTS.10 Paardensport
+GENRE.SPORTS.11 Vechtsport
+GENRE.SPORTS.2 Sport magazines
+GENRE.SPORTS.3 Voetbal
+GENRE.SPORTS.4 Tennis / Squash
+GENRE.SPORTS.5 Team sporten (Excl. Voetbal)
+GENRE.SPORTS.6 Atletiek
+GENRE.SPORTS.7 Motorsport
+GENRE.SPORTS.8 watersport
+GENRE.SPORTS.9 wintersport
+GENRE.TRAVEL_HOBBIES.0 Reizen & recreatie
+GENRE.TRAVEL_HOBBIES.1 Tourisme / Reizen
+GENRE.TRAVEL_HOBBIES.2 Handvaardigheden
+GENRE.TRAVEL_HOBBIES.3 Motor voertuigen
 GENRE.TRAVEL_HOBBIES.4 fitness & gezondheid
-GENRE.TRAVEL_HOBBIES.5 koken
-GENRE.TRAVEL_HOBBIES.6 advertentie/shopping
-GENRE.TRAVEL_HOBBIES.7 tuinieren
-GENRE.UNKNOWN onbekend
+GENRE.TRAVEL_HOBBIES.5 Koken
+GENRE.TRAVEL_HOBBIES.6 Adverteren / Winkelen
+GENRE.TRAVEL_HOBBIES.7 Tuinieren
+GENRE.UNKNOWN Onbekend
+U kunt uw ontvanger ook eenvoudig bedienen via de web-interface. Raadpleeg de handleiding\n
 apids.hint_1 Geef APIDs om te streamen
 apids.hint_2 in HEX in gescheiden door ' '
 apidselector.head Selecteer taal
 audio.srs_algo Methode
-audio.srs_algo_light eenvoudig
-audio.srs_algo_normal normaal
+audio.srs_algo_light Eenvoudig
+audio.srs_algo_normal Normaal
 audio.srs_iq SRS True-volume technologie
-audio.srs_nmgr Noise-manager 
-audio.srs_volume Referentie luidsterkte
-audiomenu.PCMOffset PCM offset
-audiomenu.analogout Analoge uitgang
+audio.srs_nmgr Ruis manager
+audio.srs_volume Referentie volume 
+audiomenu.PCMOffset Verlaag volume niveau PCM
+audiomenu.analog_mode Analoge modus
+audiomenu.analog_out Analoge uitgang
+audiomenu.auto_lang Automatisch audio selecteren
+audiomenu.auto_subs Automatisch ondertiteling selecteren
 audiomenu.avs avs
+audiomenu.avsync A/V synchronisatie
+audiomenu.avsync_am Audio master
+audiomenu.clockrec 
 audiomenu.dolbydigital Dolby Digital
-audiomenu.hdmi_dd Dolby Digital via HDMI
-audiomenu.monoleft mono links
-audiomenu.monoright mono rechts
-audiomenu.stereo stereo
-audioplayer.add voeg toe
+audiomenu.hdmi_dd Encoded Dolby Digital via HDMI
+audiomenu.hdmi_dd_auto Automatisch
+audiomenu.hdmi_dd_force Forceer 
+audiomenu.monoleft Mono links
+audiomenu.monoright Mono rechts
+audiomenu.pref_lang Voorkeurstaal
+audiomenu.pref_lang_head Audio/EPG taalvoorkeur
+audiomenu.pref_languages Taal voorkeuren
+audiomenu.pref_subs Gewenste taal ondertiteling
+audiomenu.pref_subs_head Voorkeuren ondertiteling
+audiomenu.spdif_dd DolbyDigital via SPDIF
+audiomenu.stereo Stereo
+audiomenu.volume_adjust Volumeniveau aanpassen in percentage
+audiomenu.volume_step Volume stap
+audioplayer.add Toevoegen
+audioplayer.add_ic Icecast
+audioplayer.add_loc Lokale radiolijst
+audioplayer.add_sc Shoutcast
 audioplayer.artist_title Artiest, Titel
-audiomenu.avsync A/V sync
-audioplayer.building_search_index building search index
-audioplayer.button_select_title_by_id zoek op ID
-audioplayer.button_select_title_by_name zoek op naam
-audioplayer.defdir start dir.
-audioplayer.delete verwijder
-audioplayer.deleteall verwijder alles
-audioplayer.display_order Laat volgorde zien
-audioplayer.fastforward snel vooruit.
-audioplayer.follow auto selecteer aktuele
+audioplayer.building_search_index Zoek-index opbouwen
+audioplayer.button_select_title_by_id Zoeken op ID
+audioplayer.button_select_title_by_name Zoeken op naam
+audioplayer.defdir Start dir.
+audioplayer.delete Verwijderen
+audioplayer.deleteall Verwijder alles
+audioplayer.display_order Sorteer volgorde
+audioplayer.enable_sc_metadata Uitlezen van Shoutcast meta-data
+audioplayer.fastforward Snel vooruit spoelen 
+audioplayer.follow Automatisch huidige selecteren
 audioplayer.head Audio afspeellijst
-audioplayer.highprio Hoge decodeeer prioriteit
-audioplayer.id3scan Scan ID3 tags
-audioplayer.jump_backwards spring terug
-audioplayer.jump_dialog_hint1 Geef aub sprong doel in
+audioplayer.highprio Hoge decodeer prioriteit
+audioplayer.jump_backwards Spring terug
+audioplayer.jump_dialog_hint1 Markeer sprong punt 
 audioplayer.jump_dialog_hint2 (relatief, in seconden)
-audioplayer.jump_dialog_title Geef sprong doel in
-audioplayer.jump_forwards spring vooruit
-audioplayer.keylevel toets stand
+audioplayer.jump_dialog_title Markeer sprong locatie
+audioplayer.jump_forwards Sprong voorwaarts
+audioplayer.keylevel key level
+audioplayer.load_radio_stations Internet radiozenders laden
 audioplayer.name Audiospeler
-audioplayer.pause pause
+audioplayer.pause Pauze
 audioplayer.play Afspelen
-audioplayer.playing huidige track
-audioplayer.playlist_fileerror_msg Bestand niet gemaakt:
-audioplayer.playlist_fileerror_title Bestands fout
-audioplayer.playlist_fileoverwrite_msg Wil je dit bestand overschrijven:
-audioplayer.playlist_fileoverwrite_title Titel overschrijven?
-audioplayer.playlist_name filenaam van de afspeellijst
-audioplayer.playlist_name_hint1 Geef aub de naam van de afspeellijst in
-audioplayer.playlist_name_hint2 De extensie .m3u wordt aut. toegevoegd
-audioplayer.enable_sc_metadata enable shoutcast meta data parsing
-audioplayer.repeat_on herhaal-mode inschakelen
-audioplayer.rewind terug spoelen
-audioplayer.save_playlist sla afspeellijst op
-audioplayer.screensaver_timeout screensaver timeout (min, 0=off)
-audioplayer.select_title_by_name zoek titel bij naam (SMS)
-audioplayer.show_playlist Toon afspeellijst
-audioplayer.shuffle willekeurig
-audiomenu.spdif_dd Dolby Digital via S/PDIF
+audioplayer.playing Huidige nummer
+audioplayer.playlist_fileerror_msg Bestand kan niet worden aangemaakt:
+audioplayer.playlist_fileoverwrite_msg Wilt u het bestand overschrijven?:
+audioplayer.playlist_fileoverwrite_title Overschrijven?
+audioplayer.playlist_name Naam van de afspeellijst
+audioplayer.playlist_name_hint1 Naam afspeellijst invoeren
+audioplayer.playlist_name_hint2 De extensie .m3u wordt automatisch toegevoegd
+audioplayer.reading_files Bestanden lezen
+audioplayer.receiving_list Receiving list, please wait
+audioplayer.repeat_on enable Herhaal modus
+audioplayer.rewind Terugspoelen
+audioplayer.save_playlist Afspeellijst opslaan
+audioplayer.screensaver_timeout Screensaver time-out (min, 0 = uit)
+audioplayer.select_title_by_name Zoek titel op naam (SMS)
+audioplayer.show_playlist Afspeellijst weergeven
+audioplayer.shuffle Shuffle
+audioplayer.spectrum LCD a-spectrum
 audioplayer.stop Stop
 audioplayer.title_artist Titel, Artiest
-audioplayerpicsettings.general audiospeler / afbeeldingen
-bookmarkmanager.delete wissen
+audioplayerpicsettings.general Audiospeler / Afbeeldingen
+bookmarkmanager.delete Wissen
 bookmarkmanager.name bookmarks
-bookmarkmanager.rename hernoem
+bookmarkmanager.rename Hernoem
 bookmarkmanager.select selecteer
-bouqueteditor.add voegtoe
-bouqueteditor.bouquetname Naam van het bouquet
-bouqueteditor.delete wissen
-bouqueteditor.discardingchanges Herstel veranderingen. Geduld aub.
+bouqueteditor.add Toevoegen
+bouqueteditor.bouquetname Naam van de favorietenlijst
+bouqueteditor.delete Verwijder
+bouqueteditor.delete_question Zender verwijderen uit favorietenlijst?
+bouqueteditor.discardingchanges Herstel wijzigingen. Een moment geduld aub. 
 bouqueteditor.hide Verberg
 bouqueteditor.lock Vergrendel
-bouqueteditor.move Beweeg
-bouqueteditor.name bouquet bewerker
-bouqueteditor.newbouquetname Nieuwe naam van het bouquet
+bouqueteditor.move Verplaats
+bouqueteditor.name Favorietenlijst bewerken
+bouqueteditor.newbouquetname Nieuwe naam van de favorietenlijst
 bouqueteditor.rename Hernoem
-bouqueteditor.return klaar
-bouqueteditor.savechanges? Wil je de veranderingen opslaan?
-bouqueteditor.savingchanges Sla veranderingen op. Wacht aub ...
-bouqueteditor.switch voegtoe/verwijder
+bouqueteditor.return Gereed
+bouqueteditor.savechanges? Wilt u de veranderingen opslaan?
+bouqueteditor.savingchanges Veranderingen opslaan. Een moment geduld aub.
+bouqueteditor.switch Toevoegen / Verwijderen
 bouqueteditor.switchmode TV/Radio
-bouquetlist.head Bouquets
-cablesetup.provider kabel-provider
+bouquetlist.head Favorietenlijst
+bouquetname.hdtv HD zenders
+bouquetname.new Nieuwe Zenders
+bouquetname.other Onbekende provider
+bouquetname.removed Verwijderde zenders
+cablesetup.provider kabel provider
+channellist.additional Extra informatie
+channellist.additional_off Uit
+channellist.additional_on Aan
+channellist.additional_on_minitv Aan (met MiniTV)
 channellist.current_tp Huidige transponder
 channellist.edit Bewerken
 channellist.epgtext_align_left links
 channellist.epgtext_align_right rechts
-channellist.extended Uitgebreide EPG tonen
-channellist.fav Favorieten
-channellist.head Alle kanalen
-channellist.history Historie
-channellist.make_hdlist HD-kanalen als favoriet tonen
-channellist.nonefound Geen kanalen gevonden!\nVoer aub een scan uit\n(DBOX-key -> onderhoud)
-channellist.provs providers
+channellist.extended  Proces balk weergeven
+channellist.favs Favorieten
+channellist.foot Zender informatie
+channellist.foot_freq Sat/Freq Info
+channellist.foot_next Volgende programma
+channellist.foot_off Uit
+channellist.foot_sort_alpha Ordenen [A-Z]
+channellist.foot_sort_chnum Ordenen [0-9]
+channellist.foot_sort_freq Ordenen op frequentie
+channellist.foot_sort_sat Ordenen op satelliet
+channellist.head Alle zenders
+channellist.history Geschiedenis
+channellist.keep_numbers Aanhoudende kanaalnummers
+channellist.make_hdlist Creeër HD favorietenlijst
+channellist.make_newlist Creeër lijst met nieuwe kanalen
+channellist.make_removedlist Creeër lijst met verwijderde kanalen
+channellist.new_zap_mode Quickzap in lijst
+channellist.new_zap_mode_active Actief
+channellist.new_zap_mode_allow Toestaan
+channellist.new_zap_mode_off Uit
+channellist.nonefound Geen kanalen gevonden.\nVoer een zenderscan uit.
+channellist.provs Providers
+channellist.recording_not_possible Het maken van een opname\n is niet mogelijk.
+channellist.reset_flags Reset 'nieuw' kanaal vlag
 channellist.sats Satellieten
-channellist.since start tijd
-colorchooser.alpha alpha
-colorchooser.blue blauw
-colorchooser.green groen
-colorchooser.red rood
+channellist.since sinds
+channellist.start start tijd
+ci.clock CI kloksnelheid (Mhz)
+ci.empty Geen CAM geplaatst
+ci.init_failed Initialisatie CAM mislukt
+ci.init_ok Initialisatie CAM compleet
+ci.inserted Conditional access module herkend
+ci.removed Conditional access module verwijderd
+ci.reset Reset
+ci.reset_standby Opnieuw instellen na stand-by
+ci.settings Conditional access
+ci.timeout Timeout wachten CI menu gereed
+ci.waiting Wachten op reactie...
+clock_switch_off klok uit
+clock_switch_on klok aan
+colorchooser.alpha Alpha
+colorchooser.blue Blauw
+colorchooser.green Groen
+colorchooser.red Rood
 colormenu.background Achtergrond
-colormenu.fade Fade menu's
-colormenu.font Font grootte
-colormenu.menucolors Menukleur
-colormenu.statusbar Infobar
-colormenu.textcolor Textkleur
-colormenu.themeselect selecteer thema
-colormenu.timing OSD Timing
-colormenusetup.menucontent Window-Inhoud
-colormenusetup.menucontent_inactive Window-Inhoud inaktief
-colormenusetup.menucontent_selected Window-Inhoud selekteren
-colormenusetup.menuhead Menu Kop
-colorstatusbar.head Infobalk kleur
-colorstatusbar.text Infobalk text
+colormenu.contrast_fonts Contrast lettertype
+colormenu.fade Menu's vervagen
+colormenu.font Selecteer lettertype gebruikersinterface
+colormenu.font_ttx Selecteer lettertype teletekst
+colormenu.hd_preset LCD
+colormenu.menucolors Kleuren
+colormenu.osd_preset Voorinstellingen TV
+colormenu.sd_preset CRT
+colormenu.textcolor Tekst kleur
+colormenu.themeselect Selecteer thema
+colormenu.timing OSD Timeouts
+colormenusetup.menucontent Content
+colormenusetup.menucontent_inactive Inactieve content
+colormenusetup.menucontent_selected Geselecteerde content
+colormenusetup.menuhead Menu kop
+colorstatusbar.text Infobalk 
 colorthememenu.classic_theme Klassiek Thema
 colorthememenu.dblue_theme Donkerblauw Thema
 colorthememenu.dvb2k_theme DVB2000 Thema
-colorthememenu.head Thema Kiezer
+colorthememenu.head Selecteer thema
+colorthememenu.head2 Thema's laden
+colorthememenu.name Naam thema
 colorthememenu.neutrino_theme Neutrino Thema
+colorthememenu.question Geselecteerde thema gebruiken?
+colorthememenu.save Huidige thema opslaan
+colorthememenu.select1 Gebruikers Thema
+colorthememenu.select2 Standaard Thema
+cpu.freq CPU Frequentie
+cpu.freq_default Standaard frequentie
+cpu.freq_normal Normale frequentie
+cpu.freq_standby Stand-by frequentie
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dec
 date.Feb  Feb
-date.Fri  Vrij
+date.Fri  Vr
 date.Jan  Jan
 date.Jul  Jul
 date.Jun  Jun
-date.Mar  Maart
+date.Mar  Mrt
 date.May  Mei
-date.Mon  Maan
+date.Mon  Ma
 date.Nov  Nov
 date.Oct  Okt
-date.Sat  Zat
+date.Sat  Za
 date.Sep  Sep
-date.Sun  Zon
-date.Thu  Don
-date.Tue  Dins
-date.Wed  Woens
+date.Sun  Zo
+date.Thu  Do
+date.Tue  Di
+date.Wed  Wo
+epg.saving Opslaan EPG
+epgextended.actors Acteurs
+epgextended.director Regisseur 
+epgextended.guests Gasten
+epgextended.original_title Originele Titel
+epgextended.presenter Presentator
+epgextended.year_of_production Productie jaar
 epglist.head programma-gids- %s
-epglist.noevents EPG niet aanwezig...
-epgviewer.More_Screenings Volgend scherm
-epgviewer.nodetailed Geen gedetaileerde informatie aanwezig
-epgviewer.notfound geen epg gevonden
-eventfinder.head EPG-zoeken
-eventfinder.keyword Zoek naar bepaalde tekst
-eventfinder.search Zoek
-eventfinder.search_within_list Zoek binnen een tekst
-eventfinder.searching zoeken...
+epglist.noevents EPG is niet beschikbaar...
+epgviewer.More_Screenings More Volgend scherm
+epgviewer.More_Screenings_short Volgend scherm
+epgviewer.nodetailed Geen gedetailleerde informatie aanwezig
+epgviewer.notfound geen EPG gevonden
+eventfinder.head Zoeken in EPG
+eventfinder.keyword Trefwoord zoeken
+eventfinder.search Zoeken
 eventfinder.search_within_epg Zoeken in
+eventfinder.search_within_list Zoeken in
+eventfinder.searching Zoek naar trefwoord in EPG...
 eventfinder.start_search Zoeken starten
 eventlistbar.channelswitch Omschakelen
 eventlistbar.eventsort Sorteren
-eventlistbar.recordevent Openemen
-extra.temp_timeshift Timeshift
-favorites.addchannel Het aktuele kanaal wordt toegevoegd \naan het bouquet"My Favorites".\nDit duurt enkele seconden...
-favorites.bouquetname Mijn favorieten
-favorites.bqcreated Bouquet "Mijn favorieten" is gemaakt...\n
-favorites.chadded Het aktuele Kanaal is aan je favorieten toegevoegd...\n
-favorites.chalreadyinbq Het aktuele kanaal is reeds in je Favorieten...\n
-favorites.finalhint \nGebruik de bouquet bewerker om je Favorieten aan te passen.\n
-favorites.menueadd voeg Kanaal toe aan favorieten
-favorites.nobouquets Favorieten zijn alleen beschikbaar bij geactiveerde Bouquets .
-filebrowser.delete Wis
-filebrowser.denydirectoryleave weiger dir te verlaten
-filebrowser.dodelete1 Wis
+eventlistbar.recordevent Opnemen
+extra.add_to_bouquet Toevoegen aan favorietenlijst
+extra.audio_run_player Audio key start player
+extra.auto_delete Automatisch verwijderen
+extra.auto_timeshift Automatische opname, sec (0 = uitgeschakeld)
+extra.bigwindows Grote vensters
+extra.cache_txt Cache teletekst
+extra.chadded het huidige kanaal is toegevoegd aan de geselecteerde favorietenlijst...\n
+extra.chalreadyinbq het huidige kanaal bevindt zich al in de geselecteerde favorietenlijst...\n
+extra.dboxinfo Box Info
+extra.dvbsnoop DVB Stream Info
+extra.dvbsnoop_band Toon pid bandbreedte
+extra.dvbsnoop_cat Toon CAT
+extra.dvbsnoop_eit Toon EIT
+extra.dvbsnoop_nit Toon NIT
+extra.dvbsnoop_pat Toon PAT
+extra.dvbsnoop_pid Toon manual PID
+extra.dvbsnoop_rst Toon RST
+extra.dvbsnoop_scan Scan PIDs
+extra.dvbsnoop_sdt Toon SDT
+extra.dvbsnoop_sit Toon SIT
+extra.dvbsnoop_tdt Toon TDT
+extra.dvbsnoop_tsdt Toon TSDT
+extra.east Oost
+extra.fec_1_2 1/2
+extra.fec_2_3 2/3
+extra.fec_3_4 3/4
+extra.fec_5_6 5/6
+extra.fec_7_8 7/8
+extra.fec_auto Auto DVB-S
+extra.fec_auto_s2 Auto DVB-S2
+extra.fec_s2_8psk_1_2 1/2 s2 8psk
+extra.fec_s2_8psk_2_3 2/3 s2 8psk
+extra.fec_s2_8psk_3_4 3/4 s2 8psk
+extra.fec_s2_8psk_3_5 3/5 s2 8psk
+extra.fec_s2_8psk_4_5 4/5 s2 8psk
+extra.fec_s2_8psk_5_6 5/6 s2 8psk
+extra.fec_s2_8psk_7_8 7/8 s2 8psk
+extra.fec_s2_8psk_8_9 8/9 s2 8psk
+extra.fec_s2_8psk_9_10 9/10 s2 8psk
+extra.fec_s2_qpsk_1_2 1/2 s2 qpsk
+extra.fec_s2_qpsk_2_3 2/3 s2 qpsk
+extra.fec_s2_qpsk_3_4 3/4 s2 qpsk
+extra.fec_s2_qpsk_3_5 3/5 s2 qpsk
+extra.fec_s2_qpsk_4_5 4/5 s2 qpsk
+extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
+extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
+extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
+extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
+extra.key_current_transponder Huidige transponder toets
+extra.key_list_end Eind
+extra.key_list_start Begin
+extra.key_plugin One touch plugin
+extra.key_screenshot Screenshot toets
+extra.key_timeshift Timeshift
+extra.key_unlock Ontgrendel toets
+extra.ladirection LA richting
+extra.latitude Breedtegraad (latitude)
+extra.loadconfig Neutrino-HD Settings: Laden van
+extra.loadkeys Toetsen laden van
+extra.lodirection LO richting
+extra.logview Bekijk Log
+extra.longitude Lengtegraad (Longitude)
+extra.menu_left_exit "Links" = Terug
+extra.north Noord
+extra.record_time Max. opname tijd in uren
+extra.rotor_swap Schakelen rotor oost/west
+extra.rounded_corners Vorm van hoeken
+extra.rounded_corners_off Rechthoekig
+extra.rounded_corners_on Rond
+extra.saveconfig Neutrino-HD Settings: Opslaan als...
+extra.savekeys Toetsen opslaan
+extra.scrambled_message Gecodeerd bericht
+extra.show_mute_icon Weergave Mute icoon wanneer volume niveau 0 is
+extra.sms_channel sms-modus kanaal
+extra.south Zuid
+extra.start_tostandby Opstarten in stand-by modus
+extra.temp_timeshift Tijdelijke timeshift
+extra.timeshift_pause Timeshift pauzeren
+extra.tp.pol_v V
+extra.tp_fec FEC
+extra.tp_freq Frequentie
+extra.tp_mod Modulatie
+extra.tp_mod_128 QAM/128
+extra.tp_mod_16 QAM/16
+extra.tp_mod_256 QAM/256
+extra.tp_mod_32 QAM/32
+extra.tp_mod_64 QAM/64
+extra.tp_pol Polarisatie
+extra.tp_pol_h H
+extra.tp_pol_l L
+extra.tp_pol_r R
+extra.tp_rate Symbool ratio
+extra.update_dir Lokale update directory
+extra.use_gotoxx Gebruik gotoXX
+extra.volume_digits Volumebar digits
+extra.volume_pos Volumebar
+extra.west West
+extra.zap_cycle Zap cyclus
+extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
+extra.zapit_hvoltage 18V voor DiSEqC motor 
+extra.zapit_make_bouquet Creëer resterende kanalen favorietenlijst
+extra.zapit_motor_speed Motor snelheid (10 = 1 graad/sec)
+extra.zapit_scanpids Scan/gebruik PIDS
+extra.zapit_sdt_changed Zenders gewijzigd, herlaad instellingen.
+fan_speed CPU Ventilator snelheid
+favorites.addchannel Het huidige kanaal wordt toegevoegd aan \n "mijn favorieten". Een moment geduld...
+favorites.bouquetname Mijn Favorieten
+favorites.bqcreated Favorietenlijst genaamd "Mijn Favorieten" is gecreëerd...\n
+favorites.chadded Het huidige kanaal is toegevoegd aan uw favorietenlijst...\n
+favorites.chalreadyinbq Het huidige kanaal is al aanwezig in uw favorietenlijst...\n
+favorites.copy Kopieer bouquet naar favorieten
+favorites.finalhint \nGebruik de favorietenlijst editor om uw favorieten te bewerken.\n
+favorites.menueadd Kanaal toevoegen aan favorieten
+favorites.nobouquets Enkel geactiveerde favorieten zijn beschikbaar.
+filebrowser.delete Verwijderen
+filebrowser.denydirectoryleave Absolute start directory
+filebrowser.dodelete1 Verwijderen
 filebrowser.dodelete2 ?
-filebrowser.filter.active Filter aan
-filebrowser.filter.inactive Filter uit
-filebrowser.head Filebrowser
-filebrowser.mark Markeer
-filebrowser.nextpage volgende pagina
-filebrowser.prevpage vorige pagina
-filebrowser.scan Scanning folder
+filebrowser.filter.active Filter ingeschakeld
+filebrowser.filter.inactive Filter uitgeschakeld
+filebrowser.head Verkenner
+filebrowser.mark Marke
+filebrowser.nextpage Volgende pagina
+filebrowser.prevpage Vorige pagina
+filebrowser.scan Map scannen
 filebrowser.select Selecteer
-filebrowser.showrights Toon bestands rechten
+filebrowser.showrights Bestandsrechten weergeven
 filebrowser.sort.date (datum)
-filebrowser.sort.name (filenaam)
-filebrowser.sort.namedirsfirst (filenaam2)
-filebrowser.sort.size (grootte)
-filebrowser.sort.type (type)
-flashupdate.actionreadflash Flash lezen
-flashupdate.cantopenfile kan bestand niet openen
-flashupdate.cantopenmtd kan mtd-device niet openen
-flashupdate.checkupdate zoek naar nieuwe versie
-flashupdate.currentversion_sep Aktuele versie
+filebrowser.sort.name (bestandsnaam)
+filebrowser.sort.namedirsfirst (bestandsnaam)
+filebrowser.sort.size (Grootte)
+filebrowser.sort.type (Type)
+filesystem.is.utf8 bestandssystem
+filesystem.is.utf8.option.iso8859.1 ISO-8859-1
+filesystem.is.utf8.option.utf8 UTF-8
+flashupdate.actionreadflash lezen
+flashupdate.apply_settings Importeer instellingen?
+flashupdate.cantopenfile Kan het bestand niet openen
+flashupdate.cantopenmtd Kan MTD niet openen
+flashupdate.checkupdate_internet Online updates zoeken
+flashupdate.checkupdate_local Lokaal updaten
+flashupdate.currentversion_sep Huidige versie
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Tijd
-flashupdate.erasefailed flash wissen mislukt
-flashupdate.erasing flash wissen
-flashupdate.experimentalimage De geselecteerde image is een ongeteste versie,dit betekend\nbootup van de Box kan mislukken na update.\n\nWilt U werkelijk updaten naar deze versie?
+flashupdate.erasefailed Wissen van flash mislukt
+flashupdate.erasing Flash wissen
+flashupdate.experimentalimage De firmware die u heeft geselecteerd is niet getest.\nDit kan wellicht problemen veroorzaken.\n Weet u zeker dat u deze versie wil updaten?
 flashupdate.expertfunctions Expert-functies
-flashupdate.fileis0bytes De filegrootte is 0 Bytes
-flashupdate.fileselector File-Kiezer
-flashupdate.flashreadyreboot De image was succesvol geflashed.\nDe ruDbox gaat nu herstarten.
-flashupdate.getinfofile haal versie info op
-flashupdate.getinfofileerror Kan versie info niet ophalen
-flashupdate.getupdatefile haal update file op
-flashupdate.getupdatefileerror kan update niet ophalen
-flashupdate.globalprogress voortgang:
+flashupdate.fileis0bytes De bestandsgrootte is 0 Bytes
+flashupdate.fileselector Bestandsselectie
+flashupdate.flashreadyreboot De firmware is succesvol geïnstalleerd.\nDe ontvanger wordt opnieuw opgestart.
+flashupdate.getinfofile Versie informatie verkrijgen
+flashupdate.getinfofileerror Kan versie informatie niet verkrijgen
+flashupdate.getupdatefile Updates verkrijgen
+flashupdate.getupdatefileerror Kan update niet verkrijgen
+flashupdate.globalprogress Globale voortgang:
 flashupdate.head Software Update
-flashupdate.md5check Image testen
-flashupdate.md5sumerror Image heeft fouten
-flashupdate.msgbox Volgende nieuwe image gevonden:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nWil je deze versie nu downloaden en installeren?
-flashupdate.msgbox_manual De volgende nieuwe file gevonden:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nWil je deze versie nu installeren?
-flashupdate.mtdselector Partition-Kiezer
-flashupdate.programmingflash Flash programmeren
-flashupdate.proxypassword Paswoord
-flashupdate.proxypassword_hint1 geef de proxyserver paswoord in
-flashupdate.proxypassword_hint2 niets ingeven betekend geen proxy-auth.
-flashupdate.proxyserver Hostname
-flashupdate.proxyserver_hint1 geef proxyserver naam of ip in, gebruik host:port
-flashupdate.proxyserver_hint2 niets ingeven betekent geen proxy
+flashupdate.md5check Firmware controleren
+flashupdate.md5sumerror Firmware bevat fouten
+flashupdate.msgbox Het volgende bestand is gevonden:\nDatum: %s, %s\nBaseImage: %s\nType: %s\n\nWilt u het bestand installeren?
+flashupdate.msgbox_manual De volgende firmware is gevonden:\nDatum: %s, %s\nBaseImage: %s\nImageType: %s\n\n Wilt u deze versie installeren? 
+flashupdate.mtdselector Partitie-selector
+flashupdate.new_found Nieuwe firmware gevonden!
+flashupdate.new_notfound Geen nieuwe firmware gevonden
+flashupdate.programmingflash programming flash
+flashupdate.proxypassword Wachtwoord
+flashupdate.proxypassword_hint1 Wachtwoord van de proxyserver invoeren
+flashupdate.proxypassword_hint2 Geen invoer betekend geen autorisatie vereist
+flashupdate.proxyserver Hostnaam
+flashupdate.proxyserver_hint1 proxyserver naam of ip invoeren, gebruik host:poort
+flashupdate.proxyserver_hint2 Geen invoer betekend geen proxy
 flashupdate.proxyserver_sep Proxyserver
 flashupdate.proxyusername Gebruikersnaam
-flashupdate.proxyusername_hint1 geef de proxyserver gebruikersnaam in
-flashupdate.proxyusername_hint2 niets ingeven betekent geen proxy-auth.
-flashupdate.readflash Lees hele image
-flashupdate.readflashmtd lees een partitie
-flashupdate.ready ready
-flashupdate.reallyflashmtd Wil je werkelijk flashen?\n\nAls een fout optreed of de image is niet\ngeldig, de Box wil niet booten na het flashen.\n\nImagenaam: %s\nTarget: %s
-flashupdate.savesuccess De image was succesvol opgeslagen \nonder %s.
-flashupdate.selectimage Beschikbare Images/Files
-flashupdate.squashfs.noversion SquashFS versie test momenteel alleen ondersteund bij update via het Web.\nWeet je zeker dat je deze image wilt installeren?
-flashupdate.titlereadflash Flash lezen
+flashupdate.proxyusername_hint1 Proxyserver gebruikersnaam invoeren
+flashupdate.proxyusername_hint2 Geen invoer betekend geen autorisatie vereist
+flashupdate.readflash Lees gehele image
+flashupdate.readflashmtd Lees een partitie
+flashupdate.ready Gereed
+flashupdate.reallyflashmtd Weet u zeker dat u wilt updaten?\nIndien er zich een fout voordoet\nof wanneer de firmware incorrect\nis zal de ontvanger niet herstarten\nna het updaten.\n\nImagename: %s\nTarget: %s
+flashupdate.savesuccess De Firmware is succesvol opgeslagen \n onder %s.
+flashupdate.selectimage Beschikbare firmware/bestanden
+flashupdate.settings Update instellingen
+flashupdate.squashfs.noversion SquashFS versie controle is alleen ondersteund wanneer u update via het internet. \nWeet u zeker dat u deze firmware wilt installeren?
 flashupdate.titlewriteflash Flash schrijven
+flashupdate.update_with_settings_del_skipped Folder [%s] kan niet worden verwijderd. Folder is overgeslagen.
+flashupdate.update_with_settings_error Foutmelding!\n \nNieuwe firmware heeft %ld KB (out of %ld KB) resterend.\n Onvoldoende \nruimte om opdracht af te ronden. Opdracht wordt geannuleerd.
+flashupdate.update_with_settings_processed Wordt verwerkt...
+flashupdate.update_with_settings_skipped Folder [%s] kan niet opgeslagen worden. Folder wordt overgeslagen.
+flashupdate.update_with_settings_successfully Instellingen succesvol overgenomen. De firmware kan worden geupdate.
+flashupdate.update_with_settings_warning Waarschuwing!\n Er is waarschijnlijk onvoldoende ruimte. Wilt u verder gaan?
 flashupdate.updatemode Update mode
 flashupdate.updatemode_internet internet
-flashupdate.updatemode_manual handmatig (ftp)
-flashupdate.url_file config file
-flashupdate.versioncheck test versie
-flashupdate.writeflash schrijf hele image
-flashupdate.writeflashmtd schrijf een partitie
-flashupdate.wrongbase Your Release cycle differs.\nTo continue? 
-fontmenu.channellist Kanalen lijst
+flashupdate.updatemode_manual Vanaf lokale update directory
+flashupdate.url_file configuratie bestand
+flashupdate.versioncheck Versie controleren 
+flashupdate.writeflash Schrijf gehele image
+flashupdate.writeflashmtd Schrijf een partitie one
+flashupdate.wrongbase Uw release-cyclus verschilt.\nVerder gaan?
+fontmenu.channellist Kanalenlijst
 fontmenu.epg EPG
-fontmenu.eventlist Programma gids
-fontmenu.gamelist Spelen lijst
-fontmenu.head Fontgrootte instellen
-fontmenu.infobar Infobar
+fontmenu.eventlist Programmalijst 
+fontmenu.gamelist Spelletjes lijst
+fontmenu.head Lettertype instellingen
+fontmenu.infobar Informatiebalk
+fontmenu.menu Menu
+fontmenu.scaling Globale lettertype Zoom Factor
+fontmenu.scaling_x Horizontaal (in %)
+fontmenu.scaling_x_hint2 Horizontaal (in %) min 50 / max 200
+fontmenu.scaling_y Verticaal (in %)
+fontmenu.scaling_y_hint2 Verticaal (in %) min 50 / max 200
+fontmenu.sizes Lettertype grootte
 fontsize.channel_num_zap directe selectie
-fontsize.channellist Kanalen lijst
-fontsize.channellist_descr Beschrijving
+fontsize.channellist Kanalenlijst
+fontsize.channellist_descr Omschrijving
+fontsize.channellist_event Programmalijst
 fontsize.channellist_number Nummer
 fontsize.epg_date EPG Datum
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Titel
-fontsize.eventlist_datetime datum / tijd
-fontsize.eventlist_itemlarge groot
-fontsize.eventlist_itemsmall klein
+fontsize.eventlist_datetime Datum / Tijd
+fontsize.eventlist_itemlarge Groot
+fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
-fontsize.filebrowser_item filebrowser item
-fontsize.gamelist_itemlarge groot
-fontsize.gamelist_itemsmall klein
-fontsize.hint Initialiseer font,\naub wachten...
-fontsize.infobar_channame Kanaal naam
-fontsize.infobar_info info
+fontsize.filebrowser_item Verkenner items
+fontsize.gamelist_itemlarge Groot
+fontsize.gamelist_itemsmall Klein
+fontsize.hint Initialiseren lettertype,\néén moment geduld...
+fontsize.infobar_channame Kanaalnaam
+fontsize.infobar_info Info
 fontsize.infobar_number Nummer
-fontsize.infobar_small klein
-fontsize.menu Menutext
+fontsize.infobar_small Klein
+fontsize.menu Menu tekst
+fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Titel
-gtxalpha.alpha1 Alpha 1
-gtxalpha.alpha2 Alpha 2
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
 hdd_30min 30 min.
 hdd_5min 5 min.
 hdd_60min 60 min.
-hdd_activate Instellingen aktiveren
-hdd_check Controleer systeem
-hdd_check_failed Controle van harddisk mislukt
-hdd_ext3 Ext3fs
+hdd_activate Instellingen toepassen
+hdd_check Controleer bestandssysteem
+hdd_check_failed HDD controle mislukt
+hdd_ext3 ext3
+hdd_extended_settings Uitgebreide HDD-instellingen
 hdd_fast Snel
-hdd_format Formatteer harddisk
+hdd_format HDD formatteren
 hdd_format_failed Formatteren mislukt
-hdd_format_warn Formatteren wordt gestart
-hdd_fs Bestands systeem
-hdd_manage Disk management
-hdd_middle Middel
-hdd_noise Acoustiek-instelling
-hdd_not_found Geen harddisk gedetecteerd
-hdd_reiser Reiserfs
-hdd_settings Harddisk instellingen
-hdd_sleep Stop motor na 
-hdd_slow Langzaam
-hdd_umount_warn unmout harddisk
-infoviewer.epgnotload EPG niet geladen....
-infoviewer.epgwait wacht op EPG...
-infoviewer.eventlist Prg,s overzicht
-infoviewer.languages Talen
-infoviewer.next Hierna
-infoviewer.now Huidig
-infoviewer.motor_moving Motor aan het werk
-infoviewer.nocurrent Geen info over aktueel programma beschikbaar
-infoviewer.noepg EPG niet beschikbaar
+hdd_format_warn Begin formatteren...
+hdd_fs Bestandssysteem
+hdd_manage Beheer hardeschijven
+hdd_middle Gemiddeld
+hdd_noise Akoestisch beheer (AAM)
+hdd_not_found Geen HDD gevonden
+hdd_reiser ReiserFS
+hdd_removable_device Verwijderbaar apparaat
+hdd_settings Harde schijf/USB
+hdd_sleep Uitschakelen na...
+hdd_slow Sloom
+hdd_umount_warn Apparaat ontkoppelen
+imageinfo.creator Ontwikkelaar:
+imageinfo.date Datum:
+imageinfo.dokumentation Documentatie:
+imageinfo.forum Forum:
+imageinfo.head Image info:
+imageinfo.homepage Website:
+imageinfo.image Image:
+imageinfo.license Licentie:
+imageinfo.version Versie:
+inetradio.name Internetradio
+infoviewer.epgnotload EPG is niet geladen....
+infoviewer.epgwait wachten op EPG...
+infoviewer.eventlist Programmalijst
+infoviewer.languages Audio
+infoviewer.motor_moving Schotel positionering 
+infoviewer.next Volgende
+infoviewer.nocurrent Geen informatie beschikbaar over huidige programma
+infoviewer.noepg EPG is niet beschikbaar
 infoviewer.notavailable Kanaal niet beschikbaar
-infoviewer.selecttime Tijd kiezen
-infoviewer.streaminfo Extra's
+infoviewer.now Nu
+infoviewer.selecttime Tijd selectie
+infoviewer.streaminfo Mogelijkheden
+infoviewer.subchan_disp_pos Toon subkanalen
+infoviewer.subchan_infobar Volledige infobalk
 infoviewer.subservice Subservices
-infoviewer.waittime Wacht op de tijd...
-ipsetup.hint_1 Benut 0..9, of benut Op/Neer,
-ipsetup.hint_2 OK slaat op, HOME breektaf
-keybindingmenu.RC Key repeat-blocker
-keybindingmenu.addrecord voeg record timer toe
-keybindingmenu.addremind voeg zapto timer toe
-keybindingmenu.allchannels_on_ok alle-kanalen
-keybindingmenu.bouquetchannels_on_ok aktueel bouquet
-keybindingmenu.bouquetdown bouquet terug
-keybindingmenu.bouquethandling Bouquet-control
-keybindingmenu.bouquetlist_on_ok bouquet-lijst
-keybindingmenu.bouquetup volgende bouquet
-keybindingmenu.cancel Kanalen lijst sluiten
-keybindingmenu.channeldown kanaal omlaag
-keybindingmenu.channellist kanalen lijst
-keybindingmenu.channelup kanaal omhoog
-keybindingmenu.head Toetsen Aanpassen
-keybindingmenu.lastchannel Laatste kanaal
-keybindingmenu.modechange Mode's wissel
+infoviewer.waittime Wachten op tijd...
+ipsetup.hint_1 Gebruik 0-9, of de omhoog/omlaag cursor,
+ipsetup.hint_2 "OK" toets om op te slaan, Exit om af te sluiten
+keybindingmenu.RC Tune Remote-Control
+keybindingmenu.addrecord Opname timer toevoegen
+keybindingmenu.addremind Zap timer toevoegen
+keybindingmenu.allchannels_on_ok alle kanalen
+keybindingmenu.bouquetchannels_on_ok Huidige kanalenlijst
+keybindingmenu.bouquetdown Vorige favorietenlijst
+keybindingmenu.bouquethandling Favorietenlijst beheer
+keybindingmenu.bouquetlist_on_ok Favorietenlijst
+keybindingmenu.bouquetup Volgende favorietenlijst
+keybindingmenu.cancel Kanalenlijst sluiten
+keybindingmenu.channeldown Kanaal omlaag
+keybindingmenu.channellist Kanalenlijst
+keybindingmenu.channelup Kanaal omhoog
+keybindingmenu.head Bewerk sneltoetsen
+keybindingmenu.lastchannel Quick Zap
+keybindingmenu.misc Diversen
+keybindingmenu.mode_left_right_key_tv Links/Rechts sneltoets in TV modus
+keybindingmenu.mode_left_right_key_tv_infobar Infobalk weergeven
+keybindingmenu.mode_left_right_key_tv_volume Volume beheer
+keybindingmenu.mode_left_right_key_tv_vzap Virtuele Zap
+keybindingmenu.mode_left_right_key_tv_zap Zap
+keybindingmenu.modechange Wijzig modus
 keybindingmenu.pagedown pagina omlaag
 keybindingmenu.pageup pagina omhoog
-keybindingmenu.quickzap Vlug zappen
-keybindingmenu.repeatblock herhaal vertraging
-keybindingmenu.repeatblockgeneric begin vertraging
-keybindingmenu.sort verander sorteer volgorde
-keybindingmenu.subchanneldown subkanaal omlaag
+keybindingmenu.poweroff Stroomschakelaar
+keybindingmenu.quickzap Quickzap
+keybindingmenu.remotecontrol_hardware Hardware
+keybindingmenu.remotecontrol_hardware_coolstream CST
+keybindingmenu.remotecontrol_hardware_dbox d-box Nokia (old)
+keybindingmenu.remotecontrol_hardware_msg_part1 De afstandsbediening is verandert van '
+keybindingmenu.remotecontrol_hardware_msg_part2 ' naar '
+keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs dit correct?\n Bevestig uw selectie binnen 15 seconden door uw nieuwe afstandsbediening te gebruiken.\n Anders wordt uw selectie wordt ongedaan gemaakt.
+keybindingmenu.remotecontrol_hardware_philips Philips
+keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
+keybindingmenu.repeatblock Algemene vertraging
+keybindingmenu.repeatblockgeneric Herhaal vertraging
+keybindingmenu.sort Wijzig sorteer orde
+keybindingmenu.subchanneldown subkanaal omloog
 keybindingmenu.subchannelup subkanaal omhoog
-keybindingmenu.tvradiomode TV/Radio-mode
-keybindingmenu.zaphistory Zap History Bouquet
-keychooser.head verander Toets
-keychooser.text1 Druk aub de nieuwe toets
-keychooser.text2 wacht een paar seconden op abort
-keychoosermenu.currentkey aktuele toets
-keychoosermenu.setnew setup nieuwe toets
-keychoosermenu.setnone geen toets
-languagesetup.head Taal Keuze
-languagesetup.select Taal 
-lcdcontroler.brightness normale Helderheid
+keybindingmenu.tvradiomode TV/Radio modus
+keybindingmenu.zaphistory Zap geschiedenis favorietenlijst
+keychooser.head Nieuwe toets instellen
+keychooser.text1 Drukt u alstublieft op de nieuwe toets Please press the new key
+keychooser.text2 Wacht u alstublieft een ogenblik om te annuleren. 
+keychoosermenu.currentkey Huidige toets
+keychoosermenu.setnew nieuwe toets instellen
+keychoosermenu.setnone Geen toets
+languagesetup.head Taal / Tijdzone
+languagesetup.osd OSD taal
+languagesetup.select OSD taal
+lcd_info_line show in infoline
+lcd_info_line_channel kanaalnaam
+lcd_info_line_clock klok
+lcdcontroler.brightness Normale helderheid
+lcdcontroler.brightnessdeepstandby Deep Standby helderheid
 lcdcontroler.brightnessstandby Standby Helderheid
-lcdcontroler.contrast Kontrast
-lcdcontroler.head LCD Instellingen
-lcdmenu.head LCD Instellingen
-lcdmenu.lcdcontroler Kontrast / Helderheid
-lcdmenu.statusline status lijn
-lcdmenu.statusline.both volume / speelduur
-lcdmenu.statusline.playtime speelduur
+lcdmenu.dim_brightness Helderheid na dim timeout
+lcdmenu.dim_time Dim timeout
+lcdmenu.head VFD Instellingen
+lcdmenu.lcdcontroler Helderheid
+lcdmenu.statusline statuslijn
+lcdmenu.statusline.both volume / afspeelduur
+lcdmenu.statusline.playtime afspeelduur
 lcdmenu.statusline.volume volume
-mainmenu.audioplayer Audio-speler
-mainmenu.games Spellen
-mainmenu.head Hoofd Menu
+ledcontroler.blink Knipper in deepstandby indien een timer actief is.
+ledcontroler.menu Aan/uit knop LEDs
+ledcontroler.mode.deepstandby Deep Standby
+ledcontroler.mode.record Knipper tijdens het opnemen
+ledcontroler.mode.standby Stand-by
+ledcontroler.mode.tv TV Modus
+ledcontroler.off LED1 en LED2 uitgeschakeld
+ledcontroler.on.all LED1 en LED2 ingeschakeld
+ledcontroler.on.led1 Enkel LED1 ingeschakeld
+ledcontroler.on.led2 Enkel LED2 ingeschakeld
+mainmenu.audioplayer Audiospeler
+mainmenu.clearsectionsd EPG geheugen opschonen
+mainmenu.games Spelletjes
+mainmenu.head Hoofdmenu
+mainmenu.media Media
 mainmenu.movieplayer Movie-player
 mainmenu.pausesectionsd Lees EPG
 mainmenu.pictureviewer Afbeeldingen
 mainmenu.radiomode Radio-Mode
-mainmenu.reboot Herstart neutrino
+mainmenu.reboot Herstart systeem
 mainmenu.recording Opnemen
-mainmenu.recording_start start
-mainmenu.recording_stop stop
+mainmenu.recording_start Start
+mainmenu.recording_stop Stop
+mainmenu.scripts Scripts
 mainmenu.service Onderhoud
 mainmenu.settings Instellingen
-mainmenu.shutdown Uitzetten
-mainmenu.sleeptimer SleepTimer
+mainmenu.shutdown Uitschakelen
+mainmenu.sleeptimer Slaaptimer
 mainmenu.tvmode TV-Mode
+mainmenu.tvradio_switch TV-Radio Schakelaar
 mainsettings.audio Audio
 mainsettings.colors Kleur / thema / font
 mainsettings.head Instellingen
-mainsettings.keybinding Toets Aanpassen
-mainsettings.language Taal
-mainsettings.lcd LC-Display
+mainsettings.keybinding Sneltoetsen aanpassen
+mainsettings.language Taal / Tijdzone
+mainsettings.lcd Display instellingen
+mainsettings.manage Beheer instellingen
 mainsettings.misc Diverse instellingen
 mainsettings.network Netwerk
 mainsettings.osd OSD instellingen
 mainsettings.recording Opnemen
-mainsettings.savesettingsnow sla instellingen nu op
-mainsettings.savesettingsnow_hint Sla instellingen op,\nwacht aub...
+mainsettings.savesettingsnow Instellingen opslaan
+mainsettings.savesettingsnow_hint Instellingen opslaan,\nmoment geduld...
 mainsettings.timezone Tijdzone
 mainsettings.video Video
-menu.back terug
-messagebox.back terug
-messagebox.cancel herroep
-messagebox.discard Niet uitvoeren?
-messagebox.error Fout
+menu.back Terug
+menu.cancel Annuleer 
+menu.hint_a_pic Configureer audiospeler en afbeeldingen
+menu.hint_aplay Audiospeler
+menu.hint_audio Audio output, DD\nSRS True volume opties
+menu.hint_audio_analog_mode Selecteer audio kanaal: \nstereo, mono-left, mono-right
+menu.hint_audio_avsync A/V synchronisatie 
+menu.hint_audio_dd Automatisch gebruik maken van DolbyDigital audio indien beschikbaar
+menu.hint_audio_hdmi_dd DolbyDigital via HDMI: Uit - decoded\nautomatisch indien het ondersteund is door het apparaat, forceer.
+menu.hint_audio_spdif_dd DolbyDigital via optische SPDIF aansluiting
+menu.hint_audio_srs SRS TruVolume volumebeheer springt\n bij content veranderingen
+menu.hint_audio_srs_algo Mate van controle, licht of normaal
+menu.hint_audio_srs_nmgr Noise manager
+menu.hint_audio_srs_volume Referentie volume om aan te houden.
+menu.hint_audio_volstep Volume +/- toetsen verhogen/verlagen stap
+menu.hint_audioplayer_defdir Standaard audiospeler directory
+menu.hint_audioplayer_follow Verplaats uw cursor naar huidige nummer in de afspeellijst
+menu.hint_audioplayer_highprio Verhoog afspeel prioriteit
+menu.hint_audioplayer_order Verander de sorteer order van de afspeellijst
+menu.hint_audioplayer_playlist Afspeellijst items weergeven
+menu.hint_audioplayer_repeat Herhaal modus inschakelen. Herhaal afspeellijst wanneer einde van de lijst bereikt is.
+menu.hint_audioplayer_sc_metadata Meta data van audio streams inschakelen
+menu.hint_audioplayer_screensaver Screensaver timeout instellen, in minuten
+menu.hint_audioplayer_title Kunnen zoeken in SMS-style in de afspeellijst
+menu.hint_auto_lang Automatisch de door u gewenste audiotaal selecteren
+menu.hint_auto_subs Automatisch de door u gewenste ondertitelingstaal selecteren
+menu.hint_back Keer terug naar het vorige menu\nDruk op de menu toets om alle menu's te sluiten.
+menu.hint_backup Backup maken van configuratie en kanalenlijst in de geselecteerde directory.
+menu.hint_bedit Bewerk favorieten en favorieten lijsten
+menu.hint_bigwindows Altijd groot EPG Detailvenster weergeven. Met de Info toets kunt u de weergave aanpassen.
+menu.hint_cache_txt Start teletekst gegevens tijdelijk opslaan (cache) na het schakelen van kanalen.
+menu.hint_cec_mode CEC mode
+menu.hint_cec_standby CEC stand-by
+menu.hint_cec_view_on CEC view ingeschakeld
+menu.hint_channellist_additional Extra informatie weergeven in hoofdvenster
+menu.hint_channellist_colored Gebruik andere kleur voor huidige of volgende programma
+menu.hint_channellist_epg_align EPG evenement uitlijnen
+menu.hint_channellist_extended Programma voortgang balk weergeven
+menu.hint_channellist_fonts Verander lettertype grote kanalenlijst
+menu.hint_channellist_foot Extra informatie weergeven in onderste venster
+menu.hint_channellist_setup Configureer kanalenlijst interface opties
+menu.hint_ci Conditional access menu\n voor het instellen van uw CI module of kaartlezer
+menu.hint_content_back Wijzig venster achtergrond kleur
+menu.hint_content_textcolor Wijzig venster tekst kleur
+menu.hint_contrast_fonts Lettertype contrast (Niet overgaan in achtergrond)
+menu.hint_dboxinfo Informatie over STB CPU en opslag
+menu.hint_delete_channels Verplaats alle kanalen
+menu.hint_epg_cache Maximum aantal dagen cachen voor toekomstige programma's
+menu.hint_epg_dir Selecteer directory op opslagmedium \nom EPG info op te slaan.
+menu.hint_epg_extendedcache Maximaal aantal uren om uitgebreide programma omschrijving te cachen.
+menu.hint_epg_fonts Wijzig lettertype grote EPG detail venster
+menu.hint_epg_max_events Maximum aantal programma's om te cachen.
+menu.hint_epg_old_events Het aantal uren na een programma \nvoordat deze wordt verwijderd uit het cache geheugen.
+menu.hint_epg_save Cached EPG informatie opslaan op opslagmedium \nen laad de informatie na het opstarten.
+menu.hint_epg_save_standby EPG opslaan in soft standby modus.
+menu.hint_event_textcolor Wijzig programma kleur voor gekleurde \nprogramma opties in kanalenlijst en infobalk.
+menu.hint_eventlist_fonts Wijzig lettertype grote in programma lijst
+menu.hint_extended Stroombesparing, EPG opslaan/laden opties \nHDMI-CEC, Startkanaal, Zap opties
+menu.hint_factory Fabrieksinstelling herstellen.\nUw ontvanger start zichzelf opnieuw op.
+menu.hint_fade Grafische fade overgang van vensters
+menu.hint_fan_speed Beheer ventilator snelheid
+menu.hint_filebrowser_denydirectoryleave Voorkom dat de verkenner de initiële directory verlaat.
+menu.hint_filebrowser_showrights Bestandsrechten weergeven in verkenner
+menu.hint_fileplay Verschillende video bestanden afspelen 
+menu.hint_filesystem_is_utf8 Bestandsverkenner bestandssysteem encoding
+menu.hint_font_gui Selecteer het algemene lettertype dat u wenst te gebruiken voor het gebruikersinterface
+menu.hint_font_scaling Globale verticale en horizontale font schaling instellen. 
+menu.hint_font_ttx Selecteer het lettertype dat u wenst te gebruiken voor teletekst.
+menu.hint_fonts Configureer lettertypes gebruikersinterface
+menu.hint_gamelist_fonts Wijzig lettertype games en scripts lijst
+menu.hint_games Lijst met geïnstalleerde games weergeven.
+menu.hint_hdd Formatteer / check harde schijf
+menu.hint_hdd_apply Slaap/Geluid parameters toepassen
+menu.hint_hdd_check Controleer bestandssysteem (file system check)
+menu.hint_hdd_format Creëer en formatteer HDD partitie
+menu.hint_hdd_noise Akoestische instellingen instellen\nniet alle hardeschijven ondersteunen dit.
+menu.hint_hdd_sleep Selecteer tijd voordat de HDD stopt bij inactiviteit.
+menu.hint_hdd_tools Initialiseren HDD, bestandssysteem controleren. 
+menu.hint_head_back Wijzig titel achtergrond kleur
+menu.hint_head_textcolor Wijzig venstertitel tekst kleur
+menu.hint_imageinfo Informatie over geïnstalleerde software
+menu.hint_inact_timer Ontvanger uitschakelen na inactiviteit
+menu.hint_inactive_back Wijzig achtergrond kleur van inactieve items
+menu.hint_inactive_textcolor Wijzig de tekst kleur van inactieve items
+menu.hint_inet_radio Internet radio
+menu.hint_info Informatie over firmware, ontvanger CPU,\nopslag en stream informatie
+menu.hint_infobar_back Wijzig achtergrond kleur van de infobalk
+menu.hint_infobar_casys Aan:  display all with colored active, mini: single\nlocked icon, descreet: all active ca-sys
+menu.hint_infobar_colored_event Gebruik andere kleur voor huidige programma en komende programma
+menu.hint_infobar_dd Dolbydigital icoon weergeven
+menu.hint_infobar_filesys Gebruikte schijfruimte van Flashgeheugen en HDD weergeven
+menu.hint_infobar_fonts Wijzig lettertype grote van de infobalk
+menu.hint_infobar_logo Logo / signaal opties
+menu.hint_infobar_logo_dir Selecteer folder om in te zoeken naar zenderlogo's
+menu.hint_infobar_on_epg Show Infobalk inschakelen bij veranderen van huidig EPG event
+menu.hint_infobar_progressbar Selecteer de opties van de voortgangsbalk in de infobalk
+menu.hint_infobar_radiotext Radio tekst venster weergeven
+menu.hint_infobar_res Kanaal resolutie iconen weergeven
+menu.hint_infobar_sat Huidige satelliet of kabel provider weergeven
+menu.hint_infobar_setup Configureer infobalk opties
+menu.hint_infobar_textcolor Wijzig tekst kleur van de infobalk
+menu.hint_infobar_tuner Actieve tuner icon weergeven 
+menu.hint_keep_numbers Behoud kanaalnummers na het uitvoeren van volgende scans
+menu.hint_key_addrecord  Knop toewijzen voor het toevoegen van een opname timer
+menu.hint_key_addremind Knop toewijzen voor het toevoegen van een zap timer
+menu.hint_key_audio Aan: 'audio' toets wordt gebruikt voor het weergeven van het audio afspeelmenu.\nUit: 'audio' toets wordt gebruikt voor het weergeven van de audio selectie.
+menu.hint_key_binding Herdefinieer het gebruik van toetsen voor algemene handelingen
+menu.hint_key_bouquetdown Knop toewijzen voor het schakelen naar de vorige favorietenlijst
+menu.hint_key_bouquetup Knop toewijzen voor het schakelen naar de volgende favorietenlijst
+menu.hint_key_cancel Knop toewijzen voor het sluiten van een geopend menu venster
+menu.hint_key_channel_sms Indien ingeschakeld worden de nummerieke toetsen gebruikt voor de invoer\nvan alfabetische tekens. U kunt zo gemakkelijk een kanaal zoeken in uw favorietenlijst. 
+menu.hint_key_channeldown Knop toewijzen om snel te schakelen \nnaar het vorige kanaal in de kanalenlijst
+menu.hint_key_channellist Configuur sneltoetsen voor de kanalenlijst
+menu.hint_key_channelup Knop toewijzen om snel te schakelen \nnaar het volgende kanaal in de kanalenlijst
+menu.hint_key_hardware Wijzig het type afstandsbediening
+menu.hint_key_history Knop toewijzen voor de weergave van de zap geschiedenis
+menu.hint_key_lastchannel Knop toewijzen om snel te zappen naar \nhet vorige kanaal in de zap geschiedenis
+menu.hint_key_left_exit De linker cursor toewijzen om het vorige menu te openen. 
+menu.hint_key_list_end Knop toewijzen om naar het einde van de lijst te gaan.
+menu.hint_key_list_start Knop toewijzen om naar het begin van de lijst te gaan.
+menu.hint_key_load Laad sneltoetsen backup
+menu.hint_key_modechange Wijzig TV/Radio mode en standby toetsen
+menu.hint_key_movieplayer Configureer sneltoetsen voor de Movie-Player
+menu.hint_key_mpaudio Knop toewijzen voor de weergave van audio selectie\ntijdens het afspelen van een opname.
+menu.hint_key_mpbookmark Knop toewijzen om een bladwijzer te plaatsen in een opname tijdens het afspelen hiervan.
+menu.hint_key_mppause Knop toewijzen om het afspelen van een opname te pauzeren
+menu.hint_key_mpplay Knop toewijzen om het afspelen van een opname te hervatten
+menu.hint_key_mpplugin Knop toewijzen om tijdens het afspelen van een opname \neen geselecteerde plugin te starten.
+menu.hint_key_mprewind Knop toewijzen voor het terugspoelen van een opname
+menu.hint_key_mpstop Knop toewijzen voor het stoppen van het afspelen/opnemen van een opname.
+menu.hint_key_mptime Knop toewijzen voor de weergave van de resterende afspeeltijd
+menu.hint_key_mptimeshift Knop toewijzen voor het starten van de timeshift functie
+menu.hint_key_pagedown Knop toewijzen voor de pagina weergave van het volgende item
+menu.hint_key_pageup Knop toewijzen voor de pagina weergaven van het vorige item
+menu.hint_key_poweroff Knop toewijzen om te schakelen tussen standby/deepstandby en ontvanger ingeschakeld.
+menu.hint_key_quickzap Configureer sneltoetsen voor \nhet snel schakelen tussen kanalen
+menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
+menu.hint_key_repeatblockgeneric Vertraging tussen het herhalen \nvan toets wanneer toets ingedrukt blijft.
+menu.hint_key_right Selecteer 'rechts' functie in live TV/Radio modus.
+menu.hint_key_save Sneltoetsen opslaan als backup bestand 
+menu.hint_key_screenshot Knop toewijzen voor het opslaan van gebruikers interface en/of TV screenshot.
+menu.hint_key_sort Knop toewijzen voor het veranderen van de sorteer orde van uw kanalenlijst
+menu.hint_key_subchanneldown Knop toewijzen om snel te \nschakelen naar het vorige subkanaal
+menu.hint_key_subchannelup Knop toewijzen om snel te \nschakelen naar het volgende subkanaal
+menu.hint_key_transponder Knop toewijzen voor de weergave van\n de kanalenlijst op de huidige transponder
+menu.hint_key_tvradiomode Knop toewijzen voor het schakelen tussen Radio en TV
+menu.hint_key_unlock Knop toewijzen voor het ontgrendelen van de ontvanger.\nOm te ontgrendelen drukt u eerst op de rode toets \ngevolgd door de door u gedefinieerde toets (binnen 5 seconden).
+menu.hint_keys Afstandsbediening herhaal ratio \nbewerk sneltoetsen
+menu.hint_lang_pref Selecteer de door u gewenste \naudio, EPG en ondertitelingstaal.
+menu.hint_language OSD taal, tijdzone \n Voorkeurs audio en ondertitelingstaal 
+menu.hint_last_radio Start de ontvanger op het door u geselecteerde \nradio kanaal indien deze voor het laatst in radio \nmodus is gebruikt.
+menu.hint_last_tv Start de ontvanger op het door u geselecteerde \nTV kanaal indien deze voor het laatst in TV \nmodus is gebruikt.
+menu.hint_last_use Start de ontvanger op het laatst bekeken kanaal
+menu.hint_leds_blink LEDS knipperen in deep-standby
+menu.hint_leds_deepstandby LEDs status in deeps-standby mode
+menu.hint_leds_record LEDs status wanneer een opname gemaakt wordt
+menu.hint_leds_standby LEDs status in soft-standby mode
+menu.hint_leds_tv LEDs status indien de ontvanger in werking is
+menu.hint_load Laad Neutrino-HD gebruikersinterface \ninstellingen van back-up bestand
+menu.hint_make_hdlist Automatisch HD kanalenlijst maken \ngebaseerd op kanaaltype en naam
+menu.hint_make_newlist Kanalenlijst aanmaken met recent toegevoegde kanalen
+menu.hint_make_removedlist Kanalenlijst aanmaken met recent verwijderde kanalen
+menu.hint_manage_settings Backup, Herstel, Fabrieksinstellingen 
+menu.hint_mb Uw opnames
+menu.hint_media Films, audio bestanden afspelen of afbeeldingen weergeven
+menu.hint_menu_fonts Lettertype grote van menu's aanpassen
+menu.hint_menu_hints Hints weergeven Show this hints. U kunt tevens gebruik maken van de 'help' toets.
+menu.hint_misc_cec HDMI-CEC Opties
+menu.hint_misc_channellist HD/Nieuw/Verwijderde kanalen lijst \nZap cyclus
+menu.hint_misc_energy Softstandby, uitgesteld uitschakelen en inactiviteit timers inschakelen
+menu.hint_misc_epg Opslaan/laden EPG opties, EPG cache opties\n EPG opslag directory
+menu.hint_misc_filebrowser Bestandssysteem codering, bestandsrechten
+menu.hint_misc_general Opstarten in standby, teletekst cache, swp motor \nplugin, HDD directory
+menu.hint_misc_zapit Initiële TV/Radio kanalen
+menu.hint_movie Films afspelen
+menu.hint_net_broadcast Voer het IP broadcast adres in.
+menu.hint_net_dhcp Gebruik DHCP server om automatisch te configureren
+menu.hint_net_djmount Koppel UPnP apparaten onder /media/00upnp
+menu.hint_net_ftpd Bestandsoverdracht via FTP inschakelen
+menu.hint_net_gateway Gateway/router IP adres invoeren
+menu.hint_net_hostname Wijzig de hostnaam van uw ontvanger
+menu.hint_net_if Selecteer interface om te configureren
+menu.hint_net_ipaddress Voer het IP adres van uw ontvanger in.
+menu.hint_net_mount Configureer, koppel of ontkoppel gedeelde netwerklocaties\n NFS en CIFS ondersteund.
+menu.hint_net_nameserver Voer naamserver in (DNS) IP adres
+menu.hint_net_netmask Voer netwerkmasker in.\n Indien u het niet weet gebruikt u\n255.255.255.0
+menu.hint_net_nfs_mount Configureer en koppel netwerklocaties
+menu.hint_net_nfs_umount Ontkoppel netwerklocaties
+menu.hint_net_ntp Configureer tijd synchronisatie
+menu.hint_net_ntpenable Tijd synchronisatie inschakelen (NTP protocol) \nIndien NTP synchronisatie niet succesvol is zal DVB worden gebruikt.
+menu.hint_net_ntprefresh Tijd synchronisatie interval
+menu.hint_net_ntpserver NTP servernaam invoeren
+menu.hint_net_pass Wachtwoord invoeren (WPA-PSK)
+menu.hint_net_proxy Configureer hier uw proxy server indien u hier gebruik van maakt.
+menu.hint_net_proxypass Proxy wachtwoord\n(indien autorisatie vereist is)
+menu.hint_net_proxyserver Proxy servernaam
+menu.hint_net_proxyuser Proxy gebruikersnaam\n(indien autorisatie vereist is)
+menu.hint_net_services Configureer netwerkdiensten\n(Telnet, FTP, uPNP)
+menu.hint_net_setupnow Huidige instellingen toepassen
+menu.hint_net_setuponstartup Start netwerk tijdens het opstarten
+menu.hint_net_show Huidige netwerk instellingen weergeven
+menu.hint_net_ssid SSID van draadloos netwerk waarmee u \nverbinding wilt maken invoeren
+menu.hint_net_telnet Telnet login op uw ontvanger inschakelen
+menu.hint_net_test Test netwerk verbinding: Ping gateway,\nnaamserver en extern IP adres
+menu.hint_net_ushare Deel verbonden opslagmedium via uPnP
+menu.hint_network IP adres, gateway, DNS, Tijd synchronisatie\nNetwerklocaties en services
+menu.hint_new_zap_mode Schakelen van kanalen toestaan tijdens het browsen.\n(Schakelen tussen vensters met de 'Mute' toets)
+menu.hint_osd Kleuren, Lettertypes, scherm afmeting\ngebruikersinterface vormgeving
+menu.hint_osd_language Selecteer OSD taal
+menu.hint_osd_preset Voorgedefinieerde scherm marges voor CRT en LCD TV
+menu.hint_parentallock_changepin Verander PIN code
+menu.hint_parentallock_lockage Selecteer toegestane kijk leeftijd
+menu.hint_parentallock_prompt Instellen wanneer de pincode ingevoerd dient te worden
+menu.hint_personalize Inschakelen, Uitschakelen of bescherm menu items\n Configureer gekleurde toetsen per gebruikersmenu
+menu.hint_pictureviewer_defdir Standaard afbeeldingen map
+menu.hint_pictureviewer_scaling Afbeeldingen schaal algoritme
+menu.hint_pictureviewer_slide_time Slideshow interval, in seconden
+menu.hint_picview Bekijk afbeeldingen
+menu.hint_plugins_hdd_dir Selecteer plugin directory
+menu.hint_power_leds Configureer LED power-button
+menu.hint_pref_lang Selecteer de gewenste audio en EPG taal.\nSelecteer 'geen' om geen voorkeurstaal in te stellen.
+menu.hint_pref_subs Selecteer de gewenste ondertitelingstaal.\nSelecteer 'geen' om geen voorkeurstaal in te stellen.
+menu.hint_progressbar_color Gekleurde voortgangsbalken weergeven
+menu.hint_protection Bescherm content met een pincode\nDe standaard pincode is 0000.
+menu.hint_radiomode Schakel de ontvanger in radio modus.
+menu.hint_reboot Herstart de ontvanger \n zonder bevestiging.
+menu.hint_record_apid_ac3 AC3 audio PIDS opnemen
+menu.hint_record_apid_alt Alternatieve (niet AC3) audio PIDS opnemen
+menu.hint_record_apid_std Eerste audio PID opnemen
+menu.hint_record_apids Configureer de op te nemen audio pids
+menu.hint_record_apply Opname opties toepassen
+menu.hint_record_chandir Creeer map met de naam van \nhet op te nemen kanaal om de opname in op te slaan
+menu.hint_record_dir Selecteer map waarin opnames opgeslagen worden
+menu.hint_record_end Stop directe opnames na een bepaalde (max.) tijd \nof aan het einde van het huidige programma.
+menu.hint_record_slow_warn Waarschuwing weergeven wanneer opname buffer dichtbij overloop is.
+menu.hint_record_tdir Selecteer map waarin tijdelijke timeshift opnames worden opgeslagen.
+menu.hint_record_time Resterende opname tijd voordat de opname\nstopt tijdens het maken van een directe opname
+menu.hint_record_timeafter Aantal minuten dat de opname doorloopt na het einde van het programma
+menu.hint_record_timebefore Aantal minuten dat opgenomen wordt \nvoor het op te nemen programma begint
+menu.hint_record_timer Configureer opname timer opties
+menu.hint_record_timeshift Configureer timeshift opties
+menu.hint_record_timeshift_auto Automatisch timeshift starten na het schakelen tussen kanalen, in seconden
+menu.hint_record_timeshift_delete Verwijder alle timeshift opnames na het stoppen van Timeshift.
+menu.hint_record_timeshift_pause Timeshift starten zodra live uitzendingen gepauzeerd worden
+menu.hint_record_timeshift_temp Indien uitgeschakeld, start timeshift \nals een willekeurige directe opname
+menu.hint_record_zap Schakel naar het op te nemen kanaal bij de opname melding
+menu.hint_record_zap_pre_time Een aantal minuten voor een ingestelde zaptimer naar het kanaal schakelen. 
+menu.hint_recording Opname en timeshift opties \n Timers beveiliging, audio PIDS opties
+menu.hint_reload_channels Herlaad kanalen vanaf flashgeheugen
+menu.hint_reload_plugins Herlaad plugins vanaf flashgeheugen
+menu.hint_reset Reset gebruikersinterface naar standaard instellingen\n Tuner configuratie en kanalen worden niet beïnvloed.
+menu.hint_restore Herstel geselecteerde back-up
+menu.hint_rotor_swap Draai motor oost/west
+menu.hint_rounded_corners Teken ronde of vierkante vensterhoeken
+menu.hint_save_settings Alle instellingen opslaan op flashgeheugen
+menu.hint_saveas Gebruikersinterface instellingen opslaan
+menu.hint_scan_auto Auto-scan geselecteerde provider
+menu.hint_scan_autoall Scan verschillende geselecteerde providers tegelijkertijd 
+menu.hint_scan_autoall_select Satellieten toevoegen om te scannen
+menu.hint_scan_bouquet Selecteer wat u wenst te doen met de huidige favorieten lijsten.
+menu.hint_scan_cable Selecteer het kabel netwerk dat u wenst te scannen
+menu.hint_scan_cable_simple Kabel scan met optionele \nzender programmering
+menu.hint_scan_commited Selecteer commited input voor\ndeze satelliet
+menu.hint_scan_diseqc Selecteer DiSEqC switch input voor\ndeze satelliet
+menu.hint_scan_diseqcrepeat DiSEqC herhalen voor cascade switches
+menu.hint_scan_diseqctype Selecteer uw DiSEqC switch protocol\nmet 'geavanceerd' kunt u uncommited switches gebruiken
+menu.hint_scan_fast CanalDigitaal/TÃ©lÃ©SAT/TV Vlaanderen provider scan\nWaarschuwing: diseqc instellingen worden overschreven.
+menu.hint_scan_fastprov Selecteer uw provider
+menu.hint_scan_fasttype Selecteer het type Fastscan
+menu.hint_scan_fec Selecteer transponder FEC
+menu.hint_scan_femode Selecteer tweede tuner aansluiting type
+menu.hint_scan_fesetup Configureer tuner(s)
+menu.hint_scan_fetimeout Wachten op signaal, in 1/10 of seconden
+menu.hint_scan_freq Transponder frequentie invoeren
+menu.hint_scan_fta Alleen vrij te ontvangen kanalen toevoegen
+menu.hint_scan_ladirection Selecteer Breedtegraad (latitude)
+menu.hint_scan_latitude Breedtegraad (latitude) invoeren
+menu.hint_scan_lnbconfig Configureer LNB parameters voor deze satelliet
+menu.hint_scan_lodirection Selecteer Lengtegraad (longtitude)
+menu.hint_scan_lofh High banb LNB frequentie
+menu.hint_scan_lofl Low band LNB frequentie
+menu.hint_scan_lofs Band switch LNB frequentie
+menu.hint_scan_logical Gebruik de zender nummering van de provider
+menu.hint_scan_logical_hd Indien een kanaal zowel in SD als HD uitgezonden wordt \nplaats het HD kanaal boven in de lijst
+menu.hint_scan_manual Handmatige transponder scan gebruik \nde geselecteerde parameters
+menu.hint_scan_mod Selecteer transponder modulatie
+menu.hint_scan_motor_18v Gebruik 18V voor het draaien van de DiSEqC motor
+menu.hint_scan_motor_speed Draaisnelheid van de motor \nin 1/10 graden per seconde
+menu.hint_scan_motorpos Selecteer opgeslagen positie \nvoor deze satelliet
+menu.hint_scan_nid Netwerk ID invoeren 
+menu.hint_scan_nit Transpoders toevoegen via netwerk informatie
+menu.hint_scan_pids Scan en opslaan audio/video/PMT PIDs
+menu.hint_scan_pol Selecteer transponder polarisatie
+menu.hint_scan_rate Transponder symbol ratio invoeren
+menu.hint_scan_reset_numbers Bestaande kanaalnummers opnieuw instellen. Opnieuw kanaalnummers toewijzen na scan.
+menu.hint_scan_satadd Nieuwe satellieten toevoegen
+menu.hint_scan_satellite Selecteer satelliet die u wenst te scannen
+menu.hint_scan_satenable Satelliet inschakelen
+menu.hint_scan_satfind Satelliet zoeker: Handmatig motor draaien naar opgeslagen posities.
+menu.hint_scan_satfind_start Start met het zoeken naar satellieten
+menu.hint_scan_satscan Scan geselecteerde satelliet
+menu.hint_scan_satselect Selecteer satelliet
+menu.hint_scan_satsetup Configureer satelliet opties
+menu.hint_scan_savesettings Tuner configuratie en scan instellingen opslaan.\nOok opgeslagen indien u een service scan start.
+menu.hint_scan_scantype Selecteer, welke kanaal types u wenst te scannen
+menu.hint_scan_setup_fe Configureer geselecteerde frontend opties
+menu.hint_scan_start Start scan. U kunt de 'exit' toets gebruiken om te stoppen.
+menu.hint_scan_test Test signaal voor deze transponder
+menu.hint_scan_tpselect Selecteer de transponder die u wenst te scannen
+menu.hint_scan_uncommited Selecteer uncommited input voor\ndeze satelliet
+menu.hint_scan_usals_repeat Herhaal USALS draai motor command indien uw motor onstabiel draait.
+menu.hint_scan_usalsall Set/unset usals vlag voor alle satellieten
+menu.hint_scan_useusals Gebruik USALS voor\ndeze satelliet
+menu.hint_scrambled_message 'Gecodeerd' melding weergeven indien kanaal niet gedecodeerd kan worden
+menu.hint_screen_setup Configureer marges van het scherm
+menu.hint_screenshot_count Wanneer er geen gebruikersinterface op \nhet scherm is kunt u 1-5 screenshots opslaan.
+menu.hint_screenshot_cover Aan: Tijdens het maken van een opname kunt u \neen screenshot maken om weer te geven in de moviebrowser
+menu.hint_screenshot_dir Selecteer map waarin screenshots opgeslagen worden
+menu.hint_screenshot_format Bestandsformaat waarin screenshots worden gemaakt
+menu.hint_screenshot_res Screenshot afmeting: Afmeting van huidig video kanaal\nof OSD afmeting (1280 x 720) 
+menu.hint_screenshot_scale Voor video+OSD screenshots, schaal naar video afmeting
+menu.hint_screenshot_setup Configureer screenshots opties
+menu.hint_screenshot_video Live video invoegen in screenshot
+menu.hint_scripts Scripts uitvoeren
+menu.hint_selected_back Wijzig achtergrond kleur van het geselecteerde item
+menu.hint_selected_text Wijzig test kleur van het geselecteerde item
+menu.hint_service Tuner instellingen, service scan,\nfavorietenlijst editor, software update
+menu.hint_service_scan Tuner instellingen, service scan
+menu.hint_settings Configureer Neutrino-HD\nNetwerk, audio, video, OSD en meer
+menu.hint_show_mute_icon Mute icoon weergeven wanneer volume op 0 staat.
+menu.hint_shutdown Schakel uw ontvanger in deep standby modus\n geen bevestiging
+menu.hint_shutdown_count Tijd voordat uw ontvanger in deepstand-by schakelt vanuit soft-standby modus
+menu.hint_shutdown_rcdelay Deep standby modus inschakelen wanneer de power toets meer dan 1 seconden ingedrukt wordt.
+menu.hint_shutdown_real Soft-standby inschakelen indien soft-standby is \nuitgeschakeld schakelt de ontvanger gelijk in deep standby
+menu.hint_sleeptimer Timer instellen om uw ontvanger in slaapstand te schakelen
+menu.hint_soft_restart Herstart Neutrino-HD zonder reboot
+menu.hint_softupdate_check Controleer online voor updates, download en installeer deze.
+menu.hint_softupdate_check_local Selecteer en installeer firmware vanaf een lokaal bestand
+menu.hint_softupdate_expert Verdeel partities van het flash geheugen\n en lees/schrijf op het flash geheugen.
+menu.hint_softupdate_expert_read Verdeel partitie's (U-Boot, Splash, Kernel, SystemFS) voor het lezen van flashgeheugen
+menu.hint_softupdate_expert_write Verdeel partitie's (Splash, Kernel, SystemFS) voor het schrijven op het flashgeheugen
+menu.hint_softupdate_settings De lokale update directory en configuratie bestand is ingesteld
+menu.hint_start_tostandby Schakel in standby mode na het herstarten 
+menu.hint_streaminfo Informatie huidig kanaal: pids, signaal and noise ratio\nBitratio grafieken
+menu.hint_subchannel_pos Selecteer menu positie van subkanalen
+menu.hint_sw_update Update software
+menu.hint_theme Select voorgedefinieerde thema\n Opslaan of laad thema van bestand
+menu.hint_timeouts Verberg gebruikers interface na bepaald aantal seconden.
+menu.hint_timers Toevoegen/Verplaats/Bewerk \ngeplande opnames of timers etc. 
+menu.hint_timezone Selecteer uw tijdzone
+menu.hint_tvmode Schakel ontvanger in TV modus
+menu.hint_tvradio_switch Schakelen tussen TV en Radio modus
+menu.hint_vfd Voorpaneel LEDS, VFD opties
+menu.hint_vfd_brightness Helderheid in gebruik
+menu.hint_vfd_brightness_setup Configureer helderheid van het display
+menu.hint_vfd_brightnessdeepstandby Helderheid in deep-standby modus
+menu.hint_vfd_brightnessdim Automatisch helderheid dimmen
+menu.hint_vfd_brightnessstandby Helderheid in soft-standby modus
+menu.hint_vfd_defaults Herstel standaard waarden helderheid
+menu.hint_vfd_dimtime Automatisch helderheid dimmen na bepaald aantal seconden
+menu.hint_vfd_infoline Selecteer hetgeen wordt weergegeven in de hoofd VFD lijn
+menu.hint_vfd_statusline Selecteer wat wordt weergegeven in de VFD status lijn
+menu.hint_video Video uitgang, resolutie, formaat\nAspect ratio, fast mode switch opties
+menu.hint_video_43mode Weergave modus voor 4:3 content\nop 16:9 TV
+menu.hint_video_analog_mode Selecteer analoge output modus\nvoor SCART en CINCH aansluiting(en)
+menu.hint_video_cinch_mode Selecteer analoge output modus voor\ncomposiet video uitgang
+menu.hint_video_dbdr MPEG2 enhancement filters
+menu.hint_video_format TV aspect ratio
+menu.hint_video_mode HDMI output video modus
+menu.hint_video_modes VF toets schakelt tussen de ingeschakelde opties
+menu.hint_video_scart_mode Selecteer analog output modus voor SCART aansluiting(en)
+menu.hint_volume_digits Numerieke weergave van de volume balk aan/uit
+menu.hint_volume_pos Selecteer positie volume indicator
+menu.hint_zap_cycle Tijdens het schakelen tussen kanalen in huidige favorieten lijst
+menu.next Volgende (Druk op menu om af te sluiten)
+messagebox.back Terug
+messagebox.cancel Annuleer 
+messagebox.discard Wijzigingen ongedaan maken?
+messagebox.error Foutmelding
 messagebox.info Informatie
 messagebox.no Nee
+messagebox.ok Ok
 messagebox.yes Ja
 miscsettings.channellist Kanalenlijst
-miscsettings.channellist_epgtext_align Huidige uitzending tonen
-miscsettings.epg_cache EPG cache (Dagen)
-miscsettings.epg_extendedcache Beschrijvingen behouden (Uren)
-miscsettings.epg_old_events EPG verwijderen na (Uren)
-miscsettings.epg_max_events Max. events
+miscsettings.channellist_colored_events Gekleurde programma's
+miscsettings.channellist_epgtext_align Uitlijning programma tekst
+miscsettings.colored_events_0 Geen
+miscsettings.colored_events_1 Huidige
+miscsettings.colored_events_2 Straks
+miscsettings.energy Energie
+miscsettings.epg_cache EPG-Cache (Dagen)
+miscsettings.epg_cache_hint1 Hoe ver in de toekomst wordt EPG informatie bewaard.
+miscsettings.epg_cache_hint2 Instellen in dagen.
+miscsettings.epg_dir EPG pad opslaan
+miscsettings.epg_extendedcache EPG Lange omschrijving (uren)
+miscsettings.epg_extendedcache_hint1 Hoe ver in de toekomst worden uitgebreide
+miscsettings.epg_extendedcache_hint2 EPG omschrijvingen bewaard (Instellen in uren)
+miscsettings.epg_head EPG
+miscsettings.epg_max_events Max. programma's
+miscsettings.epg_max_events_hint1 Hoeveel programma's moeten worden opgeslagen?
+miscsettings.epg_max_events_hint2 normaal 6000, 0 om geen limiet in te stellen.
+miscsettings.epg_old_events Verwijder EPG informatie na (std.)
+miscsettings.epg_old_events_hint1 Hoe lang wordt EPG informatie bewaard na time-out?
+miscsettings.epg_old_events_hint2 In uren instellen
+miscsettings.epg_save EPG opslaan / herstellen na herstart
+miscsettings.epg_save_standby EPG opslaan in soft standby
 miscsettings.general Algemeen
 miscsettings.head Diverse instellingen
-miscsettings.infobar_sat_display Satelliet display op infobar
-miscsettings.shutdown_count Geheel uitschakelen na
-miscsettings.shutdown_real Schakel standby in
-miscsettings.shutdown_real_rcdelay Vertraagde shutdown
-miscsettings.startbhdriver laad BH-Mode drivers
-motorcontrol.head Motor-Setup
-movieplayer.bookmark Bookmarks
-movieplayer.bookmarkname Bookmarknaam
-movieplayer.bookmarkname_hint1 Geef een naam in voor je nieuwe bookmark
-movieplayer.bookmarkname_hint2 
-movieplayer.fileplayback File via VLC
-movieplayer.head Filmspeler
-movieplayer.toomanybookmarks Er zijn teveel bookmarks.\nWis er eerst een van.
-movieplayer.tsplayback Speel TS
-networkmenu.broadcast Broadcast
-networkmenu.dhcp DHCP
-networkmenu.gateway default gateway
-networkmenu.ipaddress IP adres
-networkmenu.mount NFS/CIFS
-networkmenu.nameserver server naam
-networkmenu.netmask netmask
-networkmenu.ntpenable Synchroniseren van tijd via internet
-networkmenu.ntprefresh NTP/ DVB-verversen na (sek.)
-networkmenu.ntprefresh_hint1 NTP/ DVB-time-sync in minuten
-networkmenu.ntprefresh_hint2 EPG-Reset of reboot benodigd
-networkmenu.ntpserver NTP-Server (Time-server)
-networkmenu.ntpserver_hint1 NTP-server Bijvoorbeeld: ntp1.ptb.de
-networkmenu.ntpserver_hint2 EPG-Reset of reboot benodigd
-networkmenu.ntptitle Tijd-syncronisatie
-networkmenu.setupnow netwerk veranderingen uitvoeren
-networkmenu.setuponstartup netwerk bij startup
-networkmenu.show Toon actief netwerk instellingen
-networkmenu.test test netwerk nu
-nfs.alreadymounted directory reeds gemounted
-nfs.automount mount bij startup
-nfs.dir directory/share
-nfs.ip NFS/CIFS Server IP
-nfs.localdir local dir
-nfs.mount Mount NFS/CIFS volume
-nfs.mount_options mount opties
-nfs.mounterror mount fout
-nfs.mounterror_notsup filesysteem type niet ondersteund
-nfs.mountnow mount nu
-nfs.mounttimeout mount fout: timeout
-nfs.password CIFS paswoord
-nfs.remount remount directories
-nfs.type type
-nfs.type_cifs CIFS
-nfs.type_nfs NFS
-nfs.umount Unmount NFS/CIFS volume
-nfs.umounterror unmounting volume fout
-nfs.username CIFS gebruikersnaam
-nfsmenu.head NFS/CIFS instellingen
-nvod.percentage (%d%% over)
-nvod.starting (start in %d min)
-nvodselector.directormode Director-Mode
-nvodselector.head Selecteer start-tijd
-nvodselector.subservice Selecteer Subservice
-options.default Reset naar defaults
-options.fb framebuffer
-options.null nul
-options.off uit
-options.on aan
-options.serial serieel
-parentallock.changepin verander PIN code
-parentallock.changepin_hint1 Geef de nieuwe jeugd-bescherm pin code hier in!
-parentallock.changetolocked bij gesloten bouquets
-parentallock.head Geef Lock PIN code in
-parentallock.lockage gesloten programma's
-parentallock.lockage12 tot aan 12 jaar
-parentallock.lockage16 tot aan 16 jaar
-parentallock.lockage18 tot aan 18 jaar
-parentallock.lockedchannel gelockt kanaal...
-parentallock.lockedprogram GeLockt programma (tot aan %d jaar)
-parentallock.never nooit
-parentallock.onsignal bij uitgezending lock
-parentallock.parentallock Jeugd bescherming
-parentallock.prompt prompt voor PIN
-pictureviewer.defdir start dir.
-pictureviewer.head Viewer
-pictureviewer.resize.color_average gemiddeld
-pictureviewer.resize.none niet
-pictureviewer.resize.simple eenvoudig
-pictureviewer.scaling scaling
-pictureviewer.show Tonen
-pictureviewer.slide_time speelduur van diashow
-pictureviewer.slideshow diashow
-pictureviewer.sortorder verander sorteer volgorde
-pictureviewer.sortorder.date datum
-pictureviewer.sortorder.filename bestandsnaam
-ping.ok is bereikbaar (ping)
-ping.protocol is onbereikbaar (host of protocol fout)
-ping.socket is onbereikbaar (socket fout)
-ping.unreachable is onbereikbaar
-pinprotection.head Geef PIN code in
-pinprotection.wrongcode PIN-Code was verkeerd! Probeer opnieuw.
-rclock.lockmsg Je A-fstand B-ediening is vergrendeld.\nOm je A-B te ontgrendelen, druk <ROOD> en <MENU>\nop je A-fstand B-ediening.
-rclock.menueadd Vergrendel A-B 
-rclock.title Vergrendel Afstand Bediening
-rclock.unlockmsg A-fstand B-ediening gereactiveerd.
-recordingmenu.defdir Opname opslaan in
-recordingmenu.file direct (file)
-recordingmenu.help Recording devices:\n--------------------------\nserver:\ngebruik stream software op een PC\n\n(analoog) vcr:\ngebruik de vcr uitgang\n\ndirect (file):\ndirect in een NFS mounted directory\nof op een interne hard disk\nTS: gebruik spts mode(dbox2)\nPES: niet spts mode(dbox2) gebruiken\n\n\nMax. file grootte:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: bijna ongelimiteerd (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
-recordingmenu.off uit
-recordingmenu.server server
-recordingmenu.server_mac MAC adres
-recordingmenu.setupnow activeer veranderingen nu
-recordingmenu.tsdir TS opslaan in
-recordingmenu.vcr vcr
-recordtimer.announce Opname start over enkele minuten
-reset_channels Wis alle kanalen
-reset_settings Terug naar fabrieksinstellingen
-repeatblocker.hint_1 Kortste tijd (in ms) tussen 2 toets aanslagen
-repeatblocker.hint_2 0 schakeld de blocker uit (rood is space)
-satsetup.diseqc DiSEqC
-satsetup.diseqc10 DiSEqC 1.0
-satsetup.diseqc11 DiSEqC 1.1
-satsetup.diseqc12 DiSEqC 1.2
-satsetup.diseqcrepeat DiSEqC-herhalingen
-satsetup.extended DiSEqC-Instellingen
-satsetup.extended_motor Motor-Instellingen
-satsetup.auto_scan Automatisch scannen
-satsetup.auto_scan_all Alle satellieten automatisch scannen
-satsetup.manual_scan Handmatig scannen
-satsetup.minidiseqc Mini-DiSEqC
-satsetup.nodiseqc geen DiSEqC
-satsetup.satellite Satelliet
-satsetup.smatvremote SMATV Remote Tuning
-scants.actcable Kabel:
-scants.actsatellite Satelliet:
-scants.bouquet Bouquet
-scants.bouquet_create creeer nieuw
-scants.bouquet_erase wissen
-scants.bouquet_leave niet veranderen
-scants.bouquet_satellite Satelliet-Bouquet
-scants.bouquet_update update
-scants.channel kanaal:
-scants.failed Transponderscan mislukt!
-scants.finished Transponderscan succesvol beeindigd!
-scants.freqdata Frequentie:
-scants.head Scan transponder
-scants.numberofdataservices Data
-scants.numberofradioservices Radio
-scants.numberoftotalservices Totaal
-scants.numberoftvservices TV
-scants.provider Provider:
-scants.startnow start scan
-scants.transponders Transponders:
-screensetup.lowerright groen = rechts onder instellen
-screensetup.upperleft rood = links boven instellen
-servicemenu.head Onderhoud
-servicemenu.reload lees kanaallijst opnieuw in
-servicemenu.reload_hint Lees kanaallijst opnieuw in,\ngeduld aub.
-servicemenu.scants Kanalen zoeken
-servicemenu.update Software Update
-settings.help Help
-settings.missingoptionsconffile De neutrino-instellingen zijn geupdated.\nNieuwe opties worden op default gezet.
-settings.noconffile Geen neutrino-instellingen gevonden.\nGebruik default.
-shutdowntimer.announce Box gaat shutdown over 1 min.\nShutdown afbreken?
-sleeptimerbox.announce Sleeptimer over 1 min
-sleeptimerbox.hint1 Shutdown tijd in min. (000=uit)
-sleeptimerbox.hint2 De ruDbox gaat shutdown na deze tijd.
-sleeptimerbox.title Sleeptimer
-streaminfo.aratio verhouding
-streaminfo.aratio_unknown verhoudig: onbekend
-streaminfo.audiotype Audiotype
-streaminfo.bitrate Bitrate
-streaminfo.framerate Framerate
-streaminfo.framerate_unknown Framerate: onbekend
-streaminfo.head Stream-Informatie
-streaminfo.not_available niet beschikbaar
-streaminfo.resolution Resolutie
-streaminfo.signal Ontvangst signaal
-streaming.busy Een of meerdere opneem processen zijn aktief.\nAls je dit bericht krijgt en geen opname is aktief,\nherstart Neutrino aub.
-streaming.dir_not_writable De opneem directory is niet beschrijfbaar.\nOpname zal niet gaan.
-streaming.write_error De opname was afgebroken,\nomdat er een fout optrad gedurende het schrijven.
-stringinput.caps Hoofd- / kleine letters
-stringinput.clear alles schoonmaken
-timer.eventrecord.msg   ... DOEN, of LATEN
-timer.eventrecord.title Markeer uitzending
-timer.eventtimed.msg De uitzending is gemarkeerd.\nDe ruDbox zal aan gaan en\nnaar dit kanaal schakelen op de aangegeven tijd.
-timer.eventtimed.title Uitzending markeren
-timerbar.channelswitch markeren
-timerbar.recordevent Opnemen
-timerlist.alarmtime Alarm tijd
-timerlist.apids Audio PIDs
-timerlist.bouquetselect kies bouquet
-timerlist.channel Kanaal
-timerlist.channelselect kies kanaal
-timerlist.delete Wis
-timerlist.menumodify Pas timer aan
-timerlist.menunew Nieuwe timer
-timerlist.message Bericht
-timerlist.moderadio Radio kanalen
-timerlist.modeselect Mode kiezen
-timerlist.modetv TV kanalen
-timerlist.modify Pas aan
-timerlist.name Timer lijst
-timerlist.new Nieuwe timer
-timerlist.program.unknown Onbekend programma
-timerlist.reload Herladen
-timerlist.repeat Herhaal
-timerlist.repeat.biweekly twee wekelijks
-timerlist.repeat.byeventdescription zie timer
-timerlist.repeat.daily dagelijks
-timerlist.repeat.fourweekly vier wekelijks
-timerlist.repeat.friday Vrij
-timerlist.repeat.monday Maan
-timerlist.repeat.monthly maandelijks
-timerlist.repeat.once eens
-timerlist.repeat.saturday Zat
-timerlist.repeat.sunday Zon
-timerlist.repeat.thursday Don
-timerlist.repeat.tuesday Dins
-timerlist.repeat.unknown onbekend
-timerlist.repeat.wednesday Woens
-timerlist.repeat.weekdays door de week
-timerlist.repeat.weekly wekelijks
-timerlist.save Save timer
-timerlist.standby SB mode
-timerlist.standby.off Leave standby
-timerlist.standby.on Enter standby
-timerlist.stoptime Stop tijd
-timerlist.type Timer type
-timerlist.type.nextprogram volgend programma
-timerlist.type.record Neemop
-timerlist.type.remind Herinner
-timerlist.type.shutdown Shutdown
-timerlist.type.sleeptimer Sleeptimer
-timerlist.type.standby Standby
-timerlist.type.unknown Onbekend
-timerlist.type.zapto Zap naar
-timerlist.weekdays Dagen van de week
-timerlist.weekdays.hint_1 Maan Dins Woens Don Vrij Zat Zon
-timerlist.weekdays.hint_2 'X'=timer '-' geen timer
-timersettings.record_safety_time_after Opname stop tijd correctie
-timersettings.record_safety_time_after.hint_1 Correctie tijd in min. (00=uit). Deze tijd
-timersettings.record_safety_time_after.hint_2 word opgeteld bij de stop tijd van elke opname timer.
-timersettings.record_safety_time_before Opname start tijd correctie
-timersettings.record_safety_time_before.hint_1 Correctie tijd in min. (00=uit). Deze tijd
-timersettings.record_safety_time_before.hint_2 word afgetrokken van elke opname timer.
-timersettings.separator Timer instellingen
-timing.chanlist Kanaallijst
-timing.epg Epg
-timing.filebrowser Filebrowser
-timing.head OSD Timeouts
-timing.hint_1 Tijd in sec. Na deze tijd zal de
-timing.hint_2 infobar wegfaden.
-timing.infobar Infobar
-timing.menu Menu
-timing.numericzap Nummer Zap
-usermenu.button_blue Gebruikersmenu 'blauw'
-usermenu.button_green Gebruikersmenu 'groen'
-usermenu.button_red Gebruikersmenu 'rood'
-usermenu.button_yellow Gebruikersmenu 'geel'
-usermenu.head Gebruikersmenu
-usermenu.item_bar ---- Scheiding ----
-usermenu.item_epg_misc EPG funkties
-usermenu.item_none 
-usermenu.item_vtxt Teletext
-usermenu.name Naam
-video_mode_ok Video-instellingen ok ?
-videomenu.43mode 4:3 beeldverhouding
-videomenu.analog_hd_rgb RGB (HD)
-videomenu.analog_hd_yprpb_cinch YPbPr -> Cinch (HD)
-videomenu.analog_hd_yprpb_scart YPbPr -> Scart (HD)
-videomenu.analog_mode Videomode
-videomenu.analog_sd_rgb RGB (SD)
-videomenu.analog_sd_yprpb_cinch YPbPr -> Cinch (SD)
-videomenu.analog_sd_yprpb_scart YPbPr -> Scart (SD)
-videomenu.auto Automatisch
-videomenu.csync sync correctie
-videomenu.dbdr Beeldverbeteraar (Filter) 
-videomenu.dbdr_none uit
-videomenu.dbdr_deblock Blockbildung
-videomenu.dbdr_both Block- & Ringbildung
-videomenu.enabled_modes Videosysteem onder de V.F-Toets
-videomenu.fullscreen Volledig beeld
-videomenu.letterbox Letterbox
-videomenu.screensetup Scherm aanpassen
-videomenu.tv-scart TV Scart
-videomenu.vcrsignal VCR-uitgang signaal type
-videomenu.vcrsignal_composiet CVBS
-videomenu.vcrsignal_svideo S-Video
-videomenu.videoformat Formaat
-videomenu.videoformat_169 16:9
-videomenu.videoformat_43 4:3 (LB)
-videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_149 14:9
-videomenu.videosignal VideoOutput
-videomenu.videosignal_composite CVBS
-videomenu.videosignal_rgb RGB + CVBS
-videomenu.videosignal_svideo S-Video
-videomenu.videosignal_yuv_c YUV + CVBS
-videomenu.videosignal_yuv_v YUV + VBS
-zaptotimer.announce Zap naar timer in een minute
-extra.dvbsnoop DVB Stream Info
-extra.dvbsnoop_pat Toon PAT
-extra.dvbsnoop_cat Toon CAT
-extra.dvbsnoop_tsdt Toon TSDT
-extra.dvbsnoop_nit Toon NIT
-extra.dvbsnoop_sdt Toon SDT
-extra.dvbsnoop_eit Toon EIT
-extra.dvbsnoop_rst Toon RST
-extra.dvbsnoop_tdt Toon TDT
-extra.dvbsnoop_sit Toon SIT
-extra.dvbsnoop_pid Toon manual PID
-extra.dvbsnoop_scan Scan PIDs
-extra.dvbsnoop_band Toon pid bandbreedte
-extra.logview Bekijk Log
-extra.ru ruDREAM
-extra.english Engels
-extra.dboxinfo Box Info
-extra.start_tostandby In standby gaan na opstarten
-extra.rotor_swap Swap rotor oost/west
-extra.logo Logo nummer
-extra.scan_full vol
-extra.scan_fast snel
-extra.hdd_slow langzaam
-extra.hdd_middle Middel
-extra.hdd_fast Snel
-extra.hdd_ext3 Ext3fs
-extra.hdd_reiser Reiserfs
-extra.hdd_1min 1 min.
-extra.hdd_5min 5 min.
-extra.hdd_10min 10 min.
-extra.hdd_20min 20 min.
-extra.hdd_30min 30 min.
-extra.hdd_60min 60 min.
-extra.logo1 1
-extra.logo2 2
-extra.logo3 3
-extra.hdd_sleep Sleep time
-extra.hdd_noise Lawaai
-extra.hdd_activate Activeer instellingen
-extra.hdd_fs Filesysteem
-extra.hdd_format Formateer HDD
-extra.hdd_check Check filesysteem
-extra.hdd_settings HDD instellingen
-extra.zap_cycle Zap cyclus
-extra.sms_channel sms-kanaal
-extra.tp_freq Frequentie
-extra.tp_rate Symbol rate
-extra.tp_pol Polarisatie
-extra.tp.pol_v V
-extra.tp_pol_h H
-extra.tp_fec FEC
-extra.fec_1_2 1/2
-extra.fec_2_3 2/3
-extra.fec_3_4 3/4
-extra.fec_5_6 5/6
-extra.fec_7_8 7/8
-extra.zapit_menu Zapit opties
-extra.zapit_make_bouquet Maak bouquet
-extra.zapit_motor_speed Motor snelheid (10 = 1 graad/sec)
-extra.zapit_fe_timeout Timeout melodie
-extra.add_to_bouquet  voeg to aan bouquet
-extra.key_list_start  begin
-extra.key_list_end   einde
-extra.chadded  het aktuele kanaal is aanhet geselecteerde buoquet toegevoegd.....\n
-extra.chalreadyinbq  het aktuele kanaal is reeds in het geselecteerde bouquet....\n
-extra.menu_left_exit "Left" = terug in menu 
-extra.zapit_write_names Schrijf Kanaal namen 
-extra.update_dir Directory for updates
-extra.cache Cache
-extra.debug Debug
-extra.zapit_backup Backup channels to /tmp
-extra.zapit_delete Delete channels
-extra.zapit_restore Restore channels from /tmp
-fan_speed Ventilator snelheid
-filesystem.is.utf8 file system
-filesystem.is.utf8.option.iso8859.1 ISO-8859-1
-filesystem.is.utf8.option.utf8 UTF-8
-infoviewer.subchan_disp_pos Toon subkanalen
-mainmenu.scripts Scripts
-movieplayer.defplugin Start-Plugin
-movieplayer.tshelp1 Stop 
-movieplayer.tshelp10 approx. 10 minutes back 
-movieplayer.tshelp11 skip approx. 10 minutes 
-movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.tshelp2 Select audio track 
-movieplayer.tshelp3 Pause/Continue 
-movieplayer.tshelp4 Create bookmark 
-movieplayer.tshelp5 Show progress 
-movieplayer.tshelp6 approx. 1 minute back 
-movieplayer.tshelp7 skip approx. 1 minute 
-movieplayer.tshelp8 approx. 5 minutes back 
-movieplayer.tshelp9 skip approx. 5 minutes 
-nfs.mountok mount successful
-nfs.type_lufs FTPFS
-pictureviewer.help1 menu mode
-pictureviewer.help10 show mode
-pictureviewer.help11 reread image
-pictureviewer.help12 previous image
-pictureviewer.help13 next image
-pictureviewer.help14 Zoom out
-pictureviewer.help15 Zoom in
-pictureviewer.help16 scroll up
-pictureviewer.help17 scroll left
-pictureviewer.help18 scroll right
-pictureviewer.help19 scroll down
-pictureviewer.help2 display image
-pictureviewer.help20 change sort order
-pictureviewer.help21 reread image (no scaling)
-pictureviewer.help22 exit
-pictureviewer.help3 change sort order
-pictureviewer.help4 do not scale picture
-pictureviewer.help5 diashow mode
-pictureviewer.help6 previous image
-pictureviewer.help7 next image
-pictureviewer.help8 change sort order
-pictureviewer.help9 exit
-plugins.result plugin output
-settings.pos_bottom_left linksonder
-settings.pos_bottom_right rechtsonder
-settings.pos_top_left linksboven
-settings.pos_top_right rechtsboven
-timerlist.plugin Plugin
-timerlist.recording_dir opname directory
-timerlist.repeatcount herhalingen 
-timerlist.repeatcount.help1 aantal timer herhalingen 
-timerlist.repeatcount.help2 0 voor ongelimiteerd 
-timerlist.type.execplugin Start plugin
-audioplayer.reading_files bestanden lezen
-scants.abort_body Zoeken echt afbreken?
-scants.abort_header Onderbreek Scan
-servicemenu.getplugins Herlaad plugins
-servicemenu.getplugins_hint Herladen van plugins bezig,\nmomentje aub..
-usermenu.head Gebruikers menu
-zapit.scantype scan naar services
-zapit.scantype.all alle services
-zapit.scantype.radio alleen radio
-zapit.scantype.tv alleen tv
-zapit.scantype.tvradio tv & radio
-colorthememenu.red_theme Simpel Red
-lcdmenu.dim_brightness Helderheid na dim-timeout
-lcdmenu.dim_time Dim timeout
-timerlist.overlapping_timer Timer conflict. Ondanks dit toch de timer maken?
-extra.audio_run_player Audio key start player
-mpkey.rewind Rewind
-mpkey.forward Forward
-mpkey.pause Pause
-mpkey.stop Stop
-mpkey.play Play
-mpkey.audio Audio track
-mpkey.time Show time
-mpkey.bookmark save bookmark
-mpkey.plugin Run plugin
-extra.loadkeys Keys inladen vanaf
-extra.savekeys Keys opslaan als
-extra.loadconfig Instellingen laden
-extra.saveconfig Sla configuratie op als
-videomenu.videomode Video systeem
-extra.key_timeshift Timeshift
-extra.key_plugin One touch plugin
-extra.timeshift_pause Timeshift pause
-extra.zapit_scanpids Scan/Gebruik pids
-servicemenu.imageinfo Techies Image info
-imageinfo.creator Gemaakt door:
-imageinfo.date Datum:
-imageinfo.dokumentation Docs:
-imageinfo.forum Forum:
-imageinfo.head Image info:
-imageinfo.homepage Home page:
-imageinfo.image Image:
-imageinfo.license Licentie:
-imageinfo.version Versie:
-extra.cache_txt Cache teletext
-extra.use_gotoxx Gebruik gotoXX
-extra.latitude Latitude
-extra.longitude Longitude
-extra.ladirection LaDirection
-extra.lodirection LoDirection
-extra.south Zuid
-extra.north Noord
-extra.east Oost
-extra.west West
-epgextended.actors Actors
-epgextended.director Director
-epgextended.guests Guests
-epgextended.original_title Original Title
-epgextended.presenter Presenter
-epgextended.year_of_production Year of Production
-recordingmenu.save_in_channeldir Save in channel dir
-servicemenu.restart Soft restart
-servicemenu.restart_hint Restarting, please wait
-servicemenu.restart_refused_recording Cant restart, recording in progress
-extra.cs Cardserver
-extra.restart_cs Restart cardserver
-extra.tp_mod Modulation
-extra.tp_mod_16 QAM/16
-extra.tp_mod_32 QAM/32
-extra.tp_mod_64 QAM/64
-extra.tp_mod_128 QAM/128
-extra.tp_mod_256 QAM/256
-moviebrowser.book_head Bookmarks
+miscsettings.infobar Infobalk
+miscsettings.infobar_casystem_display CA-System weergeven
+miscsettings.infobar_casystem_mini mini
+miscsettings.infobar_casystem_mode discreet
+miscsettings.infobar_colored_events Gekleurde programma's
+miscsettings.infobar_disp_0 Zonder Logo
+miscsettings.infobar_disp_1 Logo in nummerbox
+miscsettings.infobar_disp_2 Logo + kanaalnummer
+miscsettings.infobar_disp_3 Logo + kanaalnaam + signaal
+miscsettings.infobar_disp_4 Logo + kanaalnaam/nummer 
+miscsettings.infobar_disp_5 Logo + signaal
+miscsettings.infobar_disp_6 Logo + kanaalnummer + signaal
+miscsettings.infobar_disp_log Logo
+miscsettings.infobar_logo_hdd_dir Logo directory
+miscsettings.infobar_progressbar Opties voortgangsbalk
+miscsettings.infobar_progressbar_0 standaard
+miscsettings.infobar_progressbar_1 Onder kanaalnaam
+miscsettings.infobar_progressbar_2 Klein onder kanaalnaam
+miscsettings.infobar_progressbar_3 Smal tussen EPG programma's
+miscsettings.infobar_sat_display Satelliet weergeven op de infobalk
+miscsettings.infobar_show show Info wanneer EPG verandert
+miscsettings.infobar_show_dd_available Beschikbaarheid DolbyDigital weergeven
+miscsettings.infobar_show_res Resolutie weergeven op infobalk
+miscsettings.infobar_show_res_simple simpel
+miscsettings.infobar_show_sysfs_hdd Gebruikte ruimte (sysFS & HDD)
+miscsettings.infobar_show_tuner Actieve tuner(s) weergeven
+miscsettings.radiotext Radiotekst
+miscsettings.shutdown_count In stand-by, uitschakelen na
+miscsettings.shutdown_count_hint1 tijd (in minuten) om te schakelen van standby
+miscsettings.shutdown_count_hint2 naar deep standby (0 = off).
+miscsettings.shutdown_real Standby modus inschakelen
+miscsettings.shutdown_real_rcdelay Uitgesteld uitschakelen
+miscsettings.sleeptimer Inactiviteit timer
+miscsettings.zapto_pre_time Tijd correctie (minuten) voor een zap timer
+motorcontrol.calc_positions (Her)-Calculeer Posities
+motorcontrol.disable_limit (soft) limieten uitschakelen
+motorcontrol.drive_mode Draai Modus
+motorcontrol.drive_mode_auto Draai Modus/auto stop
+motorcontrol.east_limit Oost limiet instellen 
+motorcontrol.enable_limit Limieten instellen
+motorcontrol.goto Ga naar Motor Positie (a)
+motorcontrol.halt Stop Motor
+motorcontrol.head Motor Setup
+motorcontrol.install_menu Installatie menu
+motorcontrol.motor_pos (a) Motor Positie:
+motorcontrol.movement (b) Verplaatsen:
+motorcontrol.msec milliseconde
+motorcontrol.no_mode Don't care
+motorcontrol.notdef Niet gebruikt
+motorcontrol.override Positie overschrijven gebruikt voor
+motorcontrol.pos_decrease Verlaag Motor Positie (a)
+motorcontrol.pos_increase Verhoog Motor Position (a)
+motorcontrol.ref_position Ga naar Referentie Positie
+motorcontrol.sat_pos Satelliet Positie (Stappen Modus):
+motorcontrol.settings Motor control instelling
+motorcontrol.status Status
+motorcontrol.step_decrease Verklein stap grote (c)
+motorcontrol.step_drive Schakel tussen Step/Drive Mode (b)
+motorcontrol.step_east Stap/Drive Motor oost (b,c)
+motorcontrol.step_increase Vergroot stap grote (c)
+motorcontrol.step_mode Stappen Modus
+motorcontrol.step_size (c) Stap grote:
+motorcontrol.step_west Stap/Drive Motor West (b,c)
+motorcontrol.stop_moving stop bij goed signaal (Draaien)
+motorcontrol.stop_stopped stop bij goed signaal(gestopt)
+motorcontrol.store Motor Positie opslaan (a)
+motorcontrol.timed_mode Timed Stap Modus
+motorcontrol.user_menu Gebruikersmenu
+motorcontrol.west_limit West limiet instellen
+moviebrowser.ask_rec_to_delete Het verwijderen van deze film stopt de huidige opname!\n[%s]\nWilt u toch verder gaan? 
+moviebrowser.book_add Bladwijzer toevoegen
+moviebrowser.book_clear_all Alle bladwijzers verwijderen
+moviebrowser.book_head Bladwijzers
 moviebrowser.book_lastmoviestop Last play stop:
 moviebrowser.book_movieend Einde film:
 moviebrowser.book_moviestart Start film:
-moviebrowser.book_name Naam:
-moviebrowser.book_new Nieuwe bookmark
+moviebrowser.book_name Naam bladwijzer:
+moviebrowser.book_new Nieuwe bladwijzer
 moviebrowser.book_position Positie:
 moviebrowser.book_type Spring (<0 terug , >0 voor):
 moviebrowser.book_type_backward Herhaal
 moviebrowser.book_type_forward sprong van
-moviebrowser.edit_book Bookmark verander
+moviebrowser.browser_frame_high Browser hoogte [%]
+moviebrowser.browser_row_head Kolom instellingen
+moviebrowser.browser_row_item Kolom item
+moviebrowser.browser_row_nr Aantal kolommen  
+moviebrowser.browser_row_width Kolom breedte [%]
+moviebrowser.delete_info Bestanden verwijderen, een moment geduld...
+moviebrowser.dir Pad
+moviebrowser.dir_head extra paden
+moviebrowser.edit_book Bookmark Wijzig
 moviebrowser.edit_book_name_info1 Geef nieuwe bookmark naam
 moviebrowser.edit_book_name_info2 
 moviebrowser.edit_book_pos_info1 Geef nieuwe eindpositie (s)
@@ -1007,20 +1240,22 @@ moviebrowser.foot_filter Filter:
 moviebrowser.foot_play Start film
 moviebrowser.foot_sort Sorteer:
 moviebrowser.head TS Film browser
-moviebrowser.head_filter Filter flims per kategorie:
+moviebrowser.head_filter Filter flims per categorie:
 moviebrowser.head_playlist Laatst afgespeeld:
 moviebrowser.head_recordlist Laatst opgenomen:
+moviebrowser.hide_series Verberg series
 moviebrowser.hint_jumpbackward Sprong terug over 5 s\n '0' om te annuleren 
 moviebrowser.hint_jumpforward Srong vooruit over 5 s\n '0' om te annuleren 
 moviebrowser.hint_movieend Einde van de film over 5 s\n '0' om verder te kijken 
 moviebrowser.hint_newbook_backward Nieuwe sprong terug\n 'blue' voor eindpositie 
-moviebrowser.hint_newbook_forward Nieuwe sprong vooruit\n 'blue' voor eindpositie 
+moviebrowser.hint_newbook_forward Nieuwe sprong vooruit\n 'blue' voor eindpositie
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanaal
 moviebrowser.info_filename Naam
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre
 moviebrowser.info_head Film informatie
+moviebrowser.info_head_update Wijzigingen opslaan in alle video informatie bestanden
 moviebrowser.info_info1 Info 1
 moviebrowser.info_info2 Info 2
 moviebrowser.info_length Lengte (Min)
@@ -1030,7 +1265,7 @@ moviebrowser.info_parental_lockage_12year 12 jaar
 moviebrowser.info_parental_lockage_16year 16 jaar
 moviebrowser.info_parental_lockage_18year 18 jaar
 moviebrowser.info_parental_lockage_6year 6 jaar
-moviebrowser.info_parental_lockage_always nooit 
+moviebrowser.info_parental_lockage_always nooit
 moviebrowser.info_path Path
 moviebrowser.info_prevplaydate Laatst afgespleeld op
 moviebrowser.info_prodcountry LAnd
@@ -1041,21 +1276,29 @@ moviebrowser.info_serie Serie
 moviebrowser.info_size Bestandsgrootte in (MB)
 moviebrowser.info_title Titel
 moviebrowser.info_videoformat Afbeeldingen
+moviebrowser.last_play_max_items Aantal lijnen laatst afgespeeld
+moviebrowser.last_record_max_items Aantal lijnen laatste opname 
+moviebrowser.load_default Laad standaard instellingen
 moviebrowser.menu_directories_head Directory's
 moviebrowser.menu_help_head Help
-moviebrowser.menu_main_bookmarks Bookmarks
+moviebrowser.menu_main_bookmarks Bladwijzers
 moviebrowser.menu_main_head Instellingen
 moviebrowser.menu_main_movieinfo Film info
-moviebrowser.menu_main_saveandback opslaan en terug
-moviebrowser.menu_nfs_head NFS settings
+moviebrowser.menu_main_saveandback Opslaan en terug
+moviebrowser.menu_nfs_head NFS instellingen
 moviebrowser.menu_parental_lock_activated geactiveerd
 moviebrowser.menu_parental_lock_activated_no nee
-moviebrowser.menu_parental_lock_activated_yes ja
 moviebrowser.menu_parental_lock_activated_no_temp nee (tijdelijk)
+moviebrowser.menu_parental_lock_activated_yes ja
 moviebrowser.menu_parental_lock_head Kinderslot
 moviebrowser.menu_parental_lock_rate_head Lock films van
+moviebrowser.menu_save Wijzigingen opslaan
+moviebrowser.menu_save_all Start update van film informatie in bestand
+moviebrowser.option_browser Browser Opties
+moviebrowser.reload_at_start Herlaad film informatie bij het starten
+moviebrowser.remount_at_start Herkoppelen bij het starten
 moviebrowser.scan_for_movies Films scannen ...
-moviebrowser.serie_existingname Betsaande series
+moviebrowser.serie_existingname Bestaande series
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Verander naam
 moviebrowser.short_audio Audio
@@ -1070,60 +1313,568 @@ moviebrowser.short_info1 Info 1
 moviebrowser.short_info2 Info 2
 moviebrowser.short_length Min
 moviebrowser.short_parental_lockage Leeftijd
-moviebrowser.short_path Path
+moviebrowser.short_path Directory
 moviebrowser.short_prevplaydate Laatst
 moviebrowser.short_prodyear Jaar
-moviebrowser.short_quality * (quality)
+moviebrowser.short_quality * (Kwaliteit)
 moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
 moviebrowser.short_size MB
 moviebrowser.short_title Titel
-moviebrowser.start_head Start film from:
+moviebrowser.start_head Start film vanaf:
 moviebrowser.start_record_start Film start
-options.on.without_messages Without msg
-extra.zapit_sdt_changed Kanalenlijst veranderd, herladen van lijsten.
-miscsettings.virtual_zap_mode Virtual zap
-miscsettings.epg_head Epg instellingen
-miscsettings.epg_cache_days  EPG-Cache (dagen)
-miscsettings.epg_old_hours Events verouderd na (uren)
-miscsettings.epg_dir Dir voor epg cache
-miscsettings.epg_save Save/Herstel EPG na herstart
-shutdown.recoding_query De opname echt afbreken ?
-recordingmenu.apids default audio streams
-recordingmenu.apids_ac3 record AC3 streams
-recordingmenu.apids_alt record alternatieve streams
-recordingmenu.apids_std record standaard stream
+moviebrowser.update_if_dest_empty_only Kopieer indien doelbestemming leeg is
+moviebrowser.use_dir Gebruik directory
+moviebrowser.use_movie_dir Gebruik film directory
+moviebrowser.use_rec_dir Gebruik opname directory
+movieplayer.bookmark Bladwijzers
+movieplayer.bookmarkname Bladwijzer naam
+movieplayer.bookmarkname_hint1 Naam invoeren voor uw bladwijzer
+movieplayer.bookmarkname_hint2 
+movieplayer.defplugin Start-Plugin
+movieplayer.fileplayback Bestand afspelen
+movieplayer.head Movieplayer
+movieplayer.toomanybookmarks Er zijn te veel bladwijzers.\n Verwijder eerst een bladwijzer.
+movieplayer.tshelp1 Stop
+movieplayer.tshelp10 Ongeveer 10 minuten terug
+movieplayer.tshelp11 Ongeveer 10 minuten overslaan 
+movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.tshelp2 Selecteer audio track
+movieplayer.tshelp3 Pause/Voortzetten 
+movieplayer.tshelp4 Creëer bladwijzer
+movieplayer.tshelp5 Voortgang weergeven
+movieplayer.tshelp6 Ongeveer 1 minuut terug
+movieplayer.tshelp7 Ongeveer 1 minuut overslaan
+movieplayer.tshelp8 Ongeveer 5 minuten terug
+movieplayer.tshelp9 Ongeveer 5 minuten overslaan
+movieplayer.tsplayback TS Afspelen
+mpkey.audio Audio track
+mpkey.bookmark Bladwijzer opslaan
+mpkey.forward Vooruit
+mpkey.pause Pause
+mpkey.play Afspelen
+mpkey.plugin Plugin uitvoeren
+mpkey.rewind Terugspoelen
+mpkey.stop Stop
+mpkey.time Tijd weergeven
+networkmenu.apply_settings Wijzigingen worden toegepast... 
+networkmenu.apply_settings_now Wilt u de instellingen toepassen?
+networkmenu.broadcast Uitzending
+networkmenu.dhcp DHCP
+networkmenu.error_no_address Adres ontbreekt
+networkmenu.gateway Standaard gateway
+networkmenu.hostname Hostname
+networkmenu.hostname_hint1 Hostnaam invoeren
+networkmenu.hostname_hint2 Opnieuw opstarten na wijzigingen
+networkmenu.inactive_network Netwerk inactief!
+networkmenu.ipaddress IP adres
+networkmenu.mount Bewerk netwerk locaties
+networkmenu.nameserver Naamserver
+networkmenu.netmask Netmasker
+networkmenu.ntpenable Synchronisatie via
+networkmenu.ntprefresh NTP/DVB verversen
+networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync in minuten
+networkmenu.ntprefresh_hint2 Ontvanger dient herstart te worden of EPG gereset
+networkmenu.ntpserver NTP-Server
+networkmenu.ntpserver_hint1 NTP-Server voorbeeld: ntp1.ptb.de
+networkmenu.ntpserver_hint2 Ontvanger dient herstart te worden of EPG gereset
+networkmenu.ntptitle Time-Synchronisatie
+networkmenu.password Pre-Shared Key (PSK)
+networkmenu.reset_settings_now Wilt u de vorige instellingen herstellen?
+networkmenu.select_if Interface
+networkmenu.services Netwerk diensten
+networkmenu.setupnow Netwerk instellingen toepassen
+networkmenu.setuponstartup Netwerk bij het opstarten instellen
+networkmenu.show Actieve Netwerk instellingen weergeven
+networkmenu.ssid Netwerk naam (SSID)
+networkmenu.test Netwerk nu testen 
+neutrino_starting Neutrino-HD wordt opgestart...
+nfs.alreadymounted directory reeds gekoppeld
+nfs.automount Koppelen tijdens het opstarten
+nfs.dir directory/locatie
+nfs.ip Server IP
+nfs.localdir lokale directory
+nfs.mount Netwerk volume koppelen
+nfs.mount_options Koppel opties
+nfs.mounterror mount foutmelding
+nfs.mounterror_notsup Bestandssysteem niet ondersteund
+nfs.mountnow Nu koppelen
+nfs.mountok Succesvol gekoppeld
+nfs.mounttimeout mount foutmelding: timeout
+nfs.password Wachtwoord
+nfs.remount remount directories
+nfs.type type
+nfs.type_cifs CIFS
+nfs.type_lufs FTPFS
+nfs.type_nfs NFS
+nfs.umount Ontkoppeld Netwerk volume
+nfs.umounterror Foutmelding ontkoppelen niet geslaagd
+nfs.username Gebruikersnaam 
+nfsmenu.head NFS/CIFS/FTPFS instellingen
+nvod.percentage (%d%% over)
+nvod.starting (starten in %d min)
+nvodselector.directormode Direct-Mode
+nvodselector.head Select starting-time
+nvodselector.subservice Selecteer Subservice
+options.default Herstel standaardwaarden
+options.fb framebuffer
+options.ntp_off DVB
+options.ntp_on NTP
+options.null NULL
+options.off Uit
+options.on Aan
+options.on.without_messages Zonder bericht
+options.serial serial
+parentallock.changepin verander PIN code
+parentallock.changepin_hint1 Geef de nieuwe jeugd-bescherm pin code hier in!
+parentallock.changetolocked bij vergrendelde zenderlijsten
+parentallock.head Geef Lock PIN code in
+parentallock.lockage vergrendelde programma's
+parentallock.lockage12 tot aan 12 jaar
+parentallock.lockage16 tot aan 16 jaar
+parentallock.lockage18 tot aan 18 jaar
+parentallock.lockedchannel gelockt kanaal...
+parentallock.lockedprogram GeLockt programma (tot aan %d jaar)
+parentallock.never nooit
+parentallock.onsignal bij ongeschikte uitzendingen
+parentallock.parentallock Ouderlijk toezicht
+parentallock.prompt PIN vereist
+personalize.access Toegang opties 
+personalize.apply_settings Wijzigingen toepassen?
+personalize.button_auto auto
+personalize.button_blue blauw
+personalize.button_green groen
+personalize.button_red rood
+personalize.button_yellow geel
+personalize.disabled Uitgeschakeld
+personalize.enabled Ingeschakeld
+personalize.head Persoonlijke voorkeuren
+personalize.help Help
+personalize.help_line1 In het persoonlijke voorkeuren menu is het mogelijk
+personalize.help_line2 om de meest belangrijke menu's naar uw wens in te stellen.
+personalize.help_line3 U kunt menu items zichtbaar, onzichtbaar, geactiveerd
+personalize.help_line4 gedeactiveerd maken of beveiligen met een PIN code.
+personalize.help_line5 De toegang tot het persoonlijke voorkeuren menu kan beveiligd
+personalize.help_line6 zijn met een PIN. De PIN is identiek voor alle beveiligde menu's.
+personalize.help_line7 (Niet van toepassing op ouderlijk toezicht).
+personalize.help_line8 Standaard PIN is: 0000
+personalize.menuconfiguration Menu Configuratie
+personalize.menudisabledhint Het opgevraagde menu is momenteel uitgeschakeld!\nOm het menu te activeren opent u het persoonlijke voorkeuren menu
+personalize.notprotected Nee
+personalize.notvisible Onzichtbaar
+personalize.pin PIN
+personalize.pin_in_use PIN access for personalize setup
+personalize.pincode Personalization PIN
+personalize.pinhint Enter the Personalization PIN Code
+personalize.pinprotect Ja
+personalize.pinstatus PIN vereist
+personalize.plugins Plugins
+personalize.usermenu_preferred_buttons Assigning of preferred keys
+personalize.usermenu_show_cancel Show "Cancel"-Button
+personalize.visible Zichtbaar
+pictureviewer.defdir start dir.
+pictureviewer.head Afbeeldingen
+pictureviewer.help1 menu modus
+pictureviewer.help10 Herlaad afbeelding
+pictureviewer.help11 Vorige afbeelding
+pictureviewer.help12 Volgende afbeelding
+pictureviewer.help13 Zoom out
+pictureviewer.help14 Zoom in
+pictureviewer.help15 scroll omhoog
+pictureviewer.help16 scroll link
+pictureviewer.help17 scroll rechts
+pictureviewer.help18 scroll omlaag
+pictureviewer.help19 Herlaad afbeelding (niet schalen)
+pictureviewer.help2 Afbeelding weergeven
+pictureviewer.help3 Verander sorteer orde
+pictureviewer.help30 Audioplayer modus
+pictureviewer.help31 Muziek afspelen
+pictureviewer.help32 Pauzeer muziek
+pictureviewer.help33 Stop muziek
+pictureviewer.help34 Volgende nummer
+pictureviewer.help35 Vorige nummer
+pictureviewer.help4 Afbeelding niet schalen 
+pictureviewer.help5 diashow modus
+pictureviewer.help6 Vorige afbeelding
+pictureviewer.help7 Volgende afbeelding
+pictureviewer.help8 Sluiten
+pictureviewer.help9 Weergave modus
+pictureviewer.resize.color_average geavanceerd
+pictureviewer.resize.none Geen
+pictureviewer.resize.simple simpel
+pictureviewer.scaling schaling
+pictureviewer.show Tonen
+pictureviewer.slide_time Speelduur van diashow
+pictureviewer.slideshow Diashow
+pictureviewer.sortorder.date datum
+pictureviewer.sortorder.filename bestandsnaam
+ping.ok is bereikbaar (ping)
+ping.protocol is onbereikbaar (host of protocol fout)
+ping.socket is onbereikbaar (socket fout)
+ping.unreachable is onbereikbaar
+pinprotection.head Geef PIN code in
+pinprotection.wrongcode PIN-Code was verkeerd! Probeer opnieuw.
+plugins.hdd_dir Plugin HDD dir.
+plugins.result plugin output
+progressbar.color Kleur voortgangsbalk
+rclock.lockmsg Uw afstandsbediening wordt gedeactiveerd.\n Om de afstandsbediening te activeren \ndrukt u op de <RED> toets en <MENU> op uw afstandsbediening.
+rclock.menueadd Deactiveer afstandsbediening
+rclock.title Deactiveer afstandsbediening
+rclock.unlockmsg Afstandsbediening geactiveerd!
+recording.is_running Dit kanaal wordt reeds opgenomen. Wilt u een nieuwe opname starten?
+recording.start Opname starten, een moment geduld...
+recording.stop Opname stoppen, een moment geduld...
+recordingmenu.apids Audio streams
+recordingmenu.apids_ac3 AC3 streams opnemen
+recordingmenu.apids_alt Alternatieve streams opnemen
+recordingmenu.apids_std Standaard stream opnemen
+recordingmenu.defdir Opname directory
+recordingmenu.end_of_recording_epg EPG act. programma
+recordingmenu.end_of_recording_max max. opnameduur
+recordingmenu.end_of_recording_name Eindtijd van opname
+recordingmenu.file direct (bestand)
+recordingmenu.help Recording devices:\n--------------------------\nserver:\ngebruik stream software op een PC\n\n(analoog) vcr:\ngebruik de vcr uitgang\n\ndirect (file):\ndirect in een NFS mounted directory\nof op een interne hard disk\nTS: gebruik spts mode(dbox2)\nPES: niet spts mode(dbox2) gebruiken\n\n\nMax. file grootte:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: bijna ongelimiteerd (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
+recordingmenu.multimenu.ask_stop_all Wilt u alle opnames stoppen?
+recordingmenu.multimenu.info_stop_all %d van %d opnames worden gestopt.
+recordingmenu.multimenu.rec_akt Huidig kanaal opnemen
+recordingmenu.multimenu.stop_all stop alle opnames
+recordingmenu.multimenu.timeshift Timeshift
+recordingmenu.off Uit
+recordingmenu.record_is_not_running Er wordt geen opname gemaakt
+recordingmenu.record_is_running Er wordt een opname gemaakt
+recordingmenu.save_in_channeldir Opslaan in opname folder van dit kanaal
+recordingmenu.server server
+recordingmenu.server_mac MAC adres
+recordingmenu.setupnow activeer veranderingen
+recordingmenu.slow_warn Slome opname waarschuwing inschakelen
+recordingmenu.timeshift Timeshift
+recordingmenu.tsdir Timeshift directory
+recordingmenu.vcr VCR
 recordingmenu.zap_on_announce melding zappen tijdens opname
-timerlist.apids_dflt record standaard audio streams
-videomenu.tv-scart TV Scart
-videomenu.vcrsignal VCR Output Signal Type
+recordtimer.announce Opname zal dadelijk starten
+repeatblocker.hint_1 Shortest time (in ms) to recognize 2 keystrokes
+repeatblocker.hint_2 Enter 0 to switch of the blocker (red is space)
+reset_all Fabrieksreset en herstart
+reset_channels Wis alle kanalen
+reset_confirm Weet u het zeker?
+reset_settings Standaard instellingen herstellen
+satsetup.auto_scan Auto-Scan geselecteerd %s
+satsetup.auto_scan_all Auto-Scan meerdere satellieten
+satsetup.cable Kabel scan
+satsetup.cable_nid Netwerk ID
+satsetup.comm_input Commited invoer
+satsetup.diseqc DiSEqC
+satsetup.diseqc10 DiSEqC 1.0
+satsetup.diseqc11 DiSEqC 1.1
+satsetup.diseqc12 DiSEqC 1.2
+satsetup.diseqc_advanced Geavanceerd
+satsetup.diseqc_com_uncom Commited/Uncommited
+satsetup.diseqc_input DiSEqC invoer
+satsetup.diseqc_uncom_com Uncommited/Commited
+satsetup.diseqcrepeat DiSEqC herhalingen
+satsetup.extended DiSEqC Instellingen
+satsetup.extended_motor Motor instellingen
+satsetup.fastscan_all SD en HD
+satsetup.fastscan_hd Enkel HD 
+satsetup.fastscan_head Fastscan
+satsetup.fastscan_prov Provider
+satsetup.fastscan_prov_cd CanalDigitaal
+satsetup.fastscan_prov_telesat TÃ©lÃ©SAT
+satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_sd Enkel SD
+satsetup.fastscan_type Scantype
+satsetup.fe_mode Tuner modus
+satsetup.fe_mode_alone Onafhankelijk
+satsetup.fe_mode_loop Doorlussen
+satsetup.fe_mode_single Single
+satsetup.fe_mode_twin Twin
+satsetup.fe_setup Tuner instellen
+satsetup.lofh LNB High Offset
+satsetup.lofl LNB Low Offset
+satsetup.lofs LNB switch Offset
+satsetup.logical_hd HD kanalen hebben voorkeur
+satsetup.logical_numbers Gebruik logische nummers
+satsetup.manual_scan Handmatig frequenties scannen
+satsetup.minidiseqc Mini-DiSEqC
+satsetup.motor_pos Motor positie
+satsetup.nodiseqc Geen DiSEqC
+satsetup.reset_numbers Reset kanaalnummers
+satsetup.sat_setup Setup satellieten input / LNB
+satsetup.satellite Satelliet
+satsetup.select_sat Selecteer satellieten
+satsetup.smatvremote SMATV Remote Tuning
+satsetup.uncomm_input Uncommited input
+satsetup.uni_settings Unicable instellingen
+satsetup.unicable Unicable
+satsetup.usals_repeat USALS commando herhalen
+satsetup.use_bat Use BAT
+satsetup.use_fta_flag Alleen de vrij te ontvangen (FTA) kanalen
+satsetup.use_nit Gebruik NIT
+satsetup.use_usals Gebuik USALS voor alles
+sc.empty Geen smartcard geplaatst
+sc.init_failed Initialisatie smartcard mislukt
+sc.init_ok Smartcard succesvol geinitialiseerd 
+sc.inserted Smartcard in de kaartlezer geplaatst
+sc.removed Smartcard uit de kaartlezer verwijderd
+sc.reset Reset smartcard
+sc.timeout Timeout - wachten op smartcard
+sc.waiting Wachten op reactie van de smartcard
+scants.abort_body Wilt u het scannen onderbreken?
+scants.abort_header Scan wordt afgebroken
+scants.actcable Kabel:
+scants.actsatellite Satelliet:
+scants.bouquet Bouquet
+scants.bouquet_create creëer nieuw
+scants.bouquet_erase wis alles
+scants.bouquet_leave niet veranderen
+scants.bouquet_satellite Satelliet zenderlijst
+scants.bouquet_update update
+scants.channel kanaal:
+scants.failed Transponderscan mislukt!
+scants.finished Transponderscan succesvol beëindigd!
+scants.freqdata Frequentie:
+scants.head Scan transponder
+scants.numberofdataservices Data
+scants.numberofradioservices Radio
+scants.numberoftotalservices Totaal
+scants.numberoftvservices TV
+scants.preverences_receiving_system Voorkeuren
+scants.preverences_scan Scanmodus
+scants.provider Provider:
+scants.select_tp Selecteer transponder
+scants.startnow start scan
+scants.test Test signaal
+scants.transponders Transponders:
+scrambled_channel Gecodeerd kanaal
+screensetup.lowerright groen = rechts onder instellen
+screensetup.upperleft rood = links boven instellen
+screenshot.count Aantal
+screenshot.cover Creeer film omslag voor moviebrowser
+screenshot.defdir Doelbestemming 
+screenshot.format Formatteer 
+screenshot.info Screenshot toets is ongebruikt
+screenshot.menu Screenshot
+screenshot.osd OSD resolutie
+screenshot.res Resolutie
+screenshot.scale Schalen
+screenshot.tv TV resolutie
+screenshot.video Video in de achtergrond
+servicemenu.getplugins Herlaad plugins
+servicemenu.getplugins_hint Plugins worden geladen,\nmoment geduld alstublieft.
+servicemenu.head Onderhoud
+servicemenu.imageinfo Firmware info
+servicemenu.reload Herlaad kanalenlijst 
+servicemenu.reload_hint Kanalenlijst wordt geladen,\nmoment geduld alstublieft.
+servicemenu.restart Soft herstart
+servicemenu.restart_hint Herstarten, een moment geduld
+servicemenu.restart_refused_recording Herstarten niet mogelijk. Er wordt een opname gemaakt.
+servicemenu.scants Kanalen zoeken
+servicemenu.update Software Update
+settings.backup Backup van instellingen maken
+settings.backup_failed Backup maken mislukt
+settings.help Help
+settings.menu_hints Menu hints weergeven
+settings.menu_pos Menu positie
+settings.missingoptionsconffile De instellingen zijn geupdate. \nNieuwe opties zijn standaard ingesteld.
+settings.noconffile Geen Neutrino-HD instellingen gevonden.\n Gebruikt standaard instellingen.
+settings.pos_bottom_left Links onder
+settings.pos_bottom_right Rechts onder
+settings.pos_default_center Gecentreerd boven
+settings.pos_higher_center Hoger gecentreerd
+settings.pos_top_left Links boven
+settings.pos_top_right Rechts boven
+settings.restore Instellingen herstellen
+settings.restore_warn Alle instellingen zullen vervangen worden.\nDe ontvanger zal opnieuw opstarten\nWilt u verder gaan?
+shutdown.recoding_query Wilt u de opname stoppen?
+shutdowntimer.announce De ontvanger zal binnen 1 minuut uitschakelen./nWilt u het uitschakelen annuleren?
+sleeptimerbox.announce De ontvanger zal binnen 1 minunut in standby schakelen./nlWilt u dit annuleren?
+sleeptimerbox.hint1 Afsluit tijd in minuten (000=uit)
+sleeptimerbox.hint2 De ontvanger schakelt zichzelf uit na deze periode in standby.
+sleeptimerbox.hint3 De ontvanger zal automatisch uitschakelen indien u de afstandsbediening niet gebruikt.
+sleeptimerbox.title Slaaptimer
+sleeptimerbox.title2 Inactiviteit uitschakel timer
+streaminfo.aratio Aspect Ratio
+streaminfo.aratio_unknown Onbekend
+streaminfo.audiotype Audiotype
+streaminfo.bitrate Bitrate
+streaminfo.framerate Framerate
+streaminfo.framerate_unknown Framerate: onbekend
+streaminfo.head Stream-Informatie
+streaminfo.not_available niet beschikbaar
+streaminfo.resolution Resolutie
+streaminfo.signal Ontvangst signaal
+streaming.busy Een of meerdere opneem processen zijn aktief.\nAls je dit bericht krijgt en geen opname is aktief,\nherstart Neutrino aub.
+streaming.dir_not_writable De opneem directory is niet beschrijfbaar.\nOpname zal niet gaan.
+streaming.overflow Record buffer overflow, overweeg enkele opnames te stoppen
+streaming.slow Systeem/hdd te traag, overweeg enkele opnames te stoppen
+streaming.write_error De opname was afgebroken,\nomdat er een fout optrad gedurende het opname proces.
+stringinput.caps Hoofd- / kleine letters
+stringinput.clear alle invoer wissen
+subtitles.head Ondertiteling
+subtitles.stop Stop ondertiteling
+timer.eventrecord.msg Het programma bevat een opname reservering.\nOm de reservering(en) aan te passen opent u de timerlijst.
+timer.eventrecord.title Opname reservering
+timer.eventtimed.msg Het programma is gereserveerd. Uw ontvanger \nzal automatisch inschakelen en afstemmen\n op het kanaal op de opgegeven tijd.
+timer.eventtimed.title Reserveer programma
+timerbar.channelswitch Reservering
+timerbar.recordevent Opname
+timerlist.alarmtime Alarm tijd
+timerlist.apids Audio PIDs
+timerlist.apids_dflt Standaard audio streams opnemen
+timerlist.ask_to_delete Uw huidige opname wordt stop gezet. Wilt u verder gaan?
+timerlist.bouquetselect Kies zenderlijst
+timerlist.channel Kanaal
+timerlist.channelselect kies kanaal
+timerlist.delete Wis
+timerlist.menumodify Pas timer aan
+timerlist.menunew Nieuwe timer
+timerlist.message Bericht
+timerlist.moderadio Radio kanalen
+timerlist.modeselect Mode kiezen
+timerlist.modetv TV kanalen
+timerlist.modify Pas aan
+timerlist.name Timer lijst
+timerlist.new Nieuwe timer
+timerlist.overlapping_timer Timer conflict. Wilt u de timer toch instellen?
+timerlist.plugin Plugin
+timerlist.program.unknown Onbekend programma
+timerlist.recording_dir Opname folder
+timerlist.reload Herladen
+timerlist.repeat Herhaal
+timerlist.repeat.biweekly twee wekelijks
+timerlist.repeat.byeventdescription zie timer
+timerlist.repeat.daily dagelijks
+timerlist.repeat.fourweekly vier wekelijks
+timerlist.repeat.friday Vrij
+timerlist.repeat.monday Maan
+timerlist.repeat.monthly maandelijks
+timerlist.repeat.once eenmalig
+timerlist.repeat.saturday Zat
+timerlist.repeat.sunday Zon
+timerlist.repeat.thursday Don
+timerlist.repeat.tuesday Dins
+timerlist.repeat.unknown onbekend
+timerlist.repeat.wednesday Woens
+timerlist.repeat.weekdays Doordeweeks
+timerlist.repeat.weekly wekelijks
+timerlist.repeatcount Herhaald
+timerlist.repeatcount.help1 Bepaal het aantal keer dat de timer wordt herhaald
+timerlist.repeatcount.help2 0 voor ongelimiteerde herhaling
+timerlist.save Timer opslaan
+timerlist.standby SB modus
+timerlist.standby.off Ontwaak uit standby
+timerlist.standby.on Schakel naar standby
+timerlist.stoptime Stop tijd
+timerlist.type Timer type
+timerlist.type.execplugin Plugin uitvoeren
+timerlist.type.nextprogram volgend programma
+timerlist.type.record Opnemen
+timerlist.type.remind Herinner
+timerlist.type.shutdown Uitschakelen
+timerlist.type.sleeptimer Slaaptimer
+timerlist.type.standby Stand-by
+timerlist.type.unknown Onbekend
+timerlist.type.zapto Zap naar
+timerlist.weekdays Dagen van de week
+timerlist.weekdays.hint_1 Maan Dins Woens Don Vrij Zat Zon
+timerlist.weekdays.hint_2 'X'=timer '-' geen timer
+timersettings.record_safety_time_after Opname stop tijd correctie
+timersettings.record_safety_time_after.hint_1 Correctie tijd in min. (00=uit). Deze tijd
+timersettings.record_safety_time_after.hint_2 word opgeteld bij de stop tijd van elke opname timer.
+timersettings.record_safety_time_before Opname start tijd correctie
+timersettings.record_safety_time_before.hint_1 Correctie tijd in min. (00=uit). Deze tijd
+timersettings.record_safety_time_before.hint_2 word afgetrokken van elke opname timer.
+timersettings.separator Timer instellingen
+timing.chanlist Kanalenlijst
+timing.epg EPG
+timing.filebrowser Bestanden browser
+timing.head OSD Timeouts
+timing.hint_1 Tijd in sec. Na deze tijd zal de
+timing.hint_2 infobalk automatisch vervagen.
+timing.infobar Infobalk
+timing.infobar_movieplayer Infobalk (film modus)
+timing.infobar_radio Infobalk (radio modus)
+timing.menu Menu
+timing.numericzap Numeriek Zap
+unicable.lnb Invoer Unicable
+unicable.qrg Unicable Frequentie
+unicable.scr Unicable SCR
+upnpbrowser.head UPnP Browser
+upnpbrowser.noservers Geen UPnP servers gevonden
+upnpbrowser.rescan Opnieuw scannen
+upnpbrowser.scanning Scannen naar UPnP servers
+usermenu.button_blue Gebruikersmenu blauw
+usermenu.button_green Gebruikersmenu groen
+usermenu.button_red Gebruikersmenu rood
+usermenu.button_yellow Gebruikersmenu geel
+usermenu.head Gebruikersmenu
+usermenu.item_bar ---- Boarder ----
+usermenu.item_epg_misc EPG functions
+usermenu.item_none (empty)
+usermenu.item_vtxt Videotext
+usermenu.msg_info_is_empty U heeft geen naam voor dit menu gedefinieerd.\nDe standaard naam wordt gebruikt:\n
+usermenu.msg_warning_name U heeft meerdere items gemaakt voor dit menu,\ngeen van de items heeft een naam.\nhet wordt aanbevolen om een naam in te voeren.
+usermenu.msg_warning_no_items Geen items gedefinieerd.\n De menu naam is gereset! 
+usermenu.name Naam
+video_mode_ok Functioneert deze video modus naar behoren?
+videomenu.43mode 4:3 beeldverhouding
+videomenu.analog_hd_rgb_cinch RGB via cinch (HD)
+videomenu.analog_hd_rgb_scart RGB via scart (HD)
+videomenu.analog_hd_yprpb_cinch YPbPr via cinch (HD)
+videomenu.analog_hd_yprpb_scart YPbPr via scart (HD)
+videomenu.analog_mode Analog Video Output
+videomenu.analog_sd_rgb_cinch RGB via cinch (SD)
+videomenu.analog_sd_rgb_scart RGB via scart (SD)
+videomenu.analog_sd_yprpb_cinch YPbPr via cinch (SD)
+videomenu.analog_sd_yprpb_scart YPbPr via scart (SD)
+videomenu.auto Automatisch
+videomenu.brightness Helderheid
+videomenu.cinch Cinch
+videomenu.contrast Contrast
+videomenu.dbdr MPEG2 de-block/de-ring
+videomenu.dbdr_both de-block+de-ring
+videomenu.dbdr_deblock de-block
+videomenu.dbdr_none Geen
+videomenu.enabled_modes VF toets ingeschakelde modus
+videomenu.fullscreen Volledig scherm
+videomenu.hdmi_cec CSTLink (HDMI-CEC)
+videomenu.hdmi_cec_mode Gebruik ontvanger
+videomenu.hdmi_cec_mode_off nee
+videomenu.hdmi_cec_mode_recorder als satelliet / kabel PVR
+videomenu.hdmi_cec_mode_tuner als satelliet / kabel ontvanger
+videomenu.hdmi_cec_standby CEC stand-by inschakelen
+videomenu.hdmi_cec_view_on CEC View inschakelen
+videomenu.hue Tint
+videomenu.letterbox Letterbox
+videomenu.panscan Pan&Scan
+videomenu.panscan2 14:9 Pan&Scan
+videomenu.saturation Verzadiging
+videomenu.scart Scart
+videomenu.screensetup Scherm instellingen
+videomenu.sharpness Scherpheid
+videomenu.tv-scart Video
+videomenu.vcrsignal VCR Output Signaal Type
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-moviebrowser.option_browser Browser Opties
-moviebrowser.book_clear_all Alles wissen
-moviebrowser.menu_save Veranderingen opslaan
-moviebrowser.menu_save_all Start update van film info bestanden
-moviebrowser.info_head_update Alle wijzigingen van alle film info bestanden opslaan
-moviebrowser.update_if_dest_empty_only Copy if destination is empty only
-moviebrowser.serie_auto_create Serie auto create
-moviebrowser.load_default Laadt standaard instellingen
-moviebrowser.browser_row_head Kolom instellingen
-moviebrowser.browser_row_nr Aantal kolommen
-moviebrowser.browser_row_item Kolom item
-moviebrowser.browser_row_width Kolom breedte [%]
-moviebrowser.reload_at_start Opnieuw inladen van film info na starten
-moviebrowser.remount_at_start Hermount na opstarten
-moviebrowser.dir_head Additional paths
-moviebrowser.dir Path
-moviebrowser.use_dir Gebruik directory
-moviebrowser.use_rec_dir Gebruik record directory
-moviebrowser.use_movie_dir Gebruik movie directory
-moviebrowser.hide_series Verberg series
-moviebrowser.last_record_max_items Aantal regels van laatste opname
-moviebrowser.last_play_max_items Aantal regels van laatst gespeelde video
-moviebrowser.browser_frame_high Browser hoogte [%]
-extra.auto_timeshift Auto-record, sec (0 = uit)
-extra.auto_delete Automatiisch wissen
-extra.record_time Fast/timeshift opname periode (uren)
-subtitles.head Ondertitels
-subtitles.stop Stop ondertiteling
+videomenu.videoformat Formaat
+videomenu.videoformat_149 14:9
+videomenu.videoformat_169 16:9
+videomenu.videoformat_43 4:3
+videomenu.videomode Digital video mode
+wanneer u vragen heeft over het gebruik van uw ontvanger. Wilt u beginnen met de installatie?
+wizard.initial_settings Initiële instellingen gevonden
+wizard.install_settings Wilt u de kanalen van Astra 1 (19.2º oost) inscannen?
+wizard.welcome_head Welkom in de installatie wizard
+wizard.welcome_text In de volgende stappen zullen we u begeleiden bij de eerste installatie van uw ontvanger.\n 
+word.from Van
+zapit.scantype scan naar services
+zapit.scantype.all alle services
+zapit.scantype.radio alleen radio
+zapit.scantype.tv alleen tv
+zapit.scantype.tvradio tv & radio
+zapitsetup.head Start kanaal instellingen
+zapitsetup.info Start kanaal
+zapitsetup.last_radio Radio kanaal
+zapitsetup.last_tv TV kanaal
+zapitsetup.last_use Van laatste kanaal
+zaptotimer.announce Zap naar programma in een ogenblik

@@ -172,7 +172,11 @@ void CComponentsPicture::paint(bool do_save_bg)
 	initVarPicture();
 	paintInit(do_save_bg);
 	pic_painted = false;
-
+	
+#ifdef DEBUG_CC
+	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d)\n", __FUNCTION__, pic_name.c_str(), do_paint);
+#endif
+	
 	if (do_paint){
 		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
 			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0 /*pic_max_h*/, pic_offset, pic_paint, pic_paintBg, col_body);

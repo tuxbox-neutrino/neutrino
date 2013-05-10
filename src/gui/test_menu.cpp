@@ -72,6 +72,7 @@ CTestMenu::CTestMenu()
 	header = NULL;
 	iconform = NULL;
 	window = NULL;
+	button = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -84,6 +85,7 @@ CTestMenu::~CTestMenu()
 	delete header;
 	delete iconform;
 	delete window;
+	delete button;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -97,26 +99,26 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	printf("CTestMenu::exec: %s\n", actionKey.c_str());
 	
-	if (actionKey == "vfd") 
+	if (actionKey == "vfd")
 	{
 		CVFD::getInstance()->Clear();
 		int icon = 0x00040000;
 		while (icon > 0x2) {
-			CVFD::getInstance()->ShowIcon((vfd_icon) icon, true);
+			CVFD::getInstance()->ShowIcon((fp_icon) icon, true);
 			icon /= 2;
 		}
-		for (int i = 0x01000001; i <= 0x0C000001; i+= 0x01000000) 
+		for (int i = 0x01000001; i <= 0x0C000001; i+= 0x01000000)
 		{
-			CVFD::getInstance()->ShowIcon((vfd_icon) i, true);
+			CVFD::getInstance()->ShowIcon((fp_icon) i, true);
 		}
-		CVFD::getInstance()->ShowIcon((vfd_icon) 0x09000002, true);
-		CVFD::getInstance()->ShowIcon((vfd_icon) 0x0B000002, true);
+		CVFD::getInstance()->ShowIcon((fp_icon) 0x09000002, true);
+		CVFD::getInstance()->ShowIcon((fp_icon) 0x0B000002, true);
 		char text[255];
 		char buf[XML_UTF8_ENCODE_MAX];
 		int ch = 0x2588;
 		int len = XmlUtf8Encode(ch, buf);
 
-		for (int i = 0; i < 12; i++) 
+		for (int i = 0; i < 12; i++)
 		{
 			memmove(&text[i*len], buf, len);
 		}
@@ -128,7 +130,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-	else if (actionKey == "network") 
+	else if (actionKey == "network")
 	{
 		int fd, ret;
 		struct ifreq ifr;
@@ -147,7 +149,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ret = ioctl(fd, SIOCGIFADDR, &ifr );
 		if (ret < 0)
 			perror("SIOCGIFADDR");
-		else 
+		else
 		{
 			addrp = (struct sockaddr_in *)&(ifr.ifr_addr);
 			ip = inet_ntoa(addrp->sin_addr);
@@ -168,11 +170,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 #if HAVE_COOL_HARDWARE
-	else if (actionKey == "card0") 
+	else if (actionKey == "card0")
 	{
 		char str[255];
 		int ret = cs_test_card(0, str);
-		switch(ret) 
+		switch(ret)
 		{
 			case 0:
 				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
@@ -191,11 +193,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-	else if (actionKey == "card1") 
+	else if (actionKey == "card1")
 	{
 		char str[255];
 		int ret = cs_test_card(1, str);
-		switch(ret) 
+		switch(ret)
 		{
 			case 0:
 				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
@@ -215,16 +217,16 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 #endif
-	else if (actionKey == "hdd") 
+	else if (actionKey == "hdd")
 	{
 		char buffer[255];
 		FILE *f = fopen("/proc/mounts", "r");
 		bool mounted = false;
-		if (f != NULL) 
+		if (f != NULL)
 		{
-			while (fgets (buffer, 255, f) != NULL) 
+			while (fgets (buffer, 255, f) != NULL)
 			{
-				if (strstr(buffer, "/dev/sda1")) 
+				if (strstr(buffer, "/dev/sda1"))
 				{
 					mounted = true;
 					break;
@@ -239,24 +241,24 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-	else if (actionKey == "buttons") 
+	else if (actionKey == "buttons")
 	{
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
 		CHintBox * khintBox = NULL;
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Press button, or press EXIT to return");
 		hintBox->paint();
-		while (1) 
+		while (1)
 		{
 			g_RCInput->getMsg(&msg, &data, 100);
 			if (msg == CRCInput::RC_home)
 				break;
 
-			if (msg != CRCInput::RC_timeout && msg <= CRCInput::RC_MaxRC) 
+			if (msg != CRCInput::RC_timeout && msg <= CRCInput::RC_MaxRC)
 			{
 				char keyname[50];
 				sprintf(keyname, "Button [%s] pressed (EXIT to return)", g_RCInput->getKeyName(msg).c_str());
-				if (khintBox) 
+				if (khintBox)
 				{
 					delete khintBox;
 				}
@@ -272,55 +274,55 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-	else if (actionKey == "22kon1" || actionKey == "22koff1") 
+	else if (actionKey == "22kon1" || actionKey == "22koff1")
 	{
 		CScanTs * scanTs = new CScanTs();
 		int freq = (actionKey == "22kon1") ? 12000*1000: 11000*1000;
-		sprintf(scansettings.TP_freq, "%d", freq);
-                strncpy(scansettings.satNameNoDiseqc,
-                        CServiceManager::getInstance()->GetSatelliteName(130).c_str(), 50);
+		sprintf(scansettings.sat_TP_freq, "%d", freq);
+		strncpy(scansettings.satName,
+				CServiceManager::getInstance()->GetSatelliteName(130).c_str(), 50);
 
 		scanTs->exec(NULL, "test");
 		delete scanTs;
 		return res;
 	}
-	else if (actionKey == "22kon2" || actionKey == "22koff2") 
+	else if (actionKey == "22kon2" || actionKey == "22koff2")
 	{
 		int freq = (actionKey == "22kon2") ? 12000*1000: 11000*1000;
-		sprintf(scansettings.TP_freq, "%d", freq);
-                strncpy(scansettings.satNameNoDiseqc,
-                        CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
+		sprintf(scansettings.sat_TP_freq, "%d", freq);
+		strncpy(scansettings.satName,
+				CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
 
 		CScanTs * scanTs = new CScanTs();
 		scanTs->exec(NULL, "test");
 		delete scanTs;
 		return res;
 	}
-	else if (actionKey == "scan1" || actionKey == "scan2") 
+	else if (actionKey == "scan1" || actionKey == "scan2")
 	{
 		int fnum = actionKey == "scan1" ? 0 : 1;
-                strncpy(scansettings.satNameNoDiseqc, actionKey == "scan1" ?
-                        CServiceManager::getInstance()->GetSatelliteName(130).c_str() :
-                        CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
+		strncpy(scansettings.satName, actionKey == "scan1" ?
+				CServiceManager::getInstance()->GetSatelliteName(130).c_str() :
+				CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
 
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
 		CServiceScan::getInstance()->SetFrontend(fnum);
 
 		int freq = 12538000;
-		sprintf(scansettings.TP_freq, "%d", freq);
+		sprintf(scansettings.sat_TP_freq, "%d", freq);
 		//CFrontend * frontend = CFEManager::getInstance()->getFE(0);
-		switch (frontend->getInfo()->type) 
+		switch (frontend->getInfo()->type)
 		{
 			case FE_QPSK:
-				sprintf(scansettings.TP_rate, "%d", 41250*1000);
-				scansettings.TP_fec = 1;
-				scansettings.TP_pol = 1;
+				sprintf(scansettings.sat_TP_rate, "%d", 41250*1000);
+				scansettings.sat_TP_fec = 1;
+				scansettings.sat_TP_pol = 1;
 				break;
 			case FE_QAM:
 #if 0
-			sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-			scansettings.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-			scansettings.TP_mod = tmpI->second.feparams.u.qam.modulation;
+				sprintf(scansettings.sat_TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
+				scansettings.sat_TP_fec = tmpI->second.feparams.u.qam.fec_inner;
+				scansettings.TP_mod = tmpI->second.feparams.u.qam.modulation;
 #endif
 				break;
 			case FE_OFDM:
@@ -330,6 +332,21 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CScanTs * scanTs = new CScanTs();
 		scanTs->exec(NULL, "manual");
 		delete scanTs;
+		return res;
+	}
+	else if (actionKey == "button"){
+		if (button == NULL)
+			button = new CComponentsButtonRed(100, 100, 100, 40, "Test");
+
+		if (!button->isPainted()){
+			if (button->isSelected())
+				button->setSelected(false);
+			else
+				button->setSelected(true);
+			button->paint();
+		}else			
+			button->hide();
+		
 		return res;
 	}
 	else if (actionKey == "circle"){
@@ -419,8 +436,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "header"){
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
-			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header", NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
-			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
+// 			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
+			header->setHeaderDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
 // 		else	//For existing instances it's recommended
 // 			//to remove old button icons before add new buttons, otherwise icons will be appended.
@@ -553,6 +571,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 {
 	widget->setSelected(selected);
 	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("Button", true, NULL, this, "button"));
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
 	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
@@ -575,7 +594,7 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 #endif
 	widget->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
 	
-	CFEManager::getInstance()->setMode(CFEManager::FE_MODE_ALONE);
+	//CFEManager::getInstance()->setMode(CFEManager::FE_MODE_ALONE);
 	
 	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
 	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);

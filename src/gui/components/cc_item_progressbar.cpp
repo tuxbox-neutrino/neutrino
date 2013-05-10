@@ -66,8 +66,8 @@ CProgressBar::CProgressBar(	const int x_pos, const int y_pos, const int w, const
  	pb_blink 	= blinkenlights;
  	pb_invert 	= inv;
 	pb_red 		= r;
-	pb_green 		= g;
-	pb_yellow 		= b;
+	pb_green 	= g;
+	pb_yellow 	= b;
 	pb_active_col	= active_col;
 	pb_passive_col 	= passive_col;
 }
@@ -85,10 +85,10 @@ void CProgressBar::initVarProgressbar()
 	pb_bl_changed 		= g_settings.progressbar_color;
 	pb_last_width 		= -1;
 	pb_red 			= 40;
-	pb_green 			= 100;
-	pb_yellow 			= 70;
-	pb_active_col	= COL_INFOBAR_PLUS_7;
-	pb_passive_col 	= COL_INFOBAR_PLUS_3;
+	pb_green 		= 100;
+	pb_yellow 		= 70;
+	pb_active_col		= COL_INFOBAR_PLUS_7;
+	pb_passive_col 		= COL_INFOBAR_PLUS_3;
 	pb_value		= 0;
 	pb_max_value		= 0;
 	pb_paint_zero		= false;
@@ -113,8 +113,8 @@ void CProgressBar::initDimensions()
 		pb_max_value = pb_value;
 
 	// start positions x/y active bar
-	pb_x = x + fr_thickness;
-	pb_y = y + fr_thickness;
+	pb_x = (cc_item_xr > -1 ? cc_item_xr : x) + fr_thickness;
+	pb_y = (cc_item_yr > -1 ? cc_item_yr : y) + fr_thickness;
 
 	// width for active bar with current value
 	pb_active_width = max(0, pb_last_width);
@@ -146,7 +146,7 @@ void CProgressBar::paintSimple()
 	}
 	
 	if (pb_paint_zero && pb_value == 0)
-		frameBuffer->paintLine(x+fr_thickness , y+fr_thickness, x+width-3, y+height-3, pb_active_col); // zero line
+		frameBuffer->paintLine(pb_x , pb_y, pb_x+width-3, pb_y+height-3, pb_active_col); // zero line
 }
 
 void CProgressBar::paintAdvanced()

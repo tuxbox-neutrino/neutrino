@@ -29,11 +29,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <cs_vfd.h>
+#include <cs_frontpanel.h>
 
+#ifdef BOXMODEL_APOLLO
+#ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
+#include <cs_ir_generic.h>
+#endif
+#else
 #ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 #include <nevis_ir.h>
 #endif
+#endif
+
 
 #ifndef IOC_IR_SET_PRI_PROTOCOL
 /* unfortunately, the shipped headers seem to be still incomplete...
@@ -103,16 +110,16 @@ struct ioctl_list
 };
 
 static struct ioctl_list n[] = {
-	{ 0, "VFD_SET_BRIGHT",		IOC_VFD_SET_BRIGHT,		TYPE_CHAR },
-	{ 0, "VFD_CLEAR_ALL",		IOC_VFD_CLEAR_ALL,		TYPE_UINT },
-	{ 0, "VFD_SET_TEXT",		IOC_VFD_SET_TEXT,		TYPE_CHARP },
-	{ 0, "VFD_SET_ICON",		IOC_VFD_SET_ICON,		TYPE_UINT },
-	{ 0, "VFD_CLEAR_ICON",		IOC_VFD_CLEAR_ICON,		TYPE_UINT },
-	{ 0, "VFD_SET_OUTPUT",		IOC_VFD_SET_OUTPUT,		TYPE_CHAR },
-	{ 0, "VFD_CLEAR_OUTPUT",	IOC_VFD_CLEAR_OUTPUT,		TYPE_CHAR },
-	{ 0, "VFD_STANDBY",		IOC_VFD_STANDBY,		TYPE_UNSUPP },
-	{ 0, "VFD_LED_CTRL",		IOC_VFD_LED_CTRL,		TYPE_CHAR },
-	{ 0, "VFD_GET_WAKEUP",		IOC_VFD_GET_WAKEUP,		TYPE_UNSUPP },
+	{ 0, "FP_SET_BRIGHT",		IOC_FP_SET_BRIGHT,		TYPE_CHAR },
+	{ 0, "FP_CLEAR_ALL",		IOC_FP_CLEAR_ALL,		TYPE_UINT },
+	{ 0, "FP_SET_TEXT",		IOC_FP_SET_TEXT,		TYPE_CHARP },
+	{ 0, "FP_SET_ICON",		IOC_FP_SET_ICON,		TYPE_UINT },
+	{ 0, "FP_CLEAR_ICON",		IOC_FP_CLEAR_ICON,		TYPE_UINT },
+	{ 0, "FP_SET_OUTPUT",		IOC_FP_SET_OUTPUT,		TYPE_CHAR },
+	{ 0, "FP_CLEAR_OUTPUT",		IOC_FP_CLEAR_OUTPUT,		TYPE_CHAR },
+	{ 0, "FP_STANDBY",		IOC_FP_STANDBY,			TYPE_UNSUPP },
+	{ 0, "FP_LED_CTRL",		IOC_FP_LED_CTRL,		TYPE_CHAR },
+	{ 0, "FP_GET_WAKEUP",		IOC_FP_GET_WAKEUP,		TYPE_UNSUPP },
 	{ 1, "IR_SET_PRI_PROTOCOL",	IOC_IR_SET_PRI_PROTOCOL,	TYPE_UINT },
 	{ 1, "IR_SET_SEC_PROTOCOL",	IOC_IR_SET_SEC_PROTOCOL,	TYPE_UINT },
 	{ 1, "IR_SET_PRI_ADDRESS",	IOC_IR_SET_PRI_ADDRESS,		TYPE_UINT },
@@ -121,7 +128,7 @@ static struct ioctl_list n[] = {
 	{ 1, "IR_SET_X_DELAY",		IOC_IR_SET_X_DELAY,		TYPE_UINT },
 	{ 1, "IR_SET_FP_MODE",		IOC_IR_SET_FP_MODE,		TYPE_UINT },
 	{ 1, "IR_GET_PROTOCOLS",	IOC_IR_GET_PROTOCOLS,		TYPE_UINT_GET },
-#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+#ifdef HAVE_COOLSTREAM_CS_IR_GENERIC_H
 	{ 1, "IOC_IR_SET_PRI_KEYMAP",	IOC_IR_SET_PRI_KEYMAP,		TYPE_UNSUPP },
 	{ 1, "IOC_IR_SET_SEC_KEYMAP",	IOC_IR_SET_SEC_KEYMAP,		TYPE_UNSUPP },
 #endif
@@ -130,8 +137,8 @@ static struct ioctl_list n[] = {
 
 static const char *devices[2] =
 {
-	"/dev/display",
-	"/dev/input/nevis_ir"
+	"/dev/cs_display",
+	"/dev/cs_ir"
 };
 
 void usage(void)

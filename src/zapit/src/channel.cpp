@@ -65,8 +65,10 @@ void CZapitChannel::Init()
 	last_unlocked_time = 0;
 	has_bouquet = false;
 	record_demux = 2;
+	pip_demux = 2;
 	polarization = 0;
 	flags = 0;
+	deltype = FE_QPSK;
 }
 
 CZapitChannel::~CZapitChannel(void)

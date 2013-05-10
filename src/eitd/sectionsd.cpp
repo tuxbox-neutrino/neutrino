@@ -92,7 +92,7 @@ static bool messaging_zap_detected = false;
 /*static*/ bool dvb_time_update = false;
 
 //NTP-Config
-#define CONF_FILE "/var/tuxbox/config/neutrino.conf"
+#define CONF_FILE CONFIGDIR "/neutrino.conf"
 
 #ifdef USE_BB_NTPD
 const std::string ntp_system_cmd_prefix = "/sbin/ntpd -q -p ";
@@ -1013,7 +1013,11 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
 	printf("%s\n", stati);
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
 	malloc_stats();
+#endif
 	return ;
 }
 
@@ -1139,7 +1143,11 @@ static void FreeMemory()
 
 	unlockEvents();
 
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
 	malloc_stats();
+#endif
 	xprintf("[sectionsd] free memory done\n");
 	//wakeupAll(); //FIXME should we re-start eit here ?
 }
@@ -1976,7 +1984,11 @@ static void print_meminfo(void)
 	if (!sections_debug)
 		return;
 
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
 	malloc_stats();
+#endif
 }
 
 //---------------------------------------------------------------------

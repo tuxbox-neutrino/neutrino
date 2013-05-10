@@ -31,7 +31,6 @@
 #include <system/settings.h>
 #include <gui/infoclock.h>
 
-
 #define TIMEOSD_FONT SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME
 #define BARLEN 200
 

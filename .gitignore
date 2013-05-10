@@ -39,3 +39,4 @@ src/zapit/src/udpstreampes
 src/drivertool
 src/gui/svn_version.h
 src/gui/git_version.h
+src/nhttpd/nhttpd.conf

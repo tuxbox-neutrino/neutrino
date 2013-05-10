@@ -55,7 +55,8 @@ static CmodCache mod_cache; // static instance
 
 //-----------------------------------------------------------------------------
 #if defined(CONFIG_SYSTEM_TUXBOX) || defined(CONFIG_SYSTEM_TUXBOX_COOLSTREAM)
-#include <neutrinoapi.h>
+#include "neutrinoapi.h"
+#include <config.h>
 static CNeutrinoAPI *NeutrinoAPI;
 #endif
 

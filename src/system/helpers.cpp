@@ -42,6 +42,18 @@
 #include <system/helpers.h>
 #include <gui/update_ext.h>
 
+off_t file_size(const char *filename)
+{
+	struct stat stat_buf;
+	if(::stat(filename, &stat_buf) == 0)
+	{
+		return stat_buf.st_size;
+	} else
+	{
+		return 0;
+	}
+}
+
 bool file_exists(const char *filename)
 {
 	struct stat stat_buf;

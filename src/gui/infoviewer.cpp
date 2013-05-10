@@ -58,6 +58,9 @@
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
+#include <gui/components/cc.h>
+
+#include <system/helpers.h>
 
 #include <daemonc/remotecontrol.h>
 #include <driver/record.h>
@@ -127,6 +130,7 @@ CInfoViewer::~CInfoViewer()
 	delete snrscale;
 	delete timescale;
 	delete infoViewerBB;
+	delete infobar_txt;
 }
 
 void CInfoViewer::Init()
@@ -157,6 +161,8 @@ void CInfoViewer::Init()
 	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 	lcdUpdateTimer = 0;
 	rt_x = rt_y = rt_h = rt_w = 0;
+
+	infobar_txt = NULL;
 }
 
 /*
@@ -541,29 +547,48 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
 	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
 
+	int speed = CMoviePlayerGui::getInstance().GetSpeed();
 	const char *playicon = NULL;
 	switch (playState) {
 	case CMoviePlayerGui::PLAY:
 		playicon = NEUTRINO_ICON_PLAY;
+		speed = 0;
 		break;
 	case CMoviePlayerGui::PAUSE:
 		playicon = NEUTRINO_ICON_PAUSE;
 		break;
 	case CMoviePlayerGui::REW:
 		playicon = NEUTRINO_ICON_REW;
+		speed = abs(speed);
 		break;
 	case CMoviePlayerGui::FF:
 		playicon = NEUTRINO_ICON_FF;
+		speed = abs(speed);
 		break;
 	default:
 		/* NULL crashes in getIconSize, just use something */
 		playicon = NEUTRINO_ICON_BUTTON_HELP;
 		break;
 	}
+
 	int icon_w = 0,icon_h = 0;
 	frameBuffer->getIconSize(playicon, &icon_w, &icon_h);
+
+	int speedw = 0;
+	if (speed) {
+		sprintf(runningRest, "%dx", speed);
+		speedw = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(runningRest);
+		icon_w += speedw;
+	}
+
 	int icon_x = BoxStartX + ChanWidth / 2 - icon_w / 2;
 	int icon_y = BoxStartY + ChanHeight / 2 - icon_h / 2;
+	if (speed) {
+		int sh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight();
+		int sy = BoxStartY + ChanHeight/2 - sh/2 + sh;
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(icon_x, sy, ChanHeight, runningRest, COL_INFOBAR, 0, true);
+		icon_x += speedw;
+	}
 	frameBuffer->paintIcon(playicon, icon_x, icon_y);
 
 	showLcdPercentOver ();
@@ -827,6 +852,14 @@ void CInfoViewer::loop(bool show_dot)
 		frameBuffer->blit();
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
+#ifdef ENABLE_PIP
+		if ((msg == (neutrino_msg_t) g_settings.key_pip_close) || 
+		    (msg == (neutrino_msg_t) g_settings.key_pip_setup) || 
+		    (msg == (neutrino_msg_t) g_settings.key_pip_swap)) {
+			g_RCInput->postMsg(msg, data);
+			res = messages_return::cancel_info;
+		} else
+#endif
 		if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		  
@@ -850,6 +883,7 @@ void CInfoViewer::loop(bool show_dot)
 			paintTime (show_dot, false);
 			showRecordIcon (show_dot);
 			show_dot = !show_dot;
+			showInfoFile();
 			if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
 				showRadiotext();
 
@@ -1222,8 +1256,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				infoViewerBB->showIcon_SubT();
 				//infoViewerBB->showIcon_CA_Status(0);
 				infoViewerBB->showIcon_Resolution();
-				if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE)
-					infoViewerBB->showIcon_Tuner();
+				infoViewerBB->showIcon_Tuner();
 			}
 		}
 		return messages_return::handled;
@@ -1245,8 +1278,18 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		} else if (data == lcdUpdateTimer) {
 //printf("CInfoViewer::handleMsg: lcdUpdateTimer\n");
-			if ( is_visible )
-				show_Data( true );
+			if (is_visible) {
+				if (fileplay) {
+					CMoviePlayerGui::getInstance().UpdatePosition();
+					char runningRest[32]; // %d can be 10 digits max...
+					int curr_pos = CMoviePlayerGui::getInstance().GetPosition(); 
+					int duration = CMoviePlayerGui::getInstance().GetDuration();
+					sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
+					display_Info(NULL, NULL, true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
+				} else {
+					show_Data( true );
+				}
+			}
 			showLcdPercentOver ();
 			return messages_return::handled;
 		} else if (data == sec_timer_id) {
@@ -1388,7 +1431,8 @@ void CInfoViewer::showSNR ()
 			newfreq = false;
 
 			std::string polarisation = "";
-			if (g_info.delivery_system == DVB_S)
+			
+			if (CFEManager::getInstance()->getLiveFE()->getType() == FE_QPSK)
 				polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
 
 			int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
@@ -1792,46 +1836,59 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 #endif
 }
 
+void CInfoViewer::killInfobarText()
+{
+	if (infobar_txt){
+		if (infobar_txt->isPainted())
+			infobar_txt->hide();
+		delete infobar_txt;
+	}
+	infobar_txt = NULL;
+}
+
+
 void CInfoViewer::showInfoFile()
 {
-	/*if (recordModeActive)
-		return;*/
-	char infotext[80];
-	int fd, xStart, yStart, width, height, iOffset, oOffset, tWidth, tIndent, pb_w;
-	ssize_t cnt;
+	//read textcontent from this file
+	std::string infobar_file = "/tmp/infobar.txt"; 
 
-	fd = open("/tmp/infobar.txt", O_RDONLY); //read textcontent from this file
-
-	if (fd < 0)
-		return;
-
-	cnt = read(fd, infotext, 79);
-	close(fd);
-	if (cnt < 1) { //EOF == 0
-		fprintf(stderr, "CInfoViewer::showInfoFile: could not read from infobar.txt: %m");
+	//exit if file not found, don't create an info object, delete old instance if required
+	if (!file_size(infobar_file.c_str()))	{
+		killInfobarText();
 		return;
 	}
-	infotext[cnt-1] = '\0';
 
-	iOffset	= RADIUS_SMALL; // inner left/right offset
-	oOffset	= 140; // outer left/right offset
-	pb_w	= 112; // same value as int pb_w in display_Info()
-	xStart	= BoxStartX + ChanWidth + oOffset;
-	yStart	= BoxStartY;
-	width	= BoxEndX - xStart - (g_settings.infobar_progressbar ? oOffset : oOffset + pb_w);
-	height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
-	tWidth	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(infotext);
-	if (tWidth < (width - (iOffset * 2)) )
-		tIndent	= (width - (iOffset * 2) - tWidth) / 2;
-	else
-		tIndent	= 0;
-	//shadow
-	frameBuffer->paintBoxRel(xStart + SHADOW_OFFSET, yStart + SHADOW_OFFSET, width, height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL, CORNER_ALL);
-	//background
-	frameBuffer->paintBoxRel(xStart, yStart, width, height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_ALL);
-	//content
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
-		xStart + iOffset + tIndent, yStart + height, width - iOffset, (std::string)infotext, COL_INFOBAR, height, false);
+	//set position of info area
+	const int oOffset	= 140; // outer left/right offset
+	const int pb_w		= 112; // same value as int pb_w in display_Info()
+	const int xStart	= BoxStartX + ChanWidth + oOffset;
+	const int yStart	= BoxStartY;
+	const int width		= BoxEndX - xStart - (g_settings.infobar_progressbar ? oOffset : oOffset + pb_w);
+	const int height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
+
+	//create info object
+	if (infobar_txt == NULL)
+		infobar_txt = new CComponentsInfoBox();
+
+	//get text from file and set it to info object, exit and delete object if failed
+	if (!infobar_txt->setTextFromFile(infobar_file, CTextBox::CENTER, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO])){
+		killInfobarText();
+		return;
+	}
+
+	//set some properties for info object
+	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
+	infobar_txt->setCornerRadius(RADIUS_SMALL);
+	infobar_txt->setShadowOnOff(true);
+	infobar_txt->setTextColor(COL_INFOBAR);
+	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);
+	infobar_txt->doPaintTextBoxBg(false);
+
+	//paint info, don't save background, if already painted, global hide is also done by killTitle()
+	bool save_bg = !infobar_txt->isPainted();
+	if (infobar_txt->textChanged())
+		infobar_txt->paint(save_bg);
+
 }
 
 void CInfoViewer::killTitle()
@@ -1849,6 +1906,8 @@ void CInfoViewer::killTitle()
 			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
 			killRadiotext();
 		}
+
+		killInfobarText();
 		frameBuffer->blit();
 	}
 	showButtonBar = false;

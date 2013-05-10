@@ -41,6 +41,7 @@
 #include <gui/moviebrowser.h>
 #include <gui/movieinfo.h>
 #include <gui/widget/hintbox.h>
+#include <gui/timeosd.h>
 #include <driver/record.h>
 #include <playback.h>
 
@@ -74,6 +75,9 @@ class CMoviePlayerGui : public CMenuTarget
 	CMoviePlayerGui::state playstate;
 	int speed;
 	int startposition;
+	int position;
+	int duration;
+	CTimeOSD FileTime;
 
 	unsigned short numpida;
 	unsigned short vpid;
@@ -109,7 +113,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void restoreNeutrino();
 
 	void showHelpTS(void);
-	void callInfoViewer(const int duration, const int pos);
+	void callInfoViewer(/*const int duration, const int pos*/);
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
 	void selectAudioPid(bool file_player);
@@ -131,6 +135,10 @@ class CMoviePlayerGui : public CMenuTarget
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
 	std::string CurrentAudioName() { return currentaudioname; };
+	int GetSpeed() { return speed; }
+	int GetPosition() { return position; }
+	int GetDuration() { return duration; }
+	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
 };

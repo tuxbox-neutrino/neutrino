@@ -102,14 +102,14 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			CNetworkSetup::getInstance()->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD_NO);
 		}
 		bool init_settings = false;
-		if (g_info.delivery_system == DVB_S)
-			init_settings = file_exists("/var/tuxbox/config/initial/");
+		if (CFEManager::getInstance()->haveSat())
+			init_settings = file_exists(CONFIGDIR "/initial/");
 
 		if(init_settings && (res != menu_return::RETURN_EXIT_ALL))
 		{
 			if (ShowMsgUTF(LOCALE_WIZARD_INITIAL_SETTINGS, g_Locale->getText(LOCALE_WIZARD_INSTALL_SETTINGS),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
-				system("/bin/cp /var/tuxbox/config/initial/* /var/tuxbox/config/zapit/");
+				system("/bin/cp " CONFIGDIR "/initial/* " CONFIGDIR "/zapit/");
 				CFEManager::getInstance()->loadSettings();
 				CFEManager::getInstance()->saveSettings();
 				CZapit::getInstance()->PrepareChannels();

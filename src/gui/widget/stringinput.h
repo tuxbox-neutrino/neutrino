@@ -4,13 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
 
 	License: GPL
 
@@ -49,8 +42,12 @@ class CStringInput : public CMenuTarget
 		int width;
 		int height;
 		int hheight; // head font height
-		int mheight; // menu font height
 		int iheight;
+		int bheight; // body height
+		int fheight; // footer height
+		int input_h; // input field height
+		int input_w; // input field width
+		int offset;
 		int lower_bound;
 		int upper_bound;
 
@@ -66,9 +63,8 @@ class CStringInput : public CMenuTarget
 		CChangeObserver * observ;
 
 		virtual void init();
-		virtual const char * getHint1(void);
 
-		virtual void paint(bool buttons = false);
+		virtual void paint(bool sms = false);
 		virtual void paintChar(int pos, char c);
 		virtual void paintChar(int pos);
 
@@ -139,6 +135,21 @@ class CPINInput : public CStringInput
 
 		 int exec( CMenuTarget* parent, const std::string & actionKey );
 };
+
+// For CI
+class CEnquiryInput : public CPINInput
+{
+	private:
+		bool blind;
+	protected:
+		virtual void paintChar(int pos);
+	public:
+		CEnquiryInput(const neutrino_locale_t Name, char* Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
+		 : CPINInput(Name, (char *)Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { blind = Blind; }
+		CEnquiryInput(char * Head, char* Value, int Size, bool Blind, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE, const char * const Valid_Chars= (const char *)"0123456789", CChangeObserver* Observ = NULL)
+		 : CPINInput(Head, (char *)Value, Size, Hint_1, Hint_2, Valid_Chars, Observ) { blind = Blind; }
+};
+
 
 class CPLPINInput : public CPINInput
 {

@@ -123,7 +123,7 @@ class CTimerEvent_Record : public CTimerEvent
 			   time_t epg_starttime = 0,
 			   unsigned char apids = TIMERD_APIDS_STD,
 			   CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
-			   uint32_t repeatcount = 1, const std::string recDir = "");
+			   uint32_t repeatcount = 1, const std::string &recDir = "");
 	CTimerEvent_Record(CConfigFile *config, int iId);
 	virtual ~CTimerEvent_Record(){};
 	virtual CTimerd::CTimerEventTypes getEventType(void) const { return CTimerd::TIMER_RECORD; };

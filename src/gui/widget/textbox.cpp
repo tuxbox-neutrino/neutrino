@@ -98,7 +98,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 	//TRACE(" CTextBox::m_cText: %d, m_nMode %d\t\r\n",m_cText.size(),m_nMode);
 
 	m_textBackgroundColor 	= textBackgroundColor;
-	m_nFontTextHeight  	= m_pcFontText->getHeight();
+	m_nFontTextHeight 	= getFontTextHeight();
 
 	//TRACE("[CTextBox] %s Line %d\r\n", __FUNCTION__, __LINE__);
 	//TRACE(" CTextBox::m_nFontTextHeight: %d\t\r\n",m_nFontTextHeight);
@@ -150,8 +150,9 @@ void CTextBox::initVar(void)
 	m_cText	= "";
 	m_nMode = SCROLL;
 
+	m_FontUseDigitHeight	= false;
 	m_pcFontText  		= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
-	m_nFontTextHeight 	= m_pcFontText->getHeight();
+	m_nFontTextHeight 	= getFontTextHeight();
 	m_nMaxTextWidth		= 0;
 
 	m_nNrOfPages 		= 1;
@@ -190,11 +191,28 @@ void CTextBox::initFramesAndTextArray()
 	refreshTextLineArray();
 }
 
+int CTextBox::getFontTextHeight()
+{
+		if (m_FontUseDigitHeight)
+			return m_pcFontText->getDigitHeight() + (m_pcFontText->getDigitOffset() * 18) / 10;
+		else
+			return m_pcFontText->getHeight();
+}
+
+void CTextBox::setFontUseDigitHeight(bool set/*=true*/)
+{
+	if (m_FontUseDigitHeight != set) {
+		m_FontUseDigitHeight = set;
+		m_nFontTextHeight = getFontTextHeight();
+		initFramesAndTextArray();
+	}
+}
+
 void CTextBox::setTextFont(Font* font_text)
 {
 	if ((m_pcFontText != font_text) && (font_text != NULL)) {
 		m_pcFontText = font_text;
-		m_nFontTextHeight = m_pcFontText->getHeight();
+		m_nFontTextHeight = getFontTextHeight();
 		//Initialise the window frames first and than refresh text line array
 		initFramesAndTextArray();
 	}
@@ -202,7 +220,10 @@ void CTextBox::setTextFont(Font* font_text)
 
 void CTextBox::setTextBorderWidth(int border)
 {
-	text_border_width = border;
+	/* we need a minimal borderwith of 1px because the edge-smoothing
+	(or fontrenderer?) otherwise will paint single pixels outside the
+	defined area. e.g. 'j' is leaving such residues */
+	text_border_width = (border > 0) ? border : 1;
 	//Initialise the window frames first and than refresh text line array
 	initFramesAndTextArray();
 }

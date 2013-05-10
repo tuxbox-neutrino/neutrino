@@ -26,6 +26,11 @@
 #include <global.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
+#include <unistd.h>
+
+#ifdef HAVE_COOL_HARDWARE
+#include <cnxtfb.h>
+#endif
 
 COSDFader::COSDFader(unsigned char & alpha)
 	: max_alpha(alpha)
@@ -49,7 +54,12 @@ void COSDFader::StartFadeIn()
 	fadeIn = true;
 	fadeOut = false;
 	fadeValue = 100;
+#ifdef BOXMODEL_APOLLO
+	frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_UNIFORM_ALPHA); // Global alpha multiplied with pixel alpha
+#else
 	frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
+#endif
+
 	frameBuffer->setBlendLevel(fadeValue);
 	fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 }
@@ -65,7 +75,11 @@ bool COSDFader::StartFadeOut()
 	if ((!fadeOut) && g_settings.widget_fade) {
 		fadeOut = true;
 		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+#ifdef BOXMODEL_APOLLO
+		frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_UNIFORM_ALPHA); // Global alpha multiplied with pixel alpha
+#else
 		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
+#endif
 		ret = true;
 	}
 	return ret;
@@ -75,7 +89,12 @@ void COSDFader::Stop()
 {
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
+		usleep(40000);
+#ifdef BOXMODEL_APOLLO
+		frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
+#else
+		frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
+#endif
 		fadeIn = fadeOut = false;
 	}
 }
@@ -99,7 +118,11 @@ bool COSDFader::Fade()
 			fadeValue = max_alpha;
 			g_RCInput->killTimer (fadeTimer);
 			fadeIn = false;
-			frameBuffer->setBlendMode(1); // Set back to per pixel alpha
+#ifdef BOXMODEL_APOLLO
+			frameBuffer->setBlendMode(CNXTFB_BLEND_MODE_PER_PIXEL); // Global alpha multiplied with pixel alpha
+#else
+			frameBuffer->setBlendMode(1); // Global alpha multiplied with pixel alpha
+#endif
 		} else
 			frameBuffer->setBlendLevel(fadeValue);
 	}

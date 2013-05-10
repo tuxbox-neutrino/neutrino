@@ -85,7 +85,11 @@ extern int allow_flash;
 #define FILEBROWSER_UPDATE_FILTER      "img"
 
 #define MTD_OF_WHOLE_IMAGE             0
-#define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd2"
+#ifdef BOXMODEL_APOLLO
+#define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd0"
+#else
+#define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
+#endif
 
 CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()
@@ -93,6 +97,8 @@ CFlashUpdate::CFlashUpdate()
 	width = w_max (40, 10); 
 	setTitle(LOCALE_FLASHUPDATE_HEAD);
 	sysfs = CMTDInfo::getInstance()->findMTDsystem();
+	if (sysfs.empty())
+		sysfs = MTD_DEVICE_OF_UPDATE_PART;
 	printf("Mtd partition to update: %s\n", sysfs.c_str());
 }
 
@@ -458,7 +464,6 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 	if(fileType < '3') {
 		CNeutrinoApp::getInstance()->exec(NULL, "savesettings");
-		sleep(2);
 		//flash it...
 
 #if ENABLE_EXTUPDATE
@@ -488,9 +493,9 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFSMounter::umount();
 
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
+		sleep(2);
 		//my_system("/etc/init.d/rcK");
 		ft.reboot();
-		sleep(20000);
 	}
 	else if(fileType == 'T') // display file contents
 	{
@@ -606,7 +611,7 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 	} else {
 		showGlobalStatus(100);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
-		sleep(1);
+		sleep(2);
 		hide();
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
 		ft.reboot();
@@ -631,9 +636,15 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 	for(int lx=0;lx<mtdInfo->getMTDCount();lx++) {
 		char sActionKey[20];
 		bool enabled = true;
+#ifdef BOXMODEL_APOLLO
+		// disable write uboot / uldr, FIXME correct numbers
+		if ((actionkey == "writemtd") && (lx == 5 || lx == 6))
+			enabled = false;
+#else
 		// disable write uboot
 		if ((actionkey == "writemtd") && (lx == 0))
 			enabled = false;
+#endif
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}

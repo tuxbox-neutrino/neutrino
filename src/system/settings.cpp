@@ -109,7 +109,8 @@ CScanSettings::CScanSettings(void)
 	delivery_system = DVB_S;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
 	scanType = CServiceScan::SCAN_TVRADIO;
-	strcpy(satNameNoDiseqc, "none");
+	strcpy(satName, "none");
+	strcpy(cableName, "none");
 }
 
 bool CScanSettings::loadSettings(const char * const fileName, const delivery_system_t dsys)
@@ -126,7 +127,6 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 
 	bouquetMode = (CZapitClient::bouquetMode) configfile.getInt32("bouquetMode" , bouquetMode);
 	scanType = (CZapitClient::scanType) configfile.getInt32("scanType", scanType);
-	strcpy(satNameNoDiseqc, configfile.getString("satNameNoDiseqc", satNameNoDiseqc).c_str());
 
 	scan_fta_flag = configfile.getInt32("scan_fta_flag", 0);
 	scan_nit = configfile.getInt32("scan_nit", 1);
@@ -135,19 +135,20 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	scan_reset_numbers = configfile.getInt32("scan_reset_numbers", 0);
 	scan_logical_numbers = configfile.getInt32("scan_logical_numbers", 0);
 	scan_logical_hd = configfile.getInt32("scan_logical_hd", 1);
-	TP_fec = configfile.getInt32("TP_fec", 1);
-	TP_pol = configfile.getInt32("TP_pol", 0);
-	TP_mod = configfile.getInt32("TP_mod", 3);
 
-	if(delivery_system == DVB_S) {
-		strcpy(TP_freq, configfile.getString("TP_freq", "10100000").c_str());
-		strcpy(TP_rate, configfile.getString("TP_rate", "27500000").c_str());
-	} else {
-		strcpy(TP_freq, configfile.getString("TP_freq", "369000").c_str());
-		strcpy(TP_rate, configfile.getString("TP_rate", "6875000").c_str());
-	}
+	strcpy(satName, configfile.getString("satName", satName).c_str());
+	sat_TP_fec = configfile.getInt32("sat_TP_fec", 1);
+	sat_TP_pol = configfile.getInt32("sat_TP_pol", 0);
+	strcpy(sat_TP_freq, configfile.getString("sat_TP_freq", "10100000").c_str());
+	strcpy(sat_TP_rate, configfile.getString("sat_TP_rate", "27500000").c_str());
+
+	strcpy(cableName, configfile.getString("cableName", cableName).c_str());
+	cable_TP_mod = configfile.getInt32("cable_TP_mod", 3);
+	cable_TP_fec = configfile.getInt32("cable_TP_fec", 1);
+	strcpy(cable_TP_freq, configfile.getString("cable_TP_freq", "369000").c_str());
+	strcpy(cable_TP_rate, configfile.getString("cable_TP_rate", "6875000").c_str());
 #if 1
-	if(TP_fec == 4) TP_fec = 5;
+	if(sat_TP_fec == 4) sat_TP_fec = 5;
 #endif
 	fast_type = configfile.getInt32("fast_type", 1);
 	fast_op = configfile.getInt32("fast_op", 0);
@@ -161,7 +162,6 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("delivery_system", delivery_system);
 	configfile.setInt32("bouquetMode", bouquetMode);
 	configfile.setInt32("scanType", scanType);
-	configfile.setString("satNameNoDiseqc", satNameNoDiseqc);
 
 	configfile.setInt32("scan_fta_flag", scan_fta_flag);
 	configfile.setInt32("scan_nit", scan_nit);
@@ -170,14 +170,21 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("scan_reset_numbers", scan_reset_numbers);
 	configfile.setInt32("scan_logical_numbers", scan_logical_numbers);
 	configfile.setInt32("scan_logical_hd", scan_logical_hd);
-	configfile.setInt32("TP_fec", TP_fec);
-	configfile.setInt32("TP_pol", TP_pol);
-	configfile.setInt32("TP_mod", TP_mod);
-	configfile.setString("TP_freq", TP_freq);
-	configfile.setString("TP_rate", TP_rate);
 	configfile.setInt32("fast_type", fast_type);
 	configfile.setInt32("fast_op", fast_op);
 	configfile.setInt32("cable_nid", cable_nid);
+
+	configfile.setString("satName", satName);
+	configfile.setInt32("sat_TP_fec", sat_TP_fec);
+	configfile.setInt32("sat_TP_pol", sat_TP_pol);
+	configfile.setString("sat_TP_freq", sat_TP_freq);
+	configfile.setString("sat_TP_rate", sat_TP_rate);
+
+	configfile.setString("cableName", cableName);
+	configfile.setInt32("cable_TP_fec", cable_TP_fec);
+	configfile.setInt32("cable_TP_mod", cable_TP_mod);
+	configfile.setString("cable_TP_freq", cable_TP_freq);
+	configfile.setString("cable_TP_rate", cable_TP_rate);
 
 	if(configfile.getModifiedFlag())
 		configfile.saveConfig(fileName);

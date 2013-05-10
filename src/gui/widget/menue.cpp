@@ -190,9 +190,6 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	bool selected = select_mode;
 	bool icon_painted = false;
 	
-	int w = 0;
-	int h = 0;
-
 	std::string icon_name = iconName;
 	int icon_w = 0;
 	int icon_h = 0;
@@ -223,11 +220,9 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	//get data of number icon and paint
 	if (!icon_name.empty())
 	{
-		frameBuffer->getIconSize(icon_name.c_str(), &w, &h);
-		icon_w = w;
-		icon_h = h;
-		
-		if (active  && icon_w>0 && icon_h>0)
+		frameBuffer->getIconSize(icon_name.c_str(), &icon_w, &icon_h);
+
+		if (active  && icon_w>0 && icon_h>0 && icon_space_x >= icon_w)
 		{
 			icon_x = icon_space_mid - (icon_w/2); 
 
@@ -248,9 +243,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	//get data of number right info icon and paint
 	if (!iconName_Info_right.empty())
 	{
-		frameBuffer->getIconSize(iconName_Info_right.c_str(), &w, &h);
-		icon_w = w;
-		icon_h = h;
+		frameBuffer->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 
 		if (active  && icon_w>0 && icon_h>0)
 		{
@@ -663,6 +656,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					if(hasItem() && selected > -1 && (int)items.size() > selected) {
 						//exec this item...
 						CMenuItem* item = items[selected];
+						if (!item->isSelectable())
+							break;
 						item->msg = msg;
 						fader.Stop();
 						int rv = item->exec( this );
@@ -975,9 +970,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 }
 
 void CMenuWidget::paintItems()
-{
-	int item_height=height-(item_start_y-y);
-	
+{	
 	//Item not currently on screen
 	if (selected >= 0)
 	{
@@ -990,10 +983,13 @@ void CMenuWidget::paintItems()
 	// Scrollbar
 	if(total_pages>1)
 	{
+		int item_height=height-(item_start_y-y);
 		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
 		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
+		if(current_page==total_pages-1){
+			frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
+		}
 	}
-	frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	int ypos=item_start_y;
 	for (unsigned int count = 0; count < items.size(); count++)
 	{
@@ -1092,11 +1088,6 @@ void CMenuWidget::paintHint(int pos)
 	if (pos < 0 && !hint_painted)
 		return;
 	
-	int rad = RADIUS_LARGE;
-
-	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
-	int iwidth = width+sb_width;
 #if 0
 	if (hint_painted) {
 		/* clear detailsline line */
@@ -1129,7 +1120,7 @@ void CMenuWidget::paintHint(int pos)
 	}
 	if (pos < 0)
 		return;
-	
+
 	CMenuItem* item = items[pos];
 	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
@@ -1152,6 +1143,10 @@ void CMenuWidget::paintHint(int pos)
 		return;
 	
 	int iheight = item->getHeight();
+	int rad = RADIUS_LARGE;
+	int xpos  = x - ConnectLineBox_Width;
+	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
+	int iwidth = width+sb_width;
 	
 	//init details line and infobox dimensions
 	int ypos1 = item->getYPosition();
@@ -1814,6 +1809,15 @@ void CMenuForwarderNonLocalized::setText(const char * const Text)
 int CMenuForwarderNonLocalized::getWidth(void)
 {
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(the_text, true);
+	const char * option_text = NULL;
+	if (option)
+		option_text = option;
+	else if (option_string)
+		option_text = option_string->c_str();
+
+        if (option_text != NULL)
+                tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+
 	return tw;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -1862,9 +1866,8 @@ int CMenuSeparator::getWidth(void)
 
 int CMenuSeparator::paint(bool selected)
 {
-	int height;
+	int height = getHeight();
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-	height = getHeight();
 	
 	if ((type & SUB_HEAD))
 	{
@@ -1885,8 +1888,7 @@ int CMenuSeparator::paint(bool selected)
 	}
 	if ((type & STRING))
 	{
-		const char * l_text;
-		l_text = getString();
+		const char * l_text = getString();
 	
 		if (text != NONEXISTANT_LOCALE || strlen(l_text) != 0)
 		{

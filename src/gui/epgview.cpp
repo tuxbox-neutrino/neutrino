@@ -126,6 +126,7 @@ void CEpgData::start()
 	buttonheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;
 	if (buttonheight < 30)
 		buttonheight = 30; // the buttons and icons need space
+	oy-=buttonheight/2;
 	/* this is the text box height - and the height of the scroll bar */
 	sb = oy - topboxheight - botboxheight - buttonheight;
 	/* button box is handled separately (why?) */
@@ -135,7 +136,7 @@ void CEpgData::start()
 	toph = topboxheight;
 
 	sx = getScreenStartX(ox);
-	sy = getScreenStartY(oy + buttonheight/2); /* button box is handled separately (why?) */
+	sy = getScreenStartY(oy + buttonheight); /* button box is handled separately (why?) */
 }
 
 void CEpgData::addTextToArray(const std::string & text, int screening) // UTF-8
@@ -1130,13 +1131,12 @@ void CEpgData::showTimerEventBar (bool pshow)
         frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 	h = std::max(fh, icol_h+4);
 
-	frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
 	// hide only?
 	if (! pshow) {
+		frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
 		frameBuffer->blit();
 		return;
 	}
-
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */

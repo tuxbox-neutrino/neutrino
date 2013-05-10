@@ -1,3 +1,4 @@
 AUTOMAKE_OPTIONS = gnu
 
-SUBDIRS = lib src
+SUBDIRS = lib src data
+

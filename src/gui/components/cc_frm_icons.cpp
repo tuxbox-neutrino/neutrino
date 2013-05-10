@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -30,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc.h"
+#include "cc_frm.h"
 
 using namespace std;
 
@@ -41,7 +41,7 @@ CComponentsIconForm::CComponentsIconForm()
 }
 
 
-CComponentsIconForm::CComponentsIconForm(const int x_pos, const int y_pos, const int w, const int h, const std::vector<std::string> v_icon_names, bool has_shadow,
+CComponentsIconForm::CComponentsIconForm(const int x_pos, const int y_pos, const int w, const int h, const std::vector<std::string> &v_icon_names, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	initVarIconForm();

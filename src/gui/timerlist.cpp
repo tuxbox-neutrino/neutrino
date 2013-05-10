@@ -1033,15 +1033,15 @@ const CMenuOptionChooser::keyval TIMERLIST_STANDBY_OPTIONS[TIMERLIST_STANDBY_OPT
 #endif
 const CMenuOptionChooser::keyval TIMERLIST_TYPE_OPTIONS[TIMERLIST_TYPE_OPTION_COUNT] =
 {
-	{ CTimerd::TIMER_SHUTDOWN,	LOCALE_TIMERLIST_TYPE_SHUTDOWN },
 #if 0
 	{ CTimerd::TIMER_NEXTPROGRAM,	LOCALE_TIMERLIST_TYPE_NEXTPROGRAM },
 #endif
+	{ CTimerd::TIMER_RECORD,	LOCALE_TIMERLIST_TYPE_RECORD },
 	{ CTimerd::TIMER_ZAPTO,		LOCALE_TIMERLIST_TYPE_ZAPTO },
 	{ CTimerd::TIMER_STANDBY,	LOCALE_TIMERLIST_TYPE_STANDBY },
-	{ CTimerd::TIMER_RECORD,	LOCALE_TIMERLIST_TYPE_RECORD },
 	{ CTimerd::TIMER_SLEEPTIMER,	LOCALE_TIMERLIST_TYPE_SLEEPTIMER },
 	{ CTimerd::TIMER_REMIND,	LOCALE_TIMERLIST_TYPE_REMIND },
+	{ CTimerd::TIMER_SHUTDOWN,	LOCALE_TIMERLIST_TYPE_SHUTDOWN },
 	{ CTimerd::TIMER_EXEC_PLUGIN,	LOCALE_TIMERLIST_TYPE_EXECPLUGIN }
 };
 
@@ -1135,6 +1135,9 @@ int CTimerList::newTimer()
 	std::vector<CMenuWidget *> toDelete;
 	// Defaults
 	timerNew.eventType = CTimerd::TIMER_RECORD ;
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+		timerNew.eventType = CTimerd::TIMER_ZAPTO;
+
 	timerNew.eventRepeat = CTimerd::TIMERREPEAT_ONCE ;
 	timerNew.repeatCount = 0;
 	timerNew.alarmTime = (time(NULL)/60)*60;
@@ -1179,23 +1182,24 @@ int CTimerList::newTimer()
 			CMenuWidget* mwradio = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
 			toDelete.push_back(mwradio);
 
-			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->tvChannels);
-			for (int j = 0; j < (int) channels->size(); j++) {
+			ZapitChannelList channels;
+			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
+			for (int j = 0; j < (int) channels.size(); j++) {
 				char cChannelId[3+16+1+1];
-				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", (*channels)[j]->channel_id);
-				mwtv->addItem(new CMenuForwarderNonLocalized((*channels)[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + (*channels)[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, (*channels)[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
+				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->channel_id);
+				mwtv->addItem(new CMenuForwarderNonLocalized(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
 			}
-			if (!channels->empty())
+			if (!channels.empty())
 				mctv.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str() /*g_bouquetManager->Bouquets[i]->Name.c_str()*/, true, NULL, mwtv));
 
 
-			channels = &(g_bouquetManager->Bouquets[i]->radioChannels);
-			for (int j = 0; j < (int) channels->size(); j++) {
+			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
+			for (int j = 0; j < (int) channels.size(); j++) {
 				char cChannelId[3+16+1+1];
-				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", (*channels)[j]->channel_id);
-				mwradio->addItem(new CMenuForwarderNonLocalized((*channels)[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + (*channels)[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, (*channels)[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
+				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->channel_id);
+				mwradio->addItem(new CMenuForwarderNonLocalized(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
 			}
-			if (!channels->empty())
+			if (!channels.empty())
 				mcradio.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwradio));
 		}
 	}
@@ -1221,7 +1225,11 @@ int CTimerList::newTimer()
 	CTimerListNewNotifier notifier2((int *)&timerNew.eventType,
 					&timerNew.stopTime,m2,m6,m8,m9,m10,m7,
 					timerSettings_stopTime.getValue());
-	CMenuOptionChooser* m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2);
+	CMenuOptionChooser* m0;
+	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2);
+	else
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, &TIMERLIST_TYPE_OPTIONS[1], TIMERLIST_TYPE_OPTION_COUNT-1, true, &notifier2);
 
 	timerSettings.addItem( m0);
 	timerSettings.addItem( m1);
@@ -1252,7 +1260,7 @@ int CTimerList::newTimer()
 
 bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 {
-	if (CFEManager::getInstance()->getMode() == CFEManager::FE_MODE_SINGLE){
+	if (CFEManager::getInstance()->getEnabledCount() == 1) {
 		CTimerdClient Timer;
 		CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(announceTime,stopTime);
 		//printf("[CTimerdClient] attention\n%d\t%d\t%d conflicts with:\n",timerNew.announceTime,timerNew.alarmTime,timerNew.stopTime);

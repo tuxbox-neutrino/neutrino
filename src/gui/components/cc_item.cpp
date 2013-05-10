@@ -16,7 +16,7 @@
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Library General Public License for more details.
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
@@ -53,7 +53,11 @@ void CComponentsItem::initVarItem()
 {
 	//CComponents
 	initVarBasic();
-	cc_item_index = CC_NO_INDEX;
+	cc_item_index 		= CC_NO_INDEX;
+	cc_item_xr = cc_item_yr = -1;
+	cc_item_enabled 	= true;
+	cc_item_selected 	= false;
+	cc_parent 		= NULL;
 }
 
 // Paint container background in cc-items with shadow, background and frame.
@@ -68,13 +72,31 @@ void CComponentsItem::paintInit(bool do_save_bg)
 
 	int sw = shadow ? shadow_w : 0;
 	int th = fr_thickness;
+	fb_pixel_t col_frame_cur = col_frame;
 
+	//calculate current needed frame thickeness and color, if item selected or not
+	if (cc_item_selected){
+		col_frame_cur = col_frame_sel;
+		th = max(fr_thickness_sel, fr_thickness);
+	}
+
+	//calculate current needed corner radius for body box, depends of frame thickness
+	int rad = (corner_rad>th) ? corner_rad-th : corner_rad;
+
+	//calculate positon of shadow areas	
+	int x_sh = corner_rad>0 ? x+width-2*corner_rad+sw : x+width; //right
+	int y_sh = corner_rad>0 ? y+height-2*corner_rad+sw : y+height; //bottom
+	
+	//calculate current shadow width depends of current corner_rad
+	int sw_cur = corner_rad>0 ? 2*corner_rad : sw;
+	
 	comp_fbdata_t fbdata[] =
 	{
-		{CC_FBDATA_TYPE_BGSCREEN, 	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
-		{CC_FBDATA_TYPE_SHADOW, 	x+sw,	y+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},
-		{CC_FBDATA_TYPE_FRAME, 		x, 	y, 	width, 		height, 	col_frame, 	corner_rad, 	th, 	NULL,	NULL},
-		{CC_FBDATA_TYPE_BOX, 		x+th,	y+th, 	width-2*th, 	height-2*th, 	col_body, 	corner_rad-th,  0, 	NULL,	NULL},
+		{CC_FBDATA_TYPE_BGSCREEN,	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},		
+		{CC_FBDATA_TYPE_BOX, 		x_sh,	y+sw, 	sw_cur, 	height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow right		
+		{CC_FBDATA_TYPE_BOX, 		x+sw, 	y_sh, 	width, 		sw_cur, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow bottom
+		{CC_FBDATA_TYPE_FRAME, 		x, 	y, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},//frame
+		{CC_FBDATA_TYPE_BOX,		x+th,   y+th,   width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	NULL},//body
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
@@ -105,28 +127,6 @@ void CComponentsItem::hideCCItem(bool no_restore)
 void CComponentsItem::hide(bool no_restore)
 {
 	hideCCItem(no_restore);
-}
-
-
-//hide rendered objects
-void CComponentsItem::kill()
-{
-	//save current colors
-	fb_pixel_t c_tmp1, c_tmp2, c_tmp3;
-	c_tmp1 = col_body;
-	c_tmp2 = col_shadow;
-	c_tmp3 = col_frame;
-
-	//set background color
-	col_body = col_frame = col_shadow = COL_BACKGROUND;
-
-	//paint with background and restore last used colors
-	paint(CC_SAVE_SCREEN_NO);
-	col_body = c_tmp1;
-	col_shadow = c_tmp2;
-	col_frame = c_tmp3;
-	firstPaint = true;
-	is_painted = false;
 }
 
 //synchronize colors for forms

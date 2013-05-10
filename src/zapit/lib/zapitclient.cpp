@@ -162,6 +162,7 @@ unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 
 	msg.channel_id = channel_id;
 	msg.record = false;
+	msg.pip = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -180,6 +181,25 @@ unsigned int CZapitClient::zapTo_record(const t_channel_id channel_id)
 
 	msg.channel_id = channel_id;
 	msg.record = true;
+	msg.pip = false;
+
+	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
+
+	CZapitMessages::responseZapComplete response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
+
+	close_connection();
+
+	return response.zapStatus;
+}
+
+unsigned int CZapitClient::zapTo_pip(const t_channel_id channel_id)
+{
+	CZapitMessages::commandZaptoServiceID msg;
+
+	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = true;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -1002,6 +1022,14 @@ void CZapitClient::stopPlayBack(const bool sendpmt)
 	VALGRIND_PARANOIA;
 	msg.truefalse = sendpmt;
 	send(CZapitMessages::CMD_SB_STOP_PLAYBACK, (char*)&msg, sizeof(msg));
+	CZapitMessages::responseCmd response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
+	close_connection();
+}
+
+void CZapitClient::stopPip()
+{
+	send(CZapitMessages::CMD_STOP_PIP);
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();

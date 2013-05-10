@@ -575,8 +575,10 @@ bool CServiceScan::ScanProviders()
 	} else {
 		Cleanup(false);
 		frontend->setTsidOnid(0);
+#if 0
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
+#endif
 	}
 
 	return (found_channels != 0);
@@ -638,8 +640,10 @@ bool CServiceScan::ScanTransponder()
 	} else {
 		Cleanup(false);
 		frontend->setTsidOnid(0);
+#if 0
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
+#endif
 	}
 
 	return (found_channels != 0);

@@ -36,16 +36,6 @@
 
 #include <linux/version.h>
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,7)
-//#include <linux/compiler.h>
-#include <mtd/mtd-user.h>
-#else
-#include <mtd/mtd-user.h>
-//#include <linux/mtd/mtd.h>
-#endif
-
-//#include <libcramfs.h>
-
 #include <global.h>
 
 
@@ -78,58 +68,78 @@ void CFlashTool::setStatusViewer( CProgress_StatusViewer* statusview )
 
 bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEnd )
 {
-	int		fd1, fd2;
-	long	filesize;
-	int		globalProgressBegin = 0;
+	int fd1;
+	long filesize;
+	int globalProgressBegin = 0;
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(0);
-	}
 
-	if (mtdDevice.empty())
-	{
+	if (mtdDevice.empty()) {
 		ErrorMessage = "mtd-device not set";
 		return false;
 	}
 
-	if( (fd1 = open( mtdDevice.c_str(), O_RDONLY )) < 0 )
-	{
+	if( (fd = open( mtdDevice.c_str(), O_RDONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD);
 		return false;
 	}
+	if (!getInfo()) {
+		close(fd);
+		return false;
+	}
 
-	if( (fd2 = open( filename.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR  |  S_IRGRP | S_IWGRP  |  S_IROTH | S_IWOTH)) < 0 )
-	{
+	if( (fd1 = open( filename.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR  |  S_IRGRP | S_IWGRP  |  S_IROTH | S_IWOTH)) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
-		close(fd1);
+		close(fd);
 		return false;
 	}
 
 	if(statusViewer)
-	{
 		globalProgressBegin = statusViewer->getGlobalStatus();
-	}
+
 	filesize = CMTDInfo::getInstance()->getMTDSize(mtdDevice);
 
-	char buf[1024];
+	unsigned char * buf = new unsigned char[meminfo.writesize];
+	if (buf == NULL) {
+		printf("CFlashTool::program: mem alloc failed\n");
+		close(fd);
+		close(fd1);
+		return false;
+	}
+	unsigned mtdoffset = 0;
 	long fsize = filesize;
-	while(fsize>0)
-	{
-		long block = fsize;
-		if(block>(long)sizeof(buf))
-		{
-			block = sizeof(buf);
+	while(fsize > 0) {
+		unsigned block = meminfo.writesize;
+		if (isnand) {
+			unsigned blockstart = mtdoffset & ~(meminfo.erasesize - 1);
+			if (blockstart == mtdoffset) {
+				while (mtdoffset < meminfo.size) {
+					printf("CFlashTool::readFromMTD: read block at %x\n", mtdoffset);
+					loff_t offset = mtdoffset;
+					int ret = ioctl(fd, MEMGETBADBLOCK, &offset);
+					if (ret == 0)
+						break;
+					printf("CFlashTool::readFromMTD: bad block at %x, skipping..\n", mtdoffset);
+					mtdoffset += meminfo.erasesize;
+					fsize -= meminfo.erasesize;
+					lseek(fd, mtdoffset, SEEK_SET);
+					continue;
+				}
+				if (mtdoffset >= meminfo.size) {
+					printf("CFlashTool::readFromMTD: end of device...\n");
+					break;
+				}
+			}
 		}
-		read( fd1, &buf, block);
-		write( fd2, &buf, block);
+		read(fd, buf, block);
+		write(fd1, buf, block);
 		fsize -= block;
+		mtdoffset += meminfo.writesize;
 		char prog = char(100-(100./filesize*fsize));
-		if(statusViewer)
-		{
+		if(statusViewer) {
 			statusViewer->showLocalStatus(prog);
-			if(globalProgressEnd!=-1)
-			{
+			if(globalProgressEnd!=-1) {
 				int globalProg = globalProgressBegin + int((globalProgressEnd-globalProgressBegin) * prog/100. );
 				statusViewer->showGlobalStatus(globalProg);
 			}
@@ -137,34 +147,29 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 	}
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(100);
-	}
 
+	delete[] buf;
+	close(fd);
 	close(fd1);
-	close(fd2);
 	return true;
 }
 
 bool CFlashTool::program( const std::string & filename, int globalProgressEndErase, int globalProgressEndFlash )
 {
-	int		fd1, fd2;
-	long	filesize;
-	int		globalProgressBegin = 0;
+	int fd1;
+	ssize_t filesize;
+	int globalProgressBegin = 0;
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(0);
-	}
 
-	if (mtdDevice.empty())
-	{
+	if (mtdDevice.empty()) {
 		ErrorMessage = "mtd-device not set";
 		return false;
 	}
 
-	if( (fd1 = open( filename.c_str(), O_RDONLY )) < 0 )
-	{
+	if( (fd1 = open( filename.c_str(), O_RDONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
 		return false;
 	}
@@ -172,65 +177,89 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	filesize = lseek( fd1, 0, SEEK_END);
 	lseek( fd1, 0, SEEK_SET);
 
-	if(filesize==0)
-	{
+	if(filesize==0) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_FILEIS0BYTES);
 		close(fd1);
 		return false;
 	}
 
-	if(statusViewer)
-	{
+	if(statusViewer) {
 		statusViewer->showLocalStatus(0);
 		statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_ERASING)); // UTF-8
 	}
-	//g_Zapit->shutdown(); sleep(2);
-	if(!erase(globalProgressEndErase))
-	{
+
+	if(!erase(globalProgressEndErase)) {
 		close(fd1);
 		return false;
 	}
 
-	if(statusViewer)
-	{
+	if(statusViewer) {
 		if(globalProgressEndErase!=-1)
-		{
 			statusViewer->showGlobalStatus(globalProgressEndErase);
-		}
+
 		statusViewer->showLocalStatus(0);
 		statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_PROGRAMMINGFLASH)); // UTF-8
 	}
 
-	if( (fd2 = open( mtdDevice.c_str(), O_WRONLY )) < 0 )
-	{
+	if( (fd = open( mtdDevice.c_str(), O_WRONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD);
 		close(fd1);
 		return false;
 	}
 
 	if(statusViewer)
-	{
 		globalProgressBegin = statusViewer->getGlobalStatus();
-	}
 
-	char buf[1024];
-	long fsize = filesize;
-	while(fsize>0)
-	{
-		long block = fsize;
-		if(block>(long)sizeof(buf))
-		{
-			block = sizeof(buf);
+	unsigned char * buf = new unsigned char[meminfo.writesize];
+	if (buf == NULL) {
+		printf("CFlashTool::program: mem alloc failed\n");
+		close(fd);
+		close(fd1);
+		return false;
+	}
+	unsigned mtdoffset = 0;
+	unsigned fsize = filesize;
+	printf("CFlashTool::program: file %s write size %d, erase size %d\n", filename.c_str(), meminfo.writesize, meminfo.erasesize);
+	while(fsize > 0) {
+		unsigned block = meminfo.writesize;
+		if (block > fsize)
+			block = fsize;
+
+		unsigned res = read(fd1, buf, block);
+		if (res != block) {
+			printf("CFlashTool::program: read from %s failed: %d from %d\n", filename.c_str(), res, block);
 		}
-		read( fd1, &buf, block);
-		write( fd2, &buf, block);
+		if (isnand) {
+			if (block < (unsigned) meminfo.writesize) {
+				printf("CFlashTool::program: padding at %x\n", mtdoffset);
+				memset(buf + res, 0, meminfo.writesize - res);
+			}
+			unsigned blockstart = mtdoffset & ~(meminfo.erasesize - 1);
+			if (blockstart == mtdoffset) {
+				while (mtdoffset < meminfo.size) {
+					printf("CFlashTool::program: write block at %x\n", mtdoffset);
+					loff_t offset = mtdoffset;
+					int ret = ioctl(fd, MEMGETBADBLOCK, &offset);
+					if (ret == 0)
+						break;
+					printf("CFlashTool::program: bad block at %x, skipping..\n", mtdoffset);
+					mtdoffset += meminfo.erasesize;
+					lseek(fd, mtdoffset, SEEK_SET);
+					continue;
+				}
+				if (mtdoffset >= meminfo.size) {
+					printf("CFlashTool::program: not enough space to write, left: %d\n", fsize);
+					break;
+				}
+			}
+		}
+		write(fd, buf, meminfo.writesize);
 		fsize -= block;
-		char prog = char(100-(100./filesize*fsize));
-		if(statusViewer)
-		{
+		mtdoffset += meminfo.writesize;
+		if(statusViewer) {
+			char prog = char(100-(100./filesize*fsize));
 			statusViewer->showLocalStatus(prog);
-			if(globalProgressEndFlash!=-1)
-			{
+			if(globalProgressEndFlash!=-1) {
 				int globalProg = globalProgressBegin + int((globalProgressEndFlash-globalProgressBegin) * prog/100. );
 				statusViewer->showGlobalStatus(globalProg);
 			}
@@ -238,58 +267,75 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	}
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(100);
-	}
 
+	delete[] buf;
 	close(fd1);
-	close(fd2);
+	close(fd);
+	// FIXME error message
+	if (fsize)
+		return false;
+	return true;
+}
+
+bool CFlashTool::getInfo()
+{
+	if (ioctl( fd, MEMGETINFO, &meminfo ) != 0 ) {
+		// TODO: localize error message
+		ErrorMessage = "can't get mtd-info";
+		return false;
+	}
+	if (meminfo.writesize < 1024)
+		meminfo.writesize = 1024;
+
+	isnand = (meminfo.type == MTD_NANDFLASH);
+	printf("CFlashTool::getInfo: NAND: %s\n", isnand ? "yes" : "no");
 	return true;
 }
 
 bool CFlashTool::erase(int globalProgressEnd)
 {
-	int				fd;
-	mtd_info_t		meminfo;
-	erase_info_t	lerase;
-	int				globalProgressBegin = 0;
+	erase_info_t lerase;
+	int globalProgressBegin = 0;
 
 	if( (fd = open( mtdDevice.c_str(), O_RDWR )) < 0 )
 	{
+		printf("CFlashTool::erase: cant open %s\n", mtdDevice.c_str());
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD);
 		return false;
 	}
 
-	if( ioctl( fd, MEMGETINFO, &meminfo ) != 0 )
-	{
-	// TODO: localize error message
-		ErrorMessage = "can't get mtd-info";
+	if (!getInfo()) {
 		close(fd);
 		return false;
 	}
 
 	if(statusViewer)
-	{
 		globalProgressBegin = statusViewer->getGlobalStatus();
-	}
 
 	lerase.length = meminfo.erasesize;
-	for (lerase.start = 0; lerase.start < meminfo.size;lerase.start += meminfo.erasesize)
+
+	for (lerase.start = 0; lerase.start < meminfo.size; lerase.start += meminfo.erasesize)
 	{
-		printf( "Erasing %s erase size %x start %x size %x\n",
+		/* printf( "Erasing %s erase size %x start %x size %x\n",
 		                 mtdDevice.c_str(), meminfo.erasesize, lerase.start,
-		                 meminfo.size );
-		printf( "\rErasing %u Kbyte @ %x -- %2u %% complete.",
-		                 meminfo.erasesize/1024, lerase.start,
-		                 lerase.start*100/meminfo.size );
+		                 meminfo.size ); */
+		int prog = int(lerase.start*100./meminfo.size);
 		if(statusViewer)
 		{
-			int prog = int(lerase.start*100./meminfo.size);
 			statusViewer->showLocalStatus(prog);
 			if(globalProgressEnd!=-1)
 			{
 				int globalProg = globalProgressBegin + int((globalProgressEnd-globalProgressBegin) * prog/100. );
 				statusViewer->showGlobalStatus(globalProg);
+			}
+		}
+		if (isnand) {
+			loff_t offset = lerase.start;
+			int ret = ioctl(fd, MEMGETBADBLOCK, &offset);
+			if (ret > 0) {
+				printf("Erasing: bad block at %x, skipping..\n", lerase.start);
+				continue;
 			}
 		}
 
@@ -299,6 +345,9 @@ bool CFlashTool::erase(int globalProgressEnd)
 			close(fd);
 			return false;
 		}
+		printf( "Erasing %u Kbyte @ %x -- %2u %% complete.\n",
+				meminfo.erasesize/1024, lerase.start,
+				prog /* lerase.start*100/meminfo.size */);
 	}
 
 	close(fd);

@@ -1,5 +1,7 @@
 INCLUDES = \
 	-I$(srcdir) \
+	-I$(top_builddir) \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/src \

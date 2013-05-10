@@ -1,0 +1,536 @@
+#	yWeb language file (Slovensky) by EnoSat
+#	language version: 1.1
+#	$Date: 2013-04-30 22:22:22 +0100 (Ut, 30 Apríla 2013) $
+#	$Revision: 212 $
+#========= Hlavné / Celkové nastavenie
+global.no_iframes=Váš prehliadač nepodporuje I-rámce.
+clear=vyčistiť
+submit=Odoslať
+action=Akcia
+user=Uživateľ
+password=Heslo
+language=Jazyk
+general=Základné
+logos=Logá
+url=URL
+server=Server
+refreshing=obnovovanie ...
+refresh=obnoviť
+record=nahrávanie
+zap=prepnúť
+lookup=nazrieť
+save_values_desc=odoslať a uložiť hodnoty
+save_values=Ukladanie hodnôt ...
+save=uložiť
+save_all=uložiť všetko
+administration=Administrácia
+normal=Normal
+management=Manžment
+uninstaller=Odinštalovanie
+send=poslať
+cancel=zrušiť
+answer=Odpoveď
+reboot=reBoot
+shutdown=vypnutie
+status=Stav
+restart=reŠtart
+on=áno
+off=nie
+download=Stiahnuť
+back=späť
+date=dátum
+from=od
+to=do
+program=program
+others=Iné
+description=popis
+color=Farba
+tag=Udalosť
+empty=Prázdna
+check=overiť
+help=Nápoveda
+attention=Upozornenie!
+directory=Adresár
+filename=Názov súboru
+restriced_by_management_ip=obmedzené Manažmentom-IP
+
+#======== Hlavná ponuka
+main.boxcontrol=Ovládanie zariadenia
+main.boxcontrol_desc=Ovládanie zariadenia a Obľúbené
+main.live=Naživo
+main.live_desc=Živá TV, Synchronizácia časovača &amp; Nastavenia
+main.tools=Nástroje
+main.tools_desc=Pripojenia, WOL, Rozšírené nástroje
+main.settings=Nastavenia
+main.settings_desc=Nastavenia zariadenia, Prehliadač, Doplnky ...
+main.extensions=Rozšírenia
+main.extensions_desc=Uživatelské rozšírenia ...
+main.info=Informácia
+main.info_desc=Informácia o yWeb, Aktualizácie
+main.live_tv_desc=Živá TV
+main.live_tv_popup_desc=Okno Živá TV
+main.remote_full_desc=Diaľkové ovládanie a OSD
+main.stream_to_vlc_client_desc=Stream do VLC klienta
+main.version=Verzia
+
+#========= Ponuka ovládania boxu
+bc.menue.bouquets_desc=Prepínanie kanálov
+bc.menue.bouquets=Obľúbené
+bc.menue.control_desc=funkcie ovládania zariadenia (reBoot , Diaľkové ovládanie, SPTS, ...)
+bc.menue.control=Ovládanie
+bc.menue.messages_desc=poslať Správu do zariadenia
+bc.menue.messages=Správy
+bc.menue.remote_desc=Webovský Diaľkový ovládač
+bc.menue.remote=Ovládač
+bc.menue.lcd_screenshot_desc=vytvorí obrázok OSD zobrazenia v mierke
+bc.menue.lcd_screenshot=Zosnímanie OSD obrazovky
+bc.menue.lcd_screenshot_desc_ni=lcshot nie je inštalovaný v /bin alebo /var/bin
+bc.menue.screenshot=Zosnímanie TV obrazovky
+bc.menue.screenshot_desc=vytvorí obrázok z osd a/alebo TV bez mierky
+
+bc.menue.decrease_volume=znížiť hlasitosť
+bc.menue.increase_volume=zvýšiť hlasitosť
+bc.menue.mute_volume=umlčať hlasitosť
+bc.menue.switch_to_tv=prepnúť do TV
+bc.menue.switch_to_radio=prepnúť do Rádio
+bc.menue.webinf_slavebox=Webinterface pre podriadené zariadenie
+bc.menue.volumen_display=zobrazenie hlasitosti
+
+#========= Ovládanie
+bc.control.freemem=Voľná pamäť
+bc.control.lock=zamknuté
+bc.control.unlock=odomknuté
+bc.control.standby_mode=režim pripravenosti
+bc.control.recording_mode=režim nahrávania
+bc.control.box=box
+bc.control.remote=ovládač
+bc.control.playback=režim prehrávania
+bc.control.epg_sectiond=EPG Sekcia
+bc.control.live_lock=naživo zamknuté
+bc.control.reboot.ask=Skutočne reštartovať zariadenie?
+bc.control.reboot=reBoot
+bc.control.shutdown.ask=Skutočne vypnúť zariadenie?
+bc.control.shutdown=vypnúť
+bc.control.status=stav
+bc.control.restart=reŠtart
+
+========= Ovládanie - Správa
+bc.msg.message_to_screen_desc=vložte správu pre poslanie na TV obrazovku
+bc.msg.message_to_screen=Správu na obrazovku
+bc.msg.popup_to_screen=Správu do okna
+bc.msg.send_message=poslať správu
+
+======== Ovládanie - Zosnímanie obrazu obrazovky
+bc.screenshot.create=Zosnímať obrazovku
+bc.screenshot.delete=Vymazať obrazovku
+bc.screenshot.zoom=Zoomovať obrazovku
+bc.screenshot.wait_text=Vytváram obrázok obrazovky
+bc.screenshot.checkenable=OSD a/alebo TV musí byť použitý!
+
+========= Ovládanie - Iné
+bc.channels=Kanály
+
+====== Rozšírenia
+ext.installer_updater=Inštalácia/Aktualizácia
+ext.uninstaller=Odinštalovať rozšírenia
+ext.search_for_ext=Vyhľadávanie rozšírení ...
+ext.installed_extensions=Inštalované rozšírenia
+ext.type=Typ
+ext.extension=Rozšírenie
+ext.tag=Udalosť
+ext.version=Verzia
+ext.size=Veľkosť
+ext.uninstall=Odinštalovať
+ext.info=Informácia
+ext.free=Voľné
+ext.action=Akcia
+ext.status=Stav
+ext.preview=Nastavenia nového rozšírenia (prehľad)
+ext.update_preview=Prehľad zoznamu aktualizácií
+ext.your=Vaša
+ext.update=Aktuálna
+ext.update_install=aktualizovať/inštalovať
+ext.site=Stránka
+ext.refresh_now=Nastavenia uložené. Teraz obnovte Menu.
+ext.ext_saved=Nastavenia rozšírení uložené
+
+====== Obľúbené
+bou.bouquet=Obľúbené
+bou.bouquets_must_be_saved=Všetky Obľúbené musia byť uložené!
+bou.bouquet_editor=Úprava obľúbených
+bou.bouquet_add=pridať obľúbené
+bou.name_of_bouquet=Názov pre obľúbené
+bou.rename_bouquet=Premenovať obľúbené
+bou.move_up=presun nahor
+bou.move_down=presun nadol
+bou.remove=odstrániť
+bou.delete=vymazať
+bou.add=pridať
+bou.rename=premenovať
+bou.bouqets_saved=Obľúbené uložené
+bou.delete1=Skutočne vymazať obľúbené?
+bou.delete2=
+bou.no_bouquet_name=Nezadaný názov obľúbených
+
+======= EPG
+epg.get_epg=načítavanie EPG ...
+epg.epg_plus=EPG Plus
+epg.select_bouquet=výber obľúbených - kanály budú aktualizované
+epg.hover_for_details=Presun ukazovateľa na stanicu pre získanie podrobností
+epg.refresh=obnovovanie EPG
+epg.past_hours=predchádzajúce hodiny
+epg.next_hours=nasledujúce hodiny
+epg.set_timer=Nastavenie časovaca. Vykonané.
+epg.zap_to=Prepnutie na kanál. Vykonané.
+
+======= EPG Streaminfo
+epg.si.streaminfo=Informácie streamu
+epg.si.resolution=Rozlíšenie
+epg.si.ratio=Pomer strán
+epg.si.fps=Snímok za sekundu
+epg.si.audiotype=Druh zvuku
+epg.si.frequence=Kmitočet
+epg.si.onid=Originálny sieťový ID (ONID)
+epg.si.sid=Služba ID (SID)
+epg.si.tsid=Transpondér stream ID (TID)
+epg.si.vpid=Obrazový PID
+epg.si.apid=Zvukový PID
+epg.si.vtxtpid=TeleText PID
+epg.si.crypt=Kodovací systém
+
+======= Nastavenia
+set.reload_neutrino=reŠtart Neutrina
+set.reboot_required=Nutný reBoot
+set.sync_with_neutrino_desc=Po zmenách nastavení cez yWeb:<br/>Vybrať na TV "Hlavné Menu-> Služby-> Reštart software", pre prijatie zmien vnútri neutrína.<br/>Po zmenách nastavení vnútri Neutrina: <br/>Vybrať na TV "Hlavné Menu-> Nastavenia-> Uloženie nastavenia", pre použitie týchto zmien a znovu načítať túto stránku.
+set.sync_with_neutrino=Synchronizovať s Neutrinom
+
+====== Hlavné nastavenia a Ponuka
+set.menue.webserver=Webserver
+set.menue.timer_settings=Nastavenie tvinfo.de
+set.menue.zapit=Prepínanie
+set.menue.backup_restore=Záloha a Obnova
+set.menue.bouquet_editor=Úprava obľúbených
+set.menue.video_audio=Obraz/Zvuk
+set.menue.parental=Rodičovská kontrola
+set.menue.direct_recording=Priame nahrávanie
+set.menue.recording=Nahrávanie
+set.menue.audio_player=Prehrávač hudby
+set.menue.esound_server=Server Esound
+set.menue.movieplayer=Prehrávač filmov
+set.menue.pictureviewer=Prehliadač obrázkov
+set.menue.lcd_display=LCD zobrazovač
+set.menue.key_settings=Nákres kľúča
+set.menue.boot_options=Voľby zavádzania
+set.menue.peronalization=Osobné zohľadnenie
+set.menue.plugins=Doplnky
+set.menue.others=Ostatné
+======= Nastavenie nahrávania v Neutrine
+set.rec.rec_dest=Umiestnenie nahrávok
+set.rec.device=Nahrávacie zariadenie
+set.rec.recmode=Nastavenie režimu nahrávania
+set.rec.server=Server
+set.rec.recorder=Nahrávanie na videorekordér
+set.rec.file=Súbor
+set.rec.recserver_ip=IP serveru nahrávania
+set.rec.recserver_port=Port serveru nahrávania
+set.rec.recserver_wol=WOL serveru nahrávania
+set.rec.mac_adress=MAC adresa
+set.rec.rec_behavior=Spravovanie nahrávania
+set.rec.stop_playback=Zastavenie prehrávania
+set.rec.epg_sectionsd_desc=nastavenie nahrávania podľa EPG
+set.rec.epg_sectionsd=EPG (Čiastkove)
+set.rec.dont_stop=nezastavovať
+set.rec.stop=zastaviť
+set.rec.restart=reŠtart
+set.rec.zap=Oznámenie prepnutia
+set.rec.scart=Predchádzať prepnutiu Scartu
+set.rec.spts=Nahrávanie v SPTS režime
+set.rec.timer_settings=Nastavenia korekcií časovača
+set.rec.start_delay=Korekcia štartu nahrávania (sekundy)
+set.rec.stop_delay=Korekcia ukončenia nahrávania (sekundy)
+set.rec.zap_delay=Korekcia zapnutia prevoľby (sekundy)
+set.rec.audio_channels=Zvukové stopy
+set.rec.audio_standard=Štandartný kanál nahrávania zvuku
+set.rec.audio_alternate=Voliteľný kanál módu nahrávania zvuku
+set.rec.audio_ac3=Nahrávanie DolbyDigital (AC3) zvuku
+set.rec.channeldir=Uložiť v adresáry kanála
+set.rec.epg_end=Nahrávanie až do konca EPG
+set.rec.recordtime=Čas nahrávania v hodinách
+set.rec.timeshift_desc=Časový posun (Timeshift)
+set.rec.timeshift.pause=Spustenie klávesou PAUSE
+set.rec.timeshift.auto_record=Automatické nahrávanie (v sek, 0=deaktivované)
+set.rec.timeshift.auto_delete=Automatické vymazanie časového posunu
+set.rec.timeshift.tmp_timeshift=Dočasný časový posun
+
+======= Nastavenia Movieplayera v Neutrine
+set.mp.sources=Voľba zdroja
+set.mp.streamingserver_ip=IP Stream servera
+set.mp.streamingserver_port=Port Stream servera
+set.mp.streamingserver=Streamovací server
+set.mp.dvd_device=DVD zariadenie
+set.mp.vlc_dir=Adresár (VLC)
+set.mp.transcoding=Transkódovanie
+set.mp.video_datarate=Dátová rýchlosť obrazu
+set.mp.transcode=Transkódovať
+set.mp.video_codec=MPEG obrazový kodek
+set.mp.resolution=Rozlíšenie
+set.mp.audio_datarate=Dátová rýchlosť zvuku
+set.mp.transcode_audio=Transkódovanie zvuku (dvd/vcd/mpg)
+set.mp.force_ac3=Ako AC3 pre AVI
+set.mp.player=Prehrávač
+set.mp.start_directory=Štartovací adresár
+set.mp.only_movieplayer=Iba prehrávač filmov
+set.mp.used_buffer=Použi buffer (WabberQueue)
+set.mp.number_buffersegments=Čislo segmentu buffera
+set.mp.picture_in_browser=TV obrázok v prehliadači
+
+======= Rodičovské nastavenia v Neutrine
+set.parental.activate=Aktivácia
+set.parental.type.never=Nikdy
+set.parental.type.bouquet=Obľubené
+set.parental.type.preset=Preddefinovanné
+set.parental.minimum_age=Minimálny vek
+set.parental.pin=PIN
+
+======= Nastavenia  NHTTP
+set.nhttpd.webserver=Webserver
+set.nhttpd.authentication=Autorizácia
+set.nhttpd.client_without_authentication_desc=Klient bez kontroly autorizácie. Vloženie IP.
+set.nhttpd.client_without_authentication=Klient bez autorizácie
+set.nhttpd.active_after_boot=aktívne po nabootovaní
+set.nhttpd.port=Vydávateľ
+set.nhttpd.threading=Prepojené
+set.nhttpd.alternate_web_folder=Alternatívny web-adresár
+set.nhttpd.allowed_file_extensions=Povolené prípony súboru / MIME
+set.nhttpd.allow_all_file_extensions=Povoliť všetky prípony súboru
+set.nhttpd.url_of_logos_desc=Vloženie adresára s logami staníc
+set.nhttpd.url_of_logos=Adresár s logami staníc
+set.nhttpd.server=Server
+set.nhttpd.ips_without_keep_alive_desc=(napr. JtG Server, oddelené s COMMAS)
+set.nhttpd.ips_without_keep_alive=IP s No keep-alive
+set.nhttpd.cache=Cache
+set.nhttpd.cache_info=Informácia o Cache
+set.nhttpd.clear_cache=vyčistiť cache
+set.nhttpd.server_configuration=Konfigurácia servera
+set.nhttpd.check_password=Heslo na potvrdenie , minimum 4 písmena
+set.nhttpd.check_port=Port je potrebný
+
+========= Nastavenie yWeb
+set.yweb.enter_ip_desc=zadanie IP (xxx.xxx.xxx.xxx)
+set.yweb.enter_mac_desc=zadanie MAC adresy (xx:xx:xx:xx:xx:xx)
+set.yweb.description=Popis
+set.yweb.enter_description_desc=vloženie popisu
+set.yweb.management_IPs=Manažovateľné IP
+set.yweb.wake_on_lan=Prebudiť na sieti
+set.yweb.box_tag_desc=Pomenovanie zariadenia vo vrchnom menu.
+set.yweb.box_tag=Názov zariadenia
+set.yweb.box_color_desc=Farba názvu zariadenia vo vrchnom menu. napr. vložte 2188e0 bez #
+set.yweb.box_color=Farba
+set.yweb.start_page=Štartovacia stránka
+set.yweb.remote=Ovládač
+
+======== Nastavenie prehliadača obrázkov
+set.pv.pictureviewer=Prehliadač obrázkov
+set.pv.scale=Zobrazenie
+set.pv.scale.none=Žiadne
+set.pv.scale.simple=Jednoduché
+set.pv.scale.complex=Kompletné
+set.pv.slideshow_duration=Čas prezentácie
+set.pv.start_dir=Štartovací adresár
+set.pv.decoding_server_ip=IP do Servera -dekodovača
+set.pv.decoding_server_port=Port Servera -dekodovača
+
+======== Nastavenie prehrávača hudby
+set.ap.audioplayer=Prehrávač hudby
+set.ap.display_order.actor_title=Umelec , Titul
+set.ap.display_order.title_actor=Titul, Umelec
+set.ap.display_order=Zobrazenie
+set.ap.select_actual_track=Voľba stopy
+set.ap.search_by_name=Hľadanie podľa názvu
+set.ap.repeat_mode=Režim opakovania
+set.ap.show_playlist=Zobrazenie zoznamu
+set.ap.screensaver=Obrazový setrič (min, 0=vypnute )
+set.ap.decode_priority=Vyššia priorita dekódovania
+set.ap.start_dir=Štartovací adresár
+set.ap.parse_shoutcast=Shoutcast Meta-Dáta
+
+======= Nastavenia časovača
+set.timer.header=Nastavenie časovača tvinfo.de
+set.timer.username=Uživateľ
+set.timer.password=Heslo
+set.timer.klack.url_desc=("&" bude prevedené do ";" na uloženie)
+set.timer.klack.url=Osobný RSS TV-Plánovač URL
+set.timer.klack.security_code_desc=váš "klack" bezpečnostný kód dostane vaše dáta bez prihlásenia
+set.timer.klack.security_code=Bezpečnostný kód
+set.timer.channel_name_replacelist=Názov kanálu výmenného zoznamu
+
+======= Nastavenia Zálohy/Obnovenia
+set.settings.backup=Záloha
+set.settings.backup_desc=Zálohovanie vaších nastavení
+set.settings.restore=Obnova
+set.settings.restore_desc=Nahranie a obnova vaších nastavení. Váš STB bude rebootnutý.
+set.settings.warning=Záloha a Obnovenie je možné len pre ten istý Image s rovnakou úrovňou vývoja.
+
+============ Nástroje Info
+tools.info.show_messages=Správy kernelu
+tools.info.processes=Procesy
+tools.info.memory=Pamäť
+tools.info.cpu_info=Informácia o CPU
+tools.info.mem_info=Informácia o pamäti
+tools.info.partitions=Informácia o partíciach
+tools.info.mtd=mtd
+tools.info.stat=Stav
+tools.info.version=Verzia
+
+============ Nástroje yInstaller
+tools.yinstaller.no_file_given=Nevybraný súbor !
+tools.yinstaller.space.mtd=Celková kapacita
+tools.yinstaller.space.used= Použitá
+tools.yinstaller.space.free= Voľná
+tools.yinstaller.space.percentage= Použitá v percentách
+tools.yinstaller.not_determine=Nedá sa určiť voľná kapacita.
+tools.yinstaller.head=yInstaller
+tools.yinstaller.tar_file=tar-súbor
+tools.yinstaller.upload_install=nahrať a inštalovať
+
+============ Nástroje
+tools.automount_desc=spravovanie automaticky pripojených súborov
+tools.automount=Automatické pripojenia
+tools.mounts_desc=spravovanie pripojených súborov
+tools.mounts=Pripojenia
+tools.wake_on_lan=Prebudiť na sieti
+tools.check_install=Overenie inštalácie
+tools.expert=Rozšírené
+tools.image_desc=záloha alebo programovanie pamäte
+tools.image=Image
+tools.command_shell=Príkazy Shell-u
+tools.not_installed=Nenainštalované
+tools.cmd_shell.output_desc=automatický posun (len IE)
+tools.path=Cesta
+tools.command=Príkaz
+tools.cmd.enter_command=vloženie príkazu pre vykonanie
+tools.cmd.execute_command=vykonanie operačného príkazu
+tools.boot_logo=Bootovacie logo
+
+=========== Ponuka ŽIVÁ TV
+live.heading=ŽIVÁ TV / Časovač
+live.live=ŽIVÁ TV
+live.tv_popup_desc=ŽIVÁ TV (okno)
+live.tv=TV
+live.radio_popup_desc=ŽIVÉ Radio (okno)
+live.radio=Rádio
+live.double_view=Dvojnásobná veľkosť
+live.timer=Časovač
+live.epg=EPG
+live.epg_plus_popup_desc=EPG+ (okno)
+live.epg_plus=EPG Plus
+live.timer_sync=Synchronizácia časovača
+
+=========== ŽIVÉ TV/Rádio
+live.get_stream_info=Získavanie <br/>informácii streamovania.
+live.getting_bouquets=Získavanie obľúbených ....
+live.getting_channels=Získavanie kanálov ...
+live.select_resolution=Výber rozlíšenia
+live.change_channel=Zmena kanála
+live.view_epg=Pozri EPG pre vybraný kanál
+live.reload=Aktualizuj kanály
+live.getting_subchannels=Choď na subkanály...
+live.mute=Zapni/Vypni hlasitosť
+live.stop=Zastaviť streamovanie
+live.play_or_pause=Prehrať alebo pozastaviť streamovanie
+live.lower_volume=Znížiť hlasitosť
+live.higher_volume=Zvýšiť hlasitosť
+live.fullscreen=Prepnutie na celu obrazovku dvojklikom
+live.lock_unlock=Zamknúť/odomknúť TV (mód nahravania, rc, lcd)
+live.toggle_udp=UDP Streamovanie Zap/Vyp
+live.settings=Nastavenia ŽiváTV
+live.snapshot=Urobiť snímku obrazovky
+live.record=Nahrávací režim
+live.transcode=Transkódovací režim
+live.build_vlc=...vstavané riadenie vlc ...
+live.select_bouquet=Výber buketu (kanály budú aktualizované)
+live.select_channel=Výber kanála (použije na prepnutie)
+live.live_popup_msg=V móde Live-View nie je prepínanie kanálov priamo ovládané cez Web, Box - diaľkove ovládanie
+live.unlock=odblokovanie RC (diaľkové ovládanie)
+
+=========== Nahrávanie cez ŽIVÚ Tv
+live.rec.record_mode=Režim nahrávania
+live.rec.filename=Názov súboru
+live.rec.display_on=Zapnúť zobrazenie
+live.rec.transcoding_on=Zapnúť transkódovanie
+live.rec.record=Spustiť nahrávanie
+live.rec.stop_record=Zastaviť nahrávanie
+live.rec.tanscode=Transkódovanie nahrávania
+live.rec.profile=Profily
+live.rec.video=Obraz
+live.rec.width=Šírka
+live.rec.height=Výška
+live.rec.codec=Kodek
+live.rec.bitrate=Bitrate
+live.rec.scale=Mierka
+live.rec.audio=Zvuk
+live.rec.channels=Kanály
+live.rec.trans_broadcast=Transkódované vysielanie
+live.rec.access=Prístup
+live.rec.type=Typ
+live.rec.ip_port=IP:Port
+
+=========== Nastavenia ŽIVÁ TV
+live.set.vlc_settings=Nastavenia VLC(IE &amp; Mozilla >= 0.8.6.1)
+live.set.deinterlace=Deinterlace
+live.set.http_caching=Vyrovnávacia pamäť http
+live.set.udp_defaul=Prednastaviť UDP port
+live.set.slavebox_ip=IP druhého Boxu(2. dbox)
+live.set.enter_ip=vložiť IP (xxx.xxx.xxx.xxx) druhého Boxu
+live.set.vlc_rec_dir=VLC nahrávací adresár
+live.set.refresh_liveview=Obnoviť ŽiváTV
+
+=========== ŽIVÉ Timer Edit
+live.timer_edit.timer=Úprava časovača
+live.timer_edit.times=Časy
+live.timer_edit.alarm_date=Nastavená doba spustenia
+live.timer_edit.time=čas
+live.timer_edit.stop_date=Nastavená doba zastavenia
+live.timer_edit.repeat=Opakovanie
+live.timer_edit.repeat1=opakovanie [0-bez obmedzenia]
+live.timer_edit.weekdays.format=(Pon-Ned, X=Timer)
+live.timer_edit.weekdays=Týždenne
+live.timer_edit.values=Hodnoty
+live.timer_edit.channel=Kanál
+live.timer_edit.apids=Audio pidy
+live.timer_edit.apids.default=Prednastavené
+live.timer_edit.apids.standard=Štandartné
+live.timer_edit.apids.alt=Alternativné
+live.timer_edit.apids.ac3=AC3
+live.timer_edit.standby=Režim spánku
+live.timer_edit.plugin=Doplnok
+live.timer_edit.rec_dir=Adresár nahrávania
+live.timer_edit.description=Popis
+
+=========== LIVE Timer Sync
+live.timer-sync.get_timer=Načítať časovač.
+live.timer-sync.header=Synchronizácia TVInfo časovača
+live.timer-sync.timer_source=Zdroj časovača
+live.timer-sync.rec_dir=Nahrávací adresár
+live.timer-sync.settings=Nastavenia
+live.timer-sync.debugging=Debugovanie
+live.timer-sync.get_selected=načítanie vybraných
+live.timer-sync.clear_all=zmazať všetko
+live.timer-sync.timer_preview=Prehľadový zoznam časovača
+live.timer-sync.start_time=Čas začiatku
+live.timer-sync.end_time=Čas konca
+live.timer-sync.channel=Kanál
+live.timer-sync.programm=Program
+live.timer-sync.source=Zdroj
+live.timer-sync.set_timer=nastav časovač
+live.timer-sync.clear_log=vyčisti log
+live.timer-sync.log=Log
+live.timer-sync.action=Akcia
+live.timer-sync.status=Stav
+
+========== INFO
+info.help=Pomoc
+info.About=O programe
+info.check_for_updates=Kontrola aktualizácie
+info.your_version=Vaša inštalovaná verzia
+info.actual_version=Aktuálna verzia

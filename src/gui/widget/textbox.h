@@ -109,6 +109,7 @@ class CTextBox
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
+		int  getFontTextHeight();
 
 		/* Variables */
 		std::string m_cText;
@@ -150,6 +151,7 @@ class CTextBox
 /*		int max_width;*/
 		
 		int text_border_width;
+		bool m_FontUseDigitHeight;
 		
 	public:
 		/* Constructor */
@@ -170,7 +172,7 @@ class CTextBox
 		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
 		bool	setText(const std::string* newText, int max_width = 0);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
-		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
+		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int border);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
@@ -178,6 +180,7 @@ class CTextBox
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);
 		void 	setWindowMinDimensions(const int width, const int height);
+		void    setFontUseDigitHeight(bool set=true);
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};

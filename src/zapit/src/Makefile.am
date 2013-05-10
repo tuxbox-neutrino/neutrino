@@ -12,7 +12,11 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/xmltree
 
 if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+else
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
 endif
 
 if USE_STB_HAL

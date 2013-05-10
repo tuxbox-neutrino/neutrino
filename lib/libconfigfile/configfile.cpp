@@ -394,7 +394,7 @@ void CConfigFile::setString(const std::string & key, const std::string & val)
 	unknownKeyQueryedFlag = tmpUnknownKeyQueryedFlag;
 }
 
-void CConfigFile::setInt32Vector(const std::string & key, const std::vector<int32_t> vec)
+void CConfigFile::setInt32Vector(const std::string & key, const std::vector<int32_t> &vec)
 {
 	bool tmpUnknownKeyQueryedFlag = unknownKeyQueryedFlag;
 	unknownKeyQueryedFlag = false;
@@ -419,7 +419,7 @@ void CConfigFile::setInt32Vector(const std::string & key, const std::vector<int3
 	unknownKeyQueryedFlag = tmpUnknownKeyQueryedFlag;
 }
 
-void CConfigFile::setStringVector(const std::string & key, const std::vector<std::string> vec)
+void CConfigFile::setStringVector(const std::string & key, const std::vector<std::string> &vec)
 {
 	bool tmpUnknownKeyQueryedFlag = unknownKeyQueryedFlag;
 	unknownKeyQueryedFlag = false;
