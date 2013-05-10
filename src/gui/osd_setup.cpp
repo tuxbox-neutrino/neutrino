@@ -68,10 +68,12 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	colorSetupNotifier = new CColorSetupNotifier();
 	fontsizenotifier = new CFontSizeNotifier;
 	osd_menu = NULL;
+	submenu_menus = NULL;
 
 	is_wizard = wizard_mode;
 
 	width = w_max (40, 10); //%
+	show_menu_hints = 0;
 	show_tuner_icon = 0;
 }
 
@@ -432,6 +434,13 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_SCREEN_SETUP);
 	osd_menu->addItem(mf);
 
+	//menus
+	CMenuWidget osd_menu_menus(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_MENUS);
+	showOsdMenusSetup(&osd_menu_menus);
+	mf = new CMenuForwarder(LOCALE_SETTINGS_MENUS, true, NULL, &osd_menu_menus, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf->setHint("", LOCALE_MENU_HINT_MENUS);
+	osd_menu->addItem(mf);
+
 	//progressbar
 	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_PROGRESSBAR, true, NULL, new CProgressbarSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR);
@@ -472,37 +481,17 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
 	osd_menu->addItem(mf);
 
+	osd_menu->addItem(GenericMenuSeparatorLine);
+
 	//monitor
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_OSD_PRESET);
 	osd_menu->addItem(mc);
 
-	osd_menu->addItem(GenericMenuSeparatorLine);
-	// corners
+	// round corners
 	int rounded_corners = g_settings.rounded_corners;
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
-	osd_menu->addItem(mc);
-
-	// scrambled
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_SCRAMBLED_MESSAGE);
-	osd_menu->addItem(mc);
-
-	// subchannel menu position
-	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
-	osd_menu->addItem(mc);
-
-	// menu position
-	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_POS, &g_settings.menu_pos, MENU_DISP_POS_OPTIONS, MENU_DISP_POS_OPTIONS_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_MENU_POS);
-	osd_menu->addItem(mc);
-
-	// menu hints
-	int show_hints = g_settings.show_menu_hints;
-	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS, &show_hints, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
-	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS);
 	osd_menu->addItem(mc);
 
 	// fade windows
@@ -515,8 +504,21 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_BIGWINDOWS);
 	osd_menu->addItem(mc);
 
+	osd_menu->addItem(GenericMenuSeparatorLine);
+
+	// scrambled
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_SCRAMBLED_MESSAGE);
+	osd_menu->addItem(mc);
+
+	// subchannel menu position
+	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
+	osd_menu->addItem(mc);
+
 	int res = osd_menu->exec(NULL, "");
 
+	delete submenu_menus;
 	delete osd_menu;
 	return res;
 }
@@ -732,6 +734,26 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
    { 6 , LOCALE_MISCSETTINGS_INFOBAR_DISP_6 }
 };
 
+//menus
+void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
+{
+	submenu_menus = menu_menus;
+	CMenuOptionChooser * mc;
+
+	submenu_menus->addIntroItems(LOCALE_SETTINGS_MENUS);
+
+	// menu position
+	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_POS, &g_settings.menu_pos, MENU_DISP_POS_OPTIONS, MENU_DISP_POS_OPTIONS_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_MENU_POS);
+	submenu_menus->addItem(mc);
+
+	// menu hints
+	show_menu_hints = g_settings.show_menu_hints;
+	mc = new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS, &show_menu_hints, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_MENU_HINTS);
+	submenu_menus->addItem(mc);
+}
+
 //infobar
 void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 {
@@ -878,12 +900,12 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_CONTRAST_FONTS))
 		return true;
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_POS)) {
-		osd_menu->hide();
+		submenu_menus->hide();
 		return true;
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_HINTS)) {
 		/* change option after hide, to let hide clear hint */
-		osd_menu->hide();
+		submenu_menus->hide();
 		g_settings.show_menu_hints = * (int*) data;
 		return true;
 	}

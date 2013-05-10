@@ -256,16 +256,16 @@ colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
 colormenu.contrast_fonts Schriftkontrast
-colormenu.fade Menüs faden
+colormenu.fade Ein-/Ausblenden
 colormenu.font Neutrino-HD Schriftart
 colormenu.font_ttx Teletext Schriftart
 colormenu.hd_preset LCD
-colormenu.menucolors Menüfarben
+colormenu.menucolors Farben
 colormenu.osd_preset Monitor Auswahl
 colormenu.sd_preset CRT
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
-colormenu.timing OSD Timeouts
+colormenu.timing Timeouts
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
@@ -779,7 +779,7 @@ menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
 menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal und mehr
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen.\nDie Box wird danach neu gestartet
-menu.hint_fade Bei aktivierter Funktion werden die Menüfenster 'weich' ein- bzw. ausgeblendet
+menu.hint_fade Bei aktivierter Funktion werden die GUI-Fenster 'weich' ein- bzw. ausgeblendet
 menu.hint_fan_speed Steuerung der Lüftergeschwindigkeit für die CPU
 menu.hint_filebrowser_denydirectoryleave Verhindert das Verlassen des Startverzeichnisses
 menu.hint_filebrowser_showrights Anzeige der Dateirechte der Dateien im Filebrowser
@@ -891,6 +891,7 @@ menu.hint_media Abspielen von Musik, Internetradio und Filmen; Betrachten Sie Bi
 menu.hint_menu_fonts Ändern Sie die Schriftgrößen im Menü
 menu.hint_menu_hints Zeigt Ihnen Hinweise zu den Menüpunkten an. Sie erreichen das auch jederzeit mit der Taste 'Hilfe'
 menu.hint_menu_pos Legen Sie die Anzeigeposition der Menüs fest
+menu.hint_menus Wählen Sie die Anzeigeoptionen für die Menüs
 menu.hint_misc_cec HDMI-CEC Optionen
 menu.hint_misc_channellist Erweiterte Einstellungen für die Kanallisten und Zapping-Einstellungen
 menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Ausschalten, setzen bzw. ändern des Inaktivitätstimers
@@ -1699,8 +1700,9 @@ servicemenu.update Software-Aktualisierung
 settings.backup Image-Einstellungen: Sichern
 settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
-settings.menu_hints Menühinweise anzeigen
-settings.menu_pos Menüposition
+settings.menu_hints Hinweise anzeigen
+settings.menu_pos Position
+settings.menus Menüs
 settings.missingoptionsconffile Die Neutrino-HD Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
 settings.noconffile Die Neutrino-HD Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
 settings.pos_bottom_left unten links

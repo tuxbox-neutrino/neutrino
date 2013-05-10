@@ -256,7 +256,7 @@ colorchooser.green green
 colorchooser.red red
 colormenu.background Background
 colormenu.contrast_fonts Contrast fonts
-colormenu.fade Fade menus
+colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
 colormenu.hd_preset LCD
@@ -265,7 +265,7 @@ colormenu.osd_preset TV preset
 colormenu.sd_preset CRT
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
-colormenu.timing OSD Timeouts
+colormenu.timing Timeouts
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
@@ -891,6 +891,7 @@ menu.hint_media Play movies, audio files\nWatch pictures
 menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
 menu.hint_menu_pos Select menu position
+menu.hint_menus Configure menu options
 menu.hint_misc_cec HDMI-CEC Options
 menu.hint_misc_channellist HD/New/Removed channel lists\nZap cycle
 menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
@@ -1701,6 +1702,7 @@ settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_hints Show menu hints
 settings.menu_pos Menu position
+settings.menus Menus
 settings.missingoptionsconffile The Neutrino-HD settings have been updated.\nNew Options will be set to default.
 settings.noconffile No Neutrino-HD settings found.\nUsing defaults.
 settings.pos_bottom_left bottom left
