@@ -430,15 +430,25 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 		return g_settings.screen_EndY - g_settings.screen_StartY;
 }
 
-unsigned int CFrameBuffer::getScreenWidthRel()
+unsigned int CFrameBuffer::getScreenPercentRel(bool force_small)
 {
-	// always reduce a possible detailline
-	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * (g_settings.big_windows ? 100 : NON_BIG_WINDOWS) / 100;
+	int percent = 100;
+	if (force_small || !g_settings.big_windows)
+		percent = NON_BIG_WINDOWS;
+	return percent;
 }
 
-unsigned int CFrameBuffer::getScreenHeightRel()
+unsigned int CFrameBuffer::getScreenWidthRel(bool force_small)
 {
-	return (g_settings.screen_EndY - g_settings.screen_StartY) * (g_settings.big_windows ? 100 : NON_BIG_WINDOWS) / 100;
+	int percent = getScreenPercentRel(force_small);
+	// always reduce a possible detailline
+	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * percent / 100;
+}
+
+unsigned int CFrameBuffer::getScreenHeightRel(bool force_small)
+{
+	int percent = getScreenPercentRel(force_small);
+	return (g_settings.screen_EndY - g_settings.screen_StartY) * percent / 100;
 }
 
 unsigned int CFrameBuffer::getScreenX()
