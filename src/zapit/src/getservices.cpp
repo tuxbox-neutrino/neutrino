@@ -669,6 +669,11 @@ bool CServiceManager::LoadScanXml(fe_type_t delsys)
 				position = xmlGetSignedNumericAttribute(search, "position", 10);
 				char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name, false, delsys);
+			} else if (!(strcmp(xmlGetName(search), "terrestrial"))) {
+				char * name = xmlGetAttribute(search, "name");
+				position = fake_pos++;
+				position &= 0x0EFF;
+				InitSatPosition(position, name, false, delsys);
 			} else if(!(strcmp(xmlGetName(search), "cable"))) {
 				char * name = xmlGetAttribute(search, "name");
 				position = fake_pos++;
@@ -725,10 +730,10 @@ bool CServiceManager::LoadServices(bool only_current)
 		INFO("Loading cables...");
 		LoadScanXml(FE_QAM);
 	}
-        if (CFEManager::getInstance()->haveTerr()) {
-                INFO("Loading terrestrial...");
-                LoadScanXml(FE_OFDM);
-        }
+	if (CFEManager::getInstance()->haveTerr()) {
+		INFO("Loading terrestrial...");
+		LoadScanXml(FE_OFDM);
+	}
 
 	parser = parseXmlFile(SERVICES_XML);
 	if (parser != NULL) {
