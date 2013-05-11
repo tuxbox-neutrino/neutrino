@@ -156,6 +156,7 @@ private:
 	void MenueRegister(lua_State *L);
 	static int MenueNew(lua_State *L);
 	static int MenueDelete(lua_State *L);
+	static int MenueAddKey(lua_State *L);
 	static int MenueAddItem(lua_State *L);
 	static int MenueHide(lua_State *L);
 	static int MenueExec(lua_State *L);

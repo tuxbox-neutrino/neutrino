@@ -702,6 +702,7 @@ void CLuaInstance::MenueRegister(lua_State *L)
 {
 	luaL_Reg meth[] = {
 		{ "new", CLuaInstance::MenueNew },
+		{ "addKey", CLuaInstance::MenueAddKey },
 		{ "addItem", CLuaInstance::MenueAddItem },
 		{ "exec", CLuaInstance::MenueExec },
 		{ "hide", CLuaInstance::MenueHide },
@@ -746,19 +747,22 @@ CLuaMenueForwarder::~CLuaMenueForwarder()
 
 int CLuaMenueForwarder::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
 {
+	int res = menu_return::RETURN_REPAINT;
 	if (!luaAction.empty()){
 		lua_pushglobaltable(L);
 		lua_getfield(L, -1, luaAction.c_str());
 		lua_remove(L, -2);
-		int status = lua_pcall(L, 0 /* no arg */, 1 /* one result */, 0);
+		lua_pushstring(L, luaId.c_str());
+		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
 		if (status) {
 			fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(L, -1));
 			ShowMsg2UTF("Lua script error:", lua_tostring(L, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
 		}
-		//double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
+		if (lua_isnumber(L, -1))
+			res = (int) lua_tonumber(L, -1);
 		lua_pop(L, 1);
 	}
-	return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 CLuaMenueFilebrowser::CLuaMenueFilebrowser(lua_State *_L, std::string _luaAction, std::string _luaId, char *_value, bool _dirMode) : CLuaMenueForwarder(_L, _luaAction, _luaId)
@@ -787,7 +791,6 @@ int CLuaMenueFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*act
 		lua_remove(L, -2);
 		lua_pushstring(L, value);
 		lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
-		//double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
 		lua_pop(L, 1);
 	}
 	return menu_return::RETURN_REPAINT;
@@ -822,7 +825,6 @@ int CLuaMenueStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*ac
 		lua_pushstring(L, luaId.c_str());
 		lua_pushstring(L, value);
 		lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
-		//double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
 		lua_pop(L, 2);
 	}
 	return menu_return::RETURN_REPAINT;
@@ -868,6 +870,24 @@ int CLuaInstance::MenueDelete(lua_State *L)
 	}
 
 	delete m;
+	return 0;
+}
+
+int CLuaInstance::MenueAddKey(lua_State *L)
+{
+	CLuaMenue *m = MenueCheck(L, 1);
+	if (!m)
+		return 0;
+	lua_assert(lua_istable(L, 2));
+
+	std::string action;	tableLookup(L, "action", action);
+	std::string id;		tableLookup(L, "id", id);
+	int directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
+	if (action != "" && directkey != (int) CRCInput::RC_nokey) {
+		CLuaMenueForwarder *forwarder = new CLuaMenueForwarder(L, action, id);
+		m->m->addKey(directkey, forwarder, action);
+		m->targets.push_back(forwarder);
+	}
 	return 0;
 }
 
