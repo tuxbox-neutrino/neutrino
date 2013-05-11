@@ -92,7 +92,7 @@ bool CFEManager::Init()
 	unsigned short fekey;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	have_sat = have_cable = false;
+	have_sat = have_cable = have_terr = false;
 	for(int i = 0; i < MAX_ADAPTERS; i++) {
 		for(int j = 0; j < MAX_FE; j++) {
 			fe = new CFrontend(j, i);
@@ -106,6 +106,8 @@ bool CFEManager::Init()
 					have_sat = true;
 				else if (fe->getInfo()->type == FE_QAM)
 					have_cable = true;
+				else if (fe->isTerr())
+					have_terr = true;
 			} else
 				delete fe;
 		}
@@ -227,6 +229,7 @@ bool CFEManager::loadSettings()
 	}
 	bool fsat = true;
 	//bool fcable = true;
+	bool fterr = true;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -259,6 +262,14 @@ bool CFEManager::loadSettings()
 				def_mode = CFrontend::FE_MODE_INDEPENDENT;
 #endif
 			def_mode = CFrontend::FE_MODE_INDEPENDENT;
+		}
+		if (fe->isTerr()) {
+			if (fterr) {
+				fterr = false;
+				def_mode = def_mode0;
+			}
+			if (def_mode > CFrontend::FE_MODE_INDEPENDENT)
+				def_mode = CFrontend::FE_MODE_INDEPENDENT;
 		}
 		if (femap.size() == 1)
 			def_mode = CFrontend::FE_MODE_INDEPENDENT;
@@ -694,8 +705,13 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	CFrontend * frontend = NULL;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
-		if(mfe->isCable()) {
+		if (mfe->isCable()) {
 			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && ((satellitePosition & 0xF00) == 0xF00)) {
+				frontend = mfe;
+				break;
+			}
+		} else if (mfe->isTerr()) {
+			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && (satellitePosition & 0xF00) == 0xE00) {
 				frontend = mfe;
 				break;
 			}
