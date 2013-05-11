@@ -11,7 +11,7 @@ AC_ARG_WITH(target,
 
 AC_ARG_WITH(targetprefix,
 	[  --with-targetprefix=PATH  prefix relative to target root (only applicable in cdk mode)],
-	[TARGET_PREFIX="$withval"],[TARGET_PREFIX="NONE"])
+	[TARGET_PREFIX="$withval"],[TARGET_PREFIX=""])
 
 AC_ARG_WITH(debug,
 	[  --without-debug         disable debugging code],
