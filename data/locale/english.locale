@@ -1705,10 +1705,11 @@ settings.menu_pos Menu position
 settings.menus Menus
 settings.missingoptionsconffile The Neutrino-HD settings have been updated.\nNew Options will be set to default.
 settings.noconffile No Neutrino-HD settings found.\nUsing defaults.
+settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
-settings.pos_default_center top center
-settings.pos_higher_center higher center
+settings.pos_default_center center
+settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
 settings.restore Image-Settings: Restore

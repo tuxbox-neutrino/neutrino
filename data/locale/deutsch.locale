@@ -1705,10 +1705,11 @@ settings.menu_pos Position
 settings.menus Menüs
 settings.missingoptionsconffile Die Neutrino-HD Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
 settings.noconffile Die Neutrino-HD Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
+settings.pos_bottom_center unten zentriert
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
-settings.pos_default_center oben Mitte
-settings.pos_higher_center unten Mitte
+settings.pos_default_center zentriert
+settings.pos_top_center oben zentriert
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 settings.restore Image-Einstellungen: Wiederherstellen
