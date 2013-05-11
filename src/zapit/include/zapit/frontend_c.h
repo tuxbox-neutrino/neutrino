@@ -264,6 +264,7 @@ class CFrontend
 		}
 		bool				isCable() { return (info.type == FE_QAM); }
 		bool				isSat() { return (info.type == FE_QPSK); }
+		bool				isTerr() { return (info.type == FE_OFDM); }
 		fe_type_t			getType() { return info.type; }
 };
 #endif /* __zapit_frontend_h__ */

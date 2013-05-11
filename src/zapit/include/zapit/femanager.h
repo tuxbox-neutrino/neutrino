@@ -86,6 +86,7 @@ class CFEManager
 
 		bool			have_sat;
 		bool			have_cable;
+		bool			have_terr;
 		bool			have_locked;
 		OpenThreads::Mutex	mutex;
 
@@ -142,7 +143,9 @@ class CFEManager
 		bool		haveFreeDemux();
 		bool		haveSat() { return have_sat; }
 		bool		haveCable() { return have_cable; }
-		bool		satOnly() { return (have_sat && !have_cable); }
-		bool		cableOnly() { return (have_cable && !have_sat); }
+		bool		haveTerr() { return have_terr; }
+		bool		satOnly() { return (have_sat && !have_cable && !have_terr); }
+		bool		cableOnly() { return (have_cable && !have_sat && ! have_terr); }
+		bool		terrOnly() { return (have_terr && !have_sat && ! have_cable); }
 };
 #endif /* __femanager_h__ */
