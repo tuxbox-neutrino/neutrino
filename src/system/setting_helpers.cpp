@@ -54,6 +54,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/infoclock.h>
 #include <driver/volume.h>
+#include <driver/display.h>
 #include <system/helpers.h>
 // obsolete #include <gui/streaminfo.h>
 

@@ -75,6 +75,7 @@
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
 #include "driver/record.h"
+#include "driver/display.h"
 
 
 extern CPlugins       * g_PluginList;

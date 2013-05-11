@@ -32,6 +32,8 @@
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
 
+#include <driver/display.h>
+
 CAudioMute::CAudioMute()
 {
 	mute_ax		= 0;

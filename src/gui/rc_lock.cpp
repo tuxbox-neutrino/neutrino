@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <driver/display.h>
 
 #include <gui/rc_lock.h>
 

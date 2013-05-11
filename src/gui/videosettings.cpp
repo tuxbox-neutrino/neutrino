@@ -47,6 +47,7 @@
 #include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 #include <daemonc/remotecontrol.h>
 

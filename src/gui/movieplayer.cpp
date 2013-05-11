@@ -39,6 +39,7 @@
 #include <gui/plugins.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
+#include <driver/display.h>
 #include <system/helpers.h>
 
 #include <unistd.h>

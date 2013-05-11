@@ -895,7 +895,9 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 		}
 	}
 	audioDecoder->StopClip();
+#ifdef SPECTRUM
 	CVFD::getInstance ()->Unlock ();
+#endif
 	/* Accounting report if no error occured. */
 	if(Status==OK)
 	{

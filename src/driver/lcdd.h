@@ -64,6 +64,7 @@ typedef enum
 	FP_ICON_COL2       = 0x0B000002,
 	FP_ICON_CAM2       = 0x0C000001
 } fp_icon;
+#define CVFD CLCD
 
 #ifdef LCD_UPDATE
 #ifdef HAVE_CONFIG_H

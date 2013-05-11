@@ -36,6 +36,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 #include <gui/color.h>
 #include <gui/widget/icons.h>
 #include <gui/customcolor.h>

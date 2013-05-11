@@ -63,6 +63,7 @@
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
 #include <driver/record.h>
+#include <driver/display.h>
 #include <system/helpers.h>
 
 extern CPictureViewer * g_PicViewer;

@@ -46,6 +46,7 @@
 #include <driver/abstime.h>
 #include <driver/record.h>
 #include <driver/fade.h>
+#include <driver/display.h>
 
 #include <gui/color.h>
 #include <gui/eventlist.h>

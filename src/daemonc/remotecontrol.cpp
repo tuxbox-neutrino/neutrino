@@ -43,6 +43,7 @@
 
 #include <driver/record.h>
 #include <driver/abstime.h>
+#include <driver/display.h>
 #include <libdvbsub/dvbsub.h>
 #include <libtuxtxt/teletext.h>
 

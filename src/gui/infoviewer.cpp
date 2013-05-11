@@ -64,6 +64,7 @@
 
 #include <daemonc/remotecontrol.h>
 #include <driver/record.h>
+#include <driver/display.h>
 
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>

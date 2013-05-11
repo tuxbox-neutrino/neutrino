@@ -39,6 +39,7 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 #include <driver/fade.h>
+#include <driver/display.h>
 
 #include <cctype>
 
