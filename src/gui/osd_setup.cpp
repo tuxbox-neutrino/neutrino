@@ -947,6 +947,10 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 			g_Radiotext = NULL;
 		}
 	}
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_DIGITS)) {
+		CVolumeHelper::getInstance()->refresh();
+		return false;
+	}
 	return false;
 }
 
