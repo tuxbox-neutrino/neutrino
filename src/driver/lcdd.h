@@ -32,38 +32,38 @@
 
 typedef enum
 {
-	VFD_ICON_BAR8       = 0x00000004,
-	VFD_ICON_BAR7       = 0x00000008,
-	VFD_ICON_BAR6       = 0x00000010,
-	VFD_ICON_BAR5       = 0x00000020,
-	VFD_ICON_BAR4       = 0x00000040,
-	VFD_ICON_BAR3       = 0x00000080,
-	VFD_ICON_BAR2       = 0x00000100,
-	VFD_ICON_BAR1       = 0x00000200,
-	VFD_ICON_FRAME      = 0x00000400,
-	VFD_ICON_HDD        = 0x00000800,
-	VFD_ICON_MUTE       = 0x00001000,
-	VFD_ICON_DOLBY      = 0x00002000,
-	VFD_ICON_POWER      = 0x00004000,
-	VFD_ICON_TIMESHIFT  = 0x00008000,
-	VFD_ICON_SIGNAL     = 0x00010000,
-	VFD_ICON_TV         = 0x00020000,
-	VFD_ICON_RADIO      = 0x00040000,
-	VFD_ICON_HD         = 0x01000001,
-	VFD_ICON_1080P      = 0x02000001,
-	VFD_ICON_1080I      = 0x03000001,
-	VFD_ICON_720P       = 0x04000001,
-	VFD_ICON_480P       = 0x05000001,
-	VFD_ICON_480I       = 0x06000001,
-	VFD_ICON_USB        = 0x07000001,
-	VFD_ICON_MP3        = 0x08000001,
-	VFD_ICON_PLAY       = 0x09000001,
-	VFD_ICON_COL1       = 0x09000002,
-	VFD_ICON_PAUSE      = 0x0A000001,
-	VFD_ICON_CAM1       = 0x0B000001,
-	VFD_ICON_COL2       = 0x0B000002,
-	VFD_ICON_CAM2       = 0x0C000001
-} vfd_icon;
+	FP_ICON_BAR8       = 0x00000004,
+	FP_ICON_BAR7       = 0x00000008,
+	FP_ICON_BAR6       = 0x00000010,
+	FP_ICON_BAR5       = 0x00000020,
+	FP_ICON_BAR4       = 0x00000040,
+	FP_ICON_BAR3       = 0x00000080,
+	FP_ICON_BAR2       = 0x00000100,
+	FP_ICON_BAR1       = 0x00000200,
+	FP_ICON_FRAME      = 0x00000400,
+	FP_ICON_HDD        = 0x00000800,
+	FP_ICON_MUTE       = 0x00001000,
+	FP_ICON_DOLBY      = 0x00002000,
+	FP_ICON_POWER      = 0x00004000,
+	FP_ICON_TIMESHIFT  = 0x00008000,
+	FP_ICON_SIGNAL     = 0x00010000,
+	FP_ICON_TV         = 0x00020000,
+	FP_ICON_RADIO      = 0x00040000,
+	FP_ICON_HD         = 0x01000001,
+	FP_ICON_1080P      = 0x02000001,
+	FP_ICON_1080I      = 0x03000001,
+	FP_ICON_720P       = 0x04000001,
+	FP_ICON_480P       = 0x05000001,
+	FP_ICON_480I       = 0x06000001,
+	FP_ICON_USB        = 0x07000001,
+	FP_ICON_MP3        = 0x08000001,
+	FP_ICON_PLAY       = 0x09000001,
+	FP_ICON_COL1       = 0x09000002,
+	FP_ICON_PAUSE      = 0x0A000001,
+	FP_ICON_CAM1       = 0x0B000001,
+	FP_ICON_COL2       = 0x0B000002,
+	FP_ICON_CAM2       = 0x0C000001
+} fp_icon;
 
 #ifdef LCD_UPDATE
 #ifdef HAVE_CONFIG_H
@@ -234,7 +234,7 @@ class CLCD
 		void Lock();
 		void Unlock();
 		void Clear();
-		void ShowIcon(vfd_icon icon, bool show);
+		void ShowIcon(fp_icon icon, bool show);
 		void ShowText(const char *s) { showServicename(std::string(s), true); };
 		~CLCD();
 #ifdef LCD_UPDATE

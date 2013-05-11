@@ -1133,7 +1133,7 @@ void CLCD::pause()
 	display.pause();
 }
 
-void CLCD::ShowIcon(vfd_icon icon, bool show)
+void CLCD::ShowIcon(fp_icon icon, bool show)
 {
 	fprintf(stderr, "CLCD::ShowIcon(%d, %d)\n", icon, show);
 }

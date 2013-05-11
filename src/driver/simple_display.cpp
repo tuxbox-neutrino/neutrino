@@ -486,15 +486,15 @@ void CLCD::Clear()
 }
 #endif
 
-void CLCD::ShowIcon(vfd_icon i, bool on)
+void CLCD::ShowIcon(fp_icon i, bool on)
 {
 	switch (i)
 	{
-		case VFD_ICON_CAM1:
+		case FP_ICON_CAM1:
 			led_r = on;
 			setled(led_r, -1); /* switch instant on / switch off if disabling */
 			break;
-		case VFD_ICON_PLAY:
+		case FP_ICON_PLAY:
 			led_g = on;
 			setled(-1, led_g);
 			break;
