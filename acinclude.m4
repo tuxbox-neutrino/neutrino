@@ -153,17 +153,17 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
 	[--with-ucodedir=PATH    ],[where to find the ucodes])
 
-TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share/tuxbox, /neutrino/themes,
-	[--with-themesdir=PATH     ],[where to find the themes (don't change)])
+TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share,/tuxbox/neutrino/themes,
+	[--with-themesdir=PATH   ],[where to find the themes (don't change)])
 
-TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share/tuxbox, /neutrino/icons,
-	[--with-iconssdir=PATH     ],[where to find the icons (don't change)])
+TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share,/tuxbox/neutrino/icons,
+	[--with-iconsdir=PATH    ],[where to find the icons (don't change)])
 
 TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxbox/neutrino/httpd,
-	[--with-private_httpddir=PATH     ],[where to find the the private httpd files])
+	[--with-private_httpddir=PATH   ],[where to find the the private httpd files])
 
 TUXBOX_APPS_DIRECTORY_ONE(public_httpddir,PUBLIC_HTTPDDIR,localstatedir,/var,/httpd,
-	[--with-public_httpddir=PATH     ],[where to find the the public httpd files])
+	[--with-public_httpddir=PATH    ],[where to find the the public httpd files])
 ])
 
 dnl automake <= 1.6 needs this specifications
