@@ -109,8 +109,10 @@ void yhttpd_reload_config() {
 void thread_cleanup (void *p)
 {
 	Cyhttpd *y = (Cyhttpd *)p;
-	if (y)
+	if (y) {
+		y->stop_webserver();
 		delete y;
+	}
 	y = NULL;
 }
 
@@ -247,7 +249,6 @@ Cyhttpd::Cyhttpd() {
 }
 //-----------------------------------------------------------------------------
 Cyhttpd::~Cyhttpd() {
-	stop_webserver();
 	if (webserver)
 		delete webserver;
 	CLanguage::deleteInstance();
