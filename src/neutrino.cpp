@@ -1823,6 +1823,10 @@ TIMER_START();
 	cs_register_messenger(CSSendMessage);
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
+	g_info.hw_caps  = get_hwcaps();
+	can_deepstandby = g_info.hw_caps->can_shutdown;
+	g_info.has_fan  = g_info.hw_caps->has_fan;
+
 	g_Locale        = new CLocaleManager;
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
@@ -3808,10 +3812,6 @@ int main(int argc, char **argv)
 	signal(SIGPIPE, SIG_IGN);
 
 	tzset();
-
-	g_info.hw_caps  = get_hwcaps();
-	can_deepstandby = g_info.hw_caps->can_shutdown;
-	g_info.has_fan  = g_info.hw_caps->has_fan;
 
 	return CNeutrinoApp::getInstance()->run(argc, argv);
 }
