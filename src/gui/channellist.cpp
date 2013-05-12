@@ -868,9 +868,6 @@ int CChannelList::show()
 
 			paintHead(); // update button bar
 			paint();
-
-			if (!displayList && g_settings.channellist_additional)
-				showdescription(selected);
 		}
 		else if ( msg == CRCInput::RC_green )
 		{
@@ -1664,7 +1661,12 @@ void CChannelList::paintDetails(int index)
 		}
 	}
 	if ((g_settings.channellist_additional) && (p_event != NULL))
-		paint_events(index);
+	{
+		if (displayList)
+			paint_events(index);
+		else
+			showdescription(selected);
+	}
 }
 
 void CChannelList::clearItem2DetailsLine()
@@ -2308,13 +2310,15 @@ void CChannelList::showdescription(int index)
 	epgData.info2.clear();
 	epgText.clear();
 	CEitManager::getInstance()->getEPGid(p_event->eventID, p_event->startTime, &epgData);
+
 	if (!(epgData.info2.empty()))
-	{
-		frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 		processTextToArray(epgData.info2);
-		for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
-			g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
-	}
+	else
+		processTextToArray(g_Locale->getText(LOCALE_EPGVIEWER_NODETAILED));
+
+	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
+	for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
+		g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
 }
 
 void CChannelList::addTextToArray(const std::string & text, int screening) // UTF-8
