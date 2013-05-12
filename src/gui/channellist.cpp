@@ -2105,8 +2105,12 @@ void CChannelList::paint()
 	// paint background for main box
 	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0);
 	if (g_settings.channellist_additional)
+	{
+		// disable displayNext
+		displayNext = false;
 		// paint background for right box
 		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUCONTENT_PLUS_0);
+	}
 
 	for(unsigned int count = 0; count < listmaxshow; count++) {
 		paintItem(count, true);
