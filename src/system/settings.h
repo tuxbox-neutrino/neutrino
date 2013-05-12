@@ -789,6 +789,8 @@ class CScanSettings
 		std::string	cable_TP_freq;
 		std::string	cable_TP_rate;
 
+		std::string	terrName;
+		std::string	terr_TP_freq;
 		CScanSettings();
 
 		//void useDefaults(const delivery_system_t _delivery_system);

@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2011-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -125,6 +119,18 @@ void CScanTs::prev_next_TP( bool up)
 			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = tI->second.feparams.dvb_feparams.u.qpsk.symbol_rate;
 			TP.feparams.dvb_feparams.u.qpsk.fec_inner =   tI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
 			TP.polarization = tI->second.polarization;
+		} else if (deltype == FE_OFDM) {
+			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
+			if (TP.feparams.dvb_feparams.frequency < 300000)
+				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_7_MHZ;
+			else
+				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_8_MHZ;
+			TP.feparams.dvb_feparams.u.ofdm.code_rate_HP	= FEC_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.code_rate_LP	= FEC_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.constellation	= QAM_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.transmission_mode = TRANSMISSION_MODE_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.guard_interval	= GUARD_INTERVAL_AUTO;
+			TP.feparams.dvb_feparams.u.ofdm.hierarchy_information = HIERARCHY_AUTO;
 		} else {
 			TP.feparams.dvb_feparams.u.qam.symbol_rate	= tI->second.feparams.dvb_feparams.u.qam.symbol_rate;
 			TP.feparams.dvb_feparams.u.qam.fec_inner	= tI->second.feparams.dvb_feparams.u.qam.fec_inner;
@@ -143,11 +149,14 @@ void CScanTs::testFunc()
 	if(deltype == FE_QPSK) {
 		CFrontend::getDelSys(deltype, TP.feparams.dvb_feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.dvb_feparams.u.qpsk.fec_inner), f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.dvb_feparams.frequency/1000, transponder::pol(TP.polarization), TP.feparams.dvb_feparams.u.qpsk.symbol_rate/1000, f, s, m);
-	} else {
+	} else if (deltype == FE_QAM) {
 		CFrontend::getDelSys(deltype, TP.feparams.dvb_feparams.u.qam.fec_inner, TP.feparams.dvb_feparams.u.qam.modulation, f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", TP.feparams.dvb_feparams.frequency/1000, TP.feparams.dvb_feparams.u.qam.symbol_rate/1000, f, s, m);
+	} else if (deltype == FE_OFDM) {
+		sprintf(buffer, "%u", TP.feparams.dvb_feparams.frequency); /* no way int can overflow the buffer */
 	}
-printf("CScanTs::testFunc: %s\n", buffer);
+
+	printf("CScanTs::testFunc: %s\n", buffer);
 	paintLine(xpos2, ypos_cur_satellite, w - 95, pname.c_str());
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	success = g_Zapit->tune_TP(TP);
@@ -155,6 +164,7 @@ printf("CScanTs::testFunc: %s\n", buffer);
 
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
+	printf("CScanTs::exec %s\n", actionKey.c_str());
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
@@ -179,7 +189,12 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	bool manual = (actionKey == "manual") || test;
 	bool fast = (actionKey == "fast");
 
-	pname = (deltype == FE_QPSK) ? scansettings.satName : scansettings.cableName;
+	switch (deltype) {
+		case FE_QPSK:	pname = scansettings.satName;	break;
+		case FE_QAM:	pname = scansettings.cableName;	break;
+		case FE_OFDM:	pname = scansettings.terrName;	break;
+		default:	printf("CScanTs::exec:%d unknown deltype %d\n", __LINE__, deltype);
+	}
 
 	int scan_pids = CZapit::getInstance()->scanPids();
 
@@ -223,6 +238,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.polarization = scansettings.sat_TP_pol;
 		} else if (deltype == FE_OFDM) {
 			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
+			TP.feparams.dvb_feparams.frequency = atoi(scansettings.terr_TP_freq.c_str());
 			if (TP.feparams.dvb_feparams.frequency < 300000)
 				TP.feparams.dvb_feparams.u.ofdm.bandwidth	= BANDWIDTH_7_MHZ;
 			else
