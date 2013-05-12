@@ -170,6 +170,7 @@ printf("CScanTs::testFunc: %s\n", buffer);
 
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
+	printf("CScanTs::exec %s\n", actionKey.c_str());
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
@@ -194,7 +195,12 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	bool manual = (actionKey == "manual") || test;
 	bool fast = (actionKey == "fast");
 
-	pname = (deltype == FE_QPSK) ? scansettings.satName : scansettings.cableName;
+	switch (deltype) {
+		case FE_QPSK:	pname = scansettings.satName;	break;
+		case FE_QAM:	pname = scansettings.cableName;	break;
+		case FE_OFDM:	pname = scansettings.terrName;	break;
+		default:	printf("CScanTs::exec:%d unknown deltype %d\n", __LINE__, deltype);
+	}
 
 	int scan_pids = CZapit::getInstance()->scanPids();
 
@@ -243,8 +249,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate);
 			TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.sat_TP_fec;
 			TP.polarization = scansettings.sat_TP_pol;
-#if 0
-/* TODO: FIXME */
 		} else if (deltype == FE_OFDM) {
 			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
 			TP.feparams.dvb_feparams.frequency = atoi(scansettings.terr_TP_freq);
@@ -258,7 +262,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.dvb_feparams.u.ofdm.transmission_mode = TRANSMISSION_MODE_AUTO;
 			TP.feparams.dvb_feparams.u.ofdm.guard_interval	= GUARD_INTERVAL_AUTO;
 			TP.feparams.dvb_feparams.u.ofdm.hierarchy_information = HIERARCHY_AUTO;
-#endif
 		} else {
 			TP.feparams.dvb_feparams.frequency = atoi(scansettings.cable_TP_freq);
 			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.cable_TP_rate);

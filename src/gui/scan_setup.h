@@ -52,6 +52,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 	private:
 		CMenuOptionStringChooser 	*satSelect;
 		CMenuOptionStringChooser 	*cableSelect;
+		CMenuOptionStringChooser	*terrSelect;
 		CMenuWidget			*satOnOff;
 
 		/* global items to be enabled/disabled in notify */

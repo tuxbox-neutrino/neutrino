@@ -735,6 +735,8 @@ class CScanSettings
 		char		cable_TP_freq[10];
 		char		cable_TP_rate[9];
 
+		char		terrName[50];
+		char		terr_TP_freq[10];
 		CScanSettings();
 
 		//void useDefaults(const delivery_system_t _delivery_system);
