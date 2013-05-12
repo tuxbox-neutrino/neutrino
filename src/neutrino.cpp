@@ -1356,7 +1356,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				CBouquet* hdBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_HDTV), false, true);
 				hdBouquet->channelList->SetChannelList(&zapitList);
 				TVallList->Bouquets.push_back(hdBouquet);
-				printf("[neutrino] got %d HD channels\n", zapitList.size()); fflush(stdout);
+				printf("[neutrino] got %d HD channels\n", (int)zapitList.size()); fflush(stdout);
 			}
 		}
 		/* new channels */

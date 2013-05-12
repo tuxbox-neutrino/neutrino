@@ -61,7 +61,7 @@ void CFeDmx::Lock(transponder_id_t id)
 {
 	tpid = id;
 	usecount++;
-	INFO("[dmx%d] lock, usecount %d tp %llx", num, usecount, tpid);
+	INFO("[dmx%d] lock, usecount %d tp %" PRIx64, num, usecount, tpid);
 }
 
 void CFeDmx::Unlock()
@@ -70,7 +70,7 @@ void CFeDmx::Unlock()
 		usecount--;
 	else
 		tpid = 0;
-	INFO("[dmx%d] unlock, usecount %d tp %llx", num, usecount, tpid);
+	INFO("[dmx%d] unlock, usecount %d tp %" PRIx64, num, usecount, tpid);
 }
 
 CFEManager * CFEManager::manager = NULL;
@@ -566,7 +566,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 			bool loop_busy = false;
 			for (unsigned int i = 0; i < mfe->linkmap.size(); i++) {
 				CFrontend * fe = mfe->linkmap[i];
-				FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %llx - channel freq %d TP %llx", fe->fenumber, fe->getMode(),
+				FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %" PRIx64 " - channel freq %d TP %" PRIx64, fe->fenumber, fe->getMode(),
 						fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
 
 				if(fe->Locked()) {
@@ -598,7 +598,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 				free_frontend = free_twin;
 		}
 		if (mfe->getMode() == CFrontend::FE_MODE_INDEPENDENT) {
-			FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %llx - channel freq %d TP %llx", mfe->fenumber, mfe->getMode(),
+			FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %" PRIx64 " - channel freq %d TP %" PRIx64, mfe->fenumber, mfe->getMode(),
 					mfe->Locked(), mfe->getFrequency(), mfe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
 			if(mfe->Locked()) {
 				if(mfe->tuned && mfe->sameTsidOnid(channel->getTransponderId())) {
