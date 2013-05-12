@@ -2237,8 +2237,7 @@ void CChannelList::paint_events(int index)
 	for (e=evtlist.begin(); e!=evtlist.end(); ++e )
 	{
 		//Remove events in the past
-		time_t dif = azeit - e->startTime;
-		if ( (dif > 0) && (!(e->eventID == 0)))
+		if ( (azeit > (e->startTime + e->duration)) && (!(e->eventID == 0)))
 		{
 			do
 			{
@@ -2246,9 +2245,8 @@ void CChannelList::paint_events(int index)
 				e = evtlist.erase( e );
 				if (e == evtlist.end())
 					break;
-				dif = azeit - e->startTime;
 			}
-			while ( dif > 0 );
+			while ( azeit > (e->startTime + e->duration));
 		}
 		if (e == evtlist.end())
 			break;
@@ -2256,15 +2254,17 @@ void CChannelList::paint_events(int index)
 		//Display the remaining events
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height))
 		{
+			bool first = false;
 			if (e->eventID)
 			{
+				first = (i == 1);
 				struct tm *tmStartZeit = localtime(&e->startTime);
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
 				//printf("%s %s\n", startTime, e->description.c_str());
 				startTimeWidth = eventStartTimeWidth;
 				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, (g_settings.colored_events_channellist == 2 /* next */) ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTINACTIVE, 0, true);
 			}
-			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
+			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, (first) ? COL_MENUHEAD : COL_MENUCONTENTDARK, 0, true);
 		}
 		else
 		{
