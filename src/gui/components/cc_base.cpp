@@ -83,6 +83,7 @@ void CComponents::initVarBasic()
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(bool do_save_bg)
 {
+	//save background before first paint, do_save_bg must be true
 	if (firstPaint && do_save_bg)	{
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
@@ -110,6 +111,8 @@ void CComponents::paintFbItems(bool do_save_bg)
 #ifdef DEBUG_CC
 	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
 #endif
+		//some elements can be assembled from lines and must be handled as one unit (see details line),
+		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
 		if (firstPaint){
 
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
@@ -121,7 +124,9 @@ void CComponents::paintFbItems(bool do_save_bg)
 			else
 				firstPaint = false;
 		}
-		if (fbtype != CC_FBDATA_TYPE_BGSCREEN){
+		
+		//paint all fb relevant basic parts (frame and body) with all specified properties, paint_bg must be true
+		if (fbtype != CC_FBDATA_TYPE_BGSCREEN && paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
 				if (v_fbdata[i].frame_thickness > 0)
 					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
