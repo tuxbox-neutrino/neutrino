@@ -2228,6 +2228,7 @@ void CChannelList::paint_events(int index)
 	CChannelEventList::iterator e;
 	time_t azeit;
 	time(&azeit);
+	unsigned int u_azeit = ( azeit > -1)? azeit:0;
 
 	if ( evtlist.empty() )
 	{
@@ -2243,7 +2244,7 @@ void CChannelList::paint_events(int index)
 	for (e=evtlist.begin(); e!=evtlist.end(); ++e )
 	{
 		//Remove events in the past
-		if ( (azeit > (e->startTime + e->duration)) && (!(e->eventID == 0)))
+		if ( (u_azeit > (e->startTime + e->duration)) && (!(e->eventID == 0)))
 		{
 			do
 			{
@@ -2252,7 +2253,7 @@ void CChannelList::paint_events(int index)
 				if (e == evtlist.end())
 					break;
 			}
-			while ( azeit > (e->startTime + e->duration));
+			while ( u_azeit > (e->startTime + e->duration));
 		}
 		if (e == evtlist.end())
 			break;
