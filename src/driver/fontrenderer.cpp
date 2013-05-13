@@ -372,6 +372,8 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	if (!frameBuffer->getActive())
 		return;
 
+	frameBuffer->checkFbArea(x, y, width, height, true);
+
 	pthread_mutex_lock( &renderer->render_mutex );
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
@@ -620,6 +622,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	}
 //printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
+	frameBuffer->checkFbArea(x, y, width, height, false);
 }
 
 void Font::RenderString(int x, int y, const int width, const std::string & text, const unsigned char color, const int boxheight, const bool utf8_encoded)

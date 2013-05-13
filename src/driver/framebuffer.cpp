@@ -4,21 +4,27 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 		      2003 thegoodguy
 
+	mute icon handling from tuxbox project
+	Copyright (C) 2009 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+	mute icon & info clock handling
+	Copyright (C) 2013 M. Liebmann (micha-bbg)
+
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -38,6 +44,7 @@
 
 #include <linux/kd.h>
 
+#include <gui/audiomute.h>
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>
@@ -196,6 +203,9 @@ CFrameBuffer::CFrameBuffer()
 	memset(green, 0, 256*sizeof(__u16));
 	memset(blue, 0, 256*sizeof(__u16));
 	memset(trans, 0, 256*sizeof(__u16));
+	fbAreaActiv = false;
+	fb_no_check = false;
+	do_paint_mute_icon = true;
 }
 
 CFrameBuffer* CFrameBuffer::getInstance()
@@ -402,6 +412,8 @@ CFrameBuffer::~CFrameBuffer()
 	}
 	close(fd);
 	close(tty);
+
+	v_fbarea.clear();
 }
 
 int CFrameBuffer::getFileHandle() const
@@ -651,12 +663,16 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, y+dy);
 		return;
 	}
+
+	checkFbArea(x, y, dx, dy, true);
+
 #if defined(FB_HW_ACCELERATION)
 	fb_fillrect fillrect;
 	fillrect.color	= col;
 	fillrect.rop	= ROP_COPY;
 #elif defined(USE_NEVIS_GXA)
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (!fb_no_check)
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	/* solid fill with background color */
 	unsigned int cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(7) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
@@ -805,6 +821,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	 */
 	add_gxa_sync_marker();
 #endif
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col)
@@ -1069,9 +1086,11 @@ _display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
+	checkFbArea(x, yy, width, height, true);
 	if (paintBg)
 		paintBoxRel(x, yy, width, height, colBg);
 	blit2FB(data, width, height, x, yy, 0, 0, true);
+	checkFbArea(x, yy, width, height, false);
 	return true;
 }
 
@@ -1475,6 +1494,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	if(!useBackgroundPaint)
 	{
 		paintBoxRel(x, y, dx, dy, backgroundColor);
@@ -1490,6 +1510,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 			bkpos += BACKGROUNDIMAGEWIDTH;
 		}
 	}
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::paintBackground()
@@ -1497,6 +1518,7 @@ void CFrameBuffer::paintBackground()
 	if (!getActive())
 		return;
 
+	checkFbArea(0, 0, xRes, yRes, true);
 	if (useBackgroundPaint && (background != NULL))
 	{
 		for (int i = 0; i < 576; i++)
@@ -1506,6 +1528,7 @@ void CFrameBuffer::paintBackground()
 	{
 		paintBoxRel(0, 0, xRes, yRes, backgroundColor);
 	}
+	checkFbArea(0, 0, xRes, yRes, false);
 }
 
 void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
@@ -1513,6 +1536,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++) {
@@ -1536,6 +1560,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 		bkpos += dx;
 	}
 #endif
+	checkFbArea(x, y, dx, dy, false);
 
 }
 
@@ -1544,6 +1569,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++)
@@ -1552,6 +1578,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
+	checkFbArea(x, y, dx, dy, false);
 }
 #if 0 
 //never used
@@ -1767,4 +1794,92 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
 
 	blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
 	cs_free_uncached(fbbuff);
+}
+
+// ## AudioMute / Clock ######################################
+
+void CFrameBuffer::setFbArea(int element, int _x, int _y, int _dx, int _dy)
+{
+	if (_x == 0 && _y == 0 && _dx == 0 && _dy == 0) {
+		// delete area
+		for (fbarea_iterator_t it = v_fbarea.begin(); it != v_fbarea.end(); ++it) {
+			if (it->element == element) {
+				v_fbarea.erase(it);
+				break;
+			}
+		}
+		if (v_fbarea.empty()) {
+			fbAreaActiv = false;
+		}
+	}
+	else {
+		// change area
+		bool found = false;
+		for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+			if (v_fbarea[i].element == element) {
+				v_fbarea[i].x = _x;
+				v_fbarea[i].y = _y;
+				v_fbarea[i].dx = _dx;
+				v_fbarea[i].dy = _dy;
+				found = true;
+				break;
+			}
+		}
+		// set new area
+		if (!found) {
+			fb_area_t area;
+			area.x = _x;
+			area.y = _y;
+			area.dx = _dx;
+			area.dy = _dy;
+			area.element = element;
+			v_fbarea.push_back(area);
+		}
+		fbAreaActiv = true;
+	}
+}
+
+int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area)
+{
+	if (fb_no_check)
+		return FB_PAINTAREA_MATCH_NO;
+
+	if (_y > area->y + area->dy)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x + _dx < area->x)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x > area->x + area->dx)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_y + _dy < area->y)
+		return FB_PAINTAREA_MATCH_NO;
+	return FB_PAINTAREA_MATCH_OK;
+}
+
+bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
+{
+	if (v_fbarea.empty())
+		return true;
+
+	for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+		int ret = checkFbAreaElement(_x, _y, _dx, _dy, &v_fbarea[i]);
+		if (ret == FB_PAINTAREA_MATCH_OK) {
+			switch (v_fbarea[i].element) {
+				case FB_PAINTAREA_MUTEICON1:
+					if (!do_paint_mute_icon)
+						break;
+//					waitForIdle();
+					fb_no_check = true;
+					if (prev)
+						CAudioMute::getInstance()->hide(true);
+					else
+						CAudioMute::getInstance()->paint();
+					fb_no_check = false;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	return true;
 }

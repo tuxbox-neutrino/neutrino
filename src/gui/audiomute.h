@@ -33,6 +33,7 @@ class CAudioMute : public CComponentsPicture
 {
 	private:
 		int y_old;
+		bool do_paint_mute_icon;
 
 	public:
 
@@ -41,6 +42,8 @@ class CAudioMute : public CComponentsPicture
 		static CAudioMute* getInstance();
 
 		void AudioMute(int newValue, bool isEvent= false);
+		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
+		void enableMuteIcon(bool enable);
 };
 
 #endif // __CAUDIOMUTE__
