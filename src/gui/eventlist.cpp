@@ -1006,8 +1006,6 @@ int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*
 	return res;
 }
 
-
-
 /************************************************************************************************/
 bool CNeutrinoEventList::findEvents(void)
 /************************************************************************************************/
@@ -1057,14 +1055,22 @@ bool CNeutrinoEventList::findEvents(void)
 			CHintBox box(LOCALE_TIMING_EPG,g_Locale->getText(LOCALE_EVENTFINDER_SEARCHING));
 			box.paint();
 			int bouquet_nr = bouquetList->Bouquets.size();
+			std::vector<t_channel_id> v;
 			for(int bouquet = 0; bouquet < bouquet_nr; bouquet++)
 			{
 				int channel_nr = bouquetList->Bouquets[bouquet]->channelList->getSize();
 				for(int channel = 0; channel < channel_nr; channel++)
 				{
 				    channel_id = bouquetList->Bouquets[bouquet]->channelList->getChannelFromIndex(channel)->channel_id;
-					CEitManager::getInstance()->getEventsServiceKey(channel_id,evtlist, m_search_epg_item,m_search_keyword);
+				    v.push_back(channel_id);
 				}
+			}
+			sort(v.begin(), v.end());
+			std::vector<t_channel_id>::iterator last_it = unique(v.begin(), v.end());
+ 			std::vector<t_channel_id>::iterator it;
+			for (it = v.begin(); it != last_it; ++it)
+			{
+				CEitManager::getInstance()->getEventsServiceKey(*it,evtlist, m_search_epg_item,m_search_keyword);
 			}
 			box.hide();
 		}
