@@ -829,8 +829,12 @@ void CNeutrinoEventList::paintDescription(int index)
 	else
 		CEitManager::getInstance()->getActualEPGServiceKey(evtlist[index].channelID, &epgData );
 
-	if(!epgData.info2.empty())
+	if(!epgData.info2.empty()){
 		infozone_text = epgData.info2;
+	}
+	else if (!epgData.info1.empty()){
+		infozone_text = epgData.info1;
+	}
 	else
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
