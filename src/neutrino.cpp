@@ -2047,9 +2047,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				//if(!g_settings.cacheTXT)
 				//	tuxtxt_stop();
 				g_RCInput->clearRCMsg();
-				// restore mute symbol
-				if (current_muted)
-					g_audioMute->AudioMute(current_muted, true);
 				if(g_settings.mode_clock)
 					InfoClock->StartClock();
 				StartSubtitles();
@@ -2060,9 +2057,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					if(g_settings.mode_clock)
 						InfoClock->StopClock();
 					mainMenu.exec(NULL, "");
-					// restore mute symbol
-					if (current_muted)
-						g_audioMute->AudioMute(current_muted, true);
 					if(g_settings.mode_clock)
 						InfoClock->StartClock();
 					StartSubtitles();
@@ -2381,9 +2375,6 @@ _show:
 					nNewChannel = bouquetList->Bouquets[old_b]->channelList->exec();//with ZAP!
 				else
 					nNewChannel = bouquetList->exec(true);
-				// restore mute symbol
-				if (current_muted)
-					g_audioMute->AudioMute(current_muted, true);
 			} else if(msg == CRCInput::RC_sat) {
 				SetChannelMode(LIST_MODE_SAT);
 				nNewChannel = bouquetList->exec(true);

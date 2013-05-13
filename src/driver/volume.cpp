@@ -36,6 +36,7 @@
 #include <daemonc/remotecontrol.h>
 #include <driver/volume.h>
 #include <gui/audiomute.h>
+#include <gui/mediaplayer.h>
 #include <zapit/zapit.h>
 
 
@@ -117,6 +118,11 @@ void CVolume::setVolume(const neutrino_msg_t key, bool nowait)
 						volscale = NULL;
 					}
 					CAudioMute::getInstance()->AudioMute(false, true);
+					if (mode == CNeutrinoApp::mode_audio) {
+						CAudioPlayerGui *cap = CMediaPlayerMenu::getInstance()->getPlayerInstance();
+							if (cap != NULL)
+								cap->refreshMuteIcon();
+					}
 					setVolume(msg);
 					return;
 				}
@@ -138,6 +144,11 @@ void CVolume::setVolume(const neutrino_msg_t key, bool nowait)
 								volscale = NULL;
 							}
 							CAudioMute::getInstance()->AudioMute(true, true);
+							if (mode == CNeutrinoApp::mode_audio) {
+								CAudioPlayerGui *cap = CMediaPlayerMenu::getInstance()->getPlayerInstance();
+									if (cap != NULL)
+										cap->refreshMuteIcon();
+							}
 							setVolume(msg);
 							return;
 						}

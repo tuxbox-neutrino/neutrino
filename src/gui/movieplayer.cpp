@@ -30,6 +30,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <gui/audiomute.h>
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
 #include <gui/timeosd.h>
@@ -484,6 +485,8 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 	}
 
+	CAudioMute::getInstance()->enableMuteIcon(true);
+
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
 		if (update_lcd) {
@@ -716,6 +719,8 @@ void CMoviePlayerGui::PlayFile(void)
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
 
 	restoreNeutrino();
+
+	CAudioMute::getInstance()->enableMuteIcon(false);
 
 	if (g_settings.mode_clock)
 		InfoClock->StartClock();

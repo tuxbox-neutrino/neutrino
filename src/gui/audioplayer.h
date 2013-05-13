@@ -261,6 +261,7 @@ class CAudioPlayerGui : public CMenuTarget
 	bool playNext(bool allow_rotate = false);
 	bool playPrev(bool allow_rotate = false);
 	int getAudioPlayerM_current() {return m_current;}
+	void refreshMuteIcon() { paintHead(); }
 };
 
 

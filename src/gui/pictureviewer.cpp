@@ -44,6 +44,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 
+#include <gui/audiomute.h>
 #include <gui/nfs.h>
 
 #include <gui/widget/buttons.h>
@@ -237,6 +238,8 @@ int CPictureViewerGui::show()
 
 	if (audioplayer)
 		m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
+
+	CAudioMute::getInstance()->enableMuteIcon(false);
 
 	while (loop)
 	{
@@ -617,6 +620,8 @@ int CPictureViewerGui::show()
 		}
 	}
 	hide();
+
+	CAudioMute::getInstance()->enableMuteIcon(true);
 
 	return(res);
 }
