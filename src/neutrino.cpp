@@ -78,6 +78,7 @@
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
+#include "gui/sleeptimer.h"
 #include "gui/start_wizard.h"
 #include "gui/videosettings.h"
 
@@ -2574,6 +2575,12 @@ _repeat:
 	}
 	else if( msg == CRCInput::RC_prev ) {
 		g_videoSettings->SwitchFormat();
+		return messages_return::handled;
+	}
+	else if( msg == CRCInput::RC_sleep ) {
+		CSleepTimerWidget *sleepTimer = new CSleepTimerWidget;
+		sleepTimer->exec(NULL, "");
+		delete sleepTimer;
 		return messages_return::handled;
 	}
 	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
