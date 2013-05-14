@@ -4,13 +4,6 @@
         Copyright (C) 2001 Steffen Hehn 'McClean'
         Homepage: http://dbox.cyberphoria.org/
 
-        Kommentar:
-
-        Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-        Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-        auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-        Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
 
         License: GPL
 
@@ -35,22 +28,30 @@
 
 #include <gui/sleeptimer.h>
 
-#include <gui/widget/hintbox.h>
-#include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 
 #include <timerdclient/timerdclient.h>
 
 #include <global.h>
-#include <daemonc/remotecontrol.h>
 
+#include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 #include <stdlib.h>
 
+bool CSleepTimerWidget::is_running = false;
+
 int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	int    res = menu_return::RETURN_REPAINT;
+	int res = menu_return::RETURN_REPAINT;
+
+	if (is_running)
+	{
+		printf("[CSleepTimerWidget] %s: another instance is already running.\n", __FUNCTION__);
+		return res;
+	}
+	is_running = true;
+
 	int    shutdown_min = 0;
 	char   value[16];
 	CStringInput  *inbox;
@@ -88,7 +89,10 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	/* exit pressed, cancel timer setup */
 	if(ret == menu_return::RETURN_EXIT_REPAINT)
+	{
+		is_running = false;
 		return res;
+	}
 
 	int new_val = atoi(value);
 	if(permanent) {
@@ -107,5 +111,8 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 		else	// set the sleeptimer to actual time + shutdown mins and announce 1 min before
 			g_Timerd->setSleeptimer(time(NULL) + ((shutdown_min -1) * 60),time(NULL) + shutdown_min * 60,0);
 	}
+
+	is_running = false;
+
 	return res;
 }

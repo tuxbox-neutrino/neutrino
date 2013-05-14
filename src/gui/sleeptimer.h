@@ -27,8 +27,11 @@
 
 class CSleepTimerWidget: public CMenuTarget
 {
- public:
-	int exec(CMenuTarget* parent, const std::string & actionKey);
+	private:
+		static bool is_running;
+
+	public:
+		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
 
