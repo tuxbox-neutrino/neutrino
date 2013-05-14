@@ -595,6 +595,7 @@ start-block~remote_zee
   <area shape="rect" href="javascript:rcsim('KEY_NEXT')" coords="277, 78, 299, 100" />
   <area shape="rect" href="javascript:rcsim('KEY_PREVIOUS')" coords="244, 78, 265, 100" />
   <area shape="rect" href="javascript:rcsim('KEY_TIME')" coords="311, 582, 333, 604" />
+  <area shape="rect" href="javascript:rcsim('KEY_SLEEP')" coords="244, 114, 265, 137" />
   <area shape="rect" href="javascript:rcsim('KEY_AUDIO')" coords="277, 114, 300, 137" />
   <area shape="rect" href="javascript:rcsim('KEY_REWIND')" coords="216, 552, 236, 574" />
   <area shape="rect" href="javascript:rcsim('KEY_FORWARD')" coords="279, 552, 300, 574" />

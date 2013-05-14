@@ -736,6 +736,7 @@ static const struct key keynames[] = {
 	{"KEY_NEXT",		KEY_NEXT},
 	{"KEY_PREVIOUS",	KEY_PREVIOUS},
 	{"KEY_TIME", 		KEY_TIME},
+	{"KEY_SLEEP",           KEY_SLEEP},
 	{"KEY_AUDIO",		KEY_AUDIO},
 	{"KEY_REWIND",		KEY_REWIND},
 	{"KEY_FORWARD",		KEY_FORWARD},
