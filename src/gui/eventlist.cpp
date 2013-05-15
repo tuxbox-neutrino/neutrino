@@ -1061,24 +1061,29 @@ bool CNeutrinoEventList::findEvents(void)
 			box.paint();
 			std::vector<t_channel_id> v;
 			int channel_nr =  CNeutrinoApp::getInstance ()->channelList->getSize();//unique channelList TV or Radio
-				for(int channel = 0; channel < channel_nr; channel++)
-				{
-				    channel_id =  CNeutrinoApp::getInstance ()->channelList->getChannelFromIndex(channel)->channel_id;
-				    v.push_back(channel_id);
-				}
+			for(int channel = 0; channel < channel_nr; channel++){
+			    channel_id =  CNeutrinoApp::getInstance ()->channelList->getChannelFromIndex(channel)->channel_id;
+			    v.push_back(channel_id);
+			}
 		
-			std::map<t_channel_id, t_channel_id > ch_id_map;
+			std::map<t_channel_id, t_channel_id> ch_id_map;
 			std::vector<t_channel_id>::iterator it;
-			for (it = v.begin(); it != v.end(); ++it)
-			{
+			for (it = v.begin(); it != v.end(); ++it){
 				ch_id_map[*it & 0xFFFFFFFFFFFFULL] = *it;
 			}
 			CEitManager::getInstance()->getEventsServiceKey(1/*hack*/,evtlist, m_search_epg_item,m_search_keyword);
+
+			std::map<t_channel_id, t_channel_id>::iterator map_it;
 			CChannelEventList::iterator e;
-			for ( e=evtlist.begin(); e!=evtlist.end(); ++e )
-			{
-				if(e->channelID)
-					e->channelID = ch_id_map[e->channelID];//map channelID48 to channelID64
+			for ( e=evtlist.begin(); e!=evtlist.end();){
+				map_it = ch_id_map.find(e->channelID);
+				if (map_it != ch_id_map.end()){
+					e->channelID = map_it->second;//map channelID48 to channelID
+					++e;
+				}
+				else{
+					evtlist.erase(e);// remove event for not found channels in channelList
+				}
 			}
 			box.hide();
 		}
