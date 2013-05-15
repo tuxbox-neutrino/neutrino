@@ -2253,7 +2253,7 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 	{
-		if ((*e)->get_channel_id() == serviceUniqueKey64) {
+		if ((*e)->get_channel_id() == serviceUniqueKey64 || (serviceUniqueKey64 == 1)) {
 			serviceIDfound = 1;
 
 			bool copy = true;
@@ -2289,7 +2289,10 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 						aEvent.text = (*e)->getExtendedText().substr(0, 120);
 					else
 						aEvent.text = (*e)->getText();
-					aEvent.channelID = serviceUniqueKey;
+					if(serviceUniqueKey64 == 1)//hack for all channel search
+						aEvent.channelID = (*e)->get_channel_id();
+					else
+						aEvent.channelID = serviceUniqueKey;
 					eList.push_back(aEvent);
 				}
 			} // if = serviceID

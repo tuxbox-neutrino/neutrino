@@ -1056,25 +1056,29 @@ bool CNeutrinoEventList::findEvents(void)
 		}
 		else if(m_search_list == SEARCH_LIST_ALL)
 		{
+		  
 			CHintBox box(LOCALE_TIMING_EPG,g_Locale->getText(LOCALE_EVENTFINDER_SEARCHING));
 			box.paint();
-			int bouquet_nr = bouquetList->Bouquets.size();
 			std::vector<t_channel_id> v;
-			for(int bouquet = 0; bouquet < bouquet_nr; bouquet++)
-			{
-				int channel_nr = bouquetList->Bouquets[bouquet]->channelList->getSize();
+			int channel_nr =  CNeutrinoApp::getInstance ()->channelList->getSize();//unique channelList TV or Radio
 				for(int channel = 0; channel < channel_nr; channel++)
 				{
-				    channel_id = bouquetList->Bouquets[bouquet]->channelList->getChannelFromIndex(channel)->channel_id;
+				    channel_id =  CNeutrinoApp::getInstance ()->channelList->getChannelFromIndex(channel)->channel_id;
 				    v.push_back(channel_id);
 				}
-			}
-			sort(v.begin(), v.end());
-			std::vector<t_channel_id>::iterator last_it = unique(v.begin(), v.end());
- 			std::vector<t_channel_id>::iterator it;
-			for (it = v.begin(); it != last_it; ++it)
+		
+			std::map<t_channel_id, t_channel_id > ch_id_map;
+			std::vector<t_channel_id>::iterator it;
+			for (it = v.begin(); it != v.end(); ++it)
 			{
-				CEitManager::getInstance()->getEventsServiceKey(*it,evtlist, m_search_epg_item,m_search_keyword);
+				ch_id_map[*it & 0xFFFFFFFFFFFFULL] = *it;
+			}
+			CEitManager::getInstance()->getEventsServiceKey(1/*hack*/,evtlist, m_search_epg_item,m_search_keyword);
+			CChannelEventList::iterator e;
+			for ( e=evtlist.begin(); e!=evtlist.end(); ++e )
+			{
+				if(e->channelID)
+					e->channelID = ch_id_map[e->channelID];//map channelID48 to channelID64
 			}
 			box.hide();
 		}
