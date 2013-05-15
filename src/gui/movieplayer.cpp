@@ -576,6 +576,8 @@ void CMoviePlayerGui::PlayFile(void)
 				selectChapter();
 			else
 				handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_bookmark, position);
+			update_lcd = true;
+			clearSubtitle();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_audio) {
 			selectAudioPid(is_file_player);
 			update_lcd = true;
