@@ -677,8 +677,10 @@ void CRecordInstance::GetRecordString(std::string &str)
 	int err = GetStatus();
 	strftime(stime, sizeof(stime), "%H:%M:%S ", localtime(&start_time));
 	time_t duration = time(0) - start_time;
-	char dtime[15];
-	snprintf(dtime, sizeof(dtime), " (%02d:%02d)", (int) duration/3600, (int) duration/60);
+	char dtime[20];
+	int h = duration/3600;
+	int m = duration/60;
+	snprintf(dtime, sizeof(dtime), " (%02d %s %02d min)", h, h == 1 ? "hour" : "hours", m);
 	str = stime + channel->getName() + ": " + GetEpgTitle() + ((err & REC_STATUS_OVERFLOW) ? "  [!]" : "") + dtime;
 }
 
