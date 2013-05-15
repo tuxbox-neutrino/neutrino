@@ -125,6 +125,7 @@ const char * locale_real_names[] =
 	"GENRE.UNKNOWN",
 	"apidselector.head",
 	"audio.srs_algo",
+	"audio.srs_algo_heavy",
 	"audio.srs_algo_light",
 	"audio.srs_algo_normal",
 	"audio.srs_iq",
