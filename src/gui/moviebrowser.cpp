@@ -175,12 +175,12 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_FILEPATH		22
 #define	MB_ROW_WIDTH_TITLE		35
 #define	MB_ROW_WIDTH_SERIE		15
-#define	MB_ROW_WIDTH_INFO1		25
+#define	MB_ROW_WIDTH_INFO1		15
 #define	MB_ROW_WIDTH_MAJOR_GENRE	15
 #define	MB_ROW_WIDTH_MINOR_GENRE	8
 #define	MB_ROW_WIDTH_INFO2		25
 #define	MB_ROW_WIDTH_PARENTAL_LOCKAGE	4
-#define	MB_ROW_WIDTH_CHANNEL		12
+#define	MB_ROW_WIDTH_CHANNEL		15
 #define	MB_ROW_WIDTH_BOOKMARK		4
 #define	MB_ROW_WIDTH_QUALITY		10
 #define	MB_ROW_WIDTH_PREVPLAYDATE	12
@@ -189,8 +189,8 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_COUNTRY		8
 #define	MB_ROW_WIDTH_GEOMETRIE		8
 #define	MB_ROW_WIDTH_AUDIO		8
-#define	MB_ROW_WIDTH_LENGTH		6
-#define	MB_ROW_WIDTH_SIZE 		10
+#define	MB_ROW_WIDTH_LENGTH		10
+#define	MB_ROW_WIDTH_SIZE 		12
 
 const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 {
@@ -479,7 +479,7 @@ void CMovieBrowser::init(void)
 			break;
 		}
 	}
-
+#if 0
 	/***** Browser List **************/
 	if(m_settings.browserRowNr == 0)
 	{
@@ -494,7 +494,7 @@ void CMovieBrowser::init(void)
 		m_settings.browserRowItem[5] = MB_INFO_QUALITY;
 		reinit_rows = true;
 	}
-
+#endif
 	if (reinit_rows)
 	{
 		for (i = 0; i < m_settings.browserRowNr; i++)
@@ -582,12 +582,21 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserFrameHeight = 50; /* percent */
 
 	m_settings.browserRowNr = 6;
+#if 0
 	m_settings.browserRowItem[0] = MB_INFO_TITLE;
 	m_settings.browserRowItem[1] = MB_INFO_INFO1;
 	m_settings.browserRowItem[2] = MB_INFO_RECORDDATE;
 	m_settings.browserRowItem[3] = MB_INFO_SIZE;
 	m_settings.browserRowItem[4] = MB_INFO_PARENTAL_LOCKAGE;
 	m_settings.browserRowItem[5] = MB_INFO_QUALITY;
+#endif
+	m_settings.browserRowItem[0] = MB_INFO_CHANNEL;
+	m_settings.browserRowItem[1] = MB_INFO_TITLE;
+	m_settings.browserRowItem[2] = MB_INFO_RECORDDATE;
+	m_settings.browserRowItem[3] = MB_INFO_SIZE;
+	m_settings.browserRowItem[4] = MB_INFO_LENGTH;
+	m_settings.browserRowItem[5] = MB_INFO_INFO1;
+
 	m_settings.browserRowWidth[0] = m_defaultRowWidth[m_settings.browserRowItem[0]];		//300;
 	m_settings.browserRowWidth[1] = m_defaultRowWidth[m_settings.browserRowItem[1]]; 		//100;
 	m_settings.browserRowWidth[2] = m_defaultRowWidth[m_settings.browserRowItem[2]]; 		//80;
@@ -3418,7 +3427,8 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 #endif	// MB_INFO_AUDIO test
 			break;
 		case MB_INFO_LENGTH: 				// 		= 18,
-			snprintf(str_tmp,MAX_STR_TMP,"%4d",movie_info.length);
+			//snprintf(str_tmp,MAX_STR_TMP,"%4d",movie_info.length);
+			snprintf(str_tmp,MAX_STR_TMP,"%dh %dm", movie_info.length/60, movie_info.length%60);
 			*item_string = str_tmp;
 			break;
 		case MB_INFO_SIZE: 					// 		= 19,
