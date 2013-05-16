@@ -65,6 +65,11 @@ bool sortById (const CChannelEvent& a, const CChannelEvent& b)
 {
 	return a.eventID < b.eventID ;
 }
+
+inline static bool sortbyEventid (const CChannelEvent& a, const CChannelEvent& b)
+{
+	return (a.channelID == b.channelID && a.eventID == b.eventID && a.startTime == b.startTime); 
+}
 #endif
 inline bool sortByDescription (const CChannelEvent& a, const CChannelEvent& b)
 {
@@ -76,11 +81,6 @@ inline bool sortByDescription (const CChannelEvent& a, const CChannelEvent& b)
 inline static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 {
 	return a.startTime < b.startTime;
-}
-
-inline static bool sortbyEventid (const CChannelEvent& a, const CChannelEvent& b)
-{
-	return (a.channelID == b.channelID && a.eventID == b.eventID && a.startTime == b.startTime); 
 }
 
 CNeutrinoEventList::CNeutrinoEventList()
@@ -1075,21 +1075,23 @@ bool CNeutrinoEventList::findEvents(void)
 
 			std::map<t_channel_id, t_channel_id>::iterator map_it;
 			CChannelEventList::iterator e;
-			for ( e=evtlist.begin(); e!=evtlist.end();){
-				map_it = ch_id_map.find(e->channelID);
-				if (map_it != ch_id_map.end()){
-					e->channelID = map_it->second;//map channelID48 to channelID
-					++e;
-				}
-				else{
-					evtlist.erase(e);// remove event for not found channels in channelList
+			if(!evtlist.empty()){
+				for ( e=evtlist.begin(); e!=evtlist.end();){
+					map_it = ch_id_map.find(e->channelID);
+					if (map_it != ch_id_map.end()){
+						e->channelID = map_it->second;//map channelID48 to channelID
+						++e;
+					}
+					else{
+						evtlist.erase(e);// remove event for not found channels in channelList
+					}
 				}
 			}
+
 			box.hide();
 		}
 		if(!evtlist.empty()){
 			sort(evtlist.begin(),evtlist.end(),sortByDateTime);
-			evtlist.erase(unique(evtlist.begin(), evtlist.end(),sortbyEventid), evtlist.end()); 
 		}
 
 		current_event = (unsigned int)-1;
@@ -1292,7 +1294,7 @@ int CEventFinderMenu::showMenu(void)
 	}
 	else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
 	{
-		if(bouquetList->Bouquets.size()<*m_search_bouquet_id ){
+		if(bouquetList->Bouquets.size() < *m_search_bouquet_id ){
 			  *m_search_bouquet_id = bouquetList->getActiveBouquetNumber();;
 		}
 		if(!bouquetList->Bouquets.empty())
@@ -1342,8 +1344,13 @@ bool CEventFinderMenu::changeNotify(const neutrino_locale_t OptionName, void *)
 		}
 		else if (*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
 		{
-			m_search_channelname = bouquetList->Bouquets[*m_search_bouquet_id]->channelList->getName();
-			m_search_channelname_mf->setActive(true);
+			if(bouquetList->Bouquets.size() < *m_search_bouquet_id ){
+				*m_search_bouquet_id = bouquetList->getActiveBouquetNumber();
+			}
+			if(!bouquetList->Bouquets.empty()){
+				m_search_channelname = bouquetList->Bouquets[*m_search_bouquet_id]->channelList->getName();
+				m_search_channelname_mf->setActive(true);
+			}
 		}
 		else if (*m_search_list == CNeutrinoEventList::SEARCH_LIST_ALL)
 		{
