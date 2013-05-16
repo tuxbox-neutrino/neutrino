@@ -1294,7 +1294,7 @@ int CEventFinderMenu::showMenu(void)
 	}
 	else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
 	{
-		if (*m_search_bouquet_id >= bouquetList->Bouquets.size())
+		if (*m_search_bouquet_id >= bouquetList->Bouquets.size()){
 			  *m_search_bouquet_id = bouquetList->getActiveBouquetNumber();;
 		}
 		if(!bouquetList->Bouquets.empty())
@@ -1344,7 +1344,7 @@ bool CEventFinderMenu::changeNotify(const neutrino_locale_t OptionName, void *)
 		}
 		else if (*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
 		{
-			if (*m_search_bouquet_id >= bouquetList->Bouquets.size())
+			if (*m_search_bouquet_id >= bouquetList->Bouquets.size()){
 				*m_search_bouquet_id = bouquetList->getActiveBouquetNumber();
 			}
 			if(!bouquetList->Bouquets.empty()){
