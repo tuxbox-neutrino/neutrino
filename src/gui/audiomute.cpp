@@ -62,33 +62,32 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	if( isEvent && ( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic))
 	{
-		CFrameBuffer *framebuffer = CFrameBuffer::getInstance();
 		CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 		if ((y_old != y)) {
 			if (do_paint_mute_icon)
 			{
-				framebuffer->fbNoCheck(true);
+				frameBuffer->fbNoCheck(true);
 				this->hide(true);
-				framebuffer->fbNoCheck(false);
+				frameBuffer->fbNoCheck(false);
 			}
-			framebuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 			y_old = y;
 		}
 		if ((g_settings.mode_clock) && (doInit))
 			CInfoClock::getInstance()->ClearDisplay();
 
-		framebuffer->fbNoCheck(true);
+		frameBuffer->fbNoCheck(true);
 		if (newValue) {
 			if (do_paint_mute_icon)
 				this->paint();
-			framebuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1, this->getXPos(), this->getYPos(), this->getWidth(), this->getHeight());
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1, x, y, width, height);
 		}
 		else {
 			if (do_paint_mute_icon)
 				this->hide(true);
-			framebuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 		}
-		framebuffer->fbNoCheck(false);
+		frameBuffer->fbNoCheck(false);
 
 		if (doInit)
 			CVolumeHelper::getInstance()->refresh();
@@ -98,9 +97,8 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 void CAudioMute::enableMuteIcon(bool enable)
 {
 	CNeutrinoApp *neutrino = CNeutrinoApp::getInstance();
-	CFrameBuffer *framebuffer = CFrameBuffer::getInstance();
 	if (enable) {
-		framebuffer->doPaintMuteIcon(true);
+		frameBuffer->doPaintMuteIcon(true);
 		do_paint_mute_icon = true;
 		if (neutrino->isMuted())
 			this->paint();
@@ -108,7 +106,7 @@ void CAudioMute::enableMuteIcon(bool enable)
 	else {
 		if (neutrino->isMuted())
 			this->hide(true);
-		framebuffer->doPaintMuteIcon(false);
+		frameBuffer->doPaintMuteIcon(false);
 		do_paint_mute_icon = false;
 	}
 }
