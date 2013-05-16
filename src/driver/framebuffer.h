@@ -111,20 +111,30 @@ class CFrameBuffer
 		bool	active;
 		static	void switch_signal (int);
 		fb_fix_screeninfo fix;
-		#ifdef USE_NEVIS_GXA
+#ifdef USE_NEVIS_GXA
 		int		  devmem_fd;		/* to access the GXA register we use /dev/mem */
 		unsigned int	  smem_start;		/* as aquired from the fbdev, the framebuffers physical start address */
 		volatile uint8_t *gxa_base;		/* base address for the GXA's register access */
-
-		#endif /* USE_NEVIS_GXA */
+#endif /* USE_NEVIS_GXA */
 		bool locked;
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
+
+		int *q_circle;
+		bool corner_tl, corner_tr, corner_bl, corner_br;
+
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
 		int m_transparent_default, m_transparent;
 		// Unlocked versions (no mutex)
 		void paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col);
 		void paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col);
+
+		void paintShortHLineRelInternal(const int& x, const int& dx, const int& y, const fb_pixel_t& col);
+		int  limitRadius(const int& dx, const int& dy, int& radius);
+		void setCornerFlags(const int& type);
+		void initQCircle();
+		inline int calcCornersOffset(const int& dy, const int& line, const int& radius, const int& type) { int ofs = 0; calcCorners(&ofs, NULL, NULL, dy, line, radius, type); return ofs; }
+		bool calcCorners(int *ofs, int *ofl, int *ofr, const int& dy, const int& line, const int& radius, const int& type);
 
 	public:
 		fb_pixel_t realcolor[256];
@@ -132,9 +142,9 @@ class CFrameBuffer
 		~CFrameBuffer();
 
 		static CFrameBuffer* getInstance();
-		#ifdef USE_NEVIS_GXA
+#ifdef USE_NEVIS_GXA
 		void setupGXA(void);
-		#endif
+#endif
 
 		void init(const char * const fbDevice = "/dev/fb/0");
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
@@ -177,7 +187,7 @@ class CFrameBuffer
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col) { paintBoxRel(xa, ya, xb - xa, yb - ya, col); }
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col, int radius, int type) { paintBoxRel(xa, ya, xb - xa, yb - ya, col, radius, type); }
 
-		void paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad = 0);
+		void paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
 
 		inline void paintVLine(int x, int ya, int yb, const fb_pixel_t col) { paintVLineRel(x, ya, yb - ya, col); }
