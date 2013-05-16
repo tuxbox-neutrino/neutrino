@@ -129,7 +129,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN && paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
 				if (v_fbdata[i].frame_thickness > 0)
-					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
+					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 			}
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
 				frameBuffer->paintBackgroundBoxRel(x, y, v_fbdata[i].dx, v_fbdata[i].dy);
