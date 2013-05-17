@@ -443,7 +443,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	/* the GXA seems to do it's job asynchonously, so we need to wait until
 	   it's ready, otherwise the font will sometimes "be overwritten" with
 	   background color or bgcolor will be wrong */
-	frameBuffer->waitForIdle();
+	frameBuffer->waitForIdle("Font::RenderString");
 #endif
 	/* fetch bgcolor from framebuffer, using lower left edge of the font... */
 	fb_pixel_t bgcolor = *(frameBuffer->getFrameBufferPointer() + x +

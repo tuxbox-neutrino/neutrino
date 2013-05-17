@@ -235,7 +235,7 @@ class CFrameBuffer
 		bool Locked(void) { return locked; };
 #ifdef USE_NEVIS_GXA
 		void add_gxa_sync_marker(void);
-		void waitForIdle(void);
+		void waitForIdle(const char* func=NULL);
 #else
 		inline void waitForIdle(void) {};
 #endif

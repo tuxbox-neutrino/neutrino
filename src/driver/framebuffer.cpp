@@ -145,7 +145,7 @@ void CFrameBuffer::add_gxa_sync_marker(void)
 }
 
 /* wait until the current marker comes out of the GXA command queue */
-void CFrameBuffer::waitForIdle(void)
+void CFrameBuffer::waitForIdle(const char* func)
 {
 	unsigned int cfg, count = 0;
 	do {
@@ -159,8 +159,12 @@ void CFrameBuffer::waitForIdle(void)
 		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
 	} while(++count < 2048); /* don't deadlock here if there is an error */
 
-	if (count > 512) /* more than 100 are unlikely, */
-		fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+	if (count > 512) /* more than 100 are unlikely, */{
+		if (func != NULL)
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%04d) [%s]!\n", count, func);
+		else
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+	}
 }
 #endif /* USE_NEVIS_GXA */
 
@@ -1213,7 +1217,7 @@ void CFrameBuffer::paintBoxFrame(const int x, const int y, const int dx, const i
 	if (type && radius) {
 		radius = limitRadius(dx, dy, radius);
 		int line = 0;
-		waitForIdle();
+		waitForIdle("CFrameBuffer::paintBoxFrame");
 		while (line < dy) {
 			int ofs = 0, ofs_i = 0;
 			// inner box
