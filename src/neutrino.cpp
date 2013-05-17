@@ -2371,10 +2371,14 @@ _show:
 //_show:
 			if(msg == CRCInput::RC_ok)
 			{
+				if (g_settings.channellist_new_zap_mode > 0) /* allow or active */
+					g_audioMute->enableMuteIcon(false);
 				if( !bouquetList->Bouquets.empty() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
 					nNewChannel = bouquetList->Bouquets[old_b]->channelList->exec();//with ZAP!
 				else
 					nNewChannel = bouquetList->exec(true);
+				if (g_settings.channellist_new_zap_mode > 0) /* allow or active */
+					g_audioMute->enableMuteIcon(true);
 			} else if(msg == CRCInput::RC_sat) {
 				SetChannelMode(LIST_MODE_SAT);
 				nNewChannel = bouquetList->exec(true);

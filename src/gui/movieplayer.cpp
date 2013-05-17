@@ -359,6 +359,7 @@ bool CMoviePlayerGui::SelectFile()
 			menu_ret = moviebrowser->getMenuRet();
 	} 
 	else { // filebrowser
+		CAudioMute::getInstance()->enableMuteIcon(false);
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
 			CFile *file;
@@ -394,6 +395,7 @@ bool CMoviePlayerGui::SelectFile()
 			}
 		} else
 			menu_ret = filebrowser->getMenuRet();
+		CAudioMute::getInstance()->enableMuteIcon(true);
 	}
 	if(ret && file_name.empty()) {
 		std::string::size_type pos = full_name.find_last_of('/');
