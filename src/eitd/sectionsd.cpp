@@ -2233,50 +2233,52 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
-void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text)
+void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search, std::string search_text,bool all_chann)
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
-
 	if(!eList.empty() && search == 0)//skip on search mode
 		eList.clear();
 
 	t_channel_id serviceUniqueKey64 = serviceUniqueKey& 0xFFFFFFFFFFFFULL; //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
-	if(serviceUniqueKey64 == 0)
+	if(serviceUniqueKey64 == 0 && !all_chann)
 		return;
 
 	// service Found
 	readLockEvents();
 	int serviceIDfound = 0;
-
 	if (search_text.length())
 		std::transform(search_text.begin(), search_text.end(), search_text.begin(), tolower);
 
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 	{
-		if ((*e)->get_channel_id() == serviceUniqueKey64 || (serviceUniqueKey64 == 1)) {
+		if ((*e)->get_channel_id() == serviceUniqueKey64 || (all_chann)) {
 			serviceIDfound = 1;
 
 			bool copy = true;
-			if(search == 0); // nothing to do here
-			else if(search == 1) {
-				std::string eName = (*e)->getName();
-				std::transform(eName.begin(), eName.end(), eName.begin(), tolower);
-				if(eName.find(search_text) == std::string::npos)
-					copy = false;
+			if(search){
+				if((search == 1) || (search == 5)) {//SEARCH_EPG_TITLE == 1 SEARCH_EPG_ALL == 5 defined in eventlist.h
+					std::string eName = (*e)->getName();
+					std::transform(eName.begin(), eName.end(), eName.begin(), tolower);
+					if(eName.find(search_text) == std::string::npos)
+						copy = false;
+				}
+				if((search == 2) || (!copy && search == 5)) {//SEARCH_EPG_INFO1 == 2
+					std::string eText = (*e)->getText();
+					std::transform(eText.begin(), eText.end(), eText.begin(), tolower);
+					if(eText.find(search_text) == std::string::npos)
+						copy = false;
+					else if(search == 5)
+						copy = true;
+				}
+				if((search == 3) || (!copy && search == 5)) {//SEARCH_EPG_INFO2 == 3
+					std::string eExtendedText = (*e)->getExtendedText();
+					std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
+					if(eExtendedText.find(search_text) == std::string::npos)
+						copy = false;
+					else if(search == 5)
+						copy = true;
+				}
 			}
-			else if(search == 2) {
-				std::string eText = (*e)->getText();
-				std::transform(eText.begin(), eText.end(), eText.begin(), tolower);
-				if(eText.find(search_text) == std::string::npos)
-					copy = false;
-			}
-			else if(search == 3) {
-				std::string eExtendedText = (*e)->getExtendedText();
-				std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
-				if(eExtendedText.find(search_text) == std::string::npos)
-					copy = false;
-			}
-
 			if(copy) {
 				for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
 				{
@@ -2289,7 +2291,7 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 						aEvent.text = (*e)->getExtendedText().substr(0, 120);
 					else
 						aEvent.text = (*e)->getText();
-					if(serviceUniqueKey64 == 1)//hack for all channel search
+					if(all_chann)//hack for all channel search
 						aEvent.channelID = (*e)->get_channel_id();
 					else
 						aEvent.channelID = serviceUniqueKey;

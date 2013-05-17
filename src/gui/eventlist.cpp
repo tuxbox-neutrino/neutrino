@@ -92,7 +92,6 @@ CNeutrinoEventList::CNeutrinoEventList()
 	sort_mode = 0;
 
 	m_search_list = SEARCH_LIST_NONE;
-	m_search_epg_item = SEARCH_LIST_NONE;
 	m_search_epg_item = SEARCH_EPG_TITLE;
 	m_search_channel_id = 1;
 	m_search_bouquet_id= 1;
@@ -1034,7 +1033,6 @@ bool CNeutrinoEventList::findEvents(void)
 	hide();
 	menu.exec(NULL,"");
 	search_head_name = g_Locale->getText(LOCALE_EVENTFINDER_SEARCH);
-
 	if(event == 1)
 	{
 		res = true;
@@ -1071,7 +1069,7 @@ bool CNeutrinoEventList::findEvents(void)
 			for (it = v.begin(); it != v.end(); ++it){
 				ch_id_map[*it & 0xFFFFFFFFFFFFULL] = *it;
 			}
-			CEitManager::getInstance()->getEventsServiceKey(1/*hack*/,evtlist, m_search_epg_item,m_search_keyword);
+			CEitManager::getInstance()->getEventsServiceKey(0,evtlist, m_search_epg_item,m_search_keyword, true);//all_chann
 
 			std::map<t_channel_id, t_channel_id>::iterator map_it;
 			CChannelEventList::iterator e;
@@ -1167,14 +1165,15 @@ const CMenuOptionChooser::keyval SEARCH_LIST_OPTIONS[SEARCH_LIST_OPTION_COUNT] =
 };
 
 
-#define SEARCH_EPG_OPTION_COUNT 3
+#define SEARCH_EPG_OPTION_COUNT 4
 const CMenuOptionChooser::keyval SEARCH_EPG_OPTIONS[SEARCH_EPG_OPTION_COUNT] =
 {
 //	{ CNeutrinoEventList::SEARCH_EPG_NONE,	LOCALE_PICTUREVIEWER_RESIZE_NONE },
 	{ CNeutrinoEventList::SEARCH_EPG_TITLE,	LOCALE_FONTSIZE_EPG_TITLE },
 	{ CNeutrinoEventList::SEARCH_EPG_INFO1,	LOCALE_FONTSIZE_EPG_INFO1 },
-	{ CNeutrinoEventList::SEARCH_EPG_INFO2,	LOCALE_FONTSIZE_EPG_INFO2 }
-//	,{ CNeutrinoEventList::SEARCH_EPG_GENRE,	LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR }
+	{ CNeutrinoEventList::SEARCH_EPG_INFO2,	LOCALE_FONTSIZE_EPG_INFO2 },
+//	{ CNeutrinoEventList::SEARCH_EPG_GENRE,	LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR },
+	{ CNeutrinoEventList::SEARCH_EPG_ALL,	LOCALE_EVENTFINDER_SEARCH_ALL_EPG }
 };
 
 
@@ -1202,7 +1201,6 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 /************************************************************************************************/
 {
 	int res = menu_return::RETURN_REPAINT;
-
 
 	if(actionkey =="")
 	{
@@ -1335,6 +1333,7 @@ int CEventFinderMenu::showMenu(void)
 bool CEventFinderMenu::changeNotify(const neutrino_locale_t OptionName, void *)
 /************************************************************************************************/
 {
+  
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST))
 	{
 		if (*m_search_list == CNeutrinoEventList::SEARCH_LIST_CHANNEL)

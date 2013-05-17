@@ -317,6 +317,7 @@ epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
 eventfinder.keyword Keyword
 eventfinder.search Search
+eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within
 eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...

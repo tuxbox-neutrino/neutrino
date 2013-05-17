@@ -344,6 +344,7 @@ const char * locale_real_names[] =
 	"eventfinder.head",
 	"eventfinder.keyword",
 	"eventfinder.search",
+	"eventfinder.search_all_epg",
 	"eventfinder.search_within_epg",
 	"eventfinder.search_within_list",
 	"eventfinder.searching",
