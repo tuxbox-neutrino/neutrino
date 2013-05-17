@@ -112,6 +112,7 @@ void CComponentsItem::hideCCItem(bool no_restore)
 	is_painted = false;
 
 	if (saved_screen.pixbuf) {
+		frameBuffer->waitForIdle("CComponentsItem::hideCCItem()");
 		frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
 		if (no_restore) {
 			delete[] saved_screen.pixbuf;
