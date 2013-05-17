@@ -28,6 +28,7 @@
 #include <gui/widget/msgbox.h>
 #ifdef MARTII
 #include <gui/filebrowser.h>
+#include <driver/pictureviewer/pictureviewer.h>
 #endif
 #include <neutrino.h>
 
@@ -346,6 +347,8 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "GetInput", CLuaInstance::GetInput },
 	{ "FontHeight", CLuaInstance::FontHeight },
 #ifdef MARTII
+	{ "GetSize", CLuaInstance::GetSize },
+	{ "DisplayImage", CLuaInstance::DisplayImage },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
 #endif
@@ -512,6 +515,41 @@ int CLuaInstance::PaintIcon(lua_State *L)
 	W->fbwin->paintIcon(fname, x, y, h, o);
 	return 0;
 }
+
+#ifdef MARTII
+extern CPictureViewer * g_PicViewer;
+
+int CLuaInstance::DisplayImage(lua_State *L)
+{
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	int x, y, w, h;
+	const char *fname;
+
+	fname = luaL_checkstring(L, 2);
+	x = luaL_checkint(L, 3);
+	y = luaL_checkint(L, 4);
+	w = luaL_checkint(L, 5);
+	h = luaL_checkint(L, 6);
+	int trans = 0;
+	if (lua_isnumber(L, 7))
+		trans = luaL_checkint(L, 7);
+	g_PicViewer->DisplayImage(fname, x, y, w, h, trans);
+	return 0;
+}
+
+int CLuaInstance::GetSize(lua_State *L)
+{
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	int w = 0, h = 0;
+	const char *fname;
+
+	fname = luaL_checkstring(L, 2);
+	g_PicViewer->getSize(fname, &w, &h);
+	lua_pushinteger(L, w);
+	lua_pushinteger(L, h);
+	return 2;
+}
+#endif
 
 int CLuaInstance::RenderString(lua_State *L)
 {

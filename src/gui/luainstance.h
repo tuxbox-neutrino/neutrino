@@ -152,6 +152,8 @@ private:
 #ifdef MARTII
 	static int Blit(lua_State *L);
 	static int GetLanguage(lua_State *L);
+	static int GetSize(lua_State *L);
+	static int DisplayImage(lua_State *L);
 
 	void MenueRegister(lua_State *L);
 	static int MenueNew(lua_State *L);
