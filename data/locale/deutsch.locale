@@ -316,8 +316,8 @@ epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
 eventfinder.head EPG-Suche
 eventfinder.keyword Suche nach Textpassage
-eventfinder.search_all_epg Ganze 
 eventfinder.search Suche
+eventfinder.search_all_epg Ganze 
 eventfinder.search_within_epg Suche innerhalb EPG-Daten
 eventfinder.search_within_list Suche innerhalb Text
 eventfinder.searching Suche...
