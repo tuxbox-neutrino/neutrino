@@ -2266,7 +2266,7 @@ void CChannelList::paint_events(int index)
 			if (e->eventID)
 			{
 				first = (i == 1);
-				if ((first) && (g_settings.colored_events_channellist == 1 /* current */) || (!first) && (g_settings.colored_events_channellist == 2 /* next */))
+				if ((first && g_settings.colored_events_channellist == 1 /* current */) || (!first && g_settings.colored_events_channellist == 2 /* next */))
 					color = COL_COLORED_EVENTS_CHANNELLIST;
 				struct tm *tmStartZeit = localtime(&e->startTime);
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
