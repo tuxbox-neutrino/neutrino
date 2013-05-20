@@ -317,7 +317,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	unlink(Dst);
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
-	if ((fd2 = open(Dst, O_WRONLY | O_CREAT)) < 0) {
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, 0666)) < 0) {
 		close(fd1);
 		return false;
 	}
