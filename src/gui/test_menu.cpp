@@ -34,6 +34,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 
 #include <driver/screen_max.h>
 #include <system/debug.h>
@@ -61,7 +62,6 @@ extern int cs_test_card(int unit, char * str);
 CTestMenu::CTestMenu()
 {
 	width = w_max (50, 10);
-	selected = -1;
 	circle = NULL;
 	sq = NULL;
 	pic= NULL;
@@ -529,24 +529,22 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	
 	
-	showTestMenu();
-	
-	return res;
+	return showTestMenu();
 }
 
 /* shows entries for proxy settings */
-void CTestMenu::showTestMenu()
+int CTestMenu::showTestMenu()
 {
 	unsigned int system_rev = cs_get_revision();
 	
 	//init
 	char rev[255];
 	sprintf(rev, "Test menu, System revision %d %s", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
-	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width);
+	CMenuWidget w_test(rev /*"Test menu"*/, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU);
 	w_test.addIntroItems();
 	
 	//hardware
-	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width);
+	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
 	w_test.addItem(new CMenuForwarderNonLocalized(w_hw->getName().c_str(), true, NULL, w_hw));
 	showHWTests(w_hw);
 	
@@ -554,18 +552,16 @@ void CTestMenu::showTestMenu()
 	w_test.addItem(new CMenuForwarderNonLocalized("Buttons", true, NULL, this, "buttons"));
 	
 	//components
-	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width);
+	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
 	w_test.addItem(new CMenuForwarderNonLocalized(w_cc->getName().c_str(), true, NULL, w_cc));
 	showCCTests(w_cc);
 
 	//exit
-	w_test.exec(NULL, "");
-	selected = w_test.getSelected();
+	return w_test.exec(NULL, "");;
 }
 
 void CTestMenu::showCCTests(CMenuWidget *widget)
 {
-	widget->setSelected(selected);
 	widget->addIntroItems();
 	widget->addItem(new CMenuForwarderNonLocalized("Button", true, NULL, this, "button"));
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
@@ -580,7 +576,6 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 
 void CTestMenu::showHWTests(CMenuWidget *widget)
 {
-	widget->setSelected(selected);
 	widget->addIntroItems();
 	widget->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, this, "vfd"));
 	widget->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, this, "network"));

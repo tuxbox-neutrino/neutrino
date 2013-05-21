@@ -52,7 +52,7 @@ class CTestMenu : public CMenuTarget
 		CComponentsButton *button;
 		int width, selected;
 
-		void showTestMenu();
+		int showTestMenu();
 		void showHWTests(CMenuWidget *widget);
 		void showCCTests(CMenuWidget *widget);
 
