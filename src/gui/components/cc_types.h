@@ -93,12 +93,12 @@ typedef struct comp_screen_data_t
 //align types
 enum
 {
-	CC_ALIGN_RIGHT 		= 0,
-	CC_ALIGN_LEFT 		= 1,
-	CC_ALIGN_TOP 		= 2,
-	CC_ALIGN_BOTTOM 	= 4,
-	CC_ALIGN_HOR_CENTER	= 8,
-	CC_ALIGN_VER_CENTER	= 16
+	CC_ALIGN_RIGHT 		= 1,
+	CC_ALIGN_LEFT 		= 2,
+	CC_ALIGN_TOP 		= 4,
+	CC_ALIGN_BOTTOM 	= 8,
+	CC_ALIGN_HOR_CENTER	= 16,
+	CC_ALIGN_VER_CENTER	= 32
 };
 
 enum
