@@ -85,7 +85,9 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	int y_sh = corner_rad>0 ? y+height-2*corner_rad+sw : y+height; //bottom
 	
 	//calculate current shadow width depends of current corner_rad
-	int sw_cur = corner_rad>0 ? 2*corner_rad : sw;
+	int sw_cur = sw;
+	if (shadow)
+		sw_cur = corner_rad>sw ? 2*corner_rad : sw;
 	
 	comp_fbdata_t fbdata[] =
 	{
