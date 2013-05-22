@@ -1641,7 +1641,7 @@ void CAudioPlayerGui::paintItem(int pos)
 
 void CAudioPlayerGui::paintHead()
 {
-	if (!m_show_playlist)
+	if (!m_show_playlist || m_screensaver)
 		return;
 
 	int c_rad_mid = RADIUS_MID;
