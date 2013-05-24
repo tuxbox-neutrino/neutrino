@@ -236,7 +236,7 @@ CAudioPlayerGui::~CAudioPlayerGui()
 	m_filelist.clear();
 	m_title2Pos.clear();
 //	g_Zapit->setStandby (false);
-	g_Sectionsd->setPauseScanning (false);
+//	g_Sectionsd->setPauseScanning (false);
 	delete dline;
 	delete ibox;
 }
