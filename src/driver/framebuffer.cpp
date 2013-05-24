@@ -675,7 +675,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		return;
 
 	if (dx == 0 || dy == 0) {
-		printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, y+dy);
+		printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
 		return;
 	}
 
@@ -721,8 +721,15 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 #endif
 			}
 
-			if (dx-ofr-ofl == 0)
-				printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, dx-ofr-ofl, y+line);
+			if (dx-ofr-ofl < 1) {
+				if (dx-ofr-ofl == 0)
+					printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
+				else
+					printf("[%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n", 
+						__FUNCTION__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
+				line++;
+				continue;
+			}
 #ifdef USE_NEVIS_GXA
 			_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
 			_write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));               /* destination x/y */
