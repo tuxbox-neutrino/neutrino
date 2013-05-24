@@ -899,9 +899,11 @@ _display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
+	checkFbArea(x, yy, width, height, true);
 	if (paintBg)
 		paintBoxRel(x, yy, width, height, colBg);
 	blit2FB(data, width, height, x, yy);
+	checkFbArea(x, yy, width, height, false);
 	return true;
  
 }
@@ -1057,10 +1059,12 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 
 	if(!useBackgroundPaint)
 	{
+		/* paintBoxRel does its own checkFbArea() */
 		paintBoxRel(x, y, dx, dy, backgroundColor);
 	}
 	else
 	{
+		checkFbArea(x, y, dx, dy, true);
 		uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 		fb_pixel_t * bkpos = background + x + BACKGROUNDIMAGEWIDTH * y;
 		for(int count = 0;count < dy; count++)
@@ -1069,6 +1073,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 			fbpos += stride;
 			bkpos += BACKGROUNDIMAGEWIDTH;
 		}
+		checkFbArea(x, y, dx, dy, false);
 	}
 }
 
@@ -1079,8 +1084,11 @@ void CFrameBuffer::paintBackground()
 
 	if (useBackgroundPaint && (background != NULL))
 	{
+		checkFbArea(0, 0, xRes, yRes, true);
+		/* this does not really work anyway... */
 		for (int i = 0; i < 576; i++)
 			memmove(((uint8_t *)getFrameBufferPointer()) + i * stride, (background + i * BACKGROUNDIMAGEWIDTH), BACKGROUNDIMAGEWIDTH * sizeof(fb_pixel_t));
+		checkFbArea(0, 0, xRes, yRes, false);
 	}
 	else
 	{
@@ -1094,6 +1102,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	if (!getActive() || memp == NULL)
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++) {
@@ -1113,7 +1122,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 		bkpos += dx;
 	}
 #endif
-
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
@@ -1121,6 +1130,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 	if (!getActive() || memp == NULL)
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++)
@@ -1130,6 +1140,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		bkpos += dx;
 	}
 	blit();
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::Clear()
