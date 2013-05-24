@@ -786,7 +786,6 @@ menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel,
 menu.hint_factory Reset box to factory state\nBox will reboot after reset
 menu.hint_fade Fade GUI windows
 menu.hint_fan_speed Control fan speed
-menu.hint_fe_type Changes tuner type (restart needed)
 menu.hint_filebrowser_denydirectoryleave Deny filebrowser to leave initial directory
 menu.hint_filebrowser_showrights Show file permissions in file browser
 menu.hint_fileplay Play various video files
@@ -1622,8 +1621,6 @@ satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Unused
 satsetup.fe_setup Setup tuner
-satsetup.fe_type Change tuner type
-satsetup.fe_type_confirm To change the reception type, a restart\nof neutrino is necessary. Restart now?
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB switch Offset
