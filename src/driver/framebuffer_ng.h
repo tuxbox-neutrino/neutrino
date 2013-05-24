@@ -33,6 +33,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 
@@ -175,8 +176,9 @@ class CFrameBuffer
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
 		unsigned int getScreenHeight(bool real = false); 
-		unsigned int getScreenWidthRel();
-		unsigned int getScreenHeightRel();
+		unsigned int getScreenPercentRel(bool force_small);
+		unsigned int getScreenWidthRel(bool force_small = false);
+		unsigned int getScreenHeightRel(bool force_small = false);
 		unsigned int getScreenX();
 		unsigned int getScreenY();
 		
@@ -204,7 +206,7 @@ class CFrameBuffer
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col) { paintBoxRel(xa, ya, xb - xa, yb - ya, col); }
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col, int radius, int type) { paintBoxRel(xa, ya, xb - xa, yb - ya, col, radius, type); }
 
-		void paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad = 0);
+		void paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad = 0, int type = CORNER_ALL);
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
 
 		void paintVLine(int x, int ya, int yb, const fb_pixel_t col);
@@ -251,7 +253,7 @@ class CFrameBuffer
 		bool Lock(void);
 		void Unlock(void);
 		bool Locked(void) { return locked; };
-		void waitForIdle(void);
+		void waitForIdle(const char *func = NULL);
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
@@ -271,6 +273,47 @@ class CFrameBuffer
 			};
 		void SetTransparent(int t){ m_transparent = t; }
 		void SetTransparentDefault(){ m_transparent = m_transparent_default; }
+
+// ## AudioMute / Clock ######################################
+	private:
+		enum {
+			FB_PAINTAREA_MATCH_NO,
+			FB_PAINTAREA_MATCH_OK
+		};
+
+		typedef struct fb_area_t
+		{
+			int x;
+			int y;
+			int dx;
+			int dy;
+			int element;
+		} fb_area_struct_t;
+
+		bool fbAreaActiv;
+		typedef std::vector<fb_area_t> v_fbarea_t;
+		typedef v_fbarea_t::iterator fbarea_iterator_t;
+		v_fbarea_t v_fbarea;
+		bool fb_no_check;
+		bool do_paint_mute_icon;
+
+		bool _checkFbArea(int _x, int _y, int _dx, int _dy, bool prev);
+		int checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area);
+
+	public:
+		enum {
+			FB_PAINTAREA_INFOCLOCK,
+			FB_PAINTAREA_MUTEICON1,
+			FB_PAINTAREA_MUTEICON2,
+
+			FB_PAINTAREA_MAX
+		};
+
+		inline bool checkFbArea(int _x, int _y, int _dx, int _dy, bool prev) { return (fbAreaActiv && !fb_no_check) ? _checkFbArea(_x, _y, _dx, _dy, prev) : true; }
+
+		void setFbArea(int element, int _x=0, int _y=0, int _dx=0, int _dy=0);
+		void fbNoCheck(bool noCheck) { fb_no_check = noCheck; }
+		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
 };
 
 #endif

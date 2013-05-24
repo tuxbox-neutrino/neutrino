@@ -43,6 +43,7 @@
 extern GLFramebuffer *glfb;
 #endif
 
+#include <gui/audiomute.h>
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>
@@ -68,7 +69,7 @@ extern CPictureViewer * g_PicViewer;
 
 /*******************************************************************************/
 
-void CFrameBuffer::waitForIdle(void)
+void CFrameBuffer::waitForIdle(const char *)
 {
 	accel->waitForIdle();
 }
@@ -276,15 +277,25 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 		return g_settings.screen_EndY - g_settings.screen_StartY;
 }
 
-unsigned int CFrameBuffer::getScreenWidthRel()
+
+unsigned int CFrameBuffer::getScreenPercentRel(bool force_small)
 {
-	// always reduce a possible detailline
-	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * (g_settings.big_windows ? 100 : NON_BIG_WINDOWS) / 100;
+	if (force_small || !g_settings.big_windows)
+		return NON_BIG_WINDOWS;
+	return 100;
 }
 
-unsigned int CFrameBuffer::getScreenHeightRel()
+unsigned int CFrameBuffer::getScreenWidthRel(bool force_small)
 {
-	return (g_settings.screen_EndY - g_settings.screen_StartY) * (g_settings.big_windows ? 100 : NON_BIG_WINDOWS) / 100;
+	int percent = getScreenPercentRel(force_small);
+	// always reduce a possible detailline
+	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * percent / 100;
+}
+
+unsigned int CFrameBuffer::getScreenHeightRel(bool force_small)
+{
+	int percent = getScreenPercentRel(force_small);
+	return (g_settings.screen_EndY - g_settings.screen_StartY) * percent / 100;
 }
 
 unsigned int CFrameBuffer::getScreenX()
@@ -906,7 +917,8 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 	close(lfd);
 }
 
-void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad)
+
+void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad, int type)
 {
 	if (!getActive())
 		return;
@@ -1212,4 +1224,89 @@ void CFrameBuffer::paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, boo
 	else
 		paintBackgroundBoxRel(ax, ay, dx, dy);
 	blit();
+}
+
+void CFrameBuffer::setFbArea(int element, int _x, int _y, int _dx, int _dy)
+{
+	if (_x == 0 && _y == 0 && _dx == 0 && _dy == 0) {
+		// delete area
+		for (fbarea_iterator_t it = v_fbarea.begin(); it != v_fbarea.end(); ++it) {
+			if (it->element == element) {
+				v_fbarea.erase(it);
+				break;
+			}
+		}
+		if (v_fbarea.empty()) {
+			fbAreaActiv = false;
+		}
+	}
+	else {
+		// change area
+		bool found = false;
+		for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+			if (v_fbarea[i].element == element) {
+				v_fbarea[i].x = _x;
+				v_fbarea[i].y = _y;
+				v_fbarea[i].dx = _dx;
+				v_fbarea[i].dy = _dy;
+				found = true;
+				break;
+			}
+		}
+		// set new area
+		if (!found) {
+			fb_area_t area;
+			area.x = _x;
+			area.y = _y;
+			area.dx = _dx;
+			area.dy = _dy;
+			area.element = element;
+			v_fbarea.push_back(area);
+		}
+		fbAreaActiv = true;
+	}
+}
+
+int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area)
+{
+	if (fb_no_check)
+		return FB_PAINTAREA_MATCH_NO;
+
+	if (_y > area->y + area->dy)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x + _dx < area->x)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x > area->x + area->dx)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_y + _dy < area->y)
+		return FB_PAINTAREA_MATCH_NO;
+	return FB_PAINTAREA_MATCH_OK;
+}
+
+bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
+{
+	if (v_fbarea.empty())
+		return true;
+
+	for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+		int ret = checkFbAreaElement(_x, _y, _dx, _dy, &v_fbarea[i]);
+		if (ret == FB_PAINTAREA_MATCH_OK) {
+			switch (v_fbarea[i].element) {
+				case FB_PAINTAREA_MUTEICON1:
+					if (!do_paint_mute_icon)
+						break;
+					fb_no_check = true;
+					if (prev)
+						CAudioMute::getInstance()->hide(true);
+					else
+						CAudioMute::getInstance()->paint();
+					fb_no_check = false;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	return true;
 }
