@@ -46,18 +46,22 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
 		CMenuWidget *osd_menu;
+		CMenuWidget *submenu_menus;
 
 		int width;
 		bool is_wizard;
+		int show_menu_hints;
 		int show_tuner_icon;
 
 		int showOsdSetup();
  		void showOsdMenueColorSetup(CMenuWidget *menu_colors);
 		void showOsdFontSizeSetup(CMenuWidget *menu_fonts);
 		void showOsdTimeoutSetup(CMenuWidget *menu_timeout);
+		void showOsdMenusSetup(CMenuWidget *menu_menus);
 		void showOsdInfobarSetup(CMenuWidget *menu_infobar);
 		void showOsdChanlistSetup(CMenuWidget *menu_chanlist);
 		void showOsdEventlistSetup(CMenuWidget *menu_eventlist);
+		void showOsdVolumeSetup(CMenuWidget *menu_volume);
 		void showOsdScreenShotSetup(CMenuWidget *menu_screenshot);
 
  		void AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);

@@ -63,6 +63,7 @@ class CMediaPlayerMenu : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		void setMenuTitel(const neutrino_locale_t title = LOCALE_MAINMENU_MEDIA){menu_title = title;};
 		void setUsageMode(const int& mm_mode = MODE_DEFAULT){usage_mode = mm_mode;};
+		CAudioPlayerGui *getPlayerInstance() { if (audioPlayer != NULL) return audioPlayer; else if (inetPlayer != NULL) return inetPlayer; else return NULL; }
 };
 
 

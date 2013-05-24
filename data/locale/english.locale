@@ -256,7 +256,7 @@ colorchooser.green green
 colorchooser.red red
 colormenu.background Background
 colormenu.contrast_fonts Contrast fonts
-colormenu.fade Fade menus
+colormenu.fade Fade GUI
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
 colormenu.hd_preset LCD
@@ -265,7 +265,7 @@ colormenu.osd_preset TV preset
 colormenu.sd_preset CRT
 colormenu.textcolor Text color
 colormenu.themeselect Select theme
-colormenu.timing OSD Timeouts
+colormenu.timing Timeouts
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
@@ -312,11 +312,16 @@ epgextended.year_of_production Year of Production
 epglist.noevents EPG is not available...
 epgviewer.More_Screenings More Screenings on this Channel
 epgviewer.More_Screenings_short More Screenings
+epgviewer.age_rating Age rating
+epgviewer.audio Audio
+epgviewer.genre Genre
+epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
 eventfinder.keyword Keyword
 eventfinder.search Search
+eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within
 eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...
@@ -893,6 +898,7 @@ menu.hint_media Play movies, audio files\nWatch pictures
 menu.hint_menu_fonts Change menu font sizes
 menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
 menu.hint_menu_pos Select menu position
+menu.hint_menus Configure menu options
 menu.hint_misc_cec HDMI-CEC Options
 menu.hint_misc_channellist HD/New/Removed channel lists\nZap cycle
 menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
@@ -1108,6 +1114,7 @@ menu.hint_video_modes VF key will cycle between enabled modes
 menu.hint_video_pip Picture in picture size and position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
+menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
@@ -1187,6 +1194,7 @@ miscsettings.shutdown_count_hint2 to deep standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
+miscsettings.volume Volume
 miscsettings.zapto_pre_time Zapto Start Time Correction (minutes)
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
@@ -1703,12 +1711,14 @@ settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_hints Show menu hints
 settings.menu_pos Menu position
+settings.menus Menus
 settings.missingoptionsconffile The Neutrino settings have been updated.\nNew Options will be set to default.
 settings.noconffile No Neutrino settings found.\nUsing defaults.
+settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
-settings.pos_default_center top center
-settings.pos_higher_center higher center
+settings.pos_default_center center
+settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
 settings.restore Image-Settings: Restore

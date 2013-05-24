@@ -607,6 +607,7 @@ int CChannelList::show()
 
 	bool bouquet_changed = false;
 	bool loop=true;
+	bool dont_hide = false;
 	while (loop) {
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 		if ( msg <= CRCInput::RC_MaxRC )
@@ -776,6 +777,7 @@ int CChannelList::show()
 					res = bouquetList->showChannelList();
 					loop = false;
 				}
+				dont_hide = true;
 			}
 		}
 		else if ( msg == CRCInput::RC_ok ) {
@@ -872,9 +874,6 @@ int CChannelList::show()
 
 			paintHead(); // update button bar
 			paint();
-
-			if (!displayList && g_settings.channellist_additional)
-				showdescription(selected);
 		}
 		else if ( msg == CRCInput::RC_green )
 		{
@@ -934,10 +933,10 @@ int CChannelList::show()
 
 	if (bouquet_changed)
 		res = -5; /* in neutrino.cpp: -5 == "don't change bouquet after adding a channel to fav" */
-
-	hide();
-
-	fader.Stop();
+	if(!dont_hide){
+		hide();
+		fader.Stop();
+	}
 
 	if (bShowBouquetList) {
 		res = bouquetList->exec(true);
@@ -1671,7 +1670,12 @@ void CChannelList::paintDetails(int index)
 		}
 	}
 	if ((g_settings.channellist_additional) && (p_event != NULL))
-		paint_events(index);
+	{
+		if (displayList)
+			paint_events(index);
+		else
+			showdescription(selected);
+	}
 }
 
 void CChannelList::clearItem2DetailsLine()
@@ -2110,8 +2114,12 @@ void CChannelList::paint()
 	// paint background for main box
 	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0);
 	if (g_settings.channellist_additional)
+	{
+		// disable displayNext
+		displayNext = false;
 		// paint background for right box
 		frameBuffer->paintBoxRel(x+width,y+theight,infozone_width,pig_height+infozone_height,COL_MENUCONTENT_PLUS_0);
+	}
 
 	for(unsigned int count = 0; count < listmaxshow; count++) {
 		paintItem(count, true);
@@ -2229,6 +2237,7 @@ void CChannelList::paint_events(int index)
 	CChannelEventList::iterator e;
 	time_t azeit;
 	time(&azeit);
+	unsigned int u_azeit = ( azeit > -1)? azeit:0;
 
 	if ( evtlist.empty() )
 	{
@@ -2244,8 +2253,7 @@ void CChannelList::paint_events(int index)
 	for (e=evtlist.begin(); e!=evtlist.end(); ++e )
 	{
 		//Remove events in the past
-		time_t dif = azeit - e->startTime;
-		if ( (dif > 0) && (!(e->eventID == 0)))
+		if ( (u_azeit > (e->startTime + e->duration)) && (!(e->eventID == 0)))
 		{
 			do
 			{
@@ -2253,9 +2261,8 @@ void CChannelList::paint_events(int index)
 				e = evtlist.erase( e );
 				if (e == evtlist.end())
 					break;
-				dif = azeit - e->startTime;
 			}
-			while ( dif > 0 );
+			while ( u_azeit > (e->startTime + e->duration));
 		}
 		if (e == evtlist.end())
 			break;
@@ -2263,15 +2270,20 @@ void CChannelList::paint_events(int index)
 		//Display the remaining events
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height))
 		{
+			bool first = false;
+			fb_pixel_t color = COL_MENUCONTENTDARK;
 			if (e->eventID)
 			{
+				first = (i == 1);
+				if ((first && g_settings.colored_events_channellist == 1 /* current */) || (!first && g_settings.colored_events_channellist == 2 /* next */))
+					color = COL_COLORED_EVENTS_CHANNELLIST;
 				struct tm *tmStartZeit = localtime(&e->startTime);
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
 				//printf("%s %s\n", startTime, e->description.c_str());
 				startTimeWidth = eventStartTimeWidth;
-				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, (g_settings.colored_events_channellist == 2 /* next */) ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTINACTIVE, 0, true);
+				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, color, 0, true);
 			}
-			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, COL_MENUCONTENTDARK, 0, true);
+			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, color, 0, true);
 		}
 		else
 		{
@@ -2315,13 +2327,15 @@ void CChannelList::showdescription(int index)
 	epgData.info2.clear();
 	epgText.clear();
 	CEitManager::getInstance()->getEPGid(p_event->eventID, p_event->startTime, &epgData);
+
 	if (!(epgData.info2.empty()))
-	{
-		frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 		processTextToArray(epgData.info2);
-		for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
-			g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
-	}
+	else
+		processTextToArray(g_Locale->getText(LOCALE_EPGVIEWER_NODETAILED));
+
+	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
+	for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
+		g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK , 0, true);
 }
 
 void CChannelList::addTextToArray(const std::string & text, int screening) // UTF-8

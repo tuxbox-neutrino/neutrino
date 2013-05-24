@@ -4,6 +4,8 @@
 
 	audioMute - Neutrino-GUI
 	Copyright (C) 2013 M. Liebmann (micha-bbg)
+	CComponents implementation
+	Copyright (C) 2013 Thilo Graf
 
 	License: GPL
 
@@ -34,20 +36,13 @@
 
 #include <driver/display.h>
 
-CAudioMute::CAudioMute()
+CAudioMute::CAudioMute():CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_MUTE)
 {
-	mute_ax		= 0;
-	mute_ay		= 0;
-	mute_dx		= 0;
-	mute_dy		= 0;
-	mute_ay_old	= -1;
-	CVolumeHelper::getInstance()->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
-	mIcon		= new CComponentsPicture(mute_ax, mute_ay, mute_dx, mute_dy, NEUTRINO_ICON_BUTTON_MUTE);
-}
-
-CAudioMute::~CAudioMute()
-{
-	delete mIcon;
+	y_old			= -1;
+	paint_bg		= false;
+	do_paint_mute_icon	= true;
+	CVolumeHelper::getInstance()->refresh();
+	CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 }
 
 CAudioMute* CAudioMute::getInstance()
@@ -69,21 +64,59 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	if( isEvent && ( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic))
 	{
-		CVolumeHelper::getInstance()->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
-		if ((mIcon) && (mute_ay_old != mute_ay)) {
-			mIcon->hide();
-			mIcon->setYPos(mute_ay);
-			mute_ay_old = mute_ay;
+		CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
+		if ((y_old != y)) {
+			if (do_paint_mute_icon)
+			{
+				frameBuffer->fbNoCheck(true);
+				this->hide(true);
+				frameBuffer->fbNoCheck(false);
+			}
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
+			y_old = y;
 		}
 		if ((g_settings.mode_clock) && (doInit))
-			CInfoClock::getInstance(true)->ClearDisplay();
+			CInfoClock::getInstance()->ClearDisplay();
 
-		if (newValue)
-			mIcon->paint();
-		else
-			mIcon->hide();
+		frameBuffer->fbNoCheck(true);
+		if (newValue) {
+			if (do_paint_mute_icon)
+				this->paint();
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1, x, y, width, height);
+		}
+		else {
+			if (do_paint_mute_icon)
+				this->hide(true);
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
+		}
+		frameBuffer->fbNoCheck(false);
 
 		if (doInit)
-			CInfoClock::getInstance(true)->Init(true);
+			CVolumeHelper::getInstance()->refresh();
 	}
+	else if (neutrino->getMode() == CNeutrinoApp::mode_audio) {
+		if (newValue)
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1, x, y, width, height);
+		else
+			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
+	}
+}
+
+void CAudioMute::enableMuteIcon(bool enable)
+{
+	CNeutrinoApp *neutrino = CNeutrinoApp::getInstance();
+	frameBuffer->fbNoCheck(true);
+	if (enable) {
+		frameBuffer->doPaintMuteIcon(true);
+		do_paint_mute_icon = true;
+		if (neutrino->isMuted())
+			this->paint();
+	}
+	else {
+		if (neutrino->isMuted())
+			this->hide(true);
+		frameBuffer->doPaintMuteIcon(false);
+		do_paint_mute_icon = false;
+	}
+	frameBuffer->fbNoCheck(false);
 }

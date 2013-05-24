@@ -28,7 +28,6 @@
 #include <config.h>
 #endif
 
-
 #include "gui/volumebar.h"
 
 #include <global.h>
@@ -36,6 +35,9 @@
 #include <gui/infoclock.h>
 
 using namespace std;
+
+//default vol_height
+#define VOL_HEIGHT 36
 
 CVolumeBar::CVolumeBar()
 {
@@ -47,7 +49,6 @@ void CVolumeBar::initVarVolumeBar()
 	//init inherited variables
 	initVarForm();
 	col_body 	= COL_MENUCONTENT_PLUS_0;
-	height 		= 36; //default height
 
 	//init variables this
 
@@ -57,12 +58,6 @@ void CVolumeBar::initVarVolumeBar()
 	//items
 	//icon object
 	vb_icon 	= NULL;
-	// icon whith / height
-	int tmp_h = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_w, &tmp_h);
-	icon_w		+= 12;
-	tmp_h		+= 4;
-	height 		= max(height, tmp_h);
 
 	//progressbar object
 	vb_pb 		= NULL;
@@ -87,16 +82,14 @@ void CVolumeBar::initVarVolumeBar()
 //calculates size referred for possible activated clock or/and mute icon
 void CVolumeBar::initVolumeBarSize()
 {
-	int tmp_h = height;
-
-	// digit whith / height
-	if (g_settings.volume_digits) {
-		tmp_h		= g_Font[VolumeFont]->getDigitHeight() + (g_Font[VolumeFont]->getDigitOffset() * 18) / 10;
-		height 		= max(height, tmp_h);
+	// digit whith
+	if (g_settings.volume_digits)
 		digit_w		= g_Font[VolumeFont]->getRenderWidth("100 ");
-	}
 	else
 		digit_w		= 0;
+	int dummy = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_w, &dummy);
+	icon_w		+= 12;
 
 	//adapt x-pos
 	icon_x 		= corner_rad + 2;
@@ -112,30 +105,19 @@ void CVolumeBar::initVolumeBarSize()
 	CVolumeHelper *cvh = CVolumeHelper::getInstance();
 	cvh->getSpacer(&h_spacer, &v_spacer);
 	cvh->getDimensions(&x, &y, &sw, &sh);
+	cvh->getVolBarDimensions(&y, &height);
 
 	// mute icon
 	cvh->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
-
-	clock_height = 0;
-	int clock_width  = 0;
+	// info clock
+	cvh->getInfoClockDimensions(&dummy, &clock_y, &clock_width, &clock_height, &dummy, &dummy);
 	int mute_corrY = 0;
-	if ((g_settings.mode_clock) && (g_settings.volume_pos == 0)) {
-		// Clock and MuteIcon in a line.
-		clock_height = CInfoClock::getInstance(true)->time_height;
-		clock_width = CInfoClock::getInstance(true)->time_width;
-		mute_corrY = (clock_height - mute_dy) / 2;
-	}
-	else {
-		// Volume level and MuteIcon in a line.
-		if (mute_dy > height)
-			y += (mute_dy - height) / 2;
-		else
-			mute_corrY = (height - mute_dy) / 2;
-	}
+	if (mute_dy < height)
+		mute_corrY = (height - mute_dy) / 2;
 	cvh->setMuteIconCorrY(mute_corrY);
 
 	if ((g_settings.mode_clock) && (!CNeutrinoApp::getInstance()->isMuted()))
-		frameBuffer->paintBackgroundBoxRel(sw - clock_width, y, clock_width, clock_height);
+		CInfoClock::getInstance()->ClearDisplay();
 
 	vb_pbh 		= height-8;
 	vb_pby 		= height/2-vb_pbh/2;
@@ -154,7 +136,7 @@ void CVolumeBar::initVolumeBarPosition()
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + h_spacer;
 				if (g_settings.mode_clock)
-					y += clock_height + v_spacer / 2;
+					y += max(clock_y + clock_height, mute_ay + mute_dy) /*+ v_spacer / 2*/;
 			}
 			x = sw - width - x_corr;
 			break;
@@ -290,22 +272,75 @@ CVolumeHelper::CVolumeHelper()
 	h_spacer	= 11;
 	v_spacer	= 6;
 
-	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	x		= frameBuffer->getScreenX() + h_spacer;
-	y		= frameBuffer->getScreenY() + v_spacer;
-	sw		= g_settings.screen_EndX - h_spacer;
-	sh		= frameBuffer->getScreenHeight();
+	frameBuffer = CFrameBuffer::getInstance();
 
-	int mute_icon_dx = 0;
-	int mute_icon_dy = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &mute_icon_dx, &mute_icon_dy);
-	mute_dx 	= mute_icon_dx;
-	mute_dy 	= mute_icon_dy;
-	mute_dx 	+= mute_icon_dx / 4;
-	mute_dy 	+= mute_icon_dx / 4;
+	Init();
+}
+
+void CVolumeHelper::Init()
+{
+
+	x  = frameBuffer->getScreenX() + h_spacer;
+	y  = frameBuffer->getScreenY() + v_spacer;
+	sw = g_settings.screen_EndX - h_spacer;
+	sh = frameBuffer->getScreenHeight();
+
+	initVolBarHeight();
+	initMuteIcon();
+	initInfoClock();
+}
+
+void CVolumeHelper::initInfoClock()
+{
+	digit_offset = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset();
+	digit_h      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitHeight();
+	int t1       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
+	int t2       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
+	clock_dy     = digit_h + (int)((float)digit_offset * 1.5);
+	clock_dx     = t1*6 + t2*2;
+	clock_ax     = sw - clock_dx;
+	clock_ay     = y;
+	vol_ay       = y;
+	mute_corrY   = 0;
+
+	if (g_settings.mode_clock) {
+		if (mute_dy > clock_dy)
+			clock_ay += (mute_dy - clock_dy) / 2;
+		else
+			mute_corrY = (clock_dy - mute_dy) / 2;
+	}
+	else {
+		if (mute_dy > vol_height)
+			vol_ay += (mute_dy - vol_height) / 2;
+		else
+			mute_corrY = (vol_height - mute_dy) / 2;
+	}
+}
+
+void CVolumeHelper::initMuteIcon()
+{
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &mute_dx, &mute_dy);
 	mute_ax 	= sw - mute_dx;
 	mute_ay 	= y;
-	mute_corrY	= 0;
+}
+
+void CVolumeHelper::initVolBarHeight()
+{
+	vol_height	= VOL_HEIGHT;
+	int tmp_h	= 0;
+	int dummy	= 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &dummy, &tmp_h);
+	tmp_h		+= 4;
+	vol_height 	= max(vol_height, tmp_h);
+	if (g_settings.volume_digits) {
+		tmp_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitHeight() + (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset() * 18) / 10;
+		vol_height = max(vol_height, tmp_h);
+	}
+}
+
+void CVolumeHelper::refresh()
+{
+	Init();
 }
 
 CVolumeHelper* CVolumeHelper::getInstance()

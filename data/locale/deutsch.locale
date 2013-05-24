@@ -256,16 +256,16 @@ colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
 colormenu.contrast_fonts Schriftkontrast
-colormenu.fade Menüs faden
+colormenu.fade Ein-/Ausblenden
 colormenu.font Neutrino Schriftart
 colormenu.font_ttx Teletext Schriftart
 colormenu.hd_preset LCD
-colormenu.menucolors Menüfarben
+colormenu.menucolors Farben
 colormenu.osd_preset Monitor Auswahl
 colormenu.sd_preset CRT
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
-colormenu.timing OSD Timeouts
+colormenu.timing Timeouts
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
@@ -312,11 +312,16 @@ epgextended.year_of_production Produktionsjahr
 epglist.noevents Keine EPG-Information verfügbar.
 epgviewer.More_Screenings Weitere Termine auf diesem Kanal
 epgviewer.More_Screenings_short Weitere Termine
+epgviewer.age_rating Altersfreigabe
+epgviewer.audio Audio
+epgviewer.genre Genre
+epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
 eventfinder.head EPG-Suche
 eventfinder.keyword Suche nach Textpassage
 eventfinder.search Suche
+eventfinder.search_all_epg Ganze 
 eventfinder.search_within_epg Suche innerhalb EPG-Daten
 eventfinder.search_within_list Suche innerhalb Text
 eventfinder.searching Suche...
@@ -779,7 +784,7 @@ menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
 menu.hint_eventlist_setup Wählen Sie die Anzeigeoptionen für die Event-Liste
 menu.hint_extended Energiespar-, EPG-Speicher- und Lade-Optionen, HDMI-CEC, Startkanal und mehr
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen.\nDie Box wird danach neu gestartet
-menu.hint_fade Bei aktivierter Funktion werden die Menüfenster 'weich' ein- bzw. ausgeblendet
+menu.hint_fade Bei aktivierter Funktion werden die GUI-Fenster 'weich' ein- bzw. ausgeblendet
 menu.hint_fan_speed Steuerung der Lüftergeschwindigkeit für die CPU
 menu.hint_fe_type Ändert die Empfangsart\n(Neustart notwendig)
 menu.hint_filebrowser_denydirectoryleave Verhindert das Verlassen des Startverzeichnisses
@@ -893,6 +898,7 @@ menu.hint_media Abspielen von Musik, Internetradio und Filmen; Betrachten Sie Bi
 menu.hint_menu_fonts Ändern Sie die Schriftgrößen im Menü
 menu.hint_menu_hints Zeigt Ihnen Hinweise zu den Menüpunkten an. Sie erreichen das auch jederzeit mit der Taste 'Hilfe'
 menu.hint_menu_pos Legen Sie die Anzeigeposition der Menüs fest
+menu.hint_menus Wählen Sie die Anzeigeoptionen für die Menüs
 menu.hint_misc_cec HDMI-CEC Optionen
 menu.hint_misc_channellist Erweiterte Einstellungen für die Kanallisten und Zapping-Einstellungen
 menu.hint_misc_energy Energieverbrauchs- und Standby-Optionen, verzögertes Ausschalten, setzen bzw. ändern des Inaktivitätstimers
@@ -1077,7 +1083,7 @@ menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS
 menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate und mehr
-menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Untertitel aus
+menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
 menu.hint_sw_update Neutrino-HD aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
 menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
@@ -1108,6 +1114,7 @@ menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbe
 menu.hint_video_pip Bild in Bild Größe und Position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
+menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
@@ -1187,6 +1194,7 @@ miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
+miscsettings.volume Lautstärke
 miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
@@ -1701,14 +1709,16 @@ servicemenu.update Software-Aktualisierung
 settings.backup Image-Einstellungen: Sichern
 settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
-settings.menu_hints Menühinweise anzeigen
-settings.menu_pos Menüposition
+settings.menu_hints Hinweise anzeigen
+settings.menu_pos Position
+settings.menus Menüs
 settings.missingoptionsconffile Die Neutrino Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
 settings.noconffile Die Neutrino Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
+settings.pos_bottom_center unten zentriert
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
-settings.pos_default_center oben Mitte
-settings.pos_higher_center unten Mitte
+settings.pos_default_center zentriert
+settings.pos_top_center oben zentriert
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 settings.restore Image-Einstellungen: Wiederherstellen

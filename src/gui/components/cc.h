@@ -36,8 +36,6 @@
 
 class CComponents
 {
-	private:
-		bool allowPaint(const int& i);
 	protected:
 		int x, y, height, width, corner_type, shadow_w;
 		int corner_rad, fr_thickness, fr_thickness_sel;

@@ -4,21 +4,27 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 		      2003 thegoodguy
 
+	mute icon handling from tuxbox project
+	Copyright (C) 2009 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+	mute icon & info clock handling
+	Copyright (C) 2013 M. Liebmann (micha-bbg)
+
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -38,6 +44,7 @@
 
 #include <linux/kd.h>
 
+#include <gui/audiomute.h>
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>
@@ -138,7 +145,7 @@ void CFrameBuffer::add_gxa_sync_marker(void)
 }
 
 /* wait until the current marker comes out of the GXA command queue */
-void CFrameBuffer::waitForIdle(void)
+void CFrameBuffer::waitForIdle(const char* func)
 {
 	unsigned int cfg, count = 0;
 	do {
@@ -152,8 +159,12 @@ void CFrameBuffer::waitForIdle(void)
 		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
 	} while(++count < 2048); /* don't deadlock here if there is an error */
 
-	if (count > 512) /* more than 100 are unlikely, */
-		fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+	if (count > 512) /* more than 100 are unlikely, */{
+		if (func != NULL)
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%04d) [%s]!\n", count, func);
+		else
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+	}
 }
 #endif /* USE_NEVIS_GXA */
 
@@ -191,11 +202,20 @@ CFrameBuffer::CFrameBuffer()
 							// TM_NONE:  No 'pseudo' transparency
 							// TM_INI:   Transparency depends on g_settings.infobar_alpha ???
 	m_transparent	 = m_transparent_default;
+	q_circle = NULL;
+	initQCircle();
+	corner_tl = false;
+	corner_tr = false;
+	corner_bl = false;
+	corner_br = false;
 //FIXME: test
 	memset(red, 0, 256*sizeof(__u16));
 	memset(green, 0, 256*sizeof(__u16));
 	memset(blue, 0, 256*sizeof(__u16));
 	memset(trans, 0, 256*sizeof(__u16));
+	fbAreaActiv = false;
+	fb_no_check = false;
+	do_paint_mute_icon = true;
 }
 
 CFrameBuffer* CFrameBuffer::getInstance()
@@ -381,6 +401,11 @@ CFrameBuffer::~CFrameBuffer()
 		backupBackground = NULL;
 	}
 
+	if (q_circle) {
+		delete[] q_circle;
+		q_circle = NULL;
+	}
+
 #if 0
 #ifdef RETURN_FROM_GRAPHICS_MODE
 	if (-1 == ioctl(tty,KDSETMODE, kd_mode))
@@ -402,6 +427,8 @@ CFrameBuffer::~CFrameBuffer()
 	}
 	close(fd);
 	close(tty);
+
+	v_fbarea.clear();
 }
 
 int CFrameBuffer::getFileHandle() const
@@ -430,15 +457,25 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 		return g_settings.screen_EndY - g_settings.screen_StartY;
 }
 
-unsigned int CFrameBuffer::getScreenWidthRel()
+unsigned int CFrameBuffer::getScreenPercentRel(bool force_small)
 {
-	// always reduce a possible detailline
-	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * (g_settings.big_windows ? 100 : NON_BIG_WINDOWS) / 100;
+	int percent = 100;
+	if (force_small || !g_settings.big_windows)
+		percent = NON_BIG_WINDOWS;
+	return percent;
 }
 
-unsigned int CFrameBuffer::getScreenHeightRel()
+unsigned int CFrameBuffer::getScreenWidthRel(bool force_small)
 {
-	return (g_settings.screen_EndY - g_settings.screen_StartY) * (g_settings.big_windows ? 100 : NON_BIG_WINDOWS) / 100;
+	int percent = getScreenPercentRel(force_small);
+	// always reduce a possible detailline
+	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * percent / 100;
+}
+
+unsigned int CFrameBuffer::getScreenHeightRel(bool force_small)
+{
+	int percent = getScreenPercentRel(force_small);
+	return (g_settings.screen_EndY - g_settings.screen_StartY) * percent / 100;
 }
 
 unsigned int CFrameBuffer::getScreenX()
@@ -638,97 +675,32 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		return;
 
 	if (dx == 0 || dy == 0) {
-		printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, y+dy);
+		printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
 		return;
 	}
+
+	checkFbArea(x, y, dx, dy, true);
+
 #if defined(FB_HW_ACCELERATION)
 	fb_fillrect fillrect;
 	fillrect.color	= col;
 	fillrect.rop	= ROP_COPY;
 #elif defined(USE_NEVIS_GXA)
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (!fb_no_check)
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	/* solid fill with background color */
 	unsigned int cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(7) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
 #endif
 
-	/* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
-	   radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
-	   ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
-	static const int q_circle[541] = {
-		540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
-		540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
-		539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
-		537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
-		534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
-		531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
-		527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
-		522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
-		516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
-		509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
-		502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
-		493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
-		484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
-		473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
-		462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
-		449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
-		435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
-		420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
-		403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
-		384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
-		363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
-		340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
-		314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
-		283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
-		248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
-		204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
-		147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
-		23};
-
 	int line = 0;
-
 	if (type && radius) {
-		bool corner_tl = (type & CORNER_TOP_LEFT)    == CORNER_TOP_LEFT;
-		bool corner_tr = (type & CORNER_TOP_RIGHT)   == CORNER_TOP_RIGHT;
-		bool corner_bl = (type & CORNER_BOTTOM_LEFT) == CORNER_BOTTOM_LEFT;
-		bool corner_br = (type & CORNER_BOTTOM_RIGHT)== CORNER_BOTTOM_RIGHT;
-		int ofs, scf, scl, ofl, ofr;
-		/* just an multiplicator for all math to reduce rounding errors */
-#define MUL 32768
-
-		/* limit the radius */
-		if (radius > dx)
-			radius = dx;
-		if (radius > dy)
-			radius = dy;
-		if (radius > 540)
-			radius = 540;
-
-		scf = (540 * MUL) / ((radius < 1) ? 1 : radius);
+		setCornerFlags(type);
+		radius = limitRadius(dx, dy, radius);
 
 		while (line < dy) {
-			ofl = ofr = 0;
-
-			if (line < radius && (type & CORNER_TOP)) {/* one of the top corners */
-				//printf("1: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
-				/* uper round corners */
-				scl = scf * (radius - line) / MUL;
-				if ((scf * (radius - line) % MUL) >= (MUL / 2))	/* round up */
-					scl++;
-				ofs = radius - (q_circle[scl] * MUL / scf);
-				// ofl = corner_tl * ofs; // might depend on the arch if multiply is faster or not
-				ofl = corner_tl ? ofs : 0;
-				ofr = corner_tr ? ofs : 0;
-			} else if ((line >= dy - radius) && (type & CORNER_BOTTOM)) { /* one of the bottom corners */
-				//printf("2: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
-				/* lower round corners */
-				scl = scf * (radius - (dy - (line + 1))) / MUL;
-				if ((scf * (radius - (dy - (line + 1))) % MUL) >= (MUL / 2))	/* round up */
-					scl++;
-				ofs = radius - (q_circle[scl] * MUL / scf);
-				ofl = corner_bl ? ofs : 0;
-				ofr = corner_br ? ofs : 0;
-			} else {
+			int ofl, ofr;
+			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
 				//printf("3: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
 #if defined(FB_HW_ACCELERATION) || defined(USE_NEVIS_GXA)
 				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
@@ -749,8 +721,15 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 #endif
 			}
 
-			if (dx-ofr-ofl == 0)
-				printf("paintBoxRel: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, dx-ofr-ofl, y+line);
+			if (dx-ofr-ofl < 1) {
+				if (dx-ofr-ofl == 0)
+					printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
+				else
+					printf("[%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n", 
+						__FUNCTION__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
+				line++;
+				continue;
+			}
 #ifdef USE_NEVIS_GXA
 			_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
 			_write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));               /* destination x/y */
@@ -795,6 +774,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	 */
 	add_gxa_sync_marker();
 #endif
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col)
@@ -1059,9 +1039,11 @@ _display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
+	checkFbArea(x, yy, width, height, true);
 	if (paintBg)
 		paintBoxRel(x, yy, width, height, colBg);
 	blit2FB(data, width, height, x, yy, 0, 0, true);
+	checkFbArea(x, yy, width, height, false);
 	return true;
 }
 
@@ -1114,65 +1096,170 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 	#endif
 }
 
-void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad)
+void CFrameBuffer::paintShortHLineRelInternal(const int& x, const int& dx, const int& y, const fb_pixel_t& col)
+{
+	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
+	fb_pixel_t * dest = (fb_pixel_t *)pos;
+	for (int i = 0; i < dx; i++)
+		*(dest++) = col;
+}
+
+int CFrameBuffer::limitRadius(const int& dx, const int& dy, int& radius)
+{
+	if (radius > dx)
+		return dx;
+	if (radius > dy)
+		return dy;
+	if (radius > 540)
+		return 540;
+	return radius;
+}
+
+void CFrameBuffer::setCornerFlags(const int& type)
+{
+	corner_tl = (type & CORNER_TOP_LEFT)     == CORNER_TOP_LEFT;
+	corner_tr = (type & CORNER_TOP_RIGHT)    == CORNER_TOP_RIGHT;
+	corner_bl = (type & CORNER_BOTTOM_LEFT)  == CORNER_BOTTOM_LEFT;
+	corner_br = (type & CORNER_BOTTOM_RIGHT) == CORNER_BOTTOM_RIGHT;
+}
+
+void CFrameBuffer::initQCircle()
+{
+	/* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
+	   radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
+	   ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
+	static const int _q_circle[541] = {
+		540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
+		540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
+		539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
+		537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
+		534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
+		531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
+		527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
+		522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
+		516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
+		509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
+		502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
+		493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
+		484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
+		473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
+		462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
+		449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
+		435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
+		420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
+		403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
+		384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
+		363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
+		340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
+		314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
+		283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
+		248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
+		204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
+		147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
+		 23};
+	if (q_circle == NULL)
+		q_circle = new int[sizeof(_q_circle) / sizeof(int)];
+	memcpy(q_circle, _q_circle, sizeof(_q_circle));
+}
+
+bool CFrameBuffer::calcCorners(int *ofs, int *ofl, int *ofr, const int& dy, const int& line, const int& radius, const int& type)
+{
+/* just an multiplicator for all math to reduce rounding errors */
+#define MUL 32768
+	int scl, _ofs = 0;
+	bool ret = false;
+	if (ofl != NULL) *ofl = 0;
+	if (ofr != NULL) *ofr = 0;
+	int scf = (540 * MUL) / ((radius < 1) ? 1 : radius);
+	/* one of the top corners */
+	if (line < radius && (type & CORNER_TOP)) {
+		/* uper round corners */
+		scl = scf * (radius - line) / MUL;
+		if ((scf * (radius - line) % MUL) >= (MUL / 2)) /* round up */
+			scl++;
+		_ofs =  radius - (q_circle[scl] * MUL / scf);
+		if (ofl != NULL) *ofl = corner_tl ? _ofs : 0;
+		if (ofr != NULL) *ofr = corner_tr ? _ofs : 0;
+	}
+	/* one of the bottom corners */
+	else if ((line >= dy - radius) && (type & CORNER_BOTTOM)) {
+		/* lower round corners */
+		scl = scf * (radius - (dy - (line + 1))) / MUL;
+		if ((scf * (radius - (dy - (line + 1))) % MUL) >= (MUL / 2)) /* round up */
+			scl++;
+		_ofs =  radius - (q_circle[scl] * MUL / scf);
+		if (ofl != NULL) *ofl = corner_bl ? _ofs : 0;
+		if (ofr != NULL) *ofr = corner_br ? _ofs : 0;
+	}
+	else
+		ret = true;
+	if (ofs != NULL) *ofs = _ofs;
+	return ret;
+}
+
+void CFrameBuffer::paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, int radius, int type)
 {
 	if (!getActive())
 		return;
 
-	int radius = rad;
-	int c_radius = rad << 1;
-
-	paintBoxRel(sx + rad    , sy	  ,     dx - c_radius, px, col); // upper horizontal
-	paintBoxRel(sx + rad    , sy + dy - px,     dx - c_radius, px, col); // lower horizontal
-	paintBoxRel(sx	  , sy + rad    , px, dy - c_radius    , col); // left vertical
-	paintBoxRel(sx + dx - px, sy + rad    , px, dy - c_radius    , col); // right vertical
-
-	if (!radius)
-	{
+	if (dx == 0 || dy == 0) {
+		printf("paintBoxFrame: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, y+dy);
 		return;
 	}
 
-	int x1 = sx + radius;
-	int y1 = sy + radius;
-	int x2 = sx + dx - radius -1;
-	int y2 = sy + dy - radius -1;
+	setCornerFlags(type);
+	int rad_tl = 0, rad_tr = 0, rad_bl = 0, rad_br = 0;
+	if (type && radius) {
+		int x_rad = radius - 1;
+		if (corner_tl) rad_tl = x_rad;
+		if (corner_tr) rad_tr = x_rad;
+		if (corner_bl) rad_bl = x_rad;
+		if (corner_br) rad_br = x_rad;
+	}
+	paintBoxRel(x + rad_tl , y          , dx - rad_tl - rad_tr, px                  , col); // top horizontal
+	paintBoxRel(x + rad_bl , y + dy - px, dx - rad_bl - rad_br, px                  , col); // bottom horizontal
+	paintBoxRel(x          , y + rad_tl , px                  , dy - rad_tl - rad_bl, col); // left vertical
+	paintBoxRel(x + dx - px, y + rad_tr , px                  , dy - rad_tr - rad_br, col); // right vertical
 
-	int f = 1 - radius;
-	int ddF_x = 1;
-	int ddF_y = - c_radius;
-	int x = 0;
-	int y = radius;
+	if (type && radius) {
+		radius = limitRadius(dx, dy, radius);
+		int line = 0;
+		waitForIdle("CFrameBuffer::paintBoxFrame");
+		while (line < dy) {
+			int ofs = 0, ofs_i = 0;
+			// inner box
+			if ((line >= px) && (line < (dy - px)))
+				ofs_i = calcCornersOffset(dy - 2*px, line-px, radius-px, type);
+			// outer box
+			ofs = calcCornersOffset(dy, line, radius, type);
 
-	while(x < y)
-	{
-		// ddF_x == 2 * x + 1;
-		// ddF_y == -2 * y;
-		// f == x*x + y*y - radius*radius + 2*x - y + 1;
-		if(f >= 0)
-		{
-			y--;
-			ddF_y += 2;
-			f += ddF_y;
-	    }
-		x++;
-		ddF_x += 2;
-		f += ddF_x;
-
-		int width = 0;
-		while (width <= px)
-		{
-			paintPixel(x2 + x	, y1 - y + width, col); // 1. oct
-			paintPixel(x2 + y - width, y1 - x	, col); // 2. oct
-			paintPixel(x2 + y - width, y2 + x	, col); // 3. oct
-			paintPixel(x2 + x	, y2 + y - width, col); // 4. oct
-			paintPixel(x1 - x	, y2 + y - width, col); // 5. oct
-			paintPixel(x1 - y + width, y2 + x	, col); // 6. oct
-			paintPixel(x1 - y + width, y1 - x	, col); // 7. oct
-			paintPixel(x1 - x	, y1 - y + width, col); // 8. oct
-			width++;
+			int _x     = x + ofs;
+			int _x_end = x + dx;
+			int _y     = y + line;
+			if ((line < px) || (line >= (dy - px))) {
+				// left
+				if (((corner_tl) && (line < radius)) || ((corner_bl) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x, radius - ofs, _y, col);
+				// right
+				if (((corner_tr) && (line < radius)) || ((corner_br) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x_end - radius, radius - ofs, _y, col);
+			}
+			else if (line < (dy - px)) {
+				int _dx = (ofs_i-ofs) + px;
+				// left
+				if (((corner_tl) && (line < radius)) || ((corner_bl) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x, _dx, _y, col);
+				// right
+				if (((corner_tr) && (line < radius)) || ((corner_br) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x_end - ofs_i - px, _dx, _y, col);
+			}
+			if ((line == radius) && (dy > 2*radius))
+				// line outside the rounded corners
+				line = dy - radius;
+			else
+				line++;
 		}
 	}
-
 }
 
 void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
@@ -1465,6 +1552,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	if(!useBackgroundPaint)
 	{
 		paintBoxRel(x, y, dx, dy, backgroundColor);
@@ -1480,6 +1568,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 			bkpos += BACKGROUNDIMAGEWIDTH;
 		}
 	}
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::paintBackground()
@@ -1487,6 +1576,7 @@ void CFrameBuffer::paintBackground()
 	if (!getActive())
 		return;
 
+	checkFbArea(0, 0, xRes, yRes, true);
 	if (useBackgroundPaint && (background != NULL))
 	{
 		for (int i = 0; i < 576; i++)
@@ -1496,6 +1586,7 @@ void CFrameBuffer::paintBackground()
 	{
 		paintBoxRel(0, 0, xRes, yRes, backgroundColor);
 	}
+	checkFbArea(0, 0, xRes, yRes, false);
 }
 
 void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
@@ -1503,6 +1594,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++) {
@@ -1526,6 +1618,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 		bkpos += dx;
 	}
 #endif
+	checkFbArea(x, y, dx, dy, false);
 
 }
 
@@ -1534,6 +1627,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++)
@@ -1542,6 +1636,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
+	checkFbArea(x, y, dx, dy, false);
 }
 #if 0 
 //never used
@@ -1757,4 +1852,92 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
 
 	blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
 	cs_free_uncached(fbbuff);
+}
+
+// ## AudioMute / Clock ######################################
+
+void CFrameBuffer::setFbArea(int element, int _x, int _y, int _dx, int _dy)
+{
+	if (_x == 0 && _y == 0 && _dx == 0 && _dy == 0) {
+		// delete area
+		for (fbarea_iterator_t it = v_fbarea.begin(); it != v_fbarea.end(); ++it) {
+			if (it->element == element) {
+				v_fbarea.erase(it);
+				break;
+			}
+		}
+		if (v_fbarea.empty()) {
+			fbAreaActiv = false;
+		}
+	}
+	else {
+		// change area
+		bool found = false;
+		for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+			if (v_fbarea[i].element == element) {
+				v_fbarea[i].x = _x;
+				v_fbarea[i].y = _y;
+				v_fbarea[i].dx = _dx;
+				v_fbarea[i].dy = _dy;
+				found = true;
+				break;
+			}
+		}
+		// set new area
+		if (!found) {
+			fb_area_t area;
+			area.x = _x;
+			area.y = _y;
+			area.dx = _dx;
+			area.dy = _dy;
+			area.element = element;
+			v_fbarea.push_back(area);
+		}
+		fbAreaActiv = true;
+	}
+}
+
+int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area)
+{
+	if (fb_no_check)
+		return FB_PAINTAREA_MATCH_NO;
+
+	if (_y > area->y + area->dy)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x + _dx < area->x)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x > area->x + area->dx)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_y + _dy < area->y)
+		return FB_PAINTAREA_MATCH_NO;
+	return FB_PAINTAREA_MATCH_OK;
+}
+
+bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
+{
+	if (v_fbarea.empty())
+		return true;
+
+	for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+		int ret = checkFbAreaElement(_x, _y, _dx, _dy, &v_fbarea[i]);
+		if (ret == FB_PAINTAREA_MATCH_OK) {
+			switch (v_fbarea[i].element) {
+				case FB_PAINTAREA_MUTEICON1:
+					if (!do_paint_mute_icon)
+						break;
+//					waitForIdle();
+					fb_no_check = true;
+					if (prev)
+						CAudioMute::getInstance()->hide(true);
+					else
+						CAudioMute::getInstance()->paint();
+					fb_no_check = false;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	return true;
 }

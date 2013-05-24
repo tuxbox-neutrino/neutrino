@@ -987,7 +987,7 @@ void CMenuWidget::paintItems()
 		int item_height=height-(item_start_y-y);
 		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
 		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
-		if(current_page==total_pages-1){
+		if((current_page==total_pages-1) || (current_page == 0 && RADIUS_MIN)){
 			frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 		}
 	}

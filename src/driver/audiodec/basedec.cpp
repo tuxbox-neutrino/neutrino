@@ -191,7 +191,8 @@ bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 #ifdef ENABLE_FLAC
 			else if (in->FileType == CFile::FILE_FLAC)
 			{
-				Status = CFlacDec::getInstance()->GetMetaData(fp, nice, &in->MetaData);
+				CFlacDec FlacDec;
+				Status = FlacDec.GetMetaData(fp, nice, &in->MetaData);
 			}
 #endif
 			if ( fclose( fp ) == EOF )

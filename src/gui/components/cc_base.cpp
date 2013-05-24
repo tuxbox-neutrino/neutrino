@@ -80,27 +80,10 @@ void CComponents::initVarBasic()
 	saved_screen.pixbuf 	= NULL;
 }
 
-bool CComponents::allowPaint(const int& i)
-{
-	if(v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)
-		return true;
-
-
-	if (v_fbdata[CC_FBDATA_TYPE_BOX].x != v_fbdata[i].x)
-		return true;
-	else if (v_fbdata[CC_FBDATA_TYPE_BOX].y != v_fbdata[i].y)
-		return true;
-	else if (v_fbdata[CC_FBDATA_TYPE_BOX].dx != v_fbdata[i].dx)
-		return true;
-	else if (v_fbdata[CC_FBDATA_TYPE_BOX].dy != v_fbdata[i].dy)
-		return true;
-
-	return false;
-}
-
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(bool do_save_bg)
 {
+	//save background before first paint, do_save_bg must be true
 	if (firstPaint && do_save_bg)	{
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
@@ -128,6 +111,8 @@ void CComponents::paintFbItems(bool do_save_bg)
 #ifdef DEBUG_CC
 	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
 #endif
+		//some elements can be assembled from lines and must be handled as one unit (see details line),
+		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
 		if (firstPaint){
 
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
@@ -139,12 +124,16 @@ void CComponents::paintFbItems(bool do_save_bg)
 			else
 				firstPaint = false;
 		}
-		if (fbtype != CC_FBDATA_TYPE_BGSCREEN){
-			if (fbtype == CC_FBDATA_TYPE_FRAME && v_fbdata[i].frame_thickness > 0)
-				frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r);
+		
+		//paint all fb relevant basic parts (frame and body) with all specified properties, paint_bg must be true
+		if (fbtype != CC_FBDATA_TYPE_BGSCREEN && paint_bg){
+			if (fbtype == CC_FBDATA_TYPE_FRAME) {
+				if (v_fbdata[i].frame_thickness > 0)
+					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r, corner_type);
+			}
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
 				frameBuffer->paintBackgroundBoxRel(x, y, v_fbdata[i].dx, v_fbdata[i].dy);
-			else if( allowPaint(i) || fbtype == CC_FBDATA_TYPE_LINE)
+			else
 				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
@@ -156,6 +145,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 {
 	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
+	frameBuffer->waitForIdle("CComponents::getScreen()");
 	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
 	return pixbuf;
 }
@@ -165,6 +155,7 @@ inline void CComponents::hide()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].pixbuf != NULL){
+			frameBuffer->waitForIdle("CComponents::hide()");
 			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
 			delete[] v_fbdata[i].pixbuf;
 			v_fbdata[i].pixbuf = NULL;

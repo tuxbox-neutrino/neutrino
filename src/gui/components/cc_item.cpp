@@ -67,10 +67,6 @@ void CComponentsItem::paintInit(bool do_save_bg)
 {
 	clear();
 
-	if(!paint_bg)
-		return;
-
-	int sw = shadow ? shadow_w : 0;
 	int th = fr_thickness;
 	fb_pixel_t col_frame_cur = col_frame;
 
@@ -83,13 +79,21 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	//calculate current needed corner radius for body box, depends of frame thickness
 	int rad = (corner_rad>th) ? corner_rad-th : corner_rad;
 
-	//calculate positon of shadow areas	
-	int x_sh = corner_rad>0 ? x+width-2*corner_rad+sw : x+width; //right
-	int y_sh = corner_rad>0 ? y+height-2*corner_rad+sw : y+height; //bottom
-	
-	//calculate current shadow width depends of current corner_rad
-	int sw_cur = corner_rad>0 ? 2*corner_rad : sw;
-	
+	int sw = 0, sw_cur = 0;
+	int x_sh = x + width;
+	int y_sh = y + height;
+	if (shadow) {
+		sw = shadow_w;
+		sw_cur = sw;
+		if (corner_type && corner_rad) {
+			//calculate positon of shadow areas
+			x_sh += sw - 2*corner_rad;
+			y_sh += sw - 2*corner_rad;
+			//calculate current shadow width depends of current corner_rad
+			sw_cur = max(2*corner_rad, sw);
+		}
+	}
+
 	comp_fbdata_t fbdata[] =
 	{
 		{CC_FBDATA_TYPE_BGSCREEN,	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},		
@@ -115,6 +119,7 @@ void CComponentsItem::hideCCItem(bool no_restore)
 	is_painted = false;
 
 	if (saved_screen.pixbuf) {
+		frameBuffer->waitForIdle("CComponentsItem::hideCCItem()");
 		frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
 		if (no_restore) {
 			delete[] saved_screen.pixbuf;
