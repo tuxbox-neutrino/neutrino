@@ -1,4 +1,4 @@
 configdir = $(CONFIGDIR)/zapit
-config_DATA = frontend.conf
+# config_DATA = frontend.conf
 
 
