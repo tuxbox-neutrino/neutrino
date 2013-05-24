@@ -86,6 +86,85 @@ inline unsigned int make16color(uint16_t r, uint16_t g, uint16_t b, uint16_t t,
         return ((t << 24) & 0xFF000000) | ((r << 8) & 0xFF0000) | ((g << 0) & 0xFF00) | (b >> 8 & 0xFF);
 }
 
+/* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
+   radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
+    ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
+static const int q_circle[541] = {
+	540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
+	540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
+	539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
+	537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
+	534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
+	531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
+	527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
+	522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
+	516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
+	509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
+	502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
+	493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
+	484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
+	473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
+	462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
+	449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
+	435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
+	420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
+	403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
+	384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
+	363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
+	340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
+	314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
+	283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
+	248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
+	204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
+	147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
+	 23};
+
+static inline bool calcCorners(int *ofs, int *ofl, int *ofr, const int& dy, const int& line, const int& radius,
+				const bool& tl, const bool& tr, const bool& bl, const bool& br)
+{
+/* just a multiplicator for all math to reduce rounding errors */
+#define MUL 32768
+	int scl, _ofs = 0;
+	bool ret = false;
+	if (ofl != NULL) *ofl = 0;
+	if (ofr != NULL) *ofr = 0;
+	int scf = 540 * MUL / radius;
+	/* one of the top corners */
+	if (line < radius && (tl || tr)) {
+		/* uper round corners */
+		scl = scf * (radius - line) / MUL;
+		if ((scf * (radius - line) % MUL) >= (MUL / 2)) /* round up */
+			scl++;
+		_ofs =  radius - (q_circle[scl] * MUL / scf);
+		if (ofl != NULL && tl) *ofl = _ofs;
+		if (ofr != NULL && tr) *ofr = _ofs;
+	}
+	/* one of the bottom corners */
+	else if ((line >= dy - radius) && (bl || br)) {
+		/* lower round corners */
+		scl = scf * (radius - (dy - (line + 1))) / MUL;
+		if ((scf * (radius - (dy - (line + 1))) % MUL) >= (MUL / 2)) /* round up */
+			scl++;
+		_ofs =  radius - (q_circle[scl] * MUL / scf);
+		if (ofl != NULL && bl) *ofl = _ofs;
+		if (ofr != NULL && br) *ofr = _ofs;
+	}
+	else
+		ret = true;
+	if (ofs != NULL) *ofs = _ofs;
+	return ret;
+}
+
+static inline int limitRadius(const int& dx, const int& dy, const int& radius)
+{
+	int m = std::min(dx, dy);
+	if (radius > m)
+		return m;
+	if (radius > 540)
+		return 540;
+	return radius;
+}
+
 CFrameBuffer::CFrameBuffer()
 : active ( true )
 {
@@ -559,106 +638,49 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
 
 void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
 {
-    /* draw a filled rectangle (with additional round corners) */
-    if (!getActive())
-        return;
+	/* draw a filled rectangle (with additional round corners) */
+	if (!getActive())
+		return;
 
-    int corner_tl = (type & CORNER_TOP_LEFT)     ? 1 : 0;
-    int corner_tr = (type & CORNER_TOP_RIGHT)    ? 1 : 0;
-    int corner_bl = (type & CORNER_BOTTOM_LEFT)  ? 1 : 0;
-    int corner_br = (type & CORNER_BOTTOM_RIGHT) ? 1 : 0;
+	bool corner_tl = !!(type & CORNER_TOP_LEFT);
+	bool corner_tr = !!(type & CORNER_TOP_RIGHT);
+	bool corner_bl = !!(type & CORNER_BOTTOM_LEFT);
+	bool corner_br = !!(type & CORNER_BOTTOM_RIGHT);
 
-    /* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
-       radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
-       ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
-    static const int q_circle[541] = {
-	540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
-        540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
-        539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
-        537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
-	534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
-        531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
-	527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
-	522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
-	516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
-	509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
-	502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
-	493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
-	484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
-	473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
-	462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
-	449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
-	435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
-	420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
-	403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
-	384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
-	363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
-	340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
-	314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
-	283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
-	248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
-	204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
-	147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
-	 23};
+	checkFbArea(x, y, dx, dy, true);
 
-    int line = 0;
-    if ((type) && (radius))
-    {
-	#define MUL 32768	/* just an multiplicator for all math to reduce rounding errors */
-	int ofs, scf, scl, ofl, ofr;
+	if (!type || !radius)
+	{
+		accel->paintRect(x, y, dx, dy, col);
+		checkFbArea(x, y, dx, dy, false);
+		return;
+	}
 
 	/* limit the radius */
-	if (radius > dx)
-	    radius = dx;
-	if (radius > dy)
-	    radius = dy;
-	if (radius > 540)
-	    radius = 540;
+	radius = limitRadius(dx, dy, radius);
 	if (radius < 1)		/* dx or dy = 0... */
 		radius = 1;	/* avoid div by zero below */
 
-	scf = (540 * MUL) / radius;
-
-	while (line < dy)
-	{
-	    ofl = ofr = 0;
-
-	    if (line < radius && (type & CORNER_TOP)) /* one of the top corners */
-	    {
-		/* uper round corners */
-		scl = scf * (radius - line) / MUL;
-		if ((scf * (radius - line) % MUL) >= (MUL / 2))	/* round up */
-		    scl++;
-		ofs = radius - (q_circle[scl] * MUL / scf);
-		// ofl = corner_tl * ofs; // might depend on the arch if multiply is faster or not
-		ofl = corner_tl ? ofs : 0;
-		ofr = corner_tr ? ofs : 0;
-	    }
-	    else if ((line >= dy - radius) && (type & CORNER_BOTTOM)) /* one of the bottom corners */
-	    {
-		/* lower round corners */
-		scl = scf * (radius - (dy - (line + 1))) / MUL;
-		if ((scf * (radius - (dy - (line + 1))) % MUL) >= (MUL / 2))	/* round up */
-		    scl++;
-		ofs = radius - (q_circle[scl] * MUL / scf);
-		ofl = corner_bl ? ofs : 0;
-		ofr = corner_br ? ofs : 0;
-	    }
-	    else
-	    {
-		int height = dy - ((corner_tl|corner_tr) + (corner_bl|corner_br)) * radius;
-		accel->paintRect(x, y + line, dx, height, col);
-		line += height;
-		continue;
-	    }
-	    accel->paintLine(x + ofl, y + line, x + dx - ofr, y + line, col);
-	    line++;
+	int line = 0;
+	while (line < dy) {
+		int ofl, ofr;
+		if (calcCorners(NULL, &ofl, &ofr, dy, line, radius,
+				corner_tl, corner_tr, corner_bl, corner_br))
+		{
+			int height = dy - ((corner_tl || corner_tr)?radius: 0 ) - ((corner_bl || corner_br) ? radius : 0);
+			accel->paintRect(x, y + line, dx, height, col);
+			line += height;
+			continue;
+		}
+		if (dx - ofr - ofl < 1) {
+			//printf("FB-NG::%s:%d x %d y %d dx %d dy %d l %d r %d\n", __func__, __LINE__, x,y,dx,dy, ofl, ofr);
+			line++;
+			continue;
+		}
+		accel->paintLine(x + ofl, y + line, x + dx - ofr, y + line, col);
+		line++;
 	}
-    }
-    else
-    {
-	accel->paintRect(x, y + line, dx, dy - line, col);
-    }
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
@@ -924,59 +946,64 @@ void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const
 		return;
 
 	int radius = rad;
-	int c_radius = rad << 1;
+	bool corner_tl = !!(type & CORNER_TOP_LEFT);
+	bool corner_tr = !!(type & CORNER_TOP_RIGHT);
+	bool corner_bl = !!(type & CORNER_BOTTOM_LEFT);
+	bool corner_br = !!(type & CORNER_BOTTOM_RIGHT);
 
-	paintBoxRel(sx + rad    , sy          ,     dx - c_radius, px, col); // upper horizontal
-	paintBoxRel(sx + rad    , sy + dy - px,     dx - c_radius, px, col); // lower horizontal
-	paintBoxRel(sx          , sy + rad    , px, dy - c_radius    , col); // left vertical
-	paintBoxRel(sx + dx - px, sy + rad    , px, dy - c_radius    , col); // right vertical
+	int r_tl = 0, r_tr = 0, r_bl = 0, r_br = 0;
+	if (type && radius) {
+		int x_rad = radius - 1;
+		if (corner_tl) r_tl = x_rad;
+		if (corner_tr) r_tr = x_rad;
+		if (corner_bl) r_bl = x_rad;
+		if (corner_br) r_br = x_rad;
+	}
+	paintBoxRel(sx + r_tl,    sy          , dx - r_tl - r_tr, px,               col); // top horizontal
+	paintBoxRel(sx + r_bl,    sy + dy - px, dx - r_bl - r_br, px,               col); // bottom horizontal
+	paintBoxRel(sx          , sy + r_tl,    px,               dy - r_tl - r_bl, col); // left vertical
+	paintBoxRel(sx + dx - px, sy + r_tr,    px,               dy - r_tr - r_br, col); // right vertical
 
-	if (!radius)
-	{
+	if (!radius || !type)
 		return;
-	}
 
-	int x1 = sx + radius;
-	int y1 = sy + radius;
-	int x2 = sx + dx - radius -1;
-	int y2 = sy + dy - radius -1;
+	radius = limitRadius(dx, dy, radius);
+	if (radius < 1)		/* dx or dy = 0... */
+		radius = 1;	/* avoid div by zero below */
+	int line = 0;
+	while (line < dy) {
+		int ofs = 0, ofs_i = 0;
+		// inner box
+		if ((line >= px) && (line < (dy - px)))
+			calcCorners(&ofs_i, NULL, NULL, dy - 2 * px, line - px, radius - px,
+					corner_tl, corner_tr, corner_bl, corner_br);
+		// outer box
+		calcCorners(&ofs, NULL, NULL, dy, line, radius, corner_tl, corner_tr, corner_bl, corner_br);
 
-	int f = 1 - radius;
-	int ddF_x = 1;
-	int ddF_y = - c_radius;
-	int x = 0;
-	int y = radius;
-
-	while(x < y)
-	{
-		// ddF_x == 2 * x + 1;
-		// ddF_y == -2 * y;
-		// f == x*x + y*y - radius*radius + 2*x - y + 1;
-		if(f >= 0)
-		{
-			y--;
-			ddF_y += 2;
-			f += ddF_y;
-	    }
-		x++;
-		ddF_x += 2;
-		f += ddF_x;
-
-		int width = 0;
-		while (width <= px)
-		{
-			paintPixel(x2 + x        , y1 - y + width, col); // 1. oct
-			paintPixel(x2 + y - width, y1 - x        , col); // 2. oct
-			paintPixel(x2 + y - width, y2 + x        , col); // 3. oct
-			paintPixel(x2 + x        , y2 + y - width, col); // 4. oct
-			paintPixel(x1 - x        , y2 + y - width, col); // 5. oct
-			paintPixel(x1 - y + width, y2 + x        , col); // 6. oct
-			paintPixel(x1 - y + width, y1 - x        , col); // 7. oct
-			paintPixel(x1 - x        , y1 - y + width, col); // 8. oct
-			width++;
+		int _y     = sy + line;
+		if (line < px || line >= (dy - px)) {
+			// left
+			if ((corner_tl && line < radius) || (corner_bl && line >= dy - radius))
+				accel->paintLine(sx + ofs, _y, sx + ofs + radius, _y, col);
+			// right
+			if ((corner_tr && line < radius) || (corner_br && line >= dy - radius))
+				accel->paintLine(sx + dx - radius, _y, sx + dx - ofs, _y, col);
 		}
+		else if (line < (dy - px)) {
+			int _dx = (ofs_i - ofs) + px;
+			// left
+			if ((corner_tl && line < radius) || (corner_bl && line >= dy - radius))
+				accel->paintLine(sx + ofs, _y, sx + ofs + _dx, _y, col);
+			// right
+			if ((corner_tr && line < radius) || (corner_br && line >= dy - radius))
+				accel->paintLine(sx + dx - ofs_i - px, _y, sx + dx - ofs_i - px + _dx, _y, col);
+		}
+		if (line == radius && dy > 2 * radius)
+			// line outside the rounded corners
+			line = dy - radius;
+		else
+			line++;
 	}
-
 }
 
 void CFrameBuffer::useBackground(bool ub)
