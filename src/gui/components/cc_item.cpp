@@ -78,33 +78,21 @@ void CComponentsItem::paintInit(bool do_save_bg)
 
 	//calculate current needed corner radius for body box, depends of frame thickness
 	int rad = (corner_rad>th) ? corner_rad-th : corner_rad;
-
-	int sw = 0, sw_cur = 0;
-	int x_sh = x + width;
-	int y_sh = y + height;
-	if (shadow) {
-		sw = shadow_w;
-		sw_cur = sw;
-		if (corner_type && corner_rad) {
-			//calculate positon of shadow areas
-			x_sh += sw - 2*corner_rad;
-			y_sh += sw - 2*corner_rad;
-			//calculate current shadow width depends of current corner_rad
-			sw_cur = max(2*corner_rad, sw);
-		}
-	}
-
+	int sw = (shadow) ? shadow_w : 0;
 	comp_fbdata_t fbdata[] =
 	{
-		{CC_FBDATA_TYPE_BGSCREEN,	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},		
-		{CC_FBDATA_TYPE_BOX, 		x_sh,	y+sw, 	sw_cur, 	height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow right		
-		{CC_FBDATA_TYPE_BOX, 		x+sw, 	y_sh, 	width, 		sw_cur, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow bottom
-		{CC_FBDATA_TYPE_FRAME, 		x, 	y, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},//frame
+		{CC_FBDATA_TYPE_BGSCREEN,	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
+		{CC_FBDATA_TYPE_SHADOW_BOX, 	x+sw,	y+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow
+		{CC_FBDATA_TYPE_FRAME,		x,	y, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},//frame
 		{CC_FBDATA_TYPE_BOX,		x+th,   y+th,   width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	NULL},//body
 	};
 
-	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++)
+	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++) {
+		if (((fbdata[i].fbdata_type == CC_FBDATA_TYPE_SHADOW_BOX) && !shadow) ||
+		    ((fbdata[i].fbdata_type == CC_FBDATA_TYPE_FRAME) && !fr_thickness))
+			continue;
 		v_fbdata.push_back(fbdata[i]);
+	}
 #ifdef DEBUG_CC
 	printf("[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __FUNCTION__, cc_item_type,  cc_item_index, height, width);
 #endif
