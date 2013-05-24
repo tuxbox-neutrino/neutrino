@@ -114,6 +114,14 @@ bool CFEManager::Init()
 		dmap.push_back(CFeDmx(i));
 
 	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
+	/* for testing without a frontend, export SIMULATE_FE=1 */
+	if (femap.empty() && getenv("SIMULATE_FE")) {
+		INFO("SIMULATE_FE is set, adding dummy frontend for testing");
+		fe = new CFrontend(0,0);
+		fekey = MAKE_FE_KEY(0, 0);
+		femap.insert(std::pair <unsigned short, CFrontend*> (fekey, fe));
+		livefe = fe;
+	}
 	if (femap.empty())
 		return false;
 
