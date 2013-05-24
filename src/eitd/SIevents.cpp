@@ -357,7 +357,22 @@ char SIevent::getFSK() const
 				return (it->rating + 3);           // 0x01 to 0x0F minimum age = rating + 3 years
 			else
 				return (it->rating == 0 ? 0 : 18); // return FSK 18 for : 0x10 to 0xFF defined by the broadcaster
+		}else if( it->countryCode == "FRA" && it->rating == 0x10)// workaround for ITA ESP FRA fsk.
+		{
+		  	return 0;
+		}else if(it->countryCode == "ITA" && it->rating == 1)
+		{
+			return 0;
+		}else if( it->countryCode == "ESP" )
+		{
+			if(it->rating == 0x10 || it->rating == 0x11)
+				return 0;
+			else if(it->rating == 0x12)
+				return 18;
+			else
+				return (it->rating + 1);
 		}
+
 	}
 	if (!ratings.empty())
 	{
