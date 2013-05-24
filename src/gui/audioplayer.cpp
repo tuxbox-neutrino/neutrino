@@ -1343,13 +1343,13 @@ bool CAudioPlayerGui::openFilebrowser(void)
 				while (infile.good())
 				{
 					infile.getline(cLine, 255);
-					// remove CR
-					if (cLine[strlen(cLine)-1]=='\r')
-						cLine[strlen(cLine)-1]=0;
 					int duration;
 					sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &duration, name);
 					if (strlen(cLine) > 0 && cLine[0]!='#')
 					{
+						// remove CR
+						if (cLine[strlen(cLine)-1]=='\r')
+							cLine[strlen(cLine)-1]=0;
 						char *url = strstr(cLine, "http://");
 						if (url != NULL) {
 							if (strstr(url, ".m3u") || strstr(url, ".pls"))
