@@ -2537,13 +2537,6 @@ void CZapit::run()
 
 	INFO("demuxes/decoders deleted");
 
-	delete CFEManager::getInstance();
-	INFO("frontend(s) deleted");
-	if (ca) {
-		INFO("stopping CA");
-		ca->Stop();
-		delete ca;
-	}
 #ifdef EXIT_CLEANUP
 	INFO("cleanup...");
 	delete eventServer;
@@ -2551,6 +2544,13 @@ void CZapit::run()
 	delete CServiceManager::getInstance();
 	delete CServiceScan::getInstance();
 #endif
+	delete CFEManager::getInstance();
+	INFO("frontend(s) deleted");
+	if (ca) {
+		INFO("stopping CA");
+		ca->Stop();
+		delete ca;
+	}
 	INFO("shutdown complete");
 	return;
 }
