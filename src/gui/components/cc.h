@@ -34,68 +34,156 @@
 
 //#define DEBUG_CC
 
+/// Basic component class.
+/*!
+Basic attributes and member functions for component sub classes
+*/
+
 class CComponents
 {
-	protected:
-		int x, y, height, width, corner_type, shadow_w;
-		int corner_rad, fr_thickness, fr_thickness_sel;
-		CFrameBuffer * frameBuffer;
-		std::vector<comp_fbdata_t> v_fbdata;
-		fb_pixel_t	col_body, col_shadow, col_frame, col_frame_sel;
-		bool	firstPaint, shadow, is_painted, paint_bg;
+	private:
+		///pixel buffer handling, returns pixel buffer depends of given parameters
+		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		
-		void initVarBasic();
-		void paintFbItems(bool do_save_bg = true);
-		virtual fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
-		comp_screen_data_t saved_screen;
+	protected:
+		///object: framebuffer object, usable in all sub classes
+		CFrameBuffer * frameBuffer;
+		///container: for frambuffer properties and pixel buffer
+		std::vector<comp_fbdata_t> v_fbdata;
 
-		void clearSavedScreen();
+		///property: x-position on screen
+		int x;
+		///property: y-position on screen
+		int y;
+		///property: height-dimension on screen
+		int height;
+		///property: width-dimension on screen
+		int width;
+		///property: has corners with definied type, types are defined in /driver/frambuffer.h, without effect, if corner_radius=0
+		int corner_type;
+		///property: defined radius of corner, without effect, if corner_type=0
+		int corner_rad;
+		
+		///property: color of body
+		fb_pixel_t col_body;
+		///property: color of shadow
+		fb_pixel_t col_shadow;
+		///property: color of frame
+		fb_pixel_t col_frame;
+		///property: color of frame if component is selected, Note: fr_thickness_sel must be set
+		fb_pixel_t col_frame_sel;
+
+		///property: true=component has shadow
+		bool shadow;
+		///property: width of shadow
+		int shadow_w;
+
+		 ///property: frame thickness
+		int fr_thickness;
+		///property: frame thickness of selected component
+		int fr_thickness_sel;
+
+		///status: true=component was painted for 1st time
+		bool firstPaint;
+		///status: true=component was rendered
+		bool is_painted;
+		///mode: true=activate rendering of basic elements (frame, shadow and body)
+		bool paint_bg;
+
+		///initialize of basic attributes, no parameters required
+		void initVarBasic();
+		///rendering of framebuffer elements at once,
+		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
+		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
+		void paintFbItems(bool do_save_bg = true);
+
+		///clean up old screen buffer saved in v_fbdata
 		virtual void clear();
+
+		///container: contains saved pixel buffer with position and dimensions
+		comp_screen_data_t saved_screen; 	
+		///cleans saved pixel buffer
+		void clearSavedScreen();
+		
 	public:
+		///basic component class constructor.
 		CComponents();
 		virtual~CComponents();
 
+		///set screen x-position
 		inline virtual void setXPos(const int& xpos){x = xpos;};
+		///set screen y-position,
 		inline virtual void setYPos(const int& ypos){y = ypos;};
+		///set x and y position
+		///Note: position of bound components (items) means position related within parent form, not for screen!
+		///to set the real screen position, setRealPos(), to find in CComponentsItem sub classes
 		inline virtual void setPos(const int& xpos, const int& ypos){x = xpos; y = ypos;};
+		///set height of component on screen
 		inline virtual void setHeight(const int& h){height = h;};
+		///set width of component on screen
 		inline virtual void setWidth(const int& w){width = w;};
+		///set all positions and dimensions of component at once
 		inline virtual void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h){x = xpos; y = ypos; width = w; height = h;};
-		
+
+		///return screen x-position of component
+		///Note: position of bound components (items) means position related within parent form, not for screen!
+		///to get the real screen position, use getRealXPos(), to find in CComponentsItem sub classes
 		inline virtual int getXPos(){return x;};
+		///return screen y-position of component
+		///Note: position of bound components (items) means position related within parent form, not for screen!
+		///to get the real screen position, use getRealYPos(), to find in CComponentsItem sub classes
 		inline virtual int getYPos(){return y;};
+		///return height of component
 		inline virtual int getHeight(){return height;};
+		///return width of component
 		inline virtual int getWidth(){return width;};
+
+		///return/set (pass through) width and height of component
 		inline virtual void getSize(int* w, int* h){*w=width; *h=height;};
+		///return/set (pass through) position and dimensions of component at once
 		inline virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;};
 
-		///set colors: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
+		///set frame color
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
+		///set body color
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
+		///set shadow color
 		inline virtual void setColorShadow(fb_pixel_t color){col_shadow = color;};
+		///set all basic framebuffer element colors at once
+		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
-		///get colors
+
+		///get frame color
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};
+		///get body color
 		inline virtual fb_pixel_t getColorBody(){return col_body;};
+		///get shadow color
 		inline virtual fb_pixel_t getColorShadow(){return col_shadow;};
 		
-		///set corner types: Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h).
+		///set corner types
+		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
+		///Note: default values are given from settings
 		inline virtual void setCornerType(const int& type){corner_type = type;};
+		///set corner radius
 		inline virtual void setCornerRadius(const int& radius){corner_rad = radius;};
-		///get corner types:
+		///get corner types
 		inline virtual int getCornerType(){return corner_type;};
+		///get corner radius
 		inline virtual int getCornerRadius(){return corner_rad;};
-		
+
+		///set frame thickness
 		inline virtual void setFrameThickness(const int& thickness){fr_thickness = thickness;};
+		///switch shadow on/off
+		///Note: it's recommended to use #defines: CC_SHADOW_ON=true or CC_SHADOW_OFF=false as parameter, see also cc_types.h
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
 
 		///hide current screen and restore background
 		virtual void hide();
-		///erase current screen without restore of background, as similar to paintBackgroundBoxRel() from CFrameBuffer
+		///erase current screen without restore of background, it's similar to paintBackgroundBoxRel() from CFrameBuffer
 		virtual void kill();
 		///returns paint mode, true=item was painted
 		virtual bool isPainted(){return is_painted;}
-		///allows paint of elemetary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
+		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
 		virtual void doPaintBg(bool do_paint){paint_bg = do_paint;};
 
 };
