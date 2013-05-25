@@ -93,10 +93,6 @@ neutrino_LDADD = \
 	@MAD_LIBS@ \
 	@ID3TAG_LIBS@ \
 	@LIBCS_LIBS@ \
-	@AVFORMAT_LIBS@ \
-	@AVUTIL_LIBS@ \
-	@AVCODEC_LIBS@ \
-	@SWSCALE_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS) \
 	-ldvbsi++ \
@@ -149,3 +145,9 @@ neutrino_LDADD += \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a \
 	@DIRECTFB_LIBS@
 endif
+
+neutrino_LDADD += \
+	@AVFORMAT_LIBS@ \
+	@AVUTIL_LIBS@ \
+	@AVCODEC_LIBS@ \
+	@SWSCALE_LIBS@
