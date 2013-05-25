@@ -323,11 +323,6 @@ void CFEManager::saveSettings(bool write)
 		frontend_config_t & fe_config = fe->getConfig();
 
 		INFO("fe%d", fe->fenumber);
-		if(fe->fenumber && mode != FE_MODE_ALONE) {
-			CFrontend * fe0 = getFE(0);
-			fe->setConfig(fe0->getConfig());
-			fe->setSatellites(fe0->getSatellites());
-		}
 
 		setConfigValue(fe, "diseqcType", fe_config.diseqcType);
 		setConfigValue(fe, "diseqcRepeats", fe_config.diseqcRepeats);
