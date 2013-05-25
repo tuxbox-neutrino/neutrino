@@ -87,6 +87,7 @@ libneutrino_gui_a_SOURCES = \
 	personalize.cpp \
 	pictureviewer.cpp \
 	pictureviewer_setup.cpp \
+	pipsetup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
 	proxyserver_setup.cpp \
@@ -112,7 +113,6 @@ libneutrino_gui_a_SOURCES = \
 	vfd_setup.cpp \
 	videosettings.cpp \
 	volumebar.cpp \
-	pipsetup.cpp \
 	zapit_setup.cpp
 
 libneutrino_gui2_a_SOURCES = \
