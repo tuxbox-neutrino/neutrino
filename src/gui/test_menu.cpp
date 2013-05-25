@@ -71,6 +71,7 @@ CTestMenu::CTestMenu()
 	iconform = NULL;
 	window = NULL;
 	button = NULL;
+	clock = clock_r = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -84,6 +85,8 @@ CTestMenu::~CTestMenu()
 	delete iconform;
 	delete window;
 	delete button;
+	delete clock;
+	delete clock_r;
 }
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -527,6 +530,40 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return res;
 	}
+	else if (actionKey == "running_clock"){	
+		if (clock_r == NULL){
+			clock_r = new CComponentsFrmClock(100, 50, 0, 50, "%H.%M:%S");
+			clock_r->setClockFontType(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+			clock_r->setClockIntervall(1);
+// 			clock_r->doPaintBg(false);
+		}
+		
+ 		if (!clock_r->isClockRun()){
+			if (clock_r->Start())
+				return menu_return::RETURN_EXIT_ALL;;
+		}
+		else if (clock_r->isClockRun()){
+			if (clock_r->Stop()){
+				clock_r->hide();
+				delete clock;
+				clock = NULL;
+				return menu_return::RETURN_EXIT_ALL;;
+			}
+		}
+	}
+	else if (actionKey == "clock"){
+		if (clock == NULL){
+			clock = new CComponentsFrmClock(100, 50, 0, 50, "%H:%M");
+			clock->setClockFontType(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+		}
+
+		if (!clock->isPainted())
+			clock->paint();
+		else
+			clock->hide();
+
+		return res;
+	}
 	
 	
 	return showTestMenu();
@@ -563,6 +600,8 @@ int CTestMenu::showTestMenu()
 void CTestMenu::showCCTests(CMenuWidget *widget)
 {
 	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("Running Clock", true, NULL, this, "running_clock"));
+	widget->addItem(new CMenuForwarderNonLocalized("Clock", true, NULL, this, "clock"));
 	widget->addItem(new CMenuForwarderNonLocalized("Button", true, NULL, this, "button"));
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
