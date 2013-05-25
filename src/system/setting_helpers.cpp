@@ -556,9 +556,17 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 	int i;
 	int modes[VIDEO_STD_MAX+1];
 
-	memset(modes, 0, sizeof(int)*VIDEO_STD_MAX+1);
+	memset(modes, 0, sizeof(modes));
 
 	for(i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
+		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key < 0) /* not available on this platform */
+			continue;
+		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key >= VIDEO_STD_MAX) {
+			/* this must not happen */
+			printf("CAutoModeNotifier::changeNotify VIDEOMODE_OPTIONS[%d].key = %d (>= %d)\n",
+					i, VIDEOMENU_VIDEOMODE_OPTIONS[i].key, VIDEO_STD_MAX);
+			continue;
+		}
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
 	}
 	videoDecoder->SetAutoModes(modes);
