@@ -45,9 +45,7 @@ static int fedebug = 0;
 #define FEDEBUG(fmt, args...)					\
         do {							\
                 if (fedebug)					\
-                        fprintf(stdout, "[%s:%s:%d] " fmt "\n",	\
-                                __FILE__, __FUNCTION__,		\
-                                __LINE__ , ## args);		\
+			INFO(fmt, ##args);			\
         } while (0)
 
 CFeDmx::CFeDmx(int i)
