@@ -388,6 +388,7 @@ void CFEManager::linkFrontends(bool init)
 	INFO("linking..");
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	enabled_count = 0;
+	have_sat = have_cable = have_terr = false;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 #if 0
@@ -440,7 +441,17 @@ void CFEManager::linkFrontends(bool init)
 		if (init && femode != CFrontend::FE_MODE_UNUSED)
 			fe->Init();
 		if (femode != CFrontend::FE_MODE_UNUSED)
+		{
 			enabled_count++;
+			if (fe->isSat())
+				have_sat = true;
+			else if (fe->isCable())
+				have_cable = true;
+			else if (fe->isTerr())
+				have_terr = true;
+		}
+		else	/* unused -> no need to keep open */
+			fe->Close();
 	}
 }
 
@@ -477,10 +488,8 @@ void CFEManager::Open()
 {
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
-		if(!fe->Locked())
+		if (!fe->Locked() && fe->getMode() != CFrontend::FE_MODE_UNUSED)
 			fe->Open(true);
-		if (mode == FE_MODE_SINGLE)
-			break;	/* don't open secondary frontends if only first one is used */
 	}
 }
 

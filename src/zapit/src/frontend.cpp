@@ -240,6 +240,8 @@ bool CFrontend::Open(bool init)
 
 void CFrontend::Init(void)
 {
+	/* if frontend was not enabled before, it might not be opened */
+	Open();
 	mutex.lock();
 	// Set the voltage to On, and wait voltage to become stable
 	// and wait for diseqc equipment to be ready.
