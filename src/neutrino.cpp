@@ -1956,16 +1956,23 @@ void CNeutrinoApp::quickZap(int msg)
 
 	StopSubtitles();
 	printf("CNeutrinoApp::quickZap haveFreeFrontend %d\n", CFEManager::getInstance()->haveFreeFrontend());
+#if 0
 	if(!CFEManager::getInstance()->haveFreeFrontend())
 	{
 		res = channelList->numericZap(g_settings.key_zaphistory);
 		StartSubtitles(res < 0);
 		return;
 	}
+#endif
+	bool ret;
 	if(!bouquetList->Bouquets.empty())
-		bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
+		ret = bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
 	else
-		channelList->quickZap(msg);
+		ret = channelList->quickZap(msg);
+	if (!ret) {
+		res = channelList->numericZap(g_settings.key_zaphistory);
+		StartSubtitles(res < 0);
+	}
 }
 
 void CNeutrinoApp::numericZap(int msg)

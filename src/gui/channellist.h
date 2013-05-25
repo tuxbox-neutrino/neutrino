@@ -162,7 +162,7 @@ public:
 	int 	numericZap(int key);
 	int  	show();
 	int	exec();
-	void quickZap(int key, bool cycle = false);
+	bool quickZap(int key, bool cycle = false);
 	//int  hasChannel(int nChannelNr);
 	int  hasChannelID(t_channel_id channel_id);
 	void setSelected( int nChannelNr); // for adjusting bouquet's channel list after numzap or quickzap

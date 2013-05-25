@@ -1535,17 +1535,21 @@ void CChannelList::virtual_zap_mode(bool up)
 	}
 }
 
-void CChannelList::quickZap(int key, bool /* cycle */)
+bool CChannelList::quickZap(int key, bool /* cycle */)
 {
 	if(chanlist.empty())
-		return;
+		return true;
 
 	unsigned int sl = selected;
 	/* here selected value doesnt matter, zap will do adjust */
 	CZapitChannel* channel = getPrevNextChannel(key, sl);
-	if(channel)
+	bool ret = false;
+	if(channel && SameTP(channel)) {
 		CNeutrinoApp::getInstance()->channelList->zapToChannel(channel);
+		ret = true;
+	}
 	g_RCInput->clearRCMsg(); //FIXME test for n.103
+	return ret;
 }
 
 void CChannelList::paintDetails(int index)
