@@ -466,7 +466,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 #else
 			time_t now = time(NULL);
 			bool back = false;
-			if ((*lastEvent)->times.size() == 1)
+			if (*lastEvent!=NULL && (*lastEvent)->times.size() == 1)
 			{
 				if ((*lastEvent)->times.begin()->startzeit + (long)(*lastEvent)->times.begin()->dauer >= now - oldEventsAre)
 					back = true;
@@ -489,7 +489,8 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 			}
 			// else fprintf(stderr, ">");
 			unlockEvents();
-			deleteEvent((*lastEvent)->uniqueKey());
+			if(*lastEvent!=NULL)
+				deleteEvent((*lastEvent)->uniqueKey());
 		}
 		else
 			unlockEvents();
