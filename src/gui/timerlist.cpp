@@ -857,8 +857,8 @@ void CTimerList::paintItem(int pos)
 
 void CTimerList::paintHead()
 {
-	CComponentsHeader *header = new CComponentsHeader(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
-	header->paint();
+	CComponentsHeader header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
+	header.paint();
 }
 
 const struct button_label TimerListButtons[5] =
