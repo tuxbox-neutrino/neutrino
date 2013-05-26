@@ -29,6 +29,8 @@
 
 #include "config.h"
 #include <gui/components/cc.h>
+#include <gui/components/cc_item_text.h>
+#include <gui/components/cc_item_picture.h>
 #include <vector>
 #include <string>
 

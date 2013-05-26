@@ -27,7 +27,7 @@
 #ifndef __CAUDIOMUTE__
 #define __CAUDIOMUTE__
 
-#include <gui/components/cc.h>
+#include <gui/components/cc_item_picture.h>
 
 class CAudioMute : public CComponentsPicture
 {

@@ -29,6 +29,7 @@
 
 #include <gui/components/cc_frm.h>  //CComponentsForm
 #include <gui/components/cc_item_progressbar.h> //CProgressBar
+#include <gui/components/cc_item_text.h> //CComponentsLabel
 
 class CVolumeBar : public CComponentsForm
 {

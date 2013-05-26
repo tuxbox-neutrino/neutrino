@@ -27,8 +27,13 @@
 #ifndef __imageinfo__
 #define __imageinfo__
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <gui/widget/menue.h>
 #include <gui/components/cc_frm.h>
+#include <gui/components/cc_item_tvpic.h>
 #include <configfile.h>
 
 typedef struct image_info_t

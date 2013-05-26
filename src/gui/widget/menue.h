@@ -41,7 +41,8 @@
 #include <system/localize.h>
 #include <gui/widget/icons.h>
 #include <gui/color.h>
-#include <gui/components/cc.h>
+#include <gui/components/cc_item_infobox.h>
+#include <gui/components/cc_detailsline.h>
 
 #include <string>
 #include <vector>
