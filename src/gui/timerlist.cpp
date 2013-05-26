@@ -52,6 +52,7 @@
 #include <gui/filebrowser.h>
 #include <gui/infoviewer.h>
 
+#include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
@@ -856,39 +857,25 @@ void CTimerList::paintItem(int pos)
 
 void CTimerList::paintHead()
 {
-	int icol_w, icol_h;
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_TIMER, &icol_w, &icol_h);
-
-	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	frameBuffer->paintIcon(NEUTRINO_ICON_TIMER, x+5, y, theight);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+icol_w+15, y+theight+0, width - 45,
-			g_Locale->getText(LOCALE_TIMERLIST_NAME), COL_MENUHEAD, 0, true); // UTF-8
-
-	//don't show info button on empty timerlist
-	if (!timerlist.empty())
-	{
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &icol_w, &icol_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + width - icol_w - 10, y, theight);
-	}
+	CComponentsHeader *header = new CComponentsHeader(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
+	header->paint();
 }
 
-const struct button_label TimerListButtons[4] =
+const struct button_label TimerListButtons[5] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_TIMERLIST_DELETE },
 	{ NEUTRINO_ICON_BUTTON_GREEN 	, LOCALE_TIMERLIST_NEW    },
 	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
-	{ NEUTRINO_ICON_BUTTON_OKAY	, LOCALE_TIMERLIST_MODIFY }
+	{ NEUTRINO_ICON_BUTTON_OKAY	, LOCALE_TIMERLIST_MODIFY },
+	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     }
 };
 
 void CTimerList::paintFoot()
 {
-
 	if (timerlist.empty())
 		::paintButtons(x, y + height, width, 2, &(TimerListButtons[1]), width);
 	else
-		::paintButtons(x, y + height, width, 4, TimerListButtons, width);
-
+		::paintButtons(x, y + height, width, 5, TimerListButtons, width);
 }
 
 void CTimerList::paint()
