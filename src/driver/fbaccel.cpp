@@ -447,9 +447,10 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 #else
 	int dx = abs (xa - xb);
 	int dy = abs (ya - yb);
-#if HAVE_SPARK_HARDWARE
 	if (dy == 0) /* horizontal line */
 	{
+		/* paintRect actually is 1 pixel short to the right,
+		 * but that's bug-compatibility with the GXA code */
 		paintRect(xa, ya, xb - xa, 1, col);
 		return;
 	}
@@ -458,7 +459,6 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 		paintRect(xa, ya, 1, yb - ya, col);
 		return;
 	}
-#endif
 	int x;
 	int y;
 	int End;
