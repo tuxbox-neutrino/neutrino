@@ -27,7 +27,10 @@
 #define __CC_CLOCK__
 
 
-#include "config.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "cc.h"
 #include "cc_frm.h"
 
