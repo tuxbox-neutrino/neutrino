@@ -79,7 +79,7 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	
-	cch_locale_text = caption_locale;
+	cch_text	= g_Locale->getText(caption_locale);
 	cch_icon_name	= icon_name;
 	cch_buttons	= buttons;
 
@@ -106,7 +106,6 @@ void CComponentsHeader::initVarHeader()
 	cch_icon_name		= NULL;
 	cch_btn_obj		= NULL;
 	cch_text		= "";
-	cch_locale_text 	= NONEXISTANT_LOCALE;
 	cch_col_text		= COL_MENUHEAD;
 	cch_items_y 		= 0;
 	cch_icon_x 		= 0;
@@ -136,7 +135,7 @@ void CComponentsHeader::setHeaderText(const std::string& caption)
 
 void CComponentsHeader::setHeaderText(neutrino_locale_t caption_locale)
 {
-	cch_locale_text	= caption_locale;
+	cch_text	= g_Locale->getText(caption_locale);
 }
 
 void CComponentsHeader::setHeaderIcon(const char* icon_name)
@@ -285,10 +284,7 @@ void CComponentsHeader::initCCHeaderText()
 
 	//set header text properties
 	if (cch_text_obj){
-		if (cch_locale_text != NONEXISTANT_LOCALE)
-			cch_text_obj->setText(cch_locale_text, CTextBox::AUTO_WIDTH, cch_font);
-		else
-			cch_text_obj->setText(cch_text, CTextBox::AUTO_WIDTH, cch_font);
+		cch_text_obj->setText(cch_text, CTextBox::AUTO_WIDTH, cch_font);
 		cch_text_obj->forceTextPaint(); //here required
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, width-cch_icon_w-fr_thickness, height-2*fr_thickness);
 		cch_text_obj->setTextColor(cch_col_text);

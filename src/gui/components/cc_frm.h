@@ -107,7 +107,6 @@ class CComponentsHeader : public CComponentsForm
 		CComponentsIconForm * cch_btn_obj;
 		std::string cch_text;
 		const char*  cch_icon_name;
-		neutrino_locale_t cch_locale_text;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
 		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons, cch_btn_offset;
