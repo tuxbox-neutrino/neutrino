@@ -94,6 +94,17 @@ TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
+
+# either use dynamic lualib in package lua (openSUSE)
+# ... or in package lua5.2 (debian-derivates)
+# ... and if all fails, assume it is in the linker path (cross build)
+PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
+	PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
+		echo "=> lualib not found, assuming static lua in linker path..."
+		LUA_LIBS="-llua -ldl"
+	])
+])
+
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
 #TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
@@ -202,6 +213,8 @@ AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 AC_SUBST(VORBISIDEC_CFLAGS)
 AC_SUBST(VORBISIDEC_LIBS)
+AC_SUBST(LUA_CFLAGS)
+AC_SUBST(LUA_LIBS)
 
 AC_OUTPUT([
 Makefile

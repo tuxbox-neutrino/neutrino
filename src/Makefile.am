@@ -122,7 +122,7 @@ neutrino_LDADD += -lgif
 else
 neutrino_LDADD += -lungif
 endif
-neutrino_LDADD += -llua -ldl
+neutrino_LDADD += @LUA_LIBS@
 
 if ENABLE_UPNP
 neutrino_LDADD += \
