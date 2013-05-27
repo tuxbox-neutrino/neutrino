@@ -106,11 +106,11 @@ void CComponentsWindow::initHeader()
 		ccw_head->setXPos(0);
 		ccw_head->setYPos(0);
 		ccw_head->setWidth(width);
-		ccw_head->setHeaderIcon(ccw_icon_name);
-		ccw_head->setHeaderText(ccw_caption);
-		ccw_head->initCCHeaderItems();
+		ccw_head->setIcon(ccw_icon_name);
+		ccw_head->setCaption(ccw_caption);
+		ccw_head->initCCItems();
 		ccw_start_y = ccw_head->getHeight();
-		ccw_head->setHeaderDefaultButtons(ccw_buttons);
+		ccw_head->setDefaultButtons(ccw_buttons);
 	}
 }
 

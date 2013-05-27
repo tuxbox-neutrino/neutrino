@@ -103,7 +103,7 @@ class CComponentsIconForm : public CComponentsForm
 
 class CComponentsHeader : public CComponentsForm
 {
-	private:
+	protected:
 		CComponentsPicture * cch_icon_obj;
 		CComponentsText * cch_text_obj;
 		CComponentsIconForm * cch_btn_obj;
@@ -114,13 +114,12 @@ class CComponentsHeader : public CComponentsForm
 		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons, cch_btn_offset;
 		std::vector<std::string> v_cch_btn;
 
-		void initCCHeaderIcon();
-		void initCCHeaderText();
-		void initCCHeaderButtons();
-		void initCCHDefaultButtons();
-		void initCCButtonFormSize();
+		void initIcon();
+		void initCaption();
+		void initButtons();
+		void initDefaultButtons();
+		void initButtonFormSize();
 
-	protected:
 		void initVarHeader();
 
 	public:
@@ -146,16 +145,18 @@ class CComponentsHeader : public CComponentsForm
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsHeader();
 
+		
+		virtual void setCaption(const std::string& caption);
+		virtual void setCaption(neutrino_locale_t caption_locale);
+		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
+		virtual void setButtonOffset(const int offset){cch_btn_offset = offset;};
+		virtual void setIcon(const char* icon_name);
+		virtual void addButtonIcon(const std::string& button_name);
+		virtual void removeButtonIcons();
+		virtual void setDefaultButtons(const int buttons);
+		virtual void initCCItems();
+
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void setHeaderText(const std::string& caption);
-		void setHeaderText(neutrino_locale_t caption_locale);
-		void setColorHeaderBody(fb_pixel_t text_color){cch_col_text = text_color;};
-		void setHeaderButtonOffset(const int offset){cch_btn_offset = offset;};
-		void setHeaderIcon(const char* icon_name);
-		void addHeaderButton(const std::string& button_name);
-		void removeHeaderButtons();
-		void setHeaderDefaultButtons(const int buttons);
-		void initCCHeaderItems();
 };
 
 class CComponentsWindow : public CComponentsForm

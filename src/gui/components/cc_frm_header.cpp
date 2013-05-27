@@ -60,8 +60,9 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
 	cch_buttons	= buttons;
-	initCCHDefaultButtons();
-	initCCHeaderItems();
+	
+	initDefaultButtons();
+	initCCItems();
 }
 
 CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t caption_locale, const char* icon_name, const int buttons, bool has_shadow,
@@ -83,8 +84,8 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	cch_icon_name	= icon_name;
 	cch_buttons	= buttons;
 
-	initCCHDefaultButtons();
-	initCCHeaderItems();
+	initDefaultButtons();
+	initCCItems();
 }
 
 void CComponentsHeader::initVarHeader()
@@ -128,22 +129,22 @@ CComponentsHeader::~CComponentsHeader()
 	cleanCCForm();	
 }
 
-void CComponentsHeader::setHeaderText(const std::string& caption)
+void CComponentsHeader::setCaption(const std::string& caption)
 {
 	cch_text	= caption;
 }
 
-void CComponentsHeader::setHeaderText(neutrino_locale_t caption_locale)
+void CComponentsHeader::setCaption(neutrino_locale_t caption_locale)
 {
 	cch_text	= g_Locale->getText(caption_locale);
 }
 
-void CComponentsHeader::setHeaderIcon(const char* icon_name)
+void CComponentsHeader::setIcon(const char* icon_name)
 {
 	cch_icon_name 	= icon_name;
 }
 
-void CComponentsHeader::initCCHeaderIcon()
+void CComponentsHeader::initIcon()
 {
 	//reset cch_icon_w
 	cch_icon_w = cch_btn_offset;
@@ -191,21 +192,21 @@ void CComponentsHeader::initCCHeaderIcon()
 	}
 }
 
-void CComponentsHeader::addHeaderButton(const std::string& button_name)
+void CComponentsHeader::addButtonIcon(const std::string& button_name)
 {
 	v_cch_btn.push_back(button_name);
-	initCCHeaderButtons();
+	initButtons();
 }
 
-void CComponentsHeader::removeHeaderButtons()
+void CComponentsHeader::removeButtonIcons()
 {
 	v_cch_btn.clear();
 	cch_btn_obj->removeAllIcons();
-	initCCHeaderButtons();
+	initButtons();
 
 }
 
-void CComponentsHeader::initCCHDefaultButtons()
+void CComponentsHeader::initDefaultButtons()
 {
 	if (cch_buttons & CC_BTN_EXIT)
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_HOME);
@@ -220,15 +221,15 @@ void CComponentsHeader::initCCHDefaultButtons()
 #endif
 }
 
-void CComponentsHeader::setHeaderDefaultButtons(const int buttons)
+void CComponentsHeader::setDefaultButtons(const int buttons)
 {
 	cch_buttons = buttons;
 	v_cch_btn.clear();
-	initCCHDefaultButtons();
+	initDefaultButtons();
 }
 
 // calculate minimal width of icon form
-void CComponentsHeader::initCCButtonFormSize()
+void CComponentsHeader::initButtonFormSize()
 {
 	ccif_width = 0;
 	for(size_t i=0; i<v_cch_btn.size(); i++){
@@ -238,13 +239,13 @@ void CComponentsHeader::initCCButtonFormSize()
 	}
 }
 
-void CComponentsHeader::initCCHeaderButtons()
+void CComponentsHeader::initButtons()
 {
 	//exit if no button defined
  	if (v_cch_btn.empty())
 		return;
 		
-	initCCButtonFormSize();
+	initButtonFormSize();
 
 	if (cch_btn_obj == NULL){
 		cch_btn_obj = new CComponentsIconForm();
@@ -267,7 +268,7 @@ void CComponentsHeader::initCCHeaderButtons()
 	}
 }
 
-void CComponentsHeader::initCCHeaderText()
+void CComponentsHeader::initCaption()
 {
 	//reset header text position first
 	cch_text_x = cch_icon_x+cch_icon_w;
@@ -300,22 +301,22 @@ void CComponentsHeader::initCCHeaderText()
 	}
 }
 
-void CComponentsHeader::initCCHeaderItems()
+void CComponentsHeader::initCCItems()
 {
 	//init icon
-	initCCHeaderIcon();
+	initIcon();
 
 	//init text
-	initCCHeaderText();
+	initCaption();
 
 	//init buttons
-	initCCHeaderButtons();
+	initButtons();
 }
 	
 void CComponentsHeader::paint(bool do_save_bg)
 {
 	//prepare items
-	initCCHeaderItems();
+	initCCItems();
 	
 	//paint form contents
 	paintForm(do_save_bg);

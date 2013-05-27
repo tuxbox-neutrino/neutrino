@@ -437,7 +437,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
 // 			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
-			header->setHeaderDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
+			header->setDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
 // 		else	//For existing instances it's recommended
 // 			//to remove old button icons before add new buttons, otherwise icons will be appended.
@@ -449,7 +449,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		header->setCornerType(CORNER_TOP);
 
 //		change text of header
-		header->setHeaderText("Test");
+		header->setCaption("Test");
 
 //		add any other button icon
 //   		header->addHeaderButton(NEUTRINO_ICON_BUTTON_BLUE);
