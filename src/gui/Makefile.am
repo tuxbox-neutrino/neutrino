@@ -34,6 +34,7 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@CURL_CFLAGS@ \
+	@LUA_CFLAGS@ \
 	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
