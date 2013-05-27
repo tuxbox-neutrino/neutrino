@@ -47,6 +47,7 @@
 #include <gui/audiomute.h>
 #include <gui/nfs.h>
 
+#include <gui/components/cc_frm.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/menue.h>
@@ -122,6 +123,26 @@ CPictureViewerGui::~CPictureViewerGui()
 }
 
 //------------------------------------------------------------------------
+
+#define PictureViewerButtons1Count 4
+const struct button_label PictureViewerButtons1[PictureViewerButtons1Count] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED	, LOCALE_AUDIOPLAYER_DELETE	},
+	{ NEUTRINO_ICON_BUTTON_GREEN	, LOCALE_AUDIOPLAYER_ADD	},
+	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_AUDIOPLAYER_DELETEALL	},
+	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_PICTUREVIEWER_SLIDESHOW }
+};
+
+#define PictureViewerButtons2Count 3
+struct button_label PictureViewerButtons2[PictureViewerButtons2Count] =
+{
+	{ NEUTRINO_ICON_BUTTON_5	, LOCALE_PICTUREVIEWER_SORTORDER_DATE	},
+	{ NEUTRINO_ICON_BUTTON_OKAY	, LOCALE_PICTUREVIEWER_SHOW		},
+	{ NEUTRINO_ICON_BUTTON_MUTE_SMALL, LOCALE_FILEBROWSER_DELETE		}
+};
+
+//------------------------------------------------------------------------
+
 int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	audioplayer = false;
@@ -133,27 +154,17 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	width = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel();
 
-	sheight      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
-        int icol_w, icol_h;
+        //get footerHeight from paintButtons
+	buttons1Height = ::paintButtons(0, 0, 0, PictureViewerButtons1Count, PictureViewerButtons1, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
+	buttons2Height = ::paintButtons(0, 0, 0, PictureViewerButtons2Count, PictureViewerButtons2, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
+	footerHeight = buttons1Height + buttons2Height;
 
-	theight      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &icol_w, &icol_h);
-	theight = std::max(theight, icol_h);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
-	theight = std::max(theight, icol_h);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &icol_h);
-	theight = std::max(theight, icol_h);
-
-        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-        buttonHeight = 8 + std::max(icol_h+2, sheight); //TODO get value from buttonbar
-
-	fheight      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	listmaxshow = (height-theight-2*buttonHeight)/(fheight);
-	height = theight+2*buttonHeight+listmaxshow*fheight;	// recalc height
+	listmaxshow = (height-theight-footerHeight)/(fheight);
+	height = theight+listmaxshow*fheight+footerHeight;	// recalc height
 
 	x=getScreenStartX( width );
 	y=getScreenStartY( height );
@@ -686,63 +697,41 @@ void CPictureViewerGui::paintItem(int pos)
 
 void CPictureViewerGui::paintHead()
 {
-//	printf("paintHead{\n");
-	std::string strCaption = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
+	CComponentsHeader header(x, y, width, theight, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_MP3, CComponentsHeader::CC_BTN_HELP);
 
-	int iw1, iw2, iw3, ih;
-	frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw1, &ih);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw2, &ih);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw3, &ih);
+#ifdef ENABLE_GUI_MOUNT
+	header.addButtonIcon(NEUTRINO_ICON_BUTTON_MENU);
+#endif
 
-	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-
-	frameBuffer->paintIcon(NEUTRINO_ICON_MP3, x+5, y, theight);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+iw1+10, y+theight+0, width- iw1 - iw2 - iw3 - 5*5, strCaption, COL_MENUHEAD, 0, true); // UTF-8
-
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- iw2 - 5, y, theight);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x+ width- iw2 - iw3 - 10, y, theight );
-//	printf("paintHead}\n");
+	header.paint();
 }
 
 //------------------------------------------------------------------------
-const struct button_label PictureViewerButtons[5] =
-{
-	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_AUDIOPLAYER_DELETE        },
-	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_AUDIOPLAYER_ADD           },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_AUDIOPLAYER_DELETEALL     },
-	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_PICTUREVIEWER_SLIDESHOW },
-	{ NEUTRINO_ICON_BUTTON_MUTE_SMALL  , LOCALE_FILEBROWSER_DELETE }
-};
-const struct button_label PictureViewerButtons2[][2] =
-{
-	{
-		{ NEUTRINO_ICON_BUTTON_5   , LOCALE_PICTUREVIEWER_SORTORDER_DATE	},
-		{ NEUTRINO_ICON_BUTTON_OKAY , LOCALE_PICTUREVIEWER_SHOW			}
-	},
-	{
-		{ NEUTRINO_ICON_BUTTON_5   , LOCALE_PICTUREVIEWER_SORTORDER_FILENAME	},
-		{ NEUTRINO_ICON_BUTTON_OKAY , LOCALE_PICTUREVIEWER_SHOW			}
-	}
-};
+
 void CPictureViewerGui::paintFoot()
 {
-//	printf("paintFoot{\n");
+	if (m_sort == FILENAME)
+		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_FILENAME;
+	else
+		PictureViewerButtons2[0].locale = LOCALE_PICTUREVIEWER_SORTORDER_DATE;
 
-	frameBuffer->paintBoxRel(x, y+(height-2*buttonHeight), width, 2*buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{
-		::paintButtons(x, y + (height - 2 * buttonHeight), 0, 5, PictureViewerButtons, width);
-		::paintButtons(x, y + (height - buttonHeight), 0, 2, (m_sort==FILENAME)?PictureViewerButtons2[0]:PictureViewerButtons2[1], width);
+		::paintButtons(x, y + (height - footerHeight), 0, PictureViewerButtons1Count, PictureViewerButtons1, width);
+		::paintButtons(x, y + (height - buttons2Height), 0, PictureViewerButtons2Count, PictureViewerButtons2, width);
 	}
 	else
-		::paintButtons(x , y + (height - 2 * buttonHeight), 0, 1, &(PictureViewerButtons[1]), width);
-//	printf("paintFoot}\n");
+		::paintButtons(x, y + (height - footerHeight), 0, 1, &(PictureViewerButtons1[1]), width);
 }
+
 //------------------------------------------------------------------------
+
 void CPictureViewerGui::paintInfo()
 {
 }
+
 //------------------------------------------------------------------------
 
 void CPictureViewerGui::paint()
