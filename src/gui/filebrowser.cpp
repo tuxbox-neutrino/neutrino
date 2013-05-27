@@ -1451,9 +1451,9 @@ void CFileBrowser::paintFoot()
 
 	const struct button_label FileBrowserButtons2[3] =
 	{
-		{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_FILEBROWSER_SELECT        },
-		{ NEUTRINO_ICON_BUTTON_HELP_SMALL , sortByNames[g_settings.filebrowser_sortmethod]        },
-		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL, LOCALE_FILEBROWSER_DELETE            },
+		{ NEUTRINO_ICON_BUTTON_OKAY		, LOCALE_FILEBROWSER_SELECT				},
+		{ NEUTRINO_ICON_BUTTON_HELP		, sortByNames[g_settings.filebrowser_sortmethod]	},
+		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL	, LOCALE_FILEBROWSER_DELETE				},
 	};
 
 // 	int iw = 0, ih = 0; 
