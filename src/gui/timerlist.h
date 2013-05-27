@@ -45,14 +45,18 @@
 class CTimerList : public CMenuTarget
 {
 	private:
-		CFrameBuffer		*frameBuffer;
-		unsigned int		selected;
-		unsigned int		liststart;
-		unsigned int		listmaxshow;
-		int					fheight; // Fonthoehe Timerlist-Inhalt
-		int					theight; // Fonthoehe Timerlist-Titel
-		int               buttonHeight;
-		bool				visible;			
+		CFrameBuffer	*frameBuffer;
+		int 		x;
+		int 		y;
+		int 		width;
+		int 		height;
+		int		fheight; // fontheight content
+		int		theight; // fontheight titel
+		int		footerHeight;
+		unsigned int	selected;
+		unsigned int	liststart;
+		unsigned int	listmaxshow;
+		bool		visible;
 
 		CTimerdClient *Timer;
 		CTimerd::TimerList timerlist;             // List of timers		
@@ -65,11 +69,6 @@ class CTimerList : public CMenuTarget
 		int timer_apids_std;
 		int timer_apids_ac3;
 		int timer_apids_alt;
-
-		int 			width;
-		int 			height;
-		int 			x;
-		int 			y;
 
 		int skipEventID;
 
