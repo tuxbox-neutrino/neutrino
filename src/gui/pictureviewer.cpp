@@ -45,7 +45,10 @@
 #include <driver/rcinput.h>
 
 #include <gui/audiomute.h>
+
+#ifdef ENABLE_GUI_MOUNT
 #include <gui/nfs.h>
+#endif
 
 #include <gui/components/cc_frm.h>
 #include <gui/widget/buttons.h>
@@ -561,6 +564,7 @@ int CPictureViewerGui::show()
 			if (!playlist.empty())
 				view(selected, true);
 		}
+#ifdef ENABLE_GUI_MOUNT
 		else if (msg==CRCInput::RC_setup)
 		{
 			if (m_state==MENU)
@@ -571,6 +575,7 @@ int CPictureViewerGui::show()
 				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD));
 			}
 		}
+#endif
 		else if (((msg==CRCInput::RC_plus) || (msg==CRCInput::RC_minus)) && decodeTflag)
 		{
 			// FIXME: do not accept volume-keys while decoding

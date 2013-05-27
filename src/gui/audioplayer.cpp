@@ -53,7 +53,6 @@
 #include <gui/color.h>
 #include <gui/infoviewer.h>
 
-#define ENABLE_GUI_MOUNT
 #ifdef ENABLE_GUI_MOUNT
 #include <gui/nfs.h>
 #endif
