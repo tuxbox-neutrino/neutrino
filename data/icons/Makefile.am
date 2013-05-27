@@ -70,6 +70,8 @@ install_DATA += \
 	dd_avail.png \
 	dd_gray.png \
 	down.png \
+	dummy.png \
+	dummy_small.png \
 	error.png \
 	features.png \
 	file.png \

@@ -24,6 +24,9 @@
 
 /* icon files */
 
+#define NEUTRINO_ICON_BUTTON_DUMMY		"dummy"
+#define NEUTRINO_ICON_BUTTON_DUMMY_SMALL	"dummy_small"
+
 #define NEUTRINO_ICON_BUTTON_BLUE	"blau"
 #define NEUTRINO_ICON_BUTTON_GREEN	"gruen"
 #define NEUTRINO_ICON_BUTTON_RED	"rot"
