@@ -424,10 +424,8 @@ void CBookmarkManager::hide()
 //------------------------------------------------------------------------
 void CBookmarkManager::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BOOKMARK_MANAGER,x+5,y+4);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+35,y+theight+0, width- 45, g_Locale->getText(LOCALE_BOOKMARKMANAGER_NAME), COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 30, y+ 5 );
+	CComponentsHeader header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeader::CC_BTN_HELP);
+	header.paint();
 }
 
 const struct button_label BookmarkmanagerButtons[2] =
