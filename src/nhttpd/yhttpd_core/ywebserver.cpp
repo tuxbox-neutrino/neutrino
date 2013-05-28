@@ -118,8 +118,16 @@ CWebserver::~CWebserver() {
 #define MAX_TIMEOUTS_TO_TEST 100
 bool CWebserver::run(void) {
 	if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
-		dperror("Socket cannot bind and listen. Abort.\n");
-		return false;
+		if (port != 80) {
+			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);
+			return false;
+		}
+		fprintf(stderr, "[yhttpd] cannot bind and listen on port 80, retrying on port 8080.\n");
+		port = 8080;
+		if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
+			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);
+			return false;
+		}
 	}
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
 
