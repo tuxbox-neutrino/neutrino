@@ -191,19 +191,35 @@ class CComponents
 class CComponentsItem : public CComponents
 {
 	protected:
+		///property: define of item type, see cc_types.h for possible types
 		int cc_item_type;
+		///property: define of item index, all bound items get an index, default: CC_NO_INDEX
 		int cc_item_index;
-		bool cc_item_enabled, cc_item_selected;
+		///property: default enabled
+		bool cc_item_enabled;
+		///property: default not selected
+		bool cc_item_selected;
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
 		CComponents *cc_parent;
 
-		///contains real position and dimensions on screen,
-		int cc_item_xr, cc_item_yr;
-		
+		///property: contains real x-position on screen
+		int cc_item_xr;
+		///property: contains real y-position on screen
+		int cc_item_yr;
+
+		///hides item, arg: no_restore=true causes no restore of background, but clean up pixel buffer if required
 		void hideCCItem(bool no_restore = false);
+		
+		///initialze of basic framebuffer elements with shadow, background and frame.
+		///must be called first in all paint() members before paint any item,
+		///If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
+		///avoids using of unnecessary pixel memory, eg. if no hide with restore is provided. This is mostly the case  whenever
+		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
 		void paintInit(bool do_save_bg);
+
+		///initialize all required attributes
 		void initVarItem();
 
 	public:
@@ -214,19 +230,29 @@ class CComponentsItem : public CComponents
 
 		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
 		virtual void setRealPos(const int& xr, const int& yr){cc_item_xr = xr; cc_item_yr = yr;};
+		///set real x-position on screen. Use this, if item contains own render methods and item is bound to a form
 		virtual int getRealXPos(){return cc_item_xr;};
+		///set real y-position on screen. Use this, if item contains own render methods and item is bound to a form
 		virtual int getRealYPos(){return cc_item_yr;};
-		
+
+		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
+		///hides item, arg: no_restore see hideCCItem() above
 		virtual void hide(bool no_restore = false);
+
+		///gets the current item type, see attribute cc_item_type above
 		virtual int getItemType();
+		///syncronizes item colors with current color settings if required, NOTE: overwrites internal values!
 		virtual void syncSysColors();
 		
-		///setters for item select stats
+		///set select mode, see also col_frame_sel
 		virtual void setSelected(bool selected){cc_item_selected = selected;};
+		///set enable mode, see also cc_item_enabled
 		virtual void setEnable(bool enabled){cc_item_enabled = enabled;};
-		///getters for item enable stats
+		
+		///get select mode, see also setSelected() above
 		virtual bool isSelected(){return cc_item_selected;};
+		///get enable mode, see also setEnable() above
 		virtual bool isEnabled(){return cc_item_enabled;};
 };
 
