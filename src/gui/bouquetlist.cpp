@@ -576,7 +576,7 @@ void CBouquetList::paintItem(int pos)
 void CBouquetList::paintHead()
 {
 	CComponentsHeader header(x, y, width, theight, name, NULL /*no header icon*/);
-	header.paint();
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CBouquetList::paint()

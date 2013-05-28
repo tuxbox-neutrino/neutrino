@@ -894,7 +894,7 @@ void CMenuWidget::paint()
 	// paint head
 	CComponentsHeader header(x, y, width + sb_width, hheight, nameString, iconfile.c_str());
 	header.setShadowOnOff(CC_SHADOW_ON);
-	header.paint();
+	header.paint(CC_SAVE_SCREEN_NO);
 
 	// paint body shadow
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + RADIUS_LARGE, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);

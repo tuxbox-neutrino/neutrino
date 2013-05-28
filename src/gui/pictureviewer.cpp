@@ -708,7 +708,7 @@ void CPictureViewerGui::paintHead()
 	header.addButtonIcon(NEUTRINO_ICON_BUTTON_MENU);
 #endif
 
-	header.paint();
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 //------------------------------------------------------------------------

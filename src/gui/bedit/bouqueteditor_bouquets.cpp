@@ -131,7 +131,7 @@ void CBEBouquetWidget::paint()
 void CBEBouquetWidget::paintHead()
 {
 	CComponentsHeader header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, NULL /*no header icon*/, CComponentsHeader::CC_BTN_MENU);
-	header.paint();
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 const struct button_label CBEBouquetWidgetButtons[4] =

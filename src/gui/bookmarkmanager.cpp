@@ -426,7 +426,7 @@ void CBookmarkManager::hide()
 void CBookmarkManager::paintHead()
 {
 	CComponentsHeader header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeader::CC_BTN_HELP);
-	header.paint();
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 const struct button_label BookmarkmanagerButtons[2] =

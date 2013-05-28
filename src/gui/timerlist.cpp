@@ -864,7 +864,7 @@ void CTimerList::paintHead()
 {
 	CComponentsHeader header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
 	header.setShadowOnOff(CC_SHADOW_ON);
-	header.paint();
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CTimerList::paintFoot()

@@ -1408,7 +1408,7 @@ void CFileBrowser::paintHead()
 		i++;
 
 	CComponentsHeader header(x, y, width, theight, &l_name[i], NULL /*no header icon*/);
-	header.paint();
+	header.paint(CC_SAVE_SCREEN_NO);
 
 	free(l_name);
 }
