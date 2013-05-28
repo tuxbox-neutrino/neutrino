@@ -215,7 +215,7 @@ class CComponentsItem : public CComponents
 		///initialze of basic framebuffer elements with shadow, background and frame.
 		///must be called first in all paint() members before paint any item,
 		///If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
-		///arg do_save_bg avoids using of unnecessary pixel memory, eg. if no hide with restore is provided. This is mostly the case  whenever
+		///arg do_save_bg=false avoids using of unnecessary pixel memory, eg. if no hide with restore is provided. This is mostly the case  whenever
 		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
 		void paintInit(bool do_save_bg);
 
@@ -230,9 +230,9 @@ class CComponentsItem : public CComponents
 
 		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
 		virtual void setRealPos(const int& xr, const int& yr){cc_item_xr = xr; cc_item_yr = yr;};
-		///set real x-position on screen. Use this, if item contains own render methods and item is bound to a form
+		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
 		virtual int getRealXPos(){return cc_item_xr;};
-		///set real y-position on screen. Use this, if item contains own render methods and item is bound to a form
+		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
 		virtual int getRealYPos(){return cc_item_yr;};
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
@@ -240,7 +240,7 @@ class CComponentsItem : public CComponents
 		///hides item, arg: no_restore see hideCCItem() above
 		virtual void hide(bool no_restore = false);
 
-		///gets the current item type, see attribute cc_item_type above
+		///get the current item type, see attribute cc_item_type above
 		virtual int getItemType();
 		///syncronizes item colors with current color settings if required, NOTE: overwrites internal values!
 		virtual void syncSysColors();
