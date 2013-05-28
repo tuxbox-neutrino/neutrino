@@ -250,12 +250,11 @@ void SMSKeyInput::setTimeout(int timeout)
 
 
 //------------------------------------------------------------------------
-//------------------------------------------------------------------------
 
 bool comparetolower(const char a, const char b)
 {
 	return tolower(a) < tolower(b);
-};
+}
 
 // sort operators
 bool sortByName (const CFile& a, const CFile& b)

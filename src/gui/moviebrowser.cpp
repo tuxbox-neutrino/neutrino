@@ -227,7 +227,7 @@ bool sortDirection = 0;
 bool compare_to_lower(const char a, const char b)
 {
 	return tolower(a) < tolower(b);
-};
+}
 
 // sort operators
 bool sortByTitle (const MI_MOVIE_INFO* a, const MI_MOVIE_INFO* b)
@@ -402,7 +402,7 @@ void CMovieBrowser::fileInfoStale(void)
 		m_FilterLines.lineArray[i].clear();
 	}
 	m_browserListLines.Icon.clear();
-};
+}
 
 void CMovieBrowser::init(void)
 {
@@ -3501,7 +3501,7 @@ CMenuSelector::CMenuSelector(const char * OptionName, const bool Active , char *
 	active = 			Active;
 	returnIntValue =	ReturnIntValue;
 	returnInt = 		ReturnInt;
-};
+}
 
 CMenuSelector::CMenuSelector(const char * OptionName, const bool Active , std::string& OptionValue, int* ReturnInt ,int ReturnIntValue ) : CMenuItem()
 {
@@ -3514,7 +3514,7 @@ CMenuSelector::CMenuSelector(const char * OptionName, const bool Active , std::s
     active =            Active;
     returnIntValue =    ReturnIntValue;
     returnInt =         ReturnInt;
-};
+}
 
 int CMenuSelector::exec(CMenuTarget* /*parent*/)
 {
@@ -3529,7 +3529,7 @@ int CMenuSelector::exec(CMenuTarget* /*parent*/)
             *optionValueString = optionName;
 	}
 	return menu_return::RETURN_EXIT;
-};
+}
 
 int CMenuSelector::paint(bool selected)
 {
@@ -3629,7 +3629,7 @@ printf("[CDirMenu] (nfs%d) %s == (mb%d) %s (%d)\n",nfs,g_settings.network_nfs_lo
             }
          }
     }
-};
+}
 
 int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
 {

@@ -3668,7 +3668,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	}
 
 	//rc-key configuration
-	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
+	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_power_off = tconfig.getInt32( "key_power_off", CRCInput::RC_standby );
 
 	g_settings.key_channelList_pageup = tconfig.getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
@@ -3678,12 +3678,12 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_channelList_addrecord = tconfig.getInt32( "key_channelList_addrecord",  CRCInput::RC_red );
 	g_settings.key_channelList_addremind = tconfig.getInt32( "key_channelList_addremind",  CRCInput::RC_yellow );
 
-	g_settings.key_list_start = tconfig.getInt32( "key_list_start", CRCInput::RC_nokey );
-	g_settings.key_list_end = tconfig.getInt32( "key_list_end", CRCInput::RC_nokey );
+	g_settings.key_list_start = tconfig.getInt32( "key_list_start", (unsigned int)CRCInput::RC_nokey );
+	g_settings.key_list_end = tconfig.getInt32( "key_list_end", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_timeshift = tconfig.getInt32( "key_timeshift", CRCInput::RC_pause );
-	g_settings.key_plugin = tconfig.getInt32( "key_plugin", CRCInput::RC_nokey );
+	g_settings.key_plugin = tconfig.getInt32( "key_plugin", (unsigned int)CRCInput::RC_nokey );
 	g_settings.key_unlock = tconfig.getInt32( "key_unlock", CRCInput::RC_setup );
-	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", CRCInput::RC_nokey );
+	g_settings.key_screenshot = tconfig.getInt32( "key_screenshot", (unsigned int)CRCInput::RC_nokey );
 #ifdef ENABLE_PIP
 	g_settings.key_pip_close = tconfig.getInt32( "key_pip_close", CRCInput::RC_help );
 	g_settings.key_pip_setup = tconfig.getInt32( "key_pip_setup", CRCInput::RC_pos );

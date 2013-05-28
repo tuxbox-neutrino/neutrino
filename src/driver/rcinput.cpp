@@ -1549,7 +1549,7 @@ int CRCInput::translate(int code, int /*num*/)
 	if ((code >= 0) && (code <= KEY_MAX))
 		return code;
 	else
-		return RC_nokey;
+		return ( unsigned int)RC_nokey;
 }
 
 void CRCInput::close_click()

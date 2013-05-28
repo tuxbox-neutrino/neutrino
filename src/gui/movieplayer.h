@@ -61,7 +61,7 @@ class CMoviePlayerGui : public CMenuTarget
 		    PLAY        =  3,
 		    PAUSE       =  4,
 		    FF          =  5,
-		    REW         =  6,
+		    REW         =  6
 		};
 
  private:

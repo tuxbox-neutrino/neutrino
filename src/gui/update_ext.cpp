@@ -242,7 +242,7 @@ bool CExtUpdate::applySettings()
 
 	// find mtdram device
 	std::string mtdRamFilename = "", mtdBlockFileName = "";
-	int mtdRamSize, mtdRamEraseSize, mtdRamNr = 0;
+	int mtdRamSize = 0, mtdRamEraseSize = 0, mtdRamNr = 0;
 	f1 = fopen("/proc/mtd", "r");
 	if(!f1)
 		return ErrorReset(RESET_UNLOAD, "cannot read /proc/mtd");
