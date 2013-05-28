@@ -362,7 +362,14 @@ CFileBrowser::CFileBrowser(const char * const _base, const tFileBrowserMode mode
 void CFileBrowser::commonInit()
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE];
+	// fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE];
+	/*
+	   CComponentsHeader doesn't support several fonts yet.
+	   FONT_TYPE_MENU_TITLE is the used font.
+	   so we have to use FONT_TYPE_MENU_TITLE here to get
+	   the correct render-widths in paintHead() methode.
+	*/
+	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	fnt_item  = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM];
 	fnt_small = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 	//shoutcast
