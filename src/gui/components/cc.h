@@ -215,7 +215,7 @@ class CComponentsItem : public CComponents
 		///initialze of basic framebuffer elements with shadow, background and frame.
 		///must be called first in all paint() members before paint any item,
 		///If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
-		///avoids using of unnecessary pixel memory, eg. if no hide with restore is provided. This is mostly the case  whenever
+		///arg do_save_bg avoids using of unnecessary pixel memory, eg. if no hide with restore is provided. This is mostly the case  whenever
 		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
 		void paintInit(bool do_save_bg);
 
