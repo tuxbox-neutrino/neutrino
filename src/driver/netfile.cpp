@@ -2,7 +2,7 @@
 |	Neutrino-GUI  -   DBoxII-Project
 |
 |	Copyright (C) 2004 by Sanaia <sanaia at freenet dot de>
-|	Copyright (C) 2010-2012 Stefan Seyfried
+|	Copyright (C) 2010-2013 Stefan Seyfried
 |
 |	netfile - remote file access mapper
 |
@@ -421,16 +421,20 @@ int request_file(URL *url)
 
 				if(meta_int)
 				{
-					/* hook in the filter function if there is meta */
-					/* data present in the stream */
-					cache[slot].filter_arg = ShoutCAST_InitFilter(meta_int);
-					cache[slot].filter = ShoutCAST_MetaFilter;
+					if (slot < 0)
+						dprintf(stderr, "error: meta_int != 0 && slot < 0");
+					else {
+						/* hook in the filter function if there is meta */
+						/* data present in the stream */
+						cache[slot].filter_arg = ShoutCAST_InitFilter(meta_int);
+						cache[slot].filter = ShoutCAST_MetaFilter;
 
-					/* this is a *really bad* way to pass along the argument, */
-					/* since we convert the integer into a pointer instead of */
-					/* passing along a pointer/reference !*/
-					if(cache[slot].filter_arg->state)
-						memmove(cache[slot].filter_arg->state, &tmp, sizeof(CSTATE));
+						/* this is a *really bad* way to pass along the argument, */
+						/* since we convert the integer into a pointer instead of */
+						/* passing along a pointer/reference !*/
+						if(cache[slot].filter_arg->state)
+							memmove(cache[slot].filter_arg->state, &tmp, sizeof(CSTATE));
+					}
 				}
 
 				/* push the created ID3 header into the stream cache */
@@ -1673,6 +1677,8 @@ int f_status(FILE *stream, void (*cb)(void*))
 
 	/* lookup the stream ID in the cache table */
 	i = getCacheSlot(stream);
+	if (i < 0)
+		return -1;
 
 	if(cache[i].fd == stream)
 	{
