@@ -51,7 +51,7 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
-	height 		= h > 0 ? h : g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	height 		= h > 0 ? h : height;
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -74,7 +74,7 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
-	height 		= h;
+	height 		= h > 0 ? h : height;
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -137,6 +137,12 @@ void CComponentsHeader::setCaption(const std::string& caption)
 void CComponentsHeader::setCaption(neutrino_locale_t caption_locale)
 {
 	cch_text	= g_Locale->getText(caption_locale);
+}
+
+void CComponentsHeader::setCaptionFont(Font* font_name)
+{
+	cch_font	= font_name;
+	height		= std::max(height, cch_font->getHeight());
 }
 
 void CComponentsHeader::setIcon(const char* icon_name)

@@ -148,6 +148,7 @@ class CComponentsHeader : public CComponentsForm
 		
 		virtual void setCaption(const std::string& caption);
 		virtual void setCaption(neutrino_locale_t caption_locale);
+		virtual void setCaptionFont(Font* font_name);
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
 		virtual void setButtonOffset(const int offset){cch_btn_offset = offset;};
 		virtual void setIcon(const char* icon_name);
