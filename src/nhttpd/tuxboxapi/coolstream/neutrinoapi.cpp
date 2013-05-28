@@ -226,7 +226,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 	long value;
 	int pos = 0;
 
-	memset(bitInfo, 0, sizeof(bitInfo));
+	memset(bitInfo, 0, sizeof(int[10]));
 
 	FILE *fd = fopen("/proc/bus/bitstream", "rt");
 

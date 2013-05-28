@@ -226,7 +226,7 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 			else
 				paintChar(selected);
 		}else{
-			snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+			snprintf(value, size + 1, "%s", tmp_value.c_str());
 		}
 	}
 }
@@ -322,7 +322,7 @@ void CStringInput::keyUpPressed()
 		else
 			paintChar(selected);
 	}else{
-		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+		snprintf(value, size + 1, "%s", tmp_value.c_str());
 	}
 }
 
@@ -358,7 +358,7 @@ void CStringInput::keyDownPressed()
 		else
 			paintChar(selected);
 	}else{
-		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+		snprintf(value, size + 1, "%s", tmp_value.c_str());
 	}
 }
 
