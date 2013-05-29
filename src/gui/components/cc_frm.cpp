@@ -31,7 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm.h"
-
+#include <stdlib.h>
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ void CComponentsForm::cleanCCForm()
 #ifdef DEBUG_CC
 	printf("[CComponentsForm]   [%s - %d] clean up...\n", __FUNCTION__, __LINE__);
 #endif
-// 	hide();
+
 	clearCCItems();
 	clearSavedScreen();
 	clear();
@@ -117,20 +117,31 @@ void CComponentsForm::initVarForm()
 	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
 	corner_rad	= RADIUS_LARGE;
 	corner_type 	= CORNER_ALL;
-	
+	cc_item_index	= 0;
+
 	//CComponentsForm
 	v_cc_items.clear();
-	
 }
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
 #ifdef DEBUG_CC
-		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] [current count %d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), v_cc_items.size());
+		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] to form [current index=%d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), cc_item_index);
 #endif
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
+
+		//assign item index
+		int count = v_cc_items.size();
+		char buf[16];
+		snprintf(buf, sizeof(buf), "%d%d", cc_item_index, count);
+		buf[15] = '\0';
+		int new_index = atoi(buf);
+		cc_Item->setIndex(new_index);
+#ifdef DEBUG_CC
+		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
+#endif		
 	}
 #ifdef DEBUG_CC
 	else

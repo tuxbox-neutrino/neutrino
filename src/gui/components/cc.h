@@ -32,7 +32,7 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
-//#define DEBUG_CC
+#define DEBUG_CC
 
 /// Basic component class.
 /*!
@@ -193,7 +193,9 @@ class CComponentsItem : public CComponents
 	protected:
 		///property: define of item type, see cc_types.h for possible types
 		int cc_item_type;
-		///property: define of item index, all bound items get an index, default: CC_NO_INDEX
+		///property: define of item index, all bound items get an index,
+		///default: CC_NO_INDEX as identifer for not embedded item and default index=0 for form as main parent
+		///see also getIndex(), setIndex()
 		int cc_item_index;
 		///property: default enabled
 		bool cc_item_enabled;
@@ -254,6 +256,11 @@ class CComponentsItem : public CComponents
 		virtual bool isSelected(){return cc_item_selected;};
 		///get enable mode, see also setEnable() above
 		virtual bool isEnabled(){return cc_item_enabled;};
+
+		///get current index of item, see also attribut cc_item_index
+		virtual int getIndex(){return cc_item_index;};
+		///set index to item, see also attribut cc_item_index
+		virtual void setIndex(const int& index){cc_item_index = index;};
 };
 
 #endif
