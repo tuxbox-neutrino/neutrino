@@ -241,6 +241,7 @@
 #define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
 /* misc */
+#define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
 
 #define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
 
