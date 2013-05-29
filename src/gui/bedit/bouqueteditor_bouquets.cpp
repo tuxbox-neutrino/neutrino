@@ -121,6 +121,8 @@ void CBEBouquetWidget::paint()
 
 	int sbc= ((Bouquets->size()- 1)/ listmaxshow)+ 1;
 	int sbs= (selected/listmaxshow);
+	if (sbc < 1)
+		sbc = 1;
 
 	//scrollbar
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);

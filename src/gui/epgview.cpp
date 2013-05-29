@@ -263,6 +263,8 @@ void CEpgData::showText( int startPos, int ypos )
 
 	int sbc = ((textSize - 1)/ medlinecount) + 1;
 	int sbs= (startPos+ 1)/ medlinecount;
+	if (sbc < 1)
+		sbc = 1;
 	frameBuffer->paintBoxRel(sx+ ox- 15, ypos, 15, sb,  COL_MENUCONTENT_PLUS_1); // scrollbar bg
 	frameBuffer->paintBoxRel(sx+ ox- 13, ypos+ 2+ sbs*(sb-4)/sbc , 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3); // scrollbar
 }
