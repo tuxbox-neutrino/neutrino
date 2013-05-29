@@ -932,7 +932,8 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				}
 			} 
 			else if (msg == CRCInput::RC_ok) {
-				CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(this->selectedChannelEntry->channel->channel_id);
+				if (selectedChannelEntry)
+					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->channel_id);
 				current_bouquet = bouquetList->getActiveBouquetNumber();
 			} 
 			else if (CRCInput::isNumeric (msg)) {
@@ -1007,8 +1008,8 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, &record, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
 				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, &refresh, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
 				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, &remind, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), false);
-
-				menuWidgetActions.exec (NULL, "");
+				if (selectedChannelEntry)
+					menuWidgetActions.exec (NULL, "");
 
 				this->refreshAll = true;
 			} 

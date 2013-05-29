@@ -148,6 +148,8 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 
 void CBEChannelSelectWidget::onOkKeyPressed()
 {
+	if (selected >= Channels.size())
+		return;
 	setModified();
 	if (isChannelInBouquet(selected))
 		g_bouquetManager->Bouquets[bouquet]->removeService(Channels[selected]->channel_id);
