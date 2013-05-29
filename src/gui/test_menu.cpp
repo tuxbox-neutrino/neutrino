@@ -68,6 +68,7 @@ CTestMenu::CTestMenu()
 	form = NULL;
 	txt = NULL;
 	header = NULL;
+	footer = NULL;
 	iconform = NULL;
 	window = NULL;
 	button = NULL;
@@ -82,6 +83,7 @@ CTestMenu::~CTestMenu()
 	delete form;
 	delete txt;
 	delete header;
+	delete footer;
 	delete iconform;
 	delete window;
 	delete button;
@@ -452,8 +454,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		header->setCaption("Test");
 
 //		add any other button icon
-//   		header->addHeaderButton(NEUTRINO_ICON_BUTTON_BLUE);
-// 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_GREEN);
+//   		header->addButton(NEUTRINO_ICON_BUTTON_BLUE);
+// 		header->addButton(NEUTRINO_ICON_BUTTON_GREEN);
 
 //		example to replace the text item with an image item
 //		get text x position
@@ -472,6 +474,21 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			header->paint();
 		else
 			header->hide();
+		return res;
+	}
+	else if (actionKey == "footer"){
+		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+		if (footer == NULL){
+			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, true);
+			CComponentsButtonRed * btnred = new CComponentsButtonRed(10, 0, 200, hh, "Red");
+			btnred->doPaintBg(false);
+
+			footer->addCCItem(btnred);
+		}
+		if (!footer->isPainted())
+			footer->paint();
+		else
+			footer->hide();
 		return res;
 	}
 	else if (actionKey == "iconform"){
@@ -609,6 +626,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));
+	widget->addItem(new CMenuForwarderNonLocalized("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarderNonLocalized("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarderNonLocalized("Window", true, NULL, this, "window"));
 }

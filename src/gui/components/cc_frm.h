@@ -143,7 +143,7 @@ class CComponentsHeader : public CComponentsForm
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, neutrino_locale_t caption_locale = NONEXISTANT_LOCALE, const char* icon_name = NULL, const int buttons = 0,bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		~CComponentsHeader();
+		virtual ~CComponentsHeader();
 
 		
 		virtual void setCaption(const std::string& caption);
@@ -158,7 +158,20 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 		virtual void initCCItems();
 
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+};
+
+
+class CComponentsFooter : public CComponentsHeader
+{
+	protected:
+		void initVarFooter();
+	public:
+		CComponentsFooter();
+		CComponentsFooter(	const int x_pos, const int y_pos, const int w, const int h = 0,
+					const int buttons = 0,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
 class CComponentsWindow : public CComponentsForm
