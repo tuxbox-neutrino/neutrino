@@ -213,6 +213,7 @@ struct SNeutrinoSettings
 		//movieplayer menu
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
+		P_MPLAYER_YTPLAY,
 		
 		//feature keys
 		P_FEAT_KEY_FAVORIT,
