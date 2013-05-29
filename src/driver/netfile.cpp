@@ -421,9 +421,9 @@ int request_file(URL *url)
 
 				if(meta_int)
 				{
-					if (slot < 0)
+					if (slot < 0) {
 						dprintf(stderr, "error: meta_int != 0 && slot < 0");
-					else {
+					} else {
 						/* hook in the filter function if there is meta */
 						/* data present in the stream */
 						cache[slot].filter_arg = ShoutCAST_InitFilter(meta_int);
