@@ -18,6 +18,7 @@ git_version.h:
 		echo '#define BUILT_DATE "'`date`'"' > git_version.h ; \
 	fi
 noinst_HEADERS = git_version.h
+.PHONY: git_version.h
 
 SUBDIRS = bedit components widget
 
