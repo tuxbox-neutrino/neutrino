@@ -321,7 +321,7 @@ eventfinder.search Search
 eventfinder.search_within_epg Search within
 eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...
-eventfinder.start_search  Start Search
+eventfinder.start_search Start Search
 eventlistbar.channelswitch schedule
 eventlistbar.eventsort sorting
 eventlistbar.recordevent record
@@ -1107,6 +1107,7 @@ menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
+menu.hint_ytplay Play selected youtube feeds
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next (press Menu to quit)
 messagebox.back Back
@@ -1339,6 +1340,22 @@ moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
 moviebrowser.use_movie_dir Use movie directory
 moviebrowser.use_rec_dir Use record directory
+moviebrowser.yt_error Failed to load youtube feed
+moviebrowser.yt_max_results Max results to fetch
+moviebrowser.yt_most_discussed Most discussed
+moviebrowser.yt_most_popular Most popular
+moviebrowser.yt_most_resent Most resent
+moviebrowser.yt_most_responded Most responded
+moviebrowser.yt_most_shared Most shared
+moviebrowser.yt_next_results Next results
+moviebrowser.yt_on_the_web Trending videos
+moviebrowser.yt_prev_results Previous results
+moviebrowser.yt_recently_featured Recently featured
+moviebrowser.yt_region Region
+moviebrowser.yt_related Related videos
+moviebrowser.yt_search Search keyword
+moviebrowser.yt_top_favorites Top favorites
+moviebrowser.yt_top_rated Top rated
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
@@ -1360,6 +1377,7 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
+movieplayer.ytplayback Youtube feeds playback
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
