@@ -49,6 +49,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
+#include <gui/components/cc_frm.h>
 #include <gui/components/cc_item_progressbar.h>
 
 #include <system/settings.h>
@@ -337,9 +338,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		g_RCInput->open_click();
 	}
 	if(!test) {
-		const char * text = g_Locale->getText(success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
-		frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(xpos1, y + hheight, width, text, COL_MENUHEAD, 0, true); // UTF-8
+		CComponentsHeader header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED, NULL /*no header icon*/);
+		header.paint(CC_SAVE_SCREEN_NO);
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
@@ -500,19 +500,14 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 
 void CScanTs::paint(bool fortest)
 {
-	int ypos;
+	CComponentsHeader header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD, NULL /*no header icon*/);
+	header.paint(CC_SAVE_SCREEN_NO);
 
-	ypos = y;
-
-	//frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(xpos1, ypos + hheight, width, fortest ? g_Locale->getText(LOCALE_SCANTS_TEST) : g_Locale->getText(LOCALE_SCANTS_HEAD), COL_MENUHEAD, 0, true); // UTF-8
-	//frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	frameBuffer->loadPal(tuned ? "radar.pal" : "radar_red.pal", 18, 38);
 
-	ypos = y + hheight + (mheight >> 1);
+	int ypos = y + hheight + (mheight >> 1);
 
 	ypos_cur_satellite = ypos;
 
