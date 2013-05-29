@@ -51,6 +51,8 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
+	cc_xr 		= x;
+	cc_yr 		= y;
 	width 		= w;
 	height	 	= h;
 
@@ -235,12 +237,12 @@ void CComponentsForm::paint(bool do_save_bg)
 
 void CComponentsForm::paintCCItems()
 {	
-	size_t items_count = v_cc_items.size();
+	size_t items_count 	= v_cc_items.size();
 	int x_frm_left 		= x+fr_thickness; //left form border
 	int y_frm_top 		= y+fr_thickness; //top form border
 	int x_frm_right		= x+width-fr_thickness; //right form border
 	int y_frm_bottom	= y+height-fr_thickness; //bottom form border
-		
+
 	for(size_t i=0; i<items_count; i++) {
 		//cache original item position and dimensions
 		int x_item, y_item, w_item, h_item;
@@ -259,7 +261,7 @@ void CComponentsForm::paintCCItems()
 #endif
 			y_item = xy_ref;
 		}
-		
+
 		//set adapted position onto form
 		v_cc_items[i]->setXPos(x_frm_left+x_item);
 		v_cc_items[i]->setYPos(y_frm_top+y_item);
@@ -286,10 +288,10 @@ void CComponentsForm::paintCCItems()
 		int real_x = v_cc_items[i]->getXPos();
 		int real_y = v_cc_items[i]->getYPos();
 		v_cc_items[i]->setRealPos(real_x, real_y);
-		
+
 		//paint element without saved screen!
 		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
-		
+
 		//restore dimensions and position
 		v_cc_items[i]->setDimensionsAll(x_item, y_item, w_item, h_item);
 	}
