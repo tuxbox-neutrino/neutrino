@@ -68,7 +68,7 @@ class CMotorControl : public CMenuTarget
 		int satfindpid;
 		int lastsnr, lastsig;
 		CProgressBar *snrscale, *sigscale;
-		void paint();
+		void paintHead(void);
 		void paintMenu(void);
 		void paintStatus(void);
 		void paintLine(int x, int *y, int width, const char *txt);
