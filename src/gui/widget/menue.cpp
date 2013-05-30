@@ -894,6 +894,7 @@ void CMenuWidget::paint()
 	// paint head
 	CComponentsHeader header(x, y, width + sb_width, hheight, nameString, iconfile.c_str());
 	header.setShadowOnOff(CC_SHADOW_ON);
+	header.setOffset(10);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// paint body shadow
@@ -1870,7 +1871,7 @@ int CMenuSeparator::paint(bool selected)
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				name_start_x = x + (!SUB_HEAD ?  name_start_x : 20 +18);
+				name_start_x = x + (!SUB_HEAD ? name_start_x : 20 + 24 /*std icon_width is 24px - this should be determinated from NEUTRINO_ICON_BUTTON_HOME or so*/);
 			else if (type & ALIGN_RIGHT)
 				name_start_x = x + dx - stringwidth - 20;
 			else /* ALIGN_CENTER */
