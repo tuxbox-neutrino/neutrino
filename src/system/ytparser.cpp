@@ -305,7 +305,8 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 						vinfo.description = getXmlData(media).c_str();
 					}
 					else if (name == "media:category") {
-						vinfo.category = getXmlData(media).c_str();
+						if (vinfo.category.size() < 3)
+							vinfo.category = getXmlData(media).c_str();
 					}
 					else if (name == "yt:videoid") {
 #ifdef DEBUG_PARSER
