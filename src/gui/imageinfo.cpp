@@ -205,7 +205,7 @@ void CImageInfo::InitInfos()
 	v_info.push_back(doc);
 	image_info_t forum	= {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")};
 	v_info.push_back(forum);
-	image_info_t license	= {LOCALE_IMAGEINFO_LICENSE,	"GPL"};
+	image_info_t license	= {LOCALE_IMAGEINFO_LICENSE,	"GPL v2"};
 	v_info.push_back(license);
 
 	Font * item_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
