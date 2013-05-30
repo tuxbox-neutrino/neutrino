@@ -188,6 +188,11 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	timeshift = 0;
 	if (actionKey == "tsmoviebrowser") {
 		isMovieBrowser = true;
+		moviebrowser->setMode(MB_SHOW_RECORDS);
+	}
+	else if (actionKey == "ytplayback") {
+		isMovieBrowser = true;
+		moviebrowser->setMode(MB_SHOW_YT);
 	}
 	else if (actionKey == "fileplayback") {
 	}
@@ -343,15 +348,17 @@ bool CMoviePlayerGui::SelectFile()
 			Path_local = moviebrowser->getCurrentDir();
 			CFile *file;
 			if ((file = moviebrowser->getSelectedFile()) != NULL) {
-				full_name = file->Name.c_str();
-
 				// get the movie info handle (to be used for e.g. bookmark handling)
 				p_movie_info = moviebrowser->getCurrentMovieInfo();
-#if 0
-				bool recfile = CRecordManager::getInstance()->RecordingStatus(p_movie_info->epgId) &&
-					CRecordManager::getInstance()->GetFileName(p_movie_info->epgId) == file->Name;
-#endif
+				if (moviebrowser->getMode() == MB_SHOW_RECORDS) {
+					full_name = file->Name;
+				}
+				else if (moviebrowser->getMode() == MB_SHOW_YT) {
+					full_name = file->Url;
+					is_file_player = true;
+				}
 				fillPids();
+					
 				// get the start position for the movie
 				startposition = 1000 * moviebrowser->getCurrentStartPos();
 				printf("CMoviePlayerGui::SelectFile: file %s start %d apid %X atype %d vpid %x vtype %d\n", full_name.c_str(), startposition, currentapid, currentac3, vpid, vtype);
@@ -903,7 +910,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		APIDSelector.addItem(item, defpid);
 	}
 
-	if (p_movie_info) {
+	if (p_movie_info && numpida <= p_movie_info->audioPids.size()) {
 		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
 
 		CVolume::getInstance()->SetCurrentChannel(p_movie_info->epgId);
