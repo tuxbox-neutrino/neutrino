@@ -142,7 +142,7 @@ void CComponentsText::initCCText()
 		ct_text_sent = ct_textbox->setText(&ct_text, ct_box->iWidth);
 	ct_old_text = ct_text;
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, height, width);
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, ct_box->iWidth, ct_box->iHeight);
 #endif
 }
 

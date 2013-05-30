@@ -111,7 +111,7 @@ class CComponentsHeader : public CComponentsForm
 		const char*  cch_icon_name;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
-		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons, cch_btn_offset;
+		int cch_items_y, cch_icon_x, cch_icon_w, cch_text_x, cch_buttons, cch_buttons_w, cch_buttons_h, cch_buttons_space, cch_offset;
 		std::vector<std::string> v_cch_btn;
 
 		void initIcon();
@@ -150,11 +150,12 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setCaption(neutrino_locale_t caption_locale);
 		virtual void setCaptionFont(Font* font_name);
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
-		virtual void setButtonOffset(const int offset){cch_btn_offset = offset;};
+		virtual void setOffset(const int offset){cch_offset = offset;};
 		virtual void setIcon(const char* icon_name);
 		virtual void addButtonIcon(const std::string& button_name);
 		virtual void removeButtonIcons();
 		virtual void setDefaultButtons(const int buttons);
+		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 		virtual void initCCItems();
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
