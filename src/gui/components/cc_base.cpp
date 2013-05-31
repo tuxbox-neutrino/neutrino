@@ -58,6 +58,8 @@ void CComponents::initVarBasic()
 {
 	x = saved_screen.x 	= 0;
 	y = saved_screen.y 	= 0;
+	cc_xr 			= x;
+	cc_yr 			= y;
 	height 			= saved_screen.dy = CC_HEIGHT_MIN;
 	width 			= saved_screen.dx = CC_WIDTH_MIN;
 

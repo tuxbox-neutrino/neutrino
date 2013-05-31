@@ -55,6 +55,10 @@ class CComponents
 		int x;
 		///property: y-position on screen
 		int y;
+		///property: contains real x-position on screen
+		int cc_xr;
+		///property: contains real y-position on screen
+		int cc_yr;
 		///property: height-dimension on screen
 		int height;
 		///property: width-dimension on screen
@@ -116,8 +120,16 @@ class CComponents
 		inline virtual void setYPos(const int& ypos){y = ypos;};
 		///set x and y position
 		///Note: position of bound components (items) means position related within parent form, not for screen!
-		///to set the real screen position, setRealPos(), to find in CComponentsItem sub classes
+		///to set the real screen position, look at setRealPos()
 		inline virtual void setPos(const int& xpos, const int& ypos){x = xpos; y = ypos;};
+
+		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
+		virtual void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;};
+		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealXPos(){return cc_xr;};
+		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealYPos(){return cc_yr;};
+		
 		///set height of component on screen
 		inline virtual void setHeight(const int& h){height = h;};
 		///set width of component on screen
@@ -204,12 +216,7 @@ class CComponentsItem : public CComponents
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
-		CComponents *cc_parent;
-
-		///property: contains real x-position on screen
-		int cc_item_xr;
-		///property: contains real y-position on screen
-		int cc_item_yr;
+		CComponentsItem *cc_parent;
 
 		///hides item, arg: no_restore=true causes no restore of background, but clean up pixel buffer if required
 		void hideCCItem(bool no_restore = false);
@@ -228,14 +235,7 @@ class CComponentsItem : public CComponents
 		CComponentsItem();
 
 		///sets pointer to the form object in which this item is embedded.
-		virtual void setParent(CComponents *parent){cc_parent = parent;};
-
-		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
-		virtual void setRealPos(const int& xr, const int& yr){cc_item_xr = xr; cc_item_yr = yr;};
-		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
-		virtual int getRealXPos(){return cc_item_xr;};
-		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
-		virtual int getRealYPos(){return cc_item_yr;};
+		virtual void setParent(CComponentsItem *parent){cc_parent = parent;};
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
