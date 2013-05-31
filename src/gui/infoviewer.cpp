@@ -458,25 +458,6 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 	}
 
 	if (!(info_CurrentNext.flags & (CSectionsdClient::epgflags::has_later | CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::not_broadcast))) {
-		// nicht gefunden / noch nicht geladen
-		/* see the comment in display_Info() for a reasoning for this calculation */
-		int CurrInfoY = (BoxEndY + ChanNameY + time_height) / 2; // lower end of current info box
-		if(g_settings.infobar_progressbar){
-			int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
-			switch(g_settings.infobar_progressbar)
-			{
-				case 1:
-				case 2:
-					CurrInfoY += (pb_h/3);
-				break;
-				case 3:
-					CurrInfoY -= (pb_h/3);
-				break;
-				default:
-				break;
-			}
-		}
-
 		neutrino_locale_t loc;
 		if (! gotTime)
 			loc = LOCALE_INFOVIEWER_WAITTIME;
@@ -484,7 +465,7 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 			loc = LOCALE_INFOVIEWER_EPGWAIT;
 		else
 			loc = LOCALE_INFOVIEWER_EPGNOTLOAD;
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(ChanNameX+ 10, CurrInfoY, BoxEndX- (ChanNameX+ 20), g_Locale->getText(loc), COL_INFOBAR, 0, true); // UTF-8
+		display_Info(g_Locale->getText(loc), NULL);
 	} else {
 		show_Data ();
 	}
