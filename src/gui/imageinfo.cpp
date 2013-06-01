@@ -39,7 +39,7 @@
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
 
-#include "git_version.h"
+#include "version.h"
 #define GIT_DESC "GIT Desc.:"
 #define GIT_REV "GIT Build:"
 #define LICENSEDIR DATADIR "/neutrino/license/"
