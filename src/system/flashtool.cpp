@@ -25,6 +25,7 @@
 
 #include <libmd5sum.h>
 #include <system/flashtool.h>
+#include <eitd/sectionsd.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -309,6 +310,10 @@ bool CFlashTool::erase(int globalProgressEnd)
 		close(fd);
 		return false;
 	}
+
+	printf("sectionsd shutdown\n");
+	CEitManager::getInstance()->Stop();
+	printf("sectionsd shutdown done\n");
 
 	if(statusViewer)
 		globalProgressBegin = statusViewer->getGlobalStatus();
