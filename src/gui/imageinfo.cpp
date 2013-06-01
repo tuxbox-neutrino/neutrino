@@ -40,8 +40,7 @@
 #include <system/flashtool.h>
 
 #include "version.h"
-#define GIT_DESC "GIT Desc.:"
-#define GIT_REV "GIT Build:"
+
 #define LICENSEDIR DATADIR "/neutrino/license/"
 
 using namespace std;
@@ -168,13 +167,13 @@ void CImageInfo::InitInfos()
 {
 	v_info.clear();
 
-#ifdef GITVERSION
-	const char * builddate = GITVERSION;
+#ifdef BUILT_DATE
+	const char * builddate = BUILT_DATE;
 #else
-	const char * builddate = config.getString("builddate", BUILT_DATE).c_str();
+	const char * builddate = config.getString("builddate", "n/a").c_str();
 #endif
 
-	const char * _version = config.getString("version", "no version").c_str();
+	const char * _version = config.getString("version", "n/a").c_str();
 	static CFlashVersionInfo versionInfo(_version);
 
 	std::string version_string;
@@ -186,10 +185,14 @@ void CImageInfo::InitInfos()
 
 	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", "Neutrino-HD")};
 	v_info.push_back(imagename);
-	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
-	v_info.push_back(date);
 	image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
 	v_info.push_back(version);
+#ifdef VCS
+	image_info_t vcs	= {LOCALE_IMAGEINFO_VCS,	VCS};
+	v_info.push_back(vcs);
+#endif
+	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
+	v_info.push_back(date);
 	if (uname(&uts_info) == 0) {
 		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
 		v_info.push_back(kernel);
