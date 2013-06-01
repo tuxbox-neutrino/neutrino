@@ -56,6 +56,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/components/cc_item_progressbar.h>
 #include <gui/components/cc.h>
+#include <gui/components/cc_frm.h>
 
 #include <system/settings.h>
 #include <gui/customcolor.h>
@@ -117,6 +118,8 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
+	clock = NULL;
+	logo_off = 0;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -125,6 +128,14 @@ CChannelList::~CChannelList()
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
 	delete dline;
+	if (clock) {
+		if (clock->isClockRun())
+			clock->Stop();
+		if (clock->isPainted())
+			clock->hide();
+		delete clock;
+		clock = NULL;
+	}
 }
 
 void CChannelList::ClearList(void)
@@ -938,6 +949,9 @@ int CChannelList::show()
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
 
+	if (clock && clock->isClockRun())
+		clock->Stop();
+
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
 
@@ -955,6 +969,12 @@ void CChannelList::hide()
 	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
 		videoDecoder->Pig(-1, -1, -1, -1);
+	}
+	if (clock) {
+		if (clock->isClockRun())
+			clock->Stop();
+		if (clock->isPainted())
+			clock->hide();
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
@@ -2050,53 +2070,32 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 void CChannelList::paintHead()
 {
-	int timestr_len = 0;
-	char timestr[10] = {0};
-	time_t now = time(NULL);
-	struct tm *tm = localtime(&now);
+	CComponentsHeader header(x, y, full_width, theight, name, NULL /*no header icon*/);
+	header.paint(CC_SAVE_SCREEN_NO);
 
-	bool gotTime = g_Sectionsd->getIsTimeSet();
-
-	if(gotTime) {
-		strftime(timestr, 10, "%H:%M", tm);
-		timestr_len = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(timestr, true); // UTF-8
+	static int clockWidth = 0;
+	if (g_Sectionsd->getIsTimeSet()) {
+		if (clock == NULL) {
+			clock = new CComponentsFrmClock(0, y, 0, theight, "%H:%M");
+			clock->setClockFontType(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
+			clock->setTextColor(COL_MENUHEAD);
+			clock->setColorBody(COL_MENUHEAD_PLUS_0);
+			clock->setCornerRadius(RADIUS_LARGE);
+			clock->setCornerType(CORNER_TOP_RIGHT);
+			clock->setClockIntervall(10);
+			clock->refresh();
+			clockWidth = clock->getWidth();
+			clock->setXPos(x + full_width - clockWidth - 10);
+			clockWidth += 6;
+		}
+		if (!clock->isClockRun())
+			clock->Start();
+		else
+			clock->paint(CC_SAVE_SCREEN_NO);
 	}
-#if 0
-	int iw1, iw2, iw3, ih = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw1, &ih);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw2, &ih);
-	if (new_zap_mode)
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &iw3, &ih);
-
-	// head
-	frameBuffer->paintBoxRel(x,y, full_width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
-
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + full_width - iw1 - 10, y, theight); //y+ 5 );
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + full_width - iw1 - iw2 - 14, y, theight);//y + 5); // icon for bouquet list button
-	if (new_zap_mode)
-		frameBuffer->paintIcon((new_zap_mode == 2 /* active */) ?
-				       NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE,
-				       x + full_width - iw1 - iw2 - iw3 - 18, y, theight);
-
-	if (gotTime) {
-		int iw3x = (new_zap_mode) ? iw3 : -10;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + full_width - iw1 - iw2 - iw3x - 28 -timestr_len,
-				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
-		timestr_len += 4;
-	}
-
-	timestr_len += iw1 + iw2 + 12;
-	if (new_zap_mode)
-		timestr_len += iw3 + 10;
-#endif
-	frameBuffer->paintBoxRel(x,y, full_width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
-	if (gotTime) {
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + full_width - timestr_len - 10,
-				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
-		timestr_len += 4;
-	}
-	logo_off = timestr_len + 10;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, full_width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
+	else
+		clockWidth = 0;
+	logo_off = clockWidth + 10;
 }
 
 void CChannelList::paint()

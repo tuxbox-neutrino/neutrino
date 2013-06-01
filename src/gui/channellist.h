@@ -36,6 +36,7 @@
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
+#include <gui/components/cc_frm_clock.h>
 #include <system/lastchannel.h>
 
 #include <sectionsdclient/sectionsdclient.h>
@@ -76,8 +77,9 @@ private:
 	std::string             name;
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
-	CComponentsDetailLine *dline;
-	
+	CComponentsDetailLine 	*dline;
+	CComponentsFrmClock     *clock;
+
 	int			full_width;
 	int			width;
 	int			height;
