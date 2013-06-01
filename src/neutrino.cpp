@@ -4153,6 +4153,6 @@ void CNeutrinoApp::Cleanup()
 	delete CEitManager::getInstance();
 	printf("cleanup 6\n");fflush(stdout);
 	//delete CVFD::getInstance();
-	malloc_stats();
+	//malloc_stats();
 #endif
 }
