@@ -66,6 +66,7 @@ void CComponentsFrmClock::initVarClock()
 
 	cl_font_type	= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
 	cl_font		= NULL;
+	cl_col_text	= COL_MENUCONTENT;
 	cl_format_str	= "%H:%M";
 	cl_align	= CC_ALIGN_VER_CENTER | CC_ALIGN_HOR_CENTER;
 // 	cl_force_segment_paint = false;
@@ -164,7 +165,8 @@ void CComponentsFrmClock::initCCLockItems()
 
 		//set size, text, color of current item
 		lbl->setDimensionsAll(cl_x, cl_y, wtmp, cl_h);
-		lbl->setTextColor(COL_MENUCONTENT);
+		lbl->setTextColor(cl_col_text);
+		lbl->setColorAll(col_frame, col_body, col_shadow);
 		lbl->setText(stmp, CTextBox::CENTER, cl_font);
 
 		//use matching height for digits for better vertical centerring into form

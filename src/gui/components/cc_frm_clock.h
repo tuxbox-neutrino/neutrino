@@ -61,6 +61,8 @@ class CComponentsFrmClock : public CComponentsForm
 		int cl_font_type;
 		///fontrenderer object
 		Font *cl_font;
+		///text color
+		int cl_col_text;
 		///time format
 		const char* cl_format_str;
 		///time string align, default allign is ver and hor centered
@@ -85,6 +87,9 @@ class CComponentsFrmClock : public CComponentsForm
 		///set font type for segments
 		void setClockFontType(const int& font_type){cl_font_type = font_type;};
 
+		///set text color
+		void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};
+
 		///set alignment of timestring, possible modes see align types in cc_types.h 
 		void setClockAlignment(int align_type){cl_align = align_type;};
 
@@ -102,6 +107,8 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///show clock on screen
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		void refresh() { initCCLockItems(); }
 };
 
 #endif
