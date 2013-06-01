@@ -566,6 +566,11 @@ bool CChannelList::updateSelection(int newpos)
 /* return: >= 0 to zap, -1 on cancel, -3 on list mode change, -4 list edited, -2 zap but no restore old list/chan ?? */
 int CChannelList::show()
 {
+	int res = -1;
+	if (chanlist.empty()) {
+		return res;
+	}
+
 	/* temporary debugging stuff */
 	struct timeval t1, t2;
 	gettimeofday(&t1, NULL);
@@ -573,10 +578,6 @@ int CChannelList::show()
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool actzap = 0;
-	int res = -1;
-	if (chanlist.empty()) {
-		return res;
-	}
 
 	new_zap_mode = g_settings.channellist_new_zap_mode;
 
@@ -920,13 +921,14 @@ int CChannelList::show()
 			}
 		}
 	}
-	if (g_settings.channellist_new_zap_mode != new_zap_mode)
-		g_settings.channellist_new_zap_mode = new_zap_mode;
-	new_zap_mode = 0;
 
 	if (bouquet_changed)
 		res = -5; /* in neutrino.cpp: -5 == "don't change bouquet after adding a channel to fav" */
 	if(!dont_hide){
+		if (new_zap_mode && (g_settings.channellist_new_zap_mode != new_zap_mode))
+			g_settings.channellist_new_zap_mode = new_zap_mode;
+		new_zap_mode = 0;
+
 		hide();
 		fader.Stop();
 	}
@@ -1253,11 +1255,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 /* Called only from "all" channel list */
 int CChannelList::numericZap(int key)
 {
-	neutrino_msg_t      msg;
-	neutrino_msg_data_t data;
-
 	int res = -1;
-
 	if(showEmptyError())
 		return res;
 
@@ -1333,6 +1331,8 @@ int CChannelList::numericZap(int key)
 	int lastchan= -1;
 	bool doZap = false;
 	bool showEPG = false;
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
 
 	while(1) {
 		if (lastchan != chn) {
@@ -1473,11 +1473,11 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 
 void CChannelList::virtual_zap_mode(bool up)
 {
-	neutrino_msg_t      msg;
-	neutrino_msg_data_t data;
-
 	if(showEmptyError())
 		return;
+
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
 
 	unsigned int sl = selected;
 	int old_bactive = bouquetList->getActiveBouquetNumber();
