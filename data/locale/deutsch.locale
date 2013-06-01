@@ -593,8 +593,8 @@ imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license Lizenz:
-imageinfo.version Version:
 imageinfo.vcs Git:
+imageinfo.version Version:
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen...
 infoviewer.epgwait Warte auf EPG-Informationen...
