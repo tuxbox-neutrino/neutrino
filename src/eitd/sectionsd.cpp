@@ -97,7 +97,7 @@ static bool messaging_zap_detected = false;
 #ifdef USE_BB_NTPD
 const std::string ntp_system_cmd_prefix = "/sbin/ntpd -q -p ";
 #else
-const std::string ntp_system_cmd_prefix = "/sbin/ntpdate ";
+const std::string ntp_system_cmd_prefix = "ntpdate ";
 #endif
 
 std::string ntp_system_cmd;
