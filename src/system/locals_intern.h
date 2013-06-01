@@ -1906,6 +1906,7 @@ const char * locale_real_names[] =
 	"subtitles.charset",
 	"subtitles.head",
 	"subtitles.stop",
+	"terrestrialsetup.area",
 	"terrestrialsetup.provider",
 	"timer.eventrecord.msg",
 	"timer.eventrecord.title",

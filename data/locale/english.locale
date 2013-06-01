@@ -1879,6 +1879,7 @@ stringinput.clear clear all
 subtitles.charset Charset
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
+terrestrialsetup.area Area
 terrestrialsetup.provider Terrestrial Provider
 timer.eventrecord.msg The event is scheduled for recording.\nTo edit the schedule open the timer list.
 timer.eventrecord.title Schedule Record
