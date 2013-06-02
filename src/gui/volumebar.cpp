@@ -231,10 +231,23 @@ void CVolumeBar::paintVolumeBarDigit()
 	CTextBox* ctb = vb_digit->getCTextBoxObject();
 	if (ctb)
 		ctb->setFontUseDigitHeight();
+
+	// backup original x&y pos
+	int _dx = vb_digit->getXPos();
+	int _dy = vb_digit->getYPos();
+
+	// get real x&y pos
 	int dx = vb_digit->getRealXPos();
 	int dy = vb_digit->getRealYPos();
+
+	// set real x&y pos
 	vb_digit->setDimensionsAll(dx, dy, digit_w, height);
+
+	// paint digit
 	vb_digit->paint(CC_SAVE_SCREEN_NO);
+
+	// restore original x&y pos
+	vb_digit->setDimensionsAll(_dx, _dy, digit_w, height);
 }
 
 

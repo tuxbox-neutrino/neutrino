@@ -112,9 +112,10 @@ void CProgressBar::initDimensions()
 	if (pb_value > pb_max_value)
 		pb_max_value = pb_value;
 
-	// start positions x/y active bar
-	pb_x = (cc_item_xr > -1 ? cc_item_xr : x) + fr_thickness;
-	pb_y = (cc_item_yr > -1 ? cc_item_yr : y) + fr_thickness;
+	//assign start positions x/y active bar
+	//NOTE: real values are only reqiured, if we paint active/passive bar with own render methodes or not embedded cc-items
+	pb_x = (cc_parent ? cc_xr : x) + fr_thickness;
+	pb_y = (cc_parent ? cc_yr : y) + fr_thickness;
 
 	// width for active bar with current value
 	pb_active_width = max(0, pb_last_width);
@@ -140,12 +141,12 @@ void CProgressBar::initDimensions()
 void CProgressBar::paintSimple()
 {
 	// progress value
-	if (pb_active_width != pb_last_width){
+	if (pb_active_width != pb_last_width){ //TODO: use shape cc-item
 		frameBuffer->paintBoxRel(pb_x,  pb_y, pb_active_width, pb_height, pb_active_col); // active bar
  		frameBuffer->paintBoxRel(pb_start_x_passive, pb_y, pb_passive_width, pb_height, pb_passive_col); // passive bar
 	}
 	
-	if (pb_paint_zero && pb_value == 0)
+	if (pb_paint_zero && pb_value == 0) //TODO: use shape cc-item
 		frameBuffer->paintLine(pb_x , pb_y, pb_x+width-3, pb_y+height-3, pb_active_col); // zero line
 }
 
@@ -202,7 +203,7 @@ void CProgressBar::paintAdvanced()
 				else
 					rgb = RED + (diff << 8); // adding green
 				color = make16color(rgb);
-				for (j = 0; j < hcnt; j++)
+				for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
 					frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, color);
 			}
 			step = yw - rd - 1;
@@ -215,7 +216,7 @@ void CProgressBar::paintAdvanced()
 				else
 					rgb = YELLOW - (diff << 16); // removing red
 				color = make16color(rgb);
-				for (j = 0; j < hcnt; j++)
+				for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
 					frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, color);
 			}
 			off = diff;
@@ -230,12 +231,12 @@ void CProgressBar::paintAdvanced()
 				else
 					rgb = YELLOW - (diff << 16); // removing red
 				color = make16color(rgb);
-				for (j = 0; j < hcnt; j++)
+				for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
 					frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, color);
 			}
 		}
 		for(i = maxi; i < total; i++) {
-			for (j = 0; j < hcnt; j++)
+			for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
 				frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, pb_passive_col); //fill passive
 		}
 	}
