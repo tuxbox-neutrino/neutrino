@@ -32,7 +32,6 @@
 #include "ytparser.h"
 
 #if LIBCURL_VERSION_NUM < 0x071507
-#error
 #include <curl/types.h>
 #endif
 
