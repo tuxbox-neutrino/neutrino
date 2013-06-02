@@ -845,8 +845,8 @@ void CMenuWidget::calcSize()
 			total_pages++;
 			heightCurrPage=item_height;
 		}
-		if(total_pages == 1)
-			itemHeightTotal+=item_height;
+		if (heightCurrPage > itemHeightTotal)
+			itemHeightTotal = heightCurrPage;
 	}
 	page_start.push_back(items.size());
 
@@ -961,9 +961,9 @@ void CMenuWidget::paintItems()
 		int item_height=height-(item_start_y-y);
 		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
 		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
-		if((current_page==total_pages-1) || (current_page == 0 && RADIUS_MIN)){
-			frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
-		}
+		/* background of menu items, paint every time because different items can have
+		 * different height and this might leave artifacts otherwise after changing pages */
+		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	}
 	int ypos=item_start_y;
 	for (int count = 0; count < (int)items.size(); count++)
