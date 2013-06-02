@@ -101,13 +101,7 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 
 	filesize = CMTDInfo::getInstance()->getMTDSize(mtdDevice);
 
-	unsigned char * buf = new unsigned char[meminfo.writesize];
-	if (buf == NULL) {
-		printf("CFlashTool::program: mem alloc failed\n");
-		close(fd);
-		close(fd1);
-		return false;
-	}
+	unsigned char buf[meminfo.writesize];
 	unsigned mtdoffset = 0;
 	long fsize = filesize;
 	while(fsize > 0) {
@@ -150,7 +144,6 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 	if(statusViewer)
 		statusViewer->showLocalStatus(100);
 
-	delete[] buf;
 	close(fd);
 	close(fd1);
 	return true;
@@ -211,13 +204,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	if(statusViewer)
 		globalProgressBegin = statusViewer->getGlobalStatus();
 
-	unsigned char * buf = new unsigned char[meminfo.writesize];
-	if (buf == NULL) {
-		printf("CFlashTool::program: mem alloc failed\n");
-		close(fd);
-		close(fd1);
-		return false;
-	}
+	unsigned char buf[meminfo.writesize];
 	unsigned mtdoffset = 0;
 	unsigned fsize = filesize;
 	printf("CFlashTool::program: file %s write size %d, erase size %d\n", filename.c_str(), meminfo.writesize, meminfo.erasesize);
@@ -270,7 +257,6 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	if(statusViewer)
 		statusViewer->showLocalStatus(100);
 
-	delete[] buf;
 	close(fd1);
 	close(fd);
 	// FIXME error message
@@ -290,7 +276,7 @@ bool CFlashTool::getInfo()
 		meminfo.writesize = 1024;
 
 	isnand = (meminfo.type == MTD_NANDFLASH);
-	printf("CFlashTool::getInfo: NAND: %s\n", isnand ? "yes" : "no");
+	printf("CFlashTool::getInfo: NAND: %s writesize %d\n", isnand ? "yes" : "no", meminfo.writesize);
 	return true;
 }
 

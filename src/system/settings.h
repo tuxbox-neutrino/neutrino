@@ -213,6 +213,7 @@ struct SNeutrinoSettings
 		//movieplayer menu
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
+		P_MPLAYER_YTPLAY,
 		
 		//feature keys
 		P_FEAT_KEY_FAVORIT,
@@ -393,6 +394,7 @@ struct SNeutrinoSettings
 	int mpkey_time;
 	int mpkey_bookmark;
 	int mpkey_plugin;
+	int mpkey_subtitle;
 	int key_timeshift;
 	int key_plugin;
 

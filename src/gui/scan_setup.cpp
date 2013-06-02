@@ -623,31 +623,33 @@ int CScanSetup::showScanMenuFrontendSetup()
 	nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
 	setupMenu->addItem(nc);
 
-	sprintf(zapit_lat, "%02.6f", zapitCfg.gotoXXLatitude);
-	sprintf(zapit_long, "%02.6f", zapitCfg.gotoXXLongitude);
+	if (CFEManager::getInstance()->haveSat()) {
+		sprintf(zapit_lat, "%02.6f", zapitCfg.gotoXXLatitude);
+		sprintf(zapit_long, "%02.6f", zapitCfg.gotoXXLongitude);
 
-	setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_LADIRECTION,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_SCAN_LADIRECTION);
-	setupMenu->addItem(mc);
+		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
+		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_LADIRECTION,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+		mc->setHint("", LOCALE_MENU_HINT_SCAN_LADIRECTION);
+		setupMenu->addItem(mc);
 
-	CStringInput * toff1 = new CStringInput(LOCALE_EXTRA_LATITUDE, (char *) zapit_lat, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
-	mf = new CMenuDForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat, toff1, "", CRCInput::convertDigitToKey(shortcut++));
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_LATITUDE);
-	setupMenu->addItem(mf);
+		CStringInput * toff1 = new CStringInput(LOCALE_EXTRA_LATITUDE, (char *) zapit_lat, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		mf = new CMenuDForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat, toff1, "", CRCInput::convertDigitToKey(shortcut++));
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_LATITUDE);
+		setupMenu->addItem(mf);
 
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_LODIRECTION,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_SCAN_LODIRECTION);
-	setupMenu->addItem(mc);
+		mc = new CMenuOptionChooser(LOCALE_EXTRA_LODIRECTION,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+		mc->setHint("", LOCALE_MENU_HINT_SCAN_LODIRECTION);
+		setupMenu->addItem(mc);
 
-	CStringInput * toff2 = new CStringInput(LOCALE_EXTRA_LONGITUDE, (char *) zapit_long, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
-	mf = new CMenuDForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long, toff2, "", CRCInput::convertDigitToKey(shortcut++));
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_LONGITUDE);
-	setupMenu->addItem(mf);
+		CStringInput * toff2 = new CStringInput(LOCALE_EXTRA_LONGITUDE, (char *) zapit_long, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		mf = new CMenuDForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long, toff2, "", CRCInput::convertDigitToKey(shortcut++));
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_LONGITUDE);
+		setupMenu->addItem(mf);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF);
-	nc->setHint("", LOCALE_MENU_HINT_SCAN_USALS_REPEAT);
-	setupMenu->addItem(nc);
+		nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+		nc->setHint("", LOCALE_MENU_HINT_SCAN_USALS_REPEAT);
+		setupMenu->addItem(nc);
+	}
 
 	int res = setupMenu->exec(NULL, "");
 	delete setupMenu;

@@ -178,6 +178,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MPKEY_STOP,			&g_settings.mpkey_stop,			LOCALE_MENU_HINT_KEY_MPSTOP },
 	{LOCALE_MPKEY_PLAY,			&g_settings.mpkey_play,			LOCALE_MENU_HINT_KEY_MPPLAY },
 	{LOCALE_MPKEY_AUDIO,			&g_settings.mpkey_audio, 		LOCALE_MENU_HINT_KEY_MPAUDIO },
+	{LOCALE_MPKEY_SUBTITLE,			&g_settings.mpkey_subtitle,		LOCALE_MENU_HINT_KEY_MPSUBTITLE },
 	{LOCALE_MPKEY_TIME,			&g_settings.mpkey_time,			LOCALE_MENU_HINT_KEY_MPTIME },
 	{LOCALE_MPKEY_BOOKMARK,			&g_settings.mpkey_bookmark, 		LOCALE_MENU_HINT_KEY_MPBOOKMARK },
 	{LOCALE_EXTRA_KEY_TIMESHIFT,		&g_settings.key_timeshift,  		LOCALE_MENU_HINT_KEY_MPTIMESHIFT },

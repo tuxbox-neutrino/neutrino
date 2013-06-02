@@ -92,6 +92,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	//media menu->movieplayer
 	{"personalize_mplayer_mbrowswer"	, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_mplayer_fileplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_mplayer_ytplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
 	//key
 	{"personalize_feat_key_fav"		, CPersonalizeGui::PERSONALIZE_FEAT_KEY_GREEN},
