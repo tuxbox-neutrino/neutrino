@@ -98,6 +98,7 @@ GENRE.TRAVEL_HOBBIES.7 Garten
 GENRE.UNKNOWN Unbekannt
 apidselector.head Sprachauswahl
 audio.srs_algo Art
+audio.srs_algo_heavy stark
 audio.srs_algo_light einfach
 audio.srs_algo_normal normal
 audio.srs_iq SRS TruVolume Technologie
@@ -856,6 +857,7 @@ menu.hint_key_mpplay Weisen Sie eine Taste zu, um die Wiedergabe zu starten
 menu.hint_key_mpplugin Weisen Sie eine Taste zu, um ein Plugin zu starten, wenn ihre Wiedergabe läuft
 menu.hint_key_mprewind Weisen Sie eine Taste zum Zurückspulen in ihren Aufnahmen zu
 menu.hint_key_mpstop Weisen Sie eine Taste zum Beenden der Wiedergabe zu
+menu.hint_key_mpsubtitle Weisen Sie eine Taste für die Untertitel-Auswahl zu
 menu.hint_key_mptime Weisen Sie eine Taste für die Restzeitanzeige ihrer Aufnahmen zu
 menu.hint_key_mptimeshift Weisen Sie eine Taste für das Starten von Timeshift zu
 menu.hint_key_pagedown Weisen Sie eine Taste für das Herunterblättern zu
@@ -1119,6 +1121,7 @@ menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SC
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
+menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter (Menü zum Beenden)
 messagebox.back Zurück
@@ -1352,6 +1355,22 @@ moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
+moviebrowser.yt_error Fehler beim laden des Youtube Feed
+moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
+moviebrowser.yt_most_discussed Am meisten diskutiert
+moviebrowser.yt_most_popular Beliebteste Videos
+moviebrowser.yt_most_resent Unbeliebteste Videos
+moviebrowser.yt_most_responded Feeds mit den meisten Reaktionen
+moviebrowser.yt_most_shared Am häufigsten wiedergegebe Videos
+moviebrowser.yt_next_results Nächste Ergebnisse
+moviebrowser.yt_on_the_web Trendvideos
+moviebrowser.yt_prev_results Vorherige Ergebnisse
+moviebrowser.yt_recently_featured Vor kurzem empfohlen
+moviebrowser.yt_region Region
+moviebrowser.yt_related Passende Videos
+moviebrowser.yt_search Suche nach Stichwort
+moviebrowser.yt_top_favorites Top Favoriten
+moviebrowser.yt_top_rated Am besten bewertet
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
@@ -1373,6 +1392,7 @@ movieplayer.tshelp7 ca. 1 Minute vor
 movieplayer.tshelp8 ca. 5 Minuten zurück
 movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
+movieplayer.ytplayback Youtube-Feed Wiedergabe
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
@@ -1381,6 +1401,7 @@ mpkey.play Play
 mpkey.plugin Starte Plugin
 mpkey.rewind Rücklauf
 mpkey.stop Stopp
+mpkey.subtitle Untertitel
 mpkey.time Zeitanzeige
 networkmenu.apply_settings Änderungen werden übernommen...
 networkmenu.apply_settings_now Änderungen jetzt zuweisen?
