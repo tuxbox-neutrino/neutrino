@@ -180,6 +180,9 @@ void CImageInfo::InitInfos()
 	version_string = versionInfo.getReleaseCycle();
 	version_string += " ";
 	version_string += versionInfo.getType();
+	version_string += " (";
+	version_string += versionInfo.getDate();
+	version_string += ")";
 
 	struct utsname uts_info;
 
