@@ -483,6 +483,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
+	/* make sure we start with a selectable item... */
+	while (pos < (int)items.size()) {
+		if (items[pos]->isSelectable())
+			break;
+		pos++;
+	}
 #if 0
 	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
 #endif
@@ -541,103 +547,64 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					}
 				}
 				break;
-			case (CRCInput::RC_page_up) :
-			case (CRCInput::RC_page_down) :
-				if(msg==CRCInput::RC_page_up) {
-					if(current_page) {
-						pos = page_start[current_page] - 1;
-						for (unsigned int count=pos ; count > 0; count--) {
-							CMenuItem* item = items[pos];
-							if ( item->isSelectable() ) {
-								if ((pos < page_start[current_page + 1]) && (pos >= page_start[current_page])) {
-									items[selected]->paint( false );
-									item->paint( true );
-									paintHint(pos);
-									selected = pos;
-								} else {
-									selected=pos;
-									paintItems();
-								}
-								break;
-							}
-							pos--;
+			case CRCInput::RC_page_up:
+			case CRCInput::RC_page_down:
+			case CRCInput::RC_up:
+			case CRCInput::RC_down:
+			{
+				/* dir and wrap are used when searching for a selectable item:
+				 * if the item is not selectable, try the previous (dir = -1) or
+				 * next (dir = 1) item, until a selectale item is found.
+				 * if wrap = true, allows to wrap around while searching */
+				int dir = 1;
+				bool wrap = false;
+				switch (msg) {
+					case CRCInput::RC_page_up:
+						if (current_page) {
+							pos = page_start[current_page] - 1;
+							dir = -1; /* pg_up: search upwards */
+						} else
+							pos = 0; /* ...but not if already at top */
+						break;
+					case CRCInput::RC_page_down:
+						pos = page_start[current_page + 1];
+						if (pos >= (int)items.size()) {
+							pos = items.size() - 1;
+							dir = -1; /* if last item is not selectable, go up */
 						}
-					} else {
-						pos = 0;
-						for (unsigned int count=0; count < items.size(); count++) {
-							CMenuItem* item = items[pos];
-							if ( item->isSelectable() ) {
-								if ((pos < page_start[current_page + 1]) && (pos >= page_start[current_page])) {
-									items[selected]->paint( false );
-									item->paint( true );
-									paintHint(pos);
-									selected = pos;
-								} else {
-									selected=pos;
-									paintItems();
-								}
-								break;
-							}
-							pos++;
-						}
-					}
+						break;
+					case CRCInput::RC_up:
+						dir = -1;
+					default: /* fallthrough or RC_down => dir = 1 */
+						pos += dir;
+						if (pos < 0 || pos >= (int)items.size())
+							pos -= dir * items.size();
+						wrap = true;
 				}
-				else if(msg==CRCInput::RC_page_down) {
-					pos = page_start[current_page + 1];// - 1;
-					if(pos >= (int) items.size())
-						pos = items.size()-1;
-					for (unsigned int count=pos ; count < items.size(); count++) {
-						CMenuItem* item = items[pos];
-						if ( item->isSelectable() ) {
-							if ((pos < page_start[current_page + 1]) && (pos >= page_start[current_page])) {
-								items[selected]->paint( false );
-								item->paint( true );
-								paintHint(pos);
-								selected = pos;
-							} else {
-								selected=pos;
-								paintItems();
-							}
-							break;
+				do {
+					CMenuItem* item = items[pos];
+					if (item->isSelectable()) {
+						if (pos < page_start[current_page + 1] && pos >= page_start[current_page]) {
+							/* in current page */
+							items[selected]->paint(false);
+							item->paint(true);
+							paintHint(pos);
+							selected = pos;
+						} else {
+							/* different page */
+							selected = pos;
+							paintItems();
 						}
-						pos++;
+						break;
 					}
-				}
+					pos += dir;
+					if (wrap && (pos >= (int)items.size() || pos < 0)) {
+						pos -= dir * items.size();
+						wrap = false; /* wrap only once, avoids endless loop */
+					}
+				} while (pos >= 0 && pos < (int)items.size());
 				break;
-			case (CRCInput::RC_up) :
-			case (CRCInput::RC_down) :
-				{
-					//search next / prev selectable item
-					for (unsigned int count=1; count< items.size(); count++) {
-						if (msg==CRCInput::RC_up) {
-							pos = selected - count;
-							if ( pos < 0 )
-								pos += items.size();
-						}
-						else if(msg==CRCInput::RC_down) {
-							pos = (selected+ count)%items.size();
-						}
-
-						CMenuItem* item = items[pos];
-
-						if ( item->isSelectable() ) {
-							if ((pos < page_start[current_page + 1]) && (pos >= page_start[current_page]))
-							{ // Item is currently on screen
-								//clear prev. selected
-								items[selected]->paint( false );
-								//select new
-								item->paint( true );
-								paintHint(pos);
-								selected = pos;
-							} else {
-								selected=pos;
-								paintItems();
-							}
-							break;
-						}
-					}
-				}
-				break;
+			}
 			case (CRCInput::RC_left):
 				{
 					if(hasItem() && selected > -1 && (int)items.size() > selected) {
