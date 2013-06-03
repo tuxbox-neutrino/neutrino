@@ -47,7 +47,7 @@ class CVolume : public CChangeObserver
 		static CVolume* getInstance();
 
 		void setvol(int vol);
-		void setVolume(const neutrino_msg_t key, bool nowait = false);
+		void setVolume(const neutrino_msg_t key);
 
 		void SetCurrentPid(int pid) { apid = pid; }
 		void SetCurrentChannel(t_channel_id id) { channel_id = id; }

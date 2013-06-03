@@ -1879,6 +1879,7 @@ const char * locale_real_names[] =
 	"timing.infobar_radio",
 	"timing.menu",
 	"timing.numericzap",
+	"timing.volumebar",
 	"unicable.lnb",
 	"unicable.qrg",
 	"unicable.scr",

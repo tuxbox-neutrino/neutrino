@@ -74,7 +74,7 @@ void CVolume::setvol(int vol)
 	CZapit::getInstance()->SetVolume(vol);
 }
 
-void CVolume::setVolume(const neutrino_msg_t key, bool nowait)
+void CVolume::setVolume(const neutrino_msg_t key)
 {
 	neutrino_msg_t msg	= key;
 	int mode = CNeutrinoApp::getInstance()->getMode();
@@ -164,10 +164,10 @@ void CVolume::setVolume(const neutrino_msg_t key, bool nowait)
 			}
 
 			setvol(g_settings.current_volume);
-			timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : 3);
+			timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
 		}
 		else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
-			timeoutEnd = CRCInput::calcTimeoutEnd(3);
+			timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_VOLUMEBAR]);
 		}
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::unhandled) {
 			g_RCInput->postMsg(msg, data);

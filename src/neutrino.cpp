@@ -2094,7 +2094,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 								showInfo();
 							break;
 						case SNeutrinoSettings::VOLUME:
-							g_volume->setVolume(msg, true);
+							g_volume->setVolume(msg);
 							break;
 						default: /* SNeutrinoSettings::ZAP */
 							quickZap(msg);
@@ -2114,7 +2114,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 							showInfo();
 						break;
 					case SNeutrinoSettings::VOLUME:
-						g_volume->setVolume(msg, true);
+						g_volume->setVolume(msg);
 						break;
 					default: /* SNeutrinoSettings::ZAP */
 						quickZap(msg);
@@ -2535,7 +2535,7 @@ _repeat:
 	}
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
-		g_volume->setVolume(msg, (mode != mode_scart));
+		g_volume->setVolume(msg);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_spkr ) {
