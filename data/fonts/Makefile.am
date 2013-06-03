@@ -1,6 +1,10 @@
 installdir = $(FONTDIR)
 
 install_DATA = \
+	LiberationSans-Bold.ttf \
+	LiberationSans-BoldItalic.ttf \
+	LiberationSans-Italic.ttf \
+	LiberationSans-Regular.ttf \
 	md_khmurabi_10.ttf \
 	micron_bold.ttf \
 	micron_italic.ttf \
