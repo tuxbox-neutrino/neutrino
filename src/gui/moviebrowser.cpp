@@ -2860,7 +2860,7 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 
 	TRACE("[mb] loadMovies: \n");
 
-	CHintBox loadBox(LOCALE_MOVIEBROWSER_HEAD,g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+	CHintBox loadBox((show_mode == MB_SHOW_YT)?LOCALE_MOVIEPLAYER_YTPLAYBACK:LOCALE_MOVIEBROWSER_HEAD,g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
 	loadBox.paint();
 
 //clock_act = clock()/10000;TRACE("[mb] *1: time %9ld  clock %6ld  dclock %6ld*\n",(long)time(NULL),clock_act,clock_act - clock_prev);clock_prev = clock_act;
@@ -3634,8 +3634,8 @@ bool CMovieBrowser::showYTMenu()
 {
 	m_pcWindow->paintBackground();
 
-	CMenuWidget mainMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	mainMenu.addIntroItems(LOCALE_MOVIEPLAYER_YTPLAYBACK);
+	CMenuWidget mainMenu(LOCALE_MOVIEPLAYER_YTPLAYBACK, NEUTRINO_ICON_MOVIEPLAYER);
+	mainMenu.addIntroItems(LOCALE_MOVIEBROWSER_OPTION_BROWSER);
 
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
