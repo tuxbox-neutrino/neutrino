@@ -192,6 +192,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		moviebrowser->setMode(MB_SHOW_RECORDS);
 	}
 	else if (actionKey == "ytplayback") {
+		CAudioMute::getInstance()->enableMuteIcon(false);
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);
 	}
@@ -228,6 +229,9 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		perror(MOVIEPLAYER_END_SCRIPT " failed");
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+
+	if (moviebrowser->getMode() == MB_SHOW_YT)
+		CAudioMute::getInstance()->enableMuteIcon(true);
 
 	if (timeshift){
 		timeshift = 0;
