@@ -480,10 +480,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (footer == NULL){
 			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, true);
-			CComponentsButtonRed * btnred = new CComponentsButtonRed(10, 0, 200, hh, "Red");
-			btnred->doPaintBg(false);
-
-			footer->addCCItem(btnred);
+			int start = 5, btnw =90;
+			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, hh, "Button1"));
+			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, hh, "Button2"));
+			footer->addCCItem(new CComponentsButtonYellow(start+=btnw, 0, btnw, hh, "Button3"));
+			footer->addCCItem(new CComponentsButtonBlue(start+=btnw, 0, btnw, hh, "Button4"));
 		}
 		if (!footer->isPainted())
 			footer->paint();
