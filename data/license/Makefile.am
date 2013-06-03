@@ -2,4 +2,5 @@ installdir = $(DATADIR)/neutrino/license
 
 install_DATA = \
 	deutsch.license \
-	english.license
+	english.license \
+	slovak.license

@@ -13,9 +13,9 @@ EPGPlus.options Možnosti
 EPGPlus.page_down Predchádzajúca strana
 EPGPlus.page_up Nasledujúca strana
 EPGPlus.prev_bouquet predch.buket
-EPGPlus.record Záznam1
+EPGPlus.record Nahraj
 EPGPlus.refresh_epg Obnov
-EPGPlus.remind Plánovač
+EPGPlus.remind Pripomeň
 EPGPlus.scroll_mode pretáčanie
 EPGPlus.stretch_mode rozšírenie
 EPGPlus.swap_mode Zmena stránkovania
@@ -98,6 +98,7 @@ GENRE.TRAVEL_HOBBIES.7 záhradkárstvo
 GENRE.UNKNOWN neznáme
 apidselector.head Výber jazyka
 audio.srs_algo Mód
+audio.srs_algo_heavy Hrubý
 audio.srs_algo_light Jemný
 audio.srs_algo_normal Normálny
 audio.srs_iq SRS TruVolume
@@ -312,14 +313,19 @@ epgextended.year_of_production Rok výroby
 epglist.noevents Programové informácie (EPG) sú nedostupné...
 epgviewer.More_Screenings Podobné relácie na tomto kanály
 epgviewer.More_Screenings_short Viacej relácií
+epgviewer.age_rating Vekové obmedzenie
+epgviewer.audio Zvuk
+epgviewer.genre Žáner
+epgviewer.length Dĺžka (min.)
 epgviewer.nodetailed Detailné informácie sú nedostupné
 epgviewer.notfound Nenájdené programové informácie (EPG)
 eventfinder.head Hľadaj v EPG
-eventfinder.keyword Klávesnica
+eventfinder.keyword Slovo
 eventfinder.search Hľadaj
-eventfinder.search_within_epg Hľadaj s EPG
-eventfinder.search_within_list Hľadaj so zoznamom
-eventfinder.searching Hľadaj s klávesnicou v EPG...
+eventfinder.search_all_epg Všade
+eventfinder.search_within_epg Hľadaj v EPG
+eventfinder.search_within_list Hľadaj v zozname
+eventfinder.searching Hľadám slovo v EPG...
 eventfinder.start_search Spusti hľadanie
 eventlist.additional Podrobnejšie informácie
 eventlist.name Zoznam udalostí
@@ -588,6 +594,7 @@ imageinfo.homepage Domov:
 imageinfo.image Image:
 imageinfo.kernel Jadro:
 imageinfo.license Licencia:
+imageinfo.vcs Git:
 imageinfo.version Verzia:
 inetradio.name Internetové rádio
 infoviewer.epgnotload EPG informácie nie sú načítané...
@@ -657,7 +664,7 @@ keychoosermenu.setnew Nastavenie nového klávesu
 keychoosermenu.setnone Zrušenie priradenia
 languagesetup.head Nastavenie jazyka
 languagesetup.osd Jazyk OSD
-languagesetup.select Jazyk
+languagesetup.select Jazyk1
 lcd_info_line Zobrazenie v inforiadku
 lcd_info_line_channel Názov kanálu
 lcd_info_line_clock Hodiny
@@ -705,7 +712,7 @@ mainmenu.tvradio_switch Prepnutie TV-Rádio
 mainsettings.audio Zvuk
 mainsettings.head Nastavenia
 mainsettings.keybinding Nastavenia kláves
-mainsettings.language Jazyk
+mainsettings.language Jazyk / Časové pásmo
 mainsettings.lcd Zobrazovač VFD
 mainsettings.manage Spravovanie nastavení
 mainsettings.misc Iné nastavenia
@@ -850,6 +857,7 @@ menu.hint_key_mpplay Priradenie klávesy pre pokračovanie nahrávky
 menu.hint_key_mpplugin Priradenie klávesy pre spustenie vybraného doplnku\npočas nahrávky
 menu.hint_key_mprewind Priradenie klávesy pre pretáčanie vzad nahrávky
 menu.hint_key_mpstop Priradenie klávesy pre zastavenie nahrávky
+menu.hint_key_mpsubtitle Priradenie klávesy pre zobrazenie titulkov
 menu.hint_key_mptime Priradenie klávesy pre zobrazenie časov nahrávky
 menu.hint_key_mptimeshift Priradenie klávesy pre spustenie časového posunu
 menu.hint_key_pagedown Priradenie klávesy pre zobrazenie nasledujúcej strany položiek
@@ -891,6 +899,7 @@ menu.hint_media Prehrávanie filmov a hudby, prezeranie obrázkov
 menu.hint_menu_fonts Zmena veľkosti písma menu
 menu.hint_menu_hints Zobrazí túto radu. Taktiež môžno zmeniť\nkedykoľvek použitím ´HELP´ tlačítka
 menu.hint_menu_pos Výber umiestnenia menu
+menu.hint_menus Konfigurácia volieb ponuky
 menu.hint_misc_cec HDMI-CEC voľby
 menu.hint_misc_channellist HD/Nové/Odstránené zoznamy kanálov, cyklické prepnutie
 menu.hint_misc_energy Použitie pripravenosti, oddialené vypnutie\nčasovače neaktivity
@@ -1109,8 +1118,10 @@ menu.hint_video_modes VF klávesa bude cyklovať medzi zvolenými režimami
 menu.hint_video_pip Veľkosť a umiestneie obrazu v obraze
 menu.hint_video_saturation Zmena farebnosti obrázku
 menu.hint_video_scart_mode Výber režimu analógového výstupu pre SCART konektory
+menu.hint_volume Konfigurácia volieb okna hlasitosti
 menu.hint_volume_digits Číselné zobrazenie ukazovateľa hlasitosti ZAP/VYP
 menu.hint_volume_pos Výber pozície indikátora hlasitosti
+menu.hint_ytplay Prehranie vybraných youtube videí
 menu.hint_zap_cycle Pri prepínaní kanálov zotrvať v aktuálnom bukete
 menu.next ďaľej (MENU ukončí)
 messagebox.back späť
@@ -1186,6 +1197,7 @@ miscsettings.shutdown_count_hint2 do hlbokého spánku (0=vypnuté)
 miscsettings.shutdown_real Umožnenie pripravenosti
 miscsettings.shutdown_real_rcdelay Oneskorenie vypnutia
 miscsettings.sleeptimer Čas vypnutia pri neaktivite
+miscsettings.volume Hlasitosť
 miscsettings.zapto_pre_time Korekcia času pred prepnutím (minuty)
 motorcontrol.calc_positions Prepočítaj pozície
 motorcontrol.disable_limit Vypni (soft) limity
@@ -1343,6 +1355,22 @@ moviebrowser.update_if_dest_empty_only Kopírovať len ak je cieľové miesto pr
 moviebrowser.use_dir Použi adresár
 moviebrowser.use_movie_dir Použi adresár filmov
 moviebrowser.use_rec_dir Použi adresár nahrávania
+moviebrowser.yt_error Chyba načítania youtube videa
+moviebrowser.yt_max_results Dosiahnuté maximum výsledkov
+moviebrowser.yt_most_discussed Najdiskutovanejšie
+moviebrowser.yt_most_popular Najpopulárnejšie
+moviebrowser.yt_most_resent Najodmietanejšie
+moviebrowser.yt_most_responded Najodpovedajšie
+moviebrowser.yt_most_shared Najzdielanejšie
+moviebrowser.yt_next_results Ďaľšie výsledky
+moviebrowser.yt_on_the_web Trendové videá
+moviebrowser.yt_prev_results Predchádzájúce výsledky
+moviebrowser.yt_recently_featured Nedávno odporúčané
+moviebrowser.yt_region Región
+moviebrowser.yt_related Podobné videá
+moviebrowser.yt_search Hľadať slovo
+moviebrowser.yt_top_favorites Najobľúbenejšie
+moviebrowser.yt_top_rated Najhodnotnejšie
 movieplayer.bookmark Záložky
 movieplayer.bookmarkname Názov záložky
 movieplayer.bookmarkname_hint1 Vloženie názvu
@@ -1364,6 +1392,7 @@ movieplayer.tshelp7 asi 1 min dopredu
 movieplayer.tshelp8 asi 5 min dozadu
 movieplayer.tshelp9 asi 5 min dopredu
 movieplayer.tsplayback Prehrať TS
+movieplayer.ytplayback Prehrávanie youtube
 mpkey.audio Zvuková stpopa
 mpkey.bookmark Ulož záložku
 mpkey.forward Dopredu
@@ -1372,6 +1401,7 @@ mpkey.play Prehraj
 mpkey.plugin Spusti doplnok
 mpkey.rewind Dozadu
 mpkey.stop Zastav
+mpkey.subtitle Titulky
 mpkey.time Zobrazenie času
 networkmenu.apply_settings Zmeny sa aplikujú...
 networkmenu.apply_settings_now Chcete teraz aplikovať zmeny?
@@ -1699,12 +1729,14 @@ settings.backup_failed Chybná záloha!
 settings.help Nápoveda
 settings.menu_hints Zobrazí rady nápovedy
 settings.menu_pos Umiestnenie ponuky
+settings.menus Ponuky
 settings.missingoptionsconffile Nastavenia Neutrino boli aktualizované.\nNové možosti budú mať prednastavené hodnoty.
 settings.noconffile Nenájdené nastavenia Neutrino.\nPoužité budú prednastavené hodnoty.
+settings.pos_bottom_center spodný stred
 settings.pos_bottom_left ľavý spodok
 settings.pos_bottom_right pravý spodok
 settings.pos_default_center vrchný stred
-settings.pos_higher_center spodný stred
+settings.pos_top_center vrchný stred
 settings.pos_top_left ľavý vrch
 settings.pos_top_right pravý vrch
 settings.restore Obnovenie nastavení
