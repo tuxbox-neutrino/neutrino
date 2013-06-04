@@ -115,6 +115,7 @@ class CComponentsFrmClock : public CComponentsForm
 		///show clock on screen
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
+		///reinitialize clock contents
 		void refresh() { initCCLockItems(); }
 };
 
