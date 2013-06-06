@@ -353,8 +353,8 @@ void CTextBox::refreshTextLineArray(void)
 		lineBreakWidth = std::max(m_nMaxWidth, m_cFrameTextRel.iWidth - 2*text_border_width);
 	}
 	
- 	if(m_nMaxTextWidth)
- 		lineBreakWidth = m_nMaxTextWidth;
+	if(m_nMaxTextWidth)
+		lineBreakWidth = m_nMaxTextWidth - 2*text_border_width;
 
 	//TRACE("[CTextBox] line %d: lineBreakWidth %d\n", __LINE__, lineBreakWidth);
 

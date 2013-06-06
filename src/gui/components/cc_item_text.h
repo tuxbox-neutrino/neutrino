@@ -52,6 +52,8 @@ class CComponentsText : public CComponentsItem
 		fb_pixel_t ct_col_text;
 		///property: text display modes, see textbox.h for possible modes
 		int ct_text_mode;
+		///property: text border width
+		int ct_text_border;
 		///property: current text string
 		std::string ct_text;
 		///status: cached text string, mainly required to compare with current text
@@ -98,6 +100,8 @@ class CComponentsText : public CComponentsItem
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
 		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};
+                ///set text border width
+		virtual inline void setTextBorderWidth(const int border){ct_text_border = border;};
 
 		///send option to CTextBox object to paint background box behind text or not
 		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
