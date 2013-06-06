@@ -1736,6 +1736,7 @@ settings.pos_bottom_center unten zentriert
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
 settings.pos_default_center zentriert
+settings.pos_higher_center höher zentriert
 settings.pos_top_center oben zentriert
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts

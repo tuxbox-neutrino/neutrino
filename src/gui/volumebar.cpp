@@ -148,6 +148,10 @@ void CVolumeBar::initVolumeBarPosition()
 			x = ((sw - width) / 2) + x - h_spacer/2;
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
 			break;
+		case 6:// higher center
+			x = ((sw - width) / 2) + x - h_spacer/2;
+			y = (sh + frameBuffer->getScreenY()) - sh/10;
+			break;
 	}
 }
 

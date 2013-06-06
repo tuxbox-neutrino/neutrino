@@ -1736,6 +1736,7 @@ settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
 settings.pos_default_center center
+settings.pos_higher_center higher center
 settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
