@@ -567,8 +567,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		else if (clock_r->isClockRun()){
 			if (clock_r->Stop()){
 				clock_r->hide();
-				delete clock;
-				clock = NULL;
+				delete clock_r;
+				clock_r = NULL;
 				return menu_return::RETURN_EXIT_ALL;;
 			}
 		}
@@ -581,9 +581,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		if (!clock->isPainted())
 			clock->paint();
-		else
+		else {
 			clock->hide();
-
+			delete clock;
+			clock = NULL;
+		}
 		return res;
 	}
 	
