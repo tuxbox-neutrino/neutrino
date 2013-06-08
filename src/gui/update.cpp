@@ -463,7 +463,6 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	printf("[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
 #endif
 	if(fileType < '3') {
-		CNeutrinoApp::getInstance()->exec(NULL, "savesettings");
 		//flash it...
 		if (g_settings.apply_settings) {
 			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)

@@ -62,8 +62,6 @@ CExtUpdate::CExtUpdate()
 	imgFilename     = "";
 	mtdRamError     = "";
 	mtdNumber       = -1;
-	MTDBufSize      = 0xFFFF;
-	MTDBuf          = new char[MTDBufSize];
 	backupList      = CONFIGDIR "/settingsupdate.conf";
 	defaultBackup   = CONFIGDIR;
 
@@ -84,8 +82,6 @@ CExtUpdate::CExtUpdate()
 
 CExtUpdate::~CExtUpdate()
 {
-	if (MTDBuf != NULL)
-		delete[] MTDBuf;
 	if(FileHelpers)
 		delete[] FileHelpers;
 	copyList.clear();
@@ -107,7 +103,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 	if (modus & RESET_UNLOAD) {
 		umount(mountPkt.c_str());
-		my_system(2,"rmmod", mtdramDriver.c_str());
+//		my_system(2,"rmmod", mtdramDriver.c_str());
 	}
 	if (modus & RESET_FD1)
 		close(fd1);
@@ -272,6 +268,8 @@ bool CExtUpdate::applySettings()
 		}
 	}
 
+	int MTDBufSize = 0xFFFF;
+	char *MTDBuf   = new char[MTDBufSize];
 	// copy image to mtdblock
 	if (MTDBuf == NULL)
 		return ErrorReset(RESET_UNLOAD, "malloc error");
@@ -362,6 +360,8 @@ bool CExtUpdate::applySettings()
 	if(hintBox)
 		hintBox->hide();
 
+	delete[] MTDBuf;
+	MTDBuf = NULL;
 	sync();
 	return true;
 }

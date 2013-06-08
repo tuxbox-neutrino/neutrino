@@ -148,7 +148,7 @@ extern cAudio * audioDecoder;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
-void stop_daemons(bool stopall = true);
+void stop_daemons(bool stopall = true, bool for_flash = false);
 void stop_video(void);
 // uncomment if you want to have a "test" menue entry  (rasc)
 
@@ -3554,11 +3554,20 @@ bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 	return false;
 }
 
+void CNeutrinoApp::stopDaemonsForFlash()
+{
+	stop_daemons(false, true);
+}
+
 /**************************************************************************************
 *          Main programm - no function here                                           *
 **************************************************************************************/
-void stop_daemons(bool stopall)
+void stop_daemons(bool stopall, bool for_flash)
 {
+	CVFD::getInstance()->Clear();
+	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+	CVFD::getInstance()->ShowText("Stop daemons...");
+
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
@@ -3574,7 +3583,7 @@ void stop_daemons(bool stopall)
 	}
 	printf("httpd shutdown done\n");
 	CStreamManager::getInstance()->Stop();
-	if(stopall) {
+	if(stopall && !for_flash) {
 		printf("timerd shutdown\n");
 		if (g_Timerd)
 			g_Timerd->shutdown();
@@ -3589,15 +3598,16 @@ void stop_daemons(bool stopall)
 #endif
 	tuxtx_stop_subtitle();
 	printf("zapit shutdown\n");
-	if(!stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
+	if(!for_flash && !stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
 
 	delete &CMoviePlayerGui::getInstance();
 	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
-	CVFD::getInstance()->Clear();
-	if(stopall) {
+	if (!for_flash)
+		CVFD::getInstance()->Clear();
+	if(stopall && !for_flash) {
 		if (cpuFreq) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 			delete cpuFreq;
@@ -3614,6 +3624,13 @@ void stop_daemons(bool stopall)
 		}
 		cs_deregister_messenger();
 	}
+
+	if (for_flash) {
+		delete CRecordManager::getInstance();
+		delete videoDemux;
+		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
+	}
+	CVFD::getInstance()->ShowText("Stop daemons done");
 }
 
 void stop_video()
