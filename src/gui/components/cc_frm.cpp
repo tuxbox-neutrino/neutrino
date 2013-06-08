@@ -123,6 +123,7 @@ void CComponentsForm::initVarForm()
 
 	//CComponentsForm
 	v_cc_items.clear();
+	cc_item_type 	= CC_ITEMTYPE_FRM;
 }
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
