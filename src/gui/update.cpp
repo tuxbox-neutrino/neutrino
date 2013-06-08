@@ -465,9 +465,11 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	if(fileType < '3') {
 		CNeutrinoApp::getInstance()->exec(NULL, "savesettings");
 		//flash it...
-		if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
-			if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
-				return menu_return::RETURN_REPAINT;
+		if (g_settings.apply_settings) {
+			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
+				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
+					return menu_return::RETURN_REPAINT;
+		}
 
 #ifdef DEBUG1
 		if(1) {

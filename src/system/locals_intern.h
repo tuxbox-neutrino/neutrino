@@ -507,6 +507,8 @@ const char * locale_real_names[] =
 	"flashupdate.head",
 	"flashupdate.md5check",
 	"flashupdate.md5sumerror",
+	"flashupdate.menu_apply_kernel",
+	"flashupdate.menu_apply_settings",
 	"flashupdate.msgbox",
 	"flashupdate.msgbox_manual",
 	"flashupdate.mtdselector",

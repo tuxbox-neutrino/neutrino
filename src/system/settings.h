@@ -472,6 +472,8 @@ struct SNeutrinoSettings
 	char softupdate_proxyserver[31];
 	char softupdate_proxyusername[31];
 	char softupdate_proxypassword[31];
+	int apply_settings;
+	int apply_kernel;
 
 	//BouquetHandling
 	int bouquetlist_mode;

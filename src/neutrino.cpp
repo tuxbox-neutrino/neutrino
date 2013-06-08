@@ -656,6 +656,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//Software-update
 	g_settings.softupdate_mode = configfile.getInt32( "softupdate_mode", 1 );
+	g_settings.apply_kernel = configfile.getBool("apply_kernel" , false);
+	g_settings.apply_settings = configfile.getBool("apply_settings" , true);
 
 	strcpy(g_settings.softupdate_url_file, configfile.getString("softupdate_url_file", "/var/etc/update.urls").c_str());
 	strcpy(g_settings.softupdate_proxyserver, configfile.getString("softupdate_proxyserver", "" ).c_str());
@@ -1086,6 +1088,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//Software-update
 	configfile.setInt32 ("softupdate_mode"          , g_settings.softupdate_mode          );
+	configfile.setBool("apply_kernel", g_settings.apply_kernel);
+	configfile.setBool("apply_settings", g_settings.apply_settings);
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
 
 	configfile.setString("softupdate_proxyserver"   , g_settings.softupdate_proxyserver   );
