@@ -67,11 +67,11 @@ std::string cYTVideoInfo::GetUrl(int fmt)
 			return it->second.GetUrl();
 		return "";
 	}
-	if ((it = formats.find(37)) != formats.end())
+	if ((it = formats.find(22)) != formats.end()) // 720p
 		return it->second.GetUrl();
-	if ((it = formats.find(22)) != formats.end())
+	if ((it = formats.find(37)) != formats.end()) // 1080p
 		return it->second.GetUrl();
-	if ((it = formats.find(18)) != formats.end())
+	if ((it = formats.find(18)) != formats.end()) // 270p/360p
 		return it->second.GetUrl();
 	return "";
 }
