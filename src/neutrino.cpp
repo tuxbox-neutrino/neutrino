@@ -3564,9 +3564,11 @@ void CNeutrinoApp::stopDaemonsForFlash()
 **************************************************************************************/
 void stop_daemons(bool stopall, bool for_flash)
 {
-	CVFD::getInstance()->Clear();
-	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-	CVFD::getInstance()->ShowText("Stop daemons...");
+	if (for_flash) {
+		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance()->ShowText("Stop daemons...");
+	}
 
 	dvbsub_close();
 	tuxtxt_stop();
@@ -3630,7 +3632,6 @@ void stop_daemons(bool stopall, bool for_flash)
 		delete videoDemux;
 		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
 	}
-	CVFD::getInstance()->ShowText("Stop daemons done");
 }
 
 void stop_video()
