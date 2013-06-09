@@ -88,6 +88,7 @@ class cYTFeedParser
 		std::string getXmlData(xmlNodePtr node);
 
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
+		static void encodeUrl(std::string &txt);
 		static void decodeUrl(std::string &url);
 		static void splitString(std::string &str, std::string delim, std::vector<std::string> &strlist, int start = 0);
 		static void splitString(std::string &str, std::string delim, std::map<std::string,std::string> &strmap, int start = 0);

@@ -168,6 +168,16 @@ void cYTFeedParser::decodeUrl(std::string &url)
 	curl_free(str);
 }
 
+void cYTFeedParser::encodeUrl(std::string &txt)
+{
+	CURL * curl_handle = curl_easy_init();
+	char * str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
+	curl_easy_cleanup(curl_handle);
+	if(str)
+		txt = str;
+	curl_free(str);
+}
+
 void cYTFeedParser::splitString(std::string &str, std::string delim, std::vector<std::string> &strlist, int start)
 {
 	strlist.clear();
@@ -502,6 +512,7 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 	else if (mode == SEARCH) {
 		if (search.empty())
 			return false;
+		encodeUrl(search);
 		url = "http://gdata.youtube.com/feeds/api/videos?q=";
 		url += search;
 		url += "&";
