@@ -93,8 +93,8 @@ class cYTFeedParser
 		static void splitString(std::string &str, std::string delim, std::vector<std::string> &strlist, int start = 0);
 		static void splitString(std::string &str, std::string delim, std::map<std::string,std::string> &strmap, int start = 0);
 		static bool saveToFile(const char * name, std::string str);
-		bool getUrl(std::string &url, std::string &answer);
-		bool DownloadUrl(std::string &url, std::string &file);
+		bool getUrl(std::string &url, std::string &answer, CURL *curl_handle = NULL);
+		bool DownloadUrl(std::string &url, std::string &file, CURL *curl_handle = NULL);
 		bool parseFeedXml(std::string &answer);
 		bool decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo);
 		bool supportedFormat(int fmt);
