@@ -58,7 +58,7 @@ class cYTVideoInfo
 		yt_urlmap_t formats;
 
 		void Dump();
-		std::string GetUrl(int fmt = 0);
+		std::string GetUrl(int fmt = 0, bool mandatory = true);
 		
 };
 
