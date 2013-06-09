@@ -1386,6 +1386,7 @@ const char * locale_real_names[] =
 	"moviebrowser.use_dir",
 	"moviebrowser.use_movie_dir",
 	"moviebrowser.use_rec_dir",
+	"moviebrowser.yt_concurrent_connections",
 	"moviebrowser.yt_error",
 	"moviebrowser.yt_max_results",
 	"moviebrowser.yt_most_discussed",

@@ -1359,6 +1359,7 @@ moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
 moviebrowser.use_movie_dir Use movie directory
 moviebrowser.use_rec_dir Use record directory
+moviebrowser.yt_concurrent_connections Concurrent connections
 moviebrowser.yt_error Failed to load youtube feed
 moviebrowser.yt_max_results Max results to fetch
 moviebrowser.yt_most_discussed Most discussed

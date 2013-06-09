@@ -28,6 +28,9 @@
 #include <map>
 #include <xmltree/xmlinterface.h>
 
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+
 class cYTVideoUrl
 {
 	public:
@@ -56,6 +59,7 @@ class cYTVideoInfo
 		std::string published;
 		int duration;
 		yt_urlmap_t formats;
+		bool ret;
 
 		void Dump();
 		std::string GetUrl(int fmt = 0, bool mandatory = true);
@@ -80,6 +84,7 @@ class cYTFeedParser
 
 		int feedmode;
 		int max_results;
+		int concurrent_downloads;
 		bool parsed;
 		yt_video_list_t videos;
 
@@ -88,6 +93,10 @@ class cYTFeedParser
 		std::string getXmlData(xmlNodePtr node);
 
 		CURL *curl_handle;
+		OpenThreads::Mutex mutex;
+		int worker_index;
+		static void* GetVideoUrlsThread(void*);
+		static void* DownloadThumbnailsThread(void*);
 
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 		void encodeUrl(std::string &txt);
@@ -95,8 +104,8 @@ class cYTFeedParser
 		static void splitString(std::string &str, std::string delim, std::vector<std::string> &strlist, int start = 0);
 		static void splitString(std::string &str, std::string delim, std::map<std::string,std::string> &strmap, int start = 0);
 		static bool saveToFile(const char * name, std::string str);
-		bool getUrl(std::string &url, std::string &answer);
-		bool DownloadUrl(std::string &url, std::string &file);
+		bool getUrl(std::string &url, std::string &answer, CURL *_curl_handle = NULL);
+		bool DownloadUrl(std::string &url, std::string &file, CURL *_curl_handle = NULL);
 		bool parseFeedXml(std::string &answer);
 		bool decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo);
 		bool supportedFormat(int fmt);
@@ -124,7 +133,8 @@ class cYTFeedParser
 		~cYTFeedParser();
 
 		bool ParseFeed(yt_feed_mode_t mode = MOST_POPULAR, std::string search = "", std::string vid = "");
-		bool ParseVideoInfo(cYTVideoInfo &vinfo);
+		bool ParseVideoInfo(cYTVideoInfo &vinfo, CURL *_curl_handle = NULL);
+		bool DownloadThumbnail(cYTVideoInfo &vinfo, CURL *_curl_handle = NULL);
 		bool GetVideoUrls();
 		bool DownloadThumbnails();
 		void Dump();
@@ -140,6 +150,7 @@ class cYTFeedParser
 
 		void SetRegion(std::string reg) { region = reg; }
 		void SetMaxResults(int count) { max_results = count; }
+		void SetConcurrentDownloads(int count) { concurrent_downloads = count; }
 };
 
 #endif

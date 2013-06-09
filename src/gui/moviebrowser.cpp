@@ -773,6 +773,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->ytmode = configfile.getInt32("mb_ytmode", cYTFeedParser::MOST_POPULAR);
 	settings->ytresults = configfile.getInt32("mb_ytresults", 10);
 	settings->ytquality = configfile.getInt32("mb_ytquality", 22); // itag value (MP4, 720p)
+	settings->ytconcconn = configfile.getInt32("mb_ytconcconn", 4); // concurrent connections
 	settings->ytregion = configfile.getString("mb_ytregion", "default");
 	settings->ytsearch = configfile.getString("mb_ytsearch", "");
 	settings->ytvid = configfile.getString("mb_ytvid", "");
@@ -828,6 +829,7 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setInt32("mb_ytmode", settings->ytmode);
 	configfile.setInt32("mb_ytresults", settings->ytresults);
 	configfile.setInt32("mb_ytquality", settings->ytquality);
+	configfile.setInt32("mb_ytconcconn", settings->ytconcconn);
 	configfile.setString("mb_ytregion", settings->ytregion);
 	configfile.setString("mb_ytsearch", settings->ytsearch);
 	configfile.setString("mb_ytvid", settings->ytvid);
@@ -3564,6 +3566,7 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 		ytparser.SetRegion(m_settings.ytregion);
 
 	ytparser.SetMaxResults(m_settings.ytresults);
+	ytparser.SetConcurrentDownloads(m_settings.ytconcconn);
 
 	if (!ytparser.Parsed() || (ytparser.GetFeedMode() != mode)) {
 		if (ytparser.ParseFeed((cYTFeedParser::yt_feed_mode_t)mode, search, id)) {
@@ -3695,8 +3698,10 @@ bool CMovieBrowser::showYTMenu()
 		{ 37, NONEXISTANT_LOCALE, "MP4 1080p"	 }
 	};
 	mainMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_YT_PREF_QUALITY, &m_settings.ytquality, YT_QUALITY_OPTIONS, YT_QUALITY_OPTION_COUNT, true, NULL, CRCInput::RC_nokey, "", true));
+	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_CONCURRENT_CONNECTIONS, &m_settings.ytconcconn, true, 1, 8));
 
 	mainMenu.exec(NULL, "");
+	ytparser.SetConcurrentDownloads(m_settings.ytconcconn);
 	delete selector;
 
 	bool reload = false;
