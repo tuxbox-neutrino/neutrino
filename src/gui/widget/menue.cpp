@@ -1248,6 +1248,26 @@ int CMenuOptionNumberChooser::paint(bool selected)
 	return y+height;
 }
 
+int CMenuOptionNumberChooser::getWidth(void)
+{
+	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
+	int width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_optionName, true);
+
+	char tmp[20], *t;
+
+	snprintf(tmp, sizeof(tmp), "%d", lower_bound);
+	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
+	int w1 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+
+	snprintf(tmp, sizeof(tmp), "%d", upper_bound);
+	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
+	int w2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+
+	width += (w1 > w2) ? w1 : w2;
+
+	return width + 10; /* min 10 pixels between option name and value. enough? */
+}
+
 CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options, const bool Active, CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const std::string & IconName, bool Pulldown)
 {
 	height            = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();

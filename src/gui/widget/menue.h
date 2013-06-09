@@ -299,6 +299,7 @@ private:
 
 	int exec(CMenuTarget* parent);
 	int isMenueOptionChooser(void) const{return 1;}
+	int getWidth(void);
 };
 
 class CMenuOptionChooser : public CAbstractMenuOptionChooser
