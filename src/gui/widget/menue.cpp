@@ -141,7 +141,15 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	}
 	
 	//left text
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ item_height, dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
+	int _dx = dx;
+	if (!iconName_Info_right.empty()) {
+		int icon_w = 0;
+		int icon_h = 0;
+		CFrameBuffer::getInstance()->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
+		if (icon_w)
+			_dx -= icon_frame_w + icon_w;
+	}
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ item_height, _dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
 
 	//right text
 	if (right_text != NULL)
