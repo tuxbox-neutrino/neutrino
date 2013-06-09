@@ -90,22 +90,25 @@ cYTFeedParser::cYTFeedParser()
 	feedmode = -1;
 	tquality = "mqdefault";
 	max_results = 25;
+	curl_handle = curl_easy_init();
 }
 
 cYTFeedParser::~cYTFeedParser()
 {
+	curl_easy_cleanup(curl_handle);
 }
 
 size_t cYTFeedParser::CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
 {
-        std::string* pStr = (std::string*) data;
-        pStr->append((char*) ptr, nmemb);
+	if (size * nmemb > 0) {
+		std::string* pStr = (std::string*) data;
+		pStr->append((char*) ptr, nmemb);
+	}
         return size*nmemb;
 }
 
-bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_handle)
+bool cYTFeedParser::getUrl(std::string &url, std::string &answer)
 {
-	CURL * curl_handle = _curl_handle ? _curl_handle : curl_easy_init();
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &cYTFeedParser::CurlWriteToString);
 	curl_easy_setopt(curl_handle, CURLOPT_FILE, (void *)&answer);
@@ -119,9 +122,6 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 	printf("try to get [%s] ...\n", url.c_str());
 	CURLcode httpres = curl_easy_perform(curl_handle);
 
-	if (!_curl_handle)
-		curl_easy_cleanup(curl_handle);
-
 	printf("http: res %d size %d\n", httpres, answer.size());
 
 	if (httpres != 0 || answer.empty()) {
@@ -131,15 +131,15 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 	return true;
 }
 
-bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl_handle)
+bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file)
 {
 	FILE * fp = fopen(file.c_str(), "wb");
 	if (fp == NULL) {
 		perror(file.c_str());
 		return false;
 	}
-	CURL * curl_handle = _curl_handle ? _curl_handle : curl_easy_init();
 	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, NULL);
 	curl_easy_setopt(curl_handle, CURLOPT_FILE, fp);
 	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
 	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
@@ -153,8 +153,6 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl
 
 	double dsize;
 	curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
-	if (!_curl_handle)
-		curl_easy_cleanup(curl_handle);
 	fclose(fp);
 
 	printf("http: res %d size %f.\n", httpres, dsize);
@@ -169,9 +167,7 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl
 
 void cYTFeedParser::decodeUrl(std::string &url)
 {
-	CURL * curl_handle = curl_easy_init();
 	char * str = curl_easy_unescape(curl_handle, url.c_str(), 0, NULL);
-	curl_easy_cleanup(curl_handle);
 	if(str)
 		url = str;
 	curl_free(str);
@@ -179,9 +175,7 @@ void cYTFeedParser::decodeUrl(std::string &url)
 
 void cYTFeedParser::encodeUrl(std::string &txt)
 {
-	CURL * curl_handle = curl_easy_init();
 	char * str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
-	curl_easy_cleanup(curl_handle);
 	if(str)
 		txt = str;
 	curl_free(str);
@@ -546,7 +540,6 @@ bool cYTFeedParser::ParseVideoInfo(cYTVideoInfo &vinfo)
 	estr.push_back("&el=vevo");
 	estr.push_back("&el=detailpage");
 
-	CURL *curl_handle = curl_easy_init();
 	for (unsigned i = 0; i < estr.size(); i++) {
 		std::string vurl = "http://www.youtube.com/get_video_info?video_id=";
 		vurl += vinfo.id;
@@ -554,13 +547,12 @@ bool cYTFeedParser::ParseVideoInfo(cYTVideoInfo &vinfo)
 		vurl += "&ps=default&eurl=&gl=US&hl=en";
 		printf("cYTFeedParser::ParseVideoInfo: get [%s]\n", vurl.c_str());
 		std::string answer;
-		if (!getUrl(vurl, answer, curl_handle))
+		if (!getUrl(vurl, answer))
 			continue;
 		ret = decodeVideoInfo(answer, vinfo);
 		if (ret)
 			break;
 	}
-	curl_easy_cleanup(curl_handle);
 	return ret;
 }
 
@@ -571,7 +563,6 @@ bool cYTFeedParser::DownloadThumbnails()
 		perror(thumbnail_dir.c_str());
 		//return ret;
 	}
-	CURL *curl_handle = curl_easy_init();
 	for (unsigned i = 0; i < videos.size(); i++) {
 		if (!videos[i].thumbnail.empty()) {
 			std::string fname = thumbnail_dir;
@@ -580,13 +571,12 @@ bool cYTFeedParser::DownloadThumbnails()
 			fname += ".jpg";
 			bool found = !access(fname.c_str(), F_OK);
 			if (!found)
-				found = DownloadUrl(videos[i].thumbnail, fname, curl_handle);
+				found = DownloadUrl(videos[i].thumbnail, fname);
 			if (found)
 				videos[i].tfile = fname;
 			ret |= found;
 		}
 	}
-	curl_easy_cleanup(curl_handle);
 	return ret;
 }
 

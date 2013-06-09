@@ -87,14 +87,16 @@ class cYTFeedParser
 		std::string getXmlAttr(xmlNodePtr node, const char * attr);
 		std::string getXmlData(xmlNodePtr node);
 
+		CURL *curl_handle;
+
 		static size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
-		static void encodeUrl(std::string &txt);
-		static void decodeUrl(std::string &url);
+		void encodeUrl(std::string &txt);
+		void decodeUrl(std::string &url);
 		static void splitString(std::string &str, std::string delim, std::vector<std::string> &strlist, int start = 0);
 		static void splitString(std::string &str, std::string delim, std::map<std::string,std::string> &strmap, int start = 0);
 		static bool saveToFile(const char * name, std::string str);
-		bool getUrl(std::string &url, std::string &answer, CURL *curl_handle = NULL);
-		bool DownloadUrl(std::string &url, std::string &file, CURL *curl_handle = NULL);
+		bool getUrl(std::string &url, std::string &answer);
+		bool DownloadUrl(std::string &url, std::string &file);
 		bool parseFeedXml(std::string &answer);
 		bool decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo);
 		bool supportedFormat(int fmt);
