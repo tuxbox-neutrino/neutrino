@@ -13,7 +13,7 @@ fi
 
 if [ -e /var/etc/.djmount ]; then
 	echo "Kill djmount"
-	fusermount -u /media/upnp
+	fusermount -u /media/00upnp
 fi
 
 ## remount rootfs readonly #################
