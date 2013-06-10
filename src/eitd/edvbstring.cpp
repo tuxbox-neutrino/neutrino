@@ -2110,7 +2110,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 		// GB2312 -> Unicode
 		if (gb2312 && !code) {
 			if (data[i] >= 0xA1) {
-				code = GB2312UNI[((data[i] << 8) | data[i + 1]) - 0xA100];
+				code = cGB2312UNI[((data[i] << 8) | data[i + 1]) - 0xA100];
 				i += 2;
 			}
 		}
