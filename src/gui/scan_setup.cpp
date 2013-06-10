@@ -217,6 +217,7 @@ CScanSetup::CScanSetup(bool wizard_mode)
 	nid		= NULL;
 	lcnhd		= NULL;
 	linkfe		= NULL;
+	in_menu		= false;
 }
 
 CScanSetup* CScanSetup::getInstance()
@@ -327,7 +328,9 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	printf("[neutrino] CScanSetup %s: init scan setup (Mode: %d)...\n",__FUNCTION__ , is_wizard);
 	CZapit::getInstance()->GetConfig(zapitCfg);
+	in_menu = true;
 	res = showScanMenu();
+	in_menu = false;
 
 	return res;
 }
@@ -1510,6 +1513,9 @@ printf("[neutrino] CScanSetup::%s: logical numbers %d\n", __FUNCTION__, scansett
 
 void CScanSetup::updateManualSettings()
 {
+	if (in_menu)
+		return;
+
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
 		transponder_list_t::iterator tI;
