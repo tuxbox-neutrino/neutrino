@@ -72,6 +72,8 @@ std::string cYTVideoInfo::GetUrl(int fmt, bool mandatory)
 		if (mandatory)
 			return "";
 	}
+	if ((it = formats.find(37)) != formats.end()) // 1080p MP4
+		return it->second.GetUrl();
 	if ((it = formats.find(22)) != formats.end()) // 720p MP4
 		return it->second.GetUrl();
 #if 0
@@ -81,8 +83,6 @@ std::string cYTVideoInfo::GetUrl(int fmt, bool mandatory)
 		return it->second.GetUrl();
 #endif
 	if ((it = formats.find(18)) != formats.end()) // 270p/360p MP4
-		return it->second.GetUrl();
-	if ((it = formats.find(37)) != formats.end()) // 1080p MP4
 		return it->second.GetUrl();
 	return "";
 }
