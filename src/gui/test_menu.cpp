@@ -91,6 +91,8 @@ CTestMenu::~CTestMenu()
 	delete clock_r;
 }
 
+static int test_pos[4] = { 130, 192, 282, 360 };
+
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init test menu\n");
@@ -275,64 +277,66 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-	else if (actionKey == "22kon1" || actionKey == "22koff1")
+	else if (actionKey.find("22kon") != std::string::npos)
 	{
-		CScanTs * scanTs = new CScanTs();
-		int freq = (actionKey == "22kon1") ? 12000*1000: 11000*1000;
-		sprintf(scansettings.sat_TP_freq, "%d", freq);
+		int fnum = atoi(actionKey.substr(5, 1).c_str());
+		printf("22kon: fe %d sat pos %d\n", fnum, test_pos[fnum]);
+		sprintf(scansettings.sat_TP_freq, "%d", 12000*1000);
 		strncpy(scansettings.satName,
-				CServiceManager::getInstance()->GetSatelliteName(130).c_str(), 50);
-
-		scanTs->exec(NULL, "test");
-		delete scanTs;
+			CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+		CScanTs scanTs(FE_QPSK);
+		scanTs.exec(NULL, "test");
 		return res;
 	}
-	else if (actionKey == "22kon2" || actionKey == "22koff2")
+	else if (actionKey.find("22koff") != std::string::npos)
 	{
-		int freq = (actionKey == "22kon2") ? 12000*1000: 11000*1000;
-		sprintf(scansettings.sat_TP_freq, "%d", freq);
+		int fnum = atoi(actionKey.substr(6, 1).c_str());
+		printf("22koff: fe %d sat pos %d\n", fnum, test_pos[fnum]);
+		sprintf(scansettings.sat_TP_freq, "%d", 11000*1000);
 		strncpy(scansettings.satName,
-				CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
-
-		CScanTs * scanTs = new CScanTs();
-		scanTs->exec(NULL, "test");
-		delete scanTs;
+			CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+		CScanTs scanTs(FE_QPSK);
+		scanTs.exec(NULL, "test");
 		return res;
 	}
-	else if (actionKey == "scan1" || actionKey == "scan2")
+	else if (actionKey.find("scan") != std::string::npos)
 	{
-		int fnum = actionKey == "scan1" ? 0 : 1;
-		strncpy(scansettings.satName, actionKey == "scan1" ?
-				CServiceManager::getInstance()->GetSatelliteName(130).c_str() :
-				CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
+		int fnum = atoi(actionKey.substr(4, 1).c_str());
+		printf("scan: fe %d sat pos %d\n", fnum, test_pos[fnum]);
 
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
-		CServiceScan::getInstance()->SetFrontend(fnum);
-
-		int freq = 12538000;
-		sprintf(scansettings.sat_TP_freq, "%d", freq);
-		//CFrontend * frontend = CFEManager::getInstance()->getFE(0);
-		switch (frontend->getInfo()->type)
-		{
+		switch (frontend->getInfo()->type) {
 			case FE_QPSK:
-				sprintf(scansettings.sat_TP_rate, "%d", 41250*1000);
-				scansettings.sat_TP_fec = 1;
+				strncpy(scansettings.satName,
+						CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+				sprintf(scansettings.sat_TP_freq, "%d", 12302000);
+				sprintf(scansettings.sat_TP_rate, "%d", 30000*1000);
+				scansettings.sat_TP_fec = 5;
 				scansettings.sat_TP_pol = 1;
 				break;
 			case FE_QAM:
-#if 0
-				sprintf(scansettings.sat_TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-				scansettings.sat_TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-				scansettings.TP_mod = tmpI->second.feparams.u.qam.modulation;
-#endif
+				{
+					unsigned count = CFEManager::getInstance()->getFrontendCount();
+					for (unsigned i = 0; i < count; i++) {
+						CFrontend * fe = CFEManager::getInstance()->getFE(i);
+						if (fe->isCable())
+							fe->setMode(CFrontend::FE_MODE_UNUSED);
+					}
+					frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
+					strncpy(scansettings.cableName, "CST Berlin", 50);
+					sprintf(scansettings.cable_TP_freq, "%d", 474*1000);
+					sprintf(scansettings.cable_TP_rate, "%d", 6875*1000);
+					scansettings.cable_TP_fec = 1;
+					scansettings.cable_TP_mod = 5;
+				}
 				break;
 			case FE_OFDM:
 			case FE_ATSC:
-				break;
+				return res;
 		}
-		CScanTs * scanTs = new CScanTs();
-		scanTs->exec(NULL, "manual");
-		delete scanTs;
+
+		CScanTs scanTs(frontend->getInfo()->type);
+		scanTs.exec(NULL, "manual");
 		return res;
 	}
 	else if (actionKey == "button"){
@@ -640,33 +644,50 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));
 	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
 	widget->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
-	
-	//CFEManager::getInstance()->setMode(CFEManager::FE_MODE_ALONE);
-	
-	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
-	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
-	
-	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
-	satmap[130].configured = 1;
-	
-	CFrontend * frontend = CFEManager::getInstance()->getFE(0);
-	frontend->setSatellites(satmap);
-	
-	int count = CFEManager::getInstance()->getFrontendCount();
-	if (frontend->getInfo()->type == FE_QPSK) {
-		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: Scan 12538000", true, NULL, this, "scan1"));
-		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon1"));
-		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff1"));
-		if(count > 1) {
-			satmap = CServiceManager::getInstance()->SatelliteList();
-			satmap[192].configured = 1;
-			frontend = CFEManager::getInstance()->getFE(1);
+
+	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {
+		CServiceManager::getInstance()->InitSatPosition(test_pos[i], NULL, true);
+	}
+
+	unsigned count = CFEManager::getInstance()->getFrontendCount();
+	for (unsigned i = 0; i < count; i++) {
+		widget->addItem(GenericMenuSeparatorLine);
+		CFrontend * frontend = CFEManager::getInstance()->getFE(i);
+		char title[100];
+		char scan[100];
+		sprintf(scan, "scan%d", i);
+		if (frontend->getInfo()->type == FE_QPSK) {
+			sprintf(title, "Satellite tuner %d: Scan 12302-30000-V-5/6", i+1);
+		} else if (frontend->getInfo()->type == FE_QAM) {
+			sprintf(title, "Cable tuner %d: Scan 474-6875-QAM-256", i+1);
+		} else
+			continue;
+
+		widget->addItem(new CMenuForwarderNonLocalized(title, true, NULL, this, scan));
+		if (frontend->getInfo()->type == FE_QPSK) {
+			frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
+
+			satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
+			satmap[test_pos[i]].configured = 1;
 			frontend->setSatellites(satmap);
-			
-			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: Scan 12538000", true, NULL, this, "scan2"));
-			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon2"));
-			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff2"));
+			if (i == 0) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon0"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff0"));
+			}
+			if (i == 1) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon1"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff1"));
+			}
+			if (i == 2) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 3: 22 Khz ON", true, NULL, this, "22kon2"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 3: 22 Khz OFF", true, NULL, this, "22koff2"));
+			}
+			if (i == 3) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 4: 22 Khz ON", true, NULL, this, "22kon3"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 4: 22 Khz OFF", true, NULL, this, "22koff3"));
+			}
 		}
 	}
+	CFEManager::getInstance()->linkFrontends(true);
 }
 #endif
