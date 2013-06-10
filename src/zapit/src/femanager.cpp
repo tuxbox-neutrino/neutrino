@@ -680,7 +680,7 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
 		if(mfe->isCable()) {
-			if ((satellitePosition & 0xF00) == 0xF00) {
+			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && ((satellitePosition & 0xF00) == 0xF00)) {
 				frontend = mfe;
 				break;
 			}
