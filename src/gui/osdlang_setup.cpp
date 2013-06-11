@@ -129,7 +129,7 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 	CMenuOptionStringChooser* tzSelect = NULL;
 	if (parser != NULL)
 	{
-		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, &g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
 		tzSelect->setHint("", LOCALE_MENU_HINT_TIMEZONE);
 		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
 		bool found = false;
@@ -209,7 +209,7 @@ void COsdLangSetup::showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *lan
 
 	for(int i = 0; i < 3; i++)
 	{
-		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_LANG, g_settings.pref_lang[i], true, langNotifier, CRCInput::convertDigitToKey(i+1), "", true);
+		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_LANG, &g_settings.pref_lang[i], true, langNotifier, CRCInput::convertDigitToKey(i+1), "", true);
 		langSelect->setHint("", LOCALE_MENU_HINT_PREF_LANG);
 		langSelect->addOption("none");
 		std::map<std::string, std::string>::const_iterator it;
@@ -225,7 +225,7 @@ void COsdLangSetup::showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *lan
 	prefMenu->addItem(mc);
 	for(int i = 0; i < 3; i++)
 	{
-		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_SUBS, g_settings.pref_subs[i], true, NULL, CRCInput::convertDigitToKey(i+4), "", true);
+		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_SUBS, &g_settings.pref_subs[i], true, NULL, CRCInput::convertDigitToKey(i+4), "", true);
 		langSelect->setHint("", LOCALE_MENU_HINT_PREF_SUBS);
 		std::map<std::string, std::string>::const_iterator it;
 		langSelect->addOption("none");
@@ -239,7 +239,7 @@ void COsdLangSetup::showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *lan
 bool COsdLangSetup::changeNotify(const neutrino_locale_t, void *)
 {
 	//apply osd language
-	g_Locale->loadLocale(g_settings.language);
+	g_Locale->loadLocale(g_settings.language.c_str());
 
 	return true;
 }
@@ -253,14 +253,13 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 	//prefered audio languages
 	for(int i = 0; i < 3; i++)
 	{
-		if(strlen(g_settings.pref_lang[i]) && strcmp(g_settings.pref_lang[i], "none"))
+		if(!g_settings.pref_lang[i].empty() && g_settings.pref_lang[i] !=  "none")
 		{
-			printf("setLanguages: %d: %s\n", i, g_settings.pref_lang[i]);
+			printf("setLanguages: %d: %s\n", i, g_settings.pref_lang[i].c_str());
 
-			std::string temp(g_settings.pref_lang[i]);
 			for(it = iso639.begin(); it != iso639.end(); ++it)
 			{
-				if(temp == it->second)
+				if(g_settings.pref_lang[i] == it->second)
 				{
 					v_languages.push_back(it->first);
 					printf("setLanguages: adding %s\n", it->first.c_str());

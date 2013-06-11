@@ -67,7 +67,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init record setup\n");
 	int   res = menu_return::RETURN_REPAINT;
-	char timeshiftDir[255];
+	std::string timeshiftDir;
 
 	if (parent)
 	{
@@ -88,13 +88,13 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		//parent->hide();
 		const char *action_str = "recordingdir";
-		if(chooserDir(g_settings.network_nfs_recordingdir, true, action_str, sizeof(g_settings.network_nfs_recordingdir)-1)){
-			printf("New recordingdir: %s (timeshift %s)\n", g_settings.network_nfs_recordingdir, g_settings.timeshiftdir);
-			if(strlen(g_settings.timeshiftdir) == 0)
+		if(chooserDir(g_settings.network_nfs_recordingdir, true, action_str)){
+			printf("New recordingdir: %s (timeshift %s)\n", g_settings.network_nfs_recordingdir.c_str(), g_settings.timeshiftdir.c_str());
+			if(g_settings.timeshiftdir.empty())
 			{
-				sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
-				safe_mkdir(timeshiftDir);
-				printf("New timeshift dir: %s\n", timeshiftDir);
+				timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
+				safe_mkdir(timeshiftDir.c_str());
+				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
 			}
 			CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 		}
@@ -105,7 +105,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		//parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
-		if (b.exec(g_settings.timeshiftdir))
+		if (b.exec(g_settings.timeshiftdir.c_str()))
 		{
 			const char * newdir = b.getSelectedFile()->Name.c_str();
 			printf("New timeshift: selected %s\n", newdir);
@@ -113,21 +113,21 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				printf("Wrong/unsupported recording dir %s\n", newdir);
 			else
 			{
-				printf("New timeshift dir: old %s (record %s)\n", g_settings.timeshiftdir, g_settings.network_nfs_recordingdir);
-				if(strcmp(newdir, g_settings.network_nfs_recordingdir))
+				printf("New timeshift dir: old %s (record %s)\n", g_settings.timeshiftdir.c_str(), g_settings.network_nfs_recordingdir.c_str());
+				if(newdir != g_settings.network_nfs_recordingdir)
 				{
 					printf("New timeshift != rec dir\n");
-					strncpy(g_settings.timeshiftdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.timeshiftdir)-1);
-					strcpy(timeshiftDir, g_settings.timeshiftdir);
+					g_settings.timeshiftdir = b.getSelectedFile()->Name;
+					timeshiftDir = g_settings.timeshiftdir;
 				}
 				else
 				{
-					sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
-					strcpy(g_settings.timeshiftdir, newdir);
-					safe_mkdir(timeshiftDir);
+					timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
+					g_settings.timeshiftdir = newdir;
+					safe_mkdir(timeshiftDir.c_str());
 					printf("New timeshift == rec dir\n");
 				}
-				printf("New timeshift dir: %s\n", timeshiftDir);
+				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
 				CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 			}
 		}

@@ -635,7 +635,7 @@ void CInfoViewerBB::showSysfsHdd()
 			percent = (int)((u * 100ULL) / t);
 		showBarSys(percent);
 
-		if (check_dir(g_settings.network_nfs_recordingdir) == 0)
+		if (check_dir(g_settings.network_nfs_recordingdir.c_str()) == 0)
 			showBarHdd(hddpercent);
 		else
 			showBarHdd(-1);
@@ -646,7 +646,7 @@ void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
 	uint64_t t, u;
-	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
+	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
 		infoViewerBB->hddpercent = (int)((u * 100ULL) / t);
 	else
 		infoViewerBB->hddpercent = 0;

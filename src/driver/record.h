@@ -211,8 +211,8 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 			StreamSubtitlePids	= stream_subtitle_pids;
 			StreamPmtPid		= stream_pmt_pid;
 		};
-		void SetDirectory(const char * const directory) { Directory	= directory; };
-		void SetTimeshiftDirectory(const char * const directory) { TimeshiftDirectory	= directory; };
+		void SetDirectory(std::string directory) { Directory	= directory; };
+		void SetTimeshiftDirectory(std::string directory) { TimeshiftDirectory	= directory; };
 		bool RecordingStatus(const t_channel_id channel_id = 0);
 		bool TimeshiftOnly();
 		bool Timeshift() { return (autoshift || shift_timer); };

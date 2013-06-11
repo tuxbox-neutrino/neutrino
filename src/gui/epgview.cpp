@@ -779,19 +779,18 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			case CRCInput::RC_red:
 				if (!g_settings.minimode && (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF))
 				{
-					char recDir[255];
+					std::string recDir;
 					//CTimerdClient timerdclient;
 					if (g_Timerd->isTimerdAvailable())
 					{
 						bool doRecord = true;
-						//char *recDir = g_settings.network_nfs_recordingdir;
-						strcpy(recDir, g_settings.network_nfs_recordingdir);
+						recDir = g_settings.network_nfs_recordingdir;
 						if (g_settings.recording_choose_direct_rec_dir == 2) {
 							CFileBrowser b;
 							b.Dir_Mode=true;
 							hide();
-							if (b.exec(g_settings.network_nfs_recordingdir)) {
-								strcpy(recDir, b.getSelectedFile()->Name.c_str());
+							if (b.exec(g_settings.network_nfs_recordingdir.c_str())) {
+								recDir = b.getSelectedFile()->Name;
 							} else
 								doRecord = false;
 							if (!bigFonts && g_settings.bigFonts) {
@@ -805,7 +804,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						else if (g_settings.recording_choose_direct_rec_dir == 1)
 						{
 							int lid = -1;
-							CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&lid,NULL,g_settings.network_nfs_recordingdir);
+							CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&lid,NULL,g_settings.network_nfs_recordingdir.c_str());
 							if (recDirs.hasItem())
 							{
 								hide();
@@ -823,12 +822,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								printf("no network devices available\n");
 							}
 							if (lid != -1)
-								strcpy(recDir, g_settings.network_nfs_local_dir[lid]);
-							//recDir = g_settings.network_nfs_local_dir[id];
-							//else
-							//recDir = NULL;
+								recDir = g_settings.network_nfs[lid].local_dir;
 						}
-						//if (recDir != NULL)
 						if (doRecord)
 						{
 							if (g_Timerd->addRecordTimerEvent(channel_id,

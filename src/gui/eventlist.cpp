@@ -450,11 +450,11 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					showFunctionBar(true, evtlist[selected].channelID);
 					continue;
 				}
-				char *recDir = g_settings.network_nfs_recordingdir;
+				std::string recDir = g_settings.network_nfs_recordingdir;
 				if (g_settings.recording_choose_direct_rec_dir)
 				{
 					int id = -1;
-					CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&id,NULL,g_settings.network_nfs_recordingdir);
+					CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&id,NULL,g_settings.network_nfs_recordingdir.c_str());
 					if (recDirs.hasItem())
 					{
 						hide();
@@ -468,11 +468,11 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					}
 					
 					if (id != -1)
-						recDir = g_settings.network_nfs_local_dir[id];
+						recDir = g_settings.network_nfs[id].local_dir;
 					else
-						recDir = NULL;
+						recDir = "";
 				}
-				if (recDir != NULL) //add/remove recording timer events and check/warn for conflicts
+				if (!recDir.empty()) //add/remove recording timer events and check/warn for conflicts
 				{
 					if (g_Timerd->addRecordTimerEvent(evtlist[selected].channelID ,
 								evtlist[selected].startTime,

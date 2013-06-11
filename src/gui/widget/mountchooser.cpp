@@ -47,20 +47,14 @@ CMountChooser::CMountChooser(const neutrino_locale_t Name, const std::string & I
 	char indexStr[2];
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
 	{
-		if (g_settings.network_nfs_local_dir[i] != NULL &&
-		    strcmp(g_settings.network_nfs_local_dir[i],"") != 0 &&
-		    (strstr(g_settings.network_nfs_mount_options1[i],"rw") != NULL ||
-		     strstr(g_settings.network_nfs_mount_options2[i],"rw") != NULL))
+		if (!g_settings.network_nfs[i].local_dir.empty() &&
+		    (g_settings.network_nfs[i].mount_options1.find("rw") != string::npos ||
+		     g_settings.network_nfs[i].mount_options2.find("rw") != string::npos))
 		{
-			std::string s(g_settings.network_nfs_local_dir[i]);
-			s += " (";
-			s += g_settings.network_nfs_ip[i];
-			s += ":";
-			s += g_settings.network_nfs_dir[i];
-			s +=")";
-			snprintf(indexStr,2,"%d",i);
+			std::string s = g_settings.network_nfs[i].local_dir + " (" + g_settings.network_nfs[i].ip + ":" + g_settings.network_nfs[i].dir + ")";
+			snprintf(indexStr,sizeof(indexStr),"%d",i);
 			addItem(new CMenuForwarderNonLocalized(s.c_str(),true,NULL,this,(std::string("MID:") + std::string(indexStr)).c_str()),
-				(strcmp(selectedLocalDir,g_settings.network_nfs_local_dir[i]) == 0));
+				selectedLocalDir == g_settings.network_nfs[i].local_dir);
 		}
 	}	
 }
@@ -78,8 +72,9 @@ int CMountChooser::exec(CMenuTarget* parent, const std::string & actionKey)
 		{
 			if (index)
 				*index = mount_id;
-			if (localDir) 
-				strcpy(localDir,g_settings.network_nfs_local_dir[mount_id]);
+
+			if (localDir.empty())  // ???
+				localDir = g_settings.network_nfs[mount_id].local_dir;
 		}
 		hide();
 		return menu_return::RETURN_EXIT;

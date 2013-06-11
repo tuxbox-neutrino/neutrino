@@ -35,10 +35,7 @@
 
 CNetworkConfig::CNetworkConfig()
 {
-	char our_nameserver[16];
-
-	netGetNameserver(our_nameserver);
-	nameserver = our_nameserver;
+	netGetNameserver(nameserver);
 	ifname = "eth0";
 	orig_automatic_start = false;
 	orig_inet_static = false;
@@ -74,13 +71,13 @@ void CNetworkConfig::readConfig(std::string iname)
 
 void CNetworkConfig::init_vars(void)
 {
-	char mask[16];
-	char _broadcast[16];
-	char router[16];
-	char ip[16];
+	std::string mask;
+	std::string _broadcast;
+	std::string router;
+	std::string ip;
 	unsigned char addr[6];
 
-	hostname = netGetHostname();
+	netGetHostname(hostname);
 
 	netGetDefaultRoute(router);
 	gateway = router;
@@ -88,13 +85,13 @@ void CNetworkConfig::init_vars(void)
 	/* FIXME its enough to read IP for dhcp only ?
 	 * static config should not be different from settings in etc/network/interfaces */
 	if(!inet_static) {
-		netGetIP((char *) ifname.c_str(), ip, mask, _broadcast);
+		netGetIP(ifname, ip, mask, _broadcast);
 		netmask = mask;
 		broadcast = _broadcast;
 		address = ip;
 	}
 
-	netGetMacAddr((char *) ifname.c_str(), addr);
+	netGetMacAddr(ifname, addr);
 
 	std::stringstream mac_tmp;
 	for(int i=0;i<6;++i)
@@ -191,7 +188,7 @@ void CNetworkConfig::commitConfig(void)
 		printf("CNetworkConfig::commitConfig: modified, saving (wireless %d, ssid %s key %s)...\n", wireless, ssid.c_str(), key.c_str());
 #endif
 		if(orig_hostname != hostname)
-			netSetHostname((char *) hostname.c_str());
+			netSetHostname(hostname);
 
 		if (inet_static)
 		{
@@ -212,7 +209,7 @@ void CNetworkConfig::commitConfig(void)
 	if (nameserver != orig_nameserver)
 	{
 		orig_nameserver = nameserver;
-		netSetNameserver(nameserver.c_str());
+		netSetNameserver(nameserver);
 	}
 }
 

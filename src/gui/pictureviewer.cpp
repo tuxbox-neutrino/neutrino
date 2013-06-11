@@ -97,10 +97,10 @@ CPictureViewerGui::CPictureViewerGui()
 	selected = 0;
 	m_sort = FILENAME;
 	m_viewer = new CPictureViewer();
-	if (strlen(g_settings.network_nfs_picturedir)!=0)
-		Path = g_settings.network_nfs_picturedir;
-	else
+	if (g_settings.network_nfs_picturedir.empty())
 		Path = "/";
+	else
+		Path = g_settings.network_nfs_picturedir;
 
 	picture_filter.addFilter("png");
 	picture_filter.addFilter("bmp");
@@ -426,7 +426,7 @@ int CPictureViewerGui::show()
 		{
 			if (m_state == MENU)
 			{
-				CFileBrowser filebrowser((g_settings.filebrowser_denydirectoryleave) ? g_settings.network_nfs_picturedir : "");
+				CFileBrowser filebrowser((g_settings.filebrowser_denydirectoryleave) ? g_settings.network_nfs_picturedir.c_str() : "");
 
 				filebrowser.Multi_Select    = true;
 				filebrowser.Dirs_Selectable = true;

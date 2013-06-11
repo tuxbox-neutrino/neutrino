@@ -187,12 +187,15 @@ class CDateInput : public CExtendedInput
 
 class CMACInput : public CExtendedInput
 {
+	char          MAC[32];
+	std::string * mac;
+
 	protected:
 		virtual void onBeforeExec();
 		virtual void onAfterExec();
 
 	public:
-		CMACInput(const neutrino_locale_t Name, char* Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ = NULL);
+		CMACInput(const neutrino_locale_t Name, std::string & Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ = NULL);
 };
 
 //----------------------------------------------------------------------------------------------------

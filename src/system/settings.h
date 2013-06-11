@@ -132,11 +132,11 @@ struct SNeutrinoSettings
 	int vcr_AutoSwitch;
 
 	//language
-	char language[25];
-	char timezone[150];
+	std::string language;
+	std::string timezone;
 
-	char pref_lang[3][30];
-	char pref_subs[3][30];
+	std::string pref_lang[3];
+	std::string pref_subs[3];
 
 	// EPG
 	int epg_save;
@@ -156,7 +156,7 @@ struct SNeutrinoSettings
 	std::string network_ntpserver;
 	std::string network_ntprefresh;
 	int network_ntpenable;
-	char ifname[10];
+	std::string ifname;
 	
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
@@ -322,21 +322,24 @@ struct SNeutrinoSettings
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8
-	std::string network_nfs_ip[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_mac[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_local_dir[NETWORK_NFS_NR_OF_ENTRIES][100];
-	char network_nfs_dir[NETWORK_NFS_NR_OF_ENTRIES][100];
-	int  network_nfs_automount[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_mount_options1[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_mount_options2[NETWORK_NFS_NR_OF_ENTRIES][31];
-	int  network_nfs_type[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_username[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_password[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_audioplayerdir[100];
-	char network_nfs_picturedir[100];
-	char network_nfs_moviedir[100];
-	char network_nfs_recordingdir[100];
-	char timeshiftdir[100];
+	struct {
+		std::string ip;
+		std::string mac;
+		std::string local_dir;
+		std::string dir;
+		int  automount;
+		std::string mount_options1;
+		std::string mount_options2;
+		int  type;
+		std::string username;
+		std::string password;
+	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
+	std::string network_nfs_audioplayerdir;
+	std::string network_nfs_picturedir;
+	std::string network_nfs_moviedir;
+	std::string network_nfs_recordingdir;
+	std::string timeshiftdir;
+	std::string downloadcache_dir;
 
 	//recording
 	int  recording_type;
@@ -609,9 +612,9 @@ struct SNeutrinoSettings
 	int	hdd_fs;
 	int	zap_cycle;
 	int	sms_channel;
-	char	font_file[100];
-	char	ttx_font_file[100];
-	char	update_dir[100];
+	std::string	font_file;
+	std::string	ttx_font_file;
+	std::string	update_dir;
 	// USERMENU
 	typedef enum
 	{

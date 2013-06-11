@@ -371,12 +371,14 @@ class CMenuOptionStringChooser : public CMenuItem
 		std::string 		 optionNameString;
 		int                      height;
 		char *                   optionValue;
+		std::string *		 optionValueString;
 		std::vector<std::string> options;
 		CChangeObserver *        observ;
 		bool			 pulldown;
 
 	public:
 		CMenuOptionStringChooser(const neutrino_locale_t OptionName, char* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
+		CMenuOptionStringChooser(const neutrino_locale_t OptionName, std::string* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
 		CMenuOptionStringChooser(const char* OptionName, char* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
 
 		~CMenuOptionStringChooser();

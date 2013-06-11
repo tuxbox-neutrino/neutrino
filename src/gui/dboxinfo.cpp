@@ -398,19 +398,17 @@ void CDBoxInfoWidget::paint()
 							case 0: {
 								if (s.f_type != 0x72b6)
 								{
-									char *p1=NULL, *p2=NULL;
-									p1=strchr(g_settings.network_nfs_recordingdir+1,'/') ;
-									p2=strchr(mnt->mnt_dir+1,'/') ;
-									if (p2) {
-										if (strstr(p1,p2)) {
-
+									std::string mntDir = mnt->mnt_dir;
+									std::size_t found1 = g_settings.network_nfs_recordingdir.find_first_of("/",1);
+									std::size_t found2 = mntDir.find_first_of("/",1);
+									if (found2 !=std::string::npos){
+										std::size_t found3 = g_settings.network_nfs_recordingdir.find_first_of(mntDir.substr(found2),found1);
+										if (found3 !=std::string::npos)
 											rec_mp = true;
-										}
-									}
-									else {
-										if (strstr(g_settings.network_nfs_recordingdir,mnt->mnt_dir)) {
+									}else{
+										std::size_t found = mntDir.find_first_of(g_settings.network_nfs_recordingdir);
+										if (found !=std::string::npos)
 											rec_mp = true;
-										}
 									}
 								}
 								mpOffset = 10;

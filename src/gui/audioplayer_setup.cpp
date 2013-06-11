@@ -75,8 +75,8 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		CFileBrowser b;
 		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_audioplayerdir))
-			strncpy(g_settings.network_nfs_audioplayerdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_audioplayerdir)-1);
+		if (b.exec(g_settings.network_nfs_audioplayerdir.c_str()))
+			g_settings.network_nfs_audioplayerdir = b.getSelectedFile()->Name;
 		return res;
 	}
 
