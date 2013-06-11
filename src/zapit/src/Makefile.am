@@ -28,7 +28,6 @@ libzapit_a_SOURCES = \
 	bouquets.cpp \
 	capmt.cpp \
 	channel.cpp \
-	dvbstring.cpp \
 	fastscan.cpp \
 	femanager.cpp \
 	frontend.cpp \
