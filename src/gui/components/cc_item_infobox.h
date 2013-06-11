@@ -44,9 +44,7 @@ but is also usable like each other CCItems.
 class CComponentsInfoBox : public CComponentsText
 {
 	private:
-		///property: start position of textbox within infobox
-		int x_text;
-		///property: space between picture and textbox
+		///property: property: space around fram and beetween picture and textbox, see also setSpaceOffset()
 		int x_offset;
 
 		///object: picture object
@@ -73,7 +71,7 @@ class CComponentsInfoBox : public CComponentsText
 		
 		~CComponentsInfoBox();
 
-		///set property: space between picture and textbox
+		///set property: space around fram and beetween picture and textbox
 		inline void setSpaceOffset(const int offset){x_offset = offset;};
 		///set property: path or name of displayed image
 		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
