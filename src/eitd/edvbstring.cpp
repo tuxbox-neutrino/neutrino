@@ -197,6 +197,7 @@ static unsigned long iso6937[96]={
 	0x0138, 0x00E6, 0x0111, 0x00F0, 0x0127, 0x0131, 0x0133, 0x0140, 0x0142, 0x00F8, 0x0153, 0x00DF, 0x00FE, 0x0167, 0x014B, 0x00AD
 };
 
+#ifdef BOXMODEL_APOLLO
 const unsigned short cGB2312UNI[] = {
 	// Start at 0xA100.so index have to be reduced. Maybe this can be optimized by removing the starts but for
 	// now just 'make it work' :).
@@ -1593,6 +1594,7 @@ const unsigned short cGB2312UNI[] = {
 	0x9B23, 0x9EBD, 0x9EBE, 0x7E3B, 0x9E82, 0x9E87, 0x9E88, 0x9E8B, 0x9E92, 0x93D6, 0x9E9D, 0x9E9F, 0x9EDB, 0x9EDC, 0x9EDD, 0x9EE0, 
 	0x9EDF, 0x9EE2, 0x9EE9, 0x9EE7, 0x9EE5, 0x9EEA, 0x9EEF, 0x9F22, 0x9F2C, 0x9F2F, 0x9F39, 0x9F37, 0x9F3D, 0x9F3E, 0x9F44, 
 };
+#endif
 
 // Two Char Mapping ( many polish services and UPC Direct/HBO services)
 // get from http://mitglied.lycos.de/buran/charsets/videotex-suppl.html
@@ -2017,8 +2019,9 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 {
 	int newtable = 0;
 	bool twochar = false;
+#ifdef BOXMODEL_APOLLO
 	bool gb2312 = false;
-
+#endif
 	if (!len)
 		return "";
 
@@ -2066,8 +2069,10 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 		break;
 	case 0x13:
 		++i;
-                printf("GB-2312-1980 enc.\n");
+#ifdef BOXMODEL_APOLLO
+                //printf("GB-2312-1980 enc.\n");
 		gb2312 = true;
+#endif
 		break;
 	case 0x14:
 		++i;
@@ -2107,6 +2112,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 //dprintf("recode:::: doVideoTexSuppl code %lX\n", code);
 		}
 
+#ifdef BOXMODEL_APOLLO
 		// GB2312 -> Unicode
 		if (gb2312 && !code) {
 			if (data[i] >= 0xA1) {
@@ -2114,6 +2120,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 				i += 2;
 			}
 		}
+#endif
 
 		if (!code) {
 			if (table == 65) { // unicode
