@@ -219,7 +219,7 @@ std::string CBEChannelSelectWidget::getInfoText(int index)
 	else
 		desc = desc + " (" + satname + ")";
 	
-	res = satname + "\n" + desc;
+	res = satname + " " + desc;
 	
 	return res;
 }
