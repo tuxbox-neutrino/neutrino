@@ -95,6 +95,9 @@ extern int old_b_id;
 
 extern cVideo * videoDecoder;
 
+static CComponentsFrmClock *headerClock = NULL;
+static int headerClockWidth = 0;
+
 CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -118,7 +121,6 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
-	clock = NULL;
 	logo_off = 0;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
@@ -128,13 +130,14 @@ CChannelList::~CChannelList()
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
 	delete dline;
-	if (clock) {
-		if (clock->isClockRun())
-			clock->Stop();
-		if (clock->isPainted())
-			clock->hide();
-		delete clock;
-		clock = NULL;
+	if (headerClock) {
+		headerClock->Stop();
+		if (headerClock->isPainted())
+			headerClock->hide();
+		if (headerClock->isClockRun())
+			headerClock->stopThread();
+		delete headerClock;
+		headerClock = NULL;
 	}
 }
 
@@ -949,8 +952,8 @@ int CChannelList::show()
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
 
-	if (clock && clock->isClockRun())
-		clock->Stop();
+	if (headerClock)
+		headerClock->Stop();
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
@@ -970,11 +973,10 @@ void CChannelList::hide()
 	{
 		videoDecoder->Pig(-1, -1, -1, -1);
 	}
-	if (clock) {
-		if (clock->isClockRun())
-			clock->Stop();
-		if (clock->isPainted())
-			clock->hide();
+	if (headerClock) {
+		headerClock->Stop();
+		if (headerClock->isPainted())
+			headerClock->hide();
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
@@ -2073,29 +2075,28 @@ void CChannelList::paintHead()
 	CComponentsHeader header(x, y, full_width, theight, name, NULL /*no header icon*/);
 	header.paint(CC_SAVE_SCREEN_NO);
 
-	static int clockWidth = 0;
 	if (g_Sectionsd->getIsTimeSet()) {
-		if (clock == NULL) {
-			clock = new CComponentsFrmClock(0, y, 0, theight, "%H:%M");
-			clock->setClockFontType(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
-			clock->setTextColor(COL_MENUHEAD);
-			clock->setColorBody(COL_MENUHEAD_PLUS_0);
-			clock->setCornerRadius(RADIUS_LARGE);
-			clock->setCornerType(CORNER_TOP_RIGHT);
-			clock->setClockIntervall(10);
-			clock->refresh();
-			clockWidth = clock->getWidth();
-			clock->setXPos(x + full_width - clockWidth - 10);
-			clockWidth += 6;
+		if (headerClock == NULL) {
+			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M");
+			headerClock->setClockIntervall(10);
+			headerClock->setClockFontType(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
+			headerClock->setCornerRadius(RADIUS_LARGE);
+			headerClock->setCornerType(CORNER_TOP_RIGHT);
 		}
-		if (!clock->isClockRun())
-			clock->Start();
-		else
-			clock->paint(CC_SAVE_SCREEN_NO);
+		headerClock->setYPos(y);
+		headerClock->setHeight(theight);
+		headerClock->setTextColor(COL_MENUHEAD);
+		headerClock->setColorBody(COL_MENUHEAD_PLUS_0);
+		headerClock->refresh();
+		headerClockWidth = headerClock->getWidth();
+		headerClock->setXPos(x + full_width - headerClockWidth - 10);
+		headerClockWidth += 6;
+
+		headerClock->Start();
 	}
 	else
-		clockWidth = 0;
-	logo_off = clockWidth + 10;
+		headerClockWidth = 0;
+	logo_off = headerClockWidth + 10;
 }
 
 void CChannelList::paint()

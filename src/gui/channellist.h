@@ -78,7 +78,6 @@ private:
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
 	CComponentsDetailLine 	*dline;
-	CComponentsFrmClock     *clock;
 
 	int			full_width;
 	int			width;
