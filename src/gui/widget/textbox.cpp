@@ -220,10 +220,7 @@ void CTextBox::setTextFont(Font* font_text)
 
 void CTextBox::setTextBorderWidth(int border)
 {
-	/* we need a minimal borderwith of 1px because the edge-smoothing
-	(or fontrenderer?) otherwise will paint single pixels outside the
-	defined area. e.g. 'j' is leaving such residues */
-	text_border_width = (border > 0) ? border : 1;
+	text_border_width = border;
 	//Initialise the window frames first and than refresh text line array
 	initFramesAndTextArray();
 }

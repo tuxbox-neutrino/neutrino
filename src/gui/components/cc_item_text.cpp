@@ -93,7 +93,12 @@ void CComponentsText::initVarText()
 	ct_text 	= "";
 	ct_old_text	= ct_text;
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
+
+	/* we need a minimal borderwith of 1px because the edge-smoothing
+	(or fontrenderer?) otherwise will paint single pixels outside the
+	defined area. e.g. 'j' is leaving such residues */
 	ct_text_border	= 1;
+
 	ct_col_text	= COL_MENUCONTENT;
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
