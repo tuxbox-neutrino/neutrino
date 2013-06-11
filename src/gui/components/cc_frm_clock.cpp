@@ -39,7 +39,7 @@
 using namespace std;
 
 CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, const int w, const int h,
-						const char* format_str, bool has_shadow,
+						const char* format_str, bool activ, bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 
 {
@@ -54,6 +54,11 @@ CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, cons
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
+
+	paintClock	= false;
+	activeClock	= activ;
+	if (activeClock)
+		startThread();
 
 	cl_format_str	= format_str;
 }
@@ -78,9 +83,8 @@ void CComponentsFrmClock::initVarClock()
 CComponentsFrmClock::~CComponentsFrmClock()
 {
 	cleanCCForm();
-	if(cl_thread)
-		pthread_cancel(cl_thread);
-	cl_thread = 0;
+	if (activeClock)
+		stopThread();
 }
 
 void CComponentsFrmClock::initTimeString()
@@ -241,35 +245,33 @@ void* CComponentsFrmClock::initClockThread(void *arg)
  	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
 
 	CComponentsFrmClock *clock = static_cast<CComponentsFrmClock*>(arg);
-
-	//ensure paint of segements on first paint
-	clock->paint();
-
+	time_t count = time(0);
 	//start loop for paint
 	while(1) {
 		sleep(clock->cl_interval);
-		
-		//paint segements, but wihtout saved backgrounds
-		clock->paint(CC_SAVE_SCREEN_NO);
+
+		if (clock->paintClock) {
+			//paint segements, but wihtout saved backgrounds
+			clock->paint(CC_SAVE_SCREEN_NO);
+			count = time(0);
+		}
+		if (time(0) >= count+30) {
+			clock->cl_thread = 0;
+			break;
+		}
 	}
 	return 0;
 }
 
 //start up ticking clock with own thread, return true on succses
-bool CComponentsFrmClock::Start()
+bool CComponentsFrmClock::startThread()
 {
 	void *ptr = static_cast<void*>(this);
 	
 	if(!cl_thread) {
-		int res1 = pthread_create (&cl_thread, NULL, initClockThread, ptr) ;
-		int res2 = pthread_detach(cl_thread);
-		
-		if (res1 != 0){
+		int res = pthread_create (&cl_thread, NULL, initClockThread, ptr) ;
+		if (res != 0){
 			printf("[CComponentsFrmClock]    [%s]  pthread_create  %s\n", __FUNCTION__, strerror(errno));
-			return false;
-		}
-		if (res2 != 0){
-			printf("[CComponentsFrmClock]    [%s] pthread_detach  %s\n", __FUNCTION__, strerror(errno));
 			return false;
 		}
 	}
@@ -277,22 +279,46 @@ bool CComponentsFrmClock::Start()
 }
 
 //stop ticking clock and kill thread, return true on succses
-bool CComponentsFrmClock::Stop()
+bool CComponentsFrmClock::stopThread()
 {
-	int res = 0;
-	
- 	if(cl_thread)
-		res = pthread_cancel(cl_thread);
+	if(cl_thread) {
+		int res = pthread_cancel(cl_thread);
+		if (res != 0){
+			printf("[CComponentsFrmClock]    [%s] pthread_cancel  %s\n", __FUNCTION__, strerror(errno));
+			return false;
+		}
 
-	if (res != 0){
-		printf("[CComponentsFrmClock]    [%s] pthread_cancel  %s\n", __FUNCTION__, strerror(errno));
-		return false;
+		res = pthread_join(cl_thread, NULL);
+		if (res != 0){
+			printf("[CComponentsFrmClock]    [%s] pthread_join  %s\n", __FUNCTION__, strerror(errno));
+			return false;
+		}
 	}
-
 	cl_thread = 0;
 	return true;
 }
 
+bool CComponentsFrmClock::Start()
+{
+	if (!activeClock)
+		return false;
+	if (!cl_thread)
+		startThread();
+	if (cl_thread) {
+		//ensure paint of segements on first paint
+		paint();
+		paintClock = true;
+	}
+	return cl_thread == 0 ? false : true;
+}
+
+bool CComponentsFrmClock::Stop()
+{
+	if (!activeClock)
+		return false;
+	paintClock = false;
+	return cl_thread == 0 ? false : true;
+}
 
 void CComponentsFrmClock::paint(bool do_save_bg)
 {

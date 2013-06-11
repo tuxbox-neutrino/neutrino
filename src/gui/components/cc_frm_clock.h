@@ -57,6 +57,9 @@ class CComponentsFrmClock : public CComponentsForm
 		///raw time chars
 		char cl_timestr[20];
 
+		bool paintClock;
+		bool activeClock;
+
 		///font
 		int cl_font_type;
 		///fontrenderer object
@@ -80,7 +83,7 @@ class CComponentsFrmClock : public CComponentsForm
 
 	public:
 		CComponentsFrmClock( 	const int x_pos, const int y_pos, const int w, const int h,
-					const char* format_str = "%H:%M", bool has_shadow = CC_SHADOW_OFF,
+					const char* format_str = "%H:%M", bool activ=true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsFrmClock();		
 
@@ -97,9 +100,13 @@ class CComponentsFrmClock : public CComponentsForm
 		void setClockFormat(const char* format_str){cl_format_str = format_str;};
 
 		///start ticking clock thread, returns true on success, if false causes log output
-		bool Start();
+		bool startThread();
 		///stop ticking clock thread, returns true on success, if false causes log output
+		bool stopThread();
+
+		bool Start();
 		bool Stop();
+
 		///returns true, if clock is running in thread
 		bool isClockRun() const {return cl_thread == 0 ? false:true;};
 		///set refresh interval in seconds, default value=1 (=1 sec)

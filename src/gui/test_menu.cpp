@@ -560,11 +560,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 			clock_r->doPaintBg(false);
 		}
 		
- 		if (!clock_r->isClockRun()){
+		if (!clock_r->isPainted()){
 			if (clock_r->Start())
 				return menu_return::RETURN_EXIT_ALL;;
 		}
-		else if (clock_r->isClockRun()){
+		else {
 			if (clock_r->Stop()){
 				clock_r->hide();
 				delete clock_r;
@@ -575,7 +575,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "clock"){
 		if (clock == NULL){
-			clock = new CComponentsFrmClock(100, 50, 0, 50, "%H:%M");
+			clock = new CComponentsFrmClock(100, 50, 0, 50, "%H:%M", false);
 			clock->setClockFontType(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
 		}
 
