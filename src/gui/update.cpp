@@ -47,7 +47,6 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
-#include <system/fsmounter.h>
 
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
@@ -483,16 +482,9 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		//status anzeigen
 		showGlobalStatus(100);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
-
 		hide();
-
-		// Unmount all NFS & CIFS volumes
-		nfs_mounted_once = false; /* needed by update.cpp to prevent removal of modules after flashing a new cramfs, since rmmod (busybox) might no longer be available */
-		CFSMounter::umount();
-
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
 		sleep(2);
-		//my_system("/etc/init.d/rcK");
 		ft.reboot();
 	}
 	else if(fileType == 'T') // display file contents

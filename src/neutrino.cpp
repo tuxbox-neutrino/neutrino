@@ -3579,6 +3579,7 @@ void stop_daemons(bool stopall, bool for_flash)
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText("Stop daemons...");
+		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
 	}
 
 	dvbsub_close();
@@ -3596,7 +3597,7 @@ void stop_daemons(bool stopall, bool for_flash)
 	}
 	printf("httpd shutdown done\n");
 	CStreamManager::getInstance()->Stop();
-	if(stopall && !for_flash) {
+	if(stopall || for_flash) {
 		printf("timerd shutdown\n");
 		if (g_Timerd)
 			g_Timerd->shutdown();
@@ -3641,7 +3642,8 @@ void stop_daemons(bool stopall, bool for_flash)
 	if (for_flash) {
 		delete CRecordManager::getInstance();
 		delete videoDemux;
-		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
+		int ret = my_system(4, "mount", "-no", "remount,ro", "/");
+		printf("remount rootfs readonly %s.\n", (ret == 0)?"successful":"failed"); fflush(stdout);
 	}
 }
 

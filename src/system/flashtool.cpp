@@ -25,11 +25,14 @@
 
 #include <libmd5sum.h>
 #include <system/flashtool.h>
+#include <system/fsmounter.h>
+#include <system/helpers.h>
 #include <eitd/sectionsd.h>
 
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <libgen.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
@@ -165,7 +168,32 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		return false;
 	}
 
-	if( (fd1 = open( filename.c_str(), O_RDONLY )) < 0 ) {
+	char buf1[1024];
+	memset(buf1, 0, sizeof(buf1));
+	strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
+	char* dn = dirname(buf1);
+	std::string flashfile;
+	if (strcmp(dn, "/tmp") != 0) {
+		memset(buf1, 0, sizeof(buf1));
+		strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
+		flashfile = (std::string)"/tmp/" + basename(buf1);
+		CFileHelpers fh;
+		printf("##### [CFlashTool::program] copy flashfile to %s\n", flashfile.c_str());
+		if(statusViewer)
+			statusViewer->showStatusMessageUTF("Copy Image");
+		fh.copyFile(filename.c_str(), flashfile.c_str(), 0644);
+		sync();
+		if(statusViewer)
+			statusViewer->showGlobalStatus(statusViewer->getGlobalStatus()+5);
+	}
+	else
+		flashfile = filename;
+
+	// Unmount all NFS & CIFS volumes
+	nfs_mounted_once = false;
+	CFSMounter::umount();
+
+	if( (fd1 = open( flashfile.c_str(), O_RDONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
 		return false;
 	}
@@ -211,7 +239,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	unsigned char buf[meminfo.writesize];
 	unsigned mtdoffset = 0;
 	unsigned fsize = filesize;
-	printf("CFlashTool::program: file %s write size %d, erase size %d\n", filename.c_str(), meminfo.writesize, meminfo.erasesize);
+	printf("CFlashTool::program: file %s write size %d, erase size %d\n", flashfile.c_str(), meminfo.writesize, meminfo.erasesize);
 	while(fsize > 0) {
 		unsigned block = meminfo.writesize;
 		if (block > fsize)
@@ -219,7 +247,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 
 		unsigned res = read(fd1, buf, block);
 		if (res != block) {
-			printf("CFlashTool::program: read from %s failed: %d from %d\n", filename.c_str(), res, block);
+			printf("CFlashTool::program: read from %s failed: %d from %d\n", flashfile.c_str(), res, block);
 		}
 		if (isnand) {
 			if (block < (unsigned) meminfo.writesize) {

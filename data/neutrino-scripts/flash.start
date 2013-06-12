@@ -15,14 +15,3 @@ if [ -e /var/etc/.djmount ]; then
 	echo "Kill djmount"
 	fusermount -u /media/00upnp
 fi
-
-## remount rootfs readonly #################
-mount -no remount,ro /
-RET=$?
-echo -n "remount rootfs readonly "
-if [ "$RET" = "0" ]; then
-	echo "successful."
-else
-	echo "failed."
-fi
-############################################
