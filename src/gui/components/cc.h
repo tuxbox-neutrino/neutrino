@@ -153,6 +153,8 @@ class CComponents
 		inline virtual int getHeight(){return height;};
 		///return width of component
 		inline virtual int getWidth(){return width;};
+		///return of frame thickness
+		inline virtual int getFrameThickness(){return fr_thickness;};
 
 		///return/set (pass through) width and height of component
 		inline virtual void getSize(int* w, int* h){*w=width; *h=height;};
