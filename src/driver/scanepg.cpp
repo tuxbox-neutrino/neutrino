@@ -67,6 +67,7 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	if (!g_settings.epg_scan || CFEManager::getInstance()->getEnabledCount() <= 1)
 		return;
 
+	CZapitChannel * newchan;
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
 		if(bouquetList->Bouquets.empty())
 			return;
@@ -87,7 +88,7 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
-		CZapitChannel * newchan = CServiceManager::getInstance()->FindChannel(chid);
+		newchan = CServiceManager::getInstance()->FindChannel(chid);
 		if (newchan) {
 			scanned.insert(newchan->getTransponderId());
 			scanmap.erase(newchan->getTransponderId());
@@ -107,7 +108,7 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
 		for (eit_scanmap_iterator_t it = scanmap.begin(); it != scanmap.end(); /* ++it*/) {
-			CZapitChannel * newchan = CServiceManager::getInstance()->FindChannel(it->second);
+			newchan = CServiceManager::getInstance()->FindChannel(it->second);
 			if ((newchan == NULL) || SAME_TRANSPONDER(live_channel_id, newchan->getChannelID())) {
 				scanmap.erase(it++);
 				continue;

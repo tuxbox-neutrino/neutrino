@@ -348,7 +348,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 
 	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
 		CFEManager::getInstance()->getEnabledCount() > 1);
-	mc1->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
+	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
 	ms_epg->addItem(mc);
 	ms_epg->addItem(mc1);
