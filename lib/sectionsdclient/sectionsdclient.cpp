@@ -147,12 +147,13 @@ bool CSectionsdClient::getIsScanningActive()
 	}
 }
 
-void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bool requestEvent)
+void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bool requestEvent, int dnum)
 {
 	sectionsd::commandSetServiceChanged msg;
 
 	msg.channel_id   = channel_id;
 	msg.requestEvent = requestEvent;
+	msg.dnum = dnum;
 
 	send(sectionsd::serviceChanged, (char *)&msg, sizeof(msg));
 
