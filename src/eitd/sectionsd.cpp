@@ -900,9 +900,19 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	if (dataLength != sizeof(sectionsd::commandSetServiceChanged))
 		return;
 
-	t_channel_id uniqueServiceKey = (((sectionsd::commandSetServiceChanged *)data)->channel_id);
+	sectionsd::commandSetServiceChanged * cmd = (sectionsd::commandSetServiceChanged *)data;
+	t_channel_id uniqueServiceKey = cmd->channel_id;
 
-	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE " demux #%d\n", uniqueServiceKey, cmd->dnum);
+	/* assume live demux always 0, other means background scan */
+	if (cmd->dnum) {
+		/* dont wakeup EIT, if we have max events allready */
+		if (max_events && (mySIeventsOrderUniqueKey.size() < max_events)) {
+			threadEIT.setDemux(cmd->dnum);
+			threadEIT.setCurrentService(uniqueServiceKey);
+		}
+		return;
+	}
 
 	static t_channel_id time_trigger_last = 0;
 
@@ -930,7 +940,8 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 		unlockMessaging();
 
 		threadCN.setCurrentService(messaging_current_servicekey);
-		threadEIT.setCurrentService(messaging_current_servicekey);
+		threadEIT.setDemux(cmd->dnum);
+		threadEIT.setCurrentService(uniqueServiceKey /*messaging_current_servicekey*/);
 #ifdef ENABLE_FREESATEPG
 		threadFSEIT.setCurrentService(messaging_current_servicekey);
 #endif
@@ -1694,6 +1705,10 @@ void CEitThread::beforeSleep()
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
+	eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
+			CEventServer::INITID_SECTIONSD,
+			&current_service,
+			sizeof(messaging_current_servicekey));
 	if(notify_complete)
 		system(CONFIGDIR "/epgdone.sh");
 }
