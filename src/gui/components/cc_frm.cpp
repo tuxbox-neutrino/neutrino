@@ -154,9 +154,11 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 
 int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
 {
-	for (size_t i= 0; i< v_cc_items.size(); i++)
-		if (v_cc_items[i] == cc_Item)
-			return i;
+	if (cc_Item){
+		for (size_t i= 0; i< v_cc_items.size(); i++)
+			if (v_cc_items[i] == cc_Item)
+				return i;	
+	}
 	return -1;
 }
 
