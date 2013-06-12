@@ -57,6 +57,7 @@
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/streamts.h>
+#include <driver/scanepg.h>
 
 #include "gui/audiomute.h"
 #include "gui/audioplayer.h"
@@ -444,6 +445,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
+	g_settings.epg_scan = configfile.getBool("epg_scan", false);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -906,6 +908,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	// epg
 	configfile.setBool("epg_save", g_settings.epg_save);
 	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
+	configfile.setBool("epg_scan", g_settings.epg_scan);
 	configfile.setString("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setString("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setString("epg_old_events"           ,g_settings.epg_old_events );
@@ -1710,6 +1713,7 @@ void CNeutrinoApp::InitSectiondClient()
 	g_Sectionsd = new CSectionsdClient;
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
+	g_Sectionsd->registerEvent(CSectionsdClient::EVT_EIT_COMPLETE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 }
 
@@ -2072,6 +2076,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						InfoClock->StartClock();
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
+					if (!g_settings.epg_scan)
+						CEpgScan::getInstance()->Clear();
 				}
 			}
 			else if (((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && (g_settings.key_tvradio_mode == (int)CRCInput::RC_nokey)) {
@@ -2329,6 +2335,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 		/* update scan settings for manual scan to current channel */
 		CScanSetup::getInstance()->updateManualSettings();
+		CEpgScan::getInstance()->handleMsg(msg, data);
 	}
 	if ((msg == NeutrinoMessages::EVT_TIMER)) {
 		if(data == scrambled_timer) {
@@ -2339,6 +2346,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			}
 			return messages_return::handled;
 		}
+	}
+	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE)) {
+		CEpgScan::getInstance()->handleMsg(msg, data);
+		return messages_return::handled;
 	}
 
 	res = res | g_RemoteControl->handleMsg(msg, data);
