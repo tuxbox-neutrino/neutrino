@@ -147,7 +147,9 @@ struct NeutrinoMessages {
 		EVT_TUNE_COMPLETE                        = CRCInput::RC_WithData + 22, /* data: (t_channel_id *) */
 
 		/* neutrino */
-		EVT_RECORDING_ENDED                      = CRCInput::RC_WithData + 23
+		EVT_RECORDING_ENDED                      = CRCInput::RC_WithData + 23,
+		/* sectionsd */
+		EVT_EIT_COMPLETE                         = CRCInput::RC_WithData + 24, /* data: (t_channel_id *) */
 	};
 	enum
 	{

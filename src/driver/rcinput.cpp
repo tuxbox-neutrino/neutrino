@@ -905,7 +905,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								break;
 							}
 							case CSectionsdClient::EVT_GOT_CN_EPG:
-printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
+								printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								*msg          = NeutrinoMessages::EVT_CURRENTNEXT_EPG;
 								*data         = (neutrino_msg_data_t) p;
 								dont_delete_p = true;
@@ -913,6 +913,12 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 							case CSectionsdClient::EVT_WRITE_SI_FINISHED:
 								*msg          = NeutrinoMessages::EVT_SI_FINISHED;
 								*data         = 0;
+								break;
+							case CSectionsdClient::EVT_EIT_COMPLETE:
+								printf("[neutrino] CSectionsdClient::EVT_EIT_COMPLETE\n");
+								*msg          = NeutrinoMessages::EVT_EIT_COMPLETE;
+								*data         = (neutrino_msg_data_t) p;
+								dont_delete_p = true;
 								break;
 #if 0
 							case CSectionsdClient::EVT_SERVICES_UPDATE:
