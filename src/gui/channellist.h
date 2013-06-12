@@ -195,6 +195,7 @@ public:
 		SORT_CH_NUMBER,
 		SORT_MAX
 	};
+	unsigned Size() { return chanlist.size(); }
 
 };
 #endif
