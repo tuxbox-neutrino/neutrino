@@ -60,6 +60,8 @@ class CComponentsForm : public CComponentsItem
 		virtual void paintCCItems();
 		virtual	void clearCCItems();
 		virtual void cleanCCForm();
+		///property: returns true, if item already added to form
+		virtual bool isAdded(CComponentsItem *cc_item);
 };
 
 class CComponentsIconForm : public CComponentsForm
