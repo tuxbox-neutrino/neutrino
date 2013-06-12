@@ -134,6 +134,7 @@ typedef struct comp_element_data_t
 #define CC_SAVE_SCREEN_NO 	false
 
 #define CC_NO_INDEX	 	-1
+#define CC_APPEND		-1
 
 
 
