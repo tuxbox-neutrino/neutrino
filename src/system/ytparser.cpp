@@ -63,27 +63,29 @@ void cYTVideoInfo::Dump()
 	printf("===================================================================\n");
 }
 
-std::string cYTVideoInfo::GetUrl(int fmt, bool mandatory)
+std::string cYTVideoInfo::GetUrl(int *fmt, bool mandatory)
 {
+	int default_fmt = 0;
+	if (!*fmt)
+		fmt = &default_fmt;
+
 	yt_urlmap_iterator_t it;
-	if (fmt) {
-		if ((it = formats.find(fmt)) != formats.end())
+	if (*fmt) {
+		if ((it = formats.find(*fmt)) != formats.end()) {
 			return it->second.GetUrl();
-		if (mandatory)
+		}
+		if (mandatory) {
+			*fmt = 0;
 			return "";
+		}
 	}
-	if ((it = formats.find(37)) != formats.end()) // 1080p MP4
-		return it->second.GetUrl();
-	if ((it = formats.find(22)) != formats.end()) // 720p MP4
-		return it->second.GetUrl();
-#if 0
-	if ((it = formats.find(35)) != formats.end()) // 480p FLV
-		return it->second.GetUrl();
-	if ((it = formats.find(34)) != formats.end()) // 360p FLV
-		return it->second.GetUrl();
-#endif
-	if ((it = formats.find(18)) != formats.end()) // 270p/360p MP4
-		return it->second.GetUrl();
+
+	int itags[] = { 37 /* 1080p MP4*/, 22 /* 720p MP4 */, 18 /* 270p/360p MP4 */, 0 };
+	for (int *fmtp = itags; *fmtp; fmtp++)
+		if ((it = formats.find(*fmtp)) != formats.end()) {
+			*fmt = *fmtp;
+			return it->second.GetUrl();
+		}
 	return "";
 }
 

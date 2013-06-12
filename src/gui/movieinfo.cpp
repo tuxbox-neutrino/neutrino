@@ -97,24 +97,13 @@ bool CMovieInfo::convertTs2XmlName(char *char_filename, int size)
 ************************************************************************/
 bool CMovieInfo::convertTs2XmlName(std::string * filename)
 {
-	//TRACE("[mi]->convertTs2XmlName\r\n");
-	int bytes = filename->find(".ts");
-	bool result = false;
-
-	if (bytes != -1) {
-		if (bytes > 3) {
-			if ((*filename)[bytes - 4] == '.') {
-				bytes = bytes - 4;
-			}
-		}
-		*filename = filename->substr(0, bytes) + ".xml";
-		result = true;
-	} else			// not a TS file, return!!!!!
-	{
-		//TRACE("    not a TS file ");
+	size_t lastdot = filename->find_last_of(".");
+	if (lastdot != string::npos) {
+		filename->erase(lastdot + 1);
+		filename->append("xml");
+		return true;
 	}
-
-	return (result);
+	return false;
 }
 
 /************************************************************************
@@ -886,6 +875,7 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 	timePlay.tm_mon = 1;
 
 	movie_info->file.Name = "";
+	movie_info->file.Url = "";
 	movie_info->file.Size = 0;	// Megabytes
 	movie_info->file.Time = mktime(&timePlay);
 	movie_info->dateOfLastPlay = mktime(&timePlay);	// (date, month, year)
@@ -925,6 +915,7 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 	movie_info->tfile.clear();
 	movie_info->ytdate.clear();
 	movie_info->ytid.clear();
+	movie_info->ytitag = 0;
 	movie_info->marked = false;
 }
 
@@ -1028,52 +1019,57 @@ bool CMovieInfo::saveFile_vlc(const CFile & /*file*/, const char */*text*/, cons
  *
  * */
 
-void CMovieInfo::copy(MI_MOVIE_INFO * src, MI_MOVIE_INFO * dst)
+#if 0
+MI_MOVIE_INFO& MI_MOVIE_INFO::operator=(const MI_MOVIE_INFO& src)
 {
-	//TRACE("[mi]->clearMovieInfo \r\n");
+	file.Name = src.file.Name;
+	file.Url = src.file.Url;
+	file.Size = src.file.Size;
+	file.Time = src.file.Time;
+	dateOfLastPlay = src.dateOfLastPlay;
+	dirItNr = src.dirItNr;
+	genreMajor = src.genreMajor;
+	genreMinor = src.genreMinor;
+	length = src.length;
+	quality = src.quality;
+	productionDate = src.productionDate;
+	parentalLockAge = src.parentalLockAge;
+	format = src.format;
+	audio = src.audio;
 
-	dst->file.Name = src->file.Name;
-	dst->file.Size = src->file.Size;
-	dst->file.Time = src->file.Time;
-	dst->dateOfLastPlay = src->dateOfLastPlay;
-	dst->dirItNr = src->dirItNr;
-	dst->genreMajor = src->genreMajor;
-	dst->genreMinor = src->genreMinor;
-	dst->length = src->length;
-	dst->quality = src->quality;
-	dst->productionDate = src->productionDate;
-	dst->parentalLockAge = src->parentalLockAge;
-	dst->format = src->format;
-	dst->audio = src->audio;
+	epgId = src.epgId;
+	epgEpgId = src.epgEpgId;
+	epgMode = src.epgMode;
+	epgVideoPid = src.epgVideoPid;
+	VideoType = src.VideoType;
+	epgVTXPID = src.epgVTXPID;
 
-	dst->epgId = src->epgId;
-	dst->epgEpgId = src->epgEpgId;
-	dst->epgMode = src->epgMode;
-	dst->epgVideoPid = src->epgVideoPid;
-	dst->VideoType = src->VideoType;
-	dst->epgVTXPID = src->epgVTXPID;
+	productionCountry = src.productionCountry;
+	epgTitle = src.epgTitle;
+	epgInfo1 = src.epgInfo1;
+	epgInfo2 = src.epgInfo2;
+	epgChannel = src.epgChannel;
+	serieName = src.serieName;
+	bookmarks.end = src.bookmarks.end;
+	bookmarks.start = src.bookmarks.start;
+	bookmarks.lastPlayStop = src.bookmarks.lastPlayStop;
 
-	dst->productionCountry = src->productionCountry;
-	dst->epgTitle = src->epgTitle;
-	dst->epgInfo1 = src->epgInfo1;
-	dst->epgInfo2 = src->epgInfo2;
-	dst->epgChannel = src->epgChannel;
-	dst->serieName = src->serieName;
-	dst->bookmarks.end = src->bookmarks.end;
-	dst->bookmarks.start = src->bookmarks.start;
-	dst->bookmarks.lastPlayStop = src->bookmarks.lastPlayStop;
-
-	for (int i = 0; i < MI_MOVIE_BOOK_USER_MAX; i++) {
-		dst->bookmarks.user[i].pos = src->bookmarks.user[i].pos;
-		dst->bookmarks.user[i].length = src->bookmarks.user[i].length;
-		dst->bookmarks.user[i].name = src->bookmarks.user[i].name;
+	for (unsigned int i = 0; i < MI_MOVIE_BOOK_USER_MAX; i++) {
+		bookmarks.user[i].pos = src.bookmarks.user[i].pos;
+		bookmarks.user[i].length = src.bookmarks.user[i].length;
+		bookmarks.user[i].name = src.bookmarks.user[i].name;
 	}
 
-	for (unsigned int i = 0; i < src->audioPids.size(); i++) {
+	for (unsigned int i = 0; i < src.audioPids.size(); i++) {
 		EPG_AUDIO_PIDS audio_pids;
-		audio_pids.epgAudioPid = src->audioPids[i].epgAudioPid;
-		audio_pids.epgAudioPidName = src->audioPids[i].epgAudioPidName;
-		audio_pids.atype = src->audioPids[i].atype;
-		dst->audioPids.push_back(audio_pids);
+		audio_pids.epgAudioPid = src.audioPids[i].epgAudioPid;
+		audio_pids.epgAudioPidName = src.audioPids[i].epgAudioPidName;
+		audio_pids.atype = src.audioPids[i].atype;
+		audioPids.push_back(audio_pids);
 	}
+	ytdate = src.ytdate;
+	ytid = src.ytid;
+	ytitag = src.ytitag;
+	return *this;
 }
+#endif

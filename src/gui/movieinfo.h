@@ -46,12 +46,15 @@
 #ifndef MOVIEINFO_H_
 #define MOVIEINFO_H_
 
+#define __USE_FILE_OFFSET64 1
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include "driver/file.h"
 
 /************************************************************************/
@@ -140,8 +143,10 @@ typedef struct
 /************************************************************************/
 /************************************************************************/
 
-typedef struct
+class MI_MOVIE_INFO
 {
+    public:
+//	MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 	CFile file;					// not stored in xml
 	std::string productionCountry;	// user defined Country (not from EPG yet, but might be possible)
 	std::string epgTitle;		// plain movie name, usually filled by EPG
@@ -173,7 +178,8 @@ typedef struct
 	std::string tfile; // thumbnail/cover file name
 	std::string ytdate; // yt published
 	std::string ytid; // yt published
-} MI_MOVIE_INFO;
+	int ytitag; // youtube quality profile
+};
 
 typedef std::vector<MI_MOVIE_INFO> MI_MOVIE_LIST;
 typedef std::vector<MI_MOVIE_INFO*> P_MI_MOVIE_LIST;
@@ -192,7 +198,6 @@ class CMovieInfo
 		void printDebugMovieInfo(MI_MOVIE_INFO& movie_info);							// print movie info on debug channel (RS232)
 		void clearMovieInfo(MI_MOVIE_INFO* movie_info);									// Set movie info structure to initial values
 		bool addNewBookmark(MI_MOVIE_INFO* movie_info,MI_BOOKMARK &new_bookmark);		// add a new bookmark to the given movie info. If there is no space false is returned
-		void copy(MI_MOVIE_INFO* src, MI_MOVIE_INFO* dst);
 		
 	private:// Functions
 		bool parseXmlTree (char* text, MI_MOVIE_INFO* movie_info);			// this is the 'good' function, but it needs the xmllib which is not currently linked within neutrino. Might be to slow as well. If used, add bookmark parsing

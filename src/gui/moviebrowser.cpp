@@ -64,6 +64,7 @@
 #include <gui/customcolor.h>
 #include <driver/record.h>
 #include <system/helpers.h>
+#include <system/ytcache.h>
 
 #include <timerdclient/timerdclient.h>
 #include <system/hddstat.h>
@@ -1084,6 +1085,10 @@ int CMovieBrowser::exec(const char* path)
 						TRACE("[mb] stop: %d start:%d \r\n",m_movieSelectionHandler->bookmarks.lastPlayStop,m_movieSelectionHandler->bookmarks.start);
 						m_currentStartPos = showStartPosSelectionMenu(); // display start menu m_currentStartPos =
 					}
+
+					if (show_mode == MB_SHOW_YT)
+						cYTCache::getInstance()->useCachedCopy(m_movieSelectionHandler);
+
 					if(m_currentStartPos >= 0) {
 						playing_info = m_movieSelectionHandler;
 						TRACE("[mb] start pos: %d s\r\n",m_currentStartPos);
@@ -1092,6 +1097,10 @@ int CMovieBrowser::exec(const char* path)
 					} else
 						refresh();
 				}
+			}
+			else if ((show_mode == MB_SHOW_YT) && (msg == CRCInput::RC_record) && m_movieSelectionHandler)
+			{
+				cYTCache::getInstance()->addToCache(m_movieSelectionHandler);
 			}
 			else if (msg == CRCInput::RC_home)
 			{
@@ -1280,8 +1289,8 @@ std::string CMovieBrowser::getScreenshotName(std::string movie)
 	std::string ext;
 	std::string ret;
 
-	size_t found = movie.rfind(".ts");
-	if ((found == string::npos) || (found != (movie.length() - 3)))
+	size_t found = movie.find_last_of(".");
+	if (found == string::npos)
 		return "";
 
 	vector<std::string>::iterator it = PicExts.begin();
@@ -3692,9 +3701,9 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 		movieInfo.tfile = ylist[i].tfile;
 		movieInfo.ytdate = ylist[i].published;
 		movieInfo.ytid = ylist[i].id;
-
 		movieInfo.file.Name = ylist[i].title;
-		movieInfo.file.Url = ylist[i].GetUrl(m_settings.ytquality, false);
+		movieInfo.ytitag = m_settings.ytquality;
+		movieInfo.file.Url = ylist[i].GetUrl(&movieInfo.ytitag, false);
 		movieInfo.file.Time = toEpoch(movieInfo.ytdate);
 		m_vMovieInfo.push_back(movieInfo);
 	}
@@ -4371,7 +4380,7 @@ static void save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, 
 {
 	MI_MOVIE_INFO ninfo;
 
-	cmovie->copy(minfo, &ninfo);
+	ninfo = *minfo;
 	ninfo.file.Name = dpart;
 	ninfo.file.Size = spos;
 	ninfo.length = spos/secsize/60;

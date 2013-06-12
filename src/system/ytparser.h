@@ -62,7 +62,7 @@ class cYTVideoInfo
 		bool ret;
 
 		void Dump();
-		std::string GetUrl(int fmt = 0, bool mandatory = true);
+		std::string GetUrl(int *fmt = NULL, bool mandatory = true);
 		
 };
 

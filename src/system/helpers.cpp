@@ -509,7 +509,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	unlink(Dst);
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
-	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, 0666)) < 0) {
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, mode)) < 0) {
 		close(fd1);
 		return false;
 	}
@@ -574,7 +574,6 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		return false;
 	}
 
-	chmod(Dst, mode);
 	return true;
 }
 
