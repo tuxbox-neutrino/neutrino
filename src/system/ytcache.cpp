@@ -65,11 +65,25 @@ std::string cYTCache::getName(MI_MOVIE_INFO *mi, std::string ext)
 
 bool cYTCache::useCachedCopy(MI_MOVIE_INFO *mi)
 {
-	std::string cache = getName(mi);
-	if (!access(cache.c_str(), R_OK)) {
-		mi->file.Url = cache;
+	std::string file = getName(mi);
+	if (access(file.c_str(), R_OK))
+		return false;
+	std::string xml = getName(mi, "xml");
+	if (!access(xml.c_str(), R_OK)) {
+		mi->file.Url = file;
 		return true;
 	}
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		if (pending.empty())
+			return false;
+		MI_MOVIE_INFO m = pending.front();
+		if (compareMovieInfo(&m, mi)) {
+			mi->file.Url = file;
+			return true;
+		}
+	}
+	
 	return false;
 }
 
@@ -84,9 +98,8 @@ int cYTCache::curlProgress(void *clientp, double /*dltotal*/, double /*dlnow*/, 
 bool cYTCache::download(MI_MOVIE_INFO *mi)
 {
 	std::string file = getName(mi);
-	std::string tmpfile = file + ".tmp";
-
-	if (!access(file.c_str(), R_OK) || !access(tmpfile.c_str(), R_OK))
+	std::string xml = getName(mi, "xml");
+	if (!access(file.c_str(), R_OK) && !access(file.c_str(), R_OK))
 		return true;
 
 	FILE * fp = fopen(file.c_str(), "wb");
@@ -120,14 +133,12 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 
 	if (res) {
 		fprintf(stderr, "curl error: %s\n", cerror);
-		unlink(tmpfile.c_str());
+		unlink(file.c_str());
 		return false;
 	}
-	rename (tmpfile.c_str(), file.c_str());
 	CMovieInfo cMovieInfo;
 	CFile File;
-	File.Name = getName(mi, "xml");
-	cMovieInfo.convertTs2XmlName(&File.Name);
+	File.Name = xml;
 	cMovieInfo.saveMovieInfo(*mi, &File);
 	std::string thumbnail_dst = getName(mi, "jpg");
 	std::string thumbnail_src = "/tmp/ytparser/" + mi->ytid + ".jpg";
