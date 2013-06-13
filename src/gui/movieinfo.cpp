@@ -1019,7 +1019,7 @@ bool CMovieInfo::saveFile_vlc(const CFile & /*file*/, const char */*text*/, cons
  *
  * */
 
-#if 1
+#if 0
 MI_MOVIE_INFO& MI_MOVIE_INFO::operator=(const MI_MOVIE_INFO& src)
 {
 	file.Name = src.file.Name;

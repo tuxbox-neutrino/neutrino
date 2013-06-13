@@ -146,7 +146,7 @@ typedef struct
 class MI_MOVIE_INFO
 {
     public:
-	MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
+	//MI_MOVIE_INFO &operator=(const MI_MOVIE_INFO& src);
 	CFile file;					// not stored in xml
 	std::string productionCountry;	// user defined Country (not from EPG yet, but might be possible)
 	std::string epgTitle;		// plain movie name, usually filled by EPG
