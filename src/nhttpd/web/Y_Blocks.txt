@@ -496,7 +496,13 @@ end-block~frame_live_epg
 
 # ------- Remote
 start-block~remote
-{=if-equal:CST Neo SAT~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~default~{=func:get_boxtype=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}=}~{=include-block:Y_Blocks.txt;remote_neo=}~{=if-equal:{=func:get_boxtype=}~CST Neo CABLE~{=include-block:Y_Blocks.txt;remote_neo=}~{=if-equal:{=func:get_boxtype=}~CST Zee SAT~{=include-block:Y_Blocks.txt;remote_zee=}~{=if-equal:{=func:get_boxtype=}~CST Zee CABLE~{=include-block:Y_Blocks.txt;remote_zee=}~{=include-block:Y_Blocks.txt;remote_hd1=}=}=}=}=}
+{=if-equal:CST Neo SAT~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~default~{=func:get_boxtype=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}=}~{=include-block:Y_Blocks.txt;remote_neo=}~
+	{=if-equal:{=func:get_boxtype=}~CST Neo CABLE~{=include-block:Y_Blocks.txt;remote_neo=}~
+	{=if-equal:{=func:get_boxtype=}~CST Zee SAT~{=include-block:Y_Blocks.txt;remote_zee=}~
+	{=if-equal:{=func:get_boxtype=}~CST Zee CABLE~{=include-block:Y_Blocks.txt;remote_zee=}~
+	{=if-equal:{=func:get_boxtype=}~CST Neo Twin SAT~{=include-block:Y_Blocks.txt;remote_zee=}~
+	{=if-equal:{=func:get_boxtype=}~CST Neo Twin CABLE~{=include-block:Y_Blocks.txt;remote_zee=}~
+{=include-block:Y_Blocks.txt;remote_hd1=}=}=}=}=}=}=}
 end-block~remote
 
 # ------- Remote Coolstream Neo
