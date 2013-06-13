@@ -225,12 +225,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		char buffer[255];
 		FILE *f = fopen("/proc/mounts", "r");
 		bool mounted = false;
-		if (f != NULL)
-		{
-			while (fgets (buffer, 255, f) != NULL)
-			{
-				if (strstr(buffer, "/dev/sda1"))
-				{
+		if (f != NULL) {
+			while (fgets (buffer, 255, f) != NULL) {
+				if (strstr(buffer, "/dev/sda1")) {
 					mounted = true;
 					break;
 				}
@@ -238,6 +235,27 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			fclose(f);
 		}
 		sprintf(buffer, "HDD: /dev/sda1 is %s", mounted ? "mounted" : "NOT mounted");
+		printf("%s\n", buffer);
+		
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		
+		return res;
+	}
+	else if (actionKey == "mmc")
+	{
+		char buffer[255];
+		FILE *f = fopen("/proc/mounts", "r");
+		bool mounted = false;
+		if (f != NULL) {
+			while (fgets (buffer, 255, f) != NULL) {
+				if (strstr(buffer, "/dev/mmcblk0p1")) {
+					mounted = true;
+					break;
+				}
+			}
+			fclose(f);
+		}
+		sprintf(buffer, "MMC: /dev/mmcblk0p1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
 		
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
@@ -309,10 +327,10 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			case FE_QPSK:
 				strncpy(scansettings.satName,
 						CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
-				sprintf(scansettings.sat_TP_freq, "%d", 12302000);
-				sprintf(scansettings.sat_TP_rate, "%d", 30000*1000);
-				scansettings.sat_TP_fec = 5;
-				scansettings.sat_TP_pol = 1;
+				sprintf(scansettings.sat_TP_freq, "%d", (fnum & 1) ? 12439000: 12538000);
+				sprintf(scansettings.sat_TP_rate, "%d", (fnum & 1) ? 2500*1000 : 41250*1000);
+				scansettings.sat_TP_fec = (fnum & 1) ? 3 : 3;
+				scansettings.sat_TP_pol = (fnum & 1) ? 0 : 1;
 				break;
 			case FE_QAM:
 				{
@@ -646,6 +664,7 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));
 	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
 	widget->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
+	widget->addItem(new CMenuForwarderNonLocalized("SD/MMC", true, NULL, this, "mmc"));
 
 	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {
 		CServiceManager::getInstance()->InitSatPosition(test_pos[i], NULL, true);
@@ -659,7 +678,7 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 		char scan[100];
 		sprintf(scan, "scan%d", i);
 		if (frontend->getInfo()->type == FE_QPSK) {
-			sprintf(title, "Satellite tuner %d: Scan 12302-30000-V-5/6", i+1);
+			sprintf(title, "Satellite tuner %d: Scan %s", i+1, (i & 1) ? "12439-02500-H-5/6" : "12538-41250-V-3/4");
 		} else if (frontend->getInfo()->type == FE_QAM) {
 			sprintf(title, "Cable tuner %d: Scan 474-6875-QAM-256", i+1);
 		} else
