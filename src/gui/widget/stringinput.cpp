@@ -389,10 +389,10 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		strcat(value, " ");
 	strncpy(oldval, value, size);
 
-	fb_pixel_t * pixbuf = new fb_pixel_t[(width + SHADOW_OFFSET) * (hheight + bheight + SHADOW_OFFSET)];
+	fb_pixel_t * pixbuf = new fb_pixel_t[(width + SHADOW_OFFSET) * (height + SHADOW_OFFSET)];
 
 	if (pixbuf != NULL)
-		frameBuffer->SaveScreen(x, y, width + SHADOW_OFFSET, hheight + bheight + SHADOW_OFFSET, pixbuf);
+		frameBuffer->SaveScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
 
 	paint();
 
@@ -507,7 +507,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	if (pixbuf != NULL)
 	{
-		frameBuffer->RestoreScreen(x, y, width + SHADOW_OFFSET, hheight + bheight + SHADOW_OFFSET, pixbuf);
+		frameBuffer->RestoreScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
 		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
 	}
 
@@ -548,7 +548,7 @@ void CStringInput::hide()
 
 void CStringInput::paint(bool sms)
 {
-	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + SHADOW_OFFSET, width, hheight + bheight, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
+	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + SHADOW_OFFSET, width, height, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
 	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //round
 	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, sms ? 0 : RADIUS_LARGE, CORNER_BOTTOM);
 
