@@ -329,7 +329,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 						CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
 				sprintf(scansettings.sat_TP_freq, "%d", (fnum & 1) ? 12439000: 12538000);
 				sprintf(scansettings.sat_TP_rate, "%d", (fnum & 1) ? 2500*1000 : 41250*1000);
-				scansettings.sat_TP_fec = (fnum & 1) ? 3 : 3;
+				scansettings.sat_TP_fec = (fnum & 1) ? FEC_3_4 : FEC_1_2;
 				scansettings.sat_TP_pol = (fnum & 1) ? 0 : 1;
 				break;
 			case FE_QAM:
@@ -678,7 +678,7 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 		char scan[100];
 		sprintf(scan, "scan%d", i);
 		if (frontend->getInfo()->type == FE_QPSK) {
-			sprintf(title, "Satellite tuner %d: Scan %s", i+1, (i & 1) ? "12439-02500-H-5/6" : "12538-41250-V-3/4");
+			sprintf(title, "Satellite tuner %d: Scan %s", i+1, (i & 1) ? "12439-02500-H-5/6" : "12538-41250-V-1/2");
 		} else if (frontend->getInfo()->type == FE_QAM) {
 			sprintf(title, "Cable tuner %d: Scan 474-6875-QAM-256", i+1);
 		} else
