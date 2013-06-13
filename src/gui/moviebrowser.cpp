@@ -3774,15 +3774,15 @@ int CYTCacheSelectorTarget::exec(CMenuTarget* /*parent*/, const std::string & ac
 	} else if (actionKey == "rc_spkr" && selected >= movieBrowser->yt_completed_offset && selected < movieBrowser->yt_failed_offset) {
 		cYTCache::getInstance()->remove(&movieBrowser->yt_completed[selected - movieBrowser->yt_completed_offset]);
 	} else if (actionKey == "") {
-		if (selected >= movieBrowser->yt_pending_offset && selected < movieBrowser->yt_completed_offset) {
+		if (movieBrowser->yt_pending_offset && selected >= movieBrowser->yt_pending_offset && selected < movieBrowser->yt_completed_offset) {
 			if(ShowMsg (LOCALE_MOVIEBROWSER_YT_CACHE, g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CANCEL_TRANSFER), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
 				cYTCache::getInstance()->cancel(&movieBrowser->yt_pending[selected - movieBrowser->yt_pending_offset]);
 			else
 				return menu_return::RETURN_NONE;
-		} else if (selected >= movieBrowser->yt_completed_offset && selected < movieBrowser->yt_failed_offset) {
+		} else if (movieBrowser->yt_completed_offset && selected >= movieBrowser->yt_completed_offset && selected < movieBrowser->yt_failed_offset) {
 			// FIXME -- anything sensible to do here?
 			return menu_return::RETURN_NONE;
-		} else if (selected >= movieBrowser->yt_failed_offset && selected < movieBrowser->yt_menue->getItemsCount()){
+		} else if (movieBrowser->yt_failed_offset && selected >= movieBrowser->yt_failed_offset && selected < movieBrowser->yt_menue->getItemsCount()){
 			cYTCache::getInstance()->clearFailed(&movieBrowser->yt_failed[selected - movieBrowser->yt_failed_offset]);
 			cYTCache::getInstance()->addToCache(&movieBrowser->yt_failed[selected - movieBrowser->yt_failed_offset]);
 			const char *format = g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CACHE_ADD);
@@ -3804,10 +3804,9 @@ void CMovieBrowser::refreshYTMenu()
 {
 	for (u_int item_id = (u_int) yt_menue->getItemsCount() - 1; item_id > yt_menue_end - 1; item_id--) {
                 CMenuItem* m = yt_menue->getItem(item_id);
-		if (m && !m->isStatic) {
+		if (m && !m->isStatic)
 			delete m;
-			yt_menue->removeItem(item_id);
-		}
+		yt_menue->removeItem(item_id);
 	}
 	yt_pending = cYTCache::getInstance()->getPending();
 	yt_completed = cYTCache::getInstance()->getCompleted();

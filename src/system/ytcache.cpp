@@ -67,14 +67,11 @@ std::string cYTCache::getName(MI_MOVIE_INFO *mi, std::string ext)
 bool cYTCache::useCachedCopy(MI_MOVIE_INFO *mi)
 {
 	std::string file = getName(mi);
-fprintf(stderr, "checking %s\n", file.c_str());
 	if (access(file.c_str(), R_OK))
 		return false;
 	std::string xml = getName(mi, "xml");
-fprintf(stderr, "checking %s\n", xml.c_str());
 	if (!access(xml.c_str(), R_OK)) {
 		mi->file.Url = file;
-fprintf(stderr, "using cached copy: %s\n", file.c_str());
 		return true;
 	}
 	{
@@ -104,7 +101,7 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 	std::string file = getName(mi);
 	std::string xml = getName(mi, "xml");
 	if (!access(file.c_str(), R_OK) && !access(xml.c_str(), R_OK)) {
-		fprintf(stderr, "%s: %s already present an valid\n", __func__, file.c_str());
+		fprintf(stderr, "%s: %s already present and valid\n", __func__, file.c_str());
 		return true;
 	}
 
