@@ -34,6 +34,7 @@
 
 #include "helpers.h"
 #include "settings.h"
+#include "set_threadname.h"
 #include <global.h>
 
 static cYTCache *instance = NULL;
@@ -66,11 +67,14 @@ std::string cYTCache::getName(MI_MOVIE_INFO *mi, std::string ext)
 bool cYTCache::useCachedCopy(MI_MOVIE_INFO *mi)
 {
 	std::string file = getName(mi);
+fprintf(stderr, "checking %s\n", file.c_str());
 	if (access(file.c_str(), R_OK))
 		return false;
 	std::string xml = getName(mi, "xml");
+fprintf(stderr, "checking %s\n", xml.c_str());
 	if (!access(xml.c_str(), R_OK)) {
 		mi->file.Url = file;
+fprintf(stderr, "using cached copy: %s\n", file.c_str());
 		return true;
 	}
 	{
@@ -99,8 +103,10 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 {
 	std::string file = getName(mi);
 	std::string xml = getName(mi, "xml");
-	if (!access(file.c_str(), R_OK) && !access(file.c_str(), R_OK))
+	if (!access(file.c_str(), R_OK) && !access(xml.c_str(), R_OK)) {
+		fprintf(stderr, "%s: %s already present an valid\n", __func__, file.c_str());
 		return true;
+	}
 
 	FILE * fp = fopen(file.c_str(), "wb");
 	if (!fp) {
@@ -132,7 +138,6 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 	fclose(fp);
 
 	if (res) {
-		fprintf(stderr, "curl error: %s\n", cerror);
 		unlink(file.c_str());
 		return false;
 	}
@@ -147,6 +152,8 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 }
 
 void *cYTCache::downloadThread(void *arg) {
+	fprintf(stderr, "%s starting\n", __func__);
+	set_threadname("ytdownload");
 	cYTCache *caller = (cYTCache *)arg;
 
 	while (caller->thread) {
@@ -161,32 +168,33 @@ void *cYTCache::downloadThread(void *arg) {
 			mi = caller->pending.front();
 		}
 
-		fprintf(stderr, "download start: %s\n", mi.file.Url.c_str());
 
 		bool res = caller->download(&mi);
 
-		fprintf(stderr, "download end: %s %s\n", mi.file.Url.c_str(), res ? "succeeded" : "failed");
+		caller->cancelled = false;
 
 		{
 			OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(caller->mutex);
 			if (res)
-				caller->done.push_front(mi);
+				caller->completed.insert(caller->completed.begin(), mi);
 			else
-				caller->failed.push_front(mi);
-			caller->cancelled = false;
+				caller->failed.insert(caller->failed.begin(), mi);
 			if (caller->pending.empty())
 				caller->thread = 0;
 			else
-				caller->pending.pop_front();
+				caller->pending.erase(caller->pending.begin());
 		}
 	}
+	fprintf(stderr, "%s exiting\n", __func__);
 	pthread_exit(NULL);
 }
 
 bool cYTCache::addToCache(MI_MOVIE_INFO *mi)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	pending.push_back(*mi);
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		pending.push_back(*mi);
+	}
 
 	if (!thread) {
 		if (pthread_create(&thread, NULL, downloadThread, this)) {
@@ -200,62 +208,111 @@ bool cYTCache::addToCache(MI_MOVIE_INFO *mi)
 
 void cYTCache::cancel(MI_MOVIE_INFO *mi)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	mutex.lock();
 	if (pending.empty())
 		return;
 
 	if (compareMovieInfo(mi, &pending.front())) {
 		cancelled = true;
+		mutex.unlock();
+		while (cancelled)
+			usleep(100000);
 		return;
+	} else {
+		for (std::vector<MI_MOVIE_INFO>::iterator it = pending.begin(); it != pending.end(); ++it)
+			if (compareMovieInfo(&(*it), mi)) {
+				pending.erase(it);
+				failed.push_back(*mi);
+				break;
+			}
 	}
-	for (std::list<MI_MOVIE_INFO>::iterator it = pending.begin(); it != pending.end(); ++it)
+	mutex.unlock();
+}
+
+void cYTCache::remove(MI_MOVIE_INFO *mi)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (completed.empty())
+		return;
+
+	for (std::vector<MI_MOVIE_INFO>::iterator it = completed.begin(); it != completed.end(); ++it)
 		if (compareMovieInfo(&(*it), mi)) {
-			pending.erase(it);
+			completed.erase(it);
+			unlink(getName(mi).c_str());
+			unlink(getName(mi, "xml").c_str());
+			unlink(getName(mi, "jpg").c_str());
 			break;
 		}
 }
 
 void cYTCache::cancelAll(void)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	if (pending.empty())
-		return;
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		if (pending.empty())
+			return;
+		if (pending.size() > 1) {
+			failed.insert(failed.end(), pending.begin() + 1, pending.end());
+			pending.erase(pending.begin() + 1, pending.end());
+		}
+	}
 
 	cancelled = true;
 	while (thread)
 		usleep(100000);
-	cancelled = false;
-	pending.clear();
+
+	{
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+		cancelled = false;
+		pending.clear();
+	}
 }
 
-std::list<MI_MOVIE_INFO> cYTCache::getFailed(bool clear)
+std::vector<MI_MOVIE_INFO> cYTCache::getFailed(void)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	std::list<MI_MOVIE_INFO> res = failed;
-	if (clear)
+	std::vector<MI_MOVIE_INFO> res = failed;
+	return res;
+}
+
+std::vector<MI_MOVIE_INFO> cYTCache::getCompleted(void)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	std::vector<MI_MOVIE_INFO> res = completed;
+	return res;
+}
+
+std::vector<MI_MOVIE_INFO> cYTCache::getPending(void)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	std::vector<MI_MOVIE_INFO> res = pending;
+	return res;
+}
+
+void cYTCache::clearFailed(MI_MOVIE_INFO *mi)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (mi) {
+		for (std::vector<MI_MOVIE_INFO>::iterator it = failed.begin(); it != failed.end(); ++it)
+			if (compareMovieInfo(&(*it), mi)) {
+				failed.erase(it);
+				break;
+		}
+	} else
 		failed.clear();
-	return res;
 }
 
-std::list<MI_MOVIE_INFO> cYTCache::getDone(bool clear)
+void cYTCache::clearCompleted(MI_MOVIE_INFO *mi)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	std::list<MI_MOVIE_INFO> res = done;
-	if (clear)
-		done.clear();
-	return res;
-}
-
-void cYTCache::clearFailed(void)
-{
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	failed.clear();
-}
-
-void cYTCache::clearDone(void)
-{
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
-	done.clear();
+	if (mi) {
+		for (std::vector<MI_MOVIE_INFO>::iterator it = completed.begin(); it != completed.end(); ++it)
+			if (compareMovieInfo(&(*it), mi)) {
+				completed.erase(it);
+				break;
+		}
+	} else
+		completed.clear();
 }
 
 bool cYTCache::compareMovieInfo(MI_MOVIE_INFO *a, MI_MOVIE_INFO *b)

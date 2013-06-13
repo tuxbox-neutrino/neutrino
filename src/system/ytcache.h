@@ -25,7 +25,7 @@
 
 #include <config.h>
 #include <string>
-#include <list>
+#include <vector>
 
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
@@ -37,9 +37,9 @@ class cYTCache
 	private:
 		pthread_t thread;
 		bool cancelled;
-		std::list<MI_MOVIE_INFO> pending;
-		std::list<MI_MOVIE_INFO> done;
-		std::list<MI_MOVIE_INFO> failed;
+		std::vector<MI_MOVIE_INFO> pending;
+		std::vector<MI_MOVIE_INFO> completed;
+		std::vector<MI_MOVIE_INFO> failed;
 		OpenThreads::Mutex mutex;
 		bool download(MI_MOVIE_INFO *mi);
 		std::string getName(MI_MOVIE_INFO *mi, std::string ext = "mp4");
@@ -53,10 +53,12 @@ class cYTCache
 		bool useCachedCopy(MI_MOVIE_INFO *mi);
 		bool addToCache(MI_MOVIE_INFO *mi);
 		void cancel(MI_MOVIE_INFO *mi);
+		void remove(MI_MOVIE_INFO *mi);
 		void cancelAll(void);
-		std::list<MI_MOVIE_INFO> getDone(bool clear = false);
-		std::list<MI_MOVIE_INFO> getFailed(bool clear = false);
-		void clearDone(void);
-		void clearFailed(void);
+		std::vector<MI_MOVIE_INFO> getCompleted(void);
+		std::vector<MI_MOVIE_INFO> getFailed(void);
+		std::vector<MI_MOVIE_INFO> getPending(void);
+		void clearCompleted(MI_MOVIE_INFO *mi = NULL);
+		void clearFailed(MI_MOVIE_INFO *mi = NULL);
 };
 #endif

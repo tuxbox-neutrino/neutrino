@@ -1100,7 +1100,15 @@ int CMovieBrowser::exec(const char* path)
 			}
 			else if ((show_mode == MB_SHOW_YT) && (msg == CRCInput::RC_record) && m_movieSelectionHandler)
 			{
-				cYTCache::getInstance()->addToCache(m_movieSelectionHandler);
+				if (cYTCache::getInstance()->addToCache(m_movieSelectionHandler)) {
+					const char *format = g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CACHE_ADD);
+					char buf[1024];
+					snprintf(buf, sizeof(buf), format, m_movieSelectionHandler->file.Name.c_str());
+					CHintBox hintBox(LOCALE_MOVIEBROWSER_YT_CACHE, buf);
+					hintBox.paint();
+					sleep(1);
+					hintBox.hide();
+				}
 			}
 			else if (msg == CRCInput::RC_home)
 			{
@@ -2251,10 +2259,12 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 {
 	//TRACE( "[onDeleteFile] ");
 	int test= movieSelectionHandler.file.Name.find(".ts", movieSelectionHandler.file.Name.length()-3);
+	if (test < 0)
+		test= movieSelectionHandler.file.Name.find(".mp4", movieSelectionHandler.file.Name.length()-4);
 	if(test == -1)
 	{
 		// not a TS file, return!!!!!
-		TRACE( "show_ts_info: not a TS file ");
+		TRACE( "show_ts_info: not a TS or MP4 file ");
 	}
 	else
 	{
@@ -3750,6 +3760,99 @@ neutrino_locale_t CMovieBrowser::getFeedLocale(void)
 	return ret;
 }
 
+int CYTCacheSelectorTarget::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
+{
+	int selected = movieBrowser->yt_menue->getSelected();
+	if (actionKey == "cancel_all") {
+		cYTCache::getInstance()->cancelAll();
+	} else if (actionKey == "completed_clear") {
+		cYTCache::getInstance()->clearCompleted();
+	} else if (actionKey == "failed_clear") {
+		cYTCache::getInstance()->clearFailed();
+	} else if (actionKey == "rc_spkr" && selected >= movieBrowser->yt_pending_offset && selected < movieBrowser->yt_completed_offset) {
+		cYTCache::getInstance()->cancel(&movieBrowser->yt_pending[selected - movieBrowser->yt_pending_offset]);
+	} else if (actionKey == "rc_spkr" && selected >= movieBrowser->yt_completed_offset && selected < movieBrowser->yt_failed_offset) {
+		cYTCache::getInstance()->remove(&movieBrowser->yt_completed[selected - movieBrowser->yt_completed_offset]);
+	} else if (actionKey == "") {
+		if (selected >= movieBrowser->yt_pending_offset && selected < movieBrowser->yt_completed_offset) {
+			if(ShowMsg (LOCALE_MOVIEBROWSER_YT_CACHE, g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CANCEL_TRANSFER), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
+				cYTCache::getInstance()->cancel(&movieBrowser->yt_pending[selected - movieBrowser->yt_pending_offset]);
+			else
+				return menu_return::RETURN_NONE;
+		} else if (selected >= movieBrowser->yt_completed_offset && selected < movieBrowser->yt_failed_offset) {
+			// FIXME -- anything sensible to do here?
+			return menu_return::RETURN_NONE;
+		} else if (selected >= movieBrowser->yt_failed_offset && selected < movieBrowser->yt_menue->getItemsCount()){
+			cYTCache::getInstance()->clearFailed(&movieBrowser->yt_failed[selected - movieBrowser->yt_failed_offset]);
+			cYTCache::getInstance()->addToCache(&movieBrowser->yt_failed[selected - movieBrowser->yt_failed_offset]);
+			const char *format = g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CACHE_ADD);
+			char buf[1024];
+			snprintf(buf, sizeof(buf), format, movieBrowser->yt_failed[selected - movieBrowser->yt_failed_offset].file.Name.c_str());
+			CHintBox hintBox(LOCALE_MOVIEBROWSER_YT_CACHE, buf);
+			hintBox.paint();
+			sleep(1);
+			hintBox.hide();
+		}
+	} else
+		return menu_return::RETURN_NONE;
+
+	movieBrowser->refreshYTMenu();
+	return menu_return::RETURN_REPAINT;
+}
+
+void CMovieBrowser::refreshYTMenu()
+{
+	for (u_int item_id = (u_int) yt_menue->getItemsCount() - 1; item_id > yt_menue_end - 1; item_id--) {
+                CMenuItem* m = yt_menue->getItem(item_id);
+		if (m && !m->isStatic) {
+			delete m;
+			yt_menue->removeItem(item_id);
+		}
+	}
+	yt_pending = cYTCache::getInstance()->getPending();
+	yt_completed = cYTCache::getInstance()->getCompleted();
+	yt_failed = cYTCache::getInstance()->getFailed();
+
+	yt_pending_offset = 0;
+	yt_completed_offset = 0;
+	yt_failed_offset = 0;
+
+	if (!yt_pending.empty()) {
+		yt_menue->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_YT_PENDING));
+		yt_menue->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_CANCEL, true, NULL, ytcache_selector, "cancel_all"));
+    		yt_menue->addItem(GenericMenuSeparator);
+		int i = 0;
+		yt_pending_offset = yt_menue->getItemsCount();
+		for (std::vector<MI_MOVIE_INFO>::iterator it = yt_pending.begin(); it != yt_pending.end(); ++it, ++i) {
+			yt_menue->addItem(new CMenuForwarder((*it).file.Name.c_str(), true, NULL, ytcache_selector));
+		}
+	}
+
+	if (!yt_completed.empty()) {
+		yt_menue->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_YT_COMPLETED));
+		yt_menue->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_CLEAR, true, NULL, ytcache_selector, "completed_clear"));
+    		yt_menue->addItem(GenericMenuSeparator);
+		int i = 0;
+		yt_completed_offset = yt_menue->getItemsCount();
+		for (std::vector<MI_MOVIE_INFO>::iterator it = yt_completed.begin(); it != yt_completed.end(); ++it, ++i) {
+			yt_menue->addItem(new CMenuForwarder((*it).file.Name.c_str(), true, NULL, ytcache_selector));
+		}
+	}
+
+	if (!yt_failed.empty()) {
+		yt_menue->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_YT_FAILED));
+		yt_menue->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_CLEAR, true, NULL, ytcache_selector, "failed_clear"));
+    		yt_menue->addItem(GenericMenuSeparator);
+		int i = 0;
+		yt_failed_offset = yt_menue->getItemsCount();
+		for (std::vector<MI_MOVIE_INFO>::iterator it = yt_failed.begin(); it != yt_failed.end(); ++it, ++i) {
+			yt_menue->addItem(new CMenuForwarder((*it).file.Name.c_str(), true, NULL, ytcache_selector));
+		}
+	}
+
+	CFrameBuffer::getInstance()->Clear(); // due to possible width change
+}
+
 class CYTHistory : public CMenuTarget
 {
         private:
@@ -3869,7 +3972,16 @@ bool CMovieBrowser::showYTMenu()
 	mainMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_YT_PREF_QUALITY, &m_settings.ytquality, YT_QUALITY_OPTIONS, YT_QUALITY_OPTION_COUNT, true, NULL, CRCInput::RC_nokey, "", true));
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_CONCURRENT_CONNECTIONS, &m_settings.ytconcconn, true, 1, 8));
 
+
+	yt_menue = &mainMenu;
+	yt_menue_end = yt_menue->getItemsCount();
+	CYTCacheSelectorTarget ytcache_sel(this);
+	ytcache_selector = &ytcache_sel;
+	yt_menue->addKey(CRCInput::RC_spkr, ytcache_selector, "rc_spkr");
+	refreshYTMenu();
+
 	mainMenu.exec(NULL, "");
+
 	ytparser.SetConcurrentDownloads(m_settings.ytconcconn);
 	delete selector;
 

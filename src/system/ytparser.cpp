@@ -70,7 +70,7 @@ std::string cYTVideoInfo::GetUrl(int *fmt, bool mandatory)
 		fmt = &default_fmt;
 
 	yt_urlmap_iterator_t it;
-	if (*fmt) {
+	if (fmt) {
 		if ((it = formats.find(*fmt)) != formats.end()) {
 			return it->second.GetUrl();
 		}

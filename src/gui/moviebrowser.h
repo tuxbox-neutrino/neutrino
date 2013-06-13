@@ -241,9 +241,22 @@ typedef struct
 	std::list<std::string> ytsearch_history;
 } MB_SETTINGS;
 
+class CMovieBrowser;
+
+class CYTCacheSelectorTarget : public CMenuTarget
+{
+	private:
+		class CMovieBrowser *movieBrowser;
+        public:
+		CYTCacheSelectorTarget(CMovieBrowser *mb) { movieBrowser = mb; };
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+};
+
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
 class CMovieBrowser : public CMenuTarget
 {
+	friend class CYTCacheSelectorTarget;
+
 	public: // Variables /////////////////////////////////////////////////
 		int Multi_Select;    // for FileBrowser compatibility, not used in MovieBrowser
 		int Dirs_Selectable; // for FileBrowser compatibility, not used in MovieBrowser
@@ -327,8 +340,18 @@ class CMovieBrowser : public CMenuTarget
 
 		cYTFeedParser ytparser;
 		int show_mode;
+		CMenuWidget *yt_menue;
+		CYTCacheSelectorTarget *ytcache_selector;
+		u_int yt_menue_end;
+		int yt_pending_offset;
+		int yt_completed_offset;
+		int yt_failed_offset;
+		std::vector<MI_MOVIE_INFO> yt_pending;
+		std::vector<MI_MOVIE_INFO> yt_completed;
+		std::vector<MI_MOVIE_INFO> yt_failed;
 		void loadYTitles(int mode, std::string search = "", std::string id = "");
 		bool showYTMenu(void);
+		void refreshYTMenu();
 
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(const char* path); //P1
@@ -369,7 +392,7 @@ class CMovieBrowser : public CMenuTarget
 		///// MovieBrowser Main Window//////////
 		int paint(void); //P1
 		void refresh(void); //P1
-        void hide(void); //P1
+		void hide(void); //P1
 		void refreshLastPlayList(void); //P2
 		void refreshLastRecordList(void); //P2
 		void refreshBrowserList(void); //P1

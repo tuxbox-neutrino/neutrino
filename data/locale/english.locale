@@ -1594,8 +1594,15 @@ moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
 moviebrowser.use_movie_dir Use movie directory
 moviebrowser.use_rec_dir Use record directory
+moviebrowser.yt_cache Downloads
+moviebrowser.yt_cache_add Download of\n%s\nis scheduled.
+moviebrowser.yt_cancel Cancel all
+moviebrowser.yt_cancel_transfer Cancel download?
+moviebrowser.yt_clear Clear
+moviebrowser.yt_completed Completed downloads
 moviebrowser.yt_concurrent_connections Concurrent connections
 moviebrowser.yt_error Failed to load youtube feed
+moviebrowser.yt_failed Failed downloads
 moviebrowser.yt_history Search history
 moviebrowser.yt_max_history Max search history size
 moviebrowser.yt_max_results Max results to fetch
@@ -1607,6 +1614,7 @@ moviebrowser.yt_orderby.published publishing date
 moviebrowser.yt_orderby.rating rating
 moviebrowser.yt_orderby.relevance relevance
 moviebrowser.yt_orderby.viewcount view count
+moviebrowser.yt_pending Pending downloads
 moviebrowser.yt_pref_quality Prefered quality
 moviebrowser.yt_prev_results Previous results
 moviebrowser.yt_recently_featured Recently featured
