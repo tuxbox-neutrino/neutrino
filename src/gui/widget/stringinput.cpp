@@ -522,7 +522,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	}
 	value[size]=0;
 
-	if (valueString != NULL)
+	if ( (valueString != NULL) && (msg == CRCInput::RC_ok) )
         {
                 *valueString = value;
         }
