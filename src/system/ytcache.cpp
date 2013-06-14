@@ -315,5 +315,4 @@ void cYTCache::clearCompleted(MI_MOVIE_INFO *mi)
 bool cYTCache::compareMovieInfo(MI_MOVIE_INFO *a, MI_MOVIE_INFO *b)
 {
 	return a->ytid == b->ytid && a->ytitag == b->ytitag;
-	return true;
 }
