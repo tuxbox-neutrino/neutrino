@@ -60,5 +60,6 @@ class cYTCache
 		std::vector<MI_MOVIE_INFO> getPending(void);
 		void clearCompleted(MI_MOVIE_INFO *mi = NULL);
 		void clearFailed(MI_MOVIE_INFO *mi = NULL);
+                bool getNameIfExists(std::string &fname, const std::string &id, int itag, std::string ext = ".jpg");
 };
 #endif

@@ -34,12 +34,14 @@
 #include "set_threadname.h"
 
 #include "ytparser.h"
+#include "ytcache.h"
 
 #if LIBCURL_VERSION_NUM < 0x071507
 #include <curl/types.h>
 #endif
 
 #define URL_TIMEOUT 60
+static int itags[] = { 37 /* 1080p MP4 */, 22 /* 720p MP4 */, 18 /* 270p/360p MP4 */, 0 };
 
 std::string cYTVideoUrl::GetUrl()
 {
@@ -80,7 +82,6 @@ std::string cYTVideoInfo::GetUrl(int *fmt, bool mandatory)
 		}
 	}
 
-	int itags[] = { 37 /* 1080p MP4*/, 22 /* 720p MP4 */, 18 /* 270p/360p MP4 */, 0 };
 	for (int *fmtp = itags; *fmtp; fmtp++)
 		if ((it = formats.find(*fmtp)) != formats.end()) {
 			*fmt = *fmtp;
@@ -395,8 +396,9 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 
 bool cYTFeedParser::supportedFormat(int fmt)
 {
-	if((fmt == 37) || (fmt == 22) || (fmt == 18))
-		return true;
+	for (int *fmtp = itags; *fmtp; fmtp++)
+		if (*fmtp == fmt)
+			return true;
 	return false;
 }
 
@@ -596,6 +598,10 @@ bool cYTFeedParser::DownloadThumbnail(cYTVideoInfo &vinfo, CURL *_curl_handle)
 	if (!vinfo.thumbnail.empty()) {
 		std::string fname = thumbnail_dir + "/" + vinfo.id + ".jpg";
 		found = !access(fname.c_str(), F_OK);
+		if (!found) {
+			for (int *fmtp = itags; *fmtp && !found; fmtp++)
+				found = cYTCache::getInstance()->getNameIfExists(fname, vinfo.id, *fmtp);
+		}
 		if (!found)
 			found = DownloadUrl(vinfo.thumbnail, fname, _curl_handle);
 		if (found)

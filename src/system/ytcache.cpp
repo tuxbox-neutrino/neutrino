@@ -64,6 +64,17 @@ std::string cYTCache::getName(MI_MOVIE_INFO *mi, std::string ext)
 	return g_settings.downloadcache_dir + "/" + mi->ytid + "-" + std::string(ytitag) + "." + ext;
 }
 
+bool cYTCache::getNameIfExists(std::string &fname, const std::string &id, int itag, std::string ext)
+{
+	char ytitag[10];
+	snprintf(ytitag, sizeof(ytitag), "%d", itag);
+	std::string f = g_settings.downloadcache_dir + "/" + id + "-" + std::string(ytitag) + "." + ext;
+	if (access(f.c_str(), R_OK))
+		return false;
+	fname = f;
+	return true;
+}
+
 bool cYTCache::useCachedCopy(MI_MOVIE_INFO *mi)
 {
 	std::string file = getName(mi);
@@ -143,8 +154,7 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 	File.Name = xml;
 	cMovieInfo.saveMovieInfo(*mi, &File);
 	std::string thumbnail_dst = getName(mi, "jpg");
-	std::string thumbnail_src = "/tmp/ytparser/" + mi->ytid + ".jpg";
-	CFileHelpers::getInstance()->copyFile(thumbnail_src.c_str(), thumbnail_dst.c_str(), 0644);
+	CFileHelpers::getInstance()->copyFile(mi->tfile.c_str(), thumbnail_dst.c_str(), 0644);
 	return true;
 }
 
