@@ -502,11 +502,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (footer == NULL){
 			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, true);
-			int start = 5, btnw =90;
-			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, hh, "Button1"));
-			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, hh, "Button2"));
-			footer->addCCItem(new CComponentsButtonYellow(start+=btnw, 0, btnw, hh, "Button3"));
-			footer->addCCItem(new CComponentsButtonBlue(start+=btnw, 0, btnw, hh, "Button4"));
+			int start = 5, btnw =90, btnh = 37;
+			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, btnh, "Button1"));
+			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, btnh, "Button2"));
+			footer->addCCItem(new CComponentsButtonYellow(start+=btnw, 0, btnw, btnh, "Button3"));
+			footer->addCCItem(new CComponentsButtonBlue(start+=btnw, 0, btnw, btnh, "Button4"));
 		}
 		if (!footer->isPainted())
 			footer->paint();
@@ -554,14 +554,30 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (window == NULL){
 			window = new CComponentsWindow();
 			window->setWindowCaption("|.....................|");
-			window->setDimensionsAll(50, 50, 800, 480);
+			window->setDimensionsAll(50, 50, 1000, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
+
+			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
+			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
+			CComponentsShapeCircle *c12 = new CComponentsShapeCircle(50, 0, 28);
+			CComponentsShapeCircle *c13 = new CComponentsShapeCircle(50, CC_APPEND, 28);
+			c10->setColorBody(COL_RED);
+			c11->setColorBody(COL_GREEN);
+			c12->setColorBody(COL_YELLOW);
+			c13->setColorBody(COL_BLUE);
+			
+			window->getBodyObject()->setAppendOffset(0,50);
+			window->addWindowItem(c10);
+			window->addWindowItem(c11);
+			window->addWindowItem(c12);
+			window->addWindowItem(c13);
 		}
 		else{
-// 			window->setDimensionsAll(50, 50, 800, 480);
 			window->setWindowIcon(NEUTRINO_ICON_LOCK);
 			window->setWindowCaption("Test");
 		}
+
+
 		
 		if (!window->isPainted())
 			window->paint();
@@ -587,7 +603,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 				clock_r->hide();
 				delete clock_r;
 				clock_r = NULL;
-				return menu_return::RETURN_EXIT_ALL;;
+				return menu_return::RETURN_EXIT_ALL;
 			}
 		}
 	}
