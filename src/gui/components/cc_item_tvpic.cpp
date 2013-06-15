@@ -74,8 +74,9 @@ CComponentsPIP::~CComponentsPIP()
 
 void CComponentsPIP::paint(bool do_save_bg)
 {
-	int pig_x = x+fr_thickness;
-	int pig_y = y+fr_thickness;
+	//NOTE: real values are reqiured, if we paint not bound items or an own render methodes
+	int pig_x = (cc_parent ? cc_xr : x) + fr_thickness;
+	int pig_y = (cc_parent ? cc_yr : y) + fr_thickness;
 	int pig_w = width-2*fr_thickness;
 	int pig_h = height-2*fr_thickness;
 	

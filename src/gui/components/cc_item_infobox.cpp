@@ -85,8 +85,6 @@ void CComponentsInfoBox::initVarInfobox()
 	cctext		= NULL;
 	pic_name	= "";
 	x_offset	= 10;
-	x_text		= x+fr_thickness+x_offset;;
-
 }
 
 void CComponentsInfoBox::paintPicture()
@@ -101,7 +99,7 @@ void CComponentsInfoBox::paintPicture()
 		return;
 	
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, 0, 0, "");
+	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, 0, "");
 	
 	//define icon
 	pic->setPicture(pic_name);
@@ -109,7 +107,6 @@ void CComponentsInfoBox::paintPicture()
 	//fit icon into infobox
 	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
-	
 	pic->paint(CC_SAVE_SCREEN_NO);	
 }
 
@@ -119,15 +116,16 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	paintPicture();
 
 	//define text x position
-	x_text = x+fr_thickness+x_offset;
+	//NOTE: real values are reqiured, if we paint this item within a form as embedded cc-item
+	int x_text = (cc_parent ? cc_xr : x) + fr_thickness;
+	int y_text = (cc_parent ? cc_yr : y) + fr_thickness;
 	
 	//set text to the left border if picture is not painted
-	if ((pic) && (pic->isPicPainted())){
-		int pic_w = pic->getWidth();
-		x_text += pic_w+x_offset;
-	}
+	int pic_w = 0;
+	if ((pic) && (pic->isPicPainted()))
+		pic_w = pic->getWidth() + x_offset;
 
-	//set text and paint text lines
+	//set text properties and paint text lines
  	if (!ct_text.empty()){
  		if (cctext)
 			delete cctext;
@@ -137,7 +135,13 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		cctext->doPaintTextBoxBg(ct_paint_textbg);
 		cctext->doPaintBg(false);
 		cctext->setTextColor(ct_col_text);
-		cctext->setDimensionsAll(x_text, y+fr_thickness, width-(x_text-x+x_offset+fr_thickness), height-2*fr_thickness);
+
+		//calculate vars for x-position and dimensions
+		int tx = x_offset + x_text + pic_w;
+		int tw = width - x_offset - pic_w - 2*fr_thickness;
+		int th = height-2*fr_thickness;
+		cctext->setDimensionsAll(tx, y_text, tw, th);
+		
  		cctext->paint(CC_SAVE_SCREEN_NO);
 	}
 }

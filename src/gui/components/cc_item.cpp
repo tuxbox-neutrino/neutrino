@@ -78,12 +78,20 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	//calculate current needed corner radius for body box, depends of frame thickness
 	int rad = (corner_rad>th) ? corner_rad-th : corner_rad;
 	int sw = (shadow) ? shadow_w : 0;
+
+	//if item is bound on a parent form, we must use real x/y values and from parent form as reference
+	int ix = x, iy = y;
+	if (cc_parent){
+		ix = cc_xr + cc_parent->getFrameThickness();
+		iy = cc_yr + cc_parent->getFrameThickness();
+	}
+	
 	comp_fbdata_t fbdata[] =
 	{
-		{CC_FBDATA_TYPE_BGSCREEN,	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
-		{CC_FBDATA_TYPE_SHADOW_BOX, 	x+sw,	y+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow
-		{CC_FBDATA_TYPE_FRAME,		x,	y, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},//frame
-		{CC_FBDATA_TYPE_BOX,		x+th,   y+th,   width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	NULL},//body
+		{CC_FBDATA_TYPE_BGSCREEN,	ix,	iy, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
+		{CC_FBDATA_TYPE_SHADOW_BOX, 	ix+sw,	iy+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow
+		{CC_FBDATA_TYPE_FRAME,		ix,	iy, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},//frame
+		{CC_FBDATA_TYPE_BOX,		ix+th,  iy+th,  width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	NULL},//body
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++) {
