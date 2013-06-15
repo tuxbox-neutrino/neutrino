@@ -47,11 +47,11 @@ class CImageInfo : public CMenuTarget
 {
 	private:
 		int item_offset; //distance between items and to boarder
-		int item_top; //start line in y below header
 		std::string license_txt;
 
 		std::vector<image_info_t> v_info;
-		
+
+		void Clean();
 		void Init();
 		void InitMinitv();
 		void InitInfos();
@@ -60,6 +60,7 @@ class CImageInfo : public CMenuTarget
 		void ScrollLic(bool scrollDown);
 		
 		CComponentsWindow  	*cc_win;
+		CComponentsForm  	*cc_info;
 		CComponentsPIP		*cc_tv;
 		CComponentsInfoBox 	*cc_lic;
 		CConfigFile     	config;

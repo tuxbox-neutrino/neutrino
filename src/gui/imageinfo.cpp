@@ -38,7 +38,7 @@
 #include <string>
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
-
+#include <gui/components/cc_item_text.h>
 #include "version.h"
 
 #define LICENSEDIR DATADIR "/neutrino/license/"
@@ -56,10 +56,10 @@ CImageInfo::CImageInfo(): config ('\t')
 void CImageInfo::Init(void)
 {
 	cc_win		= NULL;
+	cc_info 	= NULL;
 	cc_tv		= NULL;
 	cc_lic		= NULL;
-	item_offset	= 20;
-	item_top	= item_offset;
+	item_offset	= 10;
 	license_txt	= "";
 	v_info.clear();
 	config.loadConfig("/.version");
@@ -67,8 +67,22 @@ void CImageInfo::Init(void)
 
 CImageInfo::~CImageInfo()
 {
+	hide();
 	//deallocate window object, deletes also added cc_items
 	delete cc_win;
+}
+
+void CImageInfo::Clean()
+{
+	//deallocate of the window object causes also deallocate added items,
+	if (cc_win){
+		delete cc_win;
+		//it's important to set here a null pointer
+		cc_win 	= NULL;
+		cc_info = NULL;
+		cc_tv	= NULL;
+		cc_lic	= NULL;
+	}
 }
 
 int CImageInfo::exec(CMenuTarget* parent, const std::string &)
@@ -77,7 +91,10 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 	if (parent)
 		parent->hide();
 
-	//init window object and add cc_items
+	//clean up before, because we could have a current instance with already initialized contents
+	Clean();
+
+	//init window object, add cc-items and paint all
 	ShowWindow();
 
 	neutrino_msg_t msg;
@@ -111,14 +128,8 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 		}
 	}
 
-	//hide window
-	cc_win->hide();
-
-	//deallocate of the window object causes also deallocate added items,
-	delete cc_win;
-	//it's important to set here a null pointer
-	cc_win = NULL;
-
+	hide();
+	
 	return res;
 }
 
@@ -127,11 +138,10 @@ void CImageInfo::ShowWindow()
 {
 	if (cc_win == NULL){
 		cc_win = new CComponentsWindow(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO);
-		item_top = cc_win->getStartY() + item_offset;
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 	}
 
-	//prepare minitv: important! init the minitv object as first
+	//prepare minitv
 	InitMinitv();
 
 	//prepare infos
@@ -148,18 +158,21 @@ void CImageInfo::ShowWindow()
 void CImageInfo::InitMinitv()
 {
 	//init the minitv object
-	cc_tv = new CComponentsPIP (0, item_top);
-
+	if (cc_tv == NULL)
+		cc_tv = new CComponentsPIP (0, item_offset);
+	
+#if 0 //static assign of dimensions are distorting ratio of mini tv picture
 	//init width and height
 	cc_tv->setWidth(cc_win->getWidth()/3);
 	cc_tv->setHeight(cc_win->getHeight()/3);
+#endif
 
 	//init x pos and use as parameter for setXPos
 	int cc_tv_x = (cc_win->getWidth() - cc_tv->getWidth()) - item_offset;
 	cc_tv->setXPos(cc_tv_x);
 
 	//add minitv to container
-	cc_win->addCCItem(cc_tv);
+	cc_win->addWindowItem(cc_tv);
 }
 
 //prepare distribution infos
@@ -213,47 +226,61 @@ void CImageInfo::InitInfos()
 
 	Font * item_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 
-	//calculate max width of caption and info_text
-	int w_caption = 0, w_info_text = 0, w = 0;
+	//initialize container for infos
+	if (cc_info == NULL)
+		cc_info = new CComponentsForm();
+	cc_win->addWindowItem(cc_info);
+	cc_info->setPos(item_offset, item_offset);
+	cc_info->setWidth((cc_win->getWidth()/3*2)-2*item_offset);
+
+
+	//calculate max width of label and info_text
+	int w_label = 0, w_text = 0, w = 0;
 	for (size_t i = 0; i < v_info.size(); i++) {
 		w = item_font->getRenderWidth(g_Locale->getText(v_info[i].caption), true);
-		w_caption = std::max(w_caption, w);
+		w_label = std::max(w_label, w);
 
 		w = item_font->getRenderWidth(v_info[i].info_text.c_str(), true);
-		w_info_text = std::max(w_info_text, w);
+		w_text = std::max(w_text, w);
 	}
 
-	int x_caption = item_offset;
-	int x_info_text = x_caption + w_caption + item_offset;
+	int x_label = 0, y_text = 0;
+	int x_text = x_label + w_label + item_offset;
 	int item_height = item_font->getHeight();
 
-	//recalc w_info_text to avoid an overlap with pip
-	w_info_text = std::min(w_info_text, cc_win->getWidth() - x_info_text - cc_tv->getWidth() - 2*item_offset);
+	//recalc w_text to avoid an overlap with pip TODO: calculate within cc_info itself
+	w_text = std::min(w_text, cc_win->getWidth() - x_text - /*cc_tv->getWidth() - */2*item_offset);
 
 	//create label and text items
-	for (size_t i = 0; i < v_info.size(); i++) {
-		// add an offset before homepage and license
-		if (v_info[i].caption == LOCALE_IMAGEINFO_HOMEPAGE || v_info[i].caption == LOCALE_IMAGEINFO_LICENSE)
-			item_top += item_offset;
-
+	int h_tmp = 0;
+	size_t i = 0;
+	for (i = 0; i < v_info.size(); i++) {
 		CComponentsLabel *cc_label = new CComponentsLabel();
-		cc_label->setDimensionsAll(x_caption, item_top, w_caption, item_height);
+		cc_label->setDimensionsAll(x_label, y_text, w_label, item_height);
 		cc_label->setText(v_info[i].caption, CTextBox::NO_AUTO_LINEBREAK, item_font);
 
-		//add label to container
-		cc_win->addCCItem(cc_label);
+		//add label object to window body
+		cc_info->addCCItem(cc_label);
 
 		CComponentsText *cc_text = new CComponentsText();
-		cc_text->setDimensionsAll(x_info_text, item_top, w_info_text, item_height);
+		cc_text->setDimensionsAll(x_text, y_text, w_text, item_height);
 		cc_text->setText(v_info[i].info_text.c_str(), CTextBox::NO_AUTO_LINEBREAK, item_font);
+		y_text += item_height/*CC_APPEND*/;
 
-		//add text to container
-		cc_win->addCCItem(cc_text);
+		//add text object to window body
+		cc_info->addCCItem(cc_text);
 
-		item_top += item_height;
+		 // add an offset before homepage and license
+		if (v_info[i].caption == LOCALE_IMAGEINFO_CREATOR|| v_info[i].caption == LOCALE_IMAGEINFO_FORUM){
+			h_tmp += item_offset;
+			y_text += item_offset;
+		}
+
+		//set height for info form
+		h_tmp += item_height;		
 	}
-
-	item_top += item_offset;
+	//assign height of info form
+	cc_info->setHeight(h_tmp);
 }
 
 //prepare license infos
@@ -263,13 +290,34 @@ void CImageInfo::InitLicenseText()
 	file += g_settings.language;
 	file += ".license";
 
-	//calc y pos of license box to avoid an overlap with pip
-	int y_lic = std::max(item_top, cc_tv->getHeight() + 2*item_offset);
-	cc_lic = new CComponentsInfoBox(item_offset, y_lic, cc_win->getWidth()-2*item_offset, cc_win->getHeight()-item_top-item_offset);
+	//get window body object
+	CComponentsForm *winbody = cc_win->getBodyObject();
+	int h_body = winbody->getHeight();
+	int w_body = winbody->getWidth();
+
+
+	int y_lic = item_offset + cc_info->getHeight() + item_offset;
+	int h_lic = h_body - y_lic - item_offset;
+	
+	if (cc_lic == NULL)
+		cc_lic = new CComponentsInfoBox(item_offset, cc_info->getYPos()+cc_info->getHeight()+item_offset, w_body-2*item_offset, h_lic);
+	cc_lic->setSpaceOffset(0);
 	cc_lic->setTextFromFile(file, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
+#if 0
+	//calc y pos of license box to avoid an overlap with pip
+	int h_info = cc_info->getHeight();
+	int y_lic = std::max(h_info, cc_tv->getHeight() + 2*item_offset);
+	CComponentsForm *winbody = cc_win->getBodyObject();
+	int h_lic = 0;
+	if (winbody)
+		h_lic = winbody->getHeight();
+	cc_lic = new CComponentsInfoBox(item_offset, /*y_lic*/CC_APPEND, cc_win->getWidth()-2*item_offset, h_lic - h_info -item_offset);
+	cc_lic->setTextFromFile(file, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+#endif
+
 	//add text to container
-	cc_win->addCCItem(cc_lic);
+	cc_win->addWindowItem(cc_lic);
 }
 
 //scroll licens text
@@ -293,5 +341,9 @@ void CImageInfo::ScrollLic(bool scrollDown)
 
 void CImageInfo::hide()
 {
-  	cc_win->hide();
+	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
+	if (cc_win){
+		cc_win->hide();
+		Clean();
+	}
 }
