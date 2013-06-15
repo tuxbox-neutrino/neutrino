@@ -153,7 +153,7 @@ class CComponentsLabel : public CComponentsText
 		{
 			initVarText();
 			cc_item_type 	= CC_ITEMTYPE_LABEL;
-			ct_col_text = COL_MENUCONTENTINACTIVE;
+			ct_col_text 	= COL_MENUCONTENTINACTIVE;
 		};
 };
 
