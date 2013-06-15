@@ -65,6 +65,7 @@ class CComponentsPicture : public CComponentsItem
 		
 		void init(	const int x_pos, const int y_pos, const std::string& image_name, const int alignment, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow);
+		void paintPicture();
 		
 	public:
 		CComponentsPicture( 	const int x_pos, const int y_pos, const int w, const int h,
