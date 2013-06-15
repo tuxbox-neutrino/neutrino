@@ -67,6 +67,8 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 	ct_text 	= text;
 	ct_text_mode	= mode;
 	ct_col_text	= color_text;
+	
+	initCCText();
 }
 
 
@@ -121,9 +123,16 @@ void CComponentsText::initCCText()
 		delete ct_box;
 		ct_box = NULL;
 	}
+
+	//using of real x/y values to paint images if this text object is bound in a parent form
+	int tx = x, ty = y;
+	if (cc_parent){
+		tx = cc_xr;
+		ty = cc_yr;
+	}
 	ct_box = new CBox();
-	ct_box->iX 	= x+fr_thickness;
-	ct_box->iY 	= y+fr_thickness;
+	ct_box->iX 	= tx+fr_thickness;
+	ct_box->iY 	= ty+fr_thickness;
 	ct_box->iWidth 	= width-2*fr_thickness;
 	ct_box->iHeight = height-2*fr_thickness;
 
