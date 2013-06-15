@@ -40,6 +40,8 @@ using namespace std;
 CComponentsWindow::CComponentsWindow()
 {
 	initVarWindow();
+
+	initCCWItems();
 }
 
 CComponentsWindow::CComponentsWindow(const std::string& caption, const char* iconname)
@@ -48,6 +50,9 @@ CComponentsWindow::CComponentsWindow(const std::string& caption, const char* ico
 	
 	ccw_caption 	= caption;
 	ccw_icon_name	= iconname;
+	
+	initHeader();
+	initBody();
 }
 
 CComponentsWindow::CComponentsWindow(neutrino_locale_t locale_caption, const char* iconname)
@@ -56,6 +61,58 @@ CComponentsWindow::CComponentsWindow(neutrino_locale_t locale_caption, const cha
 	
 	ccw_caption 	= g_Locale->getText(locale_caption);
 	ccw_icon_name	= iconname;
+
+	initCCWItems();
+}
+
+CComponentsWindow::CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
+					neutrino_locale_t locale_caption,
+					const char* iconname,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
+{
+	initVarWindow();
+
+	x		= x_pos;
+	y		= y_pos;
+	width		= w;
+	height		= h;
+	shadow		= has_shadow;
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+
+	ccw_caption 	= g_Locale->getText(locale_caption);
+	ccw_icon_name	= iconname;
+
+	initCCWItems();
+}
+
+CComponentsWindow::CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
+					const std::string& caption,
+					const char* iconname,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
+{
+	initVarWindow();
+
+	x		= x_pos;
+	y		= y_pos;
+	width		= w;
+	height		= h;
+	shadow		= has_shadow;
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+
+	ccw_caption 	= caption;;
+	ccw_icon_name	= iconname;
+
+	initCCWItems();
 }
 
 CComponentsWindow::~CComponentsWindow()
@@ -79,9 +136,10 @@ void CComponentsWindow::initVarWindow()
 	y=getScreenStartY(height);
 
 	ccw_head 	= NULL;
+	ccw_body	= NULL;
+	ccw_footer	= NULL;
 	ccw_caption 	= "";
 	ccw_icon_name	= NULL;
-	ccw_start_y	= 0;
 	ccw_buttons	= 0; //no header buttons
 	
 	setShadowOnOff(true);
@@ -97,27 +155,68 @@ void CComponentsWindow::initHeader()
 	if (ccw_head == NULL){
 		ccw_head = new CComponentsHeader();
 		initHeader();
-		//add header item only one time
-		addCCItem(ccw_head);
+		//add of header item happens initCCWItems()
 	}
 
 	//set header properties
 	if (ccw_head){
-		ccw_head->setXPos(0);
-		ccw_head->setYPos(0);
+		ccw_head->setPos(0, 0);
 		ccw_head->setWidth(width);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption);
 		ccw_head->initCCItems();
-		ccw_start_y = ccw_head->getHeight();
 		ccw_head->setDefaultButtons(ccw_buttons);
 	}
 }
 
+void CComponentsWindow::initBody()
+{
+	if (ccw_body== NULL){
+		ccw_body = new CComponentsForm();
+		initBody();
+		//add of body item happens initCCWItems()
+	}
+
+	//set body properties
+	if (ccw_body){
+		ccw_body->setCornerType(0);
+		int fh = ccw_footer->getHeight();
+		int hh = ccw_head->getHeight();
+		int h_body = height - hh - fh;
+		ccw_body->setDimensionsAll(0, CC_APPEND, width, h_body);
+		ccw_body->doPaintBg(false);
+	}
+}
+
+void CComponentsWindow::initFooter()
+{
+	if (ccw_footer== NULL){
+
+		ccw_footer= new CComponentsFooter();
+		initFooter();
+		//add of footer item happens initCCWItems()
+	}
+
+	//set footer properties
+	if (ccw_footer){
+		ccw_footer->setPos(0, CC_APPEND);
+		ccw_footer->setWidth(width);
+		ccw_footer->setShadowOnOff(shadow);
+	}
+}
+
+void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
+{
+	if (ccw_body)
+		ccw_body->addCCItem(cc_Item);
+}
+
 int CComponentsWindow::getStartY()
 {
-	initHeader();
-	return ccw_start_y;
+	if (ccw_head)
+		return ccw_head->getHeight();
+	
+	return 0;
 }
 
 void CComponentsWindow::initCCWItems()
@@ -126,6 +225,16 @@ void CComponentsWindow::initCCWItems()
 	printf("[CComponentsWindow]   [%s - %d] init items...\n", __FUNCTION__, __LINE__);
 #endif
 	initHeader();
+	initFooter();
+	initBody();
+	
+	//add header, body and footer items only one time
+	if (!isAdded(ccw_head))
+		addCCItem(ccw_head);
+	if (!isAdded(ccw_body))
+		addCCItem(ccw_body);
+	if (!isAdded(ccw_footer))
+		addCCItem(ccw_footer);
 }
 
 void CComponentsWindow::paint(bool do_save_bg)
