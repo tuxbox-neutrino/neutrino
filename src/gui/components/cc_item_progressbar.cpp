@@ -31,7 +31,7 @@
 #include <neutrino.h>
 
 #include "cc_item_progressbar.h"
-
+#include "cc_item_shapes.h"
 #define ITEMW 4
 #define POINT 2
 
@@ -137,16 +137,23 @@ void CProgressBar::initDimensions()
 		col_frame = pb_active_col;
 }
 
+void CProgressBar::paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_t &col)
+{
+	CComponentsShapeSquare shape(shx, shy, shw, shh, false);
+	shape.setColorBody(col);
+	shape.paint(false);
+}
+
 
 void CProgressBar::paintSimple()
 {
 	// progress value
-	if (pb_active_width != pb_last_width){ //TODO: use shape cc-item
-		frameBuffer->paintBoxRel(pb_x,  pb_y, pb_active_width, pb_height, pb_active_col); // active bar
- 		frameBuffer->paintBoxRel(pb_start_x_passive, pb_y, pb_passive_width, pb_height, pb_passive_col); // passive bar
+	if (pb_active_width != pb_last_width){
+		paintShapes(pb_x, pb_y, pb_active_width, pb_height, pb_active_col); // active bar
+		paintShapes(pb_start_x_passive, pb_y, pb_passive_width, pb_height, pb_passive_col); // passive bar
 	}
 	
-	if (pb_paint_zero && pb_value == 0) //TODO: use shape cc-item
+	if (pb_paint_zero && pb_value == 0) //TODO: use shape cc-item, not available for lines yet
 		frameBuffer->paintLine(pb_x , pb_y, pb_x+width-3, pb_y+height-3, pb_active_col); // zero line
 }
 
@@ -203,8 +210,11 @@ void CProgressBar::paintAdvanced()
 				else
 					rgb = RED + (diff << 8); // adding green
 				color = make16color(rgb);
-				for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
-					frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, color);
+				for (j = 0; j < hcnt; j++) {
+					int sh_x = pb_x + i * itemw;
+					int sh_y = py + j * itemh;
+					paintShapes(sh_x, sh_y, pointx, pointy, color);
+				}
 			}
 			step = yw - rd - 1;
 			if (step < 1)
@@ -216,8 +226,11 @@ void CProgressBar::paintAdvanced()
 				else
 					rgb = YELLOW - (diff << 16); // removing red
 				color = make16color(rgb);
-				for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
-					frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, color);
+				for (j = 0; j < hcnt; j++) {
+					int sh_x = pb_x + i * itemw;
+					int sh_y = py + j * itemh;
+					paintShapes(sh_x, sh_y, pointx, pointy, color);
+				}
 			}
 			off = diff;
 			b = 0;
@@ -231,13 +244,19 @@ void CProgressBar::paintAdvanced()
 				else
 					rgb = YELLOW - (diff << 16); // removing red
 				color = make16color(rgb);
-				for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
-					frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, color);
+				for (j = 0; j < hcnt; j++) {
+					int sh_x = pb_x + i * itemw;
+					int sh_y = py + j * itemh;
+					paintShapes(sh_x, sh_y, pointx, pointy, color);
+				}
 			}
 		}
 		for(i = maxi; i < total; i++) {
-			for (j = 0; j < hcnt; j++) //TODO: use shape cc-item
-				frameBuffer->paintBoxRel(pb_x + i * itemw, py + j * itemh, pointx, pointy, pb_passive_col); //fill passive
+			for (j = 0; j < hcnt; j++) {//TODO: use shape cc-item
+				int sh_x = pb_x + i * itemw;
+				int sh_y = py + j * itemh;
+				paintShapes(sh_x, sh_y, pointx, pointy, pb_passive_col); //fill passive
+			}
 		}
 	}
 }
