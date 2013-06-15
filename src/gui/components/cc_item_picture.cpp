@@ -142,29 +142,38 @@ void CComponentsPicture::initVarPicture()
 		printf("[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
 #endif
 
-	pic_x += fr_thickness;
-	pic_y += fr_thickness;
-
-	if (pic_height>0 && pic_width>0){
-		if (pic_align & CC_ALIGN_LEFT)
-			pic_x = x+fr_thickness;
-		if (pic_align & CC_ALIGN_RIGHT)
-			pic_x = x+width-pic_width-fr_thickness;
-		if (pic_align & CC_ALIGN_TOP)
-			pic_y = y+fr_thickness;
-		if (pic_align & CC_ALIGN_BOTTOM)
-			pic_y = y+height-pic_height-fr_thickness;
-		if (pic_align & CC_ALIGN_HOR_CENTER)
-			pic_x = x+width/2-pic_width/2;
-		if (pic_align & CC_ALIGN_VER_CENTER)
-			pic_y = y+height/2-pic_height/2;
-
-		do_paint = true;
-	}
+	initPosition();
 
 	int sw = (shadow ? shadow_w :0);
 	width = max(max(pic_width, pic_max_w), width)  + sw ;
 	height = max(max(pic_height, pic_max_h), height)  + sw ;
+}
+
+void CComponentsPicture::initPosition()
+{
+	//using of real x/y values to paint images if this picture object is bound in a parent form
+	int px = x, py = y;
+	if (cc_parent){
+		px = cc_xr;
+		py = cc_yr;
+	}
+
+	if (pic_height>0 && pic_width>0){
+		if (pic_align & CC_ALIGN_LEFT)
+			pic_x = px+fr_thickness;
+		if (pic_align & CC_ALIGN_RIGHT)
+			pic_x = px+width-pic_width-fr_thickness;
+		if (pic_align & CC_ALIGN_TOP)
+			pic_y = py+fr_thickness;
+		if (pic_align & CC_ALIGN_BOTTOM)
+			pic_y = py+height-pic_height-fr_thickness;
+		if (pic_align & CC_ALIGN_HOR_CENTER)
+			pic_x = px+width/2-pic_width/2;
+		if (pic_align & CC_ALIGN_VER_CENTER)
+			pic_y = py+height/2-pic_height/2;
+
+		do_paint = true;
+	}
 }
 
 void CComponentsPicture::paintPicture()
