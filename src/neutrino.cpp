@@ -3579,6 +3579,7 @@ void stop_daemons(bool stopall, bool for_flash)
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText("Stop daemons...");
+		g_settings.epg_scan = false;
 		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
 	}
 
