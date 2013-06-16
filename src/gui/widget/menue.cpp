@@ -465,6 +465,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	CVFD::MODES oldLcdMode = CVFD::getInstance()->getMode();
 	
 	int pos = 0;
+	if (selected > 0 && selected < (int)items.size())
+		pos = selected;
 	exit_pressed = false;
 
 	frameBuffer->Lock();
