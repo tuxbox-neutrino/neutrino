@@ -34,7 +34,6 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_frm_icons.cpp \
 	cc_frm_window.cpp \
 	cc_item.cpp \
-	cc_item_box.cpp \
 	cc_item_infobox.cpp \
 	cc_item_picture.cpp \
 	cc_item_progressbar.cpp \
