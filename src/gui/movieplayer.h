@@ -61,7 +61,7 @@ class CMoviePlayerGui : public CMenuTarget
 		    PLAY        =  3,
 		    PAUSE       =  4,
 		    FF          =  5,
-		    REW         =  6,
+		    REW         =  6
 		};
 
  private:
@@ -86,6 +86,15 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short apids[REC_MAX_APIDS];
 	unsigned short ac3flags[REC_MAX_APIDS];
 	unsigned short currentapid, currentac3;
+
+	/* subtitles vars */
+	unsigned short numsubs;
+	std::string    slanguage[REC_MAX_APIDS];
+	unsigned short spids[REC_MAX_APIDS];
+	unsigned short sub_supported[REC_MAX_APIDS];
+	int currentspid;
+	int min_x, min_y, max_x, max_y;
+	time_t end_time;
 
 	/* playback from MB */
 	bool isMovieBrowser;
@@ -118,11 +127,16 @@ class CMoviePlayerGui : public CMenuTarget
 	bool getAudioName(int pid, std::string &apidtitle);
 	void selectAudioPid(bool file_player);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
-	void addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled );
+	void addAudioFormat(int count, std::string &apidtitle, bool& enabled );
 
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
 	void updateLcd();
+
+	void selectSubtitle();
+	void showSubtitle(neutrino_msg_data_t data);
+	void clearSubtitle();
+	void selectChapter();
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();

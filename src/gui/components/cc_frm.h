@@ -29,6 +29,8 @@
 
 #include "config.h"
 #include <gui/components/cc.h>
+#include <gui/components/cc_item_text.h>
+#include <gui/components/cc_item_picture.h>
 #include <vector>
 #include <string>
 
@@ -39,6 +41,9 @@ class CComponentsForm : public CComponentsItem
 		std::vector<CComponentsItem*>	v_cc_items;			
 		void initVarForm();
 		void paintForm(bool do_save_bg);
+
+		int append_h_offset;
+		int append_v_offset;
 	public:
 		
 		CComponentsForm();
@@ -53,11 +58,16 @@ class CComponentsForm : public CComponentsItem
 		virtual void removeCCItem(const uint& cc_item_id);
 		virtual void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
 		virtual void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
+		virtual void exchangeCCItem(const uint& item_id_a, const uint& item_id_b);
+		virtual void exchangeCCItem(CComponentsItem* item_a, CComponentsItem* item_b);
 		virtual int getCCItemId(CComponentsItem* cc_Item);
 		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
 		virtual void paintCCItems();
 		virtual	void clearCCItems();
 		virtual void cleanCCForm();
+		virtual void setAppendOffset(const int &h_offset, const int& v_offset){append_h_offset = h_offset; append_v_offset = v_offset;};
+		///property: returns true, if item already added to form
+		virtual bool isAdded(CComponentsItem *cc_item);
 };
 
 class CComponentsIconForm : public CComponentsForm
@@ -101,25 +111,23 @@ class CComponentsIconForm : public CComponentsForm
 
 class CComponentsHeader : public CComponentsForm
 {
-	private:
+	protected:
 		CComponentsPicture * cch_icon_obj;
 		CComponentsText * cch_text_obj;
 		CComponentsIconForm * cch_btn_obj;
 		std::string cch_text;
 		const char*  cch_icon_name;
-		neutrino_locale_t cch_locale_text;
 		fb_pixel_t cch_col_text;
 		Font* cch_font;
-		int cch_icon_x, cch_items_y, cch_text_x, ccif_width, cch_icon_w, cch_buttons, cch_btn_offset;
+		int cch_items_y, cch_icon_x, cch_icon_w, cch_text_x, cch_buttons, cch_buttons_w, cch_buttons_h, cch_buttons_space, cch_offset;
 		std::vector<std::string> v_cch_btn;
 
-		void initCCHeaderIcon();
-		void initCCHeaderText();
-		void initCCHeaderButtons();
-		void initCCHDefaultButtons();
-		void initCCButtonFormSize();
+		void initIcon();
+		void initCaption();
+		void initButtons();
+		void initDefaultButtons();
+		void initButtonFormSize();
 
-	protected:
 		void initVarHeader();
 
 	public:
@@ -143,33 +151,87 @@ class CComponentsHeader : public CComponentsForm
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, neutrino_locale_t caption_locale = NONEXISTANT_LOCALE, const char* icon_name = NULL, const int buttons = 0,bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		~CComponentsHeader();
+		virtual ~CComponentsHeader();
 
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void setHeaderText(const std::string& caption);
-		void setHeaderText(neutrino_locale_t caption_locale);
-		void setColorHeaderBody(fb_pixel_t text_color){cch_col_text = text_color;};
-		void setHeaderButtonOffset(const int offset){cch_btn_offset = offset;};
-		void setHeaderIcon(const char* icon_name);
-		void addHeaderButton(const std::string& button_name);
-		void removeHeaderButtons();
-		void setHeaderDefaultButtons(const int buttons);
-		void initCCHeaderItems();
+		
+		virtual void setCaption(const std::string& caption);
+		virtual void setCaption(neutrino_locale_t caption_locale);
+		virtual void setCaptionFont(Font* font_name);
+		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
+		virtual void setOffset(const int offset){cch_offset = offset;};
+		virtual void setIcon(const char* icon_name);
+		virtual void addButtonIcon(const std::string& button_name);
+		virtual void removeButtonIcons();
+		virtual void setDefaultButtons(const int buttons);
+		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
+		virtual void initCCItems();
+
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
+
+
+class CComponentsFooter : public CComponentsHeader
+{
+	protected:
+		void initVarFooter();
+	public:
+		CComponentsFooter();
+		CComponentsFooter(	const int x_pos, const int y_pos, const int w, const int h = 0,
+					const int buttons = 0,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+};
+
+//! Sub class of CComponentsForm. Shows a window with prepared items.
+/*!
+CComponentsWindow provides prepared items like header, footer and a container for
+items like text, labels, pictures ...
+*/
+/*
+        x
+       y+-------------------------------------------------------+
+        |icon        caption                            buttons |header (ccw_head)
+        +-x-----------------------------------------------------+
+        |cc_item0                                               |
+        |cc_item1                                               |body (ccw_body)
+        |               add items here directly with            |
+        |               addWindowItem() or                      |
+        y               with ccw_body->addCCItem()              |
+        |               Note: x/y related to body object        |
+        |                                                       |
+        +-------------------------------------------------------+
+        |        add cc_items with ccw_footer->addCCItem()      |footer(ccw_footer)
+        +-------------------------------------------------------+
+
+*/
 
 class CComponentsWindow : public CComponentsForm
 {
 	private:
+		///object: header object, to get access to header properties see also getHeaderObject()
 		CComponentsHeader * ccw_head;
+		///object: body object, this is the container for all needed items, to add with addWindowItem()
+		CComponentsForm * ccw_body;
+		///object: footer object, to get access to header properties see also getFooterObject(
+		CComponentsForm * ccw_footer;
+		///property: caption in header, see also getHeaderObject()
 		std::string ccw_caption;
+		///property: icon name in header, see also getHeaderObject()
 		const char* ccw_icon_name;
-		int ccw_start_y;
+		///property: assigned default icon buttons in header, see also getHeaderObject()
 		int ccw_buttons;
 
+		///initialze header object
 		void initHeader();
+		///initialze body object
+		void initBody();
+		///initialze footer object
+		void initFooter();
+		///initialze all window objects at once
 		void initCCWItems();
 
 	protected:
+		///initialize all attributes
 		void initVarWindow();
 
 	public:
@@ -177,16 +239,63 @@ class CComponentsWindow : public CComponentsForm
 		{
 			CC_WINDOW_ITEM_HEADER 	= 0
 		};
+		///simple constructor for CComponentsWindow
 		CComponentsWindow();
+		
+		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption as string
+		CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
+					const std::string& caption,
+					const char* iconname = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		
+		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption from locales
+		CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
+					neutrino_locale_t locale_caption,
+					const char* iconname = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, position of window is general centered and bound
+		///to current screen settings, this shows a window over full screen
 		CComponentsWindow(const std::string& caption, const char* iconname = NULL);
+		
+		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, position of window is general centered and bound
+		///to current screen settings, this shows a window over full screen
 		CComponentsWindow(neutrino_locale_t locale_caption, const char* iconname = NULL);
+		
 		~CComponentsWindow();
 
+		///paint window
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		///add item to body object, also usable is addCCItem() to add items to the windo object
+		void addWindowItem(CComponentsItem* cc_Item);
+
+		///set caption in header with string, see also getHeaderObject()
 		void setWindowCaption(const std::string& text){ccw_caption = text;};
+
+		///set caption in header from locales, see also getHeaderObject()
 		void setWindowCaption(neutrino_locale_t locale_text);
+
+		///set icon name in header, see also getHeaderObject()
 		void setWindowIcon(const char* iconname){ccw_icon_name = iconname;};
+
+		///set default header icon buttons, see also getHeaderObject()
 		void setWindowHeaderButtons(const int& buttons){ccw_buttons = buttons;};
+
+		///returns a pointer to the internal header object, use this to get access to header properities
+		CComponentsHeader* getHeaderObject(){return ccw_head;};
+		
+		///returns a pointer to the internal body object, use this to get access to body properities
+		CComponentsForm* getBodyObject(){return ccw_body;};
+
+		///returns a pointer to the internal footer object, use this to get access to footer properities
+		CComponentsForm* getFooterObject(){return ccw_footer;};
 
 		int getStartY(); //y value for start of the area below header
 };

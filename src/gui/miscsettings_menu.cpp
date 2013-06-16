@@ -353,6 +353,10 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true,miscEpgNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
 
+	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
+		CFEManager::getInstance()->getEnabledCount() > 1);
+	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
+
 	ms_epg->addItem(mc);
 	ms_epg->addItem(mc1);
 	ms_epg->addItem(mf);
@@ -360,7 +364,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(mf2);
 	ms_epg->addItem(mf3);
 	ms_epg->addItem(mf4);
-
+	ms_epg->addItem(mc2);
 }
 
 //filebrowser settings

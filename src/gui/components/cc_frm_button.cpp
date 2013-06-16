@@ -33,6 +33,7 @@
 #include "cc_frm_button.h"
 
 #define FRAME_TH 3
+#define H_SPACE 4
 
 using namespace std;
 
@@ -84,18 +85,28 @@ void CComponentsButton::initIcon()
 		cc_btn_icon_obj = NULL;
 		return;
 	}
-	
+
+	//initialize icon object
 	if (cc_btn_icon_obj == NULL){
 		cc_btn_icon_obj = new CComponentsPicture(0, 0, 0, 0, cc_btn_icon);
-
 		addCCItem(cc_btn_icon_obj);
 	}
 
+	//get first icon dimensions
+	int icon_w = cc_btn_icon_obj->getWidth();
+	int icon_h = cc_btn_icon_obj->getHeight();
+
+	//position of icon default centered
+	int icon_x = width/2-icon_w/2;
+	int icon_y = height/2-icon_h/2;
+
+	//set properties to picture object
 	if (cc_btn_icon_obj){
-		cc_btn_icon_obj->setDimensionsAll(this->getRealXPos(), this->getRealYPos(), height/*-2*fr_thickness*/, height-2*fr_thickness);
+		cc_btn_icon_obj->setPos(icon_x, icon_y);
 		cc_btn_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
+	
 }
 
 void CComponentsButton::initCaption()
@@ -105,16 +116,22 @@ void CComponentsButton::initCaption()
 
 		addCCItem(cc_btn_capt_obj);
 	}
-
-	int cap_x = this->getRealXPos()+(width/2)-(cc_btn_text_w/2);
-	int cap_h = height/*-2*fr_thickness*/;
-	int cap_y = this->getRealYPos();
-
-	if (cc_btn_icon_obj)
-		cap_x = this->getRealXPos()+cc_btn_icon_obj->getWidth();
 	
+	//text position is default centere
+	int cap_x = (width/2)-(cc_btn_text_w/2);
+	int cap_y = (height/2)-(cc_btn_text_h/2); 
+
+	//if we have a icon, then we must calculate centered position for booth items together
+	if (cc_btn_icon_obj){
+		int face_w = cc_btn_icon_obj->getWidth() + H_SPACE + cc_btn_text_w + 2*fr_thickness;
+		int face_x = width/2 - face_w/2;
+		cc_btn_icon_obj->setXPos(face_x);
+		cap_x = face_x + cc_btn_icon_obj->getWidth() + H_SPACE;
+	}
+
+	//set properties to label object
 	if (cc_btn_capt_obj){			
-		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, width-cap_x, cap_h);
+		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, width-cap_x, height);
 		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE);
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;

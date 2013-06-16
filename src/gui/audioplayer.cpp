@@ -54,11 +54,11 @@
 #include <gui/color.h>
 #include <gui/infoviewer.h>
 
-#define ENABLE_GUI_MOUNT
 #ifdef ENABLE_GUI_MOUNT
 #include <gui/nfs.h>
 #endif
 
+#include <gui/components/cc_frm.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
@@ -1647,40 +1647,22 @@ void CAudioPlayerGui::paintHead()
 	if (!m_show_playlist || m_screensaver)
 		return;
 
-	int c_rad_mid = RADIUS_MID;
-	std::string strCaption;
+	CComponentsHeader header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_MP3);
+	header.setCornerRadius(RADIUS_MID);
+
 	if (m_inetmode)
-		strCaption = g_Locale->getText(LOCALE_INETRADIO_NAME);
-	else
-		strCaption = g_Locale->getText(LOCALE_AUDIOPLAYER_HEAD);
+		header.setCaption(LOCALE_INETRADIO_NAME);
 
-	m_frameBuffer->paintBoxRel(m_x, m_y + m_title_height, m_width, m_theight, COL_MENUHEAD_PLUS_0, c_rad_mid, CORNER_TOP);
-
-	//m_frameBuffer->paintIcon(NEUTRINO_ICON_MP3,m_x + 7, m_y + m_title_height + 10);
-	int iw, ih;
-	m_frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw, &ih);
-	m_frameBuffer->paintIcon(NEUTRINO_ICON_MP3, m_x + 10, m_y + m_title_height, m_theight);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(m_x + 20 + iw, m_y + m_theight + m_title_height + 0,
-			m_width - 20 - iw, strCaption, COL_MENUHEAD, 0, true); // UTF-8
-	int ypos = m_y + m_title_height;
-	//if (m_theight > 26)
-	//	ypos = (m_theight - 26) / 2 + m_y + m_title_height;
-	int xpos = m_x + m_width - 10;
+	if (CNeutrinoApp::getInstance()->isMuted())
+		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 
 #ifdef ENABLE_GUI_MOUNT
-	if (!m_inetmode) {
-		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw, &ih);
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, xpos - iw, ypos, m_theight);
-		xpos -= (iw + 10);
-	}
-		//m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, m_x + m_width - 30, ypos);
+	if (!m_inetmode)
+		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MENU);
 #endif
-	if ( CNeutrinoApp::getInstance()->isMuted() )
-	{
-		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &iw, &ih);
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos - iw, ypos, m_theight);
-	}
-	m_frameBuffer->blit();
+
+	header.paint(CC_SAVE_SCREEN_NO);
+	//m_frameBuffer->blit(); // ??
 }
 
 //------------------------------------------------------------------------
@@ -1949,6 +1931,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height);
 		ibox->setCornerRadius(RADIUS_LARGE);
 		ibox->setYPos(ypos2);
+		ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
 		ibox->paint(false);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,

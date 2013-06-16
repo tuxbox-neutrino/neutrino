@@ -270,7 +270,10 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 		{
-			loop = false;
+			strcpy(value, oldval);
+			loop=false;
+			if(cancel != NULL)
+				*cancel = true;
 			res = menu_return::RETURN_EXIT_ALL;
 		}
 		frameBuffer->blit();

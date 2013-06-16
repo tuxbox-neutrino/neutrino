@@ -239,7 +239,7 @@ class CFrameBuffer
 		void add_gxa_sync_marker(void);
 		void waitForIdle(const char* func=NULL);
 #else
-		inline void waitForIdle(void) {};
+		inline void waitForIdle(const char*) {};
 #endif
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);

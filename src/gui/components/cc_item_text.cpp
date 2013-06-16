@@ -30,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc.h"
+#include "cc_item_text.h"
 #include <sstream>
 #include <fstream>
 #include <errno.h>
@@ -67,6 +67,8 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 	ct_text 	= text;
 	ct_text_mode	= mode;
 	ct_col_text	= color_text;
+	
+	initCCText();
 }
 
 
@@ -93,6 +95,12 @@ void CComponentsText::initVarText()
 	ct_text 	= "";
 	ct_old_text	= ct_text;
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
+
+	/* we need a minimal borderwith of 1px because the edge-smoothing
+	(or fontrenderer?) otherwise will paint single pixels outside the
+	defined area. e.g. 'j' is leaving such residues */
+	ct_text_border	= 1;
+
 	ct_col_text	= COL_MENUCONTENT;
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
@@ -115,9 +123,16 @@ void CComponentsText::initCCText()
 		delete ct_box;
 		ct_box = NULL;
 	}
+
+	//using of real x/y values to paint images if this text object is bound in a parent form
+	int tx = x, ty = y;
+	if (cc_parent){
+		tx = cc_xr;
+		ty = cc_yr;
+	}
 	ct_box = new CBox();
-	ct_box->iX 	= x+fr_thickness;
-	ct_box->iY 	= y+fr_thickness;
+	ct_box->iX 	= tx+fr_thickness;
+	ct_box->iY 	= ty+fr_thickness;
 	ct_box->iWidth 	= width-2*fr_thickness;
 	ct_box->iHeight = height-2*fr_thickness;
 
@@ -129,7 +144,7 @@ void CComponentsText::initCCText()
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setTextMode(ct_text_mode);
 	ct_textbox->setWindowPos(ct_box);
-	ct_textbox->setTextBorderWidth(0);
+	ct_textbox->setTextBorderWidth(ct_text_border);
 	ct_textbox->enableBackgroundPaint(ct_paint_textbg);
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
@@ -142,7 +157,7 @@ void CComponentsText::initCCText()
 		ct_text_sent = ct_textbox->setText(&ct_text, ct_box->iWidth);
 	ct_old_text = ct_text;
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, h %d, w %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, height, width);
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, ct_box->iWidth, ct_box->iHeight);
 #endif
 }
 

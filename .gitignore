@@ -37,6 +37,5 @@ src/nhttpd/web/*.js.gz
 src/zapit/src/pzapit
 src/zapit/src/udpstreampes
 src/drivertool
-src/gui/svn_version.h
-src/gui/git_version.h
+src/gui/version.h
 src/nhttpd/nhttpd.conf

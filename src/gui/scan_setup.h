@@ -84,6 +84,8 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		bool allow_start;
 		/* flag to re-init frontends */
 		bool fe_restart;
+		/* flag to skip manual params update while in menu */
+		bool in_menu;
 
 		bool is_wizard;
 		

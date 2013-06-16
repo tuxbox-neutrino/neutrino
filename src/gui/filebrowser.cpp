@@ -28,6 +28,7 @@
 /* include <config.h> before <gui/filebrowser.h> to enable 64 bit file offsets */
 #include <gui/filebrowser.h>
 
+#include <gui/components/cc_frm.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
@@ -250,12 +251,11 @@ void SMSKeyInput::setTimeout(int timeout)
 
 
 //------------------------------------------------------------------------
-//------------------------------------------------------------------------
 
 bool comparetolower(const char a, const char b)
 {
 	return tolower(a) < tolower(b);
-};
+}
 
 // sort operators
 bool sortByName (const CFile& a, const CFile& b)
@@ -362,7 +362,7 @@ CFileBrowser::CFileBrowser(const char * const _base, const tFileBrowserMode mode
 void CFileBrowser::commonInit()
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE];
+	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	fnt_item  = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM];
 	fnt_small = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 	//shoutcast
@@ -1379,7 +1379,6 @@ void CFileBrowser::paintHead()
 	char *l_name;
 	int i = 0;
 	int l;
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_MID, CORNER_TOP);
 #ifdef ENABLE_INTERNETRADIO
 	if(m_Mode == ModeSC)
 		l = asprintf(&l_name, "%s %s", g_Locale->getText(LOCALE_AUDIOPLAYER_ADD_SC), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
@@ -1401,11 +1400,12 @@ void CFileBrowser::paintHead()
 		l_name[--l] = '\0';
 
 	/* still too long? the last part is probably more interesting than the first part... */
-	while ((fnt_title->getRenderWidth(&l_name[i]) > width - 11)
-		&& (i < l))
+	while ((fnt_title->getRenderWidth(&l_name[i]) > width - 20) && (i < l))
 		i++;
 
-	fnt_title->RenderString(x+10,y+theight+1, width-11, &l_name[i], COL_MENUHEAD, 0, true);
+	CComponentsHeader header(x, y, width, theight, &l_name[i], NULL /*no header icon*/);
+	header.paint(CC_SAVE_SCREEN_NO);
+
 	free(l_name);
 }
 
@@ -1455,9 +1455,9 @@ void CFileBrowser::paintFoot()
 
 	const struct button_label FileBrowserButtons2[3] =
 	{
-		{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_FILEBROWSER_SELECT        },
-		{ NEUTRINO_ICON_BUTTON_HELP_SMALL , sortByNames[g_settings.filebrowser_sortmethod]        },
-		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL, LOCALE_FILEBROWSER_DELETE            },
+		{ NEUTRINO_ICON_BUTTON_OKAY		, LOCALE_FILEBROWSER_SELECT				},
+		{ NEUTRINO_ICON_BUTTON_HELP		, sortByNames[g_settings.filebrowser_sortmethod]	},
+		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL	, LOCALE_FILEBROWSER_DELETE				},
 	};
 
 // 	int iw = 0, ih = 0; 

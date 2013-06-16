@@ -40,6 +40,7 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
+#include <gui/components/cc_frm.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
@@ -130,34 +131,26 @@ void CBEBouquetWidget::paint()
 
 void CBEBouquetWidget::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), COL_MENUHEAD, 0, true); // UTF-8
+	CComponentsHeader header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, NULL /*no header icon*/, CComponentsHeader::CC_BTN_MENU);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
-const struct button_label CBEBouquetWidgetButtons[3] =
+const struct button_label CBEBouquetWidgetButtons[4] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE },
 	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD    },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE   }
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE   },
+	{ NEUTRINO_ICON_BUTTON_BLUE  , NONEXISTANT_LOCALE /*dummy*/}
 };
 
 void CBEBouquetWidget::paintFoot()
 {
-	int icol_w, icol_h, h2;
-	struct button_label Button[5];
+	struct button_label Button[4];
 
 	Button[0] = CBEBouquetWidgetButtons[0];
 	Button[1] = CBEBouquetWidgetButtons[1];
 	Button[2] = CBEBouquetWidgetButtons[2];
-	Button[3].button = NEUTRINO_ICON_BUTTON_BLUE;
-
-/* I have a more elegant solution in buttons.cpp
-	const neutrino_locale_t button_ids[] = {LOCALE_BOUQUETEDITOR_RENAME,LOCALE_BOUQUETEDITOR_HIDE,LOCALE_BOUQUETEDITOR_LOCK};
-	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
-*/
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &h2);
+	Button[3] = CBEBouquetWidgetButtons[3];
 
 	switch( blueFunction)
 	{
@@ -171,9 +164,8 @@ void CBEBouquetWidget::paintFoot()
 			Button[3].locale = LOCALE_BOUQUETEDITOR_LOCK;
 		break;
 	}
-	Button[4].button = NEUTRINO_ICON_BUTTON_MENU;
-	Button[4].locale = NONEXISTANT_LOCALE;
-	::paintButtons(x, y+height, width, 5, Button, width, ButtonHeight);
+
+	::paintButtons(x, y+height, width, 4, Button, width, ButtonHeight);
 }
 
 void CBEBouquetWidget::hide()

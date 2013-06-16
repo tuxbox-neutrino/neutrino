@@ -98,6 +98,7 @@ GENRE.TRAVEL_HOBBIES.7 gardening
 GENRE.UNKNOWN unknown
 apidselector.head Select language
 audio.srs_algo Type
+audio.srs_algo_heavy Heavy
 audio.srs_algo_light Light
 audio.srs_algo_normal Normal
 audio.srs_iq SRS TruVolume algo
@@ -325,7 +326,7 @@ eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within
 eventfinder.search_within_list Search within
 eventfinder.searching Search for keyword in EPG...
-eventfinder.start_search  Start Search
+eventfinder.start_search Start Search
 eventlist.additional Additional informations
 eventlist.name Eventlist
 eventlistbar.channelswitch schedule
@@ -479,6 +480,8 @@ flashupdate.globalprogress Global Progress:
 flashupdate.head Software Update
 flashupdate.md5check checking image
 flashupdate.md5sumerror image has errors
+flashupdate.menu_apply_kernel Flashing kernel
+flashupdate.menu_apply_settings Allow apply settings
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?
 flashupdate.msgbox_manual Found the following new image:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nDo you want to install this version now?
 flashupdate.mtdselector Partition-Selector
@@ -593,6 +596,7 @@ imageinfo.homepage Home page:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
 imageinfo.license License:
+imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded....
@@ -778,6 +782,7 @@ menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cach
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
 menu.hint_epg_save_standby Save EPG on soft standby mode
+menu.hint_epg_scan Enable background epg scan using free tuner
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_additional Show additional informations\nin main box
 menu.hint_eventlist_fonts Change event list font sizes
@@ -856,6 +861,7 @@ menu.hint_key_mpplay Assign button to resume record/file playback
 menu.hint_key_mpplugin Assign button to start selected plugin\nwhile playing record/file
 menu.hint_key_mprewind Assign button to rewind record playback
 menu.hint_key_mpstop Assign button to stop record/file playback
+menu.hint_key_mpsubtitle Assign button to show subtitle selection
 menu.hint_key_mptime Assign button to show play time\nleft time
 menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
@@ -1116,6 +1122,7 @@ menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
+menu.hint_ytplay Play selected youtube feeds
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next (press Menu to quit)
 messagebox.back Back
@@ -1149,6 +1156,7 @@ miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they ti
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
 miscsettings.epg_save_standby Save epg on soft standby
+miscsettings.epg_scan EPG scan
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
@@ -1351,6 +1359,22 @@ moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
 moviebrowser.use_movie_dir Use movie directory
 moviebrowser.use_rec_dir Use record directory
+moviebrowser.yt_error Failed to load youtube feed
+moviebrowser.yt_max_results Max results to fetch
+moviebrowser.yt_most_discussed Most discussed
+moviebrowser.yt_most_popular Most popular
+moviebrowser.yt_most_resent Most resent
+moviebrowser.yt_most_responded Most responded
+moviebrowser.yt_most_shared Most shared
+moviebrowser.yt_next_results Next results
+moviebrowser.yt_on_the_web Trending videos
+moviebrowser.yt_prev_results Previous results
+moviebrowser.yt_recently_featured Recently featured
+moviebrowser.yt_region Region
+moviebrowser.yt_related Related videos
+moviebrowser.yt_search Search keyword
+moviebrowser.yt_top_favorites Top favorites
+moviebrowser.yt_top_rated Top rated
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
@@ -1372,6 +1396,7 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
+movieplayer.ytplayback Youtube feeds playback
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
@@ -1380,6 +1405,7 @@ mpkey.play Play
 mpkey.plugin Run plugin
 mpkey.rewind Rewind
 mpkey.stop Stop
+mpkey.subtitle Subtitles
 mpkey.time Show time
 networkmenu.apply_settings Changes are applied...
 networkmenu.apply_settings_now Do you want to apply settings now?
@@ -1715,6 +1741,7 @@ settings.pos_bottom_center bottom center
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
 settings.pos_default_center center
+settings.pos_higher_center higher center
 settings.pos_top_center top center
 settings.pos_top_left top left
 settings.pos_top_right top right
@@ -1832,6 +1859,7 @@ timing.infobar_movieplayer Infobar (movie mode)
 timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
+timing.volumebar Volume bar
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
 unicable.scr Unicable SCR

@@ -592,7 +592,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		if (!audioInfo.empty())
 		{
 			audioInfo.erase(audioInfo.size()-2);
-			processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AUDIO)) + ": " + ZapitTools::Latin1_to_UTF8(audioInfo)); // UTF-8
+			processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AUDIO)) + ": " + audioInfo); // UTF-8
 		}
 	}
 

@@ -31,26 +31,42 @@
 #include "cc_frm.h"
 #include <string>
 
-
+//! Sub class of CComponentsForm.
+/*!
+Shows a button box with caption and optional icon.
+*/
 class CComponentsButton : public CComponentsForm
 {
 	protected:
-		void initVarButton();
-
-		///caption and icon  properties
-		std::string cc_btn_capt;  	//text
-		std::string cc_btn_icon;  	//icon name, only icons supported, to find in gui/widget/icons.h
-		fb_pixel_t cc_btn_capt_col; 	//text color
-		Font* cc_btn_font;		//text font
-		int cc_btn_text_w, cc_btn_text_h; //width and height of text, too long text will be truncated
-
-		///icon and text objects
+		///object: picture object
 		CComponentsPicture *cc_btn_icon_obj;
+		///object: label object
 		CComponentsLabel *cc_btn_capt_obj;
 
-		///initialize of objects
+		///initialize all required attributes and objects
+		void initVarButton();
+
+		///property: button text
+		std::string cc_btn_capt;
+		///property: icon name, only icons supported, to find in gui/widget/icons.h
+		std::string cc_btn_icon;
+
+		///property: text color
+		fb_pixel_t cc_btn_capt_col;
+		///object: text font
+		Font* cc_btn_font;
+		///property: label object width, too long text will be truncated
+		int cc_btn_text_w;
+		///property: label object heigth
+		int cc_btn_text_h;
+	
+
+		///initialize picture object
 		void initIcon();
+		///initialize label object
 		void initCaption();
+		
+		///initialize picture and label object
 		void initCCBtnItems();
 	
 	public:
@@ -59,12 +75,18 @@ class CComponentsButton : public CComponentsForm
 					const std::string& caption, const std::string& icon_name,
 					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		
+
+		///set text color
 		virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_capt_col = caption_color;};
+
+		///paint button object
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
-///sub classes for button objects with most needed params, and predefined color buttons, but functionality is the same as in CComponentsButton
+//! Sub class of CComponentsButton.
+/*!
+Shows a button box with caption and prepared red icon.
+*/
 class CComponentsButtonRed : public CComponentsButton
 {
 	public:
@@ -78,6 +100,10 @@ class CComponentsButtonRed : public CComponentsButton
 		};
 };
 
+//! Sub class of CComponentsButton.
+/*!
+Shows a button box with caption and prepared green icon.
+*/
 class CComponentsButtonGreen : public CComponentsButton
 {
 	public:
@@ -91,6 +117,10 @@ class CComponentsButtonGreen : public CComponentsButton
 		};
 };
 
+//! Sub class of CComponentsButton.
+/*!
+Shows a button box with caption and prepared yellow icon.
+*/
 class CComponentsButtonYellow : public CComponentsButton
 {
 	public:
@@ -104,6 +134,10 @@ class CComponentsButtonYellow : public CComponentsButton
 		};
 };
 
+//! Sub class of CComponentsButton.
+/*!
+Shows a button box with caption and prepared blue icon.
+*/
 class CComponentsButtonBlue : public CComponentsButton
 {
 	public:

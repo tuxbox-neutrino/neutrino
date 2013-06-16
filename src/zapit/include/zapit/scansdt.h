@@ -28,7 +28,7 @@
 #include <dvbsi++/service_description_section.h>
 #include <dvbsi++/service_descriptor.h>
 
-#define SDT_SECTION_SIZE 1026
+#define SDT_SECTION_SIZE 4096
 
 class CSdt
 {

@@ -47,8 +47,6 @@ class CExtUpdate
 		std::string imgFilename;
 		std::string mtdRamError;
 		int mtdNumber;
-		int MTDBufSize;
-		char *MTDBuf;
 		int fd1, fd2;
 		FILE *f1;
 		std::string mtdramDriver;

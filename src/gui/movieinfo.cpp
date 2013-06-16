@@ -922,6 +922,9 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 		movie_info->bookmarks.user[i].length = 0;
 		movie_info->bookmarks.user[i].name = "";
 	}
+	movie_info->tfile.clear();
+	movie_info->ytdate.clear();
+	movie_info->ytid.clear();
 }
 
 /************************************************************************

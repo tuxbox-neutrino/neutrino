@@ -47,7 +47,6 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
-#include <system/fsmounter.h>
 
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
@@ -463,13 +462,13 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	printf("[update] flash/install filename %s type %c\n", filename.c_str(), fileType);
 #endif
 	if(fileType < '3') {
-		CNeutrinoApp::getInstance()->exec(NULL, "savesettings");
 		//flash it...
-
 #if ENABLE_EXTUPDATE
-		if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
-			if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
-				return menu_return::RETURN_REPAINT;
+		if (g_settings.apply_settings) {
+			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
+				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
+					return menu_return::RETURN_REPAINT;
+		}
 #endif
 
 #ifdef DEBUG1
@@ -485,16 +484,9 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		//status anzeigen
 		showGlobalStatus(100);
 		showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
-
 		hide();
-
-		// Unmount all NFS & CIFS volumes
-		nfs_mounted_once = false; /* needed by update.cpp to prevent removal of modules after flashing a new cramfs, since rmmod (busybox) might no longer be available */
-		CFSMounter::umount();
-
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_FLASHREADYREBOOT)); // UTF-8
 		sleep(2);
-		//my_system("/etc/init.d/rcK");
 		ft.reboot();
 	}
 	else if(fileType == 'T') // display file contents

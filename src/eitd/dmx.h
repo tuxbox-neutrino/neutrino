@@ -126,6 +126,7 @@ public:
 	unsigned char get_eit_version(void) { return eit_version; }
 	// was useful for debugging...
 	t_channel_id get_current_service(void) { return current_service; }
+	void setDemux(int dnum) { dmx_num = dnum; }
 };
 
 #endif /* __sectionsd__dmx_h__ */

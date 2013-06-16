@@ -110,6 +110,7 @@ struct NeutrinoMessages {
 		EVT_PMT_CHANGED				 = CRCInput::RC_Events + 40,
 		/* NEVER CHANGE THIS */
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
+		EVT_SUBT_MESSAGE                         = CRCInput::RC_Events + 61, /* data = subtitles pointer */
 		/* END */
 
 		EVT_CURRENTEPG                           = CRCInput::RC_WithData +  1,
@@ -146,7 +147,9 @@ struct NeutrinoMessages {
 		EVT_TUNE_COMPLETE                        = CRCInput::RC_WithData + 22, /* data: (t_channel_id *) */
 
 		/* neutrino */
-		EVT_RECORDING_ENDED                      = CRCInput::RC_WithData + 23
+		EVT_RECORDING_ENDED                      = CRCInput::RC_WithData + 23,
+		/* sectionsd */
+		EVT_EIT_COMPLETE                         = CRCInput::RC_WithData + 24, /* data: (t_channel_id *) */
 	};
 	enum
 	{

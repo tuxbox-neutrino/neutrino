@@ -10,3 +10,7 @@ install_DATA = \
 	DejaVuLGCSansMono-Bold.ttf \
 	tuxtxt.ttf \
 	tuxtxt.otb
+
+if BOXMODEL_APOLLO
+install_DATA += UnDotum.ttf
+endif

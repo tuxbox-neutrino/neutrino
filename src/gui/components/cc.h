@@ -34,68 +34,174 @@
 
 //#define DEBUG_CC
 
+/// Basic component class.
+/*!
+Basic attributes and member functions for component sub classes
+*/
+
 class CComponents
 {
-	protected:
-		int x, y, height, width, corner_type, shadow_w;
-		int corner_rad, fr_thickness, fr_thickness_sel;
-		CFrameBuffer * frameBuffer;
-		std::vector<comp_fbdata_t> v_fbdata;
-		fb_pixel_t	col_body, col_shadow, col_frame, col_frame_sel;
-		bool	firstPaint, shadow, is_painted, paint_bg;
+	private:
+		///pixel buffer handling, returns pixel buffer depends of given parameters
+		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		
-		void initVarBasic();
-		void paintFbItems(bool do_save_bg = true);
-		virtual fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
-		comp_screen_data_t saved_screen;
+	protected:
+		///object: framebuffer object, usable in all sub classes
+		CFrameBuffer * frameBuffer;
+		///container: for frambuffer properties and pixel buffer
+		std::vector<comp_fbdata_t> v_fbdata;
 
-		void clearSavedScreen();
+		///property: x-position on screen
+		int x;
+		///property: y-position on screen
+		int y;
+		///property: contains real x-position on screen
+		int cc_xr;
+		///property: contains real y-position on screen
+		int cc_yr;
+		///property: height-dimension on screen
+		int height;
+		///property: width-dimension on screen
+		int width;
+		///property: has corners with definied type, types are defined in /driver/frambuffer.h, without effect, if corner_radius=0
+		int corner_type;
+		///property: defined radius of corner, without effect, if corner_type=0
+		int corner_rad;
+		
+		///property: color of body
+		fb_pixel_t col_body;
+		///property: color of shadow
+		fb_pixel_t col_shadow;
+		///property: color of frame
+		fb_pixel_t col_frame;
+		///property: color of frame if component is selected, Note: fr_thickness_sel must be set
+		fb_pixel_t col_frame_sel;
+
+		///property: true=component has shadow
+		bool shadow;
+		///property: width of shadow
+		int shadow_w;
+
+		 ///property: frame thickness
+		int fr_thickness;
+		///property: frame thickness of selected component
+		int fr_thickness_sel;
+
+		///status: true=component was painted for 1st time
+		bool firstPaint;
+		///status: true=component was rendered
+		bool is_painted;
+		///mode: true=activate rendering of basic elements (frame, shadow and body)
+		bool paint_bg;
+
+		///initialize of basic attributes, no parameters required
+		void initVarBasic();
+		///rendering of framebuffer elements at once,
+		///elements are contained in v_fbdata, presumes added frambuffer elements with paintInit(),
+		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
+		void paintFbItems(bool do_save_bg = true);
+
+		///clean up old screen buffer saved in v_fbdata
 		virtual void clear();
+
+		///container: contains saved pixel buffer with position and dimensions
+		comp_screen_data_t saved_screen; 	
+		///cleans saved pixel buffer
+		void clearSavedScreen();
+		
 	public:
+		///basic component class constructor.
 		CComponents();
 		virtual~CComponents();
 
+		///set screen x-position
 		inline virtual void setXPos(const int& xpos){x = xpos;};
+		///set screen y-position,
 		inline virtual void setYPos(const int& ypos){y = ypos;};
+		///set x and y position
+		///Note: position of bound components (items) means position related within parent form, not for screen!
+		///to set the real screen position, look at setRealPos()
 		inline virtual void setPos(const int& xpos, const int& ypos){x = xpos; y = ypos;};
-		inline virtual void setHeight(const int& h){height = h;};
-		inline virtual void setWidth(const int& w){width = w;};
-		inline virtual void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h){x = xpos; y = ypos; width = w; height = h;};
+
+		///sets real x position on screen. Use this, if item is added to a parent form
+		virtual void setRealXPos(const int& xr){cc_xr = xr;};
+		///sets real y position on screen. Use this, if item is added to a parent form
+		virtual void setRealYPos(const int& yr){cc_yr = yr;};
+		///sets real x and y position on screen at once. Use this, if item is added to a parent form
+		virtual void setRealPos(const int& xr, const int& yr){cc_xr = xr; cc_yr = yr;};
+		///get real x-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealXPos(){return cc_xr;};
+		///get real y-position on screen. Use this, if item contains own render methods and item is bound to a form
+		virtual int getRealYPos(){return cc_yr;};
 		
+		///set height of component on screen
+		inline virtual void setHeight(const int& h){height = h;};
+		///set width of component on screen
+		inline virtual void setWidth(const int& w){width = w;};
+		///set all positions and dimensions of component at once
+		inline virtual void setDimensionsAll(const int& xpos, const int& ypos, const int& w, const int& h){x = xpos; y = ypos; width = w; height = h;};
+
+		///return screen x-position of component
+		///Note: position of bound components (items) means position related within parent form, not for screen!
+		///to get the real screen position, use getRealXPos(), to find in CComponentsItem sub classes
 		inline virtual int getXPos(){return x;};
+		///return screen y-position of component
+		///Note: position of bound components (items) means position related within parent form, not for screen!
+		///to get the real screen position, use getRealYPos(), to find in CComponentsItem sub classes
 		inline virtual int getYPos(){return y;};
+		///return height of component
 		inline virtual int getHeight(){return height;};
+		///return width of component
 		inline virtual int getWidth(){return width;};
+		///return of frame thickness
+		inline virtual int getFrameThickness(){return fr_thickness;};
+
+		///return/set (pass through) width and height of component
 		inline virtual void getSize(int* w, int* h){*w=width; *h=height;};
+		///return/set (pass through) position and dimensions of component at once
 		inline virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;};
 
-		///set colors: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
+		///set frame color
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
+		///set body color
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
+		///set shadow color
 		inline virtual void setColorShadow(fb_pixel_t color){col_shadow = color;};
+		///set all basic framebuffer element colors at once
+		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
-		///get colors
+
+		///get frame color
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};
+		///get body color
 		inline virtual fb_pixel_t getColorBody(){return col_body;};
+		///get shadow color
 		inline virtual fb_pixel_t getColorShadow(){return col_shadow;};
 		
-		///set corner types: Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h).
+		///set corner types
+		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
+		///Note: default values are given from settings
 		inline virtual void setCornerType(const int& type){corner_type = type;};
+		///set corner radius
 		inline virtual void setCornerRadius(const int& radius){corner_rad = radius;};
-		///get corner types:
+		///get corner types
 		inline virtual int getCornerType(){return corner_type;};
+		///get corner radius
 		inline virtual int getCornerRadius(){return corner_rad;};
-		
+
+		///set frame thickness
 		inline virtual void setFrameThickness(const int& thickness){fr_thickness = thickness;};
+		///switch shadow on/off
+		///Note: it's recommended to use #defines: CC_SHADOW_ON=true or CC_SHADOW_OFF=false as parameter, see also cc_types.h
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
 
 		///hide current screen and restore background
 		virtual void hide();
-		///erase current screen without restore of background, as similar to paintBackgroundBoxRel() from CFrameBuffer
+		///erase current screen without restore of background, it's similar to paintBackgroundBoxRel() from CFrameBuffer
 		virtual void kill();
 		///returns paint mode, true=item was painted
 		virtual bool isPainted(){return is_painted;}
-		///allows paint of elemetary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
+		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
 		virtual void doPaintBg(bool do_paint){paint_bg = do_paint;};
 
 };
@@ -103,254 +209,64 @@ class CComponents
 class CComponentsItem : public CComponents
 {
 	protected:
+		///property: define of item type, see cc_types.h for possible types
 		int cc_item_type;
+		///property: define of item index, all bound items get an index,
+		///default: CC_NO_INDEX as identifer for not embedded item and default index=0 for form as main parent
+		///see also getIndex(), setIndex()
 		int cc_item_index;
-		bool cc_item_enabled, cc_item_selected;
+		///property: default enabled
+		bool cc_item_enabled;
+		///property: default not selected
+		bool cc_item_selected;
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
-		CComponents *cc_parent;
+		CComponentsItem *cc_parent;
 
-		///contains real position and dimensions on screen,
-		int cc_item_xr, cc_item_yr;
-		
+		///hides item, arg: no_restore=true causes no restore of background, but clean up pixel buffer if required
 		void hideCCItem(bool no_restore = false);
+		
+		///initialze of basic framebuffer elements with shadow, background and frame.
+		///must be called first in all paint() members before paint any item,
+		///If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
+		///arg do_save_bg=false avoids using of unnecessary pixel memory, eg. if no hide with restore is provided. This is mostly the case  whenever
+		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
 		void paintInit(bool do_save_bg);
+
+		///initialize all required attributes
 		void initVarItem();
 
 	public:
 		CComponentsItem();
 
 		///sets pointer to the form object in which this item is embedded.
-		virtual void setParent(CComponents *parent){cc_parent = parent;};
+		virtual void setParent(CComponentsItem *parent){cc_parent = parent;};
 
-		///sets real position on screen. Use this, if item contains own render methods and item is added to a form
-		virtual void setRealPos(const int& xr, const int& yr){cc_item_xr = xr; cc_item_yr = yr;};
-		virtual int getRealXPos(){return cc_item_xr;};
-		virtual int getRealYPos(){return cc_item_yr;};
-		
+		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
+		///hides item, arg: no_restore see hideCCItem() above
 		virtual void hide(bool no_restore = false);
+
+		///get the current item type, see attribute cc_item_type above
 		virtual int getItemType();
+		///syncronizes item colors with current color settings if required, NOTE: overwrites internal values!
 		virtual void syncSysColors();
 		
-		///setters for item select stats
+		///set select mode, see also col_frame_sel
 		virtual void setSelected(bool selected){cc_item_selected = selected;};
+		///set enable mode, see also cc_item_enabled
 		virtual void setEnable(bool enabled){cc_item_enabled = enabled;};
-		///getters for item enable stats
+		
+		///get select mode, see also setSelected() above
 		virtual bool isSelected(){return cc_item_selected;};
+		///get enable mode, see also setEnable() above
 		virtual bool isEnabled(){return cc_item_enabled;};
-};
 
-class CComponentsPicture : public CComponentsItem
-{
-	protected:
-		void initVarPicture();
-		
-		enum
-		{
-			CC_PIC_IMAGE_MODE_OFF 	= 0, //paint pictures in icon mode, mainly not scaled
-			CC_PIC_IMAGE_MODE_ON	= 1, //paint pictures in image mode, paint scaled if required
-			CC_PIC_IMAGE_MODE_AUTO	= 2
-		};
-		
-		std::string pic_name;
-		unsigned char pic_offset;
-		bool pic_paint, pic_paintBg, pic_painted, do_paint;
-		int pic_align, pic_x, pic_y, pic_width, pic_height;
-		int pic_max_w, pic_max_h, pic_paint_mode;
-		
-		void init(	const int x_pos, const int y_pos, const std::string& image_name, const int alignment, bool has_shadow,
-				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow);
-		
-	public:
-		CComponentsPicture( 	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& image_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		
-		virtual inline void setPictureOffset(const unsigned char offset){pic_offset = offset;};
-		virtual inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
-		virtual inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
-		virtual void setPicture(const std::string& picture_name);
-		virtual void setPictureAlign(const int alignment);
-		
-		virtual inline bool isPicPainted(){return pic_painted;};
-		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		virtual void hide(bool no_restore = false);
-		virtual inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
-		virtual void setMaxWidth(const int w_max){pic_max_w = w_max;};
-		virtual void setMaxHeight(const int h_max){pic_max_h = h_max;};
-};
-
-class CComponentsText : public CComponentsItem
-{
-	protected:
-		CTextBox 	* ct_textbox;
-		CBox 		* ct_box;
-		Font		* ct_font;
-
-		fb_pixel_t ct_col_text;
-		int ct_text_mode; //see textbox.h for possible modes
-		std::string ct_text, ct_old_text;
-		bool ct_text_sent, ct_paint_textbg, ct_force_text_paint;
-
-		static std::string iToString(int int_val); //helper to convert int to string
-
-		void initVarText();
-		void clearCCText();
-		void initCCText();
-		void paintText(bool do_save_bg = CC_SAVE_SCREEN_YES);
-	public:
-		CComponentsText();
-		CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		virtual ~CComponentsText();
-
-		//default members to paint a text box and hide painted text
-		//hide textbox
-		void hide(bool no_restore = false); 
-		//paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES); 
-
-		//send options for text font (size and type), color and mode (allignment)
-		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
-		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
-		//see textbox.h for possible allignment modes
-		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};
-
-		//send option to CTextBox object to paint background box behind text or not
-		virtual inline void doPaintTextBoxBg(bool do_paintbox_bg){ ct_paint_textbg = do_paintbox_bg;};
-
-		//sets text mainly with string also possible with overloades members for loacales, const char and text file
-		virtual void setText(const std::string& stext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		
-		virtual	void setText(const char* ctext, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		virtual void setText(neutrino_locale_t locale_text, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		virtual void setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		virtual bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-
-		//helper to remove linebreak chars from a string if needed
-		virtual void removeLineBreaks(std::string& str);
-		
-		//returns true, if text was changed
-		virtual bool textChanged(){return ct_old_text != ct_text;};
-		//force paint of text even if text was changed or not
-		virtual void forceTextPaint(bool force_text_paint = true){ct_force_text_paint = force_text_paint;};
-
-		//gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
-		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
-};
-
-class CComponentsLabel : public CComponentsText
-{
-	public:
-		CComponentsLabel(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, has_shadow, color_text, color_frame, color_body, color_shadow)
-		{
-			cc_item_type 	= CC_ITEMTYPE_LABEL;
-		};
-		CComponentsLabel():CComponentsText()
-		{
-			initVarText();
-			cc_item_type 	= CC_ITEMTYPE_LABEL;
-			ct_col_text = COL_MENUCONTENTINACTIVE;
-		};
-};
-
-#define INFO_BOX_Y_OFFSET	2
-class CComponentsInfoBox : public CComponentsText
-{
-	private:
-		int x_text, x_offset;
-		CComponentsPicture * pic;
-		std::string pic_default_name;
-		
-		void paintPicture();
-		void initVarInfobox();
-		std::string pic_name;
-		
-	public:
-		CComponentsText * cctext;
-
-		CComponentsInfoBox();
-		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string info_text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		
-		~CComponentsInfoBox();
-		
-		inline void setSpaceOffset(const int offset){x_offset = offset;};
-		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
-		
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-};
-
-
-class CComponentsShapeCircle : public CComponentsItem
-{
-	private:
-		int d;
-	public:
-		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam, bool has_shadow = CC_SHADOW_ON,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		
-		inline void setDiam(const int& diam){d=width=height=diam, corner_rad=d/2;};
-		inline int getDiam(){return d;};
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-};
-
-class CComponentsShapeSquare : public CComponentsItem
-{
-	public:
-		CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = CC_SHADOW_ON,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-};
-
-class CComponentsPIP : public CComponentsItem
-{
-	private:
-		int screen_w, screen_h;
-		std::string pic_name; //alternate picture if is no tv picture available
-	public:
-		CComponentsPIP(	const int x_pos, const int y_pos, const int percent = 30, bool has_shadow = CC_SHADOW_OFF);
-		~CComponentsPIP();
-		
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void hide(bool no_restore = false);
-		void setScreenWidth(int screen_width){screen_w = screen_width;};
-		void setScreenHeight(int screen_heigth){screen_h = screen_heigth;};
-		void setPicture(const std::string& image){pic_name = image;};
-};
-
-
-class CComponentsDetailLine : public CComponents
-{
-	private:
-		int thickness, y_down, h_mark_top, h_mark_down;
-
-		void initVarDline();
-
-	public:
-		CComponentsDetailLine();
-		CComponentsDetailLine(	const int x_pos,const int y_pos_top, const int y_pos_down,
-					const int h_mark_up = CC_HEIGHT_MIN , const int h_mark_down = CC_HEIGHT_MIN,
-					fb_pixel_t color_line = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		~CComponentsDetailLine();
-
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		inline void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
-		void syncSysColors();
-		inline void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
-		inline void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
-		inline void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
+		///get current index of item, see also attribut cc_item_index
+		virtual int getIndex(){return cc_item_index;};
+		///set index to item, see also attribut cc_item_index
+		virtual void setIndex(const int& index){cc_item_index = index;};
 };
 
 #endif

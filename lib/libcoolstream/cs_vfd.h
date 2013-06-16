@@ -60,7 +60,7 @@ typedef enum
     VFD_FLAG_SCROLL_DELAY	= 0x08,	/* delayed scroll start */
     VFD_FLAG_ALIGN_LEFT		= 0x10,	/* align the text in display from the left (default) */
     VFD_FLAG_ALIGN_RIGHT	= 0x20,	/* align the text in display from the right (arabic) */
-    VFD_FLAG_UPDATE_SCROLL_POS	= 0x40,	/* update the current position for scrolling */
+    VFD_FLAG_UPDATE_SCROLL_POS	= 0x40	/* update the current position for scrolling */
 } vfd_flag;
 
 typedef struct {
@@ -78,7 +78,7 @@ typedef enum {
 	VFD_LED_3_ON		= 0x83,
 	VFD_LED_1_OFF		= 0x01,
 	VFD_LED_2_OFF		= 0x02,
-	VFD_LED_3_OFF		= 0x03,
+	VFD_LED_3_OFF		= 0x03
 } vfd_led_ctrl_t;
 
 typedef struct {

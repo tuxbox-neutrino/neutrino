@@ -38,6 +38,7 @@
 #include <gui/motorcontrol.h>
 #include <gui/scan_setup.h>
 #include <gui/color.h>
+#include <gui/components/cc_frm.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <system/settings.h>
@@ -171,7 +172,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 
 	g_Zapit->tune_TP(TP);
 
-	paint();
+	paintHead();
 	paintMenu();
 	paintStatus();
 	frameBuffer->blit();
@@ -598,20 +599,17 @@ void CMotorControl::paintStatus()
 	paintSeparator(xpos1, &ypos, width, g_Locale->getText(LOCALE_MOTORCONTROL_SETTINGS));
 }
 
-void CMotorControl::paint()
+void CMotorControl::paintHead()
 {
-	ypos = y;
-	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + 10, ypos + hheight, width, g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-
-	ypos += hheight + (mheight >> 1) - 10;
-	ypos_menue = ypos;
+	CComponentsHeader header(x, y, width, hheight, LOCALE_MOTORCONTROL_HEAD, NULL /*no header icon*/);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CMotorControl::paintMenu()
 {
-	ypos = ypos_menue;
+	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+
+	ypos = y + hheight + (mheight >> 1) - 10;
 
 	int xpos1 = x + 10;
 	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("(7/yellow)");

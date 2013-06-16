@@ -232,6 +232,7 @@ CScanSetup::CScanSetup(bool wizard_mode)
 	nid		= NULL;
 	lcnhd		= NULL;
 	linkfe		= NULL;
+	in_menu		= false;
 }
 
 CScanSetup* CScanSetup::getInstance()
@@ -347,7 +348,9 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	printf("[neutrino] CScanSetup %s: init scan setup (Mode: %d)...\n",__FUNCTION__ , is_wizard);
 	CZapit::getInstance()->GetConfig(zapitCfg);
+	in_menu = true;
 	res = showScanMenu();
+	in_menu = false;
 
 	return res;
 }
@@ -503,20 +506,20 @@ printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager:
 		/* FIXME leak, satSelect added to both auto and manual scan, so one of them cannot be deleted */
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuForwarderNonLocalized(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::RC_nokey : CRCInput::RC_green, have_sat ? NULL : NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarderNonLocalized(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_green, have_sat ? NULL : NEUTRINO_ICON_BUTTON_GREEN);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
 		//manual scan
 		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
 		addScanMenuManualScan(manualScan);
-		mf = new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_sat ? CRCInput::RC_nokey : CRCInput::RC_yellow, have_sat ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
+		mf = new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_yellow, have_sat ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
 		settings->addItem(mf);
 		//simple cable scan
 		CMenuWidget * cableScan = new CMenuWidget(LOCALE_SATSETUP_CABLE, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_CABLE_SCAN);
 		addScanMenuCable(cableScan);
-		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::RC_nokey : CRCInput::RC_blue, have_sat ? NULL : NEUTRINO_ICON_BUTTON_BLUE);
+		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_blue, have_sat ? NULL : NEUTRINO_ICON_BUTTON_BLUE);
 		fcableScan->setHint("", LOCALE_MENU_HINT_SCAN_CABLE_SIMPLE);
 		settings->addItem(fcableScan);
 	}
@@ -680,31 +683,33 @@ int CScanSetup::showScanMenuFrontendSetup()
 	nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
 	setupMenu->addItem(nc);
 
-	sprintf(zapit_lat, "%02.6f", zapitCfg.gotoXXLatitude);
-	sprintf(zapit_long, "%02.6f", zapitCfg.gotoXXLongitude);
+	if (CFEManager::getInstance()->haveSat()) {
+		sprintf(zapit_lat, "%02.6f", zapitCfg.gotoXXLatitude);
+		sprintf(zapit_long, "%02.6f", zapitCfg.gotoXXLongitude);
 
-	setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_LADIRECTION,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_SCAN_LADIRECTION);
-	setupMenu->addItem(mc);
+		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
+		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_LADIRECTION,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+		mc->setHint("", LOCALE_MENU_HINT_SCAN_LADIRECTION);
+		setupMenu->addItem(mc);
 
-	CStringInput * toff1 = new CStringInput(LOCALE_EXTRA_LATITUDE, (char *) zapit_lat, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
-	mf = new CMenuDForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat, toff1, "", CRCInput::convertDigitToKey(shortcut++));
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_LATITUDE);
-	setupMenu->addItem(mf);
+		CStringInput * toff1 = new CStringInput(LOCALE_EXTRA_LATITUDE, (char *) zapit_lat, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		mf = new CMenuDForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat, toff1, "", CRCInput::convertDigitToKey(shortcut++));
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_LATITUDE);
+		setupMenu->addItem(mf);
 
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_LODIRECTION,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	mc->setHint("", LOCALE_MENU_HINT_SCAN_LODIRECTION);
-	setupMenu->addItem(mc);
+		mc = new CMenuOptionChooser(LOCALE_EXTRA_LODIRECTION,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+		mc->setHint("", LOCALE_MENU_HINT_SCAN_LODIRECTION);
+		setupMenu->addItem(mc);
 
-	CStringInput * toff2 = new CStringInput(LOCALE_EXTRA_LONGITUDE, (char *) zapit_long, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
-	mf = new CMenuDForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long, toff2, "", CRCInput::convertDigitToKey(shortcut++));
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_LONGITUDE);
-	setupMenu->addItem(mf);
+		CStringInput * toff2 = new CStringInput(LOCALE_EXTRA_LONGITUDE, (char *) zapit_long, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		mf = new CMenuDForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long, toff2, "", CRCInput::convertDigitToKey(shortcut++));
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_LONGITUDE);
+		setupMenu->addItem(mf);
 
-	nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF);
-	nc->setHint("", LOCALE_MENU_HINT_SCAN_USALS_REPEAT);
-	setupMenu->addItem(nc);
+		nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+		nc->setHint("", LOCALE_MENU_HINT_SCAN_USALS_REPEAT);
+		setupMenu->addItem(nc);
+	}
 
 	int res = setupMenu->exec(NULL, "");
 	delete setupMenu;
@@ -820,7 +825,7 @@ int CScanSetup::showFrontendSetup(int number)
 		setupMenu->addItem(dorder);
 
 		CMenuWidget * satToSelect = new CMenuWidget(LOCALE_SATSETUP_SELECT_SAT, NEUTRINO_ICON_SETTINGS, width);
-		satToSelect->addIntroItems();
+		//satToSelect->addIntroItems();
 
 		satellite_map_t & satmap = fe->getSatellites();
 		for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); ++sit)
@@ -1573,6 +1578,9 @@ printf("[neutrino] CScanSetup::%s: logical numbers %d\n", __FUNCTION__, scansett
 
 void CScanSetup::updateManualSettings()
 {
+	if (in_menu)
+		return;
+
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(channel) {
 		transponder_list_t::iterator tI;

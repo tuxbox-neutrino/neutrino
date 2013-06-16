@@ -55,7 +55,7 @@ class CServiceScan : public OpenThreads::Thread
 			SCAN_TVRADIO		= 0x60,
 			SCAN_DATA		= 0x80,
 			SCAN_ALL		= 0xE0,
-			SCAN_LOGICAL_HD		= 0x100,
+			SCAN_LOGICAL_HD		= 0x100
 		} scan_flags_t;
 
 	private:

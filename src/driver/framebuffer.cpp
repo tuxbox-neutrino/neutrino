@@ -161,9 +161,9 @@ void CFrameBuffer::waitForIdle(const char* func)
 
 	if (count > 512) /* more than 100 are unlikely, */{
 		if (func != NULL)
-			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%04d) [%s]!\n", count, func);
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%04u) [%s]!\n", count, func);
 		else
-			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%u)!\n", count);
 	}
 }
 #endif /* USE_NEVIS_GXA */
@@ -693,11 +693,11 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
 #endif
 
-	int line = 0;
 	if (type && radius) {
 		setCornerFlags(type);
 		radius = limitRadius(dx, dy, radius);
 
+		int line = 0;
 		while (line < dy) {
 			int ofl, ofr;
 			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
@@ -758,6 +758,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 #else
 		int swidth = stride / sizeof(fb_pixel_t);
 		fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
+		int line = 0;
 		while (line < dy) {
 			for (int pos = x; pos < x + dx; pos++)
 				*(fbp + pos) = col;
@@ -946,11 +947,9 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 {
 	struct rawHeader header;
 	int	 width, height;
-	int	      lfd;
 	fb_pixel_t * data;
 	struct rawIcon tmpIcon;
 	std::map<std::string, rawIcon>::iterator it;
-	int dsize;
 
 	if (!getActive())
 		return false;
@@ -967,7 +966,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		data = g_PicViewer->getIcon(newname, &width, &height);
 
 		if(data) {
-			dsize = width*height*sizeof(fb_pixel_t);
+			int dsize = width*height*sizeof(fb_pixel_t);
 			//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
 			if(cache_size+dsize < ICON_CACHE_SIZE) {
 				cache_size += dsize;
@@ -982,7 +981,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		newname = iconBasePath + filename.c_str() + ".raw";
 
-		lfd = open(newname.c_str(), O_RDONLY);
+		int lfd = open(newname.c_str(), O_RDONLY);
 
 		if (lfd == -1) {
 			//printf("paintIcon: error while loading icon: %s\n", newname.c_str());
@@ -993,7 +992,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		tmpIcon.width = width  = (header.width_hi  << 8) | header.width_lo;
 		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
 
-		dsize = width*height*sizeof(fb_pixel_t);
+		int dsize = width*height*sizeof(fb_pixel_t);
 
 		tmpIcon.data = (fb_pixel_t*) cs_malloc_uncached(dsize);
 		data = tmpIcon.data;
@@ -1747,7 +1746,7 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool /*transp*/)
 {
 	int  xc, yc;
 
@@ -1810,19 +1809,23 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 		d2 = (fb_pixel_t *) d;
 		for (int count2 = 0; count2 < xc; count2++ ) {
 			fb_pixel_t pix = *(pixpos + xp);
-			if (!transp || (pix != 0)) {
+			if ((pix & 0xff000000) == 0xff000000)
 				*d2 = pix;
+			else {
+				uint8_t *in = (uint8_t *)(pixpos + xp);
+				uint8_t *out = (uint8_t *)d2;
+				int a = in[3];	/* TODO: big/little endian */
+				*out = (*out + ((*in - *out) * a) / 256);
+				in++; out++;
+				*out = (*out + ((*in - *out) * a) / 256);
+				in++; out++;
+				*out = (*out + ((*in - *out) * a) / 256);
 			}
 			d2++;
 			pixpos++;
 		}
 		d += stride;
 	}
-#if 0
-	for(int i = 0; i < yc; i++){
-		memmove(clfb + (i + yoff)*stride + xoff*4, ip + (i + yp)*width + xp, xc*4);
-	}
-#endif
 }
 
 void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)

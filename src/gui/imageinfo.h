@@ -27,8 +27,13 @@
 #ifndef __imageinfo__
 #define __imageinfo__
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <gui/widget/menue.h>
 #include <gui/components/cc_frm.h>
+#include <gui/components/cc_item_tvpic.h>
 #include <configfile.h>
 
 typedef struct image_info_t
@@ -42,11 +47,11 @@ class CImageInfo : public CMenuTarget
 {
 	private:
 		int item_offset; //distance between items and to boarder
-		int item_top; //start line in y below header
 		std::string license_txt;
 
 		std::vector<image_info_t> v_info;
-		
+
+		void Clean();
 		void Init();
 		void InitMinitv();
 		void InitInfos();
@@ -55,6 +60,7 @@ class CImageInfo : public CMenuTarget
 		void ScrollLic(bool scrollDown);
 		
 		CComponentsWindow  	*cc_win;
+		CComponentsForm  	*cc_info;
 		CComponentsPIP		*cc_tv;
 		CComponentsInfoBox 	*cc_lic;
 		CConfigFile     	config;

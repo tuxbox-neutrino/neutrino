@@ -1,23 +1,17 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 #AM_CPPFLAGS = -fno-rtti
-BUILT_SOURCES  = git_version.h
-git_version.h:
+BUILT_SOURCES = version.h
+version.h:
+	@rm -f $@; \
+	echo '#define BUILT_DATE "'`date`'"' > $@
 	@if test -d $(top_srcdir)/.git ; then \
 		pushd $(top_srcdir) ; \
-		GITDESCRIBE=$$(git describe --always --dirty || echo `date`) ; \
+		GITDESCRIBE=$$(git describe --always --dirty || echo 'VCS failed') ; \
 		popd ; \
-		echo "#define GITVERSION \"$${GITDESCRIBE}\" " > git_version.h.tmp ; \
-		if diff -q git_version.h git_version.h.tmp >/dev/null 2>&1 ; then \
-			rm -f git_version.h.tmp ; \
-		else \
-			rm -f git_version.h ; \
-			mv git_version.h.tmp git_version.h ; \
-		fi; \
-	else \
-		rm -f git_version.h; \
-		echo '#define BUILT_DATE "'`date`'"' > git_version.h ; \
+		echo '#define VCS "'$${GITDESCRIBE}'"' >> $@ ; \
 	fi
-noinst_HEADERS = git_version.h
+noinst_HEADERS = version.h
+.PHONY: version.h
 
 SUBDIRS = bedit components widget
 
@@ -87,6 +81,7 @@ libneutrino_gui_a_SOURCES = \
 	personalize.cpp \
 	pictureviewer.cpp \
 	pictureviewer_setup.cpp \
+	pipsetup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
 	proxyserver_setup.cpp \
@@ -111,7 +106,6 @@ libneutrino_gui_a_SOURCES = \
 	vfd_setup.cpp \
 	videosettings.cpp \
 	volumebar.cpp \
-	pipsetup.cpp \
 	zapit_setup.cpp
 
 if ENABLE_EXTUPDATE

@@ -337,12 +337,14 @@ int CNetworkSetup::showNetworkSetup()
 
 	showNetworkNTPSetup(&ntp);
 
+#ifdef ENABLE_GUI_MOUNT
 	//nfs mount submenu
 	CMenuWidget networkmounts(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
 	mf = new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, &networkmounts, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 	mf->setHint("", LOCALE_MENU_HINT_NET_MOUNT);
 	networkSettings->addItem(mf);
 	showNetworkNFSMounts(&networkmounts);
+#endif
 
 	//proxyserver submenu
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
@@ -393,6 +395,7 @@ void CNetworkSetup::showNetworkNTPSetup(CMenuWidget *menu_ntp)
 	menu_ntp->addItem( ntp3);
 }
 
+#ifdef ENABLE_GUI_MOUNT
 void CNetworkSetup::showNetworkNFSMounts(CMenuWidget *menu_nfs)
 {
 	menu_nfs->addIntroItems(LOCALE_NETWORKMENU_MOUNT);
@@ -403,6 +406,7 @@ void CNetworkSetup::showNetworkNFSMounts(CMenuWidget *menu_nfs)
 	mf->setHint("", LOCALE_MENU_HINT_NET_NFS_UMOUNT);
 	menu_nfs->addItem(mf);
 }
+#endif
 
 typedef struct n_isettings_t
 {

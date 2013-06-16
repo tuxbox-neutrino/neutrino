@@ -486,7 +486,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 #else
 			time_t now = time(NULL);
 			bool back = false;
-			if ((*lastEvent)->times.size() == 1)
+			if (*lastEvent!=NULL && (*lastEvent)->times.size() == 1)
 			{
 				if ((*lastEvent)->times.begin()->startzeit + (long)(*lastEvent)->times.begin()->dauer >= now - oldEventsAre)
 					back = true;
@@ -508,7 +508,8 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 				unlockMessaging();
 			}
 			// else fprintf(stderr, ">");
-			deleteEvent((*lastEvent)->uniqueKey());
+			if(*lastEvent!=NULL)
+				deleteEvent((*lastEvent)->uniqueKey());
 		}
 		// Pruefen ob es ein Meta-Event ist
 		MySIeventUniqueKeysMetaOrderServiceUniqueKey::iterator i = mySIeventUniqueKeysMetaOrderServiceUniqueKey.find(e->get_channel_id());
@@ -899,9 +900,19 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	if (dataLength != sizeof(sectionsd::commandSetServiceChanged))
 		return;
 
-	t_channel_id uniqueServiceKey = (((sectionsd::commandSetServiceChanged *)data)->channel_id);
+	sectionsd::commandSetServiceChanged * cmd = (sectionsd::commandSetServiceChanged *)data;
+	t_channel_id uniqueServiceKey = cmd->channel_id;
 
-	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
+	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE " demux #%d\n", uniqueServiceKey, cmd->dnum);
+	/* assume live demux always 0, other means background scan */
+	if (cmd->dnum) {
+		/* dont wakeup EIT, if we have max events allready */
+		if (max_events && (mySIeventsOrderUniqueKey.size() < max_events)) {
+			threadEIT.setDemux(cmd->dnum);
+			threadEIT.setCurrentService(uniqueServiceKey);
+		}
+		return;
+	}
 
 	static t_channel_id time_trigger_last = 0;
 
@@ -929,7 +940,8 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 		unlockMessaging();
 
 		threadCN.setCurrentService(messaging_current_servicekey);
-		threadEIT.setCurrentService(messaging_current_servicekey);
+		threadEIT.setDemux(cmd->dnum);
+		threadEIT.setCurrentService(uniqueServiceKey /*messaging_current_servicekey*/);
 #ifdef ENABLE_FREESATEPG
 		threadFSEIT.setCurrentService(messaging_current_servicekey);
 #endif
@@ -1701,6 +1713,10 @@ void CEitThread::beforeSleep()
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
+	eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
+			CEventServer::INITID_SECTIONSD,
+			&current_service,
+			sizeof(messaging_current_servicekey));
 	if(notify_complete)
 		system(CONFIGDIR "/epgdone.sh");
 }
@@ -2273,27 +2289,23 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 
 			bool copy = true;
 			if(search){
-				if((search == 1) || (search == 5)) {//SEARCH_EPG_TITLE == 1 SEARCH_EPG_ALL == 5 defined in eventlist.h
+				if ((search == 1 /*EventList::SEARCH_EPG_TITLE*/) || (search == 5 /*EventList::SEARCH_EPG_ALL*/))
+				{
 					std::string eName = (*e)->getName();
 					std::transform(eName.begin(), eName.end(), eName.begin(), tolower);
-					if(eName.find(search_text) == std::string::npos)
-						copy = false;
+					copy = (eName.find(search_text) != std::string::npos);
 				}
-				if((search == 2) || (!copy && search == 5)) {//SEARCH_EPG_INFO1 == 2
+				if ((search == 2 /*EventList::SEARCH_EPG_INFO1*/) || (!copy && (search == 5 /*EventList::SEARCH_EPG_ALL*/)))
+				{
 					std::string eText = (*e)->getText();
 					std::transform(eText.begin(), eText.end(), eText.begin(), tolower);
-					if(eText.find(search_text) == std::string::npos)
-						copy = false;
-					else if(search == 5)
-						copy = true;
+					copy = (eText.find(search_text) != std::string::npos);
 				}
-				if((search == 3) || (!copy && search == 5)) {//SEARCH_EPG_INFO2 == 3
+				if ((search == 3 /*EventList::SEARCH_EPG_INFO2*/) || (!copy && (search == 5 /*EventList::SEARCH_EPG_ALL*/)))
+				{
 					std::string eExtendedText = (*e)->getExtendedText();
 					std::transform(eExtendedText.begin(), eExtendedText.end(), eExtendedText.begin(), tolower);
-					if(eExtendedText.find(search_text) == std::string::npos)
-						copy = false;
-					else if(search == 5)
-						copy = true;
+					copy = (eExtendedText.find(search_text) != std::string::npos);
 				}
 			}
 			if(copy) {

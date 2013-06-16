@@ -58,6 +58,8 @@ void CComponents::initVarBasic()
 {
 	x = saved_screen.x 	= 0;
 	y = saved_screen.y 	= 0;
+	cc_xr 			= x;
+	cc_yr 			= y;
 	height 			= saved_screen.dy = CC_HEIGHT_MIN;
 	width 			= saved_screen.dx = CC_WIDTH_MIN;
 
@@ -133,6 +135,25 @@ void CComponents::paintFbItems(bool do_save_bg)
 			}
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
 				frameBuffer->paintBackgroundBoxRel(x, y, v_fbdata[i].dx, v_fbdata[i].dy);
+			else if (fbtype == CC_FBDATA_TYPE_SHADOW_BOX) {
+				if (shadow) {
+					int sw = shadow_w;
+					int sw_cur = sw;
+					int x_sh = v_fbdata[i].x + v_fbdata[i].dx - sw;
+					int y_sh = v_fbdata[i].y + v_fbdata[i].dy - sw;
+					if (corner_type && v_fbdata[i].r) {
+						//calculate positon of shadow areas
+						x_sh += sw - 2*v_fbdata[i].r;
+						y_sh += sw - 2*v_fbdata[i].r;
+						//calculate current shadow width depends of current corner_rad
+						sw_cur = max(2*v_fbdata[i].r, sw);
+					}
+					// shadow right
+					frameBuffer->paintBoxRel(x_sh, v_fbdata[i].y, sw_cur, v_fbdata[i].dy-sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_TOP_RIGHT);
+					// shadow bottom
+					frameBuffer->paintBoxRel(v_fbdata[i].x, y_sh, v_fbdata[i].dx, sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_BOTTOM);
+				}
+			}
 			else
 				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}

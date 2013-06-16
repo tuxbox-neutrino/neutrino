@@ -79,6 +79,7 @@ class CSectionsdClient : private CBasicClient
 		{
 			EVT_TIMESET,
 			EVT_GOT_CN_EPG,
+			EVT_EIT_COMPLETE,
 #if 0
 			EVT_SERVICES_UPDATE,
 			EVT_BOUQUETS_UPDATE,
@@ -189,7 +190,7 @@ class CSectionsdClient : private CBasicClient
 
 	bool getIsTimeSet();
 	void setPauseScanning(const bool doPause);
-	void setServiceChanged(const t_channel_id channel_id, const bool requestEvent);
+	void setServiceChanged(const t_channel_id channel_id, const bool requestEvent, int dnum = 0);
 
 	bool getIsScanningActive();
 

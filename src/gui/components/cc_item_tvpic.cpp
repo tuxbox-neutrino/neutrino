@@ -30,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc.h"
+#include "cc_item_tvpic.h"
 
 #include <video.h>
 
@@ -74,13 +74,20 @@ CComponentsPIP::~CComponentsPIP()
 
 void CComponentsPIP::paint(bool do_save_bg)
 {
-	int pig_x = x+fr_thickness;
-	int pig_y = y+fr_thickness;
+	//NOTE: real values are reqiured, if we paint not bound items or an own render methodes
+	int pig_x = (cc_parent ? cc_xr : x) + fr_thickness;
+	int pig_y = (cc_parent ? cc_yr : y) + fr_thickness;
 	int pig_w = width-2*fr_thickness;
 	int pig_h = height-2*fr_thickness;
 	
 	paintInit(do_save_bg);
-
+	
+	if (videoDecoder->getAspectRatio() == 1){
+		int tmpw = pig_w;
+		pig_w -= pig_w*25/100;
+		pig_x += tmpw/2-pig_w/2; 
+	}
+	
 	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv){
 		videoDecoder->Pig(pig_x+2, pig_y, pig_w, pig_h, screen_w, screen_h);
 	}

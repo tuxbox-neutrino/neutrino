@@ -71,9 +71,11 @@ CTestMenu::CTestMenu()
 	form = NULL;
 	txt = NULL;
 	header = NULL;
+	footer = NULL;
 	iconform = NULL;
 	window = NULL;
 	button = NULL;
+	clock = clock_r = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -84,10 +86,15 @@ CTestMenu::~CTestMenu()
 	delete form;
 	delete txt;
 	delete header;
+	delete footer;
 	delete iconform;
 	delete window;
 	delete button;
+	delete clock;
+	delete clock_r;
 }
+
+static int test_pos[4] = { 130, 192, 282, 360 };
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
@@ -223,12 +230,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		char buffer[255];
 		FILE *f = fopen("/proc/mounts", "r");
 		bool mounted = false;
-		if (f != NULL)
-		{
-			while (fgets (buffer, 255, f) != NULL)
-			{
-				if (strstr(buffer, "/dev/sda1"))
-				{
+		if (f != NULL) {
+			while (fgets (buffer, 255, f) != NULL) {
+				if (strstr(buffer, "/dev/sda1")) {
 					mounted = true;
 					break;
 				}
@@ -236,6 +240,27 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			fclose(f);
 		}
 		sprintf(buffer, "HDD: /dev/sda1 is %s", mounted ? "mounted" : "NOT mounted");
+		printf("%s\n", buffer);
+		
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		
+		return res;
+	}
+	else if (actionKey == "mmc")
+	{
+		char buffer[255];
+		FILE *f = fopen("/proc/mounts", "r");
+		bool mounted = false;
+		if (f != NULL) {
+			while (fgets (buffer, 255, f) != NULL) {
+				if (strstr(buffer, "/dev/mmcblk0p1")) {
+					mounted = true;
+					break;
+				}
+			}
+			fclose(f);
+		}
+		sprintf(buffer, "MMC: /dev/mmcblk0p1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
 		
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
@@ -275,64 +300,66 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
-	else if (actionKey == "22kon1" || actionKey == "22koff1")
+	else if (actionKey.find("22kon") != std::string::npos)
 	{
-		CScanTs * scanTs = new CScanTs();
-		int freq = (actionKey == "22kon1") ? 12000*1000: 11000*1000;
-		sprintf(scansettings.sat_TP_freq, "%d", freq);
+		int fnum = atoi(actionKey.substr(5, 1).c_str());
+		printf("22kon: fe %d sat pos %d\n", fnum, test_pos[fnum]);
+		sprintf(scansettings.sat_TP_freq, "%d", 12000*1000);
 		strncpy(scansettings.satName,
-				CServiceManager::getInstance()->GetSatelliteName(130).c_str(), 50);
-
-		scanTs->exec(NULL, "test");
-		delete scanTs;
+			CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+		CScanTs scanTs(FE_QPSK);
+		scanTs.exec(NULL, "test");
 		return res;
 	}
-	else if (actionKey == "22kon2" || actionKey == "22koff2")
+	else if (actionKey.find("22koff") != std::string::npos)
 	{
-		int freq = (actionKey == "22kon2") ? 12000*1000: 11000*1000;
-		sprintf(scansettings.sat_TP_freq, "%d", freq);
+		int fnum = atoi(actionKey.substr(6, 1).c_str());
+		printf("22koff: fe %d sat pos %d\n", fnum, test_pos[fnum]);
+		sprintf(scansettings.sat_TP_freq, "%d", 11000*1000);
 		strncpy(scansettings.satName,
-				CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
-
-		CScanTs * scanTs = new CScanTs();
-		scanTs->exec(NULL, "test");
-		delete scanTs;
+			CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+		CScanTs scanTs(FE_QPSK);
+		scanTs.exec(NULL, "test");
 		return res;
 	}
-	else if (actionKey == "scan1" || actionKey == "scan2")
+	else if (actionKey.find("scan") != std::string::npos)
 	{
-		int fnum = actionKey == "scan1" ? 0 : 1;
-		strncpy(scansettings.satName, actionKey == "scan1" ?
-				CServiceManager::getInstance()->GetSatelliteName(130).c_str() :
-				CServiceManager::getInstance()->GetSatelliteName(192).c_str(), 50);
+		int fnum = atoi(actionKey.substr(4, 1).c_str());
+		printf("scan: fe %d sat pos %d\n", fnum, test_pos[fnum]);
 
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
-		CServiceScan::getInstance()->SetFrontend(fnum);
-
-		int freq = 12538000;
-		sprintf(scansettings.sat_TP_freq, "%d", freq);
-		//CFrontend * frontend = CFEManager::getInstance()->getFE(0);
-		switch (frontend->getInfo()->type)
-		{
+		switch (frontend->getInfo()->type) {
 			case FE_QPSK:
-				sprintf(scansettings.sat_TP_rate, "%d", 41250*1000);
-				scansettings.sat_TP_fec = 1;
-				scansettings.sat_TP_pol = 1;
+				strncpy(scansettings.satName,
+						CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+				sprintf(scansettings.sat_TP_freq, "%d", (fnum & 1) ? 12439000: 12538000);
+				sprintf(scansettings.sat_TP_rate, "%d", (fnum & 1) ? 2500*1000 : 41250*1000);
+				scansettings.sat_TP_fec = (fnum & 1) ? FEC_3_4 : FEC_1_2;
+				scansettings.sat_TP_pol = (fnum & 1) ? 0 : 1;
 				break;
 			case FE_QAM:
-#if 0
-				sprintf(scansettings.sat_TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-				scansettings.sat_TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-				scansettings.TP_mod = tmpI->second.feparams.u.qam.modulation;
-#endif
+				{
+					unsigned count = CFEManager::getInstance()->getFrontendCount();
+					for (unsigned i = 0; i < count; i++) {
+						CFrontend * fe = CFEManager::getInstance()->getFE(i);
+						if (fe->isCable())
+							fe->setMode(CFrontend::FE_MODE_UNUSED);
+					}
+					frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
+					strncpy(scansettings.cableName, "CST Berlin", 50);
+					sprintf(scansettings.cable_TP_freq, "%d", 474*1000);
+					sprintf(scansettings.cable_TP_rate, "%d", 6875*1000);
+					scansettings.cable_TP_fec = 1;
+					scansettings.cable_TP_mod = 5;
+				}
 				break;
 			case FE_OFDM:
 			case FE_ATSC:
-				break;
+				return res;
 		}
-		CScanTs * scanTs = new CScanTs();
-		scanTs->exec(NULL, "manual");
-		delete scanTs;
+
+		CScanTs scanTs(frontend->getInfo()->type);
+		scanTs.exec(NULL, "manual");
 		return res;
 	}
 	else if (actionKey == "button"){
@@ -439,7 +466,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
 // 			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
-			header->setHeaderDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
+			header->setDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
 // 		else	//For existing instances it's recommended
 // 			//to remove old button icons before add new buttons, otherwise icons will be appended.
@@ -451,11 +478,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 // 		header->setCornerType(CORNER_TOP);
 
 //		change text of header
-		header->setHeaderText("Test");
+		header->setCaption("Test");
 
 //		add any other button icon
-//   		header->addHeaderButton(NEUTRINO_ICON_BUTTON_BLUE);
-// 		header->addHeaderButton(NEUTRINO_ICON_BUTTON_GREEN);
+//   		header->addButton(NEUTRINO_ICON_BUTTON_BLUE);
+// 		header->addButton(NEUTRINO_ICON_BUTTON_GREEN);
 
 //		example to replace the text item with an image item
 //		get text x position
@@ -474,6 +501,22 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			header->paint();
 		else
 			header->hide();
+		return res;
+	}
+	else if (actionKey == "footer"){
+		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+		if (footer == NULL){
+			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, true);
+			int start = 5, btnw =90, btnh = 37;
+			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, btnh, "Button1"));
+			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, btnh, "Button2"));
+			footer->addCCItem(new CComponentsButtonYellow(start+=btnw, 0, btnw, btnh, "Button3"));
+			footer->addCCItem(new CComponentsButtonBlue(start+=btnw, 0, btnw, btnh, "Button4"));
+		}
+		if (!footer->isPainted())
+			footer->paint();
+		else
+			footer->hide();
 		return res;
 	}
 	else if (actionKey == "iconform"){
@@ -516,20 +559,72 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (window == NULL){
 			window = new CComponentsWindow();
 			window->setWindowCaption("|.....................|");
-			window->setDimensionsAll(50, 50, 800, 480);
+			window->setDimensionsAll(50, 50, 1000, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
+
+			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
+			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
+			CComponentsShapeCircle *c12 = new CComponentsShapeCircle(50, 0, 28);
+			CComponentsShapeCircle *c13 = new CComponentsShapeCircle(50, CC_APPEND, 28);
+			c10->setColorBody(COL_RED);
+			c11->setColorBody(COL_GREEN);
+			c12->setColorBody(COL_YELLOW);
+			c13->setColorBody(COL_BLUE);
+			
+			window->getBodyObject()->setAppendOffset(0,50);
+			window->addWindowItem(c10);
+			window->addWindowItem(c11);
+			window->addWindowItem(c12);
+			window->addWindowItem(c13);
 		}
 		else{
-// 			window->setDimensionsAll(50, 50, 800, 480);
 			window->setWindowIcon(NEUTRINO_ICON_LOCK);
 			window->setWindowCaption("Test");
 		}
+
+
 		
 		if (!window->isPainted())
 			window->paint();
 		else
 			window->hide();
 
+		return res;
+	}
+	else if (actionKey == "running_clock"){	
+		if (clock_r == NULL){
+			clock_r = new CComponentsFrmClock(100, 50, 0, 50, "%H.%M:%S");
+			clock_r->setClockFontType(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+			clock_r->setClockIntervall(1);
+// 			clock_r->doPaintBg(false);
+		}
+		
+		if (!clock_r->isPainted()){
+			if (clock_r->Start())
+				return menu_return::RETURN_EXIT_ALL;;
+		}
+		else {
+			if (clock_r->Stop()){
+				clock_r->hide();
+				delete clock_r;
+				clock_r = NULL;
+				return menu_return::RETURN_EXIT_ALL;
+			}
+		}
+	}
+	else if (actionKey == "clock"){
+		if (clock == NULL){
+			clock = new CComponentsFrmClock(100, 50, 0, 50, "%H:%M", false);
+			clock->setClockFontType(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+		}
+
+		if (!clock->isPainted())
+			clock->paint();
+		else {
+			clock->hide();
+			delete clock;
+			clock = NULL;
+		}
 		return res;
 	}
 	
@@ -568,6 +663,8 @@ int CTestMenu::showTestMenu()
 void CTestMenu::showCCTests(CMenuWidget *widget)
 {
 	widget->addIntroItems();
+	widget->addItem(new CMenuForwarderNonLocalized("Running Clock", true, NULL, this, "running_clock"));
+	widget->addItem(new CMenuForwarderNonLocalized("Clock", true, NULL, this, "clock"));
 	widget->addItem(new CMenuForwarderNonLocalized("Button", true, NULL, this, "button"));
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
@@ -575,6 +672,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));
+	widget->addItem(new CMenuForwarderNonLocalized("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarderNonLocalized("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarderNonLocalized("Window", true, NULL, this, "window"));
 }
@@ -589,33 +687,51 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, this, "card1"));
 #endif
 	widget->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, this, "hdd"));
-	
-	//CFEManager::getInstance()->setMode(CFEManager::FE_MODE_ALONE);
-	
-	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
-	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
-	
-	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
-	satmap[130].configured = 1;
-	
-	CFrontend * frontend = CFEManager::getInstance()->getFE(0);
-	frontend->setSatellites(satmap);
-	
-	int count = CFEManager::getInstance()->getFrontendCount();
-	if (frontend->getInfo()->type == FE_QPSK) {
-		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: Scan 12538000", true, NULL, this, "scan1"));
-		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon1"));
-		widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff1"));
-		if(count > 1) {
-			satmap = CServiceManager::getInstance()->SatelliteList();
-			satmap[192].configured = 1;
-			frontend = CFEManager::getInstance()->getFE(1);
+	widget->addItem(new CMenuForwarderNonLocalized("SD/MMC", true, NULL, this, "mmc"));
+
+	for (unsigned i = 0; i < sizeof(test_pos)/sizeof(int); i++) {
+		CServiceManager::getInstance()->InitSatPosition(test_pos[i], NULL, true);
+	}
+
+	unsigned count = CFEManager::getInstance()->getFrontendCount();
+	for (unsigned i = 0; i < count; i++) {
+		widget->addItem(GenericMenuSeparatorLine);
+		CFrontend * frontend = CFEManager::getInstance()->getFE(i);
+		char title[100];
+		char scan[100];
+		sprintf(scan, "scan%d", i);
+		if (frontend->getInfo()->type == FE_QPSK) {
+			sprintf(title, "Satellite tuner %d: Scan %s", i+1, (i & 1) ? "12439-02500-H-5/6" : "12538-41250-V-1/2");
+		} else if (frontend->getInfo()->type == FE_QAM) {
+			sprintf(title, "Cable tuner %d: Scan 474-6875-QAM-256", i+1);
+		} else
+			continue;
+
+		widget->addItem(new CMenuForwarderNonLocalized(title, true, NULL, this, scan));
+		if (frontend->getInfo()->type == FE_QPSK) {
+			frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
+
+			satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
+			satmap[test_pos[i]].configured = 1;
 			frontend->setSatellites(satmap);
-			
-			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: Scan 12538000", true, NULL, this, "scan2"));
-			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon2"));
-			widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff2"));
+			if (i == 0) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz ON", true, NULL, this, "22kon0"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 1: 22 Khz OFF", true, NULL, this, "22koff0"));
+			}
+			if (i == 1) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz ON", true, NULL, this, "22kon1"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 2: 22 Khz OFF", true, NULL, this, "22koff1"));
+			}
+			if (i == 2) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 3: 22 Khz ON", true, NULL, this, "22kon2"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 3: 22 Khz OFF", true, NULL, this, "22koff2"));
+			}
+			if (i == 3) {
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 4: 22 Khz ON", true, NULL, this, "22kon3"));
+				widget->addItem(new CMenuForwarderNonLocalized("Tuner 4: 22 Khz OFF", true, NULL, this, "22koff3"));
+			}
 		}
 	}
+	CFEManager::getInstance()->linkFrontends(true);
 }
 #endif

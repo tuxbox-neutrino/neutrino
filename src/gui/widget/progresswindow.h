@@ -57,13 +57,12 @@ class CProgressWindow : public CMenuTarget, public CProgress_StatusViewer
 
 		//----------------------------
 
-		virtual void paint();
-
 	public:
 
 		CProgressWindow();
 		void setTitle(const neutrino_locale_t title);
 		virtual void hide();
+		virtual void paint();
 
 		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
 

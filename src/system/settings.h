@@ -147,6 +147,7 @@ struct SNeutrinoSettings
 	std::string epg_max_events;
 	std::string epg_extendedcache;
 	std::string epg_dir;
+	int epg_scan;
 
 	//network
 	std::string network_ntpserver;
@@ -218,6 +219,7 @@ struct SNeutrinoSettings
 		//movieplayer menu
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
+		P_MPLAYER_YTPLAY,
 		
 		//feature keys
 		P_FEAT_KEY_FAVORIT,
@@ -237,15 +239,15 @@ struct SNeutrinoSettings
 	//timing
 	enum TIMING_SETTINGS 
 	{
-		TIMING_MENU        = 0,
-		TIMING_CHANLIST    = 1,
-		TIMING_EPG         = 2,
-		TIMING_INFOBAR     = 3,
-		TIMING_INFOBAR_RADIO = 4,
-		TIMING_INFOBAR_MOVIE = 5,
-//		TIMING_VOLUMEBAR,
-		TIMING_FILEBROWSER = 6,
-		TIMING_NUMERICZAP  = 7,
+		TIMING_MENU		= 0,
+		TIMING_CHANLIST		= 1,
+		TIMING_EPG		= 2,
+		TIMING_INFOBAR		= 3,
+		TIMING_INFOBAR_RADIO	= 4,
+		TIMING_INFOBAR_MOVIE	= 5,
+		TIMING_VOLUMEBAR	= 6,
+		TIMING_FILEBROWSER	= 7,
+		TIMING_NUMERICZAP	= 8,
 		
 		TIMING_SETTING_COUNT
 	};
@@ -398,6 +400,7 @@ struct SNeutrinoSettings
 	int mpkey_time;
 	int mpkey_bookmark;
 	int mpkey_plugin;
+	int mpkey_subtitle;
 	int key_timeshift;
 	int key_plugin;
 
@@ -475,6 +478,8 @@ struct SNeutrinoSettings
 	char softupdate_proxyserver[31];
 	char softupdate_proxyusername[31];
 	char softupdate_proxypassword[31];
+	int apply_settings;
+	int apply_kernel;
 
 	//BouquetHandling
 	int bouquetlist_mode;
@@ -652,7 +657,7 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 	{ 6,	LOCALE_TIMING_INFOBAR     },
  	{ 0,	LOCALE_TIMING_INFOBAR_RADIO },
  	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER},
-// 	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
+ 	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
 	{ 60,	LOCALE_TIMING_FILEBROWSER },
 	{ 3,	LOCALE_TIMING_NUMERICZAP  }
 };

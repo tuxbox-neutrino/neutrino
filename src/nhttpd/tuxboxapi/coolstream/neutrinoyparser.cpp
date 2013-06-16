@@ -694,6 +694,8 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 		case 8:
 		case 9:
 			boxname += "Neo";
+			if (CFEManager::getInstance()->getFrontendCount() > 1)
+				boxname += " Twin";
 			break;
 		case 10:
 			boxname += "Zee";

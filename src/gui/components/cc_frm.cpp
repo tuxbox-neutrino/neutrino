@@ -31,6 +31,8 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm.h"
+#include <stdlib.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -51,6 +53,8 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
+	cc_xr 		= x;
+	cc_yr 		= y;
 	width 		= w;
 	height	 	= h;
 
@@ -70,7 +74,7 @@ void CComponentsForm::cleanCCForm()
 #ifdef DEBUG_CC
 	printf("[CComponentsForm]   [%s - %d] clean up...\n", __FUNCTION__, __LINE__);
 #endif
-// 	hide();
+
 	clearCCItems();
 	clearSavedScreen();
 	clear();
@@ -117,20 +121,37 @@ void CComponentsForm::initVarForm()
 	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
 	corner_rad	= RADIUS_LARGE;
 	corner_type 	= CORNER_ALL;
-	
+	cc_item_index	= 0;
+
 	//CComponentsForm
 	v_cc_items.clear();
-	
+	cc_item_type 	= CC_ITEMTYPE_FRM;
+	append_h_offset = 0;
+	append_v_offset = 0;
 }
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
 #ifdef DEBUG_CC
-		printf("	[CComponentsForm]  %s-%d add cc_Item [type %d] [current count %d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), v_cc_items.size());
+		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), cc_item_index);
 #endif
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
+#ifdef DEBUG_CC
+		printf("			   added cc_Item [type %d] to form [current index=%d] \n", cc_Item->getItemType(), cc_item_index);
+#endif
+
+		//assign item index
+		int count = v_cc_items.size();
+		char buf[64];
+		snprintf(buf, sizeof(buf), "%d%d", cc_item_index, count);
+		buf[63] = '\0';
+		int new_index = atoi(buf);
+		cc_Item->setIndex(new_index);
+#ifdef DEBUG_CC
+		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
+#endif		
 	}
 #ifdef DEBUG_CC
 	else
@@ -140,11 +161,22 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 
 int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
 {
-	for (size_t i= 0; i< v_cc_items.size(); i++)
-		if (v_cc_items[i] == cc_Item)
-			return i;
+	if (cc_Item){
+		for (size_t i= 0; i< v_cc_items.size(); i++)
+			if (v_cc_items[i] == cc_Item)
+				return i;	
+	}
 	return -1;
 }
+
+bool CComponentsForm::isAdded(CComponentsItem* cc_item)
+{
+	bool ret = false;
+	if (getCCItemId(cc_item) != -1)
+		ret = true;
+	return ret;
+}
+
 
 CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 {
@@ -208,6 +240,17 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 #endif
 }
 
+void CComponentsForm::exchangeCCItem(const uint& cc_item_id_a, const uint& cc_item_id_b)
+{
+	if (!v_cc_items.empty())
+		swap(v_cc_items[cc_item_id_a], v_cc_items[cc_item_id_b]);
+}
+
+void CComponentsForm::exchangeCCItem(CComponentsItem* item_a, CComponentsItem* item_b)
+{
+	exchangeCCItem(getCCItemId(item_a), getCCItemId(item_b));
+}
+
 void CComponentsForm::paintForm(bool do_save_bg)
 {
 	//paint body
@@ -222,65 +265,78 @@ void CComponentsForm::paint(bool do_save_bg)
 	paintForm(do_save_bg);
 }
 
+
 void CComponentsForm::paintCCItems()
-{	
-	size_t items_count = v_cc_items.size();
-	int x_frm_left 		= x+fr_thickness; //left form border
-	int y_frm_top 		= y+fr_thickness; //top form border
-	int x_frm_right		= x+width-fr_thickness; //right form border
-	int y_frm_bottom	= y+height-fr_thickness; //bottom form border
-		
-	for(size_t i=0; i<items_count; i++) {
-		//cache original item position and dimensions
-		int x_item, y_item, w_item, h_item;
-		v_cc_items[i]->getDimensions(&x_item, &y_item, &w_item, &h_item);
+{
+	size_t items_count 	= v_cc_items.size();
 
-		int xy_ref = 0+fr_thickness; //allowed minimal x and y start position
-		if (x_item < xy_ref){
-#ifdef DEBUG_CC
-			printf("[CComponentsForm] %s: item %d position is out of form dimensions\ndefinied x=%d\nallowed x>=%d\n", __FUNCTION__, i, x_item, xy_ref);
-#endif
-			x_item = xy_ref;
-		}
-		if (y_item < xy_ref){
-#ifdef DEBUG_CC
-			printf("[CComponentsForm] %s: item %d position is out of form dimensions\ndefinied y=%d\nallowed y>=%d\n", __FUNCTION__, i, y_item, xy_ref);
-#endif
-			y_item = xy_ref;
-		}
-		
-		//set adapted position onto form
-		v_cc_items[i]->setXPos(x_frm_left+x_item);
-		v_cc_items[i]->setYPos(y_frm_top+y_item);
+	//using of real x/y values to paint items if this text object is bound in a parent form
+	int this_x = x, auto_x = x, this_y = y, auto_y = y;
+	if (cc_parent){
+		this_x = auto_x = cc_xr;
+		this_y = auto_y = cc_yr;
+	}
 
-		//watch horizontal x dimensions of items
-		int x_item_right = v_cc_items[i]->getXPos()+w_item; //right item border
-		if (x_item_right > x_frm_right){
-			v_cc_items[i]->setWidth(w_item-(x_item_right-x_frm_right));
-#ifdef DEBUG_CC
-			printf("[CComponentsForm] %s: item %d too large, definied width=%d, possible width=%d \n", __FUNCTION__, i, w_item, v_cc_items[i]->getWidth());
-#endif
+	for(size_t i=0; i<items_count; i++){
+		//assign item object
+		CComponentsItem *cc_item = v_cc_items[i];
+
+		//get current dimension of item
+		int w_item = cc_item->getWidth();
+		int h_item = cc_item->getHeight();
+
+		//get current position of item
+		int xpos = cc_item->getXPos();
+		int ypos = cc_item->getYPos();
+
+		//set required x-position to item
+		if (xpos == CC_APPEND){
+			auto_x += append_h_offset;
+			cc_item->setRealXPos(auto_x + xpos + 1); 
+			auto_x += w_item;
+		}
+ 		else{
+			cc_item->setRealXPos(this_x + xpos);
+			auto_x = (cc_item->getRealXPos() + w_item);
+ 		}
+
+		//set required y-position to item
+		if (ypos == CC_APPEND){
+			auto_y += append_v_offset;
+			cc_item->setRealYPos(auto_y + ypos + 1);
+			auto_y += h_item;
+		}
+ 		else{
+			cc_item->setRealYPos(this_y + ypos);
+			auto_y = (cc_item->getRealYPos() + h_item);
+ 		}
+
+
+ 		//These steps check whether the element can be painted into the container.
+		//Is it too wide or too high, it will be shortened and displayed in the log.
+		//This should be avoid!
+ 		//checkwidth and adapt if required
+ 		int right_frm = (cc_parent ? cc_xr : x) + width - 2*fr_thickness;
+		int right_item = cc_item->getRealXPos() + w_item;
+		int w_diff = right_item - right_frm;
+		int new_w = w_item - w_diff;
+		if (right_item > right_frm){
+			printf("[CComponentsForm] %s: item %d width is too large, definied width=%d, possible width=%d \n", __FUNCTION__, i, w_item, new_w);
+			cc_item->setWidth(new_w);
 		}
 
-		//watch vertical y dimensions
-		int y_item_bottom = v_cc_items[i]->getYPos()+h_item; //bottom item border
-		if (y_item_bottom > y_frm_bottom){
-			v_cc_items[i]->setHeight(h_item-(y_item_bottom-y_frm_bottom));
-#ifdef DEBUG_CC
-			printf("[CComponentsForm] %s: item %d too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, v_cc_items[i]->getHeight());
-#endif
+		//check height and adapt if required
+ 		int bottom_frm = (cc_parent ? cc_yr : y) + height - 2*fr_thickness;
+		int bottom_item = cc_item->getRealYPos() + h_item;
+		int h_diff = bottom_item - bottom_frm;
+		int new_h = h_item - h_diff;
+		if (bottom_item > bottom_frm){
+			printf("[CComponentsForm] %s: item %d height is too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, new_h);
+			cc_item->setHeight(new_h);
 		}
 
-		//set real position dimension to item
-		int real_x = v_cc_items[i]->getXPos();
-		int real_y = v_cc_items[i]->getYPos();
-		v_cc_items[i]->setRealPos(real_x, real_y);
-		
-		//paint element without saved screen!
-		v_cc_items[i]->paint(CC_SAVE_SCREEN_NO);
-		
-		//restore dimensions and position
-		v_cc_items[i]->setDimensionsAll(x_item, y_item, w_item, h_item);
+		//finally paint current item
+		cc_item->paint(CC_SAVE_SCREEN_NO);
 	}
 }
 

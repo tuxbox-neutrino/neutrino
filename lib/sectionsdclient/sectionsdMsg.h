@@ -81,6 +81,7 @@ struct sectionsd
 	{
 		t_channel_id channel_id;
 		bool         requestEvent;
+		int          dnum;
 	};
 
 	struct responseIsTimeSet

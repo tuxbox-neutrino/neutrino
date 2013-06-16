@@ -245,6 +245,7 @@ class CZapit : public OpenThreads::Thread
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
 		CFrontend * GetLiveFrontend() { return live_fe; };
+		CFrontend * GetPipFrontend() { return pip_fe; };
 
 		int GetPidVolume(t_channel_id channel_id, int pid, bool ac3 = false);
 		void SetPidVolume(t_channel_id channel_id, int pid, int percent);

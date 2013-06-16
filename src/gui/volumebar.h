@@ -27,8 +27,11 @@
 #ifndef __VOLUMEBAR_H__
 #define __VOLUMEBAR_H__
 
+#include <global.h>
+#include <system/settings.h>
 #include <gui/components/cc_frm.h>  //CComponentsForm
 #include <gui/components/cc_item_progressbar.h> //CProgressBar
+#include <gui/components/cc_item_text.h> //CComponentsLabel
 
 class CVolumeBar : public CComponentsForm
 {
@@ -42,6 +45,7 @@ class CVolumeBar : public CComponentsForm
 		int sy, sw, sh;
 		int mute_ax, mute_ay, mute_dx, mute_dy, mute_ay_old;
 		int h_spacer, v_spacer;
+		int vb_item_offset;
 
 		//clock
 		int clock_y, clock_width, clock_height;
@@ -51,8 +55,12 @@ class CVolumeBar : public CComponentsForm
 
 		//scale dimensions
 		int vb_pbx, vb_pby, vb_pbw, vb_pbh;
-		int icon_x, pb_x, digit_x;
-		int icon_w, pb_w, digit_w;
+
+		//icon dimensions
+		int vb_icon_x, vb_icon_w/*, vb_icon_h*/;
+
+		//digit dimensions
+		int vb_digit_x, vb_digit_w/*, vb_digit_h*/;
 
 		void initVarVolumeBar();
 		void initVolumeBarPosition();
@@ -66,6 +74,9 @@ class CVolumeBar : public CComponentsForm
 
 		void paintVolScale();
 		void paintVolumeBarDigit();
+
+//		inline int cornerRad() { return (g_settings.rounded_corners) ? height/2 : 0; }
+		inline int cornerRad() { return (g_settings.rounded_corners) ? CORNER_RADIUS_SMALL : 0; }
 
 	public:
 
@@ -83,12 +94,13 @@ class CVolumeHelper
 		int x, y, sw, sh;
 		int mute_ax, mute_ay, mute_dx, mute_dy, mute_corrY;
 		int clock_ax, clock_ay, clock_dx, clock_dy, digit_h, digit_offset;
+		int icon_width, digit_width;
 		int h_spacer, v_spacer;
 		int vol_ay, vol_height;
 		CFrameBuffer *frameBuffer;
 
 		void Init();
-		void initVolBarHeight();
+		void initVolBarSize();
 		void initMuteIcon();
 		void initInfoClock();
 
@@ -98,7 +110,7 @@ class CVolumeHelper
 		static CVolumeHelper* getInstance();
 
 		void getSpacer(int *h, int *v) { *h = h_spacer; *v = v_spacer; }
-		void getDimensions(int *_x, int *_y, int *_sw, int *_sh) { *_x = x; *_y = y; *_sw = sw; *_sh = sh; }
+		void getDimensions(int *_x, int *_y, int *_sw, int *_sh, int *_iw, int *_dw) { *_x = x; *_y = y; *_sw = sw; *_sh = sh; *_iw = icon_width; *_dw = digit_width; }
 		void getMuteIconDimensions(int *_x, int *_y, int *w, int *h) { *_x = mute_ax; *_y = mute_ay+mute_corrY; *w = mute_dx; *h = mute_dy; }
 		void getInfoClockDimensions(int *_x, int *_y, int *w, int *h, int *d_h, int *d_o) { *_x = clock_ax; *_y = clock_ay; *w = clock_dx; *h = clock_dy, *d_h = digit_h, *d_o = digit_offset; }
 		void getVolBarDimensions(int *_y, int *_dy) { *_y = vol_ay; *_dy = vol_height; }

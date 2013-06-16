@@ -33,6 +33,7 @@ libneutrino_driver_a_SOURCES = \
 	rcinput.cpp \
 	record.cpp \
 	ringbuffer.c \
+	scanepg.cpp \
 	screen_max.cpp \
 	screenshot.cpp \
 	shutdown_count.cpp \

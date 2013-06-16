@@ -33,6 +33,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 
+#include <gui/components/cc_frm.h>
 #include <gui/widget/stringinput.h>
 
 #include <global.h>
@@ -872,23 +873,16 @@ void CMenuWidget::paint()
 	calcSize();
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
 
-	// paint shadow
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET ,y + SHADOW_OFFSET ,width + sb_width ,height + RADIUS_LARGE ,COL_MENUCONTENTDARK_PLUS_0 ,RADIUS_LARGE);
 	// paint head
-	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,hheight ,COL_MENUHEAD_PLUS_0 ,RADIUS_LARGE, CORNER_TOP);
-	// paint background
-	frameBuffer->paintBoxRel(x ,y+hheight, width + sb_width, height-hheight + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE, CORNER_BOTTOM);
+	CComponentsHeader header(x, y, width + sb_width, hheight, nameString, iconfile.c_str());
+	header.setShadowOnOff(CC_SHADOW_ON);
+	header.setOffset(10);
+	header.paint(CC_SAVE_SCREEN_NO);
 
-	//paint menu head
-	int HeadiconOffset = 0;
-	if(!(iconfile.empty())){
-		int w, h;
-		frameBuffer->getIconSize(iconfile.c_str(), &w, &h);
-		HeadiconOffset = w+6;
-	}
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1, width-((fw/3)+HeadiconOffset), nameString.c_str(), COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
+	// paint body shadow
+	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + RADIUS_LARGE, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	// paint body background
+	frameBuffer->paintBoxRel(x ,y+hheight, width + sb_width, height-hheight + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE, CORNER_BOTTOM);
 
 	item_start_y = y+hheight;
 	paintItems();
@@ -1145,6 +1139,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 		info_box->setCornerRadius(RADIUS_LARGE);
 		info_box->syncSysColors();
+		info_box->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
 		info_box->setShadowOnOff(CC_SHADOW_ON);
 		info_box->setPicture(item->hintIcon);
 	}
@@ -1864,7 +1859,7 @@ int CMenuSeparator::paint(bool selected)
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				name_start_x = x + (!SUB_HEAD ?  name_start_x : 20 +18);
+				name_start_x = x + (!SUB_HEAD ? name_start_x : 20 + 24 /*std icon_width is 24px - this should be determinated from NEUTRINO_ICON_BUTTON_HOME or so*/);
 			else if (type & ALIGN_RIGHT)
 				name_start_x = x + dx - stringwidth - 20;
 			else /* ALIGN_CENTER */

@@ -221,7 +221,7 @@ std::string CBEChannelSelectWidget::getInfoText(int index)
 	else
 		desc = desc + " (" + satname + ")";
 	
-	res = satname + "\n" + desc;
+	res = satname + " " + desc;
 	
 	return res;
 }
@@ -235,6 +235,7 @@ void CBEChannelSelectWidget::paintDetails(int index)
 	
 	//info box
 	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
+	ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
 	ibox->paint(false);
 }
 

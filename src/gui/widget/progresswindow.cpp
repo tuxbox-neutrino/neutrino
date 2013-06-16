@@ -6,6 +6,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2009-2013 Stefan Seyfried
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -35,6 +37,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 #include <gui/color.h>
 
@@ -120,6 +123,8 @@ void CProgressWindow::showLocalStatus(const unsigned int prog)
 
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(local_progress);
+#else
+	CVFD::getInstance()->showPercentOver(local_progress);
 #endif // VFD_UPDATE
 }
 

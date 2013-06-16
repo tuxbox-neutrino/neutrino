@@ -58,6 +58,7 @@
 #include <gui/color.h>
 #include <gui/infoviewer.h>
 
+#include <gui/components/cc_frm.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/menue.h>
@@ -1009,25 +1010,10 @@ void CUpnpBrowserGui::paintDevice()
 			tmp, COL_MENUCONTENTSELECTED, 0, true); // UTF-8
 
 	// Head
-	tmp = g_Locale->getText(LOCALE_UPNPBROWSER_HEAD);
-	m_frameBuffer->paintBoxRel(m_x, m_y + m_title_height, m_width, m_theight, COL_MENUHEAD_PLUS_0, c_rad_mid, CORNER_TOP);
-	m_frameBuffer->paintIcon(NEUTRINO_ICON_UPNP, m_x + 7, m_y + m_title_height + 6);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(m_x + 35, m_y + m_theight + m_title_height + 0,
-			m_width - 45, tmp, COL_MENUHEAD, 0, true); // UTF-8
-	ypos = m_y + m_title_height;
-	if (m_theight > 26)
-		ypos = (m_theight - 26) / 2 + m_y + m_title_height;
-	m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, m_x + m_width - 30, ypos);
-#if 0
-	if ( CNeutrinoApp::getInstance()->isMuted() )
-	{
-		xpos = m_x + m_width - 75;
-		ypos = m_y + m_title_height;
-		if (m_theight > 32)
-			ypos = (m_theight - 32) / 2 + m_y + m_title_height;
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos, ypos);
-	}
-#endif
+	CComponentsHeader header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP, CComponentsHeader::CC_BTN_MENU);
+	if (CNeutrinoApp::getInstance()->isMuted())
+		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
+	header.paint(CC_SAVE_SCREEN_NO);
 
 	// Items
 	for (unsigned int count=0; count<m_listmaxshow; count++)

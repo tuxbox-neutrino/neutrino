@@ -690,7 +690,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
-	printf("%s: %s (%" PRIx64 ")\n", __FUNCTION__, newchannel->getName().c_str(), channel_id);
+	INFO("%s: %s (%" PRIx64 ")", __FUNCTION__, newchannel->getName().c_str(), channel_id);
 
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
 	if(frontend == NULL) {

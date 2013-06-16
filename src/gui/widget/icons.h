@@ -24,6 +24,9 @@
 
 /* icon files */
 
+#define NEUTRINO_ICON_BUTTON_DUMMY		"dummy"
+#define NEUTRINO_ICON_BUTTON_DUMMY_SMALL	"dummy_small"
+
 #define NEUTRINO_ICON_BUTTON_BLUE	"blau"
 #define NEUTRINO_ICON_BUTTON_GREEN	"gruen"
 #define NEUTRINO_ICON_BUTTON_RED	"rot"
@@ -241,6 +244,7 @@
 #define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
 /* misc */
+#define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
 
 #define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
 
