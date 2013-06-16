@@ -825,7 +825,7 @@ int CScanSetup::showFrontendSetup(int number)
 		setupMenu->addItem(dorder);
 
 		CMenuWidget * satToSelect = new CMenuWidget(LOCALE_SATSETUP_SELECT_SAT, NEUTRINO_ICON_SETTINGS, width);
-		//satToSelect->addIntroItems();
+		satToSelect->addIntroItems();
 
 		satellite_map_t & satmap = fe->getSatellites();
 		for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); ++sit)
