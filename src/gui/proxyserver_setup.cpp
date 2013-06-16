@@ -97,5 +97,16 @@ int CProxySetup::showProxySetup()
 
 	int res = mn->exec(NULL, "");
 	delete mn;
+
+	if (g_settings.softupdate_proxyserver == "")
+		unsetenv("http_proxy");
+	else {
+		std::string proxy = "http://";
+		if (g_settings.softupdate_proxyusername != "")
+			proxy += g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword + "@";
+		proxy += g_settings.softupdate_proxyserver;
+		setenv("http_proxy", proxy.c_str(), 1);
+	}
+
 	return res;
 }

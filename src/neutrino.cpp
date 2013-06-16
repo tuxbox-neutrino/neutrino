@@ -709,6 +709,16 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_proxyusername = configfile.getString("softupdate_proxyusername", "" );
 	g_settings.softupdate_proxypassword = configfile.getString("softupdate_proxypassword", "" );
 	//
+	if (g_settings.softupdate_proxyserver == "")
+		unsetenv("http_proxy");
+	else {
+		std::string proxy = "http://";
+		if (g_settings.softupdate_proxyusername != "")
+			proxy += g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword + "@";
+		proxy += g_settings.softupdate_proxyserver;
+		setenv("http_proxy", proxy.c_str(), 1);
+	}
+
 	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
 	g_settings.ttx_font_file = configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf");
 	ttx_font_file = g_settings.ttx_font_file.c_str();

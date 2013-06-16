@@ -140,6 +140,14 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 	char cerror[CURL_ERROR_SIZE];
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, cerror);
 
+	if(g_settings.softupdate_proxyserver != "") {
+		curl_easy_setopt(curl, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if(g_settings.softupdate_proxyusername != "") {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
+
 	CURLcode res = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 

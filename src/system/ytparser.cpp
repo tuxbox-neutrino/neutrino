@@ -31,7 +31,9 @@
 #include <string>
 
 #include <OpenThreads/ScopedLock>
+#include "settings.h"
 #include "set_threadname.h"
+#include <global.h>
 
 #include "ytparser.h"
 #include "ytcache.h"
@@ -127,6 +129,14 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
 	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
 
+	if(g_settings.softupdate_proxyserver != "") {
+		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if(g_settings.softupdate_proxyusername != "") {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
+
 	char cerror[CURL_ERROR_SIZE];
 	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
 
@@ -158,6 +168,14 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl
 	curl_easy_setopt(_curl_handle, CURLOPT_FAILONERROR, 1);
 	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
 	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
+
+	if(g_settings.softupdate_proxyserver != "") {
+		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if(g_settings.softupdate_proxyusername != "") {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
 
 	char cerror[CURL_ERROR_SIZE];
 	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
