@@ -250,6 +250,9 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 		sleep(clock->cl_interval);
 
 		if (clock->paintClock) {
+			//refresh item property values
+			clock->refresh();
+			
 			//paint segements, but wihtout saved backgrounds
 			clock->paint(CC_SAVE_SCREEN_NO);
 			count = time(0);
