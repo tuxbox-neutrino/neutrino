@@ -772,7 +772,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	}
 	settings->ytmode = configfile.getInt32("mb_ytmode", cYTFeedParser::MOST_POPULAR);
 	settings->ytresults = configfile.getInt32("mb_ytresults", 10);
-	settings->ytquality = configfile.getInt32("mb_ytquality", 22); // itag value (MP4, 720p)
+	settings->ytquality = configfile.getInt32("mb_ytquality", 37); // itag value (MP4, 1080p)
 	settings->ytconcconn = configfile.getInt32("mb_ytconcconn", 4); // concurrent connections
 	settings->ytregion = configfile.getString("mb_ytregion", "default");
 	settings->ytsearch = configfile.getString("mb_ytsearch", "");
