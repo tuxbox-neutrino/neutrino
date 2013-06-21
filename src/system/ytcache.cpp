@@ -162,7 +162,8 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 	File.Name = xml;
 	cMovieInfo.saveMovieInfo(*mi, &File);
 	std::string thumbnail_dst = getName(mi, "jpg");
-	CFileHelpers::getInstance()->copyFile(mi->tfile.c_str(), thumbnail_dst.c_str(), 0644);
+	CFileHelpers fh;
+	fh.copyFile(mi->tfile.c_str(), thumbnail_dst.c_str(), 0644);
 	return true;
 }
 
