@@ -128,6 +128,10 @@ audiomenu.pref_subs_head Untertitelwahl
 audiomenu.spdif_dd Dolby Digital über S/PDIF
 audiomenu.stereo stereo
 audiomenu.volume_adjust Lautstärke ändern, in %
+audiomenu.volume_adjustment Lautstärkeanpassung pro Kanal
+audiomenu.volume_adjustment_ac3 AC3-Tonspuren
+audiomenu.volume_adjustment_clear Gespeicherte Werte löschen
+audiomenu.volume_adjustment_pcm PCM-Tonspuren
 audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
@@ -880,6 +884,9 @@ menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
 menu.hint_aplay Audioplayer
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen und mehr
+menu.hint_audio_adjust_vol_ac3 Lautstärkeanpassung für AC3-Tonspuren
+menu.hint_audio_adjust_vol_clear Alle gespeicherten Werte für AC3- und PCM-Tonspuren löschen
+menu.hint_audio_adjust_vol_pcm Lautstärkeanpassung für PCM-Tonspuren
 menu.hint_audio_analog_mode Wählen Sie den Modus des Ausgangssignals für den CINCH-Anschluss
 menu.hint_audio_avsync Diese Funktion synchronisiert Bild und Ton
 menu.hint_audio_dd Ist diese Option aktiviert, wird automatisch auf Dolby Digital Ton geschalten, sobald dieser verfügbar ist

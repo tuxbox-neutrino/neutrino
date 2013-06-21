@@ -128,6 +128,10 @@ audiomenu.pref_subs_head Subtitle language preferences
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.stereo stereo
 audiomenu.volume_adjust Volume adjustment, in %
+audiomenu.volume_adjustment Channel specific volume adjustment
+audiomenu.volume_adjustment_ac3 AC3 streams
+audiomenu.volume_adjustment_clear Clear saved values
+audiomenu.volume_adjustment_pcm PCM streams
 audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add
@@ -880,6 +884,9 @@ menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
 menu.hint_aplay Audio player
 menu.hint_audio Audio output, DD\nSRS True volume options
+menu.hint_audio_adjust_vol_ac3 Channel specific volume adjustment for AC3 streams
+menu.hint_audio_adjust_vol_clear Clear all saved values for PCM and AC3 streams
+menu.hint_audio_adjust_vol_pcm Channel specific volume adjustment for PCM streams
 menu.hint_audio_analog_mode Select audio channel to use\nstereo, mono-left, mono-right
 menu.hint_audio_avsync A/V sync
 menu.hint_audio_dd Auto-switch to DolbyDigital audio pid,\nif available

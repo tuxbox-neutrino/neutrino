@@ -71,6 +71,7 @@
 
 #include <driver/abstime.h>
 #include <libdvbsub/dvbsub.h>
+#include <OpenThreads/ScopedLock>
 #include <libtuxtxt/teletext.h>
 #include <OpenThreads/ScopedLock>
 
@@ -252,6 +253,7 @@ void CZapit::SaveAudioMap()
 
 void CZapit::LoadVolumeMap()
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 	vol_map.clear();
 	FILE *volume_config_file = fopen(VOLUME_CONFIG_FILE, "r");
 	if (!volume_config_file) {
@@ -271,6 +273,7 @@ void CZapit::LoadVolumeMap()
 
 void CZapit::SaveVolumeMap()
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 	FILE *volume_config_file = fopen(VOLUME_CONFIG_FILE, "w");
 	if (!volume_config_file) {
 		perror(VOLUME_CONFIG_FILE);
@@ -281,6 +284,21 @@ void CZapit::SaveVolumeMap()
 
 	fdatasync(fileno(volume_config_file));
 	fclose(volume_config_file);
+}
+
+void CZapit::ClearVolumeMap()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
+	vol_map.clear();
+	unlink(VOLUME_CONFIG_FILE);
+	if (current_channel) {
+		CZapitAudioChannel *currentAudioChannel = current_channel->getAudioChannel();
+		if (currentAudioChannel && currentAudioChannel->audioChannelType == CZapitAudioChannel::AC3) {
+			SetVolumePercent(volume_percent_ac3);
+			return;
+		}
+	}
+	SetVolumePercent(volume_percent_pcm);
 }
 
 void CZapit::LoadSettings()
@@ -781,7 +799,7 @@ void CZapit::SetPidVolume(t_channel_id channel_id, int pid, int percent)
 
 	if (!pid && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
-
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 INFO("############################### channel %" PRIx64 " pid %x map size %d percent %d", channel_id, pid, (int)vol_map.size(), percent);
 	volume_map_range_t pids = vol_map.equal_range(channel_id);
 	for (volume_map_iterator_t it = pids.first; it != pids.second; ++it) {
@@ -804,6 +822,7 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 	if (!pid && (channel_id == live_channel_id) && current_channel)
 		pid = current_channel->getAudioPid();
 
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(vol_map_mutex);
 	volume_map_range_t pids = vol_map.equal_range(channel_id);
 	for (volume_map_iterator_t it = pids.first; it != pids.second; ++it) {
 		if (it->second.first == pid) {
@@ -812,12 +831,12 @@ int CZapit::GetPidVolume(t_channel_id channel_id, int pid, bool ac3)
 		}
 	}
 	if (percent < 0) {
-		percent = ac3 ? VOLUME_PERCENT_AC3 : VOLUME_PERCENT_PCM;
+		percent = ac3 ? volume_percent_ac3 : volume_percent_pcm;
 		if ((channel_id == live_channel_id) && current_channel) {
 			for (int  i = 0; i < current_channel->getAudioChannelCount(); i++) {
 				if (pid == current_channel->getAudioPid(i)) {
 					percent = current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3 ?
-						VOLUME_PERCENT_AC3 : VOLUME_PERCENT_PCM;
+						volume_percent_ac3 : volume_percent_pcm;
 					break;
 				}
 			}
@@ -850,6 +869,12 @@ int CZapit::SetVolumePercent(int percent)
 		SetVolume(current_volume);
 	}
 	return ret;
+}
+
+void CZapit::SetVolumePercent(int default_ac3, int default_pcm)
+{
+	volume_percent_ac3 = default_ac3;
+	volume_percent_pcm = default_pcm;
 }
 
 void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioChannelType)
@@ -2351,7 +2376,8 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
-	/* set initial volume with 100% */
+	volume_percent_ac3 = 100;
+	volume_percent_pcm = 100;
 	SetVolumePercent(100);
 #ifdef USE_VBI
 	videoDecoder->OpenVBI(1);

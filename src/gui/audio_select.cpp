@@ -200,7 +200,7 @@ int CAudioSelectMenuHandler::doMenu ()
 	CVolume::getInstance()->SetCurrentPid(0);
 	int percent[p_count];
 	for (uint i=0; i < p_count; i++) {
-		percent[i] = CZapit::getInstance()->GetPidVolume(0, g_RemoteControl->current_PIDs.APIDs[i].pid);
+		percent[i] = CZapit::getInstance()->GetPidVolume(0, g_RemoteControl->current_PIDs.APIDs[i].pid, g_RemoteControl->current_PIDs.APIDs[i].is_ac3);
 		AudioSelector.addItem(new CMenuOptionNumberChooser(g_RemoteControl->current_PIDs.APIDs[i].desc,
 					&percent[i], i == g_RemoteControl->current_PIDs.PIDs.selected_apid,
 					0, 999, CVolume::getInstance()));
