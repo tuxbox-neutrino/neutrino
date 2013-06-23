@@ -211,14 +211,6 @@ void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 		ccw_body->addCCItem(cc_Item);
 }
 
-int CComponentsWindow::getStartY()
-{
-	if (ccw_head)
-		return ccw_head->getHeight();
-	
-	return 0;
-}
-
 void CComponentsWindow::initCCWItems()
 {
 #ifdef DEBUG_CC
