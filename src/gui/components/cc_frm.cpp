@@ -227,7 +227,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 	}
 	
 	if (v_cc_items.empty()){
-		v_cc_items.push_back(cc_Item);
+		addCCItem(cc_Item);
 #ifdef DEBUG_CC
 		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
 #endif
