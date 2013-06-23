@@ -215,7 +215,7 @@ class CComponentsWindow : public CComponentsForm
 		///object: body object, this is the container for all needed items, to add with addWindowItem()
 		CComponentsForm * ccw_body;
 		///object: footer object, to get access to header properties see also getFooterObject(
-		CComponentsForm * ccw_footer;
+		CComponentsFooter * ccw_footer;
 		///property: caption in header, see also getHeaderObject()
 		std::string ccw_caption;
 		///property: icon name in header, see also getHeaderObject()
@@ -297,9 +297,7 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsForm* getBodyObject(){return ccw_body;};
 
 		///returns a pointer to the internal footer object, use this to get access to footer properities
-		CComponentsForm* getFooterObject(){return ccw_footer;};
-
-		int getStartY(); //y value for start of the area below header
+		CComponentsFooter* getFooterObject(){return ccw_footer;};
 };
 
 #endif
