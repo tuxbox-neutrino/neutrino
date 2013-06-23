@@ -242,6 +242,8 @@ class CComponentsItem : public CComponents
 
 		///sets pointer to the form object in which this item is embedded.
 		virtual void setParent(CComponentsItem *parent){cc_parent = parent;};
+		///returns pointer to the form object in which this item is embedded.
+		virtual CComponentsItem * getParent(){return cc_parent;};
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
