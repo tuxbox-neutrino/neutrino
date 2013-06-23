@@ -1010,8 +1010,8 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED && data < 0x100)
 		goto out;
 
-	/* if a pre-locked channel is inside the zap time, open it. Hardcoded to one hour for now. */
-	if (data >= 0x100 && (*chanlist)[selected]->last_unlocked_time + 3600 > time_monotonic())
+	/* if a pre-locked channel is inside the zap time, open it. */
+	if (data >= 0x100 && (*chanlist)[selected]->last_unlocked_time + g_settings.parentallock_zaptime * 60 > time_monotonic())
 		goto out;
 
 	/* OK, let's ask for a PIN */

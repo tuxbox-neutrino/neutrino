@@ -568,6 +568,7 @@ struct SNeutrinoSettings
 	int parentallock_prompt;
 	int parentallock_lockage;
 	int parentallock_defaultlocked;
+	int parentallock_zaptime;
 	std::string parentallock_pincode;
 
 

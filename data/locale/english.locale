@@ -1772,6 +1772,7 @@ parentallock.never never
 parentallock.onsignal on broadcasted lock
 parentallock.parentallock Parental lock
 parentallock.prompt prompt for PIN
+parentallock.zaptime Zap time for locked bouquets (minutes)
 personalize.access Access options
 personalize.apply_settings Apply changes?
 personalize.button_auto auto

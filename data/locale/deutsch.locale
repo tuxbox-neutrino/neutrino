@@ -1772,6 +1772,7 @@ parentallock.never Nie
 parentallock.onsignal Bei gesendeter Vorsperre
 parentallock.parentallock Jugendschutz
 parentallock.prompt PIN-Eingabe
+parentallock.zaptime Zap-Zeit für vorgesperrte Bouquets (Minuten)
 personalize.access Zugangsoptionen
 personalize.apply_settings Änderungen übernehmen?
 personalize.button_auto Auto
