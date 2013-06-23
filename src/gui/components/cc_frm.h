@@ -41,6 +41,8 @@ class CComponentsForm : public CComponentsItem
 		std::vector<CComponentsItem*>	v_cc_items;			
 		void initVarForm();
 		void paintForm(bool do_save_bg);
+		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
+		int genIndex();
 
 		int append_h_offset;
 		int append_v_offset;

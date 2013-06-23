@@ -143,11 +143,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 #endif
 
 		//assign item index
-		int count = v_cc_items.size();
-		char buf[64];
-		snprintf(buf, sizeof(buf), "%d%d", cc_item_index, count);
-		buf[63] = '\0';
-		int new_index = atoi(buf);
+		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
 #ifdef DEBUG_CC
 		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
@@ -177,6 +173,15 @@ bool CComponentsForm::isAdded(CComponentsItem* cc_item)
 	return ret;
 }
 
+int CComponentsForm::genIndex()
+{
+	int count = v_cc_items.size();
+	char buf[64];
+	snprintf(buf, sizeof(buf), "%d%d", cc_item_index, count);
+	buf[63] = '\0';
+	int ret = atoi(buf);
+	return ret;
+}
 
 CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 {

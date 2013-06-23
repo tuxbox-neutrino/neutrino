@@ -267,7 +267,8 @@ class CComponentsItem : public CComponents
 
 		///get current index of item, see also attribut cc_item_index
 		virtual int getIndex(){return cc_item_index;};
-		///set index to item, see also attribut cc_item_index
+		///set an index to item, see also attribut cc_item_index.
+		///To generate an index, use genIndex()
 		virtual void setIndex(const int& index){cc_item_index = index;};
 };
 
