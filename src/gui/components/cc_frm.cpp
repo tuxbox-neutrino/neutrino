@@ -231,8 +231,13 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 #ifdef DEBUG_CC
 		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
 #endif
-	}else
+	}else{
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
+		cc_Item->setParent(this);
+		//assign item index
+		int index = genIndex();
+		cc_Item->setIndex(index);
+	}
 }
 
 void CComponentsForm::removeCCItem(const uint& cc_item_id)
