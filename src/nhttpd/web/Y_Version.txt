@@ -1,4 +1,4 @@
-version=2.8.0.33
-date=06.02.2013
+version=2.8.0.34
+date=24.06.2013
 type=Release
 info=Port CST

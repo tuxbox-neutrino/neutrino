@@ -9,12 +9,20 @@ function do_submit(){
 	document.f.submit();
 }
 function do_init(){
-	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;{=if-equal:{=global-var-get:boxtype=}~coolstream~Coolstream~default=}~open=}";
+	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;0~open=}";
 	var sel=2;
 	switch(val){
-		case "default": sel=0; break;
-		case "Nokia": sel=1; break;
-		case "CST": sel=3; break;
+		case "-2":	// d-box philips
+		case "-1":	// d-box nokia old
+		case "0":	// auto
+		case "1":	// cst hd1/bse
+		case "2":	// cst neo
+		case "3":	// cst zee/neo2
+		case "4":	// cst neo twin (todo!)
+			sel=(sel*1+val*1);
+			break;
+		default:
+			break;
 	}
 	document.f.fb.selectedIndex = sel;
 	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;start_page;bouquets~cache=}";
@@ -78,12 +86,17 @@ function do_init(){
 			<tr><td class="y_form_header" colspan="4">{=L:others=}</td></tr>
 			<tr>
 				<td>{=L:set.yweb.remote=}</td>
-				<td colspan="3">	<select name="fb" title="{=L:remote=}">
-					<option value="default" selected="selected">default</option>
-					<option value="Nokia">Nokia</option>
-					<option value="Sagem">Sagem/Philips</option>
-					<option value="CST">CST</option>
-					</select></td>
+				<td colspan="3">
+					<select name="fb" title="{=L:remote=}">
+						<option value="-2">d-Box | Philips</option>
+						<option value="-1">d-Box | Nokia (alt)</option>
+						<option value="0" selected="selected">{=L:automatic=}</option>
+						<option value="1">CST HD-1 | BSE</option>
+						<option value="2">CST HD-1plus | Neo</option>
+						<option value="3">CST HD-1plus | Zee/Neo2</option>
+						<option value="4">CST HD-1plus | Neo Twin</option>
+					</select>
+				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.yweb.start_page=}</td>
