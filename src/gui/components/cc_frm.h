@@ -298,6 +298,9 @@ class CComponentsWindow : public CComponentsForm
 
 		///returns a pointer to the internal footer object, use this to get access to footer properities
 		CComponentsFooter* getFooterObject(){return ccw_footer;};
+
+		///refresh position and dimension and reinitialize elemenatary properties
+		void Refresh(){initCCWItems();};
 };
 
 #endif
