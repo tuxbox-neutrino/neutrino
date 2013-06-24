@@ -53,6 +53,7 @@ attention=Achtung!
 directory=Verzeichnis
 filename=Dateiname
 restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
+automatic=automatisch
 
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung

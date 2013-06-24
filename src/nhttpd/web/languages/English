@@ -53,6 +53,7 @@ attention=Attention!
 directory=Directory
 filename=Filename
 restriced_by_management_ip=restricted by ManagementIP
+automatic=automatically
 
 #========= MAIN Menue
 main.live_tv_desc=LiveTV
