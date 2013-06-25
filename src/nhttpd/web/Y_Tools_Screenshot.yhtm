@@ -65,17 +65,25 @@ function do_clearshot(){
 
 	loadSyncURL("/control/exec?Y_Tools&screenshot_clear");
 }
-function do_zoomshot(){
-	// not a really zoom-function
+function do_switchrc(){
 	if (id('remote').style.display == 'none')
 		$('remote').show();
 	else
 		$('remote').hide();
+
+	do_switchrc_txt();
+}
+
+function do_switchrc_txt(){
+	if (id('remote').style.display == 'none')
+		$('switchrc').update("{=L:bc.control.remote=} {=L:show=}");
+	else
+		$('switchrc').update("{=L:bc.control.remote=} {=L:hide=}");
 }
 //]]>
 </script>
 </head>
-<body onload="do_snapshot();">
+<body onload="do_switchrc_txt(); do_snapshot();">
 <div class="work_box" id="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
 	{=var-set:help_url==}{=var-set:menu={=L:bc.menue.screenshot=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
@@ -85,7 +93,7 @@ function do_zoomshot(){
 			<div class="left">
 				<button name="snapshot" ytype="snapshot" onclick="do_snapshot()">{=L:bc.screenshot.create=}</button>&nbsp;
 				<button name="clearshot" ytype="clearshot" onclick="do_clearshot()">{=L:bc.screenshot.delete=}</button>&nbsp;
-				<button name="zoomshot" ytype="zoomshot" onclick="do_zoomshot()">{=L:bc.screenshot.zoom=}</button>&nbsp;
+				<button name="switchrc" ytype="switchrc" onclick="do_switchrc()" id="switchrc">{=L:bc.control.remote=}</button>&nbsp;
 			</div>
 			<div class="right">
 				<form onsubmit="do_snapshot(); return false">

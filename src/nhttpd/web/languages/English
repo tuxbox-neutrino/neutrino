@@ -54,6 +54,8 @@ directory=Directory
 filename=Filename
 restriced_by_management_ip=restricted by ManagementIP
 automatic=automatically
+show=show
+hide=hide
 
 #========= MAIN Menue
 main.live_tv_desc=LiveTV

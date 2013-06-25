@@ -54,6 +54,8 @@ directory=Verzeichnis
 filename=Dateiname
 restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 automatic=automatisch
+show=zeigen
+hide=verstecken
 
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung
