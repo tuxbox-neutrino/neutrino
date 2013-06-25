@@ -335,7 +335,8 @@ void CComponentsForm::paintCCItems()
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
 		if (right_item > right_frm){
-			printf("[CComponentsForm] %s: item %d width is too large, definied width=%d, possible width=%d \n", __FUNCTION__, i, w_item, new_w);
+			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
+				__FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
 
@@ -345,7 +346,8 @@ void CComponentsForm::paintCCItems()
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
 		if (bottom_item > bottom_frm){
-			printf("[CComponentsForm] %s: item %d height is too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, new_h);
+			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
+			       __FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
 
