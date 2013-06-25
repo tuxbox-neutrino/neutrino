@@ -195,10 +195,9 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 	if (!v_cc_items.empty()){
 		CComponentsItem* old_Item = v_cc_items[cc_item_id];
 		if (old_Item){
-			if (old_Item->getParent()){
-				new_cc_Item->setParent(old_Item);
-				new_cc_Item->setIndex(old_Item->getIndex());
-			}
+			CComponentsItem * old_parent = old_Item->getParent();
+			new_cc_Item->setParent(old_parent);
+			new_cc_Item->setIndex(old_parent->getIndex());
 			delete old_Item;
 			old_Item = NULL;
 			v_cc_items[cc_item_id] = new_cc_Item;
