@@ -520,7 +520,7 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~3~	{=include-block:Y_Blocks.txt;rc_cst_v3=}~
 	{=if-equal:{=var-get:yfbtype=}~4~	{=include-block:Y_Blocks.txt;rc_cst_v3=}~ {=comment:todo! rc version 4 ~=}
 
-	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;rc_cst_hd1=}
+	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;rc_cst_v1=}
 	=}=}=}=}=}=}
 =}
 end-block~remote
