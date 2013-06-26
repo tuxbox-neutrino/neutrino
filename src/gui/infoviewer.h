@@ -151,6 +151,7 @@ class CInfoViewer
 	int      BoxEndY;
 	int      ChanInfoX;
 	bool     showButtonBar;
+	bool     isVolscale;
 
 	CInfoViewer();
 	~CInfoViewer();

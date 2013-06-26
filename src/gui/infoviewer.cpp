@@ -61,6 +61,7 @@
 
 #include <daemonc/remotecontrol.h>
 #include <driver/record.h>
+#include <driver/volume.h>
 
 #include <zapit/satconfig.h>
 #include <zapit/femanager.h>
@@ -115,6 +116,7 @@ CInfoViewer::CInfoViewer ()
 	infoViewerBB->Init();
 	oldinfo.current_uniqueKey = 0;
 	oldinfo.next_uniqueKey = 0;
+	isVolscale = false;
 }
 
 CInfoViewer::~CInfoViewer()
@@ -475,6 +477,14 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 				 const std::string &g_file_epg, const std::string &g_file_epg1,
 				 const int duration, const int curr_pos)
 {
+	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
+		isVolscale = CVolume::getInstance()->hideVolscale();
+	else
+		isVolscale = false;
+
 	check_channellogo_ca_SettingsChange();
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
@@ -615,6 +625,14 @@ void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int 
 
 void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id, const bool calledFromNumZap, int epgpos, char *pname)
 {
+	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
+		isVolscale = CVolume::getInstance()->hideVolscale();
+	else
+		isVolscale = false;
+
 	check_channellogo_ca_SettingsChange();
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
@@ -822,6 +840,9 @@ void CInfoViewer::loop(bool show_dot)
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
 
+	if (isVolscale)
+		CVolume::getInstance()->showVolscale();
+
 	while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
@@ -933,8 +954,10 @@ void CInfoViewer::loop(bool show_dot)
                 }
 	}
 
-	if (hideIt)
+	if (hideIt) {
+		CVolume::getInstance()->hideVolscale();
 		killTitle ();
+	}
 
 	g_RCInput->killTimer (sec_timer_id);
 	fader.Stop();

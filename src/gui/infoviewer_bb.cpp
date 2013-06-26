@@ -52,6 +52,7 @@
 #include <gui/movieplayer.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
+#include <driver/volume.h>
 
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
@@ -351,6 +352,14 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	int i;
 	bool paint = false;
 
+	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
+		g_InfoViewer->isVolscale = CVolume::getInstance()->hideVolscale();
+	else
+		g_InfoViewer->isVolscale = false;
+
 	getBBButtonInfo();
 	for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		if (tmp_bbButtonInfoText[i] != bbButtonInfo[i].text) {
@@ -389,6 +398,8 @@ void CInfoViewerBB::showBBButtons(const int modus)
 			tmp_bbButtonInfoText[i] = bbButtonInfo[i].text;
 		}
 	}
+	if (g_InfoViewer->isVolscale)
+		CVolume::getInstance()->showVolscale();
 }
 
 void CInfoViewerBB::showBBIcons(const int modus, const std::string & icon)
