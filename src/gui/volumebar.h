@@ -80,6 +80,17 @@ class CVolumeBar : public CComponentsForm
 
 	public:
 
+		enum
+		{
+			VOLUMEBAR_POS_TOP_RIGHT		= 0,
+			VOLUMEBAR_POS_TOP_LEFT		= 1,
+			VOLUMEBAR_POS_BOTTOM_LEFT	= 2,
+			VOLUMEBAR_POS_BOTTOM_RIGHT	= 3,
+			VOLUMEBAR_POS_TOP_CENTER	= 4,
+			VOLUMEBAR_POS_BOTTOM_CENTER	= 5,
+			VOLUMEBAR_POS_HIGHER_CENTER	= 6 
+		};
+
 		CVolumeBar(/*int current_volume*/);
 // 		~CVolumeBar(); inherited from CComponentsForm
 
