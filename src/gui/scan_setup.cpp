@@ -660,7 +660,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 		fe_restart = false;
 		CFEManager::getInstance()->linkFrontends(true);
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		if (live_channel_id)
+		if (live_channel_id && CNeutrinoApp::getInstance()->channelList)
 			CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(live_channel_id, true);
 	}
 	return res;
