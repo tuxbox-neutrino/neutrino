@@ -345,7 +345,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	int i = 1;
 	char classname;
 	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
-	int prozent;
+	int prozent = 100;
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
 	std::string timestr;
 	bool have_logos = false;
@@ -373,20 +373,31 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 
 		/* timer slider */
 		if(event && event->duration > 0)
+		{
 			prozent = 100 * (time(NULL) - event->startTime) / event->duration;
+			yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
+					"\t<table border=\"0\" rules=\"none\" class=\"cslider cslider_table\">"
+					"<tr>"
+					"<td class=\"cslider cslider_used\" width=\"%d\"></td>"
+					"<td class=\"cslider cslider_free\" width=\"%d\"></td>"
+					"</tr>"
+					"</table>\n</td>\n"
+					, classname
+					, (prozent / 10) * 3
+					, (10 - (prozent / 10))*3
+				);
+		}
 		else
-			prozent = 100;
-		yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
-				"\t<table border=\"0\" rules=\"none\" class=\"cslider_table\" width=\"32\">"
-				"<tr>"
-				"<td class=\"cslider_used\" width=\"%d\"></td>"
-				"<td class=\"cslider_free\" width=\"%d\"></td>"
-				"</tr>"
-				"</table>\n</td>\n"
-				, classname
-				, (prozent / 10) * 3
-				, (10 - (prozent / 10))*3
-			);
+		{
+			yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
+					"\t<table border=\"0\" rules=\"none\" class=\"cslider cslider_table\">"
+					"<tr>"
+					"<td class=\"cslider cslider_noepg\"></td>"
+					"</tr>"
+					"</table>\n</td>\n"
+					, classname
+				);
+		}
 
 		/* channel name and buttons */
 		yresult += string_printf("<td>\n%s<a class=\"clist\" href=\"javascript:do_zap('"

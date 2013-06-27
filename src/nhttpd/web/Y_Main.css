@@ -771,9 +771,12 @@ a:hover.clistsmall
 	font-size:10pt;
 	padding-left: 10px;
 }
-.cslider_table
+.cslider
 {
 	height: 10px;
+}
+.cslider_table
+{
 	border: 1px solid #6cafea;
 	width: 30px;
 	border-spacing: 0px;
@@ -783,12 +786,14 @@ a:hover.clistsmall
 .cslider_used
 {
 	background-color: #A1CCF2;
-	height: 10px;
 }
 .cslider_free
 {
 	background-color: #EAEBFF;
-	height: 10px;
+}
+.cslider_noepg
+{
+	background-color: #FAFAFF;
 }
 /*EPG*/
 .epg
