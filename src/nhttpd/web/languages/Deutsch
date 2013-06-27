@@ -303,6 +303,7 @@ set.nhttpd.active_after_boot=Nach Neustart aktiv
 set.nhttpd.port=Port
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternativer Web-Ordner
+set.nhttpd.hosted_folder=Eingebundenes Verzeichnis
 set.nhttpd.allowed_file_extensions=Erlaubte Dateiendungen / MIME
 set.nhttpd.allow_all_file_extensions=Alle Dateiendungen erlauben
 set.nhttpd.url_of_logos_desc=URL bzw. Verzeichnis der Logos eingeben

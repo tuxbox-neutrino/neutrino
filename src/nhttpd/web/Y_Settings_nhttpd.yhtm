@@ -62,7 +62,7 @@ function do_submit()
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.port=}</td>
-				<td><input type="text" name="port" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80~cache=}" title="{=L:port=}"/>&nbsp;{=L:active_after_boot=}
+				<td><input type="text" name="port" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80~cache=}" title="{=L:set.nhttpd.port=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
 				</td>
 			</tr>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
@@ -76,8 +76,15 @@ function do_submit()
 			=}
 			<tr>
 				<td>{=L:set.nhttpd.alternate_web_folder=}</td>
-				<td><input type="text" name="override_directory" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory~cache=}" title="{=L:alternate_web_folder=}"/>&nbsp;{=L:active_after_boot=}
-					<input type="hidden" name="HostedDocRoot" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory~cache=}" title="Root of hosted Web. Enter mount directory."/></td>
+				<td>
+					<input type="text" name="override_directory" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory~cache=}" title="{=L:set.nhttpd.alternate_web_folder=}"/>&nbsp;{=L:set.nhttpd.active_after_boot=}
+				</td>
+			</tr>
+			<tr>
+				<td>{=L:set.nhttpd.hosted_folder=}</td>
+				<td>
+					<input type="text" name="hosted_directory" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory~cache=}" title="Root of hosted Web. Enter mount directory."/>&nbsp;{=L:set.nhttpd.active_after_boot=}
+				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.allowed_file_extensions=}</td>

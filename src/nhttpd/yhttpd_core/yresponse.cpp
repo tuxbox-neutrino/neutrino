@@ -64,14 +64,6 @@ bool CWebserverResponse::SendResponse() {
 	// Checking and Preperation: Auth, static, cache, ...
 	//--------------------------------------------------------------
 
-	// move to mod_sendfile ???
-#ifdef Y_CONFIG_USE_HOSTEDWEB
-	// for hosted webs: rewrite URL
-	std::string _hosted="/hosted/";
-	if((Connection->Request.UrlData["path"]).compare(0,_hosted.length(),"/hosted/") == 0) // hosted Web ?
-	Connection->Request.UrlData["path"]=Cyhttpd::ConfigList["WebsiteMain.hosted_directory"]
-	+(Connection->Request.UrlData["path"]).substr(_hosted.length()-1);
-#endif //Y_CONFIG_USE_HOSTEDWEB
 	do {
 		if (Connection->RequestCanceled)
 			return false;

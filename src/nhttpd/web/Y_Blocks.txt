@@ -53,7 +53,7 @@ start-block~nhttpd_save_settings
 {=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;{=port=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;webserver.threading;{=threading=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;{=no_keep_alive_ips=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory;{=HostedDocRoot=}~cache=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory;{=hosted_directory=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory;{=override_directory=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types;{=mod_sendfile_mime_types=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.sendAll;{=mod_sendfile_sendAll=}~cache=}

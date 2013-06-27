@@ -306,6 +306,7 @@ set.nhttpd.active_after_boot=active after boot
 set.nhttpd.port=Port
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternate Web-Folder
+set.nhttpd.hosted_folder=Mounted directory
 set.nhttpd.allowed_file_extensions=Allowed File Extensions / MIME
 set.nhttpd.allow_all_file_extensions=Allow all File Extensions
 set.nhttpd.url_of_logos_desc=Enter URL or directory of Logos
