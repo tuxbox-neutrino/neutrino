@@ -535,14 +535,8 @@ bool CFileHelpers::createDir(const char *Dir, mode_t mode)
 				createDir(dirPath, mode);
 			}
 		}
-		else {
-			if (ret == 0)
-				return true;
-			if (errno == EEXIST)
-				return true;
-			else
-				return false;
-		}
+		else
+			return !ret || (errno == EEXIST);
 	}
 	errno = 0;
 	return true;
