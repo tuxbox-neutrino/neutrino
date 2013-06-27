@@ -27,6 +27,7 @@ libneutrino_driver_a_SOURCES = \
 	fontrenderer.cpp \
 	framebuffer.cpp \
 	genpsi.cpp \
+	neutrinofonts.cpp \
 	radiotext.cpp \
 	radiotools.cpp \
 	rcinput.cpp \
