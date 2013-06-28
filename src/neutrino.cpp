@@ -1525,6 +1525,7 @@ void CNeutrinoApp::SetupFonts()
 	if (neutrinoFonts == NULL)
 		neutrinoFonts = CNeutrinoFonts::getInstance();
 	neutrinoFonts->SetupNeutrinoFonts();
+	neutrinoFonts->refreshDynFonts();
 
 	/* recalculate infobar position */
 	if (g_InfoViewer)

@@ -3,6 +3,9 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 
+	CNeutrinoFonts class for gui.
+	Copyright (C) 2013, M. Liebmann (micha-bbg)
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or
@@ -50,11 +53,43 @@ class CNeutrinoFonts
 	private:
 		const char * fontStyle[3];
 
+		typedef struct dyn_font_t
+		{
+			int dx;
+			int dy;
+			int size;
+			int style;
+			std::string text;
+			Font* font;
+			bool useDigitOffset;
+		} dyn_font_struct_t;
+
+		typedef std::vector<dyn_font_t> v_dyn_fonts_t;
+		v_dyn_fonts_t v_share_fonts;
+		v_dyn_fonts_t v_dyn_fonts;
+		bool useDigitOffset;
+
+		void InitDynFonts();
+		void refreshDynFont(int dx, int dy, std::string text, int style, int index, bool isShare);
+		int getFontHeight(Font* fnt);
+		int getDynFontSize(int dx, int dy, std::string text, int style);
+		Font **getDynFontShare(int &dx, int &dy, std::string text, int style);
+		Font **getDynFontWithID(int &dx, int &dy, std::string text, int style, unsigned int f_id);
+
 	public:
 		enum {
 			FONT_STYLE_REGULAR	= 0,
 			FONT_STYLE_BOLD		= 1,
 			FONT_STYLE_ITALIC	= 2
+		};
+
+		enum {
+			FONT_ID_SHARE		= -1
+		};
+		enum {
+			FONT_ID_xxx,
+
+			FONT_ID_MAX
 		};
 
 		CNeutrinoFonts();
@@ -64,6 +99,9 @@ class CNeutrinoFonts
 		neutrino_font_descr_struct fontDescr;
 
 		void SetupNeutrinoFonts();
+		void refreshDynFonts();
+		Font **getDynFont(int &dx, int &dy, std::string text="", int style=FONT_STYLE_REGULAR, int share=FONT_ID_SHARE);
+		void setFontUseDigitHeight(bool set=true) {useDigitOffset = set;}
 };
 
 
