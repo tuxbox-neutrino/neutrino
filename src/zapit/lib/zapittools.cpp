@@ -67,6 +67,11 @@ namespace ZapitTools {
 		return r;
 	}
 
+	std::string UTF8_to_Latin1(const std::string &s)
+	{
+		return UTF8_to_Latin1(s.c_str());
+	}
+
 	std::string UTF8_to_UTF8XML(const char * s)
 	{
 		std::string r;
