@@ -218,6 +218,9 @@ CScanSetup::CScanSetup(bool wizard_mode)
 	lcnhd		= NULL;
 	linkfe		= NULL;
 	in_menu		= false;
+	allow_start	= true;
+	if (CFEManager::getInstance()->haveCable())
+		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 }
 
 CScanSetup* CScanSetup::getInstance()
@@ -302,6 +305,8 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		CScanTs scanTs(FE_QAM);
 		scanTs.exec(NULL, "manual");
+		if (is_wizard)
+			return menu_return::RETURN_EXIT_ALL;
 		return res;
 	}
 	std::string scants_key[] = {"all", "manual", "test", "fast", "auto"/*doesn't exists in CScanTs!*/};
@@ -320,6 +325,8 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				//...then start scan
 				CScanTs scanTs(delsys);
 				scanTs.exec(NULL, scants_key[i]);
+				if (is_wizard && as == "fast")
+					return menu_return::RETURN_EXIT_ALL;
 				return res;
 			}
 		}
@@ -452,7 +459,7 @@ int CScanSetup::showScanMenu()
 		settings->addItem(fautoScanAll);
 #ifdef ENABLE_FASTSCAN
 		//fast scan
-		CMenuWidget * fastScanMenu = new CMenuWidget(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, MN_WIDGET_ID_SCAN_FAST_SCAN);
+		CMenuWidget * fastScanMenu = new CMenuWidget(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_FAST_SCAN);
 		addScanMenuFastScan(fastScanMenu);
 		mf = new CMenuDForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FAST);
@@ -474,7 +481,7 @@ int CScanSetup::showScanMenu()
 			nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
 			settings->addItem(nc);
 		}
-		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+		//nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
 		//auto scan
 		char autoscan[64];
@@ -559,7 +566,7 @@ int CScanSetup::showScanMenu()
 	//delete satSelect;
 	delete satOnOff;
 	delete settings;
-	delete nid;
+	//delete nid;
 	return res;
 }
 

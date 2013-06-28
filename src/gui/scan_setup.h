@@ -111,11 +111,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
  		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
  		void addScanMenuManualScan(CMenuWidget *manual_Scan);
  		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);
-#ifdef ENABLE_FASTSCAN
- 		void addScanMenuFastScan(CMenuWidget *fast_ScanMenu);
-#endif
  		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
-		void addScanMenuCable(CMenuWidget *menu);
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
 		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1, bool manual = false);
@@ -140,6 +136,10 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 
 		int exec(CMenuTarget* parent, const std::string & actionKey = "");
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
+#ifdef ENABLE_FASTSCAN
+ 		void addScanMenuFastScan(CMenuWidget *fast_ScanMenu);
+#endif
+		void addScanMenuCable(CMenuWidget *menu);
 };
 
 class CTPSelectHandler : public CMenuTarget //CScanSetup
