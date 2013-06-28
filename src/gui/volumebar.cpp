@@ -32,6 +32,7 @@
 
 #include <neutrino.h>
 #include <gui/infoclock.h>
+#include <driver/neutrinofonts.h>
 
 using namespace std;
 
@@ -68,7 +69,6 @@ void CVolumeBar::initVarVolumeBar()
 	vb_digit 	= NULL;
 	vb_digit_mode	= CTextBox::CENTER ;
 	VolumeFont	= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
-	vb_font		= g_Font[VolumeFont];
 
 	initVolumeBarSize();
 	initVolumeBarPosition();
@@ -200,7 +200,7 @@ void CVolumeBar::initVolumeBarScale()
 //set digit text with current volume value
 void CVolumeBar::initVolumeBarDigitValue()
 {
-	vb_digit->setText(*vb_vol ,vb_digit_mode, vb_font);
+	vb_digit->setText(*vb_vol ,vb_digit_mode, *(CVolumeHelper::getInstance()->vb_font));
 }
 
 //create digit
@@ -277,6 +277,7 @@ void CVolumeHelper::Init()
 	y  = frameBuffer->getScreenY() + v_spacer;
 	sw = g_settings.screen_EndX - h_spacer;
 	sh = frameBuffer->getScreenHeight();
+	vb_font	= NULL;
 
 	initVolBarSize();
 	initMuteIcon();
@@ -319,7 +320,7 @@ void CVolumeHelper::initMuteIcon()
 
 void CVolumeHelper::initVolBarSize()
 {
-	vol_height	= 18;
+	vol_height	= 26;
 	icon_width	= 0;
 	digit_width	= 0;
 	int tmp_h	= 0;
@@ -329,9 +330,13 @@ void CVolumeHelper::initVolBarSize()
 	vol_height 	= max(vol_height, tmp_h);
 
 	if (g_settings.volume_digits) {
-		tmp_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitHeight() + (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset() * 18) / 10;
+		CNeutrinoFonts *cnf = CNeutrinoFonts::getInstance();
+		cnf->setFontUseDigitHeight(true);
+		tmp_h = vol_height;
+		digit_width = 200;
+		vb_font = cnf->getDynFont(digit_width, tmp_h, "100", CNeutrinoFonts::FONT_STYLE_REGULAR);
+		digit_width	+= 6;
 		vol_height = max(vol_height, tmp_h);
-		digit_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("100");
 	}
 }
 

@@ -40,7 +40,6 @@ class CVolumeBar : public CComponentsForm
 		CComponentsPicture *vb_icon;
 		CComponentsLabel *vb_digit;
 		int vb_digit_mode;
-		Font* vb_font;
 		int VolumeFont;
 		int sy, sw, sh;
 		int mute_ax, mute_ay, mute_dx, mute_dy, mute_ay_old;
@@ -119,6 +118,8 @@ class CVolumeHelper
 
 		CVolumeHelper();
 		static CVolumeHelper* getInstance();
+
+		Font** vb_font;
 
 		void getSpacer(int *h, int *v) { *h = h_spacer; *v = v_spacer; }
 		void getDimensions(int *_x, int *_y, int *_sw, int *_sh, int *_iw, int *_dw) { *_x = x; *_y = y; *_sw = sw; *_sh = sh; *_iw = icon_width; *_dw = digit_width; }

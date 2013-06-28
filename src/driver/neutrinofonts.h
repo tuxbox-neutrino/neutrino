@@ -87,7 +87,7 @@ class CNeutrinoFonts
 			FONT_ID_SHARE		= -1
 		};
 		enum {
-			FONT_ID_xxx,
+			FONT_ID_VOLBAR,
 
 			FONT_ID_MAX
 		};
