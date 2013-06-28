@@ -80,12 +80,15 @@ std::string CNFSMountGui::getEntryString(int i)
 		case CFSMounter::CIFS: res = "CIFS //" + g_settings.network_nfs[i].ip + "/"; break;
 		case CFSMounter::LUFS: res = "FTPS "   + g_settings.network_nfs[i].ip + "/"; break;
 	}
+	if (g_settings.network_nfs[i].dir.empty() || g_settings.network_nfs[i].local_dir.empty() || g_settings.network_nfs[i].ip.empty())
+		return "";
 	return res
-		+ FILESYSTEM_ENCODING_TO_UTF8(g_settings.network_nfs[i].local_dir)
+		+ FILESYSTEM_ENCODING_TO_UTF8(g_settings.network_nfs[i].dir)
 		+ " -> "
 		+ FILESYSTEM_ENCODING_TO_UTF8(g_settings.network_nfs[i].local_dir)
-		+ " auto: "
-		+ g_Locale->getText(g_settings.network_nfs[i].automount ? LOCALE_MESSAGEBOX_YES : LOCALE_MESSAGEBOX_NO);
+		+ " (auto: "
+		+ g_Locale->getText(g_settings.network_nfs[i].automount ? LOCALE_MESSAGEBOX_YES : LOCALE_MESSAGEBOX_NO)
+		+ ")";
 }
 
 int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
