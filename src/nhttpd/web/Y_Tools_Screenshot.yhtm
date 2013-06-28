@@ -116,7 +116,7 @@ function do_switchrc_txt(){
 				{=include-block:Y_Blocks.txt;remote=}
 			</td>
 			<td class="shot">
-				<img id="shot" src="" onclick="do_zoomshot()" style="display: none" />
+				<img id="shot" src="" onclick="do_switchrc()" style="display: none" />
 			</td>
 		</tr>
 		</table>
