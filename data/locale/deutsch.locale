@@ -1698,6 +1698,7 @@ nfs.mountnow Jetzt mounten
 nfs.mountok Mount erfolgreich
 nfs.mounttimeout Mount-Fehler: Timeout
 nfs.password Passwort
+nfs.refresh_mac MAC-Adresse feststellen
 nfs.remount Verzeichnisse erneut mounten
 nfs.type Typ
 nfs.type_cifs CIFS

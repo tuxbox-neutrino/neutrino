@@ -1725,6 +1725,7 @@ const char * locale_real_names[] =
 	"nfs.mountok",
 	"nfs.mounttimeout",
 	"nfs.password",
+	"nfs.refresh_mac",
 	"nfs.remount",
 	"nfs.type",
 	"nfs.type_cifs",

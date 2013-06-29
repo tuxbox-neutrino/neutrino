@@ -3089,7 +3089,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
     return res;
 }
 
-extern "C" int pinghost( const char *hostname );
+extern int pinghost (const std::string &hostname, std::string *ip = NULL);
 bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
 {
     /* first clear screen */
@@ -4085,7 +4085,7 @@ void CDirMenu::updateDirState(void)
 printf("updateDirState: %d: state %d nfs %d\n", i, dirState[i], dirNfsMountNr[i]);
         if(dirNfsMountNr[i] != -1)
         {
-            int retvalue = pinghost(g_settings.network_nfs[dirNfsMountNr[i]].ip.c_str());
+            int retvalue = pinghost(g_settings.network_nfs[dirNfsMountNr[i]].ip);
             if (retvalue == 0)//LOCALE_PING_UNREACHABLE
             {
                 dirOptionText[i]="Server, offline";

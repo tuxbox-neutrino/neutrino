@@ -58,7 +58,7 @@
 #include <libnet.h>
 #include <libiw/iwscan.h>
 
-extern "C" int pinghost( const char *hostname );
+extern int pinghost (const std::string &hostname, std::string *ip = NULL);
 
 CNetworkSetup::CNetworkSetup(bool wizard_mode)
 {
@@ -702,7 +702,7 @@ void CNetworkSetup::showCurrentNetworkSettings()
 
 const char * CNetworkSetup::mypinghost(std::string &host)
 {
-        int retvalue = pinghost(host.c_str());
+        int retvalue = pinghost(host);
         switch (retvalue)
         {
                 case 1: return (g_Locale->getText(LOCALE_PING_OK));
@@ -776,7 +776,7 @@ void CNetworkSetup::testNetworkSettings()
 		text += (std::string)g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ":\n";
 		text += offset + our_nameserver + " " + mypinghost(our_nameserver) + "\n";
 		//NTPserver
-		if ( (pinghost(our_nameserver.c_str()) == 1) && g_settings.network_ntpenable && (g_settings.network_ntpserver != "") )
+		if ( (pinghost(our_nameserver) == 1) && g_settings.network_ntpenable && (g_settings.network_ntpserver != "") )
 		{
 			text += std::string(g_Locale->getText(LOCALE_NETWORKMENU_NTPSERVER)) + ":\n";
 			text += offset + g_settings.network_ntpserver + " " + mypinghost(g_settings.network_ntpserver) + "\n";
@@ -784,7 +784,7 @@ void CNetworkSetup::testNetworkSettings()
 		//Wiki
 		text += wiki_URL + ":\n";
 		text += offset + "via IP (" + wiki_IP + "): " + mypinghost(wiki_IP) + "\n";
-		if (pinghost(our_nameserver.c_str()) == 1)
+		if (pinghost(our_nameserver) == 1)
 		{
 			text += offset + "via DNS: " + mypinghost(wiki_URL) + "\n";
 			//testsite (or defaultsite)
