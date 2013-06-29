@@ -420,6 +420,7 @@ extra.update_dir Lokales Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.volume_digits Lautstärkeanzeige Ziffern
 extra.volume_pos Lautstärkeanzeige
+extra.volume_size Höhe der Anzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout (1=10ms)
@@ -1132,6 +1133,7 @@ menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SC
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
+menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter (Menü zum Beenden)

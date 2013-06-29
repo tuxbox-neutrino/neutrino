@@ -320,23 +320,24 @@ void CVolumeHelper::initMuteIcon()
 
 void CVolumeHelper::initVolBarSize()
 {
-	vol_height	= 26;
-	icon_width	= 0;
-	digit_width	= 0;
-	int tmp_h	= 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_width, &tmp_h);
-	tmp_h		+= 2;
-	icon_width	+= 8;
-	vol_height 	= max(vol_height, tmp_h);
+	icon_width		= 0;
+	icon_height		= 0;
+	digit_width		= 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_width, &icon_height);
+	icon_height		= max(icon_height, 16); // if no icon available
+	icon_height		+= 2;
+	icon_width		+= 8;
+	g_settings.volume_size	= max(g_settings.volume_size, icon_height);
+	vol_height		= g_settings.volume_size;
 
 	if (g_settings.volume_digits) {
 		CNeutrinoFonts *cnf = CNeutrinoFonts::getInstance();
 		cnf->setFontUseDigitHeight(true);
-		tmp_h = vol_height;
-		digit_width = 200;
-		vb_font = cnf->getDynFont(digit_width, tmp_h, "100", CNeutrinoFonts::FONT_STYLE_REGULAR);
+		int tmp_h	= vol_height;
+		digit_width	= 0;
+		vb_font		= cnf->getDynFont(digit_width, tmp_h, "100", CNeutrinoFonts::FONT_STYLE_REGULAR, CNeutrinoFonts::FONT_ID_VOLBAR);
 		digit_width	+= 6;
-		vol_height = max(vol_height, tmp_h);
+		vol_height	= max(vol_height, tmp_h);
 	}
 }
 

@@ -521,7 +521,12 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
 	osd_menu->addItem(mc);
 
+	int oldVolumeSize = g_settings.volume_size;
+
 	int res = osd_menu->exec(NULL, "");
+
+	if (oldVolumeSize != g_settings.volume_size)
+		CVolumeHelper::getInstance()->refresh();
 
 	delete osd_menu;
 	return res;
@@ -890,6 +895,13 @@ void COsdSetup::showOsdVolumeSetup(CMenuWidget *menu_volume)
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_VOLUME_POS, &g_settings.volume_pos, VOLUMEBAR_DISP_POS_OPTIONS, VOLUMEBAR_DISP_POS_OPTIONS_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_VOLUME_POS);
 	menu_volume->addItem(mc);
+
+	// volume size
+	int vMin = CVolumeHelper::getInstance()->getVolIconHeight();
+	g_settings.volume_size = max(g_settings.volume_size, vMin);
+	CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_VOLUME_SIZE, &g_settings.volume_size, true, vMin, 50);
+	nc->setHint("", LOCALE_MENU_HINT_VOLUME_SIZE);
+	menu_volume->addItem(nc);
 
 	// volume digits
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_VOLUME_DIGITS, &g_settings.volume_digits, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
