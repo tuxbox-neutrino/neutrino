@@ -32,6 +32,7 @@
 
 #include <OpenThreads/ScopedLock>
 #include "settings.h"
+#include "helpers.h"
 #include "set_threadname.h"
 #include <global.h>
 
@@ -615,7 +616,7 @@ bool cYTFeedParser::DownloadThumbnail(cYTVideoInfo &vinfo, CURL *_curl_handle)
 	bool found = false;
 	if (!vinfo.thumbnail.empty()) {
 		std::string fname = thumbnail_dir + "/" + vinfo.id + ".jpg";
-		found = !access(fname.c_str(), F_OK);
+		found = !access(fname, F_OK);
 		if (!found) {
 			for (int *fmtp = itags; *fmtp && !found; fmtp++)
 				found = cYTCache::getInstance()->getNameIfExists(fname, vinfo.id, *fmtp);

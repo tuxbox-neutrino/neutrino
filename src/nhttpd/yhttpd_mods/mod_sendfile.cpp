@@ -46,6 +46,7 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <system/helpers.h>
 // yhttpd
 #include <yconfig.h>
 #include <ytypes_globals.h>
@@ -179,16 +180,16 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 		tmpfilename = path + "/" + filename;
 	else
 		tmpfilename = path + filename;
-	if (access(std::string(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename).c_str(), 4) == 0)
+	if (access(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename, R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename;
-	else if (access(std::string(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz").c_str(), 4) == 0)
+	else if (access(hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz", R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.override_directory"] + tmpfilename + ".gz";
-	else if (access(std::string(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename).c_str(), 4) == 0)
+	else if (access(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename, R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename;
-	else if (access(std::string(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz").c_str(), 4) == 0)
+	else if (access(hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz", R_OK) == 0)
 		tmpfilename = hh->WebserverConfigList["WebsiteMain.directory"] + tmpfilename + ".gz";
 #ifdef Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL
-	else if(access(tmpfilename.c_str(),4) == 0)
+	else if(access(tmpfilename,R_OK) == 0)
 	;
 #endif
 	else {

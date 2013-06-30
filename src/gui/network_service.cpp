@@ -68,7 +68,7 @@ CNetworkService::CNetworkService(std::string cmd, std::string opts)
 	enabled = false;
 
 	std::string file = TOUCH_BASE + cmd;
-	if (!access(file.c_str(), F_OK))
+	if (!access(file, F_OK))
 		enabled = true;
 }
 
@@ -181,7 +181,7 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 		std::string execute2 = "/sbin/" + services[i].cmd;
 
 		active = false;
-		if ( !(access(execute1.c_str(), F_OK)) || !(access(execute2.c_str(), F_OK)) )
+		if ( !(access(execute1, F_OK)) || !(access(execute2, F_OK)) )
 			active = true;
 			
 		if ( (services[i].name == "Telnet") && useinetd)

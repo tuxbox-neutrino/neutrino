@@ -46,6 +46,7 @@
 #include <driver/screen_max.h>
 
 #include <xmlinterface.h>
+#include <system/helpers.h>
 #include <system/debug.h>
 
 #include <algorithm>
@@ -145,10 +146,15 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 			if (!strcmp(xmlGetName(search), "zone"))
 			{
 				std::string name = xmlGetAttribute(search, "name");
-//				std::string zone = xmlGetAttribute(search, "zone");
+				std::string zone = xmlGetAttribute(search, "zone");
 				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-				tzSelect->addOption(name.c_str());
-				found = true;
+				if (access("/usr/share/zoneinfo/" + zone, R_OK))
+					printf("[neutrino] timezone file '%s' not installed\n", zone.c_str());
+				else
+				{
+					tzSelect->addOption(name);
+					found = true;
+				}
 			}
 			search = search->xmlNextNode;
 		}

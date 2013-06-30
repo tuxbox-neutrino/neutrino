@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include <system/set_threadname.h>
+#include <system/helpers.h>
 // yhttpd
 #include "yconfig.h"
 #include <ylogging.h>
@@ -549,16 +550,16 @@ void Cyhttpd::ReadConfig(void) {
 
 	// Check location of logos
 	if (Config->getString("Tuxbox.LogosURL", "") == "") {
-		if (access(std::string(ConfigList["WebsiteMain.override_directory"] + "/logos").c_str(), R_OK) == 0) {
+		if (access(ConfigList["WebsiteMain.override_directory"] + "/logos", R_OK) == 0) {
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.override_directory"] + "/logos");
 			have_config = false; //save config
 		}
-		else if (access(std::string(ConfigList["WebsiteMain.directory"] + "/logos").c_str(), R_OK) == 0) {
+		else if (access(ConfigList["WebsiteMain.directory"] + "/logos", R_OK) == 0){
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.directory"] + "/logos");
 			have_config = false; //save config
 		}
 #ifdef Y_CONFIG_USE_HOSTEDWEB
-		else if (access(std::string(ConfigList["WebsiteMain.hosted_directory"] + "/logos").c_str(), R_OK) == 0) {
+		else if (access(ConfigList["WebsiteMain.hosted_directory"] + "/logos", R_OK) == 0){
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.hosted_directory"] + "/logos");
 			have_config = false; //save config
 		}

@@ -1307,7 +1307,7 @@ std::string CMovieBrowser::getScreenshotName(std::string movie)
 		ext = *it;
 		ret.replace(found, ext.length(), ext);
 		++it;
-		if (!access(ret.c_str(), F_OK))
+		if (!access(ret, F_OK))
 			return ret;
 	}
 	return "";

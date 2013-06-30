@@ -392,7 +392,7 @@ void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 					std::string extension = file->Name.substr(ext_pos + 1, name.length() - ext_pos);
 					if(strcasecmp(extension.c_str(), "ts") == 0) {
 						std::string fname = file->Name.substr(0, ext_pos) + ".xml";
-						if(access(fname.c_str(), F_OK) == 0)
+						if(access(fname, F_OK) == 0)
 							continue;
 					}
 				}

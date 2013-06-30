@@ -104,7 +104,7 @@ void CNetworkConfig::init_vars(void)
 	wireless = 0;
 	std::string tmp = "/sys/class/net/" + ifname + "/wireless";
 
-	if(access(tmp.c_str(), R_OK) == 0)
+	if(access(tmp, R_OK) == 0)
 		wireless = 1;
 	if(wireless)
 		readWpaConfig();

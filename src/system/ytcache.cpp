@@ -69,7 +69,7 @@ bool cYTCache::getNameIfExists(std::string &fname, const std::string &id, int it
 	char ytitag[10];
 	snprintf(ytitag, sizeof(ytitag), "%d", itag);
 	std::string f = g_settings.downloadcache_dir + "/" + id + "-" + std::string(ytitag) + "." + ext;
-	if (access(f.c_str(), R_OK))
+	if (access(f, R_OK))
 		return false;
 	fname = f;
 	return true;
@@ -78,10 +78,10 @@ bool cYTCache::getNameIfExists(std::string &fname, const std::string &id, int it
 bool cYTCache::useCachedCopy(MI_MOVIE_INFO *mi)
 {
 	std::string file = getName(mi);
-	if (access(file.c_str(), R_OK))
+	if (access(file, R_OK))
 		return false;
 	std::string xml = getName(mi, "xml");
-	if (!access(xml.c_str(), R_OK)) {
+	if (!access(xml, R_OK)) {
 		mi->file.Url = file;
 		return true;
 	}
@@ -111,7 +111,7 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 {
 	std::string file = getName(mi);
 	std::string xml = getName(mi, "xml");
-	if (!access(file.c_str(), R_OK) && !access(xml.c_str(), R_OK)) {
+	if (!access(file, R_OK) && !access(xml, R_OK)) {
 		fprintf(stderr, "%s: %s already present and valid\n", __func__, file.c_str());
 		return true;
 	}
