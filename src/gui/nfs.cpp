@@ -243,19 +243,17 @@ const CMenuOptionChooser::keyval NFS_TYPE_OPTIONS[NFS_TYPE_OPTION_COUNT] =
 
 int CNFSMountGui::menuEntry(int nr)
 {
-	int type;
-
 	/* rewrite fstype in new entries */
 	if(g_settings.network_nfs[nr].local_dir.empty()) {
 		if(m_cifs_sup != CFSMounter::FS_UNSUPPORTED && m_nfs_sup == CFSMounter::FS_UNSUPPORTED && m_lufs_sup == CFSMounter::FS_UNSUPPORTED)
-			type = (int) CFSMounter::CIFS;
+			g_settings.network_nfs[nr].type = (int) CFSMounter::CIFS;
    		else if(m_lufs_sup != CFSMounter::FS_UNSUPPORTED && m_cifs_sup == CFSMounter::FS_UNSUPPORTED && m_nfs_sup == CFSMounter::FS_UNSUPPORTED)
-			type = (int) CFSMounter::LUFS;
+			g_settings.network_nfs[nr].type = (int) CFSMounter::LUFS;
 	}
 	bool typeEnabled = (m_cifs_sup != CFSMounter::FS_UNSUPPORTED && m_nfs_sup != CFSMounter::FS_UNSUPPORTED && m_lufs_sup != CFSMounter::FS_UNSUPPORTED) ||
-			   (m_cifs_sup != CFSMounter::FS_UNSUPPORTED && type != (int)CFSMounter::CIFS) ||
-			   (m_nfs_sup  != CFSMounter::FS_UNSUPPORTED && type != (int)CFSMounter::NFS) ||
-			   (m_lufs_sup != CFSMounter::FS_UNSUPPORTED && type != (int)CFSMounter::LUFS);
+			   (m_cifs_sup != CFSMounter::FS_UNSUPPORTED && g_settings.network_nfs[nr].type != (int)CFSMounter::CIFS) ||
+			   (m_nfs_sup  != CFSMounter::FS_UNSUPPORTED && g_settings.network_nfs[nr].type != (int)CFSMounter::NFS) ||
+			   (m_lufs_sup != CFSMounter::FS_UNSUPPORTED && g_settings.network_nfs[nr].type != (int)CFSMounter::LUFS);
 
 	CMenuWidget mountMenuEntryW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK, width);
 	mountMenuEntryW.addIntroItems();
@@ -274,10 +272,10 @@ int CNFSMountGui::menuEntry(int nr)
 	CMenuForwarder *options2_fwd = new CMenuForwarder(LOCALE_NFS_MOUNT_OPTIONS, true, &g_settings.network_nfs[nr].mount_options2, &options2Input);
 
 	CStringInputSMS userInput(LOCALE_NFS_USERNAME, &g_settings.network_nfs[nr].username, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, validkeys);
-	CMenuForwarder *username_fwd = new CMenuForwarder(LOCALE_NFS_USERNAME, (type != (int)CFSMounter::NFS), &g_settings.network_nfs[nr].username, &userInput);
+	CMenuForwarder *username_fwd = new CMenuForwarder(LOCALE_NFS_USERNAME, (g_settings.network_nfs[nr].type != (int)CFSMounter::NFS), NULL, &userInput);
 
 	CStringInputSMS passInput(LOCALE_NFS_PASSWORD, &g_settings.network_nfs[nr].password, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, validkeys);
-	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (type != (int)CFSMounter::NFS), NULL, &passInput);
+	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (g_settings.network_nfs[nr].type != (int)CFSMounter::NFS), NULL, &passInput);
 
 	CMACInput macInput(LOCALE_RECORDINGMENU_SERVER_MAC, &g_settings.network_nfs[nr].mac, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CMenuForwarder *macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, g_settings.network_nfs[nr].mac, &macInput);
@@ -291,10 +289,10 @@ int CNFSMountGui::menuEntry(int nr)
 	notifier.addItem(username_fwd);
 	notifier.addItem(password_fwd);
 
-	mountMenuEntryW.addItem(new CMenuOptionChooser(LOCALE_NFS_TYPE, &type, NFS_TYPE_OPTIONS, NFS_TYPE_OPTION_COUNT, typeEnabled, &notifier));
-	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_IP      , true, &g_settings.network_nfs[nr].ip,        &ipInput       ));
-	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_DIR     , true, &g_settings.network_nfs[nr].dir,       &dirInput      ));
-	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_LOCALDIR, true, &g_settings.network_nfs[nr].local_dir, this, ("dir" + to_string(nr)).c_str()));
+	mountMenuEntryW.addItem(new CMenuOptionChooser(LOCALE_NFS_TYPE, &g_settings.network_nfs[nr].type, NFS_TYPE_OPTIONS, NFS_TYPE_OPTION_COUNT, typeEnabled, &notifier));
+	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_IP      , true, g_settings.network_nfs[nr].ip,        &ipInput       ));
+	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_DIR     , true, g_settings.network_nfs[nr].dir,       &dirInput      ));
+	mountMenuEntryW.addItem(new CMenuForwarder(LOCALE_NFS_LOCALDIR, true, g_settings.network_nfs[nr].local_dir, this, ("dir" + to_string(nr)).c_str()));
 	mountMenuEntryW.addItem(automountInput);
 	mountMenuEntryW.addItem(options1_fwd);
 	mountMenuEntryW.addItem(options2_fwd);
