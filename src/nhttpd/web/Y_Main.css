@@ -869,8 +869,12 @@ a.timer {
 #screenshot_header {
 	height: 30px;
 }
+td#remote,
 td.shot {
 	vertical-align: top;
+}
+td#remote img {
+	margin: 10px 10px 10px 0;
 }
 img#shot {
 	width: 100%;
