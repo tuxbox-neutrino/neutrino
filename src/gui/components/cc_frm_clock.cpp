@@ -140,7 +140,7 @@ void CComponentsFrmClock::initCCLockItems()
 			lbl->setCornerType(corner_type);
 
 			//set text border to 0
-			lbl->setTextBorderWidth(0);
+			lbl->setTextBorderWidth(0,0);
 		}
 	}
 	

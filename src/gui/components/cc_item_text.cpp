@@ -99,7 +99,8 @@ void CComponentsText::initVarText()
 	/* we need a minimal borderwith of 1px because the edge-smoothing
 	(or fontrenderer?) otherwise will paint single pixels outside the
 	defined area. e.g. 'j' is leaving such residues */
-	ct_text_border	= 1;
+	ct_text_Hborder	= 1;
+	ct_text_Vborder	= 0;
 
 	ct_col_text	= COL_MENUCONTENT;
 	ct_text_sent	= false;
@@ -144,7 +145,7 @@ void CComponentsText::initCCText()
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setTextMode(ct_text_mode);
 	ct_textbox->setWindowPos(ct_box);
-	ct_textbox->setTextBorderWidth(ct_text_border);
+	ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
 	ct_textbox->enableBackgroundPaint(ct_paint_textbg);
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);

@@ -160,7 +160,8 @@ void CTextBox::initVar(void)
 	m_nLinesPerPage 	= 0;
 	m_nCurrentLine 		= 0;
 	m_nCurrentPage 		= 0;
-	text_border_width 	= 8;
+	text_Hborder_width 	= 8; //border left and right
+	text_Vborder_width	= 8; //border top and buttom
 
 	m_cFrame.iX		= g_settings.screen_StartX + ((g_settings.screen_EndX - g_settings.screen_StartX - MIN_WINDOW_WIDTH) >>1);
 	m_cFrame.iWidth		= MIN_WINDOW_WIDTH;
@@ -218,9 +219,10 @@ void CTextBox::setTextFont(Font* font_text)
 	}
 }
 
-void CTextBox::setTextBorderWidth(int border)
+void CTextBox::setTextBorderWidth(int Hborder, int Vborder)
 {
-	text_border_width = border;
+	text_Hborder_width = Hborder;
+	text_Vborder_width = Vborder;
 	//Initialise the window frames first and than refresh text line array
 	initFramesAndTextArray();
 }
@@ -241,7 +243,7 @@ void CTextBox::reSizeMainFrameWidth(int textWidth)
 {
 	//TRACE("[CTextBox]->%s: \ntext width: %d\n m_cFrame.iWidth: %d\n m_cFrameTextRel.iWidth: %d\n m_nMaxWidth: %d\n  m_nMinWidth: %d\n",__FUNCTION__, textWidth, m_cFrame.iWidth, m_cFrameTextRel.iWidth, m_nMaxWidth, m_nMinWidth);
 
-	int iNewWindowWidth = textWidth  + m_cFrameScrollRel.iWidth   + 2*text_border_width;
+	int iNewWindowWidth = textWidth  + m_cFrameScrollRel.iWidth   + 2*text_Hborder_width;
 
 	if( iNewWindowWidth > m_nMaxWidth)
 		iNewWindowWidth = m_nMaxWidth;	
@@ -260,7 +262,7 @@ void CTextBox::reSizeMainFrameHeight(int textHeight)
 {
 	//TRACE("[CTextBox]->ReSizeMainFrameHeight: %d, current: %d\r\n",textHeight,m_cFrameTextRel.iHeight);
 
-	int iNewWindowHeight =	textHeight + 2*text_border_width;
+	int iNewWindowHeight =	textHeight + 2*text_Vborder_width;
 
 	if( iNewWindowHeight > m_nMaxHeight)
 		iNewWindowHeight = m_nMaxHeight;
@@ -299,7 +301,7 @@ void CTextBox::initFramesRel(void)
 
 	m_cFrameTextRel.iWidth	= m_cFrame.iWidth - m_cFrameScrollRel.iWidth;
 
-	m_nLinesPerPage = std::max(1, (m_cFrameTextRel.iHeight - (2*text_border_width)) / m_nFontTextHeight);
+	m_nLinesPerPage = std::max(1, (m_cFrameTextRel.iHeight - (2*text_Vborder_width)) / m_nFontTextHeight);
 
 #if 0
 	TRACE_1("Frames\r\n\tScren:\t%3d,%3d,%3d,%3d\r\n\tMain:\t%3d,%3d,%3d,%3d\r\n\tText:\t%3d,%3d,%3d,%3d \r\n\tScroll:\t%3d,%3d,%3d,%3d \r\n",
@@ -344,14 +346,14 @@ void CTextBox::refreshTextLineArray(void)
 
 	if( m_nMode & AUTO_WIDTH){
 		/* In case of autowidth, we calculate the max allowed width of the textbox */
-		lineBreakWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_border_width;
+		lineBreakWidth = m_nMaxWidth - m_cFrameScrollRel.iWidth - 2*text_Hborder_width;
 	}else{
 		/* If not autowidth, we just take the actuall textframe width */
-		lineBreakWidth = std::max(m_nMaxWidth, m_cFrameTextRel.iWidth - 2*text_border_width);
+		lineBreakWidth = std::max(m_nMaxWidth, m_cFrameTextRel.iWidth - 2*text_Hborder_width);
 	}
 	
 	if(m_nMaxTextWidth)
-		lineBreakWidth = m_nMaxTextWidth - 2*text_border_width;
+		lineBreakWidth = m_nMaxTextWidth - 2*text_Hborder_width;
 
 	//TRACE("[CTextBox] line %d: lineBreakWidth %d\n", __LINE__, lineBreakWidth);
 
@@ -451,7 +453,7 @@ void CTextBox::refreshTextLineArray(void)
 			reSizeMainFrameHeight(m_nNrOfLines * m_nFontTextHeight);
 		}
 
-		m_nLinesPerPage = std::max(1, (m_cFrameTextRel.iHeight - (2*text_border_width)) / m_nFontTextHeight);
+		m_nLinesPerPage = std::max(1, (m_cFrameTextRel.iHeight - (2*text_Vborder_width)) / m_nFontTextHeight);
 		m_nNrOfPages =	((m_nNrOfLines-1) / m_nLinesPerPage) + 1;
 
 		if(m_nCurrentPage >= m_nNrOfPages)
@@ -518,21 +520,21 @@ void CTextBox::refreshText(void)
 		return;
 
 	
-	int y = m_cFrameTextRel.iY + text_border_width;
+	int y = m_cFrameTextRel.iY + text_Vborder_width;
 	int i;
 	int x_center = 0;
 
 	// set text y position
 	if (m_nMode & TOP)
 		// move to top of frame
-		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * m_nLinesPerPage) >> 1) - text_border_width;
+		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * m_nLinesPerPage) >> 1) - text_Vborder_width;
 	else if (m_nMode & BOTTOM)
 		// move to bottom of frame
- 		y += m_cFrameTextRel.iHeight - text_border_width - (m_nNrOfLines > 1 ? (m_nNrOfLines-1)*m_nFontTextHeight : 0) ;
-		//m_nFontTextHeight + text_border_width /*- ((m_cFrameTextRel.iHeight + m_nFontTextHeight*/ * m_nLinesPerPage/*) >> 1)*/;
+		y += m_cFrameTextRel.iHeight - text_Vborder_width - (m_nNrOfLines > 1 ? (m_nNrOfLines-1)*m_nFontTextHeight : 0) ;
+		//m_nFontTextHeight + text_Vborder_width /*- ((m_cFrameTextRel.iHeight + m_nFontTextHeight*/ * m_nLinesPerPage/*) >> 1)*/;
 	else
 		// fit into mid of frame space
-		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * std::min(m_nLinesPerPage, m_nNrOfLines)) >> 1) - text_border_width;
+		y += m_nFontTextHeight + ((m_cFrameTextRel.iHeight - m_nFontTextHeight * std::min(m_nLinesPerPage, m_nNrOfLines)) >> 1) - text_Vborder_width;
 
 	for(i = m_nCurrentLine; i < m_nNrOfLines && i < m_nCurrentLine + m_nLinesPerPage; i++)
 	{
@@ -548,7 +550,7 @@ void CTextBox::refreshText(void)
 		}
 		
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
-		m_pcFontText->RenderString(m_cFrame.iX + m_cFrameTextRel.iX + text_border_width + x_center,
+		m_pcFontText->RenderString(m_cFrame.iX + m_cFrameTextRel.iX + text_Hborder_width + x_center,
 				y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
 				m_textColor, 0, true); // UTF-8
 		y += m_nFontTextHeight;

@@ -150,7 +150,8 @@ class CTextBox
 		CFrameBuffer * frameBuffer;
 /*		int max_width;*/
 		
-		int text_border_width;
+		int text_Hborder_width;
+		int text_Vborder_width;
 		bool m_FontUseDigitHeight;
 		
 	public:
@@ -173,7 +174,7 @@ class CTextBox
 		bool	setText(const std::string* newText, int max_width = 0);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
-		void    setTextBorderWidth(int border);
+		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};

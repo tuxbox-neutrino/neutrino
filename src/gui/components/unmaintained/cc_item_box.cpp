@@ -295,7 +295,7 @@ void CComponentsItemBox::paintText(size_t index, bool newElement)
 		v_element_data[index].handler2 = (void*)textbox;
 	}
 
-	textbox->setTextBorderWidth(0);
+	textbox->setTextBorderWidth(0,0);
 	textbox->enableBackgroundPaint(false);
 	textbox->setTextFont(font_text);
 	textbox->movePosition(box->iX, box->iY);
