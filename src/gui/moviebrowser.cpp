@@ -755,23 +755,18 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->reload = (bool)configfile.getInt32("mb_reload", true );
 	settings->remount = (bool)configfile.getInt32("mb_remount", false );
 
-	char cfg_key[81];
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
-		settings->storageDir[i] = configfile.getString( cfg_key, "" );
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-		settings->storageDirUsed[i] = configfile.getInt32( cfg_key,false );
+		settings->storageDir[i] = configfile.getString("mb_dir_" + to_string(i), "");
+		settings->storageDirUsed[i] = configfile.getInt32("mb_dir_used" + to_string(i), false );
 	}
 	/* these variables are used for the listframes */
 	settings->browserFrameHeight  = configfile.getInt32("mb_browserFrameHeight", 50);
 	settings->browserRowNr  = configfile.getInt32("mb_browserRowNr", 0);
 	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
-		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32(cfg_key, MB_INFO_MAX_NUMBER);
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
-		settings->browserRowWidth[i] = configfile.getInt32(cfg_key, 50);
+		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32("mb_browserRowItem_" + to_string(i), MB_INFO_MAX_NUMBER);
+		settings->browserRowWidth[i] = configfile.getInt32("mb_browserRowWidth_" + to_string(i), 50);
 	}
 	settings->ytmode = configfile.getInt32("mb_ytmode", cYTFeedParser::MOST_POPULAR);
 	settings->ytorderby = configfile.getInt32("mb_ytorderby", cYTFeedParser::ORDERBY_PUBLISHED);
@@ -823,23 +818,18 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setInt32("mb_reload", settings->reload);
 	configfile.setInt32("mb_remount", settings->remount);
 
-	char cfg_key[81];
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
-		configfile.setString( cfg_key, settings->storageDir[i] );
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-		configfile.setInt32( cfg_key, settings->storageDirUsed[i] ); // do not save this so far
+		configfile.setString("mb_dir_" + to_string(i), settings->storageDir[i] );
+		configfile.setInt32("mb_dir_used" + to_string(i), settings->storageDirUsed[i] ); // do not save this so far
 	}
 	/* these variables are used for the listframes */
 	configfile.setInt32("mb_browserFrameHeight", settings->browserFrameHeight);
 	configfile.setInt32("mb_browserRowNr",settings->browserRowNr);
 	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
-		configfile.setInt32(cfg_key, settings->browserRowItem[i]);
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
-		configfile.setInt32(cfg_key, settings->browserRowWidth[i]);
+		configfile.setInt32("mb_browserRowItem_" + to_string(i), settings->browserRowItem[i]);
+		configfile.setInt32("mb_browserRowWidth_" + to_string(i), settings->browserRowWidth[i]);
 	}
 	configfile.setInt32("mb_ytmode", settings->ytmode);
 	configfile.setInt32("mb_ytorderby", settings->ytorderby);
