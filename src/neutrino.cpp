@@ -1742,7 +1742,7 @@ TIMER_START();
 	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 	hintBox->paint();
 
-	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename, neutrinoFonts->fontDescr.name);
+	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);

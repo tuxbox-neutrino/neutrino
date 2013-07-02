@@ -28,8 +28,8 @@
 #define __neutrinofonts__
 
 typedef struct neutrino_font_descr {
-	const char	*name;
-	const char	*filename;
+	std::string	name;
+	std::string	filename;
 	int		size_offset;
 } neutrino_font_descr_struct;
 
@@ -51,7 +51,7 @@ typedef struct font_sizes_groups {
 class CNeutrinoFonts
 {
 	private:
-		const char * fontStyle[3];
+		std::string fontStyle[3];
 
 		typedef struct dyn_font_t
 		{
@@ -97,6 +97,7 @@ class CNeutrinoFonts
 		static CNeutrinoFonts* getInstance();
 
 		neutrino_font_descr_struct fontDescr;
+		neutrino_font_descr_struct old_fontDescr;
 
 		void SetupNeutrinoFonts();
 		void refreshDynFonts();
