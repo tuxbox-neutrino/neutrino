@@ -1578,6 +1578,9 @@ rclock.unlockmsg Remote control reactivated.
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
 recording.stop Stop recording, please wait...!
+recording.time_hour hour
+recording.time_hours hours
+recording.time_min min
 recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams

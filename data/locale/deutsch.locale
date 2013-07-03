@@ -1578,6 +1578,9 @@ rclock.unlockmsg Fernbedienung reaktiviert...
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten...!
 recording.stop Beende Aufnahme, bitte warten...!
+recording.time_hour Stunde
+recording.time_hours Stunden
+recording.time_min Min
 recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
