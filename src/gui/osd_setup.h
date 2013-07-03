@@ -47,6 +47,8 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CFontSizeNotifier *fontsizenotifier;
 		CMenuWidget *osd_menu;
 		CMenuWidget *submenu_menus;
+		CMenuForwarder *mfFontFile, *mfTtxFontFile;
+		std::string osdFontFile, osdTtxFontFile;
 
 		int width;
 		bool is_wizard;
