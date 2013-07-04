@@ -155,6 +155,10 @@ void CNeutrinoFonts::refreshDynFonts()
 				refreshDynFont(v_dyn_fonts[i].dx, v_dyn_fonts[i].dy, v_dyn_fonts[i].text, v_dyn_fonts[i].style, i, false);
 		}
 	}
+
+	old_fontDescr.filename    = fontDescr.filename;
+	old_fontDescr.name        = fontDescr.name;
+	old_fontDescr.size_offset = fontDescr.size_offset;
 }
 
 void CNeutrinoFonts::refreshDynFont(int dx, int dy, std::string text, int style, int index, bool isShare)
@@ -168,19 +172,18 @@ void CNeutrinoFonts::refreshDynFont(int dx, int dy, std::string text, int style,
 	useDigitOffset = dyn_font->useDigitOffset;
 	int dynSize = getDynFontSize(dx, dy, text, style);
 	useDigitOffset = tmp;
-	if ((dyn_font->size == dynSize) && (old_fontDescr.name == fontDescr.name) && (old_fontDescr.filename == fontDescr.filename))
-		return;
-
-	old_fontDescr.filename    = fontDescr.filename;
-	old_fontDescr.name        = fontDescr.name;
-	old_fontDescr.size_offset = fontDescr.size_offset;
+//	if ((dyn_font->size == dynSize) && (old_fontDescr.name == fontDescr.name) && (old_fontDescr.filename == fontDescr.filename))
+//		return;
 
 	if (dyn_font->font != NULL)
 		delete dyn_font->font;
 	Font *dynFont	= g_fontRenderer->getFont(fontDescr.name.c_str(), fontStyle[style].c_str(), dynSize);
 	dyn_font->font = dynFont;
 	dyn_font->size = dynSize;
-	printf("##### [%s] change %s_font size old %d to new %d, index: %u\n", __FUNCTION__, (isShare)?"share":"dyn", oldSize, dyn_font->size, index);
+	if (dyn_font->size != dynSize)
+		printf("##### [%s] change %s_font size old %d to new %d, index: %u\n", __FUNCTION__, (isShare)?"share":"dyn", oldSize, dyn_font->size, index);
+	else
+		printf("##### [%s] refresh %s_font size %d, index: %u\n", __FUNCTION__, (isShare)?"share":"dyn", dyn_font->size, index);
 }
 
 int CNeutrinoFonts::getFontHeight(Font* fnt)
