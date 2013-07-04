@@ -70,6 +70,8 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	fontsizenotifier = new CFontSizeNotifier;
 	osd_menu = NULL;
 	submenu_menus = NULL;
+	mfFontFile = NULL;
+	mfTtxFontFile = NULL;
 
 	is_wizard = wizard_mode;
 
@@ -82,8 +84,6 @@ COsdSetup::~COsdSetup()
 {
 	delete colorSetupNotifier;
 	delete fontsizenotifier;
-	delete mfFontFile;
-	delete mfTtxFontFile;
 }
 
 //font settings
