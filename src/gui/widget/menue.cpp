@@ -1598,7 +1598,8 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
 {
-	option = (Option != NULL) ? (std::string)Option : "";
+	option = Option;
+	option_string = NULL;
 	text=Text;
 	active = Active;
 	jumpTarget = Target;
@@ -1610,7 +1611,8 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
 {
-	option = Option;
+	option = NULL;
+	option_string = &Option;
 	text=Text;
 	active = Active;
 	jumpTarget = Target;
@@ -1650,8 +1652,10 @@ int CMenuForwarder::getWidth(void)
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(text), true);
 	const char * option_text = NULL;
 
-	if (!option.empty())
-		option_text = option.c_str();
+	if (option)
+		option_text = option;
+	else if (option_string)
+		option_text = option_string->c_str();
 
 
         if (option_text != NULL)
@@ -1674,10 +1678,13 @@ int CMenuForwarder::exec(CMenuTarget* parent)
 
 const char * CMenuForwarder::getOption(void)
 {
-	if (!option.empty())
-		return option.c_str();
+	if (option)
+		return option;
 	else
-		return NULL;
+		if (option_string)
+			return option_string->c_str();
+		else
+			return NULL;
 }
 
 const char * CMenuForwarder::getName(void)
@@ -1749,8 +1756,10 @@ int CMenuForwarderNonLocalized::getWidth(void)
 {
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(the_text, true);
 	const char * option_text = NULL;
-	if (!option.empty())
-		option_text = option.c_str();
+	if (option)
+		option_text = option;
+	else if (option_string)
+		option_text = option_string->c_str();
 
         if (option_text != NULL)
                 tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
