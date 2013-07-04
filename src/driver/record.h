@@ -146,6 +146,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		nextmap_t	nextmap;
 		std::string	Directory;
 		std::string	TimeshiftDirectory;
+		std::vector<std::string> durations;
 		bool		StreamVTxtPid;
 		bool		StreamSubtitlePids;
 		bool		StreamPmtPid;

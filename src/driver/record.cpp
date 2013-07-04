@@ -699,6 +699,7 @@ CRecordManager::CRecordManager()
 	//recordingstatus = 0;
 	recmap.clear();
 	nextmap.clear();
+	durations.clear();
 	autoshift = false;
 	shift_timer = 0;
 	check_timer = 0;
@@ -719,6 +720,7 @@ CRecordManager::~CRecordManager()
 		delete[] (unsigned char *) (*it);
 	}
 	nextmap.clear();
+	durations.clear();
 }
 
 CRecordManager * CRecordManager::getInstance()
@@ -1416,6 +1418,7 @@ bool CRecordManager::ShowMenu(void)
 	CMenuForwarder * iteml;
 	t_channel_id channel_ids[RECORD_MAX_COUNT] = { 0 };	/* initialization avoids false "might */
 	int recording_ids[RECORD_MAX_COUNT] = { 0 };		/* be used uninitialized" warning */
+	durations.clear();
 
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
@@ -1454,6 +1457,7 @@ bool CRecordManager::ShowMenu(void)
 
 			std::string title, duration;
 			inst->GetRecordString(title, duration);
+			durations.push_back(duration);
 
 			const char* mode_icon = NULL;
 			//if (inst->tshift_mode)
@@ -1468,7 +1472,7 @@ bool CRecordManager::ShowMenu(void)
 				rc_key = CRCInput::RC_stop;
 				btn_icon = NEUTRINO_ICON_BUTTON_STOP;
 			}
-			item = new CMenuForwarderNonLocalized(title.c_str(), true, duration, selector, cnt, rc_key, NULL, mode_icon);
+			item = new CMenuForwarderNonLocalized(title.c_str(), true, durations[i].c_str(), selector, cnt, rc_key, NULL, mode_icon);
 			item->setItemButton(btn_icon, true);
 
 			//if only one recording is running, set the focus to this menu item
