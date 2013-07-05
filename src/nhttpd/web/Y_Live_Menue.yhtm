@@ -22,36 +22,9 @@ function epg_plus_popup() {
 	window.open("Y_EPG_Plus.yhtm","_blank","resizable=yes,scrollbars=yes");
 }
 function init(){
-	var menu=ext.select_menu('live');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_live').insert({'bottom':el});
-	});
-	var menu=ext.select_menu('epg');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_epg').insert({'bottom':el});
-	});
-	var menu=ext.select_menu('timer');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_timer').insert({'bottom':el});
-	});
+	add_yExtensions('live', 'secmenu_live');
+	add_yExtensions('epg', 'secmenu_epg');
+	add_yExtensions('timer', 'secmenu_timer');
 }
 //]]>
 </script>

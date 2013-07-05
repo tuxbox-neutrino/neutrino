@@ -46,16 +46,7 @@ function i_start(){
 	g_i_counter = 0;
 	i_clock();
 	g_i_active = window.setInterval('i_interval()', 1000);
-	var mainmenu=ext.select_menu('main');
-	mainmenu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'class':'y_menu_prim_item', 'target':'base',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update(e.get('menuitem'))
-		);
-		$('menu_prim').insert({'bottom':el}); 
-	});
+	add_yExtensions('main', 'menu_prim');
 }
 function i_stop(){
 	window.clearInterval(g_i_active);

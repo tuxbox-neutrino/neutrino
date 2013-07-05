@@ -177,8 +177,6 @@ tr {
 	font-weight: normal;
 	padding: 0em 0.3em;
 }
-.y_menu_prim_item {
-}
 .y_menu_prim li a {
 	font-size: 11pt;
 	text-decoration: none;
@@ -191,6 +189,10 @@ tr {
 .y_menu_prim li a:hover {
 	color: #FF6600;
 }
+/*extensions*/
+.y_menu_prim_ext {
+}
+
 #box_name {
 	font-weight:normal;
 	font-size:10pt;
@@ -280,6 +282,10 @@ tr {
 .y_menu_sec ul li:first-child {
 	margin-top: 5px;
 }
+/*extensions*/
+.y_menu_sec_ext {
+}
+
 .y_menu_popup_link {
 	float: right;
 	margin-right: 15px;

@@ -7,36 +7,9 @@ function cmd_popup(){
 	window.open('Y_Tools_Cmd.yhtm','cmd','width=720,height=470,resizable=yes');
 }
 function init(){
-	var menu=ext.select_menu('tools');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_tools').insert({'bottom':el});
-	});
-	var menu=ext.select_menu('expert');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_expert').insert({'bottom':el});
-	});
-	var menu=ext.select_menu('yweb');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_yweb').insert({'bottom':el});
-	});
+	add_yExtensions('tools', 'secmenu_tools');
+	add_yExtensions('expert', 'secmenu_expert');
+	add_yExtensions('yweb', 'secmenu_yweb');
 }
 </script>
 </head>

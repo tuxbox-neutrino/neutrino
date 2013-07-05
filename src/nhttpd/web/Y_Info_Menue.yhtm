@@ -5,16 +5,7 @@
 <script type="text/javascript" src="/Y_yweb.js"></script>
 <script type="text/javascript">
 function init(){
-	var menu=ext.select_menu('info');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_info').insert({'bottom':el});
-	});
+	add_yExtensions('info', 'secmenu_info');
 }
 </script>
 </head>

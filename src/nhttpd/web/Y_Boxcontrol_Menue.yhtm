@@ -56,17 +56,7 @@ function set_mode(_mode){
 function init(){
 	volumen_set_audiobar(volumen_get());
 	set_mute_button();
-	var menu=ext.select_menu('boxcontrol');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_boxcontrol').insert({'bottom':el});
-	});
-	
+	add_yExtensions('boxcontrol', 'secmenu_boxcontrol');
 }
 //]]>
 </script>
