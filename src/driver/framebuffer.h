@@ -299,6 +299,7 @@ class CFrameBuffer
 		void setFbArea(int element, int _x=0, int _y=0, int _dx=0, int _dy=0);
 		void fbNoCheck(bool noCheck) { fb_no_check = noCheck; }
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
+		void blit(void) {}
 };
 
 #endif
