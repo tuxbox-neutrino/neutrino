@@ -44,11 +44,11 @@
 #include <cctype>
 
 /* the following generic menu items are integrated into multiple menus at the same time */
-CMenuSeparator CGenericMenuSeparator;
-CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE);
-CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_LEFT);
-CMenuForwarder CGenericMenuCancel(LOCALE_MENU_CANCEL, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME);
-CMenuForwarder CGenericMenuNext(LOCALE_MENU_NEXT, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME);
+CMenuSeparator CGenericMenuSeparator(0, NONEXISTANT_LOCALE, true);
+CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE, NONEXISTANT_LOCALE, true);
+CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_LEFT, NULL, true);
+CMenuForwarder CGenericMenuCancel(LOCALE_MENU_CANCEL, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME, NULL, true);
+CMenuForwarder CGenericMenuNext(LOCALE_MENU_NEXT, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME, NULL, true);
 CMenuSeparator * const GenericMenuSeparator = &CGenericMenuSeparator;
 CMenuSeparator * const GenericMenuSeparatorLine = &CGenericMenuSeparatorLine;
 CMenuForwarder * const GenericMenuBack = &CGenericMenuBack;
@@ -64,6 +64,7 @@ CMenuItem::CMenuItem()
 	used = false;
 	icon_frame_w = 10;
 	hint = NONEXISTANT_LOCALE;
+	isStatic = false;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -196,7 +197,11 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	int icon_h = 0;
 
 	//define icon name depends of numeric value
+#ifdef MARTII
+	if (g_settings.menu_numbers_as_icons && icon_name.empty() && CRCInput::isNumeric(directKey))
+#else
 	if (icon_name.empty() && CRCInput::isNumeric(directKey))
+#endif
 	{
 		char i_name[6]; /* X +'\0' */
 		snprintf(i_name, 6, "%d", CRCInput::getNumericValue(directKey));
@@ -397,12 +402,8 @@ void CMenuWidget::resetWidget(bool delete_items)
 {
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
-		if ((item != GenericMenuSeparator) &&
-		    (item != GenericMenuSeparatorLine) &&
-		    (item != GenericMenuBack) &&
-		    (item != GenericMenuCancel)){
-			if(delete_items)
-				delete item;
+		if (!item->isStatic && delete_items) {
+			delete item;
 			item = NULL;
 		}
 	}
@@ -532,6 +533,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					break;
 				}
 			}
+#ifdef MARTII
+		if (msg == (uint32_t) g_settings.key_channelList_pageup)
+			msg = CRCInput::RC_page_up;
+		else if (msg == (uint32_t) g_settings.key_channelList_pagedown)
+			msg = CRCInput::RC_page_down;
+#endif
 		}
 
 		if (handled)
@@ -1174,9 +1181,10 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 		else
 			(*optionValue)++;
 	}
-	paint(true);
 	if(observ)
 		observ->changeNotify(optionName, optionValue);
+	// give the observer a chance to modify the value
+	paint(true);
 
 	return menu_return::RETURN_NONE;
 }
@@ -1596,7 +1604,7 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
 	option = Option;
 	option_string = NULL;
@@ -1607,9 +1615,10 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 	directKey = DirectKey;
 	iconName = IconName ? IconName : "";
 	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
+	isStatic = IsStatic;
 }
 
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
 	option = NULL;
 	option_string = &Option;
@@ -1620,21 +1629,28 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 	directKey = DirectKey;
 	iconName = IconName ? IconName : "";
 	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
+	isStatic = IsStatic;
+}
+
+void CMenuForwarder::setOption(const char * const Option)
+{
+	option = Option;
+	option_string = NULL;
+	if (used && x != -1)
+		paint();
+}
+
+void CMenuForwarder::setOption(const std::string &Option)
+{
+	option = NULL;
+	option_string = &Option;
+	if (used && x != -1)
+		paint();
 }
 
 int CMenuForwarder::getHeight(void) const
 {
 	return g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-}
-
-// used gets set by the addItem() function. This is for set to paint Option string by just not calling the addItem() function.
-// Without this, the changeNotifiers would become machine-dependent.
-void CMenuForwarder::setOption(const char *Option)
-{
-	option = Option;
-
-	if (used && x != -1)
-		paint();
 }
 
 // used gets set by the addItem() function. This is for set to paint Text from locales by just not calling the addItem() function.
@@ -1767,12 +1783,13 @@ int CMenuForwarderNonLocalized::getWidth(void)
 	return tw;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text)
+CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, bool IsStatic)
 {
 	directKey = CRCInput::RC_nokey;
 	iconName = "";
 	type     = Type;
 	text     = Text;
+	isStatic = IsStatic;
 }
 
 
