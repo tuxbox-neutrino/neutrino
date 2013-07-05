@@ -1,4 +1,4 @@
-{=var-set:extension={=if-file-exists:/var/tuxbox/config/extentions.txt~/var/tuxbox/config/extentions.txt~{=if-file-exists:/var/httpd/extentions.txt~/var/httpd/extentions.txt~/share/tuxbox/neutrino/httpd-y/extentions.txt=}=}=}
+{=var-set:extension={=if-file-exists:/var/tuxbox/config/extentions.txt~/var/tuxbox/config/extentions.txt~{=if-file-exists:/var/httpd/extentions.txt~/var/httpd/extentions.txt~/share/tuxbox/neutrino/httpd/extentions.txt=}=}=}
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>
