@@ -22,6 +22,8 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <string>
+
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
@@ -34,6 +36,8 @@ int check_dir(const char * dir);
 bool get_fs_usage(const char * dir, long &total, long &used, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
 
+std::string getPathName(std::string &path);
+std::string getBaseName(std::string &path);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
 
 class CFileHelpers

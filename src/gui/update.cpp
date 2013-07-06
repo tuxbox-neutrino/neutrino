@@ -466,8 +466,10 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 #if ENABLE_EXTUPDATE
 		if (g_settings.apply_settings) {
 			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
-				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE))
+				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE)) {
+					hide();
 					return menu_return::RETURN_REPAINT;
+				}
 		}
 #endif
 

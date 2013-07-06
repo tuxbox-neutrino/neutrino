@@ -229,6 +229,8 @@ typedef struct
 	int lastRecordRowWidth[MB_MAX_ROWS];
 	int ytmode;
 	int ytresults;
+	int ytquality;
+	int ytconcconn;
 	std::string ytregion;
 	std::string ytvid;
 	std::string ytsearch;

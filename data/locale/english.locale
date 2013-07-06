@@ -1359,6 +1359,7 @@ moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
 moviebrowser.use_movie_dir Use movie directory
 moviebrowser.use_rec_dir Use record directory
+moviebrowser.yt_concurrent_connections Concurrent connections
 moviebrowser.yt_error Failed to load youtube feed
 moviebrowser.yt_max_results Max results to fetch
 moviebrowser.yt_most_discussed Most discussed
@@ -1368,6 +1369,7 @@ moviebrowser.yt_most_responded Most responded
 moviebrowser.yt_most_shared Most shared
 moviebrowser.yt_next_results Next results
 moviebrowser.yt_on_the_web Trending videos
+moviebrowser.yt_pref_quality Prefered quality
 moviebrowser.yt_prev_results Previous results
 moviebrowser.yt_recently_featured Recently featured
 moviebrowser.yt_region Region
@@ -1576,6 +1578,9 @@ rclock.unlockmsg Remote control reactivated.
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
 recording.stop Stop recording, please wait...!
+recording.time_hour hour
+recording.time_hours hours
+recording.time_min min
 recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
@@ -1935,6 +1940,11 @@ videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?
+wizard.setup First installation
+wizard.setup_advanced Advanced
+wizard.setup_easy Easy
+wizard.setup_type Installation type
+wizard.setup_type_hint Easy to setup for CanalDigitaal/TéléSAT/TV Vlaanderen providers or simple cable scan
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CST set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from

@@ -22,12 +22,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <set>
 #include <map>
 #include <vector>
 #include <bitset>
 #include <string>
+
+#include <OpenThreads/ScopedLock>
+#include "set_threadname.h"
 
 #include "ytparser.h"
 
@@ -59,19 +63,26 @@ void cYTVideoInfo::Dump()
 	printf("===================================================================\n");
 }
 
-std::string cYTVideoInfo::GetUrl(int fmt)
+std::string cYTVideoInfo::GetUrl(int fmt, bool mandatory)
 {
 	yt_urlmap_iterator_t it;
 	if (fmt) {
 		if ((it = formats.find(fmt)) != formats.end())
 			return it->second.GetUrl();
-		return "";
+		if (mandatory)
+			return "";
 	}
-	if ((it = formats.find(37)) != formats.end())
+	if ((it = formats.find(37)) != formats.end()) // 1080p MP4
 		return it->second.GetUrl();
-	if ((it = formats.find(22)) != formats.end())
+	if ((it = formats.find(22)) != formats.end()) // 720p MP4
 		return it->second.GetUrl();
-	if ((it = formats.find(18)) != formats.end())
+#if 0
+	if ((it = formats.find(35)) != formats.end()) // 480p FLV
+		return it->second.GetUrl();
+	if ((it = formats.find(34)) != formats.end()) // 360p FLV
+		return it->second.GetUrl();
+#endif
+	if ((it = formats.find(18)) != formats.end()) // 270p/360p MP4
 		return it->second.GetUrl();
 	return "";
 }
@@ -83,36 +94,41 @@ cYTFeedParser::cYTFeedParser()
 	feedmode = -1;
 	tquality = "mqdefault";
 	max_results = 25;
+	concurrent_downloads = 2;
+	curl_handle = curl_easy_init();
 }
 
 cYTFeedParser::~cYTFeedParser()
 {
+	curl_easy_cleanup(curl_handle);
 }
 
 size_t cYTFeedParser::CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data)
 {
-        std::string* pStr = (std::string*) data;
-        pStr->append((char*) ptr, nmemb);
+	if (size * nmemb > 0) {
+		std::string* pStr = (std::string*) data;
+		pStr->append((char*) ptr, nmemb);
+	}
         return size*nmemb;
 }
 
-bool cYTFeedParser::getUrl(std::string &url, std::string &answer)
+bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_handle)
 {
-	CURL * curl_handle = curl_easy_init();
-	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, &cYTFeedParser::CurlWriteToString);
-	curl_easy_setopt(curl_handle, CURLOPT_FILE, (void *)&answer);
-	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
-	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
-	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, (long)1);
+	if (!_curl_handle)
+		_curl_handle = curl_handle;
+
+	curl_easy_setopt(_curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(_curl_handle, CURLOPT_WRITEFUNCTION, &cYTFeedParser::CurlWriteToString);
+	curl_easy_setopt(_curl_handle, CURLOPT_FILE, (void *)&answer);
+	curl_easy_setopt(_curl_handle, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
+	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
 
 	char cerror[CURL_ERROR_SIZE];
-	curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, cerror);
+	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
 
 	printf("try to get [%s] ...\n", url.c_str());
-	CURLcode httpres = curl_easy_perform(curl_handle);
-
-	curl_easy_cleanup(curl_handle);
+	CURLcode httpres = curl_easy_perform(_curl_handle);
 
 	printf("http: res %d size %d\n", httpres, answer.size());
 
@@ -123,32 +139,34 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer)
 	return true;
 }
 
-bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file)
+bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl_handle)
 {
+	if (!_curl_handle)
+		_curl_handle = curl_handle;
+
 	FILE * fp = fopen(file.c_str(), "wb");
 	if (fp == NULL) {
 		perror(file.c_str());
 		return false;
 	}
-	CURL * curl_handle = curl_easy_init();
-	curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_FILE, fp);
-	curl_easy_setopt(curl_handle, CURLOPT_FAILONERROR, 1);
-	curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
-	curl_easy_setopt(curl_handle, CURLOPT_NOSIGNAL, (long)1);
+	curl_easy_setopt(_curl_handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(_curl_handle, CURLOPT_WRITEFUNCTION, NULL);
+	curl_easy_setopt(_curl_handle, CURLOPT_FILE, fp);
+	curl_easy_setopt(_curl_handle, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
+	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
 
 	char cerror[CURL_ERROR_SIZE];
-	curl_easy_setopt(curl_handle, CURLOPT_ERRORBUFFER, cerror);
+	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
 
 	printf("try to get [%s] ...\n", url.c_str());
-	CURLcode httpres = curl_easy_perform(curl_handle);
+	CURLcode httpres = curl_easy_perform(_curl_handle);
 
 	double dsize;
-	curl_easy_getinfo(curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
-	curl_easy_cleanup(curl_handle);
+	curl_easy_getinfo(_curl_handle, CURLINFO_SIZE_DOWNLOAD, &dsize);
 	fclose(fp);
 
-	printf("http: res %d size %f.\n", httpres, dsize);
+	printf("http: res %d size %g.\n", httpres, dsize);
 
 	if (httpres != 0) {
 		printf("curl error: %s\n", cerror);
@@ -160,9 +178,7 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file)
 
 void cYTFeedParser::decodeUrl(std::string &url)
 {
-	CURL * curl_handle = curl_easy_init();
 	char * str = curl_easy_unescape(curl_handle, url.c_str(), 0, NULL);
-	curl_easy_cleanup(curl_handle);
 	if(str)
 		url = str;
 	curl_free(str);
@@ -170,9 +186,7 @@ void cYTFeedParser::decodeUrl(std::string &url)
 
 void cYTFeedParser::encodeUrl(std::string &txt)
 {
-	CURL * curl_handle = curl_easy_init();
 	char * str = curl_easy_escape(curl_handle, txt.c_str(), txt.length());
-	curl_easy_cleanup(curl_handle);
 	if(str)
 		txt = str;
 	curl_free(str);
@@ -357,12 +371,22 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 			/* save first one, if wanted not found */
 			if (vinfo.thumbnail.empty())
 				vinfo.thumbnail = thumbnail;
-			if (ParseVideoInfo(vinfo))
-				videos.push_back(vinfo);
+			vinfo.ret = false;
+			videos.push_back(vinfo);
 		}
 		entry = entry->xmlNextNode;
 	}
 	xmlFreeDoc(answer_parser);
+
+	GetVideoUrls();
+
+	std::vector<cYTVideoInfo>::iterator pos = videos.begin();
+	while (pos != videos.end())
+		if ((*pos).ret)
+			++pos;
+		else
+			pos = videos.erase(pos);
+
 	parsed = !videos.empty();
 	return parsed;
 }
@@ -529,7 +553,7 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 	return ParseFeed(url);
 }
 
-bool cYTFeedParser::ParseVideoInfo(cYTVideoInfo &vinfo)
+bool cYTFeedParser::ParseVideoInfo(cYTVideoInfo &vinfo, CURL *_curl_handle)
 {
 	bool ret = false;
 	std::vector<std::string> estr;
@@ -544,44 +568,98 @@ bool cYTFeedParser::ParseVideoInfo(cYTVideoInfo &vinfo)
 		vurl += "&ps=default&eurl=&gl=US&hl=en";
 		printf("cYTFeedParser::ParseVideoInfo: get [%s]\n", vurl.c_str());
 		std::string answer;
-		if (!getUrl(vurl, answer))
+		if (!getUrl(vurl, answer, _curl_handle))
 			continue;
 		ret = decodeVideoInfo(answer, vinfo);
 		if (ret)
 			break;
 	}
+	vinfo.ret = ret;
 	return ret;
+}
+
+void *cYTFeedParser::DownloadThumbnailsThread(void *arg)
+{
+	set_threadname("YT::DownloadThumbnails");
+	bool ret = true;
+	cYTFeedParser *caller = (cYTFeedParser *)arg;
+	CURL *c = curl_easy_init();
+	unsigned int i;
+	do {
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(caller->mutex);
+		i = caller->worker_index++;
+	} while (i < caller->videos.size() && ((ret &= caller->DownloadThumbnail(caller->videos[i], c)) || true));
+	curl_easy_cleanup(c);
+	pthread_exit(&ret);
+}
+
+bool cYTFeedParser::DownloadThumbnail(cYTVideoInfo &vinfo, CURL *_curl_handle)
+{
+	if (!_curl_handle)
+		_curl_handle = curl_handle;
+	bool found = false;
+	if (!vinfo.thumbnail.empty()) {
+		std::string fname = thumbnail_dir + "/" + vinfo.id + ".jpg";
+		found = !access(fname.c_str(), F_OK);
+		if (!found)
+			found = DownloadUrl(vinfo.thumbnail, fname, _curl_handle);
+		if (found)
+			vinfo.tfile = fname;
+	}
+	return found;
 }
 
 bool cYTFeedParser::DownloadThumbnails()
 {
-	bool ret = false;
-	if (mkdir(thumbnail_dir.c_str(), 0755)) {
+	bool ret = true;
+	if (mkdir(thumbnail_dir.c_str(), 0755) && errno != EEXIST) {
 		perror(thumbnail_dir.c_str());
-		//return ret;
+		return false;
 	}
-	for (unsigned i = 0; i < videos.size(); i++) {
-		if (!videos[i].thumbnail.empty()) {
-			std::string fname = thumbnail_dir;
-			fname += "/";
-			fname += videos[i].id;
-			fname += ".jpg";
-			bool found = !access(fname.c_str(), F_OK);
-			if (!found)
-				found = DownloadUrl(videos[i].thumbnail, fname);
-			if (found)
-				videos[i].tfile = fname;
-			ret |= found;
-		}
+	unsigned int max_threads = concurrent_downloads;
+	if (videos.size() < max_threads)
+		max_threads = videos.size();
+	pthread_t ta[max_threads];
+	worker_index = 0;
+	for (unsigned i = 0; i < max_threads; i++)
+		pthread_create(&ta[i], NULL, cYTFeedParser::DownloadThumbnailsThread, this);
+	for (unsigned i = 0; i < max_threads; i++) {
+		void *r;
+		pthread_join(ta[i], &r);
+		ret &= *((bool *)r);
 	}
 	return ret;
 }
 
+void *cYTFeedParser::GetVideoUrlsThread(void *arg)
+{
+	set_threadname("YT::GetVideoUrls");
+	int ret = 0;
+	cYTFeedParser *caller = (cYTFeedParser *)arg;
+	CURL *c = curl_easy_init();
+	unsigned int i;
+	do {
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(caller->mutex);
+		i = caller->worker_index++;
+	} while (i < caller->videos.size() && ((ret |= caller->ParseVideoInfo(caller->videos[i], c)) || true));
+	curl_easy_cleanup(c);
+	pthread_exit(&ret);
+}
+
 bool cYTFeedParser::GetVideoUrls()
 {
-	bool ret = false;
-	for (unsigned i = 0; i < videos.size(); i++) {
-		ret |= ParseVideoInfo(videos[i]);
+	int ret = 0;
+	unsigned int max_threads = concurrent_downloads;
+	if (videos.size() < max_threads)
+		max_threads = videos.size();
+	pthread_t ta[max_threads];
+	worker_index = 0;
+	for (unsigned i = 0; i < max_threads; i++)
+		pthread_create(&ta[i], NULL, cYTFeedParser::GetVideoUrlsThread, this);
+	for (unsigned i = 0; i < max_threads; i++) {
+		void *r;
+		pthread_join(ta[i], &r);
+		ret |= *((int *)r);
 	}
 	return ret;
 }

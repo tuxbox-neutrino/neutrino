@@ -284,6 +284,24 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 	return true;
 }
 
+std::string getPathName(std::string &path)
+{
+	size_t pos = path.find_last_of("/");
+	if (pos == std::string::npos)
+		return path;
+	return path.substr(0, pos);
+}
+
+std::string getBaseName(std::string &path)
+{
+	size_t pos = path.find_last_of("/");
+	if (pos == std::string::npos)
+		return path;
+	if (path.length() == pos +1)
+		return "";
+	return path.substr(pos+1);
+}
+
 std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 {
 	std::string result = str.erase(str.find_last_not_of(trimChars) + 1);

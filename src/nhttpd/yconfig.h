@@ -109,7 +109,8 @@
 #define YWEB_CONFIGFILE					HTTPD_CONFIGDIR"/Y-Web.conf"
 #define PUBLICDOCUMENTROOT				PUBLIC_HTTPDDIR
 #define NEUTRINO_CONFIGFILE				CONFIGDIR"/neutrino.conf"
-#define HOSTEDDOCUMENTROOT				"/mnt/hosted"
+#define HOSTEDDOCUMENTROOT				HOSTED_HTTPDDIR
+#define HOSTEDDOCUMENTURL				"/hosted/"
 #define EXTRASDOCUMENTROOT				"/mnt/hosted/extras"
 #define EXTRASDOCUMENTURL				"/hosted/extras"
 #define ZAPITXMLPATH					CONFIGDIR"/zapit"

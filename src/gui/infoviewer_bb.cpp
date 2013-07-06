@@ -52,6 +52,7 @@
 #include <gui/movieplayer.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
+#include <driver/volume.h>
 
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
@@ -355,6 +356,14 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	int i;
 	bool paint = false;
 
+	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
+		g_InfoViewer->isVolscale = CVolume::getInstance()->hideVolscale();
+	else
+		g_InfoViewer->isVolscale = false;
+
 	getBBButtonInfo();
 	for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		if (tmp_bbButtonInfoText[i] != bbButtonInfo[i].text) {
@@ -365,7 +374,7 @@ void CInfoViewerBB::showBBButtons(const int modus)
 
 	if (paint) {
 		int last_x = minX;
-		frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, minX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, minX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_LARGE, CORNER_BOTTOM); //round
 		for (i = BUTTON_MAX; i > 0;) {
 			--i;
 			if ((bbButtonInfo[i].x <= g_InfoViewer->ChanInfoX) || (bbButtonInfo[i].x >= g_InfoViewer->BoxEndX) || (!bbButtonInfo[i].paint))
@@ -393,6 +402,8 @@ void CInfoViewerBB::showBBButtons(const int modus)
 			tmp_bbButtonInfoText[i] = bbButtonInfo[i].text;
 		}
 	}
+	if (g_InfoViewer->isVolscale)
+		CVolume::getInstance()->showVolscale();
 }
 
 void CInfoViewerBB::showBBIcons(const int modus, const std::string & icon)
@@ -418,7 +429,7 @@ void CInfoViewerBB::paintshowButtonBar()
 	if (g_settings.casystem_display < 2)
 		paintCA_bar(0,0);
 
-	frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
+	frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 	g_InfoViewer->showSNR();
 

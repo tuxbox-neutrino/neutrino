@@ -143,11 +143,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 #endif
 
 		//assign item index
-		int count = v_cc_items.size();
-		char buf[64];
-		snprintf(buf, sizeof(buf), "%d%d", cc_item_index, count);
-		buf[63] = '\0';
-		int new_index = atoi(buf);
+		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
 #ifdef DEBUG_CC
 		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
@@ -177,6 +173,15 @@ bool CComponentsForm::isAdded(CComponentsItem* cc_item)
 	return ret;
 }
 
+int CComponentsForm::genIndex()
+{
+	int count = v_cc_items.size();
+	char buf[64];
+	snprintf(buf, sizeof(buf), "%d%d", cc_item_index, count);
+	buf[63] = '\0';
+	int ret = atoi(buf);
+	return ret;
+}
 
 CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 {
@@ -188,9 +193,13 @@ CComponentsItem* CComponentsForm::getCCItem(const uint& cc_item_id)
 void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item)
 {
 	if (!v_cc_items.empty()){
-		if (v_cc_items[cc_item_id]){
-			delete v_cc_items[cc_item_id];
-			v_cc_items[cc_item_id] = NULL;
+		CComponentsItem* old_Item = v_cc_items[cc_item_id];
+		if (old_Item){
+			CComponentsItem * old_parent = old_Item->getParent();
+			new_cc_Item->setParent(old_parent);
+			new_cc_Item->setIndex(old_parent->getIndex());
+			delete old_Item;
+			old_Item = NULL;
 			v_cc_items[cc_item_id] = new_cc_Item;
 		}
 	}
@@ -217,12 +226,17 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 	}
 	
 	if (v_cc_items.empty()){
-		v_cc_items.push_back(cc_Item);
+		addCCItem(cc_Item);
 #ifdef DEBUG_CC
 		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
 #endif
-	}else
+	}else{
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
+		cc_Item->setParent(this);
+		//assign item index
+		int index = genIndex();
+		cc_Item->setIndex(index);
+	}
 }
 
 void CComponentsForm::removeCCItem(const uint& cc_item_id)
@@ -321,7 +335,8 @@ void CComponentsForm::paintCCItems()
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
 		if (right_item > right_frm){
-			printf("[CComponentsForm] %s: item %d width is too large, definied width=%d, possible width=%d \n", __FUNCTION__, i, w_item, new_w);
+			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
+				__FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
 
@@ -331,7 +346,8 @@ void CComponentsForm::paintCCItems()
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
 		if (bottom_item > bottom_frm){
-			printf("[CComponentsForm] %s: item %d height is too large, definied height=%d, possible height=%d \n", __FUNCTION__, i, h_item, new_h);
+			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
+			       __FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
 

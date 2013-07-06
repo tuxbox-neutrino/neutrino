@@ -23,7 +23,7 @@ function do_submit(){
 		<table border="0" class="y_form_table" cellspacing="0" cellpadding="0">
 			<tr>
 				<td>&nbsp;</td>
-				<td><textarea name="extentions" id="ext" cols="90" rows="30"  title="extention list" style="background : white; font : 'Courier New',medium  monospace; color : #436976;">{=if-file-exists:/var/tuxbox/config/extentions.txt~{=include:/var/tuxbox/config/extentions.txt=}~{=if-file-exists:/var/httpd/extentions.txt~{=include:/var/httpd/extentions.txt=}~{=include:/share/tuxbox/neutrino/httpd-y/extentions.txt=}=}=}</textarea></td>
+				<td><textarea name="extentions" id="ext" cols="90" rows="30"  title="extention list" style="background : white; font : 'Courier New',medium  monospace; color : #436976;">{=if-file-exists:/var/tuxbox/config/extentions.txt~{=include:/var/tuxbox/config/extentions.txt=}~{=if-file-exists:/var/httpd/extentions.txt~{=include:/var/httpd/extentions.txt=}~{=include:/share/tuxbox/neutrino/httpd/extentions.txt=}=}=}</textarea></td>
 			</tr>
 		</table>
 		<br/>

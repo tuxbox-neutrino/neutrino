@@ -121,7 +121,7 @@ void CVolumeBar::initVolumeBarPosition()
 
 	switch (g_settings.volume_pos)
 	{
-		case 0:{// upper right
+		case VOLUMEBAR_POS_TOP_RIGHT:{
 			int x_corr 	= 0;
 			if (( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic)) {
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
@@ -132,23 +132,23 @@ void CVolumeBar::initVolumeBarPosition()
 			x = sw - width - x_corr;
 			break;
 		}
-		case 1:// upper left
+		case VOLUMEBAR_POS_TOP_LEFT:
 			break;
-		case 2:// bottom left
+		case VOLUMEBAR_POS_BOTTOM_LEFT:
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
 			break;
-		case 3:// bottom right
+		case VOLUMEBAR_POS_BOTTOM_RIGHT:
 			x = sw - width;
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
 			break;
-		case 4:// upper center
+		case VOLUMEBAR_POS_TOP_CENTER:
 			x = ((sw - width) / 2) + x - h_spacer/2;
 			break;
-		case 5:// bottom center
+		case VOLUMEBAR_POS_BOTTOM_CENTER:
 			x = ((sw - width) / 2) + x - h_spacer/2;
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
 			break;
-		case 6:// higher center
+		case VOLUMEBAR_POS_HIGHER_CENTER:
 			x = ((sw - width) / 2) + x - h_spacer/2;
 			y = (sh + frameBuffer->getScreenY()) - sh/10;
 			break;

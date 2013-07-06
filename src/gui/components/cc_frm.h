@@ -41,6 +41,8 @@ class CComponentsForm : public CComponentsItem
 		std::vector<CComponentsItem*>	v_cc_items;			
 		void initVarForm();
 		void paintForm(bool do_save_bg);
+		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
+		int genIndex();
 
 		int append_h_offset;
 		int append_v_offset;
@@ -213,7 +215,7 @@ class CComponentsWindow : public CComponentsForm
 		///object: body object, this is the container for all needed items, to add with addWindowItem()
 		CComponentsForm * ccw_body;
 		///object: footer object, to get access to header properties see also getFooterObject(
-		CComponentsForm * ccw_footer;
+		CComponentsFooter * ccw_footer;
 		///property: caption in header, see also getHeaderObject()
 		std::string ccw_caption;
 		///property: icon name in header, see also getHeaderObject()
@@ -295,9 +297,10 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsForm* getBodyObject(){return ccw_body;};
 
 		///returns a pointer to the internal footer object, use this to get access to footer properities
-		CComponentsForm* getFooterObject(){return ccw_footer;};
+		CComponentsFooter* getFooterObject(){return ccw_footer;};
 
-		int getStartY(); //y value for start of the area below header
+		///refresh position and dimension and reinitialize elemenatary properties
+		void Refresh(){initCCWItems();};
 };
 
 #endif

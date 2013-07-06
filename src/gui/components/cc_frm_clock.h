@@ -57,12 +57,11 @@ class CComponentsFrmClock : public CComponentsForm
 		///raw time chars
 		char cl_timestr[20];
 
+		//TODO: please add comments!
 		bool paintClock;
 		bool activeClock;
 
-		///font
-		int cl_font_type;
-		///fontrenderer object
+		///object: font render object
 		Font *cl_font;
 		///text color
 		int cl_col_text;
@@ -88,7 +87,7 @@ class CComponentsFrmClock : public CComponentsForm
 		~CComponentsFrmClock();		
 
 		///set font type for segments
-		void setClockFontType(const int& font_type){cl_font_type = font_type;};
+		void setClockFont(Font *font){cl_font = font;};
 
 		///set text color
 		void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};

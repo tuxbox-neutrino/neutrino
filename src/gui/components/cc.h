@@ -242,6 +242,8 @@ class CComponentsItem : public CComponents
 
 		///sets pointer to the form object in which this item is embedded.
 		virtual void setParent(CComponentsItem *parent){cc_parent = parent;};
+		///returns pointer to the form object in which this item is embedded.
+		virtual CComponentsItem * getParent(){return cc_parent;};
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
@@ -265,7 +267,8 @@ class CComponentsItem : public CComponents
 
 		///get current index of item, see also attribut cc_item_index
 		virtual int getIndex(){return cc_item_index;};
-		///set index to item, see also attribut cc_item_index
+		///set an index to item, see also attribut cc_item_index.
+		///To generate an index, use genIndex()
 		virtual void setIndex(const int& index){cc_item_index = index;};
 };
 

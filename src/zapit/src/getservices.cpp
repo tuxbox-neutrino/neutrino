@@ -474,19 +474,26 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 	while (search) {
 		fe_type_t delsys = FE_QPSK;
 
-		if (!(strcmp(xmlGetName(search), "cable")))
+		t_satellite_position satellitePosition = xmlGetSignedNumericAttribute(search, "position", 10);
+		if (!(strcmp(xmlGetName(search), "cable"))) {
 			delsys = FE_QAM;
-		else if (!strcmp(xmlGetName(search), "terrestrial"))
+			char * name = xmlGetAttribute(search, "name");
+			satellitePosition = GetSatellitePosition(name);
+		}
+		else if (!strcmp(xmlGetName(search), "terrestrial")) {
 			delsys = FE_OFDM;
+			char * name = xmlGetAttribute(search, "name");
+			satellitePosition = GetSatellitePosition(name);
+		}
 		else if ((strcmp(xmlGetName(search), "sat"))) {
 			search = search->xmlNextNode;
 			continue;
 		}
-
+#if 0
 		//t_satellite_position satellitePosition = xmlGetSignedNumericAttribute(search, "position", 10);
 		char * name = xmlGetAttribute(search, "name");
 		t_satellite_position satellitePosition = GetSatellitePosition(name);
-
+#endif
 		DBG("going to parse dvb-%c provider %s\n", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
 		ParseTransponders(search->xmlChildrenNode, satellitePosition, delsys);
 		newfound++;

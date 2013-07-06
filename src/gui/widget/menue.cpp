@@ -643,6 +643,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								if (fade && washidden)
 									fader.StartFadeIn();
 								checkHints();
+								pos = selected;
 								paint();
 								break;
 						}

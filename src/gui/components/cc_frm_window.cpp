@@ -51,8 +51,7 @@ CComponentsWindow::CComponentsWindow(const std::string& caption, const char* ico
 	ccw_caption 	= caption;
 	ccw_icon_name	= iconname;
 	
-	initHeader();
-	initBody();
+	initCCWItems();
 }
 
 CComponentsWindow::CComponentsWindow(neutrino_locale_t locale_caption, const char* iconname)
@@ -209,14 +208,6 @@ void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 {
 	if (ccw_body)
 		ccw_body->addCCItem(cc_Item);
-}
-
-int CComponentsWindow::getStartY()
-{
-	if (ccw_head)
-		return ccw_head->getHeight();
-	
-	return 0;
 }
 
 void CComponentsWindow::initCCWItems()

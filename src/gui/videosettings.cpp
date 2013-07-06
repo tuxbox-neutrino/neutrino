@@ -443,13 +443,16 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode2);
 #endif
+#ifdef BOXMODEL_APOLLO
+	changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
+#else
 	if (system_rev == 0x06) {
 		changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
 	} else {
 		changeNotify(LOCALE_VIDEOMENU_SCART, NULL);
 		changeNotify(LOCALE_VIDEOMENU_CINCH, NULL);
 	}
-
+#endif
 	//setupVideoSystem(false/*don't ask*/);// focus: CVideoSettings constructor do this already ?
 
 #if 0

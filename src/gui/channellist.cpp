@@ -2088,10 +2088,11 @@ void CChannelList::paintHead()
 		if (headerClock == NULL) {
 			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M");
 			headerClock->setClockIntervall(10);
-			headerClock->setClockFontType(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
-			headerClock->setCornerRadius(RADIUS_LARGE);
-			headerClock->setCornerType(CORNER_TOP_RIGHT);
+
 		}
+		headerClock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+		headerClock->setCornerRadius(RADIUS_LARGE);
+		headerClock->setCornerType(CORNER_TOP_RIGHT);
 		headerClock->setYPos(y);
 		headerClock->setHeight(theight);
 		headerClock->setTextColor(COL_MENUHEAD);

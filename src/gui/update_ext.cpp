@@ -202,7 +202,14 @@ bool CExtUpdate::applySettings()
 
 	CMTDInfo * mtdInfo = CMTDInfo::getInstance();
 	std::string mtdFilename = mtdInfo->findMTDsystem(); // /dev/mtdX
+	if (mtdFilename.empty())
+		return ErrorReset(0, "error system mtd not found");
+
+#ifdef BOXMODEL_APOLLO
+	int mtdSize = 65536*1024; // FIXME hack, mtd size more than free RAM
+#else
 	int mtdSize = mtdInfo->getMTDSize(mtdFilename);
+#endif
 	int mtdEraseSize = mtdInfo->getMTDEraseSize(mtdFilename);
 	mtdNumber = mtdInfo->findMTDNumber(mtdFilename);
 

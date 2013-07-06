@@ -45,7 +45,7 @@ function update_list_addRow(_body, i, your_version, ext_item)
 	var mycurrent_row = y_add_row_to_table(_body, ((i % 2) ==0)?"a":"b" );
 
 	var check='<input type="checkbox" name="setupdate" id="ch'+i+'" ysize="'+ext_item.get('size')+'" onchange="changeitem(ch'+i+')">';
-	var info="";
+	var info="&nbsp;";
 	var etype="";
 
 	switch (ext.upd_version){
@@ -56,7 +56,8 @@ function update_list_addRow(_body, i, your_version, ext_item)
 			var yweb_version=ext_item.get('yweb_version');
 			if (!yweb.require(yweb_version)) 
 				check = "";
-			info="<a href=\""+ext_item.get('info_url')+"\" target=\"_blank\"><img src=\"/images/info.png\"/></a>";
+			if (typeof(ext_item.get('info_url')) != 'undefined')
+				info="<a href=\""+ext_item.get('info_url')+"\" target=\"_blank\"><img src=\"/images/info.png\"/></a>";
 			break;
 	}
 	switch(ext_item.get('type')){
@@ -180,7 +181,9 @@ function uninstall_list_addRow(_body, i, ext_item, has_uninstall)
 
 //	var check='<input type="checkbox" name="setupdate" id="ch'+i+'" ysize="'+ext_item.get('size')+'" onchange="changeitem(ch'+i+')">';
 	var etype="";
-	var info="<a href=\""+ext_item.get('info_url')+"\" target=\"_blank\"><img src=\"/images/info.png\"/></a>";
+	var info="&nbsp;";
+	if (typeof(ext_item.get('info_url')) != 'undefined')
+		info="<a href=\""+ext_item.get('info_url')+"\" target=\"_blank\"><img src=\"/images/info.png\"/></a>";
 	var uninst="<a href=\'javascript:do_uninstall(\""+ext_item.get('tag')+"\")\' title=\"uninstall\"><img src=\"/images/cross.png\"/></a>";
 	if(!has_uninstall) uninst="&nbsp;";
 	switch(ext_item.get('type')){

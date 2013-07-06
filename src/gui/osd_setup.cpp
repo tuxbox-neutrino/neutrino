@@ -55,6 +55,7 @@
 
 #include <zapit/femanager.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 #include "cs_api.h"
 
 extern CRemoteControl * g_RemoteControl;
@@ -70,6 +71,8 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	fontsizenotifier = new CFontSizeNotifier;
 	osd_menu = NULL;
 	submenu_menus = NULL;
+	mfFontFile = NULL;
+	mfTtxFontFile = NULL;
 
 	is_wizard = wizard_mode;
 
@@ -196,6 +199,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			strcpy(g_settings.font_file, fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			CNeutrinoApp::getInstance()->SetupFonts();
+			osdFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
+			mfFontFile->setOption(osdFontFile.c_str());
 		}
 		return menu_return::RETURN_REPAINT;
 	}
@@ -211,6 +216,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			ttx_font_file = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			CNeutrinoApp::getInstance()->SetupFonts();
+			osdTtxFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
+			mfTtxFontFile->setOption(osdTtxFontFile.c_str());
 		}
 		return menu_return::RETURN_REPAINT;
 	}
@@ -336,13 +343,13 @@ const CMenuOptionChooser::keyval  INFOBAR_SUBCHAN_DISP_POS_OPTIONS[INFOBAR_SUBCH
 #define VOLUMEBAR_DISP_POS_OPTIONS_COUNT 7
 const CMenuOptionChooser::keyval  VOLUMEBAR_DISP_POS_OPTIONS[VOLUMEBAR_DISP_POS_OPTIONS_COUNT]=
 {
-	{ 0 , LOCALE_SETTINGS_POS_TOP_RIGHT },
-	{ 1 , LOCALE_SETTINGS_POS_TOP_LEFT },
-	{ 2 , LOCALE_SETTINGS_POS_BOTTOM_LEFT },
-	{ 3 , LOCALE_SETTINGS_POS_BOTTOM_RIGHT },
-	{ 4 , LOCALE_SETTINGS_POS_TOP_CENTER },
-	{ 5 , LOCALE_SETTINGS_POS_BOTTOM_CENTER },
-	{ 6 , LOCALE_SETTINGS_POS_HIGHER_CENTER }
+	{ CVolumeBar::VOLUMEBAR_POS_TOP_RIGHT    , LOCALE_SETTINGS_POS_TOP_RIGHT },
+	{ CVolumeBar::VOLUMEBAR_POS_TOP_LEFT     , LOCALE_SETTINGS_POS_TOP_LEFT },
+	{ CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT  , LOCALE_SETTINGS_POS_BOTTOM_LEFT },
+	{ CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT , LOCALE_SETTINGS_POS_BOTTOM_RIGHT },
+	{ CVolumeBar::VOLUMEBAR_POS_TOP_CENTER   , LOCALE_SETTINGS_POS_TOP_CENTER },
+	{ CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER, LOCALE_SETTINGS_POS_BOTTOM_CENTER },
+	{ CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER, LOCALE_SETTINGS_POS_HIGHER_CENTER }
 };
 
 #define MENU_DISP_POS_OPTIONS_COUNT 5
@@ -433,7 +440,7 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mf);
 
 	//fonts
-	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_FONT);
+	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, w_max(50, 10), MN_WIDGET_ID_OSDSETUP_FONT);
 	showOsdFontSizeSetup(&osd_menu_fonts);
 	mf = new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, &osd_menu_fonts, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	mf->setHint("", LOCALE_MENU_HINT_FONTS);
@@ -681,7 +688,6 @@ void COsdSetup::AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSe
 	font_Settings.addItem(new CMenuNumberInput(neutrino_font[number_of_fontsize_entry].name, neutrino_font[number_of_fontsize_entry].defaultsize, fontsizenotifier, CNeutrinoApp::getInstance()->getConfigFile()));
 }
 
-
 //font settings menu
 void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 {
@@ -691,14 +697,18 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 	fontSettings->addIntroItems(LOCALE_FONTMENU_HEAD);
 
 	// select gui font file
-	mf = new CMenuForwarder(LOCALE_COLORMENU_FONT, true, NULL, this, "select_font", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	mf->setHint("", LOCALE_MENU_HINT_FONT_GUI);
-	fontSettings->addItem(mf);
+	osdFontFile = g_settings.font_file;
+	osdFontFile = "(" + getBaseName(osdFontFile) + ")";
+	mfFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT, true, osdFontFile.c_str(), this, "select_font", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mfFontFile->setHint("", LOCALE_MENU_HINT_FONT_GUI);
+	fontSettings->addItem(mfFontFile);
 
 	// select teletext font file
-	mf = new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, NULL, this, "ttx_font",  CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	mf->setHint("", LOCALE_MENU_HINT_FONT_TTX);
-	fontSettings->addItem(mf);
+	osdTtxFontFile = g_settings.ttx_font_file;
+	osdTtxFontFile = "(" + getBaseName(osdTtxFontFile) + ")";
+	mfTtxFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, osdTtxFontFile.c_str(), this, "ttx_font",  CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mfTtxFontFile->setHint("", LOCALE_MENU_HINT_FONT_TTX);
+	fontSettings->addItem(mfTtxFontFile);
 
 	// contrast fonts
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);

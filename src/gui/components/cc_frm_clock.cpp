@@ -69,12 +69,10 @@ void CComponentsFrmClock::initVarClock()
 	cc_item_type 	= CC_ITEMTYPE_FRM_CLOCK;
 	corner_rad	= RADIUS_SMALL;
 
-	cl_font_type	= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
-	cl_font		= NULL;
+	cl_font		= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
 	cl_col_text	= COL_MENUCONTENT;
 	cl_format_str	= "%H:%M";
 	cl_align	= CC_ALIGN_VER_CENTER | CC_ALIGN_HOR_CENTER;
-// 	cl_force_segment_paint = false;
 
 	cl_thread 	= 0;
 	cl_interval	= 1;
@@ -112,8 +110,6 @@ void CComponentsFrmClock::initCCLockItems()
 	initTimeString();
 	string s_time = cl_timestr;
 	
-	cl_font = g_Font[cl_font_type];
-
 	//get minimal required height, width from raw text
 	int min_text_w = cl_font->getRenderWidth(s_time, true);;
 	int min_text_h = cl_font->getHeight();
@@ -254,6 +250,9 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 		sleep(clock->cl_interval);
 
 		if (clock->paintClock) {
+			//refresh item property values
+			clock->refresh();
+			
 			//paint segements, but wihtout saved backgrounds
 			clock->paint(CC_SAVE_SCREEN_NO);
 			count = time(0);

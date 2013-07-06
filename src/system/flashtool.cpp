@@ -583,22 +583,30 @@ std::string CMTDInfo::getMTDName(const int pos)
 {
 	// TODO: check /proc/mtd specification to determine mtdname encoding
 
-	return FILESYSTEM_ENCODING_TO_UTF8_STRING(mtdData[pos]->name);
+	if (pos >= 0)
+		return FILESYSTEM_ENCODING_TO_UTF8_STRING(mtdData[pos]->name);
+	return "";
 }
 
 std::string CMTDInfo::getMTDFileName(const int pos)
 {
-	return mtdData[pos]->filename;
+	if (pos >= 0)
+		return mtdData[pos]->filename;
+	return "";
 }
 
 int CMTDInfo::getMTDSize(const int pos)
 {
-	return mtdData[pos]->size;
+	if (pos >= 0)
+		return mtdData[pos]->size;
+	return 0;
 }
 
 int CMTDInfo::getMTDEraseSize(const int pos)
 {
-	return mtdData[pos]->erasesize;
+	if (pos >= 0)
+		return mtdData[pos]->erasesize;
+	return 0;
 }
 
 int CMTDInfo::findMTDNumber(const std::string & filename)
@@ -630,7 +638,11 @@ int CMTDInfo::getMTDEraseSize( const std::string & filename )
 
 std::string CMTDInfo::findMTDsystem()
 {
+#ifdef BOXMODEL_APOLLO
+	std::string sysfs = "root0";
+#else
 	std::string sysfs = "systemFS";
+#endif
 
 	for(int i = 0; i < getMTDCount(); i++) {
 		if(getMTDName(i) == sysfs) {

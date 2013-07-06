@@ -36,6 +36,7 @@
 #include <plugin.h>
 
 #include <gui/pluginlist.h>
+#include <gui/components/cc_frm.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/icons.h>
 
@@ -304,23 +305,18 @@ void CPluginList::paintItem(int pos)
 
 void CPluginList::paintHead()
 {
-	if(listmaxshow > pluginlist.size()+1)
-		frameBuffer->paintBoxRel(x,y, width,theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	else
-		frameBuffer->paintBoxRel(x,y, width+15,theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
+	int h_width = width;
+	if (listmaxshow < pluginlist.size())
+		h_width += 15;
 
-	if(pluginlisttype == CPlugins::P_TYPE_GAME)
-	{
-		frameBuffer->paintIcon(NEUTRINO_ICON_GAMES,x+8,y+5);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+38,y+theight+1, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
-	} else if (pluginlisttype == CPlugins::P_TYPE_SCRIPT)
-	{
-		frameBuffer->paintIcon(NEUTRINO_ICON_SHELL,x+8,y+5);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+38,y+theight+1, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
-	} else
-	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+8,y+theight+1, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
-	}
+	CComponentsHeader header(x, y, h_width, theight, name, NULL /* no header icon */);
+
+	if (pluginlisttype == CPlugins::P_TYPE_GAME)
+		header.setIcon(NEUTRINO_ICON_GAMES);
+	else if (pluginlisttype == CPlugins::P_TYPE_SCRIPT)
+		header.setIcon(NEUTRINO_ICON_SHELL);
+
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CPluginList::paint()
@@ -341,7 +337,7 @@ void CPluginList::paint()
 
 void CPluginList::paintItems()
 {
-	if(listmaxshow <= pluginlist.size()+1)
+	if(listmaxshow < pluginlist.size())
 	{
 		// Scrollbar
 		int nrOfPages = ((pluginlist.size()-1) / listmaxshow)+1;

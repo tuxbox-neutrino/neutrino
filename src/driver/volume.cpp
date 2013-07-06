@@ -96,16 +96,8 @@ void CVolume::setVolume(const neutrino_msg_t key)
 		}
 	}
 
-	if (volscale){
-		volscale->hide();
-		delete volscale;
-		volscale = NULL;
-	}
-
-	if (volscale == NULL){
-		volscale = new CVolumeBar();
-		volscale->paint();
-	}
+	hideVolscale();
+	showVolscale();
 
 	neutrino_msg_data_t data;
 	uint64_t timeoutEnd;
@@ -131,12 +123,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 				} else
 					do_vol = true;
 				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0)) {
-					if (volscale){
-						if (volscale->isPainted())
-							volscale->hide();
-						delete volscale;
-						volscale = NULL;
-					}
+					hideVolscale();
 					if (do_vol) {
 						CAudioMute::getInstance()->AudioMute(false, true);
 						if (mode == CNeutrinoApp::mode_audio) {
@@ -159,12 +146,7 @@ void CVolume::setVolume(const neutrino_msg_t key)
 						v = 0;
 						g_settings.current_volume = 0;
 						if (g_settings.show_mute_icon) {
-							if (volscale) {
-								if (volscale->isPainted())
-									volscale->hide();
-								delete volscale;
-								volscale = NULL;
-							}
+							hideVolscale();
 							CAudioMute::getInstance()->AudioMute(true, true);
 							if (mode == CNeutrinoApp::mode_audio) {
 								CAudioPlayerGui *cap = CMediaPlayerMenu::getInstance()->getPlayerInstance();
@@ -210,11 +192,28 @@ void CVolume::setVolume(const neutrino_msg_t key)
 		}
 	} while (msg != CRCInput::RC_timeout);
 
+	hideVolscale();
+}
+
+bool CVolume::hideVolscale()
+{
+	bool ret = false;
 	if (volscale) {
-		if (volscale->isPainted())
+		if (volscale->isPainted()) {
 			volscale->hide();
+			ret = true;
+		}
 		delete volscale;
 		volscale = NULL;
+	}
+	return ret;
+}
+
+void CVolume::showVolscale()
+{
+	if (volscale == NULL){
+		volscale = new CVolumeBar();
+		volscale->paint();
 	}
 }
 

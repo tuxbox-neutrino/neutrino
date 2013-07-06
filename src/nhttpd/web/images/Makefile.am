@@ -38,7 +38,6 @@ install_DATA =	accept.png \
 		ftype_folder.gif \
 		ftype_link.gif \
 		fullscreen.png \
-		hd1.jpg \
 		help.gif \
 		help_white.gif \
 		hidden.gif \
@@ -56,7 +55,6 @@ install_DATA =	accept.png \
 		lock.gif \
 		lock.png \
 		modify.png \
-		neo.jpg \
 		new.gif \
 		new.png \
 		ok.gif \
@@ -66,9 +64,12 @@ install_DATA =	accept.png \
 		properties.gif \
 		properties.png \
 		radio.png \
-		rc.gif \
-		rc.jpg \
-		rc_sagem.jpg \
+		rc_cst_v1.jpg \
+		rc_cst_v2.jpg \
+		rc_cst_v3.jpg \
+		rc_cst_v4.jpg \
+		rc_dbox_nokia_old.jpg \
+		rc_dbox_philips.jpg \
 		record.gif \
 		record.png \
 		reload.gif \
@@ -105,5 +106,4 @@ install_DATA =	accept.png \
 		x_red.gif \
 		yjogol.gif \
 		y.png \
-		zap.png \
-		zee.jpg
+		zap.png

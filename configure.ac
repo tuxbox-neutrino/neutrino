@@ -243,6 +243,7 @@ data/Makefile
 data/fonts/Makefile
 data/icons/Makefile
 data/inetradio/Makefile
+data/initial/Makefile
 data/iso-codes/Makefile
 data/lcd/Makefile
 data/lcd/icons/Makefile

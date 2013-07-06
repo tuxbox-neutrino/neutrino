@@ -126,10 +126,12 @@ if test "$TARGET" = "cdk"; then
 	sysconfdir="\${prefix}/etc"
 	localstatedir="\${prefix}/var"
 	libdir="\${prefix}/lib"
+	mntdir="\${prefix}/mnt"
 	targetdatadir="\${TARGET_PREFIX}/share"
 	targetsysconfdir="\${TARGET_PREFIX}/etc"
 	targetlocalstatedir="\${TARGET_PREFIX}/var"
 	targetlibdir="\${TARGET_PREFIX}/lib"
+	targetmntdir="\${TARGET_PREFIX}/mnt"
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir,CONFIGDIR,localstatedir,/var,/tuxbox/config,
@@ -164,6 +166,9 @@ TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxb
 
 TUXBOX_APPS_DIRECTORY_ONE(public_httpddir,PUBLIC_HTTPDDIR,localstatedir,/var,/httpd,
 	[--with-public_httpddir=PATH    ],[where to find the the public httpd files])
+
+TUXBOX_APPS_DIRECTORY_ONE(hosted_httpddir,HOSTED_HTTPDDIR,mntdir,/mnt,/hosted,
+	[--with-hosted_httpddir=PATH     ],[where to find the the hosted files])
 ])
 
 dnl automake <= 1.6 needs this specifications
@@ -172,12 +177,14 @@ AC_SUBST(DATADIR)
 AC_SUBST(FONTDIR)
 AC_SUBST(GAMESDIR)
 AC_SUBST(LIBDIR)
+AC_SUBST(MNTDIR)
 AC_SUBST(PLUGINDIR)
 AC_SUBST(UCODEDIR)
 AC_SUBST(THEMESDIR)
 AC_SUBST(ICONSDIR)
 AC_SUBST(PRIVATE_HTTPDDIR)
 AC_SUBST(PUBLIC_HTTPDDIR)
+AC_SUBST(HOSTED_HTTPDDIR)
 dnl end workaround
 
 AC_DEFUN([TUXBOX_APPS_ENDIAN],[
