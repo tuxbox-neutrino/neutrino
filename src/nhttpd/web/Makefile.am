@@ -65,7 +65,6 @@ install_DATA =	channels.js \
 		Y_Settings_video_audio.yhtm \
 		Y_Settings_VNC.yhtm \
 		Y_Settings_wol.yhtm \
-		Y_Settings.yhtm \
 		Y_Settings_yWeb.yhtm \
 		Y_Settings_zapit.yhtm \
 		Y_StreamInfo.yhtm \
