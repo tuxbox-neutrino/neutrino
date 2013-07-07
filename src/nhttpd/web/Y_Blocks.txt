@@ -411,7 +411,7 @@ end-block~page_frame_rest
 start-block~frame_secondary
 {=include-block:Y_Blocks.txt;frame_iso_head=}
 </head>
-<frameset cols="157,*" frameborder="0" framespacing="0">
+<frameset cols="175,*" frameborder="0" framespacing="0">
 	<frame name="sec_menu" src="{=var-get:sec_menu=}" scrolling="no" noresize="noresize" frameborder="0" />
 	<frame name="work" src="{=var-get:work=}" scrolling="auto" frameborder="0" />
 </frameset>
