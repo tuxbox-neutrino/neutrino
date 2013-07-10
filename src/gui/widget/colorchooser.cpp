@@ -99,14 +99,15 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 
 void CColorChooser::setColor()
 {
+	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, getColor());
+}
+
+fb_pixel_t CColorChooser::getColor()
+{
 	int color = convertSetupColor2RGB(*(value[VALUE_R]), *(value[VALUE_G]), *(value[VALUE_B]));
-	int tAlpha = (value[VALUE_ALPHA]) ? (convertSetupAlpha2Alpha(*(value[VALUE_ALPHA]))) : 0;
+	int tAlpha = (value[VALUE_ALPHA]) ? (convertSetupAlpha2Alpha(*(value[VALUE_ALPHA]))) : 0xFF;
 
-	if(!value[VALUE_ALPHA]) tAlpha = 0xFF;
-
-	fb_pixel_t col = ((tAlpha << 24) & 0xFF000000) | color;
-		//((tAlpha << 24) & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >> 16) & 0xFF);
-	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, col);
+	return (((tAlpha << 24) & 0xFF000000) | color);
 }
 
 int CColorChooser::exec(CMenuTarget* parent, const std::string &)
