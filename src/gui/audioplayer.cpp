@@ -830,7 +830,7 @@ int CAudioPlayerGui::show()
 					m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_MENUCONTENT_PLUS_6, RADIUS_SMALL);
 					m_frameBuffer->paintBoxRel(x1 - 4, y1 - h - 3, w +  8, h +  6, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_SMALL);
 					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]
-						->RenderString(x1,y1,w+1,selectedKey,COL_MENUCONTENTSELECTED,0);
+						->RenderString(x1,y1,w+1,selectedKey,COL_MENUCONTENTSELECTED_TEXT,0);
 
 					g_RCInput->getMsg_ms(&msg, &data, AUDIOPLAYERGUI_SMSKEY_TIMEOUT - 200);
 
@@ -1547,19 +1547,19 @@ void CAudioPlayerGui::paintItem(int pos)
 
 	int ypos = m_y + m_title_height + m_theight + pos*m_fheight;
 	int c_rad_small;
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
 	if ((pos + m_liststart) == m_selected)
 	{
 		if ((pos + m_liststart) == (unsigned)m_current)
 		{
-			color   = COL_MENUCONTENTSELECTED + 2;
+			color   = COL_MENUCONTENTSELECTED_TEXT_PLUS_2;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
 		}
 		else
 		{
-			color   = COL_MENUCONTENTSELECTED;
+			color   = COL_MENUCONTENTSELECTED_TEXT;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		}
 		paintItemID3DetailsLine(pos);
@@ -1571,12 +1571,12 @@ void CAudioPlayerGui::paintItem(int pos)
 		{
 			if ((pos + m_liststart) == (unsigned)m_current)
 			{
-				color   = COL_MENUCONTENTDARK + 2;
+				color   = COL_MENUCONTENTDARK_TEXT_PLUS_2;
 				bgcolor = COL_MENUCONTENTDARK_PLUS_2;
 			}
 			else
 			{
-				color   = COL_MENUCONTENTDARK;
+				color   = COL_MENUCONTENTDARK_TEXT;
 				bgcolor = COL_MENUCONTENTDARK_PLUS_0;
 			}
 		}
@@ -1584,12 +1584,12 @@ void CAudioPlayerGui::paintItem(int pos)
 		{
 			if ((pos + m_liststart) == (unsigned)m_current)
 			{
-				color   = COL_MENUCONTENT + 2;
+				color   = COL_MENUCONTENT_TEXT_PLUS_2;
 				bgcolor = COL_MENUCONTENT_PLUS_2;
 			}
 			else
 			{
-				color   = COL_MENUCONTENT;
+				color   = COL_MENUCONTENT_TEXT;
 				bgcolor = COL_MENUCONTENT_PLUS_0;
 			}
 		}
@@ -1815,7 +1815,7 @@ void CAudioPlayerGui::paintInfo()
 		if (xstart < 10)
 			xstart = 10;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_fheight, m_width - 20,
-				tmp, COL_MENUCONTENTSELECTED, 0, true); // UTF-8
+				tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
 
 		// second line (Artist/Title...)
 		if (m_curr_audiofile.FileType != CFile::STREAM_AUDIO &&
@@ -1844,7 +1844,7 @@ void CAudioPlayerGui::paintInfo()
 		xstart=(m_width-w)/2;
 		if (xstart < 10)
 			xstart=10;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x+xstart, m_y +4+ 2*m_fheight, m_width- 20, tmp, COL_MENUCONTENTSELECTED, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x+xstart, m_y +4+ 2*m_fheight, m_width- 20, tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
 
 		// reset so fields get painted always
 		m_metainfo.clear();
@@ -1928,7 +1928,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		ibox->paint(false);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
-				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK, 0, true); // UTF-8
+				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
 		std::string tmp;
 		if (m_playlist[m_selected].MetaData.genre.empty())
 			tmp = m_playlist[m_selected].MetaData.date;
@@ -1942,7 +1942,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		}
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true) + 10; // UTF-8
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - w - 5, ypos2 + 2 + 1*m_fheight,
-				w, tmp, COL_MENUCONTENTDARK, 0, true); // UTF-8
+				w, tmp, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
 		tmp = m_playlist[m_selected].MetaData.artist;
 		if (!(m_playlist[m_selected].MetaData.album.empty()))
 		{
@@ -1951,7 +1951,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 			tmp += ')';
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2*m_fheight - 2, m_width - 20,
-				tmp, COL_MENUCONTENTDARK, 0, true); // UTF-8
+				tmp, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
 	}
 	else
 	{
@@ -2195,7 +2195,7 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 		int xstart = ((m_width - 20 - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(m_metainfo))/2)+10;
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
 		->RenderString(m_x + xstart, m_y + 4 + 2*m_fheight + m_sheight,
-			       m_width- 2*xstart, m_metainfo, COL_MENUCONTENTSELECTED);
+			       m_width- 2*xstart, m_metainfo, COL_MENUCONTENTSELECTED_TEXT);
 	}
 }
 //------------------------------------------------------------------------
@@ -2241,7 +2241,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 							   m_fheight, COL_MENUCONTENTSELECTED_PLUS_0);
 				if (m_time_total > 0)
 					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - w1 - 10, m_y + 4 + m_fheight,
-							w1, tot_time, COL_MENUCONTENTSELECTED);
+							w1, tot_time, COL_MENUCONTENTSELECTED_TEXT);
 			}
 			if (updatePlayed || (m_state == CAudioPlayerGui::PAUSE))
 			{
@@ -2253,7 +2253,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 				if ((m_state != CAudioPlayerGui::PAUSE) || (tv.tv_sec & 1))
 				{
 					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - w1 - w2 - 11, m_y + 4 + m_fheight,
-							w2+4, play_time, COL_MENUCONTENTSELECTED);
+							w2+4, play_time, COL_MENUCONTENTSELECTED_TEXT);
 				}
 			}
 		}
@@ -2378,7 +2378,7 @@ bool CAudioPlayerGui::getNumericInput(neutrino_msg_t& msg, int& val) {
 		int h = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();
 		m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_MENUCONTENT_PLUS_6);
 		m_frameBuffer->paintBoxRel(x1 - 4, y1 - h - 3, w +  8, h +  6, COL_MENUCONTENTSELECTED_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(x1, y1, w + 1, str, COL_MENUCONTENTSELECTED, 0);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(x1, y1, w + 1, str, COL_MENUCONTENTSELECTED_TEXT, 0);
 		while (true)
 		{
 			g_RCInput->getMsg(&msg, &data, 100);

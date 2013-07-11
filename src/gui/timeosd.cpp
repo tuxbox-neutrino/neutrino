@@ -98,10 +98,10 @@ void CTimeOSD::update(time_t time_show)
 
 	if(m_mode == MODE_ASC) {
 		color1 = COL_MENUCONTENT_PLUS_0;
-		color2 = COL_MENUCONTENT;
+		color2 = COL_MENUCONTENT_TEXT;
 	} else {
 		color1 = COL_MENUCONTENTSELECTED_PLUS_0;
-		color2 = COL_MENUCONTENTSELECTED;
+		color2 = COL_MENUCONTENTSELECTED_TEXT;
 	}
 	strftime(cDisplayTime, 9, "%T", gmtime(&time_show));
 	frameBuffer->paintBoxRel(m_xend - m_width - t1, m_y, m_width, m_height, color1,RADIUS_SMALL);

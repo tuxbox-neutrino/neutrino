@@ -55,7 +55,7 @@ void CComponentsItemBox::initVarItemBox()
 	initVarItem();
 
 	//CComponentsItemBox
-	it_col_text 		= COL_MENUCONTENT;
+	it_col_text 		= COL_MENUCONTENT_TEXT;
 	hSpacer 		= 2;
 	hOffset 		= 4;
 	vOffset 		= 1;
@@ -498,7 +498,7 @@ void CComponentsTitleBar::initVarTitleBar()
 	onlyOneTextElement	= true;
 
 	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	it_col_text 	= COL_MENUHEAD;
+	it_col_text 	= COL_MENUHEAD_TEXT;
 
 	//CComponents
 	x		= 0;

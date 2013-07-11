@@ -1239,7 +1239,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 {
 	int colwidth1, colwidth2, colwidth3;
 	int c_rad_small;
-	uint8_t color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	CFile * actual_file = NULL;
@@ -1247,14 +1247,14 @@ void CFileBrowser::paintItem(unsigned int pos)
 
 	if (liststart + pos == selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		c_rad_small = RADIUS_SMALL;
 // 		paintFoot();
 	}
 	else
 	{
-		color   = COL_MENUCONTENT;//DARK;
+		color   = COL_MENUCONTENT_TEXT;//DARK;
 		bgcolor = COL_MENUCONTENT_PLUS_0;//DARK;
 		c_rad_small = 0;
 	}
@@ -1267,8 +1267,14 @@ void CFileBrowser::paintItem(unsigned int pos)
 		actual_file = &filelist[liststart+pos];
 		if (actual_file->Marked)
 		{
-			color = COL_MENUCONTENTINACTIVE; //+= 2; FIXME
-			bgcolor = (liststart + pos == selected) ? COL_MENUCONTENTSELECTED_PLUS_2 : COL_MENUCONTENT_PLUS_2;
+			if (liststart + pos == selected) {
+				color   = COL_MENUCONTENTINACTIVE_TEXT;
+				bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
+			}
+			else {
+				color   = COL_MENUCONTENT_TEXT;
+				bgcolor = COL_MENUCONTENT_PLUS_2;
+			}
 		}
 
 		if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
@@ -1293,7 +1299,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_FLAC:
 #endif
 				fileicon = NEUTRINO_ICON_MP3;
-//				color = COL_MENUCONTENT;
+//				color = COL_MENUCONTENT_TEXT;
 				break;
 
 			case CFile::FILE_DIR:
@@ -1505,7 +1511,7 @@ void CFileBrowser::paintFoot()
 			char cKey[2]={m_SMSKeyInput.getOldKey(),0};
 			cKey[0] = toupper(cKey[0]);
 			int len = fnt_small->getRenderWidth(cKey);
-			fnt_small->RenderString(x + width - 10 - len, by2 + foheight, len, cKey, COL_MENUHEAD, 0, true);
+			fnt_small->RenderString(x + width - 10 - len, by2 + foheight, len, cKey, COL_MENUHEAD_TEXT, 0, true);
 		}
 	}
 }

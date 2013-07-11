@@ -107,7 +107,7 @@ void CComponentsHeader::initVarHeader()
 	cch_icon_name		= NULL;
 	cch_btn_obj		= NULL;
 	cch_text		= "";
-	cch_col_text		= COL_MENUHEAD;
+	cch_col_text		= COL_MENUHEAD_TEXT;
 	cch_items_y 		= 0;
 	cch_offset		= 8;
 	cch_icon_x 		= cch_offset;

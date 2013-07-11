@@ -45,7 +45,7 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 	initVarButton();
 	cc_btn_icon	= icon_name;
 	cc_btn_capt	= caption;
-	cc_btn_capt_col	= COL_MENUCONTENT;
+	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
 	cc_btn_text_w 	= cc_btn_font->getRenderWidth(cc_btn_capt, true);
 	cc_btn_text_h	= cc_btn_font->getHeight();
 	
@@ -132,7 +132,7 @@ void CComponentsButton::initCaption()
 	//set properties to label object
 	if (cc_btn_capt_obj){			
 		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, width-cap_x, height);
-		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE);
+		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT);
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;
 		cc_btn_capt_obj->doPaintBg(false);

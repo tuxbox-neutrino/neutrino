@@ -188,10 +188,10 @@ void CPipSetup::paint()
 
 	frameBuffer->paintBoxRel(x, y, mwidth, mheight*4, COL_MENUCONTENT_PLUS_0);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight,   mwidth, xpos, COL_MENUCONTENT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*2, mwidth, ypos, COL_MENUCONTENT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*3, mwidth, wpos, COL_MENUCONTENT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*4, mwidth, hpos, COL_MENUCONTENT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight,   mwidth, xpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*2, mwidth, ypos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*3, mwidth, wpos, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+5, y+mheight*4, mwidth, hpos, COL_MENUCONTENT_TEXT);
 }
 
 #endif //#ifdef ENABLE_PIP

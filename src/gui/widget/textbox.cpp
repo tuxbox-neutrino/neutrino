@@ -174,7 +174,7 @@ void CTextBox::initVar(void)
 	m_nMinWidth		= MIN_WINDOW_WIDTH;
 
 	m_textBackgroundColor 	= COL_MENUCONTENT_PLUS_0;
-	m_textColor		= COL_MENUCONTENT;
+	m_textColor		= COL_MENUCONTENT_TEXT;
 	m_nPaintBackground 	= true;
 	m_nBgRadius		= 0;
 	m_nBgRadiusType 	= CORNER_ALL;

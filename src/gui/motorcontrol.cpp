@@ -503,13 +503,13 @@ void CMotorControl::paintLine(int px, int *py, int pwidth, const char *txt)
 {
 	*py += mheight;
 	frameBuffer->paintBoxRel(px, *py - mheight, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
 }
 
 void CMotorControl::paintLine(int px, int py, int pwidth, const char *txt)
 {
 	//frameBuffer->paintBoxRel(px, py - mheight, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
 }
 
 void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char * /*txt*/)
@@ -527,7 +527,7 @@ void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char 
 	stringstartposX = 0;
 	stringstartposX = (xpos + (pwidth >> 1)) - (stringwidth >> 1);
 	frameBuffer->paintBoxRel(stringstartposX - 5, *pypos - mheight, stringwidth + 10, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, *pypos, stringwidth, txt, COL_MENUCONTENT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, *pypos, stringwidth, txt, COL_MENUCONTENT_TEXT);
 #endif
 }
 
@@ -744,7 +744,7 @@ void CMotorControl::showSNR()
 
 		posx_sig += barwidth + 3;
 		frameBuffer->paintBoxRel(posx_sig, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_sig+2, posy + mheight, sw, percent, COL_MENUCONTENT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_sig+2, posy + mheight, sw, percent, COL_MENUCONTENT_TEXT);
 	}
 
 	if (lastsnr != snr) {
@@ -758,6 +758,6 @@ void CMotorControl::showSNR()
 
 		posx_snr += barwidth + 3;
 		frameBuffer->paintBoxRel(posx_snr, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_snr+2, posy + mheight, sw, percent, COL_MENUCONTENT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_snr+2, posy + mheight, sw, percent, COL_MENUCONTENT_TEXT);
 	}
 }

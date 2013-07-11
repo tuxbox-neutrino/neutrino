@@ -44,7 +44,7 @@ int paintButtons(	const int &x,
 			const int &footerheight = 0,
 			std::string tmp = "", /* just to make sure compilation breaks */
 			bool vertical_paint = false,
-			const unsigned char fcolor = COL_INFOBAR_SHADOW,
+			const uint32_t fcolor = COL_INFOBAR_SHADOW_TEXT,
 			const char * alt_buttontext = NULL,
 			const uint &buttontext_id = 0,
 			bool show = true,

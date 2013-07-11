@@ -74,7 +74,7 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 	dx   = DX;
 	offx = OFFX;
 	name_start_x = x + offx + icon_frame_w;
-	item_color   = COL_MENUCONTENT;
+	item_color   = COL_MENUCONTENT_TEXT;
 	item_bgcolor = COL_MENUCONTENT_PLUS_0;
 }
 
@@ -100,17 +100,17 @@ void CMenuItem::initItemColors(const bool select_mode)
 {
 	if (select_mode)
 	{
-		item_color   = COL_MENUCONTENTSELECTED;
+		item_color   = COL_MENUCONTENTSELECTED_TEXT;
 		item_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	else if (!active)
 	{
-		item_color   = COL_MENUCONTENTINACTIVE;
+		item_color   = COL_MENUCONTENTINACTIVE_TEXT;
 		item_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 	}
 	else
 	{
-		item_color   = COL_MENUCONTENT;
+		item_color   = COL_MENUCONTENT_TEXT;
 		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 }
@@ -1910,12 +1910,12 @@ int CMenuSeparator::paint(bool selected)
 	
 	if ((type & SUB_HEAD))
 	{
-		item_color = COL_MENUHEAD;
+		item_color = COL_MENUHEAD_TEXT;
 		item_bgcolor = COL_MENUHEAD_PLUS_0;
 	}
 	else
 	{
-		item_color = COL_MENUCONTENTINACTIVE;
+		item_color = COL_MENUCONTENTINACTIVE_TEXT;
 		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 

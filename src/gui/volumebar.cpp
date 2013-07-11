@@ -209,7 +209,7 @@ void CVolumeBar::initVolumeBarDigit()
 	vb_digit = new CComponentsLabel();
 
 	vb_digit->setDimensionsAll(vb_digit_x, 0, vb_digit_w, height);
-	vb_digit->setTextColor(COL_MENUCONTENT);
+	vb_digit->setTextColor(COL_MENUCONTENT_TEXT);
 	vb_digit->setCornerRadius(cornerRad());
 	vb_digit->setCornerType(CORNER_RIGHT);
 	initVolumeBarDigitValue();

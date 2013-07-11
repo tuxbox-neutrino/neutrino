@@ -63,7 +63,7 @@ void CInfoClock::paintTime( bool show_dot)
 
 	int x_diff = (time_width - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(timestr)) / 2;
 	frameBuffer->paintBoxRel(clock_x, y, time_width, time_height, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(clock_x + x_diff, y + digit_h + digit_offset + ((time_height - digit_h) / 2), time_width, timestr, COL_MENUCONTENT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(clock_x + x_diff, y + digit_h + digit_offset + ((time_height - digit_h) / 2), time_width, timestr, COL_MENUCONTENT_TEXT);
 }
 
 void* CInfoClock::TimerProc(void *arg)

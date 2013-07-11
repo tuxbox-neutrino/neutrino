@@ -87,7 +87,7 @@ class CComponentsText : public CComponentsItem
 		CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
 					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsText();
 
 		///default members to paint a text box and hide painted text
@@ -146,7 +146,7 @@ class CComponentsLabel : public CComponentsText
 		CComponentsLabel(	const int x_pos, const int y_pos, const int w, const int h,
 					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
 					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, has_shadow, color_text, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_LABEL;
@@ -155,7 +155,7 @@ class CComponentsLabel : public CComponentsText
 		{
 			initVarText();
 			cc_item_type 	= CC_ITEMTYPE_LABEL;
-			ct_col_text 	= COL_MENUCONTENTINACTIVE;
+			ct_col_text 	= COL_MENUCONTENTINACTIVE_TEXT;
 		};
 };
 

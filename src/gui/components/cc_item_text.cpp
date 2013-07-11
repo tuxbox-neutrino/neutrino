@@ -102,7 +102,7 @@ void CComponentsText::initVarText()
 	ct_text_Hborder	= 1;
 	ct_text_Vborder	= 0;
 
-	ct_col_text	= COL_MENUCONTENT;
+	ct_col_text	= COL_MENUCONTENT_TEXT;
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;

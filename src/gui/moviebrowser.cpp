@@ -138,7 +138,7 @@ const CMenuOptionChooser::keyval MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS[MESSAGEBOX_
 };
 
 #define TITLE_BACKGROUND_COLOR ((CFBWindow::color_t)COL_MENUHEAD_PLUS_0)
-#define TITLE_FONT_COLOR ((CFBWindow::color_t)COL_MENUHEAD)
+#define TITLE_FONT_COLOR COL_MENUHEAD_TEXT
 
 #define TITLE_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]
 #define FOOT_FONT g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
@@ -1638,7 +1638,7 @@ void CMovieBrowser::refreshTitle(void)
 void CMovieBrowser::refreshFoot(void)
 {
 	//TRACE("[mb]->refreshButtonLine \r\n");
-	int	color   = (CFBWindow::color_t) COL_INFOBAR_SHADOW;
+	fb_pixel_t color = COL_INFOBAR_TEXT;
 	int iw = 0, ih = 0;
 
 	std::string filter_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FILTER);
@@ -3799,16 +3799,16 @@ int CMenuSelector::paint(bool selected)
 {
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 
-	unsigned char color   = COL_MENUCONTENT;
+	fb_pixel_t    color   = COL_MENUCONTENT_TEXT;
 	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
 	if (selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	if (!active)
 	{
-		color   = COL_MENUCONTENTINACTIVE;
+		color   = COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 	}
 
