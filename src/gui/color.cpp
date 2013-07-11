@@ -89,7 +89,7 @@ void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, b
 	protectColor(r,g,b, protect);
 }
 
-unsigned char getBrightnessRGB(fb_pixel_t &color)
+unsigned char getBrightnessRGB(fb_pixel_t color)
 {
 	RgbColor rgb;
 	rgb.r  = (color & 0x00FF0000) >> 16;
@@ -99,7 +99,7 @@ unsigned char getBrightnessRGB(fb_pixel_t &color)
 	return rgb.r > rgb.g ? (rgb.r > rgb.b ? rgb.r : rgb.b) : (rgb.g > rgb.b ? rgb.g : rgb.b);
 }
 
-fb_pixel_t changeBrightnessRGBRel(fb_pixel_t &color, int br)
+fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br)
 {
 	int br_ = (int)getBrightnessRGB(color);
 	br_ += br;
@@ -108,7 +108,23 @@ fb_pixel_t changeBrightnessRGBRel(fb_pixel_t &color, int br)
 	return changeBrightnessRGB(color, (unsigned char)br_);
 }
 
-fb_pixel_t changeBrightnessRGB(fb_pixel_t &color, unsigned char br)
+void changeBrightnessRGBRel2(RgbColor *rgb, int br)
+{
+	fb_pixel_t color = (((rgb->r << 16) & 0x00FF0000) |
+			    ((rgb->g <<  8) & 0x0000FF00) |
+			    ((rgb->b      ) & 0x000000FF));
+	int br_ = (int)getBrightnessRGB(color);
+	br_ += br;
+	if (br_ < 0) br_ = 0;
+	if (br_ > 255) br_ = 255;
+
+	HsvColor hsv;
+	Rgb2Hsv(rgb, &hsv);
+	hsv.v = br;
+	Hsv2Rgb(&hsv, rgb);
+}
+
+fb_pixel_t changeBrightnessRGB(fb_pixel_t color, unsigned char br)
 {
 	HsvColor hsv;
 	RgbColor rgb;

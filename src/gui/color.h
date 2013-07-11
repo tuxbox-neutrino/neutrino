@@ -33,8 +33,10 @@
 #ifndef __color__
 #define __color__
 
-#define COL_MAXFREE			254-8*9 - 1
 #include <driver/framebuffer.h>
+
+#define COL_MAXFREE			254-8*12 - 1
+#define COL_NEUTRINO_TEXT		254-8*12	// 24 values
 #define COL_COLORED_EVENTS_CHANNELLIST	254-8*9
 #define COL_COLORED_EVENTS_INFOBAR	254-8*8
 #define COL_INFOBAR_SHADOW		254-8*7
@@ -91,6 +93,23 @@
 #define COL_MENUCONTENTSELECTED_PLUS_2  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTSELECTED + 2)])
 #define COL_MENUCONTENTINACTIVE_PLUS_0  (CFrameBuffer::getInstance()->realcolor[(COL_MENUCONTENTINACTIVE + 0)])
 #define COL_BACKGROUND_PLUS_0           (CFrameBuffer::getInstance()->realcolor[(COL_BACKGROUND + 0)])
+
+// text colors
+#define COL_COLORED_EVENTS_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 0)])
+#define COL_INFOBAR_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 1)])
+#define COL_INFOBAR_SHADOW_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 2)])
+#define COL_MENUHEAD_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 3)])
+#define COL_MENUCONTENT_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 4)])
+#define COL_MENUCONTENT_TEXT_PLUS_1		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 5)])
+#define COL_MENUCONTENT_TEXT_PLUS_2		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 6)])
+#define COL_MENUCONTENT_TEXT_PLUS_3		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 7)])
+#define COL_MENUCONTENTDARK_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 8)])
+#define COL_MENUCONTENTDARK_TEXT_PLUS_1		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 9)])
+#define COL_MENUCONTENTDARK_TEXT_PLUS_2		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 10)])
+#define COL_MENUCONTENTSELECTED_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 11)])
+#define COL_MENUCONTENTSELECTED_TEXT_PLUS_1	(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 12)])
+#define COL_MENUCONTENTSELECTED_TEXT_PLUS_2	(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 13)])
+#define COL_MENUCONTENTINACTIVE_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 14)])
 #endif
 
 
@@ -111,9 +130,12 @@ typedef struct {
 	unsigned char v;
 } HsvColor;
 
-unsigned char getBrightnessRGB(fb_pixel_t &color);
-fb_pixel_t changeBrightnessRGBRel(fb_pixel_t &color, int br);
-fb_pixel_t changeBrightnessRGB(fb_pixel_t &color, unsigned char br);
+unsigned char getBrightnessRGB(fb_pixel_t color);
+
+fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br);
+fb_pixel_t changeBrightnessRGB(fb_pixel_t color, unsigned char br);
+void changeBrightnessRGBRel2(RgbColor *rgb, int br);
+
 void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb);
 void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv);
 

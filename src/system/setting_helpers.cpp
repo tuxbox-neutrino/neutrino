@@ -178,6 +178,82 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(g_settings.colored_events_red, g_settings.colored_events_green, g_settings.colored_events_blue),
 	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
 
+	// ##### TEXT COLORS #####
+	// COL_COLORED_EVENTS_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 0,
+	                              convertSetupColor2RGB(g_settings.colored_events_red, g_settings.colored_events_green, g_settings.colored_events_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_INFOBAR_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 1,
+	                              convertSetupColor2RGB(g_settings.infobar_Text_red, g_settings.infobar_Text_green, g_settings.infobar_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+
+	// COL_INFOBAR_SHADOW_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 2,
+	                              convertSetupColor2RGB(int(g_settings.infobar_Text_red*0.6), int(g_settings.infobar_Text_green*0.6), int(g_settings.infobar_Text_blue*0.6)),
+	                              convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+
+	// COL_MENUHEAD_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 3,
+	                              convertSetupColor2RGB(g_settings.menu_Head_Text_red, g_settings.menu_Head_Text_green, g_settings.menu_Head_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Head_alpha));
+
+	// COL_MENUCONTENT_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 4,
+	                              convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENT_TEXT_PLUS_1
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 5,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -16),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENT_TEXT_PLUS_2
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 6,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -32),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENT_TEXT_PLUS_3
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 7,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -48),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTDARK_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 8,
+	                              convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTDARK_TEXT_PLUS_1
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 9,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -52),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTDARK_TEXT_PLUS_2
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 10,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -60),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTSELECTED_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 11,
+	                              convertSetupColor2RGB(g_settings.menu_Content_Selected_Text_red, g_settings.menu_Content_Selected_Text_green, g_settings.menu_Content_Selected_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_Selected_alpha));
+
+	// COL_MENUCONTENTSELECTED_TEXT_PLUS_1
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 12,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Selected_Text_red, g_settings.menu_Content_Selected_Text_green, g_settings.menu_Content_Selected_Text_blue), -16),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_Selected_alpha));
+
+	// COL_MENUCONTENTSELECTED_TEXT_PLUS_2
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 13,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Selected_Text_red, g_settings.menu_Content_Selected_Text_green, g_settings.menu_Content_Selected_Text_blue), -32),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_Selected_alpha));
+
+	// COL_MENUCONTENTINACTIVE_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 14,
+	                              convertSetupColor2RGB(g_settings.menu_Content_inactive_Text_red, g_settings.menu_Content_inactive_Text_green, g_settings.menu_Content_inactive_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_inactive_alpha));
+
 	frameBuffer->paletteSet();
 }
 
