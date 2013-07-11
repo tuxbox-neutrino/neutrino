@@ -208,7 +208,7 @@ class CZapitChannel
 		/* get methods - read and write variables */
 		const std::string&	getName(void)			const { return name; }
 		t_satellite_position	getSatellitePosition(void)	const { return satellitePosition; }
-		unsigned char 		getAudioChannelCount(void)	{ return audioChannels.size(); }
+		unsigned char 		getAudioChannelCount(void)	{ return (unsigned char) audioChannels.size(); }
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
 		unsigned short		getPmtPid(void)			{ return pmtPid; }
 		unsigned short		getTeletextPid(void)		{ return teletextPid; }
@@ -256,8 +256,8 @@ class CZapitChannel
 
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
 		void dumpBouquetXml(FILE * fd);
-		void setRecordDemux(int num) { record_demux = num; };
-		void setPipDemux(int num) { pip_demux = num; };
+		void setRecordDemux(uint8_t num) { record_demux = num; };
+		void setPipDemux(uint8_t num) { pip_demux = num; };
 		int  getRecordDemux() { return record_demux; };
 		int  getPipDemux() { return pip_demux; };
 		static t_channel_id makeChannelId(t_satellite_position sat, freq_id_t freq,

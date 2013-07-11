@@ -202,7 +202,7 @@ void CProgressBar::paintAdvanced()
 		if (pb_active_width > pb_last_width) {
 			int step, off;
 			int b = 0;
-			uint8_t diff = 0;
+			uint32_t diff = 0;
 			for (i = 0; (i < rd) && (i < maxi); i++) {
 				diff = i * 255 / rd;
 				if (pb_invert)
