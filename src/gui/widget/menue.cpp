@@ -125,7 +125,7 @@ void CMenuItem::paintItemBackground (const bool select_mode, const int &item_hei
 		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
 }
 
-void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height, const char * left_text, const char * right_text)
+void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height, const char * left_text, const char * right_text, const fb_pixel_t right_bgcol)
 {
 	if (select_mode)
 	{
@@ -152,11 +152,20 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ item_height, _dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
 
 	//right text
-	if (right_text != NULL)
+	if (right_text || right_bgcol)
 	{
-		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
+		int stringwidth = 0;
+		if (right_text)
+			stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
 		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + icon_frame_w, x + dx - stringwidth - icon_frame_w); //+ offx
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
+		if (right_bgcol) {
+			if (!right_text)
+				stringstartposOption -= 60;
+			CFrameBuffer::getInstance()->paintBoxRel(stringstartposOption, y + 1, dx - stringstartposOption + x - 1, item_height - 2, right_bgcol, RADIUS_LARGE);
+			CFrameBuffer::getInstance()->paintBoxFrame(stringstartposOption, y + 1, dx - stringstartposOption + x - 1, item_height - 2, 1, COL_MENUCONTENT_PLUS_6, RADIUS_LARGE);
+		}
+		if (right_text)
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
 	}
 }
 
@@ -1732,9 +1741,14 @@ int CMenuForwarder::getWidth(void)
 	else if (option_string)
 		option_text = option_string->c_str();
 
+	fb_pixel_t bgcol = 0;
+	if (jumpTarget)
+		bgcol = jumpTarget->getColor();
 
-        if (option_text != NULL)
-                tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+	if (option_text != NULL)
+		tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+	else if (bgcol)
+		tw += 10 + 60;
 
 	return tw;
 }
@@ -1773,6 +1787,9 @@ int CMenuForwarder::paint(bool selected)
  	const char * l_text = getName();
  
  	const char * option_text = getOption();
+	fb_pixel_t bgcol = 0;
+	if (jumpTarget)
+		bgcol = jumpTarget->getColor();
 	
 	//paint item
 	prepareItem(selected, height);
@@ -1781,7 +1798,7 @@ int CMenuForwarder::paint(bool selected)
 	paintItemButton(selected, height);
 	
 	//caption
-	paintItemCaption(selected, height, l_text, option_text);
+	paintItemCaption(selected, height, l_text, option_text, bgcol);
 	
 	return y+ height;
 }

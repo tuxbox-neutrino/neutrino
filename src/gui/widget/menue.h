@@ -80,6 +80,7 @@ class CMenuTarget
 		virtual ~CMenuTarget(){}
 		virtual void hide(){}
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey) = 0;
+		virtual fb_pixel_t getColor(void) { return 0; }
 };
 
 class CMenuItem
@@ -139,7 +140,7 @@ class CMenuItem
 
 		virtual void setItemButton(const std::string& icon_Name, const bool is_select_button = false);
 		
-		virtual void paintItemCaption(const bool select_mode, const int &item_height, const char * left_text=NULL, const char * right_text=NULL);
+		virtual void paintItemCaption(const bool select_mode, const int &item_height, const char * left_text=NULL, const char * right_text=NULL, const fb_pixel_t right_bgcol=0);
 
 		virtual void paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text=NULL, const char * right_text=NULL);
 
