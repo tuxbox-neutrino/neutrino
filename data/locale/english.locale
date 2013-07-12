@@ -368,8 +368,11 @@ extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
 extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_current_transponder Current Transponder Key
+extra.key_format_mode Video format
 extra.key_list_end end
 extra.key_list_start home
+extra.key_pic_mode Screen format
+extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
@@ -654,6 +657,7 @@ keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock generic delay
 keybindingmenu.repeatblockgeneric repeat delay
 keybindingmenu.sort change sort order
+keybindingmenu_special_active Special Keys
 keybindingmenu.subchanneldown subchannel down
 keybindingmenu.subchannelup subchannel up
 keybindingmenu.tvradiomode TV/Radio-mode
@@ -843,6 +847,7 @@ menu.hint_key_channel_sms If enabled, numeric buttons in channel list\nused to s
 menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
 menu.hint_key_channellist Configure keybingdings for channel list
 menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
+menu.hint_key_format_mode_active Disable/enable key for the video format conversion
 menu.hint_key_hardware Change remote control type
 menu.hint_key_history Assign button to show channel\nchannel switch history
 menu.hint_key_lastchannel Assign button for fast zap to\nprevious channel in history
@@ -865,6 +870,8 @@ menu.hint_key_mptime Assign button to show play time\nleft time
 menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
 menu.hint_key_pageup Assign button to show previous items page
+menu.hint_key_pic_mode_active Disable/enable key for the screen format
+menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
 menu.hint_key_pip_swap Assign button to swap PiP and live channel
@@ -876,6 +883,7 @@ menu.hint_key_right Select 'right' function in live TV/Radio mode
 menu.hint_key_save Save keybindings to file
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
+menu.hint_key_special_active Disable or enable some special keys
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_transponder Assign button to show channel list\nfor current transponder

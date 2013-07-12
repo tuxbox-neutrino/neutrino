@@ -368,8 +368,11 @@ extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
 extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
 extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
 extra.key_current_transponder Aktuelle Transponder Taste
+extra.key_format_mode Videoformat
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
+extra.key_pic_mode Bildschirmformat
+extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
@@ -654,6 +657,7 @@ keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Anfangsverzögerung
 keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
+keybindingmenu_special_active Sondertasten
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter
 keybindingmenu.tvradiomode Fernseh-/Radio-Modus
@@ -843,6 +847,7 @@ menu.hint_key_channel_sms Wenn es aktiviert ist, können Sie die Nummern-Tasten 
 menu.hint_key_channeldown Weisen Sie eine Taste für das Herunterschalten in der Kanalliste zu
 menu.hint_key_channellist Konfigurieren Sie die Tastenbelegung für die Kanalliste
 menu.hint_key_channelup Weisen Sie eine Taste für das Hochschalten in der Kanalliste zu
+menu.hint_key_format_mode_active Die Taste für das Videoformat deaktivieren/aktivieren
 menu.hint_key_hardware Definieren Sie, welche Fernbedienung Sie verwenden möchten. Die Bestätigung erfolgt mit der Ausgewählten
 menu.hint_key_history Definieren Sie eine Taste für das Anzeigen der letzten Programme, die Sie schauten
 menu.hint_key_lastchannel Definieren Sie eine Taste, die in den vorher eingestellten Kanal zurückschaltet
@@ -865,6 +870,8 @@ menu.hint_key_mptime Weisen Sie eine Taste für die Restzeitanzeige ihrer Aufnah
 menu.hint_key_mptimeshift Weisen Sie eine Taste für das Starten von Timeshift zu
 menu.hint_key_pagedown Weisen Sie eine Taste für das Herunterblättern zu
 menu.hint_key_pageup Weisen Sie eine Taste für das Hochblättern zu
+menu.hint_key_pic_mode_active Die Taste für das Bildschirmformat deaktivieren/aktivieren
+menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivieren/aktivieren
 menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
 menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
@@ -876,6 +883,7 @@ menu.hint_key_right Wählen Sie die Funktion für die Tasten 'links' und 'rechts
 menu.hint_key_save Speichern Sie Ihre Tastenbelegungen in einer Datei ab
 menu.hint_key_screenshot Weisen Sie eine Taste zu, um Menü- und/oder TV-Screenshots zu speichern
 menu.hint_key_sort Weisen Sie eine Taste für das Sortieren in der Kanalliste zu
+menu.hint_key_special_active Deaktivieren oder aktivieren einiger Sondertasten
 menu.hint_key_subchanneldown Weisen Sie eine Taste für das Zurückschalten in den Unterkanälen zu
 menu.hint_key_subchannelup Weisen Sie eine Taste für das Weiterschalten in den Unterkanälen zu
 menu.hint_key_transponder Weisen Sie eine Taste für das Anzeigen der Transponder in der Kanalliste zu

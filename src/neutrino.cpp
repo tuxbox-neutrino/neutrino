@@ -2582,15 +2582,15 @@ _repeat:
 		audioDecoder->EnableAnalogOut(false);
 		return messages_return::handled;
 	}
-	else if( msg == CRCInput::RC_mode ) {
+	else if(( msg == CRCInput::RC_mode ) && g_settings.key_format_mode_active ) {
 		g_videoSettings->nextMode();
 		return messages_return::handled;
 	}
-	else if( msg == CRCInput::RC_next ) {
+	else if(( msg == CRCInput::RC_next ) && g_settings.key_pic_size_active ) {
 		g_videoSettings->next43Mode();
 		return messages_return::handled;
 	}
-	else if( msg == CRCInput::RC_prev ) {
+	else if(( msg == CRCInput::RC_prev ) && g_settings.key_pic_mode_active ) {
 		g_videoSettings->SwitchFormat();
 		return messages_return::handled;
 	}
@@ -3748,6 +3748,10 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
 	g_settings.mpkey_subtitle = tconfig.getInt32( "mpkey.subtitle", CRCInput::RC_sub );
 
+	g_settings.key_format_mode_active = tconfig.getInt32( "key_format_mode_active", 1 );
+	g_settings.key_pic_mode_active = tconfig.getInt32( "key_pic_mode_active", 1 );
+	g_settings.key_pic_size_active = tconfig.getInt32( "key_pic_size_active", 1 );
+
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
 	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
@@ -3811,6 +3815,10 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
 	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
 	tconfig.setInt32( "mpkey.subtitle", g_settings.mpkey_subtitle );
+
+	tconfig.setInt32( "key_format_mode_active", g_settings.key_format_mode_active );
+	tconfig.setInt32( "key_pic_mode_active", g_settings.key_pic_mode_active );
+	tconfig.setInt32( "key_pic_size_active", g_settings.key_pic_size_active );
 
 	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
 	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );

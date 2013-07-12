@@ -414,6 +414,9 @@ struct SNeutrinoSettings
 	int key_pip_close;
 	int key_pip_setup;
 	int key_pip_swap;
+	int key_format_mode_active;
+	int key_pic_mode_active;
+	int key_pic_size_active;
 
 	int cacheTXT;
 	int minimode;
