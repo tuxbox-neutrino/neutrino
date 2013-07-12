@@ -68,7 +68,11 @@
 
 class CBox
 {
-	private:
+	protected:
+		int *pX;
+		int *pY;
+		int *pWidth;
+		int *pHeight;
 
 	public:
 		/* Constructor */

@@ -90,11 +90,15 @@ void CComponentsText::initVarText()
 
 	//CComponentsText
 	ct_font 	= NULL;
-	ct_box		= NULL;
 	ct_textbox	= NULL;
 	ct_text 	= "";
 	ct_old_text	= ct_text;
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
+
+	pX 		= &x;
+	pY 		= &y;
+	pHeight 	= &height;
+	pWidth 		= &width;
 
 	/* we need a minimal borderwith of 1px because the edge-smoothing
 	(or fontrenderer?) otherwise will paint single pixels outside the
@@ -125,12 +129,10 @@ void CComponentsText::initCCText()
 		ty = cc_yr;
 	}
 	//init text box dimensions
-	if (ct_box == NULL)
-		ct_box = new CBox();
-	ct_box->iX 	= tx+fr_thickness;
-	ct_box->iY 	= ty+fr_thickness;
-	ct_box->iWidth 	= width-2*fr_thickness;
-	ct_box->iHeight = height-2*fr_thickness;
+	this->iX/*x*/ 	= tx+fr_thickness;
+	this->iY/*y*/	= ty+fr_thickness;
+	this->iWidth/*width*/ 	= width-2*fr_thickness;
+	this->iHeight/*height*/ = height-2*fr_thickness;
 
 	//init textbox
 	if (ct_textbox == NULL)
@@ -139,30 +141,26 @@ void CComponentsText::initCCText()
 	//set text box properties
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setTextMode(ct_text_mode);
-	ct_textbox->setWindowPos(ct_box);
+	ct_textbox->setWindowPos(this);
 	ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
 	ct_textbox->enableBackgroundPaint(ct_paint_textbg);
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
 	ct_textbox->setTextColor(ct_col_text);
-	ct_textbox->setWindowMaxDimensions(ct_box->iWidth, ct_box->iHeight);
-	ct_textbox->setWindowMinDimensions(ct_box->iWidth, ct_box->iHeight);
+	ct_textbox->setWindowMaxDimensions(width, height);
+	ct_textbox->setWindowMinDimensions(width, height);
 
 	//send text to CTextBox object, but paint text only if text has changed or force option is enabled
 	if ((ct_old_text != ct_text) || ct_force_text_paint)
-		ct_text_sent = ct_textbox->setText(&ct_text, ct_box->iWidth);
+		ct_text_sent = ct_textbox->setText(&ct_text, this->iWidth);
 	ct_old_text = ct_text;
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, ct_box->iWidth, ct_box->iHeight);
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 #endif
 }
 
 void CComponentsText::clearCCText()
 {
-	if (ct_box)
-		delete ct_box;
-	ct_box = NULL;
-
 	if (ct_textbox)
 		delete ct_textbox;
 	ct_textbox = NULL;

@@ -38,13 +38,11 @@ Handling of text parts based up CTextBox attributes and methodes.
 CComponentsText provides a interface to the embedded CTextBox object.
 */
 
-class CComponentsText : public CComponentsItem
+class CComponentsText : public CComponentsItem, public CBox
 {
 	protected:
 		///object: CTextBox object
 		CTextBox 	* ct_textbox;
-		///object: CBox object
-		CBox 		* ct_box;
 		///object: Fontrenderer object
 		Font		* ct_font;
 
