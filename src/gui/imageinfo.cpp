@@ -186,7 +186,7 @@ void CImageInfo::InitInfos()
 	const char * builddate = config.getString("builddate", "n/a").c_str();
 #endif
 
-	const char * _version = config.getString("version", "n/a").c_str();
+	const char * _version = config.getString("version", "U000000000000000").c_str();
 	static CFlashVersionInfo versionInfo(_version);
 
 	std::string version_string;
