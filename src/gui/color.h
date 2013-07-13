@@ -34,6 +34,7 @@
 #define __color__
 
 #define COL_MAXFREE			254-8*9 - 1
+#include <driver/framebuffer.h>
 #define COL_COLORED_EVENTS_CHANNELLIST	254-8*9
 #define COL_COLORED_EVENTS_INFOBAR	254-8*8
 #define COL_INFOBAR_SHADOW		254-8*7
@@ -98,5 +99,22 @@ int convertSetupAlpha2Alpha(unsigned char alpha);
 
 void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, bool protect=true);
 
+typedef struct {
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+} RgbColor;
+
+typedef struct {
+	unsigned char h;
+	unsigned char s;
+	unsigned char v;
+} HsvColor;
+
+unsigned char getBrightnessRGB(fb_pixel_t &color);
+fb_pixel_t changeBrightnessRGBRel(fb_pixel_t &color, int br);
+fb_pixel_t changeBrightnessRGB(fb_pixel_t &color, unsigned char br);
+void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb);
+void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv);
 
 #endif
