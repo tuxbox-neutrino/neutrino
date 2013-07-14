@@ -684,7 +684,7 @@ const char * locale_real_names[] =
 	"keybindingmenu.repeatblock",
 	"keybindingmenu.repeatblockgeneric",
 	"keybindingmenu.sort",
-	"keybindingmenu_special_active",
+	"keybindingmenu.special_active",
 	"keybindingmenu.subchanneldown",
 	"keybindingmenu.subchannelup",
 	"keybindingmenu.tvradiomode",
