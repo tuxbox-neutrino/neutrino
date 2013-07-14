@@ -132,6 +132,8 @@ if test "$TARGET" = "cdk"; then
 	targetlocalstatedir="\${TARGET_PREFIX}/var"
 	targetlibdir="\${TARGET_PREFIX}/lib"
 	targetmntdir="\${TARGET_PREFIX}/mnt"
+else
+	mntdir="/mnt" # hack
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir,CONFIGDIR,localstatedir,/var,/tuxbox/config,
