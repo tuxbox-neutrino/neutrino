@@ -1886,7 +1886,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		CZapitChannel* chan = chanlist[curr];
 		int prg_offset=0;
 		int title_offset=0;
-		uint8_t tcolor=(liststart + pos == selected) ? color : COL_MENUCONTENTINACTIVE_TEXT;
+		fb_pixel_t tcolor=(liststart + pos == selected) ? color : COL_MENUCONTENTINACTIVE_TEXT;
 		int xtheight=fheight-2;
 
 		if(g_settings.channellist_extended)
