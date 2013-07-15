@@ -1842,7 +1842,7 @@ int CMenuSeparator::paint(bool selected)
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				name_start_x = x + (!SUB_HEAD ? name_start_x : 20 + 24 /*std icon_width is 24px - this should be determinated from NEUTRINO_ICON_BUTTON_HOME or so*/);
+				name_start_x = x + (!(type & SUB_HEAD) ? name_start_x : 20 + 24 /*std icon_width is 24px - this should be determinated from NEUTRINO_ICON_BUTTON_HOME or so*/);
 			else if (type & ALIGN_RIGHT)
 				name_start_x = x + dx - stringwidth - 20;
 			else /* ALIGN_CENTER */
