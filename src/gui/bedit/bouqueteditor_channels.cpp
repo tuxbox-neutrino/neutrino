@@ -163,7 +163,7 @@ void CBEChannelWidget::paint()
 	if (sbc < 1)
 		sbc = 1;
 
-	float sbh= (sb- 4)/ sbc;
+	int sbh= (sb- 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
