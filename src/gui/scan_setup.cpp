@@ -65,7 +65,7 @@ extern char zapit_long[20];
 /* ugly */
 extern CHintBox *reloadhintBox;
 
-static int all_usals = 1;
+//static int all_usals = 1;
 //sat_iterator_t sit;
 
 #define SCANTS_BOUQUET_OPTION_COUNT 3
@@ -805,7 +805,7 @@ int CScanSetup::showFrontendSetup(int number)
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_18V);
 		setupMenu->addItem(mc);
 
-		mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &all_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+		mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &fe_config.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_USALSALL);
 		setupMenu->addItem(mc);
 
@@ -1076,8 +1076,10 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 			satconfig.diseqc = 0;
 		unilnb = new CMenuOptionNumberChooser(LOCALE_UNICABLE_LNB, &satconfig.diseqc, true, 0, 1);
 	}
+#if 0
 	if(!satconfig.use_usals)
 		all_usals = 0;
+#endif
 
 	CIntInput* lofL = new CIntInput(LOCALE_SATSETUP_LOFL, (int&) satconfig.lnbOffsetLow, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	CIntInput* lofH = new CIntInput(LOCALE_SATSETUP_LOFH, (int&) satconfig.lnbOffsetHigh, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
@@ -1394,12 +1396,14 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	bool ret = false;
 
 	if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_USE_USALS)) {
+#if 0
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		printf("[neutrino] CScanSetup::%s: all usals %d \n", __FUNCTION__, all_usals);
 		satellite_map_t & satmap = fe->getSatellites();
 		for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); sit++) {
 			sit->second.use_usals = all_usals;
 		}
+#endif
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_DISEQC)) {
 		printf("[neutrino] CScanSetup::%s: diseqc %d fenumber %d\n", __FUNCTION__, dmode, fenumber);
