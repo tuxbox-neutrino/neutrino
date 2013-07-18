@@ -330,7 +330,6 @@ int CVideoSettings::showVideoSetup()
 void CVideoSettings::setVideoSettings()
 {
 	printf("[neutrino VideoSettings] %s init video settings...\n", __FUNCTION__);
-	unsigned int system_rev = cs_get_revision();
 #if 0
 	//FIXME focus: ?? this is different for different boxes
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
@@ -339,6 +338,7 @@ void CVideoSettings::setVideoSettings()
 #ifdef BOXMODEL_APOLLO
 	changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
 #else
+	unsigned int system_rev = cs_get_revision();
 	if (system_rev == 0x06) {
 		changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
 	} else {
