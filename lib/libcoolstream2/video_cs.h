@@ -5,7 +5,6 @@
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
-/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __VIDEO_CS_H_
 #define __VIDEO_CS_H_
@@ -151,6 +150,12 @@ typedef enum
    VIDEO_CONTROL_MAX = VIDEO_CONTROL_SHARPNESS
 } VIDEO_CONTROL;
 
+typedef enum
+{
+	VIDEO_STREAM_FEED_MODE_LIVE = 0,
+	VIDEO_STREAM_FEED_MODE_PLAYBACK,
+} VIDEO_STREAM_FEED_MODE;
+
 class cDemux;
 class cAudio;
 
@@ -158,7 +163,7 @@ class cVideo {
 friend class cAudio;
 private:
 	static cVideo *instance[CS_MAX_VIDEO_DECODERS];
-
+	//
 	unsigned int		unit;
 	CS_VIDEO_PDATA		*privateData;
 	VIDEO_FORMAT		streamType;
@@ -171,14 +176,15 @@ private:
 	DISPLAY_AR		PictureAR;
 	VIDEO_FRAME_RATE	FrameRate;
 	VIDEO_HDMI_CEC_MODE	hdmiCECMode;
+#ifdef ISAPOLLO
+	VIDEO_STREAM_FEED_MODE	streamFeedMode;
+#endif
 	bool			Interlaced;
-	unsigned int		uVPPDisplayDelay;
-	unsigned int		uVideoPTSDelay;
+	unsigned int		uCurrentVPPDisplayDelay;
+	unsigned int		uCurrentVideoPTSDelay;
 	int			StcPts;
-	bool			started;
 	unsigned int		bStandby;
 	bool			blank;
-	bool			playing;
 	bool			auto_format;
 	int			uFormatIndex;
 	bool			vbi_started;
@@ -224,8 +230,8 @@ public:
 
 	/* get play state */
 	int getPlayState(void);
-	void SetVPPDelay(unsigned int delay) { uVPPDisplayDelay = delay;};
-	void SetVideoDelay(unsigned int delay) { uVideoPTSDelay = delay;};
+	void SetVPPDelay(unsigned int delay) { uCurrentVPPDisplayDelay = delay; }
+	void SetVideoDelay(unsigned int delay) { uCurrentVideoPTSDelay = delay; }
 	/* Notification handlers */
 	void HandleVPPMessage(int Event, void *pData);
 	void HandleVideoMessage(void * hHandle, int Event, void *pData);
@@ -233,7 +239,9 @@ public:
 	VIDEO_DEFINITION   GetVideoDef(void) { return VideoDefinition; }
 
 	/* change video play state */
+#ifndef ISAPOLLO
 	int Prepare(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
+#endif
 	int Start(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
 	int Stop(bool Blank = true);
 	bool Pause(void);
@@ -271,6 +279,13 @@ public:
 	bool GetScreenImage(unsigned char * &data, int &xres, int &yres, bool get_video = true, bool get_osd = false, bool scale_to_video = false);
 	void SetDemux(cDemux *Demux);
 	static cVideo *GetDecoder(unsigned int Unit);
+	bool Started(void);
+	bool Playing(void);
+	bool Paused(void);
+	void SyncSTC(void);
+#ifdef ISAPOLLO
+	void SetStreamFeedMode(VIDEO_STREAM_FEED_MODE Mode);
+#endif
 };
 
 #endif // __VIDEO_CS_H_

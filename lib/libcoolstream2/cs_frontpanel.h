@@ -76,10 +76,10 @@ typedef struct {
 typedef enum {
 	FP_LED_1_ON		= 0x81,
 	FP_LED_2_ON		= 0x82,
-	FP_LED_3_ON		= 0x83,
+	FP_LED_3_ON		= 0x88,
 	FP_LED_1_OFF		= 0x01,
 	FP_LED_2_OFF		= 0x02,
-	FP_LED_3_OFF		= 0x03,
+	FP_LED_3_OFF		= 0x08,
 } fp_led_ctrl_t;
 
 typedef struct {
