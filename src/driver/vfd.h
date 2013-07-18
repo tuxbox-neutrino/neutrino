@@ -106,6 +106,7 @@ class CVFD
 		void setlcdparameter(void);
 		void setled(void);
 		void setled(bool on_off);
+		void setBacklight(bool on_off);
 		static CVFD* getInstance();
 		void init(const char * fontfile, const char * fontname);
 
