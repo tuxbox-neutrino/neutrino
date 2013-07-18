@@ -685,6 +685,8 @@ lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
+ledcontroler.backlight Buttons backlight
+ledcontroler.backlight.tv TV mode
 ledcontroler.blink Blink in deep standby, if timer set
 ledcontroler.menu Power Button LEDs
 ledcontroler.mode.deepstandby Deep Standby
@@ -756,6 +758,7 @@ menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
 menu.hint_back Return to previous menu\nPress menu key to close all menus
+menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
 menu.hint_bigwindows Channellist, EPG-infos, audioplayer and some other windows are displayed full screen
