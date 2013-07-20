@@ -512,21 +512,7 @@ void CListFrame::scrollLineDown(const int lines)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	if(m_nSelectedLine < m_nNrOfLines - 1) {
-		m_nSelectedLine++;
-		// check if the cursor moves out of the window
-		if(m_nSelectedLine - m_nCurrentLine > m_nLinesPerPage-1) {
-			// yes, scroll to next page
-			//TRACE("[CListFrame]  m_nSelectedLine: %d, \r\n",m_nSelectedLine);
-			scrollPageDown(1);
-		} else {
-			refreshLine(m_nSelectedLine-lines);
-			refreshLine(m_nSelectedLine);
-		}
-	} else {
-		setSelectedLine(0);
-	}
-
+	setSelectedLine((m_nSelectedLine + lines) % (m_nNrOfLines - 1));
 }
 
 void CListFrame::scrollLineUp(const int lines)
@@ -535,20 +521,7 @@ void CListFrame::scrollLineUp(const int lines)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	if(m_nSelectedLine > 0) {
-		m_nSelectedLine--;
-		// check if the cursor moves out of the window
-		if(m_nSelectedLine < m_nCurrentLine ) {
-			// yes, scroll to next page
-			//TRACE("[CListFrame]  m_nSelectedLine: %d, \r\n",m_nSelectedLine);
-			scrollPageUp(1);
-		} else {
-			refreshLine(m_nSelectedLine+lines);
-			refreshLine(m_nSelectedLine);
-		}
-	} else if(m_nSelectedLine == 0) {
-		setSelectedLine(m_nNrOfLines - 1);
-	}
+	setSelectedLine((m_nNrOfLines - lines + m_nSelectedLine - 1) % (m_nNrOfLines - 1));
 }
 
 void CListFrame::scrollPageDown(const int pages)
