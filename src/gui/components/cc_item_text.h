@@ -1,5 +1,5 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
@@ -46,8 +46,10 @@ class CComponentsText : public CComponentsItem, public CBox
 		///object: Fontrenderer object
 		Font		* ct_font;
 
-		///property: CTextBox object
+		///property: text color
 		fb_pixel_t ct_col_text;
+		///property: cached text color
+		fb_pixel_t ct_old_col_text;
 		///property: text display modes, see textbox.h for possible modes
 		int ct_text_mode;
 		///property: horizontal text border width (left and right)
@@ -63,7 +65,7 @@ class CComponentsText : public CComponentsItem, public CBox
 		bool ct_text_sent;
 		///property: send to CTextBox object enableBackgroundPaint(true)
 		bool ct_paint_textbg;
-		
+
 		///property: force sending text to the CTextBox object, false= text only sended, if text was changed, see also textChanged()
 		bool ct_force_text_paint;
 
@@ -75,7 +77,7 @@ class CComponentsText : public CComponentsItem, public CBox
 
 		///destroy current CTextBox and CBox objects
 		void clearCCText();
-		
+
 		///initialize all required attributes for text and send to the CTextBox object
 		void initCCText();
 		///paint CCItem backckrond (if paint_bg=true), apply initCCText() and send paint() to the CTextBox object
@@ -90,9 +92,9 @@ class CComponentsText : public CComponentsItem, public CBox
 
 		///default members to paint a text box and hide painted text
 		///hide textbox
-		void hide(bool no_restore = false); 
+		void hide(bool no_restore = false);
 		///paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES); 
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///send options for text font (size and type), color and mode (allignment)
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
@@ -119,7 +121,7 @@ class CComponentsText : public CComponentsItem, public CBox
 
 		///helper to remove linebreak chars from a string if needed
 		virtual void removeLineBreaks(std::string& str);
-		
+
 		///returns true, if text was changed
 		virtual bool textChanged(){return ct_old_text != ct_text;};
 		///force paint of text even if text was changed or not

@@ -1,5 +1,5 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
@@ -57,17 +57,17 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 	y 		= y_pos,
 	width		= w;
 	height		= h;
-	
+
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	shadow		= has_shadow;
-	
+
 	ct_font 	= font_text;
 	ct_text 	= text;
 	ct_text_mode	= mode;
 	ct_col_text	= color_text;
-	
+
 	initCCText();
 }
 
@@ -107,6 +107,7 @@ void CComponentsText::initVarText()
 	ct_text_Vborder	= 0;
 
 	ct_col_text	= COL_MENUCONTENT_TEXT;
+	ct_old_col_text = ct_col_text;
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;
@@ -150,10 +151,11 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowMaxDimensions(width, height);
 	ct_textbox->setWindowMinDimensions(width, height);
 
-	//send text to CTextBox object, but paint text only if text has changed or force option is enabled
-	if ((ct_old_text != ct_text) || ct_force_text_paint)
+	//send text to CTextBox object, but paint text only if text or text coloer has changed or force option is enabled
+	if ((ct_old_text != ct_text) || ct_old_col_text != ct_col_text || ct_force_text_paint)
 		ct_text_sent = ct_textbox->setText(&ct_text, this->iWidth);
-	ct_old_text = ct_text;
+	ct_old_text 	= ct_text;
+	ct_old_col_text = ct_col_text;
 #ifdef DEBUG_CC
 	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 #endif
@@ -200,21 +202,21 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 {
 	string file = path_to_textfile;
 	string txt = "";
-	
+
 	ifstream in (file.c_str(), ios::in);
 	if (!in){
 		printf("[CComponentsText]    [%s - %d] error while open %s -> %s\n", __FUNCTION__, __LINE__, file.c_str(), strerror(errno));
 		return false;
 	}
 	string line;
-	
+
 	while(getline(in, line)){
 		txt += line + '\n';
 	}
 	in.close();
 
 	setText(txt, mode, font_text);
-	
+
 	return true;
 }
 
