@@ -582,25 +582,11 @@ void CListFrame::scrollPageDown(const int pages)
 	if( m_nNrOfLines <= 1) return;
 
 	if(m_nCurrentPage + pages < m_nNrOfPages)
-	{
-		m_nCurrentPage += pages;
-		m_nCurrentLine += pages * m_nLinesPerPage;
-		m_nSelectedLine += pages * m_nLinesPerPage;
-		if(m_nSelectedLine >= m_nNrOfLines - 1)
-			m_nSelectedLine = m_nNrOfLines - 1;
-	}
+		setSelectedLine(m_nSelectedLine + pages * m_nLinesPerPage);
 	else if (m_nSelectedLine == m_nNrOfLines - 1)
-	{
-		m_nCurrentPage = 0;
-		m_nCurrentLine = 0;
-		m_nSelectedLine = 0;
-	}
+		setSelectedLine(0);
 	else
-	{
-		m_nCurrentPage = m_nNrOfPages - 1;
-		m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-		m_nSelectedLine = m_nNrOfLines - 1;
-	}
+		setSelectedLine(m_nNrOfLines - 1);
 	//TRACE("[CListFrame]  m_nCurrentLine: %d, m_nCurrentPage: %d \r\n",m_nCurrentLine,m_nCurrentPage);
 	refresh();
 }
@@ -612,26 +598,12 @@ void CListFrame::scrollPageUp(const int pages)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	if(m_nCurrentPage - pages > -1)
-	{
-		m_nCurrentPage -= pages;
-		m_nCurrentLine -= pages * m_nLinesPerPage;
-		m_nSelectedLine -= pages * m_nLinesPerPage;
-		if(m_nSelectedLine < 0)
-			m_nSelectedLine = 0;
-	}
+	if(m_nCurrentPage - pages > 1)
+		setSelectedLine(m_nSelectedLine - pages * m_nLinesPerPage);
 	else if (m_nSelectedLine == 0)
-	{
-		m_nCurrentPage = m_nNrOfPages - 1;
-		m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-		m_nSelectedLine = m_nNrOfLines - 1;
-	}
+		setSelectedLine(m_nNrOfLines - 1);
 	else
-	{
-		m_nCurrentPage = 0;
-		m_nCurrentLine = 0;
-		m_nSelectedLine = 0;
-	}
+		setSelectedLine(0);
 	//TRACE("[CListFrame]  m_nCurrentLine: %d, m_nCurrentPage: %d \r\n",m_nCurrentLine,m_nCurrentPage);
 	refresh();
 }
@@ -680,16 +652,17 @@ bool CListFrame::setSelectedLine(int selection)
 {
 	//TRACE("[CListFrame]->setSelectedLine %d \r\n",selection);
 	bool result = false;
-	if(selection >= 0 && selection < m_nNrOfLines)
-	{
-		m_nSelectedLine = selection;
-		m_nCurrentPage =  selection / m_nLinesPerPage;
-		m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-		refreshList();
-		refreshScroll();  //NEW
-		result = true;
-		//TRACE(" selected line: %d,%d,%d \r\n",m_nSelectedLine,m_nCurrentPage,m_nCurrentLine);
-	}
+	if (selection < 0)
+		selection = 0;
+	else if (selection >= m_nNrOfLines)
+		selection = m_nNrOfLines - 1;
+	m_nSelectedLine = selection;
+	m_nCurrentPage =  selection / m_nLinesPerPage;
+	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
+	refreshList();
+	refreshScroll();  //NEW
+	result = true;
+	//TRACE(" selected line: %d,%d,%d \r\n",m_nSelectedLine,m_nCurrentPage,m_nCurrentLine);
 
 	return (result);
 }
