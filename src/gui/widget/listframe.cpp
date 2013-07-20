@@ -521,7 +521,7 @@ void CListFrame::scrollLineUp(const int lines)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	setSelectedLine((m_nNrOfLines - lines + m_nSelectedLine - 1) % m_nNrOfLines);
+	setSelectedLine((m_nSelectedLine - lines + m_nNrOfLines) % m_nNrOfLines);
 }
 
 void CListFrame::scrollPageDown(const int pages)
