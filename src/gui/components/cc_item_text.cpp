@@ -42,6 +42,8 @@ CComponentsText::CComponentsText()
 {
 	//CComponentsText
 	initVarText();
+
+	initCCText();
 }
 
 CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
