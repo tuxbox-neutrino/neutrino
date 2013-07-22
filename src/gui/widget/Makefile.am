@@ -22,7 +22,7 @@ if BOXTYPE_TRIPLE
 INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 
-noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a 
+noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a
 
 libneutrino_gui_widget_a_SOURCES = \
 	buttons.cpp \
@@ -38,6 +38,7 @@ libneutrino_gui_widget_a_SOURCES = \
 	messagebox.cpp \
 	mountchooser.cpp \
 	msgbox.cpp \
+	signalbars.cpp \
 	stringinput.cpp \
 	stringinput_ext.cpp \
 	textbox.cpp
