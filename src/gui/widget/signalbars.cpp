@@ -66,7 +66,7 @@ void CSignalBar::initVarSigBar()
 	sb_item_height 	= sb_font->getHeight();
 	height		= sb_item_height;
 	sb_scale_height = SB_MIN_HEIGHT;
-	sb_caption_color= COL_MENUCONTENT_TEXT;
+	sb_caption_color= COL_INFOBAR_TEXT;
 
 	initDimensions();
 
@@ -288,7 +288,7 @@ void CSignalBox::initVarSigBox()
 	height 		= 5* SB_MIN_HEIGHT;
 	sbx_bar_height	= height/2;
 	sbx_bar_x	= corner_rad;
-	sbx_caption_color = COL_MENUCONTENT_TEXT;
+	sbx_caption_color = COL_INFOBAR_TEXT;
 }
 
 void CSignalBox::initSignalItems()
