@@ -920,8 +920,8 @@ void CStreamInfo2::showSNR ()
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUHEAD_PLUS_0);
-		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR);
-		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SIG", COL_INFOBAR);
+		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR_TEXT);
+		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SIG", COL_INFOBAR_TEXT);
 	}
 	if (lastsnr != snr) {
 		lastsnr = snr;
@@ -934,7 +934,7 @@ void CStreamInfo2::showSNR ()
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUHEAD_PLUS_0, 0, true);
-		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR, 0, true);
-		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SNR", COL_INFOBAR, 0, true);
+		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR_TEXT, 0, true);
+		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SNR", COL_INFOBAR_TEXT, 0, true);
 	}
 }
