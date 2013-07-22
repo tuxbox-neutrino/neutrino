@@ -254,7 +254,7 @@ class CSignalBox : public CComponentsForm
 
 		///sets the caption color of signalbars, see also property 'sbx_caption_color'
 		void setTextColor(const fb_pixel_t& caption_color){ sbx_caption_color = caption_color;};
-		///sets the caption color of signalbars, see also property 'sbx_caption_color'
+		///get caption color of signalbars, see also property 'sbx_caption_color'
 		fb_pixel_t getTextColor(){return sbx_caption_color;};
 
 		///refresh all current snr value, use this before paint().

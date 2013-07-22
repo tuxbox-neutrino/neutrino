@@ -39,6 +39,7 @@ using namespace std;
 CSignalBar::CSignalBar()
 {
 	initVarSigBar();
+	initSBItems();
 }
 
 CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
@@ -220,6 +221,7 @@ void CSignalBar::Repaint()
 CSignalNoiseRatioBar::CSignalNoiseRatioBar()
 {
 	initVarSnrBar();
+	initSBItems();
 }
 
 CSignalNoiseRatioBar::CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
