@@ -65,6 +65,8 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 		CIntInput * nid;
 		CMenuOptionChooser * lcnhd;
+		/* items active for master/independent fe mode */
+		CGenericMenuActivate msettings;
 
 		CMenuOptionChooser * linkfe;
 		std::string modestr[4];

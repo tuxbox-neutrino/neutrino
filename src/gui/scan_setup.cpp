@@ -745,6 +745,7 @@ int CScanSetup::showFrontendSetup(int number)
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_FEMODE);
 	setupMenu->addItem(mc);
 
+	msettings.Clear();
 	if (fe->getInfo()->type == FE_QPSK) {
 		/* disable all but mode option for linked frontends */
 		bool allow_moptions = !CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED;
@@ -797,25 +798,30 @@ int CScanSetup::showFrontendSetup(int number)
 		setupMenu->addItem(uniSetup);
 
 		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
-		CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_MOTOR_SPEED, (int *)&fe_config.motorRotationSpeed, true, 0, 64, NULL);
+		CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_MOTOR_SPEED, (int *)&fe_config.motorRotationSpeed, allow_moptions, 0, 64, NULL);
 		nc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_SPEED);
 		setupMenu->addItem(nc);
+		msettings.Add(nc);
 
-		mc = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_HVOLTAGE,  (int *)&fe_config.highVoltage, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		mc = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_HVOLTAGE,  (int *)&fe_config.highVoltage, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions);
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_18V);
 		setupMenu->addItem(mc);
+		msettings.Add(mc);
 
-		mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &fe_config.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+		mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &fe_config.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions, this);
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_USALSALL);
 		setupMenu->addItem(mc);
+		msettings.Add(mc);
 
-		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, true, NULL, this, "satfind", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_moptions, NULL, this, "satfind", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SATFIND);
 		setupMenu->addItem(mf);
+		msettings.Add(mf);
 	}
 
 	int res = setupMenu->exec(NULL, "");
 	feselected = setupMenu->getSelected();
+	msettings.Clear();
 
 	/* add configured satellites to satSelect in case they changed */
 	if (fe->isSat())
@@ -996,13 +1002,14 @@ int CScanSetup::showScanMenuSatFind()
 	int count = 0;
 	CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 	char name[255];
+	static int selected = 0;
 
 	r_system = DVB_S;
 
 	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), fenumber+1, fe->getInfo()->name);
 
 	CMenuWidget* sat_findMenu = new CMenuWidget(name /*LOCALE_MOTORCONTROL_HEAD*/, NEUTRINO_ICON_SETTINGS, width);
-
+	sat_findMenu->setSelected(selected);
 	sat_findMenu->addIntroItems();
 
 	CMenuOptionStringChooser * feSatSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, scansettings.satName, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
@@ -1042,6 +1049,7 @@ int CScanSetup::showScanMenuSatFind()
 	sat_findMenu->addItem(mf);
 
 	int res = sat_findMenu->exec(NULL, "");
+	selected = sat_findMenu->getSelected();
 	delete sat_findMenu;
 	return res;
 }
@@ -1485,6 +1493,8 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			fsatSetup->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
 			bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
 			ojDiseqcRepeats->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && enable);
+
+			msettings.Activate(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
 
 			/* if mode changed, set current master too */
 			if (femaster >= 0)
