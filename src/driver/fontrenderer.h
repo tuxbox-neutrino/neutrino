@@ -54,7 +54,7 @@ class Font
 	int height,DigitHeight,DigitOffset,ascender,descender,upper,lower;
 	int fontwidth;
 
-	inline void paintFontPixel(fb_pixel_t *td, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, fb_pixel_t bg_col, int faktor, fb_pixel_t fg_trans);
+	inline void paintFontPixel(fb_pixel_t *td, uint8_t fg_trans, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, fb_pixel_t bg_col, int faktor, uint8_t index);
 
  public:
 	enum fontmodifier

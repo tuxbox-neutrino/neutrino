@@ -365,13 +365,14 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 
 #define F_MUL 0x7FFF
 
-void Font::paintFontPixel(fb_pixel_t *td, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, fb_pixel_t bg_col, int faktor, fb_pixel_t fg_trans)
+void Font::paintFontPixel(fb_pixel_t *td, uint8_t fg_trans, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, fb_pixel_t bg_col, int faktor, uint8_t index)
 {
+	int korr_t = ((bg_col & 0xFF000000) >> 24) - fg_trans;
 	int korr_r = ((bg_col & 0x00FF0000) >> 16) - fg_red;
 	int korr_g = ((bg_col & 0x0000FF00) >>  8) - fg_green;
 	int korr_b =  (bg_col & 0x000000FF)        - fg_blue;
 
-	*td = fg_trans |
+	*td =   ((g_settings.contrast_fonts && (index > 128)) ? 0xFF000000 : (((fg_trans + ((korr_t*faktor)/F_MUL)) << 24) & 0xFF000000)) |
 		(((fg_red   + ((korr_r*faktor)/F_MUL)) << 16) & 0x00FF0000) |
 		(((fg_green + ((korr_g*faktor)/F_MUL)) <<  8) & 0x0000FF00) |
 		 ((fg_blue  + ((korr_b*faktor)/F_MUL))        & 0x000000FF);
@@ -379,6 +380,18 @@ void Font::paintFontPixel(fb_pixel_t *td, uint8_t fg_red, uint8_t fg_green, uint
 
 void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const bool utf8_encoded, const bool useFullBg)
 {
+/*
+	useFullBg (default = false)
+
+	useFullBg = false
+	fetch bgcolor from framebuffer, using lower left edge of the font
+
+	useFullBg = true
+	fetch bgcolor from framebuffer, using the respective real font position
+	- font rendering slower
+	- e.g. required for font rendering on images
+*/
+
 	if (!frameBuffer->getActive())
 		return;
 
@@ -441,10 +454,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	FT_Vector kerning;
 	int pen1=-1; // "pen" positions for kerning, pen2 is "x"
 	static fb_pixel_t old_bgcolor    = 0, old_fgcolor = 0;
-	static uint8_t fg_red            = 0, fg_green = 0, fg_blue = 0;
+	static uint8_t fg_trans          = 0, fg_red = 0, fg_green = 0, fg_blue = 0;
 	static bool olduseFullBg         = false;
 	static fb_pixel_t colors[256]    = {0};
-	static fb_pixel_t fg_trans[256]  = {0};
 	static int faktor[256]           = {0};
 	static bool fontRecsInit         = false;
 	fb_pixel_t bg_color              = 1;
@@ -468,14 +480,14 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		olduseFullBg = useFullBg;
 		fontRecsInit = true;
 
-		uint8_t fgt;
-		fgt        =  (fg_color & 0xFF000000) >> 24;
+		fg_trans   =  (fg_color & 0xFF000000) >> 24;
 		fg_red     =  (fg_color & 0x00FF0000) >> 16;
 		fg_green   =  (fg_color & 0x0000FF00) >>  8;
 		fg_blue    =   fg_color & 0x000000FF;
 
-		int korr_r=0, korr_g=0, korr_b=0;
+		int korr_t=0, korr_r=0, korr_g=0, korr_b=0;
 		if (!useFullBg) {
+			korr_t = ((bg_color & 0xFF000000) >> 24) - fg_trans;
 			korr_r = ((bg_color & 0x00FF0000) >> 16) - fg_red;
 			korr_g = ((bg_color & 0x0000FF00) >>  8) - fg_green;
 			korr_b =  (bg_color & 0x000000FF)        - fg_blue;
@@ -483,18 +495,14 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 
 		for (int i = 0; i <= 0xFF; i++) {
 			int _faktor = ((0xFF - i) * F_MUL) / 0xFF;
-			fb_pixel_t _fg_trans = (g_settings.contrast_fonts && (i > 128)) ? 0xFF000000 : (fgt << 24) & 0xFF000000;
 
-			if (useFullBg) {
+			if (useFullBg)
 				faktor[i]   = _faktor;
-				fg_trans[i] = _fg_trans;
-			}
-			else {
-				colors[i] = (_fg_trans |
+			else
+				colors[i] =  ((g_settings.contrast_fonts && (i > 128)) ? 0xFF000000 : (((fg_trans + ((korr_t*_faktor)/F_MUL)) << 24) & 0xFF000000)) |
 					     (((fg_red   + ((korr_r*_faktor)/F_MUL)) << 16) & 0x00FF0000) |
 					     (((fg_green + ((korr_g*_faktor)/F_MUL)) <<  8) & 0x0000FF00) |
-					      ((fg_blue  + ((korr_b*_faktor)/F_MUL))        & 0x000000FF));
-			}
+					      ((fg_blue  + ((korr_b*_faktor)/F_MUL))        & 0x000000FF);
 		}
 	}
 
@@ -584,7 +592,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 						/* do not paint the backgroundcolor (*s = 0) */
 						if(*s != 0) {
 							if (useFullBg)
-								paintFontPixel(td, fg_red, fg_green, fg_blue, bg_buf[ax*ay], faktor[*s], fg_trans[*s]);
+								paintFontPixel(td, fg_trans, fg_red, fg_green, fg_blue, bg_buf[ax*ay], faktor[*s], *s);
 							else
 								*td = colors[*s];
 						}
@@ -599,7 +607,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 						/* do not paint the backgroundcolor (lcolor = 0) */
 						if(lcolor != 0) {
 							if (useFullBg)
-								paintFontPixel(td, fg_red, fg_green, fg_blue, bg_buf[ax*ay], faktor[lcolor], fg_trans[lcolor]);
+								paintFontPixel(td, fg_trans, fg_red, fg_green, fg_blue, bg_buf[ax*ay], faktor[lcolor], (uint8_t)lcolor);
 							else
 								*td = colors[lcolor];
 						}
