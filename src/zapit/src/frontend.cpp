@@ -1318,6 +1318,10 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 	int new_position = 0, old_position = 0;
 	bool use_usals = 0;
 
+	if (CFrontend::linked(femode) || femode == CFrontend::FE_MODE_UNUSED) {
+		rotorSatellitePosition = satellitePosition;
+		return 0;
+	}
 	//if(config.diseqcType == DISEQC_ADVANCED) //FIXME testing
 	{
 		bool moved = false;
