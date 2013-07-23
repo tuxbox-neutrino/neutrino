@@ -41,6 +41,7 @@ CNit::CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dn
 	nid = pnid;
 	dmxnum = dnum;
 	cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
+	orbitalPosition = 0;
 }
 
 CNit::~CNit()
@@ -108,12 +109,18 @@ bool CNit::Read()
 
 	if (dmx->sectionFilter(0x10, filter, mask, flen) < 0) {
 		delete dmx;
+#ifdef DEBUG_NIT
+		printf("[NIT] filter failed\n");
+#endif
 		return false;
 	}
 
 	do {
 		if (dmx->Read(buffer, NIT_SECTION_SIZE) < 0) {
 			delete dmx;
+#ifdef DEBUG_NIT
+			printf("[NIT] read failed\n");
+#endif
 			return false;
 		}
 
@@ -300,6 +307,9 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 		newSat = -newSat;
 	if (abs(newSat - satellitePosition) < 5)
 		newSat = satellitePosition;
+
+	if (!orbitalPosition)
+		orbitalPosition = newSat;
 
 	if(satellitePosition != newSat) {
 		printf("NIT: different satellite position: our %d nit %d (%X)\n",
