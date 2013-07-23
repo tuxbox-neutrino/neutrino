@@ -114,9 +114,9 @@ private:
 	void calcSize();
 	std::string   MaxChanNr();
 	void paint_pig(int x, int y, int w, int h);
-    void paint_events(int index);
-    CChannelEventList	evtlist;
-    void readEvents(const t_channel_id channel_id);
+	void paint_events(int index);
+	CChannelEventList	evtlist;
+	void readEvents(const t_channel_id channel_id);
 	void showdescription(int index);
 	typedef std::pair<std::string,int> epg_pair;
 	std::vector<epg_pair> epgText;
