@@ -214,7 +214,7 @@ std::string FBFontRenderClass::getFamily(const char * const filename) const
 			return f->family;
 	}
 
-  return "";
+	return "";
 }
 
 Font::Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const fontmodifier _stylemodifier)
@@ -395,8 +395,10 @@ void Font::paintFontPixel(fb_pixel_t *td, uint8_t fg_trans, uint8_t fg_red, uint
 		 ((fg_blue  + ((korr_b*faktor)/F_MUL))        & 0x000000FF);
 }
 
-void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const bool utf8_encoded, const bool useFullBg)
+void Font::RenderString(int x, int y, const int width, const char *text, const fb_pixel_t color, const int boxheight, const unsigned int flags)
 {
+	const bool utf8_encoded = flags & IS_UTF8;
+	const bool useFullBg = flags & FULLBG;
 /*
 	useFullBg (default = false)
 
@@ -644,14 +646,14 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		pen1 = x;
 		lastindex = index;
 	}
-//printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
+	//printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
 	frameBuffer->checkFbArea(x, y-height, width, height, false);
 }
 
-void Font::RenderString(int x, int y, const int width, const std::string & text, const fb_pixel_t color, const int boxheight, const bool utf8_encoded, const bool useFullBg)
+void Font::RenderString(int x, int y, const int width, const std::string & text, const fb_pixel_t color, const int boxheight, const unsigned int flags)
 {
-	RenderString(x, y, width, text.c_str(), color, boxheight, utf8_encoded, useFullBg);
+	RenderString(x, y, width, text.c_str(), color, boxheight, flags);
 }
 
 int Font::getRenderWidth(const char *text, const bool utf8_encoded)
