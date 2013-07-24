@@ -1412,7 +1412,7 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
-movieplayer.ytplayback Youtube feeds playback
+movieplayer.ytplayback Youtube videoplayer
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
@@ -1493,7 +1493,7 @@ options.on.without_messages Without msg
 options.serial serial
 parentallock.bouquetmode Bouquets are default
 parentallock.changepin change PIN code
-parentallock.changepin_hint1 Enter your new youth protection pin code here!
+parentallock.changepin_hint1 Enter your new parental lock pin code here!
 parentallock.changetolocked on locked bouquets
 parentallock.defaultlocked locked
 parentallock.defaultunlocked unlocked
@@ -1506,7 +1506,7 @@ parentallock.lockedchannel Locked sender...
 parentallock.lockedprogram Locked program (from %d years up)
 parentallock.never never
 parentallock.onsignal on broadcasted lock
-parentallock.parentallock Youth protection
+parentallock.parentallock Parental lock
 parentallock.prompt prompt for PIN
 personalize.access Access options
 personalize.apply_settings Apply changes?
@@ -1525,7 +1525,7 @@ personalize.help_line3 can be set to visible, not visible, activate, deactivate
 personalize.help_line4 or PIN-protected.
 personalize.help_line5 The access to personalization can be protected
 personalize.help_line6 with PIN. The PIN is identical for all protected menus
-personalize.help_line7 (not for youth protection).
+personalize.help_line7 (not for parental lock).
 personalize.help_line8 Default PIN is: 0000
 personalize.menuconfiguration Menu Configuration
 personalize.menudisabledhint The requested menu is currently disabled!\nFor activation please open menu 'Personalize'\nto find in menu 'Settings'!
@@ -1618,7 +1618,7 @@ recordingmenu.record_is_running Record is running!
 recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server server
 recordingmenu.server_mac MAC address
-recordingmenu.setupnow activate changes
+recordingmenu.setupnow Activate changes
 recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
