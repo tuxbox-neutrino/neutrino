@@ -9,13 +9,13 @@ EPGPlus.bybouquet_mode Per favorietenlijst
 EPGPlus.bypage_mode Per pagina
 EPGPlus.head Programmagids overzicht (EPG Plus)
 EPGPlus.next_bouquet Volgende favorietenlijst
-EPGPlus.options opties
+EPGPlus.options Opties
 EPGPlus.page_down Pagina omlaag
 EPGPlus.page_up Pagina omhoog
 EPGPlus.prev_bouquet Vorige favorietenlijst
 EPGPlus.record Opnemen
 EPGPlus.refresh_epg Herlaad EPG
-EPGPlus.remind Plannen
+EPGPlus.remind Zap reservering
 EPGPlus.scroll_mode Scroll modus
 EPGPlus.select_font_name Lettertype naam
 EPGPlus.stretch_mode Uitgestrekte modus
@@ -116,7 +116,7 @@ audiomenu.avs avs
 audiomenu.avsync A/V synchronisatie
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
-audiomenu.dolbydigital Dolby Digital
+audiomenu.dolbydigital Automatisch Dolby Digital gebruiken indien aanwezig
 audiomenu.hdmi_dd Encoded Dolby Digital via HDMI
 audiomenu.hdmi_dd_auto Automatisch
 audiomenu.hdmi_dd_force Forceer 
@@ -240,6 +240,7 @@ channellist.sats Satellieten
 channellist.since sinds
 channellist.start start tijd
 ci.clock CI kloksnelheid (Mhz)
+ci.ignore_msg Negeer CA berichten
 ci.empty Geen CAM geplaatst
 ci.init_failed Initialisatie CAM mislukt
 ci.init_ok Initialisatie CAM compleet
@@ -327,7 +328,7 @@ eventfinder.search_within_epg Zoeken in
 eventfinder.search_within_list Zoeken in
 eventfinder.searching Zoek naar trefwoord in EPG...
 eventfinder.start_search Zoeken starten
-eventlistbar.channelswitch Omschakelen
+eventlistbar.channelswitch Zap reservering
 eventlistbar.eventsort Sorteren
 eventlistbar.recordevent Opnemen
 extra.add_to_bouquet Toevoegen aan favorietenlijst
@@ -670,9 +671,10 @@ keychoosermenu.setnone Geen toets
 languagesetup.head Taal / Tijdzone
 languagesetup.osd OSD taal
 languagesetup.select OSD taal
-lcd_info_line show in infoline
+lcd_info_line Weergave in display
 lcd_info_line_channel kanaalnaam
 lcd_info_line_clock klok
+reset_removed Gewiste kanalen definitief verwijderen
 lcdcontroler.brightness Normale helderheid
 lcdcontroler.brightnessdeepstandby Deep Standby helderheid
 lcdcontroler.brightnessstandby Standby Helderheid
@@ -685,7 +687,7 @@ lcdmenu.statusline.both volume / afspeelduur
 lcdmenu.statusline.playtime afspeelduur
 lcdmenu.statusline.volume volume
 ledcontroler.blink Knipper in deepstandby indien een timer actief is.
-ledcontroler.menu Aan/uit knop LEDs
+ledcontroler.menu LED eigenschappen
 ledcontroler.mode.deepstandby Deep Standby
 ledcontroler.mode.record Knipper tijdens het opnemen
 ledcontroler.mode.standby Stand-by
@@ -699,20 +701,20 @@ mainmenu.clearsectionsd EPG geheugen opschonen
 mainmenu.games Spelletjes
 mainmenu.head Hoofdmenu
 mainmenu.media Media
-mainmenu.movieplayer Movie-player
+mainmenu.movieplayer Videospeler
 mainmenu.pausesectionsd Lees EPG
 mainmenu.pictureviewer Afbeeldingen
-mainmenu.radiomode Radio-Mode
+mainmenu.radiomode Radio mode
 mainmenu.reboot Herstart systeem
 mainmenu.recording Opnemen
 mainmenu.recording_start Start
-mainmenu.recording_stop Stop
+mainmenu.recording_stop Stopt
 mainmenu.scripts Scripts
-mainmenu.service Onderhoud
-mainmenu.settings Instellingen
+mainmenu.service Installatie
+mainmenu.settings Systeem Instellingen
 mainmenu.shutdown Uitschakelen
 mainmenu.sleeptimer Slaaptimer
-mainmenu.tvmode TV-Mode
+mainmenu.tvmode TV mode
 mainmenu.tvradio_switch TV-Radio Schakelaar
 mainsettings.audio Audio
 mainsettings.colors Kleur / thema / font
@@ -730,7 +732,8 @@ mainsettings.savesettingsnow_hint Instellingen opslaan,\nmoment geduld...
 mainsettings.timezone Tijdzone
 mainsettings.video Video
 menu.back Terug
-menu.cancel Annuleer 
+menu.cancel Annuleer
+menu.hint_ytplay Video's afspelen van de populaire video website Youtube
 menu.hint_a_pic Configureer audiospeler en afbeeldingen
 menu.hint_aplay Audiospeler
 menu.hint_audio Audio output, DD\nSRS True volume opties
@@ -853,7 +856,7 @@ menu.hint_key_load Laad sneltoetsen backup
 menu.hint_key_modechange Wijzig TV/Radio mode en standby toetsen
 menu.hint_key_movieplayer Configureer sneltoetsen voor de Movie-Player
 menu.hint_key_mpaudio Knop toewijzen voor de weergave van audio selectie\ntijdens het afspelen van een opname.
-menu.hint_key_mpbookmark Knop toewijzen om een bladwijzer te plaatsen in een opname tijdens het afspelen hiervan.
+menu.hint_key_mpbookmark Knop toewijzen om een markeerpunt te plaatsen in een opname tijdens het afspelen hiervan.
 menu.hint_key_mppause Knop toewijzen om het afspelen van een opname te pauzeren
 menu.hint_key_mpplay Knop toewijzen om het afspelen van een opname te hervatten
 menu.hint_key_mpplugin Knop toewijzen om tijdens het afspelen van een opname \neen geselecteerde plugin te starten.
@@ -1207,14 +1210,14 @@ motorcontrol.timed_mode Timed Stap Modus
 motorcontrol.user_menu Gebruikersmenu
 motorcontrol.west_limit West limiet instellen
 moviebrowser.ask_rec_to_delete Het verwijderen van deze film stopt de huidige opname!\n[%s]\nWilt u toch verder gaan? 
-moviebrowser.book_add Bladwijzer toevoegen
-moviebrowser.book_clear_all Alle bladwijzers verwijderen
-moviebrowser.book_head Bladwijzers
-moviebrowser.book_lastmoviestop Last play stop:
+moviebrowser.book_add Markeerpunt toevoegen
+moviebrowser.book_clear_all Alle markeerpunten verwijderen
+moviebrowser.book_head Markeerpunten
+moviebrowser.book_lastmoviestop Hervatten vanaf laatste afspeelstop
 moviebrowser.book_movieend Einde film:
 moviebrowser.book_moviestart Start film:
-moviebrowser.book_name Naam bladwijzer:
-moviebrowser.book_new Nieuwe bladwijzer
+moviebrowser.book_name Naam markeerpunt:
+moviebrowser.book_new Nieuw markeerpunt
 moviebrowser.book_position Positie:
 moviebrowser.book_type Spring (<0 terug , >0 voor):
 moviebrowser.book_type_backward Herhaal
@@ -1227,8 +1230,8 @@ moviebrowser.browser_row_width Kolom breedte [%]
 moviebrowser.delete_info Bestanden verwijderen, een moment geduld...
 moviebrowser.dir Pad
 moviebrowser.dir_head extra paden
-moviebrowser.edit_book Bookmark Wijzig
-moviebrowser.edit_book_name_info1 Geef nieuwe bookmark naam
+moviebrowser.edit_book Markeerpunt wijzigen
+moviebrowser.edit_book_name_info1 Geef markeerpunt een nieuwe naam
 moviebrowser.edit_book_name_info2 
 moviebrowser.edit_book_pos_info1 Geef nieuwe eindpositie (s)
 moviebrowser.edit_book_pos_info2 
@@ -1239,7 +1242,7 @@ moviebrowser.error_no_movies geen films gevonden
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_play Start film
 moviebrowser.foot_sort Sorteer:
-moviebrowser.head TS Film browser
+moviebrowser.head Opnames afspelen
 moviebrowser.head_filter Filter flims per categorie:
 moviebrowser.head_playlist Laatst afgespeeld:
 moviebrowser.head_recordlist Laatst opgenomen:
@@ -1254,7 +1257,7 @@ moviebrowser.info_channel Kanaal
 moviebrowser.info_filename Naam
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre
-moviebrowser.info_head Film informatie
+moviebrowser.info_head Movie Editor
 moviebrowser.info_head_update Wijzigingen opslaan in alle video informatie bestanden
 moviebrowser.info_info1 Info 1
 moviebrowser.info_info2 Info 2
@@ -1266,11 +1269,11 @@ moviebrowser.info_parental_lockage_16year 16 jaar
 moviebrowser.info_parental_lockage_18year 18 jaar
 moviebrowser.info_parental_lockage_6year 6 jaar
 moviebrowser.info_parental_lockage_always nooit
-moviebrowser.info_path Path
+moviebrowser.info_path Opslag directory
 moviebrowser.info_prevplaydate Laatst afgespleeld op
-moviebrowser.info_prodcountry LAnd
+moviebrowser.info_prodcountry Land
 moviebrowser.info_prodyear Jaar
-moviebrowser.info_quality Qualiteit
+moviebrowser.info_quality Kwaliteit
 moviebrowser.info_recorddate Datum van opname
 moviebrowser.info_serie Serie
 moviebrowser.info_size Bestandsgrootte in (MB)
@@ -1281,7 +1284,7 @@ moviebrowser.last_record_max_items Aantal lijnen laatste opname
 moviebrowser.load_default Laad standaard instellingen
 moviebrowser.menu_directories_head Directory's
 moviebrowser.menu_help_head Help
-moviebrowser.menu_main_bookmarks Bladwijzers
+moviebrowser.menu_main_bookmarks Markeerpunten
 moviebrowser.menu_main_head Instellingen
 moviebrowser.menu_main_movieinfo Film info
 moviebrowser.menu_main_saveandback Opslaan en terug
@@ -1322,34 +1325,54 @@ moviebrowser.short_serie Serie
 moviebrowser.short_size MB
 moviebrowser.short_title Titel
 moviebrowser.start_head Start film vanaf:
-moviebrowser.start_record_start Film start
+moviebrowser.start_record_start Afspelen vanaf het begin
 moviebrowser.update_if_dest_empty_only Kopieer indien doelbestemming leeg is
 moviebrowser.use_dir Gebruik directory
 moviebrowser.use_movie_dir Gebruik film directory
 moviebrowser.use_rec_dir Gebruik opname directory
-movieplayer.bookmark Bladwijzers
-movieplayer.bookmarkname Bladwijzer naam
-movieplayer.bookmarkname_hint1 Naam invoeren voor uw bladwijzer
+moviebrowser.foot_focus Schakel venster
+moviebrowser.foot_refresh Lijst herladen
+moviebrowser.yt_error Laden van youtube video mislukt
+moviebrowser.yt_max_results Maximaal aantal resultaten
+moviebrowser.yt_most_discussed Meest besproken
+moviebrowser.yt_most_popular Meest populair
+moviebrowser.yt_most_resent Meest recent
+moviebrowser.yt_most_responded Meeste reacties
+moviebrowser.yt_most_shared Meest gedeeld
+moviebrowser.yt_next_results Volgende zoekresultaten
+moviebrowser.yt_on_the_web Trending video's
+moviebrowser.yt_prev_results Vorige zoekresultaten
+moviebrowser.yt_recently_featured Recent aanbevolen
+moviebrowser.yt_region Regio
+moviebrowser.yt_related Gerelateerde video's
+moviebrowser.yt_search Trefwoord
+moviebrowser.yt_top_favorites Top favorieten
+moviebrowser.yt_top_rated Meest gewaardeerd
+moviebrowser.foot_options Opties
+movieplayer.bookmark Markeerpunten
+movieplayer.bookmarkname Naam markeerpunt
+movieplayer.bookmarkname_hint1 Naam invoeren voor uw markeerpunt
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.fileplayback Bestand afspelen
-movieplayer.head Movieplayer
-movieplayer.toomanybookmarks Er zijn te veel bladwijzers.\n Verwijder eerst een bladwijzer.
+movieplayer.fileplayback Video afspelen
+movieplayer.head Videospeler
+movieplayer.toomanybookmarks Er zijn te veel markeerpunten.\n Verwijder eerst een markeerpunt.
 movieplayer.tshelp1 Stop
 movieplayer.tshelp10 Ongeveer 10 minuten terug
 movieplayer.tshelp11 Ongeveer 10 minuten overslaan 
 movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tshelp2 Selecteer audio track
 movieplayer.tshelp3 Pause/Voortzetten 
-movieplayer.tshelp4 Creëer bladwijzer
+movieplayer.tshelp4 Creëer markeerpunt
 movieplayer.tshelp5 Voortgang weergeven
 movieplayer.tshelp6 Ongeveer 1 minuut terug
 movieplayer.tshelp7 Ongeveer 1 minuut overslaan
 movieplayer.tshelp8 Ongeveer 5 minuten terug
 movieplayer.tshelp9 Ongeveer 5 minuten overslaan
-movieplayer.tsplayback TS Afspelen
+movieplayer.tsplayback Opname afspelen
+movieplayer.ytplayback Youtube video's
 mpkey.audio Audio track
-mpkey.bookmark Bladwijzer opslaan
+mpkey.bookmark Markeerpunt opslaan
 mpkey.forward Vooruit
 mpkey.pause Pause
 mpkey.play Afspelen
@@ -1426,6 +1449,9 @@ options.on Aan
 options.on.without_messages Zonder bericht
 options.serial serial
 parentallock.changepin verander PIN code
+parentallock.bouquetmode Favorieten lijsten zijn standaard:
+parentallock.defaultlocked Beveiligd met een PIN code
+parentallock.defaultunlocked Onbeveiligd
 parentallock.changepin_hint1 Geef de nieuwe jeugd-bescherm pin code hier in!
 parentallock.changetolocked bij vergrendelde zenderlijsten
 parentallock.head Geef Lock PIN code in
@@ -1448,7 +1474,7 @@ personalize.button_red rood
 personalize.button_yellow geel
 personalize.disabled Uitgeschakeld
 personalize.enabled Ingeschakeld
-personalize.head Persoonlijke voorkeuren
+personalize.head Menu configuratie
 personalize.help Help
 personalize.help_line1 In het persoonlijke voorkeuren menu is het mogelijk
 personalize.help_line2 om de meest belangrijke menu's naar uw wens in te stellen.
@@ -1463,14 +1489,14 @@ personalize.menudisabledhint Het opgevraagde menu is momenteel uitgeschakeld!\nO
 personalize.notprotected Nee
 personalize.notvisible Onzichtbaar
 personalize.pin PIN
-personalize.pin_in_use PIN access for personalize setup
-personalize.pincode Personalization PIN
-personalize.pinhint Enter the Personalization PIN Code
+personalize.pin_in_use Geselecteerde menu's beveiligen met een PIN code
+personalize.pincode Vereiste pincode voor beveiligde menu's
+personalize.pinhint Voer de gewenste pincode in voor menu configuratie
 personalize.pinprotect Ja
 personalize.pinstatus PIN vereist
 personalize.plugins Plugins
-personalize.usermenu_preferred_buttons Assigning of preferred keys
-personalize.usermenu_show_cancel Show "Cancel"-Button
+personalize.usermenu_preferred_buttons Gewenste toetsen toewijzen.
+personalize.usermenu_show_cancel Annuleer toets weergeven
 personalize.visible Zichtbaar
 pictureviewer.defdir start dir.
 pictureviewer.head Afbeeldingen
@@ -1585,10 +1611,22 @@ satsetup.fastscan_sd Enkel SD
 satsetup.fastscan_type Scantype
 satsetup.fe_mode Tuner modus
 satsetup.fe_mode_alone Onafhankelijk
-satsetup.fe_mode_loop Doorlussen
+
+
+satsetup.fe_mode Tuner mode
+satsetup.fe_mode_independent Onafhankelijk
+satsetup.fe_mode_link_loop Doorgelust
+satsetup.fe_mode_link_twin Twin
+satsetup.fe_mode_master Master
+satsetup.fe_mode_unused Ongebruikt
+
+
+satsetup.fe_mode_loop Doorgelust
 satsetup.fe_mode_single Single
 satsetup.fe_mode_twin Twin
 satsetup.fe_setup Tuner instellen
+
+
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB switch Offset
@@ -1623,12 +1661,12 @@ scants.abort_body Wilt u het scannen onderbreken?
 scants.abort_header Scan wordt afgebroken
 scants.actcable Kabel:
 scants.actsatellite Satelliet:
-scants.bouquet Bouquet
+scants.bouquet Favorietenlijsten
 scants.bouquet_create creëer nieuw
 scants.bouquet_erase wis alles
-scants.bouquet_leave niet veranderen
+scants.bouquet_leave Ongewijzigd laten
 scants.bouquet_satellite Satelliet zenderlijst
-scants.bouquet_update update
+scants.bouquet_update updaten
 scants.channel kanaal:
 scants.failed Transponderscan mislukt!
 scants.finished Transponderscan succesvol beëindigd!
@@ -1661,7 +1699,7 @@ screenshot.tv TV resolutie
 screenshot.video Video in de achtergrond
 servicemenu.getplugins Herlaad plugins
 servicemenu.getplugins_hint Plugins worden geladen,\nmoment geduld alstublieft.
-servicemenu.head Onderhoud
+servicemenu.head Installatie
 servicemenu.imageinfo Firmware info
 servicemenu.reload Herlaad kanalenlijst 
 servicemenu.reload_hint Kanalenlijst wordt geladen,\nmoment geduld alstublieft.
@@ -1718,7 +1756,7 @@ timer.eventtimed.msg Het programma is gereserveerd. Uw ontvanger \nzal automatis
 timer.eventtimed.title Reserveer programma
 timerbar.channelswitch Reservering
 timerbar.recordevent Opname
-timerlist.alarmtime Alarm tijd
+timerlist.alarmtime Start tijd
 timerlist.apids Audio PIDs
 timerlist.apids_dflt Standaard audio streams opnemen
 timerlist.ask_to_delete Uw huidige opname wordt stop gezet. Wilt u verder gaan?
@@ -1811,7 +1849,7 @@ usermenu.head Gebruikersmenu
 usermenu.item_bar ---- Boarder ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
-usermenu.item_vtxt Videotext
+usermenu.item_vtxt Teletekst
 usermenu.msg_info_is_empty U heeft geen naam voor dit menu gedefinieerd.\nDe standaard naam wordt gebruikt:\n
 usermenu.msg_warning_name U heeft meerdere items gemaakt voor dit menu,\ngeen van de items heeft een naam.\nhet wordt aanbevolen om een naam in te voeren.
 usermenu.msg_warning_no_items Geen items gedefinieerd.\n De menu naam is gereset! 
@@ -1835,7 +1873,7 @@ videomenu.dbdr MPEG2 de-block/de-ring
 videomenu.dbdr_both de-block+de-ring
 videomenu.dbdr_deblock de-block
 videomenu.dbdr_none Geen
-videomenu.enabled_modes VF toets ingeschakelde modus
+videomenu.enabled_modes Ingeschakelde video modi
 videomenu.fullscreen Volledig scherm
 videomenu.hdmi_cec CSTLink (HDMI-CEC)
 videomenu.hdmi_cec_mode Gebruik ontvanger
@@ -1850,7 +1888,7 @@ videomenu.panscan Pan&Scan
 videomenu.panscan2 14:9 Pan&Scan
 videomenu.saturation Verzadiging
 videomenu.scart Scart
-videomenu.screensetup Scherm instellingen
+videomenu.screensetup Scherm instellicingen
 videomenu.sharpness Scherpheid
 videomenu.tv-scart Video
 videomenu.vcrsignal VCR Output Signaal Type
@@ -1867,11 +1905,11 @@ wizard.install_settings Wilt u de kanalen van Astra 1 (19.2º oost) inscannen?
 wizard.welcome_head Welkom in de installatie wizard
 wizard.welcome_text In de volgende stappen zullen we u begeleiden bij de eerste installatie van uw ontvanger.\n 
 word.from Van
-zapit.scantype scan naar services
-zapit.scantype.all alle services
-zapit.scantype.radio alleen radio
-zapit.scantype.tv alleen tv
-zapit.scantype.tvradio tv & radio
+zapit.scantype Wat voor kanalen wilt u zoeken?
+zapit.scantype.all Alle services
+zapit.scantype.radio Alleen radio
+zapit.scantype.tv Alleen TV
+zapit.scantype.tvradio TV & Radio
 zapitsetup.head Start kanaal instellingen
 zapitsetup.info Start kanaal
 zapitsetup.last_radio Radio kanaal
