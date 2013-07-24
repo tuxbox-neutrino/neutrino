@@ -686,6 +686,8 @@ lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
+ledcontroler.backlight Hintergrundbeleuchtung Buttons
+ledcontroler.backlight.tv TV Modus
 ledcontroler.blink Blinke im Deep-Standby, wenn Timer aktiv
 ledcontroler.menu Power Button LEDs
 ledcontroler.mode.deepstandby Deep-Standby
@@ -757,6 +759,7 @@ menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Play
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
+menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
 menu.hint_bigwindows Kanalliste, EPG-Infos, Audioplayer und einige andere Fenster werden bildschirmfüllend angezeigt
@@ -1043,7 +1046,7 @@ menu.hint_scan_manual Manueller Transponder-Suchlauf mit ausgewählten Parameter
 menu.hint_scan_mod Wählen Sie eine Transponder-Modulation
 menu.hint_scan_motor_18v Benutze 18V für Motorbewegungen
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
-menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten
+menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten,\nwird ignoriert, wenn USALS aktiv
 menu.hint_scan_nid Geben Sie ihre Kabelnetzwerk-ID in dezimal ein
 menu.hint_scan_nit Lassen Sie Transponder über gesendete NIT-Daten (Network Information Table) hinzufügen
 menu.hint_scan_pids Duchsucht und speichert auch die Audio-, Video- und PMT-PIDs
@@ -1066,8 +1069,8 @@ menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
-menu.hint_scan_usalsall Setzen oder entfernen Sie USALS-Merker für alle Satelliten
-menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelitten
+menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
+menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screenshot_count Wählen Sie, wie viele Screenshots erstellt werden sollen
@@ -1226,6 +1229,7 @@ motorcontrol.install_menu Motor Installation
 motorcontrol.motor_pos (a) Motorposition:
 motorcontrol.movement (b) Bewegung:
 motorcontrol.msec Millisekunden
+motorcontrol.network Netzwerk Info
 motorcontrol.no_mode keine Sorge (wasn das?)
 motorcontrol.notdef nicht benutzt
 motorcontrol.override übersteuern
