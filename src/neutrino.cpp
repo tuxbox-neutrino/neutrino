@@ -1522,12 +1522,18 @@ void CNeutrinoApp::SetupFrameBuffer()
 *          CNeutrinoApp -  setup fonts                                                *
 **************************************************************************************/
 
-void CNeutrinoApp::SetupFonts()
+void CNeutrinoApp::SetupFonts(int fmode)
 {
 	if (neutrinoFonts == NULL)
 		neutrinoFonts = CNeutrinoFonts::getInstance();
-	neutrinoFonts->SetupNeutrinoFonts();
-	neutrinoFonts->refreshDynFonts();
+
+	if ((fmode & CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT) == CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT)
+		neutrinoFonts->SetupNeutrinoFonts(((fmode & CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST) == CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST));
+
+	if ((fmode & CNeutrinoFonts::FONTSETUP_DYN_FONT) == CNeutrinoFonts::FONTSETUP_DYN_FONT) {
+		neutrinoFonts->SetupDynamicFonts(((fmode & CNeutrinoFonts::FONTSETUP_DYN_FONT_INST) == CNeutrinoFonts::FONTSETUP_DYN_FONT_INST));
+		neutrinoFonts->refreshDynFonts();
+	}
 
 	/* recalculate infobar position */
 	if (g_InfoViewer)
@@ -3462,6 +3468,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete g_Sectionsd;
 			delete g_RemoteControl;
 			delete g_fontRenderer;
+			delete g_dynFontRenderer;
 
 			delete hintBox;
 
@@ -3947,6 +3954,7 @@ void CNeutrinoApp::Cleanup()
 
 	printf("cleanup 11\n");fflush(stdout);
 	delete g_fontRenderer; g_fontRenderer = NULL;
+	delete g_dynFontRenderer; g_dynFontRenderer = NULL;
 	printf("cleanup 12\n");fflush(stdout);
 	delete g_PicViewer; g_PicViewer = NULL;
 	printf("cleanup 13\n");fflush(stdout);

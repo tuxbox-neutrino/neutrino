@@ -37,6 +37,7 @@
 
 #include <neutrinoMessages.h>
 #include "driver/framebuffer.h"
+#include "driver/neutrinofonts.h"
 #include "system/setting_helpers.h"
 #include "system/configure_network.h"
 #include "daemonc/remotecontrol.h"    /* st_rmsg      */
@@ -153,7 +154,7 @@ public:
 	void loadKeys(const char * fname = NULL);
 	void saveKeys(const char * fname = NULL);
 	void SetupTiming();
-	void SetupFonts();
+	void SetupFonts(int fmode = CNeutrinoFonts::FONTSETUP_ALL);
 	void setupRecordingDevice(void);
 
 	~CNeutrinoApp();

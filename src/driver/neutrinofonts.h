@@ -52,6 +52,7 @@ class CNeutrinoFonts
 {
 	private:
 		std::string fontStyle[3];
+		std::string dynFontStyle[3];
 
 		typedef struct dyn_font_t
 		{
@@ -91,6 +92,14 @@ class CNeutrinoFonts
 
 			FONT_ID_MAX
 		};
+		enum {
+			FONTSETUP_NEUTRINO_FONT		= 1,	/* refresh neutrino fonts */
+			FONTSETUP_NEUTRINO_FONT_INST	= 2,	/* delete & initialize font renderer class */
+			FONTSETUP_DYN_FONT		= 4,	/* refresh dynamic fonts */
+			FONTSETUP_DYN_FONT_INST		= 8,	/* delete & initialize font renderer class */
+
+			FONTSETUP_ALL			= FONTSETUP_NEUTRINO_FONT | FONTSETUP_NEUTRINO_FONT_INST | FONTSETUP_DYN_FONT | FONTSETUP_DYN_FONT_INST
+		};
 
 		CNeutrinoFonts();
 		~CNeutrinoFonts();
@@ -99,7 +108,8 @@ class CNeutrinoFonts
 		neutrino_font_descr_struct fontDescr;
 		neutrino_font_descr_struct old_fontDescr;
 
-		void SetupNeutrinoFonts();
+		void SetupNeutrinoFonts(bool initRenderClass = true);
+		void SetupDynamicFonts(bool initRenderClass = true);
 		void refreshDynFonts();
 		Font **getDynFont(int &dx, int &dy, std::string text="", int style=FONT_STYLE_REGULAR, int share=FONT_ID_SHARE);
 		void setFontUseDigitHeight(bool set=true) {useDigitOffset = set;}

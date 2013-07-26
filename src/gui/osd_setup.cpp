@@ -194,7 +194,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		{
 			strcpy(g_settings.font_file, fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-			CNeutrinoApp::getInstance()->SetupFonts();
+			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_ALL);
 			osdFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
 			mfFontFile->setOption(osdFontFile.c_str());
 		}
@@ -211,7 +211,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			strcpy(g_settings.ttx_font_file, fileBrowser.getSelectedFile()->Name.c_str());
 			ttx_font_file = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-			CNeutrinoApp::getInstance()->SetupFonts();
+			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST);
 			osdTtxFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
 			mfTtxFontFile->setOption(osdTtxFontFile.c_str());
 		}
@@ -253,7 +253,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", xre, yre);
 			g_settings.screen_xres = xre;
 			g_settings.screen_yres = yre;
-			CNeutrinoApp::getInstance()->SetupFonts();
+			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST);
 		}
 		//return menu_return::RETURN_REPAINT;
 		return res;

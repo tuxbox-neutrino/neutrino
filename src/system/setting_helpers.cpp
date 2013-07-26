@@ -316,7 +316,7 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FONTSIZE_HINT)); // UTF-8
 	hintBox.paint();
 
-	CNeutrinoApp::getInstance()->SetupFonts();
+	CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT);
 
 	hintBox.hide();
 	/* recalculate infoclock/muteicon/volumebar */
