@@ -2868,7 +2868,6 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 	loadBox.paint();
 
 //clock_act = clock()/10000;TRACE("[mb] *1: time %9ld  clock %6ld  dclock %6ld*\n",(long)time(NULL),clock_act,clock_act - clock_prev);clock_prev = clock_act;
-	m_file_info_stale = false;
 	if (show_mode == MB_SHOW_YT) {
 		loadYTitles(m_settings.ytmode, m_settings.ytsearch, m_settings.ytvid);
 	} else {
@@ -2884,6 +2883,7 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 			autoFindSerie();
 		}
 	}
+	m_file_info_stale = false;
 
 	loadBox.hide();
 
