@@ -667,9 +667,10 @@ int CChannelList::show()
 				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
 					paintHead();
 					paint();
-				} else
+				} else {
+					selected = oldselected;
 					loop=false;
-
+				}
 			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
