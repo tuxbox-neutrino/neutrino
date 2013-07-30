@@ -1367,6 +1367,15 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	return messages_return::unhandled;
 }
 
+void CInfoViewer::sendNoEpg(const t_channel_id channel_id)
+{
+	if (!virtual_zap_mode) {
+		char *p = new char[sizeof(t_channel_id)];
+		memcpy(p, &channel_id, sizeof(t_channel_id));
+		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
+	}
+}
+
 CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
 	CEitManager::getInstance()->getCurrentNextServiceKey(for_channel_id, info);
@@ -1375,10 +1384,8 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 
 	/* of there is no EPG, send an event so that parental lock can work */
 	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
+		sendNoEpg(for_channel_id);
 		oldinfo = info;
-		char *p = new char[sizeof(t_channel_id)];
-		memcpy(p, &for_channel_id, sizeof(t_channel_id));
-		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
 		return info;
 	}
 
@@ -1393,9 +1400,7 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 				msg = NeutrinoMessages::EVT_NEXTEPG;
 			g_RCInput->postMsg(msg, (unsigned) _info, false );
 		} else {
-			char *p = new char[sizeof(t_channel_id)];
-			memcpy(p, &for_channel_id, sizeof(t_channel_id));
-			g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);	// data is pointer to allocated memory
+			sendNoEpg(for_channel_id);
 		}
 		oldinfo = info;
 	}
@@ -1699,12 +1704,10 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 		// no EPG available
 		display_Info(g_Locale->getText(gotTime ? LOCALE_INFOVIEWER_NOEPG : LOCALE_INFOVIEWER_WAITTIME), NULL);
 		/* send message. Parental pin check gets triggered on EPG events... */
-		char *p = new char[sizeof(t_channel_id)];
-		memmove(p, &channel_id, sizeof(t_channel_id));
 		/* clear old info in getEPG */
 		CSectionsdClient::CurrentNextInfo dummy;
 		getEPG(0, dummy);
-		g_RCInput->postMsg(NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t)p, false); // data is pointer to allocated memory
+		sendNoEpg(channel_id);
 		return;
 	}
 
