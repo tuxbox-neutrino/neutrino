@@ -212,6 +212,7 @@ class CTimerManager
 private:
 	void Init(void);
 	int					eventID;
+	int					shutdown_eventID;
 	CEventServer		*eventServer;
 	CTimerEventMap		events;
 	pthread_t			thrTimer;
@@ -247,6 +248,7 @@ public:
 	void getRecordingSafety(int &pre, int &post){pre=m_extraTimeStart;post=m_extraTimeEnd;}
 	void setRecordingSafety(int pre, int post);
 	void loadRecordingSafety();
+	void cancelShutdownOnWakeup();
 };
 
 #endif

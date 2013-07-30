@@ -52,6 +52,7 @@
 #include <global.h>
 #include <driver/shutdown_count.h>
 #include <neutrino.h>
+#include <timerd/timermanager.h>
 #include <cs_api.h>
 
 //#define RCDEBUG
@@ -136,6 +137,7 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
+	firstKey = true;
 
 	//select and setup remote control hardware
 	set_rc_hw();
@@ -1194,6 +1196,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if(ret != sizeof(t_input_event))
 					continue;
 				SHTDCNT::getInstance()->resetSleepTimer();
+				if (firstKey) {
+					firstKey = false;
+					CTimerManager::getInstance()->cancelShutdownOnWakeup();
+				}
 				uint32_t trkey = translate(ev.code, i);
 #ifdef DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());

@@ -727,11 +727,12 @@ bool CTimerManager::shutdown()
 void CTimerManager::shutdownOnWakeup(int currEventID)
 {
 	time_t nextAnnounceTime=0;
-	if(wakeup == 0)
-		return;
 
-	wakeup = 0;
 	pthread_mutex_lock(&tm_eventsMutex);
+	if(wakeup == 0) {
+		pthread_mutex_unlock(&tm_eventsMutex);
+		return;
+	}
 
 	CTimerEventMap::iterator pos = events.begin();
 	for(;pos != events.end();++pos)
@@ -756,10 +757,23 @@ void CTimerManager::shutdownOnWakeup(int currEventID)
 	{ // in den naechsten 10 min steht nix an
 		dprintf("Programming shutdown event\n");
 		CTimerEvent_Shutdown* event = new CTimerEvent_Shutdown(now+120, now+180);
-		addEvent(event);
+		shutdown_eventID = addEvent(event);
+		wakeup = 0;
 	}
 	pthread_mutex_unlock(&tm_eventsMutex);
 }
+
+void CTimerManager::cancelShutdownOnWakeup()
+{
+	pthread_mutex_lock(&tm_eventsMutex);
+	if (shutdown_eventID > -1) {
+		removeEvent(shutdown_eventID);
+		shutdown_eventID = -1;
+	}
+	wakeup = 0;
+	pthread_mutex_unlock(&tm_eventsMutex);
+}
+
 void CTimerManager::setRecordingSafety(int pre, int post)
 {
 	m_extraTimeStart=pre;
