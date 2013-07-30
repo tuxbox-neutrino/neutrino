@@ -1367,11 +1367,11 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	return messages_return::unhandled;
 }
 
-void CInfoViewer::sendNoEpg(const t_channel_id channel_id)
+void CInfoViewer::sendNoEpg(const t_channel_id for_channel_id)
 {
 	if (!virtual_zap_mode) {
 		char *p = new char[sizeof(t_channel_id)];
-		memcpy(p, &channel_id, sizeof(t_channel_id));
+		memcpy(p, &for_channel_id, sizeof(t_channel_id));
 		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
 	}
 }
