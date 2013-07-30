@@ -608,6 +608,8 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
 	m_settings.ytresults = 10;
 	m_settings.ytregion = "default";
+	m_settings.ytquality = 37;
+	m_settings.ytconcconn = 4;
 }
 
 void CMovieBrowser::initFrames(void)
