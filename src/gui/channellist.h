@@ -123,6 +123,7 @@ private:
 	int emptyLineCount;
 	void addTextToArray( const std::string & text, int screening );
 	void processTextToArray(std::string text, int screening = 0);
+	int  getPrevNextBouquet(bool next);
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false);
