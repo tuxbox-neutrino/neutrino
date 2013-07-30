@@ -240,8 +240,8 @@ channellist.sats Satellieten
 channellist.since sinds
 channellist.start start tijd
 ci.clock CI kloksnelheid (Mhz)
-ci.ignore_msg Negeer CA berichten
 ci.empty Geen CAM geplaatst
+ci.ignore_msg Negeer CA berichten
 ci.init_failed Initialisatie CAM mislukt
 ci.init_ok Initialisatie CAM compleet
 ci.inserted Conditional access module herkend
@@ -674,7 +674,6 @@ languagesetup.select OSD taal
 lcd_info_line Weergave in display
 lcd_info_line_channel kanaalnaam
 lcd_info_line_clock klok
-reset_removed Gewiste kanalen definitief verwijderen
 lcdcontroler.brightness Normale helderheid
 lcdcontroler.brightnessdeepstandby Deep Standby helderheid
 lcdcontroler.brightnessstandby Standby Helderheid
@@ -733,7 +732,6 @@ mainsettings.timezone Tijdzone
 mainsettings.video Video
 menu.back Terug
 menu.cancel Annuleer
-menu.hint_ytplay Video's afspelen van de populaire video website Youtube
 menu.hint_a_pic Configureer audiospeler en afbeeldingen
 menu.hint_aplay Audiospeler
 menu.hint_audio Audio output, DD\nSRS True volume opties
@@ -1105,6 +1103,7 @@ menu.hint_video_modes VF toets schakelt tussen de ingeschakelde opties
 menu.hint_video_scart_mode Selecteer analog output modus voor SCART aansluiting(en)
 menu.hint_volume_digits Numerieke weergave van de volume balk aan/uit
 menu.hint_volume_pos Selecteer positie volume indicator
+menu.hint_ytplay Video's afspelen van de populaire video website Youtube
 menu.hint_zap_cycle Tijdens het schakelen tussen kanalen in huidige favorieten lijst
 menu.next Volgende (Druk op menu om af te sluiten)
 messagebox.back Terug
@@ -1240,7 +1239,10 @@ moviebrowser.edit_book_type_info2 <0 terug , >0 voor, 0: geen
 moviebrowser.edit_serie Geef de naam van de serie op
 moviebrowser.error_no_movies geen films gevonden
 moviebrowser.foot_filter Filter:
+moviebrowser.foot_focus Schakel venster
+moviebrowser.foot_options Opties
 moviebrowser.foot_play Start film
+moviebrowser.foot_refresh Lijst herladen
 moviebrowser.foot_sort Sorteer:
 moviebrowser.head Opnames afspelen
 moviebrowser.head_filter Filter flims per categorie:
@@ -1330,8 +1332,6 @@ moviebrowser.update_if_dest_empty_only Kopieer indien doelbestemming leeg is
 moviebrowser.use_dir Gebruik directory
 moviebrowser.use_movie_dir Gebruik film directory
 moviebrowser.use_rec_dir Gebruik opname directory
-moviebrowser.foot_focus Schakel venster
-moviebrowser.foot_refresh Lijst herladen
 moviebrowser.yt_error Laden van youtube video mislukt
 moviebrowser.yt_max_results Maximaal aantal resultaten
 moviebrowser.yt_most_discussed Meest besproken
@@ -1348,7 +1348,6 @@ moviebrowser.yt_related Gerelateerde video's
 moviebrowser.yt_search Trefwoord
 moviebrowser.yt_top_favorites Top favorieten
 moviebrowser.yt_top_rated Meest gewaardeerd
-moviebrowser.foot_options Opties
 movieplayer.bookmark Markeerpunten
 movieplayer.bookmarkname Naam markeerpunt
 movieplayer.bookmarkname_hint1 Naam invoeren voor uw markeerpunt
@@ -1448,12 +1447,12 @@ options.off Uit
 options.on Aan
 options.on.without_messages Zonder bericht
 options.serial serial
-parentallock.changepin verander PIN code
 parentallock.bouquetmode Favorieten lijsten zijn standaard:
-parentallock.defaultlocked Beveiligd met een PIN code
-parentallock.defaultunlocked Onbeveiligd
+parentallock.changepin verander PIN code
 parentallock.changepin_hint1 Geef de nieuwe jeugd-bescherm pin code hier in!
 parentallock.changetolocked bij vergrendelde zenderlijsten
+parentallock.defaultlocked Beveiligd met een PIN code
+parentallock.defaultunlocked Onbeveiligd
 parentallock.head Geef Lock PIN code in
 parentallock.lockage vergrendelde programma's
 parentallock.lockage12 tot aan 12 jaar
@@ -1583,6 +1582,7 @@ repeatblocker.hint_2 Enter 0 to switch of the blocker (red is space)
 reset_all Fabrieksreset en herstart
 reset_channels Wis alle kanalen
 reset_confirm Weet u het zeker?
+reset_removed Gewiste kanalen definitief verwijderen
 reset_settings Standaard instellingen herstellen
 satsetup.auto_scan Auto-Scan geselecteerd %s
 satsetup.auto_scan_all Auto-Scan meerdere satellieten
@@ -1609,24 +1609,18 @@ satsetup.fastscan_prov_telesat TéléSAT
 satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd Enkel SD
 satsetup.fastscan_type Scantype
+satsetup.fe_mode Tuner mode
 satsetup.fe_mode Tuner modus
 satsetup.fe_mode_alone Onafhankelijk
-
-
-satsetup.fe_mode Tuner mode
 satsetup.fe_mode_independent Onafhankelijk
 satsetup.fe_mode_link_loop Doorgelust
 satsetup.fe_mode_link_twin Twin
-satsetup.fe_mode_master Master
-satsetup.fe_mode_unused Ongebruikt
-
-
 satsetup.fe_mode_loop Doorgelust
+satsetup.fe_mode_master Master
 satsetup.fe_mode_single Single
 satsetup.fe_mode_twin Twin
+satsetup.fe_mode_unused Ongebruikt
 satsetup.fe_setup Tuner instellen
-
-
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB switch Offset
