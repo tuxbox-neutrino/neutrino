@@ -164,12 +164,12 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 			pcrpid=vpid=pid;
 			vtype = ES_TYPE_MPEG12;
 			break;
+		case EN_TYPE_AVC:
+			pcrpid=vpid=pid;
+			vtype = ES_TYPE_AVC;
+			break;
 		case EN_TYPE_PCR:
 			pcrpid=pid;
-			break;
-		case EN_TYPE_AVC:
-			vpid=pid;
-			vtype = ES_TYPE_AVC;
 			break;
 		case EN_TYPE_AUDIO:
 			apid[nba]=pid;
