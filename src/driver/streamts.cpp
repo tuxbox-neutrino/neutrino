@@ -389,6 +389,11 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 			}
 		}
 	}
+	//add pcr pid
+	if(channel->getPcrPid() != channel->getVideoPid()){
+		pids.insert(channel->getPcrPid());
+		psi.addPid(channel->getPcrPid(), EN_TYPE_PCR, 0);
+	}
 	psi.genpsi(fd);
 
 	return !pids.empty();

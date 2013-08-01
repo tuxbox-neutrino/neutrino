@@ -126,6 +126,7 @@ CGenPsi::CGenPsi()
 	vpid = 0;
 	vtype = 0;
 
+	pcrpid=0;
 	vtxtpid = 0;
 	vtxtlang[0] = 'g';
 	vtxtlang[1] = 'e';
@@ -160,8 +161,11 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 	switch(pidtype)
 	{
 		case EN_TYPE_VIDEO:
-			vpid=pid;
+			pcrpid=vpid=pid;
 			vtype = ES_TYPE_MPEG12;
+			break;
+		case EN_TYPE_PCR:
+			pcrpid=pid;
 			break;
 		case EN_TYPE_AVC:
 			vpid=pid;
@@ -243,9 +247,9 @@ int CGenPsi::genpsi(int fd)
 	}
 	//-- write row with desc. for pcr stream (eq. video) --
 	pkt[ofs]   = EN_TYPE_PCR;
-	pkt[ofs+1] = 0x02;
-	pkt[ofs+2] = (vpid>>8);
-	pkt[ofs+3] = (vpid & 0xFF);
+	pkt[ofs+1] = 0x02;//vtype ???
+	pkt[ofs+2] = (pcrpid>>8);
+	pkt[ofs+3] = (pcrpid & 0xFF);
 
 	//-- calculate CRC --
 	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
@@ -276,8 +280,8 @@ int CGenPsi::genpsi(int fd)
 	pkt[OFS_HDR_2+2]  = (patch_len & 0xFF);
 	//-- patch pcr PID --
 	ofs = OFS_PMT_DATA;
-	pkt[ofs]  |= (vpid>>8);
-	pkt[ofs+1] = (vpid & 0xFF);
+	pkt[ofs]  |= (pcrpid>>8);
+	pkt[ofs+1] = (pcrpid & 0xFF);
 	//-- write row with desc. for ES video stream --
 	ofs = OFS_STREAM_TAB;
 	pkt[ofs]   = vtype;
@@ -348,6 +352,7 @@ int CGenPsi::genpsi(int fd)
 
 	//-- finish --
 	vpid=0;
+	pcrpid=0;
 	nba=0;
 	nsub = 0;
 	vtxtpid = 0;

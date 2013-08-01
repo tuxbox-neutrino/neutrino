@@ -161,10 +161,14 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	}
 
 	CGenPsi psi;
-	if (allpids.PIDs.vpid != 0)
-		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
-
 	numpids = 0;
+	if (allpids.PIDs.vpid != 0){
+		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
+		if(allpids.PIDs.pcrpid != allpids.PIDs.vpid){
+			psi.addPid(allpids.PIDs.pcrpid, EN_TYPE_PCR, 0);
+			apids[numpids++]=allpids.PIDs.pcrpid;
+		}
+	}
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
 		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
 		psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
