@@ -687,8 +687,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 #if HAVE_TRIPLEDRAGON
 	g_settings.screen_preset = 0; /* does not make sense to have two configurations for that... */
-#endif
-#if ! HAVE_COOLSTREAM
+#elif ! HAVE_COOLSTREAM
 	g_settings.screen_preset = 1; /* spark is now always using 1280x720 framebuffer */
 #endif
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
