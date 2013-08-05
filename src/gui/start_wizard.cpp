@@ -94,14 +94,17 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	{
 		int advanced = 1;
 #ifdef ENABLE_FASTSCAN
-		advanced = 0;
-		CMenuWidget wtype(LOCALE_WIZARD_SETUP);
-		wtype.setWizardMode(true);
-		wtype.addIntroItems();
-		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_WIZARD_SETUP_TYPE, &advanced, WIZARD_SETUP_TYPE, 2, true, NULL);
-		mc->setHint("", LOCALE_WIZARD_SETUP_TYPE_HINT);
-		wtype.addItem(mc);
-		wtype.exec(NULL, "");
+		std::string lang = g_settings.language;
+		if (lang == "nederlands") {
+			advanced = 0;
+			CMenuWidget wtype(LOCALE_WIZARD_SETUP);
+			wtype.setWizardMode(true);
+			wtype.addIntroItems();
+			CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_WIZARD_SETUP_TYPE, &advanced, WIZARD_SETUP_TYPE, 2, true, NULL);
+			mc->setHint("", LOCALE_WIZARD_SETUP_TYPE_HINT);
+			wtype.addItem(mc);
+			wtype.exec(NULL, "");
+		}
 #endif
 		//open video settings in wizardmode
 		if(advanced && res != menu_return::RETURN_EXIT_ALL) {
