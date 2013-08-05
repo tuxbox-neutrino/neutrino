@@ -260,6 +260,15 @@ bool CFlashUpdate::selectHttpImage(void)
 	newVersion = versions[selected];
 	file_md5 = md5s[selected];
 	fileType = fileTypes[selected];
+#ifdef BOXMODEL_APOLLO
+	if(fileType < '3') {
+		int esize = CMTDInfo::getInstance()->getMTDEraseSize(sysfs);
+		printf("[update] erase size is %x\n", esize);
+		if (esize == 0x40000) {
+			filename += ".256k";
+		}
+	}
+#endif
 #ifdef DEBUG
 	printf("[update] filename %s type %c newVersion %s md5 %s\n", filename.c_str(), fileType, newVersion.c_str(), file_md5.c_str());
 #endif
