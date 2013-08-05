@@ -78,12 +78,15 @@ private:
 	unsigned int		unit;
 	cDemux			*demux;
 	cVideo			*video;
-	CS_AUDIO_PDATA		*privateData;
+	CS_AUDIO_PDATA	*privateData;
+	//unsigned int		cEncodedDataOnSPDIF, cEncodedDataOnHDMI;
 	bool			muted;
 
 	AUDIO_FORMAT		streamType;
 	AUDIO_SYNC_MODE		syncMode;
-	unsigned int		uCurrentPTSDelay;
+	bool			started;
+	unsigned int		uAudioPTSDelay;
+	unsigned int		uAudioDolbyPTSDelay, uAudioMpegPTSDelay;
 	bool			receivedDelay;
 
 	/* internal methods */
@@ -97,10 +100,6 @@ private:
 	bool spdifDD;
 	bool hasMuteScheduled;
 	bool analogOut;
-#ifdef ISAPOLLO
-	bool containerMode;
-	bool hbrMode;
-#endif
 	//
 	cAudio(unsigned int Unit);
 public:
@@ -135,7 +134,7 @@ public:
 	AUDIO_FORMAT GetStreamType(void) { return streamType; }
 	bool ReceivedAudioDelay(void) { return receivedDelay; }
 	void SetReceivedAudioDelay(bool Set = false) { receivedDelay = Set; }
-	unsigned int GetAudioDelay(void) { return uCurrentPTSDelay; }
+	unsigned int GetAudioDelay(void) { return (streamType == AUDIO_FMT_DOLBY_DIGITAL) ? uAudioDolbyPTSDelay : uAudioMpegPTSDelay; }
 	void SetSyncMode(AVSYNC_TYPE SyncMode);
 
 	/* stream source */
@@ -163,12 +162,6 @@ public:
 	void SetDemux(cDemux *Demux);
 	void SetVideo(cVideo *Video);
 	static cAudio *GetDecoder(unsigned int Unit);
-	bool Started(void);
-	bool Paused(void);
-#ifdef ISAPOLLO
-	void SetHBRMode(bool Enable = false);
-	void SetContainerMode(bool Enable = false);
-#endif
 };
 
 #endif //__AUDIO_CS_H_
