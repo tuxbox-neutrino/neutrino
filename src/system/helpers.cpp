@@ -284,22 +284,52 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 	return true;
 }
 
-std::string getPathName(std::string &path)
+std::string _getPathName(std::string &path, std::string sep)
 {
-	size_t pos = path.find_last_of("/");
+	size_t pos = path.find_last_of(sep);
 	if (pos == std::string::npos)
 		return path;
 	return path.substr(0, pos);
 }
 
-std::string getBaseName(std::string &path)
+std::string _getBaseName(std::string &path, std::string sep)
 {
-	size_t pos = path.find_last_of("/");
+	size_t pos = path.find_last_of(sep);
 	if (pos == std::string::npos)
 		return path;
 	if (path.length() == pos +1)
 		return "";
 	return path.substr(pos+1);
+}
+
+std::string getPathName(std::string &path)
+{
+	return _getPathName(path, "/");
+}
+
+std::string getBaseName(std::string &path)
+{
+	return _getBaseName(path, "/");
+}
+
+std::string getFileName(std::string &file)
+{
+	return _getPathName(file, ".");
+}
+
+std::string getFileExt(std::string &file)
+{
+	return _getBaseName(file, ".");
+}
+
+
+std::string getNowTimeStr(const char* format)
+{
+	char tmpStr[256];
+	struct timeval tv;
+	gettimeofday(&tv, NULL);        
+	strftime(tmpStr, sizeof(tmpStr), format, localtime(&tv.tv_sec));
+	return (std::string)tmpStr;
 }
 
 std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
