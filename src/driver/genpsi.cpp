@@ -247,7 +247,7 @@ int CGenPsi::genpsi(int fd)
 	}
 	//-- write row with desc. for pcr stream (eq. video) --
 	pkt[ofs]   = EN_TYPE_PCR;
-	pkt[ofs+1] = 0x02;//vtype ???
+	pkt[ofs+1] = 0x02;
 	pkt[ofs+2] = (pcrpid>>8);
 	pkt[ofs+3] = (pcrpid & 0xFF);
 

@@ -345,8 +345,8 @@ void CRecordInstance::GetPids(CZapitChannel * channel)
 	allpids.PIDs.vtxtpid = channel->getTeletextPid();
 	allpids.PIDs.pmtpid = channel->getPmtPid();
 	allpids.PIDs.selected_apid = channel->getAudioChannelIndex();
-#if 0 // not needed
 	allpids.PIDs.pcrpid = channel->getPcrPid();
+#if 0 // not needed
 	allpids.PIDs.privatepid = channel->getPrivatePid();
 #endif
 	allpids.APIDs.clear();

@@ -394,6 +394,27 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 		pids.insert(channel->getPcrPid());
 		psi.addPid(channel->getPcrPid(), EN_TYPE_PCR, 0);
 	}
+	//add teletext pid
+	if (g_settings.recording_stream_vtxt_pid && channel->getTeletextPid() != 0){
+		pids.insert(channel->getTeletextPid());
+		psi.addPid(channel->getTeletextPid(), EN_TYPE_TELTEX, 0, channel->getTeletextLang());
+	}
+	//add dvb sub pid
+	if (g_settings.recording_stream_subtitle_pids){
+		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
+			CZapitAbsSub* s = channel->getChannelSub(i);
+			if (s->thisSubType == CZapitAbsSub::DVB) {
+				if(i>9)//max sub pids
+					break;
+
+				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
+				pids.insert(sd->pId);
+				psi.addPid( sd->pId, EN_TYPE_DVBSUB, 0, sd->ISO639_language_code.c_str() );
+			}
+		}
+
+	}
+
 	psi.genpsi(fd);
 
 	return !pids.empty();
