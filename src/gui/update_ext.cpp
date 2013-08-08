@@ -41,6 +41,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <system/flashtool.h>
+#include <lib/libnet/libnet.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -138,7 +139,6 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 bool CExtUpdate::applySettings(const std::string & filename, int mode)
 {
-#define ORGFILE_EXT ".org"
 	if(!FileHelpers)
 		FileHelpers = new CFileHelpers();
 
@@ -149,8 +149,23 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 
 	DBG_TIMER_START()
 
-	// make backup file
-	FileHelpers->copyFile(imgFilename.c_str(), (imgFilename + ORGFILE_EXT).c_str(), 0644);
+	std::string oldFilename = imgFilename;
+	std::string hostName    = netGetHostname();
+	std::string orgPath     = getPathName(imgFilename);
+	std::string orgName     = getBaseName(imgFilename);
+	orgName                 = getFileName(orgName);
+	std::string orgExt      = "." + getFileExt(imgFilename);
+	std::string timeStr     = getNowTimeStr("_%Y%m%d_%H%M");
+	std::string settingsStr = "+settings";
+
+	if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
+		imgFilename = orgPath + "/" + hostName + timeStr + settingsStr + orgExt;
+	else if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_ORGNAME_TIME)
+		imgFilename = orgPath + "/" + orgName + timeStr  + settingsStr + orgExt;
+	else
+		imgFilename = orgPath + "/" + orgName  + settingsStr + orgExt;
+
+	FileHelpers->copyFile(oldFilename.c_str(), imgFilename.c_str(), 0644);
 
 	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
@@ -158,9 +173,8 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 		if ((mtdRamError != "") && (!flashErrorFlag))
 			DisplayErrorMessage(mtdRamError.c_str());
 
-		// error, restore original file
+		// error, delete image file
 		unlink(imgFilename.c_str());
-		rename((imgFilename + ORGFILE_EXT).c_str(), imgFilename.c_str());
 	}
 	else {
 		if (mode == MODE_EXPERT) {

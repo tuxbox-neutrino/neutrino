@@ -81,6 +81,11 @@ class CExtUpdate
 			MODE_EXPERT	= 0,
 			MODE_SOFTUPDATE	= 1
 		};
+		enum {
+			SOFTUPDATE_NAME_DEFAULT,
+			SOFTUPDATE_NAME_HOSTNAME_TIME,
+			SOFTUPDATE_NAME_ORGNAME_TIME
+		};
 		CExtUpdate();
 		~CExtUpdate();
 		static CExtUpdate* getInstance();

@@ -477,6 +477,8 @@ struct SNeutrinoSettings
 	char softupdate_proxyserver[31];
 	char softupdate_proxyusername[31];
 	char softupdate_proxypassword[31];
+	int softupdate_name_mode_apply;
+	int softupdate_name_mode_backup;
 	int apply_settings;
 	int apply_kernel;
 

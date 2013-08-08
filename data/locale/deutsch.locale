@@ -489,6 +489,13 @@ flashupdate.menu_apply_settings Settingsübernahme erlauben
 flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
 flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
+flashupdate.namemode1 Dateiname Settingsfile
+flashupdate.namemode1_default <Org.Name>+settings.img
+flashupdate.namemode1_hostname_time <Hostname>+<Zeit>+settings.img
+flashupdate.namemode1_orgname_time <Org.Name>+<Zeit>+settings.img
+flashupdate.namemode2 Dateiname Sicherung
+flashupdate.namemode2_default <Partition>+<Zeit>.img
+flashupdate.namemode2_hostname_time <Partition>+<Zeit>+<Hostname>.img
 flashupdate.new_found Updates verfügbar!
 flashupdate.new_notfound Keine Updates verfügbar!
 flashupdate.programmingflash programmiere Flash

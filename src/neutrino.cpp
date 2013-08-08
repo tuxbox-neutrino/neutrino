@@ -82,6 +82,7 @@
 #include "gui/scan_setup.h"
 #include "gui/sleeptimer.h"
 #include "gui/start_wizard.h"
+#include "gui/update_ext.h"
 #include "gui/videosettings.h"
 
 #include "gui/widget/hintbox.h"
@@ -657,6 +658,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_mode = configfile.getInt32( "softupdate_mode", 1 );
 	g_settings.apply_kernel = configfile.getBool("apply_kernel" , false);
 	g_settings.apply_settings = configfile.getBool("apply_settings" , false);
+	g_settings.softupdate_name_mode_apply = configfile.getInt32( "softupdate_name_mode_apply", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
+	g_settings.softupdate_name_mode_backup = configfile.getInt32( "softupdate_name_mode_backup", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
 
 	strcpy(g_settings.softupdate_url_file, configfile.getString("softupdate_url_file", "/var/etc/update.urls").c_str());
 	strcpy(g_settings.softupdate_proxyserver, configfile.getString("softupdate_proxyserver", "" ).c_str());
@@ -1095,6 +1098,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("apply_kernel", g_settings.apply_kernel);
 	configfile.setBool("apply_settings", g_settings.apply_settings);
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
+	configfile.setInt32 ("softupdate_name_mode_apply", g_settings.softupdate_name_mode_apply);
+	configfile.setInt32 ("softupdate_name_mode_backup", g_settings.softupdate_name_mode_backup);
 
 	configfile.setString("softupdate_proxyserver"   , g_settings.softupdate_proxyserver   );
 	configfile.setString("softupdate_proxyusername" , g_settings.softupdate_proxyusername );

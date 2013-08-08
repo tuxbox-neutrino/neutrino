@@ -55,6 +55,8 @@
 #include <system/httptool.h>
 #include <system/helpers.h>
 
+#include <lib/libnet/libnet.h>
+
 #define SQUASHFS
 
 #include <curl/curl.h>
@@ -550,13 +552,15 @@ CFlashExpert* CFlashExpert::getInstance()
 
 void CFlashExpert::readmtd(int preadmtd)
 {
-	char tmpStr[256];
-	struct timeval tv;
-	gettimeofday(&tv, NULL);	
-	strftime(tmpStr, sizeof(tmpStr), "_%Y%m%d_%H%M.img", localtime(&tv.tv_sec));
-	CMTDInfo* mtdInfo = CMTDInfo::getInstance();
-	std::string filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd);
-	filename += tmpStr;
+	std::string filename;
+	CMTDInfo* mtdInfo    = CMTDInfo::getInstance();
+	std::string hostName = netGetHostname();
+	std::string timeStr  = getNowTimeStr("_%Y%m%d_%H%M");
+
+	if (g_settings.softupdate_name_mode_backup == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
+		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + "_" + hostName + ".img";
+	else
+		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + ".img";
 
 	if (preadmtd == -1) {
 		filename = (std::string)g_settings.update_dir + "/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
