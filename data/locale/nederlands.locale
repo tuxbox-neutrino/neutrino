@@ -1605,7 +1605,7 @@ satsetup.fastscan_hd Enkel HD
 satsetup.fastscan_head Fastscan
 satsetup.fastscan_prov Provider
 satsetup.fastscan_prov_cd CanalDigitaal
-satsetup.fastscan_prov_telesat TÃ©lÃ©SAT
+satsetup.fastscan_prov_telesat TéléSAT
 satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd Enkel SD
 satsetup.fastscan_type Scantype
