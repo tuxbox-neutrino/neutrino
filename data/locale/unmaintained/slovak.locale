@@ -97,7 +97,7 @@ GENRE.TRAVEL_HOBBIES.6 inzertovanie/nakupovanie
 GENRE.TRAVEL_HOBBIES.7 záhradkárstvo
 GENRE.UNKNOWN neznáme
 apidselector.head Výber jazyka
-audio.srs_algo Mód
+audio.srs_algo Režim
 audio.srs_algo_heavy Hrubý
 audio.srs_algo_light Jemný
 audio.srs_algo_normal Normálny
@@ -312,7 +312,7 @@ epgextended.presenter Produkcia
 epgextended.year_of_production Rok výroby
 epglist.noevents Programové informácie (EPG) sú nedostupné...
 epgviewer.More_Screenings Podobné relácie na tomto kanály
-epgviewer.More_Screenings_short Viacej relácií
+epgviewer.More_Screenings_short Ďaľšie vysielania
 epgviewer.age_rating Vekové obmedzenie
 epgviewer.audio Zvuk
 epgviewer.genre Žáner
@@ -321,15 +321,15 @@ epgviewer.nodetailed Detailné informácie sú nedostupné
 epgviewer.notfound Nenájdené programové informácie (EPG)
 eventfinder.head Hľadaj v EPG
 eventfinder.keyword Slovo
-eventfinder.search Hľadaj
+eventfinder.search hľadaj
 eventfinder.search_all_epg Všade
 eventfinder.search_within_epg Hľadaj v EPG
 eventfinder.search_within_list Hľadaj v zozname
 eventfinder.searching Hľadám slovo v EPG...
 eventfinder.start_search Spusti hľadanie
 eventlist.additional Podrobnejšie informácie
-eventlist.name Zoznam udalostí
-eventlistbar.channelswitch prejdi
+eventlist.name Zoznam relácií
+eventlistbar.channelswitch prepni
 eventlistbar.eventsort triedenie
 eventlistbar.recordevent nahraj
 extra.add_to_bouquet Pridanie do buketu
@@ -368,8 +368,11 @@ extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
 extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_current_transponder Aktuálny kľúč transpondéra
+extra.key_format_mode Mód obrazu
 extra.key_list_end Na koniec
 extra.key_list_start Na začiatok
+extra.key_pic_mode Formát obrazu
+extra.key_pic_size Zobrazenie formátu 4:3
 extra.key_pip_close Spustiť/Zastaviť PiP
 extra.key_pip_setup Nastavenie PiP
 extra.key_pip_swap Prehodiť PiP/Hlavný obraz
@@ -417,6 +420,7 @@ extra.update_dir Adresár aktualizácie
 extra.use_gotoxx Použi gotoXX
 extra.volume_digits Hlasitoť číselne
 extra.volume_pos Ukazovateľ hlasitosti
+extra.volume_size Výška zobrazenia
 extra.west Západne
 extra.zap_cycle Cyklické prepínanie
 extra.zapit_fe_timeout Časový limit naladenia (1 = 10 msek)
@@ -435,7 +439,7 @@ favorites.copy Kopíruj buket do Obľúbených
 favorites.finalhint \nPouži editor buketov pre dokonačenie\nzmien v obľúbených.\n
 favorites.menueadd Pridaj kanál do obľúbených
 favorites.nobouquets Obľúbené sú dostupné len pri použití Buketov.
-filebrowser.delete zmaž
+filebrowser.delete Zmazať
 filebrowser.denydirectoryleave Hlavný adresár
 filebrowser.dodelete1 zmaž
 filebrowser.dodelete2 ?
@@ -480,6 +484,8 @@ flashupdate.globalprogress Celkový postup:
 flashupdate.head SW aktualizácia
 flashupdate.md5check Kontrola IMAGE
 flashupdate.md5sumerror IMAGE má chyby
+flashupdate.menu_apply_kernel Nahranie jadra (kernelu)
+flashupdate.menu_apply_settings Povoliť aplikovanie nastavení
 flashupdate.msgbox Zistený nový súbor:\nDátum: %s, %s\nBaseImage: %s\nTyp: %s\n\nNaozaj prevziať a nainštalovať\ntento súbor?
 flashupdate.msgbox_manual Zistený nový súbor:\nDátum: %s, %s\nBaseImage: %s\nTyp IMAGE: %s\n\nNaozaj nainštalovať\ntento súbor?
 flashupdate.mtdselector Výber partície
@@ -652,6 +658,7 @@ keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Základné oneskorenie
 keybindingmenu.repeatblockgeneric Oneskorenie opakovania
 keybindingmenu.sort Zmena poradia triedenia
+keybindingmenu.special_active Špeciálne klávesy
 keybindingmenu.subchanneldown Predchádzajúci podkanál
 keybindingmenu.subchannelup Nasledujúci podkanál
 keybindingmenu.tvradiomode TV/Rádio
@@ -679,6 +686,8 @@ lcdmenu.statusline Stavový riadok
 lcdmenu.statusline.both hlasitosť/odohratý čas
 lcdmenu.statusline.playtime odohratý čas
 lcdmenu.statusline.volume hlasitosť
+ledcontroler.backlight Podsvietené tlačidlá
+ledcontroler.backlight.tv TV režim
 ledcontroler.blink Blikať v hlbokom spánku ak je nastavený časovač
 ledcontroler.menu Podsvietenie Power tlačítka
 ledcontroler.mode.deepstandby Hlboký spánok
@@ -750,6 +759,7 @@ menu.hint_audioplayer_title Použije SMS štýl vyhľadávania titulov v zozname
 menu.hint_auto_lang Automatické prepnutie zvuku na preferovaný jazyk
 menu.hint_auto_subs Automatické spustenie titulkov pre preferovaný jazyk
 menu.hint_back Návrat do predchádzajúcej položky.\nStlačenie MENU klávesy uzavrie všetky položky
+menu.hint_backlight Nastavenie podsvietených tlačidiel
 menu.hint_backup Záloha konfigurácií a kanálov do vybraného adresára
 menu.hint_bedit Úprava obľúbených a buketov
 menu.hint_bigwindows Zoznam kanálov, programové informácie, prehrávač hudby a niektoré ďaľšie okná budú zobrazované na celej obrazovke
@@ -780,6 +790,7 @@ menu.hint_epg_max_events Maximum udalostí zachytávania. Po dosiahnutí hranice
 menu.hint_epg_old_events Hodiny po skončení udalosti aby sa označila\nako stará a odstránila sa zo zachytávania
 menu.hint_epg_save Uloženie zachyteného EPG na disk alebo usb\na načítanie po spustení
 menu.hint_epg_save_standby Uloženie EPG v režime pripravenosti
+menu.hint_epg_scan Povolenie prehľadávania EPG na pozadí ak je voľný tuner
 menu.hint_event_textcolor Zmena farby udalosti pre nastavenia farebnosti udalosti\nv zozname kanálov a stavovom riadku
 menu.hint_eventlist_additional Zobrazí podrobnejšie informácie\nv hlavnom okne
 menu.hint_eventlist_fonts Zmena veľkosti písma zoznamu udalostí
@@ -840,6 +851,7 @@ menu.hint_key_channel_sms Ak zapnuté, číselné klávesy v zozname kanálov\ns
 menu.hint_key_channeldown Priradenie klávesy pre rýchlu zmenu na predchádzajúci\nkanál v zozname kanálov
 menu.hint_key_channellist Konfigurácia klávesových skratiek pre zoznam kanálov
 menu.hint_key_channelup Priradenie klávesy pre rýchlu zmenu na nasledujúci\nkanál v zozname kanálov
+menu.hint_key_format_mode_active Kláves pre vypnutie/zapnutie konverzie obrazového formátu
 menu.hint_key_hardware Zmena typu diaľkového ovládača
 menu.hint_key_history Priradenie klávesy pre zobrazenie\nhistórie prepínania kanála
 menu.hint_key_lastchannel Priradenie klávesy pre rýchle prepnutie na\npredchádzajúci kanál v histórii
@@ -862,6 +874,8 @@ menu.hint_key_mptime Priradenie klávesy pre zobrazenie časov nahrávky
 menu.hint_key_mptimeshift Priradenie klávesy pre spustenie časového posunu
 menu.hint_key_pagedown Priradenie klávesy pre zobrazenie nasledujúcej strany položiek
 menu.hint_key_pageup Priradenie klávesy pre zobrazenie predchádzajúcej strany položiek
+menu.hint_key_pic_mode_active Povolenie/zakázanie klávesy pre zmenu formátu obrazu
+menu.hint_key_pic_size_active Povolenie/zakázanie klávesy pre zmenu správneho zobrazenia 4:3
 menu.hint_key_pip_close Priradenie klávesy pre ukončenie  PiP\nalebo spustenia ho na aktuálnom kanály
 menu.hint_key_pip_setup Priradenie klávesy pre konfiguráciu PiP
 menu.hint_key_pip_swap Priradenie klávesy pre zmenu PiP a živého kanála
@@ -873,6 +887,7 @@ menu.hint_key_right Výber 'vpravo' funkcie v živom TV/Rádio režime
 menu.hint_key_save Uloží klávesové skratky do súboru
 menu.hint_key_screenshot Priradenie klávesy pre uloženie GUI/nalebo zachytenie obrazovky
 menu.hint_key_sort Priradenie klávesy pre zmenu triedenia zoznamu kanálov
+menu.hint_key_special_active Povolenie/zakázanie niektorých špeciálnych kláves
 menu.hint_key_subchanneldown Priradenie klávesy pre rýchlu zmenu\n do predchádzajúceho subkanálu
 menu.hint_key_subchannelup Priradenie klávesy pre rýchlu zmenu\n do nasledujúceho subkanálu
 menu.hint_key_transponder Priradenie tlačítka pre zobrazenie zoznamu kanálov\nz aktuálneho transpondéra
@@ -1121,6 +1136,7 @@ menu.hint_video_scart_mode Výber režimu analógového výstupu pre SCART konek
 menu.hint_volume Konfigurácia volieb okna hlasitosti
 menu.hint_volume_digits Číselné zobrazenie ukazovateľa hlasitosti ZAP/VYP
 menu.hint_volume_pos Výber pozície indikátora hlasitosti
+menu.hint_volume_size Výber výšky indikátora hlasitosti
 menu.hint_ytplay Prehranie vybraných youtube videí
 menu.hint_zap_cycle Pri prepínaní kanálov zotrvať v aktuálnom bukete
 menu.next ďaľej (MENU ukončí)
@@ -1155,6 +1171,7 @@ miscsettings.epg_old_events_hint1 Ako dlho zapisovať dáta EPG po skončení?
 miscsettings.epg_old_events_hint2 Nastavenie v hodinách.
 miscsettings.epg_save Ulož/Obnov EPG po reštarte
 miscsettings.epg_save_standby Ulož EPG pri soft standby
+miscsettings.epg_scan Prehľadávanie EPG
 miscsettings.general Hlavné nastavenia
 miscsettings.head Rôzne nastavenia
 miscsettings.infobar Inforiadok
@@ -1212,6 +1229,7 @@ motorcontrol.install_menu Inštalačné menu
 motorcontrol.motor_pos (a) Pozícia motora:
 motorcontrol.movement (b) Presun:
 motorcontrol.msec ms
+motorcontrol.network Informácie sieti
 motorcontrol.no_mode nestará sa
 motorcontrol.notdef Nepoužité
 motorcontrol.override Nahradiť pozíciu určenú pre
@@ -1264,7 +1282,7 @@ moviebrowser.edit_book_type_info1 Zadanie novej dĺžky skoku
 moviebrowser.edit_book_type_info2 <0 vzad , >0 vpred, 0: nikde
 moviebrowser.edit_serie Zadanie názvu série
 moviebrowser.error_no_movies Nenájdené filmy
-moviebrowser.foot_filter Filtrovať:
+moviebrowser.foot_filter Filter:
 moviebrowser.foot_focus Prepnúť okno
 moviebrowser.foot_options Voľby
 moviebrowser.foot_play Štart filmu
@@ -1355,6 +1373,7 @@ moviebrowser.update_if_dest_empty_only Kopírovať len ak je cieľové miesto pr
 moviebrowser.use_dir Použi adresár
 moviebrowser.use_movie_dir Použi adresár filmov
 moviebrowser.use_rec_dir Použi adresár nahrávania
+moviebrowser.yt_concurrent_connections Súbežné spojenia
 moviebrowser.yt_error Chyba načítania youtube videa
 moviebrowser.yt_max_results Dosiahnuté maximum výsledkov
 moviebrowser.yt_most_discussed Najdiskutovanejšie
@@ -1364,6 +1383,7 @@ moviebrowser.yt_most_responded Najodpovedajšie
 moviebrowser.yt_most_shared Najzdielanejšie
 moviebrowser.yt_next_results Ďaľšie výsledky
 moviebrowser.yt_on_the_web Trendové videá
+moviebrowser.yt_pref_quality Preferovaná kvalita
 moviebrowser.yt_prev_results Predchádzájúce výsledky
 moviebrowser.yt_recently_featured Nedávno odporúčané
 moviebrowser.yt_region Región
@@ -1572,6 +1592,9 @@ rclock.unlockmsg Ovládač opäť funkčný.
 recording.is_running Tento kanál sa nahráva. Spustiť nové nahrávanie?
 recording.start Spustenie nahrávania, prosím čakajte...!
 recording.stop Zastavenie nahrávania, prosím čakajte...!
+recording.time_hour hodina
+recording.time_hours hodín
+recording.time_min min
 recordingmenu.apids Predvolené zvukové stopy
 recordingmenu.apids_ac3 Nahraj zvuk AC3
 recordingmenu.apids_alt Nahraj ostatné zvukové stopy
@@ -1735,7 +1758,8 @@ settings.noconffile Nenájdené nastavenia Neutrino.\nPoužité budú prednastav
 settings.pos_bottom_center spodný stred
 settings.pos_bottom_left ľavý spodok
 settings.pos_bottom_right pravý spodok
-settings.pos_default_center vrchný stred
+settings.pos_default_center stred
+settings.pos_higher_center spodný vyšší stred
 settings.pos_top_center vrchný stred
 settings.pos_top_left ľavý vrch
 settings.pos_top_right pravý vrch
@@ -1771,7 +1795,7 @@ subtitles.head Titulky
 subtitles.stop Vypnúť titulky
 timer.eventrecord.msg Udalosť je naplánovaná na nahrávanie.\nPre úpravu plánu otvorte časovač nahrávania.
 timer.eventrecord.title Plánovač nahrávania
-timer.eventtimed.msg Táto program je naplánovaný.\nBox bude zapnutý a \nprepnutý na tento kanál v stanovenom čase.
+timer.eventtimed.msg Táto relácia je naplánovaná.\nBox bude zapnutý a prepnutý \nna tento kanál v stanovenom čase.
 timer.eventtimed.title Plánovač udalostí
 timerbar.channelswitch prepni
 timerbar.recordevent nahraj
@@ -1852,6 +1876,7 @@ timing.infobar_movieplayer Stavový riadok (filmový mód)
 timing.infobar_radio Stavový riadok (rádio mód)
 timing.menu Menu
 timing.numericzap Prepínanie číslami
+timing.volumebar Ukazovateľ hlasitosti
 unicable.lnb Vstup Unicable
 unicable.qrg Kmitočet Unicable
 unicable.scr SCR Unicable
@@ -1927,6 +1952,11 @@ videomenu.videoformat_43 4:3
 videomenu.videomode Obrazový režim
 wizard.initial_settings Najdené ininicializačné nastavenia
 wizard.install_settings Chcete inštalovať kanály pre Astra 19.2°E?
+wizard.setup Úvodná inštalácia
+wizard.setup_advanced Rozšírená
+wizard.setup_easy Jednoduchá
+wizard.setup_type Typ inštalácie
+wizard.setup_type_hint Jednoduché nastavenie pre CanalDigitaal/TĂ©lĂ©SAT/TV Vlaanderen alebo jednoduché káblové vyhľadávanie
 wizard.welcome_head Vitajte v Sprievodcovi nastavenia
 wizard.welcome_text Ďaľšie kroky prevedú základnú inštaláciu tohto zariadenia.\nChceš pokračovať?\nBlahoželáme k zakúpeniu CST. Nasledujúce \nkroky ťa prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme ti veľa radosti s týmto príjmačom!\nĎaľší krok ?
 word.from z

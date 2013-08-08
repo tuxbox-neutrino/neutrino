@@ -1,6 +1,6 @@
 #	yWeb language file (Slovensky) by EnoSat
 #	language version: 1.1
-#	$Date: 2013-04-30 22:22:22 +0100 (Ut, 30 Apríla 2013) $
+#	$Date: 2013-08-03 20:20:20 +0100 (so, 3 Augusta 2013) $
 #	$Revision: 212 $
 #========= Hlavné / Celkové nastavenie
 global.no_iframes=Váš prehliadač nepodporuje I-rámce.
@@ -53,6 +53,9 @@ attention=Upozornenie!
 directory=Adresár
 filename=Názov súboru
 restriced_by_management_ip=obmedzené Manažmentom-IP
+automatic=automaticky
+show=ukázať
+hide=skryť
 
 #======== Hlavná ponuka
 main.boxcontrol=Ovládanie zariadenia
@@ -301,6 +304,7 @@ set.nhttpd.active_after_boot=aktívne po nabootovaní
 set.nhttpd.port=Vydávateľ
 set.nhttpd.threading=Prepojené
 set.nhttpd.alternate_web_folder=Alternatívny web-adresár
+set.nhttpd.hosted_folder=Pripojené adresáre
 set.nhttpd.allowed_file_extensions=Povolené prípony súboru / MIME
 set.nhttpd.allow_all_file_extensions=Povoliť všetky prípony súboru
 set.nhttpd.url_of_logos_desc=Vloženie adresára s logami staníc
@@ -502,6 +506,7 @@ live.timer_edit.apids.default=Prednastavené
 live.timer_edit.apids.standard=Štandartné
 live.timer_edit.apids.alt=Alternativné
 live.timer_edit.apids.ac3=AC3
+live.timer_edit.apids=A-pidy
 live.timer_edit.standby=Režim spánku
 live.timer_edit.plugin=Doplnok
 live.timer_edit.rec_dir=Adresár nahrávania
@@ -520,7 +525,7 @@ live.timer-sync.timer_preview=Prehľadový zoznam časovača
 live.timer-sync.start_time=Čas začiatku
 live.timer-sync.end_time=Čas konca
 live.timer-sync.channel=Kanál
-live.timer-sync.programm=Program
+live.timer-sync.programm=Relácia
 live.timer-sync.source=Zdroj
 live.timer-sync.set_timer=nastav časovač
 live.timer-sync.clear_log=vyčisti log
@@ -534,3 +539,54 @@ info.About=O programe
 info.check_for_updates=Kontrola aktualizácie
 info.your_version=Vaša inštalovaná verzia
 info.actual_version=Aktuálna verzia
+
+========= Dialkové ovládanie
+rc.key_power=Spánok
+rc.key_mute=Umlčanie
+rc.key_1=1
+rc.key_2=2
+rc.key_3=3
+rc.key_4=4
+rc.key_5=5
+rc.key_6=6
+rc.key_7=7
+rc.key_8=8
+rc.key_9=9
+rc.key_0=0
+rc.key_text=TXT
+rc.key_favorites=Obľúbené
+rc.key_volumeup=Hlas+
+rc.key_volumedown=Hlas-
+rc.key_pageup=Strana+
+rc.key_pagedown=Strana-
+rc.key_mode=TV/Radio
+rc.key_next=Preskočiť-
+rc.key_previous=Preskočiť+
+rc.key_sleep=Uspať
+rc.key_audio=Zvuk
+rc.key_help=Pomoc
+rc.key_red=Červený
+rc.key_green=Zelený
+rc.key_yellow=Žltý
+rc.key_blue=Modrý
+rc.key_epg=EPG
+rc.key_info=Info
+rc.key_ok=OK
+rc.key_up=Nahor
+rc.key_down=Nadol
+rc.key_left=Vľavo
+rc.key_right=Vpravo
+rc.key_setup=Ponuka
+rc.key_home=Ukončiť
+rc.key_sat=Družica
+rc.key_www=
+rc.key_rewind=Vpred
+rc.key_play=Prehrať
+rc.key_forward=Vzad
+rc.key_stop=Zastaviť
+rc.key_record=Nahrať
+rc.key_pause=Pozastaviť
+rc.key_games=
+rc.key_time=
+rc.key_picsize=Veľkosť obrazu
+rc.key_picmode=Režim obrazu
