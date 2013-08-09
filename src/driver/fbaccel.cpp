@@ -380,6 +380,26 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	if (dx <= 0 || dy <= 0)
 		return;
 
+	// The STM blitter introduces considerable overhead probably not worth for single lines. --martii
+	if (dx == 1) {
+		waitForIdle();
+		fb_pixel_t *fbs = fb->getFrameBufferPointer() + (DEFAULT_XRES * y) + x;
+		fb_pixel_t *fbe = fbs + DEFAULT_XRES * dy;
+		while (fbs < fbe) {
+			*fbs = col;
+			fbs += DEFAULT_XRES;
+		}
+		return;
+	}
+	if (dy == 1) {
+		waitForIdle();
+		fb_pixel_t *fbs = fb->getFrameBufferPointer() + (DEFAULT_XRES * y) + x;
+		fb_pixel_t *fbe = fbs + dx;
+		while (fbs < fbe)
+			*fbs++ = col;
+		return;
+	}
+
 	/* function has const parameters, so copy them here... */
 	int width = dx;
 	int height = dy;
