@@ -1737,7 +1737,8 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 		hh->printf("%05u vtxt\n",pids.PIDs.vtxtpid);
 	if (pids.PIDs.pmtpid)
 		hh->printf("%05u pmt\n",pids.PIDs.pmtpid);
-
+	if (pids.PIDs.pcrpid)
+		hh->printf("%05u pcr\n",pids.PIDs.pcrpid);
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::SendTimers(CyhookHandler *hh)
@@ -2067,9 +2068,17 @@ void CControlAPI::YWeb_SendVideoStreamingPids(CyhookHandler *hh, int apid_no)
 	if(!pids.APIDs.empty())
 		apid = pids.APIDs[apid_idx].pid;
 	if(hh->ParamList["no_commas"] != "")
+	{
 		hh->printf("0x%04x 0x%04x 0x%04x",pids.PIDs.pmtpid,pids.PIDs.vpid,apid);
+		if (pids.PIDs.pcrpid != pids.PIDs.vpid)
+			hh->printf(" 0x%04x", pids.PIDs.pcrpid);
+	}
 	else
+	{
 		hh->printf("0x%04x,0x%04x,0x%04x",pids.PIDs.pmtpid,pids.PIDs.vpid,apid);
+		if (pids.PIDs.pcrpid != pids.PIDs.vpid)
+			hh->printf(",0x%04x", pids.PIDs.pcrpid);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2543,6 +2552,8 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 		if(!pids.APIDs.empty())
 			apid = pids.APIDs[apid_idx].pid;
 		xpids = string_printf("0x%04x,0x%04x,0x%04x",pids.PIDs.pmtpid,pids.PIDs.vpid,apid);
+		if (pids.PIDs.pcrpid != pids.PIDs.vpid)
+			xpids += string_printf(",0x%04x", pids.PIDs.pcrpid);
 	}
 	else if ( mode == CZapitClient::MODE_RADIO)
 	{
