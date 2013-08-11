@@ -621,7 +621,7 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
         if (feparams->dvb_feparams.u.qpsk.symbol_rate >= 50000000)
                 feparams->dvb_feparams.u.qpsk.symbol_rate /= 10;
 
-        feparams->dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams->dvb_feparams.frequency / (double) 1000);
+        feparams->dvb_feparams.frequency = 1000 * ((feparams->dvb_feparams.frequency + 500) / 1000);
 
 #ifdef SCAN_DEBUG
 	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->dvb_feparams.frequency, feparams->dvb_feparams.u.qpsk.symbol_rate, fec_inner, * polarization);

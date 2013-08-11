@@ -353,7 +353,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			if(feparams.dvb_feparams.frequency < 20000)
 				feparams.dvb_feparams.frequency = feparams.dvb_feparams.frequency*1000;
 			else
-				feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
+				feparams.dvb_feparams.frequency = 1000 * ((feparams.dvb_feparams.frequency + 500) / 1000);
 		}
 		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, delsys != FE_QPSK);
 
@@ -534,7 +534,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			if(modulation == 2 && ((fe_code_rate_t) xml_fec != FEC_AUTO))
 				xml_fec += 9;
 			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
-			feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
+			feparams.dvb_feparams.frequency = 1000 * ((feparams.dvb_feparams.frequency + 500) / 1000);
 		}
 		else if (fType == FE_OFDM) {
 			feparams.dvb_feparams.u.ofdm.bandwidth = (fe_bandwidth_t)

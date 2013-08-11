@@ -237,7 +237,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	}
 
 	time_t end_time = time(0);
-	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
+	recMovieInfo->length = (end_time - start_time + 30) / 60;
 
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
 	if (!(autoshift && g_settings.auto_timeshift))

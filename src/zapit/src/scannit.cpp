@@ -358,7 +358,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	}
 
 	feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
-	feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
+	feparams.dvb_feparams.frequency = 1000 * ((feparams.dvb_feparams.frequency + 500) / 1000);
 
 	freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, false);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
