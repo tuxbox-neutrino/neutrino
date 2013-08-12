@@ -1621,6 +1621,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	if(live_channel_id != channel_id) {
 		/* first try to get frontend for record with locked live */
 		bool unlock = true;
+		/* executed in neutrino thread - possible race with zap NOWAIT and epg scan zap */
+		CFEManager::getInstance()->Lock();
 		CFEManager::getInstance()->lockFrontend(live_fe);
 		frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		if (frontend == NULL) {
@@ -1629,6 +1631,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 			CFEManager::getInstance()->unlockFrontend(live_fe);
 			frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		}
+		CFEManager::getInstance()->Unlock();
+
 		if (frontend == NULL)
 			return false;
 

@@ -483,6 +483,8 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
 #ifdef ENABLE_PIP
+	/* executed async if zap NOWAIT, race possible with record lock/allocate */
+	CFEManager::getInstance()->Lock();
 	if (pip_fe)
 		CFEManager::getInstance()->lockFrontend(pip_fe);
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
@@ -492,6 +494,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		StopPip();
 		fe = CFEManager::getInstance()->allocateFE(newchannel);
 	}
+	CFEManager::getInstance()->Unlock();
 #else
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
 #endif
@@ -681,7 +684,6 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
-	bool ret = false;
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
@@ -689,29 +691,34 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id)
 	}
 	INFO("%s: %s (%" PRIx64 ")", __FUNCTION__, newchannel->getName().c_str(), channel_id);
 
+	/* executed async in zapit thread, race possible with record lock/allocate */
+	CFEManager::getInstance()->Lock();
+
 	CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
 	if (pip_fe && pip_fe != live_fe)
 		CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
-	if(frontend == NULL) {
-		ERROR("Cannot get frontend\n");
-		goto __error;
-	}
-	if(!TuneChannel(frontend, newchannel, transponder_change))
-		goto __error;
 
-	if(ParsePatPmt(newchannel))
-		ret = true;
-
-__error:
 	CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
 	if (pip_fe && pip_fe != live_fe)
 		CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
-	return ret;
+	CFEManager::getInstance()->Unlock();
+
+	if(frontend == NULL) {
+		ERROR("Cannot get frontend\n");
+		return false;
+	}
+	if(!TuneChannel(frontend, newchannel, transponder_change))
+		return false;
+
+	if(!ParsePatPmt(newchannel))
+		return false;
+
+	return true;
 }
 
 /* set channel/pid volume percent, using current channel_id and pid, if those params is 0 */

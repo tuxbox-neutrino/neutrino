@@ -129,10 +129,11 @@ void CEpgScan::Next()
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
-	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
 	/* executed in neutrino thread - possible race with locks in zapit zap NOWAIT :
-	   send zaTo_NOWAIT -> EIT_COMPLETE from sectionsd -> zap and this at the same time
+	   send zapTo_NOWAIT -> EIT_COMPLETE from sectionsd -> zap and this at the same time
 	*/
+	CFEManager::getInstance()->Lock();
+	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
 	CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
 	CFrontend *pip_fe = CZapit::getInstance()->GetPipFrontend();
@@ -158,6 +159,7 @@ void CEpgScan::Next()
 	if (pip_fe && pip_fe != live_fe)
 		CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
+	CFEManager::getInstance()->Unlock();
 	if (next_chid)
 		g_Zapit->zapTo_epg(next_chid);
 }
