@@ -124,7 +124,7 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 void CEpgScan::Next()
 {
 	next_chid = 0;
-	if (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby)
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
 		return;
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
