@@ -714,10 +714,11 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id)
 	}
 	if(!TuneChannel(frontend, newchannel, transponder_change))
 		return false;
-
+#if 0
 	if(!ParsePatPmt(newchannel))
 		return false;
-
+#endif
+	ParsePatPmt(newchannel);
 	return true;
 }
 
