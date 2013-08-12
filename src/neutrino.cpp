@@ -1636,7 +1636,7 @@ void CNeutrinoApp::InitTimerdClient()
 void CNeutrinoApp::InitZapitClient()
 {
 	g_Zapit         = new CZapitClient;
-#define ZAPIT_EVENT_COUNT 27
+#define ZAPIT_EVENT_COUNT 28
 	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
 	{
 		CZapitClient::EVT_ZAP_COMPLETE,
@@ -1666,6 +1666,7 @@ void CNeutrinoApp::InitZapitClient()
 		CZapitClient::EVT_SDT_CHANGED,
 		CZapitClient::EVT_PMT_CHANGED,
 		CZapitClient::EVT_TUNE_COMPLETE,
+		CZapitClient::EVT_BACK_ZAP_COMPLETE
 	};
 
 	for (int i = 0; i < ZAPIT_EVENT_COUNT; i++)
@@ -2313,7 +2314,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		}
 	}
-	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE)) {
+	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE || msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE)) {
 		CEpgScan::getInstance()->handleMsg(msg, data);
 		return messages_return::handled;
 	}

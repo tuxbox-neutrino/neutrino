@@ -150,6 +150,7 @@ struct NeutrinoMessages {
 		EVT_RECORDING_ENDED                      = CRCInput::RC_WithData + 23,
 		/* sectionsd */
 		EVT_EIT_COMPLETE                         = CRCInput::RC_WithData + 24, /* data: (t_channel_id *) */
+		EVT_BACK_ZAP_COMPLETE                    = CRCInput::RC_WithData + 25, /* data: (t_channel_id *) */
 	};
 	enum
 	{
