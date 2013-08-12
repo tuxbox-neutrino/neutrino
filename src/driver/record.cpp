@@ -164,7 +164,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	numpids = 0;
 	if (allpids.PIDs.vpid != 0){
 		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
-		if(allpids.PIDs.pcrpid != allpids.PIDs.vpid){
+		if (allpids.PIDs.pcrpid && (allpids.PIDs.pcrpid != allpids.PIDs.vpid)) {
 			psi.addPid(allpids.PIDs.pcrpid, EN_TYPE_PCR, 0);
 			apids[numpids++]=allpids.PIDs.pcrpid;
 		}
