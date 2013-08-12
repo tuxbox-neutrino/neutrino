@@ -1,5 +1,5 @@
-export LD_LIBRARY_PATH=/opt/lib:/opt/usr/lib
-export PATH=${PATH}:/opt/bin:/opt/usr/bin
+export LD_LIBRARY_PATH=/var/lib
+export PATH=${PATH}:/var/bin:/var/plugins
 
 echo "### Starting NEUTRINO ###"
 
