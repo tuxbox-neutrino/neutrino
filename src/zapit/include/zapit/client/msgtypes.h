@@ -190,6 +190,7 @@ class CZapitMessages
 		t_channel_id channel_id;
 		bool record;
 		bool pip;
+		bool epg;
 	};
 
 	struct commandSetAudioChannel

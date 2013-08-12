@@ -72,6 +72,7 @@ class CZapitClient:public CBasicClient
 			EVT_SERVICES_CHANGED,
 			EVT_PMT_CHANGED,
 			EVT_TUNE_COMPLETE,
+			EVT_BACK_ZAP_COMPLETE,
 			LAST_EVENT_MARKER             // <- no actual event, needed by pzapit
 		};
 
@@ -274,6 +275,7 @@ class CZapitClient:public CBasicClient
 	unsigned int zapTo_serviceID(const t_channel_id channel_id);
 	unsigned int zapTo_record(const t_channel_id channel_id);
 	unsigned int zapTo_pip(const t_channel_id channel_id);
+	unsigned int zapTo_epg(const t_channel_id channel_id);
 
 	/* zaps to subservice, returns the "zap-status" */
 	unsigned int zapTo_subServiceID(const t_channel_id channel_id);
