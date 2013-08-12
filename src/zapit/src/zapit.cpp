@@ -71,6 +71,7 @@
 #include <driver/abstime.h>
 #include <libdvbsub/dvbsub.h>
 #include <libtuxtxt/teletext.h>
+#include <OpenThreads/ScopedLock>
 
 /* globals */
 int sig_delay = 2; // seconds between signal check
@@ -596,7 +597,7 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
-		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
 	INFO("[pip] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
@@ -653,7 +654,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	bool transponder_change;
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
-		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
 	INFO("%s: %s (%" PRIx64 ")", __FUNCTION__, newchannel->getName().c_str(), channel_id);
@@ -674,6 +675,43 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 		return false;
 
 	return true;
+}
+
+bool CZapit::ZapForEpg(const t_channel_id channel_id)
+{
+	CZapitChannel* newchannel;
+	bool transponder_change;
+	bool ret = false;
+
+	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		return false;
+	}
+	INFO("%s: %s (%" PRIx64 ")", __FUNCTION__, newchannel->getName().c_str(), channel_id);
+
+	CFEManager::getInstance()->lockFrontend(live_fe);
+#ifdef ENABLE_PIP
+	if (pip_fe && pip_fe != live_fe)
+		CFEManager::getInstance()->lockFrontend(pip_fe);
+#endif
+	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
+	if(frontend == NULL) {
+		ERROR("Cannot get frontend\n");
+		goto __error;
+	}
+	if(!TuneChannel(frontend, newchannel, transponder_change))
+		goto __error;
+
+	if(ParsePatPmt(newchannel))
+		ret = true;
+
+__error:
+	CFEManager::getInstance()->unlockFrontend(live_fe);
+#ifdef ENABLE_PIP
+	if (pip_fe && pip_fe != live_fe)
+		CFEManager::getInstance()->unlockFrontend(pip_fe);
+#endif
+	return ret;
 }
 
 /* set channel/pid volume percent, using current channel_id and pid, if those params is 0 */
@@ -970,6 +1008,15 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		else if(msgZaptoServiceID.pip)
 			msgResponseZapComplete.zapStatus = StartPip(msgZaptoServiceID.channel_id);
 #endif
+		else if(msgZaptoServiceID.epg) {
+			msgResponseZapComplete.zapStatus = 0;
+			CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
+			bool ret = ZapForEpg(msgZaptoServiceID.channel_id);
+			if (!ret)
+				msgZaptoServiceID.channel_id = 0;
+			SendEvent(CZapitClient::EVT_BACK_ZAP_COMPLETE, &msgZaptoServiceID.channel_id, sizeof(t_channel_id));
+			break;
+		}
 		else
 			msgResponseZapComplete.zapStatus = ZapTo(msgZaptoServiceID.channel_id, (rmsg.cmd == CZapitMessages::CMD_ZAPTO_SUBSERVICEID));
 
