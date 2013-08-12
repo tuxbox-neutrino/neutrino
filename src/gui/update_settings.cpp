@@ -114,7 +114,9 @@ int CUpdateSettings::initMenu()
 	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 //	fw_update_dir->setHint("", LOCALE_MENU_HINT_XXX);
 
+#ifndef BOXMODEL_APOLLO
 	CMenuOptionChooser *apply_settings = new CMenuOptionChooser(LOCALE_FLASHUPDATE_MENU_APPLY_SETTINGS, &g_settings.apply_settings, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
+#endif
 //	apply_settings->setHint("", LOCALE_MENU_HINT_XXX);
 #if 0
 	CMenuOptionChooser *apply_kernel = new CMenuOptionChooser(LOCALE_FLASHUPDATE_MENU_APPLY_KERNEL, &g_settings.apply_kernel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.apply_settings);
@@ -125,7 +127,9 @@ int CUpdateSettings::initMenu()
 	w_upsettings.addItem(fw_update_dir);
 	w_upsettings.addItem(fw_url);
 	w_upsettings.addItem(GenericMenuSeparatorLine);
+#ifndef BOXMODEL_APOLLO
 	w_upsettings.addItem(apply_settings);
+#endif
 #if 0
 	w_upsettings.addItem(apply_kernel);
 #endif
