@@ -343,7 +343,7 @@ CMovieBrowser::CMovieBrowser(const char* path): configfile ('\t')
 
 CMovieBrowser::CMovieBrowser(): configfile ('\t')
 {
-	TRACE("$Id: moviebrowser.cpp,v 1.10 2006/09/11 21:11:35 guenther Exp $\r\n");
+	//TRACE("$Id: moviebrowser.cpp,v 1.10 2006/09/11 21:11:35 guenther Exp $\r\n");
 	init();
 }
 
@@ -636,7 +636,6 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameBrowserList.iWidth = 	m_cBoxFrame.iWidth;
 	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight * m_settings.browserFrameHeight / 100;
 
-fprintf(stderr, "m_cBoxFrame.iHeight %d m_cBoxFrameBrowserList.iHeight %d m_settings.browserFrameHeight %d\n",m_cBoxFrame.iHeight, m_cBoxFrameBrowserList.iHeight, m_settings.browserFrameHeight);
 	m_cBoxFrameFootRel.iX = 		0;
 	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_pcFontFoot->getHeight();
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrameBrowserList.iWidth;
