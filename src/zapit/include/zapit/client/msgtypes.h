@@ -191,6 +191,7 @@ class CZapitMessages
 		bool record;
 		bool pip;
 		bool epg;
+		commandZaptoServiceID():channel_id(0),record(false),pip(false),epg(false){}
 	};
 
 	struct commandSetAudioChannel
