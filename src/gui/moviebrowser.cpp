@@ -3929,7 +3929,7 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (parent)
 			parent->hide();
 		CMenuWidget* m = new CMenuWidget(LOCALE_MOVIEBROWSER_YT_HISTORY, NEUTRINO_ICON_MOVIEPLAYER, width);
-		m->addKey(CRCInput::RC_spkr, this, "clear");
+		m->addKey(CRCInput::RC_spkr, this, "clearYThistory");
 		m->setSelected(selected);
 		m->addItem(GenericMenuSeparator);
 		m->addItem(GenericMenuBack);
@@ -3942,7 +3942,7 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 		delete m;
 		return menu_return::RETURN_REPAINT;
 	}
-	if (actionKey == "clear") {
+	if (actionKey == "clearYThistory") {
 		settings->ytsearch_history.clear();
 		settings->ytsearch_history_size = 0;
 		return menu_return::RETURN_EXIT;
