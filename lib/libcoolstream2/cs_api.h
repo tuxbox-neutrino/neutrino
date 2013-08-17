@@ -10,7 +10,7 @@
 #ifndef __CS_API_H_
 #define __CS_API_H_
 
-#include <coolstream/control.h>
+#include <control.h>
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdint.h>
