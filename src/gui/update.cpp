@@ -649,8 +649,10 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
+#ifndef BOXMODEL_APOLLO
 	if (actionkey == "writemtd")
 		mtdselector->addItem(new CMenuForwarderNonLocalized("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
+#endif
 	mtdselector->exec(NULL,"");
 	delete mtdselector;
 }
