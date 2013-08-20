@@ -757,7 +757,8 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 			showFileSelector("");
 		} else {
 			if(selectedMTD == 10) {
-				CExtUpdate::getInstance()->applySettings(actionKey, CExtUpdate::MODE_EXPERT);
+				std::string aK = actionKey;
+				CExtUpdate::getInstance()->applySettings(aK, CExtUpdate::MODE_EXPERT);
 			}
 			else if(selectedMTD==-1) {
 				writemtd(actionKey, MTD_OF_WHOLE_IMAGE);

@@ -90,7 +90,7 @@ class CExtUpdate
 		~CExtUpdate();
 		static CExtUpdate* getInstance();
 
-		bool applySettings(const std::string & filename, int mode);
+		bool applySettings(std::string & filename, int mode);
 		bool ErrorReset(bool modus, const std::string & msg1="", const std::string & msg2="");
 		bool isBlacklistEntry(const std::string & file);
 

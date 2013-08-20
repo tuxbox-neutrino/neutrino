@@ -137,7 +137,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 	return false;
 }
 
-bool CExtUpdate::applySettings(const std::string & filename, int mode)
+bool CExtUpdate::applySettings(std::string & filename, int mode)
 {
 	if(!FileHelpers)
 		FileHelpers = new CFileHelpers();
@@ -165,6 +165,7 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 	else
 		imgFilename = orgPath + "/" + orgName  + settingsStr + orgExt;
 
+	filename = imgFilename;
 	FileHelpers->copyFile(oldFilename.c_str(), imgFilename.c_str(), 0644);
 
 	bool ret = applySettings();
