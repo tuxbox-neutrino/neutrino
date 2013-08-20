@@ -158,15 +158,18 @@ bool CExtUpdate::applySettings(std::string & filename, int mode)
 	std::string timeStr     = getNowTimeStr("_%Y%m%d_%H%M");
 	std::string settingsStr = "+settings";
 
-	if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
-		imgFilename = orgPath + "/" + hostName + timeStr + settingsStr + orgExt;
-	else if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_ORGNAME_TIME)
-		imgFilename = orgPath + "/" + orgName + timeStr  + settingsStr + orgExt;
+	if (orgPath != "/tmp") {
+		if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
+			imgFilename = orgPath + "/" + hostName + timeStr + settingsStr + orgExt;
+		else if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_ORGNAME_TIME)
+			imgFilename = orgPath + "/" + orgName + timeStr  + settingsStr + orgExt;
+		else
+			imgFilename = orgPath + "/" + orgName  + settingsStr + orgExt;
+		FileHelpers->copyFile(oldFilename.c_str(), imgFilename.c_str(), 0644);
+	}
 	else
-		imgFilename = orgPath + "/" + orgName  + settingsStr + orgExt;
-
+		imgFilename = oldFilename;
 	filename = imgFilename;
-	FileHelpers->copyFile(oldFilename.c_str(), imgFilename.c_str(), 0644);
 
 	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
