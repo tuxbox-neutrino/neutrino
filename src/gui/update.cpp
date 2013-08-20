@@ -550,6 +550,36 @@ CFlashExpert* CFlashExpert::getInstance()
 	return FlashExpert;
 }
 
+bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
+{
+	char errMsg[1024] = {0};
+	std::string path = getPathName(backupFile);
+	if (!file_exists(path.c_str()))  {
+		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_DIRECTORY_NOT_EXIST), path.c_str());
+		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
+		return false;
+	}
+
+	int mtdSize = CMTDInfo::getInstance()->getMTDSize(mtd) / 1024;
+
+	long btotal = 0, bused = 0, bsize = 0;
+	if (!get_fs_usage(path.c_str(), btotal, bused, &bsize)) {
+		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_VOLUME_ERROR), path.c_str());
+		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
+		return false;
+	}
+	int backupMaxSize = (int)((btotal - bused) * bsize);
+	int res = 10; // Reserved 10% of available space
+	backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100)) / 1024;
+	if (backupMaxSize < mtdSize) {
+		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), backupMaxSize, mtdSize);
+		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
+		return false;
+	}
+
+	return true;
+}
+
 void CFlashExpert::readmtd(int preadmtd)
 {
 	std::string filename;
@@ -566,6 +596,10 @@ void CFlashExpert::readmtd(int preadmtd)
 		filename = (std::string)g_settings.update_dir + "/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
 		preadmtd = MTD_OF_WHOLE_IMAGE;
 	}
+
+	if (!checkSize(preadmtd, filename))
+		return;
+
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
 	paint();
 	showGlobalStatus(0);

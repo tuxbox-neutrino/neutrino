@@ -75,6 +75,7 @@ class CFlashExpert : public CProgressWindow
 		void showMTDSelector(const std::string & actionkey);
 		void showFileSelector(const std::string & actionkey);
 
+		bool checkSize(int mtd, std::string &backupFile);
 		void readmtd(int readmtd);
 
 	public:

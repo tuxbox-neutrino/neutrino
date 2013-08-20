@@ -509,6 +509,9 @@ flashupdate.proxyserver_sep Proxyserver
 flashupdate.proxyusername Username
 flashupdate.proxyusername_hint1 enter the proxyserver username
 flashupdate.proxyusername_hint2 a empty entry means no proxy-auth
+flashupdate.read_directory_not_exist The backup directory %s \ndoes not exist!
+flashupdate.read_no_available_space The maximum available space in %s \nis %d KB, but there are %d KB required.\n \nThe operation is canceled, please choose another medium!
+flashupdate.read_volume_error The size of the volume %s \ncan not be determined!
 flashupdate.readflash Read whole image
 flashupdate.readflashmtd Read one partition
 flashupdate.ready ready
