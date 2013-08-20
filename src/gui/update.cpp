@@ -597,7 +597,12 @@ void CFlashExpert::readmtd(int preadmtd)
 		preadmtd = MTD_OF_WHOLE_IMAGE;
 	}
 
-	if (!checkSize(preadmtd, filename))
+	bool skipCheck = false;
+#ifndef BOXMODEL_APOLLO
+	if ((std::string)g_settings.update_dir == "/tmp")
+		skipCheck = true;
+#endif
+	if ((!skipCheck) && (!checkSize(preadmtd, filename)))
 		return;
 
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
