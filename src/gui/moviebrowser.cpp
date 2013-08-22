@@ -1722,6 +1722,7 @@ void CMovieBrowser::refreshTitle(void)
 		title = g_Locale->getText(LOCALE_MOVIEPLAYER_YTPLAYBACK);
 		title += " : ";
 		title += g_Locale->getText(getFeedLocale());
+		title += " \"" + m_settings.ytsearch + "\"";
 	}
 	
 	TRACE("[mb]->refreshTitle : %s\r\n", title.c_str());
@@ -2046,27 +2047,55 @@ bool CMovieBrowser::onButtonPressBrowserList(neutrino_msg_t msg)
 
 	if(msg==CRCInput::RC_up)
 	{
-		m_pcBrowser->scrollLineUp(1);
+		if (show_mode == MB_SHOW_YT && ytparser.HavePrev() && m_pcBrowser->getSelectedLine() == 0) {
+			CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK, g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+			loadBox.paint();
+			ytparser.Cleanup();
+			loadYTitles(cYTFeedParser::PREV, m_settings.ytsearch, m_settings.ytvid);
+			loadBox.hide();
+			refreshBrowserList();
+			refreshMovieInfo();
+		} else
+			m_pcBrowser->scrollLineUp(1);
 	}
 	else if (msg == CRCInput::RC_down)
 	{
-		m_pcBrowser->scrollLineDown(1);
+		if (show_mode == MB_SHOW_YT && ytparser.HaveNext() && m_pcBrowser->getSelectedLine() == m_pcBrowser->getLines() - 1) {
+			CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK, g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+			loadBox.paint();
+			ytparser.Cleanup();
+			loadYTitles(cYTFeedParser::NEXT, m_settings.ytsearch, m_settings.ytvid);
+			loadBox.hide();
+			refreshBrowserList();
+			refreshMovieInfo();
+		} else
+			m_pcBrowser->scrollLineDown(1);
 	}
-	else if (msg == (neutrino_msg_t)g_settings.key_pageup)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pageup) || (msg == CRCInput::RC_left))
 	{
-		m_pcBrowser->scrollPageUp(1);
+		if (show_mode == MB_SHOW_YT && ytparser.HavePrev() && m_pcBrowser->getSelectedLine() == 0) {
+			CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK, g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+			loadBox.paint();
+			ytparser.Cleanup();
+			loadYTitles(cYTFeedParser::PREV, m_settings.ytsearch, m_settings.ytvid);
+			loadBox.hide();
+			refreshBrowserList();
+			refreshMovieInfo();
+		} else
+			m_pcBrowser->scrollPageUp(1);
 	}
-	else if (msg == (neutrino_msg_t)g_settings.key_pagedown)
+	else if ((msg == (neutrino_msg_t)g_settings.key_pagedown) || (msg == CRCInput::RC_right))
 	{
-		m_pcBrowser->scrollPageDown(1);
-	}
-	else if (msg == CRCInput::RC_left)
-	{
-		m_pcBrowser->scrollPageUp(1);
-	}
-	else if (msg == CRCInput::RC_right)
-	{
-		m_pcBrowser->scrollPageDown(1);
+		if (show_mode == MB_SHOW_YT && ytparser.HaveNext() && m_pcBrowser->getSelectedLine() == m_pcBrowser->getLines() - 1) {
+			CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK, g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
+			loadBox.paint();
+			ytparser.Cleanup();
+			loadYTitles(cYTFeedParser::NEXT, m_settings.ytsearch, m_settings.ytvid);
+			loadBox.hide();
+			refreshBrowserList();
+			refreshMovieInfo();
+		} else
+			m_pcBrowser->scrollPageDown(1);
 	}
 	else if (msg == CRCInput::RC_play)
 	{
@@ -3944,11 +3973,6 @@ bool CMovieBrowser::showYTMenu()
 	sprintf(cnt, "%d", cYTFeedParser::RELATED);
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_RELATED, enabled, NULL, selector, cnt, CRCInput::RC_red));
 
-	sprintf(cnt, "%d", cYTFeedParser::NEXT);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_NEXT_RESULTS, ytparser.HaveNext(), NULL, selector, cnt, CRCInput::RC_green));
-	sprintf(cnt, "%d", cYTFeedParser::PREV);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_PREV_RESULTS, ytparser.HavePrev(), NULL, selector, cnt, CRCInput::RC_nokey, ""));
-
 	mainMenu.addItem(GenericMenuSeparatorLine);
 
 	std::string search = m_settings.ytsearch;
@@ -4015,10 +4039,7 @@ bool CMovieBrowser::showYTMenu()
 	int newmode = -1;
 	if (select >= 0) {
 		newmode = select;
-		if (newmode == cYTFeedParser::NEXT || newmode == cYTFeedParser::PREV) {
-			reload = true;
-		}
-		else if (select == cYTFeedParser::RELATED) {
+		if (select == cYTFeedParser::RELATED) {
 			if (m_settings.ytvid != m_movieSelectionHandler->ytid) {
 				printf("get related for: %s\n", m_movieSelectionHandler->ytid.c_str());
 				m_settings.ytvid = m_movieSelectionHandler->ytid;
