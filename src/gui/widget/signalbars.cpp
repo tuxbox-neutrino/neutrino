@@ -62,10 +62,16 @@ void CSignalBar::initVarSigBar()
 	append_h_offset = 4;
 	append_v_offset = 0;
 
-	sb_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	height		= SB_MIN_HEIGHT;
+	sb_item_height 	= height;
+	sb_scale_height = sb_item_height;
+
+	dy_font 	= CNeutrinoFonts::getInstance();
+	int dx 		= 0;
+	sb_font 	= *dy_font->getDynFont(dx, height);
 	sb_item_height 	= sb_font->getHeight();
-	height		= sb_item_height;
-	sb_scale_height = SB_MIN_HEIGHT;
+
+
 	sb_caption_color= COL_INFOBAR_TEXT;
 
 	initDimensions();
@@ -83,11 +89,12 @@ void CSignalBar::initVarSigBar()
 void CSignalBar::initDimensions()
 {
 	//set current required dimensions
+	int dx 		= 0;
+	sb_font 	= *dy_font->getDynFont(dx, height);
 	sb_vlbl_width 	= sb_font->getRenderWidth ("100%", true);
 	sb_lbl_width 	= sb_font->getRenderWidth ("XXXXX", true);
 	sb_scale_width	= width-sb_vlbl_width-sb_lbl_width-corner_rad;
 	sb_item_height 	= max(sb_scale_height, sb_font->getHeight());
-	height 		= max(height, sb_item_height);
 }
 
 void CSignalBar::initSBItems()

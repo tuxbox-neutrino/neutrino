@@ -37,7 +37,7 @@
 #include <gui/components/cc_item_progressbar.h>
 #include <gui/components/cc_item_text.h>
 #include <zapit/include/zapit/frontend_c.h>
-
+#include <driver/neutrinofonts.h>
 
 /// Basic class for signalbars
 /*!
@@ -61,6 +61,8 @@ class CSignalBar : public CComponentsForm
 		CComponentsLabel 	*sb_lbl;
 		///object: current font
 		Font			*sb_font;
+		///object: dynamic font object handler
+		CNeutrinoFonts 		*dy_font;
 		///property: text color, see also setTextColor()
 		fb_pixel_t 		sb_caption_color;
 
