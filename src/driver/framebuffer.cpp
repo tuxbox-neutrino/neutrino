@@ -748,6 +748,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 			fillrect.width	= dx;
 			fillrect.height	= dy;
 			ioctl(fd, FBIO_FILL_RECT, &fillrect);
+			checkFbArea(x, y, dx, dy, false);
 			return;
 		}
 #endif
