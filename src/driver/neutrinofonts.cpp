@@ -336,7 +336,9 @@ Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int 
 	dy = (*ret)->getHeight();
 	if (text != "")
 		dx = (*ret)->getRenderWidth(text.c_str());
+#ifdef DEBUG_NFONTS
 	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, FontID: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, f_id);
+#endif
 	return ret;
 }
 
@@ -388,6 +390,8 @@ Font **CNeutrinoFonts::getDynFontShare(int &dx, int &dy, std::string text, int s
 	dy = (*ret)->getHeight();
 	if (text != "")
 		dx = (*ret)->getRenderWidth(text.c_str());
+#ifdef DEBUG_NFONTS
 	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, fontAvailable: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, fontAvailable);
+#endif
 	return ret;
 }
