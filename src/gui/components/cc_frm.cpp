@@ -1,5 +1,5 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
@@ -88,14 +88,14 @@ void CComponentsForm::clearCCItems()
 		return;
 #ifdef DEBUG_CC
 	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __FUNCTION__, v_cc_items.size());
-#endif	
-	
+#endif
+
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]){
 #ifdef DEBUG_CC
 	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __FUNCTION__, i+1, v_cc_items.size(), v_cc_items[i]->getItemType());
 #endif
- 			delete v_cc_items[i];
+			delete v_cc_items[i];
 			v_cc_items[i] = NULL;
 		}
 	}
@@ -107,8 +107,8 @@ void CComponentsForm::initVarForm()
 {
 	//CComponentsItem
 	initVarItem();
-	  
-	
+
+
 	//simple default dimensions
 	x 		= 0;
 	y 		= 0;
@@ -147,7 +147,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 		cc_Item->setIndex(new_index);
 #ifdef DEBUG_CC
 		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
-#endif		
+#endif
 	}
 #ifdef DEBUG_CC
 	else
@@ -160,7 +160,7 @@ int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
 	if (cc_Item){
 		for (size_t i= 0; i< v_cc_items.size(); i++)
 			if (v_cc_items[i] == cc_Item)
-				return i;	
+				return i;
 	}
 	return -1;
 }
@@ -224,7 +224,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 #endif
 		return;
 	}
-	
+
 	if (v_cc_items.empty()){
 		addCCItem(cc_Item);
 #ifdef DEBUG_CC
@@ -306,13 +306,13 @@ void CComponentsForm::paintCCItems()
 		//set required x-position to item
 		if (xpos == CC_APPEND){
 			auto_x += append_h_offset;
-			cc_item->setRealXPos(auto_x + xpos + 1); 
+			cc_item->setRealXPos(auto_x + xpos + 1);
 			auto_x += w_item;
 		}
- 		else{
+		else{
 			cc_item->setRealXPos(this_x + xpos);
 			auto_x = (cc_item->getRealXPos() + w_item);
- 		}
+		}
 
 		//set required y-position to item
 		if (ypos == CC_APPEND){
@@ -320,17 +320,17 @@ void CComponentsForm::paintCCItems()
 			cc_item->setRealYPos(auto_y + ypos + 1);
 			auto_y += h_item;
 		}
- 		else{
+		else{
 			cc_item->setRealYPos(this_y + ypos);
 			auto_y = (cc_item->getRealYPos() + h_item);
- 		}
+		}
 
 
- 		//These steps check whether the element can be painted into the container.
+		//These steps check whether the element can be painted into the container.
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
- 		//checkwidth and adapt if required
- 		int right_frm = (cc_parent ? cc_xr : x) + width - 2*fr_thickness;
+		//checkwidth and adapt if required
+		int right_frm = (cc_parent ? cc_xr : x) + width - fr_thickness;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
@@ -341,7 +341,7 @@ void CComponentsForm::paintCCItems()
 		}
 
 		//check height and adapt if required
- 		int bottom_frm = (cc_parent ? cc_yr : y) + height - 2*fr_thickness;
+		int bottom_frm = (cc_parent ? cc_yr : y) + height - fr_thickness;
 		int bottom_item = cc_item->getRealYPos() + h_item;
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
@@ -367,7 +367,7 @@ void CComponentsForm::hide(bool no_restore)
 			break;
 		}
 	}
-	
+
 	//hide body
 	hideCCItem(no_restore);
 }
