@@ -150,6 +150,21 @@ static void set_lua_variables(lua_State *L)
 		{ "LIGHT_BLUE",			MAGIC_COLOR | (COL_LIGHT_BLUE0) },
 		{ "WHITE",			MAGIC_COLOR | (COL_WHITE0) },
 		{ "BLACK",			MAGIC_COLOR | (COL_BLACK0) },
+		{ "COLORED_EVENTS_TEXT",	(COL_COLORED_EVENTS_TEXT) },
+		{ "INFOBAR_TEXT",		(COL_INFOBAR_TEXT) },
+		{ "INFOBAR_SHADOW_TEXT",	(COL_INFOBAR_SHADOW_TEXT) },
+		{ "MENUHEAD_TEXT",		(COL_MENUHEAD_TEXT) },
+		{ "MENUCONTENT_TEXT",		(COL_MENUCONTENT_TEXT) },
+		{ "MENUCONTENT_TEXT_PLUS_1",	(COL_MENUCONTENT_TEXT_PLUS_1) },
+		{ "MENUCONTENT_TEXT_PLUS_2",	(COL_MENUCONTENT_TEXT_PLUS_2) },
+		{ "MENUCONTENT_TEXT_PLUS_3",	(COL_MENUCONTENT_TEXT_PLUS_3) },
+		{ "MENUCONTENTDARK_TEXT",	(COL_MENUCONTENTDARK_TEXT) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(COL_MENUCONTENTDARK_TEXT_PLUS_1) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(COL_MENUCONTENTDARK_TEXT_PLUS_2) },
+		{ "MENUCONTENTSELECTED_TEXT",		(COL_MENUCONTENTSELECTED_TEXT) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
+		{ "MENUCONTENTINACTIVE_TEXT",	(COL_MENUCONTENTINACTIVE_TEXT) },
 		{ NULL, 0 }
 	};
 
@@ -461,7 +476,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	const char *text;
 	int numargs = lua_gettop(L);
 	DBG("CLuaInstance::%s %d\n", __func__, numargs);
-	c = COL_MENUCONTENT;
+	c = COL_MENUCONTENT_TEXT;
 	boxh = 0;
 	center = 0;
 
@@ -489,7 +504,8 @@ int CLuaInstance::RenderString(lua_State *L)
 		if (rwidth < w)
 			x += (w - rwidth) / 2;
 	}
-	c &= 0x000000FF; /* TODO: colors that are not in the palette? */
+	if ((c & MAGIC_MASK) == MAGIC_COLOR)
+		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
 	if (boxh > -1) /* if boxh < 0, don't paint string */
 		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
 	lua_pushinteger(L, rwidth); /* return renderwidth */
