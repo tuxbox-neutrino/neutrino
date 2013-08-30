@@ -32,7 +32,7 @@
 #include "signalbars.h"
 #include <sstream>
 
-#define SB_MIN_HEIGHT 10
+#define SB_MIN_HEIGHT 12
 
 using namespace std;
 
@@ -49,52 +49,26 @@ CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int
 	x 		= xpos;
 	y 		= ypos;
 	width 		= w;
-	height 		= max(h, height);
+	height 		= h;
 
 	initSBItems();
 }
 
-void CSignalBar::initVarSigBar()
-{
-	initVarForm();
-	corner_rad 	= 0;
-	corner_type 	= 0;
-	append_h_offset = 4;
-	append_v_offset = 0;
-
-	height		= SB_MIN_HEIGHT;
-	sb_item_height 	= height;
-	sb_scale_height = sb_item_height;
-
-	dy_font 	= CNeutrinoFonts::getInstance();
-	int dx 		= 0;
-	sb_font 	= *dy_font->getDynFont(dx, height);
-	sb_item_height 	= sb_font->getHeight();
-
-
-	sb_caption_color= COL_INFOBAR_TEXT;
-
-	initDimensions();
-
-	sb_lastsig 	= 0;
-	sb_signal 	= 0;
-
-	sb_frontend 	= NULL;
-	sb_scale 	= NULL;
-	sb_vlbl		= NULL;
-	sb_lbl		= NULL;
-	sb_name		= "SIG";
-}
-
 void CSignalBar::initDimensions()
 {
-	//set current required dimensions
+	//set current required dimensions and font size
+	sb_item_height 	= max(height, SB_MIN_HEIGHT) - 2*fr_thickness;
+	sb_item_top 	= height/2 - sb_item_height/2;
+	if (sb_scale_height == -1)
+		sb_scale_height = sb_item_height;
+
 	int dx 		= 0;
-	sb_font 	= *dy_font->getDynFont(dx, height);
-	sb_vlbl_width 	= sb_font->getRenderWidth ("100%", true);
-	sb_lbl_width 	= sb_font->getRenderWidth ("XXXXX", true);
-	sb_scale_width	= width-sb_vlbl_width-sb_lbl_width-corner_rad;
-	sb_item_height 	= max(sb_scale_height, sb_font->getHeight());
+	int dy 		= sb_item_height;
+	sb_font 	= *dy_font->getDynFont(dx, dy);
+
+	sb_vlbl_width 	= sb_font->getRenderWidth ("00%", true);
+	sb_lbl_width 	= sb_font->getRenderWidth ("XXXX"/*sb_name*/, true);
+	sb_scale_width	= width - sb_vlbl_width - sb_lbl_width - 2*fr_thickness;
 }
 
 void CSignalBar::initSBItems()
@@ -117,13 +91,29 @@ void CSignalBar::initSBItems()
 	initSBarName();
 }
 
-void CSignalBar::Refresh()
+void CSignalBar::initVarSigBar()
 {
-	//get current value from frontend
-	sb_signal = sb_frontend->getSignalStrength();
+	initVarForm();
+	corner_rad 	= 0;
+	corner_type 	= 0;
+	append_h_offset = 2;
+	append_v_offset = 0;
+	height		= SB_MIN_HEIGHT;
 
-	//reinit items with current values
-	initSBItems();
+	sb_scale_height = -1;
+
+	dy_font 	= CNeutrinoFonts::getInstance();
+
+	sb_caption_color= COL_INFOBAR_TEXT;
+
+	sb_lastsig 	= 0;
+	sb_signal 	= 0;
+
+	sb_frontend 	= NULL;
+	sb_scale 	= NULL;
+	sb_vlbl		= NULL;
+	sb_lbl		= NULL;
+	sb_name		= "SIG";
 }
 
 void CSignalBar::initSBarScale()
@@ -136,8 +126,9 @@ void CSignalBar::initSBarScale()
 	}
 
 	//move and set dimensions
-	int sb_y = height/2 - sb_scale_height/2 ;
-	sb_scale->setDimensionsAll(append_v_offset, sb_y, sb_scale_width, sb_scale_height);
+	int scale_y = (sb_item_height/2 - sb_scale_height/2);
+	sb_scale->setDimensionsAll(fr_thickness, scale_y, sb_scale_width, sb_scale_height/*sb_item_height*/);
+	sb_scale->setColorBody(col_body);
 
 	//add scale object to container
 	if(!isAdded(sb_scale))
@@ -155,16 +146,16 @@ void CSignalBar::initSBarValue()
 	}
 
 	//move and set dimensions
-	int sb_y = height/2 - sb_item_height/2 ;
-	sb_vlbl->setDimensionsAll(CC_APPEND, sb_y, sb_vlbl_width, sb_item_height);
+	int vlbl_x = sb_scale->getXPos() + sb_scale_width + append_h_offset;
+	sb_vlbl->setDimensionsAll(vlbl_x/*CC_APPEND*/, sb_item_top, sb_vlbl_width, sb_item_height);
 
-	//set current text color
+	//set current text and body color color
 	sb_vlbl->setTextColor(sb_caption_color);
+	sb_vlbl->setColorBody(col_body);
 
 	//add value label object to container
 	if (!isAdded(sb_vlbl))
 		addCCItem(sb_vlbl);
-
 }
 
 void CSignalBar::initSBarName()
@@ -173,16 +164,18 @@ void CSignalBar::initSBarName()
 	if (sb_lbl == NULL){
 		sb_lbl = new CComponentsLabel();
 		//paint no backround
-		sb_lbl->doPaintBg(false);
+		sb_lbl->doPaintBg(true);
+		sb_lbl->forceTextPaint();
 	}
 
 	//move and set dimensions
-	int sb_y = sb_vlbl->getYPos() ;
-	sb_lbl->setDimensionsAll(CC_APPEND, sb_y, sb_lbl_width, sb_item_height);
-	sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK, sb_font);
+	int lbl_x = width - sb_lbl_width - fr_thickness;
+	sb_lbl->setDimensionsAll(lbl_x, sb_item_top, sb_lbl_width, sb_item_height);
+	sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, sb_font);
 
-	//set current text color
+	//set current text and body color
 	sb_lbl->setTextColor(sb_caption_color);
+	sb_lbl->setColorBody(col_body);
 
 	//add name label object to container
 	if (!isAdded(sb_lbl))
@@ -190,7 +183,16 @@ void CSignalBar::initSBarName()
 }
 
 
-void CSignalBar::Repaint()
+void CSignalBar::Refresh()
+{
+	//get current value from frontend
+	sb_signal = sb_frontend->getSignalStrength();
+
+	//reinit items with current values
+	initSBItems();
+}
+
+void CSignalBar::paintScale()
 {
 	//format signal values
 	int sig;
@@ -204,7 +206,6 @@ void CSignalBar::Repaint()
 	if (sb_lastsig != sig) {
 		sb_lastsig = sig;
 		sb_scale->setValues(sig, 100);
-
 		//string is required
 		ostringstream i_str;
 		i_str << sig;
@@ -224,6 +225,19 @@ void CSignalBar::Repaint()
 	}
 }
 
+void CSignalBar::paint(bool do_save_bg)
+{
+	//initialize before and paint frame and body
+	if (!is_painted){
+		initSBItems();
+		paintForm(do_save_bg);
+	}
+
+	//paint current sig value
+	paintScale();
+}
+
+
 //*******************************************************************************************************************************
 CSignalNoiseRatioBar::CSignalNoiseRatioBar()
 {
@@ -238,7 +252,7 @@ CSignalNoiseRatioBar::CSignalNoiseRatioBar(const int& xpos, const int& ypos, con
 	x 		= xpos;
 	y 		= ypos;
 	width 		= w;
-	height 		= max(h, height);
+	height 		= h;
 
 	initSBItems();
 }
@@ -268,7 +282,7 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 	x 		= xpos;
 	y 		= ypos;
 	width 		= w;
-	height 		= max(h, height);
+	height 		= h;
 
 	sbx_bar_height	= height/2;
 	sbx_bar_width 	= width-2*corner_rad;
@@ -292,7 +306,7 @@ void CSignalBox::initVarSigBox()
 	sbx_frontend 	= NULL;
 	sbar		= NULL;
 	snrbar		= NULL;
-	height 		= 5* SB_MIN_HEIGHT;
+	height 		= 3* SB_MIN_HEIGHT;
 	sbx_bar_height	= height/2;
 	sbx_bar_x	= corner_rad;
 	sbx_caption_color = COL_INFOBAR_TEXT;
@@ -301,30 +315,47 @@ void CSignalBox::initVarSigBox()
 void CSignalBox::initSignalItems()
 {
 	//set current properties for items
-	int cor_rad = corner_rad/2-fr_thickness;
+// 	int cor_rad = corner_rad/2-fr_thickness;
 
-	sbar->setDimensionsAll(sbx_bar_x, 0, sbx_bar_width, sbx_bar_height);
-	sbar->setCornerRadius(cor_rad);
+// 	int corr_y = sbx_bar_height%2;
+// 	int sb_h = sbx_bar_height - corr_y;
+
+	int sbar_h = sbx_bar_height - fr_thickness - append_v_offset/2;
+	int sbar_w = sbx_bar_width - 2*fr_thickness;
+	int sbar_x = sbx_bar_x + fr_thickness;
+	int scale_h = sbar_h * 76 / 100;
+
+	sbar->setDimensionsAll(sbar_x, fr_thickness, sbar_w, sbar_h);
 	sbar->setFrontEnd(sbx_frontend);
+	sbar->setCornerRadius(0);
+	sbar->setScaleHeight(scale_h);
 
-	snrbar->setDimensionsAll(sbx_bar_x, CC_APPEND, sbx_bar_width, sbx_bar_height);
-	snrbar->setCornerRadius(cor_rad);
+	snrbar->setDimensionsAll(sbar_x, CC_APPEND, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
+	snrbar->setCornerRadius(0);
+	snrbar->setScaleHeight(scale_h);
 }
 
-void CSignalBox::Refresh()
+void CSignalBox::paintScale()
 {
-	//reinit properties of items
 	initSignalItems();
 
-	//refresh properties of items
+	//repaint items
 	sbar->Refresh();
+	sbar->paint/*Scale*/(false);
+
 	snrbar->Refresh();
+	snrbar->paint/*Scale*/(false);
 }
 
-void CSignalBox::Repaint()
+void CSignalBox::paint(bool do_save_bg)
 {
-	//repaint items
-	sbar->Repaint();
-	snrbar->Repaint();
+	//paint frame and body
+	if (!is_painted){
+		initSignalItems();
+		paintForm(do_save_bg);
+	}
+
+	//paint current signal value
+	paintScale();
 }

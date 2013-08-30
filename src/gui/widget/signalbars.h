@@ -50,6 +50,10 @@ CSignalBar() is intended to show signal rate.
 
 class CSignalBar : public CComponentsForm
 {
+	public:
+		///refresh current item properties, use this before paintScale().
+		void Refresh();
+
 	protected:
 		///object: current frontend
 		CFrontend	 	*sb_frontend;
@@ -66,12 +70,14 @@ class CSignalBar : public CComponentsForm
 		///property: text color, see also setTextColor()
 		fb_pixel_t 		sb_caption_color;
 
+		///property: item top position
+		int sb_item_top;
 		///property: height of items
 		int sb_item_height;
+		///property: height of scale
+		int sb_scale_height;
 		///property: width of progressbar
 		int sb_scale_width;
-		///property: height of progressbar
-		int sb_scale_height;
 		///property: width of value caption
 		int sb_vlbl_width;
 		///property: width of caption
@@ -95,6 +101,9 @@ class CSignalBar : public CComponentsForm
 
 		///initialize all required objects at once, see also Refresh()
 		void initSBItems();
+
+		///reinitialize current signal values and paint new values, required after Refresh()
+		void paintScale();
 
 		///property: contains the name of signal type in the caption object, see also setName()
 		std::string sb_name;
@@ -120,11 +129,8 @@ class CSignalBar : public CComponentsForm
 		///returns the caption object, type = CComponentsLabel*
 		virtual CComponentsLabel* getLabelObject(){return sb_lbl;};
 
-		///refresh current item properties, use this before Repaint().
-		void Refresh();
-		///reinitialize current signal values and paint new values, required after Refresh()
-		virtual void Repaint();
-
+		///paint this items
+		virtual void paint(bool do_save_bg);
 };
 
 /// Sub class of CSignalBar()
@@ -136,6 +142,10 @@ CSignalNoiseRatioBar() is intended to show signal noise ratio value.
 
 class CSignalNoiseRatioBar : public CSignalBar
 {
+	public:
+		///refresh current item properties, use this before paintScale().
+		void Refresh();
+
 	protected:
 		///initialize all needed basic attributes and objects
 		void initVarSnrBar();
@@ -144,9 +154,6 @@ class CSignalNoiseRatioBar : public CSignalBar
 		CSignalNoiseRatioBar();
 		///basic component class constructor for signal noise ratio.
 		CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref);
-
-		///refresh current item properties, use this before repaintSignalBar().
-		void Refresh();
 };
 
 /// Class CSignalBox() provides CSignalBar(), CSignalNoiseRatioBar() scales at once.
@@ -192,8 +199,8 @@ void CSampleClass::showSNR()
 {
 	if (signalbox == NULL){
 		signalbox = new CSignalBox(10, 100, 500, 38, frontend);
-		signalbox->setCornerRadius(0);
-// 		signalbox->setColorBody(COL_BLACK);
+//		signalbox->setCornerRadius(0); //optional
+// 		signalbox->setColorBody(COL_BLACK); //optional
 		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
 		signalbox->doPaintBg(false);
 //if you want to add the object to a CC-Container (e.g. CComponentsWindow()), remove this line:
@@ -201,11 +208,10 @@ void CSampleClass::showSNR()
 //and add this lines:
 //		if (!isAdded(signalbox))
 //			addCCItem(signalbox);
-//Note: signal box object deallocate together with the CC-Container!
+//Note: signal box objects deallocate together with the CC-Container!
  	}
 	else{
-		signalbox->Refresh();
-		signalbox->Repaint();
+		signalbox->paintScale();
  	}
  }
 
@@ -225,45 +231,48 @@ void CSampleClass::hide ()
 
 class CSignalBox : public CComponentsForm
 {
-	protected:
+	private:
 		///object: current frontend
-		CFrontend	 	*sbx_frontend;
+		CFrontend 		*sbx_frontend;
 		///object: current signalbar
-		CSignalBar		*sbar;
+		CSignalBar 		*sbar;
 		///object: current signal noise ratio bar
-		CSignalNoiseRatioBar	*snrbar;
+		CSignalNoiseRatioBar 	*snrbar;
+
 		///property: height of signalbars
-		int sbx_bar_height;
+		int 		sbx_bar_height;
 		///property: width of signalbars
-		int sbx_bar_width;
+		int 		sbx_bar_width;
 		///property: x position of signalbars
-		int sbx_bar_x;
+		int 		sbx_bar_x;
 		///property: text color, see also setTextColor()
-		fb_pixel_t 		sbx_caption_color;
+		fb_pixel_t 	sbx_caption_color;
+
 		///initialize all needed basic attributes and objects
 		void initVarSigBox();
-
+		///initialize general properties of signal items
 		void initSignalItems();
+
+		///paint items with new values, required after Refresh()
+		void paintScale();
 
 	public:
 		///class constructor for signal noise ratio.
 		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref);
 
 		///returns the signal object, type = CSignalBar*
-		virtual CSignalBar* getScaleObject(){return sbar;};
+		CSignalBar* getScaleObject(){return sbar;};
 		///returns the signal noise ratio object, type = CSignalNoiseRatioBar*
-		virtual CSignalNoiseRatioBar* getLabelObject(){return snrbar;};
+		CSignalNoiseRatioBar* getLabelObject(){return snrbar;};
 
 		///sets the caption color of signalbars, see also property 'sbx_caption_color'
 		void setTextColor(const fb_pixel_t& caption_color){ sbx_caption_color = caption_color;};
 		///get caption color of signalbars, see also property 'sbx_caption_color'
 		fb_pixel_t getTextColor(){return sbx_caption_color;};
 
-		///refresh all current snr value, use this before paint().
-		void Refresh();
 
-		///paint items with new values, required after Refresh()
-		void Repaint();
+		///paint items
+		void paint(bool do_save_bg);
 };
 
 #endif
