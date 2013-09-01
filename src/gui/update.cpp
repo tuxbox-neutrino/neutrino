@@ -591,9 +591,11 @@ void CFlashExpert::readmtd(int preadmtd)
 	std::string hostName = netGetHostname();
 	std::string timeStr  = getNowTimeStr("_%Y%m%d_%H%M");
 
+#if ENABLE_EXTUPDATE
 	if (g_settings.softupdate_name_mode_backup == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
 		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + "_" + hostName + ".img";
 	else
+#endif
 		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + ".img";
 
 	if (preadmtd == -1) {
