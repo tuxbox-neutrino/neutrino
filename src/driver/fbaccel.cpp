@@ -808,8 +808,11 @@ void CFbAccel::blit()
 #define FBIO_BLIT 0x22
 #define FBIO_SET_MANUAL_BLIT _IOW('F', 0x21, __u8)
 #endif
+static bool azblit = getenv("AZBOX_MANUAL_BLIT") ? true : false;
 void CFbAccel::blit()
 {
+	if (!azblit)
+		return;
 	// blit
 	if (ioctl(fb->fd, FBIO_BLIT) < 0)
 		perror("CFbAccel FBIO_BLIT");
