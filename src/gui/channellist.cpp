@@ -2006,7 +2006,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 20; // 15 = scrollbar, 20 = spaces
 			if (chan->scrambled || (g_settings.channellist_extended ||g_settings.channellist_epgtext_align_right))
-				max_desc_len -= icon_space; /* do we need space for the lock/rec icon? */
+				max_desc_len -= icon_space+g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getWidth(); /* do we need space for the lock/rec icon? */
 
 			if (max_desc_len < 0)
 				max_desc_len = 0;
