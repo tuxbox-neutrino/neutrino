@@ -270,7 +270,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	char tname[255];
 	snprintf(tname, sizeof(tname), "%s: %d: %s", g_Locale->getText(LOCALE_STREAMINFO_SIGNAL), tuner, frontend->getInfo()->name);
 
-	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, tname /*tuner_name.c_str()*/, COL_INFOBAR_TEXT, 0, true);
+	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-_x-10, tname /*tuner_name.c_str()*/, COL_INFOBAR_TEXT, 0, true);
 
 	sigBox_x = _x;
 	sigBox_y = _y+iheight+15;
