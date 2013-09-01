@@ -56,6 +56,8 @@
 extern GLFramebuffer *glfb;
 #endif
 
+#include <driver/abstime.h>
+
 //#undef USE_NEVIS_GXA //FIXME
 /*******************************************************************************/
 #ifdef USE_NEVIS_GXA
@@ -164,6 +166,14 @@ static int backbuf_sz = 0;
 
 void CFbAccel::waitForIdle(void)
 {
+	blit_mutex.lock();
+	if (blit_pending)
+	{
+		blit_mutex.unlock();
+		_blit();
+		return;
+	}
+	blit_mutex.unlock();
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	ioctl(fb->fd, STMFBIO_SYNC_BLITTER);
 }
@@ -234,6 +244,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 		bpafd = -1;
 		return;
 	}
+	OpenThreads::Thread::start();
 #endif
 
 #ifdef USE_NEVIS_GXA
@@ -261,6 +272,12 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 CFbAccel::~CFbAccel()
 {
 #if HAVE_SPARK_HARDWARE
+	if (blit_thread)
+	{
+		blit_thread = false;
+		blit(); /* wakes up the thread */
+		OpenThreads::Thread::join();
+	}
 	if (backbuffer)
 	{
 		fprintf(stderr, "CFbAccel: unmap backbuffer\n");
@@ -604,6 +621,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 	blt_data.dstMemSize = fb->stride * fb->yRes + lbb_off;
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	ioctl(fb->fd, STMFBIO_SYNC_BLITTER);
 	if (fbbuff != backbuffer)
 		memmove(backbuffer, fbbuff, mem_sz);
 	// icons are so small that they will still be in cache
@@ -705,7 +723,47 @@ void CFbAccel::setupGXA()
 #endif
 
 #if HAVE_SPARK_HARDWARE
+#define BLIT_INTERVAL 40
+void CFbAccel::run()
+{
+	printf("CFbAccel::run start\n");
+	time_t last_blit = 0;
+	blit_pending = false;
+	blit_thread = true;
+	blit_mutex.lock();
+	while (blit_thread) {
+		if (blit_pending)
+			blit_cond.wait(&blit_mutex, BLIT_INTERVAL+1);
+		else
+			blit_cond.wait(&blit_mutex);
+		time_t now = time_monotonic_ms();
+		if (now - last_blit < BLIT_INTERVAL)
+		{
+			blit_pending = true;
+			//printf("CFbAccel::run: skipped, time %ld\n", now - last_blit);
+		}
+		else
+		{
+			blit_pending = false;
+			blit_mutex.unlock();
+			_blit();
+			blit_mutex.lock();
+			last_blit = now;
+		}
+	}
+	blit_mutex.unlock();
+	printf("CFbAccel::run end\n");
+}
+
 void CFbAccel::blit()
+{
+	//printf("CFbAccel::blit\n");
+	blit_mutex.lock();
+	blit_cond.signal();
+	blit_mutex.unlock();
+}
+
+void CFbAccel::_blit()
 {
 #ifdef PARTIAL_BLIT
 	if (to_blit.xs == INT_MAX)

@@ -36,6 +36,10 @@
 #include <vector>
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
+#if HAVE_SPARK_HARDWARE
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+#endif
 
 #define fb_pixel_t uint32_t
 
@@ -64,6 +68,9 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 
 class CFrameBuffer;
 class CFbAccel
+#if HAVE_SPARK_HARDWARE
+	: public OpenThreads::Thread
+#endif
 {
 	private:
 		CFrameBuffer *fb;
@@ -76,6 +83,14 @@ class CFbAccel
 		void add_gxa_sync_marker(void);
 #endif /* USE_NEVIS_GXA */
 		void setColor(fb_pixel_t col);
+#if HAVE_SPARK_HARDWARE
+		void run(void);
+		void _blit(void);
+		bool blit_thread;
+		bool blit_pending;
+		OpenThreads::Condition blit_cond;
+		OpenThreads::Mutex blit_mutex;
+#endif
 	public:
 		fb_pixel_t *backbuffer;
 		fb_pixel_t *lbb;
