@@ -1389,8 +1389,10 @@ void CScanSetup::saveScanSetup()
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 
 	//CServiceManager::getInstance()->SaveMotorPositions();
-	zapitCfg.gotoXXLatitude = strtod(zapit_lat, NULL);
-	zapitCfg.gotoXXLongitude = strtod(zapit_long, NULL);
+	if(zapit_lat[0] != '#')//check if var ok
+		zapitCfg.gotoXXLatitude = strtod(zapit_lat, NULL);
+	if(zapit_long[0] != '#')//check if var ok
+		zapitCfg.gotoXXLongitude = strtod(zapit_long, NULL);
 
 	CZapit::getInstance()->SetConfig(&zapitCfg);
 	CFEManager::getInstance()->saveSettings(true);
