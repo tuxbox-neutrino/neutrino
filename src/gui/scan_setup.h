@@ -66,6 +66,8 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 		CIntInput * nid;
 		CMenuOptionChooser * lcnhd;
+		/* items active for master/independent fe mode */
+		CGenericMenuActivate msettings;
 
 		CMenuOptionChooser * linkfe;
 		std::string modestr[4];
@@ -79,6 +81,9 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int femode;
 		/* frontend link to number */
 		int femaster;
+
+		std::vector<std::string> satoptions;
+		std::vector<CMenuForwarder*> satmf;
 
 		/* flag to allow any operations which can damage recordings */
 		bool allow_start;

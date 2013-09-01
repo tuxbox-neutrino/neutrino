@@ -1007,7 +1007,6 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 	struct dvb_diseqc_master_cmd cmd;
 	int i;
 	fe_sec_tone_mode_t oldTone = currentToneMode;
-	fe_sec_voltage_t oldVoltage = currentVoltage;
 
 	printf("[fe%d] sendMotorCommand: cmdtype   = %x, address = %x, cmd   = %x\n", fenumber, cmdtype, address, command);
 	printf("[fe%d] sendMotorCommand: num_parms = %d, parm1   = %x, parm2 = %x\n", fenumber, num_parameters, parameter1, parameter2);
@@ -1019,14 +1018,17 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 	cmd.msg[4] = parameter2;
 	cmd.msg_len = 3 + num_parameters;
 
-	//secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
 	secSetTone(SEC_TONE_OFF, 15);
-	secSetVoltage(SEC_VOLTAGE_13, 100);
+#if 0
+	fe_sec_voltage_t oldVoltage = currentVoltage;
+	//secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
+	//secSetVoltage(SEC_VOLTAGE_13, 100);
+#endif
 
 	for(i = 0; i <= repeat; i++)
 		sendDiseqcCommand(&cmd, 50);
 
-	secSetVoltage(oldVoltage, 15);
+	//secSetVoltage(oldVoltage, 15);
 	secSetTone(oldTone, 15);
 	printf("[fe%d] motor command sent.\n", fenumber);
 
@@ -1432,6 +1434,10 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 	int new_position = 0, old_position = 0;
 	bool use_usals = 0;
 
+	if (CFrontend::linked(femode) || femode == CFrontend::FE_MODE_UNUSED) {
+		rotorSatellitePosition = satellitePosition;
+		return 0;
+	}
 	//if(config.diseqcType == DISEQC_ADVANCED) //FIXME testing
 	{
 		bool moved = false;
@@ -1453,7 +1459,7 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 		if (rotorSatellitePosition == satellitePosition)
 			return 0;
 
-		if (use_usals) {
+		if (use_usals || config.use_usals) {
 			gotoXX(satellitePosition);
 			moved = true;
 		} else {
@@ -1724,7 +1730,9 @@ void CFrontend::gotoXX(t_satellite_position pos)
 	}
 
 	printf("RotorCmd = %04x\n", RotorCmd);
+	if (config.highVoltage)
+		secSetVoltage(SEC_VOLTAGE_18, 100);
 	sendMotorCommand(0xE0, 0x31, 0x6E, 2, ((RotorCmd & 0xFF00) / 0x100), RotorCmd & 0xFF, repeatUsals);
-	secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15); //FIXME ?
+	//secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15); //FIXME ?
 }
 

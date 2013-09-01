@@ -103,6 +103,30 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 		}
 		returnval = menu();
 	}
+	else if(actionKey == "rc_spkr")
+	{
+		int i = mountMenuWPtr->getSelected() - menu_offset;
+		if (i > -1 && i < NETWORK_NFS_NR_OF_ENTRIES) {
+			g_settings.network_nfs_ip[i] = "";
+			g_settings.network_nfs_dir[i][0] = 0;
+			g_settings.network_nfs_local_dir[i][0] = 0;
+			g_settings.network_nfs_automount[i] = 0;
+			g_settings.network_nfs_type[i] = 0;
+			g_settings.network_nfs_username[i][0] = 0;
+			g_settings.network_nfs_password[i][0] = 0;
+			strcpy(g_settings.network_nfs_mount_options1[i], "ro,soft,udp");
+			strcpy(g_settings.network_nfs_mount_options2[i], "nolock,rsize=8192,wsize=8192");
+			strcpy(g_settings.network_nfs_mac[i], "11:22:33:44:55:66");
+			sprintf(m_entry[i],
+				nfs_entry_printf_string[(g_settings.network_nfs_type[i] == (int) CFSMounter::NFS) ? 0 : ((g_settings.network_nfs_type[i] == (int) CFSMounter::CIFS) ? 1 : 2)],
+				g_settings.network_nfs_ip[i].c_str(),
+				FILESYSTEM_ENCODING_TO_UTF8(g_settings.network_nfs_dir[i]),
+				FILESYSTEM_ENCODING_TO_UTF8(g_settings.network_nfs_local_dir[i]),
+				g_Locale->getText(g_settings.network_nfs_automount[i] ? LOCALE_MESSAGEBOX_YES : LOCALE_MESSAGEBOX_NO));
+			sprintf(ISO_8859_1_entry[i],ZapitTools::UTF8_to_Latin1(m_entry[i]).c_str());
+			mountMenuEntry[i]->setOption(ISO_8859_1_entry[i]);
+		}
+	}
 	else if(actionKey.substr(0,10)=="mountentry")
 	{
 		parent->hide();
@@ -148,7 +172,9 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 int CNFSMountGui::menu()
 {
 	CMenuWidget mountMenuW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK, width);
+	mountMenuWPtr = &mountMenuW;
 	mountMenuW.addIntroItems();
+	mountMenuW.addKey(CRCInput::RC_spkr, this, "rc_spkr");
 	char s2[12];
 
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
@@ -156,6 +182,8 @@ int CNFSMountGui::menu()
 		sprintf(s2,"mountentry%d",i);
 		sprintf(ISO_8859_1_entry[i],ZapitTools::UTF8_to_Latin1(m_entry[i]).c_str());
 		mountMenuEntry[i] = new CMenuForwarderNonLocalized("", true, ISO_8859_1_entry[i], this, s2);
+		if (!i)
+			menu_offset = mountMenuW.getItemsCount();
 		
 		if (CFSMounter::isMounted(g_settings.network_nfs_local_dir[i]))
 		{

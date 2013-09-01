@@ -613,7 +613,7 @@ void CStringInput::paint(bool sms)
 		icol_o = icol_w + (offset/2);
 	}
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2)+ icol_o, y+ hheight, width- offset- icol_o, head ? head : g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2)+ icol_o, y+ hheight, width- offset- icol_o, head ? head : g_Locale->getText(name), COL_MENUHEAD_TEXT, 0, true); // UTF-8
 
 	int tmp_y = y+ hheight+ offset+ input_h+ offset;
 	if ((hint_1 != NONEXISTANT_LOCALE) || (hint_2 != NONEXISTANT_LOCALE))
@@ -621,12 +621,12 @@ void CStringInput::paint(bool sms)
 		if (hint_1 != NONEXISTANT_LOCALE)
 		{
 			tmp_y += iheight;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_1), COL_MENUCONTENT, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_1), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 		}
 		if (hint_2 != NONEXISTANT_LOCALE)
 		{
 			tmp_y += iheight;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 		}
 		tmp_y += offset;
 	}
@@ -635,7 +635,7 @@ void CStringInput::paint(bool sms)
 	if (sms)
 	{
 		frameBuffer->getIconSize(NEUTRINO_ICON_NUMERIC_PAD, &icol_w, &icol_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (icol_w/2), tmp_y, 0, COL_MENUCONTENT);
+		frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (icol_w/2), tmp_y, 0, COL_MENUCONTENT_TEXT);
 
 		//buttonbar
 		::paintButtons(x, y+ hheight+ bheight, width, CStringInputSMSButtonsCount, CStringInputSMSButtons, width, fheight);
@@ -659,17 +659,17 @@ void CStringInput::paintChar(int pos, const char c)
 
 	char ch[2] = {c, 0};
 
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
 	if (pos == selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	else
 	{
-		color   = COL_MENUCONTENT;
+		color   = COL_MENUCONTENT_TEXT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 

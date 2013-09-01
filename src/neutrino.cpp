@@ -53,6 +53,7 @@
 #include <driver/abstime.h>
 #include <driver/fontrenderer.h>
 #include <driver/framebuffer.h>
+#include <driver/neutrinofonts.h>
 #include <driver/rcinput.h>
 #include <driver/shutdown_count.h>
 #include <driver/record.h>
@@ -84,6 +85,7 @@
 #include "gui/scan_setup.h"
 #include "gui/sleeptimer.h"
 #include "gui/start_wizard.h"
+#include "gui/update_ext.h"
 #include "gui/videosettings.h"
 
 #include "gui/widget/hintbox.h"
@@ -129,8 +131,8 @@ bool has_hdd;
 CInfoClock      *InfoClock;
 int allow_flash = 1;
 Zapit_config zapitCfg;
-char zapit_lat[20];
-char zapit_long[20];
+char zapit_lat[20]="#";
+char zapit_long[20]="#";
 bool autoshift = false;
 uint32_t scrambled_timer;
 t_channel_id standby_channel_id;
@@ -180,6 +182,7 @@ CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
 CVolume        * g_volume;
 CAudioMute     * g_audioMute;
+CNeutrinoFonts * neutrinoFonts = NULL;
 
 // Globale Variablen - to use import global.h
 
@@ -213,7 +216,7 @@ CNeutrinoApp::CNeutrinoApp()
 #endif
 	SetupFrameBuffer();
 
-	mode = mode_unknown;
+	mode 			= mode_unknown;
 	channelList		= NULL;
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
@@ -223,7 +226,6 @@ CNeutrinoApp::CNeutrinoApp()
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= false;
-	memset(&font, 0, sizeof(neutrino_font_descr_struct));
 }
 
 /*-------------------------------------------------------------------------------------
@@ -233,6 +235,9 @@ CNeutrinoApp::~CNeutrinoApp()
 {
 	if (channelList)
 		delete channelList;
+	if (neutrinoFonts)
+		delete neutrinoFonts;
+	neutrinoFonts = NULL;
 }
 
 CNeutrinoApp* CNeutrinoApp::getInstance()
@@ -245,16 +250,6 @@ CNeutrinoApp* CNeutrinoApp::getInstance()
 	}
 	return neutrinoApp;
 }
-
-
-#define FONT_STYLE_REGULAR 0
-#define FONT_STYLE_BOLD    1
-#define FONT_STYLE_ITALIC  2
-
-extern font_sizes_groups_struct font_sizes_groups[];
-extern font_sizes_struct neutrino_font[];
-
-const font_sizes_struct signal_font = {LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1};
 
 typedef struct lcd_setting_t
 {
@@ -401,6 +396,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.led_deep_mode = configfile.getInt32( "led_deep_mode", 3);
 	g_settings.led_rec_mode = configfile.getInt32( "led_rec_mode", 1);
 	g_settings.led_blink = configfile.getInt32( "led_blink", 1);
+	g_settings.backlight_tv = configfile.getInt32( "backlight_tv", 1);
+	g_settings.backlight_standby = configfile.getInt32( "backlight_standby", 0);
+	g_settings.backlight_deepstandby = configfile.getInt32( "backlight_deepstandby", 0);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
@@ -443,6 +441,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", CVolumeBar::VOLUMEBAR_POS_TOP_RIGHT );
 	g_settings.volume_digits = configfile.getBool("volume_digits", true);
+	g_settings.volume_size = configfile.getInt32("volume_size", 26 );
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", false);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , true );
@@ -707,7 +706,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//Software-update
 	g_settings.softupdate_mode = configfile.getInt32( "softupdate_mode", 1 );
 	g_settings.apply_kernel = configfile.getBool("apply_kernel" , false);
-	g_settings.apply_settings = configfile.getBool("apply_settings" , true);
+	g_settings.apply_settings = configfile.getBool("apply_settings" , false);
+	g_settings.softupdate_name_mode_apply = configfile.getInt32( "softupdate_name_mode_apply", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
+	g_settings.softupdate_name_mode_backup = configfile.getInt32( "softupdate_name_mode_backup", CExtUpdate::SOFTUPDATE_NAME_DEFAULT);
 
 	strcpy(g_settings.softupdate_url_file, configfile.getString("softupdate_url_file", "/var/etc/update.urls").c_str());
 	strcpy(g_settings.softupdate_proxyserver, configfile.getString("softupdate_proxyserver", "" ).c_str());
@@ -902,6 +903,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "led_deep_mode", g_settings.led_deep_mode);
 	configfile.setInt32( "led_rec_mode", g_settings.led_rec_mode);
 	configfile.setInt32( "led_blink", g_settings.led_blink);
+	configfile.setInt32( "backlight_tv", g_settings.backlight_tv);
+	configfile.setInt32( "backlight_standby", g_settings.backlight_standby);
+	configfile.setInt32( "backlight_deepstandby", g_settings.backlight_deepstandby);
 
 	//misc
 	configfile.setInt32( "power_standby", g_settings.power_standby);
@@ -926,6 +930,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setBool("volume_digits", g_settings.volume_digits);
+	configfile.setInt32("volume_size"  , g_settings.volume_size);
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 	configfile.setBool("show_menu_hints" , g_settings.show_menu_hints);
 	configfile.setInt32("infobar_show_sysfs_hdd"  , g_settings.infobar_show_sysfs_hdd  );
@@ -1142,6 +1147,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("apply_kernel", g_settings.apply_kernel);
 	configfile.setBool("apply_settings", g_settings.apply_settings);
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
+	configfile.setInt32 ("softupdate_name_mode_apply", g_settings.softupdate_name_mode_apply);
+	configfile.setInt32 ("softupdate_name_mode_backup", g_settings.softupdate_name_mode_backup);
 
 	configfile.setString("softupdate_proxyserver"   , g_settings.softupdate_proxyserver   );
 	configfile.setString("softupdate_proxyusername" , g_settings.softupdate_proxyusername );
@@ -1511,8 +1518,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 	softupdate = false;
 	//fromflash = false;
 
-	font.name = NULL;
-
 	for(int x=1; x<argc; x++) {
 		if ((!strcmp(argv[x], "-u")) || (!strcmp(argv[x], "--enable-update"))) {
 			dprintf(DEBUG_NORMAL, "Software update enabled\n");
@@ -1571,54 +1576,19 @@ void CNeutrinoApp::SetupFrameBuffer()
 *          CNeutrinoApp -  setup fonts                                                *
 **************************************************************************************/
 
-void CNeutrinoApp::SetupFonts()
+void CNeutrinoApp::SetupFonts(int fmode)
 {
-	const char * style[3];
+	if (neutrinoFonts == NULL)
+		neutrinoFonts = CNeutrinoFonts::getInstance();
 
-	if (g_fontRenderer != NULL)
-		delete g_fontRenderer;
+	if ((fmode & CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT) == CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT)
+		neutrinoFonts->SetupNeutrinoFonts(((fmode & CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST) == CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST));
 
-	g_fontRenderer = new FBFontRenderClass(72 * g_settings.screen_xres / 100, 72 * g_settings.screen_yres / 100);
-
-	if(font.filename != NULL)
-		free((void *)font.filename);
-
-	printf("[neutrino] settings font file %s\n", g_settings.font_file);
-
-	if(access(g_settings.font_file, F_OK)) {
-		if(!access(FONTDIR"/neutrino.ttf", F_OK)){
-			font.filename = strdup(FONTDIR"/neutrino.ttf");
-			strcpy(g_settings.font_file, font.filename);
-		}
-		else{
-			  fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");
-			  _exit(0);
-		}
-
+	if ((fmode & CNeutrinoFonts::FONTSETUP_DYN_FONT) == CNeutrinoFonts::FONTSETUP_DYN_FONT) {
+		neutrinoFonts->SetupDynamicFonts(((fmode & CNeutrinoFonts::FONTSETUP_DYN_FONT_INST) == CNeutrinoFonts::FONTSETUP_DYN_FONT_INST));
+		neutrinoFonts->refreshDynFonts();
 	}
-	else{
-		font.filename = strdup(g_settings.font_file);
-	}
-	style[0] = g_fontRenderer->AddFont(font.filename);
 
-	if(font.name != NULL)
-		free((void *)font.name);
-
-	font.name = strdup(g_fontRenderer->getFamily(font.filename).c_str());
-
-	printf("[neutrino] font family %s\n", font.name);
-
-	style[1] = "Bold Regular";
-
-	g_fontRenderer->AddFont(font.filename, true);  // make italics
-	style[2] = "Italic";
-
-	for (int i = 0; i < SNeutrinoSettings::FONT_TYPE_COUNT; i++)
-	{
-		if(g_Font[i]) delete g_Font[i];
-		g_Font[i] = g_fontRenderer->getFont(font.name, style[neutrino_font[i].style], configfile.getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize) + neutrino_font[i].size_offset * font.size_offset);
-	}
-	g_SignalFont = g_fontRenderer->getFont(font.name, style[signal_font.style], signal_font.defaultsize + signal_font.size_offset * font.size_offset);
 	/* recalculate infobar position */
 	if (g_InfoViewer)
 		g_InfoViewer->start();
@@ -1721,7 +1691,7 @@ void CNeutrinoApp::InitTimerdClient()
 void CNeutrinoApp::InitZapitClient()
 {
 	g_Zapit         = new CZapitClient;
-#define ZAPIT_EVENT_COUNT 27
+#define ZAPIT_EVENT_COUNT 28
 	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
 	{
 		CZapitClient::EVT_ZAP_COMPLETE,
@@ -1751,6 +1721,7 @@ void CNeutrinoApp::InitZapitClient()
 		CZapitClient::EVT_SDT_CHANGED,
 		CZapitClient::EVT_PMT_CHANGED,
 		CZapitClient::EVT_TUNE_COMPLETE,
+		CZapitClient::EVT_BACK_ZAP_COMPLETE
 	};
 
 	for (int i = 0; i < ZAPIT_EVENT_COUNT; i++)
@@ -1846,6 +1817,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	}
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	/* setup GUI */
+	neutrinoFonts = CNeutrinoFonts::getInstance();
 	SetupFonts();
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	SetupTiming();
@@ -1857,10 +1829,11 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 	hintBox->paint();
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
-	CVFD::getInstance()->init(font.filename, font.name);
+	CVFD::getInstance()->init(neutrinoFonts->fontDescr.filename.c_str(), neutrinoFonts->fontDescr.name.c_str());
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
+	CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 
 	/* set service manager options before starting zapit */
 	CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
@@ -2453,7 +2426,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		}
 	}
-	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE)) {
+	if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE || msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE)) {
 		CEpgScan::getInstance()->handleMsg(msg, data);
 		return messages_return::handled;
 	}
@@ -2690,15 +2663,15 @@ _repeat:
 		audioDecoder->EnableAnalogOut(false);
 		return messages_return::handled;
 	}
-	else if( msg == CRCInput::RC_mode ) {
+	else if(( msg == CRCInput::RC_mode ) && g_settings.key_format_mode_active ) {
 		g_videoSettings->nextMode();
 		return messages_return::handled;
 	}
-	else if( msg == CRCInput::RC_next ) {
+	else if(( msg == CRCInput::RC_next ) && g_settings.key_pic_size_active ) {
 		g_videoSettings->next43Mode();
 		return messages_return::handled;
 	}
-	else if( msg == CRCInput::RC_prev ) {
+	else if(( msg == CRCInput::RC_prev ) && g_settings.key_pic_mode_active ) {
 		g_videoSettings->SwitchFormat();
 		return messages_return::handled;
 	}
@@ -3379,7 +3352,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(mode == mode_radio && g_Radiotext)
 			g_Radiotext->radiotext_stop();
 
-
 #ifdef ENABLE_PIP
 		g_Zapit->stopPip();
 #endif
@@ -3409,6 +3381,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 			CVFD::getInstance()->Clear();
 			CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 		}
+		CVFD::getInstance()->setBacklight(g_settings.backlight_standby);
 
 		if(g_settings.mode_clock) {
 			InfoClock->StopClock();
@@ -3460,6 +3433,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
 		if (my_system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
+
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 
 		g_Zapit->setStandby(false);
 		/* the old code did:
@@ -3658,6 +3634,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete g_Sectionsd;
 			delete g_RemoteControl;
 			delete g_fontRenderer;
+			delete g_dynFontRenderer;
 
 			delete hintBox;
 
@@ -3779,8 +3756,10 @@ void stop_daemons(bool stopall, bool for_flash)
 	delete &CMoviePlayerGui::getInstance();
 	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
-	if (!for_flash)
+	if (!for_flash) {
 		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setBacklight(g_settings.backlight_deepstandby);
+	}
 	if(stopall && !for_flash) {
 		if (cpuFreq) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
@@ -3912,6 +3891,10 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
 	g_settings.mpkey_subtitle = tconfig.getInt32( "mpkey.subtitle", CRCInput::RC_sub );
 
+	g_settings.key_format_mode_active = tconfig.getInt32( "key_format_mode_active", 1 );
+	g_settings.key_pic_mode_active = tconfig.getInt32( "key_pic_mode_active", 1 );
+	g_settings.key_pic_size_active = tconfig.getInt32( "key_pic_size_active", 1 );
+
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
 	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
@@ -3975,6 +3958,10 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
 	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
 	tconfig.setInt32( "mpkey.subtitle", g_settings.mpkey_subtitle );
+
+	tconfig.setInt32( "key_format_mode_active", g_settings.key_format_mode_active );
+	tconfig.setInt32( "key_pic_mode_active", g_settings.key_pic_mode_active );
+	tconfig.setInt32( "key_pic_size_active", g_settings.key_pic_size_active );
 
 	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
 	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );
@@ -4139,6 +4126,7 @@ void CNeutrinoApp::Cleanup()
 
 	printf("cleanup 11\n");fflush(stdout);
 	delete g_fontRenderer; g_fontRenderer = NULL;
+	delete g_dynFontRenderer; g_dynFontRenderer = NULL;
 	printf("cleanup 12\n");fflush(stdout);
 	delete g_PicViewer; g_PicViewer = NULL;
 	printf("cleanup 13\n");fflush(stdout);

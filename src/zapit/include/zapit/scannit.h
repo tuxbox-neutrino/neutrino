@@ -42,6 +42,7 @@ class CNit : public OpenThreads::Thread
 		bool cable;
 
 		t_satellite_position satellitePosition;
+		t_satellite_position orbitalPosition;
 		freq_id_t freq_id;
 		unsigned short nid;
 		channel_number_map_t logical_map;
@@ -66,6 +67,7 @@ class CNit : public OpenThreads::Thread
 		channel_number_map_t & getLogicalMap() { return logical_map; };
 		channel_number_map_t & getHDLogicalMap() { return hd_logical_map; };
 		std::string GetNetworkName() { return networkName; }
+		t_satellite_position getOrbitalPosition() { return orbitalPosition; }
 };
 
 #endif

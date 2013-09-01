@@ -114,15 +114,16 @@ private:
 	void calcSize();
 	std::string   MaxChanNr();
 	void paint_pig(int x, int y, int w, int h);
-    void paint_events(int index);
-    CChannelEventList	evtlist;
-    void readEvents(const t_channel_id channel_id);
+	void paint_events(int index);
+	CChannelEventList	evtlist;
+	void readEvents(const t_channel_id channel_id);
 	void showdescription(int index);
 	typedef std::pair<std::string,int> epg_pair;
 	std::vector<epg_pair> epgText;
 	int emptyLineCount;
 	void addTextToArray( const std::string & text, int screening );
 	void processTextToArray(std::string text, int screening = 0);
+	int  getPrevNextBouquet(bool next);
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false);

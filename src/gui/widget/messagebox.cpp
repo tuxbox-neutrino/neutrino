@@ -159,10 +159,10 @@ void CMessageBox::paintButtons()
 
 	for (i = 0; i < ButtonCount; i++) {
 		if (Buttons[i].def) {
-			color   = COL_MENUCONTENTSELECTED;
+			color   = COL_MENUCONTENTSELECTED_TEXT;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		} else {
-			color   = COL_INFOBAR_SHADOW;
+			color   = COL_INFOBAR_SHADOW_TEXT;
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 		CFrameBuffer::getInstance()->getIconSize(Buttons[i].icon, &iw, &ih);

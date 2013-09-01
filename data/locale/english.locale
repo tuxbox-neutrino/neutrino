@@ -368,8 +368,11 @@ extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
 extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_current_transponder Current Transponder Key
+extra.key_format_mode Video format
 extra.key_list_end end
 extra.key_list_start home
+extra.key_pic_mode Screen format
+extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
@@ -417,6 +420,7 @@ extra.update_dir Local update directory
 extra.use_gotoxx Use gotoXX
 extra.volume_digits Volumebar digits
 extra.volume_pos Volumebar
+extra.volume_size Height of display
 extra.west West
 extra.zap_cycle Zap cycle
 extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
@@ -485,6 +489,13 @@ flashupdate.menu_apply_settings Allow apply settings
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?
 flashupdate.msgbox_manual Found the following new image:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nDo you want to install this version now?
 flashupdate.mtdselector Partition-Selector
+flashupdate.namemode1 Filename settingsfile
+flashupdate.namemode1_default <org.name>+settings.img
+flashupdate.namemode1_hostname_time <hostname>+<time>+settings.img
+flashupdate.namemode1_orgname_time <org.name>+<time>+settings.img
+flashupdate.namemode2 Filename backup
+flashupdate.namemode2_default <partition>+<time>.img
+flashupdate.namemode2_hostname_time <partition>+<time>+<hostname>.img
 flashupdate.new_found New image found !
 flashupdate.new_notfound No new images found
 flashupdate.programmingflash programming flash
@@ -498,6 +509,9 @@ flashupdate.proxyserver_sep Proxyserver
 flashupdate.proxyusername Username
 flashupdate.proxyusername_hint1 enter the proxyserver username
 flashupdate.proxyusername_hint2 a empty entry means no proxy-auth
+flashupdate.read_directory_not_exist The backup directory %s \ndoes not exist!
+flashupdate.read_no_available_space The maximum available space in %s \nis %d KB, but there are %d KB required.\n \nThe operation is canceled, please choose another medium!
+flashupdate.read_volume_error The size of the volume %s \ncan not be determined!
 flashupdate.readflash Read whole image
 flashupdate.readflashmtd Read one partition
 flashupdate.ready ready
@@ -654,6 +668,7 @@ keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock generic delay
 keybindingmenu.repeatblockgeneric repeat delay
 keybindingmenu.sort change sort order
+keybindingmenu.special_active Special Keys
 keybindingmenu.subchanneldown subchannel down
 keybindingmenu.subchannelup subchannel up
 keybindingmenu.tvradiomode TV/Radio-mode
@@ -681,6 +696,8 @@ lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
+ledcontroler.backlight Buttons backlight
+ledcontroler.backlight.tv TV mode
 ledcontroler.blink Blink in deep standby, if timer set
 ledcontroler.menu Power Button LEDs
 ledcontroler.mode.deepstandby Deep Standby
@@ -752,6 +769,7 @@ menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
 menu.hint_back Return to previous menu\nPress menu key to close all menus
+menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
 menu.hint_bigwindows Channellist, EPG-infos, audioplayer and some other windows are displayed full screen
@@ -844,6 +862,7 @@ menu.hint_key_channel_sms If enabled, numeric buttons in channel list\nused to s
 menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
 menu.hint_key_channellist Configure keybingdings for channel list
 menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
+menu.hint_key_format_mode_active Disable/enable key for the video format conversion
 menu.hint_key_hardware Change remote control type
 menu.hint_key_history Assign button to show channel\nchannel switch history
 menu.hint_key_lastchannel Assign button for fast zap to\nprevious channel in history
@@ -866,6 +885,8 @@ menu.hint_key_mptime Assign button to show play time\nleft time
 menu.hint_key_mptimeshift Assign button to start timeshift
 menu.hint_key_pagedown Assign button to show next items page
 menu.hint_key_pageup Assign button to show previous items page
+menu.hint_key_pic_mode_active Disable/enable key for the screen format
+menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
 menu.hint_key_pip_swap Assign button to swap PiP and live channel
@@ -877,6 +898,7 @@ menu.hint_key_right Select 'right' function in live TV/Radio mode
 menu.hint_key_save Save keybindings to file
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 menu.hint_key_sort Assign button to change channel list sort order
+menu.hint_key_special_active Disable or enable some special keys
 menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
 menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_transponder Assign button to show channel list\nfor current transponder
@@ -1032,7 +1054,7 @@ menu.hint_scan_manual Manual transponder scan using\nselected parameters
 menu.hint_scan_mod Select transponder modulation
 menu.hint_scan_motor_18v Use 18V when moving rotor
 menu.hint_scan_motor_speed Rotor moving speed in 1/10 degree\nper second
-menu.hint_scan_motorpos Select stored position number for\nthis satellite
+menu.hint_scan_motorpos Select stored position number for this satellite,\nignored, if USALS enabled
 menu.hint_scan_nid Enter decimal network ID
 menu.hint_scan_nit Add transpoders from network information
 menu.hint_scan_pids Scan and save audio/video/PMT PIDs
@@ -1055,8 +1077,8 @@ menu.hint_scan_test Test signal for this transponder
 menu.hint_scan_tpselect Select transponder to scan
 menu.hint_scan_uncommited Select uncommited input for\nthis satellite
 menu.hint_scan_usals_repeat Repeat usals move rotor commands\nif you expirience unstable rotor move
-menu.hint_scan_usalsall Set/unset usals flag for all satellites
-menu.hint_scan_useusals Use USALS for\nthis satellite
+menu.hint_scan_usalsall Use USALS for all satellites on this frontend
+menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
 menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
 menu.hint_screen_setup Configure screen margins
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
@@ -1122,6 +1144,7 @@ menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
+menu.hint_volume_size Select volume indicator height
 menu.hint_ytplay Play selected youtube feeds
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next (press Menu to quit)
@@ -1216,6 +1239,7 @@ motorcontrol.install_menu Install menu
 motorcontrol.motor_pos (a) Motor Position:
 motorcontrol.movement (b) Movement:
 motorcontrol.msec milliseconds
+motorcontrol.network Network info
 motorcontrol.no_mode don't care
 motorcontrol.notdef Not used
 motorcontrol.override Override position used for
@@ -1398,7 +1422,7 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
-movieplayer.ytplayback Youtube feeds playback
+movieplayer.ytplayback Youtube videoplayer
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
@@ -1479,7 +1503,7 @@ options.on.without_messages Without msg
 options.serial serial
 parentallock.bouquetmode Bouquets are default
 parentallock.changepin change PIN code
-parentallock.changepin_hint1 Enter your new youth protection pin code here!
+parentallock.changepin_hint1 Enter your new parental lock pin code here!
 parentallock.changetolocked on locked bouquets
 parentallock.defaultlocked locked
 parentallock.defaultunlocked unlocked
@@ -1492,7 +1516,7 @@ parentallock.lockedchannel Locked sender...
 parentallock.lockedprogram Locked program (from %d years up)
 parentallock.never never
 parentallock.onsignal on broadcasted lock
-parentallock.parentallock Youth protection
+parentallock.parentallock Parental lock
 parentallock.prompt prompt for PIN
 personalize.access Access options
 personalize.apply_settings Apply changes?
@@ -1511,7 +1535,7 @@ personalize.help_line3 can be set to visible, not visible, activate, deactivate
 personalize.help_line4 or PIN-protected.
 personalize.help_line5 The access to personalization can be protected
 personalize.help_line6 with PIN. The PIN is identical for all protected menus
-personalize.help_line7 (not for youth protection).
+personalize.help_line7 (not for parental lock).
 personalize.help_line8 Default PIN is: 0000
 personalize.menuconfiguration Menu Configuration
 personalize.menudisabledhint The requested menu is currently disabled!\nFor activation please open menu 'Personalize'\nto find in menu 'Settings'!
@@ -1604,7 +1628,7 @@ recordingmenu.record_is_running Record is running!
 recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server server
 recordingmenu.server_mac MAC address
-recordingmenu.setupnow activate changes
+recordingmenu.setupnow Activate changes
 recordingmenu.slow_warn Enable slow record warning
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory

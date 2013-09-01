@@ -80,6 +80,9 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			KEY_PIP_CLOSE,
 			KEY_PIP_SETUP,
 			KEY_PIP_SWAP,
+			KEY_FORMAT_MODE,
+			KEY_PIC_MODE,
+			KEY_PIC_SIZE,
 			
 			KEYBINDS_COUNT
 		};
@@ -95,6 +98,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		void showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist);
 		void showKeyBindQuickzapSetup(CMenuWidget *bindSettings_qzap);
 		void showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplayer);
+		void showKeyBindSpecialSetup(CMenuWidget *bindSettings_special);
 
 	public:				
 		CKeybindSetup();

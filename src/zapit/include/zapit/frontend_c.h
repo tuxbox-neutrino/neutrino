@@ -174,7 +174,7 @@ class CFrontend
 
 		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, int system = 0);
 		uint8_t				getDiseqcPosition(void) const		{ return currentTransponder.diseqc; }
-		uint8_t				getDiseqcRepeats(void) const		{ return config.diseqcRepeats; }
+		uint8_t				getDiseqcRepeats(void) const		{ return (uint8_t) config.diseqcRepeats; }
 		diseqc_t			getDiseqcType(void) const		{ return (diseqc_t) config.diseqcType; }
 		uint32_t			getFrequency(void) const		{ return currentTransponder.feparams.dvb_feparams.frequency; }
 		bool				getHighBand()				{ return (int) getFrequency() >= lnbSwitch; }

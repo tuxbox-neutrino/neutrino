@@ -269,12 +269,12 @@ void CPluginList::paintItem(int pos)
 	int ypos = (y+theight) + pos*fheight;
 	int itemheight = fheight;
 
-	uint8_t    color   = COL_MENUCONTENT;
+	fb_pixel_t color   = COL_MENUCONTENT_TEXT;
 	fb_pixel_t bgcolor = COL_MENUCONTENT_PLUS_0;
 
 	if (liststart+pos==selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 

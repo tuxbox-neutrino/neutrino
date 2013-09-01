@@ -163,6 +163,7 @@ unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 	msg.channel_id = channel_id;
 	msg.record = false;
 	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -182,6 +183,7 @@ unsigned int CZapitClient::zapTo_record(const t_channel_id channel_id)
 	msg.channel_id = channel_id;
 	msg.record = true;
 	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -200,6 +202,26 @@ unsigned int CZapitClient::zapTo_pip(const t_channel_id channel_id)
 	msg.channel_id = channel_id;
 	msg.record = false;
 	msg.pip = true;
+	msg.epg = false;
+
+	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
+
+	CZapitMessages::responseZapComplete response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
+
+	close_connection();
+
+	return response.zapStatus;
+}
+
+unsigned int CZapitClient::zapTo_epg(const t_channel_id channel_id)
+{
+	CZapitMessages::commandZaptoServiceID msg;
+
+	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = false;
+	msg.epg = true;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -217,6 +239,9 @@ unsigned int CZapitClient::zapTo_subServiceID(const t_channel_id channel_id)
 	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SUBSERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -235,6 +260,9 @@ void CZapitClient::zapTo_serviceID_NOWAIT(const t_channel_id channel_id)
 	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID_NOWAIT, (const char *) & msg, sizeof(msg));
 
@@ -248,6 +276,9 @@ void CZapitClient::zapTo_subServiceID_NOWAIT(const t_channel_id channel_id)
 	VALGRIND_PARANOIA;
 
 	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SUBSERVICEID_NOWAIT, (const char *) & msg, sizeof(msg));
 

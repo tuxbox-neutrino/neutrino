@@ -179,7 +179,25 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
 	char* dn = dirname(buf1);
 	std::string flashfile;
+
+	bool skipCopy = false;
+#ifdef BOXMODEL_APOLLO
 	if (strcmp(dn, "/tmp") != 0) {
+		long btotal = 0, bused = 0, bsize = 0;
+		if (get_fs_usage("/tmp", btotal, bused, &bsize)) {
+			int fileSize = file_size(filename.c_str()) / 1024;
+			int backupMaxSize = (int)((btotal - bused) * bsize);
+			int res = 10; // Reserved 10% of available space
+			backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100)) / 1024;
+			if (backupMaxSize < fileSize)
+				skipCopy = true;
+		}
+		else
+			skipCopy = true;
+	}
+#endif
+
+	if ((strcmp(dn, "/tmp") != 0) && !skipCopy) {
 		memset(buf1, 0, sizeof(buf1));
 		strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
 		flashfile = (std::string)"/tmp/" + basename(buf1);
@@ -196,8 +214,10 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		flashfile = filename;
 
 	// Unmount all NFS & CIFS volumes
-	nfs_mounted_once = false;
-	CFSMounter::umount();
+	if (!skipCopy) {
+		nfs_mounted_once = false;
+		CFSMounter::umount();
+	}
 
 	if( (fd1 = open( flashfile.c_str(), O_RDONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);

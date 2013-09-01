@@ -96,14 +96,17 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	{
 		int advanced = 1;
 #ifdef ENABLE_FASTSCAN
-		advanced = 0;
-		CMenuWidget wtype(LOCALE_WIZARD_SETUP);
-		wtype.setWizardMode(true);
-		wtype.addIntroItems();
-		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_WIZARD_SETUP_TYPE, &advanced, WIZARD_SETUP_TYPE, 2, true, NULL);
-		mc->setHint("", LOCALE_WIZARD_SETUP_TYPE_HINT);
-		wtype.addItem(mc);
-		wtype.exec(NULL, "");
+		std::string lang = g_settings.language;
+		if (lang == "nederlands") {
+			advanced = 0;
+			CMenuWidget wtype(LOCALE_WIZARD_SETUP);
+			wtype.setWizardMode(true);
+			wtype.addIntroItems();
+			CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_WIZARD_SETUP_TYPE, &advanced, WIZARD_SETUP_TYPE, 2, true, NULL);
+			mc->setHint("", LOCALE_WIZARD_SETUP_TYPE_HINT);
+			wtype.addItem(mc);
+			wtype.exec(NULL, "");
+		}
 #endif
 		//open video settings in wizardmode
 		if(advanced && res != menu_return::RETURN_EXIT_ALL) {
@@ -126,7 +129,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		if (CFEManager::getInstance()->haveSat())
 			init_settings = file_exists(CONFIGDIR "/initial/");
 
-		if(init_settings && (res != menu_return::RETURN_EXIT_ALL))
+		if(advanced && init_settings && (res != menu_return::RETURN_EXIT_ALL))
 		{
 			if (ShowMsgUTF(LOCALE_WIZARD_INITIAL_SETTINGS, g_Locale->getText(LOCALE_WIZARD_INSTALL_SETTINGS),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
@@ -143,6 +146,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 				res = CScanSetup::getInstance()->exec(NULL, "");
 			} else {
 				CZapit::getInstance()->GetConfig(zapitCfg);
+#ifdef ENABLE_FASTSCAN
 				if (CFEManager::getInstance()->haveSat()) {
 #ifdef ENABLE_FASTSCAN
 					CMenuWidget fastScanMenu(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, 45, MN_WIDGET_ID_SCAN_FAST_SCAN);
@@ -151,6 +155,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 					res = fastScanMenu.exec(NULL, "");
 #endif
 				}
+#endif
 				if (CFEManager::getInstance()->haveCable()) {
 					CMenuWidget cableScan(LOCALE_SATSETUP_CABLE, NEUTRINO_ICON_SETTINGS, 45, MN_WIDGET_ID_SCAN_CABLE_SCAN);
 					cableScan.setWizardMode(true);

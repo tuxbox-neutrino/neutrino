@@ -202,7 +202,7 @@ void CProgressBar::paintAdvanced()
 		if (pb_active_width > pb_last_width) {
 			int step, off;
 			int b = 0;
-			uint8_t diff = 0;
+			uint32_t diff = 0;
 			for (i = 0; (i < rd) && (i < maxi); i++) {
 				diff = i * 255 / rd;
 				if (pb_invert)
@@ -252,7 +252,7 @@ void CProgressBar::paintAdvanced()
 			}
 		}
 		for(i = maxi; i < total; i++) {
-			for (j = 0; j < hcnt; j++) {//TODO: use shape cc-item
+			for (j = 0; j < hcnt; j++) {
 				int sh_x = pb_x + i * itemw;
 				int sh_y = py + j * itemh;
 				paintShapes(sh_x, sh_y, pointx, pointy, pb_passive_col); //fill passive
@@ -288,5 +288,6 @@ void CProgressBar::paintProgress(bool do_save_bg)
 
 void CProgressBar::paint(bool do_save_bg)
 {
+
   	paintProgress(do_save_bg);
 }

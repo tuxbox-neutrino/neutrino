@@ -1,7 +1,7 @@
 /*
 	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
-	
+
 	(C) 2008, 2013 by Thilo Graf
 	(C) 2009,2010,2013 Stefan Seyfried
 
@@ -23,7 +23,7 @@
 	Boston, MA  02110-1301, USA.
  */
 
-/// 
+///
 /*!
 	description of parameters:
 
@@ -45,7 +45,7 @@
 
 	paintZero > optional, if set to true and value = 0, then paints a diagonal line instead of active bar as symbolic for a zero value
 */
- 
+
 #ifndef __CC_PROGRESSBAR_H__
 #define __CC_PROGRESSBAR_H__
 
@@ -57,28 +57,28 @@ class CProgressBar : public CComponentsItem
 {
 	protected:
 		void initVarProgressbar();
-	
+
 	private:
 		///colors of active and passive bar area, active means the displayed value, passive the neutral area
 		fb_pixel_t pb_active_col, pb_passive_col;
-		
+
 		int pb_last_width;
 
 		///width of progress
 		int pb_active_width, pb_passive_width;
-		
+
 		///maximal width,heigth of progress
 		int pb_max_width, pb_height;
 
 		///start position of bars
 		int pb_start_x_passive;
-		
+
 		///color values
 		int pb_red, pb_green, pb_yellow;
 
 		///start position of activ/passiv area
 		int pb_x, pb_y;
-		
+
 		bool pb_blink, pb_invert, pb_bl_changed;
 
 		///causes a diagonal line as a sign for 0 value instead of an empty bar
@@ -92,13 +92,13 @@ class CProgressBar : public CComponentsItem
 		///paint version of progressbar with color and advanced display modifications
 		void paintAdvanced();
 		///painting of activ/passive bars via shape object
-		void paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_t &col);
-		
+		static void paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_t &col);
+
 		void initDimensions();
 
 		///paints graph
 		void paintProgress(bool do_save_bg = CC_SAVE_SCREEN_NO);
-		
+
 		static inline unsigned int make16color(__u32 rgb){return 0xFF000000 | rgb;};
 
 	public:
@@ -128,7 +128,7 @@ class CProgressBar : public CComponentsItem
 
 		///causes painting a diagonal line if value = 0, Note: ineffective in colored mode
 		void setZeroLine(bool paint_zero_line = true){pb_paint_zero = paint_zero_line;};
-		
+
 		///setters for status colors
 		void setActiveColor(fb_pixel_t active_color) {pb_active_col = active_color;};
 		void setPassiveColor(fb_pixel_t passive_color) {pb_passive_col = passive_color;};
@@ -149,7 +149,7 @@ class CProgressBar : public CComponentsItem
 					const int val, const int max_val){x=x_pos; y=y_pos; width=w; height=h; pb_value=val; pb_max_value=max_val;};
 
 		///force update on next paint
-		void reset() { pb_last_width = -1; } 
+		void reset() { pb_last_width = -1; }
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_NO);
 
 		enum pb_color_t {
@@ -160,5 +160,5 @@ class CProgressBar : public CComponentsItem
 		};
 
 };
-					
+
 #endif /* __CC_PROGRESSBAR_H__ */

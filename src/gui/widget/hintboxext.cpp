@@ -265,7 +265,7 @@ void CHintBoxExt::refresh(bool toround)
 		x_text = x_offset;
 	
 	// title text
-	m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], x_text, m_theight, m_width, title_text.c_str(), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
+	m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], x_text, m_theight, m_width, title_text.c_str(), COL_MENUHEAD_TEXT, 0, true); // UTF-8
 
 	// background of text panel
 	m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, toround ? RADIUS_LARGE : 0, CORNER_BOTTOM);//round

@@ -186,16 +186,20 @@ void CImageInfo::InitInfos()
 	const char * builddate = config.getString("builddate", "n/a").c_str();
 #endif
 
-	const char * _version = config.getString("version", "n/a").c_str();
+	std::string version_string;
+#ifdef IMAGE_VERSION
+	version_string = IMAGE_VERSION;
+#else
+	const char * _version = config.getString("version", "U000000000000000").c_str();
 	static CFlashVersionInfo versionInfo(_version);
 
-	std::string version_string;
 	version_string = versionInfo.getReleaseCycle();
 	version_string += " ";
 	version_string += versionInfo.getType();
 	version_string += " (";
 	version_string += versionInfo.getDate();
 	version_string += ")";
+#endif
 
 	struct utsname uts_info;
 

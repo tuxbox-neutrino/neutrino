@@ -181,11 +181,11 @@ void CHintBox::refresh(void)
 		CFrameBuffer::getInstance()->getIconSize(iconfile.c_str(), &iw, &ih);
 		//window->paintIcon(iconfile.c_str(), 8, 5);
 		window->paintIcon(iconfile.c_str(), 10, 0, theight);
-		//window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, caption, (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
+		//window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), COL_MENUHEAD_TEXT, 0, true); // UTF-8
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, caption, COL_MENUHEAD_TEXT, 0, true); // UTF-8
 	}
 	else
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, caption, (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, caption, COL_MENUHEAD_TEXT, 0, true); // UTF-8
 
 	//window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0);
 	window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
@@ -194,7 +194,7 @@ void CHintBox::refresh(void)
 	int ypos  = theight + (fheight >> 1);
 
 	for (std::vector<char *>::const_iterator it = line.begin() + (entries_per_page * current_page); ((it != line.end()) && (count > 0)); ++it, count--)
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], textStartX, (ypos += fheight), width, *it, (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], textStartX, (ypos += fheight), width, *it, COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 
 	if (entries_per_page < line.size())
 	{

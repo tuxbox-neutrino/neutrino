@@ -483,6 +483,7 @@ void CServiceScan::Cleanup(const bool success)
 		scanBouquetManager = NULL;
 	}
 	CleanAllMaps();
+	abort_scan = false;
 }
 
 bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)

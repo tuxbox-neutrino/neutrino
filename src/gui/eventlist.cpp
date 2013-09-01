@@ -251,7 +251,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 
 	// Calculate iheight (we assume the red button is the largest one?)
 	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, LOCALE_EVENTLISTBAR_RECORDEVENT } };
-	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
+	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
 
 	// Calculate theight
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
@@ -706,7 +706,7 @@ CTimerd::CTimerEventTypes CNeutrinoEventList::isScheduled(t_channel_id channel_i
 
 void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 {
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	unsigned int curpos = liststart + pos;
@@ -716,17 +716,17 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 
 	if (curpos==selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	else if (curpos == current_event )
 	{
-		color   = COL_MENUCONTENT + 1;
+		color   = COL_MENUCONTENT_TEXT_PLUS_1;
 		bgcolor = COL_MENUCONTENT_PLUS_1;
 	}
 	else
 	{
-		color   = COL_MENUCONTENT;
+		color   = COL_MENUCONTENT_TEXT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
@@ -870,9 +870,9 @@ void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channe
 		middle_offset = 0;
 	}
 
-	g_Font[font_h]->RenderString(x+10,y+theight-pn_y_off+1, prev_len, _channelname_prev.c_str(), COL_INFOBAR, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+prev_len+middle_offset,y+theight+1, middle_len, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
-	g_Font[font_h]->RenderString(x+full_width-next_len-10,y+theight-pn_y_off+1, next_len, _channelname_next.c_str(), COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_h]->RenderString(x+10,y+theight-pn_y_off+1, prev_len, _channelname_prev.c_str(), COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+prev_len+middle_offset,y+theight+1, middle_len, _channelname.c_str(), COL_MENUHEAD_TEXT, 0, true); // UTF-8
+	g_Font[font_h]->RenderString(x+full_width-next_len-10,y+theight-pn_y_off+1, next_len, _channelname_next.c_str(), COL_INFOBAR_TEXT, 0, true); // UTF-8
 
 }
 
@@ -891,7 +891,7 @@ void CNeutrinoEventList::paintHead(t_channel_id _channel_id, std::string _channe
 		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-logo_h)/2, logo_w, logo_h);
 	}
 	else 
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+logo_w:0),y+theight+1, full_width, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+logo_w:0),y+theight+1, full_width, _channelname.c_str(), COL_MENUHEAD_TEXT, 0, true); // UTF-8
 }
 
 void CNeutrinoEventList::paint(t_channel_id channel_id)

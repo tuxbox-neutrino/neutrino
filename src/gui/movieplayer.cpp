@@ -420,12 +420,14 @@ bool CMoviePlayerGui::SelectFile()
 						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
 						if (strlen(cLine) > 0 && cLine[0]!='#')
 						{
-							char *url = strstr(cLine, "http://");
-							if (url != NULL) {
-								printf("name %s [%d] url: %s\n", name, dur, url);
-								full_name = url;
-								if(strlen(name))
-									file_name = name;
+							char *url = NULL;
+							if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) ){
+								if (url != NULL) {
+									printf("name %s [%d] url: %s\n", name, dur, url);
+									full_name = url;
+									if(strlen(name))
+										file_name = name;
+								}
 							}
 						}
 					}
@@ -1480,7 +1482,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		frameBuffer->paintBoxRel(min_x, min_y, max_x - min_x, max_y-min_y, COL_MENUCONTENT_PLUS_0);
 
 		for (unsigned i = 0; i < subtext.size(); i++)
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT, 0, true);
 
 		end_time = sub->end_display_time + time_monotonic_ms();
 	}

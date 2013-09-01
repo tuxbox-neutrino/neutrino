@@ -53,7 +53,7 @@
 
  * stuff below here was obviously not tested recently
  * vertical_paint	optional, default value is false (horizontal) sets direction of painted buttons
- * fcolor  		optional, default value is COL_INFOBAR_SHADOW, use it to render font with other color
+ * fcolor  		optional, default value is COL_INFOBAR_SHADOW_TEXT, use it to render font with other color
  * alt_buttontext	optional, default NULL, overwrites button caption at definied buttonlabel id (see parameter alt_buttontext_id) with this text
  * alt_buttontext_id	optional, default 0, means id from buttonlable struct which text you will change 
  * show			optional, default value is true (show button), if false, then no show and return the height of the button.
@@ -68,7 +68,7 @@ int paintButtons(	const int &x,
 			const int &footerheight,
 			std::string /* just to make sure nobody uses anything below */,
 			bool vertical_paint,
-			const unsigned char fcolor,
+			const uint32_t fcolor,
 			const char * alt_buttontext,
 			const uint &buttontext_id,
 			bool show,

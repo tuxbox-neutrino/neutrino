@@ -41,6 +41,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <system/flashtool.h>
+#include <lib/libnet/libnet.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -71,6 +72,7 @@ CExtUpdate::CExtUpdate()
 	fLogfile        = "/tmp/update.log";
 	mountPkt 	= "/tmp/image_mount";
 	FileHelpers 	= NULL;
+	MTDBuf		= NULL;
 	flashErrorFlag	= false;
 	total = bsize = used = 0;
 	free1 = free2 = free3 = 0;
@@ -84,6 +86,8 @@ CExtUpdate::~CExtUpdate()
 {
 	if(FileHelpers)
 		delete[] FileHelpers;
+	if(MTDBuf)
+		delete[] MTDBuf;
 	copyList.clear();
 	blackList.clear();
 	deleteList.clear();
@@ -105,12 +109,17 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 		umount(mountPkt.c_str());
 //		my_system(2,"rmmod", mtdramDriver.c_str());
 	}
-	if (modus & RESET_FD1)
+	if (modus & CLOSE_FD1)
 		close(fd1);
-	if (modus & RESET_FD2)
+	if (modus & CLOSE_FD2)
 		close(fd2);
-	if (modus & RESET_F1)
+	if (modus & CLOSE_F1)
 		fclose(f1);
+	if (modus & DELETE_MTDBUF) {
+		if (MTDBuf != NULL)
+			delete[] MTDBuf;
+		MTDBuf = NULL;
+	}
 
 	if (msg2 == "")
 		snprintf(buf, sizeof(buf), "%s\n", msg1.c_str());
@@ -128,9 +137,8 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 	return false;
 }
 
-bool CExtUpdate::applySettings(const std::string & filename, int mode)
+bool CExtUpdate::applySettings(std::string & filename, int mode)
 {
-#define ORGFILE_EXT ".org"
 	if(!FileHelpers)
 		FileHelpers = new CFileHelpers();
 
@@ -141,8 +149,27 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 
 	DBG_TIMER_START()
 
-	// make backup file
-	FileHelpers->copyFile(imgFilename.c_str(), (imgFilename + ORGFILE_EXT).c_str(), 0644);
+	std::string oldFilename = imgFilename;
+	std::string hostName    = netGetHostname();
+	std::string orgPath     = getPathName(imgFilename);
+	std::string orgName     = getBaseName(imgFilename);
+	orgName                 = getFileName(orgName);
+	std::string orgExt      = "." + getFileExt(imgFilename);
+	std::string timeStr     = getNowTimeStr("_%Y%m%d_%H%M");
+	std::string settingsStr = "+settings";
+
+	if (orgPath != "/tmp") {
+		if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
+			imgFilename = orgPath + "/" + hostName + timeStr + settingsStr + orgExt;
+		else if (g_settings.softupdate_name_mode_apply == CExtUpdate::SOFTUPDATE_NAME_ORGNAME_TIME)
+			imgFilename = orgPath + "/" + orgName + timeStr  + settingsStr + orgExt;
+		else
+			imgFilename = orgPath + "/" + orgName  + settingsStr + orgExt;
+		FileHelpers->copyFile(oldFilename.c_str(), imgFilename.c_str(), 0644);
+	}
+	else
+		imgFilename = oldFilename;
+	filename = imgFilename;
 
 	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
@@ -150,9 +177,8 @@ bool CExtUpdate::applySettings(const std::string & filename, int mode)
 		if ((mtdRamError != "") && (!flashErrorFlag))
 			DisplayErrorMessage(mtdRamError.c_str());
 
-		// error, restore original file
+		// error, delete image file
 		unlink(imgFilename.c_str());
-		rename((imgFilename + ORGFILE_EXT).c_str(), imgFilename.c_str());
 	}
 	else {
 		if (mode == MODE_EXPERT) {
@@ -276,19 +302,19 @@ bool CExtUpdate::applySettings()
 	}
 
 	int MTDBufSize = 0xFFFF;
-	char *MTDBuf   = new char[MTDBufSize];
+	MTDBuf         = new char[MTDBufSize];
 	// copy image to mtdblock
 	if (MTDBuf == NULL)
-		return ErrorReset(RESET_UNLOAD, "malloc error");
+		return ErrorReset(RESET_UNLOAD, "memory allocation error");
 	fd1 = open(imgFilename.c_str(), O_RDONLY);
 	if (fd1 < 0)
-		return ErrorReset(RESET_UNLOAD, "cannot read image file: " + imgFilename);
+		return ErrorReset(RESET_UNLOAD | DELETE_MTDBUF, "cannot read image file: " + imgFilename);
 	long filesize = lseek(fd1, 0, SEEK_END);
 	lseek(fd1, 0, SEEK_SET);
 	if(filesize == 0)
-		return ErrorReset(RESET_UNLOAD | RESET_FD1, "image filesize is 0");
+		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "image filesize is 0");
 	if(filesize > mtdSize)
-		return ErrorReset(RESET_UNLOAD | RESET_FD1, "image filesize too large");
+		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "image filesize too large");
 	fd2 = -1;
 	int tmpCount = 0;
 	while (fd2 < 0) {
@@ -299,7 +325,7 @@ bool CExtUpdate::applySettings()
 		sleep(1);
 	}
 	if (fd2 < 0)
-		return ErrorReset(RESET_UNLOAD | RESET_FD1, "cannot open mtdBlock");
+		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "cannot open mtdBlock");
 	long fsize = filesize;
 	long block;
 	while(fsize > 0) {
@@ -316,12 +342,15 @@ bool CExtUpdate::applySettings()
 	FileHelpers->createDir(mountPkt.c_str(), 0755);
 	int res = mount(mtdBlockFileName.c_str(), mountPkt.c_str(), "jffs2", 0, NULL);
 	if (res)
-		return ErrorReset(RESET_UNLOAD, "mount error");
+		return ErrorReset(RESET_UNLOAD | DELETE_MTDBUF, "mount error");
 
 	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize))
 		free1 = (total * bsize) / 1024 - (used * bsize) / 1024;
 
 	if (!readBackupList(mountPkt)) {
+		if (MTDBuf != NULL)
+			delete[] MTDBuf;
+		MTDBuf = NULL;
 		if (flashErrorFlag)
 			return false;
 		return ErrorReset(0, "error readBackupList");
@@ -329,20 +358,20 @@ bool CExtUpdate::applySettings()
 
 	res = umount(mountPkt.c_str());
 	if (res)
-		return ErrorReset(RESET_UNLOAD, "unmount error");
+		return ErrorReset(RESET_UNLOAD | DELETE_MTDBUF, "unmount error");
 
 	unlink(imgFilename.c_str());
 
 	// copy mtdblock to image
 	if (MTDBuf == NULL)
-		return ErrorReset(RESET_UNLOAD, "malloc error");
+		return ErrorReset(RESET_UNLOAD, "memory allocation error");
 	fd1 = open(mtdBlockFileName.c_str(), O_RDONLY);
 	if (fd1 < 0)
-		return ErrorReset(RESET_UNLOAD, "cannot read mtdBlock");
+		return ErrorReset(RESET_UNLOAD | DELETE_MTDBUF, "cannot read mtdBlock");
 	fsize = mtdRamSize;
 	fd2 = open(imgFilename.c_str(), O_WRONLY | O_CREAT);
 	if (fd2 < 0)
-		return ErrorReset(RESET_UNLOAD | RESET_FD1, "cannot open image file: ", imgFilename);
+		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "cannot open image file: ", imgFilename);
 	while(fsize > 0) {
 		block = fsize;
 		if(block > (long)MTDBufSize)
@@ -358,7 +387,7 @@ bool CExtUpdate::applySettings()
 	// check image file size
 	if (mtdRamSize != fsizeDst) {
 		unlink(imgFilename.c_str());
-		return ErrorReset(0, "error file size: ", imgFilename);
+		return ErrorReset(DELETE_MTDBUF, "error file size: ", imgFilename);
 	}
 
 	// unload mtdramDriver only
@@ -367,7 +396,8 @@ bool CExtUpdate::applySettings()
 	if(hintBox)
 		hintBox->hide();
 
-	delete[] MTDBuf;
+	if (MTDBuf != NULL)
+		delete[] MTDBuf;
 	MTDBuf = NULL;
 	sync();
 	return true;
@@ -546,7 +576,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	fgetpos(f1, &fz);
 	fseek(f1, 0, SEEK_SET);
 	if (fz.__pos == 0)
-		return ErrorReset(RESET_F1, "backuplist filesize is 0");
+		return ErrorReset(CLOSE_F1, "backuplist filesize is 0");
 	size_t pos;
 	std::string line;
 

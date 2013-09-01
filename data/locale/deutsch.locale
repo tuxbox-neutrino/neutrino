@@ -368,8 +368,11 @@ extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
 extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
 extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
 extra.key_current_transponder Aktuelle Transponder Taste
+extra.key_format_mode Videoformat
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
+extra.key_pic_mode Bildschirmformat
+extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
@@ -417,6 +420,7 @@ extra.update_dir Lokales Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.volume_digits Lautstärkeanzeige Ziffern
 extra.volume_pos Lautstärkeanzeige
+extra.volume_size Höhe der Anzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout (1=10ms)
@@ -485,6 +489,13 @@ flashupdate.menu_apply_settings Settingsübernahme erlauben
 flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
 flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
+flashupdate.namemode1 Dateiname Settingsfile
+flashupdate.namemode1_default <Org.Name>+settings.img
+flashupdate.namemode1_hostname_time <Hostname>+<Zeit>+settings.img
+flashupdate.namemode1_orgname_time <Org.Name>+<Zeit>+settings.img
+flashupdate.namemode2 Dateiname Sicherung
+flashupdate.namemode2_default <Partition>+<Zeit>.img
+flashupdate.namemode2_hostname_time <Partition>+<Zeit>+<Hostname>.img
 flashupdate.new_found Updates verfügbar!
 flashupdate.new_notfound Keine Updates verfügbar!
 flashupdate.programmingflash programmiere Flash
@@ -498,6 +509,9 @@ flashupdate.proxyserver_sep Proxyserver
 flashupdate.proxyusername Benutzername
 flashupdate.proxyusername_hint1 Geben Sie den Proxy-Benutzernamen ein
 flashupdate.proxyusername_hint2 Ein leerer Eintrag bedeutet keine Authentifizierung
+flashupdate.read_directory_not_exist Das Backupverzeichnis %s \nexistiert nicht!
+flashupdate.read_no_available_space Der maximal verfügbare Platz in %s \nbeträgt %d KB, es werden aber %d KB benötigt.\n \nDer Vorgang wird abgebrochen, wählen sie bitte einen anderen Datenträger!
+flashupdate.read_volume_error Die Größe des Datenträgers %s \nkann nicht ermittelt werden!
 flashupdate.readflash ganzes Flashimage auslesen
 flashupdate.readflashmtd einzelne Partition auslesen
 flashupdate.ready fertig
@@ -654,6 +668,7 @@ keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Anfangsverzögerung
 keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
+keybindingmenu.special_active Sondertasten
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter
 keybindingmenu.tvradiomode Fernseh-/Radio-Modus
@@ -681,6 +696,8 @@ lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
+ledcontroler.backlight Hintergrundbeleuchtung Buttons
+ledcontroler.backlight.tv TV Modus
 ledcontroler.blink Blinke im Deep-Standby, wenn Timer aktiv
 ledcontroler.menu Power Button LEDs
 ledcontroler.mode.deepstandby Deep-Standby
@@ -752,6 +769,7 @@ menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Play
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
+menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
 menu.hint_bigwindows Kanalliste, EPG-Infos, Audioplayer und einige andere Fenster werden bildschirmfüllend angezeigt
@@ -844,6 +862,7 @@ menu.hint_key_channel_sms Wenn es aktiviert ist, können Sie die Nummern-Tasten 
 menu.hint_key_channeldown Weisen Sie eine Taste für das Herunterschalten in der Kanalliste zu
 menu.hint_key_channellist Konfigurieren Sie die Tastenbelegung für die Kanalliste
 menu.hint_key_channelup Weisen Sie eine Taste für das Hochschalten in der Kanalliste zu
+menu.hint_key_format_mode_active Die Taste für das Videoformat deaktivieren/aktivieren
 menu.hint_key_hardware Definieren Sie, welche Fernbedienung Sie verwenden möchten. Die Bestätigung erfolgt mit der Ausgewählten
 menu.hint_key_history Definieren Sie eine Taste für das Anzeigen der letzten Programme, die Sie schauten
 menu.hint_key_lastchannel Definieren Sie eine Taste, die in den vorher eingestellten Kanal zurückschaltet
@@ -866,6 +885,8 @@ menu.hint_key_mptime Weisen Sie eine Taste für die Restzeitanzeige ihrer Aufnah
 menu.hint_key_mptimeshift Weisen Sie eine Taste für das Starten von Timeshift zu
 menu.hint_key_pagedown Weisen Sie eine Taste für das Herunterblättern zu
 menu.hint_key_pageup Weisen Sie eine Taste für das Hochblättern zu
+menu.hint_key_pic_mode_active Die Taste für das Bildschirmformat deaktivieren/aktivieren
+menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivieren/aktivieren
 menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
 menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
@@ -877,6 +898,7 @@ menu.hint_key_right Wählen Sie die Funktion für die Tasten 'links' und 'rechts
 menu.hint_key_save Speichern Sie Ihre Tastenbelegungen in einer Datei ab
 menu.hint_key_screenshot Weisen Sie eine Taste zu, um Menü- und/oder TV-Screenshots zu speichern
 menu.hint_key_sort Weisen Sie eine Taste für das Sortieren in der Kanalliste zu
+menu.hint_key_special_active Deaktivieren oder aktivieren einiger Sondertasten
 menu.hint_key_subchanneldown Weisen Sie eine Taste für das Zurückschalten in den Unterkanälen zu
 menu.hint_key_subchannelup Weisen Sie eine Taste für das Weiterschalten in den Unterkanälen zu
 menu.hint_key_transponder Weisen Sie eine Taste für das Anzeigen der Transponder in der Kanalliste zu
@@ -1032,7 +1054,7 @@ menu.hint_scan_manual Manueller Transponder-Suchlauf mit ausgewählten Parameter
 menu.hint_scan_mod Wählen Sie eine Transponder-Modulation
 menu.hint_scan_motor_18v Benutze 18V für Motorbewegungen
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
-menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten
+menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten,\nwird ignoriert, wenn USALS aktiv
 menu.hint_scan_nid Geben Sie ihre Kabelnetzwerk-ID in dezimal ein
 menu.hint_scan_nit Lassen Sie Transponder über gesendete NIT-Daten (Network Information Table) hinzufügen
 menu.hint_scan_pids Duchsucht und speichert auch die Audio-, Video- und PMT-PIDs
@@ -1055,8 +1077,8 @@ menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
-menu.hint_scan_usalsall Setzen oder entfernen Sie USALS-Merker für alle Satelliten
-menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelitten
+menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
+menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screenshot_count Wählen Sie, wie viele Screenshots erstellt werden sollen
@@ -1122,6 +1144,7 @@ menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SC
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
+menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter (Menü zum Beenden)
@@ -1216,6 +1239,7 @@ motorcontrol.install_menu Motor Installation
 motorcontrol.motor_pos (a) Motorposition:
 motorcontrol.movement (b) Bewegung:
 motorcontrol.msec Millisekunden
+motorcontrol.network Netzwerk Info
 motorcontrol.no_mode keine Sorge (wasn das?)
 motorcontrol.notdef nicht benutzt
 motorcontrol.override übersteuern

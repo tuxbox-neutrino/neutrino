@@ -94,11 +94,7 @@ static bool messaging_zap_detected = false;
 //NTP-Config
 #define CONF_FILE CONFIGDIR "/neutrino.conf"
 
-#ifdef USE_BB_NTPD
-const std::string ntp_system_cmd_prefix = "/sbin/ntpd -q -p ";
-#else
-const std::string ntp_system_cmd_prefix = "ntpdate ";
-#endif
+std::string ntp_system_cmd_prefix = "ntpdate ";
 
 std::string ntp_system_cmd;
 std::string ntpserver;
@@ -2125,9 +2121,12 @@ bool CEitManager::Start()
 	oldEventsAre = config.epg_old_events*60L*60L; //hours
 	max_events = config.epg_max_events;
 
+	if (access("/sbin/ntpdate", F_OK))
+		ntp_system_cmd_prefix = "/sbin/ntpd -n -q -p ";
+
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
-	printf("[sectionsd] NTP: %s, server %s\n", ntpenable ? "enabled" : "disabled", ntpserver.c_str());
+	printf("[sectionsd] NTP: %s, server %s, command %s\n", ntpenable ? "enabled" : "disabled", ntpserver.c_str(), ntp_system_cmd_prefix.c_str());
 
 	if (!sectionsd_server.prepare(SECTIONSD_UDS_NAME)) {
 		fprintf(stderr, "[sectionsd] failed to prepare basic server\n");

@@ -6,6 +6,7 @@
 #define __zapit_h__
 
 #include <OpenThreads/Thread>
+#include <OpenThreads/ReentrantMutex>
 #include <configfile.h>
 #include <eventserver.h>
 #include <connection/basicserver.h>
@@ -99,7 +100,7 @@ class CZapit : public OpenThreads::Thread
 			RECORD_MODE = 0x04
 		};
 
-		OpenThreads::Mutex	mutex;
+		OpenThreads::ReentrantMutex	mutex;
 		bool started;
 		bool event_mode;
 		bool firstzap;
@@ -208,6 +209,7 @@ class CZapit : public OpenThreads::Thread
 		bool ParseCommand(CBasicMessage::Header &rmsg, int connfd);
 		bool ZapIt(const t_channel_id channel_id, bool for_update = false, bool startplayback = true);
 		bool ZapForRecord(const t_channel_id channel_id);
+		bool ZapForEpg(const t_channel_id channel_id);
 		bool ChangeAudioPid(uint8_t index);
 		void SetRadioMode();
 		void SetTVMode();
@@ -254,5 +256,7 @@ class CZapit : public OpenThreads::Thread
 		int SetVolumePercent(int percent);
 		bool StartPip(const t_channel_id channel_id);
 		bool StopPip();
+		void Lock() { mutex.lock(); }
+		void Unlock() { mutex.unlock(); }
 };
 #endif /* __zapit_h__ */

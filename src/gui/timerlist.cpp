@@ -439,7 +439,7 @@ void CTimerList::updateEvents(void)
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	//get footerHeight from paintButtons
-	footerHeight = ::paintButtons(0, 0, 0, TimerListButtonsCount, TimerListButtons, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
+	footerHeight = ::paintButtons(0, 0, 0, TimerListButtonsCount, TimerListButtons, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
 
 	width = w_max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth()*56, 20);
 	height = frameBuffer->getScreenHeight() - (2*theight);	// max height
@@ -691,7 +691,7 @@ void CTimerList::paintItem(int pos)
 {
 	int ypos = y+ theight+ pos*fheight*2;
 
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
 	int real_width=width;
@@ -700,7 +700,7 @@ void CTimerList::paintItem(int pos)
 		real_width-=15; //scrollbar
 	}
 
-	color   = COL_MENUCONTENT;
+	color   = COL_MENUCONTENT_TEXT;
 	if (pos & 1)
 		bgcolor = COL_MENUCONTENT_PLUS_1;
 	else
@@ -712,7 +712,7 @@ void CTimerList::paintItem(int pos)
 
 	if (liststart + pos == selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	//selected item

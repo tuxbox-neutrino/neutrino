@@ -53,6 +53,7 @@
 #include <global.h>
 #include <driver/shutdown_count.h>
 #include <neutrino.h>
+#include <timerd/timermanager.h>
 #include <cs_api.h>
 
 //#define RCDEBUG
@@ -148,6 +149,7 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
+	firstKey = true;
 
 	//select and setup remote control hardware
 	set_rc_hw();
@@ -1081,6 +1083,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg          = NeutrinoMessages::EVT_TUNE_COMPLETE;
 								*data = (neutrino_msg_data_t) p;
 								break;
+							case CZapitClient::EVT_BACK_ZAP_COMPLETE:
+								*msg          = NeutrinoMessages::EVT_BACK_ZAP_COMPLETE;
+								*data = (neutrino_msg_data_t) p;
+								break;
 							default:
 								printf("[neutrino] event INITID_ZAPIT - unknown eventID 0x%x\n",  emsg.eventID );
 						}
@@ -1230,6 +1236,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();
+				if (firstKey) {
+					firstKey = false;
+					CTimerManager::getInstance()->cancelShutdownOnWakeup();
+				}
 				uint32_t trkey = translate(ev.code, i);
 #ifdef _DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());

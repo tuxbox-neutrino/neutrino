@@ -88,3 +88,131 @@ void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, b
 	recalcColor(b, fade);
 	protectColor(r,g,b, protect);
 }
+
+unsigned char getBrightnessRGB(fb_pixel_t color)
+{
+	RgbColor rgb;
+	rgb.r  = (color & 0x00FF0000) >> 16;
+	rgb.g  = (color & 0x0000FF00) >>  8;
+	rgb.b  =  color & 0x000000FF;
+
+	return rgb.r > rgb.g ? (rgb.r > rgb.b ? rgb.r : rgb.b) : (rgb.g > rgb.b ? rgb.g : rgb.b);
+}
+
+fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br)
+{
+	int br_ = (int)getBrightnessRGB(color);
+	br_ += br;
+	if (br_ < 0) br_ = 0;
+	if (br_ > 255) br_ = 255;
+	return changeBrightnessRGB(color, (unsigned char)br_);
+}
+
+void changeBrightnessRGBRel2(RgbColor *rgb, int br)
+{
+	fb_pixel_t color = (((rgb->r << 16) & 0x00FF0000) |
+			    ((rgb->g <<  8) & 0x0000FF00) |
+			    ((rgb->b      ) & 0x000000FF));
+	int br_ = (int)getBrightnessRGB(color);
+	br_ += br;
+	if (br_ < 0) br_ = 0;
+	if (br_ > 255) br_ = 255;
+
+	HsvColor hsv;
+	Rgb2Hsv(rgb, &hsv);
+	hsv.v = br;
+	Hsv2Rgb(&hsv, rgb);
+}
+
+fb_pixel_t changeBrightnessRGB(fb_pixel_t color, unsigned char br)
+{
+	HsvColor hsv;
+	RgbColor rgb;
+
+	unsigned char tr;
+	tr     = (color & 0xFF000000) >> 24;
+	rgb.r  = (color & 0x00FF0000) >> 16;
+	rgb.g  = (color & 0x0000FF00) >>  8;
+	rgb.b  =  color & 0x000000FF;
+
+	Rgb2Hsv(&rgb, &hsv);
+	hsv.v = br;
+	Hsv2Rgb(&hsv, &rgb);
+
+	return (((tr    << 24) & 0xFF000000) |
+		((rgb.r << 16) & 0x00FF0000) |
+		((rgb.g <<  8) & 0x0000FF00) |
+		((rgb.b      ) & 0x000000FF));
+}
+
+void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb)
+{
+	unsigned char region, remainder, p, q, t;
+
+	if (hsv->s == 0) {
+		rgb->r = hsv->v;
+		rgb->g = hsv->v;
+		rgb->b = hsv->v;
+		return;
+	}
+
+	region = hsv->h / 43;
+	remainder = (hsv->h - (region * 43)) * 6;
+
+	p = (hsv->v * (255 - hsv->s)) >> 8;
+	q = (hsv->v * (255 - ((hsv->s * remainder) >> 8))) >> 8;
+	t = (hsv->v * (255 - ((hsv->s * (255 - remainder)) >> 8))) >> 8;
+
+	switch (region) {
+		case 0:
+			rgb->r = hsv->v; rgb->g = t; rgb->b = p;
+			break;
+		case 1:
+			rgb->r = q; rgb->g = hsv->v; rgb->b = p;
+			break;
+		case 2:
+			rgb->r = p; rgb->g = hsv->v; rgb->b = t;
+			break;
+		case 3:
+			rgb->r = p; rgb->g = q; rgb->b = hsv->v;
+			break;
+		case 4:
+			rgb->r = t; rgb->g = p; rgb->b = hsv->v;
+			break;
+		default:
+			rgb->r = hsv->v; rgb->g = p; rgb->b = q;
+			break;
+	}
+
+	return;
+}
+
+void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv)
+{
+	unsigned char rgbMin, rgbMax;
+
+	rgbMin = rgb->r < rgb->g ? (rgb->r < rgb->b ? rgb->r : rgb->b) : (rgb->g < rgb->b ? rgb->g : rgb->b);
+	rgbMax = rgb->r > rgb->g ? (rgb->r > rgb->b ? rgb->r : rgb->b) : (rgb->g > rgb->b ? rgb->g : rgb->b);
+
+	hsv->v = rgbMax;
+	if (hsv->v == 0) {
+		hsv->h = 0;
+		hsv->s = 0;
+		return;
+	}
+
+	hsv->s = 255 * long(rgbMax - rgbMin) / hsv->v;
+	if (hsv->s == 0) {
+		hsv->h = 0;
+		return;
+	}
+
+	if (rgbMax == rgb->r)
+		hsv->h = 0 + 43 * (rgb->g - rgb->b) / (rgbMax - rgbMin);
+	else if (rgbMax == rgb->g)
+		hsv->h = 85 + 43 * (rgb->b - rgb->r) / (rgbMax - rgbMin);
+	else
+		hsv->h = 171 + 43 * (rgb->r - rgb->g) / (rgbMax - rgbMin);
+
+	return;
+}

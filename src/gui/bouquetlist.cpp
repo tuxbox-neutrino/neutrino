@@ -542,7 +542,7 @@ void CBouquetList::hide()
 void CBouquetList::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight;
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	bool iscurrent = true;
 	int npos = liststart + pos;
@@ -552,7 +552,7 @@ void CBouquetList::paintItem(int pos)
 		lname = (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bFav) ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : Bouquets[npos]->channelList->getName();
 
 	if (npos == (int) selected) {
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 		if(npos < (int) Bouquets.size())
@@ -560,7 +560,7 @@ void CBouquetList::paintItem(int pos)
 	} else {
 		if(npos < (int) Bouquets.size())
 			iscurrent = !Bouquets[npos]->channelList->isEmpty();
-		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
+		color = iscurrent ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
 	}

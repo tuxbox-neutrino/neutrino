@@ -52,18 +52,18 @@ extern cAudio * audioDecoder;
 struct WavHeader
 {
 	char  ChunkID[4];
-//	int   ChunkSize;
+	int   ChunkSize;
 	char  Format[4];
-//	char  Subchunk1ID[4];
-//	int   Subchunk1Size;
+	char  Subchunk1ID[4];
+	int   Subchunk1Size;
 	short AudioFormat;
 	short NumChannels;
 	int   SampleRate;
 	int   ByteRate;
-//	short BlockAlign;
+	short BlockAlign;
 	short BitsPerSample;
-//	char  Subchunk2ID[4];
-//	int   Subchunk2Size;
+	char  Subchunk2ID[4];
+	int   Subchunk2Size;
 } __attribute__ ((packed));
 
 int endianTest=1;

@@ -89,6 +89,7 @@ struct SNeutrinoSettings
 	int scrambled_message;
 	int volume_pos;
 	int volume_digits;
+	int volume_size;
 	int show_mute_icon;
 	int menu_pos;
 	int show_menu_hints;
@@ -419,6 +420,9 @@ struct SNeutrinoSettings
 	int key_pip_close;
 	int key_pip_setup;
 	int key_pip_swap;
+	int key_format_mode_active;
+	int key_pic_mode_active;
+	int key_pic_size_active;
 
 	int cacheTXT;
 	int minimode;
@@ -478,6 +482,8 @@ struct SNeutrinoSettings
 	char softupdate_proxyserver[31];
 	char softupdate_proxyusername[31];
 	char softupdate_proxypassword[31];
+	int softupdate_name_mode_apply;
+	int softupdate_name_mode_backup;
 	int apply_settings;
 	int apply_kernel;
 
@@ -545,6 +551,9 @@ struct SNeutrinoSettings
 	int led_deep_mode;
 	int led_rec_mode;
 	int led_blink;
+	int backlight_tv;
+	int backlight_standby;
+	int backlight_deepstandby;
 #define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
 #define UTF8_TO_FILESYSTEM_ENCODING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::UTF8_to_Latin1(a).c_str())
 #define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))

@@ -32,6 +32,7 @@
 
 #include <neutrino.h>
 #include <gui/infoclock.h>
+#include <driver/neutrinofonts.h>
 
 using namespace std;
 
@@ -68,7 +69,6 @@ void CVolumeBar::initVarVolumeBar()
 	vb_digit 	= NULL;
 	vb_digit_mode	= CTextBox::CENTER ;
 	VolumeFont	= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
-	vb_font		= g_Font[VolumeFont];
 
 	initVolumeBarSize();
 	initVolumeBarPosition();
@@ -200,7 +200,7 @@ void CVolumeBar::initVolumeBarScale()
 //set digit text with current volume value
 void CVolumeBar::initVolumeBarDigitValue()
 {
-	vb_digit->setText(*vb_vol ,vb_digit_mode, vb_font);
+	vb_digit->setText(*vb_vol ,vb_digit_mode, *(CVolumeHelper::getInstance()->vb_font));
 }
 
 //create digit
@@ -209,7 +209,7 @@ void CVolumeBar::initVolumeBarDigit()
 	vb_digit = new CComponentsLabel();
 
 	vb_digit->setDimensionsAll(vb_digit_x, 0, vb_digit_w, height);
-	vb_digit->setTextColor(COL_MENUCONTENT);
+	vb_digit->setTextColor(COL_MENUCONTENT_TEXT);
 	vb_digit->setCornerRadius(cornerRad());
 	vb_digit->setCornerType(CORNER_RIGHT);
 	initVolumeBarDigitValue();
@@ -277,6 +277,7 @@ void CVolumeHelper::Init()
 	y  = frameBuffer->getScreenY() + v_spacer;
 	sw = g_settings.screen_EndX - h_spacer;
 	sh = frameBuffer->getScreenHeight();
+	vb_font	= NULL;
 
 	initVolBarSize();
 	initMuteIcon();
@@ -319,19 +320,24 @@ void CVolumeHelper::initMuteIcon()
 
 void CVolumeHelper::initVolBarSize()
 {
-	vol_height	= 18;
-	icon_width	= 0;
-	digit_width	= 0;
-	int tmp_h	= 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_width, &tmp_h);
-	tmp_h		+= 2;
-	icon_width	+= 8;
-	vol_height 	= max(vol_height, tmp_h);
+	icon_width		= 0;
+	icon_height		= 0;
+	digit_width		= 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &icon_width, &icon_height);
+	icon_height		= max(icon_height, 16); // if no icon available
+	icon_height		+= 2;
+	icon_width		+= 8;
+	g_settings.volume_size	= max(g_settings.volume_size, icon_height);
+	vol_height		= g_settings.volume_size;
 
 	if (g_settings.volume_digits) {
-		tmp_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitHeight() + (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset() * 18) / 10;
-		vol_height = max(vol_height, tmp_h);
-		digit_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("100");
+		CNeutrinoFonts *cnf = CNeutrinoFonts::getInstance();
+		cnf->setFontUseDigitHeight(true);
+		int tmp_h	= vol_height;
+		digit_width	= 0;
+		vb_font		= cnf->getDynFont(digit_width, tmp_h, "100", CNeutrinoFonts::FONT_STYLE_REGULAR, CNeutrinoFonts::FONT_ID_VOLBAR);
+		digit_width	+= 6;
+		vol_height	= max(vol_height, tmp_h);
 	}
 }
 

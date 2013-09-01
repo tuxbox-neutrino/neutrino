@@ -72,6 +72,7 @@
 #include <driver/abstime.h>
 #include <libdvbsub/dvbsub.h>
 #include <libtuxtxt/teletext.h>
+#include <OpenThreads/ScopedLock>
 
 #ifdef PEDANTIC_VALGRIND_SETUP
 #define VALGRIND_PARANOIA(x) memset(&x, 0, sizeof(x))
@@ -491,6 +492,8 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
 #ifdef ENABLE_PIP
+	/* executed async if zap NOWAIT, race possible with record lock/allocate */
+	CFEManager::getInstance()->Lock();
 	if (pip_fe)
 		CFEManager::getInstance()->lockFrontend(pip_fe);
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
@@ -500,6 +503,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 		StopPip();
 		fe = CFEManager::getInstance()->allocateFE(newchannel);
 	}
+	CFEManager::getInstance()->Unlock();
 #else
 	CFrontend * fe = CFEManager::getInstance()->allocateFE(newchannel);
 #endif
@@ -628,7 +632,7 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
-		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
 	INFO("[pip] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
@@ -687,7 +691,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	int retry = (live_fe->getDiseqcType() == DISEQC_UNICABLE) * 2;
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
-		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
 	INFO("%s: %s (%" PRIx64 ")", __FUNCTION__, newchannel->getName().c_str(), channel_id);
@@ -722,6 +726,48 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 		goto again;
 	}
 
+	return true;
+}
+
+bool CZapit::ZapForEpg(const t_channel_id channel_id)
+{
+	CZapitChannel* newchannel;
+	bool transponder_change;
+
+	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
+		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
+		return false;
+	}
+	INFO("%s: %s (%" PRIx64 ")", __FUNCTION__, newchannel->getName().c_str(), channel_id);
+
+	/* executed async in zapit thread, race possible with record lock/allocate */
+	CFEManager::getInstance()->Lock();
+
+	CFEManager::getInstance()->lockFrontend(live_fe);
+#ifdef ENABLE_PIP
+	if (pip_fe && pip_fe != live_fe)
+		CFEManager::getInstance()->lockFrontend(pip_fe);
+#endif
+	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
+
+	CFEManager::getInstance()->unlockFrontend(live_fe);
+#ifdef ENABLE_PIP
+	if (pip_fe && pip_fe != live_fe)
+		CFEManager::getInstance()->unlockFrontend(pip_fe);
+#endif
+	CFEManager::getInstance()->Unlock();
+
+	if(frontend == NULL) {
+		ERROR("Cannot get frontend\n");
+		return false;
+	}
+	if(!TuneChannel(frontend, newchannel, transponder_change))
+		return false;
+#if 0
+	if(!ParsePatPmt(newchannel))
+		return false;
+#endif
+	ParsePatPmt(newchannel);
 	return true;
 }
 
@@ -1023,6 +1069,15 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		else if(msgZaptoServiceID.pip)
 			msgResponseZapComplete.zapStatus = StartPip(msgZaptoServiceID.channel_id);
 #endif
+		else if(msgZaptoServiceID.epg) {
+			msgResponseZapComplete.zapStatus = 0;
+			CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
+			bool ret = ZapForEpg(msgZaptoServiceID.channel_id);
+			if (!ret)
+				msgZaptoServiceID.channel_id = 0;
+			SendEvent(CZapitClient::EVT_BACK_ZAP_COMPLETE, &msgZaptoServiceID.channel_id, sizeof(t_channel_id));
+			break;
+		}
 		else
 			msgResponseZapComplete.zapStatus = ZapTo(msgZaptoServiceID.channel_id, (rmsg.cmd == CZapitMessages::CMD_ZAPTO_SUBSERVICEID));
 

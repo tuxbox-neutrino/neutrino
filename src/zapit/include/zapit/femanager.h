@@ -29,7 +29,7 @@
 #include <zapit/frontend_c.h>
 #include <map>
 
-#include <OpenThreads/Mutex>
+#include <OpenThreads/ReentrantMutex>
 
 #define MAX_FE          4
 #define MAX_ADAPTERS    1
@@ -88,7 +88,7 @@ class CFEManager
 		bool			have_cable;
 		bool			have_terr;
 		bool			have_locked;
-		OpenThreads::Mutex	mutex;
+		OpenThreads::ReentrantMutex	mutex;
 
 		std::vector<CFeDmx>	dmap;
 
@@ -147,5 +147,8 @@ class CFEManager
 		bool		satOnly() { return (have_sat && !have_cable && !have_terr); }
 		bool		cableOnly() { return (have_cable && !have_sat && ! have_terr); }
 		bool		terrOnly() { return (have_terr && !have_sat && ! have_cable); }
+		void		Lock() { mutex.lock(); }
+		void		Unlock() { mutex.unlock(); }
+
 };
 #endif /* __femanager_h__ */

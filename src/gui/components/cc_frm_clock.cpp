@@ -70,7 +70,7 @@ void CComponentsFrmClock::initVarClock()
 	corner_rad	= RADIUS_SMALL;
 
 	cl_font		= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
-	cl_col_text	= COL_MENUCONTENT;
+	cl_col_text	= COL_MENUCONTENT_TEXT;
 	cl_format_str	= "%H:%M";
 	cl_align	= CC_ALIGN_VER_CENTER | CC_ALIGN_HOR_CENTER;
 
@@ -140,7 +140,7 @@ void CComponentsFrmClock::initCCLockItems()
 			lbl->setCornerType(corner_type);
 
 			//set text border to 0
-			lbl->setTextBorderWidth(0);
+			lbl->setTextBorderWidth(0,0);
 		}
 	}
 	

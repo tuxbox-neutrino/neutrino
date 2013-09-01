@@ -65,8 +65,8 @@ struct SI_section_EIT_header {
 	unsigned segment_last_section_number    : 8;
 	unsigned last_table_id                  : 8;
 } __attribute__ ((packed)) ; // 14 bytes
-#if 0
-// unused
+
+#ifndef USE_DVBSI_EVENTS
 struct SI_section_header {
 	unsigned table_id                       : 8;
 #if __BYTE_ORDER == __BIG_ENDIAN

@@ -292,15 +292,11 @@ class CFrameBuffer
 			FB_PAINTAREA_MAX
 		};
 
-#if defined(FB_HW_ACCELERATION)
-		inline bool checkFbArea(int, int, int, int, bool) { return true; }
-#else
 		inline bool checkFbArea(int _x, int _y, int _dx, int _dy, bool prev) { return (fbAreaActiv && !fb_no_check) ? _checkFbArea(_x, _y, _dx, _dy, prev) : true; }
-#endif
-
 		void setFbArea(int element, int _x=0, int _y=0, int _dx=0, int _dy=0);
 		void fbNoCheck(bool noCheck) { fb_no_check = noCheck; }
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
+		void blit(void) {}
 };
 
 #endif

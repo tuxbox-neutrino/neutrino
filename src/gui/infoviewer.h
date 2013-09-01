@@ -140,6 +140,7 @@ class CInfoViewer
 	void show_current_next(bool new_chan, int  epgpos);
 	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
+	void sendNoEpg(const t_channel_id channel_id);
  public:
 	bool     chanready;
 	bool	 is_visible;

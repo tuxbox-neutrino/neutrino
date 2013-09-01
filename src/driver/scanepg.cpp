@@ -42,6 +42,7 @@ extern CBouquetList        * bouquetList;
 CEpgScan::CEpgScan()
 {
 	current_bnum = -1;
+	next_chid = 0;
 }
 
 CEpgScan::~CEpgScan()
@@ -60,6 +61,7 @@ void CEpgScan::Clear()
 {
 	scanmap.clear();
 	current_bnum = -1;
+	next_chid = 0;
 }
 
 void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
@@ -98,39 +100,66 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		if (scanmap.empty())
 			return;
 
-		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-
-		CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
-		CFEManager::getInstance()->lockFrontend(live_fe);
-#ifdef ENABLE_PIP
-		CFrontend *pip_fe = CZapit::getInstance()->GetPipFrontend();
-		if (pip_fe && pip_fe != live_fe)
-			CFEManager::getInstance()->lockFrontend(pip_fe);
-#endif
-		for (eit_scanmap_iterator_t it = scanmap.begin(); it != scanmap.end(); /* ++it*/) {
-			newchan = CServiceManager::getInstance()->FindChannel(it->second);
-			if ((newchan == NULL) || SAME_TRANSPONDER(live_channel_id, newchan->getChannelID())) {
-				scanmap.erase(it++);
-				continue;
-			}
-			if (CFEManager::getInstance()->canTune(newchan)) {
-				INFO("try to scan [%s]", newchan->getName().c_str());
-				bool ret = g_Zapit->zapTo_record(newchan->getChannelID()) > 0;
-				if (ret) {
-					g_Sectionsd->setServiceChanged(newchan->getChannelID(), false, newchan->getRecordDemux());
-					break;
-				} else {
-					scanmap.erase(it++);
-					continue;
-				}
-			} else
-				INFO("skip [%s], cannot tune", newchan->getName().c_str());
-			++it;
-		}
-		CFEManager::getInstance()->unlockFrontend(live_fe);
-#ifdef ENABLE_PIP
-		if (pip_fe && pip_fe != live_fe)
-			CFEManager::getInstance()->unlockFrontend(pip_fe);
-#endif
+		Next();
 	}
+	else if (msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE) {
+		t_channel_id chid = *(t_channel_id *)data;
+		INFO("EVT_BACK_ZAP_COMPLETE [" PRINTF_CHANNEL_ID_TYPE "]", chid);
+		if (next_chid) {
+			newchan = CServiceManager::getInstance()->FindChannel(next_chid);
+			if (newchan) {
+				if(chid) {
+					INFO("try to scan [%s]", newchan->getName().c_str());
+					g_Sectionsd->setServiceChanged(newchan->getChannelID(), false, newchan->getRecordDemux());
+				} else {
+					INFO("tune failed [%s]", newchan->getName().c_str());
+					scanmap.erase(newchan->getTransponderId());
+					Next();
+				}
+			}
+		}
+	}
+}
+
+void CEpgScan::Next()
+{
+	next_chid = 0;
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
+		return;
+
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+
+	/* executed in neutrino thread - possible race with locks in zapit zap NOWAIT :
+	   send zapTo_NOWAIT -> EIT_COMPLETE from sectionsd -> zap and this at the same time
+	*/
+	CFEManager::getInstance()->Lock();
+	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
+	CFEManager::getInstance()->lockFrontend(live_fe);
+#ifdef ENABLE_PIP
+	CFrontend *pip_fe = CZapit::getInstance()->GetPipFrontend();
+	if (pip_fe && pip_fe != live_fe)
+		CFEManager::getInstance()->lockFrontend(pip_fe);
+#endif
+	for (eit_scanmap_iterator_t it = scanmap.begin(); it != scanmap.end(); /* ++it*/) {
+		CZapitChannel * newchan = CServiceManager::getInstance()->FindChannel(it->second);
+		if ((newchan == NULL) || SAME_TRANSPONDER(live_channel_id, newchan->getChannelID())) {
+			scanmap.erase(it++);
+			continue;
+		}
+		if (CFEManager::getInstance()->canTune(newchan)) {
+			INFO("try to tune [%s]", newchan->getName().c_str());
+			next_chid = newchan->getChannelID();
+			break;
+		} else
+			INFO("skip [%s], cannot tune", newchan->getName().c_str());
+		++it;
+	}
+	CFEManager::getInstance()->unlockFrontend(live_fe);
+#ifdef ENABLE_PIP
+	if (pip_fe && pip_fe != live_fe)
+		CFEManager::getInstance()->unlockFrontend(pip_fe);
+#endif
+	CFEManager::getInstance()->Unlock();
+	if (next_chid)
+		g_Zapit->zapTo_epg(next_chid);
 }

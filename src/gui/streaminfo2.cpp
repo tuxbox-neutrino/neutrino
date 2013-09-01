@@ -178,12 +178,12 @@ int CStreamInfo2::doSignalStrengthLoop ()
 					rate.min_short_average = minb = bit_s;
 
 				sprintf(tmp_str, "%s:",g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
-				g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_INFOBAR, 0, true);
+				g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_INFOBAR_TEXT, 0, true);
 				sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
 				frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
-				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset , average_bitrate_pos, sw - 10, currate, COL_INFOBAR);
+				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset , average_bitrate_pos, sw - 10, currate, COL_INFOBAR_TEXT);
 				sprintf(tmp_str, "(%s)",g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE));
-				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, tmp_str, COL_INFOBAR);
+				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, tmp_str, COL_INFOBAR_TEXT);
 
 			}
 			showSNR ();
@@ -271,7 +271,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	char tname[255];
 	snprintf(tname, sizeof(tname), "%s: %d: %s", g_Locale->getText(LOCALE_STREAMINFO_SIGNAL), tuner, frontend->getInfo()->name);
 
-	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, tname /*tuner_name.c_str()*/, COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-_x-10, tname /*tuner_name.c_str()*/, COL_INFOBAR_TEXT, 0, true);
 
 	sigBox_x = _x;
 	sigBox_y = _y+iheight+15;
@@ -284,16 +284,16 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 
 
 	frameBuffer->paintBoxRel(_x+xd*0,y1- 12,16,2, COL_RED); //red
-	g_Font[font_small]->RenderString(_x+20+xd*0, y1, fw*4, "BER", COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*0, y1, fw*4, "BER", COL_INFOBAR_TEXT, 0, true);
 
 	frameBuffer->paintBoxRel(_x+xd*1,y1- 12,16,2,COL_BLUE); //blue
-	g_Font[font_small]->RenderString(_x+20+xd*1, y1, fw*4, "SNR", COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*1, y1, fw*4, "SNR", COL_INFOBAR_TEXT, 0, true);
 
 	frameBuffer->paintBoxRel(_x+8+xd*2,y1- 12,16,2, COL_GREEN); //green
-	g_Font[font_small]->RenderString(_x+28+xd*2, y1, fw*4, "SIG", COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x+28+xd*2, y1, fw*4, "SIG", COL_INFOBAR_TEXT, 0, true);
 
 	frameBuffer->paintBoxRel(_x+xd*3,y1- 12,16,2,COL_YELLOW); // near yellow
-	g_Font[font_small]->RenderString(_x+20+xd*3, y1, fw*5, "Bitrate", COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*3, y1, fw*5, "Bitrate", COL_INFOBAR_TEXT, 0, true);
 
 	sig_text_ber_x =  _x +      xd * 0;
 	sig_text_snr_x =  _x +  5 + xd * 1;
@@ -308,9 +308,9 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	else
 		maxmin_x = _x + 40 + xd * 3 + (fontW*4);
 
-	g_Font[font_small]->RenderString(maxmin_x, y1 + sheight + 5, fw*3, "max", COL_INFOBAR, 0, true);
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 2) +5, fw*3, "now", COL_INFOBAR, 0, true);
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +5, fw*3, "min", COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + sheight + 5, fw*3, "max", COL_INFOBAR_TEXT, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 2) +5, fw*3, "now", COL_INFOBAR_TEXT, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +5, fw*3, "min", COL_INFOBAR_TEXT, 0, true);
 
 
 	s_old.ber = s_old.max_ber = s_old.min_ber = -1;
@@ -409,7 +409,7 @@ void CStreamInfo2::SignalRenderStr(unsigned int oldvalue, unsigned int value, in
 	int fw = g_Font[font_small]->getRenderWidth(str);
 	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUHEAD_PLUS_0);
 	sprintf(str,"%6u",value);
-	g_Font[font_small]->RenderString(_x, _y + 5, width - _x, str, COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x, _y + 5, fw, str, COL_INFOBAR_TEXT, 0, true);
 }
 
 void CStreamInfo2::paint (int /*mode*/)
@@ -430,7 +430,7 @@ void CStreamInfo2::paint (int /*mode*/)
 
 		// paint backround, title pig, etc.
 		frameBuffer->paintBoxRel (0, 0, max_width, max_height, COL_MENUHEAD_PLUS_0);
-		g_Font[font_head]->RenderString (xpos, ypos + hheight + 1, width, head_string, COL_MENUHEAD, 0, true);	// UTF-8
+		g_Font[font_head]->RenderString (xpos, ypos + hheight + 1, width, head_string, COL_MENUHEAD_TEXT, 0, true);	// UTF-8
 		ypos += hheight;
 
 		if (pip == NULL)
@@ -490,14 +490,14 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	//Video RESOLUTION
 	ypos += iheight;
 	sprintf (buf, "%s:",g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION));
-	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 	sprintf (buf, "%dx%d", xres, yres);
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	//audio rate
 	ypos += iheight;
 	sprintf (buf, "%s:",g_Locale->getText (LOCALE_STREAMINFO_ARATIO));
-	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 	switch (aspectRatio) {
 		case 0:
 			sprintf (buf, "N/A");
@@ -517,12 +517,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		default:
 			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_ARATIO_UNKNOWN), sizeof (buf)-1);
 	}
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	//Video FRAMERATE
 	ypos += iheight;
 	sprintf (buf, "%s:", g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE));
-	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 	switch (framerate) {
 		case 0:
 			snprintf (buf,sizeof(buf), "23.976fps");
@@ -552,7 +552,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf)-1);
 			break;
 	}
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 	// place for average bitrate
 	average_bitrate_pos = ypos += iheight;
 	//AUDIOTYPE
@@ -564,14 +564,14 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	const char *ddmodes[8] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
 
 	sprintf (buf, "%s:", g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE));
-	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	if(type == 0) {
 		sprintf (buf, "MPEG %s (%d)", mpegmodes[mode], freq);
 	} else {
 		sprintf (buf, "DD %s (%d)", ddmodes[mode], freq);
 	}
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	//satellite
 	ypos += iheight;
@@ -580,18 +580,18 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	else if(t.deltype == FE_QAM)
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
 
-	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
 	sprintf (buf, "%s",
 		CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition()).c_str());
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	//channel
 	ypos += iheight;
 	sprintf (buf, "%s:",g_Locale->getText (LOCALE_TIMERLIST_CHANNEL));//swiped locale
-	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR_TEXT, 0, true); // UTF-8
 	sprintf(buf, "%s", channel->getName().c_str());
-	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	//tsfrequenz
 	ypos += iheight;
@@ -601,8 +601,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		scaling = 15000;
 
 	sprintf (buf, "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
-	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR, 0, true); // UTF-8
-	g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, box_width, t.description().c_str(), COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, box_width, t.description().c_str(), COL_INFOBAR_TEXT, 0, true); // UTF-8
 	
 	// paint labels
 	int fontW = g_Font[font_small]->getWidth();
@@ -610,27 +610,27 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	//onid
 	ypos+= sheight;
 	sprintf(buf, "0x%04X (%i)", channel->getOriginalNetworkId(), channel->getOriginalNetworkId());
-	g_Font[font_small]->RenderString(xpos, ypos, box_width, "ONid:" , COL_INFOBAR, 0, true); // UTF-8
-	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos, ypos, box_width, "ONid:" , COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
 	//sid
 	ypos+= sheight;
 	sprintf(buf, "0x%04X (%i)", channel->getServiceId(), channel->getServiceId());
-	g_Font[font_small]->RenderString(xpos, ypos, box_width, "Sid:" , COL_INFOBAR, 0, true); // UTF-8
-	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos, ypos, box_width, "Sid:" , COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
 	//tsid
 	ypos+= sheight;
 	sprintf(buf, "0x%04X (%i)", channel->getTransportStreamId(), channel->getTransportStreamId());
-	g_Font[font_small]->RenderString(xpos, ypos, box_width, "TSid:" , COL_INFOBAR, 0, true); // UTF-8
-	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos, ypos, box_width, "TSid:" , COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
 	//pmtpid
 	ypos+= sheight;
 	pmt_version = channel->getPmtVersion();
 	sprintf(buf, "0x%04X (%i) [0x%02X]", channel->getPmtPid(), channel->getPmtPid(), pmt_version);
-	g_Font[font_small]->RenderString(xpos, ypos, box_width, "PMTpid:", COL_INFOBAR, 0, true); // UTF-8
-	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos, ypos, box_width, "PMTpid:", COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
 	//vpid
 	ypos+= sheight;
@@ -639,12 +639,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	} else {
 		sprintf(buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 	}
-	g_Font[font_small]->RenderString(xpos, ypos, box_width, "Vpid:" , COL_INFOBAR, 0, true); // UTF-8
-	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos, ypos, box_width, "Vpid:" , COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
 	//apid
 	ypos+= sheight;
-	g_Font[font_small]->RenderString(xpos, ypos, box_width, "Apid(s):" , COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos, ypos, box_width, "Apid(s):" , COL_INFOBAR_TEXT, 0, true); // UTF-8
 	if (g_RemoteControl->current_PIDs.APIDs.empty()){
 		sprintf(buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 	} else {
@@ -653,10 +653,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		{
 			sprintf(buf, "0x%04X (%i)", g_RemoteControl->current_PIDs.APIDs[li].pid, g_RemoteControl->current_PIDs.APIDs[li].pid );
 			if (li == g_RemoteControl->current_PIDs.PIDs.selected_apid){
-				g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_MENUHEAD, 0, true); // UTF-8
+				g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_MENUHEAD_TEXT, 0, true); // UTF-8
 			}
 			else{
-				g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+				g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 			}
 			sw = g_Font[font_small]->getRenderWidth(buf)+sw+10;
 			if (((li+1)%3 == 0) &&(g_RemoteControl->current_PIDs.APIDs.size()-1 > li)){ // if we have lots of apids, put "intermediate" line with pids
@@ -672,8 +672,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
         	sprintf(buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 	else
         	sprintf(buf, "0x%04X (%i)", g_RemoteControl->current_PIDs.PIDs.vtxtpid, g_RemoteControl->current_PIDs.PIDs.vtxtpid );
-	g_Font[font_small]->RenderString(xpos, ypos, box_width, "VTXTpid:" , COL_INFOBAR, 0, true); // UTF-8
-	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos, ypos, box_width, "VTXTpid:" , COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 	if(box_h == 0)
 		box_h = ypos - ypos1;
 	yypos = ypos;
@@ -761,7 +761,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		if(caids[ca_id] == true){
 			if(cryptsysteme){
 				ypos += iheight;
-				g_Font[font_info]->RenderString(xpos , ypos, box_width, "Conditional access:" , COL_INFOBAR, 0, false);
+				g_Font[font_info]->RenderString(xpos , ypos, box_width, "Conditional access:" , COL_INFOBAR_TEXT, 0, false);
 				cryptsysteme = false;
 			}
 			ypos += sheight;
@@ -770,7 +770,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			std::string::size_type last_pos = casys[ca_id].find_first_not_of(tok, 0);
 			std::string::size_type pos = casys[ca_id].find_first_of(tok, last_pos);
 			while (std::string::npos != pos || std::string::npos != last_pos){
-				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , COL_INFOBAR, 0, false);
+				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , COL_INFOBAR_TEXT, 0, false);
 				if(index == 0)
 					width_txt = spaceoffset;
 				else
@@ -930,8 +930,8 @@ void CStreamInfo2::showSNR ()
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUHEAD_PLUS_0);
-		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR);
-		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SIG", COL_INFOBAR);
+		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR_TEXT);
+		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SIG", COL_INFOBAR_TEXT);
 	}
 	if (lastsnr != snr) {
 		lastsnr = snr;
@@ -944,7 +944,7 @@ void CStreamInfo2::showSNR ()
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUHEAD_PLUS_0, 0, true);
-		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR, 0, true);
-		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SNR", COL_INFOBAR, 0, true);
+		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR_TEXT, 0, true);
+		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SNR", COL_INFOBAR_TEXT, 0, true);
 	}
 }

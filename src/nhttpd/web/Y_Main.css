@@ -551,8 +551,8 @@ tr {
 }
 .y_text_boxcontrol_table {
 	width:114px;
-	height: 22px;
-	background: url('/images/audiobar.gif') no-repeat 1px 0px;
+	height: 23px;
+	background: url('/images/audiobar.gif') no-repeat 1px 1px;
 	padding: 1px;
 	margin-top: 10px;
 	border: #FF8e42 solid 1px;

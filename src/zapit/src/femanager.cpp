@@ -249,6 +249,7 @@ bool CFEManager::loadSettings()
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
 		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
+		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
@@ -337,6 +338,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
 		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
+		setConfigValue(fe, "use_usals", fe_config.use_usals);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 		setConfigValue(fe, "mode", fe->getMode());
 		setConfigValue(fe, "master", fe->getMaster());
@@ -551,8 +553,7 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 
 CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
-	CFrontend * free_frontend = NULL;
-	//CFrontend * same_tid_fe = NULL;
+	CFrontend * retfe = NULL;
 
 	if (livefe && livefe->tuned && livefe->sameTsidOnid(channel->getTransponderId()))
 		return livefe;
@@ -582,6 +583,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 					break;
 				}
 			}
+			CFrontend * free_frontend = NULL;
 			CFrontend * free_twin = NULL;
 			bool loop_busy = false;
 			for (unsigned int i = 0; i < mfe->linkmap.size(); i++) {
@@ -616,6 +618,8 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 			}
 			if (!free_frontend)
 				free_frontend = free_twin;
+			if (free_frontend && !retfe)
+				retfe = free_frontend;
 		}
 		if (mfe->getMode() == CFrontend::FE_MODE_INDEPENDENT) {
 			FEDEBUG("Check fe%d: mode %d locked %d freq %d TP %" PRIx64 " - channel freq %d TP %" PRIx64, mfe->fenumber, mfe->getMode(),
@@ -625,12 +629,12 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 					FEDEBUG("fe %d on the same TP", mfe->fenumber);
 					return mfe;
 				}
-			} else if(!free_frontend)
-				free_frontend = mfe;
+			} else if(!retfe)
+				retfe = mfe;
 		}
 	}
-	FEDEBUG("Selected fe: %d", free_frontend ? free_frontend->fenumber : -1);
-	return free_frontend;
+	FEDEBUG("Selected fe: %d", retfe ? retfe->fenumber : -1);
+	return retfe;
 }
 
 #ifdef DYNAMIC_DEMUX

@@ -1,5 +1,5 @@
 /*
-	Based up Neutrino-GUI - Tuxbox-Project 
+	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
@@ -42,6 +42,8 @@ CComponentsText::CComponentsText()
 {
 	//CComponentsText
 	initVarText();
+
+	initCCText();
 }
 
 CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
@@ -57,17 +59,17 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 	y 		= y_pos,
 	width		= w;
 	height		= h;
-	
+
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	shadow		= has_shadow;
-	
+
 	ct_font 	= font_text;
 	ct_text 	= text;
 	ct_text_mode	= mode;
 	ct_col_text	= color_text;
-	
+
 	initCCText();
 }
 
@@ -90,18 +92,24 @@ void CComponentsText::initVarText()
 
 	//CComponentsText
 	ct_font 	= NULL;
-	ct_box		= NULL;
 	ct_textbox	= NULL;
 	ct_text 	= "";
 	ct_old_text	= ct_text;
 	ct_text_mode	= CTextBox::AUTO_WIDTH;
 
+	pX 		= &x;
+	pY 		= &y;
+	pHeight 	= &height;
+	pWidth 		= &width;
+
 	/* we need a minimal borderwith of 1px because the edge-smoothing
 	(or fontrenderer?) otherwise will paint single pixels outside the
 	defined area. e.g. 'j' is leaving such residues */
-	ct_text_border	= 1;
+	ct_text_Hborder	= 1;
+	ct_text_Vborder	= 0;
 
-	ct_col_text	= COL_MENUCONTENT;
+	ct_col_text	= COL_MENUCONTENT_TEXT;
+	ct_old_col_text = ct_col_text;
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;
@@ -117,24 +125,17 @@ void CComponentsText::initCCText()
 	//define height from font size
 	height 	= max(height, 	ct_font->getHeight());
 
-	//text box dimensions
-	if (ct_box== NULL){
-		//ensure that we have a new instance
-		delete ct_box;
-		ct_box = NULL;
-	}
-
 	//using of real x/y values to paint images if this text object is bound in a parent form
 	int tx = x, ty = y;
 	if (cc_parent){
 		tx = cc_xr;
 		ty = cc_yr;
 	}
-	ct_box = new CBox();
-	ct_box->iX 	= tx+fr_thickness;
-	ct_box->iY 	= ty+fr_thickness;
-	ct_box->iWidth 	= width-2*fr_thickness;
-	ct_box->iHeight = height-2*fr_thickness;
+	//init text box dimensions
+	this->iX/*x*/ 	= tx+fr_thickness;
+	this->iY/*y*/	= ty+fr_thickness;
+	this->iWidth/*width*/ 	= width-2*fr_thickness;
+	this->iHeight/*height*/ = height-2*fr_thickness;
 
 	//init textbox
 	if (ct_textbox == NULL)
@@ -143,30 +144,27 @@ void CComponentsText::initCCText()
 	//set text box properties
 	ct_textbox->setTextFont(ct_font);
 	ct_textbox->setTextMode(ct_text_mode);
-	ct_textbox->setWindowPos(ct_box);
-	ct_textbox->setTextBorderWidth(ct_text_border);
+	ct_textbox->setWindowPos(this);
+	ct_textbox->setTextBorderWidth(ct_text_Hborder, ct_text_Vborder);
 	ct_textbox->enableBackgroundPaint(ct_paint_textbg);
 	ct_textbox->setBackGroundColor(col_body);
 	ct_textbox->setBackGroundRadius(corner_rad-fr_thickness, corner_type);
 	ct_textbox->setTextColor(ct_col_text);
-	ct_textbox->setWindowMaxDimensions(ct_box->iWidth, ct_box->iHeight);
-	ct_textbox->setWindowMinDimensions(ct_box->iWidth, ct_box->iHeight);
+	ct_textbox->setWindowMaxDimensions(width, height);
+	ct_textbox->setWindowMinDimensions(width, height);
 
-	//send text to CTextBox object, but paint text only if text has changed or force option is enabled
-	if ((ct_old_text != ct_text) || ct_force_text_paint)
-		ct_text_sent = ct_textbox->setText(&ct_text, ct_box->iWidth);
-	ct_old_text = ct_text;
+	//send text to CTextBox object, but paint text only if text or text coloer has changed or force option is enabled
+	if ((ct_old_text != ct_text) || ct_old_col_text != ct_col_text || ct_force_text_paint)
+		ct_text_sent = ct_textbox->setText(&ct_text, this->iWidth);
+	ct_old_text 	= ct_text;
+	ct_old_col_text = ct_col_text;
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), ct_box->iX, ct_box->iY, ct_box->iWidth, ct_box->iHeight);
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 #endif
 }
 
 void CComponentsText::clearCCText()
 {
-	if (ct_box)
-		delete ct_box;
-	ct_box = NULL;
-
 	if (ct_textbox)
 		delete ct_textbox;
 	ct_textbox = NULL;
@@ -206,21 +204,21 @@ bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int 
 {
 	string file = path_to_textfile;
 	string txt = "";
-	
+
 	ifstream in (file.c_str(), ios::in);
 	if (!in){
 		printf("[CComponentsText]    [%s - %d] error while open %s -> %s\n", __FUNCTION__, __LINE__, file.c_str(), strerror(errno));
 		return false;
 	}
 	string line;
-	
+
 	while(getline(in, line)){
 		txt += line + '\n';
 	}
 	in.close();
 
 	setText(txt, mode, font_text);
-	
+
 	return true;
 }
 

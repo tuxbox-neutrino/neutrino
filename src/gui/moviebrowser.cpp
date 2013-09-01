@@ -139,7 +139,7 @@ const CMenuOptionChooser::keyval MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS[MESSAGEBOX_
 };
 
 #define TITLE_BACKGROUND_COLOR ((CFBWindow::color_t)COL_MENUHEAD_PLUS_0)
-#define TITLE_FONT_COLOR ((CFBWindow::color_t)COL_MENUHEAD)
+#define TITLE_FONT_COLOR COL_MENUHEAD_TEXT
 
 #define TITLE_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]
 #define FOOT_FONT g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
@@ -344,7 +344,7 @@ CMovieBrowser::CMovieBrowser(const char* path): configfile ('\t')
 
 CMovieBrowser::CMovieBrowser(): configfile ('\t')
 {
-	TRACE("$Id: moviebrowser.cpp,v 1.10 2006/09/11 21:11:35 guenther Exp $\r\n");
+	//TRACE("$Id: moviebrowser.cpp,v 1.10 2006/09/11 21:11:35 guenther Exp $\r\n");
 	init();
 }
 
@@ -609,6 +609,8 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
 	m_settings.ytresults = 10;
 	m_settings.ytregion = "default";
+	m_settings.ytquality = 37;
+	m_settings.ytconcconn = 4;
 }
 
 void CMovieBrowser::initFrames(void)
@@ -635,7 +637,6 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameBrowserList.iWidth = 	m_cBoxFrame.iWidth;
 	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight * m_settings.browserFrameHeight / 100;
 
-fprintf(stderr, "m_cBoxFrame.iHeight %d m_cBoxFrameBrowserList.iHeight %d m_settings.browserFrameHeight %d\n",m_cBoxFrame.iHeight, m_cBoxFrameBrowserList.iHeight, m_settings.browserFrameHeight);
 	m_cBoxFrameFootRel.iX = 		0;
 	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_pcFontFoot->getHeight();
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrameBrowserList.iWidth;
@@ -1642,7 +1643,7 @@ void CMovieBrowser::refreshTitle(void)
 void CMovieBrowser::refreshFoot(void)
 {
 	//TRACE("[mb]->refreshButtonLine \r\n");
-	int	color   = (CFBWindow::color_t) COL_INFOBAR_SHADOW;
+	fb_pixel_t color = COL_INFOBAR_TEXT;
 	int iw = 0, ih = 0;
 
 	std::string filter_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FILTER);
@@ -2872,7 +2873,6 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 	loadBox.paint();
 
 //clock_act = clock()/10000;TRACE("[mb] *1: time %9ld  clock %6ld  dclock %6ld*\n",(long)time(NULL),clock_act,clock_act - clock_prev);clock_prev = clock_act;
-	m_file_info_stale = false;
 	if (show_mode == MB_SHOW_YT) {
 		loadYTitles(m_settings.ytmode, m_settings.ytsearch, m_settings.ytvid);
 	} else {
@@ -2888,6 +2888,7 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 			autoFindSerie();
 		}
 	}
+	m_file_info_stale = false;
 
 	loadBox.hide();
 
@@ -3803,16 +3804,16 @@ int CMenuSelector::paint(bool selected)
 {
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 
-	unsigned char color   = COL_MENUCONTENT;
+	fb_pixel_t    color   = COL_MENUCONTENT_TEXT;
 	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
 	if (selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	if (!active)
 	{
-		color   = COL_MENUCONTENTINACTIVE;
+		color   = COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 	}
 

@@ -161,10 +161,14 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	}
 
 	CGenPsi psi;
-	if (allpids.PIDs.vpid != 0)
-		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
-
 	numpids = 0;
+	if (allpids.PIDs.vpid != 0){
+		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
+		if (allpids.PIDs.pcrpid && (allpids.PIDs.pcrpid != allpids.PIDs.vpid)) {
+			psi.addPid(allpids.PIDs.pcrpid, EN_TYPE_PCR, 0);
+			apids[numpids++]=allpids.PIDs.pcrpid;
+		}
+	}
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
 		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
 		psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
@@ -341,8 +345,8 @@ void CRecordInstance::GetPids(CZapitChannel * channel)
 	allpids.PIDs.vtxtpid = channel->getTeletextPid();
 	allpids.PIDs.pmtpid = channel->getPmtPid();
 	allpids.PIDs.selected_apid = channel->getAudioChannelIndex();
-#if 0 // not needed
 	allpids.PIDs.pcrpid = channel->getPcrPid();
+#if 0 // not needed
 	allpids.PIDs.privatepid = channel->getPrivatePid();
 #endif
 	allpids.APIDs.clear();
@@ -1617,6 +1621,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	if(live_channel_id != channel_id) {
 		/* first try to get frontend for record with locked live */
 		bool unlock = true;
+		/* executed in neutrino thread - possible race with zap NOWAIT and epg scan zap */
+		CFEManager::getInstance()->Lock();
 		CFEManager::getInstance()->lockFrontend(live_fe);
 		frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		if (frontend == NULL) {
@@ -1625,6 +1631,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 			CFEManager::getInstance()->unlockFrontend(live_fe);
 			frontend = CFEManager::getInstance()->allocateFE(channel, true);
 		}
+		CFEManager::getInstance()->Unlock();
+
 		if (frontend == NULL)
 			return false;
 

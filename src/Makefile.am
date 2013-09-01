@@ -118,12 +118,17 @@ neutrino_LDADD += \
 neutrino_LDADD += -lcoolstream-mt -lca-sc
 if ENABLE_TMSDK 
 else
+if BOXMODEL_APOLLO
+neutrino_LDADD += -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager -ltmpvrIndexStorage -llnxscsUsr
+else
 neutrino_LDADD += -lnxp
+endif
 endif
 
 bin_PROGRAMS += drivertool
-
 drivertool_SOURCES = drivertool.c
+bin_PROGRAMS += dt
+dt_SOURCES = dt.c
 endif
 
 if USE_STB_HAL

@@ -5,13 +5,12 @@
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
-/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __VIDEO_CS_H_
 #define __VIDEO_CS_H_
 
-#include <coolstream/cs_frontpanel.h>
-#include <coolstream/control.h>
+#include <cs_frontpanel.h>
+#include <control.h>
 
 #include "cs_types.h"
 

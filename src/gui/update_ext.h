@@ -40,15 +40,17 @@ class CExtUpdate
 		enum
 		{
 			RESET_UNLOAD	= 1,
-			RESET_FD1	= 2,
-			RESET_FD2	= 4,
-			RESET_F1	= 8
+			CLOSE_FD1	= 2,
+			CLOSE_FD2	= 4,
+			CLOSE_F1	= 8,
+			DELETE_MTDBUF	= 16
 		};
 		std::string imgFilename;
 		std::string mtdRamError;
 		int mtdNumber;
 		int fd1, fd2;
 		FILE *f1;
+		char *MTDBuf;
 		std::string mtdramDriver;
 		std::string backupList, defaultBackup;
 		std::string mountPkt;
@@ -80,11 +82,16 @@ class CExtUpdate
 			MODE_EXPERT	= 0,
 			MODE_SOFTUPDATE	= 1
 		};
+		enum {
+			SOFTUPDATE_NAME_DEFAULT,
+			SOFTUPDATE_NAME_HOSTNAME_TIME,
+			SOFTUPDATE_NAME_ORGNAME_TIME
+		};
 		CExtUpdate();
 		~CExtUpdate();
 		static CExtUpdate* getInstance();
 
-		bool applySettings(const std::string & filename, int mode);
+		bool applySettings(std::string & filename, int mode);
 		bool ErrorReset(bool modus, const std::string & msg1="", const std::string & msg2="");
 		bool isBlacklistEntry(const std::string & file);
 

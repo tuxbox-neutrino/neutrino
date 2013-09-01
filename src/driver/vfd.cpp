@@ -199,6 +199,16 @@ void CVFD::setled(int led1, int led2){
 	}
 }
 
+void CVFD::setBacklight(bool on_off)
+{
+	if(cs_get_revision() != 9)
+		return;
+
+	int led = on_off ? FP_LED_3_ON : FP_LED_3_OFF;
+	if (ioctl(fd, IOC_FP_LED_CTRL, led) < 0)
+		perror("FP_LED_3");
+}
+
 void CVFD::setled(bool on_off)
 {
   if(g_settings.led_rec_mode == 0)

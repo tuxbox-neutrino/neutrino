@@ -74,13 +74,13 @@ CBEBouquetWidget::CBEBouquetWidget()
 
 void CBEBouquetWidget::paintItem(int pos)
 {
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
 	if (current == selected) {
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
@@ -88,7 +88,7 @@ void CBEBouquetWidget::paintItem(int pos)
 		bool has_channels = true;
 		if(current < Bouquets->size())
 			has_channels = (!(*Bouquets)[current]->tvChannels.empty() ) || (!(*Bouquets)[current]->radioChannels.empty());
-		color   = has_channels ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
+		color   = has_channels ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = has_channels ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}

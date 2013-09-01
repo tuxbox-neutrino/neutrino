@@ -328,7 +328,7 @@ void CMsgBox::initFramesRel(void)
 //////////////////////////////////////////////////////////////////////
 void CMsgBox::refreshFoot(void)
 {
-	int color,bgcolor;
+	uint32_t color, bgcolor;
 	if(	!(m_nMode & FOOT)) return;
 
 	// draw the background first
@@ -351,12 +351,12 @@ void CMsgBox::refreshFoot(void)
 	{
 		if (m_nResult == mbrYes)
 		{
-			color   = COL_MENUCONTENTSELECTED;
+			color   = COL_MENUCONTENTSELECTED_TEXT;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		}
 		else
 		{
-			color   = COL_INFOBAR_SHADOW;
+			color   = COL_INFOBAR_SHADOW_TEXT;
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
@@ -372,12 +372,12 @@ void CMsgBox::refreshFoot(void)
 	{
 		if (m_nResult == mbrNo)
 		{
-			color   = COL_MENUCONTENTSELECTED;
+			color   = COL_MENUCONTENTSELECTED_TEXT;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		}
 		else
 		{
-			color   = COL_INFOBAR_SHADOW;
+			color   = COL_INFOBAR_SHADOW_TEXT;
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 
@@ -394,12 +394,12 @@ void CMsgBox::refreshFoot(void)
 	{
 		if (m_nResult >= mbrCancel)
 		{
-			color   = COL_MENUCONTENTSELECTED;
+			color   = COL_MENUCONTENTSELECTED_TEXT;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		}
 		else
 		{
-			color   = COL_INFOBAR_SHADOW;
+			color   = COL_INFOBAR_SHADOW_TEXT;
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 
@@ -441,7 +441,7 @@ void CMsgBox::refreshTitle(void)
 								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY,
 								m_cBoxFrameTitleRel.iWidth - TITLE_ICON_WIDTH + TEXT_BORDER_WIDTH,
 								m_cTitle.c_str(),
-								(CFBWindow::color_t)COL_MENUHEAD,
+								COL_MENUHEAD_TEXT,
 								0,
 								true); // UTF-8
 	}
@@ -454,7 +454,7 @@ void CMsgBox::refreshTitle(void)
 								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY,
 								m_cBoxFrameTitleRel.iWidth - TEXT_BORDER_WIDTH,
 								m_cTitle.c_str(),
-								(CFBWindow::color_t)COL_MENUHEAD,
+								COL_MENUHEAD_TEXT,
 								0,
 								true); // UTF-8
 	}
