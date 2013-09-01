@@ -222,3 +222,9 @@ src/zapit/src/Makefile
 src/zapit/data/Makefile
 ])
 
+if test "$BOXMODEL" = "apollo"; then
+AC_OUTPUT([
+src/system/mtdutils/Makefile
+src/system/mtdutils/lib/Makefile
+])
+fi

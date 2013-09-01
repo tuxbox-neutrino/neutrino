@@ -1,3 +1,7 @@
+if BOXMODEL_APOLLO
+SUBDIRS = mtdutils
+endif
+
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
 INCLUDES = \

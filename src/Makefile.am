@@ -49,6 +49,12 @@ else
 FLACLIBS =
 endif
 
+if BOXMODEL_APOLLO
+MTDUTILSLIBS = \
+	system/mtdutils/libneutrino_system_mtdutils.a \
+	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
+endif
+
 neutrino_LDADD = \
 	daemonc/libneutrino_daemonc.a \
 	gui/bedit/libneutrino_gui_bedit.a \
@@ -58,6 +64,7 @@ neutrino_LDADD = \
 	gui/widget/libneutrino_gui_widget2.a \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
 	system/libneutrino_system.a \
+	$(MTDUTILSLIBS) \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \
