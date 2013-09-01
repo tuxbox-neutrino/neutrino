@@ -2845,9 +2845,9 @@ bool CMovieBrowser::delFile_vlc(CFile& /*file*/)
 bool CMovieBrowser::delFile_std(CFile& file)
 {
 	bool result = true;
-	int errno = unlink(file.Name.c_str());
+	int err = unlink(file.Name.c_str());
 	TRACE("  delete file: %s\r\n",file.Name.c_str());
-	if(errno)
+	if(err)
 	  result = false;
 	return(result);
 }
