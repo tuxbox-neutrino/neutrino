@@ -985,8 +985,7 @@ void CChannelList::hide()
 	}
 	if (headerClock) {
 		headerClock->Stop();
-		if (headerClock->isPainted())
-			headerClock->hide();
+		headerClock->kill();
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
