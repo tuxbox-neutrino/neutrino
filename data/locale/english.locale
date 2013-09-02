@@ -336,7 +336,6 @@ extra.add_to_bouquet Add to bouquet
 extra.audio_run_player Audio key start player
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
-extra.bigwindows Big Windows
 extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet....\n
 extra.chalreadyinbq The current channel is already in selected bouquet....\n
@@ -772,7 +771,6 @@ menu.hint_back Return to previous menu\nPress menu key to close all menus
 menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
-menu.hint_bigwindows Channellist, EPG-infos, audioplayer and some other windows are displayed full screen
 menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
@@ -1147,6 +1145,7 @@ menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
+menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_ytplay Play selected youtube feeds
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next (press Menu to quit)
@@ -1960,6 +1959,7 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+window_size Window size in %
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?
 wizard.setup First installation
