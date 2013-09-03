@@ -409,6 +409,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					chan->flags = CZapitChannel::NOT_FOUND;
 					chan->bAlwaysLocked = newBouquet->bLocked;
 					newBouquet->addService(chan);
+					CServiceManager::getInstance()->SetServicesChanged(false);
 				}
 
 				channel_node = channel_node->xmlNextNode;
