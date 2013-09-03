@@ -59,7 +59,8 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define FADE_STEP 5
 #define FADE_RESET 0xFFFF
 
-#define NON_BIG_WINDOWS		85 // %
+#define WINDOW_SIZE_MAX		100 // %
+#define WINDOW_SIZE_MIN		80 // %
 #define ConnectLineBox_Width	16 // px
 
 #if HAVE_GENERIC_HARDWARE
@@ -191,7 +192,6 @@ class CFrameBuffer
 		unsigned int getStride() const;             // size of a single line in the framebuffer (in bytes)
 		unsigned int getScreenWidth(bool real = false);
 		unsigned int getScreenHeight(bool real = false); 
-		unsigned int getScreenPercentRel(bool force_small);
 		unsigned int getScreenWidthRel(bool force_small = false);
 		unsigned int getScreenHeightRel(bool force_small = false);
 		unsigned int getScreenX();
