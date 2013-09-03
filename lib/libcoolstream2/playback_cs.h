@@ -66,6 +66,7 @@ public:
 	void FindAllSubs(uint16_t *pids, unsigned short *supported, uint16_t *numpida, std::string *language);
 	bool SelectSubtitles(int pid);
 	void GetChapters(std::vector<int> &positions, std::vector<std::string> &titles);
+	void RequestAbort();
 };
 
 #endif // __PLAYBACK_CS_H_
