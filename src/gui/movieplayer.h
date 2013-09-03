@@ -98,6 +98,9 @@ class CMoviePlayerGui : public CMenuTarget
 
 	/* playback from MB */
 	bool isMovieBrowser;
+	bool isHTTP;
+	bool isUPNP;
+	bool showStartingHint;
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
@@ -138,6 +141,9 @@ class CMoviePlayerGui : public CMenuTarget
 	void clearSubtitle();
 	void selectChapter();
 
+	void Cleanup();
+	static void *ShowStartHint(void *arg);
+
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
 
@@ -155,6 +161,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
+	void SetFile(std::string &name, std::string &file) { file_name = name; full_name = file; }
 };
 
 #endif
