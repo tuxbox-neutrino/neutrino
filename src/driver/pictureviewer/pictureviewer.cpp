@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <curl/curl.h>
 
 #include <cs_api.h>
 
@@ -101,7 +103,7 @@ CPictureViewer::CFormathandler * CPictureViewer::fh_getsize (const char *name, i
 	return (NULL);
 }
 
-bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, bool unscaled)
+bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, bool unscaled)
 {
 	// dbout("DecodeImage {\n"); 
 #if 0 // quick fix for issue #245. TODO more smart fix for this problem
@@ -112,12 +114,36 @@ bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, b
 #endif
 	int x, y, imx, imy;
 
-// 	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
-// 	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
+	// 	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+	// 	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
 
 	// Show red block for "next ready" in view state
 	if (showBusySign)
 		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
+
+	std::string name = _name;
+	bool url = false;
+
+	if (strstr(name.c_str(), "://")) {
+		std::string tmpname;
+		tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
+		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
+		if (tmpFile) {
+			CURL *ch = curl_easy_init();
+			curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
+			curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
+			curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
+			curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
+			curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
+			curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
+			curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
+			curl_easy_perform(ch);
+			curl_easy_cleanup(ch);
+			fclose(tmpFile);
+			url = true;
+		}
+		name = tmpname;
+	}
 
 	CFormathandler *fh;
 	if (unscaled)
@@ -201,6 +227,8 @@ bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, b
 		m_NextPic_YPan = 0;
 	}
 	m_NextPic_Name = name;
+	if (url)
+		unlink(name.c_str());
 	hideBusy ();
 	//   dbout("DecodeImage }\n"); 
 	return (m_NextPic_Buffer != NULL);
