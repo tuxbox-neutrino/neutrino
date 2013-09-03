@@ -31,6 +31,7 @@
 #ifndef __osd_setup__
 #define __osd_setup__
 
+#include <gui/components/cc_item_shapes.h>
 #include <gui/widget/menue.h>
 
 #include <driver/framebuffer.h>
@@ -43,12 +44,15 @@
 class COsdSetup : public CMenuTarget, public CChangeObserver
 {	
 	private:
+		CFrameBuffer *frameBuffer;
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
 		CMenuWidget *osd_menu;
 		CMenuWidget *submenu_menus;
-		CMenuForwarder *mfFontFile, *mfTtxFontFile;
+		CMenuForwarder *mfFontFile, *mfTtxFontFile, *mfWindowSize;
+		char window_size_value[6];
 		std::string osdFontFile, osdTtxFontFile;
+		CComponentsShapeSquare *win_demo;
 
 		int width;
 		bool is_wizard;

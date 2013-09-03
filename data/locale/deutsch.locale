@@ -336,7 +336,6 @@ extra.add_to_bouquet dem Bouquet zufügen
 extra.audio_run_player Audiotaste startet Player
 extra.auto_delete Automatisch löschen
 extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
-extra.bigwindows Große Fenster
 extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
@@ -772,7 +771,6 @@ menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle M
 menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
-menu.hint_bigwindows Kanalliste, EPG-Infos, Audioplayer und einige andere Fenster werden bildschirmfüllend angezeigt
 menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
@@ -1145,6 +1143,7 @@ menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
+menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter (Menü zum Beenden)
@@ -1962,6 +1961,7 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
+window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?
 wizard.setup Erste Installation

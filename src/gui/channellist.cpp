@@ -549,7 +549,7 @@ void CChannelList::calcSize()
 	// calculate width/height of right info_zone and pip-box
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
-	if (g_settings.channellist_additional == 2) // with miniTV
+	if ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) )
 		pig_height = (pig_width * 9) / 16;
 	else
 		pig_height = 0;
@@ -992,8 +992,7 @@ void CChannelList::hide()
 	}
 	if (headerClock) {
 		headerClock->Stop();
-		if (headerClock->isPainted())
-			headerClock->hide();
+		headerClock->kill();
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();

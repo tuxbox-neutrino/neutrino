@@ -49,6 +49,7 @@
 #include <gui/widget/colorchooser.h>
 #include <gui/widget/stringinput.h>
 
+#include <driver/screen_max.h>
 #include <driver/neutrinofonts.h>
 #include <driver/screen_max.h>
 #include <driver/screenshot.h>
@@ -68,12 +69,15 @@ extern std::string ttx_font_file;
 
 COsdSetup::COsdSetup(bool wizard_mode)
 {
+	frameBuffer = CFrameBuffer::getInstance();
 	colorSetupNotifier = new CColorSetupNotifier();
 	fontsizenotifier = new CFontSizeNotifier;
 	osd_menu = NULL;
 	submenu_menus = NULL;
 	mfFontFile = NULL;
 	mfTtxFontFile = NULL;
+	mfWindowSize = NULL;
+	win_demo = NULL;
 
 	is_wizard = wizard_mode;
 
@@ -86,6 +90,7 @@ COsdSetup::~COsdSetup()
 {
 	delete colorSetupNotifier;
 	delete fontsizenotifier;
+	delete win_demo;
 }
 
 //font settings
@@ -185,6 +190,10 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	if(parent != NULL)
 		parent->hide();
 
+	int res = menu_return::RETURN_REPAINT;
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
+
 	if(actionKey == "select_font")
 	{
 		CFileBrowser fileBrowser;
@@ -199,7 +208,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			osdFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
 			mfFontFile->setOption(osdFontFile.c_str());
 		}
-		return menu_return::RETURN_REPAINT;
+		return res;
 	}
 	else if(actionKey == "ttx_font")
 	{
@@ -216,7 +225,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			osdTtxFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
 			mfTtxFontFile->setOption(osdTtxFontFile.c_str());
 		}
-		return menu_return::RETURN_REPAINT;
+		return res;
 	}
 	else if (actionKey == "font_scaling") {
 		int xre = g_settings.screen_xres;
@@ -237,7 +246,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		fontscale.addItem(m_x);
 		fontscale.addItem(m_y);
-		int res = fontscale.exec(NULL, "");
+		res = fontscale.exec(NULL, "");
 		xre = atoi(val_x);
 		yre = atoi(val_y);
 		//fallback for min/max bugs ;)
@@ -259,22 +268,91 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		//return menu_return::RETURN_REPAINT;
 		return res;
 	}
+	else if(actionKey=="window_size") {
+		if (win_demo == NULL) {
+			win_demo = new CComponentsShapeSquare(0, 0, 0, 0);
+			win_demo->setFrameThickness(8);
+			win_demo->setShadowOnOff(CC_SHADOW_OFF);
+			win_demo->setColorBody(COL_BACKGROUND);
+			win_demo->setColorFrame(COL_RED);
+			win_demo->doPaintBg(true);
+		}
+		else {
+			if (win_demo->isPainted())
+				win_demo->kill();
+		}
+
+		win_demo->setWidth(frameBuffer->getScreenWidthRel());
+		win_demo->setHeight(frameBuffer->getScreenHeightRel());
+		win_demo->setXPos(getScreenStartX(win_demo->getWidth()));
+		win_demo->setYPos(getScreenStartY(win_demo->getHeight()));
+
+		win_demo->paint(CC_SAVE_SCREEN_NO);
+
+		int old_window_size = g_settings.window_size;
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+
+		bool loop=true;
+		while (loop) {
+			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
+
+			if ( msg <= CRCInput::RC_MaxRC )
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+
+			if ( msg == CRCInput::RC_ok ) {
+				loop = false;
+				memset(window_size_value, 0, sizeof(window_size_value));
+				snprintf(window_size_value, sizeof(window_size_value)-1, "%d", g_settings.window_size);
+				mfWindowSize->setOption(window_size_value);
+				break;
+			} else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
+				g_settings.window_size = old_window_size;
+				loop = false;
+			} else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)) {
+				if ((msg == CRCInput::RC_up) && (g_settings.window_size < WINDOW_SIZE_MAX)) {
+					g_settings.window_size += 1;
+				}
+				if ((msg == CRCInput::RC_down) && (g_settings.window_size > WINDOW_SIZE_MIN)) {
+					g_settings.window_size -= 1;
+				}
+
+				if (win_demo->isPainted())
+					win_demo->kill();
+
+				win_demo->setWidth(frameBuffer->getScreenWidthRel());
+				win_demo->setHeight(frameBuffer->getScreenHeightRel());
+				win_demo->setXPos(getScreenStartX(win_demo->getWidth()));
+				win_demo->setYPos(getScreenStartY(win_demo->getHeight()));
+
+				win_demo->paint(CC_SAVE_SCREEN_NO);
+
+			} else if (msg > CRCInput::RC_MaxRC) {
+				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+					loop = false;
+					res = menu_return::RETURN_EXIT_ALL;
+				}
+			}
+		}
+		win_demo->kill();
+
+		return res;
+	}
 	else if(actionKey=="osd.def") {
 		for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 			g_settings.timing[i] = timing_setting[i].default_timing;
 
 		CNeutrinoApp::getInstance()->SetupTiming();
-		return menu_return::RETURN_REPAINT;
+		return res;
 	}
 	else if(actionKey=="logo_dir") {
 		const char *action_str = "logo";
 		chooserDir(g_settings.logo_hdd_dir, false, action_str);
-		return menu_return::RETURN_REPAINT;
+		return res;
 	}
 	else if(actionKey=="screenshot_dir") {
 		const char *action_str = "screenshot";
 		chooserDir(g_settings.screenshot_dir, true, action_str);
-		return menu_return::RETURN_REPAINT;
+		return res;
 	}
 	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
 		for (int i = 0; i < 6; i++) {
@@ -287,10 +365,10 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			}
 		}
 		fontsizenotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-		return menu_return::RETURN_REPAINT;
+		return res;
 	}
 
-	int res = showOsdSetup();
+	res = showOsdSetup();
 
 	//return menu_return::RETURN_REPAINT;
 	return res;
@@ -521,10 +599,12 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_FADE);
 	osd_menu->addItem(mc);
 
-	// big windows
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_BIGWINDOWS, &g_settings.big_windows, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_BIGWINDOWS);
-	osd_menu->addItem(mc);
+	// window size
+	memset(window_size_value, 0, sizeof(window_size_value));
+	snprintf(window_size_value, sizeof(window_size_value)-1, "%d", g_settings.window_size);
+	mfWindowSize = new CMenuForwarder(LOCALE_WINDOW_SIZE, true, window_size_value, this, "window_size", CRCInput::convertDigitToKey(shortcut++));
+	mfWindowSize->setHint("", LOCALE_MENU_HINT_WINDOW_SIZE);
+	osd_menu->addItem(mfWindowSize);
 
 	// color progress bar
 	int pb_color = g_settings.progressbar_color ? g_settings.progressbar_design : -1;
