@@ -961,6 +961,7 @@ menu.hint_net_ssid Enter SSID of wireless network\nyou want to connect to
 menu.hint_net_telnet Enable telnet login to your box
 menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
 menu.hint_net_ushare Share connected HDD over uPnp
+menu.hint_net_xupnpd Share live channels over UPNP
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
