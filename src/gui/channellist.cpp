@@ -501,7 +501,7 @@ int CChannelList::exec()
 
 void CChannelList::calcSize()
 {
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, name.c_str()*/);
 
 	// recalculate theight, fheight and footerHeight for a possilble change of fontsize factor
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
