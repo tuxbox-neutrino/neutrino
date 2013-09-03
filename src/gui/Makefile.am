@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
+AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS
 #AM_CPPFLAGS = -fno-rtti
 BUILT_SOURCES = version.h
 version.h:
