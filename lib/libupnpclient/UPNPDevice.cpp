@@ -438,6 +438,7 @@ std::string CUPnPDevice::HTTP(std::string url, std::string post, std::string act
 		buf[received] = 0;
 		reply << buf;
 	}
+	close(t_socket);
 	return reply.str();
 }
 
