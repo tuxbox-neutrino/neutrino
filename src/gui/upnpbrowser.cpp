@@ -144,6 +144,7 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	// Start Sectionsd
 	g_Sectionsd->setPauseScanning(false);
 	videoDecoder->StopPicture();
+	m_frameBuffer->Clear();
 
 	//g_Zapit->unlockPlayBack();
 	CZapit::getInstance()->EnablePlayback(true);
