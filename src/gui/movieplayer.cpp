@@ -505,7 +505,7 @@ void CMoviePlayerGui::PlayFile(void)
 	}
 
 	file_prozent = 0;
-	pthread_t thrStartHint;
+	pthread_t thrStartHint = 0;
 	if (is_file_player) {
 		showStartingHint = true;
 		pthread_create(&thrStartHint, NULL, CMoviePlayerGui::ShowStartHint, this);
