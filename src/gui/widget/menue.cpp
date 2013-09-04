@@ -1664,7 +1664,7 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 	//convert first letter to large
 	std::string s_optionValue = optionValue;
 	if(!s_optionValue.empty())
-		s_optionValue[0] = toupper(s_optionValue[0]);
+		s_optionValue[0] = (char)toupper(s_optionValue[0]);
 	//paint text
 	paintItemCaption(selected, height , s_optionValue.c_str());
 
