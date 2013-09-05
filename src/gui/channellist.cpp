@@ -512,8 +512,10 @@ void CChannelList::calcSize()
 		fheight = 1; /* avoid div-by-zero crash on invalid font */
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
 
+	bool pig_on_win = ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
 	// calculate width
-	full_width = frameBuffer->getScreenWidthRel();
+	full_width = pig_on_win ? (frameBuffer->getScreenWidth()-2*ConnectLineBox_Width) : frameBuffer->getScreenWidthRel();
+
 	if (g_settings.channellist_additional)
 		width = full_width / 3 * 2;
 	else
@@ -521,7 +523,8 @@ void CChannelList::calcSize()
 
 	// calculate height (the infobox below mainbox is handled outside height)
 	info_height = 2*fheight + fdescrheight + 10;
-	height = frameBuffer->getScreenHeightRel() - info_height;
+	height = pig_on_win ?  frameBuffer->getScreenHeight(): frameBuffer->getScreenHeightRel();
+	height = height - info_height;
 
 	// calculate x position
 	x = getScreenStartX(full_width);
@@ -544,7 +547,7 @@ void CChannelList::calcSize()
 	// calculate width/height of right info_zone and pip-box
 	infozone_width = full_width - width;
 	pig_width = infozone_width;
-	if ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) )
+	if ( pig_on_win /* with miniTV */ )
 		pig_height = (pig_width * 9) / 16;
 	else
 		pig_height = 0;
