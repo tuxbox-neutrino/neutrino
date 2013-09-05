@@ -158,7 +158,8 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	ssize_t filesize;
 	int globalProgressBegin = 0;
 
-	CNeutrinoApp::getInstance()->saveEpg(false);
+	if(g_settings.epg_save)
+		CNeutrinoApp::getInstance()->saveEpg(false);
 
 	if(statusViewer)
 		statusViewer->showLocalStatus(0);
