@@ -340,6 +340,7 @@ int request_file(URL *url)
 	char str[255], *ptr;
 	int slot;
 	ID3 id3;
+	memset(&id3, 0, sizeof(ID3));
 
 	/* get the cache slot for this stream. A negative return value */
 	/* indicates that no cache has been set up for this stream */
