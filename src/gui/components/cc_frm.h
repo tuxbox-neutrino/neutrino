@@ -209,7 +209,7 @@ items like text, labels, pictures ...
 
 class CComponentsWindow : public CComponentsForm
 {
-	private:
+	protected:
 		///object: header object, to get access to header properties see also getHeaderObject()
 		CComponentsHeader * ccw_head;
 		///object: body object, this is the container for all needed items, to add with addWindowItem()
@@ -231,8 +231,6 @@ class CComponentsWindow : public CComponentsForm
 		void initFooter();
 		///initialze all window objects at once
 		void initCCWItems();
-
-	protected:
 		///initialize all attributes
 		void initVarWindow();
 
