@@ -1813,7 +1813,6 @@ TIMER_START();
 	}
 	timer_wakeup = (timer_wakeup && g_settings.shutdown_timer_record_type);
 	g_settings.shutdown_timer_record_type = false;
-	timer_wakeup = false;
 
 	powerManager = new cPowerManager;
 	powerManager->Open();
