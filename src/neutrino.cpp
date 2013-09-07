@@ -1799,7 +1799,7 @@ TIMER_START();
 	g_Zapit->setStandby(false);
 
 	//timer start
-	bool timer_wakeup = false;
+	timer_wakeup = false;//init
 	wake_up( timer_wakeup );
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) (timer_wakeup && g_settings.shutdown_timer_record_type));
 	timerd_thread_started = true;
@@ -2642,6 +2642,7 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::RECORD_START) {
+
 		//FIXME better at announce ?
 		if( mode == mode_standby ) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
@@ -2650,6 +2651,15 @@ _repeat:
 				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
 		}
+		//zap to rec channel if box start from deepstandby
+		if(timer_wakeup){
+			timer_wakeup=false;
+			dvbsub_stop();
+			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
+			t_channel_id channel_id=eventinfo->channel_id;
+			g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
+		}
+
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 			CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
 			autoshift = CRecordManager::getInstance()->TimeshiftOnly();
