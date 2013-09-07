@@ -2660,6 +2660,19 @@ _repeat:
 			g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 		}
 
+		//zap to rec channel in standby-mode
+		if(mode == mode_standby){
+			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
+			bool recordingStatus = CRecordManager::getInstance()->RecordingStatus(eventinfo->channel_id);
+			t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+
+			if( !recordingStatus && (eventinfo->channel_id != live_channel_id) && channelList->SameTP(eventinfo->channel_id) && !(SAME_TRANSPONDER(live_channel_id, eventinfo->channel_id)) ){
+  				dvbsub_stop();
+				t_channel_id channel_id=eventinfo->channel_id;
+				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
+			}
+		}
+
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
 			CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
 			autoshift = CRecordManager::getInstance()->TimeshiftOnly();
