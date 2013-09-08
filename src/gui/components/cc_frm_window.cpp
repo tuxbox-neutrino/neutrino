@@ -161,7 +161,7 @@ void CComponentsWindow::initHeader()
 	//set header properties
 	if (ccw_head){
 		ccw_head->setPos(0, 0);
-		ccw_head->setWidth(width);
+		ccw_head->setWidth(width-2*fr_thickness);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption);
 		ccw_head->initCCItems();
@@ -185,7 +185,7 @@ void CComponentsWindow::initBody()
 			fh = ccw_footer->getHeight();
 		int hh = ccw_head->getHeight();
 		int h_body = height - hh - fh;
-		ccw_body->setDimensionsAll(0, CC_APPEND, width, h_body);
+		ccw_body->setDimensionsAll(0, CC_APPEND, width-2*fr_thickness, h_body);
 		ccw_body->doPaintBg(false);
 	}
 }
@@ -202,7 +202,7 @@ void CComponentsWindow::initFooter()
 	//set footer properties
 	if (ccw_footer){
 		ccw_footer->setPos(0, CC_APPEND);
-		ccw_footer->setWidth(width);
+		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->setShadowOnOff(shadow);
 	}
 }
