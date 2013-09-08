@@ -124,6 +124,7 @@ class CComponentsHeader : public CComponentsForm
 		Font* cch_font;
 		int cch_items_y, cch_icon_x, cch_icon_w, cch_text_x, cch_buttons, cch_buttons_w, cch_buttons_h, cch_buttons_space, cch_offset;
 		std::vector<std::string> v_cch_btn;
+		int cch_size_mode;
 
 		void initIcon();
 		void initCaption();
@@ -149,6 +150,12 @@ class CComponentsHeader : public CComponentsForm
 			CC_HEADER_ITEM_TEXT 	= 1,
 			CC_HEADER_ITEM_BUTTONS	= 2
 		};
+
+		enum
+		{
+			CC_HEADER_SIZE_LARGE 	= 0,
+			CC_HEADER_SIZE_SMALL 	= 1
+		};
 		CComponentsHeader();
 		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, const std::string& caption = "header", const char* icon_name = NULL, const int buttons = 0, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
@@ -168,6 +175,7 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setDefaultButtons(const int buttons);
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 		virtual void initCCItems();
+		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode;};
 
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };

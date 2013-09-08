@@ -98,6 +98,7 @@ void CComponentsHeader::initVarHeader()
 	corner_type		= CORNER_TOP;
 	
 	//init header height
+	cch_size_mode		= CC_HEADER_SIZE_LARGE;
 	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	height 			= cch_font->getHeight();
 	
@@ -343,6 +344,9 @@ void CComponentsHeader::initCaption()
 
 void CComponentsHeader::initCCItems()
 {
+	//set size
+	cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+	
 	//init icon
 	initIcon();
 
