@@ -58,6 +58,7 @@ class CComponentsForm : public CComponentsItem
 		virtual void addCCItem(CComponentsItem* cc_Item);
 		virtual void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
 		virtual void removeCCItem(const uint& cc_item_id);
+		virtual void removeCCItem(CComponentsItem* cc_Item);
 		virtual void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
 		virtual void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
 		virtual void exchangeCCItem(const uint& item_id_a, const uint& item_id_b);
@@ -222,6 +223,8 @@ class CComponentsWindow : public CComponentsForm
 		const char* ccw_icon_name;
 		///property: assigned default icon buttons in header, see also getHeaderObject()
 		int ccw_buttons;
+		///property: value = true, let show footer
+		bool ccw_show_footer;
 
 		///initialze header object
 		void initHeader();
@@ -275,6 +278,9 @@ class CComponentsWindow : public CComponentsForm
 
 		///add item to body object, also usable is addCCItem() to add items to the windo object
 		void addWindowItem(CComponentsItem* cc_Item);
+		
+		///
+		void showFooter(bool show = true){ccw_show_footer = show;};
 
 		///set caption in header with string, see also getHeaderObject()
 		void setWindowCaption(const std::string& text){ccw_caption = text;};

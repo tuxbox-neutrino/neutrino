@@ -254,6 +254,12 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 #endif
 }
 
+void CComponentsForm::removeCCItem(CComponentsItem* cc_Item)
+{
+	uint id = getCCItemId(cc_Item);	
+	removeCCItem(id);
+}
+
 void CComponentsForm::exchangeCCItem(const uint& cc_item_id_a, const uint& cc_item_id_b)
 {
 	if (!v_cc_items.empty())
