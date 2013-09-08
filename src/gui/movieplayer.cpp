@@ -443,6 +443,13 @@ bool CMoviePlayerGui::SelectFile()
 			std::replace(file_name.begin(), file_name.end(), '_', ' ');
 		} else
 			file_name = full_name;
+		
+		if(file_name.substr(0,14)=="videoplayback?"){//youtube name
+			if(!p_movie_info->epgTitle.empty())
+				file_name = p_movie_info->epgTitle;
+			else
+				file_name = "";
+		}
 		printf("CMoviePlayerGui::SelectFile: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
 	}
 	//store last multiformat play dir
@@ -457,20 +464,21 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 {
 	set_threadname(__func__);
 	CMoviePlayerGui *caller = (CMoviePlayerGui *)arg;
+	if(!caller->file_name.empty()){
+		CHintBox hintbox(LOCALE_MOVIEPLAYER_STARTING, caller->file_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
+		hintbox.paint();
 
-	CHintBox hintbox(LOCALE_MOVIEPLAYER_STARTING, caller->file_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
-	hintbox.paint();
-
-	while (caller->showStartingHint) {
-		neutrino_msg_t msg;
-		neutrino_msg_data_t data;
-		g_RCInput->getMsg(&msg, &data, 1);
-		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
-			if(caller->playback)
-				caller->playback->RequestAbort();
+		while (caller->showStartingHint) {
+			neutrino_msg_t msg;
+			neutrino_msg_data_t data;
+			g_RCInput->getMsg(&msg, &data, 1);
+			if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
+				if(caller->playback)
+					caller->playback->RequestAbort();
+			}
 		}
+		hintbox.hide();
 	}
-	hintbox.hide();
 	return NULL;
 }
 
