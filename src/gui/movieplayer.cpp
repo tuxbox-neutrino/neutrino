@@ -464,20 +464,23 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 {
 	set_threadname(__func__);
 	CMoviePlayerGui *caller = (CMoviePlayerGui *)arg;
+	CHintBox *hintbox = NULL;
 	if(!caller->file_name.empty()){
-		CHintBox hintbox(LOCALE_MOVIEPLAYER_STARTING, caller->file_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
-		hintbox.paint();
-
-		while (caller->showStartingHint) {
-			neutrino_msg_t msg;
-			neutrino_msg_data_t data;
-			g_RCInput->getMsg(&msg, &data, 1);
-			if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
-				if(caller->playback)
-					caller->playback->RequestAbort();
-			}
+		hintbox = new CHintBox(LOCALE_MOVIEPLAYER_STARTING, caller->file_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
+		hintbox->paint();
+	}
+	while (caller->showStartingHint) {
+		neutrino_msg_t msg;
+		neutrino_msg_data_t data;
+		g_RCInput->getMsg(&msg, &data, 1);
+		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
+			if(caller->playback)
+				caller->playback->RequestAbort();
 		}
-		hintbox.hide();
+	}
+	if(hintbox != NULL){
+		hintbox->hide();
+		delete hintbox;
 	}
 	return NULL;
 }
