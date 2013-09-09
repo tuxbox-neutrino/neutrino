@@ -34,6 +34,8 @@
 #include <poll.h>
 #include "upnpclient.h"
 #include <algorithm>
+#include <errno.h>
+#include <stdio.h>
 
 struct ToLower
 {
@@ -433,8 +435,29 @@ std::string CUPnPDevice::HTTP(std::string url, std::string post, std::string act
 
 	commandstr = command.str();
 	send(t_socket, commandstr.c_str(), commandstr.size(), 0);
+#if 0
 	while ((received = recv(t_socket, buf, sizeof(buf)-1, 0)) > 0)
 	{
+		buf[received] = 0;
+		reply << buf;
+	}
+#endif
+	struct pollfd fds[1];
+	fds[0].fd = t_socket;
+	fds[0].events = POLLIN;
+	while (true) {
+		int result = poll(fds, 1, 4000);
+		if (result < 0) {
+			printf("CUPnPDevice::HTTP: poll error %s\n", strerror(errno));
+			break;
+		}
+		if (result == 0) {
+			printf("CUPnPDevice::HTTP: poll timeout\n");
+			break;
+		}
+		received = recv(t_socket, buf, sizeof(buf)-1, 0);
+		if (received <= 0)
+			break;
 		buf[received] = 0;
 		reply << buf;
 	}
