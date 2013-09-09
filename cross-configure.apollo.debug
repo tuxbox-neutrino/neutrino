@@ -29,5 +29,5 @@ export FREETYPE_CONFIG=$PREFIX/bin/freetype-config
 export CURL_CONFIG=$PREFIX/bin/curl-config
 
 ./autogen.sh
-./configure --prefix=${PREFIX} --build=i386-pc-linux-gnu --host=$HOST --enable-flac --with-target=cdk --with-targetprefix="" --with-boxmodel=apollo --enable-mdev "$*"
+./configure --prefix=${PREFIX} --build=i386-pc-linux-gnu --host=$HOST --enable-flac --with-target=cdk --with-targetprefix="" --with-boxmodel=apollo --enable-mdev "$@"
 
