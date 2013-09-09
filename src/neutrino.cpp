@@ -4040,6 +4040,10 @@ void CNeutrinoApp::Cleanup()
 	delete CEitManager::getInstance();
 	printf("cleanup 6\n");fflush(stdout);
 	delete CVFD::getInstance();
+#ifdef __UCLIBC__
+	malloc_stats(NULL);
+#else
 	malloc_stats();
+#endif
 #endif
 }
