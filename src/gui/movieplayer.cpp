@@ -420,7 +420,7 @@ bool CMoviePlayerGui::SelectFile()
 						if (strlen(cLine) > 0 && cLine[0]!='#')
 						{
 							char *url = NULL;
-							if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) ){
+							if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) ){
 								if (url != NULL) {
 									printf("name %s [%d] url: %s\n", name, dur, url);
 									full_name = url;
