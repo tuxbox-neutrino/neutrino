@@ -2651,6 +2651,7 @@ _repeat:
 				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
 		}
+#if 0
 		//zap to rec channel if box start from deepstandby
 		if(timer_wakeup){
 			timer_wakeup=false;
@@ -2659,7 +2660,7 @@ _repeat:
 			t_channel_id channel_id=eventinfo->channel_id;
 			g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 		}
-
+#endif
 		//zap to rec channel in standby-mode
 		if(mode == mode_standby){
 			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
