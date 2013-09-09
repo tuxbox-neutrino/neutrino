@@ -63,6 +63,32 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 	fr_thickness 	= FRAME_TH;	
 }
 
+CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const int w, const int h,
+					const neutrino_locale_t& caption_locale, const std::string& icon_name,
+					bool selected, bool enabled, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	initVarButton();
+	cc_btn_icon	= icon_name;
+	cc_btn_capt	= g_Locale->getText(caption_locale);;
+	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
+	cc_btn_text_w 	= cc_btn_font->getRenderWidth(cc_btn_capt, true);
+	cc_btn_text_h	= cc_btn_font->getHeight();
+
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= max(w, cc_btn_text_w);
+	height	 	= max(h, cc_btn_text_h);
+	shadow		= has_shadow;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	cc_item_enabled  = enabled;
+	cc_item_selected = selected;
+	fr_thickness 	= FRAME_TH;
+}
+
 void CComponentsButton::initVarButton()
 {
 	initVarForm();
