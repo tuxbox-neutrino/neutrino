@@ -184,7 +184,7 @@ void CComponentsWindow::initBody()
 		if (ccw_footer)
 			fh = ccw_footer->getHeight();
 		int hh = ccw_head->getHeight();
-		int h_body = height - hh - fh;
+		int h_body = height - hh - fh - 2*fr_thickness;
 		ccw_body->setDimensionsAll(0, CC_APPEND, width-2*fr_thickness, h_body);
 		ccw_body->doPaintBg(false);
 	}
