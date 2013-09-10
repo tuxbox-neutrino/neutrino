@@ -46,13 +46,11 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 	cc_btn_icon	= icon_name;
 	cc_btn_capt	= caption;
 	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
-	cc_btn_text_w 	= cc_btn_font->getRenderWidth(cc_btn_capt, true);
-	cc_btn_text_h	= cc_btn_font->getHeight();
 	
 	x 		= x_pos;
 	y 		= y_pos;
-	width 		= max(w, cc_btn_text_w);
-	height	 	= max(h, cc_btn_text_h);
+	width 		= w;
+	height	 	= h;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
 	col_frame 	= color_frame;
@@ -72,13 +70,11 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 	cc_btn_icon	= icon_name;
 	cc_btn_capt	= g_Locale->getText(caption_locale);;
 	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
-	cc_btn_text_w 	= cc_btn_font->getRenderWidth(cc_btn_capt, true);
-	cc_btn_text_h	= cc_btn_font->getHeight();
-
+	
 	x 		= x_pos;
 	y 		= y_pos;
-	width 		= max(w, cc_btn_text_w);
-	height	 	= max(h, cc_btn_text_h);
+	width 		= w;
+	height	 	= h;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
 	col_frame 	= color_frame;
@@ -95,11 +91,10 @@ void CComponentsButton::initVarButton()
 	cc_item_type 	= CC_ITEMTYPE_BUTTON;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;
-	cc_btn_font	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
+	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
+	cc_btn_font	= NULL;
 	cc_btn_icon	= "";
 	cc_btn_capt	= "";
-	cc_btn_text_w	= 0;
-	cc_btn_text_h	= 0;
 }
 
 void CComponentsButton::initIcon()
@@ -128,7 +123,7 @@ void CComponentsButton::initIcon()
 
 	//set properties to picture object
 	if (cc_btn_icon_obj){
-		cc_btn_icon_obj->setPos(icon_x, icon_y);
+		cc_btn_icon_obj->setDimensionsAll(icon_x, icon_y, icon_w, icon_h);
 		cc_btn_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
@@ -137,35 +132,59 @@ void CComponentsButton::initIcon()
 
 void CComponentsButton::initCaption()
 {
-	if (cc_btn_capt_obj == NULL){
-		cc_btn_capt_obj = new CComponentsLabel();
+	//if we have an icon, we must calculate positions for booth items together
+	//also the icon width and left position = 0
+	int face_w = 0;
+	int face_x = 0;
 
-		addCCItem(cc_btn_capt_obj);
-	}
-	
-	//text position is default centere
-	int cap_x = (width/2)-(cc_btn_text_w/2);
-	int cap_y = (height/2)-(cc_btn_text_h/2); 
-
-	//if we have a icon, then we must calculate centered position for booth items together
+	//calculate width and left position of icon, if available, picture position is default centered
 	if (cc_btn_icon_obj){
-		int face_w = cc_btn_icon_obj->getWidth() + H_SPACE + cc_btn_text_w + 2*fr_thickness;
-		int face_x = width/2 - face_w/2;
+		//if found a picture object, then get width from it...
+		face_w = cc_btn_icon_obj->getWidth();
+		//...and set position as centered
+		face_x = width/2 - face_w/2;
 		cc_btn_icon_obj->setXPos(face_x);
-		cap_x = face_x + cc_btn_icon_obj->getWidth() + H_SPACE;
+	}	
+
+	//init label as caption object and add to container
+	if (!cc_btn_capt.empty()){
+		if (cc_btn_capt_obj == NULL){
+			cc_btn_capt_obj = new CComponentsLabel();
+			cc_btn_capt_obj->doPaintBg(false);
+			addCCItem(cc_btn_capt_obj);
+		}
+	}else{
+		if (cc_btn_capt_obj){
+			delete cc_btn_capt_obj;
+			cc_btn_capt_obj = NULL;
+		}
 	}
+
+	//basicly we set caption appended to picture if available and to top border, width = 0
+	int cap_x = fr_thickness + H_SPACE;
+	int cap_y = fr_thickness + H_SPACE;
 
 	//set properties to label object
-	if (cc_btn_capt_obj){			
-		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, width-cap_x, height);
+	if (cc_btn_capt_obj){
+		int cap_w 		= width - 2*fr_thickness - face_w;
+		int cap_h		= height - 2*fr_thickness - 2*H_SPACE;
+		if (cc_btn_icon_obj){
+			cc_btn_icon_obj->setXPos(cap_x);
+			cap_x += face_w + H_SPACE;
+		}
+
+		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, cap_w, cap_h);
+		cc_btn_font 	= *cc_btn_dy_font->getDynFont(cap_w, cap_h);
+		
 		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT);
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;
-		cc_btn_capt_obj->doPaintBg(false);
 
 		//corner of text item
 		cc_btn_capt_obj->setCorner(corner_rad-fr_thickness, corner_type);
 	}
+	
+
 }
 
 void CComponentsButton::setCaption(const std::string& text)

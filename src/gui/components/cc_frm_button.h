@@ -30,6 +30,7 @@
 #include "cc.h"
 #include "cc_frm.h"
 #include <string>
+#include <driver/neutrinofonts.h>
 
 //! Sub class of CComponentsForm.
 /*!
@@ -55,11 +56,8 @@ class CComponentsButton : public CComponentsForm
 		fb_pixel_t cc_btn_capt_col;
 		///object: text font
 		Font* cc_btn_font;
-		///property: label object width, too long text will be truncated
-		int cc_btn_text_w;
-		///property: label object heigth
-		int cc_btn_text_h;
-	
+		///object: dynamic font object handler
+		CNeutrinoFonts 	*cc_btn_dy_font;
 
 		///initialize picture object
 		void initIcon();
