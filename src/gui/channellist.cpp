@@ -2108,8 +2108,7 @@ void CChannelList::paintHead()
 
 		}
 		headerClock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
-		headerClock->setCornerRadius(RADIUS_LARGE);
-		headerClock->setCornerType(CORNER_TOP_RIGHT);
+		headerClock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		headerClock->setYPos(y);
 		headerClock->setHeight(theight);
 		headerClock->setTextColor(COL_MENUHEAD_TEXT);

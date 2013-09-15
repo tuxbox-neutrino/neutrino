@@ -164,8 +164,7 @@ void CComponentsButton::initCaption()
 		cc_btn_capt_obj->doPaintBg(false);
 
 		//corner of text item
-		cc_btn_capt_obj->setCornerRadius(corner_rad-fr_thickness);
-		cc_btn_capt_obj->setCornerType(corner_type);
+		cc_btn_capt_obj->setCorner(corner_rad-fr_thickness, corner_type);
 	}
 }
 

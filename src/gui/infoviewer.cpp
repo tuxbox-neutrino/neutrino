@@ -1868,7 +1868,7 @@ void CInfoViewer::showInfoFile()
 
 	//set some properties for info object
 	infobar_txt->setDimensionsAll(xStart, yStart, width, height);
-	infobar_txt->setCornerRadius(RADIUS_SMALL);
+	infobar_txt->setCorner(RADIUS_SMALL);
 	infobar_txt->setShadowOnOff(true);
 	infobar_txt->setTextColor(COL_INFOBAR_TEXT);
 	infobar_txt->setColorBody(COL_INFOBAR_PLUS_0);

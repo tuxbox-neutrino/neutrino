@@ -136,8 +136,7 @@ void CComponentsFrmClock::initCCLockItems()
 			lbl->doPaintBg(false);
 			
 			//set corner properties of label item
-			lbl->setCornerRadius(corner_rad-fr_thickness);
-			lbl->setCornerType(corner_type);
+			lbl->setCorner(corner_rad-fr_thickness, corner_type);
 
 			//set text border to 0
 			lbl->setTextBorderWidth(0,0);

@@ -182,8 +182,6 @@ class CComponents
 		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
 		///Note: default values are given from settings
 		inline virtual void setCornerType(const int& type){corner_type = type;};
-		///set corner radius
-		inline virtual void setCornerRadius(const int& radius){corner_rad = radius;};
 		///set corner radius and type
 		inline virtual void setCorner(const int& radius, const int& type = CORNER_ALL){corner_rad = radius; corner_type = type;};
 		///get corner types

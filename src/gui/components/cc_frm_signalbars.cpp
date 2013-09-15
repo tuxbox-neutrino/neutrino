@@ -327,12 +327,12 @@ void CSignalBox::initSignalItems()
 
 	sbar->setDimensionsAll(sbar_x, fr_thickness, sbar_w, sbar_h);
 	sbar->setFrontEnd(sbx_frontend);
-	sbar->setCornerRadius(0);
+	sbar->setCorner(0);
 	sbar->setScaleHeight(scale_h);
 
 	snrbar->setDimensionsAll(sbar_x, CC_APPEND, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
-	snrbar->setCornerRadius(0);
+	snrbar->setCorner(0);
 	snrbar->setScaleHeight(scale_h);
 }
 
