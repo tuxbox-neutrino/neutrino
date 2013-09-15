@@ -35,7 +35,7 @@
 
 #include <gui/components/cc_frm.h>
 #include <gui/widget/stringinput.h>
-
+#include <gui/components/cc_item_shapes.h>
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
@@ -161,8 +161,10 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 		if (right_bgcol) {
 			if (!right_text)
 				stringstartposOption -= 60;
-			CFrameBuffer::getInstance()->paintBoxRel(stringstartposOption, y + 1, dx - stringstartposOption + x - 1, item_height - 2, right_bgcol, RADIUS_LARGE);
-			CFrameBuffer::getInstance()->paintBoxFrame(stringstartposOption, y + 1, dx - stringstartposOption + x - 1, item_height - 2, 1, COL_MENUCONTENT_PLUS_6, RADIUS_LARGE);
+			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, false, COL_MENUCONTENT_PLUS_6, right_bgcol);
+			col.setFrameThickness(3);
+			col.setCorner(RADIUS_LARGE);
+			col.paint(false);
 		}
 		if (right_text)
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
