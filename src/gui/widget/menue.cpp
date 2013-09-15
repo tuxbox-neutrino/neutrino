@@ -214,11 +214,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	int icon_h = 0;
 
 	//define icon name depends of numeric value
-#ifdef MARTII
-	if (g_settings.menu_numbers_as_icons && icon_name.empty() && CRCInput::isNumeric(directKey))
-#else
 	if (icon_name.empty() && CRCInput::isNumeric(directKey))
-#endif
 	{
 		char i_name[6]; /* X +'\0' */
 		snprintf(i_name, 6, "%d", CRCInput::getNumericValue(directKey));
@@ -268,14 +264,8 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	{
 		frameBuffer->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 
-#ifdef MARTII
-		if (icon_w>0 && icon_h>0)
-#else
 		if (active  && icon_w>0 && icon_h>0)
-#endif
-		{
 			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
-		}
 	}
 }
 
@@ -575,7 +565,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					break;
 				}
 			}
-#ifdef MARTII
+#if 0
 			if (msg == (uint32_t) g_settings.key_channelList_pageup)
 				msg = CRCInput::RC_page_up;
 			else if (msg == (uint32_t) g_settings.key_channelList_pagedown)
