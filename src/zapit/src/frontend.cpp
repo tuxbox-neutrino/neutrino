@@ -584,6 +584,7 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 		break;
 	default:
 		printf("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
+	case FEC_S2_AUTO:
 	case FEC_AUTO:
 		fec = (char *)"AUTO";
 		break;
