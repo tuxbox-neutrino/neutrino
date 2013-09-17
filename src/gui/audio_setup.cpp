@@ -200,7 +200,9 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);
 	audioSettings->addItem(as_oj_algo);
+#ifndef BOXMODEL_APOLLO
 	audioSettings->addItem(as_oj_noise);
+#endif
 	audioSettings->addItem(as_oj_volrev);
 #if 0
 	audioSettings->addItem(mf);
@@ -209,6 +211,9 @@ int CAudioSetup::showAudioSetup()
 	int res = audioSettings->exec(NULL, "");
 	selected = audioSettings->getSelected();
 	delete audioSettings;
+#ifdef BOXMODEL_APOLLO
+	delete as_oj_noise;
+#endif
 	return res;
 }
 
