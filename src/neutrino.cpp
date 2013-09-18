@@ -173,6 +173,8 @@ CBouquetList   * RADIOsatList;
 CBouquetList   * RADIOfavList;
 CBouquetList   * RADIOallList;
 
+CBouquetList   * AllFavBouquetList;
+
 CPlugins       * g_PluginList;
 CRemoteControl * g_RemoteControl;
 CPictureViewer * g_PicViewer;
@@ -1351,12 +1353,14 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		TIMER_STOP("[neutrino] sats took");
 	}
 
+	delete AllFavBouquetList;
+	AllFavBouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_FAVS));
 	/* Favorites and providers bouquets */
 	tvi = ri = 0;
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 		if (!b->bHidden) {
-			if (b->getTvChannels(zapitList) || b->bUser) {
+			if (b->getTvChannels(zapitList) /* || b->bUser */) {
 				if(b->bUser)
 					tmp = TVfavList->addBouquet(b);
 				else
@@ -1365,7 +1369,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp->channelList->SetChannelList(&zapitList);
 				tvi++;
 			}
-			if (b->getRadioChannels(zapitList) || b->bUser) {
+			if (b->getRadioChannels(zapitList) /* || b->bUser */) {
 				if(b->bUser)
 					tmp = RADIOfavList->addBouquet(b);
 				else
@@ -1374,6 +1378,8 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp->channelList->SetChannelList(&zapitList);
 				ri++;
 			}
+			if(b->bUser)
+				AllFavBouquetList->addBouquet(b);
 		}
 	}
 	printf("[neutrino] got %d TV and %d RADIO bouquets\n", tvi, ri); fflush(stdout);

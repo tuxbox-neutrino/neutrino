@@ -396,39 +396,41 @@ int CBouquetList::show(bool bShowChannelList)
 				loop=false;
 		}
 		else if(msg == CRCInput::RC_red || msg == CRCInput::RC_favorites) {
-			if (CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_FAV) {
+			if (!favonly && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_FAV) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_FAV);
 				hide();
 				return -3;
 			}
 		} else if(msg == CRCInput::RC_green) {
-			if (CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_PROV) {
+			if (!favonly && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_PROV) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_PROV);
 				hide();
 				return -3;
 			}
 		} else if(msg == CRCInput::RC_yellow || msg == CRCInput::RC_sat) {
-			if(bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_SAT) {
+			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_SAT) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_SAT);
 				hide();
 				return -3;
 			}
 		} else if(msg == CRCInput::RC_blue) {
-			if(bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_ALL) {
+			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_ALL) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_ALL);
 				hide();
 				return -3;
 			}
 		}
 		else if ( msg == CRCInput::RC_setup) {
-			if (!Bouquets.empty()) {
+			if (!favonly && !Bouquets.empty()) {
 				int ret = doMenu();
 				if(ret > 0) {
 					CNeutrinoApp::getInstance()->MarkChannelListChanged();
 					res = -4;
 					loop = false;
-				} else if(ret < 0)
+				} else if(ret < 0) {
+					paintHead();
 					paint();
+				}
 			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_list_start ) {
@@ -599,11 +601,17 @@ void CBouquetList::paint()
 	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - footerHeight, COL_MENUCONTENT_PLUS_0);
 
 	int numbuttons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
+#if 0
 	if (favonly) /* this actually shows favorites and providers button, but both are active anyway */
 		numbuttons = 2;
 
 	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
- 
+#endif
+	if (favonly)
+		frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+	else 
+		::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
+
 	if(!Bouquets.empty())
 	{
 		for(unsigned int count=0;count<listmaxshow;count++) {
