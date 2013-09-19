@@ -304,11 +304,11 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 	if ((bouquetMode == CZapitClient::BM_UPDATEBOUQUETS) || (bouquetMode == CZapitClient::BM_DELETEBOUQUETS)) {
 		while (!(Bouquets.empty())) {
 			CZapitBouquet* bouquet;
-			int dest = g_bouquetManager->existsBouquet(Bouquets[0]->Name.c_str());
+			int dest = g_bouquetManager->existsBouquet(Bouquets[0]->Name.c_str(), true);
 			DBG("save Bouquets: dest %d for name %s\n", dest, Bouquets[0]->Name.c_str());
 			if(dest == -1) {
 				bouquet = g_bouquetManager->addBouquet(Bouquets[0]->Name.c_str(), false);
-				dest = g_bouquetManager->existsBouquet(Bouquets[0]->Name.c_str());
+				dest = g_bouquetManager->existsBouquet(Bouquets[0]->Name.c_str(), true);
 			}
 			else
 				bouquet = g_bouquetManager->Bouquets[dest];
@@ -552,11 +552,10 @@ int str_compare_withoutspace(char const *s1, char const *s2)
 
 // -- Find Bouquet-Name, if BQ exists   (2002-04-02 rasc)
 // -- Return: Bouqet-ID (found: 0..n)  or -1 (Bouquet does not exist)
-int CBouquetManager::existsBouquet(char const * const name)
+int CBouquetManager::existsBouquet(char const * const name, bool ignore_user)
 {
-	unsigned int i;
-	for (i = 0; i < Bouquets.size(); i++) {
-		if (Bouquets[i]->Name == name)
+	for (unsigned int i = 0; i < Bouquets.size(); i++) {
+		if ((!ignore_user || !Bouquets[i]->bUser) && (Bouquets[i]->Name == name))
 		{
 			return (int)i;
 		}
