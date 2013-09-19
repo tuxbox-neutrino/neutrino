@@ -277,7 +277,9 @@ CZapitChannel* CChannelList::getChannel(t_channel_id channel_id)
 
 int CChannelList::getKey(int id)
 {
-	return chanlist[id]->number;
+	if (id > -1 && id < (int)chanlist.size())
+		return chanlist[id]->number;
+	return 0;
 }
 
 static const std::string empty_string;
@@ -294,8 +296,7 @@ t_satellite_position CChannelList::getActiveSatellitePosition(void) const
 {
 	if (selected < chanlist.size())
 		return chanlist[selected]->getSatellitePosition();
-	else
-		return 0;
+	return 0;
 }
 
 t_channel_id CChannelList::getActiveChannel_ChannelID(void) const
@@ -309,7 +310,6 @@ t_channel_id CChannelList::getActiveChannel_ChannelID(void) const
 
 int CChannelList::getActiveChannelNumber(void) const
 {
-	//return (selected + 1);
 	if (selected < chanlist.size())
 		return chanlist[selected]->number;
 	return 0;
@@ -1897,12 +1897,18 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		paintDetails(curr);
 		c_rad_small = RADIUS_LARGE;
 		paintbuttons = true;
+	}
+	else if (getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber())
+	{
+		color   = !displayNext ? COL_MENUCONTENT_TEXT  : COL_MENUCONTENTINACTIVE_TEXT;
+		bgcolor = !displayNext ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENTINACTIVE_PLUS_0;
+		c_rad_small = RADIUS_LARGE;
 	} else {
 		color = iscurrent ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 	}
 
-	if(!firstpaint || (curr == selected)){
+	if(!firstpaint || (curr == selected) || getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber()){
 		  frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 	}
 
