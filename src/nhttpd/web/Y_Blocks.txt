@@ -430,7 +430,7 @@ start-block~frame_boxcontrol
 {=var-set:work=
 	{=if-equal:{=var-get:startpage=}~bouquets~Y_Boxcontrol_Bouquets.yhtm
 	~
-		{=if-equal:{=var-get:startpage=}~control~Y_Tools_Boxcontrol.yhtm~Y_blank.yhtm=}
+		{=if-equal:{=var-get:startpage=}~control~Y_Tools_Boxcontrol.yhtm~Y_blank.htm=}
 	=}=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_boxcontrol
