@@ -600,55 +600,13 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 
 void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 {
-	unsigned int system_rev = cs_get_revision();
-	std::string boxname = "CST ";
+	std::string boxname = NeutrinoAPI->NeutrinoYParser->func_get_boxtype(hh, "");
+
 	static CNetAdapter netadapter; 
 	std::string eth_id = netadapter.getMacAddr();
 	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
 
-#if HAVE_TRIPLEDRAGON
-	boxname = "Armas ";
-#endif
-
-	switch(system_rev)
-	{
-		case 1:
-			if( boxname == "Armas ")
-				boxname += "TripleDragon";
-			break;
-		case 6:
-			boxname += "HD1";
-			break;
-		case 7:
-			boxname += "BSE";
-			break;
-		case 8:
-			boxname += "Neo";
-			if (CFEManager::getInstance()->getFrontendCount() > 1)
-				boxname += " Twin";
-			break;
-		case 9:
-			boxname += "Tank";
-			break;
-		case 10:
-			boxname += "Zee";
-			break;
-		case 11:
-			boxname += "Trinity";
-			break;
-
-		default:
-			char buffer[10];
-			snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
-			boxname += "Unknown nr. ";
-			boxname += buffer;
-			break;
-	}
-
-	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	hh->printf("%s\nMAC:%s\n", boxname.c_str(),eth_id.c_str());
-
-
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::ShutdownCGI(CyhookHandler *hh)
