@@ -168,6 +168,16 @@ void CComponentsButton::initCaption()
 	}
 }
 
+void CComponentsButton::setCaption(const std::string& text)
+{
+	cc_btn_capt = text;
+}
+
+void CComponentsButton::setCaption(const neutrino_locale_t locale_text)
+{
+	cc_btn_capt = g_Locale->getText(locale_text);
+}
+
 void CComponentsButton::initCCBtnItems()
 {
 	initIcon();

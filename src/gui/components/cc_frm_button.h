@@ -27,7 +27,6 @@
 #define __CC_BUTTONS_H__
 
 #include <config.h>
-#include <global.h>
 #include "cc.h"
 #include "cc_frm.h"
 #include <string>
@@ -85,9 +84,9 @@ class CComponentsButton : public CComponentsForm
 		virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_capt_col = caption_color;};
 		
 		///set caption: parameter as string
-		virtual void setCaption(const std::string& text){cc_btn_capt = text;};
+		virtual void setCaption(const std::string& text);
 		///set caption: parameter as locale
-		virtual void setCaption(const neutrino_locale_t locale_text){cc_btn_capt = g_Locale->getText(locale_text);};
+		virtual void setCaption(const neutrino_locale_t locale_text);
 		
 		///reinitialize items
 		virtual void Refresh(){initCCBtnItems();};
