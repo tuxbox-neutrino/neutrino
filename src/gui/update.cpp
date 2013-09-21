@@ -612,11 +612,15 @@ void CFlashExpert::readmtd(int preadmtd)
 	CMTDInfo* mtdInfo    = CMTDInfo::getInstance();
 	std::string hostName = netGetHostname();
 	std::string timeStr  = getNowTimeStr("_%Y%m%d_%H%M");
-
+	std::string tankStr  = "";
+#ifdef BOXMODEL_APOLLO
+	if ((preadmtd == 0) && (CMTDInfo::getInstance()->getMTDEraseSize(CMTDInfo::getInstance()->findMTDsystem()) == 0x40000))
+		tankStr = ".256k";
+#endif
 	if (g_settings.softupdate_name_mode_backup == CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME)
-		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + "_" + hostName + ".img";
+		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + "_" + hostName + tankStr + ".img";
 	else
-		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + ".img";
+		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + tankStr + ".img";
 
 #ifdef BOXMODEL_APOLLO
 	if (preadmtd == 0) {
