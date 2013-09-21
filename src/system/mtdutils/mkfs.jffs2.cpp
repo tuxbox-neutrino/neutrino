@@ -69,6 +69,9 @@
 #include <string>
 
 #include "rbtree.h"
+#include <system/localize.h>
+
+extern CLocaleManager *g_Locale;
 
 #define PROGRAM_NAME "mkfs.jffs2"
 
@@ -1239,7 +1242,7 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	if (progressBar != NULL) {
 		progressBar->showLocalStatus(0);
 		progressBar->showGlobalStatus(0);
-		progressBar->showStatusMessageUTF("Read Files and Directories");
+		progressBar->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MKFS_PREPARING_FILES));
 	}
 	fse_root = recursive_add_host_directory(NULL, "/", cwd, skipSpezialFolders, progressBar);
 	if (progressBar != NULL) {
@@ -1264,11 +1267,12 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 
 	if (progressBar != NULL) {
 		progressBar->showLocalStatus(0);
-		progressBar->showStatusMessageUTF("Create Image");
+		progressBar->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MKFS_CREATE_IMAGE));
 	}
 	create_target_filesystem(fse_root);
 	if (progressBar != NULL) {
 		progressBar->showGlobalStatus(90);
+		progressBar->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MKFS_USING_SUMTOOL));
 	}
 	if (printProgress)
 		printProgressData(true);
@@ -1280,7 +1284,6 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 		CSumtoolJFFS2 st;
 		st.sumtool(imageName_, sumName_, eraseBlockSize, ((padFsSize==0)?0:1), addCleanmarkers, targetEndian);
 		unlink(imageName_.c_str());
-		sync();
 	}
 	if (progressBar != NULL) {
 		paintProgressBar(true);
