@@ -169,8 +169,6 @@ void CMkfsJFFS2::Init()
 	printProgress		= 0;
 	kbUsed			= 0;
 	progressBar		= NULL;
-	progressBarGlobalX1	= 0;
-	progressBarGlobalX2	= 0;
 
 	ino			= 0;
 	out_ofs			= 0;
@@ -371,6 +369,7 @@ struct filesystem_entry *CMkfsJFFS2::find_filesystem_entry(
 void CMkfsJFFS2::printProgressData(bool finish)
 {
 	static int p_old = -1;
+	if (finish) p_old = -1;
 	int p = (finish) ? 100 : ((all_read/1024)*100 )/kbUsed;
 	if (p != p_old) {
 		p_old = p;
@@ -378,21 +377,14 @@ void CMkfsJFFS2::printProgressData(bool finish)
 	}
 }
 
-void CMkfsJFFS2::setProgressBarGlobal(int x1, int x2)
-{
-	progressBarGlobalX1 = x1;
-	progressBarGlobalX2 = x2;
-}
-
-void CMkfsJFFS2::paintProgressBar()
+void CMkfsJFFS2::paintProgressBar(bool finish)
 {
 	static int p_old = -1;
-	int p1 = ((all_read/1024)*100)/kbUsed;
-	if (p1 != p_old) {
-		p_old = p1;
-		int p2 = progressBarGlobalX1 + (((all_read/1024)*(progressBarGlobalX2-progressBarGlobalX1))/kbUsed);
-		progressBar->showLocalStatus(p1);
-		progressBar->showGlobalStatus(p2);
+	if (finish) p_old = -1;
+	int p = (finish) ? 100 : ((all_read/1024)*100 )/kbUsed;
+	if (p != p_old) {
+		p_old = p;
+		progressBar->showLocalStatus(p);
 	}
 }
 
@@ -1050,8 +1042,8 @@ int CMkfsJFFS2::parse_device_table(struct filesystem_entry *root, FILE * file)
 
 struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 				struct filesystem_entry *parent, const char *targetpath,
-				const char *hostpath,
-				bool skipSpezialFolders) {
+				const char *hostpath, bool skipSpezialFolders,
+				CProgressWindow *progress) {
 	int i, n;
 	struct stat sb;
 	char *hpath, *tpath;
@@ -1111,6 +1103,10 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 		sys_errmsg("opening directory %s", hostpath);
 	}
 
+	int i_pr = 0, n_pr = 0;
+	if (progress != NULL) {
+		n_pr = (n <= 2) ? 1 : n-2;
+	}
 	for (i=0; i<n; i++) {
 		struct dirent *dp = namelist[i];
 		if (dp->d_name[0] == '.' && (dp->d_name[1] == 0 ||
@@ -1151,6 +1147,10 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 		free(dp);
 		free(hpath);
 		free(tpath);
+		if (progress != NULL) {
+			progress->showLocalStatus((i_pr * 100) / n_pr);
+			i_pr++;
+		}
 	}
 	free(namelist);
 	return (entry);
@@ -1189,6 +1189,11 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	printProgress		= 1;
 	progressBar		= progress;
 	hardlinks.rb_node	= NULL;
+
+/*	if (progressBar != NULL) {
+		progressBar->setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
+		progressBar->paint();
+	}*/
 
 	printf("[%s] erase_block_size: 0x%X\n", __FUNCTION__, eraseBlockSize);
 	if (useDevTable) {
@@ -1231,7 +1236,17 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 		}
 	}
 
-	fse_root = recursive_add_host_directory(NULL, "/", cwd, skipSpezialFolders);
+	if (progressBar != NULL) {
+		progressBar->showLocalStatus(0);
+		progressBar->showGlobalStatus(0);
+		progressBar->showStatusMessageUTF("Read Files and Directories");
+	}
+	fse_root = recursive_add_host_directory(NULL, "/", cwd, skipSpezialFolders, progressBar);
+	if (progressBar != NULL) {
+		progressBar->showLocalStatus(100);
+		progressBar->showGlobalStatus(50);
+	}
+
 	if (devtable)
 		parse_device_table(fse_root, devtable);
 
@@ -1247,7 +1262,14 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	if (kbUsed == 0)
 		kbUsed = 60000;
 
+	if (progressBar != NULL) {
+		progressBar->showLocalStatus(0);
+		progressBar->showStatusMessageUTF("Create Image");
+	}
 	create_target_filesystem(fse_root);
+	if (progressBar != NULL) {
+		progressBar->showGlobalStatus(90);
+	}
 	if (printProgress)
 		printProgressData(true);
 
@@ -1259,6 +1281,12 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 		st.sumtool(imageName_, sumName_, eraseBlockSize, ((padFsSize==0)?0:1), addCleanmarkers, targetEndian);
 		unlink(imageName_.c_str());
 		sync();
+	}
+	if (progressBar != NULL) {
+		paintProgressBar(true);
+		progressBar->showGlobalStatus(100);
+		sync();
+		sleep(2);
 	}
 
 	progressBar = NULL;

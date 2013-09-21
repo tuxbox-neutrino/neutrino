@@ -51,8 +51,6 @@ class CMkfsJFFS2
 		long kbUsed;
 		dev_t dev_x[dev_max];
 		CProgressWindow *progressBar;
-		int progressBarGlobalX1;
-		int progressBarGlobalX2;
 		std::string imageName_, sumName_;
 		bool useSumtool_;
 
@@ -70,8 +68,8 @@ class CMkfsJFFS2
 		bool classInit();
 		struct filesystem_entry *recursive_add_host_directory(
 						struct filesystem_entry *parent, const char *targetpath,
-						const char *hostpath,
-						bool skipSpezialFolders);
+						const char *hostpath, bool skipSpezialFolders,
+						CProgressWindow *progress=NULL);
 		int parse_device_table(struct filesystem_entry *root, FILE * file);
 		int interpret_table_entry(struct filesystem_entry *root, char *line);
 		void create_target_filesystem(struct filesystem_entry *root);
@@ -87,9 +85,8 @@ class CMkfsJFFS2
 		void write_pipe(struct filesystem_entry *e);
 		void write_symlink(struct filesystem_entry *e);
 		unsigned int write_regular_file(struct filesystem_entry *e);
-		void paintProgressBar();
-		void setProgressBarGlobal(int x1, int x2);
-		void printProgressData(bool finish);
+		void paintProgressBar(bool finish=false);
+		void printProgressData(bool finish=false);
 		struct filesystem_entry *find_filesystem_entry(struct filesystem_entry *dir, char *fullname, uint32_t type);
 		struct filesystem_entry *add_host_filesystem_entry(const char *name,
 							const char *path, unsigned long uid, unsigned long gid,

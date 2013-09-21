@@ -53,6 +53,9 @@
 
 #include <system/flashtool.h>
 #include <system/httptool.h>
+#ifdef BOXMODEL_APOLLO
+#include <system/mtdutils/mkfs.jffs2.h>
+#endif
 #include <system/helpers.h>
 
 #include <lib/libnet/libnet.h>
@@ -582,6 +585,27 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	return true;
 }
 
+#ifdef BOXMODEL_APOLLO
+void CFlashExpert::readmtdJFFS2(std::string &filename)
+{
+	int esize = CMTDInfo::getInstance()->getMTDEraseSize(CMTDInfo::getInstance()->findMTDsystem());
+	CMkfsJFFS2 mkfs;
+	std::string path = "/";
+	CProgressWindow *progress = new CProgressWindow;
+	progress->setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
+	progress->paint();
+	mkfs.makeJffs2Image(path, filename, esize, 0, 0, __LITTLE_ENDIAN, true, true, progress);
+	progress->hide();
+	delete progress;
+
+	sleep(1);
+	char message[500];
+	sprintf(message, g_Locale->getText(LOCALE_FLASHUPDATE_SAVESUCCESS), filename.c_str());
+	ShowHintUTF(LOCALE_MESSAGEBOX_INFO, message);
+
+}
+#endif
+
 void CFlashExpert::readmtd(int preadmtd)
 {
 	std::string filename;
@@ -594,6 +618,12 @@ void CFlashExpert::readmtd(int preadmtd)
 	else
 		filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd) + timeStr + ".img";
 
+#ifdef BOXMODEL_APOLLO
+	if (preadmtd == 0) {
+		readmtdJFFS2(filename);
+		return;
+	}
+#endif
 	if (preadmtd == -1) {
 		filename = (std::string)g_settings.update_dir + "/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
 		preadmtd = MTD_OF_WHOLE_IMAGE;
