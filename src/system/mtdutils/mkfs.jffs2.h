@@ -107,7 +107,6 @@ class CMkfsJFFS2
 				    bool skipSpezialFolders=true,
 				    bool useSumtool=true,
 				    CProgressWindow *progress=NULL,
-				    bool useDevTable=true,
 				    std::string devTable="");
 
 };

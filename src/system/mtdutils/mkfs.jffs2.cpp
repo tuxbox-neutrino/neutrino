@@ -1174,7 +1174,6 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 				bool skipSpezialFolders/*=true*/,
 				bool useSumtool/*=true*/,
 				CProgressWindow *progress/*=NULL*/,
-				bool useDevTable/*=true*/,
 				std::string devTable/*=""*/)
 {
 
@@ -1193,26 +1192,7 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	progressBar		= progress;
 	hardlinks.rb_node	= NULL;
 
-/*	if (progressBar != NULL) {
-		progressBar->setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
-		progressBar->paint();
-	}*/
-
-	printf("[%s] erase_block_size: 0x%X\n", __FUNCTION__, eraseBlockSize);
-	if (useDevTable) {
-		if (devTable == "") {
-			devTable = "/tmp/devtable.txt";
-			devtable = fopen(devTable.c_str(), "w+");
-			if (devtable) {
-				std::string dev = "/dev/console c 0600 0 0 5 1 0 0 0\n";
-				fwrite(dev.c_str(), dev.length(), 1, devtable);
-				dev = "/dev/null c 0666 0 0 1 3 0 0 0\n";
-				fwrite(dev.c_str(), dev.length(), 1, devtable);
-				fclose(devtable);
-			}
-		}
-		devtable = fopen(devTable.c_str(), "r");
-	}
+//	printf("[%s] erase_block_size: 0x%X\n", __FUNCTION__, eraseBlockSize);
 
 	classInit();
 
@@ -1250,6 +1230,8 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 		progressBar->showGlobalStatus(50);
 	}
 
+	if (devTable != "")
+		devtable = fopen(devTable.c_str(), "r");
 	if (devtable)
 		parse_device_table(fse_root, devtable);
 

@@ -586,23 +586,35 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 }
 
 #ifdef BOXMODEL_APOLLO
+void CFlashExpert::addDevtableEntry(int fd_dev, const char *entry)
+{
+	write(fd_dev, entry, strlen(entry));
+}
+
 void CFlashExpert::readmtdJFFS2(std::string &filename)
 {
-	int esize = CMTDInfo::getInstance()->getMTDEraseSize(CMTDInfo::getInstance()->findMTDsystem());
-	CMkfsJFFS2 mkfs;
-	std::string path = "/";
-	CProgressWindow *progress = new CProgressWindow;
-	progress->setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
-	progress->paint();
-	mkfs.makeJffs2Image(path, filename, esize, 0, 0, __LITTLE_ENDIAN, true, true, progress);
-	progress->hide();
-	delete progress;
+	CProgressWindow progress;
+	progress.setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
+	progress.paint();
 
-	sleep(1);
+	std::string devTable = "/tmp/devtable.txt";
+	int fd_dev = open(devTable.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
+	if (fd_dev != -1) {
+		addDevtableEntry(fd_dev, "/dev/console c 0600 0 0 5 1 0 0 0\n");
+		addDevtableEntry(fd_dev, "/dev/null c 0666 0 0 1 3 0 0 0\n");
+		close(fd_dev);
+	}
+	std::string path = "/";
+	CMTDInfo *MTDInfo = CMTDInfo::getInstance();
+	int esize = MTDInfo->getMTDEraseSize(MTDInfo->findMTDsystem());
+	CMkfsJFFS2 mkfs;
+	mkfs.makeJffs2Image(path, filename, esize, 0, 0, __LITTLE_ENDIAN, true, true, &progress, devTable);
+	progress.hide();
+	unlink(devTable.c_str());
+
 	char message[500];
 	sprintf(message, g_Locale->getText(LOCALE_FLASHUPDATE_SAVESUCCESS), filename.c_str());
 	ShowHintUTF(LOCALE_MESSAGEBOX_INFO, message);
-
 }
 #endif
 
