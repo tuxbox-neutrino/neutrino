@@ -557,6 +557,9 @@ CFlashExpert* CFlashExpert::getInstance()
 
 bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 {
+#ifndef BOXMODEL_APOLLO
+	if (mtd < 0) return false;
+#endif
 	char errMsg[1024] = {0};
 	std::string path = getPathName(backupFile);
 	if (!file_exists(path.c_str()))  {
@@ -565,9 +568,22 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 		return false;
 	}
 
-	int mtdSize = CMTDInfo::getInstance()->getMTDSize(mtd) / 1024;
-
 	long btotal = 0, bused = 0, bsize = 0;
+	int backupRequiredSize = 0;
+#ifdef BOXMODEL_APOLLO
+	if (mtd == -1) { // check disk space for image creation
+		if (!get_fs_usage("/", btotal, bused, &bsize)) {
+			snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_VOLUME_ERROR), "root0");
+			ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
+			return false;
+		}
+		backupRequiredSize = (int)((bused * bsize) / 1024) * 2; // twice disk space for summarized image
+	}
+	else
+#endif
+		backupRequiredSize = CMTDInfo::getInstance()->getMTDSize(mtd) / 1024;
+
+	btotal = 0; bused = 0; bsize = 0;
 	if (!get_fs_usage(path.c_str(), btotal, bused, &bsize)) {
 		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_VOLUME_ERROR), path.c_str());
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
@@ -576,8 +592,8 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	int backupMaxSize = (int)((btotal - bused) * bsize);
 	int res = 10; // Reserved 10% of available space
 	backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100)) / 1024;
-	if (backupMaxSize < mtdSize) {
-		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), backupMaxSize, mtdSize);
+	if (backupMaxSize < backupRequiredSize) {
+		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), backupMaxSize, backupRequiredSize);
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
 		return false;
 	}
@@ -593,6 +609,8 @@ void CFlashExpert::addDevtableEntry(int fd_dev, const char *entry)
 
 void CFlashExpert::readmtdJFFS2(std::string &filename)
 {
+	if (!checkSize(-1, filename))
+		return;
 	CProgressWindow progress;
 	progress.setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
 	progress.paint();
@@ -603,7 +621,8 @@ void CFlashExpert::readmtdJFFS2(std::string &filename)
 		addDevtableEntry(fd_dev, "/dev/console c 0600 0 0 5 1 0 0 0\n");
 		addDevtableEntry(fd_dev, "/dev/null c 0666 0 0 1 3 0 0 0\n");
 		close(fd_dev);
-	}
+	} else
+		devTable = "";
 	std::string path = "/";
 	CMTDInfo *MTDInfo = CMTDInfo::getInstance();
 	int esize = MTDInfo->getMTDEraseSize(MTDInfo->findMTDsystem());
