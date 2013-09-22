@@ -494,7 +494,7 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 		char * name = xmlGetAttribute(search, "name");
 		t_satellite_position satellitePosition = GetSatellitePosition(name);
 #endif
-		DBG("going to parse dvb-%c provider %s\n", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
+		INFO("going to parse dvb-%c provider %s", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
 		ParseTransponders(search->xmlChildrenNode, satellitePosition, delsys);
 		newfound++;
 		search = search->xmlNextNode;
