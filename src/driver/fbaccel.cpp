@@ -244,6 +244,8 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 		bpafd = -1;
 		return;
 	}
+#endif
+#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 	OpenThreads::Thread::start();
 #endif
 
@@ -271,13 +273,15 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 
 CFbAccel::~CFbAccel()
 {
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 	if (blit_thread)
 	{
 		blit_thread = false;
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
+#endif
+#if HAVE_SPARK_HARDWARE
 	if (backbuffer)
 	{
 		fprintf(stderr, "CFbAccel: unmap backbuffer\n");
@@ -722,7 +726,6 @@ void CFbAccel::setupGXA()
 }
 #endif
 
-#if HAVE_SPARK_HARDWARE
 #define BLIT_INTERVAL 40
 void CFbAccel::run()
 {
@@ -763,6 +766,7 @@ void CFbAccel::blit()
 	blit_mutex.unlock();
 }
 
+#if HAVE_SPARK_HARDWARE
 void CFbAccel::_blit()
 {
 #ifdef PARTIAL_BLIT
@@ -884,7 +888,7 @@ void CFbAccel::blit()
 
 #else
 /* not azbox and not spark -> no blit() needed */
-void CFbAccel::blit()
+void CFbAccel::_blit()
 {
 #ifdef USE_OPENGL
 	if (glfb)
