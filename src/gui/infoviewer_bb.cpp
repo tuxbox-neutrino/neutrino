@@ -518,6 +518,8 @@ void CInfoViewerBB::showIcon_Resolution()
 {
 	if ((!is_visible) || (g_settings.infobar_show_res == 2)) //show resolution icon is off
 		return;
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
+		return;
 	const char *icon_name = NULL;
 #if 0
 	if ((scrambledNoSig) || ((!fta) && (scrambledErr)))
