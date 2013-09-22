@@ -418,8 +418,8 @@ fprintf(stderr, "CFrameBuffer::setMode avail: %d active: %d\n", available, activ
 #define FBIO_SET_MANUAL_BLIT _IOW('F', 0x21, __u8)
 #define FBIO_BLIT 0x22
 #endif
-	// set manual blit if AZBOX_MANUAL_BLIT environment variable is set
-	unsigned char tmp = getenv("AZBOX_MANUAL_BLIT") ? 1 : 0;
+	// set auto blit if AZBOX_KERNEL_BLIT environment variable is set
+	unsigned char tmp = getenv("AZBOX_KERNEL_BLIT") ? 0 : 1;
 	if (ioctl(fd, FBIO_SET_MANUAL_BLIT, &tmp)<0)
 		perror("FBIO_SET_MANUAL_BLIT");
 

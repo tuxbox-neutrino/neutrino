@@ -870,10 +870,10 @@ void CFbAccel::_blit()
 #define FBIO_BLIT 0x22
 #define FBIO_SET_MANUAL_BLIT _IOW('F', 0x21, __u8)
 #endif
-static bool azblit = getenv("AZBOX_MANUAL_BLIT") ? true : false;
-void CFbAccel::blit()
+static bool autoblit = getenv("AZBOX_KERNEL_BLIT") ? true : false;
+void CFbAccel::_blit()
 {
-	if (!azblit)
+	if (autoblit)
 		return;
 	// blit
 	if (ioctl(fb->fd, FBIO_BLIT) < 0)
