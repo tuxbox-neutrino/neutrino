@@ -24,18 +24,21 @@
 */
 
 #include <string>
+#include <vector>
 
 #include <gui/widget/progresswindow.h>
 #include <system/helpers.h>
 
 class CMkfsJFFS2
 {
+	public:
+		typedef std::vector<std::string> v_devtable_t;
+
 	private:
 		enum {
 			dev_sys		= 0,
 			dev_proc	= 1,
 			dev_tmp		= 2,
-/*			dev_pts		= 3,*/
 			dev_dev		= 3,
 			dev_jffs2	= 4,
 			dev_max		= 5
@@ -70,8 +73,8 @@ class CMkfsJFFS2
 						struct filesystem_entry *parent, const char *targetpath,
 						const char *hostpath, bool skipSpezialFolders,
 						CProgressWindow *progress=NULL);
-		int parse_device_table(struct filesystem_entry *root, FILE * file);
-		int interpret_table_entry(struct filesystem_entry *root, char *line);
+		bool parse_device_table(struct filesystem_entry *root, v_devtable_t *v_devtable);
+		bool interpret_table_entry(struct filesystem_entry *root, const char *line);
 		void create_target_filesystem(struct filesystem_entry *root);
 		void recursive_populate_directory(struct filesystem_entry *dir);
 		void padblock(void);
@@ -100,14 +103,14 @@ class CMkfsJFFS2
 
 		bool makeJffs2Image(std::string& path,
 				    std::string& imageName,
-				    int eraseBlockSize=0x20000,
-				    int padFsSize=0,
-				    int addCleanmarkers=0,
-				    int targetEndian=__LITTLE_ENDIAN,
-				    bool skipSpezialFolders=true,
-				    bool useSumtool=true,
+				    int eraseBlockSize,
+				    int padFsSize,
+				    int addCleanmarkers,
+				    int targetEndian,
+				    bool skipSpezialFolders,
+				    bool useSumtool,
 				    CProgressWindow *progress=NULL,
-				    std::string devTable="");
+				    v_devtable_t *v_devtable=NULL);
 
 };
 

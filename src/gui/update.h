@@ -39,6 +39,9 @@
 #include <gui/widget/progresswindow.h>
 
 #include <driver/framebuffer.h>
+#ifdef BOXMODEL_APOLLO
+#include <system/mtdutils/mkfs.jffs2.h>
+#endif
 
 #include <string>
 
@@ -78,7 +81,7 @@ class CFlashExpert : public CProgressWindow
 		bool checkSize(int mtd, std::string &backupFile);
 		void readmtd(int readmtd);
 #ifdef BOXMODEL_APOLLO
-		void addDevtableEntry(int fd_dev, const char *entry);
+		bool readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable);
 		void readmtdJFFS2(std::string &filename);
 #endif
 

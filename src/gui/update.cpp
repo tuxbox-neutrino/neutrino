@@ -53,9 +53,6 @@
 
 #include <system/flashtool.h>
 #include <system/httptool.h>
-#ifdef BOXMODEL_APOLLO
-#include <system/mtdutils/mkfs.jffs2.h>
-#endif
 #include <system/helpers.h>
 
 #include <lib/libnet/libnet.h>
@@ -602,9 +599,37 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 }
 
 #ifdef BOXMODEL_APOLLO
-void CFlashExpert::addDevtableEntry(int fd_dev, const char *entry)
+bool CFlashExpert::readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable)
 {
-	write(fd_dev, entry, strlen(entry));
+	FILE *fd = fopen(devtableFile.c_str(), "r");
+	if (!fd) return false;
+	char lineRead[1024];
+	memset(lineRead, 0, sizeof(lineRead));
+	bool status = false;
+	while (fgets(lineRead, sizeof(lineRead)-1, fd)) {
+		std::string line = lineRead;
+		line = trim(line);
+		// ignore comments
+		if (line.find_first_of("#") == 0) {
+			continue;
+		}
+		// ignore comments after the entry
+		size_t pos = line.find_first_of("#");
+		if (pos != std::string::npos) {
+			line = line.substr(0, pos);
+			line = trim(line);
+		}
+		// minimal entry: "/dev/x x 0000"
+		// length = 13
+		if (line.length() > 12) {
+			v_devtable.push_back(line);
+			status = true;
+		}
+		memset(lineRead, 0, sizeof(lineRead));
+	}
+	fclose(fd);
+	if (!status) return false;
+	return true;
 }
 
 void CFlashExpert::readmtdJFFS2(std::string &filename)
@@ -615,21 +640,24 @@ void CFlashExpert::readmtdJFFS2(std::string &filename)
 	progress.setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
 	progress.paint();
 
-	std::string devTable = "/tmp/devtable.txt";
-	int fd_dev = open(devTable.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
-	if (fd_dev != -1) {
-		addDevtableEntry(fd_dev, "/dev/console c 0600 0 0 5 1 0 0 0\n");
-		addDevtableEntry(fd_dev, "/dev/null c 0666 0 0 1 3 0 0 0\n");
-		close(fd_dev);
-	} else
-		devTable = "";
+	bool devtableFileIO = false;
+	CMkfsJFFS2::v_devtable_t v_devtable;
+	std::string devtableFile = (std::string)CONFIGDIR + "/devtable.txt";
+	if (file_exists(devtableFile.c_str())) {
+		if (readDevtableFile(devtableFile, v_devtable))
+			devtableFileIO = true;
+	}
+	if ((!devtableFileIO) || (v_devtable.empty())) {
+		v_devtable.push_back("/dev/console c 0600 0 0 5 1 0 0 0");
+		v_devtable.push_back("/dev/null c 0666 0 0 1 3 0 0 0");
+	}
+
 	std::string path = "/";
 	CMTDInfo *MTDInfo = CMTDInfo::getInstance();
 	int esize = MTDInfo->getMTDEraseSize(MTDInfo->findMTDsystem());
 	CMkfsJFFS2 mkfs;
-	mkfs.makeJffs2Image(path, filename, esize, 0, 0, __LITTLE_ENDIAN, true, true, &progress, devTable);
+	mkfs.makeJffs2Image(path, filename, esize, 0, 0, __LITTLE_ENDIAN, true, true, &progress, &v_devtable);
 	progress.hide();
-	unlink(devTable.c_str());
 
 	char message[500];
 	sprintf(message, g_Locale->getText(LOCALE_FLASHUPDATE_SAVESUCCESS), filename.c_str());

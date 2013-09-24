@@ -69,6 +69,7 @@
 #include <string>
 
 #include "rbtree.h"
+#include <system/helpers.h>
 #include <system/localize.h>
 
 extern CLocaleManager *g_Locale;
@@ -891,7 +892,7 @@ void CMkfsJFFS2::create_target_filesystem(struct filesystem_entry *root)
 	Regular files must exist in the target root directory.  If a char,
 	block, fifo, or directory does not exist, it will be created.
  */
-int CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, char *line)
+bool CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, const char *line)
 {
 	char *hostpath;
 	char type;
@@ -901,9 +902,9 @@ int CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, char *line)
 	struct filesystem_entry *entry;
 
 	memset(name, '\0', 512);
-	if (sscanf (line, "%511s %c %lo %lu %lu %lu %lu %lu %lu %lu",
-			name, &type, &mode, &uid, &gid, &major, &minor, &start, &increment, &count) < 0)
-		return 1;
+	if (sscanf(line, "%511s %c %lo %lu %lu %lu %lu %lu %lu %lu",
+		   name, &type, &mode, &uid, &gid, &major, &minor, &start, &increment, &count) < 0)
+		return false;
 
 	if (!strcmp(name, "/")) {
 		sys_errmsg("Device table entries require absolute paths");
@@ -956,7 +957,7 @@ int CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, char *line)
 		if (parent == NULL) {
 			errmsg ("skipping device_table entry '%s': no parent directory!", name);
 			free(hostpath);
-			return 1;
+			return false;
 		}
 
 		switch (type) {
@@ -996,50 +997,25 @@ int CMkfsJFFS2::interpret_table_entry(struct filesystem_entry *root, char *line)
 		}
 	}
 	free(hostpath);
-	return 0;
+	return true;
 }
 
-int CMkfsJFFS2::parse_device_table(struct filesystem_entry *root, FILE * file)
+bool CMkfsJFFS2::parse_device_table(struct filesystem_entry *root, v_devtable_t *v_devtable)
 {
-	char *line;
-	int status = 0;
-	size_t length = 0;
-
 	/* Turn off squash, since we must ensure that values
 	 * entered via the device table are not squashed */
-	squash_uids = 0;
+	squash_uids  = 0;
 	squash_perms = 0;
 
-	/* Looks ok so far.  The general plan now is to read in one
-	 * line at a time, check for leading comment delimiters ('#'),
-	 * then try and parse the line as a device table.  If we fail
-	 * to parse things, try and help the poor fool to fix their
-	 * device table with a useful error msg... */
-	line = NULL;
-	while (getline(&line, &length, file) != -1) {
-		/* First trim off any whitespace */
-		int len = strlen(line);
-
-		/* trim trailing whitespace */
-		while (len > 0 && isspace(line[len - 1]))
-			line[--len] = '\0';
-		/* trim leading whitespace */
-		memmove(line, &line[strspn(line, " \n\r\t\v")], len);
-
-		/* How long are we after trimming? */
-		len = strlen(line);
-
-		/* If this is NOT a comment line, try to interpret it */
-		if (len && *line != '#') {
-			if (interpret_table_entry(root, line))
-				status = 1;
-		}
-
-		free(line);
-		line = NULL;
+	bool status = false;
+	std::vector<std::string>::iterator it = v_devtable->begin();
+	while (it < v_devtable->end()) {
+		std::string line = *it;
+		line = trim(line);
+		if (interpret_table_entry(root, line.c_str()))
+			status = true;
+		++it;
 	}
-	fclose(file);
-
 	return status;
 }
 
@@ -1075,18 +1051,13 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 		}
 
 		if (((sb.st_dev == dev_x[dev_dev])  && (strstr(targetpath, "/dev")  == targetpath)) ||
-				((sb.st_dev == dev_x[dev_proc]) && (strstr(targetpath, "/proc") == targetpath)) ||
-				((sb.st_dev == dev_x[dev_sys])  && (strstr(targetpath, "/sys")  == targetpath)) ||
-				((sb.st_dev == dev_x[dev_tmp])  && (strstr(targetpath, "/tmp")  == targetpath))) {
+		    ((sb.st_dev == dev_x[dev_proc]) && (strstr(targetpath, "/proc") == targetpath)) ||
+		    ((sb.st_dev == dev_x[dev_sys])  && (strstr(targetpath, "/sys")  == targetpath)) ||
+		    ((sb.st_dev == dev_x[dev_tmp])  && (strstr(targetpath, "/tmp")  == targetpath))) {
 			skipCheck = true;
 		}
 
-		if ((!skipCheck) &&
-#if 0
-				(sb.st_dev != dev_x[dev_dev]) &&		/* /dev */
-				(sb.st_dev != dev_x[dev_pts]) &&		/* /dev/pts */
-#endif
-				(sb.st_dev != dev_x[dev_jffs2]))		/* jffs2 */
+		if ((!skipCheck) && (sb.st_dev != dev_x[dev_jffs2]))		/* jffs2 */
 			return NULL;
 	}
 
@@ -1167,14 +1138,14 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 
 bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 				std::string& imageName,
-				int eraseBlockSize/*=0x20000*/,
-				int padFsSize/*=0*/,
-				int addCleanmarkers/*=0*/,
-				int targetEndian/*=__LITTLE_ENDIAN*/,
-				bool skipSpezialFolders/*=true*/,
-				bool useSumtool/*=true*/,
+				int eraseBlockSize,
+				int padFsSize,
+				int addCleanmarkers,
+				int targetEndian,
+				bool skipSpezialFolders,
+				bool useSumtool,
 				CProgressWindow *progress/*=NULL*/,
-				std::string devTable/*=""*/)
+				v_devtable_t *v_devtable/*=NULL*/)
 {
 
 	Init();
@@ -1182,7 +1153,6 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	imageName_		= imageName;
 	useSumtool_		= useSumtool;
 	erase_block_size	= eraseBlockSize;	// -e
-	FILE *devtable		= NULL;			// -D
 	pad_fs_size		= padFsSize;		// -p
 	add_cleanmarkers	= addCleanmarkers;	// -n
 	target_endian		= targetEndian;		// -l
@@ -1193,7 +1163,6 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	hardlinks.rb_node	= NULL;
 
 //	printf("[%s] erase_block_size: 0x%X\n", __FUNCTION__, eraseBlockSize);
-
 	classInit();
 
 	char *cwd;
@@ -1208,7 +1177,6 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 
 	if (skipSpezialFolders) {
 		std::string tmpPath = (path == "/") ? "" : path;
-//		std::string path_x[dev_max] = {tmpPath + "/sys", tmpPath + "/proc", tmpPath + "/tmp", tmpPath + "/dev/pts", tmpPath + "/dev", tmpPath + "/"};
 		std::string path_x[dev_max] = {tmpPath + "/sys", tmpPath + "/proc", tmpPath + "/tmp", tmpPath + "/dev", tmpPath + "/"};
 
 		for (int ix = dev_sys; ix < dev_max; ix++) {
@@ -1230,10 +1198,8 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 		progressBar->showGlobalStatus(50);
 	}
 
-	if (devTable != "")
-		devtable = fopen(devTable.c_str(), "r");
-	if (devtable)
-		parse_device_table(fse_root, devtable);
+	if ((v_devtable != NULL) && (!v_devtable->empty()))
+		parse_device_table(fse_root, v_devtable);
 
 	pid_t pid;
 	std::string pcmd = "du -sx " + rootdir;
