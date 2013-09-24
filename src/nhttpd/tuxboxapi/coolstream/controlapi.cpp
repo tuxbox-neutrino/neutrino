@@ -910,7 +910,7 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 		result += hh->outPair("number", string_printf("%u", nr), true);
 		result += hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->channel_id), true);
 		result += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->channel_id&0xFFFFFFFFFFFFULL), true);
-		result += hh->outPair("name", channel->getName(), true);
+		result += hh->outPair("name", hh->outValue(channel->getName()), true);
 		result += hh->outPair("logo", hh->outValue(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id)), true);
 		result += hh->outPair("bouquetnr", string_printf("%d", bouquetNr), isEPGdetails);
 		if(isEPGdetails)
