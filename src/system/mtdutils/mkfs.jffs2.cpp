@@ -1162,7 +1162,7 @@ bool CMkfsJFFS2::makeJffs2Image(std::string& path,
 	progressBar		= progress;
 	hardlinks.rb_node	= NULL;
 
-//	printf("[%s] erase_block_size: 0x%X\n", __FUNCTION__, eraseBlockSize);
+	printf("[%s] erase_block_size: 0x%X\n", __FUNCTION__, eraseBlockSize);
 	classInit();
 
 	char *cwd;

@@ -466,6 +466,16 @@ flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Check for online updates
 flashupdate.checkupdate_local Local update
+flashupdate.createimage Save image
+flashupdate.createimage_add_env Add 'env' to image
+flashupdate.createimage_add_kernel Add 'kernel' to image
+flashupdate.createimage_add_spare Add 'spare' to image
+flashupdate.createimage_add_u_boot Add 'u-boot' to image
+flashupdate.createimage_add_uldr Add 'uldr' to image
+flashupdate.createimage_menu Save current software
+flashupdate.createimage_options Options
+flashupdate.createimage_other Create image for %s STB
+flashupdate.createimage_warning Now an image for the %s STB is created.\nThis image will also run on only one %s STB!\n \nNevertheless continued?
 flashupdate.currentversion_sep Current version
 flashupdate.currentversiondate Date
 flashupdate.currentversiontime Time
