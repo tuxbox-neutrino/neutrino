@@ -258,6 +258,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 
 bool CNeutrinoAPI::GetChannelEvents(void)
 {
+	eList.clear();
 	CEitManager::getInstance()->getChannelEvents(eList);
 	CChannelEventList::iterator eventIterator;
 
