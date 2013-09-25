@@ -233,6 +233,7 @@ channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine 
 channellist.numeric_adjust Numeric zap adjust
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
+channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.since seit
