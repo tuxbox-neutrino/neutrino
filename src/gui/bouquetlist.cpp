@@ -243,6 +243,7 @@ int CBouquetList::doMenu()
 		delete menu;
 		delete selector;
 		printf("CBouquetList::doMenu: %d selected\n", select);
+		bool added = false;
 		if(select >= 0) {
 			old_selected = select;
 			switch(select) {
@@ -251,16 +252,28 @@ int CBouquetList::doMenu()
 					bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
 					if(bouquet_id < 0) {
 						tmp = g_bouquetManager->addBouquet(Bouquets[selected]->channelList->getName(), true);
+						bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
 					} else
 						tmp = g_bouquetManager->Bouquets[bouquet_id];
 
+					if(bouquet_id < 0)
+						return -1;
+
 					channels = &zapitBouquet->tvChannels;
-					for(int li = 0; li < (int) channels->size(); li++)
-						tmp->addService((*channels)[li]);
+					for(int li = 0; li < (int) channels->size(); li++) {
+						if (!g_bouquetManager->existsChannelInBouquet(bouquet_id, ((*channels)[li])->getChannelID())) {
+							added = true;
+							tmp->addService((*channels)[li]);
+						}
+					}
 					channels = &zapitBouquet->radioChannels;
-					for(int li = 0; li < (int) channels->size(); li++)
-						tmp->addService((*channels)[li]);
-					return 1;
+					for(int li = 0; li < (int) channels->size(); li++) {
+						if (!g_bouquetManager->existsChannelInBouquet(bouquet_id, ((*channels)[li])->getChannelID())) {
+							added = true;
+							tmp->addService((*channels)[li]);
+						}
+					}
+					return added ? 1 : -1;
 					break;
 				default:
 					break;
