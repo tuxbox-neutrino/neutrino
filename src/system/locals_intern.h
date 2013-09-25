@@ -260,6 +260,7 @@ const char * locale_real_names[] =
 	"channellist.numeric_adjust",
 	"channellist.provs",
 	"channellist.recording_not_possible",
+	"channellist.reset_all",
 	"channellist.reset_flags",
 	"channellist.sats",
 	"channellist.since",

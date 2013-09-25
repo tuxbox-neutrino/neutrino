@@ -367,6 +367,9 @@ int CChannelList::doChannelMenu(void)
 	bool reset_enabled = chanlist[selected]->flags & CZapitChannel::NEW;
 	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_FLAGS, reset_enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
+	bool reset_all = (name == g_Locale->getText(LOCALE_BOUQUETNAME_NEW));
+	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_ALL, reset_all, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
+	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuSeparator(CMenuSeparator::LINE));
 	menu->addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);
 	menu->exec(NULL, "");
@@ -478,7 +481,14 @@ int CChannelList::doChannelMenu(void)
 			if(g_settings.make_new_list)
 				return 2;
 			break;
-		case 5: // settings
+		case 5: // reset all new
+			for (unsigned int j = 0 ; j < chanlist.size(); j++) {
+				chanlist[j]->flags &= ~CZapitChannel::NEW;
+			}
+			if (g_settings.make_new_list)
+				return 2;
+			break;
+		case 6: // settings
 			{
 				previous_channellist_additional = g_settings.channellist_additional;
 				COsdSetup osd_setup;

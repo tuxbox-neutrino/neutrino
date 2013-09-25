@@ -233,6 +233,7 @@ channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key 
 channellist.numeric_adjust Numeric zap adjust
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
+channellist.reset_all Reset 'new' flag for all channels
 channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
 channellist.since since
