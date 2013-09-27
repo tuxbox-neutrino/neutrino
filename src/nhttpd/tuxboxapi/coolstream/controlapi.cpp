@@ -433,6 +433,7 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 		}
 		else if (hh->ParamList["1"] == "off")// standby mode off
 		{
+			NeutrinoAPI->Zapit->setStandby(false);
 			if(CNeutrinoApp::getInstance()->getMode() == 4)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
 			hh->SendOk();
