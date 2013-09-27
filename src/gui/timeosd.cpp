@@ -127,7 +127,7 @@ void CTimeOSD::update(int position, int duration)
 	if(!visible)
 		return;
 
-	int percent = 0;
+	short percent = 0;
 	if(duration > 100)
 		percent = (unsigned char) (position / (duration / 100));
 	if(m_mode == CTimeOSD::MODE_ASC)
