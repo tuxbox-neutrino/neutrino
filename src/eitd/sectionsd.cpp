@@ -2821,3 +2821,11 @@ void CEitManager::setLanguages(const std::vector<std::string>& newLanguages)
 	SIlanguage::setLanguages(newLanguages);
 	SIlanguage::saveLanguages();
 }
+
+unsigned CEitManager::getEventsCount()
+{
+	readLockEvents();
+	unsigned anzEvents = mySIeventsOrderUniqueKey.size();
+	unlockEvents();
+	return anzEvents;
+}
