@@ -544,10 +544,11 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					loop = false;
 			}
 		}
-		else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_red ){
+		else if ( msg==CRCInput::RC_red ){
 			loop= false;
 		}
-		else if ( msg==CRCInput::RC_rewind ||  msg==CRCInput::RC_forward) {
+		else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_right || msg==CRCInput::RC_rewind || msg==CRCInput::RC_forward ) {
+			// maybe remove RC_rewind and RC_forward in the future?
 
 		  	t_bouquet_id current_bouquet_id= bouquetList->getActiveBouquetNumber();
 			t_channel_id	channel_id_tmp, _channel_id = channel_id;
@@ -560,7 +561,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			{
 				channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
 				if(channel_id_tmp == channel_id){
-					if ( msg==CRCInput::RC_forward) {
+					if ( msg==CRCInput::RC_right || msg==CRCInput::RC_forward ) {
 						channel = (channel+1) %channel_nr;
 					}else { //RC_rewind
 						channel = (channel == 0) ? channel_nr -1 : channel - 1;
@@ -606,7 +607,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			eplus.exec(NULL, "");
 			loop = false;
 		}
-		else if (msg==CRCInput::RC_help || msg==CRCInput::RC_right || msg==CRCInput::RC_ok || msg==CRCInput::RC_info)
+		else if (msg==CRCInput::RC_help || msg==CRCInput::RC_ok || msg==CRCInput::RC_info)
 		{
 			if ( evtlist[selected].eventID != 0 )
 			{
