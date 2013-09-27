@@ -549,7 +549,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		}
 		else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_right || msg==CRCInput::RC_rewind || msg==CRCInput::RC_forward ) {
 			// maybe remove RC_rewind and RC_forward in the future?
-
+			bgRightBoxPaint = false;
 		  	t_bouquet_id current_bouquet_id= bouquetList->getActiveBouquetNumber();
 			t_channel_id	channel_id_tmp, _channel_id = channel_id;
 			const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
