@@ -535,7 +535,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			std::map<neutrino_msg_t, keyAction>::iterator it = keyActionMap.find(msg);
 			if (it != keyActionMap.end()) {
 				fader.Stop();
-				int rv = it->second.menue->exec(parent, it->second.action);
+				int rv = it->second.menue->exec(this, it->second.action);
 				switch ( rv ) {
 					case menu_return::RETURN_EXIT_ALL:
 						retval = menu_return::RETURN_EXIT_ALL;
