@@ -624,9 +624,13 @@ void CControlAPI::ShutdownCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::RebootCGI(CyhookHandler *hh)
 {
-	FILE *f = fopen("/tmp/.reboot", "w");
-	fclose(f);
-	return ShutdownCGI(hh);
+	if (hh->ParamList.empty())
+	{
+		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::REBOOT, CEventServer::INITID_HTTPD);
+		hh->SendOk();
+	}
+	else
+		hh->SendError();
 }
 
 //-----------------------------------------------------------------------------

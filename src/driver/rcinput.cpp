@@ -805,6 +805,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg = NeutrinoMessages::SHUTDOWN;
 								*data = 0;
 								break;
+							case NeutrinoMessages::REBOOT :
+								*msg = NeutrinoMessages::REBOOT;
+								*data = 0;
+								break;
 							case NeutrinoMessages::EVT_POPUP :
 								*msg = NeutrinoMessages::EVT_POPUP;
 								*data = (unsigned) p;
