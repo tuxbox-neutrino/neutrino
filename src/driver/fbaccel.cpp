@@ -173,6 +173,7 @@ static int backbuf_sz = 0;
 
 void CFbAccel::waitForIdle(void)
 {
+#if 0	/* blits too often and does not seem to be necessary */
 	blit_mutex.lock();
 	if (blit_pending)
 	{
@@ -181,6 +182,7 @@ void CFbAccel::waitForIdle(void)
 		return;
 	}
 	blit_mutex.unlock();
+#endif
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	ioctl(fb->fd, STMFBIO_SYNC_BLITTER);
 }
@@ -779,6 +781,12 @@ void CFbAccel::blit()
 #if HAVE_SPARK_HARDWARE
 void CFbAccel::_blit()
 {
+#if 0
+	static time_t last = 0;
+	time_t now = time_monotonic_ms();
+	printf("%s %ld\n", __func__, now - last);
+	last = now;
+#endif
 #ifdef PARTIAL_BLIT
 	if (to_blit.xs == INT_MAX)
 		return;
