@@ -141,7 +141,6 @@ class CFrontend
 		int masterkey;
 		fe_linkmap_t linkmap;
 		int fenumber;
-		int feindex; /* the index (starts with 0) of this FE, not always the same as fenumber */
 		bool standby;
 		bool buildProperties(const FrontendParameters*, struct dtv_properties &);
 
@@ -246,10 +245,7 @@ class CFrontend
 		bool				Locked() { return usecount; };
 		satellite_map_t &		getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
-		/* getNumber is now only used for displaying the tuner ID in the infobar,
-		 * which wants the index. If the fenumber is needed, call "getNumber(true)" */
-		int				getNumber(bool real = false) { return real?fenumber:feindex; }
-		void				setIndex(int i) { feindex = i; };
+		int				getNumber() { return fenumber; };
 		static void			getDelSys(uint8_t type, int f, int m, char * &fec, char * &sys, char * &mod);
 		fe_work_mode_t			getMode() { return femode; }
 		void				setMode(int mode) {femode = (fe_work_mode_t) mode; }
