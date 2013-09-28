@@ -183,7 +183,8 @@ int CHDDMenuHandler::doMenu ()
 		if (ret != -1) {
 			if ((int)(s.st_rdev & 0x0ffc0) == root_dev) {
 				isroot = true;
-				printf("-> root device is on this disk, skipping\n");
+				/* dev_t is different sized on different architectures :-( */
+				printf("-> root device is on this disk 0x%04x, skipping\n", (int)s.st_rdev);
 			}
 		}
 		close(fd);
