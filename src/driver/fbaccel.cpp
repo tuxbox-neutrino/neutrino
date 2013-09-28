@@ -737,33 +737,26 @@ void CFbAccel::setupGXA()
 }
 #endif
 
-#define BLIT_INTERVAL 40
+#define BLIT_INTERVAL_MIN 40
+#define BLIT_INTERVAL_MAX 250
 void CFbAccel::run()
 {
 	printf("CFbAccel::run start\n");
 	time_t last_blit = 0;
-	bool finished = false; /* one last blit after everything is done */
 	blit_pending = false;
 	blit_thread = true;
 	blit_mutex.lock();
 	set_threadname("fb::autoblit");
 	while (blit_thread) {
-		// printf("blit_pending: %d finish: %d\n", blit_pending, finish);
-		if (blit_pending || finished)
-			blit_cond.wait(&blit_mutex, BLIT_INTERVAL);
-		else
-			blit_cond.wait(&blit_mutex);
+		blit_cond.wait(&blit_mutex, blit_pending ? BLIT_INTERVAL_MIN : BLIT_INTERVAL_MAX);
 		time_t now = time_monotonic_ms();
-		if (now - last_blit < BLIT_INTERVAL)
+		if (now - last_blit < BLIT_INTERVAL_MIN)
 		{
 			blit_pending = true;
-			finished = false;
 			//printf("CFbAccel::run: skipped, time %ld\n", now - last_blit);
 		}
 		else
 		{
-			/* we timed out => add one more blit, just to make sure */
-			finished = !finished;
 			blit_pending = false;
 			blit_mutex.unlock();
 			_blit();
