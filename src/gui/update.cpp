@@ -792,7 +792,7 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 		widget_id = MN_WIDGET_ID_MTDREAD_SELECTOR;
 	else if (actionkey == "writemtd")
 		widget_id = MN_WIDGET_ID_MTDWRITE_SELECTOR;
-	
+
 	//generate mtd-selector
 	CMenuWidget* mtdselector = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, widget_id);
 	mtdselector->addIntroItems(LOCALE_FLASHUPDATE_MTDSELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
@@ -802,17 +802,18 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 		char sActionKey[20];
 		bool enabled = true;
 #ifdef BOXMODEL_APOLLO
-		// disable write uboot / uldr, FIXME correct numbers
-		if ((actionkey == "writemtd") && (lx == 5 || lx == 6))
+		// disable write uboot / uldr
+		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("u-boot") || lx == mtdInfo->findMTDNumberFromName("uldr")))
 			enabled = false;
-		if ((actionkey == "readmtd") && (lx == 0)) {
+		// build jffs2 image from root0
+		if ((actionkey == "readmtd") && (lx == mtdInfo->findMTDNumberFromName("root0"))) {
 			CMenuForwarder *mf = new CMenuForwarderNonLocalized("root0", true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
 			mtdselector->addItem(mf);
 			continue;
 		}
 #else
 		// disable write uboot
-		if ((actionkey == "writemtd") && (lx == 0))
+		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("u-boot")))
 			enabled = false;
 #endif
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
@@ -934,11 +935,11 @@ int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if (actionKey == "readmtd0") {
 		CFlashExpert *cfe = CFlashExpert::getInstance();
+		CMTDInfo *mtdInfo = CMTDInfo::getInstance();
 		bool skipImage = false;
 		if (cfe->createimage_other == 1) {
 			char message[512] = {0};
 			// create image warning
-			CMTDInfo *mtdInfo = CMTDInfo::getInstance();
 			const char *box = (mtdInfo->getMTDEraseSize(mtdInfo->findMTDsystem()) == 0x40000) ? "Trinity" : "Tank";
 			snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_FLASHUPDATE_CREATEIMAGE_WARNING), box, box);
 			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, message, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes)
@@ -948,23 +949,23 @@ int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			std::string uldrName   = (std::string)UPDATEDIR + "/uldr.bin";
 			cfe->forceOtherFilename = true;
 			if (g_settings.flashupdate_createimage_add_uldr == 1)
-				readMTDPart(2, uldrName);
+				readMTDPart(mtdInfo->findMTDNumberFromName("uldr"), uldrName);
 #ifdef UBOOT_BIN
 			std::string ubootName   = (std::string)UPDATEDIR + "/u-boot.bin";
 			if (g_settings.flashupdate_createimage_add_u_boot == 1)
-				readMTDPart(3, ubootName);
+				readMTDPart(mtdInfo->findMTDNumberFromName("u-boot"), ubootName);
 #endif
 #ifdef ENV_SPARE_BIN
 			std::string envName   = (std::string)UPDATEDIR + "/env.bin";
 			if (g_settings.flashupdate_createimage_add_env == 1)
-				readMTDPart(4, envName);
+				readMTDPart(mtdInfo->findMTDNumberFromName("env"), envName);
 			std::string spareName   = (std::string)UPDATEDIR + "/spare.bin";
-				if (g_settings.flashupdate_createimage_add_spare == 1)
-					readMTDPart(5, spareName);
+			if (g_settings.flashupdate_createimage_add_spare == 1)
+				readMTDPart(mtdInfo->findMTDNumberFromName("spare"), spareName);
 #endif
 			std::string kernelName = (std::string)UPDATEDIR + "/vmlinux.ub.gz";
 			if (g_settings.flashupdate_createimage_add_kernel == 1)
-				readMTDPart(6, kernelName);
+				readMTDPart(mtdInfo->findMTDNumberFromName("kernel"), kernelName);
 			cfe->forceOtherFilename = false;
 			cfe->otherFilename = "";
 
@@ -1003,8 +1004,17 @@ int CFlashExpertSetup::showMenu()
 	CMenuForwarder     *m1 = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE, true, NULL, this, "readmtd0", CRCInput::convertDigitToKey(0));
 	CMenuOptionChooser *m2 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ULDR,   &g_settings.flashupdate_createimage_add_uldr,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+#ifndef UBOOT_BIN
+	g_settings.flashupdate_createimage_add_u_boot = 0;
+#endif
+#ifdef UBOOT_BIN
 	CMenuOptionChooser *m3 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_U_BOOT, &g_settings.flashupdate_createimage_add_u_boot,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+#endif
+#ifndef ENV_SPARE_BIN
+g_settings.flashupdate_createimage_add_env = 0;
+g_settings.flashupdate_createimage_add_spare = 0;
+#endif
 #ifdef ENV_SPARE_BIN
 	CMenuOptionChooser *m4 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ENV,    &g_settings.flashupdate_createimage_add_env,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, false);
@@ -1024,7 +1034,9 @@ int CFlashExpertSetup::showMenu()
 	rootfsSetup->addItem(m1); // create image
 	rootfsSetup->addItem(s1);
 	rootfsSetup->addItem(m2); // include uldr
+#ifdef UBOOT_BIN
 	rootfsSetup->addItem(m3); // include u-boot
+#endif
 #ifdef ENV_SPARE_BIN
 	rootfsSetup->addItem(m4); // include env
 	rootfsSetup->addItem(m5); // include spare
