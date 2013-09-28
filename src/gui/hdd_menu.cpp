@@ -191,7 +191,8 @@ int CHDDMenuHandler::doMenu ()
 		if (ret != -1) {
 			if ((int)(s.st_rdev & drive_mask) == root_dev) {
 				isroot = true;
-				printf("-> root device is on this disk 0x%04" PRIx64 ", skipping\n", s.st_rdev);
+				/* dev_t is different sized on different architectures :-( */
+				printf("-> root device is on this disk 0x%04x, skipping\n", (int)s.st_rdev);
 			}
 		}
 		close(fd);
