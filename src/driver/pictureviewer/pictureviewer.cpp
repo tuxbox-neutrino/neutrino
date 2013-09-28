@@ -421,7 +421,6 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 	m_busy_width = width;
 	m_busy_cpp = cpp;
 	cs_free_uncached (fb_buffer);
-	CFrameBuffer::getInstance()->blit();
 	//  dbout("Show Busy}\n");
 }
 
@@ -442,7 +441,6 @@ void CPictureViewer::hideBusy ()
 		free (m_busy_buffer);
 		m_busy_buffer = NULL;
 	}
-	CFrameBuffer::getInstance()->blit();
 	//  dbout("Hide Busy}\n");
 }
 void CPictureViewer::Cleanup ()

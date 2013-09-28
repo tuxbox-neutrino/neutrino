@@ -91,7 +91,6 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 	y_coord[1] = g_settings.screen_EndY;
 
 	paint();
-	frameBuffer->blit();
 
 	selected = 0;
 
@@ -220,7 +219,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 					res = menu_return::RETURN_EXIT_ALL;
 				}
 		}
-		frameBuffer->blit();
+
 	}
 
 	hide();
@@ -232,7 +231,6 @@ void CScreenSetup::hide()
 	int w = (int) frameBuffer->getScreenWidth(true);
 	int h = (int) frameBuffer->getScreenHeight(true);
 	frameBuffer->paintBackgroundBox(0, 0, w, h);
-	frameBuffer->blit();
 }
 
 void CScreenSetup::paintBorder( int pselected )

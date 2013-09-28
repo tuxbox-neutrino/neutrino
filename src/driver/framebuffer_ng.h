@@ -270,7 +270,6 @@ class CFrameBuffer
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 
 		void mark(int x, int y, int dx, int dy) { accel->mark(x, y, dx, dy); };
-		void blit() {};
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
 		enum 

@@ -813,7 +813,6 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 		this->footer->paintButtons (buttonLabels, sizeof (buttonLabels) / sizeof (button_label));
 
 		this->paint();
-		frameBuffer->blit();
 
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 		bool loop = true;
@@ -1151,7 +1150,6 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				loop = false;
 			else if (this->refreshFooterButtons)
 				this->footer->paintButtons (buttonLabels, sizeof (buttonLabels) / sizeof (button_label));
-			frameBuffer->blit();
 		}
 
 		this->hide();
@@ -1190,7 +1188,6 @@ EpgPlus::TCChannelEventEntries::const_iterator EpgPlus::getSelectedEvent() const
 void EpgPlus::hide()
 {
 	this->frameBuffer->paintBackgroundBoxRel (this->usableScreenX, this->usableScreenY, this->usableScreenWidth, this->usableScreenHeight);
-	frameBuffer->blit();
 }
 
 void EpgPlus::paintChannelEntry (int position)

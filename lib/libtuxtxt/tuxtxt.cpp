@@ -276,7 +276,6 @@ void ClearB(int color)
 {
 	FillRect(0,                   0, var_screeninfo.xres, var_screeninfo.yres, color); /* framebuffer */
 	FillRect(0, var_screeninfo.yres, var_screeninfo.xres, var_screeninfo.yres, color); /* backbuffer */
-	CFrameBuffer::getInstance()->blit();
 }
 #endif
 int  GetCurFontWidth()
@@ -2837,7 +2836,6 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 	national_subset = national_subset_bak;
 	Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 	Menu_UpdateHotlist(menu, hotindex, menuitem);
-	CFrameBuffer::getInstance()->blit();
 }
 
 void ConfigMenu(int Init)
@@ -3427,7 +3425,6 @@ void ConfigMenu(int Init)
 				break;
 			}
 		}
-		CFrameBuffer::getInstance()->blit();
 		UpdateLCD(); /* update number of cached pages */
 	} while ((RCCode != RC_HOME) && (RCCode != RC_DBOX) && (RCCode != RC_MUTE));
 
@@ -3727,7 +3724,6 @@ void PageCatching()
 			RCCode = -1;
 			return;
 		}
-		CFrameBuffer::getInstance()->blit();
 		UpdateLCD();
 	} while (RCCode != RC_OK);
 
@@ -5195,7 +5191,6 @@ void DoFlashing(int startrow)
 		}
 		PosY += fontheight*factor;
 	}
-	CFrameBuffer::getInstance()->blit();
 }
 
 void RenderPage()
@@ -5405,7 +5400,6 @@ void RenderPage()
 		RenderCharFB(ns[0],&atrtable[ATR_WB]);
 		RenderCharFB(ns[1],&atrtable[ATR_WB]);
 		RenderCharFB(ns[2],&atrtable[ATR_WB]);
-		CFrameBuffer::getInstance()->blit();
 
 		tuxtxt_cache.pageupdate=0;
 	}
@@ -5655,7 +5649,6 @@ void CopyBB2FB()
 #else
 #ifdef HAVE_SPARK_HARDWARE
 		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
-		f->blit();
 #else
 		memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
 #endif
@@ -5755,7 +5748,6 @@ void CopyBB2FB()
 	}
 #ifdef HAVE_SPARK_HARDWARE
 	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
-	f->blit();
 #endif
 }
 

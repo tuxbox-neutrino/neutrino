@@ -313,7 +313,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	tuned = -1;
 	paint(test);
-	frameBuffer->blit();
 
 	/* go */
 	if(test) {
@@ -360,7 +359,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		}
 		while (!(msg == CRCInput::RC_timeout));
 		showSNR();
-		frameBuffer->blit();
 	}
 	/* to join scan thread */
 	g_Zapit->stopScan();
@@ -373,7 +371,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(!test) {
 		CComponentsHeader header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED, NULL /*no header icon*/);
 		header.paint(CC_SAVE_SCREEN_NO);
-		// frameBuffer->blit(); // ??
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
@@ -494,8 +491,6 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 		delete[] (unsigned char*) data;
-	/* almost all messages paint something, so blit here */
-	frameBuffer->blit();
 	return msg;
 }
 

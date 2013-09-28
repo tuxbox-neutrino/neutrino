@@ -112,7 +112,6 @@ void CListBox::paintItem(int pos)
 void CListBox::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+ButtonHeight);
-	frameBuffer->blit();
 }
 
 unsigned int	CListBox::getItemCount()
@@ -181,7 +180,6 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 	paintHead();
 	paint();
 	paintFoot();
-	frameBuffer->blit();
 
 	bool loop=true;
 	modified = false;
@@ -259,7 +257,6 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 			// kein canceling...
 		}
-		frameBuffer->blit();
 	}
 
 	hide();

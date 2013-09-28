@@ -265,7 +265,6 @@ void CBEChannelWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight);
 	clearItem2DetailsLine ();
-	frameBuffer->blit();
 }
 
 void CBEChannelWidget::updateSelection(unsigned int newpos)
@@ -315,7 +314,6 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	paintHead();
 	paint();
 	paintFoot();
-	frameBuffer->blit();
 
 	channelsChanged = false;
 
@@ -441,7 +439,6 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		{
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 		}
-		frameBuffer->blit();
 	}
 	hide();
 	return res;

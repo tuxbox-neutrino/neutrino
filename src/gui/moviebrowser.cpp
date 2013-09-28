@@ -1013,7 +1013,6 @@ int CMovieBrowser::exec(const char* path)
 
 	refreshTitle();
 	onSetGUIWindow(m_settings.gui);
-	m_pcWindow->blit();
 
 	bool loop = true;
 	bool result;
@@ -1076,7 +1075,6 @@ int CMovieBrowser::exec(const char* path)
 				loop = false;
 			}
 		}
-		m_pcWindow->blit();
 
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(timeout); // calcualate next timeout
@@ -1307,7 +1305,6 @@ printf("CMovieBrowser::refreshMovieInfo\n");
 			m_pcWindow->paintHLineRel(lx, flogo_w+2, ly+flogo_h+1, COL_WHITE);
 		}
 	}
-	m_pcWindow->blit();
 }
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)

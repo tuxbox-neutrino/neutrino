@@ -90,7 +90,6 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 		}
 		frameBuffer->fbNoCheck(false);
-		frameBuffer->blit();
 
 		if (doInit)
 			CVolumeHelper::getInstance()->refresh();
@@ -120,5 +119,4 @@ void CAudioMute::enableMuteIcon(bool enable)
 		do_paint_mute_icon = false;
 	}
 	frameBuffer->fbNoCheck(false);
-	frameBuffer->blit();
 }

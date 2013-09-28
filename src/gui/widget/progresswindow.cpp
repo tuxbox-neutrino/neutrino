@@ -93,7 +93,7 @@ void CProgressWindow::showGlobalStatus(const unsigned int prog)
 	}
 	//hintergrund
 	frameBuffer->paintBox(pos, globalstatusY, x+width-10, globalstatusY+10, COL_MENUCONTENT_PLUS_2);
-	frameBuffer->blit();
+
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(-1,NULL,global_progress);
 #endif // VFD_UPDATE
@@ -119,7 +119,6 @@ void CProgressWindow::showLocalStatus(const unsigned int prog)
 	}
 	//hintergrund
 	frameBuffer->paintBox(pos, localstatusY, x+width-10, localstatusY+10, COL_MENUCONTENT_PLUS_2);
-	frameBuffer->blit();
 
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(local_progress);
@@ -133,7 +132,6 @@ void CProgressWindow::showStatusMessageUTF(const std::string & text)
 	statusText = text;
 	frameBuffer->paintBox(x, statusTextY-mheight, x+width, statusTextY,  COL_MENUCONTENT_PLUS_0);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10, statusTextY, width-20, text, COL_MENUCONTENT_TEXT, 0, true); // UTF-8
-	frameBuffer->blit();
 
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(-1,text.c_str()); // set local text in VFD
@@ -150,7 +148,6 @@ unsigned int CProgressWindow::getGlobalStatus(void)
 void CProgressWindow::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
-	frameBuffer->blit();
 }
 
 void CProgressWindow::paint()
@@ -185,7 +182,6 @@ int CProgressWindow::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 		parent->hide();
 	}
 	paint();
-	frameBuffer->blit();
 
 	return menu_return::RETURN_REPAINT;
 }

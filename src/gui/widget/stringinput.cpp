@@ -445,7 +445,6 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		frameBuffer->SaveScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
 
 	paint();
-	frameBuffer->blit();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
@@ -552,7 +551,6 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 				}
 			}
 		}
-		frameBuffer->blit();
 	}
 
 	hide();
@@ -596,7 +594,6 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 void CStringInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
-	frameBuffer->blit();
 }
 
 void CStringInput::paint(bool sms)
@@ -857,7 +854,6 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 		strcat(value, " ");
 
 	paint();
-	frameBuffer->blit();
 
 	bool loop = true;
 
@@ -908,7 +904,7 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 				}
 			}
 		}
-		frameBuffer->blit();
+
 	}
 
 	hide();

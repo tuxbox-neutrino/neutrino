@@ -263,7 +263,6 @@ int CPictureViewerGui::show()
 			hide();
 			update=false;
 			paint();
-			frameBuffer->blit();
 		}
 
 		if (audioplayer)
@@ -636,7 +635,6 @@ int CPictureViewerGui::show()
 				loop = false;
 			}
 		}
-		frameBuffer->blit();
 	}
 	hide();
 

@@ -853,7 +853,6 @@ bool CFileBrowser::exec(const char * const dirname)
 	ChangeDir(name, selection);
 	//paint();
 	paintFoot();
-	frameBuffer->blit();
 
 	int oldselected = selected;
 
@@ -1127,7 +1126,6 @@ bool CFileBrowser::exec(const char * const dirname)
 				loop = false;
 			}
 		}
-		frameBuffer->blit();
 	}
 
 	hide();
@@ -1234,7 +1232,6 @@ void CFileBrowser::addRecursiveDir(CFileList * re_filelist, std::string rpath, b
 void CFileBrowser::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
-	frameBuffer->blit();
 }
 
 //------------------------------------------------------------------------

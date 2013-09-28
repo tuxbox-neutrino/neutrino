@@ -55,18 +55,15 @@ CFBWindow::~CFBWindow(void)
 void CFBWindow::paintBoxRel(const int _x, const int _y, const int _dx, const int _dy, const color_t _col, int radius, int type)
 {
 	frameBuffer->paintBoxRel(x + _x, y + _y, _dx, _dy, _col, radius, type);
-	frameBuffer->blit();
 }
 
 bool CFBWindow::paintIcon(const char * const _filename, const int _x, const int _y, const int _h, const color_t _offset)
 {
 	frameBuffer->paintIcon(_filename, x + _x, y + _y, _h, _offset);
-	frameBuffer->blit();
 	return 0;
 }
 
 void CFBWindow::RenderString(const font_t _font, const int _x, const int _y, const int _width, const char * const _text, const color_t _color, const int _boxheight, const bool _utf8_encoded)
 {
 	((Font *)_font)->RenderString(x + _x, y + _y, _width, _text, _color, _boxheight, _utf8_encoded);
-	frameBuffer->blit();
 }

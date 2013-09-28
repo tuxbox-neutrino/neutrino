@@ -698,7 +698,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ ox- botboxheight+ 8, sy+ oy- 3, widthr, ">", COL_MENUCONTENT_TEXT_PLUS_3);
 	}
 
-	frameBuffer->blit();
 	if ( doLoop )
 	{
 		neutrino_msg_t      msg = 0;
@@ -967,7 +966,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					}
 				}
 			}
-			frameBuffer->blit();
 		}
 		hide();
 		fader.Stop();
@@ -985,7 +983,6 @@ void CEpgData::hide()
 	}
 
 	frameBuffer->paintBackgroundBoxRel(sx, sy, ox, oy);
-	frameBuffer->blit();
 	showTimerEventBar (false);
 }
 
@@ -1162,7 +1159,6 @@ void CEpgData::showTimerEventBar (bool pshow)
 	// hide only?
 	if (! pshow) {
 		frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
-		frameBuffer->blit();
 		return;
 	}
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
@@ -1174,7 +1170,6 @@ void CEpgData::showTimerEventBar (bool pshow)
 	else
 		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], aw, h);
 
-	frameBuffer->blit();
 #if 0
 	// Button: Timer Record & Channelswitch
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)

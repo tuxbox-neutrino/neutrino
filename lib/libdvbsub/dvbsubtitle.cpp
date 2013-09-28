@@ -181,9 +181,6 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 			max_y = yoff + nh;
 	}
 
-	if (Count())	/* sync framebuffer */
-		CFrameBuffer::getInstance()->blit();
-
 //	if(Count())
 //		dbgconverter("cDvbSubtitleBitmaps::Draw: finish, min/max screen: x=% d y= %d, w= %d, h= %d\n", min_x, min_y, max_x-min_x, max_y-min_y);
 //	dbgconverter("\n");
@@ -269,7 +266,6 @@ void cDvbSubtitleConverter::Clear(void)
 //	dbgconverter("cDvbSubtitleConverter::Clear: x=% d y= %d, w= %d, h= %d\n", min_x, min_y, max_x-min_x, max_y-min_y);
 	if(running && (max_x-min_x > 0) && (max_y-min_y > 0)) {
 		CFrameBuffer::getInstance()->paintBackgroundBoxRel (min_x, min_y, max_x-min_x, max_y-min_y);
-		CFrameBuffer::getInstance()->blit();
 		/* reset area to clear */
 		min_x = screen_w;
 		min_y = screen_h;

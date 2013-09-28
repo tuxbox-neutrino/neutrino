@@ -143,7 +143,6 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	int dheight = g_Font[font_info]->getHeight ();
 	maxb = minb = lastb = tmp_rate = 0;
 	ts_setup ();
-	frameBuffer->blit();
 	while (1) {
 		neutrino_msg_data_t data;
 
@@ -245,7 +244,6 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		// -- push other events
 		if (msg > CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
 			CNeutrinoApp::getInstance ()->handleMsg (msg, data);
-		frameBuffer->blit();
 	}
 	delete sigscale;
 	sigscale = NULL;
@@ -259,7 +257,6 @@ void CStreamInfo2::hide ()
 {
 	pip->hide(true);
 	frameBuffer->paintBackgroundBoxRel (0, 0, max_width, max_height);
-	frameBuffer->blit();
 }
 
 void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
