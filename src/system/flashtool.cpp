@@ -636,6 +636,15 @@ int CMTDInfo::findMTDNumber(const std::string & filename)
 	return -1;
 }
 
+int CMTDInfo::findMTDNumberFromName(const char* name)
+{
+	for (int i = 0; i < getMTDCount(); i++) {
+		if ((std::string)name == getMTDName(i))
+			return i;
+	}
+	return -1;
+}
+
 std::string CMTDInfo::getMTDName(const std::string & filename)
 {
 	return getMTDName( findMTDNumber(filename) );
