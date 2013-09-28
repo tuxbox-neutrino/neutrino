@@ -57,6 +57,13 @@ extern GLFramebuffer *glfb;
 #endif
 
 #include <driver/abstime.h>
+#include <system/set_threadname.h>
+
+#if HAVE_COOL_HARDWARE || HAVE_TRIPLEDRAGON
+#define NEED_BLIT_THREAD 0
+#else
+#define NEED_BLIT_THREAD 1
+#endif
 
 //#undef USE_NEVIS_GXA //FIXME
 /*******************************************************************************/
@@ -185,6 +192,7 @@ void CFbAccel::waitForIdle(void)
 
 CFbAccel::CFbAccel(CFrameBuffer *_fb)
 {
+	blit_thread = false;
 	fb = _fb;
 	lastcol = 0xffffffff;
 	lbb = fb->lfb;	/* the memory area to draw to... */
@@ -245,9 +253,6 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 		return;
 	}
 #endif
-#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
-	OpenThreads::Thread::start();
-#endif
 
 #ifdef USE_NEVIS_GXA
 	/* Open /dev/mem for HW-register access */
@@ -269,18 +274,21 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 	/* TODO: what to do here? does this really happen? */
 	;
 #endif /* USE_NEVIS_GXA */
+
+#if NEED_BLIT_THREAD
+	/* start the autoblit-thread (run() function) */
+	OpenThreads::Thread::start();
+#endif
 };
 
 CFbAccel::~CFbAccel()
 {
-#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 	if (blit_thread)
 	{
 		blit_thread = false;
 		blit(); /* wakes up the thread */
 		OpenThreads::Thread::join();
 	}
-#endif
 #if HAVE_SPARK_HARDWARE
 	if (backbuffer)
 	{
@@ -434,6 +442,7 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 		line++;
 	}
 #endif
+	blit();
 }
 
 void CFbAccel::paintPixel(const int x, const int y, const fb_pixel_t col)
@@ -557,6 +566,7 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 			paintPixel(x, y, col);
 		}
 	}
+	blit();
 #endif
 }
 
@@ -663,6 +673,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 		}
 		d += fb->stride;
 	}
+	blit();
 #if 0
 	for(int i = 0; i < yc; i++){
 		memmove(clfb + (i + yoff)*stride + xoff*4, ip + (i + yp)*width + xp, xc*4);
@@ -731,22 +742,28 @@ void CFbAccel::run()
 {
 	printf("CFbAccel::run start\n");
 	time_t last_blit = 0;
+	bool finished = false; /* one last blit after everything is done */
 	blit_pending = false;
 	blit_thread = true;
 	blit_mutex.lock();
+	set_threadname("fb::autoblit");
 	while (blit_thread) {
-		if (blit_pending)
-			blit_cond.wait(&blit_mutex, BLIT_INTERVAL+1);
+		// printf("blit_pending: %d finish: %d\n", blit_pending, finish);
+		if (blit_pending || finished)
+			blit_cond.wait(&blit_mutex, BLIT_INTERVAL);
 		else
 			blit_cond.wait(&blit_mutex);
 		time_t now = time_monotonic_ms();
 		if (now - last_blit < BLIT_INTERVAL)
 		{
 			blit_pending = true;
+			finished = false;
 			//printf("CFbAccel::run: skipped, time %ld\n", now - last_blit);
 		}
 		else
 		{
+			/* we timed out => add one more blit, just to make sure */
+			finished = !finished;
 			blit_pending = false;
 			blit_mutex.unlock();
 			_blit();
