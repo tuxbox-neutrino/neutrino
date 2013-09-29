@@ -195,7 +195,7 @@ void CLCD::setled(int red, int green)
 	if (fd < 0)
 		return;
 
-printf("%s red:%d green:%d\n", __func__, red, green);
+	// printf("%s red:%d green:%d\n", __func__, red, green);
 
 	for (i = 0; i < 2; i++)
 	{
