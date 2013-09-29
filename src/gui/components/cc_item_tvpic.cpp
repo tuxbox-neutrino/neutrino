@@ -89,7 +89,7 @@ void CComponentsPIP::paint(bool do_save_bg)
 	}
 	
 	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv){
-		videoDecoder->Pig(pig_x+2, pig_y, pig_w, pig_h, screen_w, screen_h);
+		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h);
 	}
 	else{ //paint an alternate image if no tv mode available
 		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, CC_ALIGN_LEFT);
