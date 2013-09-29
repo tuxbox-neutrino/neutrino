@@ -614,7 +614,6 @@ void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap
 
 void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int epgpos)
 {
-  
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(chid);
 
 	if(channel) {
@@ -856,7 +855,7 @@ void CInfoViewer::loop(bool show_dot)
 #endif
 		if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
-		  
+
 		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
 			g_RCInput->postMsg (msg, 0);
 			res = messages_return::cancel_info;
@@ -1255,6 +1254,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) ||
 			(msg == NeutrinoMessages::EVT_ZAP_ISNVOD)) {
 		channel_id = (*(t_channel_id *)data);
+		killInfobarText();
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID) {
 		//chanready = 1;
@@ -1876,7 +1876,7 @@ void CInfoViewer::showInfoFile()
 
 	//paint info, don't save background, if already painted, global hide is also done by killTitle()
 	bool save_bg = !infobar_txt->isPainted();
-	if (infobar_txt->textChanged())
+	if (infobar_txt->textChanged() || virtual_zap_mode)
 		infobar_txt->paint(save_bg);
 
 }
