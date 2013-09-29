@@ -926,8 +926,8 @@ void CFlashExpertSetup::readMTDPart(int mtd, const std::string &fileName)
 	sync();
 }
 
-#define UBOOT_BIN
-//#define ENV_SPARE_BIN
+//#define UBOOT_BIN
+//#define SPARE_BIN
 
 int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
@@ -956,11 +956,11 @@ int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			std::string ubootName   = (std::string)UPDATEDIR + "/u-boot.bin";
 			if (g_settings.flashupdate_createimage_add_u_boot == 1)
 				readMTDPart(mtdInfo->findMTDNumberFromName("u-boot"), ubootName);
-#endif
-#ifdef ENV_SPARE_BIN
 			std::string envName   = (std::string)UPDATEDIR + "/env.bin";
 			if (g_settings.flashupdate_createimage_add_env == 1)
 				readMTDPart(mtdInfo->findMTDNumberFromName("env"), envName);
+#endif
+#ifdef SPARE_BIN
 			std::string spareName   = (std::string)UPDATEDIR + "/spare.bin";
 			if (g_settings.flashupdate_createimage_add_spare == 1)
 				readMTDPart(mtdInfo->findMTDNumberFromName("spare"), spareName);
@@ -978,10 +978,10 @@ int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 #ifdef UBOOT_BIN
 			if (g_settings.flashupdate_createimage_add_u_boot == 1)
 				unlink(ubootName.c_str());
-#endif
-#ifdef ENV_SPARE_BIN
 			if (g_settings.flashupdate_createimage_add_env == 1)
 				unlink(envName.c_str());
+#endif
+#ifdef SPARE_BIN
 			if (g_settings.flashupdate_createimage_add_spare == 1)
 				unlink(spareName.c_str());
 #endif
@@ -1008,20 +1008,20 @@ int CFlashExpertSetup::showMenu()
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 #ifndef UBOOT_BIN
 	g_settings.flashupdate_createimage_add_u_boot = 0;
+g_settings.flashupdate_createimage_add_env = 0;
 #endif
 #ifdef UBOOT_BIN
 	CMenuOptionChooser *m3 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_U_BOOT, &g_settings.flashupdate_createimage_add_u_boot,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+	CMenuOptionChooser *m4 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ENV,    &g_settings.flashupdate_createimage_add_env,
+								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 #endif
-#ifndef ENV_SPARE_BIN
-g_settings.flashupdate_createimage_add_env = 0;
+#ifndef SPARE_BIN
 g_settings.flashupdate_createimage_add_spare = 0;
 #endif
-#ifdef ENV_SPARE_BIN
-	CMenuOptionChooser *m4 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_ENV,    &g_settings.flashupdate_createimage_add_env,
-								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, false);
+#ifdef SPARE_BIN
 	CMenuOptionChooser *m5 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_SPARE,  &g_settings.flashupdate_createimage_add_spare,
-								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, false);
+								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 #endif
 	CMenuOptionChooser *m6 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_KERNEL, &g_settings.flashupdate_createimage_add_kernel,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
@@ -1038,9 +1038,9 @@ g_settings.flashupdate_createimage_add_spare = 0;
 	rootfsSetup->addItem(m2); // include uldr
 #ifdef UBOOT_BIN
 	rootfsSetup->addItem(m3); // include u-boot
-#endif
-#ifdef ENV_SPARE_BIN
 	rootfsSetup->addItem(m4); // include env
+#endif
+#ifdef SPARE_BIN
 	rootfsSetup->addItem(m5); // include spare
 #endif
 	rootfsSetup->addItem(m6); // include kernel
