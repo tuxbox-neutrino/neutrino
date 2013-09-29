@@ -802,8 +802,10 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 		char sActionKey[20];
 		bool enabled = true;
 #ifdef BOXMODEL_APOLLO
-		// disable write uboot / uldr
-		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("u-boot") || lx == mtdInfo->findMTDNumberFromName("uldr")))
+		// disable write uboot / uldr / env
+		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("u-boot") || 
+			                          lx == mtdInfo->findMTDNumberFromName("uldr") ||
+			                          lx == mtdInfo->findMTDNumberFromName("env")))
 			enabled = false;
 		// build jffs2 image from root0
 		if ((actionkey == "readmtd") && (lx == mtdInfo->findMTDNumberFromName("root0"))) {
