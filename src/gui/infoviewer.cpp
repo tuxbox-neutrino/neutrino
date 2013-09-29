@@ -1995,32 +1995,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	{
 		res = 0;
 	}
-	/* TODO: g_settings.infobar_channellogo_background*/
-#if 0
-	// paint logo background (shaded/framed)
-	if ((g_settings.infobar_channellogo_background !=0) && (res !=0)) // with background
-	{
-		int frame_w = 2, logo_bg_x=0, logo_bg_y=0, logo_bg_w=0, logo_bg_h=0;
 
-		if (g_settings.infobar_channellogo_background == 1) // framed
-		{
-			//sh_offset = 2;
-			logo_bg_x = logo_x-frame_w;
-			logo_bg_y = logo_y-frame_w;
-			logo_bg_w = logo_w+frame_w*2;
-			logo_bg_h = logo_h+frame_w*2;
-		}
-		else if (g_settings.infobar_channellogo_background == 2) // shaded
-		{
-			//sh_offset = 3;
-			logo_bg_x = logo_x+SHADOW_OFFSET;
-			logo_bg_y = logo_y+SHADOW_OFFSET;
-			logo_bg_w = logo_w;
-			logo_bg_h = logo_h;
-		}
-		frameBuffer->paintBoxRel(logo_bg_x, logo_bg_y, logo_bg_w, logo_bg_h, COL_INFOBAR_BUTTONS_BACKGROUND);
-	}
-#endif
 	// paint the logo
 	if (res != 0) {
 		if (!g_PicViewer->DisplayImage(strAbsIconPath, logo_x, logo_y, logo_w, logo_h))
