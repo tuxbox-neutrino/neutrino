@@ -222,6 +222,9 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 
 		evt.description = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 		evt.eventID = 0;
+		evt.channelID = 0;
+		evt.startTime = 0;
+		evt.duration = 0;
 		evtlist.push_back(evt);
 
 	}

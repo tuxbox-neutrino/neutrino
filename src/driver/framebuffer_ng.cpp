@@ -181,6 +181,8 @@ CFrameBuffer::CFrameBuffer()
 	background = NULL;
 	backupBackground = NULL;
 	backgroundFilename = "";
+	fbAreaActiv = false;
+	fb_no_check = false;
 	fd  = 0;
 	tty = 0;
 	bpp = 0;
