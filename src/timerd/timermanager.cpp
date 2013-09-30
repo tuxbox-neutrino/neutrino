@@ -63,6 +63,7 @@ void CTimerManager::Init(void)
 	m_isTimeSet = false;
 	timer_is_rec = false;
 	wakeup = 0;
+	shutdown_eventID = -1;
 	loadRecordingSafety();
 
 	//thread starten

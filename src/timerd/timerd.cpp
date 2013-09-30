@@ -144,6 +144,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 				for(CTimerEventMap::iterator lpos = events.begin();lpos != events.end();++lpos)
 				{
 					CTimerd::responseGetTimer lresp;
+					memset(&lresp, 0, sizeof(lresp)); /* valgrind... */
 
 					CTimerEvent *event = lpos->second;
 
@@ -253,6 +254,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CTimerdMsg::responseAddTimer rspAddTimer;
 			CTimerEvent* event;
 			CTimerd::TransferEventInfo evInfo;
+			rspAddTimer.eventID = 0; /* silence valgrind */
 			switch(msgAddTimer.eventType)
 			{
 				case CTimerd::TIMER_STANDBY :
