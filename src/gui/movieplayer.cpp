@@ -1483,7 +1483,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 			}
 			//printf("title: [%s]\n", txt);
 			std::string str(txt);
-			unsigned int start = 0, end = 0;
+			size_t start = 0, end = 0;
 			/* split string with \N as newline */
 			std::string delim("\\N");
 			while ((end = str.find(delim, start)) != string::npos) {
