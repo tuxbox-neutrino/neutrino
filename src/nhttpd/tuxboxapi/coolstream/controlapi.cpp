@@ -1614,6 +1614,8 @@ void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 {
 	t_channel_id current_channel = 0;
+	std::vector<t_channel_id> v;
+
 	if(currentTP){
 		current_channel = CZapit::getInstance()->GetCurrentChannelID();
 		current_channel=(current_channel>>16);
@@ -1625,6 +1627,12 @@ void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 	for (; !(cit.EndOfChannels()); cit++) {
 		CZapitChannel * channel = *cit;
 		if(!currentTP || (channel->channel_id >>16) == current_channel){
+
+			size_t pos = std::find(v.begin(), v.end(), channel->channel_id) - v.begin();
+			if( pos < v.size() )
+				continue;
+			v.push_back(channel->channel_id);
+
 			hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s\n", channel->channel_id, channel->getName().c_str());
 		}
 	}
