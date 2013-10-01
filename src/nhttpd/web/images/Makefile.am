@@ -69,6 +69,7 @@ install_DATA =	accept.png \
 		rc_cst_v3.jpg \
 		rc_cst_v4.jpg \
 		rc_cst_v5.jpg \
+		rc_cst_v6.jpg \
 		rc_dbox_nokia_old.jpg \
 		rc_dbox_philips.jpg \
 		record.gif \
