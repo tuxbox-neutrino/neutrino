@@ -815,7 +815,7 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 		}
 #else
 		// disable write uboot
-		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("u-boot")))
+		if ((actionkey == "writemtd") && (lx == mtdInfo->findMTDNumberFromName("U-Boot")))
 			enabled = false;
 #endif
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
