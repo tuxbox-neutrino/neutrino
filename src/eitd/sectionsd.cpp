@@ -903,7 +903,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	/* assume live demux always 0, other means background scan */
 	if (cmd->dnum) {
 		/* dont wakeup EIT, if we have max events allready */
-		if (max_events && (mySIeventsOrderUniqueKey.size() < max_events)) {
+		if (max_events == 0  || (mySIeventsOrderUniqueKey.size() < max_events)) {
 			threadEIT.setDemux(cmd->dnum);
 			threadEIT.setCurrentService(uniqueServiceKey);
 		}
