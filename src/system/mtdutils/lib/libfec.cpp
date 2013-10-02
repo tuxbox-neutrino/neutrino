@@ -379,7 +379,8 @@ matmul(gf *a, gf *b, gf *c, int n, int k, int m)
 	}
     }
 }
-
+#if 0
+//unused
 #ifdef DEBUG
 /*
  * returns 1 if the square matrix is identiy
@@ -399,7 +400,7 @@ is_identity(gf *m, int k)
     return 1 ;
 }
 #endif /* debug */
-
+#endif
 /*
  * invert_mat() takes a matrix and produces its inverse
  * k is the size of the matrix.
