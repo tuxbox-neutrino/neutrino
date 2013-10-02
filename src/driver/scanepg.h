@@ -30,6 +30,7 @@ class CEpgScan
 {
 	private:
 		int current_bnum;
+		int current_mode;
 		eit_scanmap_t scanmap;
 		t_channel_id next_chid;
 		std::set<transponder_id_t> scanned;

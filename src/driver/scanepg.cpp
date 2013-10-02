@@ -37,12 +37,14 @@
 
 #include <driver/scanepg.h>
 
-extern CBouquetList        * bouquetList;
-
+extern CBouquetList * bouquetList;
+extern CBouquetList * TVfavList;
+ 
 CEpgScan::CEpgScan()
 {
 	current_bnum = -1;
 	next_chid = 0;
+	current_mode = 0;
 }
 
 CEpgScan::~CEpgScan()
@@ -74,18 +76,37 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		if(bouquetList->Bouquets.empty())
 			return;
 
-		if (current_bnum != bouquetList->getActiveBouquetNumber()) {
-			scanmap.clear();
-			current_bnum = bouquetList->getActiveBouquetNumber();
-			CChannelList * clist = bouquetList->Bouquets[current_bnum]->channelList;
-			int lsize = clist->Size();
-			for (int i = 0; i < lsize; i++) {
-				CZapitChannel * chan = clist->getChannelFromIndex(i);
-				/* TODO: add interval check to clear scanned ? */
-				if (scanned.find(chan->getTransponderId()) == scanned.end())
-					scanmap.insert(eit_scanmap_pair_t(chan->getTransponderId(), chan->getChannelID()));
+		if (current_mode != g_settings.epg_scan) {
+			current_mode = g_settings.epg_scan;
+			Clear();
+		}
+		if (g_settings.epg_scan == 1) {
+			/* current bouquet mode */
+			if (current_bnum != bouquetList->getActiveBouquetNumber()) {
+				scanmap.clear();
+				current_bnum = bouquetList->getActiveBouquetNumber();
+				CChannelList * clist = bouquetList->Bouquets[current_bnum]->channelList;
+				for (unsigned i = 0; i < clist->Size(); i++) {
+					CZapitChannel * chan = clist->getChannelFromIndex(i);
+					/* TODO: add interval check to clear scanned ? */
+					if (scanned.find(chan->getTransponderId()) == scanned.end())
+						scanmap.insert(eit_scanmap_pair_t(chan->getTransponderId(), chan->getChannelID()));
+				}
+				INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
 			}
-			INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
+		} else {
+			/* all favorites mode */
+			if (scanmap.empty()) {
+				for (unsigned j = 0; j < TVfavList->Bouquets.size(); ++j) {
+					CChannelList * clist = TVfavList->Bouquets[j]->channelList;
+					for (unsigned i = 0; i < clist->Size(); i++) {
+						CZapitChannel * chan = clist->getChannelFromIndex(i);
+						if (scanned.find(chan->getTransponderId()) == scanned.end())
+							scanmap.insert(eit_scanmap_pair_t(chan->getTransponderId(), chan->getChannelID()));
+					}
+				}
+				INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
+			}
 		}
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
