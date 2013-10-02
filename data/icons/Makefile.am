@@ -39,6 +39,7 @@ install_DATA += \
 	ats.png \
 	ats_gray.png \
 	audio.png \
+	audioplay.png \
 	biss_green.png \
 	biss_white.png \
 	biss_yellow.png \
