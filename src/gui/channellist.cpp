@@ -74,8 +74,6 @@
 
 #include <eitd/sectionsd.h>
 
-#include <video.h>
-
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
@@ -94,7 +92,6 @@ extern bool autoshift;
 extern CBouquetManager *g_bouquetManager;
 extern int old_b_id;
 
-extern cVideo * videoDecoder;
 
 static CComponentsFrmClock *headerClock = NULL;
 static int headerClockWidth = 0;
@@ -122,6 +119,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
+	cc_minitv = NULL;
 	logo_off = 0;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
@@ -131,6 +129,8 @@ CChannelList::~CChannelList()
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
 	delete dline;
+	if (cc_minitv)
+		delete 	cc_minitv;
 	if (headerClock) {
 		headerClock->Stop();
 		if (headerClock->isPainted())
@@ -1007,7 +1007,9 @@ void CChannelList::hide()
 {
 	if ((g_settings.channellist_additional == 2) || (previous_channellist_additional == 2)) // with miniTV
 	{
-		videoDecoder->Pig(-1, -1, -1, -1);
+		if (cc_minitv)
+			delete cc_minitv;
+		cc_minitv = NULL;
 	}
 	if (headerClock) {
 		headerClock->Stop();
@@ -2149,23 +2151,7 @@ void CChannelList::paint()
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
 	if (g_settings.channellist_additional == 2) // with miniTV
-	{
-		// paint box for miniTV again - important!
-		frameBuffer->paintBoxFrame(x+width, y+theight , pig_width, pig_height, 10, COL_MENUCONTENT_PLUS_0, 0);
-		// 5px offset - same value as in list below
-#if 0 
-		/* focus: its possible now to scale video with still image, but on nevis
-		   artifacts possible on SD osd */
-		paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
-#else
-		if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
-			paint_pig(x+width+5, y+theight+5, pig_width-10, pig_height-10);
-		}
-		else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
-			g_PicViewer->DisplayImage(DATADIR "/neutrino/icons/radiomode.jpg", x+width+5, y+theight+5, pig_width-10, pig_height-10, frameBuffer->TM_NONE);
-		}
-#endif
-	}
+		paintPig(x+width, y+theight, pig_width, pig_height);
 
 	// paint background for main box
 	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0);
@@ -2258,11 +2244,18 @@ std::string  CChannelList::MaxChanNr()
 	return maxchansize;
 }
 
-void CChannelList::paint_pig (int _x, int _y, int w, int h)
+void CChannelList::paintPig (int _x, int _y, int w, int h)
 {
-	frameBuffer->paintBackgroundBoxRel (_x, _y, w, h);
-	//printf("CChannelList::paint_pig x %d y %d w %d h %d osd_w %d osd_w %d\n", _x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
-	videoDecoder->Pig(_x, _y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	//init minitv object with basic properties
+	if (cc_minitv == NULL){
+		cc_minitv = new CComponentsPIP (0, 0);
+		cc_minitv->setPicture(NEUTRINO_ICON_AUDIOPLAY);
+		cc_minitv->setFrameThickness(5);
+	}
+	//set changeable minitv properties
+	cc_minitv->setDimensionsAll(_x, _y, w, h);
+	cc_minitv->setColorFrame(COL_MENUCONTENT_PLUS_0);
+	cc_minitv->paint(false);
 }
 
 void CChannelList::paint_events(int index)

@@ -37,6 +37,7 @@
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
 #include <gui/components/cc_frm_clock.h>
+#include <gui/components/cc_item_tvpic.h>
 #include <system/lastchannel.h>
 
 #include <sectionsdclient/sectionsdclient.h>
@@ -59,6 +60,7 @@ class CChannelList
 {
 private:
 	CFrameBuffer		*frameBuffer;
+	CComponentsPIP		*cc_minitv;
 	unsigned int		selected, selected_in_new_mode;
 	unsigned int		tuned;
 	t_channel_id		selected_chid;
@@ -113,7 +115,7 @@ private:
 	void showChannelLogo();
 	void calcSize();
 	std::string   MaxChanNr();
-	void paint_pig(int x, int y, int w, int h);
+	void paintPig(int x, int y, int w, int h);
 	void paint_events(int index);
 	CChannelEventList	evtlist;
 	void readEvents(const t_channel_id channel_id);
