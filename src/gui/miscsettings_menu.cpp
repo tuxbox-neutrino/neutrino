@@ -173,6 +173,14 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 };
 #endif /*CPU_FREQ*/
 
+#define EPG_SCAN_OPTION_COUNT 3
+const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[EPG_SCAN_OPTION_COUNT] =
+{
+	{ 0, LOCALE_OPTIONS_OFF },
+	{ 1, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
+	{ 2, LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
+};
+
 //show misc settings menue
 int CMiscMenue::showMiscSettingsMenu()
 {
@@ -356,7 +364,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true,miscEpgNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
 
-	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
+	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
 		CFEManager::getInstance()->getEnabledCount() > 1);
 	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
