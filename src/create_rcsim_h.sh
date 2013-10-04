@@ -51,8 +51,8 @@ enum {	// not defined in input.h but used like that, at least in 2.4.22
 };
 
 struct key{
-	char *name;
-	unsigned long code;
+	const char *name;
+	const unsigned long code;
 };
 
 static const struct key keyname[] = {
