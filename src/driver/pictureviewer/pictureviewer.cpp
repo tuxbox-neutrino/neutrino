@@ -498,48 +498,39 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-#define LOGO_DIR1 DATADIR "/neutrino/icons/logo"
-#define LOGO_FMT ".jpg"
-
-bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
+bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
-	int i, j;
-	char strChanId[16];
+	std::string fileType[] = { ".png", ".jpg" , ".gif" };
 
-	sprintf(strChanId, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
-	/* first the channel-id, then the channelname */
-	std::string strLogoName[2] = { (std::string)strChanId, ChannelName };
-	/* first png, then jpg, then gif */
-	std::string strLogoExt[3] = { ".png", ".jpg" , ".gif" };
+	//get channel id as string
+	char strChnId[16];
+	snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+	strChnId[15] = '\0';
 
-	for (i = 0; i < 2; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			std::string tmp(g_settings.logo_hdd_dir + "/" + strLogoName[i] + strLogoExt[j]);
-			if (access(tmp.c_str(), R_OK) != -1)
-			{
+	for (size_t i = 0; i<(sizeof(fileType) / sizeof(fileType[0])); i++){
+		std::vector<std::string> v_path;
+		std::string id_tmp_path;
+
+		//create filename with channel name
+		id_tmp_path = g_settings.logo_hdd_dir + "/";
+		id_tmp_path += ChannelName + fileType[i];
+		v_path.push_back(id_tmp_path);
+		
+		//create filename with id
+		id_tmp_path = g_settings.logo_hdd_dir + "/";
+		id_tmp_path += strChnId + fileType[i];
+		v_path.push_back(id_tmp_path);
+
+		//check if file is available, name with real name is preferred, return true on success
+		for (size_t j = 0; j < v_path.size(); j++){
+			if (access(v_path[j].c_str(), R_OK) != -1){
 				if(width && height)
-					getSize(tmp.c_str(), width, height);
-				name = tmp;
+					getSize(v_path[j].c_str(), width, height);
+				name = v_path[j];
 				return true;
 			}
-		}
+		}	
 	}
-        for (i = 0; i < 2; i++)
-        {
-                for (j = 0; j < 3; j++)
-                {
-			std::string tmp(LOGO_DIR1 "/" + strLogoName[i] + strLogoExt[j]);
-                        if (access(tmp.c_str(), R_OK) != -1)
-                        {
-				if(width && height)
-					getSize(tmp.c_str(), width, height);
-                                name = tmp;
-                                return true;
-                        }
-                }
-        }
 	return false;
 }
 
