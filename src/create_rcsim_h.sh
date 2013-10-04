@@ -59,6 +59,9 @@ static const struct key keyname[] = {
 EOF
 sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/ s/^.*=[[:space:]]*\(KEY_.*\),.*/	{ "\1",		\1 },/p' driver/rcinput.h
 cat << EOF
+	/* to stay backward compatible */
+	{ "KEY_SETUP",		KEY_MENU },
+	{ "KEY_HOME",		KEY_EXIT },
 };
 
 EOF
