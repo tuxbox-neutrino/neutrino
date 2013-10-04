@@ -68,12 +68,6 @@ enum initiators
 };
 #endif
 
-enum {	// not defined in input.h but used like that, at least in 2.4.22
-	KEY_RELEASED = 0,
-	KEY_PRESSED,
-	KEY_AUTOREPEAT
-};
-
 #include "rcsim.h"
 
 void usage(char *n){
