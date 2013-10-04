@@ -7,6 +7,8 @@
 # usage: sh ./create_rcsim_h.sh > rcsim.h
 
 cat << EOF
+// rcsim.h - automatically created from driver/rcinput.h
+
 #ifndef KEY_GAMES
 #define KEY_GAMES	0x1a1   /* Media Select Games */
 #endif
