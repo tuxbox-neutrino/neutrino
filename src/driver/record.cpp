@@ -1463,7 +1463,7 @@ bool CRecordManager::ShowMenu(void)
 			inst->GetRecordString(title, duration);
 			durations.push_back(duration);
 
-			const char* mode_icon = NULL;
+			const char* mode_icon = NEUTRINO_ICON_REC;
 			//if (inst->tshift_mode)
 			if (inst->Timeshift())
 				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
