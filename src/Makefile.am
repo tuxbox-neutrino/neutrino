@@ -1,3 +1,9 @@
+BUILT_SOURCES = rcsim.h
+rcsim.h:
+	pushd $(top_srcdir)/src/ && ./create_rcsim_h.sh > $@
+
+.PHONY: rcsim.h
+
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 SUBDIRS = zapit gui daemonc driver system eitd timerd nhttpd
