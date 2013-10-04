@@ -142,9 +142,9 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	
 	//left text
 	int _dx = dx;
+	int icon_w = 0;
+	int icon_h = 0;
 	if (!iconName_Info_right.empty()) {
-		int icon_w = 0;
-		int icon_h = 0;
 		CFrameBuffer::getInstance()->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 		if (icon_w)
 			_dx -= icon_frame_w + icon_w;
@@ -166,8 +166,10 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 			col.setCorner(RADIUS_LARGE);
 			col.paint(false);
 		}
-		if (right_text)
+		if (right_text) {
+			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + icon_frame_w);
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
+		}
 	}
 }
 
