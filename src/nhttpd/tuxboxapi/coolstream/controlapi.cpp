@@ -38,6 +38,7 @@
 #include <neutrino.h>
 #include <driver/screenshot.h>
 #include <gui/rc_lock.h>
+#include <rcsim.h>
 
 // yhttpd
 #include <yhttpd.h>
@@ -53,12 +54,6 @@ extern CBouquetManager *g_bouquetManager;
 #define EVENTDEV "/dev/input/input0"
 
 //-----------------------------------------------------------------------------
-enum {	// not defined in input.h but used like that, at least in 2.4.22
-	KEY_RELEASED = 0,
-	KEY_PRESSED,
-	KEY_AUTOREPEAT
-};
-
 //=============================================================================
 // Initialization of static variables
 //=============================================================================
@@ -644,96 +639,22 @@ int CControlAPI::rc_send(int ev, unsigned int code, unsigned int value)
 }
 
 //-----------------------------------------------------------------------------
-// security: use const char-Pointers
-struct key {
-	const char *name;
-	const int code;
-};
-
-#ifndef KEY_TOPLEFT
-#define KEY_TOPLEFT	0x1a2
-#endif
-
-#ifndef KEY_TOPRIGHT
-#define KEY_TOPRIGHT	0x1a3
-#endif
-
-#ifndef KEY_BOTTOMLEFT
-#define KEY_BOTTOMLEFT	0x1a4
-#endif
-
-#ifndef KEY_BOTTOMRIGHT
-#define KEY_BOTTOMRIGHT	0x1a5
-#endif
-
-static const struct key keynames[] = {
-	{"KEY_POWER",		KEY_POWER},
-	{"KEY_MUTE",		KEY_MUTE},
-	{"KEY_1",			KEY_1},
-	{"KEY_2",			KEY_2},
-	{"KEY_3",			KEY_3},
-	{"KEY_4",			KEY_4},
-	{"KEY_5",			KEY_5},
-	{"KEY_6",			KEY_6},
-	{"KEY_7",			KEY_7},
-	{"KEY_8",			KEY_8},
-	{"KEY_9",			KEY_9},
-	{"KEY_0",			KEY_0},
-	{"KEY_INFO",		KEY_INFO},
-	{"KEY_MODE",		KEY_MODE},
-	{"KEY_SETUP",		KEY_MENU},
-	{"KEY_EPG",			KEY_EPG},
-	{"KEY_FAVORITES",	KEY_FAVORITES},
-	{"KEY_HOME",		KEY_EXIT},
-	{"KEY_UP",			KEY_UP},
-	{"KEY_LEFT",		KEY_LEFT},
-	{"KEY_OK",			KEY_OK},
-	{"KEY_RIGHT",		KEY_RIGHT},
-	{"KEY_DOWN",		KEY_DOWN},
-	{"KEY_VOLUMEUP",	KEY_VOLUMEUP},
-	{"KEY_VOLUMEDOWN",	KEY_VOLUMEDOWN},
-	{"KEY_PAGEUP",		KEY_PAGEUP},
-	{"KEY_PAGEDOWN",	KEY_PAGEDOWN},
-	{"KEY_TV",			KEY_TV},
-	{"KEY_TEXT",		KEY_TEXT},
-	{"KEY_RADIO",		KEY_RADIO},
-	{"KEY_RED",			KEY_RED},
-	{"KEY_GREEN",		KEY_GREEN},
-	{"KEY_YELLOW",		KEY_YELLOW},
-	{"KEY_BLUE",		KEY_BLUE},
-	{"KEY_SAT",			KEY_SAT},
-	{"KEY_HELP",		KEY_HELP},
-	{"KEY_NEXT",		KEY_NEXT},
-	{"KEY_PREVIOUS",	KEY_PREVIOUS},
-	{"KEY_TIME", 		KEY_TIME},
-	{"KEY_SLEEP",           KEY_SLEEP},
-	{"KEY_AUDIO",		KEY_AUDIO},
-	{"KEY_REWIND",		KEY_REWIND},
-	{"KEY_FORWARD",		KEY_FORWARD},
-	{"KEY_PAUSE",		KEY_PAUSE},
-	{"KEY_RECORD",		KEY_RECORD},
-	{"KEY_STOP",		KEY_STOP},
-	{"KEY_PLAY",		KEY_PLAY},
-	{"KEY_WWW",		KEY_WWW},
-	{"KEY_GAMES",		KEY_GAMES}
-};
-
 // The code here is based on rcsim. Thx Carjay!
 void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 	if (hh->ParamList.empty()) {
 		hh->SendError();
 		return;
 	}
-	std::string keyname = hh->ParamList["1"];
+	std::string _keyname = hh->ParamList["1"];
 	int sendcode = -1;
-	for (unsigned int i = 0; sendcode == -1 && i < sizeof(keynames)
+	for (unsigned int i = 0; sendcode == -1 && i < sizeof(keyname)
 			/ sizeof(key); i++) {
-		if (!strcmp(keyname.c_str(), keynames[i].name))
-			sendcode = keynames[i].code;
+		if (!strcmp(_keyname.c_str(), keyname[i].name))
+			sendcode = keyname[i].code;
 	}
 
 	if (sendcode == -1) {
-		printf("[nhttpd] Key %s not found\n", keyname.c_str());
+		printf("[nhttpd] Key %s not found\n", _keyname.c_str());
 		hh->SendError();
 		return;
 	}
