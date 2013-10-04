@@ -138,6 +138,9 @@ bin_PROGRAMS += drivertool
 drivertool_SOURCES = drivertool.c
 bin_PROGRAMS += dt
 dt_SOURCES = dt.c
+bin_PROGRAMS += rcsim
+rcsim_SOURCES = rcsim.c rcsim.h
+
 endif
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
