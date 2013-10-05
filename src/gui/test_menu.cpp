@@ -64,7 +64,7 @@ CTestMenu::CTestMenu()
 	width = w_max (50, 10);
 	circle = NULL;
 	sq = NULL;
-	pic= NULL;
+	pic = chnl_pic = NULL;
 	form = NULL;
 	txt = NULL;
 	header = NULL;
@@ -89,6 +89,7 @@ CTestMenu::~CTestMenu()
 	delete button;
 	delete clock;
 	delete clock_r;
+	delete chnl_pic;
 }
 
 static int test_pos[4] = { 130, 192, 282, 360 };
@@ -402,6 +403,16 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			pic->hide();
 		return res;
 	}
+	else if (actionKey == "channellogo"){
+		if (chnl_pic == NULL)
+			chnl_pic = new CComponentsChannelLogo(100, 100, 200, 200, 0, "ProSieben");
+
+		if (!chnl_pic->isPainted() && !chnl_pic->isPicPainted())
+			chnl_pic->paint();
+		else
+			chnl_pic->hide();
+		return res;
+	}
 	else if (actionKey == "form"){
 		if (form == NULL)
 			form = new CComponentsForm();
@@ -662,6 +673,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
 	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
+	widget->addItem(new CMenuForwarderNonLocalized("Channel-Logo", true, NULL, this, "channellogo"));
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));
