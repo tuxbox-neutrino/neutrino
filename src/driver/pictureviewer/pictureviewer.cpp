@@ -533,7 +533,7 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 	}
 	return false;
 }
-
+#if 0
 bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height)
 {
 	char fname[255];
@@ -558,7 +558,7 @@ bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int w
 	}
 	return ret;
 }
-
+#endif
 void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int max_width, const int max_height, bool upscale)
 {
 	float aspect;
