@@ -1122,7 +1122,7 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 	printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %" PRIx64 "\n", this, getName(), (int)chanlist.size(), channel_id);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
-			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
+			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %u is NULL !!\n", i);
 			continue;
 		}
 		if (chanlist[i]->channel_id == channel_id) {
@@ -1514,7 +1514,7 @@ CZapitChannel* CChannelList::getPrevNextChannel(int key, unsigned int &sl)
 		}
 		sl = cactive;
 		channel = bouquetList->Bouquets[bactive]->channelList->getChannelFromIndex(cactive);
-		printf("CChannelList::getPrevNextChannel: selected %d total %d active bouquet %d total %d channel %x (%s)\n",
+		printf("CChannelList::getPrevNextChannel: selected %u total %d active bouquet %d total %d channel %x (%s)\n",
 				cactive, chanlist.size(), bactive, bsize, (int) channel, channel ? channel->getName().c_str(): "");
 	} else {
 		if ((key == g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
@@ -1646,7 +1646,7 @@ void CChannelList::paintDetails(int index)
 			int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
 			if ((noch< 0) || (noch>=10000))
 				noch= 0;
-			snprintf(cNoch, sizeof(cNoch), "(%d / %d min)", seit, noch);
+			snprintf(cNoch, sizeof(cNoch), "(%u / %d min)", seit, noch);
 		}
 		int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit, true); // UTF-8
 		int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cNoch, true); // UTF-8
