@@ -37,7 +37,7 @@ INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 
 if USE_TREMOR
-VORBISLIBS = @VORBISIDEC_LIBS@ -logg
+VORBISLIBS = @VORBISIDEC_LIBS@
 else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
