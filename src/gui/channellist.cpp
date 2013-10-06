@@ -1710,11 +1710,12 @@ void CChannelList::paintDetails(int index)
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight +fdescrheight, full_width - 30, desc.c_str(), COL_MENUCONTENTDARK_TEXT, 0, true);
 	}
 	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
-		char buf[128] = {0};
-		char cFrom[50] = {0}; // UTF-8
+
 		CSectionsdClient::CurrentNextInfo CurrentNext;
 		CEitManager::getInstance()->getCurrentNextServiceKey(chanlist[index]->channel_id, CurrentNext);
 		if (!CurrentNext.next_name.empty()) {
+			char buf[128] = {0};
+			char cFrom[50] = {0}; // UTF-8
 			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
 			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
 			snprintf(buf, sizeof(buf), "%s", CurrentNext.next_name.c_str());
@@ -1891,7 +1892,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 	bool iscurrent = true;
 	bool paintbuttons = false;
 	unsigned int curr = liststart + pos;
-	int rec_mode;
 	fb_pixel_t c_rad_small = 0;
 #if 0
 	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift && curr < chanlist.size()) {
@@ -1932,7 +1932,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		int title_offset=0;
 		fb_pixel_t tcolor=(liststart + pos == selected) ? color : COL_MENUCONTENTINACTIVE_TEXT;
 		int xtheight=fheight-2;
-
+		int rec_mode;
 		if(g_settings.channellist_extended)
 		{
 			prg_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
@@ -1997,7 +1997,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 #endif
 		//calculating icons
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
-		int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
+		int r_icon_w;  int s_icon_h=0; int s_icon_w=0;
 		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
 		r_icon_w = ChannelList_Rec;
 		int r_icon_x = icon_x;
@@ -2303,11 +2303,10 @@ void CChannelList::paint_events(int index)
 		//Display the remaining events
 		if ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height))
 		{
-			bool first = false;
 			fb_pixel_t color = COL_MENUCONTENTDARK_TEXT;
 			if (e->eventID)
 			{
-				first = (i == 1);
+				bool first = (i == 1);
 				if ((first && g_settings.colored_events_channellist == 1 /* current */) || (!first && g_settings.colored_events_channellist == 2 /* next */))
 					color = COL_COLORED_EVENTS_TEXT;
 				struct tm *tmStartZeit = localtime(&e->startTime);
@@ -2355,8 +2354,7 @@ void CChannelList::showdescription(int index)
 {
 	ffheight = g_Font[eventFont]->getHeight();
 	CZapitChannel* chan = chanlist[index];
-	CChannelEvent *p_event=NULL;
-	p_event = &chan->currentEvent;
+	CChannelEvent *p_event = &chan->currentEvent;
 	epgData.info2.clear();
 	epgText.clear();
 	CEitManager::getInstance()->getEPGid(p_event->eventID, p_event->startTime, &epgData);
