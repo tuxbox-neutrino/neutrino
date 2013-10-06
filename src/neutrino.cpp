@@ -2370,6 +2370,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 _show:
 			int nNewChannel = -1;
 			int old_b = bouquetList->getActiveBouquetNumber();
+					t_channel_id old_id = bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->getActiveChannel_ChannelID();
 			//int old_mode = g_settings.channel_mode;
 			int old_mode = GetChannelMode();
 			printf("************************* ZAP START: bouquetList %p size %d old_b %d\n", bouquetList, (int)bouquetList->Bouquets.size(), old_b);fflush(stdout);
@@ -2412,7 +2413,6 @@ _repeat:
 					bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->setSelected(old_num);
 #endif
 				if(!bouquetList->Bouquets.empty()) {
-					t_channel_id old_id = bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->getActiveChannel_ChannelID();
 					bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->adjustToChannelID(old_id, false);
 				}
 				StartSubtitles(mode == mode_tv);
