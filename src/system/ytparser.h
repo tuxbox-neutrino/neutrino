@@ -129,10 +129,17 @@ class cYTFeedParser
 			SEARCH,
 			MODE_LAST
 		};
+		enum yt_feed_orderby_t
+		{
+			ORDERBY_PUBLISHED = 0,
+			ORDERBY_RELEVANCE,
+			ORDERBY_VIEWCOUNT,
+			ORDERBY_RATING
+		};
 		cYTFeedParser();
 		~cYTFeedParser();
 
-		bool ParseFeed(yt_feed_mode_t mode = MOST_POPULAR, std::string search = "", std::string vid = "");
+		bool ParseFeed(yt_feed_mode_t mode = MOST_POPULAR, std::string search = "", std::string vid = "", yt_feed_orderby_t orderby = ORDERBY_PUBLISHED);
 		bool ParseVideoInfo(cYTVideoInfo &vinfo, CURL *_curl_handle = NULL);
 		bool DownloadThumbnail(cYTVideoInfo &vinfo, CURL *_curl_handle = NULL);
 		bool GetVideoUrls();

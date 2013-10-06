@@ -229,6 +229,7 @@ typedef struct
 	MB_INFO_ITEM lastRecordRow[MB_MAX_ROWS];
 	int lastRecordRowWidth[MB_MAX_ROWS];
 	int ytmode;
+	int ytorderby;
 	int ytresults;
 	int ytquality;
 	int ytconcconn;
