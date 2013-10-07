@@ -502,6 +502,8 @@ _remount:
 		safe_mkdir((char *) cmd);
 		snprintf(cmd, sizeof(cmd), "%s/logos", dst);
 		safe_mkdir((char *) cmd);
+		snprintf(cmd, sizeof(cmd), "%s/plugins", dst);
+		safe_mkdir((char *) cmd);
 		sync();
 	}
 _return:
