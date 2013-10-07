@@ -77,6 +77,22 @@ void CEpgScan::AddBouquet(CChannelList * clist)
 	}
 }
 
+bool CEpgScan::AddFavorites()
+{
+	INFO("allfav_done: %d", allfav_done);
+	if (allfav_done)
+		return false;
+
+	allfav_done = true;
+	unsigned old_size = scanmap.size();
+	for (unsigned j = 0; j < TVfavList->Bouquets.size(); ++j) {
+		CChannelList * clist = TVfavList->Bouquets[j]->channelList;
+		AddBouquet(clist);
+	}
+	INFO("scan map size: %d -> %d\n", old_size, scanmap.size());
+	return (old_size != scanmap.size());
+}
+
 void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
 	if (!g_settings.epg_scan || CFEManager::getInstance()->getEnabledCount() <= 1)
@@ -92,25 +108,20 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			Clear();
 		}
 		/* TODO: add interval check to clear scanned ? */
-		if (g_settings.epg_scan == 1) {
+
+		int mode = CNeutrinoApp::getInstance()->GetChannelMode();
+		if ((g_settings.epg_scan == 1) || (mode == LIST_MODE_FAV)) {
 			/* current bouquet mode */
 			if (current_bnum != bouquetList->getActiveBouquetNumber()) {
+				allfav_done = false;
 				scanmap.clear();
 				current_bnum = bouquetList->getActiveBouquetNumber();
-				CChannelList * clist = bouquetList->Bouquets[current_bnum]->channelList;
-				AddBouquet(clist);
+				AddBouquet(bouquetList->Bouquets[current_bnum]->channelList);
 				INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
 			}
 		} else {
-			/* all favorites mode */
-			if (!allfav_done) {
-				allfav_done = true;
-				for (unsigned j = 0; j < TVfavList->Bouquets.size(); ++j) {
-					CChannelList * clist = TVfavList->Bouquets[j]->channelList;
-					AddBouquet(clist);
-				}
-				INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
-			}
+			AddFavorites();
+			INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
 		}
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
@@ -148,6 +159,10 @@ void CEpgScan::Next()
 	next_chid = 0;
 	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
 		return;
+
+	if (g_settings.epg_scan == 2 && scanmap.empty())
+		AddFavorites();
+
 	if (scanmap.empty())
 		return;
 
@@ -164,6 +179,7 @@ void CEpgScan::Next()
 	if (pip_fe && pip_fe != live_fe)
 		CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
+_repeat:
 	for (eit_scanmap_iterator_t it = scanmap.begin(); it != scanmap.end(); /* ++it*/) {
 		CZapitChannel * newchan = CServiceManager::getInstance()->FindChannel(it->second);
 		if ((newchan == NULL) || SAME_TRANSPONDER(live_channel_id, newchan->getChannelID())) {
@@ -178,6 +194,9 @@ void CEpgScan::Next()
 			INFO("skip [%s], cannot tune", newchan->getName().c_str());
 		++it;
 	}
+	if (!next_chid && AddFavorites())
+		goto _repeat;
+
 	CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
 	if (pip_fe && pip_fe != live_fe)

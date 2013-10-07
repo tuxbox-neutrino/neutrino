@@ -37,6 +37,7 @@ class CEpgScan
 		std::set<transponder_id_t> scanned;
 		void Next();
 		void AddBouquet(CChannelList * clist);
+		bool AddFavorites();
 
 		CEpgScan();
 	public:
