@@ -498,6 +498,8 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
+#define LOGO_FLASH_DIR DATADIR "/neutrino/icons/logo"
+
 bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
 	std::string fileType[] = { ".png", ".jpg" , ".gif" };
@@ -511,13 +513,23 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 		std::vector<std::string> v_path;
 		std::string id_tmp_path;
 
-		//create filename with channel name
+		//create filename with channel name (logo_hdd_dir)
 		id_tmp_path = g_settings.logo_hdd_dir + "/";
 		id_tmp_path += ChannelName + fileType[i];
 		v_path.push_back(id_tmp_path);
-		
-		//create filename with id
+
+		//create filename with id (logo_hdd_dir)
 		id_tmp_path = g_settings.logo_hdd_dir + "/";
+		id_tmp_path += strChnId + fileType[i];
+		v_path.push_back(id_tmp_path);
+
+		//create filename with channel name (LOGO_FLASH_DIR)
+		id_tmp_path = LOGO_FLASH_DIR "/";
+		id_tmp_path += ChannelName + fileType[i];
+		v_path.push_back(id_tmp_path);
+
+		//create filename with id (LOGO_FLASH_DIR)
+		id_tmp_path = LOGO_FLASH_DIR "/";
 		id_tmp_path += strChnId + fileType[i];
 		v_path.push_back(id_tmp_path);
 
