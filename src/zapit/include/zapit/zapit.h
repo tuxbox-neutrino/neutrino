@@ -158,7 +158,7 @@ class CZapit : public OpenThreads::Thread
 		void RestoreChannelPids(CZapitChannel* channel);
 		//void ConfigFrontend();
 
-		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change);
+		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change, bool send_event = true);
 		bool ParsePatPmt(CZapitChannel * channel);
 
 		bool send_data_count(int connfd, int data_count);

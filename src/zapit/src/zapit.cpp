@@ -417,7 +417,7 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 	return NULL;
 }
 
-bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change)
+bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change, bool send_event)
 {
 	if(channel  == NULL || frontend == NULL)
 		return false;
@@ -427,7 +427,8 @@ bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &tr
 		int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
 		if(waitForMotor > 0) {
 			printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
-			SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
+			if (send_event)
+				SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
 			for(int i = 0; i < waitForMotor; i++) {
 				sleep(1);
 				if(abort_zapit) {
@@ -712,7 +713,7 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id)
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
-	if(!TuneChannel(frontend, newchannel, transponder_change))
+	if(!TuneChannel(frontend, newchannel, transponder_change, false))
 		return false;
 #if 0
 	if(!ParsePatPmt(newchannel))
