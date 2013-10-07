@@ -181,7 +181,6 @@ void CComponentsFrmClock::initCCLockItems()
 		//ensure paint of text and label bg on changed text or painted form background
 		bool force_txt_and_bg = (lbl->textChanged() || this->paint_bg);
 		lbl->forceTextPaint(force_txt_and_bg);
-		lbl->doPaintTextBoxBg(force_txt_and_bg);
 
 		//set xpos of item
 		cl_x += wtmp;
