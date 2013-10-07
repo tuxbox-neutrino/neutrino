@@ -22,6 +22,7 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stdint.h>
 #include <string>
 
 int my_system(const char * cmd);
@@ -33,7 +34,7 @@ off_t file_size(const char *filename);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir, bool allow_tmp = false);
-bool get_fs_usage(const char * dir, long &total, long &used, long *bsize=NULL);
+bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
 
 std::string getPathName(std::string &path);

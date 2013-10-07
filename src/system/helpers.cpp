@@ -241,7 +241,7 @@ int check_dir(const char * dir, bool allow_tmp)
 	return ret;
 }
 
-bool get_fs_usage(const char * dir, long &btotal, long &bused, long *bsize/*=NULL*/)
+bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize/*=NULL*/)
 {
 	btotal = bused = 0;
 	struct statfs s;
@@ -251,7 +251,7 @@ bool get_fs_usage(const char * dir, long &btotal, long &bused, long *bsize/*=NUL
 		bused = s.f_blocks - s.f_bfree;
 		if (bsize != NULL)
 			*bsize = s.f_bsize;
-		//printf("fs (%s): total %ld used %ld\n", dir, btotal, bused);
+		//printf("fs (%s): total %llu used %llu\n", dir, btotal, bused);
 		return true;
 	}
 	return false;

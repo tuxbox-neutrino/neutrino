@@ -46,7 +46,7 @@ bin_PROGRAMS = neutrino
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
-AM_CPPFLAGS =
+AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64
 
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
