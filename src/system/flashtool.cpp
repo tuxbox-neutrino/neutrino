@@ -178,12 +178,13 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	bool skipCopy = false;
 #ifdef BOXMODEL_APOLLO
 	if (strcmp(dn, "/tmp") != 0) {
-		long btotal = 0, bused = 0, bsize = 0;
+		uint64_t btotal = 0, bused = 0;
+		long bsize = 0;
 		if (get_fs_usage("/tmp", btotal, bused, &bsize)) {
-			int fileSize = file_size(filename.c_str()) / 1024;
-			int backupMaxSize = (int)((btotal - bused) * bsize);
-			int res = 10; // Reserved 10% of available space
-			backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100)) / 1024;
+			uint64_t fileSize = (uint64_t)file_size(filename.c_str()) / 1024ULL;
+			uint64_t backupMaxSize = (int)((btotal - bused) * bsize);
+			uint64_t res = 10; // Reserved 10% of available space
+			backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100ULL)) / 1024ULL;
 			if (backupMaxSize < fileSize)
 				skipCopy = true;
 		}
@@ -219,7 +220,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		return false;
 	}
 
-	filesize = lseek( fd1, 0, SEEK_END);
+	filesize = (ssize_t)lseek( fd1, 0, SEEK_END);
 	lseek( fd1, 0, SEEK_SET);
 
 	if(filesize==0) {
@@ -424,7 +425,7 @@ bool CFlashTool::check_md5( const std::string & filename, const std::string & sm
 //printf("[flashtool] check file %s md5 %s\n", filename.c_str(), ptr);
 
 	for(int i = 0; i < 16; i++)
-		omd5[i] = FROMHEX(ptr[i*2])*16 + FROMHEX(ptr[i*2+1]);
+		omd5[i] = (unsigned char)(FROMHEX(ptr[i*2])*16 + FROMHEX(ptr[i*2+1]));
 
 	md5_file(filename.c_str(), 1, md5);
 	if(memcmp(md5, omd5, 16))

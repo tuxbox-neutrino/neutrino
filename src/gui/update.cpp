@@ -510,8 +510,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			char * buffer;
 			off_t filesize = lseek(fileno(fd), 0, SEEK_END);
 			lseek(fileno(fd), 0, SEEK_SET);
-			buffer =(char *) malloc(filesize+1);
-			fread(buffer, filesize, 1, fd);
+			buffer =(char *) malloc((uint32_t)filesize+1);
+			fread(buffer, (uint32_t)filesize, 1, fd);
 			fclose(fd);
 			buffer[filesize] = 0;
 			ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
