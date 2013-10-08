@@ -121,6 +121,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	dline = NULL;
 	cc_minitv = NULL;
 	logo_off = 0;
+	pig_on_win = false;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -535,7 +536,7 @@ void CChannelList::calcSize()
 		fheight = 1; /* avoid div-by-zero crash on invalid font */
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
 
-	bool pig_on_win = ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
+	pig_on_win = ( (g_settings.channellist_additional == 2) /* with miniTV */ && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_ts) );
 	// calculate width
 	full_width = pig_on_win ? (frameBuffer->getScreenWidth()-2*ConnectLineBox_Width) : frameBuffer->getScreenWidthRel();
 
@@ -2150,7 +2151,7 @@ void CChannelList::paint()
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
-	if (g_settings.channellist_additional == 2) // with miniTV
+	if (pig_on_win) // with miniTV
 		paintPig(x+width, y+theight, pig_width, pig_height);
 
 	// paint background for main box
