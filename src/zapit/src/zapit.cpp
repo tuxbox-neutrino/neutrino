@@ -826,6 +826,10 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 			audioStr = "DTS";
 			audioDecoder->SetStreamType(AUDIO_FMT_DTS);
 			break;
+		case CZapitAudioChannel::EAC3:
+			audioStr = "DD-PLUS";
+			audioDecoder->SetStreamType(AUDIO_FMT_DD_PLUS);
+			break;
 		default:
 			printf("[zapit] unknown audio channel type 0x%x\n", audioChannelType);
 			break;
@@ -1842,11 +1846,13 @@ void CZapit::sendAPIDs(int connfd)
 		CZapitClient::responseGetAPIDs response;
 		response.pid = current_channel->getAudioPid(i);
 		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN-1);
-		response.is_ac3 = response.is_aac = 0;
+		response.is_ac3 = response.is_aac = response.is_eac3 = 0;
 		if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
 		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
 			response.is_aac = 1;
+		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
+			response.is_eac3 = 1;
 		}
 		response.component_tag = current_channel->getAudioChannel(i)->componentTag;
 

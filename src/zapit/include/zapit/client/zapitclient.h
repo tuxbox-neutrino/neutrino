@@ -184,6 +184,7 @@ class CZapitClient:public CBasicClient
 		char    desc[DESC_MAX_LEN];
 		int     is_ac3;
 		int     is_aac;
+		int     is_eac3;
 		int     component_tag;
 	};
 
