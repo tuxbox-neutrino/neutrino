@@ -571,8 +571,9 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 		return false;
 	}
 
-	long btotal = 0, bused = 0, bsize = 0;
-	int backupRequiredSize = 0;
+	uint64_t btotal = 0, bused = 0;
+	long bsize = 0;
+	uint64_t backupRequiredSize = 0;
 #ifdef BOXMODEL_APOLLO
 	if (mtd == -1) { // check disk space for image creation
 		if (!get_fs_usage("/", btotal, bused, &bsize)) {
@@ -580,11 +581,11 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 			ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
 			return false;
 		}
-		backupRequiredSize = (int)((bused * bsize) / 1024) * 2; // twice disk space for summarized image
+		backupRequiredSize = ((bused * bsize) / 1024ULL) * 2ULL; // twice disk space for summarized image
 	}
 	else
 #endif
-		backupRequiredSize = CMTDInfo::getInstance()->getMTDSize(mtd) / 1024;
+		backupRequiredSize = CMTDInfo::getInstance()->getMTDSize(mtd) / 1024ULL;
 
 	btotal = 0; bused = 0; bsize = 0;
 	if (!get_fs_usage(path.c_str(), btotal, bused, &bsize)) {
@@ -592,9 +593,11 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);
 		return false;
 	}
-	int backupMaxSize = (int)((btotal - bused) * bsize);
-	int res = 10; // Reserved 10% of available space
-	backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100)) / 1024;
+	uint64_t backupMaxSize = (btotal - bused) * (uint64_t)bsize;
+	uint64_t res = 10; // Reserved 10% of available space
+	backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100ULL)) / 1024ULL;
+	printf("##### [%s] backupMaxSize: %llu, btotal: %llu, bused: %llu, bsize: %ld\n", __FUNCTION__, backupMaxSize, btotal, bused, bsize);
+
 	if (backupMaxSize < backupRequiredSize) {
 		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), backupMaxSize, backupRequiredSize);
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, errMsg);

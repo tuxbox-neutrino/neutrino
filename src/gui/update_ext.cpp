@@ -74,8 +74,9 @@ CExtUpdate::CExtUpdate()
 	FileHelpers 	= NULL;
 	MTDBuf		= NULL;
 	flashErrorFlag	= false;
-	total = bsize = used = 0;
-	free1 = free2 = free3 = 0;
+	bsize		= 0;
+	total = used	= 0;
+	free1 = free2	= free3 = 0;
 
 	copyList.clear();
 	blackList.clear();
@@ -704,12 +705,12 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	sync();
 
 	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize)) {
-		long flashWarning = 1000; // 1MB
-		long flashError   = 600;  // 600KB
+		uint64_t flashWarning = 1000; // 1MB
+		uint64_t flashError   = 600;  // 600KB
 		char buf1[1024];
 		total = (total * bsize) / 1024;
 		free3 = total - (used * bsize) / 1024;
-		printf("##### [%s] %ld KB free org, %ld KB free after delete, %ld KB free now\n", __FUNCTION__, free1, free2, free3);
+		printf("##### [%s] %llu KB free org, %llu KB free after delete, %llu KB free now\n", __FUNCTION__, free1, free2, free3);
 		memset(buf1, '\0', sizeof(buf1));
 		if (free3 <= flashError) {
 			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_ERROR), free3, total);
