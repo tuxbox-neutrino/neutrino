@@ -206,7 +206,7 @@ int safe_mkdir(char * path)
 }
 
 /* function used to check is this dir writable, i.e. not flash, for record etc */
-int check_dir(const char * dir)
+int check_dir(const char * dir, bool allow_tmp)
 {
 	/* default to return, if statfs fail */
 	int ret = -1;
@@ -223,12 +223,16 @@ int check_dir(const char * dir)
 			case 0x58465342L:	/*xfs*/
 			case 0x4d44L:		/*msdos*/
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x858458f6L: 	/*ramfs*/
 #if 0
 			case 0x72b6L:		/*jffs2*/
 #endif
-				ret = 0;
-				break; //ok
+				ret = 0;//ok
+				break; 
+			case 0x858458f6L: 	/*ramfs*/
+			case 0x1021994: 	/*TMPFS_MAGIC*/
+				if(allow_tmp)
+					ret = 0;//ok
+				break;
 			default:
 				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
 				break; // error
