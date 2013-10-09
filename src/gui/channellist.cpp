@@ -1910,7 +1910,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		c_rad_small = RADIUS_LARGE;
 		paintbuttons = true;
 	}
-	else if (getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber())
+	else if (getKey(curr) == CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber()  && new_zap_mode != 2/*active*/)
 	{
 		color   = !displayNext ? COL_MENUCONTENT_TEXT  : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = !displayNext ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENTINACTIVE_PLUS_0;
