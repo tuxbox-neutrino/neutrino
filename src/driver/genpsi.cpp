@@ -35,6 +35,7 @@
 #define ES_TYPE_MPEG12		0x02
 #define ES_TYPE_AVC		0x1b
 #define ES_TYPE_MPA		0x03
+#define ES_TYPE_EAC3		0x7a
 #define ES_TYPE_AC3		0x81
 
 static const uint32_t crc_table[256] = {
@@ -83,43 +84,6 @@ static const uint32_t crc_table[256] = {
   0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
 };
 
-//-- special enigma stream description packet for  --
-//-- at least 1 video, 1 audo and 1 PCR-Pid stream --
-//------------------------------------------------------------------------------------
-static uint8_t pkt_enigma[] =
-{
-	0x47, 0x40, 0x1F, 0x10, 0x00,
-	0x7F, 0x80, 0x24,
-	0x00, 0x00, 0x01, 0x00, 0x00,
-	0x00, 0x00, 0x6D, 0x66, 0x30, 0x19,
-	0x80, 0x13, 'N','E','U','T','R','I','N','O','N','G',	// tag(8), len(8), text(10) -> NG hihi ;)
-	0x00, 0x02, 0x00, 0x6e,				// cVPID(8), len(8), PID(16)
-	0x01, 0x03, 0x00, 0x78, 0x00,			// cAPID(8), len(8), PID(16), ac3flag(8)
-// 0x02, 0x02, 0x00, 0x82,// cTPID(8), len(8), ...
-	0x03, 0x02, 0x00, 0x6e				// cPCRPID(8), ...
-};
-//-- PAT packet for at least 1 PMT --
-//----------------------------------------------------------
-static uint8_t pkt_pat[] =
-{
-	0x47, 0x40, 0x00, 0x10, 0x00,			// HEADER-1
-	0x00, 0xB0, 0x0D,					// HEADER-2
-	0x04, 0x37, 0xE9, 0x00, 0x00,			// HEADER-3 sid
-	0x6D, 0x66, 0xEF, 0xFF,				// PAT-DATA - PMT (PID=0xFFF) entry
-};
-
-//-- PMT packet for at least 1 video and 1 audio stream --
-//--------------------------------------------------------
-static uint8_t pkt_pmt[] =
-{
-	0x47, 0x4F, 0xFF, 0x10, 0x00,		// HEADER-1
-	0x02, 0xB0, 0x17,				// HEADER-2
-	0x6D, 0x66, 0xE9, 0x00, 0x00,		// HEADER-3
-	0xE0, 0x00, 0xF0, 0x00,			// PMT-DATA
-	0x02, 0xE0, 0x00, 0xF0, 0x00,		//   (video stream 1)
-	0x03, 0xE0, 0x00, 0xF0, 0x00		//   (audio stream 1)
-};
-
 CGenPsi::CGenPsi()
 {
 	nba = 0;
@@ -128,13 +92,12 @@ CGenPsi::CGenPsi()
 
 	pcrpid=0;
 	vtxtpid = 0;
-	vtxtlang[0] = 'g';
-	vtxtlang[1] = 'e';
-	vtxtlang[2] = 'r';
 	memset(apid, 0, sizeof(apid));
 	memset(atypes, 0, sizeof(atypes));
 	nsub = 0;
 	memset(dvbsubpid, 0, sizeof(dvbsubpid));
+	neac3 = 0;
+	memset(eac3_pid, 0, sizeof(eac3_pid));
 }
 
 uint32_t CGenPsi::calc_crc32psi(uint8_t *dst, const uint8_t *src, uint32_t len)
@@ -174,6 +137,15 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 		case EN_TYPE_AUDIO:
 			apid[nba]=pid;
 			atypes[nba]=isAC3;
+			if(data != NULL){
+				apid_lang[nba][0] = data[0];
+				apid_lang[nba][1] = data[1];
+				apid_lang[nba][2] = data[2];
+			}else{
+				apid_lang[nba][0] = 'u';
+				apid_lang[nba][1] = 'n';
+				apid_lang[nba][2] = 'k';
+			}
 			nba++;
 			break;
 		case EN_TYPE_TELTEX:
@@ -182,6 +154,10 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 				vtxtlang[0] = data[0];
 				vtxtlang[1] = data[1];
 				vtxtlang[2] = data[2];
+			}else{
+				vtxtlang[0] = 'u';
+				vtxtlang[1] = 'n';
+				vtxtlang[2] = 'k';
 			}
 			break;
 		case EN_TYPE_DVBSUB:
@@ -190,165 +166,221 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 				dvbsublang[nsub][0] = data[0];
 				dvbsublang[nsub][1] = data[1];
 				dvbsublang[nsub][2] = data[2];
+			}else{
+				dvbsublang[nsub][0] = 'u';
+				dvbsublang[nsub][1] = 'n';
+				dvbsublang[nsub][2] = 'k';
 			}
 			nsub++;
+			break;
+		case EN_TYPE_AUDIO_EAC3:
+			eac3_pid[neac3] = pid;
+			if(data != NULL){
+				eac3_lang[neac3][0] = data[0];
+				eac3_lang[neac3][1] = data[1];
+				eac3_lang[neac3][2] = data[2];
+			}else{
+				eac3_lang[neac3][0] = 'u';
+				eac3_lang[neac3][1] = 'n';
+				eac3_lang[neac3][2] = 'k';
+			}
+			neac3++;
 			break;
 		default:
 			break;
 	}
 }
 
-//== setup a new TS packet with format ==
-//== predefined with a template        ==
-//=======================================
-#define COPY_TEMPLATE(dst, src) copy_template(dst, src, sizeof(src))
+void CGenPsi::build_pat(uint8_t* buffer)
+{	
+	buffer[0x00] = 0x47;
+	buffer[0x01] = 0x40;
+	buffer[0x02] = 0x00; // PID = 0x0000
+	buffer[0x03] = 0x10 ;
 
-int CGenPsi::copy_template(uint8_t *dst, uint8_t *src, int len)
-{
-//-- reset buffer --
-	memset(dst, 0xFF, SIZE_TS_PKT);
-//-- copy PMT template --
-	memmove(dst, src, len);
+	buffer[0x04] = 0x00; // CRC calculation begins here
+	buffer[0x05] = 0x00; // 0x00: Program association section
+	buffer[0x06] = 0xb0;
+	buffer[0x07] = 0x11; // section_length
+	buffer[0x08] = 0x00;
+	buffer[0x09] = 0xbb; // TS id = 0x00b0
+	buffer[0x0a] = 0xc1;
+	// section # and last section #
+	buffer[0x0b] = buffer[0x0c] = 0x00;
+	// Network PID (useless)
+	buffer[0x0d] = buffer[0x0e] = 0x00;
+	buffer[0x0f] = 0xe0;
+	buffer[0x10] = 0x10;
 	
-	return len;
+	// Program Map PID	
+	buffer[0x11] = 0x03;
+	buffer[0x12] = 0xe8;
+	buffer[0x13] = 0xe0;
+	buffer[0x14] = pmt_pid;
+	
+	// Put CRC in buffer[0x15...0x18]
+	calc_crc32psi(&buffer[0x15], &buffer[OFS_HDR_2], 0x15-OFS_HDR_2 );
+
+	// needed stuffing bytes
+	for (int i=0x19; i < 188; i++)
+	{
+		buffer[i]=0xff;
+	}
+}
+
+void CGenPsi::build_pmt(uint8_t* buffer)
+{
+	int off=0;
+	
+	buffer[0x00] = 0x47;
+	buffer[0x01] = 0x40;
+	buffer[0x02] = pmt_pid;
+	buffer[0x03] = 0x10;
+	buffer[0x04] = 0x00; // CRC calculation begins here
+	buffer[0x05] = 0x02; // 0x02: Program map section
+	buffer[0x06] = 0xb0;
+	buffer[0x07] = 0x20; // section_length
+	buffer[0x08] = 0x03;
+	buffer[0x09] = 0xe8; // prog number
+	buffer[0x0a] = 0xc1;
+	// section # and last section #
+	buffer[0x0b] = buffer[0x0c] = 0x00;
+	// Program Clock Reference (PCR) PID
+	buffer[0x0d] = pcrpid>>8;
+	buffer[0x0e] = pcrpid&0xff;
+	// program_info_length == 0
+	buffer[0x0f] = 0xf0;
+	buffer[0x10] = 0x00;
+	// Video PID
+	buffer[0x11] = vtype; // video stream type
+	buffer[0x12] = vpid>>8;
+	buffer[0x13] = vpid&0xff;
+	buffer[0x14] = 0xf0;
+	buffer[0x15] = 0x09; // es info length
+	// useless info
+	buffer[0x16] = 0x07;
+	buffer[0x17] = 0x04;
+	buffer[0x18] = 0x08;
+	buffer[0x19] = 0x80;
+	buffer[0x1a] = 0x24;
+	buffer[0x1b] = 0x02;
+	buffer[0x1c] = 0x11;
+	buffer[0x1d] = 0x01;
+	buffer[0x1e] = 0xfe;
+	off = 0x1e;
+
+	// Audio streams
+	for (int index = 0; index < nba && index<10; index++)
+	{
+		buffer[++off] = (atypes[index]==1)? ES_TYPE_AC3 : ES_TYPE_MPA;
+		buffer[++off] = apid[index]>>8;
+		buffer[++off] = apid[index]&0xff;
+
+		if (atypes[index] == ES_TYPE_AC3)
+		{
+			buffer[++off] = 0xf0;
+			buffer[++off] = 0x0c; // es info length
+			buffer[++off] = 0x05;
+			buffer[++off] = 0x04;
+			buffer[++off] = 0x41;
+			buffer[++off] = 0x43;
+			buffer[++off] = 0x2d;
+			buffer[++off] = 0x33;
+		}
+		else
+		{
+			buffer[++off] = 0xf0;
+			buffer[++off] = 0x06; // es info length
+		}
+		buffer[++off] = 0x0a; // iso639 descriptor tag
+		buffer[++off] = 0x04; // descriptor length
+		buffer[++off] = apid_lang[index][0];
+		buffer[++off] = apid_lang[index][1];
+		buffer[++off] = apid_lang[index][2];
+		buffer[++off] = 0x00; // audio type
+	}
+	// eac3 audio
+	for (int index=0; index<neac3 && index<10; index++)
+	{
+		buffer[++off] = 0x06;//pes private type;
+		buffer[++off] = 0xE0 | eac3_pid[index]>>8;
+		buffer[++off] = eac3_pid[index] & 0xFF;
+		buffer[++off] = 0xF0;
+		buffer[++off] = 0x13-6;		// es info length
+		buffer[++off] = 0x52;
+		buffer[++off] = 0x01;
+		buffer[++off] = 0x5d;
+		buffer[++off] = 0x0a;		// iso639 descriptor tag
+		buffer[++off] = 0x04;		// descriptor length
+		buffer[++off] = eac3_lang[index][0];	//language code[0]
+		buffer[++off] = eac3_lang[index][1];	//language code[1]
+		buffer[++off] = eac3_lang[index][2];	//language code[2]
+		buffer[++off] = 0x01;
+		buffer[++off] = 0x7a;
+		buffer[++off] = 0x02;
+		buffer[++off] = 0x80;
+		buffer[++off] = 0xc5;
+	}
+
+	// Subtitle streams
+	for (int index = 0; index < nsub && index<10; index++)
+	{
+		buffer[++off] = 0x06;//pes private type;
+		buffer[++off] = dvbsubpid[index]>>8;
+		buffer[++off] = dvbsubpid[index]&0xff;
+		buffer[++off] = 0xf0;
+		buffer[++off] = 0x0a; // es info length
+		buffer[++off] = 0x59; // DVB sub tag
+		buffer[++off] = 0x08; // descriptor length
+		buffer[++off] = dvbsublang[index][0];
+		buffer[++off] = dvbsublang[index][1];
+		buffer[++off] = dvbsublang[index][2];
+		buffer[++off] = 0x20;		//subtitle_stream.subtitling_type
+		buffer[++off] = 0x01>>8;		//composition_page_id
+		buffer[++off] = 0x01&0xff; 	//composition_page_id
+		buffer[++off] = 0x01>>8; 		//ancillary_page_id
+		buffer[++off] = 0x01&0xff;	//ancillary_page_id
+	}
+	
+	// TeleText streams
+	if(vtxtpid){
+		buffer[++off] = 0x06;		//teletext stream type;
+		buffer[++off] = 0xE0 | vtxtpid>>8;
+		buffer[++off] = vtxtpid&0xff;
+		buffer[++off] = 0xf0;
+		buffer[++off] = 0x0A;		// ES_info_length
+		buffer[++off] = 0x52;		//DVB-DescriptorTag: 82 (0x52)  [= stream_identifier_descriptor]
+		buffer[++off] = 0x01;		// descriptor_length
+		buffer[++off] = 0x03;		//component_tag
+		buffer[++off] = 0x56;		// DVB teletext tag
+		buffer[++off] = 0x05;		// descriptor length
+		buffer[++off] = vtxtlang[0];	//language code[0]
+		buffer[++off] = vtxtlang[1];	//language code[1]
+		buffer[++off] = vtxtlang[2];	//language code[2]
+		buffer[++off] = (/*descriptor_magazine_number*/ 0x01 & 0x06) | ((/*descriptor_type*/ 0x01 << 3) & 0xF8);
+		buffer[++off] = 0x00 ;		//Teletext_page_number
+	}
+	buffer[0x07] = off-3; // update section_length
+
+	// Put CRC in ts[0x29...0x2c]
+	calc_crc32psi(&buffer[off+1], &buffer[OFS_HDR_2], off+1-OFS_HDR_2 );
+
+	// needed stuffing bytes
+	for (int i=off+5 ; i < 188 ; i++)
+	{
+		buffer[i] = 0xff;
+	}
 }
 
 int CGenPsi::genpsi(int fd)
 {
-	uint8_t   pkt[SIZE_TS_PKT];
-	int       i, data_len, patch_len, ofs;
+	uint8_t   buffer[SIZE_TS_PKT];
 
-	//-- copy "Enigma"-template --
-	data_len = COPY_TEMPLATE(pkt, pkt_enigma);
+	build_pat(buffer);
+	write(fd, buffer, SIZE_TS_PKT);
 
-	//-- adjust len dependent to number of audio streams --
-	data_len += ((SIZE_ENIGMA_TAB_ROW+1) * (nba-1));
-
-	patch_len = data_len - OFS_HDR_2 + 1;
-	pkt[OFS_HDR_2+1] |= (patch_len>>8);
-	pkt[OFS_HDR_2+2]  = (patch_len & 0xFF);
-	//-- write row with desc. for video stream --
-	ofs = OFS_ENIGMA_TAB;
-	pkt[ofs]   = EN_TYPE_VIDEO;
-	pkt[ofs+1] = 0x02;
-	pkt[ofs+2] = (vpid>>8);
-	pkt[ofs+3] = (vpid & 0xFF);
-	//-- for each audio stream, write row with desc. --
-	ofs += SIZE_ENIGMA_TAB_ROW;
-	for (i=0; i<nba; i++)
-	{
-		pkt[ofs]   = EN_TYPE_AUDIO;
-		pkt[ofs+1] = 0x03;
-		pkt[ofs+2] = (apid[i]>>8);
-		pkt[ofs+3] = (apid[i] & 0xFF);
-		pkt[ofs+4] = (atypes[i]==1)? 0x01 : 0x00;
-
-		ofs += (SIZE_ENIGMA_TAB_ROW + 1);
-	}
-	//-- write row with desc. for pcr stream (eq. video) --
-	pkt[ofs]   = EN_TYPE_PCR;
-	pkt[ofs+1] = 0x02;
-	pkt[ofs+2] = (pcrpid>>8);
-	pkt[ofs+3] = (pcrpid & 0xFF);
-
-	//-- calculate CRC --
-	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
-	//-- write TS packet --
-	write(fd, pkt, SIZE_TS_PKT);
-
-	//-- (II) build PAT --
-	data_len = COPY_TEMPLATE(pkt, pkt_pat);
-// 	pkt[0xf]= 0xE0 | (pmtpid>>8);
-// 	pkt[0x10] = pmtpid & 0xFF;
-	//-- calculate CRC --
-	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
-	//-- write TS packet --
-	write(fd, pkt, SIZE_TS_PKT);
-
-	//-- (III) build PMT --
-	data_len = COPY_TEMPLATE(pkt, pkt_pmt);
-	//-- adjust len dependent to count of audio streams --
-	data_len += (SIZE_STREAM_TAB_ROW * (nba-1));
-	if(vtxtpid){
-		data_len += (SIZE_STREAM_TAB_ROW * (1))+10;//add teletext row length
-	}
-	if(nsub){
-		data_len += ((SIZE_STREAM_TAB_ROW+10) * nsub);//add dvbsub row length
-	}
-	patch_len = data_len - OFS_HDR_2 + 1;
-	pkt[OFS_HDR_2+1] |= (patch_len>>8);
-	pkt[OFS_HDR_2+2]  = (patch_len & 0xFF);
-	//-- patch pcr PID --
-	ofs = OFS_PMT_DATA;
-	pkt[ofs]  |= (pcrpid>>8);
-	pkt[ofs+1] = (pcrpid & 0xFF);
-	//-- write row with desc. for ES video stream --
-	ofs = OFS_STREAM_TAB;
-	pkt[ofs]   = vtype;
-	pkt[ofs+1] = 0xE0 | (vpid>>8);
-	pkt[ofs+2] = (vpid & 0xFF);
-	pkt[ofs+3] = 0xF0;
-	pkt[ofs+4] = 0x00;
-
-	//-- for each ES audio stream, write row with desc. --
-	for (i=0; i<nba; i++)
-	{
-		ofs += SIZE_STREAM_TAB_ROW;
-		pkt[ofs]   = (atypes[i]==1)? ES_TYPE_AC3 : ES_TYPE_MPA;
-		pkt[ofs+1] = 0xE0 | (apid[i]>>8);
-		pkt[ofs+2] = (apid[i] & 0xFF);
-		pkt[ofs+3] = 0xF0;
-		pkt[ofs+4] = 0x00;
-	}
-
-	//teletext
-	if(vtxtpid){
-		ofs += SIZE_STREAM_TAB_ROW;
-		pkt[ofs] = 0x06;		//teletext stream type;
-		pkt[ofs+1] = 0xE0 | vtxtpid>>8;
-		pkt[ofs+2] = vtxtpid&0xff;
-		pkt[ofs+3] = 0xf0;
-		pkt[ofs+4] = 0x0A;		// ES_info_length
-		pkt[ofs+5] = 0x52;		//DVB-DescriptorTag: 82 (0x52)  [= stream_identifier_descriptor]
-		pkt[ofs+6] = 0x01;		// descriptor_length
-		pkt[ofs+7] = 0x03;		//component_tag
-		pkt[ofs+8] = 0x56;		// DVB teletext tag
-		pkt[ofs+9] = 0x05;		// descriptor length
-		pkt[ofs+10] = vtxtlang[0];	//language code[0]
-		pkt[ofs+11] = vtxtlang[1];	//language code[1]
-		pkt[ofs+12] = vtxtlang[2];	//language code[2]
-		pkt[ofs+13] = (/*descriptor_magazine_number*/ 0x01 & 0x06) | ((/*descriptor_type*/ 0x01 << 3) & 0xF8);
-		pkt[ofs+14] = 0x00 ;		//Teletext_page_number
-	}
-
-	//dvbsub
-	for (i=0; i<nsub; i++)
-	{
-		ofs += SIZE_STREAM_TAB_ROW;
-		if(i > 0 || vtxtpid)
-			ofs += 10;
-
-		pkt[ofs]   = 0x06;//subtitle stream type;
-		pkt[ofs+1] = 0xE0 | dvbsubpid[i]>>8;
-		pkt[ofs+2] = dvbsubpid[i] & 0xFF;
-		pkt[ofs+3] = 0xF0;
-		pkt[ofs+4] = 0x0A;		// es info length
-		pkt[ofs+5] = 0x59;		// DVB sub tag
-		pkt[ofs+6] = 0x08;		// descriptor length
-		pkt[ofs+7] = dvbsublang[i][0];	//language code[0]
-		pkt[ofs+8] = dvbsublang[i][1];	//language code[1]
-		pkt[ofs+9] = dvbsublang[i][2];	//language code[2]
-		pkt[ofs+10] = 0x20;		//subtitle_stream.subtitling_type
-		pkt[ofs+11] = 0x01>>8;		//composition_page_id
-		pkt[ofs+12] = 0x01&0xff; 	//composition_page_id
-		pkt[ofs+13] = 0x01>>8; 		//ancillary_page_id
-		pkt[ofs+14] = 0x01&0xff;	//ancillary_page_id
-	}
-
-	//-- calculate CRC --
-	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
-	//-- write TS packet --
-	write(fd, pkt, SIZE_TS_PKT);
+	build_pmt(buffer);
+	write(fd, buffer, SIZE_TS_PKT);
 
 	//-- finish --
 	vpid=0;
@@ -356,6 +388,9 @@ int CGenPsi::genpsi(int fd)
 	nba=0;
 	nsub = 0;
 	vtxtpid = 0;
+	neac3 = 0;
 	fdatasync(fd);
 	return 1;
+
 }
+

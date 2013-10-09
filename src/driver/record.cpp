@@ -171,7 +171,10 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	}
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
 		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
-		psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
+		if(channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3){
+			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());		  
+		}else
+			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
 	}
 	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0)){
 		apids[numpids++] = allpids.PIDs.vtxtpid;

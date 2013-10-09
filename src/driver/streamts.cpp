@@ -373,6 +373,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 		pids.insert(channel->getVideoPid());
 		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
 			pids.insert(channel->getAudioChannel(i)->pid);
+
 	}
 	CGenPsi psi;
 	for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it) {
@@ -384,7 +385,11 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 				if (*it == channel->getAudioChannel(i)->pid) {
 					CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
 					printf("CStreamManager::Parse: genpsi apid %x (%d)\n", *it, atype);
-					psi.addPid(*it, EN_TYPE_AUDIO, atype);
+					if(channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3){
+						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, atype, channel->getAudioChannel(i)->description.c_str());
+					}else{
+						psi.addPid(*it, EN_TYPE_AUDIO, atype, channel->getAudioChannel(i)->description.c_str());
+					}
 				}
 			}
 		}
