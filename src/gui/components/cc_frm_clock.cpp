@@ -38,6 +38,11 @@
 
 using namespace std;
 
+CComponentsFrmClock::CComponentsFrmClock()
+{
+	initVarClock();
+}
+
 CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, const int w, const int h,
 						const char* format_str, bool activ, bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)

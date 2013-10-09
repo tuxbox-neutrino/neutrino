@@ -81,41 +81,42 @@ class CComponentsFrmClock : public CComponentsForm
 		void initSegmentAlign(int* segment_width, int* segment_height);
 
 	public:
+		CComponentsFrmClock();
 		CComponentsFrmClock( 	const int x_pos, const int y_pos, const int w, const int h,
 					const char* format_str = "%H:%M", bool activ=true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		~CComponentsFrmClock();		
+		virtual ~CComponentsFrmClock();
 
 		///set font type for segments
-		void setClockFont(Font *font){cl_font = font;};
+		virtual void setClockFont(Font *font){cl_font = font;};
 
 		///set text color
-		void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};
+		virtual void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};
 
 		///set alignment of timestring, possible modes see align types in cc_types.h 
-		void setClockAlignment(int align_type){cl_align = align_type;};
+		virtual void setClockAlignment(int align_type){cl_align = align_type;};
 
 		///use string expession: "%H:%M" = 12:22, "%H:%M:%S" = 12:22:12
-		void setClockFormat(const char* format_str){cl_format_str = format_str;};
+		virtual void setClockFormat(const char* format_str){cl_format_str = format_str;};
 
 		///start ticking clock thread, returns true on success, if false causes log output
-		bool startThread();
+		virtual bool startThread();
 		///stop ticking clock thread, returns true on success, if false causes log output
-		bool stopThread();
+		virtual bool stopThread();
 
-		bool Start();
-		bool Stop();
+		virtual bool Start();
+		virtual bool Stop();
 
 		///returns true, if clock is running in thread
-		bool isClockRun() const {return cl_thread == 0 ? false:true;};
+		virtual bool isClockRun() const {return cl_thread == 0 ? false:true;};
 		///set refresh interval in seconds, default value=1 (=1 sec)
-		void setClockIntervall(const int& seconds){cl_interval = seconds;};
+		virtual void setClockIntervall(const int& seconds){cl_interval = seconds;};
 
 		///show clock on screen
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
 		///reinitialize clock contents
-		void refresh() { initCCLockItems(); }
+		virtual void refresh() { initCCLockItems(); }
 };
 
 #endif
