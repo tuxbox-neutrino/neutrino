@@ -1701,10 +1701,12 @@ void CEitThread::beforeSleep()
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
-	eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
-			CEventServer::INITID_SECTIONSD,
-			&current_service,
-			sizeof(messaging_current_servicekey));
+	if (scanning) {
+		eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
+				CEventServer::INITID_SECTIONSD,
+				&current_service,
+				sizeof(messaging_current_servicekey));
+	}
 	if(notify_complete)
 		system(CONFIGDIR "/epgdone.sh");
 }
