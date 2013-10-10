@@ -226,7 +226,7 @@ void CEpgScan::Next()
 	   send zapTo_NOWAIT -> EIT_COMPLETE from sectionsd -> zap and this at the same time
 	*/
 	CFEManager::getInstance()->Lock();
-	CFrontend *live_fe, *pip_fe;
+	CFrontend *live_fe = NULL, *pip_fe = NULL;
 	if (!standby) {
 		locked = true;
 		live_fe = CZapit::getInstance()->GetLiveFrontend();
