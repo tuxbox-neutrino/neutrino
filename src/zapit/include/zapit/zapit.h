@@ -212,7 +212,7 @@ class CZapit : public OpenThreads::Thread
 		bool ParseCommand(CBasicMessage::Header &rmsg, int connfd);
 		bool ZapIt(const t_channel_id channel_id, bool for_update = false, bool startplayback = true);
 		bool ZapForRecord(const t_channel_id channel_id);
-		bool ZapForEpg(const t_channel_id channel_id);
+		bool ZapForEpg(const t_channel_id channel_id, bool standby);
 		bool ChangeAudioPid(uint8_t index);
 		void SetRadioMode();
 		void SetTVMode();

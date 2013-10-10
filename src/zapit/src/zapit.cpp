@@ -681,7 +681,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	return true;
 }
 
-bool CZapit::ZapForEpg(const t_channel_id channel_id)
+bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
@@ -695,24 +695,35 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id)
 	/* executed async in zapit thread, race possible with record lock/allocate */
 	CFEManager::getInstance()->Lock();
 
-	CFEManager::getInstance()->lockFrontend(live_fe);
+	/* no need to lock fe in standby mode,
+	   epg scan should care to not call this if recording running */
+	if (!instandby) {
+		CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
-	if (pip_fe && pip_fe != live_fe)
-		CFEManager::getInstance()->lockFrontend(pip_fe);
+		if (pip_fe && pip_fe != live_fe)
+			CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
+	}
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
 
-	CFEManager::getInstance()->unlockFrontend(live_fe);
+	if (!instandby) {
+		CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
-	if (pip_fe && pip_fe != live_fe)
-		CFEManager::getInstance()->unlockFrontend(pip_fe);
+		if (pip_fe && pip_fe != live_fe)
+			CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
+	}
 	CFEManager::getInstance()->Unlock();
 
 	if(frontend == NULL) {
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
+	/* sort of hack. epg scan in standby can use any frontend,
+	   and break check in record code ie */
+	if (instandby)
+		live_channel_id = newchannel->getChannelID();
+
 	if(!TuneChannel(frontend, newchannel, transponder_change, false))
 		return false;
 #if 0
@@ -1021,15 +1032,6 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		else if(msgZaptoServiceID.pip)
 			msgResponseZapComplete.zapStatus = StartPip(msgZaptoServiceID.channel_id);
 #endif
-		else if(msgZaptoServiceID.epg) {
-			msgResponseZapComplete.zapStatus = 0;
-			CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
-			bool ret = ZapForEpg(msgZaptoServiceID.channel_id);
-			if (!ret)
-				msgZaptoServiceID.channel_id = 0;
-			SendEvent(CZapitClient::EVT_BACK_ZAP_COMPLETE, &msgZaptoServiceID.channel_id, sizeof(t_channel_id));
-			break;
-		}
 		else
 			msgResponseZapComplete.zapStatus = ZapTo(msgZaptoServiceID.channel_id, (rmsg.cmd == CZapitMessages::CMD_ZAPTO_SUBSERVICEID));
 
@@ -1037,6 +1039,19 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 
+	case CZapitMessages::CMD_ZAPTO_EPG:
+	{
+		CZapitMessages::responseZapComplete msgResponseZapComplete;
+		CZapitMessages::commandZaptoEpg msg;
+		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
+		msgResponseZapComplete.zapStatus = 0;
+		CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
+		bool ret = ZapForEpg(msg.channel_id, msg.standby);
+		if (!ret)
+			msg.channel_id = 0;
+		SendEvent(CZapitClient::EVT_BACK_ZAP_COMPLETE, &msg.channel_id, sizeof(t_channel_id));
+		break;
+	}
 	case CZapitMessages::CMD_ZAPTO_SERVICEID_NOWAIT:
 	case CZapitMessages::CMD_ZAPTO_SUBSERVICEID_NOWAIT: {
 		CZapitMessages::commandZaptoServiceID msgZaptoServiceID;
