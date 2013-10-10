@@ -32,12 +32,14 @@ class CEpgScan
 		int current_bnum;
 		int current_mode;
 		bool allfav_done;
+		bool standby;
 		eit_scanmap_t scanmap;
 		t_channel_id next_chid;
 		std::set<transponder_id_t> scanned;
-		void Next();
 		void AddBouquet(CChannelList * clist);
 		bool AddFavorites();
+		void AddTransponders();
+		void EnterStandby();
 
 		CEpgScan();
 	public:
@@ -45,7 +47,11 @@ class CEpgScan
 		static CEpgScan * getInstance();
 
 		void handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
+		void Next();
 		void Clear();
+		void StartStandby();
+		void StopStandby();
+		bool Running();
 };
 
 #endif

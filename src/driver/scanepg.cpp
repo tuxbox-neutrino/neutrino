@@ -36,6 +36,7 @@
 #include <gui/channellist.h>
 
 #include <driver/scanepg.h>
+#include <driver/record.h>
 
 extern CBouquetList * bouquetList;
 extern CBouquetList * TVfavList;
@@ -46,6 +47,7 @@ CEpgScan::CEpgScan()
 	next_chid = 0;
 	current_mode = 0;
 	allfav_done = false;
+	standby = false;
 }
 
 CEpgScan::~CEpgScan()
@@ -66,6 +68,11 @@ void CEpgScan::Clear()
 	current_bnum = -1;
 	next_chid = 0;
 	allfav_done = false;
+}
+
+bool CEpgScan::Running()
+{
+	return (g_settings.epg_scan && !scanmap.empty());
 }
 
 void CEpgScan::AddBouquet(CChannelList * clist)
@@ -93,36 +100,63 @@ bool CEpgScan::AddFavorites()
 	return (old_size != scanmap.size());
 }
 
+void CEpgScan::AddTransponders()
+{
+	if(bouquetList->Bouquets.empty())
+		return;
+
+	if (current_mode != g_settings.epg_scan) {
+		current_mode = g_settings.epg_scan;
+		Clear();
+	}
+	/* TODO: add interval check to clear scanned ? */
+
+	int mode = CNeutrinoApp::getInstance()->GetChannelMode();
+	if ((g_settings.epg_scan == 1) || (mode == LIST_MODE_FAV)) {
+		/* current bouquet mode */
+		if (current_bnum != bouquetList->getActiveBouquetNumber()) {
+			allfav_done = false;
+			scanmap.clear();
+			current_bnum = bouquetList->getActiveBouquetNumber();
+			AddBouquet(bouquetList->Bouquets[current_bnum]->channelList);
+			INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
+		}
+	} else {
+		AddFavorites();
+		INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
+	}
+}
+
+void CEpgScan::StartStandby()
+{
+	if (!g_settings.epg_scan)
+		return;
+
+	AddTransponders();
+	INFO("starting standby scan, scan map size: %d", scanmap.size());
+	if (!scanmap.empty()) {
+		standby = true;
+		Next();
+	}
+}
+
+void CEpgScan::StopStandby()
+{
+	if (!g_settings.epg_scan)
+		return;
+
+	INFO("stopping standby scan...");
+	standby = false;
+}
+
 void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
-	if (!g_settings.epg_scan || CFEManager::getInstance()->getEnabledCount() <= 1)
+	if (!g_settings.epg_scan || (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1)))
 		return;
 
 	CZapitChannel * newchan;
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
-		if(bouquetList->Bouquets.empty())
-			return;
-
-		if (current_mode != g_settings.epg_scan) {
-			current_mode = g_settings.epg_scan;
-			Clear();
-		}
-		/* TODO: add interval check to clear scanned ? */
-
-		int mode = CNeutrinoApp::getInstance()->GetChannelMode();
-		if ((g_settings.epg_scan == 1) || (mode == LIST_MODE_FAV)) {
-			/* current bouquet mode */
-			if (current_bnum != bouquetList->getActiveBouquetNumber()) {
-				allfav_done = false;
-				scanmap.clear();
-				current_bnum = bouquetList->getActiveBouquetNumber();
-				AddBouquet(bouquetList->Bouquets[current_bnum]->channelList);
-				INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
-			}
-		} else {
-			AddFavorites();
-			INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
-		}
+		AddTransponders();
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
@@ -142,8 +176,12 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			newchan = CServiceManager::getInstance()->FindChannel(next_chid);
 			if (newchan) {
 				if(chid) {
-					INFO("try to scan [%s]", newchan->getName().c_str());
-					g_Sectionsd->setServiceChanged(newchan->getChannelID(), false, newchan->getRecordDemux());
+					if (!CRecordManager::getInstance()->RecordingStatus()) {
+						INFO("try to scan [%s]", newchan->getName().c_str());
+						if (standby && !g_Sectionsd->getIsScanningActive())
+							g_Sectionsd->setPauseScanning(false);
+						g_Sectionsd->setServiceChanged(newchan->getChannelID(), false, newchan->getRecordDemux());
+					}
 				} else {
 					INFO("tune failed [%s]", newchan->getName().c_str());
 					scanmap.erase(newchan->getTransponderId());
@@ -154,17 +192,33 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	}
 }
 
+void CEpgScan::EnterStandby()
+{
+	if (standby) {
+		g_Zapit->setStandby(true);
+		g_Sectionsd->setPauseScanning(true);
+	}
+}
+
 void CEpgScan::Next()
 {
+	bool locked = false;
+
 	next_chid = 0;
-	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
+	if (!g_settings.epg_scan)
+		return;
+	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
+		return;
+	if (CRecordManager::getInstance()->RecordingStatus())
 		return;
 
 	if (g_settings.epg_scan == 2 && scanmap.empty())
 		AddFavorites();
 
-	if (scanmap.empty())
+	if (scanmap.empty()) {
+		EnterStandby();
 		return;
+	}
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
@@ -172,13 +226,17 @@ void CEpgScan::Next()
 	   send zapTo_NOWAIT -> EIT_COMPLETE from sectionsd -> zap and this at the same time
 	*/
 	CFEManager::getInstance()->Lock();
-	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
-	CFEManager::getInstance()->lockFrontend(live_fe);
+	CFrontend *live_fe, *pip_fe;
+	if (!standby) {
+		locked = true;
+		live_fe = CZapit::getInstance()->GetLiveFrontend();
+		CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
-	CFrontend *pip_fe = CZapit::getInstance()->GetPipFrontend();
-	if (pip_fe && pip_fe != live_fe)
-		CFEManager::getInstance()->lockFrontend(pip_fe);
+		pip_fe = CZapit::getInstance()->GetPipFrontend();
+		if (pip_fe && pip_fe != live_fe)
+			CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
+	}
 _repeat:
 	for (eit_scanmap_iterator_t it = scanmap.begin(); it != scanmap.end(); /* ++it*/) {
 		CZapitChannel * newchan = CServiceManager::getInstance()->FindChannel(it->second);
@@ -197,12 +255,16 @@ _repeat:
 	if (!next_chid && AddFavorites())
 		goto _repeat;
 
-	CFEManager::getInstance()->unlockFrontend(live_fe);
+	if (locked) {
+		CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
-	if (pip_fe && pip_fe != live_fe)
-		CFEManager::getInstance()->unlockFrontend(pip_fe);
+		if (pip_fe && pip_fe != live_fe)
+			CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
+	}
 	CFEManager::getInstance()->Unlock();
 	if (next_chid)
-		g_Zapit->zapTo_epg(next_chid);
+		g_Zapit->zapTo_epg(next_chid, standby);
+	else 
+		EnterStandby();
 }
