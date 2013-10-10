@@ -276,7 +276,7 @@ void CGenPsi::build_pmt(uint8_t* buffer)
 		buffer[++off] = apid[index]>>8;
 		buffer[++off] = apid[index]&0xff;
 
-		if (atypes[index] == ES_TYPE_AC3)
+		if (atypes[index] == 1)//ES_TYPE_AC3
 		{
 			buffer[++off] = 0xf0;
 			buffer[++off] = 0x0c; // es info length
@@ -306,7 +306,7 @@ void CGenPsi::build_pmt(uint8_t* buffer)
 		buffer[++off] = 0xE0 | eac3_pid[index]>>8;
 		buffer[++off] = eac3_pid[index] & 0xFF;
 		buffer[++off] = 0xF0;
-		buffer[++off] = 0x13-6;		// es info length
+		buffer[++off] = 0x0d;		// es info length
 		buffer[++off] = 0x52;
 		buffer[++off] = 0x01;
 		buffer[++off] = 0x5d;
@@ -316,7 +316,7 @@ void CGenPsi::build_pmt(uint8_t* buffer)
 		buffer[++off] = eac3_lang[index][1];	//language code[1]
 		buffer[++off] = eac3_lang[index][2];	//language code[2]
 		buffer[++off] = 0x01;
-		buffer[++off] = 0x7a;
+		buffer[++off] = 0x7a;		//enhanced_AC-3_descriptor
 		buffer[++off] = 0x02;
 		buffer[++off] = 0x80;
 		buffer[++off] = 0xc5;
