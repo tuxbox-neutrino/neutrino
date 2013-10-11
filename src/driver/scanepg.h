@@ -31,10 +31,12 @@ class CEpgScan
 	private:
 		int current_bnum;
 		int current_mode;
+		int current_bmode;
 		bool allfav_done;
 		bool standby;
 		eit_scanmap_t scanmap;
 		t_channel_id next_chid;
+		t_channel_id live_channel_id;
 		std::set<transponder_id_t> scanned;
 		void AddBouquet(CChannelList * clist);
 		bool AddFavorites();
