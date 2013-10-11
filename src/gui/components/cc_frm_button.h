@@ -70,11 +70,11 @@ class CComponentsButton : public CComponentsForm
 	public:
 		///basic constructor for button object with most needed params, no button icon is definied here
 		CComponentsButton(	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& caption, const std::string& icon_name,
+					const std::string& caption, const std::string& icon_name = "",
 					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		CComponentsButton(	const int x_pos, const int y_pos, const int w, const int h,
-					const neutrino_locale_t& caption_locale, const std::string& icon_name,
+					const neutrino_locale_t& caption_locale, const std::string& icon_name = "",
 					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
