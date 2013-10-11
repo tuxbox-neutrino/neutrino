@@ -27,7 +27,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/components/cc.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc_frm_signalbars.h>
 #include <gui/components/cc_item_tvpic.h>
 #include <zapit/femanager.h>
 
@@ -99,9 +99,8 @@ class CStreamInfo2 : public CMenuTarget
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int  y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
 		void SignalRenderStr (unsigned int value, int x, int y);
-		CProgressBar *sigscale;
-		CProgressBar *snrscale;
-		int lastsig, lastsnr;
+		CSignalBox *signalbox;
+
 		void showSNR ();
 	public:
 

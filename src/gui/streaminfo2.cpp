@@ -56,7 +56,8 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 CStreamInfo2::CStreamInfo2 ()
 {
 	frameBuffer = CFrameBuffer::getInstance ();
-	pip        = NULL;
+	pip        	= NULL;
+	signalbox	= NULL;
 	font_head = SNeutrinoSettings::FONT_TYPE_MENU_TITLE;
 	font_info = SNeutrinoSettings::FONT_TYPE_MENU;
 	font_small = SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL;
@@ -121,14 +122,6 @@ int CStreamInfo2::doSignalStrengthLoop ()
 #define BAR_HEIGHT 12
 	int res = menu_return::RETURN_REPAINT;
 	
-	sigscale = new CProgressBar();
-	sigscale->setBlink();
-	
-	snrscale = new CProgressBar();
-	snrscale->setBlink();
-	
-	lastsnr = lastsig = -1;
-
 	neutrino_msg_t msg;
 	uint64_t maxb, minb, lastb, tmp_rate;
 	unsigned int current_pmt_version= pmt_version;
@@ -152,7 +145,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 
 		int ret = update_rate ();
 		if (paint_mode == 0) {
-			char currate[150];
+			
 			if (cnt < 12)
 				cnt++;
 			int dheight = g_Font[font_info]->getHeight ();
@@ -174,6 +167,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 				if ((cnt > 10) && ((minb == 0) || (minb > bit_s)))
 					rate.min_short_average = minb = bit_s;
 
+				char currate[150];
 				sprintf(tmp_str, "%s:",g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
 				g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_INFOBAR_TEXT, 0, true);
 				sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
@@ -218,9 +212,6 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		// switch paint mode
 		if (msg == CRCInput::RC_red || msg == CRCInput::RC_blue || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow) {
 			hide ();
-			sigscale->reset();
-			snrscale->reset();
-			lastsnr = lastsig = -1;
 			paint_mode = !paint_mode;
 			paint (paint_mode);
 			continue;
@@ -247,10 +238,8 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		if (msg > CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
 			CNeutrinoApp::getInstance ()->handleMsg (msg, data);
 	}
-	delete sigscale;
-	sigscale = NULL;
-	delete snrscale;
-	snrscale = NULL;
+	delete signalbox;
+	signalbox = NULL;
 	ts_close ();
 	return res;
 }
@@ -552,15 +541,14 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	int type, layer, freq, mode, lbitrate;
 	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
 
-	const char *mpegmodes[4] = { "stereo", "joint_st", "dual_ch", "single_ch" };
-	const char *ddmodes[8] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
-
 	sprintf (buf, "%s:", g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE));
 	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	if(type == 0) {
+		const char *mpegmodes[4] = { "stereo", "joint_st", "dual_ch", "single_ch" };
 		sprintf (buf, "MPEG %s (%d)", mpegmodes[mode], freq);
 	} else {
+		const char *ddmodes[8] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
 		sprintf (buf, "DD %s (%d)", ddmodes[mode], freq);
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true);	// UTF-8
@@ -846,17 +834,14 @@ int CStreamInfo2::update_rate ()
 
 	if(!dmx)
 		return 0;
-	long b = 0;
 
 	int ret = 0;
-	int b_len = 0;
 	int timeout = 100;
 
-
-	b_len = dmx->Read(dmxbuf, TS_BUF_SIZE, timeout);
+	int b_len = dmx->Read(dmxbuf, TS_BUF_SIZE, timeout);
 	//printf("ts: read %d\n", b_len);
 
-	b = b_len;
+	long b = b_len;
 	if (b <= 0)
 		return 0;
 
@@ -899,42 +884,13 @@ int CStreamInfo2::ts_close ()
 
 void CStreamInfo2::showSNR ()
 {
-	char percent[10];
-	int barwidth = 150;
-	int sig, snr;
-	int posx, posy;
-	int sw = g_Font[font_info]->getRenderWidth ("100%");
-	int pw = g_Font[font_info]->getRenderWidth (" SNR");
-
-	snr = (signal.snr & 0xFFFF) * 100 / 65535;
-	sig = (signal.sig & 0xFFFF) * 100 / 65535;
-
-	int mheight = g_Font[font_info]->getHeight();
-	if (lastsig != sig) {
-		lastsig = sig;
-		posy = yypos + (mheight/2)-5;
-		posx = x + 10;
-		sprintf(percent, "%d%%", sig);
-		sigscale->setProgress(posx - 1, posy, BAR_WIDTH, BAR_HEIGHT, sig, 100);
-		sigscale->paint();
-
-		posx = posx + barwidth + 3;
-		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUHEAD_PLUS_0);
-		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR_TEXT);
-		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SIG", COL_INFOBAR_TEXT);
+	if (signalbox == NULL){
+		signalbox = new CSignalBox(x + 10, yypos, 240/*statusbox->getWidth()-2*/, 50, frontend);
+		signalbox->setScaleWidth(66);
+		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
+		signalbox->setTextColor(COL_INFOBAR_TEXT);
+		signalbox->doPaintBg(true);
 	}
-	if (lastsnr != snr) {
-		lastsnr = snr;
-		posy = yypos + mheight + 5;
-		posx = x + 10;
-		sprintf(percent, "%d%% SNR", snr);
-		snrscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, snr, 100);
-		snrscale->paint();
-// 		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
 
-		posx = posx + barwidth + 3;
-		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUHEAD_PLUS_0, 0, true);
-		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR_TEXT, 0, true);
-		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SNR", COL_INFOBAR_TEXT, 0, true);
-	}
+	signalbox->paint(false);
 }
