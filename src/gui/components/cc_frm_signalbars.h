@@ -87,6 +87,9 @@ class CSignalBar : public CComponentsForm
 		int sb_lastsig;
 		///current signal value
 		uint16_t sb_signal;
+		
+		///allowed width of scale bar from full width in %, rest used by caption, default value = 60% of width, use setScaleWidth() to set this value
+		short sb_scale_w_percent;
 
 		///initialize all needed basich attributes and objects
 		void initVarSigBar();
@@ -121,6 +124,8 @@ class CSignalBar : public CComponentsForm
 		virtual void setTextColor(const fb_pixel_t& caption_color){ sb_caption_color = caption_color;};
 		///assigns the height of scale
 		virtual void setScaleHeight(const int& scale_height){sb_scale_height = scale_height;};
+		///assigns the width of scale
+		virtual void setScaleWidth(const short & scale_width_percent){sb_scale_w_percent = scale_width_percent;};
 		///assigns the name of signal value in the caption object, see also sb_name
 		virtual void setName(const std::string& name){sb_name = name;};
 
@@ -248,6 +253,9 @@ class CSignalBox : public CComponentsForm
 		///property: text color, see also setTextColor()
 		fb_pixel_t 	sbx_caption_color;
 
+		///allowed width of scale bar from full width in %, rest used by caption, default value = 60% of width, use setScaleWidth() to set this value
+		short sbx_scale_w_percent;
+
 		///initialize all needed basic attributes and objects
 		void initVarSigBox();
 		///initialize general properties of signal items
@@ -270,7 +278,9 @@ class CSignalBox : public CComponentsForm
 		///get caption color of signalbars, see also property 'sbx_caption_color'
 		fb_pixel_t getTextColor(){return sbx_caption_color;};
 
-
+		///assigns the width of scale
+		void setScaleWidth(const short & scale_width_percent){sbx_scale_w_percent = scale_width_percent;};
+		
 		///paint items
 		void paint(bool do_save_bg);
 };
