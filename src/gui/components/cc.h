@@ -51,17 +51,17 @@ class CComponents
 		///container: for frambuffer properties and pixel buffer
 		std::vector<comp_fbdata_t> v_fbdata;
 
-		///property: x-position on screen
+		///property: x-position on screen, to alter with setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int x;
-		///property: y-position on screen
+		///property: y-position on screen, to alter setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int y;
 		///property: contains real x-position on screen
 		int cc_xr;
 		///property: contains real y-position on screen
 		int cc_yr;
-		///property: height-dimension on screen
+		///property: height-dimension on screen, to alter with setHeight() or setDimensionsAll()
 		int height;
-		///property: width-dimension on screen
+		///property: width-dimension on screen, to alter with setWidth() or setDimensionsAll()
 		int width;
 		///property: has corners with definied type, types are defined in /driver/frambuffer.h, without effect, if corner_radius=0
 		int corner_type;

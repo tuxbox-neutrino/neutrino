@@ -309,11 +309,17 @@ void CComponentsForm::paintCCItems()
 		int xpos = cc_item->getXPos();
 		int ypos = cc_item->getYPos();
 
-		//set required x-position to item
+		//set required x-position to item:
+		//append vertical
 		if (xpos == CC_APPEND){
 			auto_x += append_h_offset;
 			cc_item->setRealXPos(auto_x + xpos + 1);
 			auto_x += w_item;
+		}
+		//positionize vertical centered
+		else if (xpos == CC_CENTERED){
+			auto_x =  width/2 - cc_item->getWidth()/2;
+			cc_item->setRealXPos(this_x + auto_x);
 		}
 		else{
 			cc_item->setRealXPos(this_x + xpos);
@@ -321,10 +327,16 @@ void CComponentsForm::paintCCItems()
 		}
 
 		//set required y-position to item
+		//append hor
 		if (ypos == CC_APPEND){
 			auto_y += append_v_offset;
 			cc_item->setRealYPos(auto_y + ypos + 1);
 			auto_y += h_item;
+		}
+		//positionize hor centered
+		else if (ypos == CC_CENTERED){
+			auto_y =  height/2 - cc_item->getHeight()/2;
+			cc_item->setRealYPos(this_y + auto_y);
 		}
 		else{
 			cc_item->setRealYPos(this_y + ypos);
