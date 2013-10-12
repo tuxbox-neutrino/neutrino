@@ -174,7 +174,7 @@ void CComponentsButton::initCaption()
 		}
 
 		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, cap_w, cap_h);
-		cc_btn_font 	= *cc_btn_dy_font->getDynFont(cap_w, cap_h);
+		cc_btn_font 	= *cc_btn_dy_font->getDynFont(cap_w, cap_h, cc_btn_capt);
 		
 		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT);
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
