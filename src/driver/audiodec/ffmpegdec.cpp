@@ -224,6 +224,8 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 				// skip frame
 				packet.size = 0;
 				avcodec_flush_buffers(c);
+				avcodec_close(c);
+				avcodec_open2(c, codec, NULL);
 				continue;
 			}
 			if (got_frame) {
