@@ -543,7 +543,7 @@ int request_file(URL *url)
 
 #define getHeaderVal(a,b) { \
   char *_ptr; \
-  _ptr = strstr(header, a); \
+  _ptr = strcasestr(header, a); \
   if(_ptr) \
   { \
     _ptr = strchr(_ptr, ':'); \
@@ -553,7 +553,7 @@ int request_file(URL *url)
 
 #define getHeaderStr(a,b) { \
   char *_ptr; \
-  _ptr = strstr(header, a); \
+  _ptr = strcasestr(header, a); \
   if(_ptr) \
   { \
     unsigned int i; \
@@ -671,6 +671,7 @@ int parse_response(URL *url, void *opt, CSTATE *state)
 		getHeaderStr("icy-url:", state->station_url);
 		getHeaderVal("icy-br:", state->bitrate);
 	}
+#if 0
 	/********************* dirty hack **********************/
 	/* we parse the stream header sent by the server and	*/
 	/* build based on this information an arteficial id3		*/
@@ -755,6 +756,7 @@ int parse_response(URL *url, void *opt, CSTATE *state)
 
 		id3->len = 14 + cnt;
 	}
+#endif
 
 	return meta_interval;
 }

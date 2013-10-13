@@ -46,6 +46,7 @@
 #include "mp3dec.h"
 #include "oggdec.h"
 #include "wavdec.h"
+#include "ffmpegdec.h"
 #include <driver/netfile.h>
 
 unsigned int CBaseDec::mSamplerate=0;
@@ -92,9 +93,15 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 																		&in->MetaData, t,
 																		secondsToSkip );
 			}
-			else
+			else if (ftype(fp, "mpeg"))
 			{
 				Status = CMP3Dec::getInstance()->Decoder( fp, OutputFd, state,
+																		&in->MetaData, t,
+																		secondsToSkip );
+			}
+			else
+			{
+				Status = CFfmpegDec::getInstance()->Decoder( fp, OutputFd, state,
 																		&in->MetaData, t,
 																		secondsToSkip );
 			}
@@ -133,9 +140,9 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 #endif
 		else
 		{
-			fprintf( stderr, "DecoderBase: Supplied filetype is not " );
-			fprintf( stderr, "supported by Audioplayer.\n" );
-			Status = INTERNAL_ERR;
+			Status = CFfmpegDec::getInstance()->Decoder(fp, OutputFd, state,
+								  &in->MetaData, t,
+								  secondsToSkip );
 		}
 
 		if ( fclose( fp ) == EOF )
@@ -260,3 +267,4 @@ void CBaseDec::Init()
 	mSamplerate=0;
 }
 
+// vim:ts=4

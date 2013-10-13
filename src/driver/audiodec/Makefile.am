@@ -32,6 +32,7 @@ libneutrino_driver_audiodec_a_SOURCES = \
 	basedec.cpp \
 	cdrdec.cpp \
 	crc.c \
+	ffmpegdec.cpp \
 	$(FLACdec) \
 	mp3dec.cpp \
 	oggdec.cpp \
