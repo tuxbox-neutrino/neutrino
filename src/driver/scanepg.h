@@ -48,7 +48,7 @@ class CEpgScan
 		~CEpgScan();
 		static CEpgScan * getInstance();
 
-		void handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
+		int handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 		void Next();
 		void Clear();
 		void StartStandby();

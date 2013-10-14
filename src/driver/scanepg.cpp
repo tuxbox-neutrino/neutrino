@@ -153,15 +153,16 @@ void CEpgScan::StopStandby()
 	CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
 }
 
-void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
+int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
 	if (!g_settings.epg_scan || (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1)))
-		return;
+		return messages_return::unhandled;
 
 	CZapitChannel * newchan;
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
 		AddTransponders();
 		INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
+		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
@@ -173,6 +174,7 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		INFO("EIT read complete [" PRINTF_CHANNEL_ID_TYPE "], scan map size: %d", chid, scanmap.size());
 
 		Next();
+		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
@@ -194,7 +196,9 @@ void CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 				}
 			}
 		}
+		return messages_return::handled;
 	}
+	return messages_return::unhandled;
 }
 
 void CEpgScan::EnterStandby()
