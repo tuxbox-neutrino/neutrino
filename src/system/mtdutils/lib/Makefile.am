@@ -1,6 +1,6 @@
 AM_CXXFLAGS = -D__STDC_FORMAT_MACROS
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/lib \

@@ -1,4 +1,4 @@
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
@@ -8,7 +8,7 @@ INCLUDES = \
 
 noinst_LIBRARIES = libtriple.a
 
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS += -fno-rtti -fno-exceptions
 
 libtriple_a_SOURCES = \
 	dmx_td.cpp \

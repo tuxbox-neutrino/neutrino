@@ -2,7 +2,7 @@ AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 SUBDIRS = pictureviewer audiodec
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -45,9 +45,9 @@ libneutrino_driver_a_SOURCES += \
 	vfd.cpp
 
 if BOXMODEL_APOLLO
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
 else
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
 endif
 endif
 if BOXTYPE_TRIPLE
@@ -55,7 +55,7 @@ libneutrino_driver_a_SOURCES += \
 	newclock.cpp \
 	lcdd.cpp
 
-INCLUDES += \
+AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libtriple
 endif
 
