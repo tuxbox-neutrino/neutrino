@@ -27,13 +27,14 @@ static int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out
 		uint32_t *sourcelen, uint32_t *dstlen)
 {
 	short positions[256];
-	int outpos = 0;
-	int pos=0;
+	uint32_t outpos = 0;
+	uint32_t pos=0;
 
 	memset(positions,0,sizeof(positions));
 
 	while (pos < (*sourcelen) && outpos+2 <= (*dstlen)) {
-		int backpos, runlen=0;
+		uint32_t backpos;
+		int runlen=0;
 		unsigned char value;
 
 		value = data_in[pos];

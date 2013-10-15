@@ -756,7 +756,7 @@ void CMkfsJFFS2::padblock(void)
 {
 	while (out_ofs % erase_block_size) {
 		full_write(out_fd, ffbuf, min(sizeof(ffbuf),
-					      erase_block_size - (out_ofs % erase_block_size)));
+					      (size_t)(erase_block_size - (out_ofs % erase_block_size))));
 	}
 }
 
@@ -868,7 +868,7 @@ void CMkfsJFFS2::create_target_filesystem(struct filesystem_entry *root)
 			}
 		} else {
 			while (out_ofs < pad_fs_size) {
-				full_write(out_fd, ffbuf, min(sizeof(ffbuf), pad_fs_size - out_ofs));
+				full_write(out_fd, ffbuf, min(sizeof(ffbuf), (size_t)(pad_fs_size - out_ofs)));
 			}
 
 		}
