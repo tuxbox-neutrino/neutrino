@@ -181,6 +181,17 @@ const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[EPG_SCAN_OPTION_COUNT] =
 	{ 2, LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
 };
 
+#define SLEEPTIMER_MIN_OPTION_COUNT 7
+const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTION_COUNT] =
+{
+	{ 0,	NONEXISTANT_LOCALE, "EPG"	},
+	{ 30,	NONEXISTANT_LOCALE, "30 min"	},
+	{ 60,	NONEXISTANT_LOCALE, "60 min"	},
+	{ 90,	NONEXISTANT_LOCALE, "90 min"	},
+	{ 120,	NONEXISTANT_LOCALE, "120 min"	},
+	{ 150,	NONEXISTANT_LOCALE, "150 min"	}
+};
+
 //show misc settings menue
 int CMiscMenue::showMiscSettingsMenu()
 {
@@ -323,6 +334,10 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent");
 	m2->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
 	ms_energy->addItem(m2);
+
+	CMenuOptionChooser * m4 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SLEEPTIMER_MIN, &g_settings.sleeptimer_min, SLEEPTIMER_MIN_OPTIONS, SLEEPTIMER_MIN_OPTION_COUNT, true);
+	m4->setHint("", LOCALE_MENU_HINT_SLEEPTIMER_MIN);
+	ms_energy->addItem(m4);
 }
 
 //EPG settings

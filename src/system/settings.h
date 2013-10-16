@@ -68,6 +68,7 @@ struct SNeutrinoSettings
 	int shutdown_real_rcdelay;
 	char shutdown_count[4];
 	char shutdown_min[4];
+	int sleeptimer_min;
 	char record_safety_time_before[3];
 	char record_safety_time_after[3];
 	int zapto_pre_time;

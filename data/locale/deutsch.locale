@@ -1116,6 +1116,7 @@ menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn d
 menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste länger als 1 Sekunde betätigt wird
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus
+menu.hint_sleeptimer_min Voreinstellung der Zeitschaltuhr auf Ihrer Box
 menu.hint_soft_restart Neustarten von Neutrino-HD, ohne die Box neu zu starten
 menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
 menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
@@ -1241,6 +1242,7 @@ miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
+miscsettings.sleeptimer_min Sleeptimer Vorgabe
 miscsettings.volume Lautstärke
 miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
@@ -1796,8 +1798,8 @@ settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
-sleeptimerbox.hint1 Ausschaltzeit in Min. (000=aus)
-sleeptimerbox.hint2 Die Box schaltet sich nach dieser Standby-Zeit aus.
+sleeptimerbox.hint1 Ausschaltzeit in Minuten (000 = aus)
+sleeptimerbox.hint2 Die Box schaltet sich nach dieser Zeit aus.
 sleeptimerbox.hint3 Die Box schaltet sich bei Nichtbenutzen der Fernbedienung aus.
 sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inaktivitätstimer
