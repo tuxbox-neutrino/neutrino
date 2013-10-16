@@ -386,7 +386,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	strcpy(g_settings.shutdown_min, "000");
 	if(cs_get_revision() > 7)
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
-+	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
+	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
