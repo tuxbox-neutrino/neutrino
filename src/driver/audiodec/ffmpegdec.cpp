@@ -38,7 +38,6 @@ extern "C" {
 #include <libavutil/opt.h>
 #include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
-#include <ao/ao.h>
 }
 #include <driver/netfile.h>
 
@@ -317,7 +316,7 @@ bool CFfmpegDec::SetMetaData(FILE * /* _in */, CAudioMetaData* m)
 	m->samplerate = mSampleRate;
 	std::stringstream ss;
 	if (codec)
-		ss << std::string(codec->long_name) + " / " << mChannels << " channel(s)";
+		ss << std::string(codec->long_name) + " / " << mChannels << " channel" << ( mChannels > 1 ? "s" : "");
 	m->type_info = ss.str();
 	m->changed=true;
 	if (needsInit)
