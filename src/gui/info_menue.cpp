@@ -38,6 +38,7 @@
 #include <gui/imageinfo.h>
 #include <gui/dboxinfo.h>
 #include <gui/streaminfo2.h>
+#include <gui/buildinfo.h>
 
 #include <driver/screen_max.h>
 #include "gui/cam_menu.h"
@@ -72,6 +73,7 @@ int CInfoMenu::showMenu()
 	CImageInfo imageinfo;
 	CDBoxInfoWidget boxinfo;
 	CStreamInfo2 streaminfo;
+	CBuildInfo buildinfo;
 
 	info->addIntroItems();
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, &imageinfo, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
@@ -84,6 +86,10 @@ int CInfoMenu::showMenu()
 
 	mf = new CMenuForwarder(LOCALE_STREAMINFO_HEAD,        !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, &streaminfo, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	mf->setHint(NEUTRINO_ICON_HINT_STREAMINFO, LOCALE_MENU_HINT_STREAMINFO);
+	info->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, &buildinfo, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE );
+	mf->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
 	info->addItem(mf);
 
 	if (g_settings.easymenu) {

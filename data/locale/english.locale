@@ -200,6 +200,12 @@ bouquetname.hdtv HD channels
 bouquetname.new New channels
 bouquetname.other Unknown provider
 bouquetname.removed Removed channels
+buildinfo.compiled_on Build PC
+buildinfo.compiled_with Compiler version
+buildinfo.compiler_flags Compiler flags
+buildinfo.creator Creator
+buildinfo.kernel Kernel version
+buildinfo.menu Build information
 cablesetup.provider cable provider
 channellist.additional Additional informations
 channellist.additional_off off
@@ -788,6 +794,7 @@ menu.hint_back Return to previous menu\nPress menu key to close all menus
 menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
+menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
