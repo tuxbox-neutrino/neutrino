@@ -373,9 +373,11 @@ void CTextBox::refreshTextLineArray(void)
 		{
 			//manage auto linebreak,
 			if(m_nMode & NO_AUTO_LINEBREAK)
-				pos = m_cText.find_first_of("\n",pos_prev);
+				pos = m_cText.find_first_of("\n", pos_prev);
+			else if(m_nMode & AUTO_LINEBREAK_NO_BREAKCHARS)
+				pos = m_cText.find_first_of("\n/ ", pos_prev);
 			else
-				pos = m_cText.find_first_of("\n/-. ",pos_prev);
+				pos = m_cText.find_first_of("\n/-. ", pos_prev);
 
 			//TRACE_1("     pos: %d pos_prev: %d\r\n",pos,pos_prev);
 

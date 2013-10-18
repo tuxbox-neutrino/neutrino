@@ -93,14 +93,15 @@ class CTextBox
 		/* Variables */
 		enum textbox_modes
 		{
-			AUTO_WIDTH	= 0x01, 	//auto adapt frame width to max width or max text width, text is painted with auto linebreak
-			AUTO_HIGH	= 0x02, 	//auto adapt frame height to max height, text is painted with auto linebreak
-			SCROLL		= 0x04, 	//frame box contains scrollbars on long text
-			CENTER		= 0x40, 	//paint text centered
-			RIGHT		= 0x80, 	//paint text right
-			TOP		= 0x100,	//paint text on top of frame
-			BOTTOM		= 0x200,	//paint text on bottom of frame
-			NO_AUTO_LINEBREAK = 0x400  	//paint text without auto linebreak,  cutting text
+			AUTO_WIDTH			= 0x01, 	//auto adapt frame width to max width or max text width, text is painted with auto linebreak
+			AUTO_HIGH			= 0x02, 	//auto adapt frame height to max height, text is painted with auto linebreak
+			SCROLL				= 0x04, 	//frame box contains scrollbars on long text
+			CENTER				= 0x40, 	//paint text centered
+			RIGHT				= 0x80, 	//paint text right
+			TOP				= 0x100,	//paint text on top of frame
+			BOTTOM				= 0x200,	//paint text on bottom of frame
+			NO_AUTO_LINEBREAK 		= 0x400,  	//paint text without auto linebreak,  cutting text
+			AUTO_LINEBREAK_NO_BREAKCHARS	= 0x800		//no linbreak an char '-' and '.'
 		};
 		
 	private:
@@ -195,6 +196,7 @@ class CTextBox
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
 		inline	int	getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
 		inline  int     getLines(void)			{return(m_nNrOfLines);};
+		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
 
