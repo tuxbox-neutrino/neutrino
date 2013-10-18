@@ -358,7 +358,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
-	g_settings.ci_clock = configfile.getInt32("ci_clock", 7);
+	g_settings.ci_clock = configfile.getInt32("ci_clock", 9);
 	g_settings.ci_ignore_messages = configfile.getInt32("ci_ignore_messages", 0);
 
 #ifndef CPU_FREQ
