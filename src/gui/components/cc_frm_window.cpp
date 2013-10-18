@@ -232,12 +232,12 @@ void CComponentsWindow::initCCWItems()
 	initBody();
 	
 	//add header, body and footer items only one time
-	if (!isAdded(ccw_head))
+	if (!ccw_head->isAdded())
 		addCCItem(ccw_head);
-	if (!isAdded(ccw_body))
+	if (!ccw_body->isAdded())
 		addCCItem(ccw_body);
 	if (ccw_footer)
-		if (!isAdded(ccw_footer))
+		if (!ccw_footer->isAdded())
 			addCCItem(ccw_footer);
 }
 

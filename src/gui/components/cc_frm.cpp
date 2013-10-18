@@ -165,14 +165,6 @@ int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
 	return -1;
 }
 
-bool CComponentsForm::isAdded(CComponentsItem* cc_item)
-{
-	bool ret = false;
-	if (getCCItemId(cc_item) != -1)
-		ret = true;
-	return ret;
-}
-
 int CComponentsForm::genIndex()
 {
 	int count = v_cc_items.size();

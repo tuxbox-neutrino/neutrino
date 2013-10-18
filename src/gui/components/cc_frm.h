@@ -69,8 +69,6 @@ class CComponentsForm : public CComponentsItem
 		virtual	void clearCCItems();
 		virtual void cleanCCForm();
 		virtual void setAppendOffset(const int &h_offset, const int& v_offset){append_h_offset = h_offset; append_v_offset = v_offset;};
-		///property: returns true, if item already added to form
-		virtual bool isAdded(CComponentsItem *cc_item);
 };
 
 class CComponentsIconForm : public CComponentsForm

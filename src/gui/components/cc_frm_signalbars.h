@@ -206,12 +206,12 @@ void CSampleClass::showSNR()
 		signalbox = new CSignalBox(10, 100, 500, 38, frontend);
 //		signalbox->setCornerRadius(0); //optional
 // 		signalbox->setColorBody(COL_BLACK); //optional
-		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
+		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);q
 		signalbox->doPaintBg(false);
 //if you want to add the object to a CC-Container (e.g. CComponentsWindow()), remove this line:
 		signalbox->paint(false);
 //and add this lines:
-//		if (!isAdded(signalbox))
+//		if (!ignalbox->isAdded())
 //			addCCItem(signalbox);
 //Note: signal box objects deallocate together with the CC-Container!
  	}

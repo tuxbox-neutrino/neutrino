@@ -133,7 +133,7 @@ void CSignalBar::initSBarScale()
 	sb_scale->setColorBody(col_body);
 
 	//add scale object to container
-	if(!isAdded(sb_scale))
+	if(!sb_scale->isAdded())
 		addCCItem(sb_scale);
 
 }
@@ -158,7 +158,7 @@ void CSignalBar::initSBarValue()
 	sb_vlbl->setColorBody(col_body);
 
 	//add value label object to container
-	if (!isAdded(sb_vlbl))
+	if (!sb_vlbl->isAdded())
 		addCCItem(sb_vlbl);
 }
 
@@ -184,7 +184,7 @@ void CSignalBar::initSBarName()
 	sb_lbl->setColorBody(col_body);
 
 	//add name label object to container
-	if (!isAdded(sb_lbl))
+	if (!sb_lbl->isAdded())
 		addCCItem(sb_lbl);
 }
 
