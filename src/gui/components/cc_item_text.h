@@ -118,6 +118,8 @@ class CComponentsText : public CComponentsItem, public CBox
 		virtual void setText(const int digit, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		///set text directly from a textfile, path as string is required
 		virtual bool setTextFromFile(const std::string& path_to_textfile, const int mode = ~CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+		///get text directly from a textfile, path as string is required
+		virtual std::string getTextFromFile(const std::string& path_to_textfile);
 
 		///helper to remove linebreak chars from a string if needed
 		virtual void removeLineBreaks(std::string& str);
