@@ -55,7 +55,8 @@ class CImageInfo : public CMenuTarget
 		void Init();
 		void InitMinitv();
 		void InitInfos();
-		void InitLicenseText();
+		void InitInfoText(const std::string& text);
+		std::string getLicenseText();
 		void ShowWindow();
 		void ScrollLic(bool scrollDown);
 		

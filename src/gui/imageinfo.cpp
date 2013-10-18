@@ -148,7 +148,7 @@ void CImageInfo::ShowWindow()
 	InitInfos();
 
 	//prepare license text
-	InitLicenseText();
+	InitInfoText(getLicenseText());
 
 	//paint window
 	cc_win->paint();
@@ -287,26 +287,34 @@ void CImageInfo::InitInfos()
 	cc_info->setHeight(h_tmp);
 }
 
-//prepare license infos
-void CImageInfo::InitLicenseText()
+//get license
+string CImageInfo::getLicenseText()
 {
 	string file = LICENSEDIR;
 	file += g_settings.language;
 	file += ".license";
 
+	CComponentsText txt;
+	string res = txt.getTextFromFile(file);
+
+	return res;
+}
+
+//prepare info text
+void CImageInfo::InitInfoText(const std::string& text)
+{
 	//get window body object
 	CComponentsForm *winbody = cc_win->getBodyObject();
 	int h_body = winbody->getHeight();
 	int w_body = winbody->getWidth();
 
-
 	int y_lic = item_offset + cc_info->getHeight() + item_offset;
 	int h_lic = h_body - y_lic - item_offset;
-	
+
 	if (cc_lic == NULL)
 		cc_lic = new CComponentsInfoBox(item_offset, cc_info->getYPos()+cc_info->getHeight()+item_offset, w_body-2*item_offset, h_lic);
 	cc_lic->setSpaceOffset(0);
-	cc_lic->setTextFromFile(file, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+	cc_lic->setText(text, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 #if 0
 	//calc y pos of license box to avoid an overlap with pip
@@ -321,7 +329,8 @@ void CImageInfo::InitLicenseText()
 #endif
 
 	//add text to container
-	cc_win->addWindowItem(cc_lic);
+	if (!cc_lic->isAdded())
+		cc_win->addWindowItem(cc_lic);
 }
 
 //scroll licens text
