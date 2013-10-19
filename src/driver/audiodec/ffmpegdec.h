@@ -40,11 +40,15 @@
 extern "C" {
 #include <libavformat/avformat.h>
 }
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
 
 class CFfmpegDec : public CBaseDec
 {
 private:
 	bool meta_data_valid;
+	bool is_stream;
+
 	int mChannels;
 	int mSampleRate;
 	size_t buffer_size;
@@ -53,19 +57,29 @@ private:
 	AVCodec *codec;
 	int best_stream;
 	void *in;
-	bool Init(void);
+	bool Init(void *_in, const CFile::FileType ft);
 	void DeInit(void);
+
+        std::string title;
+        std::string artist;
+        std::string date;
+        std::string album;
+        std::string genre;
+        std::string type_info;
+	time_t total_time;
+	int bitrate;
+	int samplerate;
 
 public:
 	static CFfmpegDec* getInstance();
-	virtual RetCode Decoder(FILE *, int, State*, CAudioMetaData* m, time_t* t, unsigned int* secondsToSkip);
-	bool GetMetaData(FILE *in, const bool nice, CAudioMetaData* m);
+	virtual RetCode Decoder(FILE *, const CFile::FileType ft, int, State*, CAudioMetaData* m, time_t* t, unsigned int* secondsToSkip);
+	bool GetMetaData(FILE *in, const CFile::FileType ft, const bool nice, CAudioMetaData* m);
 	CFfmpegDec();
 	~CFfmpegDec();
 	int Read(void *buf, size_t buf_size);
 	int64_t Seek(int64_t offset, int whence);
 
 protected:
-	virtual bool SetMetaData(FILE* in, CAudioMetaData* m);
+	virtual bool SetMetaData(FILE* in, const CFile::FileType ft, CAudioMetaData* m);
 };
 #endif

@@ -35,24 +35,11 @@ SUBDIRS += lcddisplay
 AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
-if USE_TREMOR
-VORBISLIBS = @VORBISIDEC_LIBS@
-else
-VORBISLIBS = -lvorbisfile -lvorbis -logg
-endif
-
-bin_PROGRAMS = neutrino
+bin_PROGRAMS = neutrino rcsim
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
 AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
-
-if ENABLE_FLAC
-FLACLIBS = -lFLAC
-AM_CPPFLAGS += -DENABLE_FLAC
-else
-FLACLIBS =
-endif
 
 if BOXMODEL_APOLLO
 MTDUTILSLIBS = \
@@ -99,14 +86,11 @@ neutrino_LDADD = \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
-	@MAD_LIBS@ \
-	@ID3TAG_LIBS@ \
 	@LIBCS_LIBS@ \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
-	$(FLACLIBS) \
-	$(VORBISLIBS) \
+	@SWRESAMPLE_LIBS@ \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \
