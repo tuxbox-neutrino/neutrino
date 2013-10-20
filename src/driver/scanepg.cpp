@@ -155,8 +155,11 @@ void CEpgScan::StopStandby()
 
 int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
-	if (!g_settings.epg_scan || (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1)))
+	if (!g_settings.epg_scan || (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
+		if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE) || (msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE))
+			return messages_return::handled;
 		return messages_return::unhandled;
+	}
 
 	CZapitChannel * newchan;
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
