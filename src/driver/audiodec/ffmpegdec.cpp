@@ -431,14 +431,17 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 			total_time = 8 * m->filesize / bitrate;
 
 		meta_data_valid = true;
+		m->changed = true;
 	}
-	m->title = title;
-	m->artist = artist;
-	m->date = date;
-	m->album = album;
-	m->genre = genre;
+	if (!is_stream) {
+		m->title = title;
+		m->artist = artist;
+		m->date = date;
+		m->album = album;
+		m->genre = genre;
+		m->total_time = total_time;
+	}
 	m->type_info = type_info;
-	m->total_time = total_time;
 	m->bitrate = bitrate;
 	m->samplerate = samplerate;
 

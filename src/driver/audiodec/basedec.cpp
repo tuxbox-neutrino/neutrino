@@ -147,6 +147,9 @@ void CBaseDec::ClearMetaData()
 
 bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 {
+	if (in->FileType == CFile::STREAM_AUDIO)
+		return true;
+
 	if (LookupMetaData(in))
 		return true;
 
