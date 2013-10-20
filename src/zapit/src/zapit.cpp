@@ -220,7 +220,7 @@ void CZapit::LoadAudioMap()
 	int mode = 0;
 	int volume = 0;
 	char s[1000];
-	while (fgets(s, 1000, audio_config_file)) {
+	while (fgets(s, sizeof(s), audio_config_file)) {
 		sscanf(s, "%" SCNx64 " %d %d %d %d %d %d", &chan, &apid, &mode, &volume, &subpid, &ttxpid, &ttxpage);
 		audio_map[chan].apid = apid;
 		audio_map[chan].subpid = subpid;
@@ -260,7 +260,7 @@ void CZapit::LoadVolumeMap()
 	int apid = 0;
 	int volume = 0;
 	char s[1000];
-	while (fgets(s, 1000, volume_config_file)) {
+	while (fgets(s, sizeof(s), volume_config_file)) {
 		if (sscanf(s, "%" SCNx64 " %d %d", &chan, &apid, &volume) == 3)
 			vol_map.insert(volume_pair_t(chan, pid_pair_t(apid, volume)));
 	}
