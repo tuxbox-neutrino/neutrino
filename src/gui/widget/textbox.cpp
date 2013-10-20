@@ -525,13 +525,16 @@ void CTextBox::refreshText(void)
 
 	//Paint Text Background
 	if (m_nPaintBackground){
-		if (m_bgpixbuf)
+		if (m_bgpixbuf){
 			delete[] m_bgpixbuf;
-		m_bgpixbuf = NULL;
+			m_bgpixbuf = NULL;
+		}
 		frameBuffer->paintBoxRel(ax, ay, dx, dy,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
 	}
-	else
-		frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
+	else{
+		if (m_bgpixbuf)
+			frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
+	}
 
 	if( m_nNrOfLines <= 0)
 		return;
