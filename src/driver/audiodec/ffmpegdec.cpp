@@ -33,6 +33,7 @@
 #include <sstream>
 #include <driver/audioplay.h>
 #include <zapit/include/audio.h>
+#include <eitd/edvbstring.h> // UTF8
 #include "ffmpegdec.h"
 extern "C" {
 #include <libavutil/opt.h>
@@ -371,23 +372,23 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 			AVDictionaryEntry *tag = NULL;
 			while ((tag = av_dict_get(avc->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
 				if(!strcasecmp(tag->key,"Title")) {
-					title = tag->value;
+					title = convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Artist")) {
-					artist = tag->value;
+					artist = convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Year")) {
-					date = tag->value;
+					date = convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Album")) {
-					album = tag->value;
+					album = convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Genre")) {
-					genre = tag->value;
+					genre = convertLatin1UTF8(tag->value);
 					continue;
 				}
 			}
