@@ -1,8 +1,7 @@
 BUILT_SOURCES = rcsim.h
-rcsim.h:
-	pushd $(top_srcdir)/src/ && ./create_rcsim_h.sh > $@
-
-.PHONY: rcsim.h
+# ugly: this is in the source tree, but belongs into the build dir :-(
+rcsim.h: $(srcdir)/driver/rcinput.h $(srcdir)/create_rcsim_h.sh
+	pushd $(srcdir) && sh ./create_rcsim_h.sh > $@
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
