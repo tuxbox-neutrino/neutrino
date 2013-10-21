@@ -77,7 +77,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 	initVar();
 
 	if(text != NULL)
-		m_cText = text;
+		m_cText = m_old_cText = text;
 	
 	if(font_text != NULL)
 		m_pcFontText = font_text;
@@ -113,7 +113,7 @@ CTextBox::CTextBox(const char * text)
 	initVar();
 
 	if(text != NULL)
-		m_cText = *text;
+		m_cText = m_old_cText = *text;
 
 	//TRACE_1("[CTextBox] %s Line %d text: %s\r\n", __FUNCTION__, __LINE__, text);
 
@@ -149,7 +149,7 @@ void CTextBox::initVar(void)
 	m_nMaxLineWidth = 0;
 
 	m_cText	= "";
-	m_nMode = SCROLL;
+	m_nMode = m_old_nMode 	= SCROLL;
 
 	m_FontUseDigitHeight	= false;
 	m_pcFontText  		= g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1];
@@ -164,21 +164,21 @@ void CTextBox::initVar(void)
 	text_Hborder_width 	= 8; //border left and right
 	text_Vborder_width	= 8; //border top and buttom
 
-	m_cFrame.iX		= g_settings.screen_StartX + ((g_settings.screen_EndX - g_settings.screen_StartX - MIN_WINDOW_WIDTH) >>1);
-	m_cFrame.iWidth		= MIN_WINDOW_WIDTH;
-	m_cFrame.iY		= g_settings.screen_StartY + ((g_settings.screen_EndY - g_settings.screen_StartY - MIN_WINDOW_HEIGHT) >>1);
-	m_cFrame.iHeight	= MIN_WINDOW_HEIGHT;
+	m_cFrame.iX		= m_old_x = g_settings.screen_StartX + ((g_settings.screen_EndX - g_settings.screen_StartX - MIN_WINDOW_WIDTH) >>1);
+	m_cFrame.iWidth		= m_old_dx = MIN_WINDOW_WIDTH;
+	m_cFrame.iY		= m_old_y = g_settings.screen_StartY + ((g_settings.screen_EndY - g_settings.screen_StartY - MIN_WINDOW_HEIGHT) >>1);
+	m_cFrame.iHeight	= m_old_dy = MIN_WINDOW_HEIGHT;
 
 	m_nMaxHeight 		= MAX_WINDOW_HEIGHT;
 	m_nMaxWidth 		= MAX_WINDOW_WIDTH;
 	m_nMinHeight		= MIN_WINDOW_HEIGHT;
 	m_nMinWidth		= MIN_WINDOW_WIDTH;
 
-	m_textBackgroundColor 	= COL_MENUCONTENT_PLUS_0;
+	m_textBackgroundColor 	= m_old_textBackgroundColor = COL_MENUCONTENT_PLUS_0;
 	m_textColor		= COL_MENUCONTENT_TEXT;
 	m_nPaintBackground 	= true;
-	m_nBgRadius		= 0;
-	m_nBgRadiusType 	= CORNER_ALL;
+	m_nBgRadius		= m_old_nBgRadius = 0;
+	m_nBgRadiusType 	= m_old_nBgRadiusType = CORNER_ALL;
 
 	m_cLineArray.clear();
 
@@ -516,24 +516,67 @@ void CTextBox::refreshText(void)
 	int ay = /*m_cFrameTextRel.iY+*/m_cFrame.iY;
 	int dx = m_cFrameTextRel.iWidth;
 	int dy = m_cFrameTextRel.iHeight;
+	bool has_changed = false;
 
-	//save screen
-	if (m_bgpixbuf == NULL){
-		m_bgpixbuf= new fb_pixel_t[dx * dy];
-		frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
+	//evaluate comparsion properties
+	if (m_old_x != ax || m_old_y != ay || m_old_dx != dx || m_old_dy != dy ||
+		m_old_textBackgroundColor != m_textBackgroundColor ||
+		m_old_nBgRadius != m_nBgRadius ||m_old_nBgRadiusType != m_nBgRadiusType ||
+		m_nNrOfPages > 1 ||
+		m_old_nMode != m_nMode){
+			has_changed = true;
+	}
+
+	//destroy pixel buffer on changed property values
+	if (has_changed){
+		if (m_bgpixbuf){
+			//TRACE("[CTextBox] %s destroy ol pixel buffer, has changes%d\r\n", __FUNCTION__, __LINE__);
+			delete[] m_bgpixbuf;
+			m_bgpixbuf = NULL;
+		}
+	}
+
+	//save screen only if no paint of background required
+	if (!m_nPaintBackground){
+		if (m_bgpixbuf == NULL){
+			//TRACE("[CTextBox] %s save bg %d\r\n", __FUNCTION__, __LINE__);
+			m_bgpixbuf= new fb_pixel_t[dx * dy];
+			frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
+		}
 	}
 
 	//Paint Text Background
 	if (m_nPaintBackground){
 		if (m_bgpixbuf){
+			//TRACE("[CTextBox] %s destroy bg %d\r\n", __FUNCTION__, __LINE__);
 			delete[] m_bgpixbuf;
 			m_bgpixbuf = NULL;
 		}
-		frameBuffer->paintBoxRel(ax, ay, dx, dy,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
+		if (has_changed){
+			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
+			frameBuffer->paintBoxRel(ax, ay, dx, dy,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
+		}
 	}
 	else{
-		if (m_bgpixbuf)
-			frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
+		if (m_bgpixbuf){
+			if (m_old_cText != m_cText || has_changed){
+				//TRACE("[CTextBox] %s restore bg %d\r\n", __FUNCTION__, __LINE__);
+				frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
+			}
+		}
+	}
+
+	//save current comparsion properties
+	if (has_changed){
+		//TRACE("[CTextBox] %s set current values %d\r\n", __FUNCTION__, __LINE__);
+		m_old_x = ax;
+		m_old_y = ay;
+		m_old_dx = dx;
+		m_old_dy = dy;
+		m_old_textBackgroundColor = m_textBackgroundColor;
+		m_old_nBgRadius = m_nBgRadius;
+		m_old_nBgRadiusType = m_nBgRadiusType;
+		m_old_nMode = m_nMode;
 	}
 
 	if( m_nNrOfLines <= 0)
@@ -569,8 +612,9 @@ void CTextBox::refreshText(void)
 
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
 		m_pcFontText->RenderString(m_cFrame.iX + m_cFrameTextRel.iX + text_Hborder_width + x_center,
-				y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
-				m_textColor, 0, true); // UTF-8
+					y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
+					m_textColor, 0, true); // UTF-8
+		m_old_cText = m_cText;
 		y += m_nFontTextHeight;
 	}
 }

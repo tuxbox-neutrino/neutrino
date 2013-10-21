@@ -116,8 +116,11 @@ class CTextBox
 		int  getFontTextHeight();
 
 		/* Variables */
-		std::string m_cText;
+		std::string m_cText, m_old_cText;
 		std::vector<std::string> m_cLineArray;
+
+		int m_old_x, m_old_y, m_old_dx, m_old_dy, m_old_nBgRadius, m_old_nBgRadiusType, m_old_nMode;
+		fb_pixel_t m_old_textBackgroundColor;
 
 		bool m_showTextFrame;
 
