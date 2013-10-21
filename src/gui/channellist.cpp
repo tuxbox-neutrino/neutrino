@@ -2130,8 +2130,8 @@ void CChannelList::paintHead()
 		headerClock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		headerClock->setYPos(y);
 		headerClock->setHeight(theight);
-		headerClock->setTextColor(COL_MENUHEAD_TEXT);
-		headerClock->setColorBody(COL_MENUHEAD_PLUS_0);
+		headerClock->setTextColor(header.getTextObject()->getTextColor());
+		headerClock->setColorBody(header.getColorBody());
 		headerClock->refresh();
 		headerClockWidth = headerClock->getWidth();
 		headerClock->setXPos(x + full_width - headerClockWidth - 10);
