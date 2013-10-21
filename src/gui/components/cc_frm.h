@@ -229,8 +229,10 @@ class CComponentsWindow : public CComponentsForm
 		const char* ccw_icon_name;
 		///property: assigned default icon buttons in header, see also getHeaderObject()
 		int ccw_buttons;
-		///property: value = true, let show footer
+		///property: value = true, let show footer, see showFooter()
 		bool ccw_show_footer;
+		///property: value = true, let show header, see showHeader()
+		bool ccw_show_header;
 
 		///initialze header object
 		void initHeader();
@@ -285,8 +287,10 @@ class CComponentsWindow : public CComponentsForm
 		///add item to body object, also usable is addCCItem() to add items to the windo object
 		void addWindowItem(CComponentsItem* cc_Item);
 		
-		///
+		///allow/disallow paint a footer, default true, see also ccw_show_footer, showHeader()
 		void showFooter(bool show = true){ccw_show_footer = show;};
+		///allow/disallow paint a header, default true, see also ccw_show_header, showFooter()
+		void showHeader(bool show = true){ccw_show_header = show;};
 
 		///set caption in header with string, see also getHeaderObject()
 		void setWindowCaption(const std::string& text){ccw_caption = text;};

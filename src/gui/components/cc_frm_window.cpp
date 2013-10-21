@@ -141,7 +141,8 @@ void CComponentsWindow::initVarWindow()
 	ccw_icon_name	= NULL;
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
-	
+	ccw_show_header	= true;
+
 	setShadowOnOff(true);
 }
 
@@ -181,9 +182,11 @@ void CComponentsWindow::initBody()
 	if (ccw_body){
 		ccw_body->setCornerType(0);
 		int fh = 0;
+		int hh = 0;
 		if (ccw_footer)
 			fh = ccw_footer->getHeight();
-		int hh = ccw_head->getHeight();
+		if (ccw_head)
+			hh = ccw_head->getHeight();
 		int h_body = height - hh - fh - 2*fr_thickness;
 		ccw_body->setDimensionsAll(0, CC_APPEND, width-2*fr_thickness, h_body);
 		ccw_body->doPaintBg(false);
@@ -218,22 +221,31 @@ void CComponentsWindow::initCCWItems()
 #ifdef DEBUG_CC
 	printf("[CComponentsWindow]   [%s - %d] init items...\n", __FUNCTION__, __LINE__);
 #endif
-	initHeader();
-	
+	//add header if required
+	if (ccw_show_header){
+		initHeader();
+	}else{
+		if (ccw_head){
+			removeCCItem(ccw_head);
+			ccw_head = NULL;
+		}
+	}
+
 	//add footer if required
 	if (ccw_show_footer){
 		initFooter();
 	}else{
-		if (ccw_footer != NULL){
+		if (ccw_footer){
 			removeCCItem(ccw_footer);
 			ccw_footer = NULL;
 		}
 	}
 	initBody();
-	
+
 	//add header, body and footer items only one time
-	if (!ccw_head->isAdded())
-		addCCItem(ccw_head);
+	if (ccw_head)
+		if (!ccw_head->isAdded())
+			addCCItem(ccw_head);
 	if (!ccw_body->isAdded())
 		addCCItem(ccw_body);
 	if (ccw_footer)
