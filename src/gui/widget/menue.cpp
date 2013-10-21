@@ -35,7 +35,7 @@
 
 #include <gui/components/cc_frm.h>
 #include <gui/widget/stringinput.h>
-
+#include <gui/components/cc_item_shapes.h>
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
@@ -143,9 +143,9 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	
 	//left text
 	int _dx = dx;
+	int icon_w = 0;
+	int icon_h = 0;
 	if (!iconName_Info_right.empty()) {
-		int icon_w = 0;
-		int icon_h = 0;
 		CFrameBuffer::getInstance()->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 		if (icon_w)
 			_dx -= icon_frame_w + icon_w;
@@ -162,11 +162,15 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 		if (right_bgcol) {
 			if (!right_text)
 				stringstartposOption -= 60;
-			CFrameBuffer::getInstance()->paintBoxRel(stringstartposOption, y + 1, dx - stringstartposOption + x - 1, item_height - 2, right_bgcol, RADIUS_LARGE);
-			CFrameBuffer::getInstance()->paintBoxFrame(stringstartposOption, y + 1, dx - stringstartposOption + x - 1, item_height - 2, 1, COL_MENUCONTENT_PLUS_6, RADIUS_LARGE);
+			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, false, COL_MENUCONTENT_PLUS_6, right_bgcol);
+			col.setFrameThickness(3);
+			col.setCorner(RADIUS_LARGE);
+			col.paint(false);
 		}
-		if (right_text)
+		if (right_text) {
+			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + icon_frame_w);
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
+		}
 	}
 }
 
@@ -215,11 +219,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	int icon_h = 0;
 
 	//define icon name depends of numeric value
-#ifdef MARTII
-	if (g_settings.menu_numbers_as_icons && icon_name.empty() && CRCInput::isNumeric(directKey))
-#else
 	if (icon_name.empty() && CRCInput::isNumeric(directKey))
-#endif
 	{
 		char i_name[6]; /* X +'\0' */
 		snprintf(i_name, 6, "%d", CRCInput::getNumericValue(directKey));
@@ -269,14 +269,8 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	{
 		frameBuffer->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 
-#ifdef MARTII
-		if (icon_w>0 && icon_h>0)
-#else
 		if (active  && icon_w>0 && icon_h>0)
-#endif
-		{
 			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
-		}
 	}
 }
 
@@ -544,7 +538,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			std::map<neutrino_msg_t, keyAction>::iterator it = keyActionMap.find(msg);
 			if (it != keyActionMap.end()) {
 				fader.Stop();
-				int rv = it->second.menue->exec(parent, it->second.action);
+				int rv = it->second.menue->exec(this, it->second.action);
 				switch ( rv ) {
 					case menu_return::RETURN_EXIT_ALL:
 						retval = menu_return::RETURN_EXIT_ALL;
@@ -575,7 +569,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					break;
 				}
 			}
-#ifdef MARTII
+#if 0
 			if (msg == (uint32_t) g_settings.key_channelList_pageup)
 				msg = CRCInput::RC_page_up;
 			else if (msg == (uint32_t) g_settings.key_channelList_pagedown)
@@ -1184,7 +1178,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setFrameThickness(2);
 		info_box->removeLineBreaks(str);
 		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
-		info_box->setCornerRadius(RADIUS_LARGE);
+		info_box->setCorner(RADIUS_LARGE);
 		info_box->syncSysColors();
 		info_box->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
 		info_box->setShadowOnOff(CC_SHADOW_ON);
@@ -1679,7 +1673,7 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 	//convert first letter to large
 	std::string s_optionValue = optionValue;
 	if(!s_optionValue.empty())
-		s_optionValue[0] = toupper(s_optionValue[0]);
+		s_optionValue[0] = (char)toupper(s_optionValue[0]);
 	//paint text
 	paintItemCaption(selected, height , s_optionValue.c_str());
 

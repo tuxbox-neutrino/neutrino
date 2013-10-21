@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <curl/curl.h>
 
 #include <cs_api.h>
 
@@ -101,7 +103,7 @@ CPictureViewer::CFormathandler * CPictureViewer::fh_getsize (const char *name, i
 	return (NULL);
 }
 
-bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, bool unscaled)
+bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, bool unscaled)
 {
 	// dbout("DecodeImage {\n"); 
 #if 0 // quick fix for issue #245. TODO more smart fix for this problem
@@ -112,12 +114,36 @@ bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, b
 #endif
 	int x, y, imx, imy;
 
-// 	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
-// 	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
+	// 	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+	// 	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
 
 	// Show red block for "next ready" in view state
 	if (showBusySign)
 		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
+
+	std::string name = _name;
+	bool url = false;
+
+	if (strstr(name.c_str(), "://")) {
+		std::string tmpname;
+		tmpname = "/tmp/pictureviewer" + name.substr(name.find_last_of("."));
+		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
+		if (tmpFile) {
+			CURL *ch = curl_easy_init();
+			curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
+			curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
+			curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
+			curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
+			curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
+			curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
+			curl_easy_setopt(ch, CURLOPT_URL, name.c_str());
+			curl_easy_perform(ch);
+			curl_easy_cleanup(ch);
+			fclose(tmpFile);
+			url = true;
+		}
+		name = tmpname;
+	}
 
 	CFormathandler *fh;
 	if (unscaled)
@@ -201,6 +227,8 @@ bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, b
 		m_NextPic_YPan = 0;
 	}
 	m_NextPic_Name = name;
+	if (url)
+		unlink(name.c_str());
 	hideBusy ();
 	//   dbout("DecodeImage }\n"); 
 	return (m_NextPic_Buffer != NULL);
@@ -470,51 +498,54 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 	}
 }
 
-#define LOGO_DIR1 DATADIR "/neutrino/icons/logo"
-#define LOGO_FMT ".jpg"
+#define LOGO_FLASH_DIR DATADIR "/neutrino/icons/logo"
 
-bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
+bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& ChannelName, std::string & name, int *width, int *height)
 {
-	int i, j;
-	char strChanId[16];
+	std::string fileType[] = { ".png", ".jpg" , ".gif" };
 
-	sprintf(strChanId, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
-	/* first the channel-id, then the channelname */
-	std::string strLogoName[2] = { (std::string)strChanId, ChannelName };
-	/* first png, then jpg, then gif */
-	std::string strLogoExt[3] = { ".png", ".jpg" , ".gif" };
+	//get channel id as string
+	char strChnId[16];
+	snprintf(strChnId, 16, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
+	strChnId[15] = '\0';
 
-	for (i = 0; i < 2; i++)
-	{
-		for (j = 0; j < 3; j++)
-		{
-			std::string tmp(g_settings.logo_hdd_dir + "/" + strLogoName[i] + strLogoExt[j]);
-			if (access(tmp.c_str(), R_OK) != -1)
-			{
+	for (size_t i = 0; i<(sizeof(fileType) / sizeof(fileType[0])); i++){
+		std::vector<std::string> v_path;
+		std::string id_tmp_path;
+
+		//create filename with channel name (logo_hdd_dir)
+		id_tmp_path = g_settings.logo_hdd_dir + "/";
+		id_tmp_path += ChannelName + fileType[i];
+		v_path.push_back(id_tmp_path);
+
+		//create filename with id (logo_hdd_dir)
+		id_tmp_path = g_settings.logo_hdd_dir + "/";
+		id_tmp_path += strChnId + fileType[i];
+		v_path.push_back(id_tmp_path);
+
+		//create filename with channel name (LOGO_FLASH_DIR)
+		id_tmp_path = LOGO_FLASH_DIR "/";
+		id_tmp_path += ChannelName + fileType[i];
+		v_path.push_back(id_tmp_path);
+
+		//create filename with id (LOGO_FLASH_DIR)
+		id_tmp_path = LOGO_FLASH_DIR "/";
+		id_tmp_path += strChnId + fileType[i];
+		v_path.push_back(id_tmp_path);
+
+		//check if file is available, name with real name is preferred, return true on success
+		for (size_t j = 0; j < v_path.size(); j++){
+			if (access(v_path[j].c_str(), R_OK) != -1){
 				if(width && height)
-					getSize(tmp.c_str(), width, height);
-				name = tmp;
+					getSize(v_path[j].c_str(), width, height);
+				name = v_path[j];
 				return true;
 			}
-		}
+		}	
 	}
-        for (i = 0; i < 2; i++)
-        {
-                for (j = 0; j < 3; j++)
-                {
-			std::string tmp(LOGO_DIR1 "/" + strLogoName[i] + strLogoExt[j]);
-                        if (access(tmp.c_str(), R_OK) != -1)
-                        {
-				if(width && height)
-					getSize(tmp.c_str(), width, height);
-                                name = tmp;
-                                return true;
-                        }
-                }
-        }
 	return false;
 }
-
+#if 0
 bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height)
 {
 	char fname[255];
@@ -539,7 +570,7 @@ bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int w
 	}
 	return ret;
 }
-
+#endif
 void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int max_width, const int max_height, bool upscale)
 {
 	float aspect;

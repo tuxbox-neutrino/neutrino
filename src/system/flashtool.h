@@ -131,6 +131,7 @@ class CMTDInfo
 		int getMTDEraseSize( const std::string & filename );
 
 		int findMTDNumber(const std::string & filename);
+		int findMTDNumberFromName(const char* name);
 		std::string findMTDsystem();
 };
 

@@ -7,6 +7,8 @@
 # usage: sh ./create_rcsim_h.sh > rcsim.h
 
 cat << EOF
+// rcsim.h - automatically created from driver/rcinput.h
+
 #ifndef KEY_GAMES
 #define KEY_GAMES	0x1a1   /* Media Select Games */
 #endif
@@ -42,15 +44,25 @@ sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/s/^[[:space:]]*/	/p' dri
 cat << EOF
 };
 
+enum {	// not defined in input.h but used like that, at least in 2.4.22
+	KEY_RELEASED = 0,
+	KEY_PRESSED,
+	KEY_AUTOREPEAT
+};
+
 struct key{
-	char *name;
-	unsigned long code;
+	const char *name;
+	const unsigned long code;
 };
 
 static const struct key keyname[] = {
 EOF
 sed -n '/^[[:space:]]*RC_0/,/^[[:space:]]*RC_analog_off/ s/^.*=[[:space:]]*\(KEY_.*\),.*/	{ "\1",		\1 },/p' driver/rcinput.h
 cat << EOF
+	/* to stay backward compatible */
+	{ "KEY_SETUP",		KEY_MENU },
+	{ "KEY_HOME",		KEY_EXIT },
 };
 
 EOF
+

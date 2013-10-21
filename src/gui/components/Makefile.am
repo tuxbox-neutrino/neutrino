@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
-INCLUDES = \
+AM_CPPFLAGS += \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -13,14 +13,14 @@ INCLUDES = \
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
 else
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
 endif
 endif
 
 if USE_STB_HAL
-INCLUDES += -I$(STB_HAL_INC)
+AM_CPPFLAGS += -I$(STB_HAL_INC)
 endif
 
 noinst_LIBRARIES = libneutrino_gui_components.a
@@ -35,6 +35,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_frm_footer.cpp \
 	cc_frm_header.cpp \
 	cc_frm_icons.cpp \
+	cc_frm_signalbars.cpp \
 	cc_frm_window.cpp \
 	cc_item.cpp \
 	cc_item_infobox.cpp \

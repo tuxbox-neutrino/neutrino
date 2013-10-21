@@ -150,6 +150,7 @@ class CTextBox
 		int m_nFontTextHeight;
 		CFBWindow::color_t m_textBackgroundColor;
 		fb_pixel_t m_textColor;
+		fb_pixel_t* m_bgpixbuf;
 
 		CFrameBuffer * frameBuffer;
 /*		int max_width;*/

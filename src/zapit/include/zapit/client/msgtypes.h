@@ -149,40 +149,48 @@ class CZapitMessages
 			CMD_SET_ASPECTRATIO		   = 108,
 			CMD_GET_MODE43			   = 109,
 			CMD_SET_MODE43			   = 110,
-			CMD_STOP_PIP			   = 111
+			CMD_STOP_PIP			   = 111,
+			CMD_ZAPTO_EPG			   = 112
+			
 
 		};
 
 	struct commandBoolean
 	{
 		bool truefalse;
+		commandBoolean():truefalse(false){}
 	};
 
 	struct commandInt
 	{
 		int val;
+		commandInt():val(0){}
 	};
 
 	struct commandVolume
 	{
 		unsigned int left;
 		unsigned int right;
+		commandVolume():left(0),right(0){}
 	};
 
 	struct commandSetRecordMode
 	{
 		bool activate;
+		commandSetRecordMode():activate(false){}
 	};
 
 	struct commandZapto
 	{
 		unsigned int bouquet;
 		unsigned int channel;
+		commandZapto():bouquet(0),channel(0){}
 	};
 
 	struct commandZaptoChannelNr
 	{
 		unsigned int channel;
+		commandZaptoChannelNr():channel(0){}
 	};
 
 	struct commandZaptoServiceID
@@ -193,16 +201,24 @@ class CZapitMessages
 		bool epg;
 		commandZaptoServiceID():channel_id(0),record(false),pip(false),epg(false){}
 	};
+	struct commandZaptoEpg
+	{
+		t_channel_id channel_id;
+		bool standby;
+		commandZaptoEpg():channel_id(0),standby(false){}
+	};
 
 	struct commandSetAudioChannel
 	{
 		unsigned int channel;
+		commandSetAudioChannel():channel(0){}
 	};
 
 	struct commandGetBouquets
 	{
 		bool emptyBouquetsToo;
 		CZapitClient::channelsMode mode;
+		commandGetBouquets():emptyBouquetsToo(0){}
 	};
 
 	struct commandSetMode
@@ -226,6 +242,7 @@ class CZapitMessages
 	{
 		unsigned int bouquet;
 		t_channel_id channel_id;
+		commandExistsChannelInBouquet():bouquet(0),channel_id(0){}
 	};
 
 
@@ -233,39 +250,46 @@ class CZapitMessages
 	{
 		unsigned int bouquet;
 		t_channel_id channel_id;
+		commandAddChannelToBouquet():bouquet(0),channel_id(0){}
 	};
 
 	struct commandRemoveChannelFromBouquet
 	{
 		unsigned int bouquet;
 		t_channel_id channel_id;
+		commandRemoveChannelFromBouquet():bouquet(0),channel_id(0){}
 	};
 
 	struct commandDeleteBouquet
 	{
 		unsigned int bouquet;
+		commandDeleteBouquet():bouquet(0){}
 	};
 
 	struct commandRenameBouquet
 	{
 		unsigned int bouquet;
+		commandRenameBouquet():bouquet(0){}
 	};
 
 	struct commandMoveBouquet
 	{
 		unsigned int bouquet;
 		unsigned int newPos;
+		commandMoveBouquet():bouquet(0),newPos(0){}
 	};
 
 	struct commandStartScan
 	{
 		unsigned int satelliteMask;
+		commandStartScan():satelliteMask(0){}
 	};
 
 	struct commandBouquetState
 	{
 		unsigned int bouquet;
 		bool	     state;
+		commandBouquetState():bouquet(0),state(false){}
 	};
 
 	struct commandMoveChannel
@@ -274,6 +298,7 @@ class CZapitMessages
 		unsigned int               oldPos;
 		unsigned int               newPos;
 		CZapitClient::channelsMode mode;
+		commandMoveChannel():bouquet(0),oldPos(0),newPos(0){}
 	};
 
 
@@ -282,11 +307,13 @@ class CZapitMessages
 	struct responseGeneralTrueFalse
 	{
 		bool status;
+		responseGeneralTrueFalse():status(false){}
 	};
 
 	struct responseGeneralInteger
 	{
 		int number;
+		responseGeneralInteger():number(0){}
 	};
 
 	struct responseGetChannelName
@@ -297,6 +324,7 @@ class CZapitMessages
 	struct responseGetRecordModeState
 	{
 		bool activated;
+		responseGetRecordModeState():activated(false){}
 	};
 
 	struct responseGetMode
@@ -307,21 +335,25 @@ class CZapitMessages
 	struct responseGetPlaybackState
 	{
 		bool activated;
+		responseGetPlaybackState():activated(false){}
 	};
 
 	struct responseGetCurrentServiceID
 	{
 		t_channel_id channel_id;
+		responseGetCurrentServiceID():channel_id(0){}
 	};
 
 	struct responseZapComplete
 	{
 		unsigned int zapStatus;
+		responseZapComplete():zapStatus(0){}
 	};
 
 	struct responseCmd
 	{
 		unsigned char cmd;
+		responseCmd():cmd(0){}
 	};
 
 	struct responseIsScanReady
@@ -331,6 +363,7 @@ class CZapitMessages
 		unsigned int processed_transponder;
 		unsigned int transponder;
 		unsigned int services;
+		responseIsScanReady():scanReady(false),satellite(0),processed_transponder(0),transponder(0),services(0){}
 	};
 
 	struct responseDeliverySystem
@@ -346,6 +379,7 @@ class CZapitMessages
 		uint8_t num_parameters;
 		uint8_t param1;
 		uint8_t param2;
+		commandMotor():cmdtype(0),cmd(0),address(0),num_parameters(0),param1(0),param2(0){}
 	};
 
 

@@ -98,6 +98,7 @@ void CComponentsHeader::initVarHeader()
 	corner_type		= CORNER_TOP;
 	
 	//init header height
+	cch_size_mode		= CC_HEADER_SIZE_LARGE;
 	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	height 			= cch_font->getHeight();
 	
@@ -183,13 +184,12 @@ void CComponentsHeader::initIcon()
 		cch_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 
 		//set corner mode of icon item
-		cch_icon_obj->setCornerRadius(corner_rad-fr_thickness);
 		int cc_icon_corner_type = corner_type;
 		if (corner_type == CORNER_TOP_LEFT || corner_type == CORNER_TOP)
 			cc_icon_corner_type = CORNER_TOP_LEFT;
 		else
 			cc_icon_corner_type = CORNER_LEFT;
-		cch_icon_obj->setCornerType(cc_icon_corner_type);
+		cch_icon_obj->setCorner(corner_rad-fr_thickness, cc_icon_corner_type);
 
 		//global set width of icon object
 		cch_icon_w = cch_icon_obj->getWidth();
@@ -278,13 +278,12 @@ void CComponentsHeader::initButtons()
 		cch_btn_obj->addIcon(v_cch_btn);
 
 		//set corner mode of button item
-		cch_btn_obj->setCornerRadius(corner_rad-fr_thickness);
 		int cc_btn_corner_type = corner_type;
 		if (corner_type == CORNER_TOP_RIGHT || corner_type == CORNER_TOP)
 			cc_btn_corner_type = CORNER_TOP_RIGHT;
 		else
 			cc_btn_corner_type = CORNER_RIGHT;
-		cch_btn_obj->setCornerType(cc_btn_corner_type);
+		cch_btn_obj->setCorner(corner_rad-fr_thickness, cc_btn_corner_type);
 
 		//global adapt height
 		height = max(height, cch_btn_obj->getHeight());
@@ -330,8 +329,7 @@ void CComponentsHeader::initCaption()
 		cch_text_obj->setColorBody(col_body);
 
 		//corner of text item
-		cch_text_obj->setCornerRadius(corner_rad-fr_thickness);
-		cch_text_obj->setCornerType(corner_type);
+		cch_text_obj->setCorner(corner_rad-fr_thickness, corner_type);
 
 		/*
 		   global adapt height not needed here again
@@ -343,6 +341,9 @@ void CComponentsHeader::initCaption()
 
 void CComponentsHeader::initCCItems()
 {
+	//set size
+	cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+	
 	//init icon
 	initIcon();
 

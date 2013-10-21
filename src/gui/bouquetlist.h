@@ -112,7 +112,7 @@ class CBouquetList
 		CBouquet* addBouquet(const char * const name, int BouquetKey=-1, bool locked=false );
 		CBouquet* addBouquet(CZapitBouquet * zapitBouquet);
 		void deleteBouquet(CBouquet* bouquet);
-		int getActiveBouquetNumber();
+		t_bouquet_id getActiveBouquetNumber();
 		int activateBouquet(int id, bool bShowChannelList);
 		int show(bool bShowChannelList = true);
 		int showChannelList(int nBouquet = -1);

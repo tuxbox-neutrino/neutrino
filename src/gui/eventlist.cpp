@@ -548,11 +548,12 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					loop = false;
 			}
 		}
-		else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_red ){
+		else if ( msg==CRCInput::RC_red ){
 			loop= false;
 		}
-		else if ( msg==CRCInput::RC_rewind ||  msg==CRCInput::RC_forward) {
-
+		else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_right || msg==CRCInput::RC_rewind || msg==CRCInput::RC_forward ) {
+			// maybe remove RC_rewind and RC_forward in the future?
+			bgRightBoxPaint = false;
 		  	t_bouquet_id current_bouquet_id= bouquetList->getActiveBouquetNumber();
 			t_channel_id	channel_id_tmp, _channel_id = channel_id;
 			const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
@@ -564,7 +565,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			{
 				channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
 				if(channel_id_tmp == channel_id){
-					if ( msg==CRCInput::RC_forward) {
+					if ( msg==CRCInput::RC_right || msg==CRCInput::RC_forward ) {
 						channel = (channel+1) %channel_nr;
 					}else { //RC_rewind
 						channel = (channel == 0) ? channel_nr -1 : channel - 1;
@@ -610,7 +611,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			eplus.exec(NULL, "");
 			loop = false;
 		}
-		else if (msg==CRCInput::RC_help || msg==CRCInput::RC_right || msg==CRCInput::RC_ok || msg==CRCInput::RC_info)
+		else if (msg==CRCInput::RC_help || msg==CRCInput::RC_ok || msg==CRCInput::RC_info)
 		{
 			if ( evtlist[selected].eventID != 0 )
 			{
@@ -842,7 +843,6 @@ void CNeutrinoEventList::paintDescription(int index)
 		infozone_text = g_Locale->getText(LOCALE_EPGLIST_NOEVENTS);
 
 	cc_infozone->setText(infozone_text, CTextBox::TOP, g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_EVENT]);
-	cc_infozone->doPaintTextBoxBg(true);
 	cc_infozone->doPaintBg(false);
 	cc_infozone->forceTextPaint();
 	cc_infozone->paint(CC_SAVE_SCREEN_NO);
@@ -1310,23 +1310,25 @@ int CEventFinderMenu::showMenu(void)
 		m_search_channelname ="";
 	}
 
+	int shortcut = 1;
+
 	CStringInputSMS stringInput(LOCALE_EVENTFINDER_KEYWORD,m_search_keyword, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
 
-	CMenuForwarder* mf0 		= new CMenuForwarder(LOCALE_EVENTFINDER_KEYWORD, true, *m_search_keyword, &stringInput, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1);
-	CMenuOptionChooser* mo0 	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST, m_search_list, SEARCH_LIST_OPTIONS, SEARCH_LIST_OPTION_COUNT, true, this, CRCInput::RC_2, NEUTRINO_ICON_BUTTON_2);
-	m_search_channelname_mf		= new CMenuForwarderNonLocalized("", *m_search_list != CNeutrinoEventList::SEARCH_LIST_ALL, m_search_channelname, this, "3", CRCInput::RC_3, NEUTRINO_ICON_BUTTON_3);
-	CMenuOptionChooser* mo1 	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_EPG, m_search_epg_item, SEARCH_EPG_OPTIONS, SEARCH_EPG_OPTION_COUNT, true, NULL, CRCInput::RC_4);
-	CMenuForwarder* mf1		= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "1", CRCInput::RC_5, NEUTRINO_ICON_BUTTON_5);
+	CMenuForwarder* mf0	= new CMenuForwarder(LOCALE_EVENTFINDER_KEYWORD, true, *m_search_keyword, &stringInput, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuOptionChooser* mo0	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST, m_search_list, SEARCH_LIST_OPTIONS, SEARCH_LIST_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
+	m_search_channelname_mf	= new CMenuForwarderNonLocalized("", *m_search_list != CNeutrinoEventList::SEARCH_LIST_ALL, m_search_channelname, this, "3", CRCInput::convertDigitToKey(shortcut++));
+	CMenuOptionChooser* mo1	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_EPG, m_search_epg_item, SEARCH_EPG_OPTIONS, SEARCH_EPG_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
+	CMenuForwarder* mf1	= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
-	CMenuWidget searchMenu(LOCALE_EVENTFINDER_HEAD, NEUTRINO_ICON_FEATURES);
+	CMenuWidget searchMenu(LOCALE_EVENTFINDER_HEAD, NEUTRINO_ICON_FEATURES, 40);
 
-        searchMenu.addItem(GenericMenuSeparator);
-        searchMenu.addItem(mf0);
-        searchMenu.addItem(GenericMenuSeparatorLine);
+	searchMenu.addItem(GenericMenuSeparator);
+	searchMenu.addItem(mf0);
+	searchMenu.addItem(GenericMenuSeparatorLine);
 	searchMenu.addItem(mo0);
 	searchMenu.addItem(m_search_channelname_mf);
 	searchMenu.addItem(mo1);
-        searchMenu.addItem(GenericMenuSeparatorLine);
+	searchMenu.addItem(GenericMenuSeparatorLine);
 	searchMenu.addItem(mf1);
 
 	res = searchMenu.exec(NULL,"");

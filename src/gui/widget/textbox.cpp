@@ -135,13 +135,14 @@ CTextBox::~CTextBox()
 	//TRACE("[CTextBox] del\r\n");
 	m_cLineArray.clear();
 	hide();
-
+	delete[] m_bgpixbuf;
 }
 
 void CTextBox::initVar(void)
 {
 	//TRACE("[CTextBox]->InitVar\r\n");
 	frameBuffer 	= NULL;
+	m_bgpixbuf	= NULL;
 
 	m_showTextFrame = 0;
 	m_nNrOfNewLine = 0;
@@ -510,10 +511,30 @@ void CTextBox::refreshText(void)
 
 	//TRACE("[CTextBox] m_nCurrentLine: %d, m_nNrOfLines %d, m_cLineArray[m_nCurrentLine]: %s\r\n",m_nCurrentLine, m_nNrOfLines, m_cLineArray[m_nCurrentLine].c_str());
 
+	//bg variables
+	int ax = m_cFrameTextRel.iX+m_cFrame.iX;
+	int ay = /*m_cFrameTextRel.iY+*/m_cFrame.iY;
+	int dx = m_cFrameTextRel.iWidth;
+	int dy = m_cFrameTextRel.iHeight;
+
+	//save screen
+	if (m_bgpixbuf == NULL){
+		m_bgpixbuf= new fb_pixel_t[dx * dy];
+		frameBuffer->SaveScreen(ax, ay, dx, dy, m_bgpixbuf);
+	}
+
 	//Paint Text Background
-	if (m_nPaintBackground)
-		frameBuffer->paintBoxRel(m_cFrameTextRel.iX+m_cFrame.iX, /*m_cFrameTextRel.iY+*/m_cFrame.iY,
-			m_cFrameTextRel.iWidth, m_cFrameTextRel.iHeight,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
+	if (m_nPaintBackground){
+		if (m_bgpixbuf){
+			delete[] m_bgpixbuf;
+			m_bgpixbuf = NULL;
+		}
+		frameBuffer->paintBoxRel(ax, ay, dx, dy,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
+	}
+	else{
+		if (m_bgpixbuf)
+			frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
+	}
 
 	if( m_nNrOfLines <= 0)
 		return;

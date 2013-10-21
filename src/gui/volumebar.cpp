@@ -175,8 +175,7 @@ void CVolumeBar::initVolumeBarIcon()
 
 	vb_icon->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 	vb_icon->setColorBody(col_body);
-	vb_icon->setCornerRadius(cornerRad());
-	vb_icon->setCornerType(CORNER_LEFT);
+	vb_icon->setCorner(cornerRad(), CORNER_LEFT);
 
 	//add icon to container
 	addCCItem(vb_icon);
@@ -210,8 +209,7 @@ void CVolumeBar::initVolumeBarDigit()
 
 	vb_digit->setDimensionsAll(vb_digit_x, 0, vb_digit_w, height);
 	vb_digit->setTextColor(COL_MENUCONTENT_TEXT);
-	vb_digit->setCornerRadius(cornerRad());
-	vb_digit->setCornerType(CORNER_RIGHT);
+	vb_digit->setCorner(cornerRad(), CORNER_RIGHT);
 	initVolumeBarDigitValue();
 
 	//add digit label to container

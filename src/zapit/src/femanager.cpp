@@ -555,8 +555,10 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 {
 	CFrontend * retfe = NULL;
 
-	if (livefe && livefe->tuned && livefe->sameTsidOnid(channel->getTransponderId()))
+	if (livefe && livefe->tuned && livefe->sameTsidOnid(channel->getTransponderId())) {
+		FEDEBUG("live fe %d on the same TP", livefe->fenumber);
 		return livefe;
+	}
 
 	t_satellite_position satellitePosition = channel->getSatellitePosition();
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {

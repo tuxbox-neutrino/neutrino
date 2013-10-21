@@ -122,12 +122,13 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 	unsigned char r_alt= *value[VALUE_R];
 	unsigned char g_alt= *value[VALUE_G];
 	unsigned char b_alt= *value[VALUE_B];
-	unsigned char a_alt = (value[VALUE_ALPHA]) ? (*(value[VALUE_ALPHA])) : 0;
+	unsigned char a_null = 0;
+	unsigned char a_alt = (value[VALUE_ALPHA]) ? (*(value[VALUE_ALPHA])) : a_null;
 
 	paint();
 	setColor();
 
-	int selected = 0;
+	int  selected = 0;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 			::TIMING_MENU]);

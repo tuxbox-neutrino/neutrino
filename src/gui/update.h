@@ -39,6 +39,9 @@
 #include <gui/widget/progresswindow.h>
 
 #include <driver/framebuffer.h>
+#ifdef BOXMODEL_APOLLO
+#include <system/mtdutils/mkfs.jffs2.h>
+#endif
 
 #include <string>
 
@@ -72,19 +75,44 @@ class CFlashExpert : public CProgressWindow
 		int selectedMTD;
 		int width;
 
-		void showMTDSelector(const std::string & actionkey);
-		void showFileSelector(const std::string & actionkey);
+		int showMTDSelector(const std::string & actionkey);
+		int showFileSelector(const std::string & actionkey);
 
 		bool checkSize(int mtd, std::string &backupFile);
-		void readmtd(int readmtd);
+#ifdef BOXMODEL_APOLLO
+		bool readDevtableFile(std::string &devtableFile, CMkfsJFFS2::v_devtable_t &v_devtable);
+		void readmtdJFFS2(std::string &filename);
+#endif
 
 	public:
+#ifdef BOXMODEL_APOLLO
+		bool forceOtherFilename;
+		std::string otherFilename;
+		int createimage_other;
+#endif
 		CFlashExpert();
 		static CFlashExpert* getInstance();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		void writemtd(const std::string & filename, int mtdNumber);
+		void readmtd(int readmtd);
 
 };
 
+#ifdef BOXMODEL_APOLLO
+class CFlashExpertSetup : public CMenuTarget
+{
+	private:
+		int width;
+
+		int showMenu();
+		void readMTDPart(int mtd, const std::string &fileName);
+
+	public:
+		CFlashExpertSetup();
+//		~CFlashExpertSetup();
+
+		int exec(CMenuTarget* parent, const std::string &actionKey);
+};
+#endif // BOXMODEL_APOLLO
 
 #endif

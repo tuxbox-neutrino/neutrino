@@ -82,6 +82,7 @@
 #define NEUTRINO_ICON_16_9		"16_9"
 #define NEUTRINO_ICON_16_9_GREY		"16_9_gray"
 #define NEUTRINO_ICON_AUDIO		"audio"
+#define NEUTRINO_ICON_AUDIOPLAY		"audioplay"
 #define NEUTRINO_ICON_COLORS		"colors"
 #define NEUTRINO_ICON_DD		"dd"
 #define NEUTRINO_ICON_DD_AVAIL		"dd_avail"

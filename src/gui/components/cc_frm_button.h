@@ -26,10 +26,11 @@
 #ifndef __CC_BUTTONS_H__
 #define __CC_BUTTONS_H__
 
-#include "config.h"
+#include <config.h>
 #include "cc.h"
 #include "cc_frm.h"
 #include <string>
+#include <driver/neutrinofonts.h>
 
 //! Sub class of CComponentsForm.
 /*!
@@ -55,11 +56,8 @@ class CComponentsButton : public CComponentsForm
 		fb_pixel_t cc_btn_capt_col;
 		///object: text font
 		Font* cc_btn_font;
-		///property: label object width, too long text will be truncated
-		int cc_btn_text_w;
-		///property: label object heigth
-		int cc_btn_text_h;
-	
+		///object: dynamic font object handler
+		CNeutrinoFonts 	*cc_btn_dy_font;
 
 		///initialize picture object
 		void initIcon();
@@ -72,12 +70,24 @@ class CComponentsButton : public CComponentsForm
 	public:
 		///basic constructor for button object with most needed params, no button icon is definied here
 		CComponentsButton(	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& caption, const std::string& icon_name,
+					const std::string& caption, const std::string& icon_name = "",
+					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		CComponentsButton(	const int x_pos, const int y_pos, const int w, const int h,
+					const neutrino_locale_t& caption_locale, const std::string& icon_name = "",
 					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///set text color
 		virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_capt_col = caption_color;};
+		
+		///set caption: parameter as string
+		virtual void setCaption(const std::string& text);
+		///set caption: parameter as locale
+		virtual void setCaption(const neutrino_locale_t locale_text);
+		
+		///reinitialize items
+		virtual void Refresh(){initCCBtnItems();};
 
 		///paint button object
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
@@ -150,6 +160,5 @@ class CComponentsButtonBlue : public CComponentsButton
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
 		};
 };
-
 
 #endif	/*__CC_BUTTONS_H__*/

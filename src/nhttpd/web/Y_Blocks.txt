@@ -430,7 +430,7 @@ start-block~frame_boxcontrol
 {=var-set:work=
 	{=if-equal:{=var-get:startpage=}~bouquets~Y_Boxcontrol_Bouquets.yhtm
 	~
-		{=if-equal:{=var-get:startpage=}~control~Y_Tools_Boxcontrol.yhtm~Y_blank.yhtm=}
+		{=if-equal:{=var-get:startpage=}~control~Y_Tools_Boxcontrol.yhtm~Y_blank.htm=}
 	=}=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_boxcontrol
@@ -508,11 +508,12 @@ start-block~remote
 		{=if-equal:{=var-get:boxtype=}~CST Zee CABLE~		{=include-block:Y_Blocks.txt;rc_cst_v3=}~
 		{=if-equal:{=var-get:boxtype=}~CST Neo Twin SAT~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
 		{=if-equal:{=var-get:boxtype=}~CST Neo Twin CABLE~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-		{=if-equal:{=var-get:boxtype=}~CST Tank SAT~		{=include-block:Y_Blocks.txt;rc_cst_v5=}~
-		{=if-equal:{=var-get:boxtype=}~CST Tank CABLE~		{=include-block:Y_Blocks.txt;rc_cst_v5=}~
+		{=if-equal:{=var-get:boxtype=}~CST Tank~		{=include-block:Y_Blocks.txt;rc_cst_v5=}~
+		{=if-equal:{=var-get:boxtype=}~CST Trinity SAT~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+		{=if-equal:{=var-get:boxtype=}~CST Trinity CABLE~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 
 		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
-		=}=}=}=}=}=}=}=}
+		=}=}=}=}=}=}=}=}=}
 	=}=}
 ~
 	{=if-equal:{=var-get:yfbtype=}~-2~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
@@ -522,9 +523,10 @@ start-block~remote
 	{=if-equal:{=var-get:yfbtype=}~3~	{=include-block:Y_Blocks.txt;rc_cst_v3=}~
 	{=if-equal:{=var-get:yfbtype=}~4~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
 	{=if-equal:{=var-get:yfbtype=}~5~	{=include-block:Y_Blocks.txt;rc_cst_v5=}~
+	{=if-equal:{=var-get:yfbtype=}~6~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 
 	{=comment:fallback~=}			{=include-block:Y_Blocks.txt;rc_cst_v1=}
-	=}=}=}=}=}=}=}
+	=}=}=}=}=}=}=}=}
 =}
 end-block~remote
 
@@ -788,6 +790,72 @@ start-block~rc_cst_v5
   <area shape="rect" href="javascript:rcsim('KEY_STOP')" coords="128,596,170,624" alt="stop" title="{=L:rc.key_stop=}" />
 </map>
 end-block~rc_cst_v5
+
+# ------- Remote CST V6 (TRINITY)
+start-block~rc_cst_v6
+<img src="images/rc_cst_v6.jpg" usemap="#rc" alt="remote" />
+<map name="rc" id="rc">
+  <area shape="circle" coords="94,50,16" alt="standby" href="javascript:rcsim('KEY_POWER')" title="{=L:rc.key_power=}" />
+  <area shape="circle" coords="150,68,13" alt="mute" href="javascript:rcsim('KEY_MUTE')" title="{=L:rc.key_mute=}" />
+  <area shape="circle" coords="38,68,13" alt="sat" href="javascript:rcsim('KEY_SAT')" title="{=L:rc.key_sat=}" />
+
+  <area shape="rect" coords="72,89,114,106" alt="tv-radio" href="javascript:rcsim('KEY_MODE')" title="{=L:rc.key_mode=}" />
+  <!-- area shape="rect" coords="72,116,114,133" alt="vformat" / -->
+  <area shape="rect" coords="19,93,60,110" alt="skip+" href="javascript:rcsim('KEY_NEXT')" title="{=L:rc.key_next=}" />
+  <area shape="rect" coords="19,120,60,137" alt="skip-" href="javascript:rcsim('KEY_PREVIOUS')" title="{=L:rc.key_previous=}" />
+  <area shape="rect" coords="126,93,167,110" alt="picsize" href="javascript:rcsim('KEY_NEXT')" title="{=L:rc.key_next=}" />
+  <area shape="rect" coords="126,120,167,137" alt="picmode" href="javascript:rcsim('KEY_PREVIOUS')" title="{=L:rc.key_previous=}" />
+
+  <area shape="circle" coords="73,171,14" alt="fav" href="javascript:rcsim('KEY_FAVORITES')" title="{=L:rc.key_favorites=}" />
+  <area shape="circle" coords="73,204,14" alt="t/s" href="javascript:rcsim('KEY_TIME')" title="{=L:rc.key_time=}" />
+  <area shape="circle" coords="114,171,14" alt="audio" href="javascript:rcsim('KEY_AUDIO')" title="{=L:rc.key_audio=}" />
+  <area shape="circle" coords="114,204,14" alt="text" href="javascript:rcsim('KEY_TEXT')" title="{=L:rc.key_text=}" />
+  <!-- area shape="circle" coords="34,183,14" alt="sub" / -->
+  <!-- area shape="circle" coords="34,217,14" alt="trsp" / -->
+  <area shape="circle" coords="154,183,14" alt="help" href="javascript:rcsim('KEY_HELP')" title="{=L:rc.key_help=}" />
+  <!-- area shape="circle" coords="154,217,14" alt="recall" / -->
+
+  <area shape="circle" coords="65,247,12" alt="epg" href="javascript:rcsim('KEY_EPG')" title="{=L:rc.key_epg=}" />
+  <area shape="circle" coords="122,247,12" alt="info" href="javascript:rcsim('KEY_INFO')" title="{=L:rc.key_info=}" />
+  <area shape="circle" coords="46,369,12" alt="menu" href="javascript:rcsim('KEY_SETUP')" title="{=L:rc.key_setup=}" />
+  <area shape="circle" coords="141,369,12" alt="exit" href="javascript:rcsim('KEY_HOME')" title="{=L:rc.key_home=}" />
+  <area shape="circle" coords="93,312,16" alt="ok" href="javascript:rcsim('KEY_OK')" title="{=L:rc.key_ok=}" />
+  <area shape="rect" coords="18,266,42,297" alt="vol+" href="javascript:rcsim('KEY_VOLUMEUP')" title="{=L:rc.key_volumeup=}" />
+  <area shape="rect" coords="145,266,169,297" alt="page+" href="javascript:rcsim('KEY_PAGEUP')" title="{=L:rc.key_pageup=}" />
+  <area shape="rect" coords="13,310,37,341" alt="vol-" href="javascript:rcsim('KEY_VOLUMEDOWN')" title="{=L:rc.key_volumedown=}" />
+  <area shape="rect" coords="150,310,174,341" alt="page-" href="javascript:rcsim('KEY_PAGEDOWN')" title="{=L:rc.key_pagedown=}" />
+  <area shape="rect" coords="71,267,116,285" alt="up" href="javascript:rcsim('KEY_UP')" title="{=L:rc.key_up=}" />
+  <area shape="rect" coords="71,338,116,356" alt="down" href="javascript:rcsim('KEY_DOWN')" title="{=L:rc.key_down=}" />
+  <area shape="rect" coords="50,289,68,334" alt="left" href="javascript:rcsim('KEY_LEFT')" title="{=L:rc.key_left=}" />
+  <area shape="rect" coords="119,289,137,334" alt="right" href="javascript:rcsim('KEY_RIGHT')" title="{=L:rc.key_right=}" />
+  <area shape="rect" coords="72,370,114,392" alt="rec" href="javascript:rcsim('KEY_RECORD')" title="{=L:rc.key_record=}" />
+
+  <area shape="rect" coords="71,406,115,423" alt="w" href="javascript:rcsim('KEY_WWW')" title="{=L:rc.key_www=}" />
+  <area shape="rect" coords="71,436,115,453" alt="pause" href="javascript:rcsim('KEY_PAUSE')" title="{=L:rc.key_pause=}" />
+  <area shape="rect" coords="125,400,158,419" alt="ff" href="javascript:rcsim('KEY_FORWARD')" title="{=L:rc.key_forward=}" />
+  <area shape="rect" coords="28,400,61,419" alt="rew" href="javascript:rcsim('KEY_REWIND')" title="{=L:rc.key_rewind=}" />
+  <area shape="rect" coords="125,432,158,451" alt="stop" href="javascript:rcsim('KEY_STOP')" title="{=L:rc.key_stop=}" />
+  <area shape="rect" coords="28,432,61,451" alt="play" href="javascript:rcsim('KEY_PLAY')" title="{=L:rc.key_play=}" />
+
+  <area shape="circle" coords="38,481,9" alt="red" href="javascript:rcsim('KEY_RED')" title="{=L:rc.key_red=}" />
+  <area shape="circle" coords="74,492,9" alt="green" href="javascript:rcsim('KEY_GREEN')" title="{=L:rc.key_green=}" />
+  <area shape="circle" coords="111,492,9" alt="yellow" href="javascript:rcsim('KEY_YELLOW')" title="{=L:rc.key_yellow=}" />
+  <area shape="circle" coords="148,481,9" alt="blue" href="javascript:rcsim('KEY_BLUE')" title="{=L:rc.key_blue=}" />
+
+  <area shape="rect" coords="25,516,61,534" alt="1" href="javascript:rcsim('KEY_1')" title="{=L:rc.key_1=}" />
+  <area shape="rect" coords="72,518,112,536" alt="2" href="javascript:rcsim('KEY_2')" title="{=L:rc.key_2=}" />
+  <area shape="rect" coords="124,516,160,534" alt="3" href="javascript:rcsim('KEY_3')" title="{=L:rc.key_3=}" />
+  <area shape="rect" coords="29,549,61,567" alt="4" href="javascript:rcsim('KEY_4')" title="{=L:rc.key_4=}" />
+  <area shape="rect" coords="72,551,112,569" alt="5" href="javascript:rcsim('KEY_5')" title="{=L:rc.key_5=}" />
+  <area shape="rect" coords="125,549,157,567" alt="6" href="javascript:rcsim('KEY_6')" title="{=L:rc.key_6=}" />
+  <area shape="rect" coords="33,583,61,601" alt="7" href="javascript:rcsim('KEY_7')" title="{=L:rc.key_7=}" />
+  <area shape="rect" coords="72,585,112,603" alt="8" href="javascript:rcsim('KEY_8')" title="{=L:rc.key_8=}" />
+  <area shape="rect" coords="125,583,153,601" alt="9" href="javascript:rcsim('KEY_9')" title="{=L:rc.key_9=}" />
+  <area shape="rect" coords="72,619,112,637" alt="0" href="javascript:rcsim('KEY_0')" title="{=L:rc.key_0=}" />
+  <!-- area shape="rect" coords="126,616,152,634" alt="pos" / -->
+  <area shape="rect" coords="35,616,61,634" alt="sleep" href="javascript:rcsim('KEY_SLEEP')" title="{=L:rc.key_sleep=}" />
+</map>
+end-block~rc_cst_v6
 
 # ------- Remote d-Box Nokia old
 start-block~rc_dbox_nokia_old

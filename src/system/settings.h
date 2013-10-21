@@ -73,6 +73,7 @@ struct SNeutrinoSettings
 	int shutdown_real_rcdelay;
 	char shutdown_count[4];
 	char shutdown_min[4];
+	int sleeptimer_min;
 	char record_safety_time_before[3];
 	char record_safety_time_after[3];
 	int zapto_pre_time;
@@ -486,6 +487,12 @@ struct SNeutrinoSettings
 	int softupdate_name_mode_backup;
 	int apply_settings;
 	int apply_kernel;
+
+	int flashupdate_createimage_add_uldr;
+	int flashupdate_createimage_add_u_boot;
+	int flashupdate_createimage_add_env;
+	int flashupdate_createimage_add_spare;
+	int flashupdate_createimage_add_kernel;
 
 	//BouquetHandling
 	int bouquetlist_mode;

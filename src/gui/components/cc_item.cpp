@@ -151,3 +151,12 @@ int CComponentsItem::getItemType()
 #endif
 	return -1;
 }
+
+//returns true if current item is added to a form
+bool CComponentsItem::isAdded()
+{
+	if (cc_parent)
+		return true;
+
+	return false;
+}

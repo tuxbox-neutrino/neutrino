@@ -214,16 +214,14 @@ unsigned int CZapitClient::zapTo_pip(const t_channel_id channel_id)
 	return response.zapStatus;
 }
 
-unsigned int CZapitClient::zapTo_epg(const t_channel_id channel_id)
+unsigned int CZapitClient::zapTo_epg(const t_channel_id channel_id, bool standby)
 {
-	CZapitMessages::commandZaptoServiceID msg;
+	CZapitMessages::commandZaptoEpg msg;
 
 	msg.channel_id = channel_id;
-	msg.record = false;
-	msg.pip = false;
-	msg.epg = true;
+	msg.standby = standby;
 
-	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
+	send(CZapitMessages::CMD_ZAPTO_EPG, (const char *) & msg, sizeof(msg));
 
 	CZapitMessages::responseZapComplete response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));

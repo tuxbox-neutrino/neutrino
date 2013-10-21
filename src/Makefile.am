@@ -1,8 +1,14 @@
+BUILT_SOURCES = rcsim.h
+rcsim.h:
+	pushd $(top_srcdir)/src/ && ./create_rcsim_h.sh > $@
+
+.PHONY: rcsim.h
+
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 SUBDIRS = zapit gui daemonc driver system eitd timerd nhttpd
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
@@ -20,13 +26,13 @@ INCLUDES = \
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
 else
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
 endif
 endif
 if USE_STB_HAL
-INCLUDES += -I$(STB_HAL_INC)
+AM_CPPFLAGS += -I$(STB_HAL_INC)
 endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
@@ -44,13 +50,17 @@ neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
 rcsim_SOURCES = rcsim.c rcsim.h
 
-AM_CPPFLAGS =
-
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
 AM_CPPFLAGS += -DENABLE_FLAC
 else
 FLACLIBS =
+endif
+
+if BOXMODEL_APOLLO
+MTDUTILSLIBS = \
+	system/mtdutils/libneutrino_system_mtdutils.a \
+	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
 endif
 
 neutrino_LDADD = \
@@ -62,6 +72,7 @@ neutrino_LDADD = \
 	gui/widget/libneutrino_gui_widget2.a \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
 	system/libneutrino_system.a \
+	$(MTDUTILSLIBS) \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
 	gui/components/libneutrino_gui_components.a \

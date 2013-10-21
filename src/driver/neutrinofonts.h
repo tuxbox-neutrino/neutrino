@@ -27,6 +27,8 @@
 #ifndef __neutrinofonts__
 #define __neutrinofonts__
 
+#include <src/system/settings.h>
+
 typedef struct neutrino_font_descr {
 	std::string	name;
 	std::string	filename;

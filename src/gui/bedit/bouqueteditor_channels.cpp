@@ -248,7 +248,7 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 #if 0			
 		ibox->paint(false,true);
 #endif
-		ibox->setCornerRadius(RADIUS_LARGE);
+		ibox->setCorner(RADIUS_LARGE);
 		ibox->setShadowOnOff(CC_SHADOW_OFF);
 	}
 }

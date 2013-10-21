@@ -45,11 +45,13 @@
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
 #include <zapit/femanager.h>
+#include <eitd/sectionsd.h>
 
 //#define ONE_KEY_PLUGIN
 
@@ -113,6 +115,14 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 #endif /*ONE_KEY_PLUGIN*/
+	else if(actionKey == "info")
+	{
+		unsigned num = CEitManager::getInstance()->getEventsCount();
+		char str[128];
+		sprintf(str, "Event count: %d", num);
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack);
+		return menu_return::RETURN_REPAINT;
+	}
 
 	return showMiscSettingsMenu();
 }
@@ -160,6 +170,25 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 	{ 600, NONEXISTANT_LOCALE, "600 Mhz"}
 };
 #endif /*CPU_FREQ*/
+
+#define EPG_SCAN_OPTION_COUNT 3
+const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[EPG_SCAN_OPTION_COUNT] =
+{
+	{ 0, LOCALE_OPTIONS_OFF },
+	{ 1, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
+	{ 2, LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
+};
+
+#define SLEEPTIMER_MIN_OPTION_COUNT 7
+const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTION_COUNT] =
+{
+	{ 0,	NONEXISTANT_LOCALE, "EPG"	},
+	{ 30,	NONEXISTANT_LOCALE, "30 min"	},
+	{ 60,	NONEXISTANT_LOCALE, "60 min"	},
+	{ 90,	NONEXISTANT_LOCALE, "90 min"	},
+	{ 120,	NONEXISTANT_LOCALE, "120 min"	},
+	{ 150,	NONEXISTANT_LOCALE, "150 min"	}
+};
 
 //show misc settings menue
 int CMiscMenue::showMiscSettingsMenu()
@@ -312,13 +341,17 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent");
 	m2->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
 	ms_energy->addItem(m2);
+
+	CMenuOptionChooser * m4 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SLEEPTIMER_MIN, &g_settings.sleeptimer_min, SLEEPTIMER_MIN_OPTIONS, SLEEPTIMER_MIN_OPTION_COUNT, true);
+	m4->setHint("", LOCALE_MENU_HINT_SLEEPTIMER_MIN);
+	ms_energy->addItem(m4);
 }
 
 //EPG settings
 void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 {
 	ms_epg->addIntroItems(LOCALE_MISCSETTINGS_EPG_HEAD);
-
+	ms_epg->addKey(CRCInput::RC_info, this, "info");
 
 	CMenuOptionChooser * mc1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_STANDBY, &g_settings.epg_save_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.epg_save);
 	mc1->setHint("", LOCALE_MENU_HINT_EPG_SAVE_STANDBY);
@@ -353,8 +386,8 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true,miscEpgNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
 
-	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
-		CFEManager::getInstance()->getEnabledCount() > 1);
+	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
+		true /*CFEManager::getInstance()->getEnabledCount() > 1*/);
 	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
 	ms_epg->addItem(mc);

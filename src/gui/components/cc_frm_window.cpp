@@ -140,6 +140,7 @@ void CComponentsWindow::initVarWindow()
 	ccw_caption 	= "";
 	ccw_icon_name	= NULL;
 	ccw_buttons	= 0; //no header buttons
+	ccw_show_footer = true;
 	
 	setShadowOnOff(true);
 }
@@ -160,7 +161,7 @@ void CComponentsWindow::initHeader()
 	//set header properties
 	if (ccw_head){
 		ccw_head->setPos(0, 0);
-		ccw_head->setWidth(width);
+		ccw_head->setWidth(width-2*fr_thickness);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption);
 		ccw_head->initCCItems();
@@ -179,10 +180,12 @@ void CComponentsWindow::initBody()
 	//set body properties
 	if (ccw_body){
 		ccw_body->setCornerType(0);
-		int fh = ccw_footer->getHeight();
+		int fh = 0;
+		if (ccw_footer)
+			fh = ccw_footer->getHeight();
 		int hh = ccw_head->getHeight();
-		int h_body = height - hh - fh;
-		ccw_body->setDimensionsAll(0, CC_APPEND, width, h_body);
+		int h_body = height - hh - fh - 2*fr_thickness;
+		ccw_body->setDimensionsAll(0, CC_APPEND, width-2*fr_thickness, h_body);
 		ccw_body->doPaintBg(false);
 	}
 }
@@ -199,7 +202,7 @@ void CComponentsWindow::initFooter()
 	//set footer properties
 	if (ccw_footer){
 		ccw_footer->setPos(0, CC_APPEND);
-		ccw_footer->setWidth(width);
+		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->setShadowOnOff(shadow);
 	}
 }
@@ -216,16 +219,26 @@ void CComponentsWindow::initCCWItems()
 	printf("[CComponentsWindow]   [%s - %d] init items...\n", __FUNCTION__, __LINE__);
 #endif
 	initHeader();
-	initFooter();
+	
+	//add footer if required
+	if (ccw_show_footer){
+		initFooter();
+	}else{
+		if (ccw_footer != NULL){
+			removeCCItem(ccw_footer);
+			ccw_footer = NULL;
+		}
+	}
 	initBody();
 	
 	//add header, body and footer items only one time
-	if (!isAdded(ccw_head))
+	if (!ccw_head->isAdded())
 		addCCItem(ccw_head);
-	if (!isAdded(ccw_body))
+	if (!ccw_body->isAdded())
 		addCCItem(ccw_body);
-	if (!isAdded(ccw_footer))
-		addCCItem(ccw_footer);
+	if (ccw_footer)
+		if (!ccw_footer->isAdded())
+			addCCItem(ccw_footer);
 }
 
 void CComponentsWindow::paint(bool do_save_bg)

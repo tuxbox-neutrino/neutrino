@@ -137,6 +137,7 @@ CZapit::CZapit()
 	current_volume = 100;
 	volume_percent = 0;
 	pip_channel_id = 0;
+	lock_channel_id = 0;
 	pip_fe = NULL;
 }
 
@@ -228,7 +229,7 @@ void CZapit::LoadAudioMap()
 	int mode = 0;
 	int volume = 0;
 	char s[1000];
-	while (fgets(s, 1000, audio_config_file)) {
+	while (fgets(s, sizeof(s), audio_config_file)) {
 		sscanf(s, "%" SCNx64 " %d %d %d %d %d %d", &chan, &apid, &mode, &volume, &subpid, &ttxpid, &ttxpage);
 		audio_map[chan].apid = apid;
 		audio_map[chan].subpid = subpid;
@@ -268,7 +269,7 @@ void CZapit::LoadVolumeMap()
 	int apid = 0;
 	int volume = 0;
 	char s[1000];
-	while (fgets(s, 1000, volume_config_file)) {
+	while (fgets(s, sizeof(s), volume_config_file)) {
 		if (sscanf(s, "%" SCNx64 " %d %d", &chan, &apid, &volume) == 3)
 			vol_map.insert(volume_pair_t(chan, pid_pair_t(apid, volume)));
 	}
@@ -359,7 +360,7 @@ void CZapit::ConfigFrontend()
 
 void CZapit::SendPMT(bool forupdate)
 {
-	if(!current_channel)
+	if(!current_channel || (!forupdate && playbackStopForced))
 		return;
 
 	CCamManager::getInstance()->Start(current_channel->getChannelID(), CCamManager::PLAY, forupdate);
@@ -426,7 +427,7 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 	return NULL;
 }
 
-bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change)
+bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change, bool send_event)
 {
 	if(channel  == NULL || frontend == NULL)
 		return false;
@@ -436,7 +437,8 @@ bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &tr
 		int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
 		if(waitForMotor > 0) {
 			printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
-			SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
+			if (send_event)
+				SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
 			for(int i = 0; i < waitForMotor; i++) {
 				sleep(1);
 				if(abort_zapit) {
@@ -533,6 +535,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	current_channel = newchannel;
 
 	live_channel_id = current_channel->getChannelID();
+	lock_channel_id = live_channel_id;
 	SaveSettings(false);
 	srand(time(NULL));
 
@@ -556,7 +559,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	}
 	SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 
-#if 0 // def ENABLE_PIP
+#ifdef ENABLE_PIP
 	if (transponder_change && (live_fe == pip_fe))
 		StopPip();
 #endif
@@ -629,7 +632,9 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
-
+	/* do lock if live is running, or in record mode -
+	   this is for the case temporary timeshift is running, it do not lock its frontend */
+	bool need_lock = !playbackStopForced || (currentMode & RECORD_MODE);
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		INFO("channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
@@ -637,14 +642,22 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 	}
 	INFO("[pip] zap to %s (%llx tp %llx)", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
-	CFEManager::getInstance()->lockFrontend(live_fe);
+	if (need_lock)
+		CFEManager::getInstance()->lockFrontend(live_fe);
+
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
-	CFEManager::getInstance()->unlockFrontend(live_fe);
+
+	if (need_lock)
+		CFEManager::getInstance()->unlockFrontend(live_fe);
+
 	if(frontend == NULL) {
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
 	StopPip();
+	if (!need_lock && !SAME_TRANSPONDER(newchannel->getChannelID(), live_channel_id))
+		live_channel_id = newchannel->getChannelID();
+
 	if(!TuneChannel(frontend, newchannel, transponder_change))
 		return false;
 
@@ -729,7 +742,7 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 	return true;
 }
 
-bool CZapit::ZapForEpg(const t_channel_id channel_id)
+bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
@@ -743,25 +756,36 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id)
 	/* executed async in zapit thread, race possible with record lock/allocate */
 	CFEManager::getInstance()->Lock();
 
-	CFEManager::getInstance()->lockFrontend(live_fe);
+	/* no need to lock fe in standby mode,
+	   epg scan should care to not call this if recording running */
+	if (!instandby) {
+		CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
-	if (pip_fe && pip_fe != live_fe)
-		CFEManager::getInstance()->lockFrontend(pip_fe);
+		if (pip_fe && pip_fe != live_fe)
+			CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
+	}
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
 
-	CFEManager::getInstance()->unlockFrontend(live_fe);
+	if (!instandby) {
+		CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
-	if (pip_fe && pip_fe != live_fe)
-		CFEManager::getInstance()->unlockFrontend(pip_fe);
+		if (pip_fe && pip_fe != live_fe)
+			CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
+	}
 	CFEManager::getInstance()->Unlock();
 
 	if(frontend == NULL) {
 		ERROR("Cannot get frontend\n");
 		return false;
 	}
-	if(!TuneChannel(frontend, newchannel, transponder_change))
+	/* sort of hack. epg scan in standby can use any frontend,
+	   and break check in record code ie */
+	if (instandby)
+		live_channel_id = newchannel->getChannelID();
+
+	if(!TuneChannel(frontend, newchannel, transponder_change, false))
 		return false;
 #if 0
 	if(!ParsePatPmt(newchannel))
@@ -873,6 +897,10 @@ void CZapit::SetAudioStreamType(CZapitAudioChannel::ZapitAudioChannelType audioC
 		case CZapitAudioChannel::DTS:
 			audioStr = "DTS";
 			audioDecoder->SetStreamType(AUDIO_FMT_DTS);
+			break;
+		case CZapitAudioChannel::EAC3:
+			audioStr = "DD-PLUS";
+			audioDecoder->SetStreamType(AUDIO_FMT_DD_PLUS);
 			break;
 		default:
 			printf("[zapit] unknown audio channel type 0x%x\n", audioChannelType);
@@ -1069,15 +1097,6 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		else if(msgZaptoServiceID.pip)
 			msgResponseZapComplete.zapStatus = StartPip(msgZaptoServiceID.channel_id);
 #endif
-		else if(msgZaptoServiceID.epg) {
-			msgResponseZapComplete.zapStatus = 0;
-			CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
-			bool ret = ZapForEpg(msgZaptoServiceID.channel_id);
-			if (!ret)
-				msgZaptoServiceID.channel_id = 0;
-			SendEvent(CZapitClient::EVT_BACK_ZAP_COMPLETE, &msgZaptoServiceID.channel_id, sizeof(t_channel_id));
-			break;
-		}
 		else
 			msgResponseZapComplete.zapStatus = ZapTo(msgZaptoServiceID.channel_id, (rmsg.cmd == CZapitMessages::CMD_ZAPTO_SUBSERVICEID));
 
@@ -1085,6 +1104,19 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 
+	case CZapitMessages::CMD_ZAPTO_EPG:
+	{
+		CZapitMessages::responseZapComplete msgResponseZapComplete;
+		CZapitMessages::commandZaptoEpg msg;
+		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
+		msgResponseZapComplete.zapStatus = 0;
+		CBasicServer::send_data(connfd, &msgResponseZapComplete, sizeof(msgResponseZapComplete));
+		bool ret = ZapForEpg(msg.channel_id, msg.standby);
+		if (!ret)
+			msg.channel_id = 0;
+		SendEvent(CZapitClient::EVT_BACK_ZAP_COMPLETE, &msg.channel_id, sizeof(t_channel_id));
+		break;
+	}
 	case CZapitMessages::CMD_ZAPTO_SERVICEID_NOWAIT:
 	case CZapitMessages::CMD_ZAPTO_SUBSERVICEID_NOWAIT: {
 		CZapitMessages::commandZaptoServiceID msgZaptoServiceID;
@@ -1661,6 +1693,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		StopPlayBack(msgBool.truefalse);
 		standby = false;
 		playbackStopForced = true;
+		lock_channel_id = live_channel_id;
 		SendCmdReady(connfd);
 		break;
 	}
@@ -1669,9 +1702,16 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CZapitMessages::commandBoolean msgBool;
 		CBasicServer::receive_data(connfd, &msgBool, sizeof(msgBool));
 		playbackStopForced = false;
-		StartPlayBack(current_channel);
-		if (msgBool.truefalse)
-			SendPMT();
+		if (lock_channel_id == live_channel_id) {
+			StartPlayBack(current_channel);
+			if (msgBool.truefalse)
+				SendPMT();
+		} else {
+			live_fe->setTsidOnid(0);
+			ZapIt(lock_channel_id);
+			lock_channel_id = 0;
+		}
+
 		SendCmdReady(connfd);
 		break;
 	}
@@ -1929,11 +1969,13 @@ void CZapit::sendAPIDs(int connfd)
 		VALGRIND_PARANOIA(response);
 		response.pid = current_channel->getAudioPid(i);
 		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN-1);
-		response.is_ac3 = response.is_aac = 0;
+		response.is_ac3 = response.is_aac = response.is_eac3 = 0;
 		if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
 		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
 			response.is_aac = 1;
+		} else if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
+			response.is_eac3 = 1;
 		}
 		response.component_tag = current_channel->getAudioChannel(i)->componentTag;
 

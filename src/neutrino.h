@@ -100,6 +100,7 @@ private:
 	bool                            lockStandbyCall;
 	bool 				pbBlinkChange;
 	bool				g_channel_list_changed;
+	bool                            timer_wakeup;
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 

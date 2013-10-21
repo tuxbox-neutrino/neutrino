@@ -230,13 +230,13 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 
 	if (dx == 0) dx = 1280;
 	while (1) {
-		if (dynFont != NULL)
+		if (dynFont)
 			delete dynFont;
 		dynFont = g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
-		int _width	= 0;
-		int _height	= 0;
 		// calculate height & width
-		_height = getFontHeight(dynFont);
+		int _width 	= 0;
+		int _height 	= getFontHeight(dynFont);;
+
 		std::string tmpText = text;
 		if (text == "") tmpText = "x";
 		_width = dynFont->getRenderWidth(tmpText.c_str());
@@ -255,7 +255,7 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 			break;
 	}
 
-	if (dynFont != NULL)
+	if (dynFont)
 		delete dynFont;
 
 	return dynSize;

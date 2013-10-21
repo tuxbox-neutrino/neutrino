@@ -149,7 +149,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 	CMenuForwarder *fw_pviewer = NULL;
 	CPictureViewerGui *pictureviewergui = NULL;
 #if ENABLE_UPNP
-	CUpnpBrowserGui *upnpbrowsergui = NULL;
+	static CUpnpBrowserGui *upnpbrowsergui = NULL;
 	CMenuForwarder *fw_upnp = NULL;
 #endif
 	CMenuWidget *moviePlayer = NULL;
@@ -185,7 +185,8 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		fw_pviewer->setHint(NEUTRINO_ICON_HINT_PICVIEW, LOCALE_MENU_HINT_PICVIEW);
 #if ENABLE_UPNP
 		//upnp browser
-		upnpbrowsergui = new CUpnpBrowserGui();
+		if (!upnpbrowsergui)
+			upnpbrowsergui = new CUpnpBrowserGui();
 		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, upnpbrowsergui, NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
 #endif
 //  		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
@@ -237,7 +238,7 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		delete personalize;
 		delete pictureviewergui;
 #if ENABLE_UPNP
-		delete upnpbrowsergui;
+		//delete upnpbrowsergui;
 #endif
 
 		setUsageMode();//set default usage_mode

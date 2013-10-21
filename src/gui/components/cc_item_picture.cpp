@@ -206,3 +206,58 @@ void CComponentsPicture::hide(bool no_restore)
 	hideCCItem(no_restore);
 	pic_painted = false;
 }
+
+
+CComponentsChannelLogo::CComponentsChannelLogo( const int x_pos, const int y_pos, const int w, const int h,
+						const uint64_t& channelId, const std::string& channelName,
+						const int alignment, bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+						:CComponentsPicture(x_pos, y_pos, w, h,
+						"", alignment, has_shadow,
+						color_frame, color_background, color_shadow)
+{
+	channel_id = channelId;
+	channel_name = channelName;
+	initVarPictureChannellLogo();
+}
+
+void CComponentsChannelLogo::setPicture(const std::string& picture_name)
+{
+	pic_name = picture_name;
+	channel_id = 0;
+	channel_name = "";
+	initVarPictureChannellLogo();
+}
+
+void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)
+{
+	channel_id = channelId; 
+	channel_name = channelName;
+	initVarPictureChannellLogo();
+}
+
+void CComponentsChannelLogo::initVarPictureChannellLogo()
+{
+	string tmp_logo = pic_name;
+	has_logo = false;
+
+	if (!(channel_id == 0 && channel_name.empty() && pic_name.empty()))
+		has_logo = GetLogoName(channel_id, channel_name, pic_name, &pic_width, &pic_height);
+
+	if (!has_logo)
+		pic_name = tmp_logo;
+	
+// #ifdef DEBUG_CC
+	printf("	[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%lld)\n", __FUNCTION__, pic_name.c_str(), has_logo, channel_id);
+// #endif
+	
+	initVarPicture();
+}
+
+void CComponentsChannelLogo::paint(bool do_save_bg)
+{
+	initVarPictureChannellLogo();
+	paintInit(do_save_bg);
+	paintPicture();
+	has_logo = false; //reset
+}

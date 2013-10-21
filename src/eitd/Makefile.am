@@ -1,4 +1,4 @@
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -11,17 +11,17 @@ INCLUDES = \
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream2
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
 else
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
 endif
 endif
 if USE_STB_HAL
-INCLUDES += -I$(STB_HAL_INC)
+AM_CPPFLAGS += -I$(STB_HAL_INC)
 endif
 
 #AM_CPPFLAGS =
-AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
+AM_CPPFLAGS += -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 noinst_LIBRARIES = libsectionsd.a
 libsectionsd_a_SOURCES = \

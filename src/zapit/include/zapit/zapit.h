@@ -131,6 +131,7 @@ class CZapit : public OpenThreads::Thread
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
 		t_channel_id pip_channel_id;
+		t_channel_id lock_channel_id;
 		/* scan params */
 		TP_params TP;
 		fast_scan_type_t scant;
@@ -155,7 +156,7 @@ class CZapit : public OpenThreads::Thread
 		void RestoreChannelPids(CZapitChannel* channel);
 		//void ConfigFrontend();
 
-		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change);
+		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change, bool send_event = true);
 		bool ParsePatPmt(CZapitChannel * channel);
 
 		bool send_data_count(int connfd, int data_count);
@@ -209,7 +210,7 @@ class CZapit : public OpenThreads::Thread
 		bool ParseCommand(CBasicMessage::Header &rmsg, int connfd);
 		bool ZapIt(const t_channel_id channel_id, bool for_update = false, bool startplayback = true);
 		bool ZapForRecord(const t_channel_id channel_id);
-		bool ZapForEpg(const t_channel_id channel_id);
+		bool ZapForEpg(const t_channel_id channel_id, bool standby);
 		bool ChangeAudioPid(uint8_t index);
 		void SetRadioMode();
 		void SetTVMode();
@@ -258,5 +259,6 @@ class CZapit : public OpenThreads::Thread
 		bool StopPip();
 		void Lock() { mutex.lock(); }
 		void Unlock() { mutex.unlock(); }
+		void EnablePlayback(bool enable) { playbackStopForced = !enable; }
 };
 #endif /* __zapit_h__ */

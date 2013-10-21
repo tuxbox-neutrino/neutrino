@@ -89,4 +89,27 @@ class CComponentsPicture : public CComponentsItem
 		virtual void setMaxHeight(const int h_max){pic_max_h = h_max;};
 };
 
+class CComponentsChannelLogo : public CComponentsPicture, CPictureViewer
+{
+	protected:
+		///initialize all required attributes
+		void initVarPictureChannellLogo();
+
+	private:
+		uint64_t channel_id;
+		std::string channel_name;
+		bool has_logo;
+
+	public:
+		CComponentsChannelLogo( const int x_pos, const int y_pos, const int w, const int h,
+					const uint64_t& channelId =0, const std::string& channelName = "",
+					const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		void setChannel(const uint64_t& channelId, const std::string& channelName);
+		void setPicture(const std::string& picture_name);
+		bool hasLogo(){return has_logo;};
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+};
+
 #endif

@@ -43,7 +43,6 @@ private:
 	std::string func_get_audio_pids_as_dropdown(CyhookHandler *hh, std::string para);
 	std::string func_unmount_get_list(CyhookHandler *hh, std::string para);
 	std::string func_get_partition_list(CyhookHandler *hh, std::string para);
-	std::string func_get_boxtype(CyhookHandler *hh, std::string para);
 	std::string func_get_current_stream_info(CyhookHandler *hh, std::string para);
 	std::string func_get_timer_list(CyhookHandler *hh, std::string para);
 	std::string func_set_timer_form(CyhookHandler *hh, std::string para);
@@ -65,6 +64,9 @@ public:
 	virtual std::string 	getHookVersion(void) {return std::string("$Revision$");}
 	virtual THandleStatus	Hook_SendResponse(CyhookHandler *hh);
 	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
+
+	// func TUXBOX
+	std::string func_get_boxtype(CyhookHandler *hh, std::string para);
 };
 
 #endif /*__nhttpd_neutrinoyparser_h__*/

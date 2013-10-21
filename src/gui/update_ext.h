@@ -58,8 +58,9 @@ class CExtUpdate
 		std::vector<std::string> copyList, blackList, deleteList;
 
 		bool flashErrorFlag;
-		long total, bsize, used;
-		long free1, free2, free3; 
+		long bsize;
+		uint64_t total, used;
+		uint64_t free1, free2, free3;
 
 		bool applySettings(void);
 		bool readBackupList(const std::string & dstPath);

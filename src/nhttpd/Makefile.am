@@ -2,7 +2,7 @@ SUBDIRS = yhttpd_core yhttpd_mods tuxboxapi web
 
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
-INCLUDES = \
+AM_CPPFLAGS += \
 	-I$(srcdir) \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \

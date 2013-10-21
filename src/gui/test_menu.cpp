@@ -67,7 +67,7 @@ CTestMenu::CTestMenu()
 	width = w_max (50, 10);
 	circle = NULL;
 	sq = NULL;
-	pic= NULL;
+	pic = chnl_pic = NULL;
 	form = NULL;
 	txt = NULL;
 	header = NULL;
@@ -92,6 +92,7 @@ CTestMenu::~CTestMenu()
 	delete button;
 	delete clock;
 	delete clock_r;
+	delete chnl_pic;
 }
 
 static int test_pos[4] = { 130, 192, 282, 360 };
@@ -407,6 +408,16 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			pic->hide();
 		return res;
 	}
+	else if (actionKey == "channellogo"){
+		if (chnl_pic == NULL)
+			chnl_pic = new CComponentsChannelLogo(100, 100, 200, 200, 0, "ProSieben");
+
+		if (!chnl_pic->isPainted() && !chnl_pic->isPicPainted())
+			chnl_pic->paint();
+		else
+			chnl_pic->hide();
+		return res;
+	}
 	else if (actionKey == "form"){
 		if (form == NULL)
 			form = new CComponentsForm();
@@ -420,16 +431,14 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ptmp->setHeight(28);
 		ptmp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 		ptmp->setColorBody(COL_BLUE);
- 		ptmp->setCornerRadius(RADIUS_MID);
- 		ptmp->setCornerType(CORNER_TOP_LEFT);
+		ptmp->setCorner(RADIUS_MID, CORNER_TOP_LEFT);
 		form->addCCItem(ptmp);
 
 		CComponentsText *t1 = new CComponentsText(28, 0, 100, 28, "Text1", CTextBox::NO_AUTO_LINEBREAK);
 		form->addCCItem(t1);
 		
 		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 200, 50, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
-		t2->setCornerRadius(RADIUS_MID);
- 		t2->setCornerType(CORNER_TOP_RIGHT);
+		t2->setCorner(RADIUS_MID, CORNER_TOP_RIGHT);
  		form->addCCItem(t2);
 
 		CComponentsShapeCircle *c1 = new CComponentsShapeCircle(28, 40, 28);
@@ -669,6 +678,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Circle", true, NULL, this, "circle"));
 	widget->addItem(new CMenuForwarderNonLocalized("Square", true, NULL, this, "square"));
 	widget->addItem(new CMenuForwarderNonLocalized("Picture", true, NULL, this, "picture"));
+	widget->addItem(new CMenuForwarderNonLocalized("Channel-Logo", true, NULL, this, "channellogo"));
 	widget->addItem(new CMenuForwarderNonLocalized("Form", true, NULL, this, "form"));
 	widget->addItem(new CMenuForwarderNonLocalized("Text", true, NULL, this, "text"));
 	widget->addItem(new CMenuForwarderNonLocalized("Header", true, NULL, this, "header"));

@@ -207,7 +207,7 @@ int safe_mkdir(char * path)
 }
 
 /* function used to check is this dir writable, i.e. not flash, for record etc */
-int check_dir(const char * dir)
+int check_dir(const char * dir, bool allow_tmp)
 {
 	/* default to return, if statfs fail */
 	int ret = -1;
@@ -224,12 +224,16 @@ int check_dir(const char * dir)
 			case 0x58465342L:	/*xfs*/
 			case 0x4d44L:		/*msdos*/
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x858458f6L: 	/*ramfs*/
 #if 0
 			case 0x72b6L:		/*jffs2*/
 #endif
-				ret = 0;
-				break; //ok
+				ret = 0;//ok
+				break; 
+			case 0x858458f6L: 	/*ramfs*/
+			case 0x1021994: 	/*TMPFS_MAGIC*/
+				if(allow_tmp)
+					ret = 0;//ok
+				break;
 			default:
 				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
 				break; // error
@@ -238,7 +242,7 @@ int check_dir(const char * dir)
 	return ret;
 }
 
-bool get_fs_usage(const char * dir, long &btotal, long &bused, long *bsize/*=NULL*/)
+bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize/*=NULL*/)
 {
 	btotal = bused = 0;
 	struct statfs s;
@@ -248,7 +252,7 @@ bool get_fs_usage(const char * dir, long &btotal, long &bused, long *bsize/*=NUL
 		bused = s.f_blocks - s.f_bfree;
 		if (bsize != NULL)
 			*bsize = s.f_bsize;
-		//printf("fs (%s): total %ld used %ld\n", dir, btotal, bused);
+		//printf("fs (%s): total %llu used %llu\n", dir, btotal, bused);
 		return true;
 	}
 	return false;
@@ -371,7 +375,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		return false;
 	}
 
-	long block;
+	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
 	if (fsizeSrc64 > 0x7FFFFFF0) { // > 2GB
@@ -380,7 +384,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
 		while(fsize64 > 0) {
 			if(fsize64 < (off64_t)FileBufSize)
-				block = (long)fsize64;
+				block = (uint32_t)fsize64;
 			read(fd1, FileBuf, block);
 			write(fd2, FileBuf, block);
 			fsize64 -= block;
@@ -398,14 +402,14 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		}
 	}
 	else { // < 2GB
-		long fsizeSrc = lseek(fd1, 0, SEEK_END);
+		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
 		lseek(fd1, 0, SEEK_SET);
-		long fsize = fsizeSrc;
+		off_t fsize = fsizeSrc;
 		block = FileBufSize;
 		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
 		while(fsize > 0) {
-			if(fsize < (long)FileBufSize)
-				block = fsize;
+			if(fsize < (off_t)FileBufSize)
+				block = (uint32_t)fsize;
 			read(fd1, FileBuf, block);
 			write(fd2, FileBuf, block);
 			fsize -= block;
@@ -414,7 +418,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		}
 		if (doCopyFlag) {
 			lseek(fd2, 0, SEEK_SET);
-			long fsizeDst = lseek(fd2, 0, SEEK_END);
+			off_t fsizeDst = lseek(fd2, 0, SEEK_END);
 			if (fsizeSrc != fsizeDst){
 				close(fd1);
 				close(fd2);

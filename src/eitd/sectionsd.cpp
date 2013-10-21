@@ -903,7 +903,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	/* assume live demux always 0, other means background scan */
 	if (cmd->dnum) {
 		/* dont wakeup EIT, if we have max events allready */
-		if (max_events && (mySIeventsOrderUniqueKey.size() < max_events)) {
+		if (max_events == 0  || (mySIeventsOrderUniqueKey.size() < max_events)) {
 			threadEIT.setDemux(cmd->dnum);
 			threadEIT.setCurrentService(uniqueServiceKey);
 		}
@@ -1709,10 +1709,12 @@ void CEitThread::beforeSleep()
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
-	eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
-			CEventServer::INITID_SECTIONSD,
-			&current_service,
-			sizeof(messaging_current_servicekey));
+	if (scanning) {
+		eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
+				CEventServer::INITID_SECTIONSD,
+				&current_service,
+				sizeof(messaging_current_servicekey));
+	}
 	if(notify_complete)
 		system(CONFIGDIR "/epgdone.sh");
 }
@@ -2837,4 +2839,12 @@ void CEitManager::setLanguages(const std::vector<std::string>& newLanguages)
 {
 	SIlanguage::setLanguages(newLanguages);
 	SIlanguage::saveLanguages();
+}
+
+unsigned CEitManager::getEventsCount()
+{
+	readLockEvents();
+	unsigned anzEvents = mySIeventsOrderUniqueKey.size();
+	unlockEvents();
+	return anzEvents;
 }

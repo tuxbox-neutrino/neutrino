@@ -54,6 +54,7 @@ class CTestMenu : public CMenuTarget
 		CComponentsWindow *window;
 		CComponentsButton *button;
 		CComponentsFrmClock *clock ,*clock_r;
+		CComponentsChannelLogo* chnl_pic;
 		int width, selected;
 
 		int showTestMenu();

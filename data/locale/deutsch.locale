@@ -233,6 +233,7 @@ channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine 
 channellist.numeric_adjust Numeric zap adjust
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
+channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.since seit
@@ -465,6 +466,16 @@ flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen
 flashupdate.checkupdate_local Lokales Update
+flashupdate.createimage Image speichern
+flashupdate.createimage_add_env 'env' hinzufügen
+flashupdate.createimage_add_kernel 'kernel' hinzufügen
+flashupdate.createimage_add_spare 'spare' hinzufügen
+flashupdate.createimage_add_u_boot 'u-boot' hinzufügen
+flashupdate.createimage_add_uldr 'uldr' hinzufügen
+flashupdate.createimage_menu Aktuelle Software sichern
+flashupdate.createimage_options Einstellungen
+flashupdate.createimage_other Image für %s STB erstellen
+flashupdate.createimage_warning Nachfolgend wird ein Image für die %s STB erstellt.\nDieses Image wird auch nur auf einer %s STB lauffähig sein!\n \nTrotzdem fortsetzten?
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit
@@ -485,6 +496,9 @@ flashupdate.md5check Imageprüfung
 flashupdate.md5sumerror Das Image ist fehlerhaft
 flashupdate.menu_apply_kernel Kernel flashen
 flashupdate.menu_apply_settings Settingsübernahme erlauben
+flashupdate.mkfs_create_image Image erstellen
+flashupdate.mkfs_preparing_files Dateien und Verzeichnisse vorbereiten
+flashupdate.mkfs_using_sumtool Benutze Sumtool
 flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
 flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
@@ -798,7 +812,7 @@ menu.hint_epg_max_events Maxiale Anzahl der Events im Zwischenspeicher
 menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden) verworfen
 menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
 menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
-menu.hint_epg_scan Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
+menu.hint_epg_scan Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist, im aktuellen Bouquet oder in allen Favoriten
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
@@ -962,6 +976,7 @@ menu.hint_net_ssid Geben Sie die SSID des WLAN ein, mit dem Sie eine Verbindung 
 menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box
 menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server und externe IP-Adressen
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
+menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
@@ -1099,9 +1114,11 @@ menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn d
 menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste länger als 1 Sekunde betätigt wird
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus
+menu.hint_sleeptimer_min Voreinstellung der Zeitschaltuhr auf Ihrer Box
 menu.hint_soft_restart Neustarten von Neutrino-HD, ohne die Box neu zu starten
 menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
 menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
+menu.hint_softupdate_createimage_menu Sicherung der aktuellen Software inklusive aller Einstellungen
 menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen bzw. in den Flash schreiben
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
@@ -1179,6 +1196,8 @@ miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.epg_scan Hintergrundscan EPG
+miscsettings.epg_scan_bq Aktuelles Bouquet
+miscsettings.epg_scan_fav Alle Favoriten
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
@@ -1223,6 +1242,7 @@ miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
+miscsettings.sleeptimer_min Sleeptimer Vorgabe
 miscsettings.volume Lautstärke
 miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
@@ -1407,6 +1427,7 @@ movieplayer.bookmarkname_hint2
 movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
+movieplayer.starting Wiedergabe starten...
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ca. 10 Minuten zurück
@@ -1778,8 +1799,8 @@ settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
-sleeptimerbox.hint1 Ausschaltzeit in Min. (000=aus)
-sleeptimerbox.hint2 Die Box schaltet sich nach dieser Standby-Zeit aus.
+sleeptimerbox.hint1 Ausschaltzeit in Minuten (000 = aus)
+sleeptimerbox.hint2 Die Box schaltet sich nach dieser Zeit aus.
 sleeptimerbox.hint3 Die Box schaltet sich bei Nichtbenutzen der Fernbedienung aus.
 sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inaktivitätstimer

@@ -74,8 +74,9 @@ CExtUpdate::CExtUpdate()
 	FileHelpers 	= NULL;
 	MTDBuf		= NULL;
 	flashErrorFlag	= false;
-	total = bsize = used = 0;
-	free1 = free2 = free3 = 0;
+	bsize		= 0;
+	total = used	= 0;
+	free1 = free2	= free3 = 0;
 
 	copyList.clear();
 	blackList.clear();
@@ -232,11 +233,11 @@ bool CExtUpdate::applySettings()
 		return ErrorReset(0, "error system mtd not found");
 
 #ifdef BOXMODEL_APOLLO
-	int mtdSize = 65536*1024; // FIXME hack, mtd size more than free RAM
+	uint64_t mtdSize = 65536*1024; // FIXME hack, mtd size more than free RAM
 #else
-	int mtdSize = mtdInfo->getMTDSize(mtdFilename);
+	uint64_t mtdSize = mtdInfo->getMTDSize(mtdFilename);
 #endif
-	int mtdEraseSize = mtdInfo->getMTDEraseSize(mtdFilename);
+	uint64_t mtdEraseSize = mtdInfo->getMTDEraseSize(mtdFilename);
 	mtdNumber = mtdInfo->findMTDNumber(mtdFilename);
 
 	// get osrelease
@@ -258,8 +259,8 @@ bool CExtUpdate::applySettings()
 		if ( !file_exists(mtdramDriver.c_str()) )
 			return ErrorReset(0, "no mtdram driver available");
 		// load mtdram driver
-		snprintf(buf1, sizeof(buf1), "total_size=%d", mtdSize/1024);
-		snprintf(buf2, sizeof(buf2), "erase_size=%d", mtdEraseSize/1024);
+		snprintf(buf1, sizeof(buf1), "total_size=%llu", mtdSize/1024);
+		snprintf(buf2, sizeof(buf2), "erase_size=%llu", mtdEraseSize/1024);
 		my_system(4, "insmod", mtdramDriver.c_str(), buf1, buf2);
 		// check if mtdram driver is now loaded
 		if (!isMtdramLoad())
@@ -271,7 +272,8 @@ bool CExtUpdate::applySettings()
 
 	// find mtdram device
 	std::string mtdRamFilename = "", mtdBlockFileName = "";
-	int mtdRamSize = 0, mtdRamEraseSize = 0, mtdRamNr = 0;
+	uint64_t mtdRamSize = 0, mtdRamEraseSize = 0;
+	int mtdRamNr = 0;
 	f1 = fopen("/proc/mtd", "r");
 	if(!f1)
 		return ErrorReset(RESET_UNLOAD, "cannot read /proc/mtd");
@@ -279,7 +281,10 @@ bool CExtUpdate::applySettings()
 	while(!feof(f1)) {
 		if(fgets(buf1, sizeof(buf1), f1)!=NULL) {
 			char dummy[50] = "";
-			sscanf(buf1, "mtd%1d: %8x %8x \"%48s\"\n", &mtdRamNr, &mtdRamSize, &mtdRamEraseSize, dummy);
+			uint32_t tmp1, tmp2;
+			sscanf(buf1, "mtd%1d: %8x %8x \"%48s\"\n", &mtdRamNr, &tmp1, &tmp2, dummy);
+			mtdRamSize = (uint64_t)tmp1;
+			mtdRamEraseSize = (uint64_t)tmp2;
 			if (strstr(buf1, "mtdram test device") != NULL) {
 				sprintf(buf1, "/dev/mtd%d", mtdRamNr);
 				mtdRamFilename = buf1;
@@ -296,7 +301,7 @@ bool CExtUpdate::applySettings()
 	else {
 		// check mtdRamSize / mtdRamEraseSize
 		if ((mtdRamSize != mtdSize) || (mtdRamEraseSize != mtdEraseSize)) {
-			snprintf(buf2, sizeof(buf2), "error MTDSize(%08x/%08x) or MTDEraseSize(%08x/%08x)\n", mtdSize, mtdRamSize, mtdEraseSize, mtdRamEraseSize);
+			snprintf(buf2, sizeof(buf2), "error MTDSize(%08llx/%08llx) or MTDEraseSize(%08llx/%08llx)\n", mtdSize, mtdRamSize, mtdEraseSize, mtdRamEraseSize);
 			return ErrorReset(RESET_UNLOAD, buf2);
 		}
 	}
@@ -309,7 +314,7 @@ bool CExtUpdate::applySettings()
 	fd1 = open(imgFilename.c_str(), O_RDONLY);
 	if (fd1 < 0)
 		return ErrorReset(RESET_UNLOAD | DELETE_MTDBUF, "cannot read image file: " + imgFilename);
-	long filesize = lseek(fd1, 0, SEEK_END);
+	uint64_t filesize = (uint64_t)lseek(fd1, 0, SEEK_END);
 	lseek(fd1, 0, SEEK_SET);
 	if(filesize == 0)
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "image filesize is 0");
@@ -326,11 +331,11 @@ bool CExtUpdate::applySettings()
 	}
 	if (fd2 < 0)
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "cannot open mtdBlock");
-	long fsize = filesize;
-	long block;
+	uint64_t fsize = filesize;
+	uint32_t block;
 	while(fsize > 0) {
-		block = fsize;
-		if(block > (long)MTDBufSize)
+		block = (uint32_t)fsize;
+		if(block > (uint32_t)MTDBufSize)
 			block = MTDBufSize;
 		read(fd1, MTDBuf, block);
 		write(fd2, MTDBuf, block);
@@ -373,15 +378,15 @@ bool CExtUpdate::applySettings()
 	if (fd2 < 0)
 		return ErrorReset(RESET_UNLOAD | CLOSE_FD1 | DELETE_MTDBUF, "cannot open image file: ", imgFilename);
 	while(fsize > 0) {
-		block = fsize;
-		if(block > (long)MTDBufSize)
+		block = (uint32_t)fsize;
+		if(block > (uint32_t)MTDBufSize)
 			block = MTDBufSize;
 		read(fd1, MTDBuf, block);
 		write(fd2, MTDBuf, block);
 		fsize -= block;
 	}
 	lseek(fd2, 0, SEEK_SET);
-	long fsizeDst = lseek(fd2, 0, SEEK_END);
+	uint64_t fsizeDst = (uint64_t)lseek(fd2, 0, SEEK_END);
 	close(fd1);
 	close(fd2);
 	// check image file size
@@ -704,12 +709,12 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	sync();
 
 	if (get_fs_usage(mountPkt.c_str(), total, used, &bsize)) {
-		long flashWarning = 1000; // 1MB
-		long flashError   = 600;  // 600KB
+		uint64_t flashWarning = 1000; // 1MB
+		uint64_t flashError   = 600;  // 600KB
 		char buf1[1024];
 		total = (total * bsize) / 1024;
 		free3 = total - (used * bsize) / 1024;
-		printf("##### [%s] %ld KB free org, %ld KB free after delete, %ld KB free now\n", __FUNCTION__, free1, free2, free3);
+		printf("##### [%s] %llu KB free org, %llu KB free after delete, %llu KB free now\n", __FUNCTION__, free1, free2, free3);
 		memset(buf1, '\0', sizeof(buf1));
 		if (free3 <= flashError) {
 			snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_FLASHUPDATE_UPDATE_WITH_SETTINGS_ERROR), free3, total);

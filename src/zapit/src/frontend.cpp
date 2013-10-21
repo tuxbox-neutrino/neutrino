@@ -633,6 +633,7 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 		break;
 	default:
 		INFO("unknown FEC: %d!", f);
+	case FEC_S2_AUTO:
 	case FEC_AUTO:
 		fec = (char *)"AUTO";
 		break;

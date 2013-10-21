@@ -27,7 +27,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/components/cc.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc_frm_signalbars.h>
 #include <gui/components/cc_item_tvpic.h>
 #include <zapit/femanager.h>
 
@@ -71,16 +71,14 @@ class CStreamInfo2 : public CMenuTarget
 		unsigned int pmt_version;
 		int box_h,box_h2;
 		struct feSignal {
-			long	ber, max_ber, min_ber;
-			long	sig, max_sig, min_sig;
-			long	snr, max_snr, min_snr;
+			unsigned long	ber, old_ber, max_ber, min_ber;
+			unsigned long	sig, old_sig, max_sig, min_sig;
+			unsigned long	snr, old_snr, max_snr, min_snr;
 		} signal;
-		struct feSignal s_old;
 
 		struct bitrate {
-			int short_average, max_short_average, min_short_average;
+			unsigned int short_average, max_short_average, min_short_average;
 		} rate;
-		struct bitrate br_old;
 
 		int  doSignalStrengthLoop();
 
@@ -100,10 +98,9 @@ class CStreamInfo2 : public CMenuTarget
 		void paint_signal_fe_box(int x, int y, int w, int h);
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int  y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
-		void SignalRenderStr(unsigned int oldvalue, unsigned int value, int x, int y);
-		CProgressBar *sigscale;
-		CProgressBar *snrscale;
-		int lastsig, lastsnr;
+		void SignalRenderStr (unsigned int value, int x, int y);
+		CSignalBox *signalbox;
+
 		void showSNR ();
 	public:
 

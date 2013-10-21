@@ -51,17 +51,17 @@ class CComponents
 		///container: for frambuffer properties and pixel buffer
 		std::vector<comp_fbdata_t> v_fbdata;
 
-		///property: x-position on screen
+		///property: x-position on screen, to alter with setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int x;
-		///property: y-position on screen
+		///property: y-position on screen, to alter setPos() or setDimensionsAll(), see also defines CC_APPEND, CC_CENTERED
 		int y;
 		///property: contains real x-position on screen
 		int cc_xr;
 		///property: contains real y-position on screen
 		int cc_yr;
-		///property: height-dimension on screen
+		///property: height-dimension on screen, to alter with setHeight() or setDimensionsAll()
 		int height;
-		///property: width-dimension on screen
+		///property: width-dimension on screen, to alter with setWidth() or setDimensionsAll()
 		int width;
 		///property: has corners with definied type, types are defined in /driver/frambuffer.h, without effect, if corner_radius=0
 		int corner_type;
@@ -182,8 +182,8 @@ class CComponents
 		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
 		///Note: default values are given from settings
 		inline virtual void setCornerType(const int& type){corner_type = type;};
-		///set corner radius
-		inline virtual void setCornerRadius(const int& radius){corner_rad = radius;};
+		///set corner radius and type
+		inline virtual void setCorner(const int& radius, const int& type = CORNER_ALL){corner_rad = radius; corner_type = type;};
 		///get corner types
 		inline virtual int getCornerType(){return corner_type;};
 		///get corner radius
@@ -244,6 +244,8 @@ class CComponentsItem : public CComponents
 		virtual void setParent(CComponentsItem *parent){cc_parent = parent;};
 		///returns pointer to the form object in which this item is embedded.
 		virtual CComponentsItem * getParent(){return cc_parent;};
+		///property: returns true if item is added to a form
+		virtual bool isAdded();
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;

@@ -68,17 +68,12 @@ enum initiators
 };
 #endif
 
-enum {	// not defined in input.h but used like that, at least in 2.4.22
-	KEY_RELEASED = 0,
-	KEY_PRESSED,
-	KEY_AUTOREPEAT
-};
-
 #include "rcsim.h"
 
 void usage(char *n){
 	unsigned int keynum = sizeof(keyname)/sizeof(struct key);
 	unsigned int i;
+#ifdef HAVE_DBOX_HARDWARE
 	printf ("rcsim v1.1\nUsage: %s <keyname> [<time>] [<repeat>]\n"
 		"    <keyname> is an excerpt of the 'KEY_FOO'-names in <driver/rcinput.h>,\n"
 		"    <time>    is how long a code is repeatedly sent,\n"
@@ -92,6 +87,10 @@ void usage(char *n){
 		"        %s KEY_OK 2 250\n"
 		"             ; KEY_OK sent every 250ms for 2 seconds\n\n"
 		"    Keys:",n,n,n);
+#else
+	printf ("rcsim v1.1\nUsage: %s <keyname>\n\n"
+		"    Keys:",n);
+#endif
 	for (i=0;i<keynum;){
 		if ((i % 4) == 0)
 			printf ("\n    %-16s",keyname[i++].name);
@@ -128,7 +127,7 @@ int push(int ev, unsigned int code, unsigned int value)
 
 	memset(&servaddr, 0, sizeof(struct sockaddr_un));
 	servaddr.sun_family = AF_UNIX;
-	strcpy(servaddr.sun_path, NEUTRINO_SOCKET);
+	strncpy(servaddr.sun_path, NEUTRINO_SOCKET, sizeof(servaddr.sun_path) - 1);
 	clilen = sizeof(servaddr.sun_family) + strlen(servaddr.sun_path);
 
 	if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
@@ -180,7 +179,7 @@ int main (int argc, char **argv){
 	int evd;
 	unsigned long sendcode=KEY_0;
 	unsigned int keys = sizeof(keyname)/sizeof(struct key);
-	unsigned long time=0;
+	unsigned long rctime=0;
 	unsigned long reptime=500;
 	unsigned int offset;
 
@@ -212,7 +211,7 @@ int main (int argc, char **argv){
 	}
 
 	if (argc>=3){
-		time=(atol (argv[2])*1000)/reptime;
+		rctime=(atol (argv[2])*1000)/reptime;
 	}
 
 #ifdef HAVE_DBOX_HARDWARE
@@ -224,13 +223,13 @@ int main (int argc, char **argv){
 #else
 	evd = -1; // close(-1) does not harm... ;)
 #endif
-	printf ("sending key %s for %ld seconds\n",keyname[offset].name,(reptime*time)/1000);
+	printf ("sending key %s for %ld seconds\n",keyname[offset].name,(reptime*rctime)/1000);
 	if (push (evd,sendcode,KEY_PRESSED)<0){
 		perror ("writing 'key_pressed' event failed");
 		close (evd);
 		return 1;
 	}
-	while (time--){
+	while (rctime--){
 		usleep(reptime*1000);
 		if (push (evd,sendcode,KEY_AUTOREPEAT)<0){
 			perror ("writing 'key_autorepeat' event failed");
@@ -246,3 +245,4 @@ int main (int argc, char **argv){
 	close (evd);
 	return 0;
 }
+

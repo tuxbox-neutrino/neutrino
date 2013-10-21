@@ -221,6 +221,9 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 		case AC3_DESCRIPTOR:
 			audio_type = CZapitAudioChannel::AC3;
 			break;
+		case ENHANCED_AC3_DESCRIPTOR:
+			audio_type = CZapitAudioChannel::EAC3;
+			break;
 		case DTS_DESCRIPTOR:
 			audio_type = CZapitAudioChannel::DTS;
 			break;

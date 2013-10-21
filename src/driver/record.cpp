@@ -171,7 +171,10 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	}
 	for (unsigned int i = 0; i < recMovieInfo->audioPids.size(); i++) {
 		apids[numpids++] = recMovieInfo->audioPids[i].epgAudioPid;
-		psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype);
+		if(channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3){
+			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());		  
+		}else
+			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
 	}
 	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0)){
 		apids[numpids++] = allpids.PIDs.vtxtpid;
@@ -321,7 +324,7 @@ bool CRecordInstance::Update()
 
 					audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 					audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
-					audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : 0;
+					audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
 					audio_pids.selected = 0;
 					recMovieInfo->audioPids.push_back(audio_pids);
 				}
@@ -354,11 +357,13 @@ void CRecordInstance::GetPids(CZapitChannel * channel)
 		CZapitClient::responseGetAPIDs response;
 		response.pid = channel->getAudioPid(i);
 		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN - 1);
-		response.is_ac3 = response.is_aac = 0;
+		response.is_ac3 = response.is_aac = response.is_eac3 = 0;
 		if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
 		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
 			response.is_aac = 1;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
+			response.is_eac3 = 1;
 		}
 		response.component_tag = channel->getAudioChannel(i)->componentTag;
 		allpids.APIDs.push_back(response);
@@ -382,6 +387,8 @@ void CRecordInstance::ProcessAPIDnames()
 			strncat(allpids.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
 		else if (allpids.APIDs[count].is_aac && !strstr(allpids.APIDs[count].desc, " (AAC)"))
 			strncat(allpids.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
+		else if (allpids.APIDs[count].is_eac3 && !strstr(allpids.APIDs[count].desc, " (EAC3)"))
+			strncat(allpids.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc) -1);
 	}
 
 	if(has_unresolved_ctags && (epgid != 0)) {
@@ -396,6 +403,8 @@ void CRecordInstance::ProcessAPIDnames()
 								strncat(allpids.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
 							else if (allpids.APIDs[j].is_aac && !strstr(allpids.APIDs[j].desc, " (AAC)"))
 								strncat(allpids.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
+							else if (allpids.APIDs[j].is_eac3 && !strstr(allpids.APIDs[j].desc, " (EAC3)"))
+								strncat(allpids.APIDs[j].desc, " (EAC3)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc)-1);
 						}
 						allpids.APIDs[j].component_tag = -1;
 						break;
@@ -455,7 +464,7 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
                 uint32_t apid_min=UINT_MAX;
                 uint32_t apid_min_idx=0;
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
-                        if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3) {
+                        if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3 && !allpids.APIDs[i].is_eac3) {
                                 apid_min = allpids.APIDs[i].pid;
                                 apid_min_idx = i;
                         }
@@ -468,12 +477,12 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
         if (apidmode & TIMERD_APIDS_ALT) {
                 uint32_t apid_min=UINT_MAX;
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
-                        if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3) {
+                        if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3 && !allpids.APIDs[i].is_eac3) {
                                 apid_min = allpids.APIDs[i].pid;
                         }
                 }
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
-                        if (allpids.APIDs[i].pid != apid_min && !allpids.APIDs[i].is_ac3) {
+                        if (allpids.APIDs[i].pid != apid_min && !allpids.APIDs[i].is_ac3 && !allpids.APIDs[i].is_eac3) {
                                 APIDDesc a = {allpids.APIDs[i].pid, i, false};
                                 apid_list.push_back(a);
                         }
@@ -482,7 +491,7 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
         if (apidmode & TIMERD_APIDS_AC3) {
                 bool ac3_found=false;
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
-                        if (allpids.APIDs[i].is_ac3) {
+                        if (allpids.APIDs[i].is_ac3 || allpids.APIDs[i].is_eac3) {
                                 APIDDesc a = {allpids.APIDs[i].pid, i, true};
                                 apid_list.push_back(a);
                                 ac3_found=true;
@@ -493,7 +502,7 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
                         uint32_t apid_min=UINT_MAX;
                         uint32_t apid_min_idx=0;
                         for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
-                                if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3) {
+                                if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3 && !allpids.APIDs[i].is_eac3) {
                                         apid_min = allpids.APIDs[i].pid;
                                         apid_min_idx = i;
                                 }
@@ -509,7 +518,7 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
                 uint32_t apid_min=UINT_MAX;
                 uint32_t apid_min_idx=0;
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
-                        if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3) {
+                        if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3 && !allpids.APIDs[i].is_eac3) {
                                 apid_min = allpids.APIDs[i].pid;
                                 apid_min_idx = i;
                         }
@@ -571,7 +580,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			if(allpids.APIDs[i].pid == it->apid) {
 				audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 				audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
-				audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : 0;
+				audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
 				audio_pids.selected = (audio_pids.epgAudioPid == channel->getAudioPid()) ? 1 : 0;
 				recMovieInfo->audioPids.push_back(audio_pids);
 			}
@@ -582,7 +591,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		int i = 0;
 		audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 		audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
-		audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : 0;
+		audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : allpids.APIDs[i].is_eac3 ? 7 : 0;
 		audio_pids.selected = 1;
 		recMovieInfo->audioPids.push_back(audio_pids);
 	}
@@ -1463,7 +1472,7 @@ bool CRecordManager::ShowMenu(void)
 			inst->GetRecordString(title, duration);
 			durations.push_back(duration);
 
-			const char* mode_icon = NULL;
+			const char* mode_icon = NEUTRINO_ICON_REC;
 			//if (inst->tshift_mode)
 			if (inst->Timeshift())
 				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;

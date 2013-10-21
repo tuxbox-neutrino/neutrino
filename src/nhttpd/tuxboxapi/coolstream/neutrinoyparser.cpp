@@ -600,7 +600,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 						{
 							strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
 						}
-			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": " ");
+			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
 					}
 					eit_not_ok=false;
 					break;
@@ -617,7 +617,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 			{
 				strcpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ) );
 			}
- 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? i : it->pid,pids.APIDs[i].desc,pids.APIDs[i].is_ac3 ? " (AC3)": " ");
+			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? i : it->pid,pids.APIDs[i].desc,pids.APIDs[i].is_ac3 ? " (AC3)": pids.APIDs[i].is_aac ? "(AAC)" : pids.APIDs[i].is_eac3 ? "(EAC3)" : " ");
 			i++;
 		}
 	}
@@ -729,7 +729,8 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			break;
 	}
 
-	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
+	if (system_rev != 9) // don't add delivery_system for Tank
+		boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	return boxname;
 }
 //-------------------------------------------------------------------------

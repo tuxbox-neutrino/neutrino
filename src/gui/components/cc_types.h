@@ -134,7 +134,12 @@ typedef struct comp_element_data_t
 #define CC_SAVE_SCREEN_NO 	false
 
 #define CC_NO_INDEX	 	-1
+
+///predefined parameters for auto positionizing of embedded items inside a parent form
+///CC_APPEND used for x or y position or booth. An item with this parameter will paint automatically arranged side by side
 #define CC_APPEND		-1
+///CC CENTERED used for x or y position or booth. An item with this parameter will paint automatically centered
+#define CC_CENTERED		-2
 
 
 

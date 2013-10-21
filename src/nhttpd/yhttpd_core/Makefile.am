@@ -1,4 +1,4 @@
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
@@ -11,7 +11,7 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@FREETYPE_CFLAGS@
 
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS += -fno-rtti -fno-exceptions
 
 noinst_LIBRARIES = libyhttpd.a
 
