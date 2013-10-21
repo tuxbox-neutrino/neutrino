@@ -174,7 +174,7 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 		virtual void initCCItems();
 		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode;};
-
+		virtual CComponentsText* getTextObject(){return cch_text_obj;};
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
