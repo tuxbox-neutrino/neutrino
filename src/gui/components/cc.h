@@ -245,7 +245,7 @@ class CComponentsItem : public CComponents
 		///returns pointer to the form object in which this item is embedded.
 		virtual CComponentsItem * getParent(){return cc_parent;};
 		///property: returns true if item is added to a form
-		virtual bool isAdded(CComponentsItem *parent_frm = NULL);
+		virtual bool isAdded();
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
