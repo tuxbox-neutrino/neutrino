@@ -168,9 +168,11 @@ void CComponentsHeader::initIcon()
 	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __FUNCTION__, __LINE__, cch_icon_name);
 #endif
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
-		//add item only one time
-		addCCItem(cch_icon_obj); //icon
 	}
+
+	//add item only one time
+	if (!cch_icon_obj->isAdded())
+		addCCItem(cch_icon_obj); //icon
 
 	//get dimensions of header icon
 	int iw, ih;
@@ -242,6 +244,10 @@ void CComponentsHeader::initButtonFormSize()
 {
 	cch_buttons_w = 0;
 	cch_buttons_h = 0;
+
+	if (cch_btn_obj == NULL)
+		return;
+	
 	for(size_t i=0; i<v_cch_btn.size(); i++){
 		int bw, bh;
 		frameBuffer->getIconSize(v_cch_btn[i].c_str(), &bw, &bh);
@@ -254,9 +260,13 @@ void CComponentsHeader::initButtonFormSize()
 void CComponentsHeader::initButtons()
 {
 	//exit if no button defined
- 	if (v_cch_btn.empty())
+	if (v_cch_btn.empty()){
+		if (cch_btn_obj)
+			delete cch_btn_obj;
+			cch_btn_obj = NULL;
 		return;
-		
+	}
+	
 	initButtonFormSize();
 
 	if (cch_btn_obj == NULL){
@@ -264,9 +274,11 @@ void CComponentsHeader::initButtons()
 #ifdef DEBUG_CC
 	printf("    [CComponentsHeader]\n    [%s - %d] init header buttons...\n", __FUNCTION__, __LINE__);
 #endif
-		//add button form
-		addCCItem(cch_btn_obj); //buttons
 	}
+
+	//add button form only one time
+	if (!cch_btn_obj->isAdded())
+		addCCItem(cch_btn_obj); //buttons
 
 	//set button form properties
 	if (cch_btn_obj){
@@ -315,9 +327,11 @@ void CComponentsHeader::initCaption()
 	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __FUNCTION__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
 #endif
 		cch_text_obj = new CComponentsText();
-		//add text item
-		addCCItem(cch_text_obj); //text
 	}
+
+	//add text item
+	if (!cch_text_obj->isAdded())
+		addCCItem(cch_text_obj); //text
 
 	//set header text properties
 	if (cch_text_obj){
