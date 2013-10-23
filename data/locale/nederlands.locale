@@ -495,6 +495,7 @@ flashupdate.msgbox_manual De volgende firmware is gevonden:\nDatum: %s, %s\nBase
 flashupdate.mtdselector Partitie-selector
 flashupdate.new_found Nieuwe firmware gevonden!
 flashupdate.new_notfound Geen nieuwe firmware gevonden
+flashupdate.noversion Versie controle is alleen ondersteund wanneer u update via het internet. \nWeet u zeker dat u deze firmware wilt installeren?
 flashupdate.programmingflash programming flash
 flashupdate.proxypassword Wachtwoord
 flashupdate.proxypassword_hint1 Wachtwoord van de proxyserver invoeren
@@ -513,7 +514,6 @@ flashupdate.reallyflashmtd Weet u zeker dat u wilt updaten?\nIndien er zich een 
 flashupdate.savesuccess De Firmware is succesvol opgeslagen \n onder %s.
 flashupdate.selectimage Beschikbare firmware/bestanden
 flashupdate.settings Update instellingen
-flashupdate.squashfs.noversion SquashFS versie controle is alleen ondersteund wanneer u update via het internet. \nWeet u zeker dat u deze firmware wilt installeren?
 flashupdate.titlewriteflash Flash schrijven
 flashupdate.update_with_settings_del_skipped Folder [%s] kan niet worden verwijderd. Folder is overgeslagen.
 flashupdate.update_with_settings_error Foutmelding!\n \nNieuwe firmware heeft %ld KB (out of %ld KB) resterend.\n Onvoldoende \nruimte om opdracht af te ronden. Opdracht wordt geannuleerd.
