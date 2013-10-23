@@ -273,3 +273,18 @@ string CComponentsText::iToString(int int_val)
 	string i_string(i_str.str());
 	return i_string;
 }
+
+//helper, get lines per textbox page
+int CComponentsText::getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode)
+{
+	CComponentsText box;
+	box.iX      = 0;
+	box.iY      = 0;
+	box.iWidth  = textWidth;
+	box.iHeight = textMaxHeight;
+
+	CTextBox tb(ct_text.c_str(), ct_font, mode, &box);
+	int ret = tb.getLinesPerPage();
+
+	return ret;
+}

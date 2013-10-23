@@ -133,6 +133,9 @@ class CComponentsText : public CComponentsItem, public CBox
 
 		///gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
 		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
+
+		///returns count of lines from a text box page
+		virtual int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
 };
 
 
