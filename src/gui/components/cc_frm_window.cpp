@@ -142,13 +142,15 @@ void CComponentsWindow::initVarWindow()
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
 	ccw_show_header	= true;
+	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
 
 	setShadowOnOff(true);
 }
 
-void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text)
+void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
 {
 	ccw_caption = g_Locale->getText(locale_text);
+	ccw_align_mode = align_mode;
 }
 
 void CComponentsWindow::initHeader()
@@ -159,12 +161,12 @@ void CComponentsWindow::initHeader()
 		//add of header item happens initCCWItems()
 	}
 
-	//set header properties
+	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
-		ccw_head->setPos(0, 0);
 		ccw_head->setWidth(width-2*fr_thickness);
+// 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
-		ccw_head->setCaption(ccw_caption);
+		ccw_head->setCaption(ccw_caption, ccw_align_mode);
 		ccw_head->initCCItems();
 		ccw_head->setDefaultButtons(ccw_buttons);
 	}
@@ -196,7 +198,6 @@ void CComponentsWindow::initBody()
 void CComponentsWindow::initFooter()
 {
 	if (ccw_footer== NULL){
-
 		ccw_footer= new CComponentsFooter();
 		initFooter();
 		//add of footer item happens initCCWItems()
