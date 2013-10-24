@@ -28,7 +28,7 @@
 #define __CC_MISC__
 
 #include "config.h"
-#include <gui/components/cc.h>
+#include <gui/components/cc_base.h>
 #include <vector>
 #include <string>
 

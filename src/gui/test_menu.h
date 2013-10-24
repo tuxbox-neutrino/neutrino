@@ -32,11 +32,8 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
 #include <gui/components/cc.h>
-#include <gui/components/cc_frm.h>
-#include <gui/components/cc_frm_button.h>
-#include <gui/components/cc_frm_clock.h>
-#include <gui/components/cc_item_shapes.h>
-// #define TEST_MENU
+
+#define TEST_MENU
 
 #include <string>
 

@@ -35,8 +35,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
-#include <gui/components/cc_item_infobox.h>
-#include <gui/components/cc_detailsline.h>
+#include <gui/components/cc.h>
 #include <zapit/client/zapitclient.h>
 
 #include <string>

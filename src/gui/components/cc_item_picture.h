@@ -31,7 +31,7 @@
 #include <config.h>
 #endif
 
-#include "cc.h"
+#include "cc_base.h"
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 

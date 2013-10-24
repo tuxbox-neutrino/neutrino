@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include "cc.h"
+#include "cc_base.h"
 
 //! Sub class of CComponents. Shows a connectline with given dimensions and color on screen.
 /*!

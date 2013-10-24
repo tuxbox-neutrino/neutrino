@@ -26,7 +26,7 @@
 #ifndef __CC_ITEM_TEXT_H__
 #define __CC_ITEM_TEXT_H__
 
-#include "cc.h"
+#include "cc_base.h"
 #include <gui/widget/textbox.h>
 #include <string>
 

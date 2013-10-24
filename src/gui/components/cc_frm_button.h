@@ -27,7 +27,7 @@
 #define __CC_BUTTONS_H__
 
 #include <config.h>
-#include "cc.h"
+#include "cc_base.h"
 #include "cc_frm.h"
 #include <string>
 #include <driver/neutrinofonts.h>

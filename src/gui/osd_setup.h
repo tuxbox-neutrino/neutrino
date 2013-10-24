@@ -31,7 +31,7 @@
 #ifndef __osd_setup__
 #define __osd_setup__
 
-#include <gui/components/cc_item_shapes.h>
+#include <gui/components/cc.h>
 #include <gui/widget/menue.h>
 
 #include <driver/framebuffer.h>

@@ -28,16 +28,15 @@
 #include <config.h>
 #endif
 
+
+#include <global.h>
+#include <neutrino.h>
 #include <gui/widget/menue.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
-
-#include <gui/components/cc_frm.h>
 #include <gui/widget/stringinput.h>
-#include <gui/components/cc_item_shapes.h>
-#include <global.h>
-#include <neutrino.h>
+
 #include <neutrino_menue.h>
 #include <driver/fade.h>
 

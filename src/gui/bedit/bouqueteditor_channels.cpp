@@ -44,7 +44,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include "bouqueteditor_chanselect.h"
-#include <gui/components/cc_frm.h>
+#include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 

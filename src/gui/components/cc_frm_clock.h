@@ -31,7 +31,7 @@
 #include <config.h>
 #endif
 
-#include "cc.h"
+#include "cc_base.h"
 #include "cc_frm.h"
 
 

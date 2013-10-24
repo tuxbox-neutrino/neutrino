@@ -54,9 +54,6 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-#include <gui/components/cc_item_progressbar.h>
-#include <gui/components/cc.h>
-#include <gui/components/cc_frm.h>
 
 #include <system/settings.h>
 #include <gui/customcolor.h>

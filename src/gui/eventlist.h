@@ -34,7 +34,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <system/settings.h>
-#include <gui/components/cc_item_text.h>
+#include <gui/components/cc.h>
 
 #include "color.h"
 #include "infoviewer.h"

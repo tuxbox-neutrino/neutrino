@@ -48,7 +48,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/helpbox.h>
 #include <gui/widget/icons.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>

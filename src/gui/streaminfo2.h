@@ -27,8 +27,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/components/cc.h>
-#include <gui/components/cc_frm_signalbars.h>
-#include <gui/components/cc_item_tvpic.h>
+#include <gui/components/cc.h>
 #include <zapit/femanager.h>
 
 
