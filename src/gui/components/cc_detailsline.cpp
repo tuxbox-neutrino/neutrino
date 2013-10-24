@@ -80,7 +80,7 @@ void CComponentsDetailLine::initVarDline()
 
 CComponentsDetailLine::~CComponentsDetailLine()
 {
-	hide(); //restore background
+	hideCC(); //restore background
 	clear();
 }
 

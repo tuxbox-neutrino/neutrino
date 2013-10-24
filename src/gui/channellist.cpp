@@ -132,7 +132,7 @@ CChannelList::~CChannelList()
 	if (headerClock) {
 		headerClock->Stop();
 		if (headerClock->isPainted())
-			headerClock->hide();
+			headerClock->hideCC();
 		if (headerClock->isClockRun())
 			headerClock->stopThread();
 		delete headerClock;

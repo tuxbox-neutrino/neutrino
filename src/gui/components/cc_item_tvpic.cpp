@@ -66,7 +66,7 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 
 CComponentsPIP::~CComponentsPIP()
 {
- 	hide();
+ 	hideCC();
  	videoDecoder->Pig(-1, -1, -1, -1);
  	clearSavedScreen();
  	clear();
@@ -99,7 +99,7 @@ void CComponentsPIP::paint(bool do_save_bg)
 }
 
 
-void CComponentsPIP::hide(bool no_restore)
+void CComponentsPIP::hideCC(bool no_restore)
 {
 	videoDecoder->Pig(-1, -1, -1, -1);
 	hideCCItem(no_restore);

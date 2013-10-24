@@ -66,7 +66,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 
 CComponentsInfoBox::~CComponentsInfoBox()
 {
-	hide();
+	hideCC();
 	clearSavedScreen();
 	clearCCText();
 	delete pic;

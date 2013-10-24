@@ -366,14 +366,14 @@ void CComponentsForm::paintCCItems()
 	}
 }
 
-void CComponentsForm::hide(bool no_restore)
+void CComponentsForm::hideCC(bool no_restore)
 {
 	// hack: ensure hiding of minitv during hide of forms and inherited classes,
 	// because the handling of minitv items are different to other item types
-	// and need an explizit call of hide()
+	// and need an explizit call of hideCC()
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]->getItemType() == CC_ITEMTYPE_PIP){
-			v_cc_items[i]->hide();
+			v_cc_items[i]->hideCC();
 			break;
 		}
 	}

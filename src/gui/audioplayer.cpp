@@ -1904,11 +1904,11 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 
 	// clear details line
 	if (dline != NULL)
-		dline->hide();
+		dline->hideCC();
 
 	// clear infobox
 	if (ibox != NULL)
-		ibox->hide();
+		ibox->hideCC();
 
 	// paint Line if detail info (and not valid list pos) and info box
 	if (!m_playlist.empty() && (pos >= 0))
@@ -1956,9 +1956,9 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	else
 	{
 		if (dline != NULL)
-			dline->hide();
+			dline->hideCC();
 		if (ibox != NULL)
-			ibox->hide();
+			ibox->hideCC();
 	}
 }
 //------------------------------------------------------------------------

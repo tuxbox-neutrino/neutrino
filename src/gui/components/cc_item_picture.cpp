@@ -201,7 +201,7 @@ void CComponentsPicture::paint(bool do_save_bg)
 	paintPicture();
 }
 
-void CComponentsPicture::hide(bool no_restore)
+void CComponentsPicture::hideCC(bool no_restore)
 {
 	hideCCItem(no_restore);
 	pic_painted = false;

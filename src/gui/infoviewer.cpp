@@ -1824,7 +1824,7 @@ void CInfoViewer::killInfobarText()
 {
 	if (infobar_txt){
 		if (infobar_txt->isPainted())
-			infobar_txt->hide();
+			infobar_txt->hideCC();
 		delete infobar_txt;
 	}
 	infobar_txt = NULL;

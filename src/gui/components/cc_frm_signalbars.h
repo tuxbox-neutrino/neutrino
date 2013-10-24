@@ -225,7 +225,7 @@ void CSampleClass::hide ()
 	//other code;
 
 //Note: not required if signalbox is added to a CC-Container!
-	signalbox->hide(true);
+	signalbox->hideCC(true);
 	delete signalbox;
 	signalbox = NULL;
 
