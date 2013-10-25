@@ -59,7 +59,7 @@ int CParentalSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 		parent->hide();
 
 	if (check())
-		showParentalSetup();
+		res = showParentalSetup();
 
 	return res;
 }
@@ -97,7 +97,7 @@ const CMenuOptionChooser::keyval PARENTALLOCK_DEFAULTLOCKED_OPTIONS[PARENTALLOCK
 };
 
 extern bool parentallocked;
-void CParentalSetup::showParentalSetup()
+int CParentalSetup::showParentalSetup()
 {
 	//menue init
 	CMenuWidget* plock = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_LOCK, width, MN_WIDGET_ID_PLOCKSETUP);
@@ -108,22 +108,38 @@ void CParentalSetup::showParentalSetup()
 	// intros
 	plock->addIntroItems();
 
+	CPersonalizeGui &p = CNeutrinoApp::getInstance()->getPersonalizeGui();
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PARENTALLOCK_MENU, true, NULL, &p, NULL, CRCInput::RC_red , NEUTRINO_ICON_BUTTON_RED);
+	mf->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_MENU);
+	plock->addItem(mf);
+
 	CMenuOptionChooser * mc;
-	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked);
+	if (g_settings.easymenu)
+		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	else
+		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked);
 	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_PROMPT);
 	plock->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked);
+	if (g_settings.easymenu)
+		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	else
+		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked);
 	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_LOCKAGE);
 	plock->addItem(mc);
 
-	plock->addItem(new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked));
+	if (g_settings.easymenu)
+		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	else
+		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked);
+	plock->addItem(mc);
 
 	CPINChangeWidget pinChangeWidget(LOCALE_PARENTALLOCK_CHANGEPIN, g_settings.parentallock_pincode, 4, LOCALE_PARENTALLOCK_CHANGEPIN_HINT1);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget);
+	mf = new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget);
 	mf->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_CHANGEPIN);
 	plock->addItem(mf);
 
-	plock->exec(NULL, "");
+	int res = plock->exec(NULL, "");
 	delete plock;
+	return res;
 }

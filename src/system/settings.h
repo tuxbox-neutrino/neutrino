@@ -125,6 +125,7 @@ struct SNeutrinoSettings
 	int ci_clock;
 	int ci_ignore_messages;
 	int radiotext_enable;
+	int easymenu;
 	
 	//vcr
 	int vcr_AutoSwitch;

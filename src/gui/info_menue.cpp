@@ -40,6 +40,9 @@
 #include <gui/streaminfo2.h>
 
 #include <driver/screen_max.h>
+#include "gui/cam_menu.h"
+
+extern CCAMMenuHandler * g_CamHandler;
 
 CInfoMenu::CInfoMenu()
 {
@@ -82,6 +85,12 @@ int CInfoMenu::showMenu()
 	mf = new CMenuForwarder(LOCALE_STREAMINFO_HEAD,        !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, &streaminfo, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	mf->setHint(NEUTRINO_ICON_HINT_STREAMINFO, LOCALE_MENU_HINT_STREAMINFO);
 	info->addItem(mf);
+
+	if (g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler,  NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
+		info->addItem(mf);
+	}
 
 	int res = info->exec(NULL, "");
 	delete info;

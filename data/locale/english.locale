@@ -722,6 +722,7 @@ ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
 mainmenu.audioplayer Audioplayer
+mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
 mainmenu.games Games
 mainmenu.head Main Menu
@@ -735,10 +736,12 @@ mainmenu.recording Recording
 mainmenu.recording_start start
 mainmenu.recording_stop stop
 mainmenu.scripts Scripts
-mainmenu.service Service
-mainmenu.settings Settings
-mainmenu.shutdown Shutdown
+mainmenu.service Instalation (service)
+mainmenu.settings System settings
+mainmenu.shutdown Shutdown (deep standby)
+mainmenu.shutdown_menu Shutdown
 mainmenu.sleeptimer SleepTimer
+mainmenu.standby Standby
 mainmenu.tvmode TV-Mode
 mainmenu.tvradio_switch TV-Radio Switch
 mainsettings.audio Audio
@@ -786,6 +789,7 @@ menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
 menu.hint_cache_txt Start teletext caching after channel switch
+menu.hint_channels Open channel list
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
 menu.hint_cec_view_on CEC view ON
@@ -984,6 +988,7 @@ menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
+menu.hint_parentallock_menu Lock menus with pin code
 menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN code
 menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
 menu.hint_pictureviewer_defdir Default picture viewer directory
@@ -1112,6 +1117,7 @@ menu.hint_service_scan Tuner setup, service scan
 menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
+menu.hint_shutdown_menu Put you receiver in sleep or deep standby mode, set sleep timer
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
 menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
@@ -1125,6 +1131,7 @@ menu.hint_softupdate_expert Separate partitions from the flash read / write to t
 menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
 menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash
 menu.hint_softupdate_settings The local update directory and the configuration file to set
+menu.hint_standby Put receiver to sleep mode
 menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
 menu.hint_subchannel_pos Select subchannels menu position
@@ -1317,7 +1324,7 @@ moviebrowser.foot_options Options
 moviebrowser.foot_play Start movie
 moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
-moviebrowser.head TS MovieBrowser
+moviebrowser.head My recordings
 moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
@@ -1534,6 +1541,7 @@ parentallock.lockage16 from 16 years up
 parentallock.lockage18 from 18 years up
 parentallock.lockedchannel Locked sender...
 parentallock.lockedprogram Locked program (from %d years up)
+parentallock.menu Menu Security
 parentallock.never never
 parentallock.onsignal on broadcasted lock
 parentallock.parentallock Parental lock
