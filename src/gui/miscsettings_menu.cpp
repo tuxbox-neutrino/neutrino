@@ -54,6 +54,7 @@
 #include <eitd/sectionsd.h>
 
 #include <cs_api.h>
+#include <video.h>
 
 //#define ONE_KEY_PLUGIN
 
