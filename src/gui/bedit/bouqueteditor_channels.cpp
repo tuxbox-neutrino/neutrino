@@ -242,7 +242,7 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 			ibox = new CComponentsInfoBox();
 
 		if (ibox->isPainted())
-			ibox->hideCC(CC_SAVE_SCREEN_NO);
+			ibox->hide(CC_SAVE_SCREEN_NO);
 		
 		ibox->setDimensionsAll(x, ypos2, width, info_height);
 		ibox->setFrameThickness(2);

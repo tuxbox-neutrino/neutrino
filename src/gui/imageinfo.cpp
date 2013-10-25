@@ -355,7 +355,7 @@ void CImageInfo::hide()
 {
 	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
 	if (cc_win){
-		cc_win->hideCC();
+		cc_win->hide();
 		Clean();
 	}
 }

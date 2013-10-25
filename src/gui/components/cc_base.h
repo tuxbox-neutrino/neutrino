@@ -197,7 +197,7 @@ class CComponents
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
 
 		///hide current screen and restore background
-		virtual void hideCC();
+		virtual void hide();
 		///erase current screen without restore of background, it's similar to paintBackgroundBoxRel() from CFrameBuffer
 		virtual void kill();
 		///returns paint mode, true=item was painted
@@ -251,7 +251,7 @@ class CComponentsItem : public CComponents
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		///hides item, arg: no_restore see hideCCItem() above
-		virtual void hideCC(bool no_restore = false);
+		virtual void hide(bool no_restore = false);
 
 		///get the current item type, see attribute cc_item_type above
 		virtual int getItemType();

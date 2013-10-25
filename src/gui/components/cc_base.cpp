@@ -42,7 +42,7 @@ CComponents::CComponents()
 
 CComponents::~CComponents()
 {
- 	hideCC();
+ 	hide();
 	clearSavedScreen();
 	clear();
 }
@@ -172,11 +172,11 @@ inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 }
 
 //restore screen from buffer
-inline void CComponents::hideCC()
+inline void CComponents::hide()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].pixbuf != NULL){
-			frameBuffer->waitForIdle("CComponents::hideCC()");
+			frameBuffer->waitForIdle("CComponents::hide()");
 			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
 			delete[] v_fbdata[i].pixbuf;
 			v_fbdata[i].pixbuf = NULL;

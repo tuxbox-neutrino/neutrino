@@ -177,7 +177,7 @@ bool CVolume::hideVolscale()
 	bool ret = false;
 	if (volscale) {
 		if (volscale->isPainted()) {
-			volscale->hideCC();
+			volscale->hide();
 			ret = true;
 		}
 		delete volscale;

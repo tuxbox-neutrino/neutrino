@@ -43,7 +43,7 @@ CComponentsItemBox::CComponentsItemBox()
 
 CComponentsItemBox::~CComponentsItemBox()
 {
-	hideCC();
+	hide();
 	clearElements();
 	clearSavedScreen();
 	clear();
@@ -213,7 +213,7 @@ void CComponentsItemBox::refreshElement(size_t index, const std::string& element
 		case CC_ITEMBOX_PICTURE:
 			pic = static_cast<CComponentsPicture*>(v_element_data[index].handler1);
 			if (pic != NULL) {
-				pic->hideCC();
+				pic->hide();
 				delete pic;
 			}
 			v_element_data[index].element	= element;
@@ -240,7 +240,7 @@ void CComponentsItemBox::paintImage(size_t index, bool newElement)
 
 	if ((newElement) || (pic == NULL)) {
 		if (pic != NULL) {
-			pic->hideCC();
+			pic->hide();
 			delete pic;
 			pic = NULL;
 		}
@@ -287,7 +287,7 @@ void CComponentsItemBox::paintText(size_t index, bool newElement)
 
 	if ((newElement) || (textbox == NULL)) {
 		if (textbox != NULL) {
-			textbox->hideCC();
+			textbox->hide();
 			delete textbox;
 			textbox = NULL;
 		}

@@ -77,7 +77,7 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 
 CComponentsText::~CComponentsText()
 {
-	hideCC();
+	hide();
 	clearSavedScreen();
 	clearCCText();
 	clear();
@@ -246,7 +246,7 @@ void CComponentsText::paint(bool do_save_bg)
 	paintText(do_save_bg);
 }
 
-void CComponentsText::hideCC(bool no_restore)
+void CComponentsText::hide(bool no_restore)
 {
 	if (ct_textbox)
 		ct_textbox->hide();

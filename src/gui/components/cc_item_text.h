@@ -92,7 +92,7 @@ class CComponentsText : public CComponentsItem, public CBox
 
 		///default members to paint a text box and hide painted text
 		///hide textbox
-		void hideCC(bool no_restore = false);
+		void hide(bool no_restore = false);
 		///paint text box, parameter do_save_bg: default = true, causes fill of backckrond pixel buffer
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 

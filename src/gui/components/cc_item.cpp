@@ -124,7 +124,7 @@ void CComponentsItem::hideCCItem(bool no_restore)
 	}
 }
 
-void CComponentsItem::hideCC(bool no_restore)
+void CComponentsItem::hide(bool no_restore)
 {
 	hideCCItem(no_restore);
 }
