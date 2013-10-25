@@ -524,6 +524,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 
 	fe_restart = false;
 
+	CZapit::getInstance()->GetConfig(zapitCfg);
 	CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
 	setupMenu->addIntroItems();
 
