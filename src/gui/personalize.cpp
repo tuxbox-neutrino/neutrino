@@ -290,7 +290,6 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	CPINChangeWidget *pinChangeWidget = NULL;
 	if (!g_settings.easymenu && show_pin_setup)
 		ShowPinSetup(pMenu, pinChangeWidget);
-	printf("CPersonalizeGui::ShowPinSetup: pinChangeWidget  %x\n", pinChangeWidget);
 
 	int res;
 	if (g_settings.easymenu) {
@@ -307,7 +306,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 				const neutrino_msg_t key = (count == 0) ? CRCInput::RC_red :
 					(count == 1) ? CRCInput::RC_green :
 					(count == 2) ? CRCInput::RC_yellow :
-					(count == 3) ? CRCInput::RC_blue : NULL;
+					(count == 3) ? CRCInput::RC_blue : CRCInput::RC_nokey;
 				count++;
 				string 	itm_name = g_Locale->getText(v_item[j].locale_name);
 				itm_name += " ";
@@ -370,7 +369,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 }
 
 //init pin setup dialog
-void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget *pin_widget)
+void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pin_widget)
 {
 	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
 	
