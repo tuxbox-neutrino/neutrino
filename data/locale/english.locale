@@ -1113,7 +1113,7 @@ menu.hint_scripts Run scripts
 menu.hint_selected_back Change selected item background color
 menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
-menu.hint_service_scan Tuner setup, service scan
+menu.hint_service_scan Auto / manual service scan
 menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation

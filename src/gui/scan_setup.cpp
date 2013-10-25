@@ -394,13 +394,13 @@ int CScanSetup::showScanMenu()
 	settings->addItem(mc);
 
 	//sat/provider selector
-
+#if 0
 	if(CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1) {
 		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_SETUP, allow_start, NULL, this, "setup_frontend", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FESETUP);
 		settings->addItem(mf);
 	}
-
+#endif
 	if (CFEManager::getInstance()->haveSat()) {
 		r_system = DVB_S;
 

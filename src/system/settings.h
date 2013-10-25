@@ -197,6 +197,7 @@ struct SNeutrinoSettings
 		P_MSET_MISC,
 		
 		//service menu
+		P_MSER_TUNER,
 		P_MSER_SCANTS,
 		P_MSER_RELOAD_CHANNELS,
 		P_MSER_BOUQUET_EDIT,

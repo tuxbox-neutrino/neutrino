@@ -72,6 +72,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_misc"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
 	//main menu->service menu
+	{"personalize_tuner"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_scants"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_reload_channels"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_bouquet_edit"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
