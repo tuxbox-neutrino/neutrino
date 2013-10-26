@@ -554,7 +554,7 @@ void CTextBox::refreshText(void)
 			delete[] m_bgpixbuf;
 			m_bgpixbuf = NULL;
 		}
-		if (has_changed){
+		if (m_old_cText != m_cText || has_changed){
 			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
 			frameBuffer->paintBoxRel(ax, ay, dx, dy,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
 		}
