@@ -1242,12 +1242,14 @@ std::string CMovieBrowser::getScreenshotName(std::string movie)
 void CMovieBrowser::refreshMovieInfo(void)
 {
 //TRACE("[mb]->refreshMovieInfo m_vMovieInfo.size %d\n", m_vMovieInfo.size());
+	//reset text before new init, m_pcInfo must be clean
 	std::string emptytext = " ";
-	if(m_vMovieInfo.empty()) {
-		if(m_pcInfo != NULL)
-			m_pcInfo->setText(&emptytext);
+	if(m_pcInfo)
+		m_pcInfo->setText(&emptytext);
+	
+	if(m_vMovieInfo.empty())
 		return;
-	}
+	
 	if (m_movieSelectionHandler == NULL) {
 		// There is no selected element, clear LCD
 		m_pcInfo->setText(&emptytext);
