@@ -168,6 +168,8 @@ void CTextBox::initVar(void)
 	m_cFrame.iWidth		= m_old_dx = MIN_WINDOW_WIDTH;
 	m_cFrame.iY		= m_old_y = g_settings.screen_StartY + ((g_settings.screen_EndY - g_settings.screen_StartY - MIN_WINDOW_HEIGHT) >>1);
 	m_cFrame.iHeight	= m_old_dy = MIN_WINDOW_HEIGHT;
+	
+	m_has_scrolled		= false;
 
 	m_nMaxHeight 		= MAX_WINDOW_HEIGHT;
 	m_nMaxWidth 		= MAX_WINDOW_WIDTH;
@@ -495,13 +497,43 @@ void CTextBox::refreshScroll(void)
 				m_cFrameScrollRel.iY + m_nCurrentPage * marker_size+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth - 2*SCROLL_MARKER_BORDER,
 				marker_size, COL_MENUCONTENT_PLUS_3);
+		m_has_scrolled = true;
 	}
 	else
 	{
 		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
 				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
 				m_textBackgroundColor);
+		m_has_scrolled = false;
 	}
+}
+
+//evaluate comparsion between old and current properties WITHOUT text contents, return true if found changes
+//first init is done in initVar() and reinit done in reInitToCompareVar()
+bool CTextBox::hasChanged(int* x, int* y, int* dx, int* dy)
+{
+	if (	   m_old_x != *x
+		|| m_old_y != *y
+		|| m_old_dx != *dx
+		|| m_old_dy != *dy
+		|| m_old_textBackgroundColor != m_textBackgroundColor
+		|| m_old_nBgRadius != m_nBgRadius
+		|| m_old_nBgRadiusType != m_nBgRadiusType
+		|| m_old_nMode != m_nMode){
+			return true;
+	}
+	return false;
+}
+void CTextBox::reInitToCompareVar(int* x, int* y, int* dx, int* dy)
+{
+	m_old_x = *x;
+	m_old_y = *y;
+	m_old_dx = *dx;
+	m_old_dy = *dy;
+	m_old_textBackgroundColor = m_textBackgroundColor;
+	m_old_nBgRadius = m_nBgRadius;
+	m_old_nBgRadiusType = m_nBgRadiusType;
+	m_old_nMode = m_nMode;
 }
 
 void CTextBox::refreshText(void)
@@ -518,17 +550,10 @@ void CTextBox::refreshText(void)
 	int ay = /*m_cFrameTextRel.iY+*/m_cFrame.iY;
 	int dx = m_cFrameTextRel.iWidth;
 	int dy = m_cFrameTextRel.iHeight;
-	bool has_changed = false;
-
-	//evaluate comparsion properties
-	if (m_old_x != ax || m_old_y != ay || m_old_dx != dx || m_old_dy != dy ||
-		m_old_textBackgroundColor != m_textBackgroundColor ||
-		m_old_nBgRadius != m_nBgRadius ||m_old_nBgRadiusType != m_nBgRadiusType ||
-		m_nNrOfPages > 1 ||
-		m_old_nMode != m_nMode){
-			has_changed = true;
-	}
-
+	
+	//find changes
+	bool has_changed = hasChanged(&ax, &ay, &dx, &dy);
+	
 	//destroy pixel buffer on changed property values
 	if (has_changed){
 		if (m_bgpixbuf){
@@ -548,38 +573,33 @@ void CTextBox::refreshText(void)
 	}
 
 	//Paint Text Background
+	bool allow_paint_bg = (m_old_cText != m_cText || has_changed || m_has_scrolled);
 	if (m_nPaintBackground){
 		if (m_bgpixbuf){
 			//TRACE("[CTextBox] %s destroy bg %d\r\n", __FUNCTION__, __LINE__);
 			delete[] m_bgpixbuf;
 			m_bgpixbuf = NULL;
 		}
-		if (m_old_cText != m_cText || has_changed){
+		if (allow_paint_bg){
 			//TRACE("[CTextBox] %s paint bg %d\r\n", __FUNCTION__, __LINE__);
 			frameBuffer->paintBoxRel(ax, ay, dx, dy,  m_textBackgroundColor, m_nBgRadius, m_nBgRadiusType);
 		}
 	}
 	else{
 		if (m_bgpixbuf){
-			if (m_old_cText != m_cText || has_changed){
+			if (allow_paint_bg){
 				//TRACE("[CTextBox] %s restore bg %d\r\n", __FUNCTION__, __LINE__);
 				frameBuffer->RestoreScreen(ax, ay, dx, dy, m_bgpixbuf);
 			}
 		}
 	}
 
-	//save current comparsion properties
+	//save and reinit current comparsion properties
 	if (has_changed){
 		//TRACE("[CTextBox] %s set current values %d\r\n", __FUNCTION__, __LINE__);
-		m_old_x = ax;
-		m_old_y = ay;
-		m_old_dx = dx;
-		m_old_dy = dy;
-		m_old_textBackgroundColor = m_textBackgroundColor;
-		m_old_nBgRadius = m_nBgRadius;
-		m_old_nBgRadiusType = m_nBgRadiusType;
-		m_old_nMode = m_nMode;
+		reInitToCompareVar(&ax, &ay, &dx, &dy);
 	}
+	m_has_scrolled = false;
 
 	if( m_nNrOfLines <= 0)
 		return;
