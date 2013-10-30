@@ -77,9 +77,9 @@ int CSoftwareUpdate::showSoftwareUpdate()
 {
 	CMenuForwarder * mf;
 	CMenuWidget softUpdate(LOCALE_MAINMENU_SERVICE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
-	
+
 	softUpdate.addIntroItems(LOCALE_SERVICEMENU_UPDATE);
-	
+
 	//flashing
 	CFlashUpdate flash;
 #if 0
@@ -113,14 +113,17 @@ int CSoftwareUpdate::showSoftwareUpdate()
 		mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
 		softUpdate.addItem(mf);
 
-#ifdef BOXMODEL_APOLLO
-		softUpdate.addItem(GenericMenuSeparatorLine);
-
-		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(1));
-		mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CREATEIMAGE_MENU);
-		softUpdate.addItem(mf);
-#endif
 	}
+#ifdef BOXMODEL_APOLLO
+	softUpdate.addItem(GenericMenuSeparatorLine);
+
+	if (g_settings.easymenu)
+		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	else
+		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(1));
+	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CREATEIMAGE_MENU);
+	softUpdate.addItem(mf);
+#endif
 
 	int res = softUpdate.exec (NULL, "");
 	return res;
