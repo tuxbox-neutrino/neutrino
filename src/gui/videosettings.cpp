@@ -43,6 +43,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
+#include <gui/osd_setup.h>
 
 #include <driver/screen_max.h>
 
@@ -329,6 +330,11 @@ int CVideoSettings::showVideoSetup()
 	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
 	videosetup->addItem(pipsetup);
 #endif
+	if (g_settings.easymenu) {
+		CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_SCALING, true, NULL, new COsdSetup(), "font_scaling");
+		mf->setHint("", LOCALE_MENU_HINT_FONT_SCALING);
+		videosetup->addItem(mf);
+	}
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
 	delete videosetup;
