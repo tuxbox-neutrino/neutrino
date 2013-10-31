@@ -27,9 +27,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#ifdef ENABLE_FLAC
-#include <flacdec.h>
-#endif
 #include <linux/soundcard.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>

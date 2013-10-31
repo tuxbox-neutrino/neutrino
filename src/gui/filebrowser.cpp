@@ -1295,9 +1295,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_MP3:
 			case CFile::FILE_OGG:
 			case CFile::FILE_WAV:
-#ifdef ENABLE_FLAC
 			case CFile::FILE_FLAC:
-#endif
 				fileicon = NEUTRINO_ICON_MP3;
 //				color = COL_MENUCONTENT_TEXT;
 				break;
