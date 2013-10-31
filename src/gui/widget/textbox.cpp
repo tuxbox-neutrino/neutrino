@@ -178,6 +178,7 @@ void CTextBox::initVar(void)
 
 	m_textBackgroundColor 	= m_old_textBackgroundColor = COL_MENUCONTENT_PLUS_0;
 	m_textColor		= COL_MENUCONTENT_TEXT;
+	m_old_textColor 	= 0;
 	m_nPaintBackground 	= true;
 	m_nBgRadius		= m_old_nBgRadius = 0;
 	m_nBgRadiusType 	= m_old_nBgRadiusType = CORNER_ALL;
@@ -517,6 +518,7 @@ bool CTextBox::hasChanged(int* x, int* y, int* dx, int* dy)
 		|| m_old_dx != *dx
 		|| m_old_dy != *dy
 		|| m_old_textBackgroundColor != m_textBackgroundColor
+		|| m_old_textColor != m_textColor
 		|| m_old_nBgRadius != m_nBgRadius
 		|| m_old_nBgRadiusType != m_nBgRadiusType
 		|| m_old_nMode != m_nMode){
@@ -531,6 +533,7 @@ void CTextBox::reInitToCompareVar(int* x, int* y, int* dx, int* dy)
 	m_old_dx = *dx;
 	m_old_dy = *dy;
 	m_old_textBackgroundColor = m_textBackgroundColor;
+	m_old_textColor = m_textColor;
 	m_old_nBgRadius = m_nBgRadius;
 	m_old_nBgRadiusType = m_nBgRadiusType;
 	m_old_nMode = m_nMode;
@@ -699,12 +702,14 @@ void CTextBox::refresh(void)
 }
 
 
-bool CTextBox::setText(const std::string* newText, int max_width)
+bool CTextBox::setText(const std::string* newText, int max_width, bool force_repaint)
 {
 	//TRACE("[CTextBox]->SetText \r\n");
 	bool result = false;
 	m_nMaxTextWidth = max_width;
-	
+	//reset text to force repaint the text, managed in hasChanged()
+	if (force_repaint)
+		m_old_cText = "";
 //printf("setText: _max_width %d max_width %d\n", _max_width, max_width);
 	if (newText != NULL)
 	{
