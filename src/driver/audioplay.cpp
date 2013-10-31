@@ -171,10 +171,10 @@ void CAudioPlayer::sc_callback(void *arg)
   bool changed=false;
   CSTATE *stat = (CSTATE*)arg;
 
-  const std::string artist	= convertLatin1UTF8(stat->artist);
-  const std::string title	= convertLatin1UTF8(stat->title);
-  const std::string station	= convertLatin1UTF8(stat->station);
-  const std::string genre	= convertLatin1UTF8(stat->genre);
+  const std::string artist	= isUTF8(stat->artist)	? stat->artist	: convertLatin1UTF8(stat->artist);
+  const std::string title	= isUTF8(stat->title)	? stat->title	: convertLatin1UTF8(stat->title);
+  const std::string station	= isUTF8(stat->station)	? stat->station	: convertLatin1UTF8(stat->station);
+  const std::string genre	= isUTF8(stat->genre)	? stat->artist	: convertLatin1UTF8(stat->genre);
 
   if(m_Audiofile.MetaData.artist != artist)
   {

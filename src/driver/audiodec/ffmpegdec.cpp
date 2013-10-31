@@ -372,23 +372,23 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 			AVDictionaryEntry *tag = NULL;
 			while ((tag = av_dict_get(avc->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
 				if(!strcasecmp(tag->key,"Title")) {
-					title = convertLatin1UTF8(tag->value);
+					title = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Artist")) {
-					artist = convertLatin1UTF8(tag->value);
+					artist = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Year")) {
-					date = convertLatin1UTF8(tag->value);
+					date = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Album")) {
-					album = convertLatin1UTF8(tag->value);
+					album = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
 					continue;
 				}
 				if(!strcasecmp(tag->key,"Genre")) {
-					genre = convertLatin1UTF8(tag->value);
+					genre = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
 					continue;
 				}
 			}
