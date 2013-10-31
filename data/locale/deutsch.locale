@@ -1707,7 +1707,7 @@ satsetup.fe_mode_link_loop Loop
 satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Nicht genutzt
-satsetup.fe_setup Setup Tuner
+satsetup.fe_setup Tuner Einstellungen
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
