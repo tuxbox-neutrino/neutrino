@@ -179,6 +179,7 @@ lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
+lib/libiw/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
 src/nhttpd/web/Makefile
