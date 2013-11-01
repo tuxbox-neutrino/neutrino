@@ -109,7 +109,7 @@ void CComponentsText::initVarText()
 	ct_text_Vborder	= 0;
 
 	ct_col_text	= COL_MENUCONTENT_TEXT;
-	ct_old_col_text = ct_col_text;
+	ct_old_col_text = 0;
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;
@@ -153,11 +153,24 @@ void CComponentsText::initCCText()
 	ct_textbox->setWindowMaxDimensions(width, height);
 	ct_textbox->setWindowMinDimensions(width, height);
 
-	//send text to CTextBox object, but paint text only if text or text coloer has changed or force option is enabled
-	if ((ct_old_text != ct_text) || ct_old_col_text != ct_col_text || ct_force_text_paint)
-		ct_text_sent = ct_textbox->setText(&ct_text, this->iWidth);
-	ct_old_text 	= ct_text;
-	ct_old_col_text = ct_col_text;
+	//observe behavior of parent form if available
+	bool force_text_paint = ct_force_text_paint;
+	if (cc_parent){
+		//if any embedded text item was hided because of hided parent form,
+		//we must ensure repaint of text, otherwise text item is not visible
+		if (cc_parent->isPainted())
+			force_text_paint = true;
+	}
+
+	//send text to CTextBox object, but force text paint text if force_text_paint option is enabled
+	//this is managed by CTextBox object itself
+	ct_text_sent = ct_textbox->setText(&ct_text, this->iWidth, force_text_paint);
+	
+	//set current text status, needed by textChanged()
+	if (ct_text_sent){
+		ct_old_text 	= ct_text;
+		ct_old_col_text = ct_col_text;
+	}
 #ifdef DEBUG_CC
 	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 #endif
@@ -169,7 +182,6 @@ void CComponentsText::clearCCText()
 		delete ct_textbox;
 	ct_textbox = NULL;
 }
-
 
 void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text)
 {
