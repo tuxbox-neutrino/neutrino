@@ -976,6 +976,7 @@ menu.hint_net_setupnow Apply current settings
 menu.hint_net_setuponstartup Start network at boot time
 menu.hint_net_show Show current network settings
 menu.hint_net_ssid Enter SSID of wireless network\nyou want to connect to
+menu.hint_net_ssid_scan Scan for available WLAN networks
 menu.hint_net_telnet Enable telnet login to your box
 menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
 menu.hint_net_ushare Share connected HDD over uPnp
@@ -1490,6 +1491,9 @@ networkmenu.setupnow Apply network settings now
 networkmenu.setuponstartup Setup network on startup
 networkmenu.show Show active Network settings
 networkmenu.ssid Network name (SSID)
+networkmenu.ssid_scan WLAN network scan
+networkmenu.ssid_scan_error No WLAN networks are found.
+networkmenu.ssid_scan_wait WLAN network scan in progress...
 networkmenu.test Test network now
 neutrino_starting Neutrino-HD starting...
 nfs.alreadymounted directory already mounted
