@@ -75,7 +75,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 
 
 		CMenuForwarder* dhcpDisable[5];
-		CMenuForwarder* wlanEnable[2];
+		CMenuForwarder* wlanEnable[3];
 
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
 			
@@ -89,7 +89,8 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		int saveChangesDialog();
 		void applyNetworkSettings();
 		void saveNetworkSettings();
-		
+		int showWlanList();
+
 		bool checkIntSettings();
 		bool checkStringSettings();
 		bool checkForIP();

@@ -56,6 +56,7 @@
 #include <system/debug.h>
 
 #include <libnet.h>
+#include <libiw/iwscan.h>
 
 extern "C" int pinghost( const char *hostname );
 
@@ -119,6 +120,10 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		dprintf(DEBUG_INFO, "show current network settings...\n");
 		showCurrentNetworkSettings();
 		return res;
+	}
+	else if(actionKey=="scanssid")
+	{
+		return showWlanList();
 	}
 	else if(actionKey=="restore")
 	{
@@ -316,13 +321,17 @@ int CNetworkSetup::showNetworkSetup()
 		CStringInputSMS * networkSettings_key = new CStringInputSMS(LOCALE_NETWORKMENU_PASSWORD, &network_key, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.! ");
 		CMenuForwarder *m9 = new CMenuDForwarder(LOCALE_NETWORKMENU_SSID      , networkConfig->wireless, network_ssid , networkSettings_ssid );
 		CMenuForwarder *m10 = new CMenuDForwarder(LOCALE_NETWORKMENU_PASSWORD , networkConfig->wireless, network_key , networkSettings_key );
+		CMenuForwarder *m11 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID_SCAN , networkConfig->wireless, NULL, this, "scanssid");
 
 		m9->setHint("", LOCALE_MENU_HINT_NET_SSID);
 		m10->setHint("", LOCALE_MENU_HINT_NET_PASS);
+		m11->setHint("", LOCALE_MENU_HINT_NET_SSID_SCAN);
 
 		wlanEnable[0] = m9;
 		wlanEnable[1] = m10;
+		wlanEnable[2] = m11;
 
+		networkSettings->addItem( m11);	//ssid scan
 		networkSettings->addItem( m9);	//ssid
 		networkSettings->addItem( m10);	//key
 		if (!g_settings.easymenu)
@@ -649,7 +658,6 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * Data)
 		int ecnt = sizeof(wlanEnable) / sizeof(CMenuForwarder*);
 		for(int i = 0; i < ecnt; i++)
 			wlanEnable[i]->setActive(CNetworkConfig::getInstance()->wireless);
-
 	} else if(locale == LOCALE_NETWORKMENU_DHCP) {
 		CNetworkConfig::getInstance()->inet_static = (network_dhcp == NETWORK_DHCP_OFF);
 		int ecnt = sizeof(dhcpDisable) / sizeof(CMenuForwarder*);
@@ -797,4 +805,51 @@ void CNetworkSetup::testNetworkSettings()
 	}
 
 	ShowMsgUTF(LOCALE_NETWORKMENU_TEST, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+}
+
+int CNetworkSetup::showWlanList()
+{
+	int   res = menu_return::RETURN_REPAINT;
+
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_WAIT));
+	hintBox.paint();
+
+	std::vector<wlan_network> networks;
+	bool found = get_wlan_list(g_settings.ifname, networks);
+	hintBox.hide();
+	if (!found) {
+		ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_NETWORKMENU_SSID_SCAN_ERROR), CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+		return res;
+	}
+
+	CMenuWidget wlist(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
+	wlist.addIntroItems(LOCALE_NETWORKMENU_SSID_SCAN); //intros
+
+	char cnt[5];
+	int select = -1;
+	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
+	std::string option[networks.size()];
+	for (unsigned i = 0; i < networks.size(); ++i) {
+		sprintf(cnt, "%d", i);
+		
+		option[i] = networks[i].qual;
+		option[i] += ", ";
+		option[i] += networks[i].channel;
+
+		const char * icon = NULL;
+		if (networks[i].encrypted)
+			icon = NEUTRINO_ICON_LOCK;
+		CMenuForwarderNonLocalized * net = new CMenuForwarderNonLocalized(networks[i].ssid.c_str(), true, option[i], selector, cnt, CRCInput::RC_nokey, NULL, icon);
+		net->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+		wlist.addItem(net, networks[i].ssid == network_ssid);
+	}
+	res = wlist.exec(NULL, "");
+	delete selector;
+
+	printf("CNetworkSetup::showWlanList: selected: %d\n", select);
+	if (select >= 0) {
+		network_ssid = networks[select].ssid;
+	}
+	return res;
 }
