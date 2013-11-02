@@ -976,6 +976,7 @@ menu.hint_net_setupnow Weisen Sie die aktuellen Einstellungen zu oder übernehme
 menu.hint_net_setuponstartup Startet das Netzwerk automatisch beim Starten der Box
 menu.hint_net_show Zeigen Ihnen die aktuellen Netzwerkeinstellungen
 menu.hint_net_ssid Geben Sie die SSID des WLAN ein, mit dem Sie eine Verbindung herstellen möchten
+menu.hint_net_ssid_scan Nach verfügbaren WLAN-Netzwerken suchen
 menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box
 menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server und externe IP-Adressen
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
@@ -1490,6 +1491,9 @@ networkmenu.setupnow Einstellungen jetzt zuweisen
 networkmenu.setuponstartup Beim Start Netzwerk setzen
 networkmenu.show Aktive Einstellungen zeigen
 networkmenu.ssid Netzwerkname (SSID)
+networkmenu.ssid_scan WLAN-Netzwerke suchen
+networkmenu.ssid_scan_error Keine WLAN-Netzwerke gefunden.
+networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht...
 networkmenu.test Netzwerk testen
 neutrino_starting Neutrino-HD wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
