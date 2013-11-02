@@ -1488,7 +1488,7 @@ networkmenu.reset_settings_now Sollen die vorherigen Einstellungen \nwieder herg
 networkmenu.select_if Schnittstelle
 networkmenu.services Netzwerkservice
 networkmenu.setupnow Einstellungen jetzt zuweisen
-networkmenu.setuponstartup Beim Start Netzwerk setzen
+networkmenu.setuponstartup Schnittstelle beim Start aktivieren
 networkmenu.show Aktive Einstellungen zeigen
 networkmenu.ssid Netzwerkname (SSID)
 networkmenu.ssid_scan WLAN-Netzwerke suchen
