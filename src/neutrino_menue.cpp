@@ -182,11 +182,6 @@ void CNeutrinoApp::InitMenuMain()
 
 	CMenuForwarder * mf;
 	if (!g_settings.easymenu) {
-		//separator
-		personalize.addSeparator(MENU_MAIN);
-
-		//2nd section***************************************************************************************************
-
 		//games
 		bool show_games = g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME);
 		mf = new CMenuForwarder(LOCALE_MAINMENU_GAMES, show_games, NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME));
@@ -199,6 +194,11 @@ void CNeutrinoApp::InitMenuMain()
 		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SCRIPTS]);
 	}
+
+	//separator
+	personalize.addSeparator(MENU_MAIN);
+
+	//2nd section***************************************************************************************************
 
 	// settings, also as pin protected option in personalize menu, as a result of parameter value CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION
 	mf = new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &personalize.getWidget(MENU_SETTINGS)/**settings**/);
