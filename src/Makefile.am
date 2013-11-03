@@ -145,7 +145,7 @@ if USE_STB_HAL
 neutrino_LDADD += \
 	-lstb-hal
 neutrino_LDFLAGS = \
-	-L$(STB_HAL_LIB)
+	$(STB_HAL_LIB)
 endif
 
 if BOXTYPE_TRIPLE
