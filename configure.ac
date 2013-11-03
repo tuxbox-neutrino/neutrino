@@ -143,7 +143,7 @@ AC_ARG_WITH(stb-hal-includes,
 	[STB_HAL_INC="$withval"],[STB_HAL_INC=""])
 AC_ARG_WITH(stb-hal-build,
 	[  --with-stb-hal-build=PATH   path where libstb-hal is built [[NONE]]],
-	[STB_HAL_LIB="-L $withval"],[STB_HAL_LIB=""])
+	[STB_HAL_LIB="-L$withval"],[STB_HAL_LIB=""])
 
 AM_CONDITIONAL(USE_STB_HAL, test "$BOXTYPE" != "coolstream")
 if test "$BOXTYPE" != coolstream; then
