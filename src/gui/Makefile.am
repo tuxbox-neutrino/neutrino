@@ -95,7 +95,6 @@ libneutrino_gui_a_SOURCES = \
 	start_wizard.cpp \
 	streaminfo2.cpp \
 	subchannel_select.cpp \
-	test_menu.cpp \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
@@ -108,6 +107,11 @@ libneutrino_gui_a_SOURCES = \
 	videosettings.cpp \
 	volumebar.cpp \
 	zapit_setup.cpp
+
+if ENABLE_TEST_MENU
+libneutrino_gui_a_SOURCES += \
+	test_menu.cpp
+endif
 
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \

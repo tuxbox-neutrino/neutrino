@@ -58,7 +58,7 @@
 
 extern int cs_test_card(int unit, char * str);
 
-#ifdef TEST_MENU
+
 CTestMenu::CTestMenu()
 {
 	width = w_max (50, 10);
@@ -737,4 +737,3 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 	}
 	CFEManager::getInstance()->linkFrontends(true);
 }
-#endif

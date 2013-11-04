@@ -127,6 +127,12 @@ AC_ARG_ENABLE(pip,
 	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
 
 
+AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
+if test "$enable_testmenu" = "yes"; then
+	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
+fi
+
+
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
