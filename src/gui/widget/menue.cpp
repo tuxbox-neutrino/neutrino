@@ -560,6 +560,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					if (titem->isSelectable()) {
 						items[selected]->paint( false );
 						selected= i;
+						paintHint(selected);
+						pos = selected;
 						msg= CRCInput::RC_ok;
 					} else {
 						// swallow-key...
