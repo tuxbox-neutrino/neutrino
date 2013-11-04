@@ -1286,7 +1286,9 @@ printf("CMovieBrowser::refreshMovieInfo\n");
 //printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
 		int lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 		int ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-		const short pb_hdd_offset = 104;
+		short pb_hdd_offset = 104;
+		if (show_mode == MB_SHOW_YT)
+			pb_hdd_offset = 0;
 		m_pcWindow->paintBoxRel(lx - pb_hdd_offset , ly, logo_w, logo_h, TITLE_BACKGROUND_COLOR);
         	std::string lname;
 		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname, &logo_w, &logo_h)){
@@ -1310,6 +1312,9 @@ printf("CMovieBrowser::refreshMovieInfo\n");
 
 void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
+	if (show_mode == MB_SHOW_YT)
+		return;
+
 	struct statfs s;
 	long	blocks_percent_used =0;
 	static long tmp_blocks_percent_used = 0;
