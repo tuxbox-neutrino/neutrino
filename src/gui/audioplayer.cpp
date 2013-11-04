@@ -1645,7 +1645,7 @@ void CAudioPlayerGui::paintHead()
 		return;
 
 	CComponentsHeader header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_MP3);
-	header.setCorner(RADIUS_MID);
+	header.setCorner(RADIUS_MID, CORNER_TOP);
 
 	if (m_inetmode)
 		header.setCaption(LOCALE_INETRADIO_NAME);
