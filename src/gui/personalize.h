@@ -194,7 +194,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 			PERSONALIZE_PROTECT_MODE_NOT_PROTECTED =  0,
 			PERSONALIZE_PROTECT_MODE_PIN_PROTECTED  =  2,
 			
-			PERSONALIZE_PROTECT_MODE_MAX
+			PERSONALIZE_PROTECT_MODE_MAX = 2
 		};
 
 		//options for show_epg_feat options
