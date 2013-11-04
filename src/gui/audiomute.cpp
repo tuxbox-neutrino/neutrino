@@ -60,7 +60,7 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 	neutrino->setCurrentMuted(newValue);
 	g_Zapit->muteAudio(newValue);
 
-	if( isEvent && ( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic))
+	if( isEvent && ( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_pic))
 	{
 		CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 		if ((y_old != y)) {
@@ -91,12 +91,6 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 		if (doInit)
 			CVolumeHelper::getInstance()->refresh();
-	}
-	else if (neutrino->getMode() == CNeutrinoApp::mode_audio) {
-		if (newValue)
-			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1, x, y, width, height);
-		else
-			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 	}
 }
 

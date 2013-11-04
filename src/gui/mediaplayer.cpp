@@ -91,11 +91,9 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	CAudioMute *audiomute = CAudioMute::getInstance();
 	if (actionKey == "audioplayer")
 	{
-		audiomute->enableMuteIcon(false);
 		if (audioPlayer == NULL)
 			audioPlayer = new CAudioPlayerGui();
 		int res = audioPlayer->exec(NULL, "init");
-		audiomute->enableMuteIcon(true);
 		return res /*menu_return::RETURN_REPAINT*/;
 	}
 	else if	(actionKey == "inetplayer")

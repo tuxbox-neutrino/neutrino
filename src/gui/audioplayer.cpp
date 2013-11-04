@@ -281,8 +281,6 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
 	int iw, ih;
-	m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &iw, &ih);
-	m_theight = std::max(m_theight, ih+2);
 	m_frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw, &ih);
 	m_theight = std::max(m_theight, ih+4);
 
@@ -901,8 +899,6 @@ int CAudioPlayerGui::show()
 				ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
-			// update mute icon
-			paintHead();
 			paintLCD();
 		}
 	}
@@ -1649,9 +1645,6 @@ void CAudioPlayerGui::paintHead()
 
 	if (m_inetmode)
 		header.setCaption(LOCALE_INETRADIO_NAME);
-
-	if (CNeutrinoApp::getInstance()->isMuted())
-		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 
 #ifdef ENABLE_GUI_MOUNT
 	if (!m_inetmode)

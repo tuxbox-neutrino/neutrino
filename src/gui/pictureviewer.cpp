@@ -637,8 +637,7 @@ int CPictureViewerGui::show()
 	}
 	hide();
 
-	if (!audioplayer)
-		CAudioMute::getInstance()->enableMuteIcon(true);
+	CAudioMute::getInstance()->enableMuteIcon(true);
 
 	return(res);
 }
