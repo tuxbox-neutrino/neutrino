@@ -527,6 +527,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 	CZapit::getInstance()->GetConfig(zapitCfg);
 	CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
 	setupMenu->addIntroItems();
+	setupMenu->setWizardMode(is_wizard);
 
 	int count = CFEManager::getInstance()->getFrontendCount();
 
