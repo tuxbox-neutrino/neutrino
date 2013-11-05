@@ -736,7 +736,7 @@ mainmenu.recording Recording
 mainmenu.recording_start start
 mainmenu.recording_stop stop
 mainmenu.scripts Scripts
-mainmenu.service Instalation (service)
+mainmenu.service Installation (service)
 mainmenu.settings System settings
 mainmenu.shutdown Shutdown (deep standby)
 mainmenu.shutdown_menu Shutdown
