@@ -141,7 +141,9 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		{
 			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD);
 			if (advanced) {
-				res = CScanSetup::getInstance()->exec(NULL, "");
+				res = CScanSetup::getInstance()->exec(NULL, "setup_frontend");
+				if(res != menu_return::RETURN_EXIT_ALL)
+					res = CScanSetup::getInstance()->exec(NULL, "");
 			} else {
 				CZapit::getInstance()->GetConfig(zapitCfg);
 #ifdef ENABLE_FASTSCAN
