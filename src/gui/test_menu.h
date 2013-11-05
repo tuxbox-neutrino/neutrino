@@ -33,7 +33,7 @@
 #include <gui/widget/icons.h>
 #include <gui/components/cc.h>
 
-#define TEST_MENU
+//#define TEST_MENU
 
 #include <string>
 
