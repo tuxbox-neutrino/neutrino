@@ -374,11 +374,11 @@ int CScanSetup::showScanMenu()
 	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
 
 	//main
-	CMenuWidget * settings = new CMenuWidget(is_wizard ? LOCALE_SERVICEMENU_SCANTS : LOCALE_SERVICEMENU_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_MAIN);
+	CMenuWidget * settings = new CMenuWidget(/*is_wizard ? LOCALE_SERVICEMENU_SCANTS :*/ LOCALE_SERVICEMENU_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_MAIN);
 	settings->setWizardMode(is_wizard);
 
 	//back
-	settings->addIntroItems(is_wizard ? NONEXISTANT_LOCALE : LOCALE_SERVICEMENU_SCANTS);
+	settings->addIntroItems(/*is_wizard ? NONEXISTANT_LOCALE : */ LOCALE_SERVICEMENU_SCANTS);
 	//----------------------------------------------------------------------
 #if 0
 	//save scan settings
@@ -877,7 +877,7 @@ void CScanSetup::fillSatSelect(CMenuOptionStringChooser * select)
 	for(int i = 0; i < count; i++) {
 		CFrontend * fe = CFEManager::getInstance()->getFE(i);
 
-		if (fe->getInfo()->type != FE_QPSK)
+		if ((fe->getInfo()->type != FE_QPSK) || (fe->getMode() == CFrontend::FE_MODE_UNUSED))
 			continue;
 
 		satellite_map_t & satmap = fe->getSatellites();
