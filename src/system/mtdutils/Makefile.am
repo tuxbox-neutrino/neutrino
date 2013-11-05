@@ -14,7 +14,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/xmltree \
-	-I$(top_srcdir)/src/system/mtdutils/include
+	-I$(top_srcdir)/src/system/mtdutils/include \
 	@FREETYPE_CFLAGS@
 
 if BOXMODEL_APOLLO
