@@ -108,6 +108,14 @@ class CComponentsButtonRed : public CComponentsButton
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
 		};
+		CComponentsButtonRed(	const int x_pos, const int y_pos, const int w, const int h,
+					const neutrino_locale_t& caption_locale,
+					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+		{
+			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
+		};
 };
 
 //! Sub class of CComponentsButton.
@@ -122,6 +130,14 @@ class CComponentsButtonGreen : public CComponentsButton
 					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+		{
+			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
+		};
+		CComponentsButtonGreen(	const int x_pos, const int y_pos, const int w, const int h,
+					const neutrino_locale_t& caption_locale,
+					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
 		};
@@ -142,6 +158,14 @@ class CComponentsButtonYellow : public CComponentsButton
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
 		};
+		CComponentsButtonYellow(	const int x_pos, const int y_pos, const int w, const int h,
+					const neutrino_locale_t& caption_locale,
+					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+		{
+			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
+		};
 };
 
 //! Sub class of CComponentsButton.
@@ -156,6 +180,14 @@ class CComponentsButtonBlue : public CComponentsButton
 					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
 					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+		{
+			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
+		};
+		CComponentsButtonBlue(	const int x_pos, const int y_pos, const int w, const int h,
+					const neutrino_locale_t& caption_locale,
+					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
 		};
