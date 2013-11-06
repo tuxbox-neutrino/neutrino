@@ -258,6 +258,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 	
 	if (!g_settings.easymenu && (is_pin_protected || hasPinItems())) {
 		setHint(LOCALE_PERSONALIZE_PINHINT); //from CPINProtection
+		is_pin_protected = true;
 		if (check())
 			is_pin_protected = false;
 	}
