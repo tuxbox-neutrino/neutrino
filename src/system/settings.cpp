@@ -152,7 +152,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 #if 1
 	if(sat_TP_fec == 4) sat_TP_fec = 5;
 #endif
-	fast_type = configfile.getInt32("fast_type", 1);
+	fast_type = configfile.getInt32("fast_type", 2);
 	fast_op = configfile.getInt32("fast_op", 0);
 	cable_nid = configfile.getInt32("cable_nid", 0);
 
