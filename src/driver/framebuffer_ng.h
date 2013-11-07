@@ -174,7 +174,7 @@ class CFrameBuffer
 		void setupGXA(void);
 #endif
 
-		void init(const char * const fbDevice = "/dev/fb/0");
+		void init(const char * const fbDevice = "/dev/fb0");
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 
 
