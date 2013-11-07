@@ -114,7 +114,7 @@ class CTextBox
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
-		int  getFontTextHeight();
+		
 		bool hasChanged(int* x, int* y, int* dx, int* dy);
 		void reInitToCompareVar(int* x, int* y, int* dx, int* dy);
 
@@ -202,7 +202,8 @@ class CTextBox
 		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
-
+		int  getFontTextHeight();
+		
 		void paint (void);
 		void hide (void);
 };
