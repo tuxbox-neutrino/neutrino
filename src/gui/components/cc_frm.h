@@ -388,7 +388,10 @@ class CComponentsExtTextForm : public CComponentsForm
 
 		///assigns texts for label and text, parameter as string, parameter Font is optional for required font type, default font is dependently from defined item height
 		void setLabelAndText(const std::string& label_text, const std::string& text,  Font* font_text = NULL);
+		///assigns texts for label and text, parameter as neutrino_locale_t, parameter Font is optional for required font type, default font is dependently from defined item height
 		void setLabelAndText(const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,  Font* font_text = NULL);
+		///assigns text Font type
+		void setLabelAndTextFont(Font* font);
 		
 		///assigns texts for label and text, parameter as struct (locale_ext_txt_t), parameters provide the same properties like setLabelAndText()
 		void setLabelAndTexts(const locale_ext_txt_t& texts);

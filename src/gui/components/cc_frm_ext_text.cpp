@@ -187,6 +187,13 @@ void CComponentsExtTextForm::setLabelAndTexts(const locale_ext_txt_t& locale_tex
 	setLabelAndText(g_Locale->getText(locale_texts.label_text), g_Locale->getText(locale_texts.text), locale_texts.font);
 }
 
+void CComponentsExtTextForm::setLabelAndTextFont(Font* font)
+{
+	if (font == NULL)
+		return;
+	setLabelAndText(ccx_label_text, ccx_text, font);
+}
+
 void CComponentsExtTextForm::setTextModes(const int& label_mode, const int& text_mode)
 {
 	ccx_label_align = label_mode;
@@ -203,7 +210,6 @@ void CComponentsExtTextForm::setLabelAndTextColor(const fb_pixel_t label_color ,
 
 void CComponentsExtTextForm::initCCTextItems()
 {
-	height = max(height, ccx_font->getHeight());
 	initLabel();
 	initText();
 }
