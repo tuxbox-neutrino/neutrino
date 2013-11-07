@@ -268,27 +268,11 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if(actionKey=="window_size") {
-		if (win_demo == NULL) {
-			win_demo = new CComponentsShapeSquare(0, 0, 0, 0);
-			win_demo->setFrameThickness(8);
-			win_demo->setShadowOnOff(CC_SHADOW_OFF);
-			win_demo->setColorBody(COL_BACKGROUND);
-			win_demo->setColorFrame(COL_RED);
-			win_demo->doPaintBg(true);
-		}
-		else {
-			if (win_demo->isPainted())
-				win_demo->kill();
-		}
+		int old_window_width = g_settings.window_width;
+		int old_window_height = g_settings.window_height;
 
-		win_demo->setWidth(frameBuffer->getScreenWidthRel());
-		win_demo->setHeight(frameBuffer->getScreenHeightRel());
-		win_demo->setXPos(getScreenStartX(win_demo->getWidth()));
-		win_demo->setYPos(getScreenStartY(win_demo->getHeight()));
+		paintWindowSize(old_window_width, old_window_height);
 
-		win_demo->paint(CC_SAVE_SCREEN_NO);
-
-		int old_window_size = g_settings.window_size;
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		bool loop=true;
@@ -301,30 +285,34 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			if ( msg == CRCInput::RC_ok ) {
 				loop = false;
 				memset(window_size_value, 0, sizeof(window_size_value));
-				snprintf(window_size_value, sizeof(window_size_value)-1, "%d", g_settings.window_size);
+				snprintf(window_size_value, sizeof(window_size_value)-1, "%d / %d", g_settings.window_width, g_settings.window_height);
 				mfWindowSize->setOption(window_size_value);
 				break;
 			} else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
-				g_settings.window_size = old_window_size;
+				g_settings.window_width = old_window_width;
+				g_settings.window_height = old_window_height;
 				loop = false;
-			} else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)) {
-				if ((msg == CRCInput::RC_up) && (g_settings.window_size < WINDOW_SIZE_MAX)) {
-					g_settings.window_size += 1;
-				}
-				if ((msg == CRCInput::RC_down) && (g_settings.window_size > WINDOW_SIZE_MIN)) {
-					g_settings.window_size -= 1;
-				}
+			} else if ((msg == CRCInput::RC_page_up) || (msg == CRCInput::RC_page_down) ||
+				(msg == CRCInput::RC_left) || (msg == CRCInput::RC_right) ||
+				(msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)) {
 
-				if (win_demo->isPainted())
-					win_demo->kill();
+				int dir = 1;
+				if ((msg == CRCInput::RC_page_down) || (msg == CRCInput::RC_left) || (msg == CRCInput::RC_down))
+					dir = -1;
 
-				win_demo->setWidth(frameBuffer->getScreenWidthRel());
-				win_demo->setHeight(frameBuffer->getScreenHeightRel());
-				win_demo->setXPos(getScreenStartX(win_demo->getWidth()));
-				win_demo->setYPos(getScreenStartY(win_demo->getHeight()));
+				int mask = 3;
+				if ((msg == CRCInput::RC_left) || (msg == CRCInput::RC_right))
+					mask = 1;
+				else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
+					mask = 2;
+				if (mask & 1)
+					g_settings.window_width += dir;
+				if (mask & 2)
+					g_settings.window_height += dir;
 
-				win_demo->paint(CC_SAVE_SCREEN_NO);
+				paintWindowSize(g_settings.window_width, g_settings.window_height);
 
+			} else if ((msg == CRCInput::RC_left) || (msg == CRCInput::RC_right)) {
 			} else if (msg > CRCInput::RC_MaxRC) {
 				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 					loop = false;
@@ -584,7 +572,7 @@ int COsdSetup::showOsdSetup()
 
 	// window size
 	memset(window_size_value, 0, sizeof(window_size_value));
-	snprintf(window_size_value, sizeof(window_size_value)-1, "%d", g_settings.window_size);
+	snprintf(window_size_value, sizeof(window_size_value)-1, "%d / %d", g_settings.window_width, g_settings.window_height);
 	mfWindowSize = new CMenuForwarder(LOCALE_WINDOW_SIZE, true, window_size_value, this, "window_size", CRCInput::convertDigitToKey(shortcut++));
 	mfWindowSize->setHint("", LOCALE_MENU_HINT_WINDOW_SIZE);
 	osd_menu->addItem(mfWindowSize);
@@ -1161,4 +1149,38 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	mc = new CMenuOptionChooser(LOCALE_SCREENSHOT_COVER, &g_settings.screenshot_cover, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCREENSHOT_COVER);
 	menu_screenshot->addItem(mc);
+}
+
+void COsdSetup::paintWindowSize(int w, int h)
+{
+	if (win_demo == NULL) {
+		win_demo = new CComponentsShapeSquare(0, 0, 0, 0);
+		win_demo->setFrameThickness(8);
+		win_demo->setShadowOnOff(CC_SHADOW_OFF);
+		win_demo->setColorBody(COL_BACKGROUND);
+		win_demo->setColorFrame(COL_RED);
+		win_demo->doPaintBg(true);
+	}
+	else {
+		if (win_demo->isPainted())
+			win_demo->kill();
+	}
+	
+	g_settings.window_width = w;
+	g_settings.window_height = h;
+	if (g_settings.window_width > WINDOW_SIZE_MAX)	
+		g_settings.window_width = WINDOW_SIZE_MAX;
+	if (g_settings.window_width < WINDOW_SIZE_MIN)	
+		g_settings.window_width = WINDOW_SIZE_MIN;
+	if (g_settings.window_height > WINDOW_SIZE_MAX)	
+		g_settings.window_height = WINDOW_SIZE_MAX;
+	if (g_settings.window_height < WINDOW_SIZE_MIN)	
+		g_settings.window_height = WINDOW_SIZE_MIN;
+
+	win_demo->setWidth(frameBuffer->getScreenWidthRel());
+	win_demo->setHeight(frameBuffer->getScreenHeightRel());
+	win_demo->setXPos(getScreenStartX(win_demo->getWidth()));
+	win_demo->setYPos(getScreenStartY(win_demo->getHeight()));
+
+	win_demo->paint(CC_SAVE_SCREEN_NO);
 }

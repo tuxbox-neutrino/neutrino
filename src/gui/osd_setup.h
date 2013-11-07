@@ -50,7 +50,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CMenuWidget *osd_menu;
 		CMenuWidget *submenu_menus;
 		CMenuForwarder *mfFontFile, *mfTtxFontFile, *mfWindowSize;
-		char window_size_value[6];
+		char window_size_value[10];
 		std::string osdFontFile, osdTtxFontFile;
 		CComponentsShapeSquare *win_demo;
 
@@ -69,6 +69,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		void showOsdEventlistSetup(CMenuWidget *menu_eventlist);
 		void showOsdVolumeSetup(CMenuWidget *menu_volume);
 		void showOsdScreenShotSetup(CMenuWidget *menu_screenshot);
+		void paintWindowSize(int w, int h);
 
  		void AddFontSettingItem(CMenuWidget &font_Settings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);
  
