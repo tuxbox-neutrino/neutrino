@@ -285,7 +285,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			if ( msg == CRCInput::RC_ok ) {
 				loop = false;
 				memset(window_size_value, 0, sizeof(window_size_value));
-				snprintf(window_size_value, sizeof(window_size_value)-1, "%d / %d", g_settings.window_width, g_settings.window_height);
+				snprintf(window_size_value, sizeof(window_size_value), "%d / %d", g_settings.window_width, g_settings.window_height);
 				mfWindowSize->setOption(window_size_value);
 				break;
 			} else if ((msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
@@ -572,7 +572,7 @@ int COsdSetup::showOsdSetup()
 
 	// window size
 	memset(window_size_value, 0, sizeof(window_size_value));
-	snprintf(window_size_value, sizeof(window_size_value)-1, "%d / %d", g_settings.window_width, g_settings.window_height);
+	snprintf(window_size_value, sizeof(window_size_value), "%d / %d", g_settings.window_width, g_settings.window_height);
 	mfWindowSize = new CMenuForwarder(LOCALE_WINDOW_SIZE, true, window_size_value, this, "window_size", CRCInput::convertDigitToKey(shortcut++));
 	mfWindowSize->setHint("", LOCALE_MENU_HINT_WINDOW_SIZE);
 	osd_menu->addItem(mfWindowSize);
