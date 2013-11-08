@@ -523,6 +523,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 	int shortcut = 1;
 
 	fe_restart = false;
+	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
 
 	CZapit::getInstance()->GetConfig(zapitCfg);
 	CMenuWidget * setupMenu = new CMenuWidget(LOCALE_SATSETUP_FE_SETUP, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SCAN_FE_SETUP);
@@ -565,7 +566,8 @@ int CScanSetup::showScanMenuFrontendSetup()
 		}
 
 		modestr[i] = g_Locale->getText(getModeLocale(fe->getMode()));
-		mf = new CMenuForwarderNonLocalized(name, true, modestr[i], this, tmp, key, icon);
+
+		mf = new CMenuForwarderNonLocalized(name, allow_start, modestr[i], this, tmp, key, icon);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SETUP_FE);
 		setupMenu->addItem(mf);
 		if(i != 0)
