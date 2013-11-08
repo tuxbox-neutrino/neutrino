@@ -1390,6 +1390,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE_MASTER)) {
 		printf("[neutrino] CScanSetup::%s: fe%d link %d \n", __FUNCTION__, fenumber, femaster);
+		fe_restart = true;
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		if (fe)
 			fe->setMaster(femaster);
