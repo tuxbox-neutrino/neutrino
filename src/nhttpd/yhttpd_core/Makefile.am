@@ -11,6 +11,14 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@FREETYPE_CFLAGS@
 
+if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
+else
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
+endif
+endif
+
 AM_CPPFLAGS += -fno-rtti -fno-exceptions
 
 noinst_LIBRARIES = libyhttpd.a
