@@ -56,8 +56,8 @@
 #define ENABLE_INTERNETRADIO
 #define VLC_URI "vlc://"
 
-bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str);
-bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t str_leng);
+bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str, bool allow_tmp = false);
+bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t str_leng, bool allow_tmp = false);
 
 /**
  * Converts input of numeric keys to SMS style char input.
@@ -146,6 +146,9 @@ class CFileBrowser
 {
 	private:
 		CFrameBuffer		*frameBuffer;
+		Font *fnt_title;
+		Font *fnt_item;
+		Font *fnt_small;
 
 		CFileList		selected_filelist;
 		bool			readDir(const std::string & dirname, CFileList* flist);

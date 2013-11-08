@@ -65,7 +65,6 @@ install_DATA =	channels.js \
 		Y_Settings_video_audio.yhtm \
 		Y_Settings_VNC.yhtm \
 		Y_Settings_wol.yhtm \
-		Y_Settings.yhtm \
 		Y_Settings_yWeb.yhtm \
 		Y_Settings_zapit.yhtm \
 		Y_StreamInfo.yhtm \
@@ -75,7 +74,6 @@ install_DATA =	channels.js \
 		Y_Tools_Boxcontrol.yhtm \
 		Y_Tools_Check_Install.yhtm \
 		Y_Tools_Cmd.yhtm \
-		Y_Tools_fbshot.yhtm \
 		Y_Tools_Flash_Menue.yhtm \
 		Y_Tools_Flash_Upload.yhtm \
 		Y_Tools_Info_Menue.yhtm \
@@ -83,7 +81,7 @@ install_DATA =	channels.js \
 		Y_Tools_lcshot.yhtm \
 		Y_Tools_Menue.yhtm \
 		Y_Tools_Rcsim.yhtm \
-		Y_Tools_remote_osd.yhtm  \
+		Y_Tools_Screenshot.yhtm  \
 		Y_Tools_Timer_Sync.js \
 		Y_Tools_Timer_Sync.yhtm \
 		Y_Tools_tvshot.yhtm \

@@ -24,18 +24,18 @@
 
         License: GPL
 
-        This library is free software; you can redistribute it and/or
-	modify it under the terms of the GNU Library General Public
+        This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
 	License as published by the Free Software Foundation; either
 	version 2 of the License, or (at your option) any later version.
 
-	This library is distributed in the hope that it will be useful,
+	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	Library General Public License for more details.
 
-	You should have received a copy of the GNU Library General Public
-	License along with this library; if not, write to the
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 
@@ -164,11 +164,12 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		int 	ShowPersonalizationMenu();
 		int 	ShowMenuOptions(const int& menu);
 		void 	ShowHelpPersonalize();
-		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget *pin_widget);
+		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pin_widget);
 		void 	ShowUserMenu(CMenuWidget* p_widget, std::vector<CUserMenuSetup*> &v_umenu);
 		void 	ShowPluginMenu(CMenuWidget* p_widget);
 		void 	ShowPreverredKeySetup(CMenuWidget* p_widget);
 		void 	SaveAndExit();
+		void	ApplySettings();
 		
 		bool	hasPinItems();
 		
@@ -193,7 +194,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 			PERSONALIZE_PROTECT_MODE_NOT_PROTECTED =  0,
 			PERSONALIZE_PROTECT_MODE_PIN_PROTECTED  =  2,
 			
-			PERSONALIZE_PROTECT_MODE_MAX
+			PERSONALIZE_PROTECT_MODE_MAX = 2
 		};
 
 		//options for show_epg_feat options

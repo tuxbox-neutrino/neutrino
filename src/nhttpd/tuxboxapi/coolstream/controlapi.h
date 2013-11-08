@@ -36,7 +36,7 @@ private:
 	void SendStreamInfo(CyhookHandler *hh);
 	void SendBouquets(CyhookHandler *hh);
 	void SendBouquet(CyhookHandler *hh,int BouquetNr);
-	void SendChannelList(CyhookHandler *hh);
+	void SendChannelList(CyhookHandler *hh,  bool currentTP = false);
 	void SendTimers(CyhookHandler *hh);
 	void SendTimersXML(CyhookHandler *hh);
 	void epgDetailList(CyhookHandler *hh);
@@ -70,6 +70,7 @@ private:
 	void GetServicesxmlCGI(CyhookHandler *hh);
 	void GetBouquetsxmlCGI(CyhookHandler *hh);
 	void GetChannel_IDCGI(CyhookHandler *hh);
+	void GetTPChannel_IDCGI(CyhookHandler *hh);
 	void MessageCGI(CyhookHandler *hh);
 	void InfoCGI(CyhookHandler *hh);
 	void HWInfoCGI(CyhookHandler *hh);

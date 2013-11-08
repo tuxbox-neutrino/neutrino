@@ -20,15 +20,15 @@ class CInfoClock
 	void 		paintTime( bool show_dot);
 	int 		time_offset, digit_offset, digit_h;
 	int 		x, y, clock_x;
+	void		Init();
 	static void	CleanUpProc(void* arg);
 	static void*	TimerProc(void *arg);
 
  public:
-	CInfoClock(bool noVolume=false);
+	CInfoClock();
 	~CInfoClock();
-	static		CInfoClock* getInstance(bool noVolume=false);
+	static		CInfoClock* getInstance();
 
-	void		Init(bool noVolume=false);
 	void 		StartClock();
 	void 		StopClock();
 	void		ClearDisplay();

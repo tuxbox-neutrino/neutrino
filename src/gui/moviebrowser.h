@@ -80,6 +80,7 @@
 #include <driver/file.h>
 #include <driver/fb_window.h>
 #include <driver/pictureviewer/pictureviewer.h>
+#include <system/ytparser.h>
 
 #define MAX_NUMBER_OF_BOOKMARK_ITEMS MI_MOVIE_BOOK_USER_MAX // we just use the same size as used in Movie info (MAX_NUMBER_OF_BOOKMARK_ITEMS is used for the number of menu items)
 #define MOVIEBROWSER_SETTINGS_FILE          CONFIGDIR "/moviebrowser.conf"
@@ -87,7 +88,7 @@
 /* percent */
 #define MIN_BROWSER_FRAME_HEIGHT 10
 #define MAX_BROWSER_FRAME_HEIGHT 80
-void strReplace(std::string& orig, const char* fstr, const std::string rstr);
+void strReplace(std::string& orig, const char* fstr, const std::string &rstr);
 
 /* !!!! Do NOT change the order of the enum, just add items at the end !!!! */
 typedef enum
@@ -181,6 +182,13 @@ typedef struct
     int* used;
 }MB_DIR;
 
+typedef enum
+{
+	MB_SHOW_RECORDS,
+	MB_SHOW_FILES,
+	MB_SHOW_YT
+} MB_SHOW_MODE;
+
 #define MB_MAX_ROWS 6
 #define MB_MAX_DIRS 5
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
@@ -219,6 +227,13 @@ typedef struct
 	int lastRecordRowNr;
 	MB_INFO_ITEM lastRecordRow[MB_MAX_ROWS];
 	int lastRecordRowWidth[MB_MAX_ROWS];
+	int ytmode;
+	int ytresults;
+	int ytquality;
+	int ytconcconn;
+	std::string ytregion;
+	std::string ytvid;
+	std::string ytsearch;
 } MB_SETTINGS;
 
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
@@ -303,6 +318,11 @@ class CMovieBrowser : public CMenuTarget
 		//bool restart_mb_timeout;
 		int menu_ret;
 
+		cYTFeedParser ytparser;
+		int show_mode;
+		void loadYTitles(int mode, std::string search = "", std::string id = "");
+		bool showYTMenu(void);
+
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(const char* path); //P1
 		CMovieBrowser(); //P1
@@ -324,6 +344,8 @@ class CMovieBrowser : public CMenuTarget
 		bool delFile_vlc(CFile& file);
 		bool delFile_std(CFile& file);
 		int  getMenuRet() { return menu_ret; }
+		int  getMode() { return show_mode; }
+		void  setMode(int mode) { show_mode = mode; }
 
 	private: //Functions
 		///// MovieBrowser init ///////////////
@@ -402,6 +424,8 @@ class CMovieBrowser : public CMenuTarget
 		void autoFindSerie(void);
 
 		void info_hdd_level(bool paint_hdd=false);
+
+		neutrino_locale_t getFeedLocale(void);
 };
 
 // Class to show Moviebrowser Information, to be used by menu
@@ -499,7 +523,7 @@ class CDirMenu : public CMenuWidget
 };
 
 
-// EPG Genre , taken from epgview, TODO: migth be splitted in major/minor to increase handling, might be moved to CMovieInfo
+// EPG Genre, taken from epgview, TODO: might be splitted in major/minor to increase handling
 #define GENRE_ALL_COUNT 76
 const CMenuOptionChooser::keyval GENRE_ALL[GENRE_ALL_COUNT] =
 {
@@ -579,137 +603,6 @@ const CMenuOptionChooser::keyval GENRE_ALL[GENRE_ALL_COUNT] =
 	{ 0xA5, LOCALE_GENRE_TRAVEL_HOBBIES_5 },
 	{ 0xA6, LOCALE_GENRE_TRAVEL_HOBBIES_6 },
 	{ 0xA7, LOCALE_GENRE_TRAVEL_HOBBIES_7 }
-};
-
-#define GENRE_MOVIE_COUNT 9
-const CMenuOptionChooser::keyval genre_movie[GENRE_MOVIE_COUNT] =
-{
-	{ 0, LOCALE_GENRE_MOVIE_0 },
-	{ 1, LOCALE_GENRE_MOVIE_1 },
-	{ 2, LOCALE_GENRE_MOVIE_2 },
-	{ 3, LOCALE_GENRE_MOVIE_3 },
-	{ 4, LOCALE_GENRE_MOVIE_4 },
-	{ 5, LOCALE_GENRE_MOVIE_5 },
-	{ 6, LOCALE_GENRE_MOVIE_6 },
-	{ 7, LOCALE_GENRE_MOVIE_7 },
-	{ 8, LOCALE_GENRE_MOVIE_8 }
-};
-#define GENRE_NEWS_COUNT 5
-const CMenuOptionChooser::keyval genre_news[GENRE_NEWS_COUNT] =
-{
-	{ 0, LOCALE_GENRE_NEWS_0 },
-	{ 1, LOCALE_GENRE_NEWS_1 },
-	{ 2, LOCALE_GENRE_NEWS_2 },
-	{ 3, LOCALE_GENRE_NEWS_3 },
-	{ 4, LOCALE_GENRE_NEWS_4 }
-};
-#define GENRE_SHOW_COUNT 4
-const CMenuOptionChooser::keyval genre_show[GENRE_SHOW_COUNT] =
-{
-	{ 0, LOCALE_GENRE_SHOW_0 },
-	{ 1, LOCALE_GENRE_SHOW_1 },
-	{ 2, LOCALE_GENRE_SHOW_2 },
-	{ 3, LOCALE_GENRE_SHOW_3 }
-};
-#define GENRE_SPORTS_COUNT 12
-const CMenuOptionChooser::keyval genre_sports[GENRE_SPORTS_COUNT] =
-{
-	{ 0, LOCALE_GENRE_SPORTS_0 },
-	{ 1, LOCALE_GENRE_SPORTS_1 },
-	{ 2, LOCALE_GENRE_SPORTS_2 },
-	{ 3, LOCALE_GENRE_SPORTS_3 },
-	{ 4, LOCALE_GENRE_SPORTS_4 },
-	{ 5, LOCALE_GENRE_SPORTS_5 },
-	{ 6, LOCALE_GENRE_SPORTS_6 },
-	{ 7, LOCALE_GENRE_SPORTS_7 },
-	{ 8, LOCALE_GENRE_SPORTS_8 },
-	{ 9, LOCALE_GENRE_SPORTS_9 },
-	{10, LOCALE_GENRE_SPORTS_10 },
-	{11, LOCALE_GENRE_SPORTS_11 }
-};
-#define GENRE_CHILDRENS_PROGRAMMES_COUNT 6
-const CMenuOptionChooser::keyval genre_childrens_programmes[GENRE_CHILDRENS_PROGRAMMES_COUNT] =
-{
-	{ 0, LOCALE_GENRE_CHILDRENS_PROGRAMMES_0 },
-	{ 1, LOCALE_GENRE_CHILDRENS_PROGRAMMES_1 },
-	{ 2, LOCALE_GENRE_CHILDRENS_PROGRAMMES_2 },
-	{ 3, LOCALE_GENRE_CHILDRENS_PROGRAMMES_3 },
-	{ 4, LOCALE_GENRE_CHILDRENS_PROGRAMMES_4 },
-	{ 5, LOCALE_GENRE_CHILDRENS_PROGRAMMES_5 }
-};
-#define GENRE_MUSIC_DANCE_COUNT 7
-const CMenuOptionChooser::keyval genre_music_dance[GENRE_MUSIC_DANCE_COUNT] =
-{
-	{ 0, LOCALE_GENRE_MUSIC_DANCE_0 },
-	{ 1, LOCALE_GENRE_MUSIC_DANCE_1 },
-	{ 2, LOCALE_GENRE_MUSIC_DANCE_2 },
-	{ 3, LOCALE_GENRE_MUSIC_DANCE_3 },
-	{ 4, LOCALE_GENRE_MUSIC_DANCE_4 },
-	{ 5, LOCALE_GENRE_MUSIC_DANCE_5 },
-	{ 6, LOCALE_GENRE_MUSIC_DANCE_6 }
-};
-#define GENRE_ARTS_COUNT 12
-const CMenuOptionChooser::keyval genre_arts_dance[GENRE_ARTS_COUNT] =
-{
-	{ 0, LOCALE_GENRE_ARTS_0 },
-	{ 1, LOCALE_GENRE_ARTS_1 },
-	{ 2, LOCALE_GENRE_ARTS_2 },
-	{ 3, LOCALE_GENRE_ARTS_3 },
-	{ 4, LOCALE_GENRE_ARTS_4 },
-	{ 5, LOCALE_GENRE_ARTS_5 },
-	{ 6, LOCALE_GENRE_ARTS_6 },
-	{ 7, LOCALE_GENRE_ARTS_7 },
-	{ 8, LOCALE_GENRE_ARTS_8 },
-	{ 9, LOCALE_GENRE_ARTS_9 },
-	{10, LOCALE_GENRE_ARTS_10 },
-	{11, LOCALE_GENRE_ARTS_11 }
-};
-#define GENRE_SOCIAL_POLITICAL_COUNT 4
-const CMenuOptionChooser::keyval genre_social_political[GENRE_SOCIAL_POLITICAL_COUNT] =
-{
-	{ 0, LOCALE_GENRE_SOCIAL_POLITICAL_0 },
-	{ 1, LOCALE_GENRE_SOCIAL_POLITICAL_1 },
-	{ 2, LOCALE_GENRE_SOCIAL_POLITICAL_2 },
-	{ 3, LOCALE_GENRE_SOCIAL_POLITICAL_3 }
-};
-#define GENRE_DOCUS_MAGAZINES_COUNT 8
-const CMenuOptionChooser::keyval genre_docus_magazines[GENRE_DOCUS_MAGAZINES_COUNT] =
-{
-	{ 0, LOCALE_GENRE_DOCUS_MAGAZINES_0 },
-	{ 1, LOCALE_GENRE_DOCUS_MAGAZINES_1 },
-	{ 2, LOCALE_GENRE_DOCUS_MAGAZINES_2 },
-	{ 3, LOCALE_GENRE_DOCUS_MAGAZINES_3 },
-	{ 4, LOCALE_GENRE_DOCUS_MAGAZINES_4 },
-	{ 5, LOCALE_GENRE_DOCUS_MAGAZINES_5 },
-	{ 6, LOCALE_GENRE_DOCUS_MAGAZINES_6 },
-	{ 7, LOCALE_GENRE_DOCUS_MAGAZINES_7 }
-};
-#define GENRE_TRAVEL_HOBBIES_COUNT 8
-const CMenuOptionChooser::keyval genre_travel_hobbies[GENRE_TRAVEL_HOBBIES_COUNT] =
-{
-	{ 0, LOCALE_GENRE_TRAVEL_HOBBIES_0 },
-	{ 1, LOCALE_GENRE_TRAVEL_HOBBIES_1 },
-	{ 2, LOCALE_GENRE_TRAVEL_HOBBIES_2 },
-	{ 3, LOCALE_GENRE_TRAVEL_HOBBIES_3 },
-	{ 4, LOCALE_GENRE_TRAVEL_HOBBIES_4 },
-	{ 5, LOCALE_GENRE_TRAVEL_HOBBIES_5 },
-	{ 6, LOCALE_GENRE_TRAVEL_HOBBIES_6 },
-	{ 7, LOCALE_GENRE_TRAVEL_HOBBIES_7 }
-};
-
-#define GENRE_MAJOR_COUNT 10
-const CMenuOptionChooser::keyval genre_major[GENRE_MAJOR_COUNT] =
-{
-	{ 1, LOCALE_GENRE_MOVIE_0 },
-	{ 2, LOCALE_GENRE_NEWS_0 },
-	{ 3, LOCALE_GENRE_SHOW_0 },
-	{ 4, LOCALE_GENRE_SPORTS_0 },
-	{ 5, LOCALE_GENRE_CHILDRENS_PROGRAMMES_0 },
-	{ 6, LOCALE_GENRE_MUSIC_DANCE_0 },
-	{ 7, LOCALE_GENRE_ARTS_0 },
-	{ 8, LOCALE_GENRE_SOCIAL_POLITICAL_0 },
-	{ 9, LOCALE_GENRE_DOCUS_MAGAZINES_0 },
-	{ 10, LOCALE_GENRE_TRAVEL_HOBBIES_0}
 };
 
 #endif /*MOVIEBROWSER_H_*/

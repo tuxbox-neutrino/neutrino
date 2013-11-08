@@ -6,6 +6,8 @@
 	Homepage: http://dbox.cyberphoria.org/
 	License: GPL
 
+	Copyright (C) 2011-2012 Stefan Seyfried
+
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -44,23 +46,18 @@ CZapitSetup::CZapitSetup()
 
 CZapitSetup::~CZapitSetup()
 {
-
 }
 
 int CZapitSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 {
 	printf("[neutrino] init zapit menu setup...\n");
-	int   res = menu_return::RETURN_REPAINT;
-
 	if (parent)
 		parent->hide();
 
-	showMenu();
-
-	return res;
+	return showMenu();
 }
 
-void CZapitSetup::showMenu()
+int CZapitSetup::showMenu()
 {
 	//menue init
 	CMenuWidget *zapit = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_ZAPIT);
@@ -86,9 +83,10 @@ void CZapitSetup::showMenu()
 	zapit->addItem(zapit1);
 	zapit->addItem(zapit2);
 
-	zapit->exec(NULL, "");
+	int res = zapit->exec(NULL, "");
 	delete miscZapitNotifier;
 	delete zapit;
+	return res;
 }
 
 //select menu
@@ -107,25 +105,21 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
-	{
 		parent->hide();
-	}
 
 	if(actionKey == "tv")
 	{
-		InitZapitChannelHelper(CZapitClient::MODE_TV);
-		return res;
+		return InitZapitChannelHelper(CZapitClient::MODE_TV);
 	}
 	else if(actionKey == "radio")
 	{
-		InitZapitChannelHelper(CZapitClient::MODE_RADIO);
-		return res;
+		return InitZapitChannelHelper(CZapitClient::MODE_RADIO);
 	}
 	else if (strncmp(actionKey.c_str(), "ZCT:", 4) == 0 || strncmp(actionKey.c_str(), "ZCR:", 4) == 0)
 	{
 		unsigned int cnr = 0;
 		t_channel_id channel_id = 0;
-		sscanf(&(actionKey[4]),"%u|%llx", &cnr,&channel_id);
+		sscanf(&(actionKey[4]),"%u|%" SCNx64 "", &cnr, &channel_id);
 
 		if (strncmp(actionKey.c_str(), "ZCT:", 4) == 0)//...tv
 		{
@@ -147,7 +141,7 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 }
 
 extern CBouquetManager *g_bouquetManager;
-void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode)
+int CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode)
 {
 	std::vector<CMenuWidget *> toDelete;
 	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS, width);
@@ -157,11 +151,15 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 		CMenuWidget* mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS, width);
 		toDelete.push_back(mwtv);
 		mwtv->addIntroItems();
-		ZapitChannelList channels = (mode == CZapitClient::MODE_RADIO) ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
+		ZapitChannelList channels;
+		if (mode == CZapitClient::MODE_RADIO)
+			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
+		else
+			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
 		for(int j = 0; j < (int) channels.size(); j++) {
 			CZapitChannel * channel = channels[j];
 			char cChannelId[60] = {0};
-			snprintf(cChannelId,sizeof(cChannelId),"ZC%c:%d|%llx#",(mode==CZapitClient::MODE_TV)?'T':'R',channel->number,channel->channel_id);
+			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode==CZapitClient::MODE_TV)?'T':'R', channel->number, channel->channel_id);
 
 			CMenuForwarderNonLocalized * chan_item = new CMenuForwarderNonLocalized(channel->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ?NEUTRINO_ICON_SCRAMBLED:NULL);
 			chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
@@ -173,7 +171,7 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 			mctv.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
 		}
 	}
-	mctv.exec (NULL, "");
+	int res = mctv.exec (NULL, "");
 
 	// delete dynamic created objects
 	for(unsigned int count=0;count<toDelete.size();count++)
@@ -181,4 +179,5 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 		delete toDelete[count];
 	}
 	toDelete.clear();
+	return res;
 }

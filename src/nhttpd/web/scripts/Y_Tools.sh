@@ -480,7 +480,13 @@ do_fbshot_clear()
 	rm /tmp/*.bmp
 	rm /tmp/*.png
 }
-
+# -----------------------------------------------------------
+# delete screenshots
+# -----------------------------------------------------------
+do_screenshot_clear()
+{
+	rm -f /tmp/*.png
+}
 # -----------------------------------------------------------
 # Settings Backup/Restore
 # -----------------------------------------------------------
@@ -530,7 +536,7 @@ case "$1" in
 	bootlogo_lcd_upload)	bootlogo_lcd_upload ;;
 	zapit_upload)			zapit_upload $2 ;;
 	kernel-stack)			msg=`dmesg`; y_format_message_html ;;
-	ps)						msg=`ps`; y_format_message_html ;;
+	ps)						msg=`ps aux`; y_format_message_html ;;
 	free)					f=`free`; p=`df -h`; msg="RAM Memory use\n-------------------\n$f\n\nPartitions\n-------------------\n$p"
 							y_format_message_html ;;
 	yreboot)				reboot; echo "Reboot..." ;;
@@ -547,7 +553,7 @@ case "$1" in
 	lcshot)					shift 1; do_lcshot $* ;;
 	fbshot)					shift 1; do_fbshot $* ;;
 	fbshot_clear)			do_fbshot_clear ;;
-	tvshot_clear)			rm -f /tmp/screenshot.png ;;
+	screenshot_clear)		do_screenshot_clear ;;
 	get_update_version)		wget -O /tmp/version.txt "http://git.coolstreamtech.de/?p=cst-public-gui-neutrino.git;a=blob_plain;f=src/nhttpd/web/Y_Version.txt" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)				shift 1; $* ;;
@@ -560,7 +566,7 @@ case "$1" in
 	timer_get_tvinfo)
 		shift 1
 		rm -r /tmp/tvinfo.xml
-		res=`wget -O /tmp/tvinfo.xml "http://www.tvinfo.de/share/vidac/rec_info.php?username=$1&password=$2" 2>&1`
+		res=$(wget -O /tmp/tvinfo.xml "http://www.tvinfo.de/share/openepg/schedule.php?username=$1&password=$2" 2>&1)
 		if  ! [ -s /tmp/tvinfo.xml ]
 		then
 			res="$res File empty!"

@@ -11,7 +11,7 @@ AC_ARG_WITH(target,
 
 AC_ARG_WITH(targetprefix,
 	[  --with-targetprefix=PATH  prefix relative to target root (only applicable in cdk mode)],
-	[targetprefix="$withval"],[targetprefix="NONE"])
+	[TARGET_PREFIX="$withval"],[TARGET_PREFIX="NONE"])
 
 AC_ARG_WITH(debug,
 	[  --without-debug         disable debugging code],
@@ -21,6 +21,11 @@ if test "$DEBUG" = "yes"; then
 	DEBUG_CFLAGS="-g3 -ggdb"
 	AC_DEFINE(DEBUG,1,[Enable debug messages])
 fi
+
+AC_ARG_ENABLE(tmsdk,
+        AS_HELP_STRING(--enable-tmsdk,         compile inside sdk),
+        ,[enable_tmsdk=no])
+AM_CONDITIONAL(ENABLE_TMSDK,test "$enable_tmsdk" = "yes")
 
 AC_MSG_CHECKING(target)
 
@@ -34,6 +39,10 @@ if test "$TARGET" = "native"; then
 	if test "$prefix" = "NONE"; then
 		prefix=/usr/local
 	fi
+	TARGET_PREFIX=$prefix
+	if test "$exec_prefix" = "NONE"; then
+		exec_prefix=$prefix
+	fi
 	targetprefix=$prefix
 elif test "$TARGET" = "cdk"; then
 	AC_MSG_RESULT(cdk)
@@ -46,10 +55,14 @@ elif test "$TARGET" = "cdk"; then
 		CXXFLAGS="-Wall -Os -mcpu=823 -pipe $DEBUG_CFLAGS"
 	fi
 	if test "$prefix" = "NONE"; then
-		AC_MSG_ERROR(invalid prefix, you need to specify one in cdk mode)
+		AC_MSG_ERROR([invalid prefix, you need to specify one in cdk mode])
 	fi
-	if test "$targetprefix" = "NONE"; then
-		targetprefix=""
+	if test "$TARGET_PREFIX" != "NONE"; then
+		AC_DEFINE_UNQUOTED(TARGET_PREFIX, "$TARGET_PREFIX",[The targets prefix])
+	fi
+	if test "$TARGET_PREFIX" = "NONE"; then
+		AC_MSG_ERROR([invalid targetprefix, you need to specify one in cdk mode])
+		TARGET_PREFIX=""
 	fi
 	if test "$host_alias" = ""; then
 		cross_compiling=yes
@@ -73,7 +86,7 @@ AC_DEFUN([TUXBOX_APPS_DIRECTORY_ONE],[
 AC_ARG_WITH($1,[  $6$7 [[PREFIX$4$5]]],[
 	_$2=$withval
 	if test "$TARGET" = "cdk"; then
-		$2=`eval echo "${targetprefix}$withval"`
+		$2=`eval echo "$TARGET_PREFIX$withval"`
 	else
 		$2=$withval
 	fi
@@ -88,7 +101,6 @@ AC_ARG_WITH($1,[  $6$7 [[PREFIX$4$5]]],[
 	TARGET_$2=$_$2
 ])
 
-dnl automake <= 1.6 don't support this
 dnl AC_SUBST($2)
 AC_DEFINE_UNQUOTED($2,"$_$2",$7)
 AC_SUBST(TARGET_$2)
@@ -102,10 +114,12 @@ if test "$TARGET" = "cdk"; then
 	sysconfdir="\${prefix}/etc"
 	localstatedir="\${prefix}/var"
 	libdir="\${prefix}/lib"
-	targetdatadir="\${targetprefix}/share"
-	targetsysconfdir="\${targetprefix}/etc"
-	targetlocalstatedir="\${targetprefix}/var"
-	targetlibdir="\${targetprefix}/lib"
+	mntdir="\${prefix}/mnt"
+	targetdatadir="\${TARGET_PREFIX}/share"
+	targetsysconfdir="\${TARGET_PREFIX}/etc"
+	targetlocalstatedir="\${TARGET_PREFIX}/var"
+	targetlibdir="\${TARGET_PREFIX}/lib"
+	targetmntdir="\${TARGET_PREFIX}/mnt"
 fi
 
 TUXBOX_APPS_DIRECTORY_ONE(configdir,CONFIGDIR,localstatedir,/var,/tuxbox/config,
@@ -129,8 +143,20 @@ TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
 	[--with-ucodedir=PATH    ],[where to find the ucodes])
 
-TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share,/tuxbox/neutrino/themes,
+TUXBOX_APPS_DIRECTORY_ONE(themesdir,THEMESDIR,datadir,/share/tuxbox, /neutrino/themes,
 	[--with-themesdir=PATH     ],[where to find the themes (don't change)])
+
+TUXBOX_APPS_DIRECTORY_ONE(iconsdir,ICONSDIR,datadir,/share/tuxbox, /neutrino/icons,
+	[--with-iconsdir=PATH     ],[where to find the icons (don't change)])
+
+TUXBOX_APPS_DIRECTORY_ONE(private_httpddir,PRIVATE_HTTPDDIR,datadir,/share,/tuxbox/neutrino/httpd,
+	[--with-private_httpddir=PATH     ],[where to find the the private httpd files])
+
+TUXBOX_APPS_DIRECTORY_ONE(public_httpddir,PUBLIC_HTTPDDIR,localstatedir,/var,/httpd,
+	[--with-public_httpddir=PATH     ],[where to find the the public httpd files])
+
+TUXBOX_APPS_DIRECTORY_ONE(hosted_httpddir,HOSTED_HTTPDDIR,mntdir,/mnt,/hosted,
+	[--with-hosted_httpddir=PATH     ],[where to find the the hosted files])
 ])
 
 dnl automake <= 1.6 needs this specifications
@@ -139,9 +165,14 @@ AC_SUBST(DATADIR)
 AC_SUBST(FONTDIR)
 AC_SUBST(GAMESDIR)
 AC_SUBST(LIBDIR)
+AC_SUBST(MNTDIR)
 AC_SUBST(PLUGINDIR)
 AC_SUBST(UCODEDIR)
 AC_SUBST(THEMESDIR)
+AC_SUBST(ICONSDIR)
+AC_SUBST(PRIVATE_HTTPDDIR)
+AC_SUBST(PUBLIC_HTTPDDIR)
+AC_SUBST(HOSTED_HTTPDDIR)
 dnl end workaround
 
 AC_DEFUN([TUXBOX_APPS_ENDIAN],[
@@ -216,18 +247,18 @@ if test "$$1_CONFIG" != "no"; then
 	if test "$TARGET" = "cdk" && check_path "$$1_CONFIG"; then
 		AC_MSG_$3([could not find a suitable version of $2]);
 	else
-                if test "$1" = "CURL"; then
-                	$1_CFLAGS=$($$1_CONFIG --cflags)
+		if test "$1" = "CURL"; then
+			$1_CFLAGS=$($$1_CONFIG --cflags)
 			$1_LIBS=$($$1_CONFIG --libs)
 		else
-	    		if test "$1" = "FREETYPE"; then
-	            		$1_CFLAGS=$($$1_CONFIG --cflags)
-	            		$1_LIBS=$($$1_CONFIG --libs)
-	    		else
-	            		$1_CFLAGS=$($$1_CONFIG --prefix=$targetprefix --cflags)
-	            		$1_LIBS=$($$1_CONFIG --prefix=$targetprefix --libs)
+			if test "$1" = "FREETYPE"; then
+			$1_CFLAGS=$($$1_CONFIG --cflags)
+				$1_LIBS=$($$1_CONFIG --libs)
+			else
+				$1_CFLAGS=$($$1_CONFIG --prefix=$TARGET_PREFIX --cflags)
+				$1_LIBS=$($$1_CONFIG --prefix=$TARGET_PREFIX --libs)
 			fi
-	        fi
+		fi
 	fi
 fi
 
@@ -398,9 +429,17 @@ AC_ARG_WITH(boxtype,
 	esac], [BOXTYPE="coolstream"])
 
 AC_ARG_WITH(boxmodel,
-	[  --with-boxmodel         valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
+	[  --with-boxmodel         valid for coolstream: nevis, apollo
+                          valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
                           valid for ipbox: ip200, ip250, ip350, ip400],
 	[case "${withval}" in
+		nevis|apollo)
+			if test "$BOXTYPE" = "coolstream"; then
+				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
 		dm500|dm500plus|dm600pvr|dm56x0|dm7000|dm7020|dm7025)
 			if test "$BOXTYPE" = "dreambox"; then
 				BOXMODEL="$withval"
@@ -418,7 +457,7 @@ AC_ARG_WITH(boxmodel,
 		*)
 			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
 			;;
-	esac],
+	esac], [BOXMODEL="nevis"]
 	[if test "$BOXTYPE" = "dreambox" -o "$BOXTYPE" = "ipbox" && test -z "$BOXMODEL"; then
 		AC_MSG_ERROR([Dreambox/IPBox needs --with-boxmodel])
 	fi])
@@ -432,6 +471,9 @@ AM_CONDITIONAL(BOXTYPE_DREAMBOX, test "$BOXTYPE" = "dreambox")
 AM_CONDITIONAL(BOXTYPE_IPBOX, test "$BOXTYPE" = "ipbox")
 AM_CONDITIONAL(BOXTYPE_COOL, test "$BOXTYPE" = "coolstream")
 AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
+
+AM_CONDITIONAL(BOXMODEL_NEVIS,test "$BOXMODEL" = "nevis")
+AM_CONDITIONAL(BOXMODEL_APOLLO,test "$BOXMODEL" = "apollo")
 
 AM_CONDITIONAL(BOXMODEL_DM500,test "$BOXMODEL" = "dm500")
 AM_CONDITIONAL(BOXMODEL_DM500PLUS,test "$BOXMODEL" = "dm500plus")
@@ -459,7 +501,11 @@ elif test "$BOXTYPE" = "generic"; then
 fi
 
 # TODO: do we need more defines?
-if test "$BOXMODEL" = "dm500"; then
+if test "$BOXMODEL" = "nevis"; then
+	AC_DEFINE(BOXMODEL_NEVIS, 1, [coolstream hd1/neo/neo2/zee])
+elif test "$BOXMODEL" = "apollo"; then
+	AC_DEFINE(BOXMODEL_APOLLO, 1, [coolstream tank])
+elif test "$BOXMODEL" = "dm500"; then
 	AC_DEFINE(BOXMODEL_DM500, 1, [dreambox 500])
 elif test "$BOXMODEL" = "ip200"; then
 	AC_DEFINE(BOXMODEL_IP200, 1, [ipbox 200])

@@ -52,6 +52,7 @@
 #include <gui/filebrowser.h>
 #include <gui/infoviewer.h>
 
+#include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
@@ -74,8 +75,6 @@
 extern CBouquetManager *g_bouquetManager;
 
 #include <string.h>
-
-#define info_height 60
 
 class CTimerListNewNotifier : public CChangeObserver
 {
@@ -246,19 +245,16 @@ CTimerList::CTimerList()
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	visible = false;
+	x = y = 0;
+	width = height = 0;
+	fheight = theight = 0;
+	footerHeight = 0;
 	selected = 0;
 	liststart = 0;
+	listmaxshow = 0;
 	Timer = new CTimerdClient();
 	skipEventID=0;
 
-	/* assuming all color icons must have same size */
-	int icol_w, icol_h, ih2;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &icol_w, &ih2);
-	icol_h = std::max(icol_h, ih2);
-
-	//buttonHeight = 7 + std::max(icol_h+2, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
-	buttonHeight = std::max(icol_h+4, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
 	/* most probable default */
 	saved_dispmode = (int)CVFD::MODE_TVRADIO;
 }
@@ -413,6 +409,16 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		}*/
 }
 
+#define TimerListButtonsCount 5
+struct button_label TimerListButtons[TimerListButtonsCount] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_TIMERLIST_DELETE },
+	{ NEUTRINO_ICON_BUTTON_GREEN 	, LOCALE_TIMERLIST_NEW    },
+	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
+	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_TIMERLIST_MODIFY },
+	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, NONEXISTANT_LOCALE     }
+};
+
 void CTimerList::updateEvents(void)
 {
 	timerlist.clear();
@@ -428,35 +434,32 @@ void CTimerList::updateEvents(void)
 		}
 	}
 	sort(timerlist.begin(), timerlist.end());
-	width = w_max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth()*56, 20);
+
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-
-	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_TIMER, &icol_w, &icol_h);
-	if(theight < icol_h)
-		theight = icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &icol_w, &icol_h);
-	if(theight < icol_h)
-		theight = icol_h;
-
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	//get footerHeight from paintButtons
+	footerHeight = ::paintButtons(0, 0, 0, TimerListButtonsCount, TimerListButtons, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
 
-	height = frameBuffer->getScreenHeight() - (info_height+50);
+	width = w_max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth()*56, 20);
+	height = frameBuffer->getScreenHeight() - (2*theight);	// max height
 
-	listmaxshow = (height-theight-0)/(fheight*2);
-	height = theight+0+listmaxshow*fheight*2;	// recalc height
+	listmaxshow = (height-theight)/(fheight*2);
+	height = theight+listmaxshow*fheight*2+footerHeight;	// recalc height
+
 	if (timerlist.size() < listmaxshow)
 	{
 		listmaxshow=timerlist.size();
-		height = theight+0+listmaxshow*fheight*2;	// recalc height
+		height = theight+listmaxshow*fheight*2+footerHeight;	// recalc height
 	}
+
 	if (selected==timerlist.size() && !(timerlist.empty()))
 	{
 		selected=timerlist.size()-1;
 		liststart = (selected/listmaxshow)*listmaxshow;
 	}
-	x=getScreenStartX( width );
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
+
+	x = getScreenStartX(width);
+	y = getScreenStartY(height);
 }
 
 
@@ -531,6 +534,8 @@ int CTimerList::show()
 			{
 				paintItem(selected - liststart);
 			}
+
+			paintFoot();
 		}
 		else if ((msg == CRCInput::RC_down || msg == (unsigned int)g_settings.key_channelList_pagedown) && !(timerlist.empty()))
 		{
@@ -559,8 +564,10 @@ int CTimerList::show()
 			{
 				paintItem(selected - liststart);
 			}
+
+			paintFoot();
 		}
-		else if ((msg == CRCInput::RC_right || msg == CRCInput::RC_ok) && !(timerlist.empty()))
+		else if ((msg == CRCInput::RC_right || msg == CRCInput::RC_ok || msg==CRCInput::RC_blue) && !(timerlist.empty()))
 		{
 			if (modifyTimer()==menu_return::RETURN_EXIT_ALL)
 			{
@@ -635,7 +642,10 @@ int CTimerList::show()
 				if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_ZAPTO)
 				{
 					hide();
-					res = g_EpgData->show(timer->channel_id, timer->epgID, &timer->epg_starttime);
+					if (timer->epgID != 0)
+						res = g_EpgData->show(timer->channel_id, timer->epgID, &timer->epg_starttime);
+					else
+						ShowLocalizedHint(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NOTFOUND);
 					if (res==menu_return::RETURN_EXIT_ALL)
 						loop=false;
 					else
@@ -668,16 +678,16 @@ void CTimerList::hide()
 {
 	if (visible)
 	{
-		frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
+		frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
 		visible = false;
 	}
 }
 
 void CTimerList::paintItem(int pos)
 {
-	int ypos = y+ theight+0 + pos*fheight*2;
+	int ypos = y+ theight+ pos*fheight*2;
 
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
 	int real_width=width;
@@ -686,25 +696,24 @@ void CTimerList::paintItem(int pos)
 		real_width-=15; //scrollbar
 	}
 
+	color   = COL_MENUCONTENT_TEXT;
 	if (pos & 1)
-	{
-		color   = COL_MENUCONTENTDARK;
-		bgcolor = COL_MENUCONTENTDARK_PLUS_0;
-	}
+		bgcolor = COL_MENUCONTENT_PLUS_1;
 	else
-	{
-		color   = COL_MENUCONTENT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
+	//shadow
+	frameBuffer->paintBoxRel(x + width, ypos, SHADOW_OFFSET, 2*fheight, COL_MENUCONTENTDARK_PLUS_0);
+	//item
 	frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, bgcolor);
 
 	if (liststart + pos == selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
-
+	//selected item
 	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor, RADIUS_MID);
+
 	if (liststart+pos<timerlist.size())
 	{
 		CTimerd::responseGetTimer & timer = timerlist[liststart+pos];
@@ -856,39 +865,30 @@ void CTimerList::paintItem(int pos)
 
 void CTimerList::paintHead()
 {
-	int icol_w, icol_h;
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_TIMER, &icol_w, &icol_h);
-
-	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	frameBuffer->paintIcon(NEUTRINO_ICON_TIMER, x+5, y, theight);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+icol_w+15, y+theight+0, width - 45,
-			g_Locale->getText(LOCALE_TIMERLIST_NAME), COL_MENUHEAD, 0, true); // UTF-8
-
-	//don't show info button on empty timerlist
-	if (!timerlist.empty())
-	{
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &icol_w, &icol_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + width - icol_w - 10, y, theight);
-	}
+	CComponentsHeader header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
+	header.setShadowOnOff(CC_SHADOW_ON);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
-
-const struct button_label TimerListButtons[4] =
-{
-	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_TIMERLIST_DELETE },
-	{ NEUTRINO_ICON_BUTTON_GREEN 	, LOCALE_TIMERLIST_NEW    },
-	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_TIMERLIST_RELOAD },
-	{ NEUTRINO_ICON_BUTTON_OKAY	, LOCALE_TIMERLIST_MODIFY }
-};
 
 void CTimerList::paintFoot()
 {
+	CTimerd::responseGetTimer* timer=&timerlist[selected];
+	if (timer != NULL)
+	{
+		//replace info button with dummy if timer is not type REC or ZAP
+		if (timer->eventType == CTimerd::TIMER_RECORD || timer->eventType == CTimerd::TIMER_ZAPTO)
+			TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_INFO_SMALL;
+		else
+			TimerListButtons[4].button = NEUTRINO_ICON_BUTTON_DUMMY_SMALL;
+	}
+
+	//shadow
+	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + height - footerHeight, width, footerHeight + SHADOW_OFFSET, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (timerlist.empty())
-		::paintButtons(	x, y + height, width, 2, &(TimerListButtons[1]));
+		::paintButtons(x, y + height - footerHeight, width, 2, &(TimerListButtons[1]), width);
 	else
-		::paintButtons(	x, y + height, width, 4, TimerListButtons);
-
+		::paintButtons(x, y + height - footerHeight, width, TimerListButtonsCount, TimerListButtons, width);
 }
 
 void CTimerList::paint()
@@ -1031,15 +1031,15 @@ const CMenuOptionChooser::keyval TIMERLIST_STANDBY_OPTIONS[TIMERLIST_STANDBY_OPT
 #endif
 const CMenuOptionChooser::keyval TIMERLIST_TYPE_OPTIONS[TIMERLIST_TYPE_OPTION_COUNT] =
 {
-	{ CTimerd::TIMER_SHUTDOWN,	LOCALE_TIMERLIST_TYPE_SHUTDOWN },
 #if 0
 	{ CTimerd::TIMER_NEXTPROGRAM,	LOCALE_TIMERLIST_TYPE_NEXTPROGRAM },
 #endif
+	{ CTimerd::TIMER_RECORD,	LOCALE_TIMERLIST_TYPE_RECORD },
 	{ CTimerd::TIMER_ZAPTO,		LOCALE_TIMERLIST_TYPE_ZAPTO },
 	{ CTimerd::TIMER_STANDBY,	LOCALE_TIMERLIST_TYPE_STANDBY },
-	{ CTimerd::TIMER_RECORD,	LOCALE_TIMERLIST_TYPE_RECORD },
 	{ CTimerd::TIMER_SLEEPTIMER,	LOCALE_TIMERLIST_TYPE_SLEEPTIMER },
 	{ CTimerd::TIMER_REMIND,	LOCALE_TIMERLIST_TYPE_REMIND },
+	{ CTimerd::TIMER_SHUTDOWN,	LOCALE_TIMERLIST_TYPE_SHUTDOWN },
 	{ CTimerd::TIMER_EXEC_PLUGIN,	LOCALE_TIMERLIST_TYPE_EXECPLUGIN }
 };
 
@@ -1133,6 +1133,9 @@ int CTimerList::newTimer()
 	std::vector<CMenuWidget *> toDelete;
 	// Defaults
 	timerNew.eventType = CTimerd::TIMER_RECORD ;
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+		timerNew.eventType = CTimerd::TIMER_ZAPTO;
+
 	timerNew.eventRepeat = CTimerd::TIMERREPEAT_ONCE ;
 	timerNew.repeatCount = 0;
 	timerNew.alarmTime = (time(NULL)/60)*60;
@@ -1177,23 +1180,24 @@ int CTimerList::newTimer()
 			CMenuWidget* mwradio = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS);
 			toDelete.push_back(mwradio);
 
-			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->tvChannels);
-			for (int j = 0; j < (int) channels->size(); j++) {
+			ZapitChannelList channels;
+			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
+			for (int j = 0; j < (int) channels.size(); j++) {
 				char cChannelId[3+16+1+1];
-				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", (*channels)[j]->channel_id);
-				mwtv->addItem(new CMenuForwarderNonLocalized((*channels)[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + (*channels)[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, (*channels)[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
+				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->channel_id);
+				mwtv->addItem(new CMenuForwarderNonLocalized(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
 			}
-			if (!channels->empty())
+			if (!channels.empty())
 				mctv.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str() /*g_bouquetManager->Bouquets[i]->Name.c_str()*/, true, NULL, mwtv));
 
 
-			channels = &(g_bouquetManager->Bouquets[i]->radioChannels);
-			for (int j = 0; j < (int) channels->size(); j++) {
+			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
+			for (int j = 0; j < (int) channels.size(); j++) {
 				char cChannelId[3+16+1+1];
-				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", (*channels)[j]->channel_id);
-				mwradio->addItem(new CMenuForwarderNonLocalized((*channels)[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + (*channels)[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, (*channels)[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
+				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->channel_id);
+				mwradio->addItem(new CMenuForwarderNonLocalized(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
 			}
-			if (!channels->empty())
+			if (!channels.empty())
 				mcradio.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwradio));
 		}
 	}
@@ -1219,7 +1223,11 @@ int CTimerList::newTimer()
 	CTimerListNewNotifier notifier2((int *)&timerNew.eventType,
 					&timerNew.stopTime,m2,m6,m8,m9,m10,m7,
 					timerSettings_stopTime.getValue());
-	CMenuOptionChooser* m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2);
+	CMenuOptionChooser* m0;
+	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2);
+	else
+		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, &TIMERLIST_TYPE_OPTIONS[1], TIMERLIST_TYPE_OPTION_COUNT-1, true, &notifier2);
 
 	timerSettings.addItem( m0);
 	timerSettings.addItem( m1);
@@ -1250,7 +1258,7 @@ int CTimerList::newTimer()
 
 bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 {
-	if (CFEManager::getInstance()->getMode() == CFEManager::FE_MODE_SINGLE){
+	if (CFEManager::getInstance()->getEnabledCount() == 1) {
 		CTimerdClient Timer;
 		CTimerd::TimerList overlappingTimers = Timer.getOverlappingTimers(announceTime,stopTime);
 		//printf("[CTimerdClient] attention\n%d\t%d\t%d conflicts with:\n",timerNew.announceTime,timerNew.alarmTime,timerNew.stopTime);

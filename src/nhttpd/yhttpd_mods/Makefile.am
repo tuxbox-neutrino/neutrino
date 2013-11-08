@@ -1,4 +1,5 @@
-INCLUDES = \
+AM_CPPFLAGS = \
+	-I$(top_builddir) \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/src \
@@ -9,7 +10,7 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@FREETYPE_CFLAGS@ 
 
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS += -fno-rtti -fno-exceptions
 
 noinst_LIBRARIES = libyhttpdmods.a
 

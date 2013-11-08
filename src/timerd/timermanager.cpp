@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2011-2012 Stefan Seyfried
+
    $Id: timermanager.cpp,v 1.86 2006/03/04 09:51:47 zwen Exp $
 
 	License: GPL
@@ -59,7 +61,9 @@ void CTimerManager::Init(void)
 	eventServer = new CEventServer;
 	m_saveEvents = false;
 	m_isTimeSet = false;
+	timer_is_rec = false;
 	wakeup = 0;
+	shutdown_eventID = -1;
 	loadRecordingSafety();
 
 	//thread starten
@@ -419,7 +423,7 @@ void CTimerManager::loadEventsFromConfig()
 	{
 		std::vector<int> savedIDs;
 		savedIDs = config.getInt32Vector ("IDS");
-		dprintf("%d timer(s) in config\n",savedIDs.size());
+		dprintf("%d timer(s) in config\n", (int)savedIDs.size());
 		for(unsigned int i=0; i < savedIDs.size(); i++)
 		{
 			std::stringstream ostr;
@@ -622,8 +626,8 @@ void CTimerManager::loadRecordingSafety()
 	{
 		/* set defaults if no configuration file exists */
 		dprintf("%s not found\n", CONFIGFILE);
-		m_extraTimeStart = 0;
-		m_extraTimeEnd = 0;
+		m_extraTimeStart = 300;
+		m_extraTimeEnd = 300;
 		config.saveConfig(CONFIGFILE);
 	}
 	else
@@ -640,7 +644,7 @@ void CTimerManager::saveEventsToConfig()
 	// Sperren !!!
 	CConfigFile config(',');
 	config.clear();
-	dprintf("save %d events to config ...\n", events.size());
+	dprintf("save %d events to config ...\n", (int)events.size());
 	CTimerEventMap::iterator pos = events.begin();
 	for(;pos != events.end();++pos)
 	{
@@ -704,6 +708,8 @@ bool CTimerManager::shutdown()
 				dprintf("shutdown: nextAnnounceTime %ld\n", nextAnnounceTime);
 				if ( event->eventType == CTimerd::TIMER_RECORD )
 					timer_is_rec = true;
+				else
+					timer_is_rec = false;
 			}
 		}
 	}
@@ -722,11 +728,12 @@ bool CTimerManager::shutdown()
 void CTimerManager::shutdownOnWakeup(int currEventID)
 {
 	time_t nextAnnounceTime=0;
-	if(wakeup == 0)
-		return;
 
-	wakeup = 0;
 	pthread_mutex_lock(&tm_eventsMutex);
+	if(wakeup == 0) {
+		pthread_mutex_unlock(&tm_eventsMutex);
+		return;
+	}
 
 	CTimerEventMap::iterator pos = events.begin();
 	for(;pos != events.end();++pos)
@@ -751,10 +758,23 @@ void CTimerManager::shutdownOnWakeup(int currEventID)
 	{ // in den naechsten 10 min steht nix an
 		dprintf("Programming shutdown event\n");
 		CTimerEvent_Shutdown* event = new CTimerEvent_Shutdown(now+120, now+180);
-		addEvent(event);
+		shutdown_eventID = addEvent(event);
+		wakeup = 0;
 	}
 	pthread_mutex_unlock(&tm_eventsMutex);
 }
+
+void CTimerManager::cancelShutdownOnWakeup()
+{
+	pthread_mutex_lock(&tm_eventsMutex);
+	if (shutdown_eventID > -1) {
+		removeEvent(shutdown_eventID);
+		shutdown_eventID = -1;
+	}
+	wakeup = 0;
+	pthread_mutex_unlock(&tm_eventsMutex);
+}
+
 void CTimerManager::setRecordingSafety(int pre, int post)
 {
 	m_extraTimeStart=pre;
@@ -950,7 +970,7 @@ void CTimerEvent::printEvent(void)
 		case CTimerd::TIMER_ZAPTO :
 			dprintf(" Zapto: "
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				" epg: %s (%llx)\n",
+				" epg: %s (%" PRIx64 ")\n",
 				static_cast<CTimerEvent_Zapto*>(this)->eventInfo.channel_id,
 				static_cast<CTimerEvent_Zapto*>(this)->epgTitle.c_str(),
 				static_cast<CTimerEvent_Zapto*>(this)->eventInfo.epgID);
@@ -959,7 +979,7 @@ void CTimerEvent::printEvent(void)
 		case CTimerd::TIMER_RECORD :
 			dprintf(" Record: "
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				" epg: %s(%llx) apids: 0x%X\n dir: %s\n",
+				" epg: %s(%" PRIx64 ") apids: 0x%X\n dir: %s\n",
 					  static_cast<CTimerEvent_Record*>(this)->eventInfo.channel_id,
 					  static_cast<CTimerEvent_Record*>(this)->epgTitle.c_str(),
 					  static_cast<CTimerEvent_Record*>(this)->eventInfo.epgID,
@@ -1101,7 +1121,7 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 				       event_id_t epgID,
 				       time_t epg_starttime, unsigned char apids,
 				       CTimerd::CTimerEventRepeat evrepeat,
-				       uint32_t repeatcount, const std::string recDir) :
+				       uint32_t repeatcount, const std::string &recDir) :
 	CTimerEvent(getEventType(), announce_Time, alarm_Time, stop_Time, evrepeat, repeatcount)
 {
 	eventInfo.epgID = epgID;
@@ -1143,6 +1163,7 @@ CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
 //------------------------------------------------------------
 void CTimerEvent_Record::fireEvent()
 {
+	Refresh();
 	CTimerd::RecordingInfo ri=eventInfo;
 	ri.eventID=eventID;
 	strcpy(ri.recordingDir, recordingDir.substr(0,sizeof(ri.recordingDir)-1).c_str());

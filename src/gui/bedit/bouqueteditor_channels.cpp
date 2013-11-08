@@ -44,6 +44,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include "bouqueteditor_chanselect.h"
+#include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 
@@ -96,24 +97,24 @@ CBEChannelWidget::~CBEChannelWidget()
 
 void CBEChannelWidget::paintItem(int pos)
 {
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
 	if(current == selected) {
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 
 		if(current < Channels->size()) {
-			paintItem2DetailsLine (pos, current);
+			initItem2DetailsLine (pos, current);
 			paintDetails(current);
 		}
 	
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
 	} else {
-		color   = COL_MENUCONTENT;
+		color   = COL_MENUCONTENT_TEXT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
@@ -159,7 +160,10 @@ void CBEChannelWidget::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((Channels->size()- 1)/ listmaxshow)+ 1;
-	float sbh= (sb- 4)/ sbc;
+	if (sbc < 1)
+		sbc = 1;
+
+	int sbh= (sb- 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
@@ -167,8 +171,8 @@ void CBEChannelWidget::paint()
 
 void CBEChannelWidget::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, caption.c_str() , COL_MENUHEAD, 0, true);
+	CComponentsHeader header(x, y, width, theight, caption.c_str(), NULL /*no header icon*/);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 const struct button_label CBEChannelWidgetButtons[4] =
@@ -181,63 +185,87 @@ const struct button_label CBEChannelWidgetButtons[4] =
 
 void CBEChannelWidget::paintFoot()
 {
-	::paintButtons(x, y + (height-footerHeight), width, 4, CBEChannelWidgetButtons, footerHeight);
+	::paintButtons(x, y + (height-footerHeight), width, 4, CBEChannelWidgetButtons, width, footerHeight);
 }
 
-void CBEChannelWidget::paintDetails(int index)
+std::string CBEChannelWidget::getInfoText(int index)
 {
+	std::string res = "";
+	
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName((*Channels)[index]->getSatellitePosition());
 	transponder t;
 	CServiceManager::getInstance()->GetTransponder((*Channels)[index]->getTransponderId(), t);
 	std::string desc = t.description();
 	if((*Channels)[index]->pname)
 		desc = desc + " (" + std::string((*Channels)[index]->pname) + ")";
-	else    
+	else
 		desc = desc + " (" + satname + ")";
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight+INFO_BOX_Y_OFFSET, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+INFO_BOX_Y_OFFSET, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+	
+	res = satname + " " + desc;
+	
+	return res;
 }
 
-void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
+void CBEChannelWidget::paintDetails(int index)
 {
-#define ConnectLineBox_Width	16
+	//details line
+	dline->paint();
+	
+	std::string str = getInfoText(index);
+	
+	//info box
+	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
+	ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+	ibox->paint(CC_SAVE_SCREEN_YES);
+}
 
+void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
+{
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
-
-	clearItem2DetailsLine();
-
-	// paint Line if detail info (and not valid list pos)
+	
+	if (dline)
+		dline->kill(); //kill details line
+		
+	// init Line if detail info (and not valid list pos)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
-		dline->paint();
-
+		
 		//infobox
 		if (ibox == NULL)
-			ibox = new CComponentsInfoBox(x, ypos2, width, info_height, false);
-		ibox->paint(false);
+			ibox = new CComponentsInfoBox();
+
+		if (ibox->isPainted())
+			ibox->hide(CC_SAVE_SCREEN_NO);
+		
+		ibox->setDimensionsAll(x, ypos2, width, info_height);
+		ibox->setFrameThickness(2);
+#if 0			
+		ibox->paint(false,true);
+#endif
+		ibox->setCorner(RADIUS_LARGE);
+		ibox->setShadowOnOff(CC_SHADOW_OFF);
 	}
 }
 
 void CBEChannelWidget::clearItem2DetailsLine()
 {
-	if (dline != NULL)
-		dline->hide();
-	if (ibox != NULL)
-		ibox->hide();
+	if (dline)
+		dline->kill(); //kill details line
+	if (ibox)
+		ibox->kill(); //kill info box
 }
 
 void CBEChannelWidget::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight+info_height);
-	clearItem2DetailsLine ();
+	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight);
+ 	clearItem2DetailsLine ();
 }
 
 void CBEChannelWidget::updateSelection(unsigned int newpos)
@@ -272,15 +300,16 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	if (parent)
 		parent->hide();
 
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	width  = w_max ((frameBuffer->getScreenWidth() / 20 * (fw+6)), 100);
-	height = h_max ((frameBuffer->getScreenHeight() / 20 * 17), (frameBuffer->getScreenHeight() / 20 * 2));
+	width  = frameBuffer->getScreenWidthRel();
+	info_height = 2*iheight + 4;
+	height = frameBuffer->getScreenHeightRel() - info_height;
 	listmaxshow = (height-theight-footerHeight-0)/iheight;
 	height = theight+footerHeight+listmaxshow*iheight; // recalc height
-	info_height = 2*iheight + 10;
 
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height + info_height)) / 2;
+	x = getScreenStartX(width);
+	if (x < ConnectLineBox_Width)
+		x = ConnectLineBox_Width;
+	y = getScreenStartY(height + info_height);
 
 	Channels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
 	paintHead();

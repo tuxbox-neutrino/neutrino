@@ -77,7 +77,9 @@ class CPictureViewerGui : public CMenuTarget
 		int					fheight; // Fonthoehe Playlist-Inhalt
 		int					theight; // Fonthoehe Playlist-Titel
 		int					sheight; // Fonthoehe MP Info
-		int					buttonHeight;
+		int			footerHeight;
+		int			buttons1Height;
+		int			buttons2Height;
 		bool				visible;			
 		State          m_state;
 		SortOrder      m_sort;

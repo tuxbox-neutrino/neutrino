@@ -5,6 +5,7 @@
  * Homepage: http://dbox2.elxsi.de
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
+ * Copyright (C) 2008, 2012 Stefan Seyfried
  *
  * License: GPLv2
  *
@@ -249,8 +250,12 @@ void SIevent::parseShortEventDescriptor(const uint8_t *buf, unsigned maxlen)
 
         int tsidonid = (transport_stream_id << 16) | original_network_id;
 
-        char lang[] = {tolower(evt->language_code_hi), tolower(evt->language_code_mid), tolower(evt->language_code_lo), '\0'};
-        std::string language(lang);
+	char lang[] = {'\0','\0','\0','\0'};
+	lang[0] = tolower(evt->language_code_hi);
+	lang[1] = tolower(evt->language_code_mid);
+	lang[2] = tolower(evt->language_code_lo);
+
+	std::string language(lang);
 	int table = getCountryCodeDefaultMapping(language);
 
         buf+=sizeof(struct descr_short_event_header);
@@ -272,7 +277,11 @@ void SIevent::parseExtendedEventDescriptor(const uint8_t *buf, unsigned maxlen)
 
         int tsidonid = (transport_stream_id << 16) | original_network_id;
 
-        char lang[] = {tolower(evt->iso_639_2_language_code_hi), tolower(evt->iso_639_2_language_code_mid), tolower(evt->iso_639_2_language_code_lo), '\0'};
+	char lang[] = {'\0','\0','\0','\0'};
+	lang[0] = tolower(evt->iso_639_2_language_code_hi);
+	lang[1] = tolower(evt->iso_639_2_language_code_mid);
+	lang[2] = tolower(evt->iso_639_2_language_code_lo);
+
         std::string language(lang);
 	int table = getCountryCodeDefaultMapping(language);
 
@@ -348,7 +357,22 @@ char SIevent::getFSK() const
 				return (it->rating + 3);           // 0x01 to 0x0F minimum age = rating + 3 years
 			else
 				return (it->rating == 0 ? 0 : 18); // return FSK 18 for : 0x10 to 0xFF defined by the broadcaster
+		}else if( it->countryCode == "FRA" && it->rating == 0x10)// workaround for ITA ESP FRA fsk.
+		{
+		  	return 0;
+		}else if(it->countryCode == "ITA" && it->rating == 1)
+		{
+			return 0;
+		}else if( it->countryCode == "ESP" )
+		{
+			if(it->rating == 0x10 || it->rating == 0x11)
+				return 0;
+			else if(it->rating == 0x12)
+				return 18;
+			else
+				return (it->rating + 1);
 		}
+
 	}
 	if (!ratings.empty())
 	{
@@ -521,7 +545,7 @@ int SIevent::saveXML2(FILE *file) const
 
 void SIevent::dump(void) const
 {
-	printf("Unique key: %llx\n", uniqueKey());
+	printf("Unique key: %" PRIx64 "\n", uniqueKey());
 	if(original_network_id)
 		printf("Original-Network-ID: %hu\n", original_network_id);
 	if (service_id)

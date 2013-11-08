@@ -44,6 +44,7 @@
 		int showSetup();
 		void showBrightnessSetup(CMenuWidget *mn_widget);
 		void showLedSetup(CMenuWidget *mn_led_widget);
+		void showBacklightSetup(CMenuWidget *mn_led_widget);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
 		int brightness;
 		int brightnessstandby;

@@ -53,6 +53,10 @@ TUXBOX_APPS_LIB_PKGCONFIG_CHECK(MAD,libmad)
 if test -z "$MAD_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(MAD,mad)
 fi
+TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
+if test -z "$OGG_CFLAGS" ; then
+	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
+fi
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
@@ -118,7 +122,31 @@ AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
 
-AC_CHECK_HEADERS(coolstream/nevis_ir.h)
+AC_ARG_ENABLE(pip,
+	[  --enable-pip                  enable picture in picture support],
+	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
+
+
+AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
+if test "$enable_testmenu" = "yes"; then
+	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
+fi
+
+
+if test "$BOXTYPE" = "coolstream"; then
+if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
+	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
+fi
+
+if test "$BOXMODEL" = "apollo"; then
+if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
+	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
+fi
+if test -e ${srcdir}/lib/libcoolstream2/cs_frontpanel.h; then
+	AC_DEFINE(HAVE_COOLSTREAM_CS_FRONTPANEL_H,1,[Define to 1 if you have the <cs_frontpanel.h> header file.])
+fi
+fi
+fi
 
 #
 # Check for libtdservicedb - the new one - for testing only
@@ -157,6 +185,7 @@ lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
+lib/libiw/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
 src/nhttpd/web/Makefile
@@ -167,6 +196,7 @@ src/nhttpd/tuxboxapi/Makefile
 src/nhttpd/tuxboxapi/coolstream/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
+src/nhttpd/nhttpd.conf
 src/Makefile
 src/daemonc/Makefile
 src/driver/pictureviewer/Makefile
@@ -174,17 +204,21 @@ src/driver/audiodec/Makefile
 src/driver/Makefile
 src/gui/Makefile
 src/gui/bedit/Makefile
+src/gui/components/Makefile
 src/gui/widget/Makefile
 src/system/Makefile
 data/Makefile
 data/fonts/Makefile
 data/icons/Makefile
 data/inetradio/Makefile
+data/initial/Makefile
 data/iso-codes/Makefile
 data/lcd/Makefile
 data/lcd/icons/Makefile
 data/lcd/clock/Makefile
+data/license/Makefile
 data/locale/Makefile
+data/neutrino-scripts/Makefile
 data/scripts/Makefile
 data/themes/Makefile
 src/eitd/Makefile
@@ -192,5 +226,12 @@ src/timerd/Makefile
 src/zapit/Makefile
 src/zapit/lib/Makefile
 src/zapit/src/Makefile
+src/zapit/data/Makefile
 ])
 
+if test "$BOXMODEL" = "apollo"; then
+AC_OUTPUT([
+src/system/mtdutils/Makefile
+src/system/mtdutils/lib/Makefile
+])
+fi

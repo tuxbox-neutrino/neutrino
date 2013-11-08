@@ -1,26 +1,21 @@
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS = -fno-rtti -D__STDC_FORMAT_MACROS
 #AM_CPPFLAGS = -fno-rtti
-BUILT_SOURCES  = git_version.h
-git_version.h: makeversion
-	@if test -d ../../.git; then \
-		echo "#define GITVERSION \"$$(git describe --dirty || echo `date` )\" " > git_version.h.tmp ; \
-		if diff -q git_version.h git_version.h.tmp >/dev/null 2>&1 ; then \
-			rm -f git_version.h.tmp ; \
-		else \
-			rm -f git_version.h ; \
-			mv git_version.h.tmp git_version.h ; \
-		fi; \
-	else \
-		rm git_version.h; echo '#define BUILT_DATE "'`date`'"' > git_version.h ; \
+BUILT_SOURCES = version.h
+version.h:
+	@rm -f $@; \
+	echo '#define BUILT_DATE "'`date`'"' > $@
+	@if test -d $(top_srcdir)/.git ; then \
+		pushd $(top_srcdir) ; \
+		GITDESCRIBE=$$(git describe --always --dirty || echo 'VCS failed') ; \
+		popd ; \
+		echo '#define VCS "'$${GITDESCRIBE}'"' >> $@ ; \
 	fi
-noinst_HEADERS = git_version.h
+noinst_HEADERS = version.h
+.PHONY: version.h
 
-.PHONY: makeversion
+SUBDIRS = bedit components widget
 
-
-SUBDIRS = widget bedit
-
-INCLUDES = \
+AM_CPPFLAGS += \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -36,10 +31,15 @@ INCLUDES = \
 	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+if BOXMODEL_APOLLO
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
+else
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
 endif
+endif
+
 if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
@@ -47,6 +47,7 @@ noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 libneutrino_gui_a_SOURCES = \
 	audio_select.cpp \
 	audio_setup.cpp \
+	audiomute.cpp \
 	audioplayer.cpp \
 	audioplayer_setup.cpp\
 	bookmarkmanager.cpp \
@@ -57,7 +58,6 @@ libneutrino_gui_a_SOURCES = \
 	epgplus.cpp \
 	epgview.cpp \
 	eventlist.cpp \
-	ext_update.cpp \
 	favorites.cpp \
 	filebrowser.cpp \
 	imageinfo.cpp \
@@ -74,12 +74,14 @@ libneutrino_gui_a_SOURCES = \
 	network_service.cpp \
 	network_setup.cpp \
 	nfs.cpp \
+	osd_progressbar_setup.cpp \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
 	parentallock_setup.cpp \
 	personalize.cpp \
 	pictureviewer.cpp \
 	pictureviewer_setup.cpp \
+	pipsetup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
 	proxyserver_setup.cpp \
@@ -93,17 +95,23 @@ libneutrino_gui_a_SOURCES = \
 	start_wizard.cpp \
 	streaminfo2.cpp \
 	subchannel_select.cpp \
-	test_menu.cpp \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
+	update_ext.cpp \
 	update_menue.cpp \
 	update_settings.cpp \
 	user_menue.cpp \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
+	volumebar.cpp \
 	zapit_setup.cpp
+
+if ENABLE_TEST_MENU
+libneutrino_gui_a_SOURCES += \
+	test_menu.cpp
+endif
 
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \

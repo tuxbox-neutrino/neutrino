@@ -41,6 +41,7 @@
 #include <gui/eventlist.h>
 #include <gui/infoviewer.h>
 
+#include <gui/components/cc.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
@@ -62,6 +63,7 @@ CBouquetList::CBouquetList(const char * const Name)
 	frameBuffer = CFrameBuffer::getInstance();
 	selected    = 0;
 	liststart   = 0;
+	favonly     = false;
 	if(Name == NULL)
 		name = g_Locale->getText(LOCALE_BOUQUETLIST_HEAD);
 	else
@@ -88,7 +90,7 @@ CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 	else
 		bname = zapitBouquet->Name.c_str();
 
-	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked);
+	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked, !zapitBouquet->bUser);
 	tmp->zapitBouquet = zapitBouquet;
 	Bouquets.push_back(tmp);
 	return tmp;
@@ -116,9 +118,9 @@ void CBouquetList::deleteBouquet(CBouquet*bouquet)
 	}
 }
 
-int CBouquetList::getActiveBouquetNumber()
+t_bouquet_id CBouquetList::getActiveBouquetNumber()
 {
-	return selected;
+	return (t_bouquet_id)selected;
 }
 
 #if 0
@@ -241,6 +243,7 @@ int CBouquetList::doMenu()
 		delete menu;
 		delete selector;
 		printf("CBouquetList::doMenu: %d selected\n", select);
+		bool added = false;
 		if(select >= 0) {
 			old_selected = select;
 			switch(select) {
@@ -249,16 +252,28 @@ int CBouquetList::doMenu()
 					bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
 					if(bouquet_id < 0) {
 						tmp = g_bouquetManager->addBouquet(Bouquets[selected]->channelList->getName(), true);
+						bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
 					} else
 						tmp = g_bouquetManager->Bouquets[bouquet_id];
 
+					if(bouquet_id < 0)
+						return -1;
+
 					channels = &zapitBouquet->tvChannels;
-					for(int li = 0; li < (int) channels->size(); li++)
-						tmp->addService((*channels)[li]);
+					for(int li = 0; li < (int) channels->size(); li++) {
+						if (!g_bouquetManager->existsChannelInBouquet(bouquet_id, ((*channels)[li])->getChannelID())) {
+							added = true;
+							tmp->addService((*channels)[li]);
+						}
+					}
 					channels = &zapitBouquet->radioChannels;
-					for(int li = 0; li < (int) channels->size(); li++)
-						tmp->addService((*channels)[li]);
-					return 1;
+					for(int li = 0; li < (int) channels->size(); li++) {
+						if (!g_bouquetManager->existsChannelInBouquet(bouquet_id, ((*channels)[li])->getChannelID())) {
+							added = true;
+							tmp->addService((*channels)[li]);
+						}
+					}
+					return added ? 1 : -1;
 					break;
 				default:
 					break;
@@ -325,12 +340,15 @@ int CBouquetList::show(bool bShowChannelList)
 	int icol_w, icol_h;
 	int w_max_text = 0;
 	int w_max_icon = 0;
+	int h_max_icon = 0;
+	favonly = !bShowChannelList;
 
 	for(unsigned int count = 0; count < sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);count++){
 		int w_text = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText (CBouquetListButtons[count].locale),true);
-		w_max_text = std::max(w_max_icon, w_text);
+		w_max_text = std::max(w_max_text, w_text);
 		frameBuffer->getIconSize(CBouquetListButtons[count].button, &icol_w, &icol_h);
 		w_max_icon = std::max(w_max_icon, icol_w);
+		h_max_icon = std::max(h_max_icon, icol_h);
 	}
 
 	int need_width =  sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0])*(w_max_icon  + w_max_text + 20);
@@ -340,10 +358,7 @@ int CBouquetList::show(bool bShowChannelList)
 	width  = w_max (need_width, 20);//500
 	height = h_max (16 * fheight, 40);
 
-	/* assuming all color icons must have same size */
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-
-	footerHeight = std::max(icol_h+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8); //TODO get footerHeight from buttons
+	footerHeight = std::max(h_max_icon+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8);
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	listmaxshow = (height - theight - footerHeight)/fheight;
 	height      = theight + footerHeight + listmaxshow * fheight; // recalc height
@@ -394,39 +409,41 @@ int CBouquetList::show(bool bShowChannelList)
 				loop=false;
 		}
 		else if(msg == CRCInput::RC_red || msg == CRCInput::RC_favorites) {
-			if (CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_FAV) {
+			if (!favonly && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_FAV) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_FAV);
 				hide();
 				return -3;
 			}
 		} else if(msg == CRCInput::RC_green) {
-			if (CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_PROV) {
+			if (!favonly && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_PROV) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_PROV);
 				hide();
 				return -3;
 			}
 		} else if(msg == CRCInput::RC_yellow || msg == CRCInput::RC_sat) {
-			if(bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_SAT) {
+			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_SAT) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_SAT);
 				hide();
 				return -3;
 			}
 		} else if(msg == CRCInput::RC_blue) {
-			if(bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_ALL) {
+			if(!favonly && bShowChannelList && CNeutrinoApp::getInstance()->GetChannelMode() != LIST_MODE_ALL) {
 				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_ALL);
 				hide();
 				return -3;
 			}
 		}
 		else if ( msg == CRCInput::RC_setup) {
-			if (!Bouquets.empty()) {
+			if (!favonly && !Bouquets.empty()) {
 				int ret = doMenu();
 				if(ret > 0) {
-					CNeutrinoApp::getInstance ()->g_channel_list_changed = true;
+					CNeutrinoApp::getInstance()->MarkChannelListChanged();
 					res = -4;
 					loop = false;
-				} else if(ret < 0)
+				} else if(ret < 0) {
+					paintHead();
 					paint();
+				}
 			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_list_start ) {
@@ -536,7 +553,7 @@ void CBouquetList::hide()
 void CBouquetList::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight;
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	bool iscurrent = true;
 	int npos = liststart + pos;
@@ -546,7 +563,7 @@ void CBouquetList::paintItem(int pos)
 		lname = (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bFav) ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : Bouquets[npos]->channelList->getName();
 
 	if (npos == (int) selected) {
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 		if(npos < (int) Bouquets.size())
@@ -554,7 +571,7 @@ void CBouquetList::paintItem(int pos)
 	} else {
 		if(npos < (int) Bouquets.size())
 			iscurrent = !Bouquets[npos]->channelList->isEmpty();
-		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
+		color = iscurrent ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor);
 	}
@@ -573,8 +590,8 @@ void CBouquetList::paintItem(int pos)
 
 void CBouquetList::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, name, COL_MENUHEAD, 0, true); // UTF-8
+	CComponentsHeader header(x, y, width, theight, name, NULL /*no header icon*/);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CBouquetList::paint()
@@ -596,7 +613,17 @@ void CBouquetList::paint()
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - footerHeight, COL_MENUCONTENT_PLUS_0);
 
-	::paintButtons(x, y + (height - footerHeight), width, sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons, footerHeight);
+	int numbuttons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
+#if 0
+	if (favonly) /* this actually shows favorites and providers button, but both are active anyway */
+		numbuttons = 2;
+
+	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
+#endif
+	if (favonly)
+		frameBuffer->paintBoxRel(x, y + (height - footerHeight), width, footerHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM); //round
+	else 
+		::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
 
 	if(!Bouquets.empty())
 	{
@@ -609,7 +636,7 @@ void CBouquetList::paint()
 	int sb = fheight* listmaxshow;
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
-	int sbc= ((bsize - 1)/ listmaxshow)+ 1;
+	int sbc= ((bsize - 1)/ listmaxshow)+ 1; /* bsize is > 0, so sbc is also > 0 */
 	float sbh= (sb - 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 

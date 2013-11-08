@@ -1,8 +1,14 @@
-AM_CXXFLAGS = -fno-rtti -fno-exceptions
+BUILT_SOURCES = rcsim.h
+rcsim.h:
+	pushd $(top_srcdir)/src/ && ./create_rcsim_h.sh > $@
+
+.PHONY: rcsim.h
+
+AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
 SUBDIRS = zapit gui daemonc driver system eitd timerd nhttpd
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
@@ -19,11 +25,15 @@ INCLUDES = \
 	@LIBCS_CFLAGS@
 
 if BOXTYPE_COOL
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+if BOXMODEL_APOLLO
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
+else
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
+endif
 endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
-INCLUDES += -I$(top_srcdir)/lib/libtriple
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
 if USE_TREMOR
@@ -36,13 +46,19 @@ bin_PROGRAMS = neutrino
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
-AM_CPPFLAGS =
+AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
 AM_CPPFLAGS += -DENABLE_FLAC
 else
 FLACLIBS =
+endif
+
+if BOXMODEL_APOLLO
+MTDUTILSLIBS = \
+	system/mtdutils/libneutrino_system_mtdutils.a \
+	system/mtdutils/lib/libneutrino_system_mtdutils_lib.a
 endif
 
 neutrino_LDADD = \
@@ -54,9 +70,12 @@ neutrino_LDADD = \
 	gui/widget/libneutrino_gui_widget2.a \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
 	system/libneutrino_system.a \
+	$(MTDUTILSLIBS) \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
+	gui/components/libneutrino_gui_components.a \
 	eitd/libsectionsd.a \
+	gui/volumebar.o \
 	driver/libneutrino_driver.a \
 	driver/audiodec/libneutrino_driver_audiodec.a \
 	driver/libneutrino_driver_netfile.a \
@@ -77,6 +96,7 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \
 	$(top_builddir)/lib/libdvbsub/libdvbsub.a \
+	$(top_builddir)/lib/libiw/libiw.a \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
@@ -105,13 +125,23 @@ neutrino_LDADD += \
 endif
 
 if BOXTYPE_COOL
-neutrino_LDADD += \
-	-lcoolstream-mt \
-	-lnxp
+neutrino_LDADD += -lcoolstream-mt -lca-sc
+if ENABLE_TMSDK 
+else
+if BOXMODEL_APOLLO
+neutrino_LDADD += -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager -ltmpvrIndexStorage -llnxscsUsr
+else
+neutrino_LDADD += -lnxp
+endif
+endif
 
 bin_PROGRAMS += drivertool
-
 drivertool_SOURCES = drivertool.c
+bin_PROGRAMS += dt
+dt_SOURCES = dt.c
+bin_PROGRAMS += rcsim
+rcsim_SOURCES = rcsim.c rcsim.h
+
 endif
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \

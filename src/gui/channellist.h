@@ -35,6 +35,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
+#include <gui/components/cc.h>
 #include <system/lastchannel.h>
 
 #include <sectionsdclient/sectionsdclient.h>
@@ -57,6 +58,7 @@ class CChannelList
 {
 private:
 	CFrameBuffer		*frameBuffer;
+	CComponentsPIP		*cc_minitv;
 	unsigned int		selected, selected_in_new_mode;
 	unsigned int		tuned;
 	t_channel_id		selected_chid;
@@ -64,32 +66,46 @@ private:
 	unsigned int		liststart;
 	unsigned int		listmaxshow;
 	unsigned int		numwidth;
+	int			new_zap_mode;
 	int			fheight; // Fonthoehe Channellist-Inhalt
 	int			theight; // Fonthoehe Channellist-Titel
+	int			fdescrheight;
 	int			footerHeight;
+	int			eventFont;
+	int			ffheight;
 
 	std::string             name;
 	ZapitChannelList	chanlist;
 	CZapProtection* 	zapProtection;
+	CComponentsDetailLine 	*dline;
 
-	int 			width;
-	int 			height;
-	int 			x;
-	int 			y;
+	int			full_width;
+	int			width;
+	int			height;
+	int			info_height; // the infobox below mainbox is handled outside height
+	int			x;
+	int			y;
 	int			logo_off;
+	int			pig_width;
+	int			pig_height;
+	int			infozone_width;
+	int			infozone_height;
+	int			previous_channellist_additional;
 
+	CEPGData		epgData;
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet
 	bool displayNext;
+	bool displayList;
+	bool pig_on_win;
+	int  first_mode_found;
 
-	int info_height;
-	bool new_mode_active;
 	int ChannelList_Rec;
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
-	void paintItem2DetailsLine (int pos, int ch_index);
-	void paintItem(int pos);
+	void paintItem2DetailsLine (int pos);
+	void paintItem(int pos,const bool firstpaint = false);
 	bool updateSelection(int newpos);
 	void paint();
 	void paintHead();
@@ -98,9 +114,20 @@ private:
 	void showChannelLogo();
 	void calcSize();
 	std::string   MaxChanNr();
+	void paintPig(int x, int y, int w, int h);
+	void paint_events(int index);
+	CChannelEventList	evtlist;
+	void readEvents(const t_channel_id channel_id);
+	void showdescription(int index);
+	typedef std::pair<std::string,int> epg_pair;
+	std::vector<epg_pair> epgText;
+	int emptyLineCount;
+	void addTextToArray( const std::string & text, int screening );
+	void processTextToArray(std::string text, int screening = 0);
+	int  getPrevNextBouquet(bool next);
 
 public:
-	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
+	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false);
 	~CChannelList();
 
 	void SetChannelList(ZapitChannelList* channels);
@@ -128,17 +155,17 @@ public:
 	t_channel_id         getActiveChannel_ChannelID(void) const;
 	CZapitChannel*	     getActiveChannel	       (void) const;
 
-	void zapTo(int pos, bool forceStoreToLastChannels = false);
-	void zapToChannel(CZapitChannel *channel);
+	void zapTo(int pos, bool force = false);
+	void zapToChannel(CZapitChannel *channel, bool force = false);
 	void virtual_zap_mode(bool up);
-	bool zapTo_ChannelID(const t_channel_id channel_id);
+	bool zapTo_ChannelID(const t_channel_id channel_id, bool force = false);
 	bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
 	bool showInfo(int pos, int epgpos = 0);
 	void updateEvents(unsigned int from, unsigned int to);
 	int 	numericZap(int key);
 	int  	show();
 	int	exec();
-	void quickZap(int key, bool cycle = false);
+	bool quickZap(int key, bool cycle = false);
 	//int  hasChannel(int nChannelNr);
 	int  hasChannelID(t_channel_id channel_id);
 	void setSelected( int nChannelNr); // for adjusting bouquet's channel list after numzap or quickzap
@@ -170,6 +197,7 @@ public:
 		SORT_CH_NUMBER,
 		SORT_MAX
 	};
+	unsigned Size() { return chanlist.size(); }
 
 };
 #endif

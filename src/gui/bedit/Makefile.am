@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
-INCLUDES = \
+AM_CPPFLAGS += \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -8,10 +8,16 @@ INCLUDES = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
-	-I$(top_srcdir)/lib/libcoolstream \
 	-I$(top_srcdir)/lib/xmltree \
 	@FREETYPE_CFLAGS@
 
+if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
+else
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
+endif
+endif
 
 noinst_LIBRARIES = libneutrino_gui_bedit.a
 

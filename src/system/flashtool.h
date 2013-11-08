@@ -37,7 +37,7 @@
 
 #include <string>
 #include <vector>
-
+#include <mtd/mtd-user.h>
 
 class CFlashTool
 {
@@ -47,6 +47,11 @@ class CFlashTool
 		std::string mtdDevice;
 		std::string ErrorMessage;
 
+		int fd;
+		mtd_info_t meminfo;
+		bool isnand;
+
+		bool getInfo();
 		bool erase(int globalProgressEnd=-1);
 
 	public:
@@ -126,6 +131,7 @@ class CMTDInfo
 		int getMTDEraseSize( const std::string & filename );
 
 		int findMTDNumber(const std::string & filename);
+		int findMTDNumberFromName(const char* name);
 		std::string findMTDsystem();
 };
 

@@ -2,23 +2,29 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-                      2003 thegoodguy
+		      2003 thegoodguy
+
+	mute icon handling from tuxbox project
+	Copyright (C) 2009 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+	mute icon & info clock handling
+	Copyright (C) 2013 M. Liebmann (micha-bbg)
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -38,6 +44,7 @@
 
 #include <linux/kd.h>
 
+#include <gui/audiomute.h>
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>
@@ -54,6 +61,14 @@ extern CPictureViewer * g_PicViewer;
 
 #define BACKGROUNDIMAGEWIDTH 720
 
+#ifdef BOXMODEL_APOLLO
+#ifndef FB_HW_ACCELERATION
+#define FB_HW_ACCELERATION
+#endif
+#endif
+#if defined(FB_HW_ACCELERATION) && defined(USE_NEVIS_GXA)
+#error
+#endif
 //#undef USE_NEVIS_GXA //FIXME
 /*******************************************************************************/
 #ifdef USE_NEVIS_GXA
@@ -74,35 +89,37 @@ extern CPictureViewer * g_PicViewer;
 #undef GXA_CONTENT_ID_REG
 #endif
 
-#define GXA_POINT(x, y)         (((y) & 0x0FFF) << 16) | ((x) & 0x0FFF)
-#define GXA_SRC_BMP_SEL(x)      (x << 8)
-#define GXA_DST_BMP_SEL(x)      (x << 5)
-#define GXA_PARAM_COUNT(x)      (x << 2)
+#define GXA_POINT(x, y)	 (((y) & 0x0FFF) << 16) | ((x) & 0x0FFF)
+#define GXA_SRC_BMP_SEL(x)	  (x << 8)
+#define GXA_DST_BMP_SEL(x)	  (x << 5)
+#define GXA_PARAM_COUNT(x)	  (x << 2)
 
 #define GXA_CMD_REG		0x001C
 #define GXA_FG_COLOR_REG	0x0020
-#define GXA_BG_COLOR_REG        0x0024
-#define GXA_LINE_CONTROL_REG    0x0038
-#define GXA_BMP2_TYPE_REG       0x0050
-#define GXA_BMP2_ADDR_REG       0x0054
+#define GXA_BG_COLOR_REG	0x0024
+#define GXA_LINE_CONTROL_REG	0x0038
+#define GXA_BMP2_TYPE_REG	   0x0050
+#define GXA_BMP2_ADDR_REG	   0x0054
 #define GXA_DEPTH_REG		0x00F4
-#define GXA_CONTENT_ID_REG      0x0144
+#define GXA_CONTENT_ID_REG	  0x0144
+#define GXA_BLT_CONTROL_REG     0x0034
 
-#define GXA_CMD_BLT             0x00010800
-#define GXA_CMD_NOT_ALPHA       0x00011000
-#define GXA_CMD_NOT_TEXT        0x00018000
+#define GXA_CMD_BLT		 0x00010800
+#define GXA_CMD_NOT_ALPHA	   0x00011000
+#define GXA_CMD_NOT_TEXT	0x00018000
 #define GXA_CMD_QMARK		0x00001000
 
-#define GXA_BMP1_TYPE_REG      0x0048
-#define GXA_BMP1_ADDR_REG      0x004C
+#define GXA_BMP1_TYPE_REG	  0x0048
+#define GXA_BMP1_ADDR_REG	  0x004C
+#define GXA_BMP7_TYPE_REG         0x0078
 
-#define GXA_BLEND_CFG_REG       0x003C
-#define GXA_CFG_REG             0x0030
-#define GXA_CFG2_REG            0x00FC
+#define GXA_BLEND_CFG_REG	   0x003C
+#define GXA_CFG_REG		 0x0030
+#define GXA_CFG2_REG		0x00FC
 /*
 static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int offset)
 {
-    return *(volatile unsigned int *)(base_addr + offset);
+	return *(volatile unsigned int *)(base_addr + offset);
 }
 */
 
@@ -110,9 +127,9 @@ static unsigned int _mark = 0;
 
 static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, unsigned int value)
 {
-    while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000)
-    {};
-    *(volatile unsigned int *)(base_addr + offset) = value;
+	while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000)
+	{};
+	*(volatile unsigned int *)(base_addr + offset) = value;
 }
 
 /* this adds a tagged marker into the GXA queue. Once this comes out
@@ -128,7 +145,7 @@ void CFrameBuffer::add_gxa_sync_marker(void)
 }
 
 /* wait until the current marker comes out of the GXA command queue */
-void CFrameBuffer::waitForIdle(void)
+void CFrameBuffer::waitForIdle(const char* func)
 {
 	unsigned int cfg, count = 0;
 	do {
@@ -142,8 +159,12 @@ void CFrameBuffer::waitForIdle(void)
 		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
 	} while(++count < 2048); /* don't deadlock here if there is an error */
 
-	if (count > 512) /* more than 100 are unlikely, */
-		fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+	if (count > 512) /* more than 100 are unlikely, */{
+		if (func != NULL)
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%04u) [%s]!\n", count, func);
+		else
+			fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%u)!\n", count);
+	}
 }
 #endif /* USE_NEVIS_GXA */
 
@@ -151,12 +172,12 @@ void CFrameBuffer::waitForIdle(void)
 
 static uint8_t * virtual_fb = NULL;
 inline unsigned int make16color(uint16_t r, uint16_t g, uint16_t b, uint16_t t,
-                                  uint32_t  /*rl*/ = 0, uint32_t  /*ro*/ = 0,
-                                  uint32_t  /*gl*/ = 0, uint32_t  /*go*/ = 0,
-                                  uint32_t  /*bl*/ = 0, uint32_t  /*bo*/ = 0,
-                                  uint32_t  /*tl*/ = 0, uint32_t  /*to*/ = 0)
+				  uint32_t  /*rl*/ = 0, uint32_t  /*ro*/ = 0,
+				  uint32_t  /*gl*/ = 0, uint32_t  /*go*/ = 0,
+				  uint32_t  /*bl*/ = 0, uint32_t  /*bo*/ = 0,
+				  uint32_t  /*tl*/ = 0, uint32_t  /*to*/ = 0)
 {
-        return ((t << 24) & 0xFF000000) | ((r << 8) & 0xFF0000) | ((g << 0) & 0xFF00) | (b >> 8 & 0xFF);
+	return ((t << 24) & 0xFF000000) | ((r << 8) & 0xFF0000) | ((g << 0) & 0xFF00) | (b >> 8 & 0xFF);
 }
 
 CFrameBuffer::CFrameBuffer()
@@ -180,12 +201,21 @@ CFrameBuffer::CFrameBuffer()
 	m_transparent_default = CFrameBuffer::TM_BLACK; // TM_BLACK: Transparency when black content ('pseudo' transparency)
 							// TM_NONE:  No 'pseudo' transparency
 							// TM_INI:   Transparency depends on g_settings.infobar_alpha ???
-	m_transparent         = m_transparent_default;
+	m_transparent	 = m_transparent_default;
+	q_circle = NULL;
+	initQCircle();
+	corner_tl = false;
+	corner_tr = false;
+	corner_bl = false;
+	corner_br = false;
 //FIXME: test
 	memset(red, 0, 256*sizeof(__u16));
 	memset(green, 0, 256*sizeof(__u16));
 	memset(blue, 0, 256*sizeof(__u16));
 	memset(trans, 0, 256*sizeof(__u16));
+	fbAreaActiv = false;
+	fb_no_check = false;
+	do_paint_mute_icon = true;
 }
 
 CFrameBuffer* CFrameBuffer::getInstance()
@@ -204,20 +234,21 @@ CFrameBuffer* CFrameBuffer::getInstance()
 #ifdef USE_NEVIS_GXA
 void CFrameBuffer::setupGXA(void)
 {
-        // We (re)store the GXA regs here in case DFB override them and was not
-        // able to restore them.
-        _write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
-        _write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
-        _write_gxa(gxa_base, GXA_BLEND_CFG_REG, 0x00089064);
+	// We (re)store the GXA regs here in case DFB override them and was not
+	// able to restore them.
+	_write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
+	_write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
+	_write_gxa(gxa_base, GXA_BLEND_CFG_REG, 0x00089064);
 	// TODO check mono-flip, bit 8
-        _write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
-        _write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
+	_write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
+	_write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);
+	_write_gxa(gxa_base, GXA_BMP7_TYPE_REG, (3 << 16) | screeninfo.xres | (1 << 27));
 }
 #endif
 void CFrameBuffer::init(const char * const fbDevice)
 {
-        int tr = 0xFF;
+	int tr = 0xFF;
 
 	fd = open(fbDevice, O_RDWR);
 	if(!fd) fd = open(fbDevice, O_RDWR);
@@ -265,35 +296,35 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	/* tell the GXA where the framebuffer to draw on starts */
 	smem_start = (unsigned int) fix.smem_start;
-printf("smem_start %x\n", smem_start);
+	printf("smem_start %x\n", smem_start);
 
 	setupGXA();
 #endif
 	cache_size = 0;
 
-        /* Windows Colors */
-        paletteSetColor(0x1, 0x010101, tr);
-        paletteSetColor(0x2, 0x800000, tr);
-        paletteSetColor(0x3, 0x008000, tr);
-        paletteSetColor(0x4, 0x808000, tr);
-        paletteSetColor(0x5, 0x000080, tr);
-        paletteSetColor(0x6, 0x800080, tr);
-        paletteSetColor(0x7, 0x008080, tr);
-        paletteSetColor(0x8, 0xA0A0A0, tr);
-        paletteSetColor(0x9, 0x505050, tr);
-        paletteSetColor(0xA, 0xFF0000, tr);
-        paletteSetColor(0xB, 0x00FF00, tr);
-        paletteSetColor(0xC, 0xFFFF00, tr);
-        paletteSetColor(0xD, 0x0000FF, tr);
-        paletteSetColor(0xE, 0xFF00FF, tr);
-        paletteSetColor(0xF, 0x00FFFF, tr);
-        paletteSetColor(0x10, 0xFFFFFF, tr);
-        paletteSetColor(0x11, 0x000000, tr);
-        paletteSetColor(COL_BACKGROUND, 0x000000, 0xffff);
+	/* Windows Colors */
+	paletteSetColor(0x1, 0x010101, tr);
+	paletteSetColor(0x2, 0x800000, tr);
+	paletteSetColor(0x3, 0x008000, tr);
+	paletteSetColor(0x4, 0x808000, tr);
+	paletteSetColor(0x5, 0x000080, tr);
+	paletteSetColor(0x6, 0x800080, tr);
+	paletteSetColor(0x7, 0x008080, tr);
+	paletteSetColor(0x8, 0xA0A0A0, tr);
+	paletteSetColor(0x9, 0x505050, tr);
+	paletteSetColor(0xA, 0xFF0000, tr);
+	paletteSetColor(0xB, 0x00FF00, tr);
+	paletteSetColor(0xC, 0xFFFF00, tr);
+	paletteSetColor(0xD, 0x0000FF, tr);
+	paletteSetColor(0xE, 0xFF00FF, tr);
+	paletteSetColor(0xF, 0x00FFFF, tr);
+	paletteSetColor(0x10, 0xFFFFFF, tr);
+	paletteSetColor(0x11, 0x000000, tr);
+	paletteSetColor(COL_BACKGROUND, 0x000000, 0xffff);
 
-        paletteSet();
+	paletteSet();
 
-        useBackground(false);
+	useBackground(false);
 	m_transparent = m_transparent_default;
 #if 0
 	if ((tty=open("/dev/vc/0", O_RDWR))<0) {
@@ -370,6 +401,11 @@ CFrameBuffer::~CFrameBuffer()
 		backupBackground = NULL;
 	}
 
+	if (q_circle) {
+		delete[] q_circle;
+		q_circle = NULL;
+	}
+
 #if 0
 #ifdef RETURN_FROM_GRAPHICS_MODE
 	if (-1 == ioctl(tty,KDSETMODE, kd_mode))
@@ -391,6 +427,8 @@ CFrameBuffer::~CFrameBuffer()
 	}
 	close(fd);
 	close(tty);
+
+	v_fbarea.clear();
 }
 
 int CFrameBuffer::getFileHandle() const
@@ -417,6 +455,19 @@ unsigned int CFrameBuffer::getScreenHeight(bool real)
 		return yRes;
 	else
 		return g_settings.screen_EndY - g_settings.screen_StartY;
+}
+
+unsigned int CFrameBuffer::getScreenWidthRel(bool force_small)
+{
+	int percent = force_small ? WINDOW_SIZE_MIN_FORCED : g_settings.window_width;
+	// always reduce a possible detailline
+	return (g_settings.screen_EndX - g_settings.screen_StartX - 2*ConnectLineBox_Width) * percent / 100;
+}
+
+unsigned int CFrameBuffer::getScreenHeightRel(bool force_small)
+{
+	int percent = force_small ? WINDOW_SIZE_MIN_FORCED : g_settings.window_height;
+	return (g_settings.screen_EndY - g_settings.screen_StartY) * percent / 100;
 }
 
 unsigned int CFrameBuffer::getScreenX()
@@ -476,8 +527,8 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	if ((screeninfo.xres!=nxRes) && (screeninfo.yres!=nyRes) && (screeninfo.bits_per_pixel!=nbpp))
 	{
 		printf("SetMode failed: wanted: %dx%dx%d, got %dx%dx%d\n",
-		       nxRes, nyRes, nbpp,
-		       screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
+			   nxRes, nyRes, nbpp,
+			   screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
 		return -1;
 	}
 #endif
@@ -503,9 +554,9 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 	paintBackground();
-        if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
-                printf("screen unblanking failed\n");
-        }
+	if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
+		printf("screen unblanking failed\n");
+	}
 	return 0;
 }
 #if 0 
@@ -532,12 +583,13 @@ void CFrameBuffer::setBlendLevel(int level)
 
 	if (ioctl(fd, FBIO_SETOPACITY, value))
 		printf("FBIO_SETOPACITY failed.\n");
-#if 1
-       if(level == 100) // TODO: sucks.
-               usleep(20000);
+#ifndef BOXMODEL_APOLLO
+	   if(level == 100) // TODO: sucks.
+		   usleep(20000);
 #endif
 #endif
 }
+
 #if 0 
 //never used
 void CFrameBuffer::setAlphaFade(int in, int num, int tr)
@@ -552,6 +604,7 @@ void CFrameBuffer::paletteFade(int i, __u32 rgb1, __u32 rgb2, int level)
 	__u16 *r = cmap.red+i;
 	__u16 *g = cmap.green+i;
 	__u16 *b = cmap.blue+i;
+
 	*r= ((rgb2&0xFF0000)>>16)*level;
 	*g= ((rgb2&0x00FF00)>>8 )*level;
 	*b= ((rgb2&0x0000FF)    )*level;
@@ -571,10 +624,10 @@ void CFrameBuffer::paletteGenFade(int in, __u32 rgb1, __u32 rgb2, int num, int t
 
 void CFrameBuffer::paletteSetColor(int i, __u32 rgb, int tr)
 {
-	cmap.red[i]    =(rgb&0xFF0000)>>8;
-	cmap.green[i]  =(rgb&0x00FF00)   ;
-	cmap.blue[i]   =(rgb&0x0000FF)<<8;
-	cmap.transp[i] = tr;
+	cmap.red[i]	=(rgb&0xFF0000)>>8;
+	cmap.green[i]	=(rgb&0x00FF00)   ;
+	cmap.blue[i]	=(rgb&0x0000FF)<<8;
+	cmap.transp[i]	= tr;
 }
 
 void CFrameBuffer::paletteSet(struct fb_cmap *map)
@@ -586,208 +639,151 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
 		map = &cmap;
 
 	if(bpp == 8) {
-//printf("Set palette for %dbit\n", bpp);
+		//printf("Set palette for %dbit\n", bpp);
 		ioctl(fd, FBIOPUTCMAP, map);
 	}
+
 	uint32_t  rl, ro, gl, go, bl, bo, tl, to;
-        rl = screeninfo.red.length;
-        ro = screeninfo.red.offset;
-        gl = screeninfo.green.length;
-        go = screeninfo.green.offset;
-        bl = screeninfo.blue.length;
-        bo = screeninfo.blue.offset;
-        tl = screeninfo.transp.length;
-        to = screeninfo.transp.offset;
+
+	rl = screeninfo.red.length;
+	ro = screeninfo.red.offset;
+	gl = screeninfo.green.length;
+	go = screeninfo.green.offset;
+	bl = screeninfo.blue.length;
+	bo = screeninfo.blue.offset;
+	tl = screeninfo.transp.length;
+	to = screeninfo.transp.offset;
 	for (int i = 0; i < 256; i++) {
-                realcolor[i] = make16color(cmap.red[i], cmap.green[i], cmap.blue[i], cmap.transp[i],
-                                           rl, ro, gl, go, bl, bo, tl, to);
+		realcolor[i] = make16color(cmap.red[i], cmap.green[i], cmap.blue[i], cmap.transp[i],
+					   rl, ro, gl, go, bl, bo, tl, to);
 	}
 }
-
-#if 0
-void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col)
-{
-	if (!getActive())
-		return;
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
-	for (int count = 0; count < dy; count++) {
-		fb_pixel_t * dest = (fb_pixel_t *)pos;
-		for (int i = 0; i < dx; i++)
-			*(dest++) = col;
-		pos += stride;
-	}
-}
-#endif
 
 void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
 {
-    /* draw a filled rectangle (with additional round corners) */
+	/* draw a filled rectangle (with additional round corners) */
 
-    if (!getActive())
-        return;
-
-    int corner_tl = (type & CORNER_TOP_LEFT)     ? 1 : 0;
-    int corner_tr = (type & CORNER_TOP_RIGHT)    ? 1 : 0;
-    int corner_bl = (type & CORNER_BOTTOM_LEFT)  ? 1 : 0;
-    int corner_br = (type & CORNER_BOTTOM_RIGHT) ? 1 : 0;
-
-#ifndef USE_NEVIS_GXA
-    int swidth = stride / sizeof(fb_pixel_t);
-    fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
-#endif
-
-    /* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
-       radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
-       ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
-    static const int q_circle[541] = {
-	540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
-        540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
-        539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
-        537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
-	534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
-        531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
-	527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
-	522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
-	516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
-	509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
-	502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
-	493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
-	484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
-	473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
-	462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
-	449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
-	435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
-	420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
-	403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
-	384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
-	363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
-	340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
-	314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
-	283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
-	248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
-	204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
-	147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
-	 23};
-
-    int line = 0;
-#ifdef USE_NEVIS_GXA
-    unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-    _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);		/* setup the drawing color */
-    _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 		/* X is major axis, skip last pixel */
-#endif
-
-    if ((type) && (radius))
-    {
-	#define MUL 32768	/* just an multiplicator for all math to reduce rounding errors */
-	int ofs, scf, scl, ofl, ofr;
-
-	/* limit the radius */
-	if (radius > dx)
-	    radius = dx;
-	if (radius > dy)
-	    radius = dy;
-	if (radius > 540)
-	    radius = 540;
-	if (radius < 1)		/* dx or dy = 0... */
-		radius = 1;	/* avoid div by zero below */
-
-	scf = (540 * MUL) / radius;
-
-	while (line < dy)
-	{
-	    ofl = ofr = 0;
-
-	    if (line < radius && (type & CORNER_TOP)) /* one of the top corners */
-	    {
-		/* uper round corners */
-		scl = scf * (radius - line) / MUL;
-		if ((scf * (radius - line) % MUL) >= (MUL / 2))	/* round up */
-		    scl++;
-		ofs = radius - (q_circle[scl] * MUL / scf);
-		// ofl = corner_tl * ofs; // might depend on the arch if multiply is faster or not
-		ofl = corner_tl ? ofs : 0;
-		ofr = corner_tr ? ofs : 0;
-	    }
-	    else if ((line >= dy - radius) && (type & CORNER_BOTTOM)) /* one of the bottom corners */
-	    {
-		/* lower round corners */
-		scl = scf * (radius - (dy - (line + 1))) / MUL;
-		if ((scf * (radius - (dy - (line + 1))) % MUL) >= (MUL / 2))	/* round up */
-		    scl++;
-		ofs = radius - (q_circle[scl] * MUL / scf);
-		ofl = corner_bl ? ofs : 0;
-		ofr = corner_br ? ofs : 0;
-	    }
-#ifdef USE_NEVIS_GXA
-	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx - ofr, y + line));		/* endig point */
-	    _write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));		/* start point */
-#else
-	    for (int pos = x + ofl; pos < x + dx - ofr; pos++)
-	    {
-		*(fbp + pos) = col;
-	    }
-	    fbp += swidth;
-#endif
-	    line++;
-	}
-    }
-    else
-    {
-	while (line < dy)
-	{
-#ifdef USE_NEVIS_GXA
-    	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y + line));		/* endig point */
-    	    _write_gxa(gxa_base, cmd, GXA_POINT(x,      y + line));		/* start point */
-#else
-	    for (int pos = x; pos < x + dx; pos++)
-	    {
-		*(fbp + pos) = col;
-	    }
-	    fbp += swidth;
-#endif
-	    line++;
-	}
-    }
-#ifdef USE_NEVIS_GXA
-    /* the GXA seems to do asynchronous rendering, so we add a sync marker
-       to which the fontrenderer code can synchronize */
-    add_gxa_sync_marker();
-#endif
-}
-
-void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
-{
 	if (!getActive())
 		return;
 
-#ifdef USE_NEVIS_GXA
-    /* draw a single vertical line from point x/ya to x/yb */
-    unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-    _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-    _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, ya + (yb - ya)));	/* end point */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, ya));		/* start point */
-#else /* USE_NEVIS_GXA */
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * ya;
-
-	int dy = yb-ya;
-	for (int count = 0; count < dy; count++) {
-		*(fb_pixel_t *)pos = col;
-		pos += stride;
+	if (dx == 0 || dy == 0) {
+		printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx, y+dy);
+		return;
 	}
-#endif	/* USE_NEVIS_GXA */
+
+	checkFbArea(x, y, dx, dy, true);
+
+#if defined(FB_HW_ACCELERATION)
+	fb_fillrect fillrect;
+	fillrect.color	= col;
+	fillrect.rop	= ROP_COPY;
+#elif defined(USE_NEVIS_GXA)
+	if (!fb_no_check)
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	/* solid fill with background color */
+	unsigned int cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(7) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
+#endif
+
+	if (type && radius) {
+		setCornerFlags(type);
+		radius = limitRadius(dx, dy, radius);
+
+		int line = 0;
+		while (line < dy) {
+			int ofl, ofr;
+			if (calcCorners(NULL, &ofl, &ofr, dy, line, radius, type)) {
+				//printf("3: x %d y %d dx %d dy %d rad %d line %d\n", x, y, dx, dy, radius, line);
+#if defined(FB_HW_ACCELERATION) || defined(USE_NEVIS_GXA)
+				int rect_height_mult = ((type & CORNER_TOP) && (type & CORNER_BOTTOM)) ? 2 : 1;
+#if defined(FB_HW_ACCELERATION)
+				fillrect.dx	= x;
+				fillrect.dy	= y + line;
+				fillrect.width	= dx;
+				fillrect.height	= dy - (radius * rect_height_mult);
+
+				ioctl(fd, FBIO_FILL_RECT, &fillrect);
+#elif defined(USE_NEVIS_GXA)
+				_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
+				_write_gxa(gxa_base, cmd, GXA_POINT(x, y + line));               /* destination x/y */
+				_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy - (radius * rect_height_mult))); /* width/height */
+#endif
+				line += dy - (radius * rect_height_mult);
+				continue;
+#endif
+			}
+
+			if (dx-ofr-ofl < 1) {
+				if (dx-ofr-ofl == 0)
+					printf("[%s - %d]: radius %d, start x %d y %d end x %d y %d\n", __FUNCTION__, __LINE__, radius, x, y, x+dx-ofr-ofl, y+line);
+				else
+					printf("[%s - %04d]: Calculated width: %d\n                      (radius %d, dx %d, offsetLeft %d, offsetRight %d).\n                      Width can not be less than 0, abort.\n", 
+						__FUNCTION__, __LINE__, dx-ofr-ofl, radius, dx, ofl, ofr);
+				line++;
+				continue;
+			}
+#ifdef USE_NEVIS_GXA
+			_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
+			_write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));               /* destination x/y */
+			_write_gxa(gxa_base, cmd, GXA_POINT(dx-ofl-ofr,   1));                      /* width/height */
+#else
+			paintHLineRelInternal(x+ofl, dx-ofl-ofr, y+line, col);
+#endif
+			line++;
+		}
+	} else {
+#if defined(FB_HW_ACCELERATION)
+		/* FIXME small size faster to do by software */
+		if (dx > 10 || dy > 10) {
+			fillrect.dx	= x;
+			fillrect.dy	= y;
+			fillrect.width	= dx;
+			fillrect.height	= dy;
+			ioctl(fd, FBIO_FILL_RECT, &fillrect);
+			checkFbArea(x, y, dx, dy, false);
+			return;
+		}
+#endif
+#if defined(USE_NEVIS_GXA)
+		_write_gxa(gxa_base, GXA_BLT_CONTROL_REG, 0);
+		_write_gxa(gxa_base, cmd, GXA_POINT(x,  y));   /* destination x/y */
+		_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));  /* width/height */
+#else
+		int swidth = stride / sizeof(fb_pixel_t);
+		fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
+		int line = 0;
+		while (line < dy) {
+			for (int pos = x; pos < x + dx; pos++)
+				*(fbp + pos) = col;
+
+			fbp += swidth;
+			line++;
+		}
+#endif
+	}
+#ifdef USE_NEVIS_GXA
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor); //FIXME needed ?
+	/* the GXA seems to do asynchronous rendering, so we add a sync marker
+	 * to which the fontrenderer code can synchronize
+	 */
+	add_gxa_sync_marker();
+#endif
+	checkFbArea(x, y, dx, dy, false);
 }
 
-void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
+void CFrameBuffer::paintVLineRelInternal(int x, int y, int dy, const fb_pixel_t col)
 {
-	if (!getActive())
-		return;
 
-#ifdef USE_NEVIS_GXA
+#if defined(FB_HW_ACCELERATION)
+	fb_fillrect fillrect;
+	fillrect.dx = x;
+	fillrect.dy = y;
+	fillrect.width = 1;
+	fillrect.height = dy;
+	fillrect.color = col;
+	fillrect.rop = ROP_COPY;
+	ioctl(fd, FBIO_FILL_RECT, &fillrect);
+#elif defined(USE_NEVIS_GXA)
 	/* draw a single vertical line from point x/y with hight dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
@@ -805,36 +801,33 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 #endif /* USE_NEVIS_GXA */
 }
 
-void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
+void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 {
 	if (!getActive())
 		return;
 
-#ifdef USE_NEVIS_GXA
-	/* draw a single horizontal line from point xa/y to xb/y */
-	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
-
-	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-	_write_gxa(gxa_base, cmd, GXA_POINT(xa + (xb - xa), y));	/* end point */
-	_write_gxa(gxa_base, cmd, GXA_POINT(xa, y));		/* start point */
-#else /* USE_NEVIS_GXA */
-
-	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + xa * sizeof(fb_pixel_t) + stride * y;
-
-	int dx = xb -xa;
-	fb_pixel_t * dest = (fb_pixel_t *)pos;
-	for (int i = 0; i < dx; i++)
-		*(dest++) = col;
-#endif /* USE_NEVIS_GXA */
+#if defined(USE_NEVIS_GXA)
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+#endif
+	paintVLineRelInternal(x, y, dy, col);
 }
 
-void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
+void CFrameBuffer::paintHLineRelInternal(int x, int dx, int y, const fb_pixel_t col)
 {
-	if (!getActive())
+#if defined(FB_HW_ACCELERATION)
+	if (dx >= 10) {
+		fb_fillrect fillrect;
+		fillrect.dx = x;
+		fillrect.dy = y;
+		fillrect.width = dx;
+		fillrect.height = 1;
+		fillrect.color = col;
+		fillrect.rop = ROP_COPY;
+		ioctl(fd, FBIO_FILL_RECT, &fillrect);
 		return;
-
-#ifdef USE_NEVIS_GXA
+	}
+#endif
+#if defined(USE_NEVIS_GXA)
 	/* draw a single horizontal line from point x/y with width dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
@@ -849,6 +842,17 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 	for (int i = 0; i < dx; i++)
 		*(dest++) = col;
 #endif /* USE_NEVIS_GXA */
+}
+
+void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
+{
+	if (!getActive())
+		return;
+
+#if defined(USE_NEVIS_GXA)
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+#endif
+	paintHLineRelInternal(x, dx, y, col);
 }
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
@@ -890,8 +894,8 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 //printf("%s(file, %d, %d, %d)\n", __FUNCTION__, x, y, offset);
 
 	struct rawHeader header;
-	uint16_t         width, height;
-	int              lfd;
+	uint16_t	 width, height;
+	int	      lfd;
 
 	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 
@@ -927,37 +931,6 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	close(lfd);
 	return true;
 }
-#if 0 
-//never used
-#ifdef USE_NEVIS_GXA
-bool CFrameBuffer::blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh)
-{
-	u32 cmd;
-	void * uKva;
-
-	uKva = cs_phys_addr(data);
-printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", (int) data, (int) uKva);
-	if(uKva == NULL)
-		return false;
-
-	cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
-
-	_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | sw);
-	_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
-
-	_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));   /* destination pos */
-	_write_gxa(gxa_base, cmd, GXA_POINT(sw, sh));   /* source width */
-	_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));   /* source pos */
-
-	return true;
-}
-#else
-bool CFrameBuffer::blitToPrimary(unsigned int *, int, int, int, int)
-{
-	return false;
-}
-#endif
-#endif
 
 /* paint icon at position x/y,
    if height h is given, center vertically between y and y+h
@@ -966,12 +939,10 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			     const int h, const unsigned char offset, bool paint, bool paintBg, const fb_pixel_t colBg)
 {
 	struct rawHeader header;
-	int         width, height;
-	int              lfd;
+	int	 width, height;
 	fb_pixel_t * data;
 	struct rawIcon tmpIcon;
 	std::map<std::string, rawIcon>::iterator it;
-	int dsize;
 
 	if (!getActive())
 		return false;
@@ -988,7 +959,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		data = g_PicViewer->getIcon(newname, &width, &height);
 
 		if(data) {
-			dsize = width*height*sizeof(fb_pixel_t);
+			int dsize = width*height*sizeof(fb_pixel_t);
 			//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
 			if(cache_size+dsize < ICON_CACHE_SIZE) {
 				cache_size += dsize;
@@ -1003,7 +974,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		newname = iconBasePath + filename.c_str() + ".raw";
 
-		lfd = open(newname.c_str(), O_RDONLY);
+		int lfd = open(newname.c_str(), O_RDONLY);
 
 		if (lfd == -1) {
 			//printf("paintIcon: error while loading icon: %s\n", newname.c_str());
@@ -1014,7 +985,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		tmpIcon.width = width  = (header.width_hi  << 8) | header.width_lo;
 		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
 
-		dsize = width*height*sizeof(fb_pixel_t);
+		int dsize = width*height*sizeof(fb_pixel_t);
 
 		tmpIcon.data = (fb_pixel_t*) cs_malloc_uncached(dsize);
 		data = tmpIcon.data;
@@ -1060,41 +1031,13 @@ _display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
+	checkFbArea(x, yy, width, height, true);
 	if (paintBg)
 		paintBoxRel(x, yy, width, height, colBg);
 	blit2FB(data, width, height, x, yy, 0, 0, true);
+	checkFbArea(x, yy, width, height, false);
 	return true;
- 
-#if 0
-	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
-	fb_pixel_t * d2;
-
-	for (int count = 0; count < height; count++ ) {
-		fb_pixel_t *pixpos = &data[count * width];
-		d2 = (fb_pixel_t *) d;
-		for (int count2 = 0; count2 < width; count2++ ) {
-			fb_pixel_t pix = *pixpos;
-			if (pix != 0) {
-				*d2 = pix;
-			}
-			d2++;
-			pixpos++;
-		}
-		d += stride;
-	}
-
-	return true;
-#endif
 }
-
-#if 0
-bool CFrameBuffer::paintIcon(const char * const filename, const int x, const int y,
-			     const int h, const unsigned char offset)
-{
-//printf("%s(%s, %d, %d, %d)\n", __FUNCTION__, filename, x, y, offset);
-	return paintIcon(std::string(filename), x, y, h, offset);
-}
-#endif
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
 {
@@ -1104,7 +1047,7 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 //printf("%s()\n", __FUNCTION__);
 
 	struct rgbData rgbdata;
-	int            lfd;
+	int	    lfd;
 
 	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 
@@ -1145,65 +1088,170 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 	#endif
 }
 
-void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad)
+void CFrameBuffer::paintShortHLineRelInternal(const int& x, const int& dx, const int& y, const fb_pixel_t& col)
+{
+	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
+	fb_pixel_t * dest = (fb_pixel_t *)pos;
+	for (int i = 0; i < dx; i++)
+		*(dest++) = col;
+}
+
+int CFrameBuffer::limitRadius(const int& dx, const int& dy, int& radius)
+{
+	if (radius > dx)
+		return dx;
+	if (radius > dy)
+		return dy;
+	if (radius > 540)
+		return 540;
+	return radius;
+}
+
+void CFrameBuffer::setCornerFlags(const int& type)
+{
+	corner_tl = (type & CORNER_TOP_LEFT)     == CORNER_TOP_LEFT;
+	corner_tr = (type & CORNER_TOP_RIGHT)    == CORNER_TOP_RIGHT;
+	corner_bl = (type & CORNER_BOTTOM_LEFT)  == CORNER_BOTTOM_LEFT;
+	corner_br = (type & CORNER_BOTTOM_RIGHT) == CORNER_BOTTOM_RIGHT;
+}
+
+void CFrameBuffer::initQCircle()
+{
+	/* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
+	   radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
+	   ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
+	static const int _q_circle[541] = {
+		540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540,
+		540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539,
+		539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537,
+		537, 537, 536, 536, 536, 536, 536, 536, 536, 536, 535, 535, 535, 535, 535, 535, 535, 535, 534, 534,
+		534, 534, 534, 534, 533, 533, 533, 533, 533, 533, 532, 532, 532, 532, 532, 532, 531, 531, 531, 531,
+		531, 531, 530, 530, 530, 530, 529, 529, 529, 529, 529, 529, 528, 528, 528, 528, 527, 527, 527, 527,
+		527, 526, 526, 526, 526, 525, 525, 525, 525, 524, 524, 524, 524, 523, 523, 523, 523, 522, 522, 522,
+		522, 521, 521, 521, 521, 520, 520, 520, 519, 519, 519, 518, 518, 518, 518, 517, 517, 517, 516, 516,
+		516, 515, 515, 515, 515, 514, 514, 514, 513, 513, 513, 512, 512, 512, 511, 511, 511, 510, 510, 510,
+		509, 509, 508, 508, 508, 507, 507, 507, 506, 506, 506, 505, 505, 504, 504, 504, 503, 503, 502, 502,
+		502, 501, 501, 500, 500, 499, 499, 499, 498, 498, 498, 497, 497, 496, 496, 496, 495, 495, 494, 494,
+		493, 493, 492, 492, 491, 491, 490, 490, 490, 489, 489, 488, 488, 487, 487, 486, 486, 485, 485, 484,
+		484, 483, 483, 482, 482, 481, 481, 480, 480, 479, 479, 478, 478, 477, 477, 476, 476, 475, 475, 474,
+		473, 473, 472, 472, 471, 471, 470, 470, 469, 468, 468, 467, 466, 466, 465, 465, 464, 464, 463, 462,
+		462, 461, 460, 460, 459, 459, 458, 458, 457, 456, 455, 455, 454, 454, 453, 452, 452, 451, 450, 450,
+		449, 449, 448, 447, 446, 446, 445, 445, 444, 443, 442, 441, 441, 440, 440, 439, 438, 437, 436, 436,
+		435, 435, 434, 433, 432, 431, 431, 430, 429, 428, 427, 427, 426, 425, 425, 424, 423, 422, 421, 421,
+		420, 419, 418, 417, 416, 416, 415, 414, 413, 412, 412, 411, 410, 409, 408, 407, 406, 405, 404, 403,
+		403, 402, 401, 400, 399, 398, 397, 397, 395, 394, 393, 393, 392, 391, 390, 389, 388, 387, 386, 385,
+		384, 383, 382, 381, 380, 379, 378, 377, 376, 375, 374, 373, 372, 371, 369, 368, 367, 367, 365, 364,
+		363, 362, 361, 360, 358, 357, 356, 355, 354, 353, 352, 351, 350, 348, 347, 346, 345, 343, 342, 341,
+		340, 339, 337, 336, 335, 334, 332, 331, 329, 328, 327, 326, 324, 323, 322, 321, 319, 317, 316, 315,
+		314, 312, 310, 309, 308, 307, 305, 303, 302, 301, 299, 297, 296, 294, 293, 291, 289, 288, 287, 285,
+		283, 281, 280, 278, 277, 275, 273, 271, 270, 268, 267, 265, 263, 261, 259, 258, 256, 254, 252, 250,
+		248, 246, 244, 242, 240, 238, 236, 234, 232, 230, 228, 225, 223, 221, 219, 217, 215, 212, 210, 207,
+		204, 202, 200, 197, 195, 192, 190, 187, 184, 181, 179, 176, 173, 170, 167, 164, 160, 157, 154, 150,
+		147, 144, 140, 136, 132, 128, 124, 120, 115, 111, 105, 101,  95,  89,  83,  77,  69,  61,  52,  40,
+		 23};
+	if (q_circle == NULL)
+		q_circle = new int[sizeof(_q_circle) / sizeof(int)];
+	memcpy(q_circle, _q_circle, sizeof(_q_circle));
+}
+
+bool CFrameBuffer::calcCorners(int *ofs, int *ofl, int *ofr, const int& dy, const int& line, const int& radius, const int& type)
+{
+/* just an multiplicator for all math to reduce rounding errors */
+#define MUL 32768
+	int scl, _ofs = 0;
+	bool ret = false;
+	if (ofl != NULL) *ofl = 0;
+	if (ofr != NULL) *ofr = 0;
+	int scf = (540 * MUL) / ((radius < 1) ? 1 : radius);
+	/* one of the top corners */
+	if (line < radius && (type & CORNER_TOP)) {
+		/* uper round corners */
+		scl = scf * (radius - line) / MUL;
+		if ((scf * (radius - line) % MUL) >= (MUL / 2)) /* round up */
+			scl++;
+		_ofs =  radius - (q_circle[scl] * MUL / scf);
+		if (ofl != NULL) *ofl = corner_tl ? _ofs : 0;
+		if (ofr != NULL) *ofr = corner_tr ? _ofs : 0;
+	}
+	/* one of the bottom corners */
+	else if ((line >= dy - radius) && (type & CORNER_BOTTOM)) {
+		/* lower round corners */
+		scl = scf * (radius - (dy - (line + 1))) / MUL;
+		if ((scf * (radius - (dy - (line + 1))) % MUL) >= (MUL / 2)) /* round up */
+			scl++;
+		_ofs =  radius - (q_circle[scl] * MUL / scf);
+		if (ofl != NULL) *ofl = corner_bl ? _ofs : 0;
+		if (ofr != NULL) *ofr = corner_br ? _ofs : 0;
+	}
+	else
+		ret = true;
+	if (ofs != NULL) *ofs = _ofs;
+	return ret;
+}
+
+void CFrameBuffer::paintBoxFrame(const int x, const int y, const int dx, const int dy, const int px, const fb_pixel_t col, int radius, int type)
 {
 	if (!getActive())
 		return;
 
-	int radius = rad;
-	int c_radius = rad << 1;
-
-	paintBoxRel(sx + rad    , sy          ,     dx - c_radius, px, col); // upper horizontal
-	paintBoxRel(sx + rad    , sy + dy - px,     dx - c_radius, px, col); // lower horizontal
-	paintBoxRel(sx          , sy + rad    , px, dy - c_radius    , col); // left vertical
-	paintBoxRel(sx + dx - px, sy + rad    , px, dy - c_radius    , col); // right vertical
-
-	if (!radius)
-	{
+	if (dx == 0 || dy == 0) {
+		printf("paintBoxFrame: radius %d, start x %d y %d end x %d y %d\n", radius, x, y, x+dx, y+dy);
 		return;
 	}
 
-	int x1 = sx + radius;
-	int y1 = sy + radius;
-	int x2 = sx + dx - radius -1;
-	int y2 = sy + dy - radius -1;
+	setCornerFlags(type);
+	int rad_tl = 0, rad_tr = 0, rad_bl = 0, rad_br = 0;
+	if (type && radius) {
+		int x_rad = radius - 1;
+		if (corner_tl) rad_tl = x_rad;
+		if (corner_tr) rad_tr = x_rad;
+		if (corner_bl) rad_bl = x_rad;
+		if (corner_br) rad_br = x_rad;
+	}
+	paintBoxRel(x + rad_tl , y          , dx - rad_tl - rad_tr, px                  , col); // top horizontal
+	paintBoxRel(x + rad_bl , y + dy - px, dx - rad_bl - rad_br, px                  , col); // bottom horizontal
+	paintBoxRel(x          , y + rad_tl , px                  , dy - rad_tl - rad_bl, col); // left vertical
+	paintBoxRel(x + dx - px, y + rad_tr , px                  , dy - rad_tr - rad_br, col); // right vertical
 
-	int f = 1 - radius;
-	int ddF_x = 1;
-	int ddF_y = - c_radius;
-	int x = 0;
-	int y = radius;
+	if (type && radius) {
+		radius = limitRadius(dx, dy, radius);
+		int line = 0;
+		waitForIdle("CFrameBuffer::paintBoxFrame");
+		while (line < dy) {
+			int ofs = 0, ofs_i = 0;
+			// inner box
+			if ((line >= px) && (line < (dy - px)))
+				ofs_i = calcCornersOffset(dy - 2*px, line-px, radius-px, type);
+			// outer box
+			ofs = calcCornersOffset(dy, line, radius, type);
 
-	while(x < y)
-	{
-		// ddF_x == 2 * x + 1;
-		// ddF_y == -2 * y;
-		// f == x*x + y*y - radius*radius + 2*x - y + 1;
-		if(f >= 0)
-		{
-			y--;
-			ddF_y += 2;
-			f += ddF_y;
-	    }
-		x++;
-		ddF_x += 2;
-		f += ddF_x;
-
-		int width = 0;
-		while (width <= px)
-		{
-			paintPixel(x2 + x        , y1 - y + width, col); // 1. oct
-			paintPixel(x2 + y - width, y1 - x        , col); // 2. oct
-			paintPixel(x2 + y - width, y2 + x        , col); // 3. oct
-			paintPixel(x2 + x        , y2 + y - width, col); // 4. oct
-			paintPixel(x1 - x        , y2 + y - width, col); // 5. oct
-			paintPixel(x1 - y + width, y2 + x        , col); // 6. oct
-			paintPixel(x1 - y + width, y1 - x        , col); // 7. oct
-			paintPixel(x1 - x        , y1 - y + width, col); // 8. oct
-			width++;
+			int _x     = x + ofs;
+			int _x_end = x + dx;
+			int _y     = y + line;
+			if ((line < px) || (line >= (dy - px))) {
+				// left
+				if (((corner_tl) && (line < radius)) || ((corner_bl) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x, radius - ofs, _y, col);
+				// right
+				if (((corner_tr) && (line < radius)) || ((corner_br) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x_end - radius, radius - ofs, _y, col);
+			}
+			else if (line < (dy - px)) {
+				int _dx = (ofs_i-ofs) + px;
+				// left
+				if (((corner_tl) && (line < radius)) || ((corner_bl) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x, _dx, _y, col);
+				// right
+				if (((corner_tr) && (line < radius)) || ((corner_br) && (line >= dy - radius)))
+					paintShortHLineRelInternal(_x_end - ofs_i - px, _dx, _y, col);
+			}
+			if ((line == radius) && (dy > 2*radius))
+				// line outside the rounded corners
+				line = dy - radius;
+			else
+				line++;
 		}
 	}
-
 }
 
 void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
@@ -1303,7 +1351,7 @@ void CFrameBuffer::setBackgroundColor(const fb_pixel_t color)
 bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t width, const uint16_t height, const uint16_t pstride, fb_pixel_t * memp)
 {
 	struct rawHeader header;
-	int              lfd;
+	int	      lfd;
 
 //printf("%s(%d, %d, memp)\n", __FUNCTION__, width, height);
 
@@ -1351,8 +1399,8 @@ bool CFrameBuffer::loadPicture2FrameBuffer(const std::string & filename)
 bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pixel_t * const memp)
 {
 	struct rawHeader header;
-	uint16_t         width, height;
-	int              lfd;
+	uint16_t	 width, height;
+	int	      lfd;
 
 	width = BACKGROUNDIMAGEWIDTH;
 	height = 576;
@@ -1361,7 +1409,7 @@ bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pix
 	header.width_hi  = width  >>    8;
 	header.height_lo = height &  0xFF;
 	header.height_hi = height >>    8;
-	header.transp    =              0;
+	header.transp    =	      0;
 
 	lfd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT, 0644);
 
@@ -1496,6 +1544,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	if(!useBackgroundPaint)
 	{
 		paintBoxRel(x, y, dx, dy, backgroundColor);
@@ -1511,6 +1560,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 			bkpos += BACKGROUNDIMAGEWIDTH;
 		}
 	}
+	checkFbArea(x, y, dx, dy, false);
 }
 
 void CFrameBuffer::paintBackground()
@@ -1518,6 +1568,7 @@ void CFrameBuffer::paintBackground()
 	if (!getActive())
 		return;
 
+	checkFbArea(0, 0, xRes, yRes, true);
 	if (useBackgroundPaint && (background != NULL))
 	{
 		for (int i = 0; i < 576; i++)
@@ -1527,6 +1578,7 @@ void CFrameBuffer::paintBackground()
 	{
 		paintBoxRel(0, 0, xRes, yRes, backgroundColor);
 	}
+	checkFbArea(0, 0, xRes, yRes, false);
 }
 
 void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
@@ -1534,6 +1586,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++) {
@@ -1544,7 +1597,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 		pos += stride;
 	}
 #if 0 //FIXME test to flush cache
-        if (ioctl(fd, 1, FB_BLANK_UNBLANK) < 0);
+	if (ioctl(fd, 1, FB_BLANK_UNBLANK) < 0);
 #endif
 	//RestoreScreen(x, y, dx, dy, memp); //FIXME
 #if 0
@@ -1557,6 +1610,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 		bkpos += dx;
 	}
 #endif
+	checkFbArea(x, y, dx, dy, false);
 
 }
 
@@ -1565,6 +1619,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 	if (!getActive())
 		return;
 
+	checkFbArea(x, y, dx, dy, true);
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++)
@@ -1573,6 +1628,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
+	checkFbArea(x, y, dx, dy, false);
 }
 #if 0 
 //never used
@@ -1611,7 +1667,7 @@ void CFrameBuffer::Clear()
 //never used
 void CFrameBuffer::showFrame(const std::string & filename)
 {
-	std::string varpath = "/var/tuxbox/config/neutrino/icons/";
+	std::string varpath = CONFIGDIR "/neutrino/icons/";
 	if(!access((varpath + filename).c_str(), F_OK))
 		videoDecoder->ShowPicture((varpath + filename).c_str());
 	else
@@ -1646,9 +1702,9 @@ void * CFrameBuffer::int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, 
 	if (alpha) {
 		for(i = 0; i < count ; i++)
 			fbbuff[i] = ((rgbbuff[i*4+3] << 24) & 0xFF000000) | 
-			            ((rgbbuff[i*4]   << 16) & 0x00FF0000) | 
-		        	    ((rgbbuff[i*4+1] <<  8) & 0x0000FF00) | 
-			            ((rgbbuff[i*4+2])       & 0x000000FF);
+				    ((rgbbuff[i*4]   << 16) & 0x00FF0000) | 
+				    ((rgbbuff[i*4+1] <<  8) & 0x0000FF00) | 
+				    ((rgbbuff[i*4+2])       & 0x000000FF);
 	} else {
 		switch (m_transparent) {
 			case CFrameBuffer::TM_BLACK:
@@ -1683,21 +1739,47 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool /*transp*/)
 {
 	int  xc, yc;
 
 	xc = (width > xRes) ? xRes : width;
 	yc = (height > yRes) ? yRes : height;
 
-#ifdef USE_NEVIS_GXA
-        u32 cmd;
-        void * uKva;
+#if defined(FB_HW_ACCELERATION)
+	if(!(width%4)) {
+		fb_image image;
+		image.dx = xoff;
+		image.dy = yoff;
+		image.width = xc;
+		image.height = yc;
+		image.cmap.len = 0;
+		image.depth = 32;
+#if 1
+		image.data = (const char*)fbbuff;
+		ioctl(fd, FBIO_IMAGE_BLT, &image);
+#else
+		for (int count = 0; count < yc; count++ ) {
+			fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
+			fb_pixel_t *pixpos = &data[(count + yp) * width];
+			image.data = (const char*) pixpos; //fbbuff +(count + yp)*width;
+			image.dy = yoff+count;
+			image.height = 1;
+			ioctl(fd, FBIO_IMAGE_BLT, &image);
+		}
+#endif
+		return;
+	}
+	
+#elif defined(USE_NEVIS_GXA)
+	u32 cmd;
+	void * uKva;
 
-        uKva = cs_phys_addr(fbbuff);
+	uKva = cs_phys_addr(fbbuff);
 	//printf("CFrameBuffer::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
 
 	if(uKva != NULL) {
+		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
 
 		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
@@ -1710,7 +1792,6 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 		return;
 	}
 #endif
-
 	fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
 
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + xoff * sizeof(fb_pixel_t) + stride * yoff;
@@ -1721,61 +1802,138 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 		d2 = (fb_pixel_t *) d;
 		for (int count2 = 0; count2 < xc; count2++ ) {
 			fb_pixel_t pix = *(pixpos + xp);
-			if (!transp || (pix != 0)) {
+			if ((pix & 0xff000000) == 0xff000000)
 				*d2 = pix;
+			else {
+				uint8_t *in = (uint8_t *)(pixpos + xp);
+				uint8_t *out = (uint8_t *)d2;
+				int a = in[3];	/* TODO: big/little endian */
+				*out = (*out + ((*in - *out) * a) / 256);
+				in++; out++;
+				*out = (*out + ((*in - *out) * a) / 256);
+				in++; out++;
+				*out = (*out + ((*in - *out) * a) / 256);
 			}
 			d2++;
 			pixpos++;
 		}
 		d += stride;
 	}
-#if 0
-	for(int i = 0; i < yc; i++){
-		memmove(clfb + (i + yoff)*stride + xoff*4, ip + (i + yp)*width + xp, xc*4);
-	}
-#endif
 }
 
 void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)
 {
-        void *fbbuff = NULL;
+	void *fbbuff = NULL;
 
-        if(rgbbuff == NULL)
-                return;
+	if(rgbbuff == NULL)
+		return;
 
-        /* correct panning */
-        if(x_pan > x_size - (int)xRes) x_pan = 0;
-        if(y_pan > y_size - (int)yRes) y_pan = 0;
+	/* correct panning */
+	if(x_pan > x_size - (int)xRes) x_pan = 0;
+	if(y_pan > y_size - (int)yRes) y_pan = 0;
 
-        /* correct offset */
-        if(x_offs + x_size > (int)xRes) x_offs = 0;
-        if(y_offs + y_size > (int)yRes) y_offs = 0;
+	/* correct offset */
+	if(x_offs + x_size > (int)xRes) x_offs = 0;
+	if(y_offs + y_size > (int)yRes) y_offs = 0;
 
-        /* blit buffer 2 fb */
-        fbbuff = convertRGB2FB(rgbbuff, x_size, y_size, transp);
-        if(fbbuff==NULL)
-                return;
+	/* blit buffer 2 fb */
+	fbbuff = convertRGB2FB(rgbbuff, x_size, y_size, transp);
+	if(fbbuff==NULL)
+		return;
 
-        /* ClearFB if image is smaller */
-        /* if(x_size < (int)xRes || y_size < (int)yRes) */
-        if(clearfb)
-                CFrameBuffer::getInstance()->Clear();
+	/* ClearFB if image is smaller */
+	/* if(x_size < (int)xRes || y_size < (int)yRes) */
+	if(clearfb)
+		CFrameBuffer::getInstance()->Clear();
 
-        blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
-        cs_free_uncached(fbbuff);
+	blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
+	cs_free_uncached(fbbuff);
 }
 
-void CFrameBuffer::paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame)
+// ## AudioMute / Clock ######################################
+
+void CFrameBuffer::setFbArea(int element, int _x, int _y, int _dx, int _dy)
 {
-	if(paint) {
-		if (paintFrame) {
-			paintBackgroundBoxRel(ax, ay, dx, dy);
-			paintBoxRel(ax, ay, dx, dy, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
+	if (_x == 0 && _y == 0 && _dx == 0 && _dy == 0) {
+		// delete area
+		for (fbarea_iterator_t it = v_fbarea.begin(); it != v_fbarea.end(); ++it) {
+			if (it->element == element) {
+				v_fbarea.erase(it);
+				break;
+			}
 		}
-		int icon_dx=0, icon_dy=0;
-		getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &icon_dx, &icon_dy);
-		paintIcon(NEUTRINO_ICON_BUTTON_MUTE, ax+((dx-icon_dx)/2), ay+((dy-icon_dy)/2));
+		if (v_fbarea.empty()) {
+			fbAreaActiv = false;
+		}
 	}
-	else
-		paintBackgroundBoxRel(ax, ay, dx, dy);
+	else {
+		// change area
+		bool found = false;
+		for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+			if (v_fbarea[i].element == element) {
+				v_fbarea[i].x = _x;
+				v_fbarea[i].y = _y;
+				v_fbarea[i].dx = _dx;
+				v_fbarea[i].dy = _dy;
+				found = true;
+				break;
+			}
+		}
+		// set new area
+		if (!found) {
+			fb_area_t area;
+			area.x = _x;
+			area.y = _y;
+			area.dx = _dx;
+			area.dy = _dy;
+			area.element = element;
+			v_fbarea.push_back(area);
+		}
+		fbAreaActiv = true;
+	}
+}
+
+int CFrameBuffer::checkFbAreaElement(int _x, int _y, int _dx, int _dy, fb_area_t *area)
+{
+	if (fb_no_check)
+		return FB_PAINTAREA_MATCH_NO;
+
+	if (_y > area->y + area->dy)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x + _dx < area->x)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_x > area->x + area->dx)
+		return FB_PAINTAREA_MATCH_NO;
+	if (_y + _dy < area->y)
+		return FB_PAINTAREA_MATCH_NO;
+	return FB_PAINTAREA_MATCH_OK;
+}
+
+bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
+{
+	if (v_fbarea.empty())
+		return true;
+
+	for (unsigned int i = 0; i < v_fbarea.size(); i++) {
+		int ret = checkFbAreaElement(_x, _y, _dx, _dy, &v_fbarea[i]);
+		if (ret == FB_PAINTAREA_MATCH_OK) {
+			switch (v_fbarea[i].element) {
+				case FB_PAINTAREA_MUTEICON1:
+					if (!do_paint_mute_icon)
+						break;
+//					waitForIdle();
+					fb_no_check = true;
+					if (prev)
+						CAudioMute::getInstance()->hide(true);
+					else
+						CAudioMute::getInstance()->paint();
+					fb_no_check = false;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	return true;
 }

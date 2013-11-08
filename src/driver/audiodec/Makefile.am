@@ -1,6 +1,6 @@
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -12,10 +12,14 @@ INCLUDES = \
 	@VORBISIDEC_CFLAGS@
 
 if BOXTYPE_COOL
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+if BOXMODEL_APOLLO
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
+else
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
+endif
 endif
 if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
 noinst_LIBRARIES = libneutrino_driver_audiodec.a

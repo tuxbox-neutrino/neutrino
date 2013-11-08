@@ -151,6 +151,8 @@ unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 
 	msg.channel_id = channel_id;
 	msg.record = false;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -168,8 +170,46 @@ unsigned int CZapitClient::zapTo_record(const t_channel_id channel_id)
 
 	msg.channel_id = channel_id;
 	msg.record = true;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
+
+	CZapitMessages::responseZapComplete response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
+
+	close_connection();
+
+	return response.zapStatus;
+}
+
+unsigned int CZapitClient::zapTo_pip(const t_channel_id channel_id)
+{
+	CZapitMessages::commandZaptoServiceID msg;
+
+	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = true;
+	msg.epg = false;
+
+	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
+
+	CZapitMessages::responseZapComplete response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
+
+	close_connection();
+
+	return response.zapStatus;
+}
+
+unsigned int CZapitClient::zapTo_epg(const t_channel_id channel_id, bool standby)
+{
+	CZapitMessages::commandZaptoEpg msg;
+
+	msg.channel_id = channel_id;
+	msg.standby = standby;
+
+	send(CZapitMessages::CMD_ZAPTO_EPG, (const char *) & msg, sizeof(msg));
 
 	CZapitMessages::responseZapComplete response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
@@ -184,6 +224,9 @@ unsigned int CZapitClient::zapTo_subServiceID(const t_channel_id channel_id)
 	CZapitMessages::commandZaptoServiceID msg;
 
 	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SUBSERVICEID, (const char *) & msg, sizeof(msg));
 
@@ -201,6 +244,9 @@ void CZapitClient::zapTo_serviceID_NOWAIT(const t_channel_id channel_id)
 	CZapitMessages::commandZaptoServiceID msg;
 
 	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID_NOWAIT, (const char *) & msg, sizeof(msg));
 
@@ -213,6 +259,9 @@ void CZapitClient::zapTo_subServiceID_NOWAIT(const t_channel_id channel_id)
 	CZapitMessages::commandZaptoServiceID msg;
 
 	msg.channel_id = channel_id;
+	msg.record = false;
+	msg.pip = false;
+	msg.epg = false;
 
 	send(CZapitMessages::CMD_ZAPTO_SUBSERVICEID_NOWAIT, (const char *) & msg, sizeof(msg));
 
@@ -963,6 +1012,14 @@ void CZapitClient::startPlayBack()
 void CZapitClient::stopPlayBack()
 {
 	send(CZapitMessages::CMD_SB_STOP_PLAYBACK);
+	CZapitMessages::responseCmd response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
+	close_connection();
+}
+
+void CZapitClient::stopPip()
+{
+	send(CZapitMessages::CMD_STOP_PIP);
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();

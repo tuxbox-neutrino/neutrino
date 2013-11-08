@@ -44,7 +44,7 @@ class CParentalSetup : public CMenuTarget, public CPINProtection
 {
 	private:
 		int width;
-		void showParentalSetup();
+		int showParentalSetup();
 		
 	protected:
 		virtual CMenuTarget* getParent() { return( NULL);};
@@ -58,6 +58,7 @@ class CParentalSetup : public CMenuTarget, public CPINProtection
 		};
 		~CParentalSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		bool checkPin() { return check(); }
 };
 
 

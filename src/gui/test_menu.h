@@ -31,6 +31,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
+#include <gui/components/cc.h>
 
 //#define TEST_MENU
 
@@ -39,9 +40,23 @@
 class CTestMenu : public CMenuTarget
 {
 	private:
+		CComponentsShapeCircle * circle;
+		CComponentsShapeSquare* sq;
+		CComponentsPicture* pic;
+		CComponentsForm *form;
+		CComponentsText *txt;
+		CComponentsHeader *header;
+		CComponentsHeader *footer;
+		CComponentsIconForm *iconform;
+		CComponentsWindow *window;
+		CComponentsButton *button;
+		CComponentsFrmClock *clock ,*clock_r;
+		CComponentsChannelLogo* chnl_pic;
 		int width, selected;
 
-		void showTestMenu();
+		int showTestMenu();
+		void showHWTests(CMenuWidget *widget);
+		void showCCTests(CMenuWidget *widget);
 
 	public:	
 		CTestMenu();

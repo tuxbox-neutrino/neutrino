@@ -4,13 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
 
 	License: GPL
 
@@ -41,6 +34,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <system/settings.h>
+#include <gui/components/cc.h>
 
 #include "color.h"
 #include "infoviewer.h"
@@ -52,32 +46,36 @@
 
 class CNeutrinoEventList
 {
-    // Eventfinder start
-        public:
-                typedef enum
-                {
-                        SEARCH_EPG_NONE,
-                        SEARCH_EPG_TITLE,
-                        SEARCH_EPG_INFO1,
-                        SEARCH_EPG_INFO2,
-                        SEARCH_EPG_GENRE,
-                        SEARCH_EPG_ALL
-                }SEARCH_EPG;
-                typedef enum
-                {
-                        SEARCH_LIST_NONE,
-                        SEARCH_LIST_CHANNEL,
-                        SEARCH_LIST_BOUQUET,
-                        SEARCH_LIST_ALL
-                }SEARCH_LIST;
-        private:
-        int             m_search_epg_item;
-        std::string     m_search_keyword;
-        int             m_search_list;
-        t_channel_id    m_search_channel_id;
-        t_bouquet_id    m_search_bouquet_id;
-        bool m_showChannel;
+	// Eventfinder start
+	public:
+		typedef enum
+		{
+			SEARCH_EPG_NONE,
+			SEARCH_EPG_TITLE,
+			SEARCH_EPG_INFO1,
+			SEARCH_EPG_INFO2,
+			SEARCH_EPG_GENRE,
+			SEARCH_EPG_ALL
+		}SEARCH_EPG;
+		typedef enum
+		{
+			SEARCH_LIST_NONE,
+			SEARCH_LIST_CHANNEL,
+			SEARCH_LIST_BOUQUET,
+			SEARCH_LIST_ALL
+		}SEARCH_LIST;
+	private:
+	int             m_search_epg_item;
+	std::string     m_search_keyword;
+	std::string     m_search_autokeyword;
+	int             m_search_list;
+	t_channel_id    m_search_channel_id;
+	t_bouquet_id    m_search_bouquet_id;
+	bool m_showChannel;
 	int FunctionBarHeight;
+	int oldIndex;
+	event_id_t oldEventID;
+	bool bgRightBoxPaint;
 
 	bool findEvents(void);
     // Eventfinder end
@@ -100,14 +98,17 @@ class CNeutrinoEventList
 	int		key;
 	std::string	search_head_name;
 
-	int 		width, fw;
-	int 		height, fh;
+	int 		full_width, width, infozone_width, fw;
+	int 		height, infozone_height, fh;
 	int 		x;
 	int 		y;
+	std::string	infozone_text;
 	int      	sort_mode;
 	event_id_t 	item_event_ID;
+	CComponentsText	*cc_infozone;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
+	void paintDescription(int index);
 	void paint(t_channel_id channel_id = 0);
 	void paintHead(t_channel_id channel_id, std::string name);
 	void paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next);

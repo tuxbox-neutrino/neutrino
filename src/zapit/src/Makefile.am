@@ -1,6 +1,6 @@
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
-INCLUDES = \
+AM_CPPFLAGS += \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -12,10 +12,14 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/xmltree
 
 if BOXTYPE_COOL
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+if BOXMODEL_APOLLO
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
+else
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
+endif
 endif
 if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
 noinst_LIBRARIES = libzapit.a
@@ -24,7 +28,6 @@ libzapit_a_SOURCES = \
 	bouquets.cpp \
 	capmt.cpp \
 	channel.cpp \
-	dvbstring.cpp \
 	fastscan.cpp \
 	femanager.cpp \
 	frontend.cpp \

@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
                       2003 thegoodguy
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2008-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -58,6 +52,7 @@
 #include <global.h>
 #include <driver/shutdown_count.h>
 #include <neutrino.h>
+#include <timerd/timermanager.h>
 #include <cs_api.h>
 
 //#define RCDEBUG
@@ -65,7 +60,6 @@
 
 #define ENABLE_REPEAT_CHECK
 
-//const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir"};
 typedef struct input_event t_input_event;
 
@@ -129,7 +123,7 @@ CRCInput::CRCInput()
 	}
 
 
-	if (listen(fd_event, 15) !=0)
+	if (listen(fd_event, 25) !=0)
 	{
 		perror("[neutrino] listen failed...\n");
 		exit( -1 );
@@ -143,6 +137,7 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
+	firstKey = true;
 
 	//select and setup remote control hardware
 	set_rc_hw();
@@ -810,6 +805,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg = NeutrinoMessages::SHUTDOWN;
 								*data = 0;
 								break;
+							case NeutrinoMessages::REBOOT :
+								*msg = NeutrinoMessages::REBOOT;
+								*data = 0;
+								break;
 							case NeutrinoMessages::EVT_POPUP :
 								*msg = NeutrinoMessages::EVT_POPUP;
 								*data = (unsigned) p;
@@ -895,7 +894,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								p = new unsigned char[sizeof(int64_t)];
 								*(int64_t*) p = timeNew - timeOld;
 #endif
-								printf("[neutrino] CSectionsdClient::EVT_TIMESET: timediff %lld\n", *(int64_t*) p);
+								printf("[neutrino] CSectionsdClient::EVT_TIMESET: timediff %" PRId64 "\n", *(int64_t*) p);
 								/* FIXME what this code really do ? */
 								if ((int64_t)last_keypress > *(int64_t*)p)
 									last_keypress += *(int64_t *)p;
@@ -912,7 +911,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								break;
 							}
 							case CSectionsdClient::EVT_GOT_CN_EPG:
-printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
+								printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								*msg          = NeutrinoMessages::EVT_CURRENTNEXT_EPG;
 								*data         = (neutrino_msg_data_t) p;
 								dont_delete_p = true;
@@ -920,6 +919,12 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 							case CSectionsdClient::EVT_WRITE_SI_FINISHED:
 								*msg          = NeutrinoMessages::EVT_SI_FINISHED;
 								*data         = 0;
+								break;
+							case CSectionsdClient::EVT_EIT_COMPLETE:
+								printf("[neutrino] CSectionsdClient::EVT_EIT_COMPLETE\n");
+								*msg          = NeutrinoMessages::EVT_EIT_COMPLETE;
+								*data         = (neutrino_msg_data_t) p;
+								dont_delete_p = true;
 								break;
 #if 0
 							case CSectionsdClient::EVT_SERVICES_UPDATE:
@@ -1051,6 +1056,10 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								break;
 							case CZapitClient::EVT_TUNE_COMPLETE:
 								*msg          = NeutrinoMessages::EVT_TUNE_COMPLETE;
+								*data = (neutrino_msg_data_t) p;
+								break;
+							case CZapitClient::EVT_BACK_ZAP_COMPLETE:
+								*msg          = NeutrinoMessages::EVT_BACK_ZAP_COMPLETE;
 								*data = (neutrino_msg_data_t) p;
 								break;
 							default:
@@ -1195,6 +1204,10 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 				if(ret != sizeof(t_input_event))
 					continue;
 				SHTDCNT::getInstance()->resetSleepTimer();
+				if (firstKey) {
+					firstKey = false;
+					CTimerManager::getInstance()->cancelShutdownOnWakeup();
+				}
 				uint32_t trkey = translate(ev.code, i);
 #ifdef DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
@@ -1518,7 +1531,13 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 			case RC_analog_off:
 				return "analog off";
 			case RC_www:
-				return "window print";
+				return "www";
+			case RC_sub:
+				return "sub";
+			case RC_pos:
+				return "pos";
+			case RC_sleep:
+				return "sleep";
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";
@@ -1550,7 +1569,7 @@ int CRCInput::translate(int code, int /*num*/)
 	if ((code >= 0) && (code <= KEY_MAX))
 		return code;
 	else
-		return RC_nokey;
+		return ( unsigned int)RC_nokey;
 }
 
 void CRCInput::close_click()
@@ -1575,8 +1594,8 @@ void CRCInput::play_click()
 }
 
 
-#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
-// hint: ir_protocol_t and other useful things are defined in nevis_ir.h
+#ifdef IOC_IR_SET_PRI_PROTOCOL
+// hint: ir_protocol_t and other useful things are defined in cs_ir_generic.h
 void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 {
 	int ioctl_ret = -1;
@@ -1600,7 +1619,7 @@ void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 	}
 }
 
-// hint: ir_protocol_t and other useful things are defined in nevis_ir.h
+// hint: ir_protocol_t and other useful things are defined in cs_ir_generic.h
 void CRCInput::set_rc_hw(void)
 {
 	ir_protocol_t ir_protocol = IR_PROTOCOL_UNKNOWN;

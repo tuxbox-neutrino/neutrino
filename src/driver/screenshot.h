@@ -30,7 +30,7 @@ class CScreenShot : public OpenThreads::Thread
 		typedef enum {
 			FORMAT_PNG,
 			FORMAT_JPG,
-			FORMAT_BMP,
+			FORMAT_BMP
 		} screenshot_format_t;
 
 	private:

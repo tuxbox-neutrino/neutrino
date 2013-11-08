@@ -75,7 +75,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 
 
 		CMenuForwarder* dhcpDisable[5];
-		CMenuForwarder* wlanEnable[2];
+		CMenuForwarder* wlanEnable[3];
 
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
 			
@@ -89,7 +89,8 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		int saveChangesDialog();
 		void applyNetworkSettings();
 		void saveNetworkSettings();
-		
+		int showWlanList();
+
 		bool checkIntSettings();
 		bool checkStringSettings();
 		bool checkForIP();
@@ -100,19 +101,19 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		enum NETWORK_DHCP_MODE
 		{
 			NETWORK_DHCP_OFF =  0, //static
-			NETWORK_DHCP_ON  =  1,
+			NETWORK_DHCP_ON  =  1
 		};
 
 		enum NETWORK_START_MODE
 		{
 			NETWORK_AUTOSTART_OFF =  0,
-			NETWORK_AUTOSTART_ON  =  1,
+			NETWORK_AUTOSTART_ON  =  1
 		};
 
 		enum NETWORK_NTP_MODE
 		{
 			NETWORK_NTP_OFF =  0,
-			NETWORK_NTP_ON  =  1,
+			NETWORK_NTP_ON  =  1
 		};
 		
 		enum NETWORK_SETUP_MODE

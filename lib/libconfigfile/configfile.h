@@ -91,10 +91,10 @@ class CConfigFile
 	// vectors
 	//
 	std::vector <std::string> getStringVector(const std::string & key);
-	void setStringVector(const std::string & key, const std::vector<std::string> vec);
+	void setStringVector(const std::string & key, const std::vector<std::string> &vec);
 
 	std::vector <int32_t> getInt32Vector(const std::string & key);
-	void setInt32Vector(const std::string & key, const std::vector<int32_t> vec);
+	void setInt32Vector(const std::string & key, const std::vector<int32_t> &vec);
 
 	//
 	// flags

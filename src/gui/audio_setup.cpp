@@ -87,11 +87,18 @@ const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT
 	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
 
+#ifdef BOXMODEL_APOLLO
+#define AUDIOMENU_SRS_OPTION_COUNT 3
+#else
 #define AUDIOMENU_SRS_OPTION_COUNT 2
+#endif
 const CMenuOptionChooser::keyval AUDIOMENU_SRS_OPTIONS[AUDIOMENU_SRS_OPTION_COUNT] =
 {
 	{ 0 , LOCALE_AUDIO_SRS_ALGO_LIGHT },
-	{ 1 , LOCALE_AUDIO_SRS_ALGO_NORMAL }
+	{ 1 , LOCALE_AUDIO_SRS_ALGO_NORMAL },
+#ifdef BOXMODEL_APOLLO
+	{ 2 , LOCALE_AUDIO_SRS_ALGO_HEAVY }
+#endif
 };
 
 #define AUDIOMENU_AVSYNC_OPTION_COUNT 3
@@ -141,16 +148,19 @@ int CAudioSetup::showAudioSetup()
 	CMenuOptionChooser * as_oj_dd_spdif 	= new CMenuOptionChooser(LOCALE_AUDIOMENU_SPDIF_DD, &g_settings.spdif_dd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier);
 	as_oj_dd_spdif->setHint("", LOCALE_MENU_HINT_AUDIO_SPDIF_DD);
 
-	//av synch
-	CMenuOptionChooser * as_oj_avsync	= new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier);
-	as_oj_avsync->setHint("", LOCALE_MENU_HINT_AUDIO_AVSYNC);
+	CMenuOptionChooser * as_oj_avsync = NULL;
+	CMenuOptionNumberChooser * as_oj_vsteps = NULL;
+	if (!g_settings.easymenu) {
+		//av synch
+		as_oj_avsync	= new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier);
+		as_oj_avsync->setHint("", LOCALE_MENU_HINT_AUDIO_AVSYNC);
 
-	//volume steps
-	CMenuOptionNumberChooser * as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
-	as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
-
-	//clock rec
-//	CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
+		//volume steps
+		as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
+		as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
+		//clock rec
+		//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
+	}
 
 	//SRS
 	//SRS algo
@@ -184,16 +194,20 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_dd_hdmi);
 	audioSettings->addItem(as_oj_dd_spdif);
 	audioSettings->addItem(as_oj_ddsubchn);
-	audioSettings->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------------------------
-	audioSettings->addItem(as_oj_avsync);
-	audioSettings->addItem(as_oj_vsteps);
-//	audioSettings->addItem(as_clockrec);
+	if (!g_settings.easymenu) {
+		audioSettings->addItem(GenericMenuSeparatorLine);
+		audioSettings->addItem(as_oj_avsync);
+		audioSettings->addItem(as_oj_vsteps);
+		//audioSettings->addItem(as_clockrec);
+	}
 	//---------------------------------------------------------
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);
 	audioSettings->addItem(as_oj_algo);
+#ifndef BOXMODEL_APOLLO
 	audioSettings->addItem(as_oj_noise);
+#endif
 	audioSettings->addItem(as_oj_volrev);
 #if 0
 	audioSettings->addItem(mf);
@@ -202,6 +216,9 @@ int CAudioSetup::showAudioSetup()
 	int res = audioSettings->exec(NULL, "");
 	selected = audioSettings->getSelected();
 	delete audioSettings;
+#ifdef BOXMODEL_APOLLO
+	delete as_oj_noise;
+#endif
 	return res;
 }
 

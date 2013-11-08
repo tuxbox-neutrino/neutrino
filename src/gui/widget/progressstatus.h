@@ -34,6 +34,7 @@ class CProgress_StatusViewer
 	virtual unsigned int getGlobalStatus(void) = 0;
 	virtual void showLocalStatus(const unsigned int prog) = 0;
 	virtual void showStatusMessageUTF(const std::string & text) = 0;
+	virtual void paint() = 0;
 };
 
 #endif

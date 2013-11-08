@@ -81,7 +81,7 @@ class CUpnpBrowserGui : public CMenuTarget
 	int            m_x;
 	int            m_y;
 	unsigned int   m_listmaxshow;
-	unsigned int   m_indexdevice;
+	unsigned int   m_deviceliststart;
 	unsigned int   m_selecteddevice;
 	int            m_fheight; // Fonthoehe Inhalt
 	int            m_theight; // Fonthoehe Titel
@@ -95,21 +95,34 @@ class CUpnpBrowserGui : public CMenuTarget
 	int            m_playid;
 	time_t         m_time_played;
 	bool           m_playing_entry_is_shown;
+	time_t         timeout;
+	CComponentsDetailLine * dline;
 
-	void selectDevice();
-	bool selectItem(std::string);
-	void paintItem(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset);
-	void paintDevice();
-	std::vector<UPnPEntry> *decodeResult(std::string);
-	void playnext();
+	bool discoverDevices();
 	void splitProtocol(std::string &protocol, std::string &prot, std::string &network, std::string &mime, std::string &additional);
-	void paintItemPos  (std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
-	void paintDevicePos(unsigned int pos);
+	bool getResults(std::string id, unsigned int start, unsigned int count, std::list<UPnPAttribute> &results); 
+	std::vector<UPnPEntry> *decodeResult(std::string);
+
+	void updateDeviceSelection(int newpos);
+	void selectDevice();
+	void paintDevices();
+	void paintDevice(unsigned int pos);
+	void paintDeviceInfo();
+	void playnext();
+
+	bool getItems(std::string id, unsigned int index, std::vector<UPnPEntry> * &entries, unsigned int &total);
+	bool updateItemSelection(std::string id, std::vector<UPnPEntry> * &entries, int newpos, unsigned int &selected, unsigned int &liststart);
+	bool selectItem(std::string);
+	void paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset);
+	void paintItem  (std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
+	void paintItemInfo(std::vector<UPnPEntry> *entry, unsigned int selected);
 	void paintDetails(std::vector<UPnPEntry> *entry, unsigned int index, bool use_playing = false);
-	void clearItem2DetailsLine (void);
-	void paintItem2DetailsLine (int pos,unsigned  int ch_index);
+	void paintItem2DetailsLine (int pos);
 
 	void updateTimes(const bool force = false);
+	void playAudio(std::string name, std::string mime);
+	void showPicture(std::string name);
+	void playVideo(std::string name, std::string url);
 };
 
 #endif

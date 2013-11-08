@@ -42,7 +42,6 @@
 #include <system/settings.h>
 #include "widget/menue.h"
 #include <gui/infoviewer_bb.h>
-#include <gui/widget/progressbar.h>
 #include <string>
 #include <zapit/channel.h>
 
@@ -82,6 +81,7 @@ class CInfoViewer
 	int            ChanHeight;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
+	CSectionsdClient::CurrentNextInfo oldinfo;
         t_channel_id   channel_id;
 
 	//uint32_t           fadeTimer;
@@ -127,13 +127,20 @@ class CInfoViewer
 	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
 	void showRadiotext();
 	void killRadiotext();
+
+	//small infobox, shows a small textbox with a short message text,
+	//text must be located in a file named /tmp/infobar.txt
+	CComponentsInfoBox *infobar_txt;
 	void showInfoFile();
+	void killInfobarText();
+
 	//void loop(int fadeValue, bool show_dot ,bool fadeIn);
 	void loop(bool show_dot);
 	std::string eventname;
 	void show_current_next(bool new_chan, int  epgpos);
 	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
+	void sendNoEpg(const t_channel_id channel_id);
  public:
 	bool     chanready;
 	bool	 is_visible;
@@ -145,6 +152,7 @@ class CInfoViewer
 	int      BoxEndY;
 	int      ChanInfoX;
 	bool     showButtonBar;
+	bool     isVolscale;
 
 	CInfoViewer();
 	~CInfoViewer();
@@ -155,7 +163,7 @@ class CInfoViewer
 
 	void	start();
 	void	showEpgInfo();
-	void	showTitle(const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false, int epgpos = 0); // Channel must be UTF-8 encoded
+	void	showTitle(const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false, int epgpos = 0, char *pname=NULL); // Channel must be UTF-8 encoded
 	void	showTitle(CZapitChannel * channel, const bool calledFromNumZap = false, int epgpos = 0);
 	void	showTitle(t_channel_id channel_id, const bool calledFromNumZap = false, int epgpos = 0);
 	void lookAheadEPG(const int ChanNum, const std::string & Channel, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false); //alpha: fix for nvod subchannel update

@@ -37,9 +37,7 @@
 
 	Author: Günther@tuxbox.berlios.org
 
-	Revision History:
-	Date			Author		Change Description
-	Nov 2005		Günther	initial start
+	Copyright(C) 2009, 2012 Stefan Seyfried
 
 ****************************************************************************/
 #ifdef HAVE_CONFIG_H
@@ -54,6 +52,8 @@
 #include <sys/types.h>
 #include <gui/widget/msgbox.h>
 #include <gui/movieinfo.h>
+
+#include <neutrino.h>
 
 //#define XMLTREE_LIB
 #ifdef XMLTREE_LIB
@@ -135,7 +135,7 @@ bool CMovieInfo::convertTs2XmlName(std::string * filename)
 #define XML_ADD_TAG_LONG(_xml_text_,_tag_name_,_tag_content_){\
 	_xml_text_ +=	"\t\t<"_tag_name_">";\
 	char _tmp_[50];\
-	sprintf(_tmp_, "%llu", _tag_content_);\
+	sprintf(_tmp_, "%" PRIu64 "", (uint64_t)_tag_content_);\
 	_xml_text_ +=	_tmp_;\
 	_xml_text_ +=	"</"_tag_name_">\n";}
 
@@ -482,6 +482,24 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 			print_buffer += movie_info.audioPids[i].epgAudioPidName;
 			print_buffer += ", ";
 		}
+		print_buffer.erase(print_buffer.size()-2);
+	}
+	if (movie_info.genreMajor != 0)
+	{
+		neutrino_locale_t locale_genre;
+		unsigned char i = (movie_info.genreMajor & 0x0F0);
+		if (i >= 0x010 && i < 0x0B0)
+		{
+			i >>= 4;
+			i--;
+			locale_genre = genre_sub_classes_list[i][((movie_info.genreMajor & 0x0F) < genre_sub_classes[i]) ? (movie_info.genreMajor & 0x0F) : 0];
+		}
+		else
+			locale_genre = LOCALE_GENRE_UNKNOWN;
+		print_buffer += "\n";
+		print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_GENRE_MAJOR);
+		print_buffer += ": ";
+		print_buffer += g_Locale->getText(locale_genre);
 	}
 
 	print_buffer += "\n\n";
@@ -501,7 +519,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 		print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_SIZE);
 		print_buffer += ": ";
 		//snprintf(date_char, 12,"%4llu",movie_info.file.Size>>20);
-		sprintf(date_char, "%llu", movie_info.file.Size >> 20);
+		sprintf(date_char, "%" PRIu64 "", movie_info.file.Size >> 20);
 		print_buffer += date_char;
 		//print_buffer += "\n";
 	}
@@ -616,12 +634,12 @@ int find_next_char(char to_find, char *text, int start_pos, int end_pos)
 	}
 
 //void CMovieInfo::strReplace(std::string& orig, const char* fstr, const std::string rstr)
-void strReplace(std::string & orig, const char *fstr, const std::string rstr)
+void strReplace(std::string & orig, const char *fstr, const std::string &rstr)
 {
 //      replace all occurrence of fstr with rstr and, and returns a reference to itself
-	unsigned int index = 0;
-	unsigned int fstrlen = strlen(fstr);
-	int rstrlen = rstr.size();
+	size_t index = 0;
+	size_t fstrlen = strlen(fstr);
+	size_t rstrlen = rstr.size();
 
 	while ((index = orig.find(fstr, index)) != std::string::npos) {
 		orig.replace(index, fstrlen, rstr);
@@ -904,6 +922,9 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 		movie_info->bookmarks.user[i].length = 0;
 		movie_info->bookmarks.user[i].name = "";
 	}
+	movie_info->tfile.clear();
+	movie_info->ytdate.clear();
+	movie_info->ytid.clear();
 }
 
 /************************************************************************

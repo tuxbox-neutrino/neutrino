@@ -120,7 +120,7 @@ void fh_crw_find_jpeg_thumbnail(FILE *fh)
 	fsize = ftell(fh);
 	fseek (fh, 0, SEEK_SET);
 
-	order=*((unsigned short*)header);
+	order = header[0] << 8 | header[1];
 
 	if (order == 0x4949)
 		hlength = header[2] + (header[3] << 8) + (header[4] << 16) + (header[5] << 24);

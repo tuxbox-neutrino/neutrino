@@ -35,21 +35,21 @@
 
 //#define CPU_FREQ
 
-class CMiscMenue : public CMenuTarget
+class CMiscMenue : public CMenuTarget, CChangeObserver
 {	
 	private:
 		CFanControlNotifier *fanNotifier;
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
-		COnOffNotifier* miscNotifier;
+		//COnOffNotifier* miscNotifier;
 		COnOffNotifier* miscEpgNotifier;
 		int width;
 
 		int showMiscSettingsMenu();
 		void showMiscSettingsMenuGeneral(CMenuWidget *ms_general);
-		void showMiscSettingsMenuEnergy(CMenuWidget *ms_energy);
 		void showMiscSettingsMenuEpg(CMenuWidget *ms_epg);
 		void showMiscSettingsMenuFBrowser(CMenuWidget *ms_fbrowser);
-		void showMiscSettingsMenuChanlist(CMenuWidget *ms_chanlist);
+		int showMiscSettingsMenuEnergy();
+		int showMiscSettingsMenuChanlist();
 #ifdef CPU_FREQ
 		void showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu);
 #endif /*CPU_FREQ*/
@@ -57,8 +57,7 @@ class CMiscMenue : public CMenuTarget
 		CMiscMenue();
 		~CMiscMenue();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		
+		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
-
 
 #endif

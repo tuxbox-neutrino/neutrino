@@ -34,7 +34,7 @@
 #define __locale__
 
 #include <system/locals.h>
-#include_next<locale.h>
+#include <locale.h>
 #include <time.h>
 #include <string>
 #include <map>

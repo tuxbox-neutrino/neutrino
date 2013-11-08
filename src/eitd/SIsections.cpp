@@ -174,12 +174,18 @@ void SIsectionTIME::parse(uint8_t *buf)
 		if(tdt.getSectionLength() < 5)
 			return;
 		dvbtime = parseDVBtime(tdt.getUtcTimeMjd(), tdt.getUtcTimeBcd());
-		xcprintf("SIsectionTIME::parse: TDT time: %s", ctime(&dvbtime));
+		char *ct = ctime(&dvbtime);
+		/* ctime() appends a useless \n... */
+		ct[strlen(ct) - 1] = 0;
+		/* ...and xcprintf adds another \n... */
+		xcprintf("SIsectionTIME::parse: TDT time: %s", ct);
 		parsed = true;
 	} else {
 		TimeOffsetSection tot(buf);
 		dvbtime = parseDVBtime(tot.getUtcTimeMjd(), tot.getUtcTimeBcd());
-		xcprintf("SIsectionTIME::parse: TOT time: %s", ctime(&dvbtime));
+		char *ct = ctime(&dvbtime);
+		ct[strlen(ct) - 1] = 0;
+		xcprintf("SIsectionTIME::parse: TOT time: %s", ct);
 		const DescriptorList &dlist = *tot.getDescriptors();
 		for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit) {
 			uint8_t dtype = (*dit)->getTag();

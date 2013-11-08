@@ -182,6 +182,22 @@ Object.extend(Y.extension.prototype, {
 		},this);
 	}
 });
+
+function add_yExtensions(_ymenu, _id) {
+	var menu=ext.select_menu(_ymenu);
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {
+				'class': (_ymenu == 'main') ? 'y_menu_prim_ext' : 'y_menu_sec_ext',
+				'target': (_ymenu == 'main') ? 'base' : 'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update(e.get('menuitem'))
+		);
+		$(_id).insert({'bottom':el});
+	});
+}
+
 /* singleton pattern*/
 if (window == top.top_main.prim_menu) {
 	var ext = new Y.extension();

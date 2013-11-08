@@ -25,10 +25,14 @@
 
 #include <libmd5sum.h>
 #include <system/flashtool.h>
+#include <system/fsmounter.h>
+#include <system/helpers.h>
+#include <eitd/sectionsd.h>
 
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <libgen.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
@@ -36,18 +40,8 @@
 
 #include <linux/version.h>
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,7)
-//#include <linux/compiler.h>
-#include <mtd/mtd-user.h>
-#else
-#include <mtd/mtd-user.h>
-//#include <linux/mtd/mtd.h>
-#endif
-
-//#include <libcramfs.h>
-
 #include <global.h>
-
+#include <neutrino.h>
 
 CFlashTool::CFlashTool()
 {
@@ -78,58 +72,72 @@ void CFlashTool::setStatusViewer( CProgress_StatusViewer* statusview )
 
 bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEnd )
 {
-	int		fd1, fd2;
-	long	filesize;
-	int		globalProgressBegin = 0;
+	int fd1;
+	long filesize;
+	int globalProgressBegin = 0;
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(0);
-	}
 
-	if (mtdDevice.empty())
-	{
+	if (mtdDevice.empty()) {
 		ErrorMessage = "mtd-device not set";
 		return false;
 	}
 
-	if( (fd1 = open( mtdDevice.c_str(), O_RDONLY )) < 0 )
-	{
+	if( (fd = open( mtdDevice.c_str(), O_RDONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD);
 		return false;
 	}
+	if (!getInfo()) {
+		close(fd);
+		return false;
+	}
 
-	if( (fd2 = open( filename.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR  |  S_IRGRP | S_IWGRP  |  S_IROTH | S_IWOTH)) < 0 )
-	{
+	if( (fd1 = open( filename.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR  |  S_IRGRP | S_IWGRP  |  S_IROTH | S_IWOTH)) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
-		close(fd1);
+		close(fd);
 		return false;
 	}
 
 	if(statusViewer)
-	{
 		globalProgressBegin = statusViewer->getGlobalStatus();
-	}
+
 	filesize = CMTDInfo::getInstance()->getMTDSize(mtdDevice);
 
-	char buf[1024];
+	unsigned char buf[meminfo.writesize];
+	unsigned mtdoffset = 0;
 	long fsize = filesize;
-	while(fsize>0)
-	{
-		long block = fsize;
-		if(block>(long)sizeof(buf))
-		{
-			block = sizeof(buf);
+	while(fsize > 0) {
+		unsigned block = meminfo.writesize;
+		if (isnand) {
+			unsigned blockstart = mtdoffset & ~(meminfo.erasesize - 1);
+			if (blockstart == mtdoffset) {
+				while (mtdoffset < meminfo.size) {
+					printf("CFlashTool::readFromMTD: read block at %x\n", mtdoffset);
+					loff_t offset = mtdoffset;
+					int ret = ioctl(fd, MEMGETBADBLOCK, &offset);
+					if (ret == 0)
+						break;
+					printf("CFlashTool::readFromMTD: bad block at %x, skipping..\n", mtdoffset);
+					mtdoffset += meminfo.erasesize;
+					fsize -= meminfo.erasesize;
+					lseek(fd, mtdoffset, SEEK_SET);
+					continue;
+				}
+				if (mtdoffset >= meminfo.size) {
+					printf("CFlashTool::readFromMTD: end of device...\n");
+					break;
+				}
+			}
 		}
-		read( fd1, &buf, block);
-		write( fd2, &buf, block);
+		read(fd, buf, block);
+		write(fd1, buf, block);
 		fsize -= block;
+		mtdoffset += meminfo.writesize;
 		char prog = char(100-(100./filesize*fsize));
-		if(statusViewer)
-		{
+		if(statusViewer) {
 			statusViewer->showLocalStatus(prog);
-			if(globalProgressEnd!=-1)
-			{
+			if(globalProgressEnd!=-1) {
 				int globalProg = globalProgressBegin + int((globalProgressEnd-globalProgressBegin) * prog/100. );
 				statusViewer->showGlobalStatus(globalProg);
 			}
@@ -137,100 +145,163 @@ bool CFlashTool::readFromMTD( const std::string & filename, int globalProgressEn
 	}
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(100);
-	}
 
+	close(fd);
 	close(fd1);
-	close(fd2);
 	return true;
 }
 
 bool CFlashTool::program( const std::string & filename, int globalProgressEndErase, int globalProgressEndFlash )
 {
-	int		fd1, fd2;
-	long	filesize;
-	int		globalProgressBegin = 0;
+	int fd1;
+	ssize_t filesize;
+	int globalProgressBegin = 0;
+
+	if(g_settings.epg_save)
+		CNeutrinoApp::getInstance()->saveEpg(false);
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(0);
-	}
 
-	if (mtdDevice.empty())
-	{
+	if (mtdDevice.empty()) {
 		ErrorMessage = "mtd-device not set";
 		return false;
 	}
 
-	if( (fd1 = open( filename.c_str(), O_RDONLY )) < 0 )
-	{
+	char buf1[1024];
+	memset(buf1, 0, sizeof(buf1));
+	strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
+	char* dn = dirname(buf1);
+	std::string flashfile;
+
+	bool skipCopy = false;
+#ifdef BOXMODEL_APOLLO
+	if (strcmp(dn, "/tmp") != 0) {
+		uint64_t btotal = 0, bused = 0;
+		long bsize = 0;
+		if (get_fs_usage("/tmp", btotal, bused, &bsize)) {
+			uint64_t fileSize = (uint64_t)file_size(filename.c_str()) / 1024ULL;
+			uint64_t backupMaxSize = (int)((btotal - bused) * bsize);
+			uint64_t res = 10; // Reserved 10% of available space
+			backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100ULL)) / 1024ULL;
+			if (backupMaxSize < fileSize)
+				skipCopy = true;
+		}
+		else
+			skipCopy = true;
+	}
+#endif
+
+	if ((strcmp(dn, "/tmp") != 0) && !skipCopy) {
+		memset(buf1, 0, sizeof(buf1));
+		strncpy(buf1, filename.c_str(), sizeof(buf1)-1);
+		flashfile = (std::string)"/tmp/" + basename(buf1);
+		CFileHelpers fh;
+		printf("##### [CFlashTool::program] copy flashfile to %s\n", flashfile.c_str());
+		if(statusViewer)
+			statusViewer->showStatusMessageUTF("Copy Image");
+		fh.copyFile(filename.c_str(), flashfile.c_str(), 0644);
+		sync();
+		if(statusViewer)
+			statusViewer->showGlobalStatus(statusViewer->getGlobalStatus()+5);
+	}
+	else
+		flashfile = filename;
+
+	// Unmount all NFS & CIFS volumes
+	if (!skipCopy) {
+		nfs_mounted_once = false;
+		CFSMounter::umount();
+	}
+
+	if( (fd1 = open( flashfile.c_str(), O_RDONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE);
 		return false;
 	}
 
-	filesize = lseek( fd1, 0, SEEK_END);
+	filesize = (ssize_t)lseek( fd1, 0, SEEK_END);
 	lseek( fd1, 0, SEEK_SET);
 
-	if(filesize==0)
-	{
+	if(filesize==0) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_FILEIS0BYTES);
 		close(fd1);
 		return false;
 	}
 
-	if(statusViewer)
-	{
+	if(statusViewer) {
 		statusViewer->showLocalStatus(0);
 		statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_ERASING)); // UTF-8
 	}
-	//g_Zapit->shutdown(); sleep(2);
-	if(!erase(globalProgressEndErase))
-	{
+
+	if(!erase(globalProgressEndErase)) {
 		close(fd1);
 		return false;
 	}
 
-	if(statusViewer)
-	{
+	if(statusViewer) {
 		if(globalProgressEndErase!=-1)
-		{
 			statusViewer->showGlobalStatus(globalProgressEndErase);
-		}
 		statusViewer->showLocalStatus(0);
 		statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_PROGRAMMINGFLASH)); // UTF-8
 	}
+#ifndef VFD_UPDATE
+	CVFD::getInstance()->ShowText("Write Flash");
+#endif
 
-	if( (fd2 = open( mtdDevice.c_str(), O_WRONLY )) < 0 )
-	{
+	if( (fd = open( mtdDevice.c_str(), O_WRONLY )) < 0 ) {
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD);
 		close(fd1);
 		return false;
 	}
 
 	if(statusViewer)
-	{
 		globalProgressBegin = statusViewer->getGlobalStatus();
-	}
 
-	char buf[1024];
-	long fsize = filesize;
-	while(fsize>0)
-	{
-		long block = fsize;
-		if(block>(long)sizeof(buf))
-		{
-			block = sizeof(buf);
+	unsigned char buf[meminfo.writesize];
+	unsigned mtdoffset = 0;
+	unsigned fsize = filesize;
+	printf("CFlashTool::program: file %s write size %d, erase size %d\n", flashfile.c_str(), meminfo.writesize, meminfo.erasesize);
+	while(fsize > 0) {
+		unsigned block = meminfo.writesize;
+		if (block > fsize)
+			block = fsize;
+
+		unsigned res = read(fd1, buf, block);
+		if (res != block) {
+			printf("CFlashTool::program: read from %s failed: %d from %d\n", flashfile.c_str(), res, block);
 		}
-		read( fd1, &buf, block);
-		write( fd2, &buf, block);
+		if (isnand) {
+			if (block < (unsigned) meminfo.writesize) {
+				printf("CFlashTool::program: padding at %x\n", mtdoffset);
+				memset(buf + res, 0, meminfo.writesize - res);
+			}
+			unsigned blockstart = mtdoffset & ~(meminfo.erasesize - 1);
+			if (blockstart == mtdoffset) {
+				while (mtdoffset < meminfo.size) {
+					printf("CFlashTool::program: write block at %x\n", mtdoffset);
+					loff_t offset = mtdoffset;
+					int ret = ioctl(fd, MEMGETBADBLOCK, &offset);
+					if (ret == 0)
+						break;
+					printf("CFlashTool::program: bad block at %x, skipping..\n", mtdoffset);
+					mtdoffset += meminfo.erasesize;
+					lseek(fd, mtdoffset, SEEK_SET);
+					continue;
+				}
+				if (mtdoffset >= meminfo.size) {
+					printf("CFlashTool::program: not enough space to write, left: %d\n", fsize);
+					break;
+				}
+			}
+		}
+		write(fd, buf, meminfo.writesize);
 		fsize -= block;
-		char prog = char(100-(100./filesize*fsize));
-		if(statusViewer)
-		{
+		mtdoffset += meminfo.writesize;
+		if(statusViewer) {
+			char prog = char(100-(100./filesize*fsize));
 			statusViewer->showLocalStatus(prog);
-			if(globalProgressEndFlash!=-1)
-			{
+			if(globalProgressEndFlash!=-1) {
 				int globalProg = globalProgressBegin + int((globalProgressEndFlash-globalProgressBegin) * prog/100. );
 				statusViewer->showGlobalStatus(globalProg);
 			}
@@ -238,53 +309,72 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	}
 
 	if(statusViewer)
-	{
 		statusViewer->showLocalStatus(100);
-	}
 
 	close(fd1);
-	close(fd2);
+	close(fd);
+	// FIXME error message
+	if (fsize)
+		return false;
+	CVFD::getInstance()->ShowText("Flash OK.");
+	return true;
+}
+
+bool CFlashTool::getInfo()
+{
+	if (ioctl( fd, MEMGETINFO, &meminfo ) != 0 ) {
+		// TODO: localize error message
+		ErrorMessage = "can't get mtd-info";
+		return false;
+	}
+	if (meminfo.writesize < 1024)
+		meminfo.writesize = 1024;
+
+	isnand = (meminfo.type == MTD_NANDFLASH);
+	printf("CFlashTool::getInfo: NAND: %s writesize %d\n", isnand ? "yes" : "no", meminfo.writesize);
 	return true;
 }
 
 bool CFlashTool::erase(int globalProgressEnd)
 {
-	int				fd;
-	mtd_info_t		meminfo;
-	erase_info_t	lerase;
-	int				globalProgressBegin = 0;
+	erase_info_t lerase;
+	int globalProgressBegin = 0;
 
 	if( (fd = open( mtdDevice.c_str(), O_RDWR )) < 0 )
 	{
+		printf("CFlashTool::erase: cant open %s\n", mtdDevice.c_str());
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD);
 		return false;
 	}
 
-	if( ioctl( fd, MEMGETINFO, &meminfo ) != 0 )
-	{
-	// TODO: localize error message
-		ErrorMessage = "can't get mtd-info";
+	if (!getInfo()) {
 		close(fd);
 		return false;
 	}
 
-	if(statusViewer)
-	{
+	CNeutrinoApp::getInstance()->stopDaemonsForFlash();
+
+#ifndef VFD_UPDATE
+	CVFD::getInstance()->ShowText("Erase Flash");
+#endif
+
+	if(statusViewer) {
 		globalProgressBegin = statusViewer->getGlobalStatus();
+		statusViewer->paint();
+		statusViewer->showLocalStatus(0);
+		statusViewer->showGlobalStatus(globalProgressBegin);
 	}
 
 	lerase.length = meminfo.erasesize;
-	for (lerase.start = 0; lerase.start < meminfo.size;lerase.start += meminfo.erasesize)
+
+	for (lerase.start = 0; lerase.start < meminfo.size; lerase.start += meminfo.erasesize)
 	{
-		printf( "Erasing %s erase size %x start %x size %x\n",
+		/* printf( "Erasing %s erase size %x start %x size %x\n",
 		                 mtdDevice.c_str(), meminfo.erasesize, lerase.start,
-		                 meminfo.size );
-		printf( "\rErasing %u Kbyte @ %x -- %2u %% complete.",
-		                 meminfo.erasesize/1024, lerase.start,
-		                 lerase.start*100/meminfo.size );
+		                 meminfo.size ); */
+		int prog = int(lerase.start*100./meminfo.size);
 		if(statusViewer)
 		{
-			int prog = int(lerase.start*100./meminfo.size);
 			statusViewer->showLocalStatus(prog);
 			if(globalProgressEnd!=-1)
 			{
@@ -292,14 +382,23 @@ bool CFlashTool::erase(int globalProgressEnd)
 				statusViewer->showGlobalStatus(globalProg);
 			}
 		}
-
+		if (isnand) {
+			loff_t offset = lerase.start;
+			int ret = ioctl(fd, MEMGETBADBLOCK, &offset);
+			if (ret > 0) {
+				printf("Erasing: bad block at %x, skipping..\n", lerase.start);
+				continue;
+			}
+		}
 		if(ioctl( fd, MEMERASE, &lerase) != 0)
 		{
 			ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_ERASEFAILED);
 			close(fd);
 			return false;
 		}
+		printf( "Erasing %u Kbyte @ 0x%08X -- %2u %% complete.\n", meminfo.erasesize/1024, lerase.start, prog);
 	}
+	printf("\n");
 
 	close(fd);
 	return true;
@@ -326,7 +425,7 @@ bool CFlashTool::check_md5( const std::string & filename, const std::string & sm
 //printf("[flashtool] check file %s md5 %s\n", filename.c_str(), ptr);
 
 	for(int i = 0; i < 16; i++)
-		omd5[i] = FROMHEX(ptr[i*2])*16 + FROMHEX(ptr[i*2+1]);
+		omd5[i] = (unsigned char)(FROMHEX(ptr[i*2])*16 + FROMHEX(ptr[i*2+1]));
 
 	md5_file(filename.c_str(), 1, md5);
 	if(memcmp(md5, omd5, 16))
@@ -336,7 +435,6 @@ bool CFlashTool::check_md5( const std::string & filename, const std::string & sm
 
 void CFlashTool::reboot()
 {
-	::sync();
 	::reboot(RB_AUTOBOOT);
 	::exit(0);
 }
@@ -501,22 +599,30 @@ std::string CMTDInfo::getMTDName(const int pos)
 {
 	// TODO: check /proc/mtd specification to determine mtdname encoding
 
-	return FILESYSTEM_ENCODING_TO_UTF8_STRING(mtdData[pos]->name);
+	if (pos >= 0)
+		return FILESYSTEM_ENCODING_TO_UTF8_STRING(mtdData[pos]->name);
+	return "";
 }
 
 std::string CMTDInfo::getMTDFileName(const int pos)
 {
-	return mtdData[pos]->filename;
+	if (pos >= 0)
+		return mtdData[pos]->filename;
+	return "";
 }
 
 int CMTDInfo::getMTDSize(const int pos)
 {
-	return mtdData[pos]->size;
+	if (pos >= 0)
+		return mtdData[pos]->size;
+	return 0;
 }
 
 int CMTDInfo::getMTDEraseSize(const int pos)
 {
-	return mtdData[pos]->erasesize;
+	if (pos >= 0)
+		return mtdData[pos]->erasesize;
+	return 0;
 }
 
 int CMTDInfo::findMTDNumber(const std::string & filename)
@@ -527,6 +633,15 @@ int CMTDInfo::findMTDNumber(const std::string & filename)
 		{
 			return x;
 		}
+	}
+	return -1;
+}
+
+int CMTDInfo::findMTDNumberFromName(const char* name)
+{
+	for (int i = 0; i < getMTDCount(); i++) {
+		if ((std::string)name == getMTDName(i))
+			return i;
 	}
 	return -1;
 }
@@ -548,7 +663,11 @@ int CMTDInfo::getMTDEraseSize( const std::string & filename )
 
 std::string CMTDInfo::findMTDsystem()
 {
+#ifdef BOXMODEL_APOLLO
+	std::string sysfs = "root0";
+#else
 	std::string sysfs = "systemFS";
+#endif
 
 	for(int i = 0; i < getMTDCount(); i++) {
 		if(getMTDName(i) == sysfs) {

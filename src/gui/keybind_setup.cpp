@@ -33,20 +33,6 @@
 #include <config.h>
 #endif
 
-#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
-/* define constants instead of #ifdef'ing the corresponding code.
- * the compiler will optimize it away anyway, but the syntax is
- * still checked */
-#define RC_HW_SELECT true
-#else
-#define RC_HW_SELECT false
-#ifdef HAVE_COOL_HARDWARE
-#warning header coolstream/nevis_ir.h not found
-#warning you probably have an old driver installation
-#warning you´ll be missing the remotecontrol selection feature!
-#endif
-#endif
-
 #include "keybind_setup.h"
 
 #include <global.h>
@@ -65,6 +51,19 @@
 
 #include <system/debug.h>
 
+#ifdef IOC_IR_SET_PRI_PROTOCOL
+/* define constants instead of #ifdef'ing the corresponding code.
+ * the compiler will optimize it away anyway, but the syntax is
+ * still checked */
+#define RC_HW_SELECT true
+#else
+#define RC_HW_SELECT false
+#ifdef HAVE_COOL_HARDWARE
+#warning header coolstream/cs_ir_generic.h not found
+#warning you probably have an old driver installation
+#warning you´ll be missing the remotecontrol selection feature!
+#endif
+#endif
 
 CKeybindSetup::CKeybindSetup()
 {
@@ -92,7 +91,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileFilter fileFilter;
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/var/tuxbox/config") == true) {
+		if (fileBrowser.exec(CONFIGDIR) == true) {
 			CNeutrinoApp::getInstance()->loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino keybind_setup] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 		}
@@ -179,13 +178,20 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MPKEY_STOP,			&g_settings.mpkey_stop,			LOCALE_MENU_HINT_KEY_MPSTOP },
 	{LOCALE_MPKEY_PLAY,			&g_settings.mpkey_play,			LOCALE_MENU_HINT_KEY_MPPLAY },
 	{LOCALE_MPKEY_AUDIO,			&g_settings.mpkey_audio, 		LOCALE_MENU_HINT_KEY_MPAUDIO },
+	{LOCALE_MPKEY_SUBTITLE,			&g_settings.mpkey_subtitle,		LOCALE_MENU_HINT_KEY_MPSUBTITLE },
 	{LOCALE_MPKEY_TIME,			&g_settings.mpkey_time,			LOCALE_MENU_HINT_KEY_MPTIME },
 	{LOCALE_MPKEY_BOOKMARK,			&g_settings.mpkey_bookmark, 		LOCALE_MENU_HINT_KEY_MPBOOKMARK },
 	{LOCALE_EXTRA_KEY_TIMESHIFT,		&g_settings.key_timeshift,  		LOCALE_MENU_HINT_KEY_MPTIMESHIFT },
 	{LOCALE_MPKEY_PLUGIN,			&g_settings.mpkey_plugin,		LOCALE_MENU_HINT_KEY_MPPLUGIN },
 	/*{LOCALE_EXTRA_KEY_PLUGIN,		&g_settings.key_plugin,			},*/
 	{LOCALE_EXTRA_KEY_UNLOCK,		&g_settings.key_unlock,			LOCALE_MENU_HINT_KEY_UNLOCK},
-	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT }
+	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		LOCALE_MENU_HINT_KEY_SCREENSHOT },
+	{LOCALE_EXTRA_KEY_PIP_CLOSE,		&g_settings.key_pip_close,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
+	{LOCALE_EXTRA_KEY_PIP_SETUP,		&g_settings.key_pip_setup,		LOCALE_MENU_HINT_KEY_PIP_SETUP },
+	{LOCALE_EXTRA_KEY_PIP_SWAP,		&g_settings.key_pip_swap,		LOCALE_MENU_HINT_KEY_PIP_CLOSE },
+	{LOCALE_EXTRA_KEY_FORMAT_MODE,		&g_settings.key_format_mode_active,	LOCALE_MENU_HINT_KEY_FORMAT_MODE_ACTIVE },
+	{LOCALE_EXTRA_KEY_PIC_MODE,		&g_settings.key_pic_mode_active,	LOCALE_MENU_HINT_KEY_PIC_MODE_ACTIVE },
+	{LOCALE_EXTRA_KEY_PIC_SIZE,		&g_settings.key_pic_size_active,	LOCALE_MENU_HINT_KEY_PIC_SIZE_ACTIVE }
 };
 
 
@@ -266,6 +272,8 @@ int CKeybindSetup::showKeySetup()
 
 void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 {
+	int shortcut = 1;
+
 	CMenuForwarder * mf;
 
 	bindSettings->addIntroItems(LOCALE_KEYBINDINGMENU_HEAD);
@@ -304,6 +312,14 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	//misc
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_MISC));
 	//bindSettings->addItem(new CMenuDForwarder(keydescription[KEY_PLUGIN], true, NULL, keychooser[KEY_PLUGIN]));
+
+	//Special keys
+	CMenuWidget* bindSettings_special = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_SPECIAL);
+	showKeyBindSpecialSetup(bindSettings_special);
+	mf = new CMenuDForwarder(LOCALE_KEYBINDINGMENU_SPECIAL_ACTIVE, true, NULL, bindSettings_special, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf->setHint("", LOCALE_MENU_HINT_KEY_SPECIAL_ACTIVE);
+	bindSettings->addItem(mf);
+
 	// unlock
 	mf = new CMenuDForwarder(key_settings[KEY_UNLOCK].keydescription, true, keychooser[KEY_UNLOCK]->getKeyName(), keychooser[KEY_UNLOCK]);
 	mf->setHint("", key_settings[KEY_UNLOCK].hint);
@@ -312,6 +328,18 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	mf = new CMenuDForwarder(key_settings[KEY_SCREENSHOT].keydescription, true, keychooser[KEY_SCREENSHOT]->getKeyName(), keychooser[KEY_SCREENSHOT]);
 	mf->setHint("", key_settings[KEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);
+#ifdef ENABLE_PIP
+	// pip
+	mf = new CMenuDForwarder(key_settings[KEY_PIP_CLOSE].keydescription, true, keychooser[KEY_PIP_CLOSE]->getKeyName(), keychooser[KEY_PIP_CLOSE]);
+	mf->setHint("", key_settings[KEY_PIP_CLOSE].hint);
+	bindSettings->addItem(mf);
+	mf = new CMenuDForwarder(key_settings[KEY_PIP_SETUP].keydescription, true, keychooser[KEY_PIP_SETUP]->getKeyName(), keychooser[KEY_PIP_SETUP]);
+	mf->setHint("", key_settings[KEY_PIP_SETUP].hint);
+	bindSettings->addItem(mf);
+	mf = new CMenuDForwarder(key_settings[KEY_PIP_SWAP].keydescription, true, keychooser[KEY_PIP_SWAP]->getKeyName(), keychooser[KEY_PIP_SWAP]);
+	mf->setHint("", key_settings[KEY_PIP_SWAP].hint);
+	bindSettings->addItem(mf);
+#endif
 
 	//bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	// left-exit, FIXME is this option really change anything ??
@@ -382,6 +410,17 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 		CMenuForwarder * mf = new CMenuDForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mplayer->addItem(mf);
+	}
+}
+
+void CKeybindSetup::showKeyBindSpecialSetup(CMenuWidget *bindSettings_special)
+{
+	bindSettings_special->addIntroItems(LOCALE_KEYBINDINGMENU_SPECIAL_ACTIVE);
+
+	for (int i = KEY_FORMAT_MODE; i <= KEY_PIC_SIZE; i++) {
+		CMenuOptionChooser * mf = new CMenuOptionChooser(key_settings[i].keydescription, key_settings[i].keyvalue_p, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		mf->setHint("", key_settings[i].hint);
+		bindSettings_special->addItem(mf);
 	}
 }
 

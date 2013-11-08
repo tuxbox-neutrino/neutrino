@@ -39,7 +39,11 @@
 
 #include <string>
 
+#ifdef BOXMODEL_APOLLO
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 14
+#else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 12
+#endif
 
 struct SNeutrinoSettings
 {
@@ -49,6 +53,11 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
+#ifdef BOXMODEL_APOLLO
+	int brightness;
+	int contrast;
+	int saturation;
+#endif
 	char current_volume;
 	int current_volume_step;
 	int channel_mode;
@@ -59,19 +68,24 @@ struct SNeutrinoSettings
 	int shutdown_real_rcdelay;
 	char shutdown_count[4];
 	char shutdown_min[4];
+	int sleeptimer_min;
 	char record_safety_time_before[3];
 	char record_safety_time_after[3];
 	int zapto_pre_time;
 	int infobar_sat_display;
+	int infobar_show_channeldesc;
 	int infobar_subchan_disp_pos;
 	int fan_speed;
 	int infobar_show;
 	int infobar_show_channellogo;
+	int infobar_progressbar;
 	int progressbar_color;
+	int progressbar_design;
 	int casystem_display;
 	int scrambled_message;
 	int volume_pos;
 	int volume_digits;
+	int volume_size;
 	int show_mute_icon;
 	int menu_pos;
 	int show_menu_hints;
@@ -109,7 +123,9 @@ struct SNeutrinoSettings
 	int rounded_corners;
 	int ci_standby_reset;
 	int ci_clock;
+	int ci_ignore_messages;
 	int radiotext_enable;
+	int easymenu;
 	
 	//vcr
 	int vcr_AutoSwitch;
@@ -129,6 +145,7 @@ struct SNeutrinoSettings
 	std::string epg_max_events;
 	std::string epg_extendedcache;
 	std::string epg_dir;
+	int epg_scan;
 
 	//network
 	std::string network_ntpserver;
@@ -180,6 +197,7 @@ struct SNeutrinoSettings
 		P_MSET_MISC,
 		
 		//service menu
+		P_MSER_TUNER,
 		P_MSER_SCANTS,
 		P_MSER_RELOAD_CHANNELS,
 		P_MSER_BOUQUET_EDIT,
@@ -200,6 +218,7 @@ struct SNeutrinoSettings
 		//movieplayer menu
 		P_MPLAYER_MBROWSER,
 		P_MPLAYER_FILEPLAY,
+		P_MPLAYER_YTPLAY,
 		
 		//feature keys
 		P_FEAT_KEY_FAVORIT,
@@ -219,15 +238,15 @@ struct SNeutrinoSettings
 	//timing
 	enum TIMING_SETTINGS 
 	{
-		TIMING_MENU        = 0,
-		TIMING_CHANLIST    = 1,
-		TIMING_EPG         = 2,
-		TIMING_INFOBAR     = 3,
-		TIMING_INFOBAR_RADIO = 4,
-		TIMING_INFOBAR_MOVIE = 5,
-//		TIMING_VOLUMEBAR,
-		TIMING_FILEBROWSER = 6,
-		TIMING_NUMERICZAP  = 7,
+		TIMING_MENU		= 0,
+		TIMING_CHANLIST		= 1,
+		TIMING_EPG		= 2,
+		TIMING_INFOBAR		= 3,
+		TIMING_INFOBAR_RADIO	= 4,
+		TIMING_INFOBAR_MOVIE	= 5,
+		TIMING_VOLUMEBAR	= 6,
+		TIMING_FILEBROWSER	= 7,
+		TIMING_NUMERICZAP	= 8,
 		
 		TIMING_SETTING_COUNT
 	};
@@ -322,14 +341,15 @@ struct SNeutrinoSettings
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
-	int  recording_stream_vtxt_pid;
-	int  recording_stream_pmt_pid;
+	int recording_stream_vtxt_pid;
+	int recording_stream_subtitle_pids;
+	int recording_stream_pmt_pid;
 	int recording_choose_direct_rec_dir;
 	int recording_epg_for_filename;
 	int recording_epg_for_end;
 	int recording_save_in_channeldir;
-	int  recording_zap_on_announce;
-	int  recording_slow_warning;
+	int recording_zap_on_announce;
+	int recording_slow_warning;
 	int shutdown_timer_record_type;
 
 	int filesystem_is_utf8;
@@ -379,6 +399,7 @@ struct SNeutrinoSettings
 	int mpkey_time;
 	int mpkey_bookmark;
 	int mpkey_plugin;
+	int mpkey_subtitle;
 	int key_timeshift;
 	int key_plugin;
 
@@ -394,6 +415,12 @@ struct SNeutrinoSettings
 	std::string screenshot_dir;
 
 	int key_current_transponder;
+	int key_pip_close;
+	int key_pip_setup;
+	int key_pip_swap;
+	int key_format_mode_active;
+	int key_pic_mode_active;
+	int key_pic_size_active;
 
 	int cacheTXT;
 	int minimode;
@@ -414,12 +441,17 @@ struct SNeutrinoSettings
 	int pip_x;
 	int pip_y;
 	int bigFonts;
-	int big_windows;
+	int window_size;
+	int window_width;
+	int window_height;
+	int eventlist_additional;
+	int channellist_additional;
 	int channellist_epgtext_align_right;
 	int channellist_extended;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
+	int channellist_numeric_adjust;
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
 	int remote_control_hardware;
@@ -450,6 +482,16 @@ struct SNeutrinoSettings
 	char softupdate_proxyserver[31];
 	char softupdate_proxyusername[31];
 	char softupdate_proxypassword[31];
+	int softupdate_name_mode_apply;
+	int softupdate_name_mode_backup;
+	int apply_settings;
+	int apply_kernel;
+
+	int flashupdate_createimage_add_uldr;
+	int flashupdate_createimage_add_u_boot;
+	int flashupdate_createimage_add_env;
+	int flashupdate_createimage_add_spare;
+	int flashupdate_createimage_add_kernel;
 
 	//BouquetHandling
 	int bouquetlist_mode;
@@ -457,35 +499,38 @@ struct SNeutrinoSettings
 	// parentallock
 	int parentallock_prompt;
 	int parentallock_lockage;
+	int parentallock_defaultlocked;
 	char parentallock_pincode[5];
 
 
 	// Font sizes
-#define FONT_TYPE_COUNT 23
 	enum FONT_TYPES {
-		FONT_TYPE_MENU                =  0,
-		FONT_TYPE_MENU_TITLE          =  1,
-		FONT_TYPE_MENU_INFO           =  2,
-		FONT_TYPE_EPG_TITLE           =  3,
-		FONT_TYPE_EPG_INFO1           =  4,
-		FONT_TYPE_EPG_INFO2           =  5,
-		FONT_TYPE_EPG_DATE            =  6,
-		FONT_TYPE_EVENTLIST_TITLE     =  7,
-		FONT_TYPE_EVENTLIST_ITEMLARGE =  8,
-		FONT_TYPE_EVENTLIST_ITEMSMALL =  9,
-		FONT_TYPE_EVENTLIST_DATETIME  = 10,
-		FONT_TYPE_GAMELIST_ITEMLARGE  = 11,
-		FONT_TYPE_GAMELIST_ITEMSMALL  = 12,
-		FONT_TYPE_CHANNELLIST         = 13,
-		FONT_TYPE_CHANNELLIST_DESCR   = 14,
-		FONT_TYPE_CHANNELLIST_NUMBER  = 15,
-		FONT_TYPE_CHANNEL_NUM_ZAP     = 16,
-		FONT_TYPE_INFOBAR_NUMBER      = 17,
-		FONT_TYPE_INFOBAR_CHANNAME    = 18,
-		FONT_TYPE_INFOBAR_INFO        = 19,
-		FONT_TYPE_INFOBAR_SMALL       = 20,
-		FONT_TYPE_FILEBROWSER_ITEM    = 21,
-		FONT_TYPE_MENU_HINT           = 22
+		FONT_TYPE_MENU = 0,
+		FONT_TYPE_MENU_TITLE,
+		FONT_TYPE_MENU_INFO,
+		FONT_TYPE_EPG_TITLE,
+		FONT_TYPE_EPG_INFO1,
+		FONT_TYPE_EPG_INFO2,
+		FONT_TYPE_EPG_DATE,
+		FONT_TYPE_EVENTLIST_TITLE,
+		FONT_TYPE_EVENTLIST_ITEMLARGE,
+		FONT_TYPE_EVENTLIST_ITEMSMALL,
+		FONT_TYPE_EVENTLIST_DATETIME,
+		FONT_TYPE_EVENTLIST_EVENT,
+		FONT_TYPE_GAMELIST_ITEMLARGE,
+		FONT_TYPE_GAMELIST_ITEMSMALL,
+		FONT_TYPE_CHANNELLIST,
+		FONT_TYPE_CHANNELLIST_DESCR,
+		FONT_TYPE_CHANNELLIST_NUMBER,
+		FONT_TYPE_CHANNELLIST_EVENT,
+		FONT_TYPE_CHANNEL_NUM_ZAP,
+		FONT_TYPE_INFOBAR_NUMBER,
+		FONT_TYPE_INFOBAR_CHANNAME,
+		FONT_TYPE_INFOBAR_INFO,
+		FONT_TYPE_INFOBAR_SMALL,
+		FONT_TYPE_FILEBROWSER_ITEM,
+		FONT_TYPE_MENU_HINT,
+		FONT_TYPE_COUNT
 	};
 
 	// lcdd
@@ -512,6 +557,9 @@ struct SNeutrinoSettings
 	int led_deep_mode;
 	int led_rec_mode;
 	int led_blink;
+	int backlight_tv;
+	int backlight_standby;
+	int backlight_deepstandby;
 #define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
 #define UTF8_TO_FILESYSTEM_ENCODING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::UTF8_to_Latin1(a).c_str())
 #define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))
@@ -595,6 +643,15 @@ struct SNeutrinoSettings
 	std::string usermenu_text[BUTTON_MAX];
 	int usermenu[BUTTON_MAX][ITEM_MAX];  // (USER_ITEM)  [button][position in Menue] = feature item
 
+	//progressbar arrangement for infobar
+	typedef enum
+	{
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_DEFAULT = 0,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME = 1,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL = 2,
+		INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS = 3	
+	}INFOBAR_PROGRESSBAR_ARRANGEMENT_TYPES;
+
 };
 
 /* some default Values */
@@ -615,7 +672,7 @@ const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_CO
 	{ 6,	LOCALE_TIMING_INFOBAR     },
  	{ 0,	LOCALE_TIMING_INFOBAR_RADIO },
  	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER},
-// 	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
+ 	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
 	{ 60,	LOCALE_TIMING_FILEBROWSER },
 	{ 3,	LOCALE_TIMING_NUMERICZAP  }
 };
@@ -668,34 +725,40 @@ const int PARENTALLOCK_PROMPT_ONSIGNAL       = 3;
 
 class CScanSettings
 {
-public:
-	CConfigFile	configfile;
-	int		bouquetMode;
-	int		scanType;
+	public:
+		CConfigFile	configfile;
+		int		bouquetMode;
+		int		scanType;
 
-	char                      satNameNoDiseqc[50];
-	delivery_system_t         delivery_system;
-	int		scan_nit;
-	int		scan_nit_manual;
-	int		scan_bat;
-	int		scan_fta_flag;
-	int		scan_reset_numbers;
-	int		scan_logical_numbers;
-	int		scan_logical_hd;
-	int		TP_fec;
-	int		TP_pol;
-	int		TP_mod;
-	char		TP_freq[10];
-	char		TP_rate[9];
-	int		fast_type;
-	int		fast_op;
-	int		cable_nid;
+		delivery_system_t         delivery_system;
+		int		scan_nit;
+		int		scan_nit_manual;
+		int		scan_bat;
+		int		scan_fta_flag;
+		int		scan_reset_numbers;
+		int		scan_logical_numbers;
+		int		scan_logical_hd;
+		int		fast_type;
+		int		fast_op;
+		int		cable_nid;
 
-	CScanSettings();
+		char		satName[50];
+		int		sat_TP_fec;
+		int		sat_TP_pol;
+		char		sat_TP_freq[10];
+		char		sat_TP_rate[9];
 
-	//void useDefaults(const delivery_system_t _delivery_system);
-	bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
-	bool saveSettings(const char * const fileName);
+		char		cableName[50];
+		int		cable_TP_mod;
+		int		cable_TP_fec;
+		char		cable_TP_freq[10];
+		char		cable_TP_rate[9];
+
+		CScanSettings();
+
+		//void useDefaults(const delivery_system_t _delivery_system);
+		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
+		bool saveSettings(const char * const fileName);
 };
 
 

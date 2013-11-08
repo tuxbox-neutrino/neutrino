@@ -37,7 +37,7 @@
 #include <driver/framebuffer.h>
 #include <driver/audiofile.h>
 #include <gui/filebrowser.h>
-#include <gui/widget/components.h>
+#include <gui/components/cc.h>
 #include <gui/widget/menue.h>
 
 #include <xmltree/xmlinterface.h>
@@ -260,7 +260,7 @@ class CAudioPlayerGui : public CMenuTarget
 	void stop();
 	bool playNext(bool allow_rotate = false);
 	bool playPrev(bool allow_rotate = false);
-	int getAdioPayerM_currend() {return m_current;}
+	int getAudioPlayerM_current() {return m_current;}
 };
 
 

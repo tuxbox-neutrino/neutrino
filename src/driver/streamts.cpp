@@ -162,8 +162,14 @@ void CStreamInstance::run()
 {
 	printf("CStreamInstance::run: %llx\n", channel_id);
 
+#if 0
 	dmx = new cDemux(STREAM_DEMUX);//FIXME
+#endif
+	CZapitChannel * tmpchan = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (!tmpchan)
+		return;
 
+	dmx = new cDemux(tmpchan->getRecordDemux());//FIXME
 	dmx->Open(DMX_TP_CHANNEL, NULL, DMX_BUFFER_SIZE);
 
 	/* pids here cannot be empty */
@@ -350,6 +356,13 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 			printf("CStreamManager::Parse: channel %llx recorded, aborting..\n", chid);
 			return false;
 		}
+#ifdef ENABLE_PIP
+		t_channel_id pip_channel_id = CZapit::getInstance()->GetPipChannelID();
+		if ((chid == pip_channel_id) && (channel->getRecordDemux() == channel->getPipDemux())) {
+			printf("CStreamManager::Parse: channel %llx used for pip, aborting..\n", chid);
+			return false;
+		}
+#endif
 #endif
 
 		printf("CStreamManager::Parse: no pids in url, using channel %llx pids\n", chid);
@@ -360,6 +373,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 		pids.insert(channel->getVideoPid());
 		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
 			pids.insert(channel->getAudioChannel(i)->pid);
+
 	}
 	CGenPsi psi;
 	for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it) {
@@ -371,11 +385,41 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 				if (*it == channel->getAudioChannel(i)->pid) {
 					CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
 					printf("CStreamManager::Parse: genpsi apid %x (%d)\n", *it, atype);
-					psi.addPid(*it, EN_TYPE_AUDIO, atype);
+					if(channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3){
+						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, atype, channel->getAudioChannel(i)->description.c_str());
+					}else{
+						psi.addPid(*it, EN_TYPE_AUDIO, atype, channel->getAudioChannel(i)->description.c_str());
+					}
 				}
 			}
 		}
 	}
+	//add pcr pid
+	if(channel->getPcrPid() != channel->getVideoPid()){
+		pids.insert(channel->getPcrPid());
+		psi.addPid(channel->getPcrPid(), EN_TYPE_PCR, 0);
+	}
+	//add teletext pid
+	if (g_settings.recording_stream_vtxt_pid && channel->getTeletextPid() != 0){
+		pids.insert(channel->getTeletextPid());
+		psi.addPid(channel->getTeletextPid(), EN_TYPE_TELTEX, 0, channel->getTeletextLang());
+	}
+	//add dvb sub pid
+	if (g_settings.recording_stream_subtitle_pids){
+		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
+			CZapitAbsSub* s = channel->getChannelSub(i);
+			if (s->thisSubType == CZapitAbsSub::DVB) {
+				if(i>9)//max sub pids
+					break;
+
+				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
+				pids.insert(sd->pId);
+				psi.addPid( sd->pId, EN_TYPE_DVBSUB, 0, sd->ISO639_language_code.c_str() );
+			}
+		}
+
+	}
+
 	psi.genpsi(fd);
 
 	return !pids.empty();

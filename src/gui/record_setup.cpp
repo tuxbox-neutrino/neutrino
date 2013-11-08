@@ -173,19 +173,46 @@ int CRecordSetup::showRecordSetup()
 	//menue init
 	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP);
 
-	//apply settings
 	recordingSettings->addIntroItems(LOCALE_MAINSETTINGS_RECORDING);
+#if 0
+	//apply settings
 	mf = new CMenuForwarder(LOCALE_RECORDINGMENU_SETUPNOW, true, NULL, this, "recording", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	mf->setHint("", LOCALE_MENU_HINT_RECORD_APPLY);
 	recordingSettings->addItem(mf);
 	recordingSettings->addItem(GenericMenuSeparatorLine);
+#endif
+	CMenuWidget recordingTsSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_TIMESHIFT);
+	showRecordTimeShiftSetup(&recordingTsSettings);
+
+	CMenuWidget recordingTimerSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_TIMERSETTINGS);
+	showRecordTimerSetup(&recordingTimerSettings);
+
+	if (g_settings.easymenu) {
+		//timeshift
+		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_TIMESHIFT, true, NULL, &recordingTsSettings, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMESHIFT);
+		recordingSettings->addItem(mf);
+
+		//timersettings
+		mf = new CMenuForwarder(LOCALE_TIMERSETTINGS_SEPARATOR, true, NULL, &recordingTimerSettings, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMER);
+		recordingSettings->addItem(mf);
+	}
 
 	//record dir
-	CMenuForwarder* fRecDir = new CMenuForwarder(LOCALE_RECORDINGMENU_DEFDIR, true, g_settings.network_nfs_recordingdir, this, "recordingdir");
+	CMenuForwarder* fRecDir;
+	if (g_settings.easymenu)
+		fRecDir = new CMenuForwarder(LOCALE_RECORDINGMENU_DEFDIR, true, g_settings.network_nfs_recordingdir, this, "recordingdir", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	else
+		fRecDir = new CMenuForwarder(LOCALE_RECORDINGMENU_DEFDIR, true, g_settings.network_nfs_recordingdir, this, "recordingdir");
 	fRecDir->setHint("", LOCALE_MENU_HINT_RECORD_DIR);
 	recordingSettings->addItem(fRecDir);
 
-	CMenuOptionChooser* channel_rec_dir = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SAVE_IN_CHANNELDIR, &g_settings.recording_save_in_channeldir, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionChooser* channel_rec_dir;
+	if (g_settings.easymenu)
+		channel_rec_dir = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SAVE_IN_CHANNELDIR, &g_settings.recording_save_in_channeldir, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	else
+		channel_rec_dir = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SAVE_IN_CHANNELDIR, &g_settings.recording_save_in_channeldir, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	channel_rec_dir->setHint("", LOCALE_MENU_HINT_RECORD_CHANDIR);
 	recordingSettings->addItem(channel_rec_dir);
 
@@ -199,38 +226,52 @@ int CRecordSetup::showRecordSetup()
 	end_of_recording->setHint("", LOCALE_MENU_HINT_RECORD_END);
 	recordingSettings->addItem(end_of_recording);
 
-	CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	slow_warn->setHint("", LOCALE_MENU_HINT_RECORD_SLOW_WARN);
-	recordingSettings->addItem(slow_warn);
+	if (!g_settings.easymenu) {
+		CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		slow_warn->setHint("", LOCALE_MENU_HINT_RECORD_SLOW_WARN);
+		recordingSettings->addItem(slow_warn);
+	}
 
 	//template
 	//CStringInput recordingSettings_filenameTemplate(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
 	//CMenuForwarder* mf11 = new CMenuForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template[0], &recordingSettings_filenameTemplate);
 	recordingSettings->addItem(GenericMenuSeparatorLine);
 
-	//timeshift
-	CMenuWidget recordingTsSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_TIMESHIFT);
-	showRecordTimeShiftSetup(&recordingTsSettings);
-	mf = new CMenuForwarder(LOCALE_RECORDINGMENU_TIMESHIFT, true, NULL, &recordingTsSettings, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMESHIFT);
-	recordingSettings->addItem(mf);
+	if (!g_settings.easymenu) {
+		//timeshift
+		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_TIMESHIFT, true, NULL, &recordingTsSettings, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMESHIFT);
+		recordingSettings->addItem(mf);
 
-	//timersettings
-	CMenuWidget recordingTimerSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_TIMERSETTINGS);
-	showRecordTimerSetup(&recordingTimerSettings);
-	mf = new CMenuForwarder(LOCALE_TIMERSETTINGS_SEPARATOR, true, NULL, &recordingTimerSettings, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMER);
-	recordingSettings->addItem(mf);
+		//timersettings
+		mf = new CMenuForwarder(LOCALE_TIMERSETTINGS_SEPARATOR, true, NULL, &recordingTimerSettings, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf->setHint("", LOCALE_MENU_HINT_RECORD_TIMER);
+		recordingSettings->addItem(mf);
+	}
 
-	//audiosettings
 	CMenuWidget recordingaAudioSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_AUDIOSETTINGS);
-	showRecordAudioSetup(&recordingaAudioSettings);
-	mf = new CMenuForwarder(LOCALE_RECORDINGMENU_APIDS, true, NULL, &recordingaAudioSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
-	mf->setHint("", LOCALE_MENU_HINT_RECORD_APIDS);
-	recordingSettings->addItem(mf);
+	CMenuWidget recordingaDataSettings(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_DATASETTINGS);
+	if (!g_settings.easymenu) {
+		//audiosettings
+		showRecordAudioSetup(&recordingaAudioSettings);
+		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_APIDS, true, NULL, &recordingaAudioSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf->setHint("", LOCALE_MENU_HINT_RECORD_APIDS);
+		recordingSettings->addItem(mf);
+
+		//datasettings
+		showRecordDataSetup(&recordingaDataSettings);
+		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_1);
+		mf->setHint("", LOCALE_MENU_HINT_RECORD_DATA);
+		recordingSettings->addItem(mf);
+	}
 
 	int res = recordingSettings->exec(NULL, "");
 	delete recordingSettings;
+
+	/* activate changes */
+        CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
+        CRecordManager::getInstance()->Config(g_settings.recording_stopsectionsd, g_settings.recording_stream_vtxt_pid, g_settings.recording_stream_pmt_pid, g_settings.recording_stream_subtitle_pids);
+
 	return res;
 }
 
@@ -289,6 +330,22 @@ void CRecordSetup::showRecordAudioSetup(CMenuWidget *menu_audiosettings)
 	menu_audiosettings->addItem(aoj1);
 	menu_audiosettings->addItem(aoj2);
 	menu_audiosettings->addItem(aoj3);
+}
+
+void CRecordSetup::showRecordDataSetup(CMenuWidget *menu_datasettings)
+{
+	//recording data pids
+
+	//teletext pids
+	CMenuOptionChooser* doj1 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_VTXT_PID, &g_settings.recording_stream_vtxt_pid, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	CMenuOptionChooser* doj2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_DVBSUB_PIDS, &g_settings.recording_stream_subtitle_pids, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+
+	doj1->setHint("", LOCALE_MENU_HINT_RECORD_DATA_VTXT);
+	doj2->setHint("", LOCALE_MENU_HINT_RECORD_DATA_DVBSUB);
+
+	menu_datasettings->addIntroItems(LOCALE_RECORDINGMENU_DATA_PIDS);
+	menu_datasettings->addItem(doj1);
+	menu_datasettings->addItem(doj2);
 }
 
 void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)

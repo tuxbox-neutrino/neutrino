@@ -40,6 +40,7 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
+#include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
@@ -73,13 +74,13 @@ CBEBouquetWidget::CBEBouquetWidget()
 
 void CBEBouquetWidget::paintItem(int pos)
 {
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
 	if (current == selected) {
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
@@ -87,7 +88,7 @@ void CBEBouquetWidget::paintItem(int pos)
 		bool has_channels = true;
 		if(current < Bouquets->size())
 			has_channels = (!(*Bouquets)[current]->tvChannels.empty() ) || (!(*Bouquets)[current]->radioChannels.empty());
-		color   = has_channels ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
+		color   = has_channels ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = has_channels ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
@@ -96,7 +97,7 @@ void CBEBouquetWidget::paintItem(int pos)
 		if ((current == selected) && (state == beMoving))
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 10, ypos, iheight);
 
-		if ((*Bouquets)[current]->bLocked)
+		if ((*Bouquets)[current]->bLocked != g_settings.parentallock_defaultlocked)
 			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 10, ypos, iheight);
 
 		if ((*Bouquets)[current]->bHidden)
@@ -120,40 +121,38 @@ void CBEBouquetWidget::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((Bouquets->size()- 1)/ listmaxshow)+ 1;
+	if (sbc < 1)
+		sbc = 1;
+
 	float sbh= (sb- 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 
+	//scrollbar
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
 }
 
 void CBEBouquetWidget::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), COL_MENUHEAD, 0, true); // UTF-8
+	CComponentsHeader header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, NULL /*no header icon*/, CComponentsHeader::CC_BTN_MENU);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
-const struct button_label CBEBouquetWidgetButtons[3] =
+const struct button_label CBEBouquetWidgetButtons[4] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE },
 	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD    },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE   }
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE   },
+	{ NEUTRINO_ICON_BUTTON_BLUE  , NONEXISTANT_LOCALE /*dummy*/}
 };
 
 void CBEBouquetWidget::paintFoot()
 {
-	int icol_w, icol_h, h2;
 	struct button_label Button[4];
 
 	Button[0] = CBEBouquetWidgetButtons[0];
 	Button[1] = CBEBouquetWidgetButtons[1];
 	Button[2] = CBEBouquetWidgetButtons[2];
-	Button[3].button = NEUTRINO_ICON_BUTTON_BLUE;
-
-	const neutrino_locale_t button_ids[] = {LOCALE_BOUQUETEDITOR_RENAME,LOCALE_BOUQUETEDITOR_HIDE,LOCALE_BOUQUETEDITOR_LOCK};
-	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &h2);
+	Button[3] = CBEBouquetWidgetButtons[3];
 
 	switch( blueFunction)
 	{
@@ -167,8 +166,8 @@ void CBEBouquetWidget::paintFoot()
 			Button[3].locale = LOCALE_BOUQUETEDITOR_LOCK;
 		break;
 	}
-	::paintButtons(x, y+height, width, 4, Button, ButtonHeight,0,false,COL_INFOBAR_SHADOW,NULL,0,true, buttonID_rest);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + width - 10 - icol_w, y + height, ButtonHeight);
+
+	::paintButtons(x, y+height, width, 4, Button, width, ButtonHeight);
 }
 
 void CBEBouquetWidget::hide()
@@ -225,14 +224,12 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	iheight = std::max(iheight, icol_h+2);
 	iconoffset = std::max(iconoffset, icol_w);
 
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	width  = w_max (64 * fw, 20);
-	height = h_max (20 * fh, 50);
+	width  = frameBuffer->getScreenWidthRel();
+	height = frameBuffer->getScreenHeightRel() - ButtonHeight;
 	listmaxshow = (height-theight-0)/iheight;
 	height = theight+0+listmaxshow*iheight; // recalc height
-        x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-        y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
+        x = getScreenStartX(width);
+        y = getScreenStartY(height + ButtonHeight);
 
 	Bouquets = &g_bouquetManager->Bouquets;
 	paintHead();

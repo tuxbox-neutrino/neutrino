@@ -3,6 +3,9 @@
 
 	License: GPL
 
+	(C) 2012-2013 the neutrino-hd developers
+	(C) 2012,2013 Stefan Seyfried
+
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -34,10 +37,22 @@
 #include <string.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <zapit/debug.h>
+#include <stdarg.h>
 
 #include <system/helpers.h>
-#include <gui/ext_update.h>
+#include <gui/update_ext.h>
+
+off_t file_size(const char *filename)
+{
+	struct stat stat_buf;
+	if(::stat(filename, &stat_buf) == 0)
+	{
+		return stat_buf.st_size;
+	} else
+	{
+		return 0;
+	}
+}
 
 bool file_exists(const char *filename)
 {
@@ -67,35 +82,59 @@ int my_system(const char * cmd)
 	if (!file_exists(cmd))
 		return -1;
 
-	return my_system(cmd, NULL);
+	return my_system(1, cmd);
 }
 
-int my_system(const char * cmd, const char * arg1, const char * arg2, const char * arg3, const char * arg4, const char * arg5, const char * arg6)
+int my_system(int argc, const char *arg, ...)
 {
-	int i=0 ,ret=0, childExit=0;
+	int i = 0, ret = 0, childExit = 0;
+#define ARGV_MAX 64
+	/* static right now but could be made dynamic if necessary */
+	int argv_max = ARGV_MAX;
+	const char *argv[ARGV_MAX];
+	va_list args;
+	argv[0] = arg;
+	va_start(args, arg);
+
+	while(++i < argc)
+	{
+		if (i == argv_max)
+		{
+			fprintf(stderr, "my_system: too many arguments!\n");
+			return -1;
+		}
+		argv[i] = va_arg(args, const char *);
+	}
+	argv[i] = NULL; /* sentinel */
+	//fprintf(stderr,"%s:", __func__);for(i=0;argv[i];i++)fprintf(stderr," '%s'",argv[i]);fprintf(stderr,"\n");
+
 	pid_t pid;
 	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
 	switch (pid = vfork())
 	{
 		case -1: /* can't vfork */
 			perror("vfork");
-			return -1;
+			ret = -errno;
+			break;
 		case 0: /* child process */
 			for(i = 3; i < maxfd; i++)
 				close(i);
-			if(execlp(cmd, cmd, arg1, arg2, arg3, arg4, arg5, arg6, (char*)NULL))
+			if (setsid() == -1)
+				perror("my_system setsid");
+			if (execvp(argv[0], (char * const *)argv))
 			{
-				std::string txt = "ERROR: my_system \"" + (std::string) cmd + "\"";
-				perror(txt.c_str());
-				ret = -1;
+				ret = -errno;
+				if (errno != ENOENT) /* don't complain if argv[0] only does not exist */
+					fprintf(stderr, "ERROR: my_system \"%s\": %m\n", argv[0]);
 			}
-			_exit (0); // terminate c h i l d proces s only	
+			_exit(ret); // terminate c h i l d proces s only
 		default: /* parent returns to calling process */
+			waitpid(pid, &childExit, 0);
+			if (WEXITSTATUS(childExit) != 0)
+				ret = (signed char)WEXITSTATUS(childExit);
 			break;
 	}
-	waitpid(pid, &childExit, 0);
-	if(childExit != 0)
-		ret = childExit;
+	va_end(args);
 	return ret;
 }
 
@@ -129,6 +168,11 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 				close(pfd[0]);
 			}
 		}
+		int maxfd = getdtablesize();
+		for(int i = 3; i < maxfd; i++)
+			close(i);
+		if (setsid() == -1)
+			perror("my_popen setsid");
 		execl("/bin/sh", "sh", "-c", cmdstring, (char *)0);
 		exit(0);
 	 }
@@ -162,7 +206,7 @@ int safe_mkdir(char * path)
 }
 
 /* function used to check is this dir writable, i.e. not flash, for record etc */
-int check_dir(const char * dir)
+int check_dir(const char * dir, bool allow_tmp)
 {
 	/* default to return, if statfs fail */
 	int ret = -1;
@@ -179,21 +223,25 @@ int check_dir(const char * dir)
 			case 0x58465342L:	/*xfs*/
 			case 0x4d44L:		/*msdos*/
 			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-			case 0x858458f6L: 	/*ramfs*/
 #if 0
 			case 0x72b6L:		/*jffs2*/
 #endif
-				ret = 0;
-				break; //ok
+				ret = 0;//ok
+				break; 
+			case 0x858458f6L: 	/*ramfs*/
+			case 0x1021994: 	/*TMPFS_MAGIC*/
+				if(allow_tmp)
+					ret = 0;//ok
+				break;
 			default:
-				fprintf(stderr, "%s Unknow File system type: %i\n" ,dir ,s.f_type);
+				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
 				break; // error
 		}
 	}
 	return ret;
 }
 
-bool get_fs_usage(const char * dir, long &btotal, long &bused)
+bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize/*=NULL*/)
 {
 	btotal = bused = 0;
 	struct statfs s;
@@ -201,7 +249,9 @@ bool get_fs_usage(const char * dir, long &btotal, long &bused)
 	if (::statfs(dir, &s) == 0 && s.f_blocks) {
 		btotal = s.f_blocks;
 		bused = s.f_blocks - s.f_bfree;
-		//printf("fs (%s): total %ld used %ld\n", dir, btotal, bused);
+		if (bsize != NULL)
+			*bsize = s.f_bsize;
+		//printf("fs (%s): total %llu used %llu\n", dir, btotal, bused);
 		return true;
 	}
 	return false;
@@ -238,6 +288,54 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 	return true;
 }
 
+std::string _getPathName(std::string &path, std::string sep)
+{
+	size_t pos = path.find_last_of(sep);
+	if (pos == std::string::npos)
+		return path;
+	return path.substr(0, pos);
+}
+
+std::string _getBaseName(std::string &path, std::string sep)
+{
+	size_t pos = path.find_last_of(sep);
+	if (pos == std::string::npos)
+		return path;
+	if (path.length() == pos +1)
+		return "";
+	return path.substr(pos+1);
+}
+
+std::string getPathName(std::string &path)
+{
+	return _getPathName(path, "/");
+}
+
+std::string getBaseName(std::string &path)
+{
+	return _getBaseName(path, "/");
+}
+
+std::string getFileName(std::string &file)
+{
+	return _getPathName(file, ".");
+}
+
+std::string getFileExt(std::string &file)
+{
+	return _getBaseName(file, ".");
+}
+
+
+std::string getNowTimeStr(const char* format)
+{
+	char tmpStr[256];
+	struct timeval tv;
+	gettimeofday(&tv, NULL);        
+	strftime(tmpStr, sizeof(tmpStr), format, localtime(&tv.tv_sec));
+	return (std::string)tmpStr;
+}
+
 std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 {
 	std::string result = str.erase(str.find_last_not_of(trimChars) + 1);
@@ -271,12 +369,12 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	unlink(Dst);
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
-	if ((fd2 = open(Dst, O_WRONLY | O_CREAT)) < 0) {
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, 0666)) < 0) {
 		close(fd1);
 		return false;
 	}
 
-	long block;
+	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
 	if (fsizeSrc64 > 0x7FFFFFF0) { // > 2GB
@@ -285,7 +383,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
 		while(fsize64 > 0) {
 			if(fsize64 < (off64_t)FileBufSize)
-				block = (long)fsize64;
+				block = (uint32_t)fsize64;
 			read(fd1, FileBuf, block);
 			write(fd2, FileBuf, block);
 			fsize64 -= block;
@@ -303,14 +401,14 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		}
 	}
 	else { // < 2GB
-		long fsizeSrc = lseek(fd1, 0, SEEK_END);
+		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
 		lseek(fd1, 0, SEEK_SET);
-		long fsize = fsizeSrc;
+		off_t fsize = fsizeSrc;
 		block = FileBufSize;
 		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
 		while(fsize > 0) {
-			if(fsize < (long)FileBufSize)
-				block = fsize;
+			if(fsize < (off_t)FileBufSize)
+				block = (uint32_t)fsize;
 			read(fd1, FileBuf, block);
 			write(fd2, FileBuf, block);
 			fsize -= block;
@@ -319,7 +417,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 		}
 		if (doCopyFlag) {
 			lseek(fd2, 0, SEEK_SET);
-			long fsizeDst = lseek(fd2, 0, SEEK_END);
+			off_t fsizeDst = lseek(fd2, 0, SEEK_END);
 			if (fsizeSrc != fsizeDst){
 				close(fd1);
 				close(fd2);

@@ -51,7 +51,11 @@ check=Prüfen
 help=Hilfe
 attention=Achtung!
 directory=Verzeichnis
+filename=Dateiname
 restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
+automatic=automatisch
+show=zeigen
+hide=verstecken
 
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung
@@ -84,14 +88,8 @@ bc.menue.remote=Fernbedienung
 bc.menue.lcd_screenshot_desc=LCD Screenshot erstellen
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot nicht installiert in /bin oder /var/bin
-bc.menue.osd_screenshot_desc=OSD Screenshot erstellen
-bc.menue.osd_screenshot=OSD Screenshot
-bc.menue.osd_screenshot_desc_ni=fbshot nicht installiert in /bin oder /var/bin
-bc.menue.tv_screenshot_desc=TV Screenshot erstellen
-bc.menue.tv_screenshot=TV Screenshot
-bc.menue.remote_osd_desc=Fernbedienung und On Screen Display
-bc.menue.remote_osd=Fernbed. & OSD
-bc.menue.remote_osd_desc_ni=dboxshot nicht installiert in /bin oder /var/bin
+bc.menue.screenshot=Screenshot
+bc.menue.screenshot_desc=Screenshot des OSDs und/oder des TV-Bildes erstellen
 
 bc.menue.decrease_volume=Lautstärke verringern
 bc.menue.increase_volume=Lautstärke erhöhen
@@ -125,15 +123,12 @@ bc.msg.message_to_screen=Meldung auf Bildschirm
 bc.msg.popup_to_screen=Popup auf Bildschirm
 bc.msg.send_message=Nachricht senden
 
-======== Boxcontrol - Remote & OSD
-bc.osd.shot=Schnappschuss
-bc.osd.delete_shots=Schnappschuss löschen
-bc.osd.shap_wait_text=Schnappschuss wird erstellt
-
-======== Boxcontrol - TV-Screenshot
-bc.tv.shot=Schnappschuss
-bc.tv.delete_shot=Schnappschuss löschen
-bc.tv.shap_wait_text=Schnappschuss wird erstellt
+======== Boxcontrol - Screenshot
+bc.screenshot.create=Schnappschuss
+bc.screenshot.delete=Schnappschuss löschen
+bc.screenshot.zoom=Schnappschuss zoomen
+bc.screenshot.wait_text=Schnappschuss wird erstellt
+bc.screenshot.checkenable=OSD und/oder TV muss aktiviert sein!
 
 ========= Boxcontrol - Others
 bc.channels=Sender
@@ -201,6 +196,8 @@ epg.si.onid=Original Network ID
 epg.si.sid=Service ID
 epg.si.tsid=Transponder Stream ID
 epg.si.vpid=Video PID
+epg.si.pmtpid=Program Map Table PID
+epg.si.pcrpid=Program Clock Reference PID
 epg.si.apid=Audio PID
 epg.si.vtxtpid=Teletext PID
 epg.si.crypt=Crypt Systeme
@@ -308,6 +305,7 @@ set.nhttpd.active_after_boot=Nach Neustart aktiv
 set.nhttpd.port=Port
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternativer Web-Ordner
+set.nhttpd.hosted_folder=Eingebundenes Verzeichnis
 set.nhttpd.allowed_file_extensions=Erlaubte Dateiendungen / MIME
 set.nhttpd.allow_all_file_extensions=Alle Dateiendungen erlauben
 set.nhttpd.url_of_logos_desc=URL bzw. Verzeichnis der Logos eingeben
@@ -542,3 +540,54 @@ info.About=Über
 info.check_for_updates=Auf Updates prüfen
 info.your_version=Deine Version
 info.actual_version=Aktuelle Version
+
+=========Remote control
+rc.key_power=Standby
+rc.key_mute=Mute
+rc.key_1=1
+rc.key_2=2
+rc.key_3=3
+rc.key_4=4
+rc.key_5=5
+rc.key_6=6
+rc.key_7=7
+rc.key_8=8
+rc.key_9=9
+rc.key_0=0
+rc.key_text=Text
+rc.key_favorites=Favoriten
+rc.key_volumeup=Vol+
+rc.key_volumedown=Vol-
+rc.key_pageup=Page+
+rc.key_pagedown=Page-
+rc.key_mode=TV/Radio
+rc.key_next=Skip-
+rc.key_previous=Skip+
+rc.key_sleep=Sleep
+rc.key_audio=Audio
+rc.key_help=Help
+rc.key_red=Rot
+rc.key_green=Grün
+rc.key_yellow=Gelb
+rc.key_blue=Blau
+rc.key_epg=EPG
+rc.key_info=Info
+rc.key_ok=OK
+rc.key_up=Hoch
+rc.key_down=Runter
+rc.key_left=Links
+rc.key_right=Rechts
+rc.key_setup=Menü
+rc.key_home=Exit
+rc.key_sat=Sat
+rc.key_www=
+rc.key_rewind=Rewind
+rc.key_play=Play
+rc.key_forward=Forward
+rc.key_stop=Stop
+rc.key_record=Record
+rc.key_pause=Pause
+rc.key_games=
+rc.key_time=
+rc.key_picsize=Pic Size
+rc.key_picmode=Pic Mode

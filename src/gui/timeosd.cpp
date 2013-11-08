@@ -31,8 +31,6 @@
 #include <system/settings.h>
 #include <gui/infoclock.h>
 
-//static CProgressBar *timescale = 0;
-
 #define TIMEOSD_FONT SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME
 #define BARLEN 200
 
@@ -44,7 +42,7 @@ CTimeOSD::CTimeOSD()
 	visible=false;
 	m_mode=MODE_ASC;
 	GetDimensions();
-	timescale = new CProgressBar(true, BARLEN, m_height -5, 40, 100, 70, true);
+	timescale = new CProgressBar();
 	m_time_show = 0;
 }
 
@@ -100,10 +98,10 @@ void CTimeOSD::update(time_t time_show)
 
 	if(m_mode == MODE_ASC) {
 		color1 = COL_MENUCONTENT_PLUS_0;
-		color2 = COL_MENUCONTENT;
+		color2 = COL_MENUCONTENT_TEXT;
 	} else {
 		color1 = COL_MENUCONTENTSELECTED_PLUS_0;
-		color2 = COL_MENUCONTENTSELECTED;
+		color2 = COL_MENUCONTENTSELECTED_TEXT;
 	}
 	strftime(cDisplayTime, 9, "%T", gmtime(&time_show));
 	frameBuffer->paintBoxRel(m_xend - m_width - t1, m_y, m_width, m_height, color1,RADIUS_SMALL);
@@ -118,7 +116,10 @@ void CTimeOSD::updatePos(short runningPercent)
 	if(runningPercent > 100 || runningPercent < 0)
 		runningPercent = 0;
 
-	timescale->paintProgressBar2(m_xstart, m_y, runningPercent);
+	timescale->setProgress(m_xstart, m_y, BARLEN, m_height -5, runningPercent, 100);
+	timescale->setBlink();
+	timescale->setRgb(0, 100, 70);
+	timescale->paint();
 }
 
 void CTimeOSD::update(int position, int duration)
@@ -126,7 +127,7 @@ void CTimeOSD::update(int position, int duration)
 	if(!visible)
 		return;
 
-	int percent = 0;
+	short percent = 0;
 	if(duration > 100)
 		percent = (unsigned char) (position / (duration / 100));
 	if(m_mode == CTimeOSD::MODE_ASC)

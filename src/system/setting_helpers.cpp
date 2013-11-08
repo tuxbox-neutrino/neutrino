@@ -47,10 +47,6 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 
-#if HAVE_COOL_HARDWARE
-#include <coolstream/control.h>
-#endif
-
 #include <config.h>
 
 #include <global.h>
@@ -85,6 +81,8 @@ extern cAudio *audioDecoder;
 extern cDemux *videoDemux;
 extern cDemux *audioDemux;
 extern cDemux *pcrDemux;
+
+extern CHintBox *reloadhintBox;
 
 extern "C" int pinghost( const char *hostname );
 
@@ -180,18 +178,88 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(g_settings.colored_events_red, g_settings.colored_events_green, g_settings.colored_events_blue),
 	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
 
+	// ##### TEXT COLORS #####
+	// COL_COLORED_EVENTS_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 0,
+	                              convertSetupColor2RGB(g_settings.colored_events_red, g_settings.colored_events_green, g_settings.colored_events_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_INFOBAR_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 1,
+	                              convertSetupColor2RGB(g_settings.infobar_Text_red, g_settings.infobar_Text_green, g_settings.infobar_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+
+	// COL_INFOBAR_SHADOW_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 2,
+	                              convertSetupColor2RGB(int(g_settings.infobar_Text_red*0.6), int(g_settings.infobar_Text_green*0.6), int(g_settings.infobar_Text_blue*0.6)),
+	                              convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+
+	// COL_MENUHEAD_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 3,
+	                              convertSetupColor2RGB(g_settings.menu_Head_Text_red, g_settings.menu_Head_Text_green, g_settings.menu_Head_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Head_alpha));
+
+	// COL_MENUCONTENT_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 4,
+	                              convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENT_TEXT_PLUS_1
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 5,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -16),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENT_TEXT_PLUS_2
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 6,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -32),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENT_TEXT_PLUS_3
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 7,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -48),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTDARK_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 8,
+	                              convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTDARK_TEXT_PLUS_1
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 9,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -52),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTDARK_TEXT_PLUS_2
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 10,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Text_red, g_settings.menu_Content_Text_green, g_settings.menu_Content_Text_blue), -60),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_alpha));
+
+	// COL_MENUCONTENTSELECTED_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 11,
+	                              convertSetupColor2RGB(g_settings.menu_Content_Selected_Text_red, g_settings.menu_Content_Selected_Text_green, g_settings.menu_Content_Selected_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_Selected_alpha));
+
+	// COL_MENUCONTENTSELECTED_TEXT_PLUS_1
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 12,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Selected_Text_red, g_settings.menu_Content_Selected_Text_green, g_settings.menu_Content_Selected_Text_blue), -16),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_Selected_alpha));
+
+	// COL_MENUCONTENTSELECTED_TEXT_PLUS_2
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 13,
+	                              changeBrightnessRGBRel(convertSetupColor2RGB(g_settings.menu_Content_Selected_Text_red, g_settings.menu_Content_Selected_Text_green, g_settings.menu_Content_Selected_Text_blue), -32),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_Selected_alpha));
+
+	// COL_MENUCONTENTINACTIVE_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 14,
+	                              convertSetupColor2RGB(g_settings.menu_Content_inactive_Text_red, g_settings.menu_Content_inactive_Text_green, g_settings.menu_Content_inactive_Text_blue),
+	                              convertSetupAlpha2Alpha(g_settings.menu_Content_inactive_alpha));
+
 	frameBuffer->paletteSet();
 }
 
 bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	setPalette();
-#if 0
-	/* recalculate volumebar */
-	CVolume::getInstance()->Init();
-	/* recalculate infoclock */
-	CInfoClock::getInstance()->Init();
-#endif
 	return false;
 }
 
@@ -248,13 +316,11 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FONTSIZE_HINT)); // UTF-8
 	hintBox.paint();
 
-	CNeutrinoApp::getInstance()->SetupFonts();
+	CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT);
 
 	hintBox.hide();
-	/* recalculate volumebar */
-	CVolume::getInstance()->Init();
-	/* recalculate infoclock */
-	CInfoClock::getInstance()->Init();
+	/* recalculate infoclock/muteicon/volumebar */
+	CVolumeHelper::getInstance()->refresh();
 	return true;
 }
 
@@ -445,9 +511,12 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
 		std::string cmd = "cp /usr/share/zoneinfo/" + zone + " /etc/localtime";
 		printf("exec %s\n", cmd.c_str());
-		my_system("/bin/sh", "-c", cmd.c_str());
+		my_system(3,"/bin/sh", "-c", cmd.c_str());
+#if 0
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
+#endif
+		tzset();
 	}
 
 	return false;
@@ -460,15 +529,19 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	bool delete_all = (actionKey == "all");
 	bool delete_chan = (actionKey == "channels") || delete_all;
 	bool delete_set = (actionKey == "settings") || delete_all;
+	bool delete_removed = (actionKey == "delete_removed");
 	neutrino_locale_t msg = delete_all ? LOCALE_RESET_ALL : delete_chan ? LOCALE_RESET_CHANNELS : LOCALE_RESET_SETTINGS;
 	int ret = menu_return::RETURN_REPAINT;
 
-	int result = ShowMsgUTF(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-	if(result != CMessageBox::mbrYes)
-		return true;
+	/* no need to confirm if we only remove deleted channels */
+	if (!delete_removed) {
+		int result = ShowMsgUTF(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+		if (result != CMessageBox::mbrYes)
+			return true;
+	}
 
 	if(delete_all) {
-		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.conf");
+		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.conf");
 		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
@@ -488,7 +561,15 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
-		my_system("/bin/sh", "-c", "rm -f /var/tuxbox/config/zapit/*.xml");
+		my_system(3, "/bin/sh", "-c", "rm -f " CONFIGDIR "/zapit/*.xml");
+		g_Zapit->reinitChannels();
+	}
+	if (delete_removed) {
+		if (reloadhintBox)
+			reloadhintBox->paint();
+		CServiceManager::getInstance()->SaveServices(true, false, true);
+		if (reloadhintBox)
+			reloadhintBox->hide(); /* reinitChannels also triggers a reloadhintbox */
 		g_Zapit->reinitChannels();
 	}
 	return ret;
@@ -496,10 +577,9 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 void CFanControlNotifier::setSpeed(unsigned int speed)
 {
-	int cfd;
-
 	printf("FAN Speed %d\n", speed);
-	cfd = open("/dev/cs_control", O_RDONLY);
+#ifndef BOXMODEL_APOLLO
+	int cfd = open("/dev/cs_control", O_RDONLY);
 	if(cfd < 0) {
 		perror("Cannot open /dev/cs_control");
 		return;
@@ -508,6 +588,7 @@ void CFanControlNotifier::setSpeed(unsigned int speed)
 		perror("IOC_CONTROL_PWM_SPEED");
 
 	close(cfd);
+#endif
 }
 
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)

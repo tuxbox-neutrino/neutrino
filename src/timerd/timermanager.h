@@ -123,7 +123,7 @@ class CTimerEvent_Record : public CTimerEvent
 			   time_t epg_starttime = 0,
 			   unsigned char apids = TIMERD_APIDS_STD,
 			   CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
-			   uint32_t repeatcount = 1, const std::string recDir = "");
+			   uint32_t repeatcount = 1, const std::string &recDir = "");
 	CTimerEvent_Record(CConfigFile *config, int iId);
 	virtual ~CTimerEvent_Record(){};
 	virtual CTimerd::CTimerEventTypes getEventType(void) const { return CTimerd::TIMER_RECORD; };
@@ -212,6 +212,7 @@ class CTimerManager
 private:
 	void Init(void);
 	int					eventID;
+	int					shutdown_eventID;
 	CEventServer		*eventServer;
 	CTimerEventMap		events;
 	pthread_t			thrTimer;
@@ -247,6 +248,7 @@ public:
 	void getRecordingSafety(int &pre, int &post){pre=m_extraTimeStart;post=m_extraTimeEnd;}
 	void setRecordingSafety(int pre, int post);
 	void loadRecordingSafety();
+	void cancelShutdownOnWakeup();
 };
 
 #endif

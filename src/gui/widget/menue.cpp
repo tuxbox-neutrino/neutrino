@@ -28,28 +28,26 @@
 #include <config.h>
 #endif
 
+
+#include <global.h>
+#include <neutrino.h>
 #include <gui/widget/menue.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
-
 #include <gui/widget/stringinput.h>
 
-#include <global.h>
-#include <neutrino.h>
 #include <neutrino_menue.h>
 #include <driver/fade.h>
 
 #include <cctype>
 
-#define ConnectLineBox_Width    16
-
 /* the following generic menu items are integrated into multiple menus at the same time */
-CMenuSeparator CGenericMenuSeparator;
-CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE);
-CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_LEFT);
-CMenuForwarder CGenericMenuCancel(LOCALE_MENU_CANCEL, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME);
-CMenuForwarder CGenericMenuNext(LOCALE_MENU_NEXT, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME);
+CMenuSeparator CGenericMenuSeparator(0, NONEXISTANT_LOCALE, true);
+CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE, NONEXISTANT_LOCALE, true);
+CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_LEFT, NULL, true);
+CMenuForwarder CGenericMenuCancel(LOCALE_MENU_CANCEL, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME, NULL, true);
+CMenuForwarder CGenericMenuNext(LOCALE_MENU_NEXT, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME, NULL, true);
 CMenuSeparator * const GenericMenuSeparator = &CGenericMenuSeparator;
 CMenuSeparator * const GenericMenuSeparatorLine = &CGenericMenuSeparatorLine;
 CMenuForwarder * const GenericMenuBack = &CGenericMenuBack;
@@ -65,6 +63,7 @@ CMenuItem::CMenuItem()
 	used = false;
 	icon_frame_w = 10;
 	hint = NONEXISTANT_LOCALE;
+	isStatic = false;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -74,7 +73,7 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 	dx   = DX;
 	offx = OFFX;
 	name_start_x = x + offx + icon_frame_w;
-	item_color   = COL_MENUCONTENT;
+	item_color   = COL_MENUCONTENT_TEXT;
 	item_bgcolor = COL_MENUCONTENT_PLUS_0;
 }
 
@@ -100,17 +99,17 @@ void CMenuItem::initItemColors(const bool select_mode)
 {
 	if (select_mode)
 	{
-		item_color   = COL_MENUCONTENTSELECTED;
+		item_color   = COL_MENUCONTENTSELECTED_TEXT;
 		item_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	else if (!active)
 	{
-		item_color   = COL_MENUCONTENTINACTIVE;
+		item_color   = COL_MENUCONTENTINACTIVE_TEXT;
 		item_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 	}
 	else
 	{
-		item_color   = COL_MENUCONTENT;
+		item_color   = COL_MENUCONTENT_TEXT;
 		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 }
@@ -125,7 +124,7 @@ void CMenuItem::paintItemBackground (const bool select_mode, const int &item_hei
 		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
 }
 
-void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height, const char * left_text, const char * right_text)
+void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height, const char * left_text, const char * right_text, const fb_pixel_t right_bgcol)
 {
 	if (select_mode)
 	{
@@ -141,14 +140,35 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	}
 	
 	//left text
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ item_height, dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
+	int _dx = dx;
+	int icon_w = 0;
+	int icon_h = 0;
+	if (!iconName_Info_right.empty()) {
+		CFrameBuffer::getInstance()->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
+		if (icon_w)
+			_dx -= icon_frame_w + icon_w;
+	}
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ item_height, _dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
 
 	//right text
-	if (right_text != NULL)
+	if (right_text || right_bgcol)
 	{
-		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
+		int stringwidth = 0;
+		if (right_text)
+			stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
 		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + icon_frame_w, x + dx - stringwidth - icon_frame_w); //+ offx
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
+		if (right_bgcol) {
+			if (!right_text)
+				stringstartposOption -= 60;
+			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, false, COL_MENUCONTENT_PLUS_6, right_bgcol);
+			col.setFrameThickness(3);
+			col.setCorner(RADIUS_LARGE);
+			col.paint(false);
+		}
+		if (right_text) {
+			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + icon_frame_w);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
+		}
 	}
 }
 
@@ -192,9 +212,6 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	bool selected = select_mode;
 	bool icon_painted = false;
 	
-	int w = 0;
-	int h = 0;
-
 	std::string icon_name = iconName;
 	int icon_w = 0;
 	int icon_h = 0;
@@ -225,11 +242,9 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	//get data of number icon and paint
 	if (!icon_name.empty())
 	{
-		frameBuffer->getIconSize(icon_name.c_str(), &w, &h);
-		icon_w = w;
-		icon_h = h;
-		
-		if (active  && icon_w>0 && icon_h>0)
+		frameBuffer->getIconSize(icon_name.c_str(), &icon_w, &icon_h);
+
+		if (active  && icon_w>0 && icon_h>0 && icon_space_x >= icon_w)
 		{
 			icon_x = icon_space_mid - (icon_w/2); 
 
@@ -250,14 +265,10 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	//get data of number right info icon and paint
 	if (!iconName_Info_right.empty())
 	{
-		frameBuffer->getIconSize(iconName_Info_right.c_str(), &w, &h);
-		icon_w = w;
-		icon_h = h;
+		frameBuffer->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 
 		if (active  && icon_w>0 && icon_h>0)
-		{
 			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
-		}
 	}
 }
 
@@ -324,9 +335,9 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
-	details_line = NULL;
-	info_box = NULL;
-	 
+	details_line = new CComponentsDetailLine();
+	info_box = new CComponentsInfoBox();
+	
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
 		//error
@@ -405,12 +416,8 @@ void CMenuWidget::resetWidget(bool delete_items)
 {
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
-		if ((item != GenericMenuSeparator) &&
-		    (item != GenericMenuSeparatorLine) &&
-		    (item != GenericMenuBack) &&
-		    (item != GenericMenuCancel)){
-			if(delete_items)
-				delete item;
+		if (!item->isStatic && delete_items) {
+			delete item;
 			item = NULL;
 		}
 	}
@@ -472,6 +479,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	CVFD::MODES oldLcdMode = CVFD::getInstance()->getMode();
 	
 	int pos = 0;
+	if (selected > 0 && selected < (int)items.size())
+		pos = selected;
 	exit_pressed = false;
 
 	frameBuffer->Lock();
@@ -490,6 +499,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			}
 		}
+	}
+	/* make sure we start with a selectable item... */
+	while (pos < (int)items.size()) {
+		if (items[pos]->isSelectable())
+			break;
+		pos++;
 	}
 #if 0
 	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
@@ -518,12 +533,35 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		if ( msg <= CRCInput::RC_MaxRC ) {
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
+			std::map<neutrino_msg_t, keyAction>::iterator it = keyActionMap.find(msg);
+			if (it != keyActionMap.end()) {
+				fader.Stop();
+				int rv = it->second.menue->exec(this, it->second.action);
+				switch ( rv ) {
+					case menu_return::RETURN_EXIT_ALL:
+						retval = menu_return::RETURN_EXIT_ALL;
+					case menu_return::RETURN_EXIT:
+						msg = CRCInput::RC_timeout;
+						break;
+					case menu_return::RETURN_REPAINT:
+					case menu_return::RETURN_EXIT_REPAINT:
+						if (fade && washidden)
+							fader.StartFadeIn();
+						checkHints();
+						paint();
+						break;
+				}
+				frameBuffer->blit();
+				continue;
+			}
 			for (unsigned int i= 0; i< items.size(); i++) {
 				CMenuItem* titem = items[i];
 				if ((titem->directKey != CRCInput::RC_nokey) && (titem->directKey == msg)) {
 					if (titem->isSelectable()) {
 						items[selected]->paint( false );
 						selected= i;
+						paintHint(selected);
+						pos = selected;
 						msg= CRCInput::RC_ok;
 					} else {
 						// swallow-key...
@@ -532,6 +570,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					break;
 				}
 			}
+#if 0
+			if (msg == (uint32_t) g_settings.key_channelList_pageup)
+				msg = CRCInput::RC_page_up;
+			else if (msg == (uint32_t) g_settings.key_channelList_pagedown)
+				msg = CRCInput::RC_page_down;
+#endif
 		}
 
 		if (handled)
@@ -549,103 +593,64 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					}
 				}
 				break;
-			case (CRCInput::RC_page_up) :
-			case (CRCInput::RC_page_down) :
-				if(msg==CRCInput::RC_page_up) {
-					if(current_page) {
-						pos = (int) page_start[current_page] - 1;
-						for (unsigned int count=pos ; count > 0; count--) {
-							CMenuItem* item = items[pos];
-							if ( item->isSelectable() ) {
-								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
-									items[selected]->paint( false );
-									item->paint( true );
-									paintHint(pos);
-									selected = pos;
-								} else {
-									selected=pos;
-									paintItems();
-								}
-								break;
-							}
-							pos--;
+			case CRCInput::RC_page_up:
+			case CRCInput::RC_page_down:
+			case CRCInput::RC_up:
+			case CRCInput::RC_down:
+			{
+				/* dir and wrap are used when searching for a selectable item:
+				 * if the item is not selectable, try the previous (dir = -1) or
+				 * next (dir = 1) item, until a selectale item is found.
+				 * if wrap = true, allows to wrap around while searching */
+				int dir = 1;
+				bool wrap = false;
+				switch (msg) {
+					case CRCInput::RC_page_up:
+						if (current_page) {
+							pos = page_start[current_page] - 1;
+							dir = -1; /* pg_up: search upwards */
+						} else
+							pos = 0; /* ...but not if already at top */
+						break;
+					case CRCInput::RC_page_down:
+						pos = page_start[current_page + 1];
+						if (pos >= (int)items.size()) {
+							pos = items.size() - 1;
+							dir = -1; /* if last item is not selectable, go up */
 						}
-					} else {
-						pos = 0;
-						for (unsigned int count=0; count < items.size(); count++) {
-							CMenuItem* item = items[pos];
-							if ( item->isSelectable() ) {
-								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
-									items[selected]->paint( false );
-									item->paint( true );
-									paintHint(pos);
-									selected = pos;
-								} else {
-									selected=pos;
-									paintItems();
-								}
-								break;
-							}
-							pos++;
-						}
-					}
+						break;
+					case CRCInput::RC_up:
+						dir = -1;
+					default: /* fallthrough or RC_down => dir = 1 */
+						pos += dir;
+						if (pos < 0 || pos >= (int)items.size())
+							pos -= dir * items.size();
+						wrap = true;
 				}
-				else if(msg==CRCInput::RC_page_down) {
-					pos = (int) page_start[current_page + 1];// - 1;
-					if(pos >= (int) items.size())
-						pos = items.size()-1;
-					for (unsigned int count=pos ; count < items.size(); count++) {
-						CMenuItem* item = items[pos];
-						if ( item->isSelectable() ) {
-							if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
-								items[selected]->paint( false );
-								item->paint( true );
-								paintHint(pos);
-								selected = pos;
-							} else {
-								selected=pos;
-								paintItems();
-							}
-							break;
+				do {
+					CMenuItem* item = items[pos];
+					if (item->isSelectable()) {
+						if (pos < page_start[current_page + 1] && pos >= page_start[current_page]) {
+							/* in current page */
+							items[selected]->paint(false);
+							item->paint(true);
+							paintHint(pos);
+							selected = pos;
+						} else {
+							/* different page */
+							selected = pos;
+							paintItems();
 						}
-						pos++;
+						break;
 					}
-				}
+					pos += dir;
+					if (wrap && (pos >= (int)items.size() || pos < 0)) {
+						pos -= dir * items.size();
+						wrap = false; /* wrap only once, avoids endless loop */
+					}
+				} while (pos >= 0 && pos < (int)items.size());
 				break;
-			case (CRCInput::RC_up) :
-			case (CRCInput::RC_down) :
-				{
-					//search next / prev selectable item
-					for (unsigned int count=1; count< items.size(); count++) {
-						if (msg==CRCInput::RC_up) {
-							pos = selected - count;
-							if ( pos < 0 )
-								pos += items.size();
-						}
-						else if(msg==CRCInput::RC_down) {
-							pos = (selected+ count)%items.size();
-						}
-
-						CMenuItem* item = items[pos];
-
-						if ( item->isSelectable() ) {
-							if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page]))
-							{ // Item is currently on screen
-								//clear prev. selected
-								items[selected]->paint( false );
-								//select new
-								item->paint( true );
-								paintHint(pos);
-								selected = pos;
-							} else {
-								selected=pos;
-								paintItems();
-							}
-							break;
-						}
-					}
-				}
-				break;
+			}
 			case (CRCInput::RC_left):
 				{
 					if(hasItem() && selected > -1 && (int)items.size() > selected) {
@@ -663,6 +668,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					if(hasItem() && selected > -1 && (int)items.size() > selected) {
 						//exec this item...
 						CMenuItem* item = items[selected];
+						if (!item->isSelectable())
+							break;
 						item->msg = msg;
 						fader.Stop();
 						int rv = item->exec( this );
@@ -677,6 +684,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								if (fade && washidden)
 									fader.StartFadeIn();
 								checkHints();
+								pos = selected;
 								paint();
 								break;
 						}
@@ -816,13 +824,14 @@ void CMenuWidget::calcSize()
 	}
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
+		hint_height = 60; //TODO: rework calculation of hint_height
 		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
-		hint_height = 10 + 2*fheight;
+		int h_tmp = 16 + 2*fheight;
 		/* assuming all hint icons has the same size ! */
 		int iw, ih;
 		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &iw, &ih);
-		if(hint_height < (ih+10))
-			hint_height = ih+10;
+		h_tmp = std::max(h_tmp, ih+10);
+		hint_height = std::max(h_tmp, hint_height);
 	}
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */
@@ -850,8 +859,8 @@ void CMenuWidget::calcSize()
 			total_pages++;
 			heightCurrPage=item_height;
 		}
-		if(total_pages == 1)
-			itemHeightTotal+=item_height;
+		if (heightCurrPage > itemHeightTotal)
+			itemHeightTotal = heightCurrPage;
 	}
 	page_start.push_back(items.size());
 
@@ -896,23 +905,16 @@ void CMenuWidget::paint()
 	calcSize();
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
 
-	// paint shadow
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET ,y + SHADOW_OFFSET ,width + sb_width ,height + RADIUS_LARGE ,COL_MENUCONTENTDARK_PLUS_0 ,RADIUS_LARGE);
 	// paint head
-	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,hheight ,COL_MENUHEAD_PLUS_0 ,RADIUS_LARGE, CORNER_TOP);
-	// paint background
-	frameBuffer->paintBoxRel(x ,y+hheight, width + sb_width, height-hheight + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE, CORNER_BOTTOM);
+	CComponentsHeader header(x, y, width + sb_width, hheight, nameString, iconfile.c_str());
+	header.setShadowOnOff(CC_SHADOW_ON);
+	header.setOffset(10);
+	header.paint(CC_SAVE_SCREEN_NO);
 
-	//paint menu head
-	int HeadiconOffset = 0;
-	if(!(iconfile.empty())){
-		int w, h;
-		frameBuffer->getIconSize(iconfile.c_str(), &w, &h);
-		HeadiconOffset = w+6;
-	}
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1, width-((fw/3)+HeadiconOffset), nameString.c_str(), COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
+	// paint body shadow
+	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + RADIUS_LARGE, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	// paint body background
+	frameBuffer->paintBoxRel(x ,y+hheight, width + sb_width, height-hheight + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE, CORNER_BOTTOM);
 
 	item_start_y = y+hheight;
 	paintItems();
@@ -957,27 +959,28 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 }
 
 void CMenuWidget::paintItems()
-{
-	int item_height=height-(item_start_y-y);
-	
+{	
 	//Item not currently on screen
 	if (selected >= 0)
 	{
-		while(selected < (int)page_start[current_page])
+		while (selected < page_start[current_page])
 			current_page--;
-		while(selected >= (int)page_start[current_page + 1])
+		while (selected >= page_start[current_page + 1])
 			current_page++;
 	}
 
 	// Scrollbar
 	if(total_pages>1)
 	{
+		int item_height=height-(item_start_y-y);
 		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
 		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
+		/* background of menu items, paint every time because different items can have
+		 * different height and this might leave artifacts otherwise after changing pages */
+		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	}
-	frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	int ypos=item_start_y;
-	for (unsigned int count = 0; count < items.size(); count++)
+	for (int count = 0; count < (int)items.size(); count++)
 	{
 		CMenuItem* item = items[count];
 
@@ -1070,16 +1073,11 @@ void CMenuWidget::paintHint(int pos)
 {
 	if (!g_settings.show_menu_hints)
 		return;
-
+	
 	if (pos < 0 && !hint_painted)
 		return;
-
-	int rad = RADIUS_LARGE;
-
-	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
-	int iwidth = width+sb_width;
-
+	
+#if 0
 	if (hint_painted) {
 		/* clear detailsline line */
 		// TODO CComponents::hide with param restore ? or auto (if it have saved screens) ?
@@ -1099,134 +1097,97 @@ void CMenuWidget::paintHint(int pos)
 			}
 		}
 		hint_painted = false;
+#endif
+	if (hint_painted) {
+		/* clear detailsline line */
+		if (details_line)
+			details_line->hide();
+		/* clear info box */
+		if ((info_box) && (pos == -1))
+			info_box->hide(true);
+		hint_painted = false;
 	}
 	if (pos < 0)
 		return;
 
 	CMenuItem* item = items[pos];
-//printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
-
+	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
+#if 0
 		if (info_box != NULL) {
 			if (savescreen)
+#endif
+		if (info_box)
+			info_box->hide(false);	
+#if 0				
 				info_box->restore();
 			else
 				info_box->hide();
 		}
+#endif
 		return;
 	}
-
-	hint_painted = true;
-
+	
+	if (item->hint == NONEXISTANT_LOCALE)
+		return;
+	
 	int iheight = item->getHeight();
-
-	//details line
+	int rad = RADIUS_LARGE;
+	int xpos  = x - ConnectLineBox_Width;
+	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
+	int iwidth = width+sb_width;
+	
+	//init details line and infobox dimensions
 	int ypos1 = item->getYPosition();
 	int ypos1a = ypos1 + (iheight/2)-2;
 	int ypos2a = ypos2 + (hint_height/2) - INFO_BOX_Y_OFFSET;
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
 	
-	if (details_line == NULL){
-		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
-	}else{
+	//init details line
+	if (details_line){
 		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
 		details_line->setYPosDown(ypos2a);
- 		details_line->setHMarkDown(markh);
- 		details_line->setColor(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0);
+		details_line->setHMarkTop(imarkh);
+		details_line->setHMarkDown(markh);
+		details_line->syncSysColors();
 	}
+#if 0
 	details_line->paint(savescreen);
+#endif
 
-	if (info_box == NULL)
-		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height);
-	else {
-		info_box->setXPos(x);
-		info_box->setYPos(ypos2);
-		info_box->setWidth(iwidth);
-		info_box->setColor(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+	//init infobox
+	std::string str = g_Locale->getText(item->hint);
+	if (info_box){
+		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
+		info_box->setFrameThickness(2);
+		info_box->removeLineBreaks(str);
+		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+		info_box->setCorner(RADIUS_LARGE);
+		info_box->syncSysColors();
+		info_box->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+		info_box->setShadowOnOff(CC_SHADOW_ON);
+		info_box->setPicture(item->hintIcon);
 	}
+#if 0	
 	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
 	info_box->paint(savescreen, true);
+#endif
 
-	int offset = 10;
-	if (!item->hintIcon.empty()) {
-		int iw, ih;
-		frameBuffer->getIconSize(item->hintIcon.c_str(), &iw, &ih);
-		if (iw && ih) {
-			int ix = x + offset;
-			int iy = ypos2 + (hint_height - ih)/2;
-			frameBuffer->paintIcon(item->hintIcon.c_str(), ix, iy);
-			offset += iw + 10;
-		}
-	}
-	if (item->hint == NONEXISTANT_LOCALE)
-		return;
+	
+	//paint result
+	details_line->paint();
+	info_box->paint();
+	
+	hint_painted = true;
+	
+}
 
-	int HintFont = SNeutrinoSettings::FONT_TYPE_MENU_HINT;
-	int fheight = g_Font[HintFont]->getHeight();
-
-	std::string str1, str2;
-	std::string str = g_Locale->getText(item->hint);
-	std::string::size_type spos = str.find_first_of("\n");
-	if (spos != std::string::npos) {
-		str1 = str.substr(0, spos);
-		str2 = str.substr(spos+1);
-	}
-	else
-		str1 = str;
-
-	if ((!str1.empty()) || (!str1.empty())) {
-		int wBox = iwidth - 6 - offset;
-		int wStr1 = 0, wStr2 = 0;
-		if (!str1.empty())
-			wStr1 = g_Font[HintFont]->getRenderWidth(str1);
-		if (!str2.empty())
-			wStr2 = g_Font[HintFont]->getRenderWidth(str2);
-		if ((wStr1 > wBox) || (wStr2 > wBox)) {
-			str = g_Locale->getText(item->hint);
-			// replace "\n" with " "
-			spos = str.find_first_of("\n");
-			if (spos != std::string::npos)
-				str.replace(spos, 1, " ");
-			spos = str.length();
-			if (spos >= 1) {
-				std::string BreakChars = "+-/";
-				str1 = str;
-				wStr1 = g_Font[HintFont]->getRenderWidth(str1);
-				int count = 0;
-				std::string bChar;
-				while (wStr1 > wBox) {
-					spos = str1.find_last_of(BreakChars + " ");
-					if (spos != std::string::npos) {
-						str1 = str1.substr(0, spos+1);
-						// Last delimiter remember if it's not a whitespace
-						size_t len = str1.length();
-						size_t spos2 = str1.find_last_of(BreakChars);
-						if (len == spos2+1)
-							bChar = str1.substr(spos2, spos2+1);
-						else
-							bChar = "";
-						// Remove last delimiter
-						str1 = str1.substr(0, spos);
-					}
-					// Width of string with delimiter
-					wStr1 = g_Font[HintFont]->getRenderWidth(str1 + bChar);
-					count++;
-					if (count > 20)
-						break;
-				}
-				// Last delimiter append again
-				str1 += bChar;
-				str2 = str.substr(spos+1);
-			}
-		}
-		ypos2 += (hint_height-fheight*2)/2;
-		if (!str1.empty())
-			g_Font[HintFont]->RenderString(x+offset, ypos2+fheight, wBox, str1, COL_MENUCONTENT, 0, true); // UTF-8
-		if (!str2.empty())
-			g_Font[HintFont]->RenderString(x+offset, ypos2+fheight*2, wBox, str2, COL_MENUCONTENT, 0, true); // UTF-8
-	}
+void CMenuWidget::addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string & action)
+{
+	keyActionMap[key].menue = menue;
+	keyActionMap[key].action = action;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -1263,9 +1224,10 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 		else
 			(*optionValue)++;
 	}
-	paint(true);
 	if(observ)
 		observ->changeNotify(optionName, optionValue);
+	// give the observer a chance to modify the value
+	paint(true);
 
 	return menu_return::RETURN_NONE;
 }
@@ -1296,6 +1258,26 @@ int CMenuOptionNumberChooser::paint(bool selected)
 	paintItemCaption(selected, height , l_optionName, l_option);
 
 	return y+height;
+}
+
+int CMenuOptionNumberChooser::getWidth(void)
+{
+	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
+	int width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_optionName, true);
+
+	char tmp[20], *t;
+
+	snprintf(tmp, sizeof(tmp), "%d", lower_bound);
+	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
+	int w1 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+
+	snprintf(tmp, sizeof(tmp), "%d", upper_bound);
+	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
+	int w2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+
+	width += (w1 > w2) ? w1 : w2;
+
+	return width + 10; /* min 10 pixels between option name and value. enough? */
 }
 
 CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options, const bool Active, CChangeObserver * const Observ, const neutrino_msg_t DirectKey, const std::string & IconName, bool Pulldown)
@@ -1677,7 +1659,7 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 	//convert first letter to large
 	std::string s_optionValue = optionValue;
 	if(!s_optionValue.empty())
-		s_optionValue[0] = toupper(s_optionValue[0]);
+		s_optionValue[0] = (char)toupper(s_optionValue[0]);
 	//paint text
 	paintItemCaption(selected, height , s_optionValue.c_str());
 
@@ -1685,7 +1667,7 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
 	option = Option;
 	option_string = NULL;
@@ -1696,9 +1678,10 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 	directKey = DirectKey;
 	iconName = IconName ? IconName : "";
 	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
+	isStatic = IsStatic;
 }
 
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
 	option = NULL;
 	option_string = &Option;
@@ -1709,21 +1692,28 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 	directKey = DirectKey;
 	iconName = IconName ? IconName : "";
 	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
+	isStatic = IsStatic;
+}
+
+void CMenuForwarder::setOption(const char * const Option)
+{
+	option = Option;
+	option_string = NULL;
+	if (used && x != -1)
+		paint();
+}
+
+void CMenuForwarder::setOption(const std::string &Option)
+{
+	option = NULL;
+	option_string = &Option;
+	if (used && x != -1)
+		paint();
 }
 
 int CMenuForwarder::getHeight(void) const
 {
 	return g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-}
-
-// used gets set by the addItem() function. This is for set to paint Option string by just not calling the addItem() function.
-// Without this, the changeNotifiers would become machine-dependent.
-void CMenuForwarder::setOption(const char *Option)
-{
-	option = Option;
-
-	if (used && x != -1)
-		paint();
 }
 
 // used gets set by the addItem() function. This is for set to paint Text from locales by just not calling the addItem() function.
@@ -1746,9 +1736,14 @@ int CMenuForwarder::getWidth(void)
 	else if (option_string)
 		option_text = option_string->c_str();
 
+	fb_pixel_t bgcol = 0;
+	if (jumpTarget)
+		bgcol = jumpTarget->getColor();
 
-        if (option_text != NULL)
-                tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+	if (option_text != NULL)
+		tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+	else if (bgcol)
+		tw += 10 + 60;
 
 	return tw;
 }
@@ -1787,6 +1782,9 @@ int CMenuForwarder::paint(bool selected)
  	const char * l_text = getName();
  
  	const char * option_text = getOption();
+	fb_pixel_t bgcol = 0;
+	if (jumpTarget)
+		bgcol = jumpTarget->getColor();
 	
 	//paint item
 	prepareItem(selected, height);
@@ -1795,7 +1793,7 @@ int CMenuForwarder::paint(bool selected)
 	paintItemButton(selected, height);
 	
 	//caption
-	paintItemCaption(selected, height, l_text, option_text);
+	paintItemCaption(selected, height, l_text, option_text, bgcol);
 	
 	return y+ height;
 }
@@ -1844,15 +1842,25 @@ void CMenuForwarderNonLocalized::setText(const char * const Text)
 int CMenuForwarderNonLocalized::getWidth(void)
 {
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(the_text, true);
+	const char * option_text = NULL;
+	if (option)
+		option_text = option;
+	else if (option_string)
+		option_text = option_string->c_str();
+
+        if (option_text != NULL)
+                tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+
 	return tw;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text)
+CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, bool IsStatic)
 {
 	directKey = CRCInput::RC_nokey;
 	iconName = "";
 	type     = Type;
 	text     = Text;
+	isStatic = IsStatic;
 }
 
 
@@ -1892,18 +1900,17 @@ int CMenuSeparator::getWidth(void)
 
 int CMenuSeparator::paint(bool selected)
 {
-	int height;
+	int height = getHeight();
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-	height = getHeight();
 	
 	if ((type & SUB_HEAD))
 	{
-		item_color = COL_MENUHEAD;
+		item_color = COL_MENUHEAD_TEXT;
 		item_bgcolor = COL_MENUHEAD_PLUS_0;
 	}
 	else
 	{
-		item_color = COL_MENUCONTENTINACTIVE;
+		item_color = COL_MENUCONTENTINACTIVE_TEXT;
 		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
@@ -1915,8 +1922,7 @@ int CMenuSeparator::paint(bool selected)
 	}
 	if ((type & STRING))
 	{
-		const char * l_text;
-		l_text = getString();
+		const char * l_text = getString();
 	
 		if (text != NONEXISTANT_LOCALE || strlen(l_text) != 0)
 		{
@@ -1924,7 +1930,7 @@ int CMenuSeparator::paint(bool selected)
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				name_start_x = x + (!SUB_HEAD ?  name_start_x : 20 +18);
+				name_start_x = x + (!(type & SUB_HEAD) ? name_start_x : 20 + 24 /*std icon_width is 24px - this should be determinated from NEUTRINO_ICON_BUTTON_HOME or so*/);
 			else if (type & ALIGN_RIGHT)
 				name_start_x = x + dx - stringwidth - 20;
 			else /* ALIGN_CENTER */

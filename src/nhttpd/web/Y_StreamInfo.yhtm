@@ -79,6 +79,16 @@
 			<td>&nbsp;</td>
 			<td class="set"> <div align="left">{=vpid=}</div></td>
 		</tr>
+		<tr>
+			<td class="set"><b>{=L:epg.si.pcrpid=}:</b></td>
+			<td>&nbsp;</td>
+			<td class="set"> <div align="left">{=pcrpid=}</div></td>
+		</tr>
+		<tr>
+			<td class="set"><b>{=L:epg.si.pmtpid=}:</b></td>
+			<td>&nbsp;</td>
+			<td class="set"> <div align="left">{=pmtpid=}</div></td>
+		</tr>
 		<tr> 
 			<td class="set"><b>{=L:epg.si.apid=}:</b></td>
 			<td>&nbsp;</td>

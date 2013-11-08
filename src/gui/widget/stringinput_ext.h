@@ -53,8 +53,11 @@ class CExtendedInput : public CMenuTarget
 		int height;
 		int hintPosY;
 		int hheight; // head font height
-		int mheight; // menu font height
 		int iheight;
+		int bheight; // body height
+		int input_h; // input field height
+		int input_w; // input field width
+		int offset;
 
 		std::vector<CExtendedInput_Item*> inputFields;
 		int selectedChar;
@@ -88,7 +91,9 @@ class CExtendedInput_Item
 {
 	protected:
 		CFrameBuffer	*frameBuffer;
-		int ix, iy, idx, idy;
+		int input_h; // input field height
+		int input_w; // input field width
+		int ix, iy;
 		char* data;
 
 	public:

@@ -12,6 +12,10 @@
 #include <sys/types.h> //ntohs
 #include <netinet/in.h> //ntohs
 #include <inttypes.h> //ntohs
+
+#include <global.h>
+#include <neutrino.h>
+#include <system/settings.h>
 // yhttpd
 #include <yhttpd.h>
 #include <ytypes_globals.h>
@@ -22,9 +26,6 @@
 #include "neutrinoyparser.h"
 #include "neutrinoapi.h"
 
-#include <global.h>
-#include <neutrino.h>
-#include <system/settings.h>
 
 #include <zapit/channel.h>
 #include <zapit/zapit.h>
@@ -218,11 +219,16 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *, st
 
 	int mode = NeutrinoAPI->Zapit->getMode();
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
-		ZapitChannelList * channels = mode == CZapitClient::MODE_RADIO ? &g_bouquetManager->Bouquets[i]->radioChannels : &g_bouquetManager->Bouquets[i]->tvChannels;
+		//ZapitChannelList &channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
+		ZapitChannelList channels;
+		if (mode == CZapitClient::MODE_RADIO)
+			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
+		else
+			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
 		sel=(nr==(i+1)) ? "selected=\"selected\"" : "";
-		if(!channels->empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true"))
+		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true"))
 			yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(),
-				(encodeString(std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
+				std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()).c_str());
 			//yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), (encodeString(std::string(g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
 	}
 	return yresult;
@@ -240,8 +246,13 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *
 	//ytemplate += "\n"; //FIXME add newline to printf
 	int mode = NeutrinoAPI->Zapit->getMode();
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
-		ZapitChannelList * channels = mode == CZapitClient::MODE_RADIO ? &g_bouquetManager->Bouquets[i]->radioChannels : &g_bouquetManager->Bouquets[i]->tvChannels;
-		if(!channels->empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true")) {
+		//ZapitChannelList &channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
+		ZapitChannelList channels;
+		if (mode == CZapitClient::MODE_RADIO)
+			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
+		else
+			g_bouquetManager->Bouquets[i]->getTvChannels(channels);
+		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true")) {
 			yresult += string_printf(ytemplate.c_str(), i + 1, g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str());
 			yresult += "\r\n";
 		}
@@ -279,7 +290,11 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, st
 	if(bnumber > 0) {
 		bnumber--;
 		ZapitChannelList channels;
-		channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[bnumber]->radioChannels : g_bouquetManager->Bouquets[bnumber]->tvChannels;
+		//channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[bnumber]->radioChannels : g_bouquetManager->Bouquets[bnumber]->tvChannels;
+		if (mode == CZapitClient::MODE_RADIO)
+			g_bouquetManager->Bouquets[bnumber]->getRadioChannels(channels);
+		else
+			g_bouquetManager->Bouquets[bnumber]->getTvChannels(channels);
 		for(int j = 0; j < (int) channels.size(); j++) {
 			CEPGData epg;
 			CZapitChannel * channel = channels[j];
@@ -303,7 +318,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	int BouquetNr = 0;
 	std::string abnumber, tmp,yresult;
 	ZapitChannelList channels;
-	int num;
+	//int num;
 	int mode = NeutrinoAPI->Zapit->getMode();
 
 	ySplitString(para," ",abnumber, tmp);
@@ -311,20 +326,26 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		BouquetNr = atoi(abnumber.c_str());
 	if (BouquetNr > 0) {
 		BouquetNr--;
+#if 0
 		channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[BouquetNr]->radioChannels : g_bouquetManager->Bouquets[BouquetNr]->tvChannels;
 		num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr) : g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr)) ;
+#endif
+		if (mode == CZapitClient::MODE_RADIO)
+			g_bouquetManager->Bouquets[BouquetNr]->getRadioChannels(channels);
+		else
+			g_bouquetManager->Bouquets[BouquetNr]->getTvChannels(channels);
 	} else {
 		CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 		for (; !(cit.EndOfChannels()); cit++)
 			channels.push_back(*cit);
-		num = 1;
+		//num = 1;
 	}
 	NeutrinoAPI->GetChannelEvents();
 
 	int i = 1;
 	char classname;
 	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
-	int prozent;
+	int prozent = 100;
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
 	std::string timestr;
 	bool have_logos = false;
@@ -352,20 +373,31 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 
 		/* timer slider */
 		if(event && event->duration > 0)
+		{
 			prozent = 100 * (time(NULL) - event->startTime) / event->duration;
+			yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
+					"\t<table border=\"0\" rules=\"none\" class=\"cslider cslider_table\">"
+					"<tr>"
+					"<td class=\"cslider cslider_used\" width=\"%d\"></td>"
+					"<td class=\"cslider cslider_free\" width=\"%d\"></td>"
+					"</tr>"
+					"</table>\n</td>\n"
+					, classname
+					, (prozent / 10) * 3
+					, (10 - (prozent / 10))*3
+				);
+		}
 		else
-			prozent = 100;
-		yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
-				"\t<table border=\"0\" rules=\"none\" class=\"cslider_table\" width=\"32\">"
-				"<tr>"
-				"<td class=\"cslider_used\" width=\"%d\"></td>"
-				"<td class=\"cslider_free\" width=\"%d\"></td>"
-				"</tr>"
-				"</table>\n</td>\n"
-				, classname
-				, (prozent / 10) * 3
-				, (10 - (prozent / 10))*3
-			);
+		{
+			yresult += string_printf("<td class=\"%c\"><table border=\"0\" cellspacing=\"0\" cellpadding=\"3\"><tr><td>\n"
+					"\t<table border=\"0\" rules=\"none\" class=\"cslider cslider_table\">"
+					"<tr>"
+					"<td class=\"cslider cslider_noepg\"></td>"
+					"</tr>"
+					"</table>\n</td>\n"
+					, classname
+				);
+		}
 
 		/* channel name and buttons */
 		yresult += string_printf("<td>\n%s<a class=\"clist\" href=\"javascript:do_zap('"
@@ -377,7 +409,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				"')\">%s</a>\n",
 				((channel->channel_id == current_channel) ? "<a name=\"akt\"></a>" : " "),
 				channel->channel_id,
-				num + j /*channel->nr*/,
+				channel->number /* num + j */,
 				channel->getName().c_str(),
 				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
 				channel->channel_id,
@@ -488,6 +520,7 @@ std::string  CNeutrinoYParser::func_get_mode(CyhookHandler *, std::string)
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_video_pids(CyhookHandler *, std::string para)
 {
+	std::string yresult;
 	CZapitClient::responseGetPIDs pids;
 	int apid=0,apid_no=0,apid_idx=0;
 	pids.PIDs.vpid=0;
@@ -500,7 +533,10 @@ std::string  CNeutrinoYParser::func_get_video_pids(CyhookHandler *, std::string 
 		apid_idx=apid_no;
 	if(!pids.APIDs.empty())
 		apid = pids.APIDs[apid_idx].pid;
-	return string_printf("0x%04x,0x%04x,0x%04x",pids.PIDs.pmtpid,pids.PIDs.vpid,apid);
+	yresult = string_printf("0x%04x,0x%04x,0x%04x", pids.PIDs.pmtpid, pids.PIDs.vpid, apid);
+	if (pids.PIDs.pcrpid != pids.PIDs.vpid)
+		yresult += string_printf(",0x%04x", pids.PIDs.pcrpid);
+	return yresult;
 }
 //-------------------------------------------------------------------------
 // y-func : get_radio_pids (returns: 0x0000)
@@ -556,7 +592,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 					{
 						if(!(isalnum(tags[i].component[0])))
 							tags[i].component=tags[i].component.substr(1,tags[i].component.length()-1);
-						yresult += string_printf("<option value=%05u>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,encodeString(tags[i].component).c_str());
+						yresult += string_printf("<option value=%05u>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,tags[i].component.c_str());
 					}
 					else
 					{
@@ -564,7 +600,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 						{
 							strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
 						}
-			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,encodeString(std::string(pids.APIDs[j].desc)).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": " ");
+			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
 					}
 					eit_not_ok=false;
 					break;
@@ -581,7 +617,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 			{
 				strcpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ) );
 			}
- 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? i : it->pid,pids.APIDs[i].desc,pids.APIDs[i].is_ac3 ? " (AC3)": " ");
+			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? i : it->pid,pids.APIDs[i].desc,pids.APIDs[i].is_ac3 ? " (AC3)": pids.APIDs[i].is_aac ? "(AAC)" : pids.APIDs[i].is_eac3 ? "(EAC3)" : " ");
 			i++;
 		}
 	}
@@ -652,7 +688,7 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	unsigned int system_rev = cs_get_revision();
-	std::string boxname = "Coolstream ";
+	std::string boxname = "CST ";
 
 #if HAVE_TRIPLEDRAGON
 	boxname = "Armas ";
@@ -671,11 +707,18 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			boxname += "BSE";
 			break;
 		case 8:
-		case 9:
 			boxname += "Neo";
+			if (CFEManager::getInstance()->getFrontendCount() > 1)
+				boxname += " Twin";
+			break;
+		case 9:
+			boxname += "Tank";
 			break;
 		case 10:
 			boxname += "Zee";
+			break;
+		case 11:
+			boxname += "Trinity";
 			break;
 
 		default:
@@ -686,7 +729,8 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			break;
 	}
 
-	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
+	if (system_rev != 9) // don't add delivery_system for Tank
+		boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	return boxname;
 }
 //-------------------------------------------------------------------------
@@ -704,6 +748,7 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 	hh->ParamList["apid"] = itoh(serviceinfo.apid);
 	hh->ParamList["vtxtpid"] = (serviceinfo.vtxtpid != 0)?itoh(serviceinfo.vtxtpid):"not available";
 	hh->ParamList["pmtpid"] = (serviceinfo.pmtpid != 0)?itoh(serviceinfo.pmtpid):"not available";
+	hh->ParamList["pcrpid"] = (serviceinfo.pcrpid != 0)?itoh(serviceinfo.pcrpid):"not available";
 	hh->ParamList["tsfrequency"] = string_printf("%d.%d MHz", serviceinfo.tsfrequency/1000, serviceinfo.tsfrequency%1000);
 	hh->ParamList["polarisation"] = serviceinfo.polarisation==1?"h":"v";
 	hh->ParamList["ServiceName"] = NeutrinoAPI->GetServiceName(CZapit::getInstance()->GetCurrentChannelID());
@@ -949,6 +994,8 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	t_channel_id current_channel = (cmd == "new") ? CZapit::getInstance()->GetCurrentChannelID() : timer.channel_id;
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
+		if (((*cit)->flags & CZapitChannel::REMOVED) || (*cit)->flags & CZapitChannel::NOT_FOUND)
+			continue;
 		sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
 		hh->ParamList["program_row"] +=
 			string_printf("<option value=\""
@@ -958,6 +1005,8 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	}
 	cit = g_bouquetManager->radioChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
+		if (((*cit)->flags & CZapitChannel::REMOVED) || (*cit)->flags & CZapitChannel::NOT_FOUND)
+			continue;
 		sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
 		hh->ParamList["program_row"] +=
 			string_printf("<option value=\""

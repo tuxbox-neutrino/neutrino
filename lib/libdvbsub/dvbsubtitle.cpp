@@ -200,7 +200,12 @@ cDvbSubtitleConverter::cDvbSubtitleConverter(void)
 
 cDvbSubtitleConverter::~cDvbSubtitleConverter()
 {
-  delete bitmaps;
+	if (avctx) {
+		avcodec_close(avctx);
+		av_free(avctx);
+		avctx = NULL;
+	}
+	delete bitmaps;
 }
 
 void cDvbSubtitleConverter::Lock(void)

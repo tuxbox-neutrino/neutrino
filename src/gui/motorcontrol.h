@@ -34,7 +34,7 @@
 #define __motorcontrol__
 
 #include <gui/widget/menue.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc.h>
 #include <driver/framebuffer.h>
 #include <string>
 #include <zapit/femanager.h>
@@ -67,18 +67,21 @@ class CMotorControl : public CMenuTarget
 		int32_t satellitePosition;
 		int satfindpid;
 		int lastsnr, lastsig;
+		int g_sig, g_snr, last_snr, moving;
+		std::string network;
 		CProgressBar *snrscale, *sigscale;
-		void paint();
+		void paintHead(void);
 		void paintMenu(void);
 		void paintStatus(void);
 		void paintLine(int x, int *y, int width, const char *txt);
 		void paintLine(int x, int y, int width, const char *txt);
+		void paintLine(int ix, int tx, int *y, int pwidth, const char *icon, const char *txt);
 		void paintSeparator(int xpos, int * ypos, int width, const char *txt);
-		void motorStepEast(void);
-		void motorStepWest(void);
+		void motorStep(bool west);
 		void startSatFind(void);
 		void stopSatFind(void);
 		void showSNR(void);
+		void readNetwork(void);
 
 	public:
 

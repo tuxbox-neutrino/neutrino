@@ -37,7 +37,7 @@ private:
 
 	int width;
 
-	void showMenu();
+	int showMenu();
 
 public:
 	CZapitSetup();
@@ -49,7 +49,7 @@ class CSelectChannelWidget : public CMenuWidget
 {
 private:
 	int width;
-	void InitZapitChannelHelper(CZapitClient::channelsMode mode);
+	int InitZapitChannelHelper(CZapitClient::channelsMode mode);
 
 public:
 	CSelectChannelWidget();

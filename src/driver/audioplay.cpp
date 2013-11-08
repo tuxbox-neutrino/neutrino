@@ -49,6 +49,7 @@ void CAudioPlayer::stop()
 	if(thrPlay)
 		pthread_join(thrPlay,NULL);
 	thrPlay = 0;
+	state = CBaseDec::STOP;
 }
 void CAudioPlayer::pause()
 {

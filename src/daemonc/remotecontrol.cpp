@@ -147,7 +147,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				is_video_started = true;
 				if (channel) {
 					current_channel_name = channel->getName();
-					if (channel->bAlwaysLocked)
+					if (channel->bAlwaysLocked != g_settings.parentallock_defaultlocked)
 						stopvideo();
 				}
 				CVFD::getInstance()->showServicename(current_channel_name); // UTF-8
@@ -344,7 +344,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 #endif
 	else if (msg == NeutrinoMessages::EVT_TUNE_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
-printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016llx)\n", chid);
+printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016" PRIx64 ")\n", chid);
 		if(chid)
 			g_Sectionsd->setServiceChanged( chid, true );
 		else
@@ -481,7 +481,8 @@ void CRemoteControl::processAPIDnames()
 							pref_found = j;
 							pref_idx = i;
 						}
-						if(current_PIDs.APIDs[j].is_ac3 && g_settings.audio_DolbyDigital && (pref_ac3_found < 0)) {
+						if((current_PIDs.APIDs[j].is_ac3 || current_PIDs.APIDs[j].is_eac3)
+								&& g_settings.audio_DolbyDigital && (pref_ac3_found < 0)) {
 							pref_ac3_found = j;
 							pref_ac3_idx = i;
 						}
@@ -519,6 +520,8 @@ void CRemoteControl::processAPIDnames()
 		}
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
 			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
+		else if (current_PIDs.APIDs[count].is_eac3 &&  !strstr(current_PIDs.APIDs[count].desc, " (EAC3)"))
+			strncat(current_PIDs.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
 
 	if ( has_unresolved_ctags )
@@ -544,6 +547,8 @@ void CRemoteControl::processAPIDnames()
 									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (AAC)"))
 									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
+								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (EAC3)"))
+									strncat(current_PIDs.APIDs[j].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 							}
 							current_PIDs.APIDs[j].component_tag = -1;
 							break;

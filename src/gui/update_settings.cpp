@@ -22,7 +22,7 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
-	You should have received a copy of the GNU Library General Public
+	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
@@ -35,9 +35,11 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <mymenu.h>
 #include <neutrino_menue.h>
-#include "update_settings.h"
-#include "filebrowser.h"
+#include <gui/filebrowser.h>
+#include <gui/update_ext.h>
+#include <gui/update_settings.h>
 #include <gui/widget/icons.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>
@@ -66,6 +68,21 @@ const CMenuOptionChooser::keyval FLASHUPDATE_UPDATEMODE_OPTIONS[FLASHUPDATE_UPDA
 	{ 1, LOCALE_FLASHUPDATE_UPDATEMODE_INTERNET }
 };
 
+#define SOFTUPDATE_NAME_MODE1_OPTION_COUNT 3
+const CMenuOptionChooser::keyval SOFTUPDATE_NAME_MODE1_OPTIONS[SOFTUPDATE_NAME_MODE1_OPTION_COUNT] =
+{
+	{ CExtUpdate::SOFTUPDATE_NAME_DEFAULT,       LOCALE_FLASHUPDATE_NAMEMODE1_DEFAULT       },
+	{ CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME, LOCALE_FLASHUPDATE_NAMEMODE1_HOSTNAME_TIME },
+	{ CExtUpdate::SOFTUPDATE_NAME_ORGNAME_TIME,  LOCALE_FLASHUPDATE_NAMEMODE1_ORGNAME_TIME  }
+};
+
+#define SOFTUPDATE_NAME_MODE2_OPTION_COUNT 2
+const CMenuOptionChooser::keyval SOFTUPDATE_NAME_MODE2_OPTIONS[SOFTUPDATE_NAME_MODE2_OPTION_COUNT] =
+{
+	{ CExtUpdate::SOFTUPDATE_NAME_DEFAULT,       LOCALE_FLASHUPDATE_NAMEMODE2_DEFAULT       },
+	{ CExtUpdate::SOFTUPDATE_NAME_HOSTNAME_TIME, LOCALE_FLASHUPDATE_NAMEMODE2_HOSTNAME_TIME }
+};
+
 int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init software-update settings\n");
@@ -76,7 +93,7 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if(actionKey == "update_dir") {
 		const char *action_str = "update";
-		if(chooserDir(g_settings.update_dir, true, action_str, sizeof(g_settings.update_dir)-1))
+		if(chooserDir(g_settings.update_dir, true, action_str, sizeof(g_settings.update_dir)-1,true))
 			printf("[neutrino] new %s dir %s\n", action_str, g_settings.update_dir);
 
 		return res;
@@ -103,56 +120,48 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 /* init options for software update */
 int CUpdateSettings::initMenu()
 {
-	CMenuWidget w_upsettings(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE_SETTINGS);
+	COnOffNotifier* OnOffNotifier = new COnOffNotifier(0);
 
+	CMenuWidget w_upsettings(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE_SETTINGS);
 	w_upsettings.addIntroItems(LOCALE_FLASHUPDATE_SETTINGS);
 
-#if 0
-#ifdef USE_SMS_INPUT
-	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_mode, g_settings.softupdate_url_file, input_url_file, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-#else
-	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_mode, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-#endif
-	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, !g_settings.softupdate_mode, g_settings.update_dir , this, "update_dir", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-
-	CUrlConfigSetupNotifier url_setup_notifier(fw_url, fw_update_dir, updateItem);
-
-	CMenuOptionChooser *oj_mode 	= new CMenuOptionChooser(LOCALE_FLASHUPDATE_UPDATEMODE, &g_settings.softupdate_mode, FLASHUPDATE_UPDATEMODE_OPTIONS, FLASHUPDATE_UPDATEMODE_OPTION_COUNT, true, &url_setup_notifier);
-#endif
-
 	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+//	fw_url->setHint("", LOCALE_MENU_HINT_XXX);
 	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-#if 0
-	w_upsettings.addItem(oj_mode, true);
-	w_upsettings.addItem(GenericMenuSeparatorLine);
+//	fw_update_dir->setHint("", LOCALE_MENU_HINT_XXX);
+	CMenuOptionChooser *name_backup = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE2, &g_settings.softupdate_name_mode_backup, SOFTUPDATE_NAME_MODE2_OPTIONS, SOFTUPDATE_NAME_MODE2_OPTION_COUNT, true);
+//	name_backup->setHint("", LOCALE_MENU_HINT_XXX);
+
+#ifndef BOXMODEL_APOLLO
+	CMenuOptionChooser *apply_settings = new CMenuOptionChooser(LOCALE_FLASHUPDATE_MENU_APPLY_SETTINGS, &g_settings.apply_settings, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, OnOffNotifier);
+//	apply_settings->setHint("", LOCALE_MENU_HINT_XXX);
+
+	CMenuOptionChooser *name_apply = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE1, &g_settings.softupdate_name_mode_apply, SOFTUPDATE_NAME_MODE1_OPTIONS, SOFTUPDATE_NAME_MODE1_OPTION_COUNT, g_settings.apply_settings);
+//	name_apply->setHint("", LOCALE_MENU_HINT_XXX);
+	OnOffNotifier->addItem(name_apply);
 #endif
+
+#if 0
+	CMenuOptionChooser *apply_kernel = new CMenuOptionChooser(LOCALE_FLASHUPDATE_MENU_APPLY_KERNEL, &g_settings.apply_kernel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.apply_settings);
+//	apply_kernel->setHint("", LOCALE_MENU_HINT_XXX);
+	OnOffNotifier->addItem(apply_kernel);
+#endif
+
 	w_upsettings.addItem(fw_update_dir);
 	w_upsettings.addItem(fw_url);
+	w_upsettings.addItem(name_backup);
+#ifndef BOXMODEL_APOLLO
+	w_upsettings.addItem(GenericMenuSeparatorLine);
+	w_upsettings.addItem(apply_settings);
+	w_upsettings.addItem(name_apply);
+#endif
+
+#if 0
+	w_upsettings.addItem(apply_kernel);
+#endif
 
 	int res = w_upsettings.exec (NULL, "");
+	delete OnOffNotifier;
 
 	return res;
 }
-
-#if 0
-CUrlConfigSetupNotifier::CUrlConfigSetupNotifier( CMenuItem* i1, CMenuItem* i2, CMenuForwarder * f1)
-{
-	toDisable[0] = i1;
-	toDisable[1] = i2;
-	updateItem   = f1;
-}
-
-bool CUrlConfigSetupNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	if (g_settings.softupdate_mode){
-		toDisable[0]->setActive(true);
-		toDisable[1]->setActive(false);
-		updateItem->setTextLocale(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET);
-	}else{
-		toDisable[0]->setActive(false);
-		toDisable[1]->setActive(true);
-		updateItem->setTextLocale(LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL);
-	}
-	return false;
-}
-#endif

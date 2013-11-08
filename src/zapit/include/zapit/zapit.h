@@ -6,6 +6,7 @@
 #define __zapit_h__
 
 #include <OpenThreads/Thread>
+#include <OpenThreads/ReentrantMutex>
 #include <configfile.h>
 #include <eventserver.h>
 #include <connection/basicserver.h>
@@ -21,8 +22,8 @@
 
 #define PAL	0
 #define NTSC	1
-#define AUDIO_CONFIG_FILE "/var/tuxbox/config/zapit/audio.conf"
-#define VOLUME_CONFIG_FILE "/var/tuxbox/config/zapit/volume.conf"
+#define AUDIO_CONFIG_FILE	CONFIGDIR "/zapit/audio.conf"
+#define VOLUME_CONFIG_FILE	CONFIGDIR "/zapit/volume.conf"
 
 typedef std::map<t_channel_id, audio_map_set_t> audio_map_t;
 typedef audio_map_t::iterator audio_map_iterator_t;
@@ -70,7 +71,8 @@ typedef struct Zapit_config {
         int highVoltage;
         int motorRotationSpeed;
         int uni_scr;
-        int uni_qrg;
+	int uni_qrg;       /* the unicable frequency in MHz */
+	int uni_lnb;       /* the input (0/1) of a twin-position switch */
 } t_zapit_config;
 
 
@@ -101,7 +103,7 @@ class CZapit : public OpenThreads::Thread
 			RECORD_MODE = 0x04
 		};
 
-		OpenThreads::Mutex	mutex;
+		OpenThreads::ReentrantMutex	mutex;
 		bool started;
 		bool event_mode;
 		bool firstzap;
@@ -131,11 +133,14 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
+		t_channel_id pip_channel_id;
+		t_channel_id lock_channel_id;
 		/* scan params */
 		TP_params TP;
 		fast_scan_type_t scant;
 
 		CFrontend * live_fe;
+		CFrontend * pip_fe;
 
 		audio_map_t audio_map;
 		volume_map_t vol_map;
@@ -154,7 +159,7 @@ class CZapit : public OpenThreads::Thread
 		void RestoreChannelPids(CZapitChannel* channel);
 		//void ConfigFrontend();
 
-		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change);
+		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change, bool send_event = true);
 		bool ParsePatPmt(CZapitChannel * channel);
 
 		bool send_data_count(int connfd, int data_count);
@@ -208,6 +213,7 @@ class CZapit : public OpenThreads::Thread
 		bool ParseCommand(CBasicMessage::Header &rmsg, int connfd);
 		bool ZapIt(const t_channel_id channel_id, bool for_update = false, bool startplayback = true);
 		bool ZapForRecord(const t_channel_id channel_id);
+		bool ZapForEpg(const t_channel_id channel_id, bool standby);
 		bool ChangeAudioPid(uint8_t index);
 		void SetRadioMode();
 		void SetTVMode();
@@ -239,16 +245,23 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * GetCurrentChannel() { return current_channel; };
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
+		t_channel_id GetPipChannelID() { return pip_channel_id; };
 		t_channel_id GetLastTVChannel() { return lastChannelTV; }
 		t_channel_id GetLastRADIOChannel() { return lastChannelRadio; }
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
 		CFrontend * GetLiveFrontend() { return live_fe; };
+		CFrontend * GetPipFrontend() { return pip_fe; };
 
 		int GetPidVolume(t_channel_id channel_id, int pid, bool ac3 = false);
 		void SetPidVolume(t_channel_id channel_id, int pid, int percent);
 		void SetVolume(int vol);
 		int GetVolume() { return current_volume; };
 		int SetVolumePercent(int percent);
+		bool StartPip(const t_channel_id channel_id);
+		bool StopPip();
+		void Lock() { mutex.lock(); }
+		void Unlock() { mutex.unlock(); }
+		void EnablePlayback(bool enable) { playbackStopForced = !enable; }
 };
 #endif /* __zapit_h__ */

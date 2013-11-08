@@ -41,6 +41,7 @@
 #include <gui/moviebrowser.h>
 #include <gui/movieinfo.h>
 #include <gui/widget/hintbox.h>
+#include <gui/timeosd.h>
 #include <driver/record.h>
 #include <playback.h>
 
@@ -60,7 +61,7 @@ class CMoviePlayerGui : public CMenuTarget
 		    PLAY        =  3,
 		    PAUSE       =  4,
 		    FF          =  5,
-		    REW         =  6,
+		    REW         =  6
 		};
 
  private:
@@ -74,6 +75,9 @@ class CMoviePlayerGui : public CMenuTarget
 	CMoviePlayerGui::state playstate;
 	int speed;
 	int startposition;
+	int position;
+	int duration;
+	CTimeOSD FileTime;
 
 	unsigned short numpida;
 	unsigned short vpid;
@@ -83,8 +87,20 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short ac3flags[REC_MAX_APIDS];
 	unsigned short currentapid, currentac3;
 
+	/* subtitles vars */
+	unsigned short numsubs;
+	std::string    slanguage[REC_MAX_APIDS];
+	unsigned short spids[REC_MAX_APIDS];
+	unsigned short sub_supported[REC_MAX_APIDS];
+	int currentspid;
+	int min_x, min_y, max_x, max_y;
+	time_t end_time;
+
 	/* playback from MB */
 	bool isMovieBrowser;
+	bool isHTTP;
+	bool isUPNP;
+	bool showStartingHint;
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
@@ -109,16 +125,24 @@ class CMoviePlayerGui : public CMenuTarget
 	void restoreNeutrino();
 
 	void showHelpTS(void);
-	void callInfoViewer(const int duration, const int pos);
+	void callInfoViewer(/*const int duration, const int pos*/);
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
 	void selectAudioPid(bool file_player);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
-	void addAudioFormat(int count, std::string &apidtitle, bool file_player, bool& enabled );
+	void addAudioFormat(int count, std::string &apidtitle, bool& enabled );
 
 	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
 	bool SelectFile();
 	void updateLcd();
+
+	void selectSubtitle();
+	void showSubtitle(neutrino_msg_data_t data);
+	void clearSubtitle();
+	void selectChapter();
+
+	void Cleanup();
+	static void *ShowStartHint(void *arg);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
@@ -131,8 +155,13 @@ class CMoviePlayerGui : public CMenuTarget
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
 	std::string CurrentAudioName() { return currentaudioname; };
+	int GetSpeed() { return speed; }
+	int GetPosition() { return position; }
+	int GetDuration() { return duration; }
+	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
+	void SetFile(std::string &name, std::string &file) { file_name = name; full_name = file; }
 };
 
 #endif

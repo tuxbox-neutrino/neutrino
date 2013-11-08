@@ -71,6 +71,7 @@
 #define NEUTRINO_LEAVE_DEEPSTANDBY_SCRIPT	CONFIGDIR "/deepstandby.off"
 #define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
 #define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
+#define NEUTRINO_ENTER_FLASH_SCRIPT	CONFIGDIR "/flash.start"
 
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
@@ -86,8 +87,9 @@ NEUTRINO_CPP  CSectionsdClient	*g_Sectionsd;
 NEUTRINO_CPP  CTimerdClient	*g_Timerd;
 
 NEUTRINO_CPP  FBFontRenderClass	*g_fontRenderer;
+NEUTRINO_CPP  FBFontRenderClass	*g_dynFontRenderer;
 
-NEUTRINO_CPP  Font * g_Font[FONT_TYPE_COUNT];
+NEUTRINO_CPP  Font * g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
 NEUTRINO_CPP  Font * g_SignalFont;
 
 NEUTRINO_CPP  CRCInput		*g_RCInput;
@@ -99,5 +101,9 @@ NEUTRINO_CPP  CNeutrinoEventList		*g_EventList;
 NEUTRINO_CPP CLocaleManager	*g_Locale;
 NEUTRINO_CPP CVideoSettings	*g_videoSettings;
 NEUTRINO_CPP CRadioText		*g_Radiotext;
+
+#ifndef DISABLE_GUI_MOUNT
+#define ENABLE_GUI_MOUNT
+#endif
 
 #endif /* __neutrino_global_h__ */

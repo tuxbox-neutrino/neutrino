@@ -88,7 +88,7 @@ void DText::init()
 void DText::draw(CFBWindow *window, int x, int y, int width)
 {
 	window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], x, y + m_height, width,
-						 m_text.c_str(), (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
+						 m_text.c_str(), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 }
 
 void DText::print(void)
@@ -136,7 +136,7 @@ void DPagebreak::draw(CFBWindow */*window*/, int /*x*/, int /*y*/, int /*width*/
 {
 // 	window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU],
 // 						 x, y + m_height, width, "<pagebreak>",
-// 						 (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
+// 						 COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 }
 
 void DPagebreak::print(void)

@@ -28,6 +28,7 @@
 #include <OpenThreads/Mutex>
 #include <zapit/channel.h>
 #include <dvbsi++/ca_program_map_section.h>
+#include <dmx_cs.h>
 
 #define DEMUX_DECODE_0 1
 #define DEMUX_DECODE_1 2
@@ -40,6 +41,7 @@
 #define LIVE_DEMUX	0
 #define STREAM_DEMUX	1
 #define RECORD_DEMUX	2
+#define PIP_DEMUX	3
 
 
 class CCam : public CBasicClient
@@ -47,7 +49,7 @@ class CCam : public CBasicClient
 	private:
 		virtual unsigned char getVersion(void) const;
 		virtual const char *getSocketName(void) const;
-		int camask, demuxes[3];
+		int camask, demuxes[MAX_DMX_UNITS];
 		int source_demux;
 		uint8_t cabuf[2048];
 		int calen;
@@ -84,7 +86,8 @@ class CCamManager
 		enum runmode {
 			PLAY,
 			RECORD,
-			STREAM
+			STREAM,
+			PIP
 		};
 	private:
 		cammap_t		channel_map;

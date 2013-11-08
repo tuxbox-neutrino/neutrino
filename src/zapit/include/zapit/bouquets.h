@@ -57,6 +57,8 @@ class CZapitBouquet
 	CZapitChannel* getChannelByChannelID(const t_channel_id channel_id, const unsigned char serviceType = ST_RESERVED);
 	void sortBouquet(void);
 	void sortBouquetByNumber(void);
+	bool getTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+	bool getRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 };
 
 typedef vector<CZapitBouquet *> BouquetList;
@@ -110,12 +112,12 @@ class CBouquetManager
 		CZapitBouquet* addBouquet(const std::string & name, bool ub = false, bool myfav = false);
 		void deleteBouquet(const unsigned int id);
 		void deleteBouquet(const CZapitBouquet* bouquet);
-		int  existsBouquet(char const * const name);
+		int  existsBouquet(char const * const name, bool ignore_user = false);
 		int  existsUBouquet(char const * const name, bool myfav = false);
 		void moveBouquet(const unsigned int oldId, const unsigned int newId);
 		bool existsChannelInBouquet(unsigned int bq_id, const t_channel_id channel_id);
 
-		void clearAll();
+		void clearAll(bool user = true);
 
 		void sortBouquets(void);
 };

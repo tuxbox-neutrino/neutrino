@@ -2,6 +2,8 @@
 |	Neutrino-GUI  -   DBoxII-Project
 |
 |	Copyright (C) 2004 by Sanaia <sanaia at freenet dot de>
+|	Copyright (C) 2010-2013 Stefan Seyfried
+|
 |	netfile - remote file access mapper
 |
 |
@@ -338,6 +340,7 @@ int request_file(URL *url)
 	char str[255], *ptr;
 	int slot;
 	ID3 id3;
+	memset(&id3, 0, sizeof(ID3));
 
 	/* get the cache slot for this stream. A negative return value */
 	/* indicates that no cache has been set up for this stream */
@@ -400,7 +403,7 @@ int request_file(URL *url)
 				/* if we have a entity, announce it to the server */
 				if(url->entity[0])
 				{
-					snprintf(str, sizeof(str)-1, "Content-Length: %d\r\n", strlen(url->entity));
+					snprintf(str, sizeof(str)-1, "Content-Length: %d\r\n", (int)strlen(url->entity));
 					dprintf(stderr, "> %s", str);
 					send(url->fd, str, strlen(str), 0);
 				}
@@ -419,16 +422,20 @@ int request_file(URL *url)
 
 				if(meta_int)
 				{
-					/* hook in the filter function if there is meta */
-					/* data present in the stream */
-					cache[slot].filter_arg = ShoutCAST_InitFilter(meta_int);
-					cache[slot].filter = ShoutCAST_MetaFilter;
+					if (slot < 0){
+						dprintf(stderr, "error: meta_int != 0 && slot < 0");
+					}else{
+						/* hook in the filter function if there is meta */
+						/* data present in the stream */
+						cache[slot].filter_arg = ShoutCAST_InitFilter(meta_int);
+						cache[slot].filter = ShoutCAST_MetaFilter;
 
-					/* this is a *really bad* way to pass along the argument, */
-					/* since we convert the integer into a pointer instead of */
-					/* passing along a pointer/reference !*/
-					if(cache[slot].filter_arg->state)
-						memmove(cache[slot].filter_arg->state, &tmp, sizeof(CSTATE));
+						/* this is a *really bad* way to pass along the argument, */
+						/* since we convert the integer into a pointer instead of */
+						/* passing along a pointer/reference !*/
+						if(cache[slot].filter_arg->state)
+							memmove(cache[slot].filter_arg->state, &tmp, sizeof(CSTATE));
+					}
 				}
 
 				/* push the created ID3 header into the stream cache */
@@ -1671,6 +1678,8 @@ int f_status(FILE *stream, void (*cb)(void*))
 
 	/* lookup the stream ID in the cache table */
 	i = getCacheSlot(stream);
+	if (i < 0)
+		return -1;
 
 	if(cache[i].fd == stream)
 	{

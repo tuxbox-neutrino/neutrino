@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2012-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -58,6 +52,7 @@
 #include <gui/movieplayer.h>
 #include <system/helpers.h>
 #include <daemonc/remotecontrol.h>
+#include <driver/volume.h>
 
 #include <zapit/femanager.h>
 #include <zapit/zapit.h>
@@ -68,7 +63,6 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
 
 //#define SHOW_RADIOTEXT_ICON
-#define COL_INFOBAR_BUTTONS            (COL_INFOBAR_SHADOW + 1)
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
 
 CInfoViewerBB::CInfoViewerBB()
@@ -112,6 +106,14 @@ void CInfoViewerBB::Init()
 
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		tmp_bbButtonInfoText[i] = "";
+		bbButtonInfo[i].x   = -1;
+	}
+
+	// get HDD info in a separate thread
+	if (g_settings.infobar_show_sysfs_hdd && !hddperTflag) {
+		hddperTflag=true;
+		pthread_create(&hddperT, NULL, hddperThread, (void*) this);
+		pthread_detach(hddperT);
 	}
 
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
@@ -126,9 +128,10 @@ CInfoViewerBB::~CInfoViewerBB()
 		pthread_cancel(scrambledT);
 		scrambledT = 0;
 	}
-	if(hddperT) {
+	if(hddperTflag) {
 		pthread_cancel(hddperT);
 		hddperT = 0;
+		hddperTflag = false;
 	}
 }
 
@@ -193,11 +196,8 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_SCRAMBLED2, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_TUNER:
-			if (CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_SINGLE) {
-				if (g_settings.infobar_show_tuner == 1) {
-					iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
-				}
-			}
+			if (CFEManager::getInstance()->getEnabledCount() > 1 && g_settings.infobar_show_tuner == 1)
+				iconView = checkBBIcon(NEUTRINO_ICON_TUNER_1, &w, &h);
 			break;
 		default:
 			break;
@@ -276,7 +276,7 @@ void CInfoViewerBB::getBBButtonInfo()
 	minX = std::min(bbIconMinX, g_InfoViewer->ChanInfoX + (((g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX) * 75) / 100));
 	int MaxBr = minX - (g_InfoViewer->ChanInfoX + 10);
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
-	int br = 0;
+	int br = 0, count = 0;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		if ((i == CInfoViewerBB::BUTTON_SUBS) && (g_RemoteControl->subChannels.empty())) { // no subchannels
 			bbButtonInfo[i].paint = false;
@@ -284,15 +284,17 @@ void CInfoViewerBB::getBBButtonInfo()
 //			continue;
 		}
 		else
+		{
+			count++;
 			bbButtonInfo[i].paint = true;
-		br += bbButtonInfo[i].w;
-		bbButtonInfo[i].x = bbButtonMaxX;
-		bbButtonMaxX += bbButtonInfo[i].w;
-		bbButtonMaxW = std::max(bbButtonMaxW, bbButtonInfo[i].w);
+			br += bbButtonInfo[i].w;
+			bbButtonInfo[i].x = bbButtonMaxX;
+			bbButtonMaxX += bbButtonInfo[i].w;
+			bbButtonMaxW = std::max(bbButtonMaxW, bbButtonInfo[i].w);
+		}
 	}
-	if (br > MaxBr) { // TODO: Cut to long strings
-		printf("[infoviewer.cpp - %s, line #%d] width ColorButtons (%d) > MaxBr (%d)\n", __FUNCTION__, __LINE__, br, MaxBr);
-	}
+	if (br > MaxBr)
+		printf("[infoviewer_bb:%s#%d] width br (%d) > MaxBr (%d) count %d\n", __func__, __LINE__, br, MaxBr, count);
 #if 0
 	int Btns = 0;
 	// counting buttons
@@ -321,14 +323,25 @@ void CInfoViewerBB::getBBButtonInfo()
 								bbButtonInfo[CInfoViewerBB::BUTTON_AUDIO].w + rest;
 	}
 #endif
-#if 1
 	bbButtonMaxX = g_InfoViewer->ChanInfoX + 10;
 	int step = MaxBr / 4;
-	bbButtonInfo[CInfoViewerBB::BUTTON_EPG].x   = bbButtonMaxX;
-	bbButtonInfo[CInfoViewerBB::BUTTON_AUDIO].x = bbButtonMaxX + step;
-	bbButtonInfo[CInfoViewerBB::BUTTON_SUBS].x  = bbButtonMaxX + 2*step;
-	bbButtonInfo[CInfoViewerBB::BUTTON_FEAT].x  = bbButtonMaxX + 3*step;
-#endif
+	if (count > 0) { /* avoid div-by-zero :-) */
+		step = MaxBr / count;
+		count = 0;
+		for (int i = 0; i < BUTTON_MAX; i++) {
+			if (!bbButtonInfo[i].paint)
+				continue;
+			bbButtonInfo[i].x = bbButtonMaxX + step * count;
+			// printf("%s: i = %d count = %d b.x = %d\n", __func__, i, count, bbButtonInfo[i].x);
+			count++;
+		}
+	} else {
+		printf("[infoviewer_bb:%s#%d: count <= 0???\n", __func__, __LINE__);
+		bbButtonInfo[BUTTON_EPG].x   = bbButtonMaxX;
+		bbButtonInfo[BUTTON_AUDIO].x = bbButtonMaxX + step;
+		bbButtonInfo[BUTTON_SUBS].x  = bbButtonMaxX + 2*step;
+		bbButtonInfo[BUTTON_FEAT].x  = bbButtonMaxX + 3*step;
+	}
 }
 
 void CInfoViewerBB::showBBButtons(const int modus)
@@ -337,6 +350,14 @@ void CInfoViewerBB::showBBButtons(const int modus)
 		return;
 	int i;
 	bool paint = false;
+
+	if (g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_LEFT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_RIGHT || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_BOTTOM_CENTER || 
+	    g_settings.volume_pos == CVolumeBar::VOLUMEBAR_POS_HIGHER_CENTER)
+		g_InfoViewer->isVolscale = CVolume::getInstance()->hideVolscale();
+	else
+		g_InfoViewer->isVolscale = false;
 
 	getBBButtonInfo();
 	for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
@@ -347,16 +368,25 @@ void CInfoViewerBB::showBBButtons(const int modus)
 	}
 
 	if (paint) {
-		frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, minX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
-		for (i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
+		int last_x = minX;
+		frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, minX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_LARGE, CORNER_BOTTOM); //round
+		for (i = BUTTON_MAX; i > 0;) {
+			--i;
 			if ((bbButtonInfo[i].x <= g_InfoViewer->ChanInfoX) || (bbButtonInfo[i].x >= g_InfoViewer->BoxEndX) || (!bbButtonInfo[i].paint))
 				continue;
-			if ((bbButtonInfo[i].x > 0) && ((bbButtonInfo[i].x + bbButtonInfo[i].w) <= minX)) {
-				
+			if (bbButtonInfo[i].x > 0) {
+				if (bbButtonInfo[i].x + bbButtonInfo[i].w > last_x) /* text too long */
+					bbButtonInfo[i].w = last_x - bbButtonInfo[i].x;
+				last_x = bbButtonInfo[i].x;
+				if (bbButtonInfo[i].w - bbButtonInfo[i].cx <= 0) {
+					printf("[infoviewer_bb:%d cannot paint icon %d (not enough space)\n",
+							__LINE__, i);
+					continue;
+				}
 				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY, 
-				       bbButtonInfo[i].w - bbButtonInfo[i].cx, bbButtonInfo[i].text, COL_INFOBAR_BUTTONS, 0, true); // UTF-8
+				       bbButtonInfo[i].w - bbButtonInfo[i].cx, bbButtonInfo[i].text, COL_INFOBAR_TEXT, 0, true); // UTF-8
 			}
 		}
 
@@ -367,6 +397,8 @@ void CInfoViewerBB::showBBButtons(const int modus)
 			tmp_bbButtonInfoText[i] = bbButtonInfo[i].text;
 		}
 	}
+	if (g_InfoViewer->isVolscale)
+		CVolume::getInstance()->showVolscale();
 }
 
 void CInfoViewerBB::showBBIcons(const int modus, const std::string & icon)
@@ -392,7 +424,7 @@ void CInfoViewerBB::paintshowButtonBar()
 	if (g_settings.casystem_display < 2)
 		paintCA_bar(0,0);
 
-	frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
+	frameBuffer->paintBoxRel(g_InfoViewer->ChanInfoX, BBarY, g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_LARGE, CORNER_BOTTOM); //round
 
 	g_InfoViewer->showSNR();
 
@@ -481,6 +513,8 @@ void CInfoViewerBB::showIcon_16_9()
 void CInfoViewerBB::showIcon_Resolution()
 {
 	if ((!is_visible) || (g_settings.infobar_show_res == 2)) //show resolution icon is off
+		return;
+	if (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio)
 		return;
 	const char *icon_name = NULL;
 #if 0
@@ -575,10 +609,19 @@ void CInfoViewerBB::showOne_CAIcon()
 
 void CInfoViewerBB::showIcon_Tuner()
 {
+	if (CFEManager::getInstance()->getEnabledCount() <= 1 || !g_settings.infobar_show_tuner)
+		return;
+
 	std::string icon_name;
 	switch (CFEManager::getInstance()->getLiveFE()->getNumber()) {
 		case 1:
 			icon_name = NEUTRINO_ICON_TUNER_2;
+			break;
+		case 2:
+			icon_name = NEUTRINO_ICON_TUNER_3;
+			break;
+		case 3:
+			icon_name = NEUTRINO_ICON_TUNER_4;
 			break;
 		case 0:
 		default:
@@ -593,17 +636,10 @@ void CInfoViewerBB::showSysfsHdd()
 	if (g_settings.infobar_show_sysfs_hdd) {
 		//sysFS info
 		int percent = 0;
-		long t, u;
+		uint64_t t, u;
 		if (get_fs_usage("/", t, u))
-			percent = (u * 100ULL) / t;
+			percent = (int)((u * 100ULL) / t);
 		showBarSys(percent);
-
-		//HDD info in a seperate thread
-		if(!hddperTflag) {
-			hddperTflag=true;
-			pthread_create(&hddperT, NULL, hddperThread, (void*) this);
-			pthread_detach(hddperT);
-		}
 
 		if (check_dir(g_settings.network_nfs_recordingdir) == 0)
 			showBarHdd(hddpercent);
@@ -615,28 +651,32 @@ void CInfoViewerBB::showSysfsHdd()
 void* CInfoViewerBB::hddperThread(void *arg)
 {
 	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
-
-	infoViewerBB->hddpercent = 0;
-	long t, u;
+	uint64_t t, u;
 	if (get_fs_usage(g_settings.network_nfs_recordingdir, t, u))
-		infoViewerBB->hddpercent = (u * 100ULL) / t;
-
+		infoViewerBB->hddpercent = (int)((u * 100ULL) / t);
+	else
+		infoViewerBB->hddpercent = 0;
 	infoViewerBB->hddperTflag=false;
 	pthread_exit(NULL);
 }
 
 void CInfoViewerBB::showBarSys(int percent)
-{
-	if (is_visible)
-		sysscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6, percent, 100);
+{	
+	if (is_visible){
+		sysscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth, 6);
+		sysscale->setValues(percent, 100);
+		sysscale->paint();
+	}
 }
 
 void CInfoViewerBB::showBarHdd(int percent)
 {
 	if (is_visible) {
-		if (percent >= 0)
-			hddscale->paintProgressBar(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, percent, 100);
-		else {
+		if (percent >= 0){
+			hddscale->setDimensionsAll(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6);
+			hddscale->setValues(percent, 100);
+			hddscale->paint();
+		}else {
 			frameBuffer->paintBoxRel(bbIconMinX, BBarY + InfoHeightY_Info / 2 + 2 + 0, hddwidth, 6, COL_INFOBAR_BUTTONS_BACKGROUND);
 			hddscale->reset();
 		}
@@ -795,12 +835,17 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 void CInfoViewerBB::changePB()
 {
 	hddwidth = frameBuffer->getScreenWidth(true) * ((g_settings.screen_preset == 1) ? 10 : 8) / 128; /* 80(CRT)/100(LCD) pix if screen is 1280 wide */
-	if (hddscale != NULL)
+	if (hddscale)
 		delete hddscale;
-	hddscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
-	if (sysscale != NULL)
+	hddscale = new CProgressBar();
+	hddscale->setBlink();
+	hddscale->setInvert();
+	
+	if (sysscale)
 		delete sysscale;
-	sysscale = new CProgressBar(true, hddwidth, 6, 50, 100, 75, true);
+	sysscale = new CProgressBar();
+	sysscale->setBlink();
+	sysscale->setInvert();
 }
 
 void CInfoViewerBB::reset_allScala()

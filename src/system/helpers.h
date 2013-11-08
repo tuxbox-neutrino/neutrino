@@ -22,24 +22,32 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-int my_system(const char * cmd, const char * arg1, const char * arg2 = NULL, const char * arg3 = NULL, const char * arg4 = NULL, const char * arg5 = NULL, const char * arg6 = NULL);
+#include <stdint.h>
+#include <string>
 
 int my_system(const char * cmd);
+int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 int safe_mkdir(char * path);
+off_t file_size(const char *filename);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
-int check_dir(const char * dir);
-bool get_fs_usage(const char * dir, long &total, long &used);
+int check_dir(const char * dir, bool allow_tmp = false);
+bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
 
+std::string getPathName(std::string &path);
+std::string getBaseName(std::string &path);
+std::string getFileName(std::string &file);
+std::string getFileExt(std::string &file);
+std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
 
 class CFileHelpers
 {
 	private:
-		int FileBufSize;
+		unsigned long FileBufSize;
 		char *FileBuf;
 		int fd1, fd2;
 

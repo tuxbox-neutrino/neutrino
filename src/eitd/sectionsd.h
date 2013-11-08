@@ -55,7 +55,7 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 		bool Stop();
 		void SetConfig(CSectionsdClient::epg_config &cfg) { config = cfg; };
 
-		void getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
+		void getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "", bool all_chann=false);
 		void getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 		bool getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
 		bool getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
@@ -65,6 +65,7 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 		bool getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 		bool getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list);
 		void setLanguages(const std::vector<std::string>& newLanguages);
+		unsigned getEventsCount();
 };
 
 #endif

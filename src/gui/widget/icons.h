@@ -24,6 +24,9 @@
 
 /* icon files */
 
+#define NEUTRINO_ICON_BUTTON_DUMMY		"dummy"
+#define NEUTRINO_ICON_BUTTON_DUMMY_SMALL	"dummy_small"
+
 #define NEUTRINO_ICON_BUTTON_BLUE	"blau"
 #define NEUTRINO_ICON_BUTTON_GREEN	"gruen"
 #define NEUTRINO_ICON_BUTTON_RED	"rot"
@@ -79,6 +82,7 @@
 #define NEUTRINO_ICON_16_9		"16_9"
 #define NEUTRINO_ICON_16_9_GREY		"16_9_gray"
 #define NEUTRINO_ICON_AUDIO		"audio"
+#define NEUTRINO_ICON_AUDIOPLAY		"audioplay"
 #define NEUTRINO_ICON_COLORS		"colors"
 #define NEUTRINO_ICON_DD		"dd"
 #define NEUTRINO_ICON_DD_AVAIL		"dd_avail"
@@ -116,6 +120,8 @@
 #define NEUTRINO_ICON_TIMER		"timer"
 #define NEUTRINO_ICON_TUNER_1		"tuner_1"
 #define NEUTRINO_ICON_TUNER_2		"tuner_2"
+#define NEUTRINO_ICON_TUNER_3		"tuner_3"
+#define NEUTRINO_ICON_TUNER_4		"tuner_4"
 #define NEUTRINO_ICON_UPDATE		"softupdate"
 #define NEUTRINO_ICON_UPNP		"upnp"
 #define NEUTRINO_ICON_VIDEO		"video"
@@ -163,6 +169,7 @@
 #define NEUTRINO_ICON_PERSONALIZE	"personalize"
 #define NEUTRINO_ICON_RECORDING_EVENT_MARKER	"rec_event_marker"
 #define NEUTRINO_ICON_ZAP		"zap"
+#define NEUTRINO_ICON_PIP		"pip"
 
 #define DUMMY_ICON			"dummy"
 
@@ -238,6 +245,7 @@
 #define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
 /* misc */
+#define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
 
 #define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
 

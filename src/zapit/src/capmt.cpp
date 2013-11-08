@@ -3,6 +3,7 @@
  *             thegoodguy         <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
+ * Copyright (C) 2012 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +26,7 @@
 #include <zapit/capmt.h>
 #include <zapit/settings.h> /* CAMD_UDS_NAME         */
 #include <zapit/getservices.h>
+#include <zapit/femanager.h>
 #include <zapit/debug.h>
 
 #include <ca_cs.h>
@@ -37,7 +39,8 @@
 CCam::CCam()
 {
 	camask = 0;
-	demuxes[0] = demuxes[1] = demuxes[2] = 0;
+	for(int i = 0; i < MAX_DMX_UNITS; i++)
+		demuxes[i] = 0;
 	source_demux = -1;
 	calen = 0;
 }
@@ -135,7 +138,8 @@ bool CCam::setCaPmt(bool update)
 
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
 {
-	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask, cabuf, calen, rawpmt, rawlen);
+	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawlen);
 }
 
 int CCam::makeMask(int demux, bool add)
@@ -147,11 +151,11 @@ int CCam::makeMask(int demux, bool add)
 	else if(demuxes[demux] > 0)
 		demuxes[demux]--;
 
-	for(int i = 0; i < 3; i++) {
+	for(int i = 0; i < MAX_DMX_UNITS; i++) {
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}
-	DBG("demuxes %d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], camask, mask);
+	//DBG("demuxes %d:%d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], demuxes[3], camask, mask);
 	return mask;
 }
 
@@ -187,7 +191,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 
 	if(channel == NULL) {
-		printf("CCamManager: channel %llx not found\n", channel_id);
+		printf("CCamManager: channel %" PRIx64 " not found\n", channel_id);
 		return false;
 	}
 	//INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
@@ -204,18 +208,26 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		return false;
 	}
 
+	/* FIXME until proper demux management */
 	switch(mode) {
 		case PLAY:
 			source = DEMUX_SOURCE_0;
 			demux = LIVE_DEMUX;
 			break;
+		case STREAM:
 		case RECORD:
-			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
-			demux = channel->getRecordDemux(); //RECORD_DEMUX;//FIXME
+			source = channel->getRecordDemux();
+			demux = channel->getRecordDemux();
 			break;
+#if 0
 		case STREAM:
 			source = DEMUX_SOURCE_0;
-			demux = STREAM_DEMUX;//FIXME
+			demux = STREAM_DEMUX;
+			break;
+#endif
+		case PIP:
+			source = channel->getRecordDemux();
+			demux = channel->getPipDemux();
 			break;
 	}
 
@@ -228,7 +240,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	if(cam->getSource() > 0)
 		source = cam->getSource();
 
-	INFO("channel %llx [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
+	INFO("channel %" PRIx64 " [%s] mode %d %s src %d mask %d -> %d update %d", channel_id, channel->getName().c_str(),
 			mode, start ? "START" : "STOP", source, oldmask, newmask, force_update);
 	//INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 	if((oldmask != newmask) || force_update) {
@@ -236,6 +248,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->setSource(source);
 		if(newmask == 0) {
 			cam->sendMessage(NULL, 0, false);
+			cam->sendCaPmt(channel->getChannelID(), NULL, 0);
 		} else {
 			cam->makeCaPmt(channel, true);
 			cam->setCaPmt(true);
@@ -271,7 +284,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		cam->makeCaPmt(channel, false, list, caids);
 		int len;
 		unsigned char * buffer = channel->getRawPmt(len);
-		cam->sendCaPmt(channel->getTransponderId(), buffer, len);
+		cam->sendCaPmt(channel->getChannelID(), buffer, len);
 		//list = CCam::CAPMT_MORE;
 	}
 	mutex.unlock();

@@ -51,7 +51,11 @@ check=check
 help=Help
 attention=Attention!
 directory=Directory
+filename=Filename
 restriced_by_management_ip=restricted by ManagementIP
+automatic=automatically
+show=show
+hide=hide
 
 #========= MAIN Menue
 main.live_tv_desc=LiveTV
@@ -86,14 +90,8 @@ bc.menue.remote=Remote
 bc.menue.lcd_screenshot_desc=make lcd screenshot
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot not installed at /bin or /var/bin
-bc.menue.osd_screenshot_desc=make osd screenshot
-bc.menue.osd_screenshot=OSD Screenshot
-bc.menue.osd_screenshot_desc_ni=fbshot not installed at /bin or /var/bin
-bc.menue.tv_screenshot_desc=make tv screenshot
-bc.menue.tv_screenshot=TV Screenshot
-bc.menue.remote_osd_desc=remote and osd
-bc.menue.remote_osd=Remote & OSD
-bc.menue.remote_osd_desc_ni=dboxshot not installed at /bin or /var/bin
+bc.menue.screenshot=Screenshot
+bc.menue.screenshot_desc=make screenshots from OSD and/or TV
 
 bc.menue.decrease_volume=decrease volumen
 bc.menue.increase_volume=increase volumen
@@ -127,15 +125,12 @@ bc.msg.message_to_screen=Message on screen
 bc.msg.popup_to_screen=Message as popup
 bc.msg.send_message=send message
 
-======== Boxcontrol - Remote & OSD
-bc.osd.shot=Shot
-bc.osd.delete_shots=Delete shots
-bc.osd.shap_wait_text=Take Snapshot
-
-======== Boxcontrol - TV-Screenshot
-bc.tv.shot=Shot
-bc.tv.delete_shot=Delete shot
-bc.tv.shap_wait_text=Take Snapshot
+======== Boxcontrol - Screenshot
+bc.screenshot.create=Screenshot
+bc.screenshot.delete=Delete screenshot
+bc.screenshot.zoom=Zoom screenshot
+bc.screenshot.wait_text=Create screenshot
+bc.screenshot.checkenable=OSD and/or TV must be enabled!
 
 ========= Boxcontrol - Others
 bc.channels=Channels
@@ -204,6 +199,8 @@ epg.si.onid=Original Network ID
 epg.si.sid=Service ID
 epg.si.tsid=Transponder Stream ID
 epg.si.vpid=Video PID
+epg.si.pmtpid=Program Map Table PID
+epg.si.pcrpid=Program Clock Reference PID
 epg.si.apid=Audio PID
 epg.si.vtxtpid=Teletext PID
 epg.si.crypt=Crypt systems
@@ -311,6 +308,7 @@ set.nhttpd.active_after_boot=active after boot
 set.nhttpd.port=Port
 set.nhttpd.threading=Threading
 set.nhttpd.alternate_web_folder=Alternate Web-Folder
+set.nhttpd.hosted_folder=Mounted directory
 set.nhttpd.allowed_file_extensions=Allowed File Extensions / MIME
 set.nhttpd.allow_all_file_extensions=Allow all File Extensions
 set.nhttpd.url_of_logos_desc=Enter URL or directory of Logos
@@ -546,3 +544,53 @@ info.check_for_updates=Check for Updates
 info.your_version=Your Version
 info.actual_version=Actual Version
 
+=========Remote control
+rc.key_power=Standby
+rc.key_mute=Mute
+rc.key_1=1
+rc.key_2=2
+rc.key_3=3
+rc.key_4=4
+rc.key_5=5
+rc.key_6=6
+rc.key_7=7
+rc.key_8=8
+rc.key_9=9
+rc.key_0=0
+rc.key_text=Text
+rc.key_favorites=Favorites
+rc.key_volumeup=Vol+
+rc.key_volumedown=Vol-
+rc.key_pageup=Page+
+rc.key_pagedown=Page-
+rc.key_mode=TV/Radio
+rc.key_next=Skip-
+rc.key_previous=Skip+
+rc.key_sleep=Sleep
+rc.key_audio=Audio
+rc.key_help=Help
+rc.key_red=Red
+rc.key_green=Green
+rc.key_yellow=Yellow
+rc.key_blue=Blue
+rc.key_epg=EPG
+rc.key_info=Info
+rc.key_ok=OK
+rc.key_up=Up
+rc.key_down=Down
+rc.key_left=Left
+rc.key_right=Right
+rc.key_setup=Menu
+rc.key_home=Exit
+rc.key_sat=Sat
+rc.key_www=
+rc.key_rewind=Rewind
+rc.key_play=Play
+rc.key_forward=Forward
+rc.key_stop=Stop
+rc.key_record=Record
+rc.key_pause=Pause
+rc.key_games=
+rc.key_time=
+rc.key_picsize=Pic Size
+rc.key_picmode=Pic Mode

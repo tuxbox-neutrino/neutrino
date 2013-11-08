@@ -39,7 +39,7 @@ typedef enum
 {
   CNXTFB_BLEND_MODE_GLOBAL_ALPHA = 0, /* Global / Region Alpha */
   CNXTFB_BLEND_MODE_PIXEL_ALPHA,      /* Alpha from pixel */
-  CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED, /* Global alpha multiplied with pixel alpha */
+  CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED /* Global alpha multiplied with pixel alpha */
 } CNXTFB_BLEND_MODE;
 
 #define CNXTFB_IO(type)            _IO('F', type)

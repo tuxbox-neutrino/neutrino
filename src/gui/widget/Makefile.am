@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
-INCLUDES = \
+AM_CPPFLAGS += \
 	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
@@ -11,18 +11,22 @@ INCLUDES = \
 	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
-INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+if BOXMODEL_APOLLO
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
+else
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
 endif
-if BOXTYPE_TRIPLE
-INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 
-noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a 
+if BOXTYPE_TRIPLE
+AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
+endif
+
+noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a
 
 libneutrino_gui_widget_a_SOURCES = \
 	buttons.cpp \
 	colorchooser.cpp \
-	components.cpp \
 	drawable.cpp \
 	helpbox.cpp \
 	hintbox.cpp \
@@ -34,7 +38,6 @@ libneutrino_gui_widget_a_SOURCES = \
 	messagebox.cpp \
 	mountchooser.cpp \
 	msgbox.cpp \
-	progressbar.cpp \
 	stringinput.cpp \
 	stringinput_ext.cpp \
 	textbox.cpp

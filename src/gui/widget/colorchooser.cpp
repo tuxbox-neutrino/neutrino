@@ -99,14 +99,15 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 
 void CColorChooser::setColor()
 {
+	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, getColor());
+}
+
+fb_pixel_t CColorChooser::getColor()
+{
 	int color = convertSetupColor2RGB(*(value[VALUE_R]), *(value[VALUE_G]), *(value[VALUE_B]));
-	int tAlpha = (value[VALUE_ALPHA]) ? (convertSetupAlpha2Alpha(*(value[VALUE_ALPHA]))) : 0;
+	int tAlpha = (value[VALUE_ALPHA]) ? (convertSetupAlpha2Alpha(*(value[VALUE_ALPHA]))) : 0xFF;
 
-	if(!value[VALUE_ALPHA]) tAlpha = 0xFF;
-
-	fb_pixel_t col = ((tAlpha << 24) & 0xFF000000) | color;
-		//((tAlpha << 24) & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >> 16) & 0xFF);
-	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, col);
+	return (((tAlpha << 24) & 0xFF000000) | color);
 }
 
 int CColorChooser::exec(CMenuTarget* parent, const std::string &)
@@ -121,12 +122,13 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 	unsigned char r_alt= *value[VALUE_R];
 	unsigned char g_alt= *value[VALUE_G];
 	unsigned char b_alt= *value[VALUE_B];
-	unsigned char a_alt = (value[VALUE_ALPHA]) ? (*(value[VALUE_ALPHA])) : 0;
+	unsigned char a_null = 0;
+	unsigned char a_alt = (value[VALUE_ALPHA]) ? (*(value[VALUE_ALPHA])) : a_null;
 
 	paint();
 	setColor();
 
-	int selected = 0;
+	int  selected = 0;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 			::TIMING_MENU]);
@@ -245,7 +247,7 @@ void CColorChooser::paint()
 {
 	//frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0);
 	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, RADIUS_MID, CORNER_TOP); //round
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD_TEXT, 0, true); // UTF-8
 	//frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);//round
 
@@ -265,5 +267,5 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY,px+offset+10,py+2+mheight/4);
 	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_VOLUMESLIDER2,px+offset+13+(*spos),py+mheight/4);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
 }

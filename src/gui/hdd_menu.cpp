@@ -2,15 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2010-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -191,7 +183,8 @@ int CHDDMenuHandler::doMenu ()
 		if (ret != -1) {
 			if ((int)(s.st_rdev & 0x0ffc0) == root_dev) {
 				isroot = true;
-				printf("-> root device is on this disk, skipping\n");
+				/* dev_t is different sized on different architectures :-( */
+				printf("-> root device is on this disk 0x%04x, skipping\n", (int)s.st_rdev);
 			}
 		}
 		close(fd);
@@ -227,7 +220,7 @@ int CHDDMenuHandler::doMenu ()
 
 		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !removable && !isroot;
 
- 		snprintf(str, sizeof(str), "%s %s %lld %s", vendor, model, megabytes < 10000 ? megabytes : megabytes/1000, megabytes < 10000 ? "MB" : "GB");
+		snprintf(str, sizeof(str), "%s %s %ld %s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes/1000), megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
 		tmp_str[i]=str;
 		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
@@ -292,10 +285,10 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 		if(hdparm_link){
 			//hdparm -M is not included in busybox hdparm!
-			my_system(hdparm, S_opt, opt);
+			my_system(3, hdparm, S_opt, opt);
 		}else{
 			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
-			my_system(hdparm, M_opt, S_opt, opt);
+			my_system(4, hdparm, M_opt, S_opt, opt);
 		}
 		free(namelist[i]);
 	}
@@ -340,7 +333,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	if(res != CMessageBox::mbrYes)
 		return 0;
 
-	bool srun = my_system("killall", "-9", "smbd");
+	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
 	res = check_and_umount(src, dst);
@@ -476,7 +469,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	sleep(2);
 
 	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
-	my_system("/sbin/tune2fs", "-r 0", "-c 0", "-i 0", src);
+	my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
 
 _remount:
 	progress->hide();
@@ -507,10 +500,14 @@ _remount:
 		safe_mkdir((char *) cmd);
 		snprintf(cmd, sizeof(cmd), "%s/music", dst);
 		safe_mkdir((char *) cmd);
+		snprintf(cmd, sizeof(cmd), "%s/logos", dst);
+		safe_mkdir((char *) cmd);
+		snprintf(cmd, sizeof(cmd), "%s/plugins", dst);
+		safe_mkdir((char *) cmd);
 		sync();
 	}
 _return:
-	if(!srun) my_system("smbd",NULL);
+	if (!srun) my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
 }
 
@@ -530,7 +527,7 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 printf("CHDDChkExec: key %s\n", key.c_str());
 
-	bool srun = my_system("killall", "-9", "smbd");
+	bool srun = my_system(3, "killall", "-9", "smbd");
 
 	//res = check_and_umount(dst);
 	res = check_and_umount(src, dst);
@@ -614,6 +611,6 @@ ret1:
         }
 	printf("CHDDChkExec: mount res %d\n", res);
 
-	if(!srun) my_system("smbd",NULL);
+	if (!srun) my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
 }

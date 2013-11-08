@@ -222,7 +222,7 @@ void CNetworkConfig::startNetwork(void)
 #ifdef DEBUG
 	printf("CNetworkConfig::startNetwork: %s\n", cmd.c_str());
 #endif
-	my_system("/bin/sh", "-c", cmd.c_str());
+	my_system(3, "/bin/sh", "-c", cmd.c_str());
 
 	if (!inet_static) {
 		init_vars();
@@ -236,7 +236,7 @@ void CNetworkConfig::stopNetwork(void)
 #ifdef DEBUG
 	printf("CNetworkConfig::stopNetwork: %s\n", cmd.c_str());
 #endif
-	my_system("/bin/sh", "-c", cmd.c_str());
+	my_system(3, "/bin/sh", "-c", cmd.c_str());
 
 }
 

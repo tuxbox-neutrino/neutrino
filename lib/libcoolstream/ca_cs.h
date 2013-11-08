@@ -117,13 +117,13 @@ private:
 	/// Thread method
 	virtual void run(void);
 public:
-	/// Returns the number of CI slots
-	u32 GetNumberCISlots(void);
-	/// Returns the number of Smartcard slots
-	u32 GetNumberSmartCardSlots(void);
+	/// Returns the number of CA slots (CI+SC, CI, SC)
+	u32 GetNumberSlots(enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
+	u32 GetNumberCISlots(void) { return GetNumberSlots(CA_SLOT_TYPE_CI); }
+	u32 GetNumberSmartCardSlots(void) { return GetNumberSlots(CA_SLOT_TYPE_SMARTCARD); }
 	/// Singleton
 	static cCA *GetInstance(void);
-	/// Send PMT to a individual or to all available modules
+	/// Send PMT to a individual or to all available modules (DEPRECATED)
 	bool SendPMT(int Unit, unsigned char *Data, int Len, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
 	/// Sends a message to the CA thread
 	bool SendMessage(const CA_MESSAGE *Msg);
@@ -154,9 +154,9 @@ public:
 	/// Notify the module we closed the menu
 	void MenuClose(enum CA_SLOT_TYPE, u32 Slot);
 	/// Get the supported CAIDs
-	int GetCAIDS(CaIdVector & Caids);
+	int GetCAIDS(CaIdVector & Caids, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
 	/// Send a CA-PMT object and Raw unparsed PMT to the CA layer
-	bool SendCAPMT(u64 Source, u8 DemuxSource, u8 DemuxMask, const unsigned char *CAPMT, u32 CAPMTLen, const unsigned char *RawPMT, u32 RawPMTLen);
+	bool SendCAPMT(u64 Source, u8 DemuxSource, u8 DemuxMask, const unsigned char *CAPMT, u32 CAPMTLen, const unsigned char *RawPMT, u32 RawPMTLen, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
 	/// Virtual destructor
 	virtual ~cCA();
 };

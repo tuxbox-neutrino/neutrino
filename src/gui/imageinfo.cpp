@@ -1,6 +1,9 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
+	Implementation of component classes
+	Copyright (C) 2013, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -14,9 +17,10 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -28,84 +32,56 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
-#include <driver/screen_max.h>
 
 #include <sys/utsname.h>
-
+#include <string>
 #include <daemonc/remotecontrol.h>
-
 #include <system/flashtool.h>
-#include <video.h>
+#include "version.h"
 
-#include "git_version.h"
-#define GIT_DESC "GIT Desc.:"
-#define GIT_REV "GIT Build:"
-extern cVideo * videoDecoder;
+#define LICENSEDIR DATADIR "/neutrino/license/"
+
+using namespace std;
 
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
-CImageInfo::CImageInfo()
+CImageInfo::CImageInfo(): config ('\t')
 {
 	Init();
 }
 
-static const neutrino_locale_t info_items[8] =
-{
-	LOCALE_IMAGEINFO_IMAGE,
-	LOCALE_IMAGEINFO_DATE,
-	LOCALE_IMAGEINFO_VERSION,
-	LOCALE_IMAGEINFO_CREATOR,
-	LOCALE_IMAGEINFO_HOMEPAGE,
-	LOCALE_IMAGEINFO_DOKUMENTATION,
-	LOCALE_IMAGEINFO_FORUM,
-	LOCALE_IMAGEINFO_LICENSE
-};
-
+//init all var members
 void CImageInfo::Init(void)
 {
-	frameBuffer = CFrameBuffer::getInstance();
-
-	font_head   = SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME;;
-	font_small  = SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL;
-	font_info   = SNeutrinoSettings::FONT_TYPE_MENU;
-
-	hheight     = g_Font[font_head]->getHeight();
-	iheight     = g_Font[font_info]->getHeight();
-	sheight     = g_Font[font_small]->getHeight();
-
-	max_width = frameBuffer->getScreenWidth(true);
-	max_height =  frameBuffer->getScreenHeight(true);
-
-	width = frameBuffer->getScreenWidth() - 10;
-	height = frameBuffer->getScreenHeight() - 10;
-	x=getScreenStartX( width );
-	y=getScreenStartY( height );
-	
-	// calculate max width of used LOCALES
-	offset = 0;
-	
-	for (int i = 0; i < 8; i++) {
-		int tmpoffset = g_Font[font_info]->getRenderWidth(g_Locale->getText (info_items[i]));
-		if (tmpoffset > offset) {
-			offset = tmpoffset;
-		}
-	}
-#ifdef GITVERSION
-	int off_tmp = g_Font[font_info]->getRenderWidth(GIT_DESC);
-#else
-	int off_tmp = g_Font[font_info]->getRenderWidth(GIT_REV);
-#endif
-	if(off_tmp > offset)
-		offset  = off_tmp;
-
-	offset = offset + 15;
+	cc_win		= NULL;
+	cc_info 	= NULL;
+	cc_tv		= NULL;
+	cc_lic		= NULL;
+	item_offset	= 10;
+	license_txt	= "";
+	v_info.clear();
+	config.loadConfig("/.version");
 }
 
 CImageInfo::~CImageInfo()
 {
-	videoDecoder->Pig(-1, -1, -1, -1);
+	hide();
+	//deallocate window object, deletes also added cc_items
+	delete cc_win;
+}
+
+void CImageInfo::Clean()
+{
+	//deallocate of the window object causes also deallocate added items,
+	if (cc_win){
+		delete cc_win;
+		//it's important to set here a null pointer
+		cc_win 	= NULL;
+		cc_info = NULL;
+		cc_tv	= NULL;
+		cc_lic	= NULL;
+	}
 }
 
 int CImageInfo::exec(CMenuTarget* parent, const std::string &)
@@ -114,18 +90,13 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 	if (parent)
 		parent->hide();
 
-	width = frameBuffer->getScreenWidth() - 10;
-	height = frameBuffer->getScreenHeight() - 10;
-	x=getScreenStartX( width );
-	y=getScreenStartY( height );
+	//clean up before, because we could have a current instance with already initialized contents
+	Clean();
 
-	paint();
-
-	//paint_pig( width-170, y, 215, 170);
-	paint_pig (width - width/3 - 10, y + 10, width/3, height/3);
+	//init window object, add cc-items and paint all
+	ShowWindow();
 
 	neutrino_msg_t msg;
-
 	while (1)
 	{
 		neutrino_msg_data_t data;
@@ -141,163 +112,250 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
-		else if (msg <= CRCInput::RC_MaxRC)
-		{
+		else if ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_page_up)) {
+			ScrollLic(false);
+		}
+		else if ((msg == CRCInput::RC_down) || (msg == CRCInput::RC_page_down)) {
+			ScrollLic(true);
+		}
+		else if (msg <= CRCInput::RC_MaxRC){
 			break;
 		}
 
-		if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout)
-		{
+		if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout){
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 		}
 	}
 
 	hide();
+	
+	return res;
+}
+
+//contains all actions to init and add the window object and items
+void CImageInfo::ShowWindow()
+{
+	if (cc_win == NULL){
+		cc_win = new CComponentsWindow(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO);
+		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
+	}
+
+	//prepare minitv
+	InitMinitv();
+
+	//prepare infos
+	InitInfos();
+
+	//prepare license text
+	InitInfoText(getLicenseText());
+
+	//paint window
+	cc_win->paint();
+}
+
+//prepare minitv
+void CImageInfo::InitMinitv()
+{
+	//init the minitv object
+	if (cc_tv == NULL)
+		cc_tv = new CComponentsPIP (0, item_offset);
+	
+#if 0 //static assign of dimensions are distorting ratio of mini tv picture
+	//init width and height
+	cc_tv->setWidth(cc_win->getWidth()/3);
+	cc_tv->setHeight(cc_win->getHeight()/3);
+#endif
+
+	//init x pos and use as parameter for setXPos
+	int cc_tv_x = (cc_win->getWidth() - cc_tv->getWidth()) - item_offset;
+	cc_tv->setXPos(cc_tv_x);
+
+	//add minitv to container
+	cc_win->addWindowItem(cc_tv);
+}
+
+//prepare distribution infos
+void CImageInfo::InitInfos()
+{
+	v_info.clear();
+
+#ifdef BUILT_DATE
+	const char * builddate = BUILT_DATE;
+#else
+	const char * builddate = config.getString("builddate", "n/a").c_str();
+#endif
+
+	std::string version_string;
+#ifdef IMAGE_VERSION
+	version_string = IMAGE_VERSION;
+#else
+	const char * _version = config.getString("version", "U000000000000000").c_str();
+	static CFlashVersionInfo versionInfo(_version);
+
+	version_string = versionInfo.getReleaseCycle();
+	version_string += " ";
+	version_string += versionInfo.getType();
+	version_string += " (";
+	version_string += versionInfo.getDate();
+	version_string += ")";
+#endif
+
+	struct utsname uts_info;
+
+	image_info_t imagename 	= {LOCALE_IMAGEINFO_IMAGE,	config.getString("imagename", "Neutrino-HD")};
+	v_info.push_back(imagename);
+	image_info_t version	= {LOCALE_IMAGEINFO_VERSION,	version_string};
+	v_info.push_back(version);
+#ifdef VCS
+	image_info_t vcs	= {LOCALE_IMAGEINFO_VCS,	VCS};
+	v_info.push_back(vcs);
+#endif
+	image_info_t date	= {LOCALE_IMAGEINFO_DATE,	builddate};
+	v_info.push_back(date);
+	if (uname(&uts_info) == 0) {
+		image_info_t kernel	= {LOCALE_IMAGEINFO_KERNEL,	uts_info.release};
+		v_info.push_back(kernel);
+	}
+	image_info_t creator	= {LOCALE_IMAGEINFO_CREATOR,	config.getString("creator", "n/a")};
+	v_info.push_back(creator);
+	image_info_t www	= {LOCALE_IMAGEINFO_HOMEPAGE,	config.getString("homepage", "n/a")};
+	v_info.push_back(www);
+	image_info_t doc	= {LOCALE_IMAGEINFO_DOKUMENTATION, config.getString("docs", "http://wiki.neutrino-hd.de")};
+	v_info.push_back(doc);
+	image_info_t forum	= {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")};
+	v_info.push_back(forum);
+	image_info_t license	= {LOCALE_IMAGEINFO_LICENSE,	"GPL v2"};
+	v_info.push_back(license);
+
+	Font * item_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+
+	//initialize container for infos
+	if (cc_info == NULL)
+		cc_info = new CComponentsForm();
+	cc_win->addWindowItem(cc_info);
+	cc_info->setPos(item_offset, item_offset);
+	cc_info->setWidth((cc_win->getWidth()/3*2)-2*item_offset);
+
+
+	//calculate max width of label and info_text
+	int w_label = 0, w_text = 0, w = 0;
+	for (size_t i = 0; i < v_info.size(); i++) {
+		w = item_font->getRenderWidth(g_Locale->getText(v_info[i].caption), true);
+		w_label = std::max(w_label, w);
+
+		w = item_font->getRenderWidth(v_info[i].info_text.c_str(), true);
+		w_text = std::max(w_text, w);
+	}
+
+	int x_label = 0, y_text = 0;
+	int x_text = x_label + w_label + item_offset;
+	int item_height = item_font->getHeight();
+
+	//recalc w_text to avoid an overlap with pip TODO: calculate within cc_info itself
+	w_text = std::min(w_text, cc_win->getWidth() - x_text - /*cc_tv->getWidth() - */2*item_offset);
+
+	//create label and text items
+	int h_tmp = 0;
+	size_t i = 0;
+	for (i = 0; i < v_info.size(); i++) {
+		CComponentsLabel *cc_label = new CComponentsLabel();
+		cc_label->setDimensionsAll(x_label, y_text, w_label, item_height);
+		cc_label->setText(v_info[i].caption, CTextBox::NO_AUTO_LINEBREAK, item_font);
+
+		//add label object to window body
+		cc_info->addCCItem(cc_label);
+
+		CComponentsText *cc_text = new CComponentsText();
+		cc_text->setDimensionsAll(x_text, y_text, w_text, item_height);
+		cc_text->setText(v_info[i].info_text.c_str(), CTextBox::NO_AUTO_LINEBREAK, item_font);
+		y_text += item_height/*CC_APPEND*/;
+
+		//add text object to window body
+		cc_info->addCCItem(cc_text);
+
+		 // add an offset before homepage and license
+		if (v_info[i].caption == LOCALE_IMAGEINFO_CREATOR|| v_info[i].caption == LOCALE_IMAGEINFO_FORUM){
+			h_tmp += item_offset;
+			y_text += item_offset;
+		}
+
+		//set height for info form
+		h_tmp += item_height;		
+	}
+	//assign height of info form
+	cc_info->setHeight(h_tmp);
+}
+
+//get license
+string CImageInfo::getLicenseText()
+{
+	string file = LICENSEDIR;
+	file += g_settings.language;
+	file += ".license";
+
+	CComponentsText txt;
+	string res = txt.getTextFromFile(file);
 
 	return res;
 }
 
+//prepare info text
+void CImageInfo::InitInfoText(const std::string& text)
+{
+	//get window body object
+	CComponentsForm *winbody = cc_win->getBodyObject();
+	int h_body = winbody->getHeight();
+	int w_body = winbody->getWidth();
+
+	int y_lic = item_offset + cc_info->getHeight() + item_offset;
+	int h_lic = h_body - y_lic - item_offset;
+
+	if (cc_lic == NULL)
+		cc_lic = new CComponentsInfoBox(item_offset, cc_info->getYPos()+cc_info->getHeight()+item_offset, w_body-2*item_offset, h_lic);
+	cc_lic->setSpaceOffset(0);
+	cc_lic->setText(text, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+
+#if 0
+	//calc y pos of license box to avoid an overlap with pip
+	int h_info = cc_info->getHeight();
+	int y_lic = std::max(h_info, cc_tv->getHeight() + 2*item_offset);
+	CComponentsForm *winbody = cc_win->getBodyObject();
+	int h_lic = 0;
+	if (winbody)
+		h_lic = winbody->getHeight();
+	cc_lic = new CComponentsInfoBox(item_offset, /*y_lic*/CC_APPEND, cc_win->getWidth()-2*item_offset, h_lic - h_info -item_offset);
+	cc_lic->setTextFromFile(file, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+#endif
+
+	//add text to container
+	if (!cc_lic->isAdded())
+		cc_win->addWindowItem(cc_lic);
+}
+
+//scroll licens text
+void CImageInfo::ScrollLic(bool scrollDown)
+{
+	if (cc_lic && (cc_lic->cctext)) {
+		//get the textbox instance from infobox object and use CTexBbox scroll methods
+		CTextBox* ctb = cc_lic->cctext->getCTextBoxObject();
+		if (ctb) {
+			ctb->enableBackgroundPaint(true);
+			if (scrollDown)
+				ctb->scrollPageDown(1);
+			else
+				ctb->scrollPageUp(1);
+			ctb->enableBackgroundPaint(false);
+		}
+	}
+}
+
+
+
 void CImageInfo::hide()
 {
-	//frameBuffer->paintBackgroundBoxRel(0,0, max_width,max_height);
-	frameBuffer->paintBackground();
-	videoDecoder->Pig(-1, -1, -1, -1);
-}
-
-void CImageInfo::paint_pig(int px, int py, int w, int h)
-{
-	//frameBuffer->paintBoxRel(px,py,w,h, COL_BACKGROUND);
-	frameBuffer->paintBackgroundBoxRel(px,py,w,h);
-	videoDecoder->Pig(px, py, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
-}
-
-void CImageInfo::paintLine(int xpos, int font, const char* text)
-{
-	char buf[100];
-	snprintf((char*) buf,sizeof(buf), "%s", text);
-	//g_Font[font]->RenderString(xpos, ypos, width-10, buf, COL_MENUCONTENT, 0, true);
-	g_Font[font]->RenderString(xpos, ypos, width-10, buf, COL_INFOBAR, 0, true);
-}
-
-void CImageInfo::paint()
-{
-	const char * head_string;
-	char imagedate[18] = "";
-	int  xpos = x+10;
-
-	ypos = y+5;
-
-	head_string = g_Locale->getText(LOCALE_IMAGEINFO_HEAD);
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, head_string);
-
-	//frameBuffer->paintBoxRel(0, 0, max_width, max_height, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(0, 0, max_width, max_height, COL_INFOBAR_PLUS_0);
-	g_Font[font_head]->RenderString(xpos, ypos+ hheight+1, width, head_string, COL_MENUHEAD, 0, true);
-
-	ypos += hheight;
-	ypos += (iheight >>1);
-
-	CConfigFile config('\t');
-	config.loadConfig("/.version");
-
-	const char * imagename = config.getString("imagename", "Neutrino-HD").c_str();
-	const char * homepage  = config.getString("homepage",  "n/a").c_str();
-	const char * creator   = config.getString("creator",   "n/a").c_str();
-	const char * version   = config.getString("version",   "no version").c_str();
-	const char * docs      = config.getString("docs",      "http://wiki.neutrino-hd.de").c_str();
-	const char * forum     = config.getString("forum",     "http://forum.tuxbox.org").c_str();
-#ifdef GITVERSION
-	const char * builddate     = GITVERSION;
-#else
-	const char * builddate     = config.getString("builddate",     BUILT_DATE).c_str();
-#endif
-
-	static CFlashVersionInfo versionInfo(version);
-	const char * releaseCycle = versionInfo.getReleaseCycle();
-	
-	struct utsname uts_info;
-	std::string Version_Kernel;
-	if( uname(&uts_info) < 0 ) {
-		Version_Kernel = releaseCycle;
-		Version_Kernel += " ";
-		Version_Kernel += versionInfo.getType();
-	}else{
-		Version_Kernel  = releaseCycle;
-		Version_Kernel += " ";
-		Version_Kernel += versionInfo.getType();
-		Version_Kernel += " - Kernel: ";
-		Version_Kernel += uts_info.release;
+	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
+	if (cc_win){
+		cc_win->hide();
+		Clean();
 	}
-
-	snprintf((char*) imagedate,sizeof(imagedate), "%s  %s", versionInfo.getDate(), versionInfo.getTime());
-
-	ypos += iheight;
-	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_IMAGE));
-	paintLine(xpos+offset, font_info, imagename);
-
-	ypos += iheight;
-	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_DATE));
-	paintLine(xpos+offset, font_info, imagedate);
-
-	ypos += iheight;
-	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_VERSION));
-	paintLine(xpos+offset, font_info, Version_Kernel.c_str());
-
-	ypos += iheight;
-#ifdef GITVERSION
-	paintLine(xpos    , font_info, GIT_DESC);
-#else
-	paintLine(xpos    , font_info, GIT_REV);
-#endif
-	paintLine(xpos+offset, font_info, builddate );
-	
-	ypos += iheight;
-	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_CREATOR));
-	paintLine(xpos+offset, font_info, creator);
-
-	ypos += iheight+15;
-	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE));
-	paintLine(xpos+offset, font_info, homepage);
-
-	ypos += iheight;
-	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION));
-	paintLine(xpos+offset, font_info, docs);
-
-	ypos += iheight;
-	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_FORUM));
-	paintLine(xpos+offset, font_info, forum);
-
-	ypos += iheight+15;
-	paintLine(xpos, font_info,g_Locale->getText(LOCALE_IMAGEINFO_LICENSE));
-	paintLine(xpos+offset, font_small, "This program is free software; you can redistribute it and/or modify");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "it under the terms of the GNU General Public License as published by");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "the Free Software Foundation; either version 2 of the License, or");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "(at your option) any later version.");
-
-	ypos+= sheight+10;
-	paintLine(xpos+offset, font_small, "This program is distributed in the hope that it will be useful,");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "but WITHOUT ANY WARRANTY; without even the implied warranty of");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "See the GNU General Public License for more details.");
-
-	ypos+= sheight+10;
-	paintLine(xpos+offset, font_small, "You should have received a copy of the GNU General Public License");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "along with this program; if not, write to the Free Software");
-
-	ypos+= sheight;
-	paintLine(xpos+offset, font_small, "Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.");
 }

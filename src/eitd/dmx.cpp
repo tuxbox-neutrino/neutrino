@@ -5,6 +5,7 @@
  *     2003 by thegoodguy <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
+ * Copyright (C) 2007-2009, 2011-2012 Stefan Seyfried
  *
  * License: GPLv2
  *
@@ -116,11 +117,13 @@ void DMX::close(void)
 void DMX::closefd(void)
 {
 #ifdef DEBUG_DEMUX
-	xprintf("	%s: DMX::closefd, isOpen %d\n", name.c_str(), isOpen());
+	xcprintf("	%s: DMX::closefd, isOpen %d demux #%d", name.c_str(), isOpen(), dmx_num);
 #endif
 	if (isOpen())
 	{
-		dmx->Stop();
+		//dmx->Stop();
+		delete dmx;
+		dmx = NULL;
 		fd = -1;
 	}
 }
@@ -239,7 +242,7 @@ printf("	[%s cache] old section for table 0x%02x sid 0x%04x section 0x%02x last 
 #endif
 	if(seenSections == calcedSections) {
 #ifdef DEBUG_COMPLETE
-		xcprintf("	%s cache %02x complete: %d", name.c_str(), filters[filter_index].filter, seenSections.size());
+		xcprintf("	%s cache %02x complete: %d", name.c_str(), filters[filter_index].filter, (int)seenSections.size());
 #endif
 		/* FIXME this algo fail sometimes:
 		*	[cnThread cache] new section for table 0x4e sid 0x0a39 section 0x00 last 0x00 slast 0x00 seen 1 calc 1
@@ -483,6 +486,9 @@ int DMX::immediate_start(void)
 	}
 
 	if(dmx == NULL) {
+#ifdef DEBUG_DEMUX
+		xcprintf("	%s: open demux #%d", name.c_str(), dmx_num);
+#endif
 		dmx = new cDemux(dmx_num);
 		dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
 	}

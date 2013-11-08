@@ -768,6 +768,8 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 						{
 							fprintf(stderr,"%s: PCM write error in stereo (%s).\n", ProgName, strerror(errno));
 							Status = WRITE_ERR;
+							Synth.pcm.length = 0; /* discard buffer */
+							OutputPtr = OutputBuffer;
 							break;
 						}
 
@@ -835,6 +837,8 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 						{
 							fprintf(stderr,"%s: PCM write error in mono (%s).\n", ProgName, strerror(errno));
 							Status = WRITE_ERR;
+							Synth.pcm.length = 0; /* discard buffer */
+							OutputPtr = OutputBuffer;
 							break;
 						}
 

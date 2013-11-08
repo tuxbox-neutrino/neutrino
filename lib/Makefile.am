@@ -8,6 +8,7 @@ SUBDIRS = \
 	libnet \
 	xmltree \
 	libtuxtxt \
+	libiw \
 	libdvbsub
 
 if ENABLE_UPNP

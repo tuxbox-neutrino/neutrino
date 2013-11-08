@@ -33,11 +33,11 @@
 #define __scants__
 
 #include <gui/widget/menue.h>
-#include <gui/widget/progressbar.h>
+#include <gui/components/cc.h>
 #include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <string>
-
+#include <system/settings.h>
 
 class CScanTs : public CMenuTarget
 {
@@ -80,9 +80,12 @@ class CScanTs : public CMenuTarget
 		void testFunc();
 		void prev_next_TP(bool);
 		TP_params TP;
+		int deltype;
+		char * pname;
 
 	public:
-		CScanTs();
+		CScanTs(int dtype = FE_QPSK);
+		~CScanTs();
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };

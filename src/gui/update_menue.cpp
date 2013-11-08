@@ -24,7 +24,7 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 	
-	You should have received a copy of the GNU Library General Public
+	You should have received a copy of the GNU General Public
 	License along with this program; if not, write to the
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
@@ -77,9 +77,9 @@ int CSoftwareUpdate::showSoftwareUpdate()
 {
 	CMenuForwarder * mf;
 	CMenuWidget softUpdate(LOCALE_MAINMENU_SERVICE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
-	
+
 	softUpdate.addIntroItems(LOCALE_SERVICEMENU_UPDATE);
-	
+
 	//flashing
 	CFlashUpdate flash;
 #if 0
@@ -97,20 +97,33 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	update_item->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CHECK_LOCAL);
 	softUpdate.addItem(update_item);
 
-	//settings
 	CUpdateSettings update_settings(update_item);
-	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
-	softUpdate.addItem(mf);
+	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
+	//settings
+	if (!g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_SETTINGS);
+		softUpdate.addItem(mf);
 
+		softUpdate.addItem(GenericMenuSeparatorLine);
+
+		//expert-functions
+		showSoftwareUpdateExpert(&mtdexpert); 
+		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
+		softUpdate.addItem(mf);
+
+	}
+#ifdef BOXMODEL_APOLLO
 	softUpdate.addItem(GenericMenuSeparatorLine);
 
-	//expert-functions
-	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
-	showSoftwareUpdateExpert(&mtdexpert); 
-	mf = new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
-	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_EXPERT);
+	if (g_settings.easymenu)
+		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	else
+		mf = new CMenuForwarder(LOCALE_FLASHUPDATE_CREATEIMAGE_MENU, true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(1));
+	mf->setHint("", LOCALE_MENU_HINT_SOFTUPDATE_CREATEIMAGE_MENU);
 	softUpdate.addItem(mf);
+#endif
 
 	int res = softUpdate.exec (NULL, "");
 	return res;

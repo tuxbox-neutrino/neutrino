@@ -1,4 +1,4 @@
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/connection \
@@ -6,7 +6,7 @@ INCLUDES = \
 
 noinst_LIBRARIES = libsectionsdclient.a
 
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS += -fno-rtti -fno-exceptions
 
 libsectionsdclient_a_SOURCES = sectionsdclient.cpp
 

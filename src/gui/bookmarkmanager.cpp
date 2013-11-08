@@ -36,6 +36,7 @@
 
 #include <system/settings.h>
 #include <driver/screen_max.h>
+#include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
@@ -368,23 +369,23 @@ void CBookmarkManager::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight*2;
 
-	uint8_t    color;
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 
 	if (pos & 1)
 	{
-		color   = COL_MENUCONTENTDARK;
+		color   = COL_MENUCONTENTDARK_TEXT;
 		bgcolor = COL_MENUCONTENTDARK_PLUS_0;
 	}
 	else
 	{
-		color   = COL_MENUCONTENT;
+		color   = COL_MENUCONTENT_TEXT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
 	if (liststart + pos == selected)
 	{
-		color   = COL_MENUCONTENTSELECTED;
+		color   = COL_MENUCONTENTSELECTED_TEXT;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 
@@ -424,10 +425,8 @@ void CBookmarkManager::hide()
 //------------------------------------------------------------------------
 void CBookmarkManager::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BOOKMARK_MANAGER,x+5,y+4);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+35,y+theight+0, width- 45, g_Locale->getText(LOCALE_BOOKMARKMANAGER_NAME), COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 30, y+ 5 );
+	CComponentsHeader header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeader::CC_BTN_HELP);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 const struct button_label BookmarkmanagerButtons[2] =
@@ -445,14 +444,14 @@ void CBookmarkManager::paintFoot()
 
 	if (bookmarks.empty()) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT, 0, true); // UTF-8
 	}
 	else
 	{
 		::paintButtons(x + 10, y + height + 4, width, 2, BookmarkmanagerButtons, footerHeight, ButtonWidth);
 
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+footerHeight - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR_TEXT, 0, true); // UTF-8
 	}
 }
 
@@ -477,6 +476,9 @@ void CBookmarkManager::paint()
 		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 		int sbc= ((bookmarks.size()- 1)/ listmaxshow)+ 1;
+		if (sbc < 1)
+			sbc = 1;
+
 		float sbh= (sb- 4)/ sbc;
 
 		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(page_nr * sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);

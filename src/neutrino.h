@@ -37,6 +37,7 @@
 
 #include <neutrinoMessages.h>
 #include "driver/framebuffer.h"
+#include "driver/neutrinofonts.h"
 #include "system/setting_helpers.h"
 #include "system/configure_network.h"
 #include "daemonc/remotecontrol.h"    /* st_rmsg      */
@@ -58,29 +59,8 @@
 *                                                                                     *
 **************************************************************************************/
 
-typedef struct neutrino_font_descr
-{
-	const char * name;
-	const char * filename;
-	int          size_offset;
-} neutrino_font_descr_struct;
-
-typedef struct font_sizes
-{
-	const neutrino_locale_t name;
-	const unsigned int      defaultsize;
-	const unsigned int      style;
-	const unsigned int      size_offset;
-} font_sizes_struct;
-
-typedef struct font_sizes_groups
-{
-	const neutrino_locale_t                     groupname;
-	const unsigned int                          count;
-	const SNeutrinoSettings::FONT_TYPES * const content;
-	const char * const                          actionkey;
-	const neutrino_locale_t hint;
-} font_sizes_groups_struct;
+extern const unsigned char genre_sub_classes[];            /* epgview.cpp */
+extern const neutrino_locale_t * genre_sub_classes_list[]; /* epgview.cpp */
 
 class CNeutrinoApp : public CMenuTarget, CChangeObserver
 {
@@ -105,8 +85,6 @@ private:
 	int                             network_dhcp;
 	int                             network_automatic_start;
 
-	neutrino_font_descr_struct      font;
-
 	int				mode;
 	int				lastMode;
 	bool				softupdate;
@@ -121,6 +99,8 @@ private:
 	bool 				skipSleepTimer;
 	bool                            lockStandbyCall;
 	bool 				pbBlinkChange;
+	bool				g_channel_list_changed;
+	bool                            timer_wakeup;
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
@@ -134,7 +114,6 @@ private:
 	void radioMode( bool rezap = true );
 	void scartMode( bool bOnOff );
 	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
-	void saveEpg(bool cvfd_mode);
 	void getAnnounceEpgName(CTimerd::RecordingInfo * eventinfo, std::string &name);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);
@@ -176,7 +155,7 @@ public:
 	void loadKeys(const char * fname = NULL);
 	void saveKeys(const char * fname = NULL);
 	void SetupTiming();
-	void SetupFonts();
+	void SetupFonts(int fmode = CNeutrinoFonts::FONTSETUP_ALL);
 	void setupRecordingDevice(void);
 
 	~CNeutrinoApp();
@@ -219,15 +198,21 @@ public:
 		return lastChannelMode;
 	};
 	void SetChannelMode(int mode);
+	void MarkChannelListChanged(void) { g_channel_list_changed = true; };
 	void quickZap(int msg);
 	void numericZap(int msg);
 	void StopSubtitles();
 	void StartSubtitles(bool show = true);
+	bool StartPip(const t_channel_id channel_id);
 	void SelectSubtitles();
 	void showInfo(void);
 	CConfigFile* getConfigFile() {return &configfile;};
 	bool 		SDTreloadChannels;
-	bool 		g_channel_list_changed;
+
+	void saveEpg(bool cvfd_mode);
+	void stopDaemonsForFlash();
+	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
+	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 };
 #endif
 

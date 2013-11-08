@@ -44,6 +44,8 @@ class CRecordSetup : public CMenuTarget, public CChangeObserver
 		int showRecordSetup();
 		void showRecordTimerSetup(CMenuWidget *menu_timersettings);
 		void showRecordAudioSetup(CMenuWidget *menu_audiosettings);
+		void showRecordDataSetup(CMenuWidget *menu_datasettings);
+
 		void showRecordTimeShiftSetup(CMenuWidget *menu_ts);
 
 	public:	

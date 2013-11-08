@@ -5,36 +5,9 @@
 <script type="text/javascript" src="/Y_yweb.js"></script>
 <script type="text/javascript">
 function init(){
-	var menu=ext.select_menu('settings_general');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_general').insert({'bottom':el});
-	});
-	var menu=ext.select_menu('settings_neutrino');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_neutrino').insert({'bottom':el});
-	});
-	var menu=ext.select_menu('settings_plugins');
-	menu.each(function(e){
-		var el=new Element('li').update(
-			new Element('a', {'target':'work',
-				'title': e.get('desc'),
-				'href': e.get('file')
-			}).update("-"+e.get('menuitem'))
-		);
-		$('secmenu_plugins').insert({'bottom':el});
-	});
+	add_yExtensions('settings_general', 'secmenu_general');
+	add_yExtensions('settings_neutrino', 'secmenu_neutrino');
+	add_yExtensions('settings_plugins', 'secmenu_plugins');
 }
 </script>
 </head>

@@ -68,11 +68,15 @@
 
 class CBox
 {
-	private:
+	protected:
+		int *pX;
+		int *pY;
+		int *pWidth;
+		int *pHeight;
 
 	public:
 		/* Constructor */
-		inline CBox(){iY = 0; iX = 0; iWidth = 0;iHeight = 0;};
+		inline CBox(){iX=0; iY=0; iWidth=0; iHeight=0;};
 		inline CBox( const int _iX, const int _iY, const int _iWidth, const int _iHeight){iX=_iX; iY=_iY; iWidth=_iWidth; iHeight=_iHeight;};
 		inline ~CBox(){;};
 		/* Functions */
@@ -89,14 +93,15 @@ class CTextBox
 		/* Variables */
 		enum textbox_modes
 		{
-			AUTO_WIDTH	= 0x01, 	//auto adapt frame width to max width or max text width, text is painted with auto linebreak
-			AUTO_HIGH	= 0x02, 	//auto adapt frame height to max height, text is painted with auto linebreak
-			SCROLL		= 0x04, 	//frame box contains scrollbars on long text
-			CENTER		= 0x40, 	//paint text centered
-			RIGHT		= 0x80, 	//paint text right
-			TOP		= 0x100,	//paint text on top of frame
-			BOTTOM		= 0x200,	//paint text on bottom of frame
-			NO_AUTO_LINEBREAK = 0x400  	//paint text without auto linebreak,  cutting text
+			AUTO_WIDTH			= 0x01, 	//auto adapt frame width to max width or max text width, text is painted with auto linebreak
+			AUTO_HIGH			= 0x02, 	//auto adapt frame height to max height, text is painted with auto linebreak
+			SCROLL				= 0x04, 	//frame box contains scrollbars on long text
+			CENTER				= 0x40, 	//paint text centered
+			RIGHT				= 0x80, 	//paint text right
+			TOP				= 0x100,	//paint text on top of frame
+			BOTTOM				= 0x200,	//paint text on bottom of frame
+			NO_AUTO_LINEBREAK 		= 0x400,  	//paint text without auto linebreak,  cutting text
+			AUTO_LINEBREAK_NO_BREAKCHARS	= 0x800		//no linbreak an char '-' and '.'
 		};
 		
 	private:
@@ -109,10 +114,17 @@ class CTextBox
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
+		int  getFontTextHeight();
+		bool hasChanged(int* x, int* y, int* dx, int* dy);
+		void reInitToCompareVar(int* x, int* y, int* dx, int* dy);
 
 		/* Variables */
-		std::string m_cText;
+		std::string m_cText, m_old_cText;
 		std::vector<std::string> m_cLineArray;
+
+		int m_old_x, m_old_y, m_old_dx, m_old_dy, m_old_nBgRadius, m_old_nBgRadiusType, m_old_nMode;
+		bool m_has_scrolled;
+		fb_pixel_t m_old_textBackgroundColor;
 
 		bool m_showTextFrame;
 
@@ -145,11 +157,14 @@ class CTextBox
 		int m_nFontTextHeight;
 		CFBWindow::color_t m_textBackgroundColor;
 		fb_pixel_t m_textColor;
+		fb_pixel_t* m_bgpixbuf;
 
 		CFrameBuffer * frameBuffer;
 /*		int max_width;*/
 		
-		int text_border_width;
+		int text_Hborder_width;
+		int text_Vborder_width;
+		bool m_FontUseDigitHeight;
 		
 	public:
 		/* Constructor */
@@ -170,19 +185,21 @@ class CTextBox
 		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
 		bool	setText(const std::string* newText, int max_width = 0);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
-		void	setBackGroundRadius(const int radius, const int type){m_nBgRadius = radius; m_nBgRadiusType = type;};
-		void    setTextBorderWidth(int border);
+		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
+		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);
 		void 	setWindowMinDimensions(const int width, const int height);
+		void    setFontUseDigitHeight(bool set=true);
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
 		inline	int	getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
 		inline  int     getLines(void)			{return(m_nNrOfLines);};
+		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
 

@@ -69,6 +69,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			MPKEY_STOP,
 			MPKEY_PLAY,
 			MPKEY_AUDIO,
+			MPKEY_SUBTITLE,
 			MPKEY_TIME,
 			MPKEY_BOOKMARK,
 			KEY_TIMESHIFT,
@@ -76,6 +77,12 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 			/*KEY_PLUGIN,*/
 			KEY_UNLOCK,
 			KEY_SCREENSHOT,
+			KEY_PIP_CLOSE,
+			KEY_PIP_SETUP,
+			KEY_PIP_SWAP,
+			KEY_FORMAT_MODE,
+			KEY_PIC_MODE,
+			KEY_PIC_SIZE,
 			
 			KEYBINDS_COUNT
 		};
@@ -91,6 +98,7 @@ class CKeybindSetup : public CMenuTarget, public CChangeObserver
 		void showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist);
 		void showKeyBindQuickzapSetup(CMenuWidget *bindSettings_qzap);
 		void showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplayer);
+		void showKeyBindSpecialSetup(CMenuWidget *bindSettings_special);
 
 	public:				
 		CKeybindSetup();

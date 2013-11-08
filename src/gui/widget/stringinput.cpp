@@ -4,13 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
 
 	License: GPL
 
@@ -50,7 +43,6 @@
 
 CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, const int min_value, const int max_value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
-	frameBuffer = CFrameBuffer::getInstance();
 	name =  Name;
 	head = NULL;
 	value = Value;
@@ -70,7 +62,6 @@ CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, const int 
 
 CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
-	frameBuffer = CFrameBuffer::getInstance();
 	name =  Name;
 	head = NULL;
 	value = Value;
@@ -91,12 +82,14 @@ CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, int Size, 
 
 CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
-        frameBuffer = CFrameBuffer::getInstance();
         name =  Name;
 	head = NULL;
+	value = NULL;
+#if 0
         value = new char[Size+1];
         value[Size] = '\0';
         strncpy(value,Value->c_str(),Size);
+#endif
         valueString = Value;
 	lower_bound = -1;
 	upper_bound = -1;
@@ -113,7 +106,6 @@ CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int
 
 CStringInput::CStringInput(char * Head, char* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
-        frameBuffer = CFrameBuffer::getInstance();
         head = strdup(Head);
         value = Value;
         valueString = NULL;
@@ -132,55 +124,77 @@ CStringInput::CStringInput(char * Head, char* Value, int Size, const neutrino_lo
 
 CStringInput::~CStringInput()
 {
+#if 0
 	if (valueString != NULL)
 	{
 		delete[] value;
 	}
+#endif
 	if(head) {
 		free(head);
 	}
 }
 
+#define CStringInputSMSButtonsCount 2
+const struct button_label CStringInputSMSButtons[CStringInputSMSButtonsCount] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_STRINGINPUT_CAPS  },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_STRINGINPUT_CLEAR }
+};
+
 void CStringInput::init()
 {
-	width = (size*20)+40;
+	frameBuffer = CFrameBuffer::getInstance();
 
-	if (width<420)
-		width = 420;
-
-	int neededWidth;
-	if(head) {
-		neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(head, true); // UTF-8
-	}
-	else
-		neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name), true); // UTF-8
-
-	if (!(iconfile.empty()))
-		neededWidth += 28;
-	if (neededWidth+20> width)
-		width = neededWidth+20;
-
+#ifdef DEBUG_STRINGINPUT
+	printf("HEAD: %s (len: %d)\n", head, strlen(head));
+#endif
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	iheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
+	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;	// init min buttonbar height
+	input_h = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight() + 2;		// font height + border
+	input_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("M") + 2;	// hack font width + border
+	offset  = 20;
+
+	width = std::max(size*input_w + 2*offset, (int) frameBuffer->getScreenWidth() / 100 * 45);
+
+	int tmp_w = 0;
+	if (head)
+		tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(head, true); // UTF-8
+	else
+		tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name), true); // UTF-8
+
 	if (!(iconfile.empty()))
 	{
 		int icol_w, icol_h;
 		frameBuffer->getIconSize(iconfile.c_str(), &icol_w, &icol_h);
-		hheight = std::max(hheight, icol_h+4);
+		hheight = std::max(hheight, icol_h + (offset/4));
+		tmp_w += icol_w + (offset/2);
 	}
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	iheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
-	//footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
-	height = hheight+ mheight + 50;
-	if (hint_1 != NONEXISTANT_LOCALE)
+	width = std::max(width, tmp_w + offset);
+
+	bheight = input_h + 2*offset;
+	if ((hint_1 != NONEXISTANT_LOCALE) || (hint_2 != NONEXISTANT_LOCALE))
 	{
-		height += iheight;
+		if (hint_1 != NONEXISTANT_LOCALE)
+		{
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1), true);
+			width = std::max(width, tmp_w + 2*offset);
+			bheight += iheight;
+		}
 		if (hint_2 != NONEXISTANT_LOCALE)
-			height += iheight;
+		{
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2), true);
+			width = std::max(width, tmp_w + 2*offset);
+			bheight += iheight;
+		}
+		bheight += offset;
 	}
-	height += g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //buttonbar;
+
+	height = hheight+ bheight; // space for the possible numpad and the buttonbar will be added in initSMS()
 	
-	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width)>>1);
-	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);
+	x = getScreenStartX(width);
+	y = getScreenStartY(height);
 	selected = 0;
 }
 
@@ -199,7 +213,7 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 			}
 			paintChar(selected);
 		}else{
-			snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+			snprintf(value, size,"%s",tmp_value.c_str());
 		}
 	}
 }
@@ -279,7 +293,7 @@ void CStringInput::keyUpPressed()
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		paintChar(selected);
 	}else{
-		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+		snprintf(value, size,"%s",tmp_value.c_str());
 	}
 }
 
@@ -299,7 +313,7 @@ void CStringInput::keyDownPressed()
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		paintChar(selected);
 	}else{
-		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+		snprintf(value, size,"%s",tmp_value.c_str());
 	}
 }
 
@@ -370,6 +384,11 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		delete[] oldval;
 		return res;
 	}
+	if (valueString != NULL) {
+		value = new char[size+1];
+		value[size] = '\0';
+		strncpy(value,valueString->c_str(),size);
+	}
         oldval[size] = 0;
         dispval[size] = 0;
 
@@ -380,10 +399,14 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		strcat(value, " ");
 	strncpy(oldval, value, size);
 
+	fb_pixel_t * pixbuf = new fb_pixel_t[(width + SHADOW_OFFSET) * (height + SHADOW_OFFSET)];
+
+	if (pixbuf != NULL)
+		frameBuffer->SaveScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
+
 	paint();
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop)
@@ -398,8 +421,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 		if (msg==CRCInput::RC_left)
 		{
@@ -493,6 +515,12 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	hide();
 
+	if (pixbuf != NULL)
+	{
+		frameBuffer->RestoreScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
+		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
+	}
+
 	for(int count=size-1;count>=0;count--)
 	{
 		if((value[count]==' ') || (value[count]==0))
@@ -504,7 +532,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	}
 	value[size]=0;
 
-	if (valueString != NULL)
+	if ( (valueString != NULL) && (msg == CRCInput::RC_ok) )
         {
                 *valueString = value;
         }
@@ -513,6 +541,9 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
         {
                 observ->changeNotify(name, value);
         }
+	if (valueString != NULL)
+		delete[] value;
+
 	delete[] dispval;
 	delete[] oldval;
 	return res;
@@ -525,87 +556,89 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 
 void CStringInput::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height + hheight);
+	frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
 }
 
-const char * CStringInput::getHint1(void)
+void CStringInput::paint(bool sms)
 {
-	return g_Locale->getText(hint_1);
-}
-
-void CStringInput::paint(bool buttons)
-{
-	int iconoffset;
-	int icol_w, icol_h;
-	int radius;
-
-	/* if there's a button bar below the stringinput (SMS), no rounded corners */
-	if (buttons)
-		radius = 0;
-	else
-		radius = RADIUS_LARGE;
-
+	frameBuffer->paintBoxRel(x + SHADOW_OFFSET, y + SHADOW_OFFSET, width, height, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_ALL); //round
 	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //round
-	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, radius, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, sms ? 0 : RADIUS_LARGE, CORNER_BOTTOM);
 
+	int icol_w = 0, icol_h = 0, icol_o = 0;
 	if (!(iconfile.empty()))
 	{
 		frameBuffer->getIconSize(iconfile.c_str(), &icol_w, &icol_h);
-		frameBuffer->paintIcon(iconfile, x + 8, y, hheight);
-		iconoffset = icol_w + 10;
+		frameBuffer->paintIcon(iconfile, x + (offset/2), y, hheight);
+		icol_o = icol_w + (offset/2);
 	}
-	else
-		iconoffset = 0;
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ 10+ iconoffset, y+ hheight, width- 10- iconoffset, head ? head : g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2)+ icol_o, y+ hheight, width- offset- icol_o, head ? head : g_Locale->getText(name), COL_MENUHEAD_TEXT, 0, true); // UTF-8
 
-	if (hint_1 != NONEXISTANT_LOCALE)
+	int tmp_y = y+ hheight+ offset+ input_h+ offset;
+	if ((hint_1 != NONEXISTANT_LOCALE) || (hint_2 != NONEXISTANT_LOCALE))
 	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ 20, y+ hheight+ mheight+ iheight+ 40, width- 20, getHint1(), COL_MENUCONTENT, 0, true); // UTF-8
+		if (hint_1 != NONEXISTANT_LOCALE)
+		{
+			tmp_y += iheight;
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_1), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+		}
 		if (hint_2 != NONEXISTANT_LOCALE)
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ 20, y+ hheight+ mheight+ iheight* 2+ 40, width- 20, g_Locale->getText(hint_2), COL_MENUCONTENT, 0, true); // UTF-8
+		{
+			tmp_y += iheight;
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+		}
+		tmp_y += offset;
+	}
+
+	icol_w = icol_h = 0;
+	if (sms)
+	{
+		frameBuffer->getIconSize(NEUTRINO_ICON_NUMERIC_PAD, &icol_w, &icol_h);
+		frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (icol_w/2), tmp_y, 0, COL_MENUCONTENT_TEXT);
+
+		//buttonbar
+		::paintButtons(x, y+ hheight+ bheight, width, CStringInputSMSButtonsCount, CStringInputSMSButtons, width, fheight);
+		//::paintButtons(x, y + height, width, 2, CStringInputSMSButtons, width);
 	}
 
 	for (int count=0;count<size;count++)
 		paintChar(count);
-
-}
-
-void CStringInput::paintChar(int pos, const char c)
-{
-	const int xs = 20;
-	int ys = mheight;
-	int xpos = x+ 20+ pos* xs;
-	int ypos = y+ hheight+ 25;
-
-	char ch[2] = {c, 0};
-
-	uint8_t    color;
-	fb_pixel_t bgcolor;
-
-	if (pos == selected)
-	{
-		color   = COL_MENUCONTENTSELECTED;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	else
-	{
-		color   = COL_MENUCONTENT;
-		bgcolor = COL_MENUCONTENT_PLUS_0;
-	}
-
-	frameBuffer->paintBoxRel(xpos, ypos, xs, ys, COL_MENUCONTENT_PLUS_4);
-	frameBuffer->paintBoxRel(xpos+ 1, ypos+ 1, xs- 2, ys- 2, bgcolor);
-
-	int xfpos = xpos + ((xs- g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(ch))>>1);
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(xfpos,ypos+ys, width, ch, color);
 }
 
 void CStringInput::paintChar(int pos)
 {
 	if(pos<(int)strlen(value))
 		paintChar(pos, value[pos]);
+}
+
+void CStringInput::paintChar(int pos, const char c)
+{
+	int xpos = x+ offset+ pos* input_w;
+	int ypos = y+ hheight+ offset;
+
+	char ch[2] = {c, 0};
+
+	fb_pixel_t color;
+	fb_pixel_t bgcolor;
+
+	if (pos == selected)
+	{
+		color   = COL_MENUCONTENTSELECTED_TEXT;
+		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+	}
+	else
+	{
+		color   = COL_MENUCONTENT_TEXT;
+		bgcolor = COL_MENUCONTENT_PLUS_0;
+	}
+
+	frameBuffer->paintBoxRel(xpos, ypos, input_w, input_h, COL_MENUCONTENT_PLUS_2);
+	frameBuffer->paintBoxRel(xpos+ 1, ypos+ 1, input_w- 2, input_h- 2, bgcolor);
+
+	int ch_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(ch);
+	int ch_x = xpos + std::max(input_w/2 - ch_w/2, 0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(ch_x, ypos+ input_h, ch_w, ch, color);
 }
 
 CStringInputSMS::CStringInputSMS(const neutrino_locale_t Name, std::string* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
@@ -616,7 +649,7 @@ CStringInputSMS::CStringInputSMS(const neutrino_locale_t Name, std::string* Valu
 
 CStringInputSMS::CStringInputSMS(const neutrino_locale_t Name, char* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
    		: CStringInput(Name, Value, Size, Hint_1, Hint_2, Valid_Chars, Observ, Icon)
-   {
+{
 	initSMS(Valid_Chars);
 }
 
@@ -645,8 +678,23 @@ void CStringInputSMS::initSMS(const char * const Valid_Chars)
 		arraySizes[i] = j;
 	}
 
-	height+=260;
-	y = ((500-height)>>1);
+	int icol_w = 0, icol_h = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_NUMERIC_PAD, &icol_w, &icol_h);
+	bheight += icol_h + offset;
+
+	icol_w = icol_h = 0;
+	for (int i = 0; i < CStringInputSMSButtonsCount; i++)
+	{
+		// get max iconsize in buttonbar
+		int w = 0, h = 0;
+		frameBuffer->getIconSize(CStringInputSMSButtons[i].button, &w, &h);
+		icol_w = std::max(icol_w, w);
+		icol_h = std::max(icol_h, h);
+	}
+	fheight = std::max(fheight, icol_h + offset/5);
+
+	height = hheight + bheight + fheight;
+	y = getScreenStartY(height);
 }
 
 void CStringInputSMS::NormalKeyPressed(const neutrino_msg_t key)
@@ -745,22 +793,9 @@ void CStringInputSMS::keyRightPressed()
 	CStringInput::keyRightPressed();
 }
 
-const struct button_label CStringInputSMSButtons[2] =
-{
-	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_STRINGINPUT_CAPS  },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_STRINGINPUT_CLEAR }
-};
-
 void CStringInputSMS::paint(bool /*unused*/)
 {
-	CStringInput::paint(true);
-
-	int w = 0, h = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_NUMERIC_PAD, &w, &h);
-	frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (w/2), y+ hheight+ mheight+ iheight* 3+ 30, 0, COL_MENUCONTENT);
-
-	//buttonbar
-	::paintButtons(x, y + height, width, 2, CStringInputSMSButtons);
+	CStringInput::paint(true /* sms */);
 }
 
 void CPINInput::paintChar(int pos)
@@ -856,6 +891,14 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 	return res;
 }
 
+void CEnquiryInput::paintChar(int pos)
+{
+	if (blind)
+		CStringInput::paintChar(pos, (value[pos] == ' ') ? ' ' : '*');
+	else
+			CStringInput::paintChar(pos, value[pos]);
+}
+
 int CPLPINInput::handleOthers(neutrino_msg_t msg, neutrino_msg_data_t data)
 {
 	int res = messages_return::unhandled;
@@ -877,7 +920,7 @@ const char * CPLPINInput::getHint1(void)
 	if (fsk == 0x100)
 	{
 		hint_1 = LOCALE_PARENTALLOCK_LOCKEDCHANNEL;
-		return CStringInput::getHint1();
+		return g_Locale->getText(hint_1);
 	}
 	else
 	{
