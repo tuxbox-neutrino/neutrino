@@ -180,7 +180,7 @@ void CComponentsPicture::paintPicture()
 {
 	pic_painted = false;
 
-	if (do_paint){
+	if (do_paint && cc_allow_paint){
 #ifdef DEBUG_CC
 	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d)\n", __FUNCTION__, pic_name.c_str(), do_paint);
 #endif

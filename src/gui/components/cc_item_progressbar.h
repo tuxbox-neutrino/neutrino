@@ -92,7 +92,7 @@ class CProgressBar : public CComponentsItem
 		///paint version of progressbar with color and advanced display modifications
 		void paintAdvanced();
 		///painting of activ/passive bars via shape object
-		static void paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_t &col);
+		void paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_t &col);
 
 		void initDimensions();
 

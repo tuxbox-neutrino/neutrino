@@ -141,6 +141,7 @@ void CProgressBar::paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_
 {
 	CComponentsShapeSquare shape(shx, shy, shw, shh, false);
 	shape.setColorBody(col);
+	shape.allowPaint(cc_allow_paint);
 	shape.paint(false);
 }
 

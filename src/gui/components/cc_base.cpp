@@ -77,6 +77,7 @@ void CComponents::initVarBasic()
 	firstPaint		= true;
 	is_painted		= false;
 	paint_bg		= true;
+	cc_allow_paint		= true;
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
@@ -130,7 +131,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 		//paint all fb relevant basic parts (frame and body) with all specified properties, paint_bg must be true
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN && paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
-				if (v_fbdata[i].frame_thickness > 0)
+				if (v_fbdata[i].frame_thickness > 0 && cc_allow_paint)
 					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 			}
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
@@ -148,14 +149,17 @@ void CComponents::paintFbItems(bool do_save_bg)
 						//calculate current shadow width depends of current corner_rad
 						sw_cur = max(2*v_fbdata[i].r, sw);
 					}
-					// shadow right
-					frameBuffer->paintBoxRel(x_sh, v_fbdata[i].y, sw_cur, v_fbdata[i].dy-sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_TOP_RIGHT);
-					// shadow bottom
-					frameBuffer->paintBoxRel(v_fbdata[i].x, y_sh, v_fbdata[i].dx, sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_BOTTOM);
+					if (cc_allow_paint){
+						// shadow right
+						frameBuffer->paintBoxRel(x_sh, v_fbdata[i].y, sw_cur, v_fbdata[i].dy-sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_TOP_RIGHT);
+						// shadow bottom
+						frameBuffer->paintBoxRel(v_fbdata[i].x, y_sh, v_fbdata[i].dx, sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_BOTTOM);
+					}
 				}
 			}
 			else
-				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
+				if(cc_allow_paint)
+					frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
 

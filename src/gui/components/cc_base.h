@@ -94,6 +94,8 @@ class CComponents
 		bool is_painted;
 		///mode: true=activate rendering of basic elements (frame, shadow and body)
 		bool paint_bg;
+		///mode:  true=allows painting of item, see also allowPaint()
+		bool cc_allow_paint;
 
 		///initialize of basic attributes, no parameters required
 		void initVarBasic();
@@ -205,6 +207,11 @@ class CComponents
 		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
 		virtual void doPaintBg(bool do_paint){paint_bg = do_paint;};
 
+		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
+		///this can be understood as a counterpart to isPainted(), but before paint
+		virtual void allowPaint(bool allow){cc_allow_paint = allow;};
+		///returns visibility mode
+		virtual bool paintAllowed(){return cc_allow_paint;};
 };
 
 class CComponentsItem : public CComponents

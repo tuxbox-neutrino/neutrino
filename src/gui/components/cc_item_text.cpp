@@ -248,7 +248,7 @@ void CComponentsText::paintText(bool do_save_bg)
 {
 	paintInit(do_save_bg);
 	initCCText();
-	if (ct_text_sent)
+	if (ct_text_sent && cc_allow_paint)
 		ct_textbox->paint();
 	ct_text_sent = false;
 }
