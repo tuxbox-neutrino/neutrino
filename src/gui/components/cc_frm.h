@@ -285,16 +285,13 @@ class CComponentsWindow : public CComponentsForm
 		
 		~CComponentsWindow();
 
-		///paint window
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-
 		///add item to body object, also usable is addCCItem() to add items to the windo object
 		void addWindowItem(CComponentsItem* cc_Item);
 		
 		///allow/disallow paint a footer, default true, see also ccw_show_footer, showHeader()
-		void showFooter(bool show = true){ccw_show_footer = show;};
+		void showFooter(bool show = true){ccw_show_footer = show; initCCWItems();};
 		///allow/disallow paint a header, default true, see also ccw_show_header, showFooter()
-		void showHeader(bool show = true){ccw_show_header = show;};
+		void showHeader(bool show = true){ccw_show_header = show; initCCWItems();};
 
 		///set caption in header with string, see also getHeaderObject()
 		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;};
