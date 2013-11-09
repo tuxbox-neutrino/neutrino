@@ -30,6 +30,7 @@
 #endif
 
 #include <driver/framebuffer_ng.h>
+#include <driver/fbaccel.h>
 
 #include <stdio.h>
 #include <fcntl.h>

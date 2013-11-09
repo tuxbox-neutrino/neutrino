@@ -23,8 +23,8 @@
 */
 
 
-#ifndef __framebuffer__
-#define __framebuffer__
+#ifndef __framebuffer_ng__
+#define __framebuffer_ng__
 #include <config.h>
 
 #include <stdint.h>
@@ -34,10 +34,6 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <OpenThreads/Mutex>
-#include <OpenThreads/ScopedLock>
-#include <OpenThreads/Thread>
-#include <OpenThreads/Condition>
 
 #define fb_pixel_t uint32_t
 
@@ -65,45 +61,7 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define USE_OPENGL 1
 #endif
 
-class CFrameBuffer;
-class CFbAccel
-	: public OpenThreads::Thread
-{
-	private:
-		CFrameBuffer *fb;
-		fb_pixel_t lastcol;
-		OpenThreads::Mutex mutex;
-#ifdef USE_NEVIS_GXA
-		int		  devmem_fd;	/* to access the GXA register we use /dev/mem */
-		unsigned int	  smem_start;	/* as aquired from the fbdev, the framebuffers physical start address */
-		volatile uint8_t *gxa_base;	/* base address for the GXA's register access */
-		void add_gxa_sync_marker(void);
-#endif /* USE_NEVIS_GXA */
-		void setColor(fb_pixel_t col);
-		void run(void);
-		void _blit(void);
-		bool blit_thread;
-		bool blit_pending;
-		OpenThreads::Condition blit_cond;
-		OpenThreads::Mutex blit_mutex;
-	public:
-		fb_pixel_t *backbuffer;
-		fb_pixel_t *lbb;
-		CFbAccel(CFrameBuffer *fb);
-		~CFbAccel();
-		void paintPixel(int x, int y, const fb_pixel_t col);
-		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
-		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);
-		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
-		void waitForIdle(void);
-		void mark(int x, int y, int dx, int dy);
-		void blit();
-		void update();
-#ifdef USE_NEVIS_GXA
-		void setupGXA(void);
-#endif
-};
-
+class CFbAccel;
 /** Ausfuehrung als Singleton */
 class CFrameBuffer
 {
@@ -269,7 +227,7 @@ class CFrameBuffer
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 
-		void mark(int x, int y, int dx, int dy) { accel->mark(x, y, dx, dy); };
+		void mark(int x, int y, int dx, int dy);
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
 		enum 

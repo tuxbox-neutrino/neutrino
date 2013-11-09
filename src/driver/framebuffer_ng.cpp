@@ -26,6 +26,7 @@
 #endif
 
 #include <driver/framebuffer_ng.h>
+#include <driver/fbaccel.h>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -1341,3 +1342,9 @@ bool CFrameBuffer::_checkFbArea(int _x, int _y, int _dx, int _dy, bool prev)
 
 	return true;
 }
+
+/* TODO: can we get rid of that? */
+void CFrameBuffer::mark(int x, int y, int dx, int dy)
+{
+	accel->mark(x, y, dx, dy);
+};
