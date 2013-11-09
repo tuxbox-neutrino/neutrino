@@ -62,6 +62,7 @@ class CFbAccel
 		fb_pixel_t *lbb;
 		CFbAccel(CFrameBuffer *fb);
 		~CFbAccel();
+		bool init(void);
 		void paintPixel(int x, int y, const fb_pixel_t col);
 		void paintRect(const int x, const int y, const int dx, const int dy, const fb_pixel_t col);
 		void paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col);

@@ -219,53 +219,10 @@ void CFrameBuffer::setupGXA(void)
 }
 #endif
 
-void CFrameBuffer::init(const char * const fbDevice)
+void CFrameBuffer::init(const char * const)
 {
         int tr = 0xFF;
-#ifdef USE_OPENGL
-	(void)fbDevice;
-	fd = -1;
-	if (!glfb) {
-		fprintf(stderr, "CFrameBuffer::init: GL Framebuffer is not set up? we are doomed...\n");
-		goto nolfb;
-	}
-	screeninfo = glfb->getScreenInfo();
-	stride = 4 * screeninfo.xres;
-	available = glfb->getOSDBuffer()->size(); /* allocated in glfb constructor */
-	lfb = reinterpret_cast<fb_pixel_t*>(glfb->getOSDBuffer()->data());
-	memset(lfb, 0x7f, stride * screeninfo.yres);
-#else
-	fd = open(fbDevice, O_RDWR);
-	if(!fd) fd = open(fbDevice, O_RDWR);
-
-	if (fd<0) {
-		perror(fbDevice);
-		goto nolfb;
-	}
-
-	if (ioctl(fd, FBIOGET_VSCREENINFO, &screeninfo)<0) {
-		perror("FBIOGET_VSCREENINFO");
-		goto nolfb;
-	}
-
-	memmove(&oldscreen, &screeninfo, sizeof(screeninfo));
-
-	if (ioctl(fd, FBIOGET_FSCREENINFO, &fix)<0) {
-		perror("FBIOGET_FSCREENINFO");
-		goto nolfb;
-	}
-
-	available=fix.smem_len;
-	printf("%dk video mem\n", available/1024);
-	lfb=(fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
-
-	if (lfb == MAP_FAILED) {
-		perror("mmap");
-		goto nolfb;
-	}
-
-	memset(lfb, 0, available);
-#endif /* USE_OPENGL */
+	accel = new CFbAccel(this);
 	cache_size = 0;
 
         /* Windows Colors */
@@ -292,12 +249,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 
         useBackground(false);
 	m_transparent = m_transparent_default;
-	accel = new CFbAccel(this);
 	return;
-
-nolfb:
-	printf("framebuffer not available.\n");
-	lfb=0;
 }
 
 
@@ -322,19 +274,16 @@ CFrameBuffer::~CFrameBuffer()
 		backupBackground = NULL;
 	}
 
-	if (lfb)
-		munmap(lfb, available);
-
 	if (virtual_fb){
 		delete[] virtual_fb;
 		virtual_fb = NULL;
 	}
 	delete accel;
-	close(fd);
 }
 
 int CFrameBuffer::getFileHandle() const
 {
+	fprintf(stderr, "[fb]::%s: WARNING, this should never be used, please report!\n", __func__);
 	return fd;
 }
 

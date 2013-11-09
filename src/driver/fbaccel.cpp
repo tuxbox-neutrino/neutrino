@@ -197,6 +197,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 {
 	blit_thread = false;
 	fb = _fb;
+	init();
 	lastcol = 0xffffffff;
 	lbb = fb->lfb;	/* the memory area to draw to... */
 #ifdef HAVE_SPARK_HARDWARE
@@ -310,6 +311,12 @@ CFbAccel::~CFbAccel()
 		munmap((void *)gxa_base, 0x40000);
 	if (devmem_fd != -1)
 		close(devmem_fd);
+#endif
+#ifndef USE_OPENGL
+	if (fb->lfb)
+		munmap(fb->lfb, fb->available);
+	if (fb->fd > -1)
+		close(fb->fd);
 #endif
 }
 
@@ -928,3 +935,57 @@ void CFbAccel::mark(int, int, int, int)
 }
 #endif
 
+bool CFbAccel::init(void)
+{
+	fb_pixel_t *lfb;
+	fb->lfb = NULL;
+	fb->fd = -1;
+#ifdef USE_OPENGL
+	if (!glfb) {
+		fprintf(stderr, "CFbAccel::init: GL Framebuffer is not set up? we are doomed...\n");
+		return false;
+	}
+	fb->screeninfo = glfb->getScreenInfo();
+	fb->stride = 4 * fb->screeninfo.xres;
+	fb->available = glfb->getOSDBuffer()->size(); /* allocated in glfb constructor */
+	lfb = reinterpret_cast<fb_pixel_t*>(glfb->getOSDBuffer()->data());
+#else
+	int fd;
+#if HAVE_TRIPLEDRAGON
+	/* kernel is too old for O_CLOEXEC :-( */
+	fd = open("/dev/fb0", O_RDWR);
+	if (fd != -1)
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
+#else
+	fd = open("/dev/fb0", O_RDWR|O_CLOEXEC);
+#endif
+	if (fd < 0) {
+		perror("open /dev/fb0");
+		return false;
+	}
+	fb->fd = fd;
+
+	if (ioctl(fd, FBIOGET_VSCREENINFO, &fb->screeninfo) < 0) {
+		perror("FBIOGET_VSCREENINFO");
+		return false;
+	}
+
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &fb->fix) < 0) {
+		perror("FBIOGET_FSCREENINFO");
+		return false;
+	}
+
+	fb->available = fb->fix.smem_len;
+	printf("%dk video mem\n", fb->available / 1024);
+	lfb = (fb_pixel_t *)mmap(0, fb->available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
+
+	if (lfb == MAP_FAILED) {
+		perror("mmap");
+		return false;;
+	}
+#endif
+
+	memset(lfb, 0, fb->available);
+	fb->lfb = lfb;
+	return true;
+}
