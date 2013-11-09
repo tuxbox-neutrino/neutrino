@@ -161,6 +161,7 @@ int CHDDMenuHandler::doMenu ()
 	std::string tmp_str[n];
 	CMenuWidget * tempMenu[n];
 	for(int i = 0; i < n;i++) {
+		tempMenu[i] = NULL;
 		char str[256];
 		char sstr[256];
 		char vendor[128], model[128];
