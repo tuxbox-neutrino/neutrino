@@ -84,6 +84,7 @@ public:
 	std::string date;
 	std::string genre;
 	std::string track;
+	std::string cover;
 	bool changed;
 };
 #endif /* __AUDIO_METADATA__ */

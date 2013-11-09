@@ -51,7 +51,7 @@ CAudioMetaData::CAudioMetaData( const CAudioMetaData& src )
 	audio_start_pos( src.audio_start_pos ), vbr( src.vbr ),
 	hasInfoOrXingTag( src.hasInfoOrXingTag ), artist( src.artist ),
 	title( src.title ), album( src.album ), sc_station( src.sc_station ),
-	date( src.date ), genre( src.genre ), track( src.track ),
+	date( src.date ), genre( src.genre ), track( src.track ),cover(src.cover),
 	changed( src.changed )
 {
 }
@@ -81,6 +81,7 @@ void CAudioMetaData::operator=( const CAudioMetaData& src )
 	date = src.date;
 	genre = src.genre;
 	track = src.track;
+	cover = src.cover;
 	sc_station = src.sc_station;
 	changed = src.changed;
 }
@@ -104,5 +105,6 @@ void CAudioMetaData::clear()
 	date.clear();
 	genre.clear();
 	track.clear();
+	cover.clear();
 	changed=false;
 }
