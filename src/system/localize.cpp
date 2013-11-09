@@ -222,8 +222,15 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	if(buf)
 		free(buf);
 	char *_mem = (char *) realloc(*mem, memp - *mem);
-	if (_mem) // I see no reason for realloc to fail here, but anyways ...
-		*mem = _mem;
+	if (_mem) {
+		if (_mem != *mem) {
+			// most likely doesn't happen
+			for(unsigned int i = 1; i < sizeof(locale_real_names)/sizeof(const char *); i++)
+				if (loadData[i] != locale_real_names[i])
+					loadData[i] -= *mem - _mem;
+			*mem = _mem;
+		}
+	}
 
 	for (unsigned j = 1; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
 		if (loadData[j] == locale_real_names[j])
