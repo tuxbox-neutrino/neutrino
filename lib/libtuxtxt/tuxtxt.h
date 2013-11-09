@@ -580,7 +580,7 @@ char versioninfo[16];
 int hotlist[10];
 int maxhotlist;
 
-int pig, rc, fb, lcd;
+int pig, fb, lcd;
 int sx, ex, sy, ey;
 int PosX, PosY, StartX, StartY;
 int lastpage;
