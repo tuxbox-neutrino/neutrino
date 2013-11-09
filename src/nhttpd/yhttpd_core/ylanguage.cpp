@@ -85,8 +85,8 @@ void CLanguage::setLanguage(std::string _language){
 			NeutrinoLanguage->loadConfig(filename, ' ');
 			break;
 		}
-		else if (i == 2) {
-			// load neutrino default language
+		else if (i == 1) {
+			// load neutrino default language (should not happen)
 			NeutrinoLanguage->loadConfig(DATADIR "/neutrino/locale/english.locale", ' ');
 		}
 	}
