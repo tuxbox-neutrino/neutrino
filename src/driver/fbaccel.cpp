@@ -66,6 +66,11 @@ extern GLFramebuffer *glfb;
 #define NEED_BLIT_THREAD 1
 #endif
 
+/* note that it is *not* enough to just change those values */
+#define DEFAULT_XRES 1280
+#define DEFAULT_YRES 720
+#define DEFAULT_BPP  32
+
 //#undef USE_NEVIS_GXA //FIXME
 /*******************************************************************************/
 #ifdef USE_NEVIS_GXA
@@ -988,4 +993,80 @@ bool CFbAccel::init(void)
 	memset(lfb, 0, fb->available);
 	fb->lfb = lfb;
 	return true;
+}
+
+/* wrong name... */
+int CFbAccel::setMode(void)
+{
+	int fd = fb->fd;
+	t_fb_var_screeninfo *si = &fb->screeninfo;
+#if HAVE_AZBOX_HARDWARE
+	// set auto blit if AZBOX_KERNEL_BLIT environment variable is set
+	unsigned char tmp = getenv("AZBOX_KERNEL_BLIT") ? 0 : 1;
+	if (ioctl(fd, FBIO_SET_MANUAL_BLIT, &tmp) < 0)
+		perror("FBIO_SET_MANUAL_BLIT");
+
+	const unsigned int nxRes = DEFAULT_XRES;
+	const unsigned int nyRes = DEFAULT_YRES;
+	const unsigned int nbpp  = DEFAULT_BPP;
+	si->xres_virtual = si->xres = nxRes;
+	si->yres_virtual = (si->yres = nyRes) * 2;
+	si->height = 0;
+	si->width = 0;
+	si->xoffset = si->yoffset = 0;
+	si->bits_per_pixel = nbpp;
+
+	si->transp.offset = 24;
+	si->transp.length = 8;
+	si->red.offset = 16;
+	si->red.length = 8;
+	si->green.offset = 8;
+	si->green.length = 8;
+	si->blue.offset = 0;
+	si->blue.length = 8;
+
+	if (ioctl(fd, FBIOPUT_VSCREENINFO, si) < 0) {
+		// try single buffering
+		si->yres_virtual = si->yres = nyRes;
+		if (ioctl(fd, FBIOPUT_VSCREENINFO, si) < 0)
+		perror("FBIOPUT_VSCREENINFO");
+		printf("FB: double buffering not available.\n");
+	}
+	else
+		printf("FB: double buffering available!\n");
+
+	ioctl(fd, FBIOGET_VSCREENINFO, si);
+
+	if (si->xres != nxRes || si->yres != nyRes || si->bits_per_pixel != nbpp)
+	{
+		printf("SetMode failed: wanted: %dx%dx%d, got %dx%dx%d\n",
+		       nxRes, nyRes, nbpp,
+		       si->xres, si->yres, si->bits_per_pixel);
+	}
+#endif
+#if HAVE_SPARK_HARDWARE
+	/* it's all fake... :-) */
+	si->xres = si->xres_virtual = DEFAULT_XRES;
+	si->yres = si->yres_virtual = DEFAULT_YRES;
+	si->bits_per_pixel = DEFAULT_BPP;
+	fb->stride = si->xres * si->bits_per_pixel / 8;
+#else
+#ifndef USE_OPENGL
+	fb_fix_screeninfo _fix;
+
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0) {
+		perror("FBIOGET_FSCREENINFO");
+		return -1;
+	}
+	fb->stride = _fix.line_length;
+#endif
+#endif
+#if HAVE_COOL_HARDWARE
+	if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0)
+		printf("screen unblanking failed\n");
+#endif
+	/* avoid compiler warnings on various platforms */
+	(void) fd;
+	(void) si;
+	return 0;
 }

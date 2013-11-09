@@ -39,11 +39,6 @@
 
 #include <linux/kd.h>
 
-#ifdef USE_OPENGL
-#include <glfb.h>
-extern GLFramebuffer *glfb;
-#endif
-
 #include <gui/audiomute.h>
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
@@ -365,71 +360,7 @@ fprintf(stderr, "CFrameBuffer::setMode avail: %d active: %d\n", available, activ
 	if (!available&&!active)
 		return -1;
 
-#if HAVE_AZBOX_HARDWARE
-#ifndef FBIO_BLIT
-#define FBIO_SET_MANUAL_BLIT _IOW('F', 0x21, __u8)
-#define FBIO_BLIT 0x22
-#endif
-	// set auto blit if AZBOX_KERNEL_BLIT environment variable is set
-	unsigned char tmp = getenv("AZBOX_KERNEL_BLIT") ? 0 : 1;
-	if (ioctl(fd, FBIO_SET_MANUAL_BLIT, &tmp)<0)
-		perror("FBIO_SET_MANUAL_BLIT");
-
-	const unsigned int nxRes = DEFAULT_XRES;
-	const unsigned int nyRes = DEFAULT_YRES;
-	const unsigned int nbpp  = DEFAULT_BPP;
-	screeninfo.xres_virtual = screeninfo.xres = nxRes;
-	screeninfo.yres_virtual = (screeninfo.yres = nyRes) * 2;
-	screeninfo.height = 0;
-	screeninfo.width = 0;
-	screeninfo.xoffset = screeninfo.yoffset = 0;
-	screeninfo.bits_per_pixel = nbpp;
-
-	screeninfo.transp.offset = 24;
-	screeninfo.transp.length = 8;
-	screeninfo.red.offset = 16;
-	screeninfo.red.length = 8;
-	screeninfo.green.offset = 8;
-	screeninfo.green.length = 8;
-	screeninfo.blue.offset = 0;
-	screeninfo.blue.length = 8;
-
-	if (ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo)<0) {
-		// try single buffering
-		screeninfo.yres_virtual = screeninfo.yres = nyRes;
-		if (ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo) < 0)
-		perror("FBIOPUT_VSCREENINFO");
-		printf("FB: double buffering not available.\n");
-	}
-	else
-		printf("FB: double buffering available!\n");
-
-	ioctl(fd, FBIOGET_VSCREENINFO, &screeninfo);
-
-	if ((screeninfo.xres!=nxRes) && (screeninfo.yres!=nyRes) && (screeninfo.bits_per_pixel!=nbpp))
-	{
-		printf("SetMode failed: wanted: %dx%dx%d, got %dx%dx%d\n",
-		       nxRes, nyRes, nbpp,
-		       screeninfo.xres, screeninfo.yres, screeninfo.bits_per_pixel);
-	}
-#endif
-#if HAVE_SPARK_HARDWARE
-	/* it's all fake... :-) */
-	screeninfo.xres = screeninfo.xres_virtual = DEFAULT_XRES;
-	screeninfo.yres = screeninfo.yres_virtual = DEFAULT_YRES;
-	screeninfo.bits_per_pixel = DEFAULT_BPP;
-	stride = screeninfo.xres * screeninfo.bits_per_pixel / 8;
-#else
-#ifndef USE_OPENGL
-	fb_fix_screeninfo _fix;
-
-	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix)<0) {
-		perror("FBIOGET_FSCREENINFO");
-		return -1;
-	}
-	stride = _fix.line_length;
-#endif
-#endif
+	int ret = accel->setMode();
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
@@ -444,12 +375,7 @@ fprintf(stderr, "CFrameBuffer::setMode avail: %d active: %d\n", available, activ
 
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 	paintBackground();
-#if HAVE_COOL_HARDWARE
-        if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
-                printf("screen unblanking failed\n");
-        }
-#endif
-	return 0;
+	return ret;
 }
 #if 0 
 //never used
