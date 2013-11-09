@@ -202,8 +202,20 @@ int tv_pip_y;
 #define RC_HELP     CRCInput::RC_help
 #define RC_INFO     CRCInput::RC_info
 #define RC_DBOX     CRCInput::RC_setup
-#define RC_TEXT     CRCInput::RC_text
 #define RC_HOME     CRCInput::RC_home
+#define RC_TTTV     CRCInput::RC_tttv
+#define RC_TTZOOM   CRCInput::RC_ttzoom
+#define RC_TTREVEAL CRCInput::RC_ttreveal
+#if HAVE_TRIPLEDRAGON
+/* td has more keys so use ttx key for switching split mode... */
+#define RC_SPLIT    CRCInput::RC_text
+/* rc_text is now unused */
+#define RC_TEXT    (CRCInput::RC_MaxRC + 1)
+#else
+/* ...while other receivers use the vol- key for that, so rc_split is unused */
+#define RC_SPLIT   (CRCInput::RC_MaxRC + 1)
+#define RC_TEXT     CRCInput::RC_text
+#endif
 #endif
 
 typedef enum /* object type */
