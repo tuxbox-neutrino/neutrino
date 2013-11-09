@@ -36,6 +36,7 @@
 #include <gui/screensetup.h>
 
 #include <gui/color.h>
+#include <gui/infoviewer.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/icons.h>
 

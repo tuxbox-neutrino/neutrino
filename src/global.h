@@ -31,31 +31,7 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-
-#include <sectionsdclient/sectionsdclient.h>
-#include <timerdclient/timerdclient.h>
-
-#include <driver/fontrenderer.h>
-#include <driver/rcinput.h>
-#include <driver/radiotext.h>
-#if 0
-#if HAVE_COOL_HARDWARE
-#include <driver/vfd.h>
-#endif
-#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE || HAVE_GENERIC_HARDWARE
-#include "driver/lcdd.h"
-#define CVFD CLCD
-#endif
-#endif
-
-#include <system/localize.h>
 #include <system/settings.h>
-
-#include <gui/epgview.h>
-#include <gui/infoviewer.h>
-#include <gui/eventlist.h>
-#include <gui/videosettings.h>
-
 
 #ifndef NEUTRINO_CPP
   #define NEUTRINO_CPP extern
@@ -82,26 +58,39 @@ NEUTRINO_CPP  SNeutrinoSettings	g_settings;
 NEUTRINO_CPP  SglobalInfo	g_info;
 
 #ifdef HAVE_CONTROLD
+class CControldClient;
 NEUTRINO_CPP  CControldClient	*g_Controld;
 #endif
+class CZapitClient;
 NEUTRINO_CPP  CZapitClient	*g_Zapit;
+class CSectionsdClient;
 NEUTRINO_CPP  CSectionsdClient	*g_Sectionsd;
+class CTimerdClient;
 NEUTRINO_CPP  CTimerdClient	*g_Timerd;
 
+class FBFontRenderClass;
 NEUTRINO_CPP  FBFontRenderClass	*g_fontRenderer;
 NEUTRINO_CPP  FBFontRenderClass	*g_dynFontRenderer;
 
+class Font;
 NEUTRINO_CPP  Font * g_Font[SNeutrinoSettings::FONT_TYPE_COUNT];
 NEUTRINO_CPP  Font * g_SignalFont;
 
+class CRCInput;
 NEUTRINO_CPP  CRCInput		*g_RCInput;
 
+class CEpgData;
 NEUTRINO_CPP  CEpgData		*g_EpgData;
+class CInfoViewer;
 NEUTRINO_CPP  CInfoViewer	*g_InfoViewer;
+class CNeutrinoEventList;
 NEUTRINO_CPP  CNeutrinoEventList		*g_EventList;
 
+class CLocaleManager;
 NEUTRINO_CPP CLocaleManager	*g_Locale;
+class CVideoSettings;
 NEUTRINO_CPP CVideoSettings	*g_videoSettings;
+class CRadioText;
 NEUTRINO_CPP CRadioText		*g_Radiotext;
 
 #ifndef DISABLE_GUI_MOUNT

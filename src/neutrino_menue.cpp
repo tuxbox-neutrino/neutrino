@@ -74,6 +74,7 @@
 #include "gui/test_menu.h"
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
+#include "gui/videosettings.h"
 #include "driver/record.h"
 #include "driver/display.h"
 

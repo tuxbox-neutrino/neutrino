@@ -47,8 +47,10 @@
 #include <driver/record.h>
 #include <driver/fade.h>
 #include <driver/display.h>
+#include <driver/radiotext.h>
 
 #include <gui/color.h>
+#include <gui/epgview.h>
 #include <gui/eventlist.h>
 #include <gui/infoviewer.h>
 #include <gui/osd_setup.h>

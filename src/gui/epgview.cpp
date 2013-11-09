@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <gui/epgview.h>
+#include <gui/eventlist.h>
 
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>

@@ -33,12 +33,16 @@
 #include <neutrino.h>
 
 #include <gui/audiomute.h>
+#include <gui/audio_select.h>
+#include <gui/epgview.h>
+#include <gui/eventlist.h>
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
 #include <gui/timeosd.h>
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
+#include <gui/videosettings.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/display.h>
