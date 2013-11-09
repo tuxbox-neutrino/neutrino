@@ -52,7 +52,7 @@
 #include <linux/stmfb.h>
 #include <bpamem.h>
 #endif
-#ifdef USE_OPENGL
+#if HAVE_GENERIC_HARDWARE
 #include <glfb.h>
 extern GLFramebuffer *glfb;
 #endif
@@ -317,7 +317,7 @@ CFbAccel::~CFbAccel()
 	if (devmem_fd != -1)
 		close(devmem_fd);
 #endif
-#ifndef USE_OPENGL
+#if ! HAVE_GENERIC_HARDWARE
 	if (fb->lfb)
 		munmap(fb->lfb, fb->available);
 	if (fb->fd > -1)
@@ -921,7 +921,7 @@ void CFbAccel::_blit()
 /* not azbox and not spark -> no blit() needed */
 void CFbAccel::_blit()
 {
-#ifdef USE_OPENGL
+#if HAVE_GENERIC_HARDWARE
 	if (glfb)
 		glfb->blit();
 #endif
@@ -945,7 +945,7 @@ bool CFbAccel::init(void)
 	fb_pixel_t *lfb;
 	fb->lfb = NULL;
 	fb->fd = -1;
-#ifdef USE_OPENGL
+#if HAVE_GENERIC_HARDWARE
 	if (!glfb) {
 		fprintf(stderr, "CFbAccel::init: GL Framebuffer is not set up? we are doomed...\n");
 		return false;
@@ -988,7 +988,7 @@ bool CFbAccel::init(void)
 		perror("mmap");
 		return false;;
 	}
-#endif
+#endif /* ! GENERIC_HARDWARE */
 
 	memset(lfb, 0, fb->available);
 	fb->lfb = lfb;
@@ -1051,7 +1051,7 @@ int CFbAccel::setMode(void)
 	si->bits_per_pixel = DEFAULT_BPP;
 	fb->stride = si->xres * si->bits_per_pixel / 8;
 #else
-#ifndef USE_OPENGL
+#if ! HAVE_GENERIC_HARDWARE
 	fb_fix_screeninfo _fix;
 
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix) < 0) {
