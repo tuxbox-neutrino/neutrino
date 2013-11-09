@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2012 Stefan Seyfried
+	Copyright (C) 2012-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -40,7 +40,6 @@
 
 
 SHTDCNT::SHTDCNT()
-	: configfile('\t')
 {
 	thread_running = false;
 }

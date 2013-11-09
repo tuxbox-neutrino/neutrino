@@ -1,13 +1,11 @@
 /*
-	$Id$
-
 	LCD-Daemon  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
 	Copyright (C) 2008 Novell, Inc. Author: Stefan Seyfried
-		  (C) 2009-2012 Stefan Seyfried
+		  (C) 2009-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -85,7 +83,6 @@ static bool isUTF8(const std::string &string)
 }
 
 CLCD::CLCD()
-	: configfile('\t')
 {
 #ifdef LCD_UPDATE
 	m_fileList = NULL;

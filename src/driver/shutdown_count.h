@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2012 Stefan Seyfried
+	Copyright (C) 2012-2013 Stefan Seyfried
 
 	License: GPL
 
@@ -26,7 +26,6 @@
 #ifndef __shutdown_count__
 #define __shutdown_count__
 
-#include <configfile.h>
 #include <pthread.h>
 
 class SHTDCNT
@@ -37,7 +36,6 @@ class SHTDCNT
 		bool		thread_running;
 		unsigned int	shutdown_cnt;
 		unsigned int	sleep_cnt;
-		CConfigFile	configfile;
 
 		void shutdown_counter();
 		SHTDCNT();
