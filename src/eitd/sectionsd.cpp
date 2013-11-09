@@ -1427,15 +1427,19 @@ void CTimeThread::run()
 
 			xprintf("%s: getting DVB time (isOpen %d)\n", name.c_str(), isOpen());
 			int rc;
+#if HAVE_COOL_HARDWARE
+			/* libcoolstream does not like the repeated read if the dmx is not yet running
+			 * (e.g. during neutrino start) and causes strange openthreads errors which in
+			 * turn cause complete malfunction of the dmx, so we cannot use the "speed up
+			 * shutdown" hack on with libcoolstream... :-( */
+			rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
+#else
 			time_t start = time_monotonic_ms();
 			/* speed up shutdown by looping around Read() */
 			do {
 				rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds / 12);
-#if HAVE_COOL_HARDWARE
-				if (rc < 0)	/* libcoolstream returns -1 on timeout ??? ... */
-					rc = 0;	/* ...and does not set a useful errno (EINVAL) */
-#endif
 			} while (running && rc == 0 && (time_monotonic_ms() - start) < timeoutInMSeconds);
+#endif
 			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
 				SIsectionTIME st(static_buf);
