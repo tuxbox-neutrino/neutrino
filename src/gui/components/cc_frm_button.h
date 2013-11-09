@@ -47,8 +47,11 @@ class CComponentsButton : public CComponentsForm
 		///initialize all required attributes and objects
 		void initVarButton();
 
-		///property: button text
+		///property: button text as string, see also setCaption() and getCaptionString()
 		std::string cc_btn_capt;
+		///property: button text as locale, see also setCaption() and getCaptionLocale()
+		neutrino_locale_t cc_btn_capt_locale;
+		
 		///property: icon name, only icons supported, to find in gui/widget/icons.h
 		std::string cc_btn_icon;
 
@@ -85,6 +88,11 @@ class CComponentsButton : public CComponentsForm
 		virtual void setCaption(const std::string& text);
 		///set caption: parameter as locale
 		virtual void setCaption(const neutrino_locale_t locale_text);
+		
+		///get caption, type as std::string
+		virtual std::string getCaptionString(){return cc_btn_capt;};
+		///get loacalized caption id, type = neutrino_locale_t
+		virtual neutrino_locale_t getCaptionLocale(){return cc_btn_capt_locale;};
 		
 		///reinitialize items
 		virtual void Refresh(){initCCBtnItems();};

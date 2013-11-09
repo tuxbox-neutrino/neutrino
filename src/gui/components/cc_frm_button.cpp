@@ -68,7 +68,8 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 {
 	initVarButton();
 	cc_btn_icon	= icon_name;
-	cc_btn_capt	= g_Locale->getText(caption_locale);;
+	cc_btn_capt_locale = caption_locale;
+	cc_btn_capt	= g_Locale->getText(cc_btn_capt_locale);
 	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
 	
 	x 		= x_pos;
@@ -95,6 +96,7 @@ void CComponentsButton::initVarButton()
 	cc_btn_font	= NULL;
 	cc_btn_icon	= "";
 	cc_btn_capt	= "";
+	cc_btn_capt_locale = NONEXISTANT_LOCALE;
 }
 
 void CComponentsButton::initIcon()
@@ -194,7 +196,8 @@ void CComponentsButton::setCaption(const std::string& text)
 
 void CComponentsButton::setCaption(const neutrino_locale_t locale_text)
 {
-	cc_btn_capt = g_Locale->getText(locale_text);
+	cc_btn_capt_locale = locale_text;
+	cc_btn_capt = g_Locale->getText(cc_btn_capt_locale);
 }
 
 void CComponentsButton::initCCBtnItems()
