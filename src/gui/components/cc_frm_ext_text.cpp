@@ -111,14 +111,6 @@ void CComponentsExtTextForm::initVarExtTextForm(const int x_pos, const int y_pos
 
 void CComponentsExtTextForm::initLabel()
 {
-	//init label object only if text available
-	if (ccx_label_text.empty()) {
-		if (ccx_label_obj)
-			delete ccx_label_obj;
-		ccx_label_obj = NULL;
-		return;
-	}
-
 	//initialize label object
 	if (ccx_label_obj == NULL){
 		ccx_label_obj = new CComponentsLabel();
@@ -141,14 +133,6 @@ void CComponentsExtTextForm::initLabel()
 
 void CComponentsExtTextForm::initText()
 {
-	//init text object only if text available
-	if (ccx_text.empty()) {
-		if (ccx_text_obj)
-			delete ccx_text_obj;
-		ccx_text_obj = NULL;
-		return;
-	}
-
 	//initialize text object
 	if (ccx_text_obj == NULL){
 		ccx_text_obj = new CComponentsLabel();
