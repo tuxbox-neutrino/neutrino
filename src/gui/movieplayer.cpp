@@ -330,6 +330,8 @@ void CMoviePlayerGui::Cleanup()
 	numpida = 0; currentapid = 0;
 	currentspid = -1;
 	numsubs = 0;
+	vpid = 0;
+	vtype = 0;
 
 	startposition = 0;
 	is_file_player = false;
