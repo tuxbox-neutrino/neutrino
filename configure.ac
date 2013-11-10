@@ -222,6 +222,8 @@ src/gui/bedit/Makefile
 src/gui/components/Makefile
 src/gui/widget/Makefile
 src/system/Makefile
+src/system/mtdutils/Makefile
+src/system/mtdutils/lib/Makefile
 data/Makefile
 data/fonts/Makefile
 data/icons/Makefile
@@ -243,10 +245,3 @@ src/zapit/lib/Makefile
 src/zapit/src/Makefile
 src/zapit/data/Makefile
 ])
-
-if test "$BOXMODEL" = "apollo"; then
-AC_OUTPUT([
-src/system/mtdutils/Makefile
-src/system/mtdutils/lib/Makefile
-])
-fi
