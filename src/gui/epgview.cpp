@@ -34,7 +34,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc.h>
 #include <gui/timerlist.h>
 
 #include <global.h>

@@ -40,7 +40,7 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
-#include <gui/components/cc_frm.h>
+#include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>

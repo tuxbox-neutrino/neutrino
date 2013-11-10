@@ -31,8 +31,8 @@
 #include <config.h>
 #endif
 
-#include <global.h>
-#include <neutrino.h>
+// #include <global.h>
+// #include <neutrino.h>
 #include <gui/components/cc_frm.h>
 #include <gui/components/cc_item_progressbar.h>
 #include <gui/components/cc_item_text.h>

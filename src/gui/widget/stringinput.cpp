@@ -86,9 +86,12 @@ CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int
 {
         name =  Name;
 	head = NULL;
+	value = NULL;
+#if 0
         value = new char[Size+1];
         value[Size] = '\0';
         strncpy(value,Value->c_str(),Size);
+#endif
         valueString = Value;
 	lower_bound = -1;
 	upper_bound = -1;
@@ -123,10 +126,12 @@ CStringInput::CStringInput(char * Head, char* Value, int Size, const neutrino_lo
 
 CStringInput::~CStringInput()
 {
+#if 0
 	if (valueString != NULL)
 	{
 		delete[] value;
 	}
+#endif
 	if(head) {
 		free(head);
 	}
@@ -429,6 +434,11 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		delete[] oldval;
 		return res;
 	}
+	if (valueString != NULL) {
+		value = new char[size+1];
+		value[size] = '\0';
+		strncpy(value,valueString->c_str(),size);
+	}
         oldval[size] = 0;
 	memset(dispval, 0, size + 1);
 
@@ -581,6 +591,9 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
         {
                 observ->changeNotify(name, value);
         }
+	if (valueString != NULL)
+		delete[] value;
+
 	delete[] dispval;
 	delete[] oldval;
 	return res;

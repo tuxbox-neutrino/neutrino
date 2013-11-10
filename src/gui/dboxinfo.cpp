@@ -40,7 +40,7 @@
 #include <mntent.h>
 
 #include <gui/dboxinfo.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc.h>
 
 #include <global.h>
 #include <neutrino.h>

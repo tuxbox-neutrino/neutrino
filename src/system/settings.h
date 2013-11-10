@@ -130,6 +130,7 @@ struct SNeutrinoSettings
 	int ci_clock;
 	int ci_ignore_messages;
 	int radiotext_enable;
+	int easymenu;
 	
 	//vcr
 	int vcr_AutoSwitch;
@@ -201,6 +202,7 @@ struct SNeutrinoSettings
 		P_MSET_MISC,
 		
 		//service menu
+		P_MSER_TUNER,
 		P_MSER_SCANTS,
 		P_MSER_RELOAD_CHANNELS,
 		P_MSER_BOUQUET_EDIT,
@@ -445,6 +447,8 @@ struct SNeutrinoSettings
 	int pip_y;
 	int bigFonts;
 	int window_size;
+	int window_width;
+	int window_height;
 	int eventlist_additional;
 	int channellist_additional;
 	int channellist_epgtext_align_right;

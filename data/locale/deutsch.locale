@@ -511,6 +511,7 @@ flashupdate.namemode2_default <Partition>+<Zeit>.img
 flashupdate.namemode2_hostname_time <Partition>+<Zeit>+<Hostname>.img
 flashupdate.new_found Updates verfügbar!
 flashupdate.new_notfound Keine Updates verfügbar!
+flashupdate.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.programmingflash programmiere Flash
 flashupdate.proxypassword Passwort
 flashupdate.proxypassword_hint1 Geben sie das Proxy-Passwort ein
@@ -532,7 +533,6 @@ flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\
 flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
 flashupdate.selectimage Verfügbare Images/Files
 flashupdate.settings Update-Einstellungen
-flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
 flashupdate.update_with_settings_del_skipped Ordner [%s] kann nicht gelöscht werden. Eintrag wird übersprungen.
@@ -722,6 +722,7 @@ ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
 mainmenu.audioplayer Audioplayer
+mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
 mainmenu.head Hauptmenü
@@ -738,7 +739,9 @@ mainmenu.scripts Skripte
 mainmenu.service Service
 mainmenu.settings Einstellungen
 mainmenu.shutdown Ausschalten
+mainmenu.shutdown_menu Ausschalt Optionen
 mainmenu.sleeptimer SleepTimer
+mainmenu.standby Standby
 mainmenu.tvmode TV-Modus
 mainmenu.tvradio_switch TV-Radio Umschaltung
 mainsettings.audio Audio
@@ -796,6 +799,7 @@ menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen
 menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
 menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfenster angezeigt werden sollen
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
+menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
@@ -973,6 +977,7 @@ menu.hint_net_setupnow Weisen Sie die aktuellen Einstellungen zu oder übernehme
 menu.hint_net_setuponstartup Startet das Netzwerk automatisch beim Starten der Box
 menu.hint_net_show Zeigen Ihnen die aktuellen Netzwerkeinstellungen
 menu.hint_net_ssid Geben Sie die SSID des WLAN ein, mit dem Sie eine Verbindung herstellen möchten
+menu.hint_net_ssid_scan Nach verfügbaren WLAN-Netzwerken suchen
 menu.hint_net_telnet Aktiviert Telnet auf Ihrer Box
 menu.hint_net_test Testet die Netzwerkverbindung:\nPing auf Gateway, Name-Server und externe IP-Adressen
 menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
@@ -985,6 +990,7 @@ menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
+menu.hint_parentallock_menu Menüs mit PIN Code sichern
 menu.hint_parentallock_prompt Legen Sie fest, wann die Eingabe einer PIN erfolgen soll
 menu.hint_personalize Personalisieren Sie ihre Menüs und konfigurieren Sie ihre Benutzermenüs
 menu.hint_pictureviewer_defdir Wählen Sie das Startverzeichnis für den Bildbetrachter
@@ -1106,11 +1112,12 @@ menu.hint_scripts Shell-Skripte ausführen
 menu.hint_selected_back Ändern Sie die Hintergrundfarbe für ausgewählte Fensterinhalte
 menu.hint_selected_text Ändern Sie die Textfarbe für ausgewählte Fensterinhalte
 menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung und mehr
-menu.hint_service_scan Tuner-Einstellungen und Service-Suchlauf
+menu.hint_service_scan Automatischer / manueller Service Suchlauf
 menu.hint_settings Konfigurieren von Neutrino-HD,\nNetzwerk, Video, Audio, OSD und mehr
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
 menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn die Box im Standby-Modus ist
+menu.hint_shutdown_menu Versetzen des Receivers in den Standby Modus, ausschalten des Receivers, setzen des Sleep Timers
 menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste länger als 1 Sekunde betätigt wird
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus
@@ -1123,6 +1130,7 @@ menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen bzw. in den
 menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
 menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
 menu.hint_softupdate_settings Das lokale Update-Verzeichnis und die Konfigurationsdatei festlegen
+menu.hint_standby Receiver in den Standby Modus versetzen
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate und mehr
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
@@ -1317,7 +1325,7 @@ moviebrowser.foot_options Optionen
 moviebrowser.foot_play Film starten
 moviebrowser.foot_refresh Liste neu laden
 moviebrowser.foot_sort Sortieren:
-moviebrowser.head TS Filmarchiv (eigene Aufnahmen)
+moviebrowser.head Meine Aufnahmen
 moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:
@@ -1480,9 +1488,12 @@ networkmenu.reset_settings_now Sollen die vorherigen Einstellungen \nwieder herg
 networkmenu.select_if Schnittstelle
 networkmenu.services Netzwerkservice
 networkmenu.setupnow Einstellungen jetzt zuweisen
-networkmenu.setuponstartup Beim Start Netzwerk setzen
+networkmenu.setuponstartup Schnittstelle beim Start aktivieren
 networkmenu.show Aktive Einstellungen zeigen
 networkmenu.ssid Netzwerkname (SSID)
+networkmenu.ssid_scan WLAN-Netzwerke suchen
+networkmenu.ssid_scan_error Keine WLAN-Netzwerke gefunden.
+networkmenu.ssid_scan_wait WLAN-Netzwerke werden gesucht...
 networkmenu.test Netzwerk testen
 neutrino_starting Neutrino wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
@@ -1534,6 +1545,7 @@ parentallock.lockage16 ab 16 Jahren sperren
 parentallock.lockage18 ab 18 Jahren sperren
 parentallock.lockedchannel Vorgesperrter Sender...
 parentallock.lockedprogram Gesperrtes Programm (FSK ab %d)
+parentallock.menu Sicherheits Menü
 parentallock.never Nie
 parentallock.onsignal Bei gesendeter Vorsperre
 parentallock.parentallock Jugendschutz

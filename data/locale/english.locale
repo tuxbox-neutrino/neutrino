@@ -511,6 +511,7 @@ flashupdate.namemode2_default <partition>+<time>.img
 flashupdate.namemode2_hostname_time <partition>+<time>+<hostname>.img
 flashupdate.new_found New image found !
 flashupdate.new_notfound No new images found
+flashupdate.noversion Version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
 flashupdate.programmingflash programming flash
 flashupdate.proxypassword Password
 flashupdate.proxypassword_hint1 enter the proxyserver password
@@ -532,7 +533,6 @@ flashupdate.reallyflashmtd Do you really want to flash?\n\nIf a error occurs or 
 flashupdate.savesuccess The image was successfully saved \nunder %s.
 flashupdate.selectimage Available Images/Files
 flashupdate.settings Update settings
-flashupdate.squashfs.noversion SquashFS version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.update_with_settings_del_skipped Folder [%s] can not be deleted. Entry is skipped.
@@ -722,6 +722,7 @@ ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
 mainmenu.audioplayer Audioplayer
+mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
 mainmenu.games Games
 mainmenu.head Main Menu
@@ -735,10 +736,12 @@ mainmenu.recording Recording
 mainmenu.recording_start start
 mainmenu.recording_stop stop
 mainmenu.scripts Scripts
-mainmenu.service Service
-mainmenu.settings Settings
-mainmenu.shutdown Shutdown
+mainmenu.service Installation (service)
+mainmenu.settings System settings
+mainmenu.shutdown Shutdown (deep standby)
+mainmenu.shutdown_menu Shutdown
 mainmenu.sleeptimer SleepTimer
+mainmenu.standby Standby
 mainmenu.tvmode TV-Mode
 mainmenu.tvradio_switch TV-Radio Switch
 mainsettings.audio Audio
@@ -796,6 +799,7 @@ menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
 menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_setup Configure channel list GUI options
+menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_colors Configure GUI colors
 menu.hint_content_back Change GUI window background color
@@ -973,6 +977,7 @@ menu.hint_net_setupnow Apply current settings
 menu.hint_net_setuponstartup Start network at boot time
 menu.hint_net_show Show current network settings
 menu.hint_net_ssid Enter SSID of wireless network\nyou want to connect to
+menu.hint_net_ssid_scan Scan for available WLAN networks
 menu.hint_net_telnet Enable telnet login to your box
 menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
 menu.hint_net_ushare Share connected HDD over uPnp
@@ -985,6 +990,7 @@ menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
+menu.hint_parentallock_menu Lock menus with pin code
 menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN code
 menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
 menu.hint_pictureviewer_defdir Default picture viewer directory
@@ -1106,11 +1112,12 @@ menu.hint_scripts Run scripts
 menu.hint_selected_back Change selected item background color
 menu.hint_selected_text Change selected item text color
 menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
-menu.hint_service_scan Tuner setup, service scan
+menu.hint_service_scan Auto / manual service scan
 menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
 menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
+menu.hint_shutdown_menu Put you receiver in sleep or deep standby mode, set sleep timer
 menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode
@@ -1123,6 +1130,7 @@ menu.hint_softupdate_expert Separate partitions from the flash read / write to t
 menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
 menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash
 menu.hint_softupdate_settings The local update directory and the configuration file to set
+menu.hint_standby Put receiver to sleep mode
 menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
 menu.hint_subchannel_pos Select subchannels menu position
@@ -1317,7 +1325,7 @@ moviebrowser.foot_options Options
 moviebrowser.foot_play Start movie
 moviebrowser.foot_refresh Refresh list
 moviebrowser.foot_sort Sort:
-moviebrowser.head TS MovieBrowser
+moviebrowser.head My recordings
 moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
@@ -1480,9 +1488,12 @@ networkmenu.reset_settings_now Do you want restore the previous settings?
 networkmenu.select_if Interface
 networkmenu.services Network services
 networkmenu.setupnow Apply network settings now
-networkmenu.setuponstartup Setup network on startup
+networkmenu.setuponstartup Setup interface on startup
 networkmenu.show Show active Network settings
 networkmenu.ssid Network name (SSID)
+networkmenu.ssid_scan WLAN network scan
+networkmenu.ssid_scan_error No WLAN networks are found.
+networkmenu.ssid_scan_wait WLAN network scan in progress...
 networkmenu.test Test network now
 neutrino_starting Neutrino starting...
 nfs.alreadymounted directory already mounted
@@ -1534,6 +1545,7 @@ parentallock.lockage16 from 16 years up
 parentallock.lockage18 from 18 years up
 parentallock.lockedchannel Locked sender...
 parentallock.lockedprogram Locked program (from %d years up)
+parentallock.menu Menu Security
 parentallock.never never
 parentallock.onsignal on broadcasted lock
 parentallock.parentallock Parental lock

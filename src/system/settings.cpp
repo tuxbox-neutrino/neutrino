@@ -57,7 +57,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_cisettings_main"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
 	//main menu->settings menu
-	{"personalize_settingsmager"		, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	{"personalize_settingsmager"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_video"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_audio"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_network"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
@@ -72,6 +72,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_misc"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
 	//main menu->service menu
+	{"personalize_tuner"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_scants"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_reload_channels"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_bouquet_edit"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
@@ -85,7 +86,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_media_menu"		, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_media_audio"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_media_intetplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
-	{"personalize_media_movieplayer"	, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	{"personalize_media_movieplayer"	, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_media_pviewer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_media_upnp"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	
@@ -151,7 +152,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 #if 1
 	if(sat_TP_fec == 4) sat_TP_fec = 5;
 #endif
-	fast_type = configfile.getInt32("fast_type", 1);
+	fast_type = configfile.getInt32("fast_type", 2);
 	fast_op = configfile.getInt32("fast_op", 0);
 	cable_nid = configfile.getInt32("cable_nid", 0);
 

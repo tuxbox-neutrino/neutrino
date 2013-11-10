@@ -27,7 +27,7 @@
 
 #include <time.h>
 #include <driver/framebuffer.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc.h>
 
 class CTimeOSD
 {

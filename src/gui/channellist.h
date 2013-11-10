@@ -36,8 +36,6 @@
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
-#include <gui/components/cc_frm_clock.h>
-#include <gui/components/cc_item_tvpic.h>
 #include <system/lastchannel.h>
 
 #include <sectionsdclient/sectionsdclient.h>

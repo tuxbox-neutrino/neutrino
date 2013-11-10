@@ -53,9 +53,12 @@
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
 
+#include <video.h>
+
 //#define ONE_KEY_PLUGIN
 
 extern CPlugins       * g_PluginList;
+extern cVideo *videoDecoder;
 
 CMiscMenue::CMiscMenue()
 {
@@ -122,6 +125,14 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		sprintf(str, "Event count: %d", num);
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack);
 		return menu_return::RETURN_REPAINT;
+	}
+	else if(actionKey == "energy")
+	{
+		return showMiscSettingsMenuEnergy();
+	}
+	else if(actionKey == "channellist")
+	{
+		return showMiscSettingsMenuChanlist();
 	}
 
 	return showMiscSettingsMenu();
@@ -194,7 +205,6 @@ const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTIO
 int CMiscMenue::showMiscSettingsMenu()
 {
 	//misc settings
-	miscNotifier = NULL; /* for check at exit */
 	fanNotifier = new CFanControlNotifier();
 	sectionsdConfigNotifier = new CSectionsdConfigNotifier();
 	CMenuWidget misc_menue(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP);
@@ -211,9 +221,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	//energy, shutdown
 	if (g_info.hw_caps->can_shutdown)
 	{
-		CMenuWidget *misc_menue_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ENERGY);
-		showMiscSettingsMenuEnergy(misc_menue_energy);
-		mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, misc_menue_energy, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, this, "energy", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 		mf->setHint("", LOCALE_MENU_HINT_MISC_ENERGY);
 		misc_menue.addItem(mf);
 	}
@@ -249,9 +257,7 @@ int CMiscMenue::showMiscSettingsMenu()
 		misc_menue.addItem(mf);
 	}
 	//channellist
-	CMenuWidget misc_menue_chanlist(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
-	showMiscSettingsMenuChanlist(&misc_menue_chanlist);
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, &misc_menue_chanlist, NULL, CRCInput::RC_2);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, this, "channellist", CRCInput::RC_2);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_CHANNELLIST);
 	misc_menue.addItem(mf);
 
@@ -271,8 +277,10 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
+#if 0
 	if (miscNotifier)
 		delete miscNotifier;
+#endif
 	delete miscEpgNotifier;
 	return res;
 }
@@ -315,9 +323,17 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 #endif /*ONE_KEY_PLUGIN*/
 }
 
-//energy and shutdown settings
-void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
+#define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 2
+const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT] =
 {
+	{ VIDEO_HDMI_CEC_MODE_OFF       , LOCALE_OPTIONS_OFF   },
+	{ VIDEO_HDMI_CEC_MODE_TUNER     , LOCALE_OPTIONS_ON    }
+};
+
+//energy and shutdown settings
+int CMiscMenue::showMiscSettingsMenuEnergy()
+{
+	CMenuWidget *ms_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ENERGY);
 	ms_energy->addIntroItems(LOCALE_MISCSETTINGS_ENERGY);
 
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
@@ -326,8 +342,8 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, g_settings.shutdown_count, miscSettings_shutdown_count);
 	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
-	
-	miscNotifier = new COnOffNotifier(1);
+
+	COnOffNotifier * miscNotifier = new COnOffNotifier(1);
 	miscNotifier->addItem(m1);
 	miscNotifier->addItem(m2);
 
@@ -345,6 +361,17 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	CMenuOptionChooser * m4 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SLEEPTIMER_MIN, &g_settings.sleeptimer_min, SLEEPTIMER_MIN_OPTIONS, SLEEPTIMER_MIN_OPTION_COUNT, true);
 	m4->setHint("", LOCALE_MENU_HINT_SLEEPTIMER_MIN);
 	ms_energy->addItem(m4);
+
+	if (g_settings.easymenu) {
+		CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
+		cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
+		ms_energy->addItem(cec_ch);
+	}
+
+	int res = ms_energy->exec(NULL, "");
+	delete ms_energy;
+	delete miscNotifier;
+	return res;
 }
 
 //EPG settings
@@ -419,8 +446,9 @@ void CMiscMenue::showMiscSettingsMenuFBrowser(CMenuWidget *ms_fbrowser)
 }
 
 //channellist
-void CMiscMenue::showMiscSettingsMenuChanlist(CMenuWidget *ms_chanlist)
+int CMiscMenue::showMiscSettingsMenuChanlist()
 {
+	CMenuWidget * ms_chanlist = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
 	ms_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
 
 	CMenuOptionChooser * mc;
@@ -451,6 +479,9 @@ void CMiscMenue::showMiscSettingsMenuChanlist(CMenuWidget *ms_chanlist)
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_NUMERIC_ADJUST,   &g_settings.channellist_numeric_adjust, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_NUMERIC_ADJUST);
 	ms_chanlist->addItem(mc);
+	int res = ms_chanlist->exec(NULL, "");
+	delete ms_chanlist;
+	return res;
 }
 
 #ifdef CPU_FREQ
@@ -464,3 +495,23 @@ void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
 }
 #endif /*CPU_FREQ*/
+
+bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
+{
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC))
+	{
+		printf("[neutrino CEC Settings] %s set CEC settings...\n", __FUNCTION__);
+		g_settings.hdmi_cec_standby = 0;
+		g_settings.hdmi_cec_view_on = 0;
+		if (g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF) {
+			g_settings.hdmi_cec_standby = 1;
+			g_settings.hdmi_cec_view_on = 1;
+			g_settings.hdmi_cec_mode = VIDEO_HDMI_CEC_MODE_TUNER;
+		}
+		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
+		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
+		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+	}
+
+	return false;
+}

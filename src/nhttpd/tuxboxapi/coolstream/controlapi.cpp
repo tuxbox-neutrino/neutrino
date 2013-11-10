@@ -810,11 +810,14 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 		firstEPG += hh->outPair("timeElapsed", string_printf("%d", (time(NULL) - event->startTime) / 60), true);
 		firstEPG += hh->outPair("timeTotal", string_printf("%d", event->duration / 60), true);
 		firstEPG += hh->outPair("percentage", string_printf("%d", percentage), false);
+		firstEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.current_uniqueKey), true);
 
 		if (currentNextInfo.flags & CSectionsdClient::epgflags::has_next) {
 			timestr = timeString(currentNextInfo.next_zeit.startzeit);
 			secondEPG += hh->outPair("startTime", timestr, true);
 			secondEPG += hh->outPair("description", hh->outValue(currentNextInfo.next_name), false);
+			secondEPG += hh->outPair("timeTotal", string_printf("%d", currentNextInfo.next_zeit.dauer / 60), true);
+			secondEPG += hh->outPair("eventid", string_printf("%llu", currentNextInfo.next_uniqueKey), true);
 		}
 	}
 

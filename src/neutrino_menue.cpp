@@ -71,7 +71,9 @@
 #include "gui/sleeptimer.h"
 #include "gui/update_menue.h"
 #include "gui/streaminfo2.h"
+#ifdef ENABLE_TEST_MENU
 #include "gui/test_menu.h"
+#endif
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
 #include "gui/videosettings.h"
@@ -91,6 +93,7 @@ enum
 	MENU_MAIN,
 	MENU_SETTINGS,
 	MENU_SERVICE,
+	MENU_SHUTDOWN,
 
 	MENU_MAX //3
 };
@@ -102,6 +105,7 @@ const mn_widget_struct_t menu_widgets[MENU_MAX] =
 	{LOCALE_MAINMENU_HEAD, 		NEUTRINO_ICON_MAINMENU, 	MENU_WIDTH},	/* 0 = MENU_MAIN*/
 	{LOCALE_MAINSETTINGS_HEAD, 	NEUTRINO_ICON_SETTINGS, 	MENU_WIDTH},	/* 1 = MENU_SETTINGS*/
 	{LOCALE_SERVICEMENU_HEAD,	NEUTRINO_ICON_SETTINGS, 	MENU_WIDTH}, 	/* 2 = MENU_SERVICE*/
+	{LOCALE_MAINMENU_SHUTDOWN_MENU,	NEUTRINO_ICON_BUTTON_POWER, 	MENU_WIDTH}, 	/* 3 = MENU_SHUTDOWN*/
 };
 
 //init all menues
@@ -112,7 +116,7 @@ void CNeutrinoApp::InitMenu()
 	//personalize: neutrino.h, neutrino.cpp
 	personalize.enableUsermenu();
 	personalize.enablePinSetup();
-	personalize.addWidgets(menu_widgets, MENU_MAX);
+	personalize.addWidgets(menu_widgets, g_settings.easymenu ? MENU_MAX : 3);
 
 	InitMenuMain();
  	InitMenuSettings();
@@ -131,27 +135,39 @@ void CNeutrinoApp::InitMenuMain()
 	// Dynamic renumbering
 	personalize.setShortcut();
 
-	//CMenuWidget &menu = personalize.getWidget(MENU_MAIN)/**main**/;
+	CMenuWidget &menu = personalize.getWidget(MENU_MAIN)/**main**/;
+	menu.addKey(CRCInput::RC_stop, this, "easyswitch");
 
 	//top
 	personalize.addItem(MENU_MAIN, GenericMenuSeparator, NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 
 	//1st section***************************************************************************************************
 
-	//tv <-> radio toggle
-	CMenuForwarder *tvradio_switch = new CMenuForwarder(LOCALE_MAINMENU_TVRADIO_SWITCH, true, NULL, this, "tv_radio_switch", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	tvradio_switch->setHint(NEUTRINO_ICON_HINT_TVRADIO_SWITCH, LOCALE_MENU_HINT_TVRADIO_SWITCH);
-	personalize.addItem(MENU_MAIN, tvradio_switch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE]);
+	if (g_settings.easymenu) {
+		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
+			CMenuForwarder *mb = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, CMediaPlayerMenu::getInstance(), "movieplayer", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+			mb->setHint(NEUTRINO_ICON_HINT_MB, LOCALE_MENU_HINT_MB);
+			personalize.addItem(MENU_MAIN, mb, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_MBROWSER]);
+		}
+		CMenuForwarder *cl = new CMenuForwarder(LOCALE_MAINMENU_CHANNELS, true, NULL, this, "channels", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		cl->setHint(NEUTRINO_ICON_HINT_TVMODE, LOCALE_MENU_HINT_CHANNELS);
+		personalize.addItem(MENU_MAIN, cl); //, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE]);
+	} else {
+		//tv <-> radio toggle
+		CMenuForwarder *tvradio_switch = new CMenuForwarder(LOCALE_MAINMENU_TVRADIO_SWITCH, true, NULL, this, "tv_radio_switch", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		tvradio_switch->setHint(NEUTRINO_ICON_HINT_TVRADIO_SWITCH, LOCALE_MENU_HINT_TVRADIO_SWITCH);
+		personalize.addItem(MENU_MAIN, tvradio_switch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE]);
 
-	//tv-mode
-	CMenuForwarder *tvswitch = new CMenuForwarder(LOCALE_MAINMENU_TVMODE, true, NULL, this, "tv", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	tvswitch->setHint(NEUTRINO_ICON_HINT_TVMODE, LOCALE_MENU_HINT_TVMODE);
-	personalize.addItem(MENU_MAIN, tvswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch); //observed
+		//tv-mode
+		CMenuForwarder *tvswitch = new CMenuForwarder(LOCALE_MAINMENU_TVMODE, true, NULL, this, "tv", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		tvswitch->setHint(NEUTRINO_ICON_HINT_TVMODE, LOCALE_MENU_HINT_TVMODE);
+		personalize.addItem(MENU_MAIN, tvswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch); //observed
 
-	//radio-mode
-	CMenuForwarder *radioswitch = new CMenuForwarder(LOCALE_MAINMENU_RADIOMODE, true, NULL, this, "radio", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	radioswitch->setHint(NEUTRINO_ICON_HINT_RADIOMODE, LOCALE_MENU_HINT_RADIOMODE);
-	personalize.addItem(MENU_MAIN, radioswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RADIO_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch); //observed
+		//radio-mode
+		CMenuForwarder *radioswitch = new CMenuForwarder(LOCALE_MAINMENU_RADIOMODE, true, NULL, this, "radio", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		radioswitch->setHint(NEUTRINO_ICON_HINT_RADIOMODE, LOCALE_MENU_HINT_RADIOMODE);
+		personalize.addItem(MENU_MAIN, radioswitch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RADIO_MODE], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ITEM_OPTION, tvradio_switch); //observed
+	}
 
 	//timer
 	CMenuForwarder *timerlist = new CMenuForwarder(LOCALE_TIMERLIST_NAME, true, NULL, new CTimerList(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
@@ -161,24 +177,30 @@ void CNeutrinoApp::InitMenuMain()
 	//multimedia menu
 	CMenuForwarder *media = new CMenuForwarder(LOCALE_MAINMENU_MEDIA, true, NULL, CMediaPlayerMenu::getInstance(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 	media->setHint(NEUTRINO_ICON_HINT_MEDIA, LOCALE_MENU_HINT_MEDIA);
- 	personalize.addItem(MENU_MAIN, media, &g_settings.personalize[SNeutrinoSettings::P_MAIN_MEDIA]);
+	if (g_settings.easymenu)
+		personalize.addItem(MENU_MAIN, media, &g_settings.personalize[SNeutrinoSettings::P_MAIN_MEDIA], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
+	else
+		personalize.addItem(MENU_MAIN, media, &g_settings.personalize[SNeutrinoSettings::P_MAIN_MEDIA]);
+
+	CMenuForwarder * mf;
+	if (!g_settings.easymenu) {
+		//games
+		bool show_games = g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME);
+		mf = new CMenuForwarder(LOCALE_MAINMENU_GAMES, show_games, NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME));
+		mf->setHint(NEUTRINO_ICON_HINT_GAMES, LOCALE_MENU_HINT_GAMES);
+		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_GAMES]);
+
+		//scripts
+		bool show_scripts = g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT);
+		mf = new CMenuForwarder(LOCALE_MAINMENU_SCRIPTS, show_scripts, NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT));
+		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
+		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SCRIPTS]);
+	}
 
 	//separator
- 	personalize.addSeparator(MENU_MAIN);
+	personalize.addSeparator(MENU_MAIN);
 
 	//2nd section***************************************************************************************************
-
-	//games
-	bool show_games = g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MAINMENU_GAMES, show_games, NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME));
-	mf->setHint(NEUTRINO_ICON_HINT_GAMES, LOCALE_MENU_HINT_GAMES);
-	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_GAMES]);
-
-	//scripts
-	bool show_scripts = g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT);
-	mf = new CMenuForwarder(LOCALE_MAINMENU_SCRIPTS, show_scripts, NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT));
-	mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
-	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SCRIPTS]);
 
 	// settings, also as pin protected option in personalize menu, as a result of parameter value CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION
 	mf = new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &personalize.getWidget(MENU_SETTINGS)/**settings**/);
@@ -195,22 +217,24 @@ void CNeutrinoApp::InitMenuMain()
 
 	//3rd section***************************************************************************************************
 
-	//10. -- only 10 shortcuts (1-9, 0), the next could be the last also!(10. => 0)
-	//sleeptimer
-	mf = new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget);
-	mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_SLEEPTIMER);
-	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SLEEPTIMER]);
+	if (!g_settings.easymenu) {
+		//10. -- only 10 shortcuts (1-9, 0), the next could be the last also!(10. => 0)
+		//sleeptimer
+		mf = new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget);
+		mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_SLEEPTIMER);
+		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SLEEPTIMER]);
 
-	//reboot
-	mf = new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot");
-	mf->setHint(NEUTRINO_ICON_HINT_REBOOT, LOCALE_MENU_HINT_REBOOT);
-	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_REBOOT]);
+		//reboot
+		mf = new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot");
+		mf->setHint(NEUTRINO_ICON_HINT_REBOOT, LOCALE_MENU_HINT_REBOOT);
+		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_REBOOT]);
 
-	//shutdown
-	if (g_info.hw_caps->can_shutdown) {
-		mf = new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
-		mf->setHint(NEUTRINO_ICON_HINT_SHUTDOWN, LOCALE_MENU_HINT_SHUTDOWN);
-		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SHUTDOWN]);
+		//shutdown
+		if (g_info.hw_caps->can_shutdown) {
+			mf = new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
+			mf->setHint(NEUTRINO_ICON_HINT_SHUTDOWN, LOCALE_MENU_HINT_SHUTDOWN);
+			personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SHUTDOWN]);
+		}
 	}
 
 	//separator
@@ -224,13 +248,41 @@ void CNeutrinoApp::InitMenuMain()
 	personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_INFOMENU]);
 
 	//cisettings
-	if (cCA::GetInstance()->GetNumberCISlots() > 0 || cCA::GetInstance()->GetNumberSmartCardSlots() > 0) {
+	if (!g_settings.easymenu && (cCA::GetInstance()->GetNumberCISlots() > 0 || cCA::GetInstance()->GetNumberSmartCardSlots() > 0)) {
 		mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler);
 		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_CISETTINGS]);
 	}
+	if (g_settings.easymenu) {
+		personalize.addIntroItems(MENU_SHUTDOWN);
 
-#ifdef TEST_MENU
+  		mf = new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN_MENU, true, NULL, &personalize.getWidget(MENU_SHUTDOWN), NULL, CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
+		mf->setHint(NEUTRINO_ICON_HINT_SHUTDOWN, LOCALE_MENU_HINT_SHUTDOWN_MENU);
+		personalize.addItem(MENU_MAIN, mf);
+
+		// standby
+		mf = new CMenuForwarder(LOCALE_MAINMENU_STANDBY, true, NULL, this, "standby", CRCInput::RC_red , NEUTRINO_ICON_BUTTON_RED);
+		mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_STANDBY);
+		personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SLEEPTIMER]);
+		//sleeptimer
+		mf = new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget, NULL, CRCInput::RC_green , NEUTRINO_ICON_BUTTON_GREEN);
+		mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_SLEEPTIMER);
+		personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SLEEPTIMER]);
+
+		//reboot
+		mf = new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot", CRCInput::RC_yellow , NEUTRINO_ICON_BUTTON_YELLOW);
+		mf->setHint(NEUTRINO_ICON_HINT_REBOOT, LOCALE_MENU_HINT_REBOOT);
+		personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_REBOOT]);
+
+		//shutdown
+		if (g_info.hw_caps->can_shutdown) {
+			mf = new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+			mf->setHint(NEUTRINO_ICON_HINT_SHUTDOWN, LOCALE_MENU_HINT_SHUTDOWN);
+			personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SHUTDOWN]);
+		}
+	}
+
+#ifdef ENABLE_TEST_MENU
 	personalize.addItem(MENU_MAIN, new CMenuForwarderNonLocalized("Test menu", true, NULL, new CTestMenu()), NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 #endif
 }
@@ -251,41 +303,66 @@ void CNeutrinoApp::InitMenuSettings()
 	static int show = CPersonalizeGui::PERSONALIZE_MODE_VISIBLE;
 	//***************************************************************************************************
 	// save
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	mf->setHint(NEUTRINO_ICON_HINT_SAVE_SETTINGS, LOCALE_MENU_HINT_SAVE_SETTINGS);
-	personalize.addItem(MENU_SETTINGS, mf, &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
+	CMenuForwarder * mf;
+	if (!g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf->setHint(NEUTRINO_ICON_HINT_SAVE_SETTINGS, LOCALE_MENU_HINT_SAVE_SETTINGS);
+		personalize.addItem(MENU_SETTINGS, mf, &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
+	}
 
 	// settings manager
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	if (g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER]);
+	} else {
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
+	}
 	mf->setHint(NEUTRINO_ICON_HINT_MANAGE_SETTINGS, LOCALE_MENU_HINT_MANAGE_SETTINGS);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
 
 	// personalize
-	mf = new CMenuForwarder(LOCALE_PERSONALIZE_HEAD, true, NULL, &personalize, NULL, CRCInput::RC_yellow , NEUTRINO_ICON_BUTTON_YELLOW, NEUTRINO_ICON_LOCK);
-	mf->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PERSONALIZE);
-	personalize.addItem(MENU_SETTINGS, mf, &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
+	if (!g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_PERSONALIZE_HEAD, true, NULL, &personalize, NULL, CRCInput::RC_yellow , NEUTRINO_ICON_BUTTON_YELLOW, NEUTRINO_ICON_LOCK);
+		mf->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PERSONALIZE);
+		personalize.addItem(MENU_SETTINGS, mf, &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
+	}
 
 	// miscSettings
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_MISC, true, NULL, new CMiscMenue() , NULL, CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE);
-	mf->setHint(NEUTRINO_ICON_HINT_EXTENDED, LOCALE_MENU_HINT_EXTENDED);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
+	if (!g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_MISC, true, NULL, new CMiscMenue() , NULL, CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE);
+		mf->setHint(NEUTRINO_ICON_HINT_EXTENDED, LOCALE_MENU_HINT_EXTENDED);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
 
- 	//separator
- 	personalize.addSeparator(MENU_SETTINGS);
+		//separator
+		personalize.addSeparator(MENU_SETTINGS);
+	}
 
 	//1st section***************************************************************************************************
 
 	//use only 10 shortcuts (1-9, 0), >9 means -> no shortcut
 
 	// video.
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_VIDEO, true, NULL, g_videoSettings);
+	if (g_settings.easymenu)
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_VIDEO, true, NULL, g_videoSettings, NULL, CRCInput::RC_green , NEUTRINO_ICON_BUTTON_GREEN);
+	else
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_VIDEO, true, NULL, g_videoSettings);
 	mf->setHint(NEUTRINO_ICON_HINT_VIDEO, LOCALE_MENU_HINT_VIDEO);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VIDEO]);
 
 	// audio
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO, true, NULL, new CAudioSetup());
+	if (g_settings.easymenu)
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO, true, NULL, new CAudioSetup(), NULL, CRCInput::RC_yellow , NEUTRINO_ICON_BUTTON_YELLOW);
+	else
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO, true, NULL, new CAudioSetup());
 	mf->setHint(NEUTRINO_ICON_HINT_AUDIO, LOCALE_MENU_HINT_AUDIO);
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_AUDIO]);
+
+	// channel list
+	if (g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, new CMiscMenue(), "channellist", CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE);
+		mf->setHint("", LOCALE_MENU_HINT_MISC_CHANNELLIST);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
+	}
 
 	// parental lock
 	mf = new CMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, true, NULL, new CParentalSetup());
@@ -310,9 +387,11 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_OSDLANG]);
 
 	// osd
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_OSD, true, NULL, new COsdSetup());
-	mf->setHint(NEUTRINO_ICON_HINT_OSD, LOCALE_MENU_HINT_OSD);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_OSD]);
+	if (!g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_OSD, true, NULL, new COsdSetup());
+		mf->setHint(NEUTRINO_ICON_HINT_OSD, LOCALE_MENU_HINT_OSD);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_OSD]);
+	}
 
 	// lcd
 	if (CVFD::getInstance()->has_lcd) {
@@ -328,20 +407,29 @@ void CNeutrinoApp::InitMenuSettings()
 		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_DRIVES]);
 	}
 
-	// cisettings
-	mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler);
-	mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_CISETTINGS]);
+	// energy
+	if (g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, new CMiscMenue(), "energy");
+		mf->setHint("", LOCALE_MENU_HINT_MISC_ENERGY);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
+	}
 
-	// keybindings
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, new CKeybindSetup());
-	mf->setHint(NEUTRINO_ICON_HINT_KEYS, LOCALE_MENU_HINT_KEYS);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_KEYBINDING]);
+	if (!g_settings.easymenu) {
+		// cisettings
+		mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler);
+		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_CISETTINGS]);
 
-	// audioplayer/pictureviewer settings
-	mf = new CMenuForwarder(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, true, NULL, new CMediaPlayerSetup());
-	mf->setHint(NEUTRINO_ICON_HINT_A_PIC, LOCALE_MENU_HINT_A_PIC);
-	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_MEDIAPLAYER]);
+		// keybindings
+		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, new CKeybindSetup());
+		mf->setHint(NEUTRINO_ICON_HINT_KEYS, LOCALE_MENU_HINT_KEYS);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_KEYBINDING]);
+
+		// audioplayer/pictureviewer settings
+		mf = new CMenuForwarder(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, true, NULL, new CMediaPlayerSetup());
+		mf->setHint(NEUTRINO_ICON_HINT_A_PIC, LOCALE_MENU_HINT_A_PIC);
+		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_MEDIAPLAYER]);
+	}
 }
 
 
@@ -360,20 +448,34 @@ void CNeutrinoApp::InitMenuService()
 
 	//1st section***************************************************************************************************
 
+	CMenuForwarder * mf;
+	// tuner setup
+	if(CFEManager::getInstance()->haveSat() || CFEManager::getInstance()->getFrontendCount() > 1) {
+		mf = new CMenuForwarder(LOCALE_SATSETUP_FE_SETUP, true, NULL, CScanSetup::getInstance(), "setup_frontend", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf->setHint(NEUTRINO_ICON_HINT_SETTINGS, LOCALE_MENU_HINT_SCAN_FESETUP);
+		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_TUNER]);
+	}
+
 	// channel scan
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, CScanSetup::getInstance(), "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf = new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, CScanSetup::getInstance(), "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	mf->setHint(NEUTRINO_ICON_HINT_SERVICE_SCAN, LOCALE_MENU_HINT_SERVICE_SCAN);
 	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SCANTS]);
 
-	//reload channels
-	mf = new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, CScanSetup::getInstance(), "reloadchannels", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	mf->setHint(NEUTRINO_ICON_HINT_RELOAD_CHANNELS, LOCALE_MENU_HINT_RELOAD_CHANNELS);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RELOAD_CHANNELS]);
+	if (!g_settings.easymenu) {
+		//reload channels
+		mf = new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, CScanSetup::getInstance(), "reloadchannels", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf->setHint(NEUTRINO_ICON_HINT_RELOAD_CHANNELS, LOCALE_MENU_HINT_RELOAD_CHANNELS);
+		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RELOAD_CHANNELS]);
+	}
 
 	//bouquet edit
 	// TODO: this needs a neutrino restart after changing parentallock_prompt to activate :-(
 	CLockedMenuForwarder *lf;
-	lf = new CLockedMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, g_settings.parentallock_pincode, g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED, true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	if (g_settings.easymenu)
+		lf = new CLockedMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, g_settings.parentallock_pincode, g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED, true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	else
+		lf = new CLockedMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, g_settings.parentallock_pincode, g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED, true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+
 /* does not work with CLockedMenuForwarder yet?
 	lf->setHint(NEUTRINO_ICON_HINT_BEDIT, LOCALE_MENU_HINT_BEDIT);
  */
@@ -381,36 +483,47 @@ void CNeutrinoApp::InitMenuService()
 
 	//channel reset
 	CDataResetNotifier *resetNotifier = new CDataResetNotifier();
-	mf = new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	if (g_settings.easymenu)
+		mf = new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	else
+		mf = new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels");
+
 	mf->setHint(NEUTRINO_ICON_HINT_DELETE_CHANNELS, LOCALE_MENU_HINT_DELETE_CHANNELS);
 	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESET_CHANNELS]);
-	/* todo: only show if (g_settings.make_removed_list) */
-	mf = new CMenuForwarder(LOCALE_RESET_REMOVED, true, NULL, resetNotifier, "delete_removed");
-	mf->setHint(NEUTRINO_ICON_HINT_DELETE_CHANNELS, LOCALE_MENU_HINT_DELETE_REMOVED);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESET_CHANNELS]);
+
+	if (!g_settings.easymenu) {
+		/* todo: only show if (g_settings.make_removed_list) */
+		mf = new CMenuForwarder(LOCALE_RESET_REMOVED, true, NULL, resetNotifier, "delete_removed");
+		mf->setHint(NEUTRINO_ICON_HINT_DELETE_CHANNELS, LOCALE_MENU_HINT_DELETE_REMOVED);
+		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESET_CHANNELS]);
+	}
 
 	//separator
-	personalize.addSeparator(MENU_SERVICE);
+	if (!g_settings.easymenu) {
+		personalize.addSeparator(MENU_SERVICE);
 
-	//restart neutrino
-	mf = new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, this, "restart", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
-	mf->setHint(NEUTRINO_ICON_HINT_SOFT_RESTART, LOCALE_MENU_HINT_SOFT_RESTART);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESTART]);
+		//restart neutrino
+		mf = new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, this, "restart", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
+		mf->setHint(NEUTRINO_ICON_HINT_SOFT_RESTART, LOCALE_MENU_HINT_SOFT_RESTART);
+		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RESTART]);
 
-	//reload plugins
-	mf = new CMenuForwarder(LOCALE_SERVICEMENU_GETPLUGINS, true, NULL, this, "reloadplugins");
-	mf->setHint(NEUTRINO_ICON_HINT_RELOAD_CHANNELS, LOCALE_MENU_HINT_RELOAD_PLUGINS);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RELOAD_PLUGINS]);
+		//reload plugins
+		mf = new CMenuForwarder(LOCALE_SERVICEMENU_GETPLUGINS, true, NULL, this, "reloadplugins");
+		mf->setHint(NEUTRINO_ICON_HINT_RELOAD_CHANNELS, LOCALE_MENU_HINT_RELOAD_PLUGINS);
+		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_RELOAD_PLUGINS]);
 
- 	//separator
-	personalize.addSeparator(MENU_SERVICE);
+		//separator
+		personalize.addSeparator(MENU_SERVICE);
+	}
 
 	//2nd section***************************************************************************************************
 
 	//infomenu
-	mf = new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_info, NEUTRINO_ICON_BUTTON_INFO_SMALL);
-	mf->setHint(NEUTRINO_ICON_HINT_INFO, LOCALE_MENU_HINT_INFO);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SERVICE_INFOMENU]);
+	if (!g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_info, NEUTRINO_ICON_BUTTON_INFO_SMALL);
+		mf->setHint(NEUTRINO_ICON_HINT_INFO, LOCALE_MENU_HINT_INFO);
+		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SERVICE_INFOMENU]);
+	}
 
 	//firmware update
 	mf = new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate());

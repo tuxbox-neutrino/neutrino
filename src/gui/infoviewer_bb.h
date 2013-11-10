@@ -41,7 +41,7 @@
 #include <driver/fade.h>
 #include <system/settings.h>
 #include "widget/menue.h"
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc.h>
 #include <string>
 
 class CInfoViewerBB

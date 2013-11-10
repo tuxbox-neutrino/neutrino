@@ -28,7 +28,7 @@
 
 
 #include "config.h"
-#include <gui/components/cc.h>
+#include <gui/components/cc_base.h>
 #include <gui/components/cc_item_text.h>
 #include <gui/components/cc_item_picture.h>
 #include <vector>
@@ -123,6 +123,7 @@ class CComponentsHeader : public CComponentsForm
 		int cch_items_y, cch_icon_x, cch_icon_w, cch_text_x, cch_buttons, cch_buttons_w, cch_buttons_h, cch_buttons_space, cch_offset;
 		std::vector<std::string> v_cch_btn;
 		int cch_size_mode;
+		int cch_caption_align;
 
 		void initIcon();
 		void initCaption();
@@ -162,8 +163,9 @@ class CComponentsHeader : public CComponentsForm
 		virtual ~CComponentsHeader();
 
 		
-		virtual void setCaption(const std::string& caption);
-		virtual void setCaption(neutrino_locale_t caption_locale);
+		virtual void setCaption(const std::string& caption, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
+		virtual void setCaption(neutrino_locale_t caption_locale, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
+		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
 		virtual void setCaptionFont(Font* font_name);
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
 		virtual void setOffset(const int offset){cch_offset = offset;};
@@ -174,7 +176,7 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 		virtual void initCCItems();
 		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode;};
-
+		virtual CComponentsText* getTextObject(){return cch_text_obj;};
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
@@ -225,12 +227,16 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsFooter * ccw_footer;
 		///property: caption in header, see also getHeaderObject()
 		std::string ccw_caption;
+		///property: alignment mode for header caption
+		int ccw_align_mode;
 		///property: icon name in header, see also getHeaderObject()
 		const char* ccw_icon_name;
 		///property: assigned default icon buttons in header, see also getHeaderObject()
 		int ccw_buttons;
-		///property: value = true, let show footer
+		///property: value = true, let show footer, see showFooter()
 		bool ccw_show_footer;
+		///property: value = true, let show header, see showHeader()
+		bool ccw_show_header;
 
 		///initialze header object
 		void initHeader();
@@ -285,14 +291,18 @@ class CComponentsWindow : public CComponentsForm
 		///add item to body object, also usable is addCCItem() to add items to the windo object
 		void addWindowItem(CComponentsItem* cc_Item);
 		
-		///
+		///allow/disallow paint a footer, default true, see also ccw_show_footer, showHeader()
 		void showFooter(bool show = true){ccw_show_footer = show;};
+		///allow/disallow paint a header, default true, see also ccw_show_header, showFooter()
+		void showHeader(bool show = true){ccw_show_header = show;};
 
 		///set caption in header with string, see also getHeaderObject()
-		void setWindowCaption(const std::string& text){ccw_caption = text;};
+		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;};
 
 		///set caption in header from locales, see also getHeaderObject()
-		void setWindowCaption(neutrino_locale_t locale_text);
+		void setWindowCaption(neutrino_locale_t locale_text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
+		///set caption alignment
+		void setWindowCaptionAlignment(const int& align_mode){ccw_align_mode = align_mode;};
 
 		///set icon name in header, see also getHeaderObject()
 		void setWindowIcon(const char* iconname){ccw_icon_name = iconname;};
@@ -305,7 +315,6 @@ class CComponentsWindow : public CComponentsForm
 		
 		///returns a pointer to the internal body object, use this to get access to body properities
 		CComponentsForm* getBodyObject(){return ccw_body;};
-
 		///returns a pointer to the internal footer object, use this to get access to footer properities
 		CComponentsFooter* getFooterObject(){return ccw_footer;};
 

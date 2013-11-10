@@ -41,8 +41,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
-#include <gui/components/cc_frm.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc.h>
 
 #include <system/settings.h>
 #include <system/helpers.h>

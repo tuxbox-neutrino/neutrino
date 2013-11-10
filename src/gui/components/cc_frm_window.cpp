@@ -141,13 +141,16 @@ void CComponentsWindow::initVarWindow()
 	ccw_icon_name	= NULL;
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
-	
+	ccw_show_header	= true;
+	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
+
 	setShadowOnOff(true);
 }
 
-void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text)
+void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
 {
 	ccw_caption = g_Locale->getText(locale_text);
+	ccw_align_mode = align_mode;
 }
 
 void CComponentsWindow::initHeader()
@@ -158,12 +161,12 @@ void CComponentsWindow::initHeader()
 		//add of header item happens initCCWItems()
 	}
 
-	//set header properties
+	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
-		ccw_head->setPos(0, 0);
 		ccw_head->setWidth(width-2*fr_thickness);
+// 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
-		ccw_head->setCaption(ccw_caption);
+		ccw_head->setCaption(ccw_caption, ccw_align_mode);
 		ccw_head->initCCItems();
 		ccw_head->setDefaultButtons(ccw_buttons);
 	}
@@ -181,9 +184,11 @@ void CComponentsWindow::initBody()
 	if (ccw_body){
 		ccw_body->setCornerType(0);
 		int fh = 0;
+		int hh = 0;
 		if (ccw_footer)
 			fh = ccw_footer->getHeight();
-		int hh = ccw_head->getHeight();
+		if (ccw_head)
+			hh = ccw_head->getHeight();
 		int h_body = height - hh - fh - 2*fr_thickness;
 		ccw_body->setDimensionsAll(0, CC_APPEND, width-2*fr_thickness, h_body);
 		ccw_body->doPaintBg(false);
@@ -193,7 +198,6 @@ void CComponentsWindow::initBody()
 void CComponentsWindow::initFooter()
 {
 	if (ccw_footer== NULL){
-
 		ccw_footer= new CComponentsFooter();
 		initFooter();
 		//add of footer item happens initCCWItems()
@@ -218,22 +222,31 @@ void CComponentsWindow::initCCWItems()
 #ifdef DEBUG_CC
 	printf("[CComponentsWindow]   [%s - %d] init items...\n", __FUNCTION__, __LINE__);
 #endif
-	initHeader();
-	
+	//add header if required
+	if (ccw_show_header){
+		initHeader();
+	}else{
+		if (ccw_head){
+			removeCCItem(ccw_head);
+			ccw_head = NULL;
+		}
+	}
+
 	//add footer if required
 	if (ccw_show_footer){
 		initFooter();
 	}else{
-		if (ccw_footer != NULL){
+		if (ccw_footer){
 			removeCCItem(ccw_footer);
 			ccw_footer = NULL;
 		}
 	}
 	initBody();
-	
+
 	//add header, body and footer items only one time
-	if (!ccw_head->isAdded())
-		addCCItem(ccw_head);
+	if (ccw_head)
+		if (!ccw_head->isAdded())
+			addCCItem(ccw_head);
 	if (!ccw_body->isAdded())
 		addCCItem(ccw_body);
 	if (ccw_footer)

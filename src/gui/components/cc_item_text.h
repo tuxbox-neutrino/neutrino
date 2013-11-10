@@ -26,7 +26,7 @@
 #ifndef __CC_ITEM_TEXT_H__
 #define __CC_ITEM_TEXT_H__
 
-#include "cc.h"
+#include "cc_base.h"
 #include <gui/widget/textbox.h>
 #include <string>
 
@@ -100,6 +100,8 @@ class CComponentsText : public CComponentsItem, public CBox
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		///set text color
 		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
+		///get text color
+		virtual inline fb_pixel_t getTextColor(){return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
 		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};
                 ///set text border width
@@ -131,6 +133,9 @@ class CComponentsText : public CComponentsItem, public CBox
 
 		///gets the embedded CTextBox object, so it's possible to get access directly to its methods and properties
 		virtual CTextBox* getCTextBoxObject() { return ct_textbox; };
+
+		///returns count of lines from a text box page
+		virtual int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
 };
 
 

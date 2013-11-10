@@ -359,6 +359,9 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 
 						if (!(g_bouquetManager->existsChannelInBouquet(bouquetId, newchannel->getChannelID())))
 							bouquet->addService(newchannel);
+
+						if (num == 1)
+							CZapit::getInstance()->SetCurrentChannelID(newchannel->getChannelID());
 					}
 					break;
 				default:

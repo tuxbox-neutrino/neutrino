@@ -115,7 +115,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 			res = g_videoSettings->exec(NULL, "");
 			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD_NO);
 		}
-		if(advanced && res != menu_return::RETURN_EXIT_ALL)
+		if(!g_settings.easymenu && advanced && res != menu_return::RETURN_EXIT_ALL)
 		{
 			COsdSetup osdSettings(COsdSetup::OSD_SETUP_MODE_WIZARD);
 			res = osdSettings.exec(NULL, "");
@@ -144,7 +144,9 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 		{
 			CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD);
 			if (advanced) {
-				res = CScanSetup::getInstance()->exec(NULL, "");
+				res = CScanSetup::getInstance()->exec(NULL, "setup_frontend");
+				if(res != menu_return::RETURN_EXIT_ALL)
+					res = CScanSetup::getInstance()->exec(NULL, "");
 			} else {
 				CZapit::getInstance()->GetConfig(zapitCfg);
 #ifdef ENABLE_FASTSCAN

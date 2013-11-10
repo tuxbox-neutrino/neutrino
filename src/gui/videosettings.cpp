@@ -362,32 +362,35 @@ int CVideoSettings::showVideoSetup()
 	CMenuOptionChooser * vs_videomodes_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOMODE, &g_settings.video_Mode, vmode_options, vmode_option_count, true, this, CRCInput::RC_nokey, "", true);
 	vs_videomodes_ch->setHint("", LOCALE_MENU_HINT_VIDEO_MODE);
 
-	//dbdr options
 	CMenuOptionChooser *vs_dbdropt_ch = NULL;
-	if (system_rev != 0x01)	/* dbdr options only on COOLSTREAM */
-	{
-		vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
-		vs_dbdropt_ch->setHint("", LOCALE_MENU_HINT_VIDEO_DBDR);
-	}
-
-	//video system modes submenue
 	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
 	CAutoModeNotifier anotify;
 	CMenuForwarder *vs_videomodes_fw = NULL;
-	if (g_info.hw_caps->has_HDMI) /* does this make sense on a box without HDMI? */
-	{
-		videomodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
+	if (!g_settings.easymenu) {
+		//dbdr options
+		if (system_rev != 0x01)	/* dbdr options only on COOLSTREAM */
+		{
+			vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
+			vs_dbdropt_ch->setHint("", LOCALE_MENU_HINT_VIDEO_DBDR);
+		}
 
-		for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
-			if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key != -1)
+		//video system modes submenue
+		if (g_info.hw_caps->has_HDMI) /* does this make sense on a box without HDMI? */
+		{
+			videomodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
+
+			for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+				if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key != -1)
 				videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
-		//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
+			//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 
-		vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
-		vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
+			vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
+			vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
+		}
 	}
 
 	neutrino_locale_t tmp_locale = NONEXISTANT_LOCALE;
+	/* TODO: check the locale */
 	if (vs_analg_ch != NULL || vs_scart_ch != NULL || vs_chinch_ch != NULL)
 		tmp_locale = LOCALE_VIDEOMENU_TV_SCART;
 	//---------------------------------------
@@ -400,28 +403,32 @@ int CVideoSettings::showVideoSetup()
 		videosetup->addItem(vs_scart_ch); //scart
 	if (vs_chinch_ch != NULL)
 		videosetup->addItem(vs_chinch_ch);//chinch
-	if (tmp_locale != NONEXISTANT_LOCALE)
-		videosetup->addItem(GenericMenuSeparatorLine);
+	//if (tmp_locale != NONEXISTANT_LOCALE)
+	//	videosetup->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------
 	videosetup->addItem(vs_43mode_ch);	  //4:3 mode
 	videosetup->addItem(vs_dispformat_ch);	  //display format
 	videosetup->addItem(vs_videomodes_ch);	  //video system
-	if (vs_dbdropt_ch != NULL)
-		videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
-	if (vs_videomodes_fw != NULL)
-		videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
+	if (!g_settings.easymenu) {
+		if (vs_dbdropt_ch != NULL)
+			videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
+		if (vs_videomodes_fw != NULL)
+			videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
+	}
 
 #ifdef BOXMODEL_APOLLO
-	/* values are from -128 to 127, but brightness really no sense after +/- 40. changeNotify multiply contrast and saturation to 3 */
-	CMenuOptionNumberChooser * bcont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_BRIGHTNESS, &g_settings.brightness, true, -42, 42, this);
-	bcont->setHint("", LOCALE_MENU_HINT_VIDEO_BRIGHTNESS);
-	CMenuOptionNumberChooser * ccont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_CONTRAST, &g_settings.contrast, true, -42, 42, this);
-	ccont->setHint("", LOCALE_MENU_HINT_VIDEO_CONTRAST);
-	CMenuOptionNumberChooser * scont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_SATURATION, &g_settings.saturation, true, -42, 42, this);
-	scont->setHint("", LOCALE_MENU_HINT_VIDEO_SATURATION);
-	videosetup->addItem(bcont);
-	videosetup->addItem(ccont);
-	videosetup->addItem(scont);
+	if (!g_settings.easymenu) {
+		/* values are from -128 to 127, but brightness really no sense after +/- 40. changeNotify multiply contrast and saturation to 3 */
+		CMenuOptionNumberChooser * bcont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_BRIGHTNESS, &g_settings.brightness, true, -42, 42, this);
+		bcont->setHint("", LOCALE_MENU_HINT_VIDEO_BRIGHTNESS);
+		CMenuOptionNumberChooser * ccont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_CONTRAST, &g_settings.contrast, true, -42, 42, this);
+		ccont->setHint("", LOCALE_MENU_HINT_VIDEO_CONTRAST);
+		CMenuOptionNumberChooser * scont = new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_SATURATION, &g_settings.saturation, true, -42, 42, this);
+		scont->setHint("", LOCALE_MENU_HINT_VIDEO_SATURATION);
+		videosetup->addItem(bcont);
+		videosetup->addItem(ccont);
+		videosetup->addItem(scont);
+	}
 #endif
 #ifdef ENABLE_PIP
 	CPipSetup pip;
@@ -429,6 +436,11 @@ int CVideoSettings::showVideoSetup()
 	pipsetup->setHint("", LOCALE_MENU_HINT_VIDEO_PIP);
 	videosetup->addItem(pipsetup);
 #endif
+	if (g_settings.easymenu) {
+		CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_SCALING, true, NULL, new COsdSetup(), "font_scaling");
+		mf->setHint("", LOCALE_MENU_HINT_FONT_SCALING);
+		videosetup->addItem(mf);
+	}
 	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
 	delete videosetup;

@@ -37,7 +37,7 @@
 #include <system/settings.h>
 #include <driver/screen_max.h>
 #include <driver/display.h>
-#include <gui/components/cc_frm.h>
+#include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>

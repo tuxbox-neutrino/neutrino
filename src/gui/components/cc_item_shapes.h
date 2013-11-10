@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include "cc.h"
+#include "cc_base.h"
 
 //! Sub class of CComponentsItem. Shows a shape with given dimensions and color on screen.
 /*!

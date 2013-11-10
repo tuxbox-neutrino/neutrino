@@ -30,7 +30,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc.h"
+#include "cc_base.h"
 
 using namespace std;
 

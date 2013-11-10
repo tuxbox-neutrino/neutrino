@@ -36,7 +36,7 @@
 #include <plugin.h>
 
 #include <gui/pluginlist.h>
-#include <gui/components/cc_frm.h>
+#include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/icons.h>
 

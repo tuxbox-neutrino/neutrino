@@ -38,7 +38,6 @@
 #include <string>
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
-#include <gui/components/cc_item_text.h>
 #include "version.h"
 
 #define LICENSEDIR DATADIR "/neutrino/license/"

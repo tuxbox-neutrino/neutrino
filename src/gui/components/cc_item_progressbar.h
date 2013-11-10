@@ -50,7 +50,7 @@
 #define __CC_PROGRESSBAR_H__
 
 #include "config.h"
-#include <gui/components/cc.h>
+#include <gui/components/cc_base.h>
 #include <string>
 
 class CProgressBar : public CComponentsItem

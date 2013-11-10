@@ -34,7 +34,7 @@
 #define __motorcontrol__
 
 #include <gui/widget/menue.h>
-#include <gui/components/cc_item_progressbar.h>
+#include <gui/components/cc.h>
 #include <driver/framebuffer.h>
 #include <string>
 #include <zapit/femanager.h>

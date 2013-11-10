@@ -164,11 +164,12 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		int 	ShowPersonalizationMenu();
 		int 	ShowMenuOptions(const int& menu);
 		void 	ShowHelpPersonalize();
-		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget *pin_widget);
+		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pin_widget);
 		void 	ShowUserMenu(CMenuWidget* p_widget, std::vector<CUserMenuSetup*> &v_umenu);
 		void 	ShowPluginMenu(CMenuWidget* p_widget);
 		void 	ShowPreverredKeySetup(CMenuWidget* p_widget);
 		void 	SaveAndExit();
+		void	ApplySettings();
 		
 		bool	hasPinItems();
 		
@@ -193,7 +194,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 			PERSONALIZE_PROTECT_MODE_NOT_PROTECTED =  0,
 			PERSONALIZE_PROTECT_MODE_PIN_PROTECTED  =  2,
 			
-			PERSONALIZE_PROTECT_MODE_MAX
+			PERSONALIZE_PROTECT_MODE_MAX = 2
 		};
 
 		//options for show_epg_feat options

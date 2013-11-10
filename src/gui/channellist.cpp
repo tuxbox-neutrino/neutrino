@@ -57,9 +57,6 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-#include <gui/components/cc_item_progressbar.h>
-#include <gui/components/cc.h>
-#include <gui/components/cc_frm.h>
 
 #include <system/settings.h>
 #include <gui/customcolor.h>
@@ -2137,8 +2134,8 @@ void CChannelList::paintHead()
 		headerClock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		headerClock->setYPos(y);
 		headerClock->setHeight(theight);
-		headerClock->setTextColor(COL_MENUHEAD_TEXT);
-		headerClock->setColorBody(COL_MENUHEAD_PLUS_0);
+		headerClock->setTextColor(header.getTextObject()->getTextColor());
+		headerClock->setColorBody(header.getColorBody());
 		headerClock->refresh();
 		headerClockWidth = headerClock->getWidth();
 		headerClock->setXPos(x + full_width - headerClockWidth - 10);

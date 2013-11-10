@@ -57,7 +57,8 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define FADE_RESET 0xFFFF
 
 #define WINDOW_SIZE_MAX		100 // %
-#define WINDOW_SIZE_MIN		80 // %
+#define WINDOW_SIZE_MIN		50 // %
+#define WINDOW_SIZE_MIN_FORCED	80 // %
 #define ConnectLineBox_Width	16 // px
 
 /** Ausfuehrung als Singleton */

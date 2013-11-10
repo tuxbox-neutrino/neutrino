@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include "cc.h"
+#include "cc_base.h"
 #include <string>
 
 //! Sub class of CComponentsItem. Shows a mini tv box, similar to a PIP-Feature with current tv-channel.
