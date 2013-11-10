@@ -598,7 +598,8 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	uint64_t backupMaxSize = (btotal - bused) * (uint64_t)bsize;
 	uint64_t res = 10; // Reserved 10% of available space
 	backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100ULL)) / 1024ULL;
-	printf("##### [%s] backupMaxSize: %llu, btotal: %llu, bused: %llu, bsize: %ld\n", __FUNCTION__, backupMaxSize, btotal, bused, bsize);
+	printf("##### [%s] backupMaxSize: %" PRIu64 ", btotal: %" PRIu64 ", bused: %" PRIu64 ", bsize: %ld\n",
+			__func__, backupMaxSize, btotal, bused, bsize);
 
 	if (backupMaxSize < backupRequiredSize) {
 		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), backupMaxSize, backupRequiredSize);

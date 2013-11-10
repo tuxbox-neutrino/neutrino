@@ -248,7 +248,7 @@ void CComponentsChannelLogo::initVarPictureChannellLogo()
 		pic_name = tmp_logo;
 	
 // #ifdef DEBUG_CC
-	printf("	[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%lld)\n", __FUNCTION__, pic_name.c_str(), has_logo, channel_id);
+	printf("\t[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%" PRIu64 ")\n", __func__, pic_name.c_str(), has_logo, channel_id);
 // #endif
 	
 	initVarPicture();
