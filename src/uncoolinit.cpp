@@ -13,12 +13,14 @@
  * better than nothing :-)
  */
 
+#include <cstdlib>
+#include <cstdio>
+#include <unistd.h>
+#include <time.h>
+
 #include <cs_api.h>
 #include <video_cs.h>
 #include <dmx_cs.h>
-
-#include <cstdlib>
-#include <time.h>
 
 cVideo *v = NULL;
 cDemux *d = NULL;
