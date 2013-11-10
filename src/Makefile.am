@@ -163,3 +163,16 @@ if BOXMODEL_RASPI
 neutrino_LDADD += \
 	-L/opt/vc/lib/ -lbcm_host -lvcos -lvchiq_arm -lpthread -lrt
 endif
+
+if BOXTYPE_COOL
+if BOXMODEL_APOLLO
+else
+bin_PROGRAMS += uncoolinit
+uncoolinit_SOURCES = uncoolinit.cpp
+uncoolinit_LDADD = \
+	@AVFORMAT_LIBS@ \
+	@AVCODEC_LIBS@ \
+	-lcoolstream-mt -lca-sc -lnxp \
+	-lOpenThreads -lrt
+endif
+endif
