@@ -33,6 +33,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
+#include <gui/buildinfo.h>
 #include <configfile.h>
 
 typedef struct image_info_t
@@ -47,13 +48,17 @@ class CImageInfo : public CMenuTarget
 	private:
 		int item_offset; //distance between items and to boarder
 		std::string license_txt;
+		Font* item_font;
+		int item_height;
 
 		std::vector<image_info_t> v_info;
 
 		void Clean();
 		void Init();
+		void InitInfoData();
 		void InitMinitv();
 		void InitInfos();
+		void InitBuildInfos();
 		void InitInfoText(const std::string& text);
 		std::string getLicenseText();
 		void ShowWindow();
@@ -63,7 +68,10 @@ class CImageInfo : public CMenuTarget
 		CComponentsForm  	*cc_info;
 		CComponentsPIP		*cc_tv;
 		CComponentsInfoBox 	*cc_lic;
+		CBuildInfo		*b_info;
 		CConfigFile     	config;
+		CComponentsButtonRed 	*btn_red;
+		CComponentsLabel  	*cc_sub_caption;
 
 	public:
 
