@@ -54,7 +54,7 @@
 #include <zapit/scan.h>
 #include <zapit/femanager.h>
 #include <gui/widget/messagebox.h>
-
+#include <gui/buildinfo.h>
 
 extern int cs_test_card(int unit, char * str);
 
@@ -675,6 +675,11 @@ int CTestMenu::showTestMenu()
 	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
 	w_test.addItem(new CMenuForwarderNonLocalized(w_cc->getName().c_str(), true, NULL, w_cc));
 	showCCTests(w_cc);
+	
+	//buildinfo
+	CMenuForwarder *f_bi = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, new CBuildInfo());
+	f_bi->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
+	w_test.addItem(f_bi);
 
 	//exit
 	return w_test.exec(NULL, "");;
