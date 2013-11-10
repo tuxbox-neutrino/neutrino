@@ -81,8 +81,16 @@ void CComponentsExtTextForm::initVarExtTextForm(const int x_pos, const int y_pos
 	cc_item_type 	= CC_ITEMTYPE_FRM_EXT_TEXT;
 	x = x_pos;
 	y = y_pos;
+	
 	width = w;
+	//init ccx_label_width and ccx_text_width
+	//default ccx_label_width = 30% of form width
+	ccx_percent_label_w = DEF_LABEL_WIDTH_PERCENT;
+	ccx_label_width = ccx_percent_label_w * width/100;
+	ccx_text_width	= width-ccx_label_width;
+	
 	height = h;
+	
 	ccx_label_text 	= "";
 	ccx_text 	= "";
 	shadow 		= has_shadow;
@@ -98,9 +106,7 @@ void CComponentsExtTextForm::initVarExtTextForm(const int x_pos, const int y_pos
 	ccx_font 	= *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy));
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
 	
-	//init ccx_label_width and ccx_text_width
-	//default ccx_label_width = 30% of form width
-	setLabelWidthPercent(DEF_LABEL_WIDTH_PERCENT );
+
 }
 
 void CComponentsExtTextForm::initLabel()
@@ -125,6 +131,7 @@ void CComponentsExtTextForm::initLabel()
 
 	//set properties
 	if (ccx_label_obj){
+		ccx_label_width = (ccx_percent_label_w * width/100);
 		ccx_label_obj->setText(ccx_label_text, ccx_label_align, ccx_font);
 		ccx_label_obj->setTextColor(ccx_label_color);
 		ccx_label_obj->setDimensionsAll(fr_thickness, 0, ccx_label_width-fr_thickness, height-2*fr_thickness);
@@ -154,6 +161,7 @@ void CComponentsExtTextForm::initText()
 
 	//set properties
 	if (ccx_text_obj){
+		ccx_text_width = width-ccx_label_obj->getWidth();
 		ccx_text_obj->setText(ccx_text, ccx_text_align, ccx_font);
 		ccx_text_obj->setTextColor(ccx_text_color);
 		ccx_text_obj->setDimensionsAll(CC_APPEND, 0, ccx_text_width-2*fr_thickness, height-2*fr_thickness);
@@ -216,8 +224,7 @@ void CComponentsExtTextForm::initCCTextItems()
 
 void CComponentsExtTextForm::setLabelWidthPercent(const uint8_t& percent_val)
 {
-	ccx_label_width = percent_val * width/100;
-	ccx_text_width	= width-ccx_label_width;
+	ccx_percent_label_w = (int)percent_val;
 	initCCTextItems();
 }
 

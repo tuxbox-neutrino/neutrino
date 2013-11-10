@@ -341,6 +341,8 @@ class CComponentsExtTextForm : public CComponentsForm
 		int ccx_text_width;
 		///property: font type of both items (label and text), see also setLabelAndText()
 		Font* ccx_font;
+		///property: percentage val of label width related to full width, causes fit of text automatically into the available remaining size of item, see also setLabelWidthPercent()
+		uint8_t ccx_percent_label_w;
 		
 		///object: label object
 		CComponentsLabel *ccx_label_obj;
@@ -356,7 +358,7 @@ class CComponentsExtTextForm : public CComponentsForm
 
 	protected:
 		///initialize basic variables
- 		void initVarExtTextForm(const int x_pos = 0, const int y_pos = 0, const int w = 300, const int h = 27,
+		void initVarExtTextForm(const int x_pos = 1, const int y_pos = 1, const int w = 300, const int h = 27,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
