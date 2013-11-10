@@ -32,37 +32,46 @@
 #endif
 
 #include <gui/widget/menue.h>
-#include <gui/components/cc_frm.h>
-#include <configfile.h>
+#include <gui/components/cc.h>
+
+typedef int info_type_id_t;
 
 typedef struct build_info_t
 {
+	info_type_id_t type_id;
 	neutrino_locale_t caption;
 	std::string info_text;
 
 } build_info_struct_t;
 
-class CBuildInfo : public CMenuTarget
+class CBuildInfo :  public CMenuTarget, public CComponentsWindow
 {
 	private:
-		int item_offset;
-		int bodyHeight;
 		std::vector<build_info_t> v_info;
-
-		void Clean();
-		void Init();
-		void InitInfos();
-		void ShowWindow();
-
-		CComponentsWindow  	*cc_win;
-		CComponentsForm  	*cc_info;
-		CConfigFile     	config;
-
+		Font* font;
+		void initVarBuildInfo();
+		void InitInfoItems();
+		
+		bool HasData();
 	public:
+		
+		//type_id's for infos
+		enum
+		{
+			BI_TYPE_ID_USED_COMPILER,
+			BI_TYPE_ID_USED_CXXFLAGS,
+			BI_TYPE_ID_USED_BUILD,
+			BI_TYPE_ID_USED_KERNEL,
+			BI_TYPE_ID_CREATOR,
+			
+			BI_TYPE_IDS,
+		};
 
 		CBuildInfo();
 		~CBuildInfo();
-
+		///assigns text Font type
+		void setFontType(Font* font_text);
+		build_info_t getInfo(const info_type_id_t& type_id);
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
