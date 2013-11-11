@@ -62,8 +62,10 @@ class CBuildInfo :  public CMenuTarget, public CComponentsWindow
 			BI_TYPE_ID_USED_CXXFLAGS,
 			BI_TYPE_ID_USED_BUILD,
 			BI_TYPE_ID_USED_KERNEL,
+#if 0
 			BI_TYPE_ID_CREATOR,
-			
+#endif
+
 			BI_TYPE_IDS,
 		};
 
