@@ -628,7 +628,7 @@ imageinfo.head Image-Informationen
 imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
-imageinfo.license Lizenz:
+imageinfo.license Lizenz
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
