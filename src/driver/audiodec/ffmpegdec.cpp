@@ -184,6 +184,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	RetCode Status=OK;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
 
+	unlink ("/tmp/cover.jpg");
 	if (!SetMetaData((FILE *)in, ft, _meta_data)) {
 		DeInit();
 		Status=DATA_ERR;
@@ -425,9 +426,19 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 
 		bitrate = 0;
 		total_time = 0;
-		for(unsigned int i = 0; i < avc->nb_streams; i++)
+		for(unsigned int i = 0; i < avc->nb_streams; i++) {
 			if (avc->streams[i]->codec->bit_rate > 0)
 				bitrate += avc->streams[i]->codec->bit_rate;
+			if (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC) {
+				FILE *cover = fopen("/tmp/cover.jpg", "wb");
+				if (cover) {
+					AVPacket *pkt = &avc->streams[i]->attached_pic;
+					fwrite(pkt->data, pkt->size, 1, cover);
+					fclose(cover);
+				}
+				m->cover = "/tmp/cover.jpg";
+			}
+		}
 		if(m->filesize && bitrate)
 			total_time = 8 * m->filesize / bitrate;
 

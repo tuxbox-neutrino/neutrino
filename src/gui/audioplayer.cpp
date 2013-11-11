@@ -2171,6 +2171,25 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 			m_curr_audiofile.MetaData.album = meta.sc_station;
 			updateLcd = true;
 		}
+
+		std::string cover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
+
+		if (!meta.cover.empty())
+			cover = meta.cover;
+
+		if ((access(cover.c_str(), F_OK) == 0) && !screen_saver)
+		{
+			g_PicViewer->DisplayImage(cover, m_x + 2, m_y + 2, m_title_height - 14, m_title_height - 14, m_frameBuffer->TM_NONE);
+
+			if(g_settings.rounded_corners)
+			{
+				//repaint frame to cover up the corners of the cover; FIXME
+				if (!m_show_playlist)
+					m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight, 2, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
+				else
+					m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10, 2, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
+			}
+		}
 	}
 	//if (CAudioPlayer::getInstance()->getScBuffered() != 0)
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
