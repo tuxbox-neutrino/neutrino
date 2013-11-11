@@ -3283,7 +3283,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		if(!g_settings.epg_scan && !fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
 			g_Zapit->setStandby(true);
 		} else {
-			g_Zapit->stopPlayBack();
+			//g_Zapit->stopPlayBack();
+			g_Zapit->lockPlayBack();
 		}
 
 		videoDecoder->Standby(true);
@@ -3359,6 +3360,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->setBacklight(g_settings.backlight_tv);
 
+		CZapit::getInstance()->EnablePlayback(true);
 		g_Zapit->setStandby(false);
 		/* the old code did:
 		   if(was_record) g_Zapit->startPlayBack()
