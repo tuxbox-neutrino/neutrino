@@ -48,6 +48,8 @@ extern cAudio * audioDecoder;
 
 #define ProgName "FfmpegDec"
 
+#define COVERFILE "/tmp/cover.jpg"
+
 static OpenThreads::Mutex mutex;
 
 static void log_callback(void *, int, const char *format, va_list ap)
@@ -184,7 +186,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	RetCode Status=OK;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
 
-	unlink ("/tmp/cover.jpg");
+	unlink (COVERFILE);
 	if (!SetMetaData((FILE *)in, ft, _meta_data)) {
 		DeInit();
 		Status=DATA_ERR;
@@ -430,13 +432,13 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 			if (avc->streams[i]->codec->bit_rate > 0)
 				bitrate += avc->streams[i]->codec->bit_rate;
 			if (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC) {
-				FILE *cover = fopen("/tmp/cover.jpg", "wb");
+				FILE *cover = fopen(COVERFILE, "wb");
 				if (cover) {
 					AVPacket *pkt = &avc->streams[i]->attached_pic;
 					fwrite(pkt->data, pkt->size, 1, cover);
 					fclose(cover);
+					m->cover = COVERFILE;
 				}
-				m->cover = "/tmp/cover.jpg";
 			}
 		}
 		if(m->filesize && bitrate)
