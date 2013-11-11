@@ -21,18 +21,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@FREETYPE_CFLAGS@ \
-	@LIBCS_CFLAGS@
+	@HWLIB_CFLAGS@
 
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
-if USE_STB_HAL
-AM_CPPFLAGS += -I$(STB_HAL_INC)
-endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
 endif

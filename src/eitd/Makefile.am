@@ -7,18 +7,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
-	-I$(top_srcdir)/lib/xmltree
-
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
-if USE_STB_HAL
-AM_CPPFLAGS += -I$(STB_HAL_INC)
-endif
+	-I$(top_srcdir)/lib/xmltree \
+	@HWLIB_CFLAGS@
 
 #AM_CPPFLAGS =
 AM_CPPFLAGS += -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS

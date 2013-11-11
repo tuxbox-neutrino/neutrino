@@ -15,13 +15,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/src/system/mtdutils/include
-	@FREETYPE_CFLAGS@
-
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
+	@FREETYPE_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_system_mtdutils.a
 

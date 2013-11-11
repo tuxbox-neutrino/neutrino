@@ -13,18 +13,8 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
-	@FREETYPE_CFLAGS@
-
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
-if USE_STB_HAL
-AM_CPPFLAGS += -I$(STB_HAL_INC)
-endif
+	@FREETYPE_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libnhttpd_tuxboxapi.a
 

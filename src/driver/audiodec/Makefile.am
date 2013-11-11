@@ -9,18 +9,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@FREETYPE_CFLAGS@ \
-	@VORBISIDEC_CFLAGS@
-
-if BOXTYPE_COOL
-if BOXMODEL_APOLLO
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream2
-else
-AM_CPPFLAGS += -I$(top_srcdir)/lib/libcoolstream
-endif
-endif
-if USE_STB_HAL
-AM_CPPFLAGS += -I$(STB_HAL_INC)
-endif
+	@VORBISIDEC_CFLAGS@ \
+	@HWLIB_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_driver_audiodec.a
 

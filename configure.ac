@@ -151,6 +151,7 @@ if test "$BOXTYPE" != coolstream; then
 	if test "$STB_HAL_INC" = ""; then
 		AC_MSG_ERROR([need libstb-hal includes path with --with-stb-hal-includes=...])
 	fi
+	HWLIB_CFLAGS="-I$STB_HAL_INC"
 fi
 
 AC_ARG_ENABLE(cleanup,
@@ -172,8 +173,10 @@ if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
 fi
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream'
 
 if test "$BOXMODEL" = "apollo"; then
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2'
 if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
 fi
@@ -198,7 +201,7 @@ fi
 #*** libcoolstream $CSL_VERSION or newer is required! ***
   #])
 #fi
-AC_SUBST(LIBCS_CFLAGS)
+AC_SUBST(HWLIB_CFLAGS)
 AC_SUBST(LIBCS_LIBS)
 AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
