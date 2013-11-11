@@ -435,7 +435,7 @@ int CScanSetup::showScanMenu()
 		r_system = DVB_C;
 
 		//--------------------------------------------------------------
-		settings->addItem(GenericMenuSeparatorLine);
+		//settings->addItem(GenericMenuSeparatorLine);
 		//--------------------------------------------------------------
 		//tune timeout
 		if(CFEManager::getInstance()->getFrontendCount() <= 1) {
