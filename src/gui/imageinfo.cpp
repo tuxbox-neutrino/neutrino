@@ -352,13 +352,6 @@ void CImageInfo::InitInfoText(const std::string& text)
 	int h_body = winbody->getHeight();
 	int w_body = winbody->getWidth();
 
-	int h_lic = h_body - cc_info->getHeight() - 2*item_offset;
-
-	if (cc_lic == NULL)
-		cc_lic = new CComponentsInfoBox(CC_CENTERED, CC_APPEND, w_body-2*item_offset, h_lic);
-	cc_lic->setSpaceOffset(1);
-	cc_lic->setText(text, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
-
 	//add a caption for info contents
 	Font * caption_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
 	int caption_height = caption_font->getHeight();
@@ -367,6 +360,14 @@ void CImageInfo::InitInfoText(const std::string& text)
 						     g_Locale->getText(LOCALE_IMAGEINFO_LICENSE), CTextBox::AUTO_WIDTH, item_font);
 	if (!cc_sub_caption->isAdded())
 		cc_win->addWindowItem(cc_sub_caption);
+
+	//add info text box
+	int h_txt = h_body - item_offset - cc_info->getHeight() - cc_sub_caption->getHeight() - item_offset;
+
+	if (cc_lic == NULL)
+		cc_lic = new CComponentsInfoBox(CC_CENTERED, CC_APPEND, w_body-2*item_offset, h_txt);
+	cc_lic->setSpaceOffset(1);
+	cc_lic->setText(text, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	//add text to container
 	if (!cc_lic->isAdded())
