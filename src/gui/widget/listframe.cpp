@@ -327,6 +327,8 @@ void CListFrame::onNewLineArray(void)
 		if(m_nCurrentLine >= m_nNrOfLines)
 		{
 			m_nCurrentPage = m_nNrOfPages - 1;
+			if (m_nCurrentPage < 0)
+				m_nCurrentPage = 0;
 			m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 		}
 		if(m_nSelectedLine >= m_nNrOfLines)
@@ -652,10 +654,10 @@ bool CListFrame::setSelectedLine(int selection)
 {
 	//TRACE("[CListFrame]->setSelectedLine %d \r\n",selection);
 	bool result = false;
+	if (selection >= m_nNrOfLines)
+		selection = m_nNrOfLines - 1;
 	if (selection < 0)
 		selection = 0;
-	else if (selection >= m_nNrOfLines)
-		selection = m_nNrOfLines - 1;
 	m_nSelectedLine = selection;
 	m_nCurrentPage =  selection / m_nLinesPerPage;
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
