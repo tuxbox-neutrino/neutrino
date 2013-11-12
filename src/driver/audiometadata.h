@@ -44,6 +44,8 @@ class CAudioMetaData
 public:
 	// constructor
 	CAudioMetaData();
+	// destructor
+	~CAudioMetaData();
 	// copy constructor
 	CAudioMetaData( const CAudioMetaData& src );
 	// assignment operator
@@ -85,6 +87,7 @@ public:
 	std::string genre;
 	std::string track;
 	std::string cover;
+	bool cover_temporary;
 	bool changed;
 };
 #endif /* __AUDIO_METADATA__ */

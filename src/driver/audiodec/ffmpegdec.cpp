@@ -348,8 +348,10 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	//av_free(avcc);
 
 	DeInit();
-	if (!_meta_data->cover.empty())
+	if (_meta_data->cover_temporary && !_meta_data->cover.empty()) {
+		_meta_data->cover_temporary = false;
 		unlink(_meta_data->cover.c_str());
+	}
 	return Status;
 }
 
@@ -445,6 +447,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 					fwrite(pkt->data, pkt->size, 1, f);
 					fclose(f);
 					m->cover = cover;
+					m->cover_temporary = true;
 				}
 			}
 		}

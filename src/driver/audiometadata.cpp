@@ -42,6 +42,13 @@ CAudioMetaData::CAudioMetaData()
     clear();
 }
 
+// destructor
+CAudioMetaData::~CAudioMetaData()
+{
+	if (cover_temporary && !cover.empty())
+		unlink(cover.c_str());
+}
+
 // copy constructor
 CAudioMetaData::CAudioMetaData( const CAudioMetaData& src )
   : type( src.type ), type_info( src.type_info ),
@@ -52,7 +59,7 @@ CAudioMetaData::CAudioMetaData( const CAudioMetaData& src )
 	hasInfoOrXingTag( src.hasInfoOrXingTag ), artist( src.artist ),
 	title( src.title ), album( src.album ), sc_station( src.sc_station ),
 	date( src.date ), genre( src.genre ), track( src.track ),cover(src.cover),
-	changed( src.changed )
+	changed( src.changed ), cover_temporary(false)
 {
 }
 
@@ -84,6 +91,8 @@ void CAudioMetaData::operator=( const CAudioMetaData& src )
 	cover = src.cover;
 	sc_station = src.sc_station;
 	changed = src.changed;
+	changed = src.changed;
+	cover_temporary = false;
 }
 
 void CAudioMetaData::clear()
@@ -105,6 +114,9 @@ void CAudioMetaData::clear()
 	date.clear();
 	genre.clear();
 	track.clear();
+	if (cover_temporary && !cover.empty())
+		unlink(cover.c_str());
 	cover.clear();
+	cover_temporary=false;
 	changed=false;
 }
