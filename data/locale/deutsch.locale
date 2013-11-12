@@ -1418,9 +1418,9 @@ moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
 moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
+moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_history Frühere Suchen
 moviebrowser.yt_max_history Max. Anzahl früherer Suchen
-moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
 moviebrowser.yt_most_discussed Am meisten diskutiert
 moviebrowser.yt_most_popular Beliebteste Videos
