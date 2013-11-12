@@ -43,14 +43,17 @@ extern "C" {
 #include <OpenThreads/ScopedLock>
 
 #include <driver/netfile.h>
+#include <system/helpers.h>
 
 extern cAudio * audioDecoder;
 
 #define ProgName "FfmpegDec"
 
-#define COVERFILE "/tmp/cover.jpg"
+#define COVERDIR "/tmp/cover"
 
 static OpenThreads::Mutex mutex;
+
+static int cover_count = 0;
 
 static void log_callback(void *, int, const char *format, va_list ap)
 {
@@ -186,7 +189,6 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	RetCode Status=OK;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
 
-	unlink (COVERFILE);
 	if (!SetMetaData((FILE *)in, ft, _meta_data)) {
 		DeInit();
 		Status=DATA_ERR;
@@ -346,6 +348,8 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	//av_free(avcc);
 
 	DeInit();
+	if (!_meta_data->cover.empty())
+		unlink(_meta_data->cover.c_str());
 	return Status;
 }
 
@@ -432,12 +436,15 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 			if (avc->streams[i]->codec->bit_rate > 0)
 				bitrate += avc->streams[i]->codec->bit_rate;
 			if (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC) {
-				FILE *cover = fopen(COVERFILE, "wb");
-				if (cover) {
+				mkdir(COVERDIR, 0755);
+				std::string cover(COVERDIR);
+				cover += "/" + to_string(cover_count++) + ".jpg";
+				FILE *f = fopen(cover.c_str(), "wb");
+				if (f) {
 					AVPacket *pkt = &avc->streams[i]->attached_pic;
-					fwrite(pkt->data, pkt->size, 1, cover);
-					fclose(cover);
-					m->cover = COVERFILE;
+					fwrite(pkt->data, pkt->size, 1, f);
+					fclose(f);
+					m->cover = cover;
 				}
 			}
 		}
