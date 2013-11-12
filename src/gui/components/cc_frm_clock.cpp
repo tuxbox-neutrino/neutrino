@@ -60,12 +60,11 @@ CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, cons
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 
+	cl_format_str	= format_str;
 	paintClock	= false;
 	activeClock	= activ;
 	if (activeClock)
 		startThread();
-
-	cl_format_str	= format_str;
 }
 
 void CComponentsFrmClock::initVarClock()

@@ -1,41 +1,45 @@
+/*
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean'
+
+	Info Clock Window
+	based up CComponentsFrmClock
+	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013, Michael Liebmann 'micha-bbg'
+
+	License: GPL
+
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
+
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
+*/
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include <global.h>
 #include <neutrino.h>
-#include <pthread.h>
-#include <string>
-
-#include <sys/timeb.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/param.h>
-#include <driver/volume.h>
+// #include <driver/volume.h>
 #include <gui/volumebar.h>
 #include <gui/infoclock.h>
 
-#define YOFF 0
 
-CInfoClock::CInfoClock()
-{
-	frameBuffer = CFrameBuffer::getInstance();
-	x = y = clock_x = 0;
-	time_height = time_width = thrTimer = 0;
-	Init();
-}
 
-CInfoClock::~CInfoClock()
+CInfoClock::CInfoClock():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", true, CC_SHADOW_OFF, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
 {
-	if(thrTimer)
-		pthread_cancel(thrTimer);
-	thrTimer = 0;
-}
-
-void CInfoClock::Init()
-{
-	CVolumeHelper::getInstance()->refresh();
-	CVolumeHelper::getInstance()->getInfoClockDimensions(&clock_x, &y, &time_width, &time_height, &digit_h, &digit_offset);
+	initVarInfoClock();
 }
 
 CInfoClock* CInfoClock::getInstance()
@@ -46,64 +50,35 @@ CInfoClock* CInfoClock::getInstance()
 	return InfoClock;
 }
 
-void CInfoClock::paintTime( bool show_dot)
+void CInfoClock::initVarInfoClock()
 {
-	char timestr[20];
-	int dummy, mute_dx, h_spacer;
-	time_t tm = time(0);
-	strftime((char*) &timestr, sizeof(timestr), "%H:%M:%S", localtime(&tm));
-	timestr[2] = show_dot ? ':':'.';
-
-	CVolumeHelper *cvh = CVolumeHelper::getInstance();
-	cvh->getInfoClockDimensions(&clock_x, &y, &time_width, &time_height, &digit_h, &digit_offset);
-	cvh->getMuteIconDimensions(&dummy, &dummy, &mute_dx, &dummy);
-	cvh->getSpacer(&h_spacer, &dummy);
-	if (CNeutrinoApp::getInstance()->isMuted())
-		clock_x -= (mute_dx + h_spacer);
-
-	int x_diff = (time_width - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(timestr)) / 2;
-	frameBuffer->paintBoxRel(clock_x, y, time_width, time_height, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(clock_x + x_diff, y + digit_h + digit_offset + ((time_height - digit_h) / 2), time_width, timestr, COL_MENUCONTENT_TEXT);
+	cl_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	Init();
 }
 
-void* CInfoClock::TimerProc(void *arg)
+void CInfoClock::Init()
 {
-
-	bool show_dot = false;
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
- 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
-
-	CInfoClock *InfoClock = static_cast<CInfoClock*>(arg);
-	InfoClock->paintTime(show_dot);
-	while(1) {
-		sleep(1);
-		show_dot = !show_dot;
-		InfoClock->paintTime(show_dot);
-	}
-	return 0;
+	CVolumeHelper::getInstance()->refresh();
+	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
+	initCCLockItems();
 }
 
 void CInfoClock::ClearDisplay()
 {
-	frameBuffer->paintBackgroundBoxRel(clock_x, y, time_width, time_height);
+	kill();
 	Init();
 }
 
-void CInfoClock::StartClock()
+bool CInfoClock::StartClock()
 {
 	Init();
-	
-	if(!thrTimer) {
-		pthread_create (&thrTimer, NULL, TimerProc, (void*) this) ;
-		pthread_detach(thrTimer);
-	}
+	return Start();
 }
 
-void CInfoClock::StopClock()
+bool CInfoClock::StopClock()
 {
-	if(thrTimer) {
-		pthread_cancel(thrTimer);
-		thrTimer = 0;
-		frameBuffer->paintBackgroundBoxRel(clock_x, y, time_width, time_height);
-	}
+	bool ret = Stop();
+	kill();
+
+	return ret;
 }

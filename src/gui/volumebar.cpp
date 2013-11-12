@@ -101,7 +101,7 @@ void CVolumeBar::initVolumeBarSize()
 	cvh->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
 	// info clock
 	int dummy;
-	cvh->getInfoClockDimensions(&dummy, &clock_y, &clock_width, &clock_height, &dummy, &dummy);
+	cvh->getInfoClockDimensions(&dummy, &clock_y, &clock_width, &clock_height);
 	int mute_corrY = 0;
 	if (mute_dy < height)
 		mute_corrY = (height - mute_dy) / 2;
@@ -111,6 +111,7 @@ void CVolumeBar::initVolumeBarSize()
 		CInfoClock::getInstance()->ClearDisplay();
 
 	vb_pbh 		= height-8;
+
 	vb_pby 		= height/2-vb_pbh/2;
 }
 

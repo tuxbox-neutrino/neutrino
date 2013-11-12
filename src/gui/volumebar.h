@@ -123,7 +123,7 @@ class CVolumeHelper
 		int  getVolIconHeight() {return icon_height;}
 		void getDimensions(int *_x, int *_y, int *_sw, int *_sh, int *_iw, int *_dw) { *_x = x; *_y = y; *_sw = sw; *_sh = sh; *_iw = icon_width; *_dw = digit_width; }
 		void getMuteIconDimensions(int *_x, int *_y, int *w, int *h) { *_x = mute_ax; *_y = mute_ay+mute_corrY; *w = mute_dx; *h = mute_dy; }
-		void getInfoClockDimensions(int *_x, int *_y, int *w, int *h, int *d_h, int *d_o) { *_x = clock_ax; *_y = clock_ay; *w = clock_dx; *h = clock_dy, *d_h = digit_h, *d_o = digit_offset; }
+		void getInfoClockDimensions(int *_x, int *_y, int *w, int *h/*, int *d_h, int *d_o*/) { *_x = clock_ax; *_y = clock_ay; *w = clock_dx; *h = clock_dy/*, *d_h = digit_h, *d_o = digit_offset*/; }
 		void getVolBarDimensions(int *_y, int *_dy) { *_y = vol_ay; *_dy = vol_height; }
 		void setMuteIconCorrY(int corr) { mute_corrY = corr; }
 		void refresh();
