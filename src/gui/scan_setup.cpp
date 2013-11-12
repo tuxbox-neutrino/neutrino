@@ -632,7 +632,12 @@ int CScanSetup::showFrontendSetup(int number)
 	dmode = fe_config.diseqcType;
 
 	char name[255];
-	snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getInfo()->name);
+	if (g_settings.easymenu)
+		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1,
+				fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE));
+	else
+		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getInfo()->name);
 
 	CMenuWidget * setupMenu = new CMenuWidget(name, NEUTRINO_ICON_SETTINGS, width);
 	setupMenu->setSelected(feselected);
