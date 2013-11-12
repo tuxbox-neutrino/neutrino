@@ -149,9 +149,14 @@ void CNeutrinoApp::InitMenuMain()
 			mb->setHint(NEUTRINO_ICON_HINT_MB, LOCALE_MENU_HINT_MB);
 			personalize.addItem(MENU_MAIN, mb, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_MBROWSER]);
 		}
+#if 0
 		CMenuForwarder *cl = new CMenuForwarder(LOCALE_MAINMENU_CHANNELS, true, NULL, this, "channels", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 		cl->setHint(NEUTRINO_ICON_HINT_TVMODE, LOCALE_MENU_HINT_CHANNELS);
-		personalize.addItem(MENU_MAIN, cl); //, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE]);
+		personalize.addItem(MENU_MAIN, cl);
+#endif
+		CMenuForwarder * mf = new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf->setHint(NEUTRINO_ICON_HINT_BEDIT, LOCALE_MENU_HINT_BEDIT);
+		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
 	} else {
 		//tv <-> radio toggle
 		CMenuForwarder *tvradio_switch = new CMenuForwarder(LOCALE_MAINMENU_TVRADIO_SWITCH, true, NULL, this, "tv_radio_switch", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
@@ -469,18 +474,17 @@ void CNeutrinoApp::InitMenuService()
 	}
 
 	//bouquet edit
-	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	else
+	if (!g_settings.easymenu) {
 		mf = new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 
-	mf->setHint(NEUTRINO_ICON_HINT_BEDIT, LOCALE_MENU_HINT_BEDIT);
-	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT]);
+		mf->setHint(NEUTRINO_ICON_HINT_BEDIT, LOCALE_MENU_HINT_BEDIT);
+		personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT]);
+	}
 
 	//channel reset
 	CDataResetNotifier *resetNotifier = new CDataResetNotifier();
 	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	else
 		mf = new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels");
 
@@ -522,7 +526,11 @@ void CNeutrinoApp::InitMenuService()
 	}
 
 	//firmware update
-	mf = new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate());
+	if (g_settings.easymenu)
+		mf = new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	else
+		mf = new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate());
+
 	mf->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_SW_UPDATE);
 	personalize.addItem(MENU_SERVICE, mf, &g_settings.personalize[SNeutrinoSettings::P_MSER_SOFTUPDATE]);
 }
