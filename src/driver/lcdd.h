@@ -1,6 +1,4 @@
 /*
-	$Id$
-
 	LCD-Daemon  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
@@ -80,8 +78,8 @@ typedef enum
 #include "driver/file.h"
 #endif // LCD_UPDATE
 
-#include <configfile.h>
 #include <pthread.h>
+#include <string>
 
 #include <lcddisplay/fontrenderer.h>
 
@@ -150,7 +148,6 @@ class CLCD
 		bool				showclock;
 		bool				movie_centered;
 		bool				movie_is_ac3;
-		CConfigFile			configfile;
 		pthread_t			thrTime;
 		int                             last_toggle_state_power;
 		int				clearClock;
