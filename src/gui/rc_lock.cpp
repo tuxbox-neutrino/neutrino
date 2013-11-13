@@ -37,6 +37,8 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 
+#include <driver/vfd.h>
+
 const std::string CRCLock::NO_USER_INPUT = "noUserInput";
 bool CRCLock::locked = false;
 

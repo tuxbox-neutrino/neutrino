@@ -40,6 +40,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <driver/screen_max.h>
+#include <driver/vfd.h>
 
 #include <unistd.h>
 #include <stdio.h>

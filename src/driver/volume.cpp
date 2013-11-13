@@ -35,6 +35,7 @@
 #include <system/settings.h>
 #include <daemonc/remotecontrol.h>
 #include <driver/volume.h>
+#include <driver/vfd.h>
 #include <gui/audiomute.h>
 #include <gui/mediaplayer.h>
 #include <zapit/zapit.h>

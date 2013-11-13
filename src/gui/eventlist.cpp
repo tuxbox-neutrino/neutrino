@@ -47,6 +47,7 @@
 
 #include <driver/screen_max.h>
 #include <driver/fade.h>
+#include <driver/vfd.h>
 
 #include <zapit/client/zapittools.h>
 #include <zapit/zapit.h>
