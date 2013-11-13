@@ -37,7 +37,6 @@
 #include <neutrino_menue.h>
 
 #include <driver/screen_max.h>
-#include <driver/vfd.h>
 #include <system/debug.h>
 
 #include <cs_api.h>
