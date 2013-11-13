@@ -55,7 +55,6 @@
 #include <gui/infoclock.h>
 #include <gui/infoviewer.h>
 #include <driver/volume.h>
-#include <driver/vfd.h>
 #include <system/helpers.h>
 // obsolete #include <gui/streaminfo.h>
 

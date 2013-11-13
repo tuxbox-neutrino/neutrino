@@ -46,7 +46,6 @@
 #include <driver/rcinput.h>
 #include <driver/audioplay.h>
 #include <driver/audiometadata.h>
-#include <driver/vfd.h>
 
 #include <daemonc/remotecontrol.h>
 

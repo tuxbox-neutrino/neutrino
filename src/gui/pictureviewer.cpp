@@ -43,7 +43,6 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
-#include <driver/vfd.h>
 
 #include <gui/audiomute.h>
 
