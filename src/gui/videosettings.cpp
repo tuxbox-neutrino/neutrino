@@ -46,7 +46,6 @@
 #include <gui/osd_setup.h>
 
 #include <driver/screen_max.h>
-#include <driver/vfd.h>
 
 #include <daemonc/remotecontrol.h>
 

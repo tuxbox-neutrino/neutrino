@@ -34,8 +34,6 @@
 #include <gui/volumebar.h>
 #include <gui/audiomute.h>
 
-#include <driver/vfd.h>
-
 CAudioMute::CAudioMute():CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_MUTE)
 {
 	y_old			= -1;

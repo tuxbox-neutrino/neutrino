@@ -50,8 +50,6 @@
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
-#include <driver/vfd.h>
-
 #include <daemonc/remotecontrol.h>
 #include <system/settings.h>
 
