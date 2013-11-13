@@ -176,8 +176,11 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());		  
 		}else
 			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+
+		if (numpids >= REC_MAX_APIDS)
+			break;
 	}
-	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0)){
+	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0) && (numpids < REC_MAX_APIDS)){
 		apids[numpids++] = allpids.PIDs.vtxtpid;
 		psi.addPid(allpids.PIDs.vtxtpid, EN_TYPE_TELTEX, 0, channel->getTeletextLang());
 	}
@@ -186,6 +189,8 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 			CZapitAbsSub* s = channel->getChannelSub(i);
 			if (s->thisSubType == CZapitAbsSub::DVB) {
 				if(i>9)//max sub pids
+					break;
+				if (numpids >= REC_MAX_APIDS)
 					break;
 
 				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
@@ -197,9 +202,10 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	}
 	psi.genpsi(fd);
 
-
-	if ((StreamPmtPid) && (allpids.PIDs.pmtpid != 0))
+#if 0
+	if ((StreamPmtPid) && (allpids.PIDs.pmtpid != 0) && (numpids < REC_MAX_APIDS))
 		apids[numpids++] = allpids.PIDs.pmtpid;
+#endif
 
 	if(record == NULL)
 		record = new cRecord(channel->getRecordDemux() /*RECORD_DEMUX*/);
@@ -318,6 +324,9 @@ bool CRecordInstance::Update()
 		if(!found) {
 			update = true;
 			printf("%s: apid %x not found in recording pids\n", __FUNCTION__, it->apid);
+			if (numpids < REC_MAX_APIDS)
+				apids[numpids++] = it->apid;
+
 			record->AddPid(it->apid);
 			for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
 				if(allpids.APIDs[i].pid == it->apid) {

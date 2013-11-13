@@ -12,6 +12,21 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
+# Add build information to config.h
+# ---------------------------------
+
+# Add host to config.h
+AC_DEFINE_UNQUOTED(USED_BUILD, ["$build"], [Build system under which the program was compiled on.])
+
+# Add used CXXFLAGS to config.h
+AC_DEFINE_UNQUOTED(USED_CXXFLAGS, ["$CXXFLAGS"], [Define to the used CXXFLAGS to compile this package.])
+
+# Get compiler (version)
+AH_TEMPLATE(USED_COMPILER, [Define to name and version of used compiler])
+if COMPILER=`$CC --version | head -n 1`; then
+    AC_DEFINE_UNQUOTED(USED_COMPILER, ["$COMPILER"])
+fi
+
 AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
 	[use libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR="$withval"],

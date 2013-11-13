@@ -42,6 +42,7 @@ libneutrino_gui_a_SOURCES = \
 	audioplayer_setup.cpp\
 	bookmarkmanager.cpp \
 	bouquetlist.cpp \
+	buildinfo.cpp \
 	channellist.cpp \
 	cec_setup.cpp \
 	dboxinfo.cpp \

@@ -107,21 +107,25 @@ void CComponentsItem::paintInit(bool do_save_bg)
 }
 
 //restore last saved screen behind form box,
-//Do use parameter 'no restore' to override temporarly the restore funtionality.
-//This could help to avoid ugly flicker efffects if it is necessary e.g. on often repaints, without changed contents.
+//Do use parameter 'no restore' to override the restore funtionality.
+//For embedded items is it mostly not required to restore saved screens, so no_resore=true also is default parameter
+//for such items.
+//This member ensures demage of already existing screen buffer too, if parameter no_restore was changed while runtime.
 void CComponentsItem::hideCCItem(bool no_restore)
 {
-	is_painted = false;
-
+	//restore saved screen if available
 	if (saved_screen.pixbuf) {
 		frameBuffer->waitForIdle("CComponentsItem::hideCCItem()");
 		frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
-		if (no_restore) {
-			delete[] saved_screen.pixbuf;
-			saved_screen.pixbuf = NULL;
-			firstPaint = true;
-		}
+
+		if (no_restore) { //on parameter no restore=true delete saved screen if available
+				delete[] saved_screen.pixbuf;
+				saved_screen.pixbuf = NULL;
+				firstPaint = true;
+			}
 	}
+
+	is_painted = false;
 }
 
 void CComponentsItem::hide(bool no_restore)

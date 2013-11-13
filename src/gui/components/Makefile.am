@@ -23,6 +23,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_frm_clock.cpp \
 	cc_frm_footer.cpp \
 	cc_frm_header.cpp \
+	cc_frm_ext_text.cpp \
 	cc_frm_icons.cpp \
 	cc_frm_signalbars.cpp \
 	cc_frm_window.cpp \

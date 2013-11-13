@@ -73,6 +73,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <gui/widget/listframe.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/textbox.h>
@@ -231,9 +232,12 @@ typedef struct
 	int ytresults;
 	int ytquality;
 	int ytconcconn;
+	int ytsearch_history_size;
+	int ytsearch_history_max;
 	std::string ytregion;
 	std::string ytvid;
 	std::string ytsearch;
+	std::list<std::string> ytsearch_history;
 } MB_SETTINGS;
 
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see

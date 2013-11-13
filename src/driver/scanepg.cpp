@@ -208,6 +208,7 @@ void CEpgScan::EnterStandby()
 {
 	if (standby) {
 		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
+		CZapit::getInstance()->EnablePlayback(true);
 		g_Zapit->setStandby(true);
 		g_Sectionsd->setPauseScanning(true);
 	}

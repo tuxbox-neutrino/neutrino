@@ -55,7 +55,7 @@
 #include <zapit/scan.h>
 #include <zapit/femanager.h>
 #include <gui/widget/messagebox.h>
-
+#include <gui/buildinfo.h>
 
 #if HAVE_COOL_HARDWARE
 extern int cs_test_card(int unit, char * str);
@@ -76,6 +76,7 @@ CTestMenu::CTestMenu()
 	window = NULL;
 	button = NULL;
 	clock = clock_r = NULL;
+	text_ext = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -93,6 +94,7 @@ CTestMenu::~CTestMenu()
 	delete clock;
 	delete clock_r;
 	delete chnl_pic;
+	delete text_ext;
 }
 
 static int test_pos[4] = { 130, 192, 282, 360 };
@@ -470,8 +472,22 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			txt->paint();
 		return res;
 	}
+	else if (actionKey == "text_ext"){
+		if (text_ext == NULL)
+			text_ext = new CComponentsExtTextForm();
+		text_ext->setDimensionsAll(10, 20, 300, 48);
+		text_ext->setLabelAndText("Label", "Text for demo", g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+		text_ext->setFrameThickness(2);
+// 		text_ext->setLabelWidthPercent(15/*%*/);
+		
+		if (text_ext->isPainted())
+			text_ext->hide();
+		else
+			text_ext->paint();
+		return res;
+	}
 	else if (actionKey == "header"){
-		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+		int hh = 30;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
 // 			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
@@ -664,6 +680,11 @@ int CTestMenu::showTestMenu()
 	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
 	w_test.addItem(new CMenuForwarderNonLocalized(w_cc->getName().c_str(), true, NULL, w_cc));
 	showCCTests(w_cc);
+	
+	//buildinfo
+	CMenuForwarder *f_bi = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, new CBuildInfo());
+	f_bi->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
+	w_test.addItem(f_bi);
 
 	//exit
 	return w_test.exec(NULL, "");;
@@ -685,6 +706,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarderNonLocalized("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarderNonLocalized("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarderNonLocalized("Window", true, NULL, this, "window"));
+	widget->addItem(new CMenuForwarderNonLocalized("Text-Extended", true, NULL, this, "text_ext"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

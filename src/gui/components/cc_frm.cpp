@@ -361,8 +361,17 @@ void CComponentsForm::paintCCItems()
 			cc_item->setHeight(new_h);
 		}
 
+		//get current visibility mode from item, me must hold it and restore after paint
+		bool item_visible = cc_item->paintAllowed();
+		//set visibility mode
+		if (!this->cc_allow_paint)
+			cc_item->allowPaint(false);
+
 		//finally paint current item
 		cc_item->paint(CC_SAVE_SCREEN_NO);
+
+		//restore defined old visibility mode of item after paint
+		cc_item->allowPaint(item_visible);
 	}
 }
 

@@ -200,6 +200,12 @@ bouquetname.hdtv HD Kanäle
 bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
+buildinfo.compiled_on Build Host
+buildinfo.compiled_with Compiler Version
+buildinfo.compiler_flags Compiler Flags
+buildinfo.creator Ersteller
+buildinfo.kernel Kernel Version
+buildinfo.menu Build Informationen
 cablesetup.provider Kabelanbieter
 channellist.additional Zusatzinformationen
 channellist.additional_off aus
@@ -622,7 +628,7 @@ imageinfo.head Image-Informationen
 imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
-imageinfo.license Lizenz:
+imageinfo.license Lizenz
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
@@ -788,6 +794,7 @@ menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle M
 menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
+menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
 menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
@@ -1410,7 +1417,9 @@ moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
-moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen 
+moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
+moviebrowser.yt_history Frühere Suchen
+moviebrowser.yt_max_history Max. Anzahl früherer Suchen
 moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
 moviebrowser.yt_most_discussed Am meisten diskutiert
@@ -1707,7 +1716,7 @@ satsetup.fe_mode_link_loop Loop
 satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Nicht genutzt
-satsetup.fe_setup Setup Tuner
+satsetup.fe_setup Tuner Einstellungen
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset

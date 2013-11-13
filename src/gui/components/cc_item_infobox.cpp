@@ -97,16 +97,19 @@ void CComponentsInfoBox::paintPicture()
 	//exit if no image definied
 	if (pic_name == "")
 		return;
-	
+
 	//init pic object and set icon paint position
 	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, 0, "");
 	
 	//define icon
 	pic->setPicture(pic_name);
-	
+
 	//fit icon into infobox
 	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
+
+	//paint, but set visibility mode
+	pic->allowPaint(cc_allow_paint);
 	pic->paint(CC_SAVE_SCREEN_NO);	
 }
 
@@ -119,7 +122,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	//NOTE: real values are reqiured, if we paint this item within a form as embedded cc-item
 	int x_text = (cc_parent ? cc_xr : x) + fr_thickness;
 	int y_text = (cc_parent ? cc_yr : y) + fr_thickness;
-	
+
 	//set text to the left border if picture is not painted
 	int pic_w = 0;
 	if ((pic) && (pic->isPicPainted()))
@@ -141,7 +144,9 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		int tw = width - x_offset - pic_w - 2*fr_thickness;
 		int th = height-2*fr_thickness;
 		cctext->setDimensionsAll(tx, y_text, tw, th);
-		
- 		cctext->paint(CC_SAVE_SCREEN_NO);
+
+		//paint, but set visibility mode
+		cctext->allowPaint(cc_allow_paint);
+		cctext->paint(CC_SAVE_SCREEN_NO);
 	}
 }

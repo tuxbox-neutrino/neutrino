@@ -39,7 +39,7 @@
 #include <daemonc/remotecontrol.h>
 #include <system/flashtool.h>
 #include "version.h"
-
+#include <gui/buildinfo.h>
 #define LICENSEDIR DATADIR "/neutrino/license/"
 
 using namespace std;
@@ -58,7 +58,13 @@ void CImageInfo::Init(void)
 	cc_info 	= NULL;
 	cc_tv		= NULL;
 	cc_lic		= NULL;
+	cc_sub_caption	= NULL;
+	b_info 		= NULL;
+	btn_red		= NULL;
 	item_offset	= 10;
+	item_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	item_height 	= item_font->getHeight();
+	
 	license_txt	= "";
 	v_info.clear();
 	config.loadConfig("/.version");
@@ -81,6 +87,9 @@ void CImageInfo::Clean()
 		cc_info = NULL;
 		cc_tv	= NULL;
 		cc_lic	= NULL;
+		cc_sub_caption = NULL;
+		b_info 	= NULL;
+		btn_red	= NULL;
 	}
 }
 
@@ -107,6 +116,39 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
+		else if (msg == CRCInput::RC_red){
+			// init temporarly vars
+			neutrino_locale_t info_cap , new_btn_cap; 
+			info_cap = new_btn_cap = NONEXISTANT_LOCALE;
+			string info_txt = "";
+			neutrino_locale_t btn_cap = btn_red->getCaptionLocale();
+
+			//toggle caption and info contents
+			if (btn_cap == LOCALE_BUILDINFO_MENU){
+				info_cap = LOCALE_BUILDINFO_MENU;
+				for (uint i=0; i<CBuildInfo::BI_TYPE_IDS; i++){
+					info_txt += g_Locale->getText(b_info->getInfo(i).caption);
+					info_txt += "\n";
+					info_txt += b_info->getInfo(i).info_text  + "\n\n";
+				}
+				new_btn_cap = LOCALE_IMAGEINFO_LICENSE;
+			}
+			if (btn_cap == LOCALE_IMAGEINFO_LICENSE){
+				info_cap = LOCALE_IMAGEINFO_LICENSE;
+				info_txt = getLicenseText();
+				new_btn_cap = LOCALE_BUILDINFO_MENU;
+			}
+			
+			//assign new caption and info contents
+			cc_sub_caption->setText(info_cap, CTextBox::AUTO_WIDTH, item_font);
+			InitInfoText(info_txt);
+			btn_red->setCaption(new_btn_cap);
+			
+			//paint items
+			cc_sub_caption->paint(false);
+			cc_lic->paint(false);
+			btn_red->paint(false);
+		}
 		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
@@ -125,6 +167,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 		if ( msg >  CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout){
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 		}
+
 	}
 
 	hide();
@@ -135,9 +178,14 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 //contains all actions to init and add the window object and items
 void CImageInfo::ShowWindow()
 {
+	CComponentsFooter *footer = NULL;
 	if (cc_win == NULL){
 		cc_win = new CComponentsWindow(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO);
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
+		footer = cc_win->getFooterObject();
+		footer->setColorBody(COL_INFOBAR_SHADOW_PLUS_1);
+		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, footer->getHeight(), LOCALE_BUILDINFO_MENU, false , true, false, footer->getColorBody(), footer->getColorBody());
+		footer->addCCItem(btn_red);
 	}
 
 	//prepare minitv
@@ -146,7 +194,10 @@ void CImageInfo::ShowWindow()
 	//prepare infos
 	InitInfos();
 
-	//prepare license text
+	//prepare build infos
+	InitBuildInfos();
+
+	//prepare info text
 	InitInfoText(getLicenseText());
 
 	//paint window
@@ -171,11 +222,19 @@ void CImageInfo::InitMinitv()
 	cc_tv->setXPos(cc_tv_x);
 
 	//add minitv to container
-	cc_win->addWindowItem(cc_tv);
+	if (!cc_tv->isAdded())
+		cc_win->addWindowItem(cc_tv);
 }
 
 //prepare distribution infos
-void CImageInfo::InitInfos()
+void CImageInfo::InitBuildInfos()
+{
+	if (b_info == NULL)
+		b_info = new CBuildInfo();
+}
+
+//collect required data from environment
+void CImageInfo::InitInfoData()
 {
 	v_info.clear();
 
@@ -224,66 +283,52 @@ void CImageInfo::InitInfos()
 	v_info.push_back(doc);
 	image_info_t forum	= {LOCALE_IMAGEINFO_FORUM,	config.getString("forum", "http://forum.tuxbox.org")};
 	v_info.push_back(forum);
-	image_info_t license	= {LOCALE_IMAGEINFO_LICENSE,	"GPL v2"};
-	v_info.push_back(license);
+}
 
-	Font * item_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+
+//prepare distribution infos
+void CImageInfo::InitInfos()
+{
+	InitInfoData();
 
 	//initialize container for infos
 	if (cc_info == NULL)
 		cc_info = new CComponentsForm();
-	cc_win->addWindowItem(cc_info);
+	if (!cc_info->isAdded())
+		cc_win->addWindowItem(cc_info);
+	
 	cc_info->setPos(item_offset, item_offset);
-	cc_info->setWidth((cc_win->getWidth()/3*2)-2*item_offset);
-
-
-	//calculate max width of label and info_text
-	int w_label = 0, w_text = 0, w = 0;
-	for (size_t i = 0; i < v_info.size(); i++) {
-		w = item_font->getRenderWidth(g_Locale->getText(v_info[i].caption), true);
-		w_label = std::max(w_label, w);
-
-		w = item_font->getRenderWidth(v_info[i].info_text.c_str(), true);
-		w_text = std::max(w_text, w);
-	}
-
-	int x_label = 0, y_text = 0;
-	int x_text = x_label + w_label + item_offset;
-	int item_height = item_font->getHeight();
-
-	//recalc w_text to avoid an overlap with pip TODO: calculate within cc_info itself
-	w_text = std::min(w_text, cc_win->getWidth() - x_text - /*cc_tv->getWidth() - */2*item_offset);
-
+	
+	//set width, use size between left border and minitv
+	cc_info->setWidth(cc_win->getWidth() - cc_tv->getWidth() - 2*item_offset);
+	
+	//calculate initial height for info form
+	cc_info->setHeight(v_info.size()*item_height);
+	
 	//create label and text items
-	int h_tmp = 0;
-	size_t i = 0;
-	for (i = 0; i < v_info.size(); i++) {
-		CComponentsLabel *cc_label = new CComponentsLabel();
-		cc_label->setDimensionsAll(x_label, y_text, w_label, item_height);
-		cc_label->setText(v_info[i].caption, CTextBox::NO_AUTO_LINEBREAK, item_font);
+	for (size_t i=0; i<v_info.size(); i++) {
+		CComponentsExtTextForm *item = new CComponentsExtTextForm(1, CC_APPEND, cc_info->getWidth(), item_height, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
+		item->setLabelAndTextFont(item_font);
+		item->setLabelWidthPercent(20);
 
-		//add label object to window body
-		cc_info->addCCItem(cc_label);
+		if ((i == 0) && (item->getYPos() == CC_APPEND))
+			item->setYPos(1);
 
-		CComponentsText *cc_text = new CComponentsText();
-		cc_text->setDimensionsAll(x_text, y_text, w_text, item_height);
-		cc_text->setText(v_info[i].info_text.c_str(), CTextBox::NO_AUTO_LINEBREAK, item_font);
-		y_text += item_height/*CC_APPEND*/;
+		//add ext-text object to window body
+		if (!item->isAdded())
+			cc_info->addCCItem(item);
 
-		//add text object to window body
-		cc_info->addCCItem(cc_text);
-
-		 // add an offset before homepage and license
-		if (v_info[i].caption == LOCALE_IMAGEINFO_CREATOR|| v_info[i].caption == LOCALE_IMAGEINFO_FORUM){
-			h_tmp += item_offset;
-			y_text += item_offset;
+		//add an offset before homepage and license and at the end
+		if (v_info[i].caption == LOCALE_IMAGEINFO_CREATOR || v_info[i].caption == LOCALE_IMAGEINFO_FORUM){
+			CComponentsShapeSquare *spacer = new CComponentsShapeSquare(1, CC_APPEND, 1, item_offset);
+			//spacer ist not visible!
+			spacer->allowPaint(false);
+			cc_info->addCCItem(spacer);
+			//increase height of cc_info object with offset
+			int tmp_h = cc_info->getHeight();
+			cc_info->setHeight(tmp_h + item_offset);
 		}
-
-		//set height for info form
-		h_tmp += item_height;		
 	}
-	//assign height of info form
-	cc_info->setHeight(h_tmp);
 }
 
 //get license
@@ -307,25 +352,22 @@ void CImageInfo::InitInfoText(const std::string& text)
 	int h_body = winbody->getHeight();
 	int w_body = winbody->getWidth();
 
-	int y_lic = item_offset + cc_info->getHeight() + item_offset;
-	int h_lic = h_body - y_lic - item_offset;
+	//add a caption for info contents
+	Font * caption_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	int caption_height = caption_font->getHeight();
+	if (cc_sub_caption == NULL)
+		cc_sub_caption = new CComponentsLabel(cc_info->getXPos(), CC_APPEND, cc_info->getWidth(), caption_height, 
+						     g_Locale->getText(LOCALE_IMAGEINFO_LICENSE), CTextBox::AUTO_WIDTH, item_font);
+	if (!cc_sub_caption->isAdded())
+		cc_win->addWindowItem(cc_sub_caption);
+
+	//add info text box
+	int h_txt = h_body - item_offset - cc_info->getHeight() - cc_sub_caption->getHeight() - item_offset;
 
 	if (cc_lic == NULL)
-		cc_lic = new CComponentsInfoBox(item_offset, cc_info->getYPos()+cc_info->getHeight()+item_offset, w_body-2*item_offset, h_lic);
-	cc_lic->setSpaceOffset(0);
-	cc_lic->setText(text, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
-
-#if 0
-	//calc y pos of license box to avoid an overlap with pip
-	int h_info = cc_info->getHeight();
-	int y_lic = std::max(h_info, cc_tv->getHeight() + 2*item_offset);
-	CComponentsForm *winbody = cc_win->getBodyObject();
-	int h_lic = 0;
-	if (winbody)
-		h_lic = winbody->getHeight();
-	cc_lic = new CComponentsInfoBox(item_offset, /*y_lic*/CC_APPEND, cc_win->getWidth()-2*item_offset, h_lic - h_info -item_offset);
-	cc_lic->setTextFromFile(file, CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
-#endif
+		cc_lic = new CComponentsInfoBox(CC_CENTERED, CC_APPEND, w_body-2*item_offset, h_txt);
+	cc_lic->setSpaceOffset(1);
+	cc_lic->setText(text, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	//add text to container
 	if (!cc_lic->isAdded())
@@ -348,8 +390,6 @@ void CImageInfo::ScrollLic(bool scrollDown)
 		}
 	}
 }
-
-
 
 void CImageInfo::hide()
 {

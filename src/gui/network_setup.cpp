@@ -297,24 +297,8 @@ int CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem(o1);	//set on start
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
-	networkSettings->addItem(mac);	//eth id
-	networkSettings->addItem(GenericMenuSeparatorLine);
-	//-------------------------------------------------
-	networkSettings->addItem(o2);	//dhcp on/off
-	networkSettings->addItem( m8);	//hostname
-	networkSettings->addItem(GenericMenuSeparatorLine);
-	//-------------------------------------------------
-	networkSettings->addItem( m1);	//adress
-	networkSettings->addItem( m2);	//mask
-	networkSettings->addItem( m3);	//broadcast
-	networkSettings->addItem(GenericMenuSeparatorLine);
-	//------------------------------------------------
-	networkSettings->addItem( m4);	//gateway
-	networkSettings->addItem( m5);	//nameserver
-	//------------------------------------------------
 	if(ifcount > 1) // if there is only one, its probably wired
 	{
-		networkSettings->addItem(GenericMenuSeparatorLine);
 		//ssid
 		CStringInputSMS * networkSettings_ssid = new CStringInputSMS(LOCALE_NETWORKMENU_SSID, &network_ssid, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
 		//key
@@ -334,9 +318,23 @@ int CNetworkSetup::showNetworkSetup()
 		networkSettings->addItem( m11);	//ssid scan
 		networkSettings->addItem( m9);	//ssid
 		networkSettings->addItem( m10);	//key
-		if (!g_settings.easymenu)
-			networkSettings->addItem(GenericMenuSeparatorLine);
+		networkSettings->addItem(GenericMenuSeparatorLine);
 	}
+	//------------------------------------------------
+	networkSettings->addItem(mac);	//eth id
+	networkSettings->addItem(GenericMenuSeparatorLine);
+	//-------------------------------------------------
+	networkSettings->addItem(o2);	//dhcp on/off
+	networkSettings->addItem( m8);	//hostname
+	networkSettings->addItem(GenericMenuSeparatorLine);
+	//-------------------------------------------------
+	networkSettings->addItem( m1);	//adress
+	networkSettings->addItem( m2);	//mask
+	networkSettings->addItem( m3);	//broadcast
+	networkSettings->addItem(GenericMenuSeparatorLine);
+	//------------------------------------------------
+	networkSettings->addItem( m4);	//gateway
+	networkSettings->addItem( m5);	//nameserver
 	//------------------------------------------------
 	sectionsdConfigNotifier = NULL;
 	CMenuWidget ntp(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_NTP);

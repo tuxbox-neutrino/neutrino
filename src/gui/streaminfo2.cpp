@@ -782,7 +782,7 @@ long delta_time_ms (struct timeval *tv, struct timeval *last_tv)
 	return timeval_to_ms (tv) - timeval_to_ms (last_tv);
 }
 
-static cDemux * dmx;
+static cDemux * dmx = NULL;
 
 int CStreamInfo2::ts_setup ()
 {

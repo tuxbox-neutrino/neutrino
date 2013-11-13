@@ -114,7 +114,7 @@ class CTextBox
 		void refreshText(void);
 		void reSizeMainFrameWidth(int maxTextWidth);
 		void reSizeMainFrameHeight(int maxTextHeight);
-		int  getFontTextHeight();
+		
 		bool hasChanged(int* x, int* y, int* dx, int* dy);
 		void reInitToCompareVar(int* x, int* y, int* dx, int* dy);
 
@@ -124,7 +124,7 @@ class CTextBox
 
 		int m_old_x, m_old_y, m_old_dx, m_old_dy, m_old_nBgRadius, m_old_nBgRadiusType, m_old_nMode;
 		bool m_has_scrolled;
-		fb_pixel_t m_old_textBackgroundColor;
+		fb_pixel_t m_old_textBackgroundColor, m_old_textColor;
 
 		bool m_showTextFrame;
 
@@ -183,7 +183,7 @@ class CTextBox
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
 		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
-		bool	setText(const std::string* newText, int max_width = 0);
+		bool	setText(const std::string* newText, int max_width = 0, bool force_repaint = true);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};
 		void    setTextBorderWidth(int Hborder, int Vborder);
@@ -202,7 +202,8 @@ class CTextBox
 		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
-
+		int  getFontTextHeight();
+		
 		void paint (void);
 		void hide (void);
 };

@@ -2,7 +2,7 @@
 	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	Implementation of component classes
+	Copyright (C) 2013, M. Liebmann 'micha-bbg'
 	Copyright (C) 2013, Thilo Graf 'dbt'
 
 	License: GPL
@@ -24,8 +24,8 @@
 */
 
 
-#ifndef __imageinfo__
-#define __imageinfo__
+#ifndef __buildinfo__
+#define __buildinfo__
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -33,54 +33,49 @@
 
 #include <gui/widget/menue.h>
 #include <gui/components/cc.h>
-#include <gui/buildinfo.h>
-#include <configfile.h>
 
-typedef struct image_info_t
+typedef int info_type_id_t;
+
+typedef struct build_info_t
 {
+	info_type_id_t type_id;
 	neutrino_locale_t caption;
 	std::string info_text;
-	
-} image_info_struct_t;
 
-class CImageInfo : public CMenuTarget
+} build_info_struct_t;
+
+class CBuildInfo :  public CMenuTarget, public CComponentsWindow
 {
 	private:
-		int item_offset; //distance between items and to boarder
-		std::string license_txt;
-		Font* item_font;
-		int item_height;
-
-		std::vector<image_info_t> v_info;
-
-		void Clean();
-		void Init();
-		void InitInfoData();
-		void InitMinitv();
-		void InitInfos();
-		void InitBuildInfos();
-		void InitInfoText(const std::string& text);
-		std::string getLicenseText();
-		void ShowWindow();
-		void ScrollLic(bool scrollDown);
+		std::vector<build_info_t> v_info;
+		Font* font;
+		void initVarBuildInfo();
+		void InitInfoItems();
 		
-		CComponentsWindow  	*cc_win;
-		CComponentsForm  	*cc_info;
-		CComponentsPIP		*cc_tv;
-		CComponentsInfoBox 	*cc_lic;
-		CBuildInfo		*b_info;
-		CConfigFile     	config;
-		CComponentsButtonRed 	*btn_red;
-		CComponentsLabel  	*cc_sub_caption;
-
+		bool HasData();
 	public:
+		
+		//type_id's for infos
+		enum
+		{
+			BI_TYPE_ID_USED_COMPILER,
+			BI_TYPE_ID_USED_CXXFLAGS,
+			BI_TYPE_ID_USED_BUILD,
+			BI_TYPE_ID_USED_KERNEL,
+#if 0
+			BI_TYPE_ID_CREATOR,
+#endif
 
-		CImageInfo();
-		~CImageInfo();
+			BI_TYPE_IDS,
+		};
 
+		CBuildInfo();
+		~CBuildInfo();
+		///assigns text Font type
+		void setFontType(Font* font_text);
+		build_info_t getInfo(const info_type_id_t& type_id);
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-#endif
-
+#endif // __buildinfo__

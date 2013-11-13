@@ -946,6 +946,7 @@ bool CMP3Dec::GetMetaData(FILE* in, const bool nice, CAudioMetaData* const m)
 	{
 		res = GetMP3Info(in, nice, m);
 		GetID3(in, m);
+		SaveCover(in, m);
 	}
 	else
 	{
@@ -1343,6 +1344,82 @@ void CMP3Dec::GetID3(FILE* in, CAudioMetaData* const m)
 		fail:
 			printf("id3: not enough memory to display tag\n");
 	}
+}
+
+bool CMP3Dec::SaveCover(FILE * in, CAudioMetaData * const m)
+{
+	struct id3_frame const *frame;
+	const char * coverfile = "/tmp/cover.jpg";
+
+	/* text information */
+	struct id3_file *id3file = id3_file_fdopen(fileno(in), ID3_FILE_MODE_READONLY);
+
+	if(id3file == 0)
+	{
+		printf("CMP3Dec::SaveCover: error open id3 file\n");
+		return false;
+	}
+	else
+	{
+		id3_tag * tag = id3_file_tag(id3file);
+		if(tag)
+		{
+			frame = id3_tag_findframe(tag, "APIC", 0);
+
+			if (frame)
+			{
+				printf("CMP3Dec::SaveCover: Cover found\n");
+				// Picture file data
+				unsigned int j;
+				union id3_field const *field;
+
+				for (j = 0; (field = id3_frame_field(frame, j)); j++)
+				{
+					switch (id3_field_type(field))
+					{
+						case ID3_FIELD_TYPE_BINARYDATA:
+							id3_length_t size;
+							id3_byte_t const *data;
+
+							data = id3_field_getbinarydata(field, &size);
+							if ( data )
+							{
+								m->cover = coverfile;
+								FILE * pFile;
+								pFile = fopen ( coverfile , "wb" );
+								fwrite (data , 1 , size , pFile );
+								fclose (pFile);
+							}
+							break;
+
+						case ID3_FIELD_TYPE_INT8:
+							//pic->type = id3_field_getint(field);
+							break;
+
+						default:
+							break;
+					}
+				}
+			}
+
+			id3_tag_delete(tag);
+		}
+		else
+		{
+			printf("CMP3Dec::SaveCover: error open id3 tag\n");
+			return false;
+		}
+
+		id3_finish_file(id3file);
+	}
+
+	if(0)
+	{
+		printf("CMP3Dec::SaveCover:id3: not enough memory to display tag\n");
+		return false;
+	}
+
+	return true;
 }
 
 // this is a copy of static libid3tag function "finish_file"

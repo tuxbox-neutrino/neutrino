@@ -203,6 +203,12 @@ bouquetname.hdtv HD zenders
 bouquetname.new Nieuwe Zenders
 bouquetname.other Onbekende provider
 bouquetname.removed Verwijderde zenders
+buildinfo.compiled_on Build Host
+buildinfo.compiled_with Compiler Version
+buildinfo.compiler_flags Compiler Flags
+buildinfo.creator Creator
+buildinfo.kernel Kernel Version
+buildinfo.menu Build Informationen
 cablesetup.provider kabel provider
 channellist.additional Extra informatie
 channellist.additional_off Uit
@@ -600,7 +606,7 @@ imageinfo.forum Forum:
 imageinfo.head Image info:
 imageinfo.homepage Website:
 imageinfo.image Image:
-imageinfo.license Licentie:
+imageinfo.license Licentie
 imageinfo.version Versie:
 inetradio.name Internetradio
 infoviewer.epgnotload EPG is niet geladen....

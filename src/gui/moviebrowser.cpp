@@ -779,6 +779,17 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->ytregion = configfile.getString("mb_ytregion", "default");
 	settings->ytsearch = configfile.getString("mb_ytsearch", "");
 	settings->ytvid = configfile.getString("mb_ytvid", "");
+	settings->ytsearch_history_max = configfile.getInt32("mb_ytsearch_history_max", 10);
+	settings->ytsearch_history_size = configfile.getInt32("mb_ytsearch_history_size", 0);
+	if (settings->ytsearch_history_size > settings->ytsearch_history_max)
+		settings->ytsearch_history_size = settings->ytsearch_history_max;
+	settings->ytsearch_history.clear();
+	for(int i = 0; i < settings->ytsearch_history_size; i++) {
+		std::string s = configfile.getString("mb_ytsearch_history_" + to_string(i));
+		if (s != "")
+			settings->ytsearch_history.push_back(configfile.getString("mb_ytsearch_history_" + to_string(i), ""));
+	}
+	settings->ytsearch_history_size = settings->ytsearch_history.size();
 	return (result);
 }
 
@@ -835,6 +846,15 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setString("mb_ytregion", settings->ytregion);
 	configfile.setString("mb_ytsearch", settings->ytsearch);
 	configfile.setString("mb_ytvid", settings->ytvid);
+
+	settings->ytsearch_history_size = settings->ytsearch_history.size();
+	if (settings->ytsearch_history_size > settings->ytsearch_history_max)
+		settings->ytsearch_history_size = settings->ytsearch_history_max;
+	configfile.setInt32("mb_ytsearch_history_max", settings->ytsearch_history_max);
+	configfile.setInt32("mb_ytsearch_history_size", settings->ytsearch_history_size);
+	std::list<std::string>:: iterator it = settings->ytsearch_history.begin();
+	for(int i = 0; i < settings->ytsearch_history_size; i++, ++it)
+		configfile.setString("mb_ytsearch_history_" + to_string(i), *it);
 
 	if (configfile.getModifiedFlag())
 		configfile.saveConfig(MOVIEBROWSER_SETTINGS_FILE);
@@ -3640,6 +3660,55 @@ neutrino_locale_t CMovieBrowser::getFeedLocale(void)
 	return ret;
 }
 
+class CYTHistory : public CMenuTarget
+{
+        private:
+                int width;
+                int selected;
+		std::string *search;
+		MB_SETTINGS *settings;
+        public:
+                CYTHistory(MB_SETTINGS &_settings, std::string &_search);
+                int exec(CMenuTarget* parent, const std::string & actionKey);
+};
+
+CYTHistory::CYTHistory(MB_SETTINGS &_settings, std::string &_search)
+{
+	width = w_max (40, 10);
+	selected = -1;
+	settings = &_settings;
+	search = &_search;
+}
+
+int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
+{
+	if (actionKey == "") {
+		if (parent)
+			parent->hide();
+		CMenuWidget* m = new CMenuWidget(LOCALE_MOVIEBROWSER_YT_HISTORY, NEUTRINO_ICON_MOVIEPLAYER, width);
+		m->addKey(CRCInput::RC_spkr, this, "clear");
+		m->setSelected(selected);
+		m->addItem(GenericMenuSeparator);
+		m->addItem(GenericMenuBack);
+		m->addItem(GenericMenuSeparatorLine);
+		std::list<std::string>::iterator it = settings->ytsearch_history.begin();
+		for (int i = 0; i < settings->ytsearch_history_size; i++, ++it)
+			m->addItem(new CMenuForwarderNonLocalized((*it).c_str(), true, NULL, this, (*it).c_str(), CRCInput::convertDigitToKey(i + 1)));
+		m->exec(NULL, "");
+		m->hide();
+		delete m;
+		return menu_return::RETURN_REPAINT;
+	}
+	if (actionKey == "clear") {
+		settings->ytsearch_history.clear();
+		settings->ytsearch_history_size = 0;
+		return menu_return::RETURN_EXIT;
+	}
+	*search = actionKey;
+	g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_blue, 0);
+	return menu_return::RETURN_EXIT;
+}
+
 bool CMovieBrowser::showYTMenu()
 {
 	m_pcWindow->paintBackground();
@@ -3664,18 +3733,23 @@ bool CMovieBrowser::showYTMenu()
 	sprintf(cnt, "%d", cYTFeedParser::NEXT);
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_NEXT_RESULTS, ytparser.HaveNext(), NULL, selector, cnt, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	sprintf(cnt, "%d", cYTFeedParser::PREV);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_PREV_RESULTS, ytparser.HavePrev(), NULL, selector, cnt, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_PREV_RESULTS, ytparser.HavePrev(), NULL, selector, cnt, CRCInput::RC_nokey, ""));
 
 	mainMenu.addItem(GenericMenuSeparatorLine);
 
 	std::string search = m_settings.ytsearch;
 	CStringInputSMS stringInput(LOCALE_MOVIEBROWSER_YT_SEARCH, &search, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_SEARCH, true, search, &stringInput, NULL, CRCInput::RC_nokey, ""));
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_SEARCH, true, search, &stringInput, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	sprintf(cnt, "%d", cYTFeedParser::SEARCH);
 	mainMenu.addItem(new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
+	CYTHistory ytHistory(m_settings, search);
+	if (m_settings.ytsearch_history_size > 0)
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_HISTORY, true, NULL, &ytHistory, "", CRCInput::RC_0));
+
 	mainMenu.addItem(GenericMenuSeparatorLine);
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_RESULTS, &m_settings.ytresults, true, 10, 50, NULL));
+	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_HISTORY, &m_settings.ytsearch_history_max, true, 10, 50, NULL));
 
 	char rstr[20];
 	sprintf(rstr, "%s", m_settings.ytregion.c_str());
@@ -3731,6 +3805,18 @@ bool CMovieBrowser::showYTMenu()
 				reload = true;
 				m_settings.ytsearch = search;
 				m_settings.ytmode = newmode;
+				m_settings.ytsearch_history.push_front(search);
+				std::list<std::string>::iterator it = m_settings.ytsearch_history.begin();
+				it++;
+				while (it != m_settings.ytsearch_history.end()) {
+					if (*it == search)
+						it = m_settings.ytsearch_history.erase(it);
+					else
+						++it;
+				}
+				m_settings.ytsearch_history_size = m_settings.ytsearch_history.size();
+				if (m_settings.ytsearch_history_size > m_settings.ytsearch_history_max)
+					m_settings.ytsearch_history_size = m_settings.ytsearch_history_max;
 			}
 		}
 		else if (m_settings.ytmode != newmode) {

@@ -76,7 +76,10 @@ typedef enum
     CNXTFB_1080P_50,
     CNXTFB_1080P_24,
     CNXTFB_1080P_25,
-    CNXTFB_DISPLAY_MODE_LAST = CNXTFB_1080P_25,
+    CNXTFB_1080P_30,
+    CNXTFB_1080P_2397,
+    CNXTFB_1080P_2997,
+    CNXTFB_DISPLAY_MODE_LAST = CNXTFB_1080P_2997,
 } cnxtfb_displaymode;
 
 typedef enum
@@ -110,18 +113,18 @@ typedef enum
 
 typedef struct
 {
-   u8  uRed;
-   u8  uGreen;
-   u8  uBlue;
-   u8  uAlpha;
+   unsigned char  uRed;
+   unsigned char  uGreen;
+   unsigned char  uBlue;
+   unsigned char  uAlpha;
 } CNXTFB_RGB_COLOR;
 
 typedef struct
 {
-   u8  uY;
-   u8  uCb;
-   u8  uCr;
-   u8  uAlpha;
+   unsigned char  uY;
+   unsigned char  uCb;
+   unsigned char  uCr;
+   unsigned char  uAlpha;
 } CNXTFB_YCC_COLOR;
 
 typedef enum
@@ -212,6 +215,7 @@ extern void cnxtfb_register_evnt_clbk(cnxtfb_notify pfnotify);
 
 #ifdef FB_TEST_HW_ACCELERATION
 #define FBIO_JPEG_RENDER          0x4633
+#define FBIO_SYNC_DRAW_OP         0x4641
 #endif
 
 #define FBIO_SCALE_SD_OSD         0x4634
