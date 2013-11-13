@@ -31,6 +31,7 @@
 #include <neutrino.h>
 #include <gui/eventlist.h>
 #include <gui/epgplus.h>
+#include <gui/epgview.h>
 #include <gui/timerlist.h>
 #include <gui/user_menue.h>
 

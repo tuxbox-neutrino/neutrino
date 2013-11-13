@@ -53,6 +53,7 @@
 #include <driver/shutdown_count.h>
 #include <neutrino.h>
 #include <timerd/timermanager.h>
+#include <timerdclient/timerdclient.h>
 #include <cs_api.h>
 
 //#define RCDEBUG

@@ -76,6 +76,7 @@
 #endif
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
+#include "gui/videosettings.h"
 #include "driver/record.h"
 
 
