@@ -12,19 +12,27 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
-# Add build information to config.h
-# ---------------------------------
-
-# Add host to config.h
-AC_DEFINE_UNQUOTED(USED_BUILD, ["$build"], [Build system under which the program was compiled on.])
-
-# Add used CXXFLAGS to config.h
-AC_DEFINE_UNQUOTED(USED_CXXFLAGS, ["$CXXFLAGS"], [Define to the used CXXFLAGS to compile this package.])
-
-# Get compiler (version)
-AH_TEMPLATE(USED_COMPILER, [Define to name and version of used compiler])
+# Add build information to local_build_config.h.tmp
+# -------------------------------------------------
+rm -f local_build_config.h.tmp
+cat > local_build_config.h.tmp << EOF
+/* Build system under which the program was compiled on. */
+#define USED_BUILD "$build"
+/* Define to the used CXXFLAGS to compile this package. */
+#define USED_CXXFLAGS "$CXXFLAGS"
+EOF
 if COMPILER=`$CC --version | head -n 1`; then
-    AC_DEFINE_UNQUOTED(USED_COMPILER, ["$COMPILER"])
+	cat >> local_build_config.h.tmp <<-EOF
+	/* Define to name and version of used compiler */
+	#define USED_COMPILER "$COMPILER"
+	EOF
+fi
+# only update header if it differs to avoid unnecessary rebuilds
+if ! diff local_build_config.h.tmp local_build_config.h >/dev/null 2>&1; then
+	rm -f local_build_config.h
+	mv local_build_config.h.tmp local_build_config.h
+else
+	rm -f local_build_config.h.tmp
 fi
 
 AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
