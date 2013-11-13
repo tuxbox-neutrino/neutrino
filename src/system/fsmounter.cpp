@@ -36,7 +36,6 @@
 
 #include <system/fsmounter.h>
 #include <cstdlib>
-#include <cstring>
 #include <fstream>
 #include <limits>
 

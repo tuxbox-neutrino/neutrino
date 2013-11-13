@@ -46,7 +46,6 @@
 #include "osd_setup.h"
 #include "osdlang_setup.h"
 #include "scan_setup.h"
-#include "videosettings.h"
 #include <zapit/zapit.h>
 #include <system/helpers.h>
 

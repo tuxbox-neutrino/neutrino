@@ -48,8 +48,6 @@
 #include "audio_select.h"
 #include "streaminfo2.h"
 #include "epgplus.h"
-#include "epgview.h"
-#include "eventlist.h"
 #include "movieplayer.h"
 #include "timerlist.h"
 #include "plugins.h"
@@ -64,7 +62,6 @@
 
 #include <gui/widget/icons.h>
 
-#include <driver/radiotext.h>
 #include <driver/record.h>
 #include <driver/screen_max.h>
 

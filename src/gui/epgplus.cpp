@@ -31,7 +31,6 @@
 #include <neutrino.h>
 
 #include <gui/epgplus.h>
-#include <gui/epgview.h>
 #include <sectionsdclient/sectionsdclient.h>
 
 #include <gui/widget/icons.h>

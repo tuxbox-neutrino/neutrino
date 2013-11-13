@@ -58,7 +58,6 @@
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/streamts.h>
-#include <driver/radiotext.h>
 #include <driver/scanepg.h>
 
 #include "gui/audiomute.h"

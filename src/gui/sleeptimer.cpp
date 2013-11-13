@@ -27,7 +27,6 @@
 #endif
 
 #include <gui/sleeptimer.h>
-#include <gui/infoviewer.h>
 
 #include <gui/widget/stringinput.h>
 
