@@ -965,6 +965,10 @@ bool CAudioPlayerGui::clearPlaylist(void)
 {
 	bool result = false;
 
+	CAudioPlayList::const_iterator it;
+	for (it = m_playlist.begin(); it!=m_playlist.end(); ++it)
+		unlink(it->MetaData.cover.c_str());
+
 	if (!(m_playlist.empty()))
 	{
 		m_playlist.clear();
@@ -1777,21 +1781,25 @@ void CAudioPlayerGui::paintInfo()
 		return;
 
 	int c_rad_mid = RADIUS_MID;
+	int title_height = m_title_height;
+
 	if (m_state == CAudioPlayerGui::STOP && m_show_playlist)
 		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
 	else
 	{
-		if (!m_show_playlist)
-		{
-			// no playlist -> smaller Info-Box
-			m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, m_title_height - 12 - m_fheight, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
-			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
-		}
-		else
-		{
-			m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, m_title_height - 12, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
-			m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
-		}
+		if (!m_show_playlist) // no playlist -> smaller Info-Box
+			title_height -= m_fheight;
+
+		m_frameBuffer->paintBoxRel(m_x + 1, m_y + 1 , m_width - 2, title_height - 12, COL_MENUCONTENTSELECTED_PLUS_0, c_rad_mid);
+		m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, title_height - 10, 2, COL_MENUCONTENT_PLUS_6, c_rad_mid);
+
+		std::string cover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
+
+		if (!m_curr_audiofile.MetaData.cover.empty())
+			cover = m_curr_audiofile.MetaData.cover;
+
+		if (access(cover.c_str(), F_OK) == 0)
+			g_PicViewer->DisplayImage(cover, m_x + 2 + c_rad_mid/2, m_y + 2 + c_rad_mid/2, title_height - 14 - c_rad_mid, title_height - 14 - c_rad_mid, m_frameBuffer->TM_NONE);
 
 		// first line (Track number)
 		std::string tmp;
@@ -2170,25 +2178,6 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 			m_curr_audiofile.MetaData.album = meta.sc_station;
 			updateLcd = true;
 		}
-
-		std::string cover = m_curr_audiofile.Filename.substr(0, m_curr_audiofile.Filename.rfind('/')) + "/folder.jpg";
-
-		if (!meta.cover.empty())
-			cover = "/tmp/cover.jpg";
-
-		if ((access(cover.c_str(), F_OK) == 0) && !screen_saver)
-		{
-			g_PicViewer->DisplayImage(cover, m_x + 2, m_y + 2, m_title_height - 14, m_title_height - 14, m_frameBuffer->TM_NONE);
-
-			if(g_settings.rounded_corners)
-			{
-				//repaint frame to cover up the corners of the cover; FIXME
-				if (!m_show_playlist)
-					m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10 - m_fheight, 2, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
-				else
-					m_frameBuffer->paintBoxFrame(m_x, m_y, m_width, m_title_height - 10, 2, COL_MENUCONTENT_PLUS_6, RADIUS_MID);
-			}
-		}
 	}
 	//if (CAudioPlayer::getInstance()->getScBuffered() != 0)
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
@@ -2484,7 +2473,7 @@ void CAudioPlayerGui::removeFromPlaylist(long pos)
 		// must be called before m_playlist.erase()
 		firstChar = getFirstChar(m_playlist[pos]);
 	}
-
+	unlink(m_playlist[pos].MetaData.cover.c_str());
 	m_playlist.erase(m_playlist.begin() + pos);
 	m_playlistHasChanged = true;
 
