@@ -12,6 +12,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <sys/types.h>
 #include <vector>
 
 typedef enum {
