@@ -593,6 +593,8 @@ void CMoviePlayerGui::PlayFile(void)
 					file_prozent = (unsigned char) (position / (duration / 100));
 #if HAVE_TRIPLEDRAGON
 				CVFD::getInstance()->showPercentOver(file_prozent, true, CVFD::MODE_MOVIE);
+#else
+				CVFD::getInstance()->showPercentOver(file_prozent);
 #endif
 
 				playback->GetSpeed(speed);
