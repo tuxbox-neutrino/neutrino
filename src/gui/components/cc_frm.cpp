@@ -85,13 +85,13 @@ void CComponentsForm::clearCCItems()
  	if (v_cc_items.empty())
 		return;
 #ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __func__, v_cc_items.size());
+	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __func__, (int)v_cc_items.size());
 #endif
 
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]){
 #ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, i+1, v_cc_items.size(), v_cc_items[i]->getItemType());
+	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i]->getItemType());
 #endif
 			delete v_cc_items[i];
 			v_cc_items[i] = NULL;

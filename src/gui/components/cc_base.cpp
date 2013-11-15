@@ -120,7 +120,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 
 		int fbtype = v_fbdata[i].fbdata_type;
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __func__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __func__, __LINE__, (int)i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
 #endif
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"

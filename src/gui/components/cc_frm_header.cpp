@@ -235,7 +235,7 @@ void CComponentsHeader::initDefaultButtons()
 	if (cch_buttons & CC_BTN_MENU)
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_MENU);
 #ifdef DEBUG_CC
-	printf("[CComponentsHeader]  %s added %d default buttons...\n", __func__, v_cch_btn.size());
+	printf("[CComponentsHeader]  %s added %d default buttons...\n", __func__, (int)v_cch_btn.size());
 #endif
 }
 
