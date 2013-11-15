@@ -157,7 +157,7 @@ class CInfoViewer
 	CInfoViewer();
 	~CInfoViewer();
 
-	void	showMovieTitle(const int playState, const std::string &title,
+	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
 				const std::string &g_file_epg, const std::string &g_file_epg1,
 				const int duration, const int curr_pos);
 

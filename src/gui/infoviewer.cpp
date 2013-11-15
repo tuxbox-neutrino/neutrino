@@ -472,7 +472,7 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 	}
 }
 
-void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel,
+void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channel_Id, const std::string &Channel,
 				 const std::string &g_file_epg, const std::string &g_file_epg1,
 				 const int duration, const int curr_pos)
 {
@@ -506,7 +506,7 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 	infoViewerBB->is_visible = true;
 
 	ChannelName = Channel;
-	channel_id = 0;
+	channel_id = Channel_Id;
 
 	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
@@ -520,7 +520,11 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 
 	infoViewerBB->paintshowButtonBar();
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 ,ChannelName, COL_INFOBAR_TEXT, 0, true);	// UTF-8
+	int ChannelLogoMode = 0;
+	if (g_settings.infobar_show_channellogo > 1)
+		ChannelLogoMode = showChannelLogo(channel_id, 0);
+	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 ,ChannelName, COL_INFOBAR_TEXT, 0, true);	// UTF-8
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
