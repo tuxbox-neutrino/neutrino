@@ -493,7 +493,7 @@ void CMoviePlayerGui::PlayFile(void)
 	neutrino_msg_data_t data;
 	menu_ret = menu_return::RETURN_REPAINT;
 
-	bool first_start_timeshift = false;
+	bool first_start = true;
 	bool time_forced = false;
 	bool update_lcd = true;
 	int eof = 0;
@@ -536,7 +536,6 @@ void CMoviePlayerGui::PlayFile(void)
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 		if(timeshift) {
-			first_start_timeshift = true;
 			startposition = -1;
 			int i;
 			int towait = (timeshift == 1) ? TIMESHIFT_SECONDS+1 : TIMESHIFT_SECONDS;
@@ -581,9 +580,9 @@ void CMoviePlayerGui::PlayFile(void)
 			update_lcd = false;
 			updateLcd();
 		}
-		if (first_start_timeshift) {
+		if (first_start) {
 			callInfoViewer(/*duration, position*/);
-			first_start_timeshift = false;
+			first_start = false;
 		}
 
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
