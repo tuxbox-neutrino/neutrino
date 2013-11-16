@@ -47,6 +47,9 @@ class cYTCache
 		static int curlProgress(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
 		bool compareMovieInfo(MI_MOVIE_INFO *a, MI_MOVIE_INFO *b);
 	public:
+		double dltotal;
+		double dlnow;
+		time_t dlstart;
 		static cYTCache *getInstance();
 		cYTCache();
 		~cYTCache();
@@ -57,7 +60,7 @@ class cYTCache
 		void cancelAll(MI_MOVIE_INFO::miSource = MI_MOVIE_INFO::YT);
 		std::vector<MI_MOVIE_INFO> getCompleted(MI_MOVIE_INFO::miSource = MI_MOVIE_INFO::YT);
 		std::vector<MI_MOVIE_INFO> getFailed(MI_MOVIE_INFO::miSource = MI_MOVIE_INFO::YT);
-		std::vector<MI_MOVIE_INFO> getPending(MI_MOVIE_INFO::miSource = MI_MOVIE_INFO::YT);
+		std::vector<MI_MOVIE_INFO> getPending(MI_MOVIE_INFO::miSource = MI_MOVIE_INFO::YT, double *p_dltotal = NULL, double *p_dlnow = NULL, time_t *p_start = NULL);
 		void clearCompleted(MI_MOVIE_INFO *mi);
 		void clearFailed(MI_MOVIE_INFO *mi);
 		void clearCompleted(MI_MOVIE_INFO::miSource source = MI_MOVIE_INFO::YT);

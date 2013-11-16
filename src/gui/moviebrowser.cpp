@@ -3815,7 +3815,9 @@ void CMovieBrowser::refreshYTMenu()
 		yt_menue->removeItem(item_id);
 	}
 	MI_MOVIE_INFO::miSource source = (show_mode == MB_SHOW_YT) ? MI_MOVIE_INFO::YT : MI_MOVIE_INFO::NK;
-	yt_pending = cYTCache::getInstance()->getPending(source);
+	double dltotal, dlnow;
+	time_t dlstart;
+	yt_pending = cYTCache::getInstance()->getPending(source, &dltotal, &dlnow, &dlstart);
 	yt_completed = cYTCache::getInstance()->getCompleted(source);
 	yt_failed = cYTCache::getInstance()->getFailed(source);
 
@@ -3830,10 +3832,17 @@ void CMovieBrowser::refreshYTMenu()
 		yt_menue->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_YT_PENDING));
 		yt_menue->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_CANCEL, true, NULL, ytcache_selector, "cancel_all"));
     		yt_menue->addItem(GenericMenuSeparator);
+		std::string progress;
+		if (dlstart && dltotal && dlnow) {
+			time_t done = time(NULL) - dlstart;
+			time_t left = ((dltotal - dlnow) * done)/dlnow;
+			progress = "(" + to_string(done) + "s/" + to_string(left) + "s)";
+		}
 		int i = 0;
 		yt_pending_offset = yt_menue->getItemsCount();
 		for (std::vector<MI_MOVIE_INFO>::iterator it = yt_pending.begin(); it != yt_pending.end(); ++it, ++i) {
-			yt_menue->addItem(new CMenuForwarder((*it).file.Name.c_str(), true, NULL, ytcache_selector));
+			yt_menue->addItem(new CMenuForwarder((*it).file.Name, true, progress.c_str(), ytcache_selector));
+			progress = "";
 		}
 		yt_pending_end = yt_menue->getItemsCount();
 	}

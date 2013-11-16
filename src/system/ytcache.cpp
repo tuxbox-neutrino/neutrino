@@ -103,9 +103,11 @@ bool cYTCache::useCachedCopy(MI_MOVIE_INFO *mi)
 	return false;
 }
 
-int cYTCache::curlProgress(void *clientp, double /*dltotal*/, double /*dlnow*/, double /*ultotal*/, double /*ulnow*/)
+int cYTCache::curlProgress(void *clientp, double dltotal, double dlnow, double /*ultotal*/, double /*ulnow*/)
 {
 	cYTCache *caller = (cYTCache *) clientp;
+	caller->dltotal = dltotal;
+	caller->dlnow = dlnow;
 	if (caller->cancelled)
 		return 1;
 	return 0;
@@ -153,6 +155,9 @@ bool cYTCache::download(MI_MOVIE_INFO *mi)
 		}
 	}
 
+	dltotal = 0;
+	dlnow = 0;
+	dlstart = time(NULL);
 
 	fprintf (stderr, "downloading %s to %s\n", mi->file.Url.c_str(), file.c_str());
 	CURLcode res = curl_easy_perform(curl);
@@ -328,13 +333,28 @@ std::vector<MI_MOVIE_INFO> cYTCache::getCompleted(MI_MOVIE_INFO::miSource source
 	return res;
 }
 
-std::vector<MI_MOVIE_INFO> cYTCache::getPending(MI_MOVIE_INFO::miSource source)
+std::vector<MI_MOVIE_INFO> cYTCache::getPending(MI_MOVIE_INFO::miSource source, double *p_dltotal, double *p_dlnow, time_t *p_start)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	std::vector<MI_MOVIE_INFO> res;
 	for (std::vector<MI_MOVIE_INFO>::iterator it = pending.begin(); it != pending.end(); ++it)
 		if ((*it).source == source)
 			res.push_back(*it);
+	if (res.size() > 0 && pending.front().source == source) {
+		if (p_dltotal)
+			*p_dltotal = dltotal;
+		if (p_dlnow)
+			*p_dlnow = dlnow;
+		if (p_start)
+			*p_start = dlstart;
+	} else {
+		if (p_dltotal)
+			*p_dltotal = 0;
+		if (p_dlnow)
+			*p_dlnow = 0;
+		if (p_start)
+			*p_start = 0;
+	}
 	return res;
 }
 
