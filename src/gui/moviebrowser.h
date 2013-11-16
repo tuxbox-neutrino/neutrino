@@ -346,6 +346,9 @@ class CMovieBrowser : public CMenuTarget
 		int yt_pending_offset;
 		int yt_completed_offset;
 		int yt_failed_offset;
+		int yt_pending_end;
+		int yt_completed_end;
+		int yt_failed_end;
 		std::vector<MI_MOVIE_INFO> yt_pending;
 		std::vector<MI_MOVIE_INFO> yt_completed;
 		std::vector<MI_MOVIE_INFO> yt_failed;
