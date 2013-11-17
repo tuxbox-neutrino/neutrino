@@ -30,6 +30,8 @@
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
 
+// #define DEBUG_CC
+
 ///cc item types
 typedef enum
 {

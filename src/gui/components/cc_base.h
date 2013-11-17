@@ -33,7 +33,7 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/icons.h>
 
-//#define DEBUG_CC
+
 
 /// Basic component class.
 /*!
