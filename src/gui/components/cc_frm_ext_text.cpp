@@ -135,7 +135,7 @@ void CComponentsExtTextForm::initText()
 {
 	//initialize text object
 	if (ccx_text_obj == NULL){
-		ccx_text_obj = new CComponentsLabel();
+		ccx_text_obj = new CComponentsText();
 		ccx_text_obj->doPaintBg(false);
 	}
 
