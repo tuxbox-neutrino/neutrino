@@ -107,6 +107,7 @@ void CSignalBar::initVarSigBar()
 	dy_font 	= CNeutrinoFonts::getInstance();
 
 	sb_caption_color= COL_INFOBAR_TEXT;
+	sb_val_mode 	= CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT;
 
 	sb_lastsig 	= 0;
 	sb_signal 	= 0;
@@ -144,7 +145,7 @@ void CSignalBar::initSBarValue()
 	if (sb_vlbl == NULL){
 		sb_vlbl = new CComponentsLabel();
 		sb_vlbl->doPaintBg(false);
-		sb_vlbl->setText("0%", CTextBox::NO_AUTO_LINEBREAK, sb_font);
+		sb_vlbl->setText("  0%", sb_val_mode, sb_font);
 	}
 
 	//move and set dimensions
@@ -217,7 +218,7 @@ void CSignalBar::paintScale()
 		i_str << sig;
 		string percent(i_str.str());
 		percent += "%";
-		sb_vlbl->setText(percent, CTextBox::NO_AUTO_LINEBREAK | CTextBox::CENTER, sb_font);
+		sb_vlbl->setText(percent, sb_val_mode, sb_font);
 
 		//we must force paint backround, because of changing values
 		sb_vlbl->doPaintBg(true);

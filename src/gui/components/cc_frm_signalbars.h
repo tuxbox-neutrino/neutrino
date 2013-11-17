@@ -82,6 +82,8 @@ class CSignalBar : public CComponentsForm
 		int sb_vlbl_width;
 		///property: width of caption
 		int sb_lbl_width;
+		///property: text mode of value, predefined type = CTextBox::NO_AUTO_LINEBREAK | CTextBox::CENTER
+		int sb_val_mode;
 
 		///cache last assingned signal value
 		int sb_lastsig;
@@ -131,8 +133,10 @@ class CSignalBar : public CComponentsForm
 
 		///returns the scale object, type = CProgressBar*
 		virtual CProgressBar* getScaleObject(){return sb_scale;};
-		///returns the caption object, type = CComponentsLabel*
-		virtual CComponentsLabel* getLabelObject(){return sb_lbl;};
+		///returns the value label object, type = CComponentsLabel*
+		virtual CComponentsLabel* getLabelValObject(){return sb_vlbl;};
+		///returns the name label object, type = CComponentsLabel*
+		virtual CComponentsLabel* getLabelNameObject(){return sb_lbl;};
 
 		///paint this items
 		virtual void paint(bool do_save_bg);
@@ -278,7 +282,7 @@ class CSignalBox : public CComponentsForm
 		///get caption color of signalbars, see also property 'sbx_caption_color'
 		fb_pixel_t getTextColor(){return sbx_caption_color;};
 
-		///assigns the width of scale
+		///assigns the width of scale in percent related of full width of signal box, the rest is reserved for text
 		void setScaleWidth(const short & scale_width_percent){sbx_scale_w_percent = scale_width_percent;};
 		
 		///paint items
