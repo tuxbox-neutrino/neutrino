@@ -254,3 +254,11 @@ void CComponentsWindow::initCCWItems()
 			addCCItem(ccw_footer);
 }
 
+void CComponentsWindow::paint(bool do_save_bg)
+{
+	//prepare items before paint
+	initCCWItems();
+
+	//paint form contents
+	paintForm(do_save_bg);
+}

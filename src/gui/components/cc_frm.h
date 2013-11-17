@@ -317,6 +317,9 @@ class CComponentsWindow : public CComponentsForm
 
 		///refresh position and dimension and reinitialize elemenatary properties
 		void Refresh(){initCCWItems();};
+
+		///paint all window items, this overwriting paint() from CComponentsForm
+		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 
