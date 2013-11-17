@@ -138,7 +138,7 @@ class cYTFeedParser
 		bool GetVideoUrls();
 		bool DownloadThumbnails();
 		void Dump();
-		void Cleanup(bool delete_thumbnails = true);
+		void Cleanup(bool delete_thumbnails = false);
 
 		yt_video_list_t &GetVideoList() { return videos; }
 		bool Parsed() { return parsed; }
