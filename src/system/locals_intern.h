@@ -1518,6 +1518,7 @@ const char * locale_real_names[] =
 	"moviebrowser.browser_row_item",
 	"moviebrowser.browser_row_nr",
 	"moviebrowser.browser_row_width",
+	"moviebrowser.cache_dir",
 	"moviebrowser.delete_info",
 	"moviebrowser.dir",
 	"moviebrowser.dir_head",

@@ -151,6 +151,7 @@ class cYTFeedParser
 		void SetRegion(std::string reg) { region = reg; }
 		void SetMaxResults(int count) { max_results = count; }
 		void SetConcurrentDownloads(int count) { concurrent_downloads = count; }
+		void SetThumbnailDir(std::string &_thumbnail_dir);
 };
 
 #endif

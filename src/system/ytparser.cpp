@@ -698,6 +698,11 @@ void cYTFeedParser::Cleanup(bool delete_thumbnails)
 	feedmode = -1;
 }
 
+void cYTFeedParser::SetThumbnailDir(std::string &_thumbnail_dir)
+{
+	thumbnail_dir = _thumbnail_dir;
+}
+
 void cYTFeedParser::Dump()
 {
 	printf("feed: %d videos\n", (int)videos.size());
