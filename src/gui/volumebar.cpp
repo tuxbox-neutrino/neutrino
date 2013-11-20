@@ -340,6 +340,14 @@ void CVolumeHelper::initVolBarSize()
 	}
 }
 
+int CVolumeHelper::getInfoClockX()
+{
+	if (CNeutrinoApp::getInstance()->isMuted())
+		return clock_ax - mute_dx - h_spacer;
+	else
+		return clock_ax;
+}
+
 void CVolumeHelper::refresh()
 {
 	Init();

@@ -31,7 +31,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-// #include <driver/volume.h>
 #include <gui/volumebar.h>
 #include <gui/infoclock.h>
 
@@ -81,4 +80,17 @@ bool CInfoClock::StopClock()
 	kill();
 
 	return ret;
+}
+
+void CInfoClock::paint(bool do_save_bg)
+{
+	// calculate current x-position of clock (mute icon on/off)
+	x = CVolumeHelper::getInstance()->getInfoClockX();
+	setXPos(x);
+
+	//prepare items before paint
+	initCCLockItems();
+
+	//paint the clock
+	paintForm(do_save_bg);
 }
