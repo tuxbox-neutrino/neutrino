@@ -86,7 +86,6 @@ void CInfoClock::paint(bool do_save_bg)
 {
 	// calculate current x-position of clock (mute icon on/off)
 	x = CVolumeHelper::getInstance()->getInfoClockX();
-	setXPos(x);
 
 	//prepare items before paint
 	initCCLockItems();
