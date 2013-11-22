@@ -494,17 +494,17 @@ _remount:
 
 	if(!res) {
 		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/music", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/logos", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/plugins", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		sync();
 	}
 _return:

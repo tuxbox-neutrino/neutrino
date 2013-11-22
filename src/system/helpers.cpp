@@ -190,19 +190,28 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	return(fp);
 }
 
-int safe_mkdir(char * path)
+int safe_mkdir(const char * path)
 {
 	struct statfs s;
-	int ret = 0;
-	if(!strncmp(path, "/hdd", 4)) {
-		ret = statfs("/hdd", &s);
-		if((ret != 0) || (s.f_type == 0x72b6))
-			ret = -1;
-		else
-			mkdir(path, 0755);
-	} else
-		mkdir(path, 0755);
-	return ret;
+	size_t l = strlen(path);
+	char d[l + 3];
+	strncpy(d, path, l);
+
+	// skip trailing slashes
+	while (l > 0 && d[l - 1] == '/')
+		l--;
+	// find last slash
+	while (l > 0 && d[l - 1] != '/')
+		l--;
+	if (!l)
+		return -1;
+	// append a single dot
+	d[l++] = '.';
+	d[l] = 0;
+
+	if(statfs(d, &s) || (s.f_type == 0x72b6 /* jffs2 */))
+		return -1;
+	return mkdir(path, 0755);
 }
 
 /* function used to check is this dir writable, i.e. not flash, for record etc */
