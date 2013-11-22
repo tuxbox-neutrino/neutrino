@@ -212,30 +212,15 @@ int check_dir(const char * dir, bool allow_tmp)
 	int ret = -1;
 	struct statfs s;
 	if (::statfs(dir, &s) == 0) {
-		switch (s.f_type)	/* f_type is long */
-		{
-			case 0xEF53L:		/*EXT2 & EXT3*/
-			case 0x6969L:		/*NFS*/
-			case 0xFF534D42L:	/*CIFS*/
-			case 0x517BL:		/*SMB*/
-			case 0x52654973L:	/*REISERFS*/
-			case 0x65735546L:	/*fuse for ntfs*/
-			case 0x58465342L:	/*xfs*/
-			case 0x4d44L:		/*msdos*/
-			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-#if 0
-			case 0x72b6L:		/*jffs2*/
-#endif
-				ret = 0;//ok
-				break; 
-			case 0x858458f6L: 	/*ramfs*/
-			case 0x1021994: 	/*TMPFS_MAGIC*/
+		switch (s.f_type) {
+			case 0x858458f6L: 	// ramfs
+			case 0x1021994L: 	// tmpfs
 				if(allow_tmp)
 					ret = 0;//ok
+			case 0x72b6L:		// jffs2
 				break;
 			default:
-				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
-				break; // error
+				ret = 0;	// ok
 		}
 	}
 	return ret;
