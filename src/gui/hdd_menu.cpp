@@ -478,9 +478,11 @@ _remount:
 
         switch(g_settings.hdd_fs) {
                 case 0:
+			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
                         break;
                 case 1:
+			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
 		default:
@@ -602,9 +604,11 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 ret1:
         switch(g_settings.hdd_fs) {
                 case 0:
+			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
                         break;
                 case 1:
+			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
 		default:
