@@ -62,7 +62,6 @@
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
 
-//#define SHOW_RADIOTEXT_ICON
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
 
 CInfoViewerBB::CInfoViewerBB()
@@ -173,12 +172,10 @@ void CInfoViewerBB::getBBIconInfo()
 			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
 				iconView = checkBBIcon(NEUTRINO_ICON_VTXT, &w, &h);
 			break;
-#ifdef SHOW_RADIOTEXT_ICON
 		case CInfoViewerBB::ICON_RT:
 			if (neutrino->getMode() == NeutrinoMessages::mode_radio)
-				iconView = checkBBIcon(NEUTRINO_ICON_RT, &w, &h);
+				iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
 			break;
-#endif
 		case CInfoViewerBB::ICON_DD:
 			if( g_settings.infobar_show_dd_available )
 				iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
@@ -478,22 +475,19 @@ void CInfoViewerBB::showIcon_DD()
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
 }
 
-#ifdef SHOW_RADIOTEXT_ICON
 void CInfoViewerBB::showIcon_RadioText(bool rt_available)
 {
-	// TODO: display radiotext icon
-	if ((showButtonBar) && (is_visible))
-	{
-		int mode = CNeutrinoApp::getInstance()->getMode();
+	if (!is_visible || !g_settings.radiotext_enable)
+		return;
 
-		showBBIcons(CInfoViewerBB::ICON_RT, rt_icon);
-	}
+	std::string rt_icon;
+	if (rt_available)
+		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXTGET : NEUTRINO_ICON_RADIOTEXTWAIT;
+	else
+		rt_icon = NEUTRINO_ICON_RADIOTEXTOFF;
+
+	showBBIcons(CInfoViewerBB::ICON_RT, rt_icon);
 }
-#else
-void CInfoViewerBB::showIcon_RadioText(bool /*rt_available*/)
-{
-}
-#endif
 
 void CInfoViewerBB::showIcon_16_9()
 {
