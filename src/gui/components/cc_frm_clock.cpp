@@ -251,8 +251,6 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 	time_t count = time(0);
 	//start loop for paint
 	while(1) {
-		sleep(clock->cl_interval);
-
 		if (clock->paintClock) {
 			//refresh item property values
 			clock->refresh();
@@ -265,6 +263,7 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 			clock->cl_thread = 0;
 			break;
 		}
+		sleep(clock->cl_interval);
 	}
 	return 0;
 }

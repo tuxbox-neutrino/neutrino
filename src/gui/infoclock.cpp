@@ -94,3 +94,19 @@ void CInfoClock::paint(bool do_save_bg)
 	//paint the clock
 	paintForm(do_save_bg);
 }
+
+bool CInfoClock::enableInfoClock(bool enable)
+{
+	bool ret = false;
+	if (g_settings.mode_clock) {
+		if (enable) {
+			if (!paintClock)
+				ret = StartClock();
+		}
+		else {
+			if (paintClock)
+				ret = StopClock();
+		}
+	}
+	return ret;
+}

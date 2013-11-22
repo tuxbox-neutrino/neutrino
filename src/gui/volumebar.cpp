@@ -107,9 +107,6 @@ void CVolumeBar::initVolumeBarSize()
 		mute_corrY = (height - mute_dy) / 2;
 	cvh->setMuteIconCorrY(mute_corrY);
 
-	if ((g_settings.mode_clock) && (!CNeutrinoApp::getInstance()->isMuted()))
-		CInfoClock::getInstance()->ClearDisplay();
-
 	vb_pbh 		= height-8;
 
 	vb_pby 		= height/2-vb_pbh/2;

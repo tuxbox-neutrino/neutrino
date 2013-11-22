@@ -2056,8 +2056,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 			else if( msg == CRCInput::RC_text) {
 				g_RCInput->clearRCMsg();
-				if(g_settings.mode_clock)
-					InfoClock->StopClock();
+				InfoClock->enableInfoClock(false);
 				StopSubtitles();
 				tuxtx_stop_subtitle();
 
@@ -2067,19 +2066,16 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				//if(!g_settings.cacheTXT)
 				//	tuxtxt_stop();
 				g_RCInput->clearRCMsg();
-				if(g_settings.mode_clock)
-					InfoClock->StartClock();
+				InfoClock->enableInfoClock(true);
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_setup ) {
 				if(!g_settings.minimode) {
 					StopSubtitles();
-					if(g_settings.mode_clock)
-						InfoClock->StopClock();
+					InfoClock->enableInfoClock(false);
 					int old_ttx = g_settings.cacheTXT;
 					mainMenu.exec(NULL, "");
-					if(g_settings.mode_clock)
-						InfoClock->StartClock();
+					InfoClock->enableInfoClock(true);
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 					if (!g_settings.epg_scan)
@@ -2146,8 +2142,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
 				// Zap-History "Bouquet"
 				if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-					g_settings.mode_clock=false;
-					InfoClock->StopClock();
+					InfoClock->enableInfoClock(false);
+					g_settings.mode_clock = false;
 				} else {
 					numericZap( msg );
 				}
@@ -2306,8 +2302,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else {
 				if (msg == CRCInput::RC_home) {
 					if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-						g_settings.mode_clock=false;
-						InfoClock->StopClock();
+						InfoClock->enableInfoClock(false);
+						g_settings.mode_clock = false;
 					}
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				}
@@ -2332,8 +2328,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 {
 	neutrino_msg_t msg = _msg;
-	if(g_settings.mode_clock)
-		InfoClock->StopClock();
+	InfoClock->enableInfoClock(false);
 
 	StopSubtitles();
 
@@ -2417,8 +2412,8 @@ _repeat:
 		goto _show;
 	}
 
-	if(!from_menu && g_settings.mode_clock)
-		InfoClock->StartClock();
+	if (!from_menu)
+		InfoClock->enableInfoClock(true);
 
 	return ((nNewChannel >= 0) ? menu_return::RETURN_EXIT_ALL : menu_return::RETURN_REPAINT);
 }
@@ -3308,9 +3303,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 		CVFD::getInstance()->setBacklight(g_settings.backlight_standby);
 
-		if(g_settings.mode_clock) {
-			InfoClock->StopClock();
-		}
+		InfoClock->enableInfoClock(false);
 
 		//remember tuned channel-id
 		standby_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -3389,8 +3382,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_Sectionsd->setPauseScanning(false);
 		//g_Sectionsd->setServiceChanged(live_channel_id, true );
 
-		if(g_settings.mode_clock)
-			InfoClock->StartClock();
+		InfoClock->enableInfoClock(true);
 
 		g_audioMute->AudioMute(current_muted, true);
 		StartSubtitles();
@@ -3454,11 +3446,11 @@ void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 void CNeutrinoApp::switchClockOnOff()
 {
 	if(g_settings.mode_clock) {
-		g_settings.mode_clock=false;
-		InfoClock->StopClock();
+		InfoClock->enableInfoClock(false);
+		g_settings.mode_clock = false;
 	} else {
-		g_settings.mode_clock=true;
-		InfoClock->StartClock();
+		g_settings.mode_clock = true;
+		InfoClock->enableInfoClock(true);
 	}
 }
 

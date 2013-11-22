@@ -203,6 +203,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	}
 	else if (actionKey == "ytplayback") {
 		CAudioMute::getInstance()->enableMuteIcon(false);
+		InfoClock->enableInfoClock(false);
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);
 	}
@@ -245,8 +246,10 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
-	if (moviebrowser->getMode() == MB_SHOW_YT)
+	if (moviebrowser->getMode() == MB_SHOW_YT) {
 		CAudioMute::getInstance()->enableMuteIcon(true);
+		InfoClock->enableInfoClock(true);
+	}
 
 	if (timeshift){
 		timeshift = 0;
@@ -399,6 +402,7 @@ bool CMoviePlayerGui::SelectFile()
 	}
 	else { // filebrowser
 		CAudioMute::getInstance()->enableMuteIcon(false);
+		InfoClock->enableInfoClock(false);
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
 			CFile *file;
@@ -437,6 +441,7 @@ bool CMoviePlayerGui::SelectFile()
 		} else
 			menu_ret = filebrowser->getMenuRet();
 		CAudioMute::getInstance()->enableMuteIcon(true);
+		InfoClock->enableInfoClock(true);
 	}
 	if(ret && file_name.empty()) {
 		std::string::size_type pos = full_name.find_last_of('/');
@@ -573,6 +578,7 @@ void CMoviePlayerGui::PlayFile(void)
 	}
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
+	InfoClock->enableInfoClock(true);
 
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
@@ -835,9 +841,7 @@ void CMoviePlayerGui::PlayFile(void)
 	restoreNeutrino();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
-
-	if (g_settings.mode_clock)
-		InfoClock->StartClock();
+	InfoClock->enableInfoClock(false);
 }
 
 void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)

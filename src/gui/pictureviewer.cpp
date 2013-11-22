@@ -53,6 +53,7 @@
 #include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
+#include <gui/infoclock.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 
@@ -72,6 +73,7 @@
 
 #include <video.h>
 extern cVideo * videoDecoder;
+extern CInfoClock *InfoClock;
 
 //------------------------------------------------------------------------
 bool comparePictureByDate (const CPicture& a, const CPicture& b)
@@ -254,6 +256,7 @@ int CPictureViewerGui::show()
 		m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
+	InfoClock->enableInfoClock(false);
 
 	while (loop)
 	{
@@ -638,6 +641,7 @@ int CPictureViewerGui::show()
 	hide();
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
+	InfoClock->enableInfoClock(true);
 
 	return(res);
 }

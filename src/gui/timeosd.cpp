@@ -54,8 +54,7 @@ CTimeOSD::~CTimeOSD()
 
 void CTimeOSD::show(time_t time_show)
 {
-	if (g_settings.mode_clock)
-		InfoClock->StartClock();
+	InfoClock->enableInfoClock(false);
 
 	GetDimensions();
 	visible = true;
@@ -77,8 +76,6 @@ void CTimeOSD::GetDimensions()
 	m_width = g_Font[TIMEOSD_FONT]->getRenderWidth("00:00:00");
 	t1 = g_Font[TIMEOSD_FONT]->getRenderWidth(widest_number);
 	m_width += t1;
-	if(g_settings.mode_clock)
-		m_xend = m_xend - m_width - (m_width/4);
 }
 
 void CTimeOSD::update(time_t time_show)
@@ -142,8 +139,7 @@ void CTimeOSD::hide()
 	if(!visible)
 		return;
 
-	if (g_settings.mode_clock)
-		InfoClock->StopClock();
+	InfoClock->enableInfoClock(true);
 
 	//GetDimensions();
 	frameBuffer->paintBackgroundBoxRel(m_xend - m_width - t1, m_y, m_width, m_height);
