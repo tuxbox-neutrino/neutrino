@@ -2864,9 +2864,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			}
 		}
 		if(g_settings.shutdown_real)
-			ExitRun(true, (cs_get_revision() > 7));
-		else if(mode != mode_standby)
-			standbyMode( true );
+			g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
+		else
+			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::RELOAD_SETUP ) {

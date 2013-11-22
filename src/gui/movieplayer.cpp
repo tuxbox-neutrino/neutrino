@@ -799,7 +799,7 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if ( msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
 				msg == NeutrinoMessages::SHUTDOWN ||
-				msg == NeutrinoMessages::SLEEPTIMER) {	// Exit for Record/Zapto Timers
+				((msg == NeutrinoMessages::SLEEPTIMER) && !data) ) {	// Exit for Record/Zapto Timers
 			printf("CMoviePlayerGui::PlayFile: ZAPTO etc..\n");
 			if(msg != NeutrinoMessages::ZAPTO)
 				menu_ret = menu_return::RETURN_EXIT_ALL;
