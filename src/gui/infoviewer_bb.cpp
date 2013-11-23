@@ -173,7 +173,7 @@ void CInfoViewerBB::getBBIconInfo()
 				iconView = checkBBIcon(NEUTRINO_ICON_VTXT, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_RT:
-			if (neutrino->getMode() == NeutrinoMessages::mode_radio)
+			if ((neutrino->getMode() == NeutrinoMessages::mode_radio) && g_settings.radiotext_enable)
 				iconView = checkBBIcon(NEUTRINO_ICON_RADIOTEXTGET, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_DD:
