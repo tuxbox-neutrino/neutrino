@@ -476,35 +476,14 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 {
 	std::string url = "http://gdata.youtube.com/feeds/api/standardfeeds/";
 	bool append_res = true;
+	std::string trailer;
 	if (mode < FEED_LAST) {
 		switch(mode) {
-			case TOP_RATED:
-				curfeed = "top_rated";
-				break;
-			case TOP_FAVORITES:
-				curfeed = "top_favorites";
-				break;
-			case MOST_SHARED:
-				curfeed = "most_shared";
-				break;
 			case MOST_POPULAR:
 			default:
+				trailer = "&time=today";
+			case MOST_POPULAR_ALL_TIME:
 				curfeed = "most_popular";
-				break;
-			case MOST_RESENT:
-				curfeed = "most_recent";
-				break;
-			case MOST_DISCUSSED:
-				curfeed = "most_discussed";
-				break;
-			case MOST_RESPONDED:
-				curfeed = "most_responded";
-				break;
-			case RECENTLY_FEATURED:
-				curfeed = "recently_featured";
-				break;
-			case ON_THE_WEB:
-				curfeed = "on_the_web";
 				break;
 		}
 		if (!region.empty()) {
@@ -551,6 +530,8 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 		sprintf(res, "%d", max_results);
 		url+= res;
 	}
+
+	url += trailer;
 
 	return ParseFeed(url);
 }
