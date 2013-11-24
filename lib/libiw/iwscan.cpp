@@ -19,11 +19,10 @@
         Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-/* something is fishy with old compilers: if vector gets included later from
- * iwscan.h it blows up in the c++config.h libstdc++ header... */
-#if __GNUC__ == 4 && (__GNUC_MINOR__ < 5 || (__GNUC_MINOR__ == 5 && __GNUC_PATCHLEVEL__ < 3))
+/* something is fishy with ppc compilers: if vector gets included later from
+ * iwscan.h it blows up in the c++config.h libstdc++ header...
+ * probably caused by the redefinition of the "inline" keyword in iwlib.h. */
 #include <vector>
-#endif
 
 #include <sys/time.h>
 extern "C" {
