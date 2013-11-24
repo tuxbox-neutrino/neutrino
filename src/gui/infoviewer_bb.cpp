@@ -43,6 +43,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <gui/infoclock.h>
 #include <gui/infoviewer.h>
 #include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
@@ -61,6 +62,7 @@
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern cVideo * videoDecoder;
+extern CInfoClock *InfoClock;
 
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
 
@@ -481,10 +483,20 @@ void CInfoViewerBB::showIcon_RadioText(bool rt_available)
 		return;
 
 	std::string rt_icon;
-	if (rt_available)
-		rt_icon = (g_Radiotext->S_RtOsd) ? NEUTRINO_ICON_RADIOTEXTGET : NEUTRINO_ICON_RADIOTEXTWAIT;
-	else
+	if (rt_available) {
+		if (g_Radiotext->S_RtOsd) {
+			rt_icon = NEUTRINO_ICON_RADIOTEXTGET;
+			InfoClock->enableInfoClock(false);
+		}
+		else {
+			rt_icon = NEUTRINO_ICON_RADIOTEXTWAIT;
+			InfoClock->enableInfoClock(true);
+		}
+	}
+	else {
 		rt_icon = NEUTRINO_ICON_RADIOTEXTOFF;
+		InfoClock->enableInfoClock(true);
+	}
 
 	showBBIcons(CInfoViewerBB::ICON_RT, rt_icon);
 }
