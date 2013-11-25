@@ -2037,15 +2037,19 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
+				InfoClock->enableInfoClock(false);
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EpgData->show(live_channel_id);
+				InfoClock->enableInfoClock(true);
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_epg ) {
+				InfoClock->enableInfoClock(false);
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
+				InfoClock->enableInfoClock(true);
 				StartSubtitles();
 			}
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
@@ -2053,7 +2057,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				//quickzap
 				quickZap(msg);
 			}
-
 			else if( msg == CRCInput::RC_text) {
 				g_RCInput->clearRCMsg();
 				InfoClock->enableInfoClock(false);
