@@ -249,7 +249,9 @@ void CSignalBar::paint(bool do_save_bg)
 CSignalNoiseRatioBar::CSignalNoiseRatioBar()
 {
 	initVarSnrBar();
+#if 0  // called from base (CSignalBar) ctor
 	initSBItems();
+#endif
 }
 
 CSignalNoiseRatioBar::CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
@@ -261,12 +263,16 @@ CSignalNoiseRatioBar::CSignalNoiseRatioBar(const int& xpos, const int& ypos, con
 	width 		= w;
 	height 		= h;
 
+#if 0  // called from base (CSignalBar) ctor
 	initSBItems();
+#endif
 }
 
 void CSignalNoiseRatioBar::initVarSnrBar()
 {
+#if 0  // called from base (CSignalBar) ctor
 	initVarSigBar();
+#endif
 	sb_name	= "SNR";
 }
 
