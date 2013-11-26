@@ -44,6 +44,7 @@
 #include <gui/infoviewer_bb.h>
 #include <string>
 #include <zapit/channel.h>
+#include <gui/components/cc.h>
 
 class CInfoViewer
 {
@@ -51,6 +52,7 @@ class CInfoViewer
 
 	CFrameBuffer * frameBuffer;
 	CInfoViewerBB* infoViewerBB;
+	CComponentsFrmClock *clock;
 
 	bool           gotTime;
 	bool           recordModeActive;
@@ -116,7 +118,7 @@ class CInfoViewer
 			  const char *runningStart = NULL, const char *runningRest = NULL,
 			  const char *nextStart = NULL, const char *nextDuration = NULL,
 			  bool update_current = true, bool update_next = true);
-	void paintTime( bool show_dot, bool firstPaint );
+	void paintTime( bool show_dot );
 	
 	void showRecordIcon(const bool show);
 	void showIcon_Tuner() const;
