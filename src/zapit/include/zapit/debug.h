@@ -46,11 +46,19 @@
 extern int zapit_debug;
 
 #if defined __NFILE__
-/* this is ugly. __FILE__ here is always zapit/include/debug.h, if it is called from
- * src/neutrino.cpp, src/gui/... simply strip less characters */
-static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
+/* this is ugly.
+ * __FILE__ here is /.../zapit/include/debug.h when building outside the
+ * source tree, but it is ../../src/zapit/include/zapit/debug.h (relative),
+ * when building inside the source_tree.
+ * So we cannot find the real filename here. Hack: when including this file
+ * from src/neutrino.cpp, src/gui/..., __NFILE__ is defined => strip less characters
+ * Later on, __FILE__ is the real filename, so if it starts with ../ now, the build
+ * is from within the source tree => __FILE__ is only basename => strip nothing */
+static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
+			(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 4) : 0;
 #else
-static int __striplen = strstr(__FILE__, "src/zapit") ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
+static int __striplen = (strncmp(__FILE__, "../", 3) == 0) ? 0 :
+			(strstr(__FILE__, "src/zapit") != NULL) ? (strstr(__FILE__, "src/zapit") - __FILE__ + 14) : 0;
 #endif
 #define __SHORTFILE__ (__FILE__ + __striplen)
 
