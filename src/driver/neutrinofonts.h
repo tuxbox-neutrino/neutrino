@@ -91,6 +91,7 @@ class CNeutrinoFonts
 		};
 		enum {
 			FONT_ID_VOLBAR,
+			FONT_ID_INFOCLOCK,
 
 			FONT_ID_MAX
 		};

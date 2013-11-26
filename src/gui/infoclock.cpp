@@ -58,8 +58,7 @@ void CInfoClock::initVarInfoClock()
 void CInfoClock::Init()
 {
 	int x_old = x, y_old = y, width_old = width, height_old = height;
-	cl_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	CVolumeHelper::getInstance()->refresh();
+	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
 	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height)) {
 		cleanCCForm();

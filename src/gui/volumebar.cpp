@@ -269,7 +269,7 @@ CVolumeHelper::CVolumeHelper()
 	Init();
 }
 
-void CVolumeHelper::Init()
+void CVolumeHelper::Init(Font** font)
 {
 
 	x  = frameBuffer->getScreenX() + h_spacer;
@@ -279,15 +279,26 @@ void CVolumeHelper::Init()
 
 	initVolBarSize();
 	initMuteIcon();
-	initInfoClock();
+	initInfoClock(font);
 }
 
-void CVolumeHelper::initInfoClock()
+void CVolumeHelper::initInfoClock(Font** font)
 {
-	digit_offset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getDigitOffset();
-	digit_h      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getDigitHeight();
-	int t1       = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(widest_number);
-	int t2       = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(":");
+	if (clock_font == NULL){
+		if (font == NULL) {
+			clock_font = &g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+		}
+		else
+			clock_font = font;
+	}
+	else {
+		if (font != NULL)
+			clock_font = font;
+	}
+	digit_offset = (*clock_font)->getDigitOffset();
+	digit_h      = (*clock_font)->getDigitHeight();
+	int t1       = (*clock_font)->getRenderWidth(widest_number);
+	int t2       = (*clock_font)->getRenderWidth(":");
 	clock_dy     = digit_h + (int)((float)digit_offset * 1.3);
 	clock_dx     = t1*7 + t2*2;
 	clock_ax     = sw - clock_dx;
@@ -347,9 +358,9 @@ int CVolumeHelper::getInfoClockX()
 		return clock_ax;
 }
 
-void CVolumeHelper::refresh()
+void CVolumeHelper::refresh(Font** font)
 {
-	Init();
+	Init(font);
 }
 
 CVolumeHelper* CVolumeHelper::getInstance()
