@@ -87,14 +87,14 @@ CInfoViewerBB::CInfoViewerBB()
 	bbIconInfo[0].h = 0;
 	BBarY = 0;
 	BBarFontY = 0;
+	hddscale 		= NULL;
+	sysscale 		= NULL;
 
 	Init();
 }
 
 void CInfoViewerBB::Init()
 {
-	hddscale 		= NULL;
-	sysscale 		= NULL;
 	hddwidth		= 0;
 	bbIconMaxH 		= 0;
 	bbButtonMaxH 		= 0;
