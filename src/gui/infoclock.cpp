@@ -57,8 +57,18 @@ void CInfoClock::initVarInfoClock()
 
 void CInfoClock::Init()
 {
+	int x_old = x, y_old = y, width_old = width, height_old = height;
+	cl_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	CVolumeHelper::getInstance()->refresh();
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
+	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height)) {
+		cleanCCForm();
+		clearCCItems();
+	}
+
+	// set corner radius depending on clock height
+	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
+
 	initCCLockItems();
 }
 
@@ -80,18 +90,6 @@ bool CInfoClock::StopClock()
 	kill();
 
 	return ret;
-}
-
-void CInfoClock::paint(bool do_save_bg)
-{
-	// calculate current x-position of clock (mute icon on/off)
-	x = CVolumeHelper::getInstance()->getInfoClockX();
-
-	//prepare items before paint
-	initCCLockItems();
-
-	//paint the clock
-	paintForm(do_save_bg);
 }
 
 bool CInfoClock::enableInfoClock(bool enable)

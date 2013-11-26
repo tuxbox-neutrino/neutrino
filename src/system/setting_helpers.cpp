@@ -52,6 +52,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/widget/stringinput.h>
+#include <gui/audiomute.h>
 #include <gui/infoclock.h>
 #include <driver/volume.h>
 #include <system/helpers.h>
@@ -321,6 +322,10 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	hintBox.hide();
 	/* recalculate infoclock/muteicon/volumebar */
 	CVolumeHelper::getInstance()->refresh();
+	if (CNeutrinoApp::getInstance()->isMuted()) {
+		CAudioMute::getInstance()->enableMuteIcon(false);
+		CAudioMute::getInstance()->enableMuteIcon(true);
+	}
 	return true;
 }
 

@@ -105,6 +105,7 @@ class CVolumeHelper
 		int icon_width, icon_height, digit_width;
 		int h_spacer, v_spacer;
 		int vol_ay, vol_height;
+		Font** clock_font;
 		CFrameBuffer *frameBuffer;
 
 		void Init();

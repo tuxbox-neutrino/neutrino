@@ -62,6 +62,9 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 
 	if( isEvent && ( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_pic))
 	{
+		if (doInit)
+			CVolumeHelper::getInstance()->refresh();
+
 		CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 		if ((y_old != y)) {
 			if (do_paint_mute_icon)
@@ -88,15 +91,13 @@ void CAudioMute::AudioMute(int newValue, bool isEvent)
 			frameBuffer->setFbArea(CFrameBuffer::FB_PAINTAREA_MUTEICON1);
 		}
 		frameBuffer->fbNoCheck(false);
-
-		if (doInit)
-			CVolumeHelper::getInstance()->refresh();
 	}
 }
 
 void CAudioMute::enableMuteIcon(bool enable)
 {
 	CNeutrinoApp *neutrino = CNeutrinoApp::getInstance();
+	CVolumeHelper::getInstance()->getMuteIconDimensions(&x, &y, &width, &height);
 	frameBuffer->fbNoCheck(true);
 	if (enable) {
 		frameBuffer->doPaintMuteIcon(true);

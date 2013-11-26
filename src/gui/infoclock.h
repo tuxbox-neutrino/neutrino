@@ -47,7 +47,6 @@ class CInfoClock : public CComponentsFrmClock
 		bool 		StopClock();
 		bool		enableInfoClock(bool enable);
 		void		ClearDisplay();
-		void		paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 #endif

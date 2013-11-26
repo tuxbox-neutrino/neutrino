@@ -79,6 +79,7 @@ void CVolumeBar::initVarVolumeBar()
 void CVolumeBar::initVolumeBarSize()
 {
 	CVolumeHelper *cvh = CVolumeHelper::getInstance();
+	cvh->refresh();
 	cvh->getSpacer(&h_spacer, &v_spacer);
 	cvh->getDimensions(&x, &y, &sw, &sh, &vb_icon_w, &vb_digit_w);
 	cvh->getVolBarDimensions(&y, &height);
@@ -125,7 +126,7 @@ void CVolumeBar::initVolumeBarPosition()
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + h_spacer;
 				if (g_settings.mode_clock)
-					y += max(clock_y + clock_height, mute_ay + mute_dy);
+					y = clock_y + clock_height + v_spacer;
 			}
 			x = sw - width - x_corr;
 			break;
@@ -260,6 +261,8 @@ CVolumeHelper::CVolumeHelper()
 {
 	h_spacer	= 11;
 	v_spacer	= 6;
+	vb_font		= NULL;
+	clock_font	= NULL;
 
 	frameBuffer = CFrameBuffer::getInstance();
 
@@ -273,7 +276,6 @@ void CVolumeHelper::Init()
 	y  = frameBuffer->getScreenY() + v_spacer;
 	sw = g_settings.screen_EndX - h_spacer;
 	sh = frameBuffer->getScreenHeight();
-	vb_font	= NULL;
 
 	initVolBarSize();
 	initMuteIcon();
@@ -282,12 +284,12 @@ void CVolumeHelper::Init()
 
 void CVolumeHelper::initInfoClock()
 {
-	digit_offset = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset();
-	digit_h      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitHeight();
-	int t1       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
-	int t2       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
-	clock_dy     = digit_h + (int)((float)digit_offset * 1.5);
-	clock_dx     = t1*6 + t2*2;
+	digit_offset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getDigitOffset();
+	digit_h      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getDigitHeight();
+	int t1       = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(widest_number);
+	int t2       = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(":");
+	clock_dy     = digit_h + (int)((float)digit_offset * 1.3);
+	clock_dx     = t1*7 + t2*2;
 	clock_ax     = sw - clock_dx;
 	clock_ay     = y;
 	vol_ay       = y;
