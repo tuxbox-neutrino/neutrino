@@ -327,7 +327,9 @@ epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
 eventfinder.head EPG-Suche
+eventfinder.history Frühere Suchen
 eventfinder.keyword Suche nach Textpassage
+eventfinder.max_history Max. Anzahl früherer Suchen
 eventfinder.search Suche
 eventfinder.search_all_epg Ganze 
 eventfinder.search_within_epg Suche innerhalb EPG-Daten

@@ -327,7 +327,9 @@ epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
+eventfinder.history Search history
 eventfinder.keyword Keyword
+eventfinder.max_history Max results to fetch
 eventfinder.search Search
 eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within

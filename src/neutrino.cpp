@@ -738,6 +738,18 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.startchanneltv_id =  configfile.getInt64("startchanneltv_id", 0);
 	g_settings.startchannelradio_id =  configfile.getInt64("startchannelradio_id", 0);
 	g_settings.uselastchannel         = configfile.getInt32("uselastchannel" , 1);
+	//epg searsch
+	g_settings.epg_search_history_max = configfile.getInt32("epg_search_history_max", 10);
+	g_settings.epg_search_history_size = configfile.getInt32("epg_search_history_size", 0);
+	if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
+		g_settings.epg_search_history_size = g_settings.epg_search_history_max;
+	g_settings.epg_search_history.clear();
+	for(int i = 0; i < g_settings.epg_search_history_size; i++) {
+		std::string s = configfile.getString("epg_search_history_" + to_string(i));
+		if (s != "")
+			g_settings.epg_search_history.push_back(configfile.getString("epg_search_history_" + to_string(i), ""));
+	}
+	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 
 
 	// USERMENU -> in system/settings.h
@@ -1179,6 +1191,15 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt64("startchanneltv_id", g_settings.startchanneltv_id);
 	configfile.setInt64("startchannelradio_id", g_settings.startchannelradio_id);
 	configfile.setInt32("uselastchannel", g_settings.uselastchannel);
+	//epg search
+	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
+	if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
+		g_settings.epg_search_history_size = g_settings.epg_search_history_max;
+	configfile.setInt32("epg_search_history_max", g_settings.epg_search_history_max);
+	configfile.setInt32("epg_search_history_size", g_settings.epg_search_history_size);
+	std::list<std::string>:: iterator it = g_settings.epg_search_history.begin();
+	for(int i = 0; i < g_settings.epg_search_history_size; i++, ++it)
+		configfile.setString("epg_search_history_" + to_string(i), *it);
 
 	// USERMENU
 	//---------------------------------------
