@@ -260,7 +260,7 @@ void CInfoViewer::paintTime (bool show_dot)
 		clock->doPaintBg(false);
 	}
 	clock->setDimensionsAll(clock_x, clock_y, clock_w, clock_h);
-	clock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]);
+	clock->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
 	clock->setClockFormat(show_dot ? "%H:%M" : "%H.%M");
 	
 	clock->paint(CC_SAVE_SCREEN_NO);

@@ -51,7 +51,7 @@ CInfoClock* CInfoClock::getInstance()
 
 void CInfoClock::initVarInfoClock()
 {
-	cl_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	setClockFont(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
 	Init();
 }
 
