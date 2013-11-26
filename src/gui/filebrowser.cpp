@@ -274,9 +274,6 @@ CFileBrowser::CFileBrowser(const char * const _base, const tFileBrowserMode mode
 void CFileBrowser::commonInit()
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	fnt_item  = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM];
-	fnt_small = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 	//shoutcast
 	sc_init_dir = "/legacy/genrelist?k="  + g_settings.shoutcast_dev_id;
 
@@ -288,7 +285,15 @@ void CFileBrowser::commonInit()
 	Hide_records = false;
 	selected = 0;
 	selections.clear();
+	m_SMSKeyInput.setTimeout(SMSKEY_TIMEOUT);
+	fontInit();
+}
 
+void CFileBrowser::fontInit()
+{
+	fnt_title = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	fnt_item  = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM];
+	fnt_small = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 	width = frameBuffer->getScreenWidthRel();
 	height = frameBuffer->getScreenHeightRel();
 	x = getScreenStartX(width);
@@ -307,7 +312,6 @@ void CFileBrowser::commonInit()
 	height = theight + listmaxshow * fheight + 2 * foheight;
 	y = getScreenStartY(height);
 
-	m_SMSKeyInput.setTimeout(SMSKEY_TIMEOUT);
 
 }
 
@@ -760,6 +764,7 @@ bool CFileBrowser::exec(const char * const dirname)
 	name = dirname;
 	std::replace(name.begin(), name.end(), '\\', '/');
 
+	fontInit();
 	paintHead();
 	int selection = -1;
 	if (name == Path)
