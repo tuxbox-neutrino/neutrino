@@ -76,7 +76,6 @@ CProgressBar::CProgressBar(	const int x_pos, const int y_pos, const int w, const
 void CProgressBar::initVarProgressbar()
 {
 	//CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_PROGRESSBAR;
 
 	//CProgressBar
@@ -214,7 +213,8 @@ void CProgressBar::paintAdvanced()
 				for (j = 0; j < hcnt; j++) {
 					int sh_x = pb_x + i * itemw;
 					int sh_y = py + j * itemh;
-					paintShapes(sh_x, sh_y, pointx, pointy, color);
+					//paintShapes(sh_x, sh_y, pointx, pointy, color);
+					frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, color);
 				}
 			}
 			step = yw - rd - 1;
@@ -230,7 +230,8 @@ void CProgressBar::paintAdvanced()
 				for (j = 0; j < hcnt; j++) {
 					int sh_x = pb_x + i * itemw;
 					int sh_y = py + j * itemh;
-					paintShapes(sh_x, sh_y, pointx, pointy, color);
+					//paintShapes(sh_x, sh_y, pointx, pointy, color);
+					frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, color);
 				}
 			}
 			off = diff;
@@ -248,7 +249,8 @@ void CProgressBar::paintAdvanced()
 				for (j = 0; j < hcnt; j++) {
 					int sh_x = pb_x + i * itemw;
 					int sh_y = py + j * itemh;
-					paintShapes(sh_x, sh_y, pointx, pointy, color);
+					//paintShapes(sh_x, sh_y, pointx, pointy, color);
+					frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, color);
 				}
 			}
 		}
@@ -256,7 +258,8 @@ void CProgressBar::paintAdvanced()
 			for (j = 0; j < hcnt; j++) {
 				int sh_x = pb_x + i * itemw;
 				int sh_y = py + j * itemh;
-				paintShapes(sh_x, sh_y, pointx, pointy, pb_passive_col); //fill passive
+				//paintShapes(sh_x, sh_y, pointx, pointy, pb_passive_col); //fill passive
+				frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, pb_passive_col);
 			}
 		}
 	}
