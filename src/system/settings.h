@@ -538,6 +538,8 @@ struct SNeutrinoSettings
 		FONT_TYPE_COUNT
 	};
 
+	int infoClockFontSize;
+
 	// lcdd
 	enum LCD_SETTINGS {
 		LCD_BRIGHTNESS         = 0,
