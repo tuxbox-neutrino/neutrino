@@ -255,6 +255,14 @@ class CMenuForwarderNonLocalized : public CMenuForwarder
 	void setText(const char * const Text);
 };
 
+class CMenuDForwarderNonLocalized : public CMenuForwarderNonLocalized
+{
+ public:
+	CMenuDForwarderNonLocalized(const char * const Text, const bool Active=true, const char * const Option=NULL, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL);
+	CMenuDForwarderNonLocalized(const char * const Text, const bool Active, const std::string &Option, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL);
+	~CMenuDForwarderNonLocalized();
+};
+
 class CAbstractMenuOptionChooser : public CMenuItem
 {
 	protected:
