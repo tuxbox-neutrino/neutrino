@@ -65,9 +65,6 @@ CComponentsFooter::CComponentsFooter(	const int x_pos, const int y_pos, const in
 
 void CComponentsFooter::initVarFooter()
 {
-	//CComponentsHeader
-	initVarHeader();
-	
 	cc_item_type 	= CC_ITEMTYPE_FOOTER;
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;

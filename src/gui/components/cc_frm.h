@@ -113,6 +113,8 @@ class CComponentsIconForm : public CComponentsForm
 
 class CComponentsHeader : public CComponentsForm
 {
+	private:
+		void initVarHeader();
 	protected:
 		CComponentsPicture * cch_icon_obj;
 		CComponentsText * cch_text_obj;
@@ -131,8 +133,6 @@ class CComponentsHeader : public CComponentsForm
 		void initButtons();
 		void initDefaultButtons();
 		void initButtonFormSize();
-
-		void initVarHeader();
 
 	public:
 		enum
