@@ -90,8 +90,6 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 
 void CComponentsHeader::initVarHeader()
 {
-	//CComponentsForm
-	initVarForm();
 	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
 	col_body 		= COL_MENUHEAD_PLUS_0;
 	corner_rad		= RADIUS_LARGE,

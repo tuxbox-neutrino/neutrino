@@ -77,7 +77,6 @@ void CComponentsExtTextForm::initVarExtTextForm(const int x_pos, const int y_pos
 						fb_pixel_t text_color,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarForm();
 	cc_item_type 	= CC_ITEMTYPE_FRM_EXT_TEXT;
 	x = x_pos;
 	y = y_pos;

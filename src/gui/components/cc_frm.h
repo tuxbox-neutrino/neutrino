@@ -37,9 +37,10 @@
 
 class CComponentsForm : public CComponentsItem
 {
+	private:
+		void initVarForm();
 	protected:
 		std::vector<CComponentsItem*>	v_cc_items;			
-		void initVarForm();
 		void paintForm(bool do_save_bg);
 		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
 		int genIndex();

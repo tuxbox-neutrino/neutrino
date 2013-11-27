@@ -125,7 +125,6 @@ CComponentsWindow::~CComponentsWindow()
 void CComponentsWindow::initVarWindow()
 {
 	//CComponentsForm
-	initVarForm();
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 
 	//using current screen settings for default dimensions

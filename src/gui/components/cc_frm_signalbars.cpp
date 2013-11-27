@@ -95,7 +95,6 @@ void CSignalBar::initSBItems()
 
 void CSignalBar::initVarSigBar()
 {
-	initVarForm();
 	corner_rad 	= 0;
 	corner_type 	= 0;
 	append_h_offset = 2;
@@ -313,7 +312,6 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 
 void CSignalBox::initVarSigBox()
 {
-	initVarForm();
 	corner_rad	= 0;
 
 	sbx_frontend 	= NULL;

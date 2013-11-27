@@ -44,8 +44,6 @@ CVolumeBar::CVolumeBar()
 
 void CVolumeBar::initVarVolumeBar()
 {
-	//init inherited variables
-	initVarForm();
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 
 	vb_item_offset 	= 4;
