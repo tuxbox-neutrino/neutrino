@@ -43,7 +43,6 @@ using namespace std;
 CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow)
 {
 	//CComponents, CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_PIP;
 
 	//CComponentsPIP

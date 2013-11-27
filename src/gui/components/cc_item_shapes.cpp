@@ -38,7 +38,6 @@ using namespace std;
 CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_SHAPE_SQUARE;
 
 	x 		= x_pos;
@@ -64,7 +63,6 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_SHAPE_CIRCLE;
 
 	//CComponents

@@ -87,7 +87,6 @@ CComponentsText::~CComponentsText()
 void CComponentsText::initVarText()
 {
 	//CComponents, CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_TEXT;
 
 	//CComponentsText

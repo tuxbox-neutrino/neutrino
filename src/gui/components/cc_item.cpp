@@ -52,7 +52,6 @@ CComponentsItem::CComponentsItem()
 void CComponentsItem::initVarItem()
 {
 	//CComponents
-	initVarBasic();
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
