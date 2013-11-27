@@ -689,6 +689,9 @@ hdd_set_recdir Use device for recording ?
 hdd_settings Data Storage
 hdd_sleep Switch off after...
 hdd_slow Slow
+hdd_statfs Fill level query
+hdd_statfs_always always
+hdd_statfs_recording while recording only
 hdd_umount Unmount
 hdd_umount_warn unmount device
 hdd_umounted Device removed
@@ -946,6 +949,7 @@ menu.hint_hdd_fmt Select the data storage format
 menu.hint_hdd_format Create HDD partition and format it
 menu.hint_hdd_noise Set Automatic Acoustic Management\nnot all drives support this
 menu.hint_hdd_sleep Select time to stop hdd on inactivity
+menu.hint_hdd_statfs Specify when the recording directory fill level in infoviewer and, if available, on VFD, may be updated
 menu.hint_hdd_tools Initialize HDD, check filesystem
 menu.hint_head_back Change GUI title background color
 menu.hint_head_textcolor Change GUI window title text color

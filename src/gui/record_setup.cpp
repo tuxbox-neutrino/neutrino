@@ -54,6 +54,7 @@
 
 #include <system/debug.h>
 #include <system/helpers.h>
+#include <system/hddstat.h>
 
 CRecordSetup::CRecordSetup()
 {
@@ -99,6 +100,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
 				CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 			}
+			cHddStat::getInstance()->setDir(g_settings.network_nfs_recordingdir);
 		}
 		return res;
 	}

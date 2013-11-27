@@ -178,6 +178,7 @@ class CLCD
 
 		void setMode(const MODES m, const char * const title = "");
 		MODES getMode() { return mode; };
+		void setHddUsage(int perc);
 
 		void showServicename(const std::string name, const bool perform_wakeup = true); // UTF-8
 		void setEPGTitle(const std::string title);

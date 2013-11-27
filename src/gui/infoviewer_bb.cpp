@@ -51,6 +51,7 @@
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
 #include <system/helpers.h>
+#include <system/hddstat.h>
 #include <daemonc/remotecontrol.h>
 #include <driver/volume.h>
 
@@ -80,9 +81,8 @@ CInfoViewerBB::CInfoViewerBB()
 		pthread_detach(scrambledT);
 	}
 #endif
-	hddpercent		= 0;
-	hddperT			= 0;
-	hddperTflag		= false;
+	hddscale 		= NULL;
+	sysscale 		= NULL;
 	bbIconInfo[0].x = 0;
 	bbIconInfo[0].h = 0;
 	BBarY = 0;
@@ -108,13 +108,6 @@ void CInfoViewerBB::Init()
 		bbButtonInfo[i].x   = -1;
 	}
 
-	// get HDD info in a separate thread
-	if (g_settings.infobar_show_sysfs_hdd && !hddperTflag) {
-		hddperTflag=true;
-		pthread_create(&hddperT, NULL, hddperThread, (void*) this);
-		pthread_detach(hddperT);
-	}
-
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
 	setBBOffset();
 
@@ -127,11 +120,10 @@ CInfoViewerBB::~CInfoViewerBB()
 		pthread_cancel(scrambledT);
 		scrambledT = 0;
 	}
-	if(hddperTflag) {
-		pthread_cancel(hddperT);
-		hddperT = 0;
-		hddperTflag = false;
-	}
+	if (hddscale)
+		delete hddscale;
+	if (sysscale)
+		delete sysscale;
 }
 
 CInfoViewerBB* CInfoViewerBB::getInstance()
@@ -653,23 +645,8 @@ void CInfoViewerBB::showSysfsHdd()
 			percent = (int)((u * 100ULL) / t);
 		showBarSys(percent);
 
-		if (check_dir(g_settings.network_nfs_recordingdir.c_str()) == 0)
-			showBarHdd(hddpercent);
-		else
-			showBarHdd(-1);
+		showBarHdd(cHddStat::getInstance()->getPercent());
 	}
-}
-
-void* CInfoViewerBB::hddperThread(void *arg)
-{
-	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
-	uint64_t t, u;
-	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
-		infoViewerBB->hddpercent = (int)((u * 100ULL) / t);
-	else
-		infoViewerBB->hddpercent = 0;
-	infoViewerBB->hddperTflag=false;
-	pthread_exit(NULL);
 }
 
 void CInfoViewerBB::showBarSys(int percent)

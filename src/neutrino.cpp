@@ -421,6 +421,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
 	g_settings.hdd_noise = configfile.getInt32( "hdd_noise", 254);
+	g_settings.hdd_statfs_mode = configfile.getInt32( "hdd_statfs_mode", SNeutrinoSettings::HDD_STATFS_RECORDING);
 
 	g_settings.shutdown_real         = configfile.getBool("shutdown_real"        , false );
 	g_settings.shutdown_real_rcdelay = configfile.getBool("shutdown_real_rcdelay", false );
@@ -987,6 +988,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "hdd_fs", g_settings.hdd_fs);
 	configfile.setInt32( "hdd_sleep", g_settings.hdd_sleep);
 	configfile.setInt32( "hdd_noise", g_settings.hdd_noise);
+	configfile.setInt32( "hdd_statfs_mode", g_settings.hdd_statfs_mode);
 	configfile.setBool("shutdown_real"        , g_settings.shutdown_real        );
 	configfile.setBool("shutdown_real_rcdelay", g_settings.shutdown_real_rcdelay);
 	configfile.setInt32("shutdown_count"           , g_settings.shutdown_count);
@@ -2121,6 +2123,7 @@ TIMER_START();
 	delete hintBox;
 
 	cSysLoad::getInstance();
+	cHddStat::getInstance();
 
 TIMER_STOP("################################## after all ##################################");
 	RealRun(personalize.getWidget(0)/**main**/);

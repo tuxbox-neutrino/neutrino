@@ -662,6 +662,8 @@ struct SNeutrinoSettings
 	int	hdd_sleep;
 	int	hdd_noise;
 	int	hdd_fs;
+	enum { HDD_STATFS_OFF = 0, HDD_STATFS_ALWAYS, HDD_STATFS_RECORDING };
+	int	hdd_statfs_mode;
 	int	zap_cycle;
 	int	sms_channel;
 	std::string	font_file;
