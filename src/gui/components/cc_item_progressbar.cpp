@@ -149,7 +149,8 @@ void CProgressBar::paintSimple()
 {
 	// progress value
 	if (pb_active_width != pb_last_width){
-		paintShapes(pb_x, pb_y, pb_active_width, pb_height, pb_active_col); // active bar
+		if (pb_active_width)
+			paintShapes(pb_x, pb_y, pb_active_width, pb_height, pb_active_col); // active bar
 		paintShapes(pb_start_x_passive, pb_y, pb_passive_width, pb_height, pb_passive_col); // passive bar
 	}
 	
