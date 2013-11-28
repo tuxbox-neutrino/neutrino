@@ -1753,7 +1753,7 @@ void CChannelList::paintItem2DetailsLine (int pos)
 	if (pos >= 0) {
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2+1, info_height-RADIUS_LARGE*2);
-		dline->paint();
+		dline->paint(false);
 	}
 }
 
