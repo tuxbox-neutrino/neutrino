@@ -61,6 +61,10 @@ void CInfoClock::Init()
 		oldSize = g_settings.infoClockFontSize;
 		setClockFontSize(g_settings.infoClockFontSize);
 	}
+
+	//use current theme colors
+	syncSysColors();
+
 	int x_old = x, y_old = y, width_old = width, height_old = height;
 	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
