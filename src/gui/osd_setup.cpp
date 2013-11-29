@@ -515,7 +515,7 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mf);
 
 	//progressbar
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_PROGRESSBAR, true, NULL, new CProgressbarSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_PROGRESSBAR, true, NULL, new CProgressbarSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
 	mf->setHint("", LOCALE_MENU_HINT_PROGRESSBAR);
 	osd_menu->addItem(mf);
 
