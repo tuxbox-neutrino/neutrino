@@ -1943,9 +1943,7 @@ TIMER_START();
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
-#ifndef DISABLE_SECTIONSD
 	InitSectiondClient();
-#endif
 
 	InitTimerdClient();
 
