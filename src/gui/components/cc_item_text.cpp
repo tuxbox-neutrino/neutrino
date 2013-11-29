@@ -78,9 +78,7 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 CComponentsText::~CComponentsText()
 {
 	hide();
-	clearSavedScreen();
 	clearCCText();
-	clear();
 }
 
 

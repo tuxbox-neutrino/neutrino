@@ -119,7 +119,6 @@ CComponentsWindow::~CComponentsWindow()
 #ifdef DEBUG_CC
 	printf("[~CComponentsWindow]   [%s - %d] delete...\n", __FUNCTION__, __LINE__);
 #endif
-	cleanCCForm();
 }
 
 void CComponentsWindow::initVarWindow()

@@ -76,8 +76,6 @@ void CComponentsForm::cleanCCForm()
 #endif
 
 	clearCCItems();
-	clearSavedScreen();
-	clear();
 }
 
 

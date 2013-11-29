@@ -67,8 +67,6 @@ CComponentsPIP::~CComponentsPIP()
 {
  	hide();
  	videoDecoder->Pig(-1, -1, -1, -1);
- 	clearSavedScreen();
- 	clear();
 }
 
 void CComponentsPIP::paint(bool do_save_bg)

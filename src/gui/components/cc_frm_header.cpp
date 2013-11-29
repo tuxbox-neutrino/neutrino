@@ -126,7 +126,6 @@ CComponentsHeader::~CComponentsHeader()
 	printf("[~CComponentsHeader]   [%s - %d] delete...\n", __FUNCTION__, __LINE__);
 #endif
 	v_cch_btn.clear();
-	cleanCCForm();	
 }
 
 void CComponentsHeader::setCaption(const std::string& caption, const int& align_mode)

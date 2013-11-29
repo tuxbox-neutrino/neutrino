@@ -87,7 +87,6 @@ void CComponentsFrmClock::initVarClock()
 
 CComponentsFrmClock::~CComponentsFrmClock()
 {
-	cleanCCForm();
 	if (activeClock)
 		stopThread();
 }

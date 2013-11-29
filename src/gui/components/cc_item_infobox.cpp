@@ -66,22 +66,12 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 
 CComponentsInfoBox::~CComponentsInfoBox()
 {
-#if 0 // called from base (CComponentsText) dtor
-	hide();
-	clearSavedScreen();
-	clearCCText();
-	clear();
-#endif
 	delete pic;
 	delete cctext;
 }
 
 void CComponentsInfoBox::initVarInfobox()
 {
-	//CComponents, CComponentsItem,  CComponentsText
-#if 0 // called from base (CComponentsText) ctor
-	initVarText();
-#endif
 	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
 
 	//CComponentsInfoBox

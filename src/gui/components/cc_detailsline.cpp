@@ -77,8 +77,6 @@ void CComponentsDetailLine::initVarDline()
 
 CComponentsDetailLine::~CComponentsDetailLine()
 {
-	hide(); //restore background
-	clear();
 }
 
 //		y_top (=y)
