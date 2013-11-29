@@ -151,7 +151,21 @@ void CComponentsFrmClock::initCCLockItems()
 		}
 	}
 	
-	//modifie available lable items with current segment chars
+	int minNumWidth = 0, w_tmp;
+	char b[2];
+	b[1] = 0;
+	for (int i = 0; i < 10; i++) {
+		b[0] = '0' + i;
+		w_tmp = (*getClockFont())->getRenderWidth(b, true);
+		if (w_tmp > minNumWidth)
+			minNumWidth = w_tmp;
+	}
+	int minSepWidth = (*getClockFont())->getRenderWidth(":", true);
+	w_tmp = (*getClockFont())->getRenderWidth(".", true);
+	if (w_tmp > minSepWidth)
+		minSepWidth = w_tmp;
+
+	//modify available label items with current segment chars
 	for (size_t i = 0; i < v_cc_items.size(); i++)
 	{
 		//v_cc_items are only available as CComponent-items here, so we must cast them before
@@ -171,7 +185,20 @@ void CComponentsFrmClock::initCCLockItems()
 		string stmp = s_time.substr(i, 1);
 
 		//get width of current segment
-		int wtmp = (*getClockFont())->getRenderWidth(stmp, true);
+		int wtmp;
+		char c = stmp.at(0);
+		switch (c) {
+			case '0' ... '9':
+				wtmp = minNumWidth;
+				break;
+			case '.':
+			case ':':
+				wtmp = minSepWidth;
+				break;
+			default:
+				b[0] = c;
+				wtmp = (*getClockFont())->getRenderWidth(stmp, true);
+		}
 
 		//set size, text, color of current item
 		lbl->setDimensionsAll(cl_x, cl_y, wtmp, cl_h);
