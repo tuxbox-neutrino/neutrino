@@ -74,7 +74,7 @@ void CTimeOSD::GetDimensions()
 		m_height = 10;
 	m_y = frameBuffer->getScreenY();
 	m_width = g_Font[TIMEOSD_FONT]->getRenderWidth("00:00:00");
-	t1 = g_Font[TIMEOSD_FONT]->getRenderWidth(widest_number);
+	t1 = g_Font[TIMEOSD_FONT]->getMaxDigitWidth();
 	m_width += t1;
 }
 

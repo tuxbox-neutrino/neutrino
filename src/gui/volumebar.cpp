@@ -295,7 +295,7 @@ void CVolumeHelper::initInfoClock(Font** font)
 	}
 	digit_offset = (*clock_font)->getDigitOffset();
 	digit_h      = (*clock_font)->getDigitHeight();
-	int t1       = (*clock_font)->getRenderWidth(widest_number);
+	int t1       = (*clock_font)->getMaxDigitWidth();
 	int t2       = (*clock_font)->getRenderWidth(":");
 	clock_dy     = digit_h + (int)((float)digit_offset * 1.3);
 	clock_dx     = t1*7 + t2*2;

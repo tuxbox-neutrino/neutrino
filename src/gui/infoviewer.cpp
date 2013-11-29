@@ -194,7 +194,7 @@ void CInfoViewer::start ()
 
 	if ( g_settings.infobar_show_channellogo != 3 && g_settings.infobar_show_channellogo != 5  && g_settings.infobar_show_channellogo != 6) /* 3 & 5 & 6 is "default" with sigscales etc. */
 	{
-		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(widest_number) + 10;
+		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getMaxDigitWidth() + 10;
 		ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
 	}
 	else

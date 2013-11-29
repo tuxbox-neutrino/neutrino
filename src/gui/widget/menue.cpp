@@ -1213,15 +1213,29 @@ int CMenuOptionNumberChooser::getWidth(void)
 	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
 	int width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_optionName, true);
 
-	char tmp[20], *t;
+	int _lower_bound = lower_bound;
+	int _upper_bound = upper_bound;
+	int m = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth();
 
-	snprintf(tmp, sizeof(tmp), "%d", lower_bound);
-	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
-	int w1 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+	int w1 = 0;
+	if (_lower_bound < 0) {
+		w1 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-", true);
+		lower_bound *= -1;
+	}
+	while (_lower_bound > 0) {
+		w1 += m;
+		_lower_bound /= 10;
+	}
 
-	snprintf(tmp, sizeof(tmp), "%d", upper_bound);
-	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
-	int w2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+	int w2 = 0;
+	if (_upper_bound < 0) {
+		w2 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-", true);
+		_upper_bound *= -1;
+	}
+	while (_upper_bound > 0) {
+		w1 += m;
+		_upper_bound /= 10;
+	}
 
 	width += (w1 > w2) ? w1 : w2;
 

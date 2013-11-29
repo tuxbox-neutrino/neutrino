@@ -1376,7 +1376,7 @@ int CChannelList::numericZap(int key)
 		return res;
 	}
 	size_t  maxchansize = MaxChanNr().size();
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(widest_number);
+	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getMaxDigitWidth();
 	int sx = maxchansize * fw + (fw/2);
 	int sy = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight() + 6;
 
