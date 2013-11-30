@@ -42,6 +42,7 @@
 #endif
 
 #include <string.h>
+#include <sstream>
 #include <errno.h>
 #include <string>
 #include <linux/soundcard.h>
@@ -1346,10 +1347,11 @@ void CMP3Dec::GetID3(FILE* in, CAudioMetaData* const m)
 	}
 }
 
+static int cover_count = 0;
+
 bool CMP3Dec::SaveCover(FILE * in, CAudioMetaData * const m)
 {
 	struct id3_frame const *frame;
-	const char * coverfile = "/tmp/cover.jpg";
 
 	/* text information */
 	struct id3_file *id3file = id3_file_fdopen(fileno(in), ID3_FILE_MODE_READONLY);
@@ -1384,11 +1386,17 @@ bool CMP3Dec::SaveCover(FILE * in, CAudioMetaData * const m)
 							data = id3_field_getbinarydata(field, &size);
 							if ( data )
 							{
-								m->cover = coverfile;
+								std::ostringstream cover;
+								cover.str("");
+								cover << "/tmp/cover_" << cover_count++ << ".jpg";
 								FILE * pFile;
-								pFile = fopen ( coverfile , "wb" );
-								fwrite (data , 1 , size , pFile );
-								fclose (pFile);
+								pFile = fopen ( cover.str().c_str() , "wb" );
+								if (pFile)
+								{
+									fwrite (data , 1 , size , pFile );
+									fclose (pFile);
+									m->cover = cover.str().c_str();
+								}
 							}
 							break;
 

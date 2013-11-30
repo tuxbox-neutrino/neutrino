@@ -818,7 +818,7 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 			enabled = false;
 		// build jffs2 image from root0
 		if ((actionkey == "readmtd") && (lx == mtdInfo->findMTDNumberFromName("root0"))) {
-			CMenuForwarder *mf = new CMenuForwarderNonLocalized("root0", true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
+			CMenuForwarder *mf = new CMenuDForwarderNonLocalized("root0", true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
 			mtdselector->addItem(mf);
 			continue;
 		}

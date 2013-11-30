@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <driver/neutrinofonts.h>
 
 #include "cc_frm_clock.h"
 #include <time.h>
@@ -60,32 +61,32 @@ CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, cons
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 
+	cl_format_str	= format_str;
 	paintClock	= false;
 	activeClock	= activ;
 	if (activeClock)
 		startThread();
-
-	cl_format_str	= format_str;
 }
 
 void CComponentsFrmClock::initVarClock()
 {
-	initVarForm();
-	cc_item_type 	= CC_ITEMTYPE_FRM_CLOCK;
-	corner_rad	= RADIUS_SMALL;
+	cc_item_type 		= CC_ITEMTYPE_FRM_CLOCK;
+	corner_rad		= RADIUS_SMALL;
 
-	cl_font		= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
-	cl_col_text	= COL_MENUCONTENT_TEXT;
-	cl_format_str	= "%H:%M";
-	cl_align	= CC_ALIGN_VER_CENTER | CC_ALIGN_HOR_CENTER;
+	cl_font_type		= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
+	cl_font 		= &g_Font[cl_font_type];
+	dyn_font_size		= 0;
 
-	cl_thread 	= 0;
-	cl_interval	= 1;
+	cl_col_text		= COL_MENUCONTENT_TEXT;
+	cl_format_str		= "%H:%M";
+	cl_align		= CC_ALIGN_VER_CENTER | CC_ALIGN_HOR_CENTER;
+
+	cl_thread 		= 0;
+	cl_interval		= 1;
 }
 
 CComponentsFrmClock::~CComponentsFrmClock()
 {
-	cleanCCForm();
 	if (activeClock)
 		stopThread();
 }
@@ -118,8 +119,8 @@ void CComponentsFrmClock::initCCLockItems()
 	string s_time = cl_timestr;
 	
 	//get minimal required height, width from raw text
-	int min_text_w = cl_font->getRenderWidth(s_time, true);;
-	int min_text_h = cl_font->getHeight();
+	int min_text_w = (*getClockFont())->getRenderWidth(s_time, true);;
+	int min_text_h = (*getClockFont())->getHeight();
 	height = max(height, min_text_h);
 	width = max(width, min_text_w);
 
@@ -150,7 +151,13 @@ void CComponentsFrmClock::initCCLockItems()
 		}
 	}
 	
-	//modifie available lable items with current segment chars
+	int w_tmp;
+	int minSepWidth = (*getClockFont())->getRenderWidth(":", true);
+	w_tmp = (*getClockFont())->getRenderWidth(".", true);
+	if (w_tmp > minSepWidth)
+		minSepWidth = w_tmp;
+
+	//modify available label items with current segment chars
 	for (size_t i = 0; i < v_cc_items.size(); i++)
 	{
 		//v_cc_items are only available as CComponent-items here, so we must cast them before
@@ -170,23 +177,35 @@ void CComponentsFrmClock::initCCLockItems()
 		string stmp = s_time.substr(i, 1);
 
 		//get width of current segment
-		int wtmp = cl_font->getRenderWidth(stmp, true);
+		int wtmp;
+		char c = stmp.at(0);
+		switch (c) {
+			case '0' ... '9':
+				wtmp = (*getClockFont())->getMaxDigitWidth();
+				break;
+			case '.':
+			case ':':
+				wtmp = minSepWidth;
+				break;
+			default:
+				wtmp = (*getClockFont())->getRenderWidth(stmp, true);
+		}
 
 		//set size, text, color of current item
 		lbl->setDimensionsAll(cl_x, cl_y, wtmp, cl_h);
 		lbl->setTextColor(cl_col_text);
 		lbl->setColorAll(col_frame, col_body, col_shadow);
-		lbl->setText(stmp, CTextBox::CENTER, cl_font);
+		lbl->setText(stmp, CTextBox::CENTER, *getClockFont());
 
 		//use matching height for digits for better vertical centerring into form
 		CTextBox* ctb = lbl->getCTextBoxObject();
 		if (ctb)
 			ctb->setFontUseDigitHeight();
-
+#if 0
 		//ensure paint of text and label bg on changed text or painted form background
 		bool force_txt_and_bg = (lbl->textChanged() || this->paint_bg);
 		lbl->forceTextPaint(force_txt_and_bg);
-
+#endif
 		//set xpos of item
 		cl_x += wtmp;
 
@@ -252,12 +271,7 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 	time_t count = time(0);
 	//start loop for paint
 	while(1) {
-		sleep(clock->cl_interval);
-
 		if (clock->paintClock) {
-			//refresh item property values
-			clock->refresh();
-			
 			//paint segements, but wihtout saved backgrounds
 			clock->paint(CC_SAVE_SCREEN_NO);
 			count = time(0);
@@ -266,6 +280,7 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 			clock->cl_thread = 0;
 			break;
 		}
+		sleep(clock->cl_interval);
 	}
 	return 0;
 }
@@ -334,4 +349,25 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 	//paint form contents
 	paintForm(do_save_bg);
+}
+
+void CComponentsFrmClock::setClockFontSize(int size)
+{
+	int tmp_w = 0;
+	dyn_font_size = size;
+	cl_font	= CNeutrinoFonts::getInstance()->getDynFont(tmp_w, dyn_font_size, "", CNeutrinoFonts::FONT_STYLE_BOLD, CNeutrinoFonts::FONT_ID_INFOCLOCK);
+}
+
+void CComponentsFrmClock::setClockFont(int font)
+{
+	cl_font_type = font;
+	cl_font      = &g_Font[cl_font_type];
+}
+
+Font** CComponentsFrmClock::getClockFont()
+{
+	if (dyn_font_size == 0)
+		cl_font = &g_Font[cl_font_type];
+	return cl_font;
+
 }

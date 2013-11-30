@@ -670,17 +670,17 @@ _remount:
 
 	if(!res) {
 		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/music", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/logos", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/plugins", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		sync();
 #if HAVE_TRIPLEDRAGON
 		/* on the tripledragon, we mount via fstab, so we need to add an
@@ -815,9 +815,11 @@ ret1:
 	{
 		switch(g_settings.hdd_fs) {
                 case 0:
+			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
                         break;
                 case 1:
+			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
 		default:

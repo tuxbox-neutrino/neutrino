@@ -105,12 +105,13 @@ class CVolumeHelper
 		int icon_width, icon_height, digit_width;
 		int h_spacer, v_spacer;
 		int vol_ay, vol_height;
+		Font** clock_font;
 		CFrameBuffer *frameBuffer;
 
-		void Init();
+		void Init(Font** font=NULL);
 		void initVolBarSize();
 		void initMuteIcon();
-		void initInfoClock();
+		void initInfoClock(Font** font);
 
 	public:
 
@@ -123,10 +124,11 @@ class CVolumeHelper
 		int  getVolIconHeight() {return icon_height;}
 		void getDimensions(int *_x, int *_y, int *_sw, int *_sh, int *_iw, int *_dw) { *_x = x; *_y = y; *_sw = sw; *_sh = sh; *_iw = icon_width; *_dw = digit_width; }
 		void getMuteIconDimensions(int *_x, int *_y, int *w, int *h) { *_x = mute_ax; *_y = mute_ay+mute_corrY; *w = mute_dx; *h = mute_dy; }
-		void getInfoClockDimensions(int *_x, int *_y, int *w, int *h, int *d_h, int *d_o) { *_x = clock_ax; *_y = clock_ay; *w = clock_dx; *h = clock_dy, *d_h = digit_h, *d_o = digit_offset; }
+		int  getInfoClockX();
+		void getInfoClockDimensions(int *_x, int *_y, int *w, int *h) { *_x = getInfoClockX(); *_y = clock_ay; *w = clock_dx; *h = clock_dy; }
 		void getVolBarDimensions(int *_y, int *_dy) { *_y = vol_ay; *_dy = vol_height; }
 		void setMuteIconCorrY(int corr) { mute_corrY = corr; }
-		void refresh();
+		void refresh(Font** font=NULL);
 };
 
 #endif

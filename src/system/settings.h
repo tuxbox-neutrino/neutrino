@@ -43,6 +43,7 @@
 #include <hardware_caps.h>
 
 #include <string>
+#include <list>
 
 #ifdef BOXMODEL_APOLLO
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 14
@@ -151,6 +152,10 @@ struct SNeutrinoSettings
 	std::string epg_extendedcache;
 	std::string epg_dir;
 	int epg_scan;
+
+	int epg_search_history_size;
+	int epg_search_history_max;
+	std::list<std::string> epg_search_history;
 
 	//network
 	std::string network_ntpserver;
@@ -537,6 +542,8 @@ struct SNeutrinoSettings
 		FONT_TYPE_MENU_HINT,
 		FONT_TYPE_COUNT
 	};
+
+	int infoClockFontSize;
 
 	// lcdd
 	enum LCD_SETTINGS {

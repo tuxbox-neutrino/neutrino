@@ -119,13 +119,11 @@ CComponentsWindow::~CComponentsWindow()
 #ifdef DEBUG_CC
 	printf("[~CComponentsWindow]   [%s - %d] delete...\n", __FUNCTION__, __LINE__);
 #endif
-	cleanCCForm();
 }
 
 void CComponentsWindow::initVarWindow()
 {
 	//CComponentsForm
-	initVarForm();
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 
 	//using current screen settings for default dimensions
@@ -254,3 +252,11 @@ void CComponentsWindow::initCCWItems()
 			addCCItem(ccw_footer);
 }
 
+void CComponentsWindow::paint(bool do_save_bg)
+{
+	//prepare items before paint
+	initCCWItems();
+
+	//paint form contents
+	paintForm(do_save_bg);
+}

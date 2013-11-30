@@ -62,7 +62,11 @@ class CComponentsFrmClock : public CComponentsForm
 		bool activeClock;
 
 		///object: font render object
-		Font *cl_font;
+		Font **cl_font;
+
+		int cl_font_type;
+		int dyn_font_size;
+
 		///text color
 		int cl_col_text;
 		///time format
@@ -80,6 +84,9 @@ class CComponentsFrmClock : public CComponentsForm
 		///initialize of general alignment of timestring segments within form area
 		void initSegmentAlign(int* segment_width, int* segment_height);
 
+		///return pointer of font object
+		inline Font** getClockFont();
+
 	public:
 		CComponentsFrmClock();
 		CComponentsFrmClock( 	const int x_pos, const int y_pos, const int w, const int h,
@@ -87,8 +94,9 @@ class CComponentsFrmClock : public CComponentsForm
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsFrmClock();
 
-		///set font type for segments
-		virtual void setClockFont(Font *font){cl_font = font;};
+		///set font type or font size for segments
+		virtual void setClockFont(int font);
+		virtual void setClockFontSize(int size);
 
 		///set text color
 		virtual void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};

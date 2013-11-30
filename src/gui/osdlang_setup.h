@@ -54,6 +54,7 @@ class COsdLangSetup : public CMenuTarget, CChangeObserver
 		int  width;
 
 		bool is_wizard;
+		CTZChangeNotifier * tzNotifier;
 		
 		int showLocalSetup();
 		void showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *langNotifier);

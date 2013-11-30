@@ -88,7 +88,6 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 
 void CComponentsButton::initVarButton()
 {
-	initVarForm();
 	cc_item_type 	= CC_ITEMTYPE_BUTTON;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;

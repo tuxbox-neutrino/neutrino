@@ -78,16 +78,13 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 CComponentsText::~CComponentsText()
 {
 	hide();
-	clearSavedScreen();
 	clearCCText();
-	clear();
 }
 
 
 void CComponentsText::initVarText()
 {
 	//CComponents, CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_TEXT;
 
 	//CComponentsText

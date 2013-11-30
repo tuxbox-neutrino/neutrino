@@ -43,6 +43,9 @@
 #include <iostream>
 #include <map>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 //static const char * iso639filename = "/usr/share/iso-codes/iso-639.tab";
 static const char * iso639filename = "/share/iso-codes/iso-639.tab";
@@ -86,79 +89,79 @@ const char * getISO639Description(const char * const iso)
 CLocaleManager::CLocaleManager()
 {
 	localeData = new char * [sizeof(locale_real_names)/sizeof(const char *)];
-	for (unsigned int i = 0; i < (sizeof(locale_real_names)/sizeof(const char *)); i++)
-		localeData[i] = (char *)locale_real_names[i];
-
 	defaultData = new char * [sizeof(locale_real_names)/sizeof(const char *)];
-	for (unsigned int i = 0; i < (sizeof(locale_real_names)/sizeof(const char *)); i++)
-		defaultData[i] = (char *)locale_real_names[i];
+	memcpy(localeData, locale_real_names, sizeof(locale_real_names));
+	memcpy(defaultData, locale_real_names, sizeof(locale_real_names));
+	defaultDataMem = localeDataMem = NULL;
 
 	loadLocale(DEFAULT_LOCALE, true);
 }
 
 CLocaleManager::~CLocaleManager()
 {
-	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
-		if (localeData[j] != locale_real_names[j] && localeData[j] != defaultData[j])
-			::free(localeData[j]);
-
 	delete[] localeData;
-
-	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
-		if (defaultData[j] != locale_real_names[j])
-			::free(defaultData[j]);
-
 	delete[] defaultData;
+
+	if (localeDataMem)
+		::free(localeDataMem);
+	if (defaultDataMem)
+		::free(defaultDataMem);
 }
 
 const char * path[2] = { CONFIGDIR "/locale/", DATADIR "/neutrino/locale/"};
 
 CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const locale, bool asdefault)
 {
-	unsigned int i;
-	FILE * fd;
+	FILE * fd = NULL;
 	char ** loadData = asdefault ? defaultData : localeData;
 
+	char **mem = asdefault ? &defaultDataMem : &localeDataMem;
+
 	if(!asdefault && !strcmp(locale, DEFAULT_LOCALE)) {
-		for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++) {
-			if (loadData[j] != locale_real_names[j] && loadData[j] != defaultData[j])
-				free(loadData[j]);
-			loadData[j] = defaultData[j];
+		if (*mem) {
+			free(*mem);
+			*mem = NULL;
 		}
+		memcpy(loadData, defaultData, sizeof(locale_real_names));
 		return UNICODE_FONT;
 	}
 
-	for (i = 0; i < 2; i++)
+	struct stat st;
+	for (unsigned int i = 0; i < 2; i++)
 	{
 		std::string filename = path[i];
 		filename += locale;
 		filename += ".locale";
+		::stat(filename.c_str(), &st);
 		
 		fd = fopen(filename.c_str(), "r");
 		if (fd)
 			break;
 	}
 	
-	if (i == 2)
+	if (!fd)
 	{		
 		perror("cannot read locale");
 		return NO_SUCH_LOCALE;
 	}
 
-	if(!asdefault) {
-		for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++) {
-			if (loadData[j] != locale_real_names[j] && loadData[j] != defaultData[j])
-			{
-				free(loadData[j]);
-			}
-			loadData[j] = (char *)locale_real_names[j];
-		}
+	if (*mem) {
+		free (*mem);
+		*mem = NULL;
 	}
+
+	memcpy(loadData, locale_real_names, sizeof(locale_real_names));
+
+	*mem = (char *) malloc(st.st_size);
+	if (!*mem)
+	{
+		perror("loadLocale");
+		return NO_SUCH_LOCALE;
+	}
+	char *memp = *mem;
 
 	char *buf=NULL;
 	size_t len = 0;
-
-	i = 1;
 
 	while(!feof(fd))
 	{
@@ -192,13 +195,19 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 				}
 			} while ( ( pos != -1 ) );
 
+			unsigned int i;
 			for(i = 1; i < sizeof(locale_real_names)/sizeof(const char *); i++)
 			{
 //printf("[%s] [%s]\n", buf,locale_real_names[i]);
 				if(!strcmp(buf,locale_real_names[i]))
 				{
 					if(loadData[i] == locale_real_names[i])
-						loadData[i] = strdup(text.c_str());
+					{
+						loadData[i] = memp;
+						size_t l = text.length() + 1;
+						memcpy(memp, text.c_str(), l);
+						memp += l;
+					}
 					else
 						printf("[%s.locale] dup entry: %s\n", locale, locale_real_names[i]);
 					break;
@@ -212,6 +221,16 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	fclose(fd);
 	if(buf)
 		free(buf);
+	char *_mem = (char *) realloc(*mem, memp - *mem);
+	if (_mem) {
+		if (_mem != *mem) {
+			// most likely doesn't happen
+			for(unsigned int i = 1; i < sizeof(locale_real_names)/sizeof(const char *); i++)
+				if (loadData[i] != locale_real_names[i])
+					loadData[i] -= *mem - _mem;
+			*mem = _mem;
+		}
+	}
 
 	for (unsigned j = 1; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
 		if (loadData[j] == locale_real_names[j])
@@ -221,13 +240,7 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 				loadData[j] = defaultData[j];
 		}
 
-	return (
-		(strcmp(locale, "bosanski") == 0) ||
-		(strcmp(locale, "ellinika") == 0) ||
-		(strcmp(locale, "russkij") == 0) ||
-		(strcmp(locale, "utf8") == 0)
-		/* utf8.locale is a generic name that can be used for new locales which need characters outside the ISO-8859-1 character set */
-		) ? UNICODE_FONT : ISO_8859_1_FONT;
+	return UNICODE_FONT;
 }
 
 const char * CLocaleManager::getText(const neutrino_locale_t keyName) const

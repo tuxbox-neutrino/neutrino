@@ -57,7 +57,6 @@ void CComponentsPicture::init(	int x_pos, int y_pos, const string& image_name, c
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_PICTURE;
 
 	//CComponentsPicture

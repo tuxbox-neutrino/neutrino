@@ -191,19 +191,28 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	return(fp);
 }
 
-int safe_mkdir(char * path)
+int safe_mkdir(const char * path)
 {
 	struct statfs s;
-	int ret = 0;
-	if(!strncmp(path, "/hdd", 4)) {
-		ret = statfs("/hdd", &s);
-		if((ret != 0) || (s.f_type == 0x72b6))
-			ret = -1;
-		else
-			mkdir(path, 0755);
-	} else
-		mkdir(path, 0755);
-	return ret;
+	size_t l = strlen(path);
+	char d[l + 3];
+	strncpy(d, path, l);
+
+	// skip trailing slashes
+	while (l > 0 && d[l - 1] == '/')
+		l--;
+	// find last slash
+	while (l > 0 && d[l - 1] != '/')
+		l--;
+	if (!l)
+		return -1;
+	// append a single dot
+	d[l++] = '.';
+	d[l] = 0;
+
+	if(statfs(d, &s) || (s.f_type == 0x72b6 /* jffs2 */))
+		return -1;
+	return mkdir(path, 0755);
 }
 
 /* function used to check is this dir writable, i.e. not flash, for record etc */
@@ -213,30 +222,15 @@ int check_dir(const char * dir, bool allow_tmp)
 	int ret = -1;
 	struct statfs s;
 	if (::statfs(dir, &s) == 0) {
-		switch (s.f_type)	/* f_type is long */
-		{
-			case 0xEF53L:		/*EXT2 & EXT3*/
-			case 0x6969L:		/*NFS*/
-			case 0xFF534D42L:	/*CIFS*/
-			case 0x517BL:		/*SMB*/
-			case 0x52654973L:	/*REISERFS*/
-			case 0x65735546L:	/*fuse for ntfs*/
-			case 0x58465342L:	/*xfs*/
-			case 0x4d44L:		/*msdos*/
-			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-#if 0
-			case 0x72b6L:		/*jffs2*/
-#endif
-				ret = 0;//ok
-				break; 
-			case 0x858458f6L: 	/*ramfs*/
-			case 0x1021994: 	/*TMPFS_MAGIC*/
+		switch (s.f_type) {
+			case 0x858458f6L: 	// ramfs
+			case 0x1021994L: 	// tmpfs
 				if(allow_tmp)
 					ret = 0;//ok
+			case 0x72b6L:		// jffs2
 				break;
 			default:
-				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
-				break; // error
+				ret = 0;	// ok
 		}
 	}
 	return ret;

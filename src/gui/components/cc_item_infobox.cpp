@@ -66,18 +66,12 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 
 CComponentsInfoBox::~CComponentsInfoBox()
 {
-	hide();
-	clearSavedScreen();
-	clearCCText();
 	delete pic;
 	delete cctext;
-	clear();
 }
 
 void CComponentsInfoBox::initVarInfobox()
 {
-	//CComponents, CComponentsItem,  CComponentsText
-	initVarText();
 	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
 
 	//CComponentsInfoBox

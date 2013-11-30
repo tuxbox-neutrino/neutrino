@@ -88,6 +88,7 @@ void CImageInfo::Clean()
 		cc_tv	= NULL;
 		cc_lic	= NULL;
 		cc_sub_caption = NULL;
+		delete b_info;
 		b_info 	= NULL;
 		btn_red	= NULL;
 	}

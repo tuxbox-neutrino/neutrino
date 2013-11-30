@@ -69,9 +69,6 @@ CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_to
 
 void CComponentsDetailLine::initVarDline()
 {
-	//CComponents
-	initVarBasic();
-
 	shadow_w	= 1;
 
 	//CComponentsDetailLine
@@ -80,8 +77,6 @@ void CComponentsDetailLine::initVarDline()
 
 CComponentsDetailLine::~CComponentsDetailLine()
 {
-	hide(); //restore background
-	clear();
 }
 
 //		y_top (=y)

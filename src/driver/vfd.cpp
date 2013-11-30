@@ -385,7 +385,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 {
 	if(!has_lcd) return;
 
-	if ((mode == MODE_TVRADIO) && !(g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) {
+	if (((mode == MODE_TVRADIO) || (mode == MODE_MENU_UTF8)) && !(g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) {
 		//if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 0)
 		{
 			ShowIcon(FP_ICON_FRAME, true);

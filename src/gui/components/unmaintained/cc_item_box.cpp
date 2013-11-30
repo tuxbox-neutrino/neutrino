@@ -356,7 +356,7 @@ void CComponentsItemBox::calSizeOfElements()
 					digit_h = font_text->getDigitHeight();
 					digit_offset = font_text->getDigitOffset();
 					v_element_data[i].height = digit_h + (int)((float)digit_offset*1.5);
-//					v_element_data[i].width = font_text->getRenderWidth(widest_number)*4 + font->getRenderWidth(":");
+//					v_element_data[i].width = font_text->getMaxDigitWidth() + font->getRenderWidth(":");
 					v_element_data[i].width = font_text->getRenderWidth(timestr);
 					v_element_data[i].element = timestr;
 				}

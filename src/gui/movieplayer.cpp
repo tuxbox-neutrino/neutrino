@@ -230,6 +230,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	}
 	else if (actionKey == "ytplayback") {
 		CAudioMute::getInstance()->enableMuteIcon(false);
+		InfoClock->enableInfoClock(false);
 		isMovieBrowser = true;
 		moviebrowser->setMode(MB_SHOW_YT);
 	}
@@ -272,8 +273,10 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
-	if (moviebrowser->getMode() == MB_SHOW_YT)
+	if (moviebrowser->getMode() == MB_SHOW_YT) {
 		CAudioMute::getInstance()->enableMuteIcon(true);
+		InfoClock->enableInfoClock(true);
+	}
 
 	if (timeshift){
 		timeshift = 0;
@@ -426,6 +429,7 @@ bool CMoviePlayerGui::SelectFile()
 	}
 	else { // filebrowser
 		CAudioMute::getInstance()->enableMuteIcon(false);
+		InfoClock->enableInfoClock(false);
 		if (filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
 			CFile *file;
@@ -464,6 +468,7 @@ bool CMoviePlayerGui::SelectFile()
 		} else
 			menu_ret = filebrowser->getMenuRet();
 		CAudioMute::getInstance()->enableMuteIcon(true);
+		InfoClock->enableInfoClock(true);
 	}
 	if(ret && file_name.empty()) {
 		std::string::size_type pos = full_name.find_last_of('/');
@@ -520,7 +525,7 @@ void CMoviePlayerGui::PlayFile(void)
 	neutrino_msg_data_t data;
 	menu_ret = menu_return::RETURN_REPAINT;
 
-	bool first_start_timeshift = false;
+	bool first_start = true;
 	bool time_forced = false;
 	bool update_lcd = true;
 	int eof = 0;
@@ -563,7 +568,6 @@ void CMoviePlayerGui::PlayFile(void)
 		playstate = CMoviePlayerGui::PLAY;
 		CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, true);
 		if(timeshift) {
-			first_start_timeshift = true;
 			startposition = -1;
 			int i;
 			int towait = (timeshift == 1) ? TIMESHIFT_SECONDS+1 : TIMESHIFT_SECONDS;
@@ -601,6 +605,7 @@ void CMoviePlayerGui::PlayFile(void)
 	}
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
+	InfoClock->enableInfoClock(true);
 
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
@@ -608,9 +613,9 @@ void CMoviePlayerGui::PlayFile(void)
 			update_lcd = false;
 			updateLcd();
 		}
-		if (first_start_timeshift) {
+		if (first_start) {
 			callInfoViewer(/*duration, position*/);
-			first_start_timeshift = false;
+			first_start = false;
 		}
 
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
@@ -621,6 +626,8 @@ void CMoviePlayerGui::PlayFile(void)
 					file_prozent = (unsigned char) (position / (duration / 100));
 #if HAVE_TRIPLEDRAGON
 				CVFD::getInstance()->showPercentOver(file_prozent, true, CVFD::MODE_MOVIE);
+#else
+				CVFD::getInstance()->showPercentOver(file_prozent);
 #endif
 
 				playback->GetSpeed(speed);
@@ -821,7 +828,7 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if ( msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
 				msg == NeutrinoMessages::SHUTDOWN ||
-				msg == NeutrinoMessages::SLEEPTIMER) {	// Exit for Record/Zapto Timers
+				((msg == NeutrinoMessages::SLEEPTIMER) && !data) ) {	// Exit for Record/Zapto Timers
 			printf("CMoviePlayerGui::PlayFile: ZAPTO etc..\n");
 			if(msg != NeutrinoMessages::ZAPTO)
 				menu_ret = menu_return::RETURN_EXIT_ALL;
@@ -863,9 +870,7 @@ void CMoviePlayerGui::PlayFile(void)
 	restoreNeutrino();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
-
-	if (g_settings.mode_clock)
-		InfoClock->StartClock();
+	InfoClock->enableInfoClock(false);
 }
 
 void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
@@ -881,13 +886,13 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 	getCurrentAudioName( is_file_player, currentaudioname);
 
 	if (isMovieBrowser && p_movie_info) {
-		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
+		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgEpgId >>16, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
 					     duration, position);
 		return;
 	}
 
 	/* not moviebrowser => use the filename as title */
-	g_InfoViewer->showMovieTitle(playstate, file_name, "", "", duration, position);
+	g_InfoViewer->showMovieTitle(playstate, 0, file_name, "", "", duration, position);
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)

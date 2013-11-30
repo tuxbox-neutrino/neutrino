@@ -507,14 +507,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			break;
 		pos++;
 	}
-#if 0
-	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
-#endif
 	checkHints();
-#if 0
-	if (has_hints)
-		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
-#endif
 
 	if(savescreen) {
 		calcSize();
@@ -816,11 +809,6 @@ void CMenuWidget::calcSize()
 		int tmpw = items[i]->getWidth() + 10 + 10 + wi; /* 10 pixels to the left and right of the text */
 		if (tmpw > width)
 			width = tmpw;
-#if 0
-		if(!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE) {
-			has_hints = true;
-		}
-#endif
 	}
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
@@ -1092,34 +1080,13 @@ void CMenuWidget::paintHint(int pos)
 	if (pos < 0 && !hint_painted)
 		return;
 	
-#if 0
-	if (hint_painted) {
-		/* clear detailsline line */
-		// TODO CComponents::hide with param restore ? or auto (if it have saved screens) ?
-		if (details_line != NULL) {
-			if (savescreen)
-				details_line->restore();
-			else
-				details_line->hide();
-		}
-		/* clear info box */
-		if (info_box != NULL) {
-			if (pos == -1) {
-				if (savescreen)
-					info_box->restore();
-				else
-					info_box->hide();
-			}
-		}
-		hint_painted = false;
-#endif
 	if (hint_painted) {
 		/* clear detailsline line */
 		if (details_line)
-			details_line->hide();
+			savescreen ? details_line->hide() : details_line->kill();
 		/* clear info box */
 		if ((info_box) && (pos == -1))
-			info_box->hide(true);
+			savescreen ? info_box->hide(true) : info_box->kill();
 		hint_painted = false;
 	}
 	if (pos < 0)
@@ -1128,18 +1095,8 @@ void CMenuWidget::paintHint(int pos)
 	CMenuItem* item = items[pos];
 	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
-#if 0
-		if (info_box != NULL) {
-			if (savescreen)
-#endif
 		if (info_box)
 			info_box->hide(false);	
-#if 0				
-				info_box->restore();
-			else
-				info_box->hide();
-		}
-#endif
 		return;
 	}
 	
@@ -1168,9 +1125,6 @@ void CMenuWidget::paintHint(int pos)
 		details_line->setHMarkDown(markh);
 		details_line->syncSysColors();
 	}
-#if 0
-	details_line->paint(savescreen);
-#endif
 
 	//init infobox
 	std::string str = g_Locale->getText(item->hint);
@@ -1185,18 +1139,12 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setShadowOnOff(CC_SHADOW_ON);
 		info_box->setPicture(item->hintIcon);
 	}
-#if 0	
-	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
-	info_box->paint(savescreen, true);
-#endif
-
 	
 	//paint result
-	details_line->paint();
-	info_box->paint();
+	details_line->paint(savescreen);
+	info_box->paint(savescreen);
 	
 	hint_painted = true;
-	
 }
 
 void CMenuWidget::addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string & action)
@@ -1280,15 +1228,29 @@ int CMenuOptionNumberChooser::getWidth(void)
 	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
 	int width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_optionName, true);
 
-	char tmp[20], *t;
+	int _lower_bound = lower_bound;
+	int _upper_bound = upper_bound;
+	int m = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth();
 
-	snprintf(tmp, sizeof(tmp), "%d", lower_bound);
-	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
-	int w1 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+	int w1 = 0;
+	if (_lower_bound < 0) {
+		w1 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-", true);
+		lower_bound *= -1;
+	}
+	while (_lower_bound > 0) {
+		w1 += m;
+		_lower_bound /= 10;
+	}
 
-	snprintf(tmp, sizeof(tmp), "%d", upper_bound);
-	for(t = tmp; *t; t++) if (isdigit((int)*t)) *t = *widest_number;
-	int w2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+	int w2 = 0;
+	if (_upper_bound < 0) {
+		w2 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-", true);
+		_upper_bound *= -1;
+	}
+	while (_upper_bound > 0) {
+		w1 += m;
+		_upper_bound /= 10;
+	}
 
 	width += (w1 > w2) ? w1 : w2;
 
@@ -1868,6 +1830,20 @@ int CMenuForwarderNonLocalized::getWidth(void)
 
 	return tw;
 }
+
+CMenuDForwarderNonLocalized::CMenuDForwarderNonLocalized(const char * const Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right) : CMenuForwarderNonLocalized(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
+{
+}
+
+CMenuDForwarderNonLocalized::CMenuDForwarderNonLocalized(const char * const Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right) : CMenuForwarderNonLocalized(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
+{
+}
+
+CMenuDForwarderNonLocalized::~CMenuDForwarderNonLocalized()
+{
+	delete jumpTarget;
+}
+
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, bool IsStatic)
 {

@@ -256,6 +256,8 @@ ci.reset_standby Reset nach Standby
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
+clock_size Info Uhr
+clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden
 colorchooser.alpha alpha
@@ -327,7 +329,9 @@ epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
 eventfinder.head EPG-Suche
+eventfinder.history Frühere Suchen
 eventfinder.keyword Suche nach Textpassage
+eventfinder.max_history Max. Anzahl früherer Suchen
 eventfinder.search Suche
 eventfinder.search_all_epg Ganze 
 eventfinder.search_within_epg Suche innerhalb EPG-Daten
@@ -808,6 +812,7 @@ menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfe
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
+menu.hint_clock_size Stellen Sie die Größe der Info Uhr ein.
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -873,6 +878,7 @@ menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
 menu.hint_infobar_setup Wählen Sie die Anzeigeoptionen für die Infobar aus
 menu.hint_infobar_textcolor Ändern Sie die Textfarbe für die Infobar
 menu.hint_infobar_tuner Zeigt den aktiven Tuner als Nummernicon
+menu.hint_infoclock_setup Wählen Sie die Anzeigeoptionen für die Info Uhr
 menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte Kanalnummern zugewiesen
 menu.hint_key_addrecord Weisen Sie eine Taste für das Starten und Markieren von Aufnahmen im EPG zu
 menu.hint_key_addremind Weisen Sie eine Taste für das Umschalten im EPG über den Timer zu
@@ -1236,6 +1242,7 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
+miscsettings.infoclock Info Uhr
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
@@ -1418,9 +1425,9 @@ moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
 moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
+moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_history Frühere Suchen
 moviebrowser.yt_max_history Max. Anzahl früherer Suchen
-moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
 moviebrowser.yt_most_discussed Am meisten diskutiert
 moviebrowser.yt_most_popular Beliebteste Videos
@@ -1429,6 +1436,11 @@ moviebrowser.yt_most_responded Feeds mit den meisten Reaktionen
 moviebrowser.yt_most_shared Am häufigsten wiedergegebe Videos
 moviebrowser.yt_next_results Nächste Ergebnisse
 moviebrowser.yt_on_the_web Trendvideos
+moviebrowser.yt_orderby Sortierung nach
+moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
+moviebrowser.yt_orderby.rating Bewertung
+moviebrowser.yt_orderby.relevance Relevanz
+moviebrowser.yt_orderby.viewcount Zahl der Views
 moviebrowser.yt_pref_quality Bevorzugte Qualität
 moviebrowser.yt_prev_results Vorherige Ergebnisse
 moviebrowser.yt_recently_featured Vor kurzem empfohlen

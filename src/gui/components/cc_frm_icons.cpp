@@ -60,8 +60,6 @@ CComponentsIconForm::CComponentsIconForm(const int x_pos, const int y_pos, const
 
 void CComponentsIconForm::initVarIconForm()
 {
-	//CComponentsForm
-	initVarForm();
 	cc_item_type 	= CC_ITEMTYPE_FRM_ICONFORM;
 
 	//set default width and height to 0, this causes a dynamic adaptation of width and height of form

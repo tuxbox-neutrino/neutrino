@@ -256,6 +256,8 @@ ci.reset_standby Reset after standby
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
 ci.waiting Waiting for CI answer
+clock_size Info clock
+clock_size_height Display height
 clock_switch_off Clock off
 clock_switch_on Clock on
 colorchooser.alpha alpha
@@ -327,7 +329,9 @@ epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
+eventfinder.history Search history
 eventfinder.keyword Keyword
+eventfinder.max_history Max results to fetch
 eventfinder.search Search
 eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within
@@ -808,6 +812,7 @@ menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
+menu.hint_clock_size Set the size of the info clock.
 menu.hint_colors Configure GUI colors
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
@@ -873,6 +878,7 @@ menu.hint_infobar_sat Show current satellite or cable provider
 menu.hint_infobar_setup Configure infobar options
 menu.hint_infobar_textcolor Change infobar text color
 menu.hint_infobar_tuner Show active tuner number icon
+menu.hint_infoclock_setup Configure info clock GUI options
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
 menu.hint_key_addrecord Assign button to add record timer\nfrom event list
 menu.hint_key_addremind Assign button to add zap timer\nfrom event list
@@ -1236,6 +1242,7 @@ miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
 miscsettings.infobar_show_tuner Display active tuner
+miscsettings.infoclock Info clock
 miscsettings.progressbar Progressbar
 miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
@@ -1429,6 +1436,11 @@ moviebrowser.yt_most_responded Most responded
 moviebrowser.yt_most_shared Most shared
 moviebrowser.yt_next_results Next results
 moviebrowser.yt_on_the_web Trending videos
+moviebrowser.yt_orderby Order by
+moviebrowser.yt_orderby.published publishing date
+moviebrowser.yt_orderby.rating rating
+moviebrowser.yt_orderby.relevance relevance
+moviebrowser.yt_orderby.viewcount view count
 moviebrowser.yt_pref_quality Prefered quality
 moviebrowser.yt_prev_results Previous results
 moviebrowser.yt_recently_featured Recently featured

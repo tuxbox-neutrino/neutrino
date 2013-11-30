@@ -76,8 +76,6 @@ void CComponentsForm::cleanCCForm()
 #endif
 
 	clearCCItems();
-	clearSavedScreen();
-	clear();
 }
 
 
@@ -105,8 +103,6 @@ void CComponentsForm::clearCCItems()
 
 void CComponentsForm::initVarForm()
 {
-	//CComponentsItem
-	initVarItem();
 
 
 	//simple default dimensions

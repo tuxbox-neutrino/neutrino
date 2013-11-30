@@ -793,6 +793,18 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.startchanneltv_id =  configfile.getInt64("startchanneltv_id", 0);
 	g_settings.startchannelradio_id =  configfile.getInt64("startchannelradio_id", 0);
 	g_settings.uselastchannel         = configfile.getInt32("uselastchannel" , 1);
+	//epg searsch
+	g_settings.epg_search_history_max = configfile.getInt32("epg_search_history_max", 10);
+	g_settings.epg_search_history_size = configfile.getInt32("epg_search_history_size", 0);
+	if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
+		g_settings.epg_search_history_size = g_settings.epg_search_history_max;
+	g_settings.epg_search_history.clear();
+	for(int i = 0; i < g_settings.epg_search_history_size; i++) {
+		std::string s = configfile.getString("epg_search_history_" + to_string(i));
+		if (s != "")
+			g_settings.epg_search_history.push_back(configfile.getString("epg_search_history_" + to_string(i), ""));
+	}
+	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
 
 
 	// USERMENU -> in system/settings.h
@@ -864,6 +876,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.pip_width = configfile.getInt32("pip_width", 365);
 	g_settings.pip_height = configfile.getInt32("pip_height", 200);
 #endif
+
+	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", 34);
+
 	if(erg)
 		configfile.setModifiedFlag(true);
 	return erg;
@@ -1234,6 +1249,15 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt64("startchanneltv_id", g_settings.startchanneltv_id);
 	configfile.setInt64("startchannelradio_id", g_settings.startchannelradio_id);
 	configfile.setInt32("uselastchannel", g_settings.uselastchannel);
+	//epg search
+	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
+	if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
+		g_settings.epg_search_history_size = g_settings.epg_search_history_max;
+	configfile.setInt32("epg_search_history_max", g_settings.epg_search_history_max);
+	configfile.setInt32("epg_search_history_size", g_settings.epg_search_history_size);
+	std::list<std::string>:: iterator it = g_settings.epg_search_history.begin();
+	for(int i = 0; i < g_settings.epg_search_history_size; i++, ++it)
+		configfile.setString("epg_search_history_" + to_string(i), *it);
 
 	// USERMENU
 	//---------------------------------------
@@ -1271,6 +1295,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("pip_width", g_settings.pip_width);
 	configfile.setInt32("pip_height", g_settings.pip_height);
 #endif
+	configfile.setInt32("infoClockFontSize", g_settings.infoClockFontSize);
 	configfile.setInt32("easymenu", g_settings.easymenu);
 	if(strcmp(fname, NEUTRINO_SETTINGS_FILE))
 		configfile.saveConfig(fname);
@@ -2019,9 +2044,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
-#ifndef DISABLE_SECTIONSD
 	InitSectiondClient();
-#endif
 
 	/* wait until timerd is ready... */
 	time_t timerd_wait = time_monotonic_ms();
@@ -2136,7 +2159,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 	InfoClock = CInfoClock::getInstance();
 	if(g_settings.mode_clock)
-		InfoClock->StartClock();
+		g_settings.mode_clock = InfoClock->StartClock();
 
 	//cCA::GetInstance()->Ready(true);
 
@@ -2145,15 +2168,19 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
+				InfoClock->enableInfoClock(false);
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EpgData->show(live_channel_id);
+				InfoClock->enableInfoClock(true);
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_epg ) {
+				InfoClock->enableInfoClock(false);
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
+				InfoClock->enableInfoClock(true);
 				StartSubtitles();
 			}
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
@@ -2161,11 +2188,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				//quickzap
 				quickZap(msg);
 			}
-
 			else if( msg == CRCInput::RC_text) {
 				g_RCInput->clearRCMsg();
-				if(g_settings.mode_clock)
-					InfoClock->StopClock();
+				InfoClock->enableInfoClock(false);
 				StopSubtitles();
 				tuxtx_stop_subtitle();
 
@@ -2175,19 +2200,16 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				//if(!g_settings.cacheTXT)
 				//	tuxtxt_stop();
 				g_RCInput->clearRCMsg();
-				if(g_settings.mode_clock)
-					InfoClock->StartClock();
+				InfoClock->enableInfoClock(true);
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_setup ) {
 				if(!g_settings.minimode) {
 					StopSubtitles();
-					if(g_settings.mode_clock)
-						InfoClock->StopClock();
+					InfoClock->enableInfoClock(false);
 					int old_ttx = g_settings.cacheTXT;
 					mainMenu.exec(NULL, "");
-					if(g_settings.mode_clock)
-						InfoClock->StartClock();
+					InfoClock->enableInfoClock(true);
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 					if (!g_settings.epg_scan)
@@ -2254,8 +2276,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
 				// Zap-History "Bouquet"
 				if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-					g_settings.mode_clock=false;
-					InfoClock->StopClock();
+					InfoClock->enableInfoClock(false);
+					g_settings.mode_clock = false;
 				} else {
 					numericZap( msg );
 				}
@@ -2418,8 +2440,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else {
 				if (msg == CRCInput::RC_home) {
 					if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-						g_settings.mode_clock=false;
-						InfoClock->StopClock();
+						InfoClock->enableInfoClock(false);
+						g_settings.mode_clock = false;
 					}
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				}
@@ -2444,8 +2466,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 {
 	neutrino_msg_t msg = _msg;
-	if(g_settings.mode_clock)
-		InfoClock->StopClock();
+	InfoClock->enableInfoClock(false);
 
 	StopSubtitles();
 
@@ -2529,8 +2550,8 @@ _repeat:
 		goto _show;
 	}
 
-	if(!from_menu && g_settings.mode_clock)
-		InfoClock->StartClock();
+	if (!from_menu)
+		InfoClock->enableInfoClock(true);
 
 	return ((nNewChannel >= 0) ? menu_return::RETURN_EXIT_ALL : menu_return::RETURN_REPAINT);
 }
@@ -2957,9 +2978,9 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			}
 		}
 		if (g_settings.shutdown_real && can_deepstandby)
-			ExitRun(true, can_deepstandby);
-		else if(mode != mode_standby)
-			standbyMode( true );
+			g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
+		else
+			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::RELOAD_SETUP ) {
@@ -3463,9 +3484,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		}
 		CVFD::getInstance()->setBacklight(g_settings.backlight_standby);
 
-		if(g_settings.mode_clock) {
-			InfoClock->StopClock();
-		}
+		InfoClock->enableInfoClock(false);
 
 		//remember tuned channel-id
 		standby_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -3554,8 +3573,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_Sectionsd->setPauseScanning(false);
 		//g_Sectionsd->setServiceChanged(live_channel_id, true );
 
-		if(g_settings.mode_clock)
-			InfoClock->StartClock();
+		InfoClock->enableInfoClock(true);
 
 		g_audioMute->AudioMute(current_muted, true);
 		StartSubtitles();
@@ -3619,11 +3637,11 @@ void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 void CNeutrinoApp::switchClockOnOff()
 {
 	if(g_settings.mode_clock) {
-		g_settings.mode_clock=false;
-		InfoClock->StopClock();
+		InfoClock->enableInfoClock(false);
+		g_settings.mode_clock = false;
 	} else {
-		g_settings.mode_clock=true;
-		InfoClock->StartClock();
+		g_settings.mode_clock = true;
+		InfoClock->enableInfoClock(true);
 	}
 }
 

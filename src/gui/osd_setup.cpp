@@ -45,6 +45,8 @@
 #include "osdlang_setup.h"
 #include "filebrowser.h"
 
+#include <gui/audiomute.h>
+#include <gui/infoclock.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
 #include <gui/widget/stringinput.h>
@@ -558,6 +560,13 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_VOLUME);
 	osd_menu->addItem(mf);
 
+	//info clock
+	CMenuWidget osd_menu_infoclock(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_INFOCLOCK);
+	showOsdInfoclockSetup(&osd_menu_infoclock);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_INFOCLOCK, true, NULL, &osd_menu_infoclock, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf->setHint("", LOCALE_MENU_HINT_INFOCLOCK_SETUP);
+	osd_menu->addItem(mf);
+
 #ifdef SCREENSHOT
 	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
@@ -613,6 +622,7 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mc);
 
 	int oldVolumeSize = g_settings.volume_size;
+	int oldInfoClockSize = g_settings.infoClockFontSize;
 
 	int res = osd_menu->exec(NULL, "");
 
@@ -624,6 +634,15 @@ int COsdSetup::showOsdSetup()
 	}
 	if (oldVolumeSize != g_settings.volume_size)
 		CVolumeHelper::getInstance()->refresh();
+
+	if (oldInfoClockSize != g_settings.infoClockFontSize) {
+		CInfoClock::getInstance()->setClockFontSize(g_settings.infoClockFontSize);
+		CVolumeHelper::getInstance()->refresh();
+		if (CNeutrinoApp::getInstance()->isMuted()) {
+			CAudioMute::getInstance()->enableMuteIcon(false);
+			CAudioMute::getInstance()->enableMuteIcon(true);
+		}
+	}
 
 	delete osd_menu;
 	return res;
@@ -814,6 +833,13 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 		fontSettings->addItem(mf);
 		w_index++;
 	}
+#if 0
+	// size of info clock
+	fontSettings->addItem(GenericMenuSeparatorLine);
+	CMenuOptionNumberChooser* mn = new CMenuOptionNumberChooser(LOCALE_CLOCK_SIZE, &g_settings.infoClockFontSize, true, 30, 120);
+	mn->setHint("", LOCALE_MENU_HINT_CLOCK_SIZE);
+	fontSettings->addItem(mn);
+#endif
 }
 
 //osd timeouts
@@ -1022,6 +1048,17 @@ void COsdSetup::showOsdVolumeSetup(CMenuWidget *menu_volume)
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_SHOW_MUTE_ICON, &g_settings.show_mute_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SHOW_MUTE_ICON);
 	menu_volume->addItem(mc);
+}
+
+//info clock
+void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
+{
+	menu_infoclock->addIntroItems(LOCALE_MISCSETTINGS_INFOCLOCK);
+
+	// size of info clock
+	CMenuOptionNumberChooser* mn = new CMenuOptionNumberChooser(LOCALE_CLOCK_SIZE_HEIGHT, &g_settings.infoClockFontSize, true, 30, 120);
+	mn->setHint("", LOCALE_MENU_HINT_CLOCK_SIZE);
+	menu_infoclock->addItem(mn);
 }
 
 bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)

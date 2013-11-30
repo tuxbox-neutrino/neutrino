@@ -39,10 +39,11 @@ using namespace std;
 CSignalBar::CSignalBar()
 {
 	initVarSigBar();
+	sb_name 	= "SIG";
 	initSBItems();
 }
 
-CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
+CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const string& sbname)
 {
 	initVarSigBar();
 	sb_frontend 	= frontend_ref;
@@ -50,6 +51,7 @@ CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int
 	y 		= ypos;
 	width 		= w;
 	height 		= h;
+	sb_name		= sbname;
 
 	initSBItems();
 }
@@ -95,7 +97,6 @@ void CSignalBar::initSBItems()
 
 void CSignalBar::initVarSigBar()
 {
-	initVarForm();
 	corner_rad 	= 0;
 	corner_type 	= 0;
 	append_h_offset = 2;
@@ -107,6 +108,7 @@ void CSignalBar::initVarSigBar()
 	dy_font 	= CNeutrinoFonts::getInstance();
 
 	sb_caption_color= COL_INFOBAR_TEXT;
+	sb_val_mode 	= CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT;
 
 	sb_lastsig 	= 0;
 	sb_signal 	= 0;
@@ -115,7 +117,6 @@ void CSignalBar::initVarSigBar()
 	sb_scale 	= NULL;
 	sb_vlbl		= NULL;
 	sb_lbl		= NULL;
-	sb_name		= "SIG";
 }
 
 void CSignalBar::initSBarScale()
@@ -144,7 +145,7 @@ void CSignalBar::initSBarValue()
 	if (sb_vlbl == NULL){
 		sb_vlbl = new CComponentsLabel();
 		sb_vlbl->doPaintBg(false);
-		sb_vlbl->setText("0%", CTextBox::NO_AUTO_LINEBREAK, sb_font);
+		sb_vlbl->setText("  0%", sb_val_mode, sb_font);
 	}
 
 	//move and set dimensions
@@ -217,7 +218,7 @@ void CSignalBar::paintScale()
 		i_str << sig;
 		string percent(i_str.str());
 		percent += "%";
-		sb_vlbl->setText(percent, CTextBox::NO_AUTO_LINEBREAK | CTextBox::CENTER, sb_font);
+		sb_vlbl->setText(percent, sb_val_mode, sb_font);
 
 		//we must force paint backround, because of changing values
 		sb_vlbl->doPaintBg(true);
@@ -245,30 +246,6 @@ void CSignalBar::paint(bool do_save_bg)
 
 
 //*******************************************************************************************************************************
-CSignalNoiseRatioBar::CSignalNoiseRatioBar()
-{
-	initVarSnrBar();
-	initSBItems();
-}
-
-CSignalNoiseRatioBar::CSignalNoiseRatioBar(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
-{
-	initVarSnrBar();
-	sb_frontend 	= frontend_ref;
-	x 		= xpos;
-	y 		= ypos;
-	width 		= w;
-	height 		= h;
-
-	initSBItems();
-}
-
-void CSignalNoiseRatioBar::initVarSnrBar()
-{
-	initVarSigBar();
-	sb_name	= "SNR";
-}
-
 void CSignalNoiseRatioBar::Refresh()
 {
 	//get current value from frontend
@@ -306,7 +283,6 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 
 void CSignalBox::initVarSigBox()
 {
-	initVarForm();
 	corner_rad	= 0;
 
 	sbx_frontend 	= NULL;

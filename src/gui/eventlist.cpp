@@ -73,6 +73,7 @@ inline static bool sortbyEventid (const CChannelEvent& a, const CChannelEvent& b
 	return (a.channelID == b.channelID && a.eventID == b.eventID && a.startTime == b.startTime); 
 }
 #endif
+
 inline bool sortByDescription (const CChannelEvent& a, const CChannelEvent& b)
 {
 	if(a.description == b.description)
@@ -1127,6 +1128,22 @@ bool CNeutrinoEventList::findEvents(void)
 		search_head_name += ": '";
 		search_head_name += m_search_keyword;
 		search_head_name += "'";
+
+		if(!m_search_keyword.empty()){
+			g_settings.epg_search_history.push_front(m_search_keyword);
+			std::list<std::string>::iterator it = g_settings.epg_search_history.begin();
+			it++;
+			while (it != g_settings.epg_search_history.end()) {
+				if (*it == m_search_keyword)
+					it = g_settings.epg_search_history.erase(it);
+				else
+					++it;
+			}
+			g_settings.epg_search_history_size = g_settings.epg_search_history.size();
+			if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
+				g_settings.epg_search_history_size = g_settings.epg_search_history_max;
+		}
+
 	}
 	paintHead(0, search_head_name);
 	paint();
@@ -1199,6 +1216,8 @@ CEventFinderMenu::CEventFinderMenu(	int* 			event,
 	m_search_list       = search_list;
 	m_search_channel_id = search_channel_id;
 	m_search_bouquet_id = search_bouquet_id;
+	width = w_max (40, 10);
+	selected = -1;
 }
 
 
@@ -1215,34 +1234,13 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 		//printf("0\n");
 		showMenu();
 	}
-	else if(actionkey =="1")
+	else if(actionkey =="#1")
 	{
 		//printf("1\n");
 		*m_event = true;
 		res = menu_return::RETURN_EXIT_ALL;
 	}
-	else if(actionkey =="2")
-	{
-		//printf("2\n");
-		/*
-		if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_CHANNEL)
-		{
-			mf[1]->setActive(true);
-			m_search_channelname = CServiceManager::getInstance()->GetServiceName(*m_search_channel_id);;
-		}
-		else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
-		{
-			mf[1]->setActive(true);
-			m_search_channelname = bouquetList->Bouquets[*m_search_bouquet_id]->channelList->getName();
-		}
-		else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_ALL)
-		{
-			mf[1]->setActive(false);
-			m_search_channelname = "";
-		}
-		*/
-	}
-	else if(actionkey =="3")
+	else if(actionkey =="#2")
 	{
 		//printf("3\n");
 		// get channel id / bouquet id
@@ -1276,9 +1274,38 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 			}
 		}
 	}
-	else if(actionkey =="4")
+	else if(actionkey =="#history")
 	{
-		//printf("4\n");
+
+		if (parent)
+			parent->hide();
+		CMenuWidget* m = new CMenuWidget(LOCALE_EVENTFINDER_HISTORY, NEUTRINO_ICON_MOVIEPLAYER, width);
+		m->addKey(CRCInput::RC_spkr, this, "#clear");
+		m->setSelected(selected);
+		m->addItem(GenericMenuSeparator);
+		m->addItem(GenericMenuBack);
+		m->addItem(GenericMenuSeparatorLine);
+		std::list<std::string>::iterator it = g_settings.epg_search_history.begin();
+		for (int i = 0; i < g_settings.epg_search_history_size; i++, ++it)
+			m->addItem(new CMenuForwarderNonLocalized((*it).c_str(), true, NULL, this, (*it).c_str(), CRCInput::convertDigitToKey(i + 1)));
+		m->exec(NULL, "");
+		m->hide();
+		delete m;
+		return menu_return::RETURN_REPAINT;
+	}
+	if (actionkey == "#clear") {
+		g_settings.epg_search_history.clear();
+		g_settings.epg_search_history_size = 0;
+		return menu_return::RETURN_EXIT;
+	}
+
+	std::list<std::string>::iterator it = g_settings.epg_search_history.begin();
+	for (int i = 0; i < g_settings.epg_search_history_size; i++, ++it){
+		if((*it)== actionkey){
+			*m_search_keyword = actionkey;
+			g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_blue, 0);
+			return menu_return::RETURN_EXIT;
+		}
 	}
 
 	return res;
@@ -1317,11 +1344,15 @@ int CEventFinderMenu::showMenu(void)
 
 	CMenuForwarder* mf0	= new CMenuForwarder(LOCALE_EVENTFINDER_KEYWORD, true, *m_search_keyword, &stringInput, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	CMenuOptionChooser* mo0	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST, m_search_list, SEARCH_LIST_OPTIONS, SEARCH_LIST_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
-	m_search_channelname_mf	= new CMenuForwarderNonLocalized("", *m_search_list != CNeutrinoEventList::SEARCH_LIST_ALL, m_search_channelname, this, "3", CRCInput::convertDigitToKey(shortcut++));
+	m_search_channelname_mf	= new CMenuForwarderNonLocalized("", *m_search_list != CNeutrinoEventList::SEARCH_LIST_ALL, m_search_channelname, this, "#2", CRCInput::convertDigitToKey(shortcut++));
 	CMenuOptionChooser* mo1	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_EPG, m_search_epg_item, SEARCH_EPG_OPTIONS, SEARCH_EPG_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	CMenuForwarder* mf1	= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder* mf1	= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "#1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
 	CMenuWidget searchMenu(LOCALE_EVENTFINDER_HEAD, NEUTRINO_ICON_FEATURES, 40);
+
+	CMenuForwarder* mf2	= new CMenuForwarder(LOCALE_EVENTFINDER_HISTORY, true, NULL, this, "#history", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	CMenuOptionNumberChooser* moc1 = new CMenuOptionNumberChooser(LOCALE_EVENTFINDER_MAX_HISTORY, &g_settings.epg_search_history_max, true, 0, 50, NULL);
+	searchMenu.addItem(GenericMenuSeparatorLine);
 
 	searchMenu.addItem(GenericMenuSeparator);
 	searchMenu.addItem(mf0);
@@ -1331,6 +1362,9 @@ int CEventFinderMenu::showMenu(void)
 	searchMenu.addItem(mo1);
 	searchMenu.addItem(GenericMenuSeparatorLine);
 	searchMenu.addItem(mf1);
+	searchMenu.addItem(GenericMenuSeparatorLine);
+	searchMenu.addItem(mf2);
+	searchMenu.addItem(moc1);
 
 	res = searchMenu.exec(NULL,"");
 	return(res);

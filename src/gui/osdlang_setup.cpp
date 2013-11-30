@@ -60,6 +60,7 @@ COsdLangSetup::COsdLangSetup(bool wizard_mode)
 	is_wizard = wizard_mode;
 
 	width = w_max (45, 10);
+	tzNotifier = NULL;
 }
 
 COsdLangSetup::~COsdLangSetup()
@@ -97,6 +98,7 @@ int COsdLangSetup::showLocalSetup()
 	localSettings->addItem(mf);
 
  	//timezone setup
+	tzNotifier = new CTZChangeNotifier();
 	CMenuOptionStringChooser* tzSelect = getTzItems();
 	if (tzSelect != NULL)
 		localSettings->addItem(tzSelect);
@@ -115,6 +117,7 @@ int COsdLangSetup::showLocalSetup()
 	int res = localSettings->exec(NULL, "");
 	delete localSettings;
 	delete langNotifier;
+	delete tzNotifier;
 	return res;
 }
 
@@ -127,7 +130,7 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 	CMenuOptionStringChooser* tzSelect = NULL;
 	if (parser != NULL)
 	{
-		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, g_settings.timezone, true, new CTZChangeNotifier(), CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
 		tzSelect->setHint("", LOCALE_MENU_HINT_TIMEZONE);
 		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
 		bool found = false;
