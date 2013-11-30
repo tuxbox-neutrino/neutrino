@@ -251,6 +251,9 @@ void CInfoViewer::changePB()
 
 void CInfoViewer::paintTime (bool show_dot)
 {
+	if (!gotTime)
+		gotTime = timeset;
+
 	if (! gotTime)
 		return;
 
