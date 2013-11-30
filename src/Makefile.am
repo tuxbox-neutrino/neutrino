@@ -157,7 +157,7 @@ endif
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
 else
-bin_PROGRAMS += uncoolinit
+noinst_PROGRAMS = uncoolinit
 uncoolinit_SOURCES = uncoolinit.cpp
 uncoolinit_LDADD = \
 	@AVFORMAT_LIBS@ \
