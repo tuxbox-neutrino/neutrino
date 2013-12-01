@@ -1220,7 +1220,7 @@ int CMenuOptionNumberChooser::getWidth(void)
 	int w1 = 0;
 	if (_lower_bound < 0) {
 		w1 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-", true);
-		lower_bound *= -1;
+		_lower_bound *= -1;
 	}
 	while (_lower_bound > 0) {
 		w1 += m;
