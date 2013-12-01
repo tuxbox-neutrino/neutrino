@@ -99,7 +99,8 @@ int paintButtons(	const int &x,
 	int w_text = 0;
 	int h_max_text = font->getHeight();
 
-	int count_items = 0;
+	int count_icons = 0;
+	int count_labels = 0;
 	/* more than 16 buttons? noooooo*/
 	int iconw[16];
 	int iconh[16];
@@ -133,16 +134,18 @@ int paintButtons(	const int &x,
 		h_max_icon = std::max(h_max_icon, h);
 		w_icons += w;
 		if (w)
-			count_items++;
+			count_icons++;
 
-		//text
-		buttontext[i] = (content[i].locale ? g_Locale->getText(content[i].locale) : "");
-		
-		//text width
-		fwidth[i] = font->getRenderWidth(buttontext[i], true);
-		w_text += fwidth[i];
-		if (fwidth[i])
-			count_items++;
+		if (content[i].locale) {
+			buttontext[i] = g_Locale->getText(content[i].locale);
+			//text width
+			fwidth[i] = font->getRenderWidth(buttontext[i], true);
+			w_text += fwidth[i];
+			count_labels++;
+		} else {
+			buttontext[i] = "";
+			fwidth[i] = 0;
+		}
 	}
 
 	//calculate button heigth
@@ -161,23 +164,24 @@ int paintButtons(	const int &x,
 	
 	//baseline
 	int y_base = y_footer + h_footer/2;
-	int spacing = maxwidth - w_space * 2 - w_text - w_icons - (count_items - 1) * h_space;
+	int spacing = maxwidth - w_space * 2 - w_text - w_icons - (count_icons + count_labels - 1) * h_space;
 #if 0
 	/* debug */
 	fprintf(stderr, "PB: sp %d mw %d w_t %d w_i %d w_s %d c_i %d\n",
 		spacing, maxwidth, w_text, w_icons, w_space, count_items);
 #endif
+	if (fwidth[cnt - 1] == 0) /* divisor needs to be labels+1 unless rightmost icon has a label */
+		count_labels++;   /* side effect: we don't try to divide by 0 :-) */
 	if (spacing >= 0)
 	{				 /* add half of the inter-object space to the */
-		spacing /= (int)count;	 /* left and right (this might break vertical */
+		spacing /= count_labels; /* left and right (this might break vertical */
 		x_button += spacing / 2; /* alignment, but nobody is using this (yet) */
 	}				 /* and I'm don't know how it should work.    */
 	else
 	{
-		spacing /= (int)(count - 1); /* one space less than buttons */
-		/* shorten captions */
+		/* shorten captions relative to their length */
 		for (i = 0; i < cnt; i++)
-			fwidth[i] += spacing; /* spacing is negative...*/
+			fwidth[i] = (fwidth[i] * (w_text + spacing)) / w_text; /* spacing is negative...*/
 		spacing = 0;
 	}
 
@@ -221,7 +225,9 @@ int paintButtons(	const int &x,
 		else
 		{
 			/* increase x position */
-			x_button = x_caption + fwidth[j] + spacing + h_space;
+			x_button = x_caption;
+			if (fwidth[j])
+				x_button += fwidth[j] + spacing + h_space;
 		}	
 	}
 
