@@ -27,6 +27,8 @@
 #include <config.h>
 #endif
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <cstdlib>
 #include <cstring>
 #include <errno.h>
