@@ -221,14 +221,14 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 
 	mSampleRate = samplerate;
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 32, 1);
+	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 16, 1);
 #else
-	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 32, 0);
+	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 16, 0);
 #endif
 
 	AVFrame *frame = NULL;
-	AVPacket packet;
-	av_init_packet(&packet);
+	AVPacket rpacket;
+	av_init_packet(&rpacket);
 
 	av_opt_set_int(swr, "in_channel_layout",	c->channel_layout,	0);
 	av_opt_set_int(swr, "out_channel_layout",	c->channel_layout,	0);
@@ -275,14 +275,17 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 		while(*state==PAUSE && !is_stream)
 			usleep(10000);
 
-		if (av_read_frame(avc, &packet)) {
+		if (av_read_frame(avc, &rpacket)) {
 			Status=DATA_ERR;
 			break;
 		}
 
-		if (packet.stream_index != best_stream)
+		if (rpacket.stream_index != best_stream) {
+			av_free_packet(&rpacket);
 			continue;
+		}
 
+		AVPacket packet = rpacket;
 		while (packet.size > 0) {
 			int got_frame = 0;
 			if (!frame) {
@@ -337,6 +340,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 		}
 		if (time_played && avc->streams[best_stream]->time_base.den)
 			*time_played = (pts - start_pts) * avc->streams[best_stream]->time_base.num / avc->streams[best_stream]->time_base.den;
+		av_free_packet(&rpacket);
 	} while (*state!=STOP_REQ && Status==OK);
 
 	audioDecoder->StopClip();
@@ -344,7 +348,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 
 	swr_free(&swr);
 	av_free(outbuf);
-	av_free_packet(&packet);
+	av_free_packet(&rpacket);
 	avcodec_free_frame(&frame);
 	avcodec_close(c);
 	//av_free(avcc);
