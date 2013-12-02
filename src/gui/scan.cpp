@@ -452,10 +452,10 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			CVolume::getInstance()->setVolume(msg);
 			break;
 		default:
-			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-				delete[] (unsigned char*) data;
 			break;
 	}
+	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
+		delete[] (unsigned char*) data;
 	return msg;
 }
 
