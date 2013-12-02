@@ -1195,7 +1195,6 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *nametag, 
 				char *ptr = NULL;
 				char *name = NULL;
 				char *url = NULL;
-				char *type = NULL;
 				time_t bitrate = 0;
 				bool skip = true;
 				listPos++;
@@ -1208,6 +1207,7 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *nametag, 
 #endif // LCD_UPDATE
 
 				if (usechild) {
+					char *type = NULL;
 					xmlNodePtr child = element->xmlChildrenNode;
 					while (child) {
 						if (strcmp(xmlGetName(child), nametag) == 0)
