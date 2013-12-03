@@ -139,13 +139,13 @@ void CTimeOSD::hide()
 	if(!visible)
 		return;
 
-	InfoClock->enableInfoClock(true);
-
 	//GetDimensions();
 	frameBuffer->paintBackgroundBoxRel(m_xend - m_width - t1, m_y, m_width, m_height);
 	timescale->reset();
 	frameBuffer->paintBackgroundBoxRel(m_xstart-2, m_y, 2+BARLEN+2, m_height); //clear border
 	visible=false;
+
+	InfoClock->enableInfoClock(true);
 }
 
 void CTimeOSD::switchMode(int position, int duration)
