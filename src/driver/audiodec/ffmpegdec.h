@@ -59,6 +59,7 @@ private:
 	void *in;
 	bool Init(void *_in, const CFile::FileType ft);
 	void DeInit(void);
+	void GetMeta(AVDictionary * metadata);
 
         std::string title;
         std::string artist;

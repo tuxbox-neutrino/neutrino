@@ -139,7 +139,7 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 
 	switch (ft) {
 	case CFile::FILE_OGG:
-		input_format = av_find_input_format("vorbis");
+		input_format = av_find_input_format("ogg");
 		break;
 	case CFile::FILE_MP3:
 		input_format = av_find_input_format("mp3");
@@ -383,42 +383,23 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 		if (!Init(_in, ft))
 			return false;
 
-		if (!is_stream) {
-			AVDictionaryEntry *tag = NULL;
-			while ((tag = av_dict_get(avc->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
-				if(!strcasecmp(tag->key,"Title")) {
-					title = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
-					continue;
-				}
-				if(!strcasecmp(tag->key,"Artist")) {
-					artist = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
-					continue;
-				}
-				if(!strcasecmp(tag->key,"Year")) {
-					date = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
-					continue;
-				}
-				if(!strcasecmp(tag->key,"Album")) {
-					album = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
-					continue;
-				}
-				if(!strcasecmp(tag->key,"Genre")) {
-					genre = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
-					continue;
-				}
-			}
-		}
-
 		mutex.lock();
-		if (avformat_find_stream_info(avc, NULL)) {
+		int ret = avformat_find_stream_info(avc, NULL);
+		if (ret < 0) {
 			mutex.unlock();
 			DeInit();
+			printf("avformat_find_stream_info error %d\n", ret);
 			return false;
 		}
 		mutex.unlock();
+		if (!is_stream) {
+			GetMeta(avc->metadata);
+			for(unsigned int i = 0; i < avc->nb_streams; i++)
+				GetMeta(avc->streams[i]->metadata);
+		}
 
 //		fseek((FILE *) in, 0, SEEK_SET);
-//		av_dump_format(avc, 0, "", 0);
+		av_dump_format(avc, 0, "", 0);
 
 		codec = NULL;
 		best_stream = av_find_best_stream(avc, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
@@ -476,4 +457,36 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 	m->samplerate = samplerate;
 
 	return true;
+}
+
+void CFfmpegDec::GetMeta(AVDictionary * metadata)
+{
+	AVDictionaryEntry *tag = NULL;
+	while ((tag = av_dict_get(metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
+		if(!strcasecmp(tag->key,"Title")) {
+			if (title.empty())
+				title = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+			continue;
+		}
+		if(!strcasecmp(tag->key,"Artist")) {
+			if (artist.empty())
+				artist = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+			continue;
+		}
+		if(!strcasecmp(tag->key,"Year")) {
+			if (date.empty())
+				date = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+			continue;
+		}
+		if(!strcasecmp(tag->key,"Album")) {
+			if (album.empty())
+				album = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+			continue;
+		}
+		if(!strcasecmp(tag->key,"Genre")) {
+			if (genre.empty())
+				genre = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+			continue;
+		}
+	}
 }
