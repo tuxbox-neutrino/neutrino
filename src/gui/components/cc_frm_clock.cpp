@@ -151,11 +151,10 @@ void CComponentsFrmClock::initCCLockItems()
 		}
 	}
 	
-	int w_tmp;
-	int minSepWidth = (*getClockFont())->getRenderWidth(":", true);
-	w_tmp = (*getClockFont())->getRenderWidth(".", true);
-	if (w_tmp > minSepWidth)
-		minSepWidth = w_tmp;
+	int minSepWidth = 0;
+	minSepWidth = std::max((*getClockFont())->getRenderWidth(" ", true), minSepWidth);
+	minSepWidth = std::max((*getClockFont())->getRenderWidth(".", true), minSepWidth);
+	minSepWidth = std::max((*getClockFont())->getRenderWidth(":", true), minSepWidth);
 
 	//modify available label items with current segment chars
 	for (size_t i = 0; i < v_cc_items.size(); i++)
@@ -183,6 +182,7 @@ void CComponentsFrmClock::initCCLockItems()
 			case '0' ... '9':
 				wtmp = (*getClockFont())->getMaxDigitWidth();
 				break;
+			case ' ':
 			case '.':
 			case ':':
 				wtmp = minSepWidth;
