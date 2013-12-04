@@ -301,7 +301,7 @@ void CComponentsForm::paintCCItems()
 		//append vertical
 		if (xpos == CC_APPEND){
 			auto_x += append_h_offset;
-			cc_item->setRealXPos(auto_x + xpos + 1);
+			cc_item->setRealXPos(auto_x + xpos);
 			auto_x += w_item;
 		}
 		//positionize vertical centered
@@ -318,7 +318,7 @@ void CComponentsForm::paintCCItems()
 		//append hor
 		if (ypos == CC_APPEND){
 			auto_y += append_v_offset;
-			cc_item->setRealYPos(auto_y + ypos + 1);
+			cc_item->setRealYPos(auto_y + ypos);
 			auto_y += h_item;
 		}
 		//positionize hor centered
@@ -336,7 +336,7 @@ void CComponentsForm::paintCCItems()
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
 		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + width - fr_thickness;
+		int right_frm = (cc_parent ? cc_xr : x) + width - 2*fr_thickness;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
@@ -347,7 +347,7 @@ void CComponentsForm::paintCCItems()
 		}
 
 		//check height and adapt if required
-		int bottom_frm = (cc_parent ? cc_yr : y) + height - fr_thickness;
+		int bottom_frm = (cc_parent ? cc_yr : y) + height - 2*fr_thickness;
 		int bottom_item = cc_item->getRealYPos() + h_item;
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
