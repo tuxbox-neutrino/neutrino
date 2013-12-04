@@ -361,6 +361,7 @@ void CComponentsHeader::initCCItems()
 {
 	//set size
 	cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+	height = cch_font->getHeight();
 	
 	//init icon
 	initIcon();
