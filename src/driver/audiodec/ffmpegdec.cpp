@@ -111,6 +111,8 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 	bitrate = 0;
 	total_time = 0;
 
+	av_log_set_level(AV_LOG_DEBUG);
+
 	AVIOContext *avioc = NULL;
 	in = _in;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
@@ -394,11 +396,13 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 		mutex.unlock();
 		if (!is_stream) {
 			GetMeta(avc->metadata);
-			for(unsigned int i = 0; i < avc->nb_streams; i++)
-				GetMeta(avc->streams[i]->metadata);
+			for(unsigned int i = 0; i < avc->nb_streams; i++) {
+				if (avc->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
+					GetMeta(avc->streams[i]->metadata);
+			}
 		}
 
-//		fseek((FILE *) in, 0, SEEK_SET);
+		//fseek((FILE *) in, 0, SEEK_SET);
 		av_dump_format(avc, 0, "", 0);
 
 		codec = NULL;
@@ -413,11 +417,17 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 			codec = avcodec_find_decoder(avc->streams[best_stream]->codec->codec_id);
 		samplerate = avc->streams[best_stream]->codec->sample_rate;
 		mChannels = av_get_channel_layout_nb_channels(avc->streams[best_stream]->codec->channel_layout);
+
 		std::stringstream ss;
-		ss.str("unknown");
-		if (codec)
-			ss << std::string(codec->long_name) + " / " << mChannels << " channel" << ( mChannels > 1 ? "s" : "");
-		type_info = ss.str();
+
+		if (codec && codec->long_name != NULL)
+			type_info = codec->long_name;
+		else if(codec && codec->name != NULL)
+			type_info = codec->name;
+		else
+			type_info = "unknown";
+		ss << " / " << mChannels << " channel" << ( mChannels > 1 ? "s" : "");
+		type_info += ss.str();
 
 		bitrate = 0;
 		total_time = 0;
