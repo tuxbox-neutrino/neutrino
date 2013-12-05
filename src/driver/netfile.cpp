@@ -577,7 +577,6 @@ int parse_response(URL *url, void *opt, CSTATE *state)
 	int hlen = 0, response;
 	int meta_interval = 0, rval;
 	int fd = url->fd;
-	ID3 *id3 = (ID3*)opt;
 
 	memset(header, 0, 2048);
 	ptr = header;
@@ -672,6 +671,7 @@ int parse_response(URL *url, void *opt, CSTATE *state)
 		getHeaderVal("icy-br:", state->bitrate);
 	}
 #if 0
+	ID3 *id3 = (ID3*)opt;
 	/********************* dirty hack **********************/
 	/* we parse the stream header sent by the server and	*/
 	/* build based on this information an arteficial id3		*/
