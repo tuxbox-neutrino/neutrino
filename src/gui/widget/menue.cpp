@@ -1070,7 +1070,7 @@ void CMenuWidget::paintHint(int pos)
 		if (details_line)
 			savescreen ? details_line->hide() : details_line->kill();
 		/* clear info box */
-		if ((info_box) && (pos == -1))
+		if ((info_box) && (pos < 0))
 			savescreen ? info_box->hide(true) : info_box->kill();
 		hint_painted = false;
 	}
@@ -1080,8 +1080,10 @@ void CMenuWidget::paintHint(int pos)
 	CMenuItem* item = items[pos];
 	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
-		if (info_box)
-			info_box->hide(false);	
+		if (info_box) {
+			info_box->kill();
+			hint_painted = false;
+		}
 		return;
 	}
 	
