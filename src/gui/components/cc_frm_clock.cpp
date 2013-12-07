@@ -36,6 +36,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
 
 using namespace std;
 
@@ -151,11 +152,9 @@ void CComponentsFrmClock::initCCLockItems()
 		}
 	}
 	
-	int w_tmp;
-	int minSepWidth = (*getClockFont())->getRenderWidth(":", true);
-	w_tmp = (*getClockFont())->getRenderWidth(".", true);
-	if (w_tmp > minSepWidth)
-		minSepWidth = w_tmp;
+	//calculate minimal separator width, we use a space char...should be enough
+	int minSepWidth = 0;
+	minSepWidth = max((*getClockFont())->getRenderWidth("\x20", true), minSepWidth);
 
 	//modify available label items with current segment chars
 	for (size_t i = 0; i < v_cc_items.size(); i++)
@@ -177,19 +176,11 @@ void CComponentsFrmClock::initCCLockItems()
 		string stmp = s_time.substr(i, 1);
 
 		//get width of current segment
-		int wtmp;
-		char c = stmp.at(0);
-		switch (c) {
-			case '0' ... '9':
-				wtmp = (*getClockFont())->getMaxDigitWidth();
-				break;
-			case '.':
-			case ':':
-				wtmp = minSepWidth;
-				break;
-			default:
-				wtmp = (*getClockFont())->getRenderWidth(stmp, true);
-		}
+		int wtmp = 0;
+		if (isdigit(stmp.at(0)) ) //check for digits, if true, we use digit width
+			wtmp = (*getClockFont())->getMaxDigitWidth();
+		else //not digit found, we use render width or minimal width
+			wtmp = max((*getClockFont())->getRenderWidth(stmp, true), minSepWidth);
 
 		//set size, text, color of current item
 		lbl->setDimensionsAll(cl_x, cl_y, wtmp, cl_h);

@@ -120,7 +120,7 @@ void changeBrightnessRGBRel2(RgbColor *rgb, int br)
 
 	HsvColor hsv;
 	Rgb2Hsv(rgb, &hsv);
-	hsv.v = br;
+	hsv.v = br_;
 	Hsv2Rgb(&hsv, rgb);
 }
 

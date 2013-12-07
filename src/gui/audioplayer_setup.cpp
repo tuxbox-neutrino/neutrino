@@ -73,7 +73,6 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if(actionKey == "audioplayerdir")
 	{
-		parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
 		if (b.exec(g_settings.network_nfs_audioplayerdir))

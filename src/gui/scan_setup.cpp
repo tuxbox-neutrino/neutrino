@@ -443,7 +443,7 @@ printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager:
 		r_system = DVB_C;
 
 		//--------------------------------------------------------------
-		settings->addItem(GenericMenuSeparatorLine);
+		//settings->addItem(GenericMenuSeparatorLine);
 		//--------------------------------------------------------------
 		//tune timeout
 		if(CFEManager::getInstance()->getFrontendCount() <= 1) {
