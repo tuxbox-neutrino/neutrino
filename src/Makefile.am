@@ -155,6 +155,8 @@ neutrino_LDADD += \
 endif
 
 if BOXTYPE_COOL
+bin_PROGRAMS += uncooloff
+uncooloff_SOURCES = uncooloff.c
 if BOXMODEL_APOLLO
 else
 noinst_PROGRAMS = uncoolinit

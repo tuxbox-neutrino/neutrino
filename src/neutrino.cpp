@@ -3186,7 +3186,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		g_settings.shutdown_timer_record_type = timer_is_rec;
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
-#if HAVE_COOL_HARDWARE
+#if 0
 		if(retcode) {
 #endif
 			puts("[neutrino.cpp] executing " NEUTRINO_ENTER_DEEPSTANDBY_SCRIPT ".");
@@ -3198,7 +3198,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
-#if HAVE_COOL_HARDWARE
+#if 0
 			my_system("/etc/init.d/rcK");
 			sync();
 			my_system(2,"/bin/umount", "-a");
@@ -3260,13 +3260,42 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			}
 		} else {
 #endif
-			if (timer_minutes)
+			int leds = 0;
+			int bright = 0;
+#if HAVE_COOL_HARDWARE
+			if (retcode) {
+				leds = 0x40;
+				switch (g_settings.led_deep_mode){
+					case 0:
+						leds = 0x0;//off  leds
+						break;
+					case 1:
+						leds = 0x60;//on led1 & 2
+						break;
+					case 2:
+						leds = 0x20;//led1 on , 2 off
+						break;
+					case 3:
+						leds = 0x40;//led2 off, 2 on
+						break;
+					default:
+						break;
+				}
+				if (leds && g_settings.led_blink && timer_minutes)
+					leds |= 0x80;
+			}
+			if (cs_get_revision() != 10)
+				bright = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
+#endif
+			if (timer_minutes || leds)
 			{
 				FILE *f = fopen("/tmp/.timer", "w");
 				if (f)
 				{
 					fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
 					fprintf(f, "%ld\n", timer_minutes * 60);
+					fprintf(f, "%d\n", leds);
+					fprintf(f, "%d\n", bright);
 					fclose(f);
 				}
 				else
@@ -3292,7 +3321,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 #else
 			exit(retcode);
 #endif
-#if HAVE_COOL_HARDWARE
+#if 0
 		}
 #endif
 	}
