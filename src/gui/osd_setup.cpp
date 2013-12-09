@@ -804,13 +804,6 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 		fontSettings->addItem(mf);
 		w_index++;
 	}
-#if 0
-	// size of info clock
-	fontSettings->addItem(GenericMenuSeparatorLine);
-	CMenuOptionNumberChooser* mn = new CMenuOptionNumberChooser(LOCALE_CLOCK_SIZE, &g_settings.infoClockFontSize, true, 30, 120);
-	mn->setHint("", LOCALE_MENU_HINT_CLOCK_SIZE);
-	fontSettings->addItem(mn);
-#endif
 }
 
 //osd timeouts

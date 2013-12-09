@@ -256,7 +256,6 @@ ci.reset_standby Reset after standby
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
 ci.waiting Waiting for CI answer
-clock_size Info clock
 clock_size_height Display height
 clock_switch_off Clock off
 clock_switch_on Clock on

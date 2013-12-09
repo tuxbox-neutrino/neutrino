@@ -256,7 +256,6 @@ ci.reset_standby Reset nach Standby
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
-clock_size Info Uhr
 clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden

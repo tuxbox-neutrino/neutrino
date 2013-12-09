@@ -283,7 +283,6 @@ const char * locale_real_names[] =
 	"ci.settings",
 	"ci.timeout",
 	"ci.waiting",
-	"clock_size",
 	"clock_size_height",
 	"clock_switch_off",
 	"clock_switch_on",
