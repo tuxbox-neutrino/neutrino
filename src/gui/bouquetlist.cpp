@@ -600,6 +600,7 @@ void CBouquetList::paint()
 	int lastnum =  liststart + listmaxshow;
 	int bsize = Bouquets.empty() ? 1 : Bouquets.size();
 
+	numwidth = 0;
 	int maxDigitWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getMaxDigitWidth();
 	int _lastnum = lastnum;
         while (_lastnum) {

@@ -139,6 +139,7 @@ void CBEChannelWidget::paint()
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
 
+	numwidth = 0;
 	int maxDigitWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getMaxDigitWidth();
 	int _lastnum = lastnum;
         while (_lastnum) {
