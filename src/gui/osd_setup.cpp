@@ -1018,7 +1018,7 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 	menu_infoclock->addItem(mn);
 
 	// clock with seconds
-	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_CLOCK_SECONDS, &g_settings.infoClockSeconds, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_CLOCK_SECONDS, &g_settings.infoClockSeconds, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CLOCK_SECONDS);
 	menu_infoclock->addItem(mc);
 
