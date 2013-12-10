@@ -256,6 +256,8 @@ ci.reset_standby Reset nach Standby
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
+clock_background Hintergrund anzeigen
+clock_seconds Sekunden anzeigen
 clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden
@@ -811,8 +813,10 @@ menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfe
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
+menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
 menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
-menu.hint_clock_size Stellen Sie die Größe der Info Uhr ein.
+menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
+menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -1244,7 +1248,7 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
-miscsettings.infoclock Info Uhr
+miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design

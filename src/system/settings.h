@@ -539,6 +539,8 @@ struct SNeutrinoSettings
 	};
 
 	int infoClockFontSize;
+	int infoClockSeconds;
+	int infoClockBackground;
 
 	// lcdd
 	enum LCD_SETTINGS {

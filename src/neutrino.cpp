@@ -822,7 +822,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.pip_height = configfile.getInt32("pip_height", 200);
 #endif
 
-	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", 34);
+	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", 30);
+	g_settings.infoClockBackground = configfile.getInt32("infoClockBackground", 0);
+	g_settings.infoClockSeconds = configfile.getInt32("infoClockSeconds", 1);
 
 	if(erg)
 		configfile.setModifiedFlag(true);
@@ -1241,6 +1243,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("pip_height", g_settings.pip_height);
 #endif
 	configfile.setInt32("infoClockFontSize", g_settings.infoClockFontSize);
+	configfile.setInt32("infoClockBackground", g_settings.infoClockBackground);
+	configfile.setInt32("infoClockSeconds", g_settings.infoClockSeconds);
 	configfile.setInt32("easymenu", g_settings.easymenu);
 	if(strcmp(fname, NEUTRINO_SETTINGS_FILE))
 		configfile.saveConfig(fname);

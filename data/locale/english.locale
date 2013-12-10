@@ -256,6 +256,8 @@ ci.reset_standby Reset after standby
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
 ci.waiting Waiting for CI answer
+clock_background Show background
+clock_seconds Show seconds
 clock_size_height Display height
 clock_switch_off Clock off
 clock_switch_on Clock on
@@ -811,8 +813,10 @@ menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
+menu.hint_clock_background Show clock with theme's background color
 menu.hint_clock_mode Switch clock on or off
-menu.hint_clock_size Set the size of the info clock.
+menu.hint_clock_seconds Show time format with seconds
+menu.hint_clock_size Set the size of the info clock
 menu.hint_colors Configure GUI colors
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
@@ -1244,7 +1248,7 @@ miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
 miscsettings.infobar_show_tuner Display active tuner
-miscsettings.infoclock Info clock
+miscsettings.infoclock Clock
 miscsettings.progressbar Progressbar
 miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
