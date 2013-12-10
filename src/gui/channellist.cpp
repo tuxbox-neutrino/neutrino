@@ -2122,7 +2122,8 @@ void CChannelList::paintHead()
 	if (g_Sectionsd->getIsTimeSet()) {
 		if (headerClock == NULL) {
 			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M");
-			headerClock->setClockIntervall(10);
+			headerClock->setClockBlink("%H %M");
+			headerClock->setClockIntervall(1);
 
 		}
 		headerClock->setClockFont(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);

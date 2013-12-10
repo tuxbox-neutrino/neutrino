@@ -69,9 +69,10 @@ void CInfoClock::Init()
 
 	if (g_settings.infoClockSeconds)
 		setClockFormat("%H:%M:%S");
-	else
+	else {
 		setClockFormat("%H:%M");
-
+		setClockBlink("%H %M");
+	}
 
 	int x_old = x, y_old = y, width_old = width, height_old = height;
 	CVolumeHelper::getInstance()->refresh(cl_font);
