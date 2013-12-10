@@ -70,7 +70,9 @@ class CComponentsFrmClock : public CComponentsForm
 		///text color
 		int cl_col_text;
 		///time format
-		const char* cl_format_str;
+		std::string cl_format_str;
+		///time format for blink
+		std::string cl_blink_str;
 		///time string align, default allign is ver and hor centered
 		int cl_align;
 
@@ -106,6 +108,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///use string expession: "%H:%M" = 12:22, "%H:%M:%S" = 12:22:12
 		virtual void setClockFormat(const char* format_str){cl_format_str = format_str;};
+
+		///time format for blink ("%H %M", "%H:%M %S" etc.)
+		virtual void setClockBlink(const char* format_str){cl_blink_str = format_str;};
 
 		///start ticking clock thread, returns true on success, if false causes log output
 		virtual bool startThread();
