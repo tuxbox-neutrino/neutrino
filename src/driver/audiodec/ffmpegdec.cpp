@@ -49,6 +49,8 @@ extern "C" {
 
 extern cAudio * audioDecoder;
 
+//#define FFDEC_DEBUG
+
 #define ProgName "FfmpegDec"
 
 #define COVERDIR "/tmp/cover"
@@ -64,7 +66,7 @@ static void log_callback(void *, int, const char *format, va_list ap)
 
 CFfmpegDec::CFfmpegDec(void)
 {
-	av_log_set_callback(log_callback);
+	//av_log_set_callback(log_callback);
 	meta_data_valid = false;
 	buffer_size = 0x1000;
 	buffer = NULL;
@@ -90,6 +92,9 @@ static int read_packet(void *opaque, uint8_t *buf, int buf_size)
 
 int64_t CFfmpegDec::Seek(int64_t offset, int whence)
 {
+	if (whence == AVSEEK_SIZE)
+		return (int64_t) -1;
+
 	fseek((FILE *) in, (long) offset, whence);
 	return (int64_t) ftell((FILE *) in);
 }
@@ -109,9 +114,10 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
         type_info = "";
 	total_time = 0;
 	bitrate = 0;
-	total_time = 0;
 
+#ifdef FFDEC_DEBUG
 	av_log_set_level(AV_LOG_DEBUG);
+#endif
 
 	AVIOContext *avioc = NULL;
 	in = _in;
@@ -127,6 +133,8 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 
 	if (is_stream)
 		avc->probesize = 128 * 1024;
+
+	av_opt_set_int(avc, "analyzeduration", 1000000, 0);
 
 	avioc = avio_alloc_context (buffer, buffer_size, 0, this, read_packet, NULL, seek_packet);
 	if (!avioc) {
@@ -151,6 +159,9 @@ bool CFfmpegDec::Init(void *_in, const CFile::FileType ft)
 		break;
 	case CFile::FILE_FLAC:
 		input_format = av_find_input_format("flac");
+		break;
+	case CFile::FILE_AAC:
+		input_format = av_find_input_format("aac");
 		break;
 	default:
 		break;
@@ -222,6 +233,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	}
 
 	mSampleRate = samplerate;
+	mChannels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	audioDecoder->PrepareClipPlay(mChannels, mSampleRate, 16, 1);
 #else
@@ -233,7 +245,8 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	av_init_packet(&rpacket);
 
 	av_opt_set_int(swr, "in_channel_layout",	c->channel_layout,	0);
-	av_opt_set_int(swr, "out_channel_layout",	c->channel_layout,	0);
+	//av_opt_set_int(swr, "out_channel_layout",	c->channel_layout,	0);
+	av_opt_set_int(swr, "out_channel_layout",	AV_CH_LAYOUT_STEREO,	0);
 	av_opt_set_int(swr, "in_sample_rate",		c->sample_rate,		0);
 	av_opt_set_int(swr, "out_sample_rate",		c->sample_rate,		0);
 	av_opt_set_int(swr, "in_sample_fmt",		c->sample_fmt,		0);
@@ -315,7 +328,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 					c->sample_rate, c->sample_rate, AV_ROUND_UP);
 				if (outsamples > outsamples_max) {
 					av_free(outbuf);
-					if (av_samples_alloc(&outbuf, &out_samples, c->channels,
+					if (av_samples_alloc(&outbuf, &out_samples, mChannels, //c->channels,
 								frame->nb_samples, AV_SAMPLE_FMT_S16, 1) < 0) {
 						Status=WRITE_ERR;
 						packet.size = 0;
@@ -325,7 +338,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 				}
 				outsamples = swr_convert(swr, &outbuf, outsamples,
 							(const uint8_t **) &frame->data[0], frame->nb_samples);
-				int outbuf_size = av_samples_get_buffer_size(&out_samples, c->channels,
+				int outbuf_size = av_samples_get_buffer_size(&out_samples, mChannels, //c->channels,
 									  outsamples, AV_SAMPLE_FMT_S16, 1);
 
 				if(audioDecoder->WriteClip((unsigned char*) outbuf, outbuf_size) != outbuf_size)
@@ -403,7 +416,9 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 		}
 
 		//fseek((FILE *) in, 0, SEEK_SET);
+#ifdef FFDEC_DEBUG
 		av_dump_format(avc, 0, "", 0);
+#endif
 
 		codec = NULL;
 		best_stream = av_find_best_stream(avc, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
@@ -431,6 +446,11 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 
 		bitrate = 0;
 		total_time = 0;
+
+		if (avc->duration != int64_t(AV_NOPTS_VALUE))
+			total_time = avc->duration / int64_t(AV_TIME_BASE);
+		printf("CFfmpegDec: format %s (%s) duration %ld\n", avc->iformat->name, type_info.c_str(), total_time);
+
 		for(unsigned int i = 0; i < avc->nb_streams; i++) {
 			if (avc->streams[i]->codec->bit_rate > 0)
 				bitrate += avc->streams[i]->codec->bit_rate;
@@ -448,7 +468,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 				}
 			}
 		}
-		if(m->filesize && bitrate)
+		if(!total_time && m->filesize && bitrate)
 			total_time = 8 * m->filesize / bitrate;
 
 		meta_data_valid = true;
