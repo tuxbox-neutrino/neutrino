@@ -1006,6 +1006,12 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 {
 	menu_infoclock->addIntroItems(LOCALE_MISCSETTINGS_INFOCLOCK);
 
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOCLOCK, &g_settings.mode_clock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mc->setHint("", LOCALE_MENU_HINT_CLOCK_MODE);
+	menu_infoclock->addItem(mc);
+
+	menu_infoclock->addItem(GenericMenuSeparatorLine);
+
 	// size of info clock
 	CMenuOptionNumberChooser* mn = new CMenuOptionNumberChooser(LOCALE_CLOCK_SIZE_HEIGHT, &g_settings.infoClockFontSize, true, 30, 120);
 	mn->setHint("", LOCALE_MENU_HINT_CLOCK_SIZE);
