@@ -221,6 +221,8 @@ void CAudioPlayerGui::Init(void)
 		audiofilefilter.addFilter("ogg");
 		audiofilefilter.addFilter("wav");
 		audiofilefilter.addFilter("flac");
+		audiofilefilter.addFilter("aac");
+		audiofilefilter.addFilter("dts");
 	}
 	m_SMSKeyInput.setTimeout(AUDIOPLAYERGUI_SMSKEY_TIMEOUT);
 }
@@ -1303,6 +1305,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 					||  (files->getType() == CFile::FILE_OGG)
 					||  (files->getType() == CFile::FILE_MP3)
 					||  (files->getType() == CFile::FILE_WAV)
+					||  (files->getType() == CFile::FILE_AAC)
 					||  (files->getType() == CFile::FILE_FLAC)
 			   )
 			{
@@ -1430,6 +1433,11 @@ bool CAudioPlayerGui::openFilebrowser(void)
 		printf("adding %ld files took: ",maxProgress+1);
 		printTimevalDiff(start,end);
 #endif
+		//store last dir
+		if( (sizeof(g_settings.network_nfs_audioplayerdir)) > m_Path.size() && (strcmp(g_settings.network_nfs_audioplayerdir,m_Path.c_str()) != 0)){
+			strcpy(g_settings.network_nfs_audioplayerdir,m_Path.c_str());
+		}
+
 		result = true;
 	}
 	CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
