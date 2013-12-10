@@ -52,6 +52,7 @@ public:
 	enum FileType
 	{
 		FILE_UNKNOWN = 0,
+		FILE_AAC,
 		FILE_AVI,
 		FILE_ASF,
 		FILE_DIR,
