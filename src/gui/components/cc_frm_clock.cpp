@@ -85,6 +85,7 @@ void CComponentsFrmClock::initVarClock()
 	cl_thread 		= 0;
 	cl_interval		= 1;
 
+	activeClock		= true;
 	cl_blink_str		= "";
 }
 

@@ -130,6 +130,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///reinitialize clock contents
 		virtual void refresh() { initCCLockItems(); }
+
+		///set clock activ/inactiv
+		virtual void setClockActiv(bool activ = true){activeClock = activ;};
 };
 
 #endif
