@@ -1082,7 +1082,15 @@ bool CFileBrowser::exec(const char * const dirname)
 						}
 						else
 						{
-							filelist[selected].Marked = true;
+							bool has_selected = false;
+							for(unsigned int i = 0; i < filelist.size();i++) {
+								if(filelist[i].Marked) {
+									has_selected = true;
+									break;
+								}
+							}
+							if (!has_selected)
+								filelist[selected].Marked = true;
 							loop = false;
 							res = true;
 						}
@@ -1238,59 +1246,53 @@ void CFileBrowser::hide()
 void CFileBrowser::paintItem(unsigned int pos)
 {
 	int colwidth1, colwidth2, colwidth3;
-	int c_rad_small;
+	int c_rad_small = 0;
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	CFile * actual_file = NULL;
 	std::string fileicon;
+	unsigned int curr = liststart + pos;
 
-	if (liststart + pos == selected)
+	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0/*DARK*/);
+
+	if (curr >= filelist.size())
+		return;
+
+	actual_file = &filelist[curr];
+	if (curr == selected)
 	{
-		color   = COL_MENUCONTENTSELECTED_TEXT;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+		color   = actual_file->Marked ? COL_MENUCONTENTINACTIVE_TEXT : COL_MENUCONTENTSELECTED_TEXT;
+		bgcolor = actual_file->Marked ? COL_MENUCONTENTSELECTED_PLUS_2 : COL_MENUCONTENTSELECTED_PLUS_0;
 		c_rad_small = RADIUS_SMALL;
-// 		paintFoot();
+	}
+	else if (actual_file->Marked)
+	{
+		color   = COL_MENUCONTENT_TEXT;
+		bgcolor = COL_MENUCONTENT_PLUS_2;
 	}
 	else
 	{
 		color   = COL_MENUCONTENT_TEXT;//DARK;
 		bgcolor = COL_MENUCONTENT_PLUS_0;//DARK;
-		c_rad_small = 0;
 	}
-	
-	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
+
 	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 
-	if( (liststart + pos) < filelist.size() )
+	if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
+		colwidth2 = 0;
+	else
+		colwidth2 = fnt_item->getRenderWidth("rwxrwxrwx");
+	colwidth3 = fnt_item->getRenderWidth("222.222G");
+	colwidth1 = width - 35 - colwidth2 - colwidth3 - 10;
+
+	if ( actual_file->Name.length() > 0 )
 	{
-		actual_file = &filelist[liststart+pos];
-		if (actual_file->Marked)
+		if (curr == selected)
+			CVFD::getInstance()->showMenuText(0, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()).c_str(), -1, true); // UTF-8
+
+		switch(actual_file->getType())
 		{
-			if (liststart + pos == selected) {
-				color   = COL_MENUCONTENTINACTIVE_TEXT;
-				bgcolor = COL_MENUCONTENTSELECTED_PLUS_2;
-			}
-			else {
-				color   = COL_MENUCONTENT_TEXT;
-				bgcolor = COL_MENUCONTENT_PLUS_2;
-			}
-		}
-
-		if (g_settings.filebrowser_showrights == 0 && S_ISREG(actual_file->Mode))
-			colwidth2 = 0;
-		else
-			colwidth2 = fnt_item->getRenderWidth("rwxrwxrwx");
-		colwidth3 = fnt_item->getRenderWidth("222.222G");
-		colwidth1 = width - 35 - colwidth2 - colwidth3 - 10;
-
-		if ( actual_file->Name.length() > 0 )
-		{
-			if (liststart+pos==selected)
-				CVFD::getInstance()->showMenuText(0, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()).c_str(), -1, true); // UTF-8
-
-			switch(actual_file->getType())
-			{
 			case CFile::FILE_CDR:
 			case CFile::FILE_MP3:
 			case CFile::FILE_OGG:
@@ -1298,7 +1300,6 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_FLAC:
 			case CFile::FILE_AAC:
 				fileicon = NEUTRINO_ICON_MP3;
-//				color = COL_MENUCONTENT_TEXT;
 				break;
 
 			case CFile::FILE_DIR:
@@ -1309,75 +1310,72 @@ void CFileBrowser::paintItem(unsigned int pos)
 			case CFile::FILE_TEXT:
 			default:
 				fileicon = NEUTRINO_ICON_FILE;
-			}
-			frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
+		}
+		frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
 
-			fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color, 0, true); // UTF-8
+		fnt_item->RenderString(x + 35, ypos + fheight, colwidth1 - 10 , FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()), color, 0, true); // UTF-8
 
-			if( S_ISREG(actual_file->Mode) )
+		if( S_ISREG(actual_file->Mode) )
+		{
+			if (g_settings.filebrowser_showrights != 0)
 			{
-				if (g_settings.filebrowser_showrights != 0)
+				const char * attribute = "xwr";
+				char modestring[9 + 1];
+				for (int m = 8; m >= 0; m--)
 				{
-					const char * attribute = "xwr";
-					char modestring[9 + 1];
-					for (int m = 8; m >= 0; m--)
-					{
-						modestring[8 - m] = (actual_file->Mode & (1 << m)) ? attribute[m % 3] : '-';
-					}
-					modestring[9] = 0;
-
-					fnt_item->RenderString(x + width - 25 - colwidth3 - colwidth2 , ypos+ fheight, colwidth2, modestring, color, 0, true); // UTF-8
+					modestring[8 - m] = (actual_file->Mode & (1 << m)) ? attribute[m % 3] : '-';
 				}
+				modestring[9] = 0;
+
+				fnt_item->RenderString(x + width - 25 - colwidth3 - colwidth2 , ypos+ fheight, colwidth2, modestring, color, 0, true); // UTF-8
+			}
 
 #define GIGABYTE 1073741824LL
 #define MEGABYTE 1048576LL
 #define KILOBYTE 1024LL
-				char tmpstr[256];
-				const char *unit = "";
-				int64_t factor = 0;
-				if (actual_file->Size >= GIGABYTE)
-				{
-					factor = GIGABYTE;
-					unit = "G";
-				}
-				else if (actual_file->Size >= MEGABYTE)
-				{
-					factor = MEGABYTE;
-					unit = "M";
-				}
-				else if (actual_file->Size >= KILOBYTE)
-				{
-					factor = KILOBYTE;
-					unit = "k";
-				}
-				if (factor)
-				{
-					int a = actual_file->Size / factor;
-					int b = (actual_file->Size - a * factor) * 1000 / factor;
-					snprintf(tmpstr, sizeof(tmpstr), "%d.%03d%s", a, b, unit);
-				}
-				else
-					snprintf(tmpstr,sizeof(tmpstr),"%d", (int)actual_file->Size);
-
-				/* right align file size */
-				int sz_w = fnt_item->getRenderWidth(tmpstr);
-				fnt_item->RenderString(x + width - sz_w - 25, ypos+ fheight, sz_w, tmpstr, color);
-			}
-
-			if( S_ISDIR(actual_file->Mode) )
+			char tmpstr[256];
+			const char *unit = "";
+			int64_t factor = 0;
+			if (actual_file->Size >= GIGABYTE)
 			{
-				char timestring[18];
-				time_t rawtime;
-				rawtime = actual_file->Time;
-				strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&rawtime));
-				/* right align directory time */
-				int time_w = fnt_item->getRenderWidth(timestring);
-				fnt_item->RenderString(x + width - time_w - 25, ypos+ fheight, time_w, timestring, color);
+				factor = GIGABYTE;
+				unit = "G";
 			}
+			else if (actual_file->Size >= MEGABYTE)
+			{
+				factor = MEGABYTE;
+				unit = "M";
+			}
+			else if (actual_file->Size >= KILOBYTE)
+			{
+				factor = KILOBYTE;
+				unit = "k";
+			}
+			if (factor)
+			{
+				int a = actual_file->Size / factor;
+				int b = (actual_file->Size - a * factor) * 1000 / factor;
+				snprintf(tmpstr, sizeof(tmpstr), "%d.%03d%s", a, b, unit);
+			}
+			else
+				snprintf(tmpstr,sizeof(tmpstr),"%d", (int)actual_file->Size);
+
+			/* right align file size */
+			int sz_w = fnt_item->getRenderWidth(tmpstr);
+			fnt_item->RenderString(x + width - sz_w - 25, ypos+ fheight, sz_w, tmpstr, color);
+		}
+
+		if( S_ISDIR(actual_file->Mode) )
+		{
+			char timestring[18];
+			time_t rawtime;
+			rawtime = actual_file->Time;
+			strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&rawtime));
+			/* right align directory time */
+			int time_w = fnt_item->getRenderWidth(timestring);
+			fnt_item->RenderString(x + width - time_w - 25, ypos+ fheight, time_w, timestring, color);
 		}
 	}
-	else
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0/*DARK*/);
 }
 
 //------------------------------------------------------------------------
