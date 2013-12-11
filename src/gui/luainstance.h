@@ -38,8 +38,8 @@ struct CLuaData
 	CFBWindow *fbwin;
 	CRCInput *rcinput;
 };
-#ifdef MARTII
-struct CLuaMenueItem
+
+struct CLuaMenuItem
 {
 	union //value
 	{
@@ -49,48 +49,48 @@ struct CLuaMenueItem
 	std::string name;
 };
 
-class CLuaMenueChangeObserver : public CChangeObserver
+class CLuaMenuChangeObserver : public CChangeObserver
 {
 	public:
 		bool changeNotify(lua_State *, const std::string &, const std::string &, void *);
 };
 
-class CLuaMenue
+class CLuaMenu
 {
 	public:
 		CMenuWidget *m;
-		CLuaMenueChangeObserver *observ;
-		std::list<CLuaMenueItem> items;
+		CLuaMenuChangeObserver *observ;
+		std::list<CLuaMenuItem> items;
 		std::list<CMenuTarget *> targets;
 		std::list<void *> tofree;
-		CLuaMenue();
-		~CLuaMenue();
+		CLuaMenu();
+		~CLuaMenu();
 };
 
-class CLuaMenueForwarder : public CMenuTarget
+class CLuaMenuForwarder : public CMenuTarget
 {
 	public:
 		lua_State *L;
 		std::string luaAction;
 		std::string luaId;
-		CLuaMenueForwarder(lua_State *L, std::string _luaAction, std::string _luaId);
-		~CLuaMenueForwarder();
+		CLuaMenuForwarder(lua_State *L, std::string _luaAction, std::string _luaId);
+		~CLuaMenuForwarder();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-class CLuaMenueFilebrowser : public CLuaMenueForwarder
+class CLuaMenuFilebrowser : public CLuaMenuForwarder
 {
 	private:
 		char *value;
 		bool dirMode;
 		std::vector<std::string> filter;
 	public:
-		CLuaMenueFilebrowser(lua_State *_L, std::string _luaAction, std::string _luaId, char *_value, bool _dirMode);
+		CLuaMenuFilebrowser(lua_State *_L, std::string _luaAction, std::string _luaId, std::string *_value, bool _dirMode);
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		void addFilter(std::string s) { filter.push_back(s); };
 };
 
-class CLuaMenueStringinput : public CLuaMenueForwarder
+class CLuaMenuStringinput : public CLuaMenuForwarder
 {
 	private:
 		char *value;
@@ -101,7 +101,7 @@ class CLuaMenueStringinput : public CLuaMenueForwarder
 		int size;
 		CChangeObserver *observ;
 	public:
-		CLuaMenueStringinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, char *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
+		CLuaMenuStringinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, std::string _valid_chars, CChangeObserver *_observ, const char *_icon, bool _sms);
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
@@ -129,9 +129,7 @@ class CLuaInstance
 {
 	static const char className[];
 	static const luaL_Reg methods[];
-#ifdef MARTII
-	static const luaL_Reg menue_methods[];
-#endif
+	static const luaL_Reg menu_methods[];
 	static CLuaData *CheckData(lua_State *L, int narg);
 public:
 	CLuaInstance();
@@ -155,14 +153,14 @@ private:
 	static int GetSize(lua_State *L);
 	static int DisplayImage(lua_State *L);
 
-	void MenueRegister(lua_State *L);
-	static int MenueNew(lua_State *L);
-	static int MenueDelete(lua_State *L);
-	static int MenueAddKey(lua_State *L);
-	static int MenueAddItem(lua_State *L);
-	static int MenueHide(lua_State *L);
-	static int MenueExec(lua_State *L);
-	static CLuaMenue *MenueCheck(lua_State *L, int n);
+	void MenuRegister(lua_State *L);
+	static int MenuNew(lua_State *L);
+	static int MenuDelete(lua_State *L);
+	static int MenuAddKey(lua_State *L);
+	static int MenuAddItem(lua_State *L);
+	static int MenuHide(lua_State *L);
+	static int MenuExec(lua_State *L);
+	static CLuaMenu *MenuCheck(lua_State *L, int n);
 
 	void HintboxRegister(lua_State *L);
 	static int HintboxNew(lua_State *L);
