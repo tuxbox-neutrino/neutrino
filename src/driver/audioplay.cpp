@@ -164,6 +164,7 @@ void CAudioPlayer::init()
 	CBaseDec::Init();
 	state = CBaseDec::STOP;
 	thrPlay = 0;
+	m_SecondsToSkip = 0;
 }
 
 void CAudioPlayer::sc_callback(void *arg)
@@ -210,6 +211,7 @@ void CAudioPlayer::clearFileData()
 	m_Audiofile.clear();
 	m_played_time=0;
 	m_sc_buffered=0;
+	m_SecondsToSkip = 0;
 }
 
 CAudioMetaData CAudioPlayer::getMetaData()
