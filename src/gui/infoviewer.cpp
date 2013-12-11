@@ -257,6 +257,7 @@ void CInfoViewer::paintTime (bool show_dot)
 	if (clock == NULL){
 		clock = new CComponentsFrmClock();
 		clock->doPaintBg(false);
+		clock->setClockActiv(false);
 	}
 
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
