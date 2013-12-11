@@ -59,10 +59,12 @@ static OpenThreads::Mutex mutex;
 
 static int cover_count = 0;
 
+#if 0
 static void log_callback(void *, int, const char *format, va_list ap)
 {
 	vfprintf(stderr, format, ap);
 }
+#endif
 
 CFfmpegDec::CFfmpegDec(void)
 {
@@ -261,14 +263,15 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	int64_t pts = 0, start_pts = 0, next_skip_pts = 0;
 	uint64_t skip = 0;
 	int seek_flags = 0;
-	if (!is_stream && secondsToSkip && *secondsToSkip)
-		skip = avc->streams[best_stream]->time_base.num * *secondsToSkip / avc->streams[best_stream]->time_base.den;
 
 	do
 	{
-		if (!is_stream && (skip || *state==FF || *state==REV) && avc->streams[best_stream]->time_base.num) {
+		int actSecsToSkip = *secondsToSkip;
+		if (!is_stream && (actSecsToSkip || *state==FF || *state==REV) && avc->streams[best_stream]->time_base.num) {
 			if (!next_skip_pts || pts >= next_skip_pts) {
 				skip = avc->streams[best_stream]->time_base.den / avc->streams[best_stream]->time_base.num;
+				if (actSecsToSkip)
+					skip *= actSecsToSkip;
 				if (*state == REV) {
 					next_skip_pts = pts - skip;
 					pts = next_skip_pts - skip/4;
@@ -284,6 +287,11 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 				}
 				av_seek_frame(avc, best_stream, pts, seek_flags);
 				skip = 0;
+				// if a custom value was set we only jump once
+				if (actSecsToSkip != 0) {
+					*state=PLAY;
+					*secondsToSkip = 0;
+				}
 			}
 		}
 
