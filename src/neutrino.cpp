@@ -2171,12 +2171,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
 				// Zap-History "Bouquet"
-				if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-					InfoClock->enableInfoClock(false);
-					g_settings.mode_clock = false;
-				} else {
-					numericZap( msg );
-				}
+				InfoClock->enableInfoClock(false);
+				numericZap( msg );
+				InfoClock->enableInfoClock(true);
 			}
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 				for(int i = 0; i < g_settings.screenshot_count; i++) {
@@ -2333,10 +2330,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else {
 				if (msg == CRCInput::RC_home) {
-					if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-						InfoClock->enableInfoClock(false);
-						g_settings.mode_clock = false;
-					}
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				}
 				handleMsg(msg, data);
