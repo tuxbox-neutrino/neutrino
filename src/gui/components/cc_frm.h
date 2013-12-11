@@ -127,6 +127,7 @@ class CComponentsHeader : public CComponentsForm
 		std::vector<std::string> v_cch_btn;
 		int cch_size_mode;
 		int cch_caption_align;
+		bool userHeight;
 
 		void initIcon();
 		void initCaption();
