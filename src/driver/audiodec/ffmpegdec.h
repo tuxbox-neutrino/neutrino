@@ -81,6 +81,6 @@ public:
 	int64_t Seek(int64_t offset, int whence);
 
 protected:
-	virtual bool SetMetaData(FILE* in, const CFile::FileType ft, CAudioMetaData* m);
+	virtual bool SetMetaData(FILE* in, const CFile::FileType ft, CAudioMetaData* m, bool save_cover = false);
 };
 #endif

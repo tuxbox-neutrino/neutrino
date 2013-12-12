@@ -206,7 +206,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	RetCode Status=OK;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
 
-	if (!SetMetaData((FILE *)in, ft, _meta_data)) {
+	if (!SetMetaData((FILE *)in, ft, _meta_data, true)) {
 		DeInit();
 		Status=DATA_ERR;
 		return Status;
@@ -399,7 +399,7 @@ CFfmpegDec* CFfmpegDec::getInstance()
 	return FfmpegDec;
 }
 
-bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
+bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m, bool save_cover)
 {
 	if (!meta_data_valid)
 	{
@@ -462,7 +462,7 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 		for(unsigned int i = 0; i < avc->nb_streams; i++) {
 			if (avc->streams[i]->codec->bit_rate > 0)
 				bitrate += avc->streams[i]->codec->bit_rate;
-			if (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC) {
+			if (save_cover && (avc->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
 				mkdir(COVERDIR, 0755);
 				std::string cover(COVERDIR);
 				cover += "/" + to_string(cover_count++) + ".jpg";
@@ -491,7 +491,8 @@ bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m)
 		m->total_time = total_time;
 	}
 	m->type_info = type_info;
-	m->bitrate = bitrate;
+	// make sure bitrate is set to prevent refresh metadata from gui, its a flag
+	m->bitrate = bitrate ? bitrate : 1; 
 	m->samplerate = samplerate;
 
 	return true;
