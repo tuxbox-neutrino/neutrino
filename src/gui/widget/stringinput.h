@@ -51,6 +51,8 @@ class CStringInput : public CMenuTarget
 		int lower_bound;
 		int upper_bound;
 
+		uint32_t smstimer;
+
 		char * head;
 		neutrino_locale_t name;
 		neutrino_locale_t hint_1, hint_2;
