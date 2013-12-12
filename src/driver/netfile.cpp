@@ -570,7 +570,7 @@ void readln(int fd, char *buf)
 		*buf = 0;
 }
 
-int parse_response(URL *url, void *opt, CSTATE *state)
+int parse_response(URL *url, void * /*opt*/, CSTATE *state)
 {
 	char header[2049], /*str[255]*/ str[2048]; // combined with 2nd local str from id3 part
 	char *ptr, chr=0, lastchr=0;
