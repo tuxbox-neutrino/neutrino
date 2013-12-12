@@ -785,8 +785,8 @@ void CMenuWidget::checkHints()
 			break;
 		}
 	}
-	if (has_hints)
-		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+	//if (has_hints)
+	//	GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
 }
 
 void CMenuWidget::calcSize()
@@ -1081,7 +1081,7 @@ void CMenuWidget::paintHint(int pos)
 	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
 		if (info_box) {
-			info_box->kill();
+			savescreen ? info_box->hide(false) : info_box->kill();
 			hint_painted = false;
 		}
 		return;
