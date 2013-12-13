@@ -404,7 +404,7 @@ class CMovieBrowser : public CMenuTarget
 		void refreshFilterList(void); //P1
 		void refreshMovieInfo(void); //P1
 		void refreshBookmarkList(void); // P3
-		void refreshFoot(void); //P2
+		int refreshFoot(bool show = true); //P2
 		void refreshTitle(void); //P2
 		void refreshInfo(void); // P2
 		void refreshLCD(void); // P2

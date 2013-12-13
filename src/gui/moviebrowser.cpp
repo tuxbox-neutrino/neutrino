@@ -661,9 +661,9 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight * m_settings.browserFrameHeight / 100;
 
 	m_cBoxFrameFootRel.iX = 		0;
-	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_pcFontFoot->getHeight() - 6;
+	m_cBoxFrameFootRel.iHeight = 		refreshFoot(false);
+	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_cBoxFrameFootRel.iHeight;
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrameBrowserList.iWidth;
-	m_cBoxFrameFootRel.iHeight = 		m_pcFontFoot->getHeight() + 6;
 
 	m_cBoxFrameLastPlayList.iX = 		m_cBoxFrameBrowserList.iX;
 	m_cBoxFrameLastPlayList.iY = 		m_cBoxFrameBrowserList.iY ;
@@ -1739,79 +1739,38 @@ void CMovieBrowser::refreshTitle(void)
 	info_hdd_level(true);
 }
 
-void CMovieBrowser::refreshFoot(void)
+int CMovieBrowser::refreshFoot(bool show)
 {
 	//TRACE("[mb]->refreshButtonLine \r\n");
-	fb_pixel_t color = COL_INFOBAR_TEXT;
-	int iw = 0, ih = 0;
-
+	int offset = (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD) ? 0 : 2;
+	neutrino_locale_t ok_loc = (m_settings.gui == MB_GUI_FILTER && m_windowFocus == MB_FOCUS_FILTER) ?  LOCALE_BOOKMARKMANAGER_SELECT : LOCALE_MOVIEBROWSER_FOOT_PLAY;
+	int ok_loc_len = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), true),
+				  g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_PLAY), true));
 	std::string filter_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FILTER);
 	filter_text += m_settings.filter.optionString;
 	std::string sort_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT);
 	sort_text += g_Locale->getText(m_localizedItemName[m_settings.sorting.item]);
-	std::string ok_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_PLAY);
+	int sort_text_len = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT), true);
+	int len = 0;
+	for (int i = 0; m_localizedItemName[i] != NONEXISTANT_LOCALE; i++)
+		len = std::max(len, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(m_localizedItemName[i]), true));
+	sort_text_len += len;
 
-	// draw the background first
-	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameFootRel.iX, m_cBoxFrame.iY+	m_cBoxFrameFootRel.iY,
-				m_cBoxFrameFootRel.iWidth, m_cBoxFrameFootRel.iHeight,
-				(CFBWindow::color_t)COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	button_label_ext footerButtons[7] = {
+		{ NEUTRINO_ICON_BUTTON_RED,		NONEXISTANT_LOCALE,			sort_text.c_str(),	sort_text_len,	false  },
+		{ NEUTRINO_ICON_BUTTON_GREEN,		NONEXISTANT_LOCALE,			filter_text.c_str(),	0,		true  },
+		{ NEUTRINO_ICON_BUTTON_YELLOW,		LOCALE_MOVIEBROWSER_FOOT_FOCUS,		NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_BLUE,		LOCALE_MOVIEBROWSER_FOOT_REFRESH,	NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_OKAY,		ok_loc,					NULL,			ok_loc_len,	false },
+		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL,	LOCALE_FILEBROWSER_DELETE,		NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_MENU_SMALL,	LOCALE_MOVIEBROWSER_FOOT_OPTIONS,	NULL,			0,		false }
+	};
 
-	if(m_settings.gui == MB_GUI_FILTER && m_windowFocus == MB_FOCUS_FILTER)
-	{
-		ok_text = g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT);
-	}
-	else
-	{
-		ok_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_PLAY);
-	}
-
-	const int xoff = 10;
-	const int ypos_icon = m_cBoxFrame.iY + m_cBoxFrameFootRel.iY;
-	const int ypos_font = m_cBoxFrame.iY + m_cBoxFrameFootRel.iY + m_pcFontFoot->getHeight() + (m_cBoxFrameFootRel.iHeight - m_pcFontFoot->getHeight()) / 2;
-	int xpos = m_cBoxFrame.iX + m_cBoxFrameFootRel.iX + xoff;
-
-	int max_b = 5;
-	if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
-		max_b = 7;
-
-	int width = (m_cBoxFrame.iWidth-2*xoff) / max_b;
-
-	if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
-	{
-		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih);
-		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight);
-		m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, sort_text.c_str(), (CFBWindow::color_t)color);
-		xpos += width;
-
-		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_GREEN, &iw, &ih);
-		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight);
-		m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, filter_text.c_str(), (CFBWindow::color_t)color);
-		xpos += width;
-	}
-
-	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &iw, &ih);
-	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight);
-	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FOCUS), (CFBWindow::color_t)color);
-	xpos += width;
-
-	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_BLUE, &iw, &ih);
-	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight);
-	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_REFRESH), (CFBWindow::color_t)color);
-	xpos += width;
-
-	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &iw, &ih);
-	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight);
-	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, ok_text.c_str(), (CFBWindow::color_t)color);
-	xpos += width;
-
-	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
-	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight);
-	m_pcFontFoot->RenderString(xpos + xoff + iw , ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color);
-	xpos += width;
-
-	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MENU_SMALL, &iw, &ih);
-	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MENU_SMALL, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight);
-	m_pcFontFoot->RenderString(xpos + xoff + iw , ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_OPTIONS), (CFBWindow::color_t)color);
+	int h;
+	int res = paintButtons(footerButtons, 7, 0, 0, 0, 0, 0, false, NULL, &h);
+	if (show)
+		paintButtons(footerButtons + offset, 7 - offset, m_cBoxFrame.iX+m_cBoxFrameFootRel.iX, m_cBoxFrame.iHeight - h, m_cBoxFrameFootRel.iWidth, h, m_cBoxFrameFootRel.iWidth);
+	return res;
 }
 
 bool CMovieBrowser::onButtonPress(neutrino_msg_t msg)
