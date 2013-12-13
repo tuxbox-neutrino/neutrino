@@ -396,6 +396,7 @@ CBaseDec::RetCode CMP3Dec::Decoder(FILE *InputFp, const int /*OutputFd*/,
 #endif
         signed short ll, rr;
 
+	SaveCover(InputFp, meta_data);
 	/* First the structures used by libmad must be initialized. */
 	mad_stream_init(&Stream);
 	mad_frame_init(&Frame);
@@ -923,6 +924,8 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 //		      fprintf(stderr,"%s: %lu frames decoded (%s).\n",
 //				ProgName,FrameCount,Buffer);
 	}
+	if (!meta_data->cover.empty())
+		unlink(meta_data->cover.c_str());
 
 	/* That's the end of the world (in the H. G. Wells way). */
 	return Status;
@@ -945,7 +948,7 @@ bool CMP3Dec::GetMetaData(FILE* in, const bool nice, CAudioMetaData* const m)
 	{
 		res = GetMP3Info(in, nice, m);
 		GetID3(in, m);
-		SaveCover(in, m);
+		//SaveCover(in, m);
 	}
 	else
 	{
@@ -1395,6 +1398,7 @@ bool CMP3Dec::SaveCover(FILE * in, CAudioMetaData * const m)
 									fwrite (data , 1 , size , pFile );
 									fclose (pFile);
 									m->cover = cover.str().c_str();
+									m->changed = true;
 								}
 							}
 							break;
