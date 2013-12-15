@@ -785,8 +785,8 @@ void CMenuWidget::checkHints()
 			break;
 		}
 	}
-	//if (has_hints)
-	//	GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+	if (has_hints)
+		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
 }
 
 void CMenuWidget::calcSize()
