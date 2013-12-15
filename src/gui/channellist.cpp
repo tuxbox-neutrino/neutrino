@@ -126,20 +126,26 @@ CChannelList::~CChannelList()
 {
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
-	delete dline;
-	if (cc_minitv)
+	if(dline){
+		delete dline;
+		dline = NULL;
+	}
+	if (cc_minitv){
 		delete 	cc_minitv;
+		cc_minitv = NULL;
+	}
 	if (headerClock) {
 		headerClock->Stop();
 		if (headerClock->isPainted())
 			headerClock->hide();
 		if (headerClock->isClockRun())
 			headerClock->stopThread();
-		delete headerClock;
-		headerClock = NULL;
+		if(headerClock){
+			delete headerClock;
+			headerClock = NULL;
+		}		  
 	}
 }
-
 void CChannelList::ClearList(void)
 {
 //printf("************ CLEAR LIST %s : %x\n", name.c_str(), this);fflush(stdout);
