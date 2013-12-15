@@ -512,7 +512,13 @@
 		<transponder frequency="522000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="530000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="538000" symbol_rate="6790000" fec_inner="0" modulation="3"/>
-		<transponder frequency="540000" symbol_rate="6110000" fec_inner="0" modulation="3"/>
+		<transponder frequency="546000" symbol_rate="6110000" fec_inner="0" modulation="3"/>
+		<transponder frequency="554000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="562000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="570000" symbol_rate="6110000" fec_inner="0" modulation="3"/>
+		<transponder frequency="578000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="586000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="594000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
 	<cable name="Antennengemeinschaft Penig" satfeed="true" flags="9">
 		<transponder frequency="129000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
