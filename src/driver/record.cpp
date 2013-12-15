@@ -1298,7 +1298,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 
 		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
 		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
-		if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
+		if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, rec_msg,
 			CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
@@ -1478,7 +1478,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 	if(inst == NULL)
 		return false;
 
-	if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
+	if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
 		mutex.lock();
 		if (recid)

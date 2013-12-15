@@ -2074,7 +2074,7 @@ const char * locale_real_names[] =
 	"settings.pos_top_right",
 	"settings.restore",
 	"settings.restore_warn",
-	"shutdown.recoding_query",
+	"shutdown.recording_query",
 	"shutdowntimer.announce",
 	"sleeptimerbox.announce",
 	"sleeptimerbox.hint1",

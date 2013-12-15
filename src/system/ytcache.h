@@ -63,5 +63,6 @@ class cYTCache
 		void clearCompleted(MI_MOVIE_INFO::miSource source = MI_MOVIE_INFO::YT);
 		void clearFailed(MI_MOVIE_INFO::miSource source = MI_MOVIE_INFO::YT);
                 bool getNameIfExists(std::string &fname, const std::string &id, int itag, std::string ext = ".jpg");
+		bool isActive(void) { return (bool) thread; }
 };
 #endif

@@ -99,6 +99,8 @@
 #endif
 #include "gui/themes.h"
 
+#include <system/ytcache.h>
+
 #include <audio.h>
 #include <ca_cs.h>
 #include <cs_api.h>
@@ -3146,9 +3148,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 	bool do_shutdown = true;
 
 	CRecordManager::getInstance()->StopAutoRecord();
-	if(CRecordManager::getInstance()->RecordingStatus()) {
+	if(CRecordManager::getInstance()->RecordingStatus() || cYTCache::getInstance()->isActive()) {
 		do_shutdown =
-			(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY, CMessageBox::mbrNo,
+			(ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECORDING_QUERY, CMessageBox::mbrNo,
 					CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
 	}
 

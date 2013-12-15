@@ -36,6 +36,7 @@
 #include "settings.h"
 #include "set_threadname.h"
 #include <global.h>
+#include <driver/display.h>
 
 static cYTCache *instance = NULL;
 
@@ -178,6 +179,8 @@ void *cYTCache::downloadThread(void *arg) {
 	set_threadname("ytdownload");
 	cYTCache *caller = (cYTCache *)arg;
 
+	//CVFD::getInstance()->ShowIcon(FP_ICON_DOWNLOAD, true);
+
 	while (caller->thread) {
 		MI_MOVIE_INFO mi;
 		{
@@ -207,6 +210,9 @@ void *cYTCache::downloadThread(void *arg) {
 				caller->pending.erase(caller->pending.begin());
 		}
 	}
+
+	//CVFD::getInstance()->ShowIcon(FP_ICON_DOWNLOAD, false);
+
 	fprintf(stderr, "%s exiting\n", __func__);
 	pthread_exit(NULL);
 }
