@@ -2301,30 +2301,40 @@ int isUTF8(const std::string &string)
 {
 	unsigned int len=string.size();
 
-	for (unsigned int i=0; i < len; ++i)
+	for (unsigned int i=0; i < len;)
 	{
-		if (!(string[i]&0x80)) // normal ASCII
+		int trailing = 0;
+		if (string[i] >> 7 == 0)		// 0xxxxxxx
+		{
+			i++;
 			continue;
-		if ((string[i] & 0xE0) == 0xC0) // one char following.
+		}
+		if (string[i] >> 5 == 6)		// 110xxxxx 10xxxxxx
 		{
-			// first, length check:
-			if (i+1 >= len)
-				return 0; // certainly NOT utf-8
-			i++;
-			if ((string[i]&0xC0) != 0x80)
-				return 0; // no, not UTF-8.
-		} else if ((string[i] & 0xF0) == 0xE0)
+			if (++i >= len)
+				return 0;
+			trailing = 1;
+		}
+		else if (string[i] >> 4 == 14)		// 1110xxxx 10xxxxxx 10xxxxxx
 		{
-			if ((i+1) >= len)
+			if (++i >= len)
 				return 0;
+			trailing = 2;
+		}
+		else if ((string[i] >> 3) == 30)	// 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+		{
+			if (++i >= len)
+				return 0;
+			trailing = 3;
+		} else
+			return 0;
+
+		while (trailing) {
+			if (i >= len || string[i] >> 6 != 2)
+				return 0;
+			trailing--;
 			i++;
-			if ((string[i]&0xC0) != 0x80)
-				return 0;
-			i++;
-			if ((string[i]&0xC0) != 0x80)
-				return 0;
 		}
 	}
 	return 1; // can be UTF8 (or pure ASCII, at least no non-UTF-8 8bit characters)
 }
-
