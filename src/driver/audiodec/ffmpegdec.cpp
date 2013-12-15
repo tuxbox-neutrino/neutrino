@@ -505,28 +505,38 @@ void CFfmpegDec::GetMeta(AVDictionary * metadata)
 	AVDictionaryEntry *tag = NULL;
 	while ((tag = av_dict_get(metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
 		if(!strcasecmp(tag->key,"Title")) {
-			if (title.empty())
+			if (title.empty()) {
 				title = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+				title = trim(title);
+			}
 			continue;
 		}
 		if(!strcasecmp(tag->key,"Artist")) {
-			if (artist.empty())
+			if (artist.empty()) {
 				artist = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+				artist = trim(artist);
+			}
 			continue;
 		}
 		if(!strcasecmp(tag->key,"Year")) {
-			if (date.empty())
+			if (date.empty()) {
 				date = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+				date = trim(date);
+			}
 			continue;
 		}
 		if(!strcasecmp(tag->key,"Album")) {
-			if (album.empty())
+			if (album.empty()) {
 				album = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+				album = trim(album);
+			}
 			continue;
 		}
 		if(!strcasecmp(tag->key,"Genre")) {
-			if (genre.empty())
+			if (genre.empty()) {
 				genre = isUTF8(tag->value) ? tag->value : convertLatin1UTF8(tag->value);
+				genre = trim(genre);
+			}
 			continue;
 		}
 	}
