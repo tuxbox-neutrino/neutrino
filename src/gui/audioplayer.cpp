@@ -199,8 +199,11 @@ void CAudioPlayerGui::Init(void)
 		audiofilefilter.addFilter("ogg");
 		audiofilefilter.addFilter("wav");
 		audiofilefilter.addFilter("flac");
+#ifdef ENABLE_FFMPEGDEC
 		audiofilefilter.addFilter("aac");
 		audiofilefilter.addFilter("dts");
+		audiofilefilter.addFilter("m4a");
+#endif
 	}
 	m_SMSKeyInput.setTimeout(AUDIOPLAYERGUI_SMSKEY_TIMEOUT);
 }
@@ -1258,7 +1261,9 @@ bool CAudioPlayerGui::openFilebrowser(void)
 					||  (files->getType() == CFile::FILE_OGG)
 					||  (files->getType() == CFile::FILE_MP3)
 					||  (files->getType() == CFile::FILE_WAV)
+#ifdef ENABLE_FFMPEGDEC
 					||  (files->getType() == CFile::FILE_AAC)
+#endif
 					||  (files->getType() == CFile::FILE_FLAC)
 			   )
 			{
