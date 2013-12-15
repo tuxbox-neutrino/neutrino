@@ -44,7 +44,7 @@ const char * const file_extension_list[] =
 {
 	"aac",   "asf",  "avi",  "bmp",  "cdr",  "crw",
 	"dts",   "flac", "gif",  "imu",  "jpeg", "jpg",
-	"m2a",   "m3u",  "mkv",  "mp2",  "mp3",
+	"m2a",   "m3u",  "m4a",  "mkv",  "mp2",  "mp3",
 	"mpa",   "ogg",  "pls",  "png",  "sh",
 	"txt",   "url",  "wav",  "xml"
 };
@@ -54,7 +54,7 @@ const CFile::FileType file_type_list[] =
 {
 	CFile::FILE_AAC      , CFile::FILE_ASF      , CFile::FILE_AVI      , CFile::FILE_PICTURE  , CFile::FILE_CDR      , CFile::FILE_PICTURE  , 
 	CFile::FILE_WAV      , CFile::FILE_FLAC     , CFile::FILE_PICTURE  , CFile::STREAM_PICTURE, CFile::FILE_PICTURE  , CFile::FILE_PICTURE  , 
-	CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_MKV      , CFile::FILE_MP3      , CFile::FILE_MP3      , 
+	CFile::FILE_MP3      , CFile::FILE_PLAYLIST , CFile::FILE_AAC      , CFile::FILE_MKV      , CFile::FILE_MP3      , CFile::FILE_MP3      , 
 	CFile::FILE_MP3      , CFile::FILE_OGG      , CFile::FILE_PLAYLIST,  CFile::FILE_PICTURE  , CFile::FILE_TEXT     ,
 	CFile::FILE_TEXT     , CFile::STREAM_AUDIO  , CFile::FILE_WAV      , CFile::FILE_XML
 };
