@@ -27,56 +27,73 @@ if COMPILER=`$CC --version | head -n 1`; then
     AC_DEFINE_UNQUOTED(USED_COMPILER, ["$COMPILER"])
 fi
 
-#AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
-#	[use libvorbisidec instead of libogg/libvorbis])],
-#	[TREMOR="$withval"],
-#	[TREMOR=no])
-#
-#AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
-#	[use statically linked libvorbisidec instead of libogg/libvorbis])],
-#	[TREMOR_STATIC="$withval"],
-#	[TREMOR_STATIC=no])
+AC_ARG_ENABLE(ffmpegdec,
+	AS_HELP_STRING(--enable-ffmpegdec,include ffmpeg decoder support),
+	,[enable_ffmpegdec=no])
+
+AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
+if test "$enable_ffmpegdec" = "yes"; then
+	AC_DEFINE(ENABLE_FFMPEGDEC,1,[include ffmpeg decoder support])
+fi
+
+if test x"$enable_ffmpegdec" != xyes; then
+
+AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
+	[use libvorbisidec instead of libogg/libvorbis])],
+	[TREMOR="$withval"],
+	[TREMOR=no])
+
+AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
+	[use statically linked libvorbisidec instead of libogg/libvorbis])],
+	[TREMOR_STATIC="$withval"],
+	[TREMOR_STATIC=no])
+
+if test "$TREMOR_STATIC" = "yes"; then
+	TREMOR=yes
+fi
+
+if test "$TREMOR" = "yes"; then
+	TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,vorbisidec)
+	AC_DEFINE(USE_TREMOR,1,use libvorbisidec/tremor library)
+fi
+
+if test "$TREMOR_STATIC" = "yes"; then
+	# hack to get the static lib location from the pkg-config data
+	VORBISIDEC_LIBS="$(echo $VORBISIDEC_LIBS | sed 's@-L@@; s@ -l.*@/libvorbisidec.a@;')"
+fi
+
+TUXBOX_APPS_LIB_PKGCONFIG_CHECK(ID3TAG,libid3tag)
+if test x"$ID3TAG_EXISTS" != xyes; then
+	TUXBOX_APPS_LIB_PKGCONFIG(ID3TAG,id3tag)
+fi
+
+TUXBOX_APPS_LIB_PKGCONFIG_CHECK(MAD,libmad)
+if test x"$MAD_EXISTS" != xyes; then
+	TUXBOX_APPS_LIB_PKGCONFIG(MAD,mad)
+fi
+
+TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
+if test -z "$OGG_CFLAGS" ; then
+	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
+fi
+else
+TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
+fi
 
 if test "$BOXTYPE" = "tripledragon"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
 fi
 
-#if test "$TREMOR_STATIC" = "yes"; then
-#	TREMOR=yes
-#fi
-#
-#if test "$TREMOR" = "yes"; then
-#	TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,vorbisidec)
-#	AC_DEFINE(USE_TREMOR,1,use libvorbisidec/tremor library)
-#fi
-#
-#if test "$TREMOR_STATIC" = "yes"; then
-#	# hack to get the static lib location from the pkg-config data
-#	VORBISIDEC_LIBS="$(echo $VORBISIDEC_LIBS | sed 's@-L@@; s@ -l.*@/libvorbisidec.a@;')"
-#fi
-#
-#AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
+AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
+# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
-# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
-#TUXBOX_APPS_LIB_PKGCONFIG_CHECK(ID3TAG,libid3tag)
-#if test x"$ID3TAG_EXISTS" != xyes; then
-#	TUXBOX_APPS_LIB_PKGCONFIG(ID3TAG,id3tag)
-#fi
-#TUXBOX_APPS_LIB_PKGCONFIG_CHECK(MAD,libmad)
-#if test x"$MAD_EXISTS" != xyes; then
-#	TUXBOX_APPS_LIB_PKGCONFIG(MAD,mad)
-#fi
-#TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
-#if test -z "$OGG_CFLAGS" ; then
-#	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
-#fi
+
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
-TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
 #TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
