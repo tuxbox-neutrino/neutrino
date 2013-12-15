@@ -40,7 +40,17 @@
 #include <zapit/client/zapittools.h>
 
 #include "basedec.h"
+#ifdef ENABLE_FFMPEGDEC
 #include "ffmpegdec.h"
+#else
+#include "cdrdec.h"
+#include "mp3dec.h"
+#include "oggdec.h"
+#include "wavdec.h"
+#ifdef ENABLE_FLAC
+#include "flacdec.h"
+#endif
+#endif
 
 #include <driver/netfile.h>
 
@@ -77,13 +87,57 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 
 	if ( Status == OK )
 	{
-		CFile::FileType ft;
+#ifndef ENABLE_FFMPEGDEC
 		if( in->FileType == CFile::STREAM_AUDIO )
 		{
 			if ( fstatus( fp, ShoutcastCallback ) < 0 )
-			{
+				fprintf( stderr, "Error adding shoutcast callback: %s",
+						err_txt );
+
+			if (ftype(fp, "ogg"))
+				Status = COggDec::getInstance()->Decoder( fp, OutputFd, state,
+						&in->MetaData, t,
+						secondsToSkip );
+			else
+				Status = CMP3Dec::getInstance()->Decoder( fp, OutputFd, state,
+						&in->MetaData, t,
+						secondsToSkip );
+		}
+		else if( in->FileType == CFile::FILE_MP3)
+			Status = CMP3Dec::getInstance()->Decoder( fp, OutputFd, state,
+					&in->MetaData, t,
+					secondsToSkip );
+		else if( in->FileType == CFile::FILE_OGG )
+			Status = COggDec::getInstance()->Decoder( fp, OutputFd, state,
+					&in->MetaData, t,
+					secondsToSkip );
+		else if( in->FileType == CFile::FILE_WAV )
+			Status = CWavDec::getInstance()->Decoder( fp, OutputFd, state,
+					&in->MetaData, t,
+					secondsToSkip );
+		else if( in->FileType == CFile::FILE_CDR )
+			Status = CCdrDec::getInstance()->Decoder( fp, OutputFd, state,
+					&in->MetaData, t,
+					secondsToSkip );
+#ifdef ENABLE_FLAC
+		else if (in->FileType == CFile::FILE_FLAC)
+			Status = CFlacDec::getInstance()->Decoder(fp, OutputFd, state,
+					&in->MetaData, t,
+					secondsToSkip );
+#endif
+		else
+		{
+			fprintf( stderr, "DecoderBase: Supplied filetype is not " );
+			fprintf( stderr, "supported by Audioplayer.\n" );
+			Status = INTERNAL_ERR;
+		}
+
+#else
+		CFile::FileType ft = in->FileType;
+		if( in->FileType == CFile::STREAM_AUDIO )
+		{
+			if ( fstatus( fp, ShoutcastCallback ) < 0 )
 				fprintf( stderr, "Error adding shoutcast callback: %s", err_txt );
-			}
 
 			if (ftype(fp, "ogg"))
 				ft = CFile::FILE_OGG;
@@ -96,12 +150,13 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 		{
 			struct stat st;
 			if (!fstat(fileno(fp), &st))
-						in->MetaData.filesize = st.st_size;
+				in->MetaData.filesize = st.st_size;
 
-			ft = in->FileType;
 		}
+		in->MetaData.type = ft;
 
-		Status = CFfmpegDec::getInstance()->Decoder(fp, ft, OutputFd, state, &in->MetaData, t, secondsToSkip );
+		Status = CFfmpegDec::getInstance()->Decoder(fp, OutputFd, state, &in->MetaData, t, secondsToSkip );
+#endif
 
 		if ( fclose( fp ) == EOF )
 		{
@@ -151,75 +206,80 @@ bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 		return true;
 
 	bool Status = true;
-	FILE* fp = fopen( in->Filename.c_str(), "r" );
-	if ( fp == NULL )
+#ifndef ENABLE_FFMPEGDEC
+	if (in->FileType == CFile::FILE_MP3 || in->FileType == CFile::FILE_OGG
+			|| in->FileType == CFile::FILE_WAV || in->FileType == CFile::FILE_CDR
+#ifdef ENABLE_FLAC
+			|| in->FileType == CFile::FILE_FLAC
+#endif
+	   )
+#endif
 	{
-		fprintf( stderr, "Error opening file %s for meta data reading.\n",
-				 in->Filename.c_str() );
-		Status = false;
-	}
-	else
-	{
-		struct stat st;
-		if (!fstat(fileno(fp), &st))
-			in->MetaData.filesize = st.st_size;
-
-		CFfmpegDec d;
-		Status = d.GetMetaData(fp, in->FileType, nice, &in->MetaData);
-		if (Status)
-			CacheMetaData(in);
-
-		if ( fclose( fp ) == EOF )
+		FILE* fp = fopen( in->Filename.c_str(), "r" );
+		if ( fp == NULL )
 		{
-			fprintf( stderr, "Could not close file %s.\n",
-					 in->Filename.c_str() );
-		}
-	}
-
-	return Status;
-}
-
-bool CBaseDec::SetDSP(int soundfd, int fmt, unsigned int dsp_speed, unsigned int channels)
-{
-	bool crit_error=false;
-
-	if (::ioctl(soundfd, SNDCTL_DSP_RESET))
-		printf("reset failed\n");
-	if(::ioctl(soundfd, SNDCTL_DSP_SETFMT, &fmt))
-		printf("setfmt failed\n");
-	if(::ioctl(soundfd, SNDCTL_DSP_CHANNELS, &channels))
-		printf("channel set failed\n");
-	if (dsp_speed != mSamplerate)
-	{
-		// mute audio to reduce pops when changing samplerate (avia_reset)
-		//bool was_muted = avs_mute(true);
-		if (::ioctl(soundfd, SNDCTL_DSP_SPEED, &dsp_speed))
-		{
-			printf("speed set failed\n");
-			crit_error=true;
+			fprintf( stderr, "Error opening file %s for meta data reading.\n",
+					in->Filename.c_str() );
+			Status = false;
 		}
 		else
 		{
-#if 0
-			unsigned int rs = 0;
-			::ioctl(soundfd, SNDCTL_DSP_SPEED, &rs);
-			mSamplerate = dsp_speed;
-			// disable iec aka digi out (avia reset enables it again)
-			//g_Zapit->IecOff();
+#ifndef ENABLE_FFMPEGDEC
+			if(in->FileType == CFile::FILE_MP3)
+			{
+				Status = CMP3Dec::getInstance()->GetMetaData(fp, nice,
+						&in->MetaData);
+			}
+			else if(in->FileType == CFile::FILE_OGG)
+			{
+				Status = COggDec::getInstance()->GetMetaData(fp, nice,
+						&in->MetaData);
+			}
+			else if(in->FileType == CFile::FILE_WAV)
+			{
+				Status = CWavDec::getInstance()->GetMetaData(fp, nice,
+						&in->MetaData);
+			}
+			else if(in->FileType == CFile::FILE_CDR)
+			{
+				Status = CCdrDec::getInstance()->GetMetaData(fp, nice,
+						&in->MetaData);
+			}
+#ifdef ENABLE_FLAC
+			else if (in->FileType == CFile::FILE_FLAC)
+			{
+				CFlacDec FlacDec;
+				Status = FlacDec.GetMetaData(fp, nice, &in->MetaData);
+			}
 #endif
-		}
-		//usleep(400000);
-		//if (!was_muted)
-		//	avs_mute(false);
-	}
-//printf("Debug: SNDCTL_DSP_RESET %d / SNDCTL_DSP_SPEED %d / SNDCTL_DSP_CHANNELS %d / SNDCTL_DSP_SETFMT %d\n",
-//					SNDCTL_DSP_RESET, SNDCTL_DSP_SPEED, SNDCTL_DSP_CHANNELS, SNDCTL_DSP_SETFMT);
-	return crit_error;
-}
+#else
+			struct stat st;
+			if (!fstat(fileno(fp), &st))
+				in->MetaData.filesize = st.st_size;
+			in->MetaData.type = in->FileType;
 
-bool CBaseDec::avs_mute(bool /*mute*/)
-{
-	return true;
+			CFfmpegDec d;
+			Status = d.GetMetaData(fp, nice, &in->MetaData);
+#endif
+			if (Status)
+				CacheMetaData(in);
+			if ( fclose( fp ) == EOF )
+			{
+				fprintf( stderr, "Could not close file %s.\n",
+						in->Filename.c_str() );
+			}
+		}
+	}
+#ifndef ENABLE_FFMPEGDEC
+	else
+	{
+		fprintf( stderr, "GetMetaDataBase: Filetype is not supported for " );
+		fprintf( stderr, "meta data reading.\n" );
+		Status = false;
+	}
+#endif
+
+	return Status;
 }
 
 void CBaseDec::Init()

@@ -200,13 +200,13 @@ void CFfmpegDec::DeInit(void)
 	in = NULL;
 }
 
-CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /*OutputFd*/, State* state, CAudioMetaData* _meta_data, time_t* time_played, unsigned int* secondsToSkip)
+CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state, CAudioMetaData* _meta_data, time_t* time_played, unsigned int* secondsToSkip)
 {
 	in = _in;
 	RetCode Status=OK;
 	is_stream = fseek((FILE *)in, 0, SEEK_SET);
 
-	if (!SetMetaData((FILE *)in, ft, _meta_data, true)) {
+	if (!SetMetaData((FILE *)in, _meta_data, true)) {
 		DeInit();
 		Status=DATA_ERR;
 		return Status;
@@ -384,9 +384,9 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, const CFile::FileType ft, int /
 	return Status;
 }
 
-bool CFfmpegDec::GetMetaData(FILE *_in, const CFile::FileType ft, const bool /*nice*/, CAudioMetaData* m)
+bool CFfmpegDec::GetMetaData(FILE *_in, const bool /*nice*/, CAudioMetaData* m)
 {
-	return SetMetaData(_in, ft, m);
+	return SetMetaData(_in, m);
 }
 
 CFfmpegDec* CFfmpegDec::getInstance()
@@ -399,11 +399,11 @@ CFfmpegDec* CFfmpegDec::getInstance()
 	return FfmpegDec;
 }
 
-bool CFfmpegDec::SetMetaData(FILE *_in, CFile::FileType ft, CAudioMetaData* m, bool save_cover)
+bool CFfmpegDec::SetMetaData(FILE *_in, CAudioMetaData* m, bool save_cover)
 {
 	if (!meta_data_valid)
 	{
-		if (!Init(_in, ft))
+		if (!Init(_in, (const CFile::FileType) m->type))
 			return false;
 
 		mutex.lock();

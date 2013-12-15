@@ -61,7 +61,7 @@ public:
 		WAV,
 		FLAC
 	};
-	AudioType type;
+	int type;
 	std::string type_info;
 
 	long filesize; /* filesize in bits (for mp3: without leading id3 tag) */

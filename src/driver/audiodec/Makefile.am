@@ -23,6 +23,19 @@ endif
 
 noinst_LIBRARIES = libneutrino_driver_audiodec.a
 
+if ENABLE_FFMPEGDEC
+ASOURCES = ffmpegdec.cpp
+else
+ASOURCES = cdrdec.cpp \
+	crc.c \
+	flacdec.cpp \
+	mp3dec.cpp \
+	oggdec.cpp \
+	tag.c \
+	vis.cpp \
+	wavdec.cpp
+endif
+
 libneutrino_driver_audiodec_a_SOURCES = \
 	basedec.cpp \
-	ffmpegdec.cpp
+	$(ASOURCES)

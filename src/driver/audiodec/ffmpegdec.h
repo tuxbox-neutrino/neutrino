@@ -73,14 +73,14 @@ private:
 
 public:
 	static CFfmpegDec* getInstance();
-	virtual RetCode Decoder(FILE *, const CFile::FileType ft, int, State*, CAudioMetaData* m, time_t* t, unsigned int* secondsToSkip);
-	bool GetMetaData(FILE *in, const CFile::FileType ft, const bool nice, CAudioMetaData* m);
+	virtual RetCode Decoder(FILE *, int, State*, CAudioMetaData* m, time_t* t, unsigned int* secondsToSkip);
+	bool GetMetaData(FILE *in, const bool nice, CAudioMetaData* m);
 	CFfmpegDec();
 	~CFfmpegDec();
 	int Read(void *buf, size_t buf_size);
 	int64_t Seek(int64_t offset, int whence);
 
 protected:
-	virtual bool SetMetaData(FILE* in, const CFile::FileType ft, CAudioMetaData* m, bool save_cover = false);
+	virtual bool SetMetaData(FILE* in, CAudioMetaData* m, bool save_cover = false);
 };
 #endif

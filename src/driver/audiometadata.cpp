@@ -99,7 +99,7 @@ void CAudioMetaData::operator=( const CAudioMetaData& src )
 
 void CAudioMetaData::clear()
 {
-	type=NONE;
+	type=0;
 	type_info.clear();
 	filesize=0;
 	bitrate=0;

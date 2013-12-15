@@ -35,6 +35,27 @@ SUBDIRS += lcddisplay
 AM_CPPFLAGS += -I$(top_srcdir)/lib/libtriple
 endif
 
+if USE_TREMOR
+VORBISLIBS = @VORBISIDEC_LIBS@
+else
+VORBISLIBS = -lvorbisfile -lvorbis -logg
+endif
+
+if ENABLE_FLAC
+FLACLIBS = -lFLAC
+else
+FLACLIBS =
+endif
+
+if ENABLE_FFMPEGDEC
+ADEC_LIBS = @SWRESAMPLE_LIBS@
+else
+ADEC_LIBS = @MAD_LIBS@ \
+	@ID3TAG_LIBS@ \
+	$(FLACLIBS) \
+	$(VORBISLIBS)
+endif
+
 bin_PROGRAMS = neutrino rcsim
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
@@ -90,7 +111,7 @@ neutrino_LDADD = \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
-	@SWRESAMPLE_LIBS@ \
+	$(ADEC_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \
