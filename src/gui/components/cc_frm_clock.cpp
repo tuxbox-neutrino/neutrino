@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
+#include <system/helpers.h>
 
 using namespace std;
 
@@ -267,7 +268,7 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 	time_t count = time(0);
 	std::string format_str_save = clock->cl_format_str;
 	//start loop for paint
-	while(1) {
+	while(clock != NULL) {
 		if (clock->paintClock) {
 			// Blinking depending on the blink format string
 			if (!clock->cl_blink_str.empty() && (clock->cl_format_str.length() == clock->cl_blink_str.length())) {
@@ -286,7 +287,7 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 			clock->cl_thread = 0;
 			break;
 		}
-		sleep(clock->cl_interval);
+		mySleep(clock->cl_interval);
 	}
 	return 0;
 }
