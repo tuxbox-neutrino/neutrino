@@ -117,7 +117,7 @@ CComponentsWindow::CComponentsWindow(	const int x_pos, const int y_pos, const in
 CComponentsWindow::~CComponentsWindow()
 {
 #ifdef DEBUG_CC
-	printf("[~CComponentsWindow]   [%s - %d] delete...\n", __FUNCTION__, __LINE__);
+	printf("[~CComponentsWindow]   [%s - %d] delete...\n", __func__, __LINE__);
 #endif
 }
 
@@ -218,7 +218,7 @@ void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 void CComponentsWindow::initCCWItems()
 {
 #ifdef DEBUG_CC
-	printf("[CComponentsWindow]   [%s - %d] init items...\n", __FUNCTION__, __LINE__);
+	printf("[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
 #endif
 	//add header if required
 	if (ccw_show_header){

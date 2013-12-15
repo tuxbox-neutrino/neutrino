@@ -72,7 +72,7 @@ CComponentsForm::~CComponentsForm()
 void CComponentsForm::cleanCCForm()
 {
 #ifdef DEBUG_CC
-	printf("[CComponentsForm]   [%s - %d] clean up...\n", __FUNCTION__, __LINE__);
+	printf("[CComponentsForm]   [%s - %d] clean up...\n", __func__, __LINE__);
 #endif
 
 	clearCCItems();
@@ -85,13 +85,13 @@ void CComponentsForm::clearCCItems()
  	if (v_cc_items.empty())
 		return;
 #ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __FUNCTION__, v_cc_items.size());
+	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __func__, v_cc_items.size());
 #endif
 
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]){
 #ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __FUNCTION__, i+1, v_cc_items.size(), v_cc_items[i]->getItemType());
+	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, i+1, v_cc_items.size(), v_cc_items[i]->getItemType());
 #endif
 			delete v_cc_items[i];
 			v_cc_items[i] = NULL;
@@ -130,7 +130,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
 #ifdef DEBUG_CC
-		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), cc_item_index);
+		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
 #endif
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
@@ -142,12 +142,12 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
 #ifdef DEBUG_CC
-		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
+		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
 #endif
 	}
 #ifdef DEBUG_CC
 	else
-		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __FUNCTION__, __LINE__);
+		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __func__, __LINE__);
 #endif
 }
 
@@ -193,7 +193,7 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 	}
 #ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __func__);
 #endif
 
 }
@@ -216,7 +216,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 	if (v_cc_items.empty()){
 		addCCItem(cc_Item);
 #ifdef DEBUG_CC
-		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
 #endif
 	}else{
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
@@ -238,7 +238,7 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 	}
 #ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __func__);
 #endif
 }
 
@@ -342,7 +342,7 @@ void CComponentsForm::paintCCItems()
 		int new_w = w_item - w_diff;
 		if (right_item > right_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
-				__FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
 
@@ -353,7 +353,7 @@ void CComponentsForm::paintCCItems()
 		int new_h = h_item - h_diff;
 		if (bottom_item > bottom_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
-			       __FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
+			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
 

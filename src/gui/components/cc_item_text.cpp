@@ -169,7 +169,7 @@ void CComponentsText::initCCText()
 		ct_old_col_text = ct_col_text;
 	}
 #ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __FUNCTION__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
+	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 #endif
 }
 
@@ -187,7 +187,7 @@ void CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 	ct_text_mode = mode;
 	ct_font = font_text;
 #ifdef DEBUG_CC
-	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __FUNCTION__, __LINE__, ct_text.c_str());
+	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __func__, __LINE__, ct_text.c_str());
 #endif
 }
 
@@ -215,7 +215,7 @@ string CComponentsText::getTextFromFile(const string& path_to_textfile)
 
 	ifstream in (file.c_str(), ios::in);
 	if (!in){
-		printf("[CComponentsText]    [%s - %d] error while open %s -> %s\n", __FUNCTION__, __LINE__, file.c_str(), strerror(errno));
+		printf("[CComponentsText]    [%s - %d] error while open %s -> %s\n", __func__, __LINE__, file.c_str(), strerror(errno));
 		return "";
 	}
 	string line;
