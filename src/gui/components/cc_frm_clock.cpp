@@ -86,8 +86,7 @@ void CComponentsFrmClock::initVarClock(	const int& x_pos, const int& y_pos, cons
 
 CComponentsFrmClock::~CComponentsFrmClock()
 {
-	if (activeClock)
-		stopThread();
+	stopThread();
 }
 
 void CComponentsFrmClock::initTimeString()
