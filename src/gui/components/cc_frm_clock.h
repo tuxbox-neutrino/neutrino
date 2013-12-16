@@ -57,7 +57,7 @@ class CComponentsFrmClock : public CComponentsForm
 		///raw time chars
 		char cl_timestr[20];
 
-		///allow to paint clock within thread and is not similar to cc_allow_paint
+		///handle paint clock within thread and is not similar to cc_allow_paint
 		bool paintClock;
 		//TODO: please add comments!
 		bool activeClock;
