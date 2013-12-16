@@ -82,7 +82,7 @@ class CComponentsFrmClock : public CComponentsForm
 		///initialize clock contents  
 		void initCCLockItems();
 		///initialize timestring, called in initCCLockItems()
-		void initTimeString();
+		virtual void initTimeString();
 		///initialize of general alignment of timestring segments within form area
 		void initSegmentAlign(int* segment_width, int* segment_height);
 
