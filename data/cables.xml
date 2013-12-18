@@ -547,6 +547,46 @@
 		<transponder frequency="538000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="546000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
+	<cable name="Antennenverein Hohenmoelsen" satfeed="true" flags="9">
+		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="121000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="129000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="137000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="145000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="153000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="161000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="169000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="177000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="185000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="193000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="201000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="209000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="217000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="256000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="264000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="272000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="280000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="288000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="296000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="306000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="314000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="322000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="330000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="338000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="346000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="354000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="362000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="370000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="378000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="386000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="394000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="402000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="410000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="418000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="426000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="434000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="442000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+	</cable>
 	<cable name="M-net" satfeed="true" flags="9">
 		<transponder frequency="114000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="122000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
