@@ -139,6 +139,9 @@ class CSignalBar : public CComponentsForm
 
 		///paint this items
 		virtual void paint(bool do_save_bg);
+
+		//returns the current signal value
+		uint16_t getValue(void) { return sb_signal; }
 };
 
 /// Sub class of CSignalBar()
@@ -256,6 +259,9 @@ class CSignalBox : public CComponentsForm
 		///allowed width of scale bar from full width in %, rest used by caption, default value = 60% of width, use setScaleWidth() to set this value
 		short sbx_scale_w_percent;
 
+		// true if vertical arrangement, false if horizontal
+		bool vertical;
+
 		///initialize all needed basic attributes and objects
 		void initVarSigBox();
 		///initialize general properties of signal items
@@ -266,7 +272,7 @@ class CSignalBox : public CComponentsForm
 
 	public:
 		///class constructor for signal noise ratio.
-		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref);
+		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vertical = true);
 
 		///returns the signal object, type = CSignalBar*
 		CSignalBar* getScaleObject(){return sbar;};
@@ -283,6 +289,14 @@ class CSignalBox : public CComponentsForm
 		
 		///paint items
 		void paint(bool do_save_bg);
+
+		///return current signal value
+		uint16_t getSignalValue(void) { return sbar->getValue();}
+
+		///return current snr value
+		uint16_t getSNRValue(void) { return snrbar->getValue();}
+		
+		///return current snr value
 };
 
 #endif
