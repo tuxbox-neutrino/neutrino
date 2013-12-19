@@ -1003,6 +1003,7 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 {
 	if (subhead_text != NONEXISTANT_LOCALE)
 		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, subhead_text));
+
 	addItem(GenericMenuSeparator);
 	
 	if (buttontype != BTN_TYPE_NO)
@@ -1024,7 +1025,7 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 	
 	if (section_text != NONEXISTANT_LOCALE)
 		addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, section_text));
-	else
+	else if (buttontype != BTN_TYPE_NO)
 		addItem(GenericMenuSeparatorLine);
 }
 
