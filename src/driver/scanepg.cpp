@@ -38,6 +38,8 @@
 #include <driver/scanepg.h>
 #include <driver/record.h>
 
+#define EPG_RESCAN_TIME (24*60*60)
+
 extern CBouquetList * bouquetList;
 extern CBouquetList * TVfavList;
  
@@ -45,6 +47,8 @@ CEpgScan::CEpgScan()
 {
 	current_mode = 0;
 	standby = false;
+	rescan_timer = 0;
+	scan_in_progress = false;
 	Clear();
 }
 
@@ -108,7 +112,6 @@ void CEpgScan::AddTransponders()
 		current_mode = g_settings.epg_scan;
 		Clear();
 	}
-	/* TODO: add interval check to clear scanned ? */
 
 	int mode = CNeutrinoApp::getInstance()->GetChannelMode();
 	if ((g_settings.epg_scan == 1) || (mode == LIST_MODE_FAV)) {
@@ -129,45 +132,68 @@ void CEpgScan::AddTransponders()
 	}
 }
 
-void CEpgScan::StartStandby()
+void CEpgScan::Start(bool instandby)
 {
 	if (!g_settings.epg_scan)
+		return;
+	if (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))
 		return;
 
 	live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	AddTransponders();
-	INFO("starting standby scan, scan map size: %d", scanmap.size());
-	if (!scanmap.empty()) {
-		standby = true;
+	standby = instandby;
+	g_RCInput->killTimer(rescan_timer);
+	INFO("starting %s scan, scanning %d, scan map size: %d", standby ? "standby" : "live", scan_in_progress, scanmap.size());
+	if (standby || !scan_in_progress)
 		Next();
-	}
 }
 
-void CEpgScan::StopStandby()
+void CEpgScan::Stop()
 {
 	if (!g_settings.epg_scan)
 		return;
 
-	INFO("stopping standby scan...");
-	standby = false;
-	CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
+	INFO("stopping %s scan...", standby ? "standby" : "live");
+	if (standby) {
+		standby = false;
+		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
+	}
 }
 
 int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
+	if ((msg == NeutrinoMessages::EVT_TIMER) && (data == rescan_timer)) {
+		INFO("rescan timer in %s mode, scanning %d", standby ? "standby" : "live", scan_in_progress);
+		scanned.clear();
+		Clear();
+		if (standby || (CFEManager::getInstance()->getEnabledCount() > 1)) {
+			if (standby)
+				g_Zapit->setStandby(false);
+			Start(standby);
+		}
+		return messages_return::handled;
+	}
 	if (!g_settings.epg_scan || (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
-		if ((msg == NeutrinoMessages::EVT_EIT_COMPLETE) || (msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE))
-			return messages_return::handled;
-		return messages_return::unhandled;
+		int ret = messages_return::handled;
+		if (msg == NeutrinoMessages::EVT_EIT_COMPLETE)
+			scan_in_progress = false;
+		else if (msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE)
+			scan_in_progress = true;
+		else
+			ret = messages_return::unhandled;
+		return ret;
 	}
 
 	CZapitChannel * newchan;
-	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
+	if (msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
+		/* live channel changed, block scan channel change by timer */
+		scan_in_progress = true;
 		AddTransponders();
 		INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
+		scan_in_progress = false;
 		t_channel_id chid = *(t_channel_id *)data;
 		newchan = CServiceManager::getInstance()->FindChannel(chid);
 		if (newchan) {
@@ -180,6 +206,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_BACK_ZAP_COMPLETE) {
+		scan_in_progress = true;
 		t_channel_id chid = *(t_channel_id *)data;
 		INFO("EVT_BACK_ZAP_COMPLETE [" PRINTF_CHANNEL_ID_TYPE "]", chid);
 		if (next_chid) {
@@ -208,10 +235,13 @@ void CEpgScan::EnterStandby()
 {
 	if (standby) {
 		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
-		CZapit::getInstance()->EnablePlayback(true);
+		//CZapit::getInstance()->EnablePlayback(true);
 		g_Zapit->setStandby(true);
 		g_Sectionsd->setPauseScanning(true);
 	}
+	g_RCInput->killTimer(rescan_timer);
+	rescan_timer = g_RCInput->addTimer(EPG_RESCAN_TIME*1000ULL*1000ULL, true);
+	INFO("rescan timer id %d", rescan_timer);
 }
 
 void CEpgScan::Next()
