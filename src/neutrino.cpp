@@ -2104,12 +2104,17 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StopSubtitles();
 					InfoClock->enableInfoClock(false);
 					int old_ttx = g_settings.cacheTXT;
+					int old_epg = g_settings.epg_scan;
 					mainMenu.exec(NULL, "");
 					InfoClock->enableInfoClock(true);
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
-					if (!g_settings.epg_scan)
-						CEpgScan::getInstance()->Clear();
+					if (old_epg != g_settings.epg_scan) {
+						if (g_settings.epg_scan)
+							CEpgScan::getInstance()->Start();
+						else
+							CEpgScan::getInstance()->Clear();
+					}
 					if (old_ttx != g_settings.cacheTXT) {
 						if(g_settings.cacheTXT) {
 							tuxtxt_init();
@@ -3347,13 +3352,13 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->setActive(false);
 		// Active standby on
 		powerManager->SetStandby(false, false);
-		CEpgScan::getInstance()->StartStandby();
+		CEpgScan::getInstance()->Start(true);
 	} else {
 		// Active standby off
 		powerManager->SetStandby(false, false);
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		videoDecoder->Standby(false);
-		CEpgScan::getInstance()->StopStandby();
+		CEpgScan::getInstance()->Stop();
 
 		if(init_cec_setting){
 			//init cec settings
