@@ -141,6 +141,11 @@ void CMoviePlayerGui::Init(void)
 	timeshift = 0;
 	numpida = 0;
 	showStartingHint = false;
+
+	min_x = 0;
+	max_x = 0;
+	min_y = 0;
+	max_y = 0;
 }
 
 void CMoviePlayerGui::cutNeutrino()
