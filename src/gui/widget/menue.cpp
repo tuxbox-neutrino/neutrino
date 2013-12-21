@@ -1158,6 +1158,7 @@ CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name,
 	localized_value_name = special_value_name;
 	
 	optionString         = non_localized_name;
+	numberFormat         = "%d";
 	observ = Observ;
 	slider_on = sliderOn;
 }
@@ -1190,7 +1191,7 @@ int CMenuOptionNumberChooser::paint(bool selected)
 
 	if ((localized_value_name == NONEXISTANT_LOCALE) || ((*optionValue) != localized_value))
 	{
-		sprintf(option_value, "%d", ((*optionValue) + display_offset));
+		sprintf(option_value, numberFormat.c_str(), ((*optionValue) + display_offset));
 		l_option = option_value;
 	}
 	else
@@ -1241,6 +1242,12 @@ int CMenuOptionNumberChooser::getWidth(void)
 	}
 
 	width += (w1 > w2) ? w1 : w2;
+
+	if (numberFormat != "%d") {
+		char format[numberFormat.length()];
+		snprintf(format, numberFormat.length(), numberFormat.c_str(), 0);
+		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(format, true) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0", true);
+	}
 
 	return width + 10; /* min 10 pixels between option name and value. enough? */
 }
