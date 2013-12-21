@@ -407,8 +407,7 @@ void CMovieBrowser::fileInfoStale(void)
 void CMovieBrowser::init(void)
 {
 	bool reinit_rows = false;
-	int i;
-
+	int i = 0;
 	//TRACE("[mb]->init\r\n");
 	initGlobalSettings();
 	loadSettings(&m_settings);
@@ -611,6 +610,8 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.ytregion = "default";
 	m_settings.ytquality = 37;
 	m_settings.ytconcconn = 4;
+	m_settings.ytsearch_history_max = 0;
+	m_settings.ytsearch_history_size = 0;
 }
 
 void CMovieBrowser::initFrames(void)
@@ -3765,7 +3766,7 @@ bool CMovieBrowser::showYTMenu()
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_RESULTS, &m_settings.ytresults, true, 10, 50, NULL));
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_HISTORY, &m_settings.ytsearch_history_max, true, 10, 50, NULL));
 
-	char rstr[20];
+	char rstr[20] = {0};
 	sprintf(rstr, "%s", m_settings.ytregion.c_str());
 	CMenuOptionStringChooser * region = new CMenuOptionStringChooser(LOCALE_MOVIEBROWSER_YT_REGION, rstr, true, NULL, CRCInput::RC_nokey, "", true);
 	region->addOption("default");
@@ -3828,7 +3829,11 @@ bool CMovieBrowser::showYTMenu()
 					else
 						++it;
 				}
-				m_settings.ytsearch_history_size = m_settings.ytsearch_history.size();
+				if(m_settings.ytsearch_history.empty())
+					m_settings.ytsearch_history_size = 0;
+				else
+					m_settings.ytsearch_history_size = m_settings.ytsearch_history.size();
+
 				if (m_settings.ytsearch_history_size > m_settings.ytsearch_history_max)
 					m_settings.ytsearch_history_size = m_settings.ytsearch_history_max;
 			}
