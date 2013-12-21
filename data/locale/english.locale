@@ -434,7 +434,7 @@ extra.volume_pos Volumebar
 extra.volume_size Height of display
 extra.west West
 extra.zap_cycle Zap cycle
-extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
+extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage 18V for rotor moving 
 extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
@@ -1947,6 +1947,10 @@ timing.volumebar Volume bar
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
 unicable.scr Unicable SCR
+unit.short.hour h
+unit.short.millisecond ms
+unit.short.minute min
+unit.short.second s
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again
