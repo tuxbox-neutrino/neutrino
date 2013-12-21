@@ -437,7 +437,7 @@ extra.zap_cycle Zap cycle
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage 18V for rotor moving 
 extra.zapit_make_bouquet Make Remaining Channels list
-extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
+extra.zapit_motor_speed Motor moving speed
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
 fan_speed CPU Fan speed

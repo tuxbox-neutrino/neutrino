@@ -437,7 +437,7 @@ extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
-extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
+extra.zapit_motor_speed Rotor Drehzeit
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
 fan_speed CPU-Lüftergeschwindigkeit
