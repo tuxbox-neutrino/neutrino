@@ -142,7 +142,7 @@ void CEpgScan::Start(bool instandby)
 	live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	AddTransponders();
 	standby = instandby;
-	g_RCInput->killTimer(rescan_timer);
+	//g_RCInput->killTimer(rescan_timer);
 	INFO("starting %s scan, scanning %d, scan map size: %d", standby ? "standby" : "live", scan_in_progress, scanmap.size());
 	if (standby || !scan_in_progress)
 		Next();
@@ -166,6 +166,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		INFO("rescan timer in %s mode, scanning %d", standby ? "standby" : "live", scan_in_progress);
 		scanned.clear();
 		Clear();
+		g_RCInput->killTimer(rescan_timer);
 		if (standby || (CFEManager::getInstance()->getEnabledCount() > 1)) {
 			if (standby)
 				g_Zapit->setStandby(false);
@@ -239,8 +240,9 @@ void CEpgScan::EnterStandby()
 		g_Zapit->setStandby(true);
 		g_Sectionsd->setPauseScanning(true);
 	}
-	g_RCInput->killTimer(rescan_timer);
-	rescan_timer = g_RCInput->addTimer(EPG_RESCAN_TIME*1000ULL*1000ULL, true);
+	//g_RCInput->killTimer(rescan_timer);
+	if (rescan_timer == 0)
+		rescan_timer = g_RCInput->addTimer(EPG_RESCAN_TIME*1000ULL*1000ULL, true);
 	INFO("rescan timer id %d", rescan_timer);
 }
 
