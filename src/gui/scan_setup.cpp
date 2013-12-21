@@ -50,6 +50,7 @@
 #include <driver/framebuffer.h>
 #include <driver/record.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 
 #include <zapit/femanager.h>
 #include <zapit/getservices.h>
@@ -608,9 +609,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 
 static std::string rotationSpeed2str(int i)
 {
-	char s[40];
-	snprintf(s, sizeof(s), "%d.%d°/s", i / 10, i % 10);
-	return std::string(s);
+	return to_string(i/10) + g_Locale->getText(LOCALE_UNIT_DECIMAL) + to_string(i%10) + "°/s";
 }
 
 int CScanSetup::showFrontendSetup(int number)
