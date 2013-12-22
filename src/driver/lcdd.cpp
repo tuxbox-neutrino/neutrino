@@ -50,6 +50,8 @@
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
+/* we get edvbstring.h included via from src/system/settings.h */
+#if 0
 /* from edvbstring.cpp */
 static bool isUTF8(const std::string &string)
 {
@@ -81,6 +83,7 @@ static bool isUTF8(const std::string &string)
 	}
 	return true; // can be UTF8 (or pure ASCII, at least no non-UTF-8 8bit characters)
 }
+#endif
 
 CLCD::CLCD()
 {
