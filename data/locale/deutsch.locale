@@ -1947,6 +1947,7 @@ timing.volumebar Lautstärkeanzeige
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
+unit.decimal ,
 unit.short.hour h
 unit.short.millisecond ms
 unit.short.minute min

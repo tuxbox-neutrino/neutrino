@@ -1974,6 +1974,7 @@ const char * locale_real_names[] =
 	"unicable.lnb",
 	"unicable.qrg",
 	"unicable.scr",
+	"unit.decimal",
 	"unit.short.hour",
 	"unit.short.millisecond",
 	"unit.short.minute",
