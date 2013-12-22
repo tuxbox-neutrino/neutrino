@@ -167,7 +167,7 @@ audioplayer.receiving_list Receiving list, please wait
 audioplayer.repeat_on enable repeat mode
 audioplayer.rewind rewind
 audioplayer.save_playlist save play list
-audioplayer.screensaver_timeout screensaver timeout (min, 0=off)
+audioplayer.screensaver_timeout screensaver timeout
 audioplayer.select_title_by_name search title by name (SMS)
 audioplayer.show_playlist Show Playlist
 audioplayer.shuffle shuffle

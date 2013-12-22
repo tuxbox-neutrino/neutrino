@@ -577,15 +577,15 @@ struct SNeutrinoSettings
 #define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a))
 
 	// pictureviewer
-	char   picviewer_slide_time[3];
-	int    picviewer_scaling;
+	int picviewer_slide_time;
+	int picviewer_scaling;
 	std::string picviewer_decode_server_ip;
 	char    picviewer_decode_server_port[6];
 
 	//audioplayer
 	int   audioplayer_display;
 	int   audioplayer_follow;
-	char  audioplayer_screensaver[3];
+	int   audioplayer_screensaver;
 	int   audioplayer_highprio;
 	int   audioplayer_select_title_by_name;
 	int   audioplayer_repeat_on;

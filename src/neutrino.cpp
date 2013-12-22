@@ -711,14 +711,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
 
 	//Picture-Viewer
-	strcpy( g_settings.picviewer_slide_time, configfile.getString( "picviewer_slide_time", "10" ).c_str() );
+	g_settings.picviewer_slide_time = configfile.getInt32( "picviewer_slide_time", 10);
 	g_settings.picviewer_scaling = configfile.getInt32("picviewer_scaling", 1 /*(int)CPictureViewer::SIMPLE*/);
 	g_settings.picviewer_decode_server_ip = configfile.getString("picviewer_decode_server_ip", "");
 
 	//Audio-Player
 	g_settings.audioplayer_display = configfile.getInt32("audioplayer_display",(int)CAudioPlayerGui::ARTIST_TITLE);
 	g_settings.audioplayer_follow  = configfile.getInt32("audioplayer_follow",0);
-	strcpy( g_settings.audioplayer_screensaver, configfile.getString( "audioplayer_screensaver", "1" ).c_str() );
+	g_settings.audioplayer_screensaver = configfile.getInt32("audioplayer_screensaver", 1);
 	g_settings.audioplayer_highprio  = configfile.getInt32("audioplayer_highprio",0);
 	g_settings.audioplayer_select_title_by_name = configfile.getInt32("audioplayer_select_title_by_name",0);
 	g_settings.audioplayer_repeat_on = configfile.getInt32("audioplayer_repeat_on",0);
@@ -1169,7 +1169,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
 
 	//Picture-Viewer
-	configfile.setString( "picviewer_slide_time", g_settings.picviewer_slide_time );
+	configfile.setInt32( "picviewer_slide_time", g_settings.picviewer_slide_time);
 	configfile.setInt32( "picviewer_scaling", g_settings.picviewer_scaling );
 	configfile.setString( "picviewer_decode_server_ip", g_settings.picviewer_decode_server_ip );
 	configfile.setString( "picviewer_decode_server_port", g_settings.picviewer_decode_server_port);
@@ -1177,7 +1177,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//Audio-Player
 	configfile.setInt32( "audioplayer_display", g_settings.audioplayer_display );
 	configfile.setInt32( "audioplayer_follow", g_settings.audioplayer_follow );
-	configfile.setString( "audioplayer_screensaver", g_settings.audioplayer_screensaver );
+	configfile.setInt32( "audioplayer_screensaver", g_settings.audioplayer_screensaver );
 	configfile.setInt32( "audioplayer_highprio", g_settings.audioplayer_highprio );
 	configfile.setInt32( "audioplayer_select_title_by_name", g_settings.audioplayer_select_title_by_name );
 	configfile.setInt32( "audioplayer_repeat_on", g_settings.audioplayer_repeat_on );
