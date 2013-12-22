@@ -399,7 +399,7 @@ extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
-extra.record_time Max. Aufnahmezeit in Stunden
+extra.record_time Maximale Aufnahmezeit
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
@@ -1035,7 +1035,7 @@ menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
 menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
-menu.hint_record_end Wählen Sie zwischen max. Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
+menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
 menu.hint_record_tdir Wählen Sie ein Verzeichnis für Ihre Timeshift-Aufnahmen im temporären Timeshift-Modus
 menu.hint_record_time Geben Sie eine maximale Aufnahmezeit in Stunden ein, wenn Sie die Aufnahme nicht vorzeitig stoppen
@@ -1271,7 +1271,7 @@ miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
 miscsettings.volume Lautstärke
-miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
+miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
 motorcontrol.drive_mode Fahr-Modus

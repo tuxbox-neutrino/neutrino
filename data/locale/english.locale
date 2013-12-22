@@ -399,7 +399,7 @@ extra.lodirection LoDirection
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
 extra.north North
-extra.record_time Max. recording time in hours
+extra.record_time Maximal recording time
 extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
@@ -1035,7 +1035,7 @@ menu.hint_record_data Record (VideoText, subtitles) data streams
 menu.hint_record_data_dvbsub subtitle stream
 menu.hint_record_data_vtxt VideoText stream
 menu.hint_record_dir Select directory to store recordings
-menu.hint_record_end Stop direct record after max. time\nor after current event end time
+menu.hint_record_end Stop direct record after maximal time or after current event end time
 menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
 menu.hint_record_time Record time before stop when\nusing direct record with record button
@@ -1271,7 +1271,7 @@ miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
 miscsettings.sleeptimer_min Sleeptimer default
 miscsettings.volume Volume
-miscsettings.zapto_pre_time Zapto Start Time Correction (minutes)
+miscsettings.zapto_pre_time Zapto Start Time Correction
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
 motorcontrol.drive_mode Drive Mode
