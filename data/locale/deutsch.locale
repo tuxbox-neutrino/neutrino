@@ -1693,8 +1693,6 @@ recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
-repeatblocker.hint_1 Mindestzeit (in ms) zwischen 2 Tastendrücken
-repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?

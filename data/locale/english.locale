@@ -1693,8 +1693,6 @@ recordingmenu.vcr vcr
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
-repeatblocker.hint_1 Shortest time (in ms) to recognize 2 keystrokes
-repeatblocker.hint_2 Enter 0 to switch of the blocker (red is space)
 reset_all Factory reset and reboot
 reset_channels Delete all channels
 reset_confirm Are you sure ?
