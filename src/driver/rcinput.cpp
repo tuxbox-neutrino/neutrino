@@ -367,6 +367,11 @@ int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 		_newtimer.interval = 0;
 
 	_newtimer.id = timerid++;
+	/* in theory, this uint32_t could overflow... */
+	/* ...and timerid == 0 is used as "no timer" in many places. */
+	if (timerid == 0)
+		timerid++;
+
 	if ( correct_time )
 		_newtimer.times_out = timeNow+ Interval;
 	else
