@@ -73,7 +73,6 @@ start-block~video_audio_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;audio_left_right_selectable;{=audio_left_right_selectable=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;audio_avs_Control;{=h_audio_avs_Control=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;audio_DolbyDigital;{=audio_DolbyDigital=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audio_PCMOffset;{=audio_PCMOffset=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;audio_step;{=audio_step=}~save=}
 {=ini-set:/var/tuxbox/config/controld.conf;vcroutput;{=h_vcroutput=}~open=}
 {=ini-set:/var/tuxbox/config/controld.conf;videooutput;{=h_videooutput=}~save=}
