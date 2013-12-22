@@ -177,6 +177,9 @@ void CComponents::paintFbItems(bool do_save_bg)
 //screen area save
 inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 {
+	if (dx * dy == 0)
+		return NULL;
+
 	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
 	frameBuffer->waitForIdle("CComponents::getScreen()");
 	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
@@ -187,14 +190,13 @@ inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 inline void CComponents::hide()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
-		if (v_fbdata[i].pixbuf != NULL){
+		if (v_fbdata[i].pixbuf){
 			frameBuffer->waitForIdle("CComponents::hide()");
 			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
-			delete[] v_fbdata[i].pixbuf;
-			v_fbdata[i].pixbuf = NULL;
 		}
 	}
-	v_fbdata.clear();
+
+	clear();
 	is_painted = false;
 }
 
@@ -212,7 +214,7 @@ void CComponents::kill()
 inline void CComponents::clear()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++)
-		if (v_fbdata[i].pixbuf != NULL)
+		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
 	v_fbdata.clear();
 }
