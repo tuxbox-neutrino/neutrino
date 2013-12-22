@@ -29,6 +29,7 @@
 #endif
 
 #include "gui/volumebar.h"
+#include "gui/movieplayer.h"
 
 #include <neutrino.h>
 #include <gui/infoclock.h>
@@ -124,12 +125,14 @@ void CVolumeBar::initVolumeBarPosition()
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + h_spacer;
 				if (g_settings.mode_clock)
-					y = clock_y + clock_height + v_spacer;
+					y = clock_y + clock_height + v_spacer + SHADOW_OFFSET;
 			}
 			x = sw - width - x_corr;
 			break;
 		}
 		case VOLUMEBAR_POS_TOP_LEFT:
+			if (CMoviePlayerGui::getInstance().osdTimeVisible())
+				y = clock_y + clock_height + v_spacer + SHADOW_OFFSET;
 			break;
 		case VOLUMEBAR_POS_BOTTOM_LEFT:
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
@@ -298,7 +301,10 @@ void CVolumeHelper::initInfoClock(Font** font)
 	int t1       = (*clock_font)->getMaxDigitWidth();
 	int t2       = (*clock_font)->getRenderWidth(":");
 	clock_dy     = digit_h + (int)((float)digit_offset * 1.3);
-	clock_dx     = t1*7 + t2*2;
+	if (g_settings.infoClockSeconds)
+		clock_dx     = t1*7 + t2*2;
+	else
+		clock_dx     = t1*5 + t2*1;
 	clock_ax     = sw - clock_dx;
 	clock_ay     = y;
 	vol_ay       = y;
@@ -316,6 +322,9 @@ void CVolumeHelper::initInfoClock(Font** font)
 		else
 			mute_corrY = (vol_height - mute_dy) / 2;
 	}
+
+	time_dx = t1*7 + t2*2;
+	time_ax = frameBuffer->getScreenX() + h_spacer;
 }
 
 void CVolumeHelper::initMuteIcon()

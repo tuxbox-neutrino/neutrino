@@ -39,6 +39,7 @@ void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir, bool allow_tmp = false);
 bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
+void mySleep(int sec);
 
 std::string getPathName(std::string &path);
 std::string getBaseName(std::string &path);
@@ -64,7 +65,6 @@ class CFileHelpers
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
 		bool createDir(const char *Dir, mode_t mode);
 		bool removeDir(const char *Dir);
-
 };
 
 template<class C> std::string to_string(C i)

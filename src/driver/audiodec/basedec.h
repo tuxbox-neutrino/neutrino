@@ -32,6 +32,9 @@
 #include <stdio.h>
 #include <driver/audiofile.h>
 #include <driver/audiometadata.h>
+#include <map>
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
 
 class CBaseDec
 {
@@ -51,10 +54,14 @@ public:
 	static bool GetMetaDataBase(CAudiofile* const in, const bool nice);
 	static void Init();
 
-	CBaseDec(){};
-	static bool SetDSP(int soundfd, int fmt, unsigned int dsp_speed, unsigned int channels);
+	CBaseDec() {};
+
+	static OpenThreads::Mutex metaDataMutex;
+	static std::map<const std::string,CAudiofile> metaDataCache;
+	static void CacheMetaData(CAudiofile* const in);
+	static bool LookupMetaData(CAudiofile* const in);
+	static void ClearMetaData();
 private:
-	static bool avs_mute(bool mute);
 	unsigned static int mSamplerate;
 };
 

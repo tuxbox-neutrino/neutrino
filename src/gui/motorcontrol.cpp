@@ -65,8 +65,6 @@ CMotorControl::CMotorControl(int tnum)
 CMotorControl::~CMotorControl()
 {
 	printf("CMotorControl::~CMotorControl\n");
-	delete sigscale;
-	delete snrscale;
 }
 
 void CMotorControl::Init(void)
@@ -91,10 +89,7 @@ void CMotorControl::Init(void)
 	motorPosition = 1;
 	satellitePosition = 0;
 	stepDelay = 10;
-	sigscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
-	sigscale->setBlink();
-	snrscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
-	snrscale->setBlink();
+	signalbox = NULL;
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)
@@ -313,6 +308,8 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 		}
 	}
 
+	delete signalbox;
+	signalbox = NULL;
 	hide();
 	frontend->setTsidOnid(0);
 
@@ -456,10 +453,6 @@ void CMotorControl::paintHead()
 
 void CMotorControl::paintMenu()
 {
-	sigscale->reset();
-	snrscale->reset();
-	lastsnr = lastsig = -1;
-
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos = y + hheight + (mheight >> 1) - 10;
@@ -584,55 +577,19 @@ void CMotorControl::stopSatFind(void)
 #endif
 }
 
-void CMotorControl::showSNR()
+void CMotorControl::showSNR ()
 {
-	char percent[10];
-	int barwidth = 100;
-	uint16_t ssig, ssnr;
-	int sig, snr;
-	int posx_sig, posx_snr, posy;
-
-	int sw;
-
-	ssig = frontend->getSignalStrength();
-	ssnr = frontend->getSignalNoiseRatio();
-
-	snr = (ssnr & 0xFFFF) * 100 / 65535;
-	sig = (ssig & 0xFFFF) * 100 / 65535;
-	if(sig < 5)
-		return;
-	g_sig = ssig & 0xFFFF;
-	g_snr = snr;
-
-	posy = y + height - mheight - 5;
-	//TODO: move sig/snr display into its own class, similar or same code also to find in scan.cpp
-	if (lastsig != sig) {
-		lastsig = sig;
-		posx_sig = x + 10;
-		sprintf(percent, "%d%% SIG", sig);
-		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SIG");
-
-		sigscale->setProgress(posx_sig-1, posy, BAR_WIDTH, BAR_HEIGHT, sig, 100);
-		sigscale->paint();
-
-		posx_sig += barwidth + 3;
-		frameBuffer->paintBoxRel(posx_sig, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_sig+2, posy + mheight, sw, percent, COL_MENUCONTENT_TEXT);
+	if (signalbox == NULL){
+		int xpos1 = x + 10;
+		signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
+		signalbox->setScaleWidth(60); /*%*/
+		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
+		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
+		signalbox->doPaintBg(true);
 	}
 
-	if (lastsnr != snr) {
-		lastsnr = snr;
-		posx_snr = x + 10 + 210;
-		sprintf(percent, "%d%% SNR", snr);
-		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SNR");
-		
-		snrscale->setProgress(posx_snr-1, posy, BAR_WIDTH, BAR_HEIGHT, snr, 100);
- 		snrscale->paint();
-
-		posx_snr += barwidth + 3;
-		frameBuffer->paintBoxRel(posx_snr, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_snr+2, posy + mheight, sw, percent, COL_MENUCONTENT_TEXT);
-	}
+	signalbox->paint(false);
+	g_snr = signalbox->getSNRValue();
 }
 
 void CMotorControl::readNetwork()

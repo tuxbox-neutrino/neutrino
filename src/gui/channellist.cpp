@@ -129,20 +129,22 @@ CChannelList::~CChannelList()
 {
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
-	delete dline;
-	if (cc_minitv)
+	if(dline){
+		delete dline;
+		dline = NULL;
+	}
+	if (cc_minitv){
 		delete 	cc_minitv;
+		cc_minitv = NULL;
+	}
 	if (headerClock) {
 		headerClock->Stop();
 		if (headerClock->isPainted())
 			headerClock->hide();
 		if (headerClock->isClockRun())
 			headerClock->stopThread();
-		delete headerClock;
-		headerClock = NULL;
 	}
 }
-
 void CChannelList::ClearList(void)
 {
 //printf("************ CLEAR LIST %s : %x\n", name.c_str(), this);fflush(stdout);
@@ -2129,9 +2131,11 @@ void CChannelList::paintHead()
 	if (g_Sectionsd->getIsTimeSet()) {
 		if (headerClock == NULL) {
 			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M");
-			headerClock->setClockIntervall(10);
+			headerClock->setClockBlink("%H %M");
+			headerClock->setClockIntervall(1);
 
 		}
+		headerClock->setClockFormat("%H:%M");
 		headerClock->setClockFont(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
 		headerClock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		headerClock->setYPos(y);

@@ -135,6 +135,8 @@ CStringInput::~CStringInput()
 	if(head) {
 		free(head);
 	}
+
+	g_RCInput->killTimer (smstimer);
 }
 
 #define CStringInputSMSButtonsCount 2
@@ -198,6 +200,7 @@ void CStringInput::init()
 	x = getScreenStartX(width);
 	y = getScreenStartY(height);
 	selected = 0;
+	smstimer = 0;
 }
 
 void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
@@ -473,6 +476,12 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
+		if ((msg == NeutrinoMessages::EVT_TIMER) && (data == smstimer))
+			msg = CRCInput::RC_right;
+
+		if (msg < CRCInput::RC_nokey)
+			g_RCInput->killTimer (smstimer);
+
 		if (msg==CRCInput::RC_left)
 		{
 			keyLeftPressed();
@@ -645,7 +654,7 @@ void CStringInput::paint(bool sms)
 	if (sms)
 	{
 		frameBuffer->getIconSize(NEUTRINO_ICON_NUMERIC_PAD, &icol_w, &icol_h);
-		frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (icol_w/2), tmp_y, 0, COL_MENUCONTENT_TEXT);
+		frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (icol_w/2), tmp_y, 0, 1, true, true, COL_MENUCONTENT_TEXT);
 
 		//buttonbar
 		::paintButtons(x, y+ hheight+ bheight, width, CStringInputSMSButtonsCount, CStringInputSMSButtons, width, fheight);
@@ -767,6 +776,8 @@ void CStringInputSMS::NormalKeyPressed(const neutrino_msg_t key)
 		value[selected] = Chars[numericvalue][keyCounter];
 		last_digit = numericvalue;
 		paintChar(selected);
+		g_RCInput->killTimer (smstimer);
+		smstimer = g_RCInput->addTimer(2*1000*1000);
 	}
 	else
 	{

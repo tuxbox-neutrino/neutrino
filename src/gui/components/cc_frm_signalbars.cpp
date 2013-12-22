@@ -257,9 +257,10 @@ void CSignalNoiseRatioBar::Refresh()
 
 
 //**********************************************************************************************************************
-CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref)
+CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vert)
 {
 	initVarSigBox();
+	vertical = vert;
 
 	sbx_frontend 	= frontend_ref;
 	x 		= xpos;
@@ -267,14 +268,19 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 	width 		= w;
 	height 		= h;
 
-	sbx_bar_height	= height/2;
-	sbx_bar_width 	= width-2*corner_rad;
+	if (vertical) {
+		sbx_bar_height	= height/2;
+		sbx_bar_width 	= width-2*corner_rad;
+	} else {
+		sbx_bar_height	= height;
+		sbx_bar_width	= width/2-2*corner_rad;
+	}
 
 	sbar = new CSignalBar(sbx_bar_x, 0, sbx_bar_width, sbx_bar_height, sbx_frontend);
 	sbar->doPaintBg(false);
 	addCCItem(sbar);
 
-	snrbar = new CSignalNoiseRatioBar(sbx_bar_x, CC_APPEND, sbx_bar_width, sbx_bar_height, sbx_frontend);
+	snrbar = new CSignalNoiseRatioBar(vertical ? sbx_bar_x : CC_APPEND, vertical ? CC_APPEND : 0, sbx_bar_width, sbx_bar_height, sbx_frontend);
 	snrbar->doPaintBg(false);
 	addCCItem(snrbar);
 
@@ -293,6 +299,7 @@ void CSignalBox::initVarSigBox()
 	sbx_bar_x	= corner_rad;
 	sbx_caption_color = COL_INFOBAR_TEXT;
 	sbx_scale_w_percent = 60;
+	vertical = true;
 }
 
 void CSignalBox::initSignalItems()
@@ -314,7 +321,7 @@ void CSignalBox::initSignalItems()
 	sbar->setScaleHeight(scale_h);
 	sbar->setScaleWidth(sbx_scale_w_percent);
 
-	snrbar->setDimensionsAll(sbar_x, CC_APPEND, sbar_w, sbar_h);
+	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : fr_thickness, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
 	snrbar->setCorner(0);
 	snrbar->setScaleHeight(scale_h);

@@ -27,13 +27,11 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#ifdef ENABLE_FLAC
-#include <flacdec.h>
-#endif
 #include <linux/soundcard.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <OpenThreads/ScopedLock>
 
 #include <driver/audioplay.h> // for ShoutcastCallback()
 
@@ -42,13 +40,23 @@
 #include <zapit/client/zapittools.h>
 
 #include "basedec.h"
+#ifdef ENABLE_FFMPEGDEC
+#include "ffmpegdec.h"
+#else
 #include "cdrdec.h"
 #include "mp3dec.h"
 #include "oggdec.h"
 #include "wavdec.h"
+#ifdef ENABLE_FLAC
+#include "flacdec.h"
+#endif
+#endif
+
 #include <driver/netfile.h>
 
 unsigned int CBaseDec::mSamplerate=0;
+OpenThreads::Mutex CBaseDec::metaDataMutex;
+std::map<const std::string,CAudiofile> CBaseDec::metaDataCache;
 
 void ShoutcastCallback(void *arg)
 {
@@ -79,57 +87,43 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 
 	if ( Status == OK )
 	{
+#ifndef ENABLE_FFMPEGDEC
 		if( in->FileType == CFile::STREAM_AUDIO )
 		{
 			if ( fstatus( fp, ShoutcastCallback ) < 0 )
-			{
 				fprintf( stderr, "Error adding shoutcast callback: %s",
-						 err_txt );
-			}
+						err_txt );
+
 			if (ftype(fp, "ogg"))
-			{
 				Status = COggDec::getInstance()->Decoder( fp, OutputFd, state,
-																		&in->MetaData, t,
-																		secondsToSkip );
-			}
+						&in->MetaData, t,
+						secondsToSkip );
 			else
-			{
 				Status = CMP3Dec::getInstance()->Decoder( fp, OutputFd, state,
-																		&in->MetaData, t,
-																		secondsToSkip );
-			}
+						&in->MetaData, t,
+						secondsToSkip );
 		}
 		else if( in->FileType == CFile::FILE_MP3)
-		{
 			Status = CMP3Dec::getInstance()->Decoder( fp, OutputFd, state,
-													  &in->MetaData, t,
-													  secondsToSkip );
-		}
+					&in->MetaData, t,
+					secondsToSkip );
 		else if( in->FileType == CFile::FILE_OGG )
-		{
 			Status = COggDec::getInstance()->Decoder( fp, OutputFd, state,
-													  &in->MetaData, t,
-													  secondsToSkip );
-		}
+					&in->MetaData, t,
+					secondsToSkip );
 		else if( in->FileType == CFile::FILE_WAV )
-		{
 			Status = CWavDec::getInstance()->Decoder( fp, OutputFd, state,
-													  &in->MetaData, t,
-													  secondsToSkip );
-		}
+					&in->MetaData, t,
+					secondsToSkip );
 		else if( in->FileType == CFile::FILE_CDR )
-		{
 			Status = CCdrDec::getInstance()->Decoder( fp, OutputFd, state,
-													  &in->MetaData, t,
-													  secondsToSkip );
-		}
+					&in->MetaData, t,
+					secondsToSkip );
 #ifdef ENABLE_FLAC
 		else if (in->FileType == CFile::FILE_FLAC)
-		{
 			Status = CFlacDec::getInstance()->Decoder(fp, OutputFd, state,
-								  &in->MetaData, t,
-								  secondsToSkip );
-		}
+					&in->MetaData, t,
+					secondsToSkip );
 #endif
 		else
 		{
@@ -138,55 +132,118 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 			Status = INTERNAL_ERR;
 		}
 
+#else
+		CFile::FileType ft = in->FileType;
+		if( in->FileType == CFile::STREAM_AUDIO )
+		{
+			if ( fstatus( fp, ShoutcastCallback ) < 0 )
+				fprintf( stderr, "Error adding shoutcast callback: %s", err_txt );
+
+			if (ftype(fp, "ogg"))
+				ft = CFile::FILE_OGG;
+			else if (ftype(fp, "mpeg"))
+				ft = CFile::FILE_MP3;
+			else
+				ft = CFile::FILE_UNKNOWN;
+		}
+		else
+		{
+			struct stat st;
+			if (!fstat(fileno(fp), &st))
+				in->MetaData.filesize = st.st_size;
+
+		}
+		in->MetaData.type = ft;
+
+		Status = CFfmpegDec::getInstance()->Decoder(fp, OutputFd, state, &in->MetaData, t, secondsToSkip );
+#endif
+
 		if ( fclose( fp ) == EOF )
 		{
-			fprintf( stderr, "Could not close file %s.\n",
-					 in->Filename.c_str() );
+			fprintf( stderr, "Could not close file %s.\n", in->Filename.c_str() );
 		}
 	}
 
 	return Status;
 }
 
+bool CBaseDec::LookupMetaData(CAudiofile* const in)
+{
+	bool res = false;
+	metaDataMutex.lock();
+	std::map<const std::string,CAudiofile>::const_iterator it = metaDataCache.find(in->Filename);
+	if (it != metaDataCache.end()) {
+		*in = it->second;
+		res = true;
+	}
+	metaDataMutex.unlock();
+	return res;
+}
+
+void CBaseDec::CacheMetaData(CAudiofile* const in)
+{
+	metaDataMutex.lock();
+	// FIXME: This places a limit on the cache size. A LRU scheme would be more appropriate.
+	if (metaDataCache.size() > 128)
+		metaDataCache.clear();
+	metaDataCache[in->Filename] = *in;
+	metaDataMutex.unlock();
+}
+
+void CBaseDec::ClearMetaData()
+{
+	metaDataMutex.lock();
+	metaDataCache.clear();
+	metaDataMutex.unlock();
+}
+
 bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 {
-	bool Status = true;
+	if (in->FileType == CFile::STREAM_AUDIO)
+		return true;
 
+	if (LookupMetaData(in))
+		return true;
+
+	bool Status = true;
+#ifndef ENABLE_FFMPEGDEC
 	if (in->FileType == CFile::FILE_MP3 || in->FileType == CFile::FILE_OGG
-	 || in->FileType == CFile::FILE_WAV || in->FileType == CFile::FILE_CDR
+			|| in->FileType == CFile::FILE_WAV || in->FileType == CFile::FILE_CDR
 #ifdef ENABLE_FLAC
-	 || in->FileType == CFile::FILE_FLAC
+			|| in->FileType == CFile::FILE_FLAC
 #endif
 	   )
+#endif
 	{
 		FILE* fp = fopen( in->Filename.c_str(), "r" );
 		if ( fp == NULL )
 		{
 			fprintf( stderr, "Error opening file %s for meta data reading.\n",
-					 in->Filename.c_str() );
+					in->Filename.c_str() );
 			Status = false;
 		}
 		else
 		{
+#ifndef ENABLE_FFMPEGDEC
 			if(in->FileType == CFile::FILE_MP3)
 			{
 				Status = CMP3Dec::getInstance()->GetMetaData(fp, nice,
-															 &in->MetaData);
+						&in->MetaData);
 			}
 			else if(in->FileType == CFile::FILE_OGG)
 			{
 				Status = COggDec::getInstance()->GetMetaData(fp, nice,
-															 &in->MetaData);
+						&in->MetaData);
 			}
 			else if(in->FileType == CFile::FILE_WAV)
 			{
 				Status = CWavDec::getInstance()->GetMetaData(fp, nice,
-															 &in->MetaData);
+						&in->MetaData);
 			}
 			else if(in->FileType == CFile::FILE_CDR)
 			{
 				Status = CCdrDec::getInstance()->GetMetaData(fp, nice,
-															 &in->MetaData);
+						&in->MetaData);
 			}
 #ifdef ENABLE_FLAC
 			else if (in->FileType == CFile::FILE_FLAC)
@@ -195,64 +252,34 @@ bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 				Status = FlacDec.GetMetaData(fp, nice, &in->MetaData);
 			}
 #endif
+#else
+			struct stat st;
+			if (!fstat(fileno(fp), &st))
+				in->MetaData.filesize = st.st_size;
+			in->MetaData.type = in->FileType;
+
+			CFfmpegDec d;
+			Status = d.GetMetaData(fp, nice, &in->MetaData);
+#endif
+			if (Status)
+				CacheMetaData(in);
 			if ( fclose( fp ) == EOF )
 			{
 				fprintf( stderr, "Could not close file %s.\n",
-						 in->Filename.c_str() );
+						in->Filename.c_str() );
 			}
 		}
 	}
+#ifndef ENABLE_FFMPEGDEC
 	else
 	{
 		fprintf( stderr, "GetMetaDataBase: Filetype is not supported for " );
 		fprintf( stderr, "meta data reading.\n" );
 		Status = false;
 	}
+#endif
 
 	return Status;
-}
-
-bool CBaseDec::SetDSP(int soundfd, int fmt, unsigned int dsp_speed, unsigned int channels)
-{
-	bool crit_error=false;
-
-	if (::ioctl(soundfd, SNDCTL_DSP_RESET))
-		printf("reset failed\n");
-	if(::ioctl(soundfd, SNDCTL_DSP_SETFMT, &fmt))
-		printf("setfmt failed\n");
-	if(::ioctl(soundfd, SNDCTL_DSP_CHANNELS, &channels))
-		printf("channel set failed\n");
-	if (dsp_speed != mSamplerate)
-	{
-		// mute audio to reduce pops when changing samplerate (avia_reset)
-		//bool was_muted = avs_mute(true);
-		if (::ioctl(soundfd, SNDCTL_DSP_SPEED, &dsp_speed))
-		{
-			printf("speed set failed\n");
-			crit_error=true;
-		}
-		else
-		{
-#if 0
-			unsigned int rs = 0;
-			::ioctl(soundfd, SNDCTL_DSP_SPEED, &rs);
-			mSamplerate = dsp_speed;
-			// disable iec aka digi out (avia reset enables it again)
-			//g_Zapit->IecOff();
-#endif
-		}
-		//usleep(400000);
-		//if (!was_muted)
-		//	avs_mute(false);
-	}
-//printf("Debug: SNDCTL_DSP_RESET %d / SNDCTL_DSP_SPEED %d / SNDCTL_DSP_CHANNELS %d / SNDCTL_DSP_SETFMT %d\n",
-//					SNDCTL_DSP_RESET, SNDCTL_DSP_SPEED, SNDCTL_DSP_CHANNELS, SNDCTL_DSP_SETFMT);
-	return crit_error;
-}
-
-bool CBaseDec::avs_mute(bool /*mute*/)
-{
-	return true;
 }
 
 void CBaseDec::Init()
@@ -260,3 +287,4 @@ void CBaseDec::Init()
 	mSamplerate=0;
 }
 
+// vim:ts=4

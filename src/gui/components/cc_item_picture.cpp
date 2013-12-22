@@ -138,7 +138,7 @@ void CComponentsPicture::initVarPicture()
 
 #ifdef DEBUG_CC
 	if (pic_width == 0 || pic_height == 0)
-		printf("[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
+		printf("[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __func__, pic_name.c_str(),  pic_width, pic_height);
 #endif
 
 	initPosition();
@@ -181,7 +181,7 @@ void CComponentsPicture::paintPicture()
 
 	if (do_paint && cc_allow_paint){
 #ifdef DEBUG_CC
-	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d)\n", __FUNCTION__, pic_name.c_str(), do_paint);
+	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d)\n", __func__, pic_name.c_str(), do_paint);
 #endif
 		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
 			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0 /*pic_max_h*/, pic_offset, pic_paint, pic_paintBg, col_body);

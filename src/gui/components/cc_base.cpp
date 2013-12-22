@@ -91,7 +91,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n", __FUNCTION__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
+	printf("    [CComponents]\n    [%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n", __func__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
 #endif
 				saved_screen.x = v_fbdata[i].x;
 				saved_screen.y = v_fbdata[i].y;
@@ -109,12 +109,12 @@ void CComponents::paintFbItems(bool do_save_bg)
 		// Don't paint if dx or dy are 0
 		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0)){
 #ifdef DEBUG_CC
-			printf("    [CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __FUNCTION__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
+			printf("    [CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
 #endif
 			continue;
 		}
 		if ((v_fbdata[i].x == 0) || (v_fbdata[i].y == 0)){
-			printf("    [CComponents] WARNING: [%s - %d], x = %d  y = %d\n", __FUNCTION__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
+			printf("    [CComponents] WARNING: [%s - %d], x = %d  y = %d\n", __func__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
 		}
 
 

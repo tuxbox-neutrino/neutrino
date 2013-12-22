@@ -57,8 +57,9 @@ class CComponentsFrmClock : public CComponentsForm
 		///raw time chars
 		char cl_timestr[20];
 
-		//TODO: please add comments!
+		///allow to paint clock within thread and is not similar to cc_allow_paint
 		bool paintClock;
+		//TODO: please add comments!
 		bool activeClock;
 
 		///object: font render object
@@ -70,7 +71,9 @@ class CComponentsFrmClock : public CComponentsForm
 		///text color
 		int cl_col_text;
 		///time format
-		const char* cl_format_str;
+		std::string cl_format_str;
+		///time format for blink
+		std::string cl_blink_str;
 		///time string align, default allign is ver and hor centered
 		int cl_align;
 
@@ -80,7 +83,7 @@ class CComponentsFrmClock : public CComponentsForm
 		///initialize clock contents  
 		void initCCLockItems();
 		///initialize timestring, called in initCCLockItems()
-		void initTimeString();
+		virtual void initTimeString();
 		///initialize of general alignment of timestring segments within form area
 		void initSegmentAlign(int* segment_width, int* segment_height);
 
@@ -107,6 +110,9 @@ class CComponentsFrmClock : public CComponentsForm
 		///use string expession: "%H:%M" = 12:22, "%H:%M:%S" = 12:22:12
 		virtual void setClockFormat(const char* format_str){cl_format_str = format_str;};
 
+		///time format for blink ("%H %M", "%H:%M %S" etc.)
+		virtual void setClockBlink(const char* format_str){cl_blink_str = format_str;};
+
 		///start ticking clock thread, returns true on success, if false causes log output
 		virtual bool startThread();
 		///stop ticking clock thread, returns true on success, if false causes log output
@@ -125,6 +131,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///reinitialize clock contents
 		virtual void refresh() { initCCLockItems(); }
+
+		///set clock activ/inactiv
+		virtual void setClockActiv(bool activ = true){activeClock = activ;};
 };
 
 #endif

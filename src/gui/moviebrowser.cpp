@@ -408,8 +408,7 @@ void CMovieBrowser::fileInfoStale(void)
 void CMovieBrowser::init(void)
 {
 	bool reinit_rows = false;
-	int i;
-
+	int i = 0;
 	//TRACE("[mb]->init\r\n");
 	initGlobalSettings();
 	loadSettings(&m_settings);
@@ -612,6 +611,8 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.ytregion = "default";
 	m_settings.ytquality = 37;
 	m_settings.ytconcconn = 4;
+	m_settings.ytsearch_history_max = 0;
+	m_settings.ytsearch_history_size = 0;
 }
 
 void CMovieBrowser::initFrames(void)
@@ -3272,7 +3273,8 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, play_pos));
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.lastPlayStop;
 	}
-	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL));
+
+	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL), true);
 	position[menu_nr++] = 0;
 
 	for(int i =0 ; i < MI_MOVIE_BOOK_USER_MAX && menu_nr < MAX_NUMBER_OF_BOOKMARK_ITEMS; i++ )
@@ -3765,7 +3767,7 @@ bool CMovieBrowser::showYTMenu()
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_RESULTS, &m_settings.ytresults, true, 10, 50, NULL));
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_HISTORY, &m_settings.ytsearch_history_max, true, 10, 50, NULL));
 
-	char rstr[20];
+	char rstr[20] = {0};
 	sprintf(rstr, "%s", m_settings.ytregion.c_str());
 	CMenuOptionStringChooser * region = new CMenuOptionStringChooser(LOCALE_MOVIEBROWSER_YT_REGION, rstr, true, NULL, CRCInput::RC_nokey, "", true);
 	region->addOption("default");
@@ -3828,7 +3830,11 @@ bool CMovieBrowser::showYTMenu()
 					else
 						++it;
 				}
-				m_settings.ytsearch_history_size = m_settings.ytsearch_history.size();
+				if(m_settings.ytsearch_history.empty())
+					m_settings.ytsearch_history_size = 0;
+				else
+					m_settings.ytsearch_history_size = m_settings.ytsearch_history.size();
+
 				if (m_settings.ytsearch_history_size > m_settings.ytsearch_history_max)
 					m_settings.ytsearch_history_size = m_settings.ytsearch_history_max;
 			}

@@ -256,7 +256,8 @@ ci.reset_standby Reset nach Standby
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
-clock_size Info Uhr
+clock_background Hintergrund anzeigen
+clock_seconds Sekunden anzeigen
 clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden
@@ -433,7 +434,7 @@ extra.volume_pos Lautstärkeanzeige
 extra.volume_size Höhe der Anzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
-extra.zapit_fe_timeout Tuning Timeout (1=10ms)
+extra.zapit_fe_timeout Tuning Timeout
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
@@ -812,7 +813,10 @@ menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfe
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
-menu.hint_clock_size Stellen Sie die Größe der Info Uhr ein.
+menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
+menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
+menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
+menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -1242,7 +1246,7 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
-miscsettings.infoclock Info Uhr
+miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
@@ -1945,6 +1949,11 @@ timing.volumebar Lautstärkeanzeige
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
+unit.decimal ,
+unit.short.hour h
+unit.short.millisecond ms
+unit.short.minute min
+unit.short.second s
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Kein UPnP-Server gefunden
 upnpbrowser.rescan Neue Suche

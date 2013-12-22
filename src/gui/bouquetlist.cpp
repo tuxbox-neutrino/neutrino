@@ -601,16 +601,13 @@ void CBouquetList::paint()
 	int lastnum =  liststart + listmaxshow;
 	int bsize = Bouquets.empty() ? 1 : Bouquets.size();
 
-	if(lastnum<10)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0");
-	else if(lastnum<100)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00");
-	else if(lastnum<1000)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("000");
-	else if(lastnum<10000)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0000");
-	else // if(lastnum<100000)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00000");
+	numwidth = 0;
+	int maxDigitWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getMaxDigitWidth();
+	int _lastnum = lastnum;
+        while (_lastnum) {
+                numwidth += maxDigitWidth;
+                _lastnum /= 10;
+        }
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - footerHeight, COL_MENUCONTENT_PLUS_0);
 

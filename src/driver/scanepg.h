@@ -38,6 +38,9 @@ class CEpgScan
 		t_channel_id next_chid;
 		t_channel_id live_channel_id;
 		std::set<transponder_id_t> scanned;
+		uint32_t rescan_timer;
+		bool scan_in_progress;
+
 		void AddBouquet(CChannelList * clist);
 		bool AddFavorites();
 		void AddTransponders();
@@ -51,8 +54,8 @@ class CEpgScan
 		int handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 		void Next();
 		void Clear();
-		void StartStandby();
-		void StopStandby();
+		void Start(bool instandby = false);
+		void Stop();
 		bool Running();
 };
 

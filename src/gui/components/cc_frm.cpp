@@ -72,7 +72,7 @@ CComponentsForm::~CComponentsForm()
 void CComponentsForm::cleanCCForm()
 {
 #ifdef DEBUG_CC
-	printf("[CComponentsForm]   [%s - %d] clean up...\n", __FUNCTION__, __LINE__);
+	printf("[CComponentsForm]   [%s - %d] clean up...\n", __func__, __LINE__);
 #endif
 
 	clearCCItems();
@@ -130,7 +130,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
 #ifdef DEBUG_CC
-		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), cc_item_index);
+		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
 #endif
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
@@ -142,12 +142,12 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
 #ifdef DEBUG_CC
-		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
+		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
 #endif
 	}
 #ifdef DEBUG_CC
 	else
-		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __FUNCTION__, __LINE__);
+		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __func__, __LINE__);
 #endif
 }
 
@@ -193,7 +193,7 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 	}
 #ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __func__);
 #endif
 
 }
@@ -216,7 +216,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 	if (v_cc_items.empty()){
 		addCCItem(cc_Item);
 #ifdef DEBUG_CC
-		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
 #endif
 	}else{
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
@@ -238,7 +238,7 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 	}
 #ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __func__);
 #endif
 }
 
@@ -301,7 +301,7 @@ void CComponentsForm::paintCCItems()
 		//append vertical
 		if (xpos == CC_APPEND){
 			auto_x += append_h_offset;
-			cc_item->setRealXPos(auto_x + xpos + 1);
+			cc_item->setRealXPos(auto_x + xpos);
 			auto_x += w_item;
 		}
 		//positionize vertical centered
@@ -318,7 +318,7 @@ void CComponentsForm::paintCCItems()
 		//append hor
 		if (ypos == CC_APPEND){
 			auto_y += append_v_offset;
-			cc_item->setRealYPos(auto_y + ypos + 1);
+			cc_item->setRealYPos(auto_y + ypos);
 			auto_y += h_item;
 		}
 		//positionize hor centered
@@ -336,24 +336,24 @@ void CComponentsForm::paintCCItems()
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
 		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + width - fr_thickness;
+		int right_frm = (cc_parent ? cc_xr : x) + width - 2*fr_thickness;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
 		if (right_item > right_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
-				__FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
 
 		//check height and adapt if required
-		int bottom_frm = (cc_parent ? cc_yr : y) + height - fr_thickness;
+		int bottom_frm = (cc_parent ? cc_yr : y) + height - 2*fr_thickness;
 		int bottom_item = cc_item->getRealYPos() + h_item;
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
 		if (bottom_item > bottom_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
-			       __FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
+			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
 

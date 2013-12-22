@@ -51,7 +51,10 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
-	height 		= h > 0 ? h : height;
+	if (h > 0) {
+		userHeight = true;
+		height = h;
+	}
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -74,7 +77,10 @@ CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const in
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
-	height 		= h > 0 ? h : height;
+	if (h > 0) {
+		userHeight = true;
+		height = h;
+	}
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -99,6 +105,7 @@ void CComponentsHeader::initVarHeader()
 	cch_size_mode		= CC_HEADER_SIZE_LARGE;
 	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	height 			= cch_font->getHeight();
+	userHeight		= false;
 	
 	//CComponentsHeader
 	cch_icon_obj		= NULL;
@@ -123,7 +130,7 @@ void CComponentsHeader::initVarHeader()
 CComponentsHeader::~CComponentsHeader()
 {
 #ifdef DEBUG_CC
-	printf("[~CComponentsHeader]   [%s - %d] delete...\n", __FUNCTION__, __LINE__);
+	printf("[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
 #endif
 	v_cch_btn.clear();
 }
@@ -165,7 +172,7 @@ void CComponentsHeader::initIcon()
 	//create instance for cch_icon_obj
 	if (cch_icon_obj == NULL){
 #ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __FUNCTION__, __LINE__, cch_icon_name);
+	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name);
 #endif
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
 	}
@@ -272,7 +279,7 @@ void CComponentsHeader::initButtons()
 	if (cch_btn_obj == NULL){
 		cch_btn_obj = new CComponentsIconForm();
 #ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header buttons...\n", __FUNCTION__, __LINE__);
+	printf("    [CComponentsHeader]\n    [%s - %d] init header buttons...\n", __func__, __LINE__);
 #endif
 	}
 
@@ -325,7 +332,7 @@ void CComponentsHeader::initCaption()
 	//create cch_text_obj and add to collection
 	if (cch_text_obj == NULL){
 #ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __FUNCTION__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
+	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __func__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
 #endif
 		cch_text_obj = new CComponentsText();
 	}
@@ -360,7 +367,10 @@ void CComponentsHeader::initCaption()
 void CComponentsHeader::initCCItems()
 {
 	//set size
-	cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+	if (!userHeight) {
+		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
+		height = cch_font->getHeight();
+	}
 	
 	//init icon
 	initIcon();

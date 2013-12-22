@@ -65,9 +65,8 @@ class CScanTs : public CMenuTarget
 		bool istheend;
 		uint32_t total;
 		uint32_t done;
-		int lastsnr, lastsig;
 		int tuned;
-		CProgressBar *snrscale, *sigscale;
+		CSignalBox *signalbox;
 
 		void paint(bool fortest = false);
 		void paintLineLocale(int x, int * y, int width, const neutrino_locale_t l);

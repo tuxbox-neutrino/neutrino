@@ -42,6 +42,7 @@
 #include <neutrino.h>
 #include <driver/audioplay.h>
 #include <driver/netfile.h>
+#include <eitd/edvbstring.h> // UTF8
 
 void CAudioPlayer::stop()
 {
@@ -163,30 +164,37 @@ void CAudioPlayer::init()
 	CBaseDec::Init();
 	state = CBaseDec::STOP;
 	thrPlay = 0;
+	m_SecondsToSkip = 0;
 }
 
 void CAudioPlayer::sc_callback(void *arg)
 {
   bool changed=false;
   CSTATE *stat = (CSTATE*)arg;
-  if(m_Audiofile.MetaData.artist != stat->artist)
+
+  const std::string artist	= isUTF8(stat->artist)	? stat->artist	: convertLatin1UTF8(stat->artist);
+  const std::string title	= isUTF8(stat->title)	? stat->title	: convertLatin1UTF8(stat->title);
+  const std::string station	= isUTF8(stat->station)	? stat->station	: convertLatin1UTF8(stat->station);
+  const std::string genre	= isUTF8(stat->genre)	? stat->artist	: convertLatin1UTF8(stat->genre);
+
+  if(m_Audiofile.MetaData.artist != artist)
   {
-	  m_Audiofile.MetaData.artist = stat->artist;
+	  m_Audiofile.MetaData.artist = artist;
 	  changed=true;
   }
-  if (m_Audiofile.MetaData.title != stat->title)
+  if (m_Audiofile.MetaData.title != title)
   {
-	  m_Audiofile.MetaData.title = stat->title;
+	  m_Audiofile.MetaData.title = title;
 	  changed=true;
   }
-  if (m_Audiofile.MetaData.sc_station != stat->station)
+  if (m_Audiofile.MetaData.sc_station != station)
   {
-	  m_Audiofile.MetaData.sc_station = stat->station;
+	  m_Audiofile.MetaData.sc_station = station;
 	  changed=true;
   }
-  if (m_Audiofile.MetaData.genre != stat->genre)
+  if (m_Audiofile.MetaData.genre != genre)
   {
-	  m_Audiofile.MetaData.genre = stat->genre;
+	  m_Audiofile.MetaData.genre = genre;
 	  changed=true;
   }
   if(changed)
@@ -203,6 +211,7 @@ void CAudioPlayer::clearFileData()
 	m_Audiofile.clear();
 	m_played_time=0;
 	m_sc_buffered=0;
+	m_SecondsToSkip = 0;
 }
 
 CAudioMetaData CAudioPlayer::getMetaData()

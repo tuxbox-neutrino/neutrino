@@ -41,10 +41,20 @@ rcsim_SOURCES = rcsim.c rcsim.h
 
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
-AM_CPPFLAGS += -DENABLE_FLAC
 else
 FLACLIBS =
 endif
+
+if ENABLE_FFMPEGDEC
+ADEC_LIBS = @SWRESAMPLE_LIBS@
+else
+ADEC_LIBS = @MAD_LIBS@ \
+	@ID3TAG_LIBS@ \
+	$(FLACLIBS) \
+	$(VORBISLIBS)
+endif
+
+AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
 
 if BOXMODEL_APOLLO
 MTDUTILSLIBS = \
@@ -91,11 +101,11 @@ neutrino_LDADD = \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
-	@MAD_LIBS@ \
-	@ID3TAG_LIBS@ \
 	@LIBCS_LIBS@ \
-	$(FLACLIBS) \
-	$(VORBISLIBS) \
+	@AVFORMAT_LIBS@ \
+	@AVUTIL_LIBS@ \
+	@AVCODEC_LIBS@ \
+	$(ADEC_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \

@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
+#include <system/helpers.h>
 
 using namespace std;
 
@@ -84,6 +85,9 @@ void CComponentsFrmClock::initVarClock()
 
 	cl_thread 		= 0;
 	cl_interval		= 1;
+
+	activeClock		= true;
+	cl_blink_str		= "";
 }
 
 CComponentsFrmClock::~CComponentsFrmClock()
@@ -97,7 +101,7 @@ void CComponentsFrmClock::initTimeString()
 	struct tm t;
 	time_t ltime;
 	ltime=time(&ltime);
-	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str, localtime_r(&ltime, &t));
+	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str.c_str(), localtime_r(&ltime, &t));
 }
 
 // How does it works?
@@ -152,9 +156,11 @@ void CComponentsFrmClock::initCCLockItems()
 		}
 	}
 	
-	//calculate minimal separator width, we use a space char...should be enough
+	//calculate minimal separator width, we use char size of some possible chars
 	int minSepWidth = 0;
-	minSepWidth = max((*getClockFont())->getRenderWidth("\x20", true), minSepWidth);
+	string sep[] ={" ", ".", ":"};
+	for (size_t i = 0; i < sizeof(sep)/sizeof(sep[0]); i++)
+		minSepWidth = max((*getClockFont())->getRenderWidth(sep[i], true), minSepWidth);
 
 	//modify available label items with current segment chars
 	for (size_t i = 0; i < v_cc_items.size(); i++)
@@ -260,9 +266,19 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 
 	CComponentsFrmClock *clock = static_cast<CComponentsFrmClock*>(arg);
 	time_t count = time(0);
+	std::string format_str_save = clock->cl_format_str;
 	//start loop for paint
-	while(1) {
+	while(clock != NULL) {
 		if (clock->paintClock) {
+			// Blinking depending on the blink format string
+			if (!clock->cl_blink_str.empty() && (clock->cl_format_str.length() == clock->cl_blink_str.length())) {
+				if (clock->cl_format_str == clock->cl_blink_str.c_str())
+					clock->cl_format_str = format_str_save;
+				else {
+					format_str_save = clock->cl_format_str;
+					clock->cl_format_str = clock->cl_blink_str;
+				}
+			}
 			//paint segements, but wihtout saved backgrounds
 			clock->paint(CC_SAVE_SCREEN_NO);
 			count = time(0);
@@ -271,7 +287,7 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 			clock->cl_thread = 0;
 			break;
 		}
-		sleep(clock->cl_interval);
+		mySleep(clock->cl_interval);
 	}
 	return 0;
 }
@@ -284,7 +300,7 @@ bool CComponentsFrmClock::startThread()
 	if(!cl_thread) {
 		int res = pthread_create (&cl_thread, NULL, initClockThread, ptr) ;
 		if (res != 0){
-			printf("[CComponentsFrmClock]    [%s]  pthread_create  %s\n", __FUNCTION__, strerror(errno));
+			printf("[CComponentsFrmClock]    [%s]  pthread_create  %s\n", __func__, strerror(errno));
 			return false;
 		}
 	}
@@ -297,13 +313,13 @@ bool CComponentsFrmClock::stopThread()
 	if(cl_thread) {
 		int res = pthread_cancel(cl_thread);
 		if (res != 0){
-			printf("[CComponentsFrmClock]    [%s] pthread_cancel  %s\n", __FUNCTION__, strerror(errno));
+			printf("[CComponentsFrmClock]    [%s] pthread_cancel  %s\n", __func__, strerror(errno));
 			return false;
 		}
 
 		res = pthread_join(cl_thread, NULL);
 		if (res != 0){
-			printf("[CComponentsFrmClock]    [%s] pthread_join  %s\n", __FUNCTION__, strerror(errno));
+			printf("[CComponentsFrmClock]    [%s] pthread_join  %s\n", __func__, strerror(errno));
 			return false;
 		}
 	}

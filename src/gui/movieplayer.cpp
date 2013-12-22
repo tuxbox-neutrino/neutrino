@@ -156,6 +156,11 @@ void CMoviePlayerGui::Init(void)
 	timeshift = 0;
 	numpida = 0;
 	showStartingHint = false;
+
+	min_x = 0;
+	max_x = 0;
+	min_y = 0;
+	max_y = 0;
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -622,6 +627,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 		if ((playstate >= CMoviePlayerGui::PLAY) && (timeshift || (playstate != CMoviePlayerGui::PAUSE))) {
 			if(playback->GetPosition(position, duration)) {
+				FileTime.update(position, duration);
 				if(duration > 100)
 					file_prozent = (unsigned char) (position / (duration / 100));
 #if HAVE_TRIPLEDRAGON

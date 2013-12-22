@@ -1018,6 +1018,7 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 {
 	if (subhead_text != NONEXISTANT_LOCALE)
 		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, subhead_text));
+
 	addItem(GenericMenuSeparator);
 	
 	if (buttontype != BTN_TYPE_NO)
@@ -1039,7 +1040,7 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 	
 	if (section_text != NONEXISTANT_LOCALE)
 		addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, section_text));
-	else
+	else if (buttontype != BTN_TYPE_NO)
 		addItem(GenericMenuSeparatorLine);
 }
 
@@ -1085,7 +1086,7 @@ void CMenuWidget::paintHint(int pos)
 		if (details_line)
 			savescreen ? details_line->hide() : details_line->kill();
 		/* clear info box */
-		if ((info_box) && (pos == -1))
+		if ((info_box) && (pos < 0))
 			savescreen ? info_box->hide(true) : info_box->kill();
 		hint_painted = false;
 	}
@@ -1095,8 +1096,10 @@ void CMenuWidget::paintHint(int pos)
 	CMenuItem* item = items[pos];
 	
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
-		if (info_box)
-			info_box->hide(false);	
+		if (info_box) {
+			savescreen ? info_box->hide(false) : info_box->kill();
+			hint_painted = false;
+		}
 		return;
 	}
 	
@@ -1170,6 +1173,7 @@ CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name,
 	localized_value_name = special_value_name;
 	
 	optionString         = non_localized_name;
+	numberFormat         = "%d";
 	observ = Observ;
 	slider_on = sliderOn;
 }
@@ -1202,7 +1206,7 @@ int CMenuOptionNumberChooser::paint(bool selected)
 
 	if ((localized_value_name == NONEXISTANT_LOCALE) || ((*optionValue) != localized_value))
 	{
-		sprintf(option_value, "%d", ((*optionValue) + display_offset));
+		sprintf(option_value, numberFormat.c_str(), ((*optionValue) + display_offset));
 		l_option = option_value;
 	}
 	else
@@ -1253,6 +1257,12 @@ int CMenuOptionNumberChooser::getWidth(void)
 	}
 
 	width += (w1 > w2) ? w1 : w2;
+
+	if (numberFormat != "%d") {
+		char format[numberFormat.length()];
+		snprintf(format, numberFormat.length(), numberFormat.c_str(), 0);
+		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(format, true) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0", true);
+	}
 
 	return width + 10; /* min 10 pixels between option name and value. enough? */
 }

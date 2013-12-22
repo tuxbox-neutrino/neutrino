@@ -877,7 +877,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.pip_height = configfile.getInt32("pip_height", 200);
 #endif
 
-	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", 34);
+	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", 30);
+	g_settings.infoClockBackground = configfile.getInt32("infoClockBackground", 0);
+	g_settings.infoClockSeconds = configfile.getInt32("infoClockSeconds", 1);
 
 	if(erg)
 		configfile.setModifiedFlag(true);
@@ -1296,6 +1298,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("pip_height", g_settings.pip_height);
 #endif
 	configfile.setInt32("infoClockFontSize", g_settings.infoClockFontSize);
+	configfile.setInt32("infoClockBackground", g_settings.infoClockBackground);
+	configfile.setInt32("infoClockSeconds", g_settings.infoClockSeconds);
 	configfile.setInt32("easymenu", g_settings.easymenu);
 	if(strcmp(fname, NEUTRINO_SETTINGS_FILE))
 		configfile.saveConfig(fname);
@@ -2208,12 +2212,17 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StopSubtitles();
 					InfoClock->enableInfoClock(false);
 					int old_ttx = g_settings.cacheTXT;
+					int old_epg = g_settings.epg_scan;
 					mainMenu.exec(NULL, "");
 					InfoClock->enableInfoClock(true);
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
-					if (!g_settings.epg_scan)
-						CEpgScan::getInstance()->Clear();
+					if (old_epg != g_settings.epg_scan) {
+						if (g_settings.epg_scan)
+							CEpgScan::getInstance()->Start();
+						else
+							CEpgScan::getInstance()->Clear();
+					}
 					if (old_ttx != g_settings.cacheTXT) {
 						if(g_settings.cacheTXT) {
 							tuxtxt_init();
@@ -2275,12 +2284,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
 				// Zap-History "Bouquet"
-				if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-					InfoClock->enableInfoClock(false);
-					g_settings.mode_clock = false;
-				} else {
-					numericZap( msg );
-				}
+				InfoClock->enableInfoClock(false);
+				numericZap( msg );
+				InfoClock->enableInfoClock(true);
 			}
 #ifdef SCREENSHOT
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -2441,10 +2447,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				scartMode(true);
 			else {
 				if (msg == CRCInput::RC_home) {
-					if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-						InfoClock->enableInfoClock(false);
-						g_settings.mode_clock = false;
-					}
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				}
 				handleMsg(msg, data);
@@ -3496,8 +3498,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 
 		videoDecoder->Standby(true);
 
-		g_Sectionsd->setPauseScanning(!fromDeepStandby);
 		g_Sectionsd->setServiceChanged(0, false);
+		g_Sectionsd->setPauseScanning(!fromDeepStandby);
 
 		lastMode = mode;
 		mode = mode_standby;
@@ -3534,7 +3536,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		frameBuffer->setActive(false);
 		// Active standby on
 		powerManager->SetStandby(false, false);
-		CEpgScan::getInstance()->StartStandby();
+		CEpgScan::getInstance()->Start(true);
 	} else {
 		// Active standby off
 		powerManager->SetStandby(false, false);
@@ -3542,7 +3544,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		CVFD::getInstance()->ShowText("resume...        ");
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		videoDecoder->Standby(false);
-		CEpgScan::getInstance()->StopStandby();
+		CEpgScan::getInstance()->Stop();
 		CSectionsdClient::CurrentNextInfo dummy;
 		g_InfoViewer->getEPG(0, dummy);
 

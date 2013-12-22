@@ -35,6 +35,17 @@ else
 	rm -f local_build_config.h.tmp
 fi
 
+AC_ARG_ENABLE(ffmpegdec,
+	AS_HELP_STRING(--enable-ffmpegdec,include ffmpeg decoder support),
+	,[enable_ffmpegdec=no])
+
+AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
+if test "$enable_ffmpegdec" = "yes"; then
+	AC_DEFINE(ENABLE_FFMPEGDEC,1,[include ffmpeg decoder support])
+fi
+
+if test x"$enable_ffmpegdec" != xyes; then
+
 AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
 	[use libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR="$withval"],
@@ -44,10 +55,6 @@ AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
 	[use statically linked libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
-
-if test "$BOXTYPE" = "tripledragon"; then
-	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
-fi
 
 if test "$TREMOR_STATIC" = "yes"; then
 	TREMOR=yes
@@ -63,23 +70,34 @@ if test "$TREMOR_STATIC" = "yes"; then
 	VORBISIDEC_LIBS="$(echo $VORBISIDEC_LIBS | sed 's@-L@@; s@ -l.*@/libvorbisidec.a@;')"
 fi
 
-AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
-
-TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
-TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
-# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(ID3TAG,libid3tag)
 if test x"$ID3TAG_EXISTS" != xyes; then
 	TUXBOX_APPS_LIB_PKGCONFIG(ID3TAG,id3tag)
 fi
+
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(MAD,libmad)
 if test x"$MAD_EXISTS" != xyes; then
 	TUXBOX_APPS_LIB_PKGCONFIG(MAD,mad)
 fi
+
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
+else
+TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
+fi
+
+if test "$BOXTYPE" = "tripledragon"; then
+	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
+fi
+
+AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
+
+# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
+TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
+TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
+
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
