@@ -430,7 +430,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strncpy(g_settings.pref_subs[i], configfile.getString(cfg_key, "none").c_str(), 30);
 	}
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
-	strcpy( g_settings.audio_PCMOffset, configfile.getString( "audio_PCMOffset", "0" ).c_str() );
 
 	//vcr
 	g_settings.vcr_AutoSwitch = configfile.getBool("vcr_AutoSwitch"       , true );
@@ -938,7 +937,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		sprintf(cfg_key, "pref_subs_%d", i);
 		configfile.setString(cfg_key, g_settings.pref_subs[i]);
 	}
-	configfile.setString( "audio_PCMOffset", g_settings.audio_PCMOffset );
 
 	//vcr
 	configfile.setBool("vcr_AutoSwitch"       , g_settings.vcr_AutoSwitch       );
@@ -2538,11 +2536,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 					struct timeval      endtime;
 					time_t              seconds;
 
-					int timeout = 0;
-					int timeout1 = 0;
-
-					sscanf(g_settings.repeat_blocker, "%d", &timeout);
-					sscanf(g_settings.repeat_genericblocker, "%d", &timeout1);
+					int timeout = g_settings.repeat_blocker;
+					int timeout1 = g_settings.repeat_genericblocker;
 
 					if (timeout1 > timeout)
 						timeout = timeout1;
@@ -3857,8 +3852,8 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
 	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
 	g_settings.key_click = tconfig.getInt32( "key_click", 1 );
-	strcpy(g_settings.repeat_blocker, tconfig.getString("repeat_blocker", "150").c_str());
-	strcpy(g_settings.repeat_genericblocker, tconfig.getString("repeat_genericblocker", "100").c_str());
+	g_settings.repeat_blocker = tconfig.getInt32("repeat_blocker", 150);
+	g_settings.repeat_genericblocker = tconfig.getInt32("repeat_genericblocker", 100);
 
 	g_settings.bouquetlist_mode = tconfig.getInt32( "bouquetlist_mode", 0 );
 	g_settings.sms_channel = tconfig.getInt32( "sms_channel", 0 );
@@ -3924,8 +3919,8 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
 	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );
 	tconfig.setInt32( "key_click", g_settings.key_click );
-	tconfig.setString( "repeat_blocker", g_settings.repeat_blocker );
-	tconfig.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
+	tconfig.setInt32( "repeat_blocker", g_settings.repeat_blocker );
+	tconfig.setInt32( "repeat_genericblocker", g_settings.repeat_genericblocker );
 
 	tconfig.setInt32( "bouquetlist_mode", g_settings.bouquetlist_mode );
 	tconfig.setInt32( "sms_channel", g_settings.sms_channel );

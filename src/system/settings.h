@@ -100,7 +100,6 @@ struct SNeutrinoSettings
 	int audio_DolbyDigital;
 	int auto_lang;
 	int auto_subs;
-	char audio_PCMOffset[3];
 	int srs_enable;
 	int srs_algo;
 	int srs_ref_volume;
@@ -458,8 +457,8 @@ struct SNeutrinoSettings
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
 	int channellist_numeric_adjust;
-	char repeat_blocker[4];
-	char repeat_genericblocker[4];
+	int repeat_blocker;
+	int repeat_genericblocker;
 	int remote_control_hardware;
 	int audiochannel_up_down_enable;
 
