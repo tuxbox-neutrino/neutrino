@@ -71,8 +71,8 @@ struct SNeutrinoSettings
 	char shutdown_count[4];
 	char shutdown_min[4];
 	int sleeptimer_min;
-	char record_safety_time_before[3];
-	char record_safety_time_after[3];
+	int record_safety_time_before;
+	int record_safety_time_after;
 	int zapto_pre_time;
 	int infobar_sat_display;
 	int infobar_show_channeldesc;
@@ -256,8 +256,7 @@ struct SNeutrinoSettings
 		TIMING_SETTING_COUNT
 	};
 
-	int  timing       [TIMING_SETTING_COUNT]   ;
-	char timing_string[TIMING_SETTING_COUNT][4];
+	int timing [TIMING_SETTING_COUNT];
 
 	//widget settings
 	int widget_fade;

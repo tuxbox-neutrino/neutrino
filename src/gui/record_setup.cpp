@@ -218,6 +218,7 @@ int CRecordSetup::showRecordSetup()
 
 	//rec hours
 	CMenuOptionNumberChooser * mc = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_TIME, &g_settings.record_hours, true, 1, 24, NULL);
+	mc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_HOUR));
 	mc->setHint("", LOCALE_MENU_HINT_RECORD_TIME);
 	recordingSettings->addItem(mc);
 
@@ -280,31 +281,40 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	//recording start/end correcture
 	int pre,post;
 	g_Timerd->getRecordingSafety(pre,post);
-	sprintf(g_settings.record_safety_time_before, "%02d", pre/60);
-	sprintf(g_settings.record_safety_time_after, "%02d", post/60);
-
-	//start
-	CStringInput * timerBefore = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, g_settings.record_safety_time_before, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_2,"0123456789 ", this);
-	CMenuForwarder *fTimerBefore = new CMenuDForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, true, g_settings.record_safety_time_before, timerBefore);
-	fTimerBefore->setHint("", LOCALE_MENU_HINT_RECORD_TIMEBEFORE);
-
-	//end
-	CStringInput * timerAfter = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, g_settings.record_safety_time_after, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_2,"0123456789 ", this);
-	CMenuForwarder *fTimerAfter = new CMenuDForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, true, g_settings.record_safety_time_after, timerAfter);
-	fTimerAfter->setHint("", LOCALE_MENU_HINT_RECORD_TIMEAFTER);
-
-	//announce
-	CMenuOptionChooser* chzapAnnounce = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ZAP_ON_ANNOUNCE, &g_settings.recording_zap_on_announce, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	chzapAnnounce->setHint("", LOCALE_MENU_HINT_RECORD_ZAP);
-
-	CMenuOptionNumberChooser *chzapCorr = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_ZAPTO_PRE_TIME, &g_settings.zapto_pre_time, true, 0, 10);
-	chzapCorr->setHint("", LOCALE_MENU_HINT_RECORD_ZAP_PRE_TIME);
+	g_settings.record_safety_time_before = pre/60;
+	g_settings.record_safety_time_after = post/60;
 
 	menu_timersettings->addIntroItems(LOCALE_TIMERSETTINGS_SEPARATOR);
-	menu_timersettings->addItem(fTimerBefore);
-	menu_timersettings->addItem(fTimerAfter);
+
+	std::string nf = "%d ";
+	nf += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+
+	//start
+	CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE,
+		&g_settings.record_safety_time_before, true, 0, 99, NULL);
+	ch->setNumberFormat(nf);
+	ch->setHint("", LOCALE_MENU_HINT_RECORD_TIMEBEFORE);
+	menu_timersettings->addItem(ch);
+
+	//end
+	ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER,
+		&g_settings.record_safety_time_after, true, 0, 99, NULL);
+	ch->setNumberFormat(nf);
+	ch->setHint("", LOCALE_MENU_HINT_RECORD_TIMEAFTER);
+	menu_timersettings->addItem(ch);
+
+	//announce
+	CMenuOptionChooser* chzapAnnounce = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ZAP_ON_ANNOUNCE,
+		&g_settings.recording_zap_on_announce, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	chzapAnnounce->setHint("", LOCALE_MENU_HINT_RECORD_ZAP);
 	menu_timersettings->addItem(chzapAnnounce);
-	menu_timersettings->addItem(chzapCorr);
+
+	//zapto
+	ch = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_ZAPTO_PRE_TIME,
+		&g_settings.zapto_pre_time, true, 0, 10);
+	ch->setHint("", LOCALE_MENU_HINT_RECORD_ZAP_PRE_TIME);
+	ch->setNumberFormat(nf);
+	menu_timersettings->addItem(ch);
 }
 
 
@@ -381,7 +391,7 @@ bool CRecordSetup::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 {
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER)) {
-		g_Timerd->setRecordingSafety(atoi(g_settings.record_safety_time_before)*60, atoi(g_settings.record_safety_time_after)*60);
+		g_Timerd->setRecordingSafety(g_settings.record_safety_time_before*60, g_settings.record_safety_time_after);
 	} else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_STD) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_ALT) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_AC3)) {

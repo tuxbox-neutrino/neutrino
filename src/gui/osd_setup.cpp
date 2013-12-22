@@ -63,8 +63,6 @@
 
 extern CRemoteControl * g_RemoteControl;
 
-static CTimingSettingsNotifier timingsettingsnotifier;
-
 extern const char * locale_real_names[];
 extern std::string ttx_font_file;
 
@@ -329,8 +327,6 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey=="osd.def") {
 		for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 			g_settings.timing[i] = timing_setting[i].default_timing;
-
-		CNeutrinoApp::getInstance()->SetupTiming();
 		return res;
 	}
 	else if(actionKey=="logo_dir") {
@@ -811,10 +807,14 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 {
 	menu_timeout->addIntroItems(LOCALE_COLORMENU_TIMING);
 
+	std::string nf("%d ");
+	nf += g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
-		CStringInput * timing_item = new CStringInput(timing_setting[i].name, g_settings.timing_string[i], 3, LOCALE_TIMING_HINT_1, LOCALE_TIMING_HINT_2, "0123456789 ", &timingsettingsnotifier);
-		menu_timeout->addItem(new CMenuDForwarder(timing_setting[i].name, true, g_settings.timing_string[i], timing_item));
+		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 99);
+		ch->setNumberFormat(nf);
+		ch->setHint("", LOCALE_MENU_HINT_OSD_TIMING);
+		menu_timeout->addItem(ch);
 	}
 
 	menu_timeout->addItem(GenericMenuSeparatorLine);

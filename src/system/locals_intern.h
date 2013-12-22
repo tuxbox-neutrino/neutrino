@@ -1031,6 +1031,7 @@ const char * locale_real_names[] =
 	"menu.hint_osd",
 	"menu.hint_osd_language",
 	"menu.hint_osd_preset",
+	"menu.hint_osd_timing",
 	"menu.hint_parentallock_changepin",
 	"menu.hint_parentallock_lockage",
 	"menu.hint_parentallock_menu",
