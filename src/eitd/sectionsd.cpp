@@ -1368,7 +1368,7 @@ void CTimeThread::setSystemTime(time_t tim)
 #endif
 	if (timediff == 0) /* very unlikely... :-) */
 		return;
-	if (abs(tim - tv.tv_sec) < 120) { /* abs() is int */
+	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
 		tv.tv_sec = timediff / 1000000LL;
 		tv.tv_usec = timediff % 1000000LL;
