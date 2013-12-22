@@ -253,7 +253,6 @@ int CKeybindSetup::showKeySetup()
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC,
 		&g_settings.repeat_genericblocker, true, 0, 999);
 	cc->setNumberFormat(ms_number_format);
-	cc->setNumberFormat(ms_number_format);
 	cc->setHint("", LOCALE_MENU_HINT_KEY_REPEATBLOCKGENERIC);
 	keySettings->addItem(cc);
 
