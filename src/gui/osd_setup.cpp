@@ -811,7 +811,7 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 	nf += g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
-		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 99);
+		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 180);
 		ch->setNumberFormat(nf);
 		ch->setHint("", LOCALE_MENU_HINT_OSD_TIMING);
 		menu_timeout->addItem(ch);
