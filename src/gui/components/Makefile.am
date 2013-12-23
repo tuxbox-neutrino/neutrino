@@ -28,6 +28,7 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_detailsline.cpp \
 	cc_frm_button.cpp \
 	cc_frm.cpp \
+	cc_frm_chain.cpp \
 	cc_frm_clock.cpp \
 	cc_frm_footer.cpp \
 	cc_frm_header.cpp \

@@ -151,6 +151,12 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 #endif
 }
 
+void CComponentsForm::addCCItem(const std::vector<CComponentsItem*> cc_Items)
+{
+	for (size_t i= 0; i< cc_Items.size(); i++)
+		addCCItem(cc_Items[i]);
+}
+
 int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
@@ -296,6 +302,15 @@ void CComponentsForm::paintCCItems()
 		//get current position of item
 		int xpos = cc_item->getXPos();
 		int ypos = cc_item->getYPos();
+
+		//check item for corrupt position, skip current item if found problems
+		//TODO: need a solution with possibility for scrolling
+		if (ypos > height || xpos > width){
+			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined width=%d \ndefinied y=%d, defined height=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, width, ypos, height);
+			if (this->cc_item_type != CC_ITEMTYPE_FRM_CHAIN)
+				continue;
+		}
 
 		//set required x-position to item:
 		//append vertical
