@@ -242,14 +242,15 @@ int CKeybindSetup::showKeySetup()
 		mc->setHint("", LOCALE_MENU_HINT_KEY_HARDWARE);
 		keySettings->addItem(mc);
 	}
+	std::string ms_number_format("%d ");
+	ms_number_format += g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND);
 	CMenuOptionNumberChooser *cc;
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCK,
 		&g_settings.repeat_blocker, true, 0, 999);
+	cc->setNumberFormat(ms_number_format);
 	cc->setHint("", LOCALE_MENU_HINT_KEY_REPEATBLOCK);
 	keySettings->addItem(cc);
 
-	std::string ms_number_format("%d ");
-	ms_number_format += g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND);
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC,
 		&g_settings.repeat_genericblocker, true, 0, 999);
 	cc->setNumberFormat(ms_number_format);
