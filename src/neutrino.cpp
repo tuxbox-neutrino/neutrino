@@ -2041,12 +2041,13 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 		ShowMsgUTF(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
 	}
 	g_RCInput->clearRCMsg();
-	if(g_settings.power_standby || init_cec_setting)
-		standbyMode(true, true);
 
 	InfoClock = CInfoClock::getInstance();
 	if(g_settings.mode_clock)
 		g_settings.mode_clock = InfoClock->StartClock();
+
+	if(g_settings.power_standby || init_cec_setting)
+		standbyMode(true, true);
 
 	//cCA::GetInstance()->Ready(true);
 
