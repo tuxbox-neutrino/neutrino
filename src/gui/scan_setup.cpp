@@ -441,7 +441,7 @@ int CScanSetup::showScanMenu()
 		//tune timeout
 		if(CFEManager::getInstance()->getFrontendCount() <= 1) {
 			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
-			nc->setNumberFormat(std::string("%d0 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
+			nc->setNumberFormat(std::string("%d00 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
 			nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
 			settings->addItem(nc);
 		}
@@ -562,7 +562,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 			frontendSetup = mf;
 	}
 	CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
-	nc->setNumberFormat(std::string("%d0 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
+	nc->setNumberFormat(std::string("%d00 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
 	nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
 	setupMenu->addItem(nc);
 
