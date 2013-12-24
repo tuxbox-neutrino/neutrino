@@ -68,8 +68,8 @@ struct SNeutrinoSettings
 	//misc
 	int shutdown_real;
 	int shutdown_real_rcdelay;
-	char shutdown_count[4];
-	char shutdown_min[4];
+	int shutdown_count;
+	int shutdown_min;
 	int sleeptimer_min;
 	int record_safety_time_before;
 	int record_safety_time_after;
@@ -141,10 +141,10 @@ struct SNeutrinoSettings
 	// EPG
 	int epg_save;
 	int epg_save_standby;
-	std::string epg_cache;
-	std::string epg_old_events;
-	std::string epg_max_events;
-	std::string epg_extendedcache;
+	std::string epg_cache;			// FIXME
+	std::string epg_old_events;		// FIXME
+	std::string epg_max_events;		// FIXME
+	std::string epg_extendedcache;		// FIXME
 	std::string epg_dir;
 	int epg_scan;
 

@@ -34,6 +34,7 @@
 #include <mymenu.h>
 #include <neutrino_menue.h>
 #include <system/setting_helpers.h>
+#include <system/helpers.h>
 
 #include <gui/miscsettings_menu.h>
 #include <gui/cec_setup.h>
@@ -332,8 +333,11 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
 	m1->setHint("", LOCALE_MENU_HINT_SHUTDOWN_RCDELAY);
 
-	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
-	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, g_settings.shutdown_count, miscSettings_shutdown_count);
+	std::string shutdown_count = to_string(g_settings.shutdown_count);
+	if (shutdown_count.length() < 3)
+		shutdown_count.insert(0, 3 - shutdown_count.length(), '0');
+	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, &shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
+	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, shutdown_count.c_str(), miscSettings_shutdown_count);
 	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
 
 	COnOffNotifier * miscNotifier = new COnOffNotifier(1);
@@ -347,7 +351,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	ms_energy->addItem(m1);
 	ms_energy->addItem(m2);
 
-	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent");
+	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget, "permanent");
 	m2->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
 	ms_energy->addItem(m2);
 
@@ -362,6 +366,9 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	}
 
 	int res = ms_energy->exec(NULL, "");
+
+	g_settings.shutdown_count = atoi(shutdown_count.c_str());
+
 	delete ms_energy;
 	delete miscNotifier;
 	return res;
@@ -377,7 +384,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	mc1->setHint("", LOCALE_MENU_HINT_EPG_SAVE_STANDBY);
 
 	CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &g_settings.epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, g_settings.epg_cache, miscSettings_epg_cache);
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, NULL, miscSettings_epg_cache);
 	mf->setHint("", LOCALE_MENU_HINT_EPG_CACHE);
 
 	CStringInput * miscSettings_epg_cache_e = new CStringInput(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, &g_settings.epg_extendedcache, 3,LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT1, LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);

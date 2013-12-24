@@ -63,8 +63,8 @@ void* SHTDCNT::TimeThread(void *)
 
 void SHTDCNT::init()
 {
-	shutdown_cnt = atoi(g_settings.shutdown_count) * 60;
-	sleep_cnt = atoi(g_settings.shutdown_min)*60;
+	shutdown_cnt = g_settings.shutdown_count * 60;
+	sleep_cnt = g_settings.shutdown_min * 60;
 	if (pthread_create (&thrTime, NULL, TimeThread, NULL) != 0 )
 	{
 		perror("[SHTDCNT]: pthread_create(TimeThread)");
@@ -75,7 +75,7 @@ void SHTDCNT::init()
 void SHTDCNT::shutdown_counter()
 {
 	static bool sleeptimer_active = true;
-	if (atoi(g_settings.shutdown_count) > 0)
+	if (g_settings.shutdown_count > 0)
 	{
 		if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby) && (!CNeutrinoApp::getInstance ()->recordingstatus))
 		{
@@ -95,11 +95,11 @@ void SHTDCNT::shutdown_counter()
 		else
 		{
 			// reset counter
-			shutdown_cnt = atoi(g_settings.shutdown_count) * 60;
+			shutdown_cnt = g_settings.shutdown_count * 60;
 		}
 	}
 
-	if(atoi(g_settings.shutdown_min) > 0) {
+	if(g_settings.shutdown_min > 0) {
 		if(sleep_cnt > 0) {
 			sleeptimer_active = true;
 			sleep_cnt--;
@@ -118,5 +118,5 @@ void SHTDCNT::shutdown_counter()
 
 void SHTDCNT::resetSleepTimer()
 {
-	sleep_cnt = atoi(g_settings.shutdown_min)*60;
+	sleep_cnt = g_settings.shutdown_min * 60;
 }

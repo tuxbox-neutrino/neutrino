@@ -388,11 +388,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.shutdown_real         = configfile.getBool("shutdown_real"        , false );
 	g_settings.shutdown_real_rcdelay = configfile.getBool("shutdown_real_rcdelay", false );
-	strcpy(g_settings.shutdown_count, configfile.getString("shutdown_count","0").c_str());
+	g_settings.shutdown_count = configfile.getInt32("shutdown_count", 0);
 
-	strcpy(g_settings.shutdown_min, "000");
+	g_settings.shutdown_min = 0;
 	if(cs_get_revision() > 7)
-		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
+		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180);
 	g_settings.sleeptimer_min = configfile.getInt32("sleeptimer_min", 0);
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
@@ -895,8 +895,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "hdd_noise", g_settings.hdd_noise);
 	configfile.setBool("shutdown_real"        , g_settings.shutdown_real        );
 	configfile.setBool("shutdown_real_rcdelay", g_settings.shutdown_real_rcdelay);
-	configfile.setString("shutdown_count"           , g_settings.shutdown_count);
-	configfile.setString("shutdown_min"  , g_settings.shutdown_min  );
+	configfile.setInt32("shutdown_count"           , g_settings.shutdown_count);
+	configfile.setInt32("shutdown_min"  , g_settings.shutdown_min  );
 	configfile.setInt32("sleeptimer_min", g_settings.sleeptimer_min);
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
