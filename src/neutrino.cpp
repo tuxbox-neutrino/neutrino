@@ -737,7 +737,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//Picture-Viewer
 	g_settings.picviewer_slide_time = configfile.getInt32( "picviewer_slide_time", 10);
 	g_settings.picviewer_scaling = configfile.getInt32("picviewer_scaling", 1 /*(int)CPictureViewer::SIMPLE*/);
-	g_settings.picviewer_decode_server_ip = configfile.getString("picviewer_decode_server_ip", "");
 
 	//Audio-Player
 	g_settings.audioplayer_display = configfile.getInt32("audioplayer_display",(int)CAudioPlayerGui::ARTIST_TITLE);
@@ -1177,8 +1176,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//Picture-Viewer
 	configfile.setInt32( "picviewer_slide_time", g_settings.picviewer_slide_time);
 	configfile.setInt32( "picviewer_scaling", g_settings.picviewer_scaling );
-	configfile.setString( "picviewer_decode_server_ip", g_settings.picviewer_decode_server_ip );
-	configfile.setString( "picviewer_decode_server_port", g_settings.picviewer_decode_server_port);
 
 	//Audio-Player
 	configfile.setInt32( "audioplayer_display", g_settings.audioplayer_display );
