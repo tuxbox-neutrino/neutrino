@@ -50,12 +50,13 @@ class CComponentsDetailLine : public CComponents
 		int h_mark_down;
 
 		///initialize all internal attributes
-		void initVarDline();
+		void initVarDline(	const int& x_pos, const int& y_pos_top, const int& y_pos_down,
+					const int& h_mark_top_, const int& h_mark_down_,
+					fb_pixel_t color_line, fb_pixel_t color_shadow);
 
 	public:
-		CComponentsDetailLine();
-		CComponentsDetailLine(	const int x_pos,const int y_pos_top, const int y_pos_down,
-					const int h_mark_up = CC_HEIGHT_MIN , const int h_mark_down = CC_HEIGHT_MIN,
+		CComponentsDetailLine(	const int& x_pos = 1,const int& y_pos_top = 1, const int& y_pos_down = 1,
+					const int& h_mark_top_ = CC_HEIGHT_MIN , const int& h_mark_down_ = CC_HEIGHT_MIN,
 					fb_pixel_t color_line = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsDetailLine();
 

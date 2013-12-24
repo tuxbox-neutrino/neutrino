@@ -35,26 +35,17 @@
 using namespace std;
 
 //sub class CComponentsDetailLine from CComponents
-CComponentsDetailLine::CComponentsDetailLine()
+CComponentsDetailLine::CComponentsDetailLine(	const int& x_pos, const int& y_pos_top,
+						const int& y_pos_down, const int& h_mark_top_, const int& h_mark_down_,
+						fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
-	initVarDline();
-
-	//CComponents
-	x 		= 0;
-	y 		= 0;
-	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
-	col_body	= COL_MENUCONTENT_PLUS_6;
-
-	//CComponentsDetailLine
-	y_down 		= 0;
-	h_mark_top 	= CC_HEIGHT_MIN;
-	h_mark_down 	= CC_HEIGHT_MIN;
+	initVarDline(x_pos, y_pos_top, y_pos_down, h_mark_top_, h_mark_down_, color_line, color_shadow);
 }
 
-CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_top, const int y_pos_down, const int h_mark_top_, const int h_mark_down_, fb_pixel_t color_line, fb_pixel_t color_shadow)
+void CComponentsDetailLine::initVarDline(	const int& x_pos, const int& y_pos_top,
+						const int& y_pos_down, const int& h_mark_top_, const int& h_mark_down_,
+						fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
-	initVarDline();
-
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos_top;
@@ -65,10 +56,7 @@ CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_to
 	y_down 		= y_pos_down;
 	h_mark_top 	= h_mark_top_;
 	h_mark_down 	= h_mark_down_;
-}
 
-void CComponentsDetailLine::initVarDline()
-{
 	shadow_w	= 1;
 
 	//CComponentsDetailLine
