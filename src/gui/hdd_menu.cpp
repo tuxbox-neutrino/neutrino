@@ -147,9 +147,18 @@ int CHDDMenuHandler::doMenu ()
 	mc->setHint("", LOCALE_MENU_HINT_HDD_SLEEP);
 	hddmenu->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
-	hddmenu->addItem(mc);
+	const char hdparm[] = "/sbin/hdparm";
+	bool hdparm_link = false;
+	struct stat stat_buf;
+	if(::lstat(hdparm, &stat_buf) == 0)
+		if( S_ISLNK(stat_buf.st_mode) )
+			hdparm_link = true;
+
+	if (!hdparm_link) {
+		mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
+		mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
+		hddmenu->addItem(mc);
+	}
 
 	//if(n > 0)
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
@@ -271,7 +280,10 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	if (n < 0)
 		return 0;
 
-	if (!access("/sbin/hd-idle", X_OK)) {
+	const char hdidle[] = "/sbin/hd-idle";
+	bool have_hdidle = !access(hdidle, X_OK);
+
+	if (have_hdidle) {
 		system("kill $(pidof hd-idle)");
 		int sleep_seconds = g_settings.hdd_sleep;
 		switch (sleep_seconds) {
@@ -285,8 +297,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 					sleep_seconds *= 5;
 		}
 		if (sleep_seconds)
-			my_system(3, "/sbin/hd-idle", "-i", to_string(sleep_seconds).c_str());
-		return 1;
+			my_system(3, hdidle, "-i", to_string(sleep_seconds).c_str());
 	}
 
 	const char hdparm[] = "/sbin/hdparm";
@@ -302,10 +313,13 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 		snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
 		snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-		if(hdparm_link){
+		if (have_hdidle) {
+			snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
+			my_system(3, hdparm, M_opt, opt);
+		} else if(hdparm_link) {
 			//hdparm -M is not included in busybox hdparm!
 			my_system(3, hdparm, S_opt, opt);
-		}else{
+		} else {
 			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
 			my_system(4, hdparm, M_opt, S_opt, opt);
 		}
