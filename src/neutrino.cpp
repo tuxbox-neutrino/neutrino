@@ -438,10 +438,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.language = configfile.getString("language", "");
 	g_settings.timezone = configfile.getString("timezone", "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Vienna");
 	//epg dir
-	g_settings.epg_cache            = configfile.getString("epg_cache_time", "14");
-	g_settings.epg_extendedcache    = configfile.getString("epg_extendedcache_time", "360");
-	g_settings.epg_old_events       = configfile.getString("epg_old_events", "1");
-	g_settings.epg_max_events       = configfile.getString("epg_max_events", "30000");
+	g_settings.epg_cache            = configfile.getInt32("epg_cache_time", 14);
+	g_settings.epg_extendedcache    = configfile.getInt32("epg_extendedcache_time", 360);
+	g_settings.epg_old_events       = configfile.getInt32("epg_old_events", 1);
+	g_settings.epg_max_events       = configfile.getInt32("epg_max_events", 30000);
 	g_settings.epg_dir              = configfile.getString("epg_dir", "/media/sda1/epg");
 	// NTP-Server for sectionsd
 	g_settings.network_ntpserver    = configfile.getString("network_ntpserver", "time.fu-berlin.de");
@@ -941,10 +941,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("epg_save", g_settings.epg_save);
 	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
 	configfile.setInt32("epg_scan", g_settings.epg_scan);
-	configfile.setString("epg_cache_time"           ,g_settings.epg_cache );
-	configfile.setString("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
-	configfile.setString("epg_old_events"           ,g_settings.epg_old_events );
-	configfile.setString("epg_max_events"           ,g_settings.epg_max_events );
+	configfile.setInt32("epg_cache_time"           ,g_settings.epg_cache );
+	configfile.setInt32("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
+	configfile.setInt32("epg_old_events"           ,g_settings.epg_old_events );
+	configfile.setInt32("epg_max_events"           ,g_settings.epg_max_events );
 	configfile.setString("epg_dir"                  ,g_settings.epg_dir);
 
 	// NTP-Server for sectionsd
@@ -1607,10 +1607,10 @@ void CNeutrinoApp::SetupFonts(int fmode)
 
 void CNeutrinoApp::MakeSectionsdConfig(CSectionsdClient::epg_config& config)
 {
-	config.epg_cache                = atoi(g_settings.epg_cache.c_str());
-	config.epg_old_events           = atoi(g_settings.epg_old_events.c_str());
-	config.epg_max_events           = atoi(g_settings.epg_max_events.c_str());
-	config.epg_extendedcache        = atoi(g_settings.epg_extendedcache.c_str());
+	config.epg_cache                = g_settings.epg_cache;
+	config.epg_old_events           = g_settings.epg_old_events;
+	config.epg_max_events           = g_settings.epg_max_events;
+	config.epg_extendedcache        = g_settings.epg_extendedcache;
 	config.epg_dir                  = g_settings.epg_dir;
 	config.network_ntpserver        = g_settings.network_ntpserver;
 	config.network_ntprefresh       = atoi(g_settings.network_ntprefresh.c_str());

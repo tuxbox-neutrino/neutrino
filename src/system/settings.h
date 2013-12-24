@@ -141,10 +141,10 @@ struct SNeutrinoSettings
 	// EPG
 	int epg_save;
 	int epg_save_standby;
-	std::string epg_cache;			// FIXME
-	std::string epg_old_events;		// FIXME
-	std::string epg_max_events;		// FIXME
-	std::string epg_extendedcache;		// FIXME
+	int epg_cache;
+	int epg_old_events;
+	int epg_max_events;
+	int epg_extendedcache;
 	std::string epg_dir;
 	int epg_scan;
 
