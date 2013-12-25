@@ -97,17 +97,17 @@ void CComponentsSlider::setValueScale(const int& min_value, const int& max_value
 void CComponentsSlider::initCCSlBody()
 {
 	if (!csl_body_icon.empty()){
+		printf("[CComponentsSlider]    [%s]  missing or undefinied slider body icon  %s\n", __func__, csl_body_icon.c_str());
 		if (csl_body_obj == NULL){
 			csl_body_obj = new CComponentsPicture(0, 0, 0, height, csl_body_icon);
 			csl_body_obj->doPaintBg(false);
 			addCCItem(csl_body_obj);
 		}
-	}else{
-		if (csl_body_obj){
-			delete csl_body_obj;
-			csl_body_obj = NULL;
-		}
+		else
+			csl_body_obj->setPicture(csl_body_icon);
 	}
+	else 
+		return;
 
 	//get first icon dimensions
 	int icon_w = csl_body_obj->getWidth();
@@ -127,17 +127,17 @@ void CComponentsSlider::initCCSlBody()
 void CComponentsSlider::initCCSlSlider()
 {
 	if (!csl_slider_icon.empty()){
+		printf("[CComponentsSlider]    [%s]  missing or undefinied slider icon  %s\n", __func__, csl_slider_icon.c_str());
 		if (csl_slider_obj == NULL){
 			csl_slider_obj = new CComponentsPicture(0, 0, 0, 0, csl_slider_icon);
 			csl_slider_obj->doPaintBg(false);
 			addCCItem(csl_slider_obj);
 		}
-	}else{
-		if (csl_slider_obj){
-			delete csl_slider_obj;
-			csl_slider_obj = NULL;
-		}
+		else
+			csl_slider_obj->setPicture(csl_slider_icon);
 	}
+	else 
+		return;
 
 	//get first icon dimensions
 	int slider_w = csl_slider_obj->getWidth();
