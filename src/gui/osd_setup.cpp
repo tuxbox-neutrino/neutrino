@@ -65,8 +65,6 @@
 
 extern CRemoteControl * g_RemoteControl;
 
-static CTimingSettingsNotifier timingsettingsnotifier;
-
 extern const char * locale_real_names[];
 extern std::string ttx_font_file;
 
@@ -75,6 +73,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	frameBuffer = CFrameBuffer::getInstance();
 	colorSetupNotifier = new CColorSetupNotifier();
 	fontsizenotifier = new CFontSizeNotifier;
+	colorInfoclockNotifier = NULL;
 	osd_menu = NULL;
 	submenu_menus = NULL;
 	mfFontFile = NULL;
@@ -205,7 +204,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec(FONTDIR) == true)
 		{
-			strcpy(g_settings.font_file, fileBrowser.getSelectedFile()->Name.c_str());
+			g_settings.font_file = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_ALL);
 			osdFontFile = "(" + getBaseName(fileBrowser.getSelectedFile()->Name) + ")";
@@ -221,7 +220,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec(FONTDIR) == true)
 		{
-			strcpy(g_settings.ttx_font_file, fileBrowser.getSelectedFile()->Name.c_str());
+			g_settings.ttx_font_file = fileBrowser.getSelectedFile()->Name;
 			ttx_font_file = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT | CNeutrinoFonts::FONTSETUP_NEUTRINO_FONT_INST);
@@ -331,8 +330,6 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey=="osd.def") {
 		for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 			g_settings.timing[i] = timing_setting[i].default_timing;
-
-		CNeutrinoApp::getInstance()->SetupTiming();
 		return res;
 	}
 	else if(actionKey=="logo_dir") {
@@ -644,6 +641,7 @@ int COsdSetup::showOsdSetup()
 		}
 	}
 
+	delete colorInfoclockNotifier;
 	delete osd_menu;
 	return res;
 }
@@ -840,10 +838,14 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 {
 	menu_timeout->addIntroItems(LOCALE_COLORMENU_TIMING);
 
+	std::string nf("%d ");
+	nf += g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
-		CStringInput * timing_item = new CStringInput(timing_setting[i].name, g_settings.timing_string[i], 3, LOCALE_TIMING_HINT_1, LOCALE_TIMING_HINT_2, "0123456789 ", &timingsettingsnotifier);
-		menu_timeout->addItem(new CMenuDForwarder(timing_setting[i].name, true, g_settings.timing_string[i], timing_item));
+		CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(timing_setting[i].name, &g_settings.timing[i], true, 0, 180);
+		ch->setNumberFormat(nf);
+		ch->setHint("", LOCALE_MENU_HINT_OSD_TIMING);
+		menu_timeout->addItem(ch);
 	}
 
 	menu_timeout->addItem(GenericMenuSeparatorLine);
@@ -1064,10 +1066,20 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 	mc->setHint("", LOCALE_MENU_HINT_CLOCK_SECONDS);
 	menu_infoclock->addItem(mc);
 
+	colorInfoclockNotifier = new COnOffNotifier(1);
+
 	// clock with background
-	mc = new CMenuOptionChooser(LOCALE_CLOCK_BACKGROUND, &g_settings.infoClockBackground, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc = new CMenuOptionChooser(LOCALE_CLOCK_BACKGROUND, &g_settings.infoClockBackground, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, colorInfoclockNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_CLOCK_BACKGROUND);
 	menu_infoclock->addItem(mc);
+
+	// digit color
+	CColorChooser* cc = new CColorChooser(LOCALE_COLORMENU_CLOCK_TEXTCOLOR, &g_settings.clock_Digit_red, &g_settings.clock_Digit_green, &g_settings.clock_Digit_blue,
+			NULL, colorSetupNotifier);
+	CMenuDForwarder* mf = new CMenuDForwarder(LOCALE_COLORMENU_CLOCK_TEXTCOLOR, !g_settings.infoClockBackground, NULL, cc);
+	mf->setHint("", LOCALE_MENU_HINT_CLOCK_TEXTCOLOR);
+	menu_infoclock->addItem(mf);
+	colorInfoclockNotifier->addItem(mf);
 }
 
 bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)

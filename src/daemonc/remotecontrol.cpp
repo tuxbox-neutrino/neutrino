@@ -458,7 +458,7 @@ void CRemoteControl::processAPIDnames()
 				/* processAPIDnames called 2 times, TODO find better way to detect second call */
 				if(strlen( desc ) != 3)
 					continue;
-				if(strlen(g_settings.pref_lang[i]) == 0)
+				if(g_settings.pref_lang[i].empty())
 					continue;
 
 				std::string temp(g_settings.pref_lang[i]);

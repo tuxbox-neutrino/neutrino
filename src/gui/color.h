@@ -110,6 +110,7 @@
 #define COL_MENUCONTENTSELECTED_TEXT_PLUS_1	(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 12)])
 #define COL_MENUCONTENTSELECTED_TEXT_PLUS_2	(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 13)])
 #define COL_MENUCONTENTINACTIVE_TEXT		(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 14)])
+#define COL_INFOCLOCK_TEXT			(CFrameBuffer::getInstance()->realcolor[(COL_NEUTRINO_TEXT + 15)])
 #endif
 
 

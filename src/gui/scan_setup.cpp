@@ -51,6 +51,7 @@
 #include <driver/framebuffer.h>
 #include <driver/record.h>
 #include <system/debug.h>
+#include <system/helpers.h>
 
 #include <zapit/femanager.h>
 #include <zapit/getservices.h>
@@ -448,7 +449,7 @@ printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager:
 		//tune timeout
 		if(CFEManager::getInstance()->getFrontendCount() <= 1) {
 			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
-			nc->setNumberFormat(std::string("%d0 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
+			nc->setNumberFormat(std::string("%d00 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
 			nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
 			settings->addItem(nc);
 		}
@@ -598,7 +599,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 			frontendSetup = mf;
 	}
 	CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
-	nc->setNumberFormat(std::string("%d0 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
+	nc->setNumberFormat(std::string("%d00 ") + g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND));
 	nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
 	setupMenu->addItem(nc);
 
@@ -641,6 +642,11 @@ int CScanSetup::showScanMenuFrontendSetup()
 	}
 	saveScanSetup();
 	return res;
+}
+
+static std::string rotationSpeed2str(int i)
+{
+	return to_string(i/10) + g_Locale->getText(LOCALE_UNIT_DECIMAL) + to_string(i%10) + "°/" + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
 }
 
 int CScanSetup::showFrontendSetup(int number)
@@ -774,6 +780,7 @@ int CScanSetup::showFrontendSetup(int number)
 
 		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
 		CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_MOTOR_SPEED, (int *)&fe_config.motorRotationSpeed, allow_moptions, 0, 64, NULL);
+		nc->setNumberFormat(rotationSpeed2str);
 		nc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_SPEED);
 		setupMenu->addItem(nc);
 		msettings.Add(nc);

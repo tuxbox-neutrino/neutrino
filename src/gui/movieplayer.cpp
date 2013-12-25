@@ -139,10 +139,10 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("wmv");
 #endif
 
-	if (strlen(g_settings.network_nfs_moviedir) != 0)
-		Path_local = g_settings.network_nfs_moviedir;
-	else
+	if (g_settings.network_nfs_moviedir.empty())
 		Path_local = "/";
+	else
+		Path_local = g_settings.network_nfs_moviedir;
 
 	if (g_settings.filebrowser_denydirectoryleave)
 		filebrowser = new CFileBrowser(Path_local.c_str());
@@ -384,7 +384,7 @@ bool CMoviePlayerGui::SelectFile()
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
 	if (has_hdd)
-		wakeup_hdd(g_settings.network_nfs_recordingdir);
+		wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 
 	if (timeshift) {
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -492,9 +492,7 @@ bool CMoviePlayerGui::SelectFile()
 		printf("CMoviePlayerGui::SelectFile: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
 	}
 	//store last multiformat play dir
-	if( (sizeof(g_settings.network_nfs_moviedir)) > Path_local.size() && (strcmp(g_settings.network_nfs_moviedir,Path_local.c_str()) != 0)){
-		strcpy(g_settings.network_nfs_moviedir,Path_local.c_str());
-	}
+	g_settings.network_nfs_moviedir = Path_local;
 
 	return ret;
 }

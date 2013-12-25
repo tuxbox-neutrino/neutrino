@@ -1095,6 +1095,11 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh) {
 		fav = true;
 
 	int mode = NeutrinoAPI->Zapit->getMode();
+	if (hh->ParamList["mode"].compare("TV") == 0)
+		mode = CZapitClient::MODE_TV;
+	else if (hh->ParamList["mode"].compare("RADIO") == 0)
+		mode = CZapitClient::MODE_RADIO;
+ 
 	std::string bouquet;
 	for (int i = 0, size = (int) g_bouquetManager->Bouquets.size(); i < size; i++) {
 		std::string item = "";

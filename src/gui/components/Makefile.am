@@ -20,12 +20,14 @@ libneutrino_gui_components_a_SOURCES = \
 	cc_detailsline.cpp \
 	cc_frm_button.cpp \
 	cc_frm.cpp \
+	cc_frm_chain.cpp \
 	cc_frm_clock.cpp \
 	cc_frm_footer.cpp \
 	cc_frm_header.cpp \
 	cc_frm_ext_text.cpp \
 	cc_frm_icons.cpp \
 	cc_frm_signalbars.cpp \
+	cc_frm_slider.cpp \
 	cc_frm_window.cpp \
 	cc_item.cpp \
 	cc_item_infobox.cpp \

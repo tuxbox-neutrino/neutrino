@@ -235,6 +235,10 @@ void CThemes::rememberOldTheme(bool remember)
 		oldThemeValues[41] = g_settings.colored_events_red;
 		oldThemeValues[42] = g_settings.colored_events_green;
 		oldThemeValues[43] = g_settings.colored_events_blue;
+		oldThemeValues[44] = g_settings.clock_Digit_alpha;
+		oldThemeValues[45] = g_settings.clock_Digit_red;
+		oldThemeValues[46] = g_settings.clock_Digit_green;
+		oldThemeValues[47] = g_settings.clock_Digit_blue;
 	} else {
 		g_settings.menu_Head_alpha 			= oldThemeValues[0];
 		g_settings.menu_Head_red 			= oldThemeValues[1];
@@ -280,6 +284,10 @@ void CThemes::rememberOldTheme(bool remember)
 		g_settings.colored_events_red 			= oldThemeValues[41];
 		g_settings.colored_events_green 		= oldThemeValues[42];
 		g_settings.colored_events_blue 			= oldThemeValues[43];
+		g_settings.clock_Digit_alpha 			= oldThemeValues[44];
+		g_settings.clock_Digit_red 			= oldThemeValues[45];
+		g_settings.clock_Digit_green 			= oldThemeValues[46];
+		g_settings.clock_Digit_blue 			= oldThemeValues[47];
 
 		notifier = new CColorSetupNotifier;
 		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -336,6 +344,10 @@ void CThemes::readFile(char* themename)
 		g_settings.colored_events_red = themefile.getInt32( "colored_events_red", 95 );
 		g_settings.colored_events_green = themefile.getInt32( "colored_events_green", 70 );
 		g_settings.colored_events_blue = themefile.getInt32( "colored_events_blue", 0 );
+		g_settings.clock_Digit_alpha = themefile.getInt32( "clock_Digit_alpha", g_settings.menu_Content_Text_alpha );
+		g_settings.clock_Digit_red = themefile.getInt32( "clock_Digit_red", g_settings.menu_Content_Text_red );
+		g_settings.clock_Digit_green = themefile.getInt32( "clock_Digit_green", g_settings.menu_Content_Text_green );
+		g_settings.clock_Digit_blue = themefile.getInt32( "clock_Digit_blue", g_settings.menu_Content_Text_blue );
 
 		notifier = new CColorSetupNotifier;
 		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -392,6 +404,10 @@ void CThemes::saveFile(char * themename)
 	themefile.setInt32( "colored_events_red", g_settings.colored_events_red );
 	themefile.setInt32( "colored_events_green", g_settings.colored_events_green );
 	themefile.setInt32( "colored_events_blue", g_settings.colored_events_blue );
+	themefile.setInt32( "clock_Digit_alpha", g_settings.clock_Digit_alpha );
+	themefile.setInt32( "clock_Digit_red", g_settings.clock_Digit_red );
+	themefile.setInt32( "clock_Digit_green", g_settings.clock_Digit_green );
+	themefile.setInt32( "clock_Digit_blue", g_settings.clock_Digit_blue );
 
 	if (!themefile.saveConfig(themename))
 		printf("[neutrino theme] %s write error\n", themename);
@@ -456,7 +472,9 @@ void CThemes::setupDefaultColors()
 	g_settings.colored_events_red = 95;
 	g_settings.colored_events_green = 70;
 	g_settings.colored_events_blue = 0;
+
+	g_settings.clock_Digit_alpha = 0x00;
+	g_settings.clock_Digit_red   = 0x64;
+	g_settings.clock_Digit_green = 0x64;
+	g_settings.clock_Digit_blue  = 0x64;
 }
-
-
-

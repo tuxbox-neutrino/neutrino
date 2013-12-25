@@ -95,7 +95,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		bool checkStringSettings();
 		bool checkForIP();
 		bool settingsChanged();
-		const char * mypinghost(const char * const host);
+		const char * mypinghost(std::string &host);
 				
 	public:	
 		enum NETWORK_DHCP_MODE

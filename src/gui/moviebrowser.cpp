@@ -756,23 +756,18 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->reload = (bool)configfile.getInt32("mb_reload", true );
 	settings->remount = (bool)configfile.getInt32("mb_remount", false );
 
-	char cfg_key[81];
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
-		settings->storageDir[i] = configfile.getString( cfg_key, "" );
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-		settings->storageDirUsed[i] = configfile.getInt32( cfg_key,false );
+		settings->storageDir[i] = configfile.getString("mb_dir_" + to_string(i), "");
+		settings->storageDirUsed[i] = configfile.getInt32("mb_dir_used" + to_string(i), false );
 	}
 	/* these variables are used for the listframes */
 	settings->browserFrameHeight  = configfile.getInt32("mb_browserFrameHeight", 50);
 	settings->browserRowNr  = configfile.getInt32("mb_browserRowNr", 0);
 	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
-		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32(cfg_key, MB_INFO_MAX_NUMBER);
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
-		settings->browserRowWidth[i] = configfile.getInt32(cfg_key, 50);
+		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32("mb_browserRowItem_" + to_string(i), MB_INFO_MAX_NUMBER);
+		settings->browserRowWidth[i] = configfile.getInt32("mb_browserRowWidth_" + to_string(i), 50);
 	}
 	settings->ytmode = configfile.getInt32("mb_ytmode", cYTFeedParser::MOST_POPULAR);
 	settings->ytorderby = configfile.getInt32("mb_ytorderby", cYTFeedParser::ORDERBY_PUBLISHED);
@@ -824,23 +819,18 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setInt32("mb_reload", settings->reload);
 	configfile.setInt32("mb_remount", settings->remount);
 
-	char cfg_key[81];
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
-		configfile.setString( cfg_key, settings->storageDir[i] );
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-		configfile.setInt32( cfg_key, settings->storageDirUsed[i] ); // do not save this so far
+		configfile.setString("mb_dir_" + to_string(i), settings->storageDir[i] );
+		configfile.setInt32("mb_dir_used" + to_string(i), settings->storageDirUsed[i] ); // do not save this so far
 	}
 	/* these variables are used for the listframes */
 	configfile.setInt32("mb_browserFrameHeight", settings->browserFrameHeight);
 	configfile.setInt32("mb_browserRowNr",settings->browserRowNr);
 	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
-		configfile.setInt32(cfg_key, settings->browserRowItem[i]);
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
-		configfile.setInt32(cfg_key, settings->browserRowWidth[i]);
+		configfile.setInt32("mb_browserRowItem_" + to_string(i), settings->browserRowItem[i]);
+		configfile.setInt32("mb_browserRowWidth_" + to_string(i), settings->browserRowWidth[i]);
 	}
 	configfile.setInt32("mb_ytmode", settings->ytmode);
 	configfile.setInt32("mb_ytorderby", settings->ytorderby);
@@ -1003,8 +993,8 @@ int CMovieBrowser::exec(const char* path)
 		//umount automount dirs
 		for(int i = 0; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
 		{
-			if(g_settings.network_nfs_automount[i])
-				umount2(g_settings.network_nfs_local_dir[i],MNT_FORCE);
+			if(g_settings.network_nfs[i].automount)
+				umount2(g_settings.network_nfs[i].local_dir.c_str(), MNT_FORCE);
 		}
 		CFSMounter::automount();
 	}
@@ -2510,10 +2500,9 @@ void CMovieBrowser::updateDir(void)
     }
 #endif
     // check if there is a record dir and if we should use it
-    if(g_settings.network_nfs_recordingdir[0] != 0 )
+    if(!g_settings.network_nfs_recordingdir.empty())
     {
-        std::string name = g_settings.network_nfs_recordingdir;
-        addDir(name,&m_settings.storageDirRecUsed);
+        addDir(g_settings.network_nfs_recordingdir, &m_settings.storageDirRecUsed);
     }
 
     for(int i = 0; i < MB_MAX_DIRS; i++)
@@ -3991,11 +3980,10 @@ CDirMenu::CDirMenu(std::vector<MB_DIR>* dir_list)
     {
         for(int nfs = 0; nfs < NETWORK_NFS_NR_OF_ENTRIES; nfs++)
         {
-            std::string tmp = g_settings.network_nfs_local_dir[nfs];
             int result = -1;
-	    if(!tmp.empty())
-		result = (*dirList)[i].name.compare( 0,tmp.size(),tmp) ;
-printf("[CDirMenu] (nfs%d) %s == (mb%d) %s (%d)\n",nfs,g_settings.network_nfs_local_dir[nfs],i,(*dirList)[i].name.c_str(),result);
+	    if(!g_settings.network_nfs[nfs].local_dir.empty())
+		result = (*dirList)[i].name.compare( 0,g_settings.network_nfs[nfs].local_dir.size(),g_settings.network_nfs[nfs].local_dir) ;
+printf("[CDirMenu] (nfs%d) %s == (mb%d) %s (%d)\n",nfs,g_settings.network_nfs[nfs].local_dir.c_str(),i,(*dirList)[i].name.c_str(),result);
 
             if(result == 0)
             {
@@ -4026,8 +4014,8 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
         {
             if(dirState[number] == DIR_STATE_SERVER_DOWN)
             {
-                printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]);
-                if (my_system(2, "ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]) != 0)
+                printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs[dirNfsMountNr[number]].mac.c_str());
+                if (my_system(2, "ether-wake", g_settings.network_nfs[dirNfsMountNr[number]].mac.c_str()) != 0)
                     perror("ether-wake failed");
 
                 dirOptionText[number]="STARTE SERVER";
@@ -4036,14 +4024,14 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
             {
                 printf("[CDirMenu] try to mount %d,%d\n",number,dirNfsMountNr[number]);
                 CFSMounter::MountRes res;
-                res = CFSMounter::mount(  g_settings.network_nfs_ip[dirNfsMountNr[number]].c_str(),
-                                    g_settings.network_nfs_dir[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_local_dir[dirNfsMountNr[number]] ,
-                                    (CFSMounter::FSType)g_settings.network_nfs_type[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_username[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_password[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_mount_options1[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_mount_options2[dirNfsMountNr[number]] );
+                res = CFSMounter::mount(  g_settings.network_nfs[dirNfsMountNr[number]].ip,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].dir,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].local_dir,
+                                    (CFSMounter::FSType)g_settings.network_nfs[dirNfsMountNr[number]].type ,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].username,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].password,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].mount_options1,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].mount_options2);
                 if(res ==  CFSMounter::MRES_OK) // if mount is successful we set the state to active in any case
                 {
                     *(*dirList)[number].used = true;
@@ -4084,7 +4072,7 @@ void CDirMenu::updateDirState(void)
 printf("updateDirState: %d: state %d nfs %d\n", i, dirState[i], dirNfsMountNr[i]);
         if(dirNfsMountNr[i] != -1)
         {
-            int retvalue = pinghost(g_settings.network_nfs_ip[dirNfsMountNr[i]].c_str());
+            int retvalue = pinghost(g_settings.network_nfs[dirNfsMountNr[i]].ip.c_str());
             if (retvalue == 0)//LOCALE_PING_UNREACHABLE
             {
                 dirOptionText[i]="Server, offline";
@@ -4092,7 +4080,7 @@ printf("updateDirState: %d: state %d nfs %d\n", i, dirState[i], dirNfsMountNr[i]
             }
             else if (retvalue == 1)//LOCALE_PING_OK
             {
-                if(CFSMounter::isMounted (g_settings.network_nfs_local_dir[dirNfsMountNr[i]]) == 0)
+                if(!CFSMounter::isMounted (g_settings.network_nfs[dirNfsMountNr[i]].local_dir))
                 {
                     dirOptionText[i]="Not mounted";
                     dirState[i]=DIR_STATE_NOT_MOUNTED;

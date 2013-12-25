@@ -299,7 +299,7 @@ private:
 	bool  		slider_on;
 	CChangeObserver *     observ;
 	std::string	numberFormat;
-
+	std::string	(*numberFormatFunction)(int num);
  public:
 	CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ = NULL, const int print_offset = 0, const int special_value = 0, const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE, const char * non_localized_name = NULL, bool sliderOn = false );
 
@@ -309,6 +309,7 @@ private:
 	int isMenueOptionChooser(void) const{return 1;}
 	int getWidth(void);
 	void setNumberFormat(std::string format) { numberFormat = format; }
+	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 };
 
 class CMenuOptionChooser : public CAbstractMenuOptionChooser
@@ -370,12 +371,14 @@ class CMenuOptionStringChooser : public CMenuItem
 		std::string 		 optionNameString;
 		int                      height;
 		char *                   optionValue;
+		std::string *		 optionValueString;
 		std::vector<std::string> options;
 		CChangeObserver *        observ;
 		bool			 pulldown;
 
 	public:
 		CMenuOptionStringChooser(const neutrino_locale_t OptionName, char* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
+		CMenuOptionStringChooser(const neutrino_locale_t OptionName, std::string* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
 		CMenuOptionStringChooser(const char* OptionName, char* OptionValue, bool Active = false, CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
 
 		~CMenuOptionStringChooser();

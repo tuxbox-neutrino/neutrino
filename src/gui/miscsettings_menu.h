@@ -43,6 +43,10 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		//COnOffNotifier* miscNotifier;
 		COnOffNotifier* miscEpgNotifier;
 		int width;
+		std::string epg_cache;
+		std::string epg_extendedcache;
+		std::string epg_old_events;
+		std::string epg_max_events;
 
 		int showMiscSettingsMenu();
 		void showMiscSettingsMenuGeneral(CMenuWidget *ms_general);

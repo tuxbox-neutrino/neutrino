@@ -134,11 +134,11 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.size_offset = fontDescr.size_offset;
 		old_fontDescr.filename = fontDescr.filename;
 		fontDescr.filename = "";
-		printf("[neutrino] settings font file %s\n", g_settings.font_file);
-		if (access(g_settings.font_file, F_OK)) {
+		printf("[neutrino] settings font file %s\n", g_settings.font_file.c_str());
+		if (access(g_settings.font_file.c_str(), F_OK)) {
 			if (!access(FONTDIR"/neutrino.ttf", F_OK)) {
 				fontDescr.filename = FONTDIR"/neutrino.ttf";
-				strcpy(g_settings.font_file, fontDescr.filename.c_str());
+				g_settings.font_file = fontDescr.filename;
 			}
 			else {
 				fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");

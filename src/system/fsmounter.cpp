@@ -155,10 +155,10 @@ CFSMounter::FS_Support CFSMounter::fsSupported(const CFSMounter::FSType fstype, 
 	return CFSMounter::FS_UNSUPPORTED;
 }
 
-bool CFSMounter::isMounted(const char * const local_dir)
+bool CFSMounter::isMounted(const std::string &local_dir)
 {
 	std::ifstream in;
-	if (local_dir == NULL) 
+	if (local_dir.empty())
 		return false;
 	
 #ifdef PATH_MAX
@@ -166,8 +166,8 @@ bool CFSMounter::isMounted(const char * const local_dir)
 #else
 	char mount_point[4096];
 #endif
-	if (realpath(local_dir, mount_point) == NULL) {
-		printf("[CFSMounter] could not resolve dir: %s: %s\n",local_dir, strerror(errno));
+	if (realpath(local_dir.c_str(), mount_point) == NULL) {
+		printf("[CFSMounter] could not resolve dir: %s: %s\n",local_dir.c_str(), strerror(errno));
 		return false;
 	}
 	in.open("/proc/mounts", std::ifstream::in);
@@ -184,9 +184,9 @@ bool CFSMounter::isMounted(const char * const local_dir)
 	return false;
 }
 
-CFSMounter::MountRes CFSMounter::mount(const char * const ip, const char * const dir, const char * const local_dir, 
-				       const FSType fstype, const char * const username, const char * const password, 
-				       char * options1, char * options2)
+CFSMounter::MountRes CFSMounter::mount(const std::string &ip, const std::string &dir, const std::string &local_dir,
+				       const FSType fstype, const std::string &username, const std::string &password,
+				       std::string options1, std::string options2)
 {
 	std::string cmd;
 	pthread_mutex_init(&g_mut, NULL);
@@ -201,36 +201,36 @@ CFSMounter::MountRes CFSMounter::mount(const char * const ip, const char * const
 		return MRES_FS_NOT_SUPPORTED;
 	}
 
-	printf("[CFSMounter] Mount(%d) %s:%s -> %s\n", (int) fstype, ip, dir, local_dir);
+	printf("[CFSMounter] Mount(%d) %s:%s -> %s\n", (int) fstype, ip.c_str(), dir.c_str(), local_dir.c_str());
 	
 	if (isMounted(local_dir))
 	{
-		printf("[CFSMounter] FS mount error %s already mounted\n", local_dir);
+		printf("[CFSMounter] FS mount error %s already mounted\n", local_dir.c_str());
 		return MRES_FS_ALREADY_MOUNTED;
 	}
 
-	if(options1[0] == '\0')
+	if(options1.empty())
 	{
-		strcpy(options1,options2);
-		options2[0] = '\0';
+		options1 = options2;
+		options2 = "";
 	}
 	
-	if((options1[0] == '\0') && (options2[0] == '\0'))
+	if(options1.empty() && options2.empty())
 	{
 		if(fstype == NFS)
 		{
-			strcpy(options1,"ro,soft,udp");
-			strcpy(options2,"nolock,rsize=8192,wsize=8192");
+			options1 = "ro,soft,udp";
+			options2 = "nolock,rsize=8192,wsize=8192";
 		}
 		else if(fstype == CIFS)
 		{
-			strcpy(options1,"ro");
-			strcpy(options2,"");
+			options1 = "ro";
+			options2 = "";
 		}
 		else if(fstype == LUFS)
 		{
-			strcpy(options1,"");
-			strcpy(options2,"");
+			options1 = "";
+			options2 = "";
 		}
 	}
 	
@@ -315,12 +315,12 @@ bool CFSMounter::automount()
 	bool res = true; 
 	for(int i = 0; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
 	{
-		if(g_settings.network_nfs_automount[i])
+		if(g_settings.network_nfs[i].automount)
 		{
-			res = (MRES_OK == mount(g_settings.network_nfs_ip[i].c_str(), g_settings.network_nfs_dir[i], g_settings.network_nfs_local_dir[i], 
-						       (FSType) g_settings.network_nfs_type[i], g_settings.network_nfs_username[i], 
-						       g_settings.network_nfs_password[i], g_settings.network_nfs_mount_options1[i], 
-						       g_settings.network_nfs_mount_options2[i])) && res;
+			res = (MRES_OK == mount(g_settings.network_nfs[i].ip, g_settings.network_nfs[i].dir, g_settings.network_nfs[i].local_dir,
+						       (FSType) g_settings.network_nfs[i].type, g_settings.network_nfs[i].username,
+						       g_settings.network_nfs[i].password, g_settings.network_nfs[i].mount_options1,
+						       g_settings.network_nfs[i].mount_options2)) && res;
 		}
 	}
 	return res;

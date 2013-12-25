@@ -161,7 +161,16 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 		if (right_bgcol) {
 			if (!right_text)
 				stringstartposOption -= 60;
-			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, false, COL_MENUCONTENT_PLUS_6, right_bgcol);
+			fb_pixel_t right_frame_col, right_bg_col;
+			if (active) {
+				right_bg_col = right_bgcol;
+				right_frame_col = COL_MENUCONTENT_PLUS_6;
+			}
+			else {
+				right_bg_col = COL_MENUCONTENTINACTIVE_TEXT;
+				right_frame_col = COL_MENUCONTENTINACTIVE_TEXT;
+			}
+			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, false, right_frame_col, right_bg_col);
 			col.setFrameThickness(3);
 			col.setCorner(RADIUS_LARGE);
 			col.paint(false);
@@ -1174,6 +1183,7 @@ CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name,
 	
 	optionString         = non_localized_name;
 	numberFormat         = "%d";
+	numberFormatFunction = NULL;
 	observ = Observ;
 	slider_on = sliderOn;
 }
@@ -1202,11 +1212,15 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 int CMenuOptionNumberChooser::paint(bool selected)
 {
 	const char * l_option;
-	char option_value[11];
+	char option_value[40];
 
 	if ((localized_value_name == NONEXISTANT_LOCALE) || ((*optionValue) != localized_value))
 	{
-		sprintf(option_value, numberFormat.c_str(), ((*optionValue) + display_offset));
+		if (numberFormatFunction) {
+			std::string s = numberFormatFunction(*optionValue + display_offset);
+			strncpy(option_value, s.c_str(), s.length());
+		} else
+			sprintf(option_value, numberFormat.c_str(), *optionValue + display_offset);
 		l_option = option_value;
 	}
 	else
@@ -1258,7 +1272,10 @@ int CMenuOptionNumberChooser::getWidth(void)
 
 	width += (w1 > w2) ? w1 : w2;
 
-	if (numberFormat != "%d") {
+	if (numberFormatFunction) {
+		std::string s = numberFormatFunction(0);
+		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(s.c_str(), true) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0", true); // arbitrary
+	} else if (numberFormat != "%d") {
 		char format[numberFormat.length()];
 		snprintf(format, numberFormat.length(), numberFormat.c_str(), 0);
 		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(format, true) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0", true);
@@ -1512,6 +1529,23 @@ CMenuOptionStringChooser::CMenuOptionStringChooser(const char* OptionName, char*
 	active      = Active;
 	optionValue = OptionValue;
 	observ      = Observ;
+	optionValueString = NULL;
+
+	directKey         = DirectKey;
+	iconName          = IconName;
+	pulldown = Pulldown;
+}
+
+CMenuOptionStringChooser::CMenuOptionStringChooser(const neutrino_locale_t OptionName, std::string* OptionValue, bool Active, CChangeObserver* Observ, const neutrino_msg_t DirectKey, const std::string & IconName, bool Pulldown)
+{
+	height      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	optionNameString  = g_Locale->getText(OptionName);
+	optionName        = OptionName;
+	active      = Active;
+        optionValue = (char *) OptionValue->c_str();
+	optionValueString = OptionValue;
+	observ      = Observ;
+	optionValueString = NULL;
 
 	directKey         = DirectKey;
 	iconName          = IconName;
@@ -1562,8 +1596,13 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 		}
 		menu->exec(NULL, "");
 		ret = menu_return::RETURN_REPAINT;
-		if(select >= 0)
-			strcpy(optionValue, options[select].c_str());
+		if(select >= 0) {
+			if (optionValueString) {
+				*optionValueString = options[select];
+				optionValue = (char *)optionValueString->c_str();
+			} else
+				strcpy(optionValue, options[select].c_str());
+		}
 		delete menu;
 		delete selector;
 	} else {
@@ -1571,12 +1610,26 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 		for(unsigned int count = 0; count < options.size(); count++) {
 			if (strcmp(options[count].c_str(), optionValue) == 0) {
 				if(msg == CRCInput::RC_left) {
-					if(count > 0)
-						strcpy(optionValue, options[(count - 1) % options.size()].c_str());
-					else
-						strcpy(optionValue, options[options.size() - 1].c_str());
-				} else
-					strcpy(optionValue, options[(count + 1) % options.size()].c_str());
+					if(count > 0) {
+						if (optionValueString) {
+							*optionValueString = options[(count - 1) % options.size()];
+							optionValue = (char *)optionValueString->c_str();
+						} else
+							strcpy(optionValue, options[(count - 1) % options.size()].c_str());
+					} else {
+						if (optionValueString) {
+							*optionValueString = options[options.size() - 1];
+							optionValue = (char *)optionValueString->c_str();
+						} else
+							strcpy(optionValue, options[options.size() - 1].c_str());
+					}
+				} else {
+					if (optionValueString) {
+						*optionValueString = options[(count + 1) % options.size()];
+						optionValue = (char *)optionValueString->c_str();
+					} else
+						strcpy(optionValue, options[(count + 1) % options.size()].c_str());
+				}
 				//wantsRepaint = true;
 				break;
 			}
@@ -1628,7 +1681,7 @@ CMenuOptionLanguageChooser::~CMenuOptionLanguageChooser()
 
 int CMenuOptionLanguageChooser::exec(CMenuTarget*)
 {
-	strncpy(g_settings.language, optionValue.c_str(), sizeof(g_settings.language)-1);
+	g_settings.language = optionValue;
 	if(observ)
 		observ->changeNotify(LOCALE_LANGUAGESETUP_SELECT, (void *) optionValue.c_str());
 	return menu_return::RETURN_EXIT;

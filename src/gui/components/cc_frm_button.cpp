@@ -136,14 +136,13 @@ void CComponentsButton::initCaption()
 	//if we have an icon, we must calculate positions for booth items together
 	//also the icon width and left position = 0
 	int face_w = 0;
-	int face_x = 0;
 
 	//calculate width and left position of icon, if available, picture position is default centered
 	if (cc_btn_icon_obj){
 		//if found a picture object, then get width from it...
 		face_w = cc_btn_icon_obj->getWidth();
 		//...and set position as centered
-		face_x = width/2 - face_w/2;
+		int face_x = width/2 - face_w/2;
 		cc_btn_icon_obj->setXPos(face_x);
 	}	
 

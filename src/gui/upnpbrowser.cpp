@@ -599,7 +599,7 @@ void CUpnpBrowserGui::playnext(void)
 				}
 				else if (mime.substr(0,6) == "image/") {
 					if (m_folderplay)
-						timeout = time(NULL) + atoi(g_settings.picviewer_slide_time);
+						timeout = time(NULL) + g_settings.picviewer_slide_time;
 					showPicture((*entries)[0].resources[preferred].url);
 				}
 				return;

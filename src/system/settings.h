@@ -73,11 +73,11 @@ struct SNeutrinoSettings
 	//misc
 	int shutdown_real;
 	int shutdown_real_rcdelay;
-	char shutdown_count[4];
-	char shutdown_min[4];
+	int shutdown_count;
+	int shutdown_min;
 	int sleeptimer_min;
-	char record_safety_time_before[3];
-	char record_safety_time_after[3];
+	int record_safety_time_before;
+	int record_safety_time_after;
 	int zapto_pre_time;
 	int infobar_sat_display;
 	int infobar_show_channeldesc;
@@ -105,7 +105,6 @@ struct SNeutrinoSettings
 	int audio_DolbyDigital;
 	int auto_lang;
 	int auto_subs;
-	char audio_PCMOffset[3];
 	int srs_enable;
 	int srs_algo;
 	int srs_ref_volume;
@@ -138,19 +137,19 @@ struct SNeutrinoSettings
 	int vcr_AutoSwitch;
 
 	//language
-	char language[25];
-	char timezone[150];
+	std::string language;
+	std::string timezone;
 
-	char pref_lang[3][30];
-	char pref_subs[3][30];
+	std::string pref_lang[3];
+	std::string pref_subs[3];
 
 	// EPG
 	int epg_save;
 	int epg_save_standby;
-	std::string epg_cache;
-	std::string epg_old_events;
-	std::string epg_max_events;
-	std::string epg_extendedcache;
+	int epg_cache;
+	int epg_old_events;
+	int epg_max_events;
+	int epg_extendedcache;
 	std::string epg_dir;
 	int epg_scan;
 
@@ -162,7 +161,7 @@ struct SNeutrinoSettings
 	std::string network_ntpserver;
 	std::string network_ntprefresh;
 	int network_ntpenable;
-	char ifname[10];
+	std::string ifname;
 	
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
@@ -262,13 +261,17 @@ struct SNeutrinoSettings
 		TIMING_SETTING_COUNT
 	};
 
-	int  timing       [TIMING_SETTING_COUNT]   ;
-	char timing_string[TIMING_SETTING_COUNT][4];
+	int timing [TIMING_SETTING_COUNT];
 
 	//widget settings
 	int widget_fade;
 
 	//colors
+	unsigned char clock_Digit_alpha;
+	unsigned char clock_Digit_red;
+	unsigned char clock_Digit_green;
+	unsigned char clock_Digit_blue;
+
 	unsigned char menu_Head_alpha;
 	unsigned char menu_Head_red;
 	unsigned char menu_Head_green;
@@ -329,21 +332,24 @@ struct SNeutrinoSettings
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8
-	std::string network_nfs_ip[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_mac[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_local_dir[NETWORK_NFS_NR_OF_ENTRIES][100];
-	char network_nfs_dir[NETWORK_NFS_NR_OF_ENTRIES][100];
-	int  network_nfs_automount[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_mount_options1[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_mount_options2[NETWORK_NFS_NR_OF_ENTRIES][31];
-	int  network_nfs_type[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_username[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_password[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_audioplayerdir[100];
-	char network_nfs_picturedir[100];
-	char network_nfs_moviedir[100];
-	char network_nfs_recordingdir[100];
-	char timeshiftdir[100];
+	struct {
+		std::string ip;
+		std::string mac;
+		std::string local_dir;
+		std::string dir;
+		int  automount;
+		std::string mount_options1;
+		std::string mount_options2;
+		int  type;
+		std::string username;
+		std::string password;
+	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
+	std::string network_nfs_audioplayerdir;
+	std::string network_nfs_picturedir;
+	std::string network_nfs_moviedir;
+	std::string network_nfs_recordingdir;
+	std::string timeshiftdir;
+	std::string downloadcache_dir;
 
 	//recording
 	int  recording_type;
@@ -463,8 +469,8 @@ struct SNeutrinoSettings
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
 	int channellist_numeric_adjust;
-	char repeat_blocker[4];
-	char repeat_genericblocker[4];
+	int repeat_blocker;
+	int repeat_genericblocker;
 	int remote_control_hardware;
 	int audiochannel_up_down_enable;
 
@@ -582,15 +588,15 @@ struct SNeutrinoSettings
 #define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a))
 
 	// pictureviewer
-	char   picviewer_slide_time[3];
-	int    picviewer_scaling;
+	int picviewer_slide_time;
+	int picviewer_scaling;
 	std::string picviewer_decode_server_ip;
 	char    picviewer_decode_server_port[6];
 
 	//audioplayer
 	int   audioplayer_display;
 	int   audioplayer_follow;
-	char  audioplayer_screensaver[3];
+	int   audioplayer_screensaver;
 	int   audioplayer_highprio;
 	int   audioplayer_select_title_by_name;
 	int   audioplayer_repeat_on;
@@ -616,9 +622,9 @@ struct SNeutrinoSettings
 	int	hdd_fs;
 	int	zap_cycle;
 	int	sms_channel;
-	char	font_file[100];
-	char	ttx_font_file[100];
-	char	update_dir[100];
+	std::string	font_file;
+	std::string	ttx_font_file;
+	std::string	update_dir;
 	// USERMENU
 	typedef enum
 	{

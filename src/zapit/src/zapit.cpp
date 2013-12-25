@@ -63,6 +63,7 @@
 #include <pwrmngr.h>
 #include <audio_cs.h>
 #include <video_cs.h>
+#include <ca_cs.h>
 #endif
 #if USE_STB_HAL || HAVE_TRIPLEDRAGON
 #include <video_td.h>
@@ -562,6 +563,10 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 #ifdef ENABLE_PIP
 	if (transponder_change && (live_fe == pip_fe))
 		StopPip();
+#endif
+
+#ifdef BOXMODEL_APOLLO
+	cCA::GetInstance()->SetTS((CA_DVBCI_TS_INPUT)live_fe->getNumber());
 #endif
 
 	if (current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {

@@ -151,7 +151,8 @@ bool CExtUpdate::applySettings(std::string & filename, int mode)
 	DBG_TIMER_START()
 
 	std::string oldFilename = imgFilename;
-	std::string hostName    = netGetHostname();
+	std::string hostName ="";
+	netGetHostname(hostName);
 	std::string orgPath     = getPathName(imgFilename);
 	std::string orgName     = getBaseName(imgFilename);
 	orgName                 = getFileName(orgName);

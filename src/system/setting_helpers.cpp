@@ -256,6 +256,11 @@ void CColorSetupNotifier::setPalette()
 	                              convertSetupColor2RGB(g_settings.menu_Content_inactive_Text_red, g_settings.menu_Content_inactive_Text_green, g_settings.menu_Content_inactive_Text_blue),
 	                              convertSetupAlpha2Alpha(g_settings.menu_Content_inactive_alpha));
 
+	// COL_INFOCLOCK_TEXT
+	frameBuffer->paletteSetColor(COL_NEUTRINO_TEXT + 15,
+	                              convertSetupColor2RGB(g_settings.clock_Digit_red, g_settings.clock_Digit_green, g_settings.clock_Digit_blue),
+	                              convertSetupAlpha2Alpha(g_settings.clock_Digit_alpha));
+
 	frameBuffer->paletteSet();
 }
 
@@ -294,20 +299,6 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_NMGR) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_VOLUME)) {
 		audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
-	}
-	return false;
-}
-
-// used in ./gui/osd_setup.cpp:
-bool CTimingSettingsNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
-{
-	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
-	{
-		if (ARE_LOCALES_EQUAL(OptionName, timing_setting[i].name))
-		{
-			g_settings.timing[i] = 	atoi(g_settings.timing_string[i]);
-			return true;
-		}
 	}
 	return false;
 }
@@ -499,7 +490,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
                 while (search) {
                         if (!strcmp(xmlGetName(search), "zone")) {
 				name = xmlGetAttribute(search, "name");
-				if(!strcmp(g_settings.timezone, name.c_str())) {
+				if(g_settings.timezone == name) {
 					zone = xmlGetAttribute(search, "zone");
 					if (!access(("/usr/share/zoneinfo/" + zone).c_str(), R_OK))
 						found = true;
@@ -561,7 +552,6 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		//CNeutrinoApp::getInstance()->loadColors(NEUTRINO_SETTINGS_FILE);
 		CNeutrinoApp::getInstance()->SetupFonts();
-		CNeutrinoApp::getInstance()->SetupTiming();
 		CColorSetupNotifier::setPalette();
 		CVFD::getInstance()->setlcdparameter();
 		CFrameBuffer::getInstance()->Clear();

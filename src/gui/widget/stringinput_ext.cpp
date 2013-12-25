@@ -567,9 +567,11 @@ void CDateInput::onAfterExec()
 }
 //-----------------------------#################################-------------------------------------------------------
 
-CMACInput::CMACInput(const neutrino_locale_t Name, char* Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
-	: CExtendedInput(Name, Value, Hint_1, Hint_2, Observ)
+CMACInput::CMACInput(const neutrino_locale_t Name, std::string &
+Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
+	: CExtendedInput(Name, MAC, Hint_1, Hint_2, Observ)
 {
+	mac = &Value;
 	frameBuffer = CFrameBuffer::getInstance();
 	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
 	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
@@ -601,7 +603,7 @@ void CMACInput::onBeforeExec()
 		return;
 	}
 	int _mac[6];
-	sscanf( value, "%x:%x:%x:%x:%x:%x", &_mac[0], &_mac[1], &_mac[2], &_mac[3], &_mac[4], &_mac[5] );
+	sscanf( mac->c_str(), "%x:%x:%x:%x:%x:%x", &_mac[0], &_mac[1], &_mac[2], &_mac[3], &_mac[4], &_mac[5] );
 	sprintf( value, "%02x:%02x:%02x:%02x:%02x:%02x", _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
 }
 
@@ -611,7 +613,11 @@ void CMACInput::onAfterExec()
 	sscanf( value, "%x:%x:%x:%x:%x:%x", &_mac[0], &_mac[1], &_mac[2], &_mac[3], &_mac[4], &_mac[5] );
 	sprintf( value, "%02x:%02x:%02x:%02x:%02x:%02x", _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
 	if(strcmp(value,"00:00:00:00:00:00")==0)
-		value[0] = 0; /* strcpy(value, ""); */
+	{
+		(*mac) = "";
+	}
+	else
+		(*mac) = value;
 }
 
 //-----------------------------#################################-------------------------------------------------------

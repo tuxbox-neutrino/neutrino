@@ -290,7 +290,7 @@ bool CFlashUpdate::getUpdateImage(const std::string & version)
 	if(fname != NULL) fname++;
 	else return false;
 
-	sprintf(dest_name, "%s/%s", g_settings.update_dir, fname);
+	sprintf(dest_name, "%s/%s", g_settings.update_dir.c_str(), fname);
 	showStatusMessageUTF(std::string(g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILE)) + ' ' + version); // UTF-8
 
 	printf("get update (url): %s - %s\n", filename.c_str(), dest_name);
@@ -360,7 +360,7 @@ printf("[update] mode is %d\n", softupdate_mode);
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
 		CFile * CFileSelected = NULL;
-		if (!(UpdatesBrowser.exec(g_settings.update_dir))) {
+		if (!(UpdatesBrowser.exec(g_settings.update_dir.c_str()))) {
 			menu_ret = UpdatesBrowser.getMenuRet();
 			return false;
 		}
@@ -443,7 +443,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETUPDATEFILEERROR)); // UTF-8
 			return menu_return::RETURN_REPAINT;
 		}
-		sprintf(fullname, "%s/%s", g_settings.update_dir, fname);
+		sprintf(fullname, "%s/%s", g_settings.update_dir.c_str(), fname);
 		filename = std::string(fullname);
 	}
 
@@ -524,10 +524,10 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		const char install_sh[] = "/bin/install.sh";
 #ifdef DEBUG1
-		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
+		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir.c_str(), filename.c_str() );
 #else
-		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir, filename.c_str() );
-		my_system(3, install_sh, g_settings.update_dir, filename.c_str());
+		printf("[update] calling %s %s %s\n",install_sh, g_settings.update_dir.c_str(), filename.c_str() );
+		my_system(3, install_sh, g_settings.update_dir.c_str(), filename.c_str());
 #endif
 		showGlobalStatus(100);
 		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
@@ -684,7 +684,8 @@ void CFlashExpert::readmtd(int preadmtd)
 {
 	std::string filename;
 	CMTDInfo* mtdInfo    = CMTDInfo::getInstance();
-	std::string hostName = netGetHostname();
+	std::string hostName ="";
+	netGetHostname(hostName);
 	std::string timeStr  = getNowTimeStr("_%Y%m%d_%H%M");
 	std::string tankStr  = "";
 
@@ -847,7 +848,7 @@ int CFlashExpert::showFileSelector(const std::string & actionkey)
 	fileselector->addIntroItems(LOCALE_FLASHUPDATE_FILESELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	struct dirent **namelist;
-	int n = scandir(g_settings.update_dir, &namelist, 0, alphasort);
+	int n = scandir(g_settings.update_dir.c_str(), &namelist, 0, alphasort);
 	if (n < 0)
 	{
 		perror("no flashimages available");

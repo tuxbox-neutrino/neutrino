@@ -179,8 +179,8 @@ void CAudioPlayerGui::Init(void)
 
 	m_select_title_by_name = g_settings.audioplayer_select_title_by_name==1;
 
-	if (strlen(g_settings.network_nfs_audioplayerdir)!=0)
-		m_Path = g_settings.network_nfs_audioplayerdir;
+	if (!g_settings.network_nfs_audioplayerdir.empty())
+		m_Path = g_settings.network_nfs_audioplayerdir.c_str();
 	else
 		m_Path = "/";
 
@@ -376,7 +376,7 @@ int CAudioPlayerGui::show()
 		if ( msg == CRCInput::RC_timeout  || msg == NeutrinoMessages::EVT_TIMER)
 		{
 			int timeout = time(NULL) - m_idletime;
-			int screensaver_timeout = atoi(g_settings.audioplayer_screensaver);
+			int screensaver_timeout = g_settings.audioplayer_screensaver;
 			if (screensaver_timeout !=0 && timeout > screensaver_timeout*60 && !m_screensaver)
 				screensaver(true);
 
@@ -1219,7 +1219,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 {
 	bool result = false;
 	CFileBrowser filebrowser((g_settings.filebrowser_denydirectoryleave)
-				 ? g_settings.network_nfs_audioplayerdir : "");
+				 ? g_settings.network_nfs_audioplayerdir.c_str() : "");
 
 	filebrowser.Multi_Select    = true;
 	filebrowser.Dirs_Selectable = true;
@@ -1390,8 +1390,8 @@ bool CAudioPlayerGui::openFilebrowser(void)
 		printTimevalDiff(start,end);
 #endif
 		//store last dir
-		if( (sizeof(g_settings.network_nfs_audioplayerdir)) > m_Path.size() && (strcmp(g_settings.network_nfs_audioplayerdir,m_Path.c_str()) != 0))
-			strcpy(g_settings.network_nfs_audioplayerdir,m_Path.c_str());
+		if( (g_settings.network_nfs_audioplayerdir.size()) > m_Path.size() && g_settings.network_nfs_audioplayerdir != m_Path.c_str() )
+			g_settings.network_nfs_audioplayerdir = m_Path;
 
 		result = true;
 	}
@@ -2585,8 +2585,8 @@ void CAudioPlayerGui::savePlaylist()
 	dirFilter.addFilter("m3u");
 	browser.Filter = &dirFilter;
 	// select preferred directory if exists
-	if (strlen(g_settings.network_nfs_audioplayerdir) != 0)
-		path = g_settings.network_nfs_audioplayerdir;
+	if (!g_settings.network_nfs_audioplayerdir.empty())
+		path = g_settings.network_nfs_audioplayerdir.c_str();
 	else
 		path = "/";
 

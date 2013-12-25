@@ -67,7 +67,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init record setup\n");
 	int   res = menu_return::RETURN_REPAINT;
-	char timeshiftDir[255];
+	std::string timeshiftDir;
 
 	if (parent)
 	{
@@ -88,13 +88,13 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		//parent->hide();
 		const char *action_str = "recordingdir";
-		if(chooserDir(g_settings.network_nfs_recordingdir, true, action_str, sizeof(g_settings.network_nfs_recordingdir)-1)){
-			printf("New recordingdir: %s (timeshift %s)\n", g_settings.network_nfs_recordingdir, g_settings.timeshiftdir);
-			if(strlen(g_settings.timeshiftdir) == 0)
+		if(chooserDir(g_settings.network_nfs_recordingdir, true, action_str)){
+			printf("New recordingdir: %s (timeshift %s)\n", g_settings.network_nfs_recordingdir.c_str(), g_settings.timeshiftdir.c_str());
+			if(g_settings.timeshiftdir.empty())
 			{
-				sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
-				safe_mkdir(timeshiftDir);
-				printf("New timeshift dir: %s\n", timeshiftDir);
+				timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
+				safe_mkdir(timeshiftDir.c_str());
+				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
 			}
 			CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 		}
@@ -105,7 +105,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		//parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
-		if (b.exec(g_settings.timeshiftdir))
+		if (b.exec(g_settings.timeshiftdir.c_str()))
 		{
 			const char * newdir = b.getSelectedFile()->Name.c_str();
 			printf("New timeshift: selected %s\n", newdir);
@@ -113,21 +113,21 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				printf("Wrong/unsupported recording dir %s\n", newdir);
 			else
 			{
-				printf("New timeshift dir: old %s (record %s)\n", g_settings.timeshiftdir, g_settings.network_nfs_recordingdir);
-				if(strcmp(newdir, g_settings.network_nfs_recordingdir))
+				printf("New timeshift dir: old %s (record %s)\n", g_settings.timeshiftdir.c_str(), g_settings.network_nfs_recordingdir.c_str());
+				if(newdir != g_settings.network_nfs_recordingdir)
 				{
 					printf("New timeshift != rec dir\n");
-					strncpy(g_settings.timeshiftdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.timeshiftdir)-1);
-					strcpy(timeshiftDir, g_settings.timeshiftdir);
+					g_settings.timeshiftdir = b.getSelectedFile()->Name;
+					timeshiftDir = g_settings.timeshiftdir;
 				}
 				else
 				{
-					sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
-					strcpy(g_settings.timeshiftdir, newdir);
-					safe_mkdir(timeshiftDir);
+					timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
+					g_settings.timeshiftdir = newdir;
+					safe_mkdir(timeshiftDir.c_str());
 					printf("New timeshift == rec dir\n");
 				}
-				printf("New timeshift dir: %s\n", timeshiftDir);
+				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
 				CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 			}
 		}
@@ -218,6 +218,7 @@ int CRecordSetup::showRecordSetup()
 
 	//rec hours
 	CMenuOptionNumberChooser * mc = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_TIME, &g_settings.record_hours, true, 1, 24, NULL);
+	mc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_HOUR));
 	mc->setHint("", LOCALE_MENU_HINT_RECORD_TIME);
 	recordingSettings->addItem(mc);
 
@@ -280,31 +281,40 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	//recording start/end correcture
 	int pre,post;
 	g_Timerd->getRecordingSafety(pre,post);
-	sprintf(g_settings.record_safety_time_before, "%02d", pre/60);
-	sprintf(g_settings.record_safety_time_after, "%02d", post/60);
-
-	//start
-	CStringInput * timerBefore = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, g_settings.record_safety_time_before, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_2,"0123456789 ", this);
-	CMenuForwarder *fTimerBefore = new CMenuDForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, true, g_settings.record_safety_time_before, timerBefore);
-	fTimerBefore->setHint("", LOCALE_MENU_HINT_RECORD_TIMEBEFORE);
-
-	//end
-	CStringInput * timerAfter = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, g_settings.record_safety_time_after, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_2,"0123456789 ", this);
-	CMenuForwarder *fTimerAfter = new CMenuDForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, true, g_settings.record_safety_time_after, timerAfter);
-	fTimerAfter->setHint("", LOCALE_MENU_HINT_RECORD_TIMEAFTER);
-
-	//announce
-	CMenuOptionChooser* chzapAnnounce = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ZAP_ON_ANNOUNCE, &g_settings.recording_zap_on_announce, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-	chzapAnnounce->setHint("", LOCALE_MENU_HINT_RECORD_ZAP);
-
-	CMenuOptionNumberChooser *chzapCorr = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_ZAPTO_PRE_TIME, &g_settings.zapto_pre_time, true, 0, 10);
-	chzapCorr->setHint("", LOCALE_MENU_HINT_RECORD_ZAP_PRE_TIME);
+	g_settings.record_safety_time_before = pre/60;
+	g_settings.record_safety_time_after = post/60;
 
 	menu_timersettings->addIntroItems(LOCALE_TIMERSETTINGS_SEPARATOR);
-	menu_timersettings->addItem(fTimerBefore);
-	menu_timersettings->addItem(fTimerAfter);
+
+	std::string nf = "%d ";
+	nf += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+
+	//start
+	CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE,
+		&g_settings.record_safety_time_before, true, 0, 99, NULL);
+	ch->setNumberFormat(nf);
+	ch->setHint("", LOCALE_MENU_HINT_RECORD_TIMEBEFORE);
+	menu_timersettings->addItem(ch);
+
+	//end
+	ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER,
+		&g_settings.record_safety_time_after, true, 0, 99, NULL);
+	ch->setNumberFormat(nf);
+	ch->setHint("", LOCALE_MENU_HINT_RECORD_TIMEAFTER);
+	menu_timersettings->addItem(ch);
+
+	//announce
+	CMenuOptionChooser* chzapAnnounce = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ZAP_ON_ANNOUNCE,
+		&g_settings.recording_zap_on_announce, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	chzapAnnounce->setHint("", LOCALE_MENU_HINT_RECORD_ZAP);
 	menu_timersettings->addItem(chzapAnnounce);
-	menu_timersettings->addItem(chzapCorr);
+
+	//zapto
+	ch = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_ZAPTO_PRE_TIME,
+		&g_settings.zapto_pre_time, true, 0, 10);
+	ch->setHint("", LOCALE_MENU_HINT_RECORD_ZAP_PRE_TIME);
+	ch->setNumberFormat(nf);
+	menu_timersettings->addItem(ch);
 }
 
 
@@ -381,7 +391,7 @@ bool CRecordSetup::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 {
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER)) {
-		g_Timerd->setRecordingSafety(atoi(g_settings.record_safety_time_before)*60, atoi(g_settings.record_safety_time_after)*60);
+		g_Timerd->setRecordingSafety(g_settings.record_safety_time_before*60, g_settings.record_safety_time_after);
 	} else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_STD) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_ALT) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_AC3)) {

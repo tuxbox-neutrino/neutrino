@@ -44,8 +44,10 @@ Basic attributes and member functions for component sub classes
 
 #include "cc_frm.h"
 #include "cc_frm_button.h"
+#include "cc_frm_chain.h"
 #include "cc_frm_clock.h"
 #include "cc_frm_signalbars.h"
+#include "cc_frm_slider.h"
 
 
 

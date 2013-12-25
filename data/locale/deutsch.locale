@@ -167,7 +167,7 @@ audioplayer.receiving_list Liste wird empfangen, bitte warten...
 audioplayer.repeat_on Repeatmodus aktivieren
 audioplayer.rewind schneller Rückl.
 audioplayer.save_playlist Playlist speichern
-audioplayer.screensaver_timeout Bildschirmschoner (min, 0=aus)
+audioplayer.screensaver_timeout Bildschirmschoner
 audioplayer.select_title_by_name Titelsuche nach Name (SMS)
 audioplayer.show_playlist Playlist anzeigen
 audioplayer.shuffle Zufällig
@@ -266,6 +266,7 @@ colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
+colormenu.clock_textcolor Ziffernfarbe
 colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Ein-/Ausblenden
 colormenu.font Neutrino Schriftart
@@ -399,7 +400,7 @@ extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
-extra.record_time Max. Aufnahmezeit in Stunden
+extra.record_time Maximale Aufnahmezeit
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
@@ -437,7 +438,7 @@ extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
-extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
+extra.zapit_motor_speed Rotor Drehzeit
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
 fan_speed CPU-Lüftergeschwindigkeit
@@ -817,6 +818,7 @@ menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
 menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
 menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
 menu.hint_clock_size Stellen Sie die Größe der Uhr ein
+menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -1005,6 +1007,7 @@ menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
+menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
 menu.hint_parentallock_menu Menüs mit PIN Code sichern
@@ -1032,7 +1035,7 @@ menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
 menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
-menu.hint_record_end Wählen Sie zwischen max. Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
+menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
 menu.hint_record_tdir Wählen Sie ein Verzeichnis für Ihre Timeshift-Aufnahmen im temporären Timeshift-Modus
 menu.hint_record_time Geben Sie eine maximale Aufnahmezeit in Stunden ein, wenn Sie die Aufnahme nicht vorzeitig stoppen
@@ -1270,7 +1273,7 @@ miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
 miscsettings.volume Lautstärke
-miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
+miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
 motorcontrol.drive_mode Fahr-Modus
@@ -1693,8 +1696,6 @@ recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
-repeatblocker.hint_1 Mindestzeit (in ms) zwischen 2 Tastendrücken
-repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?

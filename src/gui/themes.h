@@ -35,7 +35,7 @@ class CThemes : public CMenuTarget, CChangeObserver
 		CColorSetupNotifier *notifier;
 
 		int width;
-		int oldThemeValues[44];
+		int oldThemeValues[48];
 
 		bool hasThemeChanged;
 

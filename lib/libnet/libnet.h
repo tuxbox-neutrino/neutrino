@@ -1,28 +1,18 @@
 #ifndef __libnet__
 #define __libnet__
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif /* __cplusplus */
+#include <string>
 
-
-extern  int 	netSetIP( char *dev, char *ip, char *mask, char *brdcast );
-extern  void	netGetIP( char *dev, char *ip, char *mask, char *brdcast );
-extern  void	netSetDefaultRoute( char *gw );
-extern  void	netGetDefaultRoute( char *ip );
-extern	char	*netGetDomainname( void );
-extern	void	netSetDomainname( char *dom );
-extern	char	*netGetHostname( void );
-extern	void	netSetHostname( char *host );
-extern	void	netSetNameserver(const char *ip);
-extern  void	netGetNameserver( char *ip );
-extern  void 	netGetMacAddr(char * ifname, unsigned char * mac);
-
-
-#ifdef __cplusplus
-}
-#endif
-
+int 	netSetIP(std::string &dev, std::string &ip, std::string &mask, std::string &brdcast );
+void	netGetIP(std::string &dev, std::string &ip, std::string &mask, std::string &brdcast );
+void	netSetDefaultRoute( std::string &gw );
+void	netGetDefaultRoute( std::string &ip );
+void	netGetDomainname( std::string &dom );
+void	netSetDomainname( std::string &dom );
+void	netGetHostname( std::string &host );
+void	netSetHostname( std::string &host );
+void	netSetNameserver(std::string &ip);
+void	netGetNameserver( std::string &ip );
+void 	netGetMacAddr(std::string & ifname, unsigned char *);
 
 #endif

@@ -615,12 +615,12 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 
 	if(check_dir(Directory.c_str())) {
 		/* check if Directory and network_nfs_recordingdir the same */
-		if(strcmp(g_settings.network_nfs_recordingdir, Directory.c_str())) {
+		if(g_settings.network_nfs_recordingdir != Directory) {
 			/* not the same, check network_nfs_recordingdir and return error if not ok */
-			if(check_dir(g_settings.network_nfs_recordingdir))
+			if(check_dir(g_settings.network_nfs_recordingdir.c_str()))
 				return RECORD_INVALID_DIRECTORY;
 			/* fallback to g_settings.network_nfs_recordingdir */
-			Directory = std::string(g_settings.network_nfs_recordingdir);
+			Directory = g_settings.network_nfs_recordingdir;
 		}else{
 			return RECORD_INVALID_DIRECTORY;
 		}

@@ -52,7 +52,7 @@ class CMountChooser : public CMenuWidget
 {
 	private:
 	int * index;
-	char * localDir;
+	std::string localDir;
 
 	public:
 

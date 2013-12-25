@@ -43,6 +43,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
+#include <system/helpers.h>
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -118,17 +119,10 @@ void CBookmarkManager::renameBookmark (unsigned int index) {
 	}
 }
 #endif
-#define BOOKMARKSTRINGLENGTH (10 + 1)
-#define BOOKMARKSTRINGMODIFICATIONPOINT 8
-const char * const BOOKMARKSTRING = "bookmark0.";
-
 //------------------------------------------------------------------------
 void CBookmarkManager::readBookmarkFile() {
 	if (bookmarkfile.loadConfig(BOOKMARKFILE))
 	{
-		char bookmarkstring[BOOKMARKSTRINGLENGTH];
-		strcpy(bookmarkstring, BOOKMARKSTRING);
-
 		bookmarksmodified = false;
 		bookmarks.clear();
 
@@ -139,19 +133,11 @@ void CBookmarkManager::readBookmarkFile() {
 
 		while (bookmarkcount-- > 0)
 		{
-			std::string tmp = bookmarkstring;
-			tmp += "name";
-			std::string bookmarkname = bookmarkfile.getString(tmp, "");
-			tmp = bookmarkstring;
-			tmp += "url";
-			std::string bookmarkurl = bookmarkfile.getString(tmp, "");
-			tmp = bookmarkstring;
-			tmp += "time";
-			std::string bookmarktime = bookmarkfile.getString(tmp, "");
-
+			std::string bookmarkstring = "bookmark" + to_string(bookmarkcount) + ".";
+			std::string bookmarkname = bookmarkfile.getString(bookmarkstring + "name", "");
+			std::string bookmarkurl = bookmarkfile.getString(bookmarkstring + "url", "");
+			std::string bookmarktime = bookmarkfile.getString(bookmarkstring + "time", "");
 			bookmarks.push_back(CBookmark(bookmarkname, bookmarkurl, bookmarktime));
-
-			bookmarkstring[BOOKMARKSTRINGMODIFICATIONPOINT]++;
 		}
 	}
 	else
@@ -160,24 +146,16 @@ void CBookmarkManager::readBookmarkFile() {
 
 //------------------------------------------------------------------------
 void CBookmarkManager::writeBookmarkFile() {
-	char bookmarkstring[BOOKMARKSTRINGLENGTH];
-	strcpy(bookmarkstring, BOOKMARKSTRING);
 
 	printf("CBookmarkManager: Writing bookmark file\n");
 
-	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
+	unsigned int bookmarkcount = 0;
+	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); ++it, bookmarkcount++)
 	{
-		std::string tmp = bookmarkstring;
-		tmp += "name";
-		bookmarkfile.setString(tmp, it->getName());
-		tmp = bookmarkstring;
-		tmp += "url";
-		bookmarkfile.setString(tmp, it->getUrl());
-		tmp = bookmarkstring;
-		tmp += "time";
-		bookmarkfile.setString(tmp, it->getTime());
-
-		bookmarkstring[BOOKMARKSTRINGMODIFICATIONPOINT]++;
+		std::string bookmarkstring = "bookmark" + to_string(bookmarkcount) + ".";
+		bookmarkfile.setString(bookmarkstring + "name", it->getName());
+		bookmarkfile.setString(bookmarkstring + "url", it->getUrl());
+		bookmarkfile.setString(bookmarkstring + "time", it->getTime());
 	}
 	bookmarkfile.setInt32("bookmarkcount", bookmarks.size());
 	bookmarkfile.saveConfig(BOOKMARKFILE);
