@@ -136,7 +136,7 @@ void CEpgScan::Start(bool instandby)
 {
 	if (!g_settings.epg_scan)
 		return;
-	if (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))
+	if (!instandby && (CFEManager::getInstance()->getEnabledCount() <= 1))
 		return;
 
 	live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
