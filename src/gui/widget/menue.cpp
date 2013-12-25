@@ -160,7 +160,16 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 		if (right_bgcol) {
 			if (!right_text)
 				stringstartposOption -= 60;
-			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, false, COL_MENUCONTENT_PLUS_6, right_bgcol);
+			fb_pixel_t right_frame_col, right_bg_col;
+			if (active) {
+				right_bg_col = right_bgcol;
+				right_frame_col = COL_MENUCONTENT_PLUS_6;
+			}
+			else {
+				right_bg_col = COL_MENUCONTENTINACTIVE_TEXT;
+				right_frame_col = COL_MENUCONTENTINACTIVE_TEXT;
+			}
+			CComponentsShapeSquare col(stringstartposOption, y + 2, dx - stringstartposOption + x - 2, item_height - 4, false, right_frame_col, right_bg_col);
 			col.setFrameThickness(3);
 			col.setCorner(RADIUS_LARGE);
 			col.paint(false);
