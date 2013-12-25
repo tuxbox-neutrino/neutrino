@@ -148,13 +148,9 @@ int CHDDMenuHandler::doMenu ()
 	hddmenu->addItem(mc);
 
 	const char hdparm[] = "/sbin/hdparm";
-	bool hdparm_link = false;
 	struct stat stat_buf;
-	if(::lstat(hdparm, &stat_buf) == 0)
-		if( S_ISLNK(stat_buf.st_mode) )
-			hdparm_link = true;
-
-	if (!hdparm_link) {
+	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
+	if (have_nonbb_hdparm) {
 		mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
 		hddmenu->addItem(mc);
@@ -272,13 +268,11 @@ int CHDDMenuHandler::doMenu ()
 
 int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 {
-	char M_opt[50],S_opt[50];
-	char opt[100];
 	struct dirent **namelist;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
 
 	if (n < 0)
-		return 0;
+		return menu_return::RETURN_NONE;
 
 	const char hdidle[] = "/sbin/hd-idle";
 	bool have_hdidle = !access(hdidle, X_OK);
@@ -301,32 +295,32 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	}
 
 	const char hdparm[] = "/sbin/hdparm";
-	bool hdparm_link = false;
+	bool have_hdparm = !access(hdparm, X_OK);
+	if (!have_hdparm)
+		return menu_return::RETURN_NONE;
+
 	struct stat stat_buf;
-	if(::lstat(hdparm, &stat_buf) == 0)
-		if( S_ISLNK(stat_buf.st_mode) )
-			hdparm_link = true;
+	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
 
 	for (int i = 0; i < n; i++) {
 		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
 			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
-		snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
-		snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-		if (have_hdidle) {
-			snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
+		char M_opt[50],S_opt[50], opt[100];
+		snprintf(S_opt, sizeof(S_opt), "-S%d", g_settings.hdd_sleep);
+		snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
+		snprintf(opt, sizeof(opt), "/dev/%s",namelist[i]->d_name);
+
+		if (have_hdidle)
 			my_system(3, hdparm, M_opt, opt);
-		} else if(hdparm_link) {
-			//hdparm -M is not included in busybox hdparm!
-			my_system(3, hdparm, S_opt, opt);
-		} else {
-			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
+		else if (have_nonbb_hdparm)
 			my_system(4, hdparm, M_opt, S_opt, opt);
-		}
+		else // busybox hdparm doesn't support "-M"
+			my_system(3, hdparm, S_opt, opt);
 		free(namelist[i]);
 	}
 	free(namelist);
-	return 1;
+	return menu_return::RETURN_NONE;
 }
 
 static int check_and_umount(char * dev, char * path)
