@@ -65,6 +65,12 @@ void CInfoClock::Init()
 	//use current theme colors
 	syncSysColors();
 
+	//set text color
+	if (g_settings.infoClockBackground)
+		setTextColor(COL_MENUCONTENT_TEXT);
+	else
+		setTextColor(COL_INFOCLOCK_TEXT);
+
 	paint_bg = g_settings.infoClockBackground;
 
 	if (g_settings.infoClockSeconds)

@@ -262,6 +262,11 @@ struct SNeutrinoSettings
 	int widget_fade;
 
 	//colors
+	unsigned char clock_Digit_alpha;
+	unsigned char clock_Digit_red;
+	unsigned char clock_Digit_green;
+	unsigned char clock_Digit_blue;
+
 	unsigned char menu_Head_alpha;
 	unsigned char menu_Head_red;
 	unsigned char menu_Head_green;

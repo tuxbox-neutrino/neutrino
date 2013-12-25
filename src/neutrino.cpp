@@ -458,6 +458,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
 
 	//colors (neutrino defaultcolors)
+	g_settings.clock_Digit_alpha = configfile.getInt32( "clock_Digit_alpha", 0x00 );
+	g_settings.clock_Digit_red = configfile.getInt32( "clock_Digit_red", 0x64 );
+	g_settings.clock_Digit_green = configfile.getInt32( "clock_Digit_green", 0x64 );
+	g_settings.clock_Digit_blue = configfile.getInt32( "clock_Digit_blue", 0x64 );
+
 	g_settings.menu_Head_alpha = configfile.getInt32( "menu_Head_alpha", 0x00 );
 	g_settings.menu_Head_red = configfile.getInt32( "menu_Head_red", 0x00 );
 	g_settings.menu_Head_green = configfile.getInt32( "menu_Head_green", 0x0A );
@@ -958,6 +963,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("widget_fade"          , g_settings.widget_fade          );
 
 	//colors
+	configfile.setInt32( "clock_Digit_alpha", g_settings.clock_Digit_alpha );
+	configfile.setInt32( "clock_Digit_red", g_settings.clock_Digit_red );
+	configfile.setInt32( "clock_Digit_green", g_settings.clock_Digit_green );
+	configfile.setInt32( "clock_Digit_blue", g_settings.clock_Digit_blue );
+
 	configfile.setInt32( "menu_Head_alpha", g_settings.menu_Head_alpha );
 	configfile.setInt32( "menu_Head_red", g_settings.menu_Head_red );
 	configfile.setInt32( "menu_Head_green", g_settings.menu_Head_green );
