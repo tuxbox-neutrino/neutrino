@@ -78,7 +78,9 @@ class CComponentsFrmClock : public CComponentsForm
 		int cl_align;
 
 		///initialize all attributes and required objects
-		void initVarClock();
+		void initVarClock(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const char* format_str, bool activ, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
 		
 		///initialize clock contents  
 		void initCCLockItems();
@@ -91,8 +93,7 @@ class CComponentsFrmClock : public CComponentsForm
 		inline Font** getClockFont();
 
 	public:
-		CComponentsFrmClock();
-		CComponentsFrmClock( 	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1, const int& w = 200, const int& h = 48,
 					const char* format_str = "%H:%M", bool activ=true, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsFrmClock();
