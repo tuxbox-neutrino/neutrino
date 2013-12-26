@@ -29,6 +29,8 @@ typedef struct {
 	std::string codec_name;
 } playback_audio_pid_info_t;
 
+#define MAX_PLAYBACK_PIDS 40
+
 class cPlayback {
 private:
 	cPlaybackData * pd;
