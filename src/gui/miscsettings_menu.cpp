@@ -393,7 +393,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	if (epg_cache.length() < 2)
 		epg_cache.insert(0, 2 - epg_cache.length(), ' ');
 	CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, NULL, miscSettings_epg_cache);
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, epg_cache, miscSettings_epg_cache);
 	mf->setHint("", LOCALE_MENU_HINT_EPG_CACHE);
 
 	epg_extendedcache = to_string(g_settings.epg_extendedcache);
