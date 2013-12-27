@@ -309,7 +309,7 @@ void CDBoxInfoWidget::paint()
 		COL_MENUHEAD_TEXT, 0, true); // UTF-8
 	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
 
-	ypos+= hheight + (mheight >>1);
+	ypos+= hheight + (mheight/2);
 	FILE* fd = fopen("/proc/cpuinfo", "rt");
 	if (fd==NULL) {
 		printf("error while opening proc-cpuinfo\n" );
@@ -461,7 +461,7 @@ void CDBoxInfoWidget::paint()
 			}
 			ypos+= mheight;
 		}
-		ypos+= mheight;
+		ypos+= mheight/2;
 		
 		// paint mount head
 		for (int j = 0; j < headSize; j++) {
