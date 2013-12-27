@@ -437,15 +437,15 @@ void CDBoxInfoWidget::paint()
 						break;
 					case 2:
 						mpOffset = nameOffset+ (sizeOffset+10)*1+10;
-						bytes2string(1024 * m[k][DBINFO_FREE], ubuf, buf_size);
+						bytes2string(1024 * m[k][DBINFO_USED], ubuf, buf_size);
 						break;
 					case 3:
 						mpOffset = nameOffset+ (sizeOffset+10)*2+10;
-						bytes2string(1024 * m[k][DBINFO_USED], ubuf, buf_size);
+						bytes2string(1024 * m[k][DBINFO_FREE], ubuf, buf_size);
 						break;
 					case 4:
 						mpOffset = nameOffset+ (sizeOffset+10)*3+10;
-						snprintf(ubuf, buf_size, "%4d%%", m[k][DBINFO_TOTAL] ? (m[k][DBINFO_FREE] * 100) / m[k][DBINFO_TOTAL] : 0);
+						snprintf(ubuf, buf_size, "%4d%%", m[k][DBINFO_TOTAL] ? (m[k][DBINFO_USED] * 100) / m[k][DBINFO_TOTAL] : 0);
 						break;
 				}
 				g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT_TEXT);
