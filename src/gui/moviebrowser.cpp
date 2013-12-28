@@ -3349,6 +3349,8 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 
 	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
+	int off = startPosSelectionMenu.getItemsCount();
+
 	if(m_movieSelectionHandler->bookmarks.start != 0)
 	{
 		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, true, start_pos));
@@ -3381,7 +3383,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	startPosSelectionMenu.exec(NULL, "12345");
 	/* check what menu item was ok'd  and set the appropriate play offset*/
 	result = startPosSelectionMenu.getSelectedLine();
-	result -= 4; // sub-text, separator, back, separator-line
+	result -= off; // sub-text, separator, back, separator-line
 
 	if(result >= 0 && result <= MAX_NUMBER_OF_BOOKMARK_ITEMS)
 	{
