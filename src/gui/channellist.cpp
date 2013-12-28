@@ -1761,7 +1761,7 @@ void CChannelList::paintItem2DetailsLine (int pos)
 
 void CChannelList::showChannelLogo()
 {
-	if(g_settings.infobar_show_channellogo){
+	if(g_settings.channellist_show_channellogo){
 		static int logo_w = 0;
 		static int logo_h = 0;
 		int logo_w_max = full_width / 4;

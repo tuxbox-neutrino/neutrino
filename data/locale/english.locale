@@ -242,6 +242,7 @@ channellist.recording_not_possible Recording not possible!
 channellist.reset_all Reset 'new' flag for all channels
 channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
+channellist.show_channellogo Show channellogos
 channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
@@ -812,6 +813,7 @@ menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
 menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_setup Configure channel list GUI options
+menu.hint_channellist_show_channellogo Show channellogos in channel list
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_clock_background Show clock with theme's background color
