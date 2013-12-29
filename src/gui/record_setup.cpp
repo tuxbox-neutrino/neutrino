@@ -291,14 +291,14 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 
 	//start
 	CMenuOptionNumberChooser *ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE,
-		&g_settings.record_safety_time_before, true, 0, 99, NULL);
+		&g_settings.record_safety_time_before, true, 0, 99, this);
 	ch->setNumberFormat(nf);
 	ch->setHint("", LOCALE_MENU_HINT_RECORD_TIMEBEFORE);
 	menu_timersettings->addItem(ch);
 
 	//end
 	ch = new CMenuOptionNumberChooser(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER,
-		&g_settings.record_safety_time_after, true, 0, 99, NULL);
+		&g_settings.record_safety_time_after, true, 0, 99, this);
 	ch->setNumberFormat(nf);
 	ch->setHint("", LOCALE_MENU_HINT_RECORD_TIMEAFTER);
 	menu_timersettings->addItem(ch);
@@ -391,7 +391,7 @@ bool CRecordSetup::changeNotify(const neutrino_locale_t OptionName, void * /*dat
 {
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER)) {
-		g_Timerd->setRecordingSafety(g_settings.record_safety_time_before*60, g_settings.record_safety_time_after);
+		g_Timerd->setRecordingSafety(g_settings.record_safety_time_before*60, g_settings.record_safety_time_after*60);
 	} else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_STD) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_ALT) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_AC3)) {

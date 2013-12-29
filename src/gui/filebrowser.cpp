@@ -109,110 +109,23 @@ unsigned char SMSKeyInput::handleMsg(const neutrino_msg_t msg)
 // 	       m_oldKeyTime.tv_sec*1000+m_oldKeyTime.tv_usec/1000,
 // 	       m_timeout,!timeoutNotReached);
 
-	unsigned char key = 0;
-	if(msg == CRCInput::RC_1)
-	{
-			key = '1';
-	}
-	if(msg == CRCInput::RC_2)
-	{
-		if(m_oldKey == 'a' && timeoutNotReached)
-			key = 'b';
-		else if(m_oldKey == 'b' && timeoutNotReached)
-			key = 'c';
-		else if(m_oldKey == 'c' && timeoutNotReached)
-			key = '2';
-		else
-			key = 'a';
-	}
-	else if(msg == CRCInput::RC_3)
-	{
-		if(m_oldKey == 'd' && timeoutNotReached)
-			key = 'e';
-		else if(m_oldKey == 'e' && timeoutNotReached)
-			key = 'f';
-		else if(m_oldKey == 'f' && timeoutNotReached)
-			key = '3';
-		else
-			key = 'd';
-	}
-	else if(msg == CRCInput::RC_4)
-	{
-		if(m_oldKey == 'g' && timeoutNotReached)
-			key = 'h';
-		else if(m_oldKey == 'h' && timeoutNotReached)
-			key = 'i';
-		else if(m_oldKey == 'i' && timeoutNotReached)
-			key = '4';
-		else
-			key = 'g';
-	}
-	else if(msg == CRCInput::RC_5)
-	{
-		if(m_oldKey == 'j' && timeoutNotReached)
-			key = 'k';
-		else if(m_oldKey == 'k' && timeoutNotReached)
-			key = 'l';
-		else if(m_oldKey == 'l' && timeoutNotReached)
-			key = '5';
-		else
-			key = 'j';
-	}
-	else if(msg == CRCInput::RC_6)
-	{
-		if(m_oldKey == 'm' && timeoutNotReached)
-			key = 'n';
-		else if(m_oldKey == 'n' && timeoutNotReached)
-			key = 'o';
-		else if(m_oldKey == 'o' && timeoutNotReached)
-			key = '6';
-		else
-			key = 'm';
-	}
-	else if(msg == CRCInput::RC_7)
-	{
-		if(m_oldKey == 'p' && timeoutNotReached)
-			key = 'q';
-		else if(m_oldKey == 'q' && timeoutNotReached)
-			key = 'r';
-		else if(m_oldKey == 'r' && timeoutNotReached)
-			key = 's';
-		else if(m_oldKey == 's' && timeoutNotReached)
-			key = 's';
-		else
-			key = 'p';
-	}
-	else if(msg == CRCInput::RC_8)
-	{
-		if(m_oldKey == 't' && timeoutNotReached)
-			key = 'u';
-		else if(m_oldKey == 'u' && timeoutNotReached)
-			key = 'v';
-		else if(m_oldKey == 'v' && timeoutNotReached)
-			key = '8';
-		else
-			key = 't';
-	}
-	else if(msg == CRCInput::RC_9)
-	{
-		if(m_oldKey == 'w' && timeoutNotReached)
-			key = 'x';
-		else if(m_oldKey == 'x' &&timeoutNotReached)
-			key = 'y';
-		else if(m_oldKey == 'y' &&timeoutNotReached)
-			key = 'z';
-		else if(m_oldKey == 'z' && timeoutNotReached)
-			key = '9';
-		else
-			key = 'w';
-	}
-	else if(msg == CRCInput::RC_0)
-	{
-		key = '0';
+	const char *key = "";
+	if (CRCInput::isNumeric(msg)) {
+		int n = CRCInput::getNumericValue(msg);
+		const char *Chars[10] = { "0", "1", "abc2", "def3", "ghi4", "jkl5", "mno6", "pqrs7", "tuv8", "wxyz9" };
+		if (timeoutNotReached) {
+			key = Chars[n];
+			while (*key && *key != m_oldKey)
+				key++;
+			if (*key)
+				key++;
+		}
+		if (!*key)
+			key = Chars[n];
 	}
 	m_oldKeyTime=keyTime;
-	m_oldKey=key;
-	return key;
+	m_oldKey=*key;
+	return *key;
 }
 //------------------------------------------------------------------------
 
