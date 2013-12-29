@@ -33,6 +33,7 @@
 #include <gui/epgplus.h>
 #include <sectionsdclient/sectionsdclient.h>
 
+#include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/messagebox.h>
@@ -119,19 +120,10 @@ void EpgPlus::Header::init()
 
 void EpgPlus::Header::paint(const char * Name)
 {
-	std::string head = g_Locale->getText (LOCALE_EPGPLUS_HEAD);
-	if(Name) {
-		head += " ";
-		head += Name;
-	}
-	this->frameBuffer->paintBoxRel (this->x, this->y, this->width, this->font->getHeight()+4, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	this->font->RenderString (this->x + 10, this->y + this->font->getHeight() + 2, 
-			this->width - 20, head, COL_MENUHEAD_TEXT, 0, true);
-			//this->width - 20, g_Locale->getText (LOCALE_EPGPLUS_HEAD) , COL_MENUHEAD_TEXT, 0, true);
-        int icol_w, icol_h;
-        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
-	this->frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_HELP, this->x + this->width - icol_w - RADIUS_LARGE - 10, this->y+ ((this->font->getHeight()-icol_h)/2), icol_h);
+	std::string head = Name ? Name : g_Locale->getText (LOCALE_EPGPLUS_HEAD);
 
+	CComponentsHeader header(this->x, this->y, this->width, this->font->getHeight()+4, head, NULL /*no header icon*/);
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 int EpgPlus::Header::getUsedHeight()
@@ -502,7 +494,8 @@ struct button_label buttonLabels[] = {
 	{NEUTRINO_ICON_BUTTON_RED, LOCALE_EPGPLUS_ACTIONS},
 	{NEUTRINO_ICON_BUTTON_GREEN, LOCALE_EPGPLUS_PREV_BOUQUET /*LOCALE_EPGPLUS_PAGE_UP*/},
 	{NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_EPGPLUS_NEXT_BOUQUET /*LOCALE_EPGPLUS_PAGE_DOWN*/},
-	{NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EPGPLUS_OPTIONS}
+	{NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EPGPLUS_OPTIONS},
+	{NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_EPGMENU_EVENTINFO}
 };
 
 void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfButtons)
