@@ -431,13 +431,11 @@ int CScanSetup::showScanMenu()
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FAST);
 		settings->addItem(mf);
 #endif
+		settings->addItem(GenericMenuSeparatorLine);
 	}
 	if (CFEManager::getInstance()->haveCable()) {
 		r_system = DVB_C;
 
-		//--------------------------------------------------------------
-		//settings->addItem(GenericMenuSeparatorLine);
-		//--------------------------------------------------------------
 		//tune timeout
 		if(CFEManager::getInstance()->getFrontendCount() <= 1) {
 			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
@@ -471,8 +469,8 @@ int CScanSetup::showScanMenu()
 		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_yellow, have_sat ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
 		fcableScan->setHint("", LOCALE_MENU_HINT_SCAN_CABLE_SIMPLE);
 		settings->addItem(fcableScan);
+		settings->addItem(GenericMenuSeparatorLine);
 	}
-	settings->addItem(GenericMenuSeparatorLine);
 	//service select mode
 	mc = new CMenuOptionChooser(LOCALE_ZAPIT_SCANTYPE, (int *)&scansettings.scanType, SCANTS_ZAPIT_SCANTYPE, SCANTS_ZAPIT_SCANTYPE_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true);
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_SCANTYPE);
