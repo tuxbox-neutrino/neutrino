@@ -506,7 +506,7 @@ void CDBoxInfoWidget::paint()
 							tmp = "rootfs";
 						_w = nameWidth - mpOffset;
 						if ((*it).second)
-							_w -= icon_w + 10;
+							_w -= icon_w;
 						break;
 					case 1:
 						tmp = bytes2string(bytes_total, false);
