@@ -227,13 +227,13 @@ void CDBoxInfoWidget::paint()
 	int icon_w = 0, icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
 
-	int m[2][3] = { { 0, 0, 0 }, { 0, 0, 0 } }; // size, used, available
 #define DBINFO_TOTAL 0
 #define DBINFO_USED 1
 #define DBINFO_FREE 2
+	int memstat[2][3] = { { 0, 0, 0 }, { 0, 0, 0 } }; // total, used, free
 #define DBINFO_RAM 0
 #define DBINFO_SWAP 1
-	const char *n[2] = { "RAM", "Swap" };
+	const char *memtype[2] = { "RAM", "Swap" };
 	FILE *procmeminfo = fopen("/proc/meminfo", "r");
 	if (procmeminfo) {
 		char buf[80], a[80];
@@ -241,19 +241,19 @@ void CDBoxInfoWidget::paint()
 		while (fgets(buf, sizeof(buf), procmeminfo))
 			if (2 == sscanf(buf, "%[^:]: %d", a, &v)) {
 				if (!strcasecmp(a, "MemTotal"))
-					m[DBINFO_RAM][DBINFO_TOTAL] += v;
+					memstat[DBINFO_RAM][DBINFO_TOTAL] += v;
 				else if (!strcasecmp(a, "MemFree"))
-					m[DBINFO_RAM][DBINFO_FREE] += v;
+					memstat[DBINFO_RAM][DBINFO_FREE] += v;
 				else if (!strcasecmp(a, "Inactive"))
-					m[DBINFO_RAM][DBINFO_FREE] += v;
+					memstat[DBINFO_RAM][DBINFO_FREE] += v;
 				else if (!strcasecmp(a, "SwapTotal"))
-					m[DBINFO_SWAP][DBINFO_TOTAL] = v;
+					memstat[DBINFO_SWAP][DBINFO_TOTAL] = v;
 				else if (!strcasecmp(a, "SwapFree"))
-					m[DBINFO_SWAP][DBINFO_FREE] += v;
+					memstat[DBINFO_SWAP][DBINFO_FREE] += v;
 			}
 		fclose(procmeminfo);
 	}
-	bool have_swap = m[DBINFO_SWAP][DBINFO_TOTAL];
+	bool have_swap = memstat[DBINFO_SWAP][DBINFO_TOTAL];
 	height += mheight;		// header
 	height += mheight;		// ram
 	height += have_swap * mheight;	// swap
@@ -433,23 +433,23 @@ void CDBoxInfoWidget::paint()
 
 	for (int k = 0; k < 1 + have_swap; k++) {
 		std::string tmp;
-		m[k][DBINFO_USED] = m[k][DBINFO_TOTAL] - m[k][DBINFO_FREE];
+		memstat[k][DBINFO_USED] = memstat[k][DBINFO_TOTAL] - memstat[k][DBINFO_FREE];
 		for (int j = 0; j < headSize_mem; j++) {
 			switch (j) {
 				case 0:
-					tmp = n[k];
+					tmp = memtype[k];
 					break;
 				case 1:
-					tmp = bytes2string(1024 * m[k][DBINFO_TOTAL]);
+					tmp = bytes2string(1024 * memstat[k][DBINFO_TOTAL]);
 					break;
 				case 2:
-					tmp = bytes2string(1024 * m[k][DBINFO_USED]);
+					tmp = bytes2string(1024 * memstat[k][DBINFO_USED]);
 					break;
 				case 3:
-					tmp = bytes2string(1024 * m[k][DBINFO_FREE]);
+					tmp = bytes2string(1024 * memstat[k][DBINFO_FREE]);
 					break;
 				case 4:
-					tmp = to_string(m[k][DBINFO_TOTAL] ? (m[k][DBINFO_USED] * 100) / m[k][DBINFO_TOTAL] : 0) + "%";
+					tmp = to_string(memstat[k][DBINFO_TOTAL] ? (memstat[k][DBINFO_USED] * 100) / memstat[k][DBINFO_TOTAL] : 0) + "%";
 					break;
 			}
 			mpOffset = offsets[j];
@@ -463,7 +463,7 @@ void CDBoxInfoWidget::paint()
 			CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
 			pb.setBlink();
 			pb.setInvert();
-			pb.setValues(m[k][0] ? (m[k][1] * 100) / m[k][0] : 0, 100);
+			pb.setValues(memstat[k][0] ? (memstat[k][1] * 100) / memstat[k][0] : 0, 100);
 			pb.paint(false);
 		}
 		ypos += mheight;
