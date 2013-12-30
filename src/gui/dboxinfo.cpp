@@ -90,6 +90,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	COSDFader fader(g_settings.menu_Content_alpha);
 	fader.StartFadeIn();
 
+	sizeWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("1023,99 MiB");
 	paint();
 	frameBuffer->blit();
 
@@ -208,9 +209,8 @@ void CDBoxInfoWidget::paint()
 	const int headSize = 5;
 	const char *head[headSize] = {"Filesystem", "Size", "Used", "Available", "Use"};
 	int fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
-	int sizeWidth = fontWidth * 11;//9999.99 MiB
 	int percWidth = fontWidth * 4 ;//100%
-	int nameWidth = fontWidth * 17;//WWWwwwwwww
+	int nameWidth = fontWidth * 10;//WWWwwwwwww mountpoint, will auto-extend
 	height = hheight;
 	height += mheight/2;	// space
 	height += mheight;	// time

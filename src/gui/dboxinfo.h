@@ -48,6 +48,7 @@ class CDBoxInfoWidget : public CMenuTarget
 		int height;
 		int hheight,mheight; // head/menu font height
 		unsigned long stat_total, stat_idle;
+		int sizeWidth; // width of mem / disk sizes
 
 		void paint();
 
