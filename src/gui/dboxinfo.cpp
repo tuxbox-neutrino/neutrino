@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	(C) 2009-2011, 2013 Stefan Seyfried
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -223,7 +225,7 @@ void CDBoxInfoWidget::paint()
 	int icon_w = 0, icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
 
-	int m[2][3] = { { 0, 0, 0 }, { 0, 0, 0 } }; // size, used, available
+	unsigned long m[2][3] = { { 0, 0, 0 }, { 0, 0, 0 } }; // size, used, available
 #define DBINFO_TOTAL 0
 #define DBINFO_USED 1
 #define DBINFO_FREE 2
@@ -233,9 +235,9 @@ void CDBoxInfoWidget::paint()
 	FILE *procmeminfo = fopen("/proc/meminfo", "r");
 	if (procmeminfo) {
 		char buf[80], a[80];
-		int v;
+		unsigned long v;
 		while (fgets(buf, sizeof(buf), procmeminfo))
-			if (2 == sscanf(buf, "%[^:]: %d", a, &v)) {
+			if (2 == sscanf(buf, "%[^:]: %lu", a, &v)) {
 				if (!strcasecmp(a, "MemTotal"))
 					m[DBINFO_RAM][DBINFO_TOTAL] += v;
 				else if (!strcasecmp(a, "MemFree"))
