@@ -327,6 +327,7 @@ void CDBoxInfoWidget::paint()
 	}
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
 	std::string title(g_Locale->getText(LOCALE_EXTRA_DBOXINFO));
+#if 0
 	std::map<std::string,std::string> cpuinfo;
 	in.open("/proc/cpuinfo");
 	if (in.is_open()) {
@@ -348,6 +349,11 @@ void CDBoxInfoWidget::paint()
 		title += ": ";
 		title + cpuinfo["machine"];
 	}
+#endif
+	title += ": ";
+	title += g_info.hw_caps->boxvendor;
+	title += " ";
+	title += g_info.hw_caps->boxname;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1,
 		width-((fw/3)+HeadiconOffset), title, COL_MENUHEAD_TEXT, 0, true); // UTF-8
 	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
