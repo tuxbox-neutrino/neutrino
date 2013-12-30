@@ -59,12 +59,6 @@
 #include <map>
 #include <iostream>
 #include <fstream>
-#include <ctype.h>
-
-static const int FSHIFT = 16;              /* nr of bits of precision */
-#define FIXED_1         (1<<FSHIFT)     /* 1.0 as fixed-point */
-#define LOAD_INT(x) ((x) >> FSHIFT)
-#define LOAD_FRAC(x) LOAD_INT(((x) & (FIXED_1-1)) * 100)
 
 CDBoxInfoWidget::CDBoxInfoWidget()
 {
@@ -77,7 +71,6 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	x = 0;
 	y = 0;
 }
-
 
 int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 {
