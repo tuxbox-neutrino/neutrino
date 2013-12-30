@@ -1789,11 +1789,11 @@ const char * CMenuForwarder::getOption(void)
 {
 	if (option)
 		return option;
-	else
-		if (option_string)
-			return option_string->c_str();
-		else
-			return NULL;
+	if (option_string)
+		return option_string->c_str();
+	if (jumpTarget)
+		return jumpTarget->getTargetValue();
+	return NULL;
 }
 
 const char * CMenuForwarder::getName(void)
