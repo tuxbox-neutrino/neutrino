@@ -309,18 +309,8 @@ void CDBoxInfoWidget::paint()
 	// fprintf(stderr, "CDBoxInfoWidget::CDBoxInfoWidget() x = %d, y = %d, width = %d height = %d\n", x, y, width, height);
 
 	int ypos=y;
-	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
-	//paint menu head
-	string iconfile = NEUTRINO_ICON_SHELL;
-	int HeadiconOffset = 0;
-	if(!(iconfile.empty())){
-		int w, h;
-		frameBuffer->getIconSize(iconfile.c_str(), &w, &h);
-		HeadiconOffset = w+6;
-	}
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
+	//paint head
 	std::string title(g_Locale->getText(LOCALE_EXTRA_DBOXINFO));
 	std::map<std::string,std::string> cpuinfo;
 	in.open("/proc/cpuinfo");
@@ -343,9 +333,12 @@ void CDBoxInfoWidget::paint()
 		title += ": ";
 		title + cpuinfo["machine"];
 	}
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1,
-		width-((fw/3)+HeadiconOffset), title, COL_MENUHEAD_TEXT, 0, true); // UTF-8
-	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
+
+	CComponentsHeader header(x, ypos, width, hheight, title, NEUTRINO_ICON_SHELL);
+	header.paint(CC_SAVE_SCREEN_NO);
+
+	//paint body
+	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos += hheight + mheight/2;
 
