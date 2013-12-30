@@ -106,7 +106,6 @@
 #include <system/setting_helpers.h>
 #include <system/settings.h>
 #include <system/helpers.h>
-#include <system/sysload.h>
 
 #include <timerdclient/timerdmsg.h>
 
@@ -1978,8 +1977,6 @@ TIMER_START();
 
 	hintBox->hide();
 	delete hintBox;
-
-	cSysLoad::getInstance();
 
 TIMER_STOP("################################## after all ##################################");
 	RealRun(personalize.getWidget(0)/**main**/);
