@@ -425,10 +425,10 @@ void CDBoxInfoWidget::paint()
 	// paint mount head
 	for (int j = 0; j < headSize_mem; j++) {
 		headOffset = offsets[j];
-		int center = 0;
+		int align = 0;
 		if (j > 0)
-			center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mem[j], true))/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + center, ypos+ mheight, width - 10, head_mem[j], COL_MENUCONTENTINACTIVE_TEXT);
+			align = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mem[j], true));
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + align, ypos+ mheight, width - 10, head_mem[j], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 	ypos += mheight;
 
@@ -454,10 +454,10 @@ void CDBoxInfoWidget::paint()
 					break;
 			}
 			mpOffset = offsets[j];
-			int center = 0;
+			int align = 0;
 			if (j > 0)
-				center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true))/2;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + center, ypos+ mheight, width - 10, tmp, COL_MENUCONTENT_TEXT);
+				align = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true));
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + align, ypos+ mheight, width - 10, tmp, COL_MENUCONTENT_TEXT);
 		}
 		int pbw = width - offsetw - 10;
 		if (pbw > 8) /* smaller progressbar is not useful ;) */
@@ -475,10 +475,10 @@ void CDBoxInfoWidget::paint()
 	// paint mount head
 	for (int j = 0; j < headSize; j++) {
 		headOffset = offsets[j];
-		int center = 0;
+		int align = 0;
 		if (j > 0)
-			center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head[j], true))/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + center, ypos+ mheight, width - 10, head[j], COL_MENUCONTENTINACTIVE_TEXT);
+			align = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head[j], true));
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + align, ypos+ mheight, width - 10, head[j], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 	ypos += mheight;
 
@@ -521,10 +521,10 @@ void CDBoxInfoWidget::paint()
 						tmp = to_string(percent_used) + "%";
 						break;
 					}
-					int center = 0;
+					int align = 0;
 					if (j > 0)
-						center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true))/2;
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + center, ypos+ mheight, _w - 10, tmp, COL_MENUCONTENT_TEXT);
+						align = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true));
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + align, ypos+ mheight, _w - 10, tmp, COL_MENUCONTENT_TEXT);
 					if ((*it).second && icon_w>0 && icon_h>0)
 						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w, ypos + (mheight/2 - icon_h/2));
 				}
