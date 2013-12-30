@@ -196,8 +196,6 @@ static std::string bytes2string(uint64_t bytes, bool binary)
 
 void CDBoxInfoWidget::paint()
 {
-	const int headSize = 5;
-	const char *head[headSize] = {"Filesystem", "Size", "Used", "Available", "Use"};
 	int fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 	int sizeWidth = fontWidth * 11;//9999.99 MiB
 	int percWidth = fontWidth * 4 ;//100%
@@ -407,7 +405,7 @@ void CDBoxInfoWidget::paint()
 	};
 	int widths[] = { 0, sizeWidth, sizeWidth, sizeWidth, percWidth };
 
-	// paint mount head
+	// paint mem head
 	for (int j = 0; j < headSize_mem; j++) {
 		headOffset = offsets[j];
 		int center = 0;
@@ -456,13 +454,15 @@ void CDBoxInfoWidget::paint()
 	}
 	ypos += mheight/2;
 	
+	const int headSize_mnt = 5;
+	const char *head_mnt[headSize_mnt] = {"Filesystem", "Size", "Used", "Available", "Use"};
 	// paint mount head
-	for (int j = 0; j < headSize; j++) {
+	for (int j = 0; j < headSize_mnt; j++) {
 		headOffset = offsets[j];
 		int center = 0;
 		if (j > 0)
-			center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head[j], true))/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + center, ypos+ mheight, width - 10, head[j], COL_MENUCONTENTINACTIVE_TEXT);
+			center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mnt[j], true))/2;
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + center, ypos+ mheight, width - 10, head_mnt[j], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 	ypos += mheight;
 
@@ -479,7 +479,7 @@ void CDBoxInfoWidget::paint()
 				bytes_used = bytes_total - bytes_free;
 				percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
 				//paint mountpoints
-				for (int j = 0; j < headSize; j++) {
+				for (int j = 0; j < headSize_mnt; j++) {
 					std::string tmp;
 					mpOffset = offsets[j];
 					int _w = width;
