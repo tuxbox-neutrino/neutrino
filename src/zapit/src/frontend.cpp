@@ -160,6 +160,8 @@ typedef enum dvb_fec {
 	fNone = 15
 } dvb_fec_t;
 
+static fe_sec_voltage_t unicable_lowvolt = SEC_VOLTAGE_13;
+
 #define TIME_STEP 200
 #define TIMEOUT_MAX_MS (feTimeout*100)
 /*********************************************************************************************************/
@@ -198,6 +200,13 @@ CFrontend::CFrontend(int Number, int Adapter)
 	feTimeout = 40;
 	currentVoltage = SEC_VOLTAGE_OFF;
 	currentToneMode = SEC_TONE_ON;
+	/* some broken hardware (a coolstream neo on my desk) does not lower
+	 * the voltage below 18V without enough DC load on the coax cable.
+	 * with unicable bus setups, there is no DC load on the coax... leading
+	 * to a completely blocked bus due to this broken hardware.
+	 * Switching off the voltage completely works around this issue */
+	if (getenv("UNICABLE_BROKEN_FRONTEND") != NULL)
+		unicable_lowvolt = SEC_VOLTAGE_OFF;
 	memset(&info, 0, sizeof(info));
 }
 
@@ -902,10 +911,10 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 		return;
 
 	printf("[fe%d] voltage %s\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
-	if (config.diseqcType == DISEQC_UNICABLE) {
+	if (config.diseqcType == DISEQC_UNICABLE && voltage != SEC_VOLTAGE_OFF) {
 		/* see my comment in secSetTone... */
 		currentVoltage = voltage; /* need to know polarization for unicable */
-		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13); /* voltage must not be 18V */
+		fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt); /* voltage must not be 18V */
 		return;
 	}
 
@@ -982,7 +991,7 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType, bool force)
 
 	if (newDiseqcType == DISEQC_UNICABLE) {
 		secSetTone(SEC_TONE_OFF, 0);
-		secSetVoltage(SEC_VOLTAGE_13, 0);
+		secSetVoltage(unicable_lowvolt, 0);
 	}
 	else if ((force && (newDiseqcType != NO_DISEQC)) ||
 		 ((config.diseqcType <= MINI_DISEQC) && (newDiseqcType > MINI_DISEQC))) {
@@ -1153,7 +1162,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
 		usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
 		sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
-		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
+		fop(ioctl, FE_SET_VOLTAGE, unicable_lowvolt);
 	}
 	return ret;
 }
