@@ -54,6 +54,7 @@
 
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
+#include <system/sysload.h>
 #include <system/helpers.h>
 #include <map>
 #include <iostream>
@@ -75,7 +76,6 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	height = 0;
 	x = 0;
 	y = 0;
-	stat_total = 0;
 }
 
 
@@ -211,14 +211,18 @@ void CDBoxInfoWidget::paint()
 	int nameWidth = fontWidth * 17;//WWWwwwwwww
 	height = hheight;
 	height += mheight/2;	// space
+	int cpuload_y0 = height;
 	height += mheight;	// time
 	height += mheight;	// uptime
 	height += mheight;	// load
+	int cpuload_y1 = height;
 	height += mheight/2;	// space
 
 	int frontend_count = CFEManager::getInstance()->getFrontendCount();
-	if (frontend_count)
-		height += mheight * frontend_count + mheight/2;
+	if (frontend_count) {
+		height += mheight * frontend_count;
+		height += mheight/2;
+	}
 
 	int icon_w = 0, icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
@@ -352,28 +356,10 @@ void CDBoxInfoWidget::paint()
 
 	ypos += hheight + mheight/2;
 
-	long current_load = -1;
-	in.open("/proc/stat");
-	if (in.is_open()) {
-		std::string line;
-		while (getline(in, line)) {
-			unsigned long _stat_user, _stat_nice, _stat_system, _stat_idle;
-			if (4 == sscanf(line.c_str(), "cpu %lu %lu %lu %lu", &_stat_user, &_stat_nice, &_stat_system, &_stat_idle)) {
-				if (stat_total) {
-					unsigned long div = _stat_user + _stat_nice + _stat_system + _stat_idle - stat_total;
-					if (div > 0)
-						current_load = (long)(1000 - 1000 * (_stat_idle - stat_idle) / div);
-				}
-				stat_idle = _stat_idle;
-				stat_total = _stat_user + _stat_nice + _stat_system + _stat_idle;
-				break;
-			}
-		}
-		in.close();
-	}
+	cSysLoad *sysload = cSysLoad::getInstance();
+	int data_last = sysload->data_last;
 
 	char ubuf[80];
-
 	time_t now = time(NULL);
 	strftime(ubuf, sizeof(ubuf), "Time: %F %H:%M:%S%z", localtime(&now));
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT_TEXT);
@@ -386,11 +372,26 @@ void CDBoxInfoWidget::paint()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT_TEXT);
 	ypos += mheight;
 
-	if (current_load > -1) {
-		snprintf(ubuf, sizeof(ubuf), "Load: %ld%s%ld%%", current_load/10, g_Locale->getText(LOCALE_UNIT_DECIMAL), current_load%10);
+	if (data_last > -1) {
+		snprintf(ubuf, sizeof(ubuf), "Load: %d%s%d%%", data_last/10, g_Locale->getText(LOCALE_UNIT_DECIMAL), data_last%10);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT_TEXT);
 	}
 	ypos += mheight;
+
+	int pbw = width - offsetw - 10;
+	if (pbw > 8) /* smaller progressbar is not useful ;) */
+	{
+		unsigned int h = cpuload_y1 - cpuload_y0;
+		cpuload_y0 += y;
+		cpuload_y1 += y;
+		frameBuffer->paintBoxRel(x + offsetw, cpuload_y0, pbw, h, COL_MENUCONTENT_PLUS_2);
+
+		int off = std::max(0, (int)sysload->data_avail - pbw);
+		for (unsigned int i = 0; i < sysload->data_avail - off; i++) {
+			if (sysload->data[i + off] > -1)
+				frameBuffer->paintVLine(x+offsetw + i, cpuload_y1 - sysload->data[i + off] * h / 1000, cpuload_y1, COL_MENUCONTENT_PLUS_7);
+		}
+	}
 
 	ypos += mheight/2;
 
@@ -457,7 +458,6 @@ void CDBoxInfoWidget::paint()
 				center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true))/2;
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + center, ypos+ mheight, width - 10, tmp, COL_MENUCONTENT_TEXT);
 		}
-		int pbw = width - offsetw - 10;
 		if (pbw > 8) /* smaller progressbar is not useful ;) */
 		{
 			CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
@@ -526,8 +526,6 @@ void CDBoxInfoWidget::paint()
 					if ((*it).second && icon_w>0 && icon_h>0)
 						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w, ypos + (mheight/2 - icon_h/2));
 				}
-				int pbw = width - offsetw - 10;
-//fprintf(stderr, "width: %d offsetw: %d pbw: %d\n", width, offsetw, pbw);
 				if (pbw > 8) /* smaller progressbar is not useful ;) */
 				{
 					CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
