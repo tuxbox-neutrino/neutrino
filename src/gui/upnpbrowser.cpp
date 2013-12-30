@@ -452,6 +452,8 @@ void CUpnpBrowserGui::selectDevice()
 	if (!discoverDevices())
 		return;
 
+	CAudioMute::getInstance()->enableMuteIcon(false);
+
 	while (loop)
 	{
 		if (refresh)
