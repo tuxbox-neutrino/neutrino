@@ -28,6 +28,7 @@
 
 #include <gui/sleeptimer.h>
 
+#include <system/helpers.h>
 #include <gui/widget/stringinput.h>
 
 #include <timerdclient/timerdclient.h>
@@ -52,7 +53,7 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	is_running = true;
 
-	int    shutdown_min = 0;
+	shutdown_min = 0;
 	char   value[16];
 	CStringInput  *inbox;
 	bool   permanent = (actionKey == "permanent");
@@ -122,4 +123,17 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 	is_running = false;
 
 	return res;
+}
+
+const char * CSleepTimerWidget::getTargetValue()
+{
+	shutdown_min = g_Timerd->getSleepTimerRemaining();
+	if (shutdown_min > 0)
+	{
+		shutdown_min_string = to_string(shutdown_min);
+		shutdown_min_string += " ";
+		shutdown_min_string += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+		return shutdown_min_string.c_str();
+	}
+	return NULL;
 }
