@@ -447,7 +447,7 @@ void CDBoxInfoWidget::paint()
 				maxWidth[column] = std::max(maxWidth[column], rw);
 				space = widths[column] - rw;
 			}
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, width - 10, tmp, COL_MENUCONTENT_TEXT);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, width, tmp, COL_MENUCONTENT_TEXT);
 		}
 		if (pbw > 8) /* smaller progressbar is not useful ;) */
 		{
@@ -510,7 +510,7 @@ void CDBoxInfoWidget::paint()
 						maxWidth[column] = std::max(maxWidth[column], rw);
 						space = widths[column] - rw;
 					}
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, _w - 10, tmp, COL_MENUCONTENT_TEXT);
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, _w, tmp, COL_MENUCONTENT_TEXT);
 					if ((*it).second && icon_w>0 && icon_h>0)
 						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w + fontWidth, ypos + (mheight/2 - icon_h/2));
 				}
@@ -540,7 +540,7 @@ void CDBoxInfoWidget::paint()
 			else
 				space = widths[column] - maxWidth[column] + (maxWidth[column] - rw)/2;
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mem_head + mheight, width - 10, head_mem[column], COL_MENUCONTENTINACTIVE_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mem_head + mheight, width, head_mem[column], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 	// paint mount head
 	const char *head_mnt[headSize] = {"Filesystem", "Size", "Used", "Available", "Use"};
@@ -554,6 +554,6 @@ void CDBoxInfoWidget::paint()
 			else
 				space = widths[column] - maxWidth[column] + (maxWidth[column] - rw)/2;
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mnt_head + mheight, width - 10, head_mnt[column], COL_MENUCONTENTINACTIVE_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mnt_head + mheight, width, head_mnt[column], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 }
