@@ -70,6 +70,13 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	height = 0;
 	x = 0;
 	y = 0;
+
+	fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
+	sizeWidth = 6 * g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth()
+		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL), true); ;//9999.99 MiB
+	percWidth = 3 * g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth()
+		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("%", true); //100%
+	nameWidth = fontWidth * 17;
 }
 
 int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
@@ -196,10 +203,6 @@ static std::string bytes2string(uint64_t bytes, bool binary)
 
 void CDBoxInfoWidget::paint()
 {
-	int fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
-	int sizeWidth = fontWidth * 11;//9999.99 MiB
-	int percWidth = fontWidth * 4 ;//100%
-	int nameWidth = fontWidth * 17;//WWWwwwwwww
 	height = hheight;
 	height += mheight/2;	// space
 	int cpuload_y0 = height;
@@ -481,6 +484,7 @@ void CDBoxInfoWidget::paint()
 				bytes_free  = s.f_bfree  * s.f_bsize;
 				bytes_used = bytes_total - bytes_free;
 				percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
+				int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
 				//paint mountpoints
 				for (int column = 0; column < headSize; column++) {
 					std::string tmp;
@@ -494,7 +498,7 @@ void CDBoxInfoWidget::paint()
 						_w = nameWidth - mpOffset;
 						if ((*it).second)
 							_w -= icon_w + 10;
-						_w += fontWidth;
+						_w += width_i/2;
 						break;
 					case 1:
 						tmp = bytes2string(bytes_total, false);
@@ -517,7 +521,7 @@ void CDBoxInfoWidget::paint()
 					}
 					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, _w, tmp, COL_MENUCONTENT_TEXT);
 					if ((*it).second && icon_w>0 && icon_h>0)
-						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w + fontWidth, ypos + (mheight/2 - icon_h/2));
+						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w + width_i/2, ypos + (mheight/2 - icon_h/2));
 				}
 				if (pbw > 8) /* smaller progressbar is not useful ;) */
 				{
