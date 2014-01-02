@@ -382,6 +382,16 @@ bool CUserMenu::showUserMenu(int button)
 				menu->addItem(menu_item, 0);
 			}
 			break;
+		case SNeutrinoSettings::ITEM_FILEPLAY:
+			{
+				menu_items++;
+				menu_prev = SNeutrinoSettings::ITEM_FILEPLAY;
+				keyhelper.get(&key,&icon);
+				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback", key, icon);
+				menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
+				menu->addItem(menu_item, 0);
+			}
+			break;
 
 #if 0 // FIXME not supported yet
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:

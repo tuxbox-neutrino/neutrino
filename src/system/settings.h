@@ -655,6 +655,7 @@ struct SNeutrinoSettings
 		ITEM_GAMES = 20,
 		ITEM_SCRIPTS = 21,
 		ITEM_YOUTUBE = 22,
+		ITEM_FILEPLAY = 23,
 #if 0
 		ITEM_MOVIEPLAYER_TS,
 #endif
