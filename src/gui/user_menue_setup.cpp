@@ -34,7 +34,6 @@
 #include <config.h>
 #endif
 
-
 #include "user_menue_setup.h"
 
 #include <global.h>

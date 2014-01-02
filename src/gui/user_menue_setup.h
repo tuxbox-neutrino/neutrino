@@ -58,7 +58,7 @@ const struct usermenu_props_t usermenu[USERMENU_ITEMS_COUNT] =
 };
 
 
- class CUserMenuSetup : public CMenuTarget
+class CUserMenuSetup : public CMenuTarget
 {	
 	private:
 		int width;
