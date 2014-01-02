@@ -372,6 +372,16 @@ bool CUserMenu::showUserMenu(int button)
 				menu->addItem(menu_item, false);
 			}
 			break;
+		case SNeutrinoSettings::ITEM_YOUTUBE:
+			{
+				menu_items++;
+				menu_prev = SNeutrinoSettings::ITEM_YOUTUBE;
+				keyhelper.get(&key,&icon);
+				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "ytplayback", key, icon);
+				menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
+				menu->addItem(menu_item, 0);
+			}
+			break;
 
 #if 0 // FIXME not supported yet
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:
