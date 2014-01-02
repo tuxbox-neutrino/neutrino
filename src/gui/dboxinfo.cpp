@@ -212,7 +212,6 @@ void CDBoxInfoWidget::paint()
 	int frontend_count = CFEManager::getInstance()->getFrontendCount();
 	if (frontend_count > 2)
 		height += mheight * (frontend_count - 2);
-	height += mheight/2;
 
 	int icon_w = 0, icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
