@@ -258,8 +258,10 @@ void* CComponentsFrmClock::initClockThread(void *arg)
  	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
 
 	CComponentsFrmClock *clock = static_cast<CComponentsFrmClock*>(arg);
+#if 0
 	time_t count = time(0);
-	std::string format_str_save = clock->cl_format_str;
+#endif
+	std::string format_str_save = clock->cl_format_str; // FIXME. This will cause setClockFormat() to be ignored. --martii
 	//start loop for paint
 	while(clock != NULL) {
 		if (clock->paintClock) {
@@ -274,12 +276,16 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 			}
 			//paint segements, but wihtout saved backgrounds
 			clock->paint(CC_SAVE_SCREEN_NO);
+#if 0
 			count = time(0);
+#endif
 		}
+#if 0 // memory leak, thread will not be joined --martii
 		if (time(0) >= count+30) {
 			clock->cl_thread = 0;
 			break;
 		}
+#endif
 		mySleep(clock->cl_interval);
 	}
 	return 0;
@@ -316,6 +322,7 @@ bool CComponentsFrmClock::stopThread()
 			return false;
 		}
 	}
+	kill();
 	cl_thread = 0;
 	return true;
 }
