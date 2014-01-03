@@ -3574,6 +3574,17 @@ void CMovieBrowser::autoFindSerie(void)
         }
     }
 }
+static time_t toEpoch(std::string &date)
+{
+	struct tm t;
+	memset(&t, 0, sizeof(t));
+	if (3 == sscanf(date.c_str(), "%d-%d-%d", &t.tm_year, &t.tm_mon, &t.tm_mday)) {
+		t.tm_year -= 1900;
+		t.tm_mon += 1;
+		return mktime(&t);
+	}
+	return 0;
+}
 
 void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 {
@@ -3611,6 +3622,7 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 
 		movieInfo.file.Name = ylist[i].title;
 		movieInfo.file.Url = ylist[i].GetUrl(m_settings.ytquality, false);
+		movieInfo.file.Time = toEpoch(movieInfo.ytdate);
 		m_vMovieInfo.push_back(movieInfo);
 	}
 	m_currentBrowserSelection = 0;
