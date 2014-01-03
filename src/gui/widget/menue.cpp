@@ -1500,7 +1500,7 @@ CMenuOptionStringChooser::CMenuOptionStringChooser(const neutrino_locale_t Optio
 	active      = Active;
 	optionValue = OptionValue;
 	observ      = Observ;
-
+	optionValueString = NULL;
 	directKey         = DirectKey;
 	iconName          = IconName;
 	pulldown = Pulldown;
@@ -1530,7 +1530,6 @@ CMenuOptionStringChooser::CMenuOptionStringChooser(const neutrino_locale_t Optio
         optionValue = (char *) OptionValue->c_str();
 	optionValueString = OptionValue;
 	observ      = Observ;
-	optionValueString = NULL;
 
 	directKey         = DirectKey;
 	iconName          = IconName;
