@@ -218,33 +218,42 @@ void CDBoxInfoWidget::paint()
 	int icon_w = 0, icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
 
-#define DBINFO_TOTAL 0
-#define DBINFO_USED 1
-#define DBINFO_FREE 2
-	int memstat[2][3] = { { 0, 0, 0 }, { 0, 0, 0 } }; // total, used, free
-#define DBINFO_RAM 0
-#define DBINFO_SWAP 1
-	const char *memtype[2] = { "RAM", "Swap" };
+#define MEMINFO_TOTAL 0
+#define MEMINFO_USED 1
+#define MEMINFO_FREE 2
+#define MEMINFO_COLUMNS 3
+
+#define MEMINFO_RAM 0
+#define MEMINFO_SWAP 1
+#define MEMINFO_ROWS 2
+	unsigned long long memstat[MEMINFO_ROWS][MEMINFO_COLUMNS] = { { 0, 0, 0 }, { 0, 0, 0 } }; // total, used, free
+	const char *memtype[MEMINFO_ROWS] = { "RAM", "Swap" };
 	FILE *procmeminfo = fopen("/proc/meminfo", "r");
 	if (procmeminfo) {
 		char buf[80], a[80];
-		int v;
-		while (fgets(buf, sizeof(buf), procmeminfo))
-			if (2 == sscanf(buf, "%[^:]: %d", a, &v)) {
+		long long unsigned v;
+		while (fgets(buf, sizeof(buf), procmeminfo)) {
+			char unit[10];
+			*unit = 0;
+			if ((3 == sscanf(buf, "%[^:]: %llu %s", a, &v, unit))
+			 || (2 == sscanf(buf, "%[^:]: %llu", a, &v))) {
+				if (*unit == 'k')
+					v <<= 10;
 				if (!strcasecmp(a, "MemTotal"))
-					memstat[DBINFO_RAM][DBINFO_TOTAL] += v;
+					memstat[MEMINFO_RAM][MEMINFO_TOTAL] += v;
 				else if (!strcasecmp(a, "MemFree"))
-					memstat[DBINFO_RAM][DBINFO_FREE] += v;
+					memstat[MEMINFO_RAM][MEMINFO_FREE] += v;
 				else if (!strcasecmp(a, "Inactive"))
-					memstat[DBINFO_RAM][DBINFO_FREE] += v;
+					memstat[MEMINFO_RAM][MEMINFO_FREE] += v;
 				else if (!strcasecmp(a, "SwapTotal"))
-					memstat[DBINFO_SWAP][DBINFO_TOTAL] = v;
+					memstat[MEMINFO_SWAP][MEMINFO_TOTAL] = v;
 				else if (!strcasecmp(a, "SwapFree"))
-					memstat[DBINFO_SWAP][DBINFO_FREE] += v;
+					memstat[MEMINFO_SWAP][MEMINFO_FREE] += v;
 			}
+		}
 		fclose(procmeminfo);
 	}
-	bool have_swap = memstat[DBINFO_SWAP][DBINFO_TOTAL];
+	bool have_swap = memstat[MEMINFO_SWAP][MEMINFO_TOTAL];
 	height += mheight;		// header
 	height += mheight;		// ram
 	height += have_swap * mheight;	// swap
@@ -394,8 +403,6 @@ void CDBoxInfoWidget::paint()
 
 	int headOffset=0;
 	int mpOffset=0;
-	const int headSize_mem = 5;
-	const char *head_mem[headSize_mem] = {"Memory", "Size", "Used", "Available", "Use"};
 	int offsets[] = {
 		10,
 		nameWidth + 10,
@@ -405,65 +412,56 @@ void CDBoxInfoWidget::paint()
 	};
 	int widths[] = { 0, sizeWidth, sizeWidth, sizeWidth, percWidth };
 
-	// paint mem head
-	for (int j = 0; j < headSize_mem; j++) {
-		headOffset = offsets[j];
-		int center = 0;
-		if (j > 0)
-			center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mem[j], true))/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + center, ypos+ mheight, width - 10, head_mem[j], COL_MENUCONTENTINACTIVE_TEXT);
-	}
+	const int headSize = 5;
+	int maxWidth[headSize];
+	memset(maxWidth, 0, headSize * sizeof(int));
+
+	int ypos_mem_head = ypos;
 	ypos += mheight;
 
-	for (int k = 0; k < 1 + have_swap; k++) {
+	for (int row = 0; row < 1 + have_swap; row++) {
 		std::string tmp;
-		memstat[k][DBINFO_USED] = memstat[k][DBINFO_TOTAL] - memstat[k][DBINFO_FREE];
-		for (int j = 0; j < headSize_mem; j++) {
-			switch (j) {
+		memstat[row][MEMINFO_USED] = memstat[row][MEMINFO_TOTAL] - memstat[row][MEMINFO_FREE];
+		for (int column = 0; column < headSize; column++) {
+			switch (column) {
 				case 0:
-					tmp = memtype[k];
+					tmp = memtype[row];
 					break;
 				case 1:
-					tmp = bytes2string(1024 * memstat[k][DBINFO_TOTAL]);
+					tmp = bytes2string(memstat[row][MEMINFO_TOTAL]);
 					break;
 				case 2:
-					tmp = bytes2string(1024 * memstat[k][DBINFO_USED]);
+					tmp = bytes2string(memstat[row][MEMINFO_USED]);
 					break;
 				case 3:
-					tmp = bytes2string(1024 * memstat[k][DBINFO_FREE]);
+					tmp = bytes2string(memstat[row][MEMINFO_FREE]);
 					break;
 				case 4:
-					tmp = to_string(memstat[k][DBINFO_TOTAL] ? (memstat[k][DBINFO_USED] * 100) / memstat[k][DBINFO_TOTAL] : 0) + "%";
+					tmp = to_string(memstat[row][MEMINFO_TOTAL] ? (memstat[row][MEMINFO_USED] * 100) / memstat[row][MEMINFO_TOTAL] : 0) + "%";
 					break;
 			}
-			mpOffset = offsets[j];
-			int center = 0;
-			if (j > 0)
-				center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true))/2;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + center, ypos+ mheight, width - 10, tmp, COL_MENUCONTENT_TEXT);
+			mpOffset = offsets[column];
+			int space = 0;
+			if (column > 0) {
+				int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+				maxWidth[column] = std::max(maxWidth[column], rw);
+				space = widths[column] - rw;
+			}
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, width - 10, tmp, COL_MENUCONTENT_TEXT);
 		}
 		if (pbw > 8) /* smaller progressbar is not useful ;) */
 		{
 			CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
 			pb.setBlink();
 			pb.setInvert();
-			pb.setValues(memstat[k][0] ? (memstat[k][1] * 100) / memstat[k][0] : 0, 100);
+			pb.setValues(memstat[row][MEMINFO_TOTAL] ? (memstat[row][MEMINFO_USED] * 100) / memstat[row][MEMINFO_TOTAL] : 0, 100);
 			pb.paint(false);
 		}
 		ypos += mheight;
 	}
 	ypos += mheight/2;
-	
-	const int headSize_mnt = 5;
-	const char *head_mnt[headSize_mnt] = {"Filesystem", "Size", "Used", "Available", "Use"};
-	// paint mount head
-	for (int j = 0; j < headSize_mnt; j++) {
-		headOffset = offsets[j];
-		int center = 0;
-		if (j > 0)
-			center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mnt[j], true))/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + center, ypos+ mheight, width - 10, head_mnt[j], COL_MENUCONTENTINACTIVE_TEXT);
-	}
+
+	int ypos_mnt_head = ypos;
 	ypos += mheight;
 
 	for (std::map<std::string, bool>::iterator it = mounts.begin(); it != mounts.end(); ++it) {
@@ -479,11 +477,11 @@ void CDBoxInfoWidget::paint()
 				bytes_used = bytes_total - bytes_free;
 				percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
 				//paint mountpoints
-				for (int j = 0; j < headSize_mnt; j++) {
+				for (int column = 0; column < headSize; column++) {
 					std::string tmp;
-					mpOffset = offsets[j];
+					mpOffset = offsets[column];
 					int _w = width;
-					switch (j) {
+					switch (column) {
 					case 0:
 						tmp = (*it).first;
 						if (tmp == "/")
@@ -491,6 +489,7 @@ void CDBoxInfoWidget::paint()
 						_w = nameWidth - mpOffset;
 						if ((*it).second)
 							_w -= icon_w + 10;
+						_w += fontWidth;
 						break;
 					case 1:
 						tmp = bytes2string(bytes_total, false);
@@ -505,12 +504,15 @@ void CDBoxInfoWidget::paint()
 						tmp = to_string(percent_used) + "%";
 						break;
 					}
-					int center = 0;
-					if (j > 0)
-						center = (widths[j] - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true))/2;
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + center, ypos+ mheight, _w - 10, tmp, COL_MENUCONTENT_TEXT);
+					int space = 0;
+					if (column > 0) {
+						int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+						maxWidth[column] = std::max(maxWidth[column], rw);
+						space = widths[column] - rw;
+					}
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, _w - 10, tmp, COL_MENUCONTENT_TEXT);
 					if ((*it).second && icon_w>0 && icon_h>0)
-						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w, ypos + (mheight/2 - icon_h/2));
+						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w + fontWidth, ypos + (mheight/2 - icon_h/2));
 				}
 				if (pbw > 8) /* smaller progressbar is not useful ;) */
 				{
@@ -525,5 +527,33 @@ void CDBoxInfoWidget::paint()
 		}
 		if (ypos > y + height - mheight)	/* the screen is not high enough */
 			break;				/* todo: scrolling? */
+	}
+	// paint mem head
+	const char *head_mem[headSize] = {"Memory", "Size", "Used", "Available", "Use"};
+	for (int column = 0; column < headSize; column++) {
+		headOffset = offsets[column];
+		int space = 0;
+		if (column > 0) {
+			int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mem[column], true);
+			if (rw > maxWidth[column])
+				space = widths[column] - rw;
+			else
+				space = widths[column] - maxWidth[column] + (maxWidth[column] - rw)/2;
+		}
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mem_head + mheight, width - 10, head_mem[column], COL_MENUCONTENTINACTIVE_TEXT);
+	}
+	// paint mount head
+	const char *head_mnt[headSize] = {"Filesystem", "Size", "Used", "Available", "Use"};
+	for (int column = 0; column < headSize; column++) {
+		headOffset = offsets[column];
+		int space = 0;
+		if (column > 0) {
+			int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mnt[column], true);
+			if (rw > maxWidth[column])
+				space = widths[column] - rw;
+			else
+				space = widths[column] - maxWidth[column] + (maxWidth[column] - rw)/2;
+		}
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mnt_head + mheight, width - 10, head_mnt[column], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 }
