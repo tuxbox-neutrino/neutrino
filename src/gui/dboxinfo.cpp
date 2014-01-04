@@ -276,10 +276,9 @@ void CDBoxInfoWidget::paint()
 		std::string line;
 
 		while (getline(in, line)) {
-			if ((line.at(0) != '/') && (line.find("rootfs") != 0))
-				continue;
+			size_t firstslash = line.find_first_of('/');
 			size_t firstspace = line.find_first_of(' ');
-			if (firstspace != string::npos) {
+			if ( (firstspace != string::npos && firstslash != string::npos && firstslash < firstspace) || (line.find("rootfs") == 0) ) {
 				firstspace++;
 				size_t nextspace = line.find_first_of(' ', firstspace);
 				if (nextspace == string::npos || line.find("nodev", nextspace + 1) != string::npos)
