@@ -362,32 +362,38 @@ void CDBoxInfoWidget::paint()
 	char sbuf[buf_size];
 	memset(sbuf, 0, 256);
 
-	int updays, uphours, upminutes;
 	struct sysinfo info;
+	sysinfo(&info);
+
+	//get uptime
+#if 0
 	struct tm *current_time;
 	time_t current_secs;
 	time(&current_secs);
 	current_time = localtime(&current_secs);
 
-	sysinfo(&info);
-
-	//get uptime
 	snprintf( ubuf,buf_size, "%02d:%02d%s  up ",
 		  current_time->tm_hour%12 ? current_time->tm_hour%12 : 12,
 		  current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
 	strcat(sbuf, ubuf);
+#endif
+
+	int updays, uphours, upminutes;
+
 	updays = (int) info.uptime / (60*60*24);
+	upminutes = (int) info.uptime / 60;
+	uphours = (upminutes / 60) % 24;
+	upminutes %= 60;
+
 	if (updays) {
 		snprintf(ubuf,buf_size, "%d day%s, ", updays, (updays != 1) ? "s" : "");
 		strcat(sbuf, ubuf);
 	}
-	upminutes = (int) info.uptime / 60;
-	uphours = (upminutes / 60) % 24;
-	upminutes %= 60;
-	if (uphours)
-		snprintf(ubuf,buf_size,"%2d:%02d", uphours, upminutes);
-	else
-		snprintf(ubuf,buf_size,"%d min", upminutes);
+	if (uphours) {
+		snprintf(ubuf,buf_size,"%d hour%s, ", uphours, (uphours != 1) ? "s" : "");
+		strcat(sbuf, ubuf);
+	}
+	snprintf(ubuf,buf_size,"%d minute%s", upminutes, (upminutes != 1) ? "s" : "");
 	strcat(sbuf, ubuf);
 
 	//paint uptime
