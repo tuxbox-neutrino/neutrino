@@ -1383,6 +1383,7 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 	int ret = menu_return::RETURN_NONE;
 
 	if (optionsSort) {
+		optionsSort = false;
 		clearChooserOptions();
 		unsigned int i1;
 		for (i1 = 0; i1 < number_of_options; i1++) 
@@ -1395,12 +1396,13 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 
 		sort(option_chooser_options_v.begin(), option_chooser_options_v.end(), CMenuOptionChooserCompareItem());
 
-		i1 = 0;
-		for (std::vector<CMenuOptionChooserOptions*>::iterator it = option_chooser_options_v.begin(); it != option_chooser_options_v.end() && i1 < number_of_options; ++it) {
-			options[i1].key     = (*it)->key;
-			options[i1].value   = NONEXISTANT_LOCALE;
-			options[i1].valname = (*it)->valname.c_str();
-			i1++;
+		options.clear();
+		for (std::vector<CMenuOptionChooserOptions*>::iterator it = option_chooser_options_v.begin(); it != option_chooser_options_v.end(); ++it) {
+			struct keyval_ext opt;
+			opt.key     = (*it)->key;
+			opt.value   = NONEXISTANT_LOCALE;
+			opt.valname = (*it)->valname.c_str();
+			options.push_back(opt);
 		}
 	}
 

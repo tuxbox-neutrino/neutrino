@@ -352,9 +352,9 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
  private:
 	std::vector<keyval_ext> options;
 	std::vector<CMenuOptionChooserOptions*> option_chooser_options_v;
-	unsigned              number_of_options;
-	CChangeObserver *     observ;
-	std::string optionNameString;
+	unsigned		number_of_options;
+	CChangeObserver *	observ;
+	std::string		optionNameString;
 	bool			pulldown;
 	bool			optionsSort;
 
