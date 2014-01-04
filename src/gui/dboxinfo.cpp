@@ -50,8 +50,6 @@
 #include <driver/rcinput.h>
 #include <driver/fade.h>
 
-#include <zapit/femanager.h>
-
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
 #include <system/sysload.h>
@@ -212,10 +210,6 @@ void CDBoxInfoWidget::paint()
 	int cpuload_y1 = height;
 	height += mheight/2;	// space
 
-	int frontend_count = CFEManager::getInstance()->getFrontendCount();
-	if (frontend_count > 2)
-		height += mheight * (frontend_count - 2);
-
 	int icon_w = 0, icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
 
@@ -361,22 +355,18 @@ void CDBoxInfoWidget::paint()
 	struct sysinfo info;
 	sysinfo(&info);
 	now -= info.uptime;
-	strftime(ubuf_boot, sizeof(ubuf_boot), "Boot: %FT%H:%M:%S%z", localtime(&now));
+	strftime(ubuf_boot, sizeof(ubuf_boot), "Boot: %F %H:%M:%S%z", localtime(&now));
 
-	int time_width = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(ubuf), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(ubuf_boot));
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + offsetw - time_width - 10, ypos+ mheight, time_width, ubuf, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, ypos+ mheight, offsetw -10, ubuf, COL_MENUCONTENT_TEXT);
 	ypos += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + offsetw - time_width - 10, ypos+ mheight, time_width, ubuf_boot, COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, ypos+ mheight, offsetw -10, ubuf_boot, COL_MENUCONTENT_TEXT);
 	ypos += mheight;
 
 	if (data_last > -1) {
 		snprintf(ubuf, sizeof(ubuf), "Load: %d%s%d%%", data_last/10, g_Locale->getText(LOCALE_UNIT_DECIMAL), data_last%10);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + offsetw - time_width - 10, ypos+ mheight, time_width, ubuf, COL_MENUCONTENT_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, ypos+ mheight, offsetw -10, ubuf, COL_MENUCONTENT_TEXT);
 	}
 	ypos += mheight;
-
-	int ypos_mem = ypos;
 
 	int pbw = width - offsetw - 10;
 	if (pbw > 8) /* smaller progressbar is not useful ;) */
@@ -393,20 +383,6 @@ void CDBoxInfoWidget::paint()
 		}
 	}
 
-	ypos = y + hheight + mheight/2;
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, ypos + mheight, width - 10, "Frontends", COL_MENUCONTENTINACTIVE_TEXT);
-	ypos += mheight;
-	for (int i = 0; i < frontend_count; i++) {
-		CFrontend *fe = CFEManager::getInstance()->getFE(i);
-		if (fe) {
-			std::string s = to_string(i) + ": " + fe->getInfo()->name;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, s, COL_MENUCONTENT_TEXT);
-			ypos += mheight;
-		}
-	}
-
-	ypos = std::max(ypos, ypos_mem);
 	ypos += mheight/2;
 
 	int headOffset=0;
