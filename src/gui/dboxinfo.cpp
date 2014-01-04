@@ -58,6 +58,11 @@
 #include <iostream>
 #include <fstream>
 
+static const int FSHIFT = 16;		/* nr of bits of precision */
+#define FIXED_1		(1<<FSHIFT)	/* 1.0 as fixed-point */
+#define LOAD_INT(x)	((x) >> FSHIFT)
+#define LOAD_FRAC(x)	LOAD_INT(((x) & (FIXED_1-1)) * 100)
+
 CDBoxInfoWidget::CDBoxInfoWidget()
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -74,7 +79,7 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL), true); ;//9999.99 MiB
 	percWidth = 3 * g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth()
 		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("%", true); //100%
-	nameWidth = fontWidth * 17;
+	nameWidth = fontWidth * 10;
 }
 
 int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
@@ -201,12 +206,14 @@ static std::string bytes2string(uint64_t bytes, bool binary)
 
 void CDBoxInfoWidget::paint()
 {
+	const int head_info_lines = 3;
+	const char *head_info[head_info_lines] = {"Uptime", "Load average", "Current load"};
+
 	height = hheight;
 	height += mheight/2;	// space
 	int cpuload_y0 = height;
-	height += mheight;	// time
-	height += mheight;	// uptime
-	height += mheight;	// load
+	int head_info_ypos = height;
+	height += mheight*head_info_lines;	// head info lines
 	int cpuload_y1 = height;
 	height += mheight/2;	// space
 
@@ -285,7 +292,8 @@ void CDBoxInfoWidget::paint()
 				bool is_rec = (st.st_dev == rec_st.st_dev);
 				mounts[mountpoint] = is_rec;
 				int icon_space = is_rec ? 10 + icon_w : 0;
-				nameWidth = std::max(nameWidth, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(mountpoint, true) + icon_space + 10);
+				const char *mnt = mountpoint.c_str();
+				nameWidth = std::max(nameWidth, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(basename((char *)mnt), true) + icon_space + 10);
 			}
 		}
 		in.close();
@@ -344,27 +352,67 @@ void CDBoxInfoWidget::paint()
 
 	ypos += hheight + mheight/2;
 
+	int head_info_rw = 0;
+	for (int line = 0; line < head_info_lines; line++) {
+		head_info_rw = std::max(head_info_rw, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_info[line], true));
+	}
+
+	int dw = offsetw - 3*10 - head_info_rw;
+	int buf_size=256;
+	char ubuf[buf_size];
+	char sbuf[buf_size];
+	memset(sbuf, 0, 256);
+
+	int updays, uphours, upminutes;
+	struct sysinfo info;
+	struct tm *current_time;
+	time_t current_secs;
+	time(&current_secs);
+	current_time = localtime(&current_secs);
+
+	sysinfo(&info);
+
+	//get uptime
+	snprintf( ubuf,buf_size, "%02d:%02d%s  up ",
+		  current_time->tm_hour%12 ? current_time->tm_hour%12 : 12,
+		  current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
+	strcat(sbuf, ubuf);
+	updays = (int) info.uptime / (60*60*24);
+	if (updays) {
+		snprintf(ubuf,buf_size, "%d day%s, ", updays, (updays != 1) ? "s" : "");
+		strcat(sbuf, ubuf);
+	}
+	upminutes = (int) info.uptime / 60;
+	uphours = (upminutes / 60) % 24;
+	upminutes %= 60;
+	if (uphours)
+		snprintf(ubuf,buf_size,"%2d:%02d", uphours, upminutes);
+	else
+		snprintf(ubuf,buf_size,"%d min", upminutes);
+	strcat(sbuf, ubuf);
+
+	//paint uptime
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 2*10 + head_info_rw, ypos+ mheight, dw, sbuf, COL_MENUCONTENT_TEXT);
+	ypos += mheight;
+
+	//get load avg
+	snprintf(ubuf,buf_size, "%ld.%02ld, %ld.%02ld, %ld.%02ld",
+		 LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]),
+		 LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
+		 LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
+
+	//paint load avg
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 2*10 + head_info_rw, ypos+ mheight, dw, ubuf, COL_MENUCONTENT_TEXT);
+	ypos += mheight;
+
+	//get current load
 	cSysLoad *sysload = cSysLoad::getInstance();
 	int data_last = sysload->data_last;
 
-	char ubuf[80];
-	time_t now = time(NULL);
-	strftime(ubuf, sizeof(ubuf), "Time: %F %H:%M:%S%z", localtime(&now));
-
-	char ubuf_boot[80];
-	struct sysinfo info;
-	sysinfo(&info);
-	now -= info.uptime;
-	strftime(ubuf_boot, sizeof(ubuf_boot), "Boot: %F %H:%M:%S%z", localtime(&now));
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, ypos+ mheight, offsetw -10, ubuf, COL_MENUCONTENT_TEXT);
-	ypos += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, ypos+ mheight, offsetw -10, ubuf_boot, COL_MENUCONTENT_TEXT);
-	ypos += mheight;
-
+	//paint current load
 	if (data_last > -1) {
-		snprintf(ubuf, sizeof(ubuf), "Load: %d%s%d%%", data_last/10, g_Locale->getText(LOCALE_UNIT_DECIMAL), data_last%10);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, ypos+ mheight, offsetw -10, ubuf, COL_MENUCONTENT_TEXT);
+		snprintf(ubuf, sizeof(ubuf), "%d%s%d%%", data_last/10, g_Locale->getText(LOCALE_UNIT_DECIMAL), data_last%10);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 2*10 + head_info_rw, ypos+ mheight, dw, ubuf, COL_MENUCONTENT_TEXT);
 	}
 	ypos += mheight;
 
@@ -464,6 +512,7 @@ void CDBoxInfoWidget::paint()
 				//paint mountpoints
 				for (int column = 0; column < headSize; column++) {
 					std::string tmp;
+					const char *mnt;
 					mpOffset = offsets[column];
 					int _w = width;
 					switch (column) {
@@ -471,6 +520,8 @@ void CDBoxInfoWidget::paint()
 						tmp = (*it).first;
 						if (tmp == "/")
 							tmp = "rootfs";
+						mnt = tmp.c_str();
+						tmp = basename((char *)mnt);
 						_w = nameWidth - mpOffset;
 						if ((*it).second)
 							_w -= icon_w + 10;
@@ -512,6 +563,11 @@ void CDBoxInfoWidget::paint()
 		}
 		if (ypos > y + height - mheight)	/* the screen is not high enough */
 			break;				/* todo: scrolling? */
+	}
+	// paint info heads
+	head_info_ypos += y;
+	for (int line = 0; line < head_info_lines; line++) {
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, head_info_ypos + mheight*(line+1), head_info_rw, head_info[line], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 	// paint mem head
 	const char *head_mem[headSize] = {"Memory", "Size", "Used", "Available", "Use"};
