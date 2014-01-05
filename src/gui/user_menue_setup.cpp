@@ -34,7 +34,6 @@
 #include <config.h>
 #endif
 
-
 #include "user_menue_setup.h"
 
 #include <global.h>
@@ -88,7 +87,9 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
 	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON },
 	{ SNeutrinoSettings::ITEM_GAMES,		LOCALE_MAINMENU_GAMES },
 	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS },
-	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD }
+	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD },
+	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK },
+	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK }
 };
 
 int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)
@@ -131,7 +132,7 @@ int CUserMenuSetup::showSetup()
 		snprintf(text,max_char,"%d.",item+1);
 		text[max_char-1]=0;// terminate for sure
 		int count = (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) ? USERMENU_ITEM_OPTION_COUNT : USERMENU_ITEM_OPTION_COUNT - 1;
-		ums->addItem(new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, count,true, NULL, CRCInput::RC_nokey, "", true ));	
+		ums->addItem(new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, count,true, NULL, CRCInput::RC_nokey, "", true, true));
 	}
 	
 	int res = ums->exec(NULL, "");

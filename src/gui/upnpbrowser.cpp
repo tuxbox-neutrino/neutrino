@@ -52,7 +52,6 @@
 
 #include <gui/audiomute.h>
 #include <gui/color.h>
-#include <gui/infoclock.h>
 #include <gui/movieplayer.h>
 
 #include <gui/components/cc.h>
@@ -68,7 +67,6 @@
 
 extern cVideo * videoDecoder;
 extern CPictureViewer * g_PicViewer;
-extern CInfoClock *InfoClock;
 
 const struct button_label RescanButton = {NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_UPNPBROWSER_RESCAN};
 const struct button_label BrowseButtons[4] =
@@ -456,7 +454,6 @@ void CUpnpBrowserGui::selectDevice()
 		return;
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
-	InfoClock->enableInfoClock(false);
 
 	while (loop)
 	{
@@ -546,7 +543,6 @@ printf("msg: %x\n", (int) msg);
 		}
 	}
 	CAudioMute::getInstance()->enableMuteIcon(true);
-	InfoClock->enableInfoClock(true);
 }
 
 void CUpnpBrowserGui::playnext(void)

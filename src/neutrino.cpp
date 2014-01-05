@@ -110,6 +110,7 @@
 #include <system/setting_helpers.h>
 #include <system/settings.h>
 #include <system/helpers.h>
+#include <system/sysload.h>
 
 #include <timerdclient/timerdmsg.h>
 
@@ -809,10 +810,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//-------------------------------------------
 	// this is as the current neutrino usermen
 	const char* usermenu_default[SNeutrinoSettings::BUTTON_MAX]={
-		"2,3,4,13",                     // RED
-		"6",                            // GREEN
-		"7",                       // YELLOW
-		"12,11,20,21,19,14,15"    // BLUE
+		"2,3,4,13",			// RED
+		"6",				// GREEN
+		"7",				// YELLOW
+		"12,11,20,21,19,14,15"		// BLUE
 	};
 	char txt1[81];
 	std::string txt2;
@@ -2084,6 +2085,8 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	g_audioMute->AudioMute(current_muted, true);
 	SHTDCNT::getInstance()->init();
+
+	cSysLoad::getInstance();
 
 TIMER_STOP("################################## after all ##################################");
 	RealRun(personalize.getWidget(0)/**main**/);

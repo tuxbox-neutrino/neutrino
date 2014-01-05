@@ -659,9 +659,8 @@ struct SNeutrinoSettings
 		ITEM_CLOCK = 19,
 		ITEM_GAMES = 20,
 		ITEM_SCRIPTS = 21,
-#if 0
-		ITEM_MOVIEPLAYER_TS,
-#endif
+		ITEM_YOUTUBE = 22,
+		ITEM_FILEPLAY = 23,
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
 	std::string usermenu_text[BUTTON_MAX];

@@ -1438,13 +1438,9 @@ moviebrowser.yt_error Failed to load youtube feed
 moviebrowser.yt_history Search history
 moviebrowser.yt_max_history Max search history size
 moviebrowser.yt_max_results Max results to fetch
-moviebrowser.yt_most_discussed Most discussed
-moviebrowser.yt_most_popular Most popular
-moviebrowser.yt_most_resent Most resent
-moviebrowser.yt_most_responded Most responded
-moviebrowser.yt_most_shared Most shared
+moviebrowser.yt_most_popular Most popular today
+moviebrowser.yt_most_popular_all_time Most popular
 moviebrowser.yt_next_results Next results
-moviebrowser.yt_on_the_web Trending videos
 moviebrowser.yt_orderby Order by
 moviebrowser.yt_orderby.published publishing date
 moviebrowser.yt_orderby.rating rating
@@ -1456,8 +1452,6 @@ moviebrowser.yt_recently_featured Recently featured
 moviebrowser.yt_region Region
 moviebrowser.yt_related Related videos
 moviebrowser.yt_search Search keyword
-moviebrowser.yt_top_favorites Top favorites
-moviebrowser.yt_top_rated Top rated
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark

@@ -113,15 +113,8 @@ class cYTFeedParser
 	public:
 		enum yt_feed_mode_t
 		{
-			TOP_RATED,
-			TOP_FAVORITES,
-			MOST_SHARED,
 			MOST_POPULAR,
-			MOST_RESENT,
-			MOST_DISCUSSED,
-			MOST_RESPONDED,
-			RECENTLY_FEATURED,
-			ON_THE_WEB,
+			MOST_POPULAR_ALL_TIME,
 			FEED_LAST,
 			NEXT,
 			PREV,

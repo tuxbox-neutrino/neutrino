@@ -79,6 +79,7 @@ class CMenuTarget
 		virtual void hide(){}
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey) = 0;
 		virtual fb_pixel_t getColor(void) { return 0; }
+		virtual const char * getTargetValue() { return NULL; }
 };
 
 class CMenuItem
@@ -312,6 +313,26 @@ private:
 	void setNumberFormat(std::string (*fun)(int)) { numberFormatFunction = fun; }
 };
 
+class CMenuOptionChooserOptions
+{	
+	public:
+		int               key;
+		std::string       valname;
+};
+
+struct CMenuOptionChooserCompareItem: public std::binary_function <const CMenuOptionChooserOptions * const, const CMenuOptionChooserOptions * const, bool>
+{
+	static bool cmpToLower(const char a, const char b)
+	{
+		return tolower(a) < tolower(b);
+	};
+
+	bool operator() (const CMenuOptionChooserOptions * const c1, CMenuOptionChooserOptions * const c2)
+	{
+		return std::lexicographical_compare(c1->valname.begin(), c1->valname.end(), c2->valname.begin(), c2->valname.end(), cmpToLower);
+	};
+};
+
 class CMenuOptionChooser : public CAbstractMenuOptionChooser
 {
  public:
@@ -330,28 +351,32 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 
  private:
 	std::vector<keyval_ext> options;
-	unsigned              number_of_options;
-	CChangeObserver *     observ;
-	std::string optionNameString;
-	bool			 pulldown;
+	std::vector<CMenuOptionChooserOptions*> option_chooser_options_v;
+	unsigned		number_of_options;
+	CChangeObserver *	observ;
+	std::string		optionNameString;
+	bool			pulldown;
+	bool			optionsSort;
+
+	void clearChooserOptions();
 
  public:
 	CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options,
 			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
 			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false);
+			   bool Pulldown = false, bool OptionsSort = false);
 	CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval_ext * const Options,
 			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
 			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false);
+			   bool Pulldown = false, bool OptionsSort = false);
 	CMenuOptionChooser(const char* OptionName, int * const OptionValue, const struct keyval * const Options,
 			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
 			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false);
+			   bool Pulldown = false, bool OptionsSort = false);
 	CMenuOptionChooser(const char* OptionName, int * const OptionValue, const struct keyval_ext * const Options,
 			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
 			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false);
+			   bool Pulldown = false, bool OptionsSort = false);
 	~CMenuOptionChooser();
 
 	void setOptionValue(const int newvalue);

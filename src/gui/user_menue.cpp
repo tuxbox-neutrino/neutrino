@@ -85,15 +85,6 @@ CUserMenu::~CUserMenu()
 	
 }
 
-#if 0
-#define MAINMENU_RECORDING_OPTION_COUNT 2
-const CMenuOptionChooser::keyval MAINMENU_RECORDING_OPTIONS[MAINMENU_RECORDING_OPTION_COUNT] =
-{
-	{ 0, LOCALE_MAINMENU_RECORDING_START },
-	{ 1, LOCALE_MAINMENU_RECORDING_STOP  }
-};
-#endif
-
 // USERMENU
 bool CUserMenu::showUserMenu(int button)
 {
@@ -377,40 +368,33 @@ bool CUserMenu::showUserMenu(int button)
 				menu->addItem(menu_item, false);
 			}
 			break;
-
-#if 0 // FIXME not supported yet
-		case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:
-			menu_items++;
-			menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_TS;
-			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK, true, NULL, moviePlayerGui, "tsplayback", key, icon);
-			menu->addItem(menu_item, false);
-			break;
-
-		case SNeutrinoSettings::ITEM_VTXT:
-			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
+		case SNeutrinoSettings::ITEM_YOUTUBE:
 			{
-				std::string tmp = g_PluginList->getName(count);
-				if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count) && tmp.find("Teletext") != std::string::npos)
-				{
-					sprintf(id, "%d", count);
-					menu_items++;
-					menu_prev = SNeutrinoSettings::ITEM_VTXT;
-
-					//keyhelper.get(&key,&icon,CRCInput::RC_blue);
-					keyhelper.get(&key,&icon);
-					menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
-					menu->addItem(menu_item, 0);
-				}
+				menu_items++;
+				menu_prev = SNeutrinoSettings::ITEM_YOUTUBE;
+				keyhelper.get(&key,&icon);
+				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_YTPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "ytplayback", key, icon);
+				menu_item->setHint(NEUTRINO_ICON_HINT_YTPLAY, LOCALE_MENU_HINT_YTPLAY);
+				menu->addItem(menu_item, 0);
 			}
 			break;
-#endif
+		case SNeutrinoSettings::ITEM_FILEPLAY:
+			{
+				menu_items++;
+				menu_prev = SNeutrinoSettings::ITEM_FILEPLAY;
+				keyhelper.get(&key,&icon);
+				menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback", key, icon);
+				menu_item->setHint(NEUTRINO_ICON_HINT_FILEPLAY, LOCALE_MENU_HINT_FILEPLAY);
+				menu->addItem(menu_item, 0);
+			}
+			break;
 		default:
 			printf("[neutrino] WARNING! menu wrong item!!\n");
 			break;
 		}
 	}
 
+#if 0
 	// Allow some tailoring for privat image bakers ;)
 	if (button == SNeutrinoSettings::BUTTON_RED) {
 	}
@@ -419,17 +403,8 @@ bool CUserMenu::showUserMenu(int button)
 	else if ( button == SNeutrinoSettings::BUTTON_YELLOW) {
 	}
 	else if ( button == SNeutrinoSettings::BUTTON_BLUE) {
-#ifdef _EXPERIMENTAL_SETTINGS_
-		//Experimental Settings
-		if (menu_prev != -1)
-			menu->addItem(GenericMenuSeparatorLine);
-		menu_items ++;
-		menu_key++;
-		// FYI: there is a memory leak with 'new CExperimentalSettingsMenuHandler()
-		menu_item = new CMenuForwarder(LOCALE_EXPERIMENTALSETTINGS, true, NULL, new CExperimentalSettingsMenuHandler(), "-1", CRCInput::convertDigitToKey(menu_key));
-		menu->addItem(menu_item, false);
-#endif
 	}
+#endif
 
 	// show menu if there are more than 2 items only
 	// otherwise, we start the item directly (must be the last one)
@@ -440,9 +415,6 @@ bool CUserMenu::showUserMenu(int button)
 		menu_item->exec( NULL );
 	
 	user_menu[button].selected = menu->getSelected();
-
-	// restore mute symbol
-	//AudioMute(current_muted, true);
 
 	// clear the heap
 	if (tmpFavorites)                delete tmpFavorites;
@@ -468,19 +440,6 @@ bool CUserMenu::showUserMenu(int button)
 **************************************************************************************/
 bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 {
-#if 0
-	bool res = !CRecordManager::getInstance()->RecordingStatus() ? false:true;
-		
-	if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING_START)) || (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING)))
-	{
-		CNeutrinoApp::getInstance()->exec(NULL, "handle_record");
-		
-		if (CRecordManager::getInstance()->RecordingStatus())
-			res = false;
-		else
-			res = true;
-	} else 
-#endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_PAUSESECTIONSD)) {
 		g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);
 	}

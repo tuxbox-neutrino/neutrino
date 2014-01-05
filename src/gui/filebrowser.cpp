@@ -935,11 +935,10 @@ bool CFileBrowser::exec(const char * const dirname)
 				_msg << " " << g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
 				if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, _msg.str(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
 				{
-					recursiveDelete(filelist[selected].Name.c_str());
-					if(".ts" ==(filelist[selected].getFileName().substr(filelist[selected].getFileName().length()-3,filelist[selected].getFileName().length())))//if bla.ts
-					{
-						recursiveDelete((filelist[selected].Name.substr(0,filelist[selected].Name.length()-7)+".xml").c_str());//remove bla.xml von bla.ts
-					}
+					std::string n = filelist[selected].Name;
+					recursiveDelete(n.c_str());
+					if(n.length() > 3 && ".ts" == n.substr(n.length() - 3))
+						recursiveDelete((n.substr(0, n.length() - 2) + "xml").c_str());
 					ChangeDir(Path);
 
 				}

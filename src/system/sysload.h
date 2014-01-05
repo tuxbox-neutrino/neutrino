@@ -1,9 +1,9 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
-
-
+	Neutrino-HD
 
 	License: GPL
+
+	(C) 2013 martii
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,22 +20,32 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#ifndef __sleeptimer__
-#define __sleeptimer__
+#ifndef __SYSTEM_SYSLOAD__H_
+#define __SYSTEM_SYSLOAD__H_
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include <gui/widget/menue.h>
+#include <string>
+#include <vector>
+#include <pthread.h>
+#include <semaphore.h>
 
-class CSleepTimerWidget: public CMenuTarget
+class cSysLoad
 {
 	private:
-		static bool is_running;
-		int shutdown_min;
-		std::string shutdown_min_string;
-
+		pthread_t thr;
+		cSysLoad();
+		static void* Run(void *);
 	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		const char * getTargetValue();
+		int *data;
+		size_t data_avail;
+		size_t data_size;
+		unsigned int period;
+		bool running;
+		sem_t sem;
+		~cSysLoad(void);
+		static cSysLoad *getInstance(void);
+		int data_last;
 };
-
-
 #endif

@@ -1438,13 +1438,9 @@ moviebrowser.yt_error Fehler beim laden des Youtube Feed
 moviebrowser.yt_history Frühere Suchen
 moviebrowser.yt_max_history Max. Anzahl früherer Suchen
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
-moviebrowser.yt_most_discussed Am meisten diskutiert
-moviebrowser.yt_most_popular Beliebteste Videos
-moviebrowser.yt_most_resent Unbeliebteste Videos
-moviebrowser.yt_most_responded Feeds mit den meisten Reaktionen
-moviebrowser.yt_most_shared Am häufigsten wiedergegebe Videos
+moviebrowser.yt_most_popular Beliebteste Videos heute
+moviebrowser.yt_most_popular_all_time Beliebteste Videos
 moviebrowser.yt_next_results Nächste Ergebnisse
-moviebrowser.yt_on_the_web Trendvideos
 moviebrowser.yt_orderby Sortierung nach
 moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
 moviebrowser.yt_orderby.rating Bewertung
@@ -1456,8 +1452,6 @@ moviebrowser.yt_recently_featured Vor kurzem empfohlen
 moviebrowser.yt_region Region
 moviebrowser.yt_related Passende Videos
 moviebrowser.yt_search Suche nach Stichwort
-moviebrowser.yt_top_favorites Top Favoriten
-moviebrowser.yt_top_rated Am besten bewertet
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
