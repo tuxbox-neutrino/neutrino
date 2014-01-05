@@ -34,44 +34,33 @@
 
 #define DEF_HEIGHT 27
 #define DEF_LABEL_WIDTH_PERCENT 30
-#define DEF_WIDTH 300
 
 using namespace std;
 
-CComponentsExtTextForm::CComponentsExtTextForm()
-{
-	initVarExtTextForm();
-	initCCTextItems();
-}
-
-CComponentsExtTextForm::CComponentsExtTextForm(	const int x_pos, const int y_pos, const int w, const int h,
+CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
 						bool has_shadow,
 						fb_pixel_t label_color,
 						fb_pixel_t text_color,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarExtTextForm(x_pos, y_pos, w, h, has_shadow, label_color, text_color, color_frame, color_body, color_shadow);
-	ccx_label_text 	= label_text;
-	ccx_text 	= text;
+	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, has_shadow, label_color, text_color, color_frame, color_body, color_shadow);
 	initCCTextItems();
 }
 
-CComponentsExtTextForm::CComponentsExtTextForm( const int x_pos, const int y_pos, const int w, const int h,
-						const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,
-						bool has_shadow,
-						fb_pixel_t label_color,
-						fb_pixel_t text_color,
-						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
-{
-	initVarExtTextForm(x_pos, y_pos, w, h, has_shadow, label_color, text_color, color_frame, color_body, color_shadow);
-	ccx_label_text 	= g_Locale->getText(locale_label_text);
-	ccx_text 	= g_Locale->getText(locale_text);
+CComponentsExtTextFormLocalized::CComponentsExtTextFormLocalized(const int& x_pos, const int& y_pos, const int& w, const int& h,
+								const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,
+								bool has_shadow,
+								fb_pixel_t label_color,
+								fb_pixel_t text_color,
+								fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+								: CComponentsExtTextForm(	x_pos, y_pos, w, h,
+												g_Locale->getText(locale_label_text), g_Locale->getText(locale_text),
+												has_shadow,
+												label_color, text_color, color_frame, color_body, color_shadow){};
 
-	initCCTextItems();
-}
-
-void CComponentsExtTextForm::initVarExtTextForm(const int x_pos, const int y_pos, const int w, const int h,
+void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
+						const std::string& label_text, const std::string& text,
 						bool has_shadow,
 						fb_pixel_t label_color,
 						fb_pixel_t text_color,
@@ -90,8 +79,8 @@ void CComponentsExtTextForm::initVarExtTextForm(const int x_pos, const int y_pos
 	
 	height = h;
 	
-	ccx_label_text 	= "";
-	ccx_text 	= "";
+	ccx_label_text 	= label_text;
+	ccx_text 	= text;
 	shadow 		= has_shadow;
 	ccx_label_color	= label_color;
 	ccx_text_color	= text_color;

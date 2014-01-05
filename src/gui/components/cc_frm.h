@@ -364,27 +364,17 @@ class CComponentsExtTextForm : public CComponentsForm
 
 	protected:
 		///initialize basic variables
-		void initVarExtTextForm(const int x_pos = 1, const int y_pos = 1, const int w = 300, const int h = 27,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
-					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		void initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& label_text, const std::string& text,
+					bool has_shadow,
+					fb_pixel_t label_color,
+					fb_pixel_t text_color,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
 
 	public:
-		///simple constructor for CComponentsExtTextForm
-		CComponentsExtTextForm();
-		
 		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as string
-		CComponentsExtTextForm(	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& label_text, const std::string& text,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
-					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		
-		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as locales
-		CComponentsExtTextForm(	const int x_pos, const int y_pos, const int w, const int h,
-					const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,
+		CComponentsExtTextForm(	const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
+					const std::string& label_text = "", const std::string& text = "",
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
@@ -419,6 +409,18 @@ class CComponentsExtTextForm : public CComponentsForm
 
 		///paint this item/form
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+};
+
+class CComponentsExtTextFormLocalized : public CComponentsExtTextForm
+{
+	public:
+		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as locales
+		CComponentsExtTextFormLocalized(const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
+						const neutrino_locale_t& locale_label_text = NONEXISTANT_LOCALE, const neutrino_locale_t& locale_text = NONEXISTANT_LOCALE,
+						bool has_shadow = CC_SHADOW_OFF,
+						fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
+						fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
+						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
 #endif
