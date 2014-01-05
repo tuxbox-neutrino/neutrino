@@ -237,12 +237,8 @@ void CDBoxInfoWidget::paint()
 		char buf[80], a[80];
 		long long unsigned v;
 		while (fgets(buf, sizeof(buf), procmeminfo)) {
-			char unit[10];
-			*unit = 0;
-			if ((3 == sscanf(buf, "%[^:]: %llu %s", a, &v, unit))
-			 || (2 == sscanf(buf, "%[^:]: %llu", a, &v))) {
-				if (*unit == 'k')
-					v <<= 10;
+			if (2 == sscanf(buf, "%[^:]: %llu", a, &v)) {
+				v <<= 10;
 				if (!strcasecmp(a, "MemTotal"))
 					memstat[MEMINFO_RAM][MEMINFO_TOTAL] += v;
 				else if (!strcasecmp(a, "MemFree"))
