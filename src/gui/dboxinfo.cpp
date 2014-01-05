@@ -230,15 +230,14 @@ void CDBoxInfoWidget::paint()
 #define MEMINFO_RAM 0
 #define MEMINFO_SWAP 1
 #define MEMINFO_ROWS 2
-	unsigned long long memstat[MEMINFO_ROWS][MEMINFO_COLUMNS] = { { 0, 0, 0 }, { 0, 0, 0 } }; // total, used, free
+	unsigned long memstat[MEMINFO_ROWS][MEMINFO_COLUMNS] = { { 0, 0, 0 }, { 0, 0, 0 } }; // total, used, free
 	const char *memtype[MEMINFO_ROWS] = { "RAM", "Swap" };
 	FILE *procmeminfo = fopen("/proc/meminfo", "r");
 	if (procmeminfo) {
 		char buf[80], a[80];
-		long long unsigned v;
+		unsigned long v;
 		while (fgets(buf, sizeof(buf), procmeminfo)) {
-			if (2 == sscanf(buf, "%[^:]: %llu", a, &v)) {
-				v <<= 10;
+			if (2 == sscanf(buf, "%[^:]: %lu", a, &v)) {
 				if (!strcasecmp(a, "MemTotal"))
 					memstat[MEMINFO_RAM][MEMINFO_TOTAL] += v;
 				else if (!strcasecmp(a, "MemFree"))
@@ -468,13 +467,13 @@ void CDBoxInfoWidget::paint()
 					tmp = memtype[row];
 					break;
 				case 1:
-					tmp = bytes2string(memstat[row][MEMINFO_TOTAL]);
+					tmp = bytes2string(memstat[row][MEMINFO_TOTAL] << 10);
 					break;
 				case 2:
-					tmp = bytes2string(memstat[row][MEMINFO_USED]);
+					tmp = bytes2string(memstat[row][MEMINFO_USED] << 10);
 					break;
 				case 3:
-					tmp = bytes2string(memstat[row][MEMINFO_FREE]);
+					tmp = bytes2string(memstat[row][MEMINFO_FREE] << 10);
 					break;
 				case 4:
 					tmp = to_string(memstat[row][MEMINFO_TOTAL] ? (memstat[row][MEMINFO_USED] * 100) / memstat[row][MEMINFO_TOTAL] : 0) + "%";
