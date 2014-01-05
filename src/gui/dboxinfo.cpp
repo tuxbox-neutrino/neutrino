@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	(C) 2009-2011, 2013 Stefan Seyfried
+	(C) 2009-2011, 2013-2014 Stefan Seyfried
 
 	Kommentar:
 
@@ -559,6 +559,7 @@ void CDBoxInfoWidget::paint()
 						int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
 						maxWidth[column] = std::max(maxWidth[column], rw);
 						space = widths[column] - rw;
+						_w = rw;
 					}
 					if ((mpOffset + space + _w) > width)
 						_w = width - (mpOffset + space);
