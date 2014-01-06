@@ -670,7 +670,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	if (parent)
 		parent->hide();
 
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	if(fade)
 		fader.StartFadeIn();
 

@@ -47,6 +47,69 @@
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 12
 #endif
 
+struct SNeutrinoTheme
+{
+	unsigned char menu_Head_alpha;
+	unsigned char menu_Head_red;
+	unsigned char menu_Head_green;
+	unsigned char menu_Head_blue;
+
+	unsigned char menu_Head_Text_alpha;
+	unsigned char menu_Head_Text_red;
+	unsigned char menu_Head_Text_green;
+	unsigned char menu_Head_Text_blue;
+
+	unsigned char menu_Content_alpha;
+	unsigned char menu_Content_red;
+	unsigned char menu_Content_green;
+	unsigned char menu_Content_blue;
+
+	unsigned char menu_Content_Text_alpha;
+	unsigned char menu_Content_Text_red;
+	unsigned char menu_Content_Text_green;
+	unsigned char menu_Content_Text_blue;
+
+	unsigned char menu_Content_Selected_alpha;
+	unsigned char menu_Content_Selected_red;
+	unsigned char menu_Content_Selected_green;
+	unsigned char menu_Content_Selected_blue;
+
+	unsigned char menu_Content_Selected_Text_alpha;
+	unsigned char menu_Content_Selected_Text_red;
+	unsigned char menu_Content_Selected_Text_green;
+	unsigned char menu_Content_Selected_Text_blue;
+
+	unsigned char menu_Content_inactive_alpha;
+	unsigned char menu_Content_inactive_red;
+	unsigned char menu_Content_inactive_green;
+	unsigned char menu_Content_inactive_blue;
+
+	unsigned char menu_Content_inactive_Text_alpha;
+	unsigned char menu_Content_inactive_Text_red;
+	unsigned char menu_Content_inactive_Text_green;
+	unsigned char menu_Content_inactive_Text_blue;
+
+	unsigned char infobar_alpha;
+	unsigned char infobar_red;
+	unsigned char infobar_green;
+	unsigned char infobar_blue;
+
+	unsigned char infobar_Text_alpha;
+	unsigned char infobar_Text_red;
+	unsigned char infobar_Text_green;
+	unsigned char infobar_Text_blue;
+
+	unsigned char colored_events_alpha;
+	unsigned char colored_events_red;
+	unsigned char colored_events_green;
+	unsigned char colored_events_blue;
+
+	unsigned char clock_Digit_alpha;
+	unsigned char clock_Digit_red;
+	unsigned char clock_Digit_green;
+	unsigned char clock_Digit_blue;
+};
+
 struct SNeutrinoSettings
 {
 	//video
@@ -284,66 +347,8 @@ struct SNeutrinoSettings
 	//widget settings
 	int widget_fade;
 
-	//colors
-	unsigned char clock_Digit_alpha;
-	unsigned char clock_Digit_red;
-	unsigned char clock_Digit_green;
-	unsigned char clock_Digit_blue;
+	SNeutrinoTheme theme;
 
-	unsigned char menu_Head_alpha;
-	unsigned char menu_Head_red;
-	unsigned char menu_Head_green;
-	unsigned char menu_Head_blue;
-
-	unsigned char menu_Head_Text_alpha;
-	unsigned char menu_Head_Text_red;
-	unsigned char menu_Head_Text_green;
-	unsigned char menu_Head_Text_blue;
-
-	unsigned char menu_Content_alpha;
-	unsigned char menu_Content_red;
-	unsigned char menu_Content_green;
-	unsigned char menu_Content_blue;
-
-	unsigned char menu_Content_Text_alpha;
-	unsigned char menu_Content_Text_red;
-	unsigned char menu_Content_Text_green;
-	unsigned char menu_Content_Text_blue;
-
-	unsigned char menu_Content_Selected_alpha;
-	unsigned char menu_Content_Selected_red;
-	unsigned char menu_Content_Selected_green;
-	unsigned char menu_Content_Selected_blue;
-
-	unsigned char menu_Content_Selected_Text_alpha;
-	unsigned char menu_Content_Selected_Text_red;
-	unsigned char menu_Content_Selected_Text_green;
-	unsigned char menu_Content_Selected_Text_blue;
-
-	unsigned char menu_Content_inactive_alpha;
-	unsigned char menu_Content_inactive_red;
-	unsigned char menu_Content_inactive_green;
-	unsigned char menu_Content_inactive_blue;
-
-	unsigned char menu_Content_inactive_Text_alpha;
-	unsigned char menu_Content_inactive_Text_red;
-	unsigned char menu_Content_inactive_Text_green;
-	unsigned char menu_Content_inactive_Text_blue;
-
-	unsigned char infobar_alpha;
-	unsigned char infobar_red;
-	unsigned char infobar_green;
-	unsigned char infobar_blue;
-
-	unsigned char infobar_Text_alpha;
-	unsigned char infobar_Text_red;
-	unsigned char infobar_Text_green;
-	unsigned char infobar_Text_blue;
-
-	unsigned char colored_events_alpha;
-	unsigned char colored_events_red;
-	unsigned char colored_events_green;
-	unsigned char colored_events_blue;
 	int colored_events_channellist;
 	int colored_events_infobar;
 	int contrast_fonts;

@@ -397,7 +397,7 @@ int CBouquetList::show(bool bShowChannelList)
 	while ((i= i/10)!=0)
 		lmaxpos++;
 
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 
 	paintHead();

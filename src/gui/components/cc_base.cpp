@@ -35,7 +35,7 @@
 using namespace std;
 
 //abstract basic class CComponents
-CComponents::CComponents() : COSDFader(g_settings.menu_Content_alpha)
+CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 {
 	x = saved_screen.x 	= 0;
 	y = saved_screen.y 	= 0;

@@ -88,7 +88,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	{
 		parent->hide();
 	}
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 
 	paint();

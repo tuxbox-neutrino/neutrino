@@ -303,7 +303,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 
 	sort_mode=0;
 
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 	if(!followlist.empty()){
 		insert_iterator <std::vector<CChannelEvent> >ii(evtlist,evtlist.begin());

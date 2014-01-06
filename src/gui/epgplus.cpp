@@ -775,7 +775,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 	int res = menu_return::RETURN_REPAINT;
 
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	do {
 		this->refreshFooterButtons = false;
 		time_t currentTime = time (NULL);

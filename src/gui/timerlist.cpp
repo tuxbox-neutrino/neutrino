@@ -485,7 +485,7 @@ int CTimerList::show()
 	bool loop=true;
 	bool update=true;
 
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 
 	while (loop)

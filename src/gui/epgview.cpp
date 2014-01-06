@@ -620,7 +620,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		has_follow_screenings = true;
 	}
 
-	COSDFader fader(g_settings.menu_Content_alpha);
+
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 
 	//show the epg

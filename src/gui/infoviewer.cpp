@@ -88,7 +88,7 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 extern bool timeset;
 
 CInfoViewer::CInfoViewer ()
-	: fader(g_settings.infobar_alpha)
+	: fader(g_settings.theme.infobar_alpha)
 {
 	sigscale = NULL;
 	snrscale = NULL;

@@ -669,7 +669,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 			if (bpp == 4)
 				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGBA2FB(buffer, x, y);
 			else
-				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.theme.infobar_alpha));
 			*width = x;
 			*height = y;
 		}else
