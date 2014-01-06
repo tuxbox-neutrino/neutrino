@@ -321,65 +321,6 @@ void CThemes::saveFile(char * themename)
 // setup default Colors
 void CThemes::setupDefaultColors()
 {
-	SNeutrinoTheme &t = g_settings.theme;
-
-	t.menu_Head_alpha = 0x00;
-	t.menu_Head_red   = 0x00;
-	t.menu_Head_green = 0x0A;
-	t.menu_Head_blue  = 0x19;
-
-	t.menu_Head_Text_alpha = 0x00;
-	t.menu_Head_Text_red   = 0x5f;
-	t.menu_Head_Text_green = 0x46;
-	t.menu_Head_Text_blue  = 0x00;
-
-	t.menu_Content_alpha = 0x14;
-	t.menu_Content_red   = 0x00;
-	t.menu_Content_green = 0x0f;
-	t.menu_Content_blue  = 0x23;
-
-	t.menu_Content_Text_alpha = 0x00;
-	t.menu_Content_Text_red   = 0x64;
-	t.menu_Content_Text_green = 0x64;
-	t.menu_Content_Text_blue  = 0x64;
-
-	t.menu_Content_Selected_alpha = 0x14;
-	t.menu_Content_Selected_red   = 0x19;
-	t.menu_Content_Selected_green = 0x37;
-	t.menu_Content_Selected_blue  = 0x64;
-
-	t.menu_Content_Selected_Text_alpha  = 0x00;
-	t.menu_Content_Selected_Text_red    = 0x00;
-	t.menu_Content_Selected_Text_green  = 0x00;
-	t.menu_Content_Selected_Text_blue   = 0x00;
-
-	t.menu_Content_inactive_alpha = 0x14;
-	t.menu_Content_inactive_red   = 0x00;
-	t.menu_Content_inactive_green = 0x0f;
-	t.menu_Content_inactive_blue  = 0x23;
-
-	t.menu_Content_inactive_Text_alpha  = 0x00;
-	t.menu_Content_inactive_Text_red    = 55;
-	t.menu_Content_inactive_Text_green  = 70;
-	t.menu_Content_inactive_Text_blue   = 85;
-
-	t.infobar_alpha = 0x14;
-	t.infobar_red   = 0x00;
-	t.infobar_green = 0x0e;
-	t.infobar_blue  = 0x23;
-
-	t.infobar_Text_alpha = 0x00;
-	t.infobar_Text_red   = 0x64;
-	t.infobar_Text_green = 0x64;
-	t.infobar_Text_blue  = 0x64;
-
-	t.colored_events_alpha = 0x00;
-	t.colored_events_red = 95;
-	t.colored_events_green = 70;
-	t.colored_events_blue = 0;
-
-	t.clock_Digit_alpha = 0x00;
-	t.clock_Digit_red   = 0x64;
-	t.clock_Digit_green = 0x64;
-	t.clock_Digit_blue  = 0x64;
+	CConfigFile empty(':');
+	CNeutrinoApp::getInstance()->getTheme(empty);
 }
