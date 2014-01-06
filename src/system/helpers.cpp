@@ -213,6 +213,28 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	return(fp);
 }
 
+int mkdirhier(const char *pathname, mode_t mode)
+{
+	int res = -1;
+	if (!pathname || !*pathname)
+		return res;
+	char path[strlen(pathname) + 1];
+	strcpy(path, pathname);
+	char *p = path;
+	while ((p = strchr(p + 1, '/'))) {
+		*p = 0;
+		res = mkdir(path, mode);
+		if (res < 0 && errno != EEXIST)
+			break;
+		*p = '/';
+	}
+	res = mkdir(path, mode);
+	if (errno == EEXIST)
+		res = 0;
+	return res;
+}
+
+
 int safe_mkdir(const char * path)
 {
 	struct statfs s;

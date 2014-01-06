@@ -32,10 +32,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <errno.h>
 #include <sys/wait.h>
 #include <global.h>
 #include <neutrino.h>
 #include "widget/menue.h"
+#include <system/helpers.h>
 #include <system/setting_helpers.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
@@ -157,13 +159,8 @@ int CThemes::Show()
 	CStringInputSMS nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789- ");
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
-	// Don't show SAVE if UserDir does'nt exist
-	if ( access(USERDIR, F_OK) != 0 ) { // check for existance
-	// mkdir must be called for each subdir which does not exist 
-	//	mkdir (USERDIR, S_IRUSR | S_IREAD | S_IWUSR | S_IWRITE | S_IXUSR | S_IEXEC) == 0) {
-		if (system (((std::string)"mkdir -p " + USERDIR).c_str()) != 0) {
-			printf("[neutrino theme] error creating %s\n", USERDIR);
-		}
+	if (mkdirhier(USERDIR) && errno != EEXIST) {
+		printf("[neutrino theme] error creating %s\n", USERDIR);
 	}
 	if (access(USERDIR, F_OK) == 0 ) {
 		themes.addItem(GenericMenuSeparatorLine);
