@@ -108,7 +108,7 @@ int CComponentsIconForm::getIconId(const std::string& icon_name)
 //to remove old items before add new icons, otherwise icons will be appended.
 void CComponentsIconForm::removeAllIcons()
 {
-	clearCCItems();
+	clear();
 	v_icons.clear();
 }
 

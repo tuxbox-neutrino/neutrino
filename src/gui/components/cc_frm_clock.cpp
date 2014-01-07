@@ -135,7 +135,7 @@ void CComponentsFrmClock::initCCLockItems()
 	if (v_cc_items.size() != s_time.size()){
 		
 		//clean up possible old items before add new items
-		clearCCItems();
+		clear();
 
 		//create new empty label objects, set some general properties and add to container
 		for (size_t i = 0; i < s_time.size(); i++){

@@ -34,7 +34,7 @@ class CComponentsForm : public CComponentsItem
 	private:
 		void initVarForm();
 	protected:
-		std::vector<CComponentsItem*>	v_cc_items;			
+		std::vector<CComponentsItem*>	v_cc_items;
 		void paintForm(bool do_save_bg);
 		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
 		int genIndex();
@@ -62,8 +62,8 @@ class CComponentsForm : public CComponentsItem
 		virtual int getCCItemId(CComponentsItem* cc_Item);
 		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
 		virtual void paintCCItems();
-		virtual	void clearCCItems();
-		virtual void cleanCCForm();
+		///clean up and deallocate existant items from v_cc_items at once
+		virtual	void clear();
 		virtual void setAppendOffset(const int &h_offset, const int& v_offset){append_h_offset = h_offset; append_v_offset = v_offset;};
 };
 

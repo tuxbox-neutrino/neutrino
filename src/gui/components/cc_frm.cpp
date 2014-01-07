@@ -64,21 +64,11 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 
 CComponentsForm::~CComponentsForm()
 {
-	cleanCCForm();
-}
-
-void CComponentsForm::cleanCCForm()
-{
-#ifdef DEBUG_CC
-	printf("[CComponentsForm]   [%s - %d] clean up...\n", __func__, __LINE__);
-#endif
-
-	clearCCItems();
+	clear();
 }
 
 
-
-void CComponentsForm::clearCCItems()
+void CComponentsForm::clear()
 {
  	if (v_cc_items.empty())
 		return;

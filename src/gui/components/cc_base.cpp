@@ -44,7 +44,7 @@ CComponents::~CComponents()
 {
  	hide();
 	clearSavedScreen();
-	clear();
+	clearFbData();
 }
 
 void CComponents::clearSavedScreen()
@@ -196,7 +196,7 @@ inline void CComponents::hide()
 		}
 	}
 
-	clear();
+	clearFbData();
 	is_painted = false;
 }
 
@@ -205,13 +205,13 @@ void CComponents::kill()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) 
 		frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);	
-	clear();
+	clearFbData();
 	firstPaint = true;
 	is_painted = false;
 }
 
 //clean old screen buffer
-inline void CComponents::clear()
+inline void CComponents::clearFbData()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++)
 		if (v_fbdata[i].pixbuf)

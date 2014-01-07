@@ -105,7 +105,7 @@ class CComponents
 		void paintFbItems(bool do_save_bg = true);
 
 		///clean up old screen buffer saved in v_fbdata
-		virtual void clear();
+		virtual void clearFbData();
 
 		///container: contains saved pixel buffer with position and dimensions
 		comp_screen_data_t saved_screen; 	
