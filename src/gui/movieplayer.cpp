@@ -648,7 +648,7 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			if (time_forced) {
 				time_forced = false;
-				FileTime.hide();
+				FileTime.kill();
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
 			if (playstate == CMoviePlayerGui::PAUSE) {
@@ -752,7 +752,7 @@ void CMoviePlayerGui::PlayFile(void)
 			//showHelpTS();
 		} else if(timeshift && (msg == CRCInput::RC_text || msg == CRCInput::RC_epg || msg == NeutrinoMessages::SHOW_EPG)) {
 			bool restore = FileTime.IsVisible();
-			FileTime.hide();
+			FileTime.kill();
 
 			if( msg == CRCInput::RC_epg )
 				g_EventList->exec(CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID(), CNeutrinoApp::getInstance()->channelList->getActiveChannelName());
@@ -833,7 +833,7 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 	}
 
-	FileTime.hide();
+	FileTime.kill();
 	clearSubtitle();
 
 	playback->SetSpeed(1);
