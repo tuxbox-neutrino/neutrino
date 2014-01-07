@@ -490,19 +490,16 @@ void CDBoxInfoWidget::paint()
 	int ypos_mnt_head = ypos;
 	ypos += mheight;
 
+	int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
+
 	for (std::map<std::string, bool>::iterator it = mounts.begin(); it != mounts.end(); ++it) {
 		struct statfs s;
 		if (::statfs((*it).first.c_str(), &s) == 0) {
 			if (s.f_blocks > 0) {
-				int percent_used;
-				uint64_t bytes_total;
-				uint64_t bytes_used;
-				uint64_t bytes_free;
-				bytes_total = s.f_blocks * s.f_bsize;
-				bytes_free  = s.f_bfree  * s.f_bsize;
-				bytes_used = bytes_total - bytes_free;
-				percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
-				int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
+				uint64_t bytes_total = s.f_blocks * s.f_bsize;
+				uint64_t bytes_free  = s.f_bfree  * s.f_bsize;
+				uint64_t bytes_used = bytes_total - bytes_free;
+				int percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
 				//paint mountpoints
 				for (int column = 0; column < headSize; column++) {
 					std::string tmp;
