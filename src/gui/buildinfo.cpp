@@ -55,11 +55,6 @@ void CBuildInfo::initVarBuildInfo()
 	shadow = true;
 }
 
-CBuildInfo::~CBuildInfo()
-{
-	cleanCCForm();
-}
-
 
 int CBuildInfo::exec(CMenuTarget* parent, const string & /*actionKey*/)
 {
@@ -172,7 +167,7 @@ void CBuildInfo::InitInfoItems()
 		return;
 
 	//ensure a clean body
-	ccw_body->clearCCItems();
+	ccw_body->clear();
 
 	//define size and position
 	int x_info = 10;
