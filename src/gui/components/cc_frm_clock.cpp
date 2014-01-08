@@ -353,10 +353,10 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 	paintForm(do_save_bg);
 }
 
-void CComponentsFrmClock::setClockFontSize(int size)
+void CComponentsFrmClock::setClockFontSize(int font_size)
 {
 	int tmp_w = 0;
-	dyn_font_size = size;
+	dyn_font_size = font_size;
 	cl_font	= CNeutrinoFonts::getInstance()->getDynFont(tmp_w, dyn_font_size, "", CNeutrinoFonts::FONT_STYLE_BOLD, CNeutrinoFonts::FONT_ID_INFOCLOCK);
 }
 

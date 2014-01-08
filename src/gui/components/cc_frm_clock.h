@@ -100,7 +100,7 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///set font type or font size for segments
 		virtual void setClockFont(int font);
-		virtual void setClockFontSize(int size);
+		virtual void setClockFontSize(int font_size);
 
 		///set text color
 		virtual void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};
