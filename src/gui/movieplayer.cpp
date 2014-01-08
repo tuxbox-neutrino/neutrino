@@ -705,11 +705,12 @@ void CMoviePlayerGui::PlayFile(void)
 
 			if (!timeshift)
 				callInfoViewer(/*duration, position*/);
-
+#if 0 //FIXME, time display in combination with REW and FF is broken
 			if (!FileTime.IsVisible()) {
 				FileTime.show(position);
 				time_forced = true;
 			}
+#endif
 		} else if (msg == CRCInput::RC_1) {	// Jump Backwards 1 minute
 			clearSubtitle();
 			playback->SetPosition(-60 * 1000);
