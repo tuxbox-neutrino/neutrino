@@ -637,6 +637,10 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
+			if (time_forced) {
+				time_forced = false;
+				FileTime.kill();
+			}
 			if (playstate > CMoviePlayerGui::PLAY) {
 				playstate = CMoviePlayerGui::PLAY;
 				speed = 1;
@@ -645,10 +649,6 @@ void CMoviePlayerGui::PlayFile(void)
 				updateLcd();
 				if (!timeshift)
 					callInfoViewer(/*duration, position*/);
-			}
-			if (time_forced) {
-				time_forced = false;
-				FileTime.kill();
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
 			if (playstate == CMoviePlayerGui::PAUSE) {
@@ -703,14 +703,12 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			//update_lcd = true;
 
-			if (!timeshift)
-				callInfoViewer(/*duration, position*/);
-#if 0 //FIXME, time display in combination with REW and FF is broken
-			if (!FileTime.IsVisible()) {
-				FileTime.show(position);
+			if (!FileTime.IsVisible() && !time_forced) {
+				FileTime.switchMode(position, duration);
 				time_forced = true;
 			}
-#endif
+			if (!timeshift)
+				callInfoViewer(/*duration, position*/);
 		} else if (msg == CRCInput::RC_1) {	// Jump Backwards 1 minute
 			clearSubtitle();
 			playback->SetPosition(-60 * 1000);
