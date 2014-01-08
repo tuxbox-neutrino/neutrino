@@ -62,8 +62,14 @@ class CComponentsForm : public CComponentsItem
 		virtual int getCCItemId(CComponentsItem* cc_Item);
 		virtual CComponentsItem* getCCItem(const uint& cc_item_id);
 		virtual void paintCCItems();
+
 		///clean up and deallocate existant items from v_cc_items at once
 		virtual	void clear();
+		///return true, if no items available
+		virtual	bool empty(){return v_cc_items.empty();};
+		///return size (count) of available items
+		virtual	size_t size(){return v_cc_items.size();};
+
 		virtual void setAppendOffset(const int &h_offset, const int& v_offset){append_h_offset = h_offset; append_v_offset = v_offset;};
 };
 
