@@ -107,6 +107,7 @@ XML_Parser::XML_Parser(const XML_Char *encodingName)
 	bufferLim=0;
 	declElementType=0;
 	declAttributeId=0;
+	declAttributeIsCdata=0;
 	declEntity=0;
 	declNotationName=0;
 	declNotationPublicId=0;
