@@ -72,7 +72,8 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos, const int& y_pos, c
 	cl_thread 		= 0;
 	cl_interval		= 1;
 
-	cl_blink_str		= "";
+	activeClock		= true;
+	cl_blink_str		= format_str;
 	paintClock		= false;
 
 	activeClock		= activ;
@@ -89,12 +90,13 @@ CComponentsFrmClock::~CComponentsFrmClock()
 	stopThread();
 }
 
+
 void CComponentsFrmClock::initTimeString()
 {
 	struct tm t;
 	time_t ltime;
-	ltime=time(&ltime);
-	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str.c_str(), localtime_r(&ltime, &t));
+	ltime=time(NULL);
+	strftime((char*) &cl_timestr, sizeof(cl_timestr), getTimeFormat(ltime), localtime_r(&ltime, &t));
 }
 
 // How does it works?
@@ -261,20 +263,9 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 #if 0
 	time_t count = time(0);
 #endif
-	std::string format_str_save = clock->cl_format_str; // FIXME. This will cause setClockFormat() to be ignored. --martii
 	//start loop for paint
 	while(clock != NULL) {
 		if (clock->paintClock) {
-			// Blinking depending on the blink format string
-			if (!clock->cl_blink_str.empty() && (clock->cl_format_str.length() == clock->cl_blink_str.length())) {
-				if (clock->cl_format_str == clock->cl_blink_str.c_str())
-					clock->cl_format_str = format_str_save;
-				else {
-					format_str_save = clock->cl_format_str;
-					clock->cl_format_str = clock->cl_blink_str;
-				}
-			}
-			//paint segements, but wihtout saved backgrounds
 			clock->paint(CC_SAVE_SCREEN_NO);
 #if 0
 			count = time(0);

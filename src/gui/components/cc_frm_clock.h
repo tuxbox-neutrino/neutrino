@@ -71,10 +71,10 @@ class CComponentsFrmClock : public CComponentsForm
 		///text color
 		int cl_col_text;
 		///time format
-		std::string cl_format_str;
+		const char *cl_format_str;
 		///time format for blink
-		std::string cl_blink_str;
-		///time string align, default allign is ver and hor centered
+		const char *cl_blink_str;
+		///time string align, default align is ver and hor centered
 		int cl_align;
 
 		///initialize clock contents  
@@ -83,6 +83,8 @@ class CComponentsFrmClock : public CComponentsForm
 		virtual void initTimeString();
 		///initialize of general alignment of timestring segments within form area
 		void initSegmentAlign(int* segment_width, int* segment_height);
+		//return current time string format
+		const char *getTimeFormat(time_t when) { return (when & 1) ? cl_format_str : cl_blink_str; }
 
 		///return pointer of font object
 		inline Font** getClockFont();
