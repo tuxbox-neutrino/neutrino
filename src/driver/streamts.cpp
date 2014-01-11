@@ -3,6 +3,8 @@
 
         Copyright (C) 2011-2012 CoolStream International Ltd
 
+	Copyright (C) 2010-2012, 2014 Stefan Seyfried
+
 	based on code which is
 	Copyright (C) 2002 Andreas Oberritter <obi@tuxbox.org>
 	Copyright (C) 2001 TripleDES
@@ -503,6 +505,15 @@ void CStreamManager::run()
 							}
 						}
 						mutex.unlock();
+					}
+				}
+				/* this is a cheap check */
+				if (streams.empty() &&
+				    CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby) {
+					/* this check is more expensive (goes through the socket) */
+					if (g_Zapit->getMode() != 0) {
+						printf("CStreamManager::run: put zapit into standby...\n");
+						g_Zapit->setStandby(true);
 					}
 				}
 			}
