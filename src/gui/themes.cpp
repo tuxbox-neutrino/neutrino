@@ -188,9 +188,9 @@ int CThemes::Show()
 void CThemes::rememberOldTheme(bool remember)
 {
 	if ( remember ) {
-		memcpy(&oldTheme, &g_settings.theme, sizeof(SNeutrinoTheme));
+		oldTheme = g_settings.theme;
 	} else {
-		memcpy(&g_settings.theme, &oldTheme, sizeof(SNeutrinoTheme));
+		g_settings.theme = oldTheme;
 
 		notifier = new CColorSetupNotifier;
 		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
