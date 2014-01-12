@@ -3,7 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2011-2012 Stefan Seyfried
+	Copyright (C) 2011-2014 Stefan Seyfried
 
 	License: GPLv2
 
@@ -59,6 +59,7 @@
 #include <zapit/zapit.h>
 #include <zapit/client/zapittools.h>
 #include <eitd/sectionsd.h>
+#include <timerdclient/timerdclient.h>
 
 /* TODO:
  * nextRecording / pending recordings - needs testing

@@ -33,7 +33,7 @@
 #ifndef __timerlist__
 #define __timerlist__
 
-#include <timerdclient/timerdclient.h>
+#include <timerdclient/timerdtypes.h>
 
 #include <gui/widget/menue.h>
 
@@ -42,6 +42,7 @@
 #include <string>
 
 
+class CTimerdClient;
 class CTimerList : public CMenuTarget
 {
 	private:

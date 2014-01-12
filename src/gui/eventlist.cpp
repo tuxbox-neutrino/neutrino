@@ -4,6 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2009-2014 Stefan Seyfried
 
 	License: GPL
 
@@ -53,6 +54,7 @@
 #include <zapit/zapit.h>
 #include <daemonc/remotecontrol.h>
 #include <eitd/sectionsd.h>
+#include <timerdclient/timerdclient.h>
 
 #include <algorithm>
 

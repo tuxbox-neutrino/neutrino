@@ -3,6 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2004 Martin Griep 'vivamiga'
+	Copyright (C) 2009-2014 Stefan Seyfried
 
 	License: GPL
 
@@ -33,6 +34,7 @@
 #include <gui/epgplus.h>
 #include <gui/epgview.h>
 #include <sectionsdclient/sectionsdclient.h>
+#include <timerdclient/timerdclient.h>
 
 #include <gui/components/cc.h>
 #include <gui/widget/icons.h>

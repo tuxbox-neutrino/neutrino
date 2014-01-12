@@ -27,7 +27,7 @@
 #ifndef __EVENTLIST_HPP__
 #define __EVENTLIST_HPP__
 
-#include <timerdclient/timerdclient.h>
+#include <timerdclient/timerdtypes.h>
 #include <sectionsdclient/sectionsdclient.h>
 
 #include <driver/framebuffer.h>

@@ -28,7 +28,7 @@
 #include <list>
 
 #include <sectionsdclient/sectionsdclient.h>
-#include <timerdclient/timerdclient.h>
+#include <timerdclient/timerdtypes.h>
 
 #include <neutrinoMessages.h>
 #include <gui/movieinfo.h>

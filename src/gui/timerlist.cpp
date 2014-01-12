@@ -2,6 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Timerliste by Zwen
+	(C) 2009, 2011-2014 Stefan Seyfried
 
 	Homepage: http://dbox.cyberphoria.org/
 
@@ -71,6 +72,8 @@
 #include <zapit/getservices.h>
 #include <zapit/bouquets.h>
 #include <zapit/femanager.h>
+
+#include <timerdclient/timerdclient.h>
 
 #include <eitd/sectionsd.h>
 
