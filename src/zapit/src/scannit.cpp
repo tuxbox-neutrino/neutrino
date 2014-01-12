@@ -430,7 +430,7 @@ bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamIn
 				transport_stream_id, original_network_id, service_id);
 		int visible = (*it)->getVisibleServiceFlag();
 #ifdef DEBUG_LCN
-		printf("NIT: logical channel tsid %04x onid %04x %012llx -> %d (%s, %d)\n", transport_stream_id, original_network_id, channel_id, lcn, hd ? "hd", : "sd", visible);
+		printf("NIT: logical channel tsid %04x onid %04x %012llx -> %d (%s, %d)\n", transport_stream_id, original_network_id, channel_id, lcn, hd ? "hd" : "sd", visible);
 #endif
 		if (visible && lcn) {
 			if(hd)
