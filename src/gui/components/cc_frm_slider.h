@@ -85,6 +85,7 @@ class CComponentsSlider : public CComponentsForm
 		
 		void setValuePos(const int& current_value);
 		void setValueScale(const int& min_value, const int& max_value);
+		void setSliderIcon(const std::string &icon_name);
 
 // 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
