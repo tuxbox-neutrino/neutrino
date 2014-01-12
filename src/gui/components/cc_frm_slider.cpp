@@ -98,7 +98,7 @@ void CComponentsSlider::initCCSlBody()
 {
 	if (!csl_body_icon.empty()){
 		if (csl_body_obj == NULL){
-			csl_body_obj = new CComponentsPicture(0, 0, 0, height, csl_body_icon);
+			csl_body_obj = new CComponentsPicture(0, 0, 0, 0, csl_body_icon);
 			csl_body_obj->doPaintBg(false);
 			addCCItem(csl_body_obj);
 		}
