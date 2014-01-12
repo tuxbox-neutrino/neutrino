@@ -884,7 +884,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 /*------------------------------------------------------------------------------
 	CTimerd::TIMER_RECORD = 5
 	CTimerd::TIMER_STANDBY = 4
-	CTimerd::TIMER_NEXTPROGRAM = 2
+	CTimerd::TIMER_NEXTPROGRAM = 2 !!! no longer used !!!
 	CTimerd::TIMER_ZAPTO = 3
 	CTimerd::TIMER_REMIND = 6
 	CTimerd::TIMER_EXEC_PLUGIN = 8
@@ -945,7 +945,7 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	std::string sel;
 	for(int i=1; i<=8;i++)
 	{
-		if(i!=(int)CTimerd::TIMER_NEXTPROGRAM)
+		if (i != (int)CTimerd::__TIMER_NEXTPROGRAM)
 		{
 			std::string zType = NeutrinoAPI->timerEventType2Str((CTimerd::CTimerEventTypes) i);
 			if(cmd != "new")
