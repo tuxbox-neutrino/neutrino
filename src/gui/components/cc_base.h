@@ -166,6 +166,8 @@ class CComponents
 
 		///set frame color
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
+		///set selected frame color
+		inline virtual void setColorFrameSel(fb_pixel_t color){col_frame_sel = color;};
 		///set body color
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
 		///set shadow color
