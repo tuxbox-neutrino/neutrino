@@ -154,12 +154,14 @@ class CTimerdClient:private CBasicClient
 			return addTimerEvent(CTimerd::TIMER_ZAPTO, &eventInfo, announcetime, alarmtime, stoptime);
 		};
 
+#if 0
 		int addNextProgramTimerEvent(CTimerd::EventInfo eventInfo,time_t alarmtime, time_t announcetime = 0, time_t stoptime = 0)
 		{
 			// mal auf verdacht eingebaut
 			// keine ahnung ob / was hier noch fehlt
 			return addTimerEvent(CTimerd::TIMER_NEXTPROGRAM, &eventInfo, alarmtime, announcetime, stoptime);
 		};
+#endif
 
 		// Exit timerd and programm wakeup
 		bool shutdown();

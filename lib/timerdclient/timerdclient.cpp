@@ -280,7 +280,8 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	{
 		length = 0;
 	}
-	else if(evType == CTimerd::TIMER_NEXTPROGRAM || evType == CTimerd::TIMER_ZAPTO || 
+	/* else if(evType == CTimerd::TIMER_NEXTPROGRAM || evType == CTimerd::TIMER_ZAPTO || */
+	else if (evType == CTimerd::TIMER_ZAPTO ||
 		evType == CTimerd::TIMER_IMMEDIATE_RECORD )
 	{
 		CTimerd::EventInfo *ei=static_cast<CTimerd::EventInfo*>(data); 

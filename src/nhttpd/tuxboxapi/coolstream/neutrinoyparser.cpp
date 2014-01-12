@@ -813,7 +813,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 		std::string sAddData="";
 		switch(timer->eventType)
 		{
-			case CTimerd::TIMER_NEXTPROGRAM :
+			//case CTimerd::TIMER_NEXTPROGRAM :
 			case CTimerd::TIMER_ZAPTO :
 			case CTimerd::TIMER_RECORD :
 			{
