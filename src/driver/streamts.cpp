@@ -357,7 +357,12 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 			printf("############################# channel_id %" PRIx64 "\n", tmpid);
 
 			CZapitChannel * tmpchan = CServiceManager::getInstance()->FindChannel(tmpid);
-			if (tmpchan && (tmpid != chid) && SAME_TRANSPONDER(tmpid, chid)) {
+			/* we may switch channels if neutrino is in standby and we are not recording
+			 * the current channel TODO: check interaction with recording */
+			bool may_switch =
+				(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby) &&
+				!CRecordManager::getInstance()->RecordingStatus(chid);
+			if (tmpchan && (tmpid != chid) && (may_switch || SAME_TRANSPONDER(tmpid, chid))) {
 				printf("############################# channel_id %" PRIx64 " -> zap\n", tmpid);
 				bool ret = g_Zapit->zapTo_record(tmpid) > 0;
 				if (ret) {
