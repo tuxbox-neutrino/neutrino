@@ -123,8 +123,8 @@ public:
 			m6->setActive(false);
 		}
 		if (type == CTimerd::TIMER_RECORD ||
-				type == CTimerd::TIMER_ZAPTO ||
-				type == CTimerd::TIMER_NEXTPROGRAM)
+		    type == CTimerd::TIMER_ZAPTO)
+				/*|| type == CTimerd::TIMER_NEXTPROGRAM)*/
 		{
 			m2->setActive(true);
 		}
@@ -310,9 +310,9 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		void *data=NULL;
 		if (timerNew.eventType == CTimerd::TIMER_STANDBY)
 			data=&(timerNew.standby_on);
-		else if (timerNew.eventType==CTimerd::TIMER_NEXTPROGRAM ||
-				timerNew.eventType==CTimerd::TIMER_ZAPTO ||
-				timerNew.eventType==CTimerd::TIMER_RECORD)
+		/* else if (timerNew.eventType==CTimerd::TIMER_NEXTPROGRAM || */
+		else if (timerNew.eventType == CTimerd::TIMER_ZAPTO ||
+			 timerNew.eventType == CTimerd::TIMER_RECORD)
 		{
 			if (strcmp(timerNew_channel_name, "---")==0)
 				return menu_return::RETURN_REPAINT;
@@ -761,7 +761,7 @@ void CTimerList::paintItem(int pos)
 		std::string zAddData("");
 		switch (timer.eventType)
 		{
-		case CTimerd::TIMER_NEXTPROGRAM :
+		//case CTimerd::TIMER_NEXTPROGRAM :
 		case CTimerd::TIMER_ZAPTO :
 		case CTimerd::TIMER_RECORD :
 		{
@@ -839,7 +839,7 @@ void CTimerList::paintItem(int pos)
 			case CTimerd::TIMER_RECORD :
 			//	line2+= " -";
 			//	line2+= zStopTime+6;
-			case CTimerd::TIMER_NEXTPROGRAM :
+			//case CTimerd::TIMER_NEXTPROGRAM :
 			case CTimerd::TIMER_ZAPTO :
 			{
 				line1 += ' ';
@@ -927,8 +927,8 @@ const char * CTimerList::convertTimerType2String(const CTimerd::CTimerEventTypes
 	{
 	case CTimerd::TIMER_SHUTDOWN    :
 		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_SHUTDOWN   );
-	case CTimerd::TIMER_NEXTPROGRAM :
-		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_NEXTPROGRAM);
+//	case CTimerd::TIMER_NEXTPROGRAM :
+//		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_NEXTPROGRAM);
 	case CTimerd::TIMER_ZAPTO       :
 		return g_Locale->getText(LOCALE_TIMERLIST_TYPE_ZAPTO      );
 	case CTimerd::TIMER_STANDBY     :

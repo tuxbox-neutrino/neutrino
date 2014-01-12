@@ -1711,7 +1711,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 		}
 
 		switch(timer->eventType) {
-		case CTimerd::TIMER_NEXTPROGRAM:
+		//case CTimerd::TIMER_NEXTPROGRAM:
 		case CTimerd::TIMER_ZAPTO:
 		case CTimerd::TIMER_RECORD:
 			if (!send_id)
@@ -1890,12 +1890,14 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 		// timer specific data
 		switch(timer->eventType)
 		{
+#if 0
 		case CTimerd::TIMER_NEXTPROGRAM : {
 			hh->printf("\t\t\t<channel_id>" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "</channel_id>\n",timer->channel_id);
 			hh->printf("\t\t\t<channel_name>%s</channel_name>\n",channel_name.c_str());
 			hh->printf("\t\t\t<title>%s</title>\n",title.c_str());
 		}
 		break;
+#endif
 
 		case CTimerd::TIMER_ZAPTO : {
 			hh->printf("\t\t\t<channel_id>" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "</channel_id>\n",timer->channel_id);
@@ -2268,7 +2270,8 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		bool standby_on = (hh->ParamList["sbon"]=="1");
 		data=&standby_on;
 	}
-	else if(type==CTimerd::TIMER_NEXTPROGRAM || type==CTimerd::TIMER_ZAPTO)
+	/* else if(type==CTimerd::TIMER_NEXTPROGRAM || type==CTimerd::TIMER_ZAPTO) */
+	else if (type == CTimerd::TIMER_ZAPTO)
 		data= &eventinfo;
 	else if (type==CTimerd::TIMER_RECORD)
 	{

@@ -320,9 +320,11 @@ std::string CNeutrinoAPI::timerEventType2Str(CTimerd::CTimerEventTypes type)
 	case CTimerd::TIMER_SHUTDOWN:
 		result = "Shutdown";
 		break;
+#if 0
 	case CTimerd::TIMER_NEXTPROGRAM:
 		result = "Next program";
 		break;
+#endif
 	case CTimerd::TIMER_ZAPTO:
 		result = "Zap to";
 		break;
