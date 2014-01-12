@@ -195,7 +195,7 @@ class CZapit : public OpenThreads::Thread
 		void LoadVolumeMap();
 		void SaveChannelPids(CZapitChannel* channel);
 		virtual void ConfigFrontend();
-		bool StopPlayBack(bool send_pmt);
+		bool StopPlayBack(bool send_pmt, bool blank = true);
 		virtual void leaveStandby();
 
 		static CZapit * zapit;
