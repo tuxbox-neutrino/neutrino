@@ -181,10 +181,10 @@ static std::string bytes2string(uint64_t bytes, bool binary)
 	char result[80];
 
 	if (b < base)
-		snprintf(result, sizeof(result), "%llu%s%02llu ", b, g_Locale->getText(LOCALE_UNIT_DECIMAL),
+		snprintf(result, sizeof(result), "%" PRIu64 "%s%02" PRIu64 " ", b, g_Locale->getText(LOCALE_UNIT_DECIMAL),
 			(bytes - b * factor) * 100 / factor);
 	else // no need for fractions for larger numbers
-		snprintf(result, sizeof(result), "%llu ", b);
+		snprintf(result, sizeof(result), "%" PRIu64 " ", b);
 
 	std::string res(result);
 	if (*unit) {
