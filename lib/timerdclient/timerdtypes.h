@@ -61,7 +61,7 @@ class CTimerd
 		enum CTimerEventTypes
 		{
 			TIMER_SHUTDOWN = 1,
-			TIMER_NEXTPROGRAM,
+			__TIMER_NEXTPROGRAM, /* unused, here to keep compatibility with old timerd.conf */
 			TIMER_ZAPTO,
 			TIMER_STANDBY,
 			TIMER_RECORD,
