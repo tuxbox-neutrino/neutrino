@@ -439,13 +439,11 @@ printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager:
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FAST);
 		settings->addItem(mf);
 #endif
+		settings->addItem(GenericMenuSeparatorLine);
 	}
 	if (CFEManager::getInstance()->haveCable()) {
 		r_system = DVB_C;
 
-		//--------------------------------------------------------------
-		//settings->addItem(GenericMenuSeparatorLine);
-		//--------------------------------------------------------------
 		//tune timeout
 		if(CFEManager::getInstance()->getFrontendCount() <= 1) {
 			CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
@@ -479,6 +477,7 @@ printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager:
 		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_yellow, have_sat ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
 		fcableScan->setHint("", LOCALE_MENU_HINT_SCAN_CABLE_SIMPLE);
 		settings->addItem(fcableScan);
+		settings->addItem(GenericMenuSeparatorLine);
 	}
 	if (CFEManager::getInstance()->haveTerr()) {
 		r_system = DVB_T;
@@ -508,8 +507,8 @@ printf("C: %d S: %d T: %d\n", CFEManager::getInstance()->haveCable(),CFEManager:
 		mf = new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_yellow, have_other ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
 		settings->addItem(mf);
+		settings->addItem(GenericMenuSeparatorLine);
 	}
-	settings->addItem(GenericMenuSeparatorLine);
 	//service select mode
 	mc = new CMenuOptionChooser(LOCALE_ZAPIT_SCANTYPE, (int *)&scansettings.scanType, SCANTS_ZAPIT_SCANTYPE, SCANTS_ZAPIT_SCANTYPE_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true);
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_SCANTYPE);

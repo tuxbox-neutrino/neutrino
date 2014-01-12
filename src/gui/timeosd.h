@@ -48,12 +48,13 @@ class CTimeOSD : public CComponentsFrmClock
 		void Init();
 		void initTimeString();
 		void updatePos(int position, int duration);
+		void KillAndResetTimescale();
 
 	public:
 		CTimeOSD();
-		~CTimeOSD();
+// 		~CTimeOSD(); is inherited
 		void show(time_t time_show, bool force = true);
-		void hide();
+		void kill();
 		bool IsVisible() {return m_mode != MODE_HIDE;}
 		void update(int position, int duration);
 		void switchMode(int position, int duration);

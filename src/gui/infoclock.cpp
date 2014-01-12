@@ -83,10 +83,8 @@ void CInfoClock::Init()
 	int x_old = x, y_old = y, width_old = width, height_old = height;
 	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getInfoClockDimensions(&x, &y, &width, &height);
-	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height)) {
-		cleanCCForm();
-		clearCCItems();
-	}
+	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height))
+		clear();
 
 	// set corner radius depending on clock height
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;

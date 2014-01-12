@@ -105,7 +105,7 @@ class CComponents
 		void paintFbItems(bool do_save_bg = true);
 
 		///clean up old screen buffer saved in v_fbdata
-		virtual void clear();
+		virtual void clearFbData();
 
 		///container: contains saved pixel buffer with position and dimensions
 		comp_screen_data_t saved_screen; 	
@@ -166,6 +166,8 @@ class CComponents
 
 		///set frame color
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
+		///set selected frame color
+		inline virtual void setColorFrameSel(fb_pixel_t color){col_frame_sel = color;};
 		///set body color
 		inline virtual void setColorBody(fb_pixel_t color){col_body = color;};
 		///set shadow color

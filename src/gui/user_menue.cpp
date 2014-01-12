@@ -57,6 +57,7 @@
 #include "dboxinfo.h"
 #include "cam_menu.h"
 #include "pluginlist.h"
+#include "infoclock.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -72,6 +73,7 @@
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 // extern CPlugins * g_PluginList;
 extern CCAMMenuHandler * g_CamHandler;
+extern CInfoClock * InfoClock;
 // 
 #include <system/debug.h>
 
@@ -88,6 +90,8 @@ CUserMenu::~CUserMenu()
 // USERMENU
 bool CUserMenu::showUserMenu(int button)
 {
+	InfoClock->enableInfoClock(false);
+
 	// set width
 	width = w_max (40, 10);
 	
@@ -432,6 +436,9 @@ bool CUserMenu::showUserMenu(int button)
 	if (games)                       delete games;
 	if (scripts)                     delete scripts;
 	if (menu)                        delete menu;
+
+	InfoClock->enableInfoClock(true);
+
  	return 0;
 }
 

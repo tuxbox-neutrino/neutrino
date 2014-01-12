@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -18,10 +18,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -66,21 +64,11 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 
 CComponentsForm::~CComponentsForm()
 {
-	cleanCCForm();
-}
-
-void CComponentsForm::cleanCCForm()
-{
-#ifdef DEBUG_CC
-	printf("[CComponentsForm]   [%s - %d] clean up...\n", __func__, __LINE__);
-#endif
-
-	clearCCItems();
+	clear();
 }
 
 
-
-void CComponentsForm::clearCCItems()
+void CComponentsForm::clear()
 {
  	if (v_cc_items.empty())
 		return;
@@ -355,6 +343,9 @@ void CComponentsForm::paintCCItems()
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
+		//avoid of width error due to odd values (1 line only)
+		right_item -= (new_w%2);
+		w_item -= (new_w%2);
 		if (right_item > right_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
 				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
@@ -366,6 +357,9 @@ void CComponentsForm::paintCCItems()
 		int bottom_item = cc_item->getRealYPos() + h_item;
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
+		//avoid of height error due to odd values (1 line only)
+		bottom_item -= (new_h%2);
+		h_item -= (new_h%2);
 		if (bottom_item > bottom_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
 			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);

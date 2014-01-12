@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Generic GUI-related component.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013, 2014 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -17,10 +17,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -135,7 +133,7 @@ void CComponentsFrmClock::initCCLockItems()
 	if (v_cc_items.size() != s_time.size()){
 		
 		//clean up possible old items before add new items
-		clearCCItems();
+		clear();
 
 		//create new empty label objects, set some general properties and add to container
 		for (size_t i = 0; i < s_time.size(); i++){
@@ -355,10 +353,10 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 	paintForm(do_save_bg);
 }
 
-void CComponentsFrmClock::setClockFontSize(int size)
+void CComponentsFrmClock::setClockFontSize(int font_size)
 {
 	int tmp_w = 0;
-	dyn_font_size = size;
+	dyn_font_size = font_size;
 	cl_font	= CNeutrinoFonts::getInstance()->getDynFont(tmp_w, dyn_font_size, "", CNeutrinoFonts::FONT_STYLE_BOLD, CNeutrinoFonts::FONT_ID_INFOCLOCK);
 }
 

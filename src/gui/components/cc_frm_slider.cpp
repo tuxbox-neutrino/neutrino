@@ -97,17 +97,18 @@ void CComponentsSlider::setValueScale(const int& min_value, const int& max_value
 void CComponentsSlider::initCCSlBody()
 {
 	if (!csl_body_icon.empty()){
-		printf("[CComponentsSlider]    [%s]  missing or undefinied slider body icon  %s\n", __func__, csl_body_icon.c_str());
 		if (csl_body_obj == NULL){
-			csl_body_obj = new CComponentsPicture(0, 0, 0, height, csl_body_icon);
+			csl_body_obj = new CComponentsPicture(0, 0, 0, 0, csl_body_icon);
 			csl_body_obj->doPaintBg(false);
 			addCCItem(csl_body_obj);
 		}
 		else
 			csl_body_obj->setPicture(csl_body_icon);
 	}
-	else 
+	else{
+		printf("[CComponentsSlider]    [%s]  missing or undefinied slider body icon  %s\n", __func__, csl_body_icon.c_str());
 		return;
+	}
 
 	//get first icon dimensions
 	int icon_w = csl_body_obj->getWidth();
@@ -127,7 +128,6 @@ void CComponentsSlider::initCCSlBody()
 void CComponentsSlider::initCCSlSlider()
 {
 	if (!csl_slider_icon.empty()){
-		printf("[CComponentsSlider]    [%s]  missing or undefinied slider icon  %s\n", __func__, csl_slider_icon.c_str());
 		if (csl_slider_obj == NULL){
 			csl_slider_obj = new CComponentsPicture(0, 0, 0, 0, csl_slider_icon);
 			csl_slider_obj->doPaintBg(false);
@@ -136,8 +136,10 @@ void CComponentsSlider::initCCSlSlider()
 		else
 			csl_slider_obj->setPicture(csl_slider_icon);
 	}
-	else 
+	else{
+		printf("[CComponentsSlider]    [%s]  missing or undefinied slider icon  %s\n", __func__, csl_slider_icon.c_str());
 		return;
+	}
 
 	//get first icon dimensions
 	int slider_w = csl_slider_obj->getWidth();
@@ -154,6 +156,12 @@ void CComponentsSlider::initCCSlSlider()
 void CComponentsSlider::initCCSlItems()
 {
 	initCCSlBody();
+	initCCSlSlider();
+}
+
+void CComponentsSlider::setSliderIcon(const std::string &icon_name)
+{
+	csl_slider_icon = icon_name;
 	initCCSlSlider();
 }
 

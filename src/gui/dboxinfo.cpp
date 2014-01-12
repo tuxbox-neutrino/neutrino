@@ -6,14 +6,6 @@
 
 	(C) 2009-2011, 2013-2014 Stefan Seyfried
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
-
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -191,10 +183,10 @@ static std::string bytes2string(uint64_t bytes, bool binary)
 	char result[80];
 
 	if (b < base)
-		snprintf(result, sizeof(result), "%d%s%02d ", (int)b, g_Locale->getText(LOCALE_UNIT_DECIMAL),
-			(int)((bytes - b * factor) * 100 / factor));
+		snprintf(result, sizeof(result), "%llu%s%02llu ", b, g_Locale->getText(LOCALE_UNIT_DECIMAL),
+			(bytes - b * factor) * 100 / factor);
 	else // no need for fractions for larger numbers
-		snprintf(result, sizeof(result), "%d ", (int)bytes);
+		snprintf(result, sizeof(result), "%llu ", b);
 
 	std::string res(result);
 	if (*unit) {
@@ -505,19 +497,16 @@ void CDBoxInfoWidget::paint()
 	int ypos_mnt_head = ypos;
 	ypos += mheight;
 
+	int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
+
 	for (std::map<std::string, bool>::iterator it = mounts.begin(); it != mounts.end(); ++it) {
 		struct statfs s;
 		if (::statfs((*it).first.c_str(), &s) == 0) {
 			if (s.f_blocks > 0) {
-				int percent_used;
-				uint64_t bytes_total;
-				uint64_t bytes_used;
-				uint64_t bytes_free;
-				bytes_total = s.f_blocks * s.f_bsize;
-				bytes_free  = s.f_bfree  * s.f_bsize;
-				bytes_used = bytes_total - bytes_free;
-				percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
-				int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
+				uint64_t bytes_total = s.f_blocks * s.f_bsize;
+				uint64_t bytes_free  = s.f_bfree  * s.f_bsize;
+				uint64_t bytes_used = bytes_total - bytes_free;
+				int percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
 				//paint mountpoints
 				for (int column = 0; column < headSize; column++) {
 					std::string tmp;

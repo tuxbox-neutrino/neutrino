@@ -85,7 +85,7 @@ CComponentsDetailLine::~CComponentsDetailLine()
 //paint details line with current parameters
 void CComponentsDetailLine::paint(bool do_save_bg)
 {
-	clear();
+	clearFbData();
 
 	int y_mark_top = y-h_mark_top/2+thickness/2;
 	int y_mark_down = y_down-h_mark_down/2+thickness/2;

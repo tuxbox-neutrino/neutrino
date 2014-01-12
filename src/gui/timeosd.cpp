@@ -63,10 +63,8 @@ void CTimeOSD::Init()
 	int x_old = x, y_old = y, width_old = width, height_old = height;
 	CVolumeHelper::getInstance()->refresh(cl_font);
 	CVolumeHelper::getInstance()->getTimeDimensions(&x, &y, &width, &height);
-	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height)) {
-		cleanCCForm();
-		clearCCItems();
-	}
+	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height))
+		clear();
 
 	// set corner radius depending on clock height
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
@@ -74,10 +72,13 @@ void CTimeOSD::Init()
 	initCCLockItems();
 }
 
+#if 0 //if hide() or kill() required, it's recommended to use it separately
 CTimeOSD::~CTimeOSD()
 {
-	hide();
+	CComponents::kill();
+	clear();
 }
+#endif
 
 void CTimeOSD::initTimeString()
 {
@@ -134,12 +135,10 @@ void CTimeOSD::switchMode(int position, int duration)
 			break;
 		case MODE_DESC:
 			m_mode = MODE_BAR;
-			kill();
+			CComponents::kill();
 			break;
 		case MODE_BAR:
-			m_mode = MODE_HIDE;
-			timescale.kill();
-			timescale.reset();
+			KillAndResetTimescale();
 			frameBuffer->blit();
 			return;
 		default:
@@ -149,13 +148,18 @@ void CTimeOSD::switchMode(int position, int duration)
 	update(position, duration);
 }
 
-void CTimeOSD::hide(void)
+void CTimeOSD::kill()
 {
 	if (m_mode != MODE_HIDE) {
-		m_mode = MODE_HIDE;
-		timescale.kill();
-		timescale.reset();
-		kill();
+		KillAndResetTimescale();
+		CComponents::kill();
 		frameBuffer->blit();
 	}
+}
+
+void CTimeOSD::KillAndResetTimescale()
+{
+	m_mode = MODE_HIDE;
+	timescale.kill();
+	timescale.reset();
 }

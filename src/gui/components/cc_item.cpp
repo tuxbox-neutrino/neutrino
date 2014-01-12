@@ -63,7 +63,7 @@ void CComponentsItem::initVarItem()
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(bool do_save_bg)
 {
-	clear();
+	clearFbData();
 
 	int th = fr_thickness;
 	fb_pixel_t col_frame_cur = col_frame;
