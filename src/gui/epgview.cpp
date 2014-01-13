@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2007-2012 Stefan Seyfried
+	Copyright (C) 2007-2014 Stefan Seyfried
 
 	License: GPL
 
@@ -48,6 +48,7 @@
 #include <zapit/bouquets.h>
 #include <zapit/getservices.h>
 #include <eitd/sectionsd.h>
+#include <timerdclient/timerdclient.h>
 
 extern CPictureViewer * g_PicViewer;
 

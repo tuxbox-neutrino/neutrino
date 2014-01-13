@@ -47,6 +47,8 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 
+#include <timerdclient/timerdclient.h>
+
 #include <driver/screen_max.h>
 #include <driver/record.h>
 

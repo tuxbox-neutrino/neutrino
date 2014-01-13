@@ -5,6 +5,8 @@
 							 and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2006-2014 Stefan Seyfried
+
 	Copyright (C) 2011 CoolStream International Ltd
 
 	License: GPL
@@ -108,7 +110,7 @@
 #include <system/helpers.h>
 #include <system/sysload.h>
 
-#include <timerdclient/timerdmsg.h>
+#include <timerdclient/timerdclient.h>
 
 #include <zapit/debug.h>
 #include <zapit/zapit.h>
