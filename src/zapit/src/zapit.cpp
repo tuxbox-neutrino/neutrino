@@ -1617,10 +1617,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 #endif
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
-		/* hack. if standby true, dont blank video */
-		standby = true;
-		StopPlayBack(true);
-		standby = false;
+		StopPlayBack(msgBool.truefalse, false);
 		playbackStopForced = true;
 		lock_channel_id = live_channel_id;
 		SendCmdReady(connfd);
@@ -2103,7 +2100,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 	return true;
 }
 
-bool CZapit::StopPlayBack(bool send_pmt)
+bool CZapit::StopPlayBack(bool send_pmt, bool blank)
 {
 	if(send_pmt)
 		CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
@@ -2122,7 +2119,7 @@ bool CZapit::StopPlayBack(bool send_pmt)
 	audioDecoder->Stop();
 
 	/* hack. if standby, dont blank video -> for paused timeshift */
-	videoDecoder->Stop(standby ? false : true);
+	videoDecoder->Stop(standby ? false : blank);
 #ifdef USE_VBI
 	videoDecoder->StopVBI();
 #endif
