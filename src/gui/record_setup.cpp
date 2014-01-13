@@ -231,6 +231,10 @@ int CRecordSetup::showRecordSetup()
 		CMenuOptionChooser* slow_warn = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SLOW_WARN, &g_settings.recording_slow_warning, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		slow_warn->setHint("", LOCALE_MENU_HINT_RECORD_SLOW_WARN);
 		recordingSettings->addItem(slow_warn);
+
+		CMenuOptionChooser* startstop_msg = new CMenuOptionChooser(LOCALE_RECORDING_STARTSTOP_MSG, &g_settings.recording_startstop_msg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		startstop_msg->setHint("", LOCALE_MENU_HINT_RECORD_STARTSTOP_MSG);
+		recordingSettings->addItem(startstop_msg);
 	}
 
 	//template

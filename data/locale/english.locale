@@ -1041,6 +1041,7 @@ menu.hint_record_data_vtxt VideoText stream
 menu.hint_record_dir Select directory to store recordings
 menu.hint_record_end Stop direct record after maximal time or after current event end time
 menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
+menu.hint_record_startstop_msg Turns the message when recording start/end on or off.
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
 menu.hint_record_time Record time before stop when\nusing direct record with record button
 menu.hint_record_timeafter Stop record after event end\nin minutes
@@ -1657,6 +1658,7 @@ rclock.title Lock Remote Control
 rclock.unlockmsg Remote control reactivated.
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
+recording.startstop_msg Message when recording is start/stop
 recording.stop Stop recording, please wait...!
 recording.time_hour hour
 recording.time_hours hours
