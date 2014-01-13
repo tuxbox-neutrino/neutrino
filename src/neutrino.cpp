@@ -2838,7 +2838,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 			}
 		}
-		if(( mode != mode_scart ) && ( mode != mode_standby )){
+		if(( mode != mode_scart ) && ( mode != mode_standby ) && g_settings.recording_startstop_msg) {
 			std::string name = g_Locale->getText(LOCALE_RECORDTIMER_ANNOUNCE);
 			getAnnounceEpgName(eventinfo, name);
 			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, name.c_str());
