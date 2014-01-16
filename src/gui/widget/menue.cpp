@@ -56,25 +56,29 @@ CMenuForwarder * const GenericMenuNext = &CGenericMenuNext;
 
 CMenuItem::CMenuItem()
 {
-	x = -1;
-	directKey = CRCInput::RC_nokey;
-	iconName = "";
+	x		= -1;
+	directKey	= CRCInput::RC_nokey;
+	iconName	= "";
 	iconName_Info_right = "";
-	used = false;
-	icon_frame_w = 10;
-	hint = NONEXISTANT_LOCALE;
-	isStatic = false;
+	used		= false;
+	icon_frame_w	= 10;
+	hint		= NONEXISTANT_LOCALE;
+	name		= NONEXISTANT_LOCALE;
+	nameString	= "";
+	isStatic	= false;
+	marked		= false;
+	inert		= false;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 {
-	x    = X;
-	y    = Y;
-	dx   = DX;
-	offx = OFFX;
-	name_start_x = x + offx + icon_frame_w;
-	item_color   = COL_MENUCONTENT_TEXT;
-	item_bgcolor = COL_MENUCONTENT_PLUS_0;
+	x		= X;
+	y		= Y;
+	dx		= DX;
+	offx		= OFFX;
+	name_start_x	= x + offx + icon_frame_w;
+	item_color	= COL_MENUCONTENT_TEXT;
+	item_bgcolor	= COL_MENUCONTENT_PLUS_0;
 }
 
 void CMenuItem::setActive(const bool Active)
@@ -83,6 +87,20 @@ void CMenuItem::setActive(const bool Active)
 	/* used gets set by the addItem() function. This is for disabling
 	   machine-specific options by just not calling the addItem() function.
 	   Without this, the changeNotifiers would become machine-dependent. */
+	if (used && x != -1)
+		paint();
+}
+
+void CMenuItem::setMarked(const bool Marked)
+{
+	marked = Marked;
+	if (used && x != -1)
+		paint();
+}
+
+void CMenuItem::setInert(const bool Inert)
+{
+	inert = Inert;
 	if (used && x != -1)
 		paint();
 }
@@ -102,10 +120,15 @@ void CMenuItem::initItemColors(const bool select_mode)
 		item_color   = COL_MENUCONTENTSELECTED_TEXT;
 		item_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
-	else if (!active)
+	else if (!active || inert)
 	{
 		item_color   = COL_MENUCONTENTINACTIVE_TEXT;
 		item_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
+	}
+	else if (marked)
+	{
+		item_color   = COL_MENUCONTENT_TEXT;
+		item_bgcolor = COL_MENUCONTENT_PLUS_1;
 	}
 	else
 	{
@@ -279,6 +302,13 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 		if (active  && icon_w>0 && icon_h>0)
 			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
 	}
+}
+
+const char *CMenuItem::getName(void)
+{
+	if (name != NONEXISTANT_LOCALE)
+		return g_Locale->getText(name);
+	return nameString.c_str();
 }
 
 //small helper class to manage values e.g.: handling needed but deallocated widget objects
@@ -1151,10 +1181,10 @@ void CMenuWidget::addKey(neutrino_msg_t key, CMenuTarget *menue, const std::stri
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ, const int print_offset, const int special_value, const neutrino_locale_t special_value_name, const char * non_localized_name, bool sliderOn)
+CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name1, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ, const int print_offset, const int special_value, const neutrino_locale_t special_value_name, const char * non_localized_name, bool sliderOn)
 {
 	height               = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	optionName           = name;
+	optionName           = name1;
 	active               = Active;
 	optionValue          = OptionValue;
 
@@ -1930,33 +1960,41 @@ CMenuDForwarderNonLocalized::~CMenuDForwarderNonLocalized()
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text, bool IsStatic)
 {
-	directKey = CRCInput::RC_nokey;
-	iconName = "";
-	type     = Type;
-	text     = Text;
-	isStatic = IsStatic;
+	directKey	= CRCInput::RC_nokey;
+	iconName	= "";
+	type		= Type;
+	name		= Text;
+	nameString	= "";
+	isStatic	= IsStatic;
 }
 
+CMenuSeparator::CMenuSeparator(const int Type, const std::string Text, bool IsStatic)
+{
+	directKey	= CRCInput::RC_nokey;
+	iconName	= "";
+	type		= Type;
+	name		= NONEXISTANT_LOCALE;
+	nameString	= Text;
+	isStatic	= IsStatic;
+}
 
 int CMenuSeparator::getHeight(void) const
 {
-	if (separator_text.empty() && text == NONEXISTANT_LOCALE)
+	if (nameString.empty() && name == NONEXISTANT_LOCALE)
 		return 10;
-	else
-		return  g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	return  g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 
-const char * CMenuSeparator::getString(void)
+void CMenuSeparator::setName(const std::string& t)
 {
-	if (!separator_text.empty())
-		return separator_text.c_str();
-	else	
-		return g_Locale->getText(text);
+	name = NONEXISTANT_LOCALE;
+	nameString = t;
 }
 
-void CMenuSeparator::setString(const std::string& s_text)
+void CMenuSeparator::setName(const neutrino_locale_t t)
 {
-	separator_text = s_text;
+	name = t;
+	nameString = "";
 }
 
 int CMenuSeparator::getWidth(void)
@@ -1964,11 +2002,9 @@ int CMenuSeparator::getWidth(void)
 	int w = 0;
 	if (type & LINE)
 		w = 30; /* 15 pixel left and right */
-	if ((type & STRING) && text != NONEXISTANT_LOCALE)
-	{
-		const char *l_text = getString();
-		w += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true);
-	}
+	const char *l_name = getName();
+	if ((type & STRING) && *l_name)
+		w += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name, true);
 	return w;
 }
 
@@ -1996,11 +2032,11 @@ int CMenuSeparator::paint(bool selected)
 	}
 	if ((type & STRING))
 	{
-		const char * l_text = getString();
+		const char * l_name = getName();
 	
-		if (text != NONEXISTANT_LOCALE || strlen(l_text) != 0)
+		if (*l_name)
 		{
-			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true); // UTF-8
+			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name, true); // UTF-8
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
@@ -2012,7 +2048,7 @@ int CMenuSeparator::paint(bool selected)
 			
  			frameBuffer->paintBoxRel(name_start_x-5, y, stringwidth+10, height, item_bgcolor);
 			
-			paintItemCaption(selected, height, l_text);
+			paintItemCaption(selected, height, l_name);
 		}
 	}
 	return y+ height;

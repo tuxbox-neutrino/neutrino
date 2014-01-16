@@ -491,7 +491,7 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 	CMenuSeparator * pm_subhead = new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING);
 	string 	s_sh = g_Locale->getText(LOCALE_PERSONALIZE_ACCESS);
 			s_sh += ": " + mn_name;
-	pm_subhead->setString(s_sh);
+	pm_subhead->setName(s_sh);
 	
 	pm->addItem(pm_subhead);
 	pm->addIntroItems();

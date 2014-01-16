@@ -45,6 +45,12 @@
 #include <string>
 #include <vector>
 
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
+
 #define NO_WIDGET_ID -1
 
 typedef int mn_widget_id_t;
@@ -90,16 +96,24 @@ class CMenuItem
 		fb_pixel_t item_color, item_bgcolor;
 		
 		void initItemColors(const bool select_mode);
-			
+		lua_State		*luaState;
+		std::string		luaAction;
+		std::string		luaId;
+		neutrino_locale_t	name;
+		std::string 		nameString;
+
 	public:
-		bool           	active;
+		bool			active;
+		bool			marked;
+		bool		inert;
 		bool		isStatic;
 		neutrino_msg_t 	directKey;
 		neutrino_msg_t 	msg;
-		std::string    	iconName;
-		std::string    	selected_iconName;
-		std::string    	iconName_Info_right;
+		std::string	iconName;
+		std::string	selected_iconName;
+		std::string	iconName_Info_right;
 		std::string	hintIcon;
+		std::string	hintText;
 		neutrino_locale_t hint;
 
 		CMenuItem();
@@ -130,6 +144,8 @@ class CMenuItem
 			return 0;
 		}
 		virtual void setActive(const bool Active);
+		virtual void setMarked(const bool Marked);
+		virtual void setInert(const bool Inert);
 		
 		virtual void paintItemButton(const bool select_mode, const int &item_height, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT);
 		
@@ -144,54 +160,42 @@ class CMenuItem
 		virtual void paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text=NULL, const char * right_text=NULL);
 
 		virtual int isMenueOptionChooser(void) const{return 0;}
-		void setHint(std::string icon, neutrino_locale_t text) { hintIcon = icon; hint = text; }
+		void setHint(const std::string icon, const neutrino_locale_t text) { hintIcon = icon; hint = text; }
+		void setHint(const std::string icon, const std::string text) { hintIcon = icon; hintText = text; }
+
+		void setLua(lua_State *_luaState, std::string &_luaAction, std::string &_luaId) { luaState = _luaState; luaAction = _luaAction; luaId = _luaId; };
+
+		virtual const char *getName();
 };
 
 class CMenuSeparator : public CMenuItem
 {
-		int               type;
-		std::string	  separator_text;
+		int type;
 
 	public:
-		neutrino_locale_t text;
 
 		enum
 		{
-			EMPTY =	0,
-			LINE =	1,
-			STRING =	2,
-			ALIGN_CENTER = 4,
-			ALIGN_LEFT =   8,
-			ALIGN_RIGHT = 16,
-			SUB_HEAD = 32
+			EMPTY		= 0,
+			LINE		= 1,
+			STRING		= 2,
+			ALIGN_CENTER	= 4,
+			ALIGN_LEFT	= 8,
+			ALIGN_RIGHT	= 16,
+			SUB_HEAD	= 32
 		};
 
 
 		CMenuSeparator(const int Type = 0, const neutrino_locale_t Text = NONEXISTANT_LOCALE, bool IsStatic = false);
+		CMenuSeparator(const int Type, const std::string Text, bool IsStatic = false);
 		virtual ~CMenuSeparator(){}
 
 		int paint(bool selected=false);
 		int getHeight(void) const;
 		int getWidth(void);
 
-		virtual const char * getString(void);
-		void setString(const std::string& text);
-};
-
-class CNonLocalizedMenuSeparator : public CMenuSeparator
-{
-	const char * the_text;
-
-public:
-	CNonLocalizedMenuSeparator(const char * ptext, const neutrino_locale_t Text1) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text1)
-	{
-		the_text = ptext;
-	}
-
-	virtual const char * getString(void)
-	{
-		return the_text;
-	}
+		void setName(const std::string& text);
+		void setName(const neutrino_locale_t text);
 };
 
 class CMenuForwarder : public CMenuItem
