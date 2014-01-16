@@ -571,7 +571,22 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
 
 			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
+		} else if (!epgTitle.empty()) {//if old eepgid removed
+			tmpstring = epgTitle;
+		} else if(CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgdata )){
+			tmpstring = epgdata.title;
+			info1 = epgdata.info1;
+			info2 = epgdata.info2;
+
+			recMovieInfo->parentalLockAge = epgdata.fsk;
+			if( !epgdata.contentClassification.empty() )
+				recMovieInfo->genreMajor = epgdata.contentClassification[0];
+
+			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
+
+			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
 		}
+
 	} else if (!epgTitle.empty()) {
 		tmpstring = epgTitle;
 	}
