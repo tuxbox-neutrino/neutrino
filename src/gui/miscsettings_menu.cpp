@@ -111,7 +111,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 				// e.g. vtxt-plugins
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, new COnekeyPluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
+				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new COnekeyPluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
 				cnt++;
 			}
 		}
@@ -265,7 +265,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	//CPU
 	CMenuWidget misc_menue_cpu("CPU", NEUTRINO_ICON_SETTINGS, width);
 	showMiscSettingsMenuCPUFreq(&misc_menue_cpu);
-	misc_menue.addItem( new CMenuForwarderNonLocalized("CPU", true, NULL, &misc_menue_cpu, NULL, CRCInput::RC_4));
+	misc_menue.addItem( new CMenuForwarder("CPU", true, NULL, &misc_menue_cpu, NULL, CRCInput::RC_4));
 #endif /*CPU_FREQ*/
 
 	int res = misc_menue.exec(NULL, "");
@@ -357,7 +357,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	ms_energy->addItem(m1);
 	ms_energy->addItem(m2);
 
-	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget, "permanent");
+	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget(true));
 	m2->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
 	ms_energy->addItem(m2);
 

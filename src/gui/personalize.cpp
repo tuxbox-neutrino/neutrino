@@ -324,7 +324,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	}
 
 	//personalized menues
-	CMenuForwarderNonLocalized *p_mn[widget_count];
+	CMenuForwarder *p_mn[widget_count];
 	for (int i = 0; i<(widget_count); i++)
 	{
 		ostringstream i_str;
@@ -332,7 +332,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 		string s(i_str.str());
 		string action_key = s;
 		string mn_name = v_widget[i]->getName();
-		p_mn[i] = new CMenuForwarderNonLocalized(mn_name.c_str(), true, NULL, this, action_key.c_str(), CRCInput::convertDigitToKey(i+1));
+		p_mn[i] = new CMenuForwarder(mn_name.c_str(), true, NULL, this, action_key.c_str(), CRCInput::convertDigitToKey(i+1));
 		pMenu->addItem(p_mn[i]);
 	}
 	
@@ -467,7 +467,7 @@ void CPersonalizeGui::ShowPluginMenu(CMenuWidget* p_widget)
 	{
 		if( g_PluginList->getType(i)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(i)) //don't show hidden plugins an games
 		{
-			p_widget->addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(i), true, g_PluginList->getDescription(i), NULL, NULL, getShortcut(d_key)));
+			p_widget->addItem(new CMenuForwarder(g_PluginList->getName(i), true, g_PluginList->getDescription(i), NULL, NULL, getShortcut(d_key)));
 			d_key++;
 		}
 	}

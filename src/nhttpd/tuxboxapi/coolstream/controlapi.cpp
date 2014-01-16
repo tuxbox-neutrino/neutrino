@@ -2006,9 +2006,9 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 		hh->printf("\t\t\t\t<count>%s</count>\n",zRepCount.c_str());
 		hh->printf("\t\t\t\t<number>%d</number>\n",(int)timer->eventRepeat);
 		hh->printf("\t\t\t\t<text>%s</text>\n",zRep.c_str());
-		char weekdays[8]= {0};
+		std::string weekdays;
 		NeutrinoAPI->Timerd->setWeekdaysToStr(timer->eventRepeat, weekdays);
-		hh->printf("\t\t\t\t<weekdays>%s</weekdays>\n",weekdays);
+		hh->printf("\t\t\t\t<weekdays>%s</weekdays>\n", weekdays.c_str());
 		hh->WriteLn("\t\t\t</repeat>\n");
 
 		// channel infos
@@ -2354,7 +2354,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 	else // default: no repeat
 		rep = (CTimerd::CTimerEventRepeat)0;
 	if(((int)rep) >= ((int)CTimerd::TIMERREPEAT_WEEKDAYS) && hh->ParamList["wd"] != "")
-		NeutrinoAPI->Timerd->getWeekdaysFromStr(&rep, hh->ParamList["wd"].c_str());
+		NeutrinoAPI->Timerd->getWeekdaysFromStr(&rep, hh->ParamList["wd"]);
 
 	// apids
 	bool changeApids=false;

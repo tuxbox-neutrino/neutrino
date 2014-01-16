@@ -129,9 +129,9 @@ void CThemes::readThemes(CMenuWidget &themes)
 					*pos = '\0';
 					if ( p == 1 ) {
 						userThemeFile = "{U}" + (std::string)file;
-						oj = new CMenuForwarderNonLocalized((char*)file, true, "", this, userThemeFile.c_str());
+						oj = new CMenuForwarder((char*)file, true, "", this, userThemeFile.c_str());
 					} else
-						oj = new CMenuForwarderNonLocalized((char*)file, true, "", this, file);
+						oj = new CMenuForwarder((char*)file, true, "", this, file);
 					themes.addItem( oj );
 				}
 				free(themelist[count]);

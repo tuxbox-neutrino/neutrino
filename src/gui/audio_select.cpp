@@ -111,7 +111,7 @@ int CAudioSelectMenuHandler::doMenu ()
 	{
 		char apid[5];
 		sprintf(apid, "%d", i);
-		CMenuForwarderNonLocalized *fw = new CMenuForwarderNonLocalized(g_RemoteControl->current_PIDs.APIDs[i].desc, 
+		CMenuForwarder *fw = new CMenuForwarder(g_RemoteControl->current_PIDs.APIDs[i].desc,
 				true, NULL, this, apid, CRCInput::convertDigitToKey(i + 1));
 		fw->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		AudioSelector.addItem(fw, (i == g_RemoteControl->current_PIDs.PIDs.selected_apid));
@@ -156,7 +156,7 @@ int CAudioSelectMenuHandler::doMenu ()
 				snprintf(spid,sizeof(spid), "DVB:%d", sd->pId);
 				char item[64];
 				snprintf(item,sizeof(item), "DVB: %s (pid %x)", sd->ISO639_language_code.c_str(), sd->pId);
-				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
+				AudioSelector.addItem(new CMenuForwarder(item /*sd->ISO639_language_code.c_str()*/,
 							sd->pId != dvbsub_getpid(), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++shortcut_num)));
 			}
 			if (s->thisSubType == CZapitAbsSub::TTX)
@@ -174,7 +174,7 @@ int CAudioSelectMenuHandler::doMenu ()
 				snprintf(spid,sizeof(spid), "TTX:%d:%03X:%s", sd->pId, page, sd->ISO639_language_code.c_str());
 				char item[64];
 				snprintf(item,sizeof(item), "TTX: %s (pid %x page %03X)", sd->ISO639_language_code.c_str(), sd->pId, page);
-				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
+				AudioSelector.addItem(new CMenuForwarder(item /*sd->ISO639_language_code.c_str()*/,
 							!tuxtx_subtitle_running(&pid, &page, NULL), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++shortcut_num)));
 			}
 		}

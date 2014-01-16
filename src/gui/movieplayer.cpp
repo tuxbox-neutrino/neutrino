@@ -994,7 +994,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 
 		char cnt[5];
 		sprintf(cnt, "%d", count);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
+		CMenuForwarder * item = new CMenuForwarder(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		APIDSelector.addItem(item, defpid);
 	}
 
@@ -1326,7 +1326,7 @@ void CMoviePlayerGui::selectChapter()
 	char cnt[5];
 	for (unsigned i = 0; i < positions.size(); i++) {
 		sprintf(cnt, "%d", i);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
+		CMenuForwarder * item = new CMenuForwarder(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
 		ChSelector.addItem(item, position > positions[i]);
 	}
 	ChSelector.exec(NULL, "");
@@ -1361,7 +1361,7 @@ void CMoviePlayerGui::selectSubtitle()
 			title = pidnumber;
 		}
 		sprintf(cnt, "%d", count);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
+		CMenuForwarder * item = new CMenuForwarder(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		item->setItemButton(NEUTRINO_ICON_BUTTON_STOP, false);
 		APIDSelector.addItem(item, defpid);
 	}

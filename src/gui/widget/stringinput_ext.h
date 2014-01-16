@@ -180,7 +180,6 @@ class CDateInput : public CExtendedInput
 	public:
 		CDateInput(const neutrino_locale_t Name, time_t* Time, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ = NULL);
 		~CDateInput();
-		char* getValue() {return value;}
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -230,9 +229,6 @@ class CIntInput : public CExtendedInput
 		 *@param Size how many digits can be entered
 		 */
 		CIntInput(const neutrino_locale_t Name, int& Value, const unsigned int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ = NULL);
-		char* getValue() {
-			return myValueStringOutput;
-		}
 		void updateValue() { onBeforeExec(); }
 };
 

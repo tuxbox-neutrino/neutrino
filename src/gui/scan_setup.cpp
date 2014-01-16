@@ -412,7 +412,7 @@ int CScanSetup::showScanMenu()
 
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuDForwarderNonLocalized(autoscan, true, NULL, autoScan, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
@@ -458,7 +458,7 @@ int CScanSetup::showScanMenu()
 
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuDForwarderNonLocalized(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_red, have_sat ? NULL : NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_red, have_sat ? NULL : NEUTRINO_ICON_BUTTON_RED);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
@@ -558,7 +558,7 @@ int CScanSetup::showScanMenuFrontendSetup()
 
 		modestr[i] = g_Locale->getText(getModeLocale(fe->getMode()));
 
-		mf = new CMenuForwarderNonLocalized(name, allow_start, modestr[i], this, tmp, key, icon);
+		mf = new CMenuForwarder(name, allow_start, modestr[i], this, tmp, key, icon);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SETUP_FE);
 		setupMenu->addItem(mf);
 		if(i != 0)
@@ -849,7 +849,7 @@ int CScanSetup::showScanMenuLnbSetup()
 		char opt[100];
 		sprintf(opt, "diseqc %2d / rotor %2d", sit->second.diseqc+1, sit->second.motor_position);
 		satoptions.push_back(opt);
-		CMenuForwarder * mf = new CMenuForwarderNonLocalized(satname.c_str(), true, satoptions[count].c_str(), tempsat);
+		CMenuForwarder * mf = new CMenuForwarder(satname.c_str(), true, satoptions[count].c_str(), tempsat);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_LNBCONFIG);
 		sat_setup->addItem(mf);
 		satmf.push_back(mf);
@@ -1535,7 +1535,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 			old_selected = i;
 
 		std::string tname = t.description();
-		CMenuForwarderNonLocalized * ts_item = new CMenuForwarderNonLocalized(tname.c_str(), true, NULL, selector, cnt, CRCInput::RC_nokey, NULL)/*, false*/;
+		CMenuForwarder * ts_item = new CMenuForwarder(tname.c_str(), true, NULL, selector, cnt, CRCInput::RC_nokey, NULL)/*, false*/;
 
 		ts_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		menu.addItem(ts_item, old_selected == i);

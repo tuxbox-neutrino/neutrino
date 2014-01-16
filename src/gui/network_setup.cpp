@@ -233,7 +233,7 @@ int CNetworkSetup::showNetworkSetup()
 	m0->setHint("", LOCALE_MENU_HINT_NET_SETUPNOW);
 
 	//eth id
-	CMenuForwarder *mac = new CMenuForwarderNonLocalized("MAC", false, mac_addr);
+	CMenuForwarder *mac = new CMenuForwarder("MAC", false, mac_addr);
 
 	//prepare input entries
 	CIPInput networkSettings_NetworkIP(LOCALE_NETWORKMENU_IPADDRESS , network_address   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, this);
@@ -828,7 +828,7 @@ int CNetworkSetup::showWlanList()
 		const char * icon = NULL;
 		if (networks[i].encrypted)
 			icon = NEUTRINO_ICON_LOCK;
-		CMenuForwarderNonLocalized * net = new CMenuForwarderNonLocalized(networks[i].ssid.c_str(), true, option[i], selector, cnt, CRCInput::RC_nokey, NULL, icon);
+		CMenuForwarder * net = new CMenuForwarder(networks[i].ssid.c_str(), true, option[i], selector, cnt, CRCInput::RC_nokey, NULL, icon);
 		net->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		wlist.addItem(net, networks[i].ssid == network_ssid);
 	}

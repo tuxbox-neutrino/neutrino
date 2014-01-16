@@ -183,7 +183,7 @@ int CNFSMountGui::menu()
 	{
 		sprintf(s2,"mountentry%d",i);
 		ISO_8859_1_entry[i] = ZapitTools::UTF8_to_Latin1(m_entry[i].c_str());
-		mountMenuEntry[i] = new CMenuForwarderNonLocalized("", true, ISO_8859_1_entry[i], this, s2);
+		mountMenuEntry[i] = new CMenuForwarder("", true, ISO_8859_1_entry[i], this, s2);
 		if (!i)
 			menu_offset = mountMenuW.getItemsCount();
 		
@@ -324,7 +324,7 @@ int CNFSUmountGui::menu()
 			s1 += it->mountPoint;
 			std::string s2 = "doumount ";
 			s2 += it->mountPoint;
-			CMenuForwarder *forwarder = new CMenuForwarderNonLocalized(s1.c_str(), true, NULL, this, s2.c_str());
+			CMenuForwarder *forwarder = new CMenuForwarder(s1.c_str(), true, NULL, this, s2.c_str());
 			forwarder->iconName = NEUTRINO_ICON_MOUNTED;
 			umountMenu.addItem(forwarder);
 		}

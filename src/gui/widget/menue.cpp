@@ -39,6 +39,7 @@
 
 #include <neutrino_menue.h>
 #include <driver/fade.h>
+#include <system/helpers.h>
 
 #include <cctype>
 
@@ -174,14 +175,12 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ item_height, _dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
 
 	//right text
-	if (right_text || right_bgcol)
+	if (right_text && (*right_text || right_bgcol))
 	{
-		int stringwidth = 0;
-		if (right_text)
-			stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
+		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
 		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + icon_frame_w, x + dx - stringwidth - icon_frame_w); //+ offx
 		if (right_bgcol) {
-			if (!right_text)
+			if (!*right_text)
 				stringstartposOption -= 60;
 			fb_pixel_t right_frame_col, right_bg_col;
 			if (active) {
@@ -197,7 +196,7 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 			col.setCorner(RADIUS_LARGE);
 			col.paint(false);
 		}
-		if (right_text) {
+		if (*right_text) {
 			stringstartposOption -= (icon_w == 0 ? 0 : icon_w + icon_frame_w);
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
 		}
@@ -1457,7 +1456,7 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 			else
 				l_option = g_Locale->getText(options[count].value);
 			sprintf(cnt, "%d", count);
-			CMenuForwarderNonLocalized *mn_option = new CMenuForwarderNonLocalized(l_option, true, NULL, selector, cnt);
+			CMenuForwarder *mn_option = new CMenuForwarder(l_option, true, NULL, selector, to_string(count).c_str());
 			mn_option->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true /*for selected item*/);
 			menu->addItem(mn_option, selected);
 		}
@@ -1640,7 +1639,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 			if (strcmp(options[count].c_str(), optionValue) == 0)
 				selected = true;
 			sprintf(cnt, "%d", count);
-			CMenuForwarderNonLocalized *mn_option = new CMenuForwarderNonLocalized(options[count].c_str(), true, NULL, selector, cnt);
+			CMenuForwarder *mn_option = new CMenuForwarder(options[count], true, NULL, selector, to_string(count).c_str());
 			mn_option->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true /*for selected item*/);
 			menu->addItem(mn_option, selected);
 		}
@@ -1757,25 +1756,11 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
-{
-	option = Option;
-	option_string = NULL;
-	text=Text;
-	active = Active;
-	jumpTarget = Target;
-	actionKey = ActionKey ? ActionKey : "";
-	directKey = DirectKey;
-	iconName = IconName ? IconName : "";
-	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
-	isStatic = IsStatic;
-}
-
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	option = NULL;
-	option_string = &Option;
-	text=Text;
+	option_string_ptr = &Option;
+	name = Text;
+	nameString = "";
 	active = Active;
 	jumpTarget = Target;
 	actionKey = ActionKey ? ActionKey : "";
@@ -1785,20 +1770,65 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 	isStatic = IsStatic;
 }
 
-void CMenuForwarder::setOption(const char * const Option)
+CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	option = Option;
-	option_string = NULL;
-	if (used && x != -1)
-		paint();
+	option_string_ptr = &Option;
+	name = NONEXISTANT_LOCALE;
+	nameString = Text;
+	active = Active;
+	jumpTarget = Target;
+	actionKey = ActionKey ? ActionKey : "";
+	directKey = DirectKey;
+	iconName = IconName ? IconName : "";
+	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
+	isStatic = IsStatic;
+}
+
+CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+{
+	option_string = Option ? Option : "";
+	option_string_ptr = &option_string;
+	name = Text;
+	nameString = "";
+	active = Active;
+	jumpTarget = Target;
+	actionKey = ActionKey ? ActionKey : "";
+	directKey = DirectKey;
+	iconName = IconName ? IconName : "";
+	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
+	isStatic = IsStatic;
+}
+
+CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
+{
+	option_string = Option ? Option : "";
+	option_string_ptr = &option_string;
+	name = NONEXISTANT_LOCALE;
+	nameString = Text;
+	active = Active;
+	jumpTarget = Target;
+	actionKey = ActionKey ? ActionKey : "";
+	directKey = DirectKey;
+	iconName = IconName ? IconName : "";
+	iconName_Info_right = IconName_Info_right ? IconName_Info_right : "";
+	isStatic = IsStatic;
+}
+
+void CMenuForwarder::setName(const std::string& t)
+{
+	name = NONEXISTANT_LOCALE;
+	nameString = t;
+}
+
+void CMenuForwarder::setName(const neutrino_locale_t t)
+{
+	name = t;
+	nameString = "";
 }
 
 void CMenuForwarder::setOption(const std::string &Option)
 {
-	option = NULL;
-	option_string = &Option;
-	if (used && x != -1)
-		paint();
+	option_string = Option;
 }
 
 int CMenuForwarder::getHeight(void) const
@@ -1806,32 +1836,18 @@ int CMenuForwarder::getHeight(void) const
 	return g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 
-// used gets set by the addItem() function. This is for set to paint Text from locales by just not calling the addItem() function.
-// Without this, the changeNotifiers would become machine-dependent.
-void CMenuForwarder::setTextLocale(const neutrino_locale_t Text)
-{
-	text=Text;
-
-	if (used && x != -1)
-		paint();
-}
-
 int CMenuForwarder::getWidth(void)
 {
-	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(text), true);
-	const char * option_text = NULL;
-
-	if (option)
-		option_text = option;
-	else if (option_string)
-		option_text = option_string->c_str();
+	const char *_name = (name == NONEXISTANT_LOCALE) ? nameString.c_str() : g_Locale->getText(name);
+	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(_name, true);
 
 	fb_pixel_t bgcol = 0;
+	std::string option_name = getOption();
 	if (jumpTarget)
 		bgcol = jumpTarget->getColor();
 
-	if (option_text != NULL)
-		tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
+	if (!option_name.empty())
+		tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_name.c_str(), true);
 	else if (bgcol)
 		tw += 10 + 60;
 
@@ -1850,28 +1866,21 @@ int CMenuForwarder::exec(CMenuTarget* parent)
 	}
 }
 
-const char * CMenuForwarder::getOption(void)
+std::string CMenuForwarder::getOption(void)
 {
-	if (option)
-		return option;
-	if (option_string)
-		return option_string->c_str();
+	if (!option_string_ptr->empty())
+		return *option_string_ptr;
 	if (jumpTarget)
-		return jumpTarget->getTargetValue();
-	return NULL;
-}
-
-const char * CMenuForwarder::getName(void)
-{
-	return g_Locale->getText(text);
+		return jumpTarget->getValue();
+	return "";
 }
 
 int CMenuForwarder::paint(bool selected)
 {
 	int height = getHeight();
- 	const char * l_text = getName();
+	const char * l_name = getName();
  
- 	const char * option_text = getOption();
+	std::string option_name = getOption();
 	fb_pixel_t bgcol = 0;
 	if (jumpTarget)
 		bgcol = jumpTarget->getColor();
@@ -1883,78 +1892,9 @@ int CMenuForwarder::paint(bool selected)
 	paintItemButton(selected, height);
 	
 	//caption
-	paintItemCaption(selected, height, l_text, option_text, bgcol);
+	paintItemCaption(selected, height, l_name, option_name.c_str(), bgcol);
 	
 	return y+ height;
-}
-
-CMenuDForwarder::CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
-	: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
-{
-}
-
-CMenuDForwarder::CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
-	: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
-{
-}
-
-CMenuDForwarder::~CMenuDForwarder()
-{
-	delete jumpTarget;
-}
-
-//-------------------------------------------------------------------------------------------------------------------------------
-const char * CMenuForwarderNonLocalized::getName(void)
-{
-	return the_text.c_str();
-}
-
-CMenuForwarderNonLocalized::CMenuForwarderNonLocalized(const char * const Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right) : CMenuForwarder(NONEXISTANT_LOCALE, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
-{
-	the_text = Text;
-}
-
-CMenuForwarderNonLocalized::CMenuForwarderNonLocalized(const char * const Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right) : CMenuForwarder(NONEXISTANT_LOCALE, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
-{
-	the_text = Text;
-}
-
-// used gets set by the addItem() function. This is for set to paint non localized Text by just not calling the addItem() function.
-// Without this, the changeNotifiers would become machine-dependent.
-void CMenuForwarderNonLocalized::setText(const char * const Text)
-{
-	the_text = Text;
-
-	if (used && x != -1)
-		paint();
-}
-
-int CMenuForwarderNonLocalized::getWidth(void)
-{
-	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(the_text, true);
-	const char * option_text = NULL;
-	if (option)
-		option_text = option;
-	else if (option_string)
-		option_text = option_string->c_str();
-
-        if (option_text != NULL)
-                tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
-
-	return tw;
-}
-
-CMenuDForwarderNonLocalized::CMenuDForwarderNonLocalized(const char * const Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right) : CMenuForwarderNonLocalized(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
-{
-}
-
-CMenuDForwarderNonLocalized::CMenuDForwarderNonLocalized(const char * const Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right) : CMenuForwarderNonLocalized(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
-{
-}
-
-CMenuDForwarderNonLocalized::~CMenuDForwarderNonLocalized()
-{
-	delete jumpTarget;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------

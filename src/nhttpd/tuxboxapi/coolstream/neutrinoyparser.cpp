@@ -981,7 +981,7 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 		string_printf("<option value=\"%d\" %s>%s</option>\n",(int)CTimerd::TIMERREPEAT_WEEKDAYS, sel.c_str(), zRep.c_str());
 
 	// Weekdays
-	char weekdays[8];
+	std::string weekdays;
 	NeutrinoAPI->Timerd->setWeekdaysToStr(timer.eventRepeat, weekdays);
 	hh->ParamList["weekdays"]=	 weekdays;
 

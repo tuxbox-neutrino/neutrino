@@ -162,7 +162,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	SelectionWidget.addItem(GenericMenuBack);
 	SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::LINE));
 
-	SelectionWidget.addItem(new CMenuForwarderNonLocalized(current, false));
+	SelectionWidget.addItem(new CMenuForwarder(current, false));
 	std::ifstream urlFile(g_settings.softupdate_url_file);
 #ifdef DEBUG
 	printf("[update] file %s\n", g_settings.softupdate_url_file);
@@ -230,10 +230,10 @@ bool CFlashUpdate::selectHttpImage(void)
 
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
 
-				//SelectionWidget.addItem(new CMenuForwarderNonLocalized(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
+				//SelectionWidget.addItem(new CMenuForwarder(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
 				CUpdateMenuTarget * up = new CUpdateMenuTarget(i, &selected);
 				update_t_list.push_back(up);
-				SelectionWidget.addItem(new CMenuForwarderNonLocalized(descriptions[i].c_str(), enabled, names[i].c_str(), up));
+				SelectionWidget.addItem(new CMenuForwarder(descriptions[i].c_str(), enabled, names[i].c_str(), up));
 				i++;
 			}
 		}
@@ -814,7 +814,7 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 			enabled = false;
 		// build jffs2 image from root0
 		if ((actionkey == "readmtd") && (lx == mtdInfo->findMTDNumberFromName("root0"))) {
-			CMenuForwarder *mf = new CMenuDForwarderNonLocalized("root0", true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
+			CMenuForwarder *mf = new CMenuDForwarder("root0", true, NULL, new CFlashExpertSetup(), NULL, CRCInput::convertDigitToKey(shortcut++));
 			mtdselector->addItem(mf);
 			continue;
 		}
@@ -824,11 +824,11 @@ int CFlashExpert::showMTDSelector(const std::string & actionkey)
 			enabled = false;
 #endif
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
-		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
+		mtdselector->addItem(new CMenuForwarder(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
 #ifndef BOXMODEL_APOLLO
 	if (actionkey == "writemtd")
-		mtdselector->addItem(new CMenuForwarderNonLocalized("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
+		mtdselector->addItem(new CMenuForwarder("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
 #endif
 	int res = mtdselector->exec(NULL,"");
 	delete mtdselector;
@@ -855,7 +855,7 @@ int CFlashExpert::showFileSelector(const std::string & actionkey)
 			int pos = filen.find(".img");
 			if(pos!=-1)
 			{
-				fileselector->addItem(new CMenuForwarderNonLocalized(filen.c_str(), true, NULL, this, (actionkey + filen).c_str()));
+				fileselector->addItem(new CMenuForwarder(filen.c_str(), true, NULL, this, (actionkey + filen).c_str()));
 				//TODO  make sure filen is UTF-8 encoded
 			}
 			free(namelist[count]);

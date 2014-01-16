@@ -1450,7 +1450,7 @@ bool CRecordManager::ShowMenu(void)
 {
 	int select = -1, rec_count = recmap.size();
 	char cnt[5];
-	CMenuForwarderNonLocalized * item;
+	CMenuForwarder * item;
 	CMenuForwarder * iteml;
 	t_channel_id channel_ids[RECORD_MAX_COUNT] = { 0 };	/* initialization avoids false "might */
 	int recording_ids[RECORD_MAX_COUNT] = { 0 };		/* be used uninitialized" warning */
@@ -1508,7 +1508,7 @@ bool CRecordManager::ShowMenu(void)
 				rc_key = CRCInput::RC_stop;
 				btn_icon = NEUTRINO_ICON_BUTTON_STOP;
 			}
-			item = new CMenuForwarderNonLocalized(title.c_str(), true, durations[i].c_str(), selector, cnt, rc_key, NULL, mode_icon);
+			item = new CMenuForwarder(title.c_str(), true, durations[i].c_str(), selector, cnt, rc_key, NULL, mode_icon);
 			item->setItemButton(btn_icon, true);
 
 			//if only one recording is running, set the focus to this menu item

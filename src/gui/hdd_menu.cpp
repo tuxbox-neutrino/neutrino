@@ -242,7 +242,7 @@ int CHDDMenuHandler::doMenu ()
 		tempMenu[i]->addItem(mf);
 
 		snprintf(sstr, sizeof(sstr), "%s (%s)", g_Locale->getText(LOCALE_HDD_REMOVABLE_DEVICE),  namelist[i]->d_name);
-		mf = new CMenuForwarderNonLocalized((removable ? sstr : namelist[i]->d_name), enabled, tmp_str[i], tempMenu[i]);
+		mf = new CMenuForwarder((removable ? sstr : namelist[i]->d_name), enabled, tmp_str[i], tempMenu[i]);
 		mf->setHint("", LOCALE_MENU_HINT_HDD_TOOLS);
 		hddmenu->addItem(mf);
 

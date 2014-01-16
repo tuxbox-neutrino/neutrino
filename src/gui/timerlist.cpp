@@ -88,12 +88,12 @@ private:
 	CMenuItem* m4;
 	CMenuItem* m5;
 	CMenuItem* m6;
-	char* display;
+	std::string * display;
 	int* iType;
 	time_t* stopTime;
 public:
 	CTimerListNewNotifier( int* Type, time_t* time,CMenuItem* a1, CMenuItem* a2,
-			       CMenuItem* a3, CMenuItem* a4, CMenuItem* a5, CMenuItem* a6,char* d)
+			       CMenuItem* a3, CMenuItem* a4, CMenuItem* a5, CMenuItem* a6, std::string *d)
 	{
 		m1 = a1;
 		m2 = a2;
@@ -112,16 +112,18 @@ public:
 		{
 			*stopTime=(time(NULL)/60)*60;
 			struct tm *tmTime2 = localtime(stopTime);
-			sprintf( display, "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
+			char disp[40];
+			snprintf(disp, sizeof(disp), "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
 				 tmTime2->tm_year+1900,
 				 tmTime2->tm_hour, tmTime2->tm_min);
+			*display = std::string(disp);
 			m1->setActive(true);
 			m6->setActive((g_settings.recording_type == RECORDING_FILE));
 		}
 		else
 		{
 			*stopTime=0;
-			strcpy(display,"                ");
+			*display = "                ";
 			m1->setActive (false);
 			m6->setActive(false);
 		}
@@ -158,9 +160,9 @@ private:
 	CMenuForwarder* m2;
 
 	int* iRepeat;
-	char * weekdays;
+	std::string * weekdays;
 public:
-	CTimerListRepeatNotifier( int* repeat, CMenuForwarder* a1, CMenuForwarder *a2, char * wstr)
+	CTimerListRepeatNotifier( int* repeat, CMenuForwarder* a1, CMenuForwarder *a2, std::string * wstr)
 	{
 		m1 = a1;
 		m2 = a2;
@@ -172,11 +174,11 @@ public:
 	{
 		if (*iRepeat >= (int)CTimerd::TIMERREPEAT_WEEKDAYS) {
 			m1->setActive (true);
-			strcpy(weekdays, "XXXXX--");
+			*weekdays = "XXXXX--";
 		}
 		else {
 			m1->setActive (false);
-			strcpy(weekdays, "-------");
+			*weekdays = "-------";
 		}
 		if (*iRepeat != (int)CTimerd::TIMERREPEAT_ONCE)
 			m2->setActive(true);
@@ -1081,13 +1083,13 @@ int CTimerList::modifyTimer()
 
 	Timer->setWeekdaysToStr(timer->eventRepeat, m_weekdaysStr);
 	timer->eventRepeat = (CTimerd::CTimerEventRepeat)(((int)timer->eventRepeat) & 0x1FF);
-	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
+	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, ((int)timer->eventRepeat) >= (int)CTimerd::TIMERREPEAT_WEEKDAYS, m_weekdaysStr, &timerSettings_weekdays );
 	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int&)timer->repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
 
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, timer->eventRepeat != (int)CTimerd::TIMERREPEAT_ONCE ,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
-	CTimerListRepeatNotifier notifier((int *)&timer->eventRepeat,m4,m5, m_weekdaysStr);
+	CTimerListRepeatNotifier notifier((int *)&timer->eventRepeat,m4,m5, &m_weekdaysStr);
 	CMenuOptionChooser* m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timer->eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
 
 //printf("TIMER: rec dir %s len %s\n", timer->recordingDir, strlen(timer->recordingDir));
@@ -1162,14 +1164,14 @@ int CTimerList::newTimer()
 	CDateInput timerSettings_stopTime(LOCALE_TIMERLIST_STOPTIME, &(timerNew.stopTime) , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CMenuForwarder *m2 = new CMenuForwarder(LOCALE_TIMERLIST_STOPTIME, true, timerSettings_stopTime.getValue (), &timerSettings_stopTime );
 
-	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
+	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, false,  m_weekdaysStr, &timerSettings_weekdays);
 
 	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int&)timerNew.repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, false,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
-	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat,m4,m5, m_weekdaysStr);
-	strcpy(m_weekdaysStr,"XXXXX--");
+	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat,m4,m5, &m_weekdaysStr);
+	m_weekdaysStr = "XXXXX--";
 	CMenuOptionChooser* m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timerNew.eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
 
 
@@ -1188,20 +1190,20 @@ int CTimerList::newTimer()
 			for (int j = 0; j < (int) channels.size(); j++) {
 				char cChannelId[3+16+1+1];
 				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->channel_id);
-				mwtv->addItem(new CMenuForwarderNonLocalized(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
+				mwtv->addItem(new CMenuForwarder(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
 			}
 			if (!channels.empty())
-				mctv.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str() /*g_bouquetManager->Bouquets[i]->Name.c_str()*/, true, NULL, mwtv));
+				mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str() /*g_bouquetManager->Bouquets[i]->Name.c_str()*/, true, NULL, mwtv));
 
 
 			g_bouquetManager->Bouquets[i]->getRadioChannels(channels);
 			for (int j = 0; j < (int) channels.size(); j++) {
 				char cChannelId[3+16+1+1];
 				sprintf(cChannelId, "SC:" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS ",", channels[j]->channel_id);
-				mwradio->addItem(new CMenuForwarderNonLocalized(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
+				mwradio->addItem(new CMenuForwarder(channels[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channels[j]->getName()).c_str(), CRCInput::RC_nokey, NULL, channels[j]->scrambled ? NEUTRINO_ICON_SCRAMBLED : NULL));
 			}
 			if (!channels.empty())
-				mcradio.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwradio));
+				mcradio.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwradio));
 		}
 	}
 
@@ -1225,7 +1227,7 @@ int CTimerList::newTimer()
 
 	CTimerListNewNotifier notifier2((int *)&timerNew.eventType,
 					&timerNew.stopTime,m2,m6,m8,m9,m10,m7,
-					timerSettings_stopTime.getValue());
+					&timerSettings_stopTime.getValue());
 	CMenuOptionChooser* m0;
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 		m0 = new CMenuOptionChooser(LOCALE_TIMERLIST_TYPE, (int *)&timerNew.eventType, TIMERLIST_TYPE_OPTIONS, TIMERLIST_TYPE_OPTION_COUNT, true, &notifier2);

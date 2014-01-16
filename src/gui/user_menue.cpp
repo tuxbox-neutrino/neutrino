@@ -319,7 +319,7 @@ bool CUserMenu::showUserMenu(int button)
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					StreamFeaturesChanger     = new CStreamFeaturesChangeExec();
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
 
 					menu->addItem(menu_item, 0);
 					cnt++;

@@ -2977,7 +2977,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
         pBookItemMenu[li]->addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_POSITION, true,  pBookPosIntInput[li]->getValue(), pBookPosIntInput[li]));
         pBookItemMenu[li]->addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE,     true,  pBookTypeIntInput[li]->getValue(),pBookTypeIntInput[li]));
 
-        bookmarkMenu.addItem( new CMenuForwarderNonLocalized (movie_info->bookmarks.user[li].name.c_str(),   true, pBookPosIntInput[li]->getValue(),pBookItemMenu[li]));
+        bookmarkMenu.addItem( new CMenuForwarder (movie_info->bookmarks.user[li].name.c_str(),   true, pBookPosIntInput[li]->getValue(),pBookItemMenu[li]));
     }
 
 /********************************************************************/
@@ -3277,7 +3277,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 				position[menu_nr] = m_movieSelectionHandler->bookmarks.user[i].pos + m_movieSelectionHandler->bookmarks.user[i].length;
 
 			snprintf(book[i], 19,"%5d min",position[menu_nr]/60);
-			startPosSelectionMenu.addItem(new CMenuForwarderNonLocalized (m_movieSelectionHandler->bookmarks.user[i].name.c_str(), 	true, book[i]));
+			startPosSelectionMenu.addItem(new CMenuForwarder (m_movieSelectionHandler->bookmarks.user[i].name.c_str(), 	true, book[i]));
 			menu_nr++;
 		}
 	}
@@ -3692,7 +3692,7 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 		m->addItem(GenericMenuSeparatorLine);
 		std::list<std::string>::iterator it = settings->ytsearch_history.begin();
 		for (int i = 0; i < settings->ytsearch_history_size; i++, ++it)
-			m->addItem(new CMenuForwarderNonLocalized((*it).c_str(), true, NULL, this, (*it).c_str(), CRCInput::convertDigitToKey(i + 1)));
+			m->addItem(new CMenuForwarder((*it).c_str(), true, NULL, this, (*it).c_str(), CRCInput::convertDigitToKey(i + 1)));
 		m->exec(NULL, "");
 		m->hide();
 		delete m;
@@ -4131,7 +4131,7 @@ int CDirMenu::show(void)
     {
         snprintf(tmp, sizeof(tmp),"%d",i);
         tmp[1]=0;
-        dirMenu.addItem( new CMenuForwarderNonLocalized ( (*dirList)[i].name.c_str(),       (dirState[i] != DIR_STATE_UNKNOWN), dirOptionText[i],       this,tmp));
+        dirMenu.addItem( new CMenuForwarder ( (*dirList)[i].name.c_str(),       (dirState[i] != DIR_STATE_UNKNOWN), dirOptionText[i],       this,tmp));
     }
     int ret = dirMenu.exec(NULL," ");
     return ret;

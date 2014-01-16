@@ -161,14 +161,14 @@ int CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode
 			char cChannelId[60] = {0};
 			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode==CZapitClient::MODE_TV)?'T':'R', channel->number, channel->channel_id);
 
-			CMenuForwarderNonLocalized * chan_item = new CMenuForwarderNonLocalized(channel->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ?NEUTRINO_ICON_SCRAMBLED:NULL);
+			CMenuForwarder * chan_item = new CMenuForwarder(channel->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ?NEUTRINO_ICON_SCRAMBLED:NULL);
 			chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			mwtv->addItem(chan_item);
 
 		}
 		if(!channels.empty() && (!g_bouquetManager->Bouquets[i]->bHidden ))
 		{
-			mctv.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
+			mctv.addItem(new CMenuForwarder(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
 		}
 	}
 	int res = mctv.exec (NULL, "");

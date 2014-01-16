@@ -64,7 +64,7 @@ class CTimerList : public CMenuTarget
 		CTimerd::responseGetTimer timerNew;
 		int timerNew_standby_on;
 		char timerNew_channel_name[30];
-		char m_weekdaysStr[8];
+		std::string m_weekdaysStr;
 		
 		int timer_apids_dflt;
 		int timer_apids_std;

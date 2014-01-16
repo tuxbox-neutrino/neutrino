@@ -3621,7 +3621,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 				// zB vtxt-plugins
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, MoviePluginChanger, id, CRCInput::convertDigitToKey(count)), (cnt == 0));
+				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, MoviePluginChanger, id, CRCInput::convertDigitToKey(count)), (cnt == 0));
 				cnt++;
 			}
 		}
