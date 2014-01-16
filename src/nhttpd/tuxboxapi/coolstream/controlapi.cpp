@@ -1352,6 +1352,7 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 		CShortEPGData epg;
 		CEPGData longepg;
 		char tmpstr[256] ={0};
+		std::string genere;
 		CChannelEventList::iterator eventIterator;
 		unsigned int u_azeit = ( azeit > -1)? azeit:0;
 		for (eventIterator = evtlist.begin(); eventIterator != evtlist.end(); ++eventIterator){
@@ -1368,13 +1369,14 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 						hh->printf("\t\t<fsk>%u</fsk>\n", longepg.fsk);
 						if (longepg.contentClassification.length()> 0){
-							std::string genere = GetGenre(longepg.contentClassification[0]);
-							hh->printf("\t\t<genre>%s</genre>\n", ZapitTools::UTF8_to_UTF8XML(genere.c_str()).c_str());
+							genere = GetGenre(longepg.contentClassification[0]);
+							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
+							hh->printf("\t\t<genre>%s</genre>\n", genere.c_str());
 						}
 					}
 					strftime(tmpstr, sizeof(tmpstr), "%Y-%m-%d", tmStartZeit );
 					hh->printf("\t\t<date>%s</date>\n", tmpstr);
-					strftime(tmpstr, sizeof(tmpstr), ".  %H:%M", tmStartZeit );
+					strftime(tmpstr, sizeof(tmpstr), "%H:%M", tmStartZeit );
 					hh->printf("\t\t<time>%s</time>\n", tmpstr);
 					hh->printf("\t\t<duration>%d</duration>\n", eventIterator->duration);
 					hh->printf("\t\t\t<channel_id>" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "</channel_id>\n",eventIterator->channelID);
@@ -1396,6 +1398,14 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 						hh->WriteLn(epg.info1);
 					if(!epg.info2.empty())
 						hh->WriteLn(epg.info2);
+					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
+						hh->printf("fsk:%u\n", longepg.fsk);
+						if (longepg.contentClassification.length()> 0){
+							genere = GetGenre(longepg.contentClassification[0]);
+							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
+							hh->WriteLn(genere);
+						}
+					}
 					hh->WriteLn("----------------------------------------------------------");
 
 				}
