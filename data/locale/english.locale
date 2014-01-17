@@ -718,6 +718,7 @@ lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD Settings
 lcdmenu.lcdcontroler Brightness
+lcdmenu.scroll Enable text scroll
 lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
@@ -1175,6 +1176,7 @@ menu.hint_vfd_brightnessstandby Brightness in soft-standby mode
 menu.hint_vfd_defaults Restore default brightness values
 menu.hint_vfd_dimtime Auto-dim time, in seconds
 menu.hint_vfd_infoline Choose what to display in main VFD line
+menu.hint_vfd_scroll Enable or disable text scrolling on VFD
 menu.hint_vfd_statusline Choose what to display in short\nVFD status line
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
 menu.hint_video_43mode Display mode for 4:3 content\non 16:9 TV
