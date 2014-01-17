@@ -384,6 +384,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.backlight_tv = configfile.getInt32( "backlight_tv", 1);
 	g_settings.backlight_standby = configfile.getInt32( "backlight_standby", 0);
 	g_settings.backlight_deepstandby = configfile.getInt32( "backlight_deepstandby", 0);
+	g_settings.lcd_scroll = configfile.getInt32( "lcd_scroll", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
@@ -895,6 +896,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "backlight_tv", g_settings.backlight_tv);
 	configfile.setInt32( "backlight_standby", g_settings.backlight_standby);
 	configfile.setInt32( "backlight_deepstandby", g_settings.backlight_deepstandby);
+	configfile.setInt32( "lcd_scroll", g_settings.lcd_scroll);
 
 	//misc
 	configfile.setInt32( "power_standby", g_settings.power_standby);
@@ -3087,10 +3089,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
-			my_system("/etc/init.d/rcK");
-			sync();
-			my_system(2,"/bin/umount", "-a");
-			sleep(1);
 			{
 				fp_standby_data_t standby;
 				time_t mtime = time(NULL);
@@ -3129,6 +3127,11 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				standby.current_minute      = tmtime->tm_min;
 				standby.timer_minutes_hi    = fp_timer >> 8;;
 				standby.timer_minutes_lo    = fp_timer & 0xFF;
+
+				my_system("/etc/init.d/rcK");
+				sync();
+				my_system(2,"/bin/umount", "-a");
+				sleep(1);
 
 				stop_video();
 
