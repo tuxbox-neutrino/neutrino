@@ -148,6 +148,10 @@ int CVfdSetup::showSetup()
 	vfds->addItem(oj);
 	vfds->addItem(lcd_clock_channelname_menu);
 
+	oj = new CMenuOptionChooser(LOCALE_LCDMENU_SCROLL, &g_settings.lcd_scroll, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, vfd_enabled);
+	oj->setHint("", LOCALE_MENU_HINT_VFD_SCROLL);
+	vfds->addItem(oj);
+
 	int res = vfds->exec(NULL, "");
 
 	delete vfds;
