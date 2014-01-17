@@ -41,6 +41,9 @@
 #include <sys/stat.h> 
 
 #include <daemonc/remotecontrol.h>
+#include <system/helpers.h>
+#include <zapit/debug.h>
+
 #include <cs_api.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -697,29 +700,23 @@ void CVFD::ShowIcon(fp_icon icon, bool show)
 		perror(show ? "IOC_FP_SET_ICON" : "IOC_FP_CLEAR_ICON");
 }
 
-void CVFD::ShowText(const char *str)
+void CVFD::ShowText(const char * str)
 {
-	int len = strlen(str);
-	int i = 0, ret;
+	char flags[2] = { FP_FLAG_ALIGN_LEFT, 0 };
 
-printf("CVFD::ShowText: [%s]\n", str);
-	if (len > 0)
-	{
-		for (i = len; i > 0; i--) {
-			if (str[i - 1] != ' ')
-				break;
-		}
-	}
+	if (g_settings.lcd_scroll)
+		flags[0] |= FP_FLAG_SCROLL_ON | FP_FLAG_SCROLL_SIO | FP_FLAG_SCROLL_DELAY;
 
-	if (((int)strlen(text) == i && !strncmp(str, text, i)) || len > 255)
+	std::string txt = std::string(flags) + str;
+	txt = trim(txt);
+	printf("CVFD::ShowText: [%s]\n", txt.c_str() + 1);
+
+	size_t len = txt.length();
+	if (txt == text || len > 255)
 		return;
 
-	strncpy(text, str, i);
-	text[i] = '\0';
-
-//printf("****************************** CVFD::ShowText: %s\n", str);
-	//FIXME !!
-	ret = ioctl(fd, IOC_FP_SET_TEXT, len ? str : NULL);
+	text = txt;
+	int ret = ioctl(fd, IOC_FP_SET_TEXT, len > 1 ? txt.c_str() : NULL);
 	if(ret < 0)
 		perror("IOC_FP_SET_TEXT");
 }

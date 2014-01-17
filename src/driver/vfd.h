@@ -90,7 +90,7 @@ class CVFD
 		unsigned int                    switch_name_time_cnt;		
 		int fd;
 		int brightness;
-		char text[256];
+		std::string text;
 
 		void count_down();
 
