@@ -80,11 +80,13 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	//CComponentsForm
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 
-	//using current screen settings for default dimensions, do centering if default values == 0
-	width 		= w == 0 ? frameBuffer->getScreenWidth(true) : w;
-	height 		= h == 0 ? frameBuffer->getScreenHeight(true) : h;
-	x 		= x_pos == (CC_CENTERED || 0) ? getScreenStartX(width)/2 - width/2 : x_pos;
-	y 		= y_pos == (CC_CENTERED || 0) ? getScreenStartY(height)/2 - height/2 : y_pos;
+	//using current screen settings for default dimensions, do use full screen if default values for width/height = 0
+	int w_tmp = frameBuffer->getScreenWidth(w == 0 ? true : false);
+	int h_tmp = frameBuffer->getScreenHeight(h == 0 ? true : false);
+	width 		= w == 0 ? w_tmp : w;
+	height 		= h == 0 ? h_tmp : h;
+	x 		= x_pos;
+	y 		= y_pos;
 
 	ccw_caption 	= caption;
 	ccw_icon_name	= iconname;
@@ -106,6 +108,11 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
 
 	initCCWItems();
+}
+
+void CComponentsWindow::doCenter(){
+	x = cc_parent ? cc_parent->getWidth() - width/2 : frameBuffer->getScreenWidth(true)/2 - width/2;
+	y = cc_parent ? cc_parent->getHeight() - height/2 : frameBuffer->getScreenHeight(true)/2 -height/2;
 }
 
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
