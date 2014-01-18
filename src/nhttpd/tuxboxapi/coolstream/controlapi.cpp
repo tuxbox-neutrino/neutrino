@@ -1390,6 +1390,8 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 					datetimer_str += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
 					datetimer_str += " ";
 					datetimer_str += g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
+					snprintf(tmpstr, sizeof(tmpstr)," [%d min]",eventIterator->duration / 60);
+					datetimer_str += tmpstr;
 
 					hh->WriteLn(datetimer_str);
 					hh->WriteLn(NeutrinoAPI->GetServiceName(eventIterator->channelID));
