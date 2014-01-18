@@ -87,12 +87,13 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Dir_Mode = true;
 		if (fileBrowser.exec("/var/tuxbox") == true)
 		{
-			char  fname[256] = "neutrino.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+			std::string fname = "neutrino.conf";
+			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, &fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
 			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino] save settings: %s\n", sname);
-			CNeutrinoApp::getInstance()->saveSetup(sname);
+
+			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
+			printf("[neutrino] save settings: %s\n", sname.c_str());
+			CNeutrinoApp::getInstance()->saveSetup(sname.c_str());
 			delete sms;
 		}
 		return res;

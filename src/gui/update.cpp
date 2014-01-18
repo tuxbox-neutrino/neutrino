@@ -163,9 +163,9 @@ bool CFlashUpdate::selectHttpImage(void)
 	SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::LINE));
 
 	SelectionWidget.addItem(new CMenuForwarder(current, false));
-	std::ifstream urlFile(g_settings.softupdate_url_file);
+	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
 #ifdef DEBUG
-	printf("[update] file %s\n", g_settings.softupdate_url_file);
+	printf("[update] file %s\n", g_settings.softupdate_url_file.c_str());
 #endif
 
 	unsigned int i = 0;
