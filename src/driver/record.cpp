@@ -559,34 +559,31 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	tmpstring = "not available";
 	if (epgid != 0) {
 		CEPGData epgdata;
-		if (CEitManager::getInstance()->getEPGid(epgid, epg_time, &epgdata)) {
-			tmpstring = epgdata.title;
-			info1 = epgdata.info1;
-			info2 = epgdata.info2;
+		bool epg_ok = CEitManager::getInstance()->getEPGid(epgid, epg_time, &epgdata);
+		if(!epg_ok){//if old epgid removed check currurrent epgid
+			epg_ok = CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgdata );
 
-			recMovieInfo->parentalLockAge = epgdata.fsk;
-			if( !epgdata.contentClassification.empty() )
-				recMovieInfo->genreMajor = epgdata.contentClassification[0];
-
-			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
-
-			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
-		} else if (!epgTitle.empty()) {//if old eepgid removed
-			tmpstring = epgTitle;
-		} else if(CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgdata )){
-			tmpstring = epgdata.title;
-			info1 = epgdata.info1;
-			info2 = epgdata.info2;
-
-			recMovieInfo->parentalLockAge = epgdata.fsk;
-			if( !epgdata.contentClassification.empty() )
-				recMovieInfo->genreMajor = epgdata.contentClassification[0];
-
-			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
-
-			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
+			if(epg_ok && !epgTitle.empty()){
+				std::string tmp_title = epgdata.title;
+				if(epgTitle != tmp_title)
+					epg_ok = false;
+			}
 		}
+		if (epg_ok) {
+			tmpstring = epgdata.title;
+			info1 = epgdata.info1;
+			info2 = epgdata.info2;
 
+			recMovieInfo->parentalLockAge = epgdata.fsk;
+			if( !epgdata.contentClassification.empty() )
+				recMovieInfo->genreMajor = epgdata.contentClassification[0];
+
+			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
+
+			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
+		} else if (!epgTitle.empty()) {//if old epgid removed
+			tmpstring = epgTitle;
+		}
 	} else if (!epgTitle.empty()) {
 		tmpstring = epgTitle;
 	}
