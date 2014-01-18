@@ -604,10 +604,10 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 						if (opt_val == PERSONALIZE_MODE_VISIBLE || opt_val == PERSONALIZE_MODE_PIN)
 						{
 							chooser->setActive(false);
-							chooser->setOptionValue(PERSONALIZE_MODE_NOTVISIBLE);
+							chooser->setOption(PERSONALIZE_MODE_NOTVISIBLE);
 						}else{
 							chooser->setActive(true);
-							chooser->setOptionValue(PERSONALIZE_MODE_VISIBLE);
+							chooser->setOption(PERSONALIZE_MODE_VISIBLE);
 						}
 					}
 				}

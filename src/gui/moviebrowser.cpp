@@ -3751,9 +3751,8 @@ bool CMovieBrowser::showYTMenu()
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_RESULTS, &m_settings.ytresults, true, 10, 50, NULL));
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_HISTORY, &m_settings.ytsearch_history_max, true, 10, 50, NULL));
 
-	char rstr[20] = {0};
-	sprintf(rstr, "%s", m_settings.ytregion.c_str());
-	CMenuOptionStringChooser * region = new CMenuOptionStringChooser(LOCALE_MOVIEBROWSER_YT_REGION, rstr, true, NULL, CRCInput::RC_nokey, "", true);
+	std::string rstr = m_settings.ytregion;
+	CMenuOptionStringChooser * region = new CMenuOptionStringChooser(LOCALE_MOVIEBROWSER_YT_REGION, &rstr, true, NULL, CRCInput::RC_nokey, "", true);
 	region->addOption("default");
 	region->addOption("DE");
 	region->addOption("PL");
