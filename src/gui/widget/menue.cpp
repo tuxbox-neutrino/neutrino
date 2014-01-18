@@ -932,7 +932,7 @@ void CMenuWidget::paint()
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
 
 	// paint head
-	CComponentsHeader header(x, y, width + sb_width, hheight, nameString, iconfile.c_str());
+	CComponentsHeader header(x, y, width + sb_width, hheight, nameString, iconfile);
 	header.setShadowOnOff(CC_SHADOW_ON);
 	header.setOffset(10);
 	header.paint(CC_SAVE_SCREEN_NO);

@@ -2118,7 +2118,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 void CChannelList::paintHead()
 {
-	CComponentsHeader header(x, y, full_width, theight, name, NULL /*no header icon*/);
+	CComponentsHeader header(x, y, full_width, theight, name /*no header icon*/);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	if (g_Sectionsd->getIsTimeSet()) {

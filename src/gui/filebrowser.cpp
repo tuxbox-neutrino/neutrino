@@ -1321,7 +1321,7 @@ void CFileBrowser::paintHead()
 	while ((fnt_title->getRenderWidth(&l_name[i]) > width - 20) && (i < l))
 		i++;
 
-	CComponentsHeader header(x, y, width, theight, &l_name[i], NULL /*no header icon*/);
+	CComponentsHeader header(x, y, width, theight, &l_name[i]);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	free(l_name);

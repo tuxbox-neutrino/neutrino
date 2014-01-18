@@ -17,10 +17,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -38,34 +36,50 @@ using namespace std;
 CComponentsFooter::CComponentsFooter()
 {
 	//CComponentsFooter
-	initVarFooter();
+	initVarFooter(1, 1, 0, 0);
 }
 
-CComponentsFooter::CComponentsFooter(	const int x_pos, const int y_pos, const int w, const int h, const int buttons, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow )
+CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const int& buttons,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow )
 {
 	//CComponentsFooter
-	initVarFooter();
+	initVarFooter(x_pos, y_pos, w, h, buttons, has_shadow, color_frame, color_body, color_shadow);
+}
 
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	height 		= h;
+void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const int& buttons,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow )
+{
+	cc_item_type 	= CC_ITEMTYPE_FOOTER;
+
+	x		= x_pos;
+	y		= y_pos;
+	
+	//init footer width
+	width 	= w == 0 ? frameBuffer->getScreenWidth(true) : w;
+		//init header height
+	cch_font 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	if (h > 0)
+		height 	= h;
+	else
+		height 	= cch_font->getHeight();
+	
+	cch_buttons	= buttons;
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	
-	cch_buttons	= buttons;
+	corner_rad	= RADIUS_LARGE;
+	corner_type	= CORNER_BOTTOM;
 
 	initDefaultButtons();
 	initCCItems();
-}
-
-
-void CComponentsFooter::initVarFooter()
-{
-	cc_item_type 	= CC_ITEMTYPE_FOOTER;
-	corner_rad	= RADIUS_LARGE;
-	corner_type	= CORNER_BOTTOM;
 }
