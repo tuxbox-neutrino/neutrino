@@ -148,7 +148,7 @@ void CScanTs::testFunc()
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", TP.feparams.dvb_feparams.frequency/1000, TP.feparams.dvb_feparams.u.qam.symbol_rate/1000, f, s, m);
 	}
 printf("CScanTs::testFunc: %s\n", buffer);
-	paintLine(xpos2, ypos_cur_satellite, w - 95, pname);
+	paintLine(xpos2, ypos_cur_satellite, w - 95, pname.c_str());
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	success = g_Zapit->tune_TP(TP);
 }
@@ -217,13 +217,13 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			scan_flags |= CServiceScan::SCAN_NIT;
 		TP.scan_mode = scan_flags;
 		if (deltype == FE_QPSK) {
-			TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq);
-			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate);
+			TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
+			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
 			TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.sat_TP_fec;
 			TP.polarization = scansettings.sat_TP_pol;
 		} else {
-			TP.feparams.dvb_feparams.frequency = atoi(scansettings.cable_TP_freq);
-			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.cable_TP_rate);
+			TP.feparams.dvb_feparams.frequency = atoi(scansettings.cable_TP_freq.c_str());
+			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());
 			TP.feparams.dvb_feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.cable_TP_fec;
 			TP.feparams.dvb_feparams.u.qam.modulation	= (fe_modulation_t) scansettings.cable_TP_mod;
 		}
@@ -243,7 +243,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	}
 	else if(manual || !scan_all) {
 		sat.position = CServiceManager::getInstance()->GetSatellitePosition(pname);
-		strncpy(sat.satName, pname, 49);
+		strncpy(sat.satName, pname.c_str(), 49);
 		satList.push_back(sat);
 	} else {
 		satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();

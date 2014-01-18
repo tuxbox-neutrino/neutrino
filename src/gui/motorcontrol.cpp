@@ -117,7 +117,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	CZapitClient::commandSetScanSatelliteList sat;
 
 	sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satName);
-	strncpy(sat.satName, scansettings.satName, 49);
+	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName));
 	satList.push_back(sat);
 
 	satellite_map_t & satmap = frontend->getSatellites();
@@ -131,8 +131,8 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	g_Zapit->setScanSatelliteList(satList);
 	CZapit::getInstance()->SetLiveFrontend(frontend);
 
-	TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq);
-	TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate);
+	TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
+	TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
 	TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t)scansettings.sat_TP_fec;
 	TP.polarization = scansettings.sat_TP_pol;
 

@@ -302,9 +302,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		int fnum = atoi(actionKey.substr(5, 1).c_str());
 		printf("22kon: fe %d sat pos %d\n", fnum, test_pos[fnum]);
-		sprintf(scansettings.sat_TP_freq, "%d", 12000*1000);
-		strncpy(scansettings.satName,
-			CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+		scansettings.sat_TP_freq = "12000000";
+		scansettings.satName =  CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
 		CScanTs scanTs(FE_QPSK);
 		scanTs.exec(NULL, "test");
 		return res;
@@ -313,9 +312,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		int fnum = atoi(actionKey.substr(6, 1).c_str());
 		printf("22koff: fe %d sat pos %d\n", fnum, test_pos[fnum]);
-		sprintf(scansettings.sat_TP_freq, "%d", 11000*1000);
-		strncpy(scansettings.satName,
-			CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
+		scansettings.sat_TP_freq = "11000000";
+		scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
 		CScanTs scanTs(FE_QPSK);
 		scanTs.exec(NULL, "test");
 		return res;
@@ -328,12 +326,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
 		switch (frontend->getInfo()->type) {
 			case FE_QPSK:
-				strncpy(scansettings.satName,
-						CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]).c_str(), 50);
-				sprintf(scansettings.sat_TP_freq, "%d", (fnum & 1) ? 12439000: 12538000);
-				sprintf(scansettings.sat_TP_rate, "%d", (fnum & 1) ? 2500*1000 : 41250*1000);
-				scansettings.sat_TP_fec = (fnum & 1) ? FEC_3_4 : FEC_1_2;
-				scansettings.sat_TP_pol = (fnum & 1) ? 0 : 1;
+				scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
+				scansettings.sat_TP_freq = (fnum & 1) ? "12439000": "12538000";
+				scansettings.sat_TP_rate = (fnum & 1) ? "2500000" : "41250000";
+				scansettings.sat_TP_fec  = (fnum & 1) ? FEC_3_4 : FEC_1_2;
+				scansettings.sat_TP_pol  = (fnum & 1) ? 0 : 1;
 				break;
 			case FE_QAM:
 				{
@@ -344,11 +341,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 							fe->setMode(CFrontend::FE_MODE_UNUSED);
 					}
 					frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
-					strncpy(scansettings.cableName, "CST Berlin", 50);
-					sprintf(scansettings.cable_TP_freq, "%d", 474*1000);
-					sprintf(scansettings.cable_TP_rate, "%d", 6875*1000);
-					scansettings.cable_TP_fec = 1;
-					scansettings.cable_TP_mod = 5;
+					scansettings.cableName     = "CST Berlin";
+					scansettings.cable_TP_freq = "474000";
+					scansettings.cable_TP_rate = "6875000";
+					scansettings.cable_TP_fec  = 1;
+					scansettings.cable_TP_mod  = 5;
 				}
 				break;
 			case FE_OFDM:

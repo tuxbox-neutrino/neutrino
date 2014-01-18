@@ -762,17 +762,17 @@ class CScanSettings
 		int		fast_op;
 		int		cable_nid;
 
-		char		satName[50];
+		std::string	satName;
 		int		sat_TP_fec;
 		int		sat_TP_pol;
-		char		sat_TP_freq[10];
-		char		sat_TP_rate[9];
+		std::string	sat_TP_freq;
+		std::string	sat_TP_rate;
 
-		char		cableName[50];
+		std::string	cableName;
 		int		cable_TP_mod;
 		int		cable_TP_fec;
-		char		cable_TP_freq[10];
-		char		cable_TP_rate[9];
+		std::string	cable_TP_freq;
+		std::string	cable_TP_rate;
 
 		CScanSettings();
 
@@ -780,6 +780,5 @@ class CScanSettings
 		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
 		bool saveSettings(const char * const fileName);
 };
-
 
 #endif
