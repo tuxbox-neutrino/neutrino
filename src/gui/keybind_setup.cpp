@@ -101,12 +101,12 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileBrowser fileBrowser;
 		fileBrowser.Dir_Mode = true;
 		if (fileBrowser.exec("/var/tuxbox") == true) {
-			char  fname[256] = "keys.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+			std::string fname = "keys.conf";
+			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, &fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
 			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino keybind_setup] save keys: %s\n", sname);
-			CNeutrinoApp::getInstance()->saveKeys(sname);
+			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
+			printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());
+			CNeutrinoApp::getInstance()->saveKeys(sname.c_str());
 			delete sms;
 		}
 		return menu_return::RETURN_REPAINT;

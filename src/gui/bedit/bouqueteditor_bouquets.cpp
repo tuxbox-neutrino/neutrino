@@ -526,11 +526,9 @@ void CBEBouquetWidget::switchLockBouquet()
 
 std::string CBEBouquetWidget::inputName(const char * const defaultName, const neutrino_locale_t caption)
 {
-	char Name[30];
+	std::string Name = defaultName;
 
-	strncpy(Name, defaultName, sizeof(Name)-1);
-
-	CStringInputSMS * nameInput = new CStringInputSMS(caption, Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
+	CStringInputSMS * nameInput = new CStringInputSMS(caption, &Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
 	nameInput->exec(this, "");
 	delete nameInput;
 

@@ -214,7 +214,7 @@ CScanSetup::CScanSetup(bool wizard_mode)
 	in_menu		= false;
 	allow_start	= true;
 	if (CFEManager::getInstance()->haveCable())
-		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int*) &scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 }
 
 CScanSetup* CScanSetup::getInstance()
@@ -808,7 +808,7 @@ int CScanSetup::showUnicableSetup()
 	int unicable_qrg = fe_config.uni_qrg;
 
 	CMenuOptionNumberChooser *uniscr = new CMenuOptionNumberChooser(LOCALE_UNICABLE_SCR, &unicable_scr, true, 0, 7);
-	CIntInput		 *uniqrg = new CIntInput(LOCALE_UNICABLE_QRG, unicable_qrg, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput		 *uniqrg = new CIntInput(LOCALE_UNICABLE_QRG, &unicable_qrg, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
 	CMenuWidget *uni_setup = new CMenuWidget(LOCALE_SATSETUP_UNI_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	uni_setup->addIntroItems();
@@ -1038,9 +1038,9 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 		unilnb = new CMenuOptionNumberChooser(LOCALE_UNICABLE_LNB, &satconfig.diseqc, true, 0, 1);
 	}
 
-	CIntInput* lofL = new CIntInput(LOCALE_SATSETUP_LOFL, (int&) satconfig.lnbOffsetLow, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CIntInput* lofH = new CIntInput(LOCALE_SATSETUP_LOFH, (int&) satconfig.lnbOffsetHigh, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-	CIntInput* lofS = new CIntInput(LOCALE_SATSETUP_LOFS, (int&) satconfig.lnbSwitch, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput* lofL = new CIntInput(LOCALE_SATSETUP_LOFL, (int*) &satconfig.lnbOffsetLow, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput* lofH = new CIntInput(LOCALE_SATSETUP_LOFH, (int*) &satconfig.lnbOffsetHigh, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CIntInput* lofS = new CIntInput(LOCALE_SATSETUP_LOFS, (int*) &satconfig.lnbSwitch, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
 	if (!unicable) {
 		temp_sat->addItem(diseqc);

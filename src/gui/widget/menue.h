@@ -572,14 +572,14 @@ class CMenuWidget : public CMenuTarget
 class CPINProtection
 {
 	protected:
-		char* validPIN;
+		std::string *validPIN;
 		bool check();
 		virtual CMenuTarget* getParent() = 0;
 		neutrino_locale_t title, hint;
 	public:
-		CPINProtection( char* validpin)
+		CPINProtection(std::string &validpin)
 		{ 
-			validPIN = validpin;
+			validPIN = &validpin;
 			hint = NONEXISTANT_LOCALE;
 			title = LOCALE_PINPROTECTION_HEAD;
 		};
@@ -595,7 +595,7 @@ class CZapProtection : public CPINProtection
 	public:
 		int	fsk;
 
-		CZapProtection( char* validpin, int	FSK ) : CPINProtection(validpin)
+		CZapProtection(std::string &validpin, int	FSK ) : CPINProtection(validpin)
 		{
 			fsk = FSK;
 			title = LOCALE_PARENTALLOCK_HEAD;
@@ -611,7 +611,7 @@ class CLockedMenuForwarder : public CMenuForwarder, public CPINProtection
 	protected:
 		virtual CMenuTarget* getParent(){ return Parent;};
 	public:
-		CLockedMenuForwarder(const neutrino_locale_t Text, char* _validPIN, bool ask=true, const bool Active=true, char *Option=NULL,
+		CLockedMenuForwarder(const neutrino_locale_t Text, std::string &_validPIN, bool ask=true, const bool Active=true, const char * const Option = NULL,
 		                     CMenuTarget* Target=NULL, const char * const ActionKey = NULL,
 		                     neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
 
@@ -625,7 +625,7 @@ class CLockedMenuForwarder : public CMenuForwarder, public CPINProtection
 							iconName_Info_right = IconName_Info_right ? IconName_Info_right : NEUTRINO_ICON_LOCK; 
 						else
 							iconName_Info_right = "";
-				       };
+					};
 
 		virtual int exec(CMenuTarget* parent);
 };

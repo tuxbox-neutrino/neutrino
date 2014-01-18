@@ -137,7 +137,7 @@ int CParentalSetup::showParentalSetup()
 		mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked);
 	plock->addItem(mc);
 
-	CPINChangeWidget pinChangeWidget(LOCALE_PARENTALLOCK_CHANGEPIN, g_settings.parentallock_pincode, 4, LOCALE_PARENTALLOCK_CHANGEPIN_HINT1);
+	CPINChangeWidget pinChangeWidget(LOCALE_PARENTALLOCK_CHANGEPIN, &g_settings.parentallock_pincode, 4, LOCALE_PARENTALLOCK_CHANGEPIN_HINT1);
 	mf = new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget);
 	mf->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_CHANGEPIN);
 	plock->addItem(mf);

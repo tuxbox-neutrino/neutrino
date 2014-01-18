@@ -36,14 +36,15 @@
 
 #include <gui/widget/messagebox.h>
 
+#include <system/helpers.h>
 #include <global.h>
 #include <neutrino.h>
 
 
-CExtendedInput::CExtendedInput(const neutrino_locale_t Name, char* Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ, bool* Cancel)
+CExtendedInput::CExtendedInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ, bool* Cancel)
 {
 	name = Name;
-	value = Value;
+	valueString = Value;
 	cancel = Cancel;
 
 	hint_1 = Hint_1;
@@ -111,11 +112,14 @@ void CExtendedInput::calculateDialog()
 	int maxX = 0;
 	int maxY = 0;
 
+	if (valueString->size() < inputFields.size())
+		valueString->append(inputFields.size() - valueString->size(), ' ');
+
 	selectedChar = -1;
 	for(unsigned int i=0; i<inputFields.size();i++)
 	{
 		inputFields[i]->init( ix, iy);
-		inputFields[i]->setDataPointer( &value[i] );
+		inputFields[i]->setDataPointer( &valueString->at(i) );
 		if ((selectedChar==-1) && (inputFields[i]->isSelectable()))
 		{
 			selectedChar = i;
@@ -138,24 +142,14 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	neutrino_msg_data_t data;
 
 	onBeforeExec();
+	calculateDialog();
 	int res = menu_return::RETURN_REPAINT;
 
-        char *oldval = new char[inputFields.size()+10];
-	if(oldval == NULL)
-		return res;
-	char  *dispval = new char[inputFields.size()+10];
-	if(dispval == NULL){
-		delete[] oldval;
-		return res;
-	}
-
 	if (parent)
-	{
 		parent->hide();
-	}
 
-	strcpy(oldval, value);
-	strcpy(dispval, value);
+	std::string oldval = *valueString;
+	std::string dispval = *valueString;
 	paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -163,11 +157,10 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	bool loop=true;
 	while (loop)
 	{
-		if ( strcmp(value, dispval) != 0)
+		if (*valueString != dispval)
 		{
-			std::string tmp = value;
-			CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
-			strcpy(dispval, value);
+			CVFD::getInstance()->showMenuText(1, valueString->c_str(), selectedChar+1);
+			dispval = *valueString;
 		}
 
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
@@ -195,8 +188,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 			if(found) {
 				inputFields[oldSelectedChar]->paint(x+ offset, y+ hheight+ offset, false );
 				inputFields[selectedChar]->paint(x+ offset, y+ hheight+ offset, true );
-				std::string tmp = value;
-				CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
+				CVFD::getInstance()->showMenuText(1, valueString->c_str(), selectedChar+1);
 			}
 		} else if (msg==CRCInput::RC_right) {
 			bool found = false;
@@ -223,8 +215,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 			if(found) {
 				inputFields[oldSelectedChar]->paint(x+ offset, y+ hheight+ offset, false );
 				inputFields[selectedChar]->paint(x+ offset, y+ hheight+ offset, true );
-				std::string tmp = value;
-				CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
+				CVFD::getInstance()->showMenuText(1, valueString->c_str(), selectedChar+1);
 			}
 		}
 		else if ( (CRCInput::getUnicodeValue(msg) != -1) || (msg == CRCInput::RC_red) || (msg == CRCInput::RC_green) || (msg == CRCInput::RC_blue) || (msg == CRCInput::RC_yellow)
@@ -241,10 +232,10 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
-			if(strcmp(value, oldval)!= 0){
+			if(*valueString != oldval){
 				int erg = ShowLocalizedMessage(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbNo | CMessageBox::mbYes | CMessageBox::mbCancel);
 				 if(erg==CMessageBox::mbrYes){
-					strcpy(value, oldval);
+					*valueString = oldval;
 					loop=false;
 					if(cancel != NULL)
 						*cancel = true;
@@ -268,7 +259,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		}
 		else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 		{
-			strcpy(value, oldval);
+			*valueString = oldval;
 			loop=false;
 			if(cancel != NULL)
 				*cancel = true;
@@ -278,15 +269,12 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 
 	hide();
 
+	*valueString = trim(*valueString);
+
 	onAfterExec();
 
 	if ((observ) && (msg == CRCInput::RC_ok))
-	{
-		observ->changeNotify(name, value);
-	}
-
-	delete[] dispval;
-	delete[] oldval;
+		observ->changeNotify(name, (void *)valueString->c_str());
 
 	return res;
 }
@@ -428,11 +416,8 @@ void CExtendedInput_Item_Char::keyPressed(const int key)
 
 //-----------------------------#################################-------------------------------------------------------
 
-CIPInput::CIPInput(const neutrino_locale_t Name, std::string & Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
-	: CExtendedInput(Name, IP, Hint_1, Hint_2, Observ)
+CIPInput::CIPInput(const neutrino_locale_t Name, std::string *Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ) : CExtendedInput(Name, Value, Hint_1, Hint_2, Observ)
 {
-	ip = &Value;
-	frameBuffer = CFrameBuffer::getInstance();
 	addInputField( new CExtendedInput_Item_Char("012") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
@@ -449,47 +434,45 @@ CIPInput::CIPInput(const neutrino_locale_t Name, std::string & Value, const neut
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_newLiner(30) );
-	calculateDialog();
 }
 
 void CIPInput::onBeforeExec()
 {
-	if (ip->empty())
+	if (valueString->empty())
 	{
-		strcpy(value, "000.000.000.000");
-		//printf("[neutrino] value-before(2): %s\n", value);
+		*valueString = "000.000.000.000";
 		return;
 	}
-	unsigned char _ip[4];
-	sscanf(ip->c_str(), "%hhu.%hhu.%hhu.%hhu", &_ip[0], &_ip[1], &_ip[2], &_ip[3]);
-	sprintf( value, "%03hhu.%03hhu.%03hhu.%03hhu", _ip[0], _ip[1], _ip[2], _ip[3]);
+	unsigned char ip[4];
+	sscanf(valueString->c_str(), "%hhu.%hhu.%hhu.%hhu", &ip[0], &ip[1], &ip[2], &ip[3]);
+	char s[20];
+	snprintf(s, sizeof(s), "%03hhu.%03hhu.%03hhu.%03hhu", ip[0], ip[1], ip[2], ip[3]);
+	*valueString = std::string(s);
 }
 
 void CIPInput::onAfterExec()
 {
-	int _ip[4];
-	sscanf( value, "%3d.%3d.%3d.%3d", &_ip[0], &_ip[1], &_ip[2], &_ip[3] );
-	sprintf( value, "%d.%d.%d.%d", _ip[0], _ip[1], _ip[2], _ip[3]);
-	if(strcmp(value,"0.0.0.0")==0)
-	{
-		(*ip) = "";
-	}
-	else
-		(*ip) = value;
+	int ip[4];
+	sscanf(valueString->c_str(), "%3d.%3d.%3d.%3d", &ip[0], &ip[1], &ip[2], &ip[3] );
+	char s[20];
+	snprintf(s, sizeof(s), "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+	*valueString = std::string(s);
+	if(*valueString == "0.0.0.0")
+		*valueString = "";
 }
 
 //-----------------------------#################################-------------------------------------------------------
 CDateInput::CDateInput(const neutrino_locale_t Name, time_t* Time, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
-	: CExtendedInput(Name, (char *) "", Hint_1, Hint_2, Observ)
+	: CExtendedInput(Name, &valueStringTmp, Hint_1, Hint_2, Observ)
 {
 	time=Time;
-	value= new char[20];
+	char value[40];
 	struct tm *tmTime = localtime(time);
-	sprintf( value, "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
+	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
 				tmTime->tm_year+1900,
 				tmTime->tm_hour, tmTime->tm_min);
+	*valueString = std::string(value);
 
-	frameBuffer = CFrameBuffer::getInstance();
 	addInputField( new CExtendedInput_Item_Char("0123") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_Char(".",false) );
@@ -507,24 +490,22 @@ CDateInput::CDateInput(const neutrino_locale_t Name, time_t* Time, const neutrin
 	addInputField( new CExtendedInput_Item_Char("012345") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_newLiner(30) );
-	calculateDialog();
 }
-CDateInput::~CDateInput()
-{
-	delete value;
-}
+
 void CDateInput::onBeforeExec()
 {
+	char value[40];
 	struct tm *tmTime = localtime(time);
-	sprintf( value, "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
+	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
 				tmTime->tm_year+1900,
 				tmTime->tm_hour, tmTime->tm_min);
+	*valueString = std::string(value);
 }
 
 void CDateInput::onAfterExec()
 {
 	struct tm tmTime;
-	sscanf( value, "%02d.%02d.%04d %02d:%02d", &tmTime.tm_mday, &tmTime.tm_mon,
+	sscanf(valueString->c_str(), "%02d.%02d.%04d %02d:%02d", &tmTime.tm_mday, &tmTime.tm_mon,
 			&tmTime.tm_year,
 			&tmTime.tm_hour, &tmTime.tm_min);
 	tmTime.tm_mon -= 1;
@@ -559,18 +540,17 @@ void CDateInput::onAfterExec()
 		tmTime.tm_sec=0;
 
 	*time=mktime(&tmTime);
+	char value[40];
 	struct tm *tmTime2 = localtime(time);
-	sprintf( value, "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
-			tmTime2->tm_year+1900,
-			tmTime2->tm_hour, tmTime2->tm_min);
+	snprintf(value, sizeof(value), "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
+				tmTime2->tm_year+1900,
+				tmTime2->tm_hour, tmTime2->tm_min);
+	*valueString = std::string(value);
 }
 //-----------------------------#################################-------------------------------------------------------
 
-CMACInput::CMACInput(const neutrino_locale_t Name, std::string &
-Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
-	: CExtendedInput(Name, MAC, Hint_1, Hint_2, Observ)
+CMACInput::CMACInput(const neutrino_locale_t Name, std::string * Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ) : CExtendedInput(Name, Value, Hint_1, Hint_2, Observ)
 {
-	mac = &Value;
 	frameBuffer = CFrameBuffer::getInstance();
 	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
 	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
@@ -590,41 +570,65 @@ Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeOb
 	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
 	addInputField( new CExtendedInput_Item_Char("0123456789ABCDEF") );
 	addInputField( new CExtendedInput_Item_newLiner(30) );
-	calculateDialog();
 }
 
 void CMACInput::onBeforeExec()
 {
-	if (value[0] == 0) /* strcmp(value, "") == 0 */
+	if (valueString->empty())
 	{
-		strcpy(value, "00:00:00:00:00:00");
-		printf("[neutrino] value-before(2): %s\n", value);
+		*valueString = "00:00:00:00:00:00";
 		return;
 	}
-	int _mac[6];
-	sscanf( mac->c_str(), "%x:%x:%x:%x:%x:%x", &_mac[0], &_mac[1], &_mac[2], &_mac[3], &_mac[4], &_mac[5] );
-	sprintf( value, "%02x:%02x:%02x:%02x:%02x:%02x", _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
+	int mac[6];
+	sscanf(valueString->c_str(), "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5] );
+	char s[20];
+	snprintf(s, sizeof(s), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	*valueString = std::string(s);
 }
 
 void CMACInput::onAfterExec()
 {
-	int _mac[6];
-	sscanf( value, "%x:%x:%x:%x:%x:%x", &_mac[0], &_mac[1], &_mac[2], &_mac[3], &_mac[4], &_mac[5] );
-	sprintf( value, "%02x:%02x:%02x:%02x:%02x:%02x", _mac[0], _mac[1], _mac[2], _mac[3], _mac[4], _mac[5]);
-	if(strcmp(value,"00:00:00:00:00:00")==0)
-	{
-		(*mac) = "";
-	}
-	else
-		(*mac) = value;
+	int mac[6];
+	sscanf(valueString->c_str(), "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5] );
+	char s[20];
+	snprintf(s, sizeof(s), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	*valueString = std::string(s);
+	if(*valueString == "00:00:00:00:00:00")
+		*valueString = "";
 }
 
 //-----------------------------#################################-------------------------------------------------------
 
-CTimeInput::CTimeInput(const neutrino_locale_t Name, char* Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ, bool* Cancel)
-	: CExtendedInput(Name, Value, Hint_1, Hint_2, Observ, Cancel)
+CTimeInput::CTimeInput(const neutrino_locale_t Name, std::string* Value, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ, bool* Cancel)
+	: CExtendedInput(Name, &valueStringTmp, Hint_1, Hint_2, Observ, Cancel)
 {
+	valueString = Value;
 	frameBuffer = CFrameBuffer::getInstance();
+#if 0
+	// As nobody else seems to use this class I feel free to make some minor (and mostly backwards-compatible)
+	// adjustments to make it suitable for movieplayer playtime selection ... --martii
+
+	const char *v = valueString->c_str();
+	if (!isdigit(*v)) {
+		addInputField( new CExtendedInput_Item_Char("=+-") );
+		addInputField( new CExtendedInput_Item_Spacer(20) );
+	}
+	addInputField( new CExtendedInput_Item_Char("0123456789") );
+	addInputField( new CExtendedInput_Item_Char("0123456789") );
+	v = strstr(v, ":");
+	if (v) {
+		v++;
+		addInputField( new CExtendedInput_Item_Char(":",false) );
+		addInputField( new CExtendedInput_Item_Char("0123456789") );
+		addInputField( new CExtendedInput_Item_Char("0123456789") );
+		v = strstr(v, ":");
+		if (v) {
+			addInputField( new CExtendedInput_Item_Char(":",false) );
+			addInputField( new CExtendedInput_Item_Char("0123456789") );
+			addInputField( new CExtendedInput_Item_Char("0123456789") );
+		}
+	}
+#else
 	addInputField( new CExtendedInput_Item_Char("=+-") );
 	addInputField( new CExtendedInput_Item_Spacer(20) );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
@@ -635,66 +639,56 @@ CTimeInput::CTimeInput(const neutrino_locale_t Name, char* Value, const neutrino
 	addInputField( new CExtendedInput_Item_Char(":",false) );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );
+#endif
 	addInputField( new CExtendedInput_Item_newLiner(30) );
-	calculateDialog();
 }
 
 void CTimeInput::onBeforeExec()
 {
+#if 0 //--martii
 	strcpy(value, "= 00:00:00");
+#endif
 }
 
 void CTimeInput::onAfterExec()
 {
+#if 0 //--martii
 	char tmp[10+1];
 	strcpy(tmp, value);
 	strcpy(value+1, tmp+2);
+#endif
 }
 //-----------------------------#################################-------------------------------------------------------
 
-CIntInput::CIntInput(const neutrino_locale_t Name, int& Value, const unsigned int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
-	: CExtendedInput(Name, myValueStringInput, Hint_1, Hint_2, Observ)
+CIntInput::CIntInput(const neutrino_locale_t Name, int *Value, const unsigned int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, CChangeObserver* Observ)
+	: CExtendedInput(Name, &valueStringTmp, Hint_1, Hint_2, Observ)
 {
-	myValue = &Value;
+	myValue = Value;
 
 	if (Size<MAX_CINTINPUT_SIZE)
 		m_size = Size;
 	else
 		m_size = MAX_CINTINPUT_SIZE-1;
- 	if (*myValue == 0)
- 	{
-		sprintf(myValueStringInput,"%-7d",0);
-		sprintf(myValueStringOutput,"%7d",0);
- 	} else {
-		sprintf(myValueStringInput,"%-*d",m_size,*myValue);
-		sprintf(myValueStringOutput,"%*d",m_size,*myValue);
-	}
+
+	onBeforeExec();
 
 	frameBuffer = CFrameBuffer::getInstance();
 	for (unsigned int i=0;i<Size;i++)
-	{
 		addInputField( new CExtendedInput_Item_Char("0123456789 ") );
-	}
 	addInputField( new CExtendedInput_Item_newLiner(30) );
-	calculateDialog();
 }
 
 void CIntInput::onBeforeExec()
 {
- 	if (*myValue == 0)
- 	{
-		sprintf(myValueStringInput,"%-7d",0);
-		sprintf(myValueStringOutput,"%7d",0);
- 	} else {
-		sprintf(myValueStringInput,"%-*d",m_size,*myValue);
-		sprintf(myValueStringOutput,"%*d",m_size,*myValue);
-	}
+	char tmp[MAX_CINTINPUT_SIZE];
+	snprintf(tmp, sizeof(tmp) - 1,"%*d", m_size, *myValue);
+	tmp[sizeof(tmp) - 1] = 0;
+	*valueString = std::string(tmp);
 }
 
 void CIntInput::onAfterExec()
 {
-	sscanf(myValueStringInput, "%d", myValue);
-	sprintf(myValueStringOutput,"%d",*myValue);
+	*myValue = atoi((*valueString).c_str());
 }
 
 //-----------------------------#################################-------------------------------------------------------

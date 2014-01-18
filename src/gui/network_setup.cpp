@@ -236,11 +236,11 @@ int CNetworkSetup::showNetworkSetup()
 	CMenuForwarder *mac = new CMenuForwarder("MAC", false, mac_addr);
 
 	//prepare input entries
-	CIPInput networkSettings_NetworkIP(LOCALE_NETWORKMENU_IPADDRESS , network_address   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, this);
-	CIPInput networkSettings_NetMask  (LOCALE_NETWORKMENU_NETMASK   , network_netmask   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CIPInput networkSettings_Broadcast(LOCALE_NETWORKMENU_BROADCAST , network_broadcast , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CIPInput networkSettings_Gateway  (LOCALE_NETWORKMENU_GATEWAY   , network_gateway   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CIPInput networkSettings_NameServer(LOCALE_NETWORKMENU_NAMESERVER, network_nameserver, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_NetworkIP(LOCALE_NETWORKMENU_IPADDRESS  , &network_address   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, this);
+	CIPInput networkSettings_NetMask  (LOCALE_NETWORKMENU_NETMASK    , &network_netmask   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_Broadcast(LOCALE_NETWORKMENU_BROADCAST  , &network_broadcast , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_Gateway  (LOCALE_NETWORKMENU_GATEWAY    , &network_gateway   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CIPInput networkSettings_NameServer(LOCALE_NETWORKMENU_NAMESERVER, &network_nameserver, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 
 	//hostname
 	CStringInputSMS networkSettings_Hostname(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 30, LOCALE_NETWORKMENU_HOSTNAME_HINT1, LOCALE_NETWORKMENU_HOSTNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ");

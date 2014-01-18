@@ -372,7 +372,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 //init pin setup dialog
 void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pin_widget)
 {
-	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
+	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, &g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
 	
 	CMenuForwarder * fw_pin_setup = new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, g_settings.personalize_pincode, pin_widget, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
  	pin_setup_notifier = new CPinSetupNotifier(fw_pin_setup);

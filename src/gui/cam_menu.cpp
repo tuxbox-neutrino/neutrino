@@ -410,21 +410,20 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str());
 		hideHintBox();
 
-		char ENQAnswer[pMmiEnquiry->answerlen+1];
-		ENQAnswer[0] = 0;
+		std::string ENQAnswer;
 
-		CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str(), ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
+		CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str(), &ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
 		Inquiry->exec(NULL, "");
 		delete Inquiry;
 
-		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer);
+		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer.c_str());
 
-		if((int) strlen(ENQAnswer) != pMmiEnquiry->answerlen) {
+		if((int) ENQAnswer.length() != pMmiEnquiry->answerlen) {
 			printf("CCAMMenuHandler::handleCamMsg: wrong input len\n");
-			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer, 0);
+			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer.c_str(), 0);
 			return 1; //FIXME
 		} else {
-			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer, pMmiEnquiry->answerlen);
+			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer.c_str(), pMmiEnquiry->answerlen);
 			return 1;
 		}
 	}

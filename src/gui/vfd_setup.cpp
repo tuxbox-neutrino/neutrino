@@ -188,7 +188,7 @@ void CVfdSetup::showBrightnessSetup(CMenuWidget *mn_widget)
 
 	mn_widget->addItem(GenericMenuSeparatorLine);
 	if (dim_time == NULL)
-		dim_time = new CStringInput(LOCALE_LCDMENU_DIM_TIME, g_settings.lcd_setting_dim_time, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
+		dim_time = new CStringInput(LOCALE_LCDMENU_DIM_TIME, &g_settings.lcd_setting_dim_time, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
 
 	mf = new CMenuForwarder(LOCALE_LCDMENU_DIM_TIME, vfd_enabled, g_settings.lcd_setting_dim_time,dim_time);
 	mf->setHint("", LOCALE_MENU_HINT_VFD_DIMTIME);

@@ -1085,7 +1085,7 @@ int CTimerList::modifyTimer()
 	timer->eventRepeat = (CTimerd::CTimerEventRepeat)(((int)timer->eventRepeat) & 0x1FF);
 	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, ((int)timer->eventRepeat) >= (int)CTimerd::TIMERREPEAT_WEEKDAYS, m_weekdaysStr, &timerSettings_weekdays );
-	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int&)timer->repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
+	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timer->repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
 
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, timer->eventRepeat != (int)CTimerd::TIMERREPEAT_ONCE ,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
@@ -1167,7 +1167,7 @@ int CTimerList::newTimer()
 	CStringInput timerSettings_weekdays(LOCALE_TIMERLIST_WEEKDAYS, &m_weekdaysStr, 7, LOCALE_TIMERLIST_WEEKDAYS_HINT_1, LOCALE_TIMERLIST_WEEKDAYS_HINT_2, "-X");
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_TIMERLIST_WEEKDAYS, false,  m_weekdaysStr, &timerSettings_weekdays);
 
-	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int&)timerNew.repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
+	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int*)&timerNew.repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, false,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
 	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat,m4,m5, &m_weekdaysStr);
@@ -1217,7 +1217,8 @@ int CTimerList::newTimer()
 
 	CMenuOptionChooser* m8 = new CMenuOptionChooser(LOCALE_TIMERLIST_STANDBY, &timerNew_standby_on, TIMERLIST_STANDBY_OPTIONS, TIMERLIST_STANDBY_OPTION_COUNT, false);
 
-	CStringInputSMS timerSettings_msg(LOCALE_TIMERLIST_MESSAGE, timerNew.message, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:!?/ ");
+	std::string timerNew_message(timerNew.message);
+	CStringInputSMS timerSettings_msg(LOCALE_TIMERLIST_MESSAGE, &timerNew_message, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:!?/ ");
 	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_TIMERLIST_MESSAGE, false, timerNew.message, &timerSettings_msg );
 
 	strcpy(timerNew.pluginName,"---");
@@ -1250,6 +1251,8 @@ int CTimerList::newTimer()
 
 	notifier2.changeNotify(NONEXISTANT_LOCALE, NULL);
 	int ret=timerSettings.exec(this,"");
+
+	strncpy(timerNew.message, timerNew_message.c_str(), sizeof(timerNew.message));
 
 	// delete dynamic created objects
 	for (unsigned int count=0; count<toDelete.size(); count++)

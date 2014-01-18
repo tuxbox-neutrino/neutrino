@@ -1247,7 +1247,7 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 		if (b < upper_bound)
 			b = upper_bound;
 		for (; b; b /= 10, size++);
-		CIntInput cii(name, *optionValue, size, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+		CIntInput cii(name, optionValue, size, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 		cii.exec(NULL, "");
 		if (*optionValue > upper_bound)
 			*optionValue = upper_bound;
@@ -2037,38 +2037,38 @@ int CMenuSeparator::paint(bool selected)
 
 bool CPINProtection::check()
 {
-	char cPIN[5];
+	hint = NONEXISTANT_LOCALE;
+	std::string cPIN;
 	do
 	{
-		cPIN[0] = 0;
-		CPINInput* PINInput = new CPINInput(title, cPIN, 4, hint);
+		cPIN = "";
+		CPINInput* PINInput = new CPINInput(title, &cPIN, 4, hint);
 		PINInput->exec( getParent(), "");
 		delete PINInput;
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
-	} while ((strncmp(cPIN,validPIN,4) != 0) && (cPIN[0] != 0));
-	return ( strncmp(cPIN,validPIN,4) == 0);
+	} while ((cPIN != *validPIN) && !cPIN.empty());
+	return (cPIN == *validPIN);
 }
-
 
 bool CZapProtection::check()
 {
+	hint = NONEXISTANT_LOCALE;
 	int res;
-	char cPIN[5];
+	std::string cPIN;
 	do
 	{
-		cPIN[0] = 0;
+		cPIN = "";
 
-		CPLPINInput* PINInput = new CPLPINInput(title, cPIN, 4, hint, fsk);
+		CPLPINInput* PINInput = new CPLPINInput(title, &cPIN, 4, hint, fsk);
 
 		res = PINInput->exec(getParent(), "");
 		delete PINInput;
 
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
-	} while ( (strncmp(cPIN,validPIN,4) != 0) &&
-		  (cPIN[0] != 0) &&
+	} while ( (cPIN != *validPIN) && !cPIN.empty() &&
 		  ( res == menu_return::RETURN_REPAINT ) &&
 		  ( fsk >= g_settings.parentallock_lockage ) );
-	return ( ( strncmp(cPIN,validPIN,4) == 0 ) ||
+	return ( (cPIN == *validPIN) ||
 			 ( fsk < g_settings.parentallock_lockage ) );
 }
 

@@ -599,7 +599,7 @@ int CAudioPlayerGui::show()
 					// is no stream, so we do not have to test for this case
 					int seconds=0;
 					CIntInput secondsInput(LOCALE_AUDIOPLAYER_JUMP_DIALOG_TITLE,
-							       seconds,
+							       &seconds,
 							       5,
 							       LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT1,
 							       LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT2);
@@ -706,7 +706,7 @@ int CAudioPlayerGui::show()
 					// is no stream, so we do not have to test for this case
 					int seconds=0;
 					CIntInput secondsInput(LOCALE_AUDIOPLAYER_JUMP_DIALOG_TITLE,
-							       seconds,
+							       &seconds,
 							       5,
 							       LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT1,
 							       LOCALE_AUDIOPLAYER_JUMP_DIALOG_HINT2);
@@ -2605,7 +2605,7 @@ void CAudioPlayerGui::savePlaylist()
 		absPlaylistDir += file->getFileName();
 
 		const int filenamesize = 30;
-		char filename[filenamesize + 1] = "";
+		std::string filename;
 
 		if (file->getType() == CFile::FILE_PLAYLIST)
 		{
@@ -2616,15 +2616,14 @@ void CAudioPlayerGui::savePlaylist()
 			bool overwrite = askToOverwriteFile(name);
 			if (!overwrite)
 				return;
-
-			snprintf(filename, name.size(), "%s", name.c_str());
+			filename = name;
 		}
 		else if (file->getType() == CFile::FILE_DIR)
 		{
 			// query for filename
 			this->hide();
 			CStringInputSMS filenameInput(LOCALE_AUDIOPLAYER_PLAYLIST_NAME,
-						      filename,
+						      &filename,
 						      filenamesize - 1,
 						      LOCALE_AUDIOPLAYER_PLAYLIST_NAME_HINT1,
 						      LOCALE_AUDIOPLAYER_PLAYLIST_NAME_HINT2,
