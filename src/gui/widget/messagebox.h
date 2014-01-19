@@ -56,7 +56,7 @@ class CMessageBox : public CHintBoxExt
 	int  mbBtnAlign;
 	int  ButtonSpacing, ButtonDistance;
 	int  fh, i_maxw;
-	int  b_height, b_width, bb_height, bb_width;
+	int  b_height, b_width, bb_width;
 	int ButtonCount;
 
 	void paintButtons();
@@ -88,8 +88,9 @@ class CMessageBox : public CHintBoxExt
 	
 	// Text & Caption are always UTF-8 encoded
 	CMessageBox(const neutrino_locale_t Caption, const char * const Text, const int Width = 500, const char * const Icon = NULL, const CMessageBox::result_ &Default = mbrYes, const uint32_t ShowButtons = mbAll);
-
+	CMessageBox(const std::string &Caption, const char * const Text, const int Width = 500, const char * const Icon = NULL, const CMessageBox::result_ &Default = mbrYes, const uint32_t ShowButtons = mbAll);
 	CMessageBox(const neutrino_locale_t Caption, ContentLines& Lines, const int Width = 500, const char * const Icon = NULL, const CMessageBox::result_ &Default = mbrYes, const uint32_t ShowButtons = mbAll);
+	CMessageBox(const std::string &Caption, ContentLines& Lines, const int Width = 500, const char * const Icon = NULL, const CMessageBox::result_ &Default = mbrYes, const uint32_t ShowButtons = mbAll);
 
 	int exec(int timeout = -1);
 	void returnDefaultValueOnTimeout(bool returnDefault);
@@ -102,6 +103,7 @@ class CMessageBox : public CHintBoxExt
 int ShowLocalizedMessage(const neutrino_locale_t Caption, const neutrino_locale_t Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false);
 int ShowMsgUTF(const neutrino_locale_t Caption, const char * const Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
 int ShowMsgUTF(const neutrino_locale_t Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
+int ShowMsgUTF(const std::string & Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
 
 void DisplayErrorMessage(const char * const ErrorMsg); // UTF-8
 void DisplayInfoMessage(const char * const InfoMsg); // UTF-8
