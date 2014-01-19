@@ -26,11 +26,9 @@ extern "C" {
 #include <lualib.h>
 }
 #include <driver/fb_window.h>
-#ifdef MARTII
 #include <gui/widget/menue.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
-#endif
 
 /* this is stored as userdata in the lua_State */
 struct CLuaData
@@ -41,11 +39,8 @@ struct CLuaData
 
 struct CLuaMenuItem
 {
-	union //value
-	{
-		int i;
-		char s[255];
-	};
+	int int_val;
+	std::string str_val;
 	std::string name;
 };
 
@@ -81,7 +76,7 @@ class CLuaMenuForwarder : public CMenuTarget
 class CLuaMenuFilebrowser : public CLuaMenuForwarder
 {
 	private:
-		char *value;
+		std::string *value;
 		bool dirMode;
 		std::vector<std::string> filter;
 	public:
@@ -93,7 +88,7 @@ class CLuaMenuFilebrowser : public CLuaMenuForwarder
 class CLuaMenuStringinput : public CLuaMenuForwarder
 {
 	private:
-		char *value;
+		std::string *value;
 		std::string valid_chars;
 		const char *name;
 		const char *icon;
@@ -122,7 +117,7 @@ class CLuaMessagebox
 		~CLuaMessagebox();
 };
 
-#endif
+
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
@@ -147,7 +142,6 @@ private:
 	static int FontHeight(lua_State *L);
 	static int GetInput(lua_State *L);
 	static int GCWindow(lua_State *L);
-#ifdef MARTII
 	static int Blit(lua_State *L);
 	static int GetLanguage(lua_State *L);
 	static int GetSize(lua_State *L);
@@ -176,7 +170,6 @@ private:
 
 	static bool tableLookup(lua_State*, const char*, std::string&);
 	static bool tableLookup(lua_State*, const char*, int&);
-#endif
 };
 
 #endif /* _LUAINSTANCE_H */

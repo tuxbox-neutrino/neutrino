@@ -26,10 +26,9 @@
 #include <global.h>
 #include <system/settings.h>
 #include <gui/widget/msgbox.h>
-#ifdef MARTII
+#include <gui/widget/messagebox.h>
 #include <gui/filebrowser.h>
 #include <driver/pictureviewer/pictureviewer.h>
-#endif
 #include <neutrino.h>
 
 #include "luainstance.h"
@@ -123,8 +122,7 @@ static void set_lua_variables(lua_State *L)
 		{ "mute_off",		CRCInput::RC_mute_off },
 		{ "analog_on",		CRCInput::RC_analog_on },
 		{ "analog_off",		CRCInput::RC_analog_off },
-#ifdef MARTII
-/* SPARK keys */
+#if !HAVE_COOL_HARDWARE
 		{ "find",		CRCInput::RC_find },
 		{ "pip",		CRCInput::RC_pip },
 		{ "folder",		CRCInput::RC_archive },
@@ -242,7 +240,6 @@ static void set_lua_variables(lua_State *L)
 		{ "END_Y", g_settings.screen_EndY },
 		{ NULL, 0 }
 	};
-#ifdef MARTII
 	table_key menureturn[] =
 	{
 		{ "NONE", menu_return::RETURN_NONE },
@@ -252,7 +249,6 @@ static void set_lua_variables(lua_State *L)
 		{ "EXIT_REPAINT", menu_return::RETURN_EXIT_REPAINT },
 		{ NULL, 0 }
 	};
-#endif
 
 	/* list of environment variable arrays to be exported */
 	lua_envexport e[] =
@@ -262,9 +258,7 @@ static void set_lua_variables(lua_State *L)
 		{ "SCREEN",	screenopts },
 		{ "FONT",	fontlist },
 		{ "CORNER",	corners },
-#ifdef MARTII
 		{ "MENU_RETURN", menureturn },
-#endif
 		{ NULL, NULL }
 	};
 
@@ -346,12 +340,10 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "PaintIcon", CLuaInstance::PaintIcon },
 	{ "GetInput", CLuaInstance::GetInput },
 	{ "FontHeight", CLuaInstance::FontHeight },
-#ifdef MARTII
 	{ "GetSize", CLuaInstance::GetSize },
 	{ "DisplayImage", CLuaInstance::DisplayImage },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
-#endif
 	{ NULL, NULL }
 };
 
@@ -393,7 +385,9 @@ void CLuaInstance::registerFunctions()
 	luaopen_string(lua);
 	luaopen_math(lua);
 #ifndef DYNAMIC_LUAPOSIX
+#if !HAVE_COOL_HARDWARE
 	luaopen_posix_c(lua);
+#endif
 #else
 	dolibrary(lua,"posix");
 #endif
@@ -514,7 +508,6 @@ int CLuaInstance::PaintIcon(lua_State *L)
 	return 0;
 }
 
-#ifdef MARTII
 extern CPictureViewer * g_PicViewer;
 
 int CLuaInstance::DisplayImage(lua_State *L)
@@ -547,7 +540,6 @@ int CLuaInstance::GetSize(lua_State *L)
 	lua_pushinteger(L, h);
 	return 2;
 }
-#endif
 
 int CLuaInstance::RenderString(lua_State *L)
 {
@@ -641,60 +633,33 @@ int CLuaInstance::GCWindow(lua_State *L)
 	delete w;
 	return 0;
 }
-#ifdef MARTII
+
+#if HAVE_COOL_HARDWARE
+int CLuaInstance::Blit(lua_State *)
+{
+	return 0;
+}
+#else
 int CLuaInstance::Blit(lua_State *L)
 {
 	CLuaData *W = CheckData(L, 1);
 	if (W && W->fbwin) {
 		if (lua_isnumber(L, 2))
-			W->fbwin->mayBlit = (int)lua_tonumber(L, 2); // enable/disable automatic blit
+			W->fbwin->blit((int)lua_tonumber(L, 2)); // enable/disable automatic blit
 		else
 			W->fbwin->blit();
 	}
 	return 0;
 }
+#endif
 
 int CLuaInstance::GetLanguage(lua_State *L)
 {
 	// FIXME -- should conform to ISO 639-1/ISO 3166-1
-	lua_pushstring(L, g_settings.language);
+	lua_pushstring(L, g_settings.language.c_str());
 
 	return 1;
 }
-
-#if 0
-local m = menue.new{name="mytitle", icon="myicon", hide_parent=true}
-m:addItem{type="back"}
-m:addItem{type="separator"}
-
-function talk(a, b)
-	print(">talk")
-	print(a .. " => " b)
-	print("<talk")
-	return MENU_RETURN["RETURN_REPAINT"]
-end
-
-function anotherMenue()
-	print(">>anothermenue");
-	local m = menue.new{name="anothermenue", icon="settings"}
-	m:addItem{type="back"}
-	m:addItem{type="separator"}
-	m:addItem{type="numeric", name="testnumeric"}
-	m:exec()
-	print("<<anothermenue");
-end
-
-
-m:addItem{type="chooser", name="testchooser", action="talk", options={ "on", "off", "auto" }, icon=
-m:addItem{type="forwarder", name="testforwarder", action="anotherMenue", icon="network"}
-m:addItem{type="separator"}
-m:addItem{type="numeric", name="testnumeric", id="a", action="talk"}
-m:addItem{type="separator"}
-m:addItem{type="filebrowser", name="fbrowser", id="b", action="talk"}
-m:addItem{type="separator"}
-m:addItem{type="stringinput", name="stringinput", id="c", action="talk"}
-m:exec()
-#endif
 
 bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &value)
 {
@@ -731,7 +696,7 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 	lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
 	lua_pop(L, 2);
-	return res == menu_return::RETURN_REPAINT || res == menu_return::RETURN_EXIT_REPAINT;
+	return ((res == menu_return::RETURN_REPAINT) || (res == menu_return::RETURN_EXIT_REPAINT));
 }
 
 void CLuaInstance::MenuRegister(lua_State *L)
@@ -825,14 +790,14 @@ int CLuaMenuFilebrowser::exec(CMenuTarget* /*parent*/, const std::string& /*acti
 	if (!filter.empty())
 		fileBrowser.Filter = &fileFilter;
 
-	if (fileBrowser.exec(value) == true)
-	    strcpy(value, fileBrowser.getSelectedFile()->Name.c_str());
+	if (fileBrowser.exec(value->c_str()) == true)
+		*value = fileBrowser.getSelectedFile()->Name;
 
 	if (!luaAction.empty()){
 		lua_pushglobaltable(L);
 		lua_getfield(L, -1, luaAction.c_str());
 		lua_remove(L, -2);
-		lua_pushstring(L, value);
+		lua_pushstring(L, value->c_str());
 		lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
 		lua_pop(L, 1);
 	}
@@ -866,7 +831,7 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 		lua_getfield(L, -1, luaAction.c_str());
 		lua_remove(L, -2);
 		lua_pushstring(L, luaId.c_str());
-		lua_pushstring(L, value);
+		lua_pushstring(L, value->c_str());
 		lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 		lua_pop(L, 2);
 	}
@@ -952,7 +917,7 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 		m->m->addItem(GenericMenuBack);
 	} else if (type == "separator") {
 		if (!b->name.empty()) {
-			m->m->addItem(new CNonLocalizedMenuSeparator(b->name.c_str(), NONEXISTANT_LOCALE));
+			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, b->name.c_str(), NONEXISTANT_LOCALE));
 		} else {
 			m->m->addItem(GenericMenuSeparatorLine);
 		}
@@ -997,7 +962,7 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			m->tofree.push_back(kext);
 			lua_pushstring(L, "options");
 			lua_gettable(L, -2);
-			b->i = 0;
+			b->int_val = 0;
 			int j = 0;
 			if (lua_istable(L, -1))
 				for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 2)) {
@@ -1009,7 +974,7 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 					kext[j].valname = strdup(val);
 					m->tofree.push_back((void *)kext[j].valname);
 					if (!strcmp(value.c_str(), kext[j].valname))
-						b->i = kext[j].key;
+						b->int_val = kext[j].key;
 					j++;
 				}
 			lua_pop(L, 1);
@@ -1022,7 +987,7 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			b->str_val = value;
 			mi = new CMenuOptionStringChooser(b->name.c_str(), &b->str_val, enabled, m->observ, directkey, icon.c_str(), pulldown);
 		} else if (type == "stringinput") {
-			strncpy(b->s, value.c_str(), sizeof(b->s));
+			b->str_val = value;
 			std::string valid_chars = "abcdefghijklmnopqrstuvwxyz0123456789!\"§$%&/()=?-. ";
 			tableLookup(L, "valid_chars", valid_chars);
 			int sms = 0;	tableLookup(L, "sms", sms);
@@ -1031,7 +996,7 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			mi = new CMenuForwarder(b->name, enabled, b->str_val, stringinput, NULL/*ActionKey*/, directkey, icon.c_str(), right_icon.c_str());
 			m->targets.push_back(stringinput);
 		} else if (type == "filebrowser") {
-			strncpy(b->s, value.c_str(), sizeof(b->s));
+			b->str_val = value;
 			int dirMode = 0; tableLookup(L, "dir_mode", dirMode);
 			CLuaMenuFilebrowser *filebrowser = new CLuaMenuFilebrowser(L, action, id, &b->str_val, dirMode);
 			lua_pushstring(L, "filter");
@@ -1304,7 +1269,7 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 			}
 	}
 
-	int res = ShowMsgUTF(name.c_str(), text.c_str(), (CMessageBox::result_) default_button, (CMessageBox::buttons_) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
+	int res = ShowMsgUTF(name, text, (CMessageBox::result_) default_button, (CMessageBox::buttons_) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
 
 	tmp = "cancel";
 	for (int i = 0; mbr[i].name; i++)
@@ -1316,4 +1281,3 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 
 	return 1;
 }
-#endif
