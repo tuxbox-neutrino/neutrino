@@ -718,6 +718,7 @@ lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD Settings
 lcdmenu.lcdcontroler Brightness
+lcdmenu.scroll Enable text scroll
 lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
@@ -1039,6 +1040,7 @@ menu.hint_record_data_vtxt VideoText stream
 menu.hint_record_dir Select directory to store recordings
 menu.hint_record_end Stop direct record after maximal time or after current event end time
 menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
+menu.hint_record_startstop_msg Turns the message when recording start/end on or off.
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
 menu.hint_record_time Record time before stop when\nusing direct record with record button
 menu.hint_record_timeafter Stop record after event end\nin minutes
@@ -1172,6 +1174,7 @@ menu.hint_vfd_brightnessstandby Brightness in soft-standby mode
 menu.hint_vfd_defaults Restore default brightness values
 menu.hint_vfd_dimtime Auto-dim time, in seconds
 menu.hint_vfd_infoline Choose what to display in main VFD line
+menu.hint_vfd_scroll Enable or disable text scrolling on VFD
 menu.hint_vfd_statusline Choose what to display in short\nVFD status line
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
 menu.hint_video_43mode Display mode for 4:3 content\non 16:9 TV
@@ -1657,6 +1660,7 @@ rclock.title Lock Remote Control
 rclock.unlockmsg Remote control reactivated.
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
+recording.startstop_msg Message when recording is start/stop
 recording.stop Stop recording, please wait...!
 recording.time_hour hour
 recording.time_hours hours

@@ -410,6 +410,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.backlight_tv = configfile.getInt32( "backlight_tv", 1);
 	g_settings.backlight_standby = configfile.getInt32( "backlight_standby", 0);
 	g_settings.backlight_deepstandby = configfile.getInt32( "backlight_deepstandby", 0);
+	g_settings.lcd_scroll = configfile.getInt32( "lcd_scroll", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
@@ -648,6 +649,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , true);
 	g_settings.recording_save_in_channeldir    = configfile.getBool("recording_save_in_channeldir"         , false);
 	g_settings.recording_slow_warning	   = configfile.getBool("recording_slow_warning"     , true);
+	g_settings.recording_startstop_msg	   = configfile.getBool("recording_startstop_msg"     , true);
 
 	// default plugin for movieplayer
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
@@ -947,6 +949,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "backlight_tv", g_settings.backlight_tv);
 	configfile.setInt32( "backlight_standby", g_settings.backlight_standby);
 	configfile.setInt32( "backlight_deepstandby", g_settings.backlight_deepstandby);
+	configfile.setInt32( "lcd_scroll", g_settings.lcd_scroll);
 
 	//misc
 	configfile.setInt32( "power_standby", g_settings.power_standby);
@@ -1134,6 +1137,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ("recording_epg_for_end"              , g_settings.recording_epg_for_end          );
 	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir   );
 	configfile.setBool  ("recording_slow_warning"             , g_settings.recording_slow_warning         );
+	configfile.setBool  ("recording_startstop_msg"             , g_settings.recording_startstop_msg       );
 
 	// default plugin for movieplayer
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
@@ -2953,7 +2957,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 			}
 		}
-		if(( mode != mode_scart ) && ( mode != mode_standby )){
+		if(( mode != mode_scart ) && ( mode != mode_standby ) && g_settings.recording_startstop_msg) {
 			std::string name = g_Locale->getText(LOCALE_RECORDTIMER_ANNOUNCE);
 			getAnnounceEpgName(eventinfo, name);
 			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, name.c_str());
@@ -3203,10 +3207,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
 #if 0
-			my_system("/etc/init.d/rcK");
-			sync();
-			my_system(2,"/bin/umount", "-a");
-			sleep(1);
 			{
 				fp_standby_data_t standby;
 				time_t mtime = time(NULL);
@@ -3245,6 +3245,11 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				standby.current_minute      = tmtime->tm_min;
 				standby.timer_minutes_hi    = fp_timer >> 8;;
 				standby.timer_minutes_lo    = fp_timer & 0xFF;
+
+				my_system("/etc/init.d/rcK");
+				sync();
+				my_system(2,"/bin/umount", "-a");
+				sleep(1);
 
 				stop_video();
 
