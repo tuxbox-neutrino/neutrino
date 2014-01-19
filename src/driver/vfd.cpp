@@ -68,7 +68,7 @@ CVFD::CVFD()
 		perror("/dev/display");
 		has_lcd = 0;
 	}
-	text[0] = 0;
+	text.clear();
 	clearClock = 0;
 	mode = MODE_TVRADIO;
 	switch_name_time_cnt = 0;
@@ -688,7 +688,7 @@ void CVFD::Clear()
 	if(ret < 0)
 		perror("IOC_FP_SET_TEXT");
 	else
-		text[0] = 0;
+		text.clear();
 }
 
 void CVFD::ShowIcon(fp_icon icon, bool show)
