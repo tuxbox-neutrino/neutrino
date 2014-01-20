@@ -272,7 +272,7 @@ class CSignalBox : public CComponentsForm
 
 	public:
 		///class constructor for signal noise ratio.
-		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vertical = true);
+		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref = NULL, const bool vertical = true);
 
 		///returns the signal object, type = CSignalBar*
 		CSignalBar* getScaleObject(){return sbar;};
