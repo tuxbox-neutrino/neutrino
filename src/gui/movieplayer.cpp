@@ -1006,10 +1006,9 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		int percent[numpida];
 		for (uint i=0; i < numpida; i++) {
 			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
-			APIDSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
-						currentapid == apids[i],
-						0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,
-						p_movie_info->audioPids[i].epgAudioPidName.c_str()));
+			APIDSelector.addItem(new CMenuOptionNumberChooser(p_movie_info->audioPids[i].epgAudioPidName,
+						&percent[i], currentapid == apids[i],
+						0, 999, CVolume::getInstance()));
 		}
 	}
 
