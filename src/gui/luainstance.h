@@ -29,6 +29,7 @@ extern "C" {
 #include <gui/widget/menue.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
+#include <gui/components/cc.h>
 
 /* this is stored as userdata in the lua_State */
 struct CLuaData
@@ -117,6 +118,21 @@ class CLuaMessagebox
 		~CLuaMessagebox();
 };
 
+class CLuaCWindow
+{
+	public:
+		CComponentsWindow *w;
+		CLuaCWindow() { w = NULL; }
+		~CLuaCWindow() { delete w; }
+};
+
+class CLuaSignalBox
+{
+	public:
+		CSignalBox *s;
+		CLuaSignalBox() { s = NULL; }
+		~CLuaSignalBox() { delete s; }
+};
 
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
@@ -167,6 +183,19 @@ private:
 	void MessageboxRegister(lua_State *L);
 	static int MessageboxExec(lua_State *L);
 	static CLuaMessagebox *MessageboxCheck(lua_State *L, int n);
+
+	void CWindowRegister(lua_State *L);
+	static int CWindowNew(lua_State *L);
+	static CLuaCWindow *CWindowCheck(lua_State *L, int n);
+	static int CWindowPaint(lua_State *L);
+	static int CWindowHide(lua_State *L);
+	static int CWindowDelete(lua_State *L);
+
+	static CLuaSignalBox *SignalBoxCheck(lua_State *L, int n);
+	static void SignalBoxRegister(lua_State *L);
+	static int SignalBoxNew(lua_State *L);
+	static int SignalBoxPaint(lua_State *L);
+	static int SignalBoxDelete(lua_State *L);
 
 	static bool tableLookup(lua_State*, const char*, std::string&);
 	static bool tableLookup(lua_State*, const char*, int&);

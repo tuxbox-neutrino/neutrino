@@ -417,6 +417,8 @@ void CLuaInstance::registerFunctions()
 	MenuRegister(lua);
 	HintboxRegister(lua);
 	MessageboxRegister(lua);
+	CWindowRegister(lua);
+	SignalBoxRegister(lua);
 }
 
 CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
@@ -1281,3 +1283,159 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 
 	return 1;
 }
+
+// --------------------------------------------------------------------------------
+
+void CLuaInstance::CWindowRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new", CLuaInstance::CWindowNew },
+		{ "paint", CLuaInstance::CWindowPaint },
+		{ "hide", CLuaInstance::CWindowHide },
+		{ "__gc", CLuaInstance::CWindowDelete },
+		{ NULL, NULL }
+	};
+#if 0
+		{ "exec", CLuaInstance::CWindowExec },
+#endif
+
+	luaL_newmetatable(L, "cwindow");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "cwindow");
+}
+
+int CLuaInstance::CWindowNew(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+
+	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
+	int x = 100, y = 100, dx = 450, dy = 250;
+	tableLookup(L, "x", x);
+	tableLookup(L, "y", y);
+	tableLookup(L, "dx", dx);
+	tableLookup(L, "dy", dy);
+	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
+	tableLookup(L, "icon", icon);
+
+	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
+	*udata = new CLuaCWindow();
+	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str());
+	luaL_getmetatable(L, "cwindow");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+CLuaCWindow *CLuaInstance::CWindowCheck(lua_State *L, int n)
+{
+	return *(CLuaCWindow **) luaL_checkudata(L, n, "cwindow");
+}
+
+int CLuaInstance::CWindowPaint(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	int do_save_bg = 1;
+	tableLookup(L, "do_save_bg", do_save_bg);
+
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->w->paint((do_save_bg!=0)?true:false);
+	return 0;
+}
+
+int CLuaInstance::CWindowHide(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	int no_restore = 0;
+	tableLookup(L, "no_restore", no_restore);
+
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->w->hide((no_restore!=0)?true:false);
+	return 0;
+}
+
+int CLuaInstance::CWindowDelete(lua_State *L)
+{
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->w->kill();
+	delete m;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+CLuaSignalBox *CLuaInstance::SignalBoxCheck(lua_State *L, int n)
+{
+	return *(CLuaSignalBox **) luaL_checkudata(L, n, "signalbox");
+}
+
+void CLuaInstance::SignalBoxRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new", CLuaInstance::SignalBoxNew },
+		{ "paint", CLuaInstance::SignalBoxPaint },
+		{ "__gc", CLuaInstance::SignalBoxDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, "signalbox");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "signalbox");
+}
+
+int CLuaInstance::SignalBoxNew(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+
+	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
+	int x = 110, y = 150, dx = 430, dy = 150;
+	tableLookup(L, "x", x);
+	tableLookup(L, "y", y);
+	tableLookup(L, "dx", dx);
+	tableLookup(L, "dy", dy);
+
+	CLuaSignalBox **udata = (CLuaSignalBox **) lua_newuserdata(L, sizeof(CLuaSignalBox *));
+	*udata = new CLuaSignalBox();
+	(*udata)->s = new CSignalBox(x, y, dx, dy);
+	luaL_getmetatable(L, "signalbox");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstance::SignalBoxPaint(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	int do_save_bg = 1;
+	tableLookup(L, "do_save_bg", do_save_bg);
+
+	CLuaSignalBox *m = SignalBoxCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->s->paint((do_save_bg!=0)?true:false);
+	return 0;
+}
+
+int CLuaInstance::SignalBoxDelete(lua_State *L)
+{
+	CLuaSignalBox *m = SignalBoxCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->s->kill();
+	delete m;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
