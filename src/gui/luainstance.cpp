@@ -1400,14 +1400,16 @@ int CLuaInstance::SignalBoxNew(lua_State *L)
 
 	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
 	int x = 110, y = 150, dx = 430, dy = 150;
+	int vertical = true;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
 	tableLookup(L, "dx", dx);
 	tableLookup(L, "dy", dy);
+	tableLookup(L, "vertical", vertical);
 
 	CLuaSignalBox **udata = (CLuaSignalBox **) lua_newuserdata(L, sizeof(CLuaSignalBox *));
 	*udata = new CLuaSignalBox();
-	(*udata)->s = new CSignalBox(x, y, dx, dy);
+	(*udata)->s = new CSignalBox(x, y, dx, dy, NULL, (vertical!=0)?true:false);
 	luaL_getmetatable(L, "signalbox");
 	lua_setmetatable(L, -2);
 	return 1;
