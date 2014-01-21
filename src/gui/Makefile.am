@@ -28,8 +28,13 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@CURL_CFLAGS@ \
-	@LUA_CFLAGS@ \
 	@FREETYPE_CFLAGS@
+
+if ENABLE_LUA
+AM_CPPFLAGS += \
+	@LUA_CFLAGS@
+endif
+
 
 if BOXTYPE_COOL
 if BOXMODEL_APOLLO
@@ -115,8 +120,10 @@ libneutrino_gui_a_SOURCES += \
 	test_menu.cpp
 endif
 
+if ENABLE_LUA
 libneutrino_gui_a_SOURCES += \
 	luainstance.cpp
+endif
 
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \

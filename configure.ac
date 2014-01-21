@@ -171,9 +171,21 @@ AC_ARG_ENABLE(pip,
 	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
 
 
+AC_ARG_ENABLE(testmenu,
+       AS_HELP_STRING(--enable-testmenu,include test menu in neutrino main menu))
+
 AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
 if test "$enable_testmenu" = "yes"; then
 	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
+fi
+
+
+AC_ARG_ENABLE(lua,
+       AS_HELP_STRING(--enable-lua,enable LUA support))
+
+AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
+if test "$enable_lua" = "yes"; then
+       AC_DEFINE(ENABLE_LUA,1,[include LUA support])
 fi
 
 
