@@ -582,7 +582,6 @@ void CMotorControl::showSNR ()
 	if (signalbox == NULL){
 		int xpos1 = x + 10;
 		signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
-		signalbox->setScaleWidth(60); /*%*/
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);
