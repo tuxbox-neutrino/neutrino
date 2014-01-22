@@ -1271,7 +1271,7 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 			}
 	}
 
-	int res = ShowMsgUTF(name, text, (CMessageBox::result_) default_button, (CMessageBox::buttons_) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
+	int res = ShowMsg(name, text, (CMessageBox::result_) default_button, (CMessageBox::buttons_) show_buttons, icon.empty() ? NULL : icon.c_str(), width, timeout, return_default_on_timeout);
 
 	tmp = "cancel";
 	for (int i = 0; mbr[i].name; i++)

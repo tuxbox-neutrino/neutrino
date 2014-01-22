@@ -133,7 +133,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		text[12*len] = 0;
 
 		CVFD::getInstance()->ShowText(text);
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "VFD test, Press OK to return", CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, "VFD test, Press OK to return", CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		CVFD::getInstance()->Clear();
 		
 		return res;
@@ -173,7 +173,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		close(fd);
 		
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		
 		return res;
 	}
@@ -184,17 +184,17 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		switch(ret)
 		{
 			case 0:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
 				break;
 			case -1:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
 				break;
 			case -2:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
 				break;
 			default:
 			case -3:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
 				break;
 		}
 		
@@ -207,17 +207,17 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		switch(ret)
 		{
 			case 0:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
 				break;
 			case -1:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
 				break;
 			case -2:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
 				break;
 			default:
 			case -3:
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				ShowMsg(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
 				break;
 		}
 		
@@ -240,7 +240,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		sprintf(buffer, "HDD: /dev/sda1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
 		
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		
 		return res;
 	}
@@ -261,7 +261,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		sprintf(buffer, "MMC: /dev/mmcblk0p1 is %s", mounted ? "mounted" : "NOT mounted");
 		printf("%s\n", buffer);
 		
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		
 		return res;
 	}

@@ -598,7 +598,7 @@ int CTimerList::show()
 					if (epgdata.title != "")
 						title = "(" + epgdata.title + ")\n";
 					snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
-					if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
+					if(ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
 							CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo) {
 						killTimer = false;
 						update = false;
@@ -1313,7 +1313,7 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 		// todo: localize message
 		//g_Locale->getText(TIMERLIST_OVERLAPPING_MESSAGE);
 
-		return (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO,timerbuf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+		return (ShowMsg(LOCALE_MESSAGEBOX_INFO,timerbuf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
 	}
 	else
 		return true;

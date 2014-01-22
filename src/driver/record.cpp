@@ -1382,7 +1382,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 
 		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
 		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
-		if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
+		if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
 			CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
@@ -1415,7 +1415,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			std::string title, duration;
 			inst->GetRecordString(title, duration);
 			title += duration;
-			tostart = (ShowMsgUTF(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
+			tostart = (ShowMsg(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
 						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes);
 		}
 		if (tostart) {
@@ -1569,7 +1569,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 	if(inst == NULL)
 		return false;
 
-	if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
+	if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
 #if 0
 		g_Timerd->stopTimerEvent(recording_id);
@@ -1864,7 +1864,7 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 					strcat(msg,"\nDir: ");
 					strcat(msg,recordingDir);
 
-					ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, msg,
+					ShowMsg(LOCALE_MESSAGEBOX_ERROR, msg,
 							CMessageBox::mbrBack, CMessageBox::mbBack,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
 					ret = false;
 				}

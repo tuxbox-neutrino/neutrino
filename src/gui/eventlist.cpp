@@ -493,13 +493,13 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 									TIMERD_APIDS_CONF, true, recDir,true);
 									
 							//ask user whether the timer event should be set anyway
-							ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+							ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 							timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 						}
 					} 
 					else 
 					{
-						//ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+						//ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 						timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 					}
 				}
@@ -526,7 +526,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					evtlist[selected].startTime - (g_settings.zapto_pre_time * 60),
 					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
-			//ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+			//ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 			timerlist.clear();
 			g_Timerd->getTimerList (timerlist);
 			paint(evtlist[selected].channelID );

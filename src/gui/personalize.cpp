@@ -649,7 +649,7 @@ void CPersonalizeGui::SaveAndExit()
 			ApplySettings();
 			return;
 		}
-		if (ShowMsgUTF(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
 		{
 			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
 			hintBox.paint();
@@ -658,7 +658,7 @@ void CPersonalizeGui::SaveAndExit()
 		}
 		else
 		{
-			if (ShowMsgUTF(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
 				exec(NULL, "restore");
 		}
 	}

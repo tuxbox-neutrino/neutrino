@@ -2702,7 +2702,7 @@ bool CAudioPlayerGui::askToOverwriteFile(const std::string& filename)
 		 "%s\n%s",
 		 g_Locale->getText(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_MSG),
 		 filename.c_str());
-	bool res = (ShowMsgUTF(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_TITLE,
+	bool res = (ShowMsg(LOCALE_AUDIOPLAYER_PLAYLIST_FILEOVERWRITE_TITLE,
 			       msg,CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo)
 		    == CMessageBox::mbrYes);
 	this->paint();

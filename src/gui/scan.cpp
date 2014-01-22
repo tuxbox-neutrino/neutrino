@@ -307,7 +307,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			else if(msg == CRCInput::RC_home) {
 				if(manual && !scansettings.scan_nit_manual)
 					continue;
-				if (ShowLocalizedMessage(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+				if (ShowMsg(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 					g_Zapit->stopScan();
 				}
 			}

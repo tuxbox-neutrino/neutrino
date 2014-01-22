@@ -223,7 +223,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						buf += " ";
 						buf += satname;
 						buf += " ?";
-						store = (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+						store = (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
 					}
 				}
 				if(store)

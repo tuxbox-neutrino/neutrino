@@ -483,7 +483,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
 			if ((*valueString != oldval) &&
-			     (ShowLocalizedMessage(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel))
+			     (ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel) == CMessageBox::mbrCancel))
 				continue;
 
 			*valueString = oldval;

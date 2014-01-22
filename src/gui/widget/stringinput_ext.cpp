@@ -233,7 +233,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		else if ( (msg==CRCInput::RC_home) || (msg==CRCInput::RC_timeout) )
 		{
 			if(*valueString != oldval){
-				int erg = ShowLocalizedMessage(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbNo | CMessageBox::mbYes | CMessageBox::mbCancel);
+				int erg = ShowMsg(name, LOCALE_MESSAGEBOX_DISCARD, CMessageBox::mbrYes, CMessageBox::mbNo | CMessageBox::mbYes | CMessageBox::mbCancel);
 				 if(erg==CMessageBox::mbrYes){
 					*valueString = oldval;
 					loop=false;

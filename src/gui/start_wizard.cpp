@@ -90,7 +90,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	languageSettings.showLanguageSetup(&osdl_setup);
 	osdl_setup.exec(NULL, "");
 
-	if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes)
+	if(ShowMsg (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes)
 	{
 		int advanced = 1;
 #ifdef ENABLE_FASTSCAN
@@ -129,7 +129,7 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 
 		if(advanced && init_settings && (res != menu_return::RETURN_EXIT_ALL))
 		{
-			if (ShowMsgUTF(LOCALE_WIZARD_INITIAL_SETTINGS, g_Locale->getText(LOCALE_WIZARD_INSTALL_SETTINGS),
+			if (ShowMsg(LOCALE_WIZARD_INITIAL_SETTINGS, g_Locale->getText(LOCALE_WIZARD_INSTALL_SETTINGS),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
 				system("/bin/cp " CONFIGDIR "/initial/* " CONFIGDIR "/zapit/");
 				CFEManager::getInstance()->loadSettings();

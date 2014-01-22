@@ -394,7 +394,7 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 		if (prev_video_mode != g_settings.video_Mode)
 		{
 			frameBuffer->paintBackground();
-			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEO_MODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEO_MODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes)
 			{
 				g_settings.video_Mode = prev_video_mode;
 				videoDecoder->SetVideoSystem(g_settings.video_Mode);

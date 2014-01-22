@@ -83,7 +83,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if(actionKey == "help_recording")
 	{
-		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
+		ShowMsg(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
 		return res;
 	}
 	else if(actionKey == "recordingdir")

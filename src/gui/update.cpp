@@ -243,13 +243,13 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	if (urls.empty())
 	{
-		ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR), CMessageBox::mbrOk, CMessageBox::mbOk); // UTF-8
+		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR), CMessageBox::mbrOk, CMessageBox::mbOk); // UTF-8
 		return false;
 	}
 	if(newfound)
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_FOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_FOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 	else
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 
 	menu_ret = SelectionWidget.exec(NULL, "");
 
@@ -329,7 +329,7 @@ printf("[update] mode is %d\n", softupdate_mode);
 		if(fileType < '3')
 		{
 			if ((strncmp(RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
-		    (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_WRONGBASE), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes))
+		    (ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_WRONGBASE), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes))
 			{
 				delete versionInfo;
 				//ShowHint(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_WRONGBASE)); // UTF-8
@@ -337,8 +337,8 @@ printf("[update] mode is %d\n", softupdate_mode);
 			}
 
 			if ((strcmp("Release", versionInfo->getType()) != 0) &&
-			    //(ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_EXPERIMENTALIMAGE), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes)) // UTF-8
-		    	    (ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_EXPERIMENTALIMAGE, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes))
+			    //(ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_EXPERIMENTALIMAGE), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes)) // UTF-8
+		    	    (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_FLASHUPDATE_EXPERIMENTALIMAGE, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes))
 			{
 				delete versionInfo;
 				return false;
@@ -397,7 +397,7 @@ printf("[update] mode is %d\n", softupdate_mode);
 		strcpy(msg, g_Locale->getText(LOCALE_FLASHUPDATE_NOVERSION));
 		msg_body = LOCALE_FLASHUPDATE_MSGBOX_MANUAL;
 	}
-	return (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, msg, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes); // UTF-8
+	return (ShowMsg(LOCALE_MESSAGEBOX_INFO, msg, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes); // UTF-8
 }
 
 int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -461,7 +461,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	if(softupdate_mode==1) { //internet-update
-		if ( ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? "Flash downloaded image ?" : "Install downloaded pack ?", CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
+		if ( ShowMsg(LOCALE_MESSAGEBOX_INFO, (fileType < '3') ? "Flash downloaded image ?" : "Install downloaded pack ?", CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
 		{
 			hide();
 			return menu_return::RETURN_REPAINT;
@@ -477,7 +477,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		//flash it...
 #ifndef BOXMODEL_APOLLO
 		if (g_settings.apply_settings) {
-			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) == CMessageBox::mbrYes)
 				if (!CExtUpdate::getInstance()->applySettings(filename, CExtUpdate::MODE_SOFTUPDATE)) {
 					hide();
 					return menu_return::RETURN_REPAINT;
@@ -514,7 +514,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 			fread(buffer, (uint32_t)filesize, 1, fd);
 			fclose(fd);
 			buffer[filesize] = 0;
-			ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+			ShowMsg(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 			free(buffer);
 		}
 	}
@@ -762,7 +762,7 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 		FILESYSTEM_ENCODING_TO_UTF8_STRING(filename).c_str(),
 		CMTDInfo::getInstance()->getMTDName(mtdNumber).c_str());
 
-	if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, message, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
+	if (ShowMsg(LOCALE_MESSAGEBOX_INFO, message, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes) // UTF-8
 		return;
 #ifdef VFD_UPDATE
         CVFD::getInstance()->showProgressBar2(0,"checking",0,"Update Neutrino");
@@ -949,7 +949,7 @@ int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			// create image warning
 			const char *box = (mtdInfo->getMTDEraseSize(mtdInfo->findMTDsystem()) == 0x40000) ? "Trinity" : "Tank";
 			snprintf(message, sizeof(message)-1, g_Locale->getText(LOCALE_FLASHUPDATE_CREATEIMAGE_WARNING), box, box);
-			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, message, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, message, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE) != CMessageBox::mbrYes)
 				skipImage = true;
 		}
 		if (!skipImage) {

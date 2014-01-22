@@ -125,7 +125,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		unsigned num = CEitManager::getInstance()->getEventsCount();
 		char str[128];
 		sprintf(str, "Event count: %d", num);
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack);
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "energy")

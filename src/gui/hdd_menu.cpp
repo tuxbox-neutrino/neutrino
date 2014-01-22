@@ -356,7 +356,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	printf("CHDDFmtExec: key %s\n", key.c_str());
 
-	res = ShowMsgUTF ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+	res = ShowMsg ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 	if(res != CMessageBox::mbrYes)
 		return 0;
 

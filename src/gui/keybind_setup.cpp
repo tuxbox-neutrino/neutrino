@@ -266,7 +266,7 @@ int CKeybindSetup::showKeySetup()
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART2));
 		strcat(RC_HW_msg, RC_HW_str[g_settings.remote_control_hardware]);
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART3));
-		if(ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMessageBox::mbrNo) {
+		if(ShowMsg(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMessageBox::mbrNo) {
 			g_settings.remote_control_hardware = org_remote_control_hardware;
 			g_RCInput->CRCInput::set_rc_hw();
 		}

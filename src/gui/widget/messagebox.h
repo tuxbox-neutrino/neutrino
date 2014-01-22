@@ -100,10 +100,12 @@ class CMessageBox : public CHintBoxExt
 };
 
 // Text is always UTF-8 encoded
-int ShowLocalizedMessage(const neutrino_locale_t Caption, const neutrino_locale_t Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false);
-int ShowMsgUTF(const neutrino_locale_t Caption, const char * const Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
-int ShowMsgUTF(const neutrino_locale_t Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
-int ShowMsgUTF(const std::string & Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
+int ShowMsg(const neutrino_locale_t Caption, const char * const Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
+int ShowMsg(const neutrino_locale_t Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
+int ShowMsg(const neutrino_locale_t Caption, const neutrino_locale_t Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
+int ShowMsg(const std::string &Caption, const char * const Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
+int ShowMsg(const std::string &Caption, const std::string & Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
+int ShowMsg(const std::string &Caption, const neutrino_locale_t Text, const CMessageBox::result_ &Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
 
 void DisplayErrorMessage(const char * const ErrorMsg); // UTF-8
 void DisplayInfoMessage(const char * const InfoMsg); // UTF-8
