@@ -250,7 +250,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		snprintf(str, sizeof(str), "%s %d", 
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INSERTED : LOCALE_SC_INSERTED), (int)curslot+1);
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -261,7 +261,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_REMOVED : LOCALE_SC_REMOVED), (int)curslot+1);
 
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -279,7 +279,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_OK : LOCALE_SC_INIT_OK), (int)curslot+1, name);
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
 		CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::PLAY, true);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -294,7 +294,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_FAILED : LOCALE_SC_INIT_FAILED), (int)curslot+1, name);
 
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -371,13 +371,13 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 			if(strlen(pMenu->bottom))
 				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->bottom);
 
-			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
+			ShowHint(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
 #else
 			if(strlen(pMenu->subtitle))
 				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->subtitle);
 			if(strlen(pMenu->bottom))
 				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->bottom);
-			ShowHintUTF(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), convertDVBUTF8(lstr, slen, 0).c_str());
+			ShowHint(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), convertDVBUTF8(lstr, slen, 0).c_str());
 #endif
 #if 0
 			showHintBox(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
@@ -463,7 +463,7 @@ int CCAMMenuHandler::doMenu(int slot, CA_SLOT_TYPE slotType)
 			if (msg == CRCInput::RC_timeout) {
 				printf("CCAMMenuHandler::doMenu: menu timeout\n");
 				hideHintBox();
-				ShowHintUTF(LOCALE_MESSAGEBOX_INFO, 
+				ShowHint(LOCALE_MESSAGEBOX_INFO,
 					g_Locale->getText(slotType == CA_SLOT_TYPE_CI ? LOCALE_CI_TIMEOUT : LOCALE_SC_TIMEOUT));
 #if 0
 				showHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_CI_TIMEOUT), 5);

@@ -650,7 +650,7 @@ int CTimerList::show()
 					if (timer->epgID != 0)
 						res = g_EpgData->show(timer->channel_id, timer->epgID, &timer->epg_starttime);
 					else
-						ShowLocalizedHint(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NOTFOUND);
+						ShowHint(LOCALE_MESSAGEBOX_INFO, LOCALE_EPGVIEWER_NOTFOUND);
 					if (res==menu_return::RETURN_EXIT_ALL)
 						loop=false;
 					else

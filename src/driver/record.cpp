@@ -1437,7 +1437,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 	} else if(actionKey == "Stop_record")
 	{
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
-			ShowHintUTF(LOCALE_MAINMENU_RECORDING_STOP, g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_NOT_RUNNING), 450, 2);
+			ShowHint(LOCALE_MAINMENU_RECORDING_STOP, g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_NOT_RUNNING), 450, 2);
 			return menu_return::RETURN_EXIT_ALL;
 		}
 	}
