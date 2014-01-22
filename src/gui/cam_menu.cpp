@@ -218,9 +218,9 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 	char cnt[5];
 	int i;
 	MMI_MENU_LIST_INFO Menu;
-	MMI_ENGUIRY_INFO MmiEnquiry;
+	MMI_ENQUIRY_INFO MmiEnquiry;
 	MMI_MENU_LIST_INFO *pMenu = &Menu;
-	MMI_ENGUIRY_INFO *pMmiEnquiry = &MmiEnquiry;
+	MMI_ENQUIRY_INFO *pMmiEnquiry = &MmiEnquiry;
 	CA_MESSAGE Msg, *rMsg;
 
 	if (msg != NeutrinoMessages::EVT_CA_MESSAGE)
@@ -405,14 +405,14 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		if (!(Msg.Flags & CA_MESSAGE_HAS_PARAM1_DATA))
 			return -1;
 
-		memmove(pMmiEnquiry, (MMI_ENGUIRY_INFO *)Msg.Msg.Data[0], sizeof(MMI_ENGUIRY_INFO));
+		memmove(pMmiEnquiry, (MMI_ENQUIRY_INFO *)Msg.Msg.Data[0], sizeof(MMI_ENQUIRY_INFO));
 		free((void *)Msg.Msg.Data[0]);
-		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str());
+		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str());
 		hideHintBox();
 
 		std::string ENQAnswer;
 
-		CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str(), &ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
+		CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str(), &ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
 		Inquiry->exec(NULL, "");
 		delete Inquiry;
 
