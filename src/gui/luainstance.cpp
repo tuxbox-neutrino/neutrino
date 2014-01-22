@@ -1335,28 +1335,30 @@ CLuaCWindow *CLuaInstance::CWindowCheck(lua_State *L, int n)
 int CLuaInstance::CWindowPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	int do_save_bg = 1;
-	tableLookup(L, "do_save_bg", do_save_bg);
+	std::string tmp = "true";
+	tableLookup(L, "do_save_bg", tmp);
+	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 
 	CLuaCWindow *m = CWindowCheck(L, 1);
 	if (!m)
 		return 0;
 
-	m->w->paint((do_save_bg!=0)?true:false);
+	m->w->paint(do_save_bg);
 	return 0;
 }
 
 int CLuaInstance::CWindowHide(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	int no_restore = 0;
-	tableLookup(L, "no_restore", no_restore);
+	std::string tmp = "false";
+	tableLookup(L, "no_restore", tmp);
+	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
 
 	CLuaCWindow *m = CWindowCheck(L, 1);
 	if (!m)
 		return 0;
 
-	m->w->hide((no_restore!=0)?true:false);
+	m->w->hide(no_restore);
 	return 0;
 }
 
@@ -1418,14 +1420,15 @@ int CLuaInstance::SignalBoxNew(lua_State *L)
 int CLuaInstance::SignalBoxPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	int do_save_bg = 1;
-	tableLookup(L, "do_save_bg", do_save_bg);
+	std::string tmp = "true";
+	tableLookup(L, "do_save_bg", tmp);
+	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
 
 	CLuaSignalBox *m = SignalBoxCheck(L, 1);
 	if (!m)
 		return 0;
 
-	m->s->paint((do_save_bg!=0)?true:false);
+	m->s->paint(do_save_bg);
 	return 0;
 }
 
