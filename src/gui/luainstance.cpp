@@ -39,7 +39,7 @@
 
 struct table_key {
 	const char *name;
-	long code;
+	lua_Integer code;
 };
 
 struct lua_envexport {
