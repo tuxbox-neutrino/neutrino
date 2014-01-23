@@ -45,13 +45,11 @@
 #include <string>
 #include <vector>
 
-#if ENABLE_LUA
 extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
 }
-#endif
 
 #define NO_WIDGET_ID -1
 
@@ -77,12 +75,10 @@ class CChangeObserver
 		{
 			return false;
 		}
-#if ENABLE_LUA
 		virtual bool changeNotify(lua_State * /*L*/, const std::string & /*luaId*/, const std::string & /*luaAction*/, void * /*Data*/)
 		{
 			return false;
 		}
-#endif
 };
 
 class CMenuTarget
@@ -107,11 +103,9 @@ class CMenuItem
 		fb_pixel_t item_color, item_bgcolor;
 		
 		void initItemColors(const bool select_mode);
-#if ENABLE_LUA
 		lua_State		*luaState;
 		std::string		luaAction;
 		std::string		luaId;
-#endif
 		neutrino_locale_t	name;
 		std::string 		nameString;
 
@@ -176,9 +170,8 @@ class CMenuItem
 		void setHint(const std::string icon, const neutrino_locale_t text) { hintIcon = icon; hint = text; }
 		void setHint(const std::string icon, const std::string text) { hintIcon = icon; hintText = text; }
 
-#if ENABLE_LUA
 		void setLua(lua_State *_luaState, std::string &_luaAction, std::string &_luaId) { luaState = _luaState; luaAction = _luaAction; luaId = _luaId; };
-#endif
+
 		virtual const char *getName();
 };
 

@@ -311,11 +311,8 @@ bool CUserMenu::showUserMenu(int button)
 			int cnt = 0;
 			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
 			{
-				bool show = g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL;
-
-#if ENABLE_LUA
-				show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
-#endif
+				bool show = g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL ||
+					    g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
 				if (show && !g_PluginList->isHidden(count))
 				{
 					sprintf(id, "%d", count);

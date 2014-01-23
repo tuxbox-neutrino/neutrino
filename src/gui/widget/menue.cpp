@@ -1275,12 +1275,10 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 		else
 			(*optionValue)++;
 	}
-#if ENABLE_LUA
 	if(observ && !luaAction.empty()) {
 		// optionValue is int*
 		observ->changeNotify(luaState, luaAction, luaId, (void *) to_string(*optionValue).c_str());
 	} else
-#endif
 		if(observ)
 			observ->changeNotify(name, optionValue);
 
@@ -1501,9 +1499,8 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 {
 	bool wantsRepaint = false;
 	int ret = menu_return::RETURN_NONE;
-#if ENABLE_LUA
 	char *optionValname = NULL;
-#endif
+
 	if (optionsSort) {
 		optionsSort = false;
 		clearChooserOptions();
@@ -1556,9 +1553,7 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 		if(select >= 0) 
 		{
 			*optionValue = options[select].key;
-#if ENABLE_LUA
 			optionValname = (char *) options[select].valname;
-#endif
 		}
 		delete menu;
 		delete selector;
@@ -1567,31 +1562,23 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 			if (options[count].key == (*optionValue)) {
 				if(msg == CRCInput::RC_left) {
 					if(count > 0)
-#if ENABLE_LUA
 						optionValname = (char *) options[(count-1) % number_of_options].valname,
-#endif
 						*optionValue = options[(count-1) % number_of_options].key;
 					else
-#if ENABLE_LUA
 						optionValname = (char *) options[number_of_options-1].valname,
-#endif
 						*optionValue = options[number_of_options-1].key;
 				} else
-#if ENABLE_LUA
 					optionValname = (char *) options[(count+1) % number_of_options].valname,
-#endif
 					*optionValue = options[(count+1) % number_of_options].key;
 				break;
 			}
 		}
 	}
 	paint(true);
-#if ENABLE_LUA
 	if(observ && !luaAction.empty()) {
 		if (optionValname)
 			wantsRepaint = observ->changeNotify(luaState, luaAction, luaId, optionValname);
 	} else
-#endif
 		if(observ)
 			wantsRepaint = observ->changeNotify(name, optionValue);
 
@@ -1752,11 +1739,9 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 
 		paint(true);
 	}
-#if ENABLE_LUA
 	if(observ && !luaAction.empty())
 		wantsRepaint = observ->changeNotify(luaState, luaAction, luaId, (void *)(optionValueString ? optionValueString->c_str() : ""));
 	else
-#endif
 		if(observ) {
 			wantsRepaint = observ->changeNotify(name, (void *)(optionValueString ? optionValueString->c_str() : ""));
 	}
