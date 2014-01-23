@@ -39,7 +39,7 @@
 
 struct table_key {
 	const char *name;
-	uint32_t code;
+	long code;
 };
 
 struct lua_envexport {
@@ -224,20 +224,20 @@ static void set_lua_variables(lua_State *L)
 		{ "TOP_RIGHT",		CORNER_TOP_RIGHT },
 		{ "BOTTOM_LEFT",	CORNER_BOTTOM_LEFT },
 		{ "BOTTOM_RIGHT",	CORNER_BOTTOM_RIGHT },
-		{ "RADIUS_LARGE",	(uint32_t) RADIUS_LARGE }, /* those depend on g_settings.rounded_corners */
-		{ "RADIUS_MID",		(uint32_t) RADIUS_MID },
-		{ "RADIUS_SMALL",	(uint32_t) RADIUS_SMALL },
-		{ "RADIUS_MIN",		(uint32_t) RADIUS_MIN },
+		{ "RADIUS_LARGE",	RADIUS_LARGE },	/* those depend on g_settings.rounded_corners */
+		{ "RADIUS_MID",		RADIUS_MID },
+		{ "RADIUS_SMALL",	RADIUS_SMALL },
+		{ "RADIUS_MIN",		RADIUS_MIN },
 		{ NULL, 0 }
 	};
 
 	/* screen offsets, exported as e.g. SCREEN['END_Y'] */
 	table_key screenopts[] =
 	{
-		{ "OFF_X", (uint32_t) g_settings.screen_StartX },
-		{ "OFF_Y", (uint32_t) g_settings.screen_StartY },
-		{ "END_X", (uint32_t) g_settings.screen_EndX },
-		{ "END_Y", (uint32_t) g_settings.screen_EndY },
+		{ "OFF_X", g_settings.screen_StartX },
+		{ "OFF_Y", g_settings.screen_StartY },
+		{ "END_X", g_settings.screen_EndX },
+		{ "END_Y", g_settings.screen_EndY },
 		{ NULL, 0 }
 	};
 	table_key menureturn[] =
@@ -694,7 +694,7 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 	lua_pushstring(L, luaId.c_str());
 	lua_pushstring(L, optionValue);
 	lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
-	int res = lua_isnumber(L, -1) ? (int)lua_tonumber(L, -1) : 0;
+	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
 	lua_pop(L, 2);
 	return ((res == menu_return::RETURN_REPAINT) || (res == menu_return::RETURN_EXIT_REPAINT));
 }
@@ -1273,7 +1273,7 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 
 	tmp = "cancel";
 	for (int i = 0; mbr[i].name; i++)
-		if ((uint32_t)res == mbr[i].code) {
+		if (res == mbr[i].code) {
 			tmp = mbr[i].name;
 			break;
 		}
