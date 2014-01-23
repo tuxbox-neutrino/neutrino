@@ -709,7 +709,7 @@ void CVFD::ShowText(const char * str)
 		return;
 	}
 
-	if (g_settings.lcd_scroll && (strlen(str) > g_info.hw_caps->display_xres))
+	if (g_settings.lcd_scroll && ((int)strlen(str) > g_info.hw_caps->display_xres))
 		flags[0] |= FP_FLAG_SCROLL_ON | FP_FLAG_SCROLL_SIO | FP_FLAG_SCROLL_DELAY;
 
 	std::string txt = std::string(flags) + str;
