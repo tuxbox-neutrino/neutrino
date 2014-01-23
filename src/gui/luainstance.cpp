@@ -122,7 +122,7 @@ static void set_lua_variables(lua_State *L)
 		{ "mute_off",		CRCInput::RC_mute_off },
 		{ "analog_on",		CRCInput::RC_analog_on },
 		{ "analog_off",		CRCInput::RC_analog_off },
-#if !HAVE_COOL_HARDWARE
+#if 0
 		{ "find",		CRCInput::RC_find },
 		{ "pip",		CRCInput::RC_pip },
 		{ "folder",		CRCInput::RC_archive },
@@ -636,7 +636,7 @@ int CLuaInstance::GCWindow(lua_State *L)
 	return 0;
 }
 
-#if HAVE_COOL_HARDWARE
+#if 1
 int CLuaInstance::Blit(lua_State *)
 {
 	return 0;
