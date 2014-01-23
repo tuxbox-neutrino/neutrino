@@ -863,9 +863,9 @@ bool CMovieInfo::addNewBookmark(MI_MOVIE_INFO * movie_info, MI_BOOKMARK & new_bo
 /************************************************************************
 
 ************************************************************************/
-void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
+
+void MI_MOVIE_INFO::clear(void)
 {
-	//TRACE("[mi]->clearMovieInfo \r\n");
 	tm timePlay;
 	timePlay.tm_hour = 0;
 	timePlay.tm_min = 0;
@@ -874,49 +874,49 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 	timePlay.tm_mday = 0;
 	timePlay.tm_mon = 1;
 
-	movie_info->file.Name = "";
-	movie_info->file.Url = "";
-	movie_info->file.Size = 0;	// Megabytes
-	movie_info->file.Time = mktime(&timePlay);
-	movie_info->dateOfLastPlay = mktime(&timePlay);	// (date, month, year)
-	movie_info->dirItNr = 0;	//
-	movie_info->genreMajor = 0;	//genreMajor;
-	movie_info->genreMinor = 0;	//genreMinor;
-	movie_info->length = 0;	// (minutes)
-	movie_info->quality = 0;	// (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
-	movie_info->productionDate = 0;	// (Year)  years since 1900
-	movie_info->parentalLockAge = 0;	// MI_PARENTAL_LOCKAGE (0,6,12,16,18)
-	movie_info->format = 0;	// MI_VIDEO_FORMAT(16:9, 4:3)
-	movie_info->audio = 0;	// MI_AUDIO (AC3, Deutsch, Englisch)
+	file.Name = "";
+	file.Url = "";
+	file.Size = 0;	// Megabytes
+	file.Time = mktime(&timePlay);
+	dateOfLastPlay = mktime(&timePlay);	// (date, month, year)
+	dirItNr = 0;	//
+	genreMajor = 0;	//genreMajor;
+	genreMinor = 0;	//genreMinor;
+	length = 0;	// (minutes)
+	quality = 0;	// (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
+	productionDate = 0;	// (Year)  years since 1900
+	parentalLockAge = 0;	// MI_PARENTAL_LOCKAGE (0,6,12,16,18)
+	format = 0;	// MI_VIDEO_FORMAT(16:9, 4:3)
+	audio = 0;	// MI_AUDIO (AC3, Deutsch, Englisch)
 
-	movie_info->epgId = 0;
-	movie_info->epgEpgId = 0;
-	movie_info->epgMode = 0;
-	movie_info->epgVideoPid = 0;
-	movie_info->VideoType = 0;
-	movie_info->epgVTXPID = 0;
+	epgId = 0;
+	epgEpgId = 0;
+	epgMode = 0;
+	epgVideoPid = 0;
+	VideoType = 0;
+	epgVTXPID = 0;
 
-	movie_info->audioPids.clear();
+	audioPids.clear();
 
-	movie_info->productionCountry = "";
-	movie_info->epgTitle = "";
-	movie_info->epgInfo1 = "";	//epgInfo1
-	movie_info->epgInfo2 = "";	//epgInfo2
-	movie_info->epgChannel = "";
-	movie_info->serieName = "";	// (name e.g. 'StarWars)
-	movie_info->bookmarks.end = 0;
-	movie_info->bookmarks.start = 0;
-	movie_info->bookmarks.lastPlayStop = 0;
+	productionCountry = "";
+	epgTitle = "";
+	epgInfo1 = "";	//epgInfo1
+	epgInfo2 = "";	//epgInfo2
+	epgChannel = "";
+	serieName = "";	// (name e.g. 'StarWars)
+	bookmarks.end = 0;
+	bookmarks.start = 0;
+	bookmarks.lastPlayStop = 0;
 	for (int i = 0; i < MI_MOVIE_BOOK_USER_MAX; i++) {
-		movie_info->bookmarks.user[i].pos = 0;
-		movie_info->bookmarks.user[i].length = 0;
-		movie_info->bookmarks.user[i].name = "";
+		bookmarks.user[i].pos = 0;
+		bookmarks.user[i].length = 0;
+		bookmarks.user[i].name = "";
 	}
-	movie_info->tfile.clear();
-	movie_info->ytdate.clear();
-	movie_info->ytid.clear();
-	movie_info->ytitag = 0;
-	movie_info->marked = false;
+	tfile = "";
+	ytdate = "";
+	ytid = "";
+	ytitag = 0;
+	marked = false;
 }
 
 /************************************************************************

@@ -2684,7 +2684,6 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 	if(readDir(dirname, &flist) == true)
 	{
 		MI_MOVIE_INFO movieInfo;
-		//m_movieInfo.clearMovieInfo(&movieInfo); // refresh structure
 		for(unsigned int i = 0; i < flist.size(); i++)
 		{
 			if( S_ISDIR(flist[i].Mode))
@@ -2702,7 +2701,7 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 				}
 				else
 				{
-					m_movieInfo.clearMovieInfo(&movieInfo); // refresh structure
+					movieInfo.clear();
 					movieInfo.file.Name = flist[i].Name;
 					if(m_movieInfo.loadMovieInfo(&movieInfo)) { //FIXME atm we show only ts+xml (records) here
 						movieInfo.file.Mode = flist[i].Mode;
@@ -3711,7 +3710,6 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 	yt_video_list_t &ylist = ytparser.GetVideoList();
 	for (unsigned i = 0; i < ylist.size(); i++) {
 		MI_MOVIE_INFO movieInfo;
-		m_movieInfo.clearMovieInfo(&movieInfo); // refresh structure
 		movieInfo.epgChannel = ylist[i].author;
 		movieInfo.epgTitle = ylist[i].title;
 		movieInfo.epgInfo1 = ylist[i].category;
@@ -4518,9 +4516,7 @@ static int read_psi(char * spart, unsigned char * buf)
 
 static void save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, off64_t spos, off64_t secsize)
 {
-	MI_MOVIE_INFO ninfo;
-
-	ninfo = *minfo;
+	MI_MOVIE_INFO ninfo = *minfo;
 	ninfo.file.Name = dpart;
 	ninfo.file.Size = spos;
 	ninfo.length = spos/secsize/60;
@@ -4534,7 +4530,6 @@ static void save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, 
 		}
 	}
 	cmovie->saveMovieInfo(ninfo);
-	cmovie->clearMovieInfo(&ninfo);
 	reset_atime(dpart, minfo->file.Time);
 }
 
