@@ -29,12 +29,12 @@ class CSleepTimerWidget: public CMenuTarget
 {
 	private:
 		static bool is_running;
-		int shutdown_min;
-		std::string shutdown_min_string;
+		bool permanent;
 
 	public:
+		CSleepTimerWidget(bool _permanent = false) { permanent = _permanent; }
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		const char * getTargetValue();
+		std::string &getValue(void);
 };
 
 

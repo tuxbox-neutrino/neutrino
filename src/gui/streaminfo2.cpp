@@ -887,7 +887,6 @@ void CStreamInfo2::showSNR ()
 {
 	if (signalbox == NULL){
 		signalbox = new CSignalBox(x + 10, yypos, 240, 50, frontend);
-		signalbox->setScaleWidth(60); /*%*/
 		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
 		signalbox->setTextColor(COL_INFOBAR_TEXT);
 		signalbox->doPaintBg(true);

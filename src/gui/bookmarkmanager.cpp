@@ -83,12 +83,12 @@ inline int CBookmarkManager::createBookmark (const std::string & name, const std
 }
 
 int CBookmarkManager::createBookmark (const std::string & url, const std::string & time) {
-	char bookmarkname[26]="";
-	CStringInputSMS bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, bookmarkname, 25, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-_");
+	std::string bookmarkname;
+	CStringInputSMS bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, &bookmarkname, 25, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-_");
 	bookmarkname_input.exec(NULL, "");
 	// TODO: return -1 if no name was entered
-	if (!strlen(bookmarkname)) return -1;
-	return createBookmark(std::string(bookmarkname), url, time);
+	if (bookmarkname.empty()) return -1;
+	return createBookmark(bookmarkname, url, time);
 }
 
 //------------------------------------------------------------------------

@@ -237,14 +237,14 @@ void CHintBox::hide(void)
 	}
 }
 
-int ShowHintUTF(const neutrino_locale_t Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
+int ShowHint(const neutrino_locale_t Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
 {
 	const char * caption = g_Locale->getText(Caption);
 
-	return ShowHintUTF(caption, Text, Width, timeout, Icon);
+	return ShowHint(caption, Text, Width, timeout, Icon);
 }
 
-int ShowHintUTF(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
+int ShowHint(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
 {
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
@@ -307,8 +307,13 @@ int ShowHintUTF(const char * const Caption, const char * const Text, const int W
 	return res;
 }
 
-int ShowLocalizedHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon)
+int ShowHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon)
 {
-	return ShowHintUTF(Caption, g_Locale->getText(Text),Width,timeout,Icon);
+	return ShowHint(Caption, g_Locale->getText(Text),Width,timeout,Icon);
+}
+
+int ShowHint(const char * const Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon)
+{
+	return ShowHint(Caption, g_Locale->getText(Text),Width,timeout,Icon);
 }
 

@@ -1024,7 +1024,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 
 		char cnt[5];
 		sprintf(cnt, "%d", count);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
+		CMenuForwarder * item = new CMenuForwarder(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		APIDSelector.addItem(item, defpid);
 	}
 
@@ -1036,10 +1036,9 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		int percent[numpida];
 		for (uint i=0; i < numpida; i++) {
 			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
-			APIDSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
-						currentapid == apids[i],
-						0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,
-						p_movie_info->audioPids[i].epgAudioPidName.c_str()));
+			APIDSelector.addItem(new CMenuOptionNumberChooser(p_movie_info->audioPids[i].epgAudioPidName,
+						&percent[i], currentapid == apids[i],
+						0, 999, CVolume::getInstance()));
 		}
 	}
 
@@ -1356,7 +1355,7 @@ void CMoviePlayerGui::selectChapter()
 	char cnt[5];
 	for (unsigned i = 0; i < positions.size(); i++) {
 		sprintf(cnt, "%d", i);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
+		CMenuForwarder * item = new CMenuForwarder(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
 		ChSelector.addItem(item, position > positions[i]);
 	}
 	ChSelector.exec(NULL, "");
@@ -1391,7 +1390,7 @@ void CMoviePlayerGui::selectSubtitle()
 			title = pidnumber;
 		}
 		sprintf(cnt, "%d", count);
-		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
+		CMenuForwarder * item = new CMenuForwarder(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		item->setItemButton(NEUTRINO_ICON_BUTTON_STOP, false);
 		APIDSelector.addItem(item, defpid);
 	}

@@ -61,6 +61,7 @@ class CHintBoxExt
 	int                      m_fheight;
 	int                      m_theight;
 	neutrino_locale_t        m_caption;
+	std::string              m_captionString;
 	char *                   m_message;
 	ContentLines             m_lines;
 	std::string              m_iconfile;
@@ -70,12 +71,13 @@ class CHintBoxExt
 
  public:
 	CHintBoxExt(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon);
-
 	CHintBoxExt(const neutrino_locale_t Caption, ContentLines& lines, const int Width = 450, const char * const Icon = NEUTRINO_ICON_INFO);
+	CHintBoxExt(const std::string &Caption, const char * const Text, const int Width, const char * const Icon);
+	CHintBoxExt(const std::string &Caption, ContentLines& lines, const int Width = 450, const char * const Icon = NEUTRINO_ICON_INFO);
 
 	~CHintBoxExt(void);
 	
-	void init(const neutrino_locale_t Caption, const int Width, const char * const Icon);
+	void init(const neutrino_locale_t Caption, const std::string &CaptionString, const int Width, const char * const Icon);
 
 	bool has_scrollbar(void);
 	void scroll_up(void);

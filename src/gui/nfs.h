@@ -53,7 +53,7 @@ class CNFSMountGui : public CMenuTarget
 	CMenuWidget *mountMenuWPtr;
 	int menu_offset;
 
-	CMenuForwarderNonLocalized* mountMenuEntry[NETWORK_NFS_NR_OF_ENTRIES];
+	CMenuForwarder* mountMenuEntry[NETWORK_NFS_NR_OF_ENTRIES];
 
 	CFSMounter::FS_Support m_nfs_sup;
 	CFSMounter::FS_Support m_cifs_sup;

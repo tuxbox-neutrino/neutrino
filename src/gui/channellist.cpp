@@ -386,7 +386,7 @@ int CChannelList::doChannelMenu(void)
 		switch(select) {
 		case 0: {
 			hide();
-			int result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+			int result = ShowMsg ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 
 			if(result == CMessageBox::mbrYes) {
 				bouquet_id = bouquetList->getActiveBouquetNumber();

@@ -111,8 +111,8 @@ CScanSettings::CScanSettings(void)
 	delivery_system = DVB_S;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
 	scanType = CServiceScan::SCAN_TVRADIO;
-	strcpy(satName, "none");
-	strcpy(cableName, "none");
+	satName = "none";
+	cableName ="none";
 }
 
 bool CScanSettings::loadSettings(const char * const fileName, const delivery_system_t dsys)
@@ -138,17 +138,17 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	scan_logical_numbers = configfile.getInt32("scan_logical_numbers", 0);
 	scan_logical_hd = configfile.getInt32("scan_logical_hd", 1);
 
-	strcpy(satName, configfile.getString("satName", satName).c_str());
-	sat_TP_fec = configfile.getInt32("sat_TP_fec", 1);
-	sat_TP_pol = configfile.getInt32("sat_TP_pol", 0);
-	strcpy(sat_TP_freq, configfile.getString("sat_TP_freq", "10100000").c_str());
-	strcpy(sat_TP_rate, configfile.getString("sat_TP_rate", "27500000").c_str());
+	satName     = configfile.getString("satName", satName);
+	sat_TP_fec  = configfile.getInt32("sat_TP_fec", 1);
+	sat_TP_pol  = configfile.getInt32("sat_TP_pol", 0);
+	sat_TP_freq = configfile.getString("sat_TP_freq", "10100000");
+	sat_TP_rate = configfile.getString("sat_TP_rate", "27500000");
 
-	strcpy(cableName, configfile.getString("cableName", cableName).c_str());
-	cable_TP_mod = configfile.getInt32("cable_TP_mod", 3);
-	cable_TP_fec = configfile.getInt32("cable_TP_fec", 1);
-	strcpy(cable_TP_freq, configfile.getString("cable_TP_freq", "369000").c_str());
-	strcpy(cable_TP_rate, configfile.getString("cable_TP_rate", "6875000").c_str());
+	cableName     = configfile.getString("cableName", cableName);
+	cable_TP_mod  = configfile.getInt32("cable_TP_mod", 3);
+	cable_TP_fec  = configfile.getInt32("cable_TP_fec", 1);
+	cable_TP_freq = configfile.getString("cable_TP_freq", "369000");
+	cable_TP_rate = configfile.getString("cable_TP_rate", "6875000");
 #if 1
 	if(sat_TP_fec == 4) sat_TP_fec = 5;
 #endif

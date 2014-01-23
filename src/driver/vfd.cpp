@@ -72,6 +72,7 @@ CVFD::CVFD()
 	clearClock = 0;
 	mode = MODE_TVRADIO;
 	switch_name_time_cnt = 0;
+	timeout_cnt = 0;
 }
 
 CVFD::~CVFD()
@@ -117,8 +118,8 @@ void CVFD::count_down() {
 
 void CVFD::wake_up() {
  	if(!has_lcd) return;
-	if (atoi(g_settings.lcd_setting_dim_time) > 0) {
-		timeout_cnt = atoi(g_settings.lcd_setting_dim_time);
+	if (atoi(g_settings.lcd_setting_dim_time.c_str()) > 0) {
+		timeout_cnt = atoi(g_settings.lcd_setting_dim_time.c_str());
 		g_settings.lcd_setting_dim_brightness > -1 ?
 			setBrightness(g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS]) : setPower(1);
 	}

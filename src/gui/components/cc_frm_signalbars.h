@@ -88,9 +88,6 @@ class CSignalBar : public CComponentsForm
 		int sb_lastsig;
 		///current signal value
 		uint16_t sb_signal;
-		
-		///allowed width of scale bar from full width in %, rest used by caption, default value = 60% of width, use setScaleWidth() to set this value
-		short sb_scale_w_percent;
 
 		///initialize all needed basich attributes and objects
 		void initVarSigBar();
@@ -126,7 +123,7 @@ class CSignalBar : public CComponentsForm
 		///assigns the height of scale
 		virtual void setScaleHeight(const int& scale_height){sb_scale_height = scale_height;};
 		///assigns the width of scale
-		virtual void setScaleWidth(const short & scale_width_percent){sb_scale_w_percent = scale_width_percent;};
+		virtual void setScaleWidth(const int & scale_width){sb_scale_width = scale_width;};
 		///assigns the name of signal value in the caption object, see also sb_name
 		virtual void setName(const std::string& name){sb_name = name;};
 
@@ -136,6 +133,8 @@ class CSignalBar : public CComponentsForm
 		virtual CComponentsLabel* getLabelValObject(){return sb_vlbl;};
 		///returns the name label object, type = CComponentsLabel*
 		virtual CComponentsLabel* getLabelNameObject(){return sb_lbl;};
+		/// return the scale width
+		virtual int getScaleWidth(){ return sb_scale_width;};
 
 		///paint this items
 		virtual void paint(bool do_save_bg);
@@ -256,9 +255,6 @@ class CSignalBox : public CComponentsForm
 		///property: text color, see also setTextColor()
 		fb_pixel_t 	sbx_caption_color;
 
-		///allowed width of scale bar from full width in %, rest used by caption, default value = 60% of width, use setScaleWidth() to set this value
-		short sbx_scale_w_percent;
-
 		// true if vertical arrangement, false if horizontal
 		bool vertical;
 
@@ -272,7 +268,7 @@ class CSignalBox : public CComponentsForm
 
 	public:
 		///class constructor for signal noise ratio.
-		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref, const bool vertical = true);
+		CSignalBox(const int& xpos, const int& ypos, const int& w, const int& h, CFrontend *frontend_ref = NULL, const bool vertical = true);
 
 		///returns the signal object, type = CSignalBar*
 		CSignalBar* getScaleObject(){return sbar;};
@@ -283,9 +279,6 @@ class CSignalBox : public CComponentsForm
 		void setTextColor(const fb_pixel_t& caption_color){ sbx_caption_color = caption_color;};
 		///get caption color of signalbars, see also property 'sbx_caption_color'
 		fb_pixel_t getTextColor(){return sbx_caption_color;};
-
-		///assigns the width of scale in percent related of full width of signal box, the rest is reserved for text
-		void setScaleWidth(const short & scale_width_percent){sbx_scale_w_percent = scale_width_percent;};
 		
 		///paint items
 		void paint(bool do_save_bg);

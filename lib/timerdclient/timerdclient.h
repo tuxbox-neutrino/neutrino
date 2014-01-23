@@ -170,8 +170,8 @@ class CTimerdClient:private CBasicClient
 
 		// Convert String of O and X to repeat type and vice versa
 		//void getWeekdaysFromStr(int *rep, const char* str);
-		void getWeekdaysFromStr(CTimerd::CTimerEventRepeat *rep, const char* str);
-		void setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, char* str);
+		void getWeekdaysFromStr(CTimerd::CTimerEventRepeat *rep, std::string &str);
+		void setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, std::string &str);
 };
 
 #endif

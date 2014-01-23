@@ -128,14 +128,14 @@ int CCAMMenuHandler::doMainMenu()
 			char tmp[32];
 			snprintf(tmp, sizeof(tmp), "ca_ci%d", i);
 
-			cammenu->addItem(new CMenuForwarderNonLocalized(name1, true, NULL, this, tmp, CRCInput::RC_1 + cnt++));
+			cammenu->addItem(new CMenuForwarder(name1, true, NULL, this, tmp, CRCInput::RC_1 + cnt++));
 			snprintf(tmp, sizeof(tmp), "ca_ci_reset%d", i);
 			cammenu->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, this, tmp));
 			memset(name1,0,sizeof(name1));
 		} else {
 			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_CI_EMPTY), i);
 			tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
-			cammenu->addItem(new CMenuDForwarderNonLocalized(str1, false, NULL, tempMenu));
+			cammenu->addItem(new CMenuDForwarder(str1, false, NULL, tempMenu));
 			memset(str1,0,sizeof(str1));
 		}
 		if (i < (CiSlots - 1))
@@ -157,7 +157,7 @@ int CCAMMenuHandler::doMainMenu()
 			char tmp[32];
 			snprintf(tmp, sizeof(tmp), "ca_sc%d", i);
 
-			cammenu->addItem(new CMenuForwarderNonLocalized(name1, true, NULL, this, tmp, CRCInput::RC_1 + cnt++));
+			cammenu->addItem(new CMenuForwarder(name1, true, NULL, this, tmp, CRCInput::RC_1 + cnt++));
 #if 0 // FIXME not implemented yet
 			snprintf(tmp, sizeof(tmp), "ca_sc_reset%d", i);
 			cammenu->addItem(new CMenuForwarder(LOCALE_SC_RESET, true, NULL, this, tmp));
@@ -166,7 +166,7 @@ int CCAMMenuHandler::doMainMenu()
 		} else {
 			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_SC_EMPTY), i);
 			tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
-			cammenu->addItem(new CMenuDForwarderNonLocalized(str1, false, NULL, tempMenu));
+			cammenu->addItem(new CMenuDForwarder(str1, false, NULL, tempMenu));
 			memset(str1,0,sizeof(str1));
 		}
 		if (i < (ScNum - 1))
@@ -218,9 +218,9 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 	char cnt[5];
 	int i;
 	MMI_MENU_LIST_INFO Menu;
-	MMI_ENGUIRY_INFO MmiEnquiry;
+	MMI_ENQUIRY_INFO MmiEnquiry;
 	MMI_MENU_LIST_INFO *pMenu = &Menu;
-	MMI_ENGUIRY_INFO *pMmiEnquiry = &MmiEnquiry;
+	MMI_ENQUIRY_INFO *pMmiEnquiry = &MmiEnquiry;
 	CA_MESSAGE Msg, *rMsg;
 
 	if (msg != NeutrinoMessages::EVT_CA_MESSAGE)
@@ -250,7 +250,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		snprintf(str, sizeof(str), "%s %d", 
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INSERTED : LOCALE_SC_INSERTED), (int)curslot+1);
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -261,7 +261,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_REMOVED : LOCALE_SC_REMOVED), (int)curslot+1);
 
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -279,7 +279,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_OK : LOCALE_SC_INIT_OK), (int)curslot+1, name);
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
 		CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::PLAY, true);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -294,7 +294,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INIT_FAILED : LOCALE_SC_INIT_FAILED), (int)curslot+1, name);
 
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, str);
+		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
 #if 0
 		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
 #endif
@@ -330,27 +330,27 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 						bpos = 0;
 						tptr[li] = 0;
 						printf("CCAMMenuHandler::handleCamMsg: subtitle: %s\n", sptr);
-						menu->addItem(new CMenuForwarderNonLocalized(convertDVBUTF8(sptr, strlen(sptr), 0).c_str(), false));
+						menu->addItem(new CMenuForwarder(convertDVBUTF8(sptr, strlen(sptr), 0).c_str(), false));
 						sptr = &tptr[li+1];
 					}
 					bpos++;
 				}
 				if(strlen(sptr)) {
 					printf("CCAMMenuHandler::handleCamMsg: subtitle: %s\n", sptr);
-					menu->addItem(new CMenuForwarderNonLocalized(convertDVBUTF8(sptr, strlen(sptr), 0).c_str(), false));
+					menu->addItem(new CMenuForwarder(convertDVBUTF8(sptr, strlen(sptr), 0).c_str(), false));
 				}
 			}
 			for(i = 0; (i < pMenu->choice_nb) && (i < MAX_MMI_ITEMS); i++) {
 				snprintf(cnt, sizeof(cnt), "%d", i);
 				if(sublevel)
-					menu->addItem(new CMenuForwarderNonLocalized(convertDVBUTF8(pMenu->choice_item[i], strlen(pMenu->choice_item[i]), 0).c_str(), true, NULL, selector, cnt));
+					menu->addItem(new CMenuForwarder(convertDVBUTF8(pMenu->choice_item[i], strlen(pMenu->choice_item[i]), 0).c_str(), true, NULL, selector, cnt));
 				else
-					menu->addItem(new CMenuForwarderNonLocalized(convertDVBUTF8(pMenu->choice_item[i], strlen(pMenu->choice_item[i]), 0).c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i+1)));
+					menu->addItem(new CMenuForwarder(convertDVBUTF8(pMenu->choice_item[i], strlen(pMenu->choice_item[i]), 0).c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i+1)));
 			}
 			slen = strlen(pMenu->bottom);
 			if(slen) {
 				printf("CCAMMenuHandler::handleCamMsg: bottom: %s\n", pMenu->bottom);
-				menu->addItem(new CMenuForwarderNonLocalized(convertDVBUTF8(pMenu->bottom, slen, 0).c_str(), false));
+				menu->addItem(new CMenuForwarder(convertDVBUTF8(pMenu->bottom, slen, 0).c_str(), false));
 			}
 
 			menu->exec(NULL, "");
@@ -371,13 +371,13 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 			if(strlen(pMenu->bottom))
 				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->bottom);
 
-			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
+			ShowHint(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
 #else
 			if(strlen(pMenu->subtitle))
 				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->subtitle);
 			if(strlen(pMenu->bottom))
 				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->bottom);
-			ShowHintUTF(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), convertDVBUTF8(lstr, slen, 0).c_str());
+			ShowHint(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), convertDVBUTF8(lstr, slen, 0).c_str());
 #endif
 #if 0
 			showHintBox(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
@@ -405,26 +405,25 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		if (!(Msg.Flags & CA_MESSAGE_HAS_PARAM1_DATA))
 			return -1;
 
-		memmove(pMmiEnquiry, (MMI_ENGUIRY_INFO *)Msg.Msg.Data[0], sizeof(MMI_ENGUIRY_INFO));
+		memmove(pMmiEnquiry, (MMI_ENQUIRY_INFO *)Msg.Msg.Data[0], sizeof(MMI_ENQUIRY_INFO));
 		free((void *)Msg.Msg.Data[0]);
-		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str());
+		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str());
 		hideHintBox();
 
-		char ENQAnswer[pMmiEnquiry->answerlen+1];
-		ENQAnswer[0] = 0;
+		std::string ENQAnswer;
 
-		CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str(), ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
+		CEnquiryInput *Inquiry = new CEnquiryInput((char *)convertDVBUTF8(pMmiEnquiry->enquiryText, strlen(pMmiEnquiry->enquiryText), 0).c_str(), &ENQAnswer, pMmiEnquiry->answerlen, pMmiEnquiry->blind != 0, NONEXISTANT_LOCALE);
 		Inquiry->exec(NULL, "");
 		delete Inquiry;
 
-		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer);
+		printf("CCAMMenuHandler::handleCamMsg: input=[%s]\n", ENQAnswer.c_str());
 
-		if((int) strlen(ENQAnswer) != pMmiEnquiry->answerlen) {
+		if((int) ENQAnswer.length() != pMmiEnquiry->answerlen) {
 			printf("CCAMMenuHandler::handleCamMsg: wrong input len\n");
-			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer, 0);
+			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer.c_str(), 0);
 			return 1; //FIXME
 		} else {
-			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer, pMmiEnquiry->answerlen);
+			ca->InputAnswer(SlotType, curslot, (unsigned char *)ENQAnswer.c_str(), pMmiEnquiry->answerlen);
 			return 1;
 		}
 	}
@@ -464,7 +463,7 @@ int CCAMMenuHandler::doMenu(int slot, CA_SLOT_TYPE slotType)
 			if (msg == CRCInput::RC_timeout) {
 				printf("CCAMMenuHandler::doMenu: menu timeout\n");
 				hideHintBox();
-				ShowHintUTF(LOCALE_MESSAGEBOX_INFO, 
+				ShowHint(LOCALE_MESSAGEBOX_INFO,
 					g_Locale->getText(slotType == CA_SLOT_TYPE_CI ? LOCALE_CI_TIMEOUT : LOCALE_SC_TIMEOUT));
 #if 0
 				showHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_CI_TIMEOUT), 5);

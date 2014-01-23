@@ -311,8 +311,11 @@ bool CUserMenu::showUserMenu(int button)
 			int cnt = 0;
 			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
 			{
-				bool show = g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL ||
-					    g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
+				bool show = g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL;
+
+#if ENABLE_LUA
+				show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
+#endif
 				if (show && !g_PluginList->isHidden(count))
 				{
 					sprintf(id, "%d", count);
@@ -322,7 +325,7 @@ bool CUserMenu::showUserMenu(int button)
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					StreamFeaturesChanger     = new CStreamFeaturesChangeExec();
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
 
 					menu->addItem(menu_item, 0);
 					cnt++;

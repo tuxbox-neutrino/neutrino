@@ -532,7 +532,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 	/* no need to confirm if we only remove deleted channels */
 	if (!delete_removed) {
-		int result = ShowMsgUTF(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+		int result = ShowMsg(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
 		if (result != CMessageBox::mbrYes)
 			return true;
 	}

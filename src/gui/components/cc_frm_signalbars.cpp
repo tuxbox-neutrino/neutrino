@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <zapit/femanager.h>
 #include "cc_frm_signalbars.h"
 #include <sstream>
 
@@ -40,6 +41,8 @@ CSignalBar::CSignalBar()
 {
 	initVarSigBar();
 	sb_name 	= "SIG";
+
+	initDimensions();
 	initSBItems();
 }
 
@@ -53,6 +56,7 @@ CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int
 	height 		= h;
 	sb_name		= sbname;
 
+	initDimensions();
 	initSBItems();
 }
 
@@ -64,15 +68,14 @@ void CSignalBar::initDimensions()
 	if (sb_scale_height == -1)
 		sb_scale_height = sb_item_height;
 
-	//use value in % of signalbox width for scale, rest is reserved for caption
-	sb_scale_width	= width*sb_scale_w_percent/100;
+	int dx 		= 0;
+	int dy          = min(sb_item_height, 100);
+	sb_font 	= *dy_font->getDynFont(dx, dy, "100% "+sb_name);
+	dx		+= dx/10;
+	sb_scale_width	= width - dx;
 
-	int dx 		= width - sb_scale_width;
-	int dy 		= sb_item_height;
-	sb_font 	= *dy_font->getDynFont(dx, dy);
-
-	//use 15% for value and name label
-	sb_vlbl_width = sb_lbl_width = dx /2;
+	sb_vlbl_width = sb_font->getRenderWidth("100% ") + dx/20;
+	sb_lbl_width  = dx - sb_vlbl_width;
 }
 
 void CSignalBar::initSBItems()
@@ -85,9 +88,6 @@ void CSignalBar::initSBItems()
 		CSignalBox *sbx = static_cast<CSignalBox*>(cc_parent);
 		sb_caption_color = sbx->getTextColor();
 	}
-
-	//reinit dimensions
-	initDimensions();
 
 	//init items scale, value and name
 	initSBarScale();
@@ -104,7 +104,6 @@ void CSignalBar::initVarSigBar()
 	height		= SB_MIN_HEIGHT;
 
 	sb_scale_height = -1;
-	sb_scale_w_percent = 60;
 	dy_font 	= CNeutrinoFonts::getInstance();
 
 	sb_caption_color= COL_INFOBAR_TEXT;
@@ -169,7 +168,7 @@ void CSignalBar::initSBarName()
 	if (sb_lbl == NULL){
 		sb_lbl = new CComponentsLabel();
 		sb_lbl->doPaintBg(false);
-		sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK/* | CTextBox::RIGHT*/, sb_font);
+		sb_lbl->setText(sb_name, CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT, sb_font);
 		sb_lbl->forceTextPaint();
 		sb_lbl->doPaintTextBoxBg(true);
 	}
@@ -262,7 +261,7 @@ CSignalBox::CSignalBox(const int& xpos, const int& ypos, const int& w, const int
 	initVarSigBox();
 	vertical = vert;
 
-	sbx_frontend 	= frontend_ref;
+	sbx_frontend 	= (frontend_ref == NULL) ? CFEManager::getInstance()->getLiveFE() : frontend_ref;
 	x 		= xpos;
 	y 		= ypos;
 	width 		= w;
@@ -298,7 +297,6 @@ void CSignalBox::initVarSigBox()
 	sbx_bar_height	= height/2;
 	sbx_bar_x	= corner_rad;
 	sbx_caption_color = COL_INFOBAR_TEXT;
-	sbx_scale_w_percent = 60;
 	vertical = true;
 }
 
@@ -315,17 +313,22 @@ void CSignalBox::initSignalItems()
 	int sbar_x = sbx_bar_x + fr_thickness;
 	int scale_h = sbar_h * 76 / 100;
 
+	int sbar_sw = sbar->getScaleWidth();
+	int snrbar_sw = snrbar->getScaleWidth();
+	if (sbar_sw < snrbar_sw)
+		snrbar->setScaleWidth(sbar_sw);
+	else if (snrbar_sw < sbar_sw)
+		sbar->setScaleWidth(snrbar_sw);
+
 	sbar->setDimensionsAll(sbar_x, fr_thickness, sbar_w, sbar_h);
 	sbar->setFrontEnd(sbx_frontend);
 	sbar->setCorner(0);
 	sbar->setScaleHeight(scale_h);
-	sbar->setScaleWidth(sbx_scale_w_percent);
 
 	snrbar->setDimensionsAll(vertical ? sbar_x : CC_APPEND, vertical ? CC_APPEND : fr_thickness, sbar_w, sbar_h);
 	snrbar->setFrontEnd(sbx_frontend);
 	snrbar->setCorner(0);
 	snrbar->setScaleHeight(scale_h);
-	snrbar->setScaleWidth(sbx_scale_w_percent);
 }
 
 void CSignalBox::paintScale()

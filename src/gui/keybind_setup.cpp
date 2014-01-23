@@ -103,12 +103,12 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileBrowser fileBrowser;
 		fileBrowser.Dir_Mode = true;
 		if (fileBrowser.exec("/var/tuxbox") == true) {
-			char  fname[256] = "keys.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+			std::string fname = "keys.conf";
+			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, &fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
 			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino keybind_setup] save keys: %s\n", sname);
-			CNeutrinoApp::getInstance()->saveKeys(sname);
+			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
+			printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());
+			CNeutrinoApp::getInstance()->saveKeys(sname.c_str());
 			delete sms;
 		}
 		return menu_return::RETURN_REPAINT;
@@ -268,7 +268,7 @@ int CKeybindSetup::showKeySetup()
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART2));
 		strcat(RC_HW_msg, RC_HW_str[g_settings.remote_control_hardware]);
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART3));
-		if(ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMessageBox::mbrNo) {
+		if(ShowMsg(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMessageBox::mbrNo) {
 			g_settings.remote_control_hardware = org_remote_control_hardware;
 			g_RCInput->CRCInput::set_rc_hw();
 		}

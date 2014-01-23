@@ -718,6 +718,7 @@ lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
 lcdmenu.head VFD Einstellungen
 lcdmenu.lcdcontroler Helligkeit
+lcdmenu.scroll Laufschrift
 lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
@@ -1173,6 +1174,7 @@ menu.hint_vfd_brightnessstandby Definiert die Helligkeit im Standby-Modus
 menu.hint_vfd_defaults Zurücksetzen der Helligkeitswerte auf die Standardeinstellungen
 menu.hint_vfd_dimtime Geben Sie einen Wert in Sekunden ein, nachdem sich das Display automatisch auf den gewünschten Wert dimmt
 menu.hint_vfd_infoline Wählen Sie, was in der Infozeile angezeigt werden soll
+menu.hint_vfd_scroll Laufschrift im Display ein- oder ausschalten
 menu.hint_vfd_statusline Wählen Sie, was in der Statuszeile angezeigt werden soll
 menu.hint_video Video-Ausgang, Auflösung, Format, Seitenverhältnisse und mehr
 menu.hint_video_43mode Anzeige-Modus für 4:3-Inhalte auf 16:9-Fernsehern

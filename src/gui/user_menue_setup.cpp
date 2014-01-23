@@ -165,8 +165,8 @@ void CUserMenuSetup::checkButtonItems()
 		{
 			CMenuOptionChooser * opt_c = NULL;
 			opt_c = static_cast <CMenuOptionChooser*>(ums->getItem(i));
-			neutrino_locale_t opt_locale = USERMENU_ITEM_OPTIONS[opt_c->getOptionValue()].value;
-			int set_key = USERMENU_ITEM_OPTIONS[opt_c->getOptionValue()].key;
+			neutrino_locale_t opt_locale = USERMENU_ITEM_OPTIONS[opt_c->getOption()].value;
+			int set_key = USERMENU_ITEM_OPTIONS[opt_c->getOption()].key;
 			opt_c = NULL;
 			
 			if (set_key != SNeutrinoSettings::ITEM_NONE)

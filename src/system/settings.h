@@ -243,7 +243,7 @@ struct SNeutrinoSettings
 	};
 
  	int  personalize[P_SETTINGS_MAX];
-	char personalize_pincode[5];
+	std::string personalize_pincode;
 
 	//timing
 	enum TIMING_SETTINGS 
@@ -497,10 +497,10 @@ struct SNeutrinoSettings
 
 	//Software-update
 	int softupdate_mode;
-	char softupdate_url_file[31];
-	char softupdate_proxyserver[31];
-	char softupdate_proxyusername[31];
-	char softupdate_proxypassword[31];
+	std::string softupdate_url_file;
+	std::string softupdate_proxyserver;
+	std::string softupdate_proxyusername;
+	std::string softupdate_proxypassword;
 	int softupdate_name_mode_apply;
 	int softupdate_name_mode_backup;
 	int apply_settings;
@@ -519,7 +519,7 @@ struct SNeutrinoSettings
 	int parentallock_prompt;
 	int parentallock_lockage;
 	int parentallock_defaultlocked;
-	char parentallock_pincode[5];
+	std::string parentallock_pincode;
 
 
 	// Font sizes
@@ -573,7 +573,7 @@ struct SNeutrinoSettings
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
 	int lcd_info_line;
-	char lcd_setting_dim_time[4];
+	std::string lcd_setting_dim_time;
 	int lcd_setting_dim_brightness;
 	int led_tv_mode;
 	int led_standby_mode;
@@ -768,26 +768,25 @@ class CScanSettings
 		int		fast_op;
 		int		cable_nid;
 
-		char		satName[50];
+		std::string	satName;
 		int		sat_TP_fec;
 		int		sat_TP_pol;
-		char		sat_TP_freq[10];
-		char		sat_TP_rate[9];
+		std::string	sat_TP_freq;
+		std::string	sat_TP_rate;
 
-		char		cableName[50];
+		std::string	cableName;
 		int		cable_TP_mod;
 		int		cable_TP_fec;
-		char		cable_TP_freq[10];
-		char		cable_TP_rate[9];
+		std::string	cable_TP_freq;
+		std::string	cable_TP_rate;
 
-		char		terrName[50];
-		char		terr_TP_freq[10];
+		std::string	terrName;
+		std::string	terr_TP_freq;
 		CScanSettings();
 
 		//void useDefaults(const delivery_system_t _delivery_system);
 		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
 		bool saveSettings(const char * const fileName);
 };
-
 
 #endif
