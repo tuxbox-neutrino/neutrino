@@ -218,7 +218,7 @@ const CMenuOptionChooser::keyval NFS_TYPE_OPTIONS[NFS_TYPE_OPTION_COUNT] =
 
 int CNFSMountGui::menuEntry(int nr)
 {
-	int type = g_settings.network_nfs[nr].type;
+	int &type = g_settings.network_nfs[nr].type;
 
 	char cmd[9];
 	char cmd2[9];
