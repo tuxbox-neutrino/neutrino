@@ -123,32 +123,39 @@ void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const in
 
 void CComponentsWindow::initHeader()
 {
-	if (ccw_head == NULL){
+	if (ccw_head == NULL)
 		ccw_head = new CComponentsHeader();
-		initHeader();
-		//add of header item happens initCCWItems()
-	}
-
+	//add of header item happens initCCWItems()
 	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
 		ccw_head->setWidth(width-2*fr_thickness);
 // 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
-// 		ccw_head->initCCItems();
 		ccw_head->setDefaultButtons(ccw_buttons);
 		ccw_head->setCorner(corner_rad, CORNER_TOP);
 	}
 }
 
+void CComponentsWindow::initFooter()
+{
+	if (ccw_footer== NULL)
+		ccw_footer= new CComponentsFooter();
+	//add of footer item happens initCCWItems()
+	//set footer properties
+	if (ccw_footer){
+		ccw_footer->setPos(0, CC_APPEND);
+		ccw_footer->setWidth(width-2*fr_thickness);
+		ccw_footer->setShadowOnOff(shadow);
+		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
+	}
+}
+
 void CComponentsWindow::initBody()
 {
-	if (ccw_body== NULL){
+	if (ccw_body== NULL)
 		ccw_body = new CComponentsForm();
-		initBody();
-		//add of body item happens initCCWItems()
-	}
-
+	//add of body item happens initCCWItems()
 	//set body properties
 	if (ccw_body){
 		ccw_body->setCornerType(0);
@@ -164,35 +171,16 @@ void CComponentsWindow::initBody()
 	}
 }
 
-void CComponentsWindow::initFooter()
-{
-	if (ccw_footer== NULL){
-		ccw_footer= new CComponentsFooter();
-		initFooter();
-		//add of footer item happens initCCWItems()
-	}
-
-	//set footer properties
-	if (ccw_footer){
-		ccw_footer->setPos(0, CC_APPEND);
-		ccw_footer->setWidth(width-2*fr_thickness);
-		ccw_footer->setShadowOnOff(shadow);
-		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
-	}
-}
-
-void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
-{
-	if (ccw_body)
-		ccw_body->addCCItem(cc_Item);
-}
-
 void CComponentsWindow::initCCWItems()
 {
 #ifdef DEBUG_CC
 	printf("[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
 #endif
-	//add header if required
+	initHeader();
+	initFooter();
+	initBody();
+
+	//add/remove header if required
 	if (ccw_show_header){
 		initHeader();
 	}else{
@@ -202,7 +190,7 @@ void CComponentsWindow::initCCWItems()
 		}
 	}
 
-	//add footer if required
+	//add/remove footer if required
 	if (ccw_show_footer){
 		initFooter();
 	}else{
@@ -211,7 +199,6 @@ void CComponentsWindow::initCCWItems()
 			ccw_footer = NULL;
 		}
 	}
-	initBody();
 
 	//add header, body and footer items only one time
 	if (ccw_head)
@@ -223,6 +210,13 @@ void CComponentsWindow::initCCWItems()
 		if (!ccw_footer->isAdded())
 			addCCItem(ccw_footer);
 }
+
+void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
+{
+	if (ccw_body)
+		ccw_body->addCCItem(cc_Item);
+}
+
 
 void CComponentsWindow::paint(bool do_save_bg)
 {
