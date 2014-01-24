@@ -83,17 +83,11 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	//init header width
 	width 	= w == 0 ? frameBuffer->getScreenWidth(true) : w;
 
-	//init header height
-	cch_size_mode		= CC_HEADER_SIZE_LARGE;
-	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	if (h > 0) {
-		userHeight 	= true;
-		height 		= h;
-	}
-	else{
-		userHeight	= false;
-		height 		= cch_font->getHeight();
-	}
+	//init header default height
+	height 		= max(h, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
+
+	cch_size_mode	= CC_HEADER_SIZE_LARGE;
+	initCaptionFont();	//sets cch_font and calculate height if required;
 
 	shadow		= has_shadow;
 	col_frame	= color_frame;
@@ -145,10 +139,29 @@ void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const int& 
 	cch_caption_align 	= align_mode;
 }
 
-void CComponentsHeader::setCaptionFont(Font* font_name)
+void CComponentsHeader::setCaptionFont(Font* font)
 {
-	cch_font	= font_name;
-	height		= std::max(height, cch_font->getHeight());
+	initCaptionFont(font); //cch_font = font
+}
+
+void CComponentsHeader::initCaptionFont(Font* font)
+{
+	Font *l_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	Font *s_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+
+	if (font == NULL){
+		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? l_font : s_font);
+
+		//select matching height
+		if (cch_size_mode == CC_HEADER_SIZE_LARGE)
+			height	= std::max(height, l_font->getHeight());
+		else
+			height	= std::min(height, s_font->getHeight());
+	}
+	else{
+		cch_font = font;
+		height = std::max(height, cch_font->getHeight());
+	}
 }
 
 void CComponentsHeader::setIcon(const char* icon_name)
@@ -378,11 +391,8 @@ void CComponentsHeader::initCaption()
 void CComponentsHeader::initCCItems()
 {
 	//set size
-	if (!userHeight) {
-		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
-		height = cch_font->getHeight();
-	}
-	
+	initCaptionFont();
+
 	//init icon
 	initIcon();
 

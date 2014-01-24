@@ -89,8 +89,8 @@ class CComponentsHeader : public CComponentsForm
 		///property: alignment of caption within header, see also setCaptionAlignment(), possible values are CTextBox::CENTER, default = CTextBox::NO_AUTO_LINEBREAK (left)
 		int cch_caption_align;
 
-		bool userHeight;
-
+		///init font object and recalculates height if required
+		void initCaptionFont(Font* font = NULL);
 		///sub: init icon object
 		void initIcon();
 		///sub: init caption object
@@ -130,7 +130,7 @@ class CComponentsHeader : public CComponentsForm
 		///set alignment of caption within header, possible paramters are CTextBox::CENTER, CTextBox::NO_AUTO_LINEBREAK
 		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
 		///set text font object for caption
-		virtual void setCaptionFont(Font* font_name);
+		virtual void setCaptionFont(Font* font);
 		///set text color for caption
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
 
@@ -165,7 +165,7 @@ class CComponentsHeader : public CComponentsForm
 			CC_HEADER_SIZE_SMALL 	= 1
 		};
 		///set size of header, possible values are CC_HEADER_SIZE_LARGE, CC_HEADER_SIZE_SMALL
-		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode;};
+		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();};
 
 		///init all items within header object
 		virtual void initCCItems();
