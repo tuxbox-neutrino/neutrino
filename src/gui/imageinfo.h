@@ -64,7 +64,7 @@ class CImageInfo : public CMenuTarget
 		void ShowWindow();
 		void ScrollLic(bool scrollDown);
 		
-		CComponentsWindow  	*cc_win;
+		CComponentsWindowMax  	*cc_win;
 		CComponentsForm  	*cc_info;
 		CComponentsPIP		*cc_tv;
 		CComponentsInfoBox 	*cc_lic;

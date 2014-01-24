@@ -38,109 +38,74 @@ using namespace std;
 CComponentsWindow::CComponentsWindow()
 {
 	initVarWindow();
-
-	initCCWItems();
 }
 
-CComponentsWindow::CComponentsWindow(const std::string& caption, const char* iconname)
-{
-	initVarWindow();
-
-	ccw_caption 	= caption;
-	ccw_icon_name	= iconname;
-	
-	initCCWItems();
-}
-
-CComponentsWindow::CComponentsWindow(neutrino_locale_t locale_caption, const char* iconname)
-{
-	initVarWindow();
-
-	ccw_caption 	= g_Locale->getText(locale_caption);
-	ccw_icon_name	= iconname;
-
-	initCCWItems();
-}
-
-CComponentsWindow::CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
+CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					neutrino_locale_t locale_caption,
-					const char* iconname,
+					const string& iconname,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarWindow();
-
-	x		= x_pos;
-	y		= y_pos;
-	width		= w;
-	height		= h;
-	shadow		= has_shadow;
-	col_frame	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
-
-	ccw_caption 	= g_Locale->getText(locale_caption);
-	ccw_icon_name	= iconname;
-
-	initCCWItems();
+	string s_caption = locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "";
+	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, has_shadow, color_frame, color_body, color_shadow);
 }
 
-CComponentsWindow::CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& caption,
-					const char* iconname,
+CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const string& caption,
+					const string& iconname,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarWindow();
-
-	x		= x_pos;
-	y		= y_pos;
-	width		= w;
-	height		= h;
-	shadow		= has_shadow;
-	col_frame	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
-
-	ccw_caption 	= caption;;
-	ccw_icon_name	= iconname;
-
-	initCCWItems();
+	initVarWindow(x_pos, y_pos, w, h, caption, iconname, has_shadow, color_frame, color_body, color_shadow);
 }
 
-CComponentsWindow::~CComponentsWindow()
-{
-#ifdef DEBUG_CC
-	printf("[~CComponentsWindow]   [%s - %d] delete...\n", __func__, __LINE__);
-#endif
-}
+CComponentsWindowMax::CComponentsWindowMax(const string& caption, const string& iconname)
+					:CComponentsWindow(0, 0, 0, 0, caption, iconname){};
 
-void CComponentsWindow::initVarWindow()
+CComponentsWindowMax::CComponentsWindowMax(neutrino_locale_t locale_caption, const string& iconname)
+					:CComponentsWindow(0, 0, 0, 0, locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "", iconname){};
+
+void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const string& caption,
+					const string& iconname,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
 {
 	//CComponentsForm
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 
-	//using current screen settings for default dimensions
-	width = frameBuffer->getScreenWidth();
-	height = frameBuffer->getScreenHeight();
-	x=getScreenStartX(width);
-	y=getScreenStartY(height);
+	//using current screen settings for default dimensions, do centering if default values == 0
+	width 		= w == 0 ? frameBuffer->getScreenWidth(true) : w;
+	height 		= h == 0 ? frameBuffer->getScreenHeight(true) : h;
+	x 		= x_pos == (CC_CENTERED || 0) ? getScreenStartX(width)/2 - width/2 : x_pos;
+	y 		= y_pos == (CC_CENTERED || 0) ? getScreenStartY(height)/2 - height/2 : y_pos;
+
+	ccw_caption 	= caption;
+	ccw_icon_name	= iconname;
+#ifdef DEBUG_CC
+	printf("[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
+#endif
+	shadow		= has_shadow;
+	col_frame	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
 
 	ccw_head 	= NULL;
 	ccw_body	= NULL;
 	ccw_footer	= NULL;
-	ccw_caption 	= "";
-	ccw_icon_name	= NULL;
+
 	ccw_buttons	= 0; //no header buttons
 	ccw_show_footer = true;
 	ccw_show_header	= true;
 	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
 
-	setShadowOnOff(true);
+	initCCWItems();
 }
 
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
@@ -163,7 +128,7 @@ void CComponentsWindow::initHeader()
 // 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
-		ccw_head->initCCItems();
+// 		ccw_head->initCCItems();
 		ccw_head->setDefaultButtons(ccw_buttons);
 	}
 }
