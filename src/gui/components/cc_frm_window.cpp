@@ -137,6 +137,7 @@ void CComponentsWindow::initHeader()
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
 // 		ccw_head->initCCItems();
 		ccw_head->setDefaultButtons(ccw_buttons);
+		ccw_head->setCorner(corner_rad, CORNER_TOP);
 	}
 }
 
@@ -176,6 +177,7 @@ void CComponentsWindow::initFooter()
 		ccw_footer->setPos(0, CC_APPEND);
 		ccw_footer->setWidth(width-2*fr_thickness);
 		ccw_footer->setShadowOnOff(shadow);
+		ccw_footer->setCorner(corner_rad, CORNER_BOTTOM);
 	}
 }
 
