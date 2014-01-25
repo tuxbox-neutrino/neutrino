@@ -285,8 +285,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			if (timer_apids_dflt)
 				timerlist[selected].apids = TIMERD_APIDS_CONF;
 			else
-				timerlist[selected].apids = (timer_apids_std * TIMERD_APIDS_STD) | (timer_apids_ac3 * TIMERD_APIDS_AC3) |
-							    (timer_apids_alt * TIMERD_APIDS_ALT);
+				timerlist[selected].apids = (unsigned char)((timer_apids_std * TIMERD_APIDS_STD) | (timer_apids_ac3 * TIMERD_APIDS_AC3) |
+							    (timer_apids_alt * TIMERD_APIDS_ALT));
 			Timer->modifyTimerAPid(timerlist[selected].eventID,timerlist[selected].apids);
 			Timer->modifyRecordTimerEvent(timerlist[selected].eventID, timerlist[selected].announceTime,
 						      timerlist[selected].alarmTime,
@@ -917,9 +917,9 @@ void CTimerList::paint()
 		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb, COL_MENUCONTENT_PLUS_1);
 
 		int sbc= ((timerlist.size()- 1)/ listmaxshow)+ 1;
-		float sbh= (sb- 4)/ sbc;
+		int sbh = ((sb - 4) * 1024) / sbc;
 
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(page_nr * sbh) , 11, int(sbh), COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
+		frameBuffer->paintBoxRel(x+width-13, ypos+2+(page_nr*sbh)/1024, 11, sbh/1024, COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
 	}
 
 	paintFoot();

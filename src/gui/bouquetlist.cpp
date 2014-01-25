@@ -634,8 +634,8 @@ void CBouquetList::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((bsize - 1)/ listmaxshow)+ 1; /* bsize is > 0, so sbc is also > 0 */
-	float sbh= (sb - 4)/ sbc;
+	int sbh = ((sb - 4) * 1024) / sbc;
 	int sbs= (selected/listmaxshow);
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+width-13, ypos+2+(sbs*sbh)/1024, 11, sbh/1024, COL_MENUCONTENT_PLUS_3);
 }
