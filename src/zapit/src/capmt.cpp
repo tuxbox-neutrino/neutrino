@@ -3,7 +3,7 @@
  *             thegoodguy         <thegoodguy@berlios.de>
  *
  * Copyright (C) 2011-2012 CoolStream International Ltd
- * Copyright (C) 2012,2013 Stefan Seyfried
+ * Copyright (C) 2012-2014 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,9 +225,14 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 			break;
 		case STREAM:
 		case RECORD:
-			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d", mode, CFEManager::getInstance()->allocateFE(channel)->getNumber(), channel->getRecordDemux());
+#if HAVE_COOL_HARDWARE
 			source = channel->getRecordDemux();
 			demux = channel->getRecordDemux();
+#else
+			source = cDemux::GetSource(channel->getRecordDemux());
+			demux = source;
+			INFO("RECORD/STREAM(%d): fe_num %d rec_dmx %d dmx_src %d", mode, CFEManager::getInstance()->allocateFE(channel)->getNumber(), channel->getRecordDemux(), demux);
+#endif
 			break;
 #if 0
 		case STREAM:
