@@ -95,16 +95,6 @@ TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
 
-# either use dynamic lualib in package lua (openSUSE)
-# ... or in package lua5.2 (debian-derivates)
-# ... and if all fails, assume it is in the linker path (cross build)
-PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
-	PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
-		echo "=> lualib not found, assuming static lua in linker path..."
-		LUA_LIBS="-llua -ldl"
-	])
-])
-
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
 #TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
@@ -162,6 +152,23 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
+# Lua - embeddable scripting language
+AC_ARG_ENABLE(lua,
+	AS_HELP_STRING(--enable-lua,include Lua support),
+	,[enable_lua=no])
+
+AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
+if test "$enable_lua" = "yes"; then
+	AC_DEFINE(ENABLE_LUA,1,[include Lua support])
+	PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
+		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
+			echo "=> lualib not found, assuming static lua in linker path..."
+			LUA_LIBS="-llua -ldl"
+			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
+		])
+	])
+fi
+
 AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
@@ -178,16 +185,6 @@ AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
 if test "$enable_testmenu" = "yes"; then
 	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
 fi
-
-
-AC_ARG_ENABLE(lua,
-       AS_HELP_STRING(--enable-lua,enable LUA support))
-
-AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
-if test "$enable_lua" = "yes"; then
-       AC_DEFINE(ENABLE_LUA,1,[include LUA support])
-fi
-
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
