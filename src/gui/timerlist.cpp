@@ -287,8 +287,8 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 			if (timer_apids_dflt)
 				timerlist[selected].apids = TIMERD_APIDS_CONF;
 			else
-				timerlist[selected].apids = (timer_apids_std * TIMERD_APIDS_STD) | (timer_apids_ac3 * TIMERD_APIDS_AC3) |
-							    (timer_apids_alt * TIMERD_APIDS_ALT);
+				timerlist[selected].apids = (unsigned char)((timer_apids_std * TIMERD_APIDS_STD) | (timer_apids_ac3 * TIMERD_APIDS_AC3) |
+							    (timer_apids_alt * TIMERD_APIDS_ALT));
 			Timer->modifyTimerAPid(timerlist[selected].eventID,timerlist[selected].apids);
 			Timer->modifyRecordTimerEvent(timerlist[selected].eventID, timerlist[selected].announceTime,
 						      timerlist[selected].alarmTime,
@@ -872,7 +872,7 @@ void CTimerList::paintItem(int pos)
 
 void CTimerList::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
+	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_TIMERLIST_NAME, NEUTRINO_ICON_TIMER);
 	header.setShadowOnOff(CC_SHADOW_ON);
 	header.paint(CC_SAVE_SCREEN_NO);
 }

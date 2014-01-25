@@ -283,7 +283,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	infozone_width = full_width - width;
 
 	// init right info_zone
-	if (g_settings.eventlist_additional)
+	if ((g_settings.eventlist_additional) && (cc_infozone == NULL))
 		cc_infozone = new CComponentsText(x+width+10, y+theight, infozone_width-20, listmaxshow*fheight);
 
 	int res = menu_return::RETURN_REPAINT;

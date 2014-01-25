@@ -37,80 +37,73 @@ using namespace std;
 CComponentsHeader::CComponentsHeader()
 {
 	//CComponentsHeader
-	initVarHeader();
+	initVarHeader(1, 1, 0, 0, "", "", 0);
 }
 
-CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, const std::string& caption, const char* icon_name, const int buttons, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption,
+					const std::string& icon_name,
+					const int& buttons,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
 {
-	//CComponentsHeader
-	initVarHeader();
+	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, has_shadow, color_frame, color_body, color_shadow);
+}
 
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	if (h > 0) {
-		userHeight = true;
-		height = h;
-	}
+CComponentsHeaderLocalized::CComponentsHeaderLocalized(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+							neutrino_locale_t caption_locale,
+							const std::string& icon_name,
+							const int& buttons,
+							bool has_shadow,
+							fb_pixel_t color_frame,
+							fb_pixel_t color_body,
+							fb_pixel_t color_shadow)
+							:CComponentsHeader(	x_pos, y_pos, w, h,
+										g_Locale->getText(caption_locale),
+										icon_name, buttons,
+										has_shadow,
+										color_frame, color_body, color_shadow){};
+
+void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption,
+					const std::string& icon_name,
+					const int& buttons,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
+{
+	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
+	
+	x	= x_pos;
+	y	= y_pos;
+
+	//init header width
+	width 	= w == 0 ? frameBuffer->getScreenWidth(true) : w;
+
+	//init header default height
+	height 		= max(h, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
+
+	cch_size_mode	= CC_HEADER_SIZE_LARGE;
+	initCaptionFont();	//sets cch_font and calculate height if required;
+
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	
+	col_body 	= COL_MENUHEAD_PLUS_0;
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
 	cch_buttons	= buttons;
-	
-	initDefaultButtons();
-	initCCItems();
-}
 
-CComponentsHeader::CComponentsHeader(	const int x_pos, const int y_pos, const int w, const int h, neutrino_locale_t caption_locale, const char* icon_name, const int buttons, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
-{
-	//CComponentsHeader
-	initVarHeader();
-	
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	if (h > 0) {
-		userHeight = true;
-		height = h;
-	}
-	shadow		= has_shadow;
-	col_frame	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
-	
-	cch_text	= g_Locale->getText(caption_locale);
-	cch_icon_name	= icon_name;
-	cch_buttons	= buttons;
+	corner_rad	= RADIUS_LARGE,
+	corner_type	= CORNER_TOP;
 
-	initDefaultButtons();
-	initCCItems();
-}
-
-void CComponentsHeader::initVarHeader()
-{
-	cc_item_type 		= CC_ITEMTYPE_FRM_HEADER;
-	col_body 		= COL_MENUHEAD_PLUS_0;
-	corner_rad		= RADIUS_LARGE,
-	corner_type		= CORNER_TOP;
-	
-	//init header height
-	cch_size_mode		= CC_HEADER_SIZE_LARGE;
-	cch_font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
-	height 			= cch_font->getHeight();
-	userHeight		= false;
-	
-	//CComponentsHeader
 	cch_icon_obj		= NULL;
 	cch_text_obj		= NULL;
-	cch_icon_name		= NULL;
 	cch_btn_obj		= NULL;
-	cch_text		= "";
 	cch_col_text		= COL_MENUHEAD_TEXT;
 	cch_caption_align	= CTextBox::NO_AUTO_LINEBREAK;
 	cch_items_y 		= 0;
@@ -118,11 +111,12 @@ void CComponentsHeader::initVarHeader()
 	cch_icon_x 		= cch_offset;
 	cch_icon_w		= 0;
 	cch_text_x		= cch_offset;
-	cch_buttons		= 0;
 	cch_buttons_w		= 0;
 	cch_buttons_h		= 0;
 	cch_buttons_space	= cch_offset;
-	v_cch_btn.clear();
+
+	initDefaultButtons();
+	initCCItems();
 }
 
 CComponentsHeader::~CComponentsHeader()
@@ -145,13 +139,42 @@ void CComponentsHeader::setCaption(neutrino_locale_t caption_locale, const int& 
 	cch_caption_align 	= align_mode;
 }
 
-void CComponentsHeader::setCaptionFont(Font* font_name)
+void CComponentsHeader::setCaptionFont(Font* font)
 {
-	cch_font	= font_name;
-	height		= std::max(height, cch_font->getHeight());
+	initCaptionFont(font); //cch_font = font
+}
+
+void CComponentsHeader::initCaptionFont(Font* font)
+{
+	Font *l_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	Font *s_font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+
+	if (font == NULL){
+		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? l_font : s_font);
+
+		//select matching height
+		if (cch_size_mode == CC_HEADER_SIZE_LARGE)
+			height	= std::max(height, l_font->getHeight());
+		else
+			height	= std::min(height, s_font->getHeight());
+	}
+	else{
+		cch_font = font;
+		height = std::max(height, cch_font->getHeight());
+	}
 }
 
 void CComponentsHeader::setIcon(const char* icon_name)
+{
+	if (icon_name){
+		string s_icon = static_cast<string>(icon_name);
+		setIcon(s_icon);
+	}
+	else
+		setIcon("");
+}
+
+void CComponentsHeader::setIcon(const std::string& icon_name)
 {
 	cch_icon_name 	= icon_name;
 }
@@ -159,18 +182,19 @@ void CComponentsHeader::setIcon(const char* icon_name)
 void CComponentsHeader::initIcon()
 {
 	//init cch_icon_obj only if an icon available
-	if (cch_icon_name == NULL) {
+	if (cch_icon_name.empty()) {
 		cch_icon_w = 0;
-		if (cch_icon_obj)
+		if (cch_icon_obj){
 			delete cch_icon_obj;
-		cch_icon_obj = NULL;
+			cch_icon_obj = NULL;
+		}
 		return;
 	}
 
 	//create instance for cch_icon_obj
 	if (cch_icon_obj == NULL){
 #ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name);
+	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
 #endif
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
 	}
@@ -179,12 +203,14 @@ void CComponentsHeader::initIcon()
 	if (!cch_icon_obj->isAdded())
 		addCCItem(cch_icon_obj); //icon
 
-	//get dimensions of header icon
-	int iw, ih;
-	frameBuffer->getIconSize(cch_icon_name, &iw, &ih);
+
 
 	//set properties for icon object
 	if (cch_icon_obj){
+		//get dimensions of header icon
+		int iw = 0;
+		int ih = 0;
+		cch_icon_obj->getPictureSize(&iw, &ih);
 		cch_icon_obj->setWidth(iw);
 		cch_icon_obj->setHeight(ih);
 		cch_icon_obj->doPaintBg(false);
@@ -318,7 +344,7 @@ void CComponentsHeader::initCaption()
 {
 	//recalc header text position if header icon is defined
 	int cc_text_w = 0;
-	if (cch_icon_name != NULL){
+	if (!cch_icon_name.empty()){
 		cch_text_x = cch_icon_x+cch_icon_w+cch_offset;
 	}
 
@@ -365,11 +391,8 @@ void CComponentsHeader::initCaption()
 void CComponentsHeader::initCCItems()
 {
 	//set size
-	if (!userHeight) {
-		cch_font = (cch_size_mode == CC_HEADER_SIZE_LARGE? g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE] : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]);
-		height = cch_font->getHeight();
-	}
-	
+	initCaptionFont();
+
 	//init icon
 	initIcon();
 

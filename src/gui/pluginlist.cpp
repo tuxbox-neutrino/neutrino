@@ -306,7 +306,7 @@ void CPluginList::paintHead()
 	if (listmaxshow < pluginlist.size())
 		h_width += 15;
 
-	CComponentsHeader header(x, y, h_width, theight, name, NULL /* no header icon */);
+	CComponentsHeaderLocalized header(x, y, h_width, theight, name);
 
 	if (pluginlisttype == CPlugins::P_TYPE_GAME)
 		header.setIcon(NEUTRINO_ICON_GAMES);

@@ -30,31 +30,122 @@
 #include "cc_item_text.h"
 #include "cc_frm_icons.h"
 
+//! Sub class of CComponentsForm. Shows a header with prepared items.
+/*!
+CComponentsHeader provides prepared items like icon, caption and context button icons
+*/
 class CComponentsHeader : public CComponentsForm
 {
 	private:
-		void initVarHeader();
-	protected:
-		CComponentsPicture * cch_icon_obj;
-		CComponentsText * cch_text_obj;
-		CComponentsIconForm * cch_btn_obj;
-		std::string cch_text;
-		const char*  cch_icon_name;
-		fb_pixel_t cch_col_text;
-		Font* cch_font;
-		int cch_items_y, cch_icon_x, cch_icon_w, cch_text_x, cch_buttons, cch_buttons_w, cch_buttons_h, cch_buttons_space, cch_offset;
-		std::vector<std::string> v_cch_btn;
-		int cch_size_mode;
-		int cch_caption_align;
-		bool userHeight;
+		///member: init genaral variables, parameters for mostly used properties
+		void initVarHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+					const std::string& caption = "header",
+					const std::string& = "",
+					const int& buttons = 0,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
+	protected:
+		///object: icon object, see also setIcon()
+		CComponentsPicture * cch_icon_obj;
+		///object: caption object, see also setCaption()
+		CComponentsText * cch_text_obj;
+		///object: context button object, see also addButtonIcon(), removeButtonIcons()
+		CComponentsIconForm * cch_btn_obj;
+
+		///property: caption text, see also setCaption()
+		std::string cch_text;
+		///property: icon name, see also setIcon()
+		std::string  cch_icon_name;
+		///property: caption text color, see also setCaptionColor()
+		fb_pixel_t cch_col_text;
+		///property: caption font, see also setCaptionFont()
+		Font* cch_font;
+
+		///property: internal y-position for all items
+		int cch_items_y;
+		///property: internal x-position for icon object
+		int cch_icon_x;
+		///property: internal width for icon object
+		int cch_icon_w;
+		///property: internal x-position for caption object
+		int cch_text_x;
+		///property: internal context button definition button icons, see modes CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
+		int cch_buttons;
+		///property: internal width for context button object
+		int cch_buttons_w;
+		///property: internal height for context button object
+		int cch_buttons_h;
+		///property: internal offset of context button icons within context button object
+		int cch_buttons_space;
+		///property: internal offset for header items
+		int cch_offset;
+		///property: internal container of icon names for context button object, see also addButtonIcon()
+		std::vector<std::string> v_cch_btn;
+		///property: size of header, possible values are CC_HEADER_SIZE_LARGE, CC_HEADER_SIZE_SMALL
+		int cch_size_mode;
+		///property: alignment of caption within header, see also setCaptionAlignment(), possible values are CTextBox::CENTER, default = CTextBox::NO_AUTO_LINEBREAK (left)
+		int cch_caption_align;
+
+		///init font object and recalculates height if required
+		void initCaptionFont(Font* font = NULL);
+		///sub: init icon object
 		void initIcon();
+		///sub: init caption object
 		void initCaption();
+		///sub: init context button object
 		void initButtons();
+		///sub: init default buttons for context button object
 		void initDefaultButtons();
+		///sub: init default buttons for context button object
 		void initButtonFormSize();
 
 	public:
+		enum
+		{
+			CC_HEADER_ITEM_ICON 	= 0,
+			CC_HEADER_ITEM_TEXT 	= 1,
+			CC_HEADER_ITEM_BUTTONS	= 2
+		};
+
+		CComponentsHeader();
+		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+					const std::string& caption = "",
+					const std::string& = "",
+					const int& buttons = 0,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		virtual ~CComponentsHeader();
+
+		///set caption text, parameters: string, int align_mode (default left) 
+		virtual void setCaption(const std::string& caption, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
+		///set caption text, parameters: loacle, int align_mode (default left)
+		virtual void setCaption(neutrino_locale_t caption_locale, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
+
+		///set alignment of caption within header, possible paramters are CTextBox::CENTER, CTextBox::NO_AUTO_LINEBREAK
+		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
+		///set text font object for caption
+		virtual void setCaptionFont(Font* font);
+		///set text color for caption
+		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
+
+		///set offset between items
+		virtual void setOffset(const int offset){cch_offset = offset;};
+		///set name of icon
+		virtual void setIcon(const char* icon_name);
+		///set name of icon
+		virtual void setIcon(const std::string& icon_name);
+
+		///add separate button icons to context button object
+		virtual void addButtonIcon(const std::string& button_name);
+		///remove button icons from context button object
+		virtual void removeButtonIcons();
+		
 		enum
 		{
 			CC_BTN_HELP = 0x02,
@@ -63,55 +154,68 @@ class CComponentsHeader : public CComponentsForm
 			CC_BTN_EXIT = 0x80
 
 		};
-
-		enum
-		{
-			CC_HEADER_ITEM_ICON 	= 0,
-			CC_HEADER_ITEM_TEXT 	= 1,
-			CC_HEADER_ITEM_BUTTONS	= 2
-		};
+		///set internal context button icons, possible modes CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
+		virtual void setDefaultButtons(const int buttons);
+		///set offset between icons within context button object
+		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 
 		enum
 		{
 			CC_HEADER_SIZE_LARGE 	= 0,
 			CC_HEADER_SIZE_SMALL 	= 1
 		};
-		CComponentsHeader();
-		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, const std::string& caption = "header", const char* icon_name = NULL, const int buttons = 0, bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		CComponentsHeader(const int x_pos, const int y_pos, const int w, const int h = 0, neutrino_locale_t caption_locale = NONEXISTANT_LOCALE, const char* icon_name = NULL, const int buttons = 0,bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		virtual ~CComponentsHeader();
+		///set size of header, possible values are CC_HEADER_SIZE_LARGE, CC_HEADER_SIZE_SMALL
+		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode; initCCItems();};
 
-		
-		virtual void setCaption(const std::string& caption, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
-		virtual void setCaption(neutrino_locale_t caption_locale, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
-		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
-		virtual void setCaptionFont(Font* font_name);
-		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
-		virtual void setOffset(const int offset){cch_offset = offset;};
-		virtual void setIcon(const char* icon_name);
-		virtual void addButtonIcon(const std::string& button_name);
-		virtual void removeButtonIcons();
-		virtual void setDefaultButtons(const int buttons);
-		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
+		///init all items within header object
 		virtual void initCCItems();
-		virtual void setSizeMode(const int& size_mode){cch_size_mode = size_mode;};
+		///returns the text object
 		virtual CComponentsText* getTextObject(){return cch_text_obj;};
+
+		///paint header
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
+//! Sub class of CComponentsHeader. Shows a header with prepared items.
+/*!
+CComponentsHeaderLocalized provides prepared items like icon, caption and context button icons
+Caption is defined with locales.
+*/
+class CComponentsHeaderLocalized : public CComponentsHeader
+{
+	public:
+		CComponentsHeaderLocalized(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+						neutrino_locale_t caption_locale = NONEXISTANT_LOCALE,
+						const std::string& = "",
+						const int& buttons = 0,
+						bool has_shadow = CC_SHADOW_OFF,
+						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+						fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
+						fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+};
 
+
+/*!
+CComponentsFooter provides prepared container for footer
+Is mostly usable like a header but without caption, and context button icons.
+*/
 class CComponentsFooter : public CComponentsHeader
 {
 	protected:
-		void initVarFooter();
+		void initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+					const int& buttons = 0,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 	public:
 		CComponentsFooter();
-		CComponentsFooter(	const int x_pos, const int y_pos, const int w, const int h = 0,
-					const int buttons = 0,
+		CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
+					const int& buttons = 0,
 					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
 #endif

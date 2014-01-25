@@ -1580,7 +1580,7 @@ void CAudioPlayerGui::paintHead()
 	if (!m_show_playlist || m_screensaver)
 		return;
 
-	CComponentsHeader header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_MP3);
+	CComponentsHeaderLocalized header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_AUDIOPLAYER_HEAD, NEUTRINO_ICON_MP3);
 	header.setCorner(RADIUS_MID, CORNER_TOP);
 
 	if (m_inetmode)

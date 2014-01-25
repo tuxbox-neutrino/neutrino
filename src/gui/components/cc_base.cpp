@@ -90,8 +90,18 @@ void CComponents::paintFbItems(bool do_save_bg)
 	if (firstPaint && do_save_bg)	{
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
+				if ((v_fbdata[i].x <= 0) || (v_fbdata[i].y <= 0))
+					printf("\33[31m\t[CComponents] WARNING! Position <= 0 [%s - %d], x = %d  y = %d\n\033[37m", __func__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n", __func__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
+	printf("\t[CComponents]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+			__func__,
+			__LINE__,
+			firstPaint,
+			v_fbdata[i].fbdata_type,
+			v_fbdata[i].x,
+			v_fbdata[i].y,
+			v_fbdata[i].dx,
+			v_fbdata[i].dy);
 #endif
 				saved_screen.x = v_fbdata[i].x;
 				saved_screen.y = v_fbdata[i].y;
@@ -109,18 +119,21 @@ void CComponents::paintFbItems(bool do_save_bg)
 		// Don't paint if dx or dy are 0
 		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0)){
 #ifdef DEBUG_CC
-			printf("    [CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
+			printf("\t[CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
 #endif
 			continue;
 		}
-		if ((v_fbdata[i].x == 0) || (v_fbdata[i].y == 0)){
-			printf("    [CComponents] WARNING: [%s - %d], x = %d  y = %d\n", __func__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
-		}
-
 
 		int fbtype = v_fbdata[i].fbdata_type;
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __func__, __LINE__, (int)i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+	printf("\t[CComponents]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+			__func__,
+			__LINE__,
+			(int)i,
+			v_fbdata[i].x,
+			v_fbdata[i].y,
+			v_fbdata[i].dx,
+			v_fbdata[i].dy);
 #endif
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"

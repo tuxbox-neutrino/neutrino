@@ -65,7 +65,7 @@ class CComponentsWindow : public CComponentsForm
 		///property: alignment mode for header caption
 		int ccw_align_mode;
 		///property: icon name in header, see also getHeaderObject()
-		const char* ccw_icon_name;
+		std::string ccw_icon_name;
 		///property: assigned default icon buttons in header, see also getHeaderObject()
 		int ccw_buttons;
 		///property: value = true, let show footer, see showFooter()
@@ -82,43 +82,41 @@ class CComponentsWindow : public CComponentsForm
 		///initialze all window objects at once
 		void initCCWItems();
 		///initialize all attributes
-		void initVarWindow();
+		void initVarWindow(	const int& x_pos = CC_CENTERED, const int& y_pos = CC_CENTERED, const int& w = 0, const int& h = 0,
+					const std::string& caption = "",
+					const std::string& iconname = "",
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		///allow centering of window on screen, mostly senseful for window object without parent
+		void doCenter();
 
 	public:
 		enum
 		{
 			CC_WINDOW_ITEM_HEADER 	= 0
 		};
-		///simple constructor for CComponentsWindow
+		///simple constructor for CComponentsWindow, this shows a window over full screen
 		CComponentsWindow();
 
-		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption as string
-		CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& caption,
-					const char* iconname = NULL,
+		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption as string, x_pos or y_pos = 0 will center window
+		CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption = "",
+					const std::string& iconname = "",
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
-		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption from locales
-		CComponentsWindow(	const int x_pos, const int y_pos, const int w, const int h,
-					neutrino_locale_t locale_caption,
-					const char* iconname = NULL,
+		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption from locales, x_pos or y_pos = 0 will center window
+		CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					neutrino_locale_t locale_text = NONEXISTANT_LOCALE,
+					const std::string& iconname = "",
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-
-		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, position of window is general centered and bound
-		///to current screen settings, this shows a window over full screen
-		CComponentsWindow(const std::string& caption, const char* iconname = NULL);
-
-		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, position of window is general centered and bound
-		///to current screen settings, this shows a window over full screen
-		CComponentsWindow(neutrino_locale_t locale_caption, const char* iconname = NULL);
-
-		~CComponentsWindow();
 
 		///add item to body object, also usable is addCCItem() to add items to the windo object
 		void addWindowItem(CComponentsItem* cc_Item);
@@ -137,7 +135,7 @@ class CComponentsWindow : public CComponentsForm
 		void setWindowCaptionAlignment(const int& align_mode){ccw_align_mode = align_mode;};
 
 		///set icon name in header, see also getHeaderObject()
-		void setWindowIcon(const char* iconname){ccw_icon_name = iconname;};
+		void setWindowIcon(const std::string& iconname){ccw_icon_name = iconname;};
 
 		///set default header icon buttons, see also getHeaderObject()
 		void setWindowHeaderButtons(const int& buttons){ccw_buttons = buttons;};
@@ -155,6 +153,18 @@ class CComponentsWindow : public CComponentsForm
 
 		///paint all window items, this overwriting paint() from CComponentsForm
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+};
+
+class CComponentsWindowMax : public CComponentsWindow
+{
+	public:
+		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, position of window is general centered and bound
+		///to current screen settings, this shows a window over full screen
+		CComponentsWindowMax(const std::string& caption, const std::string& iconname = "");
+
+		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, position of window is general centered and bound
+		///to current screen settings, this shows a window over full screen
+		CComponentsWindowMax(neutrino_locale_t locale_caption, const std::string& iconname = "");
 };
 
 #endif

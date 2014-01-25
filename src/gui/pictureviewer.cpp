@@ -706,7 +706,7 @@ void CPictureViewerGui::paintItem(int pos)
 
 void CPictureViewerGui::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_MP3, CComponentsHeader::CC_BTN_HELP);
+	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_MP3, CComponentsHeaderLocalized::CC_BTN_HELP);
 
 #ifdef ENABLE_GUI_MOUNT
 	header.addButtonIcon(NEUTRINO_ICON_BUTTON_MENU);
