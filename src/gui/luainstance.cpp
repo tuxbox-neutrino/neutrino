@@ -347,7 +347,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ NULL, NULL }
 };
 
-#ifndef DYNAMIC_LUAPOSIX
+#ifdef STATIC_LUAPOSIX
 /* hack: we link against luaposix, which is included in our
  * custom built lualib */
 extern "C" { LUAMOD_API int (luaopen_posix_c) (lua_State *L); }
@@ -384,7 +384,7 @@ void CLuaInstance::registerFunctions()
 	luaopen_io(lua);
 	luaopen_string(lua);
 	luaopen_math(lua);
-#ifndef DYNAMIC_LUAPOSIX
+#ifdef STATIC_LUAPOSIX
 	luaopen_posix_c(lua);
 #else
 	dolibrary(lua,"posix");

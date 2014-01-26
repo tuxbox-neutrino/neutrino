@@ -110,6 +110,7 @@ PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
 	PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
 		echo "=> lualib not found, assuming static lua in linker path..."
 		LUA_LIBS="-llua -ldl"
+		AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
 	])
 ])
 
