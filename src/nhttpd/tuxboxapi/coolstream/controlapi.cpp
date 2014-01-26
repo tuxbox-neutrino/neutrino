@@ -48,6 +48,8 @@
 // nhttpd
 #include "neutrinoapi.h"
 #include "controlapi.h"
+#include <video.h>
+extern cVideo * videoDecoder;
 
 extern CPlugins *g_PluginList;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
@@ -422,6 +424,13 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 {
 	if (!(hh->ParamList.empty()))
 	{
+		bool CEC_HDMI_off = false;
+		if (!(hh->ParamList["cec"].empty())){
+			if(hh->ParamList["cec"]=="off"){
+				CEC_HDMI_off = true;
+			}
+		}
+
 		if (hh->ParamList["1"] == "on")	// standby mode on
 		{
 			if(CNeutrinoApp::getInstance()->getMode() != 4)
@@ -430,10 +439,19 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 		}
 		else if (hh->ParamList["1"] == "off")// standby mode off
 		{
+			//dont use CEC with standbyoff --- use: control/standby?off&cec=off
+			if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){
+				videoDecoder->SetCECAutoView(0);
+			}
+
 			NeutrinoAPI->Zapit->setStandby(false);
 			if(CNeutrinoApp::getInstance()->getMode() == 4)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
 			hh->SendOk();
+
+			if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){//dont use CEC with standbyoff
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_HDMI_CEC_ON, CEventServer::INITID_HTTPD);
+			}
 		}
 		else
 			hh->SendError();
