@@ -165,6 +165,7 @@ void CBookmarkManager::writeBookmarkFile() {
 
 CBookmarkManager::CBookmarkManager() : bookmarkfile ('\t')
 {
+	bookmarksmodified = false;
 	readBookmarkFile();
 }
 
