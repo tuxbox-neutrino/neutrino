@@ -47,8 +47,10 @@
 #include <driver/fade.h>
 #include <driver/record.h>
 
+
 #include <gui/channellist.h>
 #include <gui/color.h>
+
 #include <gui/eventlist.h>
 #include <gui/filebrowser.h>
 #include <gui/infoviewer.h>
@@ -376,7 +378,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		parent->hide();
 		const char *action_str = "RecDir1";
 		if(chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1)) {
-			printf("[%s] new %s dir %s\n",__FILE__, action_str, timerlist[selected].recordingDir);
+			printf("[timerlist] new %s dir %s\n", action_str, timerlist[selected].recordingDir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
@@ -384,7 +386,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		parent->hide();
 		const char *action_str = "RecDir2";
 		if(chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1)) {
-			printf("[%s] new %s dir %s\n",__FILE__, action_str, timerNew.recordingDir);
+			printf("[timerlist] new %s dir %s\n", action_str, timerNew.recordingDir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
@@ -917,9 +919,8 @@ void CTimerList::paint()
 		frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb, COL_MENUCONTENT_PLUS_1);
 
 		int sbc= ((timerlist.size()- 1)/ listmaxshow)+ 1;
-		int sbh = ((sb - 4) * 1024) / sbc;
 
-		frameBuffer->paintBoxRel(x+width-13, ypos+2+(page_nr*sbh)/1024, 11, sbh/1024, COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
+		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
 	}
 
 	paintFoot();
