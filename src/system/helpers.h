@@ -41,6 +41,8 @@ bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsi
 bool get_mem_usage(unsigned long &total, unsigned long &free);
 void mySleep(int sec);
 
+std::string find_executable(const char *name);
+
 std::string getPathName(std::string &path);
 std::string getBaseName(std::string &path);
 std::string getFileName(std::string &file);

@@ -291,6 +291,35 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 	return true;
 }
 
+std::string find_executable(const char *name)
+{
+	struct stat s;
+	char *path = getenv("PATH");
+	char *p, *n;
+	if (! path)
+		path = strdupa("/bin:/usr/bin:/sbin:/usr/sbin");
+	if (name[0] == '/') { /* full path given */
+		if (!access(name, X_OK) && !stat(name, &s) && S_ISREG(s.st_mode))
+			return std::string(name);
+		return "";
+	}
+
+	p = path;
+	while (p) {
+		n = strchr(p, ':');
+		if (n)
+			*n++ = '\0';
+		if (*p != '\0') {
+			std::string tmp = std::string(p) + "/" + std::string(name);
+			const char *f = tmp.c_str();
+			if (!access(f, X_OK) && !stat(f, &s) && S_ISREG(s.st_mode))
+				return tmp;
+		}
+		p = n;
+	}
+	return "";
+}
+
 std::string _getPathName(std::string &path, std::string sep)
 {
 	size_t pos = path.find_last_of(sep);
