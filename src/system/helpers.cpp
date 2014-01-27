@@ -293,9 +293,11 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 std::string find_executable(const char *name)
 {
 	struct stat s;
-	char *path = getenv("PATH");
-	char *p, *n;
-	if (! path)
+	char *tmpPath = getenv("PATH");
+	char *p, *n, *path;
+	if (tmpPath)
+		path = strdupa(tmpPath);
+	else
 		path = strdupa("/bin:/usr/bin:/sbin:/usr/sbin");
 	if (name[0] == '/') { /* full path given */
 		if (!access(name, X_OK) && !stat(name, &s) && S_ISREG(s.st_mode))
