@@ -151,6 +151,8 @@ struct NeutrinoMessages {
 		/* sectionsd */
 		EVT_EIT_COMPLETE                         = CRCInput::RC_WithData + 24, /* data: (t_channel_id *) */
 		EVT_BACK_ZAP_COMPLETE                    = CRCInput::RC_WithData + 25, /* data: (t_channel_id *) */
+
+		EVT_HDMI_CEC_ON	    			 = CRCInput::RC_WithData + 26
 	};
 	enum
 	{

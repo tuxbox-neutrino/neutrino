@@ -42,6 +42,8 @@
 SHTDCNT::SHTDCNT()
 {
 	thread_running = false;
+	sleep_cnt = 0;
+	shutdown_cnt = 0;
 }
 
 SHTDCNT::~SHTDCNT()

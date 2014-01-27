@@ -916,6 +916,8 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 	if (type == "back") {
 		m->m->addItem(GenericMenuBack);
 	} else if (type == "separator") {
+		m->m->addItem(GenericMenuSeparator);
+	} else if (type == "separatorline") {
 		if (!b->name.empty()) {
 			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, b->name.c_str(), NONEXISTANT_LOCALE));
 		} else {
