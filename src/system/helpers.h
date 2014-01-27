@@ -62,7 +62,6 @@ class CFileHelpers
 		CFileHelpers();
 		~CFileHelpers();
 		static CFileHelpers* getInstance();
-		bool doCopyFlag;
 
 		bool copyFile(const char *Src, const char *Dst, mode_t mode);
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);

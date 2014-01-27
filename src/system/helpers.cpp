@@ -390,7 +390,6 @@ CFileHelpers::CFileHelpers()
 {
 	FileBufSize	= 0xFFFF;
 	FileBuf		= new char[FileBufSize];
-	doCopyFlag	= true;
 }
 
 CFileHelpers::~CFileHelpers()
@@ -409,7 +408,6 @@ CFileHelpers* CFileHelpers::getInstance()
 
 bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 {
-	doCopyFlag = true;
 	unlink(Dst);
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
@@ -431,17 +429,13 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 			read(fd1, FileBuf, block);
 			write(fd2, FileBuf, block);
 			fsize64 -= block;
-			if (!doCopyFlag)
-				break;
 		}
-		if (doCopyFlag) {
-			lseek64(fd2, 0, SEEK_SET);
-			off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
-			if (fsizeSrc64 != fsizeDst64){
-				close(fd1);
-				close(fd2);
-				return false;
-			}
+		lseek64(fd2, 0, SEEK_SET);
+		off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
+		if (fsizeSrc64 != fsizeDst64){
+			close(fd1);
+			close(fd2);
+			return false;
 		}
 	}
 	else { // < 2GB
@@ -456,27 +450,17 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 			read(fd1, FileBuf, block);
 			write(fd2, FileBuf, block);
 			fsize -= block;
-			if (!doCopyFlag)
-				break;
 		}
-		if (doCopyFlag) {
-			lseek(fd2, 0, SEEK_SET);
-			off_t fsizeDst = lseek(fd2, 0, SEEK_END);
-			if (fsizeSrc != fsizeDst){
-				close(fd1);
-				close(fd2);
-				return false;
-			}
+		lseek(fd2, 0, SEEK_SET);
+		off_t fsizeDst = lseek(fd2, 0, SEEK_END);
+		if (fsizeSrc != fsizeDst){
+			close(fd1);
+			close(fd2);
+			return false;
 		}
 	}
 	close(fd1);
 	close(fd2);
-
-	if (!doCopyFlag) {
-		sync();
-		unlink(Dst);
-		return false;
-	}
 
 	chmod(Dst, mode);
 	return true;
