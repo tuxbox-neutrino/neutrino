@@ -734,7 +734,7 @@ int CLuaMenuForwarder::exec(CMenuTarget* /*parent*/, const std::string & /*actio
 		lua_pushstring(L, luaId.c_str());
 		int status = lua_pcall(L, 1 /* one arg */, 1 /* one result */, 0);
 		if (status) {
-			fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(L, -1));
+			fprintf(stderr, "[CLuaMenuForwarder::%s] error in script: %s\n", __func__, lua_tostring(L, -1));
 			ShowMsg2UTF("Lua script error:", lua_tostring(L, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
 		}
 		if (lua_isnumber(L, -1))
