@@ -650,6 +650,7 @@ class CMenuSelectorTarget : public CMenuTarget
 extern CMenuSeparator * const GenericMenuSeparator;
 extern CMenuSeparator * const GenericMenuSeparatorLine;
 extern CMenuForwarder * const GenericMenuBack;
+extern CMenuForwarder * const GenericMenuNext;
 extern CMenuForwarder * const GenericMenuCancel;
 
 #endif

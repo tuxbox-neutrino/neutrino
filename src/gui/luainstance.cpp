@@ -886,6 +886,10 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 	std::string type;	tableLookup(L, "type", type);
 	if (type == "back") {
 		m->m->addItem(GenericMenuBack);
+	} else if (type == "next") {
+		m->m->addItem(GenericMenuNext);
+	} else if (type == "cancel") {
+		m->m->addItem(GenericMenuCancel);
 	} else if (type == "separator") {
 		m->m->addItem(GenericMenuSeparator);
 	} else if (type == "separatorline") {
