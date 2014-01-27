@@ -419,45 +419,22 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	uint32_t block;
 	off64_t fsizeSrc64 = lseek64(fd1, 0, SEEK_END);
 	lseek64(fd1, 0, SEEK_SET);
-	if (fsizeSrc64 > 0x7FFFFFF0) { // > 2GB
-		off64_t fsize64 = fsizeSrc64;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __FUNCTION__, fsizeSrc64, fsizeSrc64);
-		while(fsize64 > 0) {
-			if(fsize64 < (off64_t)FileBufSize)
-				block = (uint32_t)fsize64;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize64 -= block;
-		}
-		lseek64(fd2, 0, SEEK_SET);
-		off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
-		if (fsizeSrc64 != fsizeDst64){
-			close(fd1);
-			close(fd2);
-			return false;
-		}
+	off64_t fsize64 = fsizeSrc64;
+	block = FileBufSize;
+	//printf("#####[%s] fsizeSrc64: %lld 0x%010llX - large file\n", __func__, fsizeSrc64, fsizeSrc64);
+	while (fsize64 > 0) {
+		if (fsize64 < (off64_t)FileBufSize)
+			block = (uint32_t)fsize64;
+		read(fd1, FileBuf, block);	/* FIXME: short read??? */
+		write(fd2, FileBuf, block);	/* FIXME: short write?? */
+		fsize64 -= block;
 	}
-	else { // < 2GB
-		off_t fsizeSrc = lseek(fd1, 0, SEEK_END);
-		lseek(fd1, 0, SEEK_SET);
-		off_t fsize = fsizeSrc;
-		block = FileBufSize;
-		//printf("#####[%s] fsizeSrc: %ld 0x%08lX - normal file\n", __FUNCTION__, fsizeSrc, fsizeSrc);
-		while(fsize > 0) {
-			if(fsize < (off_t)FileBufSize)
-				block = (uint32_t)fsize;
-			read(fd1, FileBuf, block);
-			write(fd2, FileBuf, block);
-			fsize -= block;
-		}
-		lseek(fd2, 0, SEEK_SET);
-		off_t fsizeDst = lseek(fd2, 0, SEEK_END);
-		if (fsizeSrc != fsizeDst){
-			close(fd1);
-			close(fd2);
-			return false;
-		}
+	lseek64(fd2, 0, SEEK_SET);
+	off64_t fsizeDst64 = lseek64(fd2, 0, SEEK_END);
+	if (fsizeSrc64 != fsizeDst64) {
+		close(fd1);
+		close(fd2);
+		return false;
 	}
 	close(fd1);
 	close(fd2);
