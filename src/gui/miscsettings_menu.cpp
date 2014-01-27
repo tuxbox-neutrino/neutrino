@@ -343,7 +343,7 @@ int CMiscMenue::showMiscSettingsMenuEnergy()
 	if (shutdown_count.length() < 3)
 		shutdown_count.insert(0, 3 - shutdown_count.length(), ' ');
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, &shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
-	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, shutdown_count.c_str(), miscSettings_shutdown_count);
+	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, shutdown_count, miscSettings_shutdown_count);
 	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
 
 	COnOffNotifier * miscNotifier = new COnOffNotifier(1);
@@ -400,21 +400,21 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	if (epg_extendedcache.length() < 3)
 		epg_extendedcache.insert(0, 3 - epg_extendedcache.length(), ' ');
 	CStringInput * miscSettings_epg_cache_e = new CStringInput(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, &epg_extendedcache, 3,LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT1, LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	CMenuForwarder * mf1  = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, epg_extendedcache.c_str(), miscSettings_epg_cache_e);
+	CMenuForwarder * mf1  = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, epg_extendedcache, miscSettings_epg_cache_e);
 	mf1->setHint("", LOCALE_MENU_HINT_EPG_EXTENDEDCACHE);
 
 	epg_old_events = to_string(g_settings.epg_old_events);
 	if (epg_old_events.length() < 3)
 		epg_old_events.insert(0, 3 - epg_old_events.length(), ' ');
 	CStringInput * miscSettings_epg_old_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, &epg_old_events, 3,LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	CMenuForwarder * mf2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, epg_old_events.c_str(), miscSettings_epg_old_events);
+	CMenuForwarder * mf2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, epg_old_events, miscSettings_epg_old_events);
 	mf2->setHint("", LOCALE_MENU_HINT_EPG_OLD_EVENTS);
 
 	epg_max_events = to_string(g_settings.epg_max_events);
 	if (epg_max_events.length() < 6)
 		epg_max_events.insert(0, 6 - epg_max_events.length(), ' ');
 	CStringInput * miscSettings_epg_max_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, &epg_max_events, 6,LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	CMenuForwarder * mf3 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, epg_max_events.c_str(), miscSettings_epg_max_events);
+	CMenuForwarder * mf3 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, epg_max_events, miscSettings_epg_max_events);
 	mf3->setHint("", LOCALE_MENU_HINT_EPG_MAX_EVENTS);
 
 	CMenuForwarder * mf4 = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, g_settings.epg_save, g_settings.epg_dir, this, "epgdir");
