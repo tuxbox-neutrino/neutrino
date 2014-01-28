@@ -27,6 +27,7 @@
 #include "cc_frm.h"
 #include "cc_frm_icons.h"
 #include "cc_frm_header.h"
+#include "cc_frm_footer.h"
 
 //! Sub class of CComponentsForm. Shows a window with prepared items.
 /*!
