@@ -435,6 +435,19 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 	}
 	else if(MsgId == CA_MESSAGE_MSG_MMI_TEXT) {
 		printf("CCAMMenuHandler::handleCamMsg: text\n");
+	}
+	else if(MsgId == CA_MESSAGE_MSG_CHANNEL_CHANGE) {
+		if (!(Msg.Flags & CA_MESSAGE_HAS_PARAM1_LONG))
+			return -1;
+
+		t_channel_id chid = Msg.Msg.ParamLong[0];
+		printf("CCAMMenuHandler::handleCamMsg: CA_MESSAGE_MSG_CHANNEL_CHANGE: %" PRIx64 "\n", chid);
+		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(chid);
+		if (!channel) {
+			printf("CCAMMenuHandler::handleCamMsg: channel %" PRIx64 "not found\n", chid);
+			return -1;
+		}
+		CNeutrinoApp::getInstance()->zapTo(channel->getChannelID());
 	} else
 		ret = -1;
 	//printf("CCAMMenuHandler::handleCamMsg: return %d\n", ret);
