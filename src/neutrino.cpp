@@ -231,6 +231,7 @@ CNeutrinoApp::CNeutrinoApp()
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= false;
+	channellist_visible	= false;
 }
 
 /*-------------------------------------------------------------------------------------
@@ -2107,15 +2108,6 @@ void CNeutrinoApp::quickZap(int msg)
 	int res;
 
 	StopSubtitles();
-	printf("CNeutrinoApp::quickZap haveFreeFrontend %d\n", CFEManager::getInstance()->haveFreeFrontend());
-#if 0
-	if(!CFEManager::getInstance()->haveFreeFrontend())
-	{
-		res = channelList->numericZap(g_settings.key_zaphistory);
-		StartSubtitles(res < 0);
-		return;
-	}
-#endif
 	bool ret;
 	if(!bouquetList->Bouquets.empty())
 		ret = bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
@@ -2474,6 +2466,7 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 {
 	neutrino_msg_t msg = _msg;
 	InfoClock->enableInfoClock(false);
+	channellist_visible = true;
 
 	StopSubtitles();
 
@@ -2557,10 +2550,22 @@ _repeat:
 		goto _show;
 	}
 
+	channellist_visible = false;
 	if (!from_menu)
 		InfoClock->enableInfoClock(true);
 
 	return ((nNewChannel >= 0) ? menu_return::RETURN_EXIT_ALL : menu_return::RETURN_REPAINT);
+}
+
+void CNeutrinoApp::zapTo(t_channel_id channel_id)
+{
+	bool recordingStatus = CRecordManager::getInstance()->RecordingStatus(channel_id);
+	if (!recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||
+			(recordingStatus && channelList->SameTP(channel_id))) {
+
+		dvbsub_stop();
+		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
+	}
 }
 
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
@@ -2861,14 +2866,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		//zap to rec channel in standby-mode
 		if(mode == mode_standby){
 			CTimerd::RecordingInfo * eventinfo = (CTimerd::RecordingInfo *) data;
-			bool recordingStatus = CRecordManager::getInstance()->RecordingStatus(eventinfo->channel_id);
 			t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
-			if( !recordingStatus && (eventinfo->channel_id != live_channel_id) && channelList->SameTP(eventinfo->channel_id) && !(SAME_TRANSPONDER(live_channel_id, eventinfo->channel_id)) ){
-  				dvbsub_stop();
-				t_channel_id channel_id=eventinfo->channel_id;
-				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
-			}
+			if((eventinfo->channel_id != live_channel_id) && !(SAME_TRANSPONDER(live_channel_id, eventinfo->channel_id)))
+				zapTo(eventinfo->channel_id);
 		}
 
 		if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
@@ -2898,8 +2899,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	else if( msg == NeutrinoMessages::ZAPTO) {
 		CTimerd::EventInfo * eventinfo = (CTimerd::EventInfo *) data;
 		if (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID()){
-			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingstatus && CFEManager::getInstance()->haveFreeFrontend()) || 
-			    (recordingstatus && channelList->SameTP(eventinfo->channel_id)) ) {
+			if( (recordingstatus == 0) || (recordingstatus && CRecordManager::getInstance()->TimeshiftOnly()) ||
+					(recordingstatus && channelList->SameTP(eventinfo->channel_id)) ) {
 				bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
 				dvbsub_stop();
@@ -2949,13 +2950,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 		if( g_settings.recording_zap_on_announce && (mode != mode_standby) && (eventinfo->channel_id != CZapit::getInstance()->GetCurrentChannelID())) {
 			CRecordManager::getInstance()->StopAutoRecord();
-			bool recordingStatus = CRecordManager::getInstance()->RecordingStatus();
-			if ( !recordingStatus || (recordingStatus && CRecordManager::getInstance()->TimeshiftOnly()) ||  (recordingStatus && CFEManager::getInstance()->haveFreeFrontend()) || 
-			    (recordingStatus && channelList->SameTP(eventinfo->channel_id)) ){
-				dvbsub_stop();
-				t_channel_id channel_id=eventinfo->channel_id;
-				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
-			}
+			zapTo(eventinfo->channel_id);
 		}
 		if(( mode != mode_scart ) && ( mode != mode_standby ) && g_settings.recording_startstop_msg) {
 			std::string name = g_Locale->getText(LOCALE_RECORDTIMER_ANNOUNCE);
@@ -3148,9 +3143,15 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 //		ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
 //				CMessageBox::mbrBack,CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 	}
-	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_ON) {
+	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON) {
 		if(g_settings.hdmi_cec_view_on)
 			videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on);
+
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_STANDBY) {
+		if(g_settings.hdmi_cec_standby)
+			  videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby);
 
 		return messages_return::handled;
 	}

@@ -130,7 +130,8 @@ CNeutrinoAPI::CNeutrinoAPI()
 	EventServer->registerEvent2( NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");//reload neutrino conf
-	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_ON, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 }
 //-------------------------------------------------------------------------
 

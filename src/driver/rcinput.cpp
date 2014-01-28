@@ -887,8 +887,12 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg = NeutrinoMessages::RELOAD_SETUP;
 								*data = 0;
 								break;
-							case NeutrinoMessages::EVT_HDMI_CEC_ON:
-								*msg          = NeutrinoMessages::EVT_HDMI_CEC_ON;
+							case NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON:
+								*msg          = NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON;
+								*data         = 0;
+								break;
+							case NeutrinoMessages::EVT_HDMI_CEC_STANDBY:
+								*msg          = NeutrinoMessages::EVT_HDMI_CEC_STANDBY;
 								*data         = 0;
 								break;
 							default:
