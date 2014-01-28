@@ -221,6 +221,7 @@ CNeutrinoApp::CNeutrinoApp()
 	current_muted		= 0;
 	recordingstatus		= 0;
 	g_channel_list_changed	= false;
+	channellist_visible	= false;
 }
 
 /*-------------------------------------------------------------------------------------
@@ -2365,6 +2366,7 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 {
 	neutrino_msg_t msg = _msg;
 	InfoClock->enableInfoClock(false);
+	channellist_visible = true;
 
 	StopSubtitles();
 
@@ -2448,6 +2450,7 @@ _repeat:
 		goto _show;
 	}
 
+	channellist_visible = false;
 	if (!from_menu)
 		InfoClock->enableInfoClock(true);
 
