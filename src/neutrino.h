@@ -213,6 +213,7 @@ public:
 	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 	bool getChannellistIsVisible() { return channellist_visible; }
+	void zapTo(t_channel_id channel_id);
 };
 #endif
 
