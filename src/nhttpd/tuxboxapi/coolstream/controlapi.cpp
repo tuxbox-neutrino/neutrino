@@ -430,30 +430,41 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 				CEC_HDMI_off = true;
 			}
 		}
-		//dont use CEC with standbyoff --- use: control/standby?off&cec=off
-		if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){
-			videoDecoder->SetCECAutoView(0);
-		}
 
 		if (hh->ParamList["1"] == "on")	// standby mode on
 		{
+			//dont use CEC with standbyoff (TV off) --- use: control/standby?off&cec=off
+			if(g_settings.hdmi_cec_standby && CEC_HDMI_off){
+				videoDecoder->SetCECAutoStandby(0);
+			}
+
 			if(CNeutrinoApp::getInstance()->getMode() != 4)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_ON, CEventServer::INITID_HTTPD);
 			hh->SendOk();
+
+			if(g_settings.hdmi_cec_standby && CEC_HDMI_off){//dont use CEC with standbyoff (TV off)
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD);
+			}
 		}
 		else if (hh->ParamList["1"] == "off")// standby mode off
 		{
+			//dont use CEC with with view on (TV on) --- use: control/standby?off&cec=off
+			if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){
+				videoDecoder->SetCECAutoView(0);
+			}
+
 			NeutrinoAPI->Zapit->setStandby(false);
 			if(CNeutrinoApp::getInstance()->getMode() == 4)
 				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::STANDBY_OFF, CEventServer::INITID_HTTPD);
 			hh->SendOk();
+
+			if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){//dont use CEC with view on (TV on)
+				NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON, CEventServer::INITID_HTTPD);
+			}
 		}
 		else
 			hh->SendError();
 
-		if(g_settings.hdmi_cec_view_on && CEC_HDMI_off){//dont use CEC with standbyoff
-			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_HDMI_CEC_ON, CEventServer::INITID_HTTPD);
-		}
 	}
 	else
 		if(CNeutrinoApp::getInstance()->getMode() == 4)//mode_standby = 4

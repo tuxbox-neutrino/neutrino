@@ -3035,9 +3035,15 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 //		ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
 //				CMessageBox::mbrBack,CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 	}
-	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_ON) {
+	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON) {
 		if(g_settings.hdmi_cec_view_on)
 			videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on);
+
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_HDMI_CEC_STANDBY) {
+		if(g_settings.hdmi_cec_standby)
+			  videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby);
 
 		return messages_return::handled;
 	}
