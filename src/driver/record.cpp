@@ -1360,7 +1360,7 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
-			if(g_settings.temp_timeshift && !g_settings.auto_timeshift)
+			if(g_settings.temp_timeshift && !g_settings.auto_timeshift && autoshift)
 				ShowMenu();
 		}
 	}
