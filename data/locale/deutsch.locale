@@ -537,7 +537,7 @@ flashupdate.proxyusername Benutzername
 flashupdate.proxyusername_hint1 Geben Sie den Proxy-Benutzernamen ein
 flashupdate.proxyusername_hint2 Ein leerer Eintrag bedeutet keine Authentifizierung
 flashupdate.read_directory_not_exist Das Backupverzeichnis %s \nexistiert nicht!
-flashupdate.read_no_available_space Der maximal verfügbare Platz in %s \nbeträgt %d KB, es werden aber %d KB benötigt.\n \nDer Vorgang wird abgebrochen, wählen sie bitte einen anderen Datenträger!
+flashupdate.read_no_available_space Der maximal verfügbare Platz in %s \nbeträgt %s KB, es werden aber %s KB benötigt.\n \nDer Vorgang wird abgebrochen, wählen sie bitte einen anderen Datenträger!
 flashupdate.read_volume_error Die Größe des Datenträgers %s \nkann nicht ermittelt werden!
 flashupdate.readflash ganzes Flashimage auslesen
 flashupdate.readflashmtd einzelne Partition auslesen
