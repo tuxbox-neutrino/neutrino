@@ -35,36 +35,34 @@ using namespace std;
 //sub class CComponentsIconForm inherit from CComponentsForm
 CComponentsIconForm::CComponentsIconForm()
 {
-	initVarIconForm();
+	initVarIconForm(1, 1, 0, 0, vector<string>());
 }
 
-
-CComponentsIconForm::CComponentsIconForm(const int x_pos, const int y_pos, const int w, const int h, const std::vector<std::string> &v_icon_names, bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+CComponentsIconForm::CComponentsIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+						const std::vector<std::string> &v_icon_names,
+						bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarIconForm();
+	initVarIconForm(x_pos, y_pos, w, h, v_icon_names, has_shadow, color_frame, color_body, color_shadow);
+}
+
+void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+						const std::vector<std::string> &v_icon_names,
+						bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	cc_item_type 	= CC_ITEMTYPE_FRM_ICONFORM;
 
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
 	height 		= h;
+	v_icons		= v_icon_names;
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-		
-	v_icons		= v_icon_names;
-}
 
-void CComponentsIconForm::initVarIconForm()
-{
-	cc_item_type 	= CC_ITEMTYPE_FRM_ICONFORM;
-
-	//set default width and height to 0, this causes a dynamic adaptation of width and height of form
-	width 		= 0;
-	height 		= 0;
-
-	v_icons.clear();
 	ccif_offset 	= 2;
 	ccif_icon_align = CC_ICONS_FRM_ALIGN_LEFT;
 }
