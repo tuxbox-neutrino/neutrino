@@ -217,8 +217,8 @@ class CMenuForwarder : public CMenuItem
 	std::string		actionKey;
 
  protected:
-	std::string	 	option_string;
-	const std::string *	option_string_ptr;
+	const char *	 	option;
+	const std::string *	option_string;
 	CMenuTarget *		jumpTarget;
 
 	virtual std::string getOption(void);
@@ -250,6 +250,7 @@ class CMenuForwarder : public CMenuItem
 	int exec(CMenuTarget* parent);
 	bool isSelectable(void) const { return active; }
 	void setOption(const std::string &Option);
+	void setOption(const char * const Option);
 	void setName(const std::string& text);
 	void setName(const neutrino_locale_t text);
 };

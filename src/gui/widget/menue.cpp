@@ -1814,7 +1814,8 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	option_string_ptr = &Option;
+	option_string = &Option;
+	option = NULL;
 	name = Text;
 	nameString = "";
 	active = Active;
@@ -1828,7 +1829,8 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 
 CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	option_string_ptr = &Option;
+	option_string = &Option;
+	option = NULL;
 	name = NONEXISTANT_LOCALE;
 	nameString = Text;
 	active = Active;
@@ -1842,8 +1844,8 @@ CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const
 
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	option_string = Option ? Option : "";
-	option_string_ptr = &option_string;
+	option_string = NULL;
+	option = Option;
 	name = Text;
 	nameString = "";
 	active = Active;
@@ -1857,8 +1859,8 @@ CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, 
 
 CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
-	option_string = Option ? Option : "";
-	option_string_ptr = &option_string;
+	option_string = NULL;
+	option = Option;
 	name = NONEXISTANT_LOCALE;
 	nameString = Text;
 	active = Active;
@@ -1882,9 +1884,20 @@ void CMenuForwarder::setName(const neutrino_locale_t t)
 	nameString = "";
 }
 
+void CMenuForwarder::setOption(const char * const Option)
+{
+	option = Option;
+	option_string = NULL;
+	if (used && x != -1)
+		paint();
+}
+
 void CMenuForwarder::setOption(const std::string &Option)
 {
-	option_string = Option;
+	option = NULL;
+	option_string = &Option;
+	if (used && x != -1)
+		paint();
 }
 
 int CMenuForwarder::getHeight(void) const
@@ -1924,9 +1937,11 @@ int CMenuForwarder::exec(CMenuTarget* parent)
 
 std::string CMenuForwarder::getOption(void)
 {
-	if (!option_string_ptr->empty())
-		return *option_string_ptr;
-	if (jumpTarget)
+	if (option)
+		return (std::string)option;
+	else if (option_string)
+		return *option_string;
+	else if (jumpTarget)
 		return jumpTarget->getValue();
 	return "";
 }
