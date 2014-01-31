@@ -1147,13 +1147,13 @@ CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
 	eventInfo.epgID = config->getInt64("EVENT_INFO_EPG_ID_"+id);
 	dprintf("read EVENT_INFO_EPG_ID_%s %ld\n",id.c_str(),(long)eventInfo.epgID);
 
-	eventInfo.epg_starttime = config->getInt64("EVENT_INFO_EPG_STARTTIME_"+id);
+	eventInfo.epg_starttime = (long int)config->getInt64("EVENT_INFO_EPG_STARTTIME_"+id);
 	dprintf("read EVENT_INFO_EPG_STARTTIME_%s %ld\n",id.c_str(),(long)eventInfo.epg_starttime);
 
 	eventInfo.channel_id = config->getInt64("EVENT_INFO_CHANNEL_ID_"+id);
 	dprintf("read EVENT_INFO_CHANNEL_ID_%s %ld\n",id.c_str(),(long)eventInfo.channel_id);
 
-	eventInfo.apids = config->getInt32("EVENT_INFO_APIDS_"+id);
+	eventInfo.apids = (unsigned char)config->getInt32("EVENT_INFO_APIDS_"+id);
 	dprintf("read EVENT_INFO_APIDS_%s 0x%X (%p)\n",id.c_str(),eventInfo.apids,&eventInfo.apids);
 
 	recordingDir = config->getString("REC_DIR_"+id);
