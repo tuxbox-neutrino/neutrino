@@ -44,8 +44,7 @@ CBuildInfo::CBuildInfo() : CComponentsWindow(0, 0, 700, 500, LOCALE_BUILDINFO_ME
 void CBuildInfo::initVarBuildInfo()
 {
 	doCenter();
-	
-	append_v_offset = 1;
+
 	font = NULL;
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 	InitInfoItems();
