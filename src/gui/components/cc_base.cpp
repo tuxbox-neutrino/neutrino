@@ -56,8 +56,8 @@ void CComponents::clearSavedScreen()
 
 void CComponents::initVarBasic()
 {
-	x = saved_screen.x 	= 1;
-	y = saved_screen.y 	= 1;
+	x = saved_screen.x 	= 0;
+	y = saved_screen.y 	= 0;
 	cc_xr 			= x;
 	cc_yr 			= y;
 	height 			= saved_screen.dy = CC_HEIGHT_MIN;
