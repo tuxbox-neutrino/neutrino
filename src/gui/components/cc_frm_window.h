@@ -164,10 +164,18 @@ class CComponentsWindowMax : public CComponentsWindow
 {
 	public:
 		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, this shows a centered window based up current screen settings
-		CComponentsWindowMax(const std::string& caption, const std::string& iconname = "");
+		CComponentsWindowMax(	const std::string& caption, const std::string& iconname = "",
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, this shows a centered window based up current screen settings
-		CComponentsWindowMax(neutrino_locale_t locale_caption, const std::string& iconname = "");
+		CComponentsWindowMax(	neutrino_locale_t locale_caption, const std::string& iconname = "",
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
 #endif
