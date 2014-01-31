@@ -181,14 +181,7 @@ void CImageInfo::ShowWindow()
 {
 	CComponentsFooter *footer = NULL;
 	if (cc_win == NULL){
-		CFrameBuffer *frameBuffer = CFrameBuffer::getInstance ();
-#if 0
-		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO);
-#endif
-		cc_win = new CComponentsWindow(frameBuffer->getScreenX(), frameBuffer->getScreenY(),
-				frameBuffer->getScreenWidth(),
-				frameBuffer->getScreenHeight(),
-				LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO);
+		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO, CC_SHADOW_ON);
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 		footer = cc_win->getFooterObject();
 		footer->setColorBody(COL_INFOBAR_SHADOW_PLUS_1);
