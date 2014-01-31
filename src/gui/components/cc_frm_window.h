@@ -92,6 +92,10 @@ class CComponentsWindow : public CComponentsForm
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		///allow centering of window on screen, mostly senseful for window object without parent
 		void doCenter();
+		///initialize width and height
+		void initWindowSize();
+		///initialize position
+		void initWindowPos();
 
 	public:
 		enum
@@ -159,12 +163,10 @@ class CComponentsWindow : public CComponentsForm
 class CComponentsWindowMax : public CComponentsWindow
 {
 	public:
-		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, position of window is general centered and bound
-		///to current screen settings, this shows a window over full screen
+		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, this shows a centered window based up current screen settings
 		CComponentsWindowMax(const std::string& caption, const std::string& iconname = "");
 
-		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, position of window is general centered and bound
-		///to current screen settings, this shows a window over full screen
+		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, this shows a centered window based up current screen settings
 		CComponentsWindowMax(neutrino_locale_t locale_caption, const std::string& iconname = "");
 };
 

@@ -80,13 +80,14 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	//CComponentsForm
 	cc_item_type 	= CC_ITEMTYPE_FRM_WINDOW;
 
-	//using current screen settings for default dimensions, do use full screen if default values for width/height = 0
-	int w_tmp = frameBuffer->getScreenWidth(w == 0 ? true : false);
-	int h_tmp = frameBuffer->getScreenHeight(h == 0 ? true : false);
-	width 		= w == 0 ? w_tmp : w;
-	height 		= h == 0 ? h_tmp : h;
-	x 		= x_pos;
-	y 		= y_pos;
+	//using current screen settings for default dimensions,
+	//do use full screen (from osd-settings) if default values for width/height = 0
+	x = x_pos;
+	y = y_pos;
+	width = w;
+	height = h;
+	initWindowSize();
+	initWindowPos();
 
 	ccw_caption 	= caption;
 	ccw_icon_name	= iconname;
@@ -110,9 +111,31 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	initCCWItems();
 }
 
+void CComponentsWindow::initWindowSize()
+{
+	if (cc_parent)
+		return;
+
+	if (width == 0)
+		width = frameBuffer->getScreenWidth();
+	if (height == 0)
+		height = frameBuffer->getScreenHeight();
+}
+
+void CComponentsWindow::initWindowPos()
+{
+	if (cc_parent)
+		return;
+
+	if (x == 0)
+		x = frameBuffer->getScreenX();
+	if (y == 0)
+		y = frameBuffer->getScreenY();
+}
+
 void CComponentsWindow::doCenter(){
-	x = cc_parent ? cc_parent->getWidth() - width/2 : frameBuffer->getScreenWidth(true)/2 - width/2;
-	y = cc_parent ? cc_parent->getHeight() - height/2 : frameBuffer->getScreenHeight(true)/2 -height/2;
+	x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
+	y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
 }
 
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
