@@ -1195,7 +1195,7 @@ int CLuaInstance::MessageboxExec(lua_State *L)
 		const char *val = lua_tostring(L, -2);
 		table_key mb[] = {
 			{ "center1",	CMessageBox::mbBtnAlignCenter1 },
-			{ "center2",	CMessageBox::mbBtnAlignCenter1 },
+			{ "center2",	CMessageBox::mbBtnAlignCenter2 },
 			{ "left",	CMessageBox::mbBtnAlignLeft },
 			{ "right",	CMessageBox::mbBtnAlignRight },
 			{ NULL,		0 }
