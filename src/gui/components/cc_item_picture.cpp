@@ -143,6 +143,11 @@ void CComponentsPicture::initCCItem()
 	int sw = (shadow ? shadow_w :0);
 	width = max(max(pic_width, pic_max_w), width)  + sw ;
 	height = max(max(pic_height, pic_max_h), height)  + sw ;
+
+#ifdef DEBUG_CC
+	printf("[CComponentsPicture] %s initialized Image: ====>> %s\n\titem x = %d\n\tdx = %d (image dx = %d)\n\titem y = %d\n\titem dy = %d (image dy = %d)\n",
+	       __func__, pic_name.c_str(),  x, width, pic_width,  y, height, pic_height);
+#endif
 }
 
 void CComponentsPicture::initPosition()
