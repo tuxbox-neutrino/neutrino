@@ -35,6 +35,8 @@
 #include <gui/widget/mountchooser.h>
 #include <gui/components/cc.h>
 #include <gui/timerlist.h>
+#include <zapit/zapit.h>
+#include <system/helpers.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -435,19 +437,25 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 {
 	return a.startTime< b.startTime;
 }
-
+bool CEpgData::isCurrentEPG(const t_channel_id channel_id)
+{
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	if(( epg_done!= -1 ) && live_channel_id == channel_id){
+			return true;
+	}
+	return false;
+}
 int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_startzeit, bool doLoop, bool callFromfollowlist )
 {
 	int res = menu_return::RETURN_REPAINT;
-	static uint64_t id;
-	static time_t startzeit;
+	static uint64_t id = 0;
+	static time_t startzeit = 0;
 	call_fromfollowlist = callFromfollowlist;
 	if (a_startzeit)
 		startzeit=*a_startzeit;
 	id=a_id;
 
-	int height;
-	height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
+	int height = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->getHeight();
 
 	GetEPGData(channel_id, id, &startzeit );
 	if (doLoop)
@@ -469,7 +477,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		hide();
 		return res;
 	}
-
 	// Calculate offset for the title when logo appears.
 	int pic_offx = 0;
 	std::string lname;
@@ -644,10 +651,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	int showPos = 0;
 	textCount = epgText.size();
 	showText(showPos, sy + toph);
-
+	bool wzap = isCurrentEPG(channel_id);
 	// show Timer Event Buttons
-	showTimerEventBar (true);
-
+	showTimerEventBar (true,wzap);
+	
 	//show Content&Component for Dolby & 16:9
 	int dummy_h,dummy_w;
 	frameBuffer->getIconSize(NEUTRINO_ICON_16_9_GREY, &dummy_w, &dummy_h);
@@ -775,6 +782,22 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				else
 					showText(showPos, sy + toph);
 				break;
+			case CRCInput::RC_page_up:
+				if(isCurrentEPG(channel_id)){
+					g_settings.wzap_time++;
+					if(g_settings.wzap_time>9)
+						g_settings.wzap_time = 9;
+					showTimerEventBar(true, true);
+				}
+				break;
+			case CRCInput::RC_page_down:
+				if(isCurrentEPG(channel_id)){
+					g_settings.wzap_time--;
+					if(g_settings.wzap_time<0)
+						g_settings.wzap_time = 0;
+					showTimerEventBar(true, true);
+				}
+				break;
 
 				// 31.05.2002 dirch		record timer
 			case CRCInput::RC_red:
@@ -862,12 +885,19 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			{
 				//CTimerdClient timerdclient;
 				if (g_Timerd->isTimerdAvailable())
-				{
-					g_Timerd->addZaptoTimerEvent(channel_id,
+				{	
+					if(g_settings.wzap_time && isCurrentEPG(channel_id)){
+						g_Timerd->addZaptoTimerEvent(channel_id,
+								     time (NULL) + (g_settings.wzap_time * 60),
+								     0, 0,
+								     0, 0, 0);
+					}else{
+						g_Timerd->addZaptoTimerEvent(channel_id,
 								     epgData.epg_times.startzeit - (g_settings.zapto_pre_time * 60),
 								     epgData.epg_times.startzeit - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 								     epgData.eventID, epgData.epg_times.startzeit, 0);
-					ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+						ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+					}
 					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 				}
 				else
@@ -1130,7 +1160,7 @@ const struct button_label EpgButtons[] =
 
 };
 
-void CEpgData::showTimerEventBar (bool pshow)
+void CEpgData::showTimerEventBar (bool pshow, bool webzap)
 
 {
 	int  x,y,h,fh;
@@ -1150,13 +1180,18 @@ void CEpgData::showTimerEventBar (bool pshow)
 		return;
 	}
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
-
 	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */
 	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
+	std::string tmp_but_name;
+	if(g_settings.wzap_time && webzap){
+		tmp_but_name = g_Locale->getText(LOCALE_ADZAP);
+		tmp_but_name += " "+ to_string(g_settings.wzap_time) + " ";
+		tmp_but_name += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+	}
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 3:2, EpgButtons, aw, h);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 3:2, EpgButtons, aw, h,"",false,COL_INFOBAR_SHADOW_TEXT,tmp_but_name.empty() ? NULL:tmp_but_name.c_str(),1);
 	else
-		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], aw, h);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], aw, h,"",false,COL_INFOBAR_SHADOW_TEXT,tmp_but_name.empty() ? NULL:tmp_but_name.c_str(),0);
 
 #if 0
 	// Button: Timer Record & Channelswitch

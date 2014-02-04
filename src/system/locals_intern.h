@@ -123,6 +123,7 @@ const char * locale_real_names[] =
 	"GENRE.TRAVEL_HOBBIES.6",
 	"GENRE.TRAVEL_HOBBIES.7",
 	"GENRE.UNKNOWN",
+	"adzap",
 	"apidselector.head",
 	"audio.srs_algo",
 	"audio.srs_algo_heavy",
