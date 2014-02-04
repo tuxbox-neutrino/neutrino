@@ -134,6 +134,8 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 			tmp->number = count;
 			tmp->name = g_PluginList->getName(count);
 			tmp->desc = g_PluginList->getDescription(count);
+			if (tmp->desc == "")
+				tmp->desc = "---";
 			pluginlist.push_back(tmp);
 		}
 	}
@@ -310,7 +312,7 @@ void CPluginList::paintHead()
 
 	if (pluginlisttype == CPlugins::P_TYPE_GAME)
 		header.setIcon(NEUTRINO_ICON_GAMES);
-	else if (pluginlisttype == CPlugins::P_TYPE_SCRIPT)
+	else
 		header.setIcon(NEUTRINO_ICON_SHELL);
 
 	header.paint(CC_SAVE_SCREEN_NO);
@@ -356,11 +358,10 @@ void CPluginList::paintItems()
 
 CPluginList::result_ CPluginList::pluginSelected()
 {
+	hide();
 	g_PluginList->startPlugin(pluginlist[selected]->number,0);
 	if (!g_PluginList->getScriptOutput().empty())
 	{
-		hide();
-		//ShowMsg(LOCALE_PLUGINS_RESULT, Latin1_to_UTF8(g_PluginList->getScriptOutput()), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
 		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
 	}
 	paint();

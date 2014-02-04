@@ -177,7 +177,9 @@ struct SNeutrinoSettings
 		P_MAIN_MEDIA,
 		
 		P_MAIN_GAMES,
+		P_MAIN_TOOLS,
 		P_MAIN_SCRIPTS,
+		P_MAIN_LUA,
 		P_MAIN_SETTINGS,
 		P_MAIN_SERVICE,
 		P_MAIN_SLEEPTIMER,
@@ -231,6 +233,8 @@ struct SNeutrinoSettings
 		P_FEAT_KEY_VTXT,
 		P_FEAT_KEY_RC_LOCK,
 		
+		//plugins type
+		P_UMENU_PLUGIN_TYPE,
 		//user menu
 		P_UMENU_SHOW_CANCEL,
 
@@ -658,6 +662,8 @@ struct SNeutrinoSettings
 		ITEM_SCRIPTS = 21,
 		ITEM_YOUTUBE = 22,
 		ITEM_FILEPLAY = 23,
+		ITEM_TOOLS = 24,
+		ITEM_LUA = 25,
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
 	std::string usermenu_text[BUTTON_MAX];
