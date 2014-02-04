@@ -504,6 +504,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	infoViewerBB->is_visible = true;
 
 	ChannelName = Channel;
+	t_channel_id old_channel_id = channel_id;
 	channel_id = Channel_Id;
 
 	/* showChannelLogo() changes this, so better reset it every time... */
@@ -583,6 +584,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	loop(show_dot);
 	aspectRatio = 0;
 	fileplay = 0;
+	channel_id = old_channel_id;
 }
 
 void CInfoViewer::reset_allScala()
