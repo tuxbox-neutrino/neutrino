@@ -212,10 +212,6 @@ void CComponentsWindow::initCCWItems()
 #ifdef DEBUG_CC
 	printf("[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
 #endif
-	initHeader();
-	initFooter();
-	initBody();
-
 	//add/remove header if required
 	if (ccw_show_header){
 		initHeader();
@@ -235,6 +231,8 @@ void CComponentsWindow::initCCWItems()
 			ccw_footer = NULL;
 		}
 	}
+
+	initBody();
 
 	//add header, body and footer items only one time
 	if (ccw_head)
