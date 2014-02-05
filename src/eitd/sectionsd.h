@@ -42,6 +42,7 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 
 		static OpenThreads::Mutex m;
 		static CEitManager * manager;
+		void checkCurrentNextEvent(void);
 
 		CEitManager();
 		/* main thread function */

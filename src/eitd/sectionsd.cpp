@@ -2306,6 +2306,24 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 	unlockEvents();
 }
 
+/* invalidate current/next events, if current event times expired */
+void CEitManager::checkCurrentNextEvent(void)
+{
+	time_t curtime = time(NULL);
+	writeLockEvents();
+	if (scanning || !myCurrentEvent || myCurrentEvent->times.empty()) {
+		unlockEvents();
+		return;
+	}
+	if ((long)(myCurrentEvent->times.begin()->startzeit + myCurrentEvent->times.begin()->dauer) < (long)curtime) {
+		delete myCurrentEvent;
+		myCurrentEvent = NULL;
+		delete myNextEvent;
+		myNextEvent = NULL;
+	}
+	unlockEvents();
+}
+
 /* send back the current and next event for the channel id passed to it
  * Works like that:
  * - if the currently running program is requested, return myCurrentEvent and myNextEvent,
@@ -2328,6 +2346,8 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 	//bool change = false;//TODO remove ?
 
 	uniqueServiceKey &= 0xFFFFFFFFFFFFULL;
+
+	checkCurrentNextEvent();
 
 	readLockEvents();
 	/* if the currently running program is requested... */
@@ -2587,6 +2607,7 @@ bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData
 	dprintf("[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
 
 	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
+	checkCurrentNextEvent();
 	readLockEvents();
 	if (uniqueServiceKey == messaging_current_servicekey) {
 		if (myCurrentEvent) {
