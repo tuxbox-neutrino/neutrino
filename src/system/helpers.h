@@ -43,6 +43,9 @@ void mySleep(int sec);
 
 std::string find_executable(const char *name);
 
+bool hdd_get_standby(const char * fname);
+void hdd_flush(const char * fname);
+
 std::string getPathName(std::string &path);
 std::string getBaseName(std::string &path);
 std::string getFileName(std::string &file);

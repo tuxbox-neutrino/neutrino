@@ -38,6 +38,9 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <stdarg.h>
+#include <mntent.h>
+#include <linux/hdreg.h>
+#include <linux/fs.h>
 
 #include <system/helpers.h>
 #include <gui/update_ext.h>
@@ -610,4 +613,74 @@ bool CFileHelpers::removeDir(const char *Dir)
 
 	errno = 0;
 	return true;
+}
+
+static int hdd_open_dev(const char * fname)
+{
+	FILE * fp;
+	struct mntent * mnt;
+	dev_t dev;
+	struct stat st;
+	int fd = -1;
+
+	if (stat(fname, &st) != 0) {
+		perror(fname);
+		return fd;
+	}
+
+	dev = st.st_dev;
+	fp = setmntent("/proc/mounts", "r");
+	if (fp == NULL) {
+		perror("setmntent");
+		return fd;
+	}
+
+	while ((mnt = getmntent(fp)) != NULL) {
+		if (stat(mnt->mnt_fsname, &st) != 0)
+			continue;
+		if (S_ISBLK(st.st_mode) && st.st_rdev == dev) {
+			printf("[hdd] file [%s] -> dev [%s]\n", fname, mnt->mnt_fsname);
+			fd = open(mnt->mnt_fsname, O_RDONLY|O_NONBLOCK);
+			if (fd < 0)
+				perror(mnt->mnt_fsname);
+			break;
+		}
+	}
+	endmntent(fp);
+	return fd;
+}
+
+bool hdd_get_standby(const char * fname)
+{
+	bool standby = false;
+
+	int fd = hdd_open_dev(fname);
+	if (fd >= 0) {
+		unsigned char args[4] = {WIN_CHECKPOWERMODE1,0,0,0};
+		int ret = ioctl(fd, HDIO_DRIVE_CMD, args);
+		if (ret) {
+			args[0] = WIN_CHECKPOWERMODE2;
+			ret = ioctl(fd, HDIO_DRIVE_CMD, args);
+		}
+		if ((ret == 0) && (args[2] != 0xFF))
+			standby = true;
+
+		printf("[hdd] %s\n", standby ? "standby" : "active");
+		close(fd);
+	}
+	return standby;
+}
+
+void hdd_flush(const char * fname)
+{
+	int fd = hdd_open_dev(fname);
+	if (fd >= 0) {
+		printf("[hdd] flush buffers...\n");
+		fsync(fd);
+		if (ioctl(fd, BLKFLSBUF, NULL))
+			perror("BLKFLSBUF");
+		else
+			ioctl(fd, HDIO_DRIVE_CMD, NULL);
+		close(fd);
+	}
 }
