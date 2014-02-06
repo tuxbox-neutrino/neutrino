@@ -110,8 +110,8 @@ void CComponentsForm::initVarForm()
 	//CComponentsForm
 	v_cc_items.clear();
 	cc_item_type 	= CC_ITEMTYPE_FRM;
-	append_h_offset = 0;
-	append_v_offset = 0;
+	append_x_offset = 0;
+	append_y_offset = 0;
 }
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
@@ -303,7 +303,7 @@ void CComponentsForm::paintCCItems()
 		//set required x-position to item:
 		//append vertical
 		if (xpos == CC_APPEND){
-			auto_x += append_h_offset;
+			auto_x += append_x_offset;
 			cc_item->setRealXPos(auto_x + xpos);
 			auto_x += w_item;
 		}
@@ -320,7 +320,7 @@ void CComponentsForm::paintCCItems()
 		//set required y-position to item
 		//append hor
 		if (ypos == CC_APPEND){
-			auto_y += append_v_offset;
+			auto_y += append_y_offset;
 			cc_item->setRealYPos(auto_y + ypos);
 			auto_y += h_item;
 		}

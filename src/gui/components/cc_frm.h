@@ -39,8 +39,8 @@ class CComponentsForm : public CComponentsItem
 		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
 		int genIndex();
 
-		int append_h_offset;
-		int append_v_offset;
+		int append_x_offset;
+		int append_y_offset;
 	public:
 		
 		CComponentsForm();
@@ -70,7 +70,7 @@ class CComponentsForm : public CComponentsItem
 		///return size (count) of available items
 		virtual	size_t size(){return v_cc_items.size();};
 
-		virtual void setAppendOffset(const int &h_offset, const int& v_offset){append_h_offset = h_offset; append_v_offset = v_offset;};
+		virtual void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
 };
 
 #endif
