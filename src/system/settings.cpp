@@ -103,10 +103,14 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_feat_key_vtxt"		, CPersonalizeGui::PERSONALIZE_FEAT_KEY_BLUE},
 	{"personalize_feat_key_rclock"		, CPersonalizeGui::PERSONALIZE_FEAT_KEY_AUTO},
 	
-	//plugin type
-	{"personalize_usermenu_plugin_type"	, CPlugins::P_TYPE_TOOL },
 	//user menu
 	{"personalize_usermenu_show_cancel"	, true},
+
+	//plugin types
+	{"personalize_usermenu_plugin_type_games"	, false},
+	{"personalize_usermenu_plugin_type_tools"	, true},
+	{"personalize_usermenu_plugin_type_scripts"	, false},
+	{"personalize_usermenu_plugin_type_lua"		, true},
 };
 
 CScanSettings::CScanSettings(void)

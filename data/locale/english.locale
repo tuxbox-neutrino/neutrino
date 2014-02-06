@@ -1612,7 +1612,7 @@ personalize.pinhint Enter the Personalization PIN Code
 personalize.pinprotect Yes
 personalize.pinstatus Require PIN
 personalize.plugins Plugins
-personalize.usermenu_plugin_type Plugin type
+personalize.usermenu_plugin_types Choose Plugin types to show
 personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
@@ -1971,6 +1971,7 @@ usermenu.head User menu
 usermenu.item_bar ---- Boarder ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
+usermenu.item_plugin_types Plugin types
 usermenu.item_vtxt Videotext
 usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
 usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!

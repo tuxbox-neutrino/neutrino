@@ -324,25 +324,34 @@ bool CUserMenu::showUserMenu(int button)
 			menu->addItem(menu_item, false);
 			break;
 #endif
-		case SNeutrinoSettings::ITEM_PLUGIN:
+		case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 		{
 			char id[5];
 			int cnt = 0;
 			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
 			{
-				bool show = g_PluginList->getType(count) == g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE];
+				bool show = false;
+				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES])
+					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_GAME;
+				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_TOOLS])
+					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_TOOL;
+				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_SCRIPTS])
+					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_SCRIPT;
+#if ENABLE_LUA
+				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA])
+					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
+#endif
 
 				if (show && !g_PluginList->isHidden(count))
 				{
 					sprintf(id, "%d", count);
 					menu_items++;
-					menu_prev = SNeutrinoSettings::ITEM_PLUGIN;
+					menu_prev = SNeutrinoSettings::ITEM_PLUGIN_TYPES;
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					StreamFeaturesChanger     = new CStreamFeaturesChangeExec();
 					keyhelper.get(&key,&icon, d_key);
 					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
-
 					menu->addItem(menu_item, 0);
 					cnt++;
 				}

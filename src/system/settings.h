@@ -234,10 +234,14 @@ struct SNeutrinoSettings
 		P_FEAT_KEY_VTXT,
 		P_FEAT_KEY_RC_LOCK,
 		
-		//plugins type
-		P_UMENU_PLUGIN_TYPE,
 		//user menu
 		P_UMENU_SHOW_CANCEL,
+
+		//plugins types
+		P_UMENU_PLUGIN_TYPE_GAMES,
+		P_UMENU_PLUGIN_TYPE_TOOLS,
+		P_UMENU_PLUGIN_TYPE_SCRIPTS,
+		P_UMENU_PLUGIN_TYPE_LUA,
 
  		P_SETTINGS_MAX
 	};
@@ -654,7 +658,7 @@ struct SNeutrinoSettings
 		ITEM_VTXT = 11,
 		ITEM_TECHINFO = 13,
 		ITEM_REMOTE = 14,
-		ITEM_PLUGIN = 15,
+		ITEM_PLUGIN_TYPES = 15,
 		ITEM_IMAGEINFO = 16,
 		ITEM_BOXINFO = 17,
 		ITEM_CAM = 18,
