@@ -784,17 +784,24 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				break;
 			case CRCInput::RC_page_up:
 				if(isCurrentEPG(channel_id)){
-					g_settings.wzap_time++;
-					if(g_settings.wzap_time>9)
-						g_settings.wzap_time = 9;
+					if(g_settings.wzap_time> 14)
+						g_settings.wzap_time+=5;
+					else
+						g_settings.wzap_time++;
+					if(g_settings.wzap_time>60)
+						g_settings.wzap_time = 0;
 					showTimerEventBar(true, true);
 				}
 				break;
 			case CRCInput::RC_page_down:
 				if(isCurrentEPG(channel_id)){
-					g_settings.wzap_time--;
+					if(g_settings.wzap_time> 19)
+						g_settings.wzap_time-=5;
+					else
+						g_settings.wzap_time--;
+					  
 					if(g_settings.wzap_time<0)
-						g_settings.wzap_time = 0;
+						g_settings.wzap_time = 60;
 					showTimerEventBar(true, true);
 				}
 				break;
@@ -886,11 +893,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				//CTimerdClient timerdclient;
 				if (g_Timerd->isTimerdAvailable())
 				{	
-					if(g_settings.wzap_time && isCurrentEPG(channel_id)){
-						g_Timerd->addZaptoTimerEvent(channel_id,
-								     time (NULL) + (g_settings.wzap_time * 60),
-								     0, 0,
-								     0, 0, 0);
+					if(!g_Timerd->adzap_eventID && g_settings.wzap_time && isCurrentEPG(channel_id)){
+						g_Timerd->addAdZaptoTimerEvent(channel_id,
+								     time (NULL) + (g_settings.wzap_time * 60));
+						loop = false;
 					}else{
 						g_Timerd->addZaptoTimerEvent(channel_id,
 								     epgData.epg_times.startzeit - (g_settings.zapto_pre_time * 60),
@@ -1183,7 +1189,7 @@ void CEpgData::showTimerEventBar (bool pshow, bool webzap)
 	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */
 	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
 	std::string tmp_but_name;
-	if(g_settings.wzap_time && webzap){
+	if(g_settings.wzap_time && webzap && !g_Timerd->adzap_eventID){
 		tmp_but_name = g_Locale->getText(LOCALE_ADZAP);
 		tmp_but_name += " "+ to_string(g_settings.wzap_time) + " ";
 		tmp_but_name += g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
