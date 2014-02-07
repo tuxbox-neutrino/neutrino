@@ -818,7 +818,7 @@ void CMenuWidget::checkHints()
 {
 	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
 	for (unsigned int i= 0; i< items.size(); i++) {
-		if(!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE) {
+		if(!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE || !items[i]->hintText.empty()) {
 			has_hints = true;
 			break;
 		}
@@ -1118,7 +1118,7 @@ void CMenuWidget::paintHint(int pos)
 
 	CMenuItem* item = items[pos];
 	
-	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
+	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE && item->hintText.empty()) {
 		if (info_box) {
 			savescreen ? info_box->hide(false) : info_box->kill();
 			hint_painted = false;
@@ -1126,7 +1126,7 @@ void CMenuWidget::paintHint(int pos)
 		return;
 	}
 	
-	if (item->hint == NONEXISTANT_LOCALE)
+	if (item->hint == NONEXISTANT_LOCALE && item->hintText.empty())
 		return;
 	
 	int iheight = item->getHeight();
@@ -1153,7 +1153,7 @@ void CMenuWidget::paintHint(int pos)
 	}
 
 	//init infobox
-	std::string str = g_Locale->getText(item->hint);
+	std::string str = item->hintText.empty() ? g_Locale->getText(item->hint) : item->hintText;
 	if (info_box){
 		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
 		info_box->setFrameThickness(2);
