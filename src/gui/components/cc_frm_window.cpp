@@ -165,7 +165,7 @@ void CComponentsWindow::initHeader()
 	//set header properties //TODO: assigned properties with internal header objekt have no effect!
 	if (ccw_head){
 		ccw_head->setWidth(width-2*fr_thickness);
-// 		ccw_head->setPos(0, 0);
+		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
 		ccw_head->setDefaultButtons(ccw_buttons);
