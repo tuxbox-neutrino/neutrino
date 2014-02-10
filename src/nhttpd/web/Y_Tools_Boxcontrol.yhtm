@@ -15,6 +15,10 @@ function goUrl(_url){
 	}
 	$("out").update(res);
 }
+function standby(_standby){
+	var _cec = (document.getElementById('checkCEC').checked == true) ? "on" : "off";
+	goUrl("/control/standby?"+_standby+"&cec="+_cec);
+}
 //]]>
 </script>
 </head>
@@ -32,9 +36,10 @@ function goUrl(_url){
 			<input type="button" value="{=L:bc.control.shutdown=}" onclick='goConfirmUrl("{=L:bc.control.shutdown.ask=}","/control/shutdown");'/>
 			</td>
 			<td>
-			<input type="button" value="{=L:on=}" onclick='goUrl("/control/standby?on");'/>
-			<input type="button" value="{=L:off=}" onclick='goUrl("/control/standby?off");'/>
+			<input type="button" value="{=L:on=}" onclick='standby("on");'/>
+			<input type="button" value="{=L:off=}" onclick='standby("off");'/>
 			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/standby");'/>
+			CEC: <input id="checkCEC" name="checkCEC" type="checkbox" checked="checked"/>
 			</td>
 		</tr>
 		<tr><td class="y_form_header">{=L:bc.control.playback=}</td><td class="y_form_header">{=L:bc.control.recording_mode=}</td></tr>
