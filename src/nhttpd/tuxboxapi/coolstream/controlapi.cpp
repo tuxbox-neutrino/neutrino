@@ -49,6 +49,8 @@
 #include "neutrinoapi.h"
 #include "controlapi.h"
 #include <video.h>
+#include <zapit/femanager.h>
+
 extern cVideo * videoDecoder;
 
 extern CPlugins *g_PluginList;//for relodplugins
@@ -161,6 +163,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"epgsearch", 		&CControlAPI::EpgSearchTXTCGI,			""},
 	{"epg", 		&CControlAPI::EpgCGI,			""},
 	{"zapto", 		&CControlAPI::ZaptoCGI,			"text/plain"},
+	{"signal", 		&CControlAPI::SignalInfoCGI,			"text/plain"},
 	{"getonidsid", 		&CControlAPI::GetChannel_IDCGI,	"text/plain"},
 	{"currenttpchannels", 	&CControlAPI::GetTPChannel_IDCGI,	"text/plain"},
 	// boxcontrol - system
@@ -210,7 +213,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	// settings
 	{"config",			&CControlAPI::ConfigCGI,	"text/plain"},
 	// filehandling
-	{"file",			&CControlAPI::FileCGI,	"+xml"},
+	{"file",			&CControlAPI::FileCGI,	"+xml"}
 
 
 };
@@ -1754,6 +1757,34 @@ void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 			hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s\n", channel->channel_id, channel->getName().c_str());
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+void CControlAPI::SignalInfoCGI(CyhookHandler *hh)
+{
+	CFrontend *frontend = CFEManager::getInstance()->getLiveFE();
+	if(frontend){
+		bool parame_empty = false;
+
+		if (hh->ParamList["1"].empty())
+			parame_empty = true;
+
+		if ( parame_empty || (hh->ParamList["1"] == "sig") ){
+			unsigned int sig = frontend->getSignalStrength() & 0xFFFF;
+			sig = (sig & 0xFFFF) * 100 / 65535;
+			hh->printf("SIG:%3u\n", sig);
+		}
+		if ( parame_empty || (hh->ParamList["1"] == "snr") ){
+			unsigned int snr = frontend->getSignalNoiseRatio() & 0xFFFF;
+			snr = (snr & 0xFFFF) * 100 / 65535;
+			hh->printf("SNR:%3u\n", snr);
+		}
+		if ( parame_empty || (hh->ParamList["1"] == "ber") ){
+			unsigned int ber = frontend->getBitErrorRate();
+			hh->printf("BER:%3u\n", ber);
+		}
+	}else
+		hh->SendError();
 }
 
 //-----------------------------------------------------------------------------
