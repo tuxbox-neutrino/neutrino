@@ -1772,16 +1772,22 @@ void CControlAPI::SignalInfoCGI(CyhookHandler *hh)
 		if ( parame_empty || (hh->ParamList["1"] == "sig") ){
 			unsigned int sig = frontend->getSignalStrength() & 0xFFFF;
 			sig = (sig & 0xFFFF) * 100 / 65535;
-			hh->printf("SIG:%3u\n", sig);
+			if (parame_empty)
+				hh->printf("SIG: ");
+			hh->printf("%3u\n", sig);
 		}
 		if ( parame_empty || (hh->ParamList["1"] == "snr") ){
 			unsigned int snr = frontend->getSignalNoiseRatio() & 0xFFFF;
 			snr = (snr & 0xFFFF) * 100 / 65535;
-			hh->printf("SNR:%3u\n", snr);
+			if (parame_empty)
+				hh->printf("SNR: ");
+			hh->printf("%3u\n", snr);
 		}
 		if ( parame_empty || (hh->ParamList["1"] == "ber") ){
 			unsigned int ber = frontend->getBitErrorRate();
-			hh->printf("BER:%3u\n", ber);
+			if (parame_empty)
+				hh->printf("BER: ");
+			hh->printf("%3u\n", ber);
 		}
 	}else
 		hh->SendError();
