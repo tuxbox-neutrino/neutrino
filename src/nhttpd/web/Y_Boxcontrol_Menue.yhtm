@@ -1,10 +1,68 @@
-{=var-set:cancache=yPInstall=}
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/Y_yweb.js"></script>
 <script type="text/javascript">
 //<![CDATA[
+
+var g_sig = 100;
+function set_sigbar(_sig){
+	var l = $("sigbar_left");
+	var r = $("sigbar_right");
+	/*IE: width=0 -> =""*/
+	if(_sig > 0)
+		l.width = _sig.toString()+"%";
+	else
+		l.width = "";
+	if(_sig >= 100)
+		r.width = "";
+	else
+		r.width = (100-_sig).toString()+"%";
+}
+function sig_get(){
+	var __sig_str = loadSyncURL("/control/signal?sig");
+	var __sig = parseInt(__sig_str,10);
+	if(isNaN(__sig)) __sig=100;
+	set_sigbar(__sig);
+	g_sig = __sig;
+	$('sig_value').update(g_sig);
+	return __sig;
+}
+
+var g_snr = 100;
+function set_snrbar(_snr){
+	var l = $("snrbar_left");
+	var r = $("snrbar_right");
+	/*IE: width=0 -> =""*/
+	if(_snr > 0)
+		l.width = _snr.toString()+"%";
+	else
+		l.width = "";
+	if(_snr >= 100)
+		r.width = "";
+	else
+		r.width = (100-_snr).toString()+"%";
+}
+function snr_get(){
+	var __snr_str = loadSyncURL("/control/signal?snr");
+	var __snr = parseInt(__snr_str,10);
+	if(isNaN(__snr)) __snr=100;
+	set_snrbar(__snr);
+	g_snr = __snr;
+	$('snr_value').update(g_snr);
+	return __snr;
+}
+
+var g_ber = 0;
+function ber_get(){
+	var __ber_str = loadSyncURL("/control/signal?ber");
+	var __ber = parseInt(__ber_str,10);
+	if(isNaN(__ber)) __ber=100;
+	g_ber = __ber;
+	$('ber_value').update(g_ber);
+	//return __ber;
+}
+
 var g_volumen = 100;
 function volumen_set_audiobar(_volumen){
 	var l = $("audiobar_left");
@@ -57,6 +115,16 @@ function init(){
 	volumen_set_audiobar(volumen_get());
 	set_mute_button();
 	add_yExtensions('boxcontrol', 'secmenu_boxcontrol');
+
+	set_sigbar(sig_get());
+	set_snrbar(snr_get());
+	ber_get();
+}
+function get_data(){
+	volumen_set_audiobar(volumen_get());
+	set_sigbar(sig_get());
+	set_snrbar(snr_get());
+	ber_get();
 }
 //]]>
 </script>
@@ -138,6 +206,32 @@ function init(){
 		</center>
 	</div>
 </div>
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>{=L:bc.menue.signal=}</h2></div>
+	<div class="y_menu_sec_box_body">
+		<center>
+			<div class="y_text_boxcontrol_div_progress">SIG <span id="sig_value"></span>%</div>
+			<table class="y_text_boxcontrol_table_progress" cellspacing="0" cellpadding="0" title="{=L:bc.menue.sig_display=}">
+			<tr>
+			<td id="sigbar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			<td id="sigbar_right" width="0%" bgcolor="white"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			</tr>
+			</table>
+		</center>
+		<center>
+			<div class="y_text_boxcontrol_div_progress">SNR <span id="snr_value"></span>%</div>
+			<table class="y_text_boxcontrol_table_progress" cellspacing="0" cellpadding="0" title="{=L:bc.menue.snr_display=}">
+			<tr>
+			<td id="snrbar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			<td id="snrbar_right" width="0%" bgcolor="white"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			</tr>
+			</table>
+		</center>
+		<center>
+			<div class="y_text_boxcontrol_div_progress">BER <span id="ber_value"></span></div>
+		</center>
+	</div>
+</div>
 {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}~~
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>Switch to</h2></div>
@@ -155,6 +249,7 @@ function init(){
 <script type="text/javascript">
 //<![CDATA[
 	init();
+	window.setInterval("get_data();",5000);
 //]]>
 </script>
 </body>

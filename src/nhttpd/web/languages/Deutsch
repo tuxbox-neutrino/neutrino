@@ -99,6 +99,8 @@ bc.menue.switch_to_radio=Zum Radio umschalten
 bc.menue.webinf_slavebox=Webinterface der SlaveBox
 bc.menue.volumen_display=Lautstärke Anzeige
 
+bc.menue.signal=Signalstärke
+
 ========= Boxcontrol
 bc.control.freemem=FreeMem
 bc.control.lock=sperren
