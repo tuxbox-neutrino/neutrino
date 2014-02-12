@@ -79,12 +79,24 @@ bool file_exists(const char *filename)
 
 void  wakeup_hdd(const char *hdd_dir)
 {
-	if(!check_dir(hdd_dir)){
+	if(!check_dir(hdd_dir) && hdd_get_standby(hdd_dir)){
 		std::string wakeup_file = hdd_dir;
 		wakeup_file += "/.wakeup";
+		int fd = open(wakeup_file.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC);
+		if (fd >= 0) {
+			unsigned char buf[512];
+			memset(buf, 0xFF, sizeof(buf));
+			for (int i = 0; i < 20; i++) {
+				if (write(fd, buf, sizeof(buf)) < 0) {
+					perror("write to .wakeup");
+					break;
+				}
+			}
+			fdatasync(fd);
+			close(fd);
+		}
+		hdd_flush(hdd_dir);
 		remove(wakeup_file.c_str());
-		creat(wakeup_file.c_str(),S_IREAD|S_IWRITE);
-		sync();
 	}
 }
 //use for script with full path
