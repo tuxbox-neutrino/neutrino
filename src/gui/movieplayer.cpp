@@ -66,7 +66,6 @@
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
-extern bool has_hdd;
 
 #define TIMESHIFT_SECONDS 3
 
@@ -356,8 +355,7 @@ bool CMoviePlayerGui::SelectFile()
 	full_name = "";
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
-	if (has_hdd)
-		wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
+	wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 
 	if (timeshift) {
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
