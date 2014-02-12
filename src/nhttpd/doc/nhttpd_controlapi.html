@@ -200,6 +200,11 @@
 		http://dbox/control/screenshot</a></td>
 	</tr>
 	<tr>
+		<td>43. <a href="#signal">Signalst&auml;rke anzeigen</a></td>
+		<td><a href="http://dbox/control/signal">
+		http://dbox/control/signal</a></td>
+	</tr>
+	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
 	</tr>
@@ -1780,19 +1785,6 @@ ok<br>
 <br>
 
 <!-- ----------------------------------------------------------- -->
-<div class="title1"><a name="reloadplugins"></a>41. Plugins neu laden</div>
-<div class="URL">Handler: http://dbox/control/reloadplugins</div>
-<br>
-<b>Parameter:</b> keine<br>
-<b>Rückgabe</b>: ok<br>
-<br>
-Die Pluginliste wird neu geladen.
-
-
-
-<br>
-
-<!-- ----------------------------------------------------------- -->
 <div class="title1"><a name="changebouquet"></a>40. Bouquet-Editor: Bouquet Channels 
 	ändern</div>
 <div class="URL">Handler: http://dbox/control/changebouquet</div>
@@ -1840,6 +1832,28 @@ Beispiel:<br>
 &gt;&gt;&gt;http://dbox/control/screenshot?osd=0&amp;video=1<br>
 ok<br>
 &nbsp;</div>
+
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="signal"></a>43. Signalst&auml;rke zeigen</div>
+<div class="URL">Handler: http://dbox/control/signal</div>
+<br>
+<b>Parameter:</b> keine oder sig, snr, ber<br><br>
+<b>R&uuml;ckgabe</b>:<br>
+SIG: 100<br>
+SNR:  90<br>
+BER:  0<br>
+<br>
+Signalst&auml;rke SIG in %, SNR in % und BER wird ausgegeben.
+Wird ein spezieller Wert als Parameter angegeben, wird keine Beschreibung ausgegeben.
+<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/signal?sig<br>
+100<br>
+&nbsp;</div>
+
 &nbsp;&nbsp;</p>
 
 
