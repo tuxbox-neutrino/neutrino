@@ -324,10 +324,9 @@ void CPluginList::paint()
 	width = w_max( 500, 0 );
 	height = h_max( 526, 50 ); // 2*25 pixel frei
 	listmaxshow = (height-theight-0)/fheight;
-	int multiplicator = pluginlist.size();
-	if (listmaxshow < pluginlist.size())
-		multiplicator = listmaxshow;
-	height = theight+0+multiplicator*fheight; // recalc height
+	if (pluginlist.size() < listmaxshow)
+		listmaxshow = pluginlist.size();
+	height = theight+0+listmaxshow*fheight; // recalc height
 	x=getScreenStartX( width );
 	y=getScreenStartY( height );
 
