@@ -865,6 +865,14 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg          = NeutrinoMessages::EVT_HDMI_CEC_STANDBY;
 								*data         = 0;
 								break;
+							case NeutrinoMessages::EVT_SET_MUTE :
+								*msg = NeutrinoMessages::EVT_SET_MUTE;
+								*data = *(char*) p;
+								break;
+							case NeutrinoMessages::EVT_SET_VOLUME :
+								*msg = NeutrinoMessages::EVT_SET_VOLUME;
+								*data = *(char*) p;
+								break;
 							default:
 								printf("[neutrino] event INITID_HTTPD - unknown eventID 0x%x\n",  emsg.eventID );
 						}

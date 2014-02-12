@@ -153,7 +153,10 @@ struct NeutrinoMessages {
 		EVT_BACK_ZAP_COMPLETE                    = CRCInput::RC_WithData + 25, /* data: (t_channel_id *) */
 
 		EVT_HDMI_CEC_VIEW_ON	    		 = CRCInput::RC_WithData + 26,
-		EVT_HDMI_CEC_STANDBY	    		 = CRCInput::RC_WithData + 27
+		EVT_HDMI_CEC_STANDBY	    		 = CRCInput::RC_WithData + 27,
+
+		EVT_SET_MUTE                             = CRCInput::RC_WithData + 28,
+		EVT_SET_VOLUME                           = CRCInput::RC_WithData + 29
 	};
 	enum
 	{

@@ -3045,6 +3045,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 		return messages_return::handled;
 	}
+	else if (msg == NeutrinoMessages::EVT_SET_MUTE) {
+		g_audioMute->AudioMute((int)data, true);
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_SET_VOLUME) {
+		g_volume->setVolumeExt((int)data);
+		return messages_return::handled;
+	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 		delete [] (unsigned char*) data;
 	

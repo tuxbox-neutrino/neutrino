@@ -781,12 +781,14 @@ void CControlAPI::VolumeCGI(CyhookHandler *hh)
 	}
 	else if (hh->ParamList["1"].compare("mute") == 0)
 	{
-		NeutrinoAPI->Zapit->muteAudio(true);
+		char mute = 1;
+		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_SET_MUTE, CEventServer::INITID_HTTPD, (void *)&mute, sizeof(char));
 		hh->SendOk();
 	}
 	else if (hh->ParamList["1"].compare("unmute") == 0)
 	{
-		NeutrinoAPI->Zapit->muteAudio(false);
+		char mute = 0;
+		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_SET_MUTE, CEventServer::INITID_HTTPD, (void *)&mute, sizeof(char));
 		hh->SendOk();
 	}
 	else if (hh->ParamList["1"].compare("status") == 0) { // Mute status
@@ -794,7 +796,7 @@ void CControlAPI::VolumeCGI(CyhookHandler *hh)
 	}
 	else if(hh->ParamList["1"]!="") { //set volume
 		char vol = atol( hh->ParamList["1"].c_str() );
-		NeutrinoAPI->Zapit->setVolume(vol,vol);
+		NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::EVT_SET_VOLUME, CEventServer::INITID_HTTPD, (void *)&vol, sizeof(char));
 		hh->SendOk();
 	}
 	else
