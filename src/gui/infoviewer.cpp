@@ -219,10 +219,15 @@ void CInfoViewer::start ()
 	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;	//oberkante schatten?
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
-	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight()+5;
+	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
 	time_left_width = 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getWidth(); /* still a kludge */
 	time_dot_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
 	time_width = time_left_width* 2+ time_dot_width;
+
+	if (clock) {
+		delete clock;
+		clock = NULL;
+	}
 }
 
 void CInfoViewer::changePB()
@@ -257,7 +262,6 @@ void CInfoViewer::paintTime (bool show_dot)
 	if (clock == NULL){
 		clock = new CComponentsFrmClock();
 		clock->doPaintBg(false);
-		clock->setClockActiv(false);
 	}
 
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
@@ -770,8 +774,11 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 				if(ChannelName.empty())
 					chann_size = 1;
 				chname_width += (chname_width/chann_size/2);
+
+				int tmpY = ((ChanNameY + time_height) - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset() 
+						+ g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset());
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
-					ChanNameX + 10 + ChanNumWidth + chname_width, ChanNameY + time_height -SHADOW_OFFSET/2,
+					ChanNameX + 10 + ChanNumWidth + chname_width, tmpY,
 					BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth - chname_width,
 					prov_name, color /*COL_INFOBAR_TEXT*/, 0, true);	// UTF-8
 			}
@@ -1544,17 +1551,17 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			pb_shadow = 0;
 			timescale->setShadowOnOff(false);
 		}
+		int tmpY = CurrInfoY - height - ChanNameY + time_height - 
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset()/3;
 		switch(g_settings.infobar_progressbar) //set progressbar position
 		{
 			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME:
-				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 6)) ;
 				pb_h = (pb_h/3);
-// 				pb_color = 0;
+				pb_starty = ChanNameY + (tmpY-pb_h)/2;
 			break;
 			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL:
-				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 5)) ;
 				pb_h = (pb_h/5);
-// 				pb_color = 0;
+				pb_starty = ChanNameY + (tmpY-pb_h)/2;
 			break;
 			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS:
 				pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;
