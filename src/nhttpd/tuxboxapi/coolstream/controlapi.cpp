@@ -1395,7 +1395,7 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 					struct tm *tmStartZeit = localtime(&eventIterator->startTime);
 					if(xml_forat){
 					hh->printf("\t<epgsearch>");
-					hh->printf("\t\t<channelname>%s</channelname>\n",NeutrinoAPI->GetServiceName(eventIterator->channelID).c_str());
+					hh->printf("\t\t<channelname>%s</channelname>\n",ZapitTools::UTF8_to_UTF8XML(NeutrinoAPI->GetServiceName(eventIterator->channelID).c_str()).c_str());;
 					hh->printf("\t\t<epgtitle>%s</epgtitle>\n",ZapitTools::UTF8_to_UTF8XML(epg.title.c_str()).c_str());
 					hh->printf("\t\t<info1>%s</info1>\n",ZapitTools::UTF8_to_UTF8XML(epg.info1.c_str()).c_str());
 					hh->printf("\t\t<info2>%s</info2>\n",ZapitTools::UTF8_to_UTF8XML(epg.info2.c_str()).c_str());
