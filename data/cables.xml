@@ -266,6 +266,9 @@
 		<transponder frequency="794000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="802000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="810000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="818000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="826000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="834000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 	</cable>
 	<cable name="Kabel BW" satfeed="true" flags="9">
 		<transponder frequency="114000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -309,6 +312,7 @@
 		<transponder frequency="810000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="818000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="826000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="834000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 	</cable>
 	<cable name="Primacom Sat Einspeisung" satfeed="true" flags="9">
 		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
