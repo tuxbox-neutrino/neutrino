@@ -237,6 +237,8 @@ public:
 	bool removeEvent(int eventID);
 	bool stopEvent(int eventID);
 	CTimerEvent* getNextEvent();
+	int lockEvents();
+	int unlockEvents();
 	bool listEvents(CTimerEventMap &Events);
 	CTimerd::CTimerEventTypes *getEventType(int eventID);
 //	int modifyEvent(int eventID, time_t announceTime, time_t alarmTime, time_t stopTime, uint32_t repeatcount, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE);

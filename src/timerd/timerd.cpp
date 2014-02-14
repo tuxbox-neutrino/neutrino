@@ -59,6 +59,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 		case CTimerdMsg::CMD_GETSLEEPTIMER:
 			rspGetSleeptimer.eventID = 0;
+			CTimerManager::getInstance()->lockEvents();
 			if (CTimerManager::getInstance()->listEvents(events))
 			{
 				for (pos = events.begin(); pos != events.end(); ++pos)
@@ -71,6 +72,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					}
 				}
 			}
+			CTimerManager::getInstance()->unlockEvents();
 			CBasicServer::send_data(connfd, &rspGetSleeptimer, sizeof(rspGetSleeptimer));
 			break;
 
@@ -78,6 +80,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			CTimerdMsg::commandGetTimer msgGetTimer;
 			CTimerd::responseGetTimer resp;
 			CBasicServer::receive_data(connfd,&msgGetTimer, sizeof(msgGetTimer));
+			CTimerManager::getInstance()->lockEvents();
 			if(CTimerManager::getInstance()->listEvents(events))
 			{
 				if(events[msgGetTimer.eventID])
@@ -134,11 +137,13 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					}
 				}
 			}
+			CTimerManager::getInstance()->unlockEvents();
 			CBasicServer::send_data(connfd, &resp, sizeof(CTimerd::responseGetTimer));
 			break;
 
 		case CTimerdMsg::CMD_GETTIMERLIST:
 			CTimerdMsg::generalInteger responseInteger;
+			CTimerManager::getInstance()->lockEvents();
 			responseInteger.number = (CTimerManager::getInstance()->listEvents(events)) ? events.size() : 0;
 
 			if (CBasicServer::send_data(connfd, &responseInteger, sizeof(responseInteger)) == true)
@@ -200,6 +205,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					CBasicServer::send_data(connfd, &lresp, sizeof(CTimerd::responseGetTimer));
 				}
 			}
+			CTimerManager::getInstance()->unlockEvents();
 			break;
 
 		case CTimerdMsg::CMD_RESCHEDULETIMER:			// event nach vorne oder hinten schieben
