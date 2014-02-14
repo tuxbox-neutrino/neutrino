@@ -262,7 +262,6 @@ CTimerList::CTimerList()
 	liststart = 0;
 	listmaxshow = 0;
 	Timer = new CTimerdClient();
-	skipEventID=0;
 	timerNew_message = "";
 	timerNew_pluginName = "";
 
@@ -434,16 +433,6 @@ void CTimerList::updateEvents(void)
 {
 	timerlist.clear();
 	Timer->getTimerList (timerlist);
-	//Remove last deleted event from List
-	CTimerd::TimerList::iterator timer = timerlist.begin();
-	for (; timer != timerlist.end(); ++timer)
-	{
-		if (timer->eventID==skipEventID)
-		{
-			timerlist.erase(timer);
-			break;
-		}
-	}
 	sort(timerlist.begin(), timerlist.end());
 
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
@@ -613,7 +602,6 @@ int CTimerList::show()
 			}
 			if (killTimer) {
 				Timer->removeTimerEvent(timerlist[selected].eventID);
-				skipEventID=timerlist[selected].eventID;
 				update = true;
 			}
 		}

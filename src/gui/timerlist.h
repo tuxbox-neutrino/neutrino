@@ -73,8 +73,6 @@ class CTimerList : public CMenuTarget
 		int timer_apids_ac3;
 		int timer_apids_alt;
 
-		int skipEventID;
-
 		void paintItem(int pos);
 		void paint();
 		void paintHead();
