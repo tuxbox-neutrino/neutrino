@@ -153,7 +153,7 @@ void CComponentsPicture::initCCItem()
 void CComponentsPicture::initPosition()
 {
 	//using of real x/y values to paint images if this picture object is bound in a parent form
-	int px = x, py = y;
+	int px = pic_x = x, py = pic_y = y;
 	if (cc_parent){
 		px = cc_xr;
 		py = cc_yr;
