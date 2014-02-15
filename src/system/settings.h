@@ -100,6 +100,7 @@ struct SNeutrinoSettings
 	int infobar_show_res;
 	int infobar_show_tuner;
 	int infobar_show_dd_available;
+	int wzap_time;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
@@ -182,7 +183,9 @@ struct SNeutrinoSettings
 		P_MAIN_MEDIA,
 		
 		P_MAIN_GAMES,
+		P_MAIN_TOOLS,
 		P_MAIN_SCRIPTS,
+		P_MAIN_LUA,
 		P_MAIN_SETTINGS,
 		P_MAIN_SERVICE,
 		P_MAIN_SLEEPTIMER,
@@ -238,6 +241,12 @@ struct SNeutrinoSettings
 		
 		//user menu
 		P_UMENU_SHOW_CANCEL,
+
+		//plugins types
+		P_UMENU_PLUGIN_TYPE_GAMES,
+		P_UMENU_PLUGIN_TYPE_TOOLS,
+		P_UMENU_PLUGIN_TYPE_SCRIPTS,
+		P_UMENU_PLUGIN_TYPE_LUA,
 
  		P_SETTINGS_MAX
 	};
@@ -654,7 +663,7 @@ struct SNeutrinoSettings
 		ITEM_VTXT = 11,
 		ITEM_TECHINFO = 13,
 		ITEM_REMOTE = 14,
-		ITEM_PLUGIN = 15,
+		ITEM_PLUGIN_TYPES = 15,
 		ITEM_IMAGEINFO = 16,
 		ITEM_BOXINFO = 17,
 		ITEM_CAM = 18,
@@ -663,6 +672,8 @@ struct SNeutrinoSettings
 		ITEM_SCRIPTS = 21,
 		ITEM_YOUTUBE = 22,
 		ITEM_FILEPLAY = 23,
+		ITEM_TOOLS = 24,
+		ITEM_LUA = 25,
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
 	std::string usermenu_text[BUTTON_MAX];

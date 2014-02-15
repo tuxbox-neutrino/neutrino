@@ -27,7 +27,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include "cc_frm.h"
+#include "cc_frm_footer.h"
 
 using namespace std;
 

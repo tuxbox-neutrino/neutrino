@@ -27,6 +27,7 @@
 #include "cc_frm.h"
 #include "cc_frm_icons.h"
 #include "cc_frm_header.h"
+#include "cc_frm_footer.h"
 
 //! Sub class of CComponentsForm. Shows a window with prepared items.
 /*!
@@ -91,6 +92,10 @@ class CComponentsWindow : public CComponentsForm
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		///allow centering of window on screen, mostly senseful for window object without parent
 		void doCenter();
+		///initialize width and height
+		void initWindowSize();
+		///initialize position
+		void initWindowPos();
 
 	public:
 		enum
@@ -158,13 +163,19 @@ class CComponentsWindow : public CComponentsForm
 class CComponentsWindowMax : public CComponentsWindow
 {
 	public:
-		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, position of window is general centered and bound
-		///to current screen settings, this shows a window over full screen
-		CComponentsWindowMax(const std::string& caption, const std::string& iconname = "");
+		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, this shows a centered window based up current screen settings
+		CComponentsWindowMax(	const std::string& caption, const std::string& iconname = "",
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
-		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, position of window is general centered and bound
-		///to current screen settings, this shows a window over full screen
-		CComponentsWindowMax(neutrino_locale_t locale_caption, const std::string& iconname = "");
+		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, this shows a centered window based up current screen settings
+		CComponentsWindowMax(	neutrino_locale_t locale_caption, const std::string& iconname = "",
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
 #endif

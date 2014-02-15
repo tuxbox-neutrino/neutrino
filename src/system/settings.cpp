@@ -47,7 +47,9 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	{"personalize_media"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
 	
 	{"personalize_games"			, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},	
+	{"personalize_tools"			, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
 	{"personalize_scripts"			, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
+	{"personalize_lua"			, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
 	{"personalize_settings"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_service"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_sleeptimer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
@@ -103,6 +105,12 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	
 	//user menu
 	{"personalize_usermenu_show_cancel"	, true},
+
+	//plugin types
+	{"personalize_usermenu_plugin_type_games"	, false},
+	{"personalize_usermenu_plugin_type_tools"	, true},
+	{"personalize_usermenu_plugin_type_scripts"	, false},
+	{"personalize_usermenu_plugin_type_lua"		, true},
 };
 
 CScanSettings::CScanSettings(void)

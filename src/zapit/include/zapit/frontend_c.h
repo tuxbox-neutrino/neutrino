@@ -227,7 +227,11 @@ class CFrontend
 			return (currentTransponder.TP_id == 0)
 				|| (tpid == currentTransponder.TP_id);
 		}
-		void 				setTsidOnid(transponder_id_t newid)  { currentTransponder.TP_id = newid; }
+		void 				setTsidOnid(transponder_id_t newid)
+		{
+			if (!usecount)
+				currentTransponder.TP_id = newid;
+		}
 		uint32_t 			getRate ();
 
 		void				Lock();

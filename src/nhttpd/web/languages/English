@@ -101,6 +101,8 @@ bc.menue.switch_to_radio=switch to Radio
 bc.menue.webinf_slavebox=Webinterface der SlaveBox
 bc.menue.volumen_display=volumen display
 
+bc.menue.signal=Signal strength
+
 ========= Boxcontrol
 bc.control.freemem=FreeMem
 bc.control.lock=lock

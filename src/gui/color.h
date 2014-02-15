@@ -120,22 +120,24 @@ int convertSetupAlpha2Alpha(unsigned char alpha);
 void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, bool protect=true);
 
 typedef struct {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 } RgbColor;
 
 typedef struct {
-	unsigned char h;
-	unsigned char s;
-	unsigned char v;
+	float h;
+	float s;
+	float v;
 } HsvColor;
 
-unsigned char getBrightnessRGB(fb_pixel_t color);
+uint8_t getBrightnessRGB(fb_pixel_t color);
 
-fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br);
-fb_pixel_t changeBrightnessRGB(fb_pixel_t color, unsigned char br);
-void changeBrightnessRGBRel2(RgbColor *rgb, int br);
+fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br, bool transp=true);
+fb_pixel_t changeBrightnessRGB(fb_pixel_t color, uint8_t br, bool transp=true);
+
+fb_pixel_t Hsv2SysColor(HsvColor *hsv, uint8_t tr=0xFF);
+uint8_t SysColor2Hsv(fb_pixel_t color, HsvColor *hsv);
 
 void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb);
 void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv);

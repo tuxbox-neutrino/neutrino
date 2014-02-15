@@ -557,6 +557,30 @@ tr {
 	margin-top: 10px;
 	border: #FF8e42 solid 1px;
 }
+.y_text_boxcontrol_table_progress {
+	width: 114px;
+	height: 12px;
+	padding: 0;
+	margin-bottom: 5px;
+	border: #FF8e42 solid 1px;
+	border-top: 0 none;
+
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(left,  #ff0000 0%, #ffff00 74%, #ffff00 75%, #00ff00 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#ff0000), color-stop(74%,#ffff00), color-stop(75%,#ffff00), color-stop(100%,#00ff00)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(left,  #ff0000 0%,#ffff00 74%,#ffff00 75%,#00ff00 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(left,  #ff0000 0%,#ffff00 74%,#ffff00 75%,#00ff00 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(left,  #ff0000 0%,#ffff00 74%,#ffff00 75%,#00ff00 100%); /* IE10+ */
+	background: linear-gradient(to right,  #ff0000 0%,#ffff00 74%,#ffff00 75%,#00ff00 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff0000', endColorstr='#00ff00',GradientType=1 ); /* IE6-9 */
+}
+.y_text_boxcontrol_div_progress {
+	width: 112px;
+	border: #FF8e42 solid 1px;
+	font-size: 9px;
+	margin-top: 5px;
+	margin-bottom: -1px;
+}
 .y_epg_info {
 	border: 1px solid #CCCCCC;
 	background-color: white;

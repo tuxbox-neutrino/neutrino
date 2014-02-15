@@ -37,7 +37,7 @@
 
 using namespace std;
 
-CBuildInfo::CBuildInfo() : CComponentsWindow(1, 1, 700, 500, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
+CBuildInfo::CBuildInfo() : CComponentsWindow(0, 0, 700, 500, LOCALE_BUILDINFO_MENU, NEUTRINO_ICON_INFO)
 {
 	initVarBuildInfo();
 }
@@ -45,10 +45,8 @@ CBuildInfo::CBuildInfo() : CComponentsWindow(1, 1, 700, 500, LOCALE_BUILDINFO_ME
 //init all var members
 void CBuildInfo::initVarBuildInfo()
 {
-	x = frameBuffer->getScreenWidth(true)/2 - width/2;
-	y = frameBuffer->getScreenHeight(true)/2 -height/2;
-	
-	append_v_offset = 1;
+	doCenter();
+
 	font = NULL;
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 	InitInfoItems();

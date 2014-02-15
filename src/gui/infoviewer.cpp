@@ -228,10 +228,15 @@ void CInfoViewer::start ()
 	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;	//oberkante schatten?
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
-	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight()+5;
+	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
 	time_left_width = 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getWidth(); /* still a kludge */
 	time_dot_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
 	time_width = time_left_width* 2+ time_dot_width;
+
+	if (clock) {
+		delete clock;
+		clock = NULL;
+	}
 }
 
 void CInfoViewer::changePB()
@@ -266,7 +271,6 @@ void CInfoViewer::paintTime (bool show_dot)
 	if (clock == NULL){
 		clock = new CComponentsFrmClock();
 		clock->doPaintBg(false);
-		clock->setClockActiv(false);
 	}
 
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
@@ -513,6 +517,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	infoViewerBB->is_visible = true;
 
 	ChannelName = Channel;
+	t_channel_id old_channel_id = channel_id;
 	channel_id = Channel_Id;
 
 	/* showChannelLogo() changes this, so better reset it every time... */
@@ -592,6 +597,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	loop(show_dot);
 	aspectRatio = 0;
 	fileplay = 0;
+	channel_id = old_channel_id;
 }
 
 void CInfoViewer::reset_allScala()
@@ -777,8 +783,11 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 				if(ChannelName.empty())
 					chann_size = 1;
 				chname_width += (chname_width/chann_size/2);
+
+				int tmpY = ((ChanNameY + time_height) - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset() 
+						+ g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset());
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
-					ChanNameX + 10 + ChanNumWidth + chname_width, ChanNameY + time_height -SHADOW_OFFSET/2,
+					ChanNameX + 10 + ChanNumWidth + chname_width, tmpY,
 					BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth - chname_width,
 					prov_name, color /*COL_INFOBAR_TEXT*/, 0, true);	// UTF-8
 			}
@@ -933,7 +942,8 @@ void CInfoViewer::loop(bool show_dot)
 					res = messages_return::cancel_info;
 				}
 			}
-		} else if (fileplay && !CMoviePlayerGui::getInstance().timeshift /* && ( (msg == (neutrino_msg_t) g_settings.mpkey_pause) || (msg == (neutrino_msg_t) g_settings.mpkey_rewind) || (msg == (neutrino_msg_t) g_settings.mpkey_play) || (msg == (neutrino_msg_t) g_settings.mpkey_forward) || (msg == (neutrino_msg_t) g_settings.mpkey_stop)) */ ) {
+		} else if (fileplay || CMoviePlayerGui::getInstance().timeshift) {
+
 			/* this debug message will only hit in movieplayer mode, where console is
 			 * spammed to death anyway... */
 			printf("%s:%d msg:%08lx, data: %08lx\n", __func__, __LINE__, (long)msg, (long)data);
@@ -951,6 +961,7 @@ void CInfoViewer::loop(bool show_dot)
 			CMoviePlayerGui::getInstance().start_timeshift = false;
                 }
 #endif
+#if 0
 		else if (CMoviePlayerGui::getInstance().timeshift && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind)  || \
 									(msg == (neutrino_msg_t) g_settings.mpkey_forward) || \
 									(msg == (neutrino_msg_t) g_settings.mpkey_pause)   || \
@@ -961,6 +972,7 @@ void CInfoViewer::loop(bool show_dot)
 			g_RCInput->postMsg (msg, data);
 			res = messages_return::cancel_info;
                 }
+#endif
 	}
 
 	if (hideIt) {
@@ -1283,8 +1295,9 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		} else if (data == lcdUpdateTimer) {
 //printf("CInfoViewer::handleMsg: lcdUpdateTimer\n");
 			if (is_visible) {
-				if (fileplay) {
+				if (fileplay || CMoviePlayerGui::getInstance().timeshift)
 					CMoviePlayerGui::getInstance().UpdatePosition();
+				if (fileplay) {
 					char runningRest[32]; // %d can be 10 digits max...
 					int curr_pos = CMoviePlayerGui::getInstance().GetPosition(); 
 					int duration = CMoviePlayerGui::getInstance().GetDuration();
@@ -1553,17 +1566,17 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 			pb_shadow = 0;
 			timescale->setShadowOnOff(false);
 		}
+		int tmpY = CurrInfoY - height - ChanNameY + time_height - 
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset()/3;
 		switch(g_settings.infobar_progressbar) //set progressbar position
 		{
 			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME:
-				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 6)) ;
 				pb_h = (pb_h/3);
-// 				pb_color = 0;
+				pb_starty = ChanNameY + (tmpY-pb_h)/2;
 			break;
 			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BELOW_CH_NAME_SMALL:
-				pb_starty = CurrInfoY - ((pb_h * 2) + (pb_h / 5)) ;
 				pb_h = (pb_h/5);
-// 				pb_color = 0;
+				pb_starty = ChanNameY + (tmpY-pb_h)/2;
 			break;
 			case SNeutrinoSettings::INFOBAR_PROGRESSBAR_ARRANGEMENT_BETWEEN_EVENTS:
 				pb_starty = CurrInfoY + ((pb_h / 3)-(pb_h/5)) ;

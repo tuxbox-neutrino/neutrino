@@ -72,7 +72,6 @@
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
-extern bool has_hdd;
 
 #define TIMESHIFT_SECONDS 3
 
@@ -383,8 +382,7 @@ bool CMoviePlayerGui::SelectFile()
 	full_name = "";
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
-	if (has_hdd)
-		wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
+	wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
 
 	if (timeshift) {
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -535,6 +533,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 	//CTimeOSD FileTime;
 	position = 0, duration = 0;
+	speed = 1;
 
 	playstate = CMoviePlayerGui::STOPPED;
 	printf("Startplay at %d seconds\n", startposition/1000);
@@ -601,7 +600,13 @@ void CMoviePlayerGui::PlayFile(void)
 
 		/* playback->Start() starts paused */
 		if(timeshift == 3) {
+			speed = -1;
 			playback->SetSpeed(-1);
+			playstate = CMoviePlayerGui::REW;
+			if (!FileTime.IsVisible() && !time_forced) {
+				FileTime.switchMode(position, duration);
+				time_forced = true;
+			}
 		} else if(!timeshift || !g_settings.timeshift_pause) {
 			playback->SetSpeed(1);
 		}

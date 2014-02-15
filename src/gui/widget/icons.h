@@ -75,6 +75,7 @@
 #define NEUTRINO_ICON_BUTTON_PLUS	"plus"
 #define NEUTRINO_ICON_BUTTON_MINUS	"minus"
 
+#define NEUTRINO_ICON_BLUE		"icon_blue"
 #define NEUTRINO_ICON_GREEN		"icon_green"
 #define NEUTRINO_ICON_RED		"icon_red"
 #define NEUTRINO_ICON_YELLOW		"icon_yellow"

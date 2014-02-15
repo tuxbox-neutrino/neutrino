@@ -63,7 +63,7 @@ CSignalBar::CSignalBar(const int& xpos, const int& ypos, const int& w, const int
 void CSignalBar::initDimensions()
 {
 	//set current required dimensions and font size
-	sb_item_height 	= max(height, SB_MIN_HEIGHT) - 2*fr_thickness - append_h_offset;
+	sb_item_height 	= max(height, SB_MIN_HEIGHT) - 2*fr_thickness - append_x_offset;
 	sb_item_top 	= height/2 - sb_item_height/2;
 	if (sb_scale_height == -1)
 		sb_scale_height = sb_item_height;
@@ -99,8 +99,8 @@ void CSignalBar::initVarSigBar()
 {
 	corner_rad 	= 0;
 	corner_type 	= 0;
-	append_h_offset = 2;
-	append_v_offset = 2;
+	append_x_offset = 2;
+	append_y_offset = 2;
 	height		= SB_MIN_HEIGHT;
 
 	sb_scale_height = -1;
@@ -148,9 +148,9 @@ void CSignalBar::initSBarValue()
 	}
 
 	//move and set dimensions
-	int vlbl_x = sb_scale->getXPos() + sb_scale_width + append_v_offset;
+	int vlbl_x = sb_scale->getXPos() + sb_scale_width + append_y_offset;
 	int vlbl_h = sb_scale->getHeight();
-	int vlbl_y = sb_item_height/2 + sb_item_top - vlbl_h/2 - append_h_offset;
+	int vlbl_y = sb_item_height/2 + sb_item_top - vlbl_h/2 - append_x_offset;
 	sb_vlbl->setDimensionsAll(vlbl_x, vlbl_y, sb_vlbl_width, vlbl_h);
 
 	//set current text and body color color
@@ -176,7 +176,7 @@ void CSignalBar::initSBarName()
 	//move and set dimensions
 	int lbl_x = sb_vlbl->getXPos()+ sb_vlbl->getWidth();
 	int lbl_h = sb_vlbl->getHeight();
-	int lbl_y = sb_item_height/2 + sb_item_top - lbl_h/2 - append_h_offset;
+	int lbl_y = sb_item_height/2 + sb_item_top - lbl_h/2 - append_x_offset;
 	sb_lbl->setDimensionsAll(lbl_x, lbl_y, sb_lbl_width, lbl_h);
 
 	//set current text and body color
@@ -308,7 +308,7 @@ void CSignalBox::initSignalItems()
 // 	int corr_y = sbx_bar_height%2;
 // 	int sb_h = sbx_bar_height - corr_y;
 
-	int sbar_h = sbx_bar_height - fr_thickness - append_v_offset/2;
+	int sbar_h = sbx_bar_height - fr_thickness - append_y_offset/2;
 	int sbar_w = sbx_bar_width - 2*fr_thickness;
 	int sbar_x = sbx_bar_x + fr_thickness;
 	int scale_h = sbar_h * 76 / 100;

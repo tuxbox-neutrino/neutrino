@@ -347,7 +347,7 @@ function do_submit()
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" width="100%">
-			<tr><td colspan="2" class="y_form_header">Wellcome to yWeb</td></tr>
+			<tr><td colspan="2" class="y_form_header">Welcome to yWeb</td></tr>
 			<tr>
 				<td>{=L:language=}</td>
 				<td colspan="3">	<select name="language" title="{=L:language=}">

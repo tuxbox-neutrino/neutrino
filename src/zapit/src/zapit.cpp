@@ -1710,7 +1710,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				SendPMT();
 		} else {
 			live_fe->setTsidOnid(0);
-			ZapIt(lock_channel_id);
+			if (!ZapIt(lock_channel_id))
+				SendEvent(CZapitClient::EVT_ZAP_FAILED, &lock_channel_id, sizeof(lock_channel_id));
 			lock_channel_id = 0;
 		}
 

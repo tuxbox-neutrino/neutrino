@@ -74,11 +74,11 @@ const CMenuOptionChooser::keyval HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
 	{ 1, LOCALE_HDD_REISER },
 	{ 2, LOCALE_OPTIONS_OFF }
 };
-#define HDD_SLEEP_OPTION_COUNT 7
+#define HDD_SLEEP_OPTION_COUNT 6
 const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 {
 	{ 0,   LOCALE_OPTIONS_OFF },
-	{ 12,  LOCALE_HDD_1MIN },
+	//{ 12,  LOCALE_HDD_1MIN },
 	{ 60,  LOCALE_HDD_5MIN },
 	{ 120, LOCALE_HDD_10MIN },
 	{ 240, LOCALE_HDD_20MIN },
@@ -290,6 +290,9 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 	const char hdidle[] = "/sbin/hd-idle";
 	bool have_hdidle = !access(hdidle, X_OK);
+
+	if (g_settings.hdd_sleep < 60)
+		g_settings.hdd_sleep = 60;
 
 	if (have_hdidle) {
 		system("kill $(pidof hd-idle)");
@@ -675,7 +678,11 @@ _remount:
 #ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
+#ifdef ASSUME_MDEV
+		fprintf(f, "/sbin/mdev\n");
+#else
 		fprintf(f, "/sbin/hotplug\n");
+#endif
 		fclose(f);
 	}
 #else

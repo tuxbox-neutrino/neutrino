@@ -143,24 +143,24 @@ int CRecordInstance::GetStatus()
 
 record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 {
-	int fd;
-	std::string tsfile;
-
 	time_t msg_start_time = time(0);
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_START));
 	if ((!(autoshift && g_settings.auto_timeshift)) && g_settings.recording_startstop_msg)
 		hintBox.paint();
 
-	tsfile = std::string(filename) + ".ts";
+	wakeup_hdd(Directory.c_str());
 
+	std::string tsfile = std::string(filename) + ".ts";
 	printf("%s: file %s vpid %x apid %x\n", __FUNCTION__, tsfile.c_str(), allpids.PIDs.vpid, apids[0]);
 
-	fd = open(tsfile.c_str(), O_CREAT | O_RDWR | O_LARGEFILE | O_TRUNC , S_IRWXO | S_IRWXG | S_IRWXU);
+	int fd = open(tsfile.c_str(), O_CREAT | O_RDWR | O_LARGEFILE | O_TRUNC , S_IRWXO | S_IRWXG | S_IRWXU);
 	if(fd < 0) {
 		perror(tsfile.c_str());
 		hintBox.hide();
 		return RECORD_INVALID_DIRECTORY;
 	}
+
+	SaveXml();
 
 	CGenPsi psi;
 	numpids = 0;
@@ -219,16 +219,17 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		record = NULL;
 		close(fd);
 		unlink(tsfile.c_str());
+		std::string xmlfile = std::string(filename) + ".xml";
+		unlink(xmlfile.c_str());
 		hintBox.hide();
 		return RECORD_FAILURE;
 	}
 
-printf("CRecordInstance::Start: fe %d demux %d\n", frontend->getNumber(), channel->getRecordDemux());
+	printf("CRecordInstance::Start: fe %d demux %d\n", frontend->getNumber(), channel->getRecordDemux());
 	if(!autoshift)
 		CFEManager::getInstance()->lockFrontend(frontend, channel);//FIXME testing
 
 	start_time = time(0);
-	SaveXml();
 
 	CCamManager::getInstance()->Start(channel->getChannelID(), CCamManager::RECORD);
 
@@ -1360,7 +1361,7 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
-			if(g_settings.temp_timeshift && !g_settings.auto_timeshift)
+			if(g_settings.temp_timeshift && !g_settings.auto_timeshift && autoshift)
 				ShowMenu();
 		}
 	}

@@ -2130,7 +2130,7 @@ void CChannelList::paintHead()
 
 	if (g_Sectionsd->getIsTimeSet()) {
 		if (headerClock == NULL) {
-			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M");
+			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M", true);
 			headerClock->setClockBlink("%H %M");
 			headerClock->setClockIntervall(1);
 

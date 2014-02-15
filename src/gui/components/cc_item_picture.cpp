@@ -40,26 +40,32 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsItem
-CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& image_name, const int alignment, bool has_shadow,
+CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+					const std::string& image_name, const int &alignment, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
-	init(x_pos, y_pos, image_name, alignment, has_shadow, color_frame, color_background, color_shadow);
-
-	width	= w;
-	height	= h;
-	pic_paint_mode 	= CC_PIC_IMAGE_MODE_AUTO,
-
-	initVarPicture();
+	init(x_pos, y_pos, w, h, image_name, alignment, has_shadow, color_frame, color_background, color_shadow);
 }
 
-void CComponentsPicture::init(	int x_pos, int y_pos, const string& image_name, const int alignment, bool has_shadow,
+void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h, const string& image_name, const int &alignment, bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
 	cc_item_type 	= CC_ITEMTYPE_PICTURE;
 
+	//CComponents
+	x = pic_x	= x_pos;
+	y = pic_y	= y_pos;
+	height		= h;
+	width 		= w;
+	shadow		= has_shadow;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= color_frame;
+	col_body	= color_background;
+	col_shadow	= color_shadow;
+
 	//CComponentsPicture
+	pic_paint_mode 	= CC_PIC_IMAGE_MODE_AUTO,
 	pic_name 	= image_name;
 	pic_align	= alignment;
 	pic_offset	= 1;
@@ -72,33 +78,24 @@ void CComponentsPicture::init(	int x_pos, int y_pos, const string& image_name, c
 	if (pic_name.empty())
 		pic_width = pic_height = 0;
 
-	//CComponents
-	x = pic_x	= x_pos;
-	y = pic_y	= y_pos;
-	height		= 0;
-	width 		= 0;
-	shadow		= has_shadow;
-	shadow_w	= SHADOW_OFFSET;
-	col_frame 	= color_frame;
-	col_body	= color_background;
-	col_shadow	= color_shadow;
+	initCCItem();
 }
 
 void CComponentsPicture::setPicture(const std::string& picture_name)
 {
 	pic_name = picture_name;
-	initVarPicture();
+	initCCItem();
 }
 
 
 void CComponentsPicture::setPictureAlign(const int alignment)
 {
-	pic_align	= alignment;
-	initVarPicture();
+	pic_align = alignment;
+	initCCItem();
 }
 
 
-void CComponentsPicture::initVarPicture()
+void CComponentsPicture::initCCItem()
 {
 	pic_width = pic_height = 0;
 	pic_painted = false;
@@ -146,6 +143,11 @@ void CComponentsPicture::initVarPicture()
 	int sw = (shadow ? shadow_w :0);
 	width = max(max(pic_width, pic_max_w), width)  + sw ;
 	height = max(max(pic_height, pic_max_h), height)  + sw ;
+
+#ifdef DEBUG_CC
+	printf("[CComponentsPicture] %s initialized Image: ====>> %s\n\titem x = %d\n\tdx = %d (image dx = %d)\n\titem y = %d\n\titem dy = %d (image dy = %d)\n",
+	       __func__, pic_name.c_str(),  x, width, pic_width,  y, height, pic_height);
+#endif
 }
 
 void CComponentsPicture::initPosition()
@@ -181,7 +183,7 @@ void CComponentsPicture::paintPicture()
 
 	if (do_paint && cc_allow_paint){
 #ifdef DEBUG_CC
-	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d)\n", __func__, pic_name.c_str(), do_paint);
+	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d) with mode %d\n", __func__, pic_name.c_str(), do_paint, pic_paint_mode);
 #endif
 		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
 			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0 /*pic_max_h*/, pic_offset, pic_paint, pic_paintBg, col_body);
@@ -195,7 +197,7 @@ void CComponentsPicture::paintPicture()
 
 void CComponentsPicture::paint(bool do_save_bg)
 {
-	initVarPicture();
+	initCCItem();
 	paintInit(do_save_bg);
 	paintPicture();
 }
@@ -207,9 +209,9 @@ void CComponentsPicture::hide(bool no_restore)
 }
 
 
-CComponentsChannelLogo::CComponentsChannelLogo( const int x_pos, const int y_pos, const int w, const int h,
+CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const uint64_t& channelId, const std::string& channelName,
-						const int alignment, bool has_shadow,
+						const int &alignment, bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 						:CComponentsPicture(x_pos, y_pos, w, h,
 						"", alignment, has_shadow,
@@ -246,11 +248,11 @@ void CComponentsChannelLogo::initVarPictureChannellLogo()
 	if (!has_logo)
 		pic_name = tmp_logo;
 	
-// #ifdef DEBUG_CC
+#ifdef DEBUG_CC
 	printf("\t[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%" PRIu64 ")\n", __func__, pic_name.c_str(), has_logo, channel_id);
-// #endif
+#endif
 	
-	initVarPicture();
+	initCCItem();
 }
 
 void CComponentsChannelLogo::paint(bool do_save_bg)

@@ -55,6 +55,7 @@
 #include <system/flashtool.h>
 #include <system/httptool.h>
 #include <system/helpers.h>
+#include <system/debug.h>
 
 #include <lib/libnet/libnet.h>
 
@@ -584,6 +585,8 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 			return false;
 		}
 		backupRequiredSize = ((bused * bsize) / 1024ULL) * 2ULL; // twice disk space for summarized image
+		dprintf(DEBUG_INFO, "##### [%s] backupRequiredSize: %" PRIu64 ", btotal: %" PRIu64 ", bused: %" PRIu64 ", bsize: %ld\n",
+				__func__, backupRequiredSize, btotal, bused, bsize);
 	}
 	else
 #endif
@@ -598,11 +601,11 @@ bool CFlashExpert::checkSize(int mtd, std::string &backupFile)
 	uint64_t backupMaxSize = (btotal - bused) * (uint64_t)bsize;
 	uint64_t res = 10; // Reserved 10% of available space
 	backupMaxSize = (backupMaxSize - ((backupMaxSize * res) / 100ULL)) / 1024ULL;
-	printf("##### [%s] backupMaxSize: %" PRIu64 ", btotal: %" PRIu64 ", bused: %" PRIu64 ", bsize: %ld\n",
+	dprintf(DEBUG_INFO, "##### [%s] backupMaxSize: %" PRIu64 ", btotal: %" PRIu64 ", bused: %" PRIu64 ", bsize: %ld\n",
 			__func__, backupMaxSize, btotal, bused, bsize);
 
 	if (backupMaxSize < backupRequiredSize) {
-		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), backupMaxSize, backupRequiredSize);
+		snprintf(errMsg, sizeof(errMsg)-1, g_Locale->getText(LOCALE_FLASHUPDATE_READ_NO_AVAILABLE_SPACE), path.c_str(), to_string(backupMaxSize).c_str(), to_string(backupRequiredSize).c_str());
 		ShowHint(LOCALE_MESSAGEBOX_ERROR, errMsg);
 		return false;
 	}

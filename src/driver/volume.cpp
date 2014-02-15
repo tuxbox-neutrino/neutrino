@@ -80,6 +80,15 @@ void CVolume::setvol(int vol)
 	CZapit::getInstance()->SetVolume(vol);
 }
 
+void CVolume::setVolumeExt(int vol)
+{
+	g_settings.current_volume = vol;
+	CZapit::getInstance()->SetVolume(vol);
+	CVFD::getInstance()->showVolume(vol);
+	if (CNeutrinoApp::getInstance()->isMuted() && vol > 0)
+		CAudioMute::getInstance()->AudioMute(false, true);
+}
+
 void CVolume::setVolume(const neutrino_msg_t key)
 {
 	if (!g_RCInput) /* don't die... */

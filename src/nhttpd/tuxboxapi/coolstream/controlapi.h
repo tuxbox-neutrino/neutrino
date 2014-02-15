@@ -111,6 +111,8 @@ private:
 	void logoCGI(CyhookHandler *hh);
 	void ConfigCGI(CyhookHandler *hh);
 	void FileCGI(CyhookHandler *hh);
+	void SignalInfoCGI(CyhookHandler *hh);
+
 
 protected:
 	static const unsigned int PLUGIN_DIR_COUNT = 7;

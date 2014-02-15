@@ -32,7 +32,7 @@
 
 //! Sub class of CComponentsForm. Shows a header with prepared items.
 /*!
-CComponentsHeader provides prepared items like icon, caption and context button icons
+CComponentsHeader provides prepared items like icon, caption and context button icons, mostly for usage in menues or simple windows
 */
 class CComponentsHeader : public CComponentsForm
 {
@@ -176,9 +176,9 @@ class CComponentsHeader : public CComponentsForm
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
-//! Sub class of CComponentsHeader. Shows a header with prepared items.
+//! Sub class of CComponentsHeader.
 /*!
-CComponentsHeaderLocalized provides prepared items like icon, caption and context button icons
+CComponentsHeaderLocalized provides prepared items like icon, caption and context button icons, mostly for usage in menues or simple windows
 Caption is defined with locales.
 */
 class CComponentsHeaderLocalized : public CComponentsHeader
@@ -192,30 +192,6 @@ class CComponentsHeaderLocalized : public CComponentsHeader
 						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 						fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
 						fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-};
-
-
-/*!
-CComponentsFooter provides prepared container for footer
-Is mostly usable like a header but without caption, and context button icons.
-*/
-class CComponentsFooter : public CComponentsHeader
-{
-	protected:
-		void initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
-					const int& buttons = 0,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
-					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-	public:
-		CComponentsFooter();
-		CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
-					const int& buttons = 0,
-					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
-					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 };
 
 #endif

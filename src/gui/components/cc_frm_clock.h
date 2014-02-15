@@ -94,7 +94,7 @@ class CComponentsFrmClock : public CComponentsForm
 
 	public:
 		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1, const int& w = 200, const int& h = 48,
-					const char* format_str = "%H:%M", bool activ=true, bool has_shadow = CC_SHADOW_OFF,
+					const char* format_str = "%H:%M", bool activ=false, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsFrmClock();
 
@@ -134,7 +134,7 @@ class CComponentsFrmClock : public CComponentsForm
 		virtual void refresh() { initCCLockItems(); }
 
 		///set clock activ/inactiv
-		virtual void setClockActiv(bool activ = true){activeClock = activ;};
+		virtual void setClockActiv(bool activ = true);
 };
 
 #endif
