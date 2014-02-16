@@ -11,6 +11,7 @@
 	Copyright (C) 2010 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2014 Stefan Seyfried
 
 	License: GPL
 
@@ -63,7 +64,7 @@ CUserMenuSetup::~CUserMenuSetup()
 	delete ums;
 }
 
-#define USERMENU_ITEM_OPTION_COUNT SNeutrinoSettings::ITEM_MAX
+#define USERMENU_ITEM_OPTION_COUNT (SNeutrinoSettings::ITEM_MAX - 3)
 const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUNT] =
 {
 	{ SNeutrinoSettings::ITEM_NONE,			LOCALE_USERMENU_ITEM_NONE },
@@ -79,18 +80,24 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
 	{ SNeutrinoSettings::ITEM_REMOTE,		LOCALE_RCLOCK_MENUEADD },
 	{ SNeutrinoSettings::ITEM_FAVORITS,		LOCALE_FAVORITES_MENUEADD },
 	{ SNeutrinoSettings::ITEM_TECHINFO,		LOCALE_EPGMENU_STREAMINFO },
+#if 0
 	{ SNeutrinoSettings::ITEM_PLUGIN_TYPES,		LOCALE_USERMENU_ITEM_PLUGIN_TYPES },
+#endif
 	{ SNeutrinoSettings::ITEM_VTXT,			LOCALE_USERMENU_ITEM_VTXT },
 	{ SNeutrinoSettings::ITEM_IMAGEINFO,		LOCALE_SERVICEMENU_IMAGEINFO },
 	{ SNeutrinoSettings::ITEM_BOXINFO,		LOCALE_EXTRA_DBOXINFO },
 	{ SNeutrinoSettings::ITEM_CAM,			LOCALE_CI_SETTINGS },
 	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON },
 	{ SNeutrinoSettings::ITEM_GAMES,		LOCALE_MAINMENU_GAMES },
+#if 0
 	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS },
+#endif
 	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD },
 	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK },
 	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK },
+#if 0
 	{ SNeutrinoSettings::ITEM_TOOLS,		LOCALE_MAINMENU_TOOLS },
+#endif
 	{ SNeutrinoSettings::ITEM_LUA,			LOCALE_MAINMENU_LUA }
 };
 

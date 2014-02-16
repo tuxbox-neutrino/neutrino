@@ -9,6 +9,8 @@
         Reworked by dbt (Thilo Graf)
         Copyright (C) 2010, 2011 dbt
 
+        Copyright (C) 2014 Stefan Seyfried
+
         Comment:
 
         This is the customization menu, as originally showcased in
@@ -455,6 +457,11 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 	p_widget->addItem(GenericMenuSeparator);
 	p_widget->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_USERMENU_SHOW_CANCEL, &g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
+#if 0
+	/* distinguishing between plugin types is useful for what?
+	 * maybe disabling games / eveything else might make sense,
+	 * but why distinguish between scripts / "tools" (binaries) / LUA?
+	 */
 	pluginSelectionMenu = new CMenuWidget(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, NEUTRINO_ICON_SETTINGS);
 	pluginSelectionMenu->addIntroItems(LOCALE_MAINMENU_SETTINGS);
 	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_GAMES,   &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES],   OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -463,6 +470,7 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_LUA,     &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA],     OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 	p_widget->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, true, NULL, pluginSelectionMenu));
+#endif
 }
 
 

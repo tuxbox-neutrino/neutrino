@@ -11,6 +11,7 @@
 	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2013-2014 Stefan Seyfried
 
         License: GPL
 
@@ -126,11 +127,11 @@ bool CUserMenu::showUserMenu(int button)
 	CDBoxInfoWidget *boxinfo				= NULL;
 	CNeutrinoApp * neutrino					= NULL;
 	CPluginList * games					= NULL;
+#if 0
 	CPluginList * tools					= NULL;
 	CPluginList * scripts					= NULL;
-#if ENABLE_LUA
-	CPluginList * lua					= NULL;
 #endif
+	CPluginList * lua					= NULL;
 	
 	std::string txt = g_settings.usermenu_text[button];
 	neutrino_locale_t caption = user_menu[button].caption;
@@ -301,6 +302,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_item = new CMenuForwarder(LOCALE_MAINMENU_GAMES, g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME), NULL, games, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
+#if 0
 		case SNeutrinoSettings::ITEM_TOOLS:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_TOOLS;
@@ -317,16 +319,16 @@ bool CUserMenu::showUserMenu(int button)
 			menu_item = new CMenuForwarder(LOCALE_MAINMENU_SCRIPTS, g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT), NULL, scripts, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
-#if ENABLE_LUA
+#endif
 		case SNeutrinoSettings::ITEM_LUA:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_LUA;
-			lua = new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA);
+			lua = new CPluginList(LOCALE_MAINMENU_LUA, CPlugins::P_TYPE_NO_GAME);
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_MAINMENU_LUA, g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA), NULL, lua, "-1", key, icon );
+			menu_item = new CMenuForwarder(LOCALE_MAINMENU_LUA, g_PluginList->hasPlugin(CPlugins::P_TYPE_NO_GAME), NULL, lua, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
-#endif
+#if 0
 		case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 		{
 			char id[5];
@@ -359,7 +361,7 @@ bool CUserMenu::showUserMenu(int button)
 			}
 		}
 		break;
-
+#endif
 		case SNeutrinoSettings::ITEM_VTXT:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_VTXT;
@@ -463,7 +465,11 @@ bool CUserMenu::showUserMenu(int button)
 	if (imageinfo)			 delete imageinfo;
 	if (boxinfo)			 delete boxinfo;
 	if (games)                       delete games;
+#if 0
 	if (scripts)                     delete scripts;
+	if (tools)                       delete tools;
+#endif
+	if (lua)                         delete lua;
 	if (menu)                        delete menu;
 
 	InfoClock->enableInfoClock(true);
