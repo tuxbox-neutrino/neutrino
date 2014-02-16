@@ -171,6 +171,7 @@
 #include "widget/keychooser.h"
 #include "color.h"
 #include "personalize.h"
+#include "plugins.h"
 
 #include <system/settings.h>
 

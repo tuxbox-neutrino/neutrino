@@ -52,7 +52,6 @@
 #define __personalize__
 
 #include <gui/widget/menue.h>
-#include <gui/plugins.h>
 #include <gui/user_menue_setup.h>
 #include "widget/stringinput.h"
 #include "widget/stringinput_ext.h"
@@ -62,6 +61,7 @@
 #include <system/lastchannel.h>
 #include <system/setting_helpers.h>
 
+class CPlugins;
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 
 //helper class to enable/disable some items in usermenu setup
