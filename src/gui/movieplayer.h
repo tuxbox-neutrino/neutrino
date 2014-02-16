@@ -95,6 +95,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int currentspid;
 	int min_x, min_y, max_x, max_y;
 	time_t end_time;
+	bool ext_subs;
 
 	/* playback from MB */
 	bool isMovieBrowser;

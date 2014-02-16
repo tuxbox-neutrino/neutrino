@@ -145,6 +145,7 @@ void CMoviePlayerGui::Init(void)
 	max_x = 0;
 	min_y = 0;
 	max_y = 0;
+	ext_subs = false;
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -582,6 +583,15 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 		} else if(!timeshift || !g_settings.timeshift_pause) {
 			playback->SetSpeed(1);
+		}
+	}
+	if (is_file_player && ext_subs) {
+		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
+		for (unsigned count = 0; count < numsubs; count++) {
+			if (spids[count] == 0x1FFF) {
+				currentspid = spids[count];
+				playback->SelectSubtitles(currentspid);
+			}
 		}
 	}
 
@@ -1377,9 +1387,12 @@ void CMoviePlayerGui::selectSubtitle()
 	printf("CMoviePlayerGui::selectSubtitle: selected %d (%x) current %x\n", select, (select >= 0) ? spids[select] : -1, currentspid);
 	if((select >= 0) && (select < numsubs) && (currentspid != spids[select])) {
 		currentspid = spids[select];
+		/* external subtitles pid is 0x1FFF */
+		ext_subs = (currentspid == 0x1FFF);
 		playback->SelectSubtitles(currentspid);
 		printf("[movieplayer] spid changed to %d\n", currentspid);
 	} else if ( select > 0) {
+		ext_subs = false;
 		currentspid = -1;
 		playback->SelectSubtitles(currentspid);
 		printf("[movieplayer] spid changed to %d\n", currentspid);
@@ -1505,17 +1518,19 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 				start = end + 2;
 			}
 			subtext.push_back(str.substr(start));
-
 		}
 	}
-	for (unsigned i = 0; i < subtext.size(); i++)
+	for (unsigned i = 0; i < subtext.size(); i++) {
+		if (!isUTF8(subtext[i]))
+			subtext[i] = convertLatin1UTF8(subtext[i]);
 		printf("subtext %d: [%s]\n", i, subtext[i].c_str());
+	}
 	printf("********************************************************************\n");
 
 	if (!subtext.empty()) {
 		int sh = frameBuffer->getScreenHeight();
 		int sw = frameBuffer->getScreenWidth();
-		int h = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+		int h = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getHeight();
 		int height = h*subtext.size();
 
 		clearSubtitle();
@@ -1523,7 +1538,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		int x[subtext.size()];
 		int y[subtext.size()];
 		for (unsigned i = 0; i < subtext.size(); i++) {
-			int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (subtext[i].c_str(), true);
+			int w = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getRenderWidth (subtext[i].c_str(), true);
 			x[i] = (sw - w) / 2;
 			y[i] = sh - height + h*(i + 1);
 			min_x = std::min(min_x, x[i]);
@@ -1535,7 +1550,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		frameBuffer->paintBoxRel(min_x, min_y, max_x - min_x, max_y-min_y, COL_MENUCONTENT_PLUS_0);
 
 		for (unsigned i = 0; i < subtext.size(); i++)
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT, 0, true);
 
 		end_time = sub->end_display_time + time_monotonic_ms();
 	}
