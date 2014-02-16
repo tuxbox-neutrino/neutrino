@@ -4,13 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2011-2014 Stefan Seyfried
 
 	License: GPL
 
@@ -139,7 +133,6 @@ void CPlugins::scanDir(const char *dir)
 				// already exists in the list.
 				// This behavior is used to make sure plugins can be disabled
 				// by creating a .cfg in PLUGINDIR_VAR (PLUGINDIR often is read only).
-
 				if (!plugin_exists(new_plugin.filename))
 				{
 					plugin_list.push_back(new_plugin);
@@ -625,7 +618,7 @@ bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 	for (std::vector<plugin>::iterator it=plugin_list.begin();
 			it!=plugin_list.end(); ++it)
 	{
-		if (it->type == type && !it->hide)
+		if ((it->type & type) && !it->hide)
 			return true;
 	}
 	return false;
