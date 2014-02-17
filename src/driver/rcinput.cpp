@@ -1229,7 +1229,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					firstKey = false;
 					CTimerManager::getInstance()->cancelShutdownOnWakeup();
 				}
-				uint32_t trkey = translate(ev.code, i);
+				uint32_t trkey = translate(ev.code);
 #ifdef DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 #endif
@@ -1583,14 +1583,14 @@ std::string CRCInput::getKeyName(const unsigned int key)
 *	transforms the rc-key to generic - internal use only!
 *
 **************************************************************************/
-int CRCInput::translate(int code, int /*num*/)
+int CRCInput::translate(int code)
 {
 	if(code == 0x100) code = RC_up;
 	else if(code == 0x101) code = RC_down;
 	if ((code >= 0) && (code <= KEY_MAX))
 		return code;
-	else
-		return ( unsigned int)RC_nokey;
+
+	return (int)RC_nokey;
 }
 
 void CRCInput::close_click()
