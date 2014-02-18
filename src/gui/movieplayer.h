@@ -141,6 +141,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle();
 	void selectChapter();
+	void selectAutoLang();
 
 	void Cleanup();
 	static void *ShowStartHint(void *arg);
