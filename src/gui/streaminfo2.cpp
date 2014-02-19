@@ -559,10 +559,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_SATSETUP_SATELLITE));//swiped locale
 	else if(t.deltype == FE_QAM)
 		sprintf (buf, "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
-#ifdef MARTII
 	else
 		snprintf (buf, sizeof(buf), "%s:",g_Locale->getText (LOCALE_TERRESTRIALSETUP_AREA));
-#endif
 
 	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR_TEXT, 0, true); // UTF-8
 
