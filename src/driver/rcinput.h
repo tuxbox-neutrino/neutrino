@@ -161,7 +161,7 @@ class CRCInput
 
 		void open(int dev = -1);
 		void close();
-		int translate(int code, int num);
+		int translate(int code);
 		void calculateMaxFd(void);
 		int checkTimers();
 #ifdef IOC_IR_SET_PRI_PROTOCOL

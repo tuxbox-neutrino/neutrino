@@ -84,7 +84,7 @@ void  wakeup_hdd(const char *hdd_dir)
 	if(!check_dir(hdd_dir) && hdd_get_standby(hdd_dir)){
 		std::string wakeup_file = hdd_dir;
 		wakeup_file += "/.wakeup";
-		int fd = open(wakeup_file.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC);
+		int fd = open(wakeup_file.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC, S_IWUSR);
 		if (fd >= 0) {
 			unsigned char buf[512];
 			memset(buf, 0xFF, sizeof(buf));
