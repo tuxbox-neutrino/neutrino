@@ -1028,6 +1028,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 			break;
 		case FE_OFDM:
 			sprintf(satstr, "\t<%s name=\"%s\"\n", "terrestrial", spos_it->second.name.c_str());
+			footer = "</terrestrial>";
 			break;
 		default:
 			break;
