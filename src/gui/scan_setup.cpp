@@ -569,10 +569,12 @@ int CScanSetup::showScanMenuFrontendSetup()
 		if (g_settings.easymenu)
 			snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
 					fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+					: fe->getInfo()->type == FE_OFDM ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
 					: g_Locale->getText(LOCALE_SCANTS_ACTCABLE));
 		else
 			snprintf(name, sizeof(name), "%s %d: %s %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), i+1,
 					fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+					: fe->getInfo()->type == FE_OFDM ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
 					: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
 					fe->getInfo()->name);
 
@@ -677,6 +679,7 @@ int CScanSetup::showFrontendSetup(int number)
 	if (g_settings.easymenu)
 		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1,
 				fe->getInfo()->type == FE_QPSK ? g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE)
+				: fe->getInfo()->type == FE_OFDM ? g_Locale->getText(LOCALE_SCANTS_ACTTERRESTRIAL)
 				: g_Locale->getText(LOCALE_SCANTS_ACTCABLE));
 	else
 		snprintf(name, sizeof(name), "%s %d: %s", g_Locale->getText(LOCALE_SATSETUP_FE_SETUP), number+1, fe->getInfo()->name);
@@ -1355,6 +1358,7 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.cable_TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 		mod_pol->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
 	} else if (r_system == DVB_T) {
+		// TODO: more params ?
 		CStringInput *freq = new CStringInput(LOCALE_EXTRA_TP_FREQ, &scansettings.terr_TP_freq, 6, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 		Freq = new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.terr_TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
 		Freq->setHint("", LOCALE_MENU_HINT_SCAN_FREQ);
