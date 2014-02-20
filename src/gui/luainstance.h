@@ -134,6 +134,14 @@ class CLuaSignalBox
 		~CLuaSignalBox() { delete s; }
 };
 
+class CLuaComponentsText
+{
+	public:
+		CComponentsText *ct;
+		CLuaComponentsText() { ct = NULL; }
+		~CLuaComponentsText() { delete ct; }
+};
+
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
@@ -197,6 +205,14 @@ private:
 	static int SignalBoxNew(lua_State *L);
 	static int SignalBoxPaint(lua_State *L);
 	static int SignalBoxDelete(lua_State *L);
+
+	static CLuaComponentsText *ComponentsTextCheck(lua_State *L, int n);
+	static void ComponentsTextRegister(lua_State *L);
+	static int ComponentsTextNew(lua_State *L);
+	static int ComponentsTextPaint(lua_State *L);
+	static int ComponentsTextHide(lua_State *L);
+	static int ComponentsTextScroll(lua_State *L);
+	static int ComponentsTextDelete(lua_State *L);
 
 	static bool tableLookup(lua_State*, const char*, std::string&);
 	static bool tableLookup(lua_State*, const char*, int&);
