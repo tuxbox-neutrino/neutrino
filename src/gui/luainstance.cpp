@@ -1291,12 +1291,10 @@ void CLuaInstance::CWindowRegister(lua_State *L)
 		{ "new", CLuaInstance::CWindowNew },
 		{ "paint", CLuaInstance::CWindowPaint },
 		{ "hide", CLuaInstance::CWindowHide },
+		{ "header_height", CLuaInstance::CWindowGetHeaderHeight },
 		{ "__gc", CLuaInstance::CWindowDelete },
 		{ NULL, NULL }
 	};
-#if 0
-		{ "exec", CLuaInstance::CWindowExec },
-#endif
 
 	luaL_newmetatable(L, "cwindow");
 	luaL_setfuncs(L, meth, 0);
@@ -1310,6 +1308,10 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
+	std::string btnRed    = "";
+	std::string btnGreen  = "";
+	std::string btnYellow = "";
+	std::string btnBlue   = "";
 	int x = 100, y = 100, dx = 450, dy = 250;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
@@ -1317,10 +1319,38 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "dy", dy);
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "icon", icon);
+	tableLookup(L, "btnRed", btnRed);
+	tableLookup(L, "btnGreen", btnGreen);
+	tableLookup(L, "btnYellow", btnYellow);
+	tableLookup(L, "btnBlue", btnBlue);
 
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
 	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str());
+
+	CComponentsFooter* footer = (*udata)->w->getFooterObject();
+	if (footer) {
+		int btnCount = 0;
+		if (btnRed    != "") btnCount++;
+		if (btnGreen  != "") btnCount++;
+		if (btnYellow != "") btnCount++;
+		if (btnBlue   != "") btnCount++;
+		if (btnCount) {
+			fb_pixel_t col = footer->getColorBody();
+			int btnw = (dx-20) / btnCount;
+			int btnh = footer->getHeight();
+			int start = 10;
+			if (btnRed != "")
+				footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, false , true, false, col, col));
+			if (btnGreen != "")
+				footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, false , true, false, col, col));
+			if (btnYellow != "")
+				footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, false , true, false, col, col));
+			if (btnBlue != "")
+				footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, false , true, false, col, col));
+		}
+	}
+
 	luaL_getmetatable(L, "cwindow");
 	lua_setmetatable(L, -2);
 	return 1;
@@ -1359,6 +1389,20 @@ int CLuaInstance::CWindowHide(lua_State *L)
 
 	m->w->hide(no_restore);
 	return 0;
+}
+
+int CLuaInstance::CWindowGetHeaderHeight(lua_State *L)
+{
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
+	CComponentsHeader* header = m->w->getHeaderObject();
+	int hh = 0;
+	if (header)
+		hh = header->getHeight();
+	lua_pushinteger(L, hh);
+	return 1;
 }
 
 int CLuaInstance::CWindowDelete(lua_State *L)
