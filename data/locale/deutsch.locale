@@ -96,6 +96,7 @@ GENRE.TRAVEL_HOBBIES.5 Kochen
 GENRE.TRAVEL_HOBBIES.6 Einkauf
 GENRE.TRAVEL_HOBBIES.7 Garten
 GENRE.UNKNOWN Unbekannt
+adzap Werbezapper
 apidselector.head Sprachauswahl
 audio.srs_algo Art
 audio.srs_algo_heavy stark
@@ -167,7 +168,7 @@ audioplayer.receiving_list Liste wird empfangen, bitte warten...
 audioplayer.repeat_on Repeatmodus aktivieren
 audioplayer.rewind schneller Rückl.
 audioplayer.save_playlist Playlist speichern
-audioplayer.screensaver_timeout Bildschirmschoner (min, 0=aus)
+audioplayer.screensaver_timeout Bildschirmschoner
 audioplayer.select_title_by_name Titelsuche nach Name (SMS)
 audioplayer.show_playlist Playlist anzeigen
 audioplayer.shuffle Zufällig
@@ -200,6 +201,12 @@ bouquetname.hdtv HD Kanäle
 bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
+buildinfo.compiled_on Build Host
+buildinfo.compiled_with Compiler Version
+buildinfo.compiler_flags Compiler Flags
+buildinfo.creator Ersteller
+buildinfo.kernel Kernel Version
+buildinfo.menu Build Informationen
 cablesetup.provider Kabelanbieter
 channellist.additional Zusatzinformationen
 channellist.additional_off aus
@@ -236,6 +243,7 @@ channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
+channellist.show_channellogo Senderlogos zeigen
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -250,6 +258,9 @@ ci.reset_standby Reset nach Standby
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
+clock_background Hintergrund anzeigen
+clock_seconds Sekunden anzeigen
+clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden
 colorchooser.alpha alpha
@@ -257,6 +268,7 @@ colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
+colormenu.clock_textcolor Ziffernfarbe
 colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Ein-/Ausblenden
 colormenu.font Neutrino-HD Schriftart
@@ -321,7 +333,9 @@ epgviewer.length Spieldauer (Min.)
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
 eventfinder.head EPG-Suche
+eventfinder.history Frühere Suchen
 eventfinder.keyword Suche nach Textpassage
+eventfinder.max_history Max. Anzahl früherer Suchen
 eventfinder.search Suche
 eventfinder.search_all_epg Ganze 
 eventfinder.search_within_epg Suche innerhalb EPG-Daten
@@ -388,7 +402,7 @@ extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
-extra.record_time Max. Aufnahmezeit in Stunden
+extra.record_time Maximale Aufnahmezeit
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
@@ -423,10 +437,10 @@ extra.volume_pos Lautstärkeanzeige
 extra.volume_size Höhe der Anzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
-extra.zapit_fe_timeout Tuning Timeout (1=10ms)
+extra.zapit_fe_timeout Tuning Timeout
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
-extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
+extra.zapit_motor_speed Rotor Drehzeit
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
 fan_speed CPU-Lüftergeschwindigkeit
@@ -524,7 +538,7 @@ flashupdate.proxyusername Benutzername
 flashupdate.proxyusername_hint1 Geben Sie den Proxy-Benutzernamen ein
 flashupdate.proxyusername_hint2 Ein leerer Eintrag bedeutet keine Authentifizierung
 flashupdate.read_directory_not_exist Das Backupverzeichnis %s \nexistiert nicht!
-flashupdate.read_no_available_space Der maximal verfügbare Platz in %s \nbeträgt %d KB, es werden aber %d KB benötigt.\n \nDer Vorgang wird abgebrochen, wählen sie bitte einen anderen Datenträger!
+flashupdate.read_no_available_space Der maximal verfügbare Platz in %s \nbeträgt %s KB, es werden aber %s KB benötigt.\n \nDer Vorgang wird abgebrochen, wählen sie bitte einen anderen Datenträger!
 flashupdate.read_volume_error Die Größe des Datenträgers %s \nkann nicht ermittelt werden!
 flashupdate.readflash ganzes Flashimage auslesen
 flashupdate.readflashmtd einzelne Partition auslesen
@@ -622,7 +636,7 @@ imageinfo.head Image-Informationen
 imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
-imageinfo.license Lizenz:
+imageinfo.license Lizenz
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
@@ -705,6 +719,7 @@ lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
 lcdmenu.head VFD Einstellungen
 lcdmenu.lcdcontroler Helligkeit
+lcdmenu.scroll Laufschrift
 lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
@@ -726,6 +741,7 @@ mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
 mainmenu.head Hauptmenü
+mainmenu.lua Plugins
 mainmenu.media Multimedia
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd EPG auslesen
@@ -742,6 +758,7 @@ mainmenu.shutdown Ausschalten
 mainmenu.shutdown_menu Ausschalt Optionen
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
+mainmenu.tools Werkzeuge
 mainmenu.tvmode TV-Modus
 mainmenu.tvradio_switch TV-Radio Umschaltung
 mainsettings.audio Audio
@@ -788,6 +805,7 @@ menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle M
 menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
+menu.hint_buildinfo Informationen über Compiler, Compilerflags, Kernel
 menu.hint_cache_txt Startet das Zwischenspeichern des Teletextes nach einem Kanalwechsel
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
@@ -799,8 +817,14 @@ menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen
 menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
 menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfenster angezeigt werden sollen
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
+menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
+menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
+menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
+menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
+menu.hint_clock_size Stellen Sie die Größe der Uhr ein
+menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -865,6 +889,7 @@ menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
 menu.hint_infobar_setup Wählen Sie die Anzeigeoptionen für die Infobar aus
 menu.hint_infobar_textcolor Ändern Sie die Textfarbe für die Infobar
 menu.hint_infobar_tuner Zeigt den aktiven Tuner als Nummernicon
+menu.hint_infoclock_setup Wählen Sie die Anzeigeoptionen für die Info Uhr
 menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte Kanalnummern zugewiesen
 menu.hint_key_addrecord Weisen Sie eine Taste für das Starten und Markieren von Aufnahmen im EPG zu
 menu.hint_key_addremind Weisen Sie eine Taste für das Umschalten im EPG über den Timer zu
@@ -931,6 +956,7 @@ menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Auf
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Modus
 menu.hint_load Laden der Neutrino-HD-Einstellungen aus einer Datei
+menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
 menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelöschte Kanäle' erzeugt
@@ -987,6 +1013,7 @@ menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
+menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
 menu.hint_parentallock_menu Menüs mit PIN Code sichern
@@ -1017,8 +1044,9 @@ menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
 menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
-menu.hint_record_end Wählen Sie zwischen max. Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
+menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
+menu.hint_record_startstop_msg Schaltet die Meldung bei Aufnahmestart/ende ein oder aus.
 menu.hint_record_tdir Wählen Sie ein Verzeichnis für Ihre Timeshift-Aufnahmen im temporären Timeshift-Modus
 menu.hint_record_time Geben Sie eine maximale Aufnahmezeit in Stunden ein, wenn Sie die Aufnahme nicht vorzeitig stoppen
 menu.hint_record_timeafter Stellen Sie die Nachlaufzeit für Timer-Aufnahmen ein\nEin Wert von 2 beendet die Aufnahme 2 Minuten nach dem Sendungsende
@@ -1141,6 +1169,7 @@ menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden 
 menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
+menu.hint_tools Werkzeuge ausführen
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
 menu.hint_vfd Frontdisplay und Power-LEDs
@@ -1152,6 +1181,7 @@ menu.hint_vfd_brightnessstandby Definiert die Helligkeit im Standby-Modus
 menu.hint_vfd_defaults Zurücksetzen der Helligkeitswerte auf die Standardeinstellungen
 menu.hint_vfd_dimtime Geben Sie einen Wert in Sekunden ein, nachdem sich das Display automatisch auf den gewünschten Wert dimmt
 menu.hint_vfd_infoline Wählen Sie, was in der Infozeile angezeigt werden soll
+menu.hint_vfd_scroll Laufschrift im Display ein- oder ausschalten
 menu.hint_vfd_statusline Wählen Sie, was in der Statuszeile angezeigt werden soll
 menu.hint_video Video-Ausgang, Auflösung, Format, Seitenverhältnisse und mehr
 menu.hint_video_43mode Anzeige-Modus für 4:3-Inhalte auf 16:9-Fernsehern
@@ -1231,6 +1261,7 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
 miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
+miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
@@ -1252,7 +1283,7 @@ miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sleeptimer_min Sleeptimer Vorgabe
 miscsettings.volume Lautstärke
-miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
+miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
 motorcontrol.drive_mode Fahr-Modus
@@ -1410,24 +1441,25 @@ moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
-moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen 
+moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
 moviebrowser.yt_error Fehler beim laden des Youtube Feed
+moviebrowser.yt_history Frühere Suchen
+moviebrowser.yt_max_history Max. Anzahl früherer Suchen
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
-moviebrowser.yt_most_discussed Am meisten diskutiert
-moviebrowser.yt_most_popular Beliebteste Videos
-moviebrowser.yt_most_resent Unbeliebteste Videos
-moviebrowser.yt_most_responded Feeds mit den meisten Reaktionen
-moviebrowser.yt_most_shared Am häufigsten wiedergegebe Videos
+moviebrowser.yt_most_popular Beliebteste Videos heute
+moviebrowser.yt_most_popular_all_time Beliebteste Videos
 moviebrowser.yt_next_results Nächste Ergebnisse
-moviebrowser.yt_on_the_web Trendvideos
+moviebrowser.yt_orderby Sortierung nach
+moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
+moviebrowser.yt_orderby.rating Bewertung
+moviebrowser.yt_orderby.relevance Relevanz
+moviebrowser.yt_orderby.viewcount Zahl der Views
 moviebrowser.yt_pref_quality Bevorzugte Qualität
 moviebrowser.yt_prev_results Vorherige Ergebnisse
 moviebrowser.yt_recently_featured Vor kurzem empfohlen
 moviebrowser.yt_region Region
 moviebrowser.yt_related Passende Videos
 moviebrowser.yt_search Suche nach Stichwort
-moviebrowser.yt_top_favorites Top Favoriten
-moviebrowser.yt_top_rated Am besten bewertet
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
@@ -1580,6 +1612,7 @@ personalize.pinhint Personalisierungs PIN Code eingeben
 personalize.pinprotect ja
 personalize.pinstatus mit PIN
 personalize.plugins Plugins
+personalize.usermenu_plugin_types Anzuzeigende Plugin-Typen wählen
 personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
 personalize.usermenu_show_cancel Zeige Schalter "Abbrechen"
 personalize.visible sichtbar
@@ -1633,6 +1666,7 @@ rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert...
 recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
 recording.start Starte Aufnahme, bitte warten...!
+recording.startstop_msg Meldung bei Aufnahme Start/Ende
 recording.stop Beende Aufnahme, bitte warten...!
 recording.time_hour Stunde
 recording.time_hours Stunden
@@ -1668,8 +1702,6 @@ recordingmenu.vcr Videorekorder
 recordingmenu.vtxt_pid Teletext aufnehmen
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
-repeatblocker.hint_1 Mindestzeit (in ms) zwischen 2 Tastendrücken
-repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
@@ -1707,7 +1739,7 @@ satsetup.fe_mode_link_loop Loop
 satsetup.fe_mode_link_twin TWIN
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Nicht genutzt
-satsetup.fe_setup Setup Tuner
+satsetup.fe_setup Tuner Einstellungen
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
@@ -1922,6 +1954,11 @@ timing.volumebar Lautstärkeanzeige
 unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
+unit.decimal ,
+unit.short.hour h
+unit.short.millisecond ms
+unit.short.minute min
+unit.short.second s
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Kein UPnP-Server gefunden
 upnpbrowser.rescan Neue Suche
@@ -1934,6 +1971,7 @@ usermenu.head Benutzermenü
 usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
+usermenu.item_plugin_types Plugin-Typen
 usermenu.item_vtxt Teletext
 usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwende Standardname:\n
 usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!

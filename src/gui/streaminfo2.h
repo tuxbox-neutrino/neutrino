@@ -27,7 +27,6 @@
 
 #include <driver/framebuffer.h>
 #include <gui/components/cc.h>
-#include <gui/components/cc.h>
 #include <zapit/femanager.h>
 
 

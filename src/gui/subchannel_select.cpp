@@ -100,11 +100,11 @@ int CSubChannelSelectMenu::getNVODMenu(CMenuWidget* menu)
 				nvod_time_x[0]= 0;
 
 			sprintf(nvod_s, "%s - %s %s", nvod_time_a, nvod_time_e, nvod_time_x);
-			menu->addItem(new CMenuForwarderNonLocalized(nvod_s, enabled, NULL, &NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
+			menu->addItem(new CMenuForwarder(nvod_s, enabled, NULL, &NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
 		} 
 		else 
 		{
-			menu->addItem(new CMenuForwarderNonLocalized(e->subservice_name.c_str(), enabled, NULL, &NVODChanger, nvod_id, CRCInput::convertDigitToKey(count)), (count == g_RemoteControl->selected_subchannel));
+			menu->addItem(new CMenuForwarder(e->subservice_name.c_str(), enabled, NULL, &NVODChanger, nvod_id, CRCInput::convertDigitToKey(count)), (count == g_RemoteControl->selected_subchannel));
 		}
 
 		count++;

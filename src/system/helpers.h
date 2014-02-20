@@ -24,18 +24,27 @@
 
 #include <stdint.h>
 #include <string>
-
+#include <sstream>
+ 
 int my_system(const char * cmd);
 int my_system(int argc, const char *arg, ...); /* argc is number of arguments including command */
 
 FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
-int safe_mkdir(char * path);
+
+int safe_mkdir(const char * path);
+inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
 off_t file_size(const char *filename);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir, bool allow_tmp = false);
 bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
+void mySleep(int sec);
+
+std::string find_executable(const char *name);
+
+bool hdd_get_standby(const char * fname);
+void hdd_flush(const char * fname);
 
 std::string getPathName(std::string &path);
 std::string getBaseName(std::string &path);
@@ -43,6 +52,7 @@ std::string getFileName(std::string &file);
 std::string getFileExt(std::string &file);
 std::string getNowTimeStr(const char* format);
 std::string trim(std::string &str, const std::string &trimChars = " \n\r\t");
+time_t toEpoch(std::string &date);
 
 class CFileHelpers
 {
@@ -61,7 +71,13 @@ class CFileHelpers
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
 		bool createDir(const char *Dir, mode_t mode);
 		bool removeDir(const char *Dir);
-
 };
+
+template<class C> std::string to_string(C i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
 
 #endif

@@ -3,6 +3,8 @@
 
         Copyright (C) 2011-2012 CoolStream International Ltd
 
+	Copyright (C) 2010-2012, 2014 Stefan Seyfried
+
 	based on code which is
 	Copyright (C) 2002 Andreas Oberritter <obi@tuxbox.org>
 	Copyright (C) 2001 TripleDES
@@ -56,6 +58,10 @@
 #include <driver/streamts.h>
 #include <driver/record.h>
 #include <driver/genpsi.h>
+#include <pwrmngr.h>
+
+/* defined in neutrino.cpp */
+extern cCpuFreqManager * cpuFreq;
 
 /* experimental mode:
  * stream not possible, if record running
@@ -332,6 +338,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid)
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	if (mode == NeutrinoMessages::mode_standby && streams.empty()) {
 		printf("CStreamManager::Parse: wakeup zapit..\n");
+		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		g_Zapit->setStandby(false);
 		g_Zapit->getMode();
 	}
@@ -503,6 +510,16 @@ void CStreamManager::run()
 							}
 						}
 						mutex.unlock();
+					}
+				}
+				/* this is a cheap check */
+				if (streams.empty() &&
+				    CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby) {
+					/* this check is more expensive (goes through the socket) */
+					if (g_Zapit->getMode() != 0) {
+						printf("CStreamManager::run: put zapit into standby...\n");
+						g_Zapit->setStandby(true);
+						cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 					}
 				}
 			}

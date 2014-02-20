@@ -96,6 +96,7 @@ GENRE.TRAVEL_HOBBIES.5 cooking
 GENRE.TRAVEL_HOBBIES.6 advertisement/shopping
 GENRE.TRAVEL_HOBBIES.7 gardening
 GENRE.UNKNOWN unknown
+adzap AdZap
 apidselector.head Select language
 audio.srs_algo Type
 audio.srs_algo_heavy Heavy
@@ -167,7 +168,7 @@ audioplayer.receiving_list Receiving list, please wait
 audioplayer.repeat_on enable repeat mode
 audioplayer.rewind rewind
 audioplayer.save_playlist save play list
-audioplayer.screensaver_timeout screensaver timeout (min, 0=off)
+audioplayer.screensaver_timeout screensaver timeout
 audioplayer.select_title_by_name search title by name (SMS)
 audioplayer.show_playlist Show Playlist
 audioplayer.shuffle shuffle
@@ -187,7 +188,7 @@ bouqueteditor.discardingchanges Discarding changes. Please be patient.
 bouqueteditor.hide Hide
 bouqueteditor.lock Lock
 bouqueteditor.move Move
-bouqueteditor.name bouquet editor
+bouqueteditor.name Bouquet editor
 bouqueteditor.newbouquetname New name of bouquets
 bouqueteditor.rename Rename
 bouqueteditor.return ready
@@ -200,6 +201,12 @@ bouquetname.hdtv HD channels
 bouquetname.new New channels
 bouquetname.other Unknown provider
 bouquetname.removed Removed channels
+buildinfo.compiled_on Build Host
+buildinfo.compiled_with Compiler version
+buildinfo.compiler_flags Compiler flags
+buildinfo.creator Creator
+buildinfo.kernel Kernel version
+buildinfo.menu Build information
 cablesetup.provider cable provider
 channellist.additional Additional informations
 channellist.additional_off off
@@ -236,6 +243,7 @@ channellist.recording_not_possible Recording not possible!
 channellist.reset_all Reset 'new' flag for all channels
 channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
+channellist.show_channellogo Show channellogos
 channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
@@ -250,6 +258,9 @@ ci.reset_standby Reset after standby
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
 ci.waiting Waiting for CI answer
+clock_background Show background
+clock_seconds Show seconds
+clock_size_height Display height
 clock_switch_off Clock off
 clock_switch_on Clock on
 colorchooser.alpha alpha
@@ -257,6 +268,7 @@ colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
 colormenu.background Background
+colormenu.clock_textcolor Digit color
 colormenu.contrast_fonts Contrast fonts
 colormenu.fade Fade GUI
 colormenu.font Select GUI font
@@ -321,7 +333,9 @@ epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
+eventfinder.history Search history
 eventfinder.keyword Keyword
+eventfinder.max_history Max results to fetch
 eventfinder.search Search
 eventfinder.search_all_epg whole
 eventfinder.search_within_epg Search within
@@ -388,7 +402,7 @@ extra.lodirection LoDirection
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
 extra.north North
-extra.record_time Max. recording time in hours
+extra.record_time Maximal recording time
 extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
@@ -423,10 +437,10 @@ extra.volume_pos Volumebar
 extra.volume_size Height of display
 extra.west West
 extra.zap_cycle Zap cycle
-extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
+extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage 18V for rotor moving 
 extra.zapit_make_bouquet Make Remaining Channels list
-extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
+extra.zapit_motor_speed Motor moving speed
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
 fan_speed CPU Fan speed
@@ -524,7 +538,7 @@ flashupdate.proxyusername Username
 flashupdate.proxyusername_hint1 enter the proxyserver username
 flashupdate.proxyusername_hint2 a empty entry means no proxy-auth
 flashupdate.read_directory_not_exist The backup directory %s \ndoes not exist!
-flashupdate.read_no_available_space The maximum available space in %s \nis %d KB, but there are %d KB required.\n \nThe operation is canceled, please choose another medium!
+flashupdate.read_no_available_space The maximum available space in %s \nis %s KB, but there are %s KB required.\n \nThe operation is canceled, please choose another medium!
 flashupdate.read_volume_error The size of the volume %s \ncan not be determined!
 flashupdate.readflash Read whole image
 flashupdate.readflashmtd Read one partition
@@ -622,7 +636,7 @@ imageinfo.head Image info:
 imageinfo.homepage Home page:
 imageinfo.image Image:
 imageinfo.kernel Kernel:
-imageinfo.license License:
+imageinfo.license License
 imageinfo.vcs Git:
 imageinfo.version Version:
 inetradio.name Internetradio
@@ -705,6 +719,7 @@ lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD Settings
 lcdmenu.lcdcontroler Brightness
+lcdmenu.scroll Enable text scroll
 lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
@@ -726,6 +741,7 @@ mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
 mainmenu.games Games
 mainmenu.head Main Menu
+mainmenu.lua Plugins
 mainmenu.media Media
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
@@ -742,6 +758,7 @@ mainmenu.shutdown Shutdown (deep standby)
 mainmenu.shutdown_menu Shutdown
 mainmenu.sleeptimer SleepTimer
 mainmenu.standby Standby
+mainmenu.tools Tools
 mainmenu.tvmode TV-Mode
 mainmenu.tvradio_switch TV-Radio Switch
 mainsettings.audio Audio
@@ -788,6 +805,7 @@ menu.hint_back Return to previous menu\nPress menu key to close all menus
 menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
+menu.hint_buildinfo Information about compilers, compiler flags, kernel
 menu.hint_cache_txt Start teletext caching after channel switch
 menu.hint_cec_mode CEC mode
 menu.hint_cec_standby CEC standby
@@ -799,8 +817,14 @@ menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
 menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_setup Configure channel list GUI options
+menu.hint_channellist_show_channellogo Show channellogos in channel list
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
+menu.hint_clock_background Show clock with theme's background color
+menu.hint_clock_mode Switch clock on or off
+menu.hint_clock_seconds Show time format with seconds
+menu.hint_clock_size Set the size of the info clock
+menu.hint_clock_textcolor Configure digit colors
 menu.hint_colors Configure GUI colors
 menu.hint_content_back Change GUI window background color
 menu.hint_content_textcolor Change GUI window text color
@@ -865,6 +889,7 @@ menu.hint_infobar_sat Show current satellite or cable provider
 menu.hint_infobar_setup Configure infobar options
 menu.hint_infobar_textcolor Change infobar text color
 menu.hint_infobar_tuner Show active tuner number icon
+menu.hint_infoclock_setup Configure info clock GUI options
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
 menu.hint_key_addrecord Assign button to add record timer\nfrom event list
 menu.hint_key_addremind Assign button to add zap timer\nfrom event list
@@ -931,6 +956,7 @@ menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
 menu.hint_load Load Neutrino-HD GUI settings from file
+menu.hint_lua Run Plugins
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
 menu.hint_make_removedlist Create list of recently removed channels
@@ -987,6 +1013,7 @@ menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
+menu.hint_osd_timing After this time the OSD will be faded out
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
 menu.hint_parentallock_menu Lock menus with pin code
@@ -1017,8 +1044,9 @@ menu.hint_record_data Record (VideoText, subtitles) data streams
 menu.hint_record_data_dvbsub subtitle stream
 menu.hint_record_data_vtxt VideoText stream
 menu.hint_record_dir Select directory to store recordings
-menu.hint_record_end Stop direct record after max. time\nor after current event end time
+menu.hint_record_end Stop direct record after maximal time or after current event end time
 menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
+menu.hint_record_startstop_msg Turns the message when recording start/end on or off.
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
 menu.hint_record_time Record time before stop when\nusing direct record with record button
 menu.hint_record_timeafter Stop record after event end\nin minutes
@@ -1141,6 +1169,7 @@ menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone
+menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
 menu.hint_vfd Frontpanel LEDS, VFD options
@@ -1152,6 +1181,7 @@ menu.hint_vfd_brightnessstandby Brightness in soft-standby mode
 menu.hint_vfd_defaults Restore default brightness values
 menu.hint_vfd_dimtime Auto-dim time, in seconds
 menu.hint_vfd_infoline Choose what to display in main VFD line
+menu.hint_vfd_scroll Enable or disable text scrolling on VFD
 menu.hint_vfd_statusline Choose what to display in short\nVFD status line
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
 menu.hint_video_43mode Display mode for 4:3 content\non 16:9 TV
@@ -1231,6 +1261,7 @@ miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
 miscsettings.infobar_show_tuner Display active tuner
+miscsettings.infoclock Clock
 miscsettings.progressbar Progressbar
 miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
@@ -1252,7 +1283,7 @@ miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
 miscsettings.sleeptimer_min Sleeptimer default
 miscsettings.volume Volume
-miscsettings.zapto_pre_time Zapto Start Time Correction (minutes)
+miscsettings.zapto_pre_time Zapto Start Time Correction
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
 motorcontrol.drive_mode Drive Mode
@@ -1412,22 +1443,23 @@ moviebrowser.use_movie_dir Use movie directory
 moviebrowser.use_rec_dir Use record directory
 moviebrowser.yt_concurrent_connections Concurrent connections
 moviebrowser.yt_error Failed to load youtube feed
+moviebrowser.yt_history Search history
+moviebrowser.yt_max_history Max search history size
 moviebrowser.yt_max_results Max results to fetch
-moviebrowser.yt_most_discussed Most discussed
-moviebrowser.yt_most_popular Most popular
-moviebrowser.yt_most_resent Most resent
-moviebrowser.yt_most_responded Most responded
-moviebrowser.yt_most_shared Most shared
+moviebrowser.yt_most_popular Most popular today
+moviebrowser.yt_most_popular_all_time Most popular
 moviebrowser.yt_next_results Next results
-moviebrowser.yt_on_the_web Trending videos
+moviebrowser.yt_orderby Order by
+moviebrowser.yt_orderby.published publishing date
+moviebrowser.yt_orderby.rating rating
+moviebrowser.yt_orderby.relevance relevance
+moviebrowser.yt_orderby.viewcount view count
 moviebrowser.yt_pref_quality Prefered quality
 moviebrowser.yt_prev_results Previous results
 moviebrowser.yt_recently_featured Recently featured
 moviebrowser.yt_region Region
 moviebrowser.yt_related Related videos
 moviebrowser.yt_search Search keyword
-moviebrowser.yt_top_favorites Top favorites
-moviebrowser.yt_top_rated Top rated
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
@@ -1580,6 +1612,7 @@ personalize.pinhint Enter the Personalization PIN Code
 personalize.pinprotect Yes
 personalize.pinstatus Require PIN
 personalize.plugins Plugins
+personalize.usermenu_plugin_types Choose Plugin types to show
 personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
@@ -1633,6 +1666,7 @@ rclock.title Lock Remote Control
 rclock.unlockmsg Remote control reactivated.
 recording.is_running This channel already recording. Start new record?
 recording.start Start recording, please wait...!
+recording.startstop_msg Message when recording is start/stop
 recording.stop Stop recording, please wait...!
 recording.time_hour hour
 recording.time_hours hours
@@ -1668,8 +1702,6 @@ recordingmenu.vcr vcr
 recordingmenu.vtxt_pid record teletext
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
-repeatblocker.hint_1 Shortest time (in ms) to recognize 2 keystrokes
-repeatblocker.hint_2 Enter 0 to switch of the blocker (red is space)
 reset_all Factory reset and reboot
 reset_channels Delete all channels
 reset_confirm Are you sure ?
@@ -1922,6 +1954,11 @@ timing.volumebar Volume bar
 unicable.lnb Unicable Input
 unicable.qrg Unicable Frequency
 unicable.scr Unicable SCR
+unit.decimal .
+unit.short.hour h
+unit.short.millisecond ms
+unit.short.minute min
+unit.short.second s
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again
@@ -1934,6 +1971,7 @@ usermenu.head User menu
 usermenu.item_bar ---- Boarder ----
 usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
+usermenu.item_plugin_types Plugin types
 usermenu.item_vtxt Videotext
 usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
 usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!

@@ -50,6 +50,7 @@
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
+
 #include <daemonc/remotecontrol.h>
 #include <system/settings.h>
 
@@ -590,7 +591,7 @@ void CBouquetList::paintItem(int pos)
 
 void CBouquetList::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, name, NULL /*no header icon*/);
+	CComponentsHeader header(x, y, width, theight, name);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -600,16 +601,13 @@ void CBouquetList::paint()
 	int lastnum =  liststart + listmaxshow;
 	int bsize = Bouquets.empty() ? 1 : Bouquets.size();
 
-	if(lastnum<10)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0");
-	else if(lastnum<100)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00");
-	else if(lastnum<1000)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("000");
-	else if(lastnum<10000)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0000");
-	else // if(lastnum<100000)
-		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00000");
+	numwidth = 0;
+	int maxDigitWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getMaxDigitWidth();
+	int _lastnum = lastnum;
+        while (_lastnum) {
+                numwidth += maxDigitWidth;
+                _lastnum /= 10;
+        }
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - footerHeight, COL_MENUCONTENT_PLUS_0);
 
@@ -637,8 +635,7 @@ void CBouquetList::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((bsize - 1)/ listmaxshow)+ 1; /* bsize is > 0, so sbc is also > 0 */
-	float sbh= (sb - 4)/ sbc;
 	int sbs= (selected/listmaxshow);
 
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
 }

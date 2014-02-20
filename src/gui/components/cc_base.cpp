@@ -44,7 +44,7 @@ CComponents::~CComponents()
 {
  	hide();
 	clearSavedScreen();
-	clear();
+	clearFbData();
 }
 
 void CComponents::clearSavedScreen()
@@ -77,6 +77,7 @@ void CComponents::initVarBasic()
 	firstPaint		= true;
 	is_painted		= false;
 	paint_bg		= true;
+	cc_allow_paint		= true;
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
@@ -89,8 +90,18 @@ void CComponents::paintFbItems(bool do_save_bg)
 	if (firstPaint && do_save_bg)	{
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
+				if ((v_fbdata[i].x <= 0) || (v_fbdata[i].y <= 0))
+					printf("\33[31m\t[CComponents] WARNING! Position <= 0 [%s - %d], x = %d  y = %d\n\033[37m", __func__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n", __FUNCTION__, __LINE__, firstPaint, v_fbdata[i].fbdata_type);
+	printf("\t[CComponents]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+			__func__,
+			__LINE__,
+			firstPaint,
+			v_fbdata[i].fbdata_type,
+			v_fbdata[i].x,
+			v_fbdata[i].y,
+			v_fbdata[i].dx,
+			v_fbdata[i].dy);
 #endif
 				saved_screen.x = v_fbdata[i].x;
 				saved_screen.y = v_fbdata[i].y;
@@ -106,12 +117,23 @@ void CComponents::paintFbItems(bool do_save_bg)
 
 	for(size_t i=0; i< v_fbdata.size() ;i++){
 		// Don't paint if dx or dy are 0
-		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0))
+		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0)){
+#ifdef DEBUG_CC
+			printf("\t[CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
+#endif
 			continue;
+		}
 
 		int fbtype = v_fbdata[i].fbdata_type;
 #ifdef DEBUG_CC
-	printf("    [CComponents]\n    [%s - %d], fbdata_[%d] \n    x = %d\n    y = %d\n    dx = %d\n    dy = %d\n", __FUNCTION__, __LINE__, i, v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+	printf("\t[CComponents]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+			__func__,
+			__LINE__,
+			(int)i,
+			v_fbdata[i].x,
+			v_fbdata[i].y,
+			v_fbdata[i].dx,
+			v_fbdata[i].dy);
 #endif
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
@@ -130,7 +152,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 		//paint all fb relevant basic parts (frame and body) with all specified properties, paint_bg must be true
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN && paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
-				if (v_fbdata[i].frame_thickness > 0)
+				if (v_fbdata[i].frame_thickness > 0 && cc_allow_paint)
 					frameBuffer->paintBoxFrame(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].frame_thickness, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 			}
 			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
@@ -148,14 +170,17 @@ void CComponents::paintFbItems(bool do_save_bg)
 						//calculate current shadow width depends of current corner_rad
 						sw_cur = max(2*v_fbdata[i].r, sw);
 					}
-					// shadow right
-					frameBuffer->paintBoxRel(x_sh, v_fbdata[i].y, sw_cur, v_fbdata[i].dy-sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_TOP_RIGHT);
-					// shadow bottom
-					frameBuffer->paintBoxRel(v_fbdata[i].x, y_sh, v_fbdata[i].dx, sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_BOTTOM);
+					if (cc_allow_paint){
+						// shadow right
+						frameBuffer->paintBoxRel(x_sh, v_fbdata[i].y, sw_cur, v_fbdata[i].dy-sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_TOP_RIGHT);
+						// shadow bottom
+						frameBuffer->paintBoxRel(v_fbdata[i].x, y_sh, v_fbdata[i].dx, sw_cur, v_fbdata[i].color, v_fbdata[i].r, corner_type & CORNER_BOTTOM);
+					}
 				}
 			}
 			else
-				frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
+				if(cc_allow_paint)
+					frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
 		}
 	}
 
@@ -165,6 +190,9 @@ void CComponents::paintFbItems(bool do_save_bg)
 //screen area save
 inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 {
+	if (dx * dy == 0)
+		return NULL;
+
 	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
 	frameBuffer->waitForIdle("CComponents::getScreen()");
 	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
@@ -175,14 +203,13 @@ inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 inline void CComponents::hide()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) {
-		if (v_fbdata[i].pixbuf != NULL){
+		if (v_fbdata[i].pixbuf){
 			frameBuffer->waitForIdle("CComponents::hide()");
 			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
-			delete[] v_fbdata[i].pixbuf;
-			v_fbdata[i].pixbuf = NULL;
 		}
 	}
-	v_fbdata.clear();
+
+	clearFbData();
 	is_painted = false;
 }
 
@@ -191,16 +218,16 @@ void CComponents::kill()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++) 
 		frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);	
-	clear();
+	clearFbData();
 	firstPaint = true;
 	is_painted = false;
 }
 
 //clean old screen buffer
-inline void CComponents::clear()
+inline void CComponents::clearFbData()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++)
-		if (v_fbdata[i].pixbuf != NULL)
+		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
 	v_fbdata.clear();
 }

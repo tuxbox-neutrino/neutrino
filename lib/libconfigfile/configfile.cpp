@@ -51,7 +51,7 @@ void CConfigFile::clear()
 //
 // public file operation methods
 //
-bool CConfigFile::loadConfig(const char * const filename)
+bool CConfigFile::loadConfig(const char * const filename, char _delimiter)
 {
 	std::ifstream configFile(filename);
 
@@ -67,7 +67,7 @@ bool CConfigFile::loadConfig(const char * const filename)
 			if (configFile.fail())
 				break;
 
-			std::string::size_type i = s.find('=');
+			std::string::size_type i = s.find(_delimiter);
 			if (i != std::string::npos)
 			{
 				std::string::size_type j = s.find('#');
@@ -86,12 +86,12 @@ bool CConfigFile::loadConfig(const char * const filename)
 	}
 }
 
-bool CConfigFile::loadConfig(const std::string & filename)
+bool CConfigFile::loadConfig(const std::string & filename, char _delimiter)
 {
-	return loadConfig(filename.c_str());
+	return loadConfig(filename.c_str(), _delimiter);
 }
 
-bool CConfigFile::saveConfig(const char * const filename)
+bool CConfigFile::saveConfig(const char * const filename, char _delimiter)
 {
 	std::string tmpname = std::string(filename) + ".tmp";
 	unlink(tmpname.c_str());
@@ -102,7 +102,7 @@ bool CConfigFile::saveConfig(const char * const filename)
 		std::cout << "[ConfigFile] saving " << filename << std::endl;
 		for (ConfigDataMap::const_iterator it = configData.begin(); it != configData.end(); ++it)
 		{
-			configFile << it->first << "=" << it->second << std::endl;
+			configFile << it->first << _delimiter << it->second << std::endl;
 		}
 
 		configFile.sync();
@@ -123,9 +123,9 @@ bool CConfigFile::saveConfig(const char * const filename)
 	}
 }
 
-bool CConfigFile::saveConfig(const std::string & filename)
+bool CConfigFile::saveConfig(const std::string & filename, char _delimiter)
 {
-	return saveConfig(filename.c_str());
+	return saveConfig(filename.c_str(), _delimiter);
 }
 
 

@@ -57,38 +57,50 @@ class CComponentsFrmClock : public CComponentsForm
 		///raw time chars
 		char cl_timestr[20];
 
-		//TODO: please add comments!
+		///allow to paint clock within thread and is not similar to cc_allow_paint
 		bool paintClock;
+		//TODO: please add comments!
 		bool activeClock;
 
 		///object: font render object
-		Font *cl_font;
+		Font **cl_font;
+
+		int cl_font_type;
+		int dyn_font_size;
+
 		///text color
 		int cl_col_text;
 		///time format
-		const char* cl_format_str;
+		std::string cl_format_str;
+		///time format for blink
+		std::string cl_blink_str;
 		///time string align, default allign is ver and hor centered
 		int cl_align;
 
 		///initialize all attributes and required objects
-		void initVarClock();
+		void initVarClock(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const char* format_str, bool activ, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
 		
 		///initialize clock contents  
 		void initCCLockItems();
 		///initialize timestring, called in initCCLockItems()
-		void initTimeString();
+		virtual void initTimeString();
 		///initialize of general alignment of timestring segments within form area
 		void initSegmentAlign(int* segment_width, int* segment_height);
 
+		///return pointer of font object
+		inline Font** getClockFont();
+
 	public:
-		CComponentsFrmClock();
-		CComponentsFrmClock( 	const int x_pos, const int y_pos, const int w, const int h,
-					const char* format_str = "%H:%M", bool activ=true, bool has_shadow = CC_SHADOW_OFF,
+		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1, const int& w = 200, const int& h = 48,
+					const char* format_str = "%H:%M", bool activ=false, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsFrmClock();
 
-		///set font type for segments
-		virtual void setClockFont(Font *font){cl_font = font;};
+		///set font type or font size for segments
+		virtual void setClockFont(int font);
+		virtual void setClockFontSize(int font_size);
 
 		///set text color
 		virtual void setTextColor(fb_pixel_t color_text){ cl_col_text = color_text;};
@@ -98,6 +110,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///use string expession: "%H:%M" = 12:22, "%H:%M:%S" = 12:22:12
 		virtual void setClockFormat(const char* format_str){cl_format_str = format_str;};
+
+		///time format for blink ("%H %M", "%H:%M %S" etc.)
+		virtual void setClockBlink(const char* format_str){cl_blink_str = format_str;};
 
 		///start ticking clock thread, returns true on success, if false causes log output
 		virtual bool startThread();
@@ -117,6 +132,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///reinitialize clock contents
 		virtual void refresh() { initCCLockItems(); }
+
+		///set clock activ/inactiv
+		virtual void setClockActiv(bool activ = true);
 };
 
 #endif

@@ -223,10 +223,10 @@ public:
 
 	/* get play state */
 	int getPlayState(void);
-	void SetVPPDelay(unsigned int delay) { uVPPDisplayDelay = delay;};
+	void SetVPPDelay(unsigned int delay) { uVPPDisplayDelay = delay; }
 	void SetVideoDelay(unsigned int delay) { uVideoPTSDelay = delay;};
 	/* Notification handlers */
-	void HandleVPPMessage(int Event, void *pData);
+	void HandleVPPMessage(void *hHandle, int Event, void *pData);
 	void HandleVideoMessage(void * hHandle, int Event, void *pData);
 	void HandleEncoderMessage(void *hHandle, int Event, void *pData);
 	VIDEO_DEFINITION   GetVideoDef(void) { return VideoDefinition; }
@@ -270,6 +270,7 @@ public:
 	bool GetScreenImage(unsigned char * &data, int &xres, int &yres, bool get_video = true, bool get_osd = false, bool scale_to_video = false);
 	void SetDemux(cDemux *Demux);
 	static cVideo *GetDecoder(unsigned int Unit);
+	bool SyncSTC(void);
 };
 
 #endif // __VIDEO_CS_H_

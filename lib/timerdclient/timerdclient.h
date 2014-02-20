@@ -48,8 +48,6 @@ class CTimerdClient:private CBasicClient
 			EVT_ANNOUNCE_SHUTDOWN,
 			EVT_ZAPTO,
 			EVT_ANNOUNCE_ZAPTO,
-			EVT_NEXTPROGRAM,
-			EVT_ANNOUNCE_NEXTPROGRAM,
 			EVT_STANDBY_ON,
 			EVT_STANDBY_OFF,
 			EVT_RECORD_START,
@@ -63,6 +61,7 @@ class CTimerdClient:private CBasicClient
 
 		void registerEvent(unsigned int eventID, unsigned int clientID, const char * const udsName);
 		void unRegisterEvent(unsigned int eventID, unsigned int clientID);
+		static int adzap_eventID;
 
 		bool isTimerdAvailable();			// check if timerd is running
 
@@ -153,13 +152,27 @@ class CTimerdClient:private CBasicClient
 			eventInfo.recordingSafety = false;
 			return addTimerEvent(CTimerd::TIMER_ZAPTO, &eventInfo, announcetime, alarmtime, stoptime);
 		};
+		// adds new adzap timer event //pseudo TIMER_ADZAP
+		int addAdZaptoTimerEvent(const t_channel_id channel_id, time_t alarmtime)
+		{
+			CTimerd::EventInfo eventInfo;
+			eventInfo.channel_id = channel_id;
+			eventInfo.epgID = 1;
+			eventInfo.epg_starttime = 0;
+			eventInfo.apids = 0;
+			eventInfo.recordingSafety = false;
+			return addTimerEvent(CTimerd::TIMER_ADZAP, &eventInfo, 0, alarmtime, 0);
+		};
 
+
+#if 0
 		int addNextProgramTimerEvent(CTimerd::EventInfo eventInfo,time_t alarmtime, time_t announcetime = 0, time_t stoptime = 0)
 		{
 			// mal auf verdacht eingebaut
 			// keine ahnung ob / was hier noch fehlt
 			return addTimerEvent(CTimerd::TIMER_NEXTPROGRAM, &eventInfo, alarmtime, announcetime, stoptime);
 		};
+#endif
 
 		// Exit timerd and programm wakeup
 		bool shutdown();
@@ -170,8 +183,8 @@ class CTimerdClient:private CBasicClient
 
 		// Convert String of O and X to repeat type and vice versa
 		//void getWeekdaysFromStr(int *rep, const char* str);
-		void getWeekdaysFromStr(CTimerd::CTimerEventRepeat *rep, const char* str);
-		void setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, char* str);
+		void getWeekdaysFromStr(CTimerd::CTimerEventRepeat *rep, std::string &str);
+		void setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, std::string &str);
 };
 
 #endif

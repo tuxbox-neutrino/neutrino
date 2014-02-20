@@ -350,6 +350,11 @@ int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 		_newtimer.interval = 0;
 
 	_newtimer.id = timerid++;
+	/* in theory, this uint32_t could overflow... */
+	/* ...and timerid == 0 is used as "no timer" in many places. */
+	if (timerid == 0)
+		timerid++;
+
 	if ( correct_time )
 		_newtimer.times_out = timeNow+ Interval;
 	else
@@ -851,6 +856,22 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 							case NeutrinoMessages::RELOAD_SETUP :
 								*msg = NeutrinoMessages::RELOAD_SETUP;
 								*data = 0;
+								break;
+							case NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON:
+								*msg          = NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON;
+								*data         = 0;
+								break;
+							case NeutrinoMessages::EVT_HDMI_CEC_STANDBY:
+								*msg          = NeutrinoMessages::EVT_HDMI_CEC_STANDBY;
+								*data         = 0;
+								break;
+							case NeutrinoMessages::EVT_SET_MUTE :
+								*msg = NeutrinoMessages::EVT_SET_MUTE;
+								*data = *(char*) p;
+								break;
+							case NeutrinoMessages::EVT_SET_VOLUME :
+								*msg = NeutrinoMessages::EVT_SET_VOLUME;
+								*data = *(char*) p;
 								break;
 							default:
 								printf("[neutrino] event INITID_HTTPD - unknown eventID 0x%x\n",  emsg.eventID );

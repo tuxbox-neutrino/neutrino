@@ -121,19 +121,17 @@ void CBEBouquetWidget::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((Bouquets->size()- 1)/ listmaxshow)+ 1;
+	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;
 
-	float sbh= (sb- 4)/ sbc;
-	int sbs= (selected/listmaxshow);
-
 	//scrollbar
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
 }
 
 void CBEBouquetWidget::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, NULL /*no header icon*/, CComponentsHeader::CC_BTN_MENU);
+	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_BOUQUETLIST_HEAD, "" /*no header icon*/, CComponentsHeaderLocalized::CC_BTN_MENU);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -255,7 +253,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			{
 				if (bouquetsChanged)
 				{
-					int result = ShowLocalizedMessage(LOCALE_BOUQUETEDITOR_NAME, LOCALE_BOUQUETEDITOR_SAVECHANGES, CMessageBox::mbrYes, CMessageBox::mbAll);
+					int result = ShowMsg(LOCALE_BOUQUETEDITOR_NAME, LOCALE_BOUQUETEDITOR_SAVECHANGES, CMessageBox::mbrYes, CMessageBox::mbAll);
 
 					switch( result )
 					{
@@ -429,7 +427,7 @@ void CBEBouquetWidget::deleteBouquet()
 	if (selected >= Bouquets->size()) /* Bouquets->size() might be 0 */
 		return;
 
-	if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
+	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
 		return;
 
 	g_bouquetManager->deleteBouquet(selected);
@@ -526,11 +524,9 @@ void CBEBouquetWidget::switchLockBouquet()
 
 std::string CBEBouquetWidget::inputName(const char * const defaultName, const neutrino_locale_t caption)
 {
-	char Name[30];
+	std::string Name = defaultName;
 
-	strncpy(Name, defaultName, sizeof(Name)-1);
-
-	CStringInputSMS * nameInput = new CStringInputSMS(caption, Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
+	CStringInputSMS * nameInput = new CStringInputSMS(caption, &Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
 	nameInput->exec(this, "");
 	delete nameInput;
 

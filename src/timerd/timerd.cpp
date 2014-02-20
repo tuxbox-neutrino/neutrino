@@ -63,8 +63,8 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			{
 				for (pos = events.begin(); pos != events.end(); ++pos)
 				{
-					printf("ID: %u type: %u\n",pos->second->eventID,pos->second->eventType);
-					if(pos->second->eventType == CTimerd::TIMER_SLEEPTIMER)
+//					printf("ID: %u type: %u\n",pos->second->eventID,pos->second->eventType);
+					if(pos->second->eventType == CTimerd::TIMER_SLEEPTIMER && pos->second->eventState != CTimerd::TIMERSTATE_TERMINATED)
 					{
 						rspGetSleeptimer.eventID = pos->second->eventID;
 						break;
@@ -94,6 +94,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 					if(event->eventType == CTimerd::TIMER_STANDBY)
 						resp.standby_on = static_cast<CTimerEvent_Standby*>(event)->standby_on;
+#if 0
 					else if(event->eventType == CTimerd::TIMER_NEXTPROGRAM)
 					{
 						resp.epgID = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.epgID;
@@ -101,6 +102,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 						resp.channel_id = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.channel_id;
 						resp.apids = static_cast<CTimerEvent_Record*>(event)->eventInfo.apids;
 					}
+#endif
 					else if(event->eventType == CTimerd::TIMER_RECORD)
 					{
 						CTimerEvent_Record* ev= static_cast<CTimerEvent_Record*>(event);
@@ -159,6 +161,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 					if(event->eventType == CTimerd::TIMER_STANDBY)
 						lresp.standby_on = static_cast<CTimerEvent_Standby*>(event)->standby_on;
+#if 0
 					else if(event->eventType == CTimerd::TIMER_NEXTPROGRAM)
 					{
 						lresp.epgID = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.epgID;
@@ -166,6 +169,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 						lresp.channel_id = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.channel_id;
 						lresp.apids = static_cast<CTimerEvent_Record*>(event)->eventInfo.apids;
 					}
+#endif
 					else if(event->eventType == CTimerd::TIMER_RECORD)
 					{
 						CTimerEvent_Record* ev= static_cast<CTimerEvent_Record*>(event);
@@ -219,7 +223,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					switch (*type)
 					{
 						case CTimerd::TIMER_SHUTDOWN:
-						case CTimerd::TIMER_NEXTPROGRAM:
+						//case CTimerd::TIMER_NEXTPROGRAM:
 						case CTimerd::TIMER_ZAPTO:
 						case CTimerd::TIMER_STANDBY:
 						case CTimerd::TIMER_REMIND:
@@ -348,6 +352,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					}
 					break;
 
+#if 0
 				case CTimerd::TIMER_NEXTPROGRAM :
 //					CTimerd::EventInfo evInfo;
 					CBasicServer::receive_data(connfd, &evInfo, sizeof(CTimerd::TransferEventInfo));
@@ -376,6 +381,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					}
 */
 					break;
+#endif
 				case CTimerd::TIMER_REMIND :
 					CTimerdMsg::commandRemind remind;
 					CBasicServer::receive_data(connfd, &remind, sizeof(CTimerdMsg::commandRemind));

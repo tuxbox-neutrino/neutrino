@@ -195,8 +195,6 @@ const CMenuOptionChooser::keyval PERSONALIZE_PROTECT_MODE_OPTIONS[CPersonalizeGu
 	{ CPersonalizeGui::PERSONALIZE_PROTECT_MODE_PIN_PROTECTED	, LOCALE_PERSONALIZE_PINPROTECT      	},// The menu/option is protected by a PIN
 };
 
-
-
 CPersonalizeGui::CPersonalizeGui() : CPINProtection(g_settings.personalize_pincode)
 {
 	width 	= 0;
@@ -324,7 +322,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	}
 
 	//personalized menues
-	CMenuForwarderNonLocalized *p_mn[widget_count];
+	CMenuForwarder *p_mn[widget_count];
 	for (int i = 0; i<(widget_count); i++)
 	{
 		ostringstream i_str;
@@ -332,7 +330,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 		string s(i_str.str());
 		string action_key = s;
 		string mn_name = v_widget[i]->getName();
-		p_mn[i] = new CMenuForwarderNonLocalized(mn_name.c_str(), true, NULL, this, action_key.c_str(), CRCInput::convertDigitToKey(i+1));
+		p_mn[i] = new CMenuForwarder(mn_name.c_str(), true, NULL, this, action_key.c_str(), CRCInput::convertDigitToKey(i+1));
 		pMenu->addItem(p_mn[i]);
 	}
 	
@@ -372,7 +370,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 //init pin setup dialog
 void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pin_widget)
 {
-	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
+	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, &g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
 	
 	CMenuForwarder * fw_pin_setup = new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, g_settings.personalize_pincode, pin_widget, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
  	pin_setup_notifier = new CPinSetupNotifier(fw_pin_setup);
@@ -453,7 +451,17 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 	ShowPreverredKeySetup(fkeyMenu);
 #endif	
 	p_widget->addItem(GenericMenuSeparatorLine);
+	p_widget->addItem(GenericMenuSeparator);
 	p_widget->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_USERMENU_SHOW_CANCEL, &g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
+	pluginSelectionMenu = new CMenuWidget(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, NEUTRINO_ICON_SETTINGS);
+	pluginSelectionMenu->addIntroItems(LOCALE_MAINMENU_SETTINGS);
+	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_GAMES,   &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES],   OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_TOOLS,   &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_TOOLS],   OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_SCRIPTS, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_SCRIPTS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_LUA,     &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA],     OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
+	p_widget->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, true, NULL, pluginSelectionMenu));
 }
 
 
@@ -467,7 +475,7 @@ void CPersonalizeGui::ShowPluginMenu(CMenuWidget* p_widget)
 	{
 		if( g_PluginList->getType(i)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(i)) //don't show hidden plugins an games
 		{
-			p_widget->addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(i), true, g_PluginList->getDescription(i), NULL, NULL, getShortcut(d_key)));
+			p_widget->addItem(new CMenuForwarder(g_PluginList->getName(i), true, g_PluginList->getDescription(i), NULL, NULL, getShortcut(d_key)));
 			d_key++;
 		}
 	}
@@ -491,7 +499,7 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 	CMenuSeparator * pm_subhead = new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING);
 	string 	s_sh = g_Locale->getText(LOCALE_PERSONALIZE_ACCESS);
 			s_sh += ": " + mn_name;
-	pm_subhead->setString(s_sh);
+	pm_subhead->setName(s_sh);
 	
 	pm->addItem(pm_subhead);
 	pm->addIntroItems();
@@ -604,10 +612,10 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 						if (opt_val == PERSONALIZE_MODE_VISIBLE || opt_val == PERSONALIZE_MODE_PIN)
 						{
 							chooser->setActive(false);
-							chooser->setOptionValue(PERSONALIZE_MODE_NOTVISIBLE);
+							chooser->setOption(PERSONALIZE_MODE_NOTVISIBLE);
 						}else{
 							chooser->setActive(true);
-							chooser->setOptionValue(PERSONALIZE_MODE_VISIBLE);
+							chooser->setOption(PERSONALIZE_MODE_VISIBLE);
 						}
 					}
 				}
@@ -649,7 +657,7 @@ void CPersonalizeGui::SaveAndExit()
 			ApplySettings();
 			return;
 		}
-		if (ShowMsgUTF(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+		if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_PERSONALIZE_APPLY_SETTINGS), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
 		{
 			CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
 			hintBox.paint();
@@ -658,7 +666,7 @@ void CPersonalizeGui::SaveAndExit()
 		}
 		else
 		{
-			if (ShowMsgUTF(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_PERSONALIZE_HEAD, g_Locale->getText(LOCALE_MESSAGEBOX_DISCARD), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_QUESTION) == CMessageBox::mbrYes)
 				exec(NULL, "restore");
 		}
 	}

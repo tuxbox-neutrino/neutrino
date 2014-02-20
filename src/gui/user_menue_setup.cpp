@@ -34,7 +34,6 @@
 #include <config.h>
 #endif
 
-
 #include "user_menue_setup.h"
 
 #include <global.h>
@@ -80,7 +79,7 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
 	{ SNeutrinoSettings::ITEM_REMOTE,		LOCALE_RCLOCK_MENUEADD },
 	{ SNeutrinoSettings::ITEM_FAVORITS,		LOCALE_FAVORITES_MENUEADD },
 	{ SNeutrinoSettings::ITEM_TECHINFO,		LOCALE_EPGMENU_STREAMINFO },
-	{ SNeutrinoSettings::ITEM_PLUGIN,		LOCALE_TIMERLIST_PLUGIN },
+	{ SNeutrinoSettings::ITEM_PLUGIN_TYPES,		LOCALE_USERMENU_ITEM_PLUGIN_TYPES },
 	{ SNeutrinoSettings::ITEM_VTXT,			LOCALE_USERMENU_ITEM_VTXT },
 	{ SNeutrinoSettings::ITEM_IMAGEINFO,		LOCALE_SERVICEMENU_IMAGEINFO },
 	{ SNeutrinoSettings::ITEM_BOXINFO,		LOCALE_EXTRA_DBOXINFO },
@@ -88,7 +87,11 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
 	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON },
 	{ SNeutrinoSettings::ITEM_GAMES,		LOCALE_MAINMENU_GAMES },
 	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS },
-	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD }
+	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD },
+	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK },
+	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK },
+	{ SNeutrinoSettings::ITEM_TOOLS,		LOCALE_MAINMENU_TOOLS },
+	{ SNeutrinoSettings::ITEM_LUA,			LOCALE_MAINMENU_LUA }
 };
 
 int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)
@@ -131,7 +134,7 @@ int CUserMenuSetup::showSetup()
 		snprintf(text,max_char,"%d.",item+1);
 		text[max_char-1]=0;// terminate for sure
 		int count = (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) ? USERMENU_ITEM_OPTION_COUNT : USERMENU_ITEM_OPTION_COUNT - 1;
-		ums->addItem(new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, count,true, NULL, CRCInput::RC_nokey, "", true ));	
+		ums->addItem(new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, count,true, NULL, CRCInput::RC_nokey, "", true, true));
 	}
 	
 	int res = ums->exec(NULL, "");
@@ -164,8 +167,8 @@ void CUserMenuSetup::checkButtonItems()
 		{
 			CMenuOptionChooser * opt_c = NULL;
 			opt_c = static_cast <CMenuOptionChooser*>(ums->getItem(i));
-			neutrino_locale_t opt_locale = USERMENU_ITEM_OPTIONS[opt_c->getOptionValue()].value;
-			int set_key = USERMENU_ITEM_OPTIONS[opt_c->getOptionValue()].key;
+			neutrino_locale_t opt_locale = USERMENU_ITEM_OPTIONS[opt_c->getOption()].value;
+			int set_key = USERMENU_ITEM_OPTIONS[opt_c->getOption()].key;
 			opt_c = NULL;
 			
 			if (set_key != SNeutrinoSettings::ITEM_NONE)

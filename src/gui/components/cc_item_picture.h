@@ -43,9 +43,6 @@ Picture is usable like each other CCItems.
 class CComponentsPicture : public CComponentsItem
 {
 	protected:
-		///initialize all required attributes
-		void initVarPicture();
-
 		///some internal modes for icon and image handling
 		enum
 		{
@@ -62,25 +59,36 @@ class CComponentsPicture : public CComponentsItem
 		bool pic_paint, pic_paintBg, pic_painted, do_paint;
 		int pic_align, pic_x, pic_y, pic_width, pic_height;
 		int pic_max_w, pic_max_h, pic_paint_mode;
-		
-		void init(	const int x_pos, const int y_pos, const std::string& image_name, const int alignment, bool has_shadow,
-				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow);
-		
+
+		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+				const std::string& image_name,
+				const int &alignment,
+				bool has_shadow,
+				fb_pixel_t color_frame,
+				fb_pixel_t color_background,
+				fb_pixel_t color_shadow);
+
+		///initialize all required attributes
+		void initCCItem();
 		///initialize position of picture object dependendly from settings
 		void initPosition();
 		void paintPicture();
-		
+
 	public:
-		CComponentsPicture( 	const int x_pos, const int y_pos, const int w, const int h,
-					const std::string& image_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		
+		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
+					const std::string& image_name,
+					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_background = 0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
 		virtual inline void setPictureOffset(const unsigned char offset){pic_offset = offset;};
 		virtual inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
 		virtual inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
 		virtual void setPicture(const std::string& picture_name);
 		virtual void setPictureAlign(const int alignment);
-		
+
 		virtual inline bool isPicPainted(){return pic_painted;};
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		virtual void hide(bool no_restore = false);
@@ -101,10 +109,14 @@ class CComponentsChannelLogo : public CComponentsPicture, CPictureViewer
 		bool has_logo;
 
 	public:
-		CComponentsChannelLogo( const int x_pos, const int y_pos, const int w, const int h,
-					const uint64_t& channelId =0, const std::string& channelName = "",
-					const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
+					const uint64_t& channelId =0,
+					const std::string& channelName = "",
+					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_background = 0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		void setChannel(const uint64_t& channelId, const std::string& channelName);
 		void setPicture(const std::string& picture_name);

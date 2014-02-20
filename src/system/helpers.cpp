@@ -38,9 +38,20 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <stdarg.h>
+#include <mntent.h>
+#include <linux/hdreg.h>
+#include <linux/fs.h>
 
 #include <system/helpers.h>
 #include <gui/update_ext.h>
+
+void mySleep(int sec) {
+	struct timeval timeout;
+
+	timeout.tv_sec = sec;
+	timeout.tv_usec = 0;
+	select(0,0,0,0, &timeout);
+}
 
 off_t file_size(const char *filename)
 {
@@ -68,12 +79,24 @@ bool file_exists(const char *filename)
 
 void  wakeup_hdd(const char *hdd_dir)
 {
-	if(!check_dir(hdd_dir)){
+	if(!check_dir(hdd_dir) && hdd_get_standby(hdd_dir)){
 		std::string wakeup_file = hdd_dir;
 		wakeup_file += "/.wakeup";
+		int fd = open(wakeup_file.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC);
+		if (fd >= 0) {
+			unsigned char buf[512];
+			memset(buf, 0xFF, sizeof(buf));
+			for (int i = 0; i < 20; i++) {
+				if (write(fd, buf, sizeof(buf)) < 0) {
+					perror("write to .wakeup");
+					break;
+				}
+			}
+			fdatasync(fd);
+			close(fd);
+		}
+		hdd_flush(hdd_dir);
 		remove(wakeup_file.c_str());
-		creat(wakeup_file.c_str(),S_IREAD|S_IWRITE);
-		sync();
 	}
 }
 //use for script with full path
@@ -190,19 +213,28 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	return(fp);
 }
 
-int safe_mkdir(char * path)
+int safe_mkdir(const char * path)
 {
 	struct statfs s;
-	int ret = 0;
-	if(!strncmp(path, "/hdd", 4)) {
-		ret = statfs("/hdd", &s);
-		if((ret != 0) || (s.f_type == 0x72b6))
-			ret = -1;
-		else
-			mkdir(path, 0755);
-	} else
-		mkdir(path, 0755);
-	return ret;
+	size_t l = strlen(path);
+	char d[l + 3];
+	strncpy(d, path, l);
+
+	// skip trailing slashes
+	while (l > 0 && d[l - 1] == '/')
+		l--;
+	// find last slash
+	while (l > 0 && d[l - 1] != '/')
+		l--;
+	if (!l)
+		return -1;
+	// append a single dot
+	d[l++] = '.';
+	d[l] = 0;
+
+	if(statfs(d, &s) || (s.f_type == 0x72b6 /* jffs2 */))
+		return -1;
+	return mkdir(path, 0755);
 }
 
 /* function used to check is this dir writable, i.e. not flash, for record etc */
@@ -212,30 +244,15 @@ int check_dir(const char * dir, bool allow_tmp)
 	int ret = -1;
 	struct statfs s;
 	if (::statfs(dir, &s) == 0) {
-		switch (s.f_type)	/* f_type is long */
-		{
-			case 0xEF53L:		/*EXT2 & EXT3*/
-			case 0x6969L:		/*NFS*/
-			case 0xFF534D42L:	/*CIFS*/
-			case 0x517BL:		/*SMB*/
-			case 0x52654973L:	/*REISERFS*/
-			case 0x65735546L:	/*fuse for ntfs*/
-			case 0x58465342L:	/*xfs*/
-			case 0x4d44L:		/*msdos*/
-			case 0x0187:		/* AUTOFS_SUPER_MAGIC */
-#if 0
-			case 0x72b6L:		/*jffs2*/
-#endif
-				ret = 0;//ok
-				break; 
-			case 0x858458f6L: 	/*ramfs*/
-			case 0x1021994: 	/*TMPFS_MAGIC*/
+		switch (s.f_type) {
+			case 0x858458f6L: 	// ramfs
+			case 0x1021994L: 	// tmpfs
 				if(allow_tmp)
 					ret = 0;//ok
+			case 0x72b6L:		// jffs2
 				break;
 			default:
-				fprintf(stderr, "%s Unknown filesystem type: 0x%x\n", dir, (int)s.f_type);
-				break; // error
+				ret = 0;	// ok
 		}
 	}
 	return ret;
@@ -286,6 +303,37 @@ bool get_mem_usage(unsigned long &kbtotal, unsigned long &kbfree)
 	kbfree = kbfree + cached + buffers;
 	printf("mem: total %ld cached %ld free %ld\n", kbtotal, cached, kbfree);
 	return true;
+}
+
+std::string find_executable(const char *name)
+{
+	struct stat s;
+	char *tmpPath = getenv("PATH");
+	char *p, *n, *path;
+	if (tmpPath)
+		path = strdupa(tmpPath);
+	else
+		path = strdupa("/bin:/usr/bin:/sbin:/usr/sbin");
+	if (name[0] == '/') { /* full path given */
+		if (!access(name, X_OK) && !stat(name, &s) && S_ISREG(s.st_mode))
+			return std::string(name);
+		return "";
+	}
+
+	p = path;
+	while (p) {
+		n = strchr(p, ':');
+		if (n)
+			*n++ = '\0';
+		if (*p != '\0') {
+			std::string tmp = std::string(p) + "/" + std::string(name);
+			const char *f = tmp.c_str();
+			if (!access(f, X_OK) && !stat(f, &s) && S_ISREG(s.st_mode))
+				return tmp;
+		}
+		p = n;
+	}
+	return "";
 }
 
 std::string _getPathName(std::string &path, std::string sep)
@@ -340,6 +388,18 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 {
 	std::string result = str.erase(str.find_last_not_of(trimChars) + 1);
 	return result.erase(0, result.find_first_not_of(trimChars));
+}
+
+time_t toEpoch(std::string &date)
+{
+	struct tm t;
+	memset(&t, 0, sizeof(t));
+	char *p = strptime(date.c_str(), "%Y-%m-%d", &t);
+	if(p)
+		return mktime(&t);
+
+	return 0;
+
 }
 
 CFileHelpers::CFileHelpers()
@@ -533,14 +593,8 @@ bool CFileHelpers::createDir(const char *Dir, mode_t mode)
 				createDir(dirPath, mode);
 			}
 		}
-		else {
-			if (ret == 0)
-				return true;
-			if (errno == EEXIST)
-				return true;
-			else
-				return false;
-		}
+		else
+			return !ret || (errno == EEXIST);
 	}
 	errno = 0;
 	return true;
@@ -571,4 +625,74 @@ bool CFileHelpers::removeDir(const char *Dir)
 
 	errno = 0;
 	return true;
+}
+
+static int hdd_open_dev(const char * fname)
+{
+	FILE * fp;
+	struct mntent * mnt;
+	dev_t dev;
+	struct stat st;
+	int fd = -1;
+
+	if (stat(fname, &st) != 0) {
+		perror(fname);
+		return fd;
+	}
+
+	dev = st.st_dev;
+	fp = setmntent("/proc/mounts", "r");
+	if (fp == NULL) {
+		perror("setmntent");
+		return fd;
+	}
+
+	while ((mnt = getmntent(fp)) != NULL) {
+		if (stat(mnt->mnt_fsname, &st) != 0)
+			continue;
+		if (S_ISBLK(st.st_mode) && st.st_rdev == dev) {
+			printf("[hdd] file [%s] -> dev [%s]\n", fname, mnt->mnt_fsname);
+			fd = open(mnt->mnt_fsname, O_RDONLY|O_NONBLOCK);
+			if (fd < 0)
+				perror(mnt->mnt_fsname);
+			break;
+		}
+	}
+	endmntent(fp);
+	return fd;
+}
+
+bool hdd_get_standby(const char * fname)
+{
+	bool standby = false;
+
+	int fd = hdd_open_dev(fname);
+	if (fd >= 0) {
+		unsigned char args[4] = {WIN_CHECKPOWERMODE1,0,0,0};
+		int ret = ioctl(fd, HDIO_DRIVE_CMD, args);
+		if (ret) {
+			args[0] = WIN_CHECKPOWERMODE2;
+			ret = ioctl(fd, HDIO_DRIVE_CMD, args);
+		}
+		if ((ret == 0) && (args[2] != 0xFF))
+			standby = true;
+
+		printf("[hdd] %s\n", standby ? "standby" : "active");
+		close(fd);
+	}
+	return standby;
+}
+
+void hdd_flush(const char * fname)
+{
+	int fd = hdd_open_dev(fname);
+	if (fd >= 0) {
+		printf("[hdd] flush buffers...\n");
+		fsync(fd);
+		if (ioctl(fd, BLKFLSBUF, NULL))
+			perror("BLKFLSBUF");
+		else
+			ioctl(fd, HDIO_DRIVE_CMD, NULL);
+		close(fd);
+	}
 }

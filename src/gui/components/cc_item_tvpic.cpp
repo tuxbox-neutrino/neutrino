@@ -43,7 +43,6 @@ using namespace std;
 CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow)
 {
 	//CComponents, CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_PIP;
 
 	//CComponentsPIP
@@ -68,8 +67,6 @@ CComponentsPIP::~CComponentsPIP()
 {
  	hide();
  	videoDecoder->Pig(-1, -1, -1, -1);
- 	clearSavedScreen();
- 	clear();
 }
 
 void CComponentsPIP::paint(bool do_save_bg)
@@ -87,6 +84,9 @@ void CComponentsPIP::paint(bool do_save_bg)
 		pig_w -= pig_w*25/100;
 		pig_x += tmpw/2-pig_w/2; 
 	}
+
+	if (!cc_allow_paint)
+		return;
 	
 	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv){
 		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h);
@@ -95,7 +95,6 @@ void CComponentsPIP::paint(bool do_save_bg)
 		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 		pic.paint(CC_SAVE_SCREEN_NO);
 	}
-	
 }
 
 

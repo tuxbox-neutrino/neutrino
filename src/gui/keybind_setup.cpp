@@ -101,12 +101,12 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CFileBrowser fileBrowser;
 		fileBrowser.Dir_Mode = true;
 		if (fileBrowser.exec("/var/tuxbox") == true) {
-			char  fname[256] = "keys.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+			std::string fname = "keys.conf";
+			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, &fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
 			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino keybind_setup] save keys: %s\n", sname);
-			CNeutrinoApp::getInstance()->saveKeys(sname);
+			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
+			printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());
+			CNeutrinoApp::getInstance()->saveKeys(sname.c_str());
 			delete sms;
 		}
 		return menu_return::RETURN_REPAINT;
@@ -215,6 +215,9 @@ int CKeybindSetup::showKeySetup()
 	CMenuWidget bindSettings(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING);
 
 	//keybindings
+	for (int i = 0; i < KEYBINDS_COUNT; i++)
+		keychooser[i] = new CKeyChooser(key_settings[i].keyvalue_p, key_settings[i].keydescription/*as head caption*/, NEUTRINO_ICON_SETTINGS);
+
 	int shortcut = 1;
 	showKeyBindSetup(&bindSettings);
 	CMenuForwarder * mf;
@@ -233,22 +236,26 @@ int CKeybindSetup::showKeySetup()
 	keySettings->addItem(mf);
 
 	//rc tuning
-	CStringInput keySettings_repeat_genericblocker(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, g_settings.repeat_genericblocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", this);
-	CStringInput keySettings_repeatBlocker(LOCALE_KEYBINDINGMENU_REPEATBLOCK, g_settings.repeat_blocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", this);
-
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
 	if (RC_HW_SELECT) {
 		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE, &g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_KEY_HARDWARE);
 		keySettings->addItem(mc);
 	}
-	mf = new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCK, true, g_settings.repeat_blocker, &keySettings_repeatBlocker);
-	mf->setHint("", LOCALE_MENU_HINT_KEY_REPEATBLOCK);
-	keySettings->addItem(mf);
+	std::string ms_number_format("%d ");
+	ms_number_format += g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND);
+	CMenuOptionNumberChooser *cc;
+	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCK,
+		&g_settings.repeat_blocker, true, 0, 999);
+	cc->setNumberFormat(ms_number_format);
+	cc->setHint("", LOCALE_MENU_HINT_KEY_REPEATBLOCK);
+	keySettings->addItem(cc);
 
-	mf = new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, &keySettings_repeat_genericblocker);
-	mf->setHint("", LOCALE_MENU_HINT_KEY_REPEATBLOCKGENERIC);
-	keySettings->addItem(mf);
+	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC,
+		&g_settings.repeat_genericblocker, true, 0, 999);
+	cc->setNumberFormat(ms_number_format);
+	cc->setHint("", LOCALE_MENU_HINT_KEY_REPEATBLOCKGENERIC);
+	keySettings->addItem(cc);
 
 	int res = keySettings->exec(NULL, "");
 
@@ -259,13 +266,15 @@ int CKeybindSetup::showKeySetup()
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART2));
 		strcat(RC_HW_msg, RC_HW_str[g_settings.remote_control_hardware]);
 		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART3));
-		if(ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMessageBox::mbrNo) {
+		if(ShowMsg(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMessageBox::mbrNo) {
 			g_settings.remote_control_hardware = org_remote_control_hardware;
 			g_RCInput->CRCInput::set_rc_hw();
 		}
 	}
 
 	delete keySettings;
+	for (int i = 0; i < KEYBINDS_COUNT; i++)
+		delete keychooser[i];
 	return res;
 }
 
@@ -277,9 +286,6 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	CMenuForwarder * mf;
 
 	bindSettings->addIntroItems(LOCALE_KEYBINDINGMENU_HEAD);
-
-	for (int i = 0; i < KEYBINDS_COUNT; i++)
-		keychooser[i] = new CKeyChooser(key_settings[i].keyvalue_p, key_settings[i].keydescription/*as head caption*/, NEUTRINO_ICON_SETTINGS);
 
 	//modes
 	CMenuWidget* bindSettings_modes = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MODES);
@@ -311,7 +317,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 
 	//misc
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_MISC));
-	//bindSettings->addItem(new CMenuDForwarder(keydescription[KEY_PLUGIN], true, NULL, keychooser[KEY_PLUGIN]));
+	//bindSettings->addItem(new CMenuForwarder(keydescription[KEY_PLUGIN], true, NULL, keychooser[KEY_PLUGIN]));
 
 	//Special keys
 	CMenuWidget* bindSettings_special = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING_SPECIAL);
@@ -321,22 +327,22 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	bindSettings->addItem(mf);
 
 	// unlock
-	mf = new CMenuDForwarder(key_settings[KEY_UNLOCK].keydescription, true, keychooser[KEY_UNLOCK]->getKeyName(), keychooser[KEY_UNLOCK]);
+	mf = new CMenuForwarder(key_settings[KEY_UNLOCK].keydescription, true, keychooser[KEY_UNLOCK]->getKeyName(), keychooser[KEY_UNLOCK]);
 	mf->setHint("", key_settings[KEY_UNLOCK].hint);
 	bindSettings->addItem(mf);
 	// screenshot
-	mf = new CMenuDForwarder(key_settings[KEY_SCREENSHOT].keydescription, true, keychooser[KEY_SCREENSHOT]->getKeyName(), keychooser[KEY_SCREENSHOT]);
+	mf = new CMenuForwarder(key_settings[KEY_SCREENSHOT].keydescription, true, keychooser[KEY_SCREENSHOT]->getKeyName(), keychooser[KEY_SCREENSHOT]);
 	mf->setHint("", key_settings[KEY_SCREENSHOT].hint);
 	bindSettings->addItem(mf);
 #ifdef ENABLE_PIP
 	// pip
-	mf = new CMenuDForwarder(key_settings[KEY_PIP_CLOSE].keydescription, true, keychooser[KEY_PIP_CLOSE]->getKeyName(), keychooser[KEY_PIP_CLOSE]);
+	mf = new CMenuForwarder(key_settings[KEY_PIP_CLOSE].keydescription, true, keychooser[KEY_PIP_CLOSE]->getKeyName(), keychooser[KEY_PIP_CLOSE]);
 	mf->setHint("", key_settings[KEY_PIP_CLOSE].hint);
 	bindSettings->addItem(mf);
-	mf = new CMenuDForwarder(key_settings[KEY_PIP_SETUP].keydescription, true, keychooser[KEY_PIP_SETUP]->getKeyName(), keychooser[KEY_PIP_SETUP]);
+	mf = new CMenuForwarder(key_settings[KEY_PIP_SETUP].keydescription, true, keychooser[KEY_PIP_SETUP]->getKeyName(), keychooser[KEY_PIP_SETUP]);
 	mf->setHint("", key_settings[KEY_PIP_SETUP].hint);
 	bindSettings->addItem(mf);
-	mf = new CMenuDForwarder(key_settings[KEY_PIP_SWAP].keydescription, true, keychooser[KEY_PIP_SWAP]->getKeyName(), keychooser[KEY_PIP_SWAP]);
+	mf = new CMenuForwarder(key_settings[KEY_PIP_SWAP].keydescription, true, keychooser[KEY_PIP_SWAP]->getKeyName(), keychooser[KEY_PIP_SWAP]);
 	mf->setHint("", key_settings[KEY_PIP_SWAP].hint);
 	bindSettings->addItem(mf);
 #endif
@@ -364,11 +370,11 @@ void CKeybindSetup::showKeyBindModeSetup(CMenuWidget *bindSettings_modes)
 	bindSettings_modes->addIntroItems(LOCALE_KEYBINDINGMENU_MODECHANGE);
 
 	// tv/radio
-	mf = new CMenuDForwarder(key_settings[KEY_TV_RADIO_MODE].keydescription, true, keychooser[KEY_TV_RADIO_MODE]->getKeyName(), keychooser[KEY_TV_RADIO_MODE], NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf = new CMenuForwarder(key_settings[KEY_TV_RADIO_MODE].keydescription, true, keychooser[KEY_TV_RADIO_MODE]->getKeyName(), keychooser[KEY_TV_RADIO_MODE], NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	mf->setHint("", key_settings[KEY_TV_RADIO_MODE].hint);
 	bindSettings_modes->addItem(mf);
 
-	mf = new CMenuDForwarder(key_settings[KEY_POWER_OFF].keydescription, true, keychooser[KEY_POWER_OFF]->getKeyName(), keychooser[KEY_POWER_OFF], NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(key_settings[KEY_POWER_OFF].keydescription, true, keychooser[KEY_POWER_OFF]->getKeyName(), keychooser[KEY_POWER_OFF], NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	mf->setHint("", key_settings[KEY_POWER_OFF].hint);
 	bindSettings_modes->addItem(mf);
 }
@@ -381,7 +387,7 @@ void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist
 	bindSettings_chlist->addItem(oj);
 #endif
 	for (int i = KEY_PAGE_UP; i <= KEY_CURRENT_TRANSPONDER; i++) {
-		CMenuForwarder * mf = new CMenuDForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_chlist->addItem(mf);
 	}
@@ -396,7 +402,7 @@ void CKeybindSetup::showKeyBindQuickzapSetup(CMenuWidget *bindSettings_qzap)
 	bindSettings_qzap->addIntroItems(LOCALE_KEYBINDINGMENU_QUICKZAP);
 
 	for (int i = KEY_CHANNEL_UP; i <= KEY_LASTCHANNEL; i++) {
-		CMenuForwarder * mf = new CMenuDForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_qzap->addItem(mf);
 	}
@@ -407,7 +413,7 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 	bindSettings_mplayer->addIntroItems(LOCALE_MAINMENU_MOVIEPLAYER);
 
 	for (int i = MPKEY_REWIND; i < MPKEY_PLUGIN; i++) {
-		CMenuForwarder * mf = new CMenuDForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
+		CMenuForwarder * mf = new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mplayer->addItem(mf);
 	}
@@ -428,8 +434,8 @@ bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* d
 {
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC) ||
 			ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCK)) {
-		unsigned int fdelay = atoi(g_settings.repeat_blocker);
-		unsigned int xdelay = atoi(g_settings.repeat_genericblocker);
+		unsigned int fdelay = g_settings.repeat_blocker;
+		unsigned int xdelay = g_settings.repeat_genericblocker;
 
 		g_RCInput->repeat_block = fdelay * 1000;
 		g_RCInput->repeat_block_generic = xdelay * 1000;

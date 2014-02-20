@@ -394,7 +394,7 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 		if (prev_video_mode != g_settings.video_Mode)
 		{
 			frameBuffer->paintBackground();
-			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEO_MODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes)
+			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEO_MODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO) != CMessageBox::mbrYes)
 			{
 				g_settings.video_Mode = prev_video_mode;
 				videoDecoder->SetVideoSystem(g_settings.video_Mode);
@@ -496,7 +496,7 @@ void CVideoSettings::next43Mode(void)
 #ifdef ENABLE_PIP
 	pipDecoder->setAspectRatio(-1, g_settings.video_43mode);
 #endif
-	ShowHintUTF(LOCALE_VIDEOMENU_43MODE, g_Locale->getText(text), 450, 2);
+	ShowHint(LOCALE_VIDEOMENU_43MODE, g_Locale->getText(text), 450, 2);
 }
 
 void CVideoSettings::SwitchFormat()
@@ -522,7 +522,7 @@ void CVideoSettings::SwitchFormat()
 #ifdef ENABLE_PIP
 	pipDecoder->setAspectRatio(g_settings.video_Format, -1);
 #endif
-	ShowHintUTF(LOCALE_VIDEOMENU_VIDEOFORMAT, g_Locale->getText(text), 450, 2);
+	ShowHint(LOCALE_VIDEOMENU_VIDEOFORMAT, g_Locale->getText(text), 450, 2);
 }
 
 void CVideoSettings::nextMode(void)
@@ -543,7 +543,7 @@ void CVideoSettings::nextMode(void)
 
 	while(1) {
 		CVFD::getInstance()->ShowText(text);
-		int res = ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
+		int res = ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 
 		if(disp_cur && res != messages_return::handled)
 			break;
@@ -578,7 +578,7 @@ void CVideoSettings::nextMode(void)
 			break;
 	}
 	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
-	//ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
+	//ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 }
 
 //sets menu mode to "wizard" or "default"

@@ -33,7 +33,7 @@
 #ifndef __timerlist__
 #define __timerlist__
 
-#include <timerdclient/timerdclient.h>
+#include <timerdclient/timerdtypes.h>
 
 #include <gui/widget/menue.h>
 
@@ -42,6 +42,7 @@
 #include <string>
 
 
+class CTimerdClient;
 class CTimerList : public CMenuTarget
 {
 	private:
@@ -62,8 +63,9 @@ class CTimerList : public CMenuTarget
 		CTimerd::TimerList timerlist;             // List of timers		
 		CTimerd::responseGetTimer timerNew;
 		int timerNew_standby_on;
-		char timerNew_channel_name[30];
-		char m_weekdaysStr[8];
+		std::string timerNew_channel_name;
+		std::string m_weekdaysStr;
+		std::string timerNew_message;
 		
 		int timer_apids_dflt;
 		int timer_apids_std;

@@ -53,6 +53,7 @@
 #include <gui/components/cc.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
+#include <gui/infoclock.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 
@@ -63,6 +64,7 @@
 #include <gui/widget/stringinput.h>
 #include <driver/screen_max.h>
 
+
 #include <system/settings.h>
 
 #include <algorithm>
@@ -72,6 +74,7 @@
 
 #include <video.h>
 extern cVideo * videoDecoder;
+extern CInfoClock *InfoClock;
 
 //------------------------------------------------------------------------
 bool comparePictureByDate (const CPicture& a, const CPicture& b)
@@ -95,10 +98,10 @@ CPictureViewerGui::CPictureViewerGui()
 	selected = 0;
 	m_sort = FILENAME;
 	m_viewer = new CPictureViewer();
-	if (strlen(g_settings.network_nfs_picturedir)!=0)
-		Path = g_settings.network_nfs_picturedir;
-	else
+	if (g_settings.network_nfs_picturedir.empty())
 		Path = "/";
+	else
+		Path = g_settings.network_nfs_picturedir;
 
 	picture_filter.addFilter("png");
 	picture_filter.addFilter("bmp");
@@ -254,6 +257,7 @@ int CPictureViewerGui::show()
 		m_currentTitle = m_audioPlayer->getAudioPlayerM_current();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
+	InfoClock->enableInfoClock(false);
 
 	while (loop)
 	{
@@ -271,7 +275,7 @@ int CPictureViewerGui::show()
 			timeout=50; // egal
 		else
 		{
-			timeout=(m_time+atoi(g_settings.picviewer_slide_time)-(long)time(NULL))*10;
+			timeout=(m_time+g_settings.picviewer_slide_time-(long)time(NULL))*10;
 			if (timeout <0 )
 				timeout=1;
 		}
@@ -423,7 +427,7 @@ int CPictureViewerGui::show()
 		{
 			if (m_state == MENU)
 			{
-				CFileBrowser filebrowser((g_settings.filebrowser_denydirectoryleave) ? g_settings.network_nfs_picturedir : "");
+				CFileBrowser filebrowser((g_settings.filebrowser_denydirectoryleave) ? g_settings.network_nfs_picturedir.c_str() : "");
 
 				filebrowser.Multi_Select    = true;
 				filebrowser.Dirs_Selectable = true;
@@ -638,6 +642,7 @@ int CPictureViewerGui::show()
 	hide();
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
+	InfoClock->enableInfoClock(true);
 
 	return(res);
 }
@@ -701,7 +706,7 @@ void CPictureViewerGui::paintItem(int pos)
 
 void CPictureViewerGui::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_MP3, CComponentsHeader::CC_BTN_HELP);
+	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_MP3, CComponentsHeaderLocalized::CC_BTN_HELP);
 
 #ifdef ENABLE_GUI_MOUNT
 	header.addButtonIcon(NEUTRINO_ICON_BUTTON_MENU);
@@ -753,13 +758,11 @@ void CPictureViewerGui::paint()
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((playlist.size()- 1)/ listmaxshow)+ 1;
+	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;
 
-	float sbh= (sb- 4)/ sbc;
-	int sbs= (selected/listmaxshow);
-
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
 
 	paintFoot();
 	paintInfo();
@@ -838,7 +841,7 @@ void CPictureViewerGui::endView()
 void CPictureViewerGui::deletePicFile(unsigned int index, bool mode)
 {
 	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
-	if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, playlist[index].Filename, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
+	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, playlist[index].Filename, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
 	{
 		unlink(playlist[index].Filename.c_str());
 		printf("[ %s ]  delete file: %s\r\n",__FUNCTION__,playlist[index].Filename.c_str());

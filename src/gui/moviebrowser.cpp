@@ -30,7 +30,7 @@
 	Author: Günther@tuxbox.berlios.org
 		based on code of Steffen Hehn 'McClean'
 
-	(C) 2009-2012 Stefan Seyfried
+	(C) 2009-2014 Stefan Seyfried
 
 ****************************************************************************/
 
@@ -64,6 +64,8 @@
 #include <gui/customcolor.h>
 #include <driver/record.h>
 #include <system/helpers.h>
+
+#include <timerdclient/timerdclient.h>
 
 extern CPictureViewer * g_PicViewer;
 static CProgressBar *timescale;
@@ -407,8 +409,7 @@ void CMovieBrowser::fileInfoStale(void)
 void CMovieBrowser::init(void)
 {
 	bool reinit_rows = false;
-	int i;
-
+	int i = 0;
 	//TRACE("[mb]->init\r\n");
 	initGlobalSettings();
 	loadSettings(&m_settings);
@@ -606,10 +607,13 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]]; 		//30;
 
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
+	m_settings.ytorderby = cYTFeedParser::ORDERBY_PUBLISHED;
 	m_settings.ytresults = 10;
 	m_settings.ytregion = "default";
 	m_settings.ytquality = 37;
 	m_settings.ytconcconn = 4;
+	m_settings.ytsearch_history_max = 0;
+	m_settings.ytsearch_history_size = 0;
 }
 
 void CMovieBrowser::initFrames(void)
@@ -753,31 +757,38 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->reload = (bool)configfile.getInt32("mb_reload", true );
 	settings->remount = (bool)configfile.getInt32("mb_remount", false );
 
-	char cfg_key[81];
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
-		settings->storageDir[i] = configfile.getString( cfg_key, "" );
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-		settings->storageDirUsed[i] = configfile.getInt32( cfg_key,false );
+		settings->storageDir[i] = configfile.getString("mb_dir_" + to_string(i), "");
+		settings->storageDirUsed[i] = configfile.getInt32("mb_dir_used" + to_string(i), false );
 	}
 	/* these variables are used for the listframes */
 	settings->browserFrameHeight  = configfile.getInt32("mb_browserFrameHeight", 50);
 	settings->browserRowNr  = configfile.getInt32("mb_browserRowNr", 0);
 	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
-		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32(cfg_key, MB_INFO_MAX_NUMBER);
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
-		settings->browserRowWidth[i] = configfile.getInt32(cfg_key, 50);
+		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32("mb_browserRowItem_" + to_string(i), MB_INFO_MAX_NUMBER);
+		settings->browserRowWidth[i] = configfile.getInt32("mb_browserRowWidth_" + to_string(i), 50);
 	}
 	settings->ytmode = configfile.getInt32("mb_ytmode", cYTFeedParser::MOST_POPULAR);
+	settings->ytorderby = configfile.getInt32("mb_ytorderby", cYTFeedParser::ORDERBY_PUBLISHED);
 	settings->ytresults = configfile.getInt32("mb_ytresults", 10);
 	settings->ytquality = configfile.getInt32("mb_ytquality", 37); // itag value (MP4, 1080p)
 	settings->ytconcconn = configfile.getInt32("mb_ytconcconn", 4); // concurrent connections
 	settings->ytregion = configfile.getString("mb_ytregion", "default");
 	settings->ytsearch = configfile.getString("mb_ytsearch", "");
 	settings->ytvid = configfile.getString("mb_ytvid", "");
+	settings->ytsearch_history_max = configfile.getInt32("mb_ytsearch_history_max", 10);
+	settings->ytsearch_history_size = configfile.getInt32("mb_ytsearch_history_size", 0);
+	if (settings->ytsearch_history_size > settings->ytsearch_history_max)
+		settings->ytsearch_history_size = settings->ytsearch_history_max;
+	settings->ytsearch_history.clear();
+	for(int i = 0; i < settings->ytsearch_history_size; i++) {
+		std::string s = configfile.getString("mb_ytsearch_history_" + to_string(i));
+		if (s != "")
+			settings->ytsearch_history.push_back(configfile.getString("mb_ytsearch_history_" + to_string(i), ""));
+	}
+	settings->ytsearch_history_size = settings->ytsearch_history.size();
 	return (result);
 }
 
@@ -809,31 +820,36 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setInt32("mb_reload", settings->reload);
 	configfile.setInt32("mb_remount", settings->remount);
 
-	char cfg_key[81];
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
-		configfile.setString( cfg_key, settings->storageDir[i] );
-		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-		configfile.setInt32( cfg_key, settings->storageDirUsed[i] ); // do not save this so far
+		configfile.setString("mb_dir_" + to_string(i), settings->storageDir[i] );
+		configfile.setInt32("mb_dir_used" + to_string(i), settings->storageDirUsed[i] ); // do not save this so far
 	}
 	/* these variables are used for the listframes */
 	configfile.setInt32("mb_browserFrameHeight", settings->browserFrameHeight);
 	configfile.setInt32("mb_browserRowNr",settings->browserRowNr);
 	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
-		configfile.setInt32(cfg_key, settings->browserRowItem[i]);
-		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
-		configfile.setInt32(cfg_key, settings->browserRowWidth[i]);
+		configfile.setInt32("mb_browserRowItem_" + to_string(i), settings->browserRowItem[i]);
+		configfile.setInt32("mb_browserRowWidth_" + to_string(i), settings->browserRowWidth[i]);
 	}
 	configfile.setInt32("mb_ytmode", settings->ytmode);
+	configfile.setInt32("mb_ytorderby", settings->ytorderby);
 	configfile.setInt32("mb_ytresults", settings->ytresults);
 	configfile.setInt32("mb_ytquality", settings->ytquality);
 	configfile.setInt32("mb_ytconcconn", settings->ytconcconn);
 	configfile.setString("mb_ytregion", settings->ytregion);
 	configfile.setString("mb_ytsearch", settings->ytsearch);
 	configfile.setString("mb_ytvid", settings->ytvid);
+
+	settings->ytsearch_history_size = settings->ytsearch_history.size();
+	if (settings->ytsearch_history_size > settings->ytsearch_history_max)
+		settings->ytsearch_history_size = settings->ytsearch_history_max;
+	configfile.setInt32("mb_ytsearch_history_max", settings->ytsearch_history_max);
+	configfile.setInt32("mb_ytsearch_history_size", settings->ytsearch_history_size);
+	std::list<std::string>:: iterator it = settings->ytsearch_history.begin();
+	for(int i = 0; i < settings->ytsearch_history_size; i++, ++it)
+		configfile.setString("mb_ytsearch_history_" + to_string(i), *it);
 
 	if (configfile.getModifiedFlag())
 		configfile.saveConfig(MOVIEBROWSER_SETTINGS_FILE);
@@ -978,8 +994,8 @@ int CMovieBrowser::exec(const char* path)
 		//umount automount dirs
 		for(int i = 0; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
 		{
-			if(g_settings.network_nfs_automount[i])
-				umount2(g_settings.network_nfs_local_dir[i],MNT_FORCE);
+			if(g_settings.network_nfs[i].automount)
+				umount2(g_settings.network_nfs[i].local_dir.c_str(), MNT_FORCE);
 		}
 		CFSMounter::automount();
 	}
@@ -1820,7 +1836,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 				char buf1[1024];
 				memset(buf1, '\0', sizeof(buf1));
 				snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_MOVIEBROWSER_ASK_REC_TO_DELETE), delName.c_str());
-				if(ShowMsgUTF(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
+				if(ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,
 						CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrNo)
 					onDelete = false;
 				else {
@@ -1856,7 +1872,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_text || msg == CRCInput::RC_radio) {
 		if((show_mode == MB_SHOW_RECORDS) &&
-		(ShowMsgUTF (LOCALE_MESSAGEBOX_INFO, msg == CRCInput::RC_radio ? "Copy jumps from movie to new file ?" : "Copy jumps from movie to new files ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)) {
+		(ShowMsg (LOCALE_MESSAGEBOX_INFO, msg == CRCInput::RC_radio ? "Copy jumps from movie to new file ?" : "Copy jumps from movie to new files ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)) {
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Coping, please wait");
 			hintBox->paint();
 			sleep(1);
@@ -1866,7 +1882,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			off64_t res = copy_movie(m_movieSelectionHandler, &m_movieInfo, msg == CRCInput::RC_radio);
 			//g_RCInput->clearRCMsg();
 			if(res == 0)
-				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, "Copy failed, is there jump bookmarks ? Or check free space.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Copy failed, is there jump bookmarks ? Or check free space.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else
 				loadMovies();
 			refresh();
@@ -1875,11 +1891,11 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	else if (msg == CRCInput::RC_audio) {
 #if 0
 		if((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
-			ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, "Impossible to cut playing movie.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+			ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Impossible to cut playing movie.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 		else
 #endif
 		if((show_mode == MB_SHOW_RECORDS) &&
-				(ShowMsgUTF (LOCALE_MESSAGEBOX_INFO, "Cut jumps from movie ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)) {
+				(ShowMsg (LOCALE_MESSAGEBOX_INFO, "Cut jumps from movie ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)) {
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Cutting, please wait");
 			hintBox->paint();
 			sleep(1);
@@ -1889,7 +1905,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			off64_t res = cut_movie(m_movieSelectionHandler, &m_movieInfo);
 			//g_RCInput->clearRCMsg();
 			if(res == 0)
-				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, "Cut failed, is there jump bookmarks ? Or check free space.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Cut failed, is there jump bookmarks ? Or check free space.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else {
 				loadMovies();
 			}
@@ -1899,11 +1915,11 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	else if (msg == CRCInput::RC_games) {
 		if((show_mode == MB_SHOW_RECORDS) && m_movieSelectionHandler != NULL) {
 			if((m_movieSelectionHandler == playing_info) && (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()))
-				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, "Impossible to truncate playing movie.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Impossible to truncate playing movie.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else if(m_movieSelectionHandler->bookmarks.end == 0)
-				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, "No End bookmark defined!", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, "No End bookmark defined!", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 			else {
-				if(ShowMsgUTF (LOCALE_MESSAGEBOX_INFO, "Truncate movie ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+				if(ShowMsg (LOCALE_MESSAGEBOX_INFO, "Truncate movie ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 					CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Truncating, please wait");
 					hintBox->paint();
 					off64_t res = truncate_movie(m_movieSelectionHandler);
@@ -1911,7 +1927,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 					delete hintBox;
 					g_RCInput->clearRCMsg();
 					if(res == 0)
-						ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, "Truncate failed.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+						ShowMsg(LOCALE_MESSAGEBOX_ERROR, "Truncate failed.", CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 					else {
 						//printf("New movie info: size %lld len %d\n", res, m_movieSelectionHandler->bookmarks.end/60);
 						m_movieInfo.saveMovieInfo( *m_movieSelectionHandler);
@@ -1923,7 +1939,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		}
         } else if (msg == CRCInput::RC_topleft) {
           if (m_movieSelectionHandler != NULL) {
-                if(ShowMsgUTF (LOCALE_MESSAGEBOX_INFO, "Remove screenshot ?", CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+                if(ShowMsg (LOCALE_MESSAGEBOX_INFO, "Remove screenshot ?", CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 			std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
 			if (fname != "")
 	                        unlink(fname.c_str());
@@ -2169,7 +2185,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 
 		msg += "\r\n ";
 		msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
-		if ((skipAsk) || (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes))
+		if ((skipAsk) || (ShowMsg(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes))
 		{
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
 			hintBox->paint();
@@ -2485,10 +2501,9 @@ void CMovieBrowser::updateDir(void)
     }
 #endif
     // check if there is a record dir and if we should use it
-    if(g_settings.network_nfs_recordingdir[0] != 0 )
+    if(!g_settings.network_nfs_recordingdir.empty())
     {
-        std::string name = g_settings.network_nfs_recordingdir;
-        addDir(name,&m_settings.storageDirRecUsed);
+        addDir(g_settings.network_nfs_recordingdir, &m_settings.storageDirRecUsed);
     }
 
     for(int i = 0; i < MB_MAX_DIRS; i++)
@@ -2936,9 +2951,9 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
     CIntInput*          pBookTypeIntInput[MAX_NUMBER_OF_BOOKMARK_ITEMS];
     CMenuWidget*        pBookItemMenu[MAX_NUMBER_OF_BOOKMARK_ITEMS];
 
-    CIntInput bookStartIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, (int&)movie_info->bookmarks.start,        5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
-    CIntInput bookLastIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK,  (int&)movie_info->bookmarks.lastPlayStop, 5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
-    CIntInput bookEndIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK,   (int&)movie_info->bookmarks.end,          5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
+    CIntInput bookStartIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.start,        5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
+    CIntInput bookLastIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK,  (int *)&movie_info->bookmarks.lastPlayStop, 5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
+    CIntInput bookEndIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK,   (int *)&movie_info->bookmarks.end,          5, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
 
     CMenuWidget bookmarkMenu (LOCALE_MOVIEBROWSER_HEAD , NEUTRINO_ICON_MOVIEPLAYER);
 
@@ -2953,8 +2968,8 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
     for(int li =0 ; li < MI_MOVIE_BOOK_USER_MAX && li < MAX_NUMBER_OF_BOOKMARK_ITEMS; li++ )
     {
         pBookNameInput[li] =    new CStringInputSMS (LOCALE_MOVIEBROWSER_EDIT_BOOK, &movie_info->bookmarks.user[li].name, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO2, "abcdefghijklmnopqrstuvwxyz0123456789-.: ");
-        pBookPosIntInput[li] =  new CIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, (int&) movie_info->bookmarks.user[li].pos, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
-        pBookTypeIntInput[li] = new CIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, (int&) movie_info->bookmarks.user[li].length, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO2);
+        pBookPosIntInput[li] =  new CIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.user[li].pos, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
+        pBookTypeIntInput[li] = new CIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, (int *)&movie_info->bookmarks.user[li].length, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_TYPE_INFO2);
 
         pBookItemMenu[li] = new CMenuWidget(LOCALE_MOVIEBROWSER_BOOK_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
         pBookItemMenu[li]->addItem(GenericMenuSeparator);
@@ -2962,7 +2977,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
         pBookItemMenu[li]->addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_POSITION, true,  pBookPosIntInput[li]->getValue(), pBookPosIntInput[li]));
         pBookItemMenu[li]->addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE,     true,  pBookTypeIntInput[li]->getValue(),pBookTypeIntInput[li]));
 
-        bookmarkMenu.addItem( new CMenuForwarderNonLocalized (movie_info->bookmarks.user[li].name.c_str(),   true, pBookPosIntInput[li]->getValue(),pBookItemMenu[li]));
+        bookmarkMenu.addItem( new CMenuForwarder (movie_info->bookmarks.user[li].name.c_str(),   true, pBookPosIntInput[li]->getValue(),pBookItemMenu[li]));
     }
 
 /********************************************************************/
@@ -3016,9 +3031,9 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
     CStringInputSMS epgUserInput(LOCALE_MOVIEBROWSER_INFO_INFO1,              &movie_info->epgInfo1, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.: ");
     CDateInput   dateUserDateInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,        &movie_info->dateOfLastPlay, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
     CDateInput   recUserDateInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,         &movie_info->file.Time, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-    CIntInput    lengthUserIntInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,       (int&)movie_info->length, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+    CIntInput    lengthUserIntInput(LOCALE_MOVIEBROWSER_INFO_LENGTH,       (int *)&movie_info->length, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
     CStringInputSMS countryUserInput(LOCALE_MOVIEBROWSER_INFO_PRODCOUNTRY,    &movie_info->productionCountry, 11, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZ ");
-    CIntInput    yearUserIntInput(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,       (int&)movie_info->productionDate, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+    CIntInput    yearUserIntInput(LOCALE_MOVIEBROWSER_INFO_PRODYEAR,       (int *)&movie_info->productionDate, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
     CMenuWidget movieInfoMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER /*,m_cBoxFrame.iWidth*/); //TODO: check
 
@@ -3107,13 +3122,13 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
 
 /********************************************************************/
 /**  optionsMenuBrowser  **************************************************/
-    CIntInput playMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,      (int&) m_settings.lastPlayMaxItems,    3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-    CIntInput recMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,     (int&) m_settings.lastRecordMaxItems,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-    CIntInput browserFrameUserIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int&) m_settings.browserFrameHeight,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-    CIntInput browserRowNrIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,          (int&) m_settings.browserRowNr,        1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+    CIntInput playMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,      (int *)&m_settings.lastPlayMaxItems,    3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+    CIntInput recMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,     (int *)&m_settings.lastRecordMaxItems,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+    CIntInput browserFrameUserIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeight,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+    CIntInput browserRowNrIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,          (int *)&m_settings.browserRowNr,        1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
     CIntInput* browserRowWidthIntInput[MB_MAX_ROWS];
     for(i=0; i<MB_MAX_ROWS ;i++)
-        browserRowWidthIntInput[i] = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_WIDTH,(int&) m_settings.browserRowWidth[i], 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+        browserRowWidthIntInput[i] = new CIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_WIDTH,(int *)&m_settings.browserRowWidth[i], 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 
     CMenuWidget optionsMenuBrowser(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
     optionsMenuBrowser.addIntroItems(LOCALE_MOVIEBROWSER_OPTION_BROWSER);
@@ -3248,7 +3263,8 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, play_pos));
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.lastPlayStop;
 	}
-	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL));
+
+	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL), true);
 	position[menu_nr++] = 0;
 
 	for(int i =0 ; i < MI_MOVIE_BOOK_USER_MAX && menu_nr < MAX_NUMBER_OF_BOOKMARK_ITEMS; i++ )
@@ -3261,7 +3277,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 				position[menu_nr] = m_movieSelectionHandler->bookmarks.user[i].pos + m_movieSelectionHandler->bookmarks.user[i].length;
 
 			snprintf(book[i], 19,"%5d min",position[menu_nr]/60);
-			startPosSelectionMenu.addItem(new CMenuForwarderNonLocalized (m_movieSelectionHandler->bookmarks.user[i].name.c_str(), 	true, book[i]));
+			startPosSelectionMenu.addItem(new CMenuForwarder (m_movieSelectionHandler->bookmarks.user[i].name.c_str(), 	true, book[i]));
 			menu_nr++;
 		}
 	}
@@ -3573,7 +3589,7 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 	ytparser.SetConcurrentDownloads(m_settings.ytconcconn);
 
 	if (!ytparser.Parsed() || (ytparser.GetFeedMode() != mode)) {
-		if (ytparser.ParseFeed((cYTFeedParser::yt_feed_mode_t)mode, search, id)) {
+		if (ytparser.ParseFeed((cYTFeedParser::yt_feed_mode_t)mode, search, id, (cYTFeedParser::yt_feed_orderby_t)m_settings.ytorderby)) {
 			ytparser.DownloadThumbnails();
 		} else {
 			//FIXME show error
@@ -3597,6 +3613,7 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 
 		movieInfo.file.Name = ylist[i].title;
 		movieInfo.file.Url = ylist[i].GetUrl(m_settings.ytquality, false);
+		movieInfo.file.Time = toEpoch(movieInfo.ytdate);
 		m_vMovieInfo.push_back(movieInfo);
 	}
 	m_currentBrowserSelection = 0;
@@ -3609,18 +3626,21 @@ void CMovieBrowser::loadYTitles(int mode, std::string search, std::string id)
 
 const CMenuOptionChooser::keyval YT_FEED_OPTIONS[] =
 {
-        { cYTFeedParser::TOP_RATED, LOCALE_MOVIEBROWSER_YT_TOP_RATED },
-        { cYTFeedParser::TOP_FAVORITES, LOCALE_MOVIEBROWSER_YT_TOP_FAVORITES },
-        { cYTFeedParser::MOST_SHARED, LOCALE_MOVIEBROWSER_YT_MOST_SHARED },
-        { cYTFeedParser::MOST_POPULAR, LOCALE_MOVIEBROWSER_YT_MOST_POPULAR },
-        { cYTFeedParser::MOST_RESENT, LOCALE_MOVIEBROWSER_YT_MOST_RESENT },
-        { cYTFeedParser::MOST_DISCUSSED, LOCALE_MOVIEBROWSER_YT_MOST_DISCUSSED },
-        { cYTFeedParser::MOST_RESPONDED, LOCALE_MOVIEBROWSER_YT_MOST_RESPONDED },
-        { cYTFeedParser::RECENTLY_FEATURED, LOCALE_MOVIEBROWSER_YT_RECENTLY_FEATURED },
-        { cYTFeedParser::ON_THE_WEB, LOCALE_MOVIEBROWSER_YT_ON_THE_WEB },
+        { cYTFeedParser::MOST_POPULAR_ALL_TIME, LOCALE_MOVIEBROWSER_YT_MOST_POPULAR_ALL_TIME },
+        { cYTFeedParser::MOST_POPULAR, LOCALE_MOVIEBROWSER_YT_MOST_POPULAR }
 };
 
 #define YT_FEED_OPTION_COUNT (sizeof(YT_FEED_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+
+const CMenuOptionChooser::keyval YT_ORDERBY_OPTIONS[] =
+{
+        { cYTFeedParser::ORDERBY_PUBLISHED, LOCALE_MOVIEBROWSER_YT_ORDERBY_PUBLISHED },
+        { cYTFeedParser::ORDERBY_RELEVANCE, LOCALE_MOVIEBROWSER_YT_ORDERBY_RELEVANCE },
+        { cYTFeedParser::ORDERBY_VIEWCOUNT, LOCALE_MOVIEBROWSER_YT_ORDERBY_VIEWCOUNT },
+        { cYTFeedParser::ORDERBY_RATING, LOCALE_MOVIEBROWSER_YT_ORDERBY_RATING }
+};
+
+#define YT_ORDERBY_OPTION_COUNT (sizeof(YT_ORDERBY_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 neutrino_locale_t CMovieBrowser::getFeedLocale(void)
 {
@@ -3637,6 +3657,55 @@ neutrino_locale_t CMovieBrowser::getFeedLocale(void)
 			return YT_FEED_OPTIONS[i].value;
 	}
 	return ret;
+}
+
+class CYTHistory : public CMenuTarget
+{
+        private:
+                int width;
+                int selected;
+		std::string *search;
+		MB_SETTINGS *settings;
+        public:
+                CYTHistory(MB_SETTINGS &_settings, std::string &_search);
+                int exec(CMenuTarget* parent, const std::string & actionKey);
+};
+
+CYTHistory::CYTHistory(MB_SETTINGS &_settings, std::string &_search)
+{
+	width = w_max (40, 10);
+	selected = -1;
+	settings = &_settings;
+	search = &_search;
+}
+
+int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
+{
+	if (actionKey == "") {
+		if (parent)
+			parent->hide();
+		CMenuWidget* m = new CMenuWidget(LOCALE_MOVIEBROWSER_YT_HISTORY, NEUTRINO_ICON_MOVIEPLAYER, width);
+		m->addKey(CRCInput::RC_spkr, this, "clear");
+		m->setSelected(selected);
+		m->addItem(GenericMenuSeparator);
+		m->addItem(GenericMenuBack);
+		m->addItem(GenericMenuSeparatorLine);
+		std::list<std::string>::iterator it = settings->ytsearch_history.begin();
+		for (int i = 0; i < settings->ytsearch_history_size; i++, ++it)
+			m->addItem(new CMenuForwarder((*it).c_str(), true, NULL, this, (*it).c_str(), CRCInput::convertDigitToKey(i + 1)));
+		m->exec(NULL, "");
+		m->hide();
+		delete m;
+		return menu_return::RETURN_REPAINT;
+	}
+	if (actionKey == "clear") {
+		settings->ytsearch_history.clear();
+		settings->ytsearch_history_size = 0;
+		return menu_return::RETURN_EXIT;
+	}
+	*search = actionKey;
+	g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_blue, 0);
+	return menu_return::RETURN_EXIT;
 }
 
 bool CMovieBrowser::showYTMenu()
@@ -3663,22 +3732,27 @@ bool CMovieBrowser::showYTMenu()
 	sprintf(cnt, "%d", cYTFeedParser::NEXT);
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_NEXT_RESULTS, ytparser.HaveNext(), NULL, selector, cnt, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	sprintf(cnt, "%d", cYTFeedParser::PREV);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_PREV_RESULTS, ytparser.HavePrev(), NULL, selector, cnt, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_PREV_RESULTS, ytparser.HavePrev(), NULL, selector, cnt, CRCInput::RC_nokey, ""));
 
 	mainMenu.addItem(GenericMenuSeparatorLine);
 
 	std::string search = m_settings.ytsearch;
 	CStringInputSMS stringInput(LOCALE_MOVIEBROWSER_YT_SEARCH, &search, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_SEARCH, true, search, &stringInput, NULL, CRCInput::RC_nokey, ""));
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_SEARCH, true, search, &stringInput, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	mainMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_YT_ORDERBY, &m_settings.ytorderby, YT_ORDERBY_OPTIONS, YT_ORDERBY_OPTION_COUNT, true, NULL, CRCInput::RC_nokey, "", true));
 	sprintf(cnt, "%d", cYTFeedParser::SEARCH);
 	mainMenu.addItem(new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
+	CYTHistory ytHistory(m_settings, search);
+	if (m_settings.ytsearch_history_size > 0)
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_HISTORY, true, NULL, &ytHistory, "", CRCInput::RC_0));
+
 	mainMenu.addItem(GenericMenuSeparatorLine);
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_RESULTS, &m_settings.ytresults, true, 10, 50, NULL));
+	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_HISTORY, &m_settings.ytsearch_history_max, true, 10, 50, NULL));
 
-	char rstr[20];
-	sprintf(rstr, "%s", m_settings.ytregion.c_str());
-	CMenuOptionStringChooser * region = new CMenuOptionStringChooser(LOCALE_MOVIEBROWSER_YT_REGION, rstr, true, NULL, CRCInput::RC_nokey, "", true);
+	std::string rstr = m_settings.ytregion;
+	CMenuOptionStringChooser * region = new CMenuOptionStringChooser(LOCALE_MOVIEBROWSER_YT_REGION, &rstr, true, NULL, CRCInput::RC_nokey, "", true);
 	region->addOption("default");
 	region->addOption("DE");
 	region->addOption("PL");
@@ -3730,6 +3804,22 @@ bool CMovieBrowser::showYTMenu()
 				reload = true;
 				m_settings.ytsearch = search;
 				m_settings.ytmode = newmode;
+				m_settings.ytsearch_history.push_front(search);
+				std::list<std::string>::iterator it = m_settings.ytsearch_history.begin();
+				it++;
+				while (it != m_settings.ytsearch_history.end()) {
+					if (*it == search)
+						it = m_settings.ytsearch_history.erase(it);
+					else
+						++it;
+				}
+				if(m_settings.ytsearch_history.empty())
+					m_settings.ytsearch_history_size = 0;
+				else
+					m_settings.ytsearch_history_size = m_settings.ytsearch_history.size();
+
+				if (m_settings.ytsearch_history_size > m_settings.ytsearch_history_max)
+					m_settings.ytsearch_history_size = m_settings.ytsearch_history_max;
 			}
 		}
 		else if (m_settings.ytmode != newmode) {
@@ -3884,11 +3974,10 @@ CDirMenu::CDirMenu(std::vector<MB_DIR>* dir_list)
     {
         for(int nfs = 0; nfs < NETWORK_NFS_NR_OF_ENTRIES; nfs++)
         {
-            std::string tmp = g_settings.network_nfs_local_dir[nfs];
             int result = -1;
-	    if(!tmp.empty())
-		result = (*dirList)[i].name.compare( 0,tmp.size(),tmp) ;
-printf("[CDirMenu] (nfs%d) %s == (mb%d) %s (%d)\n",nfs,g_settings.network_nfs_local_dir[nfs],i,(*dirList)[i].name.c_str(),result);
+	    if(!g_settings.network_nfs[nfs].local_dir.empty())
+		result = (*dirList)[i].name.compare( 0,g_settings.network_nfs[nfs].local_dir.size(),g_settings.network_nfs[nfs].local_dir) ;
+printf("[CDirMenu] (nfs%d) %s == (mb%d) %s (%d)\n",nfs,g_settings.network_nfs[nfs].local_dir.c_str(),i,(*dirList)[i].name.c_str(),result);
 
             if(result == 0)
             {
@@ -3919,8 +4008,8 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
         {
             if(dirState[number] == DIR_STATE_SERVER_DOWN)
             {
-                printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]);
-                if (my_system(2, "ether-wake", g_settings.network_nfs_mac[dirNfsMountNr[number]]) != 0)
+                printf("try to start server: %s %s\n","ether-wake", g_settings.network_nfs[dirNfsMountNr[number]].mac.c_str());
+                if (my_system(2, "ether-wake", g_settings.network_nfs[dirNfsMountNr[number]].mac.c_str()) != 0)
                     perror("ether-wake failed");
 
                 dirOptionText[number]="STARTE SERVER";
@@ -3929,14 +4018,14 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
             {
                 printf("[CDirMenu] try to mount %d,%d\n",number,dirNfsMountNr[number]);
                 CFSMounter::MountRes res;
-                res = CFSMounter::mount(  g_settings.network_nfs_ip[dirNfsMountNr[number]].c_str(),
-                                    g_settings.network_nfs_dir[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_local_dir[dirNfsMountNr[number]] ,
-                                    (CFSMounter::FSType)g_settings.network_nfs_type[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_username[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_password[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_mount_options1[dirNfsMountNr[number]] ,
-                                    g_settings.network_nfs_mount_options2[dirNfsMountNr[number]] );
+                res = CFSMounter::mount(  g_settings.network_nfs[dirNfsMountNr[number]].ip,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].dir,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].local_dir,
+                                    (CFSMounter::FSType)g_settings.network_nfs[dirNfsMountNr[number]].type ,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].username,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].password,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].mount_options1,
+                                    g_settings.network_nfs[dirNfsMountNr[number]].mount_options2);
                 if(res ==  CFSMounter::MRES_OK) // if mount is successful we set the state to active in any case
                 {
                     *(*dirList)[number].used = true;
@@ -3977,7 +4066,7 @@ void CDirMenu::updateDirState(void)
 printf("updateDirState: %d: state %d nfs %d\n", i, dirState[i], dirNfsMountNr[i]);
         if(dirNfsMountNr[i] != -1)
         {
-            int retvalue = pinghost(g_settings.network_nfs_ip[dirNfsMountNr[i]].c_str());
+            int retvalue = pinghost(g_settings.network_nfs[dirNfsMountNr[i]].ip.c_str());
             if (retvalue == 0)//LOCALE_PING_UNREACHABLE
             {
                 dirOptionText[i]="Server, offline";
@@ -3985,7 +4074,7 @@ printf("updateDirState: %d: state %d nfs %d\n", i, dirState[i], dirNfsMountNr[i]
             }
             else if (retvalue == 1)//LOCALE_PING_OK
             {
-                if(CFSMounter::isMounted (g_settings.network_nfs_local_dir[dirNfsMountNr[i]]) == 0)
+                if(!CFSMounter::isMounted (g_settings.network_nfs[dirNfsMountNr[i]].local_dir))
                 {
                     dirOptionText[i]="Not mounted";
                     dirState[i]=DIR_STATE_NOT_MOUNTED;
@@ -4041,7 +4130,7 @@ int CDirMenu::show(void)
     {
         snprintf(tmp, sizeof(tmp),"%d",i);
         tmp[1]=0;
-        dirMenu.addItem( new CMenuForwarderNonLocalized ( (*dirList)[i].name.c_str(),       (dirState[i] != DIR_STATE_UNKNOWN), dirOptionText[i],       this,tmp));
+        dirMenu.addItem( new CMenuForwarder ( (*dirList)[i].name.c_str(),       (dirState[i] != DIR_STATE_UNKNOWN), dirOptionText[i],       this,tmp));
     }
     int ret = dirMenu.exec(NULL," ");
     return ret;
@@ -4249,7 +4338,7 @@ static int get_input(bool * stop)
 	* stop = false;
 	g_RCInput->getMsg(&msg, &data, 1, false);
 	if(msg == CRCInput::RC_home) {
-		if(ShowMsgUTF (LOCALE_MESSAGEBOX_INFO, "Cancel movie cut/split ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+		if(ShowMsg (LOCALE_MESSAGEBOX_INFO, "Cancel movie cut/split ?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 			* stop = true;
 		}
 	}

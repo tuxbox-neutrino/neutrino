@@ -49,8 +49,6 @@
 
 #include <string>
 
-#define widest_number "2"
-
 #define ANNOUNCETIME (1 * 60)
 
 /**************************************************************************************
@@ -105,6 +103,7 @@ private:
 	int radiosort[LIST_MODE_LAST];
 
 	CMoviePluginChangeExec 		*MoviePluginChanger;
+	bool				channellist_visible;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );
@@ -213,6 +212,8 @@ public:
 	void stopDaemonsForFlash();
 	int showChannelList(const neutrino_msg_t msg, bool from_menu = false);
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
+	bool getChannellistIsVisible() { return channellist_visible; }
+	void zapTo(t_channel_id channel_id);
 };
 #endif
 

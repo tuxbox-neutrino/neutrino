@@ -69,6 +69,10 @@
 #endif
 
 #include <daemonc/remotecontrol.h>
+#if ENABLE_LUA
+#include <gui/luainstance.h>
+#endif
+
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -125,11 +129,13 @@ void CPlugins::scanDir(const char *dir)
 			if (plugin_ok) {
 				new_plugin.pluginfile = fname;
 				if (new_plugin.type == CPlugins::P_TYPE_SCRIPT)
-				{
 					new_plugin.pluginfile.append(".sh");
-				} else {
+#if ENABLE_LUA
+				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
+					new_plugin.pluginfile.append(".lua");
+#endif
+				else // CPlugins::P_TYPE_GAME or CPlugins::P_TYPE_TOOL
 					new_plugin.pluginfile.append(".so");
-				}
 				// We do not check if new_plugin.pluginfile exists since .cfg in
 				// PLUGINDIR_VAR can overwrite settings in read only dir
 				// PLUGINDIR. This needs PLUGINDIR_VAR to be scanned at
@@ -342,6 +348,23 @@ void CPlugins::startScriptPlugin(int number)
 	}
 }
 
+#if ENABLE_LUA
+void CPlugins::startLuaPlugin(int number)
+{
+	const char *script = plugin_list[number].pluginfile.c_str();
+	printf("[CPlugins] executing lua script %s\n",script);
+	if (!file_exists(script))
+	{
+		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
+		       script, plugin_list[number].cfgfile.c_str());
+		return;
+	}
+	CLuaInstance *lua = new CLuaInstance();
+	lua->runScript(script);
+	delete lua;
+}
+#endif
+
 void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
@@ -367,6 +390,13 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		startScriptPlugin(number);
 		return;
 	}
+#if ENABLE_LUA
+	if (plugin_list[number].type == CPlugins::P_TYPE_LUA)
+	{
+		startLuaPlugin(number);
+		return;
+	}
+#endif
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
@@ -633,6 +663,10 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 	case PLUGIN_TYPE_SCRIPT:
 		return P_TYPE_SCRIPT;
 		break;
+#if ENABLE_LUA
+	case PLUGIN_TYPE_LUA:
+		return P_TYPE_LUA;
+#endif
 	default:
 		return P_TYPE_DISABLED;
 	}

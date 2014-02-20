@@ -134,6 +134,8 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 			tmp->number = count;
 			tmp->name = g_PluginList->getName(count);
 			tmp->desc = g_PluginList->getDescription(count);
+			if (tmp->desc == "")
+				tmp->desc = "---";
 			pluginlist.push_back(tmp);
 		}
 	}
@@ -306,11 +308,11 @@ void CPluginList::paintHead()
 	if (listmaxshow < pluginlist.size())
 		h_width += 15;
 
-	CComponentsHeader header(x, y, h_width, theight, name, NULL /* no header icon */);
+	CComponentsHeaderLocalized header(x, y, h_width, theight, name);
 
 	if (pluginlisttype == CPlugins::P_TYPE_GAME)
 		header.setIcon(NEUTRINO_ICON_GAMES);
-	else if (pluginlisttype == CPlugins::P_TYPE_SCRIPT)
+	else
 		header.setIcon(NEUTRINO_ICON_SHELL);
 
 	header.paint(CC_SAVE_SCREEN_NO);
@@ -322,6 +324,8 @@ void CPluginList::paint()
 	width = w_max( 500, 0 );
 	height = h_max( 526, 50 ); // 2*25 pixel frei
 	listmaxshow = (height-theight-0)/fheight;
+	if (pluginlist.size() < listmaxshow)
+		listmaxshow = pluginlist.size();
 	height = theight+0+listmaxshow*fheight; // recalc height
 	x=getScreenStartX( width );
 	y=getScreenStartY( height );
@@ -356,12 +360,11 @@ void CPluginList::paintItems()
 
 CPluginList::result_ CPluginList::pluginSelected()
 {
+	hide();
 	g_PluginList->startPlugin(pluginlist[selected]->number,0);
 	if (!g_PluginList->getScriptOutput().empty())
 	{
-		hide();
-		//ShowMsgUTF(LOCALE_PLUGINS_RESULT, Latin1_to_UTF8(g_PluginList->getScriptOutput()), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
-		ShowMsgUTF(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
 	}
 	paint();
 	return resume;

@@ -36,8 +36,10 @@
 #include <configfile.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/client/zapittools.h>
+#include <eitd/edvbstring.h> // UTF8
 
 #include <string>
+#include <list>
 
 #ifdef BOXMODEL_APOLLO
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 14
@@ -66,11 +68,11 @@ struct SNeutrinoSettings
 	//misc
 	int shutdown_real;
 	int shutdown_real_rcdelay;
-	char shutdown_count[4];
-	char shutdown_min[4];
+	int shutdown_count;
+	int shutdown_min;
 	int sleeptimer_min;
-	char record_safety_time_before[3];
-	char record_safety_time_after[3];
+	int record_safety_time_before;
+	int record_safety_time_after;
 	int zapto_pre_time;
 	int infobar_sat_display;
 	int infobar_show_channeldesc;
@@ -93,12 +95,12 @@ struct SNeutrinoSettings
 	int infobar_show_res;
 	int infobar_show_tuner;
 	int infobar_show_dd_available;
+	int wzap_time;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
 	int auto_lang;
 	int auto_subs;
-	char audio_PCMOffset[3];
 	int srs_enable;
 	int srs_algo;
 	int srs_ref_volume;
@@ -131,27 +133,31 @@ struct SNeutrinoSettings
 	int vcr_AutoSwitch;
 
 	//language
-	char language[25];
-	char timezone[150];
+	std::string language;
+	std::string timezone;
 
-	char pref_lang[3][30];
-	char pref_subs[3][30];
+	std::string pref_lang[3];
+	std::string pref_subs[3];
 
 	// EPG
 	int epg_save;
 	int epg_save_standby;
-	std::string epg_cache;
-	std::string epg_old_events;
-	std::string epg_max_events;
-	std::string epg_extendedcache;
+	int epg_cache;
+	int epg_old_events;
+	int epg_max_events;
+	int epg_extendedcache;
 	std::string epg_dir;
 	int epg_scan;
+
+	int epg_search_history_size;
+	int epg_search_history_max;
+	std::list<std::string> epg_search_history;
 
 	//network
 	std::string network_ntpserver;
 	std::string network_ntprefresh;
 	int network_ntpenable;
-	char ifname[10];
+	std::string ifname;
 	
 	//personalize
 	enum PERSONALIZE_SETTINGS  //settings.h
@@ -172,7 +178,9 @@ struct SNeutrinoSettings
 		P_MAIN_MEDIA,
 		
 		P_MAIN_GAMES,
+		P_MAIN_TOOLS,
 		P_MAIN_SCRIPTS,
+		P_MAIN_LUA,
 		P_MAIN_SETTINGS,
 		P_MAIN_SERVICE,
 		P_MAIN_SLEEPTIMER,
@@ -229,11 +237,17 @@ struct SNeutrinoSettings
 		//user menu
 		P_UMENU_SHOW_CANCEL,
 
+		//plugins types
+		P_UMENU_PLUGIN_TYPE_GAMES,
+		P_UMENU_PLUGIN_TYPE_TOOLS,
+		P_UMENU_PLUGIN_TYPE_SCRIPTS,
+		P_UMENU_PLUGIN_TYPE_LUA,
+
  		P_SETTINGS_MAX
 	};
 
  	int  personalize[P_SETTINGS_MAX];
-	char personalize_pincode[5];
+	std::string personalize_pincode;
 
 	//timing
 	enum TIMING_SETTINGS 
@@ -251,13 +265,17 @@ struct SNeutrinoSettings
 		TIMING_SETTING_COUNT
 	};
 
-	int  timing       [TIMING_SETTING_COUNT]   ;
-	char timing_string[TIMING_SETTING_COUNT][4];
+	int timing [TIMING_SETTING_COUNT];
 
 	//widget settings
 	int widget_fade;
 
 	//colors
+	unsigned char clock_Digit_alpha;
+	unsigned char clock_Digit_red;
+	unsigned char clock_Digit_green;
+	unsigned char clock_Digit_blue;
+
 	unsigned char menu_Head_alpha;
 	unsigned char menu_Head_red;
 	unsigned char menu_Head_green;
@@ -318,21 +336,24 @@ struct SNeutrinoSettings
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8
-	std::string network_nfs_ip[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_mac[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_local_dir[NETWORK_NFS_NR_OF_ENTRIES][100];
-	char network_nfs_dir[NETWORK_NFS_NR_OF_ENTRIES][100];
-	int  network_nfs_automount[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_mount_options1[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_mount_options2[NETWORK_NFS_NR_OF_ENTRIES][31];
-	int  network_nfs_type[NETWORK_NFS_NR_OF_ENTRIES];
-	char network_nfs_username[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_password[NETWORK_NFS_NR_OF_ENTRIES][31];
-	char network_nfs_audioplayerdir[100];
-	char network_nfs_picturedir[100];
-	char network_nfs_moviedir[100];
-	char network_nfs_recordingdir[100];
-	char timeshiftdir[100];
+	struct {
+		std::string ip;
+		std::string mac;
+		std::string local_dir;
+		std::string dir;
+		int  automount;
+		std::string mount_options1;
+		std::string mount_options2;
+		int  type;
+		std::string username;
+		std::string password;
+	} network_nfs[NETWORK_NFS_NR_OF_ENTRIES];
+	std::string network_nfs_audioplayerdir;
+	std::string network_nfs_picturedir;
+	std::string network_nfs_moviedir;
+	std::string network_nfs_recordingdir;
+	std::string timeshiftdir;
+	std::string downloadcache_dir;
 
 	//recording
 	int  recording_type;
@@ -350,6 +371,7 @@ struct SNeutrinoSettings
 	int recording_save_in_channeldir;
 	int recording_zap_on_announce;
 	int recording_slow_warning;
+	int recording_startstop_msg;
 	int shutdown_timer_record_type;
 
 	int filesystem_is_utf8;
@@ -452,8 +474,9 @@ struct SNeutrinoSettings
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;
 	int channellist_numeric_adjust;
-	char repeat_blocker[4];
-	char repeat_genericblocker[4];
+	int channellist_show_channellogo;
+	int repeat_blocker;
+	int repeat_genericblocker;
 	int remote_control_hardware;
 	int audiochannel_up_down_enable;
 
@@ -478,10 +501,10 @@ struct SNeutrinoSettings
 
 	//Software-update
 	int softupdate_mode;
-	char softupdate_url_file[31];
-	char softupdate_proxyserver[31];
-	char softupdate_proxyusername[31];
-	char softupdate_proxypassword[31];
+	std::string softupdate_url_file;
+	std::string softupdate_proxyserver;
+	std::string softupdate_proxyusername;
+	std::string softupdate_proxypassword;
 	int softupdate_name_mode_apply;
 	int softupdate_name_mode_backup;
 	int apply_settings;
@@ -500,7 +523,7 @@ struct SNeutrinoSettings
 	int parentallock_prompt;
 	int parentallock_lockage;
 	int parentallock_defaultlocked;
-	char parentallock_pincode[5];
+	std::string parentallock_pincode;
 
 
 	// Font sizes
@@ -533,6 +556,10 @@ struct SNeutrinoSettings
 		FONT_TYPE_COUNT
 	};
 
+	int infoClockFontSize;
+	int infoClockSeconds;
+	int infoClockBackground;
+
 	// lcdd
 	enum LCD_SETTINGS {
 		LCD_BRIGHTNESS         = 0,
@@ -550,7 +577,7 @@ struct SNeutrinoSettings
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
 	int lcd_info_line;
-	char lcd_setting_dim_time[4];
+	std::string lcd_setting_dim_time;
 	int lcd_setting_dim_brightness;
 	int led_tv_mode;
 	int led_standby_mode;
@@ -560,20 +587,23 @@ struct SNeutrinoSettings
 	int backlight_tv;
 	int backlight_standby;
 	int backlight_deepstandby;
-#define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
+	int lcd_scroll;
+//#define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
+#define FILESYSTEM_ENCODING_TO_UTF8(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
 #define UTF8_TO_FILESYSTEM_ENCODING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::UTF8_to_Latin1(a).c_str())
-#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))
+//#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))
+#define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (isUTF8(a) ? (a) : ZapitTools::Latin1_to_UTF8(a))
 
 	// pictureviewer
-	char   picviewer_slide_time[3];
-	int    picviewer_scaling;
+	int picviewer_slide_time;
+	int picviewer_scaling;
 	std::string picviewer_decode_server_ip;
 	char    picviewer_decode_server_port[6];
 
 	//audioplayer
 	int   audioplayer_display;
 	int   audioplayer_follow;
-	char  audioplayer_screensaver[3];
+	int   audioplayer_screensaver;
 	int   audioplayer_highprio;
 	int   audioplayer_select_title_by_name;
 	int   audioplayer_repeat_on;
@@ -599,9 +629,9 @@ struct SNeutrinoSettings
 	int	hdd_fs;
 	int	zap_cycle;
 	int	sms_channel;
-	char	font_file[100];
-	char	ttx_font_file[100];
-	char	update_dir[100];
+	std::string	font_file;
+	std::string	ttx_font_file;
+	std::string	update_dir;
 	// USERMENU
 	typedef enum
 	{
@@ -628,16 +658,17 @@ struct SNeutrinoSettings
 		ITEM_VTXT = 11,
 		ITEM_TECHINFO = 13,
 		ITEM_REMOTE = 14,
-		ITEM_PLUGIN = 15,
+		ITEM_PLUGIN_TYPES = 15,
 		ITEM_IMAGEINFO = 16,
 		ITEM_BOXINFO = 17,
 		ITEM_CAM = 18,
 		ITEM_CLOCK = 19,
 		ITEM_GAMES = 20,
 		ITEM_SCRIPTS = 21,
-#if 0
-		ITEM_MOVIEPLAYER_TS,
-#endif
+		ITEM_YOUTUBE = 22,
+		ITEM_FILEPLAY = 23,
+		ITEM_TOOLS = 24,
+		ITEM_LUA = 25,
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;
 	std::string usermenu_text[BUTTON_MAX];
@@ -742,17 +773,17 @@ class CScanSettings
 		int		fast_op;
 		int		cable_nid;
 
-		char		satName[50];
+		std::string	satName;
 		int		sat_TP_fec;
 		int		sat_TP_pol;
-		char		sat_TP_freq[10];
-		char		sat_TP_rate[9];
+		std::string	sat_TP_freq;
+		std::string	sat_TP_rate;
 
-		char		cableName[50];
+		std::string	cableName;
 		int		cable_TP_mod;
 		int		cable_TP_fec;
-		char		cable_TP_freq[10];
-		char		cable_TP_rate[9];
+		std::string	cable_TP_freq;
+		std::string	cable_TP_rate;
 
 		CScanSettings();
 
@@ -760,6 +791,5 @@ class CScanSettings
 		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
 		bool saveSettings(const char * const fileName);
 };
-
 
 #endif

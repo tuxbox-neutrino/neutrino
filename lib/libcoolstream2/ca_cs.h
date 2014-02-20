@@ -26,6 +26,14 @@ enum CA_SLOT_TYPE {
 	CA_SLOT_TYPE_ALL
 };
 
+enum CA_DVBCI_TS_INPUT {
+	CA_DVBCI_TS_INPUT_0 = 0,
+	CA_DVBCI_TS_INPUT_1,
+	CA_DVBCI_TS_INPUT_2,
+	CA_DVBCI_TS_INPUT_3,
+	CA_DVBCI_TS_INPUT_DISABLED
+};
+
 enum CA_MESSAGE_FLAGS {
 	CA_MESSAGE_EMPTY		= (1 << 0),
 	CA_MESSAGE_HAS_PARAM1_DATA	= (1 << 1), /// Free after use!
@@ -130,6 +138,8 @@ public:
 	/// Sets which modules to initialize. It is only
 	/// possible to change this once!
 	void SetInitMask(enum CA_INIT_MASK InitMask);
+	/// Sets the tuner input  (only valid for CI)
+	void SetTS(enum CA_DVBCI_TS_INPUT TsInput);
 	/// Sets the frequency (in Hz) of the TS stream input (only valid for CI)
 	void SetTSClock(u32 Speed);
 	/// Start the CA module

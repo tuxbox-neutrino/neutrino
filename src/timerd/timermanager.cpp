@@ -330,7 +330,7 @@ int CTimerManager::modifyEvent(int peventID, time_t announceTime, time_t alarmTi
 		switch (event->eventType)
 		{
 			case CTimerd::TIMER_SHUTDOWN:
-			case CTimerd::TIMER_NEXTPROGRAM:
+			//case CTimerd::TIMER_NEXTPROGRAM:
 			case CTimerd::TIMER_STANDBY:
 			case CTimerd::TIMER_REMIND:
 			case CTimerd::TIMER_SLEEPTIMER:
@@ -456,6 +456,7 @@ void CTimerManager::loadEventsFromConfig()
 						}
 						break;
 					}
+#if 0
 				case CTimerd::TIMER_NEXTPROGRAM :
 					{
 						CTimerEvent_NextProgram *event=
@@ -478,6 +479,7 @@ void CTimerManager::loadEventsFromConfig()
 						}
 						break;
 					}
+#endif
 				case CTimerd::TIMER_ZAPTO :
 					{
 						CTimerEvent_Zapto *event=
@@ -1145,13 +1147,13 @@ CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
 	eventInfo.epgID = config->getInt64("EVENT_INFO_EPG_ID_"+id);
 	dprintf("read EVENT_INFO_EPG_ID_%s %ld\n",id.c_str(),(long)eventInfo.epgID);
 
-	eventInfo.epg_starttime = config->getInt64("EVENT_INFO_EPG_STARTTIME_"+id);
+	eventInfo.epg_starttime = (long int)config->getInt64("EVENT_INFO_EPG_STARTTIME_"+id);
 	dprintf("read EVENT_INFO_EPG_STARTTIME_%s %ld\n",id.c_str(),(long)eventInfo.epg_starttime);
 
 	eventInfo.channel_id = config->getInt64("EVENT_INFO_CHANNEL_ID_"+id);
 	dprintf("read EVENT_INFO_CHANNEL_ID_%s %ld\n",id.c_str(),(long)eventInfo.channel_id);
 
-	eventInfo.apids = config->getInt32("EVENT_INFO_APIDS_"+id);
+	eventInfo.apids = (unsigned char)config->getInt32("EVENT_INFO_APIDS_"+id);
 	dprintf("read EVENT_INFO_APIDS_%s 0x%X (%p)\n",id.c_str(),eventInfo.apids,&eventInfo.apids);
 
 	recordingDir = config->getString("REC_DIR_"+id);
@@ -1284,6 +1286,9 @@ void CTimerEvent_Zapto::announceEvent()
 //------------------------------------------------------------
 void CTimerEvent_Zapto::fireEvent()
 {
+	if(CTimerdClient::adzap_eventID == eventID)
+		CTimerdClient::adzap_eventID = 0;//reset adzap flag
+
 	CTimerManager::getInstance()->getEventServer()->sendEvent(CTimerdClient::EVT_ZAPTO,
 								  CEventServer::INITID_TIMERD,
 								  &eventInfo,
@@ -1315,6 +1320,8 @@ void CTimerEvent_Zapto::getEpgId()
 			epgTitle=epgdata.title;
 	}
 }
+
+#if 0
 //=============================================================
 // NextProgram Event
 //=============================================================
@@ -1394,6 +1401,8 @@ void CTimerEvent_NextProgram::Reschedule()
 	eventInfo.epg_starttime = 0;
 	CTimerEvent::Reschedule();
 }
+#endif
+
 //=============================================================
 // Remind Event
 //=============================================================

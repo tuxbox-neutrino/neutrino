@@ -34,11 +34,8 @@
 #define __dboxinfo__
 
 #include <gui/widget/menue.h>
-
 #include <driver/framebuffer.h>
-
 #include <string>
-
 
 class CDBoxInfoWidget : public CMenuTarget
 {
@@ -50,6 +47,10 @@ class CDBoxInfoWidget : public CMenuTarget
 		int width;
 		int height;
 		int hheight,mheight; // head/menu font height
+		int fontWidth;
+		int sizeWidth;
+		int percWidth;
+		int nameWidth;
 
 		void paint();
 

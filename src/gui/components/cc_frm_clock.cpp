@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Generic GUI-related component.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013, 2014 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -17,10 +17,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -29,27 +27,31 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <driver/neutrinofonts.h>
 
 #include "cc_frm_clock.h"
 #include <time.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
+#include <system/helpers.h>
 
 using namespace std;
 
-CComponentsFrmClock::CComponentsFrmClock()
-{
-	initVarClock();
-}
 
-CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, const int w, const int h,
+CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const char* format_str, bool activ, bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 
 {
-	initVarClock();
+	initVarClock(x_pos, y_pos, w, h, format_str, activ, has_shadow, color_frame, color_body, color_shadow);
+}
 
+void CComponentsFrmClock::initVarClock(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const char* format_str, bool activ, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -60,32 +62,30 @@ CComponentsFrmClock::CComponentsFrmClock( const int x_pos, const int y_pos, cons
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 
-	paintClock	= false;
-	activeClock	= activ;
+	cc_item_type 		= CC_ITEMTYPE_FRM_CLOCK;
+	corner_rad		= RADIUS_SMALL;
+
+	cl_font_type		= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
+	cl_font 		= &g_Font[cl_font_type];
+	dyn_font_size		= 0;
+
+	cl_col_text		= COL_MENUCONTENT_TEXT;
+	cl_format_str		= format_str;
+	cl_align		= CC_ALIGN_VER_CENTER | CC_ALIGN_HOR_CENTER;
+
+	cl_thread 		= 0;
+	cl_interval		= 1;
+
+	cl_blink_str		= "";
+	paintClock		= false;
+
+	activeClock		= activ;
 	if (activeClock)
 		startThread();
-
-	cl_format_str	= format_str;
-}
-
-void CComponentsFrmClock::initVarClock()
-{
-	initVarForm();
-	cc_item_type 	= CC_ITEMTYPE_FRM_CLOCK;
-	corner_rad	= RADIUS_SMALL;
-
-	cl_font		= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO];
-	cl_col_text	= COL_MENUCONTENT_TEXT;
-	cl_format_str	= "%H:%M";
-	cl_align	= CC_ALIGN_VER_CENTER | CC_ALIGN_HOR_CENTER;
-
-	cl_thread 	= 0;
-	cl_interval	= 1;
 }
 
 CComponentsFrmClock::~CComponentsFrmClock()
 {
-	cleanCCForm();
 	if (activeClock)
 		stopThread();
 }
@@ -95,7 +95,7 @@ void CComponentsFrmClock::initTimeString()
 	struct tm t;
 	time_t ltime;
 	ltime=time(&ltime);
-	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str, localtime_r(&ltime, &t));
+	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str.c_str(), localtime_r(&ltime, &t));
 }
 
 // How does it works?
@@ -118,8 +118,8 @@ void CComponentsFrmClock::initCCLockItems()
 	string s_time = cl_timestr;
 	
 	//get minimal required height, width from raw text
-	int min_text_w = cl_font->getRenderWidth(s_time, true);;
-	int min_text_h = cl_font->getHeight();
+	int min_text_w = (*getClockFont())->getRenderWidth(s_time, true);;
+	int min_text_h = (*getClockFont())->getHeight();
 	height = max(height, min_text_h);
 	width = max(width, min_text_w);
 
@@ -132,7 +132,7 @@ void CComponentsFrmClock::initCCLockItems()
 	if (v_cc_items.size() != s_time.size()){
 		
 		//clean up possible old items before add new items
-		clearCCItems();
+		clear();
 
 		//create new empty label objects, set some general properties and add to container
 		for (size_t i = 0; i < s_time.size(); i++){
@@ -150,7 +150,13 @@ void CComponentsFrmClock::initCCLockItems()
 		}
 	}
 	
-	//modifie available lable items with current segment chars
+	//calculate minimal separator width, we use char size of some possible chars
+	int minSepWidth = 0;
+	string sep[] ={" ", ".", ":"};
+	for (size_t i = 0; i < sizeof(sep)/sizeof(sep[0]); i++)
+		minSepWidth = max((*getClockFont())->getRenderWidth(sep[i], true), minSepWidth);
+
+	//modify available label items with current segment chars
 	for (size_t i = 0; i < v_cc_items.size(); i++)
 	{
 		//v_cc_items are only available as CComponent-items here, so we must cast them before
@@ -170,23 +176,27 @@ void CComponentsFrmClock::initCCLockItems()
 		string stmp = s_time.substr(i, 1);
 
 		//get width of current segment
-		int wtmp = cl_font->getRenderWidth(stmp, true);
+		int wtmp = 0;
+		if (isdigit(stmp.at(0)) ) //check for digits, if true, we use digit width
+			wtmp = (*getClockFont())->getMaxDigitWidth();
+		else //not digit found, we use render width or minimal width
+			wtmp = max((*getClockFont())->getRenderWidth(stmp, true), minSepWidth);
 
 		//set size, text, color of current item
 		lbl->setDimensionsAll(cl_x, cl_y, wtmp, cl_h);
 		lbl->setTextColor(cl_col_text);
 		lbl->setColorAll(col_frame, col_body, col_shadow);
-		lbl->setText(stmp, CTextBox::CENTER, cl_font);
+		lbl->setText(stmp, CTextBox::CENTER, *getClockFont());
 
 		//use matching height for digits for better vertical centerring into form
 		CTextBox* ctb = lbl->getCTextBoxObject();
 		if (ctb)
 			ctb->setFontUseDigitHeight();
-
+#if 0
 		//ensure paint of text and label bg on changed text or painted form background
 		bool force_txt_and_bg = (lbl->textChanged() || this->paint_bg);
 		lbl->forceTextPaint(force_txt_and_bg);
-
+#endif
 		//set xpos of item
 		cl_x += wtmp;
 
@@ -250,14 +260,19 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 
 	CComponentsFrmClock *clock = static_cast<CComponentsFrmClock*>(arg);
 	time_t count = time(0);
+	std::string format_str_save = clock->cl_format_str;
 	//start loop for paint
-	while(1) {
-		sleep(clock->cl_interval);
-
+	while(clock != NULL) {
 		if (clock->paintClock) {
-			//refresh item property values
-			clock->refresh();
-			
+			// Blinking depending on the blink format string
+			if (!clock->cl_blink_str.empty() && (clock->cl_format_str.length() == clock->cl_blink_str.length())) {
+				if (clock->cl_format_str == clock->cl_blink_str.c_str())
+					clock->cl_format_str = format_str_save;
+				else {
+					format_str_save = clock->cl_format_str;
+					clock->cl_format_str = clock->cl_blink_str;
+				}
+			}
 			//paint segements, but wihtout saved backgrounds
 			clock->paint(CC_SAVE_SCREEN_NO);
 			count = time(0);
@@ -266,6 +281,7 @@ void* CComponentsFrmClock::initClockThread(void *arg)
 			clock->cl_thread = 0;
 			break;
 		}
+		mySleep(clock->cl_interval);
 	}
 	return 0;
 }
@@ -278,7 +294,7 @@ bool CComponentsFrmClock::startThread()
 	if(!cl_thread) {
 		int res = pthread_create (&cl_thread, NULL, initClockThread, ptr) ;
 		if (res != 0){
-			printf("[CComponentsFrmClock]    [%s]  pthread_create  %s\n", __FUNCTION__, strerror(errno));
+			printf("[CComponentsFrmClock]    [%s]  pthread_create  %s\n", __func__, strerror(errno));
 			return false;
 		}
 	}
@@ -291,13 +307,13 @@ bool CComponentsFrmClock::stopThread()
 	if(cl_thread) {
 		int res = pthread_cancel(cl_thread);
 		if (res != 0){
-			printf("[CComponentsFrmClock]    [%s] pthread_cancel  %s\n", __FUNCTION__, strerror(errno));
+			printf("[CComponentsFrmClock]    [%s] pthread_cancel  %s\n", __func__, strerror(errno));
 			return false;
 		}
 
 		res = pthread_join(cl_thread, NULL);
 		if (res != 0){
-			printf("[CComponentsFrmClock]    [%s] pthread_join  %s\n", __FUNCTION__, strerror(errno));
+			printf("[CComponentsFrmClock]    [%s] pthread_join  %s\n", __func__, strerror(errno));
 			return false;
 		}
 	}
@@ -334,4 +350,34 @@ void CComponentsFrmClock::paint(bool do_save_bg)
 
 	//paint form contents
 	paintForm(do_save_bg);
+}
+
+void CComponentsFrmClock::setClockFontSize(int font_size)
+{
+	int tmp_w = 0;
+	dyn_font_size = font_size;
+	cl_font	= CNeutrinoFonts::getInstance()->getDynFont(tmp_w, dyn_font_size, "", CNeutrinoFonts::FONT_STYLE_BOLD, CNeutrinoFonts::FONT_ID_INFOCLOCK);
+}
+
+void CComponentsFrmClock::setClockFont(int font)
+{
+	cl_font_type = font;
+	cl_font      = &g_Font[cl_font_type];
+}
+
+Font** CComponentsFrmClock::getClockFont()
+{
+	if (dyn_font_size == 0)
+		cl_font = &g_Font[cl_font_type];
+	return cl_font;
+
+}
+
+void CComponentsFrmClock::setClockActiv(bool activ/* = true*/)
+{
+	activeClock = activ;
+	if (activ && !cl_thread)
+		startThread();
+	if (!activ && cl_thread)
+		stopThread();
 }

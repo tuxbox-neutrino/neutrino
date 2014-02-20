@@ -28,6 +28,9 @@
 
 #include <driver/framebuffer.h>
 #include <system/localize.h>
+#include <driver/fontrenderer.h>
+
+// #define DEBUG_CC
 
 ///cc item types
 typedef enum
@@ -40,11 +43,13 @@ typedef enum
 	CC_ITEMTYPE_SHAPE_CIRCLE,
 	CC_ITEMTYPE_PIP,
 	CC_ITEMTYPE_FRM,
+	CC_ITEMTYPE_FRM_CHAIN,
 	CC_ITEMTYPE_FRM_CLOCK,
 	CC_ITEMTYPE_FRM_HEADER,
 	CC_ITEMTYPE_FOOTER,
 	CC_ITEMTYPE_FRM_ICONFORM,
 	CC_ITEMTYPE_FRM_WINDOW,
+	CC_ITEMTYPE_FRM_EXT_TEXT,
 	CC_ITEMTYPE_LABEL,
 	CC_ITEMTYPE_PROGRESSBAR,
 	CC_ITEMTYPE_BUTTON,
@@ -52,6 +57,7 @@ typedef enum
 	CC_ITEMTYPE_BUTTON_GREEN,
 	CC_ITEMTYPE_BUTTON_YELLOW,
 	CC_ITEMTYPE_BUTTON_BLUE,
+	CC_ITEMTYPE_SLIDER,
 
 	CC_ITEMTYPES
 }CC_ITEMTYPES_T;
@@ -125,6 +131,20 @@ typedef struct comp_element_data_t
 	void*		handler2;
 }comp_element_data_struct_t;
 
+//text lebel types
+typedef struct locale_ext_txt_t
+{
+	neutrino_locale_t label_text;
+	neutrino_locale_t text;
+	Font* font;
+} locale_ext_txt_struct_t;
+
+typedef struct string_ext_txt_t
+{
+	std::string label_text;
+	std::string text;
+	Font* font;
+} string_ext_txt_struct_t;
 
 #define CC_WIDTH_MIN		16
 #define CC_HEIGHT_MIN		16

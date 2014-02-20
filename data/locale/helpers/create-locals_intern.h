@@ -27,14 +27,15 @@ cat > locals_intern.h <<EOH
 
 const char * locale_real_names[] =
 {
-	"INTERNAL ERROR - PLEASE REPORT",
 EOH
+printf "\t\"INTERNAL ERROR - PLEASE REPORT\"" >> locals_intern.h
 
 while read id; do
-	echo $'\t'"\"$id\"," >> locals_intern.h;
+	printf ",\n\t\"$id\"" >> locals_intern.h
 done
 
 cat >> locals_intern.h <<EOF
+
 };
 #endif
 EOF

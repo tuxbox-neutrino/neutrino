@@ -14,10 +14,10 @@
 THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	THandleStatus status = HANDLED_CONTINUE;
 
+	// dont check local calls or calls from NoAuthClient
 	if (authenticate) {
 		if ((hh->UrlData["clientaddr"]).find(IADDR_LOCAL) > 0
-				&& (no_auth_client == "" || (hh->UrlData["clientaddr"]).find(
-						no_auth_client) > 0)) // dont check local calls or calls from NoAuthClient
+			&& (no_auth_client == "" || (hh->UrlData["clientaddr"]).compare(no_auth_client) != 0))
 		{
 			if (!CheckAuth(hh)) {
 				hh->SetError(HTTP_UNAUTHORIZED);

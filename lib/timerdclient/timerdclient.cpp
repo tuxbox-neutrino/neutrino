@@ -28,7 +28,7 @@
 #include <timerdclient/timerdmsg.h>
 #include <timerdclient/timerdclient.h>
 
-
+int CTimerdClient::adzap_eventID = 0;
 unsigned char   CTimerdClient::getVersion   () const
 {
 	return CTimerdMsg::ACTVERSION;
@@ -253,7 +253,11 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 			return -1;
 		}
 	}
-
+	bool adzaptimer = false;
+	if(evType == CTimerd::TIMER_ADZAP){
+		evType = CTimerd::TIMER_ZAPTO;
+		adzaptimer = true;
+	}
 	CTimerd::TransferEventInfo tei; 
 	CTimerd::TransferRecordingInfo tri;
 	CTimerdMsg::commandAddTimer msgAddTimer;
@@ -268,8 +272,10 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	{
 		length = 0;
 	}
-	else if(evType == CTimerd::TIMER_NEXTPROGRAM || evType == CTimerd::TIMER_ZAPTO || 
-		evType == CTimerd::TIMER_IMMEDIATE_RECORD )
+	/* else if(evType == CTimerd::TIMER_NEXTPROGRAM || evType == CTimerd::TIMER_ZAPTO || */
+	else if (evType == CTimerd::TIMER_ZAPTO ||
+		evType == CTimerd::TIMER_IMMEDIATE_RECORD || 
+		evType == CTimerd::TIMER_ADZAP)
 	{
 		CTimerd::EventInfo *ei=static_cast<CTimerd::EventInfo*>(data); 
 		tei.apids = ei->apids;
@@ -317,15 +323,20 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 	CTimerdMsg::responseAddTimer response;
 	receive_data((char*)&response, sizeof(response));
 	close_connection();
-
+	
+	if(adzaptimer){
+		adzap_eventID = response.eventID;//set adzap flag
+	}
 	return( response.eventID);
 }
 //-------------------------------------------------------------------------
 
 void CTimerdClient::removeTimerEvent( int evId)
 {
-	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
+	if(evId == adzap_eventID)
+		adzap_eventID = 0;//reset adzap flag
 
+	CTimerdMsg::commandRemoveTimer msgRemoveTimer;
 	msgRemoveTimer.eventID  = evId;
 
 	send(CTimerdMsg::CMD_REMOVETIMER, (char*) &msgRemoveTimer, sizeof(msgRemoveTimer));
@@ -433,8 +444,10 @@ void CTimerdClient::getRecordingSafety(int &pre, int &post)
 
 //-------------------------------------------------------------------------
 //void CTimerdClient::getWeekdaysFromStr(int *rep, const char* str)
-void CTimerdClient::getWeekdaysFromStr(CTimerd::CTimerEventRepeat *eventRepeat, const char* str)
+void CTimerdClient::getWeekdaysFromStr(CTimerd::CTimerEventRepeat *eventRepeat, std::string &str)
 {
+	if (str.length() < 7)
+		str.append(7 - str.length(), '-');
 	int rep = (int) *eventRepeat;
 	if(rep >= (int)CTimerd::TIMERREPEAT_WEEKDAYS)
 	{
@@ -453,21 +466,22 @@ void CTimerdClient::getWeekdaysFromStr(CTimerd::CTimerEventRepeat *eventRepeat, 
 	*eventRepeat = (CTimerd::CTimerEventRepeat) rep;
 }
 //-------------------------------------------------------------------------
-void CTimerdClient::setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, char* str)
+void CTimerdClient::setWeekdaysToStr(CTimerd::CTimerEventRepeat rep, std::string &str)
 {
+	if (str.length() < 7)
+		str.append(7 - str.length(), '-');
 	if(rep >= CTimerd::TIMERREPEAT_WEEKDAYS)
 	{
 		for(int n=0;n<7;n++)
 		{
 			if(rep & (1 << (n+9)))
-				str[n]='X';
+				str.at(n)='X';
 			else
-				str[n]='-';
+				str.at(n)='-';
 		}
-		str[7]=0;
 	}
 	else
-		strcpy(str,"-------");
+		str = "-------";
 }
 //-------------------------------------------------------------------------
 void CTimerdClient::stopTimerEvent( int evId)

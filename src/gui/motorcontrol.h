@@ -66,10 +66,9 @@ class CMotorControl : public CMenuTarget
 		uint8_t motorPosition;
 		int32_t satellitePosition;
 		int satfindpid;
-		int lastsnr, lastsig;
 		int g_sig, g_snr, last_snr, moving;
 		std::string network;
-		CProgressBar *snrscale, *sigscale;
+		CSignalBox *signalbox;
 		void paintHead(void);
 		void paintMenu(void);
 		void paintStatus(void);

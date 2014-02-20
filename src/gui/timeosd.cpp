@@ -1,23 +1,28 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
-	Timerliste by Zwen
+	TimeOSD by Zwen
+
+	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013, Michael Liebmann 'micha-bbg'
+	Copyright (C) 2013, martii
 	
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	You should have received a copy of the GNU General Public
+	License along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -26,140 +31,135 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <gui/volumebar.h>
 #include <gui/timeosd.h>
-#include <driver/fontrenderer.h>
-#include <system/settings.h>
-#include <gui/infoclock.h>
 
-#define TIMEOSD_FONT SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME
-#define BARLEN 200
 
-extern CInfoClock *InfoClock;
 
-CTimeOSD::CTimeOSD()
+CTimeOSD::CTimeOSD():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", true, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
 {
-	frameBuffer = CFrameBuffer::getInstance();
-	visible=false;
-	m_mode=MODE_ASC;
-	GetDimensions();
-	timescale = new CProgressBar();
-	m_time_show = 0;
+	Init();
 }
 
+void CTimeOSD::Init()
+{
+	static int oldSize = 0;
+
+	m_mode = MODE_HIDE;
+	m_time_show = 0;
+
+	if (oldSize != g_settings.infoClockFontSize) {
+		oldSize = g_settings.infoClockFontSize;
+		setClockFontSize(g_settings.infoClockFontSize);
+	}
+
+	//use current theme colors
+	syncSysColors();
+
+	paint_bg = g_settings.infoClockBackground;
+
+	setClockFormat("%H:%M:%S");
+
+	int x_old = x, y_old = y, width_old = width, height_old = height;
+	CVolumeHelper::getInstance()->refresh(cl_font);
+	CVolumeHelper::getInstance()->getTimeDimensions(&x, &y, &width, &height);
+	if ((x_old != x) || (y_old != y) || (width_old != width) || (height_old != height))
+		clear();
+
+	// set corner radius depending on clock height
+	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
+
+	initCCLockItems();
+}
+
+#if 0 //if hide() or kill() required, it's recommended to use it separately
 CTimeOSD::~CTimeOSD()
 {
-	hide();
-	delete timescale;
+	CComponents::kill();
+	clear();
+}
+#endif
+
+void CTimeOSD::initTimeString()
+{
+	struct tm t;
+	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str.c_str(), gmtime_r(&m_time_show, &t));
 }
 
-void CTimeOSD::show(time_t time_show)
+void CTimeOSD::show(time_t time_show, bool force)
 {
-	if (g_settings.mode_clock)
-		InfoClock->StartClock();
-
-	GetDimensions();
-	visible = true;
-	SetMode(CTimeOSD::MODE_ASC);
-	m_time_show = 0;
-	frameBuffer->paintBoxRel(m_xstart-2, m_y, 2+BARLEN+2, m_height, COL_INFOBAR_SHADOW_PLUS_0); //border
-	timescale->reset();
-	update(time_show);
-}
-
-void CTimeOSD::GetDimensions()
-{
-	m_xstart = g_settings.screen_StartX + 10;
-	m_xend = frameBuffer->getScreenWidth();
-	m_height = g_Font[TIMEOSD_FONT]->getHeight();
-	if(m_height < 10)
-		m_height = 10;
-	m_y = frameBuffer->getScreenY();
-	m_width = g_Font[TIMEOSD_FONT]->getRenderWidth("00:00:00");
-	t1 = g_Font[TIMEOSD_FONT]->getRenderWidth(widest_number);
-	m_width += t1;
-	if(g_settings.mode_clock)
-		m_xend = m_xend - m_width - (m_width/4);
-}
-
-void CTimeOSD::update(time_t time_show)
-{
-	char cDisplayTime[8+1];
-	fb_pixel_t color1, color2;
-
-	if(!visible)
-		return;
-
 	time_show /= 1000;
-	if(m_time_show == time_show)
+	if (!force && (m_mode == MODE_HIDE || m_time_show == time_show))
 		return;
-
-	//printf("CTimeOSD::update time %ld -> %ld\n", m_time_show, time_show);
 	m_time_show = time_show;
-
-	if(m_mode == MODE_ASC) {
-		color1 = COL_MENUCONTENT_PLUS_0;
-		color2 = COL_MENUCONTENT_TEXT;
-	} else {
-		color1 = COL_MENUCONTENTSELECTED_PLUS_0;
-		color2 = COL_MENUCONTENTSELECTED_TEXT;
-	}
-	strftime(cDisplayTime, 9, "%T", gmtime(&time_show));
-	frameBuffer->paintBoxRel(m_xend - m_width - t1, m_y, m_width, m_height, color1,RADIUS_SMALL);
-	g_Font[TIMEOSD_FONT]->RenderString(m_xend - m_width - (t1/2),  m_y + m_height, m_width,    cDisplayTime, color2);
+	paint(false);
 }
 
-void CTimeOSD::updatePos(short runningPercent)
+void CTimeOSD::updatePos(int position, int duration)
 {
-	if(!visible)
-		return;
+	int percent = (duration && duration > 100) ? (position * 100 / duration) : 0;
+	if(percent > 100)
+		percent = 100;
+	else if(percent < 0)
+		percent = 0;
 
-	if(runningPercent > 100 || runningPercent < 0)
-		runningPercent = 0;
-
-	timescale->setProgress(m_xstart, m_y, BARLEN, m_height -5, runningPercent, 100);
-	timescale->setBlink();
-	timescale->setRgb(0, 100, 70);
-	timescale->paint();
+	timescale.setProgress(x, y + height/4, width, height/2, percent, 100);
+	timescale.setBlink();
+	timescale.setRgb(0, 100, 70);
+	timescale.paint();
+	frameBuffer->blit();
 }
 
 void CTimeOSD::update(int position, int duration)
 {
-	if(!visible)
-		return;
-
-	short percent = 0;
-	if(duration > 100)
-		percent = (unsigned char) (position / (duration / 100));
-	if(m_mode == CTimeOSD::MODE_ASC)
-		update(position /* / 1000*/);
-	else
-		update((duration - position)/* / 1000 */);
-	updatePos(percent);
-}
-
-void CTimeOSD::hide()
-{
-	if(!visible)
-		return;
-
-	if (g_settings.mode_clock)
-		InfoClock->StopClock();
-
-	//GetDimensions();
-	frameBuffer->paintBackgroundBoxRel(m_xend - m_width - t1, m_y, m_width, m_height);
-	timescale->reset();
-	frameBuffer->paintBackgroundBoxRel(m_xstart-2, m_y, 2+BARLEN+2, m_height); //clear border
-	visible=false;
+	switch(m_mode) {
+		case MODE_ASC:
+			show(position, false);
+			break;
+		case MODE_DESC:
+			show(duration - position, false);
+			break;
+		case MODE_BAR:
+			updatePos(position, duration);
+			break;
+		default:
+			;
+	}
 }
 
 void CTimeOSD::switchMode(int position, int duration)
 {
-	if(visible) {
-		if (GetMode() == CTimeOSD::MODE_ASC) {
-			SetMode(CTimeOSD::MODE_DESC);
-			update(position, duration);
-		} else 
-			hide();
-	} else 
-		show(position);
+	switch (m_mode) {
+		case MODE_ASC:
+			m_mode = MODE_DESC;
+			break;
+		case MODE_DESC:
+			m_mode = MODE_BAR;
+			CComponents::kill();
+			break;
+		case MODE_BAR:
+			KillAndResetTimescale();
+			frameBuffer->blit();
+			return;
+		default:
+			m_mode = MODE_ASC;
+	}
+
+	update(position, duration);
+}
+
+void CTimeOSD::kill()
+{
+	if (m_mode != MODE_HIDE) {
+		KillAndResetTimescale();
+		CComponents::kill();
+		frameBuffer->blit();
+	}
+}
+
+void CTimeOSD::KillAndResetTimescale()
+{
+	m_mode = MODE_HIDE;
+	timescale.kill();
+	timescale.reset();
 }

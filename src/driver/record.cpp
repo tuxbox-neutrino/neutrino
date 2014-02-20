@@ -3,6 +3,7 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2011 CoolStream International Ltd
+	Copyright (C) 2011-2014 Stefan Seyfried
 
 	License: GPLv2
 
@@ -58,6 +59,7 @@
 #include <zapit/zapit.h>
 #include <zapit/client/zapittools.h>
 #include <eitd/sectionsd.h>
+#include <timerdclient/timerdclient.h>
 
 /* TODO:
  * nextRecording / pending recordings - needs testing
@@ -141,24 +143,24 @@ int CRecordInstance::GetStatus()
 
 record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 {
-	int fd;
-	std::string tsfile;
-
 	time_t msg_start_time = time(0);
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_START));
-	if (!(autoshift && g_settings.auto_timeshift))
+	if ((!(autoshift && g_settings.auto_timeshift)) && g_settings.recording_startstop_msg)
 		hintBox.paint();
 
-	tsfile = std::string(filename) + ".ts";
+	wakeup_hdd(Directory.c_str());
 
+	std::string tsfile = std::string(filename) + ".ts";
 	printf("%s: file %s vpid %x apid %x\n", __FUNCTION__, tsfile.c_str(), allpids.PIDs.vpid, apids[0]);
 
-	fd = open(tsfile.c_str(), O_CREAT | O_RDWR | O_LARGEFILE | O_TRUNC , S_IRWXO | S_IRWXG | S_IRWXU);
+	int fd = open(tsfile.c_str(), O_CREAT | O_RDWR | O_LARGEFILE | O_TRUNC , S_IRWXO | S_IRWXG | S_IRWXU);
 	if(fd < 0) {
 		perror(tsfile.c_str());
 		hintBox.hide();
 		return RECORD_INVALID_DIRECTORY;
 	}
+
+	SaveXml();
 
 	CGenPsi psi;
 	numpids = 0;
@@ -175,8 +177,11 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO_EAC3, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());		  
 		}else
 			psi.addPid(recMovieInfo->audioPids[i].epgAudioPid, EN_TYPE_AUDIO, recMovieInfo->audioPids[i].atype, channel->getAudioChannel(i)->description.c_str());
+
+		if (numpids >= REC_MAX_APIDS)
+			break;
 	}
-	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0)){
+	if ((StreamVTxtPid) && (allpids.PIDs.vtxtpid != 0) && (numpids < REC_MAX_APIDS)){
 		apids[numpids++] = allpids.PIDs.vtxtpid;
 		psi.addPid(allpids.PIDs.vtxtpid, EN_TYPE_TELTEX, 0, channel->getTeletextLang());
 	}
@@ -185,6 +190,8 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 			CZapitAbsSub* s = channel->getChannelSub(i);
 			if (s->thisSubType == CZapitAbsSub::DVB) {
 				if(i>9)//max sub pids
+					break;
+				if (numpids >= REC_MAX_APIDS)
 					break;
 
 				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
@@ -196,9 +203,10 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	}
 	psi.genpsi(fd);
 
-
-	if ((StreamPmtPid) && (allpids.PIDs.pmtpid != 0))
+#if 0
+	if ((StreamPmtPid) && (allpids.PIDs.pmtpid != 0) && (numpids < REC_MAX_APIDS))
 		apids[numpids++] = allpids.PIDs.pmtpid;
+#endif
 
 	if(record == NULL)
 		record = new cRecord(channel->getRecordDemux() /*RECORD_DEMUX*/);
@@ -211,16 +219,17 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 		record = NULL;
 		close(fd);
 		unlink(tsfile.c_str());
+		std::string xmlfile = std::string(filename) + ".xml";
+		unlink(xmlfile.c_str());
 		hintBox.hide();
 		return RECORD_FAILURE;
 	}
 
-printf("CRecordInstance::Start: fe %d demux %d\n", frontend->getNumber(), channel->getRecordDemux());
+	printf("CRecordInstance::Start: fe %d demux %d\n", frontend->getNumber(), channel->getRecordDemux());
 	if(!autoshift)
 		CFEManager::getInstance()->lockFrontend(frontend, channel);//FIXME testing
 
 	start_time = time(0);
-	SaveXml();
 
 	CCamManager::getInstance()->Start(channel->getChannelID(), CCamManager::RECORD);
 
@@ -247,7 +256,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
 
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
-	if (!(autoshift && g_settings.auto_timeshift))
+	if ((!(autoshift && g_settings.auto_timeshift)) && g_settings.recording_startstop_msg)
 		hintBox.paint();
 
 	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
@@ -317,6 +326,9 @@ bool CRecordInstance::Update()
 		if(!found) {
 			update = true;
 			printf("%s: apid %x not found in recording pids\n", __FUNCTION__, it->apid);
+			if (numpids < REC_MAX_APIDS)
+				apids[numpids++] = it->apid;
+
 			record->AddPid(it->apid);
 			for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
 				if(allpids.APIDs[i].pid == it->apid) {
@@ -548,7 +560,17 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	tmpstring = "not available";
 	if (epgid != 0) {
 		CEPGData epgdata;
-		if (CEitManager::getInstance()->getEPGid(epgid, epg_time, &epgdata)) {
+		bool epg_ok = CEitManager::getInstance()->getEPGid(epgid, epg_time, &epgdata);
+		if(!epg_ok){//if old epgid removed check currurrent epgid
+			epg_ok = CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgdata );
+
+			if(epg_ok && !epgTitle.empty()){
+				std::string tmp_title = epgdata.title;
+				if(epgTitle != tmp_title)
+					epg_ok = false;
+			}
+		}
+		if (epg_ok) {
 			tmpstring = epgdata.title;
 			info1 = epgdata.info1;
 			info2 = epgdata.info2;
@@ -560,6 +582,8 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
 
 			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
+		} else if (!epgTitle.empty()) {//if old epgid removed
+			tmpstring = epgTitle;
 		}
 	} else if (!epgTitle.empty()) {
 		tmpstring = epgTitle;
@@ -605,12 +629,12 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 
 	if(check_dir(Directory.c_str())) {
 		/* check if Directory and network_nfs_recordingdir the same */
-		if(strcmp(g_settings.network_nfs_recordingdir, Directory.c_str())) {
+		if(g_settings.network_nfs_recordingdir != Directory) {
 			/* not the same, check network_nfs_recordingdir and return error if not ok */
-			if(check_dir(g_settings.network_nfs_recordingdir))
+			if(check_dir(g_settings.network_nfs_recordingdir.c_str()))
 				return RECORD_INVALID_DIRECTORY;
 			/* fallback to g_settings.network_nfs_recordingdir */
-			Directory = std::string(g_settings.network_nfs_recordingdir);
+			Directory = g_settings.network_nfs_recordingdir;
 		}else{
 			return RECORD_INVALID_DIRECTORY;
 		}
@@ -1337,7 +1361,7 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
-			if(g_settings.temp_timeshift && !g_settings.auto_timeshift)
+			if(g_settings.temp_timeshift && !g_settings.auto_timeshift && autoshift)
 				ShowMenu();
 		}
 	}
@@ -1359,7 +1383,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 
 		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
 		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
-		if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
+		if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
 			CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
@@ -1392,7 +1416,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			std::string title, duration;
 			inst->GetRecordString(title, duration);
 			title += duration;
-			tostart = (ShowMsgUTF(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
+			tostart = (ShowMsg(LOCALE_RECORDING_IS_RUNNING, title.c_str(),
 						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes);
 		}
 		if (tostart) {
@@ -1414,7 +1438,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 	} else if(actionKey == "Stop_record")
 	{
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
-			ShowHintUTF(LOCALE_MAINMENU_RECORDING_STOP, g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_NOT_RUNNING), 450, 2);
+			ShowHint(LOCALE_MAINMENU_RECORDING_STOP, g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_NOT_RUNNING), 450, 2);
 			return menu_return::RETURN_EXIT_ALL;
 		}
 	}
@@ -1427,7 +1451,7 @@ bool CRecordManager::ShowMenu(void)
 {
 	int select = -1, rec_count = recmap.size();
 	char cnt[5];
-	CMenuForwarderNonLocalized * item;
+	CMenuForwarder * item;
 	CMenuForwarder * iteml;
 	t_channel_id channel_ids[RECORD_MAX_COUNT] = { 0 };	/* initialization avoids false "might */
 	int recording_ids[RECORD_MAX_COUNT] = { 0 };		/* be used uninitialized" warning */
@@ -1485,7 +1509,7 @@ bool CRecordManager::ShowMenu(void)
 				rc_key = CRCInput::RC_stop;
 				btn_icon = NEUTRINO_ICON_BUTTON_STOP;
 			}
-			item = new CMenuForwarderNonLocalized(title.c_str(), true, durations[i].c_str(), selector, cnt, rc_key, NULL, mode_icon);
+			item = new CMenuForwarder(title.c_str(), true, durations[i].c_str(), selector, cnt, rc_key, NULL, mode_icon);
 			item->setItemButton(btn_icon, true);
 
 			//if only one recording is running, set the focus to this menu item
@@ -1546,7 +1570,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 	if(inst == NULL)
 		return false;
 
-	if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
+	if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
 #if 0
 		g_Timerd->stopTimerEvent(recording_id);
@@ -1841,7 +1865,7 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 					strcat(msg,"\nDir: ");
 					strcat(msg,recordingDir);
 
-					ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, msg,
+					ShowMsg(LOCALE_MESSAGEBOX_ERROR, msg,
 							CMessageBox::mbrBack, CMessageBox::mbBack,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
 					ret = false;
 				}

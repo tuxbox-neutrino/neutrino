@@ -34,6 +34,7 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <unistd.h>
 #include <driver/audiometadata.h>
 
 // constructor
@@ -42,16 +43,27 @@ CAudioMetaData::CAudioMetaData()
     clear();
 }
 
+// destructor
+CAudioMetaData::~CAudioMetaData()
+{
+	if (cover_temporary && !cover.empty())
+		unlink(cover.c_str());
+}
+
 // copy constructor
 CAudioMetaData::CAudioMetaData( const CAudioMetaData& src )
   : type( src.type ), type_info( src.type_info ),
 	filesize( src.filesize ), bitrate( src.bitrate ),
 	avg_bitrate( src.avg_bitrate ), samplerate( src.samplerate ),
-	layer( src.layer ), mode( src.mode ), total_time( src.total_time ),
+#ifndef ENABLE_FFMPEGDEC
+	layer( src.layer ), mode( src.mode ),
+#endif
+	total_time( src.total_time ),
 	audio_start_pos( src.audio_start_pos ), vbr( src.vbr ),
 	hasInfoOrXingTag( src.hasInfoOrXingTag ), artist( src.artist ),
 	title( src.title ), album( src.album ), sc_station( src.sc_station ),
-	date( src.date ), genre( src.genre ), track( src.track ),
+	date( src.date ), genre( src.genre ), track( src.track ),cover(src.cover),
+	cover_temporary( false ),
 	changed( src.changed )
 {
 }
@@ -69,8 +81,10 @@ void CAudioMetaData::operator=( const CAudioMetaData& src )
 	bitrate = src.bitrate;
 	avg_bitrate = src.avg_bitrate;
 	samplerate = src.samplerate;
+#ifndef ENABLE_FFMPEGDEC
 	layer = src.layer;
 	mode = src.mode;
+#endif
 	total_time = src.total_time;
 	audio_start_pos = src.audio_start_pos;
 	vbr = src.vbr;
@@ -81,13 +95,16 @@ void CAudioMetaData::operator=( const CAudioMetaData& src )
 	date = src.date;
 	genre = src.genre;
 	track = src.track;
+	cover = src.cover;
 	sc_station = src.sc_station;
 	changed = src.changed;
+	changed = src.changed;
+	cover_temporary = false;
 }
 
 void CAudioMetaData::clear()
 {
-	type=NONE;
+	type=0;
 	type_info.clear();
 	filesize=0;
 	bitrate=0;
@@ -104,5 +121,9 @@ void CAudioMetaData::clear()
 	date.clear();
 	genre.clear();
 	track.clear();
+	if (cover_temporary && !cover.empty())
+		unlink(cover.c_str());
+	cover.clear();
+	cover_temporary=false;
 	changed=false;
 }

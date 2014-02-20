@@ -146,6 +146,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		CMenuWidget* fkeyMenu;
 		CMenuWidget* plMenu;
 		CMenuWidget* tmpW;
+		CMenuWidget *pluginSelectionMenu;
 		
 		int width, widget_count, shortcut, options_count;
 		bool show_usermenu, show_pin_setup;

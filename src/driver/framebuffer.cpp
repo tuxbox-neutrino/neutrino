@@ -58,6 +58,7 @@ extern cVideo * videoDecoder;
 
 extern CPictureViewer * g_PicViewer;
 #define ICON_CACHE_SIZE 1024*1024*2 // 2mb
+#define ICONDIR_VAR "/var/tuxbox/icons/"
 
 #define BACKGROUNDIMAGEWIDTH 720
 
@@ -953,7 +954,9 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	/* we cache and check original name */
 	it = icon_cache.find(filename);
 	if(it == icon_cache.end()) {
-		std::string newname = iconBasePath + filename.c_str() + ".png";
+		std::string newname = std::string(ICONDIR_VAR) + filename + ".png";
+		if (access(newname.c_str(), F_OK))
+			newname = iconBasePath + filename + ".png";
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
@@ -972,7 +975,9 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			goto _display;
 		}
 
-		newname = iconBasePath + filename.c_str() + ".raw";
+		newname = std::string(ICONDIR_VAR) + filename + ".raw";
+		if (access(newname.c_str(), F_OK))
+			newname = iconBasePath + filename + ".raw";
 
 		int lfd = open(newname.c_str(), O_RDONLY);
 

@@ -4,8 +4,6 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-
-
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -26,7 +24,6 @@
 #ifndef __shutdown_count__
 #define __shutdown_count__
 
-#include <configfile.h>
 #include <pthread.h>
 
 class SHTDCNT
@@ -36,7 +33,6 @@ class SHTDCNT
 		pthread_t	thrTime;
 		unsigned int	shutdown_cnt;
 		unsigned int	sleep_cnt;
-		CConfigFile	configfile;
 
 		void shutdown_counter();
 		SHTDCNT();

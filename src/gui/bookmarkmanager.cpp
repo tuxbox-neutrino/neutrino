@@ -36,12 +36,14 @@
 
 #include <system/settings.h>
 #include <driver/screen_max.h>
+
 #include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/buttons.h>
+#include <system/helpers.h>
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -81,12 +83,12 @@ inline int CBookmarkManager::createBookmark (const std::string & name, const std
 }
 
 int CBookmarkManager::createBookmark (const std::string & url, const std::string & time) {
-	char bookmarkname[26]="";
-	CStringInputSMS bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, bookmarkname, 25, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-_");
+	std::string bookmarkname;
+	CStringInputSMS bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, &bookmarkname, 25, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-_");
 	bookmarkname_input.exec(NULL, "");
 	// TODO: return -1 if no name was entered
-	if (!strlen(bookmarkname)) return -1;
-	return createBookmark(std::string(bookmarkname), url, time);
+	if (bookmarkname.empty()) return -1;
+	return createBookmark(bookmarkname, url, time);
 }
 
 //------------------------------------------------------------------------
@@ -117,17 +119,10 @@ void CBookmarkManager::renameBookmark (unsigned int index) {
 	}
 }
 #endif
-#define BOOKMARKSTRINGLENGTH (10 + 1)
-#define BOOKMARKSTRINGMODIFICATIONPOINT 8
-const char * const BOOKMARKSTRING = "bookmark0.";
-
 //------------------------------------------------------------------------
 void CBookmarkManager::readBookmarkFile() {
 	if (bookmarkfile.loadConfig(BOOKMARKFILE))
 	{
-		char bookmarkstring[BOOKMARKSTRINGLENGTH];
-		strcpy(bookmarkstring, BOOKMARKSTRING);
-
 		bookmarksmodified = false;
 		bookmarks.clear();
 
@@ -138,19 +133,11 @@ void CBookmarkManager::readBookmarkFile() {
 
 		while (bookmarkcount-- > 0)
 		{
-			std::string tmp = bookmarkstring;
-			tmp += "name";
-			std::string bookmarkname = bookmarkfile.getString(tmp, "");
-			tmp = bookmarkstring;
-			tmp += "url";
-			std::string bookmarkurl = bookmarkfile.getString(tmp, "");
-			tmp = bookmarkstring;
-			tmp += "time";
-			std::string bookmarktime = bookmarkfile.getString(tmp, "");
-
+			std::string bookmarkstring = "bookmark" + to_string(bookmarkcount) + ".";
+			std::string bookmarkname = bookmarkfile.getString(bookmarkstring + "name", "");
+			std::string bookmarkurl = bookmarkfile.getString(bookmarkstring + "url", "");
+			std::string bookmarktime = bookmarkfile.getString(bookmarkstring + "time", "");
 			bookmarks.push_back(CBookmark(bookmarkname, bookmarkurl, bookmarktime));
-
-			bookmarkstring[BOOKMARKSTRINGMODIFICATIONPOINT]++;
 		}
 	}
 	else
@@ -159,24 +146,16 @@ void CBookmarkManager::readBookmarkFile() {
 
 //------------------------------------------------------------------------
 void CBookmarkManager::writeBookmarkFile() {
-	char bookmarkstring[BOOKMARKSTRINGLENGTH];
-	strcpy(bookmarkstring, BOOKMARKSTRING);
 
 	printf("CBookmarkManager: Writing bookmark file\n");
 
-	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
+	unsigned int bookmarkcount = 0;
+	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); ++it, bookmarkcount++)
 	{
-		std::string tmp = bookmarkstring;
-		tmp += "name";
-		bookmarkfile.setString(tmp, it->getName());
-		tmp = bookmarkstring;
-		tmp += "url";
-		bookmarkfile.setString(tmp, it->getUrl());
-		tmp = bookmarkstring;
-		tmp += "time";
-		bookmarkfile.setString(tmp, it->getTime());
-
-		bookmarkstring[BOOKMARKSTRINGMODIFICATIONPOINT]++;
+		std::string bookmarkstring = "bookmark" + to_string(bookmarkcount) + ".";
+		bookmarkfile.setString(bookmarkstring + "name", it->getName());
+		bookmarkfile.setString(bookmarkstring + "url", it->getUrl());
+		bookmarkfile.setString(bookmarkstring + "time", it->getTime());
 	}
 	bookmarkfile.setInt32("bookmarkcount", bookmarks.size());
 	bookmarkfile.saveConfig(BOOKMARKFILE);
@@ -186,6 +165,7 @@ void CBookmarkManager::writeBookmarkFile() {
 
 CBookmarkManager::CBookmarkManager() : bookmarkfile ('\t')
 {
+	bookmarksmodified = false;
 	readBookmarkFile();
 }
 
@@ -425,7 +405,7 @@ void CBookmarkManager::hide()
 //------------------------------------------------------------------------
 void CBookmarkManager::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeader::CC_BTN_HELP);
+	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_BOOKMARKMANAGER_NAME, NEUTRINO_ICON_BOOKMARK_MANAGER, CComponentsHeaderLocalized::CC_BTN_HELP);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
@@ -479,9 +459,7 @@ void CBookmarkManager::paint()
 		if (sbc < 1)
 			sbc = 1;
 
-		float sbh= (sb- 4)/ sbc;
-
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(page_nr * sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ page_nr * (sb-4)/sbc, 11, (sb-4)/sbc,  COL_MENUCONTENT_PLUS_3);
 	}
 
 	paintFoot();

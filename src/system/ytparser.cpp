@@ -56,7 +56,7 @@ void cYTVideoInfo::Dump()
 	printf("title: %s\n", title.c_str());
 	printf("duration: %d\n", duration);
 	//printf("description: %s\n", description.c_str());
-	printf("urls: %d\n", formats.size());
+	printf("urls: %d\n", (int)formats.size());
 	for (yt_urlmap_iterator_t it = formats.begin(); it != formats.end(); ++it) {
 		printf("format %d type [%s] url %s\n", it->first, it->second.type.c_str(), it->second.GetUrl().c_str());
 	}
@@ -130,7 +130,7 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 	printf("try to get [%s] ...\n", url.c_str());
 	CURLcode httpres = curl_easy_perform(_curl_handle);
 
-	printf("http: res %d size %d\n", httpres, answer.size());
+	printf("http: res %d size %d\n", httpres, (int)answer.size());
 
 	if (httpres != 0 || answer.empty()) {
 		printf("error: %s\n", cerror);
@@ -195,7 +195,7 @@ void cYTFeedParser::encodeUrl(std::string &txt)
 void cYTFeedParser::splitString(std::string &str, std::string delim, std::vector<std::string> &strlist, int start)
 {
 	strlist.clear();
-	unsigned int end = 0;
+	std::string::size_type end = 0;
 	while ((end = str.find(delim, start)) != std::string::npos) {
 		strlist.push_back(str.substr(start, end - start));
 		start = end + delim.size();
@@ -205,7 +205,7 @@ void cYTFeedParser::splitString(std::string &str, std::string delim, std::vector
 
 void cYTFeedParser::splitString(std::string &str, std::string delim, std::map<std::string,std::string> &strmap, int start)
 {
-	unsigned int end = 0;
+	std::string::size_type end = 0;
 	if ((end = str.find(delim, start)) != std::string::npos) {
 		strmap[str.substr(start, end - start)] = str.substr(end - start + delim.size());
 	}
@@ -414,7 +414,7 @@ bool cYTFeedParser::decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo)
 
 	//FIXME check expire
 	std::vector<std::string> ulist;
-	unsigned fmt = answer.find("url_encoded_fmt_stream_map=");
+	std::string::size_type fmt = answer.find("url_encoded_fmt_stream_map=");
 	if (fmt != std::string::npos) {
 		fmt = answer.find("=", fmt);
 		splitString(answer, ",", ulist, fmt+1);
@@ -472,39 +472,18 @@ bool cYTFeedParser::ParseFeed(std::string &url)
 	return parseFeedXml(answer);
 }
 
-bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::string vid)
+bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::string vid, yt_feed_orderby_t orderby)
 {
 	std::string url = "http://gdata.youtube.com/feeds/api/standardfeeds/";
 	bool append_res = true;
+	std::string trailer;
 	if (mode < FEED_LAST) {
 		switch(mode) {
-			case TOP_RATED:
-				curfeed = "top_rated";
-				break;
-			case TOP_FAVORITES:
-				curfeed = "top_favorites";
-				break;
-			case MOST_SHARED:
-				curfeed = "most_shared";
-				break;
 			case MOST_POPULAR:
 			default:
+				trailer = "&time=today";
+			case MOST_POPULAR_ALL_TIME:
 				curfeed = "most_popular";
-				break;
-			case MOST_RESENT:
-				curfeed = "most_recent";
-				break;
-			case MOST_DISCUSSED:
-				curfeed = "most_discussed";
-				break;
-			case MOST_RESPONDED:
-				curfeed = "most_responded";
-				break;
-			case RECENTLY_FEATURED:
-				curfeed = "recently_featured";
-				break;
-			case ON_THE_WEB:
-				curfeed = "on_the_web";
 				break;
 		}
 		if (!region.empty()) {
@@ -540,6 +519,8 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 		url = "http://gdata.youtube.com/feeds/api/videos?q=";
 		url += search;
 		url += "&";
+		const char *orderby_values[] = { "published", "relevance", "viewCount", "rating" };
+		url += "orderby=" + std::string(orderby_values[orderby & 3]) + "&";
 	}
 
 	feedmode = mode;
@@ -549,6 +530,8 @@ bool cYTFeedParser::ParseFeed(yt_feed_mode_t mode, std::string search, std::stri
 		sprintf(res, "%d", max_results);
 		url+= res;
 	}
+
+	url += trailer;
 
 	return ParseFeed(url);
 }
@@ -666,7 +649,7 @@ bool cYTFeedParser::GetVideoUrls()
 
 void cYTFeedParser::Cleanup(bool delete_thumbnails)
 {
-	printf("cYTFeedParser::Cleanup: %d videos\n", videos.size());
+	printf("cYTFeedParser::Cleanup: %d videos\n", (int)videos.size());
 	if (delete_thumbnails) {
 		for (unsigned i = 0; i < videos.size(); i++) {
 			unlink(videos[i].tfile.c_str());
@@ -680,7 +663,7 @@ void cYTFeedParser::Cleanup(bool delete_thumbnails)
 
 void cYTFeedParser::Dump()
 {
-	printf("feed: %d videos\n", videos.size());
+	printf("feed: %d videos\n", (int)videos.size());
 	for (unsigned i = 0; i < videos.size(); i++)
 		videos[i].Dump();
 }

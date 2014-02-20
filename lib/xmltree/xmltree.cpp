@@ -246,7 +246,7 @@ void XMLTreeNode::AddNode(XMLTreeNode *node, addmode mode)
 	{
 	case ADD_NEIGHBOUR:
 		n=this;
-
+		break;
 	case ADD_CHILD:
 		n=child;
 	}

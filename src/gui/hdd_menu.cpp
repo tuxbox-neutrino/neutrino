@@ -71,11 +71,11 @@ const CMenuOptionChooser::keyval HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
 	{ 1, LOCALE_HDD_REISER },
 	{ 2, LOCALE_OPTIONS_OFF }
 };
-#define HDD_SLEEP_OPTION_COUNT 7
+#define HDD_SLEEP_OPTION_COUNT 6
 const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 {
 	{ 0,   LOCALE_OPTIONS_OFF },
-	{ 12,  LOCALE_HDD_1MIN },
+	//{ 12,  LOCALE_HDD_1MIN },
 	{ 60,  LOCALE_HDD_5MIN },
 	{ 120, LOCALE_HDD_10MIN },
 	{ 240, LOCALE_HDD_20MIN },
@@ -147,9 +147,14 @@ int CHDDMenuHandler::doMenu ()
 	mc->setHint("", LOCALE_MENU_HINT_HDD_SLEEP);
 	hddmenu->addItem(mc);
 
-	mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
-	hddmenu->addItem(mc);
+	const char hdparm[] = "/sbin/hdparm";
+	struct stat stat_buf;
+	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
+	if (have_nonbb_hdparm) {
+		mc = new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true);
+		mc->setHint("", LOCALE_MENU_HINT_HDD_NOISE);
+		hddmenu->addItem(mc);
+	}
 
 	//if(n > 0)
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
@@ -161,6 +166,7 @@ int CHDDMenuHandler::doMenu ()
 	std::string tmp_str[n];
 	CMenuWidget * tempMenu[n];
 	for(int i = 0; i < n;i++) {
+		tempMenu[i] = NULL;
 		char str[256];
 		char sstr[256];
 		char vendor[128], model[128];
@@ -236,7 +242,7 @@ int CHDDMenuHandler::doMenu ()
 		tempMenu[i]->addItem(mf);
 
 		snprintf(sstr, sizeof(sstr), "%s (%s)", g_Locale->getText(LOCALE_HDD_REMOVABLE_DEVICE),  namelist[i]->d_name);
-		mf = new CMenuForwarderNonLocalized((removable ? sstr : namelist[i]->d_name), enabled, tmp_str[i], tempMenu[i]);
+		mf = new CMenuForwarder((removable ? sstr : namelist[i]->d_name), enabled, tmp_str[i], tempMenu[i]);
 		mf->setHint("", LOCALE_MENU_HINT_HDD_TOOLS);
 		hddmenu->addItem(mf);
 
@@ -262,38 +268,62 @@ int CHDDMenuHandler::doMenu ()
 
 int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 {
-	char M_opt[50],S_opt[50];
-	char opt[100];
 	struct dirent **namelist;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
 
 	if (n < 0)
-		return 0;
+		return menu_return::RETURN_NONE;
+
+	const char hdidle[] = "/sbin/hd-idle";
+	bool have_hdidle = !access(hdidle, X_OK);
+
+	if (g_settings.hdd_sleep < 60)
+		g_settings.hdd_sleep = 60;
+
+	if (have_hdidle) {
+		system("kill $(pidof hd-idle)");
+		int sleep_seconds = g_settings.hdd_sleep;
+		switch (sleep_seconds) {
+			case 241:
+					sleep_seconds = 30 * 60;
+					break;
+			case 242:
+					sleep_seconds = 60 * 60;
+					break;
+			default:
+					sleep_seconds *= 5;
+		}
+		if (sleep_seconds)
+			my_system(3, hdidle, "-i", to_string(sleep_seconds).c_str());
+	}
 
 	const char hdparm[] = "/sbin/hdparm";
-	bool hdparm_link = false;
+	bool have_hdparm = !access(hdparm, X_OK);
+	if (!have_hdparm)
+		return menu_return::RETURN_NONE;
+
 	struct stat stat_buf;
-	if(::lstat(hdparm, &stat_buf) == 0)
-		if( S_ISLNK(stat_buf.st_mode) )
-			hdparm_link = true;
+	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
 
 	for (int i = 0; i < n; i++) {
 		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
 			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
-		snprintf(S_opt, sizeof(S_opt),"-S%d", g_settings.hdd_sleep);
-		snprintf(opt, sizeof(opt),"/dev/%s",namelist[i]->d_name);
 
-		if(hdparm_link){
-			//hdparm -M is not included in busybox hdparm!
-			my_system(3, hdparm, S_opt, opt);
-		}else{
-			snprintf(M_opt, sizeof(M_opt),"-M%d", g_settings.hdd_noise);
+		char M_opt[50],S_opt[50], opt[100];
+		snprintf(S_opt, sizeof(S_opt), "-S%d", g_settings.hdd_sleep);
+		snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
+		snprintf(opt, sizeof(opt), "/dev/%s",namelist[i]->d_name);
+
+		if (have_hdidle)
+			my_system(3, hdparm, M_opt, opt);
+		else if (have_nonbb_hdparm)
 			my_system(4, hdparm, M_opt, S_opt, opt);
-		}
+		else // busybox hdparm doesn't support "-M"
+			my_system(3, hdparm, S_opt, opt);
 		free(namelist[i]);
 	}
 	free(namelist);
-	return 1;
+	return menu_return::RETURN_NONE;
 }
 
 static int check_and_umount(char * dev, char * path)
@@ -329,7 +359,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	printf("CHDDFmtExec: key %s\n", key.c_str());
 
-	res = ShowMsgUTF ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+	res = ShowMsg ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 	if(res != CMessageBox::mbrYes)
 		return 0;
 
@@ -477,9 +507,11 @@ _remount:
 
         switch(g_settings.hdd_fs) {
                 case 0:
+			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
                         break;
                 case 1:
+			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
 		default:
@@ -487,23 +519,27 @@ _remount:
         }
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
+#ifdef ASSUME_MDEV
+		fprintf(f, "/sbin/mdev\n");
+#else
 		fprintf(f, "/sbin/hotplug\n");
+#endif
 		fclose(f);
 	}
 
 	if(!res) {
 		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/music", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/logos", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		snprintf(cmd, sizeof(cmd), "%s/plugins", dst);
-		safe_mkdir((char *) cmd);
+		safe_mkdir(cmd);
 		sync();
 	}
 _return:
@@ -601,9 +637,11 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 ret1:
         switch(g_settings.hdd_fs) {
                 case 0:
+			safe_mkdir(dst);
 			res = mount(src, dst, "ext3", 0, NULL);
                         break;
                 case 1:
+			safe_mkdir(dst);
 			res = mount(src, dst, "reiserfs", 0, NULL);
                         break;
 		default:

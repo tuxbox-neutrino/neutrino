@@ -39,9 +39,9 @@
 
 int convertSetupColor2RGB(const unsigned char r, const unsigned char g, const unsigned char b)
 {
-	unsigned char red =  	int( float(255./100.)*float(r) );
-	unsigned char green =  	int( float(255./100.)*float(g) );
-	unsigned char blue =  	int( float(255./100.)*float(b) );
+	unsigned char red   = (unsigned char)( float(2.55)*float(r) );
+	unsigned char green = (unsigned char)( float(2.55)*float(g) );
+	unsigned char blue  = (unsigned char)( float(2.55)*float(b) );
 
 	return (red << 16) | (green << 8) | blue;
 }
@@ -50,8 +50,8 @@ int convertSetupAlpha2Alpha(unsigned char alpha)
 {
 	if(alpha == 0) return 0xFF;
 	else if(alpha >= 100) return 0;
-	unsigned char a = 100 - alpha;
-	int ret = int( float(0xFF/100.)*float(a) );
+	unsigned char a = (unsigned char)(100 - alpha);
+	int ret = int( float(2.55)*float(a) );
 	return ret;
 }
 
@@ -66,7 +66,7 @@ void recalcColor(unsigned char &orginal, int fade)
 		color=255;
 	if(color<0)
 		color=0;
-	orginal = color;
+	orginal = (unsigned char)color;
 }
 
 void protectColor( unsigned char &r, unsigned char &g, unsigned char &b, bool protect )
@@ -89,130 +89,138 @@ void fadeColor(unsigned char &r, unsigned char &g, unsigned char &b, int fade, b
 	protectColor(r,g,b, protect);
 }
 
-unsigned char getBrightnessRGB(fb_pixel_t color)
+uint8_t getBrightnessRGB(fb_pixel_t color)
 {
 	RgbColor rgb;
-	rgb.r  = (color & 0x00FF0000) >> 16;
-	rgb.g  = (color & 0x0000FF00) >>  8;
-	rgb.b  =  color & 0x000000FF;
+	rgb.r  = (uint8_t)((color & 0x00FF0000) >> 16);
+	rgb.g  = (uint8_t)((color & 0x0000FF00) >>  8);
+	rgb.b  = (uint8_t) (color & 0x000000FF);
 
 	return rgb.r > rgb.g ? (rgb.r > rgb.b ? rgb.r : rgb.b) : (rgb.g > rgb.b ? rgb.g : rgb.b);
 }
 
-fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br)
+fb_pixel_t changeBrightnessRGBRel(fb_pixel_t color, int br, bool transp)
 {
 	int br_ = (int)getBrightnessRGB(color);
 	br_ += br;
 	if (br_ < 0) br_ = 0;
 	if (br_ > 255) br_ = 255;
-	return changeBrightnessRGB(color, (unsigned char)br_);
+	return changeBrightnessRGB(color, (uint8_t)br_, transp);
 }
 
-void changeBrightnessRGBRel2(RgbColor *rgb, int br)
+fb_pixel_t changeBrightnessRGB(fb_pixel_t color, uint8_t br, bool transp)
 {
-	fb_pixel_t color = (((rgb->r << 16) & 0x00FF0000) |
-			    ((rgb->g <<  8) & 0x0000FF00) |
-			    ((rgb->b      ) & 0x000000FF));
-	int br_ = (int)getBrightnessRGB(color);
-	br_ += br;
-	if (br_ < 0) br_ = 0;
-	if (br_ > 255) br_ = 255;
-
 	HsvColor hsv;
-	Rgb2Hsv(rgb, &hsv);
-	hsv.v = br;
-	Hsv2Rgb(&hsv, rgb);
+	uint8_t tr = SysColor2Hsv(color, &hsv);
+	hsv.v = (float)br / (float)255;
+	if (!transp)
+		tr = 0xFF;
+	return Hsv2SysColor(&hsv, tr);
 }
 
-fb_pixel_t changeBrightnessRGB(fb_pixel_t color, unsigned char br)
+fb_pixel_t Hsv2SysColor(HsvColor *hsv, uint8_t tr)
 {
-	HsvColor hsv;
 	RgbColor rgb;
-
-	unsigned char tr;
-	tr     = (color & 0xFF000000) >> 24;
-	rgb.r  = (color & 0x00FF0000) >> 16;
-	rgb.g  = (color & 0x0000FF00) >>  8;
-	rgb.b  =  color & 0x000000FF;
-
-	Rgb2Hsv(&rgb, &hsv);
-	hsv.v = br;
-	Hsv2Rgb(&hsv, &rgb);
-
+	Hsv2Rgb(hsv, &rgb);
 	return (((tr    << 24) & 0xFF000000) |
 		((rgb.r << 16) & 0x00FF0000) |
 		((rgb.g <<  8) & 0x0000FF00) |
 		((rgb.b      ) & 0x000000FF));
 }
 
+uint8_t SysColor2Hsv(fb_pixel_t color, HsvColor *hsv)
+{
+	uint8_t tr;
+	RgbColor rgb;
+	tr     = (uint8_t)((color & 0xFF000000) >> 24);
+	rgb.r  = (uint8_t)((color & 0x00FF0000) >> 16);
+	rgb.g  = (uint8_t)((color & 0x0000FF00) >>  8);
+	rgb.b  = (uint8_t) (color & 0x000000FF);
+	Rgb2Hsv(&rgb, hsv);
+	return tr;
+}
+
 void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb)
 {
-	unsigned char region, remainder, p, q, t;
+	float f_H = hsv->h;
+	float f_S = hsv->s;
+	float f_V = hsv->v;
+	if (f_S == 0) {
+		rgb->r = (uint8_t)(f_V * 255);
+		rgb->g = (uint8_t)(f_V * 255);
+		rgb->b = (uint8_t)(f_V * 255);
 
-	if (hsv->s == 0) {
-		rgb->r = hsv->v;
-		rgb->g = hsv->v;
-		rgb->b = hsv->v;
-		return;
+	} else {
+		float f_R;
+		float f_G;
+		float f_B;
+		float hh = f_H;
+		if (hh >= 360) hh = 0;
+		hh /= 60;
+		int i = (int)hh;
+		float ff = hh - (float)i;
+		float p = f_V * (1 - f_S);
+		float q = f_V * (1 - (f_S * ff));
+		float t = f_V * (1 - (f_S * (1 - ff)));
+
+		switch (i) {
+			case 0:
+				f_R = f_V; f_G = t; f_B = p;
+				break;
+			case 1:
+				f_R = q; f_G = f_V; f_B = p;
+				break;
+			case 2:
+				f_R = p; f_G = f_V; f_B = t;
+				break;
+			case 3:
+				f_R = p; f_G = q; f_B = f_V;
+				break;
+			case 4:
+				f_R = t; f_G = p; f_B = f_V;
+				break;
+			case 5:
+			default:
+				f_R = f_V; f_G = p; f_B = q;
+				break;
+		}
+		rgb->r = (uint8_t)(f_R * 255);
+		rgb->g = (uint8_t)(f_G * 255);
+		rgb->b = (uint8_t)(f_B * 255);
 	}
-
-	region = hsv->h / 43;
-	remainder = (hsv->h - (region * 43)) * 6;
-
-	p = (hsv->v * (255 - hsv->s)) >> 8;
-	q = (hsv->v * (255 - ((hsv->s * remainder) >> 8))) >> 8;
-	t = (hsv->v * (255 - ((hsv->s * (255 - remainder)) >> 8))) >> 8;
-
-	switch (region) {
-		case 0:
-			rgb->r = hsv->v; rgb->g = t; rgb->b = p;
-			break;
-		case 1:
-			rgb->r = q; rgb->g = hsv->v; rgb->b = p;
-			break;
-		case 2:
-			rgb->r = p; rgb->g = hsv->v; rgb->b = t;
-			break;
-		case 3:
-			rgb->r = p; rgb->g = q; rgb->b = hsv->v;
-			break;
-		case 4:
-			rgb->r = t; rgb->g = p; rgb->b = hsv->v;
-			break;
-		default:
-			rgb->r = hsv->v; rgb->g = p; rgb->b = q;
-			break;
-	}
-
-	return;
 }
 
 void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv)
 {
-	unsigned char rgbMin, rgbMax;
+	float f_R = (float)rgb->r / (float)255;
+	float f_G = (float)rgb->g / (float)255;
+	float f_B = (float)rgb->b / (float)255;
 
-	rgbMin = rgb->r < rgb->g ? (rgb->r < rgb->b ? rgb->r : rgb->b) : (rgb->g < rgb->b ? rgb->g : rgb->b);
-	rgbMax = rgb->r > rgb->g ? (rgb->r > rgb->b ? rgb->r : rgb->b) : (rgb->g > rgb->b ? rgb->g : rgb->b);
+	float min = f_R < f_G ? (f_R < f_B ? f_R : f_B) : (f_G < f_B ? f_G : f_B);
+	float max = f_R > f_G ? (f_R > f_B ? f_R : f_B) : (f_G > f_B ? f_G : f_B);
+	float delta = max - min;
 
-	hsv->v = rgbMax;
-	if (hsv->v == 0) {
-		hsv->h = 0;
-		hsv->s = 0;
-		return;
+	float f_V = max;
+	float f_H = 0;
+	float f_S = 0;
+
+	if (delta == 0) { //gray
+		f_S = 0;
+		f_H = 0;
+	} else {
+		f_S = (delta / max);
+		if (f_R >= max)
+			f_H = (f_G - f_B) / delta;
+		else if (f_G >= max)
+			f_H = 2 + (f_B - f_R) / delta;
+		else
+			f_H = 4 + (f_R - f_G) / delta;
+
+		f_H *= 60;
+		if (f_H < 0)
+			f_H += 360;
 	}
-
-	hsv->s = 255 * long(rgbMax - rgbMin) / hsv->v;
-	if (hsv->s == 0) {
-		hsv->h = 0;
-		return;
-	}
-
-	if (rgbMax == rgb->r)
-		hsv->h = 0 + 43 * (rgb->g - rgb->b) / (rgbMax - rgbMin);
-	else if (rgbMax == rgb->g)
-		hsv->h = 85 + 43 * (rgb->b - rgb->r) / (rgbMax - rgbMin);
-	else
-		hsv->h = 171 + 43 * (rgb->r - rgb->g) / (rgbMax - rgbMin);
-
-	return;
+	hsv->h = f_H;
+	hsv->s = f_S;
+	hsv->v = f_V;
 }

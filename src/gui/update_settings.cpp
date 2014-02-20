@@ -93,8 +93,8 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	if(actionKey == "update_dir") {
 		const char *action_str = "update";
-		if(chooserDir(g_settings.update_dir, true, action_str, sizeof(g_settings.update_dir)-1,true))
-			printf("[neutrino] new %s dir %s\n", action_str, g_settings.update_dir);
+		if(chooserDir(g_settings.update_dir, true, action_str, true))
+			printf("[neutrino] new %s dir %s\n", action_str, g_settings.update_dir.c_str());
 
 		return res;
 	}
@@ -107,7 +107,7 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileFilter.addFilter("urls");
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec("/var/etc") == true)
-			strncpy(g_settings.softupdate_url_file, fileBrowser.getSelectedFile()->Name.c_str(), 30);
+			g_settings.softupdate_url_file = fileBrowser.getSelectedFile()->Name;
 
 		return res;
 	}

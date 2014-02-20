@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -18,10 +18,8 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 	General Public License for more details.
 
-	You should have received a copy of the GNU General Public
-	License along with this program; if not, write to the
-	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-	Boston, MA  02110-1301, USA.
+	You should have received a copy of the GNU General Public License
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -66,34 +64,22 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 
 CComponentsForm::~CComponentsForm()
 {
-	cleanCCForm();
-}
-
-void CComponentsForm::cleanCCForm()
-{
-#ifdef DEBUG_CC
-	printf("[CComponentsForm]   [%s - %d] clean up...\n", __FUNCTION__, __LINE__);
-#endif
-
-	clearCCItems();
-	clearSavedScreen();
 	clear();
 }
 
 
-
-void CComponentsForm::clearCCItems()
+void CComponentsForm::clear()
 {
  	if (v_cc_items.empty())
 		return;
 #ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __FUNCTION__, v_cc_items.size());
+	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __func__, (int)v_cc_items.size());
 #endif
 
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]){
 #ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __FUNCTION__, i+1, v_cc_items.size(), v_cc_items[i]->getItemType());
+	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i]->getItemType());
 #endif
 			delete v_cc_items[i];
 			v_cc_items[i] = NULL;
@@ -105,8 +91,6 @@ void CComponentsForm::clearCCItems()
 
 void CComponentsForm::initVarForm()
 {
-	//CComponentsItem
-	initVarItem();
 
 
 	//simple default dimensions
@@ -126,15 +110,15 @@ void CComponentsForm::initVarForm()
 	//CComponentsForm
 	v_cc_items.clear();
 	cc_item_type 	= CC_ITEMTYPE_FRM;
-	append_h_offset = 0;
-	append_v_offset = 0;
+	append_x_offset = 0;
+	append_y_offset = 0;
 }
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
 #ifdef DEBUG_CC
-		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __FUNCTION__, __LINE__, cc_Item->getItemType(), cc_item_index);
+		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
 #endif
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
@@ -146,13 +130,19 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
 #ifdef DEBUG_CC
-		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __FUNCTION__, __LINE__, cc_item_index, new_index);
+		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
 #endif
 	}
 #ifdef DEBUG_CC
 	else
-		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __FUNCTION__, __LINE__);
+		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __func__, __LINE__);
 #endif
+}
+
+void CComponentsForm::addCCItem(const std::vector<CComponentsItem*> &cc_Items)
+{
+	for (size_t i= 0; i< cc_Items.size(); i++)
+		addCCItem(cc_Items[i]);
 }
 
 int CComponentsForm::getCCItemId(CComponentsItem* cc_Item)
@@ -197,7 +187,7 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 	}
 #ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __func__);
 #endif
 
 }
@@ -220,7 +210,7 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 	if (v_cc_items.empty()){
 		addCCItem(cc_Item);
 #ifdef DEBUG_CC
-		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
 #endif
 	}else{
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
@@ -242,7 +232,7 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 	}
 #ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __FUNCTION__);
+		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __func__);
 #endif
 }
 
@@ -301,11 +291,20 @@ void CComponentsForm::paintCCItems()
 		int xpos = cc_item->getXPos();
 		int ypos = cc_item->getYPos();
 
+		//check item for corrupt position, skip current item if found problems
+		//TODO: need a solution with possibility for scrolling
+		if (ypos > height || xpos > width){
+			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined width=%d \ndefinied y=%d, defined height=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, width, ypos, height);
+			if (this->cc_item_type != CC_ITEMTYPE_FRM_CHAIN)
+				continue;
+		}
+
 		//set required x-position to item:
 		//append vertical
 		if (xpos == CC_APPEND){
-			auto_x += append_h_offset;
-			cc_item->setRealXPos(auto_x + xpos + 1);
+			auto_x += append_x_offset;
+			cc_item->setRealXPos(auto_x + xpos);
 			auto_x += w_item;
 		}
 		//positionize vertical centered
@@ -321,8 +320,8 @@ void CComponentsForm::paintCCItems()
 		//set required y-position to item
 		//append hor
 		if (ypos == CC_APPEND){
-			auto_y += append_v_offset;
-			cc_item->setRealYPos(auto_y + ypos + 1);
+			auto_y += append_y_offset;
+			cc_item->setRealYPos(auto_y + ypos);
 			auto_y += h_item;
 		}
 		//positionize hor centered
@@ -340,29 +339,44 @@ void CComponentsForm::paintCCItems()
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
 		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + width - fr_thickness;
+		int right_frm = (cc_parent ? cc_xr : x) + width - 2*fr_thickness;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
+		//avoid of width error due to odd values (1 line only)
+		right_item -= (new_w%2);
+		w_item -= (new_w%2);
 		if (right_item > right_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
-				__FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
 
 		//check height and adapt if required
-		int bottom_frm = (cc_parent ? cc_yr : y) + height - fr_thickness;
+		int bottom_frm = (cc_parent ? cc_yr : y) + height - 2*fr_thickness;
 		int bottom_item = cc_item->getRealYPos() + h_item;
 		int h_diff = bottom_item - bottom_frm;
 		int new_h = h_item - h_diff;
+		//avoid of height error due to odd values (1 line only)
+		bottom_item -= (new_h%2);
+		h_item -= (new_h%2);
 		if (bottom_item > bottom_frm){
 			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
-			       __FUNCTION__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
+			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
 
+		//get current visibility mode from item, me must hold it and restore after paint
+		bool item_visible = cc_item->paintAllowed();
+		//set visibility mode
+		if (!this->cc_allow_paint)
+			cc_item->allowPaint(false);
+
 		//finally paint current item
 		cc_item->paint(CC_SAVE_SCREEN_NO);
+
+		//restore defined old visibility mode of item after paint
+		cc_item->allowPaint(item_visible);
 	}
 }
 

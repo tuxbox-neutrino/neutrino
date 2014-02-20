@@ -12,6 +12,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <sys/types.h>
 #include <vector>
 
 typedef enum {
@@ -28,6 +29,8 @@ typedef struct {
 	std::string lang;
 	std::string codec_name;
 } playback_audio_pid_info_t;
+
+#define MAX_PLAYBACK_PIDS 40
 
 class cPlayback {
 private:

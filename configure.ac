@@ -12,6 +12,32 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
+# Add build information to config.h
+# ---------------------------------
+
+# Add host to config.h
+AC_DEFINE_UNQUOTED(USED_BUILD, ["$build"], [Build system under which the program was compiled on.])
+
+# Add used CXXFLAGS to config.h
+AC_DEFINE_UNQUOTED(USED_CXXFLAGS, ["$CXXFLAGS"], [Define to the used CXXFLAGS to compile this package.])
+
+# Get compiler (version)
+AH_TEMPLATE(USED_COMPILER, [Define to name and version of used compiler])
+if COMPILER=`$CC --version | head -n 1`; then
+    AC_DEFINE_UNQUOTED(USED_COMPILER, ["$COMPILER"])
+fi
+
+AC_ARG_ENABLE(ffmpegdec,
+	AS_HELP_STRING(--enable-ffmpegdec,include ffmpeg decoder support),
+	,[enable_ffmpegdec=no])
+
+AM_CONDITIONAL(ENABLE_FFMPEGDEC,test "$enable_ffmpegdec" = "yes")
+if test "$enable_ffmpegdec" = "yes"; then
+	AC_DEFINE(ENABLE_FFMPEGDEC,1,[include ffmpeg decoder support])
+fi
+
+if test x"$enable_ffmpegdec" != xyes; then
+
 AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
 	[use libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR="$withval"],
@@ -21,10 +47,6 @@ AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
 	[use statically linked libvorbisidec instead of libogg/libvorbis])],
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
-
-if test "$BOXTYPE" = "tripledragon"; then
-	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
-fi
 
 if test "$TREMOR_STATIC" = "yes"; then
 	TREMOR=yes
@@ -40,27 +62,39 @@ if test "$TREMOR_STATIC" = "yes"; then
 	VORBISIDEC_LIBS="$(echo $VORBISIDEC_LIBS | sed 's@-L@@; s@ -l.*@/libvorbisidec.a@;')"
 fi
 
-AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
-
-TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
-TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
-# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(ID3TAG,libid3tag)
-if test -z "$ID3TAG_CFLAGS" ; then
+if test x"$ID3TAG_EXISTS" != xyes; then
 	TUXBOX_APPS_LIB_PKGCONFIG(ID3TAG,id3tag)
 fi
+
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(MAD,libmad)
-if test -z "$MAD_CFLAGS" ; then
+if test x"$MAD_EXISTS" != xyes; then
 	TUXBOX_APPS_LIB_PKGCONFIG(MAD,mad)
 fi
+
 TUXBOX_APPS_LIB_PKGCONFIG_CHECK(OGG,ogg)
 if test -z "$OGG_CFLAGS" ; then
 	TUXBOX_APPS_LIB_PKGCONFIG(OGG,ogg)
 fi
+else
+TUXBOX_APPS_LIB_PKGCONFIG(SWRESAMPLE,libswresample)
+fi
+
+if test "$BOXTYPE" = "tripledragon"; then
+	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
+fi
+
+AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
+
+# TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
+TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
+TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
+
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
+
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
 #TUXBOX_APPS_LIB_PKGCONFIG(EVENTSERVER,tuxbox-eventserver)
@@ -118,6 +152,23 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
+# Lua - embeddable scripting language
+AC_ARG_ENABLE(lua,
+	AS_HELP_STRING(--enable-lua,include Lua support),
+	,[enable_lua=no])
+
+AM_CONDITIONAL(ENABLE_LUA,test "$enable_lua" = "yes")
+if test "$enable_lua" = "yes"; then
+	AC_DEFINE(ENABLE_LUA,1,[include Lua support])
+	PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
+		PKG_CHECK_MODULES([LUA], [lua5.2 >= 5.2], echo "lua5.2 found", [
+			echo "=> lualib not found, assuming static lua in linker path..."
+			LUA_LIBS="-llua -ldl"
+			AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
+		])
+	])
+fi
+
 AC_ARG_ENABLE(cleanup,
 	[  --enable-cleanup                  enable cleanup on exit],
 	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
@@ -127,11 +178,13 @@ AC_ARG_ENABLE(pip,
 	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
 
 
+AC_ARG_ENABLE(testmenu,
+       AS_HELP_STRING(--enable-testmenu,include test menu in neutrino main menu))
+
 AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
 if test "$enable_testmenu" = "yes"; then
 	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
 fi
-
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
@@ -169,6 +222,8 @@ AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 AC_SUBST(VORBISIDEC_CFLAGS)
 AC_SUBST(VORBISIDEC_LIBS)
+AC_SUBST(LUA_CFLAGS)
+AC_SUBST(LUA_LIBS)
 
 AC_OUTPUT([
 Makefile
@@ -207,6 +262,8 @@ src/gui/bedit/Makefile
 src/gui/components/Makefile
 src/gui/widget/Makefile
 src/system/Makefile
+src/system/mtdutils/Makefile
+src/system/mtdutils/lib/Makefile
 data/Makefile
 data/fonts/Makefile
 data/icons/Makefile
@@ -228,10 +285,3 @@ src/zapit/lib/Makefile
 src/zapit/src/Makefile
 src/zapit/data/Makefile
 ])
-
-if test "$BOXMODEL" = "apollo"; then
-AC_OUTPUT([
-src/system/mtdutils/Makefile
-src/system/mtdutils/lib/Makefile
-])
-fi

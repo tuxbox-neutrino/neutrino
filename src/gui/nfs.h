@@ -45,13 +45,15 @@ class CNFSMountGui : public CMenuTarget
 	int menu();
 	int menuEntry(int nr);
 
-	char       m_entry[NETWORK_NFS_NR_OF_ENTRIES][200];
-	char       ISO_8859_1_entry[NETWORK_NFS_NR_OF_ENTRIES][200];
+	std::string       m_entry[NETWORK_NFS_NR_OF_ENTRIES];
+	std::string       ISO_8859_1_entry[NETWORK_NFS_NR_OF_ENTRIES];
+
+	std::string getEntryString(int i);
 
 	CMenuWidget *mountMenuWPtr;
 	int menu_offset;
 
-	CMenuForwarderNonLocalized* mountMenuEntry[NETWORK_NFS_NR_OF_ENTRIES];
+	CMenuForwarder* mountMenuEntry[NETWORK_NFS_NR_OF_ENTRIES];
 
 	CFSMounter::FS_Support m_nfs_sup;
 	CFSMounter::FS_Support m_cifs_sup;

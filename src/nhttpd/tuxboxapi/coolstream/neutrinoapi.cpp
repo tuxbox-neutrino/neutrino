@@ -130,6 +130,10 @@ CNeutrinoAPI::CNeutrinoAPI()
 	EventServer->registerEvent2( NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");//reload neutrino conf
+	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_VIEW_ON, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::EVT_HDMI_CEC_STANDBY, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_MUTE, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::EVT_SET_VOLUME, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 }
 //-------------------------------------------------------------------------
 
@@ -320,9 +324,11 @@ std::string CNeutrinoAPI::timerEventType2Str(CTimerd::CTimerEventTypes type)
 	case CTimerd::TIMER_SHUTDOWN:
 		result = "Shutdown";
 		break;
+#if 0
 	case CTimerd::TIMER_NEXTPROGRAM:
 		result = "Next program";
 		break;
+#endif
 	case CTimerd::TIMER_ZAPTO:
 		result = "Zap to";
 		break;
@@ -483,18 +489,18 @@ std::string CNeutrinoAPI::getLogoFile(std::string _logoURL, t_channel_id channel
 	std::string channelName = GetServiceName(channelId);
 //	replace(channelName, " ", "_");
 	_logoURL+="/";
-	if(access((_logoURL + channelIdAsString + ".jpg").c_str(), 4) == 0)
-		return _logoURL + channelIdAsString + ".jpg";
-	else if (access((_logoURL + channelIdAsString + ".png").c_str(), 4) == 0)
-		return _logoURL + channelIdAsString + ".png";
-	else if (access((_logoURL + channelIdAsString + ".gif").c_str(), 4) == 0)
-		return _logoURL + channelIdAsString + ".gif";
+	if (access((_logoURL + channelName + ".png").c_str(), 4) == 0)
+		return _logoURL + channelName + ".png";
 	else if (access((_logoURL + channelName + ".jpg").c_str(), 4) == 0)
 		return _logoURL + channelName + ".jpg";
-	else if (access((_logoURL + channelName + ".png").c_str(), 4) == 0)
-		return _logoURL + channelName + ".png";
 	else if (access((_logoURL + channelName + ".gif").c_str(), 4) == 0)
 		return _logoURL + channelName + ".gif";
+	else if(access((_logoURL + channelIdAsString + ".png").c_str(), 4) == 0)
+		return _logoURL + channelIdAsString + ".png";
+	else if (access((_logoURL + channelIdAsString + ".jpg").c_str(), 4) == 0)
+		return _logoURL + channelIdAsString + ".jpg";
+	else if (access((_logoURL + channelIdAsString + ".gif").c_str(), 4) == 0)
+		return _logoURL + channelIdAsString + ".gif";
 	else
 		return "";
 }

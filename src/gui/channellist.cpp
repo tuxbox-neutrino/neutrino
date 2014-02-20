@@ -126,20 +126,22 @@ CChannelList::~CChannelList()
 {
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
-	delete dline;
-	if (cc_minitv)
+	if(dline){
+		delete dline;
+		dline = NULL;
+	}
+	if (cc_minitv){
 		delete 	cc_minitv;
+		cc_minitv = NULL;
+	}
 	if (headerClock) {
 		headerClock->Stop();
 		if (headerClock->isPainted())
 			headerClock->hide();
 		if (headerClock->isClockRun())
 			headerClock->stopThread();
-		delete headerClock;
-		headerClock = NULL;
 	}
 }
-
 void CChannelList::ClearList(void)
 {
 //printf("************ CLEAR LIST %s : %x\n", name.c_str(), this);fflush(stdout);
@@ -381,7 +383,7 @@ int CChannelList::doChannelMenu(void)
 		switch(select) {
 		case 0: {
 			hide();
-			int result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+			int result = ShowMsg ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 
 			if(result == CMessageBox::mbrYes) {
 				bouquet_id = bouquetList->getActiveBouquetNumber();
@@ -1376,7 +1378,7 @@ int CChannelList::numericZap(int key)
 		return res;
 	}
 	size_t  maxchansize = MaxChanNr().size();
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(widest_number);
+	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getMaxDigitWidth();
 	int sx = maxchansize * fw + (fw/2);
 	int sy = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight() + 6;
 
@@ -1753,17 +1755,19 @@ void CChannelList::paintItem2DetailsLine (int pos)
 	if (pos >= 0) {
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1, ypos2, fheight/2+1, info_height-RADIUS_LARGE*2);
-		dline->paint();
+		dline->paint(false);
 	}
 }
 
 void CChannelList::showChannelLogo()
 {
-	if(g_settings.infobar_show_channellogo){
+	if(g_settings.channellist_show_channellogo){
 		static int logo_w = 0;
 		static int logo_h = 0;
 		int logo_w_max = full_width / 4;
-		frameBuffer->paintBoxRel(x + full_width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
+
+		if (logo_w && logo_h)
+			frameBuffer->paintBoxRel(x + full_width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
 
 		std::string lname;
 		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->getName(), lname, &logo_w, &logo_h)) {
@@ -2114,16 +2118,18 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 void CChannelList::paintHead()
 {
-	CComponentsHeader header(x, y, full_width, theight, name, NULL /*no header icon*/);
+	CComponentsHeader header(x, y, full_width, theight, name /*no header icon*/);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	if (g_Sectionsd->getIsTimeSet()) {
 		if (headerClock == NULL) {
-			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M");
-			headerClock->setClockIntervall(10);
+			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M", true);
+			headerClock->setClockBlink("%H %M");
+			headerClock->setClockIntervall(1);
 
 		}
-		headerClock->setClockFont(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]);
+		headerClock->setClockFormat("%H:%M");
+		headerClock->setClockFont(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
 		headerClock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 		headerClock->setYPos(y);
 		headerClock->setHeight(theight);

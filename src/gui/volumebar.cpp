@@ -29,6 +29,7 @@
 #endif
 
 #include "gui/volumebar.h"
+#include "gui/movieplayer.h"
 
 #include <neutrino.h>
 #include <gui/infoclock.h>
@@ -44,8 +45,6 @@ CVolumeBar::CVolumeBar()
 
 void CVolumeBar::initVarVolumeBar()
 {
-	//init inherited variables
-	initVarForm();
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 
 	vb_item_offset 	= 4;
@@ -79,6 +78,7 @@ void CVolumeBar::initVarVolumeBar()
 void CVolumeBar::initVolumeBarSize()
 {
 	CVolumeHelper *cvh = CVolumeHelper::getInstance();
+	cvh->refresh();
 	cvh->getSpacer(&h_spacer, &v_spacer);
 	cvh->getDimensions(&x, &y, &sw, &sh, &vb_icon_w, &vb_digit_w);
 	cvh->getVolBarDimensions(&y, &height);
@@ -101,16 +101,14 @@ void CVolumeBar::initVolumeBarSize()
 	cvh->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
 	// info clock
 	int dummy;
-	cvh->getInfoClockDimensions(&dummy, &clock_y, &clock_width, &clock_height, &dummy, &dummy);
+	cvh->getInfoClockDimensions(&dummy, &clock_y, &clock_width, &clock_height);
 	int mute_corrY = 0;
 	if (mute_dy < height)
 		mute_corrY = (height - mute_dy) / 2;
 	cvh->setMuteIconCorrY(mute_corrY);
 
-	if ((g_settings.mode_clock) && (!CNeutrinoApp::getInstance()->isMuted()))
-		CInfoClock::getInstance()->ClearDisplay();
-
 	vb_pbh 		= height-8;
+
 	vb_pby 		= height/2-vb_pbh/2;
 }
 
@@ -126,13 +124,17 @@ void CVolumeBar::initVolumeBarPosition()
 			if (( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic)) {
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + h_spacer;
-				if (g_settings.mode_clock)
-					y += max(clock_y + clock_height, mute_ay + mute_dy);
+				if (CNeutrinoApp::getInstance()->getChannellistIsVisible() == true)
+					y += std::max(39, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight()) + v_spacer;
+				else if (g_settings.mode_clock)
+					y = clock_y + clock_height + v_spacer + SHADOW_OFFSET;
 			}
 			x = sw - width - x_corr;
 			break;
 		}
 		case VOLUMEBAR_POS_TOP_LEFT:
+			if (CMoviePlayerGui::getInstance().osdTimeVisible())
+				y = clock_y + clock_height + v_spacer + SHADOW_OFFSET;
 			break;
 		case VOLUMEBAR_POS_BOTTOM_LEFT:
 			y = (sh + frameBuffer->getScreenY()) - height - v_spacer;
@@ -262,34 +264,49 @@ CVolumeHelper::CVolumeHelper()
 {
 	h_spacer	= 11;
 	v_spacer	= 6;
+	vb_font		= NULL;
+	clock_font	= NULL;
 
 	frameBuffer = CFrameBuffer::getInstance();
 
 	Init();
 }
 
-void CVolumeHelper::Init()
+void CVolumeHelper::Init(Font** font)
 {
 
 	x  = frameBuffer->getScreenX() + h_spacer;
 	y  = frameBuffer->getScreenY() + v_spacer;
 	sw = g_settings.screen_EndX - h_spacer;
 	sh = frameBuffer->getScreenHeight();
-	vb_font	= NULL;
 
 	initVolBarSize();
 	initMuteIcon();
-	initInfoClock();
+	initInfoClock(font);
 }
 
-void CVolumeHelper::initInfoClock()
+void CVolumeHelper::initInfoClock(Font** font)
 {
-	digit_offset = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset();
-	digit_h      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitHeight();
-	int t1       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
-	int t2       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
-	clock_dy     = digit_h + (int)((float)digit_offset * 1.5);
-	clock_dx     = t1*6 + t2*2;
+	if (clock_font == NULL){
+		if (font == NULL) {
+			clock_font = &g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+		}
+		else
+			clock_font = font;
+	}
+	else {
+		if (font != NULL)
+			clock_font = font;
+	}
+	digit_offset = (*clock_font)->getDigitOffset();
+	digit_h      = (*clock_font)->getDigitHeight();
+	int t1       = (*clock_font)->getMaxDigitWidth();
+	int t2       = (*clock_font)->getRenderWidth(":");
+	clock_dy     = digit_h + (int)((float)digit_offset * 1.3);
+	if (g_settings.infoClockSeconds)
+		clock_dx     = t1*7 + t2*2;
+	else
+		clock_dx     = t1*5 + t2*1;
 	clock_ax     = sw - clock_dx;
 	clock_ay     = y;
 	vol_ay       = y;
@@ -307,6 +324,9 @@ void CVolumeHelper::initInfoClock()
 		else
 			mute_corrY = (vol_height - mute_dy) / 2;
 	}
+
+	time_dx = t1*7 + t2*2;
+	time_ax = frameBuffer->getScreenX() + h_spacer;
 }
 
 void CVolumeHelper::initMuteIcon()
@@ -339,9 +359,17 @@ void CVolumeHelper::initVolBarSize()
 	}
 }
 
-void CVolumeHelper::refresh()
+int CVolumeHelper::getInfoClockX()
 {
-	Init();
+	if (CNeutrinoApp::getInstance()->isMuted())
+		return clock_ax - mute_dx - h_spacer;
+	else
+		return clock_ax;
+}
+
+void CVolumeHelper::refresh(Font** font)
+{
+	Init(font);
 }
 
 CVolumeHelper* CVolumeHelper::getInstance()

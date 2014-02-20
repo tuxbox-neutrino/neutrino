@@ -29,9 +29,12 @@ class CSleepTimerWidget: public CMenuTarget
 {
 	private:
 		static bool is_running;
+		bool permanent;
 
 	public:
+		CSleepTimerWidget(bool _permanent = false) { permanent = _permanent; }
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		std::string &getValue(void);
 };
 
 

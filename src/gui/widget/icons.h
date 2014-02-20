@@ -75,6 +75,7 @@
 #define NEUTRINO_ICON_BUTTON_PLUS	"plus"
 #define NEUTRINO_ICON_BUTTON_MINUS	"minus"
 
+#define NEUTRINO_ICON_BLUE		"icon_blue"
 #define NEUTRINO_ICON_GREEN		"icon_green"
 #define NEUTRINO_ICON_RED		"icon_red"
 #define NEUTRINO_ICON_YELLOW		"icon_yellow"
@@ -110,6 +111,9 @@
 #define NEUTRINO_ICON_FF 		"mp_f-skip"
 #define NEUTRINO_ICON_PROTECTING	"protecting"
 #define NEUTRINO_ICON_QUESTION		"question"
+#define NEUTRINO_ICON_RADIOTEXTGET	"radiotextget"
+#define NEUTRINO_ICON_RADIOTEXTWAIT	"radiotextwait"
+#define NEUTRINO_ICON_RADIOTEXTOFF	"radiotextoff"
 #define NEUTRINO_ICON_RADIOMODE		"radiomode"
 #define NEUTRINO_ICON_RECORDING		"recording"
 #define NEUTRINO_ICON_REC		"rec"

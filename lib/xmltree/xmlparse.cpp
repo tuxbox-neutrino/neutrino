@@ -107,6 +107,7 @@ XML_Parser::XML_Parser(const XML_Char *encodingName)
 	bufferLim=0;
 	declElementType=0;
 	declAttributeId=0;
+	declAttributeIsCdata=0;
 	declEntity=0;
 	declNotationName=0;
 	declNotationPublicId=0;
@@ -131,7 +132,8 @@ XML_Parser::XML_Parser(const XML_Char *encodingName)
 	tagStack=0;
 	freeTagList=0;
 	attsSize=INIT_ATTS_SIZE;
-	atts=new ATTRIBUTE[attsSize];
+	/* must not realloc stuff allocated with new[] */
+	atts=(ATTRIBUTE *)malloc(attsSize * sizeof(ATTRIBUTE));
 	dataBuf=new XML_Char[INIT_DATA_BUF_SIZE];
 	groupSize=0;
 	groupConnector=0;
@@ -151,7 +153,7 @@ XML_Parser::XML_Parser(const XML_Char *encodingName)
 		poolDestroy(&tempPool);
 		poolDestroy(&temp2Pool);
 
-		if (atts) delete[] atts;
+		if (atts) free(atts);
 		if (dataBuf) delete[] dataBuf;
 
 		return;
@@ -203,7 +205,7 @@ XML_Parser::~XML_Parser()
 	poolDestroy(&temp2Pool);
 	dtdDestroy(&dtd);
 
-	delete[] atts;
+	free(atts);
 	free(groupConnector);
 	free(buffer);
 	delete[] dataBuf;
@@ -1098,9 +1100,11 @@ enum XML_Error XML_Parser::storeAtts(const ENCODING *enc, const XML_Char *tagNam
 
 		attsSize=n+nDefaultAtts+INIT_ATTS_SIZE;
 
-		atts=(ATTRIBUTE *) realloc((void *) atts, attsSize*sizeof(ATTRIBUTE));
+		ATTRIBUTE *newatts = (ATTRIBUTE *) realloc((void *) atts, attsSize*sizeof(ATTRIBUTE));
 
-		if (!atts) return XML_ERROR_NO_MEMORY;
+		if (!newatts) return XML_ERROR_NO_MEMORY;
+
+		atts = newatts;
 
 		if (n>oldAttsSize) XmlGetAttributes(enc, s, n, atts);
 	};

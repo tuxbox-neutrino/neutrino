@@ -33,8 +33,6 @@ function do_init()
 	obj_set_radio_value('audio_DolbyDigital', "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_DolbyDigital;false~cache=}");
 	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_avs_Control;1~cache=}";
 		document.f.audio_avs_Control.selectedIndex = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_PCMOffset;0~cache=}"
-		document.f.audio_PCMOffset.value = val;
 	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_step;5~cache=}"
 		document.f.audio_step.value = val;
 }
@@ -164,11 +162,6 @@ function do_submit()
 					</select>
 					<input type="hidden" name="h_audio_avs_Control"/>(*)
 				</td>			
-			</tr>
-			<tr><td>Lautst&auml;rkeabsenkung PCM</td>
-				<td>
-					<input type="text" name="audio_PCMOffset" size="2" maxlength="2" title="pcm offset"/>
-				</td>
 			</tr>
 			<tr><td>Lautst&auml;rke Schrittweite</td>
 				<td>

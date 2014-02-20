@@ -202,13 +202,13 @@ bool CUpnpBrowserGui::discoverDevices()
 	catch (std::runtime_error error)
 	{
 		delete scanBox;
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		return false;
 	}
 	delete scanBox;
 	if (m_devices.empty())
 	{
-		ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		return false;
 	}
 	return true;
@@ -236,7 +236,7 @@ bool CUpnpBrowserGui::getResults(std::string id, unsigned int start, unsigned in
 	}
 	catch (std::runtime_error error)
 	{
-		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		ShowMsg(LOCALE_MESSAGEBOX_INFO, error.what(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		return false;
 	}
 	return true;
@@ -594,7 +594,7 @@ void CUpnpBrowserGui::playnext(void)
 				}
 				else if (mime.substr(0,6) == "image/") {
 					if (m_folderplay)
-						timeout = time(NULL) + atoi(g_settings.picviewer_slide_time);
+						timeout = time(NULL) + g_settings.picviewer_slide_time;
 					showPicture((*entries)[0].resources[preferred].url);
 				}
 				return;
@@ -948,7 +948,7 @@ void CUpnpBrowserGui::paintDevices()
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "Select UPnP Device");
 
 	// Head
-	CComponentsHeader header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
+	CComponentsHeaderLocalized header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
 	if (CNeutrinoApp::getInstance()->isMuted())
 		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	header.paint(CC_SAVE_SCREEN_NO);

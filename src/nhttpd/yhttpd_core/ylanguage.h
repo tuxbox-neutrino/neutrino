@@ -24,6 +24,7 @@ class CLanguage
 
 		static CConfigFile 	*DefaultLanguage;
 		static CConfigFile 	*ConfigLanguage;
+		static CConfigFile 	*NeutrinoLanguage;
 
 	public:
 		// Instance Handling

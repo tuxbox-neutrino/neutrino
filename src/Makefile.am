@@ -1,8 +1,7 @@
 BUILT_SOURCES = rcsim.h
-rcsim.h:
-	pushd $(top_srcdir)/src/ && ./create_rcsim_h.sh > $@
-
-.PHONY: rcsim.h
+# ugly: this is in the source tree, but belongs into the build dir :-(
+rcsim.h: $(srcdir)/driver/rcinput.h $(srcdir)/create_rcsim_h.sh
+	pushd $(srcdir) && sh ./create_rcsim_h.sh > $@
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -D__STDC_FORMAT_MACROS
 
@@ -42,18 +41,26 @@ else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
 
-bin_PROGRAMS = neutrino
+if ENABLE_FLAC
+FLACLIBS = -lFLAC
+else
+FLACLIBS =
+endif
+
+if ENABLE_FFMPEGDEC
+ADEC_LIBS = @SWRESAMPLE_LIBS@
+else
+ADEC_LIBS = @MAD_LIBS@ \
+	@ID3TAG_LIBS@ \
+	$(FLACLIBS) \
+	$(VORBISLIBS)
+endif
+
+bin_PROGRAMS = neutrino rcsim
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
 AM_CPPFLAGS += -D_FILE_OFFSET_BITS=64
-
-if ENABLE_FLAC
-FLACLIBS = -lFLAC
-AM_CPPFLAGS += -DENABLE_FLAC
-else
-FLACLIBS =
-endif
 
 if BOXMODEL_APOLLO
 MTDUTILSLIBS = \
@@ -100,14 +107,11 @@ neutrino_LDADD = \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
-	@MAD_LIBS@ \
-	@ID3TAG_LIBS@ \
 	@LIBCS_LIBS@ \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
 	@AVCODEC_LIBS@ \
-	$(FLACLIBS) \
-	$(VORBISLIBS) \
+	$(ADEC_LIBS) \
 	-ldvbsi++ \
 	-ljpeg \
 	-lOpenThreads \
@@ -117,6 +121,9 @@ if ENABLE_GIFLIB
 neutrino_LDADD += -lgif
 else
 neutrino_LDADD += -lungif
+endif
+if ENABLE_LUA
+neutrino_LDADD += @LUA_LIBS@
 endif
 
 if ENABLE_UPNP
@@ -129,7 +136,7 @@ neutrino_LDADD += -lcoolstream-mt -lca-sc
 if ENABLE_TMSDK 
 else
 if BOXMODEL_APOLLO
-neutrino_LDADD += -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager -ltmpvrIndexStorage -llnxscsUsr
+neutrino_LDADD += -lca-ci -llnxtmvssUsr -llnxUKAL -llnxplatUsr -llnxtmasUsr -llnxdvbciUsr -llnxpvrUsr -llnxcssUsr -llnxnotifyqUsr -ltmpvrDataManager-cst -ltmpvrIndexStorage -llnxscsUsr
 else
 neutrino_LDADD += -lnxp
 endif

@@ -33,9 +33,9 @@
 #include <vector>
 
 #define REMINDER_MESSAGE_MAXLEN 31
-#define EXEC_PLUGIN_NAME_MAXLEN 31
-#define RECORD_DIR_MAXLEN 100
-#define EPG_TITLE_MAXLEN 50
+#define EXEC_PLUGIN_NAME_MAXLEN 256
+#define RECORD_DIR_MAXLEN 1024
+#define EPG_TITLE_MAXLEN 51
 
 #define TIMERD_APIDS_CONF 0x00
 #define TIMERD_APIDS_STD  0x01
@@ -61,14 +61,15 @@ class CTimerd
 		enum CTimerEventTypes
 		{
 			TIMER_SHUTDOWN = 1,
-			TIMER_NEXTPROGRAM,
+			__TIMER_NEXTPROGRAM, /* unused, here to keep compatibility with old timerd.conf */
 			TIMER_ZAPTO,
 			TIMER_STANDBY,
 			TIMER_RECORD,
 			TIMER_REMIND,
 			TIMER_SLEEPTIMER,
 			TIMER_EXEC_PLUGIN,
- 			TIMER_IMMEDIATE_RECORD
+ 			TIMER_IMMEDIATE_RECORD,
+			TIMER_ADZAP
 		};
 		
 		enum CTimerEventStates 

@@ -781,7 +781,7 @@ long delta_time_ms (struct timeval *tv, struct timeval *last_tv)
 	return timeval_to_ms (tv) - timeval_to_ms (last_tv);
 }
 
-static cDemux * dmx;
+static cDemux * dmx = NULL;
 
 int CStreamInfo2::ts_setup ()
 {
@@ -885,8 +885,7 @@ int CStreamInfo2::ts_close ()
 void CStreamInfo2::showSNR ()
 {
 	if (signalbox == NULL){
-		signalbox = new CSignalBox(x + 10, yypos, 240/*statusbox->getWidth()-2*/, 50, frontend);
-		signalbox->setScaleWidth(66);
+		signalbox = new CSignalBox(x + 10, yypos, 240, 50, frontend);
 		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
 		signalbox->setTextColor(COL_INFOBAR_TEXT);
 		signalbox->doPaintBg(true);

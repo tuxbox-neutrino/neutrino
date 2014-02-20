@@ -87,12 +87,13 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Dir_Mode = true;
 		if (fileBrowser.exec("/var/tuxbox") == true)
 		{
-			char  fname[256] = "neutrino.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+			std::string fname = "neutrino.conf";
+			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, &fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
 			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino] save settings: %s\n", sname);
-			CNeutrinoApp::getInstance()->saveSetup(sname);
+
+			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
+			printf("[neutrino] save settings: %s\n", sname.c_str());
+			CNeutrinoApp::getInstance()->saveSetup(sname.c_str());
 			delete sms;
 		}
 		return res;
@@ -111,7 +112,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 				my_system(2, backup_sh, fileBrowser.getSelectedFile()->Name.c_str());
 			}
 			else
-				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
+				ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
 		}
 		return res;
 	}
@@ -121,7 +122,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Filter = &fileFilter;
 		if (fileBrowser.exec("/media") == true)
 		{
-			int result = ShowMsgUTF(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+			int result = ShowMsg(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
 			if(result == CMessageBox::mbrYes)
 			{
 				const char restore_sh[] = "/bin/restore.sh";

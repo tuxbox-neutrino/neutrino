@@ -76,7 +76,6 @@ CProgressBar::CProgressBar(	const int x_pos, const int y_pos, const int w, const
 void CProgressBar::initVarProgressbar()
 {
 	//CComponentsItem
-	initVarItem();
 	cc_item_type 	= CC_ITEMTYPE_PROGRESSBAR;
 
 	//CProgressBar
@@ -141,6 +140,7 @@ void CProgressBar::paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_
 {
 	CComponentsShapeSquare shape(shx, shy, shw, shh, false);
 	shape.setColorBody(col);
+	shape.allowPaint(cc_allow_paint);
 	shape.paint(false);
 }
 
@@ -149,7 +149,8 @@ void CProgressBar::paintSimple()
 {
 	// progress value
 	if (pb_active_width != pb_last_width){
-		paintShapes(pb_x, pb_y, pb_active_width, pb_height, pb_active_col); // active bar
+		if (pb_active_width)
+			paintShapes(pb_x, pb_y, pb_active_width, pb_height, pb_active_col); // active bar
 		paintShapes(pb_start_x_passive, pb_y, pb_passive_width, pb_height, pb_passive_col); // passive bar
 	}
 	
@@ -213,7 +214,8 @@ void CProgressBar::paintAdvanced()
 				for (j = 0; j < hcnt; j++) {
 					int sh_x = pb_x + i * itemw;
 					int sh_y = py + j * itemh;
-					paintShapes(sh_x, sh_y, pointx, pointy, color);
+					//paintShapes(sh_x, sh_y, pointx, pointy, color);
+					frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, color);
 				}
 			}
 			step = yw - rd - 1;
@@ -229,7 +231,8 @@ void CProgressBar::paintAdvanced()
 				for (j = 0; j < hcnt; j++) {
 					int sh_x = pb_x + i * itemw;
 					int sh_y = py + j * itemh;
-					paintShapes(sh_x, sh_y, pointx, pointy, color);
+					//paintShapes(sh_x, sh_y, pointx, pointy, color);
+					frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, color);
 				}
 			}
 			off = diff;
@@ -247,7 +250,8 @@ void CProgressBar::paintAdvanced()
 				for (j = 0; j < hcnt; j++) {
 					int sh_x = pb_x + i * itemw;
 					int sh_y = py + j * itemh;
-					paintShapes(sh_x, sh_y, pointx, pointy, color);
+					//paintShapes(sh_x, sh_y, pointx, pointy, color);
+					frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, color);
 				}
 			}
 		}
@@ -255,7 +259,8 @@ void CProgressBar::paintAdvanced()
 			for (j = 0; j < hcnt; j++) {
 				int sh_x = pb_x + i * itemw;
 				int sh_y = py + j * itemh;
-				paintShapes(sh_x, sh_y, pointx, pointy, pb_passive_col); //fill passive
+				//paintShapes(sh_x, sh_y, pointx, pointy, pb_passive_col); //fill passive
+				frameBuffer->paintBoxRel(sh_x, sh_y, pointx, pointy, pb_passive_col);
 			}
 		}
 	}

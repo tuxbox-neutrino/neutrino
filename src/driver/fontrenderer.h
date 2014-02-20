@@ -53,6 +53,7 @@ class Font
 	// these are HACKED values, because the font metrics were unusable.
 	int height,DigitHeight,DigitOffset,ascender,descender,upper,lower;
 	int fontwidth;
+	int maxdigitwidth;
 
 	inline void paintFontPixel(fb_pixel_t *td, uint8_t fg_trans, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, fb_pixel_t bg_col, int faktor, uint8_t index);
 
@@ -71,6 +72,7 @@ class Font
 	int getRenderWidth(const std::string & text, const bool utf8_encoded = false);
 	int getHeight(void);
 	int getDigitHeight(void);
+	int getMaxDigitWidth(void);
 	int getDigitOffset(void);
 	int getWidth(void);
 	int getSize(){return font.width;}

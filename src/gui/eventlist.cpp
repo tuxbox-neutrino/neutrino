@@ -4,6 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2009-2014 Stefan Seyfried
 
 	License: GPL
 
@@ -31,6 +32,7 @@
 #include <neutrino.h>
 #include <gui/eventlist.h>
 #include <gui/epgplus.h>
+
 #include <gui/timerlist.h>
 #include <gui/user_menue.h>
 
@@ -47,10 +49,12 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 
+
 #include <zapit/client/zapittools.h>
 #include <zapit/zapit.h>
 #include <daemonc/remotecontrol.h>
 #include <eitd/sectionsd.h>
+#include <timerdclient/timerdclient.h>
 
 #include <algorithm>
 
@@ -71,6 +75,7 @@ inline static bool sortbyEventid (const CChannelEvent& a, const CChannelEvent& b
 	return (a.channelID == b.channelID && a.eventID == b.eventID && a.startTime == b.startTime); 
 }
 #endif
+
 inline bool sortByDescription (const CChannelEvent& a, const CChannelEvent& b)
 {
 	if(a.description == b.description)
@@ -278,7 +283,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	infozone_width = full_width - width;
 
 	// init right info_zone
-	if (g_settings.eventlist_additional)
+	if ((g_settings.eventlist_additional) && (cc_infozone == NULL))
 		cc_infozone = new CComponentsText(x+width+10, y+theight, infozone_width-20, listmaxshow*fheight);
 
 	int res = menu_return::RETURN_REPAINT;
@@ -449,11 +454,11 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					showFunctionBar(true, evtlist[selected].channelID);
 					continue;
 				}
-				char *recDir = g_settings.network_nfs_recordingdir;
+				std::string recDir = g_settings.network_nfs_recordingdir;
 				if (g_settings.recording_choose_direct_rec_dir)
 				{
 					int id = -1;
-					CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&id,NULL,g_settings.network_nfs_recordingdir);
+					CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&id,NULL,g_settings.network_nfs_recordingdir.c_str());
 					if (recDirs.hasItem())
 					{
 						hide();
@@ -467,11 +472,11 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					}
 					
 					if (id != -1)
-						recDir = g_settings.network_nfs_local_dir[id];
+						recDir = g_settings.network_nfs[id].local_dir;
 					else
-						recDir = NULL;
+						recDir = "";
 				}
-				if (recDir != NULL) //add/remove recording timer events and check/warn for conflicts
+				if (!recDir.empty()) //add/remove recording timer events and check/warn for conflicts
 				{
 					if (g_Timerd->addRecordTimerEvent(evtlist[selected].channelID ,
 								evtlist[selected].startTime,
@@ -490,13 +495,13 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 									TIMERD_APIDS_CONF, true, recDir,true);
 									
 							//ask user whether the timer event should be set anyway
-							ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+							ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 							timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 						}
 					} 
 					else 
 					{
-						//ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+						//ShowMsg(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 						timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 					}
 				}
@@ -523,7 +528,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					evtlist[selected].startTime - (g_settings.zapto_pre_time * 60),
 					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
-			//ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+			//ShowMsg(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 			timerlist.clear();
 			g_Timerd->getTimerList (timerlist);
 			paint(evtlist[selected].channelID );
@@ -915,13 +920,11 @@ void CNeutrinoEventList::paint(t_channel_id channel_id)
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((evtlist.size()- 1)/ listmaxshow)+ 1;
+	int sbs= (selected/listmaxshow);
 	if (sbc < 1)
 		sbc = 1;
 
-	float sbh= (sb- 4)/ sbc;
-	int sbs= (selected/listmaxshow);
-
-	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(sbs* sbh) , 11, int(sbh),  COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs * (sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
 
 }
 
@@ -966,6 +969,7 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 		buttons[btn_cnt].locale = LOCALE_EVENTFINDER_SEARCH; // search button
 		btn_cnt++;
 	}
+
 	// Button: Timer Channelswitch
 	if ((uint) g_settings.key_channelList_addremind != CRCInput::RC_nokey) {
 		if (!g_settings.minimode) {
@@ -1126,6 +1130,22 @@ bool CNeutrinoEventList::findEvents(void)
 		search_head_name += ": '";
 		search_head_name += m_search_keyword;
 		search_head_name += "'";
+
+		if(!m_search_keyword.empty()){
+			g_settings.epg_search_history.push_front(m_search_keyword);
+			std::list<std::string>::iterator it = g_settings.epg_search_history.begin();
+			it++;
+			while (it != g_settings.epg_search_history.end()) {
+				if (*it == m_search_keyword)
+					it = g_settings.epg_search_history.erase(it);
+				else
+					++it;
+			}
+			g_settings.epg_search_history_size = g_settings.epg_search_history.size();
+			if (g_settings.epg_search_history_size > g_settings.epg_search_history_max)
+				g_settings.epg_search_history_size = g_settings.epg_search_history_max;
+		}
+
 	}
 	paintHead(0, search_head_name);
 	paint();
@@ -1198,6 +1218,8 @@ CEventFinderMenu::CEventFinderMenu(	int* 			event,
 	m_search_list       = search_list;
 	m_search_channel_id = search_channel_id;
 	m_search_bouquet_id = search_bouquet_id;
+	width = w_max (40, 10);
+	selected = -1;
 }
 
 
@@ -1214,34 +1236,13 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 		//printf("0\n");
 		showMenu();
 	}
-	else if(actionkey =="1")
+	else if(actionkey =="#1")
 	{
 		//printf("1\n");
 		*m_event = true;
 		res = menu_return::RETURN_EXIT_ALL;
 	}
-	else if(actionkey =="2")
-	{
-		//printf("2\n");
-		/*
-		if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_CHANNEL)
-		{
-			mf[1]->setActive(true);
-			m_search_channelname = CServiceManager::getInstance()->GetServiceName(*m_search_channel_id);;
-		}
-		else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
-		{
-			mf[1]->setActive(true);
-			m_search_channelname = bouquetList->Bouquets[*m_search_bouquet_id]->channelList->getName();
-		}
-		else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_ALL)
-		{
-			mf[1]->setActive(false);
-			m_search_channelname = "";
-		}
-		*/
-	}
-	else if(actionkey =="3")
+	else if(actionkey =="#2")
 	{
 		//printf("3\n");
 		// get channel id / bouquet id
@@ -1275,9 +1276,38 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 			}
 		}
 	}
-	else if(actionkey =="4")
+	else if(actionkey =="#history")
 	{
-		//printf("4\n");
+
+		if (parent)
+			parent->hide();
+		CMenuWidget* m = new CMenuWidget(LOCALE_EVENTFINDER_HISTORY, NEUTRINO_ICON_MOVIEPLAYER, width);
+		m->addKey(CRCInput::RC_spkr, this, "#clear");
+		m->setSelected(selected);
+		m->addItem(GenericMenuSeparator);
+		m->addItem(GenericMenuBack);
+		m->addItem(GenericMenuSeparatorLine);
+		std::list<std::string>::iterator it = g_settings.epg_search_history.begin();
+		for (int i = 0; i < g_settings.epg_search_history_size; i++, ++it)
+			m->addItem(new CMenuForwarder((*it).c_str(), true, NULL, this, (*it).c_str(), CRCInput::convertDigitToKey(i + 1)));
+		m->exec(NULL, "");
+		m->hide();
+		delete m;
+		return menu_return::RETURN_REPAINT;
+	}
+	if (actionkey == "#clear") {
+		g_settings.epg_search_history.clear();
+		g_settings.epg_search_history_size = 0;
+		return menu_return::RETURN_EXIT;
+	}
+
+	std::list<std::string>::iterator it = g_settings.epg_search_history.begin();
+	for (int i = 0; i < g_settings.epg_search_history_size; i++, ++it){
+		if((*it)== actionkey){
+			*m_search_keyword = actionkey;
+			g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_blue, 0);
+			return menu_return::RETURN_EXIT;
+		}
 	}
 
 	return res;
@@ -1316,11 +1346,15 @@ int CEventFinderMenu::showMenu(void)
 
 	CMenuForwarder* mf0	= new CMenuForwarder(LOCALE_EVENTFINDER_KEYWORD, true, *m_search_keyword, &stringInput, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	CMenuOptionChooser* mo0	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST, m_search_list, SEARCH_LIST_OPTIONS, SEARCH_LIST_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
-	m_search_channelname_mf	= new CMenuForwarderNonLocalized("", *m_search_list != CNeutrinoEventList::SEARCH_LIST_ALL, m_search_channelname, this, "3", CRCInput::convertDigitToKey(shortcut++));
+	m_search_channelname_mf	= new CMenuForwarder("", *m_search_list != CNeutrinoEventList::SEARCH_LIST_ALL, m_search_channelname, this, "#2", CRCInput::convertDigitToKey(shortcut++));
 	CMenuOptionChooser* mo1	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_EPG, m_search_epg_item, SEARCH_EPG_OPTIONS, SEARCH_EPG_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	CMenuForwarder* mf1	= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder* mf1	= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "#1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
 	CMenuWidget searchMenu(LOCALE_EVENTFINDER_HEAD, NEUTRINO_ICON_FEATURES, 40);
+
+	CMenuForwarder* mf2	= new CMenuForwarder(LOCALE_EVENTFINDER_HISTORY, true, NULL, this, "#history", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	CMenuOptionNumberChooser* moc1 = new CMenuOptionNumberChooser(LOCALE_EVENTFINDER_MAX_HISTORY, &g_settings.epg_search_history_max, true, 0, 50, NULL);
+	searchMenu.addItem(GenericMenuSeparatorLine);
 
 	searchMenu.addItem(GenericMenuSeparator);
 	searchMenu.addItem(mf0);
@@ -1330,6 +1364,9 @@ int CEventFinderMenu::showMenu(void)
 	searchMenu.addItem(mo1);
 	searchMenu.addItem(GenericMenuSeparatorLine);
 	searchMenu.addItem(mf1);
+	searchMenu.addItem(GenericMenuSeparatorLine);
+	searchMenu.addItem(mf2);
+	searchMenu.addItem(moc1);
 
 	res = searchMenu.exec(NULL,"");
 	return(res);

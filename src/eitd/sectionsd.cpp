@@ -45,6 +45,7 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <eventserver.h>
 #include <driver/abstime.h>
+#include <system/helpers.h>
 
 #include "eitd.h"
 #include "sectionsd.h"
@@ -68,7 +69,8 @@ static bool notify_complete = false;
 #define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
 //#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
 /* period to clean cached sections and force restart sections read */
-#define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
+#define META_HOUSEKEEPING_COUNT (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
+#define STANDBY_HOUSEKEEPING_COUNT (60 * 60) / HOUSEKEEPING_SLEEP
 
 // Timeout bei tcp/ip connections in ms
 #define READ_TIMEOUT_IN_SECONDS  2
@@ -611,6 +613,7 @@ static void removeOldEvents(const long seconds)
 	time_t zeit = time(NULL);
 
 	readLockEvents();
+	unsigned total_events = mySIeventsOrderUniqueKey.size();
 
 	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
@@ -633,6 +636,9 @@ static void removeOldEvents(const long seconds)
 	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); ++i)
 		deleteEvent(*i);
 
+	readLockEvents();
+	xprintf("[sectionsd] Removed %d old events (%d left), zap detected %d.\n", (int)(total_events - mySIeventsOrderUniqueKey.size()), (int)mySIeventsOrderUniqueKey.size(), messaging_zap_detected);
+	unlockEvents();
 	return;
 }
 
@@ -854,6 +860,9 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 #endif
 #endif
 		scanning = 0;
+		writeLockMessaging();
+		messaging_zap_detected = false;
+		unlockMessaging();
 	}
 	else if (!pause && !scanning)
 	{
@@ -877,6 +886,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		writeLockMessaging();
 		messaging_have_CN = 0x00;
 		messaging_got_CN = 0x00;
+		messaging_zap_detected = true;
 		unlockMessaging();
 
 		scanning = 1;
@@ -904,6 +914,9 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	if (cmd->dnum) {
 		/* dont wakeup EIT, if we have max events allready */
 		if (max_events == 0  || (mySIeventsOrderUniqueKey.size() < max_events)) {
+			writeLockMessaging();
+			messaging_zap_detected = true;
+			unlockMessaging();
 			threadEIT.setDemux(cmd->dnum);
 			threadEIT.setCurrentService(uniqueServiceKey);
 		}
@@ -1356,7 +1369,7 @@ void CTimeThread::setSystemTime(time_t tim)
 #endif
 	if (timediff == 0) /* very unlikely... :-) */
 		return;
-	if (abs(tim - tv.tv_sec) < 120) { /* abs() is int */
+	if (timeset && abs(tim - tv.tv_sec) < 120) { /* abs() is int */
 		struct timeval oldd;
 		tv.tv_sec = timediff / 1000000LL;
 		tv.tv_usec = timediff % 1000000LL;
@@ -2003,14 +2016,14 @@ static void print_meminfo(void)
 //---------------------------------------------------------------------
 static void *houseKeepingThread(void *)
 {
-	int count = 0;
+	int count = 0, scount = 0;
 
 	dprintf("housekeeping-thread started.\n");
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 
 	while (!sectionsd_stop)
 	{
-		if (count == META_HOUSEKEEPING) {
+		if (count == META_HOUSEKEEPING_COUNT) {
 			dprintf("meta housekeeping - deleting all transponders, services, bouquets.\n");
 			deleteSIexceptEPG();
 			count = 0;
@@ -2021,53 +2034,28 @@ static void *houseKeepingThread(void *)
 		while (rc)
 			rc = sleep(rc);
 
-		while (!scanning) {
-			sleep(1);	// wait for streaming to end...
-			if (sectionsd_stop)
-				break;
+		if (!scanning) {
+			scount++;
+			if (scount < STANDBY_HOUSEKEEPING_COUNT)
+				continue;
 		}
+		scount = 0;
 
 		dprintf("housekeeping.\n");
 
-		// TODO: maybe we need to stop scanning here?...
-
-		readLockEvents();
-
-		unsigned anzEventsAlt = mySIeventsOrderUniqueKey.size();
-		dprintf("before removeoldevents\n");
-		unlockEvents();
-
 		removeOldEvents(oldEventsAre); // alte Events
-		dprintf("after removeoldevents\n");
-		readLockEvents();
-		printf("[sectionsd] Removed %d old events (%d left).\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()), (int)mySIeventsOrderUniqueKey.size());
-		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
-		{
-			print_meminfo();
-			dprintf("Removed %d old events.\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()));
-		}
-		anzEventsAlt = mySIeventsOrderUniqueKey.size();
-		unlockEvents();
 
 		readLockEvents();
-		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
-		{
-			print_meminfo();
-			dprintf("Removed %d waste events.\n", (int)(anzEventsAlt - mySIeventsOrderUniqueKey.size()));
-		}
-
 		dprintf("Number of sptr events (event-ID): %u\n", (unsigned)mySIeventsOrderUniqueKey.size());
 		dprintf("Number of sptr events (service-id, start time, event-id): %u\n", (unsigned)mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.size());
 		dprintf("Number of sptr events (end time, service-id, event-id): %u\n", (unsigned)mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.size());
 		dprintf("Number of sptr nvod events (event-ID): %u\n", (unsigned)mySIeventsNVODorderUniqueKey.size());
 		dprintf("Number of cached meta-services: %u\n", (unsigned)mySIeventUniqueKeysMetaOrderServiceUniqueKey.size());
-
 		unlockEvents();
 
 		print_meminfo();
 
 		count++;
-
 	} // for endlos
 	dprintf("housekeeping-thread ended.\n");
 
@@ -2111,8 +2099,8 @@ bool CEitManager::Start()
 	oldEventsAre = config.epg_old_events*60L*60L; //hours
 	max_events = config.epg_max_events;
 
-	if (access("/sbin/ntpdate", F_OK))
-		ntp_system_cmd_prefix = "/sbin/ntpd -n -q -p ";
+	if (find_executable("ntpdate").empty())
+		ntp_system_cmd_prefix = "ntpd -n -q -p ";
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
@@ -2318,6 +2306,24 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 	unlockEvents();
 }
 
+/* invalidate current/next events, if current event times expired */
+void CEitManager::checkCurrentNextEvent(void)
+{
+	time_t curtime = time(NULL);
+	writeLockEvents();
+	if (scanning || !myCurrentEvent || myCurrentEvent->times.empty()) {
+		unlockEvents();
+		return;
+	}
+	if ((long)(myCurrentEvent->times.begin()->startzeit + myCurrentEvent->times.begin()->dauer) < (long)curtime) {
+		delete myCurrentEvent;
+		myCurrentEvent = NULL;
+		delete myNextEvent;
+		myNextEvent = NULL;
+	}
+	unlockEvents();
+}
+
 /* send back the current and next event for the channel id passed to it
  * Works like that:
  * - if the currently running program is requested, return myCurrentEvent and myNextEvent,
@@ -2340,6 +2346,8 @@ void CEitManager::getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSecti
 	//bool change = false;//TODO remove ?
 
 	uniqueServiceKey &= 0xFFFFFFFFFFFFULL;
+
+	checkCurrentNextEvent();
 
 	readLockEvents();
 	/* if the currently running program is requested... */
@@ -2599,6 +2607,7 @@ bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData
 	dprintf("[commandActualEPGchannelID] Request of current EPG for " PRINTF_CHANNEL_ID_TYPE "\n", channel_id);
 
 	t_channel_id uniqueServiceKey = channel_id & 0xFFFFFFFFFFFFULL;
+	checkCurrentNextEvent();
 	readLockEvents();
 	if (uniqueServiceKey == messaging_current_servicekey) {
 		if (myCurrentEvent) {

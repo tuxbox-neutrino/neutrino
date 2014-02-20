@@ -75,8 +75,8 @@ int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_picturedir))
-			strncpy(g_settings.network_nfs_picturedir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_picturedir)-1);
+		if (b.exec(g_settings.network_nfs_picturedir.c_str()))
+			g_settings.network_nfs_picturedir = b.getSelectedFile()->Name;
 		return res;
 	}
 
@@ -105,12 +105,12 @@ int CPictureViewerSetup::showPictureViewerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_SCALING);
 	picviewsetup->addItem(mc);
 
-	CStringInput pic_timeout(LOCALE_PICTUREVIEWER_SLIDE_TIME, g_settings.picviewer_slide_time, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ");
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PICTUREVIEWER_SLIDE_TIME, true, g_settings.picviewer_slide_time, &pic_timeout);
-	mf->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_SLIDE_TIME);
-	picviewsetup->addItem(mf);
+	CMenuOptionNumberChooser *cc = new CMenuOptionNumberChooser(LOCALE_PICTUREVIEWER_SLIDE_TIME, &g_settings.picviewer_slide_time, true, 0, 999);
+	cc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND));
+	cc->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_SLIDE_TIME);
+	picviewsetup->addItem(cc);
 
-	mf = new CMenuForwarder(LOCALE_PICTUREVIEWER_DEFDIR, true, g_settings.network_nfs_picturedir, this, "picturedir");
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_PICTUREVIEWER_DEFDIR, true, g_settings.network_nfs_picturedir, this, "picturedir");
 	mf->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_DEFDIR);
 	picviewsetup->addItem(mf);
 

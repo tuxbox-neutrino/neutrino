@@ -80,20 +80,13 @@ CScanTs::CScanTs(int dtype)
 	radar = 0;
 	total = done = 0;
 	freqready = 0;
-
 	deltype = dtype;
-	sigscale = new CProgressBar();
-	sigscale->setBlink();
-	
-	snrscale = new CProgressBar();
-	snrscale->setBlink();
+	signalbox = NULL;
 	memset(&TP, 0, sizeof(TP)); // valgrind
 }
 
 CScanTs::~CScanTs()
 {
-	delete sigscale;
-	delete snrscale;
 }
 
 void CScanTs::prev_next_TP( bool up)
@@ -155,7 +148,7 @@ void CScanTs::testFunc()
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", TP.feparams.dvb_feparams.frequency/1000, TP.feparams.dvb_feparams.u.qam.symbol_rate/1000, f, s, m);
 	}
 printf("CScanTs::testFunc: %s\n", buffer);
-	paintLine(xpos2, ypos_cur_satellite, w - 95, pname);
+	paintLine(xpos2, ypos_cur_satellite, w - 95, pname.c_str());
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	success = g_Zapit->tune_TP(TP);
 }
@@ -201,10 +194,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
-	sigscale->reset();
-	snrscale->reset();
-	lastsig = lastsnr = -1;
-
 	if (!frameBuffer->getActive())
 		return menu_return::RETURN_EXIT_ALL;
 
@@ -228,13 +217,13 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			scan_flags |= CServiceScan::SCAN_NIT;
 		TP.scan_mode = scan_flags;
 		if (deltype == FE_QPSK) {
-			TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq);
-			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate);
+			TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
+			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
 			TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.sat_TP_fec;
 			TP.polarization = scansettings.sat_TP_pol;
 		} else {
-			TP.feparams.dvb_feparams.frequency = atoi(scansettings.cable_TP_freq);
-			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.cable_TP_rate);
+			TP.feparams.dvb_feparams.frequency = atoi(scansettings.cable_TP_freq.c_str());
+			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.cable_TP_rate.c_str());
 			TP.feparams.dvb_feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.cable_TP_fec;
 			TP.feparams.dvb_feparams.u.qam.modulation	= (fe_modulation_t) scansettings.cable_TP_mod;
 		}
@@ -254,7 +243,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	}
 	else if(manual || !scan_all) {
 		sat.position = CServiceManager::getInstance()->GetSatellitePosition(pname);
-		strncpy(sat.satName, pname, 49);
+		strncpy(sat.satName, pname.c_str(), 49);
 		satList.push_back(sat);
 	} else {
 		satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
@@ -318,7 +307,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			else if(msg == CRCInput::RC_home) {
 				if(manual && !scansettings.scan_nit_manual)
 					continue;
-				if (ShowLocalizedMessage(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+				if (ShowMsg(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 					g_Zapit->stopScan();
 				}
 			}
@@ -337,7 +326,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		g_RCInput->open_click();
 	}
 	if(!test) {
-		CComponentsHeader header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED, NULL /*no header icon*/);
+		CComponentsHeaderLocalized header(x, y, width, hheight, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
 		header.paint(CC_SAVE_SCREEN_NO);
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
@@ -349,6 +338,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		} while (!(msg == CRCInput::RC_timeout));
 	}
 
+	delete signalbox;
+	signalbox = NULL;
 	hide();
 
 	CZapit::getInstance()->scanPids(scan_pids);
@@ -452,10 +443,10 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			CVolume::getInstance()->setVolume(msg);
 			break;
 		default:
-			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
-				delete[] (unsigned char*) data;
 			break;
 	}
+	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
+		delete[] (unsigned char*) data;
 	return msg;
 }
 
@@ -499,7 +490,7 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 
 void CScanTs::paint(bool fortest)
 {
-	CComponentsHeader header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD, NULL /*no header icon*/);
+	CComponentsHeaderLocalized header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
@@ -558,51 +549,13 @@ int CScanTs::greater_xpos(int xpos, const neutrino_locale_t txt)
 
 void CScanTs::showSNR ()
 {
-	char percent[10];
-	int barwidth = 150;
-	uint16_t ssig, ssnr;
-	int sig, snr;
-	int posx, posy;
-	int sw;
-
-	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
-	ssig = frontend->getSignalStrength();
-	ssnr = frontend->getSignalNoiseRatio();
-	snr = (ssnr & 0xFFFF) * 100 / 65535;
-	sig = (ssig & 0xFFFF) * 100 / 65535;
-
-	posy = y + height - mheight - 5;
-	//TODO: move sig/snr display into its own class, similar or same code also to find in motorcontrol
-	if (lastsig != sig) { 
-		lastsig = sig;
-		posx = x + 20;
-		sprintf(percent, "%d%%", sig);
-		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100%");
-		sigscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, sig, 100);
-		sigscale->paint();
-
-		posx = posx + barwidth + 3;
-		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx+2, posy + mheight-(mheight-BAR_HEIGHT)/4, sw, percent, COL_MENUCONTENTDARK_TEXT);
-
-		frameBuffer->paintBoxRel(posx+(4*fw), posy - 2, 4*fw, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx+2+(4*fw), posy + mheight-(mheight-BAR_HEIGHT)/4, 4*fw, "SIG", COL_MENUCONTENT_TEXT);
-
+	if (signalbox == NULL){
+		CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+		signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
+		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
+		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
+		signalbox->doPaintBg(true);
 	}
-	if (lastsnr != snr) {
-		lastsnr = snr;
-		posx = x + 20 + (20 * fw);
-		sprintf(percent, "%d%%", snr);
-		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100%");
-		snrscale->setProgress(posx - 1, posy+2, BAR_WIDTH, BAR_HEIGHT, snr, 100);
-		snrscale->paint();
 
-		posx = posx + barwidth + 3;
-		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUCONTENT_PLUS_0, 0, true);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx + 2, posy + mheight-(mheight-BAR_HEIGHT)/4, sw, percent, COL_MENUCONTENTDARK_TEXT, 0, true);
-
-		frameBuffer->paintBoxRel(posx+(4*fw), posy - 2, 4*fw, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx+2+(4*fw), posy + mheight-(mheight-BAR_HEIGHT)/4, 4*fw, "SNR", COL_MENUCONTENT_TEXT);
-		
-	}
+	signalbox->paint(false);
 }

@@ -43,8 +43,6 @@
 
 #include <iostream>
 
-#define HINTBOXEXT_MAX_HEIGHT 420
-
 CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon)
 {
 	m_message = strdup(Text);
@@ -61,15 +59,44 @@ CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, const char * const Tex
 		m_lines.push_back(oneLine);
 		begin = strtok(NULL, "\n");
 	}
-	init(Caption, Width, Icon);
+	m_bbheight = 0;
+	init(Caption, "", Width, Icon);
 }
 
+CHintBoxExt::CHintBoxExt(const std::string &CaptionString, const char * const Text, const int Width, const char * const Icon)
+{
+	m_message = strdup(Text);
+
+	char *begin   = m_message;
+
+	begin = strtok(m_message, "\n");
+	while (begin != NULL)
+	{
+		std::vector<Drawable*> oneLine;
+		std::string s(begin);
+		DText *d = new DText(s);
+		oneLine.push_back(d);
+		m_lines.push_back(oneLine);
+		begin = strtok(NULL, "\n");
+	}
+	m_bbheight = 0;
+	init(NONEXISTANT_LOCALE, CaptionString, Width, Icon);
+}
 
 CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, ContentLines& lines, const int Width, const char * const Icon)
 {
 	m_message = NULL;
 	m_lines = lines;
-	init(Caption, Width, Icon);
+	m_bbheight = 0;
+	init(Caption, "", Width, Icon);
+}
+
+CHintBoxExt::CHintBoxExt(const std::string &CaptionString, ContentLines& lines, const int Width, const char * const Icon)
+{
+	m_message = NULL;
+	m_lines = lines;
+	m_bbheight = 0;
+	init(NONEXISTANT_LOCALE, CaptionString, Width, Icon);
 }
 
 CHintBoxExt::~CHintBoxExt(void)
@@ -97,7 +124,7 @@ CHintBoxExt::~CHintBoxExt(void)
 	}
 }
 
-void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const char * const Icon)
+void CHintBoxExt::init(const neutrino_locale_t Caption, const std::string &CaptionString, const int Width, const char * const Icon)
 {
 	m_width   = Width;
 	int nw = 0;
@@ -111,11 +138,14 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	bgPainted = false;
 
 	m_caption = Caption;
+	m_captionString = CaptionString;
 
 	int page = 0;
 	int line = 0;
 	int maxWidth = m_width > 0 ? m_width : 0;
 	int maxOverallHeight = 0;
+	int screenheight = CFrameBuffer::getInstance()->getScreenHeight() * 9 / 10 - m_bbheight;
+	m_startEntryOfPage.clear();
 	m_startEntryOfPage.push_back(0);
 	for (ContentLines::iterator it = m_lines.begin(); it!=m_lines.end(); ++it)
 	{
@@ -134,7 +164,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
                 if (lineWidth > maxWidth)
 			maxWidth = lineWidth;
 		m_height += maxHeight;
-		if (m_height > HINTBOXEXT_MAX_HEIGHT || pagebreak) {
+		if (m_height > screenheight || pagebreak) {
 			if (m_height-maxHeight > maxOverallHeight)
 				maxOverallHeight = m_height - maxHeight;
 			m_height = m_theight + m_fheight + maxHeight;
@@ -193,10 +223,18 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	else
 		m_iconfile = "";
 
-	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(m_caption), true); // UTF-8
+	const char *l_caption = (m_caption == NONEXISTANT_LOCALE) ? m_captionString.c_str() : g_Locale->getText(m_caption);
+	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(l_caption, true); // UTF-8
 
 	if (nw > m_width)
 		m_width = nw;
+
+	/* if the output does not fit, make sure we at least
+	 * stay inside the screen... */
+	m_width = w_max(m_width ,SHADOW_OFFSET);
+	if (maxLineWidth + scrollWidth > m_width)
+		maxLineWidth = m_width - scrollWidth;
+
 	textStartX = (m_width - scrollWidth - maxLineWidth) / 2;
 
 	m_window = NULL;
@@ -216,11 +254,10 @@ void CHintBoxExt::paint(bool toround)
 	}
 
 	bgPainted = false;
-        CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
-        m_window = new CFBWindow(frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - m_width ) >> 1),
-                               frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - m_height) >> 2),
-                               m_width + SHADOW_OFFSET,
-                               m_height + SHADOW_OFFSET);
+	m_window = new CFBWindow(getScreenStartX(m_width + SHADOW_OFFSET),
+				 getScreenStartY(m_height + SHADOW_OFFSET),
+				 m_width + SHADOW_OFFSET,
+				 m_height + SHADOW_OFFSET);
 
 	refresh(toround);
 }
@@ -243,7 +280,8 @@ void CHintBoxExt::refresh(bool toround)
 	
 	// icon
 	int x_offset = 6, icon_space = x_offset, x_text;
-	std::string title_text = g_Locale->getText(m_caption);
+	const char *title_text = (m_caption == NONEXISTANT_LOCALE) ? m_captionString.c_str() : g_Locale->getText(m_caption);
+
 	if (!m_iconfile.empty())
 	{
 		int w, h;
@@ -257,7 +295,7 @@ void CHintBoxExt::refresh(bool toround)
 		x_text = x_offset;
 	
 	// title text
-	m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], x_text, m_theight, m_width, title_text.c_str(), COL_MENUHEAD_TEXT, 0, true); // UTF-8
+	m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], x_text, m_theight, m_width, title_text, COL_MENUHEAD_TEXT, 0, true); // UTF-8
 
 	// background of text panel
 	m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, toround ? RADIUS_LARGE : 0, CORNER_BOTTOM);//round

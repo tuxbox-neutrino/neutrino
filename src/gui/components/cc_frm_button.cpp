@@ -68,7 +68,8 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 {
 	initVarButton();
 	cc_btn_icon	= icon_name;
-	cc_btn_capt	= g_Locale->getText(caption_locale);;
+	cc_btn_capt_locale = caption_locale;
+	cc_btn_capt	= g_Locale->getText(cc_btn_capt_locale);
 	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
 	
 	x 		= x_pos;
@@ -87,7 +88,6 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 
 void CComponentsButton::initVarButton()
 {
-	initVarForm();
 	cc_item_type 	= CC_ITEMTYPE_BUTTON;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;
@@ -95,6 +95,7 @@ void CComponentsButton::initVarButton()
 	cc_btn_font	= NULL;
 	cc_btn_icon	= "";
 	cc_btn_capt	= "";
+	cc_btn_capt_locale = NONEXISTANT_LOCALE;
 }
 
 void CComponentsButton::initIcon()
@@ -135,14 +136,13 @@ void CComponentsButton::initCaption()
 	//if we have an icon, we must calculate positions for booth items together
 	//also the icon width and left position = 0
 	int face_w = 0;
-	int face_x = 0;
 
 	//calculate width and left position of icon, if available, picture position is default centered
 	if (cc_btn_icon_obj){
 		//if found a picture object, then get width from it...
 		face_w = cc_btn_icon_obj->getWidth();
 		//...and set position as centered
-		face_x = width/2 - face_w/2;
+		int face_x = width/2 - face_w/2;
 		cc_btn_icon_obj->setXPos(face_x);
 	}	
 
@@ -194,7 +194,8 @@ void CComponentsButton::setCaption(const std::string& text)
 
 void CComponentsButton::setCaption(const neutrino_locale_t locale_text)
 {
-	cc_btn_capt = g_Locale->getText(locale_text);
+	cc_btn_capt_locale = locale_text;
+	cc_btn_capt = g_Locale->getText(cc_btn_capt_locale);
 }
 
 void CComponentsButton::initCCBtnItems()

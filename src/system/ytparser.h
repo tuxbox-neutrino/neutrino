@@ -113,15 +113,8 @@ class cYTFeedParser
 	public:
 		enum yt_feed_mode_t
 		{
-			TOP_RATED,
-			TOP_FAVORITES,
-			MOST_SHARED,
 			MOST_POPULAR,
-			MOST_RESENT,
-			MOST_DISCUSSED,
-			MOST_RESPONDED,
-			RECENTLY_FEATURED,
-			ON_THE_WEB,
+			MOST_POPULAR_ALL_TIME,
 			FEED_LAST,
 			NEXT,
 			PREV,
@@ -129,10 +122,17 @@ class cYTFeedParser
 			SEARCH,
 			MODE_LAST
 		};
+		enum yt_feed_orderby_t
+		{
+			ORDERBY_PUBLISHED = 0,
+			ORDERBY_RELEVANCE,
+			ORDERBY_VIEWCOUNT,
+			ORDERBY_RATING
+		};
 		cYTFeedParser();
 		~cYTFeedParser();
 
-		bool ParseFeed(yt_feed_mode_t mode = MOST_POPULAR, std::string search = "", std::string vid = "");
+		bool ParseFeed(yt_feed_mode_t mode = MOST_POPULAR, std::string search = "", std::string vid = "", yt_feed_orderby_t orderby = ORDERBY_PUBLISHED);
 		bool ParseVideoInfo(cYTVideoInfo &vinfo, CURL *_curl_handle = NULL);
 		bool DownloadThumbnail(cYTVideoInfo &vinfo, CURL *_curl_handle = NULL);
 		bool GetVideoUrls();

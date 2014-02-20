@@ -82,16 +82,16 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short numpida;
 	unsigned short vpid;
 	unsigned short vtype;
-	std::string    language[REC_MAX_APIDS];
-	unsigned short apids[REC_MAX_APIDS];
-	unsigned short ac3flags[REC_MAX_APIDS];
+	std::string    language[MAX_PLAYBACK_PIDS];
+	unsigned short apids[MAX_PLAYBACK_PIDS];
+	unsigned short ac3flags[MAX_PLAYBACK_PIDS];
 	unsigned short currentapid, currentac3;
 
 	/* subtitles vars */
 	unsigned short numsubs;
-	std::string    slanguage[REC_MAX_APIDS];
-	unsigned short spids[REC_MAX_APIDS];
-	unsigned short sub_supported[REC_MAX_APIDS];
+	std::string    slanguage[MAX_PLAYBACK_PIDS];
+	unsigned short spids[MAX_PLAYBACK_PIDS];
+	unsigned short sub_supported[MAX_PLAYBACK_PIDS];
 	int currentspid;
 	int min_x, min_y, max_x, max_y;
 	time_t end_time;
@@ -154,6 +154,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	bool Playing() { return playing; };
+	bool osdTimeVisible() { return FileTime.IsVisible(); };
 	std::string CurrentAudioName() { return currentaudioname; };
 	int GetSpeed() { return speed; }
 	int GetPosition() { return position; }

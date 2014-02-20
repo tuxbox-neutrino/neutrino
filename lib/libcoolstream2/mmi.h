@@ -47,8 +47,8 @@ typedef struct {
 typedef struct {
 	int blind;
 	int answerlen;
-	char enguiryText[MAX_MMI_TEXT_LEN];
-} MMI_ENGUIRY_INFO;
+	char enquiryText[MAX_MMI_TEXT_LEN];
+} MMI_ENQUIRY_INFO;
 
 #endif // __MMI_H_
 

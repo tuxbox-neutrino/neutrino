@@ -53,7 +53,7 @@ public:
 		keyvalue = k;
 	};
 
-	virtual const char * getString(void)
+	virtual const char * getName(void)
 		{
 			the_text  = g_Locale->getText(LOCALE_KEYCHOOSERMENU_CURRENTKEY);
 			the_text += ": ";

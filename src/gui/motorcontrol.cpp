@@ -65,8 +65,6 @@ CMotorControl::CMotorControl(int tnum)
 CMotorControl::~CMotorControl()
 {
 	printf("CMotorControl::~CMotorControl\n");
-	delete sigscale;
-	delete snrscale;
 }
 
 void CMotorControl::Init(void)
@@ -91,10 +89,7 @@ void CMotorControl::Init(void)
 	motorPosition = 1;
 	satellitePosition = 0;
 	stepDelay = 10;
-	sigscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
-	sigscale->setBlink();
-	snrscale = new CProgressBar(/*true, BAR_WIDTH, BAR_HEIGHT*/);
-	snrscale->setBlink();
+	signalbox = NULL;
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)
@@ -122,7 +117,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	CZapitClient::commandSetScanSatelliteList sat;
 
 	sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satName);
-	strncpy(sat.satName, scansettings.satName, 49);
+	strncpy(sat.satName, scansettings.satName.c_str(), sizeof(sat.satName));
 	satList.push_back(sat);
 
 	satellite_map_t & satmap = frontend->getSatellites();
@@ -136,8 +131,8 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	g_Zapit->setScanSatelliteList(satList);
 	CZapit::getInstance()->SetLiveFrontend(frontend);
 
-	TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq);
-	TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate);
+	TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
+	TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
 	TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t)scansettings.sat_TP_fec;
 	TP.polarization = scansettings.sat_TP_pol;
 
@@ -228,7 +223,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						buf += " ";
 						buf += satname;
 						buf += " ?";
-						store = (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+						store = (ShowMsg(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
 					}
 				}
 				if(store)
@@ -313,6 +308,8 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 		}
 	}
 
+	delete signalbox;
+	signalbox = NULL;
 	hide();
 	frontend->setTsidOnid(0);
 
@@ -450,16 +447,12 @@ void CMotorControl::paintStatus()
 
 void CMotorControl::paintHead()
 {
-	CComponentsHeader header(x, y, width, hheight, LOCALE_MOTORCONTROL_HEAD, NULL /*no header icon*/);
+	CComponentsHeaderLocalized header(x, y, width, hheight, LOCALE_MOTORCONTROL_HEAD);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CMotorControl::paintMenu()
 {
-	sigscale->reset();
-	snrscale->reset();
-	lastsnr = lastsig = -1;
-
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos = y + hheight + (mheight >> 1) - 10;
@@ -584,55 +577,18 @@ void CMotorControl::stopSatFind(void)
 #endif
 }
 
-void CMotorControl::showSNR()
+void CMotorControl::showSNR ()
 {
-	char percent[10];
-	int barwidth = 100;
-	uint16_t ssig, ssnr;
-	int sig, snr;
-	int posx_sig, posx_snr, posy;
-
-	int sw;
-
-	ssig = frontend->getSignalStrength();
-	ssnr = frontend->getSignalNoiseRatio();
-
-	snr = (ssnr & 0xFFFF) * 100 / 65535;
-	sig = (ssig & 0xFFFF) * 100 / 65535;
-	if(sig < 5)
-		return;
-	g_sig = ssig & 0xFFFF;
-	g_snr = snr;
-
-	posy = y + height - mheight - 5;
-	//TODO: move sig/snr display into its own class, similar or same code also to find in scan.cpp
-	if (lastsig != sig) {
-		lastsig = sig;
-		posx_sig = x + 10;
-		sprintf(percent, "%d%% SIG", sig);
-		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SIG");
-
-		sigscale->setProgress(posx_sig-1, posy, BAR_WIDTH, BAR_HEIGHT, sig, 100);
-		sigscale->paint();
-
-		posx_sig += barwidth + 3;
-		frameBuffer->paintBoxRel(posx_sig, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_sig+2, posy + mheight, sw, percent, COL_MENUCONTENT_TEXT);
+	if (signalbox == NULL){
+		int xpos1 = x + 10;
+		signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
+		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
+		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
+		signalbox->doPaintBg(true);
 	}
 
-	if (lastsnr != snr) {
-		lastsnr = snr;
-		posx_snr = x + 10 + 210;
-		sprintf(percent, "%d%% SNR", snr);
-		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SNR");
-		
-		snrscale->setProgress(posx_snr-1, posy, BAR_WIDTH, BAR_HEIGHT, snr, 100);
- 		snrscale->paint();
-
-		posx_snr += barwidth + 3;
-		frameBuffer->paintBoxRel(posx_snr, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx_snr+2, posy + mheight, sw, percent, COL_MENUCONTENT_TEXT);
-	}
+	signalbox->paint(false);
+	g_snr = signalbox->getSNRValue();
 }
 
 void CMotorControl::readNetwork()

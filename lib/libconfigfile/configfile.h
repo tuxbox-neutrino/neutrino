@@ -50,11 +50,11 @@ class CConfigFile
  public:
 	CConfigFile(const char p_delimiter, const bool p_saveDefaults = true);
 
-	bool loadConfig(const char * const filename);
-	bool loadConfig(const std::string & filename);
+	bool loadConfig(const char * const filename, char _delimiter = '=');
+	bool loadConfig(const std::string & filename, char _delimiter = '=');
 
-	bool saveConfig(const char * const filename);
-	bool saveConfig(const std::string & filename);
+	bool saveConfig(const char * const filename, char _delimiter = '=');
+	bool saveConfig(const std::string & filename, char _delimiter = '=');
 
 	void clear();
 
