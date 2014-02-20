@@ -611,18 +611,17 @@ hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Festplattenprüfung fehlgeschlagen
-hdd_ext3 ext3
+hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht unterstützt.
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Festplatte
 hdd_format_failed Formatierung fehlgeschlagen
 hdd_format_warn Formatierung wird gestartet
-hdd_fs Dateisystem
+hdd_fs Dateisystem zum formatieren
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Keine Festplatte
-hdd_reiser ReiserFS
 hdd_removable_device Wechseldatenträger
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
@@ -862,6 +861,7 @@ menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Datenträger
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
 menu.hint_hdd_check Überprüft das Dateisystem und führt gegebenfalls eine Reparatur durch (fsck)
+menu.hint_hdd_fmt Wählen Sie das Datenträgerformat aus
 menu.hint_hdd_format Erstellt eine Partition auf dem Datenträger und formatiert diese
 menu.hint_hdd_noise Setzen Sie Parameter für das Automatic Acoustic Management.\nNicht alle Laufwerke unterstützen diese Funktion
 menu.hint_hdd_sleep Dieser Wert definiert, nach wieviel Minuten die Festplatte bei Inaktivität in den Sleep-Modus geschaltet wird

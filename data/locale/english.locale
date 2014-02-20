@@ -611,18 +611,17 @@ hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed HDD-check failed!
-hdd_ext3 ext3
+hdd_check_format_bad Checking of disks with format %s is not supported.
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Formating drive...
 hdd_format_failed Formating failed!
 hdd_format_warn Start format...
-hdd_fs Filesystem
+hdd_fs Filesystem used to format
 hdd_manage Manage drives
 hdd_middle Mid
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
-hdd_reiser ReiserFS
 hdd_removable_device Removable device
 hdd_settings Hard Disk Drive/USB
 hdd_sleep Switch off after...
@@ -862,6 +861,7 @@ menu.hint_games Show list of installed games
 menu.hint_hdd Format / check hard disk drive
 menu.hint_hdd_apply Apply sleep/noise parameters
 menu.hint_hdd_check Check filesystem (fsck)
+menu.hint_hdd_fmt Select the disk format
 menu.hint_hdd_format Create HDD partition and format it
 menu.hint_hdd_noise Set Automatic Acoustic Management\nnot all drives support this
 menu.hint_hdd_sleep Select time to stop hdd on inactivity
