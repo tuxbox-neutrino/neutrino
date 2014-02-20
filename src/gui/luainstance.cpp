@@ -340,6 +340,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "PaintIcon", CLuaInstance::PaintIcon },
 	{ "GetInput", CLuaInstance::GetInput },
 	{ "FontHeight", CLuaInstance::FontHeight },
+	{ "getRenderWidth", CLuaInstance::getRenderWidth },
 	{ "GetSize", CLuaInstance::GetSize },
 	{ "DisplayImage", CLuaInstance::DisplayImage },
 	{ "Blit", CLuaInstance::Blit },
@@ -552,6 +553,24 @@ int CLuaInstance::RenderString(lua_State *L)
 	if (boxh > -1) /* if boxh < 0, don't paint string */
 		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
 	lua_pushinteger(L, rwidth); /* return renderwidth */
+	return 1;
+}
+
+int CLuaInstance::getRenderWidth(lua_State *L)
+{
+	int f;
+	const char *text;
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+
+	CLuaData *W = CheckData(L, 1);
+	if (!W)
+		return 0;
+	f = luaL_checkint(L, 2);	/* font number, use FONT['xxx'] for FONT_TYPE_xxx in the script */
+	text = luaL_checkstring(L, 3);	/* text */
+	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
+		f = SNeutrinoSettings::FONT_TYPE_MENU;
+
+	lua_pushinteger(L, (int)g_Font[f]->getRenderWidth(text, true));
 	return 1;
 }
 
