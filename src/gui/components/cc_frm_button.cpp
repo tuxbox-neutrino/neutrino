@@ -167,7 +167,7 @@ void CComponentsButton::initCaption()
 	//set properties to label object
 	if (cc_btn_capt_obj){
 		int cap_w 		= width - 2*fr_thickness - face_w;
-		int cap_h		= height - 2*fr_thickness - 2*H_SPACE;
+		int cap_h		= height - 2*fr_thickness - H_SPACE;
 		if (cc_btn_icon_obj){
 			cc_btn_icon_obj->setXPos(cap_x);
 			cap_x += face_w + H_SPACE;
