@@ -1025,6 +1025,10 @@ menu.hint_pictureviewer_defdir Default picture viewer directory
 menu.hint_pictureviewer_scaling Picture scaling algorithm
 menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
 menu.hint_picview View pictures
+menu.hint_plugin_type_games Show games in usermenu at selection 'Plugin types'
+menu.hint_plugin_type_tools Show tools in usermenu at selection 'Plugin types'
+menu.hint_plugin_type_scripts Show scripts in usermenu at selection 'Plugin types'
+menu.hint_plugin_type_lua Show plugins in usermenu at selection 'Plugin types'
 menu.hint_plugins_hdd_dir Select directory to load\nplugins from
 menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
