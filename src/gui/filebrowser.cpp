@@ -980,7 +980,13 @@ bool CFileBrowser::exec(const char * const dirname)
 					std::string filename = filelist[selected].Name;
 					if ( filename.length() > 1 )
 					{
-						if((!Multi_Select) && S_ISDIR(filelist[selected].Mode) && !Dir_Mode)
+						bool return_dir = false;
+						if (Hide_records && S_ISDIR(filelist[selected].Mode)) {
+							std::string bdmv = filename + "/BDMV/index.bdmv";
+							if (access(bdmv.c_str(), F_OK) == 0)
+								return_dir = true;
+						}
+						if(!return_dir && (!Multi_Select) && S_ISDIR(filelist[selected].Mode) && !Dir_Mode)
 						{
 #ifdef ENABLE_INTERNETRADIO
 							if (m_Mode == ModeSC)
