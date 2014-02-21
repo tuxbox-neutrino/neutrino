@@ -116,8 +116,8 @@ public:
 
 	void *GetHandle(void);
 	void *GetDSP(void);
-	void HandleAudioMessage(int Event, void *pData);
-	void HandlePcmMessage(int Event, void *pData);
+	void HandleAudioMessage(void *Handle, int Event, void *pData);
+	void HandlePcmMessage(void *Handle, int Event, void *pData);
 	/* shut up */
 	int mute(void);
 	int unmute(void);
