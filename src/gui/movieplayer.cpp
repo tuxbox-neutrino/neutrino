@@ -1367,6 +1367,8 @@ void CMoviePlayerGui::selectChapter()
 		playback->SetPosition(positions[select], true);
 	} else if (pselect >= 0) {
 		numsubs = numpida = 0;
+		currentspid = -1;
+		currentapid = 0;
 		playback->SetTitle(playlists[pselect]);
 	}
 }
@@ -1599,7 +1601,12 @@ void CMoviePlayerGui::selectAutoLang()
 				std::map<std::string, std::string>::const_iterator it;
 				for(it = iso639.begin(); it != iso639.end(); ++it) {
 					if (g_settings.pref_lang[i] == it->second && strncasecmp(language[j].c_str(), it->first.c_str(), 3) == 0) {
-						pref_idx = j;
+						bool enabled = true;
+						// TODO: better check of supported
+						std::string audioname;
+						addAudioFormat(j, audioname, enabled);
+						if (enabled)
+							pref_idx = j;
 						break;
 					}
 				}
