@@ -1322,25 +1322,53 @@ void CMoviePlayerGui::selectChapter()
 
 	std::vector<int> positions; std::vector<std::string> titles;
 	playback->GetChapters(positions, titles);
-	if (positions.empty())
+
+	std::vector<int> playlists; std::vector<std::string> ptitles;
+	int current;
+	playback->GetTitles(playlists, ptitles, current);
+
+	if (positions.empty() && playlists.empty())
 		return;
 
 	CMenuWidget ChSelector(LOCALE_MOVIEBROWSER_MENU_MAIN_BOOKMARKS, NEUTRINO_ICON_AUDIO);
-	ChSelector.addIntroItems();
+	//ChSelector.addIntroItems();
+	ChSelector.addItem(GenericMenuCancel);
+
+	int pselect = -1;
+	CMenuSelectorTarget * pselector = new CMenuSelectorTarget(&pselect);
 
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
 	char cnt[5];
-	for (unsigned i = 0; i < positions.size(); i++) {
-		sprintf(cnt, "%d", i);
-		CMenuForwarder * item = new CMenuForwarder(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
-		ChSelector.addItem(item, position > positions[i]);
+	if (!playlists.empty()) {
+		ChSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEPLAYER_TITLES));
+		for (unsigned i = 0; i < playlists.size(); i++) {
+			sprintf(cnt, "%d", i);
+			CMenuForwarder * item = new CMenuForwarder(ptitles[i].c_str(), current != playlists[i], NULL, pselector, cnt);
+			ChSelector.addItem(item);
+		}
+	}
+
+	if (!positions.empty()) {
+		ChSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEPLAYER_CHAPTERS));
+		for (unsigned i = 0; i < positions.size(); i++) {
+			sprintf(cnt, "%d", i);
+			CMenuForwarder * item = new CMenuForwarder(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
+			ChSelector.addItem(item, position > positions[i]);
+		}
 	}
 	ChSelector.exec(NULL, "");
 	delete selector;
+	delete pselector;
 	printf("CMoviePlayerGui::selectChapter: selected %d (%d)\n", select, (select >= 0) ? positions[select] : -1);
-	if(select >= 0)
+	printf("CMoviePlayerGui::selectChapter: pselected %d (%d)\n", pselect, (pselect >= 0) ? playlists[pselect] : -1);
+	if(select >= 0) {
 		playback->SetPosition(positions[select], true);
+	} else if (pselect >= 0) {
+		numsubs = numpida = 0;
+		playback->SetTitle(playlists[pselect]);
+	}
 }
 
 void CMoviePlayerGui::selectSubtitle()
