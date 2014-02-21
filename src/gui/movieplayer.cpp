@@ -1389,8 +1389,8 @@ void CMoviePlayerGui::selectSubtitle()
 	char cnt[5];
 	unsigned int count;
 	for (count = 0; count < numsubs; count++) {
-		bool enabled = sub_supported[count];
-		bool defpid = currentspid >= 0 ? (currentspid == spids[count]) : (count == 0);
+		bool enabled = sub_supported[count] && (currentspid != spids[count]);
+
 		std::string title = slanguage[count];
 		if (title.empty()) {
 			char pidnumber[20];
@@ -1399,11 +1399,10 @@ void CMoviePlayerGui::selectSubtitle()
 		}
 		sprintf(cnt, "%d", count);
 		CMenuForwarder * item = new CMenuForwarder(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
-		item->setItemButton(NEUTRINO_ICON_BUTTON_STOP, false);
-		APIDSelector.addItem(item, defpid);
+		APIDSelector.addItem(item);
 	}
 	sprintf(cnt, "%d", count);
-	APIDSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, selector, cnt, CRCInput::RC_stop), currentspid < 0);
+	APIDSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, selector, cnt, CRCInput::RC_stop, NEUTRINO_ICON_BUTTON_STOP), currentspid > 0);
 
 	APIDSelector.exec(NULL, "");
 	delete selector;
