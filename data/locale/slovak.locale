@@ -1951,10 +1951,6 @@ timing.infobar_radio Stavový riadok (rádio mód)
 timing.menu Menu
 timing.numericzap Prepínanie číslami
 timing.volumebar Ukazovateľ hlasitosti
-two.infoviewer_ecm_info Zobrazovač ECM-infa
-two.infoviewer_ecm_info_options_0 Vyp
-two.infoviewer_ecm_info_options_1 Malé
-two.infoviewer_ecm_info_options_2 Veľké
 unicable.lnb Vstup Unicable
 unicable.qrg Kmitočet Unicable
 unicable.scr SCR Unicable
