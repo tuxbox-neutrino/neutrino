@@ -79,27 +79,27 @@ int CInfoMenu::showMenu()
 
 
 	info->addIntroItems();
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, &imageinfo, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, &imageinfo, NULL, CRCInput::RC_red);
 	mf->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_IMAGEINFO);
 	info->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_EXTRA_DBOXINFO,         true, NULL, &boxinfo, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(LOCALE_EXTRA_DBOXINFO,         true, NULL, &boxinfo, NULL, CRCInput::RC_green);
 	mf->setHint(NEUTRINO_ICON_HINT_DBOXINFO, LOCALE_MENU_HINT_DBOXINFO);
 	info->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_STREAMINFO_HEAD,        !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, &streaminfo, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_STREAMINFO_HEAD,        !CNeutrinoApp::getInstance()->channelList->isEmpty(), NULL, &streaminfo, NULL, CRCInput::RC_yellow);
 	mf->setHint(NEUTRINO_ICON_HINT_STREAMINFO, LOCALE_MENU_HINT_STREAMINFO);
 	info->addItem(mf);
 	
 #if 0
 	CBuildInfo buildinfo;
-	mf = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, &buildinfo, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE );
+	mf = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, &buildinfo, NULL, CRCInput::RC_blue);
 	mf->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
 	info->addItem(mf);
 #endif
 
 	if (g_settings.easymenu) {
-		mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler,  NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler,  NULL, CRCInput::RC_blue);
 		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
 		info->addItem(mf);
 	}

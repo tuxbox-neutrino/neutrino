@@ -130,14 +130,14 @@ int CAudioSelectMenuHandler::doMenu ()
 	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_MODE,
 			&g_settings.audio_AnalogMode,
 			AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT,
-			true, audioSetupNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+			true, audioSetupNotifier, CRCInput::RC_red);
 
 	AudioSelector.addItem( oj );
 
 	if (!g_settings.easymenu) {
 		oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
 				OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
-				true, audioSetupNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+				true, audioSetupNotifier, CRCInput::RC_green);
 		AudioSelector.addItem( oj );
 	}
 

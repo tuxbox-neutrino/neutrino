@@ -342,10 +342,6 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 			//pin protected items only
 			if (v_item[j].item_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
 			{
-				const char* icon = (count == 0) ? NEUTRINO_ICON_BUTTON_RED :
-					(count == 1) ? NEUTRINO_ICON_BUTTON_GREEN :
-					(count == 2) ? NEUTRINO_ICON_BUTTON_YELLOW :
-					(count == 3) ? NEUTRINO_ICON_BUTTON_BLUE : NULL;
 				const neutrino_msg_t key = (count == 0) ? CRCInput::RC_red :
 					(count == 1) ? CRCInput::RC_green :
 					(count == 2) ? CRCInput::RC_yellow :
@@ -356,7 +352,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 				itm_name += g_Locale->getText(LOCALE_PERSONALIZE_PINSTATUS);
 
 				if (v_item[j].personalize_mode != NULL)
-					pMenu->addItem(new CMenuOptionChooser(itm_name.c_str(), v_item[j].personalize_mode, PERSONALIZE_PROTECT_MODE_OPTIONS, PERSONALIZE_PROTECT_MODE_MAX, v_item[j].menuItem->active, NULL, key, icon));
+					pMenu->addItem(new CMenuOptionChooser(itm_name.c_str(), v_item[j].personalize_mode, PERSONALIZE_PROTECT_MODE_OPTIONS, PERSONALIZE_PROTECT_MODE_MAX, v_item[j].menuItem->active, NULL, key));
 			}
 		}
 		res = pMenu->exec(NULL, "");
@@ -405,7 +401,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 
 	//help
 	pMenu->addItem(GenericMenuSeparatorLine);
-	pMenu->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_HELP, true, NULL, this, "personalize_help", CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP));
+	pMenu->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_HELP, true, NULL, this, "personalize_help", CRCInput::RC_help));
 
 	res = pMenu->exec(NULL, "");
 	if (show_pluginmenu) {
@@ -468,7 +464,7 @@ void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pi
 {
 	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, &g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
 
-	CMenuForwarder * fw_pin_setup = new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, g_settings.personalize_pincode, pin_widget, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * fw_pin_setup = new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, g_settings.personalize_pincode, pin_widget, NULL, CRCInput::RC_red);
  	pin_setup_notifier = new CPinSetupNotifier(fw_pin_setup);
  	p_widget->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_PIN_IN_USE, &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, pin_setup_notifier));
 

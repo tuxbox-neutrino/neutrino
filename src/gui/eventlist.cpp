@@ -1341,15 +1341,15 @@ int CEventFinderMenu::showMenu(void)
 
 	CStringInputSMS stringInput(LOCALE_EVENTFINDER_KEYWORD,m_search_keyword, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
 
-	CMenuForwarder* mf0	= new CMenuForwarder(LOCALE_EVENTFINDER_KEYWORD, true, *m_search_keyword, &stringInput, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder* mf0	= new CMenuForwarder(LOCALE_EVENTFINDER_KEYWORD, true, *m_search_keyword, &stringInput, NULL, CRCInput::RC_red);
 	CMenuOptionChooser* mo0	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST, m_search_list, SEARCH_LIST_OPTIONS, SEARCH_LIST_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortcut++));
 	m_search_channelname_mf	= new CMenuForwarder("", *m_search_list != CNeutrinoEventList::SEARCH_LIST_ALL, m_search_channelname, this, "#2", CRCInput::convertDigitToKey(shortcut++));
 	CMenuOptionChooser* mo1	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_EPG, m_search_epg_item, SEARCH_EPG_OPTIONS, SEARCH_EPG_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
-	CMenuForwarder* mf1	= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "#1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder* mf1	= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "#1", CRCInput::RC_green);
 
 	CMenuWidget searchMenu(LOCALE_EVENTFINDER_HEAD, NEUTRINO_ICON_FEATURES, 40);
 
-	CMenuForwarder* mf2	= new CMenuForwarder(LOCALE_EVENTFINDER_HISTORY, true, NULL, this, "#history", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	CMenuForwarder* mf2	= new CMenuForwarder(LOCALE_EVENTFINDER_HISTORY, true, NULL, this, "#history", CRCInput::RC_yellow);
 	CMenuOptionNumberChooser* moc1 = new CMenuOptionNumberChooser(LOCALE_EVENTFINDER_MAX_HISTORY, &g_settings.epg_search_history_max, true, 0, 50, NULL);
 	searchMenu.addItem(GenericMenuSeparatorLine);
 

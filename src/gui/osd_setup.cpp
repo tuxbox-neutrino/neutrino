@@ -487,27 +487,27 @@ int COsdSetup::showOsdSetup()
 
 	//item menu colors
 	showOsdMenueColorSetup(&osd_menu_colors);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, &osd_menu_colors, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, &osd_menu_colors, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_COLORS);
 	osd_menu->addItem(mf);
 
 	//fonts
 	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, w_max(50, 10), MN_WIDGET_ID_OSDSETUP_FONT);
 	showOsdFontSizeSetup(&osd_menu_fonts);
-	mf = new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, &osd_menu_fonts, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, &osd_menu_fonts, NULL, CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_FONTS);
 	osd_menu->addItem(mf);
 
 	//timeouts
 	CMenuWidget osd_menu_timing(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_TIMEOUT);
 	showOsdTimeoutSetup(&osd_menu_timing);
-	mf = new CMenuForwarder(LOCALE_COLORMENU_TIMING, true, NULL, &osd_menu_timing, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_COLORMENU_TIMING, true, NULL, &osd_menu_timing, NULL, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_TIMEOUTS);
 	osd_menu->addItem(mf);
 
 	//screen
 	CScreenSetup screensetup;
-	mf = new CMenuForwarder(LOCALE_VIDEOMENU_SCREENSETUP, true, NULL, &screensetup, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf = new CMenuForwarder(LOCALE_VIDEOMENU_SCREENSETUP, true, NULL, &screensetup, NULL, CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_SCREEN_SETUP);
 	osd_menu->addItem(mf);
 
@@ -629,7 +629,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 {
 	menu_colors->addIntroItems(LOCALE_COLORMENU_MENUCOLORS);
 
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, new CThemes(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, new CThemes(), NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_THEME);
 	menu_colors->addItem(mf);
 
@@ -773,26 +773,26 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 	// select gui font file
 	osdFontFile = g_settings.font_file;
 	osdFontFile = "(" + getBaseName(osdFontFile) + ")";
-	mfFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT, true, osdFontFile.c_str(), this, "select_font", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mfFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT, true, osdFontFile.c_str(), this, "select_font", CRCInput::RC_red);
 	mfFontFile->setHint("", LOCALE_MENU_HINT_FONT_GUI);
 	fontSettings->addItem(mfFontFile);
 
 	// select teletext font file
 	osdTtxFontFile = g_settings.ttx_font_file;
 	osdTtxFontFile = "(" + getBaseName(osdTtxFontFile) + ")";
-	mfTtxFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, osdTtxFontFile.c_str(), this, "ttx_font",  CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mfTtxFontFile = new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, osdTtxFontFile.c_str(), this, "ttx_font",  CRCInput::RC_green);
 	mfTtxFontFile->setHint("", LOCALE_MENU_HINT_FONT_TTX);
 	fontSettings->addItem(mfTtxFontFile);
 
 	// contrast fonts
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_yellow);
 	mc->setHint("", LOCALE_MENU_HINT_CONTRAST_FONTS);
 	fontSettings->addItem(mc);
 
 	fontSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FONTMENU_SIZES));
 
 	//submenu font scaling
-	mf = new CMenuForwarder(LOCALE_FONTMENU_SCALING, true, NULL, this, "font_scaling",  CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf = new CMenuForwarder(LOCALE_FONTMENU_SCALING, true, NULL, this, "font_scaling",  CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_FONT_SCALING);
 	fontSettings->addItem(mf);
 
@@ -835,7 +835,7 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 	}
 
 	menu_timeout->addItem(GenericMenuSeparatorLine);
-	menu_timeout->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "osd.def", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	menu_timeout->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "osd.def", CRCInput::RC_red));
 }
 
 #define LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT 7
@@ -1061,7 +1061,7 @@ void COsdSetup::showOsdInfoclockSetup(CMenuWidget *menu_infoclock)
 {
 	menu_infoclock->addIntroItems(LOCALE_MISCSETTINGS_INFOCLOCK);
 
-	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOCLOCK, &g_settings.mode_clock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuOptionChooser *mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOCLOCK, &g_settings.mode_clock, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_red);
 	mc->setHint("", LOCALE_MENU_HINT_CLOCK_MODE);
 	menu_infoclock->addItem(mc);
 
@@ -1179,7 +1179,7 @@ int COsdSetup::showContextChanlistMenu()
 	fontSettingsSubMenu->addItem(GenericMenuSeparatorLine);
 	fontSettingsSubMenu->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[i].actionkey));
 
-	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_FONTS);
 	menu_chanlist->addItem(mf);
 

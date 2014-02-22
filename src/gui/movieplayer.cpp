@@ -1563,7 +1563,7 @@ void CMoviePlayerGui::selectSubtitle()
 	if(!numsubs)
 		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
 
-	CMenuOptionStringChooser * sc = new CMenuOptionStringChooser(LOCALE_SUBTITLES_CHARSET, &g_settings.subs_charset, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	CMenuOptionStringChooser * sc = new CMenuOptionStringChooser(LOCALE_SUBTITLES_CHARSET, &g_settings.subs_charset, true, NULL, CRCInput::RC_red, NULL, true);
 	sc->addOption("UTF-8");
 	sc->addOption("UCS-2");
 	sc->addOption("CP1250");
@@ -1591,7 +1591,7 @@ void CMoviePlayerGui::selectSubtitle()
 		APIDSelector.addItem(item);
 	}
 	sprintf(cnt, "%d", count);
-	APIDSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, selector, cnt, CRCInput::RC_stop, NEUTRINO_ICON_BUTTON_STOP), currentspid > 0);
+	APIDSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, selector, cnt, CRCInput::RC_stop), currentspid > 0);
 
 	APIDSelector.exec(NULL, "");
 	delete selector;

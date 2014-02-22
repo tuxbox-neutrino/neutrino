@@ -125,9 +125,9 @@ int CUpdateSettings::initMenu()
 	CMenuWidget w_upsettings(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE_SETTINGS);
 	w_upsettings.addIntroItems(LOCALE_FLASHUPDATE_SETTINGS);
 
-	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_green);
 //	fw_url->setHint("", LOCALE_MENU_HINT_XXX);
-	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_red);
 //	fw_update_dir->setHint("", LOCALE_MENU_HINT_XXX);
 	CMenuOptionChooser *name_backup = new CMenuOptionChooser(LOCALE_FLASHUPDATE_NAMEMODE2, &g_settings.softupdate_name_mode_backup, SOFTUPDATE_NAME_MODE2_OPTIONS, SOFTUPDATE_NAME_MODE2_OPTION_COUNT, true);
 //	name_backup->setHint("", LOCALE_MENU_HINT_XXX);

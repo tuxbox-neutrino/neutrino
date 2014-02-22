@@ -362,13 +362,13 @@ int CChannelList::doChannelMenu(void)
 		unlocked = (chanlist[selected]->last_unlocked_time + 3600 > time_monotonic());
 
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, enabled && unlocked, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, enabled && unlocked, NULL, selector, cnt, CRCInput::RC_red), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_MOVE, enabled && unlocked, NULL, selector, cnt, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_MOVE, enabled && unlocked, NULL, selector, cnt, CRCInput::RC_green), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ADD_TO_BOUQUET, unlocked, NULL, selector, cnt, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ADD_TO_BOUQUET, unlocked, NULL, selector, cnt, CRCInput::RC_yellow), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, unlocked, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, unlocked, NULL, selector, cnt, CRCInput::RC_blue), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
 	bool reset_enabled = chanlist[selected]->flags & CZapitChannel::NEW;
 	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_FLAGS, reset_enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(shortcut++)), old_selected == i++);

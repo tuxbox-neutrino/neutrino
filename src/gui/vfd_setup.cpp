@@ -116,7 +116,7 @@ int CVfdSetup::showSetup()
 	//vfd brightness menu
 	CMenuWidget lcd_sliders(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
 	showBrightnessSetup(&lcd_sliders);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, &lcd_sliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, &lcd_sliders, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_VFD_BRIGHTNESS_SETUP);
 	vfds->addItem(mf);
 
@@ -125,7 +125,7 @@ int CVfdSetup::showSetup()
 	{
  		CMenuWidget * ledMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_LED_SETUP);
 		showLedSetup(ledMenu);
-		mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_MENU, true, NULL, ledMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_MENU, true, NULL, ledMenu, NULL, CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_POWER_LEDS);
 		vfds->addItem(mf);
 	}
@@ -133,7 +133,7 @@ int CVfdSetup::showSetup()
 	{
  		CMenuWidget * blMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_BACKLIGHT);
 		showBacklightSetup(blMenu);
-		mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_BACKLIGHT, true, NULL, blMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf = new CMenuDForwarder(LOCALE_LEDCONTROLER_BACKLIGHT, true, NULL, blMenu, NULL, CRCInput::RC_yellow);
 		mf->setHint("", LOCALE_MENU_HINT_BACKLIGHT);
 		vfds->addItem(mf);
 	}
@@ -195,7 +195,7 @@ void CVfdSetup::showBrightnessSetup(CMenuWidget *mn_widget)
 	mn_widget->addItem(mf);
 
 	mn_widget->addItem(GenericMenuSeparatorLine);
-	mf = new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "def", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf = new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "def", CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_VFD_DEFAULTS);
 	mn_widget->addItem(mf);
 }

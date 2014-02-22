@@ -150,7 +150,7 @@ int CSettingsManager::showMenu()
 
 	CMenuForwarder * mf;
 	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_red);
 	else
 		mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_recall);
 
@@ -160,11 +160,11 @@ int CSettingsManager::showMenu()
 	if (!g_settings.easymenu) {
 		mset->addItem(GenericMenuSeparatorLine);
 
-		mf = new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig", CRCInput::RC_red);
 		mf->setHint(NEUTRINO_ICON_HINT_SAVEAS, LOCALE_MENU_HINT_SAVEAS);
 		mset->addItem(mf);
 
-		mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_green);
 		mf->setHint(NEUTRINO_ICON_HINT_LOAD, LOCALE_MENU_HINT_LOAD);
 		mset->addItem(mf);
 
@@ -172,26 +172,26 @@ int CSettingsManager::showMenu()
 	}
 
 	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_green);
 	else
-		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_yellow);
 
 	mf->setHint(NEUTRINO_ICON_HINT_BACKUP, LOCALE_MENU_HINT_BACKUP);
 	mset->addItem(mf);
 
 	if (g_settings.easymenu)
-		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_yellow);
 	else
-		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_blue);
 
 	mf->setHint(NEUTRINO_ICON_HINT_RESTORE, LOCALE_MENU_HINT_RESTORE);
 	mset->addItem(mf);
 
 	if (g_settings.easymenu) {
-		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_blue);
 	} else {
 		mset->addItem(GenericMenuSeparatorLine);
-		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
+		mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_standby);
 	}
 	mf->setHint(NEUTRINO_ICON_HINT_FACTORY, LOCALE_MENU_HINT_FACTORY);
 	mset->addItem(mf);

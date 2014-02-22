@@ -998,9 +998,9 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				MenuTargetRefreshEpg refresh(this);
 				MenuTargetAddReminder remind(this);
 				if (!g_settings.minimode)
-					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, &record, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, &refresh, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, &remind, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), false);
+					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, &record, NULL, CRCInput::RC_red), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, &refresh, NULL, CRCInput::RC_green), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, &remind, NULL, CRCInput::RC_yellow), false);
 				if (selectedChannelEntry)
 					menuWidgetActions.exec (NULL, "");
 

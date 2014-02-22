@@ -514,7 +514,7 @@ int CScanSetup::showScanMenu()
 	//----------------------------------------------------------------------
 #if 0
 	//save scan settings
-	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "save_scansettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "save_scansettings", CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_SAVESETTINGS);
 	settings->addItem(mf);
 	//----------------------------------------------------------------------
@@ -543,27 +543,27 @@ int CScanSetup::showScanMenu()
 
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", CRCInput::RC_red);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
 		//manual scan
 		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
 		addScanMenuManualScan(manualScan);
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
 		settings->addItem(mf);
 		//auto scan all
 		CMenuWidget * autoScanAll = new CMenuWidget(LOCALE_SATSETUP_AUTO_SCAN_ALL, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN_ALL);
 		addScanMenuAutoScanAll(autoScanAll);
-		fautoScanAll = new CMenuDForwarder(LOCALE_SATSETUP_AUTO_SCAN_ALL, true /*(dmode != NO_DISEQC)*/, NULL, autoScanAll, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		fautoScanAll = new CMenuDForwarder(LOCALE_SATSETUP_AUTO_SCAN_ALL, true /*(dmode != NO_DISEQC)*/, NULL, autoScanAll, "", CRCInput::RC_yellow);
 		fautoScanAll->setHint("", LOCALE_MENU_HINT_SCAN_AUTOALL);
 		settings->addItem(fautoScanAll);
 #ifdef ENABLE_FASTSCAN
 		//fast scan
 		CMenuWidget * fastScanMenu = new CMenuWidget(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_FAST_SCAN);
 		addScanMenuFastScan(fastScanMenu);
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::RC_blue);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FAST);
 		settings->addItem(mf);
 #endif
@@ -596,20 +596,20 @@ int CScanSetup::showScanMenu()
 
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_red, have_sat ? NULL : NEUTRINO_ICON_BUTTON_RED);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_red);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
 		//manual scan
 		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
 		addScanMenuManualScan(manualScan);
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_green, have_sat ? NULL : NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
 		settings->addItem(mf);
 		//simple cable scan
 		CMenuWidget * cableScan = new CMenuWidget(LOCALE_SATSETUP_CABLE, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_CABLE_SCAN);
 		addScanMenuCable(cableScan);
-		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_yellow, have_sat ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
+		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", have_sat ? CRCInput::convertDigitToKey(shortcut++) : CRCInput::RC_yellow);
 		fcableScan->setHint("", LOCALE_MENU_HINT_SCAN_CABLE_SIMPLE);
 		settings->addItem(fcableScan);
 		settings->addItem(GenericMenuSeparatorLine);
@@ -633,14 +633,14 @@ int CScanSetup::showScanMenu()
 		/* FIXME leak, satSelect added to both auto and manual scan, so one of them cannot be deleted */
 		CMenuWidget * autoScan = new CMenuWidget(LOCALE_SERVICEMENU_SCANTS, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_AUTO_SCAN);
 		addScanMenuAutoScan(autoScan);
-		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_green, have_other ? NULL : NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(autoscan, true, NULL, autoScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTO);
 		settings->addItem(mf);
 
 		//manual scan
 		CMenuWidget * manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, w, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
 		addScanMenuManualScan(manualScan);
-		mf = new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_yellow, have_other ? NULL : NEUTRINO_ICON_BUTTON_YELLOW);
+		mf = new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", have_other ? CRCInput::RC_nokey : CRCInput::RC_yellow);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MANUAL);
 		settings->addItem(mf);
 		settings->addItem(GenericMenuSeparatorLine);
@@ -712,25 +712,19 @@ int CScanSetup::showScanMenuFrontendSetup()
 					: g_Locale->getText(LOCALE_SCANTS_ACTCABLE),
 					fe->getName());
 
-		const char * icon = NULL;
 		neutrino_msg_t key = CRCInput::RC_nokey;
-		if (i == 0) {
+		if (i == 0)
 			key = CRCInput::RC_red;
-			icon = NEUTRINO_ICON_BUTTON_RED;
-		} else if (i == 1) {
+		else if (i == 1)
 			key = CRCInput::RC_green;
-			icon = NEUTRINO_ICON_BUTTON_GREEN;
-		} else if (i == 2) {
+		else if (i == 2)
 			key = CRCInput::RC_yellow;
-			icon = NEUTRINO_ICON_BUTTON_YELLOW;
-		} else if (i == 3) {
+		else if (i == 3)
 			key = CRCInput::RC_blue;
-			icon = NEUTRINO_ICON_BUTTON_BLUE;
-		}
 
 		modestr[i] = g_Locale->getText(getModeLocale(fe->getMode()));
 
-		mf = new CMenuForwarder(name, allow_start, modestr[i], this, tmp, key, icon);
+		mf = new CMenuForwarder(name, allow_start, modestr[i], this, tmp, key);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SETUP_FE);
 		setupMenu->addItem(mf);
 		if(i != 0)
@@ -910,7 +904,7 @@ int CScanSetup::showFrontendSetup(int number)
 		femaster = fe->getMaster();
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE, (int *)&femode, SATSETUP_FRONTEND_MODE, mode_count,
-			enable, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+			enable, this, CRCInput::RC_red, NULL, true);
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_FEMODE);
 	setupMenu->addItem(mc);
 
@@ -921,7 +915,7 @@ int CScanSetup::showFrontendSetup(int number)
 
 		if (fecount > 1) {
 			/* link to master select */
-			linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, CFrontend::linked(femode), this, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+			linkfe = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE_MASTER, &femaster, feselect, select_count, CFrontend::linked(femode), this, CRCInput::RC_green, NULL, true);
 			linkfe->setHint("", LOCALE_MENU_HINT_SCAN_FELINK);
 			setupMenu->addItem(linkfe);
 		}
@@ -993,12 +987,12 @@ int CScanSetup::showFrontendSetup(int number)
 		rotorMenu->addItem(mc);
 		msettings.Add(mc);
 
-		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_moptions, NULL, this, "satfind", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_moptions, NULL, this, "satfind", CRCInput::RC_blue);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SATFIND);
 		rotorMenu->addItem(mf);
 		msettings.Add(mf);
 
-		mf = new CMenuDForwarder(LOCALE_SATSETUP_EXTENDED_MOTOR, allow_moptions, NULL, rotorMenu, "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_EXTENDED_MOTOR, allow_moptions, NULL, rotorMenu, "", CRCInput::RC_blue);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR);
 		setupMenu->addItem(mf);
 	}
@@ -1230,7 +1224,7 @@ int CScanSetup::showScanMenuSatFind()
 	sat_findMenu->setSelected(selected);
 	sat_findMenu->addIntroItems();
 
-	CMenuOptionStringChooser * feSatSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	CMenuOptionStringChooser * feSatSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, NULL, CRCInput::RC_red, NULL, true);
 	feSatSelect->setHint("", LOCALE_MENU_HINT_SCAN_SATSELECT);
 
 	satellite_map_t & satmap = fe->getSatellites();
@@ -1253,7 +1247,7 @@ int CScanSetup::showScanMenuSatFind()
 	sat_findMenu->addItem(feSatSelect);
 
 	CTPSelectHandler tpSelect;
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, &tpSelect, "sat", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, &tpSelect, "sat", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TPSELECT);
 	sat_findMenu->addItem(mf);
 	sat_findMenu->addItem(GenericMenuSeparatorLine);
@@ -1262,7 +1256,7 @@ int CScanSetup::showScanMenuSatFind()
 	//--------------------------------------------------------------
 	sat_findMenu->addItem(GenericMenuSeparatorLine);
 	CMotorControl mcontrol(fenumber);
-	mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_start, NULL, &mcontrol, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_start, NULL, &mcontrol, "", CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_SATFIND_START);
 	sat_findMenu->addItem(mf);
 
@@ -1339,32 +1333,31 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest)
 	//----------------------------------------------------------------------
 	if (r_system == ALL_CABLE)  {
 		act_test = "ctest"; act_manual = "cmanual";
-		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NULL, true);
 		cableSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 		fillCableSelect(cableSelect);
 		manual_Scan->addItem(cableSelect);
 		mf = new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
 		manual_Scan->addItem(mf);
-		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green);
 	} else if (r_system == ALL_TERR) {
 		act_test = "ttest"; act_manual = "tmanual";
-		CMenuOptionStringChooser * terrSelect = new CMenuOptionStringChooser(LOCALE_TERRESTRIALSETUP_PROVIDER, &scansettings.terrestrialName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		CMenuOptionStringChooser * terrSelect = new CMenuOptionStringChooser(LOCALE_TERRESTRIALSETUP_PROVIDER, &scansettings.terrestrialName, true, this, CRCInput::RC_red, NULL, true);
 		//terrSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 		fillTerrSelect(terrSelect);
 		manual_Scan->addItem(terrSelect);
-		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "terrestrial", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "terrestrial", CRCInput::RC_green);
 	} else if (r_system == ALL_SAT) {
 		act_test = "stest"; act_manual = "smanual";
-		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NULL, true);
 		satSelect->setHint("", LOCALE_MENU_HINT_SCAN_SATELLITE);
 		/* add configured satellites to satSelect */
 		fillSatSelect(satSelect);
 		manual_Scan->addItem(satSelect);
-		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "sat", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-	} else {
+		mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "sat", CRCInput::RC_green);
+	} else
 		return;
-	}
 
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TPSELECT);
 	manual_Scan->addItem(mf);
@@ -1376,12 +1369,12 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest)
 	//----------------------------------------------------------------------
 	manual_Scan->addItem(GenericMenuSeparatorLine);
 
-	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, act_test, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, act_test, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
 	manual_Scan->addItem(mf);
 
 	if (!stest) {
-		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, act_manual, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, act_manual, CRCInput::RC_blue);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 		manual_Scan->addItem(mf);
 	}
@@ -1393,7 +1386,7 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	auto_ScanAll->addIntroItems();
 	//----------------------------------------------------------------------
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_SATELLITE, true, NULL, satOnOff, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_SATELLITE, true, NULL, satOnOff, "", CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_AUTOALL_SELECT);
 	auto_ScanAll->addItem(mf);
 
@@ -1402,7 +1395,7 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 	addListFlagsItems(auto_ScanAll, 1);
 	//----------------------------------------------------------------------
 	auto_ScanAll->addItem(GenericMenuSeparatorLine);
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sall", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sall", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	auto_ScanAll->addItem(mf);
 }
@@ -1439,24 +1432,24 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	fast_ScanMenu->addIntroItems();
 
-	CMenuOptionChooser* fastProv = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_PROV, (int *)&scansettings.fast_op, FAST_SCAN_PROV_OPTIONS, FAST_SCAN_PROV_OPTIONS_COUNT, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	CMenuOptionChooser* fastProv = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_PROV, (int *)&scansettings.fast_op, FAST_SCAN_PROV_OPTIONS, FAST_SCAN_PROV_OPTIONS_COUNT, true, NULL, CRCInput::RC_red, NULL, true);
 	fastProv->setHint("", LOCALE_MENU_HINT_SCAN_FASTPROV);
 	fast_ScanMenu->addItem(fastProv);
 #if 0
-	CMenuOptionChooser* fastType = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_TYPE, (int *)&scansettings.fast_type, FAST_SCAN_OPTIONS, FAST_SCAN_OPTIONS_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+	CMenuOptionChooser* fastType = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_TYPE, (int *)&scansettings.fast_type, FAST_SCAN_OPTIONS, FAST_SCAN_OPTIONS_COUNT, true, NULL, CRCInput::RC_green, NULL, true);
 	fastType->setHint("", LOCALE_MENU_HINT_SCAN_FASTTYPE);
 	fast_ScanMenu->addItem(fastType);
 #endif
-	CMenuOptionChooser* fastUp = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_UPDATE, (int *)&scansettings.fst_update, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+	CMenuOptionChooser* fastUp = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_UPDATE, (int *)&scansettings.fst_update, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_green, NULL, true);
 	fastUp->setHint("", LOCALE_MENU_HINT_SCAN_FASTUPDATE);
 	fast_ScanMenu->addItem(fastUp);
 	fast_ScanMenu->addItem(GenericMenuSeparatorLine);
 
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC, allow_start, NULL, this, "fastdiseqc", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC, allow_start, NULL, this, "fastdiseqc", CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_FASTDISEQC);
 	fast_ScanMenu->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	fast_ScanMenu->addItem(mf);
 }
@@ -1485,7 +1478,7 @@ int CScanSetup::showFastscanDiseqcSetup()
 		sat_setup->addItem(diseqc);
 	}
 	sat_setup->addItem(GenericMenuSeparatorLine);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	sat_setup->addItem(mf);
 
@@ -1504,7 +1497,7 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 
 	const char *action;
 	if (r_system == ALL_CABLE)  { //cable
-		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		CMenuOptionStringChooser * cableSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NULL, true);
 		cableSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 		fillCableSelect(cableSelect);
 		auto_Scan->addItem(cableSelect);
@@ -1513,13 +1506,13 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 		auto_Scan->addItem(mf);
 		action = "cauto";
 	} else if (r_system == ALL_TERR) {
-		CMenuOptionStringChooser * terrSelect = new CMenuOptionStringChooser(LOCALE_TERRESTRIALSETUP_PROVIDER, &scansettings.terrestrialName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		CMenuOptionStringChooser * terrSelect = new CMenuOptionStringChooser(LOCALE_TERRESTRIALSETUP_PROVIDER, &scansettings.terrestrialName, true, this, CRCInput::RC_red, NULL, true);
 		//terrSelect->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 		fillCableSelect(terrSelect);
 		auto_Scan->addItem(terrSelect);
 		action = "tauto";
 	} else if (r_system == ALL_SAT) {
-		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		CMenuOptionStringChooser * satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, &scansettings.satName, true, this, CRCInput::RC_red, NULL, true);
 		satSelect->setHint("", LOCALE_MENU_HINT_SCAN_SATELLITE);
 		/* add configured satellites to satSelect */
 		fillSatSelect(satSelect);
@@ -1534,7 +1527,7 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 	addListFlagsItems(auto_Scan, 1);
 	//----------------------------------------------------------------------
 	auto_Scan->addItem(GenericMenuSeparatorLine);
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, action, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, action, CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	auto_Scan->addItem(mf);
 }
@@ -1548,7 +1541,7 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 
 	menu->addIntroItems();
 	//----------------------------------------------------------------------
-	CMenuOptionStringChooser * select = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	CMenuOptionStringChooser * select = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, &scansettings.cableName, true, this, CRCInput::RC_red, NULL, true);
 	fillCableSelect(select);
 	select->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 	menu->addItem(select);
@@ -1557,7 +1550,7 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
 	menu->addItem(mf);
 
-	mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "cable", CRCInput::RC_green);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TPSELECT);
 	menu->addItem(mf);
 
@@ -1593,11 +1586,11 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 
 	menu->addItem(GenericMenuSeparatorLine);
 #if 0
-	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, "test", CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
 	menu->addItem(mf);
 #endif
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "cable", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "cable", CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	menu->addItem(mf);
 }

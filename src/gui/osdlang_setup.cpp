@@ -98,7 +98,7 @@ int COsdLangSetup::showLocalSetup()
 	CMenuWidget osdl_setup(LOCALE_LANGUAGESETUP_OSD, NEUTRINO_ICON_LANGUAGE, width, MN_WIDGET_ID_LANGUAGESETUP_LOCALE);
 	showLanguageSetup(&osdl_setup);
 
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_LANGUAGESETUP_OSD, true, g_settings.language, &osdl_setup, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_LANGUAGESETUP_OSD, true, g_settings.language, &osdl_setup, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_OSD_LANGUAGE);
 	localSettings->addItem(mf);
 
@@ -114,7 +114,7 @@ int COsdLangSetup::showLocalSetup()
 	//call menue for prefered audio languages
 	showPrefMenu(&prefMenu, langNotifier);
 
-	mf = new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, &prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, &prefMenu, NULL, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_LANG_PREF);
 	localSettings->addItem(mf);
 	//langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -135,7 +135,7 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 	CMenuOptionStringChooser* tzSelect = NULL;
 	if (parser != NULL)
 	{
-		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, &g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, &g_settings.timezone, true, tzNotifier, CRCInput::RC_green, NULL, true);
 		tzSelect->setHint("", LOCALE_MENU_HINT_TIMEZONE);
 		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
 		bool found = false;

@@ -220,14 +220,14 @@ int CMiscMenue::showMiscSettingsMenu()
 	//general
 	CMenuWidget misc_menue_general(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_GENERAL);
 	showMiscSettingsMenuGeneral(&misc_menue_general);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, &misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, &misc_menue_general, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_GENERAL);
 	misc_menue.addItem(mf);
 
 	//energy, shutdown
 	if(cs_get_revision() > 7)
 	{
-		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, this, "energy", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, this, "energy", CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_MISC_ENERGY);
 		misc_menue.addItem(mf);
 	}
@@ -235,14 +235,14 @@ int CMiscMenue::showMiscSettingsMenu()
 	//epg
 	CMenuWidget misc_menue_epg(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_EPG);
 	showMiscSettingsMenuEpg(&misc_menue_epg);
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, &misc_menue_epg, NULL, CRCInput::RC_yellow,NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, &misc_menue_epg, NULL, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_EPG);
 	misc_menue.addItem(mf);
 
 	//filebrowser settings
 	CMenuWidget misc_menue_fbrowser(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_FILEBROWSER);
 	showMiscSettingsMenuFBrowser(&misc_menue_fbrowser);
-	mf = new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, &misc_menue_fbrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf = new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, &misc_menue_fbrowser, NULL, CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_FILEBROWSER);
 	misc_menue.addItem(mf);
 

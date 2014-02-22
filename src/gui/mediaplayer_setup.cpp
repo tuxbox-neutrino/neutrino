@@ -91,13 +91,13 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mediaSetup->addIntroItems(LOCALE_MAINSETTINGS_MULTIMEDIA);
 
 	CPictureViewerSetup psetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_red));
 	CAudioPlayerSetup asetup;
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green));
 
 	CWebTVSetup wsetup;
 	CMenuForwarder *mf;
-	mf = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_WEBTV_HEAD, true, NULL, &wsetup, "show_menu", CRCInput::RC_yellow);
 	mf->setHint(NEUTRINO_ICON_HINT_TVMODE /* FIXME */, LOCALE_MENU_HINT_WEBTV_SETUP);
 	mediaSetup->addItem(mf);
 
