@@ -1,7 +1,7 @@
 #	yWeb language file (Slovensky) by EnoSat
-#	language version: 1.1
-#	$Date: 2013-08-03 20:20:20 +0100 (so, 3 Augusta 2013) $
-#	$Revision: 212 $
+#	language version: 1.2
+#	$Date: 2014-02-22 17:17:17 +0100 (so, 22 Februára 2014) $
+#	$Revision: 213 $
 #========= Hlavné / Celkové nastavenie
 global.no_iframes=Váš prehliadač nepodporuje I-rámce.
 clear=vyčistiť
@@ -98,6 +98,8 @@ bc.menue.switch_to_tv=prepnúť do TV
 bc.menue.switch_to_radio=prepnúť do Rádio
 bc.menue.webinf_slavebox=Webinterface pre podriadené zariadenie
 bc.menue.volumen_display=zobrazenie hlasitosti
+
+bc.menue.signal=Sila signálu
 
 #========= Ovládanie
 bc.control.freemem=Voľná pamäť
@@ -197,6 +199,8 @@ epg.si.onid=Originálny sieťový ID (ONID)
 epg.si.sid=Služba ID (SID)
 epg.si.tsid=Transpondér stream ID (TID)
 epg.si.vpid=Obrazový PID
+epg.si.pmtpid=Program Map Table PID
+epg.si.pcrpid=Program Clock Reference PID
 epg.si.apid=Zvukový PID
 epg.si.vtxtpid=TeleText PID
 epg.si.crypt=Kodovací systém
