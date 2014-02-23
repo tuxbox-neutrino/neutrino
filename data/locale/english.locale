@@ -570,6 +570,7 @@ fontmenu.gamelist Gamelist
 fontmenu.head Font settings
 fontmenu.infobar Infobar
 fontmenu.menu Menu
+fontmenu.other Other
 fontmenu.scaling Global Font Zoom Factor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
@@ -598,10 +599,11 @@ fontsize.infobar_channame Channel name
 fontsize.infobar_info info
 fontsize.infobar_number Number
 fontsize.infobar_small Small
-fontsize.menu Menutext
+fontsize.menu Menu text
 fontsize.menu_hint Menu hints
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
+fontsize.subtitles Text subtitles
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -611,18 +613,17 @@ hdd_60min 60 min.
 hdd_activate Apply settings
 hdd_check Check filesystem
 hdd_check_failed HDD-check failed!
-hdd_ext3 ext3
+hdd_check_format_bad Checking of disks with format %s is not supported.
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Formating drive...
 hdd_format_failed Formating failed!
 hdd_format_warn Start format...
-hdd_fs Filesystem
+hdd_fs Filesystem used to format
 hdd_manage Manage drives
 hdd_middle Mid
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
-hdd_reiser ReiserFS
 hdd_removable_device Removable device
 hdd_settings Hard Disk Drive/USB
 hdd_sleep Switch off after...
@@ -862,6 +863,7 @@ menu.hint_games Show list of installed games
 menu.hint_hdd Format / check hard disk drive
 menu.hint_hdd_apply Apply sleep/noise parameters
 menu.hint_hdd_check Check filesystem (fsck)
+menu.hint_hdd_fmt Select the disk format
 menu.hint_hdd_format Create HDD partition and format it
 menu.hint_hdd_noise Set Automatic Acoustic Management\nnot all drives support this
 menu.hint_hdd_sleep Select time to stop hdd on inactivity
@@ -1024,6 +1026,10 @@ menu.hint_pictureviewer_defdir Default picture viewer directory
 menu.hint_pictureviewer_scaling Picture scaling algorithm
 menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
 menu.hint_picview View pictures
+menu.hint_plugin_type_games Show games in usermenu at selection 'Plugin types'
+menu.hint_plugin_type_lua Show plugins in usermenu at selection 'Plugin types'
+menu.hint_plugin_type_scripts Show scripts in usermenu at selection 'Plugin types'
+menu.hint_plugin_type_tools Show tools in usermenu at selection 'Plugin types'
 menu.hint_plugins_hdd_dir Select directory to load\nplugins from
 menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
@@ -1464,10 +1470,12 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
+movieplayer.chapters Chapters
 movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
 movieplayer.starting Starting playback...
+movieplayer.titles Titles
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tshelp1 Stop
 movieplayer.tshelp10 approx. 10 minutes back

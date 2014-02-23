@@ -35,7 +35,11 @@
 
 #include <gui/color.h>
 #include <stdio.h>
+#include <math.h>
 
+#ifndef FLT_EPSILON
+#define FLT_EPSILON 1E-5
+#endif
 
 int convertSetupColor2RGB(const unsigned char r, const unsigned char g, const unsigned char b)
 {
@@ -145,7 +149,7 @@ void Hsv2Rgb(HsvColor *hsv, RgbColor *rgb)
 	float f_H = hsv->h;
 	float f_S = hsv->s;
 	float f_V = hsv->v;
-	if (f_S == 0) {
+	if (fabsf(f_S) < FLT_EPSILON) {
 		rgb->r = (uint8_t)(f_V * 255);
 		rgb->g = (uint8_t)(f_V * 255);
 		rgb->b = (uint8_t)(f_V * 255);
@@ -204,7 +208,7 @@ void Rgb2Hsv(RgbColor *rgb, HsvColor *hsv)
 	float f_H = 0;
 	float f_S = 0;
 
-	if (delta == 0) { //gray
+	if (fabsf(delta) < FLT_EPSILON) { //gray
 		f_S = 0;
 		f_H = 0;
 	} else {

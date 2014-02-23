@@ -464,10 +464,23 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 	 */
 	pluginSelectionMenu = new CMenuWidget(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, NEUTRINO_ICON_SETTINGS);
 	pluginSelectionMenu->addIntroItems(LOCALE_MAINMENU_SETTINGS);
-	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_GAMES,   &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES],   OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_TOOLS,   &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_TOOLS],   OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_SCRIPTS, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_SCRIPTS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	pluginSelectionMenu->addItem(new CMenuOptionChooser(LOCALE_MAINMENU_LUA,     &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA],     OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
+	CMenuOptionChooser * /*oc = NULL;*/
+	oc = new CMenuOptionChooser(LOCALE_MAINMENU_GAMES, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PLUGIN_TYPE_GAMES);
+	pluginSelectionMenu->addItem(oc);
+
+	oc = new CMenuOptionChooser(LOCALE_MAINMENU_TOOLS, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_TOOLS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PLUGIN_TYPE_TOOLS);
+	pluginSelectionMenu->addItem(oc);
+
+	oc = new CMenuOptionChooser(LOCALE_MAINMENU_SCRIPTS, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_SCRIPTS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PLUGIN_TYPE_SCRIPTS);
+	pluginSelectionMenu->addItem(oc);
+
+	oc = new CMenuOptionChooser(LOCALE_MAINMENU_LUA, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PLUGIN_TYPE_LUA);
+	pluginSelectionMenu->addItem(oc);
 
 	p_widget->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, true, NULL, pluginSelectionMenu));
 #endif

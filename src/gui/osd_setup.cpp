@@ -136,23 +136,29 @@ const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
 	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
 };
 
-const SNeutrinoSettings::FONT_TYPES other_font_sizes[5] =
+const SNeutrinoSettings::FONT_TYPES menu_font_sizes[4] =
 {
 	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
 	SNeutrinoSettings::FONT_TYPE_MENU,
 	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
-	SNeutrinoSettings::FONT_TYPE_MENU_HINT,
+	SNeutrinoSettings::FONT_TYPE_MENU_HINT
+};
+const SNeutrinoSettings::FONT_TYPES other_font_sizes[2] =
+{
+	SNeutrinoSettings::FONT_TYPE_SUBTITLES,
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
 };
 
-font_sizes_groups font_sizes_groups[6] =
+#define FONT_GROUP_COUNT 7
+font_sizes_groups font_sizes_groups[FONT_GROUP_COUNT] =
 {
-	{LOCALE_FONTMENU_MENU       , 5, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
+	{LOCALE_FONTMENU_MENU       , 4, menu_font_sizes       , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
 	{LOCALE_FONTMENU_CHANNELLIST, 5, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 5, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
 	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
-	{LOCALE_FONTMENU_GAMELIST   , 2, gamelist_font_sizes   , "fontsize.dgam", LOCALE_MENU_HINT_GAMELIST_FONTS }
+	{LOCALE_FONTMENU_GAMELIST   , 2, gamelist_font_sizes   , "fontsize.dgam", LOCALE_MENU_HINT_GAMELIST_FONTS },
+	{LOCALE_FONTMENU_OTHER      , 2, other_font_sizes      , "fontsize.dgam", LOCALE_MENU_HINT_GAMELIST_FONTS }
 };
 
 font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
@@ -181,7 +187,8 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, CNeutrinoFonts::FONT_STYLE_BOLD   , 1},
-	{LOCALE_FONTSIZE_MENU_HINT          ,  16, CNeutrinoFonts::FONT_STYLE_REGULAR, 0}
+	{LOCALE_FONTSIZE_MENU_HINT          ,  16, CNeutrinoFonts::FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_SUBTITLES          ,  25, CNeutrinoFonts::FONT_STYLE_BOLD   , 0}
 };
 
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -327,7 +334,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < FONT_GROUP_COUNT; i++) {
 			if (actionKey == font_sizes_groups[i].actionkey) {
 				for (unsigned int j = 0; j < font_sizes_groups[i].count; j++) {
 					SNeutrinoSettings::FONT_TYPES k = font_sizes_groups[i].content[j];
@@ -803,7 +810,7 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 	//fontSettings->addItem( new CMenuForwarder(LOCALE_EPGPLUS_SELECT_FONT_NAME, true, NULL, this, "select_font"));
 
 	mn_widget_id_t w_index = MN_WIDGET_ID_OSDSETUP_FONTSIZE_MENU;
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < FONT_GROUP_COUNT; i++)
 	{
 		CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, w_index);
 

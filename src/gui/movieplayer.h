@@ -95,6 +95,7 @@ class CMoviePlayerGui : public CMenuTarget
 	int currentspid;
 	int min_x, min_y, max_x, max_y;
 	time_t end_time;
+	bool ext_subs;
 
 	/* playback from MB */
 	bool isMovieBrowser;
@@ -140,6 +141,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle();
 	void selectChapter();
+	void selectAutoLang();
 
 	void Cleanup();
 	static void *ShowStartHint(void *arg);

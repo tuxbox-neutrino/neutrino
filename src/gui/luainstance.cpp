@@ -340,6 +340,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "PaintIcon", CLuaInstance::PaintIcon },
 	{ "GetInput", CLuaInstance::GetInput },
 	{ "FontHeight", CLuaInstance::FontHeight },
+	{ "getRenderWidth", CLuaInstance::getRenderWidth },
 	{ "GetSize", CLuaInstance::GetSize },
 	{ "DisplayImage", CLuaInstance::DisplayImage },
 	{ "Blit", CLuaInstance::Blit },
@@ -416,6 +417,7 @@ void CLuaInstance::registerFunctions()
 	HintboxRegister(lua);
 	MessageboxRegister(lua);
 	CWindowRegister(lua);
+	ComponentsTextRegister(lua);
 	SignalBoxRegister(lua);
 }
 
@@ -584,6 +586,24 @@ int CLuaInstance::RenderString(lua_State *L)
 	return 1;
 }
 
+int CLuaInstance::getRenderWidth(lua_State *L)
+{
+	int f;
+	const char *text;
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+
+	CLuaData *W = CheckData(L, 1);
+	if (!W)
+		return 0;
+	f = luaL_checkint(L, 2);	/* font number, use FONT['xxx'] for FONT_TYPE_xxx in the script */
+	text = luaL_checkstring(L, 3);	/* text */
+	if (f >= SNeutrinoSettings::FONT_TYPE_COUNT || f < 0)
+		f = SNeutrinoSettings::FONT_TYPE_MENU;
+
+	lua_pushinteger(L, (int)g_Font[f]->getRenderWidth(text, true));
+	return 1;
+}
+
 int CLuaInstance::GetInput(lua_State *L)
 {
 	int numargs = lua_gettop(L);
@@ -696,7 +716,7 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 	lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
 	lua_pop(L, 2);
-	return ((res == menu_return::RETURN_REPAINT) || (res == menu_return::RETURN_EXIT_REPAINT));
+	return (((int)res == menu_return::RETURN_REPAINT) || ((int)res == menu_return::RETURN_EXIT_REPAINT));
 }
 
 void CLuaInstance::MenuRegister(lua_State *L)
@@ -1300,12 +1320,10 @@ void CLuaInstance::CWindowRegister(lua_State *L)
 		{ "new", CLuaInstance::CWindowNew },
 		{ "paint", CLuaInstance::CWindowPaint },
 		{ "hide", CLuaInstance::CWindowHide },
+		{ "header_height", CLuaInstance::CWindowGetHeaderHeight },
 		{ "__gc", CLuaInstance::CWindowDelete },
 		{ NULL, NULL }
 	};
-#if 0
-		{ "exec", CLuaInstance::CWindowExec },
-#endif
 
 	luaL_newmetatable(L, "cwindow");
 	luaL_setfuncs(L, meth, 0);
@@ -1319,6 +1337,10 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
+	std::string btnRed    = "";
+	std::string btnGreen  = "";
+	std::string btnYellow = "";
+	std::string btnBlue   = "";
 	int x = 100, y = 100, dx = 450, dy = 250;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
@@ -1326,10 +1348,38 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "dy", dy);
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "icon", icon);
+	tableLookup(L, "btnRed", btnRed);
+	tableLookup(L, "btnGreen", btnGreen);
+	tableLookup(L, "btnYellow", btnYellow);
+	tableLookup(L, "btnBlue", btnBlue);
 
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
 	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str());
+
+	CComponentsFooter* footer = (*udata)->w->getFooterObject();
+	if (footer) {
+		int btnCount = 0;
+		if (btnRed    != "") btnCount++;
+		if (btnGreen  != "") btnCount++;
+		if (btnYellow != "") btnCount++;
+		if (btnBlue   != "") btnCount++;
+		if (btnCount) {
+			fb_pixel_t col = footer->getColorBody();
+			int btnw = (dx-20) / btnCount;
+			int btnh = footer->getHeight();
+			int start = 10;
+			if (btnRed != "")
+				footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, false , true, false, col, col));
+			if (btnGreen != "")
+				footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, false , true, false, col, col));
+			if (btnYellow != "")
+				footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, false , true, false, col, col));
+			if (btnBlue != "")
+				footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, false , true, false, col, col));
+		}
+	}
+
 	luaL_getmetatable(L, "cwindow");
 	lua_setmetatable(L, -2);
 	return 1;
@@ -1368,6 +1418,20 @@ int CLuaInstance::CWindowHide(lua_State *L)
 
 	m->w->hide(no_restore);
 	return 0;
+}
+
+int CLuaInstance::CWindowGetHeaderHeight(lua_State *L)
+{
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
+	CComponentsHeader* header = m->w->getHeaderObject();
+	int hh = 0;
+	if (header)
+		hh = header->getHeight();
+	lua_pushinteger(L, hh);
+	return 1;
 }
 
 int CLuaInstance::CWindowDelete(lua_State *L)
@@ -1447,6 +1511,154 @@ int CLuaInstance::SignalBoxDelete(lua_State *L)
 		return 0;
 
 	m->s->kill();
+	delete m;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+CLuaComponentsText *CLuaInstance::ComponentsTextCheck(lua_State *L, int n)
+{
+	return *(CLuaComponentsText **) luaL_checkudata(L, n, "componentstext");
+}
+
+void CLuaInstance::ComponentsTextRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new", CLuaInstance::ComponentsTextNew },
+		{ "paint", CLuaInstance::ComponentsTextPaint },
+		{ "hide", CLuaInstance::ComponentsTextHide },
+		{ "scroll", CLuaInstance::ComponentsTextScroll },
+		{ "__gc", CLuaInstance::ComponentsTextDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, "componentstext");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "componentstext");
+}
+
+int CLuaInstance::ComponentsTextNew(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+
+	int x=10, y=10, dx=100, dy=100;
+	std::string text         = "";
+	std::string tmpMode      = "";
+	int         mode         = CTextBox::AUTO_WIDTH;
+	int         font_text    = SNeutrinoSettings::FONT_TYPE_MENU;
+	lua_Integer color_text   = (lua_Integer)COL_MENUCONTENT_TEXT;
+	lua_Integer color_frame  = (lua_Integer)COL_MENUCONTENT_PLUS_6;
+	lua_Integer color_body   = (lua_Integer)COL_MENUCONTENT_PLUS_0;
+	lua_Integer color_shadow = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	std::string tmp1         = "false";
+
+	tableLookup(L, "x"           , x);
+	tableLookup(L, "y"           , y);
+	tableLookup(L, "dx"          , dx);
+	tableLookup(L, "dy"          , dy);
+	tableLookup(L, "text"        , text);
+	tableLookup(L, "mode"        , tmpMode);
+	tableLookup(L, "font_text"   , font_text);
+	if (font_text >= SNeutrinoSettings::FONT_TYPE_COUNT || font_text < 0)
+		font_text = SNeutrinoSettings::FONT_TYPE_MENU;
+	tableLookup(L, "has_shadow"  , tmp1);
+	bool has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	tableLookup(L, "color_text"  , color_text);
+	tableLookup(L, "color_frame" , color_frame);
+	tableLookup(L, "color_body"  , color_body);
+	tableLookup(L, "color_shadow", color_shadow);
+
+	if (!tmpMode.empty()) {
+		table_key txt_align[] = {
+			{ "ALIGN_AUTO_WIDTH",		CTextBox::AUTO_WIDTH },
+			{ "ALIGN_AUTO_HIGH",		CTextBox::AUTO_HIGH },
+			{ "ALIGN_SCROLL",		CTextBox::SCROLL },
+			{ "ALIGN_CENTER",		CTextBox::CENTER },
+			{ "ALIGN_RIGHT",		CTextBox::RIGHT },
+			{ "ALIGN_TOP",			CTextBox::TOP },
+			{ "ALIGN_BOTTOM",		CTextBox::BOTTOM },
+			{ "ALIGN_NO_AUTO_LINEBREAK",	CTextBox::NO_AUTO_LINEBREAK },
+			{ NULL,				0 }
+		};
+		mode = 0;
+		for (int i = 0; txt_align[i].name; i++) {
+			if (tmpMode.find(txt_align[i].name) != std::string::npos)
+				mode |= txt_align[i].code;
+		}
+	}
+
+	CLuaComponentsText **udata = (CLuaComponentsText **) lua_newuserdata(L, sizeof(CLuaComponentsText *));
+	*udata = new CLuaComponentsText();
+	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	luaL_getmetatable(L, "componentstext");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstance::ComponentsTextPaint(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	std::string tmp = "true";
+	tableLookup(L, "do_save_bg", tmp);
+	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->ct->paint(do_save_bg);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextHide(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	std::string tmp = "false";
+	tableLookup(L, "no_restore", tmp);
+	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->ct->hide(no_restore);
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextScroll(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	std::string tmp = "true";
+	tableLookup(L, "dir", tmp);
+	bool scrollDown = (tmp == "down" || tmp == "1");
+
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m)
+		return 0;
+
+	//get the textbox instance from lua object and use CTexBbox scroll methods
+	CTextBox* ctb = m->ct->getCTextBoxObject();
+	if (ctb) {
+		ctb->enableBackgroundPaint(true);
+		if (scrollDown)
+			ctb->scrollPageDown(1);
+		else
+			ctb->scrollPageUp(1);
+		ctb->enableBackgroundPaint(false);
+	}
+	return 0;
+}
+
+int CLuaInstance::ComponentsTextDelete(lua_State *L)
+{
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m)
+		return 0;
+
+	m->ct->kill();
 	delete m;
 	return 0;
 }

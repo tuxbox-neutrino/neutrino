@@ -160,6 +160,7 @@ void CMoviePlayerGui::Init(void)
 	max_x = 0;
 	min_y = 0;
 	max_y = 0;
+	ext_subs = false;
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -611,6 +612,8 @@ void CMoviePlayerGui::PlayFile(void)
 			playback->SetSpeed(1);
 		}
 	}
+	if (is_file_player)
+		selectAutoLang();
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
 	InfoClock->enableInfoClock(true);
@@ -1349,25 +1352,55 @@ void CMoviePlayerGui::selectChapter()
 
 	std::vector<int> positions; std::vector<std::string> titles;
 	playback->GetChapters(positions, titles);
-	if (positions.empty())
+
+	std::vector<int> playlists; std::vector<std::string> ptitles;
+	int current;
+	playback->GetTitles(playlists, ptitles, current);
+
+	if (positions.empty() && playlists.empty())
 		return;
 
 	CMenuWidget ChSelector(LOCALE_MOVIEBROWSER_MENU_MAIN_BOOKMARKS, NEUTRINO_ICON_AUDIO);
-	ChSelector.addIntroItems();
+	//ChSelector.addIntroItems();
+	ChSelector.addItem(GenericMenuCancel);
+
+	int pselect = -1;
+	CMenuSelectorTarget * pselector = new CMenuSelectorTarget(&pselect);
 
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+
 	char cnt[5];
-	for (unsigned i = 0; i < positions.size(); i++) {
-		sprintf(cnt, "%d", i);
-		CMenuForwarder * item = new CMenuForwarder(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
-		ChSelector.addItem(item, position > positions[i]);
+	if (!playlists.empty()) {
+		ChSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEPLAYER_TITLES));
+		for (unsigned i = 0; i < playlists.size(); i++) {
+			sprintf(cnt, "%d", i);
+			CMenuForwarder * item = new CMenuForwarder(ptitles[i].c_str(), current != playlists[i], NULL, pselector, cnt);
+			ChSelector.addItem(item);
+		}
+	}
+
+	if (!positions.empty()) {
+		ChSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEPLAYER_CHAPTERS));
+		for (unsigned i = 0; i < positions.size(); i++) {
+			sprintf(cnt, "%d", i);
+			CMenuForwarder * item = new CMenuForwarder(titles[i].c_str(), true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1));
+			ChSelector.addItem(item, position > positions[i]);
+		}
 	}
 	ChSelector.exec(NULL, "");
 	delete selector;
+	delete pselector;
 	printf("CMoviePlayerGui::selectChapter: selected %d (%d)\n", select, (select >= 0) ? positions[select] : -1);
-	if(select >= 0)
+	printf("CMoviePlayerGui::selectChapter: pselected %d (%d)\n", pselect, (pselect >= 0) ? playlists[pselect] : -1);
+	if(select >= 0) {
 		playback->SetPosition(positions[select], true);
+	} else if (pselect >= 0) {
+		numsubs = numpida = 0;
+		currentspid = -1;
+		currentapid = 0;
+		playback->SetTitle(playlists[pselect]);
+	}
 }
 
 void CMoviePlayerGui::selectSubtitle()
@@ -1386,8 +1419,8 @@ void CMoviePlayerGui::selectSubtitle()
 	char cnt[5];
 	unsigned int count;
 	for (count = 0; count < numsubs; count++) {
-		bool enabled = sub_supported[count];
-		bool defpid = currentspid >= 0 ? (currentspid == spids[count]) : (count == 0);
+		bool enabled = sub_supported[count] && (currentspid != spids[count]);
+
 		std::string title = slanguage[count];
 		if (title.empty()) {
 			char pidnumber[20];
@@ -1396,20 +1429,22 @@ void CMoviePlayerGui::selectSubtitle()
 		}
 		sprintf(cnt, "%d", count);
 		CMenuForwarder * item = new CMenuForwarder(title.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
-		item->setItemButton(NEUTRINO_ICON_BUTTON_STOP, false);
-		APIDSelector.addItem(item, defpid);
+		APIDSelector.addItem(item);
 	}
 	sprintf(cnt, "%d", count);
-	APIDSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, selector, cnt, CRCInput::RC_stop), currentspid < 0);
+	APIDSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, selector, cnt, CRCInput::RC_stop, NEUTRINO_ICON_BUTTON_STOP), currentspid > 0);
 
 	APIDSelector.exec(NULL, "");
 	delete selector;
 	printf("CMoviePlayerGui::selectSubtitle: selected %d (%x) current %x\n", select, (select >= 0) ? spids[select] : -1, currentspid);
 	if((select >= 0) && (select < numsubs) && (currentspid != spids[select])) {
 		currentspid = spids[select];
+		/* external subtitles pid is 0x1FFF */
+		ext_subs = (currentspid == 0x1FFF);
 		playback->SelectSubtitles(currentspid);
 		printf("[movieplayer] spid changed to %d\n", currentspid);
 	} else if ( select > 0) {
+		ext_subs = false;
 		currentspid = -1;
 		playback->SelectSubtitles(currentspid);
 		printf("[movieplayer] spid changed to %d\n", currentspid);
@@ -1535,17 +1570,19 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 				start = end + 2;
 			}
 			subtext.push_back(str.substr(start));
-
 		}
 	}
-	for (unsigned i = 0; i < subtext.size(); i++)
+	for (unsigned i = 0; i < subtext.size(); i++) {
+		if (!isUTF8(subtext[i]))
+			subtext[i] = convertLatin1UTF8(subtext[i]);
 		printf("subtext %d: [%s]\n", i, subtext[i].c_str());
+	}
 	printf("********************************************************************\n");
 
 	if (!subtext.empty()) {
 		int sh = frameBuffer->getScreenHeight();
 		int sw = frameBuffer->getScreenWidth();
-		int h = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+		int h = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getHeight();
 		int height = h*subtext.size();
 
 		clearSubtitle();
@@ -1553,7 +1590,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		int x[subtext.size()];
 		int y[subtext.size()];
 		for (unsigned i = 0; i < subtext.size(); i++) {
-			int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (subtext[i].c_str(), true);
+			int w = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getRenderWidth (subtext[i].c_str(), true);
 			x[i] = (sw - w) / 2;
 			y[i] = sh - height + h*(i + 1);
 			min_x = std::min(min_x, x[i]);
@@ -1565,10 +1602,53 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		frameBuffer->paintBoxRel(min_x, min_y, max_x - min_x, max_y-min_y, COL_MENUCONTENT_PLUS_0);
 
 		for (unsigned i = 0; i < subtext.size(); i++)
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->RenderString(x[i], y[i], sw, subtext[i].c_str(), COL_MENUCONTENT_TEXT, 0, true);
 
 		end_time = sub->end_display_time + time_monotonic_ms();
 	}
 	avsubtitle_free(sub);
 	delete sub;
+}
+
+void CMoviePlayerGui::selectAutoLang()
+{
+	if (ext_subs) {
+		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
+		for (unsigned count = 0; count < numsubs; count++) {
+			if (spids[count] == 0x1FFF) {
+				currentspid = spids[count];
+				playback->SelectSubtitles(currentspid);
+			}
+		}
+	}
+	if(g_settings.auto_lang) {
+		int pref_idx = -1;
+
+		playback->FindAllPids(apids, ac3flags, &numpida, language);
+		for(int i = 0; i < 3; i++) {
+			for (unsigned j = 0; j < numpida; j++) {
+				std::map<std::string, std::string>::const_iterator it;
+				for(it = iso639.begin(); it != iso639.end(); ++it) {
+					if (g_settings.pref_lang[i] == it->second && strncasecmp(language[j].c_str(), it->first.c_str(), 3) == 0) {
+						bool enabled = true;
+						// TODO: better check of supported
+						std::string audioname;
+						addAudioFormat(j, audioname, enabled);
+						if (enabled)
+							pref_idx = j;
+						break;
+					}
+				}
+				if (pref_idx >= 0)
+					break;
+			}
+			if (pref_idx >= 0)
+				break;
+		}
+		if (pref_idx >= 0) {
+			currentapid = apids[pref_idx];
+			currentac3 = ac3flags[pref_idx];
+			playback->SetAPid(currentapid, currentac3);
+		}
+	}
 }

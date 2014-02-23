@@ -570,6 +570,7 @@ fontmenu.gamelist Spiele-Liste
 fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
+fontmenu.other Andere
 fontmenu.scaling Schriftgrössenfaktor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
@@ -602,6 +603,7 @@ fontsize.menu Menütext
 fontsize.menu_hint Menü-Hilfe
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
+fontsize.subtitles Text Untertitel
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -611,18 +613,17 @@ hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Festplattenprüfung fehlgeschlagen
-hdd_ext3 ext3
+hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht unterstützt.
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Festplatte
 hdd_format_failed Formatierung fehlgeschlagen
 hdd_format_warn Formatierung wird gestartet
-hdd_fs Dateisystem
+hdd_fs Dateisystem zum formatieren
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Keine Festplatte
-hdd_reiser ReiserFS
 hdd_removable_device Wechseldatenträger
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
@@ -862,6 +863,7 @@ menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Datenträger
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
 menu.hint_hdd_check Überprüft das Dateisystem und führt gegebenfalls eine Reparatur durch (fsck)
+menu.hint_hdd_fmt Wählen Sie das Datenträgerformat aus
 menu.hint_hdd_format Erstellt eine Partition auf dem Datenträger und formatiert diese
 menu.hint_hdd_noise Setzen Sie Parameter für das Automatic Acoustic Management.\nNicht alle Laufwerke unterstützen diese Funktion
 menu.hint_hdd_sleep Dieser Wert definiert, nach wieviel Minuten die Festplatte bei Inaktivität in den Sleep-Modus geschaltet wird
@@ -1024,6 +1026,10 @@ menu.hint_pictureviewer_defdir Wählen Sie das Startverzeichnis für den Bildbet
 menu.hint_pictureviewer_scaling Stellen Sie die Bildauflösung ein
 menu.hint_pictureviewer_slide_time Ändern Sie den Diashow-Intervall.\nStandardmäßig sind 10 Sekunden eingstellt
 menu.hint_picview Bilder anzeigen
+menu.hint_plugin_type_games Legt fest, ob Spiele im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
+menu.hint_plugin_type_lua Legt fest, ob Plugins im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
+menu.hint_plugin_type_scripts Legt fest, ob Skripte im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
+menu.hint_plugin_type_tools Legt fest, ob Werkzeuge im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
 menu.hint_plugins_hdd_dir Auswahl des Verzeichnisses zum Laden der Plugins von einem externen Datenträger
 menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
@@ -1464,10 +1470,12 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
+movieplayer.chapters Kapitel
 movieplayer.defplugin Start-Plugin
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
 movieplayer.starting Wiedergabe starten...
+movieplayer.titles Titel
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ca. 10 Minuten zurück

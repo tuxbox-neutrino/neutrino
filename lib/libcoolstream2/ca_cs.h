@@ -11,6 +11,7 @@
 #define __CA_CS_H_
 
 #include <OpenThreads/Thread>
+#include <OpenThreads/Mutex>
 #include <vector>
 #include "cs_types.h"
 
@@ -114,6 +115,7 @@ class cCA : public OpenThreads::Thread {
 private:
 	/// Static instance of the CA module
 	static cCA *inst;
+	static OpenThreads::Mutex lock;
 	/// Private constructor (singleton method)
 	cCA(void);
 	/// Private data for the CA module
@@ -160,7 +162,7 @@ public:
 	/// Notify the module with our answer (choice nr)
 	void MenuAnswer(enum CA_SLOT_TYPE, u32 Slot, u32 choice);
 	/// Notify the module with our answer (binary)
-	void InputAnswer(enum CA_SLOT_TYPE, u32 Slot, u8 * Data, int Len);
+	void InputAnswer(enum CA_SLOT_TYPE, u32 Slot, u8 * Data, int Len, bool Cancelled = false);
 	/// Notify the module we closed the menu
 	void MenuClose(enum CA_SLOT_TYPE, u32 Slot);
 	/// Get the supported CAIDs

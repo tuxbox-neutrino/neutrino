@@ -28,6 +28,13 @@
 
 using namespace std;
 
+enum {
+	fs_ext3,
+	fs_ext4,
+
+	fs_max
+};
+
 class CHDDDestExec : public CMenuTarget
 {
 public:
