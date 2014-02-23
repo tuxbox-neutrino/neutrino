@@ -103,7 +103,10 @@ std::string getFmtType(const char* name, int num)
 {
 	pid_t pid;
 	std::string ret = "";
-	std::string pcmd = blkidBinary + (std::string)" -s TYPE /dev/" + (std::string)name + to_string(num);
+	std::string blkid = find_executable("blkid");
+	if (blkid.empty())
+		return ret;
+	std::string pcmd = blkid + (std::string)" -s TYPE /dev/" + (std::string)name + to_string(num);
 	dprintf(DEBUG_INFO, ">>>>>[%s #%d] pcmd: %s\n", __func__, __LINE__, pcmd.c_str());
 	FILE* f = my_popen(pid, pcmd.c_str(), "r");
 	if (f != NULL) {
@@ -147,8 +150,8 @@ int CHDDMenuHandler::doMenu ()
 	struct stat s;
 	int root_dev = -1;
 
-	bool ext4MkfsBinaryExist   = (!access(ext4MkfsBinary, X_OK));
-	bool blkidBinaryExist      = (!access(blkidBinary, X_OK));
+	bool ext4MkfsBinaryExist = !find_executable("mkfs.ext4").empty();
+	bool blkidBinaryExist    = !find_executable("blkid").empty();
 
 	bool hdd_found = 0;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
@@ -539,6 +542,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	FILE * f;
 	char src[128], dst[128];
 	CProgressWindow * progress;
+	std::string fdisk, sfdisk, mke3fs, mke4fs, tune2fs;
 
 	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
 	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
@@ -580,14 +584,26 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	progress->showStatusMessageUTF("Executing fdisk");
 	progress->showGlobalStatus(0);
 
-	if (access("/sbin/sfdisk", X_OK) == 0) {
-		snprintf(cmd, sizeof(cmd), "/sbin/sfdisk -f -uM /dev/%s", key.c_str());
+	fdisk   = find_executable("fdisk");
+	sfdisk  = find_executable("sfdisk");
+	mke3fs  = find_executable("mkfs.ext3");
+	mke4fs  = find_executable("mkfs.ext4");
+	tune2fs = find_executable("tune2fs");
+	if (! fdisk.empty()) {
+		snprintf(cmd, sizeof(cmd), "%s -f -uM /dev/%s", fdisk.c_str(), key.c_str());
 		strcpy(cmd2, "0,\n;\n;\n;\ny\n");
-	} else {
-		snprintf(cmd, sizeof(cmd), "/sbin/fdisk -u /dev/%s", key.c_str());
+	} else if (! fdisk.empty()) {
+		snprintf(cmd, sizeof(cmd), "%s -u /dev/%s", fdisk.c_str(), key.c_str());
 		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
+	} else {
+		/* cannot do anything */
+		fprintf(stderr, "CHDDFmtExec: neither fdisk nor sfdisk found in $PATH :-(\n");
+		hintbox = new CHintBox(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_FAILED));
+		hintbox->paint();
+		sleep(2);
+		delete hintbox;
+		goto _remount;
 	}
-
 #ifdef ASSUME_MDEV
 	/* mdev will create it and waitfordev will wait for it... */
 	unlink(src);
@@ -608,10 +624,18 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	switch(g_settings.hdd_fs) {
 		case fs_ext3:
-			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", ext3MkfsBinary, src);
+			if (mke3fs.empty()) {
+				fprintf(stderr, "CHDDFmtExec: ext3 requested, but mkfs.ext3 not found!\n");
+				mke3fs = "/bin/false"; /* returns failure */
+			}
+			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", mke3fs.c_str(), src);
 			break;
 		case fs_ext4:
-			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", ext4MkfsBinary, src);
+			if (mke4fs.empty()) {
+				fprintf(stderr, "CHDDFmtExec: ext4 requested, but mkfs.ext4 not found!\n");
+				mke4fs = "/bin/false";
+			}
+			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", mke4fs.c_str(), src);
 			break;
 		default:
 			return 0;
@@ -697,8 +721,11 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	waitfordev(src, 30); /* mdev can somtimes takes long to create devices, especially after mkfs? */
 
-	printf("CHDDFmtExec: executing %s %s\n","/sbin/tune2fs -r 0 -c 0 -i 0", src);
-	my_system(8, "/sbin/tune2fs", "-r", "0", "-c", "0", "-i", "0", src);
+	if (!tune2fs.empty()) {
+		printf("CHDDFmtExec: executing %s %s %s\n", tune2fs.c_str(), "-r 0 -c 0 -i 0", src);
+		my_system(8, tune2fs.c_str(), "-r", "0", "-c", "0", "-i", "0", src);
+	} else
+		printf("CHDDFmtExec: tune2fs not found, not tuning the file system\n");
 
 _remount:
 	unlink("/tmp/.nomdevmount");
@@ -810,9 +837,13 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	int oldpass = 0, pass, step, total;
 	int percent = 0, opercent = 0;
 
-	bool ext4FsckBinaryExist = (!access(ext4FsckBinary, X_OK));
-	bool e2fsckBinaryExist   = (!access(e2fsckBinary, X_OK));
-	bool blkidBinaryExist    = (!access(blkidBinary, X_OK));
+	std::string e2fsck = find_executable("e2fsck");
+	std::string fscke3 = find_executable("fsck.ext3");
+	std::string fscke4 = find_executable("fsck.ext4");
+	/* this is quite bogus since the same binary can check ext2,3,4... */
+	bool ext4FsckBinaryExist = !fscke4.empty();
+	bool e2fsckBinaryExist   = !e2fsck.empty();
+	bool blkidBinaryExist    = !find_executable("blkid").empty();
 
 	if (blkidBinaryExist) {
 		std::string fmt_type = getFmtType(key.c_str(), 1);
@@ -850,11 +881,11 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 	}
 
 	if (e2fsckBinaryExist) {
-		snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", e2fsckBinary, src);
+		snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", e2fsck.c_str(), src);
 	} else {
-		snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext3FsckBinary, src);
+		snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", fscke3.c_str(), src);
 		if ((ext4FsckBinaryExist) && (g_settings.hdd_fs == fs_ext4))
-			snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext4FsckBinary, src);
+			snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", fscke4.c_str(), src);
 
 #if 0
 		switch(g_settings.hdd_fs) {
