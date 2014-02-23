@@ -207,8 +207,8 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 		close(pfd[1]);
 		if ((fp = fdopen(pfd[0], type)) == NULL)
 			return(NULL);
-		} else {
-			close(pfd[0]);
+	} else {
+		close(pfd[0]);
 		if ((fp = fdopen(pfd[1], type)) == NULL)
 			return(NULL);
 	}
