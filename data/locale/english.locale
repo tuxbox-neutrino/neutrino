@@ -621,6 +621,7 @@ hdd_format Formating drive...
 hdd_format_failed Formating failed!
 hdd_format_warn Start format...
 hdd_fs Filesystem used to format
+hdd_fs_unknown unknown
 hdd_manage Manage drives
 hdd_middle Mid
 hdd_noise Acoustic-control (AAM)

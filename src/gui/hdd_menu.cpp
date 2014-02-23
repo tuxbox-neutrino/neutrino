@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2010-2012 Stefan Seyfried
+	Copyright (C) 2010-2014 Stefan Seyfried
 
 	License: GPL
 
@@ -617,6 +617,8 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 			((fmt_type == "ext4") && (!ext4FsckBinaryExist) && (!e2fsckBinaryExist))) {
 
 			char msg1[512], msg2[512];
+			if (fmt_type.empty())
+				fmt_type = g_Locale->getText(LOCALE_HDD_FS_UNKNOWN);
 			snprintf(msg1, sizeof(msg1)-1, "%s", g_Locale->getText(LOCALE_HDD_CHECK_FORMAT_BAD));
 			snprintf(msg2, sizeof(msg2)-1, msg1, fmt_type.c_str());
 			hintbox = new CHintBox(LOCALE_HDD_CHECK, msg2);
