@@ -430,7 +430,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		{
 			keyRightPressed();
 		}
-		else if (CRCInput::getUnicodeValue(msg) != -1)
+		else if (*CRCInput::getUnicodeValue(msg))
 		{
 			NormalKeyPressed(msg);
 		}
@@ -701,7 +701,7 @@ void CStringInputSMS::NormalKeyPressed(const neutrino_msg_t key)
 	}
 	else
 	{
-		valueString->at(selected) = (char)CRCInput::getUnicodeValue(key);
+		valueString->at(selected) = *CRCInput::getUnicodeValue(key);
 		keyRedPressed();   /* to lower, paintChar */
 		keyRightPressed(); /* last_digit = -1, move to next position */
 	}

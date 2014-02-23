@@ -1431,21 +1431,21 @@ unsigned int CRCInput::convertDigitToKey(const unsigned int digit)
 }
 
 /**************************************************************************
-*       getUnicodeValue - return unicode value of the key or -1
+*       getUnicodeValue - return unicode value of the key or \0
 *
 **************************************************************************/
 #define UNICODE_VALUE_SIZE 58
-static const int unicode_value[UNICODE_VALUE_SIZE] = {-1 , -1 , '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', -1 , -1 ,
-						      'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', -1 , -1 , 'A', 'S',
-						      'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', -1 /* FIXME */, -1 /* FIXME */, -1 , '\\', 'Z', 'X', 'C', 'V',
-						      'B', 'N', 'M', ',', '.', '/', -1, -1, -1, ' '};
+static const char unicode_value[UNICODE_VALUE_SIZE * 2] =
+	"\0\0" "\0\0" "1\0"  "2\0" "3\0" "4\0"  "5\0"  "6\0"  "7\0"    "8\0"  "9\0"  "0\0"  "-\0"  "=\0" "\0\0" "\0\0"
+	 "Q\0"  "W\0" "E\0"  "R\0" "T\0" "Y\0"  "U\0"  "I\0"  "O\0"    "P\0"  "{\0"  "}\0" "\0\0" "\0\0"  "A\0"  "S\0"
+	 "D\0"  "F\0" "G\0"  "H\0" "J\0" "K\0"  "L\0"  ";\0"  "'\0" "\140\0" "\0\0" "\\\0"  "Z\0"  "X\0"  "C\0"  "V\0"
+	 "B\0"  "N\0" "M\0" "\0\0" ".\0" "/\0" "\0\0" "\0\0" "\0\0"      " ";
 
-int CRCInput::getUnicodeValue(const neutrino_msg_t key)
+const char *CRCInput::getUnicodeValue(const neutrino_msg_t key)
 {
 	if (key < UNICODE_VALUE_SIZE)
-		return unicode_value[key];
-	else
-		return -1;
+		return unicode_value + key * 2;
+	return ""; 
 }
 
 /**************************************************************************
@@ -1584,16 +1584,10 @@ std::string CRCInput::getKeyName(const unsigned int key)
 
 const char *CRCInput::getKeyNameC(const unsigned int key)
 {
-	int lunicode_value = getUnicodeValue(key);
-	if (lunicode_value == -1)
-		return getSpecialKeyName(key);
-	else
-	{
-		static char tmp[2];
-		tmp[0] = lunicode_value;
-		tmp[1] = 0;
-		return tmp;
-	}
+	const char *lunicode_value = getUnicodeValue(key);
+	if (*lunicode_value)
+		return lunicode_value;
+	return getSpecialKeyName(key);
 }
 
 /**************************************************************************
