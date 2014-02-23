@@ -1,7 +1,7 @@
 /*
  * neutrino-mp lua to c++ bridge
  *
- * (C) 2013 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
+ * (C) 2013-2014 Stefan Seyfried <seife@tuxboxcvs.slipkontur.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -216,7 +216,7 @@ private:
 	static int ComponentsTextDelete(lua_State *L);
 
 	static bool tableLookup(lua_State*, const char*, std::string&);
-	static bool tableLookup(lua_State*, const char*, int&);
+	static bool tableLookup(lua_State*, const char*, lua_Integer&);
 };
 
 #endif /* _LUAINSTANCE_H */
