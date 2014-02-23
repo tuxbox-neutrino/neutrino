@@ -647,6 +647,7 @@ const char * locale_real_names[] =
 	"hdd_format_failed",
 	"hdd_format_warn",
 	"hdd_fs",
+	"hdd_fs_unknown",
 	"hdd_manage",
 	"hdd_middle",
 	"hdd_noise",
