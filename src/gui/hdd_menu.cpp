@@ -111,14 +111,18 @@ std::string getFmtType(const char* name, int num)
 	FILE* f = my_popen(pid, pcmd.c_str(), "r");
 	if (f != NULL) {
 		char buff[512];
-		fgets(buff, sizeof(buff), f);
+		if (!fgets(buff, sizeof(buff), f))
+			buff[0] = '\0';
 		fclose(f);
 		ret = buff;
 		std::string search = "TYPE=\"";
 		size_t pos = ret.find(search);
+		if (pos == std::string::npos)
+			return "";
 		ret = ret.substr(pos + search.length());
 		pos = ret.find("\"");
-		ret = ret.substr(0, pos);
+		if (pos != std::string::npos)
+			ret = ret.substr(0, pos);
 	}
 	return ret;
 }
