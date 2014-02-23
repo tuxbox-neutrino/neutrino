@@ -104,6 +104,9 @@ class CComponents
 		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
 		void paintFbItems(bool do_save_bg = true);
 
+		///check current fbdtata position and dimensions, parameter fbdata is an element of v_fbdata, returns false on error
+		bool CheckFbData(const comp_fbdata_t& fbdata);
+
 		///clean up old screen buffer saved in v_fbdata
 		virtual void clearFbData();
 

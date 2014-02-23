@@ -31,7 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_base.h"
-
+#include <gui/widget/messagebox.h>
 using namespace std;
 
 //abstract basic class CComponents
@@ -83,15 +83,30 @@ void CComponents::initVarBasic()
 	saved_screen.pixbuf 	= NULL;
 }
 
+bool CComponents::CheckFbData(const comp_fbdata_t& fbdata)
+{
+	if (	(fbdata.x <= 0 || fbdata.y <= 0) ||
+		(fbdata.dx == 0 || fbdata.dy == 0) ||
+		(fbdata.dx > (int32_t)frameBuffer->getScreenWidth(true) || fbdata.dy > (int32_t)frameBuffer->getScreenHeight(true))){
+		printf("\33[31m\t[CComponents] WARNING! Position <= 0 [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n\033[37m",
+			__func__, __LINE__,
+			fbdata.x, fbdata.y,
+			fbdata.dx, fbdata.dy);
+		return false;
+	}
+	return true;
+}
+
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(bool do_save_bg)
 {
 	//save background before first paint, do_save_bg must be true
-	if (firstPaint && do_save_bg)	{
+	if (firstPaint && do_save_bg){
 		for(size_t i=0; i<v_fbdata.size(); i++){
-			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
-				if ((v_fbdata[i].x <= 0) || (v_fbdata[i].y <= 0))
-					printf("\33[31m\t[CComponents] WARNING! Position <= 0 [%s - %d], x = %d  y = %d\n\033[37m", __func__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
+			if (!CheckFbData(v_fbdata[i])){
+				DisplayErrorMessage("Screensave error, please show log and report!");
+				break;
+			}
 #ifdef DEBUG_CC
 	printf("\t[CComponents]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
 			__func__,
@@ -103,27 +118,23 @@ void CComponents::paintFbItems(bool do_save_bg)
 			v_fbdata[i].dx,
 			v_fbdata[i].dy);
 #endif
-				saved_screen.x = v_fbdata[i].x;
-				saved_screen.y = v_fbdata[i].y;
-				saved_screen.dx = v_fbdata[i].dx;
-				saved_screen.dy = v_fbdata[i].dy;
-				clearSavedScreen();
-				saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
-				firstPaint = false;
-				break;
-			}
+		saved_screen.x = v_fbdata[i].x;
+		saved_screen.y = v_fbdata[i].y;
+		saved_screen.dx = v_fbdata[i].dx;
+		saved_screen.dy = v_fbdata[i].dy;
+		clearSavedScreen();
+		saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
+		firstPaint = false;
+		break;
 		}
 	}
 
-	for(size_t i=0; i< v_fbdata.size() ;i++){
-		// Don't paint if dx or dy are 0
-		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0)){
-#ifdef DEBUG_CC
-			printf("\t[CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
-#endif
+	for(size_t i=0; i< v_fbdata.size(); i++){
+		// Don't paint on dimension or position error dx or dy are 0
+		if (!CheckFbData(v_fbdata[i])){
+			DisplayErrorMessage("Display error, please show log and report!");
 			continue;
 		}
-
 		int fbtype = v_fbdata[i].fbdata_type;
 #ifdef DEBUG_CC
 	printf("\t[CComponents]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
