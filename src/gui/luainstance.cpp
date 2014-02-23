@@ -1490,7 +1490,7 @@ int CLuaInstance::SignalBoxDelete(lua_State *L)
 
 CLuaComponentsText *CLuaInstance::ComponentsTextCheck(lua_State *L, int n)
 {
-	return *(CLuaComponentsText **) luaL_checkudata(L, n, "componentstext");
+	return *(CLuaComponentsText **) luaL_checkudata(L, n, "ctext");
 }
 
 void CLuaInstance::ComponentsTextRegister(lua_State *L)
@@ -1504,11 +1504,11 @@ void CLuaInstance::ComponentsTextRegister(lua_State *L)
 		{ NULL, NULL }
 	};
 
-	luaL_newmetatable(L, "componentstext");
+	luaL_newmetatable(L, "ctext");
 	luaL_setfuncs(L, meth, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -1, "__index");
-	lua_setglobal(L, "componentstext");
+	lua_setglobal(L, "ctext");
 }
 
 int CLuaInstance::ComponentsTextNew(lua_State *L)
@@ -1564,7 +1564,7 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	CLuaComponentsText **udata = (CLuaComponentsText **) lua_newuserdata(L, sizeof(CLuaComponentsText *));
 	*udata = new CLuaComponentsText();
 	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
-	luaL_getmetatable(L, "componentstext");
+	luaL_getmetatable(L, "ctext");
 	lua_setmetatable(L, -2);
 	return 1;
 }
