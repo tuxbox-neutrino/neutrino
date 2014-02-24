@@ -218,7 +218,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				CVFD::getInstance()->showMenuText(1, valueString->c_str(), selectedChar+1);
 			}
 		}
-		else if ( (!*CRCInput::getUnicodeValue(msg)) || (msg == CRCInput::RC_red) || (msg == CRCInput::RC_green) || (msg == CRCInput::RC_blue) || (msg == CRCInput::RC_yellow)
+		else if ( (*CRCInput::getUnicodeValue(msg)) || (msg == CRCInput::RC_red) || (msg == CRCInput::RC_green) || (msg == CRCInput::RC_blue) || (msg == CRCInput::RC_yellow)
 					|| (msg == CRCInput::RC_up) || (msg == CRCInput::RC_down))
 		{
 			inputFields[selectedChar]->keyPressed(msg);
