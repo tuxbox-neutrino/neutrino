@@ -194,6 +194,17 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_EXTRA_KEY_PIC_SIZE,		&g_settings.key_pic_size_active,	LOCALE_MENU_HINT_KEY_PIC_SIZE_ACTIVE }
 };
 
+// used by driver/rcinput.cpp
+bool checkLongPress(uint32_t key)
+{
+	if (g_settings.longkeypress_duration == LONGKEYPRESS_OFF)
+		return false;
+	key |= CRCInput::RC_Repeat;
+	for (unsigned int i = 0; i < CKeybindSetup::KEYBINDS_COUNT; i++)
+		if ((uint32_t)*key_settings[i].keyvalue_p == key)
+			return true;
+	return false;
+}
 
 int CKeybindSetup::showKeySetup()
 {
@@ -242,9 +253,18 @@ int CKeybindSetup::showKeySetup()
 		mc->setHint("", LOCALE_MENU_HINT_KEY_HARDWARE);
 		keySettings->addItem(mc);
 	}
+
 	std::string ms_number_format("%d ");
 	ms_number_format += g_Locale->getText(LOCALE_UNIT_SHORT_MILLISECOND);
 	CMenuOptionNumberChooser *cc;
+
+	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_LONGKEYPRESS_DURATION,
+		&g_settings.longkeypress_duration, true, LONGKEYPRESS_OFF, 9999, NULL, 0, LONGKEYPRESS_OFF, LOCALE_OPTIONS_OFF);
+	cc->setNumberFormat(ms_number_format);
+	cc->setNumericInput(true);
+	cc->setHint("", LOCALE_MENU_HINT_LONGKEYPRESS_DURATION);
+	keySettings->addItem(cc);
+
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_REPEATBLOCK,
 		&g_settings.repeat_blocker, true, 0, 999);
 	cc->setNumberFormat(ms_number_format);

@@ -477,6 +477,8 @@ struct SNeutrinoSettings
 	int channellist_show_channellogo;
 	int repeat_blocker;
 	int repeat_genericblocker;
+#define LONGKEYPRESS_OFF 499
+	int longkeypress_duration;
 	int remote_control_hardware;
 	int audiochannel_up_down_enable;
 

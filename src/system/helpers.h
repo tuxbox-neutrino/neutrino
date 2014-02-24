@@ -23,6 +23,7 @@
 */
 
 #include <stdint.h>
+#include <string.h>
 #include <string>
 #include <sstream>
  
@@ -80,4 +81,6 @@ template<class C> std::string to_string(C i)
 	return s.str();
 }
 
+inline void cstrncpy(char *dest, const char * const src, size_t n) { n--; strncpy(dest, src, n); dest[n] = 0; }
+inline void cstrncpy(char *dest, const std::string &src, size_t n) { n--; strncpy(dest, src.c_str(), n); dest[n] = 0; }
 #endif

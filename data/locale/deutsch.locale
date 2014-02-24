@@ -674,6 +674,7 @@ keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
 keybindingmenu.head Tasten-Belegungen bearbeiten
 keybindingmenu.lastchannel Letzter Kanal
+keybindingmenu.longkeypress_duration Langer Tastendruck
 keybindingmenu.misc Sonstige
 keybindingmenu.mode_left_right_key_tv Funktion li/re Tasten im TV-Modus
 keybindingmenu.mode_left_right_key_tv_infobar Infobar einblenden
@@ -958,6 +959,7 @@ menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Auf
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Modus
 menu.hint_load Laden der Neutrino-HD-Einstellungen aus einer Datei
+menu.hint_longkeypress_duration Tasten, die länger als die angegebene Zeit betätigt werden, werden als "langer Tastendruck" behandelt.
 menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt

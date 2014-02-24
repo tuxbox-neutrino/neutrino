@@ -674,6 +674,7 @@ keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
 keybindingmenu.head Edit Keybindings
 keybindingmenu.lastchannel Quick Zap
+keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
 keybindingmenu.mode_left_right_key_tv Left/Right Key Behavior in TV-Mode
 keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
@@ -958,6 +959,7 @@ menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
 menu.hint_load Load Neutrino-HD GUI settings from file
+menu.hint_longkeypress_duration A key press will be considered as "long key press" if it's pressed longer than the specified time.
 menu.hint_lua Run Plugins
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
