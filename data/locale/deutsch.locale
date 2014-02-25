@@ -1744,9 +1744,9 @@ satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fe_mode Tuner Modus
-satsetup.fe_mode_independent Independent
+satsetup.fe_mode_independent Independent / TWIN Monoblock
 satsetup.fe_mode_link_loop Loop
-satsetup.fe_mode_link_twin TWIN
+satsetup.fe_mode_link_twin TWIN LNB
 satsetup.fe_mode_master Master
 satsetup.fe_mode_unused Nicht genutzt
 satsetup.fe_setup Tuner Einstellungen
