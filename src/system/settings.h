@@ -138,6 +138,7 @@ struct SNeutrinoSettings
 
 	std::string pref_lang[3];
 	std::string pref_subs[3];
+	std::string subs_charset;
 
 	// EPG
 	int epg_save;
