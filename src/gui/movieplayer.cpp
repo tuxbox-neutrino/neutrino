@@ -56,6 +56,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <iconv.h>
 
 //extern CPlugins *g_PluginList;
 #if HAVE_TRIPLEDRAGON
@@ -1375,9 +1376,21 @@ void CMoviePlayerGui::selectSubtitle()
 
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
-	if(!numsubs) {
+	if(!numsubs)
 		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
-	}
+
+	CMenuOptionStringChooser * sc = new CMenuOptionStringChooser(LOCALE_SUBTITLES_CHARSET, &g_settings.subs_charset, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	sc->addOption("UTF-8");
+	sc->addOption("UCS-2");
+	sc->addOption("CP1250");
+	sc->addOption("CP1251");
+	sc->addOption("CP1252");
+	sc->addOption("CP1253");
+	sc->addOption("KOI8-R");
+
+	APIDSelector.addItem(sc);
+	APIDSelector.addItem(GenericMenuSeparatorLine);
+	
 	char cnt[5];
 	unsigned int count;
 	for (count = 0; count < numsubs; count++) {
@@ -1431,6 +1444,39 @@ void CMoviePlayerGui::clearSubtitle()
 }
 
 fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, int ox, int oy, int dx, int dy);
+
+bool CMoviePlayerGui::convertSubtitle(std::string &text)
+{
+	bool ret = false;
+	iconv_t cd = iconv_open("UTF-8", g_settings.subs_charset.c_str());
+	if (cd == (iconv_t)-1) {
+		perror("iconv_open");
+		return ret;
+	}
+	size_t ilen = text.length();
+	size_t olen = ilen*4;
+	size_t len = olen;
+	char * buf = (char *) malloc(olen+1);
+	if (buf == NULL) {
+		iconv_close(cd);
+		return ret;
+	}
+	memset(buf, olen+1, 0);
+	char * out = buf;
+	char * in = (char *) text.c_str();
+	if (iconv(cd, &in, &ilen, &out, &olen) == (size_t)-1) {
+		printf("CMoviePlayerGui::convertSubtitle: iconv error\n");
+	}
+	else {
+		memset(buf + (len - olen), 0, olen);
+		text = buf;
+		ret = true;
+	}
+
+	free(buf);
+	iconv_close(cd);
+	return true;
+}
 
 void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 {
@@ -1535,8 +1581,12 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		}
 	}
 	for (unsigned i = 0; i < subtext.size(); i++) {
-		if (!isUTF8(subtext[i]))
-			subtext[i] = convertLatin1UTF8(subtext[i]);
+		if (!isUTF8(subtext[i])) {
+			if (g_settings.subs_charset != "UTF-8")
+				convertSubtitle(subtext[i]);
+			else
+				subtext[i] = convertLatin1UTF8(subtext[i]);
+		}
 		printf("subtext %d: [%s]\n", i, subtext[i].c_str());
 	}
 	printf("********************************************************************\n");

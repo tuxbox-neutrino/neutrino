@@ -139,6 +139,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void updateLcd();
 
 	void selectSubtitle();
+	bool convertSubtitle(std::string &text);
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle();
 	void selectChapter();
