@@ -46,6 +46,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
+#include <sys/mount.h>
 
 #include <video.h>
 #include <libtuxtxt/teletext.h>
@@ -68,6 +69,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
 
 #define TIMESHIFT_SECONDS 3
+#define ISO_MOUNT_POINT "/media/iso"
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
 
@@ -122,6 +124,7 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("mov");
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("pls");
+	tsfilefilter.addFilter("iso");
 
 	if (g_settings.network_nfs_moviedir.empty())
 		Path_local = "/";
@@ -146,6 +149,7 @@ void CMoviePlayerGui::Init(void)
 	min_y = 0;
 	max_y = 0;
 	ext_subs = false;
+	iso_file = false;
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -346,6 +350,26 @@ void CMoviePlayerGui::Cleanup()
 	p_movie_info = NULL;
 }
 
+void CMoviePlayerGui::makeFilename()
+{
+	if(file_name.empty()) {
+		std::string::size_type pos = full_name.find_last_of('/');
+		if(pos != std::string::npos) {
+			file_name = full_name.substr(pos+1);
+			std::replace(file_name.begin(), file_name.end(), '_', ' ');
+		} else
+			file_name = full_name;
+		
+		if(file_name.substr(0,14)=="videoplayback?"){//youtube name
+			if(!p_movie_info->epgTitle.empty())
+				file_name = p_movie_info->epgTitle;
+			else
+				file_name = "";
+		}
+		printf("CMoviePlayerGui::makeFilename: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
+	}
+}
+
 bool CMoviePlayerGui::SelectFile()
 {
 	bool ret = false;
@@ -414,55 +438,18 @@ bool CMoviePlayerGui::SelectFile()
 				is_file_player = true;
 				full_name = file->Name.c_str();
 				ret = true;
-				if(file->getType() == CFile::FILE_PLAYLIST) {
-					std::ifstream infile;
-					char cLine[1024];
-					char name[1024] = { 0 };
-					infile.open(file->Name.c_str(), std::ifstream::in);
-					while (infile.good())
-					{
-						infile.getline(cLine, sizeof(cLine));
-						if (cLine[strlen(cLine)-1]=='\r')
-							cLine[strlen(cLine)-1]=0;
-
-						int dur;
-						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
-						if (strlen(cLine) > 0 && cLine[0]!='#')
-						{
-							char *url = NULL;
-							if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) ){
-								if (url != NULL) {
-									printf("name %s [%d] url: %s\n", name, dur, url);
-									full_name = url;
-									if(strlen(name))
-										file_name = name;
-								}
-							}
-						}
-					}
-				}
+				if(file->getType() == CFile::FILE_PLAYLIST)
+					parsePlaylist(file);
+				else if(file->getType() == CFile::FILE_ISO)
+					ret = mountIso(file);
 			}
 		} else
 			menu_ret = filebrowser->getMenuRet();
 		CAudioMute::getInstance()->enableMuteIcon(true);
 		InfoClock->enableInfoClock(true);
 	}
-	if(ret && file_name.empty()) {
-		std::string::size_type pos = full_name.find_last_of('/');
-		if(pos != std::string::npos) {
-			file_name = full_name.substr(pos+1);
-			std::replace(file_name.begin(), file_name.end(), '_', ' ');
-		} else
-			file_name = full_name;
-		
-		if(file_name.substr(0,14)=="videoplayback?"){//youtube name
-			if(!p_movie_info->epgTitle.empty())
-				file_name = p_movie_info->epgTitle;
-			else
-				file_name = "";
-		}
-		printf("CMoviePlayerGui::SelectFile: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
-	}
+	if (ret)
+		makeFilename();
 	//store last multiformat play dir
 	g_settings.network_nfs_moviedir = Path_local;
 
@@ -845,6 +832,11 @@ void CMoviePlayerGui::PlayFile(void)
 
 	playback->SetSpeed(1);
 	playback->Close();
+	if (iso_file) {
+		iso_file = false;
+		if (umount2(ISO_MOUNT_POINT ,MNT_FORCE))
+			perror(ISO_MOUNT_POINT);
+	}
 
 	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
@@ -1621,4 +1613,46 @@ void CMoviePlayerGui::selectAutoLang()
 			playback->SetAPid(currentapid, currentac3);
 		}
 	}
+}
+
+void CMoviePlayerGui::parsePlaylist(CFile *file)
+{
+	std::ifstream infile;
+	char cLine[1024];
+	char name[1024] = { 0 };
+	infile.open(file->Name.c_str(), std::ifstream::in);
+	while (infile.good())
+	{
+		infile.getline(cLine, sizeof(cLine));
+		if (cLine[strlen(cLine)-1]=='\r')
+			cLine[strlen(cLine)-1]=0;
+
+		int dur;
+		sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
+		if (strlen(cLine) > 0 && cLine[0]!='#')
+		{
+			char *url = NULL;
+			if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) ){
+				if (url != NULL) {
+					printf("name %s [%d] url: %s\n", name, dur, url);
+					full_name = url;
+					if(strlen(name))
+						file_name = name;
+				}
+			}
+		}
+	}
+}
+
+bool CMoviePlayerGui::mountIso(CFile *file)
+{
+	printf("ISO file passed: %s\n", file->Name.c_str());
+	safe_mkdir(ISO_MOUNT_POINT);
+	if (my_system(5, "mount", "-o", "loop", file->Name.c_str(), ISO_MOUNT_POINT) == 0) {
+		makeFilename();
+		full_name = "/media/iso";
+		iso_file = true;
+		return true;
+	}
+	return false;
 }

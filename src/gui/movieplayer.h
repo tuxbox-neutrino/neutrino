@@ -108,6 +108,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	/* playback from file */
 	bool is_file_player;
+	bool iso_file;
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
 	std::string Path_local;
@@ -142,6 +143,9 @@ class CMoviePlayerGui : public CMenuTarget
 	void clearSubtitle();
 	void selectChapter();
 	void selectAutoLang();
+	void parsePlaylist(CFile *file);
+	bool mountIso(CFile *file);
+	void makeFilename();
 
 	void Cleanup();
 	static void *ShowStartHint(void *arg);
