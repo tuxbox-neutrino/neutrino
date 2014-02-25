@@ -1902,6 +1902,7 @@ const char * locale_real_names[] =
 	"streaming.write_error",
 	"stringinput.caps",
 	"stringinput.clear",
+	"subtitles.charset",
 	"subtitles.head",
 	"subtitles.stop",
 	"timer.eventrecord.msg",

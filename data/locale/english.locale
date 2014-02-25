@@ -1875,6 +1875,7 @@ streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.caps caps / no caps
 stringinput.clear clear all
+subtitles.charset Charset
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
 timer.eventrecord.msg The event is scheduled for recording.\nTo edit the schedule open the timer list.
