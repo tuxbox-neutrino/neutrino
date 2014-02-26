@@ -402,6 +402,21 @@ time_t toEpoch(std::string &date)
 
 }
 
+std::string& str_replace(const std::string &search, const std::string &replace, std::string &text)
+{
+	if (search.empty() || text.empty())
+		return text;
+
+	size_t searchLen = search.length();
+	while (1) {
+		size_t pos = text.find(search);
+		if (pos == std::string::npos)
+			break;
+		text.replace(pos, searchLen, replace);
+	}
+	return text;
+}
+
 CFileHelpers::CFileHelpers()
 {
 	FileBufSize	= 0xFFFF;
