@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_base.h"
+#include <driver/screen_max.h>
 
 using namespace std;
 
@@ -162,4 +163,22 @@ bool CComponentsItem::isAdded()
 		return true;
 
 	return false;
+}
+
+void CComponentsItem::setXPosP(const uint8_t& xpos_percent)
+{
+	int x_tmp  = cc_parent ? xpos_percent*cc_parent->getWidth() : xpos_percent*frameBuffer->getScreenWidth();
+	x = x_tmp/100;
+}
+
+void CComponentsItem::setYPosP(const uint8_t& ypos_percent)
+{
+	int y_tmp  = cc_parent ? ypos_percent*cc_parent->getHeight() : ypos_percent*frameBuffer->getScreenHeight();
+	x = y_tmp/100;
+}
+
+void CComponentsItem::setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent)
+{
+	setXPosP(xpos_percent);
+	setYPosP(ypos_percent);
 }

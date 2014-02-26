@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -235,10 +235,20 @@ void CComponents::kill()
 }
 
 //clean old screen buffer
-inline void CComponents::clearFbData()
+void CComponents::clearFbData()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++)
 		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
 	v_fbdata.clear();
+}
+
+inline void CComponents::setXPos(const int& xpos)
+{
+	x = xpos;
+}
+
+inline void CComponents::setYPos(const int& ypos)
+{
+	y = ypos;
 }

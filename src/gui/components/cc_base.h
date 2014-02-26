@@ -120,11 +120,11 @@ class CComponents
 		CComponents();
 		virtual~CComponents();
 
-		///set screen x-position
-		inline virtual void setXPos(const int& xpos){x = xpos;};
-		///set screen y-position,
-		inline virtual void setYPos(const int& ypos){y = ypos;};
-		///set x and y position
+		///set screen x-position, parameter as int
+		virtual void setXPos(const int& xpos);
+		///set screen y-position, parameter as int
+		virtual void setYPos(const int& ypos);
+		///set x and y position at once
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to set the real screen position, look at setRealPos()
 		inline virtual void setPos(const int& xpos, const int& ypos){x = xpos; y = ypos;};
@@ -286,6 +286,14 @@ class CComponentsItem : public CComponents
 		///set an index to item, see also attribut cc_item_index.
 		///To generate an index, use genIndex()
 		virtual void setIndex(const int& index){cc_item_index = index;};
+
+		///set screen x-position, parameter as uint8_t, percent value of screen x
+		virtual void setXPosP(const uint8_t& xpos_percent);
+		///set screen y-position, parameter as uint8_t, percent value of screen y
+		virtual void setYPosP(const uint8_t& ypos_percent);
+		///set x and y position as percent value from current parent or screen dimensions at once
+		///Note: position of bound components (items) means position related within parent form, not for screen!
+		virtual void setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent);
 };
 
 #endif
