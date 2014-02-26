@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include <global.h>
+#include <system/helpers.h>
 #include <system/settings.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
@@ -1552,6 +1553,7 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 			{ "ALIGN_TOP",			CTextBox::TOP },
 			{ "ALIGN_BOTTOM",		CTextBox::BOTTOM },
 			{ "ALIGN_NO_AUTO_LINEBREAK",	CTextBox::NO_AUTO_LINEBREAK },
+			{ "DECODE_HTML",		0 },
 			{ NULL,				0 }
 		};
 		mode = 0;
@@ -1559,6 +1561,8 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 			if (tmpMode.find(txt_align[i].name) != std::string::npos)
 				mode |= txt_align[i].code;
 		}
+		if (tmpMode.find("DECODE_HTML") != std::string::npos)
+			htmlEntityDecode(text);
 	}
 
 	CLuaComponentsText **udata = (CLuaComponentsText **) lua_newuserdata(L, sizeof(CLuaComponentsText *));
