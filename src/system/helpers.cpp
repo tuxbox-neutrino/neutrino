@@ -417,6 +417,28 @@ std::string& str_replace(const std::string &search, const std::string &replace, 
 	return text;
 }
 
+std::string& htmlEntityDecode(std::string& text)
+{
+	struct decode_table {
+		const char* code;
+		const char* htmlCode;
+	};
+	decode_table dt[] =
+	{
+		{" ",  "&nbsp;"},
+		{"&",  "&amp;"},
+		{"<",  "&lt;"},
+		{">",  "&gt;"},
+		{"\"", "&quot;"},
+		{"'",  "&apos;"},
+		{NULL,  NULL}
+	};
+	for (int i = 0; dt[i].code != NULL; i++)
+		text = str_replace(dt[i].htmlCode, dt[i].code, text);
+
+	return text;
+}	
+
 CFileHelpers::CFileHelpers()
 {
 	FileBufSize	= 0xFFFF;
