@@ -138,16 +138,6 @@ void CMenuItem::initItemColors(const bool select_mode)
 	}
 }
 
-void CMenuItem::paintItemBackground (const bool select_mode, const int &item_height)
-{
-	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	//FIXME what select_mode change here ??
-	if(select_mode)
-		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
-	else
-		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
-}
-
 void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height, const char * left_text, const char * right_text, const fb_pixel_t right_bgcol)
 {
 	if (select_mode)
@@ -209,7 +199,7 @@ void CMenuItem::prepareItem(const bool select_mode, const int &item_height)
  	initItemColors(select_mode);
 
 	//paint item background
-	paintItemBackground(select_mode, item_height);
+	CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
 }
 
 void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text, const char * right_text)

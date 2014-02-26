@@ -162,8 +162,6 @@ class CMenuItem
 		
 		virtual void paintItemButton(const bool select_mode, const int &item_height, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT);
 		
-		virtual void paintItemBackground (const bool select_mode, const int &item_height);
-		
 		virtual void prepareItem(const bool select_mode, const int &item_height);
 
 		virtual void setItemButton(const std::string& icon_Name, const bool is_select_button = false);
