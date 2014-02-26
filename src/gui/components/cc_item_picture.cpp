@@ -87,6 +87,13 @@ void CComponentsPicture::setPicture(const std::string& picture_name)
 	initCCItem();
 }
 
+void CComponentsPicture::setPicture(const char* picture_name)
+{
+	string s_tmp = "";
+	if (picture_name)
+		s_tmp = string(picture_name);
+	setPicture(s_tmp);
+}
 
 void CComponentsPicture::setPictureAlign(const int alignment)
 {
@@ -228,6 +235,14 @@ void CComponentsChannelLogo::setPicture(const std::string& picture_name)
 	channel_id = 0;
 	channel_name = "";
 	initVarPictureChannellLogo();
+}
+
+void CComponentsChannelLogo::setPicture(const char* picture_name)
+{
+	string s_tmp = "";
+	if (picture_name)
+		s_tmp = string(picture_name);
+	this->setPicture(s_tmp);
 }
 
 void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)

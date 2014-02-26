@@ -73,8 +73,10 @@ class CComponentsInfoBox : public CComponentsText
 
 		///set property: space around fram and beetween picture and textbox
 		inline void setSpaceOffset(const int offset){x_offset = offset;};
-		///set property: path or name of displayed image
-		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
+		///set property: path or name of displayed image, parameter as string
+		void setPicture(const std::string& picture_name);
+		///set property: path or name of displayed image, parameter as const char*
+		void setPicture(const char* picture_name);
 
 		///paint item
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

@@ -87,6 +87,7 @@ class CComponentsPicture : public CComponentsItem
 		virtual inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
 		virtual inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
 		virtual void setPicture(const std::string& picture_name);
+		virtual void setPicture(const char* picture_name);
 		virtual void setPictureAlign(const int alignment);
 
 		virtual inline bool isPicPainted(){return pic_painted;};
@@ -120,6 +121,7 @@ class CComponentsChannelLogo : public CComponentsPicture, CPictureViewer
 
 		void setChannel(const uint64_t& channelId, const std::string& channelName);
 		void setPicture(const std::string& picture_name);
+		void setPicture(const char* picture_name);
 		bool hasLogo(){return has_logo;};
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };

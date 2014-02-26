@@ -81,6 +81,19 @@ void CComponentsInfoBox::initVarInfobox()
 	x_offset	= 10;
 }
 
+void CComponentsInfoBox::setPicture(const std::string& picture_name)
+{
+	pic_name = picture_name;
+}
+
+void CComponentsInfoBox::setPicture(const char* picture_name)
+{
+	string s_tmp = "";
+	if (picture_name)
+		s_tmp = string(picture_name);
+	setPicture(s_tmp);
+}
+
 void CComponentsInfoBox::paintPicture()
 {
 	//ensure empty pic object
