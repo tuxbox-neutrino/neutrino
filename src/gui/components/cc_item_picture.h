@@ -90,7 +90,9 @@ class CComponentsPicture : public CComponentsItem
 		virtual void setPicture(const char* picture_name);
 		virtual void setPictureAlign(const int alignment);
 
+		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
 		virtual inline bool isPicPainted(){return pic_painted;};
+
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		virtual void hide(bool no_restore = false);
 		virtual inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
