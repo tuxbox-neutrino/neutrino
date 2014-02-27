@@ -246,6 +246,11 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 			g_RCInput->postMsg(msg, data);
 			loop=false;
 		}
+		else if ( msg == CRCInput::RC_setup )
+		{
+			loop = false;
+			res = menu_return::RETURN_EXIT_ALL;
+		}
 		else if ( CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all )
 		{
 			loop = false;
