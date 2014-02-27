@@ -32,6 +32,8 @@
 
 // #define DEBUG_CC
 
+class CComponentsForm;
+
 ///cc item types
 typedef enum
 {
