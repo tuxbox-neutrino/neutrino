@@ -190,3 +190,13 @@ void CComponentsItem::setCenterPos(int along_mode)
 	if (along_mode & CC_ALONG_Y)
 		y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
 }
+
+void CComponentsItem::setHeightP(const uint8_t& h_percent)
+{
+	height = cc_parent ? h_percent*cc_parent->getWidth()/100 : h_percent*frameBuffer->getScreenWidth()/100;
+}
+
+void CComponentsItem::setWidthP(const uint8_t& w_percent)
+{
+	width = cc_parent ? w_percent*cc_parent->getHeight()/100 : w_percent*frameBuffer->getScreenHeight()/100;
+}
