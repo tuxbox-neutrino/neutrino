@@ -287,12 +287,11 @@ class CComponentsItem : public CComponents
 		///To generate an index, use genIndex()
 		virtual void setIndex(const int& index){cc_item_index = index;};
 
-		///set screen x-position, parameter as uint8_t, percent value of screen x
+		///set screen x-position, parameter as uint8_t, percent x value related to current width of parent form or screen
 		virtual void setXPosP(const uint8_t& xpos_percent);
-		///set screen y-position, parameter as uint8_t, percent value of screen y
+		///set screen y-position, parameter as uint8_t, percent y value related to current height of parent form or screen
 		virtual void setYPosP(const uint8_t& ypos_percent);
-		///set x and y position as percent value from current parent or screen dimensions at once
-		///Note: position of bound components (items) means position related within parent form, not for screen!
+		///set x and y position as percent value related to current parent form or screen dimensions at once
 		virtual void setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent);
 
 		///do center item on screen or within a parent form, parameter along_mode assigns direction of centering
