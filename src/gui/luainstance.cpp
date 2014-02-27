@@ -1308,11 +1308,15 @@ int CLuaInstance::CWindowNew(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
 
-	std::string name, icon = std::string(NEUTRINO_ICON_INFO);
-	std::string btnRed    = "";
-	std::string btnGreen  = "";
-	std::string btnYellow = "";
-	std::string btnBlue   = "";
+	std::string name, icon   = std::string(NEUTRINO_ICON_INFO);
+	lua_Integer color_frame  = (lua_Integer)COL_MENUCONTENT_PLUS_6;
+	lua_Integer color_body   = (lua_Integer)COL_MENUCONTENT_PLUS_0;
+	lua_Integer color_shadow = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	std::string tmp1         = "false";
+	std::string btnRed       = "";
+	std::string btnGreen     = "";
+	std::string btnYellow    = "";
+	std::string btnBlue      = "";
 	int x = 100, y = 100, dx = 450, dy = 250;
 	tableLookup(L, "x", x);
 	tableLookup(L, "y", y);
@@ -1320,6 +1324,11 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "dy", dy);
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "icon", icon);
+	tableLookup(L, "has_shadow"  , tmp1);
+	bool has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	tableLookup(L, "color_frame" , color_frame);
+	tableLookup(L, "color_body"  , color_body);
+	tableLookup(L, "color_shadow", color_shadow);
 	tableLookup(L, "btnRed", btnRed);
 	tableLookup(L, "btnGreen", btnGreen);
 	tableLookup(L, "btnYellow", btnYellow);
@@ -1327,7 +1336,7 @@ int CLuaInstance::CWindowNew(lua_State *L)
 
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
-	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str());
+	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 
 	CComponentsFooter* footer = (*udata)->w->getFooterObject();
 	if (footer) {
