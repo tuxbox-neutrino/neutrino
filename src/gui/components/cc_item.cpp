@@ -182,3 +182,11 @@ void CComponentsItem::setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_p
 	setXPosP(xpos_percent);
 	setYPosP(ypos_percent);
 }
+
+void CComponentsItem::setCenterPos(int along_mode)
+{
+	if (along_mode & CC_ALONG_X)
+		x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
+	if (along_mode & CC_ALONG_Y)
+		y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
+}

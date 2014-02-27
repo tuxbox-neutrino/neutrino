@@ -90,8 +90,6 @@ class CComponentsWindow : public CComponentsForm
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		///allow centering of window on screen, mostly senseful for window object without parent
-		void doCenter();
 		///initialize width and height
 		void initWindowSize();
 		///initialize position

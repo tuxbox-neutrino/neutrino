@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Copyright (C) 2013, M. Liebmann 'micha-bbg'
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -43,7 +43,7 @@ CBuildInfo::CBuildInfo() : CComponentsWindow(0, 0, 700, 500, LOCALE_BUILDINFO_ME
 //init all var members
 void CBuildInfo::initVarBuildInfo()
 {
-	doCenter();
+	setCenterPos();
 
 	font = NULL;
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);

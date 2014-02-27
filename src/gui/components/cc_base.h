@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -294,6 +294,9 @@ class CComponentsItem : public CComponents
 		///set x and y position as percent value from current parent or screen dimensions at once
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		virtual void setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent);
+
+		///do center item on screen or within a parent form, parameter along_mode assigns direction of centering
+		virtual void setCenterPos(int along_mode = CC_ALONG_X | CC_ALONG_Y);
 };
 
 #endif

@@ -29,7 +29,6 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_window.h"
-#include <driver/screen_max.h>
 
 using namespace std;
 
@@ -144,11 +143,6 @@ void CComponentsWindow::initWindowPos()
 		x = frameBuffer->getScreenX();
 	if (y == 0)
 		y = frameBuffer->getScreenY();
-}
-
-void CComponentsWindow::doCenter(){
-	x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
-	y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
 }
 
 void CComponentsWindow::setWindowCaption(neutrino_locale_t locale_text, const int& align_mode)
