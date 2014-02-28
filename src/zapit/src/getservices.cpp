@@ -820,6 +820,12 @@ void CServiceManager::CopyFile(char * from, char * to)
 
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 {
+	/* FIXME hack */
+	if ((config.position & 0xF00) == 0xF00)
+		config.deltype = FE_QAM;
+	else if ((config.position & 0xF00) == 0xE00)
+		config.deltype = FE_OFDM;
+
 	switch (config.deltype) {
 		case FE_QPSK: /* satellite */
 			fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
