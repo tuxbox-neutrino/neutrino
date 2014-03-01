@@ -366,7 +366,7 @@ void CPluginList::paintItems()
 CPluginList::result_ CPluginList::pluginSelected()
 {
 	hide();
-	g_PluginList->startPlugin(pluginlist[selected]->number,0);
+	g_PluginList->startPlugin(pluginlist[selected]->number);
 	if (!g_PluginList->getScriptOutput().empty())
 	{
 		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);

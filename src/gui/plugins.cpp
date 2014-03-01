@@ -59,14 +59,6 @@
 #include <zapit/client/zapittools.h>
 
 #include "plugins.h"
-/* for alexW images with old drivers:
- * #define USE_VBI_INTERFACE 1
- */
-
-#ifdef USE_VBI_INTERFACE
-#define AVIA_VBI_START_VTXT	1
-#define AVIA_VBI_STOP_VTXT	2
-#endif
 
 #include <daemonc/remotecontrol.h>
 #if ENABLE_LUA
@@ -77,12 +69,16 @@ extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 #define PLUGINDIR_VAR "/var/tuxbox/plugins"
-#define PLUGINDIR_USB "/mnt/usb/tuxbox/plugins"
 
 CPlugins::CPlugins()
 {
 	frameBuffer = NULL;
 	number_of_plugins = 0;
+}
+
+CPlugins::~CPlugins()
+{
+	plugin_list.clear();
 }
 
 bool CPlugins::plugin_exists(const std::string & filename)
@@ -163,22 +159,14 @@ void CPlugins::loadPlugins()
 	plugin_list.clear();
 	sindex = 100;
 	scanDir(g_settings.plugin_hdd_dir.c_str());
-	scanDir(PLUGINDIR_USB);
 	scanDir(PLUGINDIR_VAR);
 	scanDir(PLUGINDIR);
 
 	sort (plugin_list.begin(), plugin_list.end());
 }
 
-CPlugins::~CPlugins()
-{
-	plugin_list.clear();
-}
-
 bool CPlugins::parseCfg(plugin *plugin_data)
 {
-//	FILE *fd;
-
 	std::ifstream inFile;
 	std::string line[20];
 	int linecount = 0;
@@ -292,13 +280,13 @@ PluginParam * CPlugins::makeParam(const char * const id, const int value, Plugin
 	return makeParam(id, aval, next);
 }
 
-void CPlugins::start_plugin_by_name(const std::string & filename,int param)
+void CPlugins::startPlugin_by_name(const std::string & name)
 {
 	for (int i = 0; i <  (int) plugin_list.size(); i++)
 	{
-		if (filename.compare(g_PluginList->getName(i))==0)
+		if (name.compare(g_PluginList->getName(i))==0)
 		{
-			startPlugin(i,param);
+			startPlugin(i);
 			return;
 		}
 	}
@@ -308,7 +296,7 @@ void CPlugins::startPlugin(const char * const name)
 {
 	int pluginnr = find_plugin(name);
 	if (pluginnr > -1)
-		startPlugin(pluginnr,0);
+		startPlugin(pluginnr);
 	else
 		printf("[CPlugins] could not find %s\n", name);
 
@@ -365,7 +353,7 @@ void CPlugins::startLuaPlugin(int number)
 }
 #endif
 
-void CPlugins::startPlugin(int number,int /*param*/)
+void CPlugins::startPlugin(int number)
 {
 	// always delete old output
 	delScriptOutput();
@@ -380,9 +368,8 @@ void CPlugins::startPlugin(int number,int /*param*/)
 	sprintf(tmp, "%d", g_settings.screen_EndY);
 	setenv("SCREEN_END_Y", tmp, 1);
 
-	//bool ispip = strncmp(plugin_list[number].pluginfile.c_str(), "pip", 3) ? false : true;
 	bool ispip  = strstr(plugin_list[number].pluginfile.c_str(), "pip") != 0;
-//printf("exec: %s pip: %d\n", plugin_list[number].pluginfile.c_str(), ispip);
+	//printf("exec: %s pip: %d\n", plugin_list[number].pluginfile.c_str(), ispip);
 	if (ispip && !g_RemoteControl->is_video_started)
 		return;
 	if (plugin_list[number].type == CPlugins::P_TYPE_SCRIPT)
@@ -404,226 +391,15 @@ void CPlugins::startPlugin(int number,int /*param*/)
 		return;
 	}
 
-#if 0
-	PluginExec execPlugin;
-	char depstring[129];
-	char			*argv[20];
-	void			*libhandle[20];
-	int			argc = 0, i = 0, lcd_fd=-1;
-	char			*p;
-	char			*np;
-	void			*handle;
-	char *        error;
-	int           vtpid      =  0;
-	PluginParam * startparam =  0;
-#endif
-	g_RCInput->clearRCMsg();
-#if 0
-	if (plugin_list[number].fb)
-	{
-		startparam = makeParam(P_ID_FBUFFER  , frameBuffer->getFileHandle()    , startparam);
-	}
-	if (plugin_list[number].rc)
-	{
-		startparam = makeParam(P_ID_RCINPUT  , g_RCInput->getFileHandle()      , startparam);
-		startparam = makeParam(P_ID_RCBLK_ANF, g_settings.repeat_genericblocker, startparam);
-		startparam = makeParam(P_ID_RCBLK_REP, g_settings.repeat_blocker       , startparam);
-	}
-	else
-	{
-		g_RCInput->stopInput();
-	}
-	if (plugin_list[number].lcd)
-	{
-		CLCD::getInstance()->pause();
-
-		lcd_fd = open("/dev/dbox/lcd0", O_RDWR);
-
-		startparam = makeParam(P_ID_LCD      , lcd_fd                          , startparam);
-	}
-	if (plugin_list[number].vtxtpid)
-	{
-		vtpid = g_RemoteControl->current_PIDs.PIDs.vtxtpid;
-#ifdef USE_VBI_INTERFACE
-		int fd = open("/dev/dbox/vbi0", O_RDWR);
-		if (fd > 0)
-		{
-			ioctl(fd, AVIA_VBI_STOP_VTXT, 0);
-			close(fd);
-		}
-#endif
-		if (param>0)
-			vtpid=param;
-		startparam = makeParam(P_ID_VTXTPID, vtpid, startparam);
-	}
-	if (plugin_list[number].needoffset)
-	{
-		startparam = makeParam(P_ID_VFORMAT  , g_settings.video_Format         , startparam);
-		startparam = makeParam(P_ID_OFF_X    , g_settings.screen_StartX        , startparam);
-		startparam = makeParam(P_ID_OFF_Y    , g_settings.screen_StartY        , startparam);
-		startparam = makeParam(P_ID_END_X    , g_settings.screen_EndX          , startparam);
-		startparam = makeParam(P_ID_END_Y    , g_settings.screen_EndY          , startparam);
-	}
-
-	PluginParam *par = startparam;
-	for ( ; par; par=par->next )
-	{
-		printf("[CPlugins] (id,val):(%s,%s)\n", par->id, par->val);
-	}
-	std::string pluginname = plugin_list[number].filename;
-
-	strcpy(depstring, plugin_list[number].depend.c_str());
-
-	argc=0;
-	if ( depstring[0] )
-	{
-		p=depstring;
-		while ( 1 )
-		{
-			argv[ argc ] = p;
-			argc++;
-			np = strchr(p,',');
-			if ( !np )
-				break;
-
-			*np=0;
-			p=np+1;
-			if ( argc == 20 )	// mehr nicht !
-				break;
-		}
-	}
-	for ( i=0; i<argc; i++ )
-	{
-		std::string libname = argv[i];
-		printf("[CPlugins] try load shared lib : %s\n",argv[i]);
-		libhandle[i] = dlopen ( *argv[i] == '/' ?
-					argv[i] : (PLUGINDIR "/"+libname).c_str(),
-					RTLD_NOW | RTLD_GLOBAL );
-		if ( !libhandle[i] )
-		{
-			fputs (dlerror(), stderr);
-			break;
-		}
-	}
-	if ( i == argc )		// alles geladen
-	{
-		//bool ispip = strncmp(plugin_list[number].pluginfile.c_str(), "pip", 3) ? true : false;
-		handle = dlopen ( plugin_list[number].pluginfile.c_str(), RTLD_NOW);
-		if (!handle)
-		{
-			fputs (dlerror(), stderr);
-		} else {
-			execPlugin = (PluginExec) dlsym(handle, "plugin_exec");
-			if ((error = dlerror()) != NULL)
-			{
-				fputs(error, stderr);
-				dlclose(handle);
-			} else {
-				printf("[CPlugins] try exec...\n");
-				if (ispip) {
-					g_Sectionsd->setPauseScanning (true);
-					g_Zapit->setEventMode(false);
-					if (g_Zapit->isPlayBackActive()) {
-						if (!CNeutrinoApp::getInstance()->recordingstatus)
-							g_Zapit->setRecordMode(true);
-					} else {
-						/* no playback, we playing file ? zap to channel */
-						t_channel_id current_channel = g_Zapit->getCurrentServiceID();
-						g_Zapit->zapTo_serviceID(current_channel);
-					}
-				}
-				g_RCInput->close_click();
-#ifndef FB_USE_PALETTE
-				if (plugin_list[number].fb) {
-					frameBuffer->setMode(720, 576, 8);
-					frameBuffer->paletteSet();
-				}
-#endif
-				execPlugin(startparam);
-				dlclose(handle);
-				printf("[CPlugins] exec done...\n");
-				g_RCInput->open_click();
-			}
-		}
-		//restore framebuffer...
-//#if 0
-//		g_RCInput->open_click();
-//#endif
-
-		//if (!plugin_list[number].rc)
-		g_RCInput->restartInput();
-		g_RCInput->clearRCMsg();
-
-		if (plugin_list[number].lcd)
-		{
-			if (lcd_fd != -1)
-				close(lcd_fd);
-			CLCD::getInstance()->resume();
-		}
-
-		if (plugin_list[number].fb)
-		{
-#ifdef FB_USE_PALETTE
-			frameBuffer->paletteSet();
-#else
-			frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
-#endif
-		}
-		frameBuffer->paintBackgroundBox(0,0,720,576);
-		if (ispip) {
-			if (!CNeutrinoApp::getInstance()->recordingstatus) {
-				g_Zapit->setRecordMode(false);
-			}
-			g_Zapit->setEventMode(true);
-			g_Sectionsd->setPauseScanning (false);
-		}
-
-#ifdef USE_VBI_INTERFACE
-		if (plugin_list[number].vtxtpid)
-		{
-			if (vtpid != 0)
-			{
-				// versuche, den gtx/enx_vbi wieder zu starten
-				int fd = open("/dev/dbox/vbi0", O_RDWR);
-				if (fd > 0)
-				{
-					ioctl(fd, AVIA_VBI_START_VTXT, vtpid);
-					close(fd);
-				}
-			}
-		}
-#endif
-	}
-
-	/* unload shared libs */
-	for ( i=0; i<argc; i++ )
-	{
-		if ( libhandle[i] )
-			dlclose(libhandle[i]);
-		else
-			break;
-	}
-
-	for (par = startparam ; par; )
-	{
-		/* we must not free par->id, since it is the original */
-		free(par->val);
-		PluginParam * tmp = par;
-		par = par->next;
-		delete tmp;
-	}
-	g_RCInput->clearRCMsg();
-#else
 	g_RCInput->clearRCMsg();
 	g_RCInput->stopInput();
-	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
+
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
 	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
-	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
+
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();
 	g_RCInput->clearRCMsg();
-#endif
 }
 
 bool CPlugins::hasPlugin(CPlugins::p_type_t type)
@@ -671,5 +447,3 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 		return P_TYPE_DISABLED;
 	}
 }
-
-

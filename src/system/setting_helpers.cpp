@@ -385,7 +385,7 @@ int CStreamFeaturesChangeExec::exec(CMenuTarget* parent, const std::string & act
 	}
 	else if (sel>=0)
 	{
-		g_PluginList->startPlugin(sel,0);
+		g_PluginList->startPlugin(sel);
 	}
 
 	return menu_return::RETURN_EXIT;

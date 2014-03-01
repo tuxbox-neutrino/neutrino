@@ -2210,7 +2210,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				numericZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_plugin ) {
-				g_PluginList->start_plugin_by_name(g_settings.onekey_plugin.c_str(), 0);
+				g_PluginList->startPlugin_by_name(g_settings.onekey_plugin.c_str());
 			}
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
 				CRecordManager::getInstance()->StartTimeshift();

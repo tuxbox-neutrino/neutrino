@@ -629,7 +629,7 @@ void CMoviePlayerGui::PlayFile(void)
 		showSubtitle(0);
 
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
-			g_PluginList->start_plugin_by_name (g_settings.movieplayer_plugin.c_str (), 0 /*param is unused*/);
+			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
