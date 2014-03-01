@@ -1523,7 +1523,7 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 			if(g_settings.channellist_sort_mode == CChannelList::SORT_CH_NUMBER)
 				bouquetList->Bouquets[i]->channelList->SortChNumber();
 		}
-		channelList->adjustToChannelID(channelList->getActiveChannel_ChannelID());
+		channelList->adjustToChannelID(CZapit::getInstance()->GetCurrentChannelID());
 	}
 	lastChannelMode = newmode;
 }
