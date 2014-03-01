@@ -57,8 +57,6 @@
 #include <cs_api.h>
 #include <video.h>
 
-//#define ONE_KEY_PLUGIN
-
 extern CPlugins       * g_PluginList;
 extern cVideo *videoDecoder;
 
@@ -95,10 +93,31 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return menu_return::RETURN_REPAINT;
 	}
-#ifdef ONE_KEY_PLUGIN
-	else if(actionKey == "onekeyplugin")
+	else if(actionKey == "onekey_plugin")
 	{
-		CMenuWidget MoviePluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES);
+		CMenuWidget OneKeyPluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES);
+		OneKeyPluginSelector.addItem(GenericMenuSeparator);
+
+		char id[5];
+		int cnt = 0;
+		int enabled_count = 0;
+		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
+		{
+			if (!g_PluginList->isHidden(count))
+			{
+				sprintf(id, "%d", count);
+				enabled_count++;
+				OneKeyPluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new COnekeyPluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
+				cnt++;
+			}
+		}
+
+		OneKeyPluginSelector.exec(NULL, "");
+		return menu_return::RETURN_REPAINT;
+	}
+	else if(actionKey == "movieplayer_plugin")
+	{
+		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
 		MoviePluginSelector.addItem(GenericMenuSeparator);
 
 		char id[5];
@@ -106,12 +125,11 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		int enabled_count = 0;
 		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
 		{
-			if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count))
+			if (!g_PluginList->isHidden(count))
 			{
-				// e.g. vtxt-plugins
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new COnekeyPluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
+				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
 				cnt++;
 			}
 		}
@@ -119,7 +137,6 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		MoviePluginSelector.exec(NULL, "");
 		return menu_return::RETURN_REPAINT;
 	}
-#endif /*ONE_KEY_PLUGIN*/
 	else if(actionKey == "info")
 	{
 		unsigned num = CEitManager::getInstance()->getEventsCount();
@@ -315,12 +332,19 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 		ms_general->addItem(mc);
 	}
 
+	ms_general->addItem(GenericMenuSeparatorLine);
+
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir");
 	mf->setHint("", LOCALE_MENU_HINT_PLUGINS_HDD_DIR);
 	ms_general->addItem(mf);
-#ifdef ONE_KEY_PLUGIN
-	ms_general->addItem(new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin,this,"onekeyplugin"));
-#endif /*ONE_KEY_PLUGIN*/
+
+	mf = new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin, this, "onekey_plugin");
+	mf->setHint("", LOCALE_MENU_HINT_ONEKEY_PLUGIN);
+	ms_general->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_MPKEY_PLUGIN, true, g_settings.movieplayer_plugin, this, "movieplayer_plugin");
+	mf->setHint("", LOCALE_MENU_HINT_MOVIEPLAYER_PLUGIN);
+	ms_general->addItem(mf);
 }
 
 #define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 2

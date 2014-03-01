@@ -102,7 +102,6 @@ private:
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
-	CMoviePluginChangeExec 		*MoviePluginChanger;
 	bool				channellist_visible;
 
 	void SDT_ReloadChannels();
