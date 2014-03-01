@@ -64,6 +64,8 @@ struct SNeutrinoSettings
 	int current_volume_step;
 	int channel_mode;
 	int channel_mode_radio;
+	int channel_mode_initial;
+	int channel_mode_initial_radio;
 
 	//misc
 	int shutdown_real;
