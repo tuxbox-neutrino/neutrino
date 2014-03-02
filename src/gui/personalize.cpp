@@ -874,7 +874,7 @@ void CPersonalizeGui::addPersonalizedItems()
 				//convert item to locked forwarder and use generated pin mode for usage as ask parameter 
 				v_item[i].menuItem = new CLockedMenuForwarder(fw->getTextLocale(), 
 						g_settings.easymenu ? g_settings.parentallock_pincode : g_settings.personalize_pincode,
-						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey().c_str(), d_key, fw->iconName.c_str(), lock_icon);
+						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey(), d_key, fw->iconName.c_str(), lock_icon);
 				v_item[i].menuItem->hintIcon = fw->hintIcon;
 				v_item[i].menuItem->hint = fw->hint;
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next

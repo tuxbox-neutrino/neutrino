@@ -1769,49 +1769,6 @@ int CMenuOptionStringChooser::paint( bool selected )
 
 //-------------------------------------------------------------------------------------------------------------------------------
 
-CMenuOptionLanguageChooser::CMenuOptionLanguageChooser(char* OptionValue, CChangeObserver* Observ, const char * const IconName)
-{
-	height      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	optionValue = OptionValue;
-	observ      = Observ;
-
-	directKey   = CRCInput::RC_nokey;
-	iconName = IconName ? IconName : "";
-}
-
-
-CMenuOptionLanguageChooser::~CMenuOptionLanguageChooser()
-{
-}
-
-int CMenuOptionLanguageChooser::exec(CMenuTarget*)
-{
-	g_settings.language = optionValue;
-	if(observ)
-		observ->changeNotify(LOCALE_LANGUAGESETUP_SELECT, (void *) optionValue.c_str());
-	return menu_return::RETURN_EXIT;
-}
-
-int CMenuOptionLanguageChooser::paint( bool selected )
-{
-	active = true;
-		
-	//paint item
-	prepareItem(selected, height);
-
-	paintItemButton(selected, height, iconName);
-	
-	//convert first letter to large
-	std::string s_optionValue = optionValue;
-	if(!s_optionValue.empty())
-		s_optionValue[0] = (char)toupper(s_optionValue[0]);
-	//paint text
-	paintItemCaption(selected, height , s_optionValue.c_str());
-
-	return y+height;
-}
-
-//-------------------------------------------------------------------------------------------------------------------------------
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right, bool IsStatic)
 {
 	option_string = &Option;
