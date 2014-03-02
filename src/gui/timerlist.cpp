@@ -65,6 +65,7 @@
 
 #include <system/settings.h>
 #include <system/fsmounter.h>
+#include <system/helpers.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -1223,12 +1224,12 @@ int CTimerList::newTimer()
 	CStringInputSMS timerSettings_msg(LOCALE_TIMERLIST_MESSAGE, &timerNew_message, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:!?/ ");
 	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_TIMERLIST_MESSAGE, false, timerNew_message, &timerSettings_msg );
 
-	strcpy(timerNew.pluginName,"---");
+	std::string timerNew_pluginName("---");
 	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL
 #if ENABLE_LUA
 										       | CPlugins::P_TYPE_LUA
 #endif
-										       , timerNew.pluginName);
+										       , timerNew_pluginName);
 	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_TIMERLIST_PLUGIN, false, timerNew.pluginName, &plugin_chooser);
 
 
@@ -1258,7 +1259,8 @@ int CTimerList::newTimer()
 	notifier2.changeNotify(NONEXISTANT_LOCALE, NULL);
 	int ret=timerSettings.exec(this,"");
 
-	strncpy(timerNew.message, timerNew_message.c_str(), sizeof(timerNew.message));
+	cstrncpy(timerNew.pluginName, timerNew_pluginName, sizeof(timerNew.pluginName));
+	cstrncpy(timerNew.message, timerNew_message, sizeof(timerNew.message));
 
 	// delete dynamic created objects
 	for (unsigned int count=0; count<toDelete.size(); count++)

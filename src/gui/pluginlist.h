@@ -43,71 +43,28 @@
 class CPluginList : public CMenuTarget
 {
 
-	public:
-		enum result_
-		{
-			close  = 0,
-			resume = 1
-		} result;
-
 	private:
-
-		CFrameBuffer	*frameBuffer;
-
-		struct pluginitem
-		{
-			int         number;
-			std::string name;   // UTF-8 encoded
-			std::string desc;   // UTF-8 encoded
-		};
-
-		unsigned int	    liststart;
-		unsigned int	    listmaxshow;
-		int		    key;
-		neutrino_locale_t   name;
+		neutrino_locale_t title;
 		uint32_t pluginlisttype;
-
-		int		fheight; // Fonthoehe Channellist-Inhalt
-		int		theight; // Fonthoehe Channellist-Titel
-
-		int		fheight1,fheight2;
-
-		int 		width;
-		int 		height;
-		int 		x;
-		int 		y;
-
-		void paintItem(int pos);
-		void paintItems();
-		void paint();
-		void paintHead();
+		int width;
 
 	protected:
-
-		unsigned int selected;
-		std::vector<pluginitem *> pluginlist;
-
-		virtual CPluginList::result_ pluginSelected();
+		int selected;
+		int number;
 
 	public:
-
-		CPluginList(const neutrino_locale_t Name, const uint32_t listtype);
-		virtual ~CPluginList();
-
-		void hide();
+		CPluginList(const neutrino_locale_t Title, const uint32_t listtype);
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		virtual int run ();
 };
 
 class CPluginChooser : public CPluginList
 {
 	private:
-	char* selected_plugin;
-	protected:
-
-	CPluginList::result_ pluginSelected();
-
+		std::string *selectedFilePtr;
 	public:
-	CPluginChooser(const neutrino_locale_t Name, const uint32_t listtype, char* pluginname);
+		CPluginChooser(const neutrino_locale_t Name, const uint32_t listtype, std::string &selectedFile);
+		int run ();
 };
 
 #endif
