@@ -425,12 +425,19 @@ std::string& htmlEntityDecode(std::string& text)
 	};
 	decode_table dt[] =
 	{
-		{" ",  "&nbsp;"},
+		{" ",  "&nbsp;"},
 		{"&",  "&amp;"},
 		{"<",  "&lt;"},
 		{">",  "&gt;"},
 		{"\"", "&quot;"},
 		{"'",  "&apos;"},
+		{"€",  "&euro;"},
+		{"–",  "&#8211;"},
+		{"“",  "&#8220;"},
+		{"”",  "&#8221;"},
+		{"„",  "&#8222;"},
+		{"•",  "&#8226;"},
+		{"…",  "&#8230;"},
 		{NULL,  NULL}
 	};
 	for (int i = 0; dt[i].code != NULL; i++)
