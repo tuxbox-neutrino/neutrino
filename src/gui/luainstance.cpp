@@ -1293,6 +1293,7 @@ void CLuaInstance::CWindowRegister(lua_State *L)
 		{ "paint", CLuaInstance::CWindowPaint },
 		{ "hide", CLuaInstance::CWindowHide },
 		{ "header_height", CLuaInstance::CWindowGetHeaderHeight },
+		{ "footer_height", CLuaInstance::CWindowGetFooterHeight },
 		{ "__gc", CLuaInstance::CWindowDelete },
 		{ NULL, NULL }
 	};
@@ -1412,6 +1413,20 @@ int CLuaInstance::CWindowGetHeaderHeight(lua_State *L)
 	if (header)
 		hh = header->getHeight();
 	lua_pushinteger(L, hh);
+	return 1;
+}
+
+int CLuaInstance::CWindowGetFooterHeight(lua_State *L)
+{
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m)
+		return 0;
+
+	CComponentsFooter* footer = m->w->getFooterObject();
+	int fh = 0;
+	if (footer)
+		fh = footer->getHeight();
+	lua_pushinteger(L, fh);
 	return 1;
 }
 
