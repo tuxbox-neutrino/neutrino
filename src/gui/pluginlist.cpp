@@ -116,11 +116,11 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 			m.addItem(f);
 		}
 	}
-	m.exec(NULL, "");
+	int res = m.exec(NULL, "");
 	m.hide();
 	selected = m.getSelected();
 
-	return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 CPluginChooser::CPluginChooser(const neutrino_locale_t Name, const uint32_t listtype, std::string &selectedFile) : CPluginList(Name, listtype)
