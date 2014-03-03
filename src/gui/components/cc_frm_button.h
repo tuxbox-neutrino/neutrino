@@ -45,7 +45,14 @@ class CComponentsButton : public CComponentsForm
 		CComponentsLabel *cc_btn_capt_obj;
 
 		///initialize all required attributes and objects
-		void initVarButton();
+		void initVarButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption,
+					const std::string& icon_name,
+					CComponentsForm* parent,
+					bool selected,
+					bool enabled,
+					bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
 
 		///property: button text as string, see also setCaption() and getCaptionString()
 		std::string cc_btn_capt;
@@ -72,13 +79,21 @@ class CComponentsButton : public CComponentsForm
 	
 	public:
 		///basic constructor for button object with most needed params, no button icon is definied here
-		CComponentsButton(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption, const std::string& icon_name = "",
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		CComponentsButton(	const int x_pos, const int y_pos, const int w, const int h,
-					const neutrino_locale_t& caption_locale, const std::string& icon_name = "",
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+
+		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const neutrino_locale_t& caption_locale,
+					const std::string& icon_name = "",
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///set text color
@@ -108,19 +123,25 @@ Shows a button box with caption and prepared red icon.
 class CComponentsButtonRed : public CComponentsButton
 {
 	public:
-		CComponentsButtonRed(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonRed(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_RED, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
 		};
-		CComponentsButtonRed(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonRed(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_RED, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_RED;
 		};
@@ -133,19 +154,25 @@ Shows a button box with caption and prepared green icon.
 class CComponentsButtonGreen : public CComponentsButton
 {
 	public:
-		CComponentsButtonGreen(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonGreen(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
 		};
-		CComponentsButtonGreen(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonGreen(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_GREEN, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_GREEN;
 		};
@@ -158,19 +185,25 @@ Shows a button box with caption and prepared yellow icon.
 class CComponentsButtonYellow : public CComponentsButton
 {
 	public:
-		CComponentsButtonYellow(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonYellow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_YELLOW, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
 		};
-		CComponentsButtonYellow(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonYellow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_YELLOW, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_YELLOW;
 		};
@@ -183,19 +216,25 @@ Shows a button box with caption and prepared blue icon.
 class CComponentsButtonBlue : public CComponentsButton
 {
 	public:
-		CComponentsButtonBlue(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonBlue(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
 		};
-		CComponentsButtonBlue(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsButtonBlue(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale,
-					bool selected = false, bool enabled = true, bool has_shadow = CC_SHADOW_OFF,
+					CComponentsForm *parent = NULL,
+					bool selected = false,
+					bool enabled = true,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_LIGHT_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
+					:CComponentsButton(x_pos, y_pos, w, h, caption_locale, NEUTRINO_ICON_BUTTON_BLUE, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_BUTTON_BLUE;
 		};

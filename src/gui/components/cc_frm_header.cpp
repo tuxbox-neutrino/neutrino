@@ -34,28 +34,30 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsHeader inherit from CComponentsForm
-CComponentsHeader::CComponentsHeader()
+CComponentsHeader::CComponentsHeader(CComponentsForm* parent)
 {
 	//CComponentsHeader
-	initVarHeader(1, 1, 0, 0, "", "", 0);
+	initVarHeader(1, 1, 0, 0, "", "", 0, parent);
 }
 
 CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
 					const std::string& icon_name,
 					const int& buttons,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, has_shadow, color_frame, color_body, color_shadow);
+	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsHeaderLocalized::CComponentsHeaderLocalized(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 							neutrino_locale_t caption_locale,
 							const std::string& icon_name,
 							const int& buttons,
+							CComponentsForm* parent,
 							bool has_shadow,
 							fb_pixel_t color_frame,
 							fb_pixel_t color_body,
@@ -63,6 +65,7 @@ CComponentsHeaderLocalized::CComponentsHeaderLocalized(	const int& x_pos, const 
 							:CComponentsHeader(	x_pos, y_pos, w, h,
 										g_Locale->getText(caption_locale),
 										icon_name, buttons,
+										parent,
 										has_shadow,
 										color_frame, color_body, color_shadow){};
 
@@ -70,6 +73,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 					const std::string& caption,
 					const std::string& icon_name,
 					const int& buttons,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
@@ -117,6 +121,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 	initDefaultButtons();
 	initCCItems();
+	initParent(parent);
 }
 
 CComponentsHeader::~CComponentsHeader()

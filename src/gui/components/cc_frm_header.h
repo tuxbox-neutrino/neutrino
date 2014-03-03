@@ -42,6 +42,7 @@ class CComponentsHeader : public CComponentsForm
 					const std::string& caption = "header",
 					const std::string& = "",
 					const int& buttons = 0,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
@@ -110,11 +111,12 @@ class CComponentsHeader : public CComponentsForm
 			CC_HEADER_ITEM_BUTTONS	= 2
 		};
 
-		CComponentsHeader();
+		CComponentsHeader(CComponentsForm *parent = NULL);
 		CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const std::string& caption = "",
 					const std::string& = "",
 					const int& buttons = 0,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
@@ -188,6 +190,7 @@ class CComponentsHeaderLocalized : public CComponentsHeader
 						neutrino_locale_t caption_locale = NONEXISTANT_LOCALE,
 						const std::string& = "",
 						const int& buttons = 0,
+						CComponentsForm *parent = NULL,
 						bool has_shadow = CC_SHADOW_OFF,
 						fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 						fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,

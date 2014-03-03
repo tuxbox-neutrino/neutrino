@@ -37,25 +37,6 @@ using namespace std;
 //abstract basic class CComponents
 CComponents::CComponents()
 {
-	initVarBasic();
-}
-
-CComponents::~CComponents()
-{
- 	hide();
-	clearSavedScreen();
-	clearFbData();
-}
-
-void CComponents::clearSavedScreen()
-{
-	if (saved_screen.pixbuf)
-		delete[] saved_screen.pixbuf;
-	saved_screen.pixbuf = NULL;
-}
-
-void CComponents::initVarBasic()
-{
 	x = saved_screen.x 	= 0;
 	y = saved_screen.y 	= 0;
 	cc_xr 			= x;
@@ -73,7 +54,7 @@ void CComponents::initVarBasic()
 	shadow_w		= SHADOW_OFFSET;
 	fr_thickness		= 0;
 	fr_thickness_sel	= 3;
-	
+
 	firstPaint		= true;
 	is_painted		= false;
 	paint_bg		= true;
@@ -81,6 +62,20 @@ void CComponents::initVarBasic()
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
+}
+
+CComponents::~CComponents()
+{
+	hide();
+	clearSavedScreen();
+	clearFbData();
+}
+
+void CComponents::clearSavedScreen()
+{
+	if (saved_screen.pixbuf)
+		delete[] saved_screen.pixbuf;
+	saved_screen.pixbuf = NULL;
 }
 
 bool CComponents::CheckFbData(const comp_fbdata_t& fbdata)

@@ -2,7 +2,7 @@
 	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	(C) 2008, 2013 by Thilo Graf
+	(C) 2008,2013,2014 by Thilo Graf
 	(C) 2009,2010,2013 Stefan Seyfried
 
 	License: GPL
@@ -39,19 +39,16 @@
 #define GREEN  0x00FF00
 #define YELLOW 0xFFFF00
 
-CProgressBar::CProgressBar()
-{
-	initVarProgressbar();
-}
-
 CProgressBar::CProgressBar(	const int x_pos, const int y_pos, const int w, const int h,
 				fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow,
 				const fb_pixel_t active_col, const fb_pixel_t passive_col,
 				const bool blinkenlights,
 				const int r, const int g, const int b,
-				const bool inv)
+				const bool inv,
+				CComponentsForm *parent)
 {
-	initVarProgressbar();
+	//CComponentsItem
+	cc_item_type 	= CC_ITEMTYPE_PROGRESSBAR;
 
 	//CComponents
 	x 		= x_pos;
@@ -70,24 +67,9 @@ CProgressBar::CProgressBar(	const int x_pos, const int y_pos, const int w, const
 	pb_yellow 	= b;
 	pb_active_col	= active_col;
 	pb_passive_col 	= passive_col;
-}
 
-
-void CProgressBar::initVarProgressbar()
-{
-	//CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_PROGRESSBAR;
-
-	//CProgressBar
-	pb_blink 		= false;
-	pb_invert 		= false;
 	pb_bl_changed 		= g_settings.progressbar_color;
 	pb_last_width 		= -1;
-	pb_red 			= 40;
-	pb_green 		= 100;
-	pb_yellow 		= 70;
-	pb_active_col		= COL_INFOBAR_PLUS_7;
-	pb_passive_col 		= COL_INFOBAR_PLUS_3;
 	pb_value		= 0;
 	pb_max_value		= 0;
 	pb_paint_zero		= false;
@@ -100,7 +82,8 @@ void CProgressBar::initVarProgressbar()
 	pb_height		= 0;
 	pb_start_x_passive 	= 0;
 	pb_passive_width 	= width;
-} 
+	initParent(parent);
+}
 
 //calculate bar dimensions
 void CProgressBar::initDimensions()
@@ -138,7 +121,7 @@ void CProgressBar::initDimensions()
 
 void CProgressBar::paintShapes(int &shx, int &shy, int &shw, int &shh, fb_pixel_t &col)
 {
-	CComponentsShapeSquare shape(shx, shy, shw, shh, false);
+	CComponentsShapeSquare shape(shx, shy, shw, shh, NULL, false);
 	shape.setColorBody(col);
 	shape.allowPaint(cc_allow_paint);
 	shape.paint(false);

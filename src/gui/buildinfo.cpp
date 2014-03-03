@@ -174,11 +174,10 @@ void CBuildInfo::InitInfoItems()
 
 	//init info texts
 	for(size_t i=0; i<v_info.size(); i++){
-		CComponentsExtTextForm *info = new CComponentsExtTextForm(10, CC_APPEND, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
+		CComponentsExtTextForm *info = new CComponentsExtTextForm(10, CC_APPEND, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text, ccw_body);
 		info->setLabelAndTextFont(font);
 		info->setTextModes(CTextBox::TOP , CTextBox::AUTO_HIGH | CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS);
 		info->doPaintBg(false);
-		ccw_body->addCCItem(info);
 	}
 }
 

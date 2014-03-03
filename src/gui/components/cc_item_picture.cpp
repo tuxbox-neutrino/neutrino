@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -41,13 +41,20 @@ using namespace std;
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsItem
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, const int &w, const int &h,
-					const std::string& image_name, const int &alignment, bool has_shadow,
+					const std::string& image_name,
+					const int &alignment,
+					CComponentsForm *parent,
+					bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
-	init(x_pos, y_pos, w, h, image_name, alignment, has_shadow, color_frame, color_background, color_shadow);
+	init(x_pos, y_pos, w, h, image_name, alignment, parent, has_shadow, color_frame, color_background, color_shadow);
 }
 
-void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h, const string& image_name, const int &alignment, bool has_shadow,
+void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
+				const string& image_name,
+				const int &alignment,
+				CComponentsForm *parent,
+				bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsItem
@@ -79,6 +86,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 		pic_width = pic_height = 0;
 
 	initCCItem();
+	initParent(parent);
 }
 
 void CComponentsPicture::setPicture(const std::string& picture_name)
@@ -217,11 +225,14 @@ void CComponentsPicture::hide(bool no_restore)
 
 
 CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
-						const uint64_t& channelId, const std::string& channelName,
-						const int &alignment, bool has_shadow,
+						const uint64_t& channelId,
+						const std::string& channelName,
+						const int &alignment,
+						CComponentsForm *parent,
+						bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 						:CComponentsPicture(x_pos, y_pos, w, h,
-						"", alignment, has_shadow,
+						"", alignment, parent, has_shadow,
 						color_frame, color_background, color_shadow)
 {
 	channel_id = channelId;

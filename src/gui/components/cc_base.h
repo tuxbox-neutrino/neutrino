@@ -33,8 +33,6 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/icons.h>
 
-
-
 /// Basic component class.
 /*!
 Basic attributes and member functions for component sub classes
@@ -45,9 +43,7 @@ class CComponents
 	private:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
 		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
-		///initialize of basic attributes, no parameters required
-		void initVarBasic();
-		
+
 	protected:
 		///object: framebuffer object, usable in all sub classes
 		CFrameBuffer * frameBuffer;
@@ -221,9 +217,6 @@ class CComponents
 
 class CComponentsItem : public CComponents
 {
-	private:
-		///initialize all required attributes
-		void initVarItem();
 	protected:
 		///property: define of item type, see cc_types.h for possible types
 		int cc_item_type;
@@ -238,7 +231,7 @@ class CComponentsItem : public CComponents
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
-		CComponentsItem *cc_parent;
+		CComponentsForm *cc_parent;
 
 		///hides item, arg: no_restore=true causes no restore of background, but clean up pixel buffer if required
 		void hideCCItem(bool no_restore = false);
@@ -250,14 +243,17 @@ class CComponentsItem : public CComponents
 		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
 		void paintInit(bool do_save_bg);
 
+		///add "this" current item to parent
+		void initParent(CComponentsForm* parent);
+
 
 	public:
-		CComponentsItem();
+		CComponentsItem(CComponentsForm *parent = NULL);
 
 		///sets pointer to the form object in which this item is embedded.
-		virtual void setParent(CComponentsItem *parent){cc_parent = parent;};
+		virtual void setParent(CComponentsForm *parent){cc_parent = parent;};
 		///returns pointer to the form object in which this item is embedded.
-		virtual CComponentsItem * getParent(){return cc_parent;};
+		virtual CComponentsForm* getParent(){return cc_parent;};
 		///property: returns true if item is added to a form
 		virtual bool isAdded();
 

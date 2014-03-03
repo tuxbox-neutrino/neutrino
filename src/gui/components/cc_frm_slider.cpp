@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -33,20 +33,7 @@ CComponentsSlider::CComponentsSlider(	const int& x_pos, const int& y_pos, const 
 					const int& current_value,
 					const int& min_value,
 					const int& max_value,
-					bool has_shadow,
-					fb_pixel_t& color_frame,
-					fb_pixel_t& color_body,
-					fb_pixel_t& color_shadow)
-{
-	initVarSlider(x_pos, y_pos, w, h, current_value, min_value, max_value, has_shadow, color_frame, color_body, color_shadow);
-	initCCSlItems();
-}
-
-
-void CComponentsSlider::initVarSlider(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const int& current_value,
-					const int& min_value,
-					const int& max_value,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
@@ -74,6 +61,9 @@ void CComponentsSlider::initVarSlider(	const int& x_pos, const int& y_pos, const
 
 	csl_body_icon	= NEUTRINO_ICON_VOLUMEBODY;
 	csl_slider_icon	 =NEUTRINO_ICON_VOLUMESLIDER2;
+
+	initCCSlItems();
+	initParent(parent);
 }
 
 //set current value

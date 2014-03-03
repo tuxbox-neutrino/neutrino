@@ -374,7 +374,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "circle"){
 		if (circle == NULL)
-			circle = new CComponentsShapeCircle (100, 100, 100, false);
+			circle = new CComponentsShapeCircle (100, 100, 100, NULL, false);
 
 		if (!circle->isPainted())	
 			circle->paint();
@@ -384,7 +384,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "square"){
 		if (sq == NULL)
-			sq = new CComponentsShapeSquare (100, 220, 100, 100, false);
+			sq = new CComponentsShapeSquare (100, 220, 100, 100, NULL, false);
 
 		if (!sq->isPainted())
 			sq->paint();
@@ -433,7 +433,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 200, 50, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
 		t2->setCorner(RADIUS_MID, CORNER_TOP_RIGHT);
- 		form->addCCItem(t2);
+		form->addCCItem(t2);
 
 		CComponentsShapeCircle *c1 = new CComponentsShapeCircle(28, 40, 28);
 		c1->setColorBody(COL_RED);
@@ -523,7 +523,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "footer"){
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (footer == NULL){
-			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, true);
+			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, NULL, true);
 			int start = 5, btnw =90, btnh = 37;
 			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, btnh, "Button1"));
 			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, btnh, "Button2"));

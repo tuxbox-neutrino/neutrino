@@ -35,14 +35,6 @@
 
 using namespace std;
 
-//abstract sub class CComponentsItem from CComponents
-CComponentsItem::CComponentsItem()
-{
-	//CComponentsItem
-	initVarItem();
-	cc_item_type = CC_ITEMTYPE_BASE;
-}
-
 // 	 y
 // 	x+------f-r-a-m-e-------+
 // 	 |			|
@@ -50,13 +42,21 @@ CComponentsItem::CComponentsItem()
 // 	 |			|
 // 	 +--------width---------+
 
-void CComponentsItem::initVarItem()
+//abstract sub class CComponentsItem from CComponents
+CComponentsItem::CComponentsItem(CComponentsForm* parent)
 {
-	//CComponents
+	cc_item_type 		= CC_ITEMTYPE_BASE;
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
-	cc_parent 		= NULL;
+	initParent(parent);
+}
+
+void CComponentsItem::initParent(CComponentsForm* parent)
+{
+	cc_parent = parent;
+	if (cc_parent)
+		cc_parent->addCCItem(this);
 }
 
 // Paint container background in cc-items with shadow, background and frame.

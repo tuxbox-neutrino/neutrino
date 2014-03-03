@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, 2014 Thilo Graf 'dbt'
+	Copyright (C) 2012-2014 Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -34,56 +34,61 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsWindow inherit from CComponentsForm
-CComponentsWindow::CComponentsWindow()
+CComponentsWindow::CComponentsWindow(CComponentsForm *parent)
 {
-	initVarWindow();
+	initVarWindow(0, 0, 800, 600, "", "", parent);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					neutrino_locale_t locale_caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
 	string s_caption = locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "";
-	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, has_shadow, color_frame, color_body, color_shadow);
+	initVarWindow(x_pos, y_pos, w, h, s_caption, iconname, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindow::CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarWindow(x_pos, y_pos, w, h, caption, iconname, has_shadow, color_frame, color_body, color_shadow);
+	initVarWindow(x_pos, y_pos, w, h, caption, iconname, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsWindowMax::CComponentsWindowMax(	const string& caption,
 						const string& iconname,
+						CComponentsForm *parent,
 						bool has_shadow,
 						fb_pixel_t color_frame,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0, caption,
-						iconname, has_shadow, color_frame, color_body, color_shadow){};
+						iconname, parent, has_shadow, color_frame, color_body, color_shadow){};
 
 CComponentsWindowMax::CComponentsWindowMax(	neutrino_locale_t locale_caption,
 						const string& iconname,
+						CComponentsForm *parent,
 						bool has_shadow,
 						fb_pixel_t color_frame,
 						fb_pixel_t color_body,
 						fb_pixel_t color_shadow)
 						:CComponentsWindow(0, 0, 0, 0,
 						locale_caption != NONEXISTANT_LOCALE ? g_Locale->getText(locale_caption) : "",
-						iconname, has_shadow, color_frame, color_body, color_shadow){};
+						iconname, parent, has_shadow, color_frame, color_body, color_shadow){};
 
 void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const string& caption,
 					const string& iconname,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
@@ -121,6 +126,7 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_align_mode	= CTextBox::NO_AUTO_LINEBREAK;
 
 	initCCWItems();
+	initParent(parent);
 }
 
 void CComponentsWindow::initWindowSize()

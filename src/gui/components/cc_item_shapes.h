@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014 Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -43,7 +43,9 @@ class CComponentsShapeCircle : public CComponentsItem
 		///property: diam
 		int d;
 	public:
-		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam, bool has_shadow = CC_SHADOW_ON,
+		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam,
+					CComponentsForm *parent = NULL,
+					bool has_shadow = CC_SHADOW_ON,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///set property: diam
@@ -58,7 +60,9 @@ class CComponentsShapeCircle : public CComponentsItem
 class CComponentsShapeSquare : public CComponentsItem
 {
 	public:
-		CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = CC_SHADOW_ON,
+		CComponentsShapeSquare(	const int x_pos, const int y_pos, const int w, const int h,
+					CComponentsForm *parent = NULL,
+					bool has_shadow = CC_SHADOW_ON,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

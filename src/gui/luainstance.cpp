@@ -1337,7 +1337,7 @@ int CLuaInstance::CWindowNew(lua_State *L)
 
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
-	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), 0, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 
 	CComponentsFooter* footer = (*udata)->w->getFooterObject();
 	if (footer) {
@@ -1352,13 +1352,13 @@ int CLuaInstance::CWindowNew(lua_State *L)
 			int btnh = footer->getHeight();
 			int start = 10;
 			if (btnRed != "")
-				footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, false , true, false, col, col));
+				footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, 0, false , true, false, col, col));
 			if (btnGreen != "")
-				footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, false , true, false, col, col));
+				footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, 0, false , true, false, col, col));
 			if (btnYellow != "")
-				footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, false , true, false, col, col));
+				footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, 0, false , true, false, col, col));
 			if (btnBlue != "")
-				footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, false , true, false, col, col));
+				footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, 0, false , true, false, col, col));
 		}
 	}
 
@@ -1591,7 +1591,7 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 
 	CLuaComponentsText **udata = (CLuaComponentsText **) lua_newuserdata(L, sizeof(CLuaComponentsText *));
 	*udata = new CLuaComponentsText();
-	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], NULL, has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 	luaL_getmetatable(L, "ctext");
 	lua_setmetatable(L, -2);
 	return 1;

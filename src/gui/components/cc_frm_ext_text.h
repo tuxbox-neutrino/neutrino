@@ -68,6 +68,7 @@ class CComponentsExtTextForm : public CComponentsForm
 		///initialize basic variables
 		void initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& label_text, const std::string& text,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t label_color,
 					fb_pixel_t text_color,
@@ -77,10 +78,13 @@ class CComponentsExtTextForm : public CComponentsForm
 		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as string
 		CComponentsExtTextForm(	const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
 					const std::string& label_text = "", const std::string& text = "",
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 					fb_pixel_t text_color = COL_MENUCONTENT_TEXT,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 // 		~CComponentsExtTextForm(); //inherited from CComponentsForm
 
 		///assigns texts for label and text, parameter as string, parameter Font is optional for required font type, default font is dependently from defined item height
@@ -119,6 +123,7 @@ class CComponentsExtTextFormLocalized : public CComponentsExtTextForm
 		///advanced constructor for CComponentsExtTextForm, provides parameters for the most required properties, and caption as locales
 		CComponentsExtTextFormLocalized(const int& x_pos = 1, const int& y_pos = 1, const int& w = 300, const int& h = 48,
 						const neutrino_locale_t& locale_label_text = NONEXISTANT_LOCALE, const neutrino_locale_t& locale_text = NONEXISTANT_LOCALE,
+						CComponentsForm *parent = NULL,
 						bool has_shadow = CC_SHADOW_OFF,
 						fb_pixel_t label_color = COL_MENUCONTENTINACTIVE_TEXT,
 						fb_pixel_t text_color = COL_MENUCONTENT_TEXT,

@@ -36,19 +36,16 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsForm from CComponentsItem
-CComponentsForm::CComponentsForm()
+CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w, const int h,
+					CComponentsForm* parent,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
+					:CComponentsItem(parent)
 {
-	//CComponentsForm
-	initVarForm();
-}
+	cc_item_type 	= CC_ITEMTYPE_FRM;
 
-CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow,
-				fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
-{
-	//CComponentsForm
-	initVarForm();
-
-	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
 	cc_xr 		= x;
@@ -60,6 +57,16 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
+
+	shadow_w	= SHADOW_OFFSET;
+	corner_rad	= RADIUS_LARGE;
+	corner_type 	= CORNER_ALL;
+	cc_item_index	= 0;
+
+	v_cc_items.clear();
+
+	append_x_offset = 0;
+	append_y_offset = 0;
 }
 
 CComponentsForm::~CComponentsForm()
@@ -88,31 +95,6 @@ void CComponentsForm::clear()
 	v_cc_items.clear();
 }
 
-
-void CComponentsForm::initVarForm()
-{
-
-
-	//simple default dimensions
-	x 		= 0;
-	y 		= 0;
-	width 		= 150;
-	height	 	= 150;
-	shadow		= CC_SHADOW_OFF;
-	shadow_w	= SHADOW_OFFSET;
-	col_frame 	= COL_MENUCONTENT_PLUS_6;
-	col_body	= COL_MENUCONTENT_PLUS_0;
-	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
-	corner_rad	= RADIUS_LARGE;
-	corner_type 	= CORNER_ALL;
-	cc_item_index	= 0;
-
-	//CComponentsForm
-	v_cc_items.clear();
-	cc_item_type 	= CC_ITEMTYPE_FRM;
-	append_x_offset = 0;
-	append_y_offset = 0;
-}
 
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
@@ -177,7 +159,7 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 	if (!v_cc_items.empty()){
 		CComponentsItem* old_Item = v_cc_items[cc_item_id];
 		if (old_Item){
-			CComponentsItem * old_parent = old_Item->getParent();
+			CComponentsForm * old_parent = old_Item->getParent();
 			new_cc_Item->setParent(old_parent);
 			new_cc_Item->setIndex(old_parent->getIndex());
 			delete old_Item;

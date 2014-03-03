@@ -86,6 +86,7 @@ class CComponentsWindow : public CComponentsForm
 		void initVarWindow(	const int& x_pos = CC_CENTERED, const int& y_pos = CC_CENTERED, const int& w = 0, const int& h = 0,
 					const std::string& caption = "",
 					const std::string& iconname = "",
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
@@ -101,12 +102,13 @@ class CComponentsWindow : public CComponentsForm
 			CC_WINDOW_ITEM_HEADER 	= 0
 		};
 		///simple constructor for CComponentsWindow, this shows a window over full screen
-		CComponentsWindow();
+		CComponentsWindow(CComponentsForm *parent = NULL);
 
 		///advanced constructor for CComponentsWindow, provides parameters for the most required properties, and caption as string, x_pos or y_pos = 0 will center window
 		CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption = "",
 					const std::string& iconname = "",
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
@@ -116,6 +118,7 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsWindow(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					neutrino_locale_t locale_text = NONEXISTANT_LOCALE,
 					const std::string& iconname = "",
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
@@ -163,6 +166,7 @@ class CComponentsWindowMax : public CComponentsWindow
 	public:
 		///simple constructor for CComponentsWindow, provides parameters for caption as string and icon, this shows a centered window based up current screen settings
 		CComponentsWindowMax(	const std::string& caption, const std::string& iconname = "",
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
@@ -170,6 +174,7 @@ class CComponentsWindowMax : public CComponentsWindow
 
 		///simple constructor for CComponentsWindow, provides parameters for caption from locales and icon, this shows a centered window based up current screen settings
 		CComponentsWindowMax(	neutrino_locale_t locale_caption, const std::string& iconname = "",
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,

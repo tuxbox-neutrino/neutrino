@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -38,16 +38,11 @@
 using namespace std;
 
 //sub class CComponentsText from CComponentsItem
-CComponentsText::CComponentsText()
-{
-	//CComponentsText
-	initVarText();
-
-	initCCText();
-}
-
 CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string text, const int mode, Font* font_text,
+					std::string text,
+					const int mode,
+					Font* font_text,
+					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
@@ -71,6 +66,7 @@ CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w,
 	ct_col_text	= color_text;
 
 	initCCText();
+	initParent(parent);
 }
 
 

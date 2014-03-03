@@ -36,14 +36,16 @@ class CComponentsFooter : public CComponentsHeader
 	protected:
 		void initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const int& buttons = 0,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 	public:
-		CComponentsFooter();
+		CComponentsFooter(CComponentsForm *parent = NULL);
 		CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const int& buttons = 0,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,

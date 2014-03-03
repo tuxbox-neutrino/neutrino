@@ -36,28 +36,32 @@ using namespace std;
 
 CComponentsExtTextForm::CComponentsExtTextForm(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
+						CComponentsForm* parent,
 						bool has_shadow,
 						fb_pixel_t label_color,
 						fb_pixel_t text_color,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, has_shadow, label_color, text_color, color_frame, color_body, color_shadow);
+	initVarExtTextForm(x_pos, y_pos, w, h, label_text, text, parent, has_shadow, label_color, text_color, color_frame, color_body, color_shadow);
 	initCCTextItems();
 }
 
 CComponentsExtTextFormLocalized::CComponentsExtTextFormLocalized(const int& x_pos, const int& y_pos, const int& w, const int& h,
 								const neutrino_locale_t& locale_label_text, const neutrino_locale_t& locale_text,
+								CComponentsForm* parent,
 								bool has_shadow,
 								fb_pixel_t label_color,
 								fb_pixel_t text_color,
 								fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 								: CComponentsExtTextForm(	x_pos, y_pos, w, h,
 												g_Locale->getText(locale_label_text), g_Locale->getText(locale_text),
+												parent,
 												has_shadow,
 												label_color, text_color, color_frame, color_body, color_shadow){};
 
 void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::string& label_text, const std::string& text,
+						CComponentsForm* parent,
 						bool has_shadow,
 						fb_pixel_t label_color,
 						fb_pixel_t text_color,
@@ -90,7 +94,8 @@ void CComponentsExtTextForm::initVarExtTextForm(const int& x_pos, const int& y_p
 	int dx = 0, dy 	= DEF_HEIGHT;
 	ccx_font 	= *(CNeutrinoFonts::getInstance()->getDynFont(dx, dy));
 	ccx_label_align = ccx_text_align = CTextBox::NO_AUTO_LINEBREAK;
-	
+
+	initParent(parent);
 
 }
 

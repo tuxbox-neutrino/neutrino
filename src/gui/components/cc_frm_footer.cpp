@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -33,25 +33,27 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsFooter inherit from CComponentsHeader
-CComponentsFooter::CComponentsFooter()
+CComponentsFooter::CComponentsFooter(CComponentsForm* parent)
 {
 	//CComponentsFooter
-	initVarFooter(1, 1, 0, 0);
+	initVarFooter(1, 1, 0, 0, 0, parent);
 }
 
 CComponentsFooter::CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const int& buttons,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow )
 {
 	//CComponentsFooter
-	initVarFooter(x_pos, y_pos, w, h, buttons, has_shadow, color_frame, color_body, color_shadow);
+	initVarFooter(x_pos, y_pos, w, h, buttons, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const int& buttons,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
@@ -82,4 +84,5 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 	initDefaultButtons();
 	initCCItems();
+	initParent(parent);
 }

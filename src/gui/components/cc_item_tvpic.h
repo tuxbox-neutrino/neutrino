@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -50,7 +50,10 @@ class CComponentsPIP : public CComponentsItem
 		std::string pic_name;
 	public:
 		///constructor: initialize of position like all other items with x and y values, but dimensions in percent
-		CComponentsPIP(	const int x_pos, const int y_pos, const int percent = 30, bool has_shadow = CC_SHADOW_OFF);
+		CComponentsPIP(	const int x_pos = 0, const int y_pos = 0, const int percent = 30,
+				CComponentsForm *parent = NULL,
+				bool has_shadow = CC_SHADOW_OFF,
+				fb_pixel_t color_frame = COL_BACKGROUND, fb_pixel_t color_body = COL_BACKGROUND, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsPIP();
 
 		///set property: width of tv box in pixel

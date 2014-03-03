@@ -33,21 +33,23 @@
 using namespace std;
 
 //sub class CComponentsIconForm inherit from CComponentsForm
-CComponentsIconForm::CComponentsIconForm()
+CComponentsIconForm::CComponentsIconForm(CComponentsForm* parent)
 {
-	initVarIconForm(1, 1, 0, 0, vector<string>());
+	initVarIconForm(1, 1, 0, 0, vector<string>(), parent);
 }
 
 CComponentsIconForm::CComponentsIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const std::vector<std::string> &v_icon_names,
+						CComponentsForm* parent,
 						bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarIconForm(x_pos, y_pos, w, h, v_icon_names, has_shadow, color_frame, color_body, color_shadow);
+	initVarIconForm(x_pos, y_pos, w, h, v_icon_names, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 						const std::vector<std::string> &v_icon_names,
+						CComponentsForm* parent,
 						bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
@@ -65,6 +67,7 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 
 	ccif_offset 	= 2;
 	ccif_icon_align = CC_ICONS_FRM_ALIGN_LEFT;
+	initParent(parent);
 }
 
 void CComponentsIconForm::addIcon(const std::string& icon_name)

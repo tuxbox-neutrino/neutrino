@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -63,6 +63,7 @@ class CComponentsPicture : public CComponentsItem
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
 				const int &alignment,
+				CComponentsForm *parent,
 				bool has_shadow,
 				fb_pixel_t color_frame,
 				fb_pixel_t color_background,
@@ -78,6 +79,7 @@ class CComponentsPicture : public CComponentsItem
 		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
 					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
@@ -116,6 +118,7 @@ class CComponentsChannelLogo : public CComponentsPicture, CPictureViewer
 					const uint64_t& channelId =0,
 					const std::string& channelName = "",
 					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
