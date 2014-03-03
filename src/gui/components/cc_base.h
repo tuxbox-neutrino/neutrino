@@ -101,7 +101,7 @@ class CComponents
 		void paintFbItems(bool do_save_bg = true);
 
 		///check current fbdtata position and dimensions, parameter fbdata is an element of v_fbdata, returns false on error
-		bool CheckFbData(const comp_fbdata_t& fbdata);
+		bool CheckFbData(const comp_fbdata_t& fbdata, const char* func, const int line);
 
 		///clean up old screen buffer saved in v_fbdata
 		virtual void clearFbData();

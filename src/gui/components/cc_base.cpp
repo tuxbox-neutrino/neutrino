@@ -78,17 +78,27 @@ void CComponents::clearSavedScreen()
 	saved_screen.pixbuf = NULL;
 }
 
-bool CComponents::CheckFbData(const comp_fbdata_t& fbdata)
+bool CComponents::CheckFbData(const comp_fbdata_t& fbdata, const char* func, const int line)
 {
-	if (	(fbdata.x <= 0 || fbdata.y <= 0) ||
-		(fbdata.dx == 0 || fbdata.dy == 0) ||
-		(fbdata.dx > (int32_t)frameBuffer->getScreenWidth(true) || fbdata.dy > (int32_t)frameBuffer->getScreenHeight(true))){
-		printf("\33[31m\t[CComponents] WARNING! Position <= 0 [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n\033[37m",
-			__func__, __LINE__,
-			fbdata.x, fbdata.y,
-			fbdata.dx, fbdata.dy);
-		return false;
-	}
+	int32_t rows = fbdata.dx / (int32_t)frameBuffer->getScreenWidth(true) - 1 + fbdata.y;
+	int32_t rest = fbdata.dx % (int32_t)frameBuffer->getScreenWidth(true);
+        int32_t end  = rows * (int32_t)frameBuffer->getScreenWidth(true) + rest;
+	if (	(fbdata.x < 0 || fbdata.y < 0) ||
+		(end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
+	   ) {
+			printf("\33[31m\t[CComponents] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n\33[0m",
+				func, line,
+				fbdata.x, fbdata.y,
+				fbdata.dx, fbdata.dy);
+			return false;
+		}
+		if (fbdata.dx == 0 || fbdata.dy == 0) {
+			printf("\33[33m\t[CComponents] WARNING! dx and/or dy = 0 [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n\33[0m",
+				func, line,
+				fbdata.x, fbdata.y,
+				fbdata.dx, fbdata.dy);
+			return false;
+		}
 	return true;
 }
 
@@ -98,7 +108,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 	//save background before first paint, do_save_bg must be true
 	if (firstPaint && do_save_bg){
 		for(size_t i=0; i<v_fbdata.size(); i++){
-			if (!CheckFbData(v_fbdata[i])){
+			if (!CheckFbData(v_fbdata[i], __func__, __LINE__)){
 				DisplayErrorMessage("Screensave error, please show log and report!");
 				break;
 			}
@@ -126,7 +136,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 
 	for(size_t i=0; i< v_fbdata.size(); i++){
 		// Don't paint on dimension or position error dx or dy are 0
-		if (!CheckFbData(v_fbdata[i])){
+		if (!CheckFbData(v_fbdata[i], __func__, __LINE__)){
 			DisplayErrorMessage("Display error, please show log and report!");
 			continue;
 		}
