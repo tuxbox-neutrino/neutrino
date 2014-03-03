@@ -1618,9 +1618,9 @@ satsetup.fastscan_type Scantype
 satsetup.fe_mode Tuner mode
 satsetup.fe_mode Tuner modus
 satsetup.fe_mode_alone Onafhankelijk
-satsetup.fe_mode_independent Onafhankelijk / TWIN Monoblock
+satsetup.fe_mode_independent Onafhankelijk
 satsetup.fe_mode_link_loop Doorgelust
-satsetup.fe_mode_link_twin Twin LNB
+satsetup.fe_mode_link_twin Twin
 satsetup.fe_mode_loop Doorgelust
 satsetup.fe_mode_master Master
 satsetup.fe_mode_single Single
