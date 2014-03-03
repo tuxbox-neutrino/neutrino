@@ -393,12 +393,9 @@ void CFEManager::linkFrontends(bool init)
 	unused_demux = 0;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
-#if 0
-		if (fe->getInfo()->type != FE_QPSK)
-			fe->setMode(CFrontend::FE_MODE_INDEPENDENT);
-#endif
 		int femode = fe->getMode();
 		fe->slave = false;
+		fe->have_loop = false;
 		fe->linkmap.clear();
 		if (femode == CFrontend::FE_MODE_MASTER) {
 			INFO("Frontend #%d: is master", fe->fenumber);
@@ -410,25 +407,14 @@ void CFEManager::linkFrontends(bool init)
 					continue;
 				if (fe2->getType() != fe->getType() || (fe2->getMaster() != fe->fenumber))
 					continue;
-#if 0
-				int mnum = fe2->getMaster();
-				if (mnum != fe->fenumber)
-					continue;
-				CFrontend * mfe = getFE(mnum);
-				if (!mfe) {
-					INFO("Frontend %d: master %d not found", fe->fenumber, mnum);
-					continue;
-				}
 
-				mfe->linkmap.push_back(fe2);
-#endif
 				fe->linkmap.push_back(fe2);
 				if (fe2->getMode() == CFrontend::FE_MODE_LINK_LOOP) {
 					INFO("Frontend #%d: link to master %d as LOOP", fe2->fenumber, fe->fenumber);
+					fe->have_loop = true;
 				} else {
 					INFO("Frontend #%d: link to master %d as TWIN", fe2->fenumber, fe->fenumber);
 				}
-				
 			}
 		} else if (femode == CFrontend::FE_MODE_LINK_LOOP) {
 			INFO("Frontend #%d: is LOOP, master %d", fe->fenumber, fe->getMaster());
@@ -545,14 +531,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 		}
 
 		if (mfe->getMode() == CFrontend::FE_MODE_MASTER) {
-			bool have_loop = false;
-			for (unsigned int i = 0; i < mfe->linkmap.size(); i++) {
-				CFrontend * fe = mfe->linkmap[i];
-				if (fe->getMode() == CFrontend::FE_MODE_LINK_LOOP) {
-					have_loop = true;
-					break;
-				}
-			}
+			bool have_loop = mfe->have_loop;
 			CFrontend * free_frontend = NULL;
 			CFrontend * free_twin = NULL;
 			bool loop_busy = false;

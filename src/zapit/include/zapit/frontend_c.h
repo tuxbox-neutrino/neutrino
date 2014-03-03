@@ -139,6 +139,7 @@ class CFrontend
 		TP_params currentTransponder;
 		bool slave;
 		fe_work_mode_t femode;
+		bool have_loop;
 		int masterkey;
 		fe_linkmap_t linkmap;
 		int fenumber;
