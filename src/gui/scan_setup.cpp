@@ -547,7 +547,6 @@ neutrino_locale_t CScanSetup::getModeLocale(int mode)
 int CScanSetup::showScanMenuFrontendSetup()
 {
 	CMenuForwarder * mf;
-	int shortcut = 1;
 
 	fe_restart = false;
 	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
@@ -616,28 +615,35 @@ int CScanSetup::showScanMenuFrontendSetup()
 		zapit_lat_str = std::string(zapit_lat);
 		zapit_long_str = std::string(zapit_long);
 
-		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
+		CMenuWidget * rotorMenu = new CMenuWidget(LOCALE_SATSETUP_EXTENDED_MOTOR, NEUTRINO_ICON_SETTINGS, width);
+		rotorMenu->addIntroItems();
+
+		int shortcut = 1;
 		CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_LADIRECTION,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_LADIRECTION);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 
 		CStringInput * toff1 = new CStringInput(LOCALE_EXTRA_LATITUDE, &zapit_lat_str, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
 		mf = new CMenuDForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat, toff1, "", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_LATITUDE);
-		setupMenu->addItem(mf);
+		rotorMenu->addItem(mf);
 
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_LODIRECTION,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++));
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_LODIRECTION);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 
 		CStringInput * toff2 = new CStringInput(LOCALE_EXTRA_LONGITUDE, &zapit_long_str, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
 		mf = new CMenuDForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long, toff2, "", CRCInput::convertDigitToKey(shortcut++));
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_LONGITUDE);
-		setupMenu->addItem(mf);
+		rotorMenu->addItem(mf);
 
 		nc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		nc->setHint("", LOCALE_MENU_HINT_SCAN_USALS_REPEAT);
-		setupMenu->addItem(nc);
+		rotorMenu->addItem(nc);
+
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_EXTENDED_MOTOR, true, NULL, rotorMenu);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_USALS);
+		setupMenu->addItem(mf);
 	}
 
 	int res = setupMenu->exec(NULL, "");
@@ -792,32 +798,38 @@ int CScanSetup::showFrontendSetup(int number)
 		uniSetup	= new CMenuForwarder(LOCALE_SATSETUP_UNI_SETTINGS, (dmode == DISEQC_UNICABLE), NULL, this, "unisetup", CRCInput::convertDigitToKey(shortcut++));
 		setupMenu->addItem(uniSetup);
 
-		setupMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SATSETUP_EXTENDED_MOTOR));
+		CMenuWidget * rotorMenu = new CMenuWidget(LOCALE_SATSETUP_EXTENDED_MOTOR, NEUTRINO_ICON_SETTINGS, width);
+		rotorMenu->addIntroItems();
+
 		CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_MOTOR_SPEED, (int *)&fe_config.motorRotationSpeed, allow_moptions, 0, 64, NULL);
 		nc->setNumberFormat(rotationSpeed2str);
 		nc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_SPEED);
-		setupMenu->addItem(nc);
+		rotorMenu->addItem(nc);
 		msettings.Add(nc);
 
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_HVOLTAGE,  (int *)&fe_config.highVoltage, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions);
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR_18V);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 		msettings.Add(mc);
 
 		mc = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &fe_config.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions, this);
 		mc->setHint("", LOCALE_MENU_HINT_SCAN_USALSALL);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 		msettings.Add(mc);
 
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP,  &fe_config.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions, this);
 		mc->setHint("", LOCALE_MENU_HINT_ROTOR_SWAP);
-		setupMenu->addItem(mc);
+		rotorMenu->addItem(mc);
 		msettings.Add(mc);
 
 		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_moptions, NULL, this, "satfind", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SATFIND);
-		setupMenu->addItem(mf);
+		rotorMenu->addItem(mf);
 		msettings.Add(mf);
+
+		mf = new CMenuDForwarder(LOCALE_SATSETUP_EXTENDED_MOTOR, allow_moptions, NULL, rotorMenu, "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_MOTOR);
+		setupMenu->addItem(mf);
 	}
 
 	int res = setupMenu->exec(NULL, "");
