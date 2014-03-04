@@ -629,7 +629,6 @@ struct SNeutrinoSettings
 	int uselastchannel;
 
 	int	power_standby;
-	int	rotor_swap;
 	int	hdd_sleep;
 	int	hdd_noise;
 	int	hdd_fs;

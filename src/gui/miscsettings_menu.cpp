@@ -324,14 +324,6 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 		ms_general->addItem(mn);
 	}
 
-	//rotor
-	//don't show rotor settings on cable box
-	if (CFEManager::getInstance()->haveSat()) {
-		mc = new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-		mc->setHint("", LOCALE_MENU_HINT_ROTOR_SWAP);
-		ms_general->addItem(mc);
-	}
-
 	ms_general->addItem(GenericMenuSeparatorLine);
 
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir");
