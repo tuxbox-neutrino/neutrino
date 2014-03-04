@@ -1116,6 +1116,7 @@ menu.hint_scan_logical_hd If both SD and HD channel versions present\nput HD to 
 menu.hint_scan_longitude Enter your longtitude
 menu.hint_scan_manual Manual transponder scan using\nselected parameters
 menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_motor Rotor options, satellite finder
 menu.hint_scan_motor_18v Use 18V when moving rotor
 menu.hint_scan_motor_speed Rotor moving speed in 1/10 degree\nper second
 menu.hint_scan_motorpos Select stored position number for this satellite,\nignored, if USALS enabled
@@ -1140,6 +1141,7 @@ menu.hint_scan_start Start scan. You can use 'exit' button to stop
 menu.hint_scan_test Test signal for this transponder
 menu.hint_scan_tpselect Select transponder to scan
 menu.hint_scan_uncommited Select uncommited input for\nthis satellite
+menu.hint_scan_usals USALS options
 menu.hint_scan_usals_repeat Repeat usals move rotor commands\nif you expirience unstable rotor move
 menu.hint_scan_usalsall Use USALS for all satellites on this frontend
 menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
