@@ -50,6 +50,7 @@ class CMotorControl : public CMenuTarget
 		void Init(void);
 		CFrameBuffer	*frameBuffer;
 		CFrontend	*frontend;
+		bool		rotor_swap;
 		int x;
 		int y;
 		int width;

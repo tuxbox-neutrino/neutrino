@@ -90,6 +90,7 @@ void CMotorControl::Init(void)
 	satellitePosition = 0;
 	stepDelay = 10;
 	signalbox = NULL;
+	rotor_swap = frontend->getRotorSwap();
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)
@@ -197,7 +198,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 		else if (msg == CRCInput::RC_4) {
 			if (installerMenue) {
 				printf("[motorcontrol] 4 key received... set west (soft) limit\n");
-				if(g_settings.rotor_swap) lim_cmd = 0x66;
+				if(rotor_swap) lim_cmd = 0x66;
 				else lim_cmd = 0x67;
 				g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
 				//g_Zapit->tune_TP(TP);
@@ -233,7 +234,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 		else if (msg == CRCInput::RC_6) {
 			if (installerMenue) {
 				printf("[motorcontrol] 6 key received... set east (soft) limit\n");
-				if(g_settings.rotor_swap) lim_cmd = 0x67;
+				if(rotor_swap) lim_cmd = 0x67;
 				else lim_cmd = 0x66;
 				g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
 				//g_Zapit->tune_TP(TP);
@@ -320,10 +321,10 @@ void CMotorControl::motorStep(bool west)
 {
 	int cmd;
 	if (west) {
-		if(g_settings.rotor_swap) cmd = 0x68;
+		if(rotor_swap) cmd = 0x68;
 		else cmd = 0x69;
 	} else {
-		if(g_settings.rotor_swap) cmd = 0x69;
+		if(rotor_swap) cmd = 0x69;
 		else cmd = 0x68;
 	}
 	printf("[motorcontrol] motorStep: %s\n", west ? "West" : "East");

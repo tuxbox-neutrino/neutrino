@@ -809,6 +809,11 @@ int CScanSetup::showFrontendSetup(int number)
 		setupMenu->addItem(mc);
 		msettings.Add(mc);
 
+		mc = new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP,  &fe_config.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, allow_moptions, this);
+		mc->setHint("", LOCALE_MENU_HINT_ROTOR_SWAP);
+		setupMenu->addItem(mc);
+		msettings.Add(mc);
+
 		CMenuForwarder * mf = new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_moptions, NULL, this, "satfind", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_SATFIND);
 		setupMenu->addItem(mf);
