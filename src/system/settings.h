@@ -465,6 +465,10 @@ struct SNeutrinoSettings
 	int pip_height;
 	int pip_x;
 	int pip_y;
+	int pip_radio_width;
+	int pip_radio_height;
+	int pip_radio_x;
+	int pip_radio_y;
 	int bigFonts;
 	int window_size;
 	int window_width;

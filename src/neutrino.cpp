@@ -149,6 +149,9 @@ static bool nhttpd_thread_started = false;
 //#define DISABLE_SECTIONSD
 
 extern cVideo * videoDecoder;
+#ifdef ENABLE_PIP
+extern cVideo *pipDecoder;
+#endif
 extern cDemux *videoDemux;
 extern cAudio * audioDecoder;
 cPowerManager *powerManager;
@@ -831,6 +834,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.pip_y = configfile.getInt32("pip_y", 50);
 	g_settings.pip_width = configfile.getInt32("pip_width", 365);
 	g_settings.pip_height = configfile.getInt32("pip_height", 200);
+
+	g_settings.pip_radio_x = configfile.getInt32("pip_radio_x", g_settings.pip_x);
+	g_settings.pip_radio_y = configfile.getInt32("pip_radio_y", g_settings.pip_y);
+	g_settings.pip_radio_width = configfile.getInt32("pip_radio_width", g_settings.pip_width);
+	g_settings.pip_radio_height = configfile.getInt32("pip_radio_height", g_settings.pip_height);
 #endif
 
 	g_settings.infoClockFontSize = configfile.getInt32("infoClockFontSize", 30);
@@ -1262,6 +1270,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("pip_y", g_settings.pip_y);
 	configfile.setInt32("pip_width", g_settings.pip_width);
 	configfile.setInt32("pip_height", g_settings.pip_height);
+
+	configfile.setInt32("pip_radio_x", g_settings.pip_radio_x);
+	configfile.setInt32("pip_radio_y", g_settings.pip_radio_y);
+	configfile.setInt32("pip_radio_width", g_settings.pip_radio_width);
+	configfile.setInt32("pip_radio_height", g_settings.pip_radio_height);
 #endif
 	configfile.setInt32("infoClockFontSize", g_settings.infoClockFontSize);
 	configfile.setInt32("infoClockBackground", g_settings.infoClockBackground);
@@ -3243,7 +3256,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 			delete g_Radiotext;
 			g_Radiotext = NULL;
 		}
-		
+
 		videoDecoder->StopPicture();
 		CVFD::getInstance()->ShowIcon(FP_ICON_RADIO, false);
 		StartSubtitles(!rezap);
@@ -3260,6 +3273,11 @@ void CNeutrinoApp::tvMode( bool rezap )
 
 	bool stopauto = (mode != mode_ts);
 	mode = mode_tv;
+#ifdef ENABLE_PIP
+	pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y,
+			g_settings.pip_width, g_settings.pip_height,
+			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+#endif
 	if(stopauto /*&& autoshift*/) {
 		//printf("standby on: autoshift ! stopping ...\n");
 		CRecordManager::getInstance()->StopAutoRecord();
@@ -3478,7 +3496,11 @@ void CNeutrinoApp::radioMode( bool rezap)
 		videoDecoder->Standby(false);
 	}
 	mode = mode_radio;
-
+#ifdef ENABLE_PIP
+	pipDecoder->Pig(g_settings.pip_radio_x, g_settings.pip_radio_y,
+			g_settings.pip_radio_width, g_settings.pip_radio_height,
+			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+#endif
 	CRecordManager::getInstance()->StopAutoRecord();
 
 	g_RemoteControl->radioMode();
