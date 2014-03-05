@@ -109,7 +109,6 @@ void CComponents::paintFbItems(bool do_save_bg)
 	if (firstPaint && do_save_bg){
 		for(size_t i=0; i<v_fbdata.size(); i++){
 			if (!CheckFbData(v_fbdata[i], __func__, __LINE__)){
-				DisplayErrorMessage("Screensave error, please show log and report!");
 				break;
 			}
 #ifdef DEBUG_CC
@@ -137,7 +136,6 @@ void CComponents::paintFbItems(bool do_save_bg)
 	for(size_t i=0; i< v_fbdata.size(); i++){
 		// Don't paint on dimension or position error dx or dy are 0
 		if (!CheckFbData(v_fbdata[i], __func__, __LINE__)){
-			DisplayErrorMessage("Display error, please show log and report!");
 			continue;
 		}
 		int fbtype = v_fbdata[i].fbdata_type;
