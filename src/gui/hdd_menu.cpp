@@ -326,7 +326,7 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	const char hdidle[] = "/sbin/hd-idle";
 	bool have_hdidle = !access(hdidle, X_OK);
 
-	if (g_settings.hdd_sleep < 60)
+	if (g_settings.hdd_sleep > 0 && g_settings.hdd_sleep < 60)
 		g_settings.hdd_sleep = 60;
 
 	if (have_hdidle) {
