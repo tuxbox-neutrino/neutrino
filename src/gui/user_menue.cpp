@@ -462,7 +462,9 @@ bool CUserMenu::showUserMenu(int button)
 	if (imageinfo)			 delete imageinfo;
 	if (boxinfo)			 delete boxinfo;
 	if (games)                       delete games;
+	if (tools)                       delete tools;
 	if (scripts)                     delete scripts;
+	if (lua)                         delete lua;
 	if (menu)                        delete menu;
 
 	InfoClock->enableInfoClock(true);
