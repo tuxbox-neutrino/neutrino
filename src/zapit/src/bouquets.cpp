@@ -279,12 +279,16 @@ void CBouquetManager::saveUBouquets(void)
 	chmod(UBOUQUETS_XML, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 }
 
-void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, const char * const providerName)
+void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, const char * const providerName, t_satellite_position satellitePosition)
 {
 	if (bouquetMode == CZapitClient::BM_DELETEBOUQUETS) {
 		INFO("removing existing bouquets");
-		//unlink(BOUQUETS_XML);
-		g_bouquetManager->clearAll(false);
+		if (satellitePosition > 0) {
+			if (CFEManager::getInstance()->cableOnly())
+				g_bouquetManager->clearAll(false);
+			else
+				g_bouquetManager->deletePosition(satellitePosition);
+		}
 	}
 	if (bouquetMode == CZapitClient::BM_DONTTOUCHBOUQUETS)
 		return;
@@ -413,6 +417,14 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				}
 
 				channel_node = channel_node->xmlNextNode;
+				if(!bUser) {
+					/* set satellite position for provider bouquets.
+					   reset position to 0, if position not match - means mixed bouquet */
+					if (newBouquet->satellitePosition < 0)
+						newBouquet->satellitePosition = satellitePosition;
+					else if (newBouquet->satellitePosition != satellitePosition)
+						newBouquet->satellitePosition = 0;
+				}
 			}
 			if(!bUser)
 				newBouquet->sortBouquet();
@@ -503,6 +515,7 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	newBouquet->bUser = ub;
 	newBouquet->bFav = myfav;
 	newBouquet->bOther = false;
+	newBouquet->satellitePosition = -1;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
 	if(ub) {
@@ -651,7 +664,7 @@ void CBouquetManager::clearAll(bool user)
 {
 	BouquetList tmplist;
 	for (unsigned int i =0; i < Bouquets.size(); i++) {
-		if (!user || !Bouquets[i]->bFav)
+		if (user || !Bouquets[i]->bUser)
 			delete Bouquets[i];
 		else
 			tmplist.push_back(Bouquets[i]);
@@ -661,6 +674,19 @@ void CBouquetManager::clearAll(bool user)
 	if (!user)
 		Bouquets = tmplist;
 	remainChannels = NULL;
+}
+
+void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
+{
+	BouquetList tmplist;
+	for (unsigned int i =0; i < Bouquets.size(); i++) {
+		if (satellitePosition == Bouquets[i]->satellitePosition) {
+printf("CBouquetManager::deletePosition: delete [%s]\n", Bouquets[i]->Name.c_str());
+			delete Bouquets[i];
+		} else
+			tmplist.push_back(Bouquets[i]);
+	}
+	Bouquets = tmplist;
 }
 
 CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const bool TV)
