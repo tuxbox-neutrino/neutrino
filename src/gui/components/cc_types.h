@@ -30,7 +30,7 @@
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
 
-// #define DEBUG_CC
+
 
 class CComponentsForm;
 

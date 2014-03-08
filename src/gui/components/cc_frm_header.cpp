@@ -29,7 +29,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_header.h"
-
+#include <system/debug.h>
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -126,9 +126,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 
 CComponentsHeader::~CComponentsHeader()
 {
-#ifdef DEBUG_CC
-	printf("[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
-#endif
+	dprintf(DEBUG_DEBUG, "[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
 	v_cch_btn.clear();
 }
 
@@ -198,9 +196,7 @@ void CComponentsHeader::initIcon()
 
 	//create instance for cch_icon_obj
 	if (cch_icon_obj == NULL){
-#ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
 		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
 	}
 
@@ -263,9 +259,8 @@ void CComponentsHeader::initDefaultButtons()
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_INFO);
 	if (cch_buttons & CC_BTN_MENU)
 		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_MENU);
-#ifdef DEBUG_CC
-	printf("[CComponentsHeader]  %s added %d default buttons...\n", __func__, (int)v_cch_btn.size());
-#endif
+	
+	dprintf(DEBUG_DEBUG, "[CComponentsHeader]  %s added %d default buttons...\n", __func__, (int)v_cch_btn.size());
 }
 
 void CComponentsHeader::setDefaultButtons(const int buttons)
@@ -307,9 +302,7 @@ void CComponentsHeader::initButtons()
 
 	if (cch_btn_obj == NULL){
 		cch_btn_obj = new CComponentsIconForm();
-#ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header buttons...\n", __func__, __LINE__);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header buttons...\n", __func__, __LINE__);
 	}
 
 	//add button form only one time
@@ -360,9 +353,7 @@ void CComponentsHeader::initCaption()
 
 	//create cch_text_obj and add to collection
 	if (cch_text_obj == NULL){
-#ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __func__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __func__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
 		cch_text_obj = new CComponentsText();
 	}
 

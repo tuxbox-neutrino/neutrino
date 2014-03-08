@@ -31,7 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_base.h"
-#include <gui/widget/messagebox.h>
+#include <system/debug.h>
 using namespace std;
 
 //abstract basic class CComponents
@@ -86,14 +86,14 @@ bool CComponents::CheckFbData(const comp_fbdata_t& fbdata, const char* func, con
 	if (	(fbdata.x < 0 || fbdata.y < 0) ||
 		(end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
 	   ) {
-			printf("\33[31m\t[CComponents] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n\33[0m",
+			dprintf(DEBUG_NORMAL, "[CComponents] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n",
 				func, line,
 				fbdata.x, fbdata.y,
 				fbdata.dx, fbdata.dy);
 			return false;
 		}
 		if (fbdata.dx == 0 || fbdata.dy == 0) {
-			printf("\33[33m\t[CComponents] WARNING! dx and/or dy = 0 [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n\33[0m",
+			dprintf(DEBUG_DEBUG,"[CComponents] INFO! dx and/or dy = 0 [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n",
 				func, line,
 				fbdata.x, fbdata.y,
 				fbdata.dx, fbdata.dy);
@@ -111,8 +111,8 @@ void CComponents::paintFbItems(bool do_save_bg)
 			if (!CheckFbData(v_fbdata[i], __func__, __LINE__)){
 				break;
 			}
-#ifdef DEBUG_CC
-	printf("\t[CComponents]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+
+	dprintf(DEBUG_DEBUG, "[CComponents]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
 			__func__,
 			__LINE__,
 			firstPaint,
@@ -121,7 +121,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 			v_fbdata[i].y,
 			v_fbdata[i].dx,
 			v_fbdata[i].dy);
-#endif
+
 		saved_screen.x = v_fbdata[i].x;
 		saved_screen.y = v_fbdata[i].y;
 		saved_screen.dx = v_fbdata[i].dx;
@@ -139,8 +139,8 @@ void CComponents::paintFbItems(bool do_save_bg)
 			continue;
 		}
 		int fbtype = v_fbdata[i].fbdata_type;
-#ifdef DEBUG_CC
-	printf("\t[CComponents]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+
+	dprintf(DEBUG_DEBUG, "[CComponents]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
 			__func__,
 			__LINE__,
 			(int)i,
@@ -148,7 +148,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 			v_fbdata[i].y,
 			v_fbdata[i].dx,
 			v_fbdata[i].dy);
-#endif
+
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
 		if (firstPaint){

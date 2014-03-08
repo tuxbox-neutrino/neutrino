@@ -34,7 +34,7 @@
 #include <sstream>
 #include <fstream>
 #include <errno.h>
-
+#include <system/debug.h>
 using namespace std;
 
 //sub class CComponentsText from CComponentsItem
@@ -164,9 +164,8 @@ void CComponentsText::initCCText()
 		ct_old_text 	= ct_text;
 		ct_old_col_text = ct_col_text;
 	}
-#ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 }
 
 void CComponentsText::clearCCText()
@@ -182,9 +181,8 @@ void CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 	ct_text = stext;
 	ct_text_mode = mode;
 	ct_font = font_text;
-#ifdef DEBUG_CC
-	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __func__, __LINE__, ct_text.c_str());
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] ct_text: %s \n", __func__, __LINE__, ct_text.c_str());
 }
 
 void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)

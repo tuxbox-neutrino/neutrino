@@ -29,7 +29,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_window.h"
-
+#include <system/debug.h>
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -108,9 +108,9 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 
 	ccw_caption 	= caption;
 	ccw_icon_name	= iconname;
-#ifdef DEBUG_CC
-	printf("[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsWindow]   [%s - %d] icon name = %s\n", __func__, __LINE__, ccw_icon_name.c_str());
+
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -209,9 +209,8 @@ void CComponentsWindow::initBody()
 
 void CComponentsWindow::initCCWItems()
 {
-#ifdef DEBUG_CC
-	printf("[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
-#endif
+	dprintf(DEBUG_DEBUG, "[CComponentsWindow]   [%s - %d] init items...\n", __func__, __LINE__);
+
 	//add/remove header if required
 	if (ccw_show_header){
 		initHeader();

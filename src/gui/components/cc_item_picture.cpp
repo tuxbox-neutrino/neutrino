@@ -32,7 +32,7 @@
 #include <neutrino.h>
 #include "cc_item_picture.h"
 #include <unistd.h>
-
+#include <system/debug.h>
 extern CPictureViewer * g_PicViewer;
 
 using namespace std;
@@ -148,10 +148,8 @@ void CComponentsPicture::initCCItem()
 			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, pic_max_w, pic_max_h);
 	}
 
-#ifdef DEBUG_CC
 	if (pic_width == 0 || pic_height == 0)
-		printf("[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __func__, pic_name.c_str(),  pic_width, pic_height);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __func__, pic_name.c_str(),  pic_width, pic_height);
 
 	initPosition();
 
@@ -159,10 +157,8 @@ void CComponentsPicture::initCCItem()
 	width = max(max(pic_width, pic_max_w), width)  + sw ;
 	height = max(max(pic_height, pic_max_h), height)  + sw ;
 
-#ifdef DEBUG_CC
-	printf("[CComponentsPicture] %s initialized Image: ====>> %s\n\titem x = %d\n\tdx = %d (image dx = %d)\n\titem y = %d\n\titem dy = %d (image dy = %d)\n",
+	dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s initialized Image: ====>> %s\n\titem x = %d\n\tdx = %d (image dx = %d)\n\titem y = %d\n\titem dy = %d (image dy = %d)\n",
 	       __func__, pic_name.c_str(),  x, width, pic_width,  y, height, pic_height);
-#endif
 }
 
 void CComponentsPicture::initPosition()
@@ -197,9 +193,8 @@ void CComponentsPicture::paintPicture()
 	pic_painted = false;
 
 	if (do_paint && cc_allow_paint){
-#ifdef DEBUG_CC
-	printf("	[CComponentsPicture] %s: paint image: %s (do_paint=%d) with mode %d\n", __func__, pic_name.c_str(), do_paint, pic_paint_mode);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s: paint image: %s (do_paint=%d) with mode %d\n", __func__, pic_name.c_str(), do_paint, pic_paint_mode);
+
 		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
 			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0 /*pic_max_h*/, pic_offset, pic_paint, pic_paintBg, col_body);
 		else if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON)
@@ -274,10 +269,8 @@ void CComponentsChannelLogo::initVarPictureChannellLogo()
 	if (!has_logo)
 		pic_name = tmp_logo;
 	
-#ifdef DEBUG_CC
-	printf("\t[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%" PRIu64 ")\n", __func__, pic_name.c_str(), has_logo, channel_id);
-#endif
-	
+	dprintf(DEBUG_DEBUG, "\t[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%" PRIu64 ")\n", __func__, pic_name.c_str(), has_logo, channel_id);
+
 	initCCItem();
 }
 

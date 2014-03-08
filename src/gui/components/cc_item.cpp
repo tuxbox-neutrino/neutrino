@@ -32,7 +32,7 @@
 #include <neutrino.h>
 #include "cc_base.h"
 #include <driver/screen_max.h>
-
+#include <system/debug.h>
 using namespace std;
 
 // 	 y
@@ -100,9 +100,9 @@ void CComponentsItem::paintInit(bool do_save_bg)
 			continue;
 		v_fbdata.push_back(fbdata[i]);
 	}
-#ifdef DEBUG_CC
-	printf("[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __func__, cc_item_type,  cc_item_index, height, width);
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __func__, cc_item_type,  cc_item_index, height, width);
+
 	paintFbItems(do_save_bg);
 }
 
@@ -150,9 +150,9 @@ int CComponentsItem::getItemType()
 		if (i == cc_item_type)
 			return i;
 	}
-#ifdef DEBUG_CC
-	printf("[CComponentsItem] %s: unknown item type requested...\n", __func__);
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsItem] %s: unknown item type requested...\n", __func__);
+
 	return -1;
 }
 
