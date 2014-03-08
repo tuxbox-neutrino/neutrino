@@ -314,6 +314,11 @@ date.Sun  Zo
 date.Thu  Do
 date.Tue  Di
 date.Wed  Wo
+debug Debug Output
+debug.level Level
+debug.level_1 normaal
+debug.level_2 informatieve
+debug.level_3 verbose
 epg.saving Opslaan EPG
 epgextended.actors Acteurs
 epgextended.director Regisseur 

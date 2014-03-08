@@ -317,6 +317,11 @@ date.Sun  So
 date.Thu  Do
 date.Tue  Di
 date.Wed  Mi
+debug Debug Ausgabe
+debug.level Stufe
+debug.level_1 normal
+debug.level_2 informativ
+debug.level_3 ausführlich
 epg.saving Speichere EPG
 epgextended.actors Darsteller
 epgextended.director Regie

@@ -316,6 +316,11 @@ date.Sun  Ne
 date.Thu  Št
 date.Tue  Ut
 date.Wed  St
+debug Debug Output
+debug.level Rovina
+debug.level_1 normálne
+debug.level_2 informatívny
+debug.level_3 detail
 epg.saving Uloženie EPG
 epgextended.actors Herci
 epgextended.director Režisér

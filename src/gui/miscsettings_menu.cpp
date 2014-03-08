@@ -35,7 +35,7 @@
 #include <neutrino_menue.h>
 #include <system/setting_helpers.h>
 #include <system/helpers.h>
-
+#include <system/debug.h>
 #include <gui/miscsettings_menu.h>
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
@@ -312,6 +312,13 @@ int CMiscMenue::showMiscSettingsMenu()
 	return res;
 }
 
+const CMenuOptionChooser::keyval DEBUG_MODE_OPTIONS[DEBUG_MODES] =
+{
+	{ DEBUG_NORMAL	, LOCALE_DEBUG_LEVEL_1	},
+	{ DEBUG_INFO	, LOCALE_DEBUG_LEVEL_2	},
+	{ DEBUG_DEBUG	, LOCALE_DEBUG_LEVEL_3	}
+};
+
 //general settings
 void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 {
@@ -347,6 +354,12 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	mf = new CMenuForwarder(LOCALE_MPKEY_PLUGIN, true, g_settings.movieplayer_plugin, this, "movieplayer_plugin");
 	mf->setHint("", LOCALE_MENU_HINT_MOVIEPLAYER_PLUGIN);
 	ms_general->addItem(mf);
+
+	//set debug level
+	ms_general->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_DEBUG));
+	CMenuOptionChooser * md = new CMenuOptionChooser(LOCALE_DEBUG_LEVEL, &debug, DEBUG_MODE_OPTIONS, DEBUG_MODES, true);
+// 	mc->setHint("", LOCALE_MENU_HINT_START_TOSTANDBY);
+	ms_general->addItem(md);
 }
 
 #define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 2

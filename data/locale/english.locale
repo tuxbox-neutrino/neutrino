@@ -317,6 +317,11 @@ date.Sun  Sun
 date.Thu  Thu
 date.Tue  Tue
 date.Wed  Wed
+debug Debug Output
+debug.level Level
+debug.level_1 normal
+debug.level_2 informative
+debug.level_3 verbose
 epg.saving Saving EPG
 epgextended.actors Actors
 epgextended.director Director
