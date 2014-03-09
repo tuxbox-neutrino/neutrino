@@ -403,7 +403,8 @@ extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
-extra.record_time Maximale Aufnahmezeit
+extra.record_time Maximale Aufnahmedauer
+extra.record_time_ts Maximale Timeshiftdauer
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
@@ -1064,7 +1065,8 @@ menu.hint_record_filename_template Vorlagemuster für den Dateiname bearbeiten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
 menu.hint_record_startstop_msg Schaltet die Meldung bei Aufnahmestart/ende ein oder aus.
 menu.hint_record_tdir Wählen Sie ein Verzeichnis für Ihre Timeshift-Aufnahmen im temporären Timeshift-Modus
-menu.hint_record_time Geben Sie eine maximale Aufnahmezeit in Stunden ein, wenn Sie die Aufnahme nicht vorzeitig stoppen
+menu.hint_record_time Aufzeichnungsdauer vor dem Stopp bei der Verwendung von Direktaufzeichnung mit Record-Taste.
+menu.hint_record_time_ts Timeshiftdauer vor dem Stopp, wenn temporäres Timeshift aktiviert.
 menu.hint_record_timeafter Stellen Sie die Nachlaufzeit für Timer-Aufnahmen ein\nEin Wert von 2 beendet die Aufnahme 2 Minuten nach dem Sendungsende
 menu.hint_record_timebefore Stellen Sie die Vorlaufzeit für Timer-Aufnahmen ein\nEin Wert von 2 startet die Aufnahme 2 Minuten vor dem Sendungsbeginn
 menu.hint_record_timer Konfigurieren Sie Optionen für Timer-Aufnahmen
@@ -1117,6 +1119,7 @@ menu.hint_scan_logical_hd Wenn der Kanal in SD und in HD verfügbar ist, wird HD
 menu.hint_scan_longitude Geben Sie ihren Längengrad ein
 menu.hint_scan_manual Manueller Transponder-Suchlauf mit ausgewählten Parametern
 menu.hint_scan_mod Wählen Sie eine Transponder-Modulation
+menu.hint_scan_motor Rotor Optionen, Satfinder
 menu.hint_scan_motor_18v Benutze 18V für Motorbewegungen
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
 menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten,\nwird ignoriert, wenn USALS aktiv
@@ -1141,6 +1144,7 @@ menu.hint_scan_start Startet die Kanalsuche mit den angegebenen Parametern.\nMit
 menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
+menu.hint_scan_usals USALS Optionen
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
 menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
 menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
