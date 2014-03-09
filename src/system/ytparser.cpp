@@ -49,8 +49,8 @@ static int itags[] = { 37 /* 1080p MP4 */, 22 /* 720p MP4 */, 18 /* 270p/360p MP
 std::string cYTVideoUrl::GetUrl()
 {
 	std::string fullurl = url;
-	fullurl += "&signature=";
-	fullurl += sig;
+	//fullurl += "&signature=";
+	//fullurl += sig;
 	return fullurl;
 }
 
