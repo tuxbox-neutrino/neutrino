@@ -46,6 +46,9 @@ typedef enum diseqc_cmd_order {
 	COMMITED_FIRST
 } diseqc_cmd_order_t;
 
+#define SAT_POSITION_CABLE(satellitePosition) ((satellitePosition > 0) && ((satellitePosition & 0xF00) == 0xF00))
+#define SAT_POSITION_TERR(satellitePosition) ((satellitePosition > 0) && ((satellitePosition & 0xF00) == 0xE00))
+
 typedef std::pair<t_satellite_position, sat_config_t> satellite_pair_t;
 typedef std::map<t_satellite_position, sat_config_t> satellite_map_t;
 typedef std::map<t_satellite_position, sat_config_t>::iterator sat_iterator_t;

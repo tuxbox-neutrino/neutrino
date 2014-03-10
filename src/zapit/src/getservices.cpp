@@ -821,9 +821,9 @@ void CServiceManager::CopyFile(char * from, char * to)
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 {
 	/* FIXME hack */
-	if ((config.position & 0xF00) == 0xF00)
+	if (SAT_POSITION_CABLE(config.position))
 		config.deltype = FE_QAM;
-	else if ((config.position & 0xF00) == 0xE00)
+	else if (SAT_POSITION_TERR(config.position))
 		config.deltype = FE_OFDM;
 
 	switch (config.deltype) {
