@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -53,6 +53,7 @@ class CComponentsFrmChain : public CComponentsForm
 					bool horizontal,
 					bool dynamic_width,
 					bool dynamic_height,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
@@ -68,6 +69,7 @@ class CComponentsFrmChain : public CComponentsForm
 					bool horizontal = true,
 					bool dynamic_width = false,
 					bool dynamic_height = false,
+					CComponentsForm* parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t& color_body = COL_MENUHEAD_PLUS_0,

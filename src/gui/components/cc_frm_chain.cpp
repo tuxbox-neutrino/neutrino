@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -34,12 +34,13 @@ CComponentsFrmChain::CComponentsFrmChain(	const int& x_pos, const int& y_pos, co
 						bool horizontal,
 						bool dynamic_width,
 						bool dynamic_height,
+						CComponentsForm* parent,
 						bool has_shadow,
 						fb_pixel_t& color_frame,
 						fb_pixel_t& color_body,
 						fb_pixel_t& color_shadow)
 {
-	initVarChain(x_pos, y_pos, w, h, v_items, horizontal, dynamic_width, dynamic_height, has_shadow, color_frame, color_body, color_shadow);
+	initVarChain(x_pos, y_pos, w, h, v_items, horizontal, dynamic_width, dynamic_height, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 
@@ -48,6 +49,7 @@ void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, cons
 					bool horizontal,
 					bool dynamic_width,
 					bool dynamic_height,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
@@ -74,6 +76,7 @@ void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, cons
 		addCCItem(*v_items);
 		initCChainItems();
 	}
+	initParent(parent);
 }
 
 void CComponentsFrmChain::initCChainItems()
