@@ -26,6 +26,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <driver/pictureviewer/pictureviewer.h>
 #include <gui/color.h>
 #include <gui/widget/icons.h>
 #include <gui/customcolor.h>
@@ -43,6 +44,7 @@
 #include <eitd/sectionsd.h>
 #include <OpenThreads/ScopedLock>
 
+extern CPictureViewer *g_PicViewer;
 extern CBouquetManager *g_bouquetManager;
 extern CFrontend * frontend;
 extern cVideo * videoDecoder;
@@ -521,24 +523,11 @@ std::string CNeutrinoAPI::getCryptInfoAsString(void)
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getLogoFile(std::string _logoURL, t_channel_id channelId)
+std::string CNeutrinoAPI::getLogoFile(std::string _logoURL __attribute__((unused)), t_channel_id channelId)
 {
-	std::string channelIdAsString = string_printf( PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS , channelId & 0xFFFFFFFFFFFFULL);
 	std::string channelName = GetServiceName(channelId);
-//	replace(channelName, " ", "_");
-	_logoURL+="/";
-	if (access((_logoURL + channelName + ".png").c_str(), 4) == 0)
-		return _logoURL + channelName + ".png";
-	else if (access((_logoURL + channelName + ".jpg").c_str(), 4) == 0)
-		return _logoURL + channelName + ".jpg";
-	else if (access((_logoURL + channelName + ".gif").c_str(), 4) == 0)
-		return _logoURL + channelName + ".gif";
-	else if(access((_logoURL + channelIdAsString + ".png").c_str(), 4) == 0)
-		return _logoURL + channelIdAsString + ".png";
-	else if (access((_logoURL + channelIdAsString + ".jpg").c_str(), 4) == 0)
-		return _logoURL + channelIdAsString + ".jpg";
-	else if (access((_logoURL + channelIdAsString + ".gif").c_str(), 4) == 0)
-		return _logoURL + channelIdAsString + ".gif";
-	else
-		return "";
+	std::string logoString;
+	if (g_PicViewer->GetLogoName(channelId, channelName, logoString, NULL, NULL))
+		return logoString;
+	return "";
 }
