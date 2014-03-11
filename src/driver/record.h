@@ -163,14 +163,12 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 
 		bool CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend);
 		void RestoreNeutrino(void);
-		bool CheckRecording(const CTimerd::RecordingInfo * const eventinfo);
 		void StartNextRecording();
 		void StopPostProcess();
 		void StopInstance(CRecordInstance * inst, bool remove_event = true);
 		CRecordInstance * FindInstance(t_channel_id);
 		CRecordInstance * FindInstanceID(int recid);
 		CRecordInstance * FindTimeshift();
-		//void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
 		enum record_modes_t
@@ -225,7 +223,6 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		CRecordInstance* getRecordInstance(std::string file);
 		// old code
 #if 0
-		bool IsTimeshift(t_channel_id channel_id=0);
 		bool MountDirectory(const char *recordingDir);
 		bool ChooseRecDir(std::string &dir);
 		int recordingstatus;

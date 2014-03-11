@@ -97,7 +97,6 @@ CRecordInstance::CRecordInstance(const CTimerd::RecordingInfo * const eventinfo,
 	cMovieInfo = new CMovieInfo();
 	recMovieInfo = new MI_MOVIE_INFO();
 	record = NULL;
-	tshift_mode = TSHIFT_MODE_OFF;
 	rec_stop_msg = g_Locale->getText(LOCALE_RECORDING_STOP);
 }
 
@@ -260,6 +259,7 @@ bool CRecordInstance::Stop(bool remove_event)
 		hintBox.paint();
 
 	printf("%s: channel %" PRIx64 " recording_id %d\n", __func__, channel_id, recording_id);
+	printf("%s: file %s.ts\n", __FUNCTION__, filename);
 	SaveXml();
 	/* Stop do close fd - if started */
 	record->Stop();
@@ -450,15 +450,19 @@ record_error_msg_t CRecordInstance::Record()
 	//FIXME recording_id (timerd eventID) is 0 means its user recording, in this case timer always added ?
 	if(ret == RECORD_OK && recording_id == 0) {
 		time_t now = time(NULL);
-		int record_end = now+g_settings.record_hours*60*60;
-		if (g_settings.recording_epg_for_end)
-		{
-			int pre=0, post=0;
-			CEPGData epgData;
-			if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
-				g_Timerd->getRecordingSafety(pre, post);
-				if (epgData.epg_times.startzeit > 0)
-					record_end = epgData.epg_times.startzeit + epgData.epg_times.dauer + post;
+		int record_end;
+		if (autoshift) {
+			record_end = now+g_settings.timeshift_hours*60*60;
+		} else {
+			record_end = now+g_settings.record_hours*60*60;
+			if (g_settings.recording_epg_for_end) {
+				int pre=0, post=0;
+				CEPGData epgData;
+				if (CEitManager::getInstance()->getActualEPGServiceKey(channel_id, &epgData )) {
+					g_Timerd->getRecordingSafety(pre, post);
+					if (epgData.epg_times.startzeit > 0)
+						record_end = epgData.epg_times.startzeit + epgData.epg_times.dauer + post;
+				}
 			}
 		}
 		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epgid, epg_time, apidmode);
@@ -832,28 +836,6 @@ const std::string CRecordManager::GetFileName(t_channel_id channel_id, bool time
 /* return record mode mask, for channel_id not 0, or global */
 int CRecordManager::GetRecordMode(const t_channel_id channel_id)
 {
-#if 0
-	if (RecordingStatus(channel_id) || IsTimeshift(channel_id))
-	{
-		if (RecordingStatus(channel_id) && !IsTimeshift(channel_id))
-			return RECMODE_REC;
-		if (channel_id == 0)
-		{
-			int records	= GetRecordCount();
-			if (IsTimeshift(channel_id) && (records == 1))
-				return RECMODE_TSHIFT;
-			else if (IsTimeshift(channel_id) && (records > 1))
-				return RECMODE_REC_TSHIFT;
-			else
-				return RECMODE_OFF;
-		} else
-		{
-			if (IsTimeshift(channel_id))
-				return RECMODE_TSHIFT;
-		}
-	}
-	return RECMODE_OFF;
-#endif
 	int recmode = RECMODE_OFF;
 	mutex.lock();
 	if (channel_id == 0) {
@@ -913,10 +895,6 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 
 	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
 		return false;
-#if 0
-	if(!CheckRecording(eventinfo))
-		return false;
-#endif
 
 #if 1 // FIXME test
 	StopSectionsd = false;
@@ -926,18 +904,6 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	RunStartScript();
 
 	mutex.lock();
-#if 0
-	inst = FindInstance(eventinfo->channel_id);
-	if(inst) {
-		if(direct_record) {
-			error_msg = RECORD_BUSY;
-		} else {
-			CTimerd::RecordingInfo * evt = new CTimerd::RecordingInfo(*eventinfo);
-			printf("%s add %llx : %s to pending\n", __FUNCTION__, evt->channel_id, evt->epgTitle);
-			nextmap.push_back((CTimerd::RecordingInfo *)evt);
-		}
-	} else
-#endif
 	if(recmap.size() < RECORD_MAX_COUNT) {
 		CFrontend * frontend = NULL;
 		if(CutBackNeutrino(eventinfo->channel_id, frontend)) {
@@ -1034,18 +1000,6 @@ bool CRecordManager::StopAutoRecord(bool lock)
 	return (inst != NULL);
 }
 
-#if 0
-bool CRecordManager::CheckRecording(const CTimerd::RecordingInfo * const eventinfo)
-{
-	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	/* FIXME check if frontend used for timeshift the same and will zap ?? */
-	if(/*(eventinfo->channel_id == live_channel_id) ||*/ !SAME_TRANSPONDER(eventinfo->channel_id, live_channel_id))
-		StopAutoRecord();
-
-	return true;
-}
-#endif
-
 void CRecordManager::StartNextRecording()
 {
 	CTimerd::RecordingInfo * eventinfo = NULL;
@@ -1053,25 +1007,6 @@ void CRecordManager::StartNextRecording()
 
 	for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 		eventinfo = *it;
-#if 0
-		bool tested = true;
-		if( !recmap.empty() ) {
-			CRecordInstance * inst = FindInstance(eventinfo->channel_id);
-			/* same channel recording and not auto - skip */
-			if(inst && !inst->Timeshift())
-				tested = false;
-			/* there is only auto-record which can be stopped */
-			else if(recmap.size() == 1 && autoshift)
-				tested = true;
-			else {
-				/* there are some recordings, test any (first) for now */
-				recmap_iterator_t fit = recmap.begin();
-				t_channel_id channel_id = fit->second->GetChannelId();
-				tested = (SAME_TRANSPONDER(channel_id, eventinfo->channel_id));
-			}
-		}
-		if(tested) 
-#endif
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
 		if (channel && CFEManager::getInstance()->canTune(channel))
 		{
@@ -1140,11 +1075,6 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 	if(inst->Timeshift())
 		autoshift = false;
 
-#if 0
-	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	if(inst->GetChannelId() == live_channel_id)
-		recordingstatus = 0;
-#endif
 	delete inst;
 }
 
@@ -1278,47 +1208,6 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 	return messages_return::unhandled;
 }
 
-#if 0
-bool CRecordManager::IsTimeshift(t_channel_id channel_id)
-{
-	bool ret = false;
-	CRecordInstance * inst;
-	mutex.lock();
-	if (channel_id != 0)
-	{
-		inst = FindInstance(channel_id);
-		if(inst && inst->tshift_mode)
-			ret = true;
-		else
-			ret = false;
-	} else
-	{
-		for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
-		{
-			if(it->second->tshift_mode)
-			{
-				mutex.unlock();
-				return true;
-			}
-		}
-	}
-	mutex.unlock();
-	return ret;
-}
-
-void CRecordManager::SetTimeshiftMode(CRecordInstance * inst, int mode)
-{
-	mutex.lock();
-	/* reset all instances mode ? */
-	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
-		it->second->tshift_mode = TSHIFT_MODE_OFF;
-
-	mutex.unlock();
-	if (inst)
-		inst->tshift_mode = mode;
-}
-#endif
-
 void CRecordManager::StartTimeshift()
 {
 	if(g_RemoteControl->is_video_started)
@@ -1326,26 +1215,6 @@ void CRecordManager::StartTimeshift()
 		std::string tmode = "ptimeshift"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-#if 0
-		if(RecordingStatus(live_channel_id))
-		{
-			tmode = "ptimeshift"; // already recording, pause
-			if(GetRecordMode(live_channel_id) == RECMODE_TSHIFT)
-				SetTimeshiftMode(FindInstance(live_channel_id), TSHIFT_MODE_PAUSE);
-		} else
-		{
-			if(g_settings.temp_timeshift)
-			{
-				res = StartAutoRecord();
-				SetTimeshiftMode(FindInstance(live_channel_id), TSHIFT_MODE_TEMPORAER);
-			} else
-			{
-				res = Record(live_channel_id);
-				SetTimeshiftMode(FindInstance(live_channel_id), TSHIFT_MODE_PERMANET);
-			}
-			tmode = "timeshift"; // record just started
-		}
-#endif
 		/* start temporary timeshift if enabled and not running, but dont start second record */
 		if (g_settings.temp_timeshift) {
 			if (!FindTimeshift()) {
@@ -1427,10 +1296,6 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 
 			return menu_return::RETURN_EXIT_ALL;
 		}
-#if 0
-		else
-			DisplayInfoMessage(g_Locale->getText(LOCALE_RECORDING_IS_RUNNING));
-#endif
 	} else if(actionKey == "Timeshift")
 	{
 		StartTimeshift();
@@ -1497,7 +1362,6 @@ bool CRecordManager::ShowMenu(void)
 			durations.push_back(duration);
 
 			const char* mode_icon = NEUTRINO_ICON_REC;
-			//if (inst->tshift_mode)
 			if (inst->Timeshift())
 				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
 
@@ -1551,7 +1415,6 @@ bool CRecordManager::ShowMenu(void)
 
 bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 {
-	//int recording_id = 0;
 	std::string title, duration;
 	CRecordInstance * inst;
 
@@ -1562,7 +1425,6 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 		inst = FindInstance(channel_id);
 
 	if(inst) {
-		//recording_id = inst->GetRecordingId();
 		inst->GetRecordString(title, duration);
 		title += duration;
 	}
@@ -1572,9 +1434,6 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 
 	if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
-#if 0
-		g_Timerd->stopTimerEvent(recording_id);
-#endif
 		mutex.lock();
 		if (recid)
 			inst = FindInstanceID(recid);
