@@ -414,6 +414,7 @@ struct SNeutrinoSettings
 	int temp_timeshift;
 	int auto_delete;
 	int record_hours;
+	int timeshift_hours;
 
 	int mpkey_rewind;
 	int mpkey_forward;

@@ -390,6 +390,12 @@ void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_TEMP_TIMESHIFT, &g_settings.temp_timeshift, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_RECORD_TIMESHIFT_TEMP);
 		menu_ts->addItem(mc);
+
+		//rec hours
+		mn = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_TIME_TS, &g_settings.timeshift_hours, true, 1, 24, NULL);
+		mn->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_HOUR));
+		mn->setHint("", LOCALE_MENU_HINT_RECORD_TIME_TS);
+		menu_ts->addItem(mn);
 	}
 }
 
