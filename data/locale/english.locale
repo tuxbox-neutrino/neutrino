@@ -403,7 +403,8 @@ extra.lodirection LoDirection
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
 extra.north North
-extra.record_time Maximal recording time
+extra.record_time Maximal recording duration
+extra.record_time_ts Maximal timeshift duration
 extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
@@ -1063,7 +1064,8 @@ menu.hint_record_end Stop direct record after maximal time or after current even
 menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
 menu.hint_record_startstop_msg Turns the message when recording start/end on or off.
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
-menu.hint_record_time Record time before stop when\nusing direct record with record button
+menu.hint_record_time Record duration before stop when\nusing direct record with record button
+menu.hint_record_time_ts Timeshift duration before stop when\ntemporary timeshift enabled
 menu.hint_record_timeafter Stop record after event end\nin minutes
 menu.hint_record_timebefore Start record before event start\nin minutes
 menu.hint_record_timer Configure record by timer options
