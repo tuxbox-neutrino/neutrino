@@ -283,7 +283,7 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 {
 	if (bouquetMode == CZapitClient::BM_DELETEBOUQUETS) {
 		INFO("removing existing bouquets");
-		if (satellitePosition > 0) {
+		if (satellitePosition != INVALID_SAT_POSITION) {
 			if (CFEManager::getInstance()->cableOnly())
 				g_bouquetManager->clearAll(false);
 			else
@@ -420,7 +420,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				if(!bUser) {
 					/* set satellite position for provider bouquets.
 					   reset position to 0, if position not match - means mixed bouquet */
-					if (newBouquet->satellitePosition < 0)
+					if (newBouquet->satellitePosition == INVALID_SAT_POSITION)
 						newBouquet->satellitePosition = satellitePosition;
 					else if (newBouquet->satellitePosition != satellitePosition)
 						newBouquet->satellitePosition = 0;
@@ -515,7 +515,7 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	newBouquet->bUser = ub;
 	newBouquet->bFav = myfav;
 	newBouquet->bOther = false;
-	newBouquet->satellitePosition = -1;
+	newBouquet->satellitePosition = INVALID_SAT_POSITION;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
 	if(ub) {
@@ -681,7 +681,7 @@ void CBouquetManager::deletePosition(t_satellite_position satellitePosition)
 	BouquetList tmplist;
 	for (unsigned int i =0; i < Bouquets.size(); i++) {
 		if (satellitePosition == Bouquets[i]->satellitePosition) {
-printf("CBouquetManager::deletePosition: delete [%s]\n", Bouquets[i]->Name.c_str());
+			printf("CBouquetManager::deletePosition: delete [%s]\n", Bouquets[i]->Name.c_str());
 			delete Bouquets[i];
 		} else
 			tmplist.push_back(Bouquets[i]);
