@@ -1384,6 +1384,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 			tvi = 0, ri = 0;
 			CBouquet* tmp1 = TVsatList->addBouquet(sit->second.name.c_str());
 			CBouquet* tmp2 = RADIOsatList->addBouquet(sit->second.name.c_str());
+			tmp1->satellitePosition = tmp2->satellitePosition = sit->first;
 
 			for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++) {
 				if ((*it)->getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
@@ -1395,7 +1396,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 					ri++;
 				}
 			}
-			printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
+			printf("[neutrino] created %s (%d) bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), sit->first, tvi, ri);
 			if(!tvi)
 				TVsatList->deleteBouquet(tmp1);
 			if(!ri)
@@ -2427,9 +2428,9 @@ _show:
 		nNewChannel = bouquetList->exec(true);
 	}
 _repeat:
-	CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
-	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
+	//CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
+	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	if(nNewChannel == -1) { // restore orig. bouquet and selected channel on cancel
 		/* FIXME if mode was changed while browsing,
 		 * other modes selected bouquet not restored */
