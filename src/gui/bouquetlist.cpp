@@ -45,6 +45,7 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
+#include <gui/widget/messagebox.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
@@ -56,6 +57,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <zapit/getservices.h>
 
 extern CBouquetManager *g_bouquetManager;
 
@@ -230,7 +232,7 @@ int CBouquetList::doMenu()
 
 	zapitBouquet = Bouquets[selected]->zapitBouquet;
 	/* zapitBouquet not NULL only on real bouquets, not on virtual SAT or HD */
-	if(!zapitBouquet)
+	if(!zapitBouquet && Bouquets[selected]->satellitePosition == INVALID_SAT_POSITION)
 		return 0;
 
 	CMenuWidget* menu = new CMenuWidget(LOCALE_CHANNELLIST_EDIT, NEUTRINO_ICON_SETTINGS);
@@ -238,7 +240,7 @@ int CBouquetList::doMenu()
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	sprintf(cnt, "%d", i);
-	if(!zapitBouquet->bUser) {
+	if (zapitBouquet && !zapitBouquet->bUser) {
 		menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_COPY, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i ++);
 		menu->exec(NULL, "");
 		delete menu;
@@ -289,17 +291,24 @@ int CBouquetList::doMenu()
 		printf("CBouquetList::doMenu: %d selected\n", select);
 		if(select >= 0) {
 			old_selected = select;
-			switch(select) {
-				case 0:
-					hide();
-					bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
-					if(bouquet_id >= 0) {
-						g_bouquetManager->deleteBouquet(bouquet_id);
-						return 1;
-					}
-					break;
-				default:
-					break;
+			hide();
+
+			int result = ShowMsg ( LOCALE_BOUQUETEDITOR_DELETE, Bouquets[selected]->channelList->getName(), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+			if(result != CMessageBox::mbrYes)
+				return -1;
+
+			if (zapitBouquet) {
+				bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
+				if(bouquet_id >= 0) {
+					g_bouquetManager->deleteBouquet(bouquet_id);
+					return 1;
+				}
+			} else {
+				CServiceManager::getInstance()->RemovePosition(Bouquets[selected]->satellitePosition);
+				g_bouquetManager->loadBouquets();
+				g_bouquetManager->deletePosition(Bouquets[selected]->satellitePosition);
+				CServiceManager::getInstance()->SetServicesChanged(true);
+				return 1;
 			}
 		}
 		return -1;
