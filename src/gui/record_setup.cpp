@@ -239,9 +239,12 @@ int CRecordSetup::showRecordSetup()
 		recordingSettings->addItem(startstop_msg);
 	}
 
-	//template
-	//CStringInput recordingSettings_filenameTemplate(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
-	//CMenuForwarder* mf11 = new CMenuForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template[0], &recordingSettings_filenameTemplate);
+	//filename template
+	CStringInputSMS* filename_template = new CStringInputSMS(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template, 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
+	CMenuForwarder* ft = new CMenuDForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template, filename_template, NULL, CRCInput::RC_1);
+	ft->setHint("", LOCALE_MENU_HINT_RECORD_FILE_TEMPLATE);
+	recordingSettings->addItem(ft);
+
 	recordingSettings->addItem(GenericMenuSeparatorLine);
 
 	if (!g_settings.easymenu) {
@@ -267,7 +270,7 @@ int CRecordSetup::showRecordSetup()
 
 		//datasettings
 		showRecordDataSetup(&recordingaDataSettings);
-		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_1);
+		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_2);
 		mf->setHint("", LOCALE_MENU_HINT_RECORD_DATA);
 		recordingSettings->addItem(mf);
 	}

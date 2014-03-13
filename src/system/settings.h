@@ -376,6 +376,7 @@ struct SNeutrinoSettings
 	int recording_slow_warning;
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
+	std::string recording_filename_template;
 
 	int filesystem_is_utf8;
 	// default plugin for ts-movieplayer (red button)

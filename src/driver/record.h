@@ -79,6 +79,7 @@ class CRecordInstance
 		t_channel_id	channel_id;
 		event_id_t	epgid;
 		std::string	epgTitle;
+		std::string	epgInfo1;
 		unsigned char	apidmode;
 		time_t		epg_time;
 		time_t		start_time;
@@ -107,7 +108,9 @@ class CRecordInstance
 		bool SaveXml();
 		record_error_msg_t Start(CZapitChannel * channel);
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
-	public:		
+		void MakeExtFileName(CZapitChannel * channel, std::string &FilenameTemplate);
+		void StringReplace(std::string &str, const std::string search, const std::string rstr);
+	public:
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
 		~CRecordInstance();
 

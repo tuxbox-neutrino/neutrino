@@ -680,30 +680,72 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 			strncat(filename, "_",FILENAMEBUFFERSIZE - strlen(filename)-1);
 	}
 
-	pos = strlen(filename);
-	if (g_settings.recording_epg_for_filename) {
-		if(epgid != 0) {
-			CShortEPGData epgdata;
-			if(CEitManager::getInstance()->getEPGidShort(epgid, &epgdata)) {
-				if (!(epgdata.title.empty())) {
-					strcpy(&(filename[pos]), epgdata.title.c_str());
-					ZapitTools::replace_char(&filename[pos]);
-				}
-			}
-		} else if (!epgTitle.empty()) {
-			strcpy(&(filename[pos]), epgTitle.c_str());
-			ZapitTools::replace_char(&filename[pos]);
-		}
-	}
+	pos = strlen(filename) - ((!autoshift && g_settings.recording_save_in_channeldir) ? 0 : (ext_channel_name.length() /*remove last "_"*/ +1));
+
+	std::string ext_file_name = g_settings.recording_filename_template;
+	MakeExtFileName(channel, ext_file_name);
+	strcpy(&(filename[pos]), UTF8_TO_FILESYSTEM_ENCODING(ext_file_name.c_str()));
 
 	pos = strlen(filename);
-	time_t t = time(NULL);
-	pos += strftime(&(filename[pos]), sizeof(filename) - pos - 1, "%Y%m%d_%H%M%S", localtime(&t));
 
 	if(autoshift)
 		strncat(filename, "_temp",FILENAMEBUFFERSIZE - strlen(filename)-1);
 
 	return RECORD_OK;
+}
+
+void CRecordInstance::StringReplace(std::string &str, const std::string search, const std::string rstr)
+{
+	std::string::size_type ptr = 0;
+	std::string::size_type pos = 0;
+	while((ptr = str.find(search,pos)) != std::string::npos){
+		str.replace(ptr,search.length(),rstr);
+		pos = ptr + rstr.length();
+	}
+}
+
+void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &FilenameTemplate)
+{
+	char buf[256];
+
+	// %C == channel, %T == title, %I == info1, %d == date, %t == time_t
+	if (FilenameTemplate.empty())
+		FilenameTemplate = "%C_%T_%d_%t";
+
+	time_t t = time(NULL);
+	strftime(buf,sizeof(buf),"%Y%m%d",localtime(&t));
+	StringReplace(FilenameTemplate,"%d",buf);
+
+	strftime(buf,sizeof(buf),"%H%M%S",localtime(&t));
+	StringReplace(FilenameTemplate,"%t",buf);
+
+	std::string channel_name = channel->getName();
+	if (!(channel_name.empty())) {
+		strcpy(buf, UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
+		ZapitTools::replace_char(buf);
+		StringReplace(FilenameTemplate,"%C",buf);
+	}
+	else
+		StringReplace(FilenameTemplate,"%C","no_channel");
+
+	CShortEPGData epgdata;
+	if(CEitManager::getInstance()->getEPGidShort(epgid, &epgdata)) {
+		if (!(epgdata.title.empty())) {
+			strcpy(buf, epgdata.title.c_str());
+			ZapitTools::replace_char(buf);
+			StringReplace(FilenameTemplate,"%T",buf);
+		}
+		else
+			StringReplace(FilenameTemplate,"%T","no_title");
+
+		if (!(epgdata.info1.empty())) {
+			strcpy(buf, epgdata.info1.c_str());
+			ZapitTools::replace_char(buf);
+			StringReplace(FilenameTemplate,"%I",buf);
+		}
+		else
+			StringReplace(FilenameTemplate,"%I","no_info");
+	}
 }
 
 void CRecordInstance::GetRecordString(std::string &str, std::string &dur)
