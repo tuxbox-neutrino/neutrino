@@ -81,4 +81,6 @@ typedef uint64_t transponder_id_t;
 #define GET_FREQ_FROM_TPID(transponder_id) ((freq_id_t)(transponder_id >> 48))
 #define CREATE_FREQ_ID(frequency, cable)  (freq_id_t)(cable ? frequency/100 : frequency/1000)
 
+#define INVALID_SAT_POSITION 0x1FFF
+
 #endif /* __zapit__types_h__ */
