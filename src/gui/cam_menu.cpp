@@ -226,8 +226,6 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 	if (msg != NeutrinoMessages::EVT_CA_MESSAGE)
 		return from_menu ? 1 : -1;
 
-	if (g_settings.ci_ignore_messages && !from_menu)
-		return 1;
 
 	rMsg	= (CA_MESSAGE *)data;
 	if (!rMsg)
@@ -242,6 +240,9 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 
 	printf("CCAMMenuHandler::handleCamMsg: msg %d from %s\n", MsgId, from_menu ? "menu" : "neutrino");
 
+	if (g_settings.ci_ignore_messages && !from_menu)
+		return 1;
+
 	if (SlotType != CA_SLOT_TYPE_SMARTCARD && SlotType != CA_SLOT_TYPE_CI)
 		return -1;
 
@@ -251,9 +252,6 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 				g_Locale->getText(SlotType == CA_SLOT_TYPE_CI ? LOCALE_CI_INSERTED : LOCALE_SC_INSERTED), (int)curslot+1);
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
 		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
-#if 0
-		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
-#endif
 	} else if (MsgId == CA_MESSAGE_MSG_REMOVED) {
 		hideHintBox();
 
@@ -262,9 +260,6 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
 		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
-#if 0
-		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
-#endif
 	} else if(MsgId == CA_MESSAGE_MSG_INIT_OK) {
 		if(hintBox != NULL) {
 			hintBox->hide();
@@ -280,9 +275,6 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
 		CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::PLAY, true);
 		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
-#if 0
-		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
-#endif
 	} else if(MsgId == CA_MESSAGE_MSG_INIT_FAILED) {
 		hideHintBox();
 
@@ -295,9 +287,6 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 
 		printf("CCAMMenuHandler::handleCamMsg: %s\n", str);
 		ShowHint(LOCALE_MESSAGEBOX_INFO, str);
-#if 0
-		showHintBox(LOCALE_MESSAGEBOX_INFO, str, CI_MSG_TIME);
-#endif
 	} else if(MsgId == CA_MESSAGE_MSG_MMI_MENU || MsgId == CA_MESSAGE_MSG_MMI_LIST) {
 		bool sublevel = false;
 
@@ -378,13 +367,6 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 			if(strlen(pMenu->bottom))
 				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->bottom);
 			ShowHint(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), convertDVBUTF8(lstr, slen, 0).c_str());
-#endif
-#if 0
-			showHintBox(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
-			sleep(4);//FIXME
-			if(!from_menu) {
-				hideHintBox();
-			}
 #endif
 			return 0;
 		}
@@ -478,9 +460,6 @@ int CCAMMenuHandler::doMenu(int slot, CA_SLOT_TYPE slotType)
 				hideHintBox();
 				ShowHint(LOCALE_MESSAGEBOX_INFO,
 					g_Locale->getText(slotType == CA_SLOT_TYPE_CI ? LOCALE_CI_TIMEOUT : LOCALE_SC_TIMEOUT));
-#if 0
-				showHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_CI_TIMEOUT), 5);
-#endif
 				ca->MenuClose(slotType, slot);
 				return menu_return::RETURN_REPAINT;
 			}
