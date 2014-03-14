@@ -103,8 +103,6 @@ int CCAMMenuHandler::doMainMenu()
 	int CiSlots = ca->GetNumberCISlots();
 
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
-	//cammenu->addItem( GenericMenuBack );
-	//cammenu->addItem( GenericMenuSeparatorLine );
 	cammenu->addIntroItems();
 
 	if (!g_settings.easymenu) {
@@ -304,7 +302,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		hideHintBox();
 
 		int selected = -1;
-		if(pMenu->choice_nb) {
+		if(pMenu->choice_nb && from_menu) {
 			CMenuWidget* menu = new CMenuWidget(convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), NEUTRINO_ICON_SETTINGS);
 			menu->enableSaveScreen(true);
 
@@ -354,12 +352,15 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 			hideHintBox();
 #if 1
 			if(strlen(pMenu->title))
-				slen += snprintf(&lstr[slen], 255-slen, "%s", pMenu->title);
+				slen += snprintf(&lstr[slen], 255-slen, "%s\n", pMenu->title);
 			if(strlen(pMenu->subtitle))
-				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->subtitle);
+				slen += snprintf(&lstr[slen], 255-slen, "%s\n", pMenu->subtitle);
 			if(strlen(pMenu->bottom))
-				slen += snprintf(&lstr[slen], 255-slen, "\n%s", pMenu->bottom);
+				slen += snprintf(&lstr[slen], 255-slen, "%s\n", pMenu->bottom);
 
+			for(i = 0; (i < pMenu->choice_nb) && (i < MAX_MMI_ITEMS); i++) {
+				slen += snprintf(&lstr[slen], 255-slen, "%s\n", pMenu->choice_item[i]);
+			}
 			ShowHint(LOCALE_MESSAGEBOX_INFO, convertDVBUTF8(lstr, slen, 0).c_str());
 #else
 			if(strlen(pMenu->subtitle))
