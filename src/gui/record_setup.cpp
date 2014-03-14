@@ -242,7 +242,7 @@ int CRecordSetup::showRecordSetup()
 	//filename template
 	CStringInputSMS* filename_template = new CStringInputSMS(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template, 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
 	CMenuForwarder* ft = new CMenuDForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template, filename_template, NULL, CRCInput::RC_1);
-	ft->setHint("", LOCALE_MENU_HINT_RECORD_FILE_TEMPLATE);
+	ft->setHint("", LOCALE_MENU_HINT_RECORD_FILENAME_TEMPLATE);
 	recordingSettings->addItem(ft);
 
 	recordingSettings->addItem(GenericMenuSeparatorLine);

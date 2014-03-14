@@ -1061,7 +1061,7 @@ menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
 menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
 menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
-menu.hint_record_filename_template Vorlagemuster für den Dateiname bearbeiten
+menu.hint_record_filename_template Vorlagemuster für den Dateinamen bearbeiten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
 menu.hint_record_startstop_msg Schaltet die Meldung bei Aufnahmestart/ende ein oder aus.
 menu.hint_record_tdir Wählen Sie ein Verzeichnis für Ihre Timeshift-Aufnahmen im temporären Timeshift-Modus
