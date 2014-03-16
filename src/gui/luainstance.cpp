@@ -403,6 +403,7 @@ void CLuaInstance::registerFunctions()
 	CWindowRegister(lua);
 	ComponentsTextRegister(lua);
 	SignalBoxRegister(lua);
+	CPictureRegister(lua);
 }
 
 CLuaData *CLuaInstance::CheckData(lua_State *L, int narg)
@@ -1738,6 +1739,125 @@ int CLuaInstance::ComponentsTextDelete(lua_State *L)
 		return 0;
 
 	m->ct->hide();
+	delete m;
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+
+CLuaPicture *CLuaInstance::CPictureCheck(lua_State *L, int n)
+{
+	return *(CLuaPicture **) luaL_checkudata(L, n, "cpicture");
+}
+
+void CLuaInstance::CPictureRegister(lua_State *L)
+{
+	luaL_Reg meth[] = {
+		{ "new", CLuaInstance::CPictureNew },
+		{ "paint", CLuaInstance::CPicturePaint },
+		{ "hide", CLuaInstance::CPictureHide },
+		{ "setPicture", CLuaInstance::CPictureSetPicture },
+		{ "__gc", CLuaInstance::CPictureDelete },
+		{ NULL, NULL }
+	};
+
+	luaL_newmetatable(L, "cpicture");
+	luaL_setfuncs(L, meth, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+	lua_setglobal(L, "cpicture");
+}
+
+int CLuaInstance::CPictureNew(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+
+	CLuaCWindow* parent = NULL;
+	int x=10, y=10, dx=100, dy=100;
+	std::string image_name         = "";
+	int         alignment         = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER;
+
+	std::string tmp1             = "false";	// has_shadow
+	lua_Integer color_frame      = (lua_Integer)COL_MENUCONTENT_PLUS_6;
+	lua_Integer color_background = (lua_Integer)COL_MENUCONTENT_PLUS_0;
+	lua_Integer color_shadow     = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+
+	tableLookup(L, "parent"           , (void**)&parent);
+	tableLookup(L, "x"                , x);
+	tableLookup(L, "y"                , y);
+	tableLookup(L, "dx"               , dx);
+	tableLookup(L, "dy"               , dy);
+	tableLookup(L, "image"            , image_name);
+	tableLookup(L, "alignment"        , alignment);
+	tableLookup(L, "has_shadow"       , tmp1);
+	bool has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	tableLookup(L, "color_frame"      , color_frame);
+	tableLookup(L, "color_background" , color_background);
+	tableLookup(L, "color_shadow"     , color_shadow);
+
+	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+
+	CLuaPicture **udata = (CLuaPicture **) lua_newuserdata(L, sizeof(CLuaPicture *));
+	*udata = new CLuaPicture();
+	(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, alignment, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow);
+	(*udata)->parent = pw;
+	luaL_getmetatable(L, "cpicture");
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+int CLuaInstance::CPicturePaint(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	std::string tmp = "true";
+	tableLookup(L, "do_save_bg", tmp);
+	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+
+	m->cp->paint(do_save_bg);
+	return 0;
+}
+
+int CLuaInstance::CPictureHide(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	std::string tmp = "false";
+	tableLookup(L, "no_restore", tmp);
+	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+
+	if (m->parent) {
+		m->cp->setPicture("");
+		m->cp->paint();
+	} else
+		m->cp->hide(no_restore);
+	return 0;
+}
+
+int CLuaInstance::CPictureSetPicture(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	std::string image_name = "";
+	tableLookup(L, "image", image_name);
+
+	m->cp->setPicture(image_name);
+	return 0;
+}
+
+int CLuaInstance::CPictureDelete(lua_State *L)
+{
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
+	CLuaPicture *m = CPictureCheck(L, 1);
+	if (!m) return 0;
+
+	m->cp->hide();
 	delete m;
 	return 0;
 }

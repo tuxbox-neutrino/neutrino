@@ -144,6 +144,15 @@ class CLuaComponentsText
 		~CLuaComponentsText() { if (parent == NULL) delete ct; }
 };
 
+class CLuaPicture
+{
+	public:
+		CComponentsPicture *cp;
+		CComponentsForm *parent;
+		CLuaPicture() { cp = NULL; parent = NULL; }
+		~CLuaPicture() { if (parent == NULL) delete cp; }
+};
+
 
 /* inspired by Steve Kemp http://www.steve.org.uk/ */
 class CLuaInstance
@@ -222,6 +231,14 @@ private:
 	static int ComponentsTextSetText(lua_State *L);
 	static int ComponentsTextScroll(lua_State *L);
 	static int ComponentsTextDelete(lua_State *L);
+
+	static CLuaPicture *CPictureCheck(lua_State *L, int n);
+	static void CPictureRegister(lua_State *L);
+	static int CPictureNew(lua_State *L);
+	static int CPicturePaint(lua_State *L);
+	static int CPictureHide(lua_State *L);
+	static int CPictureSetPicture(lua_State *L);
+	static int CPictureDelete(lua_State *L);
 
 	static bool tableLookup(lua_State*, const char*, std::string&);
 	static bool tableLookup(lua_State*, const char*, int&);
