@@ -1537,6 +1537,7 @@ void CLuaInstance::ComponentsTextRegister(lua_State *L)
 		{ "new", CLuaInstance::ComponentsTextNew },
 		{ "paint", CLuaInstance::ComponentsTextPaint },
 		{ "hide", CLuaInstance::ComponentsTextHide },
+		{ "setText", CLuaInstance::ComponentsTextSetText },
 		{ "scroll", CLuaInstance::ComponentsTextScroll },
 		{ "__gc", CLuaInstance::ComponentsTextDelete },
 		{ NULL, NULL }
@@ -1610,6 +1611,8 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	*udata = new CLuaComponentsText();
 	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], pw, has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 	(*udata)->parent = pw;
+	(*udata)->mode = mode;
+	(*udata)->font_text = font_text;
 	luaL_getmetatable(L, "ctext");
 	lua_setmetatable(L, -2);
 	return 1;
@@ -1639,8 +1642,28 @@ int CLuaInstance::ComponentsTextHide(lua_State *L)
 	tableLookup(L, "no_restore", tmp);
 	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
 
-	m->ct->hide(no_restore);
+	if (m->parent) {
+		m->ct->setText("", m->mode, g_Font[m->font_text]);
+		m->ct->paint();
+	} else
+		m->ct->hide(no_restore);
+	return 0;
+}
 
+int CLuaInstance::ComponentsTextSetText(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
+	std::string text = "";
+	int mode = m->mode;
+	int font_text = m->font_text;
+	tableLookup(L, "text", text);
+	tableLookup(L, "mode", mode);
+	tableLookup(L, "font_text", font_text);
+
+	m->ct->setText(text, mode, g_Font[font_text]);
 	return 0;
 }
 

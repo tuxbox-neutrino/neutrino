@@ -139,7 +139,8 @@ class CLuaComponentsText
 	public:
 		CComponentsText *ct;
 		CComponentsForm *parent;
-		CLuaComponentsText() { ct = NULL; parent = NULL;}
+		int mode, font_text;
+		CLuaComponentsText() { ct = NULL; parent = NULL; mode = 0; font_text = 0;}
 		~CLuaComponentsText() { if (parent == NULL) delete ct; }
 };
 
@@ -214,6 +215,7 @@ private:
 	static int ComponentsTextNew(lua_State *L);
 	static int ComponentsTextPaint(lua_State *L);
 	static int ComponentsTextHide(lua_State *L);
+	static int ComponentsTextSetText(lua_State *L);
 	static int ComponentsTextScroll(lua_State *L);
 	static int ComponentsTextDelete(lua_State *L);
 
