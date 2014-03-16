@@ -138,8 +138,9 @@ class CLuaComponentsText
 {
 	public:
 		CComponentsText *ct;
-		CLuaComponentsText() { ct = NULL; }
-		~CLuaComponentsText() { delete ct; }
+		CComponentsForm *parent;
+		CLuaComponentsText() { ct = NULL; parent = NULL;}
+		~CLuaComponentsText() { if (parent == NULL) delete ct; }
 };
 
 

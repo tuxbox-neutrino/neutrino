@@ -1553,6 +1553,7 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
 
+	CLuaCWindow* parent = NULL;
 	int x=10, y=10, dx=100, dy=100;
 	std::string text         = "";
 	std::string tmpMode      = "";
@@ -1564,6 +1565,7 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	lua_Integer color_shadow = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
 	std::string tmp1         = "false";
 
+	tableLookup(L, "parent"      , (void**)&parent);
 	tableLookup(L, "x"           , x);
 	tableLookup(L, "y"           , y);
 	tableLookup(L, "dx"          , dx);
@@ -1602,9 +1604,12 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 			htmlEntityDecode(text);
 	}
 
+	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
+
 	CLuaComponentsText **udata = (CLuaComponentsText **) lua_newuserdata(L, sizeof(CLuaComponentsText *));
 	*udata = new CLuaComponentsText();
-	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], NULL, has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	(*udata)->ct = new CComponentsText(x, y, dx, dy, text, mode, g_Font[font_text], pw, has_shadow, (fb_pixel_t)color_text, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
+	(*udata)->parent = pw;
 	luaL_getmetatable(L, "ctext");
 	lua_setmetatable(L, -2);
 	return 1;
@@ -1613,13 +1618,12 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 int CLuaInstance::ComponentsTextPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
 	std::string tmp = "true";
 	tableLookup(L, "do_save_bg", tmp);
 	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
-	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
-	if (!m)
-		return 0;
 
 	m->ct->paint(do_save_bg);
 	return 0;
@@ -1628,28 +1632,27 @@ int CLuaInstance::ComponentsTextPaint(lua_State *L)
 int CLuaInstance::ComponentsTextHide(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
 	std::string tmp = "false";
 	tableLookup(L, "no_restore", tmp);
 	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
 
-	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
-	if (!m)
-		return 0;
-
 	m->ct->hide(no_restore);
+
 	return 0;
 }
 
 int CLuaInstance::ComponentsTextScroll(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
+	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
+	if (!m) return 0;
+
 	std::string tmp = "true";
 	tableLookup(L, "dir", tmp);
 	bool scrollDown = (tmp == "down" || tmp == "1");
-
-	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
-	if (!m)
-		return 0;
 
 	//get the textbox instance from lua object and use CTexBbox scroll methods
 	CTextBox* ctb = m->ct->getCTextBoxObject();
