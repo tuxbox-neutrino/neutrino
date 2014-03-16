@@ -161,6 +161,8 @@ private:
 	lua_State* lua;
 	void registerFunctions();
 
+	static void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc);
+
 	static int NewWindow(lua_State *L);
 	static int PaintBox(lua_State *L);
 	static int PaintIcon(lua_State *L);

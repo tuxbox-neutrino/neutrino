@@ -307,6 +307,18 @@ CLuaInstance::~CLuaInstance()
 	}
 }
 
+void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc)
+{
+	lua_Debug ar;
+	lua_getstack(L, 1, &ar);
+	lua_getinfo(L, "Sl", &ar);
+	printf("[Lua Script] \33[1;31m%s\33[0m %s \33[33m%s\33[0m %s \33[1;33m%s\33[0m.\n                      (%s:%d)\n", 
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED1), 
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED2), oldFunc,
+					g_Locale->getText(LOCALE_LUA_FUNCTION_DEPRECATED3), newFunc,
+					ar.short_src, ar.currentline);
+}
+
 #define SET_VAR1(NAME) \
 	lua_pushinteger(lua, NAME); \
 	lua_setglobal(lua, #NAME);

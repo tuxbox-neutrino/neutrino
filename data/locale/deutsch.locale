@@ -741,6 +741,9 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
+lua.function_deprecated1 Achtung!
+lua.function_deprecated2 Die Funktion
+lua.function_deprecated3 ist veraltet,\n                      bitte nutzen Sie
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
