@@ -1432,11 +1432,12 @@ int CLuaInstance::CWindowGetFooterHeight(lua_State *L)
 
 int CLuaInstance::CWindowDelete(lua_State *L)
 {
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaCWindow *m = CWindowCheck(L, 1);
 	if (!m)
 		return 0;
 
-	m->w->kill();
+	m->w->hide();
 	delete m;
 	return 0;
 }
@@ -1653,11 +1654,12 @@ int CLuaInstance::ComponentsTextScroll(lua_State *L)
 
 int CLuaInstance::ComponentsTextDelete(lua_State *L)
 {
+	DBG("CLuaInstance::%s %d\n", __func__, lua_gettop(L));
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m)
 		return 0;
 
-	m->ct->kill();
+	m->ct->hide();
 	delete m;
 	return 0;
 }
