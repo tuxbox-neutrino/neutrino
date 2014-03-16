@@ -1319,8 +1319,10 @@ void CLuaInstance::CWindowRegister(lua_State *L)
 		{ "hide", CLuaInstance::CWindowHide },
 		{ "setCaption", CLuaInstance::CWindowSetCaption },
 		{ "paintHeader", CLuaInstance::CWindowPaintHeader },
-		{ "header_height", CLuaInstance::CWindowGetHeaderHeight },
-		{ "footer_height", CLuaInstance::CWindowGetFooterHeight },
+		{ "headerHeight", CLuaInstance::CWindowGetHeaderHeight },
+		{ "footerHeight", CLuaInstance::CWindowGetFooterHeight },
+		{ "header_height", CLuaInstance::CWindowGetHeaderHeight_dep }, /* function 'header_height' is deprecated */
+		{ "footer_height", CLuaInstance::CWindowGetFooterHeight_dep }, /* function 'footer_height' is deprecated */
 		{ "__gc", CLuaInstance::CWindowDelete },
 		{ NULL, NULL }
 	};
@@ -1453,6 +1455,20 @@ int CLuaInstance::CWindowPaintHeader(lua_State *L)
 		header->paint();
 
 	return 0;
+}
+
+// function 'header_height' is deprecated
+int CLuaInstance::CWindowGetHeaderHeight_dep(lua_State *L)
+{
+	functionDeprecated(L, "header_height", "headerHeight");
+	return CWindowGetHeaderHeight(L);
+}
+
+// function 'footer_height' is deprecated
+int CLuaInstance::CWindowGetFooterHeight_dep(lua_State *L)
+{
+	functionDeprecated(L, "footer_height", "footerHeight");
+	return CWindowGetFooterHeight(L);
 }
 
 int CLuaInstance::CWindowGetHeaderHeight(lua_State *L)

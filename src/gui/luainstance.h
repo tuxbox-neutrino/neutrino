@@ -215,6 +215,8 @@ private:
 	static int CWindowPaintHeader(lua_State *L);
 	static int CWindowGetHeaderHeight(lua_State *L);
 	static int CWindowGetFooterHeight(lua_State *L);
+	static int CWindowGetHeaderHeight_dep(lua_State *L); // function 'header_height' is deprecated
+	static int CWindowGetFooterHeight_dep(lua_State *L); // function 'footer_height' is deprecated
 	static int CWindowDelete(lua_State *L);
 
 	static CLuaSignalBox *SignalBoxCheck(lua_State *L, int n);
