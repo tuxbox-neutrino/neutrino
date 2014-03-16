@@ -64,6 +64,9 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
+	fr_thickness	= 2;
+	corner_rad	= RADIUS_SMALL;
+	corner_type	= CORNER_ALL;
 	initParent(parent);
 }
 
@@ -96,7 +99,8 @@ void CComponentsPIP::paint(bool do_save_bg)
 		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h);
 	}
 	else{ //paint an alternate image if no tv mode available
-		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, NULL, false, col_frame, col_frame);
+		pic.setCorner(corner_rad, corner_type);
 		pic.paint(CC_SAVE_SCREEN_NO);
 	}
 }

@@ -2258,6 +2258,7 @@ void CChannelList::paintPig (int _x, int _y, int w, int h)
 	}
 	//set changeable minitv properties
 	cc_minitv->setDimensionsAll(_x, _y, w, h);
+	cc_minitv->setCorner(0);
 	cc_minitv->setColorFrame(COL_MENUCONTENT_PLUS_0);
 	cc_minitv->paint(false);
 }
