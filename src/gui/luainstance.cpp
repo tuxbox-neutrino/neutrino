@@ -677,6 +677,18 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, int &value)
 	return res;
 }
 
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, void** value)
+{
+	bool res = false;
+	lua_pushstring(L, what);
+	lua_gettable(L, -2);
+	res = lua_isuserdata(L, -1);
+	if (res)
+		*value = lua_unboxpointer(L, -1);
+	lua_pop(L, 1);
+	return res;
+}
+
 bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAction, const std::string &luaId, void *Data)
 {
 	const char *optionValue = (const char *) Data;

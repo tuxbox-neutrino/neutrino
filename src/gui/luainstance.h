@@ -218,6 +218,7 @@ private:
 
 	static bool tableLookup(lua_State*, const char*, std::string&);
 	static bool tableLookup(lua_State*, const char*, int&);
+	static bool tableLookup(lua_State*, const char*, void**);
 };
 
 #endif /* _LUAINSTANCE_H */
