@@ -1316,6 +1316,8 @@ void CLuaInstance::CWindowRegister(lua_State *L)
 		{ "new", CLuaInstance::CWindowNew },
 		{ "paint", CLuaInstance::CWindowPaint },
 		{ "hide", CLuaInstance::CWindowHide },
+		{ "setCaption", CLuaInstance::CWindowSetCaption },
+		{ "paintHeader", CLuaInstance::CWindowPaintHeader },
 		{ "header_height", CLuaInstance::CWindowGetHeaderHeight },
 		{ "footer_height", CLuaInstance::CWindowGetFooterHeight },
 		{ "__gc", CLuaInstance::CWindowDelete },
@@ -1423,6 +1425,32 @@ int CLuaInstance::CWindowHide(lua_State *L)
 		return 0;
 
 	m->w->hide(no_restore);
+	return 0;
+}
+
+int CLuaInstance::CWindowSetCaption(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m) return 0;
+
+	std::string name = "";
+	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
+
+	m->w->setWindowCaption(name);
+	return 0;
+}
+
+int CLuaInstance::CWindowPaintHeader(lua_State *L)
+{
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m) return 0;
+
+	CComponentsHeader* header = m->w->getHeaderObject();
+	if (header)
+		m->w->showHeader();
+		header->paint();
+
 	return 0;
 }
 

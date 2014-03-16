@@ -202,6 +202,8 @@ private:
 	static CLuaCWindow *CWindowCheck(lua_State *L, int n);
 	static int CWindowPaint(lua_State *L);
 	static int CWindowHide(lua_State *L);
+	static int CWindowSetCaption(lua_State *L);
+	static int CWindowPaintHeader(lua_State *L);
 	static int CWindowGetHeaderHeight(lua_State *L);
 	static int CWindowGetFooterHeight(lua_State *L);
 	static int CWindowDelete(lua_State *L);
