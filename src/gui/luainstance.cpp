@@ -401,6 +401,7 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "DisplayImage", CLuaInstance::DisplayImage },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
+	{ "runScript", CLuaInstance::runScriptExt },
 	{ NULL, NULL }
 };
 
@@ -707,6 +708,27 @@ int CLuaInstance::GetLanguage(lua_State *L)
 	lua_pushstring(L, g_settings.language.c_str());
 
 	return 1;
+}
+
+int CLuaInstance::runScriptExt(lua_State *L)
+{
+	CLuaData *W = CheckData(L, 1);
+	if (!W) return 0;
+
+	int numargs = lua_gettop(L);
+	const char *script = luaL_checkstring(L, 2);
+	std::vector<std::string> args;
+	for (int i = 3; i <= numargs; i++) {
+		std::string arg = luaL_checkstring(L, i);
+		if (!arg.empty())
+			args.push_back(arg);
+	}
+
+	CLuaInstance *lua = new CLuaInstance();
+	lua->runScript(script, &args);
+	args.clear();
+	delete lua;
+	return 0;
 }
 
 bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &value)

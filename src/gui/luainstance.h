@@ -188,6 +188,7 @@ private:
 	static int GCWindow(lua_State *L);
 	static int Blit(lua_State *L);
 	static int GetLanguage(lua_State *L);
+	static int runScriptExt(lua_State *L);
 	static int GetSize(lua_State *L);
 	static int DisplayImage(lua_State *L);
 
