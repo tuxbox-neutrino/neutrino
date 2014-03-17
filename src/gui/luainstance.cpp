@@ -327,7 +327,7 @@ void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const c
 	lua_setglobal(lua, #NAME);
 
 /* Run the given script. */
-void CLuaInstance::runScript(const char *fileName)
+void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *argv, std::string *result_code, std::string *result_string, std::string *error_string)
 {
 	// luaL_dofile(lua, fileName);
 	/* run the script */
@@ -335,15 +335,58 @@ void CLuaInstance::runScript(const char *fileName)
 	if (status) {
 		fprintf(stderr, "[CLuaInstance::%s] Can't load file: %s\n", __func__, lua_tostring(lua, -1));
 		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+		if (error_string)
+			*error_string = std::string(lua_tostring(lua, -1));
 		return;
 	}
 	set_lua_variables(lua);
+	if (argv && (!argv->empty())) {
+		lua_createtable(lua, argv->size(), 0);
+		int n = 0;
+		for(std::vector<std::string>::iterator it = argv->begin(); it != argv->end(); ++it) {
+			lua_pushstring(lua, it->c_str());
+			lua_rawseti(lua, -2, n++);
+		}
+		lua_setglobal(lua, "arg");
+	}
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
+	if (result_code)
+		*result_code = to_string(status);
+	if (result_string && lua_isstring(lua, -1))
+		*result_string = std::string(lua_tostring(lua, -1));
 	if (status)
 	{
 		fprintf(stderr, "[CLuaInstance::%s] error in script: %s\n", __func__, lua_tostring(lua, -1));
 		ShowMsg2UTF("Lua script error:", lua_tostring(lua, -1), CMsgBox::mbrBack, CMsgBox::mbBack);
+		if (error_string)
+			*error_string = std::string(lua_tostring(lua, -1));
 	}
+}
+
+// Example: runScript(fileName, "Arg1", "Arg2", "Arg3", ..., NULL);
+//	Type of all parameters: const char*
+//	The last parameter to NULL is imperative.
+void CLuaInstance::runScript(const char *fileName, const char *arg0, ...)
+{
+	int i = 0;
+	std::vector<std::string> args;
+	args.push_back(arg0);
+	va_list list;
+	va_start(list, arg0);
+	const char* temp = va_arg(list, const char*);
+	while (temp != NULL) {
+		if (i >= 64) {
+			fprintf(stderr, "CLuaInstance::runScript: too many arguments!\n");
+			args.clear();
+			return;
+		}
+		args.push_back(temp);
+		temp = va_arg(list, const char*);
+		i++;
+	}
+	va_end(list);
+	runScript(fileName, &args);
+	args.clear();
 }
 
 const luaL_Reg CLuaInstance::methods[] =
