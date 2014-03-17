@@ -2284,12 +2284,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				else
 					ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
 			}
-			else if ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player)
-			{
-				StopSubtitles();
-				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
-				StartSubtitles();
-			}
 			else if( msg == CRCInput::RC_green)
 			{
 				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_GREEN_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)
@@ -2311,17 +2305,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				else
 					ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);
 			}
-			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
-			{
-				StopSubtitles();
-				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
-				StartSubtitles();
-			}
-			else if( msg == CRCInput::RC_yellow ) {       // NVODs
-				StopSubtitles();
-				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_YELLOW);
-				StartSubtitles();
-			}
 			else if( msg == CRCInput::RC_blue ) {
 				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)// Features Menu - Personalization Check
 				{
@@ -2331,6 +2314,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				}
 				else
 					ShowHint(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT), 450, 10);
+			}
+			else if ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player)
+			{
+				StopSubtitles();
+				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+				StartSubtitles();
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
 				//open mediaplayer menu in audio mode, user can select between audioplayer and internetradio
@@ -2369,7 +2358,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if (msg == CRCInput::RC_home) {
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				}
-				handleMsg(msg, data);
+				if (msg != CRCInput::RC_timeout)
+					handleMsg(msg, data);
 			}
 		}
 		else {
@@ -2381,7 +2371,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				}
 			}
 			else {
-				handleMsg(msg, data);
+				if (msg != CRCInput::RC_timeout)
+					handleMsg(msg, data);
 			}
 		}
 	}
