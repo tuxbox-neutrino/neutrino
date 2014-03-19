@@ -260,7 +260,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 	for (node=root->GetChild(); node; node=node->GetNext())
 	{
 		bool isdir;
-		std::string title, artist = "", album = "", id, children;
+		std::string title, artist = "", album = "", albumArtURI = "", id, children;
 		const char *type, *p;
 
 		if (!strcmp(node->GetType(), "container"))
@@ -291,7 +291,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 				p = "";
 			children=std::string(p);
 
-			UPnPEntry entry={id, isdir, title, artist, album, children, resources, -1};
+			UPnPEntry entry={id, isdir, title, artist, album, albumArtURI, children, resources, -1};
 			entries->push_back(entry);
 		}
 		if (!strcmp(node->GetType(), "item"))
@@ -329,6 +329,13 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 					if (!p)
 						p = "";
 					album=std::string(p);
+				}
+				else if (!strcmp(type,"albumArtURI"))
+				{
+					p=snode->GetData();
+					if (!p)
+						p = "";
+					albumArtURI=std::string(p);
 				}
 				else if (!strcmp(type,"res"))
 				{
@@ -416,8 +423,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 				p = "";
 			children=std::string(p);
 
-			UPnPEntry entry={id, isdir, title, artist, album, children, resources, preferred};
-
+			UPnPEntry entry={id, isdir, title, artist, album, albumArtURI, children, resources, preferred};
 			entries->push_back(entry);
 		}
 	}
@@ -1140,7 +1146,6 @@ void CUpnpBrowserGui::paintDetails(std::vector<UPnPEntry> *entry, unsigned int i
 	// Foot info
 	int top = m_y + (m_height - m_info_height - 1 * m_buttonHeight) + 2;
 	int text_start = m_x + 10;
-
 printf("paintDetails: index %d use_playing %d shown %d\n", index, use_playing, m_playing_entry_is_shown);
 	if ((!use_playing) && ((*entry)[index].isdir))
 	{
