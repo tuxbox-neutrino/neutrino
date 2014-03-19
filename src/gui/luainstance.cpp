@@ -339,16 +339,24 @@ void CLuaInstance::runScript(const char *fileName, std::vector<std::string> *arg
 			*error_string = std::string(lua_tostring(lua, -1));
 		return;
 	}
+	int argvSize = 1;
+	int n = 0;
 	set_lua_variables(lua);
+	if (argv && (!argv->empty()))
+		argvSize += argv->size();
+	lua_createtable(lua, argvSize, 0);
+
+	// arg0 is scriptname
+	lua_pushstring(lua, fileName);
+	lua_rawseti(lua, -2, n++);
+
 	if (argv && (!argv->empty())) {
-		lua_createtable(lua, argv->size(), 0);
-		int n = 0;
 		for(std::vector<std::string>::iterator it = argv->begin(); it != argv->end(); ++it) {
 			lua_pushstring(lua, it->c_str());
 			lua_rawseti(lua, -2, n++);
 		}
-		lua_setglobal(lua, "arg");
 	}
+	lua_setglobal(lua, "arg");
 	status = lua_pcall(lua, 0, LUA_MULTRET, 0);
 	if (result_code)
 		*result_code = to_string(status);
