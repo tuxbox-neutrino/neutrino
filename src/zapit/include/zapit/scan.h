@@ -144,6 +144,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool isFtaOnly() { return flags & SCAN_FTA; }
 		int GetFlags() { return flags; }
 		bool SatHaveChannels() { return satHaveChannels; }
+		bool TestDiseqcConfig(int num);
 };
 
 #endif /* __scan_h__ */

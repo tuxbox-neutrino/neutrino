@@ -38,9 +38,16 @@
 //#define SCAN_DEBUG
 
 fast_scan_operator_t fast_scan_operators [OPERATOR_MAX] = {
-	{ CD_OPERATOR_ID, 900, 901, (char *) "CanalDigitaal" },
-	{ TVV_OPERATOR_ID, 910, 911, (char *) "TV Vlaanderen" },
-	{ TELESAT_OPERATOR_ID, 920, 921 , (char *) "TéléSAT" }
+	{ CD_OPERATOR_ID, 900, (char *) "CanalDigitaal (SD)" },
+	{ CD_OPERATOR_ID, 901, (char *) "CanalDigitaal (HD)" },
+	{ TVV_OPERATOR_ID, 910, (char *) "TV Vlaanderen (SD)" },
+	{ TVV_OPERATOR_ID, 911, (char *) "TV Vlaanderen (HD)" },
+	{ TELESAT_OPERATOR_ID, 920, (char *) "TéléSAT Belgique" },
+	{ TELESAT_OPERATOR_ID, 921, (char *) "TéléSAT Luxembourg" },
+	{ HDAUSTRIA_OPERATOR_ID, 950, (char *) "HD Austria" },
+	{ SKYLINK_OPERATOR_ID, 30, (char *) "Skylink Czech Republic" },
+	{ SKYLINK_OPERATOR_ID, 31, (char *) "Skylink Slovak Republic" },
+	{ HELLO_OPERATOR_ID, 951, (char *) "Hello" }
 };
 
 extern CBouquetManager *g_bouquetManager;
@@ -48,22 +55,87 @@ extern CBouquetManager* scanBouquetManager;
 extern CZapitClient::bouquetMode bouquetMode;
 extern transponder_list_t transponders; //  defined in zapit.cpp
 
+typedef struct diseq_test_param {
+	int position;
+	int frequency;
+	int symbol_rate;
+	fe_code_rate_t fec_inner;
+	int polarization;
+} diseq_test_param_t;
+
+diseq_test_param_t diseqc_test[] = {
+	// { 192, 12515000, 22000000, FEC_5_6, 0 }, // test TP
+	{ 192, 12552000, 22000000, FEC_5_6, 1 },
+	{ 235, 12168000, 27500000, FEC_3_4, 1 },
+	{ 282, 11778000, 27500000, FEC_2_3, 1 }, // FIXME: no such TP on lyngsat ??
+	{ 130, 11681000, 27500000, FEC_S2_8PSK_3_4, 0 },
+	{ 90,  12074000, 27500000, FEC_S2_8PSK_3_4, 1 },
+};
+#define diseqc_test_count (sizeof(diseqc_test)/sizeof(diseq_test_param_t))
+
+bool CServiceScan::TestDiseqcConfig(int num)
+{
+	if(num >= OPERATOR_MAX) {
+		printf("[fast scan] invalid operator %d\n", num);
+		return false;
+	}
+	fast_scan_operator_t *op = &fast_scan_operators[num];
+	printf("[fast scan] testing diseqc config for operator %d [%s], pid 0x%x\n", op->id, op->name, op->pid);
+	InitFastscanLnb(op->id);
+
+	std::set<int> scanned;
+	satellite_map_t &satmap = frontend->getSatellites();
+	for (int diseqc = 0; diseqc < 4; diseqc++) {
+		for (unsigned i = 0; i < diseqc_test_count; i++) {
+			if ((op->id == HELLO_OPERATOR_ID) && (diseqc_test[i].position == 282))
+				continue;
+			if ((op->id != HELLO_OPERATOR_ID) && (diseqc_test[i].position == 90))
+				continue;
+
+			std::set<int>::iterator it = scanned.find(diseqc_test[i].position);
+			if (it != scanned.end())
+				continue;
+
+			FrontendParameters feparams;
+			feparams.dvb_feparams.frequency = diseqc_test[i].frequency;
+			feparams.dvb_feparams.u.qpsk.symbol_rate = diseqc_test[i].symbol_rate;
+			feparams.dvb_feparams.u.qpsk.fec_inner = diseqc_test[i].fec_inner;
+
+			int old_diseqc = satmap[diseqc_test[i].position].diseqc;
+			satmap[diseqc_test[i].position].diseqc = diseqc;
+
+			if (tuneFrequency(&feparams, diseqc_test[i].polarization, diseqc_test[i].position)) {
+				scanned.insert(diseqc_test[i].position);
+				break;
+			}
+			satmap[diseqc_test[i].position].diseqc = old_diseqc;
+		}
+	}
+	return true;
+}
+
 void CServiceScan::InitFastscanLnb(int id)
 {
 	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
 	CServiceManager::getInstance()->InitSatPosition(235, NULL, true);
-	CServiceManager::getInstance()->InitSatPosition(282, NULL, true);
 	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
+	if (id == HELLO_OPERATOR_ID)
+		CServiceManager::getInstance()->InitSatPosition(90, NULL, true);
+	else
+		CServiceManager::getInstance()->InitSatPosition(282, NULL, true);
+
 	satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
 
 	frontend = CFEManager::getInstance()->getFE(0);
 	//frontend->setSatellites(satmap);
 	//satmap = frontend->getSatellites();
-
+#if 0
 	switch(id) {
 		default:
 		case CD_OPERATOR_ID:
 		case TVV_OPERATOR_ID:
+		case SKYLINK_OPERATOR_ID:
+		case HDAUSTRIA_OPERATOR_ID:
 			satmap[192].diseqc = 0;
 			satmap[235].diseqc = 1;
 			satmap[282].diseqc = 2;
@@ -75,11 +147,22 @@ void CServiceScan::InitFastscanLnb(int id)
 			satmap[235].diseqc = 2;
 			satmap[282].diseqc = 3;
 			break;
+		case HELLO_OPERATOR_ID:
+			satmap[90].diseqc = 0;
+			satmap[130].diseqc = 1;
+			satmap[192].diseqc = 2;
+			satmap[235].diseqc = 3;
+			break;
 	}
+#endif
 	satmap[130].configured = 1;
 	satmap[192].configured = 1;
 	satmap[235].configured = 1;
-	satmap[282].configured = 1;
+	if (id == HELLO_OPERATOR_ID)
+		satmap[90].configured = 1;
+	else
+		satmap[282].configured = 1;
+
 	frontend->setSatellites(satmap);
 	frontend->setDiseqcType(DISEQC_1_0);
 	CFEManager::getInstance()->saveSettings();
@@ -89,38 +172,53 @@ void CServiceScan::InitFastscanLnb(int id)
 bool CServiceScan::ScanFast()
 {
 	fast_scan_type_t * fast_type = (fast_scan_type_t *) scan_arg;
-	fast_scan_operator_t * op;
-	fs_operator_t num = fast_type->op;
-	int type = fast_type->type;
+	fast_scan_operator_t *op;
+	//int type = fast_type->type;
 	uint8_t polarization;
 	FrontendParameters feparams;
-	int res;
+	bool res;
 
+	fs_operator_t num = fast_type->op;
 	if(num >= OPERATOR_MAX) {
 		printf("[fast scan] invalid operator %d\n", num);
 		goto _err;
 	}
+	op = &fast_scan_operators[num];
+
 	found_transponders = 0;
 	found_channels = 0;
 	found_tv_chans = 0;
 	found_data_chans = 0;
 	found_radio_chans = 0;
 
-	op = &fast_scan_operators[num];
 
-	printf("[fast scan] scaning operator %d for %s channels\n", op->id, type == FAST_SCAN_SD ? "SD" : type == FAST_SCAN_HD ? "HD" : "All");
+	//printf("[fast scan] scaning operator %d for %s channels\n", op->id, type == FAST_SCAN_SD ? "SD" : type == FAST_SCAN_HD ? "HD" : "All");
+	printf("[fast scan] scaning operator %d [%s], pid 0x%x\n", op->id, op->name, op->pid);
 
-	feparams.dvb_feparams.frequency = 12515000;
-	feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
-	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
+	feparams.dvb_feparams.frequency = 12070000;
+	feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
+	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
 	polarization = 0;
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
 
 	InitFastscanLnb(op->id);
-	if(!tuneFrequency(&feparams, polarization, 192)) {
-		printf("[fast scan] tune failed\n");
-		goto _err;
+	if(!tuneFrequency(&feparams, polarization, 235)) {
+		printf("[fast scan] tune failed, try backup\n");
+		if (op->id == HELLO_OPERATOR_ID) {
+			feparams.dvb_feparams.frequency = 12074000;
+			feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
+			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
+			polarization = 1;
+			res = tuneFrequency(&feparams, polarization, 192);
+		} else {
+			feparams.dvb_feparams.frequency = 12515000;
+			feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
+			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
+			res = tuneFrequency(&feparams, polarization, 192);
+		}
+		if (!res)
+			goto _err;
 	}
 
 	scanBouquetManager = new CBouquetManager();
@@ -129,6 +227,7 @@ bool CServiceScan::ScanFast()
 	fast_services_freq.clear();
 	fast_services_number.clear();
 
+#if 0
 	if(type & FAST_SCAN_SD) {
 		res = ParseFnt(op->sd_pid, op->id);
 		if(res == 0)
@@ -143,6 +242,11 @@ bool CServiceScan::ScanFast()
 
 		printf("[fast scan] pid %d (HD) scan done, found %d transponders and %d services\n", op->hd_pid, found_transponders, found_channels);
 	}
+#endif
+	res = ParseFnt(op->pid, op->id);
+	if(res == 0)
+		ParseFst(op->pid, op);
+
 	//FIXME move to Cleanup() ?
 	if(found_channels) {
 		CZapitClient myZapitClient;

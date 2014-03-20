@@ -23,15 +23,25 @@
 #define _FASTSCAN_H_
 
 typedef enum fs_operator {
-	OPERATOR_CD,
-	OPERATOR_TVV,
-	OPERATOR_TELESAT,
+	OPERATOR_CD_SD,
+	OPERATOR_CD_HD,
+	OPERATOR_TVV_SD,
+	OPERATOR_TVV_HD,
+	OPERATOR_TELESAT_B,
+	OPERATOR_TELESAT_L,
+	OPERATOR_HD_AUSTRIA,
+	OPERATOR_SKYLINK_C,
+	OPERATOR_SKYLINK_S,
+	OPERATOR_HELLO,
 	OPERATOR_MAX
 } fs_operator_t;
 
 #define CD_OPERATOR_ID		(106)
 #define TVV_OPERATOR_ID		(108)
 #define TELESAT_OPERATOR_ID	(109)
+#define HDAUSTRIA_OPERATOR_ID	(100)
+#define SKYLINK_OPERATOR_ID	(200)
+#define HELLO_OPERATOR_ID	(300)
 
 #define FAST_SCAN_SD 1
 #define FAST_SCAN_HD 2
@@ -39,8 +49,7 @@ typedef enum fs_operator {
 
 typedef struct fast_scan_operator {
 	int id;
-	unsigned short sd_pid;
-	unsigned short hd_pid;
+	unsigned short pid;
 	char * name;
 } fast_scan_operator_t;
 
