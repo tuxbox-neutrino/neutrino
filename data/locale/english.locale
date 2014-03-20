@@ -1753,12 +1753,21 @@ satsetup.diseqcrepeat DiSEqC-repeats
 satsetup.extended DiSEqC-Settings
 satsetup.extended_motor Motor-Settings
 satsetup.fastscan_all SD and HD
+satsetup.fastscan_auto_diseqc Start auto-diseqc configuration
+satsetup.fastscan_auto_diseqc_wait Auto-diseqc configuration in progress
 satsetup.fastscan_hd HD only
 satsetup.fastscan_head Fast scan (Astra 1, 19.2E, 12.515Mhz)
 satsetup.fastscan_prov Provider
-satsetup.fastscan_prov_cd CanalDigitaal
-satsetup.fastscan_prov_telesat TéléSAT
-satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
+satsetup.fastscan_prov_cd_sd CanalDigitaal (SD)
+satsetup.fastscan_prov_hda HD Austria
+satsetup.fastscan_prov_hello Hello
+satsetup.fastscan_prov_skylink_c Skylink Czech
+satsetup.fastscan_prov_skylink_s Skylink Slovak
+satsetup.fastscan_prov_telesat_b TéléSAT Belgium
+satsetup.fastscan_prov_telesat_l TéléSAT Luxemburg
+satsetup.fastscan_prov_tvv_hd TV Vlaanderen (HD)
+satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
 satsetup.fe_mode Tuner mode
