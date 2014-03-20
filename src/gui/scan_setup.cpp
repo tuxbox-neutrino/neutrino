@@ -307,6 +307,10 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			return menu_return::RETURN_EXIT_ALL;
 		return res;
 	}
+	if (actionKey == "fastdiseqc") {
+		printf("[neutrino] CScanSetup::%s: showFastscanDiseqcSetup()\n", __FUNCTION__);
+		return showFastscanDiseqcSetup();
+	}
 	std::string scants_key[] = {"all", "manual", "test", "fast", "auto"/*doesn't exists in CScanTs!*/};
 
 	if (actionKey.size() > 1) {
@@ -1204,6 +1208,7 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 }
 
 #ifdef ENABLE_FASTSCAN
+#if 0
 #define FAST_SCAN_OPTIONS_COUNT 2
 const CMenuOptionChooser::keyval FAST_SCAN_OPTIONS[FAST_SCAN_OPTIONS_COUNT] =
 {
@@ -1211,14 +1216,22 @@ const CMenuOptionChooser::keyval FAST_SCAN_OPTIONS[FAST_SCAN_OPTIONS_COUNT] =
 	{ FAST_SCAN_HD, LOCALE_SATSETUP_FASTSCAN_HD  }
 	/*{ FAST_SCAN_ALL, LOCALE_SATSETUP_FASTSCAN_ALL  }*/
 };
+#endif
 
-#define FAST_SCAN_PROV_OPTIONS_COUNT 3
-const CMenuOptionChooser::keyval FAST_SCAN_PROV_OPTIONS[FAST_SCAN_PROV_OPTIONS_COUNT] =
+const CMenuOptionChooser::keyval FAST_SCAN_PROV_OPTIONS[] =
 {
-	{ OPERATOR_CD, LOCALE_SATSETUP_FASTSCAN_PROV_CD },
-	{ OPERATOR_TVV, LOCALE_SATSETUP_FASTSCAN_PROV_TVV  },
-	{ OPERATOR_TELESAT, LOCALE_SATSETUP_FASTSCAN_PROV_TELESAT  }
+	{ OPERATOR_CD_SD, LOCALE_SATSETUP_FASTSCAN_PROV_CD_SD },
+	{ OPERATOR_CD_HD, LOCALE_SATSETUP_FASTSCAN_PROV_CD_HD },
+	{ OPERATOR_TVV_SD, LOCALE_SATSETUP_FASTSCAN_PROV_TVV_SD },
+	{ OPERATOR_TVV_HD, LOCALE_SATSETUP_FASTSCAN_PROV_TVV_HD },
+	{ OPERATOR_TELESAT_B, LOCALE_SATSETUP_FASTSCAN_PROV_TELESAT_B },
+	{ OPERATOR_TELESAT_L, LOCALE_SATSETUP_FASTSCAN_PROV_TELESAT_L },
+	{ OPERATOR_HD_AUSTRIA, LOCALE_SATSETUP_FASTSCAN_PROV_HDA },
+	{ OPERATOR_SKYLINK_C, LOCALE_SATSETUP_FASTSCAN_PROV_SKYLINK_C },
+	{ OPERATOR_SKYLINK_S, LOCALE_SATSETUP_FASTSCAN_PROV_SKYLINK_S },
+	{ OPERATOR_HELLO, LOCALE_SATSETUP_FASTSCAN_PROV_HELLO }
 };
+#define FAST_SCAN_PROV_OPTIONS_COUNT (sizeof(FAST_SCAN_PROV_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 //init fast scan menu
 void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
@@ -1228,17 +1241,54 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 
 	CMenuOptionChooser* fastProv = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_PROV, (int *)&scansettings.fast_op, FAST_SCAN_PROV_OPTIONS, FAST_SCAN_PROV_OPTIONS_COUNT, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 	fastProv->setHint("", LOCALE_MENU_HINT_SCAN_FASTPROV);
+	fast_ScanMenu->addItem(fastProv);
+#if 0
 	CMenuOptionChooser* fastType = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_TYPE, (int *)&scansettings.fast_type, FAST_SCAN_OPTIONS, FAST_SCAN_OPTIONS_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
 	fastType->setHint("", LOCALE_MENU_HINT_SCAN_FASTTYPE);
-
-	//----------------------------------------------------------------------
-	fast_ScanMenu->addItem(fastProv);
 	fast_ScanMenu->addItem(fastType);
-	//----------------------------------------------------------------------
+#endif
 	fast_ScanMenu->addItem(GenericMenuSeparatorLine);
+#if 0
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	fast_ScanMenu->addItem(mf);
+#endif
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC, allow_start, NULL, this, "fastdiseqc", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+	fast_ScanMenu->addItem(mf);
+}
+
+int CScanSetup::showFastscanDiseqcSetup()
+{
+	CHintBox * hintbox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC_WAIT));
+	hintbox->paint();
+
+	CServiceScan::getInstance()->TestDiseqcConfig(scansettings.fast_op);
+	delete hintbox;
+
+	CMenuWidget * sat_setup = new CMenuWidget(LOCALE_SATSETUP_DISEQC_INPUT, NEUTRINO_ICON_SETTINGS, width);
+	sat_setup->addIntroItems();
+
+	CFrontend * fe = CFEManager::getInstance()->getFE(0);
+	satellite_map_t & satmap = fe->getSatellites();
+	INFO("satmap size = %d", (int)satmap.size());
+	for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); ++sit)
+	{
+		if(!sit->second.configured)
+			continue;
+
+		std::string satname = CServiceManager::getInstance()->GetSatelliteName(sit->first);
+		CMenuOptionNumberChooser *diseqc = new CMenuOptionNumberChooser(satname, &sit->second.diseqc, true, -1, 15, this, 1, -1, LOCALE_OPTIONS_OFF);
+		sat_setup->addItem(diseqc);
+	}
+	sat_setup->addItem(GenericMenuSeparatorLine);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+	sat_setup->addItem(mf);
+
+	int res = sat_setup->exec(NULL, "");
+	delete sat_setup;
+	return res;
 }
 #endif /*ENABLE_FASTSCAN*/
 
