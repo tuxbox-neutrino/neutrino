@@ -169,6 +169,18 @@ void CServiceScan::InitFastscanLnb(int id)
 	SetFrontend(192);
 }
 
+void CServiceScan::ReportFastScan(FrontendParameters &feparams, uint8_t polarization, t_satellite_position satellitePosition)
+{
+	std::string satname = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
+	uint32_t actual_polarisation = ((feparams.dvb_feparams.u.qpsk.symbol_rate/1000) << 16)
+		| (feparams.dvb_feparams.u.qpsk.fec_inner << 8) | (uint)polarization;
+	uint32_t actual_freq = feparams.dvb_feparams.frequency;
+
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, satname.c_str(), satname.size() + 1);
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
+}
+
 bool CServiceScan::ScanFast()
 {
 	fast_scan_type_t * fast_type = (fast_scan_type_t *) scan_arg;
@@ -191,7 +203,6 @@ bool CServiceScan::ScanFast()
 	found_data_chans = 0;
 	found_radio_chans = 0;
 
-
 	//printf("[fast scan] scaning operator %d for %s channels\n", op->id, type == FAST_SCAN_SD ? "SD" : type == FAST_SCAN_HD ? "HD" : "All");
 	printf("[fast scan] scaning operator %d [%s], pid 0x%x\n", op->id, op->name, op->pid);
 
@@ -200,8 +211,7 @@ bool CServiceScan::ScanFast()
 	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
 	polarization = 0;
 
-	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
-
+	ReportFastScan(feparams, polarization, 235);
 	InitFastscanLnb(op->id);
 	if(!tuneFrequency(&feparams, polarization, 235)) {
 		printf("[fast scan] tune failed, try backup\n");
@@ -210,16 +220,19 @@ bool CServiceScan::ScanFast()
 			feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
 			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
 			polarization = 1;
-			res = tuneFrequency(&feparams, polarization, 192);
+			ReportFastScan(feparams, polarization, 90);
+			res = tuneFrequency(&feparams, polarization, 90);
 		} else {
 			feparams.dvb_feparams.frequency = 12515000;
 			feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
 			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
+			ReportFastScan(feparams, polarization, 192);
 			res = tuneFrequency(&feparams, polarization, 192);
 		}
 		if (!res)
 			goto _err;
 	}
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
 
 	scanBouquetManager = new CBouquetManager();
 
@@ -609,11 +622,11 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 								transponders.insert(transponder_pair_t(TsidOnid, t));
 							}
 							found_transponders++;
-							//CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
-							//		&found_transponders, sizeof(found_transponders));
+#if 0
 							uint32_t  actual_freq = freq;
 							CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY,
 									&actual_freq, sizeof(actual_freq));
+#endif
 							//satellite_delivery_system_descriptor(buffer + pos2, transport_stream_id, original_network_id, satellitePosition, freq);
 						}
 						break;
