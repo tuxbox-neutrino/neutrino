@@ -119,6 +119,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 #ifdef ENABLE_FASTSCAN
 		int showFastscanDiseqcSetup();
 #endif
+		void setDiseqcOptions(int number);
 
 		void saveScanSetup();
 

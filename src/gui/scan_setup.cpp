@@ -672,6 +672,38 @@ static std::string rotationSpeed2str(int i)
 	return to_string(i/10) + g_Locale->getText(LOCALE_UNIT_DECIMAL) + to_string(i%10) + "°/" + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND);
 }
 
+static struct CMenuOptionChooser::keyval_ext twin_doptions[2];
+void CScanSetup::setDiseqcOptions(int number)
+{
+	CFrontend * fe = CFEManager::getInstance()->getFE(number);
+
+	int mode = fe->getMode();
+	if (CFrontend::linked(femode)) {
+		printf("CScanSetup::setDiseqcOptions: set options for linked\n");
+		CFrontend * mfe = CFEManager::getInstance()->getFE(femaster);
+		frontend_config_t & mfe_config = mfe->getConfig();
+
+		int count = 1;
+		twin_doptions[0].key = mfe_config.diseqcType;
+		twin_doptions[0].value = (mfe_config.diseqcType == NO_DISEQC ? LOCALE_SATSETUP_NODISEQC :
+			mfe_config.diseqcType == MINI_DISEQC ? LOCALE_SATSETUP_MINIDISEQC :
+			mfe_config.diseqcType == DISEQC_1_0 ? LOCALE_SATSETUP_DISEQC10 :
+			mfe_config.diseqcType == DISEQC_1_1 ? LOCALE_SATSETUP_DISEQC11 :
+			mfe_config.diseqcType == DISEQC_ADVANCED ? LOCALE_SATSETUP_DISEQC_ADVANCED :
+			LOCALE_SATSETUP_UNICABLE);
+
+		if (mode == CFrontend::FE_MODE_LINK_TWIN && mfe_config.diseqcType != DISEQC_UNICABLE) {
+			count++;
+			twin_doptions[1].key = DISEQC_UNICABLE;
+			twin_doptions[1].value = LOCALE_SATSETUP_UNICABLE;
+		}
+		dtype->setOptions(twin_doptions, count);
+	} else if( mode != CFrontend::FE_MODE_UNUSED) {
+		printf("CScanSetup::setDiseqcOptions: set default options\n");
+		dtype->setOptions(SATSETUP_DISEQC_OPTIONS, SATSETUP_DISEQC_OPTION_COUNT);
+	}
+}
+
 int CScanSetup::showFrontendSetup(int number)
 {
 	int shortcut = 1;
@@ -767,6 +799,9 @@ int CScanSetup::showFrontendSetup(int number)
 				this, CRCInput::convertDigitToKey(shortcut++), "", true);
 		dtype->setHint("", LOCALE_MENU_HINT_SCAN_DISEQCTYPE);
 		setupMenu->addItem(dtype);
+
+		if (fecount > 1)
+			setDiseqcOptions(fenumber);
 
 		/* diseqc repeats */
 		ojDiseqcRepeats = new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQCREPEAT, (int *)&fe_config.diseqcRepeats, allow_moptions && (dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED), 0, 2, NULL);
@@ -1523,7 +1558,6 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		bool enable = (dmode < DISEQC_ADVANCED) && (dmode != NO_DISEQC);
 		ojDiseqcRepeats->setActive(enable && !CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED);
 		dorder->setActive(!CFrontend::linked(femode) && femode != CFrontend::FE_MODE_UNUSED && dmode == DISEQC_ADVANCED);
-
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE)) {
 		printf("[neutrino] CScanSetup::%s: fe%d mode %d master %d\n", __FUNCTION__, fenumber, femode, femaster);
@@ -1552,6 +1586,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			if (femaster >= 0)
 				fe->setMaster(femaster);
 		}
+		setDiseqcOptions(fenumber);
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE_MASTER)) {
 		printf("[neutrino] CScanSetup::%s: fe%d link %d \n", __FUNCTION__, fenumber, femaster);
@@ -1559,6 +1594,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		if (fe)
 			fe->setMaster(femaster);
+		setDiseqcOptions(fenumber);
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_CABLESETUP_PROVIDER)) {
 		printf("[neutrino] CScanSetup::%s: new provider: [%s]\n", __FUNCTION__, scansettings.cableName.c_str());
