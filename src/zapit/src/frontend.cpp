@@ -36,6 +36,7 @@
 #include <zapit/client/msgtypes.h>
 #include <zapit/frontend_c.h>
 #include <zapit/satconfig.h>
+#include <driver/abstime.h>
 
 extern transponder_list_t transponders;
 extern int zapit_debug;
@@ -128,20 +129,18 @@ static const struct dtv_property dvbt_cmdargs[] = {
 #define diff(x,y)	(max(x,y) - min(x,y))
 
 #define FE_TIMER_INIT()					\
+	unsigned int timer_start;			\
 	static unsigned int tmin = 2000, tmax = 0;	\
-	struct timeval tv, tv2;				\
 	unsigned int timer_msec = 0;
 
 #define FE_TIMER_START()				\
-	gettimeofday(&tv, NULL);
+	timer_start = time_monotonic_ms();
 
 #define FE_TIMER_STOP(label)				\
-	gettimeofday(&tv2, NULL);			\
-	timer_msec = ((tv2.tv_sec-tv.tv_sec) * 1000) +	\
-		     ((tv2.tv_usec-tv.tv_usec) / 1000); \
+	timer_msec = time_monotonic_ms() - timer_start; \
 	if(tmin > timer_msec) tmin = timer_msec;	\
 	if(tmax < timer_msec) tmax = timer_msec;	\
-	 printf("[fe%d] %s: %u msec (min %u max %u)\n",	\
+	printf("[fe%d] %s: %u msec (min %u max %u)\n",	\
 		 fenumber, label, timer_msec, tmin, tmax);
 
 // Internal Inner FEC representation
