@@ -168,7 +168,7 @@ void CComponentsWindow::initHeader()
 		ccw_head->setPos(0, 0);
 		ccw_head->setIcon(ccw_icon_name);
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
-		ccw_head->setDefaultButtons(ccw_buttons);
+		ccw_head->setContextButton(ccw_buttons);
 		ccw_head->setCorner(corner_rad, CORNER_TOP);
 	}
 }

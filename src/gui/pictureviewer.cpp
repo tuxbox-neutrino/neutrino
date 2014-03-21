@@ -709,7 +709,7 @@ void CPictureViewerGui::paintHead()
 	CComponentsHeaderLocalized header(x, y, width, theight, LOCALE_PICTUREVIEWER_HEAD, NEUTRINO_ICON_MP3, CComponentsHeaderLocalized::CC_BTN_HELP);
 
 #ifdef ENABLE_GUI_MOUNT
-	header.addButtonIcon(NEUTRINO_ICON_BUTTON_MENU);
+	header.setContextButton(NEUTRINO_ICON_BUTTON_MENU);
 #endif
 
 	header.paint(CC_SAVE_SCREEN_NO);

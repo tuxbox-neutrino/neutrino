@@ -196,10 +196,11 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 			delete v_cc_items[cc_item_id];
 			v_cc_items[cc_item_id] = NULL;
 			v_cc_items.erase(v_cc_items.begin()+cc_item_id);
+			dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s removing cc_Item [id=%u]...\n", __func__, cc_item_id);
 		}
 	}
 	else
-		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __func__);
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s removing of cc_Item [id=%u] not possible, v_cc_items is empty...\n", __func__, cc_item_id);
 }
 
 void CComponentsForm::removeCCItem(CComponentsItem* cc_Item)

@@ -65,52 +65,52 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 
-	ccif_offset 	= 2;
-	ccif_icon_align = CC_ICONS_FRM_ALIGN_LEFT;
+	chn_direction	= CC_DIR_X;
+
+	append_y_offset = 2;
+
+	initChainItems();
 	initParent(parent);
 }
 
 void CComponentsIconForm::addIcon(const std::string& icon_name)
 {
-	v_icons.push_back(icon_name);
+	//create new cc-picture item object
+	CComponentsPicture *ccp = new CComponentsPicture(0, 0, 0, 0, icon_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
+	ccp->doPaintBg(false);
+
+	initChainItems();
 }
 
 void CComponentsIconForm::addIcon(std::vector<std::string> icon_name)
 {
 	for (size_t i= 0; i< icon_name.size(); i++)
-		v_icons.push_back(icon_name[i]);
+		addIcon(icon_name[i]);
 }
 
 void CComponentsIconForm::insertIcon(const uint& icon_id, const std::string& icon_name)
 {
-	v_icons.insert(v_icons.begin()+icon_id, icon_name);
+	//create new cc-picture item object
+	CComponentsPicture *ccp = new CComponentsPicture(0, 0, 0, 0, icon_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+	ccp->doPaintBg(false);
+
+	insertCCItem(icon_id, ccp);
+	initChainItems();
 }
 
 void CComponentsIconForm::removeIcon(const uint& icon_id)
 {
-	v_icons.erase(v_icons.begin()+icon_id);
-}
-
-void CComponentsIconForm::removeIcon(const std::string& icon_name)
-{
-	int id = getIconId(icon_name);
-	removeIcon(id);
-}
-
-int CComponentsIconForm::getIconId(const std::string& icon_name)
-{
-	for (size_t i= 0; i< v_icons.size(); i++)
-		if (v_icons[i] == icon_name)
-			return i;
-	return -1;
+	removeCCItem(icon_id);
+	initChainItems();
 }
 
 //For existing instances it's recommended
 //to remove old items before add new icons, otherwise icons will be appended.
-void CComponentsIconForm::removeAllIcons()
+void CComponentsIconForm::removeAllIcons()//TODO
 {
 	clear();
 	v_icons.clear();
+	initChainItems();
 }
 
 //get maximal form height depends of biggest icon height, but don't touch defined form height
@@ -123,72 +123,3 @@ void CComponentsIconForm::initMaxHeight(int *pheight)
 	}
 }
 
-void CComponentsIconForm::initCCIcons()
-{
-	int ccp_y = 0;
-	int ccp_h = 0;
-	int ccp_w = 0;
-	//calculate start pos of first icon
-	int ccp_x = 0 + fr_thickness; //CC_ICONS_FRM_ALIGN_LEFT;
-	
-	if (ccif_icon_align == CC_ICONS_FRM_ALIGN_RIGHT)
-		ccp_x += (width - fr_thickness);
-	
-	//get width of first icon
-	frameBuffer->getIconSize(v_icons[0].c_str(), &ccp_w, &ccp_h);
-		
-	//get maximal form height
- 	int h = 0;
-	initMaxHeight(&h);
-
-	//set xpos of first icon with right alignment, icon must positionized on the right border reduced with icon width
-	if (ccif_icon_align == CC_ICONS_FRM_ALIGN_RIGHT)
-		ccp_x -= ccp_w;
-
-	//init and add item objects
-	size_t i_cnt = 	v_icons.size();	//icon count
-	
-	for (size_t i= 0; i< i_cnt; i++){
-		//create new cc-picture item object
-		CComponentsPicture *ccp = new CComponentsPicture(ccp_x, ccp_y, ccp_w, h, v_icons[i]);
-		ccp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
- 		ccp->doPaintBg(false);
-		//add item to form
-		addCCItem(ccp);
-
-		//reset current width for next object
-		ccp_w = 0;
-		//get next icon size if available
- 		size_t next_i = i+1;
-		if (next_i != i_cnt)
-			frameBuffer->getIconSize(v_icons[next_i].c_str(), &ccp_w, &ccp_h);
-
-		//set next icon position
-		int tmp_offset = ( i<i_cnt ? ccif_offset : 0 );
-
-		if (ccif_icon_align == CC_ICONS_FRM_ALIGN_LEFT)
-			ccp_x += (ccp->getWidth() + tmp_offset);
-		if (ccif_icon_align == CC_ICONS_FRM_ALIGN_RIGHT)
-			ccp_x -= (ccp_w + tmp_offset);
-	}
-
-	//calculate width and height of form
-	int w_tmp = 0;
-	int h_tmp = 0;
-	for (size_t i= 0; i< i_cnt; i++){
-		w_tmp += v_cc_items[i]->getWidth()+ccif_offset+fr_thickness;
-		h_tmp = max(h_tmp, v_cc_items[i]->getHeight()+2*fr_thickness);
-
-	}
-	width = max(w_tmp, width);
-	height = max(h_tmp, height);
-}
-
-void CComponentsIconForm::paint(bool do_save_bg)
-{
-	//init and add icons
-	initCCIcons();
-	
-	//paint form contents
-	paintForm(do_save_bg);
-}

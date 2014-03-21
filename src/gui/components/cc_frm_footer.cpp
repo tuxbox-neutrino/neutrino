@@ -73,7 +73,6 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	else
 		height 	= cch_font->getHeight();
 	
-	cch_buttons	= buttons;
 	shadow		= has_shadow;
 	col_frame	= color_frame;
 	col_body	= color_body;
@@ -82,7 +81,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;
 
-	initDefaultButtons();
+	addContextButton(buttons);
 	initCCItems();
 	initParent(parent);
 }

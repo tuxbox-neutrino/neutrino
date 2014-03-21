@@ -956,7 +956,7 @@ void CUpnpBrowserGui::paintDevices()
 	// Head
 	CComponentsHeaderLocalized header(m_x, m_y + m_title_height, m_width, m_theight, LOCALE_UPNPBROWSER_HEAD, NEUTRINO_ICON_UPNP);
 	if (CNeutrinoApp::getInstance()->isMuted())
-		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
+		header.addContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// Items
@@ -1130,7 +1130,7 @@ printf("CUpnpBrowserGui::paintItem:s selected %d max %d offset %d\n", selected, 
 	name += m_devices[m_selecteddevice].friendlyname;
 	CComponentsHeader header(m_x, m_y + m_title_height, m_width, m_theight, name, NEUTRINO_ICON_UPNP);
 	if (CNeutrinoApp::getInstance()->isMuted())
-		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
+		header.setContextButton(NEUTRINO_ICON_BUTTON_MUTE_SMALL);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// Items

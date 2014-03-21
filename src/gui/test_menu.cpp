@@ -482,12 +482,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int hh = 30;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
-// 			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
-			header->setDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
+			header->addContextButton(NEUTRINO_ICON_BUTTON_RED);
+			header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
-// 		else	//For existing instances it's recommended
-// 			//to remove old button icons before add new buttons, otherwise icons will be appended.
-//  			header->removeHeaderButtons();
+		else	//For existing instances it's recommended to remove old button icons before add new buttons,
+			//otherwise icons will be appended to already existant icons, alternatively use the setContextButton() methode
+ 			header->removeContextButtons();
 
 //		example to manipulate header items
 // 		header->setFrameThickness(5);
@@ -497,9 +497,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //		change text of header
 		header->setCaption("Test");
 
-//		add any other button icon
-//   		header->addButton(NEUTRINO_ICON_BUTTON_BLUE);
-// 		header->addButton(NEUTRINO_ICON_BUTTON_GREEN);
+		//add context buttons via vector
+// 		vector<string> v_buttons;
+// 		v_buttons.push_back(NEUTRINO_ICON_BUTTON_YELLOW);
+// 		v_buttons.push_back(NEUTRINO_ICON_BUTTON_RED);
+// 		header->addContextButton(v_buttons);
+// 
+// //		add any other button icon via string
+//   		header->addContextButton(NEUTRINO_ICON_BUTTON_BLUE);
+// 		header->addContextButton(NEUTRINO_ICON_BUTTON_GREEN);
+// 		header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
+
+// 		set a single button, this will also remove all existant context button icons from header
+//		header->setContextButton(NEUTRINO_ICON_HINT_AUDIO);
 
 //		example to replace the text item with an image item
 //		get text x position
@@ -540,11 +550,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (iconform == NULL)
 			iconform = new CComponentsIconForm();
 		iconform->setColorBody(COL_LIGHT_GRAY);
-		iconform->setDimensionsAll(100, 100, 480, 60);
+		iconform->setDimensionsAll(100, 100,80/*480*/, 80);
 		iconform->setFrameThickness(2);
 		iconform->setColorFrame(COL_WHITE);
-		iconform->setIconOffset(5);
-		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
+		iconform->setDirection(CC_DIR_X);
+		iconform->setAppendOffset(5, 5);
+
 		//For existing instances it's recommended
 		//to remove old items before add new icons, otherwise icons will be appended.
 		iconform->removeAllIcons();

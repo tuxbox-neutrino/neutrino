@@ -53,7 +53,7 @@ class CComponentsHeader : public CComponentsForm
 		CComponentsPicture * cch_icon_obj;
 		///object: caption object, see also setCaption()
 		CComponentsText * cch_text_obj;
-		///object: context button object, see also addButtonIcon(), removeButtonIcons()
+		///object: context button object, see also addContextButton(), removeContextButtons()
 		CComponentsIconForm * cch_btn_obj;
 
 		///property: caption text, see also setCaption()
@@ -73,17 +73,11 @@ class CComponentsHeader : public CComponentsForm
 		int cch_icon_w;
 		///property: internal x-position for caption object
 		int cch_text_x;
-		///property: internal context button definition button icons, see modes CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
-		int cch_buttons;
-		///property: internal width for context button object
-		int cch_buttons_w;
-		///property: internal height for context button object
-		int cch_buttons_h;
 		///property: internal offset of context button icons within context button object
 		int cch_buttons_space;
 		///property: internal offset for header items
 		int cch_offset;
-		///property: internal container of icon names for context button object, see also addButtonIcon()
+		///property: internal container of icon names for context button object, see also addContextButton()
 		std::vector<std::string> v_cch_btn;
 		///property: size of header, possible values are CC_HEADER_SIZE_LARGE, CC_HEADER_SIZE_SMALL
 		int cch_size_mode;
@@ -98,10 +92,6 @@ class CComponentsHeader : public CComponentsForm
 		void initCaption();
 		///sub: init context button object
 		void initButtons();
-		///sub: init default buttons for context button object
-		void initDefaultButtons();
-		///sub: init default buttons for context button object
-		void initButtonFormSize();
 
 	public:
 		enum
@@ -143,10 +133,23 @@ class CComponentsHeader : public CComponentsForm
 		///set name of icon
 		virtual void setIcon(const std::string& icon_name);
 
-		///add separate button icons to context button object
-		virtual void addButtonIcon(const std::string& button_name);
-		///remove button icons from context button object
-		virtual void removeButtonIcons();
+		///context buttons are to find on the right part of header
+		///add a single context button icon to the header object, arg as string, icon will just add, existing icons are preserved
+		virtual void addContextButton(const std::string& button_name);
+		///add a group of context button icons to the header object, arg as string vector, icons will just add, existing icons are preserved
+		virtual void addContextButton(const std::vector<std::string>& v_button_names);
+		///add a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
+		///icons will just add, existing  icons are preserved
+		virtual void addContextButton(const int& buttons);
+		///remove context buttons from context button object
+		virtual void removeContextButtons();
+		///sets a single context button icon to the header object, arg as string, existing buttons are removed
+		virtual void setContextButton(const std::string& button_name){removeContextButtons(); addContextButton(button_name);};
+		///sets a group of context button icons to the header object, arg as string vector, existing buttons are removed
+		virtual void setContextButton(const std::vector<std::string>& v_button_names){removeContextButtons(); addContextButton(v_button_names);};
+		///sets a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
+		///existing buttons are removed
+		virtual void setContextButton(const int& buttons){removeContextButtons(); addContextButton(buttons);};
 		
 		enum
 		{
@@ -156,8 +159,6 @@ class CComponentsHeader : public CComponentsForm
 			CC_BTN_EXIT = 0x80
 
 		};
-		///set internal context button icons, possible modes CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
-		virtual void setDefaultButtons(const int buttons);
 		///set offset between icons within context button object
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 
