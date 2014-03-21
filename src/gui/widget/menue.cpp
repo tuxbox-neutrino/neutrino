@@ -1350,9 +1350,7 @@ CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int *
 	for (unsigned int i = 0; i < number_of_options; i++)
 	{
 		struct keyval_ext opt;
-		opt.key = Options[i].key;
-		opt.value = Options[i].value;
-		opt.valname = NULL;
+		opt = Options[i];
 		options.push_back(opt);
 	}
 }
@@ -1373,9 +1371,7 @@ CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * cons
 	for (unsigned int i = 0; i < number_of_options; i++)
 	{
 		struct keyval_ext opt;
-		opt.key = Options[i].key;
-		opt.value = Options[i].value;
-		opt.valname = NULL;
+		opt = Options[i];
 		options.push_back(opt);
 	}
 }
@@ -1450,8 +1446,31 @@ CMenuOptionChooser::CMenuOptionChooser(const std::string &OptionName, int * cons
 
 CMenuOptionChooser::~CMenuOptionChooser()
 {
-	options.clear();
 	clearChooserOptions();
+}
+
+void CMenuOptionChooser::setOptions(const struct keyval * const Options, const unsigned Number_Of_Options)
+{
+	options.clear();
+	number_of_options = Number_Of_Options;
+	for (unsigned int i = 0; i < number_of_options; i++)
+	{
+		struct keyval_ext opt;
+		opt = Options[i];
+		options.push_back(opt);
+	}
+	if (used && x != -1)
+		paint(false);
+}
+
+void CMenuOptionChooser::setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options)
+{
+	options.clear();
+	number_of_options = Number_Of_Options;
+	for (unsigned int i = 0; i < number_of_options; i++)
+		options.push_back(Options[i]);
+	if (used && x != -1)
+		paint(false);
 }
 
 void CMenuOptionChooser::setOption(const int newvalue)

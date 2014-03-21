@@ -353,17 +353,24 @@ struct CMenuOptionChooserCompareItem: public std::binary_function <const CMenuOp
 class CMenuOptionChooser : public CAbstractMenuOptionChooser
 {
  public:
+	struct keyval
+	{
+		const int key;
+		const neutrino_locale_t value;
+	};
+
 	struct keyval_ext
 	{
 		int key;
 		neutrino_locale_t value;
 		const char *valname;
-	};
-
-	struct keyval
-	{
-		const int key;
-		const neutrino_locale_t value;
+		keyval_ext & operator=(const keyval &p)
+		{
+			key = p.key;
+			value = p.value;
+			valname = NULL;
+			return *this;
+		}
 	};
 
  private:
@@ -406,6 +413,8 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 	void setOption(const int newvalue);
 	int getOption(void) const;
 	int getWidth(void);
+	void setOptions(const struct keyval * const Options, const unsigned Number_Of_Options);
+	void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
 
 	int paint(bool selected);
 	std::string getOptionName()const {return nameString;};
