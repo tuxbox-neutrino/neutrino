@@ -772,7 +772,7 @@ bool CFileBrowser::exec(const char * const dirname)
 		
 	ChangeDir(name, selection);
 
-	int oldselected = selected;
+	unsigned int oldselected = selected;
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER]);
 
@@ -806,62 +806,80 @@ bool CFileBrowser::exec(const char * const dirname)
 				msg_repeatok = CRCInput::RC_down;	// jump to next item
 			}
 		}
-
-		if ((msg == CRCInput::RC_red) || msg == CRCInput::RC_page_down)
+		else if ((msg == CRCInput::RC_red) || msg == (neutrino_msg_t) g_settings.key_pagedown)
 		{
-			selected += listmaxshow;
-			if (selected >= filelist.size()) {
-				if (((filelist.size() / listmaxshow) + 1) * listmaxshow == filelist.size() + listmaxshow) // last page has full entries
-					selected = 0;
+			if (!(filelist.empty())) {
+				unsigned int last = filelist.size() - 1;
+				if (selected != last && selected + listmaxshow >= filelist.size()) {
+					unsigned int prevselected = selected;
+					selected = last;
+					paintItem(prevselected - liststart);
+					paintItem(selected - liststart);
+				}
 				else
-					selected = selected < (((filelist.size() / listmaxshow) + 1) * listmaxshow) ? (filelist.size() - 1) : 0;
+				{
+					selected = (selected == last) ? 0 : selected + listmaxshow;
+					liststart = (selected / listmaxshow) * listmaxshow;
+					paint();
+				}
 			}
-			liststart = (selected / listmaxshow) * listmaxshow;
-			paint();
 		}
-		else if ((msg == CRCInput::RC_green) || (msg == CRCInput::RC_page_up) )
+		else if (msg == CRCInput::RC_green || msg == (neutrino_msg_t) g_settings.key_pageup)
 		{
-			if ((int(selected)-int(listmaxshow))<0)
-				selected=filelist.size()-1;
-			else
-				selected -= listmaxshow;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			paint();
+			if (!(filelist.empty())) {
+				if (selected && selected < listmaxshow) {
+					unsigned int prevselected = selected;
+					selected = 0;
+					paintItem(prevselected - liststart);
+					paintItem(selected - liststart);
+				}
+				else
+				{
+					selected = selected ? selected - listmaxshow : filelist.size() - 1;
+					liststart = (selected/listmaxshow)*listmaxshow;
+					paint();
+				}
+			}
 		}
 		else if (msg_repeatok == CRCInput::RC_up)
 		{
-			int prevselected=selected;
-			if(selected==0)
+			if (!(filelist.empty()))
 			{
-				selected = filelist.size()-1;
-			}
-			else
-				selected--;
-			paintItem(prevselected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-			{
-				paint();
-			}
-			else
-			{
-				paintItem(selected - liststart);
+				unsigned int prevselected=selected;
+				unsigned int prevliststart = liststart;
+				if (selected)
+					selected --;
+				else
+					selected = filelist.size() - 1;
+				liststart = (selected/listmaxshow)*listmaxshow;
+				if(prevliststart!=liststart)
+				{
+					paint();
+				}
+				else
+				{
+					paintItem(prevselected - prevliststart);
+					paintItem(selected - liststart);
+				}
 			}
 		}
 		else if (msg_repeatok == CRCInput::RC_down)
 		{
 			if (!(filelist.empty()))
 			{
-				int prevselected=selected;
+				unsigned int prevselected=selected;
+				unsigned int prevliststart = liststart;
 				selected = (selected + 1) % filelist.size();
-				paintItem(prevselected - liststart);
-				unsigned int oldliststart = liststart;
 				liststart = (selected/listmaxshow)*listmaxshow;
-				if(oldliststart!=liststart)
+				if(prevliststart!=liststart)
+				{
 					paint();
+				}
 				else
+				{
+					paintItem(prevselected - prevliststart);
 					paintItem(selected - liststart);
+				}
 			}
 		}
 		else if ( ( msg == CRCInput::RC_timeout ) )
