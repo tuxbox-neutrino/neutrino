@@ -108,7 +108,7 @@ CLocaleManager::~CLocaleManager()
 		::free(defaultDataMem);
 }
 
-#define LOCALEDIR_VAR "/var/tuxbox/locale"
+#define LOCALEDIR_VAR "/var/tuxbox/locale/"
 const char * path[2] = { LOCALEDIR_VAR, DATADIR "/neutrino/locale/"};
 
 CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const locale, bool asdefault)
