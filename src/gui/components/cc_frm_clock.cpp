@@ -77,6 +77,7 @@ CComponentsFrmClock::CComponentsFrmClock( 	const int& x_pos, const int& y_pos, c
 
 	activeClock		= activ;
 
+	initCCLockItems();
 	initParent(parent);
 
 	if (activeClock)
