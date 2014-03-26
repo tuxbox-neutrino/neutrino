@@ -686,7 +686,7 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 //-------------------------------------------------------------------------
 // y-func : get boxtypetext
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
+std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	unsigned int system_rev = cs_get_revision();
 	std::string boxname = "CST ";
@@ -730,8 +730,6 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			break;
 	}
 
-	if (system_rev != 9) // don't add delivery_system for Tank
-		boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	return boxname;
 }
 //-------------------------------------------------------------------------
