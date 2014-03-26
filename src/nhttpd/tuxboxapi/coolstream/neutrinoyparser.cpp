@@ -119,6 +119,7 @@ const CNeutrinoYParser::TyFuncCall CNeutrinoYParser::yFuncCallList[]=
 	{"umount_get_list",				&CNeutrinoYParser::func_unmount_get_list},
 	{"get_partition_list",			&CNeutrinoYParser::func_get_partition_list},
 	{"get_boxtype",					&CNeutrinoYParser::func_get_boxtype},
+	{"get_boxmodel",				&CNeutrinoYParser::func_get_boxmodel},
 	{"get_current_stream_info",		&CNeutrinoYParser::func_get_current_stream_info},
 	{"get_timer_list",				&CNeutrinoYParser::func_get_timer_list},
 	{"set_timer_form",				&CNeutrinoYParser::func_set_timer_form},
@@ -732,6 +733,32 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 	if (system_rev != 9) // don't add delivery_system for Tank
 		boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	return boxname;
+}
+//-------------------------------------------------------------------------
+// y-func : get boxmodel
+//-------------------------------------------------------------------------
+std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
+{
+	unsigned int system_rev = cs_get_revision();
+	std::string boxmodel = "Unknown";
+
+	switch(system_rev)
+	{
+		case 6:
+		case 7:
+		case 8:
+		case 10:
+			boxmodel = "Nevis";
+			break;
+		case 9:
+		case 11:
+			boxmodel = "Apollo";
+			break;
+		default:
+			break;
+	}
+
+	return boxmodel;
 }
 //-------------------------------------------------------------------------
 // y-func : get stream info
