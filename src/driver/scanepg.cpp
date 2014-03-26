@@ -37,6 +37,7 @@
 
 #include <driver/scanepg.h>
 #include <driver/record.h>
+#include <driver/streamts.h>
 
 #define EPG_RESCAN_TIME (24*60*60)
 
@@ -234,16 +235,20 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 
 void CEpgScan::EnterStandby()
 {
-	if (standby) {
-		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
-		//CZapit::getInstance()->EnablePlayback(true);
-		g_Zapit->setStandby(true);
-		g_Sectionsd->setPauseScanning(true);
-	}
 	//g_RCInput->killTimer(rescan_timer);
 	if (rescan_timer == 0)
 		rescan_timer = g_RCInput->addTimer(EPG_RESCAN_TIME*1000ULL*1000ULL, true);
 	INFO("rescan timer id %d", rescan_timer);
+
+	if (standby) {
+		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
+#if 0
+		//CZapit::getInstance()->EnablePlayback(true);
+		g_Zapit->setStandby(true);
+		g_Sectionsd->setPauseScanning(true);
+#endif
+		CNeutrinoApp::getInstance()->standbyToStandby();
+	}
 }
 
 void CEpgScan::Next()
@@ -255,7 +260,7 @@ void CEpgScan::Next()
 		return;
 	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
 		return;
-	if (CRecordManager::getInstance()->RecordingStatus())
+	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus())
 		return;
 
 	if (g_settings.epg_scan == 2 && scanmap.empty())
