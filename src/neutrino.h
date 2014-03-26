@@ -213,6 +213,8 @@ public:
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 	bool getChannellistIsVisible() { return channellist_visible; }
 	void zapTo(t_channel_id channel_id);
+	void wakeupFromStandby(void);
+	void standbyToStandby(void);
 };
 #endif
 
