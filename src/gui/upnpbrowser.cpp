@@ -1100,6 +1100,18 @@ void CUpnpBrowserGui::paintItemInfo(std::vector<UPnPEntry> *entry, unsigned int 
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
 			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
+	static std::string lastname = "";
+	if(!((*entry)[selected].albumArtURI.empty()) && lastname != (*entry)[selected].albumArtURI){
+		lastname = (*entry)[selected].albumArtURI.c_str();
+		std::string tmpname = (*entry)[selected].albumArtURI.c_str();
+		tmpname = g_PicViewer->DownloadImage(tmpname );
+		int flogo_w = 0, flogo_h = 0;
+		g_PicViewer->getSize(tmpname.c_str(), &flogo_w, &flogo_h);
+		if((flogo_h > m_title_height-14) || (m_title_height*2 > flogo_h)){
+			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, m_title_height*2, m_title_height-14);
+		}
+		g_PicViewer->DisplayImage(tmpname.c_str(), m_x+m_width-flogo_w-2, m_y + 2, flogo_w, flogo_h);
+	}
 }
 
 void CUpnpBrowserGui::paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset)
