@@ -97,6 +97,7 @@ class CBouquetList
 		int		y;
 
 		bool		favonly;
+		bool		save_bouquets;
 
 		void paintItem(int pos);
 		void paint();
