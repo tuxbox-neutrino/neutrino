@@ -49,6 +49,7 @@
 #include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
+#include <driver/scanepg.h>
 
 #include <system/debug.h>
 #include <zapit/femanager.h>
@@ -201,13 +202,22 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 };
 #endif /*CPU_FREQ*/
 
-#define EPG_SCAN_OPTION_COUNT 3
-const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[EPG_SCAN_OPTION_COUNT] =
+const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
 {
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
-	{ 2, LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
+	{ CEpgScan::SCAN_OFF,     LOCALE_OPTIONS_OFF },
+	{ CEpgScan::SCAN_CURRENT, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
+	{ CEpgScan::SCAN_FAV,     LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
+	{ CEpgScan::SCAN_SEL,     LOCALE_MISCSETTINGS_EPG_SCAN_SEL },
 };
+#define EPG_SCAN_OPTION_COUNT (sizeof(EPG_SCAN_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+
+const CMenuOptionChooser::keyval EPG_SCAN_MODE_OPTIONS[] =
+{
+	{ CEpgScan::MODE_LIVE,     LOCALE_MISCSETTINGS_EPG_SCAN_LIVE },
+	{ CEpgScan::MODE_STANDBY,  LOCALE_MISCSETTINGS_EPG_SCAN_STANDBY },
+	{ CEpgScan::MODE_ALWAYS,   LOCALE_MISCSETTINGS_EPG_SCAN_ALWAYS }
+};
+#define EPG_SCAN_MODE_OPTION_COUNT (sizeof(EPG_SCAN_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 #define SLEEPTIMER_MIN_OPTION_COUNT 7
 const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTION_COUNT] =
@@ -451,6 +461,10 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 		true /*CFEManager::getInstance()->getEnabledCount() > 1*/);
 	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
+	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS, EPG_SCAN_MODE_OPTION_COUNT,
+		CFEManager::getInstance()->getEnabledCount() > 1);
+	mc3->setHint("", LOCALE_MENU_HINT_EPG_SCAN_MODE);
+
 	ms_epg->addItem(mc);
 	ms_epg->addItem(mc1);
 	ms_epg->addItem(mf);
@@ -459,6 +473,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(mf3);
 	ms_epg->addItem(mf4);
 	ms_epg->addItem(mc2);
+	ms_epg->addItem(mc3);
 }
 
 //filebrowser settings
