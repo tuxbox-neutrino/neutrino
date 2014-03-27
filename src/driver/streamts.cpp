@@ -247,7 +247,10 @@ bool CStreamManager::Stop()
 	if (!running)
 		return false;
 	running = false;
-	return (OpenThreads::Thread::join() == 0);
+	cancel();
+	bool ret = (OpenThreads::Thread::join() == 0);
+	StopAll();
+	return ret;
 }
 
 bool CStreamManager::SetPort(int newport)
@@ -524,6 +527,7 @@ void CStreamManager::run()
 
 	struct pollfd pfd[128];
 	int poll_cnt;
+	int poll_timeout = -1;
 
 	printf("Starting STREAM thread keeper, tid %ld\n", syscall(__NR_gettid));
 
@@ -544,7 +548,7 @@ void CStreamManager::run()
 		}
 		mutex.unlock();
 //printf("polling, count= %d\n", poll_cnt);
-		int pollres = poll (pfd, poll_cnt, 10000);
+		int pollres = poll (pfd, poll_cnt, poll_timeout);
 		if (pollres <= 0) {
 			if (pollres < 0)
 				perror("CStreamManager::run(): poll");
@@ -565,12 +569,15 @@ void CStreamManager::run()
 						close(connfd);
 #endif
 					g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_START, connfd);
+					poll_timeout = 1000;
 				} else {
 					if (pfd[i].revents & (POLLHUP | POLLRDHUP)) {
 						printf("CStreamManager::run(): POLLHUP, fd %d\n", pfd[i].fd);
 						RemoveClient(pfd[i].fd);
-						if (streams.empty())
+						if (streams.empty()) {
+							poll_timeout = -1;
 							g_RCInput->postMsg(NeutrinoMessages::EVT_STREAM_STOP, 0);
+						}
 					}
 				}
 			}
