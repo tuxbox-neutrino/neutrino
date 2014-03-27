@@ -211,8 +211,8 @@ CBouquetManager::~CBouquetManager()
 void CBouquetManager::writeBouquetHeader(FILE * bouq_fd, uint32_t i, const char * bouquetName)
 {
 //printf("[bouquets] writing bouquet header: %s\n", bouquetName);
-	fprintf(bouq_fd, "\t<Bouquet name=\"%s\" hidden=\"%d\" locked=\"%d\">\n",
-			bouquetName, Bouquets[i]->bHidden ? 1 : 0, Bouquets[i]->bLocked ? 1 : 0);
+	fprintf(bouq_fd, "\t<Bouquet name=\"%s\" hidden=\"%d\" locked=\"%d\" epg=\"%d\">\n",
+			bouquetName, Bouquets[i]->bHidden ? 1 : 0, Bouquets[i]->bLocked ? 1 : 0, Bouquets[i]->bScanEpg ? 1 : 0);
 }
 
 void CBouquetManager::writeBouquetFooter(FILE * bouq_fd)
@@ -374,9 +374,11 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			CZapitBouquet* newBouquet = addBouquet(name, bUser);
 			char* hidden = xmlGetAttribute(search, "hidden");
 			char* locked = xmlGetAttribute(search, "locked");
+			char* scanepg = xmlGetAttribute(search, "epg");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
 			newBouquet->bFav = (strcmp(name, "favorites") == 0);
+			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
 			channel_node = search->xmlChildrenNode;
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string  name2 = xmlGetAttribute(channel_node, "n");
@@ -514,7 +516,6 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? "favorites" : name);
 	newBouquet->bUser = ub;
 	newBouquet->bFav = myfav;
-	newBouquet->bOther = false;
 	newBouquet->satellitePosition = INVALID_SAT_POSITION;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
