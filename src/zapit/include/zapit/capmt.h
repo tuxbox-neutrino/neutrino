@@ -39,17 +39,14 @@
 #define DEMUX_SOURCE_2 2
 
 #define LIVE_DEMUX	0
-#define STREAM_DEMUX	1
-#define RECORD_DEMUX	2
-#define PIP_DEMUX	3
-
 
 class CCam : public CBasicClient
 {
 	private:
 		virtual unsigned char getVersion(void) const;
 		virtual const char *getSocketName(void) const;
-		int camask, demuxes[MAX_DMX_UNITS];
+		int camask; 
+		int *demuxes;
 		int source_demux;
 		uint8_t cabuf[2048];
 		int calen;
@@ -65,7 +62,7 @@ class CCam : public CBasicClient
 			CAPMT_UPDATE	= 0x05
 		};
 		CCam();
-		virtual ~CCam() {};
+		virtual ~CCam();
 		bool sendMessage(const char * const data, const size_t length, bool update = false);
 		bool makeCaPmt(CZapitChannel * channel, bool add_private, uint8_t list = CAPMT_ONLY, const CaIdVector &caids = CaIdVector());
 		bool setCaPmt(bool update = false);
