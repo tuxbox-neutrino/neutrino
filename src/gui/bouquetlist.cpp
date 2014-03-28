@@ -294,11 +294,9 @@ int CBouquetList::doMenu()
 		return -1;
 	} else {
 		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i ++);
-		int old_epg = 0;
-		if (zapitBouquet && (g_settings.epg_scan == CEpgScan::SCAN_SEL)) {
-			old_epg = zapitBouquet->bScanEpg;
+		int old_epg = zapitBouquet ? zapitBouquet->bScanEpg : 0;
+		if (g_settings.epg_scan == CEpgScan::SCAN_SEL)
 			menu->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &zapitBouquet->bScanEpg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-		}
 
 		menu->exec(NULL, "");
 		delete menu;
