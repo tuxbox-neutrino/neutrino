@@ -212,7 +212,6 @@ bool CServiceScan::ScanFast()
 	polarization = 0;
 
 	ReportFastScan(feparams, polarization, 235);
-	InitFastscanLnb(op->id);
 	if(!tuneFrequency(&feparams, polarization, 235)) {
 		printf("[fast scan] tune failed, try backup\n");
 		if (op->id == HELLO_OPERATOR_ID) {
