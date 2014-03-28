@@ -105,7 +105,7 @@ void CMoviePlayerGui::Init(void)
 
 	frameBuffer = CFrameBuffer::getInstance();
 
-	playback = new cPlayback(3);
+	playback = new cPlayback(0);
 	moviebrowser = new CMovieBrowser();
 	bookmarkmanager = new CBookmarkManager();
 
