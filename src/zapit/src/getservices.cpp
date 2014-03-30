@@ -425,6 +425,9 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			int result = allchans.erase(chid);
 			printf("[getservices]: %s '%s' (sid=0x%x): %s", add ? "replacing" : "removing",
 					name.c_str(), service_id, result ? "succeded.\n" : "FAILED!\n");
+
+			if(!result && remove && add)
+				add = false;//dont replace not existing channel
 		}
 		if(!add) {
 			node = node->xmlNextNode;
