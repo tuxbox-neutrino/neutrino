@@ -1081,7 +1081,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		}
 	}
 	for (ccI = allchans.begin(); ccI != allchans.end(); ++ccI) {
-		if(ccI->second.getTransponderId() == tpid) {
+		if(!(ccI->second.flags & CZapitChannel::NOT_FOUND) && (ccI->second.getTransponderId() == tpid)) {
 			dI = curchans.find(ccI->second.getChannelID());
 			if(dI == curchans.end())
 				WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, ccI->second, "remove");
