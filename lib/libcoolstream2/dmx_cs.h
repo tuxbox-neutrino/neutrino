@@ -23,7 +23,12 @@
 #endif
 #define DMX_FILTER_SIZE			MAX_FILTER_LENGTH
 
-#define MAX_DMX_UNITS			5
+#define MAX_DMX_UNITS			cDemux::GetCount(DMX_TS)
+
+typedef enum {
+	DMX_TS = 0,
+	DMX_DMA,
+} DMX_TYPE;
 
 typedef enum {
 	DMX_VIDEO_CHANNEL  = 1,
@@ -81,5 +86,6 @@ public:
 	int		GetSource();
 	static bool	SetSource(int unit, int source);
 	static int	GetSource(int unit);
+	static u32	GetCount(DMX_TYPE Type = DMX_TS);
 };
 #endif //__DMX_CS_H_
