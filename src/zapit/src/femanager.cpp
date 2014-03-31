@@ -112,7 +112,7 @@ bool CFEManager::Init()
 				delete fe;
 		}
 	}
-	for (int i = 0; i < MAX_DMX_UNITS; i++)
+	for (unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		dmap.push_back(CFeDmx(i));
 
 	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
@@ -394,7 +394,7 @@ void CFEManager::linkFrontends(bool init)
 	enabled_count = 0;
 	unused_demux = 0;
 	int demuxes[MAX_DMX_UNITS];
-	for(int i = 0; i < MAX_DMX_UNITS; i++)
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		demuxes[i] = 0;
 	demuxes[0] = 1;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
@@ -446,11 +446,11 @@ void CFEManager::linkFrontends(bool init)
 			fe->Init();
 		if (femode != CFrontend::FE_MODE_UNUSED) {
 			enabled_count++;
-			if ((fe->fenumber + 1) < MAX_DMX_UNITS)
+			if ((fe->fenumber + 1) < (int) MAX_DMX_UNITS)
 				demuxes[fe->fenumber + 1] = 1;
 		}
 	}
-	for(int i = 0; i < MAX_DMX_UNITS; i++) {
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
 		if (demuxes[i] == 0) {
 			unused_demux = i;
 			INFO("pip demux: %d\n", unused_demux);
