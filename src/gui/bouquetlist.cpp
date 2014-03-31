@@ -615,11 +615,20 @@ void CBouquetList::paintItem(int pos)
 	if(npos < (int) Bouquets.size()) {
 		char tmp[10];
 		sprintf((char*) tmp, "%d", npos+ 1);
-
+		int iw = 0, ih = 0;
+		if ((g_settings.epg_scan == CEpgScan::SCAN_SEL) &&
+				Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bScanEpg) {
+			frameBuffer->getIconSize(NEUTRINO_ICON_EPG, &iw, &ih);
+			if (iw && ih) {
+				int icon_x = (x+width-2) - RADIUS_LARGE/2 - iw;
+				frameBuffer->paintIcon(NEUTRINO_ICON_EPG, icon_x - iw, ypos, fheight);
+				iw = iw + 12 + RADIUS_LARGE/2;
+			}
+		}
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, lname, color, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15 - iw, lname, color, 0, true); // UTF-8
 		//CVFD::getInstance()->showMenuText(0, bouq->channelList->getName(), -1, true);
 	}
 }
