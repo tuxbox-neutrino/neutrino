@@ -851,6 +851,7 @@ menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden
 menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
 menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
 menu.hint_epg_scan Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist, im aktuellen Bouquet oder in allen Favoriten
+menu.hint_epg_scan_mode Wählen Sie den Modus für den EPG Scan aus.
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
@@ -1259,8 +1260,12 @@ miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.epg_scan Hintergrundscan EPG
+miscsettings.epg_scan_always Immer
 miscsettings.epg_scan_bq Aktuelles Bouquet
 miscsettings.epg_scan_fav Alle Favoriten
+miscsettings.epg_scan_live Bei eingeschaltener Box
+miscsettings.epg_scan_sel Markierte Bouquets
+miscsettings.epg_scan_standby Im Standby Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
@@ -1753,12 +1758,21 @@ satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.extended DiSEqC-Einstellungen
 satsetup.extended_motor Motor-Einstellungen
 satsetup.fastscan_all SD und HD
+satsetup.fastscan_auto_diseqc Start automatische Diseqc Konfiguration
+satsetup.fastscan_auto_diseqc_wait Automatische Diseqc Konfiguration wird durchgeführt
 satsetup.fastscan_hd nur HD
 satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
 satsetup.fastscan_prov Anbieter:
-satsetup.fastscan_prov_cd CanalDigitaal
-satsetup.fastscan_prov_telesat TéléSAT
-satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
+satsetup.fastscan_prov_cd_sd CanalDigitaal (SD)
+satsetup.fastscan_prov_hda HD Austria
+satsetup.fastscan_prov_hello Hello
+satsetup.fastscan_prov_skylink_c Skylink Czech
+satsetup.fastscan_prov_skylink_s Skylink Slovak
+satsetup.fastscan_prov_telesat_b TéléSAT Belgium
+satsetup.fastscan_prov_telesat_l TéléSAT Luxemburg
+satsetup.fastscan_prov_tvv_hd TV Vlaanderen (HD)
+satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fe_mode Tuner Modus
