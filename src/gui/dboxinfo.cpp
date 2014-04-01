@@ -41,6 +41,7 @@
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
+#include <driver/record.h>
 
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
@@ -491,6 +492,7 @@ void CDBoxInfoWidget::paint()
 	ypos += mheight;
 
 	int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
+	CRecordManager * crm		= CRecordManager::getInstance();
 
 	for (std::map<std::string, bool>::iterator it = mounts.begin(); it != mounts.end(); ++it) {
 		struct statfs s;
@@ -542,7 +544,7 @@ void CDBoxInfoWidget::paint()
 						_w = width - (mpOffset + space);
 					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, _w, tmp, COL_MENUCONTENT_TEXT);
 					if ((*it).second && icon_w>0 && icon_h>0)
-						frameBuffer->paintIcon(NEUTRINO_ICON_REC, x + nameWidth - icon_w + width_i/2, ypos + (mheight/2 - icon_h/2));
+						frameBuffer->paintIcon(crm->RecordingStatus() ? NEUTRINO_ICON_REC:NEUTRINO_ICON_REC_GRAY, x + nameWidth - icon_w + width_i/2, ypos + (mheight/2 - icon_h/2));
 				}
 				if (pbw > 8) /* smaller progressbar is not useful ;) */
 				{
