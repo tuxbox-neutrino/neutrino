@@ -367,7 +367,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		yresult += "<tr>";
 
 		if(have_logos)
-			yresult += string_printf("<td class=\"%c\" width=\"44\" rowspan=\"2\"><a href=\"javascript:do_zap('"
+			yresult += string_printf("<td class=\"%c logo_cell\" width=\"44\" rowspan=\"2\"><a href=\"javascript:do_zap('"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"')\"><img class=\"channel_logo\" src=\"%s\"/></a></td>", classname, channel->channel_id,
 					(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id)).c_str());
@@ -487,7 +487,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			yresult += string_printf("</td></tr>\n");
 		}
 		else
-		yresult += string_printf("<tr style=\"height: 2px\"><td></td></tr>\n");
+		yresult += string_printf("<tr><td class=\"%cepg\">&nbsp;<br />&nbsp;</td></tr>\n",classname);
 	}
 	return yresult;
 }

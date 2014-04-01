@@ -591,16 +591,42 @@ tr {
 .y_epg_info #info2 {
 	font-size:8pt;
 }
+.a, .b, .c {
+	vertical-align: top;
+}
+.bouquetitemlist .logo_cell {
+	background: #A1CCF2;
+	border-bottom: 1px solid white;
+	margin: 0;
+	padding: 0;
+}
+.bouquetitemlist .logo_cell a {
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+	min-width: 185px;
+	height: 60px;
+	padding: 0 5px;
+}
+.channel_logo {
+	background: #A1CCF2;
+	max-width: 175px;
+}
+.aepg, .bepg, .cepg {
+	white-space: nowrap;
+}
 .channel_logos
 {
-	max-width:  44px;
+	background: #A1CCF2;
+	vertical-align: middle;
+	max-width: 100px;
 	max-height: 40px;
 }
 #epg_plus {
 	border-top : #BBBBBB solid 1px;
 	border-left : #BBBBBB solid 1px;
 	border-right : #BBBBBB solid 1px;
-	margin: 0px;
+	margin: 1em 0;
 /*	width:auto;*/
 	overflow:auto;
 }
@@ -612,6 +638,7 @@ tr {
 	min-height: 40px;
 }
 .ep_bouquet_name {
+	background: #A1CCF2;
 	border-right : #BBBBBB solid 1px;
 	width : 100px;
 /*	height: 1.3em;*/
@@ -622,6 +649,12 @@ tr {
 	text-align: center;
 	min-height: 40px;
 }
+.ep_bouquet_name a {
+	display: table-cell;
+	vertical-align: middle;
+	min-width: 100px;
+	height: 40px;
+}
 .ep_bouquet_item {
 	border-right : #BBBBBB solid 1px;
 	overflow:hidden;
@@ -630,6 +663,12 @@ tr {
 	padding-right: 1px;
 	height: 100%;
 	font-size:8pt;
+}
+.ep_bouquet_item:hover {
+	background-color: #D3E7F8;
+}
+.ep_bouquet_item span:hover {
+	cursor: pointer;
 }
 .ep_bouquet_rec {
 	border-right : #BBBBBB solid 1px;
