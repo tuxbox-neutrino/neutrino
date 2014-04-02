@@ -106,7 +106,10 @@ class CServiceScan : public OpenThreads::Thread
 		std::map <t_channel_id, freq_id_t> fast_services_freq;
 		std::map <t_channel_id, int> fast_services_number;
 
+		unsigned char fst_version;
+		bool quiet_fastscan;
 		void InitFastscanLnb(int id);
+		bool FastscanTune(int id);
 		bool ParseFst(unsigned short pid, fast_scan_operator_t * op);
 		bool ParseFnt(unsigned short pid, unsigned short operator_id);
 		void process_logical_service_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
@@ -145,7 +148,12 @@ class CServiceScan : public OpenThreads::Thread
 		bool isFtaOnly() { return flags & SCAN_FTA; }
 		int GetFlags() { return flags; }
 		bool SatHaveChannels() { return satHaveChannels; }
+		/* fast-scan */
 		bool TestDiseqcConfig(int num);
+		bool ReadFstVersion(int num);
+		unsigned char GetFstVersion() { return fst_version; }
+		void QuietFastScan(bool enable) { quiet_fastscan = enable; }
+		bool ScanFast(int num, bool reload = true);
 };
 
 #endif /* __scan_h__ */
