@@ -1766,7 +1766,7 @@ satsetup.fastscan_all SD and HD
 satsetup.fastscan_auto_diseqc Start auto-diseqc configuration
 satsetup.fastscan_auto_diseqc_wait Auto-diseqc configuration in progress
 satsetup.fastscan_hd HD only
-satsetup.fastscan_head Fast scan (Astra 1, 19.2E, 12.515Mhz)
+satsetup.fastscan_head Fast scan
 satsetup.fastscan_prov Provider
 satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
 satsetup.fastscan_prov_cd_sd CanalDigitaal (SD)
@@ -1832,7 +1832,7 @@ scants.channel Channel:
 scants.failed Transponderscan failed!
 scants.finished Transponderscan finished successfully!
 scants.freqdata Frequency:
-scants.head Scan transponder
+scants.head Service scan
 scants.numberofdataservices Data
 scants.numberofradioservices Radio
 scants.numberoftotalservices Total

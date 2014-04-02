@@ -1766,7 +1766,7 @@ satsetup.fastscan_all SD und HD
 satsetup.fastscan_auto_diseqc Start automatische Diseqc Konfiguration
 satsetup.fastscan_auto_diseqc_wait Automatische Diseqc Konfiguration wird durchgeführt
 satsetup.fastscan_hd nur HD
-satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
+satsetup.fastscan_head Schnellscan
 satsetup.fastscan_prov Anbieter:
 satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
 satsetup.fastscan_prov_cd_sd CanalDigitaal (SD)
