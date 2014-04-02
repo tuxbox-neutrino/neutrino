@@ -773,7 +773,6 @@ class CScanSettings
 		int		bouquetMode;
 		int		scanType;
 
-		delivery_system_t         delivery_system;
 		int		scan_nit;
 		int		scan_nit_manual;
 		int		scan_bat;
@@ -783,6 +782,7 @@ class CScanSettings
 		int		scan_logical_hd;
 		int		fast_type;
 		int		fast_op;
+		int		fst_version;
 		int		cable_nid;
 
 		std::string	satName;
@@ -801,8 +801,7 @@ class CScanSettings
 		std::string	terr_TP_freq;
 		CScanSettings();
 
-		//void useDefaults(const delivery_system_t _delivery_system);
-		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
+		bool loadSettings(const char * const fileName);
 		bool saveSettings(const char * const fileName);
 };
 

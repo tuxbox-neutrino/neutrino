@@ -116,24 +116,15 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 CScanSettings::CScanSettings(void)
 	: configfile('\t')
 {
-	delivery_system = DVB_S;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
 	scanType = CServiceScan::SCAN_TVRADIO;
 	satName = "none";
 	cableName ="none";
 }
 
-bool CScanSettings::loadSettings(const char * const fileName, const delivery_system_t dsys)
+bool CScanSettings::loadSettings(const char * const fileName)
 {
 	bool ret = configfile.loadConfig(fileName);
-
-	if (configfile.getInt32("delivery_system", -1) != dsys)
-	{
-		// configfile is not for this delivery system
-		configfile.clear();
-		ret = false;
-	}
-	delivery_system = dsys;
 
 	bouquetMode = (CZapitClient::bouquetMode) configfile.getInt32("bouquetMode" , bouquetMode);
 	scanType = (CZapitClient::scanType) configfile.getInt32("scanType", scanType);
@@ -162,6 +153,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 #endif
 	fast_type = configfile.getInt32("fast_type", 2);
 	fast_op = configfile.getInt32("fast_op", 0);
+	fst_version = configfile.getInt32("fst_version", 0);
 	cable_nid = configfile.getInt32("cable_nid", 0);
 
 	return ret;
@@ -169,7 +161,6 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 
 bool CScanSettings::saveSettings(const char * const fileName)
 {
-	configfile.setInt32("delivery_system", delivery_system);
 	configfile.setInt32("bouquetMode", bouquetMode);
 	configfile.setInt32("scanType", scanType);
 
@@ -182,6 +173,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("scan_logical_hd", scan_logical_hd);
 	configfile.setInt32("fast_type", fast_type);
 	configfile.setInt32("fast_op", fast_op);
+	configfile.setInt32("fst_version", fst_version);
 	configfile.setInt32("cable_nid", cable_nid);
 
 	configfile.setString("satName", satName);
