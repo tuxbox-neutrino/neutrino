@@ -221,7 +221,7 @@ int CCAMMenuHandler::handleCamMsg(const neutrino_msg_t msg, neutrino_msg_data_t 
 	MMI_ENQUIRY_INFO *pMmiEnquiry = &MmiEnquiry;
 	CA_MESSAGE Msg, *rMsg;
 
-	printf("CCAMMenuHandler::handleCamMsg: msg %x data %x from %s\n", msg, data, from_menu ? "menu" : "neutrino");
+	//printf("CCAMMenuHandler::handleCamMsg: msg %x data %x from %s\n", msg, data, from_menu ? "menu" : "neutrino");
 	msgret = messages_return::unhandled;
 
 	if ((msg == NeutrinoMessages::EVT_TIMER) && (data == close_timer)) {
