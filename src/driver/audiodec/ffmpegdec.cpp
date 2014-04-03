@@ -318,12 +318,12 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 		while (packet.size > 0) {
 			int got_frame = 0;
 			if (!frame) {
-				if (!(frame = avcodec_alloc_frame())) {
+				if (!(frame = av_frame_alloc())) {
 					Status=DATA_ERR;
 					break;
 				}
 			} else
-				avcodec_get_frame_defaults(frame);
+				av_frame_unref(frame);
 
 			int len = avcodec_decode_audio4(c, frame, &got_frame, &packet);
 			if (len < 0) {
@@ -378,7 +378,7 @@ CBaseDec::RetCode CFfmpegDec::Decoder(FILE *_in, int /*OutputFd*/, State* state,
 	swr_free(&swr);
 	av_free(outbuf);
 	av_free_packet(&rpacket);
-	avcodec_free_frame(&frame);
+	av_frame_free(&frame);
 	avcodec_close(c);
 	//av_free(avcc);
 
