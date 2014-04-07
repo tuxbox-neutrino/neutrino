@@ -113,11 +113,15 @@ bool CStreamInstance::Stop()
 
 bool CStreamInstance::Send(ssize_t r)
 {
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	//OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	stream_fds_t cfds;
+	mutex.lock();
+	cfds = fds;
+	mutex.unlock();
 	int flags = 0;
-	if (fds.size() > 1)
+	if (cfds.size() > 1)
 		flags = MSG_DONTWAIT;
-	for (stream_fds_t::iterator it = fds.begin(); it != fds.end(); ++it) {
+	for (stream_fds_t::iterator it = cfds.begin(); it != cfds.end(); ++it) {
 		int i = 10;
 		unsigned char *b = buf;
 		ssize_t count = r;
