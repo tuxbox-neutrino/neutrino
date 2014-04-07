@@ -511,7 +511,7 @@ void CBouquetManager::renumServices()
 	makeRemainingChannelsBouquet();
 }
 
-CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bool myfav)
+CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bool myfav, bool to_begin)
 {
 	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? "favorites" : name);
 	newBouquet->bUser = ub;
@@ -521,9 +521,13 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
 	if(ub) {
 		BouquetList::iterator it;
-		for(it = Bouquets.begin(); it != Bouquets.end(); ++it)
-			if(!(*it)->bUser)
-				break;
+		if (to_begin) {
+			it = Bouquets.begin();
+		} else {
+			for(it = Bouquets.begin(); it != Bouquets.end(); ++it)
+				if(!(*it)->bUser)
+					break;
+		}
 		Bouquets.insert(it, newBouquet);
 	} else
 		Bouquets.push_back(newBouquet);

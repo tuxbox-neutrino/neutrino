@@ -485,7 +485,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 
 						bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						if (bouquetId == -1) {
-							bouquet = g_bouquetManager->addBouquet(std::string(op->name), true);
+							bouquet = g_bouquetManager->addBouquet(std::string(op->name), true, false, true);
 							bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						}
 						else

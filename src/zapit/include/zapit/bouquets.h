@@ -110,7 +110,7 @@ class CBouquetManager
 		void loadBouquets(bool ignoreBouquetFile = false);
 		void renumServices();
 
-		CZapitBouquet* addBouquet(const std::string & name, bool ub = false, bool myfav = false);
+		CZapitBouquet* addBouquet(const std::string & name, bool ub = false, bool myfav = false, bool to_begin = false);
 		void deleteBouquet(const unsigned int id);
 		void deleteBouquet(const CZapitBouquet* bouquet);
 		int  existsBouquet(char const * const name, bool ignore_user = false);

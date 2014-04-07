@@ -334,7 +334,7 @@ _repeat:
 		CZapitBouquet* bouquet;
 		int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
 		if (bouquetId == -1)
-			bouquet = g_bouquetManager->addBouquet(pname, true);
+			bouquet = g_bouquetManager->addBouquet(pname, true, false, true);
 		else
 			bouquet = g_bouquetManager->Bouquets[bouquetId];
 
