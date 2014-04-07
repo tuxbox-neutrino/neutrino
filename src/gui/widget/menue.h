@@ -182,7 +182,12 @@ class CMenuItem
 
 class CMenuSeparator : public CMenuItem
 {
+	private:
 		int type;
+		void initVarMenuSeparator(	const int Type,
+						const std::string& string_Text,
+						const neutrino_locale_t locale_Text,
+						bool IsStatic);
 
 	public:
 
@@ -199,7 +204,7 @@ class CMenuSeparator : public CMenuItem
 
 
 		CMenuSeparator(const int Type = 0, const neutrino_locale_t Text = NONEXISTANT_LOCALE, bool IsStatic = false);
-		CMenuSeparator(const int Type, const std::string Text, bool IsStatic = false);
+		CMenuSeparator(const int Type, const std::string& Text, bool IsStatic = false);
 		virtual ~CMenuSeparator(){}
 
 		int paint(bool selected=false);
@@ -221,20 +226,60 @@ class CMenuForwarder : public CMenuItem
 
 	virtual std::string getOption(void);
 
+	void initVarMenuForwarder(	const std::string& string_text,
+					const neutrino_locale_t& locale_text,
+					const bool Active,
+					const std::string * Option_string,
+					const char * const Option_cstring,
+					CMenuTarget* Target,
+					const char * const ActionKey,
+					neutrino_msg_t DirectKey,
+					const char * const IconName,
+					const char * const IconName_Info_right,
+					bool IsStatic);
+
  public:
 
-	CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option,
-		       CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-		       const char * const IconName = NULL, const char * const IconName_Info_right = NULL, bool IsStatic = false);
-	CMenuForwarder(const std::string & Text, const bool Active, const std::string &Option,
-		       CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-		       const char * const IconName = NULL, const char * const IconName_Info_right = NULL, bool IsStatic = false);
-	CMenuForwarder(const neutrino_locale_t Text, const bool Active = true, const char * const Option=NULL,
-		       CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-		       const char * const IconName = NULL, const char * const IconName_Info_right = NULL, bool IsStatic = false);
-	CMenuForwarder(const std::string & Text, const bool Active = true, const char * const Option=NULL,
-		       CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-		       const char * const IconName = NULL, const char * const IconName_Info_right = NULL, bool IsStatic = false);
+	CMenuForwarder(	const neutrino_locale_t Text,
+			const bool Active,
+			const std::string &Option,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL,
+			bool IsStatic = false);
+
+	CMenuForwarder(	const std::string& Text,
+			const bool Active,
+			const std::string &Option,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL,
+			bool IsStatic = false);
+
+	CMenuForwarder(	const neutrino_locale_t Text,
+			const bool Active = true,
+			const char * const Option=NULL,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL,
+			bool IsStatic = false);
+
+	CMenuForwarder(	const std::string& Text,
+			const bool Active = true,
+			const char * const Option=NULL,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL,
+			bool IsStatic = false);
+
 
 	virtual ~CMenuForwarder(){}
 
@@ -256,21 +301,44 @@ class CMenuForwarder : public CMenuItem
 class CMenuDForwarder : public CMenuForwarder
 {
  public:
-	CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option,
-			CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-			const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
+	CMenuDForwarder(const neutrino_locale_t Text,
+			const bool Active,
+			const std::string &Option,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL)
 			: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) { };
-	CMenuDForwarder(const std::string & Text, const bool Active, const std::string &Option,
-			CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-			const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
+
+	CMenuDForwarder(const std::string& Text,
+			const bool Active,
+			const std::string &Option,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL)
 			: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) { };
-	CMenuDForwarder(const neutrino_locale_t Text, const bool Active=true, const char * const Option=NULL,
-			CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-			const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
+
+	CMenuDForwarder(const neutrino_locale_t Text,
+			const bool Active=true,
+			const char * const Option=NULL,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL)
 			: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) { };
-	CMenuDForwarder(const std::string & Text, const bool Active=true, const char * const Option=NULL,
-			CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-			const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
+
+	CMenuDForwarder(const std::string& Text,
+			bool Active=true,
+			const char * const Option=NULL,
+			CMenuTarget* Target=NULL,
+			const char * const ActionKey = NULL,
+			const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+			const char * const IconName = NULL,
+			const char * const IconName_Info_right = NULL)
 			: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) { };
 
 	~CMenuDForwarder() { delete jumpTarget; }
@@ -312,13 +380,40 @@ private:
 	std::string		numberFormat;
 	std::string		(*numberFormatFunction)(int num);
 
+	void initMenuOptionNumberChooser(	const std::string &s_name,
+						const neutrino_locale_t l_name,
+						int * const OptionValue,
+						const bool Active,
+						const int min_value,
+						const int max_value,
+						CChangeObserver * const Observ,
+						const int print_offset,
+						const int special_value,
+						const neutrino_locale_t special_value_name,
+						bool sliderOn);
+
  public:
-	CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active,
-				 const int min_value, const int max_value, CChangeObserver * const Observ = NULL, const int print_offset = 0,
-				 const int special_value = 0, const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE, bool sliderOn = false );
-	CMenuOptionNumberChooser(const std::string &name, int * const OptionValue, const bool Active,
-				 const int min_value, const int max_value, CChangeObserver * const Observ = NULL, const int print_offset = 0,
-				 const int special_value = 0, const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE, bool sliderOn = false );
+	CMenuOptionNumberChooser(const neutrino_locale_t name,
+				int * const OptionValue,
+				const bool Active,
+				const int min_value,
+				const int max_value,
+				CChangeObserver * const Observ = NULL,
+				const int print_offset = 0,
+				const int special_value = 0,
+				const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE,
+				bool sliderOn = false );
+
+	CMenuOptionNumberChooser(const std::string &name,
+				int * const OptionValue,
+				const bool Active,
+				const int min_value,
+				const int max_value,
+				CChangeObserver * const Observ = NULL,
+				const int print_offset = 0,
+				const int special_value = 0,
+				const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE,
+				bool sliderOn = false );
 
 	int paint(bool selected);
 
@@ -382,32 +477,80 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 	bool			optionsSort;
 
 	void clearChooserOptions();
+	void initVarOptionChooser(	const std::string &OptionName,
+					const neutrino_locale_t Name,
+					int * const OptionValue,
+					const bool Active,
+					CChangeObserver * const Observ,
+					neutrino_msg_t DirectKey,
+					const std::string & IconName,
+					bool Pulldown,
+					bool OptionsSort
+				);
 
  public:
-	CMenuOptionChooser(const neutrino_locale_t Name, int * const OptionValue, const struct keyval * const Options,
-			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
-			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false, bool OptionsSort = false);
-	CMenuOptionChooser(const neutrino_locale_t Name, int * const OptionValue, const struct keyval_ext * const Options,
-			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
-			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false, bool OptionsSort = false);
-	CMenuOptionChooser(const std::string &Name, int * const OptionValue, const struct keyval * const Options,
-			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
-			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false, bool OptionsSort = false);
-	CMenuOptionChooser(const std::string &Name, int * const OptionValue, const struct keyval_ext * const Options,
-			   const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL,
-			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false, bool OptionsSort = false);
-	CMenuOptionChooser(const neutrino_locale_t Name, int * const OptionValue, std::vector<keyval_ext> &Options,
-			   const bool Active = false, CChangeObserver * const Observ = NULL,
-			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false, bool OptionsSort = false);
-	CMenuOptionChooser(const std::string &Name, int * const OptionValue, std::vector<keyval_ext> &Options,
-			   const bool Active = false, CChangeObserver * const Observ = NULL,
-			   const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "",
-			   bool Pulldown = false, bool OptionsSort = false);
+	CMenuOptionChooser(	const neutrino_locale_t Name,
+				int * const OptionValue,
+				const struct keyval * const Options,
+				const unsigned Number_Of_Options,
+				const bool Active = false,
+				CChangeObserver * const Observ = NULL,
+				const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+				const std::string & IconName= "",
+				bool Pulldown = false, bool OptionsSort = false);
+
+	CMenuOptionChooser(	const neutrino_locale_t Name,
+				int * const OptionValue,
+				const struct keyval_ext * const Options,
+				const unsigned Number_Of_Options,
+				const bool Active = false,
+				CChangeObserver * const Observ = NULL,
+				const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+				const std::string & IconName= "",
+				bool Pulldown = false,
+				bool OptionsSort = false);
+
+	CMenuOptionChooser(	const std::string &Name,
+				int * const OptionValue, const struct keyval * const Options,
+				const unsigned Number_Of_Options,
+				const bool Active = false,
+				CChangeObserver * const Observ = NULL,
+				const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+				const std::string & IconName= "",
+				bool Pulldown = false,
+				bool OptionsSort = false);
+
+	CMenuOptionChooser(	const std::string &Name,
+				int * const OptionValue,
+				const struct keyval_ext * const Options,
+				const unsigned Number_Of_Options,
+				const bool Active = false,
+				CChangeObserver * const Observ = NULL,
+				const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+				const std::string & IconName= "",
+				bool Pulldown = false,
+				bool OptionsSort = false);
+
+	CMenuOptionChooser(	const neutrino_locale_t Name,
+				int * const OptionValue,
+				std::vector<keyval_ext> &Options,
+				const bool Active = false,
+				CChangeObserver * const Observ = NULL,
+				const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+				const std::string & IconName= "",
+				bool Pulldown = false,
+				bool OptionsSort = false);
+
+	CMenuOptionChooser(	const std::string &Name,
+				int * const OptionValue,
+				std::vector<keyval_ext> &Options,
+				const bool Active = false,
+				CChangeObserver * const Observ = NULL,
+				const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+				const std::string & IconName= "",
+				bool Pulldown = false,
+				bool OptionsSort = false);
+
 	~CMenuOptionChooser();
 
 	void setOption(const int newvalue);
@@ -424,19 +567,37 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 
 class CMenuOptionStringChooser : public CMenuItem
 {
+	private:
 		int			height;
 		std::string *		optionValueString;
 		std::vector<std::string> options;
 		CChangeObserver *	observ;
 		bool			pulldown;
 
+		void initVarMenuOptionStringChooser(	const std::string &string_Name,
+							const neutrino_locale_t locale_Name,
+							std::string* OptionValue,
+							bool Active,
+							CChangeObserver* Observ,
+							const neutrino_msg_t DirectKey,
+							const std::string & IconName,
+							bool Pulldown);
 	public:
-		CMenuOptionStringChooser(const neutrino_locale_t Name, std::string* OptionValue, bool Active = false,
-					 CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-					 const std::string & IconName= "", bool Pulldown = false);
-		CMenuOptionStringChooser(const std::string &Name, std::string* OptionValue, bool Active = false,
-					 CChangeObserver* Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
-					 const std::string & IconName= "", bool Pulldown = false);
+		CMenuOptionStringChooser(	const neutrino_locale_t Name,
+						std::string* OptionValue,
+						bool Active = false,
+						CChangeObserver* Observ = NULL,
+						const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+						const std::string & IconName= "",
+						bool Pulldown = false);
+
+		CMenuOptionStringChooser(	const std::string &Name,
+						std::string* OptionValue,
+						bool Active = false,
+						CChangeObserver* Observ = NULL,
+						const neutrino_msg_t DirectKey = CRCInput::RC_nokey,
+						const std::string & IconName= "",
+						bool Pulldown = false);
 
 		~CMenuOptionStringChooser();
 
