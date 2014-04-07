@@ -3444,7 +3444,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		// Active standby on
 		powerManager->SetStandby(false, false);
 		CEpgScan::getInstance()->Start(true);
-		if (scansettings.fst_version)
+		if (scansettings.fst_update)
 			fst_timer = g_RCInput->addTimer(30*1000*1000, true);
 	} else {
 		// Active standby off
@@ -4224,7 +4224,7 @@ void CNeutrinoApp::Cleanup()
 
 void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 {
-	if (scansettings.fst_version) {
+	if (scansettings.fst_update) {
 		g_Zapit->getMode();
 		INFO("fst version %02x (%s)", scansettings.fst_version, standby ? "force" : "check");
 		CServiceScan::getInstance()->QuietFastScan(true);

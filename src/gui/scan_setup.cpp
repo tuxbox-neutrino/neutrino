@@ -332,11 +332,16 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				//...then start scan
 				CScanTs scanTs(delsys);
 				scanTs.exec(NULL, scants_key[i]);
+#if 0
 				/* FIXME save fst version. other than fast scan will reset it to 0
 				   to disable fast scan updates */
 				scansettings.fst_version = CServiceScan::getInstance()->GetFstVersion();
-				if (is_wizard && as == "fast")
-					return menu_return::RETURN_EXIT_ALL;
+#endif
+				if (as == "fast") {
+					scansettings.fst_update = 1;
+					if (is_wizard)
+						return menu_return::RETURN_EXIT_ALL;
+				}
 				return res;
 			}
 		}
@@ -1285,13 +1290,16 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 	fastType->setHint("", LOCALE_MENU_HINT_SCAN_FASTTYPE);
 	fast_ScanMenu->addItem(fastType);
 #endif
+	CMenuOptionChooser* fastUp = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_UPDATE, (int *)&scansettings.fst_update, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+	fastUp->setHint("", LOCALE_MENU_HINT_SCAN_FASTUPDATE);
+	fast_ScanMenu->addItem(fastUp);
 	fast_ScanMenu->addItem(GenericMenuSeparatorLine);
-#if 0
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC, allow_start, NULL, this, "fastdiseqc", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_FASTDISEQC);
 	fast_ScanMenu->addItem(mf);
-#endif
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_SATSETUP_FASTSCAN_AUTO_DISEQC, allow_start, NULL, this, "fastdiseqc", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	fast_ScanMenu->addItem(mf);
 }
