@@ -260,24 +260,14 @@ void* CComponentsFrmClock::initClockThread(void *arg)
  	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
 
 	CComponentsFrmClock *clock = static_cast<CComponentsFrmClock*>(arg);
-#if 0
-	time_t count = time(0);
-#endif
 	//start loop for paint
-	while(clock != NULL) {
-		if (clock->paintClock) {
+	while (true) {
+		clock->mutex.lock();
+		if (clock->paintClock)
 			clock->paint(CC_SAVE_SCREEN_NO);
-#if 0
-			count = time(0);
-#endif
-		}
-#if 0 // memory leak, thread will not be joined --martii
-		if (time(0) >= count+30) {
-			clock->cl_thread = 0;
-			break;
-		}
-#endif
-		mySleep(clock->cl_interval);
+		clock->mutex.unlock();
+		int interval = clock->cl_interval;
+		mySleep(interval);
 	}
 	return 0;
 }
@@ -336,7 +326,9 @@ bool CComponentsFrmClock::Stop()
 {
 	if (!activeClock)
 		return false;
+	mutex.lock();
 	paintClock = false;
+	mutex.unlock();
 	return cl_thread == 0 ? false : true;
 }
 

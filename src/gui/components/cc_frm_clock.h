@@ -31,6 +31,10 @@
 #include <config.h>
 #endif
 
+#include <OpenThreads/ScopedLock>
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+
 #include "cc_base.h"
 #include "cc_frm.h"
 
@@ -90,6 +94,8 @@ class CComponentsFrmClock : public CComponentsForm
 		inline Font** getClockFont();
 
 	public:
+		OpenThreads::Mutex mutex;
+
 		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1, const int& w = 200, const int& h = 48,
 					const char* format_str = "%H:%M",
 					bool activ=false,
