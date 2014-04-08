@@ -26,6 +26,7 @@
 
 #include <inttypes.h>
 #include <map>
+#include <list>
 #include <string>
 
 #include <zapit/femanager.h>
@@ -105,11 +106,13 @@ class CServiceScan : public OpenThreads::Thread
 		std::map <t_channel_id, t_satellite_position> fast_services_sat;
 		std::map <t_channel_id, freq_id_t> fast_services_freq;
 		std::map <t_channel_id, int> fast_services_number;
+		std::list<std::vector<uint8_t> > fst_sections;
 
 		unsigned char fst_version;
 		bool quiet_fastscan;
 		void InitFastscanLnb(int id);
 		bool FastscanTune(int id);
+		bool ReadFst(unsigned short pid, unsigned short operator_id, bool one_section = false);
 		bool ParseFst(unsigned short pid, fast_scan_operator_t * op);
 		bool ParseFnt(unsigned short pid, unsigned short operator_id);
 		void process_logical_service_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);

@@ -273,69 +273,24 @@ bool CServiceScan::ReadFstVersion(int num)
 		return false;
 
 	frontend->setTsidOnid(0);
-
-	cDemux * dmx = new cDemux();
-	dmx->Open(DMX_PSI_CHANNEL);
-	unsigned char buffer[SEC_SIZE];
-
-	unsigned char filter[DMX_FILTER_SIZE];
-	unsigned char mask[DMX_FILTER_SIZE];
-
-	memset(filter, 0x00, DMX_FILTER_SIZE);
-	memset(mask, 0x00, DMX_FILTER_SIZE);
-
-	filter[0] = 0xBD;
-	filter[1] = (operator_id >> 8) & 0xff;
-	filter[2] = operator_id & 0xff;
-	mask[0] = mask[1] = mask[2] = 0xFF;
-
-	if (dmx->sectionFilter(pid, filter, mask, 3) < 0) {
-		delete dmx;
+	if (!ReadFst(pid, operator_id, true))
 		return false;
-	}
-	if (dmx->Read(buffer, SEC_SIZE) < 0) {
-		delete dmx;
-		return false;
-	}
 
-	fst_version = (buffer[5] >> 1) & 0x1f;
+	fst_sections.clear();
 	printf("[FST VERSION] version %02x\n", fst_version);
-	delete dmx;
 	return true;
 }
 
-bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
+bool CServiceScan::ReadFst(unsigned short pid, unsigned short operator_id, bool one_section)
 {
 	int secdone[255];
 	int sectotal = -1;
-	unsigned short operator_id = op->id;
-	CZapitBouquet* bouquet;
-	int bouquetId;
-
-	memset(secdone, 0, 255);
-
-	cDemux * dmx = new cDemux();
-	dmx->Open(DMX_PSI_CHANNEL);
-
-	unsigned char buffer[SEC_SIZE];
-
-	/* position in buffer */
-	unsigned short pos;
-	unsigned short pos2;
-
-	/* service_description_section elements */
-	unsigned short section_length;
-	unsigned short transport_stream_id = 0;
-	unsigned short original_network_id = 0;
-	unsigned short operator_network_id = 0;
-
-	unsigned short service_id;
-	unsigned short descriptors_loop_length;
-	unsigned short video_pid, audio_pid, pcr_pid;
+	uint8_t last = 0;
 
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
+	memset(secdone, 0, 255);
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	memset(mask, 0x00, DMX_FILTER_SIZE);
 
@@ -344,45 +299,88 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 	filter[2] = operator_id & 0xff;
 	mask[0] = mask[1] = mask[2] = 0xFF;
 
-	printf("[FST] scaning pid %d operator %d\n", pid, operator_id);
+	printf("[FST] reading pid %d operator %d\n", pid, operator_id);
+	cDemux * dmx = new cDemux();
+	dmx->Open(DMX_PSI_CHANNEL);
 
 	if (dmx->sectionFilter(pid, filter, mask, 3) < 0) {
 		delete dmx;
 		return false;
 	}
-#if 0
-	g_bouquetManager->clearAll();
-	CServiceManager::getInstance()->RemoveAllChannels();
-#endif
 	do {
-		if (dmx->Read(buffer, SEC_SIZE) < 0) {
-			delete dmx;
-			return false;
-		}
+		std::vector<uint8_t> section(SEC_SIZE);
+		uint8_t * buffer = section.data();
+
+		if (dmx->Read(buffer, SEC_SIZE) < 0)
+			break;
+
 		if(buffer[0] != 0xBD)
 		        printf("[FST] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
 
-
-		section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
-		operator_network_id = (buffer[3] << 8) | buffer[4];
-
 		fst_version = (buffer[5] >> 1) & 0x1f;
 		unsigned char secnum = buffer[6];
-		printf("[FST] version %x section %X last %X operator 0x%x -> %s\n", fst_version, buffer[6], buffer[7], operator_network_id, secdone[secnum] ? "skip" : "use");
+		printf("[FST] version %x section %X last %X -> %s\n", fst_version, buffer[6], buffer[7], secdone[secnum] ? "skip" : "use");
 
 		if(secdone[secnum])
 			continue;
 
 		secdone[secnum] = 1;
 		sectotal++;
+		fst_sections.push_back(section);
+		last = buffer[7];
+	} while(!one_section && (sectotal < last));
 
+	delete dmx;
+	printf("[FST] %d sections\n", fst_sections.size());
+	return !fst_sections.empty();
+}
+
+bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
+{
+	unsigned short operator_id = op->id;
+	CZapitBouquet* bouquet;
+	int bouquetId;
+
+	/* position in buffer */
+	unsigned short pos;
+	unsigned short pos2;
+
+	printf("[FST] scaning pid %d operator %d\n", pid, operator_id);
+	if (!ReadFst(pid, operator_id)) {
+		printf("[FST] sections read failed\n");
+		return false;
+	}
+
+#if 0
+	g_bouquetManager->clearAll();
+	CServiceManager::getInstance()->RemoveAllChannels();
+#endif
+	ZapitChannelList ChannelList;
+	CServiceManager::getInstance()->GetAllTvChannels(ChannelList, CZapitChannel::FASTSCAN);
+	for (zapit_list_it_t oldI = ChannelList.begin(); oldI != ChannelList.end(); ++oldI)
+		(*oldI)->flags = CZapitChannel::REMOVED;
+
+	CServiceManager::getInstance()->GetAllRadioChannels(ChannelList, CZapitChannel::FASTSCAN);
+	for (zapit_list_it_t oldI = ChannelList.begin(); oldI != ChannelList.end(); ++oldI)
+		(*oldI)->flags = CZapitChannel::REMOVED;
+
+	for (std::list<std::vector<uint8_t> >::iterator it = fst_sections.begin(); it != fst_sections.end(); ++it) {
+		uint8_t * buffer = (*it).data();
+
+		unsigned short section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
+		unsigned short operator_network_id = (buffer[3] << 8) | buffer[4];
+
+		fst_version = (buffer[5] >> 1) & 0x1f;
+		//printf("[FST] version %x section %X last %X operator 0x%x\n", fst_version, buffer[6], buffer[7], operator_network_id);
+
+		unsigned short descriptors_loop_length;
 		for (pos = 8; pos < section_length - 1; pos += descriptors_loop_length + 18) {
-			original_network_id = (buffer[pos] << 8) | buffer[pos+1];
-			transport_stream_id = (buffer[pos+2] << 8) | buffer[pos+3];
-			service_id = (buffer[pos+4] << 8) | buffer[pos+5];
-			video_pid = (buffer[pos+6] << 8) | buffer[pos+7];
-			audio_pid = (buffer[pos+8] << 8) | buffer[pos+9];
-			pcr_pid = (buffer[pos+14] << 8) | buffer[pos+15];
+			unsigned short original_network_id = (buffer[pos] << 8) | buffer[pos+1];
+			unsigned short transport_stream_id = (buffer[pos+2] << 8) | buffer[pos+3];
+			unsigned short service_id = (buffer[pos+4] << 8) | buffer[pos+5];
+			unsigned short video_pid = (buffer[pos+6] << 8) | buffer[pos+7];
+			unsigned short audio_pid = (buffer[pos+8] << 8) | buffer[pos+9];
+			unsigned short pcr_pid = (buffer[pos+14] << 8) | buffer[pos+15];
 
 			//printf("[FST] onid %x tid %x sid %x vpid %x apid %x pcr %x\n", original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid);
 			descriptors_loop_length = ((buffer[pos + 16] & 0x0F) << 8) | buffer[pos + 17];
@@ -453,10 +451,11 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 									satellitePosition,
 									freq);
 							newchannel->deltype = FE_QPSK;
+							newchannel->flags = CZapitChannel::NEW | CZapitChannel::FASTSCAN;
 							CServiceManager::getInstance()->AddChannel(newchannel);
+						} else {
+							newchannel->flags = CZapitChannel::UPDATED | CZapitChannel::FASTSCAN;
 						}
-						// FIXME detect new/removed
-						newchannel->flags = CZapitChannel::UPDATED;
 						newchannel->setName(serviceName);
 						newchannel->setServiceType(service_type);
 						newchannel->setVideoPid(video_pid);
@@ -504,13 +503,13 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 				}
 			}
 		}
-	} while(sectotal < buffer[7]);
-	delete dmx;
+	}
 
 	bouquetId = g_bouquetManager->existsUBouquet(op->name);
 	if (bouquetId >= 0) 
 		g_bouquetManager->Bouquets[bouquetId]->sortBouquetByNumber();
 
+	fst_sections.clear();
 	printf("[FST] done\n\n");
 	return true;
 }
@@ -552,6 +551,8 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 	filter[2] = operator_id & 0xff;
 
 	mask[0] = mask[1] = mask[2] = 0xFF;
+
+	frontendType = FE_QPSK;
 
 	printf("[FNT] scaning pid %d operator %d\n", pid, operator_id);
 	if (dmx->sectionFilter(pid, filter, mask, 3) < 0) {

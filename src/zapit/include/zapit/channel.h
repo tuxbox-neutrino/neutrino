@@ -173,6 +173,7 @@ class CZapitChannel
 			UPDATED		= 0x04,
 			NOT_FOUND	= 0x08,
 			PRESENT		= 0x05, // NEW + UPDATED
+			FASTSCAN	= 0x10,
 			ANY		= 0xFF
 		} channel_flags_t;
 		casys_map_t			camap;
