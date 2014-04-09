@@ -368,9 +368,9 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 		uint8_t * buffer = (*it).data();
 
 		unsigned short section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
-		unsigned short operator_network_id = (buffer[3] << 8) | buffer[4];
 
 		fst_version = (buffer[5] >> 1) & 0x1f;
+		//unsigned short operator_network_id = (buffer[3] << 8) | buffer[4];
 		//printf("[FST] version %x section %X last %X operator 0x%x\n", fst_version, buffer[6], buffer[7], operator_network_id);
 
 		unsigned short descriptors_loop_length;
