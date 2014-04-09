@@ -417,7 +417,6 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 	void setOptions(const struct keyval_ext * const Options, const unsigned Number_Of_Options);
 
 	int paint(bool selected);
-	std::string getOptionName()const {return nameString;};
 
 	int exec(CMenuTarget* parent);
 	int isMenueOptionChooser(void) const{return 1;}
