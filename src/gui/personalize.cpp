@@ -631,6 +631,7 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 							chooser->setActive(true);
 							chooser->setOption(PERSONALIZE_MODE_VISIBLE);
 						}
+						chooser->paint(false);
 					}
 				}
 			}
