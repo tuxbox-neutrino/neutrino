@@ -545,7 +545,7 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 										
 						//required for first view: check active mode of option chooser and disable if it's an observed item and item mode is set to 'not visible'
 						for (uint j = 0; j < v_observ.size(); j++)		
-							if (opt->getOptionName()== g_Locale->getText(v_observ[j].to_observ_locale) && *p_mode == PERSONALIZE_MODE_NOTVISIBLE)
+							if (opt->getName()== g_Locale->getText(v_observ[j].to_observ_locale) && *p_mode == PERSONALIZE_MODE_NOTVISIBLE)
 								opt->setActive(false);	
 												
 						pm->addItem(opt); //add option chooser
@@ -612,7 +612,7 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 		{
 			//if found an optionchooser, then extract option name
 			CMenuOptionChooser* chooser = static_cast <CMenuOptionChooser*> (item);
-			string opt_name = chooser->getOptionName();
+			string opt_name = chooser->getName();
 
 			for (uint j = 0; j < v_observ.size(); j++)
 			{	
