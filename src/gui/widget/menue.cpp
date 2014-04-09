@@ -142,10 +142,9 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 {
 	if (select_mode)
 	{
-		char str[256];
-
 		if (right_text != NULL) 
 		{
+			char str[256];
 			snprintf(str, 255, "%s %s", left_text, right_text);
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
 		} 
