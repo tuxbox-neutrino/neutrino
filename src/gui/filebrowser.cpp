@@ -806,41 +806,6 @@ bool CFileBrowser::exec(const char * const dirname)
 				msg_repeatok = CRCInput::RC_down;	// jump to next item
 			}
 		}
-		else if ((msg == CRCInput::RC_red) || msg == (neutrino_msg_t) g_settings.key_pagedown)
-		{
-			if (!(filelist.empty())) {
-				unsigned int last = filelist.size() - 1;
-				if (selected != last && selected + listmaxshow >= filelist.size()) {
-					unsigned int prevselected = selected;
-					selected = last;
-					paintItem(prevselected - liststart);
-					paintItem(selected - liststart);
-				}
-				else
-				{
-					selected = (selected == last) ? 0 : selected + listmaxshow;
-					liststart = (selected / listmaxshow) * listmaxshow;
-					paint();
-				}
-			}
-		}
-		else if (msg == CRCInput::RC_green || msg == (neutrino_msg_t) g_settings.key_pageup)
-		{
-			if (!(filelist.empty())) {
-				if (selected && selected < listmaxshow) {
-					unsigned int prevselected = selected;
-					selected = 0;
-					paintItem(prevselected - liststart);
-					paintItem(selected - liststart);
-				}
-				else
-				{
-					selected = selected ? selected - listmaxshow : filelist.size() - 1;
-					liststart = (selected/listmaxshow)*listmaxshow;
-					paint();
-				}
-			}
-		}
 		else if (msg_repeatok == CRCInput::RC_up)
 		{
 			if (!(filelist.empty()))
@@ -928,6 +893,35 @@ bool CFileBrowser::exec(const char * const dirname)
 			} else
 			{
 				ChangeDir("..");
+			}
+		}
+		else if ((msg == CRCInput::RC_red) || msg == (neutrino_msg_t) g_settings.key_pagedown)
+		{
+			if (!(filelist.empty())) {
+				unsigned int last = filelist.size() - 1;
+				if (selected != last && selected + listmaxshow >= filelist.size()) {
+					selected = last;
+				}
+				else
+				{
+					selected = (selected == last) ? 0 : selected + listmaxshow;
+					liststart = (selected / listmaxshow) * listmaxshow;
+				}
+				paint();
+			}
+		}
+		else if (msg == CRCInput::RC_green || msg == (neutrino_msg_t) g_settings.key_pageup)
+		{
+			if (!(filelist.empty())) {
+				if (selected && selected < listmaxshow) {
+					selected = 0;
+				}
+				else
+				{
+					selected = selected ? selected - listmaxshow : filelist.size() - 1;
+					liststart = (selected/listmaxshow)*listmaxshow;
+				}
+				paint();
 			}
 		}
 		else if ( msg == CRCInput::RC_blue )
