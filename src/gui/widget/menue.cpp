@@ -334,6 +334,7 @@ CMenuWidget::CMenuWidget()
 	from_wizard 	= false;
 	fade 		= true;
 	sb_width	= 0;
+	sb_height	= 0;
 	savescreen	= false;
 	background	= NULL;
 	preselected 	= -1;
@@ -407,6 +408,9 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	has_hints	= false;
 	hint_painted	= false;
 	hint_height	= 0;
+	fbutton_count	= 0;
+	fbutton_labels	= NULL;
+	fbutton_height	= 0;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -869,7 +873,7 @@ void CMenuWidget::calcSize()
 	for (unsigned int i= 0; i< items.size(); i++) {
 		int item_height=items[i]->getHeight();
 		heightCurrPage+=item_height;
-		if(heightCurrPage > (height-hheight)) {
+		if(heightCurrPage > (height-hheight-fbutton_height)) {
 			page_start.push_back(i);
 			total_pages++;
 			heightCurrPage=item_height;
@@ -901,18 +905,29 @@ void CMenuWidget::calcSize()
 		width = frameBuffer->getScreenWidth();
 
 	// shrink menu if less items
-	if(hheight+itemHeightTotal < height)
-		height=hheight+itemHeightTotal;
+	if (hheight + itemHeightTotal + fbutton_height < height)
+		height = hheight + itemHeightTotal + fbutton_height;
 	
-	//scrollbar width
+	//scrollbar
 	sb_width=0;
 	if(total_pages > 1)
 		sb_width=15;
+	sb_height=itemHeightTotal;
 
 	full_width = /*ConnectLineBox_Width+*/width+sb_width+SHADOW_OFFSET;
 	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2 /*+hint_height+INFO_BOX_Y_OFFSET*/;
+	/* + ConnectLineBox_Width for the hintbox connection line
+	 * + center_offset for symmetry
+	 * + 20 for setMenuPos calculates 10 pixels border left and right */
+	int center_offset = (g_settings.menu_pos == MENU_POS_CENTER) ? ConnectLineBox_Width : 0;
+	int max_possible = (int)frameBuffer->getScreenWidth() - ConnectLineBox_Width - center_offset - 20;
+	if (full_width > max_possible)
+	{
+		width = max_possible - sb_width - SHADOW_OFFSET;
+		full_width = max_possible + center_offset; /* symmetry in MENU_POS_CENTER case */
+	}
 
-	setMenuPos(width - sb_width);
+	setMenuPos(width + sb_width);
 }
 
 void CMenuWidget::paint()
@@ -929,11 +944,13 @@ void CMenuWidget::paint()
 	// paint body shadow
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + RADIUS_LARGE, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	// paint body background
-	frameBuffer->paintBoxRel(x ,y+hheight, width + sb_width, height-hheight + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + hheight, width + sb_width, height - hheight + RADIUS_LARGE - fbutton_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, (fbutton_count ? 0 /*CORNER_NONE*/ : CORNER_BOTTOM));
 
 	item_start_y = y+hheight;
 	paintItems();
 	washidden = false;
+	if (fbutton_count)
+		::paintButtons(x, y + height + RADIUS_LARGE - fbutton_height, width + sb_width, fbutton_count, fbutton_labels, width, fbutton_height);
 }
 
 void CMenuWidget::setMenuPos(const int& menu_width)
@@ -943,12 +960,14 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
 
+	int real_h = full_height + hint_height;
+
 	//configured positions 
 	switch(g_settings.menu_pos) 
 	{
 		case MENU_POS_CENTER:
 			x = offx + scr_x + ((scr_w - menu_width ) >> 1 );
-			y = offy + scr_y + ((scr_h - height - hint_height) >> 1 );
+			y = offy + scr_y + ((scr_h - real_h) >> 1 );
 			break;
 			
 		case MENU_POS_TOP_LEFT: 
@@ -962,12 +981,12 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 			break;
 			
 		case MENU_POS_BOTTOM_LEFT: 
-			y = offy + scr_y + scr_h - height - hint_height - 10;
+			y = offy + scr_y + scr_h - real_h - 10;
 			x = offx + scr_x + 10;
 			break;
 			
 		case MENU_POS_BOTTOM_RIGHT: 
-			y = offy + scr_y + scr_h - height - hint_height - 10;
+			y = offy + scr_y + scr_h - real_h - 10;
 			x = offx + scr_x + scr_w - menu_width - 10;
 			break;
 	}
@@ -987,12 +1006,11 @@ void CMenuWidget::paintItems()
 	// Scrollbar
 	if(total_pages>1)
 	{
-		int item_height=height-(item_start_y-y);
-		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
-		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
+		frameBuffer->paintBoxRel(x+ width,item_start_y, sb_width, sb_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
+		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(sb_height-4)/total_pages, sb_width-4, (sb_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
 		/* background of menu items, paint every time because different items can have
 		 * different height and this might leave artifacts otherwise after changing pages */
-		frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
+		frameBuffer->paintBoxRel(x,item_start_y, width, sb_height, COL_MENUCONTENT_PLUS_0);
 	}
 	int ypos=item_start_y;
 	for (int count = 0; count < (int)items.size(); count++)
@@ -1167,6 +1185,21 @@ void CMenuWidget::addKey(neutrino_msg_t key, CMenuTarget *menue, const std::stri
 	keyActionMap[key].menue = menue;
 	keyActionMap[key].action = action;
 }
+
+void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const int _fbutton_count, bool repaint)
+{
+	fbutton_count = _fbutton_count;
+	fbutton_labels = _fbutton_labels;
+	fbutton_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;  // init min buttonbar height
+	int h = 0, w = 0;
+	for (int i = 0; i < fbutton_count; i++) {
+		frameBuffer->getIconSize(fbutton_labels[i].button, &w, &h);
+		fbutton_height = std::max(fbutton_height, h + 4);
+	}
+	if (repaint)
+		paint();
+}
+
 
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuOptionNumberChooser::CMenuOptionNumberChooser(	const neutrino_locale_t Name,

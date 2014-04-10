@@ -655,6 +655,21 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "footer_key"){
+		neutrino_msg_t      msg;
+		neutrino_msg_data_t data;
+		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return");
+		hintBox->paint();
+		while (1)
+		{
+			g_RCInput->getMsg(&msg, &data, 100);
+			if (msg == CRCInput::RC_home)
+				break;
+		}
+		delete hintBox;
+
+		return res;
+	}
 	
 	
 	return showTestMenu();
@@ -688,6 +703,16 @@ int CTestMenu::showTestMenu()
 	CMenuForwarder *f_bi = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, new CBuildInfo());
 	f_bi->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
 	w_test.addItem(f_bi);
+
+	//footer buttons
+	static const struct button_label footerButtons[2] = {
+		{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_COLORCHOOSER_RED	},
+		{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_COLORCHOOSER_GREEN }
+	};
+
+	w_test.setFooter(footerButtons, 2);
+	w_test.addKey(CRCInput::RC_red, this, "footer_key");
+	w_test.addKey(CRCInput::RC_green, this, "footer_key");
 
 	//exit
 	return w_test.exec(NULL, "");;

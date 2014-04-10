@@ -39,6 +39,7 @@
 #include <driver/framebuffer.h>
 #include <driver/rcinput.h>
 #include <system/localize.h>
+#include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/color.h>
 #include <gui/components/cc.h>
@@ -652,11 +653,16 @@ class CMenuWidget : public CMenuTarget
 		int			selected;
 		int 			iconOffset;
 		int			sb_width;
+		int			sb_height;
 		fb_pixel_t		*background;
 		int			full_width, full_height;
 		bool			savescreen;
 		bool			has_hints; // is any items has hints
 		bool			hint_painted; // is hint painted
+
+		int			fbutton_height;
+		int			fbutton_count;
+		const struct button_label	*fbutton_labels;
 
 		unsigned int         item_start_y;
 		unsigned int         current_page;
@@ -719,6 +725,7 @@ class CMenuWidget : public CMenuTarget
 			MENU_POS_BOTTOM_RIGHT
 		};
 		void addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string &action);
+		void setFooter(const struct button_label *_fbutton_label, const int _fbutton_count, bool repaint = false);
 };
 
 class CPINProtection
