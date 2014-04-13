@@ -57,6 +57,7 @@ install_DATA += \
 	ca.png \
 	ca2.png \
 	ca2_gray.png \
+	checkmark.png \
 	colors.png \
 	conax_green.png \
 	conax_white.png \

@@ -513,6 +513,9 @@ void CNeutrinoApp::InitMenuService()
 	}
 
 	//separator
+	personalize.addSeparator(MENU_SERVICE);
+
+
 	if (!g_settings.easymenu) {
 		personalize.addSeparator(MENU_SERVICE);
 

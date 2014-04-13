@@ -818,6 +818,7 @@ menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
 menu.hint_back Return to previous menu\nPress menu key to close all menus
+menu.hint_back_brief Return to previous menu
 menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
@@ -1034,6 +1035,8 @@ menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and servic
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_onekey_plugin Choose a plugin that's executed with the one touch key
+menu.hint_opkg Install or update software packages
+menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
@@ -1595,6 +1598,19 @@ nvod.starting (starting in %d min)
 nvodselector.directormode Direct-Mode
 nvodselector.head Select starting-time
 nvodselector.subservice Select Subservice
+opkg.button.expert_off Standard mode
+opkg.button.expert_on Expert mode
+opkg.button.info Package information
+opkg.button.install Install package
+opkg.button.uninstall Uninstall package
+opkg.failure.install Install failed (%d)
+opkg.failure.update Update failed (%d)
+opkg.failure.upgrade Upgrade failed (%d)
+opkg.messagebox.reinstall Re-install %s?
+opkg.messagebox.remove Remove %s?
+opkg.success.install Install successful, restart of Neutrino might be required.
+opkg.title Package Management
+opkg.upgrade Upgrade installed packages
 options.default Reset to defaults
 options.fb framebuffer
 options.ntp_off DVB
