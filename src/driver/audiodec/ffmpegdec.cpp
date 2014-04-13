@@ -42,6 +42,11 @@ extern "C" {
 #include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
 }
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 28, 1)
+#define av_frame_alloc	avcodec_alloc_frame
+#define av_frame_unref	avcodec_get_frame_defaults
+#define av_frame_free	avcodec_free_frame
+#endif
 #include <OpenThreads/ScopedLock>
 
 #include <driver/netfile.h>
