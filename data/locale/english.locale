@@ -624,18 +624,21 @@ hdd_check_format_bad Checking of disks with format %s is not supported.
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Formating drive...
-hdd_format_failed Formating failed!
-hdd_format_warn Start format...
+hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
+hdd_format_warn All data on device will be lost ! Continue with format ?
 hdd_fs Filesystem used to format
 hdd_fs_unknown unknown
 hdd_manage Manage drives
 hdd_middle Mid
+hdd_mount Mount
+hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
 hdd_removable_device Removable device
 hdd_settings Hard Disk Drive/USB
 hdd_sleep Switch off after...
 hdd_slow Slow
+hdd_umount Unmount
 hdd_umount_warn unmount device
 imageinfo.creator Creator:
 imageinfo.date Date:
