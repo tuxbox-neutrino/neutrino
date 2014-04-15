@@ -59,6 +59,7 @@ struct SNeutrinoSettings
 	int brightness;
 	int contrast;
 	int saturation;
+	int enable_sd_osd;
 #endif
 	char current_volume;
 	int current_volume_step;

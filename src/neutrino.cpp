@@ -833,6 +833,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.brightness = configfile.getInt32("brightness", 0);
 	g_settings.contrast = configfile.getInt32("contrast", 0);
 	g_settings.saturation = configfile.getInt32("saturation", 0);
+	g_settings.enable_sd_osd = configfile.getInt32("enable_sd_osd", 1);
 #endif
 #ifdef ENABLE_PIP
 	g_settings.pip_x = configfile.getInt32("pip_x", 50);
@@ -1271,7 +1272,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #ifdef BOXMODEL_APOLLO
 	configfile.setInt32("brightness", g_settings.brightness );
 	configfile.setInt32("contrast", g_settings.contrast );
-	configfile.setInt32("saturation", g_settings.saturation );
+	configfile.setInt32("enable_sd_osd", g_settings.enable_sd_osd );
 #endif
 #ifdef ENABLE_PIP
 	configfile.setInt32("pip_x", g_settings.pip_x);

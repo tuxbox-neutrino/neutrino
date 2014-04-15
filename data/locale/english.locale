@@ -1233,6 +1233,7 @@ menu.hint_video_modes VF key will cycle between enabled modes
 menu.hint_video_pip Picture in picture size and position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
+menu.hint_video_sdosd Enable/disable OSD display on SD output (scart, cinch)
 menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
@@ -2093,6 +2094,7 @@ videomenu.pip_error PiP start failed
 videomenu.saturation Saturation
 videomenu.scart Scart
 videomenu.screensetup Screen Setup
+videomenu.sdosd SD OSD
 videomenu.sharpness Sharpness
 videomenu.tv-scart Video
 videomenu.vcrsignal VCR Output Signal Type

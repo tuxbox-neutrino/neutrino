@@ -54,6 +54,8 @@
 #include <cs_api.h>
 #include <video.h>
 
+#include <cnxtfb.h>
+
 extern cVideo *videoDecoder;
 #ifdef ENABLE_PIP
 extern cVideo *pipDecoder;
@@ -324,6 +326,10 @@ int CVideoSettings::showVideoSetup()
 		videosetup->addItem(bcont);
 		videosetup->addItem(ccont);
 		videosetup->addItem(scont);
+
+		CMenuOptionChooser * sd = new CMenuOptionChooser(LOCALE_VIDEOMENU_SDOSD, &g_settings.enable_sd_osd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+		sd->setHint("", LOCALE_MENU_HINT_VIDEO_SDOSD);
+		videosetup->addItem(sd);
 	}
 #endif
 #ifdef ENABLE_PIP
@@ -380,6 +386,7 @@ void CVideoSettings::setVideoSettings()
 	changeNotify(LOCALE_VIDEOMENU_BRIGHTNESS, NULL);
 	changeNotify(LOCALE_VIDEOMENU_CONTRAST, NULL);
 	changeNotify(LOCALE_VIDEOMENU_SATURATION, NULL);
+	changeNotify(LOCALE_VIDEOMENU_SDOSD, NULL);
 #endif
 #ifdef ENABLE_PIP
 	pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y, g_settings.pip_width, g_settings.pip_height, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
@@ -461,6 +468,14 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* 
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SATURATION))
 	{
 		videoDecoder->SetControl(VIDEO_CONTROL_SATURATION, g_settings.saturation*3);
+	}
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SDOSD))
+	{
+		int val = g_settings.enable_sd_osd;
+		printf("SD OSD enable: %d\n", val);
+		int fd = CFrameBuffer::getInstance()->getFileHandle();
+		if (ioctl(fd, FBIO_SCALE_SD_OSD, &val))
+			perror("FBIO_SCALE_SD_OSD");
 	}
 #endif
 #if 0
