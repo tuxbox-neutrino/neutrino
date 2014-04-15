@@ -89,6 +89,7 @@ devtool_s CHDDMenuHandler::devtools[] = {
 	{ "ext4",  "/sbin/fsck.ext4",  "-C 1 -f -y", "/sbin/mkfs.ext4",  "-T largefile -m0", false, false },
 	{ "vfat",  "/sbin/fsck.vfat",  "-a",         "/sbin/mkfs.vfat",  "",                 false, false },
 	{ "exfat", "/sbin/fsck.exfat", "",           "/sbin/mkfs.exfat", "",                 false, false },
+	{ "xfs",   "/sbin/xfs_repair", "",           "/sbin/mkfs.xfs",   "-f",               false, false },
 };
 #define FS_MAX (sizeof(CHDDMenuHandler::devtools)/sizeof(devtool_s))
 
@@ -627,7 +628,7 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 
 	res = ShowMsg ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 	if(res != CMessageBox::mbrYes)
-		return 0;
+		return menu_return::RETURN_REPAINT;
 
 	bool srun = my_system(3, "killall", "-9", "smbd");
 
@@ -653,7 +654,6 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_FORMAT);
 	progress->exec(NULL,"");
-	progress->showStatusMessageUTF("Executing fdisk");
 	progress->showGlobalStatus(0);
 
 	if (access("/sbin/sfdisk", X_OK) == 0) {
@@ -663,6 +663,7 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 		snprintf(cmd, sizeof(cmd), "/sbin/fdisk %s", devname.c_str());
 		strcpy(cmd2, "o\nn\np\n1\n\n\nw\n");
 	}
+	progress->showStatusMessageUTF(cmd);
 
 #ifdef ASSUME_MDEV
 	/* mdev will create it and waitfordev will wait for it... */
@@ -688,6 +689,8 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 	add_dev(dev, part);
 	waitfordev(devname + part, 30);
 #endif
+
+	progress->showStatusMessageUTF(mkfscmd.c_str());
 	f = popen(mkfscmd.c_str(), "r");
 	if (!f) {
 		showError(LOCALE_HDD_FORMAT_FAILED);
@@ -819,6 +822,7 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 	CProgressWindow * progress;
 	int oldpass = 0, pass, step, total;
 	int percent = 0, opercent = 0;
+	char buf[256] = { 0 };
 
 	std::string devname = "/dev/" + dev;
 
@@ -854,8 +858,8 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_CHECK);
 	progress->exec(NULL,"");
+	progress->showStatusMessageUTF(cmd.c_str());
 
-	char buf[256];
 	while(fgets(buf, 255, f) != NULL)
 	{
 		if(isdigit(buf[0])) {
