@@ -267,9 +267,9 @@ bool CHDDMenuHandler::umount_all(std::string dev)
 	return ret;
 }
 
+#ifdef ASSUME_MDEV
 bool CHDDMenuHandler::add_dev(std::string dev, std::string part)
 {
-#ifdef ASSUME_MDEV
 	std::string filename = "/sys/block/" + dev + "/" + dev + part + "/uevent";
 	if (!access(filename.c_str(), W_OK)) {
 		FILE *f = fopen(filename.c_str(), "w");
@@ -282,14 +282,13 @@ bool CHDDMenuHandler::add_dev(std::string dev, std::string part)
 			return true;
 		}
 	}
-#endif
 	return false;
 }
-
+#endif
+#ifdef ASSUME_MDEV
 bool CHDDMenuHandler::waitfordev(std::string dev, int maxwait)
 {
 	int ret = true;
-#ifdef ASSUME_MDEV
 	int waitcount = 0;
 	/* wait for the device to show up... */
 	while (access(dev.c_str(), W_OK)) {
@@ -308,9 +307,9 @@ bool CHDDMenuHandler::waitfordev(std::string dev, int maxwait)
 	}
 	if (waitcount && waitcount <= maxwait)
 		printf("\n");
-#endif
 	return ret;
 }
+#endif
 
 int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 {
@@ -685,9 +684,10 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 		goto _return;
 	}
 	sleep(2);
+#ifdef ASSUME_MDEV
 	add_dev(dev, part);
 	waitfordev(devname + part, 30);
-
+#endif
 	f = popen(mkfscmd.c_str(), "r");
 	if (!f) {
 		showError(LOCALE_HDD_FORMAT_FAILED);
