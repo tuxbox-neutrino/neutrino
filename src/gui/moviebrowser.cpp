@@ -2313,7 +2313,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 	                        unlink(fname.c_str());
 
 			CFile file_xml  = movieSelectionHandler.file;
-			if(m_movieInfo.convertTs2XmlName(&file_xml.Name) == true)
+			if(m_movieInfo.convertTs2XmlName(file_xml.Name))
 			{
 				//delFile(file_xml);
 				unlink(file_xml.Name.c_str());
@@ -3452,7 +3452,6 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 	*item_string="";
 	tm* tm_tmp;
 
-	char text[20];
 	int i=0;
 	int counter=0;
 
@@ -3503,9 +3502,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 				if(movie_info.bookmarks.user[i].pos != 0)
 					counter++;
 			}
-			snprintf(text, 8,"%d",counter);
-			text[9] = 0; // just to make sure string is terminated
-			*item_string = text;
+			*item_string = to_string(counter);;
 			break;
 		case MB_INFO_QUALITY: 				// 		= 11,
 			snprintf(str_tmp,MAX_STR_TMP,"%d",movie_info.quality);

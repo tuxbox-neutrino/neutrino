@@ -195,8 +195,7 @@ class CMovieInfo
 	public:	// Functions
 		CMovieInfo();
 		~CMovieInfo();
-		bool convertTs2XmlName(std::string* filename);  								// convert a ts file name in .xml file name
-		bool convertTs2XmlName(char* filename,int size);								// convert a ts file name in .xml file name
+		bool convertTs2XmlName(std::string& filename);  								// convert a ts file name in .xml file name
 		bool loadMovieInfo(MI_MOVIE_INFO* movie_info, CFile* file = NULL ); 	// load movie information for the given .xml filename. If there is no filename, the filename (ts) from movie_info is converted to xml and used instead
 		bool encodeMovieInfoXml(std::string* extMessage, MI_MOVIE_INFO * movie_info); 	// encode the movie_info structure to xml string
 		bool saveMovieInfo(MI_MOVIE_INFO& movie_info, CFile* file = NULL ); 	// encode the movie_info structure to xml and save it to the given .xml filename. If there is no filename, the filename (ts) from movie_info is converted to xml and used instead

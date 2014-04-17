@@ -80,27 +80,12 @@ CMovieInfo::~CMovieInfo()
 /************************************************************************
 
 ************************************************************************/
-bool CMovieInfo::convertTs2XmlName(char *char_filename, int size)
+bool CMovieInfo::convertTs2XmlName(std::string& filename)
 {
-	bool result = false;
-	std::string filename = char_filename;
-	if (convertTs2XmlName(&filename) == true) {
-		strncpy(char_filename, filename.c_str(), size-1);
-		char_filename[size - 1] = 0;
-		result = true;
-	}
-	return (result);
-}
-
-/************************************************************************
-
-************************************************************************/
-bool CMovieInfo::convertTs2XmlName(std::string * filename)
-{
-	size_t lastdot = filename->find_last_of(".");
+	size_t lastdot = filename.find_last_of(".");
 	if (lastdot != string::npos) {
-		filename->erase(lastdot + 1);
-		filename->append("xml");
+		filename.erase(lastdot + 1);
+		filename.append("xml");
 		return true;
 	}
 	return false;
@@ -252,7 +237,7 @@ bool CMovieInfo::saveMovieInfo(MI_MOVIE_INFO & movie_info, CFile * file)
 
 	if (file == NULL) {
 		file_xml.Name = movie_info.file.Name;
-		result = convertTs2XmlName(&file_xml.Name);
+		result = convertTs2XmlName(file_xml.Name);
 	} else {
 		file_xml.Name = file->Name;
 	}
@@ -286,7 +271,7 @@ bool CMovieInfo::loadMovieInfo(MI_MOVIE_INFO * movie_info, CFile * file)
 	if (file == NULL) {
 		// if there is no give file, we use the file name from movie info but we have to convert the ts name to xml name first
 		file_xml.Name = movie_info->file.Name;
-		result = convertTs2XmlName(&file_xml.Name);
+		result = convertTs2XmlName(file_xml.Name);
 	} else {
 		file_xml.Name = file->Name;
 	}
@@ -664,27 +649,28 @@ bool CMovieInfo::parseXmlQuickFix(char *text, MI_MOVIE_INFO * movie_info)
 	while ((pos = find_next_char('<', text, pos, bytes)) != -1) {
 		pos++;
 		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_CHANNELNAME, movie_info->epgChannel)
-		    GET_XML_DATA_STRING(text, pos, MI_XML_TAG_EPGTITLE, movie_info->epgTitle)
-		    GET_XML_DATA_LONG(text, pos, MI_XML_TAG_ID, movie_info->epgId)
-		    GET_XML_DATA_STRING(text, pos, MI_XML_TAG_INFO1, movie_info->epgInfo1)
-		    GET_XML_DATA_STRING(text, pos, MI_XML_TAG_INFO2, movie_info->epgInfo2)
-		    GET_XML_DATA_LONG(text, pos, MI_XML_TAG_EPGID, movie_info->epgEpgId)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_MODE, movie_info->epgMode)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_VIDEOPID, movie_info->epgVideoPid)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_VIDEOTYPE, movie_info->VideoType)
-		    GET_XML_DATA_STRING(text, pos, MI_XML_TAG_NAME, movie_info->epgChannel)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_VTXTPID, movie_info->epgVTXPID)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_GENRE_MAJOR, movie_info->genreMajor)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_GENRE_MINOR, movie_info->genreMinor)
-		    GET_XML_DATA_STRING(text, pos, MI_XML_TAG_SERIE_NAME, movie_info->serieName)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_LENGTH, movie_info->length)
-		    GET_XML_DATA_STRING(text, pos, MI_XML_TAG_PRODUCT_COUNTRY, movie_info->productionCountry)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_PRODUCT_DATE, movie_info->productionDate)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_PARENTAL_LOCKAGE, movie_info->parentalLockAge)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_QUALITIY, movie_info->quality)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_QUALITY, movie_info->quality)
-		    GET_XML_DATA_INT(text, pos, MI_XML_TAG_DATE_OF_LAST_PLAY, movie_info->dateOfLastPlay)
-		    if (strncmp(&text[pos], MI_XML_TAG_AUDIOPIDS, sizeof(MI_XML_TAG_AUDIOPIDS) - 1) == 0)
+		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_EPGTITLE, movie_info->epgTitle)
+		GET_XML_DATA_LONG(text, pos, MI_XML_TAG_ID, movie_info->epgId)
+		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_INFO1, movie_info->epgInfo1)
+		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_INFO2, movie_info->epgInfo2)
+		GET_XML_DATA_LONG(text, pos, MI_XML_TAG_EPGID, movie_info->epgEpgId)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_MODE, movie_info->epgMode)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_VIDEOPID, movie_info->epgVideoPid)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_VIDEOTYPE, movie_info->VideoType)
+		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_NAME, movie_info->epgChannel)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_VTXTPID, movie_info->epgVTXPID)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_GENRE_MAJOR, movie_info->genreMajor)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_GENRE_MINOR, movie_info->genreMinor)
+		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_SERIE_NAME, movie_info->serieName)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_LENGTH, movie_info->length)
+		GET_XML_DATA_STRING(text, pos, MI_XML_TAG_PRODUCT_COUNTRY, movie_info->productionCountry)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_PRODUCT_DATE, movie_info->productionDate)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_PARENTAL_LOCKAGE, movie_info->parentalLockAge)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_QUALITIY, movie_info->quality)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_QUALITY, movie_info->quality)
+		GET_XML_DATA_INT(text, pos, MI_XML_TAG_DATE_OF_LAST_PLAY, movie_info->dateOfLastPlay)
+
+		if (strncmp(&text[pos], MI_XML_TAG_AUDIOPIDS, sizeof(MI_XML_TAG_AUDIOPIDS) - 1) == 0)
 			pos += sizeof(MI_XML_TAG_AUDIOPIDS);
 
 		/* parse audio pids */
