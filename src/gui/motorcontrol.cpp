@@ -603,6 +603,6 @@ void CMotorControl::readNetwork()
 		network = "unknown";
 
 	char net[100];
-	snprintf(net, sizeof(net), "%03d.%d, %s", abs(pos)/10, abs(pos)%10, network.c_str());
+	snprintf(net, sizeof(net), "%03d.%d, %s", abs((int)pos)/10, abs((int)pos)%10, network.c_str());
 	network = net;
 }

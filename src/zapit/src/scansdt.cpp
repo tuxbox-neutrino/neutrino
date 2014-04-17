@@ -412,7 +412,7 @@ bool CSdt::AddToBouquet(std::string &providerName, CZapitChannel *channel)
 			char pname[100];
 			if (!cable)
 				snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W',
-						abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
+						abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
 			else
 				snprintf(pname, 100, "%s", providerName.c_str());
 
