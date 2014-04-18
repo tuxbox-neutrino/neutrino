@@ -767,6 +767,8 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			if(restore)
 				FileTime.show(position);
+		} else if (msg == NeutrinoMessages::SHOW_EPG) {
+			handleMovieBrowser(NeutrinoMessages::SHOW_EPG, position);
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 
 			char ending[(sizeof(int)*2) + 6] = ".jpg";
@@ -1280,6 +1282,14 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				cSelectedMenuBookStart[5].selected = false;	// clear for next bookmark menu
 			}
 		}
+	} else if (msg == NeutrinoMessages::SHOW_EPG && isMovieBrowser && p_movie_info) {
+		bool restore = FileTime.IsVisible();
+		FileTime.kill();
+
+		cMovieInfo.showMovieInfo(*p_movie_info);
+
+		if (restore)
+			FileTime.show(position);
 	}
 	return;
 }
