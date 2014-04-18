@@ -454,7 +454,7 @@ void CRemoteControl::processAPIDnames()
 	const char *desc;
 	char lang[4];
 
-	if(g_settings.auto_lang) {
+	if(g_settings.auto_lang &&  (current_PIDs.APIDs.size() > 1)) {
 		/* first we check prefs to find pid according to pref index */
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < (int) current_PIDs.APIDs.size(); j++) {

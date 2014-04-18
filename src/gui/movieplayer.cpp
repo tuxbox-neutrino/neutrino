@@ -1639,7 +1639,7 @@ void CMoviePlayerGui::selectAutoLang()
 			}
 		}
 	}
-	if(g_settings.auto_lang) {
+	if(g_settings.auto_lang &&  (numpida > 1)) {
 		int pref_idx = -1;
 
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
