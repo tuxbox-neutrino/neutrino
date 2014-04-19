@@ -1284,7 +1284,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				cSelectedMenuBookStart[5].selected = false;	// clear for next bookmark menu
 			}
 		}
-	} else if (msg == NeutrinoMessages::SHOW_EPG && isMovieBrowser && p_movie_info) {
+	} else if (msg == NeutrinoMessages::SHOW_EPG && p_movie_info) {
 		bool restore = FileTime.IsVisible();
 		FileTime.kill();
 
