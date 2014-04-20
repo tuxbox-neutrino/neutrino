@@ -2848,10 +2848,10 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 				dvbsub_stop();
 
 				if ((!isTVMode) && (mode != mode_radio)) {
-					radioMode(false);
+					radioMode(true);
 				}
 				else if (isTVMode && (mode != mode_tv)) {
-					tvMode(false);
+					tvMode(true);
 				}
 				channelList->zapTo_ChannelID(eventinfo->channel_id);
 			}
