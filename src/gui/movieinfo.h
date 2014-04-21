@@ -163,8 +163,8 @@ class MI_MOVIE_INFO
 	int  quality;                 // user classification (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
 	int  productionDate;         // user defined Country (not from EPG yet, but might be possible)
 	int  parentalLockAge;        // used for age rating(0:never,6,12,16,18 years,99:always), usually filled by EPG (if available)
-	char format;				// currently not used
-	char audio;					// currently not used
+	//char format;				// currently not used
+	//char audio;					// currently not used
 	MI_MOVIE_BOOKMARKS bookmarks;	// bookmark collecton  for this movie
 	std::vector<EPG_AUDIO_PIDS> audioPids; // available AudioPids, usually filled by VCR. Note: Vectors are easy to is also using the heap (memory fragmentation), might be changed to array  [MI_MAX_AUDIO_PIDS]
 
@@ -204,17 +204,12 @@ class CMovieInfo
 		bool addNewBookmark(MI_MOVIE_INFO* movie_info,MI_BOOKMARK &new_bookmark);		// add a new bookmark to the given movie info. If there is no space false is returned
 		
 	private:// Functions
-		bool parseXmlTree (char* text, MI_MOVIE_INFO* movie_info);			// this is the 'good' function, but it needs the xmllib which is not currently linked within neutrino. Might be to slow as well. If used, add bookmark parsing
-		bool parseXmlQuickFix(char* text, MI_MOVIE_INFO* movie_info);		// OK, this is very quick an dirty. It does not waist execution time nor flash (this is QUICK). But, do not play to much with the xml files (e.g. with MS Notepad) since small changes in the structure could cause the parser to fail (this it DIRTY). 
-		bool loadFile_std(CFile& file,char* buffer, int buffer_size);
-		bool loadFile_vlc(CFile& file,char* buffer, int buffer_size);
-		bool loadFile(CFile& file,char* buffer, int buffer_size);
-		bool saveFile_std(const CFile& file, const char* text, const int text_size);
-		bool saveFile_vlc(const CFile& file, const char* text, const int text_sizet);
-		bool saveFile(const CFile& file, const char* text, const int text_size);
-		//void CMovieInfo::strReplace(std::string& orig, const char* fstr, const std::string rstr);
+		bool parseXmlTree (std::string &text, MI_MOVIE_INFO* movie_info);			// this is the 'good' function, but it needs the xmllib which is not currently linked within neutrino. Might be to slow as well. If used, add bookmark parsing
+		bool parseXmlQuickFix(std::string &text, MI_MOVIE_INFO* movie_info);		// OK, this is very quick an dirty. It does not waste execution time or flash (this is QUICK). But, do not play to much with the xml files (e.g. with MS Notepad) since small changes in the structure could cause the parser to fail (this it DIRTY). 
+		bool loadFile(CFile& file, std::string &buffer);
+		bool saveFile(const CFile& file, std::string &buffer);
 	private:// variables
 };
 
 #endif /*MOVIEINFO_H_*/
-
+// vim:ts=4

@@ -1524,6 +1524,7 @@ moviebrowser.hint_newbook_backward Neue Wiederholung\n 'blue' für Endposition
 moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
+moviebrowser.info_file Datei
 moviebrowser.info_filename Name
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre
@@ -2172,6 +2173,7 @@ unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
 unit.decimal ,
+unit.long.years Jahre
 unit.short.hour h
 unit.short.millisecond ms
 unit.short.minute min
