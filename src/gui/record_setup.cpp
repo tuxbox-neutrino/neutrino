@@ -245,6 +245,10 @@ int CRecordSetup::showRecordSetup()
 	ft->setHint("", LOCALE_MENU_HINT_RECORD_FILENAME_TEMPLATE);
 	recordingSettings->addItem(ft);
 
+	CMenuOptionChooser* cover = new CMenuOptionChooser(LOCALE_RECORDINGMENU_AUTO_COVER, &g_settings.auto_cover, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	cover->setHint("", LOCALE_MENU_HINT_RECORD_AUTO_COVER);
+	recordingSettings->addItem(cover);
+
 	recordingSettings->addItem(GenericMenuSeparatorLine);
 
 	if (!g_settings.easymenu) {
