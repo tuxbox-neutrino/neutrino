@@ -1285,13 +1285,19 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			}
 		}
 	} else if (msg == NeutrinoMessages::SHOW_EPG && p_movie_info) {
+		CTimeOSD::mode m_mode = FileTime.getMode();
 		bool restore = FileTime.IsVisible();
-		FileTime.kill();
+		if (restore)
+			FileTime.kill();
+		InfoClock->enableInfoClock(false);
 
 		cMovieInfo.showMovieInfo(*p_movie_info);
 
-		if (restore)
-			FileTime.show(position);
+		InfoClock->enableInfoClock(true);
+		if (restore) {
+			FileTime.setMode(m_mode);
+			FileTime.update(position, duration);
+		}
 	}
 	return;
 }

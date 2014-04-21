@@ -58,5 +58,7 @@ class CTimeOSD : public CComponentsFrmClock
 		bool IsVisible() {return m_mode != MODE_HIDE;}
 		void update(int position, int duration);
 		void switchMode(int position, int duration);
+		mode getMode() { return m_mode; };
+		void setMode (mode mode_) { m_mode = mode_; };
 };
 #endif
