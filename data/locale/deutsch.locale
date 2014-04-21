@@ -1233,6 +1233,7 @@ menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbe
 menu.hint_video_pip Bild in Bild Größe und Position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
+menu.hint_video_sdosd Aktivieren/Deaktivieren der OSD Anzeige am Analogausgang (Scart, Cinch)
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
@@ -2093,6 +2094,7 @@ videomenu.pip_error PiP Startfehler
 videomenu.saturation Sättigung
 videomenu.scart Scart
 videomenu.screensetup Bildbereich
+videomenu.sdosd SD OSD
 videomenu.sharpness Schärfe
 videomenu.tv-scart TV Scart
 videomenu.vcrsignal VCR-Ausgang Signalart
