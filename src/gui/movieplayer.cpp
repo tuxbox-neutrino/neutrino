@@ -792,7 +792,7 @@ void CMoviePlayerGui::PlayFile(void)
 			playstate = CMoviePlayerGui::STOPPED;
 			g_RCInput->postMsg(msg, data);
 		} else if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER) {
-			if (playstate == CMoviePlayerGui::PLAY && position >= 300000)
+			if (playstate == CMoviePlayerGui::PLAY && (position >= 300000 || (duration<300000 && (position>(duration /2)))))
 				makeScreenShot(true);
 		} else if (msg == CRCInput::RC_favorites) {
 			makeScreenShot(false, true);
