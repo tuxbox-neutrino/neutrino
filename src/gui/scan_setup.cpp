@@ -1596,8 +1596,8 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 			/* if mode changed, set current master too */
 			if (femaster >= 0)
 				fe->setMaster(femaster);
+			setDiseqcOptions(fenumber);
 		}
-		setDiseqcOptions(fenumber);
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_FE_MODE_MASTER)) {
 		printf("[neutrino] CScanSetup::%s: fe%d link %d \n", __FUNCTION__, fenumber, femaster);
