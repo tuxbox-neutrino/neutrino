@@ -153,6 +153,8 @@ bin_PROGRAMS += dt
 dt_SOURCES = dt.c
 bin_PROGRAMS += rcsim
 rcsim_SOURCES = rcsim.c rcsim.h
+bin_PROGRAMS += mdev_helper
+mdev_helper_SOURCES = mdev_helper.cpp
 
 endif
 if BOXTYPE_TRIPLE
