@@ -95,10 +95,7 @@ devtool_s CHDDMenuHandler::devtools[] = {
 
 static int my_filter(const struct dirent * dent)
 {
-	if ((dent->d_name[0] == 's' && (dent->d_name[1] == 'd' || dent->d_name[1] == 'r')) ||
-		!strncmp(dent->d_name, "mmcblk", 6))
-		return 1;
-	return 0;
+	return CHDDMenuHandler::getInstance()->filterDevName(dent->d_name);
 }
 
 CHDDMenuHandler::CHDDMenuHandler()
@@ -109,6 +106,62 @@ CHDDMenuHandler::CHDDMenuHandler()
 
 CHDDMenuHandler::~CHDDMenuHandler()
 {
+}
+
+CHDDMenuHandler* CHDDMenuHandler::getInstance()
+{
+	static CHDDMenuHandler* me = NULL;
+
+	if(!me)
+		me = new CHDDMenuHandler();
+
+	return me;
+}
+
+int CHDDMenuHandler::filterDevName(const char * name)
+{
+	if ((name[0] == 's' && (name[1] == 'd' || name[1] == 'r')) ||
+		!strncmp(name, "mmcblk", 6))
+		return 1;
+	return 0;
+}
+
+int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
+{
+	if(msg != NeutrinoMessages::EVT_HOTPLUG)
+		return messages_return::unhandled;
+
+	std::string str((char *) data);
+	std::map<std::string,std::string> smap;
+
+	if (!split_config_string(str, smap))
+		return messages_return::handled;
+
+	std::map<std::string,std::string>::iterator it = smap.find("MDEV");
+	if (it == smap.end())
+		return messages_return::handled;
+
+	std::string dev = it->second;
+
+	it = smap.find("ACTION");
+	if (it == smap.end())
+		return messages_return::handled;
+
+	bool added = it->second == "add";
+
+	printf("CHDDMenuHandler::handleMsg: %s MDEV=%s\n", it->second.c_str(), dev.c_str());
+
+	if (!filterDevName(dev.c_str()))
+		return messages_return::handled;
+
+	bool mounted = is_mounted(dev.c_str());
+	std::string message = dev + ": " + (added ? 
+			g_Locale->getText(mounted ? LOCALE_HDD_MOUNT_OK : LOCALE_HDD_MOUNT_FAILED)
+			: g_Locale->getText(LOCALE_HDD_UMOUNTED));
+
+	ShowHint(LOCALE_MESSAGEBOX_INFO, message.c_str());
+
+	return messages_return::handled;
 }
 
 bool CHDDMenuHandler::is_mounted(const char *dev)

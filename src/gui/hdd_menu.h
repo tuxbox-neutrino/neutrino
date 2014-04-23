@@ -88,12 +88,16 @@ class CHDDMenuHandler : public CMenuTarget
 		int checkDevice(std::string dev);
 		int formatDevice(std::string dev);
 		void showError(neutrino_locale_t err);
+		CHDDMenuHandler();
 
 	public:
-		CHDDMenuHandler();
 		~CHDDMenuHandler();
-		int  exec( CMenuTarget* parent,  const std::string &actionkey);
-		int  doMenu();
+
+		static CHDDMenuHandler* getInstance();
+		int exec( CMenuTarget* parent,  const std::string &actionkey);
+		int doMenu();
+		int filterDevName(const char * name);
+		int handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 };
 
 #endif
