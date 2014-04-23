@@ -740,3 +740,20 @@ void hdd_flush(const char * fname)
 		close(fd);
 	}
 }
+
+/* split string like PARAM1=value1 PARAM2=value2 into map */
+bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap)
+{
+	smap.clear();
+	std::string::size_type start = 0;
+	std::string::size_type end = 0;
+	while ((end = str.find(" ", start)) != std::string::npos) {
+		std::string param = str.substr(start, end - start);
+		std::string::size_type i = param.find("=");
+		if (i != std::string::npos) {
+			smap[param.substr(0,i).c_str()] = param.substr(i+1).c_str();
+		}
+		start = end + 1;
+	}
+	return !smap.empty();
+}
