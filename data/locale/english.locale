@@ -631,6 +631,8 @@ hdd_fs_unknown unknown
 hdd_manage Manage drives
 hdd_middle Mid
 hdd_mount Mount
+hdd_mount_ok Device ready to use.
+hdd_mount_failed Failed to mount, check HDD settings menu.
 hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
@@ -639,6 +641,7 @@ hdd_settings Hard Disk Drive/USB
 hdd_sleep Switch off after...
 hdd_slow Slow
 hdd_umount Unmount
+hdd_umounted Device removed
 hdd_umount_warn unmount device
 imageinfo.creator Creator:
 imageinfo.date Date:
