@@ -1167,6 +1167,13 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_NEUTRINO)
 					{
+						printf("CRCInput::getMsg_us: INITID_NEUTRINO: msg %x size %d data %x\n", (int) emsg.eventID, emsg.dataSize, (int) p);
+						if (emsg.eventID == NeutrinoMessages::EVT_HOTPLUG) {
+							printf("EVT_HOTPLUG: [%s]\n", (char *) p);
+							*msg  = emsg.eventID;
+							*data = (neutrino_msg_data_t) p;
+							dont_delete_p = true;
+						}
 #if 0
 						if ((emsg.eventID == NeutrinoMessages::EVT_RECORDING_ENDED) &&
 								(read_bytes == sizeof(stream2file_status2_t)))
