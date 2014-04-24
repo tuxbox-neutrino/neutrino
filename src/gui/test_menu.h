@@ -46,7 +46,7 @@ class CTestMenu : public CMenuTarget
 		CComponentsForm *form;
 		CComponentsText *txt;
 		CComponentsHeader *header;
-		CComponentsHeader *footer;
+		CComponentsFooter *footer;
 		CComponentsIconForm *iconform;
 		CComponentsWindow *window;
 		CComponentsButton *button;
