@@ -249,6 +249,36 @@ void CComponentsHeader::addContextButton(const int& buttons)
 		addContextButton(NEUTRINO_ICON_BUTTON_INFO);
 	if (buttons & CC_BTN_MENU)
 		addContextButton(NEUTRINO_ICON_BUTTON_MENU);
+	if (buttons & CC_BTN_MUTE_ZAP_ACTIVE )
+		addContextButton(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE);
+	if (buttons & CC_BTN_MUTE_ZAP_INACTIVE )
+		addContextButton(NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE);
+	if (buttons & CC_BTN_OKAY)
+		addContextButton(NEUTRINO_ICON_BUTTON_OKAY);
+	if (buttons & CC_BTN_MUTE)
+		addContextButton(NEUTRINO_ICON_BUTTON_MUTE);
+	if (buttons & CC_BTN_TOP)
+		addContextButton(NEUTRINO_ICON_BUTTON_TOP);
+	if (buttons & CC_BTN_DOWN)
+		addContextButton(NEUTRINO_ICON_BUTTON_DOWN);
+	if (buttons & CC_BTN_RIGHT)
+		addContextButton(NEUTRINO_ICON_BUTTON_RIGHT);
+	if (buttons & CC_BTN_LEFT)
+		addContextButton(NEUTRINO_ICON_BUTTON_LEFT);
+	if (buttons & CC_BTN_FORWARD)
+		addContextButton(NEUTRINO_ICON_BUTTON_FORWARD);
+	if (buttons & CC_BTN_BACKWARD)
+		addContextButton(NEUTRINO_ICON_BUTTON_BACKWARD);
+	if (buttons & CC_BTN_PAUSE)
+		addContextButton(NEUTRINO_ICON_BUTTON_PAUSE);
+	if (buttons & CC_BTN_PLAY)
+		addContextButton(NEUTRINO_ICON_BUTTON_PLAY);
+	if (buttons & CC_BTN_RECORD_ACTIVE)
+		addContextButton(NEUTRINO_ICON_BUTTON_RECORD_ACTIVE);
+	if (buttons & CC_BTN_RECORD_INACTIVE)
+		addContextButton(NEUTRINO_ICON_BUTTON_RECORD_INACTIVE);
+	if (buttons & CC_BTN_RECORD_STOP)
+		addContextButton(NEUTRINO_ICON_BUTTON_STOP);
 }
 
 void CComponentsHeader::removeContextButtons()
