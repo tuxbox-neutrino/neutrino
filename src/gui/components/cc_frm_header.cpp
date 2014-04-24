@@ -177,6 +177,7 @@ void CComponentsHeader::setIcon(const char* icon_name)
 void CComponentsHeader::setIcon(const std::string& icon_name)
 {
 	cch_icon_name 	= icon_name;
+	initIcon();
 }
 
 void CComponentsHeader::initIcon()
