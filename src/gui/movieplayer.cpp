@@ -474,6 +474,8 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
 			if(caller->playback)
 				caller->playback->RequestAbort();
+		} else if (msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC) {
+			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 	}
 	if(hintbox != NULL){
