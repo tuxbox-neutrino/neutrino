@@ -167,7 +167,7 @@ void CServiceManager::RemoveAllChannels()
 
 void CServiceManager::RemovePosition(t_satellite_position satellitePosition)
 {
-	INFO("delete %d, size before: %d", satellitePosition, allchans.size());
+	INFO("delete %d, size before: %zd", satellitePosition, allchans.size());
 	t_channel_id live_id = CZapit::getInstance()->GetCurrentChannelID();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end();) {
 		if (it->second.getSatellitePosition() == satellitePosition && live_id != it->first)
@@ -176,7 +176,7 @@ void CServiceManager::RemovePosition(t_satellite_position satellitePosition)
 			++it;
 	}
 	services_changed = true;
-	INFO("delete %d, size after: %d", satellitePosition, allchans.size());
+	INFO("delete %d, size after: %zd", satellitePosition, allchans.size());
 }
 
 #if 0 
