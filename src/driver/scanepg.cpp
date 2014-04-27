@@ -102,7 +102,7 @@ bool CEpgScan::AddFavorites()
 		CChannelList * clist = TVfavList->Bouquets[j]->channelList;
 		AddBouquet(clist);
 	}
-	INFO("scan map size: %d -> %d\n", old_size, scanmap.size());
+	INFO("scan map size: %d -> %zd\n", old_size, scanmap.size());
 	return (old_size != scanmap.size());
 }
 
@@ -126,7 +126,7 @@ bool CEpgScan::AddSelected()
 			AddBouquet(clist);
 		}
 	}
-	INFO("scan map size: %d -> %d\n", old_size, scanmap.size());
+	INFO("scan map size: %d -> %zd\n", old_size, scanmap.size());
 	return (old_size != scanmap.size());
 }
 
@@ -170,7 +170,7 @@ void CEpgScan::AddTransponders()
 			scanmap.clear();
 			current_bnum = bouquetList->getActiveBouquetNumber();
 			AddBouquet(bouquetList->Bouquets[current_bnum]->channelList);
-			INFO("Added bouquet #%d, scan map size: %d", current_bnum, scanmap.size());
+			INFO("Added bouquet #%d, scan map size: %zd", current_bnum, scanmap.size());
 		}
 	} else {
 		AddFavorites();
@@ -194,7 +194,7 @@ void CEpgScan::Start(bool instandby)
 	standby = instandby;
 	live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	AddTransponders();
-	INFO("starting %s scan, scanning %d, scan map size: %d", standby ? "standby" : "live", scan_in_progress, scanmap.size());
+	INFO("starting %s scan, scanning %d, scan map size: %zd", standby ? "standby" : "live", scan_in_progress, scanmap.size());
 	if (standby || !scan_in_progress)
 		Next();
 }
@@ -243,7 +243,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		/* live channel changed, block scan channel change by timer */
 		scan_in_progress = true;
 		AddTransponders();
-		INFO("EVT_ZAP_COMPLETE, scan map size: %d\n", scanmap.size());
+		INFO("EVT_ZAP_COMPLETE, scan map size: %zd\n", scanmap.size());
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
@@ -254,7 +254,7 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			scanned.insert(newchan->getTransponderId());
 			scanmap.erase(newchan->getTransponderId());
 		}
-		INFO("EIT read complete [" PRINTF_CHANNEL_ID_TYPE "], scan map size: %d", chid, scanmap.size());
+		INFO("EIT read complete [" PRINTF_CHANNEL_ID_TYPE "], scan map size: %zd", chid, scanmap.size());
 
 		Next();
 		return messages_return::handled;
