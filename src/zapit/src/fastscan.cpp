@@ -331,7 +331,7 @@ bool CServiceScan::ReadFst(unsigned short pid, unsigned short operator_id, bool 
 	} while(!one_section && (sectotal < last));
 
 	delete dmx;
-	printf("[FST] %d sections\n", fst_sections.size());
+	printf("[FST] %zd sections\n", fst_sections.size());
 	return !fst_sections.empty();
 }
 
