@@ -133,7 +133,7 @@ bool CStreamInstance::Send(ssize_t r)
 			}
 		} while ((count > 0) && (i-- > 0));
 		if (count)
-			printf("send err, fd %d: (%d from %d)\n", *it, r-count, r);
+			printf("send err, fd %d: (%zd from %zd)\n", *it, r-count, r);
 	}
 	return true;
 }
@@ -282,7 +282,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 
 	t_channel_id chid = channel->getChannelID();
 	if (CRecordManager::getInstance()->RecordingStatus(chid)) {
-		printf("CStreamManager::Parse: channel %llx recorded, aborting..\n", chid);
+		printf("CStreamManager::Parse: channel %" PRIx64 " recorded, aborting..\n", chid);
 		return frontend;
 	}
 
@@ -401,7 +401,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 #else
 	t_channel_id tmpid;
 	bp = &cbuf[5];
-	if (sscanf(bp, "id=%llx", &tmpid) == 1) {
+	if (sscanf(bp, "id=%" SCNx64, &tmpid) == 1) {
 		channel = CServiceManager::getInstance()->FindChannel(tmpid);
 		chid = tmpid;
 	}
@@ -409,7 +409,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 	if (!channel)
 		return false;
 
-	printf("CStreamManager::Parse: channel_id %llx [%s]\n", chid, channel->getName().c_str());
+	printf("CStreamManager::Parse: channel_id %" PRIx64 " [%s]\n", chid, channel->getName().c_str());
 
 	frontend = FindFrontend(channel);
 	if (!frontend) {
@@ -425,7 +425,7 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids)
 {
 	if (pids.empty()) {
-		printf("CStreamManager::AddPids: no pids in url, using channel %llx pids\n", channel->getChannelID());
+		printf("CStreamManager::AddPids: no pids in url, using channel %" PRIx64 " pids\n", channel->getChannelID());
 		if (channel->getVideoPid())
 			pids.insert(channel->getVideoPid());
 		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
