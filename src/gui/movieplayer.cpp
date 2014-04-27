@@ -3,7 +3,7 @@
 
   Movieplayer (c) 2003, 2004 by gagga
   Based on code by Dirch, obi and the Metzler Bros. Thanks.
-  (C) 2011 Stefan Seyfried
+  (C) 2010-2014 Stefan Seyfried
 
   Copyright (C) 2011 CoolStream International Ltd
 
@@ -1489,12 +1489,11 @@ bool CMoviePlayerGui::convertSubtitle(std::string &text)
 	size_t ilen = text.length();
 	size_t olen = ilen*4;
 	size_t len = olen;
-	char * buf = (char *) malloc(olen+1);
+	char * buf = (char *) calloc(olen + 1, 1);
 	if (buf == NULL) {
 		iconv_close(cd);
 		return ret;
 	}
-	memset(buf, olen+1, 0);
 	char * out = buf;
 	char * in = (char *) text.c_str();
 	if (iconv(cd, &in, &ilen, &out, &olen) == (size_t)-1) {
