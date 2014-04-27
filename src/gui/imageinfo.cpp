@@ -184,7 +184,6 @@ void CImageInfo::ShowWindow()
 		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO, 0, CC_SHADOW_ON);
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 		footer = cc_win->getFooterObject();
-		footer->setColorBody(COL_INFOBAR_SHADOW_PLUS_1);
 		int h_footer = footer->getHeight();
 		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, h_footer-h_footer/4, LOCALE_BUILDINFO_MENU, footer, false , true, false, footer->getColorBody(), footer->getColorBody());
 	}
