@@ -1821,8 +1821,8 @@ int CLuaInstance::ComponentsTextSetText(lua_State *L)
 	if (!m) return 0;
 
 	std::string text = "";
-	int mode = m->mode;
-	int font_text = m->font_text;
+	lua_Integer mode = m->mode;
+	lua_Integer font_text = m->font_text;
 	tableLookup(L, "text", text);
 	tableLookup(L, "mode", mode);
 	tableLookup(L, "font_text", font_text);
@@ -1896,9 +1896,9 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	CLuaCWindow* parent = NULL;
-	int x=10, y=10, dx=100, dy=100;
+	lua_Integer x=10, y=10, dx=100, dy=100;
 	std::string image_name         = "";
-	int         alignment         = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER;
+	lua_Integer alignment         = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER;
 
 	std::string tmp1             = "false";	// has_shadow
 	lua_Integer color_frame      = (lua_Integer)COL_MENUCONTENT_PLUS_6;
