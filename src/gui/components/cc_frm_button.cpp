@@ -32,8 +32,6 @@
 
 #include "cc_frm_button.h"
 
-#define FRAME_TH 3
-#define H_SPACE 4
 
 using namespace std;
 
@@ -83,7 +81,10 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	col_shadow	= color_shadow;
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
-	fr_thickness 	= FRAME_TH;
+	fr_thickness 	= 3;
+	append_x_offset = 2*fr_thickness;
+	append_y_offset = append_x_offset;
+	corner_rad	= RADIUS_MID;
 	
 	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
 	cc_btn_icon_obj	= NULL;
@@ -108,42 +109,13 @@ void CComponentsButton::initIcon()
 
 	//initialize icon object
 	if (cc_btn_icon_obj == NULL){
-		cc_btn_icon_obj = new CComponentsPicture(0, 0, 0, 0, cc_btn_icon);
-		addCCItem(cc_btn_icon_obj);
-	}
-
-	//get first icon dimensions
-	int icon_w = cc_btn_icon_obj->getWidth();
-	int icon_h = cc_btn_icon_obj->getHeight();
-
-	//position of icon default centered
-	int icon_x = width/2-icon_w/2;
-	int icon_y = height/2-icon_h/2;
-
-	//set properties to picture object
-	if (cc_btn_icon_obj){
-		cc_btn_icon_obj->setDimensionsAll(icon_x, icon_y, icon_w, icon_h);
-		cc_btn_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, CC_CENTERED, 0, 0, cc_btn_icon, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
-	
 }
 
 void CComponentsButton::initCaption()
 {
-	//if we have an icon, we must calculate positions for booth items together
-	//also the icon width and left position = 0
-	int face_w = 0;
-
-	//calculate width and left position of icon, if available, picture position is default centered
-	if (cc_btn_icon_obj){
-		//if found a picture object, then get width from it...
-		face_w = cc_btn_icon_obj->getWidth();
-		//...and set position as centered
-		int face_x = width/2 - face_w/2;
-		cc_btn_icon_obj->setXPos(face_x);
-	}	
-
 	//init label as caption object and add to container
 	if (!cc_btn_capt.empty()){
 		if (cc_btn_capt_obj == NULL){
@@ -158,31 +130,35 @@ void CComponentsButton::initCaption()
 		}
 	}
 
-	//basicly we set caption appended to picture if available and to top border, width = 0
-	int cap_x = fr_thickness + H_SPACE;
-	int cap_y = fr_thickness + H_SPACE;
-
-	//set properties to label object
+	//set basic properties
 	if (cc_btn_capt_obj){
-		int cap_w 		= width - 2*fr_thickness - face_w;
-		int cap_h		= height - 2*fr_thickness - H_SPACE;
-		if (cc_btn_icon_obj){
-			cc_btn_icon_obj->setXPos(cap_x);
-			cap_x += face_w + H_SPACE;
-		}
+		//position and size
+		int x_cap = fr_thickness + append_x_offset;
+		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
-		cc_btn_capt_obj->setDimensionsAll(cap_x, cap_y, cap_w, cap_h);
-		cc_btn_font 	= *cc_btn_dy_font->getDynFont(cap_w, cap_h, cc_btn_capt);
+		int w_cap = width - x_cap - 2*fr_thickness - append_x_offset;
+		int h_cap = height - 2*fr_thickness;
 		
-		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT);
+		/*FIXME:
+			paint of  centered text in y without y_offset
+			looks unlovely displaced in y direction besides icon,
+			but text render isn't wrong here, because chars like e. 'q', 'y' are considered!
+		*/
+		int y_cap = height/2 - h_cap/2 + append_x_offset/2 /*CC_CENTERED*/;
+
+		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
+
+		//text and font
+		cc_btn_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;
+
+		//set color
+		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT);
 
 		//corner of text item
 		cc_btn_capt_obj->setCorner(corner_rad-fr_thickness, corner_type);
 	}
-	
-
 }
 
 void CComponentsButton::setCaption(const std::string& text)

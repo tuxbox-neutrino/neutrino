@@ -28,7 +28,9 @@
 
 #include <config.h>
 #include "cc_base.h"
-#include "cc_frm.h"
+#include "cc_frm_chain.h"
+#include "cc_item_picture.h"
+#include "cc_item_text.h"
 #include <string>
 #include <driver/neutrinofonts.h>
 
@@ -36,7 +38,7 @@
 /*!
 Shows a button box with caption and optional icon.
 */
-class CComponentsButton : public CComponentsForm
+class CComponentsButton : public CComponentsFrmChain
 {
 	protected:
 		///object: picture object
