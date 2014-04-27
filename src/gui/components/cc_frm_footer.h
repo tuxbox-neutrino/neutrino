@@ -26,6 +26,21 @@
 
 
 #include "cc_frm_header.h"
+#include "cc_frm_button.h"
+#include <gui/widget/buttons.h> //for compatibility with 'button_label' type
+
+//for 'button_label' type with string
+typedef struct button_label_s
+{
+	const char *		button;
+	std::string 		text;
+} button_label_s_struct;
+
+typedef struct button_label_l
+{
+	const char *      button;
+	neutrino_locale_t locale;
+} button_label_l_struct;
 
 /*!
 CComponentsFooter, sub class of CComponentsHeader provides prepared container for footer
@@ -33,7 +48,7 @@ Is mostly usable like a header but without caption, and context button icons.
 */
 class CComponentsFooter : public CComponentsHeader
 {
-	protected:
+	private:
 		void initVarFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const int& buttons = 0,
 					CComponentsForm *parent = NULL,
@@ -41,7 +56,12 @@ class CComponentsFooter : public CComponentsHeader
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		///show button frame and background, default false
+		bool btn_contour;
+
 	public:
+		
 		CComponentsFooter(CComponentsForm *parent = NULL);
 		CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const int& buttons = 0,
@@ -50,6 +70,23 @@ class CComponentsFooter : public CComponentsHeader
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		///add button labels with string label type as content, count as size_t, total_width as int, label width as int
+		void setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& total_width = 0, const int& label_width = 0);
+		///add button labels with locale label type as content, count as size_t, total_width as int, label width as int
+		void setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& total_width = 0, const int& label_width = 0);
+		
+		///add button labels with old label type, count as size_t, total_width as int, label width as int
+		///NOTE: for compatibility with older button handler find in gui/widget/buttons.h
+		void setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& total_width = 0, const int& label_width = 0);
+
+		///add single button label with string label type as content, total_width as int, label width as int
+		void setButtonLabel(const char *button_icon, const std::string& text, const int& total_width = 0, const int& label_width = 0);
+		///add single button label with locale label type as content, total_width as int, label width as int
+		void setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& total_width = 0, const int& label_width = 0);
+		
+		///causes show/hide countour of button frame and background, parameter bool show, default= true
+		void showButtonContour(bool show = true){btn_contour = show;};
 };
 
 #endif
