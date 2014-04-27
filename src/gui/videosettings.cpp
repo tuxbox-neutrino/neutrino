@@ -57,7 +57,9 @@
 #include <cs_api.h>
 #include <video.h>
 
+#ifdef BOXMODEL_APOLLO
 #include <cnxtfb.h>
+#endif
 
 extern cVideo *videoDecoder;
 #ifdef ENABLE_PIP
