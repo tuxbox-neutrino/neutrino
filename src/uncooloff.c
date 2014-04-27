@@ -3,15 +3,17 @@
  * this is needed because the drivers do not implement a proper
  * hwclock interface :-(
  *
- * (C) 2013 Stefan Seyfried
+ * (C) 2013-2014 Stefan Seyfried
  *
  * License: GPLv2+
  */
 
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
-#include <linux/ioctl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
 #include <cs_frontpanel.h>
 
@@ -39,7 +41,7 @@ int main(int argc, char **argv)
 		fp_timer = (timer_seconds - now) / 60;
 		if (fp_timer < 1) {
 			fprintf(stderr, "warning: interval less than 1 minute (%d s) correcting\n",
-					(timer_seconds - now));
+					(int)(timer_seconds - now));
 			fp_timer = 1;
 		}
 	}
