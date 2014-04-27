@@ -102,7 +102,6 @@ private:
 	int tvsort[LIST_MODE_LAST];
 	int radiosort[LIST_MODE_LAST];
 
-	CMoviePluginChangeExec 		*MoviePluginChanger;
 	bool				channellist_visible;
 
 	void SDT_ReloadChannels();
@@ -131,6 +130,7 @@ private:
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
 	void Cleanup();
+	void CheckFastScan(bool standby = false, bool reload = true);
 	CNeutrinoApp();
 
 public:
@@ -214,6 +214,8 @@ public:
 	CPersonalizeGui & getPersonalizeGui() { return personalize; }
 	bool getChannellistIsVisible() { return channellist_visible; }
 	void zapTo(t_channel_id channel_id);
+	bool wakeupFromStandby(void);
+	void standbyToStandby(void);
 };
 #endif
 

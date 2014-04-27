@@ -35,7 +35,7 @@
 #include <neutrino_menue.h>
 #include <system/setting_helpers.h>
 #include <system/helpers.h>
-
+#include <system/debug.h>
 #include <gui/miscsettings_menu.h>
 #include <gui/cec_setup.h>
 #include <gui/filebrowser.h>
@@ -49,14 +49,13 @@
 #include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
+#include <driver/scanepg.h>
 
 #include <system/debug.h>
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
 
 #include <video.h>
-
-//#define ONE_KEY_PLUGIN
 
 extern CPlugins       * g_PluginList;
 extern cVideo *videoDecoder;
@@ -94,10 +93,31 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return menu_return::RETURN_REPAINT;
 	}
-#ifdef ONE_KEY_PLUGIN
-	else if(actionKey == "onekeyplugin")
+	else if(actionKey == "onekey_plugin")
 	{
-		CMenuWidget MoviePluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES);
+		CMenuWidget OneKeyPluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES);
+		OneKeyPluginSelector.addItem(GenericMenuSeparator);
+
+		char id[5];
+		int cnt = 0;
+		int enabled_count = 0;
+		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
+		{
+			if (!g_PluginList->isHidden(count))
+			{
+				sprintf(id, "%d", count);
+				enabled_count++;
+				OneKeyPluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new COnekeyPluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
+				cnt++;
+			}
+		}
+
+		OneKeyPluginSelector.exec(NULL, "");
+		return menu_return::RETURN_REPAINT;
+	}
+	else if(actionKey == "movieplayer_plugin")
+	{
+		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
 		MoviePluginSelector.addItem(GenericMenuSeparator);
 
 		char id[5];
@@ -105,12 +125,11 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		int enabled_count = 0;
 		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
 		{
-			if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count))
+			if (!g_PluginList->isHidden(count))
 			{
-				// e.g. vtxt-plugins
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new COnekeyPluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
+				MoviePluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new CMoviePluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
 				cnt++;
 			}
 		}
@@ -118,7 +137,6 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		MoviePluginSelector.exec(NULL, "");
 		return menu_return::RETURN_REPAINT;
 	}
-#endif /*ONE_KEY_PLUGIN*/
 	else if(actionKey == "info")
 	{
 		unsigned num = CEitManager::getInstance()->getEventsCount();
@@ -183,13 +201,22 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 };
 #endif /*CPU_FREQ*/
 
-#define EPG_SCAN_OPTION_COUNT 3
-const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[EPG_SCAN_OPTION_COUNT] =
+const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
 {
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
-	{ 2, LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
+	{ CEpgScan::SCAN_OFF,     LOCALE_OPTIONS_OFF },
+	{ CEpgScan::SCAN_CURRENT, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
+	{ CEpgScan::SCAN_FAV,     LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
+	{ CEpgScan::SCAN_SEL,     LOCALE_MISCSETTINGS_EPG_SCAN_SEL },
 };
+#define EPG_SCAN_OPTION_COUNT (sizeof(EPG_SCAN_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
+
+const CMenuOptionChooser::keyval EPG_SCAN_MODE_OPTIONS[] =
+{
+	{ CEpgScan::MODE_LIVE,     LOCALE_MISCSETTINGS_EPG_SCAN_LIVE },
+	{ CEpgScan::MODE_STANDBY,  LOCALE_MISCSETTINGS_EPG_SCAN_STANDBY },
+	{ CEpgScan::MODE_ALWAYS,   LOCALE_MISCSETTINGS_EPG_SCAN_ALWAYS }
+};
+#define EPG_SCAN_MODE_OPTION_COUNT (sizeof(EPG_SCAN_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 #define SLEEPTIMER_MIN_OPTION_COUNT 7
 const CMenuOptionChooser::keyval_ext SLEEPTIMER_MIN_OPTIONS[SLEEPTIMER_MIN_OPTION_COUNT] =
@@ -292,6 +319,13 @@ int CMiscMenue::showMiscSettingsMenu()
 	return res;
 }
 
+const CMenuOptionChooser::keyval DEBUG_MODE_OPTIONS[DEBUG_MODES] =
+{
+	{ DEBUG_NORMAL	, LOCALE_DEBUG_LEVEL_1	},
+	{ DEBUG_INFO	, LOCALE_DEBUG_LEVEL_2	},
+	{ DEBUG_DEBUG	, LOCALE_DEBUG_LEVEL_3	}
+};
+
 //general settings
 void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 {
@@ -314,20 +348,25 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 		ms_general->addItem(mn);
 	}
 
-	//rotor
-	//don't show rotor settings on cable box
-	if (CFEManager::getInstance()->haveSat()) {
-		mc = new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
-		mc->setHint("", LOCALE_MENU_HINT_ROTOR_SWAP);
-		ms_general->addItem(mc);
-	}
+	ms_general->addItem(GenericMenuSeparatorLine);
 
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir");
 	mf->setHint("", LOCALE_MENU_HINT_PLUGINS_HDD_DIR);
 	ms_general->addItem(mf);
-#ifdef ONE_KEY_PLUGIN
-	ms_general->addItem(new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin,this,"onekeyplugin"));
-#endif /*ONE_KEY_PLUGIN*/
+
+	mf = new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin, this, "onekey_plugin");
+	mf->setHint("", LOCALE_MENU_HINT_ONEKEY_PLUGIN);
+	ms_general->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_MPKEY_PLUGIN, true, g_settings.movieplayer_plugin, this, "movieplayer_plugin");
+	mf->setHint("", LOCALE_MENU_HINT_MOVIEPLAYER_PLUGIN);
+	ms_general->addItem(mf);
+
+	//set debug level
+	ms_general->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_DEBUG));
+	CMenuOptionChooser * md = new CMenuOptionChooser(LOCALE_DEBUG_LEVEL, &debug, DEBUG_MODE_OPTIONS, DEBUG_MODES, true);
+// 	mc->setHint("", LOCALE_MENU_HINT_START_TOSTANDBY);
+	ms_general->addItem(md);
 }
 
 #define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 2
@@ -442,6 +481,10 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 		true /*CFEManager::getInstance()->getEnabledCount() > 1*/);
 	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
+	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS, EPG_SCAN_MODE_OPTION_COUNT,
+		CFEManager::getInstance()->getEnabledCount() > 1);
+	mc3->setHint("", LOCALE_MENU_HINT_EPG_SCAN_MODE);
+
 	ms_epg->addItem(mc);
 	ms_epg->addItem(mc1);
 	ms_epg->addItem(mf);
@@ -450,6 +493,7 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(mf3);
 	ms_epg->addItem(mf4);
 	ms_epg->addItem(mc2);
+	ms_epg->addItem(mc3);
 }
 
 //filebrowser settings

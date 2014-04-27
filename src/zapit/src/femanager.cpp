@@ -110,7 +110,7 @@ bool CFEManager::Init()
 				delete fe;
 		}
 	}
-	for (int i = 0; i < MAX_DMX_UNITS; i++)
+	for (unsigned i = 0; i < MAX_DMX_UNITS; i++)
 		dmap.push_back(CFeDmx(i));
 
 	INFO("found %d frontends, %d demuxes\n", (int)femap.size(), (int)dmap.size());
@@ -250,6 +250,7 @@ bool CFEManager::loadSettings()
 		fe_config.uni_pin		= getConfigValue(fe, "uni_pin", -1);
 		fe_config.diseqc_order		= getConfigValue(fe, "diseqc_order", UNCOMMITED_FIRST);
 		fe_config.use_usals		= getConfigValue(fe, "use_usals", 0);
+		fe_config.rotor_swap		= getConfigValue(fe, "rotor_swap", 0);
 
 		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
@@ -342,6 +343,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "uni_pin", fe_config.uni_pin);
 		setConfigValue(fe, "diseqc_order", fe_config.diseqc_order);
 		setConfigValue(fe, "use_usals", fe_config.use_usals);
+		setConfigValue(fe, "rotor_swap", fe_config.rotor_swap);
 		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 		setConfigValue(fe, "mode", fe->getMode());
 		setConfigValue(fe, "master", fe->getMaster());
@@ -400,17 +402,18 @@ void CFEManager::linkFrontends(bool init)
 	enabled_count = 0;
 	have_sat = have_cable = have_terr = false;
 	unused_demux = 0;
+	int demuxes[MAX_DMX_UNITS];
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++)
+		demuxes[i] = 0;
+	demuxes[0] = 1;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
-#if 0
-		if (fe->getInfo()->type != FE_QPSK)
-			fe->setMode(CFrontend::FE_MODE_INDEPENDENT);
-#endif
 		int femode = fe->getMode();
 		fe->slave = false;
+		fe->have_loop = false;
+		fe->have_rotor = false;
 		fe->linkmap.clear();
 		if (femode == CFrontend::FE_MODE_MASTER) {
-			INFO("Frontend #%d: is master", fe->fenumber);
 			fe->linkmap.push_back(fe);
 			/* fe is master, find all linked */
 			for(fe_map_iterator_t it2 = femap.begin(); it2 != femap.end(); it2++) {
@@ -419,26 +422,25 @@ void CFEManager::linkFrontends(bool init)
 					continue;
 				if (fe2->getType() != fe->getType() || (fe2->getMaster() != fe->fenumber))
 					continue;
-#if 0
-				int mnum = fe2->getMaster();
-				if (mnum != fe->fenumber)
-					continue;
-				CFrontend * mfe = getFE(mnum);
-				if (!mfe) {
-					INFO("Frontend %d: master %d not found", fe->fenumber, mnum);
-					continue;
-				}
 
-				mfe->linkmap.push_back(fe2);
-#endif
 				fe->linkmap.push_back(fe2);
 				if (fe2->getMode() == CFrontend::FE_MODE_LINK_LOOP) {
 					INFO("Frontend #%d: link to master %d as LOOP", fe2->fenumber, fe->fenumber);
+					fe->have_loop = true;
 				} else {
 					INFO("Frontend #%d: link to master %d as TWIN", fe2->fenumber, fe->fenumber);
 				}
-				
 			}
+			frontend_config_t & fe_config = fe->getConfig();
+			satellite_map_t &satellites = fe->getSatellites();
+			for(sat_iterator_t sit = satellites.begin(); sit != satellites.end(); ++sit) {
+				if (fe_config.use_usals || (sit->second.configured && (sit->second.motor_position || sit->second.use_usals))) {
+					fe->have_rotor = true;
+					break;
+				}
+			}
+			INFO("Frontend #%d: is master, with loop: %s, with rotor: %s", fe->fenumber,
+					fe->have_loop ? "yes" : "no", fe->have_rotor ? "yes" : "no");
 		} else if (femode == CFrontend::FE_MODE_LINK_LOOP) {
 			INFO("Frontend #%d: is LOOP, master %d", fe->fenumber, fe->getMaster());
 			if (init)
@@ -460,45 +462,22 @@ void CFEManager::linkFrontends(bool init)
 				have_cable = true;
 			else if (fe->isTerr())
 				have_terr = true;
+			if ((fe->fenumber + 1) < (int) MAX_DMX_UNITS)
+				demuxes[fe->fenumber + 1] = 1;
 		}
 		else {	/* unused -> no need to keep open */
 			fe->Close();
-			if (!unused_demux) {
-				unused_demux = fe->fenumber + 1;
-			}
+		}
+	}
+	for(unsigned i = 0; i < MAX_DMX_UNITS; i++) {
+		if (demuxes[i] == 0) {
+			unused_demux = i;
+			INFO("pip demux: %d\n", unused_demux);
+			break;
 		}
 	}
 }
 
-#if 0
-void CFEManager::setMode(fe_mode_t newmode, bool initial)
-{
-	if(!initial && (newmode == mode))
-		return;
-
-	fe_mode_t oldmode = mode;
-	mode = newmode;
-	if(femap.size() == 1)
-		mode = FE_MODE_SINGLE;
-
-	bool setslave = (mode == FE_MODE_LOOP) || (mode == FE_MODE_SINGLE);
-	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
-		CFrontend * fe = it->second;
-		if(it != femap.begin()) {
-			if (mode != FE_MODE_SINGLE) {
-				if (oldmode == FE_MODE_SINGLE)
-					fe->Open(true); /* secondary FE is not opened in single mode */
-				INFO("Frontend %d as slave: %s", fe->fenumber, setslave ? "yes" : "no");
-				fe->setMasterSlave(setslave);
-			} else {
-				INFO("Frontend %d not used in single mode, closing", fe->fenumber);
-				fe->Close();
-			}
-		} else
-			fe->Init();
-	}
-}
-#endif
 void CFEManager::Open()
 {
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
@@ -580,14 +559,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 		}
 
 		if (mfe->getMode() == CFrontend::FE_MODE_MASTER) {
-			bool have_loop = false;
-			for (unsigned int i = 0; i < mfe->linkmap.size(); i++) {
-				CFrontend * fe = mfe->linkmap[i];
-				if (fe->getMode() == CFrontend::FE_MODE_LINK_LOOP) {
-					have_loop = true;
-					break;
-				}
-			}
+			bool have_loop = mfe->have_loop;
 			CFrontend * free_frontend = NULL;
 			CFrontend * free_twin = NULL;
 			bool loop_busy = false;
@@ -597,7 +569,7 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 						fe->Locked(), fe->getFrequency(), fe->getTsidOnid(), channel->getFreqId(), channel->getTransponderId());
 
 				if(fe->Locked()) {
-					if (fe->isSat() && (fe->getCurrentSatellitePosition() != satellitePosition)) {
+					if (mfe->have_rotor && (fe->getCurrentSatellitePosition() != satellitePosition)) {
 						free_frontend = NULL;
 						free_twin = NULL;
 						break;
@@ -711,10 +683,8 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 			cDemux::SetSource(frontend->fenumber+1, frontend->fenumber);
 #ifdef ENABLE_PIP
 		/* FIXME until proper demux management */
-		if (enabled_count < 4) {
-			channel->setPipDemux(unused_demux ? unused_demux : PIP_DEMUX);
-			//cDemux::SetSource(PIP_DEMUX, frontend->fenumber);
-		}
+		if (unused_demux)
+			channel->setPipDemux(unused_demux);
 		INFO("pip demux: %d", channel->getPipDemux());
 #endif
 #endif
@@ -746,12 +716,12 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
 		if (mfe->isCable()) {
-			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && ((satellitePosition & 0xF00) == 0xF00)) {
+			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && SAT_POSITION_CABLE(satellitePosition)) {
 				frontend = mfe;
 				break;
 			}
 		} else if (mfe->isTerr()) {
-			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && (satellitePosition & 0xF00) == 0xE00) {
+			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && SAT_POSITION_TERR(satellitePosition)) {
 				frontend = mfe;
 				break;
 			}

@@ -240,6 +240,7 @@ channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine 
 channellist.numeric_adjust Numeric zap adjust
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
+channellist.remember Zuletzt verwendete
 channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
@@ -316,6 +317,11 @@ date.Sun  So
 date.Thu  Do
 date.Tue  Di
 date.Wed  Mi
+debug Debug Ausgabe
+debug.level Stufe
+debug.level_1 normal
+debug.level_2 informativ
+debug.level_3 ausführlich
 epg.saving Speichere EPG
 epgextended.actors Darsteller
 epgextended.director Regie
@@ -390,7 +396,7 @@ extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
-extra.key_plugin One-touch-Plugin
+extra.key_plugin Schnellstart-Plugin
 extra.key_screenshot Screenshot Taste
 extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
@@ -402,7 +408,8 @@ extra.lodirection Längengrad-Ausrichtung
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
-extra.record_time Maximale Aufnahmezeit
+extra.record_time Maximale Aufnahmedauer
+extra.record_time_ts Maximale Timeshiftdauer
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
@@ -617,18 +624,21 @@ hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht un
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Festplatte
-hdd_format_failed Formatierung fehlgeschlagen
-hdd_format_warn Formatierung wird gestartet
+hdd_format_failed Formatierung fehlgeschlagen! Stellen Sie sicher, dass der Datenträger nicht in Verwendung ist und versuchen Sie es erneut.
+hdd_format_warn Alle Daten auf dem Datenträger werden gelöscht! Formatierung starten?
 hdd_fs Dateisystem zum formatieren
 hdd_fs_unknown unbekannt
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
+hdd_mount Mount
+hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Keine Festplatte
 hdd_removable_device Wechseldatenträger
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
 hdd_slow Langsam
+hdd_umount Unmount
 hdd_umount_warn Laufwerk aushängen
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
@@ -675,6 +685,7 @@ keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
 keybindingmenu.head Tasten-Belegungen bearbeiten
 keybindingmenu.lastchannel Letzter Kanal
+keybindingmenu.longkeypress_duration Langer Tastendruck
 keybindingmenu.misc Sonstige
 keybindingmenu.mode_left_right_key_tv Funktion li/re Tasten im TV-Modus
 keybindingmenu.mode_left_right_key_tv_infobar Infobar einblenden
@@ -738,6 +749,9 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
+lua.function_deprecated1 Achtung!
+lua.function_deprecated2 Die Funktion
+lua.function_deprecated3 ist veraltet,\n                      bitte nutzen Sie
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Kanalliste
 mainmenu.clearsectionsd Lösche EPG Cache
@@ -804,6 +818,7 @@ menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Play
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
 menu.hint_back Zurück zum vorherigen Menü.\nDie Taste 'Menü' schließt alle Menüs
+menu.hint_back_brief Zurück zum vorherigen Menü.
 menu.hint_backlight Konfigurieren Sie die Hintergrundbeleuchtung der Buttons
 menu.hint_backup Sichern von Konfigurationen und Kanallisten
 menu.hint_bedit Bearbeiten ihrer Favoriten und der Bouquets
@@ -818,6 +833,8 @@ menu.hint_channellist_epg_align Legen Sie fest, wie der Text für das EPG in der
 menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen ein Balken eingeblendet, der den Sendungsfortschritt anzeigt
 menu.hint_channellist_fonts Ändern Sie die Schriftgrößen in der Kanalliste
 menu.hint_channellist_foot Definiert, welche Informationen im unteren Sendungsfenster angezeigt werden sollen
+menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
+menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
 menu.hint_channels Kanalliste öffnen
@@ -843,6 +860,7 @@ menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden
 menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
 menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
 menu.hint_epg_scan Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist, im aktuellen Bouquet oder in allen Favoriten
+menu.hint_epg_scan_mode Wählen Sie den Modus für den EPG Scan aus.
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
@@ -934,6 +952,7 @@ menu.hint_key_pic_size_active Die Taste für das 4:3 Anzeigeverhalten deaktivier
 menu.hint_key_pip_close Tastenzuordnung für Stop PiP oder Start mit aktuellem Kanal
 menu.hint_key_pip_setup Tastenzuordnung für PiP Konfiguration
 menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
+menu.hint_key_plugin Wählen Sie eine Taste für das Schnellstart-Plugin
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
 menu.hint_key_repeatblock Die Verzögerung nach einem Tastendruck bis die Box reagieren soll
@@ -960,6 +979,7 @@ menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Auf
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Modus
 menu.hint_load Laden der Neutrino-HD-Einstellungen aus einer Datei
+menu.hint_longkeypress_duration Tasten, die länger als die angegebene Zeit betätigt werden, werden als "langer Tastendruck" behandelt.
 menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
@@ -979,6 +999,7 @@ menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, St
 menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
+menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste im Movieplayer-Modus gestartet wird
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische Vergabe einer IP-Adresse im Netzwerk
 menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem unter /media/00upnp
@@ -1014,6 +1035,9 @@ menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
+menu.hint_onekey_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste gestartet wird
+menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
+menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
@@ -1050,10 +1074,12 @@ menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
 menu.hint_record_data_vtxt Teletext-Spur zu Aufnahme hinzufügen
 menu.hint_record_dir Wählen Sie das Aufnahmeverzeichnis
 menu.hint_record_end Wählen Sie zwischen maximaler Aufnahmezeit oder einem Aufnahmeende anhand der EPG-Daten
+menu.hint_record_filename_template Vorlagemuster für den Dateinamen bearbeiten
 menu.hint_record_slow_warn Zeige Warnung, wenn der Aufnahmepuffer zu überlaufen droht
 menu.hint_record_startstop_msg Schaltet die Meldung bei Aufnahmestart/ende ein oder aus.
 menu.hint_record_tdir Wählen Sie ein Verzeichnis für Ihre Timeshift-Aufnahmen im temporären Timeshift-Modus
-menu.hint_record_time Geben Sie eine maximale Aufnahmezeit in Stunden ein, wenn Sie die Aufnahme nicht vorzeitig stoppen
+menu.hint_record_time Aufzeichnungsdauer vor dem Stopp bei der Verwendung von Direktaufzeichnung mit Record-Taste.
+menu.hint_record_time_ts Timeshiftdauer vor dem Stopp, wenn temporäres Timeshift aktiviert.
 menu.hint_record_timeafter Stellen Sie die Nachlaufzeit für Timer-Aufnahmen ein\nEin Wert von 2 beendet die Aufnahme 2 Minuten nach dem Sendungsende
 menu.hint_record_timebefore Stellen Sie die Vorlaufzeit für Timer-Aufnahmen ein\nEin Wert von 2 startet die Aufnahme 2 Minuten vor dem Sendungsbeginn
 menu.hint_record_timer Konfigurieren Sie Optionen für Timer-Aufnahmen
@@ -1085,8 +1111,10 @@ menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat DiSEqC-Wiederholungen für kaskadierte Schaltungen
 menu.hint_scan_diseqctype Wählen Sie ihr DiSEqC-Protokoll\nMit 'Erweitert' können Sie ihre Anlage einbinden
 menu.hint_scan_fast Schnell-Suchlauf eines ausgewählten Anbieters\nWARNUNG: DiSEqC-Einstellung wird überschrieben
+menu.hint_scan_fastdiseqc Start DiSEqC-Autokonfiguration
 menu.hint_scan_fastprov Wählen Sie einen Anbieter (Provider) für den Suchlauf
 menu.hint_scan_fasttype Wählen Sie das Sendeformat
+menu.hint_scan_fastupdate Aktivieren/Deaktivieren Fastscan Auto-Update
 menu.hint_scan_fec Wählen Sie eine Transponder-FEC
 menu.hint_scan_felink Select tuner to link tuner to
 menu.hint_scan_femode Wählen Sie den Verbindungstyp für den zweiten Tuner
@@ -1106,6 +1134,7 @@ menu.hint_scan_logical_hd Wenn der Kanal in SD und in HD verfügbar ist, wird HD
 menu.hint_scan_longitude Geben Sie ihren Längengrad ein
 menu.hint_scan_manual Manueller Transponder-Suchlauf mit ausgewählten Parametern
 menu.hint_scan_mod Wählen Sie eine Transponder-Modulation
+menu.hint_scan_motor Rotor Optionen, Satfinder
 menu.hint_scan_motor_18v Benutze 18V für Motorbewegungen
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
 menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten,\nwird ignoriert, wenn USALS aktiv
@@ -1130,6 +1159,7 @@ menu.hint_scan_start Startet die Kanalsuche mit den angegebenen Parametern.\nMit
 menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
+menu.hint_scan_usals USALS Optionen
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
 menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
 menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
@@ -1201,6 +1231,7 @@ menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbe
 menu.hint_video_pip Bild in Bild Größe und Position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
+menu.hint_video_sdosd Aktivieren/Deaktivieren der OSD Anzeige am Analogausgang (Scart, Cinch)
 menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
@@ -1241,8 +1272,12 @@ miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.epg_scan Hintergrundscan EPG
+miscsettings.epg_scan_always Immer
 miscsettings.epg_scan_bq Aktuelles Bouquet
 miscsettings.epg_scan_fav Alle Favoriten
+miscsettings.epg_scan_live Bei eingeschalteter Box
+miscsettings.epg_scan_sel Markierte Bouquets
+miscsettings.epg_scan_standby Im Standby Modus
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.infobar Infobar
@@ -1497,7 +1532,7 @@ mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
 mpkey.pause Pause
 mpkey.play Play
-mpkey.plugin Starte Plugin
+mpkey.plugin Movieplayer-Plugin
 mpkey.rewind Rücklauf
 mpkey.stop Stopp
 mpkey.subtitle Untertitel
@@ -1564,6 +1599,19 @@ nvod.starting (Beginn in %d min)
 nvodselector.directormode Bildregie-Modus
 nvodselector.head Anfangszeit auswählen
 nvodselector.subservice Perspektiven
+opkg.button.expert_off Standard-Modus
+opkg.button.expert_on Experten-Modus
+opkg.button.info Paket-Informationen
+opkg.button.install Paket installieren
+opkg.button.uninstall Paket entfernen
+opkg.failure.install Installation fehlgeschlagen (%d)
+opkg.failure.update Update fehlgeschlagen (%d)
+opkg.failure.upgrade Upgrade fehlgeschlagen (%d)
+opkg.messagebox.reinstall %s erneut installieren?
+opkg.messagebox.remove %s entfernen?
+opkg.success.install Installation erfolgreich, Neustart von Neutrino kann erforderlich sein.
+opkg.title Paketverwaltung
+opkg.upgrade Installierte Pakete aktualisieren
 options.default Voreinstellungen benutzen
 options.fb framebuffer
 options.ntp_off DVB
@@ -1691,6 +1739,9 @@ recordingmenu.end_of_recording_epg EPG aktuelles Event
 recordingmenu.end_of_recording_max max. Aufnahmezeit
 recordingmenu.end_of_recording_name Ende der Sofortaufnahme
 recordingmenu.file Direkt (Datei)
+recordingmenu.filename_template Vorlage für Dateiname
+recordingmenu.filename_template_hint Platzhalter werden durch folgende Werte ersetzt:
+recordingmenu.filename_template_hint2 %C = Kanal, %T = Titel, %I = Info, %d = Datum, %t = Zeit
 recordingmenu.help Aufnahmegeräte:\n-----------------------\nServer:\nauf PC mit Hilfe eines Streaming-Programmes\n\n(analoger) Videorekorder:\nüber VCR-Ausgang\n\nDirekt (Datei):\nauf ein per NFS gemountetes Verzeichnis\noder eine interne Festplatte\nTS: SPTS-Mode Treiber laden(dbox2)\nPES: SPTS-Mode Treiber nicht laden(dbox2)\n\n\nMaximale Dateigröße:\n----------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: fast unendlich (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.multimenu.ask_stop_all Wirklich alle %d Aufnahmen beenden?
 recordingmenu.multimenu.info_stop_all %d von %d Aufnahmen werden beendet.
@@ -1734,14 +1785,24 @@ satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.extended DiSEqC-Einstellungen
 satsetup.extended_motor Motor-Einstellungen
 satsetup.fastscan_all SD und HD
+satsetup.fastscan_auto_diseqc Start automatische Diseqc Konfiguration
+satsetup.fastscan_auto_diseqc_wait Automatische Diseqc Konfiguration wird durchgeführt
 satsetup.fastscan_hd nur HD
-satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
+satsetup.fastscan_head Schnellscan
 satsetup.fastscan_prov Anbieter:
-satsetup.fastscan_prov_cd CanalDigitaal
-satsetup.fastscan_prov_telesat TéléSAT
-satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
+satsetup.fastscan_prov_cd_sd CanalDigitaal (SD)
+satsetup.fastscan_prov_hda HD Austria
+satsetup.fastscan_prov_hello Hello
+satsetup.fastscan_prov_skylink_c Skylink Czech
+satsetup.fastscan_prov_skylink_s Skylink Slovak
+satsetup.fastscan_prov_telesat_b TéléSAT Belgium
+satsetup.fastscan_prov_telesat_l TéléSAT Luxemburg
+satsetup.fastscan_prov_tvv_hd TV Vlaanderen (HD)
+satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
+satsetup.fastscan_update Auto-Update
 satsetup.fe_mode Tuner Modus
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
@@ -1875,9 +1936,11 @@ streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen 
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.caps Groß-/Kleinbuchstaben
 stringinput.clear Alles löschen
+subtitles.charset Zeichensatz
 subtitles.head Untertitel
 subtitles.stop Untertitel aus
-terrestrialsetup.provider DVB-T Region
+terrestrialsetup.area Region
+terrestrialsetup.provider DVB-T Versorgungsbereich
 timer.eventrecord.msg Die Sendung wurde zur Aufnahme vorgemerkt.
 timer.eventrecord.title Aufnahme vormerken
 timer.eventtimed.msg Die Sendung wurde vorgemerkt.
@@ -2031,6 +2094,7 @@ videomenu.pip_error PiP Startfehler
 videomenu.saturation Sättigung
 videomenu.scart Scart
 videomenu.screensetup Bildbereich
+videomenu.sdosd SD OSD
 videomenu.sharpness Schärfe
 videomenu.tv-scart TV Scart
 videomenu.vcrsignal VCR-Ausgang Signalart
@@ -2057,8 +2121,10 @@ zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
+zapitsetup.channelmode Start-Kanalliste für TV
+zapitsetup.channelmode_radio Start-Kanalliste für Radio
 zapitsetup.head Startkanal-Verwaltung
-zapitsetup.info Start Kanal
+zapitsetup.info Startkanal
 zapitsetup.last_radio Radio Kanal
 zapitsetup.last_tv TV Kanal
 zapitsetup.last_use Kanal beim Runterfahren speichern

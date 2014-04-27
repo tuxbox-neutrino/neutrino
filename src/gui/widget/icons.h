@@ -248,8 +248,14 @@
 #define NEUTRINO_ICON_HINT_RESTORE	"hint_restore"
 #define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
+/* opkg manager */
+#define NEUTRINO_ICON_CHECKMARK "checkmark"
+#define NEUTRINO_ICON_WARNING "warning"
+
 /* misc */
 #define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
+
+#define NEUTRINO_ICON_EPG		"epg"
 
 #define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
 

@@ -119,6 +119,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	paint();
 
 	g_RCInput->clearRCMsg();
+	g_RCInput->setLongPressAny(true);
 
 	timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 ::TIMING_MENU]);
@@ -138,6 +139,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 			goto get_Message;
 	}
 
+	g_RCInput->setLongPressAny(false);
 	hide();
 	return res;
 }

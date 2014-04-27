@@ -1588,7 +1588,7 @@ void CAudioPlayerGui::paintHead()
 
 #ifdef ENABLE_GUI_MOUNT
 	if (!m_inetmode)
-		header.addButtonIcon(NEUTRINO_ICON_BUTTON_MENU);
+		header.setContextButton(NEUTRINO_ICON_BUTTON_MENU);
 #endif
 
 	header.paint(CC_SAVE_SCREEN_NO);

@@ -40,6 +40,7 @@ typedef struct frontend_config {
 	int highVoltage;
 	int diseqc_order;
 	int use_usals;
+	int rotor_swap;
 } frontend_config_t;
 
 #endif // __FRONTEND_TYPES_H__

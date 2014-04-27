@@ -116,6 +116,10 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
 		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1, bool manual = false);
+#ifdef ENABLE_FASTSCAN
+		int showFastscanDiseqcSetup();
+#endif
+		void setDiseqcOptions(int number);
 
 		void saveScanSetup();
 

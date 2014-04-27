@@ -181,12 +181,11 @@ void CImageInfo::ShowWindow()
 {
 	CComponentsFooter *footer = NULL;
 	if (cc_win == NULL){
-		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO, CC_SHADOW_ON);
+		cc_win = new CComponentsWindowMax(LOCALE_IMAGEINFO_HEAD, NEUTRINO_ICON_INFO, 0, CC_SHADOW_ON);
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 		footer = cc_win->getFooterObject();
 		footer->setColorBody(COL_INFOBAR_SHADOW_PLUS_1);
-		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, footer->getHeight(), LOCALE_BUILDINFO_MENU, false , true, false, footer->getColorBody(), footer->getColorBody());
-		footer->addCCItem(btn_red);
+		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, footer->getHeight(), LOCALE_BUILDINFO_MENU, footer, false , true, false, footer->getColorBody(), footer->getColorBody());
 	}
 
 	//prepare minitv

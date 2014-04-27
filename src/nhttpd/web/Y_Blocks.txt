@@ -501,18 +501,14 @@ start-block~remote
 {=if-equal:{=var-get:yfbtype=}~0~
 	{=if-equal:{=var-get:nfbtype=}~2~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~
 	{=if-equal:{=var-get:nfbtype=}~1~	{=include-block:Y_Blocks.txt;rc_dbox_nokia_old=}~
-		{=if-equal:{=var-get:boxtype=}~CST Neo SAT~		{=include-block:Y_Blocks.txt;rc_cst_v2=}~
-		{=if-equal:{=var-get:boxtype=}~CST Neo CABLE~		{=include-block:Y_Blocks.txt;rc_cst_v2=}~
-		{=if-equal:{=var-get:boxtype=}~CST Zee SAT~		{=include-block:Y_Blocks.txt;rc_cst_v3=}~
-		{=if-equal:{=var-get:boxtype=}~CST Zee CABLE~		{=include-block:Y_Blocks.txt;rc_cst_v3=}~
-		{=if-equal:{=var-get:boxtype=}~CST Neo Twin SAT~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-		{=if-equal:{=var-get:boxtype=}~CST Neo Twin CABLE~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
-		{=if-equal:{=var-get:boxtype=}~CST Tank~		{=include-block:Y_Blocks.txt;rc_cst_v5=}~
-		{=if-equal:{=var-get:boxtype=}~CST Trinity SAT~		{=include-block:Y_Blocks.txt;rc_cst_v6=}~
-		{=if-equal:{=var-get:boxtype=}~CST Trinity CABLE~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
+		{=if-equal:{=var-get:boxtype=}~CST Neo~		{=include-block:Y_Blocks.txt;rc_cst_v2=}~
+		{=if-equal:{=var-get:boxtype=}~CST Zee~		{=include-block:Y_Blocks.txt;rc_cst_v3=}~
+		{=if-equal:{=var-get:boxtype=}~CST Neo Twin~	{=include-block:Y_Blocks.txt;rc_cst_v4=}~
+		{=if-equal:{=var-get:boxtype=}~CST Tank~	{=include-block:Y_Blocks.txt;rc_cst_v5=}~
+		{=if-equal:{=var-get:boxtype=}~CST Trinity~	{=include-block:Y_Blocks.txt;rc_cst_v6=}~
 
-		{=comment:fallback~=}					{=include-block:Y_Blocks.txt;rc_cst_v1=}
-		=}=}=}=}=}=}=}=}=}
+		{=comment:fallback~=}				{=include-block:Y_Blocks.txt;rc_cst_v1=}
+		=}=}=}=}=}
 	=}=}
 ~
 	{=if-equal:{=var-get:yfbtype=}~-2~	{=include-block:Y_Blocks.txt;rc_dbox_philips=}~

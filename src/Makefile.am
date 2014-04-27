@@ -33,11 +33,9 @@ else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
 
-bin_PROGRAMS = neutrino rcsim
+bin_PROGRAMS = neutrino
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
-
-rcsim_SOURCES = rcsim.c rcsim.h
 
 if ENABLE_FLAC
 FLACLIBS = -lFLAC
@@ -101,6 +99,7 @@ neutrino_LDADD = \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
+	@BLURAY_LIBS@ \
 	@LIBCS_LIBS@ \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
@@ -136,11 +135,19 @@ neutrino_LDADD += -lnxp
 endif
 endif
 
+if BOXMODEL_APOLLO
+neutrino_LDADD += -liconv
+endif
+
 bin_PROGRAMS += drivertool
 drivertool_SOURCES = drivertool.c
 bin_PROGRAMS += dt
 dt_SOURCES = dt.c
 endif
+bin_PROGRAMS += rcsim
+rcsim_SOURCES = rcsim.c rcsim.h
+bin_PROGRAMS += mdev_helper
+mdev_helper_SOURCES = mdev_helper.cpp
 
 if USE_STB_HAL
 neutrino_LDADD += \

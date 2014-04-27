@@ -119,6 +119,7 @@ const CNeutrinoYParser::TyFuncCall CNeutrinoYParser::yFuncCallList[]=
 	{"umount_get_list",				&CNeutrinoYParser::func_unmount_get_list},
 	{"get_partition_list",			&CNeutrinoYParser::func_get_partition_list},
 	{"get_boxtype",					&CNeutrinoYParser::func_get_boxtype},
+	{"get_boxmodel",				&CNeutrinoYParser::func_get_boxmodel},
 	{"get_current_stream_info",		&CNeutrinoYParser::func_get_current_stream_info},
 	{"get_timer_list",				&CNeutrinoYParser::func_get_timer_list},
 	{"set_timer_form",				&CNeutrinoYParser::func_set_timer_form},
@@ -303,7 +304,7 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, st
 			std::string _sid = std::string(id);
 			sel = (_sid == achannel_id) ? "selected=\"selected\"" : "";
 			CEitManager::getInstance()->getActualEPGServiceKey(channel->channel_id, &epg);
-			sprintf(buf,"<option value="PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS" %s>%.20s - %.30s</option>\n", channel->channel_id, sel.c_str(), channel->getName().c_str(),epg.title.c_str());
+			sprintf(buf,"<option value=" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s>%.20s - %.30s</option>\n", channel->channel_id, sel.c_str(), channel->getName().c_str(),epg.title.c_str());
 			yresult += buf;
 		}
 	}
@@ -366,7 +367,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		yresult += "<tr>";
 
 		if(have_logos)
-			yresult += string_printf("<td class=\"%c\" width=\"44\" rowspan=\"2\"><a href=\"javascript:do_zap('"
+			yresult += string_printf("<td class=\"%c logo_cell\" width=\"44\" rowspan=\"2\"><a href=\"javascript:do_zap('"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"')\"><img class=\"channel_logo\" src=\"%s\"/></a></td>", classname, channel->channel_id,
 					(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id)).c_str());
@@ -486,7 +487,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			yresult += string_printf("</td></tr>\n");
 		}
 		else
-		yresult += string_printf("<tr style=\"height: 2px\"><td></td></tr>\n");
+		yresult += string_printf("<tr><td class=\"%cepg\">&nbsp;<br />&nbsp;</td></tr>\n",classname);
 	}
 	return yresult;
 }
@@ -685,7 +686,7 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 //-------------------------------------------------------------------------
 // y-func : get boxtypetext
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
+std::string CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	unsigned int system_rev = cs_get_revision();
 	std::string boxname = "CST ";
@@ -729,9 +730,33 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 			break;
 	}
 
-	if (system_rev != 9) // don't add delivery_system for Tank
-		boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	return boxname;
+}
+//-------------------------------------------------------------------------
+// y-func : get boxmodel
+//-------------------------------------------------------------------------
+std::string CNeutrinoYParser::func_get_boxmodel(CyhookHandler *, std::string)
+{
+	unsigned int system_rev = cs_get_revision();
+	std::string boxmodel = "Unknown";
+
+	switch(system_rev)
+	{
+		case 6:
+		case 7:
+		case 8:
+		case 10:
+			boxmodel = "Nevis";
+			break;
+		case 9:
+		case 11:
+			boxmodel = "Apollo";
+			break;
+		default:
+			break;
+	}
+
+	return boxmodel;
 }
 //-------------------------------------------------------------------------
 // y-func : get stream info

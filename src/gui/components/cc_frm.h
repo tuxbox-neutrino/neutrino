@@ -31,8 +31,6 @@
 
 class CComponentsForm : public CComponentsItem
 {
-	private:
-		void initVarForm();
 	protected:
 		std::vector<CComponentsItem*>	v_cc_items;
 		void paintForm(bool do_save_bg);
@@ -42,10 +40,12 @@ class CComponentsForm : public CComponentsItem
 		int append_x_offset;
 		int append_y_offset;
 	public:
-		
-		CComponentsForm();
-		CComponentsForm(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		CComponentsForm(	const int x_pos = 0, const int y_pos = 0, const int w = 800, const int h = 600,
+					CComponentsForm *parent = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsForm();
 		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

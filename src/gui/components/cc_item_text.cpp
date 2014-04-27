@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -34,46 +34,31 @@
 #include <sstream>
 #include <fstream>
 #include <errno.h>
-
+#include <system/debug.h>
 using namespace std;
 
 //sub class CComponentsText from CComponentsItem
-CComponentsText::CComponentsText()
-{
-	//CComponentsText
-	initVarText();
-
-	initCCText();
-}
-
-CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string text, const int mode, Font* font_text,
+CComponentsText::CComponentsText(	CComponentsForm *parent,
+					const int x_pos, const int y_pos, const int w, const int h,
+					std::string text,
+					const int mode,
+					Font* font_text,
 					bool has_shadow,
 					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponentsText
-	initVarText();
-
-	//CComponents
-	x 		= x_pos,
-	y 		= y_pos,
-	width		= w;
-	height		= h;
-
-	col_frame	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
-	shadow		= has_shadow;
-
-	ct_font 	= font_text;
-	ct_text 	= text;
-	ct_text_mode	= mode;
-	ct_col_text	= color_text;
-
-	initCCText();
+	initVarText(x_pos, y_pos, w, h, text, mode, font_text, parent, has_shadow, color_text, color_frame, color_body, color_shadow);
 }
 
-
+CComponentsText::CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
+					std::string text,
+					const int mode,
+					Font* font_text,
+					CComponentsForm *parent,
+					bool has_shadow,
+					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	initVarText(x_pos, y_pos, w, h, text, mode, font_text, parent, has_shadow, color_text, color_frame, color_body, color_shadow);
+}
 
 CComponentsText::~CComponentsText()
 {
@@ -82,18 +67,26 @@ CComponentsText::~CComponentsText()
 }
 
 
-void CComponentsText::initVarText()
+void CComponentsText::initVarText(	const int x_pos, const int y_pos, const int w, const int h,
+					std::string text,
+					const int mode,
+					Font* font_text,
+					CComponentsForm *parent,
+					bool has_shadow,
+					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponents, CComponentsItem
-	cc_item_type 	= CC_ITEMTYPE_TEXT;
-
-	//CComponentsText
-	ct_font 	= NULL;
+	cc_item_type 	= CC_ITEMBOX_TEXT;
+	ct_font 	= font_text;
 	ct_textbox	= NULL;
-	ct_text 	= "";
+	ct_text 	= text;
 	ct_old_text	= ct_text;
-	ct_text_mode	= CTextBox::AUTO_WIDTH;
+	ct_text_mode	= mode;
 
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height 		= h;
+	
 	pX 		= &x;
 	pY 		= &y;
 	pHeight 	= &height;
@@ -105,11 +98,19 @@ void CComponentsText::initVarText()
 	ct_text_Hborder	= 1;
 	ct_text_Vborder	= 0;
 
-	ct_col_text	= COL_MENUCONTENT_TEXT;
+	shadow		= has_shadow;
+	ct_col_text	= color_text;
 	ct_old_col_text = 0;
+	col_frame 	= color_frame;
+	col_body 	= color_body;
+	col_shadow	= color_shadow;
+	
 	ct_text_sent	= false;
 	ct_paint_textbg = false;
 	ct_force_text_paint = false;
+
+	initCCText();
+	initParent(parent);
 }
 
 
@@ -168,9 +169,8 @@ void CComponentsText::initCCText()
 		ct_old_text 	= ct_text;
 		ct_old_col_text = ct_col_text;
 	}
-#ifdef DEBUG_CC
-	printf("    [CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 }
 
 void CComponentsText::clearCCText()
@@ -186,9 +186,8 @@ void CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 	ct_text = stext;
 	ct_text_mode = mode;
 	ct_font = font_text;
-#ifdef DEBUG_CC
-	printf("    	[CComponentsText]   [%s - %d] ct_text: %s \n", __func__, __LINE__, ct_text.c_str());
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] ct_text: %s \n", __func__, __LINE__, ct_text.c_str());
 }
 
 void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
@@ -286,7 +285,7 @@ string CComponentsText::iToString(int int_val)
 //helper, get lines per textbox page
 int CComponentsText::getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode)
 {
-	CComponentsText box;
+	CBox box;
 	box.iX      = 0;
 	box.iY      = 0;
 	box.iWidth  = textWidth;

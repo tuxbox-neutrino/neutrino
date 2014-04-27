@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -31,23 +31,21 @@ using namespace std;
 //sub class CComponentsFrmChain
 CComponentsFrmChain::CComponentsFrmChain(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 						const std::vector<CComponentsItem*> *v_items,
-						bool horizontal,
-						bool dynamic_width,
-						bool dynamic_height,
+						int direction,
+						CComponentsForm* parent,
 						bool has_shadow,
 						fb_pixel_t& color_frame,
 						fb_pixel_t& color_body,
 						fb_pixel_t& color_shadow)
 {
-	initVarChain(x_pos, y_pos, w, h, v_items, horizontal, dynamic_width, dynamic_height, has_shadow, color_frame, color_body, color_shadow);
+	initVarChain(x_pos, y_pos, w, h, v_items, direction, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 
 void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::vector<CComponentsItem*> *v_items,
-					bool horizontal,
-					bool dynamic_width,
-					bool dynamic_height,
+					int direction,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
@@ -66,61 +64,49 @@ void CComponentsFrmChain::initVarChain(	const int& x_pos, const int& y_pos, cons
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	
-	chn_horizontal	= horizontal;
-	chn_dyn_height	= dynamic_height;
-	chn_dyn_width	= dynamic_width;
+	chn_direction	= direction;
 
-	if (v_items){
+	if (v_items)
 		addCCItem(*v_items);
-		initCChainItems();
-	}
+
+	initChainItems();
+	initParent(parent);
 }
 
-void CComponentsFrmChain::initCChainItems()
+void CComponentsFrmChain::setDirection(int direction)
 {
-	if (!v_cc_items.empty()){
-		if (chn_dyn_height)
-			height = 0;
-		if (chn_dyn_width)
-			width = 0;
-	}
-	
+	chn_direction = direction;
+	initChainItems();
+};
+
+void CComponentsFrmChain::initChainItems()
+{
+	//init required dimensions, preferred are current width and height
+	int w_tmp = width;
+	int h_tmp = height;
+
+	//exit if no item available
+	if (v_cc_items.empty())
+		return;
+
+	//set new values
+	w_tmp = append_x_offset;
+	h_tmp = append_y_offset;
+
 	for (size_t i= 0; i< v_cc_items.size(); i++){
-		//set general start position for all items
-		if (i == 0)
-			v_cc_items[i]->setPos(0, 0);
-
-		//set arrangement with required direction
-		if (chn_horizontal){
-			if (i > 0)
-				v_cc_items[i]->setPos(CC_APPEND, 0);
-		}
-		else{
-			if (i > 0)
-				v_cc_items[i]->setPos(0, CC_APPEND);
+		if (chn_direction & CC_DIR_X){
+			w_tmp += v_cc_items[i]->getWidth();
+			w_tmp += append_x_offset;
+			v_cc_items[i]->setPos(CC_APPEND, CC_CENTERED);
 		}
 
-		//assign size
-		if (chn_horizontal){
-			//assign dynamic width
-			if (chn_dyn_width)
-				width += v_cc_items[i]->getWidth();
-			//assign dynamic height
-			if (chn_dyn_height)
-				height = max(v_cc_items[i]->getHeight(), height);
-			else
-				v_cc_items[i]->setHeight(height);
-		}
-		else{
-			//assign dynamic height
-			if (chn_dyn_height)
-				height += v_cc_items[i]->getHeight();
-			//assign dynamic width
-			if (chn_dyn_width)
-				width = max(v_cc_items[i]->getWidth(), width);
-			else
-				v_cc_items[i]->setWidth(width);
+		if (chn_direction & CC_DIR_Y){
+			h_tmp += v_cc_items[i]->getHeight();
+			h_tmp += append_y_offset;
+			v_cc_items[i]->setPos(CC_CENTERED, CC_APPEND);
 		}
 	}
+	width 	= max (w_tmp, width);
+	height 	= max (h_tmp, height);
 }
 

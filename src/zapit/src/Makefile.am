@@ -18,6 +18,7 @@ libzapit_a_SOURCES = \
 	bouquets.cpp \
 	capmt.cpp \
 	channel.cpp \
+	fastscan.cpp \
 	femanager.cpp \
 	frontend.cpp \
 	getservices.cpp \
@@ -29,7 +30,6 @@ libzapit_a_SOURCES = \
 	scansdt.cpp \
 	transponder.cpp \
 	zapit.cpp
-#	fastscan.cpp
 
 bin_PROGRAMS = pzapit
 sbin_PROGRAMS = udpstreampes

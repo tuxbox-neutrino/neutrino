@@ -553,7 +553,7 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 										
 						//required for first view: check active mode of option chooser and disable if it's an observed item and item mode is set to 'not visible'
 						for (uint j = 0; j < v_observ.size(); j++)		
-							if (opt->getOptionName()== g_Locale->getText(v_observ[j].to_observ_locale) && *p_mode == PERSONALIZE_MODE_NOTVISIBLE)
+							if (opt->getName()== g_Locale->getText(v_observ[j].to_observ_locale) && *p_mode == PERSONALIZE_MODE_NOTVISIBLE)
 								opt->setActive(false);	
 												
 						pm->addItem(opt); //add option chooser
@@ -620,7 +620,7 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 		{
 			//if found an optionchooser, then extract option name
 			CMenuOptionChooser* chooser = static_cast <CMenuOptionChooser*> (item);
-			string opt_name = chooser->getOptionName();
+			string opt_name = chooser->getName();
 
 			for (uint j = 0; j < v_observ.size(); j++)
 			{	
@@ -639,6 +639,7 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 							chooser->setActive(true);
 							chooser->setOption(PERSONALIZE_MODE_VISIBLE);
 						}
+						chooser->paint(false);
 					}
 				}
 			}
@@ -882,7 +883,7 @@ void CPersonalizeGui::addPersonalizedItems()
 				//convert item to locked forwarder and use generated pin mode for usage as ask parameter 
 				v_item[i].menuItem = new CLockedMenuForwarder(fw->getTextLocale(), 
 						g_settings.easymenu ? g_settings.parentallock_pincode : g_settings.personalize_pincode,
-						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey().c_str(), d_key, fw->iconName.c_str(), lock_icon);
+						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey(), d_key, fw->iconName.c_str(), lock_icon);
 				v_item[i].menuItem->hintIcon = fw->hintIcon;
 				v_item[i].menuItem->hint = fw->hint;
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next

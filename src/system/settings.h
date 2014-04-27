@@ -47,7 +47,7 @@
 #include <list>
 
 #ifdef BOXMODEL_APOLLO
-#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 14
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 16
 #else
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 13
 #endif
@@ -64,11 +64,14 @@ struct SNeutrinoSettings
 	int brightness;
 	int contrast;
 	int saturation;
+	int enable_sd_osd;
 #endif
 	char current_volume;
 	int current_volume_step;
 	int channel_mode;
 	int channel_mode_radio;
+	int channel_mode_initial;
+	int channel_mode_initial_radio;
 
 	//misc
 	int shutdown_real;
@@ -143,6 +146,7 @@ struct SNeutrinoSettings
 
 	std::string pref_lang[3];
 	std::string pref_subs[3];
+	std::string subs_charset;
 
 	// EPG
 	int epg_save;
@@ -153,6 +157,7 @@ struct SNeutrinoSettings
 	int epg_extendedcache;
 	std::string epg_dir;
 	int epg_scan;
+	int epg_scan_mode;
 
 	int epg_search_history_size;
 	int epg_search_history_max;
@@ -378,6 +383,7 @@ struct SNeutrinoSettings
 	int recording_slow_warning;
 	int recording_startstop_msg;
 	int shutdown_timer_record_type;
+	std::string recording_filename_template;
 
 	int filesystem_is_utf8;
 	// default plugin for ts-movieplayer (red button)
@@ -416,6 +422,7 @@ struct SNeutrinoSettings
 	int temp_timeshift;
 	int auto_delete;
 	int record_hours;
+	int timeshift_hours;
 
 	int mpkey_rewind;
 	int mpkey_forward;
@@ -439,6 +446,7 @@ struct SNeutrinoSettings
 	int screenshot_mode;
 	int screenshot_video;
 	int screenshot_scale;
+	int auto_cover;
 	std::string screenshot_dir;
 
 	int key_current_transponder;
@@ -467,6 +475,10 @@ struct SNeutrinoSettings
 	int pip_height;
 	int pip_x;
 	int pip_y;
+	int pip_radio_width;
+	int pip_radio_height;
+	int pip_radio_x;
+	int pip_radio_y;
 	int bigFonts;
 	int window_size;
 	int window_width;
@@ -482,6 +494,8 @@ struct SNeutrinoSettings
 	int channellist_show_channellogo;
 	int repeat_blocker;
 	int repeat_genericblocker;
+#define LONGKEYPRESS_OFF 499
+	int longkeypress_duration;
 	int remote_control_hardware;
 	int audiochannel_up_down_enable;
 
@@ -629,7 +643,6 @@ struct SNeutrinoSettings
 	int uselastchannel;
 
 	int	power_standby;
-	int	rotor_swap;
 	int	hdd_sleep;
 	int	hdd_noise;
 	int	hdd_fs;
@@ -768,7 +781,6 @@ class CScanSettings
 		int		bouquetMode;
 		int		scanType;
 
-		delivery_system_t         delivery_system;
 		int		scan_nit;
 		int		scan_nit_manual;
 		int		scan_bat;
@@ -778,6 +790,8 @@ class CScanSettings
 		int		scan_logical_hd;
 		int		fast_type;
 		int		fast_op;
+		int		fst_version;
+		int		fst_update;
 		int		cable_nid;
 
 		std::string	satName;
@@ -796,8 +810,7 @@ class CScanSettings
 		std::string	terr_TP_freq;
 		CScanSettings();
 
-		//void useDefaults(const delivery_system_t _delivery_system);
-		bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
+		bool loadSettings(const char * const fileName);
 		bool saveSettings(const char * const fileName);
 };
 

@@ -55,8 +55,8 @@ extern "C" {
 #define PRIxoff_t PRIx64
 #define PRIdoff_t PRId64
 #else
-#define PRIxoff_t "l"PRIx32
-#define PRIdoff_t "l"PRId32
+#define PRIxoff_t "l" PRIx32
+#define PRIdoff_t "l" PRId32
 #endif
 
 /* Verbose messages */

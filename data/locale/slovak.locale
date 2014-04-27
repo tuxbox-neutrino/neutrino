@@ -316,6 +316,11 @@ date.Sun  Ne
 date.Thu  Št
 date.Tue  Ut
 date.Wed  St
+debug Debug Output
+debug.level Rovina
+debug.level_1 normálne
+debug.level_2 informatívny
+debug.level_3 detail
 epg.saving Uloženie EPG
 epgextended.actors Herci
 epgextended.director Režisér
@@ -1726,7 +1731,7 @@ satsetup.extended Nastavenia DiSEqC
 satsetup.extended_motor Nastavenia motora
 satsetup.fastscan_all SD a HD
 satsetup.fastscan_hd len HD
-satsetup.fastscan_head Rýchle prehľadanie (Astra 1 - 12515 MHz)
+satsetup.fastscan_head Rýchle prehľadanie
 satsetup.fastscan_prov Poskytovateľ
 satsetup.fastscan_prov_cd CanalDigitaal
 satsetup.fastscan_prov_telesat TéléSAT

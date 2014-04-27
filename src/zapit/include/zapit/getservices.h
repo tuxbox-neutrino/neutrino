@@ -123,6 +123,7 @@ class CServiceManager
 
 		void ResetChannelNumbers(bool bouquets = true, bool numbers = false);
 		void RemoveChannel(const t_channel_id channel_id);
+		void RemovePosition(t_satellite_position satellitePosition);
 		void RemoveAllChannels();
 		void RemoveCurrentChannels();
 		void RemoveNVODChannels();

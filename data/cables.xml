@@ -247,17 +247,13 @@
 		<transponder frequency="562000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="570000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="610000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
-		<transponder frequency="650000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="658000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="666000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="674000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="730000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="738000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
-		<transponder frequency="746000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="746000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="754000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="762000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="770000" symbol_rate="6900000" fec_inner="0" modulation="3"/>

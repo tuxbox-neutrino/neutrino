@@ -31,24 +31,21 @@
 #include "cc_frm.h"
 #include <stdlib.h>
 #include <algorithm>
-
+#include <system/debug.h>
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsForm from CComponentsItem
-CComponentsForm::CComponentsForm()
+CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w, const int h,
+					CComponentsForm* parent,
+					bool has_shadow,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
+					:CComponentsItem(parent)
 {
-	//CComponentsForm
-	initVarForm();
-}
+	cc_item_type 	= CC_ITEMTYPE_FRM;
 
-CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow,
-				fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
-{
-	//CComponentsForm
-	initVarForm();
-
-	//CComponents
 	x		= x_pos;
 	y 		= y_pos;
 	cc_xr 		= x;
@@ -60,6 +57,16 @@ CComponentsForm::CComponentsForm(const int x_pos, const int y_pos, const int w, 
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
+
+	shadow_w	= SHADOW_OFFSET;
+	corner_rad	= RADIUS_LARGE;
+	corner_type 	= CORNER_ALL;
+	cc_item_index	= 0;
+
+	v_cc_items.clear();
+
+	append_x_offset = 0;
+	append_y_offset = 0;
 }
 
 CComponentsForm::~CComponentsForm()
@@ -72,15 +79,12 @@ void CComponentsForm::clear()
 {
  	if (v_cc_items.empty())
 		return;
-#ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete %d cc-item(s) \n", __func__, (int)v_cc_items.size());
-#endif
 
 	for(size_t i=0; i<v_cc_items.size(); i++) {
 		if (v_cc_items[i]){
-#ifdef DEBUG_CC
-	printf("     [CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i]->getItemType());
-#endif
+
+		dprintf(DEBUG_DEBUG, "[CComponentsForm] %s... delete form cc-item %d of %d (type=%d)\n", __func__, (int)i+1, (int)v_cc_items.size(), v_cc_items[i]->getItemType());
+
 			delete v_cc_items[i];
 			v_cc_items[i] = NULL;
 		}
@@ -89,54 +93,25 @@ void CComponentsForm::clear()
 }
 
 
-void CComponentsForm::initVarForm()
-{
-
-
-	//simple default dimensions
-	x 		= 0;
-	y 		= 0;
-	width 		= 150;
-	height	 	= 150;
-	shadow		= CC_SHADOW_OFF;
-	shadow_w	= SHADOW_OFFSET;
-	col_frame 	= COL_MENUCONTENT_PLUS_6;
-	col_body	= COL_MENUCONTENT_PLUS_0;
-	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
-	corner_rad	= RADIUS_LARGE;
-	corner_type 	= CORNER_ALL;
-	cc_item_index	= 0;
-
-	//CComponentsForm
-	v_cc_items.clear();
-	cc_item_type 	= CC_ITEMTYPE_FRM;
-	append_x_offset = 0;
-	append_y_offset = 0;
-}
-
 void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 {
 	if (cc_Item){
-#ifdef DEBUG_CC
-		printf("	[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s-%d try to add cc_Item [type %d] to form [current index=%d] \n", __func__, __LINE__, cc_Item->getItemType(), cc_item_index);
+
 		cc_Item->setParent(this);
 		v_cc_items.push_back(cc_Item);
-#ifdef DEBUG_CC
-		printf("			   added cc_Item [type %d] to form [current index=%d] \n", cc_Item->getItemType(), cc_item_index);
-#endif
+
+		dprintf(DEBUG_DEBUG, "\tadded cc_Item [type %d] to form [current index=%d] \n", cc_Item->getItemType(), cc_item_index);
 
 		//assign item index
 		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
-#ifdef DEBUG_CC
-		printf("			   %s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
-#endif
+
+		dprintf(DEBUG_DEBUG, "\t%s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
+
 	}
-#ifdef DEBUG_CC
 	else
-		printf("	[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __func__, __LINE__);
-#endif
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s-%d tried to add an empty or invalide cc_item !!!\n", __func__, __LINE__);
 }
 
 void CComponentsForm::addCCItem(const std::vector<CComponentsItem*> &cc_Items)
@@ -177,7 +152,7 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 	if (!v_cc_items.empty()){
 		CComponentsItem* old_Item = v_cc_items[cc_item_id];
 		if (old_Item){
-			CComponentsItem * old_parent = old_Item->getParent();
+			CComponentsForm * old_parent = old_Item->getParent();
 			new_cc_Item->setParent(old_parent);
 			new_cc_Item->setIndex(old_parent->getIndex());
 			delete old_Item;
@@ -185,11 +160,8 @@ void CComponentsForm::replaceCCItem(const uint& cc_item_id, CComponentsItem* new
 			v_cc_items[cc_item_id] = new_cc_Item;
 		}
 	}
-#ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __func__);
-#endif
-
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s replace cc_Item not possible, v_cc_items is empty\n", __func__);
 }
 
 void CComponentsForm::replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item)
@@ -201,17 +173,13 @@ void CComponentsForm::insertCCItem(const uint& cc_item_id, CComponentsItem* cc_I
 {
 
 	if (cc_Item == NULL){
-#ifdef DEBUG_CC
-		printf("[CComponentsForm]  %s parameter: cc_Item = %p...\n", __func__, cc_Item);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s parameter: cc_Item = %p...\n", __func__, cc_Item);
 		return;
 	}
 
 	if (v_cc_items.empty()){
 		addCCItem(cc_Item);
-#ifdef DEBUG_CC
-		printf("[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s insert cc_Item not possible, v_cc_items is empty, cc_Item added\n", __func__);
 	}else{
 		v_cc_items.insert(v_cc_items.begin()+cc_item_id, cc_Item);
 		cc_Item->setParent(this);
@@ -228,12 +196,11 @@ void CComponentsForm::removeCCItem(const uint& cc_item_id)
 			delete v_cc_items[cc_item_id];
 			v_cc_items[cc_item_id] = NULL;
 			v_cc_items.erase(v_cc_items.begin()+cc_item_id);
+			dprintf(DEBUG_DEBUG, "[CComponentsForm]  %s removing cc_Item [id=%u]...\n", __func__, cc_item_id);
 		}
 	}
-#ifdef DEBUG_CC
 	else
-		printf("[CComponentsForm]  %s removing cc_Item not possible, v_cc_items is empty...\n", __func__);
-#endif
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]  %s removing of cc_Item [id=%u] not possible, v_cc_items is empty...\n", __func__, cc_item_id);
 }
 
 void CComponentsForm::removeCCItem(CComponentsItem* cc_Item)

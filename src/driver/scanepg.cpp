@@ -37,11 +37,13 @@
 
 #include <driver/scanepg.h>
 #include <driver/record.h>
+#include <driver/streamts.h>
 
 #define EPG_RESCAN_TIME (24*60*60)
 
 extern CBouquetList * bouquetList;
 extern CBouquetList * TVfavList;
+extern CBouquetList * TVbouquetList;
  
 CEpgScan::CEpgScan()
 {
@@ -71,11 +73,12 @@ void CEpgScan::Clear()
 	current_bmode = -1;
 	next_chid = 0;
 	allfav_done = false;
+	selected_done = false;
 }
 
 bool CEpgScan::Running()
 {
-	return (g_settings.epg_scan && !scanmap.empty());
+	return (CheckMode() && !scanmap.empty());
 }
 
 void CEpgScan::AddBouquet(CChannelList * clist)
@@ -90,7 +93,7 @@ void CEpgScan::AddBouquet(CChannelList * clist)
 bool CEpgScan::AddFavorites()
 {
 	INFO("allfav_done: %d", allfav_done);
-	if ((g_settings.epg_scan != 2) || allfav_done)
+	if ((g_settings.epg_scan != SCAN_FAV) || allfav_done)
 		return false;
 
 	allfav_done = true;
@@ -98,6 +101,30 @@ bool CEpgScan::AddFavorites()
 	for (unsigned j = 0; j < TVfavList->Bouquets.size(); ++j) {
 		CChannelList * clist = TVfavList->Bouquets[j]->channelList;
 		AddBouquet(clist);
+	}
+	INFO("scan map size: %d -> %d\n", old_size, scanmap.size());
+	return (old_size != scanmap.size());
+}
+
+bool CEpgScan::AddSelected()
+{
+	INFO("selected_done: %d", selected_done);
+	if ((g_settings.epg_scan != SCAN_SEL) || selected_done)
+		return false;
+
+	selected_done = true;
+	unsigned old_size = scanmap.size();
+	for (unsigned j = 0; j < TVfavList->Bouquets.size(); ++j) {
+		if (TVfavList->Bouquets[j]->zapitBouquet && TVfavList->Bouquets[j]->zapitBouquet->bScanEpg) {
+			CChannelList * clist = TVfavList->Bouquets[j]->channelList;
+			AddBouquet(clist);
+		}
+	}
+	for (unsigned j = 0; j < TVbouquetList->Bouquets.size(); ++j) {
+		if (TVbouquetList->Bouquets[j]->zapitBouquet && TVbouquetList->Bouquets[j]->zapitBouquet->bScanEpg) {
+			CChannelList * clist = TVbouquetList->Bouquets[j]->channelList;
+			AddBouquet(clist);
+		}
 	}
 	INFO("scan map size: %d -> %d\n", old_size, scanmap.size());
 	return (old_size != scanmap.size());
@@ -114,7 +141,25 @@ void CEpgScan::AddTransponders()
 	}
 
 	int mode = CNeutrinoApp::getInstance()->GetChannelMode();
-	if ((g_settings.epg_scan == 1) || (mode == LIST_MODE_FAV)) {
+	if (g_settings.epg_scan == SCAN_SEL) {
+		if (current_bmode != mode) {
+			current_bmode = mode;
+			current_bnum = -1;
+		}
+		int bnum = bouquetList->getActiveBouquetNumber();
+		bool bscan = bouquetList->Bouquets[bnum]->zapitBouquet &&
+			bouquetList->Bouquets[bnum]->zapitBouquet->bScanEpg;
+
+		if ((current_bnum != bnum) && bscan) {
+			current_bnum = bnum;
+			AddBouquet(bouquetList->Bouquets[current_bnum]->channelList);
+		} else {
+			AddSelected();
+		}
+		return;
+	}
+
+	if ((g_settings.epg_scan == SCAN_CURRENT) || (mode == LIST_MODE_FAV)) {
 		/* current bouquet mode */
 		if (current_bmode != mode) {
 			current_bmode = mode;
@@ -132,17 +177,23 @@ void CEpgScan::AddTransponders()
 	}
 }
 
+bool CEpgScan::CheckMode()
+{
+	if (!g_settings.epg_scan
+			|| (standby && !(g_settings.epg_scan_mode & MODE_STANDBY))
+			|| (!standby && !(g_settings.epg_scan_mode & MODE_LIVE))
+			|| (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
+		return false;
+	}
+	return true;
+			
+}
+
 void CEpgScan::Start(bool instandby)
 {
-	if (!g_settings.epg_scan)
-		return;
-	if (!instandby && (CFEManager::getInstance()->getEnabledCount() <= 1))
-		return;
-
+	standby = instandby;
 	live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	AddTransponders();
-	standby = instandby;
-	//g_RCInput->killTimer(rescan_timer);
 	INFO("starting %s scan, scanning %d, scan map size: %d", standby ? "standby" : "live", scan_in_progress, scanmap.size());
 	if (standby || !scan_in_progress)
 		Next();
@@ -167,14 +218,16 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		scanned.clear();
 		Clear();
 		g_RCInput->killTimer(rescan_timer);
-		if (standby || (CFEManager::getInstance()->getEnabledCount() > 1)) {
+		if (CheckMode()) {
 			if (standby)
-				g_Zapit->setStandby(false);
+				CNeutrinoApp::getInstance()->wakeupFromStandby();
 			Start(standby);
+		} else {
+			AddTimer();
 		}
 		return messages_return::handled;
 	}
-	if (!g_settings.epg_scan || (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
+	if (!CheckMode()) {
 		int ret = messages_return::handled;
 		if (msg == NeutrinoMessages::EVT_EIT_COMPLETE)
 			scan_in_progress = false;
@@ -232,18 +285,20 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	return messages_return::unhandled;
 }
 
-void CEpgScan::EnterStandby()
+void CEpgScan::AddTimer()
 {
-	if (standby) {
-		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
-		//CZapit::getInstance()->EnablePlayback(true);
-		g_Zapit->setStandby(true);
-		g_Sectionsd->setPauseScanning(true);
-	}
-	//g_RCInput->killTimer(rescan_timer);
 	if (rescan_timer == 0)
 		rescan_timer = g_RCInput->addTimer(EPG_RESCAN_TIME*1000ULL*1000ULL, true);
 	INFO("rescan timer id %d", rescan_timer);
+}
+
+void CEpgScan::EnterStandby()
+{
+	AddTimer();
+	if (standby) {
+		CZapit::getInstance()->SetCurrentChannelID(live_channel_id);
+		CNeutrinoApp::getInstance()->standbyToStandby();
+	}
 }
 
 void CEpgScan::Next()
@@ -251,17 +306,23 @@ void CEpgScan::Next()
 	bool locked = false;
 
 	next_chid = 0;
+#if 0
 	if (!g_settings.epg_scan)
 		return;
+	if (!CheckMode())
+		return;
+#endif
 	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
 		return;
-	if (CRecordManager::getInstance()->RecordingStatus())
+	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus())
 		return;
 
-	if (g_settings.epg_scan == 2 && scanmap.empty())
+	if (g_settings.epg_scan == SCAN_FAV && scanmap.empty())
 		AddFavorites();
+	if (g_settings.epg_scan == SCAN_SEL && scanmap.empty())
+		AddSelected();
 
-	if (scanmap.empty()) {
+	if (!CheckMode() || scanmap.empty()) {
 		EnterStandby();
 		return;
 	}
@@ -299,7 +360,9 @@ _repeat:
 			INFO("skip [%s], cannot tune", newchan->getName().c_str());
 		++it;
 	}
-	if (!next_chid && AddFavorites())
+	if (!next_chid && ((g_settings.epg_scan == SCAN_FAV) && AddFavorites()))
+		goto _repeat;
+	if (!next_chid && ((g_settings.epg_scan == SCAN_SEL) && AddSelected()))
 		goto _repeat;
 
 	if (locked) {

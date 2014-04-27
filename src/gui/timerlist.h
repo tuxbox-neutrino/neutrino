@@ -66,7 +66,8 @@ class CTimerList : public CMenuTarget
 		std::string timerNew_channel_name;
 		std::string m_weekdaysStr;
 		std::string timerNew_message;
-		
+		std::string timerNew_pluginName;
+
 		int timer_apids_dflt;
 		int timer_apids_std;
 		int timer_apids_ac3;

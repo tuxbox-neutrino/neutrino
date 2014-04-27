@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -30,7 +30,9 @@
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
 
-// #define DEBUG_CC
+
+
+class CComponentsForm;
 
 ///cc item types
 typedef enum
@@ -108,6 +110,13 @@ enum
 	CC_ALIGN_BOTTOM 	= 8,
 	CC_ALIGN_HOR_CENTER	= 16,
 	CC_ALIGN_VER_CENTER	= 32
+};
+
+//item centering modes, see also CComponentsItem::setCenterPos()
+enum
+{
+	CC_ALONG_X 		= 1,
+	CC_ALONG_Y 		= 2
 };
 
 enum

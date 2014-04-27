@@ -108,10 +108,12 @@ class CMoviePlayerGui : public CMenuTarget
 
 	/* playback from file */
 	bool is_file_player;
+	bool iso_file;
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
 	std::string Path_local;
 	int menu_ret;
+	bool autoshot_done;
 
 	/* playback from bookmark */
 	CBookmarkManager * bookmarkmanager;
@@ -138,10 +140,15 @@ class CMoviePlayerGui : public CMenuTarget
 	void updateLcd();
 
 	void selectSubtitle();
+	bool convertSubtitle(std::string &text);
 	void showSubtitle(neutrino_msg_data_t data);
 	void clearSubtitle();
 	void selectChapter();
 	void selectAutoLang();
+	void parsePlaylist(CFile *file);
+	bool mountIso(CFile *file);
+	void makeFilename();
+	void makeScreenShot(bool autoshot = false, bool forcover = false);
 
 	void Cleanup();
 	static void *ShowStartHint(void *arg);

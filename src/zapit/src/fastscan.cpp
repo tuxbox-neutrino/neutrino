@@ -38,9 +38,16 @@
 //#define SCAN_DEBUG
 
 fast_scan_operator_t fast_scan_operators [OPERATOR_MAX] = {
-	{ CD_OPERATOR_ID, 900, 901, (char *) "CanalDigitaal" },
-	{ TVV_OPERATOR_ID, 910, 911, (char *) "TV Vlaanderen" },
-	{ TELESAT_OPERATOR_ID, 920, 921 , (char *) "TéléSAT" }
+	{ CD_OPERATOR_ID,        900, (char *) "CanalDigitaal (SD)" },
+	{ CD_OPERATOR_ID,        901, (char *) "CanalDigitaal (HD)" },
+	{ TVV_OPERATOR_ID,       910, (char *) "TV Vlaanderen (SD)" },
+	{ TVV_OPERATOR_ID,       911, (char *) "TV Vlaanderen (HD)" },
+	{ TELESAT_OPERATOR_ID,   920, (char *) "TéléSAT Belgique" },
+	{ TELESAT_OPERATOR_ID,   921, (char *) "TéléSAT Luxembourg" },
+	{ HDAUSTRIA_OPERATOR_ID, 950, (char *) "HD Austria" },
+	{ SKYLINK_OPERATOR_ID,   30,  (char *) "Skylink Czech Republic" },
+	{ SKYLINK_OPERATOR_ID,   31,  (char *) "Skylink Slovak Republic" },
+	{ HELLO_OPERATOR_ID,     951, (char *) "Hello" }
 };
 
 extern CBouquetManager *g_bouquetManager;
@@ -48,101 +55,181 @@ extern CBouquetManager* scanBouquetManager;
 extern CZapitClient::bouquetMode bouquetMode;
 extern transponder_list_t transponders; //  defined in zapit.cpp
 
+typedef struct diseq_test_param {
+	int position;
+	int frequency;
+	int symbol_rate;
+	fe_code_rate_t fec_inner;
+	int polarization;
+} diseq_test_param_t;
+
+diseq_test_param_t diseqc_test[] = {
+	// { 192, 12515000, 22000000, FEC_5_6, 0 }, // test TP
+	{ 192, 12552000, 22000000, FEC_5_6,         1 },
+	{ 235, 12168000, 27500000, FEC_3_4,         1 },
+	{ 282, 11778000, 27500000, FEC_2_3,         1 }, // FIXME: no such TP on lyngsat ??
+	{ 130, 11681000, 27500000, FEC_S2_8PSK_3_4, 0 },
+	{ 90,  12074000, 27500000, FEC_S2_8PSK_3_4, 1 },
+};
+#define diseqc_test_count (sizeof(diseqc_test)/sizeof(diseq_test_param_t))
+
+bool CServiceScan::TestDiseqcConfig(int num)
+{
+	if(num >= OPERATOR_MAX) {
+		INFO("[fast scan] invalid operator %d", num);
+		return false;
+	}
+	fast_scan_operator_t *op = &fast_scan_operators[num];
+	printf("[fast scan] testing diseqc config for operator %d [%s], pid 0x%x\n", op->id, op->name, op->pid);
+	InitFastscanLnb(op->id);
+
+	std::set<int> scanned;
+	satellite_map_t &satmap = frontend->getSatellites();
+	for (int diseqc = 0; diseqc < 4; diseqc++) {
+		for (unsigned i = 0; i < diseqc_test_count; i++) {
+			if ((op->id == HELLO_OPERATOR_ID) && (diseqc_test[i].position == 282))
+				continue;
+			if ((op->id != HELLO_OPERATOR_ID) && (diseqc_test[i].position == 90))
+				continue;
+
+			std::set<int>::iterator it = scanned.find(diseqc_test[i].position);
+			if (it != scanned.end())
+				continue;
+
+			FrontendParameters feparams;
+			feparams.dvb_feparams.frequency = diseqc_test[i].frequency;
+			feparams.dvb_feparams.u.qpsk.symbol_rate = diseqc_test[i].symbol_rate;
+			feparams.dvb_feparams.u.qpsk.fec_inner = diseqc_test[i].fec_inner;
+
+			int old_diseqc = satmap[diseqc_test[i].position].diseqc;
+			satmap[diseqc_test[i].position].diseqc = diseqc;
+
+			if (tuneFrequency(&feparams, diseqc_test[i].polarization, diseqc_test[i].position)) {
+				scanned.insert(diseqc_test[i].position);
+				break;
+			}
+			satmap[diseqc_test[i].position].diseqc = old_diseqc;
+		}
+	}
+	return true;
+}
+
 void CServiceScan::InitFastscanLnb(int id)
 {
 	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
 	CServiceManager::getInstance()->InitSatPosition(235, NULL, true);
-	CServiceManager::getInstance()->InitSatPosition(282, NULL, true);
 	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
+	if (id == HELLO_OPERATOR_ID)
+		CServiceManager::getInstance()->InitSatPosition(90, NULL, true);
+	else
+		CServiceManager::getInstance()->InitSatPosition(282, NULL, true);
+
 	satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
 
 	frontend = CFEManager::getInstance()->getFE(0);
-	//frontend->setSatellites(satmap);
-	//satmap = frontend->getSatellites();
 
-	switch(id) {
-		default:
-		case CD_OPERATOR_ID:
-		case TVV_OPERATOR_ID:
-			satmap[192].diseqc = 0;
-			satmap[235].diseqc = 1;
-			satmap[282].diseqc = 2;
-			satmap[130].diseqc = 3;
-			break;
-		case TELESAT_OPERATOR_ID:
-			satmap[130].diseqc = 0;
-			satmap[192].diseqc = 1;
-			satmap[235].diseqc = 2;
-			satmap[282].diseqc = 3;
-			break;
-	}
 	satmap[130].configured = 1;
 	satmap[192].configured = 1;
 	satmap[235].configured = 1;
-	satmap[282].configured = 1;
+	if (id == HELLO_OPERATOR_ID)
+		satmap[90].configured = 1;
+	else
+		satmap[282].configured = 1;
+
 	frontend->setSatellites(satmap);
 	frontend->setDiseqcType(DISEQC_1_0);
 	CFEManager::getInstance()->saveSettings();
 	SetFrontend(192);
 }
 
+void CServiceScan::ReportFastScan(FrontendParameters &feparams, uint8_t polarization, t_satellite_position satellitePosition)
+{
+	if (quiet_fastscan)
+		return;
+
+	std::string satname = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
+	uint32_t actual_polarisation = ((feparams.dvb_feparams.u.qpsk.symbol_rate/1000) << 16)
+		| (feparams.dvb_feparams.u.qpsk.fec_inner << 8) | (uint)polarization;
+	uint32_t actual_freq = feparams.dvb_feparams.frequency;
+
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, satname.c_str(), satname.size() + 1);
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
+}
+
+bool CServiceScan::FastscanTune(int id)
+{
+	uint8_t polarization;
+	FrontendParameters feparams;
+	bool res = false;
+
+	feparams.dvb_feparams.frequency = 12070000;
+	feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
+	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
+	polarization = 0;
+
+	ReportFastScan(feparams, polarization, 235);
+	if(!tuneFrequency(&feparams, polarization, 235)) {
+		printf("[fast scan] tune failed, try backup\n");
+		if (id == HELLO_OPERATOR_ID) {
+			feparams.dvb_feparams.frequency = 12074000;
+			feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
+			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
+			polarization = 1;
+			ReportFastScan(feparams, polarization, 90);
+			res = tuneFrequency(&feparams, polarization, 90);
+		} else {
+			feparams.dvb_feparams.frequency = 12515000;
+			feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
+			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
+			ReportFastScan(feparams, polarization, 192);
+			res = tuneFrequency(&feparams, polarization, 192);
+		}
+	} else
+		res = true;
+
+	return res;
+}
+
 bool CServiceScan::ScanFast()
 {
 	fast_scan_type_t * fast_type = (fast_scan_type_t *) scan_arg;
-	fast_scan_operator_t * op;
 	fs_operator_t num = fast_type->op;
-	int type = fast_type->type;
-	uint8_t polarization;
-	FrontendParameters feparams;
-	int res;
-
 	if(num >= OPERATOR_MAX) {
-		printf("[fast scan] invalid operator %d\n", num);
+		INFO("[fast scan] invalid operator %d", num);
+		return false;
+	}
+	return ScanFast(num);
+}
+
+bool CServiceScan::ScanFast(int num, bool reload)
+{
+	fast_scan_operator_t *op;
+	if(num >= OPERATOR_MAX) {
+		INFO("[fast scan] invalid operator %d", num);
 		goto _err;
 	}
+	op = &fast_scan_operators[num];
+
 	found_transponders = 0;
 	found_channels = 0;
 	found_tv_chans = 0;
 	found_data_chans = 0;
 	found_radio_chans = 0;
 
-	op = &fast_scan_operators[num];
+	printf("[fast scan] scaning operator %d [%s], pid 0x%x\n", op->id, op->name, op->pid);
 
-	printf("[fast scan] scaning operator %d for %s channels\n", op->id, type == FAST_SCAN_SD ? "SD" : type == FAST_SCAN_HD ? "HD" : "All");
-
-	feparams.dvb_feparams.frequency = 12515000;
-	feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
-	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
-	polarization = 0;
-
-	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
-
-	InitFastscanLnb(op->id);
-	if(!tuneFrequency(&feparams, polarization, 192)) {
-		printf("[fast scan] tune failed\n");
+	if (!FastscanTune(op->id))
 		goto _err;
-	}
+
+	if (!quiet_fastscan)
+		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
 
 	scanBouquetManager = new CBouquetManager();
 
-	fast_services_sat.clear();
-	fast_services_freq.clear();
-	fast_services_number.clear();
+	if(ParseFnt(op->pid, op->id))
+		ParseFst(op->pid, op);
 
-	if(type & FAST_SCAN_SD) {
-		res = ParseFnt(op->sd_pid, op->id);
-		if(res == 0)
-			ParseFst(op->sd_pid, op);
-
-		printf("[fast scan] pid %d (SD) scan done, found %d transponders and %d services\n", op->sd_pid, found_transponders, found_channels);
-	}
-	if(type & FAST_SCAN_HD) {
-		res = ParseFnt(op->hd_pid, op->id);
-		if(res == 0)
-			res = ParseFst(op->hd_pid, op);
-
-		printf("[fast scan] pid %d (HD) scan done, found %d transponders and %d services\n", op->hd_pid, found_transponders, found_channels);
-	}
 	//FIXME move to Cleanup() ?
 	if(found_channels) {
 		CZapitClient myZapitClient;
@@ -151,7 +238,8 @@ bool CServiceScan::ScanFast()
 		g_bouquetManager->saveBouquets();
 		g_bouquetManager->saveUBouquets();
 		//g_bouquetManager->clearAll();
-		g_bouquetManager->loadBouquets();
+		if (reload)
+			g_bouquetManager->loadBouquets();
 		Cleanup(true);
 		myZapitClient.reloadCurrentServices();
 	} else {
@@ -170,38 +258,39 @@ _err:
 	return false;
 }
 
-bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
+bool CServiceScan::ReadFstVersion(int num)
+{
+	if(num >= OPERATOR_MAX) {
+		printf("[fast scan] invalid operator %d\n", num);
+		return false;
+	}
+	fast_scan_operator_t *op = &fast_scan_operators[num];
+	unsigned short operator_id = op->id;
+	unsigned short pid = op->pid;
+
+	printf("[FST VERSION] scaning operator %d [%s], pid 0x%x\n", op->id, op->name, op->pid);
+	if (!FastscanTune(op->id))
+		return false;
+
+	frontend->setTsidOnid(0);
+	if (!ReadFst(pid, operator_id, true))
+		return false;
+
+	fst_sections.clear();
+	printf("[FST VERSION] version %02x\n", fst_version);
+	return true;
+}
+
+bool CServiceScan::ReadFst(unsigned short pid, unsigned short operator_id, bool one_section)
 {
 	int secdone[255];
 	int sectotal = -1;
-	unsigned short operator_id = op->id;
-	CZapitBouquet* bouquet;
-	int bouquetId;
-
-	memset(secdone, 0, 255);
-
-	cDemux * dmx = new cDemux();
-	dmx->Open(DMX_PSI_CHANNEL);
-
-	unsigned char buffer[SEC_SIZE];
-
-	/* position in buffer */
-	unsigned short pos;
-	unsigned short pos2;
-
-	/* service_description_section elements */
-	unsigned short section_length;
-	unsigned short transport_stream_id = 0;
-	unsigned short original_network_id = 0;
-	unsigned short operator_network_id = 0;
-
-	unsigned short service_id;
-	unsigned short descriptors_loop_length;
-	unsigned short video_pid, audio_pid, pcr_pid;
+	uint8_t last = 0;
 
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
+	memset(secdone, 0, 255);
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	memset(mask, 0x00, DMX_FILTER_SIZE);
 
@@ -210,44 +299,88 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 	filter[2] = operator_id & 0xff;
 	mask[0] = mask[1] = mask[2] = 0xFF;
 
-	printf("[FST] scaning pid %d operator %d\n", pid, operator_id);
+	printf("[FST] reading pid %d operator %d\n", pid, operator_id);
+	cDemux * dmx = new cDemux();
+	dmx->Open(DMX_PSI_CHANNEL);
 
 	if (dmx->sectionFilter(pid, filter, mask, 3) < 0) {
 		delete dmx;
 		return false;
 	}
-#if 0
-	g_bouquetManager->clearAll();
-	CServiceManager::getInstance()->RemoveAllChannels();
-#endif
 	do {
-		if (dmx->Read(buffer, SEC_SIZE) < 0) {
-			delete dmx;
-			return false;
-		}
+		std::vector<uint8_t> section(SEC_SIZE);
+		uint8_t * buffer = section.data();
+
+		if (dmx->Read(buffer, SEC_SIZE) < 0)
+			break;
+
 		if(buffer[0] != 0xBD)
 		        printf("[FST] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
 
-
-		section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
-		operator_network_id = (buffer[3] << 8) | buffer[4];
-
+		fst_version = (buffer[5] >> 1) & 0x1f;
 		unsigned char secnum = buffer[6];
-		printf("[FST] section %X last %X operator 0x%x -> %s\n", buffer[6], buffer[7], operator_network_id, secdone[secnum] ? "skip" : "use");
+		printf("[FST] version %x section %X last %X -> %s\n", fst_version, buffer[6], buffer[7], secdone[secnum] ? "skip" : "use");
 
 		if(secdone[secnum])
 			continue;
 
 		secdone[secnum] = 1;
 		sectotal++;
+		fst_sections.push_back(section);
+		last = buffer[7];
+	} while(!one_section && (sectotal < last));
 
+	delete dmx;
+	printf("[FST] %d sections\n", fst_sections.size());
+	return !fst_sections.empty();
+}
+
+bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
+{
+	unsigned short operator_id = op->id;
+	CZapitBouquet* bouquet;
+	int bouquetId;
+
+	/* position in buffer */
+	unsigned short pos;
+	unsigned short pos2;
+
+	printf("[FST] scaning pid %d operator %d\n", pid, operator_id);
+	if (!ReadFst(pid, operator_id)) {
+		printf("[FST] sections read failed\n");
+		return false;
+	}
+
+#if 0
+	g_bouquetManager->clearAll();
+	CServiceManager::getInstance()->RemoveAllChannels();
+#endif
+	ZapitChannelList ChannelList;
+	CServiceManager::getInstance()->GetAllTvChannels(ChannelList, CZapitChannel::FASTSCAN);
+	for (zapit_list_it_t oldI = ChannelList.begin(); oldI != ChannelList.end(); ++oldI)
+		(*oldI)->flags = CZapitChannel::REMOVED;
+
+	CServiceManager::getInstance()->GetAllRadioChannels(ChannelList, CZapitChannel::FASTSCAN);
+	for (zapit_list_it_t oldI = ChannelList.begin(); oldI != ChannelList.end(); ++oldI)
+		(*oldI)->flags = CZapitChannel::REMOVED;
+
+	for (std::list<std::vector<uint8_t> >::iterator it = fst_sections.begin(); it != fst_sections.end(); ++it) {
+		uint8_t * buffer = (*it).data();
+
+		unsigned short section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
+
+		fst_version = (buffer[5] >> 1) & 0x1f;
+		//unsigned short operator_network_id = (buffer[3] << 8) | buffer[4];
+		//printf("[FST] version %x section %X last %X operator 0x%x\n", fst_version, buffer[6], buffer[7], operator_network_id);
+
+		unsigned short descriptors_loop_length;
 		for (pos = 8; pos < section_length - 1; pos += descriptors_loop_length + 18) {
-			original_network_id = (buffer[pos] << 8) | buffer[pos+1];
-			transport_stream_id = (buffer[pos+2] << 8) | buffer[pos+3];
-			service_id = (buffer[pos+4] << 8) | buffer[pos+5];
-			video_pid = (buffer[pos+6] << 8) | buffer[pos+7];
-			audio_pid = (buffer[pos+8] << 8) | buffer[pos+9];
-			pcr_pid = (buffer[pos+14] << 8) | buffer[pos+15];
+			unsigned short original_network_id = (buffer[pos] << 8) | buffer[pos+1];
+			unsigned short transport_stream_id = (buffer[pos+2] << 8) | buffer[pos+3];
+			unsigned short service_id = (buffer[pos+4] << 8) | buffer[pos+5];
+			unsigned short video_pid = (buffer[pos+6] << 8) | buffer[pos+7];
+			unsigned short audio_pid = (buffer[pos+8] << 8) | buffer[pos+9];
+			unsigned short pcr_pid = (buffer[pos+14] << 8) | buffer[pos+15];
 
 			//printf("[FST] onid %x tid %x sid %x vpid %x apid %x pcr %x\n", original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid);
 			descriptors_loop_length = ((buffer[pos + 16] & 0x0F) << 8) | buffer[pos + 17];
@@ -292,14 +425,14 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 #ifdef SCAN_DEBUG
 						printf("[FST] #%04d at %04d: net %04x tp %04x sid %04x v %04x a %04x pcr %04x frq %05d type %d prov [%s] name [%s]\n", num, satellitePosition, original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid, freq, service_type, providerName.c_str(), serviceName.c_str());
 #endif
-						ChannelFound(service_type, providerName, serviceName);
+						if (!quiet_fastscan)
+							ChannelFound(service_type, providerName, serviceName);
+						else
+							found_channels++;
 
 						channel_id = CREATE_CHANNEL_ID64;
 
 						CZapitChannel * newchannel;
-#if 0
-						newchannel = CServiceManager::getInstance()->FindChannel(channel_id);
-#else
 
 						int flist[5] = { freq, freq-1, freq+1, freq-2, freq+2 };
 						for(int i = 0; i < 5; i++) {
@@ -310,7 +443,6 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 							if(newchannel)
 								break;
 						}
-#endif
 						if(newchannel == NULL) {
 							newchannel = new CZapitChannel (
 									serviceName,
@@ -319,10 +451,11 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 									satellitePosition,
 									freq);
 							newchannel->deltype = FE_QPSK;
+							newchannel->flags = CZapitChannel::NEW | CZapitChannel::FASTSCAN;
 							CServiceManager::getInstance()->AddChannel(newchannel);
+						} else {
+							newchannel->flags = CZapitChannel::UPDATED | CZapitChannel::FASTSCAN;
 						}
-						// FIXME detect new/removed
-						newchannel->flags = CZapitChannel::UPDATED;
 						newchannel->setName(serviceName);
 						newchannel->setServiceType(service_type);
 						newchannel->setVideoPid(video_pid);
@@ -333,7 +466,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 
 						char pname[100];
 						if (frontend->getInfo()->type == FE_QPSK)
-							snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
+							snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
 						else
 							snprintf(pname, 100, "%s", providerName.c_str());
 
@@ -346,12 +479,12 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 							bouquet = scanBouquetManager->Bouquets[bouquetId];
 						bouquet->addService(newchannel);
 
-						if(newchannel->getServiceType() == 1)
+						if(!quiet_fastscan && newchannel->getServiceType() == 1)
 							CZapit::getInstance()->SetCurrentChannelID(newchannel->getChannelID());
 
 						bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						if (bouquetId == -1) {
-							bouquet = g_bouquetManager->addBouquet(std::string(op->name), true);
+							bouquet = g_bouquetManager->addBouquet(std::string(op->name), true, false, true);
 							bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						}
 						else
@@ -360,7 +493,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						if (!(g_bouquetManager->existsChannelInBouquet(bouquetId, newchannel->getChannelID())))
 							bouquet->addService(newchannel);
 
-						if (num == 1)
+						if (!quiet_fastscan && num == 1)
 							CZapit::getInstance()->SetCurrentChannelID(newchannel->getChannelID());
 					}
 					break;
@@ -370,20 +503,19 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 				}
 			}
 		}
-	} while(sectotal < buffer[7]);
-	delete dmx;
+	}
 
 	bouquetId = g_bouquetManager->existsUBouquet(op->name);
 	if (bouquetId >= 0) 
 		g_bouquetManager->Bouquets[bouquetId]->sortBouquetByNumber();
 
+	fst_sections.clear();
 	printf("[FST] done\n\n");
 	return true;
 }
 
 bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 {
-	int ret = 0;
 	int secdone[255];
 	int sectotal = -1;
 
@@ -420,15 +552,17 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 
 	mask[0] = mask[1] = mask[2] = 0xFF;
 
+	frontendType = FE_QPSK;
+
 	printf("[FNT] scaning pid %d operator %d\n", pid, operator_id);
 	if (dmx->sectionFilter(pid, filter, mask, 3) < 0) {
 		delete dmx;
-		return -1;
+		return false;
 	}
 	do {
 		if (dmx->Read(buffer, SEC_SIZE) < 0) {
 			delete dmx;
-			return -1;
+			return false;
 		}
 		if(buffer[0] != 0xBC)
 			printf("[FNT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
@@ -505,11 +639,11 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 								transponders.insert(transponder_pair_t(TsidOnid, t));
 							}
 							found_transponders++;
-							//CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
-							//		&found_transponders, sizeof(found_transponders));
+#if 0
 							uint32_t  actual_freq = freq;
 							CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY,
 									&actual_freq, sizeof(actual_freq));
+#endif
 							//satellite_delivery_system_descriptor(buffer + pos2, transport_stream_id, original_network_id, satellitePosition, freq);
 						}
 						break;
@@ -537,14 +671,15 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 				if(fIt->second == 0)
 					fIt->second = freq;
 		}
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
-				&found_transponders, sizeof(found_transponders));
+		if (!quiet_fastscan)
+			CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
+					&found_transponders, sizeof(found_transponders));
 	} while(sectotal < buffer[7]);
 
 	dmx->Stop();
 	delete dmx;
 	printf("[FNT] done\n\n");
-	return ret;
+	return true;
 }
 
 void CServiceScan::process_logical_service_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)

@@ -61,6 +61,7 @@ CServiceScan::CServiceScan()
 	running = false;
 
 	cable_nid = 0;
+	fst_version = 0;
 
 	frontend = CFEManager::getInstance()->getFE(0);
 }
@@ -110,9 +111,11 @@ void CServiceScan::run()
 
 	switch(scan_mode) {
 		case SCAN_PROVIDER:
+			fst_version = 0;
 			ScanProviders();
 			break;
 		case SCAN_TRANSPONDER:
+			fst_version = 0;
 			ScanTransponder();
 			break;
 #if 0
@@ -348,7 +351,7 @@ _repeat:
 		CZapitBouquet* bouquet;
 		int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
 		if (bouquetId == -1)
-			bouquet = g_bouquetManager->addBouquet(pname, true);
+			bouquet = g_bouquetManager->addBouquet(pname, true, false, true);
 		else
 			bouquet = g_bouquetManager->Bouquets[bouquetId];
 
@@ -561,7 +564,7 @@ bool CServiceScan::ScanProviders()
 		}
 
 		if( !scanBouquetManager->Bouquets.empty() ) {
-			scanBouquetManager->saveBouquets(bouquetMode, spI->second.c_str());
+			scanBouquetManager->saveBouquets(bouquetMode, spI->second.c_str(), position);
 		}
 		scanBouquetManager->clearAll();
 	}
@@ -633,7 +636,7 @@ bool CServiceScan::ScanTransponder()
 		found_channels = 0;
 
 	if(found_channels) {
-		scanBouquetManager->saveBouquets(bouquetMode, providerName.c_str());
+		scanBouquetManager->saveBouquets(bouquetMode, providerName.c_str(), scanedtransponders.size() > 1 ? satellitePosition : -1);
 		SaveServices();
 		Cleanup(true);
 		CZapitClient myZapitClient;

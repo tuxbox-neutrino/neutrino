@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -63,6 +63,7 @@ class CComponentsPicture : public CComponentsItem
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
 				const int &alignment,
+				CComponentsForm *parent,
 				bool has_shadow,
 				fb_pixel_t color_frame,
 				fb_pixel_t color_background,
@@ -78,6 +79,7 @@ class CComponentsPicture : public CComponentsItem
 		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
 					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
@@ -87,9 +89,12 @@ class CComponentsPicture : public CComponentsItem
 		virtual inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
 		virtual inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
 		virtual void setPicture(const std::string& picture_name);
+		virtual void setPicture(const char* picture_name);
 		virtual void setPictureAlign(const int alignment);
 
+		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
 		virtual inline bool isPicPainted(){return pic_painted;};
+
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		virtual void hide(bool no_restore = false);
 		virtual inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
@@ -113,6 +118,7 @@ class CComponentsChannelLogo : public CComponentsPicture, CPictureViewer
 					const uint64_t& channelId =0,
 					const std::string& channelName = "",
 					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
@@ -120,6 +126,7 @@ class CComponentsChannelLogo : public CComponentsPicture, CPictureViewer
 
 		void setChannel(const uint64_t& channelId, const std::string& channelName);
 		void setPicture(const std::string& picture_name);
+		void setPicture(const char* picture_name);
 		bool hasLogo(){return has_logo;};
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };

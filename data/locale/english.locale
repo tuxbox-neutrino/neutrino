@@ -240,6 +240,7 @@ channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key 
 channellist.numeric_adjust Numeric zap adjust
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
+channellist.remember Last used
 channellist.reset_all Reset 'new' flag for all channels
 channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
@@ -316,6 +317,11 @@ date.Sun  Sun
 date.Thu  Thu
 date.Tue  Tue
 date.Wed  Wed
+debug Debug Output
+debug.level Level
+debug.level_1 normal
+debug.level_2 informative
+debug.level_3 verbose
 epg.saving Saving EPG
 epgextended.actors Actors
 epgextended.director Director
@@ -402,7 +408,8 @@ extra.lodirection LoDirection
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
 extra.north North
-extra.record_time Maximal recording time
+extra.record_time Maximal recording duration
+extra.record_time_ts Maximal timeshift duration
 extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
@@ -617,18 +624,24 @@ hdd_check_format_bad Checking of disks with format %s is not supported.
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
 hdd_format Formating drive...
-hdd_format_failed Formating failed!
-hdd_format_warn Start format...
+hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
+hdd_format_warn All data on device will be lost ! Continue with format ?
 hdd_fs Filesystem used to format
 hdd_fs_unknown unknown
 hdd_manage Manage drives
 hdd_middle Mid
+hdd_mount Mount
+hdd_mount_ok Device ready to use.
+hdd_mount_failed Failed to mount, check HDD settings menu.
+hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
 hdd_removable_device Removable device
 hdd_settings Hard Disk Drive/USB
 hdd_sleep Switch off after...
 hdd_slow Slow
+hdd_umount Unmount
+hdd_umounted Device removed
 hdd_umount_warn unmount device
 imageinfo.creator Creator:
 imageinfo.date Date:
@@ -675,6 +688,7 @@ keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
 keybindingmenu.head Edit Keybindings
 keybindingmenu.lastchannel Quick Zap
+keybindingmenu.longkeypress_duration Long key-press
 keybindingmenu.misc Misc
 keybindingmenu.mode_left_right_key_tv Left/Right Key Behavior in TV-Mode
 keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
@@ -738,6 +752,9 @@ ledcontroler.off Led1 & Led2 off
 ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
+lua.function_deprecated1 Attention!
+lua.function_deprecated2 Function
+lua.function_deprecated3 is deprecated,\n                      please use
 mainmenu.audioplayer Audioplayer
 mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
@@ -804,6 +821,7 @@ menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
 menu.hint_back Return to previous menu\nPress menu key to close all menus
+menu.hint_back_brief Return to previous menu
 menu.hint_backlight Configure buttons backlight
 menu.hint_backup Backup configs and channels to selected dir
 menu.hint_bedit Edit favorites and bouquets
@@ -818,6 +836,8 @@ menu.hint_channellist_epg_align EPG event align
 menu.hint_channellist_extended Show current event progress bar
 menu.hint_channellist_fonts Change channel list font sizes
 menu.hint_channellist_foot Show additional information\nin bottom box
+menu.hint_channellist_mode Use the selected channel list mode on startup if last mode is TV
+menu.hint_channellist_mode_radio Use the selected channel list mode on startup if last mode is Radio
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Show channellogos in channel list
 menu.hint_channels Open channel list
@@ -843,6 +863,7 @@ menu.hint_epg_old_events Hours after event end time to consider\nevent old and r
 menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
 menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Enable background epg scan using free tuner,\ncurrent bouquet or all favorites
+menu.hint_epg_scan_mode Select box state to run epg scan
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_eventlist_additional Show additional informations\nin main box
 menu.hint_eventlist_fonts Change event list font sizes
@@ -934,6 +955,7 @@ menu.hint_key_pic_size_active Disable/enable key for the 4:3 display behavior
 menu.hint_key_pip_close Assign button to stop PiP\nor start it for current channel
 menu.hint_key_pip_setup Assign button to configure PiP
 menu.hint_key_pip_swap Assign button to swap PiP and live channel
+menu.hint_key_plugin Assign button to execute the one touch plugin
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
@@ -960,6 +982,7 @@ menu.hint_leds_record LEDs state when box recording
 menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
 menu.hint_load Load Neutrino-HD GUI settings from file
+menu.hint_longkeypress_duration A key press will be considered as "long key press" if it's pressed longer than the specified time.
 menu.hint_lua Run Plugins
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
@@ -979,6 +1002,7 @@ menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leav
 menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
+menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
 menu.hint_net_djmount Mount UPnP devices as filesystem\nunder /media/00upnp
@@ -1014,6 +1038,9 @@ menu.hint_net_xupnpd Share live channels over UPNP
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
+menu.hint_onekey_plugin Choose a plugin that's executed with the one touch key
+menu.hint_opkg Install or update software packages
+menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
@@ -1044,16 +1071,19 @@ menu.hint_record_apid_alt Record alternative non-AC3 audio pids
 menu.hint_record_apid_std Record first audio pid
 menu.hint_record_apids Configure audio pids to record
 menu.hint_record_apply Apply record options
+menu.hint_record_auto_cover Auto-create movie thumbnail for movie browser on record playback
 menu.hint_record_chandir Create directory with name of channel\nto store recording
 menu.hint_record_data Record (VideoText, subtitles) data streams
 menu.hint_record_data_dvbsub subtitle stream
 menu.hint_record_data_vtxt VideoText stream
 menu.hint_record_dir Select directory to store recordings
 menu.hint_record_end Stop direct record after maximal time or after current event end time
+menu.hint_record_filename_template edit filename template
 menu.hint_record_slow_warn Show warning, when record buffer is close to overflow
 menu.hint_record_startstop_msg Turns the message when recording start/end on or off.
 menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
-menu.hint_record_time Record time before stop when\nusing direct record with record button
+menu.hint_record_time Record duration before stop when\nusing direct record with record button
+menu.hint_record_time_ts Timeshift duration before stop when\ntemporary timeshift enabled
 menu.hint_record_timeafter Stop record after event end\nin minutes
 menu.hint_record_timebefore Start record before event start\nin minutes
 menu.hint_record_timer Configure record by timer options
@@ -1085,8 +1115,10 @@ menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat Diseqc repeat for cascaded switches
 menu.hint_scan_diseqctype Select your diseqc switch protocol\nwith 'advanced' you can use uncommited switches
 menu.hint_scan_fast CanalDigitaal/TéléSAT/TV Vlaanderen provider scan\nWARNING: diseqc config will be overwritten
+menu.hint_scan_fastdiseqc Start diseqc auto-configuration
 menu.hint_scan_fastprov Select provider to scan
 menu.hint_scan_fasttype Select fast scan type
+menu.hint_scan_fastupdate Enable/disable fast scan auto-update
 menu.hint_scan_fec Select transponder FEC
 menu.hint_scan_felink Select tuner to link tuner to
 menu.hint_scan_femode Select tuner connection type
@@ -1106,6 +1138,7 @@ menu.hint_scan_logical_hd If both SD and HD channel versions present\nput HD to 
 menu.hint_scan_longitude Enter your longtitude
 menu.hint_scan_manual Manual transponder scan using\nselected parameters
 menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_motor Rotor options, satellite finder
 menu.hint_scan_motor_18v Use 18V when moving rotor
 menu.hint_scan_motor_speed Rotor moving speed in 1/10 degree\nper second
 menu.hint_scan_motorpos Select stored position number for this satellite,\nignored, if USALS enabled
@@ -1130,6 +1163,7 @@ menu.hint_scan_start Start scan. You can use 'exit' button to stop
 menu.hint_scan_test Test signal for this transponder
 menu.hint_scan_tpselect Select transponder to scan
 menu.hint_scan_uncommited Select uncommited input for\nthis satellite
+menu.hint_scan_usals USALS options
 menu.hint_scan_usals_repeat Repeat usals move rotor commands\nif you expirience unstable rotor move
 menu.hint_scan_usalsall Use USALS for all satellites on this frontend
 menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
@@ -1201,6 +1235,7 @@ menu.hint_video_modes VF key will cycle between enabled modes
 menu.hint_video_pip Picture in picture size and position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
+menu.hint_video_sdosd Enable/disable OSD display on SD output (scart, cinch)
 menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
@@ -1241,8 +1276,12 @@ miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
 miscsettings.epg_save_standby Save epg on soft standby
 miscsettings.epg_scan EPG scan
+miscsettings.epg_scan_always Always
 miscsettings.epg_scan_bq bouquet
 miscsettings.epg_scan_fav favorites
+miscsettings.epg_scan_live Live
+miscsettings.epg_scan_sel Selected
+miscsettings.epg_scan_standby Standby
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.infobar Infobar
@@ -1497,7 +1536,7 @@ mpkey.bookmark save bookmark
 mpkey.forward Forward
 mpkey.pause Pause
 mpkey.play Play
-mpkey.plugin Run plugin
+mpkey.plugin Movieplayer plugin
 mpkey.rewind Rewind
 mpkey.stop Stop
 mpkey.subtitle Subtitles
@@ -1564,6 +1603,19 @@ nvod.starting (starting in %d min)
 nvodselector.directormode Direct-Mode
 nvodselector.head Select starting-time
 nvodselector.subservice Select Subservice
+opkg.button.expert_off Standard mode
+opkg.button.expert_on Expert mode
+opkg.button.info Package information
+opkg.button.install Install package
+opkg.button.uninstall Uninstall package
+opkg.failure.install Install failed (%d)
+opkg.failure.update Update failed (%d)
+opkg.failure.upgrade Upgrade failed (%d)
+opkg.messagebox.reinstall Re-install %s?
+opkg.messagebox.remove Remove %s?
+opkg.success.install Install successful, restart of Neutrino might be required.
+opkg.title Package Management
+opkg.upgrade Upgrade installed packages
 options.default Reset to defaults
 options.fb framebuffer
 options.ntp_off DVB
@@ -1684,6 +1736,7 @@ recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream
+recordingmenu.auto_cover Auto-thumbnail
 recordingmenu.data_pids Data streams
 recordingmenu.defdir Recording directory
 recordingmenu.dvbsub_pids record dvbsub stream
@@ -1691,6 +1744,9 @@ recordingmenu.end_of_recording_epg EPG act. Event
 recordingmenu.end_of_recording_max max. Recordingtime
 recordingmenu.end_of_recording_name Endtime of Recording
 recordingmenu.file direct (file)
+recordingmenu.filename_template filename template
+recordingmenu.filename_template_hint wildcards will be replaced
+recordingmenu.filename_template_hint2 %C = channel, %T = title, %I = info, %d = date, %t = time
 recordingmenu.help Recording devices:\n--------------------------\nserver:\nusing streaming software on a PC\n\n(analog) vcr:\nusing the vcr outlet\n\ndirect (file):\ndirectly into an NFS mounted directory\nor onto an internal hard drive\nTS: use spts mode(dbox2)\nPES: do not use spts mode(dbox2)\n\n\nMax. file size:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: almost unlimited (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.multimenu.ask_stop_all really stop all %d recordings?
 recordingmenu.multimenu.info_stop_all %d of %d recordings will be stopped.
@@ -1734,14 +1790,24 @@ satsetup.diseqcrepeat DiSEqC-repeats
 satsetup.extended DiSEqC-Settings
 satsetup.extended_motor Motor-Settings
 satsetup.fastscan_all SD and HD
+satsetup.fastscan_auto_diseqc Start auto-diseqc configuration
+satsetup.fastscan_auto_diseqc_wait Auto-diseqc configuration in progress
 satsetup.fastscan_hd HD only
-satsetup.fastscan_head Fast scan (Astra 1, 19.2E, 12.515Mhz)
+satsetup.fastscan_head Fast scan
 satsetup.fastscan_prov Provider
-satsetup.fastscan_prov_cd CanalDigitaal
-satsetup.fastscan_prov_telesat TéléSAT
-satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_prov_cd_hd CanalDigitaal (HD)
+satsetup.fastscan_prov_cd_sd CanalDigitaal (SD)
+satsetup.fastscan_prov_hda HD Austria
+satsetup.fastscan_prov_hello Hello
+satsetup.fastscan_prov_skylink_c Skylink Czech
+satsetup.fastscan_prov_skylink_s Skylink Slovak
+satsetup.fastscan_prov_telesat_b TéléSAT Belgium
+satsetup.fastscan_prov_telesat_l TéléSAT Luxemburg
+satsetup.fastscan_prov_tvv_hd TV Vlaanderen (HD)
+satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
+satsetup.fastscan_update Auto update
 satsetup.fe_mode Tuner mode
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
@@ -1794,7 +1860,7 @@ scants.channel Channel:
 scants.failed Transponderscan failed!
 scants.finished Transponderscan finished successfully!
 scants.freqdata Frequency:
-scants.head Scan transponder
+scants.head Service scan
 scants.numberofdataservices Data
 scants.numberofradioservices Radio
 scants.numberoftotalservices Total
@@ -1875,8 +1941,10 @@ streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.caps caps / no caps
 stringinput.clear clear all
+subtitles.charset Charset
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
+terrestrialsetup.area Area
 terrestrialsetup.provider Terrestrial Provider
 timer.eventrecord.msg The event is scheduled for recording.\nTo edit the schedule open the timer list.
 timer.eventrecord.title Schedule Record
@@ -2031,6 +2099,7 @@ videomenu.pip_error PiP start failed
 videomenu.saturation Saturation
 videomenu.scart Scart
 videomenu.screensetup Screen Setup
+videomenu.sdosd SD OSD
 videomenu.sharpness Sharpness
 videomenu.tv-scart Video
 videomenu.vcrsignal VCR Output Signal Type
@@ -2057,6 +2126,8 @@ zapit.scantype.all all services
 zapit.scantype.radio only radio
 zapit.scantype.tv only tv
 zapit.scantype.tvradio tv & radio
+zapitsetup.channelmode Initial TV channel list
+zapitsetup.channelmode_radio Initial Radio channel list
 zapitsetup.head Start Channel Settings
 zapitsetup.info Start Channel
 zapitsetup.last_radio Radio Channel

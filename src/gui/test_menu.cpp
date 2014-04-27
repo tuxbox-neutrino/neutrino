@@ -379,7 +379,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "circle"){
 		if (circle == NULL)
-			circle = new CComponentsShapeCircle (100, 100, 100, false);
+			circle = new CComponentsShapeCircle (100, 100, 100, NULL, false);
 
 		if (!circle->isPainted())	
 			circle->paint();
@@ -389,7 +389,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "square"){
 		if (sq == NULL)
-			sq = new CComponentsShapeSquare (100, 220, 100, 100, false);
+			sq = new CComponentsShapeSquare (100, 220, 100, 100, NULL, false);
 
 		if (!sq->isPainted())
 			sq->paint();
@@ -438,7 +438,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		CComponentsText *t2 = new CComponentsText(t1->getXPos()+t1->getWidth(), 0, 200, 50, "Text2", CTextBox::NO_AUTO_LINEBREAK | CTextBox::RIGHT);
 		t2->setCorner(RADIUS_MID, CORNER_TOP_RIGHT);
- 		form->addCCItem(t2);
+		form->addCCItem(t2);
 
 		CComponentsShapeCircle *c1 = new CComponentsShapeCircle(28, 40, 28);
 		c1->setColorBody(COL_RED);
@@ -487,12 +487,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int hh = 30;//g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (header == NULL){
 			header = new CComponentsHeader (100, 50, 500, hh, "Test-Header"/*, NEUTRINO_ICON_INFO, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU*/);
-// 			header->addHeaderButton(NEUTRINO_ICON_BUTTON_RED);
-			header->setDefaultButtons(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
+			header->addContextButton(NEUTRINO_ICON_BUTTON_RED);
+			header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
 		}
-// 		else	//For existing instances it's recommended
-// 			//to remove old button icons before add new buttons, otherwise icons will be appended.
-//  			header->removeHeaderButtons();
+		else	//For existing instances it's recommended to remove old button icons before add new buttons,
+			//otherwise icons will be appended to already existant icons, alternatively use the setContextButton() methode
+ 			header->removeContextButtons();
 
 //		example to manipulate header items
 // 		header->setFrameThickness(5);
@@ -502,9 +502,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //		change text of header
 		header->setCaption("Test");
 
-//		add any other button icon
-//   		header->addButton(NEUTRINO_ICON_BUTTON_BLUE);
-// 		header->addButton(NEUTRINO_ICON_BUTTON_GREEN);
+		//add context buttons via vector
+// 		vector<string> v_buttons;
+// 		v_buttons.push_back(NEUTRINO_ICON_BUTTON_YELLOW);
+// 		v_buttons.push_back(NEUTRINO_ICON_BUTTON_RED);
+// 		header->addContextButton(v_buttons);
+// 
+// //		add any other button icon via string
+//   		header->addContextButton(NEUTRINO_ICON_BUTTON_BLUE);
+// 		header->addContextButton(NEUTRINO_ICON_BUTTON_GREEN);
+// 		header->addContextButton(CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU);
+
+// 		set a single button, this will also remove all existant context button icons from header
+//		header->setContextButton(NEUTRINO_ICON_HINT_AUDIO);
 
 //		example to replace the text item with an image item
 //		get text x position
@@ -528,7 +538,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "footer"){
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (footer == NULL){
-			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, true);
+			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, NULL, true);
 			int start = 5, btnw =90, btnh = 37;
 			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, btnh, "Button1"));
 			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, btnh, "Button2"));
@@ -545,11 +555,12 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (iconform == NULL)
 			iconform = new CComponentsIconForm();
 		iconform->setColorBody(COL_LIGHT_GRAY);
-		iconform->setDimensionsAll(100, 100, 480, 60);
+		iconform->setDimensionsAll(100, 100,80/*480*/, 80);
 		iconform->setFrameThickness(2);
 		iconform->setColorFrame(COL_WHITE);
-		iconform->setIconOffset(5);
-		iconform->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
+		iconform->setDirection(CC_DIR_X);
+		iconform->setAppendOffset(5, 5);
+
 		//For existing instances it's recommended
 		//to remove old items before add new icons, otherwise icons will be appended.
 		iconform->removeAllIcons();
@@ -649,6 +660,21 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
+	else if (actionKey == "footer_key"){
+		neutrino_msg_t      msg;
+		neutrino_msg_data_t data;
+		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Footer-Key pressed. Press EXIT to return");
+		hintBox->paint();
+		while (1)
+		{
+			g_RCInput->getMsg(&msg, &data, 100);
+			if (msg == CRCInput::RC_home)
+				break;
+		}
+		delete hintBox;
+
+		return res;
+	}
 	
 	
 	return showTestMenu();
@@ -682,6 +708,16 @@ int CTestMenu::showTestMenu()
 	CMenuForwarder *f_bi = new CMenuForwarder(LOCALE_BUILDINFO_MENU,  true, NULL, new CBuildInfo());
 	f_bi->setHint(NEUTRINO_ICON_HINT_IMAGEINFO, LOCALE_MENU_HINT_BUILDINFO);
 	w_test.addItem(f_bi);
+
+	//footer buttons
+	static const struct button_label footerButtons[2] = {
+		{ NEUTRINO_ICON_BUTTON_RED,	LOCALE_COLORCHOOSER_RED	},
+		{ NEUTRINO_ICON_BUTTON_GREEN,	LOCALE_COLORCHOOSER_GREEN }
+	};
+
+	w_test.setFooter(footerButtons, 2);
+	w_test.addKey(CRCInput::RC_red, this, "footer_key");
+	w_test.addKey(CRCInput::RC_green, this, "footer_key");
 
 	//exit
 	return w_test.exec(NULL, "");;

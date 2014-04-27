@@ -17,6 +17,8 @@ class CPipSetup : public CMenuTarget
 		int maxh;
 		int minw;
 		int minh;
+
+		int *gx, *gy, *gw, *gh;
 		void paint();
 		void hide();
 		void clear();

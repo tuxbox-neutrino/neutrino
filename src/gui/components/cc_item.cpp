@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -31,16 +31,9 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_base.h"
-
+#include <driver/screen_max.h>
+#include <system/debug.h>
 using namespace std;
-
-//abstract sub class CComponentsItem from CComponents
-CComponentsItem::CComponentsItem()
-{
-	//CComponentsItem
-	initVarItem();
-	cc_item_type = CC_ITEMTYPE_BASE;
-}
 
 // 	 y
 // 	x+------f-r-a-m-e-------+
@@ -49,13 +42,21 @@ CComponentsItem::CComponentsItem()
 // 	 |			|
 // 	 +--------width---------+
 
-void CComponentsItem::initVarItem()
+//abstract sub class CComponentsItem from CComponents
+CComponentsItem::CComponentsItem(CComponentsForm* parent)
 {
-	//CComponents
+	cc_item_type 		= CC_ITEMTYPE_BASE;
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
-	cc_parent 		= NULL;
+	initParent(parent);
+}
+
+void CComponentsItem::initParent(CComponentsForm* parent)
+{
+	cc_parent = parent;
+	if (cc_parent)
+		cc_parent->addCCItem(this);
 }
 
 // Paint container background in cc-items with shadow, background and frame.
@@ -99,9 +100,9 @@ void CComponentsItem::paintInit(bool do_save_bg)
 			continue;
 		v_fbdata.push_back(fbdata[i]);
 	}
-#ifdef DEBUG_CC
-	printf("[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __func__, cc_item_type,  cc_item_index, height, width);
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsItem] %s:\ncc_item_type: %d\ncc_item_index = %d\nheight = %d\nwidth = %d\n", __func__, cc_item_type,  cc_item_index, height, width);
+
 	paintFbItems(do_save_bg);
 }
 
@@ -149,9 +150,9 @@ int CComponentsItem::getItemType()
 		if (i == cc_item_type)
 			return i;
 	}
-#ifdef DEBUG_CC
-	printf("[CComponentsItem] %s: unknown item type requested...\n", __func__);
-#endif
+
+	dprintf(DEBUG_DEBUG, "[CComponentsItem] %s: unknown item type requested...\n", __func__);
+
 	return -1;
 }
 
@@ -162,4 +163,40 @@ bool CComponentsItem::isAdded()
 		return true;
 
 	return false;
+}
+
+void CComponentsItem::setXPosP(const uint8_t& xpos_percent)
+{
+	int x_tmp  = cc_parent ? xpos_percent*cc_parent->getWidth() : xpos_percent*frameBuffer->getScreenWidth();
+	x = x_tmp/100;
+}
+
+void CComponentsItem::setYPosP(const uint8_t& ypos_percent)
+{
+	int y_tmp  = cc_parent ? ypos_percent*cc_parent->getHeight() : ypos_percent*frameBuffer->getScreenHeight();
+	x = y_tmp/100;
+}
+
+void CComponentsItem::setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent)
+{
+	setXPosP(xpos_percent);
+	setYPosP(ypos_percent);
+}
+
+void CComponentsItem::setCenterPos(int along_mode)
+{
+	if (along_mode & CC_ALONG_X)
+		x = cc_parent ? cc_parent->getWidth() - width/2 : getScreenStartX(width);
+	if (along_mode & CC_ALONG_Y)
+		y = cc_parent ? cc_parent->getHeight() - height/2 : getScreenStartY(height);
+}
+
+void CComponentsItem::setHeightP(const uint8_t& h_percent)
+{
+	height = cc_parent ? h_percent*cc_parent->getWidth()/100 : h_percent*frameBuffer->getScreenWidth()/100;
+}
+
+void CComponentsItem::setWidthP(const uint8_t& w_percent)
+{
+	width = cc_parent ? w_percent*cc_parent->getHeight()/100 : w_percent*frameBuffer->getScreenHeight()/100;
 }

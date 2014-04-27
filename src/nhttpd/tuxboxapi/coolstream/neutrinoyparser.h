@@ -67,6 +67,7 @@ public:
 
 	// func TUXBOX
 	std::string func_get_boxtype(CyhookHandler *hh, std::string para);
+	std::string func_get_boxmodel(CyhookHandler *hh, std::string para);
 };
 
 #endif /*__nhttpd_neutrinoyparser_h__*/

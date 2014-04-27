@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -33,8 +33,6 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/icons.h>
 
-
-
 /// Basic component class.
 /*!
 Basic attributes and member functions for component sub classes
@@ -45,9 +43,7 @@ class CComponents
 	private:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
 		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
-		///initialize of basic attributes, no parameters required
-		void initVarBasic();
-		
+
 	protected:
 		///object: framebuffer object, usable in all sub classes
 		CFrameBuffer * frameBuffer;
@@ -104,6 +100,9 @@ class CComponents
 		///parameter do_save_bg=true, saves background of element to pixel buffer, this can be restore with hide()
 		void paintFbItems(bool do_save_bg = true);
 
+		///check current fbdtata position and dimensions, parameter fbdata is an element of v_fbdata, returns false on error
+		bool CheckFbData(const comp_fbdata_t& fbdata, const char* func, const int line);
+
 		///clean up old screen buffer saved in v_fbdata
 		virtual void clearFbData();
 
@@ -117,11 +116,11 @@ class CComponents
 		CComponents();
 		virtual~CComponents();
 
-		///set screen x-position
-		inline virtual void setXPos(const int& xpos){x = xpos;};
-		///set screen y-position,
-		inline virtual void setYPos(const int& ypos){y = ypos;};
-		///set x and y position
+		///set screen x-position, parameter as int
+		virtual void setXPos(const int& xpos);
+		///set screen y-position, parameter as int
+		virtual void setYPos(const int& ypos);
+		///set x and y position at once
 		///Note: position of bound components (items) means position related within parent form, not for screen!
 		///to set the real screen position, look at setRealPos()
 		inline virtual void setPos(const int& xpos, const int& ypos){x = xpos; y = ypos;};
@@ -218,9 +217,6 @@ class CComponents
 
 class CComponentsItem : public CComponents
 {
-	private:
-		///initialize all required attributes
-		void initVarItem();
 	protected:
 		///property: define of item type, see cc_types.h for possible types
 		int cc_item_type;
@@ -235,7 +231,7 @@ class CComponentsItem : public CComponents
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
-		CComponentsItem *cc_parent;
+		CComponentsForm *cc_parent;
 
 		///hides item, arg: no_restore=true causes no restore of background, but clean up pixel buffer if required
 		void hideCCItem(bool no_restore = false);
@@ -247,14 +243,17 @@ class CComponentsItem : public CComponents
 		///an item will be hide or overpainted with other methods, or it's embedded  (bound)  in a parent form.
 		void paintInit(bool do_save_bg);
 
+		///add "this" current item to parent
+		void initParent(CComponentsForm* parent);
+
 
 	public:
-		CComponentsItem();
+		CComponentsItem(CComponentsForm *parent = NULL);
 
 		///sets pointer to the form object in which this item is embedded.
-		virtual void setParent(CComponentsItem *parent){cc_parent = parent;};
+		virtual void setParent(CComponentsForm *parent){cc_parent = parent;};
 		///returns pointer to the form object in which this item is embedded.
-		virtual CComponentsItem * getParent(){return cc_parent;};
+		virtual CComponentsForm* getParent(){return cc_parent;};
 		///property: returns true if item is added to a form
 		virtual bool isAdded();
 
@@ -283,6 +282,21 @@ class CComponentsItem : public CComponents
 		///set an index to item, see also attribut cc_item_index.
 		///To generate an index, use genIndex()
 		virtual void setIndex(const int& index){cc_item_index = index;};
+
+		///set screen x-position, parameter as uint8_t, percent x value related to current width of parent form or screen
+		virtual void setXPosP(const uint8_t& xpos_percent);
+		///set screen y-position, parameter as uint8_t, percent y value related to current height of parent form or screen
+		virtual void setYPosP(const uint8_t& ypos_percent);
+		///set x and y position as percent value related to current parent form or screen dimensions at once
+		virtual void setPosP(const uint8_t& xpos_percent, const uint8_t& ypos_percent);
+
+		///do center item on screen or within a parent form, parameter along_mode assigns direction of centering
+		virtual void setCenterPos(int along_mode = CC_ALONG_X | CC_ALONG_Y);
+
+		///set item height, parameter as uint8_t, as percent value related to current height of parent form or screen
+		virtual void setHeightP(const uint8_t& h_percent);
+		///set item width, parameter as uint8_t, as percent value related to current width of parent form or screen
+		virtual void setWidthP(const uint8_t& w_percent);
 };
 
 #endif

@@ -1028,6 +1028,8 @@ int CMovieBrowser::exec(const char* path)
 	//refreshMovieInfo();
 
 	refreshTitle();
+	refreshFoot();
+	refreshLCD();
 	onSetGUIWindow(m_settings.gui);
 
 	bool loop = true;
@@ -1144,11 +1146,7 @@ void CMovieBrowser::hide(void)
 		m_pcLastRecord = NULL;
 	}
 	if (m_pcInfo != NULL) delete m_pcInfo;
-	//if (m_pcWindow != NULL) delete m_pcWindow;
-
-	//m_pcWindow = NULL;
 	m_pcInfo = NULL;
-
 }
 
 int CMovieBrowser::paint(void)
@@ -1195,7 +1193,7 @@ int CMovieBrowser::paint(void)
 	//refreshTitle();
 	//refreshFoot();
 	//refreshLCD();
-	refresh();
+	//refresh();
 	return (true);
 }
 
@@ -1272,12 +1270,8 @@ void CMovieBrowser::refreshMovieInfo(void)
 		m_pcInfo->setText(&emptytext);
 	}
 	else {
-		bool logo_ok = false;
-		int picw = m_cBoxFrameInfo.iHeight * 16 / 9;
-		int pich = m_cBoxFrameInfo.iHeight;
-
+		printf("CMovieBrowser::refreshMovieInfo\n");
 		std::string fname;
-printf("CMovieBrowser::refreshMovieInfo\n");
 		if (show_mode == MB_SHOW_YT) {
 			fname = m_movieSelectionHandler->tfile;
 		} else {
@@ -1288,11 +1282,17 @@ printf("CMovieBrowser::refreshMovieInfo\n");
 				fname = getScreenshotName(cover);
 			}
 		}
-		logo_ok = (!fname.empty());
+		bool logo_ok = (!fname.empty());
 		int flogo_w = 0, flogo_h = 0;
 		if(logo_ok) {
+			int picw = m_cBoxFrameInfo.iHeight * 16 / 9;
+			int pich = m_cBoxFrameInfo.iHeight;
 			g_PicViewer->getSize(fname.c_str(), &flogo_w, &flogo_h);
 			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw-2, pich-2);
+#ifdef BOXMODEL_APOLLO
+			/* align for hw blit */
+			flogo_w = ((flogo_w + 3) / 4) * 4;
+#endif
 		}
 		m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-flogo_w-20 : 0);
 
@@ -1938,15 +1938,15 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 				}
 			}
 		}
-        } else if (msg == CRCInput::RC_topleft) {
-          if (m_movieSelectionHandler != NULL) {
-                if(ShowMsg (LOCALE_MESSAGEBOX_INFO, "Remove screenshot ?", CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
-			std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
-			if (fname != "")
-	                        unlink(fname.c_str());
-			refresh();
+	} else if (msg == CRCInput::RC_favorites) {
+		if (m_movieSelectionHandler != NULL) {
+			if(ShowMsg (LOCALE_MESSAGEBOX_INFO, "Remove screenshot ?", CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
+				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
+				if (fname != "")
+					unlink(fname.c_str());
+				refresh();
+			}
 		}
-          }
 	}
 	else
 	{
@@ -2719,7 +2719,7 @@ bool CMovieBrowser::delFile_std(CFile& file)
 
 void CMovieBrowser::updateMovieSelection(void)
 {
-    //TRACE("[mb]->updateMovieSelection %d\r\n",m_windowFocus);
+	//TRACE("[mb]->updateMovieSelection %d\r\n",m_windowFocus);
 	if (m_vMovieInfo.empty()) return;
 	bool new_selection = false;
 

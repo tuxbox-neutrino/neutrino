@@ -164,6 +164,21 @@ void CServiceManager::RemoveAllChannels()
 {
 	allchans.clear();
 }
+
+void CServiceManager::RemovePosition(t_satellite_position satellitePosition)
+{
+	INFO("delete %d, size before: %d", satellitePosition, allchans.size());
+	t_channel_id live_id = CZapit::getInstance()->GetCurrentChannelID();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end();) {
+		if (it->second.getSatellitePosition() == satellitePosition && live_id != it->first)
+			allchans.erase(it++);
+		else
+			++it;
+	}
+	services_changed = true;
+	INFO("delete %d, size after: %d", satellitePosition, allchans.size());
+}
+
 #if 0 
 //never used
 void CServiceManager::RemoveNVODChannels()
@@ -410,6 +425,9 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			int result = allchans.erase(chid);
 			printf("[getservices]: %s '%s' (sid=0x%x): %s", add ? "replacing" : "removing",
 					name.c_str(), service_id, result ? "succeded.\n" : "FAILED!\n");
+
+			if(!result && remove && add)
+				add = false;//dont replace not existing channel
 		}
 		if(!add) {
 			node = node->xmlNextNode;
@@ -826,6 +844,12 @@ void CServiceManager::CopyFile(char * from, char * to)
 
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 {
+	/* FIXME hack */
+	if (SAT_POSITION_CABLE(config.position))
+		config.deltype = FE_QAM;
+	else if (SAT_POSITION_TERR(config.position))
+		config.deltype = FE_OFDM;
+
 	switch (config.deltype) {
 		case FE_QPSK: /* satellite */
 			fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
@@ -1063,7 +1087,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		}
 	}
 	for (ccI = allchans.begin(); ccI != allchans.end(); ++ccI) {
-		if(ccI->second.getTransponderId() == tpid) {
+		if(!(ccI->second.flags & CZapitChannel::NOT_FOUND) && (ccI->second.getTransponderId() == tpid)) {
 			dI = curchans.find(ccI->second.getChannelID());
 			if(dI == curchans.end())
 				WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, ccI->second, "remove");

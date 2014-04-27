@@ -5,6 +5,7 @@
                       2003 thegoodguy
 
 	Copyright (C) 2008-2012 Stefan Seyfried
+	Copyright (C) 2013-2014 martii
 
 	License: GPL
 
@@ -29,6 +30,7 @@
 
 #include <driver/rcinput.h>
 #include <driver/abstime.h>
+#include <system/helpers.h>
 
 #include <stdio.h>
 #include <asm/types.h>
@@ -52,13 +54,14 @@
 
 #include <global.h>
 #include <driver/shutdown_count.h>
-#include <neutrino.h>
+//#include <neutrino.h>
+#include <neutrinoMessages.h>
 #include <timerd/timermanager.h>
 #include <timerdclient/timerdclient.h>
+#include <sectionsdclient/sectionsdclient.h>
 #include <cs_api.h>
 
 //#define RCDEBUG
-//#define USE_GETTIMEOFDAY
 
 #define ENABLE_REPEAT_CHECK
 
@@ -88,6 +91,8 @@ static bool input_stopped = false;
 CRCInput::CRCInput()
 {
 	timerid= 1;
+	repeatkeys = NULL;
+	longPressAny = false;
 
 	// pipe for internal event-queue
 	// -----------------------------
@@ -119,7 +124,7 @@ CRCInput::CRCInput()
 	int    clilen;
 	memset(&servaddr, 0, sizeof(struct sockaddr_un));
 	servaddr.sun_family = AF_UNIX;
-	strcpy(servaddr.sun_path, NEUTRINO_UDS_NAME);
+	cstrncpy(servaddr.sun_path, NEUTRINO_UDS_NAME, sizeof(servaddr.sun_path));
 	clilen = sizeof(servaddr.sun_family) + strlen(servaddr.sun_path);
 	unlink(NEUTRINO_UDS_NAME);
 
@@ -150,7 +155,7 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
-	firstKey = true;
+	longPressEnd = 0;
 
 	//select and setup remote control hardware
 	set_rc_hw();
@@ -176,6 +181,8 @@ void CRCInput::open(int dev)
 	//+++++++++++++++++++++++++++++++++++++++
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
 	fd_keyb = STDIN_FILENO;
+	if (fd_rc[0] < 0)
+		fd_rc[0] = fd_keyb;
 #else
 	fd_keyb = 0;
 #endif /* KEYBOARD_INSTEAD_OF_REMOTE_CONTROL */
@@ -352,13 +359,7 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 
 int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 {
-#ifdef USE_GETTIMEOFDAY
-	struct timeval tv;
-	gettimeofday( &tv, NULL );
-	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-#else
 	uint64_t timeNow = time_monotonic_us();
-#endif
 
 	timer _newtimer;
 	if (!oneshot)
@@ -390,19 +391,6 @@ int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 	return _newtimer.id;
 }
 
-#ifdef USE_GETTIMEOFDAY
-int CRCInput::addTimer(struct timeval Timeout)
-{
-	uint64_t timesout = (uint64_t) Timeout.tv_usec + (uint64_t)((uint64_t) Timeout.tv_sec * (uint64_t) 1000000);
-	return addTimer( timesout, true, false );
-}
-
-int CRCInput::addTimer(const time_t *Timeout)
-{
-	return addTimer( (uint64_t)*Timeout* (uint64_t) 1000000, true, false );
-}
-#endif
-
 void CRCInput::killTimer(uint32_t &id)
 {
 //printf("killing timer %d\n", id);
@@ -422,13 +410,7 @@ void CRCInput::killTimer(uint32_t &id)
 int CRCInput::checkTimers()
 {
 	int _id = 0;
-#ifdef USE_GETTIMEOFDAY
-	struct timeval tv;
-	gettimeofday( &tv, NULL );
-	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-#else
 	uint64_t timeNow = time_monotonic_us();
-#endif
 	std::vector<timer>::iterator e;
 	for ( e= timers.begin(); e!= timers.end(); ++e )
 		if ( e->times_out< timeNow+ 2000 )
@@ -468,36 +450,18 @@ int CRCInput::checkTimers()
 
 int64_t CRCInput::calcTimeoutEnd(const int timeout_in_seconds)
 {
-#ifdef USE_GETTIMEOFDAY
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec + (uint64_t)timeout_in_seconds) * (uint64_t) 1000000;
-#else
 	return time_monotonic_us() + ((uint64_t)timeout_in_seconds * (uint64_t) 1000000);
-#endif
 }
 
 int64_t CRCInput::calcTimeoutEnd_MS(const int timeout_in_milliseconds)
 {
-#ifdef USE_GETTIMEOFDAY
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-#else
 	uint64_t timeNow = time_monotonic_us();
-#endif
 	return ( timeNow + timeout_in_milliseconds * 1000 );
 }
 
 void CRCInput::getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t *TimeoutEnd, bool bAllowRepeatLR)
 {
-#ifdef USE_GETTIMEOFDAY
-	struct timeval tv;
-	gettimeofday( &tv, NULL );
-	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-#else
 	uint64_t timeNow = time_monotonic_us();
-#endif
 	uint64_t diff;
 
 	if ( *TimeoutEnd < timeNow+ 100 )
@@ -507,16 +471,6 @@ void CRCInput::getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t *
 
 //printf("CRCInput::getMsgAbsoluteTimeout diff %llx TimeoutEnd %llx now %llx\n", diff, *TimeoutEnd, timeNow);
 	getMsg_us( msg, data, diff, bAllowRepeatLR );
-#ifdef USE_GETTIMEOFDAY
-	if ( *msg == NeutrinoMessages::EVT_TIMESET )
-	{
-		// recalculate timeout....
-		//uint64_t ta= *TimeoutEnd;
-		*TimeoutEnd= *TimeoutEnd + *(int64_t*) *data;
-
-		//printf("[getMsgAbsoluteTimeout]: EVT_TIMESET - recalculate timeout\n%llx/%llx - %llx/%llx\n", timeNow, *(int64_t*) *data, *TimeoutEnd, ta );
-	}
-#endif
 }
 
 void CRCInput::getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR)
@@ -527,6 +481,43 @@ void CRCInput::getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Time
 void CRCInput::getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR)
 {
 	getMsg_us(msg, data, (uint64_t) Timeout * 1000, bAllowRepeatLR);
+}
+
+uint32_t *CRCInput::setAllowRepeat(uint32_t *rk) {
+	uint32_t *r = repeatkeys;
+	repeatkeys = rk;
+	return r;
+}
+
+bool checkLongPress(uint32_t key); // keybind_setup.cpp
+
+bool CRCInput::mayLongPress(uint32_t key, bool bAllowRepeatLR)
+{
+	if (mayRepeat(key, bAllowRepeatLR))
+		return false;
+	if (longPressAny)
+		return true;
+	return checkLongPress(key);
+}
+
+bool CRCInput::mayRepeat(uint32_t key, bool bAllowRepeatLR)
+{
+	if((key == RC_up) || (key == RC_down)
+	|| (key == RC_plus) || (key == RC_minus)
+	|| (key == RC_page_down) || (key == RC_page_up)
+	|| ((bAllowRepeatLR) && ((key == RC_left ) || (key == RC_right))))
+		return true;
+
+	if (repeatkeys) {
+		uint32_t *k = repeatkeys;
+		while (*k != RC_nokey) {
+			if (*k == key) {
+				return true;
+			}
+			k++;
+		}
+	}
+	return false;
 }
 
 void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR)
@@ -544,7 +535,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 
 	int timer_id;
 	fd_set rfds;
-	t_input_event ev;
 
 	*data = 0;
 
@@ -559,25 +549,13 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	}
 
 	// wiederholung reinmachen - dass wirklich die ganze zeit bis timeout gewartet wird!
-#ifdef USE_GETTIMEOFDAY
-	gettimeofday( &tv, NULL );
-	uint64_t getKeyBegin = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-#else
 	uint64_t getKeyBegin = time_monotonic_us();
-#endif
+
 	while(1) {
-		/* we later check for ev.type = EV_SYN which is 0x00, so set something invalid here... */
-		memset(&ev, 0, sizeof(ev));
-		ev.type = EV_MAX;
 		timer_id = 0;
 		if ( !timers.empty() )
 		{
-#ifdef USE_GETTIMEOFDAY
-			gettimeofday( &tv, NULL );
-			uint64_t t_n= (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-#else
 			uint64_t t_n = time_monotonic_us();
-#endif
 			if ( timers[0].times_out< t_n )
 			{
 				timer_id = checkTimers();
@@ -950,12 +928,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								if ((int64_t)last_keypress > *(int64_t*)p)
 									last_keypress += *(int64_t *)p;
 
-#ifdef USE_GETTIMEOFDAY
-								// Timer anpassen
-								for(std::vector<timer>::iterator e = timers.begin(); e != timers.end(); ++e)
-									if (e->correct_time)
-										e->times_out+= *(int64_t*) p;
-#endif
 								*msg          = NeutrinoMessages::EVT_TIMESET;
 								*data         = (neutrino_msg_data_t) p;
 								dont_delete_p = true;
@@ -1197,7 +1169,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*data = (unsigned long) p;
 								dont_delete_p = true;
 								break;
-
 							default :
 								printf("[neutrino] event INITID_TIMERD - unknown eventID 0x%x\n",  emsg.eventID );
 
@@ -1205,6 +1176,13 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_NEUTRINO)
 					{
+						printf("CRCInput::getMsg_us: INITID_NEUTRINO: msg %x size %d data %x\n", (int) emsg.eventID, emsg.dataSize, (int) p);
+						if (emsg.eventID == NeutrinoMessages::EVT_HOTPLUG) {
+							printf("EVT_HOTPLUG: [%s]\n", (char *) p);
+							*msg  = emsg.eventID;
+							*data = (neutrino_msg_data_t) p;
+							dont_delete_p = true;
+						}
 #if 0
 						if ((emsg.eventID == NeutrinoMessages::EVT_RECORDING_ENDED) &&
 								(read_bytes == sizeof(stream2file_status2_t)))
@@ -1225,10 +1203,21 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					}
 					else
 						printf("[neutrino] event - unknown initiatorID 0x%x\n",  emsg.initiatorID);
-					if ( !dont_delete_p )
-					{
-						delete[] p;//new [] delete []
-						p= NULL;
+
+					switch (emsg.eventID) {
+						case NeutrinoMessages::EVT_CURRENTEPG:
+						case NeutrinoMessages::EVT_NEXTEPG:
+							{
+								CSectionsdClient::CurrentNextInfo *cn = (CSectionsdClient::CurrentNextInfo *) p;
+								delete cn;
+								p = NULL;
+								break;
+							}
+						default:
+							if (!dont_delete_p) {
+								delete[] p;
+								p = NULL;
+							}
 					}
 				}
 			}
@@ -1249,8 +1238,11 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 
 		for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++) {
 			if ((fd_rc[i] != -1) && (FD_ISSET(fd_rc[i], &rfds))) {
-				int ret;
-				ret = read(fd_rc[i], &ev, sizeof(t_input_event));
+				t_input_event ev;
+				memset(&ev, 0, sizeof(ev));
+				/* we later check for ev.type = EV_SYN = 0x00, so set something invalid here... */
+				ev.type = EV_MAX;
+				int ret = read(fd_rc[i], &ev, sizeof(t_input_event));
 				if (ret != sizeof(t_input_event)) {
 					if (errno == ENODEV) {
 						/* hot-unplugged? */
@@ -1262,19 +1254,44 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();
-				if (firstKey) {
-					firstKey = false;
-					CTimerManager::getInstance()->cancelShutdownOnWakeup();
-				}
 				uint32_t trkey = translate(ev.code);
 #ifdef _DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 #endif
 				if (trkey == RC_nokey)
 					continue;
+
+				if (g_settings.longkeypress_duration > LONGKEYPRESS_OFF) {
+					uint64_t longPressNow = time_monotonic_us();
+					if (ev.value == 0 && longPressEnd) {
+						if (longPressNow < longPressEnd) {
+							// Key was a potential long press, but wasn't pressed long enough
+							longPressEnd = 0;
+							ev.value = 1;
+						} else {
+							// Long-press, key released after time limit
+							longPressEnd = 0;
+							continue;
+						}
+					} else if (ev.value == 1 && mayLongPress(trkey, bAllowRepeatLR)) {
+						// A long-press may start here.
+						longPressEnd = longPressNow + 1000 * g_settings.longkeypress_duration;
+						rc_last_key = KEY_MAX;
+						continue;
+					} else if (ev.value == 2 && longPressEnd) {
+						if (longPressEnd < longPressNow) {
+							// Key was pressed long enough.
+							ev.value = 1;
+							trkey |= RC_Repeat;
+						} else {
+							// Long-press, but key still not released. Skip.
+							continue;
+						}
+					}
+				}
+
 				if (ev.value) {
 #ifdef RCDEBUG
-					printf("got keydown native key: %04x %04x, translate: %04x -%s-\n", ev.code, ev.code&0x1f, translate(ev.code, 0), getKeyName(translate(ev.code, 0)).c_str());
 					printf("rc_last_key %04x rc_last_repeat_key %04x\n\n", rc_last_key, rc_last_repeat_key);
 #endif
 					uint64_t now_pressed;
@@ -1282,21 +1299,17 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 
 					tv = ev.time;
 					now_pressed = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-					if (ev.code == rc_last_key) {
+					if (trkey == rc_last_key) {
 						/* only allow selected keys to be repeated */
-						/* (why?)                                  */
-						if( 	(trkey == RC_up) || (trkey == RC_down   ) ||
-							(trkey == RC_plus   ) || (trkey == RC_minus  ) ||
-							(trkey == RC_page_down   ) || (trkey == RC_page_up  ) ||
-							((bAllowRepeatLR) && ((trkey == RC_left ) || (trkey == RC_right))) ||
-							(g_settings.shutdown_real_rcdelay && ((trkey == RC_standby) && (g_info.hw_caps->can_shutdown))))
+						if (mayRepeat(trkey, bAllowRepeatLR) ||
+						    (g_settings.shutdown_real_rcdelay && ((trkey == RC_standby) && (g_info.hw_caps->can_shutdown))))
 						{
 #ifdef ENABLE_REPEAT_CHECK
-							if (rc_last_repeat_key != ev.code) {
+							if (rc_last_repeat_key != trkey) {
 								if ((now_pressed > last_keypress + repeat_block) ||
 										/* accept all keys after time discontinuity: */
 										(now_pressed < last_keypress))
-									rc_last_repeat_key = ev.code;
+									rc_last_repeat_key = trkey;
 								else
 									keyok = false;
 							}
@@ -1308,7 +1321,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					else
 						rc_last_repeat_key = KEY_MAX;
 
-					rc_last_key = ev.code;
+					rc_last_key = trkey;
 
 					if (keyok) {
 #ifdef ENABLE_REPEAT_CHECK
@@ -1329,9 +1342,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				} /* if (ev.value) */
 				else {
 					// clear rc_last_key on keyup event
-#ifdef RCDEBUG
-					printf("got keyup native key: %04x %04x, translate: %04x -%s-\n", ev.code, ev.code&0x1f, translate(ev.code, 0), getKeyName(translate(ev.code, 0)).c_str() );
-#endif
 					rc_last_key = KEY_MAX;
 					if (trkey == RC_standby) {
 						*msg = RC_standby;
@@ -1341,8 +1351,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				}
 			}/* if FDSET */
 		} /* for NUMBER_OF_EVENT_DEVICES */
-		if (ev.type == EV_SYN)
-			continue; /* ignore... */
 
 		if(FD_ISSET(fd_pipe_low_priority[0], &rfds))
 		{
@@ -1368,12 +1376,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 		else
 		{
 			//timeout neu kalkulieren
-#ifdef USE_GETTIMEOFDAY
-			gettimeofday( &tv, NULL );
-			int64_t getKeyNow = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
-#else
 			int64_t getKeyNow = time_monotonic_us();
-#endif
 			int64_t diff = (getKeyNow - getKeyBegin);
 			if( Timeout <= (uint64_t) diff )
 			{
@@ -1447,21 +1450,21 @@ unsigned int CRCInput::convertDigitToKey(const unsigned int digit)
 }
 
 /**************************************************************************
-*       getUnicodeValue - return unicode value of the key or -1
+*       getUnicodeValue - return unicode value of the key or \0
 *
 **************************************************************************/
 #define UNICODE_VALUE_SIZE 58
-static const int unicode_value[UNICODE_VALUE_SIZE] = {-1 , -1 , '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', -1 , -1 ,
-						      'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', -1 , -1 , 'A', 'S',
-						      'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', -1 /* FIXME */, -1 /* FIXME */, -1 , '\\', 'Z', 'X', 'C', 'V',
-						      'B', 'N', 'M', ',', '.', '/', -1, -1, -1, ' '};
+static const char unicode_value[UNICODE_VALUE_SIZE * 2] =
+	"\0\0" "\0\0" "1\0"  "2\0" "3\0" "4\0"  "5\0"  "6\0"  "7\0"    "8\0"  "9\0"  "0\0"  "-\0"  "=\0" "\0\0" "\0\0"
+	 "Q\0"  "W\0" "E\0"  "R\0" "T\0" "Y\0"  "U\0"  "I\0"  "O\0"    "P\0"  "{\0"  "}\0" "\0\0" "\0\0"  "A\0"  "S\0"
+	 "D\0"  "F\0" "G\0"  "H\0" "J\0" "K\0"  "L\0"  ";\0"  "'\0" "\140\0" "\0\0" "\\\0"  "Z\0"  "X\0"  "C\0"  "V\0"
+	 "B\0"  "N\0" "M\0" "\0\0" ".\0" "/\0" "\0\0" "\0\0" "\0\0"      " ";
 
-int CRCInput::getUnicodeValue(const neutrino_msg_t key)
+const char *CRCInput::getUnicodeValue(const neutrino_msg_t key)
 {
 	if (key < UNICODE_VALUE_SIZE)
-		return unicode_value[key];
-	else
-		return -1;
+		return unicode_value + key * 2;
+	return ""; 
 }
 
 /**************************************************************************
@@ -1524,20 +1527,6 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "radio";
 			case RC_text:
 				return "text";
-#if 0
-			case RC_shift_red:
-				return "shift-red";
-			case RC_shift_green:
-				return "shift-green";
-			case RC_shift_yellow:
-				return "shift-yellow";
-			case RC_shift_blue:
-				return "shift-blue";
-			case RC_shift_tv:
-				return "shift-tv";
-			case RC_shift_radio:
-				return "shift-radio";
-#endif
 			case RC_epg:
 				return "epg";
 			case RC_recall:
@@ -1606,21 +1595,18 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 
 std::string CRCInput::getKeyName(const unsigned int key)
 {
-	return (std::string)getKeyNameC(key);
+	std::string res(getKeyNameC(key & ~RC_Repeat));
+	if ((key & RC_Repeat) && res != "unknown")
+		res += " (long)";
+	return res;
 }
 
 const char *CRCInput::getKeyNameC(const unsigned int key)
 {
-	int lunicode_value = getUnicodeValue(key);
-	if (lunicode_value == -1)
-		return getSpecialKeyName(key);
-	else
-	{
-		static char tmp[2];
-		tmp[0] = lunicode_value;
-		tmp[1] = 0;
-		return tmp;
-	}
+	const char *lunicode_value = getUnicodeValue(key);
+	if (*lunicode_value)
+		return lunicode_value;
+	return getSpecialKeyName(key);
 }
 
 /**************************************************************************
@@ -1631,9 +1617,9 @@ int CRCInput::translate(int code)
 {
 	switch(code)
 	{
-		case 0x100:
+		case 0x100: // FIXME -- needed?
 			return RC_up;
-		case 0x101:
+		case 0x101: // FIXME -- needed?
 			return RC_down;
 #ifdef HAVE_AZBOX_HARDWARE
 		case KEY_HOME:

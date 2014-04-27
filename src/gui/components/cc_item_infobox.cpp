@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -35,20 +35,16 @@
 using namespace std;
 
 //sub class CComponentsInfoBox from CComponentsItem
-CComponentsInfoBox::CComponentsInfoBox()
+CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					std::string info_text,
+					const int mode,
+					Font* font_text,
+					CComponentsForm *parent,
+					bool has_shadow,
+					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponentsInfoBox
-	initVarInfobox();
-}
+	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
 
-CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
-				       std::string info_text, const int mode, Font* font_text,
-				       bool has_shadow,
-				       fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
-{
-	//CComponentsInfoBox
-	initVarInfobox();
-	
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -62,6 +58,13 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	ct_text_mode	= mode;
 	ct_font		= font_text;
 	ct_col_text	= color_text;
+
+	//CComponentsInfoBox
+	pic 		= NULL;
+	cctext		= NULL;
+	pic_name	= "";
+	x_offset	= 10;
+	initParent(parent);
 }
 
 CComponentsInfoBox::~CComponentsInfoBox()
@@ -70,15 +73,17 @@ CComponentsInfoBox::~CComponentsInfoBox()
 	delete cctext;
 }
 
-void CComponentsInfoBox::initVarInfobox()
+void CComponentsInfoBox::setPicture(const std::string& picture_name)
 {
-	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
+	pic_name = picture_name;
+}
 
-	//CComponentsInfoBox
-	pic 		= NULL;
-	cctext		= NULL;
-	pic_name	= "";
-	x_offset	= 10;
+void CComponentsInfoBox::setPicture(const char* picture_name)
+{
+	string s_tmp = "";
+	if (picture_name)
+		s_tmp = string(picture_name);
+	setPicture(s_tmp);
 }
 
 void CComponentsInfoBox::paintPicture()

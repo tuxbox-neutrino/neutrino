@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -72,8 +72,14 @@ class CComponentsText : public CComponentsItem, public CBox
 		///helper: convert int to string
 		static std::string iToString(int int_val); //helper to convert int to string
 
-		///initialize all required default attributes
-		void initVarText();
+		///initialize all required attributes
+		void initVarText(	const int x_pos, const int y_pos, const int w, const int h,
+					std::string text,
+					const int mode,
+					Font* font_text,
+					CComponentsForm *parent,
+					bool has_shadow,
+					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow);
 
 		///destroy current CTextBox and CBox objects
 		void clearCCText();
@@ -83,11 +89,22 @@ class CComponentsText : public CComponentsItem, public CBox
 		///paint CCItem backckrond (if paint_bg=true), apply initCCText() and send paint() to the CTextBox object
 		void paintText(bool do_save_bg = CC_SAVE_SCREEN_YES);
 	public:
-		CComponentsText();
-		CComponentsText(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+		CComponentsText(	const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+					std::string text = "",
+					const int mode = CTextBox::AUTO_WIDTH,
+					Font* font_text = NULL,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		CComponentsText(	CComponentsForm *parent,
+					const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
+					std::string text = "",
+					const int mode = CTextBox::AUTO_WIDTH,
+					Font* font_text = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
 		virtual ~CComponentsText();
 
 		///default members to paint a text box and hide painted text
@@ -151,10 +168,16 @@ class CComponentsLabel : public CComponentsText
 {
 	public:
 		CComponentsLabel(	const int x_pos = 10, const int y_pos = 10, const int w = 150, const int h = 50,
-					std::string text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					std::string text = "",
+					const int mode = CTextBox::AUTO_WIDTH,
+					Font* font_text = NULL,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
-					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, has_shadow, color_text, color_frame, color_body, color_shadow)
+					fb_pixel_t color_text = COL_MENUCONTENTINACTIVE_TEXT,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0)
+					:CComponentsText(x_pos, y_pos, w, h, text, mode, font_text, parent, has_shadow, color_text, color_frame, color_body, color_shadow)
 		{
 			cc_item_type 	= CC_ITEMTYPE_LABEL;
 		};

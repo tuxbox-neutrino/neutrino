@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -37,41 +37,41 @@
 
 using namespace std;
 
-CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const int w, const int h,
+CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption, const std::string& icon_name,
-					bool selected, bool enabled, bool has_shadow,
+					CComponentsForm* parent,
+					bool selected,
+					bool enabled,
+					bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarButton();
-	cc_btn_icon	= icon_name;
-	cc_btn_capt	= caption;
-	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
-	
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	height	 	= h;
-	shadow		= has_shadow;
-	shadow_w	= SHADOW_OFFSET;
-	col_frame 	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
-	cc_item_enabled  = enabled;
-	cc_item_selected = selected;
-	fr_thickness 	= FRAME_TH;	
+	cc_btn_capt_locale = NONEXISTANT_LOCALE;
+	initVarButton(x_pos, y_pos, w, h,  caption, icon_name, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow);
 }
 
-CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const int w, const int h,
+CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const neutrino_locale_t& caption_locale, const std::string& icon_name,
-					bool selected, bool enabled, bool has_shadow,
+					CComponentsForm* parent,
+					bool selected,
+					bool enabled,
+					bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	initVarButton();
-	cc_btn_icon	= icon_name;
 	cc_btn_capt_locale = caption_locale;
-	cc_btn_capt	= g_Locale->getText(cc_btn_capt_locale);
-	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
-	
+	initVarButton(x_pos, y_pos, w, h, g_Locale->getText(cc_btn_capt_locale), icon_name, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow);
+}
+
+void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption,
+					const std::string& icon_name,
+					CComponentsForm* parent,
+					bool selected,
+					bool enabled,
+					bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	cc_item_type 	= CC_ITEMTYPE_BUTTON;
+
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -84,18 +84,16 @@ CComponentsButton::CComponentsButton( 	const int x_pos, const int y_pos, const i
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
 	fr_thickness 	= FRAME_TH;
-}
-
-void CComponentsButton::initVarButton()
-{
-	cc_item_type 	= CC_ITEMTYPE_BUTTON;
+	
+	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;
 	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
 	cc_btn_font	= NULL;
-	cc_btn_icon	= "";
-	cc_btn_capt	= "";
-	cc_btn_capt_locale = NONEXISTANT_LOCALE;
+	cc_btn_icon	= icon_name;
+	cc_btn_capt	= caption;
+
+	initParent(parent);
 }
 
 void CComponentsButton::initIcon()
@@ -195,7 +193,7 @@ void CComponentsButton::setCaption(const std::string& text)
 void CComponentsButton::setCaption(const neutrino_locale_t locale_text)
 {
 	cc_btn_capt_locale = locale_text;
-	cc_btn_capt = g_Locale->getText(cc_btn_capt_locale);
+	setCaption(g_Locale->getText(cc_btn_capt_locale));
 }
 
 void CComponentsButton::initCCBtnItems()

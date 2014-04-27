@@ -29,33 +29,35 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_frm_header.h"
-
+#include <system/debug.h>
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsHeader inherit from CComponentsForm
-CComponentsHeader::CComponentsHeader()
+CComponentsHeader::CComponentsHeader(CComponentsForm* parent)
 {
 	//CComponentsHeader
-	initVarHeader(1, 1, 0, 0, "", "", 0);
+	initVarHeader(1, 1, 0, 0, "", "", 0, parent);
 }
 
 CComponentsHeader::CComponentsHeader(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
 					const std::string& icon_name,
 					const int& buttons,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
 					fb_pixel_t color_shadow)
 {
-	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, has_shadow, color_frame, color_body, color_shadow);
+	initVarHeader(x_pos, y_pos, w, h, caption, icon_name, buttons, parent, has_shadow, color_frame, color_body, color_shadow);
 }
 
 CComponentsHeaderLocalized::CComponentsHeaderLocalized(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 							neutrino_locale_t caption_locale,
 							const std::string& icon_name,
 							const int& buttons,
+							CComponentsForm* parent,
 							bool has_shadow,
 							fb_pixel_t color_frame,
 							fb_pixel_t color_body,
@@ -63,6 +65,7 @@ CComponentsHeaderLocalized::CComponentsHeaderLocalized(	const int& x_pos, const 
 							:CComponentsHeader(	x_pos, y_pos, w, h,
 										g_Locale->getText(caption_locale),
 										icon_name, buttons,
+										parent,
 										has_shadow,
 										color_frame, color_body, color_shadow){};
 
@@ -70,6 +73,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 					const std::string& caption,
 					const std::string& icon_name,
 					const int& buttons,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t color_frame,
 					fb_pixel_t color_body,
@@ -96,7 +100,6 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	col_body 	= COL_MENUHEAD_PLUS_0;
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
-	cch_buttons	= buttons;
 
 	corner_rad	= RADIUS_LARGE,
 	corner_type	= CORNER_TOP;
@@ -111,19 +114,16 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_icon_x 		= cch_offset;
 	cch_icon_w		= 0;
 	cch_text_x		= cch_offset;
-	cch_buttons_w		= 0;
-	cch_buttons_h		= 0;
 	cch_buttons_space	= cch_offset;
 
-	initDefaultButtons();
+	addContextButton(buttons);
 	initCCItems();
+	initParent(parent);
 }
 
 CComponentsHeader::~CComponentsHeader()
 {
-#ifdef DEBUG_CC
-	printf("[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
-#endif
+	dprintf(DEBUG_DEBUG, "[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
 	v_cch_btn.clear();
 }
 
@@ -167,7 +167,7 @@ void CComponentsHeader::initCaptionFont(Font* font)
 void CComponentsHeader::setIcon(const char* icon_name)
 {
 	if (icon_name){
-		string s_icon = static_cast<string>(icon_name);
+		string s_icon = string(icon_name);
 		setIcon(s_icon);
 	}
 	else
@@ -191,19 +191,11 @@ void CComponentsHeader::initIcon()
 		return;
 	}
 
-	//create instance for cch_icon_obj
+	//create instance for cch_icon_obj and add to container at once
 	if (cch_icon_obj == NULL){
-#ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
-#endif
-		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name);
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
+		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
 	}
-
-	//add item only one time
-	if (!cch_icon_obj->isAdded())
-		addCCItem(cch_icon_obj); //icon
-
-
 
 	//set properties for icon object
 	if (cch_icon_obj){
@@ -214,7 +206,6 @@ void CComponentsHeader::initIcon()
 		cch_icon_obj->setWidth(iw);
 		cch_icon_obj->setHeight(ih);
 		cch_icon_obj->doPaintBg(false);
-		cch_icon_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 
 		//set corner mode of icon item
 		int cc_icon_corner_type = corner_type;
@@ -235,57 +226,36 @@ void CComponentsHeader::initIcon()
 	}
 }
 
-void CComponentsHeader::addButtonIcon(const std::string& button_name)
+void CComponentsHeader::addContextButton(const std::string& button_name)
 {
 	v_cch_btn.push_back(button_name);
-	initButtons();
+	dprintf(DEBUG_DEBUG, "[CComponentsHeader]  %s added %d default buttons...\n", __func__, (int)v_cch_btn.size());
 }
 
-void CComponentsHeader::removeButtonIcons()
+void CComponentsHeader::addContextButton(const std::vector<std::string>& v_button_names)
 {
+	for (size_t i= 0; i< v_button_names.size(); i++)
+		addContextButton(v_button_names[i]);
+}
+
+void CComponentsHeader::addContextButton(const int& buttons)
+{
+	if (buttons & CC_BTN_EXIT)
+		addContextButton(NEUTRINO_ICON_BUTTON_HOME);
+	if (buttons & CC_BTN_HELP)
+		addContextButton(NEUTRINO_ICON_BUTTON_HELP);
+	if (buttons & CC_BTN_INFO)
+		addContextButton(NEUTRINO_ICON_BUTTON_INFO);
+	if (buttons & CC_BTN_MENU)
+		addContextButton(NEUTRINO_ICON_BUTTON_MENU);
+}
+
+void CComponentsHeader::removeContextButtons()
+{
+	dprintf(DEBUG_DEBUG, "[CComponentsHeader]\t    [%s - %d] removing %u context buttons...\n", __func__, __LINE__, v_cch_btn.size());
 	v_cch_btn.clear();
-	cch_btn_obj->removeAllIcons();
-	initButtons();
-}
-
-void CComponentsHeader::initDefaultButtons()
-{
-	if (cch_buttons & CC_BTN_EXIT)
-		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_HOME);
-	if (cch_buttons & CC_BTN_HELP)
-		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_HELP);
-	if (cch_buttons & CC_BTN_INFO)
-		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_INFO);
-	if (cch_buttons & CC_BTN_MENU)
-		v_cch_btn.push_back(NEUTRINO_ICON_BUTTON_MENU);
-#ifdef DEBUG_CC
-	printf("[CComponentsHeader]  %s added %d default buttons...\n", __func__, (int)v_cch_btn.size());
-#endif
-}
-
-void CComponentsHeader::setDefaultButtons(const int buttons)
-{
-	cch_buttons = buttons;
-	v_cch_btn.clear();
-	initDefaultButtons();
-}
-
-// calculate minimal width of icon form
-void CComponentsHeader::initButtonFormSize()
-{
-	cch_buttons_w = 0;
-	cch_buttons_h = 0;
-
-	if (cch_btn_obj == NULL)
-		return;
-	
-	for(size_t i=0; i<v_cch_btn.size(); i++){
-		int bw, bh;
-		frameBuffer->getIconSize(v_cch_btn[i].c_str(), &bw, &bh);
-		cch_buttons_w += (bw + cch_buttons_space);
-		cch_buttons_h = std::max(cch_buttons_h, bh);
-	}
-	cch_buttons_w -= cch_buttons_space;
+	if (cch_btn_obj)
+		cch_btn_obj->clear();;
 }
 
 void CComponentsHeader::initButtons()
@@ -293,30 +263,21 @@ void CComponentsHeader::initButtons()
 	//exit if no button defined
 	if (v_cch_btn.empty()){
 		if (cch_btn_obj)
-			delete cch_btn_obj;
-		cch_btn_obj = NULL;
+			cch_btn_obj->clear(); //clean up, but hold instance
 		return;
 	}
-	
-	initButtonFormSize();
 
+	//create instance for header buttons chain object and add to container
 	if (cch_btn_obj == NULL){
-		cch_btn_obj = new CComponentsIconForm();
-#ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header buttons...\n", __func__, __LINE__);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header buttons...\n", __func__, __LINE__);
+		cch_btn_obj = new CComponentsIconForm(this);
 	}
-
-	//add button form only one time
-	if (!cch_btn_obj->isAdded())
-		addCCItem(cch_btn_obj); //buttons
 
 	//set button form properties
 	if (cch_btn_obj){
-		cch_btn_obj->setDimensionsAll(width-cch_offset-cch_buttons_w, cch_items_y, cch_buttons_w, cch_buttons_h);
+		cch_btn_obj->setDimensionsAll(0, cch_items_y, 0, 0);
 		cch_btn_obj->doPaintBg(false);
-		cch_btn_obj->setIconOffset(cch_buttons_space);
-		cch_btn_obj->setIconAlign(CComponentsIconForm::CC_ICONS_FRM_ALIGN_RIGHT);
+		cch_btn_obj->setAppendOffset(cch_buttons_space, 0);
 		cch_btn_obj->removeAllIcons();
 		cch_btn_obj->addIcon(v_cch_btn);
 
@@ -350,14 +311,19 @@ void CComponentsHeader::initCaption()
 
 	//calc width of text object in header
 	cc_text_w = width-cch_text_x-cch_offset;
-	if (cch_buttons_w)
-		cc_text_w -= cch_buttons_w-cch_offset;
+	int buttons_w = 0;
+	if (cch_btn_obj){
+		//get width of buttons object
+		buttons_w = cch_btn_obj->getWidth();
+		//set x position of buttons
+		cch_btn_obj->setXPos(width - buttons_w);
+	}
+	//set required width of caption object
+	cc_text_w -= buttons_w-cch_offset;
 
 	//create cch_text_obj and add to collection
 	if (cch_text_obj == NULL){
-#ifdef DEBUG_CC
-	printf("    [CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __func__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
-#endif
+		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header text: %s [ x %d w %d ]\n", __func__, __LINE__, cch_text.c_str(), cch_text_x, cc_text_w);
 		cch_text_obj = new CComponentsText();
 	}
 
@@ -371,7 +337,7 @@ void CComponentsHeader::initCaption()
 		if (cch_caption_align == CTextBox::CENTER)
 			cch_text_x = CC_CENTERED;
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
-		cch_text_obj->doPaintBg(false);
+		cch_text_obj->doPaintBg(true);
 		cch_text_obj->setText(cch_text, cch_caption_align, cch_font);
 		cch_text_obj->forceTextPaint(); //here required
 		cch_text_obj->setTextColor(cch_col_text);

@@ -387,7 +387,7 @@ int CStreamFeaturesChangeExec::exec(CMenuTarget* parent, const std::string & act
 	}
 	else if (sel>=0)
 	{
-		g_PluginList->startPlugin(sel,0);
+		g_PluginList->startPlugin(sel);
 	}
 
 	return menu_return::RETURN_EXIT;
@@ -544,6 +544,13 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CZapit::getInstance()->GetConfig(zapitCfg);
 		g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
 		ret = menu_return::RETURN_EXIT_ALL;
+#ifdef BOXMODEL_APOLLO
+		/* flag file to erase /var partition on factory reset,
+		   will be done by init scripts */
+		FILE * fp = fopen("/var_init/etc/.reset", "w");
+		if (fp)
+			fclose(fp);
+#endif
 	}
 	if(delete_set) {
 		unlink(NEUTRINO_SETTINGS_FILE);

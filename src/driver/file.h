@@ -60,6 +60,7 @@ public:
 		FILE_AVI,
 		FILE_ASF,
 		FILE_DIR,
+		FILE_ISO,
 		FILE_TEXT,
 		FILE_CDR,
 		FILE_MP3,

@@ -60,7 +60,6 @@ extern cVideo * videoDecoder;
 
 #define NEUTRINO_SCAN_START_SCRIPT	CONFIGDIR "/scan.start"
 #define NEUTRINO_SCAN_STOP_SCRIPT	CONFIGDIR "/scan.stop"
-#define NEUTRINO_SCAN_SETTINGS_FILE	CONFIGDIR "/scan.conf"
 
 #define BAR_BORDER 2
 #define BAR_WIDTH 150
@@ -154,7 +153,8 @@ void CScanTs::testFunc()
 	} else if (deltype == FE_OFDM) {
 		sprintf(buffer, "%u", TP.feparams.dvb_feparams.frequency); /* no way int can overflow the buffer */
 	}
-printf("CScanTs::testFunc: %s\n", buffer);
+
+	printf("CScanTs::testFunc: %s\n", buffer);
 	paintLine(xpos2, ypos_cur_satellite, w - 95, pname.c_str());
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	paintRadar();
@@ -308,7 +308,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
-//		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
+		CServiceScan::getInstance()->QuietFastScan(false);
+		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
 	}
 	else
 		success = g_Zapit->startScan(scan_flags);
@@ -525,6 +526,7 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 void CScanTs::paint(bool fortest)
 {
 	CComponentsHeaderLocalized header(x, y, width, hheight, fortest ? LOCALE_SCANTS_TEST : LOCALE_SCANTS_HEAD);
+	header.setCaptionAlignment(CTextBox::CENTER);
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);

@@ -422,7 +422,7 @@ void CNeutrinoApp::InitMenuSettings()
 
 	// drive settings
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {
-		mf = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, new CHDDMenuHandler());
+		mf = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, CHDDMenuHandler::getInstance());
 		mf->setHint(NEUTRINO_ICON_HINT_HDD, LOCALE_MENU_HINT_HDD);
 		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_DRIVES]);
 	}
@@ -518,6 +518,9 @@ void CNeutrinoApp::InitMenuService()
 	}
 
 	//separator
+	personalize.addSeparator(MENU_SERVICE);
+
+
 	if (!g_settings.easymenu) {
 		personalize.addSeparator(MENU_SERVICE);
 

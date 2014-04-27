@@ -431,7 +431,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		{
 			keyRightPressed();
 		}
-		else if (CRCInput::getUnicodeValue(msg) != -1)
+		else if (*CRCInput::getUnicodeValue(msg))
 		{
 			NormalKeyPressed(msg);
 		}
@@ -637,7 +637,7 @@ void CStringInputSMS::initSMS(const char * const Valid_Chars)
 {
 	last_digit = -1;				// no key pressed yet
 	const char CharList[10][11] = { "0 -_/()<>=",	// 10 characters
-					"1+.,:!?\\'",//' for c't search ;)
+					"1+.,:!?%\\'",  //' for c't search ;)
 					"abc2ä",
 					"def3",
 					"ghi4",
@@ -702,7 +702,7 @@ void CStringInputSMS::NormalKeyPressed(const neutrino_msg_t key)
 	}
 	else
 	{
-		valueString->at(selected) = (char)CRCInput::getUnicodeValue(key);
+		valueString->at(selected) = *CRCInput::getUnicodeValue(key);
 		keyRedPressed();   /* to lower, paintChar */
 		keyRightPressed(); /* last_digit = -1, move to next position */
 	}

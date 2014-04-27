@@ -3,13 +3,14 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2010-2014 Stefan Seyfried
+	Copyright (C) 2013-2014 martii
+	Copyright (C) 2009-2014 CoolStream International Ltd
 
-	License: GPL
+	License: GPLv2
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	the Free Software Foundation; version 2 of the License.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -58,12 +59,11 @@
 #include <mymenu.h>
 #include <driver/screen_max.h>
 
-#define e2fsckBinary   "/sbin/e2fsck"
-#define ext3FsckBinary "/sbin/fsck.ext3"
-#define ext4FsckBinary "/sbin/fsck.ext4"
-#define ext3MkfsBinary "/sbin/mkfs.ext3"
-#define ext4MkfsBinary "/sbin/mkfs.ext4"
-#define blkidBinary    "/sbin/blkid"
+#define BLKID_BIN    "/sbin/blkid"
+#define EJECT_BIN    "/bin/eject"
+
+#define MDEV_MOUNT	"/lib/mdev/fs/mount"
+#define MOUNT_BASE	"/media/"
 
 #define HDD_NOISE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
@@ -74,12 +74,6 @@ const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
 	{ 254, LOCALE_HDD_FAST }
 };
 
-#define HDD_FILESYS_OPTION_COUNT 2
-const CMenuOptionChooser::keyval_ext HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
-{
-	{ fs_ext3, NONEXISTANT_LOCALE, "ext3" },
-	{ fs_ext4, NONEXISTANT_LOCALE, "ext4" }
-};
 #define HDD_SLEEP_OPTION_COUNT 6
 const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 {
@@ -92,72 +86,408 @@ const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
 	{ 242, LOCALE_HDD_60MIN }
 };
 
-static int my_filter(const struct dirent *d)
-{
-	if ((d->d_name[0] == 's' || d->d_name[0] == 'h') && d->d_name[1] == 'd')
-		return 1;
-	return 0;
-}
+devtool_s CHDDMenuHandler::devtools[] = {
+	{ "ext2",  "/sbin/fsck.ext2",  "-C 1 -f -y", "/sbin/mkfs.ext2",  "-T largefile -m0", false, false },
+	{ "ext3",  "/sbin/fsck.ext3",  "-C 1 -f -y", "/sbin/mkfs.ext3",  "-T largefile -m0", false, false },
+	{ "ext4",  "/sbin/fsck.ext4",  "-C 1 -f -y", "/sbin/mkfs.ext4",  "-T largefile -m0", false, false },
+	{ "vfat",  "/sbin/fsck.vfat",  "-a",         "/sbin/mkfs.vfat",  "",                 false, false },
+	{ "exfat", "/sbin/fsck.exfat", "",           "/sbin/mkfs.exfat", "",                 false, false },
+	{ "xfs",   "/sbin/xfs_repair", "",           "/sbin/mkfs.xfs",   "-f",               false, false },
+};
+#define FS_MAX (sizeof(CHDDMenuHandler::devtools)/sizeof(devtool_s))
 
-std::string getFmtType(const char* name, int num)
+static int my_filter(const struct dirent * dent)
 {
-	pid_t pid;
-	std::string ret = "";
-	std::string blkid = find_executable("blkid");
-	if (blkid.empty())
-		return ret;
-	std::string pcmd = blkid + (std::string)" -s TYPE /dev/" + (std::string)name + to_string(num);
-	dprintf(DEBUG_INFO, ">>>>>[%s #%d] pcmd: %s\n", __func__, __LINE__, pcmd.c_str());
-	FILE* f = my_popen(pid, pcmd.c_str(), "r");
-	if (f != NULL) {
-		char buff[512];
-		if (!fgets(buff, sizeof(buff), f))
-			buff[0] = '\0';
-		fclose(f);
-		ret = buff;
-		std::string search = "TYPE=\"";
-		size_t pos = ret.find(search);
-		if (pos == std::string::npos)
-			return "";
-		ret = ret.substr(pos + search.length());
-		pos = ret.find("\"");
-		if (pos != std::string::npos)
-			ret = ret.substr(0, pos);
-	}
-	return ret;
+	return CHDDMenuHandler::getInstance()->filterDevName(dent->d_name);
 }
 
 CHDDMenuHandler::CHDDMenuHandler()
 {
 	width = w_max (58, 10);
+	show_menu = false;
 }
 
 CHDDMenuHandler::~CHDDMenuHandler()
 {
-
 }
 
-int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
+CHDDMenuHandler* CHDDMenuHandler::getInstance()
+{
+	static CHDDMenuHandler* me = NULL;
+
+	if(!me)
+		me = new CHDDMenuHandler();
+
+	return me;
+}
+
+int CHDDMenuHandler::filterDevName(const char * name)
+{
+	if (((name[0] == 's' || name[0] == 'h') && (name[1] == 'd' || name[1] == 'r')) ||
+		!strncmp(name, "mmcblk", 6))
+		return 1;
+	return 0;
+}
+
+int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
+{
+	if(msg != NeutrinoMessages::EVT_HOTPLUG)
+		return messages_return::unhandled;
+
+	std::string str((char *) data);
+	std::map<std::string,std::string> smap;
+
+	if (!split_config_string(str, smap))
+		return messages_return::handled;
+
+	std::map<std::string,std::string>::iterator it = smap.find("MDEV");
+	if (it == smap.end())
+		return messages_return::handled;
+
+	std::string dev = it->second;
+
+	it = smap.find("ACTION");
+	if (it == smap.end())
+		return messages_return::handled;
+
+	bool added = it->second == "add";
+
+	printf("CHDDMenuHandler::handleMsg: %s MDEV=%s\n", it->second.c_str(), dev.c_str());
+
+	if (!filterDevName(dev.c_str()))
+		return messages_return::handled;
+
+	bool mounted = is_mounted(dev.c_str());
+	std::string message = dev + ": " + (added ? 
+			g_Locale->getText(mounted ? LOCALE_HDD_MOUNT_OK : LOCALE_HDD_MOUNT_FAILED)
+			: g_Locale->getText(LOCALE_HDD_UMOUNTED));
+
+	ShowHint(LOCALE_MESSAGEBOX_INFO, message.c_str());
+
+	return messages_return::handled;
+}
+
+bool CHDDMenuHandler::is_mounted(const char *dev)
+{
+	bool res = false;
+	char devpath[40];
+	if (!strncmp(dev, "/dev/", 5))
+		snprintf(devpath, sizeof(devpath), "%s", dev);
+	else
+		snprintf(devpath, sizeof(devpath), "/dev/%s", dev);
+
+	int devpathlen = strlen(devpath);
+	char buffer[255];
+	FILE *f = fopen("/proc/mounts", "r");
+	if(f) {
+		while (!res && fgets(buffer, sizeof(buffer), f))
+			if (!strncmp(buffer, devpath, devpathlen)
+					&& (buffer[devpathlen] == ' ' || buffer[devpathlen] == '\t'))
+				res = true;
+		fclose(f);
+	}
+	printf("CHDDMenuHandler::is_mounted: dev [%s] is %s\n", devpath, res ? "mounted" : "not mounted");
+	return res;
+}
+
+void CHDDMenuHandler::getBlkIds()
+{
+	pid_t pid;
+	std::string blkid = find_executable("blkid");
+	if (blkid.empty())
+		return;
+	std::string pcmd = blkid + (std::string)" -s TYPE";
+
+	FILE* f = my_popen(pid, pcmd.c_str(), "r");
+	if (!f) {
+		printf("getBlkIds: cmd [%s] failed\n", pcmd.c_str());
+		return;
+	}
+
+	hdd_list.clear();
+	char buff[512];
+	while (fgets(buff, sizeof(buff), f)) {
+
+		std::string ret = buff;
+		std::string search = "TYPE=\"";
+		size_t pos = ret.find(search);
+		if (pos == std::string::npos)
+			continue;
+
+		ret = ret.substr(pos + search.length());
+		pos = ret.find("\"");
+		if (pos != std::string::npos)
+			ret = ret.substr(0, pos);
+
+		char *e = strstr(buff + 7, ":");
+		if (!e)
+			continue;
+		*e = 0;
+
+		hdd_s hdd;
+		hdd.devname = std::string(buff + 5);
+		hdd.mounted = is_mounted(buff + 5);
+		hdd.fmt = ret;
+		hdd.desc = hdd.devname + " (" + hdd.fmt + ")";
+		printf("device: %s filesystem %s (%s)\n", hdd.devname.c_str(), hdd.fmt.c_str(), hdd.mounted ? "mounted" : "not mounted" );
+		hdd_list.push_back(hdd);
+	}
+	fclose(f);
+}
+
+std::string CHDDMenuHandler::getDefaultPart(std::string dev)
+{
+	std::string part = "1";
+	if (dev == "mmcblk0")
+		part = "p1";
+	return part;
+}
+
+std::string CHDDMenuHandler::getFmtType(std::string name, std::string part)
+{
+	std::string ret = "";
+	std::string dev = name + part;
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+		if (it->devname == dev) {
+			ret = it->fmt;
+			break;
+		}
+	}
+	printf("getFmtType: dev [%s] fmt [%s]\n", dev.c_str(), ret.c_str());
+	return ret;
+}
+
+void CHDDMenuHandler::check_dev_tools()
+{
+	for (unsigned i = 0; i < FS_MAX; i++) {
+		if (!access(devtools[i].fsck.c_str(), X_OK))
+			devtools[i].fsck_supported = true;
+		if (!access(devtools[i].mkfs.c_str(), X_OK))
+			devtools[i].mkfs_supported = true;
+		printf("check_dev_tools: %s: fsck %d mkfs %d\n", devtools[i].fmt.c_str(), devtools[i].fsck_supported, devtools[i].mkfs_supported);
+	}
+}
+
+devtool_s * CHDDMenuHandler::get_dev_tool(std::string fmt)
+{
+	for (unsigned i = 0; i < FS_MAX; i++) {
+		if (fmt == devtools[i].fmt)
+			return &devtools[i];
+	}
+	return NULL;
+}
+
+bool CHDDMenuHandler::mount_dev(std::string name)
+{
+	std::string dev = name.substr(0, 2);
+	if (dev == "sr" && !access(EJECT_BIN, X_OK)) {
+		std::string eject = std::string(EJECT_BIN) + " -t /dev/" + name;
+		system(eject.c_str());
+		sleep(3);
+	}
+#ifdef ASSUME_MDEV
+	std::string cmd = std::string("ACTION=add") + " MDEV=" + name + " " + MDEV_MOUNT;
+#else
+	std::string cmd = std::string("mount ") + "/dev/" + name + " " + MOUNT_BASE + name;
+#endif
+	printf("CHDDMenuHandler::mount_dev: mount cmd [%s]\n", cmd.c_str());
+	system(cmd.c_str());
+	return is_mounted(name.c_str());
+}
+
+bool CHDDMenuHandler::umount_dev(std::string name)
+{
+#ifdef ASSUME_MDEV
+	std::string cmd = std::string("ACTION=remove") + " MDEV=" + name + " " + MDEV_MOUNT;
+	printf("CHDDMenuHandler::umount_dev: umount cmd [%s]\n", cmd.c_str());
+	system(cmd.c_str());
+#else
+	std::string path = MOUNT_BASE + name;
+	if (::umount(path.c_str()))
+		return false;
+#endif
+	std::string dev = name.substr(0, 2);
+	if (dev == "sr" && !access(EJECT_BIN, X_OK)) {
+		std::string eject = std::string(EJECT_BIN) + " /dev/" + name;
+		system(eject.c_str());
+	}
+	return !is_mounted(name.c_str());
+}
+
+bool CHDDMenuHandler::umount_all(std::string dev)
+{
+	bool ret = true;
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+		std::string mdev = it->devname.substr(0, dev.size());
+		if (mdev == dev) {
+			if (is_mounted(it->devname.c_str()))
+				ret &= umount_dev(it->devname);
+		}
+	}
+	return ret;
+}
+
+#ifdef ASSUME_MDEV
+bool CHDDMenuHandler::add_dev(std::string dev, std::string part)
+{
+	std::string filename = "/sys/block/" + dev + "/" + dev + part + "/uevent";
+	if (!access(filename.c_str(), W_OK)) {
+		FILE *f = fopen(filename.c_str(), "w");
+		if (!f)
+			printf("HDD: %s could not open %s: %m\n", __func__, filename.c_str());
+		else {
+			printf("-> triggering add uevent in %s\n", filename.c_str());
+			fprintf(f, "add\n");
+			fclose(f);
+			return true;
+		}
+	}
+	return false;
+}
+#endif
+#ifdef ASSUME_MDEV
+bool CHDDMenuHandler::waitfordev(std::string dev, int maxwait)
+{
+	int ret = true;
+	int waitcount = 0;
+	/* wait for the device to show up... */
+	while (access(dev.c_str(), W_OK)) {
+		if (!waitcount)
+			printf("CHDDFmtExec: waiting for %s", dev.c_str());
+		else
+			printf(".");
+		fflush(stdout);
+		waitcount++;
+		if (waitcount > maxwait) {
+			fprintf(stderr, "CHDDFmtExec: device %s did not appear!\n", dev.c_str());
+			ret = false;
+			break;
+		}
+		sleep(1);
+	}
+	if (waitcount && waitcount <= maxwait)
+		printf("\n");
+	return ret;
+}
+#endif
+
+int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 {
 	if (parent)
 		parent->hide();
 
-	return doMenu ();
+	if (actionkey.empty())
+		return doMenu();
+
+	std::string dev = actionkey.substr(1);
+	printf("CHDDMenuHandler::exec actionkey %s dev %s\n", actionkey.c_str(), dev.c_str());
+	if (actionkey[0] == 'm') {
+		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+			if (it->devname == dev) {
+				CHintBox * hintbox = new CHintBox(it->mounted ? LOCALE_HDD_UMOUNT : LOCALE_HDD_MOUNT, it->devname.c_str());
+				hintbox->paint();
+				if  (it->mounted)
+					umount_dev(it->devname);
+				else
+					mount_dev(it->devname);
+
+				it->mounted = is_mounted(it->devname.c_str());
+				it->cmf->setOption(it->mounted ? umount : mount);
+				delete hintbox;
+				return menu_return::RETURN_REPAINT;
+			}
+		}
+	}
+	else if (actionkey[0] == 'd') {
+		return showDeviceMenu(dev);
+	}
+	else if (actionkey[0] == 'c') {
+		return checkDevice(dev);
+	}
+	else if (actionkey[0] == 'f') {
+		return formatDevice(dev);
+	}
+	return menu_return::RETURN_REPAINT;
 }
 
-int CHDDMenuHandler::doMenu ()
+int CHDDMenuHandler::showDeviceMenu(std::string dev)
 {
-	FILE * f;
-	int fd;
+	printf("CHDDMenuHandler::showDeviceMenu: dev %s\n", dev.c_str());
+	CMenuWidget* hddmenu = new CMenuWidget(devtitle[dev].c_str(), NEUTRINO_ICON_SETTINGS);
+	hddmenu->addIntroItems();
+
+	CMenuForwarder * mf;
+
+	std::string fmt_type = getFmtType(dev, getDefaultPart(dev));
+	bool fsck_enabled = false;
+	bool mkfs_enabled = false;
+	struct CMenuOptionChooser::keyval_ext fsoptions[FS_MAX];
+	int opcount = 0;
+	for (unsigned i = 0; i < FS_MAX; i++) {
+		if (devtools[i].mkfs_supported) {
+			fsoptions[opcount].key = i;
+			fsoptions[opcount].value = NONEXISTANT_LOCALE;
+			fsoptions[opcount].valname = devtools[i].fmt.c_str();
+			mkfs_enabled = true;
+			opcount++;
+		}
+		if (fmt_type == devtools[i].fmt)
+			g_settings.hdd_fs = i;
+	}
+	if (!opcount) {
+		fsoptions[0].key = 0;
+		fsoptions[0].valname = devtools[0].fmt.c_str();
+		opcount++;
+	}
+	int cnt = 0;
+	bool found = false;
+	for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+		std::string mdev = it->devname.substr(0, dev.size());
+		if (mdev == dev) {
+			printf("found %s partition %s\n", dev.c_str(), it->devname.c_str());
+			fsck_enabled = false;
+			devtool_s * devtool = get_dev_tool(it->fmt);
+			if (devtool) {
+				fsck_enabled = devtool->fsck_supported;
+			}
+
+			std::string key = "c" + it->devname;
+			mf = new CMenuForwarder(LOCALE_HDD_CHECK, fsck_enabled, it->desc, this, key.c_str());
+			mf->setHint("", LOCALE_MENU_HINT_HDD_CHECK);
+			hddmenu->addItem(mf);
+			found = true;
+			cnt++;
+		}
+	}
+
+	if (found)
+		hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE));
+
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, fsoptions, opcount, mkfs_enabled);
+	mc->setHint("", LOCALE_MENU_HINT_HDD_FMT);
+	hddmenu->addItem(mc);
+
+	std::string key = "f" + dev;
+	mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", this, key.c_str());
+	mf->setHint("", LOCALE_MENU_HINT_HDD_FORMAT);
+	hddmenu->addItem(mf);
+
+
+	int res = hddmenu->exec(NULL, "");
+	delete hddmenu;
+	return res;
+}
+
+int CHDDMenuHandler::doMenu()
+{
 	struct dirent **namelist;
 	int ret;
 	struct stat s;
 	int root_dev = -1;
 
-	bool ext4MkfsBinaryExist = !find_executable("mkfs.ext4").empty();
-	bool blkidBinaryExist    = !find_executable("blkid").empty();
-
-	bool hdd_found = 0;
+	check_dev_tools();
+_show_menu:
+	bool hdd_found = false;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
 
 	if (n < 0) {
@@ -165,23 +495,14 @@ int CHDDMenuHandler::doMenu ()
 		return menu_return::RETURN_REPAINT;
 	}
 
-
 	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_DRIVESETUP);
 
-	//if no drives found, select 'back'
-	if (hdd_found == 0 && hddmenu->getSelected() != -1)
-		hddmenu->setSelected(2);
-
-	hddmenu->addIntroItems(LOCALE_HDD_SETTINGS);
-	CHDDFmtExec fmtexec;
-	CHDDChkExec chkexec;
+	hddmenu->addIntroItems(LOCALE_HDD_SETTINGS, LOCALE_HDD_EXTENDED_SETTINGS);
 
 	CHDDDestExec hddexec;
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", &hddexec, NULL, CRCInput::RC_red,NEUTRINO_ICON_BUTTON_RED);
 	mf->setHint("", LOCALE_MENU_HINT_HDD_APPLY);
 	hddmenu->addItem(mf);
-
-	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_EXTENDED_SETTINGS));
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_HDD_SLEEP, &g_settings.hdd_sleep, HDD_SLEEP_OPTIONS, HDD_SLEEP_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_HDD_SLEEP);
@@ -196,7 +517,6 @@ int CHDDMenuHandler::doMenu ()
 		hddmenu->addItem(mc);
 	}
 
-	//if(n > 0)
 	hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MANAGE));
 
 	ret = stat("/", &s);
@@ -207,14 +527,14 @@ int CHDDMenuHandler::doMenu ()
 		root_dev = (s.st_dev & drive_mask);
 	}
 	printf("HDD: root_dev: 0x%04x\n", root_dev);
-	std::string tmp_str[n];
-	CMenuWidget * tempMenu[n];
+
+	getBlkIds();
+
 	for(int i = 0; i < n;i++) {
-		tempMenu[i] = NULL;
 		char str[256];
-		char sstr[256];
-		char vendor[128], model[128];
-		int64_t bytes;
+		char vendor[128] = { 0 };
+		char model[128] = { 0 };
+		int64_t bytes = 0;
 		int64_t megabytes;
 		int removable = 0;
 		bool oldkernel = false;
@@ -222,35 +542,39 @@ int CHDDMenuHandler::doMenu ()
 
 		printf("HDD: checking /sys/block/%s\n", namelist[i]->d_name);
 		snprintf(str, sizeof(str), "/dev/%s", namelist[i]->d_name);
-		fd = open(str, O_RDONLY);
-		if(fd < 0) {
-			printf("Cant open %s\n", str);
-			continue;
-		}
-		if (ioctl(fd, BLKGETSIZE64, &bytes))
-			perror("BLKGETSIZE64");
+		int fd = open(str, O_RDONLY);
+		if (fd >= 0) {
+			if (ioctl(fd, BLKGETSIZE64, &bytes))
+				perror("BLKGETSIZE64");
 
-		ret = fstat(fd, &s);
-		if (ret != -1) {
-			if ((int)(s.st_rdev & drive_mask) == root_dev) {
-				isroot = true;
-				/* dev_t is different sized on different architectures :-( */
-				printf("-> root device is on this disk 0x%04x, skipping\n", (int)s.st_rdev);
+			ret = fstat(fd, &s);
+			if (ret != -1) {
+				if ((int)(s.st_rdev & drive_mask) == root_dev) {
+					isroot = true;
+					/* dev_t is different sized on different architectures :-( */
+					printf("-> root device is on this disk 0x%04x, skipping\n", (int)s.st_rdev);
+				}
 			}
+			close(fd);
+		} else {
+			printf("Cant open %s\n", str);
 		}
-		close(fd);
 
 		megabytes = bytes/1000000;
 
 		snprintf(str, sizeof(str), "/sys/block/%s/device/vendor", namelist[i]->d_name);
-		f = fopen(str, "r");
+		FILE * f = fopen(str, "r");
 		if(!f) {
-			oldkernel = true;
-			strcpy(vendor, "");
-		} else {
+			printf("Cant open %s\n", str);
+			snprintf(str, sizeof(str), "/sys/block/%s/device/type", namelist[i]->d_name);
+			f = fopen(str, "r");
+		}
+		if (f) {
 			fscanf(f, "%s", vendor);
 			fclose(f);
-			strcat(vendor, "-");
+		} else {
+			oldkernel = true;
+			strcpy(vendor, "");
 		}
 
 		/* the Tripledragon only has kernel 2.6.12 available.... :-( */
@@ -261,10 +585,13 @@ int CHDDMenuHandler::doMenu ()
 		f = fopen(str, "r");
 		if(!f) {
 			printf("Cant open %s\n", str);
-			continue;
+			snprintf(str, sizeof(str), "/sys/block/%s/device/name", namelist[i]->d_name);
+			f = fopen(str, "r");
 		}
-		fscanf(f, "%s", model);
-		fclose(f);
+		if (f) {
+			fscanf(f, "%s", model);
+			fclose(f);
+		}
 
 		snprintf(str, sizeof(str), "/sys/block/%s/removable", namelist[i]->d_name);
 		f = fopen(str, "r");
@@ -275,123 +602,69 @@ int CHDDMenuHandler::doMenu ()
 		fscanf(f, "%d", &removable);
 		fclose(f);
 
-		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !isroot;
+		std::string dev = std::string(namelist[i]->d_name).substr(0, 2);
+		std::string fmt = getFmtType(namelist[i]->d_name);
+		/* epmty cdrom do not appear in blkid output */
+		if (fmt.empty() && dev == "sr") {
+			hdd_s hdd;
+			hdd.devname = namelist[i]->d_name;
+			hdd.mounted = false;
+			hdd.fmt = "";
+			hdd.desc = hdd.devname;
+			hdd_list.push_back(hdd);
+		}
 
-		std::string fmt_type = "";
-		if (blkidBinaryExist)
-			fmt_type = getFmtType(namelist[i]->d_name, 1);
-		std::string tmpType = (fmt_type == "") ? "" : " (" + fmt_type + (std::string)")";
+		bool enabled = !CNeutrinoApp::getInstance()->recordingstatus && !isroot && dev != "sr";
 
-		snprintf(str, sizeof(str), "%s %s %ld %s%s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes/1000), megabytes < 10000 ? "MB" : "GB", tmpType.c_str());
+		snprintf(str, sizeof(str), "%s %s %ld %s", vendor, model, (long)(megabytes < 10000 ? megabytes : megabytes/1000), megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
-		tmp_str[i]=str;
-		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
-		tempMenu[i]->addIntroItems();
-		if (fmt_type == "ext3")
-			g_settings.hdd_fs = fs_ext3;
-		else if (fmt_type == "ext4")
-			g_settings.hdd_fs = fs_ext4;
-		else
-			g_settings.hdd_fs = fs_ext3;
-		if (!ext4MkfsBinaryExist)
-			g_settings.hdd_fs = fs_ext3;
-		mc = new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, ext4MkfsBinaryExist);
-		mc->setHint("", LOCALE_MENU_HINT_HDD_FMT);
-		tempMenu[i]->addItem(mc);
+		devtitle[namelist[i]->d_name] = str;
 
-		mf = new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", &fmtexec, namelist[i]->d_name);
-		mf->setHint("", LOCALE_MENU_HINT_HDD_FORMAT);
-		tempMenu[i]->addItem(mf);
-
-		mf = new CMenuForwarder(LOCALE_HDD_CHECK, true, "", &chkexec, namelist[i]->d_name);
-		mf->setHint("", LOCALE_MENU_HINT_HDD_CHECK);
-		tempMenu[i]->addItem(mf);
-
-		snprintf(sstr, sizeof(sstr), "%s (%s)", g_Locale->getText(LOCALE_HDD_REMOVABLE_DEVICE),  namelist[i]->d_name);
-		mf = new CMenuForwarder((removable ? sstr : namelist[i]->d_name), enabled, tmp_str[i], tempMenu[i]);
+		std::string key = "d" + std::string(namelist[i]->d_name);
+		mf = new CMenuForwarder(namelist[i]->d_name, enabled, devtitle[namelist[i]->d_name], this, key.c_str());
 		mf->setHint("", LOCALE_MENU_HINT_HDD_TOOLS);
 		hddmenu->addItem(mf);
 
-		hdd_found = 1;
+		hdd_found = true;
 		free(namelist[i]);
 	}
 	if (n >= 0)
 		free(namelist);
 
-	if(!hdd_found)
+	if(!hdd_found) {
+		//if no drives found, select 'back'
+		if (hddmenu->getSelected() != -1)
+			hddmenu->setSelected(2);
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
+	}
 
-	ret = hddmenu->exec(NULL, "");
-	for(int i = 0; i < n;i++) {
-		if( hdd_found && tempMenu[i] != NULL ){
-			delete tempMenu[i];
+	if (!hdd_list.empty()) {
+		sort(hdd_list.begin(), hdd_list.end(), cmp_hdd_by_name());
+		mount = g_Locale->getText(LOCALE_HDD_MOUNT);
+		umount = g_Locale->getText(LOCALE_HDD_UMOUNT);
+		int shortcut = 1;
+		hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MOUNT_UMOUNT));
+		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+			std::string key = "m" + it->devname;
+			it->cmf = new CMenuForwarder(it->desc, true, it->mounted ? umount : mount , this,
+					key.c_str(), CRCInput::convertDigitToKey(shortcut++));
+			hddmenu->addItem(it->cmf);
 		}
 	}
 
+	ret = hddmenu->exec(NULL, "");
+
 	delete hddmenu;
+	hdd_list.clear();
+	devtitle.clear();
+	if (show_menu) {
+		show_menu = false;
+		goto _show_menu;
+	}
 	return ret;
 }
 
-int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
-{
-	struct dirent **namelist;
-	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
-
-	if (n < 0)
-		return menu_return::RETURN_NONE;
-
-	const char hdidle[] = "/sbin/hd-idle";
-	bool have_hdidle = !access(hdidle, X_OK);
-
-	if (g_settings.hdd_sleep < 60)
-		g_settings.hdd_sleep = 60;
-
-	if (have_hdidle) {
-		system("kill $(pidof hd-idle)");
-		int sleep_seconds = g_settings.hdd_sleep;
-		switch (sleep_seconds) {
-			case 241:
-					sleep_seconds = 30 * 60;
-					break;
-			case 242:
-					sleep_seconds = 60 * 60;
-					break;
-			default:
-					sleep_seconds *= 5;
-		}
-		if (sleep_seconds)
-			my_system(3, hdidle, "-i", to_string(sleep_seconds).c_str());
-	}
-
-	const char hdparm[] = "/sbin/hdparm";
-	bool have_hdparm = !access(hdparm, X_OK);
-	if (!have_hdparm)
-		return menu_return::RETURN_NONE;
-
-	struct stat stat_buf;
-	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
-
-	for (int i = 0; i < n; i++) {
-		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
-			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
-
-		char M_opt[50],S_opt[50], opt[100];
-		snprintf(S_opt, sizeof(S_opt), "-S%d", g_settings.hdd_sleep);
-		snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
-		snprintf(opt, sizeof(opt), "/dev/%s",namelist[i]->d_name);
-
-		if (have_hdidle)
-			my_system(3, hdparm, M_opt, opt);
-		else if (have_nonbb_hdparm)
-			my_system(4, hdparm, M_opt, S_opt, opt);
-		else // busybox hdparm doesn't support "-M"
-			my_system(3, hdparm, S_opt, opt);
-		free(namelist[i]);
-	}
-	free(namelist);
-	return menu_return::RETURN_NONE;
-}
-
+#if 0
 static int dev_umount(char *dev)
 {
 	char buffer[255];
@@ -516,59 +789,54 @@ static void waitfordev(const char *, int)
 {
 }
 #endif
-
-#if 0
-static int check_and_umount(char * dev, char * path)
-{
-	char buffer[255];
-	FILE *f = fopen("/proc/mounts", "r");
-	if(f == NULL)
-		return -1;
-	while (fgets (buffer, 255, f) != NULL) {
-		if(strstr(buffer, dev)) {
-			printf("HDD: %s mounted\n", path);
-			fclose(f);
-			return umount(path);
-		}
-	}
-	fclose(f);
-	printf("HDD: %s not mounted\n", path);
-	return 0;
-}
 #endif
 
-int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
+void CHDDMenuHandler::showError(neutrino_locale_t err)
+{
+	ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(err), CMessageBox::mbrOk, CMessageBox::mbOk);
+}
+
+int CHDDMenuHandler::formatDevice(std::string dev)
 {
 	char cmd[100];
 	char cmd2[100];
-	CHintBox * hintbox;
 	int res;
 	FILE * f;
-	char src[128], dst[128];
 	CProgressWindow * progress;
-	std::string fdisk, sfdisk, mke3fs, mke4fs, tune2fs;
+	std::string fdisk, sfdisk, tune2fs;
 
-	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
-	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
+	printf("CHDDMenuHandler::formatDevice: dev %s hdd_fs %d\n", dev.c_str(), g_settings.hdd_fs);
 
-	printf("CHDDFmtExec: key %s\n", key.c_str());
+	if (g_settings.hdd_fs < 0 || g_settings.hdd_fs >= (int) FS_MAX)
+		return menu_return::RETURN_REPAINT;
+
+	devtool_s * devtool = &devtools[g_settings.hdd_fs];
+	if (!devtool || !devtool->mkfs_supported) {
+		printf("CHDDMenuHandler::formatDevice: mkfs.%s is not supported\n", devtool ? devtool->fmt.c_str() : "unknown");
+		return menu_return::RETURN_REPAINT;
+	}
+
+	std::string devname = "/dev/" + dev;
+	std::string part = getDefaultPart(dev);
+
+	std::string devpart = dev + part;
+	std::string partname = devname + part;
+
+	std::string mkfscmd = devtool->mkfs + " " + devtool->mkfs_options + " " + partname;
+	printf("mkfs cmd: [%s]\n", mkfscmd.c_str());
 
 	res = ShowMsg ( LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 	if(res != CMessageBox::mbrYes)
-		return 0;
+		return menu_return::RETURN_REPAINT;
 
 	bool srun = my_system(3, "killall", "-9", "smbd");
 
-	//res = check_and_umount(dst);
-	//res = check_and_umount(src, dst);
-	res = umount_all(key.c_str());
-	printf("CHDDFmtExec: umount res %d\n", res);
+	res = umount_all(dev);
+	printf("CHDDMenuHandler::formatDevice: umount res %d\n", res);
+	system("df"); // FIXME: debug
 
-	if(res) {
-		hintbox = new CHintBox(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_UMOUNT_WARN));
-		hintbox->paint();
-		sleep(2);
-		delete hintbox;
+	if(!res) {
+		showError(LOCALE_HDD_UMOUNT_WARN);
 		goto _return;
 	}
 
@@ -578,83 +846,59 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		fprintf(f, "none\n");
 		fclose(f);
 	}
-#else
-	creat("/tmp/.nomdevmount", 00660);
 #endif
+	creat("/tmp/.nomdevmount", 00660);
 
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_FORMAT);
 	progress->exec(NULL,"");
-	progress->showStatusMessageUTF("Executing fdisk");
 	progress->showGlobalStatus(0);
 
 	fdisk   = find_executable("fdisk");
 	sfdisk  = find_executable("sfdisk");
-	mke3fs  = find_executable("mkfs.ext3");
-	mke4fs  = find_executable("mkfs.ext4");
 	tune2fs = find_executable("tune2fs");
-	if (! fdisk.empty()) {
-		snprintf(cmd, sizeof(cmd), "%s -f -uM /dev/%s", fdisk.c_str(), key.c_str());
+	if (! sfdisk.empty()) {
+		snprintf(cmd, sizeof(cmd), "%s -f -uM %s", sfdisk.c_str(), devname.c_str());
 		strcpy(cmd2, "0,\n;\n;\n;\ny\n");
 	} else if (! fdisk.empty()) {
-		snprintf(cmd, sizeof(cmd), "%s -u /dev/%s", fdisk.c_str(), key.c_str());
+		snprintf(cmd, sizeof(cmd), "%s -u /dev/%s", fdisk.c_str(), devname.c_str());
 		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
 	} else {
 		/* cannot do anything */
 		fprintf(stderr, "CHDDFmtExec: neither fdisk nor sfdisk found in $PATH :-(\n");
-		hintbox = new CHintBox(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_FAILED));
-		hintbox->paint();
-		sleep(2);
-		delete hintbox;
+		showError(LOCALE_HDD_FORMAT_FAILED);
 		goto _remount;
 	}
+	progress->showStatusMessageUTF(cmd);
+
 #ifdef ASSUME_MDEV
 	/* mdev will create it and waitfordev will wait for it... */
-	unlink(src);
+	unlink(partname.c_str());
 #endif
-	printf("CHDDFmtExec: executing %s\n", cmd);
-	f=popen(cmd, "w");
+	printf("CHDDMenuHandler::formatDevice: executing %s\n", cmd);
+	f = popen(cmd, "w");
 	if (!f) {
-		hintbox = new CHintBox(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_FAILED));
-		hintbox->paint();
-		sleep(2);
-		delete hintbox;
 		goto _remount;
 	}
+	show_menu = true;
 
 	fprintf(f, "%s", cmd2);
-	pclose(f);
-	//sleep(1);
-
-	switch(g_settings.hdd_fs) {
-		case fs_ext3:
-			if (mke3fs.empty()) {
-				fprintf(stderr, "CHDDFmtExec: ext3 requested, but mkfs.ext3 not found!\n");
-				mke3fs = "/bin/false"; /* returns failure */
-			}
-			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", mke3fs.c_str(), src);
-			break;
-		case fs_ext4:
-			if (mke4fs.empty()) {
-				fprintf(stderr, "CHDDFmtExec: ext4 requested, but mkfs.ext4 not found!\n");
-				mke4fs = "/bin/false";
-			}
-			snprintf(cmd, sizeof(cmd), "%s -T largefile -m0 %s", mke4fs.c_str(), src);
-			break;
-		default:
-			return 0;
+	res = pclose(f);
+	printf("CHDDMenuHandler::formatDevice: (s)fdisk res: %d\n", res);
+	if (res) {
+		showError(LOCALE_HDD_FORMAT_FAILED);
+		goto _return;
 	}
+	sleep(2);
+#ifdef ASSUME_MDEV
+	add_dev(dev, part);
+	waitfordev(devname + part, 30);
+#endif
 
-	waitfordev(src, 30);
-
-	printf("CHDDFmtExec: executing %s\n", cmd);
-
-	f=popen(cmd, "r");
+	progress->showStatusMessageUTF(mkfscmd.c_str());
+	f = popen(mkfscmd.c_str(), "r");
 	if (!f) {
-		hintbox = new CHintBox(LOCALE_HDD_FORMAT, g_Locale->getText(LOCALE_HDD_FORMAT_FAILED));
-		hintbox->paint();
-		sleep(2);
-		delete hintbox;
+		showError(LOCALE_HDD_FORMAT_FAILED);
 		goto _remount;
 	}
 
@@ -719,76 +963,51 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		}
 	}
 	progress->showLocalStatus(100);
-	pclose(f);
+	res = pclose(f);
+	printf("CHDDMenuHandler::formatDevice: mkfs res: %d\n", res);
 	progress->showGlobalStatus(100);
+	if (res) {
+		showError(LOCALE_HDD_FORMAT_FAILED);
+		goto _return;
+	}
 	sleep(2);
 
-	waitfordev(src, 30); /* mdev can somtimes takes long to create devices, especially after mkfs? */
-
-	if (!tune2fs.empty()) {
-		printf("CHDDFmtExec: executing %s %s %s\n", tune2fs.c_str(), "-r 0 -c 0 -i 0", src);
-		my_system(8, tune2fs.c_str(), "-r", "0", "-c", "0", "-i", "0", src);
-	} else
-		printf("CHDDFmtExec: tune2fs not found, not tuning the file system\n");
+	if (devtool->fmt.substr(0, 3) == "ext" && ! tune2fs.empty()) {
+		std::string d = "/dev/" + devpart;
+		printf("CHDDMenuHandler::formatDevice: executing %s %s %s\n", tune2fs.c_str(), "-r 0 -c 0 -i 0", d.c_str());
+		my_system(8, tune2fs.c_str(), "-r", "0", "-c", "0", "-i", "0", d.c_str());
+	}
+	show_menu = true;
 
 _remount:
 	unlink("/tmp/.nomdevmount");
 	progress->hide();
 	delete progress;
 
-	if ((res = mount_all(key.c_str())))
-	{
-		switch(g_settings.hdd_fs) {
-                case fs_ext3:
-			safe_mkdir(dst);
-			res = mount(src, dst, "ext3", 0, NULL);
-                        break;
-                case fs_ext4:
-			safe_mkdir(dst);
-			res = mount(src, dst, "ext4", 0, NULL);
-                        break;
-		default:
-                        break;
-		}
-	}
+	//getBlkIds();
 #ifndef ASSUME_MDEV
 	f = fopen("/proc/sys/kernel/hotplug", "w");
 	if(f) {
-#ifdef ASSUME_MDEV
-		fprintf(f, "/sbin/mdev\n");
-#else
 		fprintf(f, "/sbin/hotplug\n");
-#endif
 		fclose(f);
 	}
-#else
-	/* mounting is asynchronous via mdev, so wait for the directory to appear */
-	for (int i = 0; i < 20; i++) {
-		struct statfs s;
-		if (::statfs(dst, &s) == 0) {
-			if (s.f_type == 0xEF53)		/* EXT3_SUPER_MAGIC */
-				break;
-			if (s.f_type == 0x52654973)	/* REISERFS_SUPER_MAGIC */
-				break;
-		}
-		if (i == 0)
-			printf("CHDDFmtExec: waiting for %s to be mounted\n", dst);
-		sleep(1);
-	}
 #endif
+	res = mount_dev(devpart);
+	system("df"); // FIXME: debug
 
-	if(!res) {
-		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
+	if(res) {
+		std::string dst = MOUNT_BASE + devpart;
+		snprintf(cmd, sizeof(cmd), "%s/movies", dst.c_str());
 		safe_mkdir(cmd);
-		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
+		snprintf(cmd, sizeof(cmd), "%s/pictures", dst.c_str());
 		safe_mkdir(cmd);
-		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
+		snprintf(cmd, sizeof(cmd), "%s/epg", dst.c_str());
 		safe_mkdir(cmd);
-		snprintf(cmd, sizeof(cmd), "%s/music", dst);
+		snprintf(cmd, sizeof(cmd), "%s/music", dst.c_str());
 		safe_mkdir(cmd);
-		snprintf(cmd, sizeof(cmd), "%s/logos", dst);
+		snprintf(cmd, sizeof(cmd), "%s/logos", dst.c_str());
 		safe_mkdir(cmd);
-		snprintf(cmd, sizeof(cmd), "%s/plugins", dst);
+		snprintf(cmd, sizeof(cmd), "%s/plugins", dst.c_str());
 		safe_mkdir(cmd);
 		sync();
 #if HAVE_TRIPLEDRAGON
@@ -810,15 +1029,15 @@ _remount:
 					if (ret < 0)
 						break;
 					/* remove lines that start with the same disk we formatted
-					   src is "/dev/xda1", we only compare "/dev/xda" */
-					if (strncmp(line, src, strlen(src)-1) != 0)
+					   devname is /dev/xda" */
+					if (strncmp(line, devname.c_str(), devname.length()) != 0)
 						fprintf(g, "%s", line);
 				}
 				free(line);
 				fclose(f);
 			}
 			/* now add our new entry */
-			fprintf(g, "%s %s auto defaults 0 0\n", src, dst);
+			fprintf(g, "%s %s auto defaults 0 0\n", partname.c_str(), dst.c_str());
 			fclose(g);
 			rename("/etc/fstab", "/etc/fstab.old");
 			rename("/etc/fstab.new", "/etc/fstab");
@@ -827,101 +1046,57 @@ _remount:
 	}
 _return:
 	if (!srun) my_system(1, "smbd");
+	if (show_menu)
+		return menu_return::RETURN_EXIT_ALL;
+
 	return menu_return::RETURN_REPAINT;
 }
 
-int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
+int CHDDMenuHandler::checkDevice(std::string dev)
 {
-	char cmd[100];
-	CHintBox * hintbox;
 	int res;
-	char src[128], dst[128];
 	FILE * f;
 	CProgressWindow * progress;
 	int oldpass = 0, pass, step, total;
 	int percent = 0, opercent = 0;
+	char buf[256] = { 0 };
 
-	std::string e2fsck = find_executable("e2fsck");
-	std::string fscke3 = find_executable("fsck.ext3");
-	std::string fscke4 = find_executable("fsck.ext4");
-	/* this is quite bogus since the same binary can check ext2,3,4... */
-	bool ext4FsckBinaryExist = !fscke4.empty();
-	bool e2fsckBinaryExist   = !e2fsck.empty();
-	bool blkidBinaryExist    = !find_executable("blkid").empty();
+	std::string devname = "/dev/" + dev;
 
-	if (blkidBinaryExist) {
-		std::string fmt_type = getFmtType(key.c_str(), 1);
-		if (((fmt_type != "ext2") && (fmt_type != "ext3") && (fmt_type != "ext4")) || 
-			((fmt_type == "ext4") && (!ext4FsckBinaryExist) && (!e2fsckBinaryExist))) {
+	printf("CHDDMenuHandler::checkDevice: dev %s\n", dev.c_str());
 
-			char msg1[512], msg2[512];
-			if (fmt_type.empty())
-				fmt_type = g_Locale->getText(LOCALE_HDD_FS_UNKNOWN);
-			snprintf(msg1, sizeof(msg1)-1, "%s", g_Locale->getText(LOCALE_HDD_CHECK_FORMAT_BAD));
-			snprintf(msg2, sizeof(msg2)-1, msg1, fmt_type.c_str());
-			hintbox = new CHintBox(LOCALE_HDD_CHECK, msg2);
-			hintbox->paint();
-			sleep(3);
-			delete hintbox;
-			return menu_return::RETURN_REPAINT;
-		}
-	}
+	std::string fmt = getFmtType(dev);
+	devtool_s * devtool = get_dev_tool(fmt);
+	if (!devtool || !devtool->fsck_supported)
+		return menu_return::RETURN_REPAINT;
 
-	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
-	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
-
-printf("CHDDChkExec: key %s\n", key.c_str());
+	std::string cmd = devtool->fsck + " " + devtool->fsck_options + " " + devname;
+	printf("fsck cmd: [%s]\n", cmd.c_str());
 
 	bool srun = my_system(3, "killall", "-9", "smbd");
 
-	//res = check_and_umount(dst);
-	//res = check_and_umount(src, dst);
-	res = umount_all(key.c_str());
-	printf("CHDDChkExec: umount res %d\n", res);
-	if(res) {
-		hintbox = new CHintBox(LOCALE_HDD_CHECK, g_Locale->getText(LOCALE_HDD_UMOUNT_WARN));
-		hintbox->paint();
-		sleep(2);
-		delete hintbox;
+	res = true;
+	if (is_mounted(dev.c_str()))
+		res = umount_dev(dev);
+
+	printf("CHDDMenuHandler::checkDevice: umount res %d\n", res);
+	if(!res) {
+		showError(LOCALE_HDD_UMOUNT_WARN);
 		return menu_return::RETURN_REPAINT;
 	}
 
-	if (e2fsckBinaryExist) {
-		snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", e2fsck.c_str(), src);
-	} else {
-		snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", fscke3.c_str(), src);
-		if ((ext4FsckBinaryExist) && (g_settings.hdd_fs == fs_ext4))
-			snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", fscke4.c_str(), src);
-
-#if 0
-		switch(g_settings.hdd_fs) {
-			case fs_ext3:
-				snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext3FsckBinary, src);
-				break;
-			case fs_ext4:
-				snprintf(cmd, sizeof(cmd), "%s -C 1 -f -y %s", ext4FsckBinary, src);
-				break;
-			default:
-				return 0;
-		}
-#endif
-	}
-
-	printf("CHDDChkExec: Executing %s\n", cmd);
-	f=popen(cmd, "r");
+	printf("CHDDMenuHandler::checkDevice: Executing %s\n", cmd.c_str());
+	f=popen(cmd.c_str(), "r");
 	if(!f) {
-		hintbox = new CHintBox(LOCALE_HDD_CHECK, g_Locale->getText(LOCALE_HDD_CHECK_FAILED));
-		hintbox->paint();
-		sleep(2);
-		delete hintbox;
+		showError(LOCALE_HDD_CHECK_FAILED);
 		goto ret1;
 	}
 
 	progress = new CProgressWindow();
 	progress->setTitle(LOCALE_HDD_CHECK);
 	progress->exec(NULL,"");
+	progress->showStatusMessageUTF(cmd.c_str());
 
-	char buf[256];
 	while(fgets(buf, 255, f) != NULL)
 	{
 		if(isdigit(buf[0])) {
@@ -947,7 +1122,10 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 		}
 	}
 //printf("CHDDChkExec: %s\n", buf);
-	pclose(f);
+	res = pclose(f);
+	if(res)
+		showError(LOCALE_HDD_CHECK_FAILED);
+
 	progress->showGlobalStatus(100);
 	progress->showStatusMessageUTF(buf);
 	sleep(2);
@@ -955,24 +1133,69 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 	delete progress;
 
 ret1:
-
-	if ((res = mount_all(key.c_str())))
-	{
-		switch(g_settings.hdd_fs) {
-                case fs_ext3:
-			safe_mkdir(dst);
-			res = mount(src, dst, "ext3", 0, NULL);
-                        break;
-                case fs_ext4:
-			safe_mkdir(dst);
-			res = mount(src, dst, "ext4", 0, NULL);
-                        break;
-		default:
-                        break;
-		}
-	}
-	printf("CHDDChkExec: mount res %d\n", res);
+	res = mount_dev(dev);
+	printf("CHDDMenuHandler::checkDevice: mount res %d\n", res);
 
 	if (!srun) my_system(1, "smbd");
 	return menu_return::RETURN_REPAINT;
+}
+
+int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
+{
+	struct dirent **namelist;
+	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
+
+	if (n < 0)
+		return menu_return::RETURN_NONE;
+
+	const char hdidle[] = "/sbin/hd-idle";
+	bool have_hdidle = !access(hdidle, X_OK);
+
+	if (g_settings.hdd_sleep > 0 && g_settings.hdd_sleep < 60)
+		g_settings.hdd_sleep = 60;
+
+	if (have_hdidle) {
+		system("kill $(pidof hd-idle)");
+		int sleep_seconds = g_settings.hdd_sleep;
+		switch (sleep_seconds) {
+			case 241:
+					sleep_seconds = 30 * 60;
+					break;
+			case 242:
+					sleep_seconds = 60 * 60;
+					break;
+			default:
+					sleep_seconds *= 5;
+		}
+		if (sleep_seconds)
+			my_system(3, hdidle, "-i", to_string(sleep_seconds).c_str());
+	}
+
+	const char hdparm[] = "/sbin/hdparm";
+	bool have_hdparm = !access(hdparm, X_OK);
+	if (!have_hdparm)
+		return menu_return::RETURN_NONE;
+
+	struct stat stat_buf;
+	bool have_nonbb_hdparm = !::lstat(hdparm, &stat_buf) && !S_ISLNK(stat_buf.st_mode);
+
+	for (int i = 0; i < n; i++) {
+		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
+			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+
+		char M_opt[50],S_opt[50], opt[100];
+		snprintf(S_opt, sizeof(S_opt), "-S%d", g_settings.hdd_sleep);
+		snprintf(M_opt, sizeof(M_opt), "-M%d", g_settings.hdd_noise);
+		snprintf(opt, sizeof(opt), "/dev/%s",namelist[i]->d_name);
+
+		if (have_hdidle)
+			my_system(3, hdparm, M_opt, opt);
+		else if (have_nonbb_hdparm)
+			my_system(4, hdparm, M_opt, S_opt, opt);
+		else // busybox hdparm doesn't support "-M"
+			my_system(3, hdparm, S_opt, opt);
+		free(namelist[i]);
+	}
+	free(namelist);
+	return menu_return::RETURN_NONE;
 }

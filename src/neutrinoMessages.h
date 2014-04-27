@@ -113,6 +113,8 @@ struct NeutrinoMessages {
 		EVT_HDMI_CEC_STANDBY                     = CRCInput::RC_Events + 42,
 		EVT_SET_MUTE                             = CRCInput::RC_Events + 43,
 		EVT_SET_VOLUME                           = CRCInput::RC_Events + 44,
+		EVT_STREAM_START                         = CRCInput::RC_Events + 45, /* data = fd */
+		EVT_STREAM_STOP                          = CRCInput::RC_Events + 46,
 
 		/* NEVER CHANGE THIS */
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
@@ -157,6 +159,8 @@ struct NeutrinoMessages {
 		/* sectionsd */
 		EVT_EIT_COMPLETE                         = CRCInput::RC_WithData + 24, /* data: (t_channel_id *) */
 		EVT_BACK_ZAP_COMPLETE                    = CRCInput::RC_WithData + 25, /* data: (t_channel_id *) */
+
+		EVT_HOTPLUG                              = CRCInput::RC_WithData + 26  /* data: char */
 	};
 	enum
 	{

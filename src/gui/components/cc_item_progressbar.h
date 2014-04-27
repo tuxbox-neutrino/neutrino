@@ -2,7 +2,7 @@
 	Based up Neutrino-GUI - Tuxbox-Project
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	(C) 2008, 2013 by Thilo Graf
+	(C) 2008,2013,2014 by Thilo Graf
 	(C) 2009,2010,2013 Stefan Seyfried
 
 	License: GPL
@@ -50,7 +50,8 @@
 #define __CC_PROGRESSBAR_H__
 
 #include "config.h"
-#include <gui/components/cc_base.h>
+#include "cc_base.h"
+
 #include <string>
 
 class CProgressBar : public CComponentsItem
@@ -110,14 +111,14 @@ class CProgressBar : public CComponentsItem
 		///inv:  false => red on the left side, true: red on right side.
 		///active_col, passive_col: sets colors for displayed values, activ_col means the the displayed progress
 		///color_frame, color_body, color_shadow: colores of progressbar for frame, body and shadow, Note: color of frame is ineffective on fr_thickness = 0
-		CProgressBar();
-		CProgressBar(	const int x_pos, const int y_pos,
+		CProgressBar(	const int x_pos = 0, const int y_pos = 0,
 				const int w = -1, const int h = -1,
 				fb_pixel_t color_frame = 0, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
 				const fb_pixel_t active_col = COL_INFOBAR_PLUS_7, const fb_pixel_t passive_col = COL_INFOBAR_PLUS_3,
 				const bool blinkenlights = false,
 				const int r = 40, const int g = 100, const int b =70,
-				const bool inv = false	);
+				const bool inv = false,
+				CComponentsForm *parent = NULL);
 
 
 		///set up to display available values

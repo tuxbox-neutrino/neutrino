@@ -52,6 +52,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
+#include <sys/mount.h>
 
 #include <video.h>
 #include <libtuxtxt/teletext.h>
@@ -61,6 +62,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <iconv.h>
 
 //extern CPlugins *g_PluginList;
 #ifndef HAVE_COOL_HARDWARE
@@ -74,6 +76,7 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
 
 #define TIMESHIFT_SECONDS 3
+#define ISO_MOUNT_POINT "/media/iso"
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
 
@@ -108,7 +111,7 @@ void CMoviePlayerGui::Init(void)
 
 	frameBuffer = CFrameBuffer::getInstance();
 
-	playback = new cPlayback(3);
+	playback = new cPlayback(0);
 	moviebrowser = new CMovieBrowser();
 	bookmarkmanager = new CBookmarkManager();
 
@@ -121,6 +124,8 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("wav");
 	tsfilefilter.addFilter("asf");
 	tsfilefilter.addFilter("aiff");
+	tsfilefilter.addFilter("mp4");
+	tsfilefilter.addFilter("mov");
 #endif
 	tsfilefilter.addFilter("mpg");
 	tsfilefilter.addFilter("mpeg");
@@ -128,15 +133,14 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("mpv");
 	tsfilefilter.addFilter("vob");
 	tsfilefilter.addFilter("m2ts");
-	tsfilefilter.addFilter("mp4");
-	tsfilefilter.addFilter("mov");
 	tsfilefilter.addFilter("m3u");
 	tsfilefilter.addFilter("pls");
-#ifdef HAVE_SPARK_HARDWARE
 	tsfilefilter.addFilter("vdr");
+#ifdef HAVE_SPARK_HARDWARE
 	tsfilefilter.addFilter("flv");
 	tsfilefilter.addFilter("wmv");
 #endif
+	tsfilefilter.addFilter("iso");
 
 	if (g_settings.network_nfs_moviedir.empty())
 		Path_local = "/";
@@ -161,6 +165,7 @@ void CMoviePlayerGui::Init(void)
 	min_y = 0;
 	max_y = 0;
 	ext_subs = false;
+	iso_file = false;
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -371,6 +376,27 @@ void CMoviePlayerGui::Cleanup()
 	startposition = 0;
 	is_file_player = false;
 	p_movie_info = NULL;
+	autoshot_done = false;
+}
+
+void CMoviePlayerGui::makeFilename()
+{
+	if(file_name.empty()) {
+		std::string::size_type pos = full_name.find_last_of('/');
+		if(pos != std::string::npos) {
+			file_name = full_name.substr(pos+1);
+			std::replace(file_name.begin(), file_name.end(), '_', ' ');
+		} else
+			file_name = full_name;
+		
+		if(file_name.substr(0,14)=="videoplayback?"){//youtube name
+			if(!p_movie_info->epgTitle.empty())
+				file_name = p_movie_info->epgTitle;
+			else
+				file_name = "";
+		}
+		printf("CMoviePlayerGui::makeFilename: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
+	}
 }
 
 bool CMoviePlayerGui::SelectFile()
@@ -441,55 +467,18 @@ bool CMoviePlayerGui::SelectFile()
 				is_file_player = true;
 				full_name = file->Name.c_str();
 				ret = true;
-				if(file->getType() == CFile::FILE_PLAYLIST) {
-					std::ifstream infile;
-					char cLine[1024];
-					char name[1024] = { 0 };
-					infile.open(file->Name.c_str(), std::ifstream::in);
-					while (infile.good())
-					{
-						infile.getline(cLine, sizeof(cLine));
-						if (cLine[strlen(cLine)-1]=='\r')
-							cLine[strlen(cLine)-1]=0;
-
-						int dur;
-						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
-						if (strlen(cLine) > 0 && cLine[0]!='#')
-						{
-							char *url = NULL;
-							if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) ){
-								if (url != NULL) {
-									printf("name %s [%d] url: %s\n", name, dur, url);
-									full_name = url;
-									if(strlen(name))
-										file_name = name;
-								}
-							}
-						}
-					}
-				}
+				if(file->getType() == CFile::FILE_PLAYLIST)
+					parsePlaylist(file);
+				else if(file->getType() == CFile::FILE_ISO)
+					ret = mountIso(file);
 			}
 		} else
 			menu_ret = filebrowser->getMenuRet();
 		CAudioMute::getInstance()->enableMuteIcon(true);
 		InfoClock->enableInfoClock(true);
 	}
-	if(ret && file_name.empty()) {
-		std::string::size_type pos = full_name.find_last_of('/');
-		if(pos != std::string::npos) {
-			file_name = full_name.substr(pos+1);
-			std::replace(file_name.begin(), file_name.end(), '_', ' ');
-		} else
-			file_name = full_name;
-		
-		if(file_name.substr(0,14)=="videoplayback?"){//youtube name
-			if(!p_movie_info->epgTitle.empty())
-				file_name = p_movie_info->epgTitle;
-			else
-				file_name = "";
-		}
-		printf("CMoviePlayerGui::SelectFile: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
-	}
+	if (ret)
+		makeFilename();
 	//store last multiformat play dir
 	g_settings.network_nfs_moviedir = Path_local;
 
@@ -512,6 +501,8 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
 			if(caller->playback)
 				caller->playback->RequestAbort();
+		} else if (msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC) {
+			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 	}
 	if(hintbox != NULL){
@@ -547,7 +538,15 @@ void CMoviePlayerGui::PlayFile(void)
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 
-	if(p_movie_info != NULL) {
+	MI_MOVIE_INFO mi;
+
+	if (p_movie_info) {
+		if (timeshift != TSHIFT_MODE_OFF) {
+		// p_movie_info may be invalidated by CRecordManager while we're still using it. Create and use a copy.
+			mi = *p_movie_info;
+			p_movie_info = &mi;
+		}
+
 		duration = p_movie_info->length * 60 * 1000;
 		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, currentapid, currentac3 == 1);
 		CZapit::getInstance()->SetVolumePercent(percent);
@@ -668,9 +667,11 @@ void CMoviePlayerGui::PlayFile(void)
 		showSubtitle(0);
 
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
-			//g_PluginList->start_plugin_by_name (g_settings.movieplayer_plugin.c_str (), pidt);
+			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
+			if ((duration - position) > 600000)
+				makeScreenShot(true);
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
 			if (time_forced) {
 				time_forced = false;
@@ -800,37 +801,10 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			if(restore)
 				FileTime.show(position);
-#ifdef SCREENSHOT
+		} else if (msg == NeutrinoMessages::SHOW_EPG) {
+			handleMovieBrowser(NeutrinoMessages::SHOW_EPG, position);
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
-
-			char ending[(sizeof(int)*2) + 6] = ".jpg";
-			if(!g_settings.screenshot_cover)
-				snprintf(ending, sizeof(ending) - 1, "_%x.jpg", position);
-
-			std::string fname = full_name;
-			std::string::size_type pos = fname.find_last_of('.');
-			if(pos != std::string::npos) {
-				fname.replace(pos, fname.length(), ending);
-			} else
-				fname += ending;
-
-			if(!g_settings.screenshot_cover){
-				pos = fname.find_last_of('/');
-				if(pos != std::string::npos) {
-					fname.replace(0, pos, g_settings.screenshot_dir);
-				}
-			}
-
-#if 0 // TODO disable overwrite ?
-			if(!access(fname.c_str(), F_OK)) {
-			}
-#endif
-			CScreenShot * sc = new CScreenShot(fname);
-			if(g_settings.screenshot_cover && !g_settings.screenshot_video)
-				sc->EnableVideo(true);
-			sc->Start();
-#endif
-
+			makeScreenShot();
 		} else if ( msg == NeutrinoMessages::EVT_SUBT_MESSAGE) {
 			showSubtitle(data);
 		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||
@@ -846,9 +820,12 @@ void CMoviePlayerGui::PlayFile(void)
 
 			playstate = CMoviePlayerGui::STOPPED;
 			g_RCInput->postMsg(msg, data);
-		} else if (msg == CRCInput::RC_timeout) {
-			// nothing
-		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+		} else if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER) {
+			if (playstate == CMoviePlayerGui::PLAY && (position >= 300000 || (duration<300000 && (position>(duration /2)))))
+				makeScreenShot(true);
+		} else if (msg == CRCInput::RC_favorites) {
+			makeScreenShot(false, true);
+		} else if (msg == CRCInput::RC_sat) {
 			//FIXME do nothing ?
 		} else {
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all) {
@@ -874,6 +851,11 @@ void CMoviePlayerGui::PlayFile(void)
 
 	playback->SetSpeed(1);
 	playback->Close();
+	if (iso_file) {
+		iso_file = false;
+		if (umount2(ISO_MOUNT_POINT ,MNT_FORCE))
+			perror(ISO_MOUNT_POINT);
+	}
 
 	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
@@ -1311,6 +1293,20 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 				cSelectedMenuBookStart[5].selected = false;	// clear for next bookmark menu
 			}
 		}
+	} else if (msg == NeutrinoMessages::SHOW_EPG && p_movie_info) {
+		CTimeOSD::mode m_mode = FileTime.getMode();
+		bool restore = FileTime.IsVisible();
+		if (restore)
+			FileTime.kill();
+		InfoClock->enableInfoClock(false);
+
+		cMovieInfo.showMovieInfo(*p_movie_info);
+
+		InfoClock->enableInfoClock(true);
+		if (restore) {
+			FileTime.setMode(m_mode);
+			FileTime.update(position, duration);
+		}
 	}
 	return;
 }
@@ -1413,9 +1409,21 @@ void CMoviePlayerGui::selectSubtitle()
 
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
-	if(!numsubs) {
+	if(!numsubs)
 		playback->FindAllSubs(spids, sub_supported, &numsubs, slanguage);
-	}
+
+	CMenuOptionStringChooser * sc = new CMenuOptionStringChooser(LOCALE_SUBTITLES_CHARSET, &g_settings.subs_charset, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	sc->addOption("UTF-8");
+	sc->addOption("UCS-2");
+	sc->addOption("CP1250");
+	sc->addOption("CP1251");
+	sc->addOption("CP1252");
+	sc->addOption("CP1253");
+	sc->addOption("KOI8-R");
+
+	APIDSelector.addItem(sc);
+	APIDSelector.addItem(GenericMenuSeparatorLine);
+	
 	char cnt[5];
 	unsigned int count;
 	for (count = 0; count < numsubs; count++) {
@@ -1469,6 +1477,39 @@ void CMoviePlayerGui::clearSubtitle()
 }
 
 fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, int ox, int oy, int dx, int dy);
+
+bool CMoviePlayerGui::convertSubtitle(std::string &text)
+{
+	bool ret = false;
+	iconv_t cd = iconv_open("UTF-8", g_settings.subs_charset.c_str());
+	if (cd == (iconv_t)-1) {
+		perror("iconv_open");
+		return ret;
+	}
+	size_t ilen = text.length();
+	size_t olen = ilen*4;
+	size_t len = olen;
+	char * buf = (char *) malloc(olen+1);
+	if (buf == NULL) {
+		iconv_close(cd);
+		return ret;
+	}
+	memset(buf, olen+1, 0);
+	char * out = buf;
+	char * in = (char *) text.c_str();
+	if (iconv(cd, &in, &ilen, &out, &olen) == (size_t)-1) {
+		printf("CMoviePlayerGui::convertSubtitle: iconv error\n");
+	}
+	else {
+		memset(buf + (len - olen), 0, olen);
+		text = buf;
+		ret = true;
+	}
+
+	free(buf);
+	iconv_close(cd);
+	return true;
+}
 
 void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 {
@@ -1573,8 +1614,12 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		}
 	}
 	for (unsigned i = 0; i < subtext.size(); i++) {
-		if (!isUTF8(subtext[i]))
-			subtext[i] = convertLatin1UTF8(subtext[i]);
+		if (!isUTF8(subtext[i])) {
+			if (g_settings.subs_charset != "UTF-8")
+				convertSubtitle(subtext[i]);
+			else
+				subtext[i] = convertLatin1UTF8(subtext[i]);
+		}
 		printf("subtext %d: [%s]\n", i, subtext[i].c_str());
 	}
 	printf("********************************************************************\n");
@@ -1621,7 +1666,7 @@ void CMoviePlayerGui::selectAutoLang()
 			}
 		}
 	}
-	if(g_settings.auto_lang) {
+	if(g_settings.auto_lang &&  (numpida > 1)) {
 		int pref_idx = -1;
 
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
@@ -1651,4 +1696,96 @@ void CMoviePlayerGui::selectAutoLang()
 			playback->SetAPid(currentapid, currentac3);
 		}
 	}
+}
+
+void CMoviePlayerGui::parsePlaylist(CFile *file)
+{
+	std::ifstream infile;
+	char cLine[1024];
+	char name[1024] = { 0 };
+	infile.open(file->Name.c_str(), std::ifstream::in);
+	while (infile.good())
+	{
+		infile.getline(cLine, sizeof(cLine));
+		if (cLine[strlen(cLine)-1]=='\r')
+			cLine[strlen(cLine)-1]=0;
+
+		int dur;
+		sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &dur, name);
+		if (strlen(cLine) > 0 && cLine[0]!='#')
+		{
+			char *url = NULL;
+			if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) ){
+				if (url != NULL) {
+					printf("name %s [%d] url: %s\n", name, dur, url);
+					full_name = url;
+					if(strlen(name))
+						file_name = name;
+				}
+			}
+		}
+	}
+}
+
+bool CMoviePlayerGui::mountIso(CFile *file)
+{
+	printf("ISO file passed: %s\n", file->Name.c_str());
+	safe_mkdir(ISO_MOUNT_POINT);
+	if (my_system(5, "mount", "-o", "loop", file->Name.c_str(), ISO_MOUNT_POINT) == 0) {
+		makeFilename();
+		full_name = "/media/iso";
+		iso_file = true;
+		return true;
+	}
+	return false;
+}
+
+void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
+{
+	if (autoshot) {
+		if (autoshot_done || !g_settings.auto_cover)
+			return;
+		autoshot_done = true;
+	}
+
+#ifdef SCREENSHOT
+	bool cover = autoshot || g_settings.screenshot_cover || forcover;
+	char ending[(sizeof(int)*2) + 6] = ".jpg";
+	if (!cover)
+		snprintf(ending, sizeof(ending) - 1, "_%x.jpg", position);
+
+	std::string fname = full_name;
+	std::string::size_type pos = fname.find_last_of('.');
+	if (pos != std::string::npos) {
+		fname.replace(pos, fname.length(), ending);
+	} else
+		fname += ending;
+
+	if (autoshot && !access(fname.c_str(), F_OK)) {
+		printf("CMoviePlayerGui::makeScreenShot: cover [%s] already exist..\n", fname.c_str());
+		return;
+	}
+
+	if (!cover) {
+		pos = fname.find_last_of('/');
+		if(pos != std::string::npos)
+			fname.replace(0, pos, g_settings.screenshot_dir);
+	}
+
+
+	CScreenShot * sc = new CScreenShot(fname);
+	if (cover) {
+		sc->EnableVideo(true);
+	}
+	if (autoshot || forcover) {
+		int xres = 0, yres = 0, framerate;
+		videoDecoder->getPictureInfo(xres, yres, framerate);
+		if (xres && yres) {
+			int w = std::min(300, xres);
+			int h = (float) yres / ((float) xres / (float) w);
+			sc->SetSize(w, h);
+		}
+	}
+	sc->Start();
+#endif
 }

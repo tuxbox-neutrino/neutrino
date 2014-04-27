@@ -45,17 +45,22 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
+#include <gui/widget/messagebox.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
 #include <driver/fade.h>
 #include <driver/display.h>
+#include <driver/scanepg.h>
+
 #include <daemonc/remotecontrol.h>
 #include <system/settings.h>
 
 #include <global.h>
 #include <neutrino.h>
+#include <mymenu.h>
+#include <zapit/getservices.h>
 
 extern CBouquetManager *g_bouquetManager;
 
@@ -65,6 +70,7 @@ CBouquetList::CBouquetList(const char * const Name)
 	selected    = 0;
 	liststart   = 0;
 	favonly     = false;
+	save_bouquets = false;
 	if(Name == NULL)
 		name = g_Locale->getText(LOCALE_BOUQUETLIST_HEAD);
 	else
@@ -230,7 +236,7 @@ int CBouquetList::doMenu()
 
 	zapitBouquet = Bouquets[selected]->zapitBouquet;
 	/* zapitBouquet not NULL only on real bouquets, not on virtual SAT or HD */
-	if(!zapitBouquet)
+	if(!zapitBouquet && Bouquets[selected]->satellitePosition == INVALID_SAT_POSITION)
 		return 0;
 
 	CMenuWidget* menu = new CMenuWidget(LOCALE_CHANNELLIST_EDIT, NEUTRINO_ICON_SETTINGS);
@@ -238,12 +244,18 @@ int CBouquetList::doMenu()
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	sprintf(cnt, "%d", i);
-	if(!zapitBouquet->bUser) {
+	if (zapitBouquet && !zapitBouquet->bUser) {
+		bool old_epg = zapitBouquet->bScanEpg;
 		menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_COPY, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i ++);
+		if (g_settings.epg_scan == CEpgScan::SCAN_SEL)
+			menu->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &zapitBouquet->bScanEpg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		menu->exec(NULL, "");
 		delete menu;
 		delete selector;
 		printf("CBouquetList::doMenu: %d selected\n", select);
+		if (old_epg != zapitBouquet->bScanEpg)
+			save_bouquets = true;
+
 		bool added = false;
 		if(select >= 0) {
 			old_selected = select;
@@ -283,23 +295,37 @@ int CBouquetList::doMenu()
 		return -1;
 	} else {
 		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i ++);
+		int old_epg = zapitBouquet ? zapitBouquet->bScanEpg : 0;
+		if (zapitBouquet && (g_settings.epg_scan == CEpgScan::SCAN_SEL))
+			menu->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &zapitBouquet->bScanEpg, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
 		menu->exec(NULL, "");
 		delete menu;
 		delete selector;
+		if (zapitBouquet && (old_epg != zapitBouquet->bScanEpg))
+			save_bouquets = true;
+
 		printf("CBouquetList::doMenu: %d selected\n", select);
 		if(select >= 0) {
 			old_selected = select;
-			switch(select) {
-				case 0:
-					hide();
-					bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
-					if(bouquet_id >= 0) {
-						g_bouquetManager->deleteBouquet(bouquet_id);
-						return 1;
-					}
-					break;
-				default:
-					break;
+			hide();
+
+			int result = ShowMsg ( LOCALE_BOUQUETEDITOR_DELETE, Bouquets[selected]->channelList->getName(), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+			if(result != CMessageBox::mbrYes)
+				return -1;
+
+			if (zapitBouquet) {
+				bouquet_id = g_bouquetManager->existsUBouquet(Bouquets[selected]->channelList->getName());
+				if(bouquet_id >= 0) {
+					g_bouquetManager->deleteBouquet(bouquet_id);
+					return 1;
+				}
+			} else {
+				CServiceManager::getInstance()->RemovePosition(Bouquets[selected]->satellitePosition);
+				g_bouquetManager->loadBouquets();
+				g_bouquetManager->deletePosition(Bouquets[selected]->satellitePosition);
+				CServiceManager::getInstance()->SetServicesChanged(true);
+				return 1;
 			}
 		}
 		return -1;
@@ -539,6 +565,16 @@ int CBouquetList::show(bool bShowChannelList)
 	fader.Stop();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+	if (save_bouquets) {
+		save_bouquets = false;
+		if (CNeutrinoApp::getInstance()->GetChannelMode() == LIST_MODE_FAV)
+			g_bouquetManager->saveUBouquets();
+		else
+			g_bouquetManager->saveBouquets();
+
+		if (g_settings.epg_scan == CEpgScan::SCAN_SEL)
+			CEpgScan::getInstance()->Start();
+	}
 	if(zapOnExit) {
 		return (selected);
 	} else {
@@ -570,7 +606,7 @@ void CBouquetList::paintItem(int pos)
 		if(npos < (int) Bouquets.size())
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
 	} else {
-		if(npos < (int) Bouquets.size())
+		if(!favonly && (npos < (int) Bouquets.size()))
 			iscurrent = !Bouquets[npos]->channelList->isEmpty();
 		color = iscurrent ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT;
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
@@ -580,11 +616,20 @@ void CBouquetList::paintItem(int pos)
 	if(npos < (int) Bouquets.size()) {
 		char tmp[10];
 		sprintf((char*) tmp, "%d", npos+ 1);
-
+		int iw = 0, ih = 0;
+		if ((g_settings.epg_scan == CEpgScan::SCAN_SEL) &&
+				Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bScanEpg) {
+			frameBuffer->getIconSize(NEUTRINO_ICON_EPG, &iw, &ih);
+			if (iw && ih) {
+				int icon_x = (x+width-2) - RADIUS_LARGE/2 - iw;
+				frameBuffer->paintIcon(NEUTRINO_ICON_EPG, icon_x - iw, ypos, fheight);
+				iw = iw + 12 + RADIUS_LARGE/2;
+			}
+		}
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, lname, color, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15 - iw, lname, color, 0, true); // UTF-8
 		//CVFD::getInstance()->showMenuText(0, bouq->channelList->getName(), -1, true);
 	}
 }

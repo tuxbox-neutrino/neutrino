@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 	Copyright (C) 2012, Michael Liebmann 'micha-bbg'
 
 	License: GPL
@@ -31,30 +31,11 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_base.h"
-
+#include <system/debug.h>
 using namespace std;
 
 //abstract basic class CComponents
 CComponents::CComponents()
-{
-	initVarBasic();
-}
-
-CComponents::~CComponents()
-{
- 	hide();
-	clearSavedScreen();
-	clearFbData();
-}
-
-void CComponents::clearSavedScreen()
-{
-	if (saved_screen.pixbuf)
-		delete[] saved_screen.pixbuf;
-	saved_screen.pixbuf = NULL;
-}
-
-void CComponents::initVarBasic()
 {
 	x = saved_screen.x 	= 0;
 	y = saved_screen.y 	= 0;
@@ -73,7 +54,7 @@ void CComponents::initVarBasic()
 	shadow_w		= SHADOW_OFFSET;
 	fr_thickness		= 0;
 	fr_thickness_sel	= 3;
-	
+
 	firstPaint		= true;
 	is_painted		= false;
 	paint_bg		= true;
@@ -83,17 +64,55 @@ void CComponents::initVarBasic()
 	saved_screen.pixbuf 	= NULL;
 }
 
+CComponents::~CComponents()
+{
+	hide();
+	clearSavedScreen();
+	clearFbData();
+}
+
+void CComponents::clearSavedScreen()
+{
+	if (saved_screen.pixbuf)
+		delete[] saved_screen.pixbuf;
+	saved_screen.pixbuf = NULL;
+}
+
+bool CComponents::CheckFbData(const comp_fbdata_t& fbdata, const char* func, const int line)
+{
+	int32_t rows = fbdata.dx / (int32_t)frameBuffer->getScreenWidth(true) - 1 + fbdata.y;
+	int32_t rest = fbdata.dx % (int32_t)frameBuffer->getScreenWidth(true);
+        int32_t end  = rows * (int32_t)frameBuffer->getScreenWidth(true) + rest;
+	if (	(fbdata.x < 0 || fbdata.y < 0) ||
+		(end >= (int32_t)frameBuffer->getScreenWidth(true)*(int32_t)frameBuffer->getScreenHeight(true)) 
+	   ) {
+			dprintf(DEBUG_NORMAL, "[CComponents] ERROR! Position < 0 or > FB end [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n",
+				func, line,
+				fbdata.x, fbdata.y,
+				fbdata.dx, fbdata.dy);
+			return false;
+		}
+		if (fbdata.dx == 0 || fbdata.dy == 0) {
+			dprintf(DEBUG_DEBUG,"[CComponents] INFO! dx and/or dy = 0 [%s - %d]\n\tx = %d  y = %d\n\tdx = %d  dy = %d\n",
+				func, line,
+				fbdata.x, fbdata.y,
+				fbdata.dx, fbdata.dy);
+			return false;
+		}
+	return true;
+}
+
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(bool do_save_bg)
 {
 	//save background before first paint, do_save_bg must be true
-	if (firstPaint && do_save_bg)	{
+	if (firstPaint && do_save_bg){
 		for(size_t i=0; i<v_fbdata.size(); i++){
-			if (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
-				if ((v_fbdata[i].x <= 0) || (v_fbdata[i].y <= 0))
-					printf("\33[31m\t[CComponents] WARNING! Position <= 0 [%s - %d], x = %d  y = %d\n\033[37m", __func__, __LINE__, v_fbdata[i].x, v_fbdata[i].y);
-#ifdef DEBUG_CC
-	printf("\t[CComponents]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+			if (!CheckFbData(v_fbdata[i], __func__, __LINE__)){
+				break;
+			}
+
+	dprintf(DEBUG_DEBUG, "[CComponents]\n\t[%s - %d] firstPaint->save screen: %d, fbdata_type: %d\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
 			__func__,
 			__LINE__,
 			firstPaint,
@@ -102,31 +121,26 @@ void CComponents::paintFbItems(bool do_save_bg)
 			v_fbdata[i].y,
 			v_fbdata[i].dx,
 			v_fbdata[i].dy);
-#endif
-				saved_screen.x = v_fbdata[i].x;
-				saved_screen.y = v_fbdata[i].y;
-				saved_screen.dx = v_fbdata[i].dx;
-				saved_screen.dy = v_fbdata[i].dy;
-				clearSavedScreen();
-				saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
-				firstPaint = false;
-				break;
-			}
+
+		saved_screen.x = v_fbdata[i].x;
+		saved_screen.y = v_fbdata[i].y;
+		saved_screen.dx = v_fbdata[i].dx;
+		saved_screen.dy = v_fbdata[i].dy;
+		clearSavedScreen();
+		saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
+		firstPaint = false;
+		break;
 		}
 	}
 
-	for(size_t i=0; i< v_fbdata.size() ;i++){
-		// Don't paint if dx or dy are 0
-		if ((v_fbdata[i].dx == 0) || (v_fbdata[i].dy == 0)){
-#ifdef DEBUG_CC
-			printf("\t[CComponents] WARNING: [%s - %d], dx = %d  dy = %d\n", __func__, __LINE__, v_fbdata[i].dx, v_fbdata[i].dy);
-#endif
+	for(size_t i=0; i< v_fbdata.size(); i++){
+		// Don't paint on dimension or position error dx or dy are 0
+		if (!CheckFbData(v_fbdata[i], __func__, __LINE__)){
 			continue;
 		}
-
 		int fbtype = v_fbdata[i].fbdata_type;
-#ifdef DEBUG_CC
-	printf("\t[CComponents]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
+
+	dprintf(DEBUG_DEBUG, "[CComponents]\n\t[%s - %d], fbdata_[%d]\n\tx = %d\n\ty = %d\n\tdx = %d\n\tdy = %d\n",
 			__func__,
 			__LINE__,
 			(int)i,
@@ -134,7 +148,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 			v_fbdata[i].y,
 			v_fbdata[i].dx,
 			v_fbdata[i].dy);
-#endif
+
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
 		if (firstPaint){
@@ -224,10 +238,20 @@ void CComponents::kill()
 }
 
 //clean old screen buffer
-inline void CComponents::clearFbData()
+void CComponents::clearFbData()
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++)
 		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
 	v_fbdata.clear();
+}
+
+inline void CComponents::setXPos(const int& xpos)
+{
+	x = xpos;
+}
+
+inline void CComponents::setYPos(const int& ypos)
+{
+	y = ypos;
 }

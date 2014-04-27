@@ -314,6 +314,11 @@ date.Sun  Zo
 date.Thu  Do
 date.Tue  Di
 date.Wed  Wo
+debug Debug Output
+debug.level Level
+debug.level_1 normaal
+debug.level_2 informatieve
+debug.level_3 verbose
 epg.saving Opslaan EPG
 epgextended.actors Acteurs
 epgextended.director Regisseur 
@@ -1713,8 +1718,8 @@ settings.backup_failed Backup maken mislukt
 settings.help Help
 settings.menu_hints Menu hints weergeven
 settings.menu_pos Menu positie
-settings.missingoptionsconffile De instellingen zijn geupdate. \nNieuwe opties zijn standaard ingesteld.
-settings.noconffile Geen Neutrino-HD instellingen gevonden.\n Gebruikt standaard instellingen.
+settings.missingoptionsconffile De instellingen zijn geupdate.\nNieuwe opties zijn standaard ingesteld.
+settings.noconffile Geen Neutrino-HD instellingen gevonden.\nGebruikt standaard instellingen.
 settings.pos_bottom_left Links onder
 settings.pos_bottom_right Rechts onder
 settings.pos_default_center Gecentreerd boven
@@ -1724,8 +1729,8 @@ settings.pos_top_right Rechts boven
 settings.restore Instellingen herstellen
 settings.restore_warn Alle instellingen zullen vervangen worden.\nDe ontvanger zal opnieuw opstarten\nWilt u verder gaan?
 shutdown.recoding_query Wilt u de opname stoppen?
-shutdowntimer.announce De ontvanger zal binnen 1 minuut uitschakelen./nWilt u het uitschakelen annuleren?
-sleeptimerbox.announce De ontvanger zal binnen 1 minunut in standby schakelen./nlWilt u dit annuleren?
+shutdowntimer.announce De ontvanger zal binnen 1 minuut uitschakelen.\nWilt u het uitschakelen annuleren?
+sleeptimerbox.announce De ontvanger zal binnen 1 minuut in standby schakelen.\nWilt u dit annuleren?
 sleeptimerbox.hint1 Afsluit tijd in minuten (000=uit)
 sleeptimerbox.hint2 De ontvanger schakelt zichzelf uit na deze periode in standby.
 sleeptimerbox.hint3 De ontvanger zal automatisch uitschakelen indien u de afstandsbediening niet gebruikt.

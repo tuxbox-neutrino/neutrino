@@ -114,7 +114,10 @@ void CBEChannelWidget::paintItem(int pos)
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
 	} else {
-		color   = COL_MENUCONTENT_TEXT;
+		if(current < Channels->size() && ((*Channels)[current]->flags & CZapitChannel::NOT_FOUND ))
+			color   = COL_MENUCONTENTINACTIVE_TEXT;// extra color for channels not found in service
+		else
+			color   = COL_MENUCONTENT_TEXT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}

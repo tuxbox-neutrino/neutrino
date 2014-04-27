@@ -121,12 +121,11 @@ class CPlugins
 		inline       int           getIndex            (const int number) const { return plugin_list[number].index             ; }
 		inline     neutrino_msg_t  getKey              (const int number) const { return (neutrino_msg_t)plugin_list[number].key; }
 
-		void startPlugin(int number,int param);
-		void start_plugin_by_name(const std::string & filename,int param);// start plugins by "name=" in .cfg
+		void startPlugin(int number);				// start plugins by number
+		void startPlugin(const char * const filename);		// start plugins by filename
+		void startPlugin_by_name(const std::string & name);	// start plugins by "name=" in .cfg
 		void startScriptPlugin(int number);
 		void startLuaPlugin(int number);
-
-		void startPlugin(const char * const filename); // start plugins also by name
 		bool hasPlugin(CPlugins::p_type_t type);
 
 		const std::string& getScriptOutput() const;

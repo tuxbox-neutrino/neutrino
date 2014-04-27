@@ -102,6 +102,7 @@ TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
+TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
 
 # either use dynamic lualib in package lua (openSUSE)
 # ... or in package lua5.2 (debian-derivates)
@@ -253,6 +254,7 @@ AC_SUBST(STB_HAL_INC)
 AC_SUBST(STB_HAL_LIB)
 AC_SUBST(LUA_CFLAGS)
 AC_SUBST(LUA_LIBS)
+AC_SUBST(BLURAY_LIBS)
 
 AC_OUTPUT([
 Makefile

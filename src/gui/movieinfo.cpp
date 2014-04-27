@@ -121,23 +121,23 @@ bool CMovieInfo::convertTs2XmlName(std::string * filename)
 
 ************************************************************************/
 #define XML_ADD_TAG_STRING(_xml_text_,_tag_name_,_tag_content_){ \
-	_xml_text_ += "\t\t<"_tag_name_">"; \
+	_xml_text_ += "\t\t<" _tag_name_ ">"; \
 	_xml_text_ += ZapitTools::UTF8_to_UTF8XML(_tag_content_.c_str()); \
-	_xml_text_ += "</"_tag_name_">\n";}
+	_xml_text_ += "</" _tag_name_ ">\n";}
 
 #define XML_ADD_TAG_UNSIGNED(_xml_text_,_tag_name_,_tag_content_){\
-	_xml_text_ +=	"\t\t<"_tag_name_">";\
+	_xml_text_ +=	"\t\t<" _tag_name_ ">";\
 	char _tmp_[50];\
 	sprintf(_tmp_, "%u", (unsigned int) _tag_content_);\
 	_xml_text_ +=	_tmp_;\
-	_xml_text_ +=	"</"_tag_name_">\n";}
+	_xml_text_ +=	"</" _tag_name_ ">\n";}
 
 #define XML_ADD_TAG_LONG(_xml_text_,_tag_name_,_tag_content_){\
-	_xml_text_ +=	"\t\t<"_tag_name_">";\
+	_xml_text_ +=	"\t\t<" _tag_name_ ">";\
 	char _tmp_[50];\
 	sprintf(_tmp_, "%" PRIu64 "", (uint64_t)_tag_content_);\
 	_xml_text_ +=	_tmp_;\
-	_xml_text_ +=	"</"_tag_name_">\n";}
+	_xml_text_ +=	"</" _tag_name_ ">\n";}
 
 #define	XML_GET_DATA_STRING(_node_,_tag_,_string_dest_){\
 	if(!strcmp(_node_->GetType(), _tag_))\

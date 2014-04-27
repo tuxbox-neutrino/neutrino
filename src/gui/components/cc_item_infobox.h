@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2012, 2013, Thilo Graf 'dbt'
+	Copyright (C) 2012-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -52,8 +52,6 @@ class CComponentsInfoBox : public CComponentsText
 		///property: path or default name of displayed image
 		std::string pic_default_name;
 
-		///initialize all needed default attributes
-		void initVarInfobox();
 		///paint picture, used in initVarInfobox()
 		void paintPicture();
 		///property: path or name of displayed image
@@ -63,9 +61,11 @@ class CComponentsInfoBox : public CComponentsText
 		///object: internal used CTextBox object
 		CComponentsText * cctext;
 
-		CComponentsInfoBox();
-		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
-					std::string info_text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+		CComponentsInfoBox(	const int& x_pos = 0, const int& y_pos = 0, const int& w = 800, const int& h = 600,
+					std::string info_text = "",
+					const int mode = CTextBox::AUTO_WIDTH,
+					Font* font_text = NULL,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		
@@ -73,8 +73,10 @@ class CComponentsInfoBox : public CComponentsText
 
 		///set property: space around fram and beetween picture and textbox
 		inline void setSpaceOffset(const int offset){x_offset = offset;};
-		///set property: path or name of displayed image
-		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
+		///set property: path or name of displayed image, parameter as string
+		void setPicture(const std::string& picture_name);
+		///set property: path or name of displayed image, parameter as const char*
+		void setPicture(const char* picture_name);
 
 		///paint item
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);

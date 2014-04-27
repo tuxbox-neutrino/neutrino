@@ -54,6 +54,7 @@ class CPictureViewer
 	bool ShowImage(const std::string & filename, bool unscaled=false);
 	bool DecodeImage(const std::string & name, bool showBusySign=false, bool unscaled=false);
 	bool DisplayNextImage();
+	std::string DownloadImage(std::string url);
 	void SetScaling(ScalingMode s){m_scaling=s;}
 	void SetAspectRatio(float aspect_ratio) {m_aspect=aspect_ratio;}
 	void showBusy(int sx, int sy, int width, char r, char g, char b);

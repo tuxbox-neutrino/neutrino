@@ -406,7 +406,7 @@ bool cYTFeedParser::decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo)
 	std::string infofile = thumbnail_dir;
 	infofile += "/";
 	infofile += vinfo.id;
-	infofile += ".txt"
+	infofile += ".txt";
 	saveToFile(infofile.c_str(), answer);
 #endif
 	if(answer.find("token=") == std::string::npos)
@@ -440,7 +440,17 @@ bool cYTFeedParser::decodeVideoInfo(std::string &answer, cYTVideoInfo &vinfo)
 #endif
 			cYTVideoUrl yurl;
 			yurl.url = smap["url"];
-			yurl.sig = smap["sig"];
+
+			std::string::size_type ptr = smap["url"].find("signature=");
+			if (ptr != std::string::npos)
+			{
+				ptr = smap["url"].find("=", ptr);
+				smap["url"].erase(0,ptr+1);
+
+				if((ptr = smap["url"].find("&")) != std::string::npos)
+					yurl.sig = smap["url"].substr(0,ptr);
+			}
+
 			int id = atoi(smap["itag"].c_str());
 			if (supportedFormat(id) && !yurl.url.empty() && !yurl.sig.empty()) {
 				yurl.quality = smap["quality"];

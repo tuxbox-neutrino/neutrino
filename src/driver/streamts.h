@@ -27,6 +27,7 @@
 
 #include <dmx.h>
 #include <zapit/client/zapittypes.h>
+#include <zapit/femanager.h>
 #include <set>
 #include <map>
 
@@ -38,6 +39,7 @@ class CStreamInstance : public OpenThreads::Thread
 	private:
 		bool	running;
 		cDemux * dmx;
+		CFrontend * frontend;
 		OpenThreads::Mutex mutex;
 		unsigned char * buf;
 
@@ -48,6 +50,7 @@ class CStreamInstance : public OpenThreads::Thread
 		bool Send(ssize_t r);
 		void Close();
 		void run();
+		friend class CStreamManager;
 	public:
 		CStreamInstance(int clientfd, t_channel_id chid, stream_pids_t &pids);
 		~CStreamInstance();
@@ -74,12 +77,17 @@ class CStreamManager : public OpenThreads::Thread
 
 		OpenThreads::Mutex mutex;
 		static	CStreamManager * sm;
+		CZapitClient zapit;
 
 		streammap_t streams;
 
 		bool	Listen();
-		bool	Parse(int fd, stream_pids_t &pids, t_channel_id &chid);
+		bool	Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFrontend * &frontend);
+		void	AddPids(int fd, CZapitChannel * channel, stream_pids_t &pids);
+		void	CheckStandby(bool enter);
+		CFrontend * FindFrontend(CZapitChannel * channel);
 		bool	StopAll();
+		void	RemoveClient(int fd);
 		void	run();
 		CStreamManager();
 	public:
@@ -91,6 +99,7 @@ class CStreamManager : public OpenThreads::Thread
 		bool StreamStatus(t_channel_id channel_id = 0);
 		bool SetPort(int newport);
 		int GetPort() { return port; }
+		bool AddClient(int fd);
 };
 
 #endif

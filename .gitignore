@@ -42,3 +42,4 @@ src/rcsim.h
 src/rcsim
 src/gui/version.h
 src/nhttpd/nhttpd.conf
+src/mdev_helper

@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Copyright (C) 2013, M. Liebmann 'micha-bbg'
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -45,7 +45,7 @@ CBuildInfo::CBuildInfo() : CComponentsWindow(0, 0, 700, 500, LOCALE_BUILDINFO_ME
 //init all var members
 void CBuildInfo::initVarBuildInfo()
 {
-	doCenter();
+	setCenterPos();
 
 	font = NULL;
 	setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
@@ -176,11 +176,10 @@ void CBuildInfo::InitInfoItems()
 
 	//init info texts
 	for(size_t i=0; i<v_info.size(); i++){
-		CComponentsExtTextForm *info = new CComponentsExtTextForm(10, CC_APPEND, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text);
+		CComponentsExtTextForm *info = new CComponentsExtTextForm(10, CC_APPEND, w_info, h_info, g_Locale->getText(v_info[i].caption), v_info[i].info_text, ccw_body);
 		info->setLabelAndTextFont(font);
 		info->setTextModes(CTextBox::TOP , CTextBox::AUTO_HIGH | CTextBox::TOP | CTextBox::AUTO_LINEBREAK_NO_BREAKCHARS);
 		info->doPaintBg(false);
-		ccw_body->addCCItem(info);
 	}
 }
 

@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -60,23 +60,12 @@ class CComponentsSlider : public CComponentsForm
 		///init all items at once
 		void initCCSlItems();
 
-		///init all required variables
-		void initVarSlider(	const int& x_pos, const int& y_pos, const int& w, const int& h,
-					const int& current_value,
-					const int& min_value,
-					const int& max_value,
-					bool has_shadow,
-					fb_pixel_t& color_frame,
-					fb_pixel_t& color_body,
-					fb_pixel_t& color_shadow);
-	protected:
-
-
 	public:
-		CComponentsSlider(	const int& x_pos = 1, const int& y_pos = 1, const int& w = 120+16, const int& h = 32,
+		CComponentsSlider(	const int& x_pos = 0, const int& y_pos = 0, const int& w = 120+16, const int& h = 32,
 					const int& current_value = 0,
 					const int& min_value = 0,
 					const int& max_value = 100,
+					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t& color_body = COL_MENUHEAD_PLUS_0,

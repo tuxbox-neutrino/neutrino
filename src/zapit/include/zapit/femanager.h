@@ -120,7 +120,6 @@ class CFEManager
 		CFrontend *	allocateFE(CZapitChannel * channel, bool forrecord = false);
 
 		fe_mode_t	getMode() { return mode; };
-		void		setMode(fe_mode_t newmode, bool initial = false);
 
 		int		getFrontendCount() { return femap.size(); };
 		int		getEnabledCount();
@@ -149,6 +148,5 @@ class CFEManager
 		bool		terrOnly() { return (have_terr && !have_sat && ! have_cable); }
 		void		Lock() { mutex.lock(); }
 		void		Unlock() { mutex.unlock(); }
-
 };
 #endif /* __femanager_h__ */

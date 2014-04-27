@@ -57,6 +57,7 @@ struct UPnPEntry
 	std::string	title;
 	std::string	artist;
 	std::string	album;
+	std::string	albumArtURI;
 	std::string	children;
 	std::vector<UPnPResource> resources;
 	int		preferred;

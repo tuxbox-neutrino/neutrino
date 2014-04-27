@@ -3,7 +3,7 @@
 	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
 	Classes for generic GUI-related components.
-	Copyright (C) 2013, Thilo Graf 'dbt'
+	Copyright (C) 2013-2014, Thilo Graf 'dbt'
 
 	License: GPL
 
@@ -36,43 +36,46 @@ You can set default form parameters like  position, size, colors etc. and additi
 to display with defined direction.
 */
 
+//direction types
+enum
+{
+	CC_DIR_X 	= 0x1,
+	CC_DIR_Y 	= 0x2
+};
+
 class CComponentsFrmChain : public CComponentsForm
 {
 	private:
-		///property: defined arrangement mode of items, can be vertical or horizontal
-		int chn_horizontal;
-		
-		///property: defines height from sum of all contained items
-		bool chn_dyn_height;
-		///property: defines width from sum of all contained items
-		bool chn_dyn_width;
-		
 		///init all required variables
 		void initVarChain(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::vector<CComponentsItem*> *v_items,
-					bool horizontal,
-					bool dynamic_width,
-					bool dynamic_height,
+					int direction,
+					CComponentsForm* parent,
 					bool has_shadow,
 					fb_pixel_t& color_frame,
 					fb_pixel_t& color_body,
 					fb_pixel_t& color_shadow);
-		
-		void initCChainItems();
 	protected:
+		///property: mode for arrangement direction of items, see also setDirection(), getDirection()
+		int chn_direction;
 
+		void initChainItems();
 
 	public:
 		CComponentsFrmChain(	const int& x_pos = 1, const int& y_pos = 1, const int& w = 720, const int& h = 32,
 					const std::vector<CComponentsItem*> *v_items = NULL,
-					bool horizontal = true,
-					bool dynamic_width = false,
-					bool dynamic_height = false,
+					int direction = CC_DIR_X,
+					CComponentsForm* parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t& color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t& color_body = COL_MENUHEAD_PLUS_0,
 					fb_pixel_t& color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 // 		~CComponentsSlider(); //inherited from CComponentsForm
+
+		///defines mode for arrangement direction of items, see also chn_direction
+		virtual void setDirection(int direction);
+		///gets the mode of arrangment direction
+		virtual int getDirection(){return chn_direction;};
 };
 
 #endif

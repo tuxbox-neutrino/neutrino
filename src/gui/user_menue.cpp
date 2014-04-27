@@ -112,14 +112,14 @@ bool CUserMenu::showUserMenu(int button)
 	int menu_prev = -1;
 
 	// define classes
-	CFavorites* tmpFavorites                                = NULL;
-	CAudioSelectMenuHandler* tmpAudioSelectMenuHandler      = NULL;
-	CMenuWidget* tmpNVODSelector                            = NULL;
+	CFavorites* tmpFavorites				= NULL;
+	CAudioSelectMenuHandler* tmpAudioSelectMenuHandler	= NULL;
+	CMenuWidget* tmpNVODSelector				= NULL;
 	CSubChannelSelectMenu subchanselect;
 	CStreamInfo2 * streamInfo				= NULL;
-	CEventListHandler* tmpEventListHandler                  = NULL;
-	CEPGplusHandler* tmpEPGplusHandler                      = NULL;
-	CEPGDataHandler* tmpEPGDataHandler                      = NULL;
+	CEventListHandler* tmpEventListHandler			= NULL;
+	CEPGplusHandler* tmpEPGplusHandler			= NULL;
+	CEPGDataHandler* tmpEPGDataHandler			= NULL;
 	CTimerList* Timerlist					= NULL;
 	CRCLock *rcLock						= NULL;
 	CStreamFeaturesChangeExec *StreamFeaturesChanger	= NULL;
@@ -144,7 +144,7 @@ bool CUserMenu::showUserMenu(int button)
 	if ( txt.empty() )
 		txt = g_Locale->getText(caption);
 	
-	CMenuWidget *menu = new CMenuWidget(txt.c_str() , user_menu[button].menu_icon_def, width);
+	CMenuWidget *menu = new CMenuWidget(txt.c_str(), user_menu[button].menu_icon_def, width);
 	if (menu == NULL)
 		return 0;
 	
@@ -215,7 +215,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_REMOTE;
 			keyhelper.get(&key,&icon,feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_RC_LOCK]].key); //CRCInput::RC_nokey);
 			rcLock = new CRCLock();
-			menu_item = new CMenuForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, rcLock, "-1" , key, icon );
+			menu_item = new CMenuForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, rcLock, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
 
@@ -224,7 +224,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_EPG_SUPER;
 			tmpEPGplusHandler = new CEPGplusHandler();
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EPGPLUS   , true, NULL, tmpEPGplusHandler  ,  "-1", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EPGPLUS, true, NULL, tmpEPGplusHandler, "-1", key, icon);
 			menu->addItem(menu_item, false);
 			break;
 
@@ -233,7 +233,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_EPG_LIST;
 			tmpEventListHandler = new CEventListHandler();
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTLIST , true, NULL, tmpEventListHandler,  "-1", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTLIST, true, NULL, tmpEventListHandler, "-1", key, icon);
 			menu->addItem(menu_item, false);
 			break;
 
@@ -242,7 +242,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_EPG_INFO;
 			tmpEPGDataHandler = new CEPGDataHandler();
 			keyhelper.get(&key,&icon,CRCInput::RC_yellow);
-			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTINFO , true, NULL, tmpEPGDataHandler ,  "-1", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTINFO, true, NULL, tmpEPGDataHandler, "-1", key, icon);
 			menu->addItem(menu_item, false);
 			break;
 
@@ -252,7 +252,7 @@ bool CUserMenu::showUserMenu(int button)
 			dummy = g_Sectionsd->getIsScanningActive();
 			//dummy = sectionsd_scanning;
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this , key, icon );
+			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, key, icon );
 			menu->addItem(menu_item, false);
 			menu_items++;
 			keyhelper.get(&key,&icon);
@@ -352,7 +352,7 @@ bool CUserMenu::showUserMenu(int button)
 					menu_prev = SNeutrinoSettings::ITEM_PLUGIN_TYPES;
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
-					StreamFeaturesChanger     = new CStreamFeaturesChangeExec();
+					StreamFeaturesChanger = new CStreamFeaturesChangeExec();
 					keyhelper.get(&key,&icon, d_key);
 					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
 					menu->addItem(menu_item, 0);
@@ -366,7 +366,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_VTXT;
 			keyhelper.get(&key,&icon, feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_VTXT]].key); //CRCInput::RC_blue
-			StreamFeaturesChanger     = new CStreamFeaturesChangeExec();
+			StreamFeaturesChanger = new CStreamFeaturesChangeExec();
 			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, StreamFeaturesChanger, "teletext", key, icon);
 			menu->addItem(menu_item, 0);
 			break;
@@ -375,7 +375,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_IMAGEINFO;
 			imageinfo = new CImageInfo();
 			keyhelper.get(&key,&icon);
-			menu->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, imageinfo, NULL, key, icon ), false);
+			menu->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO, true, NULL, imageinfo, NULL, key, icon ), false);
 			break;
 		case SNeutrinoSettings::ITEM_BOXINFO:
 			menu_items++;
@@ -452,25 +452,25 @@ bool CUserMenu::showUserMenu(int button)
 	user_menu[button].selected = menu->getSelected();
 
 	// clear the heap
-	if (tmpFavorites)                delete tmpFavorites;
-	if (tmpAudioSelectMenuHandler)   delete tmpAudioSelectMenuHandler;
-	if (tmpNVODSelector)             delete tmpNVODSelector;
-	if (streamInfo)                  delete streamInfo;
-	if (tmpEventListHandler)         delete tmpEventListHandler;
-	if (tmpEPGplusHandler)           delete tmpEPGplusHandler;
-	if (tmpEPGDataHandler)           delete tmpEPGDataHandler;
-	if (Timerlist)			 delete Timerlist;
-	if (rcLock)			 delete rcLock;
-	if (StreamFeaturesChanger)	 delete StreamFeaturesChanger;
-	if (imageinfo)			 delete imageinfo;
-	if (boxinfo)			 delete boxinfo;
-	if (games)                       delete games;
+	if (tmpFavorites)		delete tmpFavorites;
+	if (tmpAudioSelectMenuHandler)	delete tmpAudioSelectMenuHandler;
+	if (tmpNVODSelector)		delete tmpNVODSelector;
+	if (streamInfo)			delete streamInfo;
+	if (tmpEventListHandler)	delete tmpEventListHandler;
+	if (tmpEPGplusHandler)		delete tmpEPGplusHandler;
+	if (tmpEPGDataHandler)		delete tmpEPGDataHandler;
+	if (Timerlist)			delete Timerlist;
+	if (rcLock)			delete rcLock;
+	if (StreamFeaturesChanger)	delete StreamFeaturesChanger;
+	if (imageinfo)			delete imageinfo;
+	if (boxinfo)			delete boxinfo;
+	if (games)			delete games;
 #if 0
-	if (scripts)                     delete scripts;
-	if (tools)                       delete tools;
+	if (tools)			delete tools;
+	if (scripts)			delete scripts;
 #endif
-	if (lua)                         delete lua;
-	if (menu)                        delete menu;
+	if (lua)			delete lua;
+	if (menu)			delete menu;
 
 	InfoClock->enableInfoClock(true);
 

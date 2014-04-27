@@ -677,6 +677,9 @@ bool CZapit::StartPip(const t_channel_id channel_id)
 	if (pipDemux && (pipDemux->getUnit() != dnum)) {
 		pipDecoder->SetDemux(NULL);
 		delete pipDemux;
+		pipDemux = NULL;
+	}
+	if (!pipDemux) {
 		pipDemux = new cDemux(dnum);
 		pipDemux->Open(DMX_PIP_CHANNEL);
 		pipDecoder->SetDemux(pipDemux);
@@ -1037,7 +1040,6 @@ bool CZapit::StartScanTP(TP_params * TPparams)
 	return true;
 }
 
-#if 0
 bool CZapit::StartFastScan(int scan_mode, int opid)
 {
 	scant.type = scan_mode;
@@ -1048,7 +1050,6 @@ bool CZapit::StartFastScan(int scan_mode, int opid)
 	CServiceScan::getInstance()->Start(CServiceScan::SCAN_FAST, (void *) &scant);
 	return true;
 }
-#endif
 
 void CZapit::SendCmdReady(int connfd)
 {
@@ -2376,8 +2377,6 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 #ifdef ENABLE_PIP
 	/* FIXME until proper demux management */
 	int dnum = 1;
-	if (CFEManager::getInstance()->getFrontendCount() < MAX_DMX_UNITS)
-		dnum = PIP_DEMUX;
 #endif
 #ifdef BOXMODEL_APOLLO
 	videoDecoder = cVideo::GetDecoder(0);

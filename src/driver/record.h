@@ -82,6 +82,7 @@ class CRecordInstance
 		t_channel_id	channel_id;
 		event_id_t	epgid;
 		std::string	epgTitle;
+		std::string	epgInfo1;
 		unsigned char	apidmode;
 		time_t		epg_time;
 		time_t		start_time;
@@ -110,7 +111,9 @@ class CRecordInstance
 		bool SaveXml();
 		record_error_msg_t Start(CZapitChannel * channel);
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
-	public:		
+		void MakeExtFileName(CZapitChannel * channel, std::string &FilenameTemplate);
+		void StringReplace(std::string &str, const std::string search, const std::string rstr);
+	public:
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false, bool stream_subtitle_pids = false);
 		~CRecordInstance();
 
@@ -166,14 +169,12 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 
 		bool CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend);
 		void RestoreNeutrino(void);
-		bool CheckRecording(const CTimerd::RecordingInfo * const eventinfo);
 		void StartNextRecording();
 		void StopPostProcess();
 		void StopInstance(CRecordInstance * inst, bool remove_event = true);
 		CRecordInstance * FindInstance(t_channel_id);
 		CRecordInstance * FindInstanceID(int recid);
 		CRecordInstance * FindTimeshift();
-		//void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
 		enum record_modes_t
@@ -228,7 +229,6 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		CRecordInstance* getRecordInstance(std::string file);
 		// old code
 #if 0
-		bool IsTimeshift(t_channel_id channel_id=0);
 		bool MountDirectory(const char *recordingDir);
 		bool ChooseRecDir(std::string &dir);
 		int recordingstatus;

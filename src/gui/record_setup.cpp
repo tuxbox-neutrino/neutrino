@@ -239,9 +239,16 @@ int CRecordSetup::showRecordSetup()
 		recordingSettings->addItem(startstop_msg);
 	}
 
-	//template
-	//CStringInput recordingSettings_filenameTemplate(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
-	//CMenuForwarder* mf11 = new CMenuForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template[0], &recordingSettings_filenameTemplate);
+	//filename template
+	CStringInputSMS* filename_template = new CStringInputSMS(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template, 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");
+	CMenuForwarder* ft = new CMenuDForwarder(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, true, g_settings.recording_filename_template, filename_template, NULL, CRCInput::RC_1);
+	ft->setHint("", LOCALE_MENU_HINT_RECORD_FILENAME_TEMPLATE);
+	recordingSettings->addItem(ft);
+
+	CMenuOptionChooser* cover = new CMenuOptionChooser(LOCALE_RECORDINGMENU_AUTO_COVER, &g_settings.auto_cover, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	cover->setHint("", LOCALE_MENU_HINT_RECORD_AUTO_COVER);
+	recordingSettings->addItem(cover);
+
 	recordingSettings->addItem(GenericMenuSeparatorLine);
 
 	if (!g_settings.easymenu) {
@@ -267,7 +274,7 @@ int CRecordSetup::showRecordSetup()
 
 		//datasettings
 		showRecordDataSetup(&recordingaDataSettings);
-		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_1);
+		mf = new CMenuForwarder(LOCALE_RECORDINGMENU_DATA_PIDS, true, NULL, &recordingaDataSettings, NULL,  CRCInput::RC_2);
 		mf->setHint("", LOCALE_MENU_HINT_RECORD_DATA);
 		recordingSettings->addItem(mf);
 	}
@@ -390,6 +397,12 @@ void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)
 		mc = new CMenuOptionChooser(LOCALE_EXTRA_TEMP_TIMESHIFT, &g_settings.temp_timeshift, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 		mc->setHint("", LOCALE_MENU_HINT_RECORD_TIMESHIFT_TEMP);
 		menu_ts->addItem(mc);
+
+		//rec hours
+		mn = new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_TIME_TS, &g_settings.timeshift_hours, true, 1, 24, NULL);
+		mn->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_HOUR));
+		mn->setHint("", LOCALE_MENU_HINT_RECORD_TIME_TS);
+		menu_ts->addItem(mn);
 	}
 }
 

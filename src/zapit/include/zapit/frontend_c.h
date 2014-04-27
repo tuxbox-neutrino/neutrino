@@ -138,6 +138,8 @@ class CFrontend
 		TP_params currentTransponder;
 		bool slave;
 		fe_work_mode_t femode;
+		bool have_loop;
+		bool have_rotor;
 		int masterkey;
 		fe_linkmap_t linkmap;
 		int fenumber;
@@ -180,6 +182,7 @@ class CFrontend
 		static fe_modulation_t		getModulation(const uint8_t modulation);
 		uint8_t				getPolarization(void) const;
 		const struct dvb_frontend_info *getInfo(void) const			{ return &info; };
+		bool				getRotorSwap()				{ return config.rotor_swap; }
 
 		uint32_t			getBitErrorRate(void) const;
 		uint16_t			getSignalNoiseRatio(void) const;

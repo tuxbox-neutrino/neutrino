@@ -404,6 +404,50 @@ time_t toEpoch(std::string &date)
 
 }
 
+std::string& str_replace(const std::string &search, const std::string &replace, std::string &text)
+{
+	if (search.empty() || text.empty())
+		return text;
+
+	size_t searchLen = search.length();
+	while (1) {
+		size_t pos = text.find(search);
+		if (pos == std::string::npos)
+			break;
+		text.replace(pos, searchLen, replace);
+	}
+	return text;
+}
+
+std::string& htmlEntityDecode(std::string& text)
+{
+	struct decode_table {
+		const char* code;
+		const char* htmlCode;
+	};
+	decode_table dt[] =
+	{
+		{" ",  "&nbsp;"},
+		{"&",  "&amp;"},
+		{"<",  "&lt;"},
+		{">",  "&gt;"},
+		{"\"", "&quot;"},
+		{"'",  "&apos;"},
+		{"€",  "&euro;"},
+		{"–",  "&#8211;"},
+		{"“",  "&#8220;"},
+		{"”",  "&#8221;"},
+		{"„",  "&#8222;"},
+		{"•",  "&#8226;"},
+		{"…",  "&#8230;"},
+		{NULL,  NULL}
+	};
+	for (int i = 0; dt[i].code != NULL; i++)
+		text = str_replace(dt[i].htmlCode, dt[i].code, text);
+
+	return text;
+}	
+
 CFileHelpers::CFileHelpers()
 {
 	FileBufSize	= 0xFFFF;
@@ -661,4 +705,21 @@ void hdd_flush(const char * fname)
 			ioctl(fd, HDIO_DRIVE_CMD, NULL);
 		close(fd);
 	}
+}
+
+/* split string like PARAM1=value1 PARAM2=value2 into map */
+bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap)
+{
+	smap.clear();
+	std::string::size_type start = 0;
+	std::string::size_type end = 0;
+	while ((end = str.find(" ", start)) != std::string::npos) {
+		std::string param = str.substr(start, end - start);
+		std::string::size_type i = param.find("=");
+		if (i != std::string::npos) {
+			smap[param.substr(0,i).c_str()] = param.substr(i+1).c_str();
+		}
+		start = end + 1;
+	}
+	return !smap.empty();
 }
