@@ -102,7 +102,9 @@ TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)
 TUXBOX_APPS_LIB_PKGCONFIG(AVUTIL,libavutil)
-TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
+if test "$BOXTYPE" = "coolstream"; then
+	TUXBOX_APPS_LIB_PKGCONFIG(BLURAY,libbluray)
+fi
 
 # either use dynamic lualib in package lua (openSUSE)
 # ... or in package lua5.2 (debian-derivates)
