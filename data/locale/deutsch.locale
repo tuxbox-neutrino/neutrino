@@ -631,6 +631,8 @@ hdd_fs_unknown unbekannt
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_mount Mount
+hdd_mount_ok Laufwerk bereit
+hdd_mount_failed Fehler! Überprüfen Sie ihre Laufwerkseinstellungen.
 hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Keine Festplatte
@@ -639,6 +641,7 @@ hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
 hdd_slow Langsam
 hdd_umount Unmount
+hdd_umounted Laufwerk entfernt
 hdd_umount_warn Laufwerk aushängen
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
@@ -1070,6 +1073,7 @@ menu.hint_record_apid_alt Sind weitere Tonspuren verfügbar, dann können diese 
 menu.hint_record_apid_std Schließt bei einer Aufnahme die durch den Sender definierte Tonspur 'Standard' in die Aufnahme ein bzw. aus
 menu.hint_record_apids Konfigurieren Sie die Tonspuren für die Aufnahme
 menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
+menu.hint_record_auto_cover Automatisch ein Film-Vorschaubild beim Abspielen erzeugen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals in ein eigenes Verzeichnis
 menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
@@ -1732,6 +1736,7 @@ recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
 recordingmenu.apids_std Standard Tonspur aufnehmen
+recordingmenu.auto_cover Autom. Film-Vorschaubild
 recordingmenu.data_pids Daten-Spuren
 recordingmenu.defdir Aufnahmeverzeichnis
 recordingmenu.dvbsub_pids Untertitel aufnehmen
