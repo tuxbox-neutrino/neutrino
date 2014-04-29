@@ -282,7 +282,9 @@ bool CHDDMenuHandler::mount_dev(std::string name)
 #ifdef ASSUME_MDEV
 	std::string cmd = std::string("ACTION=add") + " MDEV=" + name + " " + MDEV_MOUNT;
 #else
-	std::string cmd = std::string("mount ") + "/dev/" + name + " " + MOUNT_BASE + name;
+	std::string dst = MOUNT_BASE + name;
+	safe_mkdir(dst.c_str());
+	std::string cmd = std::string("mount ") + "/dev/" + name + " " + dst;
 #endif
 	printf("CHDDMenuHandler::mount_dev: mount cmd [%s]\n", cmd.c_str());
 	system(cmd.c_str());
