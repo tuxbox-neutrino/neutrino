@@ -160,7 +160,8 @@ struct NeutrinoMessages {
 		EVT_EIT_COMPLETE                         = CRCInput::RC_WithData + 24, /* data: (t_channel_id *) */
 		EVT_BACK_ZAP_COMPLETE                    = CRCInput::RC_WithData + 25, /* data: (t_channel_id *) */
 
-		EVT_HOTPLUG                              = CRCInput::RC_WithData + 26  /* data: char */
+		EVT_HOTPLUG                              = CRCInput::RC_WithData + 26, /* data: char */
+		EVT_FORMAT_DRIVE                         = CRCInput::RC_WithData + 27  /* data: char */
 	};
 	enum
 	{

@@ -623,7 +623,7 @@ hdd_check_failed HDD-check failed!
 hdd_check_format_bad Checking of disks with format %s is not supported.
 hdd_extended_settings Extended HDD-Settings
 hdd_fast Fast
-hdd_format Formating drive...
+hdd_format Format device
 hdd_format_failed Formating failed! Make sure device not in use, reboot and try again
 hdd_format_warn All data on device will be lost ! Continue with format ?
 hdd_fs Filesystem used to format
@@ -632,7 +632,7 @@ hdd_manage Manage drives
 hdd_middle Mid
 hdd_mount Mount
 hdd_mount_ok Device ready to use.
-hdd_mount_failed Failed to mount, check HDD settings menu.
+hdd_mount_failed Failed to mount.
 hdd_mount_umount Mount/Unmount
 hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
