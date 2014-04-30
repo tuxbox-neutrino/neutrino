@@ -60,7 +60,7 @@ class CComponentsButton : public CComponentsFrmChain
 		std::string cc_btn_capt;
 		///property: button text as locale, see also setCaption() and getCaptionLocale()
 		neutrino_locale_t cc_btn_capt_locale;
-		
+
 		///property: icon name, only icons supported, to find in gui/widget/icons.h
 		std::string cc_btn_icon;
 
@@ -75,10 +75,10 @@ class CComponentsButton : public CComponentsFrmChain
 		void initIcon();
 		///initialize label object
 		void initCaption();
-		
+
 		///initialize picture and label object
 		void initCCBtnItems();
-	
+
 	public:
 		///basic constructor for button object with most needed params, no button icon is definied here
 		CComponentsButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
@@ -100,17 +100,20 @@ class CComponentsButton : public CComponentsFrmChain
 
 		///set text color
 		virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_capt_col = caption_color;};
-		
+
 		///set caption: parameter as string
 		virtual void setCaption(const std::string& text);
 		///set caption: parameter as locale
 		virtual void setCaption(const neutrino_locale_t locale_text);
-		
+
 		///get caption, type as std::string
 		virtual std::string getCaptionString(){return cc_btn_capt;};
 		///get loacalized caption id, type = neutrino_locale_t
 		virtual neutrino_locale_t getCaptionLocale(){return cc_btn_capt_locale;};
-		
+
+		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
+		virtual void setButtonFont(Font* font){cc_btn_font = font;};
+
 		///reinitialize items
 		virtual void Refresh(){initCCBtnItems();};
 

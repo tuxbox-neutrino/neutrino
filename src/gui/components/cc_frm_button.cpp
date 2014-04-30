@@ -82,7 +82,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
 	fr_thickness 	= 3;
-	append_x_offset = 2*fr_thickness;
+	append_x_offset = 6;
 	append_y_offset = append_x_offset;
 	corner_rad	= RADIUS_MID;
 	
@@ -95,6 +95,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_btn_capt	= caption;
 
 	initParent(parent);
+	initCCBtnItems();
 }
 
 void CComponentsButton::initIcon()
@@ -133,12 +134,12 @@ void CComponentsButton::initCaption()
 	//set basic properties
 	if (cc_btn_capt_obj){
 		//position and size
-		int x_cap = fr_thickness + append_x_offset;
+		int x_cap = fr_thickness;
 		x_cap += cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() : 0;
 
-		int w_cap = width - x_cap - 2*fr_thickness - append_x_offset;
+		int w_cap = width - fr_thickness - append_x_offset - x_cap - fr_thickness;
 		int h_cap = height - 2*fr_thickness;
-		
+
 		/*FIXME:
 			paint of  centered text in y without y_offset
 			looks unlovely displaced in y direction besides icon,
@@ -149,7 +150,8 @@ void CComponentsButton::initCaption()
 		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 
 		//text and font
-		cc_btn_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
+		if (cc_btn_font == NULL)
+			cc_btn_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;
 
@@ -159,6 +161,17 @@ void CComponentsButton::initCaption()
 		//corner of text item
 		cc_btn_capt_obj->setCorner(corner_rad-fr_thickness, corner_type);
 	}
+
+	//handle common position of icon and text inside container required for alignment
+	int w_required 	= cc_btn_icon_obj->getWidth() + append_x_offset + cc_btn_font->getRenderWidth(cc_btn_capt, true);
+
+	//do center
+	int x_icon = width/2 - w_required/2;
+	cc_btn_icon_obj->setXPos(x_icon);
+	cc_btn_capt_obj->setXPos(x_icon + cc_btn_icon_obj->getWidth() + append_x_offset);
+
+	//dynamic width
+	width = max(w_required, width);
 }
 
 void CComponentsButton::setCaption(const std::string& text)
