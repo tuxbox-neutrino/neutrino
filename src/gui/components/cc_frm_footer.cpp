@@ -82,6 +82,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	corner_type	= CORNER_BOTTOM;
 
 	btn_contour	= false;
+	ccf_btn_font	= NULL;
 
 	addContextButton(buttons);
 	initCCItems();
@@ -121,9 +122,10 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	int w_btn_offset = w_btn_unused / (label_count+1);
 	btnchain->setAppendOffset(w_btn_offset, 0);
 
-	//finally generate button objects passed from button label content.
+	//finally generate and add button objects passed from button label content.
 	for (size_t i= 0; i< label_count; i++){
 		CComponentsButton *btn = new CComponentsButton(CC_APPEND, CC_CENTERED, w_btn, height-height/4, content[i].text, content[i].button);
+		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
 		btnchain->addCCItem(btn);
 	}

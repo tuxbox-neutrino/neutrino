@@ -60,6 +60,9 @@ class CComponentsFooter : public CComponentsHeader
 		///show button frame and background, default false
 		bool btn_contour;
 
+		///property: set font for label caption, see also setButtonFont()
+		Font* ccf_btn_font;
+
 	public:
 		
 		CComponentsFooter(CComponentsForm *parent = NULL);
@@ -87,6 +90,9 @@ class CComponentsFooter : public CComponentsHeader
 		
 		///causes show/hide countour of button frame and background, parameter bool show, default= true
 		void showButtonContour(bool show = true){btn_contour = show;};
+
+		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
+		void setButtonFont(Font* font){ccf_btn_font = font;};
 };
 
 #endif
