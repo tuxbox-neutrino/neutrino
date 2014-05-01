@@ -46,6 +46,8 @@ class CBEChannelSelectWidget : public CListBox
 	private:
 
 		unsigned int	bouquet;
+		short int channellist_sort_mode;
+		enum{SORT_ALPHA,SORT_FREQ,SORT_SAT,SORT_CH_NUMBER, SORT_END};
 		CZapitClient::channelsMode mode;
 		bool isChannelInBouquet( int index);
 		CComponentsDetailLine *dline;
@@ -57,6 +59,8 @@ class CBEChannelSelectWidget : public CListBox
 		void initItem2DetailsLine (int pos, int ch_index);
 		void paintFoot();
 		void onOkKeyPressed();
+		void onRedKeyPressed();
+
 
 		int	footerHeight;
 		int	info_height;

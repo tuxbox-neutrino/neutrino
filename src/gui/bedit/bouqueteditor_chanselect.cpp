@@ -70,6 +70,7 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsi
 	ButtonHeight = std::max(footerHeight, icol_h+4);
 
 	liststart = 0;
+	channellist_sort_mode = SORT_ALPHA;
 	bouquetChannels = NULL;
 	dline = NULL;
 	ibox = new CComponentsInfoBox();
@@ -160,6 +161,37 @@ void CBEChannelSelectWidget::onOkKeyPressed()
 	paintItem( selected, selected - liststart, false);
 	g_RCInput->postMsg( CRCInput::RC_down, 0 );
 }
+void CBEChannelSelectWidget::onRedKeyPressed()
+{
+	if (selected >= Channels.size())
+		return;
+	setModified();
+
+	channellist_sort_mode++;
+	if(channellist_sort_mode > SORT_END)
+		channellist_sort_mode = 0;
+	switch(channellist_sort_mode)
+	{
+		case SORT_ALPHA:
+			sort(Channels.begin(), Channels.end(), CmpChannelByChName());
+		break;
+		case SORT_FREQ:
+			sort(Channels.begin(), Channels.end(), CmpChannelByFreq());
+		break;
+		case SORT_SAT:
+			sort(Channels.begin(), Channels.end(), CmpChannelBySat());
+		break;
+		case SORT_CH_NUMBER:
+			sort(Channels.begin(), Channels.end(), CmpChannelByChNum());
+		break;
+		default:
+			sort(Channels.begin(), Channels.end(), CmpChannelByChName());
+		break;	  
+	}
+	paintFoot();
+	paint();
+}
+       #include <unistd.h>
 
 int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & actionKey)
 {
@@ -189,14 +221,36 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 
 const struct button_label CBEChannelSelectButtons[] =
 {
+	{ NEUTRINO_ICON_BUTTON_RED,  LOCALE_CHANNELLIST_FOOT_SORT_ALPHA},
 	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_BOUQUETEDITOR_SWITCH },
 	{ NEUTRINO_ICON_BUTTON_HOME, LOCALE_BOUQUETEDITOR_RETURN }
 };
 
 void CBEChannelSelectWidget::paintFoot()
 {
-	::paintButtons(x, y + (height-footerHeight), width, 2, CBEChannelSelectButtons, width, footerHeight);
-
+	const short numbuttons = sizeof(CBEChannelSelectButtons)/sizeof(CBEChannelSelectButtons[0]);
+	struct button_label Button[numbuttons];
+	for (int i = 0; i < numbuttons; i++) {
+		Button[i] = CBEChannelSelectButtons[i];
+	}
+	switch (channellist_sort_mode) {
+		case SORT_ALPHA:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
+		break;
+		case SORT_FREQ:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_FREQ;
+		break;
+		case SORT_SAT:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_SAT;
+		break;
+		case SORT_CH_NUMBER:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_CHNUM;
+		break;
+		default:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
+		break;
+	}
+	::paintButtons(x, y + (height-footerHeight), width, numbuttons, Button, width, footerHeight);
 #if 0
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 3* ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_SWITCH), COL_INFOBAR_TEXT, 0, true); // UTF-8
