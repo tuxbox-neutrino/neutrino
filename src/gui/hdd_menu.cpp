@@ -55,6 +55,7 @@
 
 #include <mymenu.h>
 #include <driver/screen_max.h>
+#include <driver/record.h>
 
 #define BLKID_BIN    "/sbin/blkid"
 #define EJECT_BIN    "/bin/eject"
@@ -126,76 +127,6 @@ int CHDDMenuHandler::filterDevName(const char * name)
 		!strncmp(name, "mmcblk", 6))
 		return 1;
 	return 0;
-}
-
-int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
-{
-	if (msg == NeutrinoMessages::EVT_HOTPLUG) {
-		std::string str((char *) data);
-		std::map<std::string,std::string> smap;
-
-		if (!split_config_string(str, smap))
-			return messages_return::handled;
-
-		std::map<std::string,std::string>::iterator it = smap.find("MDEV");
-		if (it == smap.end())
-			return messages_return::handled;
-
-		std::string dev = it->second;
-		printf("CHDDMenuHandler::handleMsg: MDEV=%s\n", dev.c_str());
-		if (!filterDevName(dev.c_str()))
-			return messages_return::handled;
-
-		it = smap.find("ACTION");
-		if (it == smap.end())
-			return messages_return::handled;
-
-		bool added = it->second == "add";
-		bool mounted = is_mounted(dev.c_str());
-		std::string tmp = dev.substr(0, 2);
-
-		if (added && !mounted && tmp != "sr") {
-			std::string message = dev + ": " + g_Locale->getText(LOCALE_HDD_MOUNT_FAILED);
-			message +=  std::string(" ") + g_Locale->getText(LOCALE_HDD_FORMAT) + std::string(" ?");
-			int res = ShowMsg(LOCALE_MESSAGEBOX_INFO, message, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-			if(res == CMessageBox::mbrYes) {
-				unsigned char * p = new unsigned char[dev.size() + 1];
-				if (p) {
-					sprintf((char *)p, "%s", dev.c_str());
-					g_RCInput->postMsg(NeutrinoMessages::EVT_FORMAT_DRIVE , (neutrino_msg_data_t)p);
-					return messages_return::handled | messages_return::cancel_all;
-				}
-			}
-		} else {
-			std::string message = dev + ": " + (added ?
-					g_Locale->getText(mounted ? LOCALE_HDD_MOUNT_OK : LOCALE_HDD_MOUNT_FAILED)
-					: g_Locale->getText(LOCALE_HDD_UMOUNTED));
-			ShowHint(LOCALE_MESSAGEBOX_INFO, message.c_str());
-		}
-		if (in_menu && !lock_refresh) {
-			show_menu = true;
-			return messages_return::handled | messages_return::cancel_all;
-		}
-		lock_refresh = false;
-		return messages_return::handled;
-	}
-	else if (msg == NeutrinoMessages::EVT_FORMAT_DRIVE) {
-		std::string dev((char *) data);
-		printf("NeutrinoMessages::EVT_FORMAT_DRIVE: [%s]\n", dev.c_str());
-		check_dev_tools();
-		getBlkIds();
-		scanDevices();
-		for (std::map<std::string, std::string>::iterator it = devtitle.begin(); it != devtitle.end(); ++it) {
-			if (dev.substr(0, it->first.size()) == it->first) {
-				showDeviceMenu(it->first);
-				break;
-			}
-		}
-		hdd_list.clear();
-		devtitle.clear();
-		return messages_return::handled;
-	}
-	return messages_return::unhandled;
 }
 
 bool CHDDMenuHandler::is_mounted(const char *dev)
@@ -401,6 +332,100 @@ bool CHDDMenuHandler::waitfordev(std::string dev, int maxwait)
 }
 #endif
 
+void CHDDMenuHandler::showHint(std::string &message)
+{
+	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, message.c_str());
+	hintBox->paint();
+
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(3);
+        neutrino_msg_t      msg;
+        neutrino_msg_data_t data;
+
+	while(true) {
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
+
+		if ((msg == CRCInput::RC_timeout) || (msg < CRCInput::RC_MaxRC))
+			break;
+		else if (msg == NeutrinoMessages::EVT_HOTPLUG) {
+			g_RCInput->postMsg(msg, data);
+			break;
+		}
+		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+			break;
+	}
+	delete hintBox;
+}
+
+int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
+{
+	if (msg == NeutrinoMessages::EVT_HOTPLUG) {
+		std::string str((char *) data);
+		std::map<std::string,std::string> smap;
+
+		if (!split_config_string(str, smap))
+			return messages_return::handled;
+
+		std::map<std::string,std::string>::iterator it = smap.find("MDEV");
+		if (it == smap.end())
+			return messages_return::handled;
+
+		std::string dev = it->second;
+		printf("CHDDMenuHandler::handleMsg: MDEV=%s\n", dev.c_str());
+		if (!filterDevName(dev.c_str()))
+			return messages_return::handled;
+
+		it = smap.find("ACTION");
+		if (it == smap.end())
+			return messages_return::handled;
+
+		bool added = it->second == "add";
+		bool mounted = is_mounted(dev.c_str());
+		std::string tmp = dev.substr(0, 2);
+
+		if (added && !mounted && tmp != "sr") {
+			std::string message = dev + ": " + g_Locale->getText(LOCALE_HDD_MOUNT_FAILED);
+			message +=  std::string(" ") + g_Locale->getText(LOCALE_HDD_FORMAT) + std::string(" ?");
+			int res = ShowMsg(LOCALE_MESSAGEBOX_INFO, message, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+			if(res == CMessageBox::mbrYes) {
+				unsigned char * p = new unsigned char[dev.size() + 1];
+				if (p) {
+					sprintf((char *)p, "%s", dev.c_str());
+					g_RCInput->postMsg(NeutrinoMessages::EVT_FORMAT_DRIVE , (neutrino_msg_data_t)p);
+					return messages_return::handled | messages_return::cancel_all;
+				}
+			}
+		} else {
+			std::string message = dev + ": " + (added ?
+					g_Locale->getText(mounted ? LOCALE_HDD_MOUNT_OK : LOCALE_HDD_MOUNT_FAILED)
+					: g_Locale->getText(LOCALE_HDD_UMOUNTED));
+			showHint(message);
+		}
+		if (in_menu && !lock_refresh) {
+			show_menu = true;
+			return messages_return::handled | messages_return::cancel_all;
+		}
+		lock_refresh = false;
+		return messages_return::handled;
+	}
+	else if (msg == NeutrinoMessages::EVT_FORMAT_DRIVE) {
+		std::string dev((char *) data);
+		printf("NeutrinoMessages::EVT_FORMAT_DRIVE: [%s]\n", dev.c_str());
+		check_dev_tools();
+		getBlkIds();
+		scanDevices();
+		for (std::map<std::string, std::string>::iterator it = devtitle.begin(); it != devtitle.end(); ++it) {
+			if (dev.substr(0, it->first.size()) == it->first) {
+				showDeviceMenu(it->first);
+				break;
+			}
+		}
+		hdd_list.clear();
+		devtitle.clear();
+		return messages_return::handled;
+	}
+	return messages_return::unhandled;
+}
+
 int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 {
 	if (parent)
@@ -435,7 +460,26 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 		return checkDevice(dev);
 	}
 	else if (actionkey[0] == 'f') {
-		return formatDevice(dev);
+		int ret = formatDevice(dev);
+		std::string devname = "/dev/" + dev + getDefaultPart(dev);
+		if (show_menu && is_mounted(devname.c_str())) {
+			bool old_menu = in_menu;
+			in_menu = false;
+			int res = ShowMsg(LOCALE_RECORDINGMENU_DEFDIR, LOCALE_HDD_SET_RECDIR, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+			if(res == CMessageBox::mbrYes) {
+				g_settings.network_nfs_recordingdir = std::string(MOUNT_BASE) + "/" + dev + getDefaultPart(dev) + "/movies";
+				CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
+				if(g_settings.timeshiftdir.empty())
+				{
+					std::string timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
+					safe_mkdir(timeshiftDir.c_str());
+					printf("New timeshift dir: %s\n", timeshiftDir.c_str());
+					CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
+				}
+			}
+			in_menu = old_menu;
+		}
+		return ret;
 	}
 	return menu_return::RETURN_REPAINT;
 }
@@ -663,15 +707,26 @@ _show_menu:
 	}
 
 	if (!hdd_list.empty()) {
+		struct stat rec_st;
+		memset(&rec_st, 0, sizeof(rec_st));
+		stat(g_settings.network_nfs_recordingdir.c_str(), &rec_st);
+
 		sort(hdd_list.begin(), hdd_list.end(), cmp_hdd_by_name());
 		mount = g_Locale->getText(LOCALE_HDD_MOUNT);
 		umount = g_Locale->getText(LOCALE_HDD_UMOUNT);
 		int shortcut = 1;
 		hddmenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_HDD_MOUNT_UMOUNT));
 		for (std::vector<hdd_s>::iterator it = hdd_list.begin(); it != hdd_list.end(); ++it) {
+			const char * rec_icon = NULL;
+			if (it->mounted) {
+				std::string dst = MOUNT_BASE + it->devname;
+				if (!stat(dst.c_str(), &stat_buf) && rec_st.st_dev == stat_buf.st_dev)
+					rec_icon = CNeutrinoApp::getInstance()->recordingstatus ? NEUTRINO_ICON_REC : NEUTRINO_ICON_REC_GRAY;
+			}
 			std::string key = "m" + it->devname;
-			it->cmf = new CMenuForwarder(it->desc, true, it->mounted ? umount : mount , this,
-					key.c_str(), CRCInput::convertDigitToKey(shortcut++));
+			bool enabled = !rec_icon || !CNeutrinoApp::getInstance()->recordingstatus;
+			it->cmf = new CMenuForwarder(it->desc, enabled, it->mounted ? umount : mount , this,
+					key.c_str(), CRCInput::convertDigitToKey(shortcut++), NULL, rec_icon);
 			hddmenu->addItem(it->cmf);
 		}
 	}

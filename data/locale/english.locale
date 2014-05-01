@@ -638,6 +638,7 @@ hdd_noise Acoustic-control (AAM)
 hdd_not_found No HDD found
 hdd_removable_device Removable device
 hdd_settings Hard Disk Drive/USB
+hdd_set_recdir Use device for recording ?
 hdd_sleep Switch off after...
 hdd_slow Slow
 hdd_umount Unmount

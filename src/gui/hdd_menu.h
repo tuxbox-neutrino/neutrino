@@ -25,8 +25,8 @@
 #ifndef __hdd_menu__
 #define __hdd_menu__
 
-
 #include "widget/menue.h"
+#include <gui/widget/hintbox.h>
 
 using namespace std;
 
@@ -91,6 +91,7 @@ class CHDDMenuHandler : public CMenuTarget
 		int formatDevice(std::string dev);
 		void showError(neutrino_locale_t err);
 		bool scanDevices();
+		void showHint(std::string &messsage);
 		CHDDMenuHandler();
 
 	public:

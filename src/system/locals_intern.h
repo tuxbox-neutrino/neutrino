@@ -665,6 +665,7 @@ const char * locale_real_names[] =
 	"hdd_not_found",
 	"hdd_removable_device",
 	"hdd_settings",
+	"hdd_set_recdir",
 	"hdd_sleep",
 	"hdd_slow",
 	"hdd_umount",
