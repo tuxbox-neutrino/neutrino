@@ -74,19 +74,19 @@ class CComponentsFooter : public CComponentsHeader
 					fb_pixel_t color_body = COL_INFOBAR_SHADOW_PLUS_1,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
-		///add button labels with string label type as content, count as size_t, total_width as int, label width as int
-		void setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& total_width = 0, const int& label_width = 0);
-		///add button labels with locale label type as content, count as size_t, total_width as int, label width as int
-		void setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& total_width = 0, const int& label_width = 0);
+		///add button labels with string label type as content, count as size_t, chain_width as int, label width as int
+		void setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
+		///add button labels with locale label type as content, count as size_t, chain_width as int, label width as int
+		void setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
 		
-		///add button labels with old label type, count as size_t, total_width as int, label width as int
+		///add button labels with old label type, count as size_t, chain_width as int, label width as int
 		///NOTE: for compatibility with older button handler find in gui/widget/buttons.h
-		void setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& total_width = 0, const int& label_width = 0);
+		void setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
 
-		///add single button label with string label type as content, total_width as int, label width as int
-		void setButtonLabel(const char *button_icon, const std::string& text, const int& total_width = 0, const int& label_width = 0);
-		///add single button label with locale label type as content, total_width as int, label width as int
-		void setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& total_width = 0, const int& label_width = 0);
+		///add single button label with string label type as content, chain_width as int, label width as int
+		void setButtonLabel(const char *button_icon, const std::string& text, const int& chain_width = 0, const int& label_width = 0);
+		///add single button label with locale label type as content, chain_width as int, label width as int
+		void setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width = 0, const int& label_width = 0);
 		
 		///causes show/hide countour of button frame and background, parameter bool show, default= true
 		void showButtonContour(bool show = true){btn_contour = show;};

@@ -29,7 +29,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-
+#include <system/debug.h>
 #include "cc_frm_button.h"
 
 
@@ -152,6 +152,7 @@ void CComponentsButton::initCaption()
 		//text and font
 		if (cc_btn_font == NULL)
 			cc_btn_font = *cc_btn_dy_font->getDynFont(w_cap, h_cap, cc_btn_capt);
+
 		cc_btn_capt_obj->setText(cc_btn_capt, CTextBox::NO_AUTO_LINEBREAK, cc_btn_font);
 		cc_btn_capt_obj->forceTextPaint(); //here required;
 
@@ -163,20 +164,25 @@ void CComponentsButton::initCaption()
 	}
 
 	//handle common position of icon and text inside container required for alignment
-	int w_required 	= cc_btn_icon_obj->getWidth() + append_x_offset + cc_btn_font->getRenderWidth(cc_btn_capt, true);
-
-	//do center
-	int x_icon = width/2 - w_required/2;
-	cc_btn_icon_obj->setXPos(x_icon);
-	cc_btn_capt_obj->setXPos(x_icon + cc_btn_icon_obj->getWidth() + append_x_offset);
+	int w_required 	= fr_thickness + append_x_offset + cc_btn_icon_obj->getWidth() + append_x_offset + cc_btn_font->getRenderWidth(cc_btn_capt, true) + append_x_offset + fr_thickness;
 
 	//dynamic width
-	width = max(w_required, width);
+	if (w_required > width){
+		dprintf(DEBUG_INFO, "[CComponentsButton]   [%s - %d] width of button (%s) will be changed: defined width=%d, required width=%d\n", __func__, __LINE__, cc_btn_capt.c_str(), width, w_required);
+		width = max(w_required, width);
+	}
+
+	//do center
+	int x_icon = width/2 - w_required/2 + fr_thickness + append_x_offset;
+	cc_btn_icon_obj->setXPos(x_icon);
+	cc_btn_capt_obj->setXPos(x_icon + cc_btn_icon_obj->getWidth() + append_x_offset);
+	cc_btn_capt_obj->setWidth(width - cc_btn_capt_obj->getXPos());
 }
 
 void CComponentsButton::setCaption(const std::string& text)
 {
 	cc_btn_capt = text;
+	initCCBtnItems();
 }
 
 void CComponentsButton::setCaption(const neutrino_locale_t locale_text)
