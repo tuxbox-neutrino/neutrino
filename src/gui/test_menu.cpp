@@ -550,8 +550,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			footer->setIcon(NEUTRINO_ICON_INFO);
 
 			//add button labels with conventional button label struct
-			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, 150);
-			
+			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, footer->getWidth()/10);
 
 			//also possible: use directly button name and as 2nd parameter string or locale as text
 //			footer->setButtonLabel(NEUTRINO_ICON_BUTTON_RED, "This is a button label text!", 0, 250);
