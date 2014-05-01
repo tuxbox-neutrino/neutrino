@@ -59,6 +59,31 @@ CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const
 	initVarButton(x_pos, y_pos, w, h, g_Locale->getText(cc_btn_capt_locale), icon_name, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow);
 }
 
+CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const std::string& caption, const char* icon_name,
+					CComponentsForm* parent,
+					bool selected,
+					bool enabled,
+					bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	string _icon_name = icon_name == NULL ? "" : string(icon_name);
+	initVarButton(x_pos, y_pos, w, h,  caption, _icon_name, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow);
+}
+
+CComponentsButton::CComponentsButton( 	const int& x_pos, const int& y_pos, const int& w, const int& h,
+					const neutrino_locale_t& caption_locale, const char* icon_name,
+					CComponentsForm* parent,
+					bool selected,
+					bool enabled,
+					bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	string _icon_name = icon_name == NULL ? "" : string(icon_name);
+	cc_btn_capt_locale = caption_locale;
+	initVarButton(x_pos, y_pos, w, h,  g_Locale->getText(cc_btn_capt_locale), _icon_name, parent, selected, enabled, has_shadow, color_frame, color_body, color_shadow);
+}
+
 void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const int& w, const int& h,
 					const std::string& caption,
 					const std::string& icon_name,
