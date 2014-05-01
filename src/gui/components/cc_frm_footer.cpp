@@ -187,3 +187,13 @@ void CComponentsFooter::setButtonLabel(const char *button_icon, const neutrino_l
 
 	setButtonLabel(button_icon, txt, chain_width, label_width);
 }
+
+void CComponentsFooter::showButtonContour(bool show)
+{
+	btn_contour = show;
+	if (chain) {
+		for (size_t i= 0; i< chain->size(); i++)
+			chain->getCCItem(i)->doPaintBg(btn_contour);
+	}
+}
+

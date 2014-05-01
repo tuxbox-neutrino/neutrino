@@ -91,7 +91,7 @@ class CComponentsFooter : public CComponentsHeader
 		void setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width = 0, const int& label_width = 0);
 		
 		///causes show/hide countour of button frame and background, parameter bool show, default= true
-		void showButtonContour(bool show = true){btn_contour = show;};
+		void showButtonContour(bool show = true);
 
 		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
 		void setButtonFont(Font* font){ccf_btn_font = font;};
