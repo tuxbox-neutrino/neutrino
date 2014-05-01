@@ -287,7 +287,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	{
 		frameBuffer->getIconSize(iconName_Info_right.c_str(), &icon_w, &icon_h);
 
-		if (active  && icon_w>0 && icon_h>0)
+		if (/* active  && */ icon_w>0 && icon_h>0)
 			icon_painted = frameBuffer->paintIcon(iconName_Info_right, dx + icon_start_x - (icon_w + 20), y+ ((item_height/2- icon_h/2)) );
 	}
 }
