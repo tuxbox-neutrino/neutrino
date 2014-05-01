@@ -84,6 +84,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 
 	btn_contour	= false;
 	ccf_btn_font	= NULL;
+	chain		= NULL;
 
 	addContextButton(buttons);
 	initCCItems();
@@ -114,8 +115,12 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	//initialize container (chain object) as button label container: this contains all passed (as interleaved) button label items, with this container we can work inside
 	//footer as primary container (in this context '=this') and the parent for the button label container (chain object),
 	//button label container (chain object) itself is concurrent the parent object for button objects.
-	CComponentsFrmChain *chain = new CComponentsFrmChain(x_chain, CC_CENTERED, w_chain, height, 0, CC_DIR_X, this);
-	chain->doPaintBg(false);
+	if (chain == NULL){
+		chain = new CComponentsFrmChain(x_chain, CC_CENTERED, w_chain, height, 0, CC_DIR_X, this);
+		chain->doPaintBg(false);
+	}
+	if (!chain->empty())
+		chain->clear();
 
 	//calculate default static width of button labels inside button object container related to available width of chain object
 	int w_btn_fix = chain->getWidth() / label_count;

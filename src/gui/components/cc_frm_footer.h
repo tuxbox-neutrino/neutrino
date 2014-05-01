@@ -63,8 +63,10 @@ class CComponentsFooter : public CComponentsHeader
 		///property: set font for label caption, see also setButtonFont()
 		Font* ccf_btn_font;
 
+		///container for button objects
+		CComponentsFrmChain *chain;
+
 	public:
-		
 		CComponentsFooter(CComponentsForm *parent = NULL);
 		CComponentsFooter(	const int& x_pos, const int& y_pos, const int& w, const int& h = 0,
 					const int& buttons = 0,
