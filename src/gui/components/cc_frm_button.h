@@ -112,7 +112,7 @@ class CComponentsButton : public CComponentsFrmChain
 		virtual neutrino_locale_t getCaptionLocale(){return cc_btn_capt_locale;};
 
 		///property: set font for label caption, parameter as font object, value NULL causes usaage of dynamic font
-		virtual void setButtonFont(Font* font){cc_btn_font = font;};
+		virtual void setButtonFont(Font* font){cc_btn_font = font; initCCBtnItems();};
 
 		///reinitialize items
 		virtual void Refresh(){initCCBtnItems();};
