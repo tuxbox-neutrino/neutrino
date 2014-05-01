@@ -97,8 +97,8 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
 				safe_mkdir(timeshiftDir.c_str());
 				printf("New timeshift dir: %s\n", timeshiftDir.c_str());
+				CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 			}
-			CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 		}
 		return res;
 	}
