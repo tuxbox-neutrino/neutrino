@@ -133,6 +133,17 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, height-height/4, content[i].text, content[i].button);
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
+
+		string btn_name = string(content[i].button);
+		if (btn_name == NEUTRINO_ICON_BUTTON_RED)
+			btn->setColorFrame(COL_DARK_RED);
+		if (btn_name == NEUTRINO_ICON_BUTTON_GREEN)
+			btn->setColorFrame(COL_DARK_GREEN);
+		if (btn_name == NEUTRINO_ICON_BUTTON_YELLOW)
+			btn->setColorFrame(COL_OLIVE);
+		if (btn_name == NEUTRINO_ICON_BUTTON_BLUE)
+			btn->setColorFrame(COL_DARK_BLUE);
+
 		chain->addCCItem(btn);
 
 		//set x position of next button object
