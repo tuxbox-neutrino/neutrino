@@ -95,6 +95,9 @@ class CComponentsFooter : public CComponentsHeader
 
 		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
 		void setButtonFont(Font* font){ccf_btn_font = font;};
+
+		///returns pointer to internal button container
+		CComponentsFrmChain* getButtonChainObject(){return chain;};
 };
 
 #endif
