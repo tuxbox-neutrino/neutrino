@@ -1167,7 +1167,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_NEUTRINO)
 					{
-						printf("CRCInput::getMsg_us: INITID_NEUTRINO: msg %x size %d data %x\n", (int) emsg.eventID, emsg.dataSize, (int) p);
+						printf("CRCInput::getMsg_us: INITID_NEUTRINO: msg %x size %d data %p\n", (int) emsg.eventID, emsg.dataSize, p);
 						if (emsg.eventID == NeutrinoMessages::EVT_HOTPLUG) {
 							printf("EVT_HOTPLUG: [%s]\n", (char *) p);
 							*msg  = emsg.eventID;
