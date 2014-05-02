@@ -623,7 +623,7 @@ hdd_check_failed Festplattenprüfung fehlgeschlagen
 hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht unterstützt.
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
-hdd_format Formatiere Festplatte
+hdd_format Formatiere Datenträger
 hdd_format_failed Formatierung fehlgeschlagen! Stellen Sie sicher, dass der Datenträger nicht in Verwendung ist und versuchen Sie es erneut.
 hdd_format_warn Alle Daten auf dem Datenträger werden gelöscht! Formatierung starten?
 hdd_fs Dateisystem zum formatieren
@@ -631,18 +631,19 @@ hdd_fs_unknown unbekannt
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_mount Mount
-hdd_mount_ok Laufwerk bereit
 hdd_mount_failed Fehler! Überprüfen Sie ihre Laufwerkseinstellungen.
+hdd_mount_ok Laufwerk bereit
 hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Keine Festplatte
 hdd_removable_device Wechseldatenträger
+hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
 hdd_slow Langsam
 hdd_umount Unmount
-hdd_umounted Laufwerk entfernt
 hdd_umount_warn Laufwerk aushängen
+hdd_umounted Laufwerk entfernt
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
 imageinfo.dokumentation Dokus:
