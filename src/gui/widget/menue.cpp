@@ -408,6 +408,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	has_hints	= false;
 	hint_painted	= false;
 	hint_height	= 0;
+	hheight 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fbutton_count	= 0;
 	fbutton_labels	= NULL;
 	fbutton_height	= 0;
@@ -866,6 +867,7 @@ void CMenuWidget::calcSize()
 	if (neededWidth > width-48) {
 		width= neededWidth+ 49;
 	}
+	//reinit header height, 1st init happens in Init()
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 
 	int itemHeightTotal=0;
@@ -952,8 +954,13 @@ void CMenuWidget::paint()
 	item_start_y = y+hheight;
 	paintItems();
 	washidden = false;
-	if (fbutton_count)
-		::paintButtons(x, y + height + RADIUS_LARGE - fbutton_height, width + sb_width, fbutton_count, fbutton_labels, width, fbutton_height);
+	if (fbutton_count){
+		int y_footer = y + height + RADIUS_LARGE - fbutton_height;
+		int w_footer = width + sb_width;
+		CComponentsFooter footer(x, y_footer, w_footer, fbutton_height);
+		footer.setButtonLabels(fbutton_labels, fbutton_count, 0, (w_footer/max(fbutton_count, 4)+2)-20);
+		footer.paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 void CMenuWidget::setMenuPos(const int& menu_width)
@@ -1193,12 +1200,8 @@ void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const in
 {
 	fbutton_count = _fbutton_count;
 	fbutton_labels = _fbutton_labels;
-	fbutton_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;  // init min buttonbar height
-	int h = 0, w = 0;
-	for (int i = 0; i < fbutton_count; i++) {
-		frameBuffer->getIconSize(fbutton_labels[i].button, &w, &h);
-		fbutton_height = std::max(fbutton_height, h + 4);
-	}
+	fbutton_height = hheight;//g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;  // init min buttonbar height
+
 	if (repaint)
 		paint();
 }

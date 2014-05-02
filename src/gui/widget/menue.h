@@ -39,7 +39,6 @@
 #include <driver/framebuffer.h>
 #include <driver/rcinput.h>
 #include <system/localize.h>
-#include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/color.h>
 #include <gui/components/cc.h>
