@@ -619,7 +619,7 @@ hdd_5min 5 min.
 hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
-hdd_check_failed Festplattenprüfung fehlgeschlagen
+hdd_check_failed Datenträgerprüfung fehlgeschlagen
 hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht unterstützt.
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
@@ -635,7 +635,7 @@ hdd_mount_failed Fehler! Überprüfen Sie ihre Laufwerkseinstellungen.
 hdd_mount_ok Laufwerk bereit
 hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
-hdd_not_found Keine Festplatte
+hdd_not_found Kein Datenträger
 hdd_removable_device Wechseldatenträger
 hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Laufwerke
