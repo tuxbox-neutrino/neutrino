@@ -573,7 +573,6 @@ flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
 fontmenu.channellist Kanalliste
 fontmenu.epg EPG (Programmführer)
 fontmenu.eventlist Event-Liste
-fontmenu.gamelist Spiele-Liste
 fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
@@ -599,8 +598,6 @@ fontsize.eventlist_itemlarge Groß
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
 fontsize.filebrowser_item Dateibrowsereinträge
-fontsize.gamelist_itemlarge Groß
-fontsize.gamelist_itemsmall Klein
 fontsize.hint Schriftart wird initialisiert,\nbitte warten...
 fontsize.infobar_channame Kanalname
 fontsize.infobar_info Info
@@ -881,7 +878,6 @@ menu.hint_font_gui Wählen Sie die Schriftart für die Menüs
 menu.hint_font_scaling Legen Sie die vertikale und horizontale Skalierung der Menüschrift fest
 menu.hint_font_ttx Wählen Sie die Schriftart für den Teletext
 menu.hint_fonts Konfigurieren Sie die Schriftart und die Schriftgrößen für die Menüs
-menu.hint_gamelist_fonts Ändern die Schriftgrößen für die Spiele- und Script-Liste
 menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Datenträger
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
@@ -1045,6 +1041,7 @@ menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs 
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
 menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
+menu.hint_other_fonts Ändern Sie andere Schriftgrößen
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
 menu.hint_parentallock_menu Menüs mit PIN Code sichern

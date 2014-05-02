@@ -543,7 +543,6 @@ flashupdate.wrongbase Uw release-cyclus verschilt.\nVerder gaan?
 fontmenu.channellist Kanalenlijst
 fontmenu.epg EPG
 fontmenu.eventlist Programmalijst 
-fontmenu.gamelist Spelletjes lijst
 fontmenu.head Lettertype instellingen
 fontmenu.infobar Informatiebalk
 fontmenu.menu Menu
@@ -567,8 +566,6 @@ fontsize.eventlist_itemlarge Groot
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
 fontsize.filebrowser_item Verkenner items
-fontsize.gamelist_itemlarge Groot
-fontsize.gamelist_itemsmall Klein
 fontsize.hint Initialiseren lettertype,\néén moment geduld...
 fontsize.infobar_channame Kanaalnaam
 fontsize.infobar_info Info
@@ -810,7 +807,6 @@ menu.hint_font_gui Selecteer het algemene lettertype dat u wenst te gebruiken vo
 menu.hint_font_scaling Globale verticale en horizontale font schaling instellen. 
 menu.hint_font_ttx Selecteer het lettertype dat u wenst te gebruiken voor teletekst.
 menu.hint_fonts Configureer lettertypes gebruikersinterface
-menu.hint_gamelist_fonts Wijzig lettertype games en scripts lijst
 menu.hint_games Lijst met geïnstalleerde games weergeven.
 menu.hint_hdd Formatteer / check harde schijf
 menu.hint_hdd_apply Slaap/Geluid parameters toepassen

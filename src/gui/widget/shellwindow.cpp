@@ -62,7 +62,7 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 			*res = -1;
 		return;
 	}
-	Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL];
+	Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 	frameBuffer = CFrameBuffer::getInstance();
 	unsigned int lines_max = frameBuffer->getScreenHeight() / font->getHeight();
 	list<std::string> lines;

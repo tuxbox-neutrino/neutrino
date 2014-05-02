@@ -128,12 +128,6 @@ const SNeutrinoSettings::FONT_TYPES epg_font_sizes[4] =
 	SNeutrinoSettings::FONT_TYPE_EPG_DATE
 };
 
-const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
-{
-	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE,
-	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
-};
-
 const SNeutrinoSettings::FONT_TYPES menu_font_sizes[4] =
 {
 	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
@@ -147,16 +141,15 @@ const SNeutrinoSettings::FONT_TYPES other_font_sizes[2] =
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
 };
 
-#define FONT_GROUP_COUNT 7
+#define FONT_GROUP_COUNT 6
 font_sizes_groups font_sizes_groups[FONT_GROUP_COUNT] =
 {
-	{LOCALE_FONTMENU_MENU       , 4, menu_font_sizes       , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
+	{LOCALE_FONTMENU_MENU       , 4, menu_font_sizes       , "fontsize.dmen", LOCALE_MENU_HINT_MENU_FONTS },
 	{LOCALE_FONTMENU_CHANNELLIST, 5, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 5, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
 	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf", LOCALE_MENU_HINT_INFOBAR_FONTS },
-	{LOCALE_FONTMENU_GAMELIST   , 2, gamelist_font_sizes   , "fontsize.dgam", LOCALE_MENU_HINT_GAMELIST_FONTS },
-	{LOCALE_FONTMENU_OTHER      , 2, other_font_sizes      , "fontsize.dgam", LOCALE_MENU_HINT_GAMELIST_FONTS }
+	{LOCALE_FONTMENU_OTHER      , 2, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_OTHER_FONTS }
 };
 
 font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
@@ -173,8 +166,6 @@ font_sizes_struct neutrino_font[SNeutrinoSettings::FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_EVENTLIST_ITEMSMALL,  14, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_EVENTLIST_DATETIME ,  16, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_EVENTLIST_EVENT    ,  17, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_GAMELIST_ITEMLARGE ,  20, CNeutrinoFonts::FONT_STYLE_BOLD   , 1},
-	{LOCALE_FONTSIZE_GAMELIST_ITEMSMALL ,  16, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_CHANNELLIST        ,  20, CNeutrinoFonts::FONT_STYLE_BOLD   , 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, CNeutrinoFonts::FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, CNeutrinoFonts::FONT_STYLE_BOLD   , 2},

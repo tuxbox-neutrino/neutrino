@@ -573,7 +573,6 @@ flashupdate.wrongbase Your Release cycle differs.\nTo continue?
 fontmenu.channellist Channellist
 fontmenu.epg EPG
 fontmenu.eventlist Eventlist
-fontmenu.gamelist Gamelist
 fontmenu.head Font settings
 fontmenu.infobar Infobar
 fontmenu.menu Menu
@@ -599,8 +598,6 @@ fontsize.eventlist_itemlarge Large
 fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title
 fontsize.filebrowser_item Filebrowser items
-fontsize.gamelist_itemlarge Large
-fontsize.gamelist_itemsmall Small
 fontsize.hint Initialising font,\nplease wait...
 fontsize.infobar_channame Channel name
 fontsize.infobar_info info
@@ -881,7 +878,6 @@ menu.hint_font_gui Select font file to use for GUI
 menu.hint_font_scaling Set global vertical and horizontal\nGUI font scaling
 menu.hint_font_ttx Select font file to use for teletext
 menu.hint_fonts Configure GUI fonts and font sizes
-menu.hint_gamelist_fonts Change games and scripts list font sizes
 menu.hint_games Show list of installed games
 menu.hint_hdd Format / check data storage
 menu.hint_hdd_apply Apply sleep/noise parameters
@@ -1045,6 +1041,7 @@ menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
 menu.hint_osd_timing After this time the OSD will be faded out
+menu.hint_other_fonts Change other font sizes
 menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
 menu.hint_parentallock_menu Lock menus with pin code
