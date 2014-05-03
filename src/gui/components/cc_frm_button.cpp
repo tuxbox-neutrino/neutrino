@@ -135,7 +135,19 @@ void CComponentsButton::initIcon()
 
 	//initialize icon object
 	if (cc_btn_icon_obj == NULL){
-		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, CC_CENTERED, 0, 0, cc_btn_icon, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
+		int w_icon = 0;
+		int h_icon = 0;
+		frameBuffer->getIconSize(cc_btn_icon.c_str(), &w_icon, &h_icon);
+
+		int h_max = height-2*fr_thickness;
+		if (h_icon > h_max){
+			int ratio = h_icon/h_max;
+			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon;
+			cc_btn_icon += ".png";
+			w_icon = w_icon*ratio;
+		}
+
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, CC_CENTERED, w_icon, h_max, cc_btn_icon, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
 }
