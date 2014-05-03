@@ -82,8 +82,9 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	//if item is bound on a parent form, we must use real x/y values and from parent form as reference
 	int ix = x, iy = y;
 	if (cc_parent){
-		ix = cc_xr + cc_parent->getFrameThickness();
-		iy = cc_yr + cc_parent->getFrameThickness();
+		int w_parent_frame = cc_parent->getFrameThickness();
+		ix = cc_xr + (x < w_parent_frame ? w_parent_frame : 0);
+		iy = cc_yr + (y < w_parent_frame ? w_parent_frame : 0);
 	}
 	
 	comp_fbdata_t fbdata[] =
