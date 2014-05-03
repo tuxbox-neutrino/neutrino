@@ -165,12 +165,12 @@ void CComponentsButton::initCaption()
 		int w_cap = width - fr_thickness - append_x_offset - x_cap - fr_thickness;
 		int h_cap = height - 2*fr_thickness;
 
-		/*FIXME:
+		/*NOTE:
 			paint of  centered text in y without y_offset
 			looks unlovely displaced in y direction besides icon,
 			but text render isn't wrong here, because chars like e. 'q', 'y' are considered!
 		*/
-		int y_cap = height/2 - h_cap/2 + append_x_offset/2 /*CC_CENTERED*/;
+		int y_cap = height/2 - h_cap/2;
 
 		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 
