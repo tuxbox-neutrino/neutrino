@@ -68,12 +68,6 @@
 
 class CBox
 {
-	protected:
-		int *pX;
-		int *pY;
-		int *pWidth;
-		int *pHeight;
-
 	public:
 		/* Constructor */
 		inline CBox(){iX=0; iY=0; iWidth=0; iHeight=0;};
