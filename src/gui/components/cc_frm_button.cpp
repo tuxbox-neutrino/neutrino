@@ -178,11 +178,12 @@ void CComponentsButton::initCaption()
 		int h_cap = height - 2*fr_thickness;
 
 		/*NOTE:
-			paint of  centered text in y without y_offset
-			looks unlovely displaced in y direction besides icon,
-			but text render isn't wrong here, because chars like e. 'q', 'y' are considered!
+			paint of centered text in y direction without y_offset
+			looks unlovely displaced in y direction especially besides small icons and inside small areas,
+			but text render isn't wrong here, because capitalized chars or long chars like e. 'q', 'y' are considered!
+			Therefore we here need other icons or a hack, that considers some different height values.
 		*/
-		int y_cap = height/2 - h_cap/2;
+		int y_cap = 0;
 
 		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 
