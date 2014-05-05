@@ -133,6 +133,22 @@ void CComponentsItem::hide(bool no_restore)
 	hideCCItem(no_restore);
 }
 
+//erase or paint over rendered objects
+void CComponentsItem::kill(const fb_pixel_t& bg_color, bool ignore_parent)
+{
+	if(bg_color || cc_parent == NULL){
+		CComponents::kill(bg_color);
+		return;
+	}
+
+	if (cc_parent){
+		if(bg_color || ignore_parent)
+			CComponents::kill(bg_color);
+		else
+			CComponents::kill(cc_parent->getColorBody());
+	}
+}
+
 //synchronize colors for forms
 //This is usefull if the system colors are changed during runtime
 //so you can ensure correct applied system colors in relevant objects with unchanged instances.

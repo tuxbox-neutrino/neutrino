@@ -227,11 +227,15 @@ inline void CComponents::hide()
 	is_painted = false;
 }
 
-//erase rendered objects
-void CComponents::kill()
+//erase or paint over rendered objects
+void CComponents::kill(const fb_pixel_t& bg_color)
 {
-	for(size_t i =0; i< v_fbdata.size() ;i++) 
-		frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);	
+	for(size_t i =0; i< v_fbdata.size() ;i++){
+		if (bg_color)
+			frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, bg_color, v_fbdata[i].r, corner_type);
+		else
+			frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+	}
 	clearFbData();
 	firstPaint = true;
 	is_painted = false;

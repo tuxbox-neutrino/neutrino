@@ -201,8 +201,11 @@ class CComponents
 
 		///hide current screen and restore background
 		virtual void hide();
-		///erase current screen without restore of background, it's similar to paintBackgroundBoxRel() from CFrameBuffer
-		virtual void kill();
+
+		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
+		///from CFrameBuffer but with possiblity to define color, default color is 0 (empty background)
+		virtual void kill(const fb_pixel_t& bg_color = 0);
+
 		///returns paint mode, true=item was painted
 		virtual bool isPainted(){return is_painted;}
 		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
@@ -261,6 +264,11 @@ class CComponentsItem : public CComponents
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;
 		///hides item, arg: no_restore see hideCCItem() above
 		virtual void hide(bool no_restore = false);
+
+		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
+		///from CFrameBuffer but with possiblity to define color, default color is 0 (empty background)
+		///NOTE: Items with parent binding use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
+		virtual void kill(const fb_pixel_t& bg_color = 0, bool ignore_parent = false);
 
 		///get the current item type, see attribute cc_item_type above
 		virtual int getItemType();
