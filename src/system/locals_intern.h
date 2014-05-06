@@ -679,6 +679,7 @@ const char * locale_real_names[] =
 	"imageinfo.license",
 	"imageinfo.vcs",
 	"imageinfo.version",
+	"in",
 	"inetradio.name",
 	"infoviewer.epgnotload",
 	"infoviewer.epgwait",

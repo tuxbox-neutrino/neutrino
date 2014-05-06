@@ -652,6 +652,7 @@ imageinfo.kernel Kernel:
 imageinfo.license Lizenz
 imageinfo.vcs Git:
 imageinfo.version Version:
+in in
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen...
 infoviewer.epgwait Warte auf EPG-Informationen...

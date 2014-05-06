@@ -3235,6 +3235,7 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
 
 int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 {
+	const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 	//TRACE("[mb]->showStartPosSelectionMenu\r\n");
 	int pos = -1;
 	int result = 0;
@@ -3243,10 +3244,10 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 
 	if(m_movieSelectionHandler == NULL) return(result);
 
-	char start_pos[13]; snprintf(start_pos, 12,"%3d min",m_movieSelectionHandler->bookmarks.start/60);
-	char play_pos[13]; 	snprintf(play_pos, 12,"%3d min",m_movieSelectionHandler->bookmarks.lastPlayStop/60);
+	char start_pos[32]; snprintf(start_pos, sizeof(start_pos), "%3d %s",m_movieSelectionHandler->bookmarks.start/60, unit_short_minute);
+	char play_pos[32]; 	snprintf(play_pos, sizeof(play_pos), "%3d %s",m_movieSelectionHandler->bookmarks.lastPlayStop/60, unit_short_minute);
 
-	char book[MI_MOVIE_BOOK_USER_MAX][20];
+	char book[MI_MOVIE_BOOK_USER_MAX][32];
 
 	CMenuWidgetSelection startPosSelectionMenu(LOCALE_MOVIEBROWSER_HEAD , NEUTRINO_ICON_MOVIEPLAYER);
 	startPosSelectionMenu.enableFade(false);
@@ -3276,7 +3277,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 			else
 				position[menu_nr] = m_movieSelectionHandler->bookmarks.user[i].pos + m_movieSelectionHandler->bookmarks.user[i].length;
 
-			snprintf(book[i], 19,"%5d min",position[menu_nr]/60);
+			snprintf(book[i], sizeof(book[i]),"%5d %s",position[menu_nr]/60, unit_short_minute);
 			startPosSelectionMenu.addItem(new CMenuForwarder (m_movieSelectionHandler->bookmarks.user[i].name.c_str(), 	true, book[i]));
 			menu_nr++;
 		}

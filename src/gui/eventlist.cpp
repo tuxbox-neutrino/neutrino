@@ -271,9 +271,10 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		int h2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getHeight();
 		fheight2 = std::max( h1, h2 );
 	}
+	unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 	fheight = fheight1 + fheight2 + 2;
-	fwidth1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth("DDD, 00:00,  ");
-	fwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth("[999 min] ");
+	fwidth1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth("DDD, :,  ") + 4 * g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getMaxDigitWidth();
+	fwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth("[ ] ") + 3 * g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getMaxDigitWidth() + g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(unit_short_minute);
 
 	listmaxshow = (height-theight-iheight-0)/fheight;
 	height = theight+iheight+0+listmaxshow*fheight; // recalc height
@@ -766,7 +767,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 				datetime2_str += CServiceManager::getInstance()->GetServiceName(channel);
 			}
 
-			snprintf(tmpstr,sizeof(tmpstr), "[%d min]", evtlist[curpos].duration / 60 );
+			snprintf(tmpstr,sizeof(tmpstr), "[%d %s]", evtlist[curpos].duration / 60, unit_short_minute);
 			duration_str = tmpstr;
 		}
 
@@ -778,7 +779,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		if ( (seit> 0) && (seit<100) && (duration_str.length()!=0) )
 		{
 			char beginnt[100];
-			snprintf((char*) &beginnt,sizeof(beginnt), "in %d min", seit);
+			snprintf(beginnt, sizeof(beginnt), "%s %d %s", g_Locale->getText(LOCALE_IN), seit, unit_short_minute);
 			int w = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(beginnt) + 10;
 
 			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20- w, ypos+ fheight1+3, fwidth2, beginnt, color);

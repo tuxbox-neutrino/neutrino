@@ -107,6 +107,8 @@ class CNeutrinoEventList
 	event_id_t 	item_event_ID;
 	CComponentsText	*cc_infozone;
 
+	const char *	unit_short_minute;
+
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
 	void paintDescription(int index);
 	void paint(t_channel_id channel_id = 0);
