@@ -533,8 +533,9 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
 		CMoviePlayerGui::getInstance().file_prozent = 100;
 
-	char runningRest[32]; // %d can be 10 digits max...
-	sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
+	const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+ 	char runningRest[32]; // %d can be 10 digits max...
+	snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
 	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
 
 	int speed = CMoviePlayerGui::getInstance().GetSpeed();
@@ -1289,10 +1290,11 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				if (fileplay || CMoviePlayerGui::getInstance().timeshift)
 					CMoviePlayerGui::getInstance().UpdatePosition();
 				if (fileplay) {
-					char runningRest[32]; // %d can be 10 digits max...
-					int curr_pos = CMoviePlayerGui::getInstance().GetPosition(); 
-					int duration = CMoviePlayerGui::getInstance().GetDuration();
-					sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
+					const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+					char runningRest[64]; // %d can be 10 digits max...
+ 					int curr_pos = CMoviePlayerGui::getInstance().GetPosition(); 
+ 					int duration = CMoviePlayerGui::getInstance().GetDuration();
+					snprintf(runningRest, sizeof(runningRest), "%d / %d %s", (curr_pos + 30000) / 60000, (duration - curr_pos + 30000) / 60000, unit_short_minute);
 					display_Info(NULL, NULL, true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
 				} else {
 					show_Data( true );
@@ -1639,12 +1641,12 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	if (fileplay && !CMoviePlayerGui::getInstance().timeshift)
 		return;
 
-	char runningStart[10];
-	char runningRest[20];
+	char runningStart[32];
+	char runningRest[32];
 	char runningPercent = 0;
 
-	char nextStart[10];
-	char nextDuration[10];
+	char nextStart[32];
+	char nextDuration[32];
 
 	int is_nvod = false;
 
@@ -1662,20 +1664,22 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 
 	time_t jetzt = time (NULL);
 
+	const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
 		int seit = (abs(jetzt - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
 		int rest = (info_CurrentNext.current_zeit.dauer / 60) - seit;
 		if (jetzt < info_CurrentNext.current_zeit.startzeit) {
 			runningPercent = 0;
-			snprintf (runningRest, sizeof(runningRest), "in %d min", seit);
+			snprintf (runningRest, sizeof(runningRest), "in %d %s", seit, unit_short_minute); //FIXME
 		} else {
 			runningPercent = (jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
 			if (runningPercent > 100)
 				runningPercent = 100;
 			if (rest >= 0)
-				snprintf(runningRest, sizeof(runningRest), "%d / %d min", seit, rest);
+				snprintf(runningRest, sizeof(runningRest), "%d / %d %s", seit, rest, unit_short_minute);
 			else
-				snprintf(runningRest, sizeof(runningRest), "%d +%d min", info_CurrentNext.current_zeit.dauer / 60, -rest);
+				snprintf(runningRest, sizeof(runningRest), "%d +%d %s", info_CurrentNext.current_zeit.dauer / 60, -rest, unit_short_minute);
 		}
 
 		struct tm *pStartZeit = localtime (&info_CurrentNext.current_zeit.startzeit);
@@ -1685,7 +1689,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_next) {
 		unsigned dauer = info_CurrentNext.next_zeit.dauer / 60;
-		snprintf (nextDuration, sizeof(nextDuration), "%d min", dauer);
+		snprintf (nextDuration, sizeof(nextDuration), "%d %s", dauer, unit_short_minute);
 		struct tm *pStartZeit = localtime (&info_CurrentNext.next_zeit.startzeit);
 		snprintf (nextStart, sizeof(nextStart), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
 	} else
