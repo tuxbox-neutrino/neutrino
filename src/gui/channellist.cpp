@@ -1641,12 +1641,12 @@ void CChannelList::paintDetails(int index)
 		unsigned 	seit = ( time(NULL) - p_event->startTime ) / 60;
 		snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayNext) ? g_Locale->getText(LOCALE_CHANNELLIST_START):g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
 		if (displayNext) {
-			snprintf(cNoch, sizeof(cNoch), "(%d min)", p_event->duration / 60);
+			snprintf(cNoch, sizeof(cNoch), "(%d %s)", p_event->duration / 60, unit_short_minute);
 		} else {
 			int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
 			if ((noch< 0) || (noch>=10000))
 				noch= 0;
-			snprintf(cNoch, sizeof(cNoch), "(%u / %d min)", seit, noch);
+			snprintf(cNoch, sizeof(cNoch), "(%u / %d %s)", seit, noch, unit_short_minute);
 		}
 		int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit, true); // UTF-8
 		int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cNoch, true); // UTF-8
@@ -2167,6 +2167,8 @@ void CChannelList::paint()
 		frameBuffer->paintBoxRel(x+width,y+theight+pig_height,infozone_width,infozone_height,COL_MENUCONTENT_PLUS_0);
 	}
 
+	unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
+
 	for(unsigned int count = 0; count < listmaxshow; count++) {
 		paintItem(count, true);
 	}
@@ -2270,7 +2272,7 @@ void CChannelList::paint_events(int index)
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 
 	char startTime[10];
-	int eventStartTimeWidth = g_Font[eventFont]->getRenderWidth("22:22") + 5; // use a fixed value
+	int eventStartTimeWidth = 4 * g_Font[eventFont]->getMaxDigitWidth() + g_Font[eventFont]->getRenderWidth(":") + 5; // use a fixed value
 	int startTimeWidth = 0;
 	CChannelEventList::iterator e;
 	time_t azeit;

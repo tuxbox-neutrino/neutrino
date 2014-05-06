@@ -92,6 +92,8 @@ private:
 	int			infozone_height;
 	int			previous_channellist_additional;
 
+	const char *		unit_short_minute;
+
 	CEPGData		epgData;
 	bool historyMode;
 	bool vlist; // "virtual" list, not bouquet
