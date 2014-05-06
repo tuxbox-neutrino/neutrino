@@ -652,7 +652,6 @@ imageinfo.kernel Kernel:
 imageinfo.license License
 imageinfo.vcs Git:
 imageinfo.version Version:
-in in
 inetradio.name Internetradio
 infoviewer.epgnotload EPG not loaded....
 infoviewer.epgwait waiting for EPG...
@@ -2120,6 +2119,7 @@ wizard.setup_type_hint Easy to setup for CanalDigitaal/TéléSAT/TV Vlaanderen p
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CST set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from
+word.in in
 zapit.scantype scan for services
 zapit.scantype.all all services
 zapit.scantype.radio only radio
