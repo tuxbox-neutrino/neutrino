@@ -1012,8 +1012,8 @@ void CChannelList::hide()
 		cc_minitv = NULL;
 	}
 	if (headerClock) {
-		headerClock->Stop();
-		headerClock->kill();
+		if (headerClock->Stop())
+			headerClock->kill();
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
