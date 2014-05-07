@@ -254,7 +254,7 @@ void CInfoViewer::paintTime (bool show_dot)
 	if (!gotTime)
 		gotTime = timeset;
 
-	if (! gotTime)
+	if (!gotTime)
 		return;
 
 	int clock_x = BoxEndX - time_width - LEFT_OFFSET;
@@ -465,7 +465,7 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 
 	if (!(info_CurrentNext.flags & (CSectionsdClient::epgflags::has_later | CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::not_broadcast))) {
 		neutrino_locale_t loc;
-		if (! gotTime)
+		if (!gotTime)
 			loc = LOCALE_INFOVIEWER_WAITTIME;
 		else if (showButtonBar)
 			loc = LOCALE_INFOVIEWER_EPGWAIT;
@@ -1672,10 +1672,12 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
 		int seit = (abs(jetzt - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
 		int rest = (info_CurrentNext.current_zeit.dauer / 60) - seit;
-		if (jetzt < info_CurrentNext.current_zeit.startzeit) {
-			runningPercent = 0;
-			snprintf (runningRest, sizeof(runningRest), "%s %d %s", g_Locale->getText(LOCALE_WORD_IN), seit, unit_short_minute);
-		} else {
+		runningPercent = 0;
+		if (!gotTime)
+			snprintf(runningRest, sizeof(runningRest), "%d %s", info_CurrentNext.current_zeit.dauer / 60, unit_short_minute);
+		else if (jetzt < info_CurrentNext.current_zeit.startzeit)
+			snprintf(runningRest, sizeof(runningRest), "%s %d %s", g_Locale->getText(LOCALE_WORD_IN), seit, unit_short_minute);
+		else {
 			runningPercent = (jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
 			if (runningPercent > 100)
 				runningPercent = 100;
