@@ -1211,6 +1211,7 @@ menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tools Werkzeuge ausführen
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
+menu.hint_upnp Universal Plug and Play Browser
 menu.hint_vfd Frontdisplay und Power-LEDs
 menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb 
 menu.hint_vfd_brightness_setup Konfiguriert die Helligkeit des Frontdisplays für verschiedene Modi

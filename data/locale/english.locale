@@ -1211,6 +1211,7 @@ menu.hint_timezone Select your timezone
 menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
+menu.hint_upnp Universal Plug and Play Browser
 menu.hint_vfd Frontpanel LEDS, VFD options
 menu.hint_vfd_brightness Working brightness 
 menu.hint_vfd_brightness_setup Configure frontpanel display brightness\nfor different modes
