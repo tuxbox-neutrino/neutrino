@@ -145,6 +145,7 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
+	firstKey = true;
 	longPressEnd = 0;
 
 	//select and setup remote control hardware
@@ -1242,6 +1243,11 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();
+				if (firstKey) {
+					firstKey = false;
+					CTimerManager::getInstance()->cancelShutdownOnWakeup();
+				}
+
 				uint32_t trkey = translate(ev.code);
 #ifdef DEBUG
 				printf("%d key: %04x value %d, translate: %04x -%s-\n", ev.value, ev.code, ev.value, trkey, getKeyName(trkey).c_str());
