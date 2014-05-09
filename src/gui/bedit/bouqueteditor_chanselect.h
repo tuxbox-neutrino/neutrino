@@ -60,6 +60,7 @@ class CBEChannelSelectWidget : public CListBox
 		void paintFoot();
 		void onOkKeyPressed();
 		void onRedKeyPressed();
+		void hide();
 
 
 		int	footerHeight;
