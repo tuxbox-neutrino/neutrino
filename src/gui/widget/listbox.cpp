@@ -26,6 +26,7 @@
 #endif
 
 #include <gui/widget/listbox.h>
+#include <gui/widget/buttons.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -88,22 +89,16 @@ void CListBox::paintHead()
 
 void CListBox::paintFoot()
 {
-	int ButtonWidth = width / 4;
-	//frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x, y+height, width, ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
-	frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
+const struct button_label ListButtons[] =
+{
+	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_CHANNELLIST_EDIT },
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_BOUQUETEDITOR_ADD},
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_BOUQUETEDITOR_DELETE},
+	{ NEUTRINO_ICON_BUTTON_HOME, LOCALE_BOUQUETEDITOR_RETURN }
+};
+	const short numbuttons = sizeof(ListButtons)/sizeof(ListButtons[0]);
+	::paintButtons(x, y + height-ButtonHeight, width, numbuttons, ListButtons, width, ButtonHeight);
 
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 4* ButtonWidth+ 8, y+height+1);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 4* ButtonWidth+ 38, y+height+24 - 2, width, "edit", COL_INFOBAR_TEXT);
-
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x+width- 3* ButtonWidth+ 8, y+height+4);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 3* ButtonWidth+ 29, y+height+24 - 2, width- 26, "add", COL_INFOBAR_TEXT);
-
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, x+width- 2* ButtonWidth+ 8, y+height+4);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 2* ButtonWidth+ 29, y+height+24 - 2, width- 26, "remove", COL_INFOBAR_TEXT);
-
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HOME, x+width - ButtonWidth+ 8, y+height+1);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width - ButtonWidth+ 38, y+height+24 - 2, width, "ready", COL_INFOBAR_TEXT);
 }
 
 void CListBox::paintItem(int pos)
