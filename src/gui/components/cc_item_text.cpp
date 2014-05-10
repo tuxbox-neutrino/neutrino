@@ -176,31 +176,33 @@ void CComponentsText::clearCCText()
 	ct_textbox = NULL;
 }
 
-void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text)
+void CComponentsText::setText(const std::string& stext, const int mode, Font* font_text, const fb_pixel_t& color_text)
 {
 	ct_old_text = ct_text;
 	ct_text = stext;
 	ct_text_mode = mode;
 	ct_font = font_text;
+	if (color_text != 0)
+		ct_col_text = color_text;
 
 	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] ct_text: %s \n", __func__, __LINE__, ct_text.c_str());
 }
 
-void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
+void CComponentsText::setText(neutrino_locale_t locale_text, int mode, Font* font_text, const fb_pixel_t& color_text)
 {
 	string stext = g_Locale->getText(locale_text);
-	setText(stext, mode, font_text);
+	setText(stext, mode, font_text, color_text);
 }
 
-void CComponentsText::setText(const char* ctext, const int mode, Font* font_text)
+void CComponentsText::setText(const char* ctext, const int mode, Font* font_text, const fb_pixel_t& color_text)
 {
- 	setText((string)ctext, mode, font_text);
+ 	setText((string)ctext, mode, font_text, color_text);
 }
 
-void CComponentsText::setText(const int digit, const int mode, Font* font_text)
+void CComponentsText::setText(const int digit, const int mode, Font* font_text, const fb_pixel_t& color_text)
 {
 	string s_digit = iToString(digit);
-	setText(s_digit, mode, font_text);
+	setText(s_digit, mode, font_text, color_text);
 }
 
 string CComponentsText::getTextFromFile(const string& path_to_textfile)
@@ -224,14 +226,14 @@ string CComponentsText::getTextFromFile(const string& path_to_textfile)
 }
 
 //set text lines directly from a file, returns true on succsess
-bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text)
+bool CComponentsText::setTextFromFile(const string& path_to_textfile, const int mode, Font* font_text, const fb_pixel_t& color_text)
 {
 	string txt = getTextFromFile(path_to_textfile);
 	
 	if (txt.empty())
 		return false;
 	
-	setText(txt, mode, font_text);
+	setText(txt, mode, font_text, color_text);
 	
 	return true;
 }
