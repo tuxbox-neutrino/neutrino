@@ -1029,11 +1029,13 @@ int CHDDMenuHandler::checkDevice(std::string dev)
 				progress->showLocalStatus(percent);
 			}
 		}
-		else if(!strncmp(buf, "Pass", 4)) {
+		else {
 			char *t = strrchr(buf, '\n');
 			if (t)
 				*t = 0;
-			progress->showStatusMessageUTF(buf);
+			if(!strncmp(buf, "Pass", 4)) {
+				progress->showStatusMessageUTF(buf);
+			}
 		}
 	}
 //printf("CHDDChkExec: %s\n", buf);
