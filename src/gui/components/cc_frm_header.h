@@ -150,7 +150,10 @@ class CComponentsHeader : public CComponentsForm
 		///sets a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
 		///existing buttons are removed
 		virtual void setContextButton(const int& buttons){removeContextButtons(); addContextButton(buttons);};
-		
+
+		///gets the embedded context button object, so it's possible to get access directly to its methods and properties
+		virtual CComponentsIconForm* getContextBtnObject() { return cch_btn_obj;};
+
 		enum
 		{
 			CC_BTN_HELP 			= 0x02,
