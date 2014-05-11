@@ -128,11 +128,19 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 
 	//generate and add button objects passed from button label content with default width to chain object.
 	for (size_t i= 0; i< label_count; i++){
-		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, height-height/4, content[i].text, content[i].button);
+		string txt = content[i].text;
+		string btn_name = string(content[i].button);
+
+		//ignore item, if no text and icon are defined;
+		if (txt.empty() && btn_name.empty()){
+			dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  ignore item [%d], no icon and text defined!\n", __func__, __LINE__, i);
+			continue;
+		}
+
+		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, height-height/4, txt, btn_name);
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
 
-		string btn_name = string(content[i].button);
 		if (btn_name == NEUTRINO_ICON_BUTTON_RED)
 			btn->setColorFrame(COL_DARK_RED);
 		if (btn_name == NEUTRINO_ICON_BUTTON_GREEN)
@@ -220,8 +228,8 @@ void CComponentsFooter::paintButtons(const int& x_pos,
 {
 	this->setDimensionsAll(x_pos, y_pos, w, h);
 	this->setButtonFont(font);
-	this->setButtonLabels(content, label_count, 0, label_width);
 	this->setContextButton(context_buttons);
+	this->setButtonLabels(content, label_count, 0, label_width);
 
 	this->paint(do_save_bg);
 }
