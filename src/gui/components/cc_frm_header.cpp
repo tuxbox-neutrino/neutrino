@@ -255,7 +255,7 @@ void CComponentsHeader::removeContextButtons()
 	dprintf(DEBUG_DEBUG, "[CComponentsHeader]\t    [%s - %d] removing %u context buttons...\n", __func__, __LINE__, v_cch_btn.size());
 	v_cch_btn.clear();
 	if (cch_btn_obj)
-		cch_btn_obj->clear();;
+		cch_btn_obj->clear();
 }
 
 void CComponentsHeader::initButtons()
