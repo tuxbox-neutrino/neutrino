@@ -98,6 +98,20 @@ class CComponentsFooter : public CComponentsHeader
 
 		///returns pointer to internal button container
 		CComponentsFrmChain* getButtonChainObject(){return chain;};
+
+		///this is a nearly methode similar with the older button handler find in gui/widget/buttons.h, some parameters are different, but require minimalized input
+		///this member sets some basic parameters and will paint concurrently on execute, explicit call of paint() is not required
+		void paintButtons(	const int& x_pos,
+					const int& y_pos,
+					const int& w,
+					const int& h,
+					const size_t& label_count,
+					const struct button_label * const content,
+					const int& label_width = 0,
+					const int& context_buttons = 0,
+					Font* font = NULL,
+					bool do_save_bg = CC_SAVE_SCREEN_NO
+				);
 };
 
 #endif

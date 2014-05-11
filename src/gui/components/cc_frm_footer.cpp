@@ -169,7 +169,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_l * const cont
 	
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = content[i].button;
-		buttons[i].text = g_Locale->getText(content[i].locale);
+		buttons[i].text = content[i].locale != NONEXISTANT_LOCALE ? g_Locale->getText(content[i].locale) : "";
 	}
 
 	setButtonLabels(buttons, label_count, chain_width, label_width);
@@ -192,7 +192,7 @@ void CComponentsFooter::setButtonLabel(const char *button_icon, const std::strin
 
 void CComponentsFooter::setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width, const int& label_width)
 {
-	string txt = g_Locale->getText(locale);
+	string txt = locale != NONEXISTANT_LOCALE ? g_Locale->getText(locale) : "";
 
 	setButtonLabel(button_icon, txt, chain_width, label_width);
 }
@@ -206,3 +206,22 @@ void CComponentsFooter::showButtonContour(bool show)
 	}
 }
 
+
+void CComponentsFooter::paintButtons(const int& x_pos,
+				     const int& y_pos,
+				     const int& w,
+				     const int& h,
+				     const size_t& label_count,
+				     const struct button_label * const content,
+				     const int& label_width,
+				     const int& context_buttons,
+				     Font* font,
+				     bool do_save_bg)
+{
+	this->setDimensionsAll(x_pos, y_pos, w, h);
+	this->setButtonFont(font);
+	this->setButtonLabels(content, label_count, 0, label_width);
+	this->setContextButton(context_buttons);
+
+	this->paint(do_save_bg);
+}
