@@ -212,8 +212,8 @@ class CComponents
 		virtual void doPaintBg(bool do_paint){paint_bg = do_paint;};
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
-		///this can be understood as a counterpart to isPainted(), but before paint
-		virtual void allowPaint(bool allow){cc_allow_paint = allow;};
+		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?
+		virtual void allowPaint(bool allow){cc_allow_paint = allow; is_painted = cc_allow_paint ? false : true;};
 		///returns visibility mode
 		virtual bool paintAllowed(){return cc_allow_paint;};
 };
