@@ -199,6 +199,8 @@ bool checkLongPress(uint32_t key)
 {
 	if (g_settings.longkeypress_duration == LONGKEYPRESS_OFF)
 		return false;
+	if (key == CRCInput::RC_standby)
+		return true;
 	key |= CRCInput::RC_Repeat;
 	for (unsigned int i = 0; i < CKeybindSetup::KEYBINDS_COUNT; i++)
 		if ((uint32_t)*key_settings[i].keyvalue_p == key)
