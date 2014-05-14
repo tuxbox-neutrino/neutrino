@@ -36,6 +36,7 @@ class CEpgScan
 			SCAN_SEL
 		};
 		enum {
+			MODE_OFF = 0,
 			MODE_LIVE = 0x1,
 			MODE_STANDBY = 0x2,
 			MODE_ALWAYS = 0x3

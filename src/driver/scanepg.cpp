@@ -172,14 +172,14 @@ void CEpgScan::AddTransponders()
 			AddBouquet(bouquetList->Bouquets[current_bnum]->channelList);
 			INFO("Added bouquet #%d, scan map size: %d", current_bnum, scanmap.size());
 		}
-	} else {
+	} else if (g_settings.epg_scan == SCAN_FAV) {
 		AddFavorites();
 	}
 }
 
 bool CEpgScan::CheckMode()
 {
-	if (!g_settings.epg_scan
+	if ((g_settings.epg_scan_mode == CEpgScan::MODE_OFF)
 			|| (standby && !(g_settings.epg_scan_mode & MODE_STANDBY))
 			|| (!standby && !(g_settings.epg_scan_mode & MODE_LIVE))
 			|| (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
@@ -201,7 +201,7 @@ void CEpgScan::Start(bool instandby)
 
 void CEpgScan::Stop()
 {
-	if (!g_settings.epg_scan)
+	if (g_settings.epg_scan_mode == CEpgScan::MODE_OFF)
 		return;
 
 	INFO("stopping %s scan...", standby ? "standby" : "live");
@@ -306,12 +306,7 @@ void CEpgScan::Next()
 	bool locked = false;
 
 	next_chid = 0;
-#if 0
-	if (!g_settings.epg_scan)
-		return;
-	if (!CheckMode())
-		return;
-#endif
+
 	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
 		return;
 	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus())

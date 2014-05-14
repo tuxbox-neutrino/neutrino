@@ -204,7 +204,6 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 
 const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
 {
-	{ CEpgScan::SCAN_OFF,     LOCALE_OPTIONS_OFF },
 	{ CEpgScan::SCAN_CURRENT, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
 	{ CEpgScan::SCAN_FAV,     LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
 	{ CEpgScan::SCAN_SEL,     LOCALE_MISCSETTINGS_EPG_SCAN_SEL },
@@ -213,8 +212,9 @@ const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
 
 const CMenuOptionChooser::keyval EPG_SCAN_MODE_OPTIONS[] =
 {
-	{ CEpgScan::MODE_LIVE,     LOCALE_MISCSETTINGS_EPG_SCAN_LIVE },
+	{ CEpgScan::MODE_OFF,      LOCALE_OPTIONS_OFF },
 	{ CEpgScan::MODE_STANDBY,  LOCALE_MISCSETTINGS_EPG_SCAN_STANDBY },
+	{ CEpgScan::MODE_LIVE,     LOCALE_MISCSETTINGS_EPG_SCAN_LIVE },
 	{ CEpgScan::MODE_ALWAYS,   LOCALE_MISCSETTINGS_EPG_SCAN_ALWAYS }
 };
 #define EPG_SCAN_MODE_OPTION_COUNT (sizeof(EPG_SCAN_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
@@ -309,6 +309,7 @@ int CMiscMenue::showMiscSettingsMenu()
 		delete miscNotifier;
 #endif
 	delete miscEpgNotifier;
+	delete miscEpgScanNotifier;
 	return res;
 }
 
@@ -461,32 +462,33 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 
 	miscEpgNotifier = new COnOffNotifier();
 	miscEpgNotifier->addItem(mc1);
-	//miscEpgNotifier->addItem(mf);
-	//miscEpgNotifier->addItem(mf1);
-	//miscEpgNotifier->addItem(mf2);
-	//miscEpgNotifier->addItem(mf3);
 	miscEpgNotifier->addItem(mf4);
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true,miscEpgNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
 
-	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
-		true /*CFEManager::getInstance()->getEnabledCount() > 1*/);
+	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN_BOUQUETS, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
+		g_settings.epg_scan_mode != CEpgScan::MODE_OFF);
 	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
-	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS, EPG_SCAN_MODE_OPTION_COUNT,
-		CFEManager::getInstance()->getEnabledCount() > 1);
+	miscEpgScanNotifier = new COnOffNotifier();
+	miscEpgScanNotifier->addItem(mc2);
+
+	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS,
+		CFEManager::getInstance()->getEnabledCount() > 1 ? EPG_SCAN_MODE_OPTION_COUNT : 2, true, miscEpgScanNotifier);
 	mc3->setHint("", LOCALE_MENU_HINT_EPG_SCAN_MODE);
 
 	ms_epg->addItem(mc);
 	ms_epg->addItem(mc1);
+	ms_epg->addItem(mf4);
+	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mf);
 	ms_epg->addItem(mf1);
 	ms_epg->addItem(mf2);
 	ms_epg->addItem(mf3);
-	ms_epg->addItem(mf4);
-	ms_epg->addItem(mc2);
+	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mc3);
+	ms_epg->addItem(mc2);
 }
 
 //filebrowser settings

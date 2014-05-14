@@ -469,8 +469,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
-	g_settings.epg_scan = configfile.getInt32("epg_scan", 0);
-	g_settings.epg_scan_mode = configfile.getInt32("epg_scan_mode", CEpgScan::MODE_ALWAYS);
+	g_settings.epg_scan = configfile.getInt32("epg_scan", CEpgScan::SCAN_CURRENT);
+	g_settings.epg_scan_mode = configfile.getInt32("epg_scan_mode", CEpgScan::MODE_OFF);
+	// backward-compatible check
+	if (g_settings.epg_scan == 0) {
+		g_settings.epg_scan = CEpgScan::SCAN_CURRENT;
+		g_settings.epg_scan_mode = CEpgScan::MODE_OFF;
+	}
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -2141,7 +2146,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 					if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
-						if (g_settings.epg_scan)
+						if (g_settings.epg_scan_mode != CEpgScan::MODE_OFF)
 							CEpgScan::getInstance()->Start();
 						else
 							CEpgScan::getInstance()->Clear();
@@ -3400,7 +3405,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 		g_Zapit->stopPip();
 #endif
 		bool stream_status = CStreamManager::getInstance()->StreamStatus();
-		if(!g_settings.epg_scan && !fromDeepStandby && !CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
+		if((g_settings.epg_scan_mode == CEpgScan::MODE_OFF) && !fromDeepStandby && 
+				!CRecordManager::getInstance()->RecordingStatus() && !stream_status) {
 			g_Zapit->setStandby(true);
 		} else {
 			//g_Zapit->stopPlayBack();
@@ -3753,7 +3759,7 @@ void stop_daemons(bool stopall, bool for_flash)
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		CVFD::getInstance()->ShowText("Stop daemons...");
-		g_settings.epg_scan = false;
+		g_settings.epg_scan_mode = CEpgScan::MODE_OFF;
 		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
 	}
 
