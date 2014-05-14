@@ -335,6 +335,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
+	g_settings.start_volume = configfile.getInt32("start_volume", -1);
+	if (g_settings.start_volume >= 0)
+		g_settings.current_volume = g_settings.start_volume;
+
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
 	g_settings.channel_mode_initial = configfile.getInt32("channel_mode_initial", -1);
@@ -885,6 +889,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32( "current_volume_step", g_settings.current_volume_step );
+	configfile.setInt32( "start_volume", g_settings.start_volume );
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
 	configfile.setInt32( "channel_mode_radio", g_settings.channel_mode_radio );
 	configfile.setInt32( "channel_mode_initial", g_settings.channel_mode_initial );
@@ -1955,9 +1960,6 @@ TIMER_START();
 	CEitManager::getInstance()->Start();
 #endif
 
-	CVFD::getInstance()->showVolume(g_settings.current_volume);
-	CVFD::getInstance()->setMuted(current_muted);
-
 	g_RemoteControl = new CRemoteControl;
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
@@ -1992,8 +1994,16 @@ TIMER_START();
 
 	InitTimerdClient();
 
+	// volume
+	if (g_settings.show_mute_icon && g_settings.current_volume == 0)
+		current_muted = true;
+
 	g_volume = CVolume::getInstance();
 	g_audioMute = CAudioMute::getInstance();
+
+	g_audioMute->AudioMute(current_muted, true);
+	CVFD::getInstance()->showVolume(g_settings.current_volume);
+	CVFD::getInstance()->setMuted(current_muted);
 
 	if (show_startwizard) {
 		hintBox->hide();
@@ -2017,7 +2027,6 @@ TIMER_START();
 	cCA::GetInstance()->Ready(true);
 	InitZapper();
 
-	g_audioMute->AudioMute(current_muted, true);
 	SHTDCNT::getInstance()->init();
 
 	hintBox->hide();

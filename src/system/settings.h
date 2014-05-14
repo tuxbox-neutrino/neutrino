@@ -63,6 +63,7 @@ struct SNeutrinoSettings
 #endif
 	char current_volume;
 	int current_volume_step;
+	int start_volume;
 	int channel_mode;
 	int channel_mode_radio;
 	int channel_mode_initial;

@@ -128,6 +128,7 @@ audiomenu.pref_subs_head Subtitle language preferences
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.stereo stereo
 audiomenu.volume_adjust Volume adjustment, in %
+audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.add_ic Icecast
@@ -807,6 +808,7 @@ menu.hint_audio_srs_algo Amount of control, light or normal
 menu.hint_audio_srs_nmgr Noise manager
 menu.hint_audio_srs_volume Reference level to maintain
 menu.hint_audio_volstep Volume +/- keys increase/decrease step
+menu.hint_audio_volstart Always set selected volume value on boot
 menu.hint_audioplayer_defdir Default audioplayer directory
 menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
 menu.hint_audioplayer_highprio Increase playback priority
