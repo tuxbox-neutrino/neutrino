@@ -128,6 +128,7 @@ audiomenu.pref_subs_head Untertitelwahl
 audiomenu.spdif_dd Dolby Digital über S/PDIF
 audiomenu.stereo stereo
 audiomenu.volume_adjust Lautstärke ändern, in %
+audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
 audioplayer.add_ic Icecast
@@ -806,6 +807,7 @@ menu.hint_audio_srs Schalten Sie SRS TruVolume ein oder aus
 menu.hint_audio_srs_algo Stellen Sie die Betriebsarten von SRS TruVolume ein
 menu.hint_audio_srs_nmgr Schalten Sie den NoiseManager ein oder aus
 menu.hint_audio_srs_volume Legen Sie die Referenzlautstärke für SRS TruVolume fest
+menu.hint_audio_volstart Legen Sie die Einschaltlautstärke fest, die immer beim Starten eingestellt werden soll
 menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke immer schrittweise nach diesem Wert geändert
 menu.hint_audioplayer_defdir Wählen Sie das Startverzeichnis für den Audioplayer
 menu.hint_audioplayer_follow Das Auswählen eines aktuellen Titels in der Wiedergabeliste zulassen
@@ -860,8 +862,8 @@ menu.hint_epg_max_events Maxiale Anzahl der Events im Zwischenspeicher
 menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden) verworfen
 menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
 menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
-menu.hint_epg_scan Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist, im aktuellen Bouquet oder in allen Favoriten
-menu.hint_epg_scan_mode Wählen Sie den Modus für den EPG Scan aus.
+menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
+menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
@@ -1278,6 +1280,7 @@ miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.epg_scan Hintergrundscan EPG
 miscsettings.epg_scan_always Immer
+miscsettings.epg_scan_bouquets Zu scannende Bouquets
 miscsettings.epg_scan_bq Aktuelles Bouquet
 miscsettings.epg_scan_fav Alle Favoriten
 miscsettings.epg_scan_live Bei eingeschalteter Box
