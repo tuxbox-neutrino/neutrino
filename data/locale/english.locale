@@ -809,8 +809,8 @@ menu.hint_audio_srs SRS TruVolume control volume jumps\nat content changes
 menu.hint_audio_srs_algo Amount of control, light or normal
 menu.hint_audio_srs_nmgr Noise manager
 menu.hint_audio_srs_volume Reference level to maintain
-menu.hint_audio_volstep Volume +/- keys increase/decrease step
 menu.hint_audio_volstart Always set selected volume value on boot
+menu.hint_audio_volstep Volume +/- keys increase/decrease step
 menu.hint_audioplayer_defdir Default audioplayer directory
 menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
 menu.hint_audioplayer_highprio Increase playback priority
