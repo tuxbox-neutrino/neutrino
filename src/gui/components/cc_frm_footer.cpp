@@ -169,6 +169,14 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	//set x position of 1st button object inside chain, this is centering button objects inside chain
 	int x_1st_btn = btn_offset/2;
 	chain->getCCItem(0)->setXPos(x_1st_btn);
+
+	//check used width of generated buttons, if required then use dynamic font, and try to fit buttons into chain container, dynamic font is used if ccf_btn_font==NULL
+	//NOTE: user should be set not too small window size and not too large fontsize, at some point this possibility will be depleted and it's no more space for readable caption
+	if (w_used > width && ccf_btn_font != NULL){
+		chain->clear();
+		ccf_btn_font = NULL;
+		setButtonLabels(content, label_count, chain_width, label_width);
+	}
 }
 
 void CComponentsFooter::setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& chain_width, const int& label_width)
