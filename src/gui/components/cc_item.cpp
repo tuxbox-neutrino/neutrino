@@ -138,12 +138,12 @@ void CComponentsItem::hide(bool no_restore)
 void CComponentsItem::kill(const fb_pixel_t& bg_color, bool ignore_parent)
 {
 	if(cc_parent == NULL){
-		CComponents::kill(bg_color);
+		CComponents::kill(bg_color, this->corner_rad);
 	}else{
 		if(ignore_parent)
-			CComponents::kill(bg_color);
+			CComponents::kill(bg_color, this->corner_rad);
 		else
-			CComponents::kill(cc_parent->getColorBody());
+			CComponents::kill(cc_parent->getColorBody(), cc_parent->getCornerRadius());
 	}
 }
 

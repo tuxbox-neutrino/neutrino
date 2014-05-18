@@ -228,13 +228,20 @@ inline void CComponents::hide()
 }
 
 //erase or paint over rendered objects
-void CComponents::kill(const fb_pixel_t& bg_color)
+void CComponents::kill(const fb_pixel_t& bg_color, const int& corner_radius)
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++){
-		if (bg_color)
-			frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, bg_color, v_fbdata[i].r, corner_type);
+#if 0
+		if (bg_color != COL_BACKGROUND)
+#endif
+			int r =  v_fbdata[i].r;
+			if (corner_radius > -1)
+				r = corner_radius;
+			frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, bg_color, r,  corner_type);
+#if 0
 		else
 			frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+#endif
 	}
 	clearFbData();
 	firstPaint = true;
