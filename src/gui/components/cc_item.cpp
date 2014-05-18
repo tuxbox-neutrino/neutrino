@@ -137,13 +137,10 @@ void CComponentsItem::hide(bool no_restore)
 //erase or paint over rendered objects
 void CComponentsItem::kill(const fb_pixel_t& bg_color, bool ignore_parent)
 {
-	if(bg_color || cc_parent == NULL){
+	if(cc_parent == NULL){
 		CComponents::kill(bg_color);
-		return;
-	}
-
-	if (cc_parent){
-		if(bg_color || ignore_parent)
+	}else{
+		if(ignore_parent)
 			CComponents::kill(bg_color);
 		else
 			CComponents::kill(cc_parent->getColorBody());
