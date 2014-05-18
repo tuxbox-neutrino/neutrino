@@ -203,8 +203,8 @@ class CComponents
 		virtual void hide();
 
 		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
-		///from CFrameBuffer but with possiblity to define color, default color is 0 (empty background)
-		virtual void kill(const fb_pixel_t& bg_color = 0);
+		///from CFrameBuffer but with possiblity to define color, default color is COL_BACKGROUND (empty background)
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND);
 
 		///returns paint mode, true=item was painted
 		virtual bool isPainted(){return is_painted;}
@@ -268,7 +268,7 @@ class CComponentsItem : public CComponents
 		///erase or paint over rendered objects without restore of background, it's similar to paintBackgroundBoxRel() known
 		///from CFrameBuffer but with possiblity to define color, default color is 0 (empty background)
 		///NOTE: Items with parent binding use the parent background color as default! Set parameter 'ignore_parent=true' to ignore parent background color!
-		virtual void kill(const fb_pixel_t& bg_color = 0, bool ignore_parent = false);
+		virtual void kill(const fb_pixel_t& bg_color = COL_BACKGROUND, bool ignore_parent = false);
 
 		///get the current item type, see attribute cc_item_type above
 		virtual int getItemType();
