@@ -659,11 +659,11 @@ infoviewer.epgwait Warte auf EPG-Informationen...
 infoviewer.eventlist EPG/Vorschau
 infoviewer.languages Tonwahl
 infoviewer.motor_moving Antennenpositionierung
-infoviewer.next später
+infoviewer.next Später
 infoviewer.nocurrent Keine Info zu laufendem Programm
 infoviewer.noepg Keine EPG-Information verfügbar
 infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar
-infoviewer.now jetzt
+infoviewer.now Jetzt
 infoviewer.selecttime Startzeiten
 infoviewer.streaminfo Erweiterungen
 infoviewer.subchan_disp_pos Unterkanalanzeige
