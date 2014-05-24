@@ -366,6 +366,20 @@ extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
 extra.dboxinfo Box-Info
+extra.dboxinfo_available Frei
+extra.dboxinfo_boottime Boot
+extra.dboxinfo_filesystem Dateisystem
+extra.dboxinfo_frontend Frontends
+extra.dboxinfo_load Last
+extra.dboxinfo_memory Speicher
+extra.dboxinfo_ram RAM
+extra.dboxinfo_size Gesamt
+extra.dboxinfo_swap Swap
+extra.dboxinfo_time Zeit
+extra.dboxinfo_timeformat %FT%H:%M:%S%z
+extra.dboxinfo_uptime Uptime
+extra.dboxinfo_use Nutzung
+extra.dboxinfo_used Benutzt
 extra.east Osten
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3

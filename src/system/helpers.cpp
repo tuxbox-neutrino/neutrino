@@ -398,6 +398,12 @@ std::string strftime(const char *format, const struct tm *tm)
 	return std::string(buf);
 }
 
+std::string strftime(const char *format, time_t when, bool gm)
+{
+	struct tm *t = gm ? gmtime(&when) : localtime(&when);
+	return strftime(format, t);
+}
+
 time_t toEpoch(std::string &date)
 {
 	struct tm t;

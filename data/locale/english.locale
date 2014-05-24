@@ -366,6 +366,20 @@ extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet....\n
 extra.chalreadyinbq The current channel is already in selected bouquet....\n
 extra.dboxinfo Box Info
+extra.dboxinfo_available Free
+extra.dboxinfo_boottime Boot
+extra.dboxinfo_filesystem Filesystem
+extra.dboxinfo_frontend Frontends
+extra.dboxinfo_load Load
+extra.dboxinfo_memory Memory
+extra.dboxinfo_ram RAM
+extra.dboxinfo_size Total
+extra.dboxinfo_swap Swap
+extra.dboxinfo_time Time
+extra.dboxinfo_timeformat %FT%H:%M:%S%z
+extra.dboxinfo_uptime Uptime
+extra.dboxinfo_use Use
+extra.dboxinfo_used Used
 extra.east East
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
