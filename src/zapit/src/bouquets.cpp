@@ -111,7 +111,7 @@ void CZapitBouquet::addService(CZapitChannel* newChannel)
 			break;
 	}
 	if (bLocked)
-		newChannel->bAlwaysLocked++;
+		newChannel->bLockCount++;
 }
 
 void CZapitBouquet::removeService(CZapitChannel* oldChannel)
@@ -131,7 +131,7 @@ void CZapitBouquet::removeService(CZapitChannel* oldChannel)
 		}
 
 		if (bLocked)
-			oldChannel->bAlwaysLocked--;
+			oldChannel->bLockCount--;
 		(*channels).erase(remove(channels->begin(), channels->end(), oldChannel), channels->end());
 	}
 }

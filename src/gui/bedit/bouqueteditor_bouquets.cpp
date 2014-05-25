@@ -433,11 +433,11 @@ void CBEBouquetWidget::deleteBouquet()
 	if ((*Bouquets)[selected]->bLocked) {
 		ZapitChannelList *channels = &(*Bouquets)[selected]->tvChannels;
 		for(unsigned int i = 0; i < channels->size(); i++)
-			((*channels)[i])->bAlwaysLocked--;
+			((*channels)[i])->bLockCount--;
 
 		channels = &(*Bouquets)[selected]->radioChannels;
 		for(unsigned int i = 0; i < channels->size(); i++)
-			((*channels)[i])->bAlwaysLocked--;
+			((*channels)[i])->bLockCount--;
 	}
 
 	g_bouquetManager->deleteBouquet(selected);
@@ -531,15 +531,15 @@ void CBEBouquetWidget::switchLockBouquet()
 	(*Bouquets)[selected]->bLocked = !(*Bouquets)[selected]->bLocked;
 	paint();
 
-	int add = (*Bouquets)[selected]->bLocked ? +1 : -1;
+	int add = (*Bouquets)[selected]->bLocked * 2 - 1;
 
 	ZapitChannelList *channels = &(*Bouquets)[selected]->tvChannels;
 	for(unsigned int i = 0; i < channels->size(); i++)
-		((*channels)[i])->bAlwaysLocked += add;
+		((*channels)[i])->bLockCount += add;
 
 	channels = &(*Bouquets)[selected]->radioChannels;
 	for(unsigned int i = 0; i < channels->size(); i++)
-		((*channels)[i])->bAlwaysLocked += add;
+		((*channels)[i])->bLockCount += add;
 }
 
 std::string CBEBouquetWidget::inputName(const char * const defaultName, const neutrino_locale_t caption)

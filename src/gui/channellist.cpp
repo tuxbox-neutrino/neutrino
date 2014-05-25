@@ -352,7 +352,7 @@ int CChannelList::doChannelMenu(void)
 	 * a channel could be added/removed to/from an unlocked bouquet and so made
 	 * accessible. */
 	if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED &&
-	    !!chanlist[selected]->bAlwaysLocked != g_settings.parentallock_defaultlocked)
+	    !!chanlist[selected]->bLockCount != g_settings.parentallock_defaultlocked)
 		unlocked = (chanlist[selected]->last_unlocked_time + 3600 > time_monotonic());
 
 	snprintf(cnt, sizeof(cnt), "%d", i);
@@ -1298,7 +1298,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 		}
 
 		selected_chid = channel->getChannelID();
-		g_RemoteControl->zapTo_ChannelID(selected_chid, channel->getName(), (!!channel->bAlwaysLocked == g_settings.parentallock_defaultlocked));
+		g_RemoteControl->zapTo_ChannelID(selected_chid, channel->getName(), (!!channel->bLockCount == g_settings.parentallock_defaultlocked));
 		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(channel->getChannelID());
 	}
 	if(new_zap_mode != 2 /* not active */) {
