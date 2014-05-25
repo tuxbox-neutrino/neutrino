@@ -110,6 +110,8 @@ void CZapitBouquet::addService(CZapitChannel* newChannel)
 			radioChannels.push_back(newChannel);
 			break;
 	}
+	if (bLocked)
+		newChannel->bAlwaysLocked++;
 }
 
 void CZapitBouquet::removeService(CZapitChannel* oldChannel)
@@ -128,6 +130,8 @@ void CZapitBouquet::removeService(CZapitChannel* oldChannel)
 				break;
 		}
 
+		if (bLocked)
+			oldChannel->bAlwaysLocked--;
 		(*channels).erase(remove(channels->begin(), channels->end(), oldChannel), channels->end());
 	}
 }
@@ -406,14 +410,12 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 
-					chan->bAlwaysLocked = newBouquet->bLocked;
 					newBouquet->addService(chan);
 				} else if (bUser) {
 					chan = new CZapitChannel(name2, CREATE_CHANNEL_ID64, 1 /*service_type*/,
 							satellitePosition, freq);
 					CServiceManager::getInstance()->AddChannel(chan);
 					chan->flags = CZapitChannel::NOT_FOUND;
-					chan->bAlwaysLocked = newBouquet->bLocked;
 					newBouquet->addService(chan);
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}

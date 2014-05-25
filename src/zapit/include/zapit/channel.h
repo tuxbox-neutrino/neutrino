@@ -178,7 +178,7 @@ class CZapitChannel
 		} channel_flags_t;
 		casys_map_t			camap;
 
-		bool				bAlwaysLocked;
+		unsigned int			bAlwaysLocked;
 
 		int				number;
 		CChannelEvent			currentEvent,nextEvent;
