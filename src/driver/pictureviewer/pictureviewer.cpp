@@ -527,26 +527,28 @@ bool CPictureViewer::GetLogoName(const uint64_t& channel_id, const std::string& 
 		id_tmp_path += strChnId + fileType[i];
 		v_path.push_back(id_tmp_path);
 
-		//create filename with channel name (LOGO_FLASH_DIR_VAR)
-		id_tmp_path = LOGO_FLASH_DIR_VAR "/";
-		id_tmp_path += ChannelName + fileType[i];
-		v_path.push_back(id_tmp_path);
+		if(g_settings.logo_hdd_dir != LOGO_FLASH_DIR_VAR){
+			//create filename with channel name (LOGO_FLASH_DIR_VAR)
+			id_tmp_path = LOGO_FLASH_DIR_VAR "/";
+			id_tmp_path += ChannelName + fileType[i];
+			v_path.push_back(id_tmp_path);
 
-		//create filename with id (LOGO_FLASH_DIR_VAR)
-		id_tmp_path = LOGO_FLASH_DIR_VAR "/";
-		id_tmp_path += strChnId + fileType[i];
-		v_path.push_back(id_tmp_path);
+			//create filename with id (LOGO_FLASH_DIR_VAR)
+			id_tmp_path = LOGO_FLASH_DIR_VAR "/";
+			id_tmp_path += strChnId + fileType[i];
+			v_path.push_back(id_tmp_path);
+		}
+		if(g_settings.logo_hdd_dir != LOGO_FLASH_DIR){
+			//create filename with channel name (LOGO_FLASH_DIR)
+			id_tmp_path = LOGO_FLASH_DIR "/";
+			id_tmp_path += ChannelName + fileType[i];
+			v_path.push_back(id_tmp_path);
 
-		//create filename with channel name (LOGO_FLASH_DIR)
-		id_tmp_path = LOGO_FLASH_DIR "/";
-		id_tmp_path += ChannelName + fileType[i];
-		v_path.push_back(id_tmp_path);
-
-		//create filename with id (LOGO_FLASH_DIR)
-		id_tmp_path = LOGO_FLASH_DIR "/";
-		id_tmp_path += strChnId + fileType[i];
-		v_path.push_back(id_tmp_path);
-
+			//create filename with id (LOGO_FLASH_DIR)
+			id_tmp_path = LOGO_FLASH_DIR "/";
+			id_tmp_path += strChnId + fileType[i];
+			v_path.push_back(id_tmp_path);
+		}
 		//check if file is available, name with real name is preferred, return true on success
 		for (size_t j = 0; j < v_path.size(); j++){
 			if (access(v_path[j].c_str(), R_OK) != -1){
