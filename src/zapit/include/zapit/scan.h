@@ -107,6 +107,7 @@ class CServiceScan : public OpenThreads::Thread
 		std::map <t_channel_id, freq_id_t> fast_services_freq;
 		std::map <t_channel_id, int> fast_services_number;
 		std::list<std::vector<uint8_t> > fst_sections;
+		uint32_t tune_tp_index;
 
 		unsigned char fst_version;
 		bool quiet_fastscan;

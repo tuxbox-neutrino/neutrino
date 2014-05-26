@@ -161,15 +161,27 @@ bool CServiceScan::FastscanTune(int id)
 {
 	uint8_t polarization;
 	FrontendParameters feparams;
-	bool res = false;
+	bool res = true;
 
-	feparams.dvb_feparams.frequency = 12070000;
-	feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
-	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
-	polarization = 0;
+	if (tune_tp_index >= FAST_TUNE_TPS) {
+		printf("[fast scan] no more TPs to try, exiting\n");
+		return false;
+	}
 
-	ReportFastScan(feparams, polarization, 235);
-	if(!tuneFrequency(&feparams, polarization, 235)) {
+	if (tune_tp_index == 0) {
+		printf("[fast scan] try tuning to main TP\n");
+		feparams.dvb_feparams.frequency = 12070000;
+		feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
+		feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
+		polarization = 0;
+		ReportFastScan(feparams, polarization, 235);
+		res = tuneFrequency(&feparams, polarization, 235);
+	}
+
+	// if TP 0 lock failed or TP 0 lock succeeded but no fastscan data arrived
+	// ie on Astra 1 and 3 there are 12070 H 27000 3/4 identical TPs so we can
+	// not use 'lock-failed' as the only condition to check the next sat/TP.
+	if (tune_tp_index == 1 || !res) {
 		printf("[fast scan] tune failed, try backup\n");
 		if (id == HELLO_OPERATOR_ID) {
 			feparams.dvb_feparams.frequency = 12074000;
@@ -185,8 +197,7 @@ bool CServiceScan::FastscanTune(int id)
 			ReportFastScan(feparams, polarization, 192);
 			res = tuneFrequency(&feparams, polarization, 192);
 		}
-	} else
-		res = true;
+	}
 
 	return res;
 }
@@ -199,6 +210,9 @@ bool CServiceScan::ScanFast()
 		INFO("[fast scan] invalid operator %d", num);
 		return false;
 	}
+
+	tune_tp_index = 0;
+
 	return ScanFast(num);
 }
 
@@ -219,16 +233,23 @@ bool CServiceScan::ScanFast(int num, bool reload)
 
 	printf("[fast scan] scaning operator %d [%s], pid 0x%x\n", op->id, op->name, op->pid);
 
-	if (!FastscanTune(op->id))
-		goto _err;
+	while (tune_tp_index < FAST_TUNE_TPS) {
+		if (!FastscanTune(op->id))
+			goto _err;
 
-	if (!quiet_fastscan)
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
+		if (!quiet_fastscan)
+			CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
 
-	scanBouquetManager = new CBouquetManager();
+		if (!scanBouquetManager)
+			scanBouquetManager = new CBouquetManager();
 
-	if(ParseFnt(op->pid, op->id))
-		ParseFst(op->pid, op);
+		if (ParseFnt(op->pid, op->id))
+			break;
+
+		tune_tp_index++;
+	}
+	
+	ParseFst(op->pid, op);
 
 	//FIXME move to Cleanup() ?
 	if(found_channels) {
@@ -303,7 +324,7 @@ bool CServiceScan::ReadFst(unsigned short pid, unsigned short operator_id, bool 
 	cDemux * dmx = new cDemux();
 	dmx->Open(DMX_PSI_CHANNEL);
 
-	if (dmx->sectionFilter(pid, filter, mask, 3) < 0) {
+	if (dmx->sectionFilter(pid, filter, mask, 3, 3000) < 0) {
 		delete dmx;
 		return false;
 	}
@@ -555,7 +576,7 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 	frontendType = FE_QPSK;
 
 	printf("[FNT] scaning pid %d operator %d\n", pid, operator_id);
-	if (dmx->sectionFilter(pid, filter, mask, 3) < 0) {
+	if (dmx->sectionFilter(pid, filter, mask, 3, 3000) < 0) {
 		delete dmx;
 		return false;
 	}
