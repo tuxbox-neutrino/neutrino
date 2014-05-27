@@ -82,7 +82,7 @@ CBouquetManager *g_bouquetManager = NULL;
 
 //int cam_ci = 2; //  CA_INIT_SC 0 or CA_INIT_CI 1 or CA_INIT_BOTH 2
 cCA *ca = NULL;
-extern cDemux * pmtDemux;
+extern cDemux *pmtDemux;
 extern cVideo *videoDecoder;
 extern cAudio *audioDecoder;
 extern cDemux *audioDemux;
@@ -2025,16 +2025,11 @@ void CZapit::sendChannels(int connfd, const CZapitClient::channelsMode mode, con
 
 bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 {
-	bool have_pcr = false;
-	bool have_audio = false;
-	bool have_video = false;
-	bool have_teletext = false;
-
 	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);
 	if(!thisChannel)
 		thisChannel = current_channel;
 
-	if ((playbackStopForced == true) || (!thisChannel) || playing)
+	if (playbackStopForced || !thisChannel || playing)
 		return false;
 
 	if(standby) {
@@ -2042,65 +2037,58 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		return true;
 	}
 
-	printf("[zapit] vpid %X apid %X pcr %X\n", thisChannel->getVideoPid(), thisChannel->getAudioPid(), thisChannel->getPcrPid());
-	if (thisChannel->getPcrPid() != 0)
-		have_pcr = true;
-	if (thisChannel->getAudioPid() != 0)
-		have_audio = true;
-	if ((thisChannel->getVideoPid() != 0) && (currentMode & TV_MODE))
-		have_video = true;
-	if (thisChannel->getTeletextPid() != 0)
-		have_teletext = true;
+	unsigned short pcr_pid = thisChannel->getPcrPid();
+	unsigned short audio_pid = thisChannel->getAudioPid();
+	unsigned short video_pid = (currentMode & TV_MODE) ? thisChannel->getVideoPid() : 0;
+	unsigned short teletext_pid = thisChannel->getTeletextPid();
+	printf("[zapit] vpid %X apid %X pcr %X\n", video_pid, audio_pid, pcr_pid);
 
-	if ((!have_audio) && (!have_video) && (!have_teletext))
+	if (!audio_pid && !video_pid && !teletext_pid)
 		return false;
 #if 1
-	if(have_video && (thisChannel->getPcrPid() == 0x1FFF)) { //FIXME
-		thisChannel->setPcrPid(thisChannel->getVideoPid());
-		have_pcr = true;
+	if(video_pid && (pcr_pid == 0x1FFF)) { //FIXME
+		thisChannel->setPcrPid(video_pid);
+		pcr_pid = video_pid;
 	}
 #endif
 	/* set demux filters */
 	videoDecoder->SetStreamType((VIDEO_FORMAT)thisChannel->type);
 //	videoDecoder->SetSync(VIDEO_PLAY_MOTION);
 
-	if (have_pcr) {
-		pcrDemux->pesFilter(thisChannel->getPcrPid());
-	}
-	if (have_audio) {
-		audioDemux->pesFilter(thisChannel->getAudioPid());
-	}
-	if (have_video) {
-		videoDemux->pesFilter(thisChannel->getVideoPid());
-	}
+	if (pcr_pid)
+		pcrDemux->pesFilter(pcr_pid);
+	if (audio_pid)
+		audioDemux->pesFilter(audio_pid);
+	if (video_pid)
+		videoDemux->pesFilter(video_pid);
 //	audioDecoder->SetSyncMode(AVSYNC_ENABLED);
 
 #if 0 //FIXME hack ?
 	if(thisChannel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
 		audioDecoder->SetSyncMode(AVSYNC_AUDIO_IS_MASTER);
-		have_pcr = false;
+		pcr_pid = false;
 	}
 #endif
-	if (have_pcr) {
-		printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
+	if (pcr_pid) {
+		//printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
 		pcrDemux->Start();
 	}
 
 	/* select audio output and start audio */
-	if (have_audio) {
+	if (audio_pid) {
 		SetAudioStreamType(thisChannel->getAudioChannel()->audioChannelType);
 		audioDemux->Start();
 		audioDecoder->Start();
 	}
 
 	/* start video */
-	if (have_video) {
-		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
+	if (video_pid) {
+		videoDecoder->Start(0, pcr_pid, video_pid);
 		videoDemux->Start();
 	}
 #ifdef USE_VBI
-	if(have_teletext)
-		videoDecoder->StartVBI(thisChannel->getTeletextPid());
+	if(teletext_pid)
+		videoDecoder->StartVBI(teletext_pid);
 #endif
 	playing = true;
 
@@ -2236,8 +2224,7 @@ unsigned CZapit::ZapTo(const unsigned int pchannel)
 	CBouquetManager::ChannelIterator cit = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).FindChannelNr(pchannel);
 	if (!(cit.EndOfChannels()))
 		return ZapTo((*cit)->getChannelID(), false);
-	else
-		return 0;
+	return 0;
 }
 
 bool CZapit::Start(Z_start_arg *ZapStart_arg)
