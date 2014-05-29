@@ -449,17 +449,20 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	transponder t;
 	CServiceManager::getInstance()->GetTransponder(channel->getTransponderId(), t);
 
-	int array[5]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO)),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE)),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE)),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_SCANTS_FREQDATA))};
+	int array[6]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION),true),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO),true),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE),true),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE),true),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE),true),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_SCANTS_FREQDATA),true)};// UTF-8
 
-	for(i=0 ; i<5; i++) {
+	for(i=0 ; i<6; i++) {
 		if(spaceoffset < array[i])
 			spaceoffset = array[i];
 	}
-	average_bitrate_offset = spaceoffset+=4;
+	spaceoffset += g_Font[font_info]->getRenderWidth(" ");
+
+	average_bitrate_offset = spaceoffset;
 
 	if(channel->getVideoPid() && !(videoDecoder->getBlank())){
 		 videoDecoder->getPictureInfo(xres, yres, framerate);
