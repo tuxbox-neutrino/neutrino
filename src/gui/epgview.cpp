@@ -180,7 +180,7 @@ void CEpgData::processTextToArray(std::string text, int screening) // UTF-8
 
 			// check the wordwidth - add to this line if size ok
 			int aktWordWidth = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(aktWord, true);
-			if ((aktWordWidth+aktWidth)<(ox- 20- 15))
+			if ((aktWordWidth+aktWidth)<(ox - 20 - 15))
 			{//space ok, add
 				aktWidth += aktWordWidth;
 				aktLine += aktWord;
@@ -228,10 +228,10 @@ void CEpgData::showText( int startPos, int ypos )
 	int max_mon_w = 0, max_wday_w = 0;
 	int digi = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth("29..");
 	for(int i = 0; i < 12;i++){
-		max_mon_w = std::max(max_mon_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getMonth(i))) + ".", true)); // UTF-8
+		max_mon_w = std::max(max_mon_w, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getMonth(i))) + " ", true)); // UTF-8
 		if(i > 6)
-		      continue;
-		max_wday_w = std::max(max_wday_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + ".", true)); // UTF-8
+			continue;
+		max_wday_w = std::max(max_wday_w, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(std::string(g_Locale->getText(CLocaleManager::getWeekday(i))) + " ", true)); // UTF-8
 	}
 	frameBuffer->paintBoxRel(sx, y, ox- 15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
@@ -1101,7 +1101,6 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 	std::string		screening_dates,screening_nodual;
 	int			count = 0;
 	int 			flag = 1;
-	char			tmpstr[256]={0};
 
 	screening_dates = screening_nodual = "";
 
@@ -1111,15 +1110,9 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 		tmStartZeit = localtime(&(e->startTime));
 
 		screening_dates = g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
-		screening_dates += '.';
-
-		strftime(tmpstr, sizeof(tmpstr), " %d.", tmStartZeit );
-		screening_dates += tmpstr;
-
+		screening_dates += strftime(", %d", tmStartZeit);
 		screening_dates += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
-
-		strftime(tmpstr, sizeof(tmpstr), ". %H:%M", tmStartZeit );
-		screening_dates += tmpstr;
+		screening_dates += strftime(", %R", tmStartZeit);
 		if (e->startTime <= tmp_curent_zeit)
 			flag = 2;
 		else
@@ -1127,6 +1120,7 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 
 		if (screening_dates != screening_nodual) {
 			screening_nodual=screening_dates;
+
 			processTextToArray(screening_dates, flag ); // UTF-8
 		}
 	}
