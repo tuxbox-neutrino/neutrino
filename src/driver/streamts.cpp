@@ -437,7 +437,7 @@ void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids
 	for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it) {
 		if (*it == channel->getVideoPid()) {
 			printf("CStreamManager::Parse: genpsi vpid %x (%d)\n", *it, channel->type);
-			psi.addPid(*it, channel->type ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
+			psi.addPid(*it, channel->type == 1 ? EN_TYPE_AVC : channel->type == 2 ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
 		} else {
 			for (int i = 0; i <  channel->getAudioChannelCount(); i++) {
 				if (*it == channel->getAudioChannel(i)->pid) {
