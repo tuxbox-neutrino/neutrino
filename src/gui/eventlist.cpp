@@ -331,8 +331,8 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 
-		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade())
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone())
 				loop = false;
 		}
 		else if (msg == CRCInput::RC_timeout)
@@ -680,7 +680,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 
 	if(!dont_hide){
 		hide();
-		fader.Stop();
+		fader.StopFade();
 	}
 	return res;
 }

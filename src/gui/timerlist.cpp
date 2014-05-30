@@ -508,8 +508,8 @@ int CTimerList::show()
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 							      ::TIMING_MENU]);
 
-		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade())
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone())
 				loop = false;
 		}
 		else if ( ( msg == CRCInput::RC_timeout ) ||
@@ -679,7 +679,7 @@ int CTimerList::show()
 		}
 	}
 	hide();
-	fader.Stop();
+	fader.StopFade();
 
 	return(res);
 }

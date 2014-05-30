@@ -104,8 +104,8 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
-		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade())
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone())
 				doLoop = false;
 		}
 		else if((msg == NeutrinoMessages::EVT_TIMER) && (data == updateTimer)) {
@@ -151,7 +151,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	}
 
 	hide();
-	fader.Stop();
+	fader.StopFade();
 	g_RCInput->killTimer(updateTimer);
 	return res;
 }

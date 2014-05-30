@@ -817,8 +817,8 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
 
-			if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-				if(fader.Fade())
+			if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+				if(fader.FadeDone())
 					loop = false;
 			}
 			else if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t) g_settings.key_channelList_cancel)) {
@@ -1148,7 +1148,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 		this->hide();
 
-		fader.Stop();
+		fader.StopFade();
 #if 0
 		for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
 				It != this->displayedChannelEntries.end(); It++) {

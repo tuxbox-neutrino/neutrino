@@ -672,8 +672,8 @@ int CChannelList::show()
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
-		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade()) {
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone()) {
 				loop = false;
 			}
 		}
@@ -757,7 +757,7 @@ int CChannelList::show()
 		}
 		else if ( msg == CRCInput::RC_setup) {
 			old_b_id = bouquetList->getActiveBouquetNumber();
-			fader.Stop();
+			fader.StopFade();
 			int ret = doChannelMenu();
 			if (ret != 0)
 				CNeutrinoApp::getInstance()->MarkChannelListChanged();
@@ -980,7 +980,7 @@ int CChannelList::show()
 		new_zap_mode = 0;
 
 		hide();
-		fader.Stop();
+		fader.StopFade();
 	}
 
 	if (bShowBouquetList) {

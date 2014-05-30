@@ -419,8 +419,8 @@ int CBouquetList::show(bool bShowChannelList)
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
-		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade())
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone())
 				loop = false;
 		}
 		else if ((msg == CRCInput::RC_timeout                             ) ||
@@ -561,7 +561,7 @@ int CBouquetList::show(bool bShowChannelList)
 	}
 	hide();
 
-	fader.Stop();
+	fader.StopFade();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	if (save_bouquets) {

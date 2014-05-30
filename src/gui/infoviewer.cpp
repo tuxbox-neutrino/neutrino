@@ -876,8 +876,8 @@ void CInfoViewer::loop(bool show_dot)
 		else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
 			res = messages_return::cancel_info;
-		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade())
+		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone())
 				res = messages_return::cancel_info;
 		} else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
 			if(fader.StartFadeOut())
@@ -927,7 +927,7 @@ void CInfoViewer::loop(bool show_dot)
 			} else {
 				if (msg == CRCInput::RC_standby) {
 					g_RCInput->killTimer (sec_timer_id);
-					fader.Stop();
+					fader.StopFade();
 				}
 				res = neutrino->handleMsg (msg, data);
 				if (res & messages_return::unhandled) {
@@ -975,7 +975,7 @@ void CInfoViewer::loop(bool show_dot)
 	}
 
 	g_RCInput->killTimer (sec_timer_id);
-	fader.Stop();
+	fader.StopFade();
 	if (virtual_zap_mode) {
 		/* if bouquet cycle set, do virtual over current bouquet */
 		if (/*g_settings.zap_cycle && */ /* (bouquetList != NULL) && */ !(bouquetList->Bouquets.empty()))
@@ -1282,9 +1282,9 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		//Set_CA_Status (data);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_TIMER) {
-		if (data == fader.GetTimer()) {
+		if (data == fader.GetFadeTimer()) {
 			// here, the event can only come if there is another window in the foreground!
-			fader.Stop();
+			fader.StopFade();
 			return messages_return::handled;
 		} else if (data == lcdUpdateTimer) {
 //printf("CInfoViewer::handleMsg: lcdUpdateTimer\n");
