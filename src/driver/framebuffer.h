@@ -50,7 +50,7 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define CORNER_BOTTOM		0xC
 #define CORNER_ALL		0xF
 
-#define FADE_TIME 10000
+#define FADE_TIME 1750
 #define FADE_STEP 5
 #define FADE_RESET 0xFFFF
 
