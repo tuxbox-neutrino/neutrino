@@ -32,13 +32,13 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/icons.h>
-
+#include <driver/fade.h>
 /// Basic component class.
 /*!
 Basic attributes and member functions for component sub classes
 */
 
-class CComponents
+class CComponents : public COSDFader
 {
 	private:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
