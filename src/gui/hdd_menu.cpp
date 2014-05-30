@@ -356,6 +356,30 @@ void CHDDMenuHandler::showHint(std::string &message)
 	delete hintBox;
 }
 
+void CHDDMenuHandler::setRecordPath(std::string &dev)
+{
+	std::string newpath = std::string(MOUNT_BASE) + dev + "/movies";
+	if (g_settings.network_nfs_recordingdir == newpath) {
+		printf("CHDDMenuHandler::setRecordPath: recordingdir already set to %s\n", newpath.c_str());
+		return;
+	}
+	bool old_menu = in_menu;
+	in_menu = false;
+	int res = ShowMsg(LOCALE_RECORDINGMENU_DEFDIR, LOCALE_HDD_SET_RECDIR, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+	if(res == CMessageBox::mbrYes) {
+		g_settings.network_nfs_recordingdir = newpath;
+		CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
+		if(g_settings.timeshiftdir.empty())
+		{
+			std::string timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
+			safe_mkdir(timeshiftDir.c_str());
+			printf("New timeshift dir: %s\n", timeshiftDir.c_str());
+			CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
+		}
+	}
+	in_menu = old_menu;
+}
+
 int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
 	if (msg == NeutrinoMessages::EVT_HOTPLUG) {
@@ -399,6 +423,8 @@ int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t dat
 					g_Locale->getText(mounted ? LOCALE_HDD_MOUNT_OK : LOCALE_HDD_MOUNT_FAILED)
 					: g_Locale->getText(LOCALE_HDD_UMOUNTED));
 			showHint(message);
+			if (added && tmp != "sr")
+				setRecordPath(dev);
 		}
 		if (in_menu && !lock_refresh) {
 			show_menu = true;
@@ -461,24 +487,13 @@ int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 	}
 	else if (actionkey[0] == 'f') {
 		int ret = formatDevice(dev);
+#if 0
 		std::string devname = "/dev/" + dev + getDefaultPart(dev);
 		if (show_menu && is_mounted(devname.c_str())) {
-			bool old_menu = in_menu;
-			in_menu = false;
-			int res = ShowMsg(LOCALE_RECORDINGMENU_DEFDIR, LOCALE_HDD_SET_RECDIR, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-			if(res == CMessageBox::mbrYes) {
-				g_settings.network_nfs_recordingdir = std::string(MOUNT_BASE) + "/" + dev + getDefaultPart(dev) + "/movies";
-				CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
-				if(g_settings.timeshiftdir.empty())
-				{
-					std::string timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
-					safe_mkdir(timeshiftDir.c_str());
-					printf("New timeshift dir: %s\n", timeshiftDir.c_str());
-					CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
-				}
-			}
-			in_menu = old_menu;
+			devname = dev + getDefaultPart(dev);
+			setRecordPath(devname);
 		}
+#endif
 		return ret;
 	}
 	return menu_return::RETURN_REPAINT;

@@ -92,6 +92,7 @@ class CHDDMenuHandler : public CMenuTarget
 		void showError(neutrino_locale_t err);
 		bool scanDevices();
 		void showHint(std::string &messsage);
+		void setRecordPath(std::string &dev);
 		CHDDMenuHandler();
 
 	public:
