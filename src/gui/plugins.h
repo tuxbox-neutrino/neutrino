@@ -110,8 +110,10 @@ class CPlugins
 
 		void setPluginDir(const std::string & dir) { plugin_dir = dir; }
 
+#if 0
 		PluginParam * makeParam(const char * const id, const char * const value, PluginParam * const next);
 		PluginParam * makeParam(const char * const id, const int          value, PluginParam * const next);
+#endif
 
 		inline       int           getNumberOfPlugins  (void            ) const { return plugin_list.size()                    ; }
 		inline const char *        getName             (const int number) const { return plugin_list[number].name.c_str()      ; }
