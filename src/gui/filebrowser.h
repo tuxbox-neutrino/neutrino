@@ -170,6 +170,7 @@ class CFileBrowser
 		int 			fheight;	// Fonthoehe Filelist-Inhalt
 		int 			theight;	// Fonthoehe Filelist-Titel
 		int			foheight;	// Hoehe der button leiste
+		int			skwidth;	// width SMSKey field
 		std::string		name;
 		std::string		base;
 		std::string		m_baseurl;
@@ -188,6 +189,7 @@ class CFileBrowser
 		void paint();
 		void paintHead();
 		void paintFoot();
+		void paintSMSKey();
 		void recursiveDelete(const char* file);
 
 	protected:

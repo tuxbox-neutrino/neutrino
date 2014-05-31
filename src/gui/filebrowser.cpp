@@ -298,6 +298,7 @@ void CFileBrowser::commonInit()
 	if (fheight == 0)
 		fheight = 1; /* avoid div by zero on invalid font */
 	foheight = fnt_small->getHeight()+6; //initial height value for buttonbar; TODO get value from buttonbar
+	skwidth = 26;
 
 	liststart = 0;
 	listmaxshow = std::max(1,(int)(height - theight - 2 * foheight)/fheight);
@@ -782,6 +783,7 @@ bool CFileBrowser::exec(const char * const dirname)
 		if(!CRCInput::isNumeric(msg))
 		{
 			m_SMSKeyInput.resetOldKey();
+			paintSMSKey();
 		}
 
 		if (msg == CRCInput::RC_yellow)
@@ -1383,15 +1385,16 @@ void CFileBrowser::paintFoot()
 		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL	, LOCALE_FILEBROWSER_DELETE				},
 	};
 
-// 	int iw = 0, ih = 0; 
-// 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih); 
+	//y first line
+	int by1 = y + height - (2 * foheight );
+	//y second line
+	int by2 = by1 + foheight;
+	//width
+	int fowidth = width - skwidth;
 
-	//Background
-	int by0 = y + height - (2 * foheight );
-	frameBuffer->paintBoxRel(x, by0, width, (2 * foheight ), COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
+	//background
+	frameBuffer->paintBoxRel(x, by1, width, (2 * foheight ), COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
 	
-	//Second Line (bottom, top)
-	int by2 = by0 + foheight;
 
 	if (!(filelist.empty()))
 	{
@@ -1404,7 +1407,7 @@ void CFileBrowser::paintFoot()
 			num_buttons++;
 		}
 		//red, green, yellow button
-		::paintButtons(x, by0, 0, num_buttons, FileBrowserButtons, width, foheight);
+		::paintButtons(x, by1, 0, num_buttons, FileBrowserButtons, fowidth, foheight);
 
 		/* TODO: the changing existence of the OK button makes the sort button
 		 *       shift its place :-( */
@@ -1417,16 +1420,26 @@ void CFileBrowser::paintFoot()
 		}
 		if (strncmp(Path.c_str(), VLC_URI, strlen(VLC_URI)) != 0) // No delete in vlc mode
 			num_buttons++;
-		/* width-26 to leave room for the SMSinput indicator */
-		::paintButtons(x, by2, 0, num_buttons, &(FileBrowserButtons2[idx]), width - 26, foheight);
 
-		if(m_SMSKeyInput.getOldKey()!=0)
-		{
-			char cKey[2]={m_SMSKeyInput.getOldKey(),0};
-			cKey[0] = toupper(cKey[0]);
-			int len = fnt_small->getRenderWidth(cKey);
-			fnt_small->RenderString(x + width - 10 - len, by2 + foheight, len, cKey, COL_MENUHEAD_TEXT, 0, true);
-		}
+		::paintButtons(x, by2, 0, num_buttons, &(FileBrowserButtons2[idx]), fowidth, foheight);
+
+		paintSMSKey();
+	}
+}
+
+void CFileBrowser::paintSMSKey()
+{
+	int skheight = fnt_small->getHeight();
+
+	//background
+	frameBuffer->paintBoxRel(x + width - skwidth, y + height - foheight - (skheight/2), skwidth, skheight, COL_INFOBAR_SHADOW_PLUS_1);
+
+	if(m_SMSKeyInput.getOldKey()!=0)
+	{
+		char cKey[2]={m_SMSKeyInput.getOldKey(),0};
+		cKey[0] = toupper(cKey[0]);
+		int len = fnt_small->getRenderWidth(cKey, true);
+		fnt_small->RenderString(x + width - skwidth, y + height - foheight + (skheight/2), len, cKey, COL_MENUHEAD_TEXT, 0, true);
 	}
 }
 
@@ -1483,6 +1496,7 @@ void CFileBrowser::SMSInput(const neutrino_msg_t msg)
 	{
 		paintItem(selected - liststart);
 	}
+	paintSMSKey();
 }
 
 //------------------------------------------------------------------------
