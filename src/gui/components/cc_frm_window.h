@@ -57,6 +57,10 @@ class CComponentsWindow : public CComponentsForm
 	protected:
 		///object: header object, to get access to header properties see also getHeaderObject()
 		CComponentsHeader * ccw_head;
+		///object: left sidebar chain object, this is a container that contains sidebar items
+		CComponentsFrmChain * ccw_left_sidebar;
+		///object: right sidebar chain object, this is a container that contains sidebar items
+		CComponentsFrmChain * ccw_right_sidebar;
 		///object: body object, this is the container for all needed items, to add with addWindowItem()
 		CComponentsForm * ccw_body;
 		///object: footer object, to get access to header properties see also getFooterObject(
@@ -73,9 +77,19 @@ class CComponentsWindow : public CComponentsForm
 		bool ccw_show_footer;
 		///property: value = true, let show header, see showHeader()
 		bool ccw_show_header;
+		///property: value = true, let show left sidebar, see enableSideBar()
+		bool ccw_show_l_sideber;
+		///property: value = true, let show right sidebar, see enableSidebar()
+		bool ccw_show_r_sideber;
+		///width of sidebars
+		int ccw_w_sidebar;
 
 		///initialze header object
 		void initHeader();
+		///initialze left sidebar object
+		void initLeftSideBar();
+		///initialze right sidebar object
+		void initRightSideBar();
 		///initialze body object
 		void initBody();
 		///initialze footer object
@@ -132,6 +146,14 @@ class CComponentsWindow : public CComponentsForm
 		///allow/disallow paint a header, default true, see also ccw_show_header, showFooter()
 		void showHeader(bool show = true){ccw_show_header = show; initCCWItems();};
 
+		enum
+		{
+			CC_WINDOW_LEFT_SIDEBAR 	= 1,
+			CC_WINDOW_RIGHT_SIDEBAR = 2
+		};
+		///allow/disallow paint a sidebar, default are enabled
+		void enableSidebar(const int& sidbar_type = CC_WINDOW_LEFT_SIDEBAR | CC_WINDOW_RIGHT_SIDEBAR);
+
 		///set caption in header with string, see also getHeaderObject()
 		void setWindowCaption(const std::string& text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK){ccw_caption = text; ccw_align_mode = align_mode;};
 
@@ -141,7 +163,7 @@ class CComponentsWindow : public CComponentsForm
 		void setWindowCaptionAlignment(const int& align_mode){ccw_align_mode = align_mode;};
 
 		///set icon name in header, see also getHeaderObject()
-		void setWindowIcon(const std::string& iconname){ccw_icon_name = iconname;};
+		void setWindowIcon(const std::string& iconname){ccw_icon_name = iconname; initHeader();};
 
 		///set default header icon buttons, see also getHeaderObject()
 		void setWindowHeaderButtons(const int& buttons){ccw_buttons = buttons;};
@@ -153,6 +175,13 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsForm* getBodyObject(){return ccw_body;};
 		///returns a pointer to the internal footer object, use this to get access to footer properities
 		CComponentsFooter* getFooterObject(){return ccw_footer;};
+
+		///returns a pointer to the internal left side bar object, use this to get access to left sidebar properities
+		CComponentsFrmChain* getLeftSidebarObject(){return ccw_left_sidebar;};
+		///returns a pointer to the internal right side bar object, use this to get access to right sidebar properities
+		CComponentsFrmChain* getRightSidebarObject(){return ccw_right_sidebar;};
+		
+		void setWidthSidebar(const int& sidebar_width){ccw_w_sidebar = sidebar_width; initCCWItems();};
 
 		///refresh position and dimension and reinitialize elemenatary properties
 		void Refresh(){initCCWItems();};
