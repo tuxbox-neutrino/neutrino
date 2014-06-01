@@ -237,7 +237,23 @@ void CComponents::kill(const fb_pixel_t& bg_color, const int& corner_radius)
 			int r =  v_fbdata[i].r;
 			if (corner_radius > -1)
 				r = corner_radius;
-			frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, bg_color, r,  corner_type);
+			frameBuffer->paintBoxRel(v_fbdata[i].x,
+						 v_fbdata[i].y,
+						 v_fbdata[i].dx,
+						 v_fbdata[i].dy,
+						 bg_color,
+						 r,
+						 corner_type);
+			if (v_fbdata[i].frame_thickness)
+					frameBuffer->paintBoxFrame(v_fbdata[i].x,
+								   v_fbdata[i].y,
+								   v_fbdata[i].dx,
+								   v_fbdata[i].dy,
+								   v_fbdata[i].frame_thickness,
+								   bg_color,
+								   r,
+								   corner_type);
+
 #if 0
 		else
 			frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
