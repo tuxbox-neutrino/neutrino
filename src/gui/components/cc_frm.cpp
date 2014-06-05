@@ -362,3 +362,10 @@ void CComponentsForm::hide(bool no_restore)
 	//hide body
 	hideCCItem(no_restore);
 }
+
+//erase or paint over rendered objects
+void CComponentsForm::killCCItems(const fb_pixel_t& bg_color, bool ignore_parent)
+{
+	for(size_t i=0; i<v_cc_items.size(); i++)
+		v_cc_items[i]->kill(bg_color, ignore_parent);
+}
