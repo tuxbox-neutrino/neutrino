@@ -101,7 +101,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		~COsdSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
-		int showContextChanlistMenu();
+		int showContextChanlistMenu(CMenuWidget *menu_chanlist);
 };
 
 #endif
