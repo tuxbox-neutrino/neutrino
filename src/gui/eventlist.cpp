@@ -540,6 +540,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		{
 			if(in_search) {
 				in_search = false;
+				m_showChannel = false;
 				paintHead(channel_id, channelname);
 				readEvents(channel_id);
 				paint(channel_id);
@@ -752,13 +753,11 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 			datetime1_str += strftime(", %d", tmStartZeit);
 			datetime1_str += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
 
-			//datetime2_str += '.';
-
 			if ( m_showChannel ) // show the channel if we made a event search only (which could be made through all channels ).
 			{
 				t_channel_id channel = evtlist[curpos].channelID;
-				datetime2_str += "      ";
-				datetime2_str += CServiceManager::getInstance()->GetServiceName(channel);
+				datetime1_str += "      ";
+				datetime1_str += CServiceManager::getInstance()->GetServiceName(channel);
 			}
 
 			snprintf(tmpstr,sizeof(tmpstr), "[%d %s]", evtlist[curpos].duration / 60, unit_short_minute);
@@ -766,11 +765,9 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		}
 
 		// 1st line
-		int fwidth1a=g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth(datetime1_str);
-		//int fwidth1b=g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth(datetime2_str);
+		int fwidth1a=g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth(datetime1_str,true);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->RenderString(x+5,          ypos+ fheight1+3, fwidth1a, datetime1_str, color, 0, true); // UTF-8
-		//g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->RenderString(x+5+fwidth1a/2, ypos+ fheight1+3, fwidth1b, datetime2_str, color, 0, true); // UTF-8
 
 		int seit = ( evtlist[curpos].startTime - time(NULL) ) / 60;
 		if ( (seit> 0) && (seit<100) && (duration_str.length()!=0) )
