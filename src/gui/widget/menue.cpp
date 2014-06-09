@@ -340,6 +340,7 @@ CMenuWidget::CMenuWidget()
 	preselected 	= -1;
 	details_line = NULL;
 	info_box = NULL;
+	show_details_line = true;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
@@ -364,6 +365,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
 	details_line = new CComponentsDetailLine();
+	show_details_line = true;
 	info_box = new CComponentsInfoBox();
 	
 	//handle select values
@@ -1184,7 +1186,8 @@ void CMenuWidget::paintHint(int pos)
 	}
 	
 	//paint result
-	details_line->paint(savescreen);
+	if (show_details_line)
+		details_line->paint(savescreen);
 	info_box->paint(savescreen);
 	
 	hint_painted = true;
