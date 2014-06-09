@@ -35,7 +35,7 @@
 #define __update__
 
 #include <gui/widget/menue.h>
-#include <gui/widget/progressstatus.h>
+
 #include <gui/widget/progresswindow.h>
 
 #include <driver/framebuffer.h>

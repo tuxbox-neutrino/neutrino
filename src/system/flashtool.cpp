@@ -65,7 +65,7 @@ void CFlashTool::setMTDDevice( const std::string & mtddevice )
 	printf("flashtool.cpp: set mtd device to %s\n", mtddevice.c_str());
 }
 
-void CFlashTool::setStatusViewer( CProgress_StatusViewer* statusview )
+void CFlashTool::setStatusViewer( CProgressWindow* statusview )
 {
 	statusViewer = statusview;
 }

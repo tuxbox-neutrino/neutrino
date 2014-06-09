@@ -1,24 +1,24 @@
 /*
-	Neutrino-GUI  -   DBoxII-Project
+	Based up Neutrino-GUI - Tuxbox-Project
+	Copyright (C) 2001 by Steffen Hehn 'McClean'
 
-	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
+	Implementation of CComponent Window class.
+	Copyright (C) 2014 Thilo Graf 'dbt'
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -28,41 +28,27 @@
 #include <driver/framebuffer.h>
 #include <system/localize.h>
 
-#include "progressstatus.h"
+#include <gui/components/cc.h>
 #include "menue.h"
 
 #include <string>
 
-class CProgressWindow : public CMenuTarget, public CProgress_StatusViewer
+class CProgressWindow : public CComponentsWindow, public CMenuTarget
 {
-	protected:
+	private:
+		CProgressBar *local_bar, *global_bar;
+		CComponentsLabel *status_txt;
 
-		CFrameBuffer *frameBuffer;
-		neutrino_locale_t caption;
-
-		int x;
-		int y;
-		int width;
-		int height;
-		int hheight; // head font height
-		int mheight; // menu font height
 		unsigned int global_progress;
 		unsigned int local_progress;
-		int globalstatusX;
-		int globalstatusY;
-		int localstatusY;
-		int statusTextY;
-		std::string statusText;
 
-
-		//----------------------------
+		void Init();
 
 	public:
 
-		CProgressWindow();
+		CProgressWindow(CComponentsForm *parent = NULL);
 		void setTitle(const neutrino_locale_t title);
-		virtual void hide();
-		virtual void paint();
+		virtual void hide(bool no_restore = false);
 
 		virtual int exec( CMenuTarget* parent, const std::string & actionKey );
 
