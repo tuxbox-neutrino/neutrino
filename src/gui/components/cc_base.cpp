@@ -236,7 +236,7 @@ void CComponents::kill(const fb_pixel_t& bg_color, const int& corner_radius)
 {
 	for(size_t i =0; i< v_fbdata.size() ;i++){
 #if 0
-		if (bg_color != COL_BACKGROUND)
+		if (bg_color != COL_BACKGROUND_PLUS_0)
 #endif
 			int r =  v_fbdata[i].r;
 			if (corner_radius > -1)
