@@ -32,7 +32,6 @@ libneutrino_driver_a_SOURCES = \
 	radiotools.cpp \
 	rcinput.cpp \
 	record.cpp \
-	ringbuffer.c \
 	scanepg.cpp \
 	screen_max.cpp \
 	screenshot.cpp \
