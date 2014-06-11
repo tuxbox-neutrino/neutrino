@@ -412,7 +412,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCY:
 			freqready = 1;
 			sprintf(buffer, "%u", data);
-			xpos_frequency = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(buffer, true)+2;
+			xpos_frequency = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(buffer)+2;
 			paintLine(xpos2, ypos_frequency, xpos_frequency, buffer);
 			paintRadar();
 			break;
@@ -533,12 +533,12 @@ void CScanTs::paint(bool fortest)
 	if(deltype == FE_QPSK)
 	{	//sat
 		paintLineLocale(xpos1, &ypos, width - xpos1, LOCALE_SCANTS_ACTSATELLITE);
-		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE), true)+2; // UTF-8
+		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTSATELLITE))+2;
 	}
 	if(deltype == FE_QAM)
 	{	//cable
 		paintLineLocale(xpos1, &ypos, width - xpos1, LOCALE_SCANTS_ACTCABLE);
-		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTCABLE), true)+2; // UTF-8
+		xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCANTS_ACTCABLE))+2;
 	}
 
 	ypos_transponder = ypos;
@@ -569,7 +569,7 @@ void CScanTs::paint(bool fortest)
 
 int CScanTs::greater_xpos(int xpos, const neutrino_locale_t txt)
 {
-	int txt_xpos = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(txt), true)+2; // UTF-8
+	int txt_xpos = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(txt))+2;
 	if (txt_xpos > xpos)
 		return txt_xpos;
 	else

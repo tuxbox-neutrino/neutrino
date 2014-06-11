@@ -204,7 +204,7 @@ void CComponentsButton::initCaption()
 	//handle common position of icon and text inside container required for alignment
 	int w_required 	= fr_thickness + append_x_offset;
 	w_required 	+= cc_btn_icon_obj ? cc_btn_icon_obj->getWidth() + append_x_offset : 0;
-	w_required 	+= cc_btn_font ? cc_btn_font->getRenderWidth(cc_btn_capt, true) : 0;
+	w_required 	+= cc_btn_font ? cc_btn_font->getRenderWidth(cc_btn_capt) : 0;
 	w_required 	+= append_x_offset + fr_thickness;
 
 	//dynamic width

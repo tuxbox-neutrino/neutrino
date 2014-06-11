@@ -327,7 +327,7 @@ int Font::getMaxDigitWidth(void)
 		b[1] = 0;
 		for (char c = '0'; c <= '9'; c++) {
 			*b = c;
-			int w = getRenderWidth(b, true);
+			int w = getRenderWidth(b);
 			if (w > maxdigitwidth)
 				maxdigitwidth = w;
 		}

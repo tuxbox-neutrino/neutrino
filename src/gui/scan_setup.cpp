@@ -369,7 +369,7 @@ unsigned int CScanSetup::getSatMenuListWidth()
 
 	satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 	for(sat_iterator_t it = satmap.begin(); it != satmap.end(); ++it) {
-		sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(it->second.name.c_str(), true);
+		sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(it->second.name);
 		max_txt_w = std::max(max_txt_w, sat_txt_w);
 	}
 

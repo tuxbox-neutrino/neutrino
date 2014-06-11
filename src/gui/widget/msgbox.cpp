@@ -341,7 +341,7 @@ void CMsgBox::refreshFoot(void)
 
 	//const char* text;
 
-	int MaxButtonTextWidth = m_pcFontFoot->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL), true); // UTF-8
+	int MaxButtonTextWidth = m_pcFontFoot->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL));
 	int ButtonWidth = 20 + 33 + MaxButtonTextWidth;
 	int ButtonSpacing = (m_cBoxFrameFootRel.iWidth - 20- (ButtonWidth*3) ) / 2;
 	int xpos = m_cBoxFrameFootRel.iX;

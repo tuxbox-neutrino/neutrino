@@ -1606,7 +1606,7 @@ void CMoviePlayerGui::showSubtitle(neutrino_msg_data_t data)
 		int x[subtext.size()];
 		int y[subtext.size()];
 		for (unsigned i = 0; i < subtext.size(); i++) {
-			int w = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getRenderWidth (subtext[i].c_str(), true);
+			int w = g_Font[SNeutrinoSettings::FONT_TYPE_SUBTITLES]->getRenderWidth (subtext[i]);
 			x[i] = (sw - w) / 2;
 			y[i] = sh - height + h*(i + 1);
 			min_x = std::min(min_x, x[i]);

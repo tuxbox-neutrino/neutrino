@@ -114,7 +114,7 @@ void CStringInput::init()
 
 	width = std::max(size*input_w + 2*offset, (int) frameBuffer->getScreenWidth() / 100 * 45);
 
-	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(head.c_str(), true); // UTF-8
+	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(head);
 
 	if (!(iconfile.empty()))
 	{
@@ -130,13 +130,13 @@ void CStringInput::init()
 	{
 		if (hint_1 != NONEXISTANT_LOCALE)
 		{
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1), true);
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1));
 			width = std::max(width, tmp_w + 2*offset);
 			bheight += iheight;
 		}
 		if (hint_2 != NONEXISTANT_LOCALE)
 		{
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2), true);
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2));
 			width = std::max(width, tmp_w + 2*offset);
 			bheight += iheight;
 		}

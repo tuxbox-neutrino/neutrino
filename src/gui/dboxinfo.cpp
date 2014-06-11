@@ -69,9 +69,9 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 
 	fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 	sizeWidth = 6 * g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth()
-		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL), true); ;//9999.99 MiB
+		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL)); ;//9999.99 MiB
 	percWidth = 3 * g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth()
-		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("%", true); //100%
+		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("%"); //100%
 	nameWidth = fontWidth * 10;
 }
 
@@ -280,7 +280,7 @@ void CDBoxInfoWidget::paint()
 				mounts[mountpoint] = is_rec;
 				int icon_space = is_rec ? 10 + icon_w : 0;
 				const char *mnt = mountpoint.c_str();
-				nameWidth = std::max(nameWidth, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(basename((char *)mnt), true) + icon_space + 10);
+				nameWidth = std::max(nameWidth, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(basename((char *)mnt)) + icon_space + 10);
 			}
 		}
 		in.close();
@@ -341,7 +341,7 @@ void CDBoxInfoWidget::paint()
 
 	int head_info_rw = 0;
 	for (int line = 0; line < head_info_lines; line++) {
-		head_info_rw = std::max(head_info_rw, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_info[line], true));
+		head_info_rw = std::max(head_info_rw, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_info[line]));
 	}
 
 	int dw = offsetw - 3*10 - head_info_rw;
@@ -467,7 +467,7 @@ void CDBoxInfoWidget::paint()
 			}
 			mpOffset = offsets[column];
 			int space = 0;
-			int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+			int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 			if (column > 0) {
 				space = widths[column] - rw;
 			}
@@ -491,7 +491,7 @@ void CDBoxInfoWidget::paint()
 	int ypos_mnt_head = ypos;
 	ypos += mheight;
 
-	int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
+	int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i");
 	CRecordManager * crm		= CRecordManager::getInstance();
 
 	for (std::map<std::string, bool>::iterator it = mounts.begin(); it != mounts.end(); ++it) {
@@ -535,7 +535,7 @@ void CDBoxInfoWidget::paint()
 					}
 					int space = 0;
 					if (column > 0) {
-						int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+						int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 						maxWidth[column] = std::max(maxWidth[column], rw);
 						space = widths[column] - rw;
 						_w = rw;
@@ -570,7 +570,7 @@ void CDBoxInfoWidget::paint()
 	for (int column = 0; column < headSize; column++) {
 		headOffset = offsets[column];
 		int space = 0;
-		int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mem[column], true);
+		int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mem[column]);
 		int _w = rw;
 		if (column > 0) {
 			if (rw > maxWidth[column])
@@ -585,7 +585,7 @@ void CDBoxInfoWidget::paint()
 	for (int column = 0; column < headSize; column++) {
 		headOffset = offsets[column];
 		int space = 0;
-		int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mnt[column], true);
+		int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mnt[column]);
 		int _w = rw;
 		if (column > 0) {
 			if (rw > maxWidth[column])

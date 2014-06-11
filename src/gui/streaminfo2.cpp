@@ -449,12 +449,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	transponder t;
 	CServiceManager::getInstance()->GetTransponder(channel->getTransponderId(), t);
 
-	int array[6]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION),true),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO),true),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE),true),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE),true),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE),true),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_SCANTS_FREQDATA),true)};// UTF-8
+	int array[6]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_SCANTS_FREQDATA))};
 
 	for(i=0 ; i<6; i++) {
 		if(spaceoffset < array[i])
@@ -685,7 +685,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		return;
 
 	for(i = 0; i < NUM_CAIDS; i++) {
-		array[i] = g_Font[font_info]->getRenderWidth(casys[i].c_str());
+		array[i] = g_Font[font_info]->getRenderWidth(casys[i]);
 		caids[i] = false;
 	}
 
@@ -759,7 +759,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				if(index == 0)
 					width_txt = spaceoffset;
 				else
-					width_txt += g_Font[font_small]->getRenderWidth(casys[ca_id].substr(last_pos, pos - last_pos).c_str())+10;
+					width_txt += g_Font[font_small]->getRenderWidth(casys[ca_id].substr(last_pos, pos - last_pos))+10;
 				index++;
 				if (index > 5)
 					break;

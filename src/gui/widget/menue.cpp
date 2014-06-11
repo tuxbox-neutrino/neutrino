@@ -166,8 +166,8 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	//right text
 	if (right_text && (*right_text || right_bgcol))
 	{
-		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
-		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + icon_frame_w, x + dx - stringwidth - icon_frame_w); //+ offx
+		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text);
+		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text) + icon_frame_w, x + dx - stringwidth - icon_frame_w); //+ offx
 		if (right_bgcol) {
 			if (!*right_text)
 				stringstartposOption -= 60;
@@ -210,9 +210,9 @@ void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height,
 		return;
 	int stringwidth = 0;
 	if (right_text != NULL) {
-		stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("U999", true) ;
+		stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("U999") ;
 	}
-	int stringwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true);
+	int stringwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text);
 
 	int maxspace = dx - stringwidth - icon_frame_w - stringwidth2 - 10;
 	if(maxspace < slider_lenght){
@@ -863,7 +863,7 @@ void CMenuWidget::calcSize()
 	if(height > ((int)frameBuffer->getScreenHeight() - 10))
 		height = frameBuffer->getScreenHeight() - 10;
 
-	int neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(nameString.c_str(), true); // UTF-8
+	int neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(nameString);
 	if (neededWidth > width-48) {
 		width= neededWidth+ 49;
 	}
@@ -1345,14 +1345,14 @@ int CMenuOptionNumberChooser::paint(bool selected)
 
 int CMenuOptionNumberChooser::getWidth(void)
 {
-	int width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName(), true);
+	int width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName());
 	int _lower_bound = lower_bound;
 	int _upper_bound = upper_bound;
 	int m = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth();
 
 	int w1 = 0;
 	if (_lower_bound < 0)
-		w1 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-", true);
+		w1 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-");
 	while (_lower_bound) {
 		w1 += m;
 		_lower_bound /= 10;
@@ -1360,7 +1360,7 @@ int CMenuOptionNumberChooser::getWidth(void)
 
 	int w2 = 0;
 	if (_upper_bound < 0)
-		w2 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-", true);
+		w2 += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("-");
 	while (_upper_bound) {
 		w1 += m;
 		_upper_bound /= 10;
@@ -1370,11 +1370,11 @@ int CMenuOptionNumberChooser::getWidth(void)
 
 	if (numberFormatFunction) {
 		std::string s = numberFormatFunction(0);
-		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(s.c_str(), true) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0", true); // arbitrary
+		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(s) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0"); // arbitrary
 	} else if (numberFormat != "%d") {
 		char format[numberFormat.length()];
 		snprintf(format, numberFormat.length(), numberFormat.c_str(), 0);
-		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(format, true) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0", true);
+		width += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(format) - g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("0");
 	}
 
 	return width + 10; /* min 10 pixels between option name and value. enough? */
@@ -1710,17 +1710,17 @@ int CMenuOptionChooser::paint( bool selected)
 int CMenuOptionChooser::getWidth(void)
 {
 	int ow = 0;
-	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName(), true);
+	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(getName());
 	int width = tw;
 
 	for(unsigned int count = 0; count < options.size(); count++) {
 		ow = 0;
 		if (options[count].valname)
 			ow = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]
-				->getRenderWidth(options[count].valname, true);
+				->getRenderWidth(options[count].valname);
 		else
 			ow = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]
-				->getRenderWidth(g_Locale->getText(options[count].value), true);
+				->getRenderWidth(g_Locale->getText(options[count].value));
 
 		if (tw + ow > width)
 			width = tw + ow;
@@ -1979,7 +1979,7 @@ int CMenuForwarder::getHeight(void) const
 int CMenuForwarder::getWidth(void)
 {
 	const char *_name = (name == NONEXISTANT_LOCALE) ? nameString.c_str() : g_Locale->getText(name);
-	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(_name, true);
+	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(_name);
 
 	fb_pixel_t bgcol = 0;
 	std::string option_name = getOption();
@@ -1987,7 +1987,7 @@ int CMenuForwarder::getWidth(void)
 		bgcol = jumpTarget->getColor();
 
 	if (!option_name.empty())
-		tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_name.c_str(), true);
+		tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_name);
 	else if (bgcol)
 		tw += 10 + 60;
 
@@ -2087,7 +2087,7 @@ int CMenuSeparator::getWidth(void)
 		w = 30; /* 15 pixel left and right */
 	const char *l_name = getName();
 	if ((type & STRING) && *l_name)
-		w += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name, true);
+		w += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name);
 	return w;
 }
 
@@ -2119,7 +2119,7 @@ int CMenuSeparator::paint(bool selected)
 	
 		if (*l_name)
 		{
-			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name, true); // UTF-8
+			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_name);
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)

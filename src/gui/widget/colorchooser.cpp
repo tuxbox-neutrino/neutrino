@@ -79,7 +79,7 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	//calculate max width of LOCALS
 	offset = 0;
 	for (int i = 0; i < 4; i++) {
-		int tmpoffset = g_Font[font_info]->getRenderWidth(g_Locale->getText (colorchooser_names[i]));
+		int tmpoffset = g_Font[font_info]->getRenderWidth(g_Locale->getText(colorchooser_names[i]));
 		if (tmpoffset > offset) {
 			offset = tmpoffset;
 		}

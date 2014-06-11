@@ -131,7 +131,7 @@ int CMessageBox::getButtonWidth()
 	neutrino_locale_t localeMsg[localeMsgCount] = {LOCALE_MESSAGEBOX_YES, LOCALE_MESSAGEBOX_NO, LOCALE_MESSAGEBOX_CANCEL, LOCALE_MESSAGEBOX_OK, LOCALE_MESSAGEBOX_BACK};
 	int MaxButtonTextWidth = 0;
 	for (int i = 0; i < localeMsgCount; i++)
-		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i]), true), MaxButtonTextWidth);
+		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i])), MaxButtonTextWidth);
 	return MaxButtonTextWidth + i_maxw + 36 + (RADIUS_LARGE / 2);
 }
 

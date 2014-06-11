@@ -395,7 +395,7 @@ void CTextBox::refreshTextLineArray(void)
 			aktWord = m_cText.substr(pos_prev, pos - pos_prev + 1);
 
 			//calculate length of current found word
-			aktWordWidth = m_pcFontText->getRenderWidth(aktWord, true);
+			aktWordWidth = m_pcFontText->getRenderWidth(aktWord);
 
 			//set next start pos
 			pos_prev = pos + 1;
@@ -628,10 +628,10 @@ void CTextBox::refreshText(void)
 	{
 		//calculate centered xpos
 		if( m_nMode & CENTER ){
-			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true))>>1) - text_Hborder_width;
+			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i]))>>1) - text_Hborder_width;
 		}
 		else if ( m_nMode & RIGHT ){
-			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true)) - text_Hborder_width*2);
+			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i])) - text_Hborder_width*2);
 			if ( m_nMode & SCROLL )
 				x_center -= SCROLL_FRAME_WIDTH;
 		}

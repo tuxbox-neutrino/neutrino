@@ -773,7 +773,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 				std::string prov_name = pname;
 				prov_name=prov_name.substr(prov_name.find_first_of("]")+1);
 
-				int chname_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (ChannelName, true);// UTF-8
+				int chname_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (ChannelName);
 				unsigned int chann_size = ChannelName.size();
 				if(ChannelName.empty())
 					chann_size = 1;
@@ -1017,7 +1017,7 @@ void CInfoViewer::showSubchan ()
 			int dy = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight(); // 25;
 
 			if (g_RemoteControl->director_mode) {
-				int w = 20 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth (g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), true) + 20;	// UTF-8
+				int w = 20 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth (g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE)) + 20;
 				int h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 				if (w > dx)
 					dx = w;
@@ -1103,7 +1103,7 @@ void CInfoViewer::showMotorMoving (int duration)
 
 	char text[256];
 	snprintf(text, sizeof(text), "%s (%ds)", g_Locale->getText (LOCALE_INFOVIEWER_MOTOR_MOVING), duration);
-	ShowHint (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text, true) + 10, duration);	// UTF-8
+	ShowHint (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text) + 10, duration);	// UTF-8
 }
 
 void CInfoViewer::killRadiotext()

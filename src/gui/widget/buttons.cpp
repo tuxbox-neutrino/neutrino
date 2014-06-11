@@ -140,9 +140,9 @@ int paintButtons(	const int &x,
 			buttontext[i] = g_Locale->getText(content[i].locale);
 			//text width
 			if (alt_buttontext != NULL && i == buttontext_id) 
-				fwidth[i] = font->getRenderWidth(alt_buttontext, true); //...with an alternate buttontext
+				fwidth[i] = font->getRenderWidth(alt_buttontext); //...with an alternate buttontext
 			else
-				fwidth[i] = font->getRenderWidth(buttontext[i], true);
+				fwidth[i] = font->getRenderWidth(buttontext[i]);
 			w_text += fwidth[i];
 			count_labels++;
 		} else {

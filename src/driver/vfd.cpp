@@ -768,7 +768,7 @@ void CVFD::showInfoBox(const char * const title, const char * const text ,int au
                 // paint title
                 if(!m_infoBoxTitle.empty())
                 {
-                        int width = fonts.menu->getRenderWidth(m_infoBoxTitle.c_str(),true);
+                        int width = fonts.menu->getRenderWidth(m_infoBoxTitle);
                         if(width > 100)
                                 width = 100;
                         int start_pos = (120-width) /2;
@@ -785,7 +785,7 @@ void CVFD::showInfoBox(const char * const title, const char * const text ,int au
                 {
                         text_line.clear();
                         while ( m_infoBoxText[pos] != '\n' &&
-                                        ((fonts.menu->getRenderWidth(text_line.c_str(), true) < EPG_INFO_TEXT_WIDTH-10) || !m_infoBoxAutoNewline )&&
+                                        ((fonts.menu->getRenderWidth(text_line) < EPG_INFO_TEXT_WIDTH-10) || !m_infoBoxAutoNewline )&&
                                         (pos < length)) // UTF-8
                         {
                                 if ( m_infoBoxText[pos] >= ' ' && m_infoBoxText[pos] <= '~' )  // any char between ASCII(32) and ASCII (126)
@@ -835,7 +835,7 @@ void CVFD::showFilelist(int flist_pos,CFileList* flist,const char * const mainDi
                 if(m_fileListPos > size)
                         m_fileListPos = size-1;
 
-                int width = fonts.menu->getRenderWidth(m_fileListHeader.c_str(), true);
+                int width = fonts.menu->getRenderWidth(m_fileListHeader);
                 if(width>110)
                         width=110;
                 fonts.menu->RenderString((120-width)/2, 11, width+5, m_fileListHeader.c_str(), CLCDDisplay::PIXEL_ON);
@@ -940,7 +940,7 @@ void CVFD::showProgressBar(int global, const char * const text,int show_escape,i
                 display.draw_fill_rect (0,12,120,64, CLCDDisplay::PIXEL_OFF);
 
                 // paint progress header
-                int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal.c_str(),true);
+                int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal);
                 if(width > 100)
                         width = 100;
                 int start_pos = (120-width) /2;
@@ -1011,7 +1011,7 @@ void CVFD::showProgressBar2(int local,const char * const text_local ,int global 
                 display.draw_fill_rect (0,12,120,64, CLCDDisplay::PIXEL_OFF);
 
                 // paint  global header
-                int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal.c_str(),true);
+                int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal);
                 if(width > 100)
                         width = 100;
                 int start_pos = (120-width) /2;
@@ -1024,7 +1024,7 @@ void CVFD::showProgressBar2(int local,const char * const text_local ,int global 
                 display.draw_fill_rect (PROG2_GLOB_POS_X+1+marker_length, PROG2_GLOB_POS_Y+1, PROG2_GLOB_POS_X+PROG2_GLOB_POS_WIDTH-1, PROG2_GLOB_POS_Y+PROG2_GLOB_POS_HEIGTH-1, CLCDDisplay::PIXEL_OFF);
 
                 // paint  local header
-                width = fonts.menu->getRenderWidth(m_progressHeaderLocal.c_str(),true);
+                width = fonts.menu->getRenderWidth(m_progressHeaderLocal);
                 if(width > 100)
                         width = 100;
                 start_pos = (120-width) /2;

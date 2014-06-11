@@ -895,7 +895,7 @@ void CUpnpBrowserGui::paintDeviceInfo()
 	// first line
 	tmp = m_devices[m_selecteddevice].manufacturer + " " +
 	      m_devices[m_selecteddevice].manufacturerurl;
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
@@ -905,14 +905,14 @@ void CUpnpBrowserGui::paintDeviceInfo()
 	tmp = m_devices[m_selecteddevice].modelname + " " +
 	      m_devices[m_selecteddevice].modelnumber + " " +
 	      m_devices[m_selecteddevice].modeldescription;
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
 			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
 	// third line
 	tmp = m_devices[m_selecteddevice].modelurl;
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
@@ -1081,7 +1081,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	else
 		tmp = tmp + "No resource for Item";
 
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
@@ -1096,7 +1096,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 		if (preferred != -1)
 			tmp = "Protocol: " + entry->proto + ", MIME-Type: " + entry->mime;
 	}
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
@@ -1107,7 +1107,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	if (!entry->isdir && preferred != -1)
 		tmp = "URL: " + entry->resources[preferred].url;
 
-	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,

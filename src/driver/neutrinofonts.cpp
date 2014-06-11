@@ -239,7 +239,7 @@ int CNeutrinoFonts::getDynFontSize(int dx, int dy, std::string text, int style)
 
 		std::string tmpText = text;
 		if (text == "") tmpText = "x";
-		_width = dynFont->getRenderWidth(tmpText.c_str());
+		_width = dynFont->getRenderWidth(tmpText);
 		if ((_height > dy) || (_width > dx)) {
 			if (dynFlag)
 				dynSize--;
@@ -314,7 +314,7 @@ Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int 
 		if ((v_dyn_fonts[f_id].size == dynSize) && (v_dyn_fonts[f_id].font != NULL)) {
 			dy = v_dyn_fonts[f_id].font->getHeight();
 			if (text != "")
-				dx = v_dyn_fonts[f_id].font->getRenderWidth(text.c_str());
+				dx = v_dyn_fonts[f_id].font->getRenderWidth(text);
 			return &(v_dyn_fonts[f_id].font);
 		}
 
@@ -335,7 +335,7 @@ Font **CNeutrinoFonts::getDynFontWithID(int &dx, int &dy, std::string text, int 
 
 	dy = (*ret)->getHeight();
 	if (text != "")
-		dx = (*ret)->getRenderWidth(text.c_str());
+		dx = (*ret)->getRenderWidth(text);
 #ifdef DEBUG_NFONTS
 	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, FontID: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, f_id);
 #endif
@@ -389,7 +389,7 @@ Font **CNeutrinoFonts::getDynFontShare(int &dx, int &dy, std::string text, int s
 
 	dy = (*ret)->getHeight();
 	if (text != "")
-		dx = (*ret)->getRenderWidth(text.c_str());
+		dx = (*ret)->getRenderWidth(text);
 #ifdef DEBUG_NFONTS
 	printf("##### [%s] dx: %d, dy: %d, dynSize: %d, dynFont: %p, ret: %p, fontAvailable: %d\n", __FUNCTION__, dx, dy, dynSize, *ret, ret, fontAvailable);
 #endif

@@ -765,7 +765,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		}
 
 		// 1st line
-		int fwidth1a=g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth(datetime1_str,true);
+		int fwidth1a=g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth(datetime1_str);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->RenderString(x+5,          ypos+ fheight1+3, fwidth1a, datetime1_str, color, 0, true); // UTF-8
 
@@ -774,7 +774,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		{
 			char beginnt[100];
 			snprintf(beginnt, sizeof(beginnt), "%s %d %s", g_Locale->getText(LOCALE_WORD_IN), seit, unit_short_minute);
-			int w = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(beginnt, true) + 10;
+			int w = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(beginnt) + 10;
 			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20- w, ypos+ fheight1+3, w, beginnt, color, 0, true); // UTF-8
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20, ypos+ fheight1+3, fwidth2, duration_str, color, 0, true); // UTF-8
@@ -852,9 +852,9 @@ void CNeutrinoEventList::paintHead(std::string _channelname, std::string _channe
 
 	const short font_h = 8 /* FONT_TYPE_EVENTLIST_ITEMLARGE */;
 	short pn_y_off = std::max((theight - g_Font[font_h]->getHeight()) / 2, 0);
-	short prev_len = g_Font[font_h]->getRenderWidth(_channelname_prev.c_str(),true);
-	short next_len = g_Font[font_h]->getRenderWidth(_channelname_next.c_str(),true);
-	short middle_len = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(_channelname.c_str(),true);
+	short prev_len = g_Font[font_h]->getRenderWidth(_channelname_prev);
+	short next_len = g_Font[font_h]->getRenderWidth(_channelname_next);
+	short middle_len = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(_channelname);
 	short middle_offset = (full_width- next_len- prev_len- middle_len)/2;
 	if(middle_offset < 0){
 		int fw_h = g_Font[font_h]->getWidth();

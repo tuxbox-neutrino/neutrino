@@ -1753,7 +1753,7 @@ void CAudioPlayerGui::paintInfo()
 			tmp += sNr ;
 		}
 
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 		int xstart = (m_width - w) / 2;
 		if (xstart < 10)
 			xstart = 10;
@@ -1779,7 +1779,7 @@ void CAudioPlayerGui::paintInfo()
 			tmp += " / ";
 			tmp += m_curr_audiofile.MetaData.title;
 		}
-		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true); // UTF-8
+		w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 		xstart=(m_width-w)/2;
 		if (xstart < 10)
 			xstart=10;
@@ -1872,7 +1872,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 			tmp += " / ";
 			tmp += m_playlist[m_selected].MetaData.date;
 		}
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true) + 10; // UTF-8
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp) + 10;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - w - 5, ypos2 + 2 + 1*m_fheight,
 				w, tmp, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
 		tmp = m_playlist[m_selected].MetaData.artist;

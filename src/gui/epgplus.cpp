@@ -186,13 +186,13 @@ void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
 
 		std::string timeStr = EpgPlus::getTimeString (tickTime, "%H");
 
-		int textWidth = this->fontTime->getRenderWidth (timeStr, true);
+		int textWidth = this->fontTime->getRenderWidth (timeStr);
 
 		this->fontTime->RenderString (xPos - textWidth - 4, this->y + this->fontTime->getHeight()
 					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2, 0, true);	// UTF-8
 
 		timeStr = EpgPlus::getTimeString (tickTime, "%M");
-		textWidth = this->fontTime->getRenderWidth (timeStr, true);
+		textWidth = this->fontTime->getRenderWidth (timeStr);
 		this->fontTime->RenderString (xPos + 4, this->y + this->fontTime->getHeight()
 					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2, 0, true);	// UTF-8
 
@@ -223,14 +223,14 @@ void EpgPlus::TimeLine::paintMark (time_t startTime, int pduration, int px, int 
 
 	// display start time before mark
 	std::string timeStr = EpgPlus::getTimeString (startTime, "%H:%M");
-	int textWidth = this->fontTime->getRenderWidth (timeStr, true);
+	int textWidth = this->fontTime->getRenderWidth (timeStr);
 
 	this->fontTime->RenderString (px - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
 				      , textWidth, timeStr, COL_MENUCONTENT_TEXT, 0, true);	// UTF-8
 
 	// display end time after mark
 	timeStr = EpgPlus::getTimeString (startTime + pduration, "%H:%M");
-	textWidth = fontTime->getRenderWidth (timeStr, true);
+	textWidth = fontTime->getRenderWidth (timeStr);
 
 	if (px + pwidth + textWidth < this->x + this->width) {
 		this->fontTime->RenderString (px + pwidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()

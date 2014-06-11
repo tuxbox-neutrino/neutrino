@@ -106,15 +106,14 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 	else
 		iconfile = "";
 
-	//nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(caption), true); // UTF-8
-	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(caption, true); // UTF-8
+	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(caption);
 
 	if (nw > width)
 		width = nw;
 
 	for (std::vector<char *>::const_iterator it = line.begin(); it != line.end(); ++it)
 	{
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it, true); // UTF-8
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it);
 		maxLineWidth = std::max(maxLineWidth, w);
 		nw = additional_width + w;
 		if (nw > width)

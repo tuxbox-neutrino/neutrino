@@ -224,7 +224,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const std::string &Capti
 		m_iconfile = "";
 
 	const char *l_caption = (m_caption == NONEXISTANT_LOCALE) ? m_captionString.c_str() : g_Locale->getText(m_caption);
-	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(l_caption, true); // UTF-8
+	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(l_caption);
 
 	if (nw > m_width)
 		m_width = nw;

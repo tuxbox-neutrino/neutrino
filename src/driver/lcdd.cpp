@@ -409,7 +409,7 @@ static std::string splitString(const std::string & text, const int maxwidth, Lcd
 	int pos;
 	std::string tmp = removeLeadingSpaces(text);
 
-	if (font->getRenderWidth(tmp.c_str(), utf8) > maxwidth)
+	if (font->getRenderWidth(tmp, utf8) > maxwidth)
 	{
 		do
 		{
@@ -423,7 +423,7 @@ static std::string splitString(const std::string & text, const int maxwidth, Lcd
 				else // does not fit -> fall back to dumb split
 					tmp = tmp.substr(0, tmp.length()-1);
 			}
-		} while (font->getRenderWidth(tmp.c_str(), utf8) > maxwidth);
+		} while (font->getRenderWidth(tmp, utf8) > maxwidth);
 	}
 
 	return tmp;
@@ -510,7 +510,7 @@ void CLCD::showTextScreen(const std::string & big, const std::string & small, co
 		y += 14;
 		if (centered)
 		{
-			int w = fonts.channelname->getRenderWidth(cname[i].c_str(), big_utf8);
+			int w = fonts.channelname->getRenderWidth(cname[i], big_utf8);
 			x = (LCD_COLS - w) / 2;
 		}
 		fonts.channelname->RenderString(x, y, LCD_COLS + 10, cname[i].c_str(), CLCDDisplay::PIXEL_ON, 0, big_utf8);
@@ -527,7 +527,7 @@ void CLCD::showTextScreen(const std::string & big, const std::string & small, co
 			y += 10;
 			if (centered)
 			{
-				int w = fonts.menu->getRenderWidth(event[i].c_str(), small_utf8);
+				int w = fonts.menu->getRenderWidth(event[i], small_utf8);
 				x = (LCD_COLS - w) / 2;
 			}
 			fonts.menu->RenderString(x, y, LCD_COLS + 10, event[i].c_str(), CLCDDisplay::PIXEL_ON, 0, small_utf8);
@@ -1185,7 +1185,7 @@ void CLCD::showInfoBox(const char * const title, const char * const text ,int au
 		// paint title
 		if(!m_infoBoxTitle.empty())
 		{
-			int width = fonts.menu->getRenderWidth(m_infoBoxTitle.c_str(),true);
+			int width = fonts.menu->getRenderWidth(m_infoBoxTitle);
 			if(width > LCD_COLS - 20)
 				width = LCD_COLS - 20;
 			int start_pos = (LCD_COLS - width) /2;
@@ -1202,7 +1202,7 @@ void CLCD::showInfoBox(const char * const title, const char * const text ,int au
 		{
 			text_line.clear();
 			while ( m_infoBoxText[pos] != '\n' &&
-					((fonts.menu->getRenderWidth(text_line.c_str(), true) < EPG_INFO_TEXT_WIDTH-10) || !m_infoBoxAutoNewline )&& 
+					((fonts.menu->getRenderWidth(text_line) < EPG_INFO_TEXT_WIDTH-10) || !m_infoBoxAutoNewline )&& 
 					(pos < length)) // UTF-8
 			{
 				if ( m_infoBoxText[pos] >= ' ' && m_infoBoxText[pos] <= '~' )  // any char between ASCII(32) and ASCII (126)
@@ -1249,7 +1249,7 @@ void CLCD::showFilelist(int flist_pos,CFileList* flist,const char * const mainDi
 		if(m_fileListPos > size)
 			m_fileListPos = size-1;
 		
-		int width = fonts.menu->getRenderWidth(m_fileListHeader.c_str(), true); 
+		int width = fonts.menu->getRenderWidth(m_fileListHeader); 
 		if(width > LCD_COLS - 10)
 			width = LCD_COLS - 10;
 		fonts.menu->RenderString((LCD_COLS - width) / 2, 11, width+5, m_fileListHeader.c_str(), CLCDDisplay::PIXEL_ON);
@@ -1351,7 +1351,7 @@ void CLCD::showProgressBar(int global, const char * const text,int show_escape,i
 		display.draw_fill_rect (0, 12, LCD_COLS, 64, CLCDDisplay::PIXEL_OFF);
 	
 		// paint progress header 
-		int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal.c_str(),true);
+		int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal);
 		if(width > 100)
 			width = 100;
 		int start_pos = (LCD_COLS - width) /2;
@@ -1421,7 +1421,7 @@ void CLCD::showProgressBar2(int local,const char * const text_local ,int global 
 		
 	
 		// paint  global caption 
-		int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal.c_str(),true);
+		int width = fonts.menu->getRenderWidth(m_progressHeaderGlobal);
 		if(width > 100)
 			width = 100;
 		int start_pos = (LCD_COLS - width) /2;
@@ -1435,7 +1435,7 @@ void CLCD::showProgressBar2(int local,const char * const text_local ,int global 
 	
 		
 		// paint  local caption 
-		width = fonts.menu->getRenderWidth(m_progressHeaderLocal.c_str(),true);
+		width = fonts.menu->getRenderWidth(m_progressHeaderLocal);
 		if(width > 100)
 			width = 100;
 		start_pos = (LCD_COLS - width) /2;

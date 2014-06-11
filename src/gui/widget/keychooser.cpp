@@ -157,11 +157,11 @@ void CKeyChooserItem::paint()
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 
 	int tmp;
-	width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name), true);
-	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT1), true);
+	width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name));
+	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT1));
 	if (tmp > width)
 		width = tmp;
-	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT2), true);
+	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT2));
 	if (tmp > width)
 		width = tmp;
 	width += 20;
