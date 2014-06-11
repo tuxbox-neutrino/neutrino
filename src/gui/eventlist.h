@@ -112,8 +112,7 @@ class CNeutrinoEventList
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
 	void paintDescription(int index);
 	void paint(t_channel_id channel_id = 0);
-	void paintHead(t_channel_id channel_id, std::string name);
-	void paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next);
+	void paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev = "", std::string _channelname_next = "");
 	void hide();
 	void showFunctionBar(bool show, t_channel_id channel_id);
 	
