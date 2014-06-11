@@ -139,8 +139,8 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 			//frameBuffer->paintBoxRel(x+8, ypos+4, NEUTRINO_ICON_BUTTON_GREEN_WIDTH, fheight-4, bgcolor);
 			frameBuffer->paintBoxRel(x+10, ypos, iconoffset, iheight, bgcolor);
 		}
-		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8, ypos+ fheight, width - (8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8 + 8), Channels[itemNr]->getName(), color, 0, true);
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width - 20 - iconoffset, Channels[itemNr]->getName(), color, 0, true);
+		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8, ypos+ fheight, width - (8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8 + 8), Channels[itemNr]->getName(), color);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width - 20 - iconoffset, Channels[itemNr]->getName(), color);
 		if(Channels[itemNr]->scrambled)
 			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
 	}
@@ -253,10 +253,10 @@ void CBEChannelSelectWidget::paintFoot()
 	::paintButtons(x, y + (height-footerHeight), width, numbuttons, Button, width, footerHeight);
 #if 0
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 3* ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_SWITCH), COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 3* ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_SWITCH), COL_INFOBAR_TEXT);
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HOME, x+width - ButtonWidth+ 8, y+height+1);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width - ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_RETURN), COL_INFOBAR_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width - ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_RETURN), COL_INFOBAR_TEXT);
 #endif
 }
 

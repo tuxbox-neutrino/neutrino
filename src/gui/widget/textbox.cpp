@@ -639,7 +639,7 @@ void CTextBox::refreshText(void)
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
 		m_pcFontText->RenderString(m_cFrame.iX + m_cFrameTextRel.iX + text_Hborder_width + x_center,
 					y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
-					m_textColor, 0, true); // UTF-8
+					m_textColor);
 		m_old_cText = m_cText;
 		y += m_nFontTextHeight;
 	}

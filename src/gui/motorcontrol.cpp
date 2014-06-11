@@ -358,19 +358,19 @@ void CMotorControl::paintLine(int px, int *py, int pwidth, const char *txt)
 {
 	frameBuffer->paintBoxRel(px, *py, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
 	*py += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintLine(int px, int py, int pwidth, const char *txt)
 {
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintLine(int ix, int tx, int *py, int pwidth, const char *icon, const char *txt)
 {
 	frameBuffer->paintIcon(icon, ix, *py, mheight);
 	*py += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(tx, *py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(tx, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char * /*txt*/)

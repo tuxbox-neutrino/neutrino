@@ -179,7 +179,7 @@ void CMessageBox::paintButtons()
 		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);
 		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
-			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color, 0, true);
+			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color);
 		xpos += b_width + ButtonDistance;
 	}
 }

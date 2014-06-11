@@ -362,7 +362,7 @@ void CMsgBox::refreshFoot(void)
 		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
 		/*m_pcWindow->RenderString(*/
-		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 4 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth - 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 4 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth - 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color);
 	}
 
 	xpos += ButtonWidth + ButtonSpacing;
@@ -384,7 +384,7 @@ void CMsgBox::refreshFoot(void)
 		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos + 14+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
 		/*m_pcWindow->RenderString(*/
-		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 4 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_NO), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 4 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_NO), (CFBWindow::color_t)color);
 	}
 
 	xpos += ButtonWidth + ButtonSpacing;
@@ -406,7 +406,7 @@ void CMsgBox::refreshFoot(void)
 		m_pcWindow->paintBoxRel(xpos+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth, m_nFontFootHeight + 4, (CFBWindow::color_t)bgcolor, RADIUS_MID);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+10+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY);
 		/*m_pcWindow->RenderString(*/
-		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 2 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth- 53, g_Locale->getText((m_nFootButtons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : LOCALE_MESSAGEBOX_BACK), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_pcFontFoot->RenderString(xpos + 43+m_cBoxFrame.iX, m_cBoxFrameFootRel.iY + m_nFontFootHeight + 2 + (ADD_FOOT_HEIGHT>>1)+m_cBoxFrame.iY, ButtonWidth- 53, g_Locale->getText((m_nFootButtons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : LOCALE_MESSAGEBOX_BACK), (CFBWindow::color_t)color);
 	}
 }
 
@@ -441,9 +441,7 @@ void CMsgBox::refreshTitle(void)
 								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY,
 								m_cBoxFrameTitleRel.iWidth - TITLE_ICON_WIDTH + TEXT_BORDER_WIDTH,
 								m_cTitle.c_str(),
-								COL_MENUHEAD_TEXT,
-								0,
-								true); // UTF-8
+								COL_MENUHEAD_TEXT);
 	}
 	else
 	{
@@ -454,9 +452,7 @@ void CMsgBox::refreshTitle(void)
 								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY,
 								m_cBoxFrameTitleRel.iWidth - TEXT_BORDER_WIDTH,
 								m_cTitle.c_str(),
-								COL_MENUHEAD_TEXT,
-								0,
-								true); // UTF-8
+								COL_MENUHEAD_TEXT);
 	}
 }
 

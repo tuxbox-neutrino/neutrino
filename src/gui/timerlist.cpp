@@ -734,12 +734,12 @@ void CTimerList::paintItem(int pos)
 		struct tm *stopTime = localtime(&(timer.stopTime));
 		strftime(zStopTime,20,"%d.%m. %H:%M",stopTime);
 		int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, fw*12, zAlarmTime, color, fheight, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, fw*12, zAlarmTime, color, fheight);
 		if (timer.stopTime != 0)
 		{
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+2*fheight, fw*12, zStopTime, color, fheight, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+2*fheight, fw*12, zStopTime, color, fheight);
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+fheight, (real_width-fw*13)/2-5, convertTimerRepeat2String(timer.eventRepeat), color, fheight, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+fheight, (real_width-fw*13)/2-5, convertTimerRepeat2String(timer.eventRepeat), color, fheight);
 
 		if (timer.eventRepeat != CTimerd::TIMERREPEAT_ONCE)
 		{
@@ -750,9 +750,9 @@ void CTimerList::paintItem(int pos)
 				sprintf(srepeatcount,"00");
 			else
 				sprintf(srepeatcount,"%ux",timer.repeatCount);
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*23)/2,ypos+fheight, (real_width-fw*13)/2-5, srepeatcount, color, fheight, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*23)/2,ypos+fheight, (real_width-fw*13)/2-5, srepeatcount, color, fheight);
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*13)/2,ypos+fheight, (real_width-fw*13)/2-5, convertTimerType2String(timer.eventType), color, fheight, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13+(real_width-fw*13)/2,ypos+fheight, (real_width-fw*13)/2-5, convertTimerType2String(timer.eventType), color, fheight);
 
 		// paint rec icon when recording in progress
 		if ((timer.eventType == CTimerd::TIMER_RECORD) && (CRecordManager::getInstance()->RecordingStatus(timer.channel_id))) {
@@ -838,7 +838,7 @@ void CTimerList::paintItem(int pos)
 		default:
 		{}
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+2*fheight, real_width-(fw*13+5), zAddData, color, fheight, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+2*fheight, real_width-(fw*13+5), zAddData, color, fheight);
 		// LCD Display
 		if (liststart+pos==selected)
 		{

@@ -1673,7 +1673,7 @@ void CChannelList::paintDetails(int index)
 				text3= text3+ " - ";
 
 			xstart += g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text3);
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2* fheight, full_width - 30- noch_len, text3, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2* fheight, full_width - 30- noch_len, text3, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 		}
 
 		if (!(text2.empty())) {
@@ -1690,12 +1690,12 @@ void CChannelList::paintDetails(int index)
 				}
 			}
 #endif
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ fdescrheight+ fheight, full_width- xstart- 30- noch_len, text2, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ fdescrheight+ fheight, full_width- xstart- 30- noch_len, text2, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 		}
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, full_width - 30 - seit_len, text1, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true);
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- noch_len, y+ height+ 5+ fdescrheight+ fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, full_width - 30 - seit_len, text1, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- noch_len, y+ height+ 5+ fdescrheight+ fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 	}
 	if(g_settings.channellist_foot == 0) {
 		transponder t;
@@ -1707,7 +1707,7 @@ void CChannelList::paintDetails(int index)
 		else
 			desc = desc + " (" + CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()) + ")";
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight +fdescrheight, full_width - 30, desc.c_str(), COL_MENUCONTENTDARK_TEXT, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight +fdescrheight, full_width - 30, desc.c_str(), COL_MENUCONTENTDARK_TEXT);
 	}
 	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
 
@@ -1721,8 +1721,8 @@ void CChannelList::paintDetails(int index)
 			snprintf(buf, sizeof(buf), "%s", CurrentNext.next_name.c_str());
 			int from_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cFrom);
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+ fdescrheight, full_width - 30 - from_len, buf, colored_event_N ? COL_COLORED_EVENTS_TEXT :COL_MENUCONTENTDARK_TEXT, 0, true);
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- from_len, y+ height+ 5+ 2*fheight+ fdescrheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+ fdescrheight, full_width - 30 - from_len, buf, colored_event_N ? COL_COLORED_EVENTS_TEXT :COL_MENUCONTENTDARK_TEXT);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- from_len, y+ height+ 5+ 2*fheight+ fdescrheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 		}
 	}
 	if ((g_settings.channellist_additional) && (p_event != NULL))
@@ -2054,8 +2054,8 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 					struct		tm *pStartZeit = localtime(&p_event->startTime);
 
 					snprintf((char*) tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
-//					g_Font[SNeutrinoSettings::FONT_TYPE_IMAGEINFO_SMALL]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -poffs, tmp, COL_MENUCONTENT_TEXT, 0, true);
-					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -prg_offset, tmp, tcolor, 0, true);
+//					g_Font[SNeutrinoSettings::FONT_TYPE_IMAGEINFO_SMALL]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -poffs, tmp, COL_MENUCONTENT_TEXT);
+					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -prg_offset, tmp, tcolor);
 				}
 				else
 				{
@@ -2082,14 +2082,14 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				}
 			}
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color);
 			if (g_settings.channellist_epgtext_align_right) {
 				// align right
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - 20 - ch_desc_len - icon_space - 4, ypos + fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED_TEXT:(!displayNext ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT) , 0, true);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - 20 - ch_desc_len - icon_space - 4, ypos + fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED_TEXT:(!displayNext ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT));
 			}
 			else {
 				// align left
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ 5+ numwidth+ 10+ ch_name_len+ 5+prg_offset, ypos+ fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED_TEXT:(!displayNext ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT) , 0, true);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ 5+ numwidth+ 10+ ch_name_len+ 5+prg_offset, ypos+ fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED_TEXT:(!displayNext ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT));
 			}
 		}
 		else {
@@ -2103,7 +2103,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
  				pb.paint();
 			}
 			//name
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color);
 		}
 		if (curr == selected) {
 			if (!(chan->currentEvent.description.empty())) {
@@ -2320,9 +2320,9 @@ void CChannelList::paint_events(int index)
 				strftime(startTime, sizeof(startTime), "%H:%M", tmStartZeit );
 				//printf("%s %s\n", startTime, e->description.c_str());
 				startTimeWidth = eventStartTimeWidth;
-				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, color, 0, true);
+				g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, startTimeWidth, startTime, color);
 			}
-			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, color, 0, true);
+			g_Font[eventFont]->RenderString(x+ width+5+startTimeWidth, y+ theight+ pig_height + i*ffheight, infozone_width - startTimeWidth - 20, e->description, color);
 		}
 		else
 		{
@@ -2373,7 +2373,7 @@ void CChannelList::showdescription(int index)
 
 	frameBuffer->paintBoxRel(x+ width,y+ theight+pig_height, infozone_width, infozone_height,COL_MENUCONTENT_PLUS_0);
 	for (int i = 1; (i < (int)epgText.size()+1) && ((y+ theight+ pig_height + i*ffheight) < (y+ theight+ pig_height + infozone_height)); i++)
-		g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK_TEXT, 0, true);
+		g_Font[eventFont]->RenderString(x+ width+5, y+ theight+ pig_height + i*ffheight, infozone_width - 20, epgText[i-1].first, COL_MENUCONTENTDARK_TEXT);
 }
 
 void CChannelList::addTextToArray(const std::string & text, int screening) // UTF-8

@@ -363,7 +363,7 @@ void CListFrame::refreshTitle(void)
 	m_pcFontTitle->RenderString(m_cFrameTitleRel.iX + TEXT_BORDER_WIDTH + m_cFrame.iX,
 			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight + m_cFrame.iY,
 			m_cFrameTitleRel.iWidth - (TEXT_BORDER_WIDTH << 1),
-			m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
+			m_textTitle.c_str(), TITLE_FONT_COLOR);
 }
 
 void CListFrame::refreshScroll(void)
@@ -447,7 +447,7 @@ void CListFrame::refreshList(void)
 				xDiff = 0;
 			m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
 					width-xDiff, m_pLines->lineArray[row][line].c_str(),
-					color, 0, true); // UTF-8
+					color);
 			x += width + ROW_BORDER_WIDTH;
 		}
 	}
@@ -493,7 +493,7 @@ void CListFrame::refreshLine(int line)
 			xDiff = 0;
 		m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
 				width-xDiff, m_pLines->lineArray[row][line].c_str(),
-				color, 0, true); // UTF-8
+				color);
 		x += width + ROW_BORDER_WIDTH;
 	}
 }
@@ -523,7 +523,7 @@ void CListFrame::refreshHeaderList(void)
 		}
 		m_pcFontHeaderList->RenderString(x+m_cFrame.iX, y+m_cFrame.iY,
 				width, m_pLines->lineHeader[row].c_str(),
-				HEADER_LIST_FONT_COLOR, 0, true); // UTF-8
+				HEADER_LIST_FONT_COLOR);
 		x += width + ROW_BORDER_WIDTH;
 	}
 }

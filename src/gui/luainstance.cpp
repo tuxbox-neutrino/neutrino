@@ -616,7 +616,7 @@ int CLuaInstance::RenderString(lua_State *L)
 	if ((c & MAGIC_MASK) == MAGIC_COLOR)
 		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
 	if (boxh > -1) /* if boxh < 0, don't paint string */
-		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh, true);
+		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh);
 	lua_pushinteger(L, rwidth); /* return renderwidth */
 	return 1;
 }

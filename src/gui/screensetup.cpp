@@ -259,9 +259,9 @@ void CScreenSetup::paintIcons(int pselected)
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x_box + 5, y_box+BoxHeight, BoxHeight);
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + icol_w + 10, y_box + BoxHeight, BoxWidth,
-		g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT ), (pselected == 0) ? COL_MENUCONTENTSELECTED_TEXT:COL_MENUCONTENT_TEXT , 0, true); // UTF-8
+		g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT ), (pselected == 0) ? COL_MENUCONTENTSELECTED_TEXT:COL_MENUCONTENT_TEXT);
         g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + icol_w + 10, y_box + BoxHeight * 2, BoxWidth,
-		g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT), (pselected == 1) ? COL_MENUCONTENTSELECTED_TEXT:COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+		g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT), (pselected == 1) ? COL_MENUCONTENTSELECTED_TEXT:COL_MENUCONTENT_TEXT);
 }
 
 void CScreenSetup::paintBorderUL()

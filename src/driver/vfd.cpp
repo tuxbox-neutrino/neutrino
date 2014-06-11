@@ -437,9 +437,9 @@ printf("CVFD::showAudioTrack: %s\n", title.c_str());
 	wake_up();
 
 #ifdef HAVE_LCD
-	fonts.menu->RenderString(0,22, 125, artist.c_str() , CLCDDisplay::PIXEL_ON, 0, true); // UTF-8
-	fonts.menu->RenderString(0,35, 125, album.c_str() , CLCDDisplay::PIXEL_ON, 0, true); // UTF-8
-	fonts.menu->RenderString(0,48, 125, title.c_str() , CLCDDisplay::PIXEL_ON, 0, true); // UTF-8
+	fonts.menu->RenderString(0,22, 125, artist.c_str() , CLCDDisplay::PIXEL_ON);
+	fonts.menu->RenderString(0,35, 125, album.c_str() , CLCDDisplay::PIXEL_ON);
+	fonts.menu->RenderString(0,48, 125, title.c_str() , CLCDDisplay::PIXEL_ON);
 #endif
 }
 
@@ -541,7 +541,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		break;
 	case MODE_MENU_UTF8:
 		showclock = false;
-		//fonts.menutitle->RenderString(0,28, 140, title, CLCDDisplay::PIXEL_ON, 0, true); // UTF-8
+		//fonts.menutitle->RenderString(0,28, 140, title, CLCDDisplay::PIXEL_ON);
 		break;
 	case MODE_SHUTDOWN:
 		showclock = false;
@@ -773,7 +773,7 @@ void CVFD::showInfoBox(const char * const title, const char * const text ,int au
                                 width = 100;
                         int start_pos = (120-width) /2;
                         display.draw_fill_rect (start_pos, EPG_INFO_WINDOW_POS-4,       start_pos+width+5,        EPG_INFO_WINDOW_POS+10,    CLCDDisplay::PIXEL_OFF);
-                        fonts.menu->RenderString(start_pos+4,EPG_INFO_WINDOW_POS+5, width+5, m_infoBoxTitle.c_str(), CLCDDisplay::PIXEL_ON, 0, true); // UTF-8
+                        fonts.menu->RenderString(start_pos+4,EPG_INFO_WINDOW_POS+5, width+5, m_infoBoxTitle.c_str(), CLCDDisplay::PIXEL_ON);
                 }
 
                 // paint info
@@ -793,7 +793,7 @@ void CVFD::showInfoBox(const char * const title, const char * const text ,int au
                                 pos++;
                         }
                         //printf("[lcdd] line %d:'%s'\r\n",line,text_line.c_str());
-                        fonts.menu->RenderString(EPG_INFO_TEXT_POS+1,EPG_INFO_TEXT_POS+(line*EPG_INFO_FONT_HEIGHT)+EPG_INFO_FONT_HEIGHT+3, EPG_INFO_TEXT_WIDTH, text_line.c_str(), CLCDDisplay::PIXEL_ON, 0, true); // UTF-8
+                        fonts.menu->RenderString(EPG_INFO_TEXT_POS+1,EPG_INFO_TEXT_POS+(line*EPG_INFO_FONT_HEIGHT)+EPG_INFO_FONT_HEIGHT+3, EPG_INFO_TEXT_WIDTH, text_line.c_str(), CLCDDisplay::PIXEL_ON);
                         if ( m_infoBoxText[pos] == '\n' )
                                 pos++; // remove new line
                 }
@@ -944,7 +944,7 @@ void CVFD::showProgressBar(int global, const char * const text,int show_escape,i
                 if(width > 100)
                         width = 100;
                 int start_pos = (120-width) /2;
-                fonts.menu->RenderString(start_pos, 12+12, width+10, m_progressHeaderGlobal.c_str(), CLCDDisplay::PIXEL_ON,0,true);
+                fonts.menu->RenderString(start_pos, 12+12, width+10, m_progressHeaderGlobal.c_str(), CLCDDisplay::PIXEL_ON);
 
                 // paint global bar
                 int marker_length = (PROG_GLOB_POS_WIDTH * m_progressGlobal)/100;
@@ -1015,7 +1015,7 @@ void CVFD::showProgressBar2(int local,const char * const text_local ,int global 
                 if(width > 100)
                         width = 100;
                 int start_pos = (120-width) /2;
-                fonts.menu->RenderString(start_pos, PROG2_GLOB_POS_Y-3, width+10, m_progressHeaderGlobal.c_str(), CLCDDisplay::PIXEL_ON,0,true);
+                fonts.menu->RenderString(start_pos, PROG2_GLOB_POS_Y-3, width+10, m_progressHeaderGlobal.c_str(), CLCDDisplay::PIXEL_ON);
 
                 // paint global bar
                 int marker_length = (PROG2_GLOB_POS_WIDTH * m_progressGlobal)/100;
@@ -1028,7 +1028,7 @@ void CVFD::showProgressBar2(int local,const char * const text_local ,int global 
                 if(width > 100)
                         width = 100;
                 start_pos = (120-width) /2;
-                fonts.menu->RenderString(start_pos, PROG2_LOCAL_POS_Y + PROG2_LOCAL_POS_HEIGTH +10 , width+10, m_progressHeaderLocal.c_str(), CLCDDisplay::PIXEL_ON,0,true);
+                fonts.menu->RenderString(start_pos, PROG2_LOCAL_POS_Y + PROG2_LOCAL_POS_HEIGTH +10 , width+10, m_progressHeaderLocal.c_str(), CLCDDisplay::PIXEL_ON);
                 // paint local bar
                 marker_length = (PROG2_LOCAL_POS_WIDTH * m_progressLocal)/100;
 

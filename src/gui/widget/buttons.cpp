@@ -205,7 +205,7 @@ int paintButtons(	const int &x,
 		// paint icon and text
 		frameBuffer->paintIcon(icon, x_button , y_base - iconh[j]/2);
 		x_caption = x_button + iconw[j] + h_space;
-		font->RenderString(x_caption, y_caption, fwidth[j], caption, fcolor, 0, true);
+		font->RenderString(x_caption, y_caption, fwidth[j], caption, fcolor);
  		
  		/* 	set next startposition x, if text is length=0 then offset is =renderwidth of icon, 
   		* 	for generating buttons without captions, 

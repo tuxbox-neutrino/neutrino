@@ -1696,38 +1696,38 @@ void CMovieBrowser::refreshFoot(void)
 	{
 		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight+ 6);
-		m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, sort_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, sort_text.c_str(), (CFBWindow::color_t)color);
 		xpos += width;
 
 		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_GREEN, &iw, &ih);
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight+ 6);
-		m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, filter_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, filter_text.c_str(), (CFBWindow::color_t)color);
 		xpos += width;
 	}
 
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &iw, &ih);
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight+ 6);
-	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FOCUS), (CFBWindow::color_t)color, 0, true); // UTF-8
+	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FOCUS), (CFBWindow::color_t)color);
 	xpos += width;
 
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_BLUE, &iw, &ih);
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight+ 6);
-	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_REFRESH), (CFBWindow::color_t)color, 0, true); // UTF-8
+	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_REFRESH), (CFBWindow::color_t)color);
 	xpos += width;
 
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &iw, &ih);
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight+ 6);
-	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, ok_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
+	m_pcFontFoot->RenderString(xpos + xoff + iw, ypos_font, width - iw - 2*xoff, ok_text.c_str(), (CFBWindow::color_t)color);
 	xpos += width;
 
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight+ 6);
-	m_pcFontFoot->RenderString(xpos + xoff + iw , ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color, 0, true); // UTF-8
+	m_pcFontFoot->RenderString(xpos + xoff + iw , ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color);
 	xpos += width;
 
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MENU_SMALL, &iw, &ih);
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MENU_SMALL, xpos, ypos_icon, m_cBoxFrameFootRel.iHeight+ 6);
-	m_pcFontFoot->RenderString(xpos + xoff + iw , ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_OPTIONS), (CFBWindow::color_t)color, 0, true); // UTF-8
+	m_pcFontFoot->RenderString(xpos + xoff + iw , ypos_font, width - iw - 2*xoff, g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_OPTIONS), (CFBWindow::color_t)color);
 }
 
 bool CMovieBrowser::onButtonPress(neutrino_msg_t msg)
@@ -3910,7 +3910,7 @@ int CMenuSelector::paint(bool selected)
 	frameBuffer->paintBoxRel(x, y, dx, height, bgcolor);
 
 	int stringstartposName = x + offx + 10;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), optionName, color, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), optionName, color);
 
 	if (selected)
 		CVFD::getInstance()->showMenuText(0, optionName, -1, true); // UTF-8

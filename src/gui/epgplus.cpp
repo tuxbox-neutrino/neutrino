@@ -173,7 +173,7 @@ void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
 					, toggleColor ? COL_MENUCONTENT_PLUS_2 : COL_MENUCONTENT_PLUS_1);
 
 	this->fontDate->RenderString (this->x + 4, this->y + this->fontDate->getHeight()
-				      , this->width, EpgPlus::getTimeString (startTime, "%d-%b") , COL_MENUCONTENT_TEXT, 0, true);	// UTF-8
+				      , this->width, EpgPlus::getTimeString (startTime, "%d-%b") , COL_MENUCONTENT_TEXT);
 
 	// paint ticks
 	for (int i = 0; i < numberOfTicks; ++i, xPos += tickDist, tickTime += pduration / numberOfTicks) {
@@ -189,12 +189,12 @@ void EpgPlus::TimeLine::paint (time_t startTime, int pduration)
 		int textWidth = this->fontTime->getRenderWidth (timeStr);
 
 		this->fontTime->RenderString (xPos - textWidth - 4, this->y + this->fontTime->getHeight()
-					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2, 0, true);	// UTF-8
+					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2);
 
 		timeStr = EpgPlus::getTimeString (tickTime, "%M");
 		textWidth = this->fontTime->getRenderWidth (timeStr);
 		this->fontTime->RenderString (xPos + 4, this->y + this->fontTime->getHeight()
-					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2, 0, true);	// UTF-8
+					      , textWidth, timeStr, toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2);
 
 		toggleColor = !toggleColor;
 	}
@@ -226,7 +226,7 @@ void EpgPlus::TimeLine::paintMark (time_t startTime, int pduration, int px, int 
 	int textWidth = this->fontTime->getRenderWidth (timeStr);
 
 	this->fontTime->RenderString (px - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
-				      , textWidth, timeStr, COL_MENUCONTENT_TEXT, 0, true);	// UTF-8
+				      , textWidth, timeStr, COL_MENUCONTENT_TEXT);
 
 	// display end time after mark
 	timeStr = EpgPlus::getTimeString (startTime + pduration, "%H:%M");
@@ -234,10 +234,10 @@ void EpgPlus::TimeLine::paintMark (time_t startTime, int pduration, int px, int 
 
 	if (px + pwidth + textWidth < this->x + this->width) {
 		this->fontTime->RenderString (px + pwidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
-					      , textWidth, timeStr, COL_MENUCONTENT_TEXT, 0, true);	// UTF-8
+					      , textWidth, timeStr, COL_MENUCONTENT_TEXT);
 	} else if (textWidth < pwidth - 10) {
 		this->fontTime->RenderString (px + pwidth - textWidth, this->y + this->fontTime->getHeight() + this->fontTime->getHeight()
-					      , textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT, 0, true);	// UTF-8
+					      , textWidth, timeStr, COL_MENUCONTENTSELECTED_TEXT);
 	}
 }
 
@@ -291,8 +291,7 @@ void EpgPlus::ChannelEventEntry::paint (bool pisSelected, bool toggleColor)
 			, this->channelEvent.description.empty()? COL_MENUCONTENT_PLUS_0 : (pisSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : (toggleColor ? COL_MENUCONTENT_PLUS_1 : COL_MENUCONTENT_PLUS_2)));
 
 	this->font->RenderString (this->x + 2, this->y + this->font->getHeight()
-				  , this->width - 4 > 0 ? this->width - 4 : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : (toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2)
-				  , 0, true);
+				  , this->width - 4 > 0 ? this->width - 4 : 0, this->channelEvent.description, pisSelected ? COL_MENUCONTENTSELECTED_TEXT : (toggleColor ? COL_MENUCONTENT_P1 : COL_MENUCONTENT_P2));
 
 	// paint the separation line
 	if (separationLineHeight > 0) {
@@ -368,7 +367,7 @@ void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
 			isSelected ? COL_MENUCONTENTSELECTED_PLUS_0 : COL_MENUCONTENT_PLUS_0);
 
 	this->font->RenderString (this->x + 2, this->y + this->font->getHeight(),
-			this->width - 4, this->displayName, isSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT, 0, true);
+			this->width - 4, this->displayName, isSelected ? COL_MENUCONTENTSELECTED_TEXT : COL_MENUCONTENT_TEXT);
 
 	if (isSelected) {
 #if 0
@@ -469,7 +468,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	yPos += height;
 
 	// display new text
-	this->fontBouquetChannelName->RenderString (this->x + 10, yPos, this->width - 20, this->currentBouquetName + " : " + this->currentChannelName, COL_MENUHEAD_TEXT, 0, true);
+	this->fontBouquetChannelName->RenderString (this->x + 10, yPos, this->width - 20, this->currentBouquetName + " : " + this->currentChannelName, COL_MENUHEAD_TEXT);
 
 	height = this->fontEventDescription->getHeight();
 
@@ -479,7 +478,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	yPos += height;
 
 	// display new text
-	this->fontEventDescription->RenderString (this->x + 10, yPos, this->width - 20, description, COL_MENUHEAD_TEXT, 0, true);
+	this->fontEventDescription->RenderString (this->x + 10, yPos, this->width - 20, description, COL_MENUHEAD_TEXT);
 
 	height = this->fontEventShortDescription->getHeight();
 
@@ -489,7 +488,7 @@ void EpgPlus::Footer::paintEventDetails (const std::string & description, const 
 	yPos += height;
 
 	// display new text
-	this->fontEventShortDescription->RenderString (this->x + 10, yPos, this->width - 20, shortDescription, COL_MENUHEAD_TEXT, 0, true);
+	this->fontEventShortDescription->RenderString (this->x + 10, yPos, this->width - 20, shortDescription, COL_MENUHEAD_TEXT);
 }
 
 struct button_label buttonLabels[] = {

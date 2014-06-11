@@ -103,7 +103,7 @@ void CBEBouquetWidget::paintItem(int pos)
 		if ((*Bouquets)[current]->bHidden)
 			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + 10, ypos, iheight);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+iconoffset+20, ypos + iheight - (iheight-fheight)/2, width-iconoffset-20, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+iconoffset+20, ypos + iheight - (iheight-fheight)/2, width-iconoffset-20, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color);
 	}
 }
 

@@ -505,7 +505,7 @@ void CScanTs::hide()
 void CScanTs::paintLineLocale(int px, int * py, int pwidth, const neutrino_locale_t l)
 {
 	frameBuffer->paintBoxRel(px, *py, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, *py + mheight, pwidth, g_Locale->getText(l), COL_MENUCONTENTINACTIVE_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, *py + mheight, pwidth, g_Locale->getText(l), COL_MENUCONTENTINACTIVE_TEXT);
 	*py += mheight;
 }
 
@@ -513,7 +513,7 @@ void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 {
 //printf("CScanTs::paintLine x %d y %d w %d width %d xpos2 %d: %s\n", px, py, w, width, xpos2, txt);
 	frameBuffer->paintBoxRel(px, py, w, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, py + mheight, w, txt, COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px+2, py + mheight, w, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CScanTs::paint(bool fortest)

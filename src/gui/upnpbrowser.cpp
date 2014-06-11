@@ -899,7 +899,7 @@ void CUpnpBrowserGui::paintDeviceInfo()
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
+			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	// second line
 	tmp = m_devices[m_selecteddevice].modelname + " " +
@@ -909,14 +909,14 @@ void CUpnpBrowserGui::paintDeviceInfo()
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
+			tmp, COL_MENUCONTENTSELECTED_TEXT);
 	// third line
 	tmp = m_devices[m_selecteddevice].modelurl;
 	w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp);
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
+			tmp, COL_MENUCONTENTSELECTED_TEXT);
 }
 
 void CUpnpBrowserGui::paintDevice(unsigned int _pos)
@@ -950,9 +950,9 @@ void CUpnpBrowserGui::paintDevice(unsigned int _pos)
 
 	int w = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getRenderWidth(name) + 5;
 	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + 10, ypos + m_fheight, m_width - 30 - w,
-			num, color, m_fheight, true); // UTF-8
+			num, color, m_fheight);
 	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + m_width - 15 - w, ypos + m_fheight,
-			w, name, color, m_fheight, true); // UTF-8
+			w, name, color, m_fheight);
 }
 
 void CUpnpBrowserGui::paintDevices()
@@ -1055,7 +1055,7 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entries, unsigned int po
 	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + m_width - 15 - w, ypos + m_fheight,
 			w, info, color, m_fheight);
 	g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(m_x + 30, ypos + m_fheight, m_width - 50 - w,
-			name, color, m_fheight, true); // UTF-8
+			name, color, m_fheight);
 }
 
 void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
@@ -1085,7 +1085,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 1*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
+			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	// second line
 	if (entry->isdir)
@@ -1100,7 +1100,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 2*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
+			tmp, COL_MENUCONTENTSELECTED_TEXT);
 
 	//third line
 	tmp = "";
@@ -1111,7 +1111,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 	w = std::min(w, m_width - 20);
 	xstart = (m_width - w) / 2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + xstart, m_y + 4 + 3*m_mheight, m_width - 20,
-			tmp, COL_MENUCONTENTSELECTED_TEXT, 0, true); // UTF-8
+			tmp, COL_MENUCONTENTSELECTED_TEXT);
 	static std::string lastname = "", tmpname = "";
 	if(!entry->albumArtURI.empty()){
 		static int flogo_w = 0, flogo_h = 0;
@@ -1190,9 +1190,9 @@ printf("paintDetails: use_playing %d shown %d\n", use_playing, m_playing_entry_i
 				m_frameBuffer->paintBoxRel(m_x, top + 2, m_width-2, 2 * ih, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
 				g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
 						top + 1 * m_buttonHeight + 4, m_x + m_width - 8, m_playing_entry.title + " - " +
-						m_playing_entry.artist, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
+						m_playing_entry.artist, COL_MENUCONTENTDARK_TEXT);
 				g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
-						top + 2 * m_buttonHeight + 4, m_x + m_width - 8, m_playing_entry.album, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
+						top + 2 * m_buttonHeight + 4, m_x + m_width - 8, m_playing_entry.album, COL_MENUCONTENTDARK_TEXT);
 			}
 		}
 		else
@@ -1202,9 +1202,9 @@ printf("paintDetails: use_playing %d shown %d\n", use_playing, m_playing_entry_i
 			m_frameBuffer->paintBoxRel(m_x, top + 2, m_width-2, 2 * ih, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
 			g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
 					top + 1 * m_buttonHeight + 4, m_x + m_width - 8, entry->title + " - " +
-					entry->artist, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
+					entry->artist, COL_MENUCONTENTDARK_TEXT);
 			g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
-					top + 2 * m_buttonHeight + 4, m_x + m_width - 8, entry->album, COL_MENUCONTENTDARK_TEXT, 0, true); // UTF-8
+					top + 2 * m_buttonHeight + 4, m_x + m_width - 8, entry->album, COL_MENUCONTENTDARK_TEXT);
 		}
 	}
 }
