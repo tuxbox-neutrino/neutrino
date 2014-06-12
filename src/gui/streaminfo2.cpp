@@ -369,13 +369,20 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 // -- calc y from max_range and max_y
 int CStreamInfo2::y_signal_fe (unsigned long value, unsigned long max_value, int max_y)
 {
-	long l;
+	unsigned long long m;
+	unsigned long l;
 
 	if (!max_value)
 		max_value = 1;
 
-	l = ((long) max_y * (long) value) / (long) max_value;
-	if (l > max_y)
+	// we use a 64 bits int here to detect integer overflow
+	// and if it overflows, just return max_y
+	m = (unsigned long long)value * max_y;
+	if (m > 0xffffffff)
+		return max_y;
+
+	l = m / max_value;
+	if (l > (unsigned long)max_y)
 		l = max_y;
 
 	return (int) l;
