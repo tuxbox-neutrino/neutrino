@@ -191,6 +191,7 @@ private:
 	static int runScriptExt(lua_State *L);
 	static int GetSize(lua_State *L);
 	static int DisplayImage(lua_State *L);
+	static int PlayFile(lua_State *L);
 
 	void MenuRegister(lua_State *L);
 	static int MenuNew(lua_State *L);
