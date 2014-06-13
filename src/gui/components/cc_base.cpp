@@ -282,3 +282,11 @@ inline void CComponents::setYPos(const int& ypos)
 {
 	y = ypos;
 }
+
+void CComponents::setFrameThickness(const int& thickness, const int& thickness_sel)
+{
+	fr_thickness = thickness;
+
+	if (fr_thickness_sel != thickness_sel)
+		fr_thickness_sel = thickness_sel;
+}

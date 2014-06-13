@@ -81,9 +81,9 @@ class CComponents : public COSDFader
 		///property: width of shadow
 		int shadow_w;
 
-		 ///property: frame thickness
+		 ///property: frame thickness, see also setFrameThickness()
 		int fr_thickness;
-		///property: frame thickness of selected component
+		///property: frame thickness of selected component, see also setFrameThickness()
 		int fr_thickness_sel;
 
 		///status: true=component was painted for 1st time
@@ -194,7 +194,7 @@ class CComponents : public COSDFader
 		inline virtual int getCornerRadius(){return corner_rad;};
 
 		///set frame thickness
-		inline virtual void setFrameThickness(const int& thickness){fr_thickness = thickness;};
+		virtual void setFrameThickness(const int& thickness, const int& thickness_sel = 3);
 		///switch shadow on/off
 		///Note: it's recommended to use #defines: CC_SHADOW_ON=true or CC_SHADOW_OFF=false as parameter, see also cc_types.h
 		inline virtual void setShadowOnOff(bool has_shadow){shadow = has_shadow;};
