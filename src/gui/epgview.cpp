@@ -666,17 +666,17 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		pb.paint(false);
 	}
 
-	GetPrevNextEPGData( epgData.eventID, &epgData.epg_times.startzeit );
-	if ((prev_id != 0) && !call_fromfollowlist)
-	{
-		frameBuffer->paintBoxRel(sx+ 5, sy+ oy- botboxheight+ 4, botboxheight- 8, botboxheight- 8,  COL_MENUCONTENT_PLUS_3);
-		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ 10, sy+ oy- 3, widthr, "<", COL_MENUCONTENT_TEXT_PLUS_3);
-	}
+	static int iw = 0, ih = 0;
+	if (!iw && !ih)
+		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_LEFT, &iw, &ih);
 
-	if ((next_id != 0) && !call_fromfollowlist)
-	{
-		frameBuffer->paintBoxRel(sx+ ox- botboxheight+ 8- 5, sy+ oy- botboxheight+ 4, botboxheight- 8, botboxheight- 8,  COL_MENUCONTENT_PLUS_3);
-		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_DATE]->RenderString(sx+ ox- botboxheight+ 8, sy+ oy- 3, widthr, ">", COL_MENUCONTENT_TEXT_PLUS_3);
+	GetPrevNextEPGData( epgData.eventID, &epgData.epg_times.startzeit );
+	if (!call_fromfollowlist) {
+		int iy = sy + oy - 3 - height/2 - iw/2;
+		if (prev_id)
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_LEFT, sx + 5, iy);
+		if (next_id)
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, sx + ox - iw - 5, iy);
 	}
 
 	if ( doLoop )
