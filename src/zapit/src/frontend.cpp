@@ -1201,6 +1201,7 @@ int CFrontend::setParameters(TP_params *TP, bool nowait)
 			break;
 		}
 #endif
+		break;
 	case FE_OFDM:
 		if (freq < 1000*1000)
 			feparams.dvb_feparams.frequency = freq * 1000;
