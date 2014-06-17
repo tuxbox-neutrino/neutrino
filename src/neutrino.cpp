@@ -2270,6 +2270,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if (CRCInput::isNumeric(msg)) {
 				numericZap( msg );
 			}
+			else if( msg == CRCInput::RC_page_up || msg == CRCInput::RC_page_down) {
+				quickZap(msg == CRCInput::RC_page_up ? CRCInput::RC_right : CRCInput::RC_left);
+			}
 			else if(msg == CRCInput::RC_rewind) {
 				if(g_RemoteControl->is_video_started) {
 					t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
