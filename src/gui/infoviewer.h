@@ -96,7 +96,6 @@ class CInfoViewer
 	int info_time_width;
 
 	bool newfreq ;
-	char old_timestr[10];
 	static const short bar_width = 72;
 	static event_id_t last_curr_id, last_next_id;
 	uint64_t timeoutEnd;
