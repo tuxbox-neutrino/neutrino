@@ -397,8 +397,10 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 {
 	std::string print_buffer = movie_info.epgInfo1;
 	print_buffer += "\n";
-	print_buffer += movie_info.epgInfo2;
-	print_buffer += "\n";
+	if (movie_info.epgInfo1 != movie_info.epgInfo2) {
+		print_buffer += movie_info.epgInfo2;
+		print_buffer += "\n";
+	}
 
 	if ( !movie_info.productionCountry.empty() || movie_info.productionDate != 0) {
 		print_buffer += movie_info.productionCountry;
