@@ -49,6 +49,7 @@ class CComponentsFrmClock : public CComponentsForm
 	private:
 		
 // 		bool cl_force_segment_paint;
+		bool may_blit;
 	
 	protected:
 		///thread
@@ -141,6 +142,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///set clock activ/inactiv
 		virtual void setClockActiv(bool activ = true);
+
+		///enable/disable automatic blitting
+		void setBlit(bool _may_blit = true) { may_blit = _may_blit; }
 };
 
 #endif
