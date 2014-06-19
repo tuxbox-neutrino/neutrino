@@ -458,6 +458,12 @@ int CScanSetup::showScanMenu()
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FAST);
 		settings->addItem(mf);
 #endif
+		//signal test
+		CMenuWidget * sTest = new CMenuWidget(LOCALE_SCANTS_TEST, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_MANUAL_SCAN);
+		addScanMenuManualScan(sTest, true);
+		mf = new CMenuDForwarder(LOCALE_SCANTS_TEST, true, NULL, sTest, "", CRCInput::convertDigitToKey(shortcut++));
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
+		settings->addItem(mf);
 		settings->addItem(GenericMenuSeparatorLine);
 	}
 	if (CFEManager::getInstance()->haveCable()) {
@@ -1179,7 +1185,7 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 }
 
 //init manual scan menu
-void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
+void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest)
 {
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortCut = 1;
@@ -1229,9 +1235,11 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
 	manual_Scan->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, act_manual, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
-	manual_Scan->addItem(mf);
+	if (!stest) {
+		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, act_manual, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+		manual_Scan->addItem(mf);
+	}
 }
 
 //init auto scan all menu

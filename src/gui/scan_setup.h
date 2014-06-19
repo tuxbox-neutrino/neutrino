@@ -110,7 +110,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		neutrino_locale_t getModeLocale(int mode);
 		int showScanMenuFrontendSetup();
  		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
- 		void addScanMenuManualScan(CMenuWidget *manual_Scan);
+ 		void addScanMenuManualScan(CMenuWidget *manual_Scan, bool stest = false);
  		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);
  		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
 
