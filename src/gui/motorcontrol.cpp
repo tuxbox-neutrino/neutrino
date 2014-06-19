@@ -77,7 +77,7 @@ void CMotorControl::Init(void)
 
 	width = w_max(720, 0);
 	mheight = mheight - 2;
-	height = hheight + (23 * mheight) - 5;
+	height = hheight + (24 * mheight) - 5;
 	height = h_max(height, 0);
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
@@ -583,7 +583,7 @@ void CMotorControl::showSNR ()
 	if (signalbox == NULL){
 		int xpos1 = x + 10;
 		//signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
-		signalbox = new CSignalBox(xpos1, y + height - 4*mheight - 5, width - 2*(xpos1-x), 4*g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, true);
+		signalbox = new CSignalBox(xpos1, y + height - (mheight*2*3)/2 - 5, width - 2*(xpos1-x), (g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight()*2*3)/2, frontend, true);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);

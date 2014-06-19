@@ -201,7 +201,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 	width       = w_max(fw * 42, 0);
-	height      = h_max(hheight + (11 * mheight), 0); //9 lines
+	height      = h_max(hheight + (12 * mheight), 0); //9 lines
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 	xpos_radar = x + 36 * fw;
@@ -581,7 +581,7 @@ void CScanTs::showSNR ()
 	if (signalbox == NULL){
 		CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
 		//signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
-		signalbox = new CSignalBox(xpos1, y + height - 2*mheight - 5, width - 2*(xpos1-x), 2*g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, true);
+		signalbox = new CSignalBox(xpos1, y + height - (mheight*2*3)/2 - 5, width - 2*(xpos1-x), (g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight()*2*3)/2, frontend, true);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);
