@@ -652,12 +652,12 @@ start-block~map_rc_cst_v3_v4
   <area shape="circle" href="javascript:rcsim('KEY_POWER')" coords="46,42,14" alt="standby" title="{=L:rc.key_power=}" />
   <area shape="circle" href="javascript:rcsim('KEY_MUTE')" coords="123,42,11" alt="mute" title="{=L:rc.key_mute=}" />
 
-  <area shape="circle" href="javascript:rcsim('KEY_MODE')" coords="36,87,11" alt="tv/radio" title="{=L:rc.key_mode=}" />
+  <area shape="circle" href="javascript:rcsim('KEY_RADIO')" coords="36,87,11" alt="tv/radio" title="{=L:rc.key_radio=}" />
   <area shape="circle" href="javascript:rcsim('KEY_NEXT')" coords="67,87,11" alt="skip-" title="{=L:rc.key_next=}" />
   <area shape="circle" href="javascript:rcsim('KEY_PREVIOUS')" coords="97,87,11" alt="skip+" title="{=L:rc.key_previous=}" />
   <!-- area shape="circle" coords="128,87,11" alt="stb/tv" / -->
 
-  <!-- area shape="circle" coords="36,120,11" alt="vformat" / -->
+  <area shape="circle" href="javascript:rcsim('KEY_MODE')" coords="36,120,11" alt="vformat" title="{=L:rc.key_mode=}" />
   <area shape="circle" href="javascript:rcsim('KEY_SLEEP')" coords="67,120,11" alt="sleep" title="{=L:rc.key_sleep=}" />
   <area shape="circle" href="javascript:rcsim('KEY_AUDIO')" coords="97,120,11" alt="audio" title="{=L:rc.key_audio=}" />
   <area shape="circle" href="javascript:rcsim('KEY_HELP')" coords="128,120,11" alt="help" title="{=L:rc.key_help=}" />
@@ -738,9 +738,9 @@ start-block~rc_cst_v5
   <area shape="rect" href="javascript:rcsim('KEY_7')" coords="24,140,66,168" alt="7" title="{=L:rc.key_7=}" />
   <area shape="rect" href="javascript:rcsim('KEY_8')" coords="76,140,118,168" alt="8" title="{=L:rc.key_8=}" />
   <area shape="rect" href="javascript:rcsim('KEY_9')" coords="128,140,170,168" alt="9" title="{=L:rc.key_9=}" />
-  <!-- area shape="rect" coords="24,177,66,205" alt="vformat" / -->
+  <area shape="rect" href="javascript:rcsim('KEY_MODE')" coords="24,177,66,205" alt="vformat" title="{=L:rc.key_mode=}" />
   <area shape="rect" href="javascript:rcsim('KEY_0')" coords="76,177,118,205" alt="0" title="{=L:rc.key_0=}" />
-  <area shape="rect" href="javascript:rcsim('KEY_MODE')" coords="128,177,170,205" alt="tv/radio" title="{=L:rc.key_mode=}" />
+  <area shape="rect" href="javascript:rcsim('KEY_RADIO')" coords="128,177,170,205" alt="tv/radio" title="{=L:rc.key_radio=}" />
 
   <area shape="rect" href="javascript:rcsim('KEY_OK')" coords="74,248,120,276" alt="ok" title="{=L:rc.key_ok=}" />
   <area shape="rect" href="javascript:rcsim('KEY_UP')" coords="76,218,118,246" alt="up" title="{=L:rc.key_up=}" />
@@ -794,8 +794,8 @@ start-block~rc_cst_v6
   <area shape="circle" coords="150,68,13" alt="mute" href="javascript:rcsim('KEY_MUTE')" title="{=L:rc.key_mute=}" />
   <area shape="circle" coords="38,68,13" alt="sat" href="javascript:rcsim('KEY_SAT')" title="{=L:rc.key_sat=}" />
 
-  <area shape="rect" coords="72,89,114,106" alt="tv-radio" href="javascript:rcsim('KEY_MODE')" title="{=L:rc.key_mode=}" />
-  <!-- area shape="rect" coords="72,116,114,133" alt="vformat" / -->
+  <area shape="rect" coords="72,89,114,106" alt="tv-radio" href="javascript:rcsim('KEY_RADIO')" title="{=L:rc.key_radio=}" />
+  <area shape="rect" coords="72,116,114,133" alt="vformat" href="javascript:rcsim('KEY_MODE')" title="{=L:rc.key_mode=}" />
   <area shape="rect" coords="19,93,60,110" alt="skip+" href="javascript:rcsim('KEY_NEXT')" title="{=L:rc.key_next=}" />
   <area shape="rect" coords="19,120,60,137" alt="skip-" href="javascript:rcsim('KEY_PREVIOUS')" title="{=L:rc.key_previous=}" />
   <area shape="rect" coords="126,93,167,110" alt="picsize" href="javascript:rcsim('KEY_NEXT')" title="{=L:rc.key_next=}" />
