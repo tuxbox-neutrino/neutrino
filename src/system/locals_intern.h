@@ -1033,6 +1033,7 @@ const char * locale_real_names[] =
 	"menu.hint_net_broadcast",
 	"menu.hint_net_dhcp",
 	"menu.hint_net_djmount",
+	"menu.hint_net_dropbear",
 	"menu.hint_net_ftpd",
 	"menu.hint_net_gateway",
 	"menu.hint_net_hostname",

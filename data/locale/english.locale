@@ -1006,6 +1006,7 @@ menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch 
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
 menu.hint_net_djmount Mount UPnP devices as filesystem\nunder /media/00upnp
+menu.hint_net_dropbear Enable ssh access to the box
 menu.hint_net_ftpd Enable file transfer using FTP
 menu.hint_net_gateway Enter gateway/router IP address
 menu.hint_net_hostname Change your box hostname

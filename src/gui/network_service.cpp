@@ -50,15 +50,16 @@ struct network_service
 	int enabled;
 };
 
-#define SERVICE_COUNT 5
-static struct network_service services[SERVICE_COUNT] =
+static struct network_service services[] =
 {
 	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_FTPD, "", 0 },
 	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_TELNET, "", 0 },
 	{ "DjMount", "djmount", "-o iocharset=UTF-8 /media/00upnp/", LOCALE_MENU_HINT_NET_DJMOUNT, "", 0 },
 	{ "uShare", "ushare", "-D -n `cat /etc/hostname`", LOCALE_MENU_HINT_NET_USHARE, "", 0 },
 	{ "xupnpd", "xupnpd", "", LOCALE_MENU_HINT_NET_XUPNPD, "", 0 },
+	{ "Dropbear", "dropbear", "-B", LOCALE_MENU_HINT_NET_DROPBEAR, "", 0 },
 };
+#define SERVICE_COUNT (sizeof(services)/sizeof(struct network_service))
 
 CNetworkService::CNetworkService(std::string cmd, std::string opts)
 {
