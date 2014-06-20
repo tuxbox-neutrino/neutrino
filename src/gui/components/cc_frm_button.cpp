@@ -108,7 +108,7 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_item_selected = selected;
 	fr_thickness 	= 3;
 	append_x_offset = 6;
-	append_y_offset = append_x_offset;
+	append_y_offset = 0;
 	corner_rad	= RADIUS_MID;
 	
 	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
@@ -139,15 +139,16 @@ void CComponentsButton::initIcon()
 		int h_icon = 0;
 		frameBuffer->getIconSize(cc_btn_icon.c_str(), &w_icon, &h_icon);
 
-		int h_max = height-2*fr_thickness;
-		if (h_icon > h_max){
-			int ratio = h_icon/h_max;
-			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon;
-			cc_btn_icon += ".png";
-			w_icon = w_icon*ratio;
-		}
-
-		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, CC_CENTERED, w_icon, h_max, cc_btn_icon, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
+		h_icon = min(height-2*fr_thickness, h_icon);
+// 		if (h_icon != h_max){
+// 			int ratio = h_icon/h_max;
+// 			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon;
+// 			cc_btn_icon += ".png";
+// 			w_icon = w_icon*ratio;
+// 		}
+		
+		int y_icon = height/2 - h_icon/2;
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, w_icon, h_icon, cc_btn_icon, this);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
 }
@@ -183,7 +184,7 @@ void CComponentsButton::initCaption()
 			but text render isn't wrong here, because capitalized chars or long chars like e. 'q', 'y' are considered!
 			Therefore we here need other icons or a hack, that considers some different height values.
 		*/
-		int y_cap = 0;
+		int y_cap = height/2 - h_cap/2 - fr_thickness;
 
 		cc_btn_capt_obj->setDimensionsAll(x_cap, y_cap, w_cap, h_cap);
 

@@ -404,7 +404,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "picture"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 200, DATADIR "/neutrino/icons/mp3-5.jpg");
+			pic = new CComponentsPicture (100, 100, 200, 100, DATADIR "/neutrino/icons/mp3-5.jpg");
 
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
@@ -414,7 +414,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "channellogo"){
 		if (chnl_pic == NULL)
-			chnl_pic = new CComponentsChannelLogo(100, 100, 200, 200, 0, "ProSieben");
+			chnl_pic = new CComponentsChannelLogo(100, 100, "ProSieben", 0);
 
 		if (!chnl_pic->isPainted() && !chnl_pic->isPicPainted())
 			chnl_pic->paint();
@@ -430,10 +430,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		form->setFrameThickness(2);
 		form->setColorFrame(COL_WHITE);
 
-		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
+		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
 		ptmp->setWidth(28);
 		ptmp->setHeight(28);
-		ptmp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 		ptmp->setColorBody(COL_BLUE);
 		ptmp->setCorner(RADIUS_MID, CORNER_TOP_LEFT);
 		form->addCCItem(ptmp);

@@ -32,7 +32,7 @@
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
 #include <neutrino.h>
-
+#include <system/debug.h>
 #include "luainstance.h"
 
 /* the magic color that tells us we are using one of the palette colors */
@@ -1886,8 +1886,7 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	CLuaCWindow* parent = NULL;
 	lua_Integer x=10, y=10, dx=100, dy=100;
 	std::string image_name         = "";
-	lua_Integer alignment         = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER;
-
+	lua_Integer alignment          = 0;
 	std::string tmp1             = "false";	// has_shadow
 	lua_Integer color_frame      = (lua_Integer)COL_MENUCONTENT_PLUS_6;
 	lua_Integer color_background = (lua_Integer)COL_MENUCONTENT_PLUS_0;
@@ -1899,7 +1898,11 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	tableLookup(L, "dx"               , dx);
 	tableLookup(L, "dy"               , dy);
 	tableLookup(L, "image"            , image_name);
-	tableLookup(L, "alignment"        , alignment);
+
+	tableLookup(L, "alignment"        , alignment); //invalid argumet, for compatibility
+	if (alignment)
+		dprintf(DEBUG_NORMAL, "[CLuaInstance][%s - %d] invalid argument: 'alignment' has no effect!\n", __func__, __LINE__);
+
 	tableLookup(L, "has_shadow"       , tmp1);
 	bool has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
 	tableLookup(L, "color_frame"      , color_frame);
@@ -1910,7 +1913,7 @@ int CLuaInstance::CPictureNew(lua_State *L)
 
 	CLuaPicture **udata = (CLuaPicture **) lua_newuserdata(L, sizeof(CLuaPicture *));
 	*udata = new CLuaPicture();
-	(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, alignment, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow);
+	(*udata)->cp = new CComponentsPicture(x, y, dx, dy, image_name, pw, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_background, (fb_pixel_t)color_shadow);
 	(*udata)->parent = pw;
 	luaL_getmetatable(L, "cpicture");
 	lua_setmetatable(L, -2);

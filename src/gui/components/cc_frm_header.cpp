@@ -109,7 +109,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_btn_obj		= NULL;
 	cch_col_text		= COL_MENUHEAD_TEXT;
 	cch_caption_align	= CTextBox::NO_AUTO_LINEBREAK;
-	cch_items_y 		= 0;
+	cch_items_y 		= CC_CENTERED;
 	cch_offset		= 8;
 	cch_icon_x 		= cch_offset;
 	cch_icon_w		= 0;
@@ -195,7 +195,7 @@ void CComponentsHeader::initIcon()
 	//create instance for cch_icon_obj and add to container at once
 	if (cch_icon_obj == NULL){
 		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
-		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
+		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name, this);
 	}
 
 	//set properties for icon object
@@ -203,7 +203,8 @@ void CComponentsHeader::initIcon()
 		//get dimensions of header icon
 		int iw = 0;
 		int ih = 0;
-		cch_icon_obj->getPictureSize(&iw, &ih);
+		cch_icon_obj->getImageSize(&iw, &ih);
+		dprintf(DEBUG_INFO, "[CComponentsHeader]\n    [%s - %d] init icon size: iw = %d, ih = %d\n", __func__, __LINE__, iw, ih);
 		cch_icon_obj->setWidth(iw);
 		cch_icon_obj->setHeight(ih);
 		cch_icon_obj->doPaintBg(false);
@@ -222,8 +223,8 @@ void CComponentsHeader::initIcon()
 		//global adapt height
 		height = max(height, cch_icon_obj->getHeight());
 
-		//re-align height of icon object
-		cch_icon_obj->setHeight(height);
+// 		//re-align height of icon object
+// 		cch_icon_obj->setHeight(height);
 	}
 }
 

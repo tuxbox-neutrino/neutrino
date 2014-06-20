@@ -37,32 +37,27 @@
 
 //! Sub class of CComponentsItem. Shows box with image with assigned attributes.
 /*!
-Picture is usable like each other CCItems.
+Picture is usable as an object like each other CCItems.
 */
 
-class CComponentsPicture : public CComponentsItem
+class CComponentsPicture : public CComponentsItem, public CPictureViewer
 {
 	protected:
-		///some internal modes for icon and image handling
-		enum
-		{
-			CC_PIC_IMAGE_MODE_OFF 	= 0, //paint pictures in icon mode, mainly not scaled
-			CC_PIC_IMAGE_MODE_ON	= 1, //paint pictures in image mode, paint scaled if required
-			CC_PIC_IMAGE_MODE_AUTO	= 2
-		};
+		///possible image formats
+		std::vector<std::string> v_ext;
 
-		///property: path or name of image, icon names to find in /widget/icons.h, icons will paint never scaled
+		///property: name of image (without extensionn) full path to image (with extension), icon names to find in /widget/icons.h, icons will paint never scaled
 		std::string pic_name;
-		///property: interface to CFrameBuffer::paintIcon() arg 5
-		unsigned char pic_offset;
-
-		bool pic_paint, pic_paintBg, pic_painted, do_paint;
-		int pic_align, pic_x, pic_y, pic_width, pic_height;
-		int pic_max_w, pic_max_h, pic_paint_mode;
+ 
+		///indicate that image was sucessful painted
+		bool is_image_painted;
+		///image is defined only by name without full path, handling as icon, not as scalable image, default = false
+		bool is_icon;
+		///sets that image may be painted, default = false
+		bool do_paint;
 
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
-				const int &alignment,
 				CComponentsForm *parent,
 				bool has_shadow,
 				fb_pixel_t color_frame,
@@ -72,63 +67,88 @@ class CComponentsPicture : public CComponentsItem
 		///initialize all required attributes
 		void initCCItem();
 		///initialize position of picture object dependendly from settings
-		void initPosition();
+		void initPosition(int *x_position, int *y_position);
+		///paint image
 		void paintPicture();
 
 	public:
 		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
-					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
 					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
-		virtual inline void setPictureOffset(const unsigned char offset){pic_offset = offset;};
-		virtual inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
-		virtual inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
+		CComponentsPicture( 	const int &x_pos, const int &y_pos,
+					const std::string& image_name,
+					CComponentsForm *parent = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_background = 0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		///sets an image name (unscaled icons only), full image path or url to an iamge file (scalable)
 		virtual void setPicture(const std::string& picture_name);
+		///sets an image name (unscaled icons only), full image path or url to an iamge file (scalable)
 		virtual void setPicture(const char* picture_name);
-		virtual void setPictureAlign(const int alignment);
 
 		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
-		virtual inline bool isPicPainted(){return pic_painted;};
+		virtual inline bool isPicPainted(){return is_image_painted;};
 
+		///handle image size
+		void getImageSize(int* width_image, int *height_image);
+
+		///paint item
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		///hide item
 		virtual void hide(bool no_restore = false);
-		virtual inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
-		virtual void setMaxWidth(const int w_max){pic_max_w = w_max;};
-		virtual void setMaxHeight(const int h_max){pic_max_h = h_max;};
 };
 
-class CComponentsChannelLogo : public CComponentsPicture, CPictureViewer
+class CComponentsChannelLogo : public CComponentsPicture
 {
-	protected:
-		///initialize all required attributes
-		void initVarPictureChannellLogo();
-
 	private:
+		///channel id
 		uint64_t channel_id;
+		///channel name
 		std::string channel_name;
+		
+		///alternate image file, if no channel logo is available
+		std::string alt_pic_name;
+		
+		///indicates that logo is available, after paint or new instance, value = false
 		bool has_logo;
 
 	public:
 		CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
-					const uint64_t& channelId =0,
 					const std::string& channelName = "",
-					const int &alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
+					const uint64_t& channelId =0,
+					CComponentsForm *parent = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_background = 0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		
+		CComponentsChannelLogo( const int &x_pos, const int &y_pos,
+					const std::string& channelName = "",
+					const uint64_t& channelId =0,
 					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
+		///set channel id and/or channel name, NOTE: channel name is prefered
 		void setChannel(const uint64_t& channelId, const std::string& channelName);
-		void setPicture(const std::string& picture_name);
-		void setPicture(const char* picture_name);
+		
+		///set an alternate logo if no logo is available NOTE: value of has_logo will set to true
+		void setAltLogo(const std::string& picture_name);
+		///set an alternate logo if no logo is available, NOTE: value of has_logo will set to true
+		void setAltLogo(const char* picture_name);
+		
+		///returns true, if any logo is available, also if an alternate logo was setted
 		bool hasLogo(){return has_logo;};
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		
 };
 
 #endif

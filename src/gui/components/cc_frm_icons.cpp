@@ -80,7 +80,6 @@ void CComponentsIconForm::addIcon(const std::string& icon_name)
 							chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED,
 							0, 0,
 							icon_name,
-							CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER,
 							this);
 	ccp->doPaintBg(false);
 
@@ -99,8 +98,7 @@ void CComponentsIconForm::insertIcon(const uint& icon_id, const std::string& ico
 	CComponentsPicture *ccp = new CComponentsPicture(chn_direction == CC_DIR_X ? CC_APPEND : CC_CENTERED,
 							chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED,
 							0, 0,
-							icon_name,
-							CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+							icon_name);
 	ccp->doPaintBg(false);
 
 	insertCCItem(icon_id, ccp);

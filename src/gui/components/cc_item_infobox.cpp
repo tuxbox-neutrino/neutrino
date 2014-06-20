@@ -98,7 +98,7 @@ void CComponentsInfoBox::paintPicture()
 		return;
 
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, 0, "");
+	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, "");
 	
 	//define icon
 	pic->setPicture(pic_name);

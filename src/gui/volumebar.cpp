@@ -175,7 +175,6 @@ void CVolumeBar::initVolumeBarIcon()
 {
 	vb_icon = new CComponentsPicture(vb_icon_x, 0, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
 
-	vb_icon->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 	vb_icon->setColorBody(col_body);
 	vb_icon->setCorner(cornerRad(), CORNER_LEFT);
 

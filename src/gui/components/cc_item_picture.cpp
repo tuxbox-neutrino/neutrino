@@ -33,7 +33,7 @@
 #include "cc_item_picture.h"
 #include <unistd.h>
 #include <system/debug.h>
-extern CPictureViewer * g_PicViewer;
+
 
 using namespace std;
 
@@ -41,18 +41,25 @@ using namespace std;
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsItem
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, const int &w, const int &h,
-					const std::string& image_name,
-					const int &alignment,
+					const std::string& image_path,
 					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
-	init(x_pos, y_pos, w, h, image_name, alignment, parent, has_shadow, color_frame, color_background, color_shadow);
+	init(x_pos, y_pos, w, h, image_path, parent, has_shadow, color_frame, color_background, color_shadow);
+}
+
+CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
+					const std::string& image_name,
+					CComponentsForm *parent,
+					bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+{
+	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow);
 }
 
 void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const string& image_name,
-				const int &alignment,
 				CComponentsForm *parent,
 				bool has_shadow,
 				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
@@ -61,8 +68,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	cc_item_type 	= CC_ITEMTYPE_PICTURE;
 
 	//CComponents
-	x = pic_x	= x_pos;
-	y = pic_y	= y_pos;
+	x 		= x_pos;
+	y 		= y_pos;
 	height		= h;
 	width 		= w;
 	shadow		= has_shadow;
@@ -72,19 +79,14 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	col_shadow	= color_shadow;
 
 	//CComponentsPicture
-	pic_paint_mode 	= CC_PIC_IMAGE_MODE_AUTO,
 	pic_name 	= image_name;
-	pic_align	= alignment;
-	pic_offset	= 1;
-	pic_paint	= true;
-	pic_paintBg	= false;
-	pic_painted	= false;
-	do_paint	= false;
-	pic_max_w	= 0;
-	pic_max_h	= 0;
-	if (pic_name.empty())
-		pic_width = pic_height = 0;
+	is_icon		= false;
 
+	is_image_painted= false;
+	do_paint	= true;
+
+	getSupportedImageFormats(v_ext);
+	v_ext.resize(unique(v_ext.begin(), v_ext.end()) - v_ext.begin());
 	initCCItem();
 	initParent(parent);
 }
@@ -103,111 +105,87 @@ void CComponentsPicture::setPicture(const char* picture_name)
 	setPicture(s_tmp);
 }
 
-void CComponentsPicture::setPictureAlign(const int alignment)
-{
-	pic_align = alignment;
-	initCCItem();
-}
-
 
 void CComponentsPicture::initCCItem()
 {
-	pic_width = pic_height = 0;
-	pic_painted = false;
-	do_paint = false;
-
-	if (pic_name == "")
+	//handle size
+	int w_pic = width;
+	int h_pic = height;
+	
+	if (pic_name.empty())
 		return;
 
-	if (pic_max_w == 0)
-		pic_max_w = width-2*fr_thickness;
+	//check for path or name, set icon or image with full path
+	string::size_type pos = pic_name.find("/", 0);
+	is_icon = (pos == string::npos);
 
-	if (pic_max_h == 0)
-		pic_max_h = height-2*fr_thickness;
+	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: detected image file: is_icon: %d (pos= %d), pic_name=%s\n", __func__, is_icon, pos, pic_name.c_str());
 
-	//set the image mode depends of name syntax, icon names contains no path,
-	//so we can detect the required image mode
-	if (pic_paint_mode == CC_PIC_IMAGE_MODE_AUTO){
-		if (!access(pic_name.c_str(), F_OK ))
-			pic_paint_mode = CC_PIC_IMAGE_MODE_ON;
-		else
-			pic_paint_mode = CC_PIC_IMAGE_MODE_OFF;
+	//get current image size
+	getImageSize(&w_pic, &h_pic);
+
+	//for icons (names without explicit path) set dimensions of "this" to current image...//TODO: centering image/icon
+	if (is_icon){
+		width = w_pic;
+		height = max(h_pic, height);
+	}
+	else{ //defined values ​​in constructor or defined via setters defined, have priority, value 0 is not allowed
+		if (width == 0)
+			width = w_pic;
+		if (height == 0)
+			height = h_pic;
 	}
 
-	if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF){
-		frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
-#if 0
-		pic_width = max(pic_width, pic_max_w);
-		pic_height = max(pic_height, pic_max_h);
-#endif
+	//resize/scale image if required, if no icon mode detected, use real image size
+	if (!is_icon){
+		if (width != w_pic || height != h_pic)
+			rescaleImageDimensions(&w_pic, &h_pic, width, height);
 	}
-	
-	if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON) {
-		g_PicViewer->getSize(pic_name.c_str(), &pic_width, &pic_height);
-		if((pic_width > pic_max_w) || (pic_height > pic_max_h))
-			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, pic_max_w, pic_max_h);
-	}
-
-	if (pic_width == 0 || pic_height == 0)
-		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s file: %s, no icon dimensions found! width = %d, height = %d\n", __func__, pic_name.c_str(),  pic_width, pic_height);
-
-	initPosition();
-
-	int sw = (shadow ? shadow_w :0);
-	width = max(max(pic_width, pic_max_w), width)  + sw ;
-	height = max(max(pic_height, pic_max_h), height)  + sw ;
-
-	dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s initialized Image: ====>> %s\n\titem x = %d\n\tdx = %d (image dx = %d)\n\titem y = %d\n\titem dy = %d (image dy = %d)\n",
-	       __func__, pic_name.c_str(),  x, width, pic_width,  y, height, pic_height);
 }
 
-void CComponentsPicture::initPosition()
+void CComponentsPicture::initPosition(int *x_position, int *y_position)
 {
 	//using of real x/y values to paint images if this picture object is bound in a parent form
-	int px = pic_x = x, py = pic_y = y;
+	*x_position = x;
+	*y_position = y;
+
 	if (cc_parent){
-		px = cc_xr;
-		py = cc_yr;
+		*x_position = cc_xr;
+		*y_position = cc_yr;
 	}
+}
 
-	if (pic_height>0 && pic_width>0){
-		if (pic_align & CC_ALIGN_LEFT)
-			pic_x = px+fr_thickness;
-		if (pic_align & CC_ALIGN_RIGHT)
-			pic_x = px+width-pic_width-fr_thickness;
-		if (pic_align & CC_ALIGN_TOP)
-			pic_y = py+fr_thickness;
-		if (pic_align & CC_ALIGN_BOTTOM)
-			pic_y = py+height-pic_height-fr_thickness;
-		if (pic_align & CC_ALIGN_HOR_CENTER)
-			pic_x = px+width/2-pic_width/2;
-		if (pic_align & CC_ALIGN_VER_CENTER)
-			pic_y = py+height/2-pic_height/2;
 
-		do_paint = true;
-	}
+void CComponentsPicture::getImageSize(int* width_image, int *height_image)
+{
+	if (!is_icon)
+		CPictureViewer::getSize(pic_name.c_str(), width_image, height_image);
+	else
+		frameBuffer->getIconSize(pic_name.c_str(), width_image, height_image);
 }
 
 void CComponentsPicture::paintPicture()
 {
-	pic_painted = false;
+	is_image_painted = false;
+	//initialize image position
+	int x_pic = x;
+	int y_pic = y;
+	initPosition(&x_pic, &y_pic);
 
-	if (do_paint && cc_allow_paint){
-		dprintf(DEBUG_DEBUG, "[CComponentsPicture] %s: paint image: %s (do_paint=%d) with mode %d\n", __func__, pic_name.c_str(), do_paint, pic_paint_mode);
+	if (pic_name.empty())
+		return;
 
-		if (pic_paint_mode == CC_PIC_IMAGE_MODE_OFF)
-			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0 /*pic_max_h*/, pic_offset, pic_paint, pic_paintBg, col_body);
-		else if (pic_paint_mode == CC_PIC_IMAGE_MODE_ON)
-			pic_painted = g_PicViewer->DisplayImage(pic_name, pic_x, pic_y, pic_width, pic_height);
+	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
+	if (cc_allow_paint){
+		if (!is_icon)
+			is_image_painted = DisplayImage(pic_name, x_pic, y_pic, width, height);
+		else
+			is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
 	}
-
-	if  (pic_painted)
-		do_paint = false;
 }
 
 void CComponentsPicture::paint(bool do_save_bg)
 {
-	initCCItem();
 	paintInit(do_save_bg);
 	paintPicture();
 }
@@ -215,69 +193,65 @@ void CComponentsPicture::paint(bool do_save_bg)
 void CComponentsPicture::hide(bool no_restore)
 {
 	hideCCItem(no_restore);
-	pic_painted = false;
+	is_image_painted = false;
 }
 
 
 CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,
-						const uint64_t& channelId,
 						const std::string& channelName,
-						const int &alignment,
+						const uint64_t& channelId,
 						CComponentsForm *parent,
 						bool has_shadow,
 						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 						:CComponentsPicture(x_pos, y_pos, w, h,
-						"", alignment, parent, has_shadow,
+						"", parent, has_shadow,
 						color_frame, color_background, color_shadow)
 {
-	channel_id = channelId;
-	channel_name = channelName;
-	initVarPictureChannellLogo();
+	setChannel(channelId, channelName);
+	alt_pic_name = "";
 }
 
-void CComponentsChannelLogo::setPicture(const std::string& picture_name)
+CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos,
+						const std::string& channelName,
+						const uint64_t& channelId,
+						CComponentsForm *parent,
+						bool has_shadow,
+						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+						:CComponentsPicture(x_pos, y_pos, 0, 0,
+						"", parent, has_shadow,
+						color_frame, color_background, color_shadow)
 {
-	pic_name = picture_name;
+	setChannel(channelId, channelName);
+	alt_pic_name = "";
+}
+
+
+void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
+{
+	alt_pic_name = picture_name;
 	channel_id = 0;
 	channel_name = "";
-	initVarPictureChannellLogo();
+	has_logo = true;
+	initCCItem();
 }
 
-void CComponentsChannelLogo::setPicture(const char* picture_name)
+void CComponentsChannelLogo::setAltLogo(const char* picture_name)
 {
 	string s_tmp = "";
 	if (picture_name)
 		s_tmp = string(picture_name);
-	this->setPicture(s_tmp);
+	this->setAltLogo(s_tmp);
 }
 
 void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::string& channelName)
 {
 	channel_id = channelId; 
 	channel_name = channelName;
-	initVarPictureChannellLogo();
-}
 
-void CComponentsChannelLogo::initVarPictureChannellLogo()
-{
-	string tmp_logo = pic_name;
-	has_logo = false;
-
-	if (!(channel_id == 0 && channel_name.empty() && pic_name.empty()))
-		has_logo = GetLogoName(channel_id, channel_name, pic_name, &pic_width, &pic_height);
+	has_logo = GetLogoName(channel_id, channel_name, pic_name, &width, &height);
 
 	if (!has_logo)
-		pic_name = tmp_logo;
+		pic_name = alt_pic_name;
 	
-	dprintf(DEBUG_DEBUG, "\t[CComponentsChannelLogo] %s: init image: %s (has_logo=%d, channel_id=%" PRIu64 ")\n", __func__, pic_name.c_str(), has_logo, channel_id);
-
 	initCCItem();
-}
-
-void CComponentsChannelLogo::paint(bool do_save_bg)
-{
-	initVarPictureChannellLogo();
-	paintInit(do_save_bg);
-	paintPicture();
-	has_logo = false; //reset
 }
