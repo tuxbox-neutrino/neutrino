@@ -58,8 +58,12 @@ class CComponentsForm : public CComponentsItem
 		virtual void addCCItem(CComponentsItem* cc_Item);
 		virtual void addCCItem(const std::vector<CComponentsItem*> &cc_items);
 		virtual void insertCCItem(const uint& cc_item_id, CComponentsItem* cc_Item);
+
+		///removes item object from container and deallocates instance
 		virtual void removeCCItem(const uint& cc_item_id);
+		///removes item object from container and deallocates instance
 		virtual void removeCCItem(CComponentsItem* cc_Item);
+
 		virtual void replaceCCItem(const uint& cc_item_id, CComponentsItem* new_cc_Item);
 		virtual void replaceCCItem(CComponentsItem* old_cc_Item, CComponentsItem* new_cc_Item);
 		virtual void exchangeCCItem(const uint& item_id_a, const uint& item_id_b);
