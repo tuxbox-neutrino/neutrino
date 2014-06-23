@@ -2031,9 +2031,15 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
 		int pb_space = prg_offset - title_offset;
-		CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4, pb_space + 2, fheight/2); /* never colored */
-		pb.setFrameThickness(2);
-		int pb_max = pb_space - 4;
+		bool pb_colored = ((g_settings.channellist_extended == 2) && g_settings.progressbar_color);
+		int pb_frame = pb_colored ? 0 : 1;
+		CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4, pb_space, fheight/2,
+				color, bgcolor, COL_MENUCONTENTDARK_PLUS_0, color, COL_MENUCONTENT_PLUS_1,
+				pb_colored, 0, 100, 70);
+		pb.setCornerType(0);
+		pb.setFrameThickness(pb_frame);
+
+		int pb_max = pb_space - (2*pb_frame);
 		if (!(p_event->description.empty())) {
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
@@ -2074,9 +2080,9 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 					}
 
 					if (liststart + pos != selected)
-						pb.setStatusColors(COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1);
+						pb.setPassiveColor(COL_MENUCONTENT_PLUS_3);
 					else
-						pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENTSELECTED_PLUS_0);
+						pb.setPassiveColor(COL_MENUCONTENTSELECTED_PLUS_2);
 					pb.setValues(runningPercent, pb_max);
 					pb.paint();
 				}
@@ -2095,9 +2101,9 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else {
 			if(g_settings.channellist_extended) {
 				if (liststart + pos != selected)
-					pb.setStatusColors(COL_MENUCONTENT_PLUS_2, COL_MENUCONTENT_PLUS_1);
+					pb.setPassiveColor(COL_MENUCONTENT_PLUS_1);
 				else
-					pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENTSELECTED_PLUS_0);
+					pb.setPassiveColor(COL_MENUCONTENTSELECTED_PLUS_2);
 				pb.setValues(0, pb_max);
 				pb.setZeroLine();
  				pb.paint();
