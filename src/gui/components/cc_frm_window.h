@@ -180,7 +180,7 @@ class CComponentsWindow : public CComponentsForm
 		CComponentsFrmChain* getLeftSidebarObject(){return ccw_left_sidebar;};
 		///returns a pointer to the internal right side bar object, use this to get access to right sidebar properities
 		CComponentsFrmChain* getRightSidebarObject(){return ccw_right_sidebar;};
-		
+		///sets width of sidebars
 		void setWidthSidebar(const int& sidebar_width){ccw_w_sidebar = sidebar_width; initCCWItems();};
 
 		///refresh position and dimension and reinitialize elemenatary properties
