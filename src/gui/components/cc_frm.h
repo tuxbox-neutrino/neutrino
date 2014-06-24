@@ -78,6 +78,10 @@ class CComponentsForm : public CComponentsItem
 		virtual	bool empty(){return v_cc_items.empty();};
 		///return size (count) of available items
 		virtual	size_t size(){return v_cc_items.size();};
+		///return reference to first item
+		virtual	CComponentsItem* front(){return v_cc_items.front();};
+		///return reference to last item
+		virtual	CComponentsItem* back(){return v_cc_items.back();};
 
 		virtual void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
 };
