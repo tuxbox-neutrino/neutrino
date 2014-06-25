@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <system/debug.h>
 
+extern CPictureViewer * g_PicViewer;
 
 using namespace std;
 
@@ -85,7 +86,7 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	is_image_painted= false;
 	do_paint	= true;
 
-	getSupportedImageFormats(v_ext);
+	g_PicViewer->getSupportedImageFormats(v_ext);
 	v_ext.resize(unique(v_ext.begin(), v_ext.end()) - v_ext.begin());
 	initCCItem();
 	initParent(parent);
@@ -129,7 +130,7 @@ void CComponentsPicture::initCCItem()
 		width = w_pic;
 		height = max(h_pic, height);
 	}
-	else{ //defined values ​​in constructor or defined via setters defined, have priority, value 0 is not allowed
+	else{ //defined values in constructor or defined via setters defined, have priority, value 0 is not allowed
 		if (width == 0)
 			width = w_pic;
 		if (height == 0)
@@ -139,7 +140,7 @@ void CComponentsPicture::initCCItem()
 	//resize/scale image if required, if no icon mode detected, use real image size
 	if (!is_icon){
 		if (width != w_pic || height != h_pic)
-			rescaleImageDimensions(&w_pic, &h_pic, width, height);
+			g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
 	}
 }
 
@@ -159,7 +160,7 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 void CComponentsPicture::getImageSize(int* width_image, int *height_image)
 {
 	if (!is_icon)
-		CPictureViewer::getSize(pic_name.c_str(), width_image, height_image);
+		g_PicViewer->getSize(pic_name.c_str(), width_image, height_image);
 	else
 		frameBuffer->getIconSize(pic_name.c_str(), width_image, height_image);
 }
@@ -178,7 +179,7 @@ void CComponentsPicture::paintPicture()
 	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
 	if (cc_allow_paint){
 		if (!is_icon)
-			is_image_painted = DisplayImage(pic_name, x_pic, y_pic, width, height);
+			is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width, height);
 		else
 			is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
 	}
@@ -248,7 +249,7 @@ void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::st
 	channel_id = channelId; 
 	channel_name = channelName;
 
-	has_logo = GetLogoName(channel_id, channel_name, pic_name, &width, &height);
+	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &width, &height);
 
 	if (!has_logo)
 		pic_name = alt_pic_name;

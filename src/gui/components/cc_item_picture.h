@@ -40,7 +40,7 @@
 Picture is usable as an object like each other CCItems.
 */
 
-class CComponentsPicture : public CComponentsItem, public CPictureViewer
+class CComponentsPicture : public CComponentsItem
 {
 	protected:
 		///possible image formats
