@@ -27,7 +27,7 @@
 
 #include "config.h"
 #include <gui/components/cc_base.h>
-
+#include "cc_frm_scrollbar.h"
 
 class CComponentsForm : public CComponentsItem
 {
@@ -37,8 +37,21 @@ class CComponentsForm : public CComponentsItem
 		///generates next possible index for an item, see also cc_item_index, getIndex(), setIndex()
 		int genIndex();
 
+		///scrollbar object
+		CComponentsScrollBar *sb;
+
 		int append_x_offset;
 		int append_y_offset;
+
+		///property: count of pages of form
+		u_int8_t page_count;
+		///property: id of current page, default = 0 for 1st page
+		u_int8_t cur_page;
+		///scrollbar width
+		int w_sb;
+		///returns true, if current page is changed, see also: setCurrentPage() 
+		bool isPageChanged();
+
 	public:
 		CComponentsForm(	const int x_pos = 0, const int y_pos = 0, const int w = 800, const int h = 600,
 					CComponentsForm *parent = NULL,
@@ -47,8 +60,10 @@ class CComponentsForm : public CComponentsItem
 					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		virtual ~CComponentsForm();
-		
+
+		///paints current form on screen, for paint a page use paintPage()
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		///hides current form, background will be restored, if parameter = false
 		void hide(bool no_restore = false);
 
 		///same like CComponentsItem::kill(), but erases all embedded items inside of parent at once, this = parent
@@ -83,7 +98,25 @@ class CComponentsForm : public CComponentsItem
 		///return reference to last item
 		virtual	CComponentsItem* back(){return v_cc_items.back();};
 
+		///sets alignment offset between items
 		virtual void setAppendOffset(const int &x_offset, const int& y_offset){append_x_offset = x_offset; append_y_offset = y_offset;};
+
+		///sets count of pages, parameter as u_int8_t
+		///NOTE: page numbers are primary defined in items and this values have priority!! Consider that smaller values
+		///than the current values can make problems and are not allowed, therefore smaller values than
+		///current page count are ignored!
+		virtual void setPageCount(const u_int8_t& pageCount);
+		///returns current count of pages,
+		///NOTE: page number are primary defined in items and secondary in form variable 'page_count'. This function returns the maximal value from both!
+		virtual u_int8_t getPageCount();
+		///sets current page
+		virtual void setCurrentPage(const u_int8_t& current_page){cur_page = current_page;};
+		///get current page
+		virtual u_int8_t getCurrentPage(){return cur_page;};
+		///paint defined page number 0...n
+		virtual void paintPage(const u_int8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		///set width of scrollbar
+		virtual void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
 };
 
 #endif

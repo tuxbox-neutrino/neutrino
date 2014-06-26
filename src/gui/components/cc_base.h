@@ -231,6 +231,9 @@ class CComponentsItem : public CComponents
 		bool cc_item_enabled;
 		///property: default not selected
 		bool cc_item_selected;
+		///property: page number, this defines current item page location, means: this item is embedded in a parent container on page number n, see also setPageNumber()
+		///default value is 0 for page one, any value > 0 causes handling for mutilple pages at parent container
+		uint8_t cc_page_number;
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
@@ -290,6 +293,11 @@ class CComponentsItem : public CComponents
 		///set an index to item, see also attribut cc_item_index.
 		///To generate an index, use genIndex()
 		virtual void setIndex(const int& index){cc_item_index = index;};
+
+		///sets page location of current item, parameter as uint8_t, see: cc_page_number
+		virtual void setPageNumber(const uint8_t& on_page_number){cc_page_number = on_page_number;};
+		///returns current number of page location of current item, see: cc_page_number
+		virtual u_int8_t getPageNumber(){return cc_page_number;};
 
 		///set screen x-position, parameter as uint8_t, percent x value related to current width of parent form or screen
 		virtual void setXPosP(const uint8_t& xpos_percent);

@@ -183,11 +183,23 @@ class CComponentsWindow : public CComponentsForm
 		///sets width of sidebars
 		void setWidthSidebar(const int& sidebar_width){ccw_w_sidebar = sidebar_width; initCCWItems();};
 
+		///sets current page, NOTE: this is simliar with setCurrentPage() known from basic class CComponentsForm, but here it is related only for window body object
+		void setCurrentPage(const u_int8_t& current_page);
+		///get current page, NOTE: this is simliar with getCurrentPage() known from basic class CComponentsForm, but here it is related only for window body object
+		u_int8_t getCurrentPage();
+
+		///paint window body items, this paints only the current page, body = page, current page is definied in body object, see setCurrentPage()
+		void paintCurPage(bool do_save_bg = CC_SAVE_SCREEN_NO);
+		///paint defined page of body, parameter number 0...n
+		void paintPage(const u_int8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		///set width of body scrollbar
+		void setScrollBarWidth(const int& scrollbar_width);
+
 		///refresh position and dimension and reinitialize elemenatary properties
 		void Refresh(){initCCWItems();};
 
 		///paint all window items, this overwriting paint() from CComponentsForm
-		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 class CComponentsWindowMax : public CComponentsWindow

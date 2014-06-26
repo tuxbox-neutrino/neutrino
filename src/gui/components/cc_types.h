@@ -33,6 +33,7 @@
 
 
 class CComponentsForm;
+class CComponentsScrollBar;
 
 ///cc item types
 typedef enum
@@ -60,6 +61,7 @@ typedef enum
 	CC_ITEMTYPE_BUTTON_YELLOW,
 	CC_ITEMTYPE_BUTTON_BLUE,
 	CC_ITEMTYPE_SLIDER,
+	CC_ITEMTYPE_FRM_SCROLLBAR,
 
 	CC_ITEMTYPES
 }CC_ITEMTYPES_T;

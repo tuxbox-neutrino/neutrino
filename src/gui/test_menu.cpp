@@ -84,6 +84,7 @@ CTestMenu::CTestMenu()
 	button = NULL;
 	clock = clock_r = NULL;
 	text_ext = NULL;
+	scrollbar = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -102,6 +103,7 @@ CTestMenu::~CTestMenu()
 	delete clock_r;
 	delete chnl_pic;
 	delete text_ext;
+	delete scrollbar;
 }
 
 static int test_pos[4] = { 130, 192, 282, 360 };
@@ -566,6 +568,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			footer->hide();
 		return res;
 	}
+	else if (actionKey == "scrollbar"){
+		if (scrollbar == NULL)
+			scrollbar = new CComponentsScrollBar(50, 100, 20, 400, 1);
+		
+		if (scrollbar->isPainted()){
+			if (scrollbar->getMarkID() == scrollbar->getSegmentCount()){
+				scrollbar->hide();
+				scrollbar->setSegmentCount(scrollbar->getSegmentCount()+1);
+			}
+			else{
+				scrollbar->setMarkID(scrollbar->getMarkID()+1);
+				scrollbar->paint();
+			}
+		}
+		else
+			scrollbar->paint();
+
+		return res;
+	}
 	else if (actionKey == "iconform"){
 		if (iconform == NULL)
 			iconform = new CComponentsIconForm();
@@ -607,8 +628,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (window == NULL){
 			window = new CComponentsWindow();
 			window->setWindowCaption("|.....................|");
-			window->setDimensionsAll(50, 50, 1000, 500);
+			window->setDimensionsAll(50, 50, 500, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
+			window->setShadowOnOff(true);
 
 			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
 			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
@@ -618,25 +640,43 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			c11->setColorBody(COL_GREEN);
 			c12->setColorBody(COL_YELLOW);
 			c13->setColorBody(COL_BLUE);
-			
+
 			window->getBodyObject()->setAppendOffset(0,50);
 			window->addWindowItem(c10);
 			window->addWindowItem(c11);
 			window->addWindowItem(c12);
 			window->addWindowItem(c13);
+
+			CComponentsShapeCircle *c14 = new CComponentsShapeCircle(20, 20, 100);
+			c14->setColorBody(COL_RED);
+			c14->setPageNumber(1);
+			window->addWindowItem(c14);
 		}
 		else{
 			window->setWindowIcon(NEUTRINO_ICON_LOCK);
 			window->setWindowCaption("Test");
 		}
-
-
-		
-		if (!window->isPainted())
-			window->paint();
-		else
+#if 0
+		if (!window->isPainted()){
+			window->paint(); //if no other page has been defined, 1st page always painted
+		}
+		else{
+#endif			//or paint direct a defined page
+			if (window->getCurrentPage() == 1)
+				window->paintPage(0);
+			else
+				window->paintPage(1);
+#if 0
+		}
+#endif
+		return res;
+	}
+	else if (actionKey == "window_close"){
+		if (window){
 			window->hide();
-
+			delete window;
+			window = NULL;
+		}
 		return res;
 	}
 	else if (actionKey == "running_clock"){	
@@ -754,7 +794,9 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
+	widget->addItem(new CMenuForwarder("Window-Close", true, NULL, this, "window_close"));
 	widget->addItem(new CMenuForwarder("Text-Extended", true, NULL, this, "text_ext"));
+	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)

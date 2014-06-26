@@ -49,6 +49,7 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
+	cc_page_number		= 0;
 	initParent(parent);
 }
 

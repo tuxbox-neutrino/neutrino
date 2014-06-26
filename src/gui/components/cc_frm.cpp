@@ -67,11 +67,16 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 
 	append_x_offset = 0;
 	append_y_offset = 0;
+	page_count	= 1;
+	cur_page	= 0;
+	sb 		= NULL;
+	w_sb		= 15;
 }
 
 CComponentsForm::~CComponentsForm()
 {
 	clear();
+	delete sb;
 }
 
 
@@ -234,21 +239,69 @@ void CComponentsForm::paint(bool do_save_bg)
 	paintForm(do_save_bg);
 }
 
+bool CComponentsForm::isPageChanged()
+{
+	for(size_t i=0; i<v_cc_items.size(); i++){
+		if (v_cc_items[i]->getPageNumber() != cur_page)
+			return true;
+	}
+	return false;
+}
+
+void CComponentsForm::paintPage(const u_int8_t& page_number, bool do_save_bg)
+{
+	cur_page = page_number;
+	paint(do_save_bg);
+}
 
 void CComponentsForm::paintCCItems()
 {
 	size_t items_count 	= v_cc_items.size();
 
 	//using of real x/y values to paint items if this text object is bound in a parent form
-	int this_x = x, auto_x = x, this_y = y, auto_y = y;
+	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = width;
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
 		this_y = auto_y = cc_yr;
 	}
 
+	//init and handle scrollbar
+	getPageCount();
+	int y_sb = this_y+1;
+	int x_sb = this_x + width - w_sb;
+	int h_sb = height-2;
+	if (sb == NULL){
+		sb = new CComponentsScrollBar(x_sb, y_sb, w_sb, h_sb);
+	}else{
+		//clean background, if dimension of scrollbar was changed
+		if (w_sb != sb->getWidth())
+			sb->kill(col_body);
+
+		//set current dimensions and position
+		sb->setDimensionsAll(x_sb, y_sb, w_sb, h_sb);
+	}
+
+	if(page_count > 1){
+		sb->setSegmentCount(page_count);
+		sb->setMarkID(cur_page);
+		this_w = width - w_sb;
+		sb->paint(false);
+	}else{
+		if (sb->isPainted())
+			sb->kill(col_body);
+		this_w = width;
+	}
+
+	//detect if current page has changed, if true then kill items from screen
+	if(isPageChanged()){
+		this->killCCItems(col_body, true);
+	}
+
 	for(size_t i=0; i<items_count; i++){
 		//assign item object
 		CComponentsItem *cc_item = v_cc_items[i];
+
+		dprintf(DEBUG_INFO, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), cc_item->getPageNumber(), this->cur_page);
 
 		//get current dimension of item
 		int w_item = cc_item->getWidth();
@@ -259,10 +312,9 @@ void CComponentsForm::paintCCItems()
 		int ypos = cc_item->getYPos();
 
 		//check item for corrupt position, skip current item if found problems
-		//TODO: need a solution with possibility for scrolling
-		if (ypos > height || xpos > width){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined width=%d \ndefinied y=%d, defined height=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, width, ypos, height);
+		if (ypos > height || xpos > this_w){
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, this_w, ypos, height);
 			if (this->cc_item_type != CC_ITEMTYPE_FRM_CHAIN)
 				continue;
 		}
@@ -276,7 +328,7 @@ void CComponentsForm::paintCCItems()
 		}
 		//positionize vertical centered
 		else if (xpos == CC_CENTERED){
-			auto_x =  width/2 - w_item/2;
+			auto_x =  this_w/2 - w_item/2;
 			cc_item->setRealXPos(this_x + auto_x);
 		}
 		else{
@@ -301,12 +353,11 @@ void CComponentsForm::paintCCItems()
 			auto_y = (cc_item->getRealYPos() + h_item);
 		}
 
-
 		//These steps check whether the element can be painted into the container.
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
 		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + width - 2*fr_thickness;
+		int right_frm = (cc_parent ? cc_xr : x) + this_w - 2*fr_thickness;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
@@ -314,7 +365,7 @@ void CComponentsForm::paintCCItems()
 		right_item -= (new_w%2);
 		w_item -= (new_w%2);
 		if (right_item > right_frm){
-			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] this_w is too large, definied width=%d, possible width=%d \n",
 				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
@@ -339,8 +390,9 @@ void CComponentsForm::paintCCItems()
 		if (!this->cc_allow_paint)
 			cc_item->allowPaint(false);
 
-		//finally paint current item
-		cc_item->paint(CC_SAVE_SCREEN_NO);
+		//finally paint current item, but only required contents of page
+		if (cc_item->getPageNumber() == cur_page)
+			cc_item->paint(CC_SAVE_SCREEN_NO);
 
 		//restore defined old visibility mode of item after paint
 		cc_item->allowPaint(item_visible);
@@ -369,3 +421,26 @@ void CComponentsForm::killCCItems(const fb_pixel_t& bg_color, bool ignore_parent
 	for(size_t i=0; i<v_cc_items.size(); i++)
 		v_cc_items[i]->kill(bg_color, ignore_parent);
 }
+
+void CComponentsForm::setPageCount(const u_int8_t& pageCount)
+{
+	u_int8_t new_val = pageCount;
+	if (new_val <  page_count)
+		dprintf(DEBUG_NORMAL, "[CComponentsForm] %s:  current count (= %u) of pages higher than page_count (= %u) will be set, smaller value is ignored!\n", __func__, page_count, new_val) ;
+	page_count = max(new_val, page_count);
+}
+
+u_int8_t CComponentsForm::getPageCount()
+{
+	u_int8_t num = 0;
+	for(size_t i=0; i<v_cc_items.size(); i++){
+		u_int8_t item_num = v_cc_items[i]->getPageNumber();
+		num = max(item_num, num);
+	}
+
+	//convert type, possible -Wconversion warnings!
+	page_count = static_cast<u_int8_t>(num + 1);
+
+	return page_count;
+}
+

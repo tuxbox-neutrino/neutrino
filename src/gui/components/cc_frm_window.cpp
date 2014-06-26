@@ -360,6 +360,34 @@ void CComponentsWindow::addWindowItem(CComponentsItem* cc_Item)
 		ccw_body->addCCItem(cc_Item);
 }
 
+void CComponentsWindow::setCurrentPage(const u_int8_t& current_page)
+{
+	ccw_body->setCurrentPage(current_page);
+}
+
+u_int8_t CComponentsWindow::getCurrentPage()
+{
+	return ccw_body->getCurrentPage();
+}
+
+void CComponentsWindow::setScrollBarWidth(const int& scrollbar_width)
+{
+	ccw_body->setScrollBarWidth(scrollbar_width);
+}
+
+void CComponentsWindow::paintCurPage(bool do_save_bg)
+{
+	if (is_painted) //ensure that we have painted already the parent form before paint body 
+		ccw_body->paint(do_save_bg);
+	else
+		paint(do_save_bg);
+}
+
+void CComponentsWindow::paintPage(const u_int8_t& page_number, bool do_save_bg)
+{
+	CComponentsWindow::setCurrentPage(page_number);
+	CComponentsWindow::paintCurPage(do_save_bg);
+}
 
 void CComponentsWindow::paint(bool do_save_bg)
 {
