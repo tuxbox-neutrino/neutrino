@@ -134,6 +134,7 @@ class CTextBox
 		int m_nMaxTextWidth;
 
 		int m_nMode;
+		int m_renderMode;
 
 		int m_nNrOfPages;
 		int m_nNrOfLines;
@@ -183,6 +184,7 @@ class CTextBox
 		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
+		void	setTextRenderModeFullBG(bool mode){ m_renderMode = (mode) ? Font::FULLBG : 0; };
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);
