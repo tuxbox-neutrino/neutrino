@@ -2136,7 +2136,7 @@ void CChannelList::paintHead()
 			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M", true);
 			headerClock->setClockBlink("%H %M");
 			headerClock->setClockIntervall(1);
-
+			headerClock->doPaintBg(false);
 		}
 		headerClock->setClockFormat("%H:%M");
 		headerClock->setClockFont(SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
