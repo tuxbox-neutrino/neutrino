@@ -375,6 +375,11 @@ CMovieBrowser::~CMovieBrowser()
 		m_FilterLines.lineArray[i].clear();
 	}
 	m_browserListLines.Icon.clear();
+
+	if (CChannelLogo) {
+		delete CChannelLogo;
+		CChannelLogo = NULL;
+	}
 }
 
 void CMovieBrowser::fileInfoStale(void)
@@ -516,6 +521,8 @@ void CMovieBrowser::init(void)
 	refreshFilterList();
   	g_PicViewer->getSupportedImageFormats(PicExts);
 	show_mode = MB_SHOW_RECORDS; //FIXME
+
+	CChannelLogo = NULL;
 #if 0
 	TRACE_1("Frames\r\n\tScren:\t%3d,%3d,%3d,%3d\r\n\tMain:\t%3d,%3d,%3d,%3d\r\n\tTitle:\t%3d,%3d,%3d,%3d \r\n\tBrowsr:\t%3d,%3d,%3d,%3d \r\n\tPlay:\t%3d,%3d,%3d,%3d \r\n\tRecord:\t%3d,%3d,%3d,%3d\r\n\r\n",
 	g_settings.screen_StartX,
@@ -1305,15 +1312,22 @@ void CMovieBrowser::refreshMovieInfo(void)
 		short pb_hdd_offset = 104;
 		if (show_mode == MB_SHOW_YT)
 			pb_hdd_offset = 0;
-		m_pcWindow->paintBoxRel(lx - pb_hdd_offset , ly, logo_w, logo_h, TITLE_BACKGROUND_COLOR);
-        	std::string lname;
-		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname, &logo_w, &logo_h)){
-			if((logo_h > m_cBoxFrameTitleRel.iHeight) || (logo_w > logo_w_max))
-				g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, m_cBoxFrameTitleRel.iHeight);
-			lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
-			ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-			g_PicViewer->DisplayImage(lname, lx - pb_hdd_offset, ly, logo_w, logo_h);
+		static uint64_t old_EpgId = 0;
+		if (CChannelLogo && (old_EpgId != m_movieSelectionHandler->epgEpgId >>16)) {
+			CChannelLogo->hide();
+			delete CChannelLogo;
 		}
+		if (old_EpgId != m_movieSelectionHandler->epgEpgId >>16) {
+			CChannelLogo = new CComponentsChannelLogo(0, 0, logo_w_max, m_cBoxFrameTitleRel.iHeight, 
+								  m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16);
+			old_EpgId = m_movieSelectionHandler->epgEpgId >>16;
+		}
+		lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-CChannelLogo->getWidth()-10;
+		ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-CChannelLogo->getHeight())/2;
+		CChannelLogo->setXPos(lx - pb_hdd_offset);
+		CChannelLogo->setYPos(ly);
+		CChannelLogo->paint();
+
 		if(logo_ok) {
 			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 			ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
