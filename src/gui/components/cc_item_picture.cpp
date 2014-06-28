@@ -139,8 +139,11 @@ void CComponentsPicture::initCCItem()
 
 	//resize/scale image if required, if no icon mode detected, use real image size
 	if (!is_icon){
-		if (width != w_pic || height != h_pic)
+		if (width != w_pic || height != h_pic) {
 			g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
+			width  = w_pic;
+			height = h_pic;
+		}
 	}
 }
 
@@ -248,11 +251,13 @@ void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::st
 {
 	channel_id = channelId; 
 	channel_name = channelName;
+	int dummy;
 
-	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &width, &height);
+	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &dummy, &dummy);
 
 	if (!has_logo)
 		pic_name = alt_pic_name;
 	
 	initCCItem();
+	doPaintBg(false);
 }
