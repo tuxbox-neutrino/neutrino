@@ -282,7 +282,8 @@ void CNeutrinoApp::InitMenuMain()
 		// standby
 		mf = new CMenuForwarder(LOCALE_MAINMENU_STANDBY, true, NULL, this, "standby", CRCInput::RC_red , NEUTRINO_ICON_BUTTON_RED);
 		mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_STANDBY);
-		personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SLEEPTIMER]);
+		personalize.addItem(MENU_SHUTDOWN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_STANDBY]);
+
 		//sleeptimer
 		mf = new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget, NULL, CRCInput::RC_green , NEUTRINO_ICON_BUTTON_GREEN);
 		mf->setHint(NEUTRINO_ICON_HINT_SLEEPTIMER, LOCALE_MENU_HINT_SLEEPTIMER);
