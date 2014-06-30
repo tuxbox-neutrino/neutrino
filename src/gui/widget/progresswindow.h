@@ -41,6 +41,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 
 		unsigned int global_progress;
 		unsigned int local_progress;
+		int w_bar_frame;
 
 		void Init();
 
