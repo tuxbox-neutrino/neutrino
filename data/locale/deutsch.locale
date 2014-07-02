@@ -1006,6 +1006,7 @@ menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische Vergabe einer IP-Adresse im Netzwerk
 menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem unter /media/00upnp
+menu.hint_net_dropbear Aktivieren Sie SSH Zugriff zur Box
 menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Geben Sie die Gateway-Adresse des Routers ein
 menu.hint_net_hostname Ändern Sie den Hostnamen der Box
