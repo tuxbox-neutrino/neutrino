@@ -1322,11 +1322,14 @@ void CMovieBrowser::refreshMovieInfo(void)
 								  m_movieSelectionHandler->epgChannel, m_movieSelectionHandler->epgEpgId >>16);
 			old_EpgId = m_movieSelectionHandler->epgEpgId >>16;
 		}
-		lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-CChannelLogo->getWidth()-10;
-		ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-CChannelLogo->getHeight())/2;
-		CChannelLogo->setXPos(lx - pb_hdd_offset);
-		CChannelLogo->setYPos(ly);
-		CChannelLogo->paint();
+
+		if (CChannelLogo) {
+			lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-CChannelLogo->getWidth()-10;
+			ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-CChannelLogo->getHeight())/2;
+			CChannelLogo->setXPos(lx - pb_hdd_offset);
+			CChannelLogo->setYPos(ly);
+			CChannelLogo->paint();
+		}
 
 		if(logo_ok) {
 			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
