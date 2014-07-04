@@ -110,8 +110,6 @@ class CComponents : public CComponentsSignals, public COSDFader
 
 		///container: contains saved pixel buffer with position and dimensions
 		comp_screen_data_t saved_screen; 	
-		///cleans saved pixel buffer
-		void clearSavedScreen();
 		
 	public:
 		///basic component class constructor.
@@ -223,6 +221,9 @@ class CComponents : public CComponentsSignals, public COSDFader
 		virtual void allowPaint(bool allow){cc_allow_paint = allow; is_painted = cc_allow_paint ? false : true;};
 		///returns visibility mode
 		virtual bool paintAllowed(){return cc_allow_paint;};
+
+		///cleans saved pixel buffer
+		virtual void clearSavedScreen();
 };
 
 class CComponentsItem : public CComponents
