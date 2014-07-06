@@ -1274,7 +1274,9 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
-			if(g_settings.temp_timeshift && !g_settings.auto_timeshift && autoshift)
+			if(g_settings.temp_timeshift)
+				Stop(live_channel_id);
+			else if (!(g_settings.auto_timeshift && autoshift))
 				ShowMenu();
 		}
 	}
