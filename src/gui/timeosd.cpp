@@ -70,6 +70,8 @@ void CTimeOSD::Init()
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
 	initCCLockItems();
+
+	timescale.setType(CProgressBar::PB_TIMESCALE);
 }
 
 #if 0 //if hide() or kill() required, it's recommended to use it separately
@@ -104,7 +106,6 @@ void CTimeOSD::updatePos(int position, int duration)
 		percent = 0;
 
 	timescale.setProgress(x, y + height/4, width, height/2, percent, 100);
-	timescale.setRgb(0, 100, 70);
 	timescale.paint();
 	frameBuffer->blit();
 }
