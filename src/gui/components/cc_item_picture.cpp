@@ -45,25 +45,25 @@ CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, cons
 					const std::string& image_path,
 					CComponentsForm *parent,
 					bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, w, h, image_path, parent, has_shadow, color_frame, color_background, color_shadow);
+	init(x_pos, y_pos, w, h, image_path, parent, has_shadow, color_frame, color_background, color_shadow, transparent);
 }
 
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
 					const std::string& image_name,
 					CComponentsForm *parent,
 					bool has_shadow,
-					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow);
+	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent);
 }
 
 void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const string& image_name,
 				CComponentsForm *parent,
 				bool has_shadow,
-				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
 	//CComponents, CComponentsItem
 	cc_item_type 	= CC_ITEMTYPE_PICTURE;
@@ -85,6 +85,8 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 
 	is_image_painted= false;
 	do_paint	= true;
+
+	image_transparent = transparent;
 
 	g_PicViewer->getSupportedImageFormats(v_ext);
 	v_ext.resize(unique(v_ext.begin(), v_ext.end()) - v_ext.begin());
@@ -181,10 +183,12 @@ void CComponentsPicture::paintPicture()
 
 	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
 	if (cc_allow_paint){
+		frameBuffer->SetTransparent(image_transparent);
 		if (!is_icon)
 			is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width, height);
 		else
 			is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
+		frameBuffer->SetTransparentDefault();
 	}
 }
 
@@ -206,10 +210,10 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 						const uint64_t& channelId,
 						CComponentsForm *parent,
 						bool has_shadow,
-						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 						:CComponentsPicture(x_pos, y_pos, w, h,
 						"", parent, has_shadow,
-						color_frame, color_background, color_shadow)
+						color_frame, color_background, color_shadow, transparent)
 {
 	setChannel(channelId, channelName);
 	alt_pic_name = "";
@@ -220,10 +224,10 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 						const uint64_t& channelId,
 						CComponentsForm *parent,
 						bool has_shadow,
-						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+						fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 						:CComponentsPicture(x_pos, y_pos, 0, 0,
 						"", parent, has_shadow,
-						color_frame, color_background, color_shadow)
+						color_frame, color_background, color_shadow, transparent)
 {
 	setChannel(channelId, channelName);
 	alt_pic_name = "";

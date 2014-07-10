@@ -56,13 +56,17 @@ class CComponentsPicture : public CComponentsItem
 		///sets that image may be painted, default = false
 		bool do_paint;
 
+		///set the transparency of pictures (default = CFrameBuffer::TM_NONE)
+		int image_transparent;
+
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
 				CComponentsForm *parent,
 				bool has_shadow,
 				fb_pixel_t color_frame,
 				fb_pixel_t color_background,
-				fb_pixel_t color_shadow);
+				fb_pixel_t color_shadow,
+				int transparent);
 
 		///initialize all required attributes
 		void initCCItem();
@@ -71,6 +75,10 @@ class CComponentsPicture : public CComponentsItem
 		///paint image
 		void paintPicture();
 
+		// t = CFrameBuffer::TM_BLACK : Transparency when black content ('pseudo' transparency)
+		// t = CFrameBuffer::TM_NONE : No 'pseudo' transparency
+		void SetTransparent(int t){ image_transparent = t; }
+
 	public:
 		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
@@ -78,7 +86,8 @@ class CComponentsPicture : public CComponentsItem
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					int transparent = CFrameBuffer::TM_NONE);
 
 		CComponentsPicture( 	const int &x_pos, const int &y_pos,
 					const std::string& image_name,
@@ -86,7 +95,8 @@ class CComponentsPicture : public CComponentsItem
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					int transparent = CFrameBuffer::TM_NONE);
 
 		///sets an image name (unscaled icons only), full image path or url to an iamge file (scalable)
 		virtual void setPicture(const std::string& picture_name);
@@ -127,7 +137,8 @@ class CComponentsChannelLogo : public CComponentsPicture
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					int transparent = CFrameBuffer::TM_BLACK);
 		
 		CComponentsChannelLogo( const int &x_pos, const int &y_pos,
 					const std::string& channelName = "",
@@ -136,7 +147,8 @@ class CComponentsChannelLogo : public CComponentsPicture
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_background = 0,
-					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					int transparent = CFrameBuffer::TM_BLACK);
 
 		///set channel id and/or channel name, NOTE: channel name is prefered
 		void setChannel(const uint64_t& channelId, const std::string& channelName);
