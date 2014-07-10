@@ -582,7 +582,7 @@ class CMenuWidget : public CMenuTarget
 		};
 		void addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string &action);
 		void setFooter(const struct button_label *_fbutton_label, const int _fbutton_count, bool repaint = false);
-		void suppressDetailsLine(bool suppress = true){show_details_line = !suppress ? false : true;};
+		void suppressDetailsLine(bool suppress = true){show_details_line = suppress ? false : true;};
 };
 
 class CPINProtection
