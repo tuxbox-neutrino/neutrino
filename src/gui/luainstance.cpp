@@ -1033,12 +1033,12 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 		m->m->addItem(GenericMenuCancel);
 	} else if (type == "separator") {
 		m->m->addItem(GenericMenuSeparator);
-	} else if (type == "separatorline") {
+	} else if ((type == "separatorline") || (type == "subhead")) {
 		if (!b->name.empty()) {
-			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, b->name.c_str(), NONEXISTANT_LOCALE));
-		} else {
+			int flag = (type == "separatorline") ? CMenuSeparator::LINE : CMenuSeparator::SUB_HEAD;
+			m->m->addItem(new CMenuSeparator(CMenuSeparator::STRING | flag, b->name.c_str(), NONEXISTANT_LOCALE));
+		} else
 			m->m->addItem(GenericMenuSeparatorLine);
-		}
 	} else {
 		std::string right_icon;	tableLookup(L, "right_icon", right_icon);
 		std::string action;	tableLookup(L, "action", action);
