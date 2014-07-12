@@ -1124,7 +1124,7 @@ void CUpnpBrowserGui::paintItemInfo(UPnPEntry *entry)
 				g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, m_title_height*2, m_title_height-14);
 			}
 		}
-		g_PicViewer->DisplayImage(tmpname.c_str(), m_x+m_width-flogo_w-2-RADIUS_MID, m_y + 2, flogo_w, flogo_h);
+		g_PicViewer->DisplayImage(tmpname.c_str(), m_x+m_width-flogo_w-2-RADIUS_MID, m_y + 2, flogo_w, flogo_h, CFrameBuffer::TM_NONE);
 	}
 }
 
