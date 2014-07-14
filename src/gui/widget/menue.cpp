@@ -1029,11 +1029,12 @@ void CMenuWidget::calcSize()
 	}
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 
-	int itemHeightTotal=0;
 	int heightCurrPage=0;
 	page_start.clear();
 	page_start.push_back(0);
 	total_pages=1;
+
+	int maxItemHeight = 0;
 
 	for (unsigned int i= 0; i< items.size(); i++) {
 		int item_height=items[i]->getHeight();
@@ -1041,11 +1042,11 @@ void CMenuWidget::calcSize()
 		if(heightCurrPage > (height-hheight)) {
 			page_start.push_back(i);
 			total_pages++;
+			maxItemHeight = std::max(heightCurrPage - item_height, maxItemHeight);
 			heightCurrPage=item_height;
 		}
-		if(total_pages == 1)
-			itemHeightTotal+=item_height;
 	}
+	maxItemHeight = std::max(heightCurrPage, maxItemHeight);
 	page_start.push_back(items.size());
 
 	iconOffset= 0;
@@ -1061,12 +1062,6 @@ void CMenuWidget::calcSize()
 	iconOffset += 10;
 	width += iconOffset;
 
-	int maxItemHeight = 0;
-	if (total_pages > 1) {
-		for (unsigned int i= 0; i< items.size(); i++)
-			maxItemHeight = std::max(maxItemHeight, items[i]->getHeight());
-		itemHeightTotal = items.size() * maxItemHeight;
-	}
 	if (fbutton_count)
 		width = std::max(width, fbutton_width);
 
@@ -1074,8 +1069,7 @@ void CMenuWidget::calcSize()
 		width = frameBuffer->getScreenWidth();
 
 	// shrink menu if less items
-	if(hheight+itemHeightTotal < height)
-		height=hheight+itemHeightTotal;
+	height = std::min(height, hheight + maxItemHeight);
 	
 	//scrollbar width
 	sb_width=0;
