@@ -123,6 +123,8 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
 		///set text font object for caption
 		virtual void setCaptionFont(Font* font);
+		///returns font object of title caption
+		virtual Font* getCaptionFont(){return cch_font;};
 		///set text color for caption
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
 
