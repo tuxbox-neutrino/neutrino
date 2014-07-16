@@ -178,6 +178,7 @@ private:
 	void registerFunctions();
 
 	static void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc);
+	static lua_Unsigned checkMagicMask(lua_Unsigned &col);
 
 	static int NewWindow(lua_State *L);
 	static int PaintBox(lua_State *L);

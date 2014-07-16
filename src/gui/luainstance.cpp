@@ -347,6 +347,14 @@ void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const c
 					ar.short_src, ar.currentline);
 }
 
+lua_Unsigned CLuaInstance::checkMagicMask(lua_Unsigned &col)
+{
+	if ((col & MAGIC_MASK) == MAGIC_COLOR)
+		/* use the color constants */
+		col = CFrameBuffer::getInstance()->realcolor[col & 0x000000ff];
+	return col;
+}
+
 #define SET_VAR1(NAME) \
 	lua_pushinteger(lua, NAME); \
 	lua_setglobal(lua, #NAME);
@@ -550,9 +558,7 @@ int CLuaInstance::PaintBox(lua_State *L)
 		w = W->fbwin->dx - x;
 	if (h < 0 || y + h > W->fbwin->dy)
 		h = W->fbwin->dy - y;
-	/* use the color constants */
-	if ((c & MAGIC_MASK) == MAGIC_COLOR)
-		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
+	checkMagicMask(c);
 	W->fbwin->paintBoxRel(x, y, w, h, c, radius, corner);
 	return 0;
 }
@@ -666,8 +672,7 @@ int CLuaInstance::RenderString(lua_State *L)
 		if (rwidth < w)
 			x += (w - rwidth) / 2;
 	}
-	if ((c & MAGIC_MASK) == MAGIC_COLOR)
-		c = CFrameBuffer::getInstance()->realcolor[c & 0x000000ff];
+	checkMagicMask(c);
 	if (boxh > -1) /* if boxh < 0, don't paint string */
 		W->fbwin->RenderString(g_Font[f], x, y, w, text, c, boxh);
 	lua_pushinteger(L, rwidth); /* return renderwidth */
@@ -1500,6 +1505,10 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "btnYellow", btnYellow);
 	tableLookup(L, "btnBlue", btnBlue);
 
+	checkMagicMask(color_frame);
+	checkMagicMask(color_body);
+	checkMagicMask(color_shadow);
+
 	tmp1 = "true";
 	tableLookup(L, "show_header"  , tmp1);
 	bool show_header = (tmp1 == "true" || tmp1 == "show" || tmp1 == "yes");
@@ -1793,6 +1802,11 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	tableLookup(L, "color_body"  , color_body);
 	tableLookup(L, "color_shadow", color_shadow);
 
+	checkMagicMask(color_text);
+	checkMagicMask(color_frame);
+	checkMagicMask(color_body);
+	checkMagicMask(color_shadow);
+
 	if (!tmpMode.empty()) {
 		table_key txt_align[] = {
 			{ "ALIGN_AUTO_WIDTH",		CTextBox::AUTO_WIDTH },
@@ -1973,6 +1987,10 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	tableLookup(L, "color_background" , color_background);
 	tableLookup(L, "color_shadow"     , color_shadow);
 	tableLookup(L, "transparency"     , transparency);
+
+	checkMagicMask(color_frame);
+	checkMagicMask(color_background);
+	checkMagicMask(color_shadow);
 
 	CComponentsForm* pw = (parent && parent->w) ? parent->w->getBodyObject() : NULL;
 
