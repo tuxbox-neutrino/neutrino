@@ -3791,6 +3791,7 @@ void stop_daemons(bool stopall, bool for_flash)
 		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
 	}
 
+	InfoClock->enableInfoClock(false);
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
