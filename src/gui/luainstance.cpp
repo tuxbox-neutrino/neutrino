@@ -1459,30 +1459,43 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "btnYellow", btnYellow);
 	tableLookup(L, "btnBlue", btnBlue);
 
+	tmp1 = "true";
+	tableLookup(L, "show_header"  , tmp1);
+	bool show_header = (tmp1 == "true" || tmp1 == "show" || tmp1 == "yes");
+	tmp1 = "true";
+	tableLookup(L, "show_footer"  , tmp1);
+	bool show_footer = (tmp1 == "true" || tmp1 == "show" || tmp1 == "yes");
+
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
 	(*udata)->w = new CComponentsWindow(x, y, dx, dy, name.c_str(), icon.c_str(), 0, has_shadow, (fb_pixel_t)color_frame, (fb_pixel_t)color_body, (fb_pixel_t)color_shadow);
 
-	CComponentsFooter* footer = (*udata)->w->getFooterObject();
-	if (footer) {
-		int btnCount = 0;
-		if (btnRed    != "") btnCount++;
-		if (btnGreen  != "") btnCount++;
-		if (btnYellow != "") btnCount++;
-		if (btnBlue   != "") btnCount++;
-		if (btnCount) {
-			fb_pixel_t col = footer->getColorBody();
-			int btnw = (dx-20) / btnCount;
-			int btnh = footer->getHeight();
-			int start = 10;
-			if (btnRed != "")
-				footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, 0, false , true, false, col, col));
-			if (btnGreen != "")
-				footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, 0, false , true, false, col, col));
-			if (btnYellow != "")
-				footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, 0, false , true, false, col, col));
-			if (btnBlue != "")
-				footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, 0, false , true, false, col, col));
+	if (!show_header)
+		(*udata)->w->showHeader(false);
+	if (!show_footer)
+		(*udata)->w->showFooter(false);
+	else {
+		CComponentsFooter* footer = (*udata)->w->getFooterObject();
+		if (footer) {
+			int btnCount = 0;
+			if (btnRed    != "") btnCount++;
+			if (btnGreen  != "") btnCount++;
+			if (btnYellow != "") btnCount++;
+			if (btnBlue   != "") btnCount++;
+			if (btnCount) {
+				fb_pixel_t col = footer->getColorBody();
+				int btnw = (dx-20) / btnCount;
+				int btnh = footer->getHeight();
+				int start = 10;
+				if (btnRed != "")
+					footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, 0, false , true, false, col, col));
+				if (btnGreen != "")
+					footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, 0, false , true, false, col, col));
+				if (btnYellow != "")
+					footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, 0, false , true, false, col, col));
+				if (btnBlue != "")
+					footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, 0, false , true, false, col, col));
+			}
 		}
 	}
 
