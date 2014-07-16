@@ -252,7 +252,8 @@ private:
 	static int CPictureDelete(lua_State *L);
 
 	static bool tableLookup(lua_State*, const char*, std::string&);
-	static bool tableLookup(lua_State*, const char*, int&);
+	static bool tableLookup(lua_State*, const char*, lua_Integer&);
+	static bool tableLookup(lua_State*, const char*, lua_Unsigned&);
 	static bool tableLookup(lua_State*, const char*, void**);
 };
 

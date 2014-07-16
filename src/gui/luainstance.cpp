@@ -44,9 +44,19 @@ struct table_key {
 	lua_Integer code;
 };
 
+struct table_key_u {
+	const char *name;
+	lua_Unsigned code;
+};
+
 struct lua_envexport {
 	const char *name;
 	table_key *t;
+};
+
+struct lua_envexport_u {
+	const char *name;
+	table_key_u *t;
 };
 
 static void set_lua_variables(lua_State *L)
@@ -147,7 +157,7 @@ static void set_lua_variables(lua_State *L)
 	};
 
 	/* list of colors, exported e.g. as COL['INFOBAR_SHADOW'] */
-	static table_key colorlist[] =
+	static table_key_u colorlist[] =
 	{
 		{ "COLORED_EVENTS_CHANNELLIST",	MAGIC_COLOR | (COL_COLORED_EVENTS_CHANNELLIST) },
 		{ "COLORED_EVENTS_INFOBAR",	MAGIC_COLOR | (COL_COLORED_EVENTS_INFOBAR) },
@@ -172,21 +182,21 @@ static void set_lua_variables(lua_State *L)
 		{ "LIGHT_BLUE",			MAGIC_COLOR | (COL_LIGHT_BLUE0) },
 		{ "WHITE",			MAGIC_COLOR | (COL_WHITE0) },
 		{ "BLACK",			MAGIC_COLOR | (COL_BLACK0) },
-		{ "COLORED_EVENTS_TEXT",	(lua_Integer) (COL_COLORED_EVENTS_TEXT) },
-		{ "INFOBAR_TEXT",		(lua_Integer) (COL_INFOBAR_TEXT) },
-		{ "INFOBAR_SHADOW_TEXT",	(lua_Integer) (COL_INFOBAR_SHADOW_TEXT) },
-		{ "MENUHEAD_TEXT",		(lua_Integer) (COL_MENUHEAD_TEXT) },
-		{ "MENUCONTENT_TEXT",		(lua_Integer) (COL_MENUCONTENT_TEXT) },
-		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_1) },
-		{ "MENUCONTENT_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_2) },
-		{ "MENUCONTENT_TEXT_PLUS_3",	(lua_Integer) (COL_MENUCONTENT_TEXT_PLUS_3) },
-		{ "MENUCONTENTDARK_TEXT",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT) },
-		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT_PLUS_1) },
-		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENTDARK_TEXT_PLUS_2) },
-		{ "MENUCONTENTSELECTED_TEXT",		(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT) },
-		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
-		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Integer) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
-		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Integer) (COL_MENUCONTENTINACTIVE_TEXT) },
+		{ "COLORED_EVENTS_TEXT",	(lua_Unsigned) (COL_COLORED_EVENTS_TEXT) },
+		{ "INFOBAR_TEXT",		(lua_Unsigned) (COL_INFOBAR_TEXT) },
+		{ "INFOBAR_SHADOW_TEXT",	(lua_Unsigned) (COL_INFOBAR_SHADOW_TEXT) },
+		{ "MENUHEAD_TEXT",		(lua_Unsigned) (COL_MENUHEAD_TEXT) },
+		{ "MENUCONTENT_TEXT",		(lua_Unsigned) (COL_MENUCONTENT_TEXT) },
+		{ "MENUCONTENT_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_1) },
+		{ "MENUCONTENT_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_2) },
+		{ "MENUCONTENT_TEXT_PLUS_3",	(lua_Unsigned) (COL_MENUCONTENT_TEXT_PLUS_3) },
+		{ "MENUCONTENTDARK_TEXT",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT_PLUS_1) },
+		{ "MENUCONTENTDARK_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTDARK_TEXT_PLUS_2) },
+		{ "MENUCONTENTSELECTED_TEXT",		(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_1",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_1) },
+		{ "MENUCONTENTSELECTED_TEXT_PLUS_2",	(lua_Unsigned) (COL_MENUCONTENTSELECTED_TEXT_PLUS_2) },
+		{ "MENUCONTENTINACTIVE_TEXT",		(lua_Unsigned) (COL_MENUCONTENTINACTIVE_TEXT) },
 		{ NULL, 0 }
 	};
 
@@ -254,7 +264,6 @@ static void set_lua_variables(lua_State *L)
 	lua_envexport e[] =
 	{
 		{ "RC",		keyname },
-		{ "COL",	colorlist },
 		{ "SCREEN",	screenopts },
 		{ "FONT",	fontlist },
 		{ "CORNER",	corners },
@@ -273,6 +282,26 @@ static void set_lua_variables(lua_State *L)
 			j++;
 		}
 		lua_setglobal(L, e[i].name);
+		i++;
+	}
+
+	lua_envexport_u e_u[] =
+	{
+		{ "COL",	colorlist },
+		{ NULL, NULL }
+	};
+
+	i = 0;
+	while (e_u[i].name) {
+		int j = 0;
+		lua_newtable(L);
+		while (e_u[i].t[j].name) {
+			lua_pushstring(L, e_u[i].t[j].name);
+			lua_pushunsigned(L, e_u[i].t[j].code);
+			lua_settable(L, -3);
+			j++;
+		}
+		lua_setglobal(L, e_u[i].name);
 		i++;
 	}
 }
@@ -773,14 +802,26 @@ bool CLuaInstance::tableLookup(lua_State *L, const char *what, std::string &valu
 	return res;
 }
 
-bool CLuaInstance::tableLookup(lua_State *L, const char *what, int &value)
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Integer &value)
 {
 	bool res = false;
 	lua_pushstring(L, what);
 	lua_gettable(L, -2);
 	res = lua_isnumber(L, -1);
 	if (res)
-		value = (int) lua_tonumber(L, -1);
+		value = (lua_Integer) lua_tonumber(L, -1);
+	lua_pop(L, 1);
+	return res;
+}
+
+bool CLuaInstance::tableLookup(lua_State *L, const char *what, lua_Unsigned &value)
+{
+	bool res = false;
+	lua_pushstring(L, what);
+	lua_gettable(L, -2);
+	res = lua_isnumber(L, -1);
+	if (res)
+		value = (lua_Unsigned) lua_tonumber(L, -1);
 	lua_pop(L, 1);
 	return res;
 }
@@ -1434,9 +1475,9 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	lua_assert(lua_istable(L,1));
 
 	std::string name, icon   = std::string(NEUTRINO_ICON_INFO);
-	lua_Integer color_frame  = (lua_Integer)COL_MENUCONTENT_PLUS_6;
-	lua_Integer color_body   = (lua_Integer)COL_MENUCONTENT_PLUS_0;
-	lua_Integer color_shadow = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
 	std::string tmp1         = "false";
 	std::string btnRed       = "";
 	std::string btnGreen     = "";
@@ -1729,10 +1770,10 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	std::string tmpMode      = "";
 	int         mode         = CTextBox::AUTO_WIDTH;
 	int         font_text    = SNeutrinoSettings::FONT_TYPE_MENU;
-	lua_Integer color_text   = (lua_Integer)COL_MENUCONTENT_TEXT;
-	lua_Integer color_frame  = (lua_Integer)COL_MENUCONTENT_PLUS_6;
-	lua_Integer color_body   = (lua_Integer)COL_MENUCONTENT_PLUS_0;
-	lua_Integer color_shadow = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_text   = (lua_Unsigned)COL_MENUCONTENT_TEXT;
+	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
 	std::string tmp1         = "false";
 
 	tableLookup(L, "parent"      , (void**)&parent);
@@ -1905,9 +1946,9 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	std::string image_name         = "";
 	lua_Integer alignment          = 0;
 	std::string tmp1             = "false";	// has_shadow
-	lua_Integer color_frame      = (lua_Integer)COL_MENUCONTENT_PLUS_6;
-	lua_Integer color_background = (lua_Integer)COL_MENUCONTENT_PLUS_0;
-	lua_Integer color_shadow     = (lua_Integer)COL_MENUCONTENTDARK_PLUS_0;
+	lua_Unsigned color_frame      = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
+	lua_Unsigned color_background = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
+	lua_Unsigned color_shadow     = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
 
 	/*
 	transparency = CFrameBuffer::TM_BLACK (2): Transparency when black content ('pseudo' transparency)
