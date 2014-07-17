@@ -448,7 +448,7 @@ void CTimerList::updateEvents(void)
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	//get footerHeight from paintButtons
-	footerHeight = ::paintButtons(0, 0, 0, TimerListButtonsCount, TimerListButtons, 0, 0, "", false, COL_INFOBAR_SHADOW_TEXT, NULL, 0, false);
+	footerHeight = ::paintButtons(TimerListButtons, TimerListButtonsCount, 0, 0, 0, 0, 0, false);
 
 	width = w_max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth()*56, 20);
 	height = frameBuffer->getScreenHeight() - (2*theight);	// max height

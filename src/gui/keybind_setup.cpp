@@ -261,7 +261,7 @@ int CKeybindSetup::showKeySetup()
 	CMenuOptionNumberChooser *cc;
 
 	cc = new CMenuOptionNumberChooser(LOCALE_KEYBINDINGMENU_LONGKEYPRESS_DURATION,
-		&g_settings.longkeypress_duration, true, LONGKEYPRESS_OFF, 9999, NULL, 0, LONGKEYPRESS_OFF, LOCALE_OPTIONS_OFF);
+		&g_settings.longkeypress_duration, true, LONGKEYPRESS_OFF, 9999, NULL, CRCInput::convertDigitToKey(shortcut++), NULL, 0, LONGKEYPRESS_OFF, LOCALE_OPTIONS_OFF);
 	cc->setNumberFormat(ms_number_format);
 	cc->setNumericInput(true);
 	cc->setHint("", LOCALE_MENU_HINT_LONGKEYPRESS_DURATION);

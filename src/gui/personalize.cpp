@@ -295,7 +295,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	if (g_settings.easymenu) {
 		int count = 0;
 		for (uint j = 0; j<v_item.size(); j++) {
-			printf("v_item[i].widget [%s]\n", v_item[j].widget->getName().c_str());
+			printf("v_item[i].widget [%s]\n", v_item[j].widget->getName());
 			//pin protected items only
 			if (v_item[j].item_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
 			{
@@ -853,7 +853,7 @@ void CPersonalizeGui::addPersonalizedItems()
 				bool add_shortcut 	= false;
 								
 				//get shortcut
-				if (fw->iconName.empty() && fw->active ) //if no icon is defined and item is active, allow to generate a shortcut, 
+				if (d_key == CRCInput::RC_nokey && fw->active ) //if no icon is defined and item is active, allow to generate a shortcut, 
 				{
 					add_shortcut = true;
 					d_key = getShortcut(short_cut);
@@ -875,7 +875,7 @@ void CPersonalizeGui::addPersonalizedItems()
 				//convert item to locked forwarder and use generated pin mode for usage as ask parameter 
 				v_item[i].menuItem = new CLockedMenuForwarder(fw->getTextLocale(), 
 						g_settings.easymenu ? g_settings.parentallock_pincode : g_settings.personalize_pincode,
-						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey(), d_key, fw->iconName.c_str(), lock_icon);
+						use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey(), d_key, NULL, lock_icon);
 				v_item[i].menuItem->hintIcon = fw->hintIcon;
 				v_item[i].menuItem->hint = fw->hint;
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next

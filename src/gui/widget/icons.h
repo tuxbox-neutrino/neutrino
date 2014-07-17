@@ -104,9 +104,13 @@
 #define NEUTRINO_ICON_MP3		"mp3"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
 #define NEUTRINO_ICON_MOVIEPLAYER	"icon_movieplayer"
+#define NEUTRINO_ICON_NKPLAY		"icon_nkplay"
+#define NEUTRINO_ICON_YTPLAY		"icon_ytplay"
 #define NEUTRINO_ICON_NOT_MOUNTED	"not_mounted"
 #define NEUTRINO_ICON_PAUSE		"mp_pause"
 #define NEUTRINO_ICON_PLAY 		"mp_play"
+#define NEUTRINO_ICON_PLAY_REPEAT_ALL 	"mp_play_repeat_all"
+#define NEUTRINO_ICON_PLAY_REPEAT_TRACK	"mp_play_repeat_track"
 #define NEUTRINO_ICON_REW		"mp_b-skip"
 #define NEUTRINO_ICON_FF 		"mp_f-skip"
 #define NEUTRINO_ICON_PROTECTING	"protecting"
@@ -223,6 +227,7 @@
 #define NEUTRINO_ICON_HINT_HDD		"hint_hdd"
 #define NEUTRINO_ICON_HINT_KEYS		"hint_keys"
 #define NEUTRINO_ICON_HINT_A_PIC	"hint_a_pic"
+#define NEUTRINO_ICON_HINT_RASS		"hint_rass"
 
 #define NEUTRINO_ICON_HINT_COLORS	"hint_colors"
 #define NEUTRINO_ICON_HINT_FONTS	"hint_fonts"
@@ -249,13 +254,40 @@
 #define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
 /* opkg manager */
-#define NEUTRINO_ICON_CHECKMARK "checkmark"
-#define NEUTRINO_ICON_WARNING "warning"
+#define NEUTRINO_ICON_CHECKMARK		"checkmark"
+#define NEUTRINO_ICON_WARNING		"warning"
+
+/* RASS */
+#define NEUTRINO_ICON_RED_0		"0-red"
+#define NEUTRINO_ICON_RED_1		"1-red"
+#define NEUTRINO_ICON_RED_2		"2-red"
+#define NEUTRINO_ICON_RED_3		"3-red"
+#define NEUTRINO_ICON_RED_4		"4-red"
+#define NEUTRINO_ICON_RED_5		"5-red"
+#define NEUTRINO_ICON_RED_6		"6-red"
+#define NEUTRINO_ICON_RED_7		"7-red"
+#define NEUTRINO_ICON_RED_8		"8-red"
+#define NEUTRINO_ICON_RED_9		"9-red"
+
+#define NEUTRINO_ICON_GREEN_0		"0-green"
+#define NEUTRINO_ICON_GREEN_1		"1-green"
+#define NEUTRINO_ICON_GREEN_2		"2-green"
+#define NEUTRINO_ICON_GREEN_3		"3-green"
+#define NEUTRINO_ICON_GREEN_4		"4-green"
+#define NEUTRINO_ICON_GREEN_5		"5-green"
+#define NEUTRINO_ICON_GREEN_6		"6-green"
+#define NEUTRINO_ICON_GREEN_7		"7-green"
+#define NEUTRINO_ICON_GREEN_8		"8-green"
+#define NEUTRINO_ICON_GREEN_9		"9-green"
 
 /* misc */
+#define NEUTRINO_ICON_HINT_NKPLAY	"hint_nkplay"
 #define NEUTRINO_ICON_HINT_YTPLAY	"hint_ytplay"
+#define NEUTRINO_ICON_HINT_SPARK	"hint_spark"
 
 #define NEUTRINO_ICON_EPG		"epg"
+
+#define NEUTRINO_ICON_BUTTON_LONGPRESS	"longpress"
 
 #define NEUTRINO_ICON_VARPATH		"/var/share/tuxbox/neutrino/icons/"  //alternatively path for user-defined icons 
 

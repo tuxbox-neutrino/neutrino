@@ -1414,7 +1414,7 @@ bool CRecordManager::ShowMenu(void)
 			sprintf(cnt, "%d", i);
 			//define stop key if only one record is running, otherwise define shortcuts
 			neutrino_msg_t rc_key = CRCInput::convertDigitToKey(shortcut++);
-			std::string btn_icon = NEUTRINO_ICON_BUTTON_OKAY;
+			const char * btn_icon = NEUTRINO_ICON_BUTTON_OKAY;
 			if (rec_count == 1){
 				rc_key = CRCInput::RC_stop;
 				btn_icon = NEUTRINO_ICON_BUTTON_STOP;

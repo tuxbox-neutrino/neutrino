@@ -22,10 +22,16 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <stdint.h>
 #include <string.h>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <map>
  
 int my_system(const char * cmd);
@@ -88,4 +94,10 @@ template<class C> std::string to_string(C i)
 inline void cstrncpy(char *dest, const char * const src, size_t n) { n--; strncpy(dest, src, n); dest[n] = 0; }
 inline void cstrncpy(char *dest, const std::string &src, size_t n) { n--; strncpy(dest, src.c_str(), n); dest[n] = 0; }
 bool split_config_string(const std::string &str, std::map<std::string,std::string> &smap);
+
+inline int atoi(std::string &s) { return atoi(s.c_str()); }
+inline int atoi(const std::string &s) { return atoi(s.c_str()); }
+inline int access(std::string &s, int mode) { return access(s.c_str(), mode); }
+inline int access(const std::string &s, int mode) { return access(s.c_str(), mode); }
+
 #endif

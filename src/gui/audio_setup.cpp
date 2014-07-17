@@ -160,7 +160,7 @@ int CAudioSetup::showAudioSetup()
 		as_oj_vsteps = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 25, NULL);
 		as_oj_vsteps->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTEP);
 
-		st    = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_START, &g_settings.start_volume, true, -1, 100, NULL, 0, -1, LOCALE_OPTIONS_OFF);
+		st    = new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_START, &g_settings.start_volume, true, -1, 100, NULL, CRCInput::RC_nokey, NULL, 0, -1, LOCALE_OPTIONS_OFF);
 		st->setHint("", LOCALE_MENU_HINT_AUDIO_VOLSTART);
 		//clock rec
 		//CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
