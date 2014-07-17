@@ -151,6 +151,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
+#if 0
 		if (firstPaint){
 
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
@@ -162,7 +163,10 @@ void CComponents::paintFbItems(bool do_save_bg)
 			else
 				firstPaint = false;
 		}
-		
+#endif
+		if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
+			v_fbdata[i].pixbuf = getScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+
 		//paint all fb relevant basic parts (frame and body) with all specified properties, paint_bg must be true
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN && paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
