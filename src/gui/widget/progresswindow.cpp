@@ -50,13 +50,15 @@ void CProgressWindow::Init()
 
 	int x_item = 10;
 	int y_item = 10;
+	setWidthP(75);
 	int w_item = width-2*x_item;
 	int h_item = 20;
 	w_bar_frame = 0;
 
 	//create status text object
 	status_txt = new CComponentsLabel();
-	status_txt->setDimensionsAll(x_item, y_item, w_item, h_item);
+	int h_txt = max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), h_item);
+	status_txt->setDimensionsAll(x_item, y_item, w_item, h_txt);
 	status_txt->setColorBody(col_body);
 	addWindowItem(status_txt);
 	y_item += 2*h_item;
