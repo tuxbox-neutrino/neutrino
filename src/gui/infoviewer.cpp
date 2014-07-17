@@ -234,18 +234,15 @@ void CInfoViewer::changePB()
 	if (sigscale)
 		delete sigscale;
 	sigscale = new CProgressBar();
-	sigscale->setBlink();
 	
 	if (snrscale)
 		delete snrscale;
 	snrscale = new CProgressBar();
-	snrscale->setBlink();
 	
 	if (timescale)
 		delete timescale;
 	timescale = new CProgressBar();
-	timescale->setBlink();
-	timescale->setRgb(0, 100, 70);
+	timescale->setType(CProgressBar::PB_TIMESCALE);
 }
 
 void CInfoViewer::paintTime (bool show_dot)
@@ -1548,7 +1545,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		int pb_starty = ChanNameY - (pb_h + 10);
 		int pb_shadow = COL_INFOBAR_SHADOW_PLUS_0;
 		timescale->setShadowOnOff(true);
-		int pb_color = g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0;
+		int pb_color = (g_settings.progressbar_design == CProgressBar::PB_MONO) ? COL_INFOBAR_PLUS_0 : COL_INFOBAR_SHADOW_PLUS_0;
 		if(g_settings.infobar_progressbar){
 			pb_startx = xStart;
 			pb_w = BoxEndX - 10 - xStart;

@@ -416,9 +416,21 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_show_channeldesc   = configfile.getBool("infobar_show_channeldesc"  , false );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
-	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
-	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", 2); //horizontal bars
-	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
+	g_settings.progressbar_gradient = configfile.getBool("progressbar_gradient", true );
+	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", CProgressBar::PB_COLOR);
+	if (g_settings.progressbar_design == 4) {
+		// 4 meant monochrome gradient which is no longer a design option
+		g_settings.progressbar_design = CProgressBar::PB_COLOR;
+		g_settings.progressbar_gradient = true;
+	}
+	bool pb_color = configfile.getBool("progressbar_color", true );
+	if (!pb_color)
+		g_settings.progressbar_design = CProgressBar::PB_MONO;
+	g_settings.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
+	g_settings.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
+	g_settings.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);
+	g_settings.progressbar_timescale_invert = configfile.getBool("progressbar_timescale_invert", false);
+	g_settings.infobar_show = configfile.getInt32("infobar_show", configfile.getInt32("infobar_cn", 1));
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.infobar_progressbar   = configfile.getInt32("infobar_progressbar"  , 1 ); // below channel name
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 1 );//discreet ca mode default
@@ -660,7 +672,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_additional = configfile.getInt32("channellist_additional", 2); //default minitv
 	g_settings.eventlist_additional = configfile.getInt32("eventlist_additional", 0);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
-	g_settings.channellist_extended = configfile.getInt32("channellist_extended", 1);
+	g_settings.channellist_progressbar_design = configfile.getInt32("channellist_progressbar_design", g_settings.progressbar_design);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
 	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat 
@@ -947,8 +959,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setBool("infobar_show_channeldesc"  , g_settings.infobar_show_channeldesc  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
-	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
+	configfile.setBool("progressbar_gradient", g_settings.progressbar_gradient);
 	configfile.setInt32("progressbar_design", g_settings.progressbar_design);
+	configfile.setInt32("progressbar_timescale_red", g_settings.progressbar_timescale_red);
+	configfile.setInt32("progressbar_timescale_green", g_settings.progressbar_timescale_green);
+	configfile.setInt32("progressbar_timescale_yellow", g_settings.progressbar_timescale_yellow);
+	configfile.setInt32("progressbar_timescale_invert", g_settings.progressbar_timescale_invert);
 	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("infobar_progressbar"  , g_settings.infobar_progressbar  );
@@ -1156,8 +1172,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("eventlist_additional", g_settings.eventlist_additional);
 	configfile.setInt32("channellist_additional", g_settings.channellist_additional);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
-	configfile.setInt32("channellist_extended", g_settings.channellist_extended);
-	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
+	configfile.setInt32("channellist_progressbar_design", g_settings.channellist_progressbar_design);
+	configfile.setInt32("channellist_foot", g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
@@ -3775,7 +3791,6 @@ void stop_daemons(bool stopall, bool for_flash)
 		my_system(NEUTRINO_ENTER_FLASH_SCRIPT);
 	}
 
-	InfoClock->enableInfoClock(false);
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();

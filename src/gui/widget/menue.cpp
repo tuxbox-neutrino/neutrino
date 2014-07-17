@@ -2306,7 +2306,7 @@ int CMenuProgressbar::getWidth(void)
 
 int CMenuProgressbar::exec(CMenuTarget*)
 {
-	int val = /*scale.getValue()*/ + 25;
+	int val = scale.getValue() + 25;
 	if (val > 100)
 		val = 0;
 	scale.setValue(val);

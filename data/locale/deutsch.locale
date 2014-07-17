@@ -1065,9 +1065,14 @@ menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_pref_subs Wählen Sie ihre bevorzugte Untertitel-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_progressbar Wählen Sie die Optionen für die Fortschrittsbalken-Anzeige
-menu.hint_progressbar_color Bei aktivierter Option werden alle Fortschrittsbalken in Farbe und nicht im klassischen Weiß angezeigt
-menu.hint_progressbar_design Stellen Sie das Design des Fortschrittsbalkens ein
+menu.hint_progressbar_color Erscheinungsbild der Fortschrittsbalken auswählen
+menu.hint_progressbar_gradient Fügt dem Fortschrittsbalken einen vertikalen Helligkeitsverlauf hinzu.
 menu.hint_progressbar_infobar_position Wählt die Optionen des Fortschrittsbalkens in der Infobar
+menu.hint_progressbar_preview Mit der OK-Taste können Sie den Stand des Fortschrittsbalkens ändern
+menu.hint_progressbar_timescale_green Hier können Sie den grünen Farbanteil bunter Fortschrittsbalken anpassen
+menu.hint_progressbar_timescale_invert Wählen Sie den Farbverlauf
+menu.hint_progressbar_timescale_red Hier können Sie den roten Farbanteil bunter Fortschrittsbalken anpassen
+menu.hint_progressbar_timescale_yellow Hier können Sie den gelben Farbanteil bunter Fortschrittsbalken anpassen
 menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
 menu.hint_radiomode Schaltet zum Radio-Modus
 menu.hint_reboot Startet die Box neu\nDer Neustart erfolgt ohne Bestätigung!
@@ -1320,11 +1325,22 @@ miscsettings.progressbar_design_0 Punkte
 miscsettings.progressbar_design_1 vertikale Balken
 miscsettings.progressbar_design_2 horizontale Balken
 miscsettings.progressbar_design_3 Farbverlauf
+miscsettings.progressbar_design_4 monochrom
+miscsettings.progressbar_design_long Design
+miscsettings.progressbar_gradient 3D-Effekt
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 Standard
 miscsettings.progressbar_infobar_position_1 unterhalb Kanalname
 miscsettings.progressbar_infobar_position_2 unterhalb Kanalname (schmal)
 miscsettings.progressbar_infobar_position_3 zwischen EPG-Events (schmal)
+miscsettings.progressbar_preview Vorschau
+miscsettings.progressbar_timescale Zeitskala
+miscsettings.progressbar_timescale_green Grün
+miscsettings.progressbar_timescale_green_red von Grün nach Rot
+miscsettings.progressbar_timescale_invert Farbverlauf
+miscsettings.progressbar_timescale_red Rot
+miscsettings.progressbar_timescale_red_green von Rot nach Grün
+miscsettings.progressbar_timescale_yellow Gelb
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
@@ -1623,6 +1639,7 @@ opkg.title Paketverwaltung
 opkg.upgrade Installierte Pakete aktualisieren
 options.default Voreinstellungen benutzen
 options.fb framebuffer
+options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.
 options.ntp_off DVB
 options.ntp_on NTP
 options.null null

@@ -85,8 +85,12 @@ struct SNeutrinoSettings
 	int infobar_show;
 	int infobar_show_channellogo;
 	int infobar_progressbar;
-	int progressbar_color;
 	int progressbar_design;
+	int progressbar_gradient;
+	int progressbar_timescale_red;
+	int progressbar_timescale_green;
+	int progressbar_timescale_yellow;
+	int progressbar_timescale_invert;
 	int casystem_display;
 	int scrambled_message;
 	int volume_pos;
@@ -483,7 +487,7 @@ struct SNeutrinoSettings
 	int eventlist_additional;
 	int channellist_additional;
 	int channellist_epgtext_align_right;
-	int channellist_extended;
+	int channellist_progressbar_design;
 	int channellist_foot;
 	int channellist_new_zap_mode;
 	int channellist_sort_mode;

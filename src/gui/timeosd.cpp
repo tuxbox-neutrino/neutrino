@@ -104,7 +104,6 @@ void CTimeOSD::updatePos(int position, int duration)
 		percent = 0;
 
 	timescale.setProgress(x, y + height/4, width, height/2, percent, 100);
-	timescale.setBlink();
 	timescale.setRgb(0, 100, 70);
 	timescale.paint();
 	frameBuffer->blit();

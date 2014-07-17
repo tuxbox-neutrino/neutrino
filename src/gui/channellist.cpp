@@ -1942,7 +1942,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		fb_pixel_t tcolor=(liststart + pos == selected) ? color : COL_MENUCONTENTINACTIVE_TEXT;
 		int xtheight=fheight-2;
 		int rec_mode;
-		if(g_settings.channellist_extended)
+		if(g_settings.channellist_progressbar_design != CProgressBar::PB_OFF)
 		{
 			prg_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
 			title_offset=6;
@@ -2037,23 +2037,13 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
-		int pb_space = prg_offset - title_offset;
-		bool pb_colored = ((g_settings.channellist_extended == 2) && g_settings.progressbar_color);
-		int pb_frame = pb_colored ? 0 : 1;
-		CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4, pb_space, fheight/2,
-				color, bgcolor, COL_MENUCONTENTDARK_PLUS_0, color, COL_MENUCONTENT_PLUS_1,
-				pb_colored, 0, 100, 70);
-		pb.setCornerType(0);
-		pb.setFrameThickness(pb_frame);
-
-		int pb_max = pb_space - (2*pb_frame);
 		if (!(p_event->description.empty())) {
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description);
 
 			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 20; // 15 = scrollbar, 20 = spaces
-			if (chan->scrambled || (g_settings.channellist_extended ||g_settings.channellist_epgtext_align_right))
+			if (chan->scrambled || g_settings.channellist_epgtext_align_right)
 				max_desc_len -= icon_space+g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getWidth(); /* do we need space for the lock/rec icon? */
 
 			if (max_desc_len < 0)
@@ -2061,7 +2051,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			if ((int) ch_desc_len > max_desc_len)
 				ch_desc_len = max_desc_len;
 
-			if(g_settings.channellist_extended) {
+			if(g_settings.channellist_progressbar_design != CProgressBar::PB_OFF) {
 				if(displayNext)
 				{
 					struct		tm *pStartZeit = localtime(&p_event->startTime);
@@ -2074,6 +2064,15 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				{
 					time_t jetzt=time(NULL);
 					int runningPercent = 0;
+					int pb_space = prg_offset - title_offset;
+					CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4 + 2, pb_space + 2, fheight/2 - 4,
+							0, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_INFOBAR_PLUS_7, COL_INFOBAR_PLUS_3);
+					pb.setType(CProgressBar::PB_TIMESCALE);
+					pb.setDesign(g_settings.channellist_progressbar_design);
+					pb.setCornerType(0);
+					pb.setFrameThickness(0);	// no frame
+					pb.doPaintBg(false);		// no background
+					int pb_max = pb_space - 4;
 
 					if (((jetzt - p_event->startTime + 30) / 60) < 0 )
 					{
@@ -2086,10 +2085,24 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 							runningPercent = pb_max;	// later on which can be fatal...
 					}
 
-					if (liststart + pos != selected)
-						pb.setPassiveColor(COL_MENUCONTENT_PLUS_3);
-					else
-						pb.setPassiveColor(COL_MENUCONTENTSELECTED_PLUS_2);
+					if (g_settings.progressbar_design != CProgressBar::PB_MONO) {
+						if (liststart + pos != selected) {
+							fb_pixel_t pbgcol = COL_MENUCONTENT_PLUS_1;
+							if (pbgcol == bgcolor)
+								pbgcol = COL_MENUCONTENT_PLUS_0;
+							pb.setStatusColors(COL_MENUCONTENT_PLUS_3, pbgcol);
+						} else {
+							fb_pixel_t pbgcol = COL_MENUCONTENTSELECTED_PLUS_0;
+							if (pbgcol == bgcolor)
+								pbgcol = COL_MENUCONTENT_PLUS_0;
+							pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, pbgcol);
+						}
+					} else {
+						if (liststart + pos != selected)
+							pb.setStatusColors(COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1);
+						else
+							pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENTSELECTED_PLUS_0);
+					}
 					pb.setValues(runningPercent, pb_max);
 					pb.paint();
 				}
@@ -2106,15 +2119,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			}
 		}
 		else {
-			if(g_settings.channellist_extended) {
-				if (liststart + pos != selected)
-					pb.setPassiveColor(COL_MENUCONTENT_PLUS_1);
-				else
-					pb.setPassiveColor(COL_MENUCONTENTSELECTED_PLUS_2);
-				pb.setValues(0, pb_max);
-				pb.setZeroLine();
- 				pb.paint();
-			}
 			//name
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color);
 		}

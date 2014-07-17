@@ -829,17 +829,15 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 void CInfoViewerBB::changePB()
 {
 	hddwidth = frameBuffer->getScreenWidth(true) * ((g_settings.screen_preset == 1) ? 10 : 8) / 128; /* 80(CRT)/100(LCD) pix if screen is 1280 wide */
-	if (hddscale)
-		delete hddscale;
-	hddscale = new CProgressBar();
-	hddscale->setBlink();
-	hddscale->setInvert();
+	if (!hddscale) {
+		hddscale = new CProgressBar();
+		hddscale->setType(CProgressBar::PB_REDRIGHT);
+	}
 	
-	if (sysscale)
-		delete sysscale;
-	sysscale = new CProgressBar();
-	sysscale->setBlink();
-	sysscale->setInvert();
+	if (!sysscale) {
+		sysscale = new CProgressBar();
+		sysscale->setType(CProgressBar::PB_REDRIGHT);
+	}
 }
 
 void CInfoViewerBB::reset_allScala()

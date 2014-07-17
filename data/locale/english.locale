@@ -1065,9 +1065,14 @@ menu.hint_power_leds Configure power-button LEDs behavior
 menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
 menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
 menu.hint_progressbar Select the options for the progressbar
-menu.hint_progressbar_color Show colored progressbar
-menu.hint_progressbar_design Here you can choose the design of progressbar with active color option
+menu.hint_progressbar_color Change appearance of progress bars
+menu.hint_progressbar_gradient Add a vertical brightness gradient to progress bars
 menu.hint_progressbar_infobar_position Selects the options of progressbar in the infobar
+menu.hint_progressbar_preview Use OK to change the current progressbar state
+menu.hint_progressbar_timescale_green Choose the green portion of colored progressbars
+menu.hint_progressbar_timescale_invert Select your preferred color gradient
+menu.hint_progressbar_timescale_red Choose the red portion of colored progressbars
+menu.hint_progressbar_timescale_yellow Choose the yellow portion of colored progressbars
 menu.hint_protection Protect content by PIN code\nDefault PIN 0000
 menu.hint_radiomode Switch box to radio mode
 menu.hint_reboot Reboot box\nNo confirmation
@@ -1316,15 +1321,26 @@ miscsettings.infoclock Clock
 miscsettings.progressbar Progressbar
 miscsettings.progressbar_color Color
 miscsettings.progressbar_design Design
-miscsettings.progressbar_design_0 points
-miscsettings.progressbar_design_1 vertical bars
-miscsettings.progressbar_design_2 horizontal bars
-miscsettings.progressbar_design_3 colored
+miscsettings.progressbar_design_0 colored points
+miscsettings.progressbar_design_1 colored vertical lines
+miscsettings.progressbar_design_2 colored horizontal lines
+miscsettings.progressbar_design_3 colored bar
+miscsettings.progressbar_design_4 monochrome
+miscsettings.progressbar_design_long Design
+miscsettings.progressbar_gradient 3D effect
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 standard
 miscsettings.progressbar_infobar_position_1 below channel name
 miscsettings.progressbar_infobar_position_2 small below channel name
 miscsettings.progressbar_infobar_position_3 narrow between EPG-Events
+miscsettings.progressbar_preview Preview
+miscsettings.progressbar_timescale Time scale
+miscsettings.progressbar_timescale_green green
+miscsettings.progressbar_timescale_green_red from green to red
+miscsettings.progressbar_timescale_invert Color gradient
+miscsettings.progressbar_timescale_red red
+miscsettings.progressbar_timescale_red_green from red to green
+miscsettings.progressbar_timescale_yellow yellow
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
@@ -1623,6 +1639,7 @@ opkg.title Package Management
 opkg.upgrade Upgrade installed packages
 options.default Reset to defaults
 options.fb framebuffer
+options.hint_default Reset the values to their defaults
 options.ntp_off DVB
 options.ntp_on NTP
 options.null null

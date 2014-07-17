@@ -479,8 +479,7 @@ void CDBoxInfoWidget::paint()
 		if (pbw > 8) /* smaller progressbar is not useful ;) */
 		{
 			CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
-			pb.setBlink();
-			pb.setInvert();
+			pb.setType(CProgressBar::PB_REDRIGHT);
 			pb.setValues(memstat[row][MEMINFO_TOTAL] ? (memstat[row][MEMINFO_USED] * 100) / memstat[row][MEMINFO_TOTAL] : 0, 100);
 			pb.paint(false);
 		}
@@ -549,8 +548,7 @@ void CDBoxInfoWidget::paint()
 				if (pbw > 8) /* smaller progressbar is not useful ;) */
 				{
 					CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
-					pb.setBlink();
-					pb.setInvert();
+					pb.setType(CProgressBar::PB_REDRIGHT);
 					pb.setValues(percent_used, 100);
 					pb.paint(false);
 				}
