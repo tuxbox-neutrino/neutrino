@@ -207,10 +207,10 @@ void CComponentsItem::setCenterPos(int along_mode)
 
 void CComponentsItem::setHeightP(const uint8_t& h_percent)
 {
-	height = cc_parent ? h_percent*cc_parent->getWidth()/100 : h_percent*frameBuffer->getScreenWidth()/100;
+	height = cc_parent ? h_percent*cc_parent->getHeight()/100 : h_percent*frameBuffer->getScreenHeight(true)/100;
 }
 
 void CComponentsItem::setWidthP(const uint8_t& w_percent)
 {
-	width = cc_parent ? w_percent*cc_parent->getHeight()/100 : w_percent*frameBuffer->getScreenHeight()/100;
+	width = cc_parent ? w_percent*cc_parent->getWidth()/100 : w_percent*frameBuffer->getScreenWidth(true)/100;
 }
