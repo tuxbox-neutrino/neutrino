@@ -848,6 +848,15 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
 	{ 6 , LOCALE_MISCSETTINGS_INFOBAR_DISP_6 }
 };
 
+#define PROGRESSBAR_INFOBAR_POSITION_COUNT 4
+const CMenuOptionChooser::keyval PROGRESSBAR_INFOBAR_POSITION_OPTIONS[PROGRESSBAR_INFOBAR_POSITION_COUNT]=
+{
+	{ 0 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_0 },
+	{ 1 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_1 },
+	{ 2 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_2 },
+	{ 3 , LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION_3 }
+};
+
 //menus
 void COsdSetup::showOsdMenusSetup(CMenuWidget *menu_menus)
 {
@@ -894,6 +903,12 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_INFOBAR_SAT);
 	menu_infobar->addItem(mc);
+
+	//infobar position
+	CMenuOptionChooser *infobar_position;
+	infobar_position = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_INFOBAR_POSITION, &g_settings.infobar_progressbar, PROGRESSBAR_INFOBAR_POSITION_OPTIONS, PROGRESSBAR_INFOBAR_POSITION_COUNT, true);
+	infobar_position->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_INFOBAR_POSITION);
+	menu_infobar->addItem(infobar_position);
 
 	// flash/hdd progress
 	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_SYSFS_HDD, &g_settings.infobar_show_sysfs_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
