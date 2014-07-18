@@ -2033,6 +2033,34 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		else
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
+		int pb_space = prg_offset - title_offset;
+		CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4 + 2, pb_space + 2, fheight/2 - 4,
+				0, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_INFOBAR_PLUS_7, COL_INFOBAR_PLUS_3);
+		pb.setType(CProgressBar::PB_TIMESCALE);
+		pb.setDesign(g_settings.channellist_progressbar_design);
+		pb.setCornerType(0);
+		pb.setFrameThickness(0);	// no frame
+		pb.doPaintBg(false);		// no background
+		int pb_max = pb_space - 4;
+		if (g_settings.progressbar_design != CProgressBar::PB_MONO) {
+			if (liststart + pos != selected) {
+				fb_pixel_t pbgcol = COL_MENUCONTENT_PLUS_1;
+				if (pbgcol == bgcolor)
+					pbgcol = COL_MENUCONTENT_PLUS_0;
+				pb.setStatusColors(COL_MENUCONTENT_PLUS_3, pbgcol);
+			} else {
+				fb_pixel_t pbgcol = COL_MENUCONTENTSELECTED_PLUS_0;
+				if (pbgcol == bgcolor)
+					pbgcol = COL_MENUCONTENT_PLUS_0;
+				pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, pbgcol);
+			}
+		} else {
+			if (liststart + pos != selected)
+				pb.setStatusColors(COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1);
+			else
+				pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENTSELECTED_PLUS_0);
+		}
+
 		if (!(p_event->description.empty())) {
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription);
@@ -2060,15 +2088,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				{
 					time_t jetzt=time(NULL);
 					int runningPercent = 0;
-					int pb_space = prg_offset - title_offset;
-					CProgressBar pb(x+5+numwidth + title_offset, ypos + fheight/4 + 2, pb_space + 2, fheight/2 - 4,
-							0, COL_MENUCONTENT_PLUS_0, COL_MENUCONTENTDARK_PLUS_0, COL_INFOBAR_PLUS_7, COL_INFOBAR_PLUS_3);
-					pb.setType(CProgressBar::PB_TIMESCALE);
-					pb.setDesign(g_settings.channellist_progressbar_design);
-					pb.setCornerType(0);
-					pb.setFrameThickness(0);	// no frame
-					pb.doPaintBg(false);		// no background
-					int pb_max = pb_space - 4;
 
 					if (((jetzt - p_event->startTime + 30) / 60) < 0 )
 					{
@@ -2079,25 +2098,6 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 						runningPercent=(jetzt-p_event->startTime) * pb_max / p_event->duration;
 						if (runningPercent > pb_max)	// this would lead to negative value in paintBoxRel
 							runningPercent = pb_max;	// later on which can be fatal...
-					}
-
-					if (g_settings.progressbar_design != CProgressBar::PB_MONO) {
-						if (liststart + pos != selected) {
-							fb_pixel_t pbgcol = COL_MENUCONTENT_PLUS_1;
-							if (pbgcol == bgcolor)
-								pbgcol = COL_MENUCONTENT_PLUS_0;
-							pb.setStatusColors(COL_MENUCONTENT_PLUS_3, pbgcol);
-						} else {
-							fb_pixel_t pbgcol = COL_MENUCONTENTSELECTED_PLUS_0;
-							if (pbgcol == bgcolor)
-								pbgcol = COL_MENUCONTENT_PLUS_0;
-							pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, pbgcol);
-						}
-					} else {
-						if (liststart + pos != selected)
-							pb.setStatusColors(COL_MENUCONTENT_PLUS_3, COL_MENUCONTENT_PLUS_1);
-						else
-							pb.setStatusColors(COL_MENUCONTENTSELECTED_PLUS_2, COL_MENUCONTENTSELECTED_PLUS_0);
 					}
 					pb.setValues(runningPercent, pb_max);
 					pb.paint();
@@ -2115,6 +2115,11 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			}
 		}
 		else {
+			if(g_settings.channellist_progressbar_design != CProgressBar::PB_OFF) {
+				pb.setValues(0, pb_max);
+				//pb.setZeroLine();
+				pb.paint();
+			}
 			//name
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color);
 		}
