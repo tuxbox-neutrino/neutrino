@@ -418,11 +418,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.progressbar_gradient = configfile.getBool("progressbar_gradient", true );
 	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", CProgressBar::PB_COLOR);
-	if (g_settings.progressbar_design == 4) {
-		// 4 meant monochrome gradient which is no longer a design option
-		g_settings.progressbar_design = CProgressBar::PB_COLOR;
-		g_settings.progressbar_gradient = true;
-	}
 	bool pb_color = configfile.getBool("progressbar_color", true );
 	if (!pb_color)
 		g_settings.progressbar_design = CProgressBar::PB_MONO;
