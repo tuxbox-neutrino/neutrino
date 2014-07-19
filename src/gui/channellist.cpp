@@ -2023,9 +2023,12 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 
 		int icon_space = r_icon_w+s_icon_w;
 
-		//number
-		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
+		//channel numbers
+		if (g_settings.channellist_show_numbers) {
+			int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
+		} else
+			numwidth = -5;
 
 		int l=0;
 		if (this->historyMode)

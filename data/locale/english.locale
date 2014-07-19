@@ -247,7 +247,8 @@ channellist.remember Last used
 channellist.reset_all Reset 'new' flag for all channels
 channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
-channellist.show_channellogo Show channellogos
+channellist.show_channellogo Show channel logos
+channellist.show_channelnumber Show channel numbers
 channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
@@ -841,7 +842,8 @@ menu.hint_channellist_foot Show additional information\nin bottom box
 menu.hint_channellist_mode Use the selected channel list mode on startup if last mode is TV
 menu.hint_channellist_mode_radio Use the selected channel list mode on startup if last mode is Radio
 menu.hint_channellist_setup Configure channel list GUI options
-menu.hint_channellist_show_channellogo Show channellogos in channel list
+menu.hint_channellist_show_channellogo Show channel logos in channel list
+menu.hint_channellist_show_channelnumber Show channel number in channel list
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_clock_background Show clock with theme's background color

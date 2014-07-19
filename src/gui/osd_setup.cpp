@@ -991,6 +991,11 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELLOGO, &g_settings.channellist_show_channellogo, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELLOGO);
 	menu_chanlist->addItem(mc);
+
+	//show numbers
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_SHOW_CHANNELNUMBER, &g_settings.channellist_show_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CHANNELLIST_SHOW_CHANNELNUMBER);
+	menu_chanlist->addItem(mc);
 }
 
 //eventlist

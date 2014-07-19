@@ -248,6 +248,7 @@ channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.show_channellogo Senderlogos zeigen
+channellist.show_channelnumber Kanalnummern zeigen
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -842,6 +843,7 @@ menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
 menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
+menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
