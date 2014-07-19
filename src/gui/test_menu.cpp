@@ -545,7 +545,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (footer == NULL){
 			footer = new CComponentsFooter (100, 30, 1000, hh, CComponentsFooter::CC_BTN_HELP | CComponentsFooter::CC_BTN_EXIT | CComponentsFooter::CC_BTN_MENU |CComponentsFooter::CC_BTN_MUTE_ZAP_ACTIVE, NULL, true);
-			int start = 5, btnw =90, btnh = 37;
+// 			int start = 5, btnw =90, btnh = 37;
 			footer->setButtonFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
 			footer->setIcon(NEUTRINO_ICON_INFO);
 
