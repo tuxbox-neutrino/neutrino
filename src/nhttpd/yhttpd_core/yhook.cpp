@@ -304,8 +304,8 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 
 			strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&mod_time));
 			result += string_printf(
-					"Last-Modified: %s\r\nContent-Length: %ld\r\n", timeStr,
-					GetContentLength());
+					"Last-Modified: %s\r\nContent-Length: %lld\r\n", timeStr,
+					(long long) GetContentLength());
 		}
 		result += "\r\n"; // End of Header
 		break;

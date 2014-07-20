@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -316,25 +317,40 @@ int CySocket::SendFile(int filed) {
 #ifdef Y_CONFIG_HAVE_SENDFILE
 	// does not work with SSL !!!
 	off_t start = 0;
-	off_t end = lseek(filed,0,SEEK_END);
-	int written = 0;
-	if((written = ::sendfile(sock,filed,&start,end)) == -1)
-	{
-		perror("sendfile failed\n");
-		return false;
-	}
-	else
-	BytesSend += written;
-#else
-	char sbuf[1024];
-	unsigned int r = 0;
-	while ((r = read(filed, sbuf, 1024)) > 0) {
-		if (Send(sbuf, r) < 0) {
-			perror("sendfile failed\n");
-			return false;
+	struct stat st;
+	fstat(filed, &st);
+	size_t end = st.st_size;
+	off_t written = 0;
+	off_t left = end;
+	while (left > 0) {
+		// Split sendfile() transfer to smaller chunks to reduce memory-mapping requirements --martii
+		if((written = ::sendfile(sock,filed,&start,0x8000000)) == -1) {
+			perror("sendfile failed");
+			if (errno != EINVAL)
+				return false;
+			break;
+		} else {
+			BytesSend += written;
+			left -= written;
 		}
 	}
+	if (left) {
+		::lseek(filed, start, SEEK_SET);
 #endif // Y_CONFIG_HAVE_SENDFILE
+
+		char sbuf[65536];
+		int r;
+		while ((r = read(filed, sbuf, 65536)) > 0) {
+			if (Send(sbuf, r) < 0) {
+				perror("send failed");
+				return false;
+			}
+			BytesSend += written;
+		}
+#ifdef Y_CONFIG_HAVE_SENDFILE
+	}
+#endif // Y_CONFIG_HAVE_SENDFILE
+
 	log_level_printf(9, "<Sock:SendFile>: Bytes:%ld\n", BytesSend);
 	return true;
 }
