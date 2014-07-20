@@ -24,7 +24,7 @@ private:
 
 protected:
 	bool WriteData(char const *data, long length);
-	bool Sendfile(std::string filename);
+	bool Sendfile(std::string filename, off_t start = 0, off_t end = -1);
 	std::string	redirectURI;		// URI for redirection else: empty
 
 public:

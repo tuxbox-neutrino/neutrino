@@ -74,8 +74,7 @@ bool CmWebLog::OpenLogFile() {
 			if (LogFormat == "ELF") {
 				printf("#Version: 1.0\n");
 				printf("#Remarks: yhttpd" WEBSERVERNAME "\n");
-				printf(
-						"#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n");
+				printf("#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n");
 			}
 		}
 		pthread_mutex_unlock(&WebLog_mutex);
@@ -147,7 +146,7 @@ void CmWebLog::AddLogEntry_CLF(CyhookHandler *hh)
 	std::string c_ip = 			hh->UrlData["clientaddr"].c_str();
 	std::string request_startline = 	hh->UrlData["startline"].c_str();
 	int s_status = hh->httpStatus;
-	int bytes	= hh->GetContentLength();
+	off_t bytes	= hh->GetContentLength();
 
 	struct tm *time_now;
 	time_t now = time(NULL);
@@ -156,12 +155,12 @@ void CmWebLog::AddLogEntry_CLF(CyhookHandler *hh)
 	time_now = localtime(&now);
 	strftime(request_time, 80, "[%d/%b/%Y:%H:%M:%S]", time_now);
 
-	printf("%s - - %s \"%s\" %d %d\n",
+	printf("%s - - %s \"%s\" %d %lld\n",
 		c_ip.c_str(),
 		request_time,
 		request_startline.c_str(),
 		s_status,
-		bytes);
+		(long long) bytes);
 }
 
 //-----------------------------------------------------------------------------
@@ -319,7 +318,7 @@ void CmWebLog::AddLogEntry_ELF(CyhookHandler *hh)
 	std::string request_startline = 	hh->UrlData["startline"].c_str();
 	std::string cs_uri			= hh->UrlData["fullurl"];
 	int sc_status = hh->httpStatus;
-	int bytes	= hh->GetContentLength();
+	off_t bytes	= hh->GetContentLength();
 	int cached = (hh->HookVarList["CacheCategory"].empty()) ? 0 : 1;
 
 	struct tm *time_now;
@@ -339,7 +338,7 @@ void CmWebLog::AddLogEntry_ELF(CyhookHandler *hh)
 	std::string time_taken_response = hh->HookVarList["enlapsed_response"];
 	long time_taken = atoi(time_taken_request.c_str()) + atoi(time_taken_response.c_str());
 
-	printf("%s %s %s \"%s\" %s %d %s %d %ld %s %s %d\n",
+	printf("%s %s %s \"%s\" %s %d %s %d %ld %s %s %lld\n",
 		c_ip.c_str(),
 		_date,
 		_time,
@@ -347,7 +346,7 @@ void CmWebLog::AddLogEntry_ELF(CyhookHandler *hh)
 		cs_uri.c_str(),
 		sc_status,
 		cs_method.c_str(),
-		bytes,
+		(long long) bytes,
 		time_taken,
 		time_taken_request.c_str(),
 		time_taken_response.c_str(),

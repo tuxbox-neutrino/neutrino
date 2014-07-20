@@ -5,6 +5,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <algorithm>
 
 // system
 #include <arpa/inet.h>
@@ -12,6 +13,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -310,31 +312,46 @@ bool CySocket::CheckSocketOpen() {
 // BASIC Send File over Socket for FILE*
 // fd is an opened FILE-Descriptor
 //-----------------------------------------------------------------------------
-int CySocket::SendFile(int filed) {
+bool CySocket::SendFile(int filed, off_t start, off_t size) {
 	if (!isValid)
 		return false;
-#ifdef Y_CONFIG_HAVE_SENDFILE
 	// does not work with SSL !!!
-	off_t start = 0;
-	off_t end = lseek(filed,0,SEEK_END);
-	int written = 0;
-	if((written = ::sendfile(sock,filed,&start,end)) == -1)
-	{
-		perror("sendfile failed\n");
+	struct stat st;
+	fstat(filed, &st);
+	off_t left = st.st_size - start;
+	off_t written = 0;
+	if (size > -1 && size < left)
+		left = size;
+#ifdef Y_CONFIG_HAVE_SENDFILE
+	while (left > 0) {
+		// split sendfile() transfer to smaller chunks to reduce memory-mapping requirements
+		if((written = ::sendfile(sock, filed, &start, std::min((off_t) 0x8000000LL, left))) == -1) {
+			if (errno != EPIPE)
+				perror("sendfile failed");
+			if (errno != EINVAL)
 		return false;
+			break;
+		} else {
+			BytesSend += written;
+			left -= written;
 	}
-	else
-	BytesSend += written;
-#else
-	char sbuf[1024];
-	unsigned int r = 0;
-	while ((r = read(filed, sbuf, 1024)) > 0) {
-		if (Send(sbuf, r) < 0) {
-			perror("sendfile failed\n");
-			return false;
-		}
 	}
 #endif // Y_CONFIG_HAVE_SENDFILE
+	if (left > 0) {
+		::lseek(filed, start, SEEK_SET);
+
+		char sbuf[65536];
+		while (left && (written = read(filed, sbuf, std::min((off_t) sizeof(sbuf), left))) > 0) {
+			if (Send(sbuf, written) < 0) {
+				if (errno != EPIPE)
+					perror("send failed");
+				return false;
+			}
+			BytesSend += written;
+			left -= written;
+		}
+	}
+
 	log_level_printf(9, "<Sock:SendFile>: Bytes:%ld\n", BytesSend);
 	return true;
 }

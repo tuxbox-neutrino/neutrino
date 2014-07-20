@@ -71,7 +71,7 @@ public:
 	bool 		CheckSocketOpen();				// check if socket was closed by client
 	
 	// send & receive
-	int 		SendFile(int filed);				// Send a File
+	bool 		SendFile(int filed, off_t start = 0, off_t size = -1); // Send a File
 	std::string 	ReceiveBlock();					// receive a Block. Look at length
 	unsigned int	ReceiveFileGivenLength(int filed, unsigned int _length); // Receive File of given length
 	std::string 	ReceiveLine();					// receive until "\n"

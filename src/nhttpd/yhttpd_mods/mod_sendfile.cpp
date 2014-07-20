@@ -113,8 +113,22 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 
 			// Send normal or not-modified header
 			if (modified) {
-				hh->SendFile(fullfilename);
-				hh->ResponseMimeType = mime;
+				hh->RangeStart = 0;
+				hh->RangeEnd = hh->ContentLength - 1;
+				const char *range = (hh->HeaderList["Range"] == "") ? NULL : hh->HeaderList["Range"].c_str();
+				if ((range &&
+				     (2 != sscanf(range, "bytes=%lld-%lld", &hh->RangeStart, &hh->RangeEnd)) &&
+				     (1 != sscanf(range, "bytes=%lld-", &hh->RangeStart)))
+				 || (hh->RangeStart > hh->RangeEnd)
+				 || (hh->RangeEnd > hh->ContentLength - 1)) {
+					hh->SetError(HTTP_REQUEST_RANGE_NOT_SATISFIABLE);
+					aprintf("mod_sendfile: Client requested range '%s' which is outside of [0,%lld]\n", range, hh->ContentLength - 1);
+				} else {
+					hh->SendFile(fullfilename);
+					hh->ResponseMimeType = mime;
+					if (hh->RangeStart && (hh->RangeEnd != hh->ContentLength - 1))
+						hh->httpStatus = HTTP_PARTIAL_CONTENT;
+				}
 			} else
 				hh->SetHeader(HTTP_NOT_MODIFIED, mime, HANDLED_READY);
 		} else {
