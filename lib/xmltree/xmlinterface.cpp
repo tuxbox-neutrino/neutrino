@@ -42,7 +42,8 @@
 #else  /* USE_LIBXML */
 #include "xmltok.h"
 #endif /* USE_LIBXML */
-
+#include <fcntl.h>
+#include <stdio.h>
 
 unsigned long xmlGetNumericAttribute(const xmlNodePtr node, const char *name, const int base)
 {
@@ -238,6 +239,9 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 		}
 	}
 	while (!done);
+
+	if (posix_fadvise(fileno(xml_file), 0, 0, POSIX_FADV_DONTNEED) != 0)
+		perror("posix_fadvise FAILED!");
 
 	fclose(xml_file);
 
