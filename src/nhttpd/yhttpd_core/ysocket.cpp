@@ -329,7 +329,7 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 			if (errno != EPIPE)
 				perror("sendfile failed");
 			if (errno != EINVAL)
-		return false;
+				return false;
 			break;
 		} else {
 			BytesSend += written;

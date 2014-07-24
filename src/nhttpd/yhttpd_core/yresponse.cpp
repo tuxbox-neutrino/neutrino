@@ -140,7 +140,8 @@ bool CWebserverResponse::SendResponse() {
 		//			cache = false;
 		Write(Connection->HookHandler.BuildHeader(cache));
 		if (Connection->Method != M_HEAD)
-			Sendfile(Connection->Request.UrlData["url"], Connection->HookHandler.RangeStart, Connection->HookHandler.RangeEnd - Connection->HookHandler.RangeStart + 1);
+			Sendfile(Connection->Request.UrlData["url"], Connection->HookHandler.RangeStart,
+				(Connection->HookHandler.RangeStart == 0 && Connection->HookHandler.RangeEnd == -1) ? -1 : Connection->HookHandler.RangeEnd - Connection->HookHandler.RangeStart + 1);
 		return true;
 	}
 	if (Connection->HookHandler.status == HANDLED_SENDFILE && Connection->HookHandler.httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE) {
