@@ -65,8 +65,6 @@
 extern Zapit_config zapitCfg;
 extern char zapit_lat[20];
 extern char zapit_long[20];
-/* ugly */
-extern CHintBox *reloadhintBox;
 
 //static int all_usals = 1;
 //sat_iterator_t sit;
@@ -252,14 +250,13 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "reloadchannels")
 	{
 		printf("[neutrino] CScanSetup::%s reloadchannels...\n", __FUNCTION__);
-		if (reloadhintBox)
-			reloadhintBox->paint();
+		CHintBox chb(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT));
+		chb.paint();
 		/* save if changed, to make sure NEW/REMOVED/... flags are updated */
 		CServiceManager::getInstance()->SaveServices(true, true);
 		/* Z->reinitChannels triggers EVT_SERVICESCHANGED and this triggers channelsInit() */
 		g_Zapit->reinitChannels();
-		if (reloadhintBox)
-			reloadhintBox->hide();
+		chb.hide();
 		CNeutrinoApp::getInstance ()->SDTreloadChannels = false;
 		if(file_exists(CURRENTSERVICES_XML)){
 			unlink(CURRENTSERVICES_XML);
