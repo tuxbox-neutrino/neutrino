@@ -1060,13 +1060,16 @@ bool CFileBrowser::exec(const char * const dirname)
 
 	if(res && Multi_Select)
 	{
-		CProgressWindow * progress = new CProgressWindow();
-		progress->setTitle(LOCALE_FILEBROWSER_SCAN);
-		progress->exec(NULL,"");
+		CProgressWindow * progress = NULL;
 		for(unsigned int i = 0; i < filelist.size();i++)
 			if(filelist[i].Marked)
 			{
 				if(S_ISDIR(filelist[i].Mode)) {
+					if (!progress) {
+						progress = new CProgressWindow();
+						progress->setTitle(LOCALE_FILEBROWSER_SCAN);
+						progress->exec(NULL,"");
+					}
 #ifdef ENABLE_INTERNETRADIO
 					if (m_Mode == ModeSC)
 						addRecursiveDir(&selected_filelist,filelist[i].Url, true, progress);
@@ -1076,8 +1079,10 @@ bool CFileBrowser::exec(const char * const dirname)
 				} else
 					selected_filelist.push_back(filelist[i]);
 			}
-		progress->hide();
-		delete progress;
+		if (progress) {
+			progress->hide();
+			delete progress;
+		}
 	}
 
 	return res;
