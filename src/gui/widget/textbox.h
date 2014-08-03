@@ -139,7 +139,7 @@ class CTextBox
 		int m_nNrOfPages;
 		int m_nNrOfLines;
 		int m_nNrOfNewLine;
-		int m_nMaxLineWidth;
+
 		int m_nLinesPerPage;
 		int m_nCurrentLine;
 		int m_nCurrentPage;
@@ -193,7 +193,7 @@ class CTextBox
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
-		inline	int	getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
+		inline	int	getMaxLineWidth(void)		{return(m_nMaxTextWidth);};
 		inline  int     getLines(void)			{return(m_nNrOfLines);};
 		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
