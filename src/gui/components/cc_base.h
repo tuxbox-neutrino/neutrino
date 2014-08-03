@@ -27,6 +27,7 @@
 #define __COMPONENTS__
 
 #include "cc_types.h"
+#include "cc_signals.h"
 #include <gui/widget/textbox.h>
 #include <vector>
 #include <string>
@@ -38,7 +39,7 @@
 Basic attributes and member functions for component sub classes
 */
 
-class CComponents : public COSDFader
+class CComponents : public CComponentsSignals, public COSDFader
 {
 	private:
 		///pixel buffer handling, returns pixel buffer depends of given parameters
