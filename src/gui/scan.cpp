@@ -221,6 +221,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.fec_inner = (fe_code_rate_t) scansettings.sat_TP_fec;
 			TP.feparams.polarization = scansettings.sat_TP_pol;
 			TP.feparams.delsys = (delivery_system_t)scansettings.sat_TP_delsys;
+			TP.feparams.modulation = (fe_modulation_t) scansettings.sat_TP_mod;
 		} else if (CFrontend::isTerr(delsys)) {
 			/* DVB-T. TODO: proper menu and parameter setup, not all "AUTO" */
 			TP.feparams.frequency = atoi(scansettings.terrestrial_TP_freq.c_str());

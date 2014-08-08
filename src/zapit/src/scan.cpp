@@ -259,19 +259,9 @@ _repeat:
 			failedtransponders.insert(transponder_pair_t(t.transponder_id, t));
 			continue;
 		}
-		scanedtransponders.insert(transponder_pair_t(t.transponder_id, t));
 
 		if(abort_scan)
 			return false;
-		/* partial compare with existent transponders, update params if found */
-		for (stiterator ttI = transponders.begin(); ttI != transponders.end(); ++ttI) {
-			if(t == ttI->second) {
-				ttI->second.dump("[scan] similar tp, old");
-				t.dump("[scan] similar tp, new");
-				ttI->second.feparams = t.feparams;
-				break;
-			}
-		}
 
 		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, !CFrontend::isSat(tI->second.feparams.delsys));
 
@@ -310,7 +300,19 @@ _repeat:
 #endif
 		if(!sdt_parsed) {
 			printf("[scan] SDT failed !\n");
+			failed_transponders++;
+			failedtransponders.insert(transponder_pair_t(t.transponder_id, t));
 			continue;
+		}
+		scanedtransponders.insert(transponder_pair_t(t.transponder_id, t));
+		/* partial compare with existent transponders, update params if found */
+		for (stiterator ttI = transponders.begin(); ttI != transponders.end(); ++ttI) {
+			if(t == ttI->second) {
+				ttI->second.dump("[scan] similar tp, old");
+				t.dump("[scan] similar tp, new");
+				ttI->second.feparams = t.feparams;
+				break;
+			}
 		}
 
 		transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,

@@ -84,6 +84,8 @@ bool transponder::compare(const transponder& t) const
 		ret = (
 				(t == (*this)) &&
 				(getFEParams()->symbol_rate == t.getFEParams()->symbol_rate) &&
+				(getFEParams()->delsys == t.getFEParams()->delsys) &&
+				(getFEParams()->modulation == t.getFEParams()->modulation) &&
 				(getFEParams()->fec_inner == t.getFEParams()->fec_inner ||
 				 getFEParams()->fec_inner == FEC_AUTO || t.getFEParams()->fec_inner == FEC_AUTO)
 		      );
@@ -149,15 +151,16 @@ void transponder::dump(std::string label)
 				getFEParams()->symbol_rate,
 				getFEParams()->fec_inner,
 				getFEParams()->modulation,
-				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
+				getFEParams()->delsys);
 	} else if (CFrontend::isSat(feparams.delsys)) {
-		printf("%s tp-id %016" PRIx64 " freq %d rate %d fec %d pol %d sys %d\n", label.c_str(),
+		printf("%s tp-id %016" PRIx64 " freq %d rate %d fec %d pol %d mod %d sys %d\n", label.c_str(),
 				transponder_id,
 				getFEParams()->frequency,
 				getFEParams()->symbol_rate,
 				getFEParams()->fec_inner,
 				getFEParams()->polarization,
-				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
+				getFEParams()->modulation,
+				getFEParams()->delsys);
 	} else if (CFrontend::isTerr(feparams.delsys)) {
 		printf("%s tp-id %016llx freq %d bw %d coderate_HP %d coderate_LP %d const %d guard %d %d\n", label.c_str(),
 				transponder_id,
@@ -167,7 +170,7 @@ void transponder::dump(std::string label)
 				getFEParams()->code_rate_LP,
 				getFEParams()->modulation,
 				getFEParams()->guard_interval,
-				CFrontend::getXMLDeliverySystem(getFEParams()->delsys));
+				getFEParams()->delsys);
 	}
 }
 

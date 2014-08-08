@@ -718,14 +718,18 @@ void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
 	return getDelSys(getCurrentDeliverySystem(), f, m, fec, sys, mod);
 }
 
-void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_code_rate_t & fec)
+void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_modulation_t &mod, fe_code_rate_t & fec)
 {
-	if ((int)xmlfec < FEC_S2_QPSK_1_2)
+	if ((int)xmlfec < FEC_S2_QPSK_1_2) {
 		delsys = DVB_S;
-	else if ((int)xmlfec < FEC_S2_8PSK_1_2)
+		mod = QPSK;
+	} else if ((int)xmlfec < FEC_S2_8PSK_1_2) {
 		delsys = DVB_S2;
-	else
+		mod = QPSK;
+	} else {
 		delsys = DVB_S2;
+		mod = PSK_8;
+	}
 
 	switch ((int)xmlfec) {
 	case FEC_1_2:
@@ -787,16 +791,21 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, char *&fec, ch
 {
 	switch (delsys) {
 	case DVB_S:
+		sys = (char *)"DVB";
+		mod = (char *)"QPSK";
+		break;
 	case DVB_S2:
-		if (f < FEC_S2_QPSK_1_2) {
-			sys = (char *)"DVB";
+		sys = (char *)"DVB-S2";
+		switch (m) {
+		case QPSK:
 			mod = (char *)"QPSK";
-		} else if (f < FEC_S2_8PSK_1_2) {
-			sys = (char *)"DVB-S2";
-			mod = (char *)"QPSK";
-		} else {
-			sys = (char *)"DVB-S2";
+			break;
+		case PSK_8:
 			mod = (char *)"8PSK";
+			break;
+		default:
+			printf("[frontend] unknown modulation %d!\n", m);
+			mod = (char *)"UNKNOWN";
 		}
 		break;
 	case DVB_C:
@@ -861,54 +870,40 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, char *&fec, ch
 
 	switch (f) {
 	case FEC_1_2:
-	case FEC_S2_QPSK_1_2:
-	case FEC_S2_8PSK_1_2:
 		fec = (char *)"1/2";
 		break;
 	case FEC_2_3:
-	case FEC_S2_QPSK_2_3:
-	case FEC_S2_8PSK_2_3:
 		fec = (char *)"2/3";
 		break;
 	case FEC_3_4:
-	case FEC_S2_QPSK_3_4:
-	case FEC_S2_8PSK_3_4:
 		fec = (char *)"3/4";
 		break;
-	case FEC_S2_QPSK_3_5:
-	case FEC_S2_8PSK_3_5:
-		fec = (char *)"3/5";
-		break;
 	case FEC_4_5:
-	case FEC_S2_QPSK_4_5:
-	case FEC_S2_8PSK_4_5:
 		fec = (char *)"4/5";
 		break;
 	case FEC_5_6:
-	case FEC_S2_QPSK_5_6:
-	case FEC_S2_8PSK_5_6:
 		fec = (char *)"5/6";
 		break;
 	case FEC_6_7:
 		fec = (char *)"6/7";
 		break;
 	case FEC_7_8:
-	case FEC_S2_QPSK_7_8:
-	case FEC_S2_8PSK_7_8:
 		fec = (char *)"7/8";
 		break;
 	case FEC_8_9:
-	case FEC_S2_QPSK_8_9:
-	case FEC_S2_8PSK_8_9:
 		fec = (char *)"8/9";
 		break;
-	case FEC_S2_QPSK_9_10:
-	case FEC_S2_8PSK_9_10:
+	case FEC_3_5:
+		fec = (char *)"3/5";
+		break;
+	case FEC_9_10:
 		fec = (char *)"9/10";
+		break;
+	case FEC_2_5:
+		fec = (char *)"2/3";
 		break;
 	default:
 		printf("[frontend] getDelSys: unknown FEC: %d !!!\n", f);
-	case FEC_S2_AUTO:
 	case FEC_AUTO:
 		fec = (char *)"AUTO";
 		break;
@@ -1053,38 +1048,22 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	 * properly defined in the enum, thus the compiler complains... :-( */
 	switch ((int)fec_inner) {
 	case FEC_1_2:
-	case FEC_S2_QPSK_1_2:
-	case FEC_S2_8PSK_1_2:
 		fec = FEC_1_2;
 		break;
 	case FEC_2_3:
-	case FEC_S2_QPSK_2_3:
-	case FEC_S2_8PSK_2_3:
 		fec = FEC_2_3;
 		if (feparams->delsys == DVB_S2 && feparams->modulation == PSK_8)
 			pilot = PILOT_ON;
 		break;
 	case FEC_3_4:
-	case FEC_S2_QPSK_3_4:
-	case FEC_S2_8PSK_3_4:
 		fec = FEC_3_4;
 		if (feparams->delsys == DVB_S2 && feparams->modulation == PSK_8)
 			pilot = PILOT_ON;
 		break;
-	case FEC_S2_QPSK_3_5:
-	case FEC_S2_8PSK_3_5:
-		fec = FEC_3_5;
-		if (feparams->delsys == DVB_S2 && feparams->modulation == PSK_8)
-			pilot = PILOT_ON;
-		break;
 	case FEC_4_5:
-	case FEC_S2_QPSK_4_5:
-	case FEC_S2_8PSK_4_5:
 		fec = FEC_4_5;
 		break;
 	case FEC_5_6:
-	case FEC_S2_QPSK_5_6:
-	case FEC_S2_8PSK_5_6:
 		fec = FEC_5_6;
 		if (feparams->delsys == DVB_S2 && feparams->modulation == PSK_8)
 			pilot = PILOT_ON;
@@ -1093,23 +1072,25 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		fec = FEC_6_7;
 		break;
 	case FEC_7_8:
-	case FEC_S2_QPSK_7_8:
-	case FEC_S2_8PSK_7_8:
 		fec = FEC_7_8;
 		break;
 	case FEC_8_9:
-	case FEC_S2_QPSK_8_9:
-	case FEC_S2_8PSK_8_9:
 		fec = FEC_8_9;
 		break;
-	case FEC_S2_QPSK_9_10:
-	case FEC_S2_8PSK_9_10:
+	case FEC_3_5:
+		fec = FEC_3_5;
+		if (feparams->delsys == DVB_S2 && feparams->modulation == PSK_8)
+			pilot = PILOT_ON;
+		break;
+	case FEC_9_10:
 		fec = FEC_9_10;
+		break;
+	case FEC_2_5:
+		fec = FEC_2_5;
 		break;
 	default:
 		printf("[fe%d] DEMOD: unknown FEC: %d\n", fenumber, fec_inner);
 	case FEC_AUTO:
-	case FEC_S2_AUTO:
 		fec = FEC_AUTO;
 		break;
 	}
@@ -1123,7 +1104,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			nrOfProps	= FE_DVBS2_PROPS;
 			memcpy(cmdseq.props, dvbs2_cmdargs, sizeof(dvbs2_cmdargs));
 
-			cmdseq.props[MODULATION].u.data	= dvbs_get_modulation(feparams->fec_inner);
+			cmdseq.props[MODULATION].u.data	= feparams->modulation;
 			cmdseq.props[ROLLOFF].u.data	= feparams->rolloff;
 			cmdseq.props[PILOTS].u.data	= pilot;
 			

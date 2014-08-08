@@ -1875,6 +1875,7 @@ void CScanSetup::updateManualSettings()
 				scansettings.sat_TP_fec = tI->second.feparams.fec_inner;
 				scansettings.sat_TP_pol = tI->second.feparams.polarization;
 				scansettings.sat_TP_delsys = tI->second.feparams.delsys;
+				scansettings.sat_TP_mod = tI->second.feparams.modulation;
 				scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
 			} else if (CFrontend::isCable(tI->second.feparams.delsys)) {
 				scansettings.cable_TP_freq = to_string(tI->second.feparams.frequency);
@@ -1974,33 +1975,22 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 
 		tmpI = tmplist.find(select);
 
-
+		tmpI->second.dump("CTPSelectHandler::exec: selected TP:");
 		if (CFrontend::isSat(tmpI->second.feparams.delsys)) {
-			printf("CTPSelectHandler::exec: selected TP: freq %d pol %d SR %d\n",
-			       tmpI->second.feparams.frequency,
-			       tmpI->second.feparams.polarization,
-			       tmpI->second.feparams.symbol_rate);
 			scansettings.sat_TP_freq = to_string(tmpI->second.feparams.frequency);
 			scansettings.sat_TP_rate = to_string(tmpI->second.feparams.symbol_rate);
 			scansettings.sat_TP_fec = tmpI->second.feparams.fec_inner;
 			scansettings.sat_TP_pol = tmpI->second.feparams.polarization;
+			scansettings.sat_TP_delsys = tmpI->second.feparams.delsys;
+			scansettings.sat_TP_mod = tmpI->second.feparams.modulation;
 		}
 		else if (CFrontend::isCable(tmpI->second.feparams.delsys)) {
-			printf("CTPSelectHandler::exec: selected TP: freq %d SR %d FEC %d\n",
-			       tmpI->second.feparams.frequency,
-			       tmpI->second.feparams.symbol_rate,
-			       tmpI->second.feparams.fec_inner);
-
 			scansettings.cable_TP_freq = to_string(tmpI->second.feparams.frequency);
 			scansettings.cable_TP_rate = to_string(tmpI->second.feparams.symbol_rate);
 			scansettings.cable_TP_fec = tmpI->second.feparams.fec_inner;
 			scansettings.cable_TP_mod = tmpI->second.feparams.modulation;
 		}
 		else if (CFrontend::isTerr(tmpI->second.feparams.delsys)) {
-			printf("CTPSelectHandler::exec: selected TP: freq %d BW %d CON %d\n",
-			       tmpI->second.feparams.frequency,
-			       tmpI->second.feparams.bandwidth,
-			       tmpI->second.feparams.modulation);
 			scansettings.terrestrial_TP_freq = to_string(tmpI->second.feparams.frequency);
 			scansettings.terrestrial_TP_bw = tmpI->second.feparams.bandwidth;
 			scansettings.terrestrial_TP_constel = tmpI->second.feparams.modulation;
@@ -2010,9 +2000,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 			scansettings.terrestrial_TP_coderate_HP = tmpI->second.feparams.code_rate_HP;
 			scansettings.terrestrial_TP_coderate_LP = tmpI->second.feparams.code_rate_LP;
 			//scansettings.terrestrialName = CServiceManager::getInstance()->GetSatelliteName(channel->getSatellitePosition());
-
 		}
-
 	}
 
 	if (retval == menu_return::RETURN_EXIT_ALL)

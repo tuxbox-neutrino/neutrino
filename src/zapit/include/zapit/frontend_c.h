@@ -293,7 +293,7 @@ class CFrontend
 		uint32_t			getSupportedDeliverySystems(void) const;
 		static uint32_t			getXMLDeliverySystem(delivery_system_t delsys);
 		static delivery_system_t	getZapitDeliverySystem(uint32_t);
-		static void getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_code_rate_t & fec);
+		static void getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_modulation_t &mod, fe_code_rate_t & fec);
 		static fe_delivery_system_t	getFEDeliverySystem(delivery_system_t Delsys);
 		static uint32_t			getFEBandwidth(fe_bandwidth_t bandwidth);
 		const char*			getName(void) const { return info.name; }

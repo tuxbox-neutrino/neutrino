@@ -354,7 +354,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 				fe_code_rate_t fec = (fe_code_rate_t)xmlGetNumericAttribute(node, "fec", 0);
 
 				if (CFrontend::isSat(delsys)) // translate old fec enum to new.
-					CFrontend::getXMLDelsysFEC(fec, feparams.delsys, feparams.fec_inner);
+					CFrontend::getXMLDelsysFEC(fec, feparams.delsys, feparams.modulation, feparams.fec_inner);
 				else if (CFrontend::isCable(delsys))
 					feparams.delsys = DVB_C;
 				
@@ -365,10 +365,15 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 
 		if (CFrontend::isSat(delsys)) {
 			feparams.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
-			feparams.modulation  = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
+			feparams.polarization = xmlGetNumericAttribute(node, "pol", 0);
 
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
+			if(feparams.symbol_rate < 50000)
+				feparams.symbol_rate = feparams.symbol_rate * 1000;
+
+			if(feparams.frequency < 20000)
+				feparams.frequency = feparams.frequency*1000;
+			else
+				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 		}
 		else if (CFrontend::isTerr(delsys)) {
 			//<TS id="0001" on="7ffd" frq="650000" inv="2" bw="3" hp="9" lp="9" con="6" tm="2" gi="0" hi="4" sys="6">
@@ -387,24 +392,18 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		else if (CFrontend::isCable(delsys)) {
 			feparams.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
 			feparams.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
-			feparams.polarization = xmlGetNumericAttribute(node, "pol", 0);
 			feparams.modulation  = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
 
-			if(feparams.symbol_rate < 50000)
-				feparams.symbol_rate = feparams.symbol_rate * 1000;
-
-			if(feparams.frequency < 20000)
-				feparams.frequency = feparams.frequency*1000;
-			else
-				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			if (feparams.frequency > 1000*1000)
+				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
 		}
 
 		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, !CFrontend::isSat(delsys));
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		transponder t(tid, feparams);
-		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
 
+		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
 		ret = transponders.insert(transponder_pair_t(tid, t));
 		if (ret.second == false)
 			t.dump("[zapit] duplicate in all transponders:");
@@ -653,8 +652,10 @@ void CServiceManager::ParseSatTransponders(delivery_system_t delsys, xmlNodePtr 
 
 			int xml_fec = xmlGetNumericAttribute(tps, "fec_inner", 0);
 			xml_fec = CFrontend::getCodeRate(xml_fec, feparams.delsys);
+#if 0
 			if(modulation == 2 && ((fe_code_rate_t) xml_fec != FEC_AUTO))
 				xml_fec += 9;
+#endif
 			feparams.fec_inner = (fe_code_rate_t) xml_fec;
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 		}
