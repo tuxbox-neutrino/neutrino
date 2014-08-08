@@ -84,18 +84,17 @@ class CServiceManager
 		bool have_numbers;
 		bool dup_numbers;
 
-		fe_type_t frontendType;
 		satellite_map_t satellitePositions;
 		sat_transponder_map_t satelliteTransponders;
 
-		bool ParseScanXml(fe_type_t delsys);
-		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, fe_type_t delsys);
-		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization, fe_type_t delsys);
+		bool ParseScanXml(delivery_system_t delsys);
+		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, delivery_system_t delsys);
+		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization, delivery_system_t delsys);
 		void FindTransponder(xmlNodePtr search);
-		void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition);
+		void ParseSatTransponders(delivery_system_t delsys, xmlNodePtr search, t_satellite_position satellitePosition);
 		int LoadMotorPositions(void);
 
-		bool LoadScanXml(fe_type_t delsys);
+		bool LoadScanXml(delivery_system_t delsys);
 
 		void WriteSatHeader(FILE * fd, sat_config_t &config);
 		void WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
@@ -110,7 +109,7 @@ class CServiceManager
 
 		static void CopyFile(char * from, char * to);
 
-		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false, int deltype = FE_QPSK);
+		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false, delivery_system_t delsys = DVB_S, uint16_t nid = 0);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy, bool if_changed = false, bool no_deleted = false);
 		void SaveMotorPositions();

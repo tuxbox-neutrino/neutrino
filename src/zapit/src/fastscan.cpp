@@ -57,19 +57,21 @@ extern transponder_list_t transponders; //  defined in zapit.cpp
 
 typedef struct diseq_test_param {
 	int position;
-	int frequency;
-	int symbol_rate;
+	uint32_t frequency;
+	uint32_t symbol_rate;
 	fe_code_rate_t fec_inner;
 	int polarization;
+	fe_modulation_t modulation;
+	delivery_system_t delsys;
 } diseq_test_param_t;
 
 diseq_test_param_t diseqc_test[] = {
 	// { 192, 12515000, 22000000, FEC_5_6, 0 }, // test TP
-	{ 192, 12552000, 22000000, FEC_5_6,         1 },
-	{ 235, 12168000, 27500000, FEC_3_4,         1 },
-	{ 282, 11778000, 27500000, FEC_2_3,         1 }, // FIXME: no such TP on lyngsat ??
-	{ 130, 11681000, 27500000, FEC_S2_8PSK_3_4, 0 },
-	{ 90,  12074000, 27500000, FEC_S2_8PSK_3_4, 1 },
+	{ 192, 12552000, 22000000, FEC_5_6, 1, QPSK , DVB_S  },
+	{ 235, 12168000, 27500000, FEC_3_4, 1, QPSK , DVB_S  },
+	{ 282, 11778000, 27500000, FEC_2_3, 1, QPSK , DVB_S  }, // FIXME: no such TP on lyngsat ??
+	{ 130, 11681000, 27500000, FEC_3_4, 0, PSK_8, DVB_S2 },
+	{ 90,  12074000, 27500000, FEC_3_4, 1, PSK_8, DVB_S2 },
 };
 #define diseqc_test_count (sizeof(diseqc_test)/sizeof(diseq_test_param_t))
 
@@ -97,14 +99,19 @@ bool CServiceScan::TestDiseqcConfig(int num)
 				continue;
 
 			FrontendParameters feparams;
-			feparams.dvb_feparams.frequency = diseqc_test[i].frequency;
-			feparams.dvb_feparams.u.qpsk.symbol_rate = diseqc_test[i].symbol_rate;
-			feparams.dvb_feparams.u.qpsk.fec_inner = diseqc_test[i].fec_inner;
+			memset(&feparams, 0, sizeof(feparams));
+
+			feparams.frequency = diseqc_test[i].frequency;
+			feparams.symbol_rate = diseqc_test[i].symbol_rate;
+			feparams.fec_inner = diseqc_test[i].fec_inner;
+			feparams.delsys = diseqc_test[i].delsys;
+			feparams.modulation = diseqc_test[i].modulation;
+			feparams.polarization = diseqc_test[i].polarization;
 
 			int old_diseqc = satmap[diseqc_test[i].position].diseqc;
 			satmap[diseqc_test[i].position].diseqc = diseqc;
 
-			if (tuneFrequency(&feparams, diseqc_test[i].polarization, diseqc_test[i].position)) {
+			if (tuneFrequency(&feparams, diseqc_test[i].position)) {
 				scanned.insert(diseqc_test[i].position);
 				break;
 			}
@@ -142,15 +149,15 @@ void CServiceScan::InitFastscanLnb(int id)
 	SetFrontend(192);
 }
 
-void CServiceScan::ReportFastScan(FrontendParameters &feparams, uint8_t polarization, t_satellite_position satellitePosition)
+void CServiceScan::ReportFastScan(FrontendParameters &feparams,  t_satellite_position satellitePosition)
 {
 	if (quiet_fastscan)
 		return;
 
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
-	uint32_t actual_polarisation = ((feparams.dvb_feparams.u.qpsk.symbol_rate/1000) << 16)
-		| (feparams.dvb_feparams.u.qpsk.fec_inner << 8) | (uint)polarization;
-	uint32_t actual_freq = feparams.dvb_feparams.frequency;
+	uint32_t actual_polarisation = ((feparams.symbol_rate/1000) << 16)
+		| (feparams.fec_inner << 8) | (uint)feparams.polarization;
+	uint32_t actual_freq = feparams.frequency;
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, satname.c_str(), satname.size() + 1);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
@@ -159,9 +166,10 @@ void CServiceScan::ReportFastScan(FrontendParameters &feparams, uint8_t polariza
 
 bool CServiceScan::FastscanTune(int id)
 {
-	uint8_t polarization;
 	FrontendParameters feparams;
 	bool res = true;
+
+	memset(&feparams, 0, sizeof(feparams));
 
 	if (tune_tp_index >= FAST_TUNE_TPS) {
 		printf("[fast scan] no more TPs to try, exiting\n");
@@ -170,12 +178,14 @@ bool CServiceScan::FastscanTune(int id)
 
 	if (tune_tp_index == 0) {
 		printf("[fast scan] try tuning to main TP\n");
-		feparams.dvb_feparams.frequency = 12070000;
-		feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
-		feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
-		polarization = 0;
-		ReportFastScan(feparams, polarization, 235);
-		res = tuneFrequency(&feparams, polarization, 235);
+		feparams.delsys = DVB_S;
+		feparams.modulation = QPSK;
+		feparams.frequency = 12070000;
+		feparams.symbol_rate = 27500000;
+		feparams.fec_inner = FEC_3_4;
+		feparams.polarization = 0;
+		ReportFastScan(feparams, 235);
+		res = tuneFrequency(&feparams, 235);
 	}
 
 	// if TP 0 lock failed or TP 0 lock succeeded but no fastscan data arrived
@@ -184,18 +194,23 @@ bool CServiceScan::FastscanTune(int id)
 	if (tune_tp_index == 1 || !res) {
 		printf("[fast scan] tune failed, try backup\n");
 		if (id == HELLO_OPERATOR_ID) {
-			feparams.dvb_feparams.frequency = 12074000;
-			feparams.dvb_feparams.u.qpsk.symbol_rate = 27500000;
-			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_3_4;
-			polarization = 1;
-			ReportFastScan(feparams, polarization, 90);
-			res = tuneFrequency(&feparams, polarization, 90);
+			feparams.delsys = DVB_S;
+			feparams.modulation = QPSK;
+			feparams.frequency = 12074000;
+			feparams.symbol_rate = 27500000;
+			feparams.fec_inner = FEC_3_4;
+			feparams.polarization = 1;
+			ReportFastScan(feparams, 90);
+			res = tuneFrequency(&feparams, 90);
 		} else {
-			feparams.dvb_feparams.frequency = 12515000;
-			feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
-			feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
-			ReportFastScan(feparams, polarization, 192);
-			res = tuneFrequency(&feparams, polarization, 192);
+			feparams.delsys = DVB_S;
+			feparams.modulation = QPSK;
+			feparams.frequency = 12515000;
+			feparams.symbol_rate = 22000000;
+			feparams.fec_inner = FEC_5_6;
+			feparams.polarization = 0;
+			ReportFastScan(feparams, 192);
+			res = tuneFrequency(&feparams, 192);
 		}
 	}
 
@@ -471,7 +486,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 									service_type,
 									satellitePosition,
 									freq);
-							newchannel->deltype = FE_QPSK;
+							newchannel->delsys = frontend->getCurrentDeliverySystem();
 							newchannel->flags = CZapitChannel::NEW | CZapitChannel::FASTSCAN;
 							CServiceManager::getInstance()->AddChannel(newchannel);
 						} else {
@@ -486,7 +501,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						newchannel->number = num;
 
 						char pname[100];
-						if (frontend->getInfo()->type == FE_QPSK)
+						if (CFrontend::isSat(frontend->getCurrentDeliverySystem()))
 							snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs((int)satellitePosition)/10, abs((int)satellitePosition)%10, providerName.c_str());
 						else
 							snprintf(pname, 100, "%s", providerName.c_str());
@@ -573,8 +588,6 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 
 	mask[0] = mask[1] = mask[2] = 0xFF;
 
-	frontendType = FE_QPSK;
-
 	printf("[FNT] scaning pid %d operator %d\n", pid, operator_id);
 	if (dmx->sectionFilter(pid, filter, mask, 3, 3000) < 0) {
 		delete dmx;
@@ -637,7 +650,6 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 			original_network_id = (buffer[pos + 2] << 8) | buffer[pos + 3];
 			transport_descriptors_length = ((buffer[pos + 4] & 0x0F) << 8) | buffer[pos + 5];
 			FrontendParameters feparams;
-			uint8_t polarization;
 			t_satellite_position satellitePosition = 0;
 			freq_id_t freq = 0;
 
@@ -651,12 +663,12 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 							transponder_id_t TsidOnid;
 							stiterator stI;
 
-							process_satellite_delivery_system_descriptor(buffer + pos2, &feparams, &polarization, &satellitePosition);
-							freq = feparams.dvb_feparams.frequency / 1000;
+							process_satellite_delivery_system_descriptor(buffer + pos2, &feparams, &satellitePosition);
+							freq = feparams.frequency / 1000;
 							TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, original_network_id, transport_stream_id);
 							stI = transponders.find(TsidOnid);
 							if(stI == transponders.end()) {
-								transponder t(frontendType, TsidOnid, feparams, polarization);
+								transponder t(TsidOnid, feparams);
 								transponders.insert(transponder_pair_t(TsidOnid, t));
 							}
 							found_transponders++;
@@ -728,12 +740,12 @@ void CServiceScan::process_service_list_descriptor(const unsigned char * const b
 	}
 }
 
-void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition)
+void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, t_satellite_position * satellitePosition)
 {
         stiterator tI;
-        int modulationSystem, modulationType, /*rollOff,*/ fec_inner;
+        int modulationSystem, modulationType, rollOff, fec_inner;
 
-        feparams->dvb_feparams.frequency = (
+        feparams->frequency = (
                  ((buffer[2] >> 4)      * 100000000) +
                  ((buffer[2] & 0x0F)    * 10000000) +
                  ((buffer[3] >> 4)      * 1000000) +
@@ -750,13 +762,13 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
                  ((buffer[7] >> 4)      * 10) +
                  ((buffer[7] & 0x0F)    * 1)
 	);
-        feparams->dvb_feparams.inversion = INVERSION_AUTO;
+        feparams->inversion = INVERSION_AUTO;
 
-        //rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
+        rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
         modulationSystem = (buffer[8] >> 2) & 0x01; // 1= DVB_S2
         modulationType = (buffer[8]) & 0x03; // 1=QPSK, 2=M8PSK
 
-        feparams->dvb_feparams.u.qpsk.symbol_rate = (
+        feparams->symbol_rate = (
                  ((buffer[9] >> 4)      * 100000000) +
                  ((buffer[9] & 0x0F)    * 10000000) +
                  ((buffer[10] >> 4)     * 1000000) +
@@ -766,23 +778,30 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
                  ((buffer[12] >> 4)     * 100)
                 );
 
-        fec_inner = CFrontend::getCodeRate(buffer[12] & 0x0F, modulationSystem);
+	if (modulationSystem == 0) {
+		feparams->delsys = DVB_S;
+		feparams->rolloff = ROLLOFF_35; // default for DVB-S
+	} else {
+		feparams->delsys = DVB_S2;
+		feparams->rolloff = CFrontend::getRolloff(rollOff);
+	}
+
+        fec_inner = CFrontend::getCodeRate(buffer[12] & 0x0F, feparams->delsys);
         if(modulationType == 2)
                 fec_inner += 9;
 
-        feparams->dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
-
-        * polarization = (buffer[8] >> 5) & 0x03;
+        feparams->fec_inner = (fe_code_rate_t) fec_inner;
+        feparams->polarization = (buffer[8] >> 5) & 0x03;
 
         /* workarounds for braindead broadcasters (e.g. on Telstar 12 at 15.0W) */
-        if (feparams->dvb_feparams.frequency >= 100000000)
-                feparams->dvb_feparams.frequency /= 10;
-        if (feparams->dvb_feparams.u.qpsk.symbol_rate >= 50000000)
-                feparams->dvb_feparams.u.qpsk.symbol_rate /= 10;
+        if (feparams->frequency >= 100000000)
+                feparams->frequency /= 10;
+        if (feparams->symbol_rate >= 50000000)
+                feparams->symbol_rate /= 10;
 
-        feparams->dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams->dvb_feparams.frequency / (double) 1000);
+        feparams->frequency = (int) 1000 * (int) round ((double) feparams->frequency / (double) 1000);
 
 #ifdef SCAN_DEBUG
-	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->dvb_feparams.frequency, feparams->dvb_feparams.u.qpsk.symbol_rate, fec_inner, * polarization);
+	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->frequency, feparams->symbol_rate, fec_inner, feparams->polarization);
 #endif
 }

@@ -102,11 +102,11 @@ bool CFEManager::Init()
 				INFO("add fe %d", fe->fenumber);
 				if(livefe == NULL)
 					livefe = fe;
-				if (fe->getInfo()->type == FE_QPSK)
+				if (fe->hasSat())
 					have_sat = true;
-				else if (fe->getInfo()->type == FE_QAM)
+				if (fe->hasCable())
 					have_cable = true;
-				else if (fe->isTerr())
+				if (fe->hasTerr())
 					have_terr = true;
 			} else
 				delete fe;
@@ -249,11 +249,13 @@ bool CFEManager::loadSettings()
 
 		/* default mode for first / next frontends */
 		int def_mode = def_modeX;
-		if (fe->isSat() && fsat) {
+
+		if (fe->hasSat() && fsat) {
 			fsat = false;
 			def_mode = def_mode0;
 		}
-		if (fe->isCable()) {
+
+		if (fe->hasCable()) {
 #if 0
 			if (fcable) {
 				fcable = false;
@@ -264,7 +266,8 @@ bool CFEManager::loadSettings()
 #endif
 			def_mode = CFrontend::FE_MODE_INDEPENDENT;
 		}
-		if (fe->isTerr()) {
+
+		if (fe->hasTerr()) {
 			if (fterr) {
 				fterr = false;
 				def_mode = def_mode0;
@@ -286,7 +289,7 @@ bool CFEManager::loadSettings()
 		satellite_map_t satlist = CServiceManager::getInstance()->SatelliteList();
 		for(sat_iterator_t sit = satlist.begin(); sit != satlist.end(); ++sit)
 		{
-			if (fe->getInfo()->type != sit->second.deltype)
+			if (!fe->supportsDelivery(sit->second.delsys))
 				continue;
 
 			t_satellite_position position = sit->first;
@@ -491,7 +494,7 @@ CFrontend * CFEManager::getFE(int index)
 /* compare polarization and band with fe values */
 bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 {
-	if(fe->getInfo()->type != FE_QPSK)
+	if(!fe->hasSat())
 		return true;
 
 	if(fe->tuned && (fe->getCurrentSatellitePosition() != channel->getSatellitePosition()))
@@ -520,12 +523,12 @@ CFrontend * CFEManager::getFrontend(CZapitChannel * channel)
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
 
-		if (mfe->getType() != channel->deltype)
+		if (!mfe->supportsDelivery(channel->delsys))
 			continue;
 		if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 			continue;
 
-		if (mfe->getInfo()->type == FE_QPSK) {
+		if (mfe->hasSat()) {
 			satellite_map_t & satmap = mfe->getSatellites();
 			sat_iterator_t sit = satmap.find(satellitePosition);
 			if ((sit == satmap.end()) || !sit->second.configured)
@@ -684,17 +687,17 @@ CFrontend * CFEManager::getScanFrontend(t_satellite_position satellitePosition)
 	CFrontend * frontend = NULL;
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * mfe = it->second;
-		if (mfe->isCable()) {
-			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && SAT_POSITION_CABLE(satellitePosition)) {
+		if (mfe->hasCable() && SAT_POSITION_CABLE(satellitePosition)) {
+			if (mfe->getMode() != CFrontend::FE_MODE_UNUSED) {
 				frontend = mfe;
 				break;
 			}
-		} else if (mfe->isTerr()) {
-			if ((mfe->getMode() != CFrontend::FE_MODE_UNUSED) && SAT_POSITION_TERR(satellitePosition)) {
+		} else if (mfe->hasTerr() && SAT_POSITION_TERR(satellitePosition)) {
+			if (mfe->getMode() != CFrontend::FE_MODE_UNUSED) {
 				frontend = mfe;
 				break;
 			}
-		} else {
+		} else if (mfe->hasSat()) {
 			if (mfe->getMode() == CFrontend::FE_MODE_UNUSED || CFrontend::linked(mfe->getMode()))
 				continue;
 			satellite_map_t & satmap = mfe->getSatellites();

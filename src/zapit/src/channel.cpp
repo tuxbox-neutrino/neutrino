@@ -68,7 +68,7 @@ void CZapitChannel::Init()
 	pip_demux = 2;
 	polarization = 0;
 	flags = 0;
-	deltype = FE_QPSK;
+	delsys = DVB_S;
 	bLockCount = 0;
 }
 

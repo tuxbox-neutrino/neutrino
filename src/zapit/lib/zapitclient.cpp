@@ -595,7 +595,7 @@ delivery_system_t CZapitClient::getDeliverySystem(void)
 }
 #endif
 #if 0
-bool CZapitClient::get_current_TP(TP_params* TP)
+bool CZapitClient::get_current_TP(transponder* TP)
 {
 	TP_params TP_temp;
 	send(CZapitMessages::CMD_GET_CURRENT_TP);

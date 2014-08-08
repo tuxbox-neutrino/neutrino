@@ -106,6 +106,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int showScanMenuSatFind();
 		void fillSatSelect(CMenuOptionStringChooser *select);
 		void fillCableSelect(CMenuOptionStringChooser *select);
+		void fillTerrSelect(CMenuOptionStringChooser *select);
 
 		neutrino_locale_t getModeLocale(int mode);
 		int showScanMenuFrontendSetup();

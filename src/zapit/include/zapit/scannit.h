@@ -28,6 +28,7 @@
 #include <dvbsi++/network_information_section.h>
 #include <dvbsi++/satellite_delivery_system_descriptor.h>
 #include <dvbsi++/cable_delivery_system_descriptor.h>
+#include <dvbsi++/terrestrial_delivery_system_descriptor.h>
 #include <dvbsi++/service_list_descriptor.h>
 #include <dvbsi++/logical_channel_descriptor.h>
 
@@ -39,7 +40,6 @@ class CNit : public OpenThreads::Thread
 {
 	private:
 		int dmxnum;
-		bool cable;
 
 		t_satellite_position satellitePosition;
 		t_satellite_position orbitalPosition;
@@ -55,6 +55,7 @@ class CNit : public OpenThreads::Thread
 		bool Read();
 		bool ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
+		bool ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * ts, bool hd = false);
 

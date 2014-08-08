@@ -67,7 +67,6 @@ class CServiceScan : public OpenThreads::Thread
 		int flags;
 		void * scan_arg;
 		bool satHaveChannels;
-		fe_type_t frontendType;
 
 		uint32_t fake_tid, fake_nid;
 		uint32_t found_transponders;
@@ -89,7 +88,7 @@ class CServiceScan : public OpenThreads::Thread
 
 		bool ScanProvider(t_satellite_position satellitePosition);
 		void Cleanup(const bool success);
-		bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition);
+		bool tuneFrequency(FrontendParameters *feparams, t_satellite_position satellitePosition);
 		void SendTransponderInfo(transponder &t);
 		bool ReadNitSdt(t_satellite_position satellitePosition);
 		bool AddFromNit();
@@ -100,7 +99,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool ScanProviders();
 		void SaveServices();
 		void CleanAllMaps();
-		bool ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, struct dvb_frontend_parameters * feparams, uint8_t polarization);
+		//bool ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, FrontendParameters *feparams);
 
 		/* fast scan */
 		std::map <t_channel_id, t_satellite_position> fast_services_sat;
@@ -118,9 +117,9 @@ class CServiceScan : public OpenThreads::Thread
 		bool ParseFnt(unsigned short pid, unsigned short operator_id);
 		void process_logical_service_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
 		void process_service_list_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
-		void process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition);
+		void process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, t_satellite_position * satellitePosition);
 		bool ScanFast();
-		void ReportFastScan(FrontendParameters &feparams, uint8_t polarization, t_satellite_position satellitePosition);
+		void ReportFastScan(FrontendParameters &feparams, t_satellite_position satellitePosition);
 
 		void run();
 
@@ -135,7 +134,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool Start(scan_type_t mode, void * arg);
 		bool Stop();
 
-		bool AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t polarity, bool fromnit = false);
+		bool AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams, bool fromnit = false);
 		void ChannelFound(uint8_t service_type, std::string providerName, std::string serviceName);
 		void AddServiceType(t_channel_id channel_id, uint8_t service_type);
 

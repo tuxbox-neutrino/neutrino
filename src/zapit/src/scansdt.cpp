@@ -50,7 +50,7 @@ CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 	transport_stream_id = 0;
 	original_network_id = 0;
 	//FIXME sdt update ??
-	cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
+	cable = CFEManager::getInstance()->getLiveFE()->getCurrentDeliverySystem() == DVB_C;
 }
 
 CSdt::~CSdt()
@@ -278,8 +278,8 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 
 		CZapitChannel * channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
-		channel->deltype = cable ? FE_QAM : FE_QPSK;
 
+		channel->delsys = CServiceScan::getInstance()->GetFrontend()->getCurrentDeliverySystem();
 		CServiceManager::getInstance()->AddCurrentChannel(channel);
 
 		channel->scrambled = free_ca;
@@ -326,7 +326,8 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 		channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
 		CServiceManager::getInstance()->AddChannel(channel);
-		channel->deltype = cable ? FE_QAM : FE_QPSK;
+
+		channel->delsys = CServiceScan::getInstance()->GetFrontend()->getCurrentDeliverySystem();
 		channel->flags = CZapitChannel::UPDATED;
 		/* mark channel as new, if this satellite already have channels */
 		if (CServiceScan::getInstance()->SatHaveChannels())

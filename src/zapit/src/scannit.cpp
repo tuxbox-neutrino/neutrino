@@ -40,7 +40,6 @@ CNit::CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dn
 	freq_id = frq;
 	nid = pnid;
 	dmxnum = dnum;
-	cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
 	orbitalPosition = 0;
 }
 
@@ -248,6 +247,10 @@ bool CNit::Parse()
 						ParseCableDescriptor((CableDeliverySystemDescriptor *)d, tsinfo);
 						break;
 
+					case TERRESTRIAL_DELIVERY_SYSTEM_DESCRIPTOR:
+						ParseTerrestrialDescriptor((TerrestrialDeliverySystemDescriptor *)d, tsinfo);
+						break;
+
 					case SERVICE_LIST_DESCRIPTOR:
 						ParseServiceList((ServiceListDescriptor *) d, tsinfo);
 						break;
@@ -292,7 +295,7 @@ bool CNit::Parse()
 
 bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
 {
-	if (cable)
+	if (!CServiceScan::getInstance()->GetFrontend()->hasSat())
 		return false;
 
 	t_satellite_position newSat;
@@ -317,89 +320,121 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 		return false;
 	}
 
-	uint8_t polarization = sd->getPolarization();
-	uint8_t modulation = sd->getModulation();
 	uint8_t modulation_system = sd->getModulationSystem();
+	uint8_t modulation = sd->getModulation();
 
 	FrontendParameters feparams;
+	memset(&feparams, 0, sizeof(feparams));
+	feparams.polarization = sd->getPolarization();
 
 	switch (modulation_system) {
 	case 0: // DVB-S
-		feparams.delsys = SYS_DVBS;
+		feparams.delsys = DVB_S;
 		// Hack for APSTAR 138E, 8PSK signalled but delsys set to DVB-S
 		if (modulation == 2)
-			feparams.delsys = SYS_DVBS2;
+			feparams.delsys = DVB_S2;
 		break;
 	case 1: // DVB-S2
-		feparams.delsys = SYS_DVBS2;
+		feparams.delsys = DVB_S2;
 		break;
 	default:
 #ifdef DEBUG_NIT
 		printf("NIT: undefined modulation system %08x\n", modulation_system);
 #endif
-		feparams.delsys = SYS_UNDEFINED;
+		feparams.delsys = UNKNOWN_DS;
+		break;
+	}
+	switch (modulation) {
+	case 0: // AUTO
+		feparams.modulation = QAM_AUTO;
+		break;
+	case 1: // QPSK
+		feparams.modulation = QPSK;
+		break;
+	case 2: // 8PSK
+		feparams.modulation = PSK_8;
+		break;
+	case 3: // QAM_16
+		feparams.modulation = QAM_16;
 		break;
 	}
 
-	feparams.dvb_feparams.inversion = INVERSION_AUTO;
-	feparams.dvb_feparams.frequency = sd->getFrequency() * 10;
-	feparams.dvb_feparams.u.qpsk.symbol_rate = sd->getSymbolRate() * 100;
+	feparams.inversion = INVERSION_AUTO;
+	feparams.frequency = sd->getFrequency() * 10;
+	feparams.symbol_rate = sd->getSymbolRate() * 100;
 
-	int fec_inner = CFrontend::getCodeRate(sd->getFecInner(), sd->getModulationSystem());
-	if(sd->getModulation() == 2 && ((fe_code_rate_t) fec_inner != FEC_AUTO)) {
-		if (sd->getModulationSystem() != 1)
-			fec_inner = (fec_inner - 1) + FEC_S2_8PSK_BASE;
-		else
-			fec_inner += 9;
-	}
-
-	// Set the roll-off
-	switch (sd->getRollOff()) {
-	case 0:
-	default:
+	feparams.fec_inner = CFrontend::getCodeRate(sd->getFecInner(), feparams.delsys);
+	if (feparams.delsys == DVB_S2)
+		feparams.rolloff = CFrontend::getRolloff(sd->getRollOff());
+	else
 		feparams.rolloff = ROLLOFF_35;
-		break;
-	case 1:
-		feparams.rolloff = ROLLOFF_25;
-		break;
-	case 2:
-		feparams.rolloff = ROLLOFF_20;
-		break;
-	}
 
-	feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
-	feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
+	feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 
-	freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, false);
+	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, false);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
-	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, polarization, true);
+	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, true);
 
 	return true;
 }
 
 bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
 {
-	if (!cable)
+	if (!CServiceScan::getInstance()->GetFrontend()->hasCable())
 		return false;
 
 	FrontendParameters feparams;
 
-	feparams.dvb_feparams.inversion = INVERSION_AUTO;
-	feparams.dvb_feparams.frequency = sd->getFrequency() * 100;
-	feparams.dvb_feparams.u.qam.symbol_rate = sd->getSymbolRate() * 100;
-	feparams.dvb_feparams.u.qam.fec_inner = CFrontend::getCodeRate(sd->getFecInner());
-	feparams.dvb_feparams.u.qam.modulation = CFrontend::getModulation(sd->getModulation());
+	memset(&feparams, 0, sizeof(feparams));
 
-	if(feparams.dvb_feparams.frequency > 1000*1000)
-		feparams.dvb_feparams.frequency /= 1000;
+	// FIXME: how is Annex decided in DVB-C ? Should this be done based on the receiving
+	//        system set in the tuner ? For now we hardcode this to Annex-A.
+	feparams.delsys		= DVB_C;
+	feparams.inversion	= INVERSION_AUTO;
+	feparams.frequency	= sd->getFrequency() * 100;
+	feparams.symbol_rate	= sd->getSymbolRate() * 100;
+	feparams.fec_inner	= CFrontend::getCodeRate(sd->getFecInner(), DVB_C);
+	feparams.modulation	= CFrontend::getModulation(sd->getModulation());
 
-	freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, true);
+	if(feparams.frequency > 1000*1000)
+		feparams.frequency /= 1000;
+
+	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, true);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
-	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, 0, true);
+	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, true);
+	return true;
+}
+
+bool CNit::ParseTerrestrialDescriptor(TerrestrialDeliverySystemDescriptor * sd, TransportStreamInfo * tsinfo)
+{
+	if (!CServiceScan::getInstance()->GetFrontend()->hasTerr())
+		return false;
+
+	FrontendParameters feparams;
+
+	memset(&feparams, 0, sizeof(feparams));
+
+	feparams.delsys			= DVB_T;
+	feparams.inversion		= INVERSION_AUTO;
+	feparams.frequency		= sd->getCentreFrequency() * 10;
+	feparams.code_rate_HP		= CFrontend::getCodeRate(sd->getCodeRateHpStream(), DVB_T);
+	feparams.code_rate_LP		= CFrontend::getCodeRate(sd->getCodeRateLpStream(), DVB_T);
+	feparams.modulation		= CFrontend::getConstellation(sd->getConstellation());
+	feparams.bandwidth		= CFrontend::getBandwidth(sd->getBandwidth());
+	feparams.hierarchy		= CFrontend::getHierarchy(sd->getHierarchyInformation());
+	feparams.transmission_mode	= CFrontend::getTransmissionMode(sd->getTransmissionMode());
+	if(feparams.frequency > 1000*1000)
+		feparams.frequency /= 1000;
+
+	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, true);
+	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
+			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
+
+	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, true);
 	return true;
 }
 

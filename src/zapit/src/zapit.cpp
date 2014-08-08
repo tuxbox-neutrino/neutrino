@@ -1150,7 +1150,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		}
 		if(!msgCurrentServiceInfo.fec)
 			msgCurrentServiceInfo.fec = (fe_code_rate)3;
-		if (live_fe->getInfo()->type == FE_QPSK)
+		if (CFrontend::isSat(live_fe->getCurrentDeliverySystem()))
 			msgCurrentServiceInfo.polarisation = live_fe->getPolarization();
 		else
 			msgCurrentServiceInfo.polarisation = 2;
@@ -1160,21 +1160,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_DELIVERY_SYSTEM: {
 		CZapitMessages::responseDeliverySystem response;
-		switch (live_fe->getInfo()->type) {
-		case FE_QAM:
-			response.system = DVB_C;
-			break;
-		case FE_QPSK:
-			response.system = DVB_S;
-			break;
-		case FE_OFDM:
-			response.system = DVB_T;
-			break;
-		default:
-			WARN("Unknown type %d", live_fe->getInfo()->type);
-			return false;
-
-		}
+		response.system = live_fe->getCurrentDeliverySystem();
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	}
@@ -1309,27 +1295,26 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
         case CZapitMessages::CMD_TUNE_TP: {
 			CBasicServer::receive_data(connfd, &TP, sizeof(TP));
 			sig_delay = 0;
-			TP.feparams.dvb_feparams.inversion = INVERSION_AUTO;
+			TP.feparams.inversion = INVERSION_AUTO;
 			const char *name = scanProviders.empty() ? "unknown" : scanProviders.begin()->second.c_str();
 
-			switch (live_fe->getInfo()->type) {
-			case FE_QPSK:
-			case FE_OFDM: {
+			if (CFrontend::isSat(TP.feparams.delsys)) {
 				//FIXME check scanProviders.size() !
 				t_satellite_position satellitePosition = scanProviders.begin()->first;
-				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qpsk.symbol_rate, TP.feparams.dvb_feparams.u.qpsk.fec_inner, TP.polarization);
-				live_fe->setInput(satellitePosition, TP.feparams.dvb_feparams.frequency,  TP.polarization);
+				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner, TP.feparams.polarization);
+				live_fe->setInput(satellitePosition, TP.feparams.frequency,  TP.feparams.polarization);
 				live_fe->driveToSatellitePosition(satellitePosition);
 				break;
-			}
-			case FE_QAM:
-				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qam.symbol_rate, TP.feparams.dvb_feparams.u.qam.fec_inner);
-				break;
-			default:
-				WARN("Unknown type %d", live_fe->getInfo()->type);
+			} else if (CFrontend::isCable(TP.feparams.delsys)) {
+				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner);
+			} else if (CFrontend::isTerr(TP.feparams.delsys)) {
+				printf("[zapit] tune to terr %s freq %d bw %d fec %d\n", name, TP.feparams.frequency, TP.feparams.bandwidth, TP.feparams.modulation);
+			} else {
+				WARN("Unknown type %d", TP.feparams.delsys);
 				return false;
 			}
-			live_fe->tuneFrequency(&TP.feparams, TP.polarization, true);
+
+			live_fe->tuneFrequency(&TP.feparams, true);
 		}
 		break;
         case CZapitMessages::CMD_SCAN_TP: {
@@ -1763,7 +1748,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 					satellitePosition,
 					0
 					);
-			channel->deltype = live_fe->getType();
+
+			channel->delsys = live_fe->getCurrentDeliverySystem();
 			CServiceManager::getInstance()->AddNVODChannel(channel);
 		}
 

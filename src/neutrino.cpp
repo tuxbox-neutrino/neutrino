@@ -1944,7 +1944,7 @@ TIMER_START();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 #if HAVE_COOL_HARDWARE
 	/* only SAT-hd1 before rev 8 has fan */
-	g_info.has_fan = (cs_get_revision()  < 8 && CFEManager::getInstance()->getFE(0)->getInfo()->type == FE_QPSK);
+	g_info.has_fan = (cs_get_revision()  < 8 && CFEManager::getInstance()->getFE(0)->hasSat());
 #endif
 	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
 	//fan speed
