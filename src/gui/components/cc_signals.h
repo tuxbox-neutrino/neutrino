@@ -59,13 +59,18 @@ class CYourClass : sigc::trackable //<- not forget, requierd by destructor!
 			// here we use a void* parameter, can be filled with any stuff you can cast, you can use also other types
 			void *vptr = yourStuff;
 
-			//now we create a slot...
+			//Example for connection with member function
+			//now we can create a slot with a member function of this class
 			sigc::slot0<void> sl = sigc::bind<0>(sigc::mem_fun1(*this, &CYourClass::DoThis), vptr);
-
 			//...and connect with signal in the receiver object
 			receiver.OnBeforePaint.connect(sl);
 
+			//example for single function
+			sigc::slot0<void> s2 = sigc::bind<0>(sigc::ptr_fun1(&DisplayErrorMessage), "test");
+			receiver.OnBeforePaint.connect(s2);
+
 			//thats' all. If DoThis(bla) is connected, OnBeforePaint is doing the same like the DoThis(), but in the foreign object
+			//for more details take a look into offical libsig2 documentation at http://libsigc.sourceforge.net/libsigc2/docs/
 		};
 };
 */
@@ -80,6 +85,7 @@ class CComponentsSignals : public sigc::trackable
 {
 	public:
 		CComponentsSignals(){};
+		sigc::signal<void> OnError;
 
 		sigc::signal<void> OnBeforePaint;
 		sigc::signal<void> OnAfterPaint;
