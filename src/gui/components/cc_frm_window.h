@@ -159,7 +159,7 @@ class CComponentsWindow : public CComponentsForm
 
 		///set caption in header from locales, see also getHeaderObject()
 		void setWindowCaption(neutrino_locale_t locale_text, const int& align_mode = CTextBox::NO_AUTO_LINEBREAK);
-		///set caption alignment
+		///set caption alignment, see CTextBox for possible modes
 		void setWindowCaptionAlignment(const int& align_mode){ccw_align_mode = align_mode;};
 
 		///set icon name in header, see also getHeaderObject()
