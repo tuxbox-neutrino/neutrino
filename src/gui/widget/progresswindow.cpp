@@ -52,7 +52,8 @@ void CProgressWindow::Init()
 	int y_item = 10;
 	setWidthP(75);
 	int w_item = width-2*x_item;
-	int h_item = 20;
+	int h_item = 14;
+	int h_pbar = 20;
 	w_bar_frame = 0;
 
 	//create status text object
@@ -61,27 +62,27 @@ void CProgressWindow::Init()
 	status_txt->setDimensionsAll(x_item, y_item, w_item, h_txt);
 	status_txt->setColorBody(col_body);
 	addWindowItem(status_txt);
-	y_item += 2*h_item;
+	y_item += h_txt;
 
 	//create local_bar object
 	local_bar = new CProgressBar();
-	local_bar->setDimensionsAll(x_item, y_item, w_item, h_item);
+	local_bar->setDimensionsAll(x_item, y_item, w_item, h_pbar);
 	local_bar->setColorBody(col_body);
 	local_bar->setActiveColor(COL_MENUCONTENT_PLUS_7);
 	local_bar->setFrameThickness(w_bar_frame);
 	local_bar->setColorFrame(COL_MENUCONTENT_PLUS_7);
 	addWindowItem(local_bar);
-	y_item += 2*h_item;
+	y_item += 2*h_pbar;
 
 	//create global_bar object
 	global_bar = new CProgressBar();
-	global_bar->setDimensionsAll(x_item, y_item, w_item, h_item);
+	global_bar->setDimensionsAll(x_item, y_item, w_item, h_pbar);
 	global_bar->setColorBody(col_body);
 	global_bar->setActiveColor(COL_MENUCONTENT_PLUS_7);
 	global_bar->setFrameThickness(w_bar_frame);
 	global_bar->setColorFrame(COL_MENUCONTENT_PLUS_7);
 	addWindowItem(global_bar);
-	y_item += 2*h_item;
+	y_item += 2*h_pbar;
 
 	height = y_item + ccw_head->getHeight() + 10;
 
@@ -133,7 +134,7 @@ void CProgressWindow::showStatusMessageUTF(const std::string & text)
 	string txt = text;
 	int w_txt = status_txt->getWidth();
 	int h_txt = status_txt->getHeight();
-	status_txt->setText(txt, CTextBox::CENTER, *CNeutrinoFonts::getInstance()->getDynFont(w_txt, h_txt, txt), COL_MENUCONTENT_TEXT);
+	status_txt->setText(txt, CTextBox::CENTER, *CNeutrinoFonts::getInstance()->getDynFont(w_txt, h_txt, txt, CNeutrinoFonts::FONT_STYLE_BOLD), COL_MENUCONTENT_TEXT);
 
 	status_txt->paint(false);
 
