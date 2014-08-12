@@ -30,10 +30,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <driver/fontrenderer.h>
-#include <driver/neutrinofonts.h>
-#include <driver/rcinput.h>
-
 
 CProgressWindow::CProgressWindow(CComponentsForm *parent) 
 : CComponentsWindow(0, 0, 700, 200, string(), NEUTRINO_ICON_INFO, NULL, parent)

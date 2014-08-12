@@ -25,13 +25,8 @@
 #ifndef __progresswindow__
 #define __progresswindow__
 
-#include <driver/framebuffer.h>
-#include <system/localize.h>
-
 #include <gui/components/cc.h>
 #include "menue.h"
-
-#include <string>
 
 class CProgressWindow : public CComponentsWindow, public CMenuTarget
 {
