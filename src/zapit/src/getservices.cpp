@@ -347,6 +347,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		const char *system = xmlGetAttribute(node, "sys");
 		if (system) {
 			feparams.delsys = (delivery_system_t)CFrontend::getZapitDeliverySystem(xmlGetNumericAttribute(node, "sys", 0));
+			feparams.modulation  = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
 			if (CFrontend::isSat(delsys))
 				feparams.fec_inner = (fe_code_rate_t)xmlGetNumericAttribute(node, "fec", 0);
 		} else {
