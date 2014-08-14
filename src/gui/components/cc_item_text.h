@@ -120,7 +120,7 @@ class CComponentsText : public CComponentsItem, public CBox
 		///get text color
 		virtual inline fb_pixel_t getTextColor(){return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes
-		virtual inline void setTextMode(const int mode){ct_text_mode = mode;};
+		virtual void setTextMode(const int mode){ct_text_mode = mode; initCCText();};
                 ///set text border width
 		virtual inline void setTextBorderWidth(const int Hborder, const int Vborder = 0){ct_text_Hborder = Hborder; ct_text_Vborder = Vborder;};
 
