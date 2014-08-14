@@ -199,7 +199,7 @@ class CTextBox
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
 		int  getFontTextHeight();
-		
+		inline int	getTextMode()			{return m_nMode;};
 		void paint (void);
 		void hide (void);
 };
