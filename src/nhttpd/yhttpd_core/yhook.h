@@ -47,7 +47,6 @@
 //=============================================================================
 #ifndef __yhttpd_yhook_h__
 #define __yhttpd_yhook_h__
-#include <unistd.h>
 // C++
 #include <string>
 #include <list>
@@ -129,7 +128,7 @@ public:
 	HttpResponseType httpStatus;		// http-status code for response
 	std::string 	ResponseMimeType;	// mime-type for response
 	std::string 	NewURL;				// new URL for Redirection
-	off_t		ContentLength;			// Length of Response Body
+	long		ContentLength;			// Length of Response Body
 	time_t 		LastModified;			// Last Modified Time of Item to send / -1 dynamic content
 	std::string	Sendfile;				// Path & Name (local os style) of file to send
 	bool		keep_alive;
@@ -174,8 +173,8 @@ public:
 	void SetError(HttpResponseType responseType, THandleStatus _status)
 		{SetError(responseType); status = _status;}
 	// others
-	off_t GetContentLength()
-		{return (status==HANDLED_SENDFILE)?ContentLength : (off_t)yresult.length();}
+	long GetContentLength()
+		{return (status==HANDLED_SENDFILE)?ContentLength : (long)yresult.length();}
 	// output methods
 	std::string BuildHeader(bool cache = false);
 	void addResult(const std::string& result) 	{yresult += result;}
