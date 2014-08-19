@@ -248,9 +248,8 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 			break;
 		}
 	// print Status-line
-	result = string_printf(HTTP_PROTOCOL " %d %s\r\nContent-Type: %s\r\n",httpStatus, responseString, ResponseMimeType.c_str());
-	log_level_printf(2, "Response: HTTP/1.1 %d %s\r\nContent-Type: %s\r\n",
-			httpStatus, responseString, ResponseMimeType.c_str());
+	result = string_printf(HTTP_PROTOCOL " %d %s\r\nContent-Type: %s\r\n", httpStatus, responseString, ResponseMimeType.c_str());
+	log_level_printf(2, "Response: HTTP/1.1 %d %s\r\nContent-Type: %s\r\n", httpStatus, responseString, ResponseMimeType.c_str());
 
 	switch (httpStatus) {
 	case HTTP_UNAUTHORIZED:
@@ -285,7 +284,7 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 		// connection type
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
 		if(keep_alive)
-		result += "Connection: keep-alive\r\n";
+			result += "Connection: keep-alive\r\n";
 		else
 #endif
 			result += "Connection: close\r\n";
