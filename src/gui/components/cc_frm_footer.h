@@ -80,7 +80,11 @@ class CComponentsFooter : public CComponentsHeader
 		void setButtonLabels(const struct button_label_s * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
 		///add button labels with locale label type as content, count as size_t, chain_width as int, label width as int
 		void setButtonLabels(const struct button_label_l * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);
-		
+		///add button labels with locale label type as content, parameter 1 as vector, chain_width as int, label width as int
+		void setButtonLabels(const std::vector<button_label_l>v_content, const int& chain_width, const int& label_width);
+		///add button labels with string label type as content, parameter 1 as vector, chain_width as int, label width as int
+		void setButtonLabels(const std::vector<button_label_s>v_content, const int& chain_width, const int& label_width);
+
 		///add button labels with old label type, count as size_t, chain_width as int, label width as int
 		///NOTE: for compatibility with older button handler find in gui/widget/buttons.h
 		void setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width = 0, const int& label_width = 0);

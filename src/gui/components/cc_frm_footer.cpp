@@ -197,6 +197,32 @@ void CComponentsFooter::setButtonLabels(const struct button_label * const conten
 	setButtonLabels((button_label_l*)content, label_count, chain_width, label_width);
 }
 
+void CComponentsFooter::setButtonLabels(const vector<button_label_l>v_content, const int& chain_width, const int& label_width)
+{
+	size_t label_count = v_content.size();
+	button_label_l buttons[label_count];
+
+	for (size_t i= 0; i< label_count; i++){
+		buttons[i].button = v_content[i].button;
+		buttons[i].locale = v_content[i].locale;
+	}
+
+	setButtonLabels(buttons, label_count, chain_width, label_width);
+}
+
+void CComponentsFooter::setButtonLabels(const vector<button_label_s>v_content, const int& chain_width, const int& label_width)
+{
+	size_t label_count = v_content.size();
+	button_label_s buttons[label_count];
+
+	for (size_t i= 0; i< label_count; i++){
+		buttons[i].button = v_content[i].button;
+		buttons[i].text = v_content[i].text;
+	}
+
+	setButtonLabels(buttons, label_count, chain_width, label_width);
+}
+
 void CComponentsFooter::setButtonLabel(const char *button_icon, const std::string& text, const int& chain_width, const int& label_width)
 {
 	button_label_s button[1];
