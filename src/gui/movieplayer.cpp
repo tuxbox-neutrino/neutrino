@@ -38,6 +38,7 @@
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
+#include <gui/widget/messagebox.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>
 #include <driver/abstime.h>
@@ -647,7 +648,11 @@ void CMoviePlayerGui::PlayFile(void)
 		if (msg == (neutrino_msg_t) g_settings.mpkey_plugin) {
 			g_PluginList->startPlugin_by_name(g_settings.movieplayer_plugin.c_str ());
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
-			playstate = CMoviePlayerGui::STOPPED;
+			bool stop_it = true;
+			if ((timeshift) && (g_settings.temp_timeshift))
+				stop_it = (ShowMsg(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT_STOP, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) != CMessageBox::mbrYes);
+			if (stop_it)
+				playstate = CMoviePlayerGui::STOPPED;
 			if ((duration - position) > 600000)
 				makeScreenShot(true);
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_play) {
