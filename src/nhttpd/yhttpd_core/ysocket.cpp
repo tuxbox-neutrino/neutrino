@@ -229,7 +229,7 @@ bool CySocket::set_option(int typ, int option) {
 void CySocket::set_reuse_port() {
 #ifdef SO_REUSEPORT
 	if(!set_option(SOL_SOCKET, SO_REUSEPORT))
-	dperror("setsockopt(SO_REUSEPORT)\n");
+		dperror("setsockopt(SO_REUSEPORT)\n");
 #endif
 }
 
@@ -239,7 +239,7 @@ void CySocket::set_reuse_port() {
 void CySocket::set_reuse_addr() {
 #ifdef SO_REUSEADDR
 	if(!set_option(SOL_SOCKET, SO_REUSEADDR))
-	dperror("setsockopt(SO_REUSEADDR)\n");
+		dperror("setsockopt(SO_REUSEADDR)\n");
 #endif
 }
 
@@ -249,7 +249,7 @@ void CySocket::set_reuse_addr() {
 void CySocket::set_keep_alive() {
 #ifdef SO_KEEPALIVE
 	if(!set_option(SOL_SOCKET, SO_KEEPALIVE))
-	dperror("setsockopt(SO_KEEPALIVE)\n");
+		dperror("setsockopt(SO_KEEPALIVE)\n");
 #endif
 }
 
@@ -259,7 +259,7 @@ void CySocket::set_keep_alive() {
 void CySocket::set_tcp_nodelay() {
 #ifdef TCP_NODELAY
 	if(!set_option(IPPROTO_TCP, TCP_NODELAY))
-	dperror("setsockopt(SO_KEEPALIVE)\n");
+		dperror("setsockopt(SO_KEEPALIVE)\n");
 #endif
 }
 //=============================================================================
@@ -271,10 +271,10 @@ void CySocket::set_tcp_nodelay() {
 int CySocket::Read(char *buffer, unsigned int length) {
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	if(isSSLSocket)
-	return SSL_read(ssl, buffer, length);
+		return SSL_read(ssl, buffer, length);
 	else
 #endif
-	return ::read(sock, buffer, length);
+		return ::read(sock, buffer, length);
 }
 //-----------------------------------------------------------------------------
 // Send a buffer (normal or SSL)
@@ -283,7 +283,7 @@ int CySocket::Send(char const *buffer, unsigned int length) {
 	unsigned int len = 0;
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	if(isSSLSocket)
-	len = SSL_write(ssl, buffer, length);
+		len = SSL_write(ssl, buffer, length);
 	else
 #endif
 	len = ::send(sock, buffer, length, MSG_NOSIGNAL);
@@ -323,6 +323,9 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 	if (size > -1 && size < left)
 		left = size;
 #ifdef Y_CONFIG_HAVE_SENDFILE
+#ifdef Y_CONFIG_USE_OPEN_SSL
+	if(!isSSLSocket)
+#endif
 	while (left > 0) {
 		// split sendfile() transfer to smaller chunks to reduce memory-mapping requirements
 		if((written = ::sendfile(sock, filed, &start, std::min((off_t) 0x8000000LL, left))) == -1) {
@@ -334,7 +337,7 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 		} else {
 			BytesSend += written;
 			left -= written;
-	}
+		}
 	}
 #endif // Y_CONFIG_HAVE_SENDFILE
 	if (left > 0) {
@@ -347,7 +350,6 @@ bool CySocket::SendFile(int filed, off_t start, off_t size) {
 					perror("send failed");
 				return false;
 			}
-			BytesSend += written;
 			left -= written;
 		}
 	}
@@ -372,7 +374,7 @@ unsigned int CySocket::ReceiveFileGivenLength(int filed, unsigned int _length) {
 		u_long readarg = 0;
 #ifdef Y_CONFIG_USE_OPEN_SSL
 		if(isSSLSocket)
-		readarg = RECEIVE_BLOCK_LEN;
+			readarg = RECEIVE_BLOCK_LEN;
 		else
 #endif
 		{
