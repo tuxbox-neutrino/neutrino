@@ -249,7 +249,9 @@ end-block~snip_show_wait
 # ------- Wiki Help display
 #<img src="/images/help.gif" align="bottom" />
 start-block~wiki_help
+<!--
 <a href="http://www.yjogol.com/{=var-get:help_url=}" target="_blank" title="get help from www.yjogol.com">?</a>
+-->
 end-block~wiki_help
 
 # ------- work menu

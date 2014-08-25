@@ -1,2 +1,1 @@
-type:u,site:yjogol,desc:yjogol updates,url:http://www.yjogol.com/download/Y_extensions.txt
 
