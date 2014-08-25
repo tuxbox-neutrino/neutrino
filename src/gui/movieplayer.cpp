@@ -650,7 +650,7 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			bool stop_it = true;
 			if ((timeshift) && (g_settings.temp_timeshift))
-				stop_it = (ShowMsg(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT_STOP, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) != CMessageBox::mbrYes);
+				stop_it = (ShowMsg(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT_STOP, CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes);
 			if (stop_it)
 				playstate = CMoviePlayerGui::STOPPED;
 			if ((duration - position) > 600000)
