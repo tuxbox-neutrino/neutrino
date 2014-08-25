@@ -1,0 +1,150 @@
+{=include-block:Y_Blocks.txt;head=}
+<link rel="STYLESHEET" type="text/css" href="/ywidget.css"/>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function dbox_exec_bi(_cmd)
+{
+	var __cmd = _cmd.replace(/ /g, "&");
+	return loadSyncURL("/control/exec?Y_Ext_BoxInfo&"+__cmd);
+}
+function dbox_exec_bi2(_cmd)
+{
+	var __cmd = _cmd.replace(/ /g, "&");
+	var res=loadSyncURL("/control/exec?Y_Ext_BoxInfo&"+__cmd);
+	return res.gsub("\n","<br/>")
+}
+
+function do_start()
+{
+	$('statusline').show();
+	do_mem();
+
+}
+function str2A(_str)
+{
+	_str=_str.strip();
+	_str=_str.replace(/[\t\n]/gi," ");
+	_str=_str.replace(/[ ]+/gi," ");
+	return _str.split(" ");
+}
+function do_mem()
+{
+	var yfree=dbox_exec_bi('free');
+	yfree=yfree.strip();
+	yfree = yfree.replace(/[\t\n]/gi,"");
+	yfree = yfree.replace(/[ ]+/gi," ");
+	var yfreeA=yfree.split(" ");
+	$('mtotal').update(yfreeA[6]);
+	$('mused').update(yfreeA[7]);
+	$('mfree').update(yfreeA[8]);
+	$('mswap').update(yfreeA[13]);
+
+	$('status').update("getting hardware information");
+	window.setTimeout("do_hardware()",100)
+}
+function do_hardware()
+{
+	var res=dbox_exec_bi('avia_version');
+	$('aviachip').update(res);
+	$('box').update(dbox_exec_bi('tuxinfo -M'));
+	$('model').update(dbox_exec_bi('tuxinfo -V'));
+	var res=dbox_exec_bi('i2c');
+	var i2cA=res.split("\t");
+	$('i2c').update(i2cA[2]);
+	$('avswitch').update(split_left(dbox_exec_bi('avswitch')," "));
+	var resA=str2A(dbox_exec_bi('cpuinfo'));
+	$('cpu').update(resA[5]);
+	$('cpuclock').update(resA[8]);
+	$('bongomips').update(resA[21]);
+	$('fb').update(dbox_exec_bi('fb'));
+
+	$('status').update("getting OS and Software information");
+	window.setTimeout("do_sw()",100)
+}
+function do_sw()
+{
+//	$('linux').update(dbox_exec_command('cat /proc/version'));
+	$('os').update(dbox_exec_bi('uname -s'));
+	$('kernel').update(dbox_exec_bi('uname -r'));
+	$('kerneldate').update(dbox_exec_bi('uname -v'));
+	$('arch').update(dbox_exec_bi('uname -m'));
+	var res=dbox_exec_bi('busybox_help');
+	$('busybox').update(split_left(res,"\n"));
+	$('busyboxcmd').update(split_right(res,"functions:\n"));
+	var res=dbox_exec_bi('proc_version');
+
+	$('status').update("Filesystem information");
+	window.setTimeout("do_fs()",100)
+}
+function do_fs()
+{
+	$('mounts').update(dbox_exec_bi2('do_proc mounts'));
+	$('mtd').update(dbox_exec_bi('do_proc mtd').gsub("\n","<br/>"));
+	var res=dbox_exec_bi('do_proc filesystems');
+	res=res.gsub("nodev","");
+	res=res.strip();
+	res=res.gsub("\n",",");
+	$('filesystems').update(res);
+	$('mods').update(dbox_exec_bi2('do_proc modules'));
+
+	$('statusline').hide();
+}
+//]]>
+</script>
+<style>
+.line {border-bottom: 1px solid #6D96A9;font-weight:bold}
+.y_form tr {vertical-align:top;}
+</style>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">{=var-set:help_url=Help-Extensions-boxinfo=}{=var-set:menu=Box Information [1.0.1]=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
+			<span id="status">getting memory information</span></div>
+		<table  class="y_form" cellpadding="1" width="100%" style="margin-right:20px">
+		<tr><td class="y_form_header" colspan="2">Speicher</td></tr>
+		<tr><td>total:</td><td><span id="mtotal">...</span></td></tr>
+		<tr><td>used:</td><td><span id="mused">...</span></td></tr>
+		<tr><td>free:</td><td><span id="mfree">...</span></td></tr>
+		<tr><td>swap:</td><td><span id="mswap">...</span></td></tr>
+
+		<tr><td class="y_form_header" colspan="2">Hardware</td></tr>
+		<tr><td>avia chip:</td><td><span id="aviachip">...</span></td></tr>
+		<tr><td>AV chip:</td><td><span id="avswitch">...</span></td></tr>
+		<tr><td>i2c:</td><td><span id="i2c">...</span></td></tr>
+		<tr><td>CPU:</td><td><span id="cpu">...</span></td></tr>
+		<tr><td>CPU Clock:</td><td><span id="cpuclock">...</span></td></tr>
+		<tr><td>bongomips:</td><td><span id="bongomips">...</span></td></tr>
+		<tr><td>Box:</td><td><span id="box">...</span></td></tr>
+		<tr><td>Hersteller:</td><td><span id="model">...</span></td></tr>
+		<tr><td>Framebuffer:</td><td><span id="fb">...</span></td></tr>
+
+		<tr><td class="y_form_header" colspan="2">OS &amp; Software</td></tr>
+		<tr><td>OS:</td><td><span id="os">...</span></td></tr>
+		<tr><td>Kernel:</td><td><span id="kernel">...</span></td></tr>
+		<tr><td>Kernel Date:</td><td><span id="kerneldate">...</span></td></tr>
+		<tr><td>Architecture:</td><td><span id="arch">...</span></td></tr>
+		<tr><td>Busybox Version:</td><td><span id="busybox">...</span></td></tr>
+		<tr><td>Busybox Commands:</td><td><span id="busyboxcmd">...</span></td></tr>
+
+		<tr><td class="y_form_header" colspan="2">Filesystem &amp; Modules</td></tr>
+		<tr><td>Mounts:</td><td><span id="mounts">...</span></td></tr>
+		<tr><td>mtd:</td><td><span id="mtd">...</span></td></tr>
+		<tr><td>filesystems:</td><td><span id="filesystems">...</span></td></tr>
+		<tr><td>modules &amp; dependencies:</td><td><span id="mods">...</span></td></tr>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	window.setTimeout("do_start();",500);
+//]]>
+</script>
+
+</body>
+
+</html>
