@@ -51,7 +51,6 @@
 #include <driver/screen_max.h>
 #include <driver/scanepg.h>
 
-#include <system/debug.h>
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
 
