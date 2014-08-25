@@ -1,0 +1,725 @@
+{=include-block:Y_Blocks.txt;head=}
+<link rel="stylesheet" type="text/css" href="/Y_Ext_Filemgr.css"/>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript" src="/effects.js"></script>
+<script type="text/javascript" src="/accordion.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+/* yWeb Extension: Filemgr (by yjogol)
+ * yCVS: $Date: 2008-01-08 09:50:32 $
+ * yCVS: $Revision: 1.3 $
+ */
+
+/* --------------------------------------------------------------*/
+/* in development */
+/* --------------------------------------------------------------*/
+var CyExplorer = function(_id,_root) {
+	this.initialize(_id, _root);
+};
+CyExplorer.prototype = {
+	id : "explorer",
+	ac_path: "",
+	ac_item: "",
+	ac_prop: null,
+	root: "/",
+	el: null,
+	line_number: 0,
+	on_before_dirview: null,
+	on_after_dirview: null,
+
+	initialize : function(_id, _root) {
+		this.id = _id;
+		if(typeof(_root) != "undefined")
+			this.root = _root;
+	},
+	/* widget wd*/
+	wg_init : function() {
+		this.line_number = 0;
+		this.el=$(this.id);
+	},
+	wg_clear : function() {
+		this.el.update();
+		this.line_number = 0;
+	},
+	wg_addRow: function(fp, golink, editlink) {
+		this.line_number++;
+		var mycurrent_row = new Element( 'tr', {'class': ((this.line_number % 2) ==0)?"a":"b"} );
+		$(this.el).insert(mycurrent_row);
+		/* icon */
+		var __img ="/images/ftype_file.gif";
+		switch (fp.get('type')){
+			case 	"folder":	__img = "/images/ftype_folder.png"; break;
+			case 	"link":	__img = "/images/ftype_link.png"; break;
+			case 	"file":	__img = "/images/ftype_file.png"; 
+				switch (fp.get('ext')){
+					case 	"ts": case "ps": case "pes": case "avi":
+						__img = "/images/film.png"; break;
+					case 	"jpg": case "jpeg": case "bmp": case "gif": case "ico": case "png":
+						__img = "/images/picture.png"; break;
+					case 	"file": case "tar": case "zip": case "tar.gz":
+						__img = "/images/package.png"; 
+					case 	"file": case "txt": case "ini": case "conf":
+						__img = "/images/text.png"; 
+						break;
+				}
+				break;
+		}
+		if(editlink != "")
+			iconstr = "<a href='javascript:do_prop(\""+editlink+"\")'><img src='"+__img+"'></a>";
+		else
+			iconstr = "<img src='"+__img+"'>";
+		var icon_cell = new Element( 'td',{name: 'icon'}).update(iconstr);
+		mycurrent_row.insert(icon_cell);
+		/* file */
+		if(golink != "")
+			fnamestr = "<a href='"+golink+"'>"+fp.get('fname')+"</a>";
+		else
+			fnamestr = "<a href='javascript:do_prop(\""+editlink+"\")'>"+fp.get('fname')+"</a>";
+/*		if(editlink != "")
+			fdate = "<a href='' edit='"+editlink+"' ycontextmenu=\"imgmenu\"><img src=\"/images/properties.gif\"></a>"+fp.get('date');
+*/
+		var file_cell = new Element( 'td',{name: 'file'}).update(fnamestr);
+		mycurrent_row.insert(file_cell);
+	},
+	parse_dirline : function(_line){
+		/* this may be overridden for different OSs */
+		var Ausdruck = /([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*).*$/;
+		Ausdruck.exec(_line);
+		var fileprops = new Hash();
+		var fname = RegExp.$9;
+		fileprops.set('fname', fname);
+		fileprops.set('access', RegExp.$1);
+		switch ( (RegExp.$1).charAt(0) ){
+			case "d": fileprops.set('type', 'folder'); break;    
+			case "l": fileprops.set('type', 'link'); break;    
+			default: fileprops.set('type', 'file'); break;    
+		}
+		fileprops.set('user', RegExp.$3);
+		fileprops.set('group', RegExp.$4);
+		fileprops.set('size', RegExp.$5);
+		fileprops.set('date', RegExp.$6+" "+RegExp.$7+" "+RegExp.$8);
+		var pos = fname.lastIndexOf(".");
+		fileprops.set('ext', fname.substring(pos+1));
+		return fileprops;	
+	},
+//	dirview: function(path) {
+//		window.setTimeout("_do_dirview2(\""+path+"\")",100);
+
+	dirview: function(path) {
+		this.ac_path = path;
+		this.ac_item = "";
+		this.ac_prop=null;
+		this.wg_init();
+		this.wg_clear();
+		if(this.on_before_dirview) this.on_before_dirview();
+		var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_list%20"+path);
+		var files = res.split("\n");
+	
+		/*every ls row*/
+		for(i=0;i<files.length;i++){
+			var fp=this.parse_dirline(files[i]);
+			if(fp.get('fname') != "" && fp.get('fname') != "." && !(fp.get('fname') == ".." && path == "/")){
+				var xpath = path;
+				var golink = "";
+				var editlink = "";
+				if(fp.get('type') == "folder"){
+					if(fp.get('fname') == "..") /* folder back link*/
+					{
+						xpath=build_up_dir(path);
+						golink = "javascript:do_dirview(\""+xpath+"\")";
+					}
+					else{	/* folder */
+						if(path != "/")	xpath += "/";
+						golink = "javascript:do_dirview(\""+xpath+fp.get('fname')+"\");";
+						editlink = files[i];
+					}
+				}
+				else{	/* file */
+						editlink = files[i];
+				}
+				this.wg_addRow(fp, golink, editlink);
+			}
+		}
+		if(this.on_after_dirview) this.on_after_dirview();
+		work_indikator(false);//TODO
+	},
+	/* --- filelist operations --------------------- */
+	refresh: function() {
+		this.dirview(this.ac_path);
+	},
+	go_up_dir: function() {
+		if(this.ac_path != "/") {
+			p=build_up_dir(this.ac_path);
+			this.dirview(p);
+		}
+	},
+	/* tools */	
+	_build_fname: function(_path,_fname) {
+		if(_path != "/")
+			_path += "/";
+		var file = _path + _fname;
+		return file;
+	},
+	build_fname: function(_fname) {
+		var fname = _fname;
+		if(typeof(_root) == "undefined")
+			fname = this.ac_item;
+		return this._build_fname(this.ac_path,fname);
+	},
+	/* file operations */
+	select: function(_line){
+		this.ac_prop=this.parse_dirline(_line);
+		this.ac_item=this.ac_prop.get('fname');
+	},
+	add_folder: function(rel_path) {
+		var path = this.ac_path;
+		if(path != "/") path += "/";
+		path += rel_path;
+		var res= loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_mkdir%20"+path);
+		if(res.length)
+			alert(res);
+		this.refresh();
+	},
+	chmod: function(_octal,_recusive){
+		var cmd="";
+		var file = this.build_fname();
+		if(typeof(_recursive) != "undefined" && _recursive)
+			cmd+= "-R%20";
+		cmd+=_octal+"%20"+file;
+		var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_chmod%20"+cmd);
+		if(res.length)
+			alert(res);
+		this.refresh();
+	},
+	remove: function() {
+		if(!this.ac_prop)return;
+		var fname = this.build_fname();
+		var ftype = this.ac_prop.get('type');
+		if(ftype == "file"){
+			var msg = "Really delete file \""+fname+"\" ?";
+			if(confirm(msg)==true){
+				var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_rm%20"+fname);
+				if(res.length)
+					alert(res);
+				this.refresh();
+			}
+		}
+		else if(ftype == "folder"){
+			var msg = "Really delete directory \""+fname+"\" ? All sub-directories will be deleted too!";
+			if(confirm(msg)==true){
+				var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_rmdir%20"+fname);
+				if(res.length)
+					alert(res);
+				this.refresh();
+			}
+		}
+	},
+	rename: function(newfname) {
+		if(newfname != "" && newfname != this.ac_item){
+			var path = explorer.ac_path;
+			if(path != "/") path += "/";
+			var filenew = path + newfname;
+			var fileorg = this.build_fname();
+			var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_ren%20"
+				+fileorg+
+				"%20"+ filenew);
+			if(res.length)
+				alert(res);
+			this.refresh();
+		}
+	},
+	/* cut, copy, past */
+	source_prop: null,
+	sourcefname: "",
+	isCut: false,
+	cut: function() {
+		this.isCut=true;
+		this.source_prop = this.ac_prop;
+		this.sourcefname = this.build_fname(this.source_prop.get('fname'));
+	},
+	copy: function() {
+		this.isCut=false;
+		this.source_prop = this.ac_prop;
+		this.sourcefname = this.build_fname(this.source_prop.get('fname'));
+	},
+	paste: function(){
+		if(this.source_prop) {
+			var dest = (this.ac_prop && this.ac_prop.get('type') == "folder") ? this.build_fname() : this.ac_path;
+			var source=this._build_fname()
+			var msg = (this.isCut) ? "verschiebe " : "kopiere ";
+			msg += (this.source_prop.get('type') == "folder") ? "Verzeichnis " : "Datei ";
+			msg += this.sourcefname + " nach Verzeichnis " + dest;
+			if (confirm(msg) == true) {
+				var cmd = "/y/cgi?execute=script:Y_NAS%20";
+				cmd += (this.isCut) ? "filemgr_ren" : "filemgr_copy";
+				cmd += "%20" + this.sourcefname + "%20" + dest;
+				var res = loadSyncURL(cmd);
+				this.source_prop = null;
+				this.sourcefname = "";
+				this.refresh();
+			}
+		}
+		else
+			alert("nothing to paste");
+	}	
+	
+};
+/* --------------------------------------------------------------*/
+/* INIT */
+/* --------------------------------------------------------------*/
+var explorer=null;
+function init(){
+	explorer= new CyExplorer('slog_list','/');
+	explorer.on_before_dirview=on_before_dirview;
+	explorer.on_after_dirview=on_after_dirview;
+	new Accordion('details',{
+		toggler: '.detail_title',
+		togglee: '.detail_content',
+		activeClassName: 'detail_title_active',
+		defaultTogglee: 'fprop'});
+	do_dirview("/");
+}
+
+
+//alert($('adetails'));
+//alert($('work'));
+//var arc = new accordion('adetails');
+//new Control.Tabs('tab_group_one');
+/* --------------------------------------------------------------*/
+function on_before_dirview(){
+	show_path_and_item();
+	work_indikator(true);
+}
+function on_after_dirview(){
+	work_indikator(false);
+	msg("&nbsp;");
+}
+/* --- panel elements -------------------------- */
+function work_indikator(show){
+	(show)?$('work').show():$('work').hide();	
+}
+function msg(str){
+	$('msg').update(str);
+}
+function show_path_and_item(){
+	$('path').update(explorer.ac_path);
+	show_prop();
+}
+function hide_diags(){
+//TODO?	$('prop').hide();
+	_hide_diags();	
+}
+function _hide_diags(){
+	$('add_folder_diag').hide();
+	$('upload_diag').hide();
+	$('ext_diag').hide();
+}
+function show_prop(){
+	if (explorer.ac_item != "") {
+		$('item').update(explorer.ac_item);
+//		$('prop','prop_toolbar').invoke('show');
+		$('prop_toolbar').show();
+		$('details').show();
+//		$$('.detail_title','.detail_content').invoke('show');
+	}
+	else {
+		$('item').update("nothing selected");
+//		$('prop','prop_toolbar').invoke('hide');
+		$('prop_toolbar').hide();
+		$('details').hide();
+//		$$('.detail_title','.detail_content').invoke('hide');
+	}
+	_hide_diags();	
+}
+
+/* --- some tools ------------------------------ */
+function build_up_dir(path){
+	var xpath=path;
+	for(j=path.length-1;j>=0;j--)
+		if(path.charAt(j) == "/"){
+			xpath = path.slice(0, j);
+			break;
+		}
+	if(xpath == "")	xpath += "/";
+	return xpath;
+}
+function extract_filename(fname){
+	var extractfname = "";
+	for(j=fname.length-1;j>=0;j--)
+		if(fname.charAt(j) == "/" ||fname.charAt(j) == "\\"){
+			extractfname = fname.slice(j+1, fname.length);
+			break;
+		}
+	return extractfname;
+}
+/* --- filelist operations --------------------- */
+
+function do_dirview(path){
+	work_indikator(true);
+	window.setTimeout("_do_dirview2(\""+path+"\")",100);
+}
+function _do_dirview2(path){
+	explorer.dirview(path);
+}
+function refresh_dirview(){
+	explorer.refresh();
+}
+function do_go_up_dir(){
+	explorer.go_up_dir();
+}
+/* --- detail operations ----------------------- */
+/* add folder */
+function add_folder_dialog(){
+	hide_diags();	
+	$('add_folder_diag').show();
+	document.add_folder.folder.focus();
+}
+function do_add_folder(){
+	if($F('folder') != ""){
+		var res= explorer.add_folder($F('folder'));
+		hide_diags();
+	}
+	else
+		alert("No foldername given!");
+}
+/* upload */
+function upload_dialog(){
+	hide_diags();	
+	$('upload_diag').show();
+	document.upload.file.focus();
+}
+function do_upload(){
+	if (document.upload.file.value != "") {
+		msg("upload file: " + document.upload.file.value);
+		work_indikator(true);
+		window.setTimeout("_do_upload()", 100);
+	}
+	else
+		alert("No file given!");
+}
+function _do_upload(){
+	var path =explorer.ac_path;
+	var fname = extract_filename(document.upload.file.value);
+	document.upload.path.value = path;
+	document.upload.dummy.value = path;
+	document.upload.execute.value = "script:Y_NAS filemgr_upload "+path+" "+fname;
+	document.upload.submit();
+}
+
+/* show properties */
+function  do_prop(prop){
+	explorer.select(prop);
+	$('fdate').update(explorer.ac_prop.get('date'));
+	$('fsize').update(explorer.ac_prop.get('size'));
+	$('fuser').update(explorer.ac_prop.get('user'));
+	$('fgroup').update(explorer.ac_prop.get('group'));
+	show_prop();
+
+	document.edit.fitem.value = explorer.ac_item;
+	// Fileextention handling
+	var fullfname = explorer.build_fname();
+	switch(explorer.ac_prop.get('ext')){
+		case "xml":
+			var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_check_movieplayer_xml%20"+fullfname);
+			if(res){
+				prop_plugin_mpxml(fullfname);
+			}
+			break;
+		case "jpg":
+		case "png":
+		case "bmp":
+		case "gif":
+		case "ico":
+			prop_plugin_img(fullfname);
+			break;
+		case "ts":
+			var server="{=func:get_header_data Host=}";
+			var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20filemgr_vlc_file%20http://"+server+fullfname);
+			prop_plugin_ts(fullfname);
+			break;
+
+	}
+	// set chmod parameters
+	var access = explorer.ac_prop.get('access');
+	document.edit.ftype.value = explorer.ac_prop.get('type');
+	document.edit.ur.checked = (access.charAt(1) == "r");
+	document.edit.uw.checked = (access.charAt(2) == "w");
+	document.edit.ux.checked = (access.charAt(3) == "x");
+	document.edit.gr.checked = (access.charAt(4) == "r");
+	document.edit.gw.checked = (access.charAt(5) == "w");
+	document.edit.gx.checked = (access.charAt(6) == "x");
+	document.edit.or.checked = (access.charAt(7) == "r");
+	document.edit.ow.checked = (access.charAt(8) == "w");
+	document.edit.ox.checked = (access.charAt(9) == "x");
+	calc_chmod();
+}
+/* properties plugins*/
+function mpxml_processReqChange()
+{
+	if(g_req.readyState == 4 && g_req.status == 200){
+		var xml = g_req.responseXML;
+		$('ext_title').update("Movieplayer XML");
+		var html="<div class='epgtitle'>"+getXMLNodeItemValue(xml, 'epgtitle')+"</div>";
+		html+="<div class='epginfo1'>"+getXMLNodeItemValue(xml, 'info1')+"</div>";
+		html+="<div class='epginfo2'>"+getXMLNodeItemValue(xml, 'info2')+"</div>";
+		$('ext_content').update(html);
+		$('ext_diag').show();
+	}
+
+}
+function prop_plugin_mpxml(fullfname)
+{
+	loadXMLDoc(fullfname, mpxml_processReqChange);
+}
+function prop_plugin_img(fullfname)
+{
+		$('ext_title').update("Image Thumb");
+		var html="<img class='detail_img' src='"+fullfname+"'>";
+		$('ext_content').update(html);
+		$('ext_diag').show();
+}
+function prop_plugin_ts(fullfname)
+{
+		$('ext_title').update("Stream File");
+		var html="<a href='/tmp/vlc.m3u?"+Math.random()+"' target='_blank'><img src='/images/vlc.gif'>start vlc</a>";
+		$('ext_content').update(html);
+		$('ext_diag').show();
+}
+/* chmod */
+Conversor = {
+	h: '0123456789abcdefghijklmnopqrstuvwxyz',
+
+	int2base: function( n, base ){
+		if( base < 2 || base > this.h.length )
+			throw new Error( "base invalid" );
+		for( var n = parseInt( n ) || 0, result = ""; n; result = this.h.charAt( n % base ) + result, n = Math.floor( n / base ) );
+		return result;
+	},
+	base2int: function( s, base ){
+		for( var i = -1, l = s.length, result = 0; ++i < l; result = result * base + this.h.indexOf( s.charAt( i ) ) );
+		return result;
+	}
+}
+function calc_chmod(){
+	var c=0;
+	if(document.edit.ur.checked)	c |= 0400;
+	if(document.edit.uw.checked)	c |= 0200;
+	if(document.edit.ux.checked)	c |= 0100;
+	if(document.edit.gr.checked)	c |= 0040;
+	if(document.edit.gw.checked)	c |= 0020;
+	if(document.edit.gx.checked)	c |= 0010;
+	if(document.edit.or.checked)	c |= 0004;
+	if(document.edit.ow.checked)	c |= 0002;
+	if(document.edit.ox.checked)	c |= 0001;
+	document.edit.chmod.value = Conversor.int2base(c,8);
+}
+function do_chmod(){
+	var res= explorer.chmod($F('chmod'), document.edit.rec.checked);
+}
+/* delete */
+function do_delete(){
+	msg("delete file: " + explorer.ac_item);
+	work_indikator(true);
+	window.setTimeout("_do_delete()", 100);
+}
+function _do_delete(){
+	explorer.remove();
+}
+/* rename */
+function do_rename(){
+	
+	if($F('fitem') != "")
+		explorer.rename($F('fitem'));
+	else
+		alert("Rename: nothing entered!");
+}
+function do_cut(){
+	explorer.cut();
+}
+function do_copy(){
+	explorer.copy();
+}
+function do_paste(){
+	explorer.paste();
+}
+/* download */
+function do_download(){
+	var res = loadSyncURL("/y/cgi?execute=script:Y_NAS%20nhttpd_can_sendall");
+	if(res=="")
+		alert("Um aller Dateitypen senden zu können, muss unter Settings->Webserver die Option >alle Dateiendungen erlauben< aktiviert werden!");
+	else
+		window.open(explorer.build_fname());
+}
+function do_edit(){
+	if($F('ftype') != "d")
+		window.open("/Y_Ext_Filemgr_Edit.yhtm?file="+explorer.build_fname(),"edit", "width=800,height=600,resizable=yes");
+	else
+		alert("you can not edit a directory");
+}
+function ni() {
+	alert("not implemented");
+}
+//]]>
+</script>
+</head>
+<body onload="init()">
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Extensions-filemgr=}{=var-set:menu=File Manager (1.0.0)=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		
+	<table class="mform" width="100%" border="0">
+	<!-- toolbars -->
+	<tr>
+		<td width="60%" class="box">
+			<table class="toolbar" cellspacing="1" cellpadding="1">
+			<tr>
+				<td title="go to top dir"><a href='javascript:do_dirview("/")'><img src="/images/home.png"/></a></td>
+				<td title="go one dir up"><a href='javascript:do_go_up_dir()'><img src="/images/dir_up.gif"/></a></td>
+				<td title="refresh"><a href='javascript:refresh_dirview()'><img src="/images/reload.gif"/></a></td>
+				<td title="add folder here"><a href='javascript:add_folder_dialog()'><img src="/images/folder_add.png"/></a></td>
+				<td title="upload"><a href='javascript:upload_dialog()'><img src="/images/upload.png"/></a></td>
+				<td title="paste item"><a href="javascript:do_paste()"><img src="/images/paste.gif"/></a></td>
+			</tr>
+			</table>
+		</td>
+		<td class="box">
+			<table id="prop_toolbar" class="toolbar" cellspacing="1" cellpadding="1" style="display:none">
+			<tr>
+				<td title="delete item"><a href="javascript:do_delete()"><img src="/images/cross.png"/></a></td>
+				<td title="copy item"><a href="javascript:do_copy()"><img src="/images/copy.gif"/></a></td>
+				<td title="cut item"><a href="javascript:do_cut()"><img src="/images/cut.png"/></a></td>
+				<td title="download item"><a href="javascript:do_download()"><img src="/images/download.png"/></a></td>
+				<td title="Edit item"><a href="javascript:do_edit()"><img src="/images/page_edit.png"/></a></td>
+			</tr>
+			</table>
+		</td>
+	</tr>
+	<!-- path and item -->
+	<tr>
+		<td class="box" title="path"><div id="path"></div></td>
+		<td class="box" title="selected item"><div id="item" style="overflow:hidden"></div></td>
+	</tr>
+	<!-- filelist and props -->
+	<tr>
+		<td class="box" valign="top">
+			<form method="post" name="log" action="">
+				<div style="text-align:left;min-height:300px;max-height:600px;overflow:auto">
+				<table class="filelist" width="100%" cellpadding="2" cellspacing=0  >
+				<tr><td width="22px"></td></tr>
+				<tbody id="slog_list">
+				</tbody>
+				</table>
+				</div>
+		
+			</form>			
+		</td>
+		<td class="box" valign="top">
+			<!-- detail view -->
+			<!-- properties -->
+			<div id="details">
+				<div class="detail_title">File properties</div>
+				<div class="detail_content" id="fprop">
+					<table cellspacing="0" cellpadding="1" border="0">
+					<tr><td>Date:</td><td colspan="3"><div id="fdate"></div></td></tr>
+					<tr><td>Size:</td><td colspan="3"><div id="fsize"></div></td></tr>
+					<tr><td>User:</td><td colspan="3"><div id="fuser"></div></td></tr>
+					<tr><td>Group:</td><td colspan="3"><div id="fgroup"></div></td></tr>
+					</table>
+				</div>
+				<div class="detail_title">File permissions</div>
+				<div class="detail_content">
+					<!-- permissions -->
+					<form method="" name="edit" action="" >
+					<input type="hidden" id="ftype" name="ftype" value=""/>
+					<table cellspacing="0" cellpadding="1" border="0">
+					<tr><td>Permission</td><td>read</td><td>write</td><td>exe</td></tr>
+					<tr><td>Owner:</td>
+						<td><input type="checkbox" name="ur" value="" onclick="calc_chmod()"/></td>
+						<td><input type="checkbox" name="uw" value="" onclick="calc_chmod()"/></td>
+						<td><input type="checkbox" name="ux" value="" onclick="calc_chmod()"/></td>
+					</tr>
+					<tr><td>Group:</td>
+						<td><input type="checkbox" name="gr" value="" onclick="calc_chmod()"/></td>
+						<td><input type="checkbox" name="gw" value="" onclick="calc_chmod()"/></td>
+						<td><input type="checkbox" name="gx" value="" onclick="calc_chmod()"/></td>
+					</tr>
+					<tr><td>Others:</td>
+						<td><input type="checkbox" name="or" value="" onclick="calc_chmod()"/></td>
+						<td><input type="checkbox" name="ow" value="" onclick="calc_chmod()"/></td>
+						<td><input type="checkbox" name="ox" value="" onclick="calc_chmod()"/></td>
+					</tr>
+					<tr><td>chmod:</td><td colspan="3"><input type="text" id="chmod" name="chmod" value="" size="3"/>
+						<input type="checkbox" name="rec" value="">recursiv
+						<span class="button" title="change permissions" onclick="do_chmod()"><img src="/images/chmod.png"></span>
+					</td></tr>
+					<tr><td>Item:</td><td colspan="3"><input type="text" size="20" id="fitem" name="fitem" />
+						<span class="button" title="rename"><a href='javascript:do_rename()'><img src="/images/rename.gif"/></a></span>
+					</td></tr>
+					<tr><td colspan="4" align="right">
+						&nbsp;
+					</td></tr>
+					</table>
+					</form>
+				</div>
+				<!-- extension dialog -->
+				<div id="ext_diag" style="display:none">
+					<div id="ext_title" class="detail_title"></div>
+					<div id="ext_content" class="detail_content"></div>
+				</div>
+			</div><!--end details-->
+			<!-- add folder -->
+			<div id="add_folder_diag" style="display:none">
+				<form name="add_folder" accept-charset="UTF-8" action="">
+				<table class="diag" cellspacing="0" cellpadding="1" border="0">
+				<tr><td>
+					Add folder:<br/>
+					<input type="text" size="30" id="folder" name="folder" />
+				</td></tr>
+				<tr><td align="right">
+					<input type="button" value="save" onclick="do_add_folder()" />
+					<input type="button" value="cancel" onclick="show_prop()" />
+				</td></tr>
+				</table>
+				</form>
+			</div>
+			<!-- File Upload Dialogue -->
+			<div id="upload_diag" style="display:none">
+				<form method="post" name="upload" enctype="multipart/form-data" action="/y/cgi">
+					<table class="diag" cellspacing="0" cellpadding="1" border="0">
+					<tr><td>Upload Filename:</td></tr>
+					<tr><td><input type="file" name="file" size="20"/></td></tr>
+					<tr><td align="right">
+						<input type="hidden" name="dummy" value="/"/>
+						<input type="hidden" name="path" value="/"/>
+						<input type="hidden" name="tmpl" value="/Y_Ext_Filemgr.yhtm"/>
+						<input type="hidden" name="execute" value=""/>
+			
+						<input type="button" value="upload" name="su" onclick="do_upload()"/>
+						<input type="button" value="cancel" onclick="show_prop();" />
+					</td></tr>
+					</table>
+				</form>
+			</div>
+			
+			
+		</td>
+	</tr>
+	<!-- statusline -->
+	<tr>
+		<td colspan="2" class="box">
+			<table border="0" cellspacing="1" cellpadding="1" width="100%">
+			<tr>
+				<td title="work indicator" width="20px"><div id="work" style="display:none"><img src="/images/work.gif"/></div></td>
+				<td title="statusline"><div id="msg">message in statusline</div></td>
+			</tr>
+			</table>
+		</td>
+	</tr>
+		
+	</table>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+.diag {
+	border: 1px solid #bbbbbb;
+	border-collapse: collapse;
+	background-color: #eeeeee;
+	margin-left: 10px;
+	margin-top: 10px;
+}
+.toolbar td {
+	border: 1px solid #cccccc;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+}
+.toolbar img {
+	border:0;
+}
+.toolbar td:hover {
+	background-color: #dddddd;
+}
+.button {
+	border: 1px solid #cccccc;
+	width: 40px;
+	height: 20px;
+	text-align: center;
+}
+.button:hover {
+	background-color: #dddddd;
+}
+.mform {
+	empty-cells:show;
+}
+
+.filelist a{
+	text-decoration:underline;
+}
+.box {
+	border: 1px solid #cccccc;
+	empty-cells:show;
+}
+.epginfo2{
+	font-size: 8pt;
+}
+.detail_title{
+	border: 1px solid #cccccc;
+	font-weight: bold;
+	background-color: #ffffff;
+}
+.detail_title_active{
+	border: 1px solid #cccccc;
+	font-weight: bold;
+	background-color: #eeeeee;
+}
+.detail_img {
+	max-width: 300px;
+	max-height:300px;
+}
