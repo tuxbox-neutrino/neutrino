@@ -444,3 +444,36 @@ u_int8_t CComponentsForm::getPageCount()
 	return page_count;
 }
 
+
+void CComponentsForm::setSelectedItem(size_t item_id)
+{
+	size_t btn_count = v_cc_items.size();
+
+	if (item_id > (btn_count-1) || (btn_count == 0)){
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid parameter item_id = %u, available items = %u, allowed values are: 0...%u! \n", 	__func__, 
+																				__LINE__, 
+																				item_id, 
+																				btn_count, 
+																				btn_count==0 ? 0:btn_count-1);
+		return;
+	}
+
+	for (size_t i= 0; i< btn_count; i++)
+		v_cc_items[i]->setSelected(i == item_id);
+
+	OnSelect();
+}
+
+void CComponentsForm::setSelectedItem(CComponentsItem* cc_item)
+{
+	size_t id = getCCItemId(cc_item);
+	setSelectedItem(id);
+}
+
+int CComponentsForm::getSelectedItem()
+{
+	for (size_t i= 0; i< size(); i++)
+		if (getCCItem(i)->isSelected())
+			return static_cast<int>(i);
+	return -1;
+}
