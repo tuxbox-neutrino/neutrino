@@ -50,6 +50,7 @@ CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 	col_frame_sel 		= COL_MENUCONTENTSELECTED_PLUS_0;
 	corner_type 		= CORNER_ALL;
 	corner_rad		= 0;
+	cc_tag			= NULL;
 	shadow			= CC_SHADOW_OFF;
 	shadow_w		= SHADOW_OFFSET;
 	fr_thickness		= 0;

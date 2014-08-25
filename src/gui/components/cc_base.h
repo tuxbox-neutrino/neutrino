@@ -67,7 +67,8 @@ class CComponents : public CComponentsSignals, public COSDFader
 		int corner_type;
 		///property: defined radius of corner, without effect, if corner_type=0
 		int corner_rad;
-		
+		///property: tag for component, can contain any value if required, default value is NULL, you can fill with a cast, see also setTag() and getTag() 
+		void *cc_tag;
 		///property: color of body
 		fb_pixel_t col_body;
 		///property: color of shadow
@@ -163,6 +164,11 @@ class CComponents : public CComponentsSignals, public COSDFader
 		inline virtual void getSize(int* w, int* h){*w=width; *h=height;};
 		///return/set (pass through) position and dimensions of component at once
 		inline virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;};
+
+		///sets tag as void*, see also cc_tag
+		virtual void setTag(void* tag){cc_tag = tag;};
+		///gets tag as void*, see also cc_tag
+		inline virtual void* getTag(){return cc_tag;};
 
 		///set frame color
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
