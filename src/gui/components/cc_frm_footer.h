@@ -97,6 +97,11 @@ class CComponentsFooter : public CComponentsHeader
 		///causes show/hide countour of button frame and background, parameter bool show, default= true
 		void showButtonContour(bool show = true);
 
+		///select a definied button, parameter1 as size_t
+		void setSelectedButton(size_t item_id);
+		///returns id of select button, return value as int, -1 = nothing is selected
+		int getSelectedButton();
+
 		///property: set font for label caption, parameter as font object, value NULL causes usage of dynamic font
 		void setButtonFont(Font* font){ccf_btn_font = font;};
 

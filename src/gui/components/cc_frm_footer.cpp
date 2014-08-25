@@ -249,6 +249,21 @@ void CComponentsFooter::showButtonContour(bool show)
 	}
 }
 
+void CComponentsFooter::setSelectedButton(size_t item_id)
+{
+	if (chain)
+		chain->setSelectedItem(item_id);
+}
+
+int CComponentsFooter::getSelectedButton()
+{
+	int ret = -1;
+	if (chain)
+		ret = chain->getSelectedItem();
+
+	return ret;
+}
+
 
 void CComponentsFooter::paintButtons(const int& x_pos,
 				     const int& y_pos,
