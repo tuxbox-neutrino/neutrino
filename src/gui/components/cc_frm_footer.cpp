@@ -141,6 +141,9 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		CComponentsButton *btn = new CComponentsButton(0, CC_CENTERED, w_btn_min, height-height/4, txt, btn_name);
 		btn->setButtonFont(ccf_btn_font);
 		btn->doPaintBg(btn_contour);
+		btn->setButtonEventMsg(content[i].btn_msg);
+		btn->setButtonResult(content[i].btn_result);
+		btn->setButtonAlias(content[i].btn_alias);
 
 		if (btn_name == NEUTRINO_ICON_BUTTON_RED)
 			btn->setColorFrame(COL_DARK_RED);
@@ -187,6 +190,9 @@ void CComponentsFooter::setButtonLabels(const struct button_label_l * const cont
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = content[i].button;
 		buttons[i].text = content[i].locale != NONEXISTANT_LOCALE ? g_Locale->getText(content[i].locale) : "";
+		buttons[i].btn_msg = content[i].btn_msg;
+		buttons[i].btn_result = content[i].btn_result;
+		buttons[i].btn_alias = content[i].btn_alias;
 	}
 
 	setButtonLabels(buttons, label_count, chain_width, label_width);
@@ -194,7 +200,18 @@ void CComponentsFooter::setButtonLabels(const struct button_label_l * const cont
 
 void CComponentsFooter::setButtonLabels(const struct button_label * const content, const size_t& label_count, const int& chain_width, const int& label_width)
 {
-	setButtonLabels((button_label_l*)content, label_count, chain_width, label_width);
+	//conversion for compatibility with older paintButtons() methode, find in /gui/widget/buttons.h
+	button_label_l buttons[label_count];
+	for (size_t i = 0; i< label_count; i++){
+		buttons[i].button = content[i].button;
+		buttons[i].locale = content[i].locale;
+		//NOTE: here are used default values, because old button label struct don't know about this,
+		//if it possible, don't use this methode!
+		buttons[i].btn_msg = CRCInput::RC_nokey;
+		buttons[i].btn_result = -1;
+		buttons[i].btn_alias = -1;
+	}
+	setButtonLabels(buttons, label_count, chain_width, label_width);
 }
 
 void CComponentsFooter::setButtonLabels(const vector<button_label_l>v_content, const int& chain_width, const int& label_width)
@@ -205,6 +222,9 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_l>v_content, c
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
 		buttons[i].locale = v_content[i].locale;
+		buttons[i].btn_msg = v_content[i].btn_msg;
+		buttons[i].btn_result = v_content[i].btn_result;
+		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
 
 	setButtonLabels(buttons, label_count, chain_width, label_width);
@@ -218,26 +238,32 @@ void CComponentsFooter::setButtonLabels(const vector<button_label_s>v_content, c
 	for (size_t i= 0; i< label_count; i++){
 		buttons[i].button = v_content[i].button;
 		buttons[i].text = v_content[i].text;
+		buttons[i].btn_msg = v_content[i].btn_msg;
+		buttons[i].btn_result = v_content[i].btn_result;
+		buttons[i].btn_alias = v_content[i].btn_alias;
 	}
 
 	setButtonLabels(buttons, label_count, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabel(const char *button_icon, const std::string& text, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabel(const char *button_icon, const std::string& text, const int& chain_width, const int& label_width, const neutrino_msg_t& msg, const int& result_value, const int& alias_value)
 {
 	button_label_s button[1];
 
 	button[0].button = button_icon;
 	button[0].text = text;
+	button[0].btn_msg = msg;
+	button[0].btn_result = result_value;
+	button[0].btn_alias = alias_value;
 
 	setButtonLabels(button, 1, chain_width, label_width);
 }
 
-void CComponentsFooter::setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width, const int& label_width)
+void CComponentsFooter::setButtonLabel(const char *button_icon, const neutrino_locale_t& locale, const int& chain_width, const int& label_width, const neutrino_msg_t& msg, const int& result_value, const int& alias_value)
 {
 	string txt = locale != NONEXISTANT_LOCALE ? g_Locale->getText(locale) : "";
 
-	setButtonLabel(button_icon, txt, chain_width, label_width);
+	setButtonLabel(button_icon, txt, chain_width, label_width, msg, result_value, alias_value);
 }
 
 void CComponentsFooter::showButtonContour(bool show)
@@ -261,6 +287,12 @@ int CComponentsFooter::getSelectedButton()
 	if (chain)
 		ret = chain->getSelectedItem();
 
+	return ret;
+}
+
+CComponentsButton* CComponentsFooter::getSelectedButtonObject()
+{
+	CComponentsButton* ret = static_cast<CComponentsButton*>(chain->getSelectedItemObject());
 	return ret;
 }
 
