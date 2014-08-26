@@ -118,6 +118,9 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	cc_btn_font	= NULL;
 	cc_btn_icon	= icon_name;
 	cc_btn_capt	= caption;
+	cc_btn_msg	= CRCInput::RC_nokey;
+	cc_btn_result	= -1;
+	cc_btn_alias	= -1;
 
 	initParent(parent);
 	initCCBtnItems();

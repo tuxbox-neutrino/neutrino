@@ -33,6 +33,7 @@
 #include "cc_item_text.h"
 #include <string>
 #include <driver/neutrinofonts.h>
+#include <driver/rcinput.h>
 
 //! Sub class of CComponentsForm.
 /*!
@@ -63,6 +64,13 @@ class CComponentsButton : public CComponentsFrmChain
 
 		///property: icon name, only icons supported, to find in gui/widget/icons.h
 		std::string cc_btn_icon;
+
+		///property: assigned event message value, see driver/rcinput.h for possible values, default value = CRCInput::RC_nokey, see also setButtonEventMsg(), getButtonEventMsg()
+		neutrino_msg_t 	cc_btn_msg;
+		///property: assigned return value, see also setButtonResult(), getButtonResult(), default value = -1 (not defined)
+		int 	cc_btn_result;
+		///property: assigned alias value, see also setButtonAlias(), getButtonAlias(), default value = -1 (not defined)
+		int 	cc_btn_alias;
 
 		///property: text color
 		fb_pixel_t cc_btn_capt_col;
@@ -138,6 +146,21 @@ class CComponentsButton : public CComponentsFrmChain
 
 		///paint button object
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		///assigns an event msg value to button object, parameter1 as neutrino_msg_t, see driver/rcinput.h for possible values
+		virtual void setButtonEventMsg(const neutrino_msg_t& msg){cc_btn_msg = msg;};
+		///return an event msg value to button object, see driver/rcinput.h for possible values
+		inline virtual neutrino_msg_t getButtonEventMsg(){return cc_btn_msg;};
+
+		///assigns an return value to button object, parameter1 as int
+		virtual void setButtonResult(const int& result_value){cc_btn_result = result_value;};
+		///returns current result value of button object
+		inline virtual int getButtonResult(){return cc_btn_result;};
+
+		///assigns an alias value to button object, parameter1 as int, e.g. previous known as mbYes, mbNo... from message boxes 
+		virtual void setButtonAlias(const int& alias_value){cc_btn_alias = alias_value;};
+		///returns an alias value from button object, see also cc_btn_alias
+		inline virtual int getButtonAlias(){return cc_btn_alias;};
 };
 
 //! Sub class of CComponentsButton.
