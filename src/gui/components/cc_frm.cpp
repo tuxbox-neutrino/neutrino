@@ -491,3 +491,14 @@ int CComponentsForm::getSelectedItem()
 			return static_cast<int>(i);
 	return -1;
 }
+
+CComponentsItem* CComponentsForm::getSelectedItemObject()
+{
+	int sel = getSelectedItem();
+	CComponentsItem* ret = NULL;
+	if (sel != -1)
+		ret = static_cast<CComponentsItem*>(this->getCCItem(sel));
+
+	return ret;
+}
+

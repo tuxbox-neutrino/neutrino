@@ -117,8 +117,10 @@ class CComponentsForm : public CComponentsItem
 		virtual void paintPage(const u_int8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
 		///set width of scrollbar
 		virtual void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
-		///returns id of select item, return value as int, returns -1: if is nothing selected
+		///returns id of selected item, return value as int, returns -1: if is nothing selected
 		virtual int getSelectedItem();
+		///returns pointer to selected item, return value as CComponentsItem*, returns NULL: if is nothing selected
+		virtual CComponentsItem* getSelectedItemObject();
 		///select a definied item, parameter1 as size_t
 		virtual void setSelectedItem(int item_id);
 		///select a definied item, parameter1 as CComponentsItem*
