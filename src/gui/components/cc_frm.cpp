@@ -445,28 +445,42 @@ u_int8_t CComponentsForm::getPageCount()
 }
 
 
-void CComponentsForm::setSelectedItem(size_t item_id)
+void CComponentsForm::setSelectedItem(int item_id)
 {
-	size_t btn_count = v_cc_items.size();
+	size_t count = v_cc_items.size();
+	int id = item_id;
 
-	if (item_id > (btn_count-1) || (btn_count == 0)){
+	if (id > (count-1) || id < 0 || (count == 0)){
 		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid parameter item_id = %u, available items = %u, allowed values are: 0...%u! \n", 	__func__, 
 																				__LINE__, 
 																				item_id, 
-																				btn_count, 
-																				btn_count==0 ? 0:btn_count-1);
-		return;
+																				count, 
+																				count==0 ? 0:count-1);
+		//exit if no item is available
+		if (count == 0)
+			return;
+
+		//jump to last item
+		if (id < 0)
+			id = count-1;
+		//jump to 1st item, if id is out of range, avoids also possible segfault
+		if (id > (count-1))
+			id = 0;
 	}
 
-	for (size_t i= 0; i< btn_count; i++)
-		v_cc_items[i]->setSelected(i == item_id);
+	for (size_t i= 0; i< count; i++)
+		v_cc_items[i]->setSelected(i == (size_t)id);
 
 	OnSelect();
 }
 
 void CComponentsForm::setSelectedItem(CComponentsItem* cc_item)
 {
-	size_t id = getCCItemId(cc_item);
+	int id = getCCItemId(cc_item);
+	if (id == -1){
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid item parameter, no object available\n", __func__,__LINE__);
+		return;
+	}
 	setSelectedItem(id);
 }
 

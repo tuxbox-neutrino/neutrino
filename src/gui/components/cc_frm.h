@@ -120,7 +120,7 @@ class CComponentsForm : public CComponentsItem
 		///returns id of select item, return value as int, returns -1: if is nothing selected
 		virtual int getSelectedItem();
 		///select a definied item, parameter1 as size_t
-		virtual void setSelectedItem(size_t item_id);
+		virtual void setSelectedItem(int item_id);
 		///select a definied item, parameter1 as CComponentsItem*
 		virtual void setSelectedItem(CComponentsItem* cc_item);
 };
