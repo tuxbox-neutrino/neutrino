@@ -1077,6 +1077,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg          = NeutrinoMessages::EVT_BACK_ZAP_COMPLETE;
 								*data = (neutrino_msg_data_t) p;
 								break;
+							case CZapitClient::EVT_WEBTV_ZAP_COMPLETE:
+								*msg          = NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE;
+								*data = (neutrino_msg_data_t) p;
+								break;
 							default:
 								printf("[neutrino] event INITID_ZAPIT - unknown eventID 0x%x\n",  emsg.eventID );
 						}

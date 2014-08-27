@@ -282,7 +282,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 
 	t_channel_id chid = channel->getChannelID();
 	if (CRecordManager::getInstance()->RecordingStatus(chid)) {
-		printf("CStreamManager::Parse: channel %llx recorded, aborting..\n", chid);
+		printf("CStreamManager::FindFrontend: channel %llx recorded, aborting..\n", chid);
 		return frontend;
 	}
 
@@ -294,19 +294,22 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 
 	CFEManager::getInstance()->Lock();
 
-	bool unlock = true;
-	CFEManager::getInstance()->lockFrontend(live_fe);
+	bool unlock = false;
+	if (!IS_WEBTV(live_channel_id)) {
+		unlock = true;
+		CFEManager::getInstance()->lockFrontend(live_fe);
+	}
 
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	for (streammap_iterator_t it = streams.begin(); it != streams.end(); ++it)
-			frontends.insert(it->second->frontend);
+		frontends.insert(it->second->frontend);
 
 	for (std::set<CFrontend*>::iterator ft = frontends.begin(); ft != frontends.end(); ft++)
 		CFEManager::getInstance()->lockFrontend(*ft);
 
 	frontend = CFEManager::getInstance()->allocateFE(channel, true);
 
-	if (frontend == NULL) {
+	if (unlock && frontend == NULL) {
 		unlock = false;
 		CFEManager::getInstance()->unlockFrontend(live_fe);
 		frontend = CFEManager::getInstance()->allocateFE(channel, true);
@@ -315,7 +318,7 @@ CFrontend * CStreamManager::FindFrontend(CZapitChannel * channel)
 	CFEManager::getInstance()->Unlock();
 
 	if (frontend) {
-		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, chid);
+		bool found = (live_fe != frontend) || IS_WEBTV(live_channel_id) || SAME_TRANSPONDER(live_channel_id, chid);
 		bool ret = false;
 		if (found)
 			ret = zapit.zapTo_record(chid) > 0;
@@ -410,6 +413,8 @@ bool CStreamManager::Parse(int fd, stream_pids_t &pids, t_channel_id &chid, CFro
 		return false;
 
 	printf("CStreamManager::Parse: channel_id %llx [%s]\n", chid, channel->getName().c_str());
+	if (IS_WEBTV(chid))
+		return false;
 
 	frontend = FindFrontend(channel);
 	if (!frontend) {
@@ -436,13 +441,13 @@ void CStreamManager::AddPids(int fd, CZapitChannel *channel, stream_pids_t &pids
 	CGenPsi psi;
 	for (stream_pids_t::iterator it = pids.begin(); it != pids.end(); ++it) {
 		if (*it == channel->getVideoPid()) {
-			printf("CStreamManager::Parse: genpsi vpid %x (%d)\n", *it, channel->type);
+			printf("CStreamManager::AddPids: genpsi vpid %x (%d)\n", *it, channel->type);
 			psi.addPid(*it, channel->type == 1 ? EN_TYPE_AVC : channel->type == 2 ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
 		} else {
 			for (int i = 0; i <  channel->getAudioChannelCount(); i++) {
 				if (*it == channel->getAudioChannel(i)->pid) {
 					CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
-					printf("CStreamManager::Parse: genpsi apid %x (%d)\n", *it, atype);
+					printf("CStreamManager::AddPids: genpsi apid %x (%d)\n", *it, atype);
 					if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
 						psi.addPid(*it, EN_TYPE_AUDIO_EAC3, atype, channel->getAudioChannel(i)->description.c_str());
 					} else {
@@ -619,6 +624,21 @@ bool CStreamManager::StopStream(t_channel_id channel_id)
 		ret = StopAll();
 	}
 	mutex.unlock();
+	return ret;
+}
+
+bool CStreamManager::StopStream(CFrontend * fe)
+{
+	bool ret = false;
+	for (streammap_iterator_t it = streams.begin(); it != streams.end(); ) {
+		if (it->second->frontend == fe) {
+			delete it->second;
+			streams.erase(it++);
+			ret = true;
+		} else {
+			++it;
+		}
+	}
 	return ret;
 }
 

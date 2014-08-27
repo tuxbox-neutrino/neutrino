@@ -351,13 +351,13 @@ void CVFD::showRCLock(int /*duration*/)
 {
 }
 
-void CVFD::showVolume(const char vol, const bool /*perform_update*/)
+void CVFD::showVolume(const char vol, const bool force_update)
 {
 	static int oldpp = 0;
 	if(!has_lcd) return;
 
 	ShowIcon(FP_ICON_MUTE, muted);
-	if(vol == volume)
+	if(!force_update && vol == volume)
 		return;
 
 	volume = vol;
@@ -368,7 +368,7 @@ void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 		int pp = (int) round((double) vol * (double) 8 / (double) 100);
 		if(pp > 8) pp = 8;
 
-		if(oldpp != pp) {
+		if(force_update || oldpp != pp) {
 printf("CVFD::showVolume: %d, bar %d\n", (int) vol, pp);
 			int i;
 			int j = 0x00000200;

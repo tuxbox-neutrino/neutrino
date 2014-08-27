@@ -937,7 +937,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
-	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF || IS_WEBTV(eventinfo->channel_id))
 		return false;
 
 #if 1 // FIXME test
@@ -1576,18 +1576,19 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 
 		/* if allocateFE was successful, full zapTo_serviceID 
 		 * needed, if record frontend same as live, and its on different TP */
-		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, channel_id);
+		bool found = (live_fe != frontend) || IS_WEBTV(live_channel_id) || SAME_TRANSPONDER(live_channel_id, channel_id);
+
+		/* stop all streams on that fe, if we going to change transponder */
+		if (!frontend->sameTsidOnid(channel->getTransponderId()))
+			CStreamManager::getInstance()->StopStream(frontend);
+
 		if(found) {
-			/* stop stream for this channel */
-			CStreamManager::getInstance()->StopStream(channel_id);
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
 			printf("%s found same tp, zapTo_record channel_id %" PRIx64 " result %d\n", __func__, channel_id, ret);
 		}
 		else {
 			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
 			StopAutoRecord(false);
-			/* stop all streams */
-			CStreamManager::getInstance()->StopStream();
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
 				mode_changed = true;

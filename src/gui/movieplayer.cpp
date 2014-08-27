@@ -74,9 +74,12 @@ extern CInfoClock *InfoClock;
 #define ISO_MOUNT_POINT "/media/iso"
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
+OpenThreads::Mutex CMoviePlayerGui::bgmutex;
+OpenThreads::Condition CMoviePlayerGui::cond;
 
 CMoviePlayerGui& CMoviePlayerGui::getInstance()
 {
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(bgmutex);
 	if ( !instance_mp )
 	{
 		instance_mp = new CMoviePlayerGui();
@@ -92,7 +95,8 @@ CMoviePlayerGui::CMoviePlayerGui()
 
 CMoviePlayerGui::~CMoviePlayerGui()
 {
-	playback->Close();
+	//playback->Close();
+	stopPlayBack();
 	delete moviebrowser;
 	delete filebrowser;
 	delete bookmarkmanager;
@@ -103,6 +107,7 @@ CMoviePlayerGui::~CMoviePlayerGui()
 void CMoviePlayerGui::Init(void)
 {
 	playing = false;
+	stopped = true;
 
 	frameBuffer = CFrameBuffer::getInstance();
 
@@ -152,29 +157,36 @@ void CMoviePlayerGui::Init(void)
 	max_y = 0;
 	ext_subs = false;
 	iso_file = false;
+	bgThread = 0;
 }
 
 void CMoviePlayerGui::cutNeutrino()
 {
+	printf("%s: playing %d isUPNP %d\n", __func__, playing, isUPNP);
 	if (playing)
 		return;
 
 	playing = true;
 	/* set g_InfoViewer update timer to 1 sec, should be reset to default from restoreNeutrino->set neutrino mode  */
-	g_InfoViewer->setUpdateTimer(1000 * 1000);
+	if (!isWebTV)
+		g_InfoViewer->setUpdateTimer(1000 * 1000);
 
 	if (isUPNP)
 		return;
 
 	g_Zapit->lockPlayBack();
-	g_Sectionsd->setPauseScanning(true);
+	if (!isWebTV)
+		g_Sectionsd->setPauseScanning(true);
 
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_ts);
-	m_LastMode = (CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
+	m_LastMode = (CNeutrinoApp::getInstance()->getMode() | NeutrinoMessages::norezap);
+printf("%s: save mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_mask);fflush(stdout);
+	int new_mode = NeutrinoMessages::norezap | (isWebTV ? NeutrinoMessages::mode_webtv : NeutrinoMessages::mode_ts);
+	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, new_mode);
 }
 
 void CMoviePlayerGui::restoreNeutrino()
 {
+	printf("%s: playing %d isUPNP %d\n", __func__, playing, isUPNP);
 	if (!playing)
 		return;
 
@@ -186,7 +198,21 @@ void CMoviePlayerGui::restoreNeutrino()
 	g_Zapit->unlockPlayBack();
 	g_Sectionsd->setPauseScanning(false);
 
-	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
+printf("%s: restore mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_mask);fflush(stdout);
+	if (m_LastMode == NeutrinoMessages::mode_tv)
+		g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x200, false);
+
+	if (m_LastMode != NeutrinoMessages::mode_unknown)
+		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
+
+#if 0
+	if (m_LastMode == NeutrinoMessages::mode_tv) {
+		CZapitChannel *channel = CZapit::getInstance()->GetCurrentChannel();
+		if (channel && channel->scrambled)
+			CZapit::getInstance()->Rezap();
+	}
+#endif
+printf("%s: restoring done.\n", __func__);fflush(stdout);
 }
 
 int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
@@ -207,6 +233,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	timeshift = 0;
 	isHTTP = false;
 	isUPNP = false;
+	isWebTV = false;
 
 	if (actionKey == "tsmoviebrowser") {
 		isMovieBrowser = true;
@@ -283,7 +310,7 @@ void CMoviePlayerGui::updateLcd()
 	if (isMovieBrowser && strlen(p_movie_info->epgTitle.c_str()) && strncmp(p_movie_info->epgTitle.c_str(), "not", 3))
 		name = p_movie_info->epgTitle;
 	else
-		name = file_name;
+		name = pretty_name;
 
 	switch (playstate) {
 		case CMoviePlayerGui::PAUSE:
@@ -356,25 +383,26 @@ void CMoviePlayerGui::Cleanup()
 	is_file_player = false;
 	p_movie_info = NULL;
 	autoshot_done = false;
+	currentaudioname = "Unk";
 }
 
 void CMoviePlayerGui::makeFilename()
 {
-	if(file_name.empty()) {
-		std::string::size_type pos = full_name.find_last_of('/');
+	if(pretty_name.empty()) {
+		std::string::size_type pos = file_name.find_last_of('/');
 		if(pos != std::string::npos) {
-			file_name = full_name.substr(pos+1);
-			std::replace(file_name.begin(), file_name.end(), '_', ' ');
+			pretty_name = file_name.substr(pos+1);
+			std::replace(pretty_name.begin(), pretty_name.end(), '_', ' ');
 		} else
-			file_name = full_name;
+			pretty_name = file_name;
 		
-		if(file_name.substr(0,14)=="videoplayback?"){//youtube name
+		if(pretty_name.substr(0,14)=="videoplayback?"){//youtube name
 			if(!p_movie_info->epgTitle.empty())
-				file_name = p_movie_info->epgTitle;
+				pretty_name = p_movie_info->epgTitle;
 			else
-				file_name = "";
+				pretty_name = "";
 		}
-		printf("CMoviePlayerGui::makeFilename: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
+		printf("CMoviePlayerGui::makeFilename: file_name [%s] pretty_name [%s]\n", file_name.c_str(), pretty_name.c_str());
 	}
 }
 
@@ -384,8 +412,8 @@ bool CMoviePlayerGui::SelectFile()
 	menu_ret = menu_return::RETURN_REPAINT;
 
 	Cleanup();
+	pretty_name = "";
 	file_name = "";
-	full_name = "";
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
 	wakeup_hdd(g_settings.network_nfs_recordingdir.c_str());
@@ -393,7 +421,7 @@ bool CMoviePlayerGui::SelectFile()
 	if (timeshift) {
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		p_movie_info = CRecordManager::getInstance()->GetMovieInfo(live_channel_id);
-		full_name = CRecordManager::getInstance()->GetFileName(live_channel_id) + ".ts";
+		file_name = CRecordManager::getInstance()->GetFileName(live_channel_id) + ".ts";
 		fillPids();
 		ret = true;
 	}
@@ -404,7 +432,7 @@ bool CMoviePlayerGui::SelectFile()
 			bookmarkmanager->flush();
 			return false;
 		}
-		full_name = theBookmark->getUrl();
+		file_name = theBookmark->getUrl();
 		sscanf(theBookmark->getTime(), "%lld", &startposition);
 		startposition *= 1000;
 		ret = true;
@@ -419,17 +447,17 @@ bool CMoviePlayerGui::SelectFile()
 				// get the movie info handle (to be used for e.g. bookmark handling)
 				p_movie_info = moviebrowser->getCurrentMovieInfo();
 				if (moviebrowser->getMode() == MB_SHOW_RECORDS) {
-					full_name = file->Name;
+					file_name = file->Name;
 				}
 				else if (moviebrowser->getMode() == MB_SHOW_YT) {
-					full_name = file->Url;
+					file_name = file->Url;
 					is_file_player = true;
 				}
 				fillPids();
 
 				// get the start position for the movie
 				startposition = 1000 * moviebrowser->getCurrentStartPos();
-				printf("CMoviePlayerGui::SelectFile: file %s start %d apid %X atype %d vpid %x vtype %d\n", full_name.c_str(), startposition, currentapid, currentac3, vpid, vtype);
+				printf("CMoviePlayerGui::SelectFile: file %s start %d apid %X atype %d vpid %x vtype %d\n", file_name.c_str(), startposition, currentapid, currentac3, vpid, vtype);
 
 				ret = true;
 			}
@@ -444,7 +472,7 @@ bool CMoviePlayerGui::SelectFile()
 			CFile *file;
 			if ((file = filebrowser->getSelectedFile()) != NULL) {
 				is_file_player = true;
-				full_name = file->Name.c_str();
+				file_name = file->Name.c_str();
 				ret = true;
 				if(file->getType() == CFile::FILE_PLAYLIST)
 					parsePlaylist(file);
@@ -469,8 +497,8 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 	set_threadname(__func__);
 	CMoviePlayerGui *caller = (CMoviePlayerGui *)arg;
 	CHintBox *hintbox = NULL;
-	if(!caller->file_name.empty()){
-		hintbox = new CHintBox(LOCALE_MOVIEPLAYER_STARTING, caller->file_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
+	if(!caller->pretty_name.empty()){
+		hintbox = new CHintBox(LOCALE_MOVIEPLAYER_STARTING, caller->pretty_name.c_str(), 450, NEUTRINO_ICON_MOVIEPLAYER);
 		hintbox->paint();
 	}
 	while (caller->showStartingHint) {
@@ -478,9 +506,18 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 		neutrino_msg_data_t data;
 		g_RCInput->getMsg(&msg, &data, 1);
 		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop) {
-			if(caller->playback)
-				caller->playback->RequestAbort();
-		} else if (msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC) {
+			caller->playback->RequestAbort();
+		}
+#if 0
+		else if (caller->isWebTV) {
+			CNeutrinoApp::getInstance()->handleMsg(msg, data);
+		}
+#endif
+		else if (caller->isWebTV && ((msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down))) {
+			caller->playback->RequestAbort();
+			g_RCInput->postMsg(msg, data);
+		}
+		else if (msg != NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE && msg != CRCInput::RC_timeout && msg > CRCInput::RC_MaxRC) {
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 	}
@@ -491,33 +528,136 @@ void *CMoviePlayerGui::ShowStartHint(void *arg)
 	return NULL;
 }
 
+void* CMoviePlayerGui::bgPlayThread(void *arg)
+{
+	set_threadname(__func__);
+	CMoviePlayerGui *mp = (CMoviePlayerGui *) arg;
+
+#if 0
+	while (mp->playback->IsPlaying())
+		usleep(100000);
+#endif
+	bgmutex.lock();
+	cond.wait(&bgmutex);
+	bgmutex.unlock();
+	printf("%s: play end...\n", __func__);
+	mp->PlayFileEnd();
+	pthread_exit(NULL);
+}
+
+bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan)
+{
+	printf("%s: starting...\n", __func__);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (g_settings.parentallock_prompt != PARENTALLOCK_PROMPT_NEVER) {
+		int age = -1;
+		const char *ages[] = { "18+", "16+", "12+", "6+", "0+", NULL };
+		int agen[] = { 18, 16, 12, 6, 0 };
+		for (int i = 0; ages[i] && age < 0; i++) {
+			const char *n = name.c_str();
+			char *h = (char *) n;
+			while ((age < 0) && (h = strstr(h, ages[i])))
+				if ((h == n) || !isdigit(*(h - 1)))
+					age = agen[i];
+		}
+		if (age > -1 && age >= g_settings.parentallock_lockage) {
+			//CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, (neutrino_msg_data_t) age);
+			g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, age, false);
+		}
+	}
+
+	Cleanup();
+#if 0
+	isYT = false;
+	isNK = false;
+#endif
+	isWebTV = true;
+	is_file_player = 1;
+	isMovieBrowser = false;
+	isUPNP = false;
+	isBookmark = false;
+	timeshift = TSHIFT_MODE_OFF;
+	isHTTP = true;
+
+	file_name = file;
+	pretty_name = name;
+	MI_MOVIE_INFO _mi;
+	mi.epgTitle = name;
+	mi.epgChannel = file;
+	mi.epgId = chan;
+	p_movie_info = &mi;
+
+	bool res = PlayFileStart();
+	if (res) {
+		if (pthread_create (&bgThread, 0, CMoviePlayerGui::bgPlayThread, this))
+			fprintf(stderr, "ERROR: pthread_create(%s)\n", __func__);
+	} else
+		PlayFileEnd();
+	printf("%s: this %x started: res %d thread %x\n", __func__, (int) this, res, (int) CMoviePlayerGui::bgPlayThread);fflush(stdout);
+	return res;
+}
+
+void CMoviePlayerGui::stopPlayBack(void)
+{
+	printf("%s: stopping...\n", __func__);
+	playback->RequestAbort();
+
+	if (bgThread) {
+		printf("%s: this %x join background thread %x\n", __func__, (int) this, (int) CMoviePlayerGui::bgPlayThread);fflush(stdout);
+		cond.broadcast();
+		pthread_join(bgThread, NULL);
+		bgThread = 0;
+	}
+	printf("%s: stopped\n", __func__);
+}
+
+void CMoviePlayerGui::Pause(bool b)
+{
+	if (b && (playstate == CMoviePlayerGui::PAUSE))
+		b = !b;
+	if (b) {
+		playback->SetSpeed(0);
+		playstate = CMoviePlayerGui::PAUSE;
+	} else {
+		playback->SetSpeed(1);
+		playstate = CMoviePlayerGui::PLAY;
+	}
+}
+
 void CMoviePlayerGui::PlayFile(void)
 {
-	neutrino_msg_t msg;
-	neutrino_msg_data_t data;
+	mutex.lock();
+	PlayFileStart();
+	mutex.unlock();
+	PlayFileLoop();
+	PlayFileEnd();
+}
+
+bool CMoviePlayerGui::PlayFileStart(void)
+{
 	menu_ret = menu_return::RETURN_REPAINT;
 
-	bool first_start = true;
-	bool time_forced = false;
-	bool update_lcd = true;
-	int eof = 0;
+	time_forced = false;
 
 	//CTimeOSD FileTime;
 	position = 0, duration = 0;
 	speed = 1;
+
+	printf("%s: starting...\n", __func__);
+	stopPlayBack();
 
 	playstate = CMoviePlayerGui::STOPPED;
 	printf("Startplay at %d seconds\n", startposition/1000);
 	handleMovieBrowser(CRCInput::RC_nokey, position);
 
 	cutNeutrino();
+	if (isWebTV)
+		videoDecoder->setBlank(true);
 	clearSubtitle();
 
 	playback->Open(is_file_player ? PLAYMODE_FILE : PLAYMODE_TS);
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
-
-	MI_MOVIE_INFO mi;
 
 	if (p_movie_info) {
 		if (timeshift != TSHIFT_MODE_OFF) {
@@ -537,7 +677,7 @@ void CMoviePlayerGui::PlayFile(void)
 		showStartingHint = true;
 		pthread_create(&thrStartHint, NULL, CMoviePlayerGui::ShowStartHint, this);
 	}
-	bool res = playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
+	bool res = playback->Start((char *) file_name.c_str(), vpid, vtype, currentapid, currentac3, duration);
 	if (thrStartHint) {
 		showStartingHint = false;
 		pthread_join(thrStartHint, NULL);
@@ -590,12 +730,20 @@ void CMoviePlayerGui::PlayFile(void)
 			playback->SetSpeed(1);
 		}
 	}
+	getCurrentAudioName(is_file_player, currentaudioname);
 	if (is_file_player)
 		selectAutoLang();
 
 	CAudioMute::getInstance()->enableMuteIcon(true);
 	InfoClock->enableInfoClock(true);
+	return res;
+}
 
+void CMoviePlayerGui::PlayFileLoop(void)
+{
+	bool first_start = true;
+	bool update_lcd = true;
+	int eof = 0;
 	while (playstate >= CMoviePlayerGui::PLAY)
 	{
 		if (update_lcd) {
@@ -607,6 +755,8 @@ void CMoviePlayerGui::PlayFile(void)
 			first_start = false;
 		}
 
+		neutrino_msg_t msg;
+		neutrino_msg_data_t data;
 		g_RCInput->getMsg(&msg, &data, 10);	// 1 secs..
 
 		if ((playstate >= CMoviePlayerGui::PLAY) && (timeshift || (playstate != CMoviePlayerGui::PAUSE))) {
@@ -694,7 +844,7 @@ void CMoviePlayerGui::PlayFile(void)
 			update_lcd = true;
 			clearSubtitle();
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_audio) {
-			selectAudioPid(is_file_player);
+			selectAudioPid();
 			update_lcd = true;
 			clearSubtitle();
 		} else if ( msg == (neutrino_msg_t) g_settings.mpkey_subtitle) {
@@ -828,7 +978,11 @@ void CMoviePlayerGui::PlayFile(void)
 			handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_stop, position);
 		}
 	}
+}
 
+void CMoviePlayerGui::PlayFileEnd(bool restore)
+{
+	printf("%s: stopping, this %x thread %x\n", __func__, (int) this, (int) CMoviePlayerGui::bgPlayThread);fflush(stdout);
 	FileTime.kill();
 	clearSubtitle();
 
@@ -843,10 +997,13 @@ void CMoviePlayerGui::PlayFile(void)
 	CVFD::getInstance()->ShowIcon(FP_ICON_PLAY, false);
 	CVFD::getInstance()->ShowIcon(FP_ICON_PAUSE, false);
 
-	restoreNeutrino();
+	if (restore)
+		restoreNeutrino();
 
 	CAudioMute::getInstance()->enableMuteIcon(false);
 	InfoClock->enableInfoClock(false);
+	stopped = true;
+	printf("%s: stopped\n", __func__);
 }
 
 void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
@@ -858,8 +1015,6 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 				CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 		return;
 	}
-	currentaudioname = "Unk";
-	getCurrentAudioName( is_file_player, currentaudioname);
 
 	if (isMovieBrowser && p_movie_info) {
 		g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgEpgId >>16, p_movie_info->epgChannel, p_movie_info->epgTitle, p_movie_info->epgInfo1,
@@ -868,7 +1023,7 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 	}
 
 	/* not moviebrowser => use the filename as title */
-	g_InfoViewer->showMovieTitle(playstate, 0, file_name, "", "", duration, position);
+	g_InfoViewer->showMovieTitle(playstate, 0, pretty_name, "", "", duration, position);
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
@@ -957,7 +1112,7 @@ void CMoviePlayerGui::getCurrentAudioName( bool file_player, std::string &audion
 	}
 }
 
-void CMoviePlayerGui::selectAudioPid(bool file_player)
+void CMoviePlayerGui::selectAudioPid()
 {
 	CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
 	APIDSelector.addIntroItems();
@@ -965,7 +1120,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 	int select = -1;
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	if(file_player && !numpida){
+	if(is_file_player && !numpida){
 		playback->FindAllPids(apids, ac3flags, &numpida, language);
 		if(numpida)
 			currentapid = apids[0];
@@ -976,7 +1131,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		bool defpid = currentapid ? (currentapid == apids[count]) : (count == 0);
 		std::string apidtitle;
 
-		if(!file_player){
+		if(!is_file_player){
 			name_ok = getAudioName(apids[count], apidtitle);
 		}
 		else if (!language[count].empty()){
@@ -1021,6 +1176,7 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		currentapid = apids[select];
 		currentac3 = ac3flags[select];
 		playback->SetAPid(currentapid, currentac3);
+		getCurrentAudioName(is_file_player, currentaudioname);
 		printf("[movieplayer] apid changed to %d type %d\n", currentapid, currentac3);
 	}
 }
@@ -1233,7 +1389,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 					sprintf(timerstring, "%lld", play_sec);
 					std::string bookmarktime = timerstring;
 					fprintf(stderr, "fileposition: %lld timerstring: %s bookmarktime: %s\n", play_sec, timerstring, bookmarktime.c_str());
-					bookmarkmanager->createBookmark(full_name, bookmarktime);
+					bookmarkmanager->createBookmark(file_name, bookmarktime);
 				} else {
 					fprintf(stderr, "too many bookmarks\n");
 					DisplayErrorMessage(g_Locale->getText(LOCALE_MOVIEPLAYER_TOOMANYBOOKMARKS));	// UTF-8
@@ -1675,6 +1831,7 @@ void CMoviePlayerGui::selectAutoLang()
 			currentapid = apids[pref_idx];
 			currentac3 = ac3flags[pref_idx];
 			playback->SetAPid(currentapid, currentac3);
+			getCurrentAudioName(is_file_player, currentaudioname);
 		}
 	}
 }
@@ -1699,9 +1856,9 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 			if ( (url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) ){
 				if (url != NULL) {
 					printf("name %s [%d] url: %s\n", name, dur, url);
-					full_name = url;
+					file_name = url;
 					if(strlen(name))
-						file_name = name;
+						pretty_name = name;
 				}
 			}
 		}
@@ -1714,7 +1871,7 @@ bool CMoviePlayerGui::mountIso(CFile *file)
 	safe_mkdir(ISO_MOUNT_POINT);
 	if (my_system(5, "mount", "-o", "loop", file->Name.c_str(), ISO_MOUNT_POINT) == 0) {
 		makeFilename();
-		full_name = "/media/iso";
+		file_name = "/media/iso";
 		iso_file = true;
 		return true;
 	}
@@ -1734,7 +1891,7 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 	if (!cover)
 		snprintf(ending, sizeof(ending) - 1, "_%x.jpg", position);
 
-	std::string fname = full_name;
+	std::string fname = file_name;
 	std::string::size_type pos = fname.find_last_of('.');
 	if (pos != std::string::npos) {
 		fname.replace(pos, fname.length(), ending);

@@ -169,6 +169,7 @@ void CZapit::SaveSettings(bool write)
 			configfile.setInt64("lastChannelRadio", lastChannelRadio);
 			configfile.setInt64("lastChannelTV", lastChannelTV);
 			configfile.setInt64("lastChannel", live_channel_id);
+			configfile.setInt64("lastOTAChannel", last_channel_id);
 		}
 
 		configfile.setBool("writeChannelsNames", config.writeChannelsNames);
@@ -290,6 +291,7 @@ void CZapit::LoadSettings()
 	live_channel_id				= configfile.getInt64("lastChannel", 0);
 	lastChannelRadio			= configfile.getInt64("lastChannelRadio", 0);
 	lastChannelTV				= configfile.getInt64("lastChannelTV", 0);
+	last_channel_id				= configfile.getInt64("lastOTAChannel", 0);
 
 #if 0 //unused
 	config.fastZap				= configfile.getBool("fastZap", 1);
@@ -485,6 +487,19 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	INFO("[zapit] zap to %s (%" PRIx64 " tp %" PRIx64 ")", newchannel->getName().c_str(), newchannel->getChannelID(), newchannel->getTransponderId());
 
+	if (IS_WEBTV(newchannel->getChannelID()) && !newchannel->getUrl().empty()) {
+		if (!IS_WEBTV(live_channel_id))
+			CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
+
+		live_channel_id = newchannel->getChannelID();
+		lock_channel_id = live_channel_id;
+
+		current_channel = newchannel;
+		lastChannelTV = channel_id;
+		SendEvent(CZapitClient::EVT_WEBTV_ZAP_COMPLETE, &live_channel_id, sizeof(t_channel_id));
+		return true;
+	}
+
 #ifdef ENABLE_PIP
 	/* executed async if zap NOWAIT, race possible with record lock/allocate */
 	CFEManager::getInstance()->Lock();
@@ -528,6 +543,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	live_channel_id = current_channel->getChannelID();
 	lock_channel_id = live_channel_id;
+	last_channel_id = live_channel_id;
 	SaveSettings(false);
 
 	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
@@ -718,18 +734,20 @@ bool CZapit::ZapForEpg(const t_channel_id channel_id, bool instandby)
 	/* no need to lock fe in standby mode,
 	   epg scan should care to not call this if recording running */
 	if (!instandby) {
-		CFEManager::getInstance()->lockFrontend(live_fe);
+		if (!IS_WEBTV(live_channel_id))
+			CFEManager::getInstance()->lockFrontend(live_fe);
 #ifdef ENABLE_PIP
-		if (pip_fe && pip_fe != live_fe)
+		if (pip_fe /* && pip_fe != live_fe */)
 			CFEManager::getInstance()->lockFrontend(pip_fe);
 #endif
 	}
 	CFrontend * frontend = CFEManager::getInstance()->allocateFE(newchannel);
 
 	if (!instandby) {
-		CFEManager::getInstance()->unlockFrontend(live_fe);
+		if (!IS_WEBTV(live_channel_id))
+			CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
-		if (pip_fe && pip_fe != live_fe)
+		if (pip_fe /* && pip_fe != live_fe */)
 			CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
 	}
@@ -1009,6 +1027,40 @@ void CZapit::SendCmdReady(int connfd)
 	CBasicServer::send_data(connfd, &response, sizeof(response));
 }
 
+void CZapit::lockPlayBack(const bool sendpmt)
+{
+	/* hack. if standby true, dont blank video */
+	standby = true;
+	StopPlayBack(sendpmt);
+	standby = false;
+	playbackStopForced = true;
+	lock_channel_id = live_channel_id;
+}
+
+void CZapit::unlockPlayBack(const bool /*sendpmt*/)
+{
+	playbackStopForced = false;
+	if (lock_channel_id == live_channel_id) {
+		StartPlayBack(current_channel);
+		SendPMT();
+	} else {
+		live_fe->setTsidOnid(0);
+		if (!ZapIt(lock_channel_id))
+			SendEvent(CZapitClient::EVT_ZAP_FAILED, &lock_channel_id, sizeof(lock_channel_id));
+		lock_channel_id = 0;
+	}
+}
+
+void CZapit::Rezap(void)
+{
+	if (currentMode & RECORD_MODE)
+		return;
+	if(config.rezapTimeout > 0)
+		sleep(config.rezapTimeout);
+	if(current_channel)
+		ZapIt(current_channel->getChannelID());
+}
+
 bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 {
 	DBG("cmd %d (version %d) received\n", rmsg.cmd, rmsg.version);
@@ -1285,12 +1337,15 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 #endif
 	case CZapitMessages::CMD_REZAP:
+#if 0
 		if (currentMode & RECORD_MODE)
 			break;
 		if(config.rezapTimeout > 0)
 			sleep(config.rezapTimeout);
 		if(current_channel)
 			ZapIt(current_channel->getChannelID());
+#endif
+		Rezap();
 		break;
         case CZapitMessages::CMD_TUNE_TP: {
 			CBasicServer::receive_data(connfd, &TP, sizeof(TP));
@@ -1605,15 +1660,19 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 #endif
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
+#if 0
 		/* hack. if standby true, dont blank video */
 		standby = true;
 		StopPlayBack(true);
 		standby = false;
 		playbackStopForced = true;
 		lock_channel_id = live_channel_id;
+#endif
+		lockPlayBack();
 		SendCmdReady(connfd);
 		break;
 	case CZapitMessages::CMD_SB_UNLOCK_PLAYBACK:
+#if 0
 		playbackStopForced = false;
 		if (lock_channel_id == live_channel_id) {
 			StartPlayBack(current_channel);
@@ -1624,7 +1683,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				SendEvent(CZapitClient::EVT_ZAP_FAILED, &lock_channel_id, sizeof(lock_channel_id));
 			lock_channel_id = 0;
 		}
-
+#endif
+		unlockPlayBack();
 		SendCmdReady(connfd);
 		break;
 #if 0 
@@ -2022,7 +2082,13 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 		CFEManager::getInstance()->Open();
 		return true;
 	}
-
+#if 0
+	if (IS_WEBTV(thisChannel->getChannelID())) {
+		INFO("WEBTV channel\n");
+		SendEvent(CZapitClient::EVT_WEBTV_ZAP_COMPLETE, &live_channel_id, sizeof(t_channel_id));
+		return true;
+	}
+#endif
 	unsigned short pcr_pid = thisChannel->getPcrPid();
 	unsigned short audio_pid = thisChannel->getAudioPid();
 	unsigned short video_pid = (currentMode & TV_MODE) ? thisChannel->getVideoPid() : 0;
@@ -2083,10 +2149,16 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 
 bool CZapit::StopPlayBack(bool send_pmt)
 {
+	INFO("standby %d playing %d forced %d send_pmt %d", standby, playing, playbackStopForced, send_pmt);
 	if(send_pmt)
 		CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
 
-	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);
+#if 0
+	if (current_channel && IS_WEBTV(current_channel->getChannelID())) {
+		playing = false;
+		return true;
+	}
+#endif
 
 	if (!playing)
 		return true;
@@ -2150,9 +2222,17 @@ void CZapit::leaveStandby(void)
 		CFEManager::getInstance()->Open();
 	}
 	standby = false;
-	if (current_channel)
+	if (current_channel) {
 		/* tune channel, with stopped playback to not bypass the parental PIN check */
 		ZapIt(live_channel_id, false, false);
+		if (IS_WEBTV(live_channel_id)) {
+			CZapitChannel* newchannel = CServiceManager::getInstance()->FindChannel(last_channel_id);
+			CFrontend * fe = newchannel ? CFEManager::getInstance()->allocateFE(newchannel) : NULL;
+			bool transponder_change;
+			if (fe)
+				TuneChannel(fe, newchannel, transponder_change, false);
+		}
+	}
 }
 
 unsigned CZapit::ZapTo(const unsigned int bouquet, const unsigned int pchannel)
@@ -2221,12 +2301,11 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	CFEManager::getInstance()->Init();
 	live_fe = CFEManager::getInstance()->getFE(0);
 
-	if (live_fe == NULL) /* no frontend found? */
-		return false;
-
 	/* load configuration or set defaults if no configuration file exists */
 	video_mode = ZapStart_arg->video_mode;
 	current_volume = ZapStart_arg->volume;
+
+	webtv_xml = ZapStart_arg->webtv_xml;
 
 	videoDemux = new cDemux();
 	videoDemux->Open(DMX_VIDEO_CHANNEL);
@@ -2280,6 +2359,8 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 #endif
 	ca = cCA::GetInstance();
 
+	if (live_fe == NULL) /* no frontend found? */
+		return false;
 	//LoadSettings();
 	//LoadAudioMap();
 

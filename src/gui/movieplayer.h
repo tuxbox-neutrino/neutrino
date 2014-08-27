@@ -50,6 +50,9 @@
 #include <string>
 #include <vector>
 
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+
 class CMoviePlayerGui : public CMenuTarget
 {
  public:
@@ -68,10 +71,11 @@ class CMoviePlayerGui : public CMenuTarget
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
 
-	std::string	full_name;
 	std::string	file_name;
+	std::string	pretty_name;
 	std::string    	currentaudioname;
 	bool		playing;
+	bool		time_forced;
 	CMoviePlayerGui::state playstate;
 	int speed;
 	int startposition;
@@ -101,14 +105,17 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isMovieBrowser;
 	bool isHTTP;
 	bool isUPNP;
+	bool isWebTV;
 	bool showStartingHint;
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
+	MI_MOVIE_INFO mi;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
 	/* playback from file */
 	bool is_file_player;
 	bool iso_file;
+	bool stopped;
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
 	std::string Path_local;
@@ -119,11 +126,19 @@ class CMoviePlayerGui : public CMenuTarget
 	CBookmarkManager * bookmarkmanager;
 	bool isBookmark;
 
+	OpenThreads::Mutex mutex;
+	static OpenThreads::Mutex bgmutex;
+	static OpenThreads::Condition cond;
+	pthread_t bgThread;
+
 	cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
 
 	void Init(void);
 	void PlayFile();
+	bool PlayFileStart();
+	void PlayFileLoop();
+	void PlayFileEnd(bool restore = true);
 	void cutNeutrino();
 	void restoreNeutrino();
 
@@ -131,7 +146,6 @@ class CMoviePlayerGui : public CMenuTarget
 	void callInfoViewer(/*const int duration, const int pos*/);
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
-	void selectAudioPid(bool file_player);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
 	void addAudioFormat(int count, std::string &apidtitle, bool& enabled );
 
@@ -152,6 +166,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	void Cleanup();
 	static void *ShowStartHint(void *arg);
+	static void* bgPlayThread(void *arg);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
 	CMoviePlayerGui();
@@ -171,7 +186,12 @@ class CMoviePlayerGui : public CMenuTarget
 	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
-	void SetFile(std::string &name, std::string &file) { file_name = name; full_name = file; }
+	void SetFile(std::string &name, std::string &file) { pretty_name = name; file_name = file; }
+	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan);
+	void stopPlayBack(void);
+	void setLastMode(int m) { m_LastMode = m; }
+	void Pause(bool b = true);
+	void selectAudioPid();
 };
 
 #endif

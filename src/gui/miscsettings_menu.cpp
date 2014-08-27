@@ -514,9 +514,16 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 	CMenuWidget * ms_chanlist = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
 	ms_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
 
+	bool tmp1 = g_settings.make_hd_list;
+	bool tmp2 = g_settings.make_webtv_list;
+
 	CMenuOptionChooser * mc;
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_HDLIST ,     &g_settings.make_hd_list            , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_MAKE_HDLIST);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_WEBTVLIST ,  &g_settings.make_webtv_list            , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_MAKE_WEBTVLIST);
 	ms_chanlist->addItem(mc);
 
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_NEWLIST,     &g_settings.make_new_list           , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -544,6 +551,8 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 	ms_chanlist->addItem(mc);
 	int res = ms_chanlist->exec(NULL, "");
 	delete ms_chanlist;
+	if (tmp1 != g_settings.make_hd_list|| tmp2 != g_settings.make_webtv_list)
+		g_Zapit->reinitChannels();
 	return res;
 }
 

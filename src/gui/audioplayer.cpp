@@ -85,6 +85,7 @@ extern CPictureViewer * g_PicViewer;
 #include <curl/types.h>
 #endif
 
+#include <zapit/zapit.h>
 #include <video.h>
 extern cVideo * videoDecoder;
 
@@ -282,14 +283,13 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 		m_frameBuffer->saveBackgroundImage();
 
 	// set zapit in lock mode
-	g_Zapit->lockPlayBack();
-	videoDecoder->setBlank(true);
+	CNeutrinoApp::getInstance()->stopPlayBack(true);
+
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 
 	// tell neutrino we're in audio mode
+	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_audio );
-
-	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
 
 	// Stop sectionsd
 	g_Sectionsd->setPauseScanning(true);
@@ -310,7 +310,8 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (my_system(AUDIOPLAYER_END_SCRIPT) != 0)
 		perror(AUDIOPLAYER_END_SCRIPT " failed");
 
-	g_Zapit->unlockPlayBack();
+	//g_Zapit->unlockPlayBack();
+	CZapit::getInstance()->EnablePlayback(true);
 	// Start Sectionsd
 	g_Sectionsd->setPauseScanning(false);
 	videoDecoder->StopPicture();

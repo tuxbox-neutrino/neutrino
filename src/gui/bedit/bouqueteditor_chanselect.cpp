@@ -143,6 +143,8 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width - 20 - iconoffset, Channels[itemNr]->getName(), color);
 		if(Channels[itemNr]->scrambled)
 			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
+		else if (!Channels[itemNr]->getUrl().empty())
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x+width- 15 - 28, ypos, fheight);
 	}
 }
 

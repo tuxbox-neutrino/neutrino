@@ -717,7 +717,7 @@ int CChannelList::show()
 
 			}
 #endif
-			if((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) && SameTP()) {
+			if((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) && SameTP() && !IS_WEBTV(chanlist[selected]->channel_id)) {
 				printf("[neutrino channellist] start direct recording...\n");
 				hide();
 				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
@@ -1144,7 +1144,8 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 				int new_mode = old_mode;
 				bool has_channel;
 				first_mode_found = -1;
-				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
+				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv
+				|| CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) {
 					has_channel = TVfavList->adjustToChannelID(channel_id);
 					if (has_channel && first_mode_found < 0)
 						first_mode_found = LIST_MODE_FAV;
@@ -1639,7 +1640,7 @@ void CChannelList::paintDetails(int index)
 	frameBuffer->paintBoxRel(x+1, y + height + 1, full_width-2, info_height - 2, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
 	frameBuffer->paintBoxFrame(x, y + height, full_width, info_height, 2, COL_MENUCONTENT_PLUS_6, RADIUS_LARGE);
 
-	if (!p_event->description.empty()) {
+	if (!IS_WEBTV(chanlist[index]->channel_id) && !p_event->description.empty()) {
 		char cNoch[50] = {0}; // UTF-8
 		char cSeit[50] = {0}; // UTF-8
 
@@ -1703,7 +1704,10 @@ void CChannelList::paintDetails(int index)
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- noch_len, y+ height+ 5+ fdescrheight+ fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT);
 	}
-	if(g_settings.channellist_foot == 0) {
+	if (IS_WEBTV(chanlist[index]->channel_id)) {
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight,                  full_width - 30, chanlist[index]->getDesc(), colored_event_C ? COL_COLORED_EVENTS_TEXT : COL_MENUCONTENTDARK_TEXT, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight + fdescrheight, full_width - 30, chanlist[index]->getUrl(), COL_MENUCONTENTDARK_TEXT, 0, true);
+	} else if(g_settings.channellist_foot == 0) {
 		transponder t;
 		CServiceManager::getInstance()->GetTransponder(chanlist[index]->getTransponderId(), t);
 
@@ -1853,6 +1857,8 @@ void CChannelList::paintButtonBar(bool is_current)
 			//manage record button
 			if (g_settings.recording_type == RECORDING_OFF)
 				continue;
+			if (IS_WEBTV(chanlist[selected]->channel_id))
+				continue;
 			if (!displayNext){
 				if (do_record){
 					Button[bcnt].locale = LOCALE_MAINMENU_RECORDING_STOP;
@@ -1869,7 +1875,7 @@ void CChannelList::paintButtonBar(bool is_current)
 		if (i == 5) {
 			//manage pip button
 #ifdef ENABLE_PIP
-			if (!is_current)
+			if (!is_current || IS_WEBTV(chanlist[selected]->channel_id))
 #endif
 				continue;
 		}
@@ -2001,15 +2007,17 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		}
 #endif
 		//calculating icons
+		bool isWebTV = !chan->getUrl().empty();
+		const char *icon = isWebTV ? NEUTRINO_ICON_STREAMING : NEUTRINO_ICON_SCRAMBLED;
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
 		int r_icon_w;  int s_icon_h=0; int s_icon_w=0;
-		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
+		frameBuffer->getIconSize(icon, &s_icon_w, &s_icon_h);
 		r_icon_w = ChannelList_Rec;
 		int r_icon_x = icon_x;
 
-		//paint scramble icon
-		if(chan->scrambled)
-			if (frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, icon_x - s_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
+		//paint icon
+		if(chan->scrambled || isWebTV)
+			if (frameBuffer->paintIcon(icon, icon_x - s_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
 				r_icon_x = r_icon_x - s_icon_w;
 
  		//paint recording icon
@@ -2226,16 +2234,10 @@ bool CChannelList::SameTP(t_channel_id channel_id)
 {
 	bool iscurrent = true;
 
-#if 0
-	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift)
-		iscurrent = (channel_id >> 16) == (rec_channel_id >> 16);
-#endif
 	if(CNeutrinoApp::getInstance()->recordingstatus) {
-#if 0
-		if(channel_id == 0)
-			channel_id = chanlist[selected]->channel_id;
-		iscurrent = CRecordManager::getInstance()->SameTransponder(channel_id);
-#endif
+		if (IS_WEBTV(channel_id))
+			return true;
+
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 		if(channel)
 			iscurrent = SameTP(channel);
@@ -2252,10 +2254,15 @@ bool CChannelList::SameTP(CZapitChannel * channel)
 	if(CNeutrinoApp::getInstance()->recordingstatus) {
 		if(channel == NULL)
 			channel = chanlist[selected];
+
+		if (IS_WEBTV(channel->getChannelID()))
+			return true;
+
 		iscurrent = CFEManager::getInstance()->canTune(channel);
 	}
 	return iscurrent;
 }
+
 std::string  CChannelList::MaxChanNr()
 {
 	zapit_list_it_t chan_it;

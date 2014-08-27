@@ -292,6 +292,16 @@ bool CServiceManager::GetAllHDChannels(ZapitChannelList &list, int flags)
 	return (!list.empty());
 }
 
+bool CServiceManager::GetAllWebTVChannels(ZapitChannelList &list, int flags)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		if ((it->second.flags & flags) && !it->second.getUrl().empty())
+			list.push_back(&(it->second));
+	}
+	return (!list.empty());
+}
+
 bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
@@ -850,6 +860,8 @@ bool CServiceManager::LoadServices(bool only_current)
 	printf("[zapit] Loading services, channel size %d ..\n", (int)sizeof(CZapitChannel));
 	//frontendType = CFEManager::getInstance()->getLiveFE()->getInfo()->type;
 
+	std::list<std::string> *webtv_xml = CZapit::getInstance()->GetWebTVXML();
+
 	if(only_current)
 		goto do_current;
 
@@ -916,6 +928,35 @@ bool CServiceManager::LoadServices(bool only_current)
 		xmlFreeDoc(parser);
 	}
 
+	if (webtv_xml) {
+		for (std::list<std::string>::iterator it = webtv_xml->begin(); it != webtv_xml->end(); ++it) {
+			if (!access((*it).c_str(), R_OK)) {
+				INFO("Loading webtv...");
+				parser = parseXmlFile((*it).c_str());
+				if (parser == NULL)
+					continue;
+
+				xmlNodePtr l0 = xmlDocGetRootElement(parser);
+				xmlNodePtr l1 = l0->xmlChildrenNode;
+				if (l1) {
+					while ((xmlGetNextOccurence(l1, "webtv"))) {
+						char *title = xmlGetAttribute(l1, "title");
+						char *url = xmlGetAttribute(l1, "url");
+						char *desc = xmlGetAttribute(l1, "description");
+						if (title && url) {
+							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
+							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc);
+							AddChannel(channel);
+							channel->flags = CZapitChannel::UPDATED;
+						}
+
+						l1 = l1->xmlNextNode;
+					}
+				}
+				xmlFreeDoc(parser);
+			}
+		}
+	}
 #if 0
 	if (CFEManager::getInstance()->haveSat()) {
 		LoadMotorPositions();

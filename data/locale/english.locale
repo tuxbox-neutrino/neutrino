@@ -202,6 +202,7 @@ bouquetname.hdtv HD channels
 bouquetname.new New channels
 bouquetname.other Unknown provider
 bouquetname.removed Removed channels
+bouquetname.webtv WebTV channels
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler version
 buildinfo.compiler_flags Compiler flags
@@ -235,6 +236,7 @@ channellist.keep_numbers Persistent channel numbers
 channellist.make_hdlist Create list of HD channels
 channellist.make_newlist Create list of new channels
 channellist.make_removedlist Create list of removed channels
+channellist.make_webtvlist Create list of WebTV channels
 channellist.new_zap_mode Quickzap in list
 channellist.new_zap_mode_active active
 channellist.new_zap_mode_allow allow
@@ -1031,6 +1033,7 @@ menu.hint_lua Run Plugins
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
 menu.hint_make_removedlist Create list of recently removed channels
+menu.hint_make_webtvlist Auto-create WebTV channel list based on\nchannel type and name
 menu.hint_manage_settings Backup, restore, revert to defaults\nFactory box reset
 menu.hint_mb Your recordings
 menu.hint_media Play movies, audio files\nWatch pictures
@@ -1300,6 +1303,7 @@ menu.hint_volume Configure Volume GUI options
 menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_volume_size Select volume indicator height
+menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_ytplay Play selected youtube feeds
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
@@ -2188,6 +2192,10 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Digital video mode
+webtv.head WebTV
+webtv.xml WebTV XML files
+webtv.xml.add Add XML file
+webtv.xml.del Remove XML file
 window_size Window size in %
 wizard.initial_settings Initial settings found
 wizard.install_settings Do you want to install channels for Astra 19.2°E?

@@ -386,6 +386,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			channel_node = search->xmlChildrenNode;
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
 				std::string  name2 = xmlGetAttribute(channel_node, "n");
+				char *url = xmlGetAttribute(channel_node, "u");
 				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
 				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
 				GET_ATTR(channel_node, "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);
@@ -395,9 +396,10 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					freq = freq/1000;
 
 				CZapitChannel* chan;
-				t_channel_id chid = CREATE_CHANNEL_ID64;
+				t_channel_id chid = create_channel_id64(service_id, original_network_id, transport_stream_id,
+									satellitePosition, freq, url);
 				/* FIXME to load old cable settings with new cable "positions" started from 0xF00 */
-				if(bUser || CFEManager::getInstance()->cableOnly())
+				if(!url && (bUser || CFEManager::getInstance()->cableOnly()))
 					chan = CServiceManager::getInstance()->FindChannelFuzzy(chid, satellitePosition, freq);
 				else
 					chan = CServiceManager::getInstance()->FindChannel(chid);

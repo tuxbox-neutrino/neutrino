@@ -220,6 +220,7 @@ void CInfoViewerBB::getBBButtonInfo()
 	bbButtonMaxH = 0;
 	bbButtonMaxX = g_InfoViewer->ChanInfoX;
 	int bbButtonMaxW = 0;
+	int mode;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		int w = 0, h = 0;
 		std::string text, icon;
@@ -237,7 +238,8 @@ void CInfoViewerBB::getBBButtonInfo()
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+			mode = CNeutrinoApp::getInstance()->getMode();
+			if ((mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv) && !CMoviePlayerGui::getInstance().timeshift) {
 				text = CMoviePlayerGui::getInstance().CurrentAudioName();
 			}else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;

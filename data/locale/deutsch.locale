@@ -202,6 +202,7 @@ bouquetname.hdtv HD Kanäle
 bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
+bouquetname.webtv WebTV Kanäle
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler Version
 buildinfo.compiler_flags Compiler Flags
@@ -235,6 +236,7 @@ channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
+channellist.make_webtvlist Erzeuge Bouquet mit WebTV-Kanälen
 channellist.new_zap_mode Quickzap in Liste
 channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben
@@ -989,6 +991,7 @@ menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
 menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelöschte Kanäle' erzeugt
+menu.hint_make_webtvlist Bei aktiver Option wird ein Bouquet namens 'WebTV' erzeugt, in dem alle WebTV-Sender zusammengefasst sind
 menu.hint_manage_settings Sichern, Wiederherstellen und Auslieferungszustand wiederherstellen
 menu.hint_mb Ihre Aufnahmen
 menu.hint_media Abspielen von Musik, Internetradio und Filmen; Betrachten Sie Bilder
@@ -1253,6 +1256,7 @@ menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
+menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
@@ -2135,6 +2139,10 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
+webtv.head WebTV
+webtv.xml WebTV-XML-Dateien
+webtv.xml.add XML-Datei hinzufügen
+webtv.xml.del XML-Datei entfernen
 window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?

@@ -145,6 +145,7 @@ public:
 		mode_pic = 6,
 		mode_ts = 7,
 		mode_off = 8,
+		mode_webtv = 9,
 		mode_mask = 0xFF,
 		norezap = 0x100
 	};
@@ -216,6 +217,8 @@ public:
 	void zapTo(t_channel_id channel_id);
 	bool wakeupFromStandby(void);
 	void standbyToStandby(void);
+	void lockPlayBack(bool blank = true);
+	void stopPlayBack(bool lock = false);
 };
 #endif
 

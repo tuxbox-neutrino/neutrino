@@ -44,6 +44,7 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/components/cc.h>
+#include <gui/movieplayer.h>
 
 #include <system/settings.h>
 #include <system/helpers.h>
@@ -58,6 +59,7 @@
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 #include <video.h>
+
 extern cVideo * videoDecoder;
 
 #define NEUTRINO_SCAN_START_SCRIPT	CONFIGDIR "/scan.start"
@@ -197,7 +199,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 
 	CRecordManager::getInstance()->StopAutoRecord();
-	g_Zapit->stopPlayBack();
+	CNeutrinoApp::getInstance()->stopPlayBack();
 #ifdef ENABLE_PIP
 	CZapit::getInstance()->StopPip();
 #endif

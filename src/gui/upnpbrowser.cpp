@@ -97,10 +97,8 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	if (parent)
 		parent->hide();
 
-	g_Zapit->stopPlayBack();
-	//g_Zapit->lockPlayBack();
-	CZapit::getInstance()->EnablePlayback(false);
-
+	/* stop playback, disable playback start */
+	CNeutrinoApp::getInstance()->stopPlayBack(true);
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 
 	// tell neutrino we're in audio mode
@@ -139,14 +137,11 @@ int CUpnpBrowserGui::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	if (CAudioPlayer::getInstance()->getState() != CBaseDec::STOP)
 		CAudioPlayer::getInstance()->stop();
 
-	//g_Zapit->setStandby(false);
-
 	// Start Sectionsd
 	g_Sectionsd->setPauseScanning(false);
 	videoDecoder->StopPicture();
 	m_frameBuffer->Clear();
 
-	//g_Zapit->unlockPlayBack();
 	CZapit::getInstance()->EnablePlayback(true);
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE , m_LastMode);
 	g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);

@@ -73,6 +73,7 @@ class CZapitClient:public CBasicClient
 			EVT_PMT_CHANGED,
 			EVT_TUNE_COMPLETE,
 			EVT_BACK_ZAP_COMPLETE,
+			EVT_WEBTV_ZAP_COMPLETE,
 			LAST_EVENT_MARKER             // <- no actual event, needed by pzapit
 		};
 

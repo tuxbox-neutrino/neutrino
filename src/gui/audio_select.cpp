@@ -47,6 +47,7 @@ extern CRemoteControl		* g_RemoteControl; /* neutrino.cpp */
 extern CAudioSetupNotifier	* audioSetupNotifier;
 
 #include <gui/audio_select.h>
+#include <gui/movieplayer.h>
 #include <libdvbsub/dvbsub.h>
 #include <libtuxtxt/teletext.h>
 
@@ -93,6 +94,11 @@ int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &action
 
 int CAudioSelectMenuHandler::doMenu ()
 {
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if (mode == NeutrinoMessages::mode_webtv) {
+		CMoviePlayerGui::getInstance().selectAudioPid();
+		return menu_return::RETURN_EXIT;
+	}
 	CMenuWidget AudioSelector(LOCALE_AUDIOSELECTMENUE_HEAD, NEUTRINO_ICON_AUDIO, width);
 
 	CSubtitleChangeExec SubtitleChanger;
