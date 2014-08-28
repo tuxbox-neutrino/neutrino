@@ -60,6 +60,7 @@
 
 #define MAX_DELSYS 	8
 
+#if 0
 static inline fe_modulation_t dvbs_get_modulation(fe_code_rate_t fec)
 {
 	if((fec < FEC_S2_QPSK_1_2) || (fec < FEC_S2_8PSK_1_2))
@@ -75,6 +76,7 @@ static inline fe_delivery_system_t dvbs_get_delsys(fe_code_rate_t fec)
 	else
 		return SYS_DVBS2;
 }
+#endif
 
 static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 {
