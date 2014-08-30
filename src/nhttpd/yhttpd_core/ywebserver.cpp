@@ -27,6 +27,7 @@
 #include "ysocket.h"
 #include "yconnection.h"
 #include "yrequest.h"
+#include <system/set_threadname.h>
 
 //=============================================================================
 // Initialization of static variables
@@ -117,6 +118,7 @@ CWebserver::~CWebserver() {
 #define MAX_TIMEOUTS_TO_CLOSE 10
 #define MAX_TIMEOUTS_TO_TEST 100
 bool CWebserver::run(void) {
+	set_threadname(__func__);
 	if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
 		if (port != 80) {
 			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);
@@ -226,6 +228,8 @@ bool CWebserver::run(void) {
 		CySocket *newConnectionSock;
 		if (!(newConnectionSock = listenSocket.accept())) //Now: Blocking wait
 		{
+			pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+			pthread_testcancel();
 			dperror("Socket accept error. Continue.\n");
 			continue;
 		}
