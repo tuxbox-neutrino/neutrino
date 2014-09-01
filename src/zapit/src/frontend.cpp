@@ -246,6 +246,9 @@ bool CFrontend::Open(bool init)
 void CFrontend::getFEInfo(void)
 {
 	fop(ioctl, FE_GET_INFO, &info);
+
+	//FIXME if (fenumber > 1) info.type = FE_QAM;
+
 	printf("[fe%d] frontend fd %d type %d\n", fenumber, fd, info.type);
 	bool legacy = true;
 
@@ -297,7 +300,7 @@ void CFrontend::getFEInfo(void)
 		}
 		legacy = false;
 	} else {
-		printf("ERROR: can't query delivery systems on frontend %d/%d - falling back to legacy mode", adapter, fenumber);
+		printf("WARNING: can't query delivery systems on frontend %d/%d - falling back to legacy mode\n", adapter, fenumber);
 	}
 #endif
 	if (legacy) {
