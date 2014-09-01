@@ -370,15 +370,15 @@ extra.dboxinfo Box Info
 extra.east East
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
-extra.fec_3_4 3/4
-extra.fec_5_6 5/6
-extra.fec_7_8 7/8
-extra.fec_auto Auto
 extra.fec_2_5 2/5
+extra.fec_3_4 3/4
 extra.fec_3_5 3/5
 extra.fec_4_5 4/5
+extra.fec_5_6 5/6
+extra.fec_7_8 7/8
 extra.fec_8_9 8/9
 extra.fec_9_10 9/10
+extra.fec_auto Auto
 extra.key_current_transponder Current Transponder Key
 extra.key_format_mode Video format
 extra.key_list_end end
@@ -416,58 +416,58 @@ extra.start_tostandby Startup to standby
 extra.temp_timeshift Temporary timeshift
 extra.timeshift_pause Timeshift pause
 extra.tp_bandwidth Bandwidth
-extra.tp_bandwidth_8mhz 8Mhz
-extra.tp_bandwidth_7mhz 7Mhz
-extra.tp_bandwidth_6mhz 6Mhz
-extra.tp_bandwidth_5mhz 5Mhz
 extra.tp_bandwidth_10mhz 10Mhz
 extra.tp_bandwidth_1_712mhz 1.712Mhz
+extra.tp_bandwidth_5mhz 5Mhz
+extra.tp_bandwidth_6mhz 6Mhz
+extra.tp_bandwidth_7mhz 7Mhz
+extra.tp_bandwidth_8mhz 8Mhz
 extra.tp_bandwidth_auto Auto
 extra.tp_coderate_hp Coderate(HP)
 extra.tp_coderate_lp Coderate(LP)
 extra.tp_constellation Constellation
 extra.tp_delsys Delivery system
+extra.tp_delsys_dss DSS
+extra.tp_delsys_dtmb DTMB
 extra.tp_delsys_dvbc DVB-C
 extra.tp_delsys_dvbc2 DVB-C2
 extra.tp_delsys_dvbs DVB-S
 extra.tp_delsys_dvbs2 DVB-S2
 extra.tp_delsys_dvbt DVB-T
 extra.tp_delsys_dvbt2 DVB-T2
-extra.tp_delsys_dtmb DTMB
-extra.tp_delsys_dss DSS
-extra.tp_delsys_turbo Turbo
-extra.tp_delsys_isdbs ISDB-S
 extra.tp_delsys_isdbc ISDB-C
+extra.tp_delsys_isdbs ISDB-S
 extra.tp_delsys_isdbt ISDB-T
+extra.tp_delsys_turbo Turbo
 extra.tp_fec FEC
 extra.tp_freq Frequency
 extra.tp_gi Guard interval
-extra.tp_gi_auto Auto
-extra.tp_gi_1_32 1/32
-extra.tp_gi_1_16 1/16
-extra.tp_gi_1_8 1/8
-extra.tp_gi_1_4 1/4
-extra.tp_gi_1_128 1/128
 extra.tp_gi_19_128 19/128
 extra.tp_gi_19_256 19/256
+extra.tp_gi_1_128 1/128
+extra.tp_gi_1_16 1/16
+extra.tp_gi_1_32 1/32
+extra.tp_gi_1_4 1/4
+extra.tp_gi_1_8 1/8
+extra.tp_gi_auto Auto
 extra.tp_gi_pn420 PN420
 extra.tp_gi_pn595 PN595
 extra.tp_gi_pn945 PN945
 extra.tp_hierarchy Hierarchy information
-extra.tp_hierarchy_none None
 extra.tp_hierarchy_1 1
 extra.tp_hierarchy_2 2
 extra.tp_hierarchy_4 4
 extra.tp_hierarchy_auto Auto
+extra.tp_hierarchy_none None
 extra.tp_mod Modulation
-extra.tp_mod_4 QPSK
-extra.tp_mod_8 8PSK
-extra.tp_mod_16 QAM/16
-extra.tp_mod_32 QAM/32
-extra.tp_mod_64 QAM/64
 extra.tp_mod_128 QAM/128
+extra.tp_mod_16 QAM/16
 extra.tp_mod_256 QAM/256
+extra.tp_mod_32 QAM/32
+extra.tp_mod_4 QPSK
 extra.tp_mod_4_nr QAM/4-NR
+extra.tp_mod_64 QAM/64
+extra.tp_mod_8 8PSK
 extra.tp_mod_auto QAM/AUTO
 extra.tp_pol Polarization
 extra.tp_pol_h H
@@ -476,15 +476,15 @@ extra.tp_pol_r R
 extra.tp_pol_v V
 extra.tp_rate Symbol rate
 extra.tp_transmit_mode Transmit mode
+extra.tp_transmit_mode_16k 16K
 extra.tp_transmit_mode_1k 1K
 extra.tp_transmit_mode_2k 2K
+extra.tp_transmit_mode_32k 32K
 extra.tp_transmit_mode_4k 4K
 extra.tp_transmit_mode_8k 8K
-extra.tp_transmit_mode_16k 16K
-extra.tp_transmit_mode_32k 32K
+extra.tp_transmit_mode_auto Auto
 extra.tp_transmit_mode_c1 C1
 extra.tp_transmit_mode_c3780 C3780
-extra.tp_transmit_mode_auto Auto
 extra.update_dir Local update directory
 extra.use_gotoxx Use gotoXX
 extra.volume_digits Volumebar digits
