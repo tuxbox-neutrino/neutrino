@@ -742,8 +742,8 @@ void CServiceScan::process_service_list_descriptor(const unsigned char * const b
 
 void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, t_satellite_position * satellitePosition)
 {
+        uint32_t modulationSystem, modulationType, rollOff;
         stiterator tI;
-        int modulationSystem, modulationType, rollOff, fec_inner;
 
         feparams->frequency = (
                  ((buffer[2] >> 4)      * 100000000) +
@@ -762,11 +762,10 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
                  ((buffer[7] >> 4)      * 10) +
                  ((buffer[7] & 0x0F)    * 1)
 	);
-        feparams->inversion = INVERSION_AUTO;
 
-        rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
-        modulationSystem = (buffer[8] >> 2) & 0x01; // 1= DVB_S2
-        modulationType = (buffer[8]) & 0x03; // 1=QPSK, 2=M8PSK
+        rollOff			= (buffer[8] >> 4) & 0x03; // alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
+        modulationSystem	= (buffer[8] >> 2) & 0x01; // 1= DVB_S2
+        modulationType		= (buffer[8]) & 0x03;      // 1=QPSK, 2=M8PSK
 
         feparams->symbol_rate = (
                  ((buffer[9] >> 4)      * 100000000) +
@@ -786,12 +785,24 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
 		feparams->rolloff = CFrontend::getRolloff(rollOff);
 	}
 
-        fec_inner = CFrontend::getCodeRate(buffer[12] & 0x0F, feparams->delsys);
-        if(modulationType == 2)
-                fec_inner += 9;
+	switch (modulationType) {
+	case 0: // AUTO
+		feparams->modulation = QAM_AUTO;
+		break;
+	case 1: // QPSK
+		feparams->modulation = QPSK;
+		break;
+	case 2: // 8PSK
+		feparams->modulation = PSK_8;
+		break;
+	case 3: // QAM_16
+		feparams->modulation = QAM_16;
+		break;
+	}
 
-        feparams->fec_inner = (fe_code_rate_t) fec_inner;
-        feparams->polarization = (buffer[8] >> 5) & 0x03;
+        feparams->inversion	= INVERSION_AUTO;
+        feparams->fec_inner	= CFrontend::getCodeRate(buffer[12] & 0x0F, feparams->delsys);
+        feparams->polarization	= (buffer[8] >> 5) & 0x03;
 
         /* workarounds for braindead broadcasters (e.g. on Telstar 12 at 15.0W) */
         if (feparams->frequency >= 100000000)
@@ -802,6 +813,12 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
         feparams->frequency = (int) 1000 * (int) round ((double) feparams->frequency / (double) 1000);
 
 #ifdef SCAN_DEBUG
-	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->frequency, feparams->symbol_rate, fec_inner, feparams->polarization);
+	printf("[FNT] new TP: sat %d delsys %d freq %d SR %d fec %d pol %d\n",
+	       *satellitePosition,
+	       feparams->delsys,
+	       feparams->frequency,
+	       feparams->symbol_rate,
+	       feparams->fec_inner,
+	       feparams->polarization);
 #endif
 }
