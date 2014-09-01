@@ -423,8 +423,8 @@ extra.tp_bandwidth_6mhz 6Mhz
 extra.tp_bandwidth_7mhz 7Mhz
 extra.tp_bandwidth_8mhz 8Mhz
 extra.tp_bandwidth_auto Auto
-extra.tp_coderate_hp Coderate(HP)
-extra.tp_coderate_lp Coderate(LP)
+extra.tp_coderate_hp Informationsrate (HP)
+extra.tp_coderate_lp Informationsrate (LP)
 extra.tp_constellation Konstellation
 extra.tp_delsys Empfangssystem
 extra.tp_delsys_dss DSS
@@ -1164,7 +1164,7 @@ menu.hint_scan_auto Automatischer Suchlauf ausgewählter Anbieter
 menu.hint_scan_autoall Automatischer Suchlauf aller ausgewählten Anbieter
 menu.hint_scan_autoall_select Suchlauf nur in ausgewählten Satelliten
 menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: neue werden in 'Andere' angefügt
-menu.hint_scan_bw Wähln Sie die Bandbreite
+menu.hint_scan_bw Wählen Sie die Bandbreite
 menu.hint_scan_cable Wählen Sie ihr Kabelnetz für den Suchlauf
 menu.hint_scan_cable_simple Kabel-Suchlauf mit optionaler Anbieter- und Kanal-Nummerierung
 menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
@@ -1223,7 +1223,7 @@ menu.hint_scan_setup_fe Konfigurieren Sie ihre ausgewählten Tuner
 menu.hint_scan_start Startet die Kanalsuche mit den angegebenen Parametern.\nMit der Taste 'Exit' kann abgebrochen werden
 menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
-menu.hint_scan_transmit_mode Wählen Sie den Übertragungsmodus für diesen terrestrischen kanal
+menu.hint_scan_transmit_mode Wählen Sie den Übertragungsmodus für diesen terrestrischen Kanal
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
 menu.hint_scan_usals USALS Optionen
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
@@ -1884,11 +1884,11 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fastscan_update Auto-Update
-satsetup.fe_delsys_mode Modus des Empfangssystem
+satsetup.fe_delsys_mode Modus des Empfangssystems
 satsetup.fe_delsys_mode_auto Auto
-satsetup.fe_delsys_mode_cable Cable
-satsetup.fe_delsys_mode_sat Satellite
-satsetup.fe_delsys_mode_terrestrial Terrestrial
+satsetup.fe_delsys_mode_cable Kabel
+satsetup.fe_delsys_mode_sat Satellit
+satsetup.fe_delsys_mode_terrestrial Terrestrisch
 satsetup.fe_mode Tuner Modus
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
