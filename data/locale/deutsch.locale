@@ -368,31 +368,17 @@ extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
 extra.dboxinfo Box-Info
 extra.east Osten
-extra.fec_1_2 1/2 S1_QPSK
-extra.fec_2_3 2/3 S1_QPSK
-extra.fec_3_4 3/4 S1_QPSK
-extra.fec_5_6 5/6 S1_QPSK
-extra.fec_7_8 7/8 S1_QPSK
-extra.fec_auto Auto DVB-S
-extra.fec_auto_s2 Auto DVB-S2
-extra.fec_s2_8psk_1_2 1/2 S2_8PSK
-extra.fec_s2_8psk_2_3 2/3 S2_8PSK
-extra.fec_s2_8psk_3_4 3/4 S2_8PSK
-extra.fec_s2_8psk_3_5 3/5 S2_8PSK
-extra.fec_s2_8psk_4_5 4/5 S2_8PSK
-extra.fec_s2_8psk_5_6 5/6 S2_8PSK
-extra.fec_s2_8psk_7_8 7/8 S2_8PSK
-extra.fec_s2_8psk_8_9 8/9 S2_8PSK
-extra.fec_s2_8psk_9_10 9/10 S2_8PSK
-extra.fec_s2_qpsk_1_2 1/2 S2_QPSK
-extra.fec_s2_qpsk_2_3 2/3 S2_QPSK
-extra.fec_s2_qpsk_3_4 3/4 S2_QPSK
-extra.fec_s2_qpsk_3_5 3/5 S2_QPSK
-extra.fec_s2_qpsk_4_5 4/5 S2_QPSK
-extra.fec_s2_qpsk_5_6 5/6 S2_QPSK
-extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
-extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
-extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
+extra.fec_1_2 1/2
+extra.fec_2_3 2/3
+extra.fec_3_4 3/4
+extra.fec_5_6 5/6
+extra.fec_7_8 7/8
+extra.fec_auto Auto
+extra.fec_2_5 2/5
+extra.fec_3_5 3/5
+extra.fec_4_5 4/5
+extra.fec_8_9 8/9
+extra.fec_9_10 9/10
 extra.key_current_transponder Aktuelle Transponder Taste
 extra.key_format_mode Videoformat
 extra.key_list_end Listenende
@@ -429,20 +415,76 @@ extra.south Süden
 extra.start_tostandby Standby nach Boxstart
 extra.temp_timeshift Temporäres Timeshift
 extra.timeshift_pause Timeshift Pause
-extra.tp.pol_v V
+extra.tp_bandwidth Bandbreite
+extra.tp_bandwidth_8mhz 8Mhz
+extra.tp_bandwidth_7mhz 7Mhz
+extra.tp_bandwidth_6mhz 6Mhz
+extra.tp_bandwidth_5mhz 5Mhz
+extra.tp_bandwidth_10mhz 10Mhz
+extra.tp_bandwidth_1_712mhz 1.712Mhz
+extra.tp_bandwidth_auto Auto
+extra.tp_coderate_hp Coderate(HP)
+extra.tp_coderate_lp Coderate(LP)
+extra.tp_constellation Konstellation
+extra.tp_delsys Empfangssystem
+extra.tp_delsys_dvbc DVB-C
+extra.tp_delsys_dvbc2 DVB-C2
+extra.tp_delsys_dvbs DVB-S
+extra.tp_delsys_dvbs2 DVB-S2
+extra.tp_delsys_dvbt DVB-T
+extra.tp_delsys_dvbt2 DVB-T2
+extra.tp_delsys_dtmb DTMB
+extra.tp_delsys_dss DSS
+extra.tp_delsys_turbo Turbo
+extra.tp_delsys_isdbs ISDB-S
+extra.tp_delsys_isdbc ISDB-C
+extra.tp_delsys_isdbt ISDB-T
 extra.tp_fec FEC
 extra.tp_freq Frequenz
+extra.tp_gi Schutzintervall
+extra.tp_gi_auto Auto
+extra.tp_gi_1_32 1/32
+extra.tp_gi_1_16 1/16
+extra.tp_gi_1_8 1/8
+extra.tp_gi_1_4 1/4
+extra.tp_gi_1_128 1/128
+extra.tp_gi_19_128 19/128
+extra.tp_gi_19_256 19/256
+extra.tp_gi_pn420 PN420
+extra.tp_gi_pn595 PN595
+extra.tp_gi_pn945 PN945
+extra.tp_hierarchy Hierarchieinformation
+extra.tp_hierarchy_none None
+extra.tp_hierarchy_1 1
+extra.tp_hierarchy_2 2
+extra.tp_hierarchy_4 4
+extra.tp_hierarchy_auto Auto
 extra.tp_mod Modulation
-extra.tp_mod_128 QAM/128
+extra.tp_mod_4 QPSK
+extra.tp_mod_8 8PSK
 extra.tp_mod_16 QAM/16
-extra.tp_mod_256 QAM/256
 extra.tp_mod_32 QAM/32
 extra.tp_mod_64 QAM/64
+extra.tp_mod_128 QAM/128
+extra.tp_mod_256 QAM/256
+extra.tp_mod_4_nr QAM/4-NR
+extra.tp_mod_auto QAM/AUTO
 extra.tp_pol Polarisation
 extra.tp_pol_h H
 extra.tp_pol_l L
 extra.tp_pol_r R
+extra.tp_pol_v V
 extra.tp_rate Symbolrate
+extra.tp_transmit_mode Sendemodus
+extra.tp_transmit_mode_1k 1K
+extra.tp_transmit_mode_2k 2K
+extra.tp_transmit_mode_4k 4K
+extra.tp_transmit_mode_8k 8K
+extra.tp_transmit_mode_16k 16K
+extra.tp_transmit_mode_32k 32K
+extra.tp_transmit_mode_c1 C1
+extra.tp_transmit_mode_c3780 C3780
+extra.tp_transmit_mode_auto Auto
 extra.update_dir Lokales Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.volume_digits Lautstärkeanzeige Ziffern
@@ -1122,9 +1164,11 @@ menu.hint_scan_auto Automatischer Suchlauf ausgewählter Anbieter
 menu.hint_scan_autoall Automatischer Suchlauf aller ausgewählten Anbieter
 menu.hint_scan_autoall_select Suchlauf nur in ausgewählten Satelliten
 menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: neue werden in 'Andere' angefügt
+menu.hint_scan_bw Wähln Sie die Bandbreite
 menu.hint_scan_cable Wählen Sie ihr Kabelnetz für den Suchlauf
 menu.hint_scan_cable_simple Kabel-Suchlauf mit optionaler Anbieter- und Kanal-Nummerierung
 menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
+menu.hint_scan_delsys Wählen Sie das Empfangssystem für diesen Kanal/Transponder.
 menu.hint_scan_diseqc Wählen Sie das DiSEqC-Schalter-Eingangssignal für diesen Satelliten
 menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat DiSEqC-Wiederholungen für kaskadierte Schaltungen
@@ -1141,6 +1185,8 @@ menu.hint_scan_fesetup Konfigurieren des oder der Tuner
 menu.hint_scan_fetimeout Maximale Wartezeit auf das Signal in 1/10 Sekunden
 menu.hint_scan_freq Geben Sie eine Transponder-Frequenz ein
 menu.hint_scan_fta Lassen Sie nur frei empfangbare (nicht-verschlüsselte) Programme suchen
+menu.hint_scan_gi Wählen Sie den Schutzintervall für diesen terrestrischen Kanal
+menu.hint_scan_hierarchy Wählen Sie die Hierarchie für diesen terrestrischen Kanal
 menu.hint_scan_ladirection Wählen Sie ihre Breitengrad-Ausrichtung
 menu.hint_scan_latitude Geben Sie ihren Breitengrad ein
 menu.hint_scan_lnbconfig Konfigurieren Sie LNB-Parameter für diesen Satelliten
@@ -1177,6 +1223,7 @@ menu.hint_scan_setup_fe Konfigurieren Sie ihre ausgewählten Tuner
 menu.hint_scan_start Startet die Kanalsuche mit den angegebenen Parametern.\nMit der Taste 'Exit' kann abgebrochen werden
 menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
+menu.hint_scan_transmit_mode Wählen Sie den Übertragungsmodus für diesen terrestrischen kanal
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
 menu.hint_scan_usals USALS Optionen
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
@@ -1837,6 +1884,11 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fastscan_update Auto-Update
+satsetup.fe_delsys_mode Modus des Empfangssystem
+satsetup.fe_delsys_mode_auto Auto
+satsetup.fe_delsys_mode_cable Cable
+satsetup.fe_delsys_mode_sat Satellite
+satsetup.fe_delsys_mode_terrestrial Terrestrial
 satsetup.fe_mode Tuner Modus
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
@@ -1877,6 +1929,7 @@ sc.waiting Warte auf Antwort
 scants.abort_body Scanvorgang wirklich abbrechen?
 scants.abort_header breche Scan ab...
 scants.actcable Kabelnetz:
+scants.acthybrid Hybrid:
 scants.actsatellite Satellit:
 scants.actterrestrial Terrestrisch:
 scants.bouquet Bouquets
