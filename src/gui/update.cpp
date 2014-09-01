@@ -76,6 +76,8 @@
 
 #include <fstream>
 
+#include <cs_api.h>
+
 extern int allow_flash;
 
 //#define gTmpPath "/var/update/"
@@ -1034,13 +1036,6 @@ g_settings.flashupdate_createimage_add_spare = 0;
 	CMenuOptionChooser *m6 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_KERNEL, &g_settings.flashupdate_createimage_add_kernel,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 
-
-	CMTDInfo *mtdInfo = CMTDInfo::getInstance();
-	const char *box = (mtdInfo->getMTDEraseSize(mtdInfo->findMTDsystem()) == 0x40000) ? "Trinity" : "Tank";
-	char mText[512] = {0};
-	snprintf(mText, sizeof(mText)-1, g_Locale->getText(LOCALE_FLASHUPDATE_CREATEIMAGE_OTHER), box);
-	CMenuOptionChooser *m7 = new CMenuOptionChooser(mText, &(cfe->createimage_other), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
-
 	rootfsSetup->addItem(m1); // create image
 	rootfsSetup->addItem(s1);
 	rootfsSetup->addItem(m2); // include uldr
@@ -1052,8 +1047,18 @@ g_settings.flashupdate_createimage_add_spare = 0;
 	rootfsSetup->addItem(m5); // include spare
 #endif
 	rootfsSetup->addItem(m6); // include kernel
-	rootfsSetup->addItem(GenericMenuSeparatorLine);
-	rootfsSetup->addItem(m7); // create image for other STB
+
+	if (cs_get_revision() != 12) { // not kronos
+		CMTDInfo *mtdInfo = CMTDInfo::getInstance();
+		const char *box = (mtdInfo->getMTDEraseSize(mtdInfo->findMTDsystem()) == 0x40000) ? "Trinity" : "Tank";
+		char mText[512] = {0};
+		snprintf(mText, sizeof(mText)-1, g_Locale->getText(LOCALE_FLASHUPDATE_CREATEIMAGE_OTHER), box);
+		CMenuOptionChooser *m7 = new CMenuOptionChooser(mText, &(cfe->createimage_other), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+
+		rootfsSetup->addItem(GenericMenuSeparatorLine);
+		rootfsSetup->addItem(m7); // create image for other STB
+	} else
+		cfe->createimage_other = 0;
 
 	int res = rootfsSetup->exec (NULL, "");
 	delete rootfsSetup;
