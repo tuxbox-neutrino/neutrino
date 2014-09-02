@@ -73,7 +73,6 @@ DMX::DMX()
 
 void DMX::init()
 {
-	fd = -1;
 	lastChanged = time_monotonic();
 	filter_index = 0;
 	real_pauseCounter = 0;
@@ -124,7 +123,6 @@ void DMX::closefd(void)
 		//dmx->Stop();
 		delete dmx;
 		dmx = NULL;
-		fd = -1;
 	}
 }
 
@@ -283,6 +281,10 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	}
 
 	lock();
+	if (!isOpen()) {
+		unlock();
+		return -1;
+	}
 
 	int rc = dmx->Read(buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 
@@ -492,7 +494,6 @@ int DMX::immediate_start(void)
 		dmx = new cDemux(dmx_num);
 		dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
 	}
-	fd = 1;
 
 	/* setfilter() only if this is no dummy filter... */
 	if (filters[filter_index].filter && filters[filter_index].mask)

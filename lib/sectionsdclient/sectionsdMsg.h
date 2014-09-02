@@ -58,6 +58,7 @@ struct sectionsd
                 getIsScanningActive,            // commandGetIsScanningActive
                 getIsTimeSet,                   // commandGetIsTimeSet
                 serviceChanged,                 // commandserviceChanged
+                serviceStopped,                 // commandserviceChanged
                 CMD_registerEvents,             // commandRegisterEventClient
                 CMD_unregisterEvents,           // commandUnRegisterEventClient
                 freeMemory,                     // commandFreeMemory

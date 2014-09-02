@@ -260,6 +260,7 @@ class CCNThread : public CEventsThread
 		void sendCNEvent();
 	public:
 		CCNThread();
+		void stopUpdate();
 		bool checkUpdate();
 };
 

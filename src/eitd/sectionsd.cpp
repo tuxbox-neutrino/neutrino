@@ -968,6 +968,20 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
 }
 
+static void commandserviceStopped(int connfd, char * /* data */, const unsigned /* dataLength */)
+{
+	xprintf("[sectionsd] commandserviceStopped\n");
+	sendEmptyResponse(connfd, NULL, 0);
+	threadCN.lock();
+	threadEIT.lock();
+	threadCN.closefd();
+	threadEIT.closefd();
+	threadCN.unlock();
+	threadEIT.unlock();
+	threadCN.stopUpdate();
+	xprintf("[sectionsd] commandserviceStopped done\n");
+}
+
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
 {
 	struct sectionsd::msgResponseHeader responseHeader;
@@ -1233,6 +1247,7 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandGetIsScanningActive,             "commandGetIsScanningActive"		},
 	{	commandGetIsTimeSet,                    "commandGetIsTimeSet"			},
 	{	commandserviceChanged,                  "commandserviceChanged"			},
+	{	commandserviceStopped,                  "commandserviceStopped"			},
 	{	commandRegisterEventClient,             "commandRegisterEventClient"		},
 	{	commandUnRegisterEventClient,           "commandUnRegisterEventClient"		},
 	{	commandFreeMemory,			"commandFreeMemory"			},
@@ -1786,7 +1801,7 @@ void CCNThread::beforeWait()
 	update_mutex.unlock();
 }
 
-void CCNThread::afterWait()
+void CCNThread::stopUpdate()
 {
 	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
 	update_mutex.lock();
@@ -1795,6 +1810,11 @@ void CCNThread::afterWait()
 		eitDmx->Close();
 	}
 	update_mutex.unlock();
+}
+
+void CCNThread::afterWait()
+{
+	stopUpdate();
 }
 
 void CCNThread::beforeSleep()

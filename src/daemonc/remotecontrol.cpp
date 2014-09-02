@@ -119,6 +119,8 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 //printf("[neutrino] timeout EVT_ZAP current %llx data %llx\n", current_channel_id, *(t_channel_id *)data);
 			if ((*(t_channel_id *)data) != current_channel_id) {
 				g_InfoViewer->chanready = 0;
+				if (!IS_WEBTV(current_channel_id))
+					g_Sectionsd->setServiceStopped();
 				CMoviePlayerGui::getInstance().stopPlayBack();
 				g_Zapit->zapTo_serviceID_NOWAIT(current_channel_id );
 				//g_Sectionsd->setServiceChanged(current_channel_id, false);
@@ -702,6 +704,8 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		g_RCInput->killTimer(scrambled_timer);
 		//dvbsub_pause(true);
 		CZapit::getInstance()->Abort();
+		if (!IS_WEBTV(channel_id))
+			g_Sectionsd->setServiceStopped();
 		CMoviePlayerGui::getInstance().stopPlayBack();
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 
