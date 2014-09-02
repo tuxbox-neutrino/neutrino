@@ -241,6 +241,8 @@ class CComponentsItem : public CComponents
 		///property: page number, this defines current item page location, means: this item is embedded in a parent container on page number n, see also setPageNumber()
 		///default value is 0 for page one, any value > 0 causes handling for mutilple pages at parent container
 		uint8_t cc_page_number;
+		///specifies that some certain operations especially eg. exec events for that item are possible, see also setFocus(), hasFocus()
+		bool cc_has_focus;
 
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
@@ -269,6 +271,10 @@ class CComponentsItem : public CComponents
 		virtual CComponentsForm* getParent(){return cc_parent;};
 		///property: returns true if item is added to a form
 		virtual bool isAdded();
+		///indicates wether item has focus
+		virtual bool hasFocus(){return cc_has_focus;}
+		///set or unset focus of item, stand alone items without parent have always set focus to true, inside of a parent form object, always the last added item has focus
+		virtual void setFocus(bool focus);
 
 		///abstract: paint item, arg: do_save_bg see paintInit() above
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES) = 0;

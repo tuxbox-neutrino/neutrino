@@ -111,6 +111,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 		//assign item index
 		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
+		cc_Item->setFocus(true);
 
 		dprintf(DEBUG_DEBUG, "\t%s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
 

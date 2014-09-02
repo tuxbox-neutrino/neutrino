@@ -50,6 +50,7 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
 	cc_page_number		= 0;
+	cc_has_focus		= true;
 	initParent(parent);
 }
 
@@ -213,4 +214,15 @@ void CComponentsItem::setHeightP(const uint8_t& h_percent)
 void CComponentsItem::setWidthP(const uint8_t& w_percent)
 {
 	width = cc_parent ? w_percent*cc_parent->getWidth()/100 : w_percent*frameBuffer->getScreenWidth(true)/100;
+}
+
+void CComponentsItem::setFocus(bool focus)
+{
+	if(cc_parent){
+		for(size_t i=0; i<cc_parent->size(); i++){
+			if (focus)
+				cc_parent->getCCItem(i)->setFocus(false);
+		}
+	}
+	cc_has_focus = focus;
 }
