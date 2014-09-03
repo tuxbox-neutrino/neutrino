@@ -176,7 +176,6 @@ audioplayer.shuffle shuffle
 audioplayer.spectrum lcd a-spectrum
 audioplayer.stop Stop
 audioplayer.title_artist Title, Artist
-audioplayerpicsettings.general Audioplayer / Picviewer
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename rename
@@ -833,6 +832,7 @@ mainsettings.language Language / Timezone
 mainsettings.lcd VFD-Display
 mainsettings.manage Manage settings
 mainsettings.misc Extended settings
+mainsettings.multimedia Multimedia
 mainsettings.network Network
 mainsettings.osd OSD
 mainsettings.recording Recording

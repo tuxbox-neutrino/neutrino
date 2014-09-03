@@ -176,7 +176,6 @@ audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
 audioplayer.title_artist Titel, Interpret
-audioplayerpicsettings.general Audioplayer/Bildbetrachter
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
@@ -833,6 +832,7 @@ mainsettings.language Sprache
 mainsettings.lcd VFD-Display
 mainsettings.manage Einstellungen verwalten
 mainsettings.misc Erweiterte Einstellungen
+mainsettings.multimedia Multimedia
 mainsettings.network Netzwerk
 mainsettings.osd OSD
 mainsettings.recording Aufnahme
