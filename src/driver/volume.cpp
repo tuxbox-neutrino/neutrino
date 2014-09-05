@@ -108,9 +108,9 @@ void CVolume::setVolume(const neutrino_msg_t key)
 		{
 			bool sub_chan_keybind = g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME
 						&& g_RemoteControl && g_RemoteControl->subChannels.size() < 1;
-			if ((msg == CRCInput::RC_plus || msg == CRCInput::RC_minus) ||
+			if ((msg == (neutrino_msg_t) g_settings.key_volumeup || msg == (neutrino_msg_t) g_settings.key_volumedown) ||
 			    (sub_chan_keybind && (msg == CRCInput::RC_right || msg == CRCInput::RC_left))) {
-				int dir = (msg == CRCInput::RC_plus || msg == CRCInput::RC_right) ? 1 : -1;
+				int dir = (msg == (neutrino_msg_t) g_settings.key_volumeup || msg == CRCInput::RC_right) ? 1 : -1;
 				if (CNeutrinoApp::getInstance()->isMuted() && (dir > 0 || g_settings.current_volume > 0)) {
 					hideVolscale();
 					CAudioMute::getInstance()->AudioMute(false, true);

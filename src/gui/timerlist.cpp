@@ -523,12 +523,12 @@ int CTimerList::show()
 				loop=false;
 
 		}
-		else if ((msg == CRCInput::RC_up || msg == (unsigned int)g_settings.key_channelList_pageup) && !(timerlist.empty()))
+		else if ((msg == CRCInput::RC_up || msg == (unsigned int)g_settings.key_pageup) && !(timerlist.empty()))
 		{
 			int step = 0;
 			int prev_selected = selected;
 
-			step = (msg == (unsigned int)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+			step = (msg == (unsigned int)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
 			selected -= step;
 			if((prev_selected-step) < 0)		// because of uint
 				selected = timerlist.size() - 1;
@@ -547,12 +547,12 @@ int CTimerList::show()
 
 			paintFoot();
 		}
-		else if ((msg == CRCInput::RC_down || msg == (unsigned int)g_settings.key_channelList_pagedown) && !(timerlist.empty()))
+		else if ((msg == CRCInput::RC_down || msg == (unsigned int)g_settings.key_pagedown) && !(timerlist.empty()))
 		{
 			unsigned int step = 0;
 			int prev_selected = selected;
 
-			step = (msg == (unsigned int)g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+			step = (msg == (unsigned int)g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 			selected += step;
 
 			if(selected >= timerlist.size())
@@ -1228,9 +1228,7 @@ int CTimerList::newTimer()
 
 	timerNew_pluginName = "---";
 	CPluginChooser plugin_chooser(LOCALE_TIMERLIST_PLUGIN, CPlugins::P_TYPE_SCRIPT | CPlugins::P_TYPE_TOOL
-#if ENABLE_LUA
 										       | CPlugins::P_TYPE_LUA
-#endif
 										       , timerNew_pluginName);
 	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_TIMERLIST_PLUGIN, false, timerNew_pluginName, &plugin_chooser);
 

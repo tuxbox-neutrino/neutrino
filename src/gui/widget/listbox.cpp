@@ -189,10 +189,10 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		{
 			loop = false;
 		}
-		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
 		{
 			if(getItemCount()!=0) {
-				int step = (msg == (neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+				int step = (msg == (neutrino_msg_t)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
 				int new_selected = selected - step;
 
 				if (new_selected < 0) {
@@ -204,10 +204,10 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 				updateSelection(new_selected);
 			}
 		}
-		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
 			if(getItemCount()!=0) {
-				int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 				int new_selected = selected + step;
 				if (new_selected >= (int) getItemCount()) {
 					if ((getItemCount() - listmaxshow -1 < selected) && (selected != (getItemCount() - 1)) && (step != 1))

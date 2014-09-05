@@ -39,7 +39,7 @@
 	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 	Boston, MA  02110-1301, USA.
 
-		
+
 	NOTE for ignorant distributors:
 	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.
 	Please read it and understand it right!
@@ -69,8 +69,8 @@ class CUserMenuNotifier : public CChangeObserver
 {
 	private:
 
-		CMenuItem* toDisable[4];
-	
+		CMenuItem* toDisable[USERMENU_ITEMS_COUNT];
+
 	public:
 		CUserMenuNotifier( CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*);
 
@@ -139,41 +139,41 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 {
 	protected:
 		virtual CMenuTarget* getParent() { return( NULL);};
-		
+
 	private:
 		CUserMenuNotifier *user_menu_notifier;
 		CPinSetupNotifier *pin_setup_notifier;
-		CMenuWidget* fkeyMenu;
-		CMenuWidget* plMenu;
 		CMenuWidget* tmpW;
-		CMenuWidget *pluginSelectionMenu;
-		
+		CMenuWidget* uMenu;
+
 		int width, widget_count, shortcut, options_count;
 		bool show_usermenu, show_pin_setup;
-				
+		bool show_pluginmenu;
+
+		int customkey_offset;
+
 		//stuff for settings handlers
 		void	handleSetting(int *setting);
 		void	restoreSettings();
 		bool	haveChangedSettings();
 
 		std::vector<settings_int_t> v_int_settings;
-		
+
 		std::vector<menu_item_t> v_item;
 		std::vector<CMenuWidget *> v_widget;
 		std::vector<observ_menu_item_t> v_observ;
-				
+
 		int 	ShowPersonalizationMenu();
 		int 	ShowMenuOptions(const int& menu);
 		void 	ShowHelpPersonalize();
 		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget * &pin_widget);
-		void 	ShowUserMenu(CMenuWidget* p_widget, std::vector<CUserMenuSetup*> &v_umenu);
-		void 	ShowPluginMenu(CMenuWidget* p_widget);
-		void 	ShowPreverredKeySetup(CMenuWidget* p_widget);
+		void 	ShowUserMenu();
+		void 	ShowPluginMenu(CMenuWidget* p_widget, std::string da[], int ia[]);
 		void 	SaveAndExit();
 		void	ApplySettings();
-		
+
 		bool	hasPinItems();
-		
+
 		neutrino_msg_t	getShortcut(const int & shortcut_num, neutrino_msg_t alternate_rc_key = CRCInput::RC_nokey);
 		void 	addObservedItem(CMenuWidget *widget, CMenuItem *observer_Item, CMenuItem *to_observ_Item);
 		bool 	changeNotify(const neutrino_locale_t locale= NONEXISTANT_LOCALE, void *data = NULL);
@@ -185,7 +185,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 			PERSONALIZE_MODE_NOTVISIBLE =  0,
 			PERSONALIZE_MODE_VISIBLE  =  1,
 			PERSONALIZE_MODE_PIN  = 2,
-			
+
 			PERSONALIZE_MODE_MAX
 		};
 
@@ -194,7 +194,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		{
 			PERSONALIZE_PROTECT_MODE_NOT_PROTECTED =  0,
 			PERSONALIZE_PROTECT_MODE_PIN_PROTECTED  =  2,
-			
+
 			PERSONALIZE_PROTECT_MODE_MAX = 2
 		};
 
@@ -203,10 +203,10 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		{
 			PERSONALIZE_ACTIVE_MODE_DISABLED =  0,
 			PERSONALIZE_ACTIVE_MODE_ENABLED  =  1,
-			
+
 			PERSONALIZE_ACTIVE_MODE_MAX
 		};
-		
+
 		//internal display modes for items in personalize settings menue
 		enum PERSONALIZE_ITEM_MODE 
 		{
@@ -215,7 +215,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 			PERSONALIZE_SHOW_AS_ACCESS_OPTION  =  2,
 			PERSONALIZE_SHOW_ONLY_IN_PERSONALIZE_MENU  =  3 //usefull to hide separators in menu, but visible only in personalizing menu
 		};
-		
+
 		//options for features key
 		enum PERSONALIZE_FEAT_KEY 
 		{
@@ -224,17 +224,17 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 			PERSONALIZE_FEAT_KEY_YELLOW,
 			PERSONALIZE_FEAT_KEY_BLUE,
 			PERSONALIZE_FEAT_KEY_AUTO,
-			
+
 			PERSONALIZE_FEAT_KEY_MAX
 		};
-		
+
 		CPersonalizeGui();
 		~CPersonalizeGui();
-				
+
 		int 	exec(CMenuTarget* parent, const std::string & actionKey);
-		
+
 		CMenuWidget& getWidget(const int& id);
-		
+
 		void 	addWidget(CMenuWidget *widget);
 		void 	addWidgets(const struct mn_widget_t * const widget, const int& widget_count);
 		int 	getWidgetCount() {return widget_count;};
@@ -250,6 +250,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		void 	addSeparator(const int& widget_id, const neutrino_locale_t locale_text = NONEXISTANT_LOCALE, const int& item_mode = PERSONALIZE_SHOW_AS_ITEM_OPTION);
 		void 	addPersonalizedItems();
 		void	enableUsermenu(bool show = true){show_usermenu = show;};
+		void	enablePluginMenu(bool show = true){show_pluginmenu = show;};
 		void	enablePinSetup(bool show = true){show_pin_setup = show;};
 };
 

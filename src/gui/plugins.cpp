@@ -57,28 +57,30 @@
 #include <system/helpers.h>
 
 #include <zapit/client/zapittools.h>
+#include "widget/shellwindow.h"
+#include "widget/messagebox.h"
+#include <poll.h>
+#include <fcntl.h>
+#include <vector>
+
+#include <video.h>
+extern cVideo * videoDecoder;
 
 #include "plugins.h"
 
 #include <daemonc/remotecontrol.h>
-#if ENABLE_LUA
 #include <gui/luainstance.h>
-#endif
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 #define PLUGINDIR_VAR "/var/tuxbox/plugins"
+#define PLUGINDIR_USB "/mnt/usb/tuxbox/plugins"
 
 CPlugins::CPlugins()
 {
 	frameBuffer = NULL;
 	number_of_plugins = 0;
-}
-
-CPlugins::~CPlugins()
-{
-	plugin_list.clear();
 }
 
 bool CPlugins::plugin_exists(const std::string & filename)
@@ -103,14 +105,14 @@ void CPlugins::scanDir(const char *dir)
 
 	int number_of_files = scandir(dir, &namelist, 0, alphasort);
 
-	if(number_of_files < 0)
+	if (number_of_files < 0)
 		return;
 
 	for (int i = 0; i < number_of_files; i++)
 	{
-		std::string filename;
+		std::string filename(namelist[i]->d_name);
+		free(namelist[i]);
 
-		filename = namelist[i]->d_name;
 		int pos = filename.find(".cfg");
 		if (pos > -1)
 		{
@@ -120,17 +122,15 @@ void CPlugins::scanDir(const char *dir)
 			fname += '/';
 			new_plugin.cfgfile = fname.append(new_plugin.filename);
 			new_plugin.cfgfile.append(".cfg");
-			parseCfg(&new_plugin);
 			bool plugin_ok = parseCfg(&new_plugin);
-			if (plugin_ok) {
+			if (plugin_ok)
+			{
 				new_plugin.pluginfile = fname;
 				if (new_plugin.type == CPlugins::P_TYPE_SCRIPT)
 					new_plugin.pluginfile.append(".sh");
-#if ENABLE_LUA
 				else if (new_plugin.type == CPlugins::P_TYPE_LUA)
 					new_plugin.pluginfile.append(".lua");
-#endif
-				else // CPlugins::P_TYPE_GAME or CPlugins::P_TYPE_TOOL
+				else
 					new_plugin.pluginfile.append(".so");
 				// We do not check if new_plugin.pluginfile exists since .cfg in
 				// PLUGINDIR_VAR can overwrite settings in read only dir
@@ -147,7 +147,6 @@ void CPlugins::scanDir(const char *dir)
 				}
 			}
 		}
-		free(namelist[i]);
 	}
 	free(namelist);
 }
@@ -159,10 +158,31 @@ void CPlugins::loadPlugins()
 	plugin_list.clear();
 	sindex = 100;
 	scanDir(g_settings.plugin_hdd_dir.c_str());
+	scanDir(PLUGINDIR_USB);
 	scanDir(PLUGINDIR_VAR);
 	scanDir(PLUGINDIR);
 
 	sort (plugin_list.begin(), plugin_list.end());
+}
+
+CPlugins::~CPlugins()
+{
+	plugin_list.clear();
+}
+
+bool CPlugins::overrideType(plugin *plugin_data, std::string &setting, p_type type)
+{
+	if (!setting.empty()) {
+		char s[setting.length() + 1];
+		cstrncpy(s, setting, setting.length() + 1);
+		char *t, *p = s;
+		while ((t = strsep(&p, ",")))
+			if (!strcmp(t, plugin_data->filename.c_str())) {
+				plugin_data->type = type;
+				return true;
+			}
+	}
+	return false;
 }
 
 bool CPlugins::parseCfg(plugin *plugin_data)
@@ -199,11 +219,11 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 
 		if (cmd == "index")
 		{
-			plugin_data->index = atoi(parm.c_str());
+			plugin_data->index = atoi(parm);
 		}
 		else if (cmd == "pluginversion")
 		{
-			plugin_data->key = atoi(parm.c_str());
+			plugin_data->key = atoi(parm);
 		}
 		else if (cmd == "name")
 		{
@@ -219,44 +239,51 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		}
 		else if (cmd == "type")
 		{
-			plugin_data->type = getPluginType(atoi(parm.c_str()));
+			plugin_data->type = getPluginType(atoi(parm));
 		}
 		else if (cmd == "needfb")
 		{
-			plugin_data->fb = ((parm == "1")?true:false);
+			plugin_data->fb = atoi(parm);
 		}
 		else if (cmd == "needrc")
 		{
-			plugin_data->rc = ((parm == "1")?true:false);
+			plugin_data->rc = atoi(parm);
 		}
 		else if (cmd == "needlcd")
 		{
-			plugin_data->lcd = ((parm == "1")?true:false);
+			plugin_data->lcd = atoi(parm);
 		}
 		else if (cmd == "needvtxtpid")
 		{
-			plugin_data->vtxtpid = ((parm == "1")?true:false);
+			plugin_data->vtxtpid = atoi(parm);
 		}
 		else if (cmd == "pigon")
 		{
-			plugin_data->showpig = ((parm == "1")?true:false);
+			plugin_data->showpig = atoi(parm);
 		}
 		else if (cmd == "needoffsets")
 		{
-			plugin_data->needoffset = ((parm == "1")?true:false);
+			plugin_data->needoffset = atoi(parm);
 		}
 		else if (cmd == "hide")
 		{
-			plugin_data->hide = ((parm == "1")?true:false);
+			plugin_data->hide = atoi(parm);
 		}
 		else if (cmd == "needenigma")
 		{
-			reject = ((parm == "1")?true:false);
+			reject = atoi(parm);
 		}
 
 	}
 
 	inFile.close();
+
+	overrideType(plugin_data, g_settings.plugins_disabled, P_TYPE_DISABLED) ||
+	overrideType(plugin_data, g_settings.plugins_game, P_TYPE_GAME) ||
+	overrideType(plugin_data, g_settings.plugins_tool, P_TYPE_TOOL) ||
+	overrideType(plugin_data, g_settings.plugins_script, P_TYPE_SCRIPT) ||
+	overrideType(plugin_data, g_settings.plugins_lua, P_TYPE_LUA);
+
 	return !reject;
 }
 
@@ -282,11 +309,11 @@ PluginParam * CPlugins::makeParam(const char * const id, const int value, Plugin
 }
 #endif
 
-void CPlugins::startPlugin_by_name(const std::string & name)
+void CPlugins::startPlugin_by_name(const std::string & filename)
 {
 	for (int i = 0; i <  (int) plugin_list.size(); i++)
 	{
-		if (name.compare(g_PluginList->getName(i))==0)
+		if (!filename.compare(g_PluginList->getFileName(i)))
 		{
 			startPlugin(i);
 			return;
@@ -314,31 +341,14 @@ void CPlugins::startScriptPlugin(int number)
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
-	pid_t pid = 0;
-	FILE *f = my_popen(pid,script,"r");
-	if (f != NULL)
-	{
-		char *output=NULL;
-		size_t len = 0;
-		while (( getline(&output, &len, f)) != -1)
 
-		{
-			scriptOutput += output;
-		}
-		pclose(f);
-		int s;
-		while (waitpid(pid,&s,WNOHANG)>0);
-		kill(pid,SIGTERM);
-		if(output)
-			free(output);
-	}
-	else
-	{
-		printf("[CPlugins] can't execute %s\n",script);
-	}
+	// workaround for manually messed up permissions
+	if (access(script, X_OK))
+		chmod(script, 0755);
+	CShellWindow(script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE);
+	scriptOutput = "";
 }
 
-#if ENABLE_LUA
 void CPlugins::startLuaPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
@@ -352,8 +362,12 @@ void CPlugins::startLuaPlugin(int number)
 	CLuaInstance *lua = new CLuaInstance();
 	lua->runScript(script);
 	delete lua;
-}
+#if HAVE_SPARK_HARDWARE
+	frameBuffer->ClearFB();
 #endif
+	videoDecoder->Pig(-1, -1, -1, -1);
+	frameBuffer->paintBackground();
+}
 
 void CPlugins::startPlugin(int number)
 {
@@ -361,13 +375,29 @@ void CPlugins::startPlugin(int number)
 	delScriptOutput();
 	/* export neutrino settings to the environment */
 	char tmp[32];
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_StartX_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_StartX);
+#endif
 	setenv("SCREEN_OFF_X", tmp, 1);
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_StartY_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_StartY);
+#endif
 	setenv("SCREEN_OFF_Y", tmp, 1);
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_EndX_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_EndX);
+#endif
 	setenv("SCREEN_END_X", tmp, 1);
+#if HAVE_SPARK_HARDWARE
+	sprintf(tmp, "%d", g_settings.screen_EndY_int);
+#else
 	sprintf(tmp, "%d", g_settings.screen_EndY);
+#endif
 	setenv("SCREEN_END_Y", tmp, 1);
 
 	bool ispip  = strstr(plugin_list[number].pluginfile.c_str(), "pip") != 0;
@@ -379,13 +409,11 @@ void CPlugins::startPlugin(int number)
 		startScriptPlugin(number);
 		return;
 	}
-#if ENABLE_LUA
 	if (plugin_list[number].type == CPlugins::P_TYPE_LUA)
 	{
 		startLuaPlugin(number);
 		return;
 	}
-#endif
 	if (!file_exists(plugin_list[number].pluginfile.c_str()))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
@@ -395,10 +423,22 @@ void CPlugins::startPlugin(int number)
 
 	g_RCInput->clearRCMsg();
 	g_RCInput->stopInput();
-
+	/* stop automatic updates etc. */
+	frameBuffer->Lock();
+	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
-	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
 
+	// workaround for manually messed up permissions
+	if (access(plugin_list[number].pluginfile, X_OK))
+		chmod(plugin_list[number].pluginfile.c_str(), 0755);
+
+	my_system(2, plugin_list[number].pluginfile.c_str(), NULL);
+	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
+	frameBuffer->Unlock();
+#if HAVE_SPARK_HARDWARE
+	frameBuffer->ClearFB();
+#endif
+	videoDecoder->Pig(-1, -1, -1, -1);
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();
 	g_RCInput->clearRCMsg();
@@ -441,10 +481,8 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 	case PLUGIN_TYPE_SCRIPT:
 		return P_TYPE_SCRIPT;
 		break;
-#if ENABLE_LUA
 	case PLUGIN_TYPE_LUA:
 		return P_TYPE_LUA;
-#endif
 	default:
 		return P_TYPE_DISABLED;
 	}

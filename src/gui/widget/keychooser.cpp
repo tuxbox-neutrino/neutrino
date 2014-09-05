@@ -64,7 +64,7 @@ public:
 
 
 
-CKeyChooser::CKeyChooser(int * const Key, const neutrino_locale_t title, const std::string & Icon) : CMenuWidget(title, Icon)
+CKeyChooser::CKeyChooser(unsigned int * const Key, const neutrino_locale_t title, const std::string & Icon) : CMenuWidget(title, Icon)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	key = Key;
@@ -76,7 +76,7 @@ CKeyChooser::CKeyChooser(int * const Key, const neutrino_locale_t title, const s
 	addItem(GenericMenuSeparatorLine);
 	addItem(GenericMenuBack);
 	addItem(GenericMenuSeparatorLine);
-	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNEW , true, NULL, keyChooser));
+	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNEW, true, NULL, keyChooser));
 	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNONE, true, NULL, keyDeleter));
 }
 
@@ -96,7 +96,7 @@ void CKeyChooser::paint()
 }
 
 //*****************************
-CKeyChooserItem::CKeyChooserItem(const neutrino_locale_t Name, int * Key)
+CKeyChooserItem::CKeyChooserItem(const neutrino_locale_t Name, unsigned int * Key)
 {
 	name = Name;
 	key = Key;
@@ -117,7 +117,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 		parent->hide();
 
 	paint();
-
+	CFrameBuffer::getInstance()->blit();
 	g_RCInput->clearRCMsg();
 	g_RCInput->setLongPressAny(true);
 
@@ -147,6 +147,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 void CKeyChooserItem::hide()
 {
 	CFrameBuffer::getInstance()->paintBackgroundBoxRel(x, y, width, height);
+	CFrameBuffer::getInstance()->blit();
 }
 
 void CKeyChooserItem::paint()

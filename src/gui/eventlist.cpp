@@ -346,8 +346,8 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 		}
 		
 		//manage painting of function bar during scrolling, depends of timerevent types
-		if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup || 
-			msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+		if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup || 
+			msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
 			bool paint_buttonbar = false; //function bar
 			int step = 0;
@@ -359,17 +359,17 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			     (g_settings.key_channelList_addrecord != (int)CRCInput::RC_nokey)))
 				paint_buttonbar = true;
 			
-			if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+			if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
 			{
-				step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+				step = ((int) msg == g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
 				selected -= step;
 				if((prev_selected-step) < 0)            // because of uint
 					selected = evtlist.size() - 1;
 				paintDescription(selected);
 			}
-			else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+			else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 			{
-				step = ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+				step = ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 				selected += step;
 
 				if(selected >= evtlist.size()) 

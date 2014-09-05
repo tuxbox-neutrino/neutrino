@@ -399,16 +399,6 @@ int CMoviePluginChangeExec::exec(CMenuTarget* parent, const std::string & action
 	}
 	return menu_return::RETURN_EXIT;
 }
-int COnekeyPluginChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
-{
-	int sel= atoi(actionKey.c_str());
-	parent->hide();
-	if (sel>=0)
-	{
-			g_settings.onekey_plugin=g_PluginList->getName(sel);
-	}
-	return menu_return::RETURN_EXIT;
-}
 
 long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 {

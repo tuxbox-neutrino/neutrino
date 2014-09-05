@@ -113,6 +113,7 @@ void CNeutrinoApp::InitMenu()
 
 	//personalize: neutrino.h, neutrino.cpp
 	personalize.enableUsermenu();
+	personalize.enablePluginMenu();
 	personalize.enablePinSetup();
 	personalize.addWidgets(menu_widgets, g_settings.easymenu ? MENU_MAX : 3);
 
@@ -207,13 +208,11 @@ void CNeutrinoApp::InitMenuMain()
 		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_SCRIPTS]);
 
-#if ENABLE_LUA
 		//lua
 		bool show_lua = g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA);
 		mf = new CMenuForwarder(LOCALE_MAINMENU_LUA, show_lua, NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA));
 		mf->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_LUA);
 		personalize.addItem(MENU_MAIN, mf, &g_settings.personalize[SNeutrinoSettings::P_MAIN_LUA]);
-#endif
 	}
 
 	//separator

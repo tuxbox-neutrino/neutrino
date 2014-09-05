@@ -127,12 +127,6 @@ class CMoviePluginChangeExec : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-class COnekeyPluginChangeExec : public CMenuTarget
-{
-	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
-
 class CTZChangeNotifier : public CChangeObserver
 {
 public:

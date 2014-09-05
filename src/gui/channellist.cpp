@@ -698,7 +698,7 @@ int CChannelList::show()
 			} else
 				loop=false;
 		}
-		else if( msg == CRCInput::RC_record) { //start direct recording from channellist
+		else if( msg == (neutrino_msg_t) g_settings.key_record) { //start direct recording from channellist
 #if 0
 			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id))
 			{
@@ -789,10 +789,10 @@ int CChannelList::show()
 		else if (msg == (neutrino_msg_t) g_settings.key_list_end) {
 			actzap = updateSelection(chanlist.size()-1);
 		}
-		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
 		{
 			displayList = 1;
-			int step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+			int step = ((int) msg == g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
 			int new_selected = selected - step;
 			if (new_selected < 0) {
 				if (selected != 0 && step != 1)
@@ -802,10 +802,10 @@ int CChannelList::show()
 			}
 			actzap = updateSelection(new_selected);
 		}
-		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
 			displayList = 1;
-			int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+			int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 			int new_selected = selected + step;
 			if (new_selected >= (int) chanlist.size()) {
 				if ((chanlist.size() - listmaxshow -1 < selected) && (selected != (chanlist.size() - 1)) && (step != 1))

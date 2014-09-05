@@ -31,6 +31,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 #include <gui/color.h>
 
@@ -66,7 +67,7 @@ void CExtendedInput::Init(void)
 
 	width = frameBuffer->getScreenWidth() / 100 * 45;
 
-	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name));
+	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name)); // UTF-8
 	width = std::max(width, tmp_w + offset);
 
 	bheight = input_h + 2*offset;
@@ -151,6 +152,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	std::string oldval = *valueString;
 	std::string dispval = *valueString;
 	paint();
+	frameBuffer->blit();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
@@ -265,6 +267,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				*cancel = true;
 			res = menu_return::RETURN_EXIT_ALL;
 		}
+		frameBuffer->blit();
 	}
 
 	hide();
@@ -282,6 +285,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 void CExtendedInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width, height);
+	frameBuffer->blit();
 }
 
 void CExtendedInput::paint()
@@ -604,7 +608,7 @@ CTimeInput::CTimeInput(const neutrino_locale_t Name, std::string* Value, const n
 {
 	valueString = Value;
 	frameBuffer = CFrameBuffer::getInstance();
-#if 0
+#if 1
 	// As nobody else seems to use this class I feel free to make some minor (and mostly backwards-compatible)
 	// adjustments to make it suitable for movieplayer playtime selection ... --martii
 
@@ -688,7 +692,7 @@ void CIntInput::onBeforeExec()
 
 void CIntInput::onAfterExec()
 {
-	*myValue = atoi((*valueString).c_str());
+	*myValue = atoi(*valueString);
 }
 
 //-----------------------------#################################-------------------------------------------------------

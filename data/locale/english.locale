@@ -380,15 +380,19 @@ extra.fec_9_10 9/10
 extra.fec_auto Auto
 extra.key_current_transponder Current Transponder Key
 extra.key_format_mode Video format
+extra.key_help Help key
 extra.key_list_end end
 extra.key_list_start home
+extra.key_next43mode Next aspect ratio
 extra.key_pic_mode Screen format
 extra.key_pic_size 4:3 Display behavior
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup Configure PiP
 extra.key_pip_swap Swap PiP/live
 extra.key_plugin One touch plugin
+extra.key_record Record key
 extra.key_screenshot Screenshot key
+extra.key_switchformat Next resolution
 extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
@@ -731,6 +735,7 @@ keybindingmenu.cancel close channellist
 keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
+keybindingmenu.edit Edit
 keybindingmenu.head Edit Keybindings
 keybindingmenu.lastchannel Quick Zap
 keybindingmenu.longkeypress_duration Long key-press
@@ -741,6 +746,7 @@ keybindingmenu.mode_left_right_key_tv_volume Volume Control
 keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
 keybindingmenu.mode_left_right_key_tv_zap Zap
 keybindingmenu.modechange Modechange
+keybindingmenu.navigation Navigation
 keybindingmenu.pagedown page down
 keybindingmenu.pageup page up
 keybindingmenu.poweroff Power toggle
@@ -760,6 +766,10 @@ keybindingmenu.special_active Special Keys
 keybindingmenu.subchanneldown subchannel down
 keybindingmenu.subchannelup subchannel up
 keybindingmenu.tvradiomode TV/Radio-mode
+keybindingmenu.video Video
+keybindingmenu.volume Volume
+keybindingmenu.volumedown Decrease
+keybindingmenu.volumeup Increase
 keybindingmenu.zaphistory Zapping History Bouquet
 keychooser.head Setup new Key
 keychooser.text1 Please press the new key
@@ -805,7 +815,7 @@ mainmenu.channels Channels
 mainmenu.clearsectionsd Clear EPG Cache
 mainmenu.games Games
 mainmenu.head Main Menu
-mainmenu.lua Plugins
+mainmenu.lua Lua Plugins
 mainmenu.media Media
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
@@ -1004,6 +1014,7 @@ menu.hint_key_pip_swap Assign button to swap PiP and live channel
 menu.hint_key_plugin Assign button to execute the one touch plugin
 menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
 menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
+menu.hint_key_record Assign button to start a recording
 menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
 menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
 menu.hint_key_right Select 'right' function in live TV/Radio mode
@@ -1016,6 +1027,8 @@ menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
 menu.hint_key_transponder Assign button to show channel list\nfor current transponder
 menu.hint_key_tvradiomode Assign button to switch TV <> Radio mode
 menu.hint_key_unlock Assign button to unlock box if locked\nTo unlock press 'red', then in next 5 seconds this key
+menu.hint_key_volumedown Assign button to decrease volume
+menu.hint_key_volumeup Assign button to increase volume
 menu.hint_keys Remote control repeat rate\nEdit key bindings
 menu.hint_lang_pref Configure preferred audio, EPG\nand subtitle languages
 menu.hint_language OSD language, timezone\nPreffered audio and subtitles languages
@@ -1029,7 +1042,7 @@ menu.hint_leds_standby LEDs state in soft-standby mode
 menu.hint_leds_tv Working LEDs state
 menu.hint_load Load Neutrino-HD GUI settings from file
 menu.hint_longkeypress_duration A key press will be considered as "long key press" if it's pressed longer than the specified time.
-menu.hint_lua Run Plugins
+menu.hint_lua Run Lua Plugins
 menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
 menu.hint_make_newlist Create list of recently added channels
 menu.hint_make_removedlist Create list of recently removed channels
@@ -1608,6 +1621,8 @@ movieplayer.ytplayback Youtube videoplayer
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
+mpkey.goto Enter playtime
+mpkey.next_repeat_mode next repeat mode
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Movieplayer plugin
@@ -1796,6 +1811,11 @@ pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
 plugins.hdd_dir Plugin HDD dir.
 plugins.result plugin output
+plugintype.disabled Disabled
+plugintype.game Game
+plugintype.lua LUA Script
+plugintype.script Script
+plugintype.tool Tool
 rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
 rclock.menueadd Lock RC
 rclock.title Lock Remote Control
@@ -2134,6 +2154,9 @@ usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
 usermenu.item_plugin_types Plugin types
 usermenu.item_vtxt Videotext
+usermenu.items Menu items
+usermenu.key Key
+usermenu.key_select Assign key
 usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
 usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!
 usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!

@@ -380,15 +380,19 @@ extra.fec_9_10 9/10
 extra.fec_auto Auto
 extra.key_current_transponder Aktuelle Transponder Taste
 extra.key_format_mode Videoformat
+extra.key_help Hilfe-Taste
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
+extra.key_next43mode Nächstes Seitenformat
 extra.key_pic_mode Bildschirmformat
 extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
 extra.key_plugin Schnellstart-Plugin
+extra.key_record Aufnahme-Taste
 extra.key_screenshot Screenshot Taste
+extra.key_switchformat Nächste Auflösung
 extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
@@ -731,6 +735,7 @@ keybindingmenu.cancel Kanalliste schließen
 keybindingmenu.channeldown Kanal runter
 keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
+keybindingmenu.edit Bearbeiten
 keybindingmenu.head Tasten-Belegungen bearbeiten
 keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.longkeypress_duration Langer Tastendruck
@@ -741,6 +746,7 @@ keybindingmenu.mode_left_right_key_tv_volume Lautstärkeregelung
 keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
 keybindingmenu.mode_left_right_key_tv_zap Umschalten
 keybindingmenu.modechange Moduswechsel
+keybindingmenu.navigation Navigation
 keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
 keybindingmenu.poweroff Standby EIN/AUS
@@ -760,6 +766,10 @@ keybindingmenu.special_active Sondertasten
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter
 keybindingmenu.tvradiomode Fernseh-/Radio-Modus
+keybindingmenu.video Video
+keybindingmenu.volume Lautstärke
+keybindingmenu.volumedown Leiser
+keybindingmenu.volumeup Lauter
 keybindingmenu.zaphistory Zapping-History Bouquet
 keychooser.head Neue Taste einstellen
 keychooser.text1 Bitte Taste drücken
@@ -1004,6 +1014,7 @@ menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
 menu.hint_key_plugin Wählen Sie eine Taste für das Schnellstart-Plugin
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
+menu.hint_key_record Konfigurieren Sie die Taste für den Aufnahmestart
 menu.hint_key_repeatblock Die Verzögerung nach einem Tastendruck bis die Box reagieren soll
 menu.hint_key_repeatblockgeneric Die Verzögerung zwischen den Tastewiederholungen bis die Box reagieren soll
 menu.hint_key_right Wählen Sie die Funktion für die Tasten 'links' und 'rechts' im TV/Radio-Modus
@@ -1016,6 +1027,8 @@ menu.hint_key_subchannelup Weisen Sie eine Taste für das Weiterschalten in den 
 menu.hint_key_transponder Weisen Sie eine Taste für das Anzeigen der Transponder in der Kanalliste zu
 menu.hint_key_tvradiomode Wählen Sie eine Taste für das Umschalten zwischen TV- und Radio-Modus
 menu.hint_key_unlock Weisen Sie eine Taste zum Entriegeln zu, \nbetätigen Sie die Taste 'Rot' für 5 Sekunden
+menu.hint_key_volumedown Weisen Sie eine Taste für die Reduzierung der Lautstärke zu
+menu.hint_key_volumeup Weisen Sie eine Taste für die Erhöhung der Lautstärke zu
 menu.hint_keys Tastenbelegungen und Fernbedienungs-Abstimmung bearbeiten
 menu.hint_lang_pref Wählen Sie ihre bevorzugten Tonspuren und Untertitel-Sprachen
 menu.hint_language Menü-Sprache, Zeitzone, bevorzugte Tonspuren, Untertitel-Sprachen und mehr
@@ -1608,6 +1621,8 @@ movieplayer.ytplayback Youtube-Feed Wiedergabe
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
+mpkey.goto Zeiteingabe
+mpkey.next_repeat_mode Nächster Wiederholungs-Modus
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Movieplayer-Plugin
@@ -1796,6 +1811,11 @@ pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
 plugins.result Pluginausgabe
+plugintype.disabled Deaktiviert
+plugintype.game Spiel
+plugintype.lua LUA Skript
+plugintype.script Skript
+plugintype.tool Werkzeug
 rclock.lockmsg Die Fernbedienung der CST wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
@@ -2134,6 +2154,9 @@ usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
 usermenu.item_plugin_types Plugin-Typen
 usermenu.item_vtxt Teletext
+usermenu.items Menüpunkte
+usermenu.key Taste
+usermenu.key_select Taste zuweisen
 usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwende Standardname:\n
 usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!
 usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü angelegt!\nDer Menüname wird daher zurückgesetzt!

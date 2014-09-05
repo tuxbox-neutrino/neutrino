@@ -83,6 +83,7 @@ class CInfoViewerBB
 			int h;
 			std::string icon;
 			std::string text;
+			bool active;
 		} bbButtonInfoStruct;
 
 		typedef struct

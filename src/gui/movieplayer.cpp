@@ -395,7 +395,7 @@ void CMoviePlayerGui::makeFilename()
 			std::replace(pretty_name.begin(), pretty_name.end(), '_', ' ');
 		} else
 			pretty_name = file_name;
-		
+
 		if(pretty_name.substr(0,14)=="videoplayback?"){//youtube name
 			if(!p_movie_info->epgTitle.empty())
 				pretty_name = p_movie_info->epgTitle;
@@ -739,6 +739,13 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	return res;
 }
 
+bool CMoviePlayerGui::SetPosition(int pos, bool absolute)
+{
+	clearSubtitle();
+	bool res = playback->SetPosition(pos, absolute);
+	return res;
+}
+
 void CMoviePlayerGui::PlayFileLoop(void)
 {
 	bool first_start = true;
@@ -879,40 +886,44 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			if (!timeshift)
 				callInfoViewer(/*duration, position*/);
 		} else if (msg == CRCInput::RC_1) {	// Jump Backwards 1 minute
-			clearSubtitle();
-			playback->SetPosition(-60 * 1000);
+			SetPosition(-60 * 1000);
 		} else if (msg == CRCInput::RC_3) {	// Jump Forward 1 minute
-			clearSubtitle();
-			playback->SetPosition(60 * 1000);
+			SetPosition(60 * 1000);
 		} else if (msg == CRCInput::RC_4) {	// Jump Backwards 5 minutes
-			clearSubtitle();
-			playback->SetPosition(-5 * 60 * 1000);
+			SetPosition(-5 * 60 * 1000);
 		} else if (msg == CRCInput::RC_6) {	// Jump Forward 5 minutes
-			clearSubtitle();
-			playback->SetPosition(5 * 60 * 1000);
+			SetPosition(5 * 60 * 1000);
 		} else if (msg == CRCInput::RC_7) {	// Jump Backwards 10 minutes
-			clearSubtitle();
-			playback->SetPosition(-10 * 60 * 1000);
+			SetPosition(-10 * 60 * 1000);
 		} else if (msg == CRCInput::RC_9) {	// Jump Forward 10 minutes
-			clearSubtitle();
-			playback->SetPosition(10 * 60 * 1000);
+			SetPosition(10 * 60 * 1000);
 		} else if (msg == CRCInput::RC_2) {	// goto start
-			clearSubtitle();
-			playback->SetPosition(0, true);
+			SetPosition(0, true);
 		} else if (msg == CRCInput::RC_5) {	// goto middle
-			clearSubtitle();
-			playback->SetPosition(duration/2, true);
+			SetPosition(duration/2, true);
 		} else if (msg == CRCInput::RC_8) {	// goto end
-			clearSubtitle();
-			playback->SetPosition(duration - 60 * 1000, true);
+			SetPosition(duration - 60 * 1000, true);
 		} else if (msg == CRCInput::RC_page_up) {
-			clearSubtitle();
-			playback->SetPosition(10 * 1000);
+			SetPosition(10 * 1000);
 		} else if (msg == CRCInput::RC_page_down) {
-			clearSubtitle();
-			playback->SetPosition(-10 * 1000);
+			SetPosition(-10 * 1000);
 		} else if (msg == CRCInput::RC_0) {	// cancel bookmark jump
 			handleMovieBrowser(CRCInput::RC_0, position);
+		} else if (msg == (neutrino_msg_t) g_settings.mpkey_goto) {
+			bool cancel = true;
+			playback->GetPosition(position, duration);
+			int ss = position/1000;
+			int hh = ss/3600;
+			ss -= hh * 3600;
+			int mm = ss/60;
+			ss -= mm * 60;
+			std::string Value = to_string(hh/10) + to_string(hh%10) + ":" + to_string(mm/10) + to_string(mm%10) + ":" + to_string(ss/10) + to_string(ss%10);
+			CTimeInput jumpTime (LOCALE_MPKEY_GOTO, &Value, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, NULL, &cancel);
+			jumpTime.exec(NULL, "");
+			jumpTime.hide();
+			if (!cancel && (3 == sscanf(Value.c_str(), "%d:%d:%d", &hh, &mm, &ss)))
+				SetPosition(1000 * (hh * 3600 + mm * 60 + ss), true);
+
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			callInfoViewer(/*duration, position*/);
 			update_lcd = true;
@@ -1561,7 +1572,7 @@ void CMoviePlayerGui::selectSubtitle()
 
 	APIDSelector.addItem(sc);
 	APIDSelector.addItem(GenericMenuSeparatorLine);
-	
+
 	char cnt[5];
 	unsigned int count;
 	for (count = 0; count < numsubs; count++) {

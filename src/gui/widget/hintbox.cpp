@@ -284,7 +284,7 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 			res = messages_return::handled;
 			break;
 		}
-		else if((msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
+		else if((msg == (neutrino_msg_t) g_settings.key_switchformat) || (msg == (neutrino_msg_t) g_settings.key_next43mode)) {
 			res = messages_return::cancel_all;
 			g_RCInput->postMsg(msg, data);
 		}

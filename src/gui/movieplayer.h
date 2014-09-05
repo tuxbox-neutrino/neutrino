@@ -192,6 +192,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void setLastMode(int m) { m_LastMode = m; }
 	void Pause(bool b = true);
 	void selectAudioPid();
+	bool SetPosition(int pos, bool absolute = false);
 };
 
 #endif

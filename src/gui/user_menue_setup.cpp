@@ -39,6 +39,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
+#include <gui/plugins.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keychooser.h>
@@ -46,7 +47,69 @@
 
 #include <driver/screen_max.h>
 
+#include <system/helpers.h>
 #include <system/debug.h>
+
+static bool usermenu_show = true;
+#if 0
+#if HAVE_SPARK_HARDWARE
+static bool usermenu_show_three_d_mode = true;
+#else
+static bool usermenu_show_three_d_mode = false;
+#endif
+#endif
+#if HAVE_SPARK_HARDWARE
+static bool usermenu_show_cam = false; // FIXME -- use hwcaps?
+#else
+static bool usermenu_show_cam = true; // FIXME -- use hwcaps?
+#endif
+struct keyvals
+{
+	const int key;
+	const neutrino_locale_t value;
+	bool &show;
+};
+
+static keyvals usermenu_items[] =
+{
+	{ SNeutrinoSettings::ITEM_NONE,			LOCALE_USERMENU_ITEM_NONE,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_BAR,			LOCALE_USERMENU_ITEM_BAR,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_EPG_LIST,		LOCALE_EPGMENU_EVENTLIST,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_EPG_SUPER,		LOCALE_EPGMENU_EPGPLUS,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_EPG_INFO,		LOCALE_EPGMENU_EVENTINFO,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_EPG_MISC,		LOCALE_USERMENU_ITEM_EPG_MISC,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_AUDIO_SELECT,		LOCALE_AUDIOSELECTMENUE_HEAD,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_SUBCHANNEL,		LOCALE_INFOVIEWER_SUBSERVICE,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK,	usermenu_show },
+	{ SNeutrinoSettings::ITEM_AUDIOPLAY,		LOCALE_AUDIOPLAYER_NAME,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_INETPLAY,		LOCALE_INETRADIO_NAME,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_MOVIEPLAYER_MB,	LOCALE_MOVIEBROWSER_HEAD,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_TIMERLIST,		LOCALE_TIMERLIST_NAME,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_REMOTE,		LOCALE_RCLOCK_MENUEADD,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_FAVORITS,		LOCALE_FAVORITES_MENUEADD,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_TECHINFO,		LOCALE_EPGMENU_STREAMINFO,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_PLUGIN,		LOCALE_TIMERLIST_PLUGIN,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_VTXT,			LOCALE_USERMENU_ITEM_VTXT,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_IMAGEINFO,		LOCALE_SERVICEMENU_IMAGEINFO,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_BOXINFO,		LOCALE_EXTRA_DBOXINFO,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_CAM,			LOCALE_CI_SETTINGS,			usermenu_show_cam },
+	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_GAMES,		LOCALE_MAINMENU_GAMES,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_TOOLS,		LOCALE_MAINMENU_TOOLS,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_LUA,                  LOCALE_MAINMENU_LUA,			usermenu_show },
+#if 0
+	{ SNeutrinoSettings::ITEM_ADZAP,		LOCALE_USERMENU_ITEM_ADZAP,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_TUNER_RESTART,	LOCALE_SERVICEMENU_RESTART_TUNER,	usermenu_show },
+	{ SNeutrinoSettings::ITEM_THREE_D_MODE,		LOCALE_THREE_D_SETTINGS,		usermenu_show_three_d_mode },
+	{ SNeutrinoSettings::ITEM_RASS,			LOCALE_RASS_HEAD,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_NETZKINO,		LOCALE_MOVIEPLAYER_NKPLAYBACK,		usermenu_show },
+#endif
+	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD,		usermenu_show },
+	{ SNeutrinoSettings::ITEM_HDDMENU,		LOCALE_HDD_SETTINGS,			usermenu_show },
+	{ SNeutrinoSettings::ITEM_MAX,			NONEXISTANT_LOCALE,			usermenu_show }
+};
 
 CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 {
@@ -54,155 +117,186 @@ CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 	button = menue_button;
 	max_char = 24;
 	width = w_max (40, 10);
-	pref_name = g_settings.usermenu_text[button]; //set current button name as prefered name
-	ums = NULL;
+	if (menue_button < (int) g_settings.usermenu.size())
+		pref_name = g_settings.usermenu[button]->title; //set current button name as prefered name
+	forwarder = NULL;
+
+	for (int i = 0; usermenu_items[i].key != SNeutrinoSettings::ITEM_MAX; i++) {
+		const char *loc = g_Locale->getText(usermenu_items[i].value);
+		if (usermenu_items[i].show)
+			options.push_back(loc);
+		keys[loc] = to_string(usermenu_items[i].key);
+		vals[keys[loc]] = loc;
+	}
+
+	int number_of_plugins = g_PluginList->getNumberOfPlugins();
+	for (int count = 0; count < number_of_plugins; count++) {
+		const char *loc = g_PluginList->getName(count);
+		const char *key = g_PluginList->getFileName(count);
+		if (loc && *loc && key && *key) {
+			options.push_back(loc);
+			keys[loc] = key;
+			vals[keys[loc]] = loc;
+		}
+	}
+	std::sort(options.begin(), options.end());
 }
 
 CUserMenuSetup::~CUserMenuSetup()
 {
-	delete ums;
 }
 
-#define USERMENU_ITEM_OPTION_COUNT SNeutrinoSettings::ITEM_MAX
-const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUNT] =
+int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	{ SNeutrinoSettings::ITEM_NONE,			LOCALE_USERMENU_ITEM_NONE },
-	{ SNeutrinoSettings::ITEM_BAR,			LOCALE_USERMENU_ITEM_BAR },
-	{ SNeutrinoSettings::ITEM_EPG_LIST,		LOCALE_EPGMENU_EVENTLIST },
-	{ SNeutrinoSettings::ITEM_EPG_SUPER,		LOCALE_EPGMENU_EPGPLUS },
-	{ SNeutrinoSettings::ITEM_EPG_INFO,		LOCALE_EPGMENU_EVENTINFO },
-	{ SNeutrinoSettings::ITEM_EPG_MISC,		LOCALE_USERMENU_ITEM_EPG_MISC },
-	{ SNeutrinoSettings::ITEM_AUDIO_SELECT,		LOCALE_AUDIOSELECTMENUE_HEAD },
-	{ SNeutrinoSettings::ITEM_SUBCHANNEL,		LOCALE_INFOVIEWER_SUBSERVICE },
-	{ SNeutrinoSettings::ITEM_MOVIEPLAYER_MB,	LOCALE_MOVIEBROWSER_HEAD },
-	{ SNeutrinoSettings::ITEM_TIMERLIST,		LOCALE_TIMERLIST_NAME },
-	{ SNeutrinoSettings::ITEM_REMOTE,		LOCALE_RCLOCK_MENUEADD },
-	{ SNeutrinoSettings::ITEM_FAVORITS,		LOCALE_FAVORITES_MENUEADD },
-	{ SNeutrinoSettings::ITEM_TECHINFO,		LOCALE_EPGMENU_STREAMINFO },
-	{ SNeutrinoSettings::ITEM_PLUGIN_TYPES,		LOCALE_USERMENU_ITEM_PLUGIN_TYPES },
-	{ SNeutrinoSettings::ITEM_VTXT,			LOCALE_USERMENU_ITEM_VTXT },
-	{ SNeutrinoSettings::ITEM_IMAGEINFO,		LOCALE_SERVICEMENU_IMAGEINFO },
-	{ SNeutrinoSettings::ITEM_BOXINFO,		LOCALE_EXTRA_DBOXINFO },
-	{ SNeutrinoSettings::ITEM_CAM,			LOCALE_CI_SETTINGS },
-	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON },
-	{ SNeutrinoSettings::ITEM_GAMES,		LOCALE_MAINMENU_GAMES },
-	{ SNeutrinoSettings::ITEM_SCRIPTS,		LOCALE_MAINMENU_SCRIPTS },
-	{ SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD },
-	{ SNeutrinoSettings::ITEM_YOUTUBE,		LOCALE_MOVIEPLAYER_YTPLAYBACK },
-	{ SNeutrinoSettings::ITEM_FILEPLAY,		LOCALE_MOVIEPLAYER_FILEPLAYBACK },
-	{ SNeutrinoSettings::ITEM_TOOLS,		LOCALE_MAINMENU_TOOLS },
-	{ SNeutrinoSettings::ITEM_LUA,			LOCALE_MAINMENU_LUA }
-};
+	if (actionKey == ">d") {
+		int selected = ums->getSelected();
+		if (selected >= item_offset) {
+			if(parent)
+				parent->hide();
+			ums->removeItem(selected);
+			ums->hide();
+			return menu_return::RETURN_REPAINT;
+		}
+		return menu_return::RETURN_NONE;
+	}
 
-int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)
-{
-	if(parent != NULL)
+	if(parent)
 		parent->hide();
-	
+
+	if (actionKey == ">a") {
+		int selected = ums->getSelected();
+		CMenuOptionStringChooser *c = new CMenuOptionStringChooser(std::string(""), NULL, true, NULL, CRCInput::RC_nokey, NULL, true);
+		c->setOptions(options);
+		std::string n(g_Locale->getText(LOCALE_USERMENU_ITEM_NONE));
+		c->setOptionValue(n);
+		if (selected >= item_offset)
+			ums->insertItem(selected, c);
+		else
+			ums->addItem(c);
+		ums->hide();
+		return menu_return::RETURN_REPAINT;
+	}
+
 	int res = showSetup();
 	checkButtonName();
 	
 	return res; 
 }
 
+static neutrino_locale_t locals[SNeutrinoSettings::ITEM_MAX];
+neutrino_locale_t CUserMenuSetup::getLocale(unsigned int key)
+{
+	static bool initialized = false;
+	if (!initialized) {
+		initialized = true;
+		for (int i = 0; i < SNeutrinoSettings::ITEM_MAX; i++)
+			locals[i] = NONEXISTANT_LOCALE;
+		for (int i = 0; usermenu_items[i].key != SNeutrinoSettings::ITEM_MAX; i++) 
+			locals[usermenu_items[i].key] = usermenu_items[i].value;
+	}
+	return locals[key];
+}
+
 int CUserMenuSetup::showSetup()
 {
-	if (ums == NULL) {
-		mn_widget_id_t widget_id = MN_WIDGET_ID_USERMENU_RED + button; //add up ''button'' and becomes to MN_WIDGET_ID_USERMENU_ GREEN, MN_WIDGET_ID_USERMENU_ YELLOW, MN_WIDGET_ID_USERMENU_BLUE
-		ums = new CMenuWidget(local, NEUTRINO_ICON_KEYBINDING, width, widget_id);
-	}else{ 
-		//if widget not clean, ensure that we have an empty widget without any item and set the last selected item
-		int sel = ums->getSelected(); 
-		ums->resetWidget(true);
-		ums->setSelected(sel);
-	}
-	
-	//CUserMenuNotifier *notify = new CUserMenuNotifier();
-	CStringInputSMS name(LOCALE_USERMENU_NAME, &g_settings.usermenu_text[button], 11, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäöüß/- "/*, notify*/);
+	mn_widget_id_t widget_id = (button < SNeutrinoSettings::BUTTON_MAX) ? MN_WIDGET_ID_USERMENU_RED + button : NO_WIDGET_ID;
+	ums = new CMenuWidget(local, NEUTRINO_ICON_KEYBINDING, width, widget_id);
 
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_USERMENU_NAME, true, g_settings.usermenu_text[button],&name);
-	
-	//-------------------------------------
 	ums->addIntroItems();
-	//-------------------------------------
+
+	int old_key = g_settings.usermenu[button]->key;
+	CStringInputSMS name(LOCALE_USERMENU_NAME, &g_settings.usermenu[button]->title, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäöüß/- "/*, notify*/);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_USERMENU_NAME, true, NULL, &name);
+
 	ums->addItem(mf);
-	ums->addItem(GenericMenuSeparatorLine);
-	//-------------------------------------
-	char text[max_char];
-	for(int item = 0; item < SNeutrinoSettings::ITEM_MAX && item <13; item++) // Do not show more than 13 items
-	{
-		snprintf(text,max_char,"%d.",item+1);
-		text[max_char-1]=0;// terminate for sure
-		int count = (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) ? USERMENU_ITEM_OPTION_COUNT : USERMENU_ITEM_OPTION_COUNT - 1;
-		ums->addItem(new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, count,true, NULL, CRCInput::RC_nokey, "", true, true));
+
+	if (button >= SNeutrinoSettings::BUTTON_MAX) {
+		CKeyChooser *kc = new CKeyChooser(&g_settings.usermenu[button]->key, LOCALE_USERMENU_KEY_SELECT, NEUTRINO_ICON_SETTINGS);
+		CMenuDForwarder *kf = new CMenuDForwarder(LOCALE_USERMENU_KEY, true, kc->getKeyName(), kc);
+		ums->addItem(kf);
 	}
-	
+
+	ums->addItem(new CMenuSeparator(CMenuSeparator::STRING | CMenuSeparator::LINE, LOCALE_USERMENU_ITEMS));
+
+	std::vector<std::string> items = ::split(g_settings.usermenu[button]->items, ',');
+	item_offset = ums->getItemsCount();
+	for (std::vector<std::string>::iterator it = items.begin(); it != items.end(); ++it) {
+		CMenuOptionStringChooser *c = new CMenuOptionStringChooser(std::string(""), NULL, true, NULL, CRCInput::RC_nokey, NULL, true);
+		c->setTitle(LOCALE_USERMENU_ITEMS);
+		c->setOptions(options);
+		c->setOptionValue(vals[*it]);
+		ums->addItem(c);
+	}
+
+	const struct button_label footerButtons[2] = {
+		{ NEUTRINO_ICON_BUTTON_RED, LOCALE_BOUQUETEDITOR_DELETE },
+		{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_BOUQUETEDITOR_ADD }
+	};
+	ums->setFooter(footerButtons, 2);
+	ums->addKey(CRCInput::RC_red, this, ">d");
+	ums->addKey(CRCInput::RC_green, this, ">a");
+
 	int res = ums->exec(NULL, "");
+	int items_end = ums->getItemsCount();
+
+	const char *delim = "";
+	g_settings.usermenu[button]->items = "";
+	std::string none = to_string(SNeutrinoSettings::ITEM_NONE);
+	for (int count = item_offset; count < items_end; count++) {
+		std::string lk = keys[static_cast<CMenuOptionStringChooser*>(ums->getItem(count))->getOptionValue()];
+		if (lk == none)
+			continue;
+		g_settings.usermenu[button]->items += delim + lk;
+		delim = ",";
+	}
+
+	delete ums;
+
+	if (forwarder && (old_key != (int) g_settings.usermenu[button]->key))
+		forwarder->setName(CRCInput::getKeyName(g_settings.usermenu[button]->key));
 
 	return res;
 }
 
+
 //check items of current button menu and set prefered menue name
 void CUserMenuSetup::checkButtonItems()
 {
-	//count of all items of widget
-	int count = ums->getItemsCount();
-	
 	//count of configured items
 	int used_items = getUsedItemsCount();
 	
 	//warn if no items defined and reset menu name, if empty
 	if (used_items == 0){
-		if (!g_settings.usermenu_text[button].empty()){
-			DisplayInfoMessage(g_Locale->getText(LOCALE_USERMENU_MSG_WARNING_NO_ITEMS));
-			g_settings.usermenu_text[button] = "";
+		if (!g_settings.usermenu[button]->title.empty()){
+			// DisplayInfoMessage(g_Locale->getText(LOCALE_USERMENU_MSG_WARNING_NO_ITEMS));
+			g_settings.usermenu[button]->title = "";
 		}
 		return;
 	}
-	
-	//found configured items and set as prefered name
-	for(int i = 0; i < count ; i++)
-	{
-		if (ums->getItem(i)->isMenueOptionChooser()) //choosers only
-		{
-			CMenuOptionChooser * opt_c = NULL;
-			opt_c = static_cast <CMenuOptionChooser*>(ums->getItem(i));
-			neutrino_locale_t opt_locale = USERMENU_ITEM_OPTIONS[opt_c->getOption()].value;
-			int set_key = USERMENU_ITEM_OPTIONS[opt_c->getOption()].key;
-			opt_c = NULL;
-			
-			if (set_key != SNeutrinoSettings::ITEM_NONE)
-				pref_name = g_Locale->getText(opt_locale);
-			
-			//warn if we have more than 1 items and the name of usermenu ist the same like before, exit function and let user decide, what to do 
-			if (used_items > 1 && g_settings.usermenu_text[button]==pref_name){
-				DisplayInfoMessage(g_Locale->getText(LOCALE_USERMENU_MSG_WARNING_NAME));
-				return;
-			}
-		}
+
+	//if found only 1 configured item, ensure that the caption of usermenu is the same like this
+	if (used_items == 1) {
+		bool dummy;
+		g_settings.usermenu[button]->title =  CUserMenu::getUserMenuButtonName(button, dummy);
 	}
-		
-	if (used_items == 1)
-		g_settings.usermenu_text[button] = pref_name; //if found only 1 configured item, ensure that the caption of usermenu is the same like this	
 }
 
 //check button name for details like empty string and show an user message on issue
 void CUserMenuSetup::checkButtonName()
-{	
+{
 	checkButtonItems();
 	
 	//exit function, if no items found
 	if (getUsedItemsCount() == 0)
 		return;
 	
-	bool is_empty = g_settings.usermenu_text[button].empty();
-	if (is_empty)
+	if (button < USERMENU_ITEMS_COUNT && g_settings.usermenu[button]->title.empty())
 	{
-		std::string 	msg = g_Locale->getText(LOCALE_USERMENU_MSG_INFO_IS_EMPTY);
-				msg += g_Locale->getText(usermenu[button].def_name);
-				
+		std::string msg(g_Locale->getText(LOCALE_USERMENU_MSG_INFO_IS_EMPTY));
+		msg += g_Locale->getText(usermenu[button].def_name);
 		DisplayInfoMessage(msg.c_str());
-		g_settings.usermenu_text[button] = is_empty ? g_Locale->getText(usermenu[button].def_name) : g_settings.usermenu_text[button].c_str();
+
+		g_settings.usermenu[button]->title = g_Locale->getText(usermenu[button].def_name);
 	}
 }
 
@@ -210,11 +304,6 @@ void CUserMenuSetup::checkButtonName()
 //get count of used items
 int CUserMenuSetup::getUsedItemsCount()
 {
-	int def_items = 0;
-	for(int item = 0; item < SNeutrinoSettings::ITEM_MAX; item++)
-		if (g_settings.usermenu[button][item] != 0)
-			def_items++;
-	
-	return def_items;
+	return ::split(g_settings.usermenu[button]->items, ',').size();
 }
 

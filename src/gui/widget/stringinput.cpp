@@ -32,6 +32,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <driver/display.h>
 
 #include <gui/color.h>
 
@@ -159,7 +160,7 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 		if (selected >= (int)valueString->length())
 			valueString->append(selected - valueString->length() + 1, ' ');
 		valueString->at(selected) = validchars[CRCInput::getNumericValue(key)];
-		int current_value = atoi((*valueString).c_str());
+		int current_value = atoi(*valueString);
 		int tmp = current_value;
 		if (lower_bound != -1 || upper_bound != -1)
 		{
@@ -258,7 +259,7 @@ void CStringInput::keyUpPressed()
 		npos = 0;
 	valueString->at(selected)=validchars[npos];
 
-	int current_value = atoi((*valueString).c_str());
+	int current_value = atoi(*valueString);
 	int tmp = current_value;
 	if (lower_bound != -1 || upper_bound != -1)
 	{
@@ -294,7 +295,7 @@ void CStringInput::keyDownPressed()
 		npos = strlen(validchars)-1;
 	valueString->at(selected)=validchars[npos];
 
-	int current_value = atoi((*valueString).c_str());
+	int current_value = atoi(*valueString);
 	int tmp = current_value;
 	if (lower_bound != -1 || upper_bound != -1)
 	{
@@ -405,6 +406,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	bool loop=true;
 	while (loop)
 	{
+		frameBuffer->blit();
 		if (*valueString != dispval)
 		{
 			CVFD::getInstance()->showMenuText(1,valueString->c_str() , selected+1);
@@ -469,10 +471,10 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 		else if (msg==CRCInput::RC_down)
 		{
 			keyDownPressed();
-		} else if (msg==CRCInput::RC_plus)
+		} else if (msg==(neutrino_msg_t)g_settings.key_volumeup)
 		{
 			keyPlusPressed();
-		} else if (msg==CRCInput::RC_minus)
+		} else if (msg==(neutrino_msg_t)g_settings.key_volumedown)
 		{
 			keyMinusPressed();
 		}
@@ -516,6 +518,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	{
 		frameBuffer->RestoreScreen(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET, pixbuf);
 		delete[] pixbuf;//Mismatching allocation and deallocation: pixbuf
+		frameBuffer->blit();
 	} else
 		hide();
 
@@ -536,6 +539,7 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 void CStringInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width + SHADOW_OFFSET, height + SHADOW_OFFSET);
+	frameBuffer->blit();
 }
 
 void CStringInput::paint(bool sms)
@@ -803,6 +807,7 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 
 	while(loop)
 	{
+		frameBuffer->blit();
 		g_RCInput->getMsg( &msg, &data, 300 );
 
 		if (msg==CRCInput::RC_left)

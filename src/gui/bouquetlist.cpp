@@ -480,10 +480,10 @@ int CBouquetList::show(bool bShowChannelList)
 			if (!Bouquets.empty())
 				updateSelection(Bouquets.size()-1);
 		}
-		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
 		{
 			if (!Bouquets.empty()) {
-				int step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+				int step = ((int) msg == g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
 				int new_selected = selected - step;
 				if (new_selected < 0) {
 					if (selected != 0 && step != 1)
@@ -494,10 +494,10 @@ int CBouquetList::show(bool bShowChannelList)
 				updateSelection(new_selected);
 			}
 		}
-		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
 			if (!Bouquets.empty()) {
-				int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+				int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
 				int new_selected = selected + step;
 				if (new_selected >= (int) Bouquets.size()) {
 					if ((Bouquets.size() - listmaxshow -1 < selected) && (selected != (Bouquets.size() - 1)) && (step != 1))

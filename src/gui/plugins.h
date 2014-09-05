@@ -51,11 +51,8 @@ class CPlugins
 		P_TYPE_DISABLED = 0x1,
 		P_TYPE_GAME     = 0x2,
 		P_TYPE_TOOL     = 0x4,
-		P_TYPE_SCRIPT   = 0x8
-#if ENABLE_LUA
-		,
+		P_TYPE_SCRIPT   = 0x8,
 		P_TYPE_LUA      = 0x10
-#endif
 	}
 	p_type_t;
 
@@ -125,13 +122,14 @@ class CPlugins
 		inline       int           getIndex            (const int number) const { return plugin_list[number].index             ; }
 		inline     neutrino_msg_t  getKey              (const int number) const { return (neutrino_msg_t)plugin_list[number].key; }
 
+		void setType (const int number, int t) { plugin_list[number].type = (CPlugins::p_type_t) t ; }
+		bool overrideType(plugin *plugin_data, std::string &setting, p_type type);
+
 		void startPlugin(int number);				// start plugins by number
 		void startPlugin(const char * const filename);		// start plugins by filename
 		void startPlugin_by_name(const std::string & name);	// start plugins by "name=" in .cfg
 		void startScriptPlugin(int number);
-#if ENABLE_LUA
 		void startLuaPlugin(int number);
-#endif
 		bool hasPlugin(CPlugins::p_type_t type);
 
 		const std::string& getScriptOutput() const;

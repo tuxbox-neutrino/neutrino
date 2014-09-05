@@ -490,9 +490,9 @@ void CUpnpBrowserGui::selectDevice()
 		else if (msg_repeatok == (neutrino_msg_t) g_settings.key_list_end) {
 			updateDeviceSelection(m_devices.size()-1);
 		}
-		else if (msg_repeatok == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+		else if (msg_repeatok == CRCInput::RC_up || (int) msg == g_settings.key_pageup)
 		{
-			int step = ((int) msg == g_settings.key_channelList_pageup) ? m_listmaxshow : 1;  // browse or step 1
+			int step = ((int) msg == g_settings.key_pageup) ? m_listmaxshow : 1;  // browse or step 1
 			int new_selected = m_selecteddevice - step;
 			if (new_selected < 0) {
 				if (m_selecteddevice != 0 && step != 1)
@@ -502,9 +502,9 @@ void CUpnpBrowserGui::selectDevice()
 			}
 			updateDeviceSelection(new_selected);
 		}
-		else if (msg_repeatok == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+		else if (msg_repeatok == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)
 		{
-			int step =  ((int) msg == g_settings.key_channelList_pagedown) ? m_listmaxshow : 1;  // browse or step 1
+			int step =  ((int) msg == g_settings.key_pagedown) ? m_listmaxshow : 1;  // browse or step 1
 			int new_selected = m_selecteddevice + step;
 			if (new_selected >= (int) m_devices.size()) {
 				if ((m_devices.size() - m_listmaxshow -1 < m_selecteddevice) && (m_selecteddevice != (m_devices.size() - 1)) && (step != 1))
@@ -726,8 +726,8 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 		else if (!timeout && (msg_repeatok == (neutrino_msg_t) g_settings.key_list_end)) {
 			updateItemSelection(id, entries, total-1, selected, liststart);
 		}
-		else if (!timeout && (msg_repeatok == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)) {
-			int step = ((int) msg == g_settings.key_channelList_pageup) ? m_listmaxshow : 1;  // browse or step 1
+		else if (!timeout && (msg_repeatok == CRCInput::RC_up || (int) msg == g_settings.key_pageup)) {
+			int step = ((int) msg == g_settings.key_pageup) ? m_listmaxshow : 1;  // browse or step 1
 			int new_selected = selected - step;
 			if (new_selected < 0) {
 				if (selected != 0 && step != 1)
@@ -737,8 +737,8 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			}
 			updateItemSelection(id, entries, new_selected, selected, liststart);
 		}
-		else if (!timeout && (msg_repeatok == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)) {
-			int step =  ((int) msg == g_settings.key_channelList_pagedown) ? m_listmaxshow : 1;  // browse or step 1
+		else if (!timeout && (msg_repeatok == CRCInput::RC_down || (int) msg == g_settings.key_pagedown)) {
+			int step =  ((int) msg == g_settings.key_pagedown) ? m_listmaxshow : 1;  // browse or step 1
 			int new_selected = selected + step;
 			if (new_selected >= (int) total) {
 				if ((total - m_listmaxshow -1 < selected) && (selected != (total - 1)) && (step != 1))
