@@ -288,7 +288,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_LUA, g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA), NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA), "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
-		case SNeutrinoSettings::ITEM_PLUGIN:
+		case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 		{
 			unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
 			if (!number_of_plugins)
@@ -519,7 +519,7 @@ const char *CUserMenu::getUserMenuButtonName(int button, bool &active)
 					active = true;
 				}
 				continue;
-			case SNeutrinoSettings::ITEM_PLUGIN:
+			case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 				return_title = true;
 				continue;
 			case SNeutrinoSettings::ITEM_CLOCK:
