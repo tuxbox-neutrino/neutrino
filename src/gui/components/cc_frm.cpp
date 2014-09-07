@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <system/debug.h>
+
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -71,12 +72,113 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 	cur_page	= 0;
 	sb 		= NULL;
 	w_sb		= 15;
+
+	page_scroll_mode = PG_SCROLL_M_UP_DOWN_KEY;
+
+	//connect page scroll slot
+	sigc::slot3<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
+	this->OnExec.connect(sl);
 }
 
 CComponentsForm::~CComponentsForm()
 {
 	clear();
 	delete sb;
+}
+
+int CComponentsForm::exec()
+{
+	dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] \n", __func__, __LINE__);
+	OnBeforeExec();
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
+
+	int res = menu_return::RETURN_REPAINT;
+
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(-1);
+
+	//required exit keys
+	msg_list_t exit_keys[2];
+	exit_keys[0].msg = CRCInput::RC_setup;
+	exit_keys[1].msg = CRCInput::RC_home;
+
+	bool exit_loop = false;
+	while (!exit_loop)
+	{
+		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+
+		//execute connected slots
+		OnExec(msg, data, res);
+
+		//exit loop
+		execExit(msg, data, res, exit_loop, exit_keys, 2);
+
+		if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+		{
+			dprintf(DEBUG_INFO, "[CComponentsForm]   [%s - %d]  messages_return::cancel_all\n", __func__, __LINE__);
+			res  = menu_return::RETURN_EXIT_ALL;
+			exit_loop = EXIT;
+		}
+	}
+
+	OnAfterExec();
+	return res;
+}
+
+
+void CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const struct msg_list_t * const msg_list, const size_t& key_count, bool force_exit)
+{
+	for(size_t i = 0; i < key_count; i++){
+		if (execKey(msg, data, res, exit_loop, msg_list[i].msg, force_exit)){
+			break;
+		}
+	}
+}
+
+void CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const std::vector<neutrino_msg_t>& v_msg_list, bool force_exit)
+{
+	for(size_t i = 0; i < v_msg_list.size(); i++){
+		if (execKey(msg, data, res, exit_loop, v_msg_list[i], force_exit)){
+			break;
+		}
+	}
+}
+
+inline bool CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const neutrino_msg_t& msg_val, bool force_exit)
+{
+	if (msg == msg_val){
+		OnExecMsg(msg, data, res);
+		if (force_exit)
+			exit_loop = EXIT;
+		return true;
+	}
+	return false;
+}
+
+
+void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /*data*/, int& /*res*/)
+{
+	if (page_scroll_mode == PG_SCROLL_M_OFF)
+		return;
+
+	if (page_scroll_mode & PG_SCROLL_M_UP_DOWN_KEY){
+		if (msg == CRCInput::RC_page_up)
+			ScrollPage(SCROLL_P_DOWN);
+		if (msg == CRCInput::RC_page_down)
+			ScrollPage(SCROLL_P_UP);
+	}
+
+	if (page_scroll_mode & PG_SCROLL_M_LEFT_RIGHT_KEY){
+		if (msg == CRCInput::RC_left)
+			ScrollPage(SCROLL_P_DOWN);
+		if (msg == CRCInput::RC_right)
+			ScrollPage(SCROLL_P_UP);
+	}
+}
+
+void CComponentsForm::execExit(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const struct msg_list_t * const msg_list, const size_t& key_count)
+{
+	execKey(msg, data, res, exit_loop, msg_list, key_count, true);
 }
 
 
@@ -503,3 +605,23 @@ CComponentsItem* CComponentsForm::getSelectedItemObject()
 	return ret;
 }
 
+
+void CComponentsForm::ScrollPage(int direction, bool do_paint)
+{
+	OnBeforeScrollPage();
+
+	int target_page_id = (int)getPageCount() - 1;
+	int target_page = (int)cur_page;
+	
+	if (direction == SCROLL_P_DOWN)
+		target_page = target_page+1 > target_page_id ? 0 : target_page+1;	
+	else if	(direction == SCROLL_P_UP)
+		target_page = target_page-1 < 0 ? target_page_id : target_page-1;
+
+	if (do_paint)
+		paintPage((uint8_t)target_page);
+	else
+		cur_page = (uint8_t)target_page;
+
+	OnAfterScrollPage();
+}

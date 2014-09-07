@@ -52,6 +52,9 @@ class CComponentsForm : public CComponentsItem
 		///returns true, if current page is changed, see also: setCurrentPage() 
 		bool isPageChanged();
 
+		///enable/disable page scrolling, default enabled with page scroll mode up/down keys, see also enablePageScroll()
+		int page_scroll_mode;
+
 	public:
 		CComponentsForm(	const int x_pos = 0, const int y_pos = 0, const int w = 800, const int h = 600,
 					CComponentsForm *parent = NULL,
@@ -115,6 +118,16 @@ class CComponentsForm : public CComponentsItem
 		virtual u_int8_t getCurrentPage(){return cur_page;};
 		///paint defined page number 0...n
 		virtual void paintPage(const u_int8_t& page_number, bool do_save_bg = CC_SAVE_SCREEN_NO);
+		///enum page scroll modes
+		enum
+		{
+			PG_SCROLL_M_UP_DOWN_KEY 	= 1,
+			PG_SCROLL_M_LEFT_RIGHT_KEY 	= 2,
+			PG_SCROLL_M_OFF		 	= 4,
+		};
+		///enable/disable page scroll, parameter1 default enabled for up/down keys
+		virtual void enablePageScroll(const int& mode = PG_SCROLL_M_UP_DOWN_KEY){page_scroll_mode = mode;};
+
 		///set width of scrollbar
 		virtual void setScrollBarWidth(const int& scrollbar_width){w_sb = scrollbar_width;};
 		///returns id of selected item, return value as int, returns -1: if is nothing selected
@@ -125,6 +138,58 @@ class CComponentsForm : public CComponentsItem
 		virtual void setSelectedItem(int item_id);
 		///select a definied item, parameter1 as CComponentsItem*
 		virtual void setSelectedItem(CComponentsItem* cc_item);
+
+		///exec main method, see also sub exec methods
+		virtual int exec();
+
+		///enum exec loop control
+		enum
+		{
+			NO_EXIT	= 0,
+			EXIT	= 1
+		};
+		///execKey() methods handle events for defined neutrino messages, see class CRCInput::, this methodes contains a signal handler named OnExecMsg, so it is possible to connect with any common function or method
+		///exec sub method for pressed keys, parameters1/2 by rev, parameter3 msg_list as struct contains a list of possible RC-messages for defined message, parameter4 defines size of struct, parameter5 force_exit default = false
+		virtual void execKey(	neutrino_msg_t& msg,
+					neutrino_msg_data_t& data,
+					int& res,
+					bool& exit_loop,
+					const struct msg_list_t * const msg_list,
+					const size_t& key_count,
+					bool force_exit = false);
+		///exec sub method for pressed keys, parameters1/2 by rev, parameter3 msg_list as vector contains a list of possible RC-messages for defined message, parameter4 force_exit default = false
+		virtual void execKey(	neutrino_msg_t& msg,
+					neutrino_msg_data_t& data,
+					int& res,
+					bool& exit_loop,
+					const std::vector<neutrino_msg_t>& msg_list,
+					bool force_exit = false);
+		///exec sub method for pressed key, parameters1/2 by rev, parameter3 force_exit default = false
+		virtual bool execKey(	neutrino_msg_t& msg,
+					neutrino_msg_data_t& data,
+					int& res,
+					bool& exit_loop,
+					const neutrino_msg_t& msg_val,
+					bool force_exit = false);
+
+		///exec sub method for page scroll, parameter1 neutrino_msg_t by rev
+		virtual void execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res);
+
+		///exec sub method for exit loop, parameters by rev
+		virtual void execExit(	neutrino_msg_t& msg,
+					neutrino_msg_data_t& data,
+					int& res, bool& exit_loop,
+					const struct msg_list_t * const msg_list,
+					const size_t& key_count);
+
+		///enum scroll direction
+		enum
+		{
+			SCROLL_P_DOWN	= 0,
+			SCROLL_P_UP	= 1
+		};
+		///scroll page and paint current selected page, if parameter2 = true (default)
+		virtual void ScrollPage(int direction = SCROLL_P_DOWN, bool do_paint = true);
 };
 
 #endif

@@ -153,6 +153,8 @@ void CComponentsWindow::initVarWindow(	const int& x_pos, const int& y_pos, const
 	ccw_show_r_sideber = false;
 	ccw_w_sidebar	= 40;
 
+	page_scroll_mode = PG_SCROLL_M_OFF; //permanent disabled here, only in body used!
+
 	initCCWItems();
 	initParent(parent);
 }
@@ -370,9 +372,24 @@ u_int8_t CComponentsWindow::getCurrentPage()
 	return ccw_body->getCurrentPage();
 }
 
+
+bool CComponentsWindow::isPageChanged()
+{
+	for(size_t i=0; i<ccw_body->size(); i++){
+		if (ccw_body->getCCItem(i)->getPageNumber() != getCurrentPage())
+			return true;
+	}
+	return false;
+}
+
 void CComponentsWindow::setScrollBarWidth(const int& scrollbar_width)
 {
 	ccw_body->setScrollBarWidth(scrollbar_width);
+}
+
+void CComponentsWindow::enablePageScroll(const int& mode)
+{
+	ccw_body->enablePageScroll(mode);
 }
 
 void CComponentsWindow::paintCurPage(bool do_save_bg)
