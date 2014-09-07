@@ -668,14 +668,6 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 #endif
 		return res;
 	}
-	else if (actionKey == "window_close"){
-		if (window){
-			window->hide();
-			delete window;
-			window = NULL;
-		}
-		return res;
-	}
 	else if (actionKey == "running_clock"){	
 		if (clock_r == NULL){
 			clock_r = new CComponentsFrmClock(100, 50, 0, 50, "%H.%M:%S", true);
@@ -791,7 +783,6 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Footer", true, NULL, this, "footer"));
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
-	widget->addItem(new CMenuForwarder("Window-Close", true, NULL, this, "window_close"));
 	widget->addItem(new CMenuForwarder("Text-Extended", true, NULL, this, "text_ext"));
 	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
 }
