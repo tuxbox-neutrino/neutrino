@@ -56,6 +56,15 @@ class CYourClass : sigc::trackable //<- not forget, requierd by destructor!
 				//eg: class CNotACComponentClass : public CComponentSignals
 				//this also handles the derivation of sigc::trackable
 
+			//simple example (find in CComponentsForm)
+			//this connects a member void execPageScroll(with 3 parameters) with signal OnExec
+			sigc::slot3<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
+			OnExec.connect(sl);
+
+			//assumed: would this function return a value int, slot must be switched to:
+			sigc::slot3<int, neutrino_msg_t&, neutrino_msg_data_t&, int&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
+			OnExec.connect(sl);
+
 			// here we use a void* parameter, can be filled with any stuff you can cast, you can use also other types
 			void *vptr = yourStuff;
 
@@ -79,7 +88,7 @@ class CYourClass : sigc::trackable //<- not forget, requierd by destructor!
 #define __CC_SIGNALS_H____
 
 #include <sigc++/signal.h>
-
+#include <driver/rcinput.h>
 
 class CComponentsSignals : public sigc::trackable
 {
@@ -87,9 +96,25 @@ class CComponentsSignals : public sigc::trackable
 		CComponentsSignals(){};
 		sigc::signal<void> OnError;
 
+		///signal on enter CComponentsForm::exec()
+		sigc::signal<void> OnBeforeExec;
+		///signal before leave CComponentsForm::exec(), before calls return
+		sigc::signal<void> OnAfterExec;
+
+		///signal on execute of CComponentsForm::exec()
+		sigc::signal<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> OnExec;
+		///signal on received message in CComponentsForm::execKey()
+		sigc::signal<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> OnExecMsg;
+
+		///signal on enter CComponentsForm::ScrollPage()
+		sigc::signal<void> OnBeforeScrollPage;
+		///signal on leave CComponentsForm::ScrollPage()
+		sigc::signal<void> OnAfterScrollPage;
+
 		sigc::signal<void> OnBeforePaint;
 		sigc::signal<void> OnAfterPaint;
 
+		///signal on CComponentsForm::setSelectedItem() is completed
 		sigc::signal<void> OnSelect;
 };
 
