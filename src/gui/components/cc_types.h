@@ -29,7 +29,7 @@
 #include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
-
+#include <driver/rcinput.h>
 
 
 class CComponentsForm;
@@ -102,6 +102,13 @@ typedef struct comp_screen_data_t
 	int dy;
 	fb_pixel_t* pixbuf;
 } comp_screen_data_struct_t;
+
+//combination of rc messages with related icon
+typedef struct msg_list_t
+{
+	neutrino_msg_t 	msg;
+	const char* 	icon;
+} key_list_t;
 
 //align types
 enum
