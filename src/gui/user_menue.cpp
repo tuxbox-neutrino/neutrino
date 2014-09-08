@@ -276,7 +276,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
                 case SNeutrinoSettings::ITEM_TOOLS:
                         keyhelper.get(&key,&icon);
                         menu_item = new CMenuDForwarder(LOCALE_MAINMENU_TOOLS, g_PluginList->hasPlugin(CPlugins::P_TYPE_TOOL), NULL, new CPluginList(LOCALE_MAINMENU_TOOLS,CPlugins::P_TYPE_TOOL), "-1", key, icon );
-                        menu->addItem(menu_item, false);
                         break;
 		case SNeutrinoSettings::ITEM_SCRIPTS:
 			keyhelper.get(&key,&icon);
@@ -286,7 +285,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_LUA:
 			keyhelper.get(&key,&icon);
 			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_LUA, g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA), NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA), "-1", key, icon );
-			menu->addItem(menu_item, false);
 			break;
 		case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 		{
