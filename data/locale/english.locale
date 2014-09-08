@@ -1813,7 +1813,7 @@ plugins.hdd_dir Plugin HDD dir.
 plugins.result plugin output
 plugintype.disabled Disabled
 plugintype.game Game
-plugintype.lua LUA Script
+plugintype.lua Lua plugin
 plugintype.script Script
 plugintype.tool Tool
 rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
