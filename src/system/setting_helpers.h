@@ -115,7 +115,7 @@ class CNVODChangeExec : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-class CStreamFeaturesChangeExec : public CMenuTarget
+class CPluginsExec : public CMenuTarget
 {
 	public:
 		int exec(CMenuTarget* parent, const std::string & actionKey);

@@ -148,8 +148,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	// define classes
 	CSubChannelSelectMenu subchanselect;
-	CStreamFeaturesChangeExec StreamFeaturesChanger;
-	CNeutrinoApp * neutrino					= CNeutrinoApp::getInstance();
+	CPluginsExec plugins;
+	CNeutrinoApp * neutrino	= CNeutrinoApp::getInstance();
 	
 	std::string txt = g_settings.usermenu[button]->title;
 	if (button < COL_BUTTONMAX && txt.empty())
@@ -316,7 +316,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &StreamFeaturesChanger, id, key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, id, key, icon);
 					menu_item->setHint("", g_PluginList->getDescription(count));
 
 					menu->addItem(menu_item, false);
@@ -328,7 +328,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_VTXT:
 			keyhelper.get(&key,&icon, feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_VTXT]].key); //CRCInput::RC_blue
-			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, &StreamFeaturesChanger, "teletext", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, &plugins, "teletext", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_IMAGEINFO:
