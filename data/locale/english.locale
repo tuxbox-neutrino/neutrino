@@ -1099,7 +1099,6 @@ menu.hint_net_xupnpd Share live channels over UPNP
 menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
 menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
-menu.hint_onekey_plugin Choose a plugin that's executed with the one touch key
 menu.hint_opkg Install or update software packages
 menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options

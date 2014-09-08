@@ -1099,7 +1099,6 @@ menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
-menu.hint_onekey_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste gestartet wird
 menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
