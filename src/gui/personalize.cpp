@@ -485,7 +485,7 @@ void CPersonalizeGui::ShowUserMenu()
 	for (uint i = 0; i<USERMENU_ITEMS_COUNT; i++)
 	{
 		CUserMenuSetup *cms = new CUserMenuSetup(usermenu[i].menue_title, usermenu[i].menue_button);
-		CMenuDForwarder *fw = new CMenuDForwarder(usermenu[i].menue_title, true, g_settings.usermenu[i]->title, cms, g_settings.usermenu[i]->name.c_str(), /*usermenu[i].DirectKey*/CRCInput::RC_nokey, usermenu[i].IconName);
+		CMenuDForwarder *fw = new CMenuDForwarder(usermenu[i].menue_title, true, g_settings.usermenu[i]->title, cms, g_settings.usermenu[i]->name.c_str(), /*usermenu[i].DirectKey*/CRCInput::RC_nokey /*, usermenu[i].IconName*/);
 		cms->setCaller(fw);
 		v_umenu_fw.push_back(fw);
 	}
