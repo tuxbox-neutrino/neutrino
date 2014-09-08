@@ -333,7 +333,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	/* if file present and no config file found, force easy mode */
 	if (erg && !access("/var/etc/.easymenu", F_OK))
 		g_settings.easymenu = 1;
-	INFO("************************************************** g_settings.easymenu %d\n", g_settings.easymenu);
+	dprintf(DEBUG_NORMAL, "g_settings.easymenu %d\n", g_settings.easymenu);
 
 	// video
 	g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
@@ -614,7 +614,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		else
 			timeshiftDir = g_settings.network_nfs_recordingdir + "/.timeshift";
 	}
-	printf("***************************** rec dir %s timeshift dir %s\n", g_settings.network_nfs_recordingdir.c_str(), timeshiftDir.c_str());
+	dprintf(DEBUG_NORMAL, "recording dir: %s\n", g_settings.network_nfs_recordingdir.c_str());
+	dprintf(DEBUG_NORMAL, "timeshift dir: %s\n", timeshiftDir.c_str());
+
 	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir.c_str());
 
 	if(g_settings.auto_delete) {
