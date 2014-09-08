@@ -475,6 +475,8 @@ static const struct button_label footerButtons[2] = {
 //init usermenu items
 void CPersonalizeGui::ShowUserMenu()
 {
+	int uMenu_shortcut = 1;
+
 	uMenu->addIntroItems(LOCALE_USERMENU_HEAD);
 
 	uMenu->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_USERMENU_SHOW_CANCEL, &g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -523,7 +525,7 @@ void CPersonalizeGui::ShowUserMenu()
 	oc->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PLUGIN_TYPE_LUA);
 	pluginSelectionMenu->addItem(oc);
 
-	uMenu->addItem(new CMenuDForwarder(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, true, NULL, pluginSelectionMenu));
+	uMenu->addItem(new CMenuDForwarder(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, true, NULL, pluginSelectionMenu, NULL, CRCInput::convertDigitToKey(uMenu_shortcut++)));
 
 	uMenu->addItem(GenericMenuSeparatorLine);
 	//non-standard usermenu keys
