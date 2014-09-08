@@ -39,6 +39,7 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/neutrinofonts.h>
+#include <system/debug.h>
 #include <system/settings.h>
 
 #include <configfile.h>
@@ -116,7 +117,7 @@ void CNeutrinoFonts::SetupDynamicFonts(bool initRenderClass/*=true*/)
 		dynFontStyle[0] = g_dynFontRenderer->AddFont(fontDescr.filename.c_str());
 
 		fontDescr.name = g_dynFontRenderer->getFamily(fontDescr.filename.c_str());
-		printf("[neutrino] font family %s\n", fontDescr.name.c_str());
+		dprintf(DEBUG_NORMAL, " dynamic font family: %s\n", fontDescr.name.c_str());
 		dynFontStyle[1] = "Bold Regular";
 
 		g_dynFontRenderer->AddFont(fontDescr.filename.c_str(), true);  // make italics
@@ -134,7 +135,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.size_offset = fontDescr.size_offset;
 		old_fontDescr.filename = fontDescr.filename;
 		fontDescr.filename = "";
-		printf("[neutrino] settings font file %s\n", g_settings.font_file.c_str());
+		dprintf(DEBUG_NORMAL, "font file: %s\n", g_settings.font_file.c_str());
 		if (access(g_settings.font_file.c_str(), F_OK)) {
 			if (!access(FONTDIR"/neutrino.ttf", F_OK)) {
 				fontDescr.filename = FONTDIR"/neutrino.ttf";
@@ -153,7 +154,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.name = fontDescr.name;
 		fontDescr.name = "";
 		fontDescr.name = g_fontRenderer->getFamily(fontDescr.filename.c_str());
-		printf("[neutrino] font family %s\n", fontDescr.name.c_str());
+		dprintf(DEBUG_NORMAL, "standard font family: %s\n", fontDescr.name.c_str());
 		fontStyle[1] = "Bold Regular";
 
 		g_fontRenderer->AddFont(fontDescr.filename.c_str(), true);  // make italics
