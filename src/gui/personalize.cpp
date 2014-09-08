@@ -477,6 +477,9 @@ void CPersonalizeGui::ShowUserMenu()
 {
 	uMenu->addIntroItems(LOCALE_USERMENU_HEAD);
 
+	uMenu->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_USERMENU_SHOW_CANCEL, &g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
+	uMenu->addItem(GenericMenuSeparatorLine);
 	//define usermenu items
 	std::vector<CMenuForwarder*> v_umenu_fw;
 	for (uint i = 0; i<USERMENU_ITEMS_COUNT; i++)
@@ -492,13 +495,19 @@ void CPersonalizeGui::ShowUserMenu()
 	for (int i = 0; i < USERMENU_ITEMS_COUNT; i++)
 		uMenu->addItem(new CMenuOptionChooser(usermenu[i].menue_title, &g_settings.personalize[buttons[i]], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, user_menu_notifier));
 
+	//add usermenu items
+	uMenu->addItem(new CMenuSeparator(CMenuSeparator::ALIGN_RIGHT | CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_NAME));
+	user_menu_notifier->changeNotify();
+	for (uint j = 0; j<USERMENU_ITEMS_COUNT; j++)
+		uMenu->addItem(v_umenu_fw[j]);
+
 	uMenu->addItem(GenericMenuSeparatorLine);
-	uMenu->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_USERMENU_SHOW_CANCEL, &g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	//add plugin selection menu
 	CMenuWidget *pluginSelectionMenu = new CMenuWidget(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, NEUTRINO_ICON_SETTINGS);
 	pluginSelectionMenu->addIntroItems(LOCALE_MAINMENU_SETTINGS);
 
 	CMenuOptionChooser * /*oc = NULL;*/
-		oc = new CMenuOptionChooser(LOCALE_MAINMENU_GAMES, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	oc = new CMenuOptionChooser(LOCALE_MAINMENU_GAMES, &g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_GAMES], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	oc->setHint(NEUTRINO_ICON_HINT_PERSONALIZE, LOCALE_MENU_HINT_PLUGIN_TYPE_GAMES);
 	pluginSelectionMenu->addItem(oc);
 
@@ -515,12 +524,6 @@ void CPersonalizeGui::ShowUserMenu()
 	pluginSelectionMenu->addItem(oc);
 
 	uMenu->addItem(new CMenuDForwarder(LOCALE_PERSONALIZE_USERMENU_PLUGIN_TYPES, true, NULL, pluginSelectionMenu));
-
-	//add usermenu items
-	uMenu->addItem(new CMenuSeparator(CMenuSeparator::ALIGN_RIGHT | CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_NAME));
-	user_menu_notifier->changeNotify();
-	for (uint j = 0; j<USERMENU_ITEMS_COUNT; j++)
-		uMenu->addItem(v_umenu_fw[j]);
 
 	uMenu->addItem(GenericMenuSeparatorLine);
 	//non-standard usermenu keys
