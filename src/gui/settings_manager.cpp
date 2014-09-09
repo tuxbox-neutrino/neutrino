@@ -76,6 +76,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			CNeutrinoApp::getInstance()->loadSetup(fileBrowser.getSelectedFile()->Name.c_str());
 			CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier;
 			colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+			CNeutrinoApp::getInstance()->SetupFonts(CNeutrinoFonts::FONTSETUP_ALL);
 			CVFD::getInstance()->setlcdparameter();
 			printf("[neutrino] new settings: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			delete colorSetupNotifier;
