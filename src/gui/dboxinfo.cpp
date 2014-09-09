@@ -419,7 +419,7 @@ void CDBoxInfoWidget::paint()
 
 		int off = std::max(0, (int)sysload->data_avail - pbw);
 		for (unsigned int i = 0; i < sysload->data_avail - off; i++) {
-			if (sysload->data[i + off] > -1)
+			if ((sysload->data[i + off] * h / 1000) > 0)
 				frameBuffer->paintVLine(x+offsetw + i, cpuload_y1 - sysload->data[i + off] * h / 1000, cpuload_y1, COL_MENUCONTENT_PLUS_7);
 		}
 	}
