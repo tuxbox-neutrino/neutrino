@@ -451,3 +451,11 @@ void CConfigFile::setStringVector(const std::string & key, const std::vector<std
 	}
 	unknownKeyQueryedFlag = tmpUnknownKeyQueryedFlag;
 }
+
+bool CConfigFile::deleteKey(const std::string & key)
+{
+	bool ret = configData.erase(key) != 0;
+	if (ret)
+		modifiedFlag = true;
+	return ret;
+}
