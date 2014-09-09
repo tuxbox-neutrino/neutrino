@@ -231,9 +231,19 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 			if (ak && *ak && std::string(ak).find_first_not_of("0123456789") == std::string::npos) {
 				int i = atoi(ak);
 				if (i > -1) {
+					for (unsigned int j = 4; j < g_settings.usermenu.size(); j++) {
+						std::string name = to_string(j);
+						std::string usermenu_key("usermenu_key_");
+						usermenu_key += name;
+						CNeutrinoApp::getInstance()->getConfigFile()->deleteKey(usermenu_key);
+						std::string txt1("usermenu_tv_");
+						txt1 += name;
+						CNeutrinoApp::getInstance()->getConfigFile()->deleteKey(txt1);
+						txt1 += "_text";
+						CNeutrinoApp::getInstance()->getConfigFile()->deleteKey(txt1);
+					}
 					delete g_settings.usermenu[i];
 					g_settings.usermenu[i] = NULL;
-					CNeutrinoApp::getInstance()->getConfigFile()->clear();
 				}
 			}
 			uMenu->removeItem(selected);
@@ -247,8 +257,6 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 		parent->hide();
 
 	if (actionKey == ">a") {
-		int selected = uMenu->getSelected();
-
 		unsigned int i = g_settings.usermenu.size();
 		CUserMenuSetup *cms = new CUserMenuSetup(LOCALE_USERMENU_HEAD, i);
 		SNeutrinoSettings::usermenu_t *um = new SNeutrinoSettings::usermenu_t;
@@ -257,10 +265,13 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 		CMenuDForwarder *fw = new CMenuDForwarder(CRCInput::getKeyName(um->key), true, um->title, cms, to_string(i).c_str());
 		cms->setCaller(fw);
 
+#if 0
+		int selected = uMenu->getSelected();
 		if (selected >= customkey_offset)
 			uMenu->insertItem(selected, fw);
 		else
-			uMenu->addItem(fw);
+#endif
+			uMenu->addItem(fw, true);
 		uMenu->hide();
 		return menu_return::RETURN_REPAINT;
 	}

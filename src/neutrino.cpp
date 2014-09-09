@@ -833,6 +833,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	// USERMENU -> in system/settings.h
 	//-------------------------------------------
 
+	g_settings.usermenu.clear();
 	if (configfile.getString("usermenu_key_red", "").empty() ||
 			configfile.getString("usermenu_key_green", "").empty() ||
 			configfile.getString("usermenu_key_yellow", "").empty() ||
@@ -844,14 +845,17 @@ int CNeutrinoApp::loadSetup(const char * fname)
 			g_settings.usermenu.push_back(u);
 		}
 	} else {
+		bool unknown = configfile.getUnknownKeyQueryedFlag();
 		for (unsigned int i = 0; ; i++) {
 			std::string name = (i < 4) ? usermenu_default[i].name : to_string(i);
 			std::string usermenu_key("usermenu_key_");
 			usermenu_key += name;
 			int uk = configfile.getInt32(usermenu_key, CRCInput::RC_nokey);
 			if (!uk || uk == (int)CRCInput::RC_nokey) {
-				if (i > 3)
+				if (i > 3) {
+					configfile.setUnknownKeyQueryedFlag(unknown);
 					break;
+				}
 				continue;
 			}
 			SNeutrinoSettings::usermenu_t *u = new SNeutrinoSettings::usermenu_t;
@@ -919,8 +923,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 	}
-	/* clear old values */
-	configfile.clear();
 
 	//video
 	configfile.setInt32( "video_Mode", g_settings.video_Mode );
@@ -1366,14 +1368,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infoClockSeconds", g_settings.infoClockSeconds);
 	configfile.setInt32("easymenu", g_settings.easymenu);
 
-	if(strcmp(fname, NEUTRINO_SETTINGS_FILE))
+	if(strcmp(fname, NEUTRINO_SETTINGS_FILE) || configfile.getModifiedFlag())
 		configfile.saveConfig(fname);
-
-	else if (configfile.getModifiedFlag())
-	{
-		configfile.saveConfig(fname);
-		configfile.setModifiedFlag(false);
-	}
 }
 
 /**************************************************************************************
