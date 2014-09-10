@@ -673,6 +673,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/media/sda1/logos" );
 
+	g_settings.webtv_xml.clear();
 	int webtv_count = configfile.getInt32("webtv_xml_count", 0);
 	if (webtv_count) {
 		for (int i = 0; i < webtv_count; i++) {

@@ -931,7 +931,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	if (webtv_xml) {
 		for (std::list<std::string>::iterator it = webtv_xml->begin(); it != webtv_xml->end(); ++it) {
 			if (!access((*it).c_str(), R_OK)) {
-				INFO("Loading webtv...");
+				INFO("Loading webtv from %s ...", (*it).c_str());
 				parser = parseXmlFile((*it).c_str());
 				if (parser == NULL)
 					continue;
