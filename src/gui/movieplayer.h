@@ -73,6 +73,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	std::string	file_name;
 	std::string	pretty_name;
+	std::string	info_1, info_2;
 	std::string    	currentaudioname;
 	bool		playing;
 	bool		time_forced;
@@ -186,7 +187,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void UpdatePosition();
 	int timeshift;
 	int file_prozent;
-	void SetFile(std::string &name, std::string &file) { pretty_name = name; file_name = file; }
+	void SetFile(std::string &name, std::string &file, std::string info1="", std::string info2="") { pretty_name = name; file_name = file; info_1 = info1; info_2 = info2; }
 	bool PlayBackgroundStart(const std::string &file, const std::string &name, t_channel_id chan);
 	void stopPlayBack(void);
 	void setLastMode(int m) { m_LastMode = m; }

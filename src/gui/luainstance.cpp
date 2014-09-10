@@ -612,14 +612,22 @@ int CLuaInstance::PlayFile(lua_State *L)
 		return 0;
 	}
 	const char *title;
+	const char *info1 = "";
+	const char *info2 = "";
 	const char *fname;
 
 	title = luaL_checkstring(L, 2);
 	fname = luaL_checkstring(L, 3);
+	if (numargs > 3)
+		info1 = luaL_checkstring(L, 4);
+	if (numargs > 4)
+		info2 = luaL_checkstring(L, 5);
 	printf("CLuaInstance::%s: title %s file %s\n", __func__, title, fname);
 	std::string st(title);
+	std::string si1(info1);
+	std::string si2(info2);
 	std::string sf(fname);
-	CMoviePlayerGui::getInstance().SetFile(st, sf);
+	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
 	CMoviePlayerGui::getInstance().exec(NULL, "http");
 	return 0;
 }

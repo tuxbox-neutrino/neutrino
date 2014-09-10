@@ -158,6 +158,8 @@ void CMoviePlayerGui::Init(void)
 	ext_subs = false;
 	iso_file = false;
 	bgThread = 0;
+	info_1 = "";
+	info_2 = "";
 }
 
 void CMoviePlayerGui::cutNeutrino()
@@ -1034,7 +1036,7 @@ void CMoviePlayerGui::callInfoViewer(/*const int duration, const int curr_pos*/)
 	}
 
 	/* not moviebrowser => use the filename as title */
-	g_InfoViewer->showMovieTitle(playstate, 0, pretty_name, "", "", duration, position);
+	g_InfoViewer->showMovieTitle(playstate, 0, pretty_name, info_1, info_2, duration, position);
 }
 
 bool CMoviePlayerGui::getAudioName(int apid, std::string &apidtitle)
