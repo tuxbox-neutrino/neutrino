@@ -447,6 +447,8 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "GetLanguage", CLuaInstance::GetLanguage },
 	{ "runScript", CLuaInstance::runScriptExt },
 	{ "PlayFile", CLuaInstance::PlayFile },
+	{ "strFind", CLuaInstance::strFind },
+	{ "strSub", CLuaInstance::strSub },
 	{ NULL, NULL }
 };
 
@@ -630,6 +632,62 @@ int CLuaInstance::PlayFile(lua_State *L)
 	CMoviePlayerGui::getInstance().SetFile(st, sf, si1, si2);
 	CMoviePlayerGui::getInstance().exec(NULL, "http");
 	return 0;
+}
+
+int CLuaInstance::strFind(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 2 (or 3 or 4))\n", __func__, numargs);
+		lua_pushnil(L);
+		return 1;
+	}
+	const char *s1;
+	const char *s2;
+	int pos=0, n=0, ret=0;
+	s1 = luaL_checkstring(L, 2);
+	s2 = luaL_checkstring(L, 3);
+	if (numargs > 3)
+		pos = luaL_checkint(L, 4);
+	if (numargs > 4)
+		n = luaL_checkint(L, 5);
+
+	std::string str(s1);
+	if (numargs > 4)
+		ret = str.find(s2, pos, n);
+	else
+		ret = str.find(s2, pos);
+
+//	printf("####[%s:%d] str_len: %d, s2: %s, pos: %d, n: %d, ret: %d\n", __func__, __LINE__, str.length(), s2, pos, n, ret);
+	if (ret == (int)std::string::npos)
+		lua_pushnil(L);
+	else
+		lua_pushinteger(L, ret);
+	return 1;
+}
+
+int CLuaInstance::strSub(lua_State *L)
+{
+	int numargs = lua_gettop(L);
+	if (numargs < 3) {
+		printf("CLuaInstance::%s: not enough arguments (%d, expected 2 (or 3))\n", __func__, numargs);
+		lua_pushstring(L, "");
+		return 1;
+	}
+	const char *s1;
+	int pos=0, len=std::string::npos;
+	std::string ret="";
+	s1 = luaL_checkstring(L, 2);
+	pos = luaL_checkint(L, 3);
+	if (numargs > 3)
+		len = luaL_checkint(L, 4);
+
+	std::string str(s1);
+	ret = str.substr(pos, len);
+
+//	printf("####[%s:%d] str_len: %d, pos: %d, len: %d, ret_len: %d\n", __func__, __LINE__, str.length(), pos, len, ret.length());
+	lua_pushstring(L, ret.c_str());
+	return 1;
 }
 
 int CLuaInstance::GetSize(lua_State *L)

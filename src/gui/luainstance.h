@@ -195,6 +195,9 @@ private:
 	static int DisplayImage(lua_State *L);
 	static int PlayFile(lua_State *L);
 
+	static int strFind(lua_State *L);
+	static int strSub(lua_State *L);
+
 	void MenuRegister(lua_State *L);
 	static int MenuNew(lua_State *L);
 	static int MenuDelete(lua_State *L);
