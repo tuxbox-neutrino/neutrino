@@ -34,6 +34,7 @@
 #include <neutrino.h>
 #include <system/debug.h>
 #include "luainstance.h"
+#include <video.h>
 
 /* the magic color that tells us we are using one of the palette colors */
 #define MAGIC_COLOR 0x42424200
@@ -457,6 +458,9 @@ const luaL_Reg CLuaInstance::methods[] =
 	{ "getRenderWidth", CLuaInstance::getRenderWidth },
 	{ "GetSize", CLuaInstance::GetSize },
 	{ "DisplayImage", CLuaInstance::DisplayImage },
+	{ "setBlank", CLuaInstance::setBlank },
+	{ "ShowPicture", CLuaInstance::ShowPicture },
+	{ "StopPicture", CLuaInstance::StopPicture },
 	{ "Blit", CLuaInstance::Blit },
 	{ "GetLanguage", CLuaInstance::GetLanguage },
 	{ "runScript", CLuaInstance::runScriptExt },
@@ -615,6 +619,29 @@ int CLuaInstance::DisplayImage(lua_State *L)
 	if (lua_isnumber(L, 7))
 		trans = luaL_checkint(L, 7);
 	g_PicViewer->DisplayImage(fname, x, y, w, h, trans);
+	return 0;
+}
+
+extern cVideo * videoDecoder;
+
+int CLuaInstance::setBlank(lua_State *L)
+{
+	int enable = 1;
+	enable = luaL_checkint(L, 2);
+	videoDecoder->setBlank((enable==1)?true:false);
+	return 0;
+}
+
+int CLuaInstance::ShowPicture(lua_State *L)
+{
+	const char *fname = luaL_checkstring(L, 2);
+	videoDecoder->ShowPicture(fname);
+	return 0;
+}
+
+int CLuaInstance::StopPicture(lua_State */*L*/)
+{
+	videoDecoder->StopPicture();
 	return 0;
 }
 
