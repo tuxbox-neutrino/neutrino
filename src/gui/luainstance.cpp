@@ -1263,9 +1263,16 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 
 		int directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
 		int pulldown = false; 	tableLookup(L, "pulldown", pulldown);
-		tmp = "true";
-		tableLookup(L, "enabled", tmp) || tableLookup(L, "active", tmp);
-		bool enabled = (tmp == "true" || tmp == "1" || tmp == "yes");
+
+		bool enabled = true;
+		if (!(tableLookup(L, "enabled", enabled) || tableLookup(L, "active", enabled)))
+		{
+			tmp = "true";
+			if (tableLookup(L, "enabled", tmp) || tableLookup(L, "active", tmp))
+				paramBoolDeprecated(L, tmp.c_str());
+			enabled = (tmp == "true" || tmp == "1" || tmp == "yes");
+		}
+
 		tableLookup(L, "range", tmp);
 		int range_from = 0, range_to = 99;
 		sscanf(tmp.c_str(), "%d,%d", &range_from, &range_to);
@@ -1663,8 +1670,16 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	tableLookup(L, "dy", dy);
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 	tableLookup(L, "icon", icon);
-	tableLookup(L, "has_shadow"  , tmp1);
-	bool has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+
+	bool has_shadow = false;
+	if (!tableLookup(L, "has_shadow", has_shadow))
+	{
+		tmp1 = "false";
+		if (tableLookup(L, "has_shadow", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+
 	tableLookup(L, "color_frame" , color_frame);
 	tableLookup(L, "color_body"  , color_body);
 	tableLookup(L, "color_shadow", color_shadow);
@@ -1677,12 +1692,22 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	checkMagicMask(color_body);
 	checkMagicMask(color_shadow);
 
-	tmp1 = "true";
-	tableLookup(L, "show_header"  , tmp1);
-	bool show_header = (tmp1 == "true" || tmp1 == "show" || tmp1 == "yes");
-	tmp1 = "true";
-	tableLookup(L, "show_footer"  , tmp1);
-	bool show_footer = (tmp1 == "true" || tmp1 == "show" || tmp1 == "yes");
+	bool show_header = true;
+	if (!tableLookup(L, "show_header", show_header))
+	{
+		tmp1 = "true";
+		if (tableLookup(L, "show_header", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		show_header = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+	bool show_footer = true;
+	if (!tableLookup(L, "show_footer", show_footer))
+	{
+		tmp1 = "true";
+		if (tableLookup(L, "show_footer", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		show_footer = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
 
 	CLuaCWindow **udata = (CLuaCWindow **) lua_newuserdata(L, sizeof(CLuaCWindow *));
 	*udata = new CLuaCWindow();
@@ -1730,14 +1755,17 @@ CLuaCWindow *CLuaInstance::CWindowCheck(lua_State *L, int n)
 int CLuaInstance::CWindowPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	std::string tmp = "true";
-	tableLookup(L, "do_save_bg", tmp);
-	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
 	CLuaCWindow *m = CWindowCheck(L, 1);
-	if (!m)
-		return 0;
+	if (!m) return 0;
 
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->w->paint(do_save_bg);
 	return 0;
 }
@@ -1745,14 +1773,17 @@ int CLuaInstance::CWindowPaint(lua_State *L)
 int CLuaInstance::CWindowHide(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	std::string tmp = "false";
-	tableLookup(L, "no_restore", tmp);
-	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
-
 	CLuaCWindow *m = CWindowCheck(L, 1);
-	if (!m)
-		return 0;
+	if (!m) return 0;
 
+	bool no_restore = false;
+	if (!tableLookup(L, "no_restore", no_restore))
+	{
+		std::string tmp = "false";
+		if (tableLookup(L, "no_restore", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->w->hide(no_restore);
 	return 0;
 }
@@ -1888,14 +1919,17 @@ int CLuaInstance::SignalBoxNew(lua_State *L)
 int CLuaInstance::SignalBoxPaint(lua_State *L)
 {
 	lua_assert(lua_istable(L,1));
-	std::string tmp = "true";
-	tableLookup(L, "do_save_bg", tmp);
-	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
 	CLuaSignalBox *m = SignalBoxCheck(L, 1);
-	if (!m)
-		return 0;
+	if (!m) return 0;
 
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->s->paint(do_save_bg);
 	return 0;
 }
@@ -1951,7 +1985,6 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	lua_Unsigned color_frame  = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
 	lua_Unsigned color_body   = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
 	lua_Unsigned color_shadow = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
-	std::string tmp1         = "false";
 
 	tableLookup(L, "parent"      , (void**)&parent);
 	tableLookup(L, "x"           , x);
@@ -1963,8 +1996,16 @@ int CLuaInstance::ComponentsTextNew(lua_State *L)
 	tableLookup(L, "font_text"   , font_text);
 	if (font_text >= SNeutrinoSettings::FONT_TYPE_COUNT || font_text < 0)
 		font_text = SNeutrinoSettings::FONT_TYPE_MENU;
-	tableLookup(L, "has_shadow"  , tmp1);
-	bool has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+
+	bool has_shadow = false;
+	if (!tableLookup(L, "has_shadow", has_shadow))
+	{
+		std::string tmp1 = "false";
+		if (tableLookup(L, "has_shadow", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
+
 	tableLookup(L, "color_text"  , color_text);
 	tableLookup(L, "color_frame" , color_frame);
 	tableLookup(L, "color_body"  , color_body);
@@ -2016,10 +2057,14 @@ int CLuaInstance::ComponentsTextPaint(lua_State *L)
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m) return 0;
 
-	std::string tmp = "true";
-	tableLookup(L, "do_save_bg", tmp);
-	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->ct->paint(do_save_bg);
 	return 0;
 }
@@ -2030,10 +2075,14 @@ int CLuaInstance::ComponentsTextHide(lua_State *L)
 	CLuaComponentsText *m = ComponentsTextCheck(L, 1);
 	if (!m) return 0;
 
-	std::string tmp = "false";
-	tableLookup(L, "no_restore", tmp);
-	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
-
+	bool no_restore = false;
+	if (!tableLookup(L, "no_restore", no_restore))
+	{
+		std::string tmp = "false";
+		if (tableLookup(L, "no_restore", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	if (m->parent) {
 		m->ct->setText("", m->mode, g_Font[m->font_text]);
 		m->ct->paint();
@@ -2127,7 +2176,6 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	lua_Integer x=10, y=10, dx=100, dy=100;
 	std::string image_name         = "";
 	lua_Integer alignment          = 0;
-	std::string tmp1             = "false";	// has_shadow
 	lua_Unsigned color_frame      = (lua_Unsigned)COL_MENUCONTENT_PLUS_6;
 	lua_Unsigned color_background = (lua_Unsigned)COL_MENUCONTENT_PLUS_0;
 	lua_Unsigned color_shadow     = (lua_Unsigned)COL_MENUCONTENTDARK_PLUS_0;
@@ -2149,8 +2197,14 @@ int CLuaInstance::CPictureNew(lua_State *L)
 	if (alignment)
 		dprintf(DEBUG_NORMAL, "[CLuaInstance][%s - %d] invalid argument: 'alignment' has no effect!\n", __func__, __LINE__);
 
-	tableLookup(L, "has_shadow"       , tmp1);
-	bool has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	bool has_shadow = false;
+	if (!tableLookup(L, "has_shadow", has_shadow))
+	{
+		std::string tmp1 = "false";
+		if (tableLookup(L, "has_shadow", tmp1))
+			paramBoolDeprecated(L, tmp1.c_str());
+		has_shadow = (tmp1 == "true" || tmp1 == "1" || tmp1 == "yes");
+	}
 	tableLookup(L, "color_frame"      , color_frame);
 	tableLookup(L, "color_background" , color_background);
 	tableLookup(L, "color_shadow"     , color_shadow);
@@ -2177,10 +2231,14 @@ int CLuaInstance::CPicturePaint(lua_State *L)
 	CLuaPicture *m = CPictureCheck(L, 1);
 	if (!m) return 0;
 
-	std::string tmp = "true";
-	tableLookup(L, "do_save_bg", tmp);
-	bool do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
-
+	bool do_save_bg = true;
+	if (!tableLookup(L, "do_save_bg", do_save_bg))
+	{
+		std::string tmp = "true";
+		if (tableLookup(L, "do_save_bg", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		do_save_bg = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	m->cp->paint(do_save_bg);
 	return 0;
 }
@@ -2191,10 +2249,14 @@ int CLuaInstance::CPictureHide(lua_State *L)
 	CLuaPicture *m = CPictureCheck(L, 1);
 	if (!m) return 0;
 
-	std::string tmp = "false";
-	tableLookup(L, "no_restore", tmp);
-	bool no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
-
+	bool no_restore = false;
+	if (!tableLookup(L, "no_restore", no_restore))
+	{
+		std::string tmp = "false";
+		if (tableLookup(L, "no_restore", tmp))
+			paramBoolDeprecated(L, tmp.c_str());
+		no_restore = (tmp == "true" || tmp == "1" || tmp == "yes");
+	}
 	if (m->parent) {
 		m->cp->setPicture("");
 		m->cp->paint();
