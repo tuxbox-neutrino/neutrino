@@ -285,6 +285,7 @@ private:
 	static bool tableLookup(lua_State*, const char*, lua_Integer&);
 	static bool tableLookup(lua_State*, const char*, lua_Unsigned&);
 	static bool tableLookup(lua_State*, const char*, void**);
+	static bool tableLookup(lua_State*, const char*, bool &value);
 };
 
 #endif /* _LUAINSTANCE_H */
