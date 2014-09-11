@@ -30,11 +30,12 @@
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
 #include <gui/widget/hintbox.h>
+#include <neutrino_menue.h>
 #include "webtv_setup.h"
 
 CWebTVSetup::CWebTVSetup()
 {
-	width = w_max (40, 10);
+	width = w_max (55, 10);
 	selected = -1;
 	item_offset = 0;
 	changed = false;
@@ -91,25 +92,26 @@ int CWebTVSetup::exec(CMenuTarget* parent, const std::string & actionKey)
 	if(parent)
 		parent->hide();
 
-	Show();
+	res = Show();
 
 	return res;
 }
 
-void CWebTVSetup::Show()
+int CWebTVSetup::Show()
 {
 	item_offset = 0;
 
-	m = new CMenuWidget(LOCALE_WEBTV_HEAD, NEUTRINO_ICON_MOVIEPLAYER, width);
+	m = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_MOVIEPLAYER, width, MN_WIDGET_ID_WEBTVSETUP);
 	m->addKey(CRCInput::RC_red, this, "d");
 	m->addKey(CRCInput::RC_green, this, "a");
-	m->setSelected(selected);
-	m->addIntroItems(LOCALE_EPGPLUS_OPTIONS, LOCALE_WEBTV_XML);
+
+	m->addIntroItems(LOCALE_WEBTV_HEAD, LOCALE_WEBTV_XML);
 	item_offset = m->getItemsCount();
 	for (std::list<std::string>::iterator it = g_settings.webtv_xml.begin(); it != g_settings.webtv_xml.end(); ++it)
 		m->addItem(new CMenuForwarder(*it, true, NULL, this, "c"));
-	m->setFooter(CWebTVSetupFooterButtons, CWebTVSetupFooterButtonCount);
-	m->exec(NULL, "");
+	m->setFooter(CWebTVSetupFooterButtons, CWebTVSetupFooterButtonCount); //Why we need here an extra buttonbar?
+
+	int res = m->exec(NULL, "");
 	m->hide();
 	if (changed) {
 			g_settings.webtv_xml.clear();
@@ -121,7 +123,9 @@ void CWebTVSetup::Show()
 			g_Zapit->reinitChannels();
 			changed = false;
 	}
-	selected = m->getSelected();
+
 	delete m;
+
+	return res;
 }
 // vim:ts=4

@@ -38,6 +38,6 @@ class CWebTVSetup : public CMenuTarget
 	public:
 		CWebTVSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		void Show();
+		int Show();
 };
 #endif
