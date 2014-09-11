@@ -376,7 +376,7 @@ extra.dboxinfo_ram RAM
 extra.dboxinfo_size Total
 extra.dboxinfo_swap Swap
 extra.dboxinfo_time Time
-extra.dboxinfo_timeformat %FT%H:%M:%S%z
+extra.dboxinfo_timeformat %F, %H:%M:%S
 extra.dboxinfo_uptime Uptime
 extra.dboxinfo_use Use
 extra.dboxinfo_used Used
