@@ -368,6 +368,18 @@ bool CLuaInstance::_luaL_checkbool(lua_State *L, int numArg)
 	return b;
 }
 
+void CLuaInstance::paramBoolDeprecated(lua_State *L, const char* val)
+{
+	lua_Debug ar;
+	lua_getstack(L, 1, &ar);
+	lua_getinfo(L, "Sl", &ar);
+	printf("[Lua Script] \33[1;31m%s\33[0m %s (\33[31m\"%s\"\33[0m)\n                      %s \33[32mtrue\33[0m.\n                      (%s:%d)\n",
+					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED1),
+					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED2), val,
+					g_Locale->getText(LOCALE_LUA_BOOLPARAM_DEPRECATED3),
+					ar.short_src, ar.currentline);
+}
+
 void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc)
 {
 	lua_Debug ar;

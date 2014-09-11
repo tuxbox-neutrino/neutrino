@@ -824,6 +824,9 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
+lua.boolparam_deprecated1 Achtung!
+lua.boolparam_deprecated2 Die Verwendung von Zahl oder String
+lua.boolparam_deprecated3 für einen Boolean Parameter ist veraltet.\n                      Bitte nutzen Sie native Bool Werte zB:
 lua.function_deprecated1 Achtung!
 lua.function_deprecated2 Die Funktion
 lua.function_deprecated3 ist veraltet,\n                      bitte nutzen Sie

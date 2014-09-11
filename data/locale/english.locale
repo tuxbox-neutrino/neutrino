@@ -824,7 +824,10 @@ ledcontroler.off Led1 & Led2 off
 ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
-lua.function_deprecated1 Attention!
+lua.boolparam_deprecated1 Caution!
+lua.boolparam_deprecated2 The use of number or string
+lua.boolparam_deprecated3 for a Boolean parameter is deprecated.\n                      Please use native bool values eg.
+lua.function_deprecated1 Caution!
 lua.function_deprecated2 Function
 lua.function_deprecated3 is deprecated,\n                      please use
 mainmenu.audioplayer Audioplayer
