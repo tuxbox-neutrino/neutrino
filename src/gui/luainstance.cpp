@@ -350,6 +350,24 @@ CLuaInstance::~CLuaInstance()
 	}
 }
 
+/* Ported by Benny Chen, http://www.bennychen.cn/tag/lual_checkbool/ */
+bool CLuaInstance::_luaL_checkbool(lua_State *L, int numArg)
+{
+	bool b = false;
+	if (lua_isboolean(L, numArg))
+		b = lua_toboolean(L, numArg);
+	else {
+		lua_Debug ar;
+		lua_getstack(L, 0, &ar);
+		lua_getinfo(L, "n", &ar);
+		luaL_error(L, "bad argument #%d to '%s' (%s expected, got %s)\n", 
+				numArg-1, ar.name,
+				lua_typename(L, LUA_TBOOLEAN),
+				lua_typename(L, lua_type(L, numArg)));
+	}
+	return b;
+}
+
 void CLuaInstance::functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc)
 {
 	lua_Debug ar;

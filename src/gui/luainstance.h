@@ -177,6 +177,7 @@ private:
 	lua_State* lua;
 	void registerFunctions();
 
+	static bool _luaL_checkbool(lua_State *L, int numArg);
 	static void functionDeprecated(lua_State *L, const char* oldFunc, const char* newFunc);
 	static lua_Unsigned checkMagicMask(lua_Unsigned &col);
 
