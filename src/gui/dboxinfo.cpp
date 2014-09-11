@@ -281,7 +281,7 @@ void CDBoxInfoWidget::paint()
 		while (getline(in, line)) {
 			size_t firstslash = line.find_first_of('/');
 			size_t firstspace = line.find_first_of(' ');
-			if (firstspace != string::npos && firstslash != string::npos && firstslash < firstspace) {
+			if ( (firstspace != string::npos && firstslash != string::npos && firstslash < firstspace) || (line.find("rootfs") == 0) ) {
 				firstspace++;
 				size_t nextspace = line.find_first_of(' ', firstspace);
 				if (nextspace == string::npos || line.find("nodev", nextspace + 1) != string::npos)
@@ -307,7 +307,6 @@ void CDBoxInfoWidget::paint()
 			satWidth = std::max(satWidth, fm->getRenderWidth(s));
 		}
 	}
-printf("nameWidth %d satWidth %d\n", nameWidth, satWidth);
 
 	height += mheight;			// header
 	height += mounts.size() * mheight;	// file systems
@@ -383,8 +382,8 @@ printf("nameWidth %d satWidth %d\n", nameWidth, satWidth);
 	now -= info.uptime;
 	std::string str_boot(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
 
-	char ubuf[80];
-	char sbuf[256];
+	char ubuf[80] = { 0 };
+	char sbuf[256] = { 0 };
         int updays, uphours, upminutes;
 
         updays = (int) info.uptime / (60*60*24);
