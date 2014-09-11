@@ -85,7 +85,13 @@ CTimeOSD::~CTimeOSD()
 void CTimeOSD::initTimeString()
 {
 	struct tm t;
-	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str.c_str(), gmtime_r(&m_time_show, &t));
+	if (m_mode == MODE_DESC) {
+		char tt[20];
+		strftime(tt, sizeof(tt), cl_format_str.c_str(), gmtime_r(&m_time_show, &t));
+		snprintf(cl_timestr, sizeof(cl_timestr), "-%s", tt);
+	}
+	else
+		strftime(cl_timestr, sizeof(cl_timestr), cl_format_str.c_str(), gmtime_r(&m_time_show, &t));
 }
 
 void CTimeOSD::show(time_t time_show, bool force)
@@ -132,6 +138,7 @@ void CTimeOSD::switchMode(int position, int duration)
 	switch (m_mode) {
 		case MODE_ASC:
 			m_mode = MODE_DESC;
+			CComponents::kill();
 			break;
 		case MODE_DESC:
 			m_mode = MODE_BAR;
