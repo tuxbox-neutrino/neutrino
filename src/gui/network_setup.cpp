@@ -630,6 +630,7 @@ void CNetworkSetup::restoreNetworkSettings()
 	networkConfig->key 		= network_key;
 
 	networkConfig->commitConfig();
+	changeNotify(LOCALE_NETWORKMENU_SELECT_IF, NULL);
 }
 
 bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * Data)
