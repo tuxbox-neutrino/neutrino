@@ -30,6 +30,9 @@
 #endif
 
 #include <sigc++/signal.h>
+#include <OpenThreads/ScopedLock>
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
 
 //! Member of CComponents. Provides a generic timer class
 /*!
@@ -45,6 +48,8 @@ class CComponentsTimer : public sigc::trackable
 		int tm_interval;
 		///init function to start timer in own thread
 		static void* initTimerThread(void *arg);
+		///mutex for timer
+		OpenThreads::Mutex mutex;
 
 	public:
 		///class constructor, parameter interval sets the interval in seconds, default value=1 (1 sec)

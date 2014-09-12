@@ -32,6 +32,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <system/helpers.h>
+#include <system/debug.h>
 
 using namespace std;
 
@@ -39,14 +40,13 @@ CComponentsTimer::CComponentsTimer( const int& interval)
 {
 	tm_thread 		= 0;
 	tm_interval		= interval;
-	if (startTimer())
-		printf("[CComponentsTimer]    [%s]  timer started\n", __func__);
+	startTimer();
 }
 
 CComponentsTimer::~CComponentsTimer()
 {
 	if (stopTimer())
-		printf("[CComponentsTimer]    [%s]  timer stopped\n", __func__);
+		dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer stopped\n", __func__);
 }
 
 //thread handle
@@ -59,7 +59,9 @@ void* CComponentsTimer::initTimerThread(void *arg)
 
 	//start loop
 	while(timer) {
+		timer->mutex.lock();
 		timer->OnTimer();
+		timer->mutex.unlock();
 		mySleep(timer->tm_interval);
 	}
 
@@ -74,11 +76,11 @@ bool CComponentsTimer::startTimer()
 	if(!tm_thread) {
 		int res = pthread_create (&tm_thread, NULL, initTimerThread, ptr) ;
 		if (res != 0){
-			printf("[CComponentsTimer]    [%s]  pthread_create  %s\n", __func__, strerror(errno));
+			dprintf(DEBUG_NORMAL,"[CComponentsTimer]    [%s]  pthread_create  %s\n", __func__, strerror(errno));
 			return false;
 		}
 	}
-	printf("[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
+	dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
 	return  true;
 }
 
@@ -88,12 +90,12 @@ bool CComponentsTimer::stopTimer()
 	int thres = 0;
 	if(tm_thread) {
 		thres = pthread_cancel(tm_thread);
-		printf("[CComponentsTimer]    [%s] waiting for timer thread terminate ...\n", __func__);
+		dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s] waiting for timer thread terminate ...\n", __func__);
 		if (thres != 0)
-			printf("[CComponentsTimer]    [%s] pthread_cancel  %s\n", __func__, strerror(errno));
+			dprintf(DEBUG_NORMAL,"[CComponentsTimer]    [%s] pthread_cancel  %s\n", __func__, strerror(errno));
 		thres = pthread_join(tm_thread, NULL);
 		if (thres != 0)
-			printf("[CComponentsTimer]    [%s] pthread_join  %s\n", __func__, strerror(errno));
+			dprintf(DEBUG_NORMAL, "[CComponentsTimer]    [%s] pthread_join  %s\n", __func__, strerror(errno));
 	}
 	if (thres == 0){
 		tm_thread = 0;
