@@ -645,9 +645,11 @@ extern cVideo * videoDecoder;
 
 int CLuaInstance::setBlank(lua_State *L)
 {
-	int enable = 1;
-	enable = luaL_checkint(L, 2);
-	videoDecoder->setBlank((enable==1)?true:false);
+	bool enable = true;
+	int numargs = lua_gettop(L);
+	if (numargs > 1)
+		enable = _luaL_checkbool(L, 2);
+	videoDecoder->setBlank(enable);
 	return 0;
 }
 
