@@ -891,6 +891,8 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 				break;
 			case 1:
 				if (in == '\b' && sscanf(buf, "%d/%d\b", &n, &t) == 2) {
+					if (t == 0)
+						t = 1;
 					int percent = 100 * n / t;
 					progress->showLocalStatus(percent);
 					progress->showGlobalStatus(20 + percent / 5);
