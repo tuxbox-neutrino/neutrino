@@ -23,7 +23,7 @@
 #define SIEVENTS_HPP
 
 #include <vector>
-#include <map>
+#include <list>
 #include <set>
 #include <algorithm>
 #include <string>
@@ -31,6 +31,7 @@
 #include <sectionsdclient/sectionsdtypes.h>
 #include <dvbsi++/event_information_section.h>
 #include "edvbstring.h"
+#include "SIlanguage.hpp"
 
 //#define USE_ITEM_DESCRIPTION
 
@@ -123,14 +124,14 @@ public:
 	}
 
 	void dump(void) const {
-		printf("Linakge Type: 0x%02hhx\n", linkageType);
+		printf("Linkage Type: 0x%02hhx\n", linkageType);
 		if (name.length())
 			printf("Name: %s\n", name.c_str());
 		printf("Transport Stream Id: 0x%04hhx\n", transportStreamId);
 		printf("Original Network Id: 0x%04hhx\n", originalNetworkId);
 		printf("Service Id: 0x%04hhx\n", serviceId);
 	}
-	
+
 	int saveXML(FILE *file) const {
 		fprintf(file, "\t\t\t<linkage type=\"%02x\" linkage_descriptor=\"", linkageType);
 		saveStringToXMLfile(file, name.c_str());
@@ -177,35 +178,41 @@ struct saveSIlinkageXML : public std::unary_function<class SIlinkage, void>
 class SIcomponent 
 {
 	public:
-		std::string component;
+		unsigned int component;
 		unsigned char componentType;
 		unsigned char componentTag;
 		unsigned char streamContent;
 
 		SIcomponent(void) {
+			component = 0;
 			streamContent=0;
 			componentType=0;
 			componentTag=0;      
 		}
 		SIcomponent(const struct descr_component_header *comp) {
+			component = 0;
 			streamContent=comp->stream_content;
 			componentType=comp->component_type;
 			componentTag=comp->component_tag;
 			if(comp->descriptor_length>sizeof(struct descr_component_header)-2)
-				component=convertDVBUTF8(((const char *)comp)+sizeof(struct descr_component_header),
-						comp->descriptor_length-(sizeof(struct descr_component_header)-2), 0, 0);
+				setComponent(convertDVBUTF8(((const char *)comp) + sizeof(struct descr_component_header),
+					comp->descriptor_length-(sizeof(struct descr_component_header)-2), 0, 0));
 		}
 
+		void setComponent(const std::string &component_description);
+		const char *getComponentName() const;
+
 		void dump(void) const {
-			if(component.length())
-				printf("Component: %s\n", component.c_str());
+			const char *comp = getComponentName();
+			if(*comp)
+				printf("Component: %s\n", comp);
 			printf("Stream Content: 0x%02hhx\n", streamContent);
 			printf("Component type: 0x%02hhx\n", componentType);
 			printf("Component tag: 0x%02hhx\n", componentTag);
 		}
 		int saveXML(FILE *file) const {
 			fprintf(file, "\t\t\t<component tag=\"%02x\" type=\"%02x\" stream_content=\"%02x\" text=\"", componentTag, componentType, streamContent);
-			saveStringToXMLfile(file,component.c_str());
+			saveStringToXMLfile(file, getComponentName());
 			fprintf(file, "\"/>\n");
 			return 0;
 		}
@@ -247,25 +254,14 @@ struct saveSIcomponentXML : public std::unary_function<class SIcomponent, void>
 class SIparentalRating 
 {
 	public:
-		std::string countryCode;
-		unsigned char rating; // Bei 1-16 -> Minumim Alter = rating +3
+		unsigned int countryCode;
+		unsigned char rating; // Bei 1-16 -> Minimales Alter = rating +3
 
-		SIparentalRating(const std::string &cc, unsigned char rate) {
-			rating=rate;
-			countryCode=cc;
-		}
+		SIparentalRating(const std::string &cc, unsigned char rate);
 
 		// Der Operator zum sortieren
 		bool operator < (const SIparentalRating& c) const {
 			return countryCode < c.countryCode;
-		}
-		void dump(void) const {
-			printf("Rating: %s %hhu (+3)\n", countryCode.c_str(), rating);
-		}
-		int saveXML(FILE *file) const {
-			if(fprintf(file, "\t\t\t<parental_rating country=\"%s\" rating=\"%hhu\"/>\n", countryCode.c_str(), rating)<0)
-				return 1;
-			return 0;
 		}
 		bool operator==(const SIparentalRating& p) const {
 			return (rating == p.rating) &&
@@ -275,6 +271,8 @@ class SIparentalRating
 			return (rating != p.rating) ||
 				(countryCode != p.countryCode);
 		}
+		void dump(void) const;
+		int saveXML(FILE *file) const;
 };
 //typedef std::set <SIparentalRating, std::less<SIparentalRating> > SIparentalRatings;
 typedef std::vector <SIparentalRating> SIparentalRatings;
@@ -344,9 +342,7 @@ struct saveSItimeXML : public std::unary_function<SItime, void>
 class SIevent
 {
 	private:
-		std::map<std::string, std::string> langName;
-		std::map<std::string, std::string> langText;
-		std::map<std::string, std::string> langExtendedText;
+		std::list<SILangData> langData;
 		int running;
 
 		void parseShortEventDescriptor(const uint8_t *buf, unsigned maxlen);
@@ -378,8 +374,112 @@ class SIevent
 		std::string itemDescription; // Aus dem Extended Descriptor
 		std::string item; // Aus dem Extended Descriptor
 #endif
-		std::string contentClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
-		std::string userClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
+		struct SIeventClassifications
+		{
+			uint8_t *data;
+			unsigned int size;
+
+			SIeventClassifications& operator = (const SIeventClassifications& c)
+			{
+				if (this != &c) {
+					if (data)
+						free(data);
+					if (c.data) {
+						data = (uint8_t *) malloc(c.size);
+						memcpy(data, c.data, c.size);
+					} else
+						data = NULL;
+					size = c.size;
+				}
+				return *this;
+			}
+
+			SIeventClassifications(const SIeventClassifications& c)
+			{
+				if (this != &c) {
+					if (c.data) {
+						data = (uint8_t *) malloc(c.size);
+						memcpy(data, c.data, c.size);
+					} else
+						data = NULL;
+					size = c.size;
+				}
+			}
+
+			bool operator==(const SIeventClassifications& c) const
+			{
+				if (!data && !c.data)
+					return true;
+				if (!(data && c.data))
+					return false;
+				if (size != c.size)
+					return false;
+				return !memcmp(data, c.data, size);
+			}
+
+			bool operator!=(const SIeventClassifications& c) const
+			{
+				return *this == c;
+			}
+
+			SIeventClassifications()
+			{
+				data = NULL;
+				size = 0;
+			}
+
+			~SIeventClassifications()
+			{
+				if (data) free(data);
+			}
+
+			void get(std::string &contentClassifications, std::string &userClassifications) const
+			{
+				contentClassifications.clear();
+				userClassifications.clear();
+				uint8_t *d = data;
+				unsigned int z = size & ~1;
+				for (unsigned int i = 0; i < z; i += 2) {
+					contentClassifications.append(1, (char)(*d++));
+					userClassifications.append(1, (char)(*d++));
+				}
+			}
+
+			ssize_t reserve(unsigned int r)
+			{
+				size_t off = size;
+
+				if (off) {
+					uint8_t * _data = (uint8_t *) realloc(data, size + r);
+					if (!_data)
+						return -1;
+					data = _data;
+				} else
+					data = (uint8_t *) malloc(r);
+				size += r;
+				return off;
+			}
+
+			ssize_t set(ssize_t off, uint8_t content, uint8_t user)
+			{
+				if (off < -1 || off + 2 >= (ssize_t) size)
+					return -1;
+				data[off++] = content;
+				data[off++] = user;
+				return off;
+			}
+
+			ssize_t set(ssize_t off, const uint8_t *_data, size_t _size)
+			{
+				if (off < -1 || off + _size >= size)
+					return -1;
+				memcpy (data + off, _data, _size);
+				size += _size;
+				return size;
+			}
+		};
+
+		SIeventClassifications classifications;
 
 		SIevent(const t_original_network_id, const t_transport_stream_id, const t_service_id, const unsigned short);
 		SIevent(void) {
@@ -400,15 +500,23 @@ class SIevent
 		// Name aus dem Short-Event-Descriptor
 		std::string getName() const;
 		void setName(const std::string &lang, const std::string &name);
+		void setName(unsigned int lang, const std::string &name);
 
 		// Text aus dem Short-Event-Descriptor
 		std::string getText() const;
 		void setText(const std::string &lang, const std::string &text);
+		void setText(unsigned int lang, const std::string &text);
 
 		// Aus dem Extended Descriptor
 		std::string getExtendedText() const;
-		void appendExtendedText(const std::string &lang, const std::string &text);
-		void setExtendedText(const std::string &lang, const std::string &text);
+		void appendExtendedText(const std::string &lang, const std::string &text, bool append = true);
+		void appendExtendedText(unsigned int lang, const std::string &text, bool append = true);
+		void setExtendedText(const std::string &lang, const std::string &text) {
+			appendExtendedText(lang, text, false);
+		}
+		void setExtendedText(unsigned int lang, const std::string &text) {
+			appendExtendedText(lang, text, false);
+		}
 
 		t_channel_id get_channel_id(void) const {
 			return CREATE_CHANNEL_ID(service_id, original_network_id, transport_stream_id);

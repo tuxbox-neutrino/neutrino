@@ -25,15 +25,22 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <list>
 
 #include <sectionsdclient/sectionsdclient.h>
 
 #define LANGUAGEFILE CONFIGDIR "/epglanguages.conf"
 
+class SILangData {
+public:
+	enum SILangDataIndex { langName = 0, langText, langExtendedText, langMax };
+	unsigned int lang;
+	std::string text[langMax];
+};
+
 class SIlanguage {
 public:
-	static void filter(const std::map<std::string, std::string>& s, int max, std::string& retval);
+	static void filter(const std::list<SILangData>& s, SILangData::SILangDataIndex textIndex, int max, std::string& retval);
 	static bool loadLanguages();
 	static bool saveLanguages();
 	static void setLanguages(const std::vector<std::string>& newLanguages);
@@ -44,9 +51,9 @@ public:
 private:
 	SIlanguage();
 	~SIlanguage();
-	static std::vector<std::string> languages;
-	static pthread_mutex_t languages_lock;
 	static CSectionsdClient::SIlanguageMode_t mode;
 };
 
+extern std::vector<std::string> langIndex;
+unsigned int getLangIndex(const std::string &lang);
 #endif

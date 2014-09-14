@@ -40,6 +40,7 @@
 #include "xmlutil.h"
 #include "eitd.h"
 #include "debug.h"
+#include <system/set_threadname.h>
 
 void addEvent(const SIevent &evt, const time_t zeit, bool cn = false);
 extern MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
@@ -270,12 +271,12 @@ void deleteOldfileEvents(char *epgdir)
 
 void *insertEventsfromFile(void * data)
 {
+	set_threadname(__func__);
 	reader_ready=false;
 	xmlDocPtr event_parser = NULL;
 	xmlNodePtr eventfile = NULL;
 	xmlNodePtr service = NULL;
 	xmlNodePtr event = NULL;
-	xmlNodePtr node = NULL;
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
@@ -316,85 +317,120 @@ void *insertEventsfromFile(void * data)
 			event = service->xmlChildrenNode;
 
 			while (event) {
-
 				SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
 				uint8_t tid = xmlGetNumericAttribute(event, "tid", 16);
+				std::string contentClassification, userClassification;
 				if(tid)
 					e.table_id = tid;
 				e.table_id |= 0x80; /* make sure on-air data has a lower table_id */
 
-				node = event->xmlChildrenNode;
+				xmlNodePtr node;
 
-				while (xmlGetNextOccurence(node, "name") != NULL) {
-					e.setName(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-							std::string(xmlGetAttribute(node, "string")));
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "name"))) {
+					char *s = xmlGetAttribute(node, "string");
+					if (s)
+						e.setName(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "text") != NULL) {
-					e.setText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-							std::string(xmlGetAttribute(node, "string")));
+
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "text"))) {
+					char *s = xmlGetAttribute(node, "string");
+					if (s)
+						e.setText(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang")), s);
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "item") != NULL) {
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "item"))) {
 #ifdef USE_ITEM_DESCRIPTION
-					e.item = std::string(xmlGetAttribute(node, "string"));
+					char *s = xmlGetAttribute(node, "string");
+					if (s)
+						e.item = s;
 #endif
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "item_description") != NULL) {
+
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "item_description"))) {
 #ifdef USE_ITEM_DESCRIPTION
-					e.itemDescription = std::string(xmlGetAttribute(node, "string"));
+					char *s = xmlGetAttribute(node, "string");
+					if (s)
+						e.itemDescription = s;
 #endif
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "extended_text") != NULL) {
-					e.appendExtendedText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-							std::string(xmlGetAttribute(node, "string")));
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "extended_text"))) {
+					char *l = xmlGetAttribute(node, "lang");
+					char *s = xmlGetAttribute(node, "string");
+					if (l && s)
+						e.appendExtendedText(ZapitTools::UTF8_to_Latin1(l), s);
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "time") != NULL) {
+
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "time"))) {
 					e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
 								xmlGetNumericAttribute(node, "duration", 10)));
 					node = node->xmlNextNode;
 				}
 
-				while (xmlGetNextOccurence(node, "content") != NULL) {
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "content"))) {
 					char cl = xmlGetNumericAttribute(node, "class", 16);
-					e.contentClassification += cl;
+					contentClassification += cl;
 					cl = xmlGetNumericAttribute(node, "user", 16);
-					e.userClassification += cl;
+					userClassification += cl;
 					node = node->xmlNextNode;
 				}
 
-				while (xmlGetNextOccurence(node, "component") != NULL) {
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "component"))) {
 					SIcomponent c;
 					c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
 					c.componentType = xmlGetNumericAttribute(node, "type", 16);
 					c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
-					c.component = std::string(xmlGetAttribute(node, "text"));
+					char *s = xmlGetAttribute(node, "text");
+					if (s)
+						c.setComponent(s);
 					//e.components.insert(c);
 					e.components.push_back(c);
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
+
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "parental_rating"))) {
+					char *s = xmlGetAttribute(node, "country");
+					if (s)
 #if 0
-					e.ratings.insert(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
+						e.ratings.insert(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
 								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
 #endif
-					e.ratings.push_back(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
+						e.ratings.push_back(SIparentalRating(ZapitTools::UTF8_to_Latin1(s),
 								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
 					node = node->xmlNextNode;
 				}
-				while (xmlGetNextOccurence(node, "linkage") != NULL) {
+
+				node = event->xmlChildrenNode;
+				while ((node = xmlGetNextOccurence(node, "linkage"))) {
 					SIlinkage l;
 					l.linkageType = xmlGetNumericAttribute(node, "type", 16);
 					l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
 					l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
 					l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
-					l.name = std::string(xmlGetAttribute(node, "linkage_descriptor"));
+					char *s = xmlGetAttribute(node, "linkage_descriptor");
+					if (s)
+						l.name = s;
 					e.linkage_descs.insert(e.linkage_descs.end(), l);
-
 					node = node->xmlNextNode;
+				}
+
+				if (contentClassification.size()) {
+					ssize_t off = e.classifications.reserve(2 * contentClassification.size());
+					if (off > -1)
+						for (unsigned i = 0; i < contentClassification.size(); i++)
+							off = e.classifications.set(off, contentClassification.at(i), userClassification.at(i));
 				}
 				addEvent(e, 0);
 				ev_count++;
@@ -411,7 +447,7 @@ void *insertEventsfromFile(void * data)
 
 	xmlFreeDoc(index_parser);
 	printdate_ms(stdout);
-	printf("[sectionsd] Reading Information finished after %ld miliseconds (%d events)\n",
+	printf("[sectionsd] Reading Information finished after %ld milliseconds (%d events)\n",
 			time_monotonic_ms()-now, ev_count);
 
 	reader_ready = true;
