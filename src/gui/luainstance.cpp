@@ -1634,6 +1634,7 @@ void CLuaInstance::CWindowRegister(lua_State *L)
 		{ "paint", CLuaInstance::CWindowPaint },
 		{ "hide", CLuaInstance::CWindowHide },
 		{ "setCaption", CLuaInstance::CWindowSetCaption },
+		{ "setWindowColor", CLuaInstance::CWindowSetWindowColor },
 		{ "paintHeader", CLuaInstance::CWindowPaintHeader },
 		{ "headerHeight", CLuaInstance::CWindowGetHeaderHeight },
 		{ "footerHeight", CLuaInstance::CWindowGetFooterHeight },
@@ -1798,6 +1799,29 @@ int CLuaInstance::CWindowSetCaption(lua_State *L)
 	tableLookup(L, "name", name) || tableLookup(L, "title", name) || tableLookup(L, "caption", name);
 
 	m->w->setWindowCaption(name);
+	return 0;
+}
+
+int CLuaInstance::CWindowSetWindowColor(lua_State *L)
+{
+	lua_assert(lua_istable(L,1));
+	CLuaCWindow *m = CWindowCheck(L, 1);
+	if (!m) return 0;
+
+	lua_Unsigned color;
+	if (tableLookup(L, "color_frame"  , color)) {
+		checkMagicMask(color);
+		m->w->setColorFrame(color);
+	}
+	if (tableLookup(L, "color_body"  , color)) {
+		checkMagicMask(color);
+		m->w->setColorBody(color);
+	}
+	if (tableLookup(L, "color_shadow"  , color)) {
+		checkMagicMask(color);
+		m->w->setColorShadow(color);
+	}
+
 	return 0;
 }
 
