@@ -654,6 +654,9 @@ struct SNeutrinoSettings
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
 
+	//movieplayer
+	int   movieplayer_repeat_on;
+
 	//zapit setup
 	std::string StartChannelTV;
 	std::string StartChannelRadio;

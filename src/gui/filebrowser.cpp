@@ -745,6 +745,16 @@ bool CFileBrowser::readDir_std(const std::string & dirname, CFileList* flist)
 	return true;
 }
 
+bool CFileBrowser::checkBD(CFile &file)
+{
+	if (Hide_records && S_ISDIR(file.Mode)) {
+		std::string bdmv = file.Name + "/BDMV/index.bdmv";
+		if (access(bdmv.c_str(), F_OK) == 0)
+			return true;
+	}
+	return false;
+}
+
 //------------------------------------------------------------------------
 
 bool CFileBrowser::exec(const char * const dirname)
@@ -806,7 +816,7 @@ bool CFileBrowser::exec(const char * const dirname)
 				msg_repeatok = CRCInput::RC_down;	// jump to next item
 			}
 		}
-		else if (msg_repeatok == CRCInput::RC_up)
+		if (msg_repeatok == CRCInput::RC_up)
 		{
 			if (!(filelist.empty()))
 			{
@@ -998,12 +1008,7 @@ bool CFileBrowser::exec(const char * const dirname)
 					std::string filename = filelist[selected].Name;
 					if ( filename.length() > 1 )
 					{
-						bool return_dir = false;
-						if (Hide_records && S_ISDIR(filelist[selected].Mode)) {
-							std::string bdmv = filename + "/BDMV/index.bdmv";
-							if (access(bdmv.c_str(), F_OK) == 0)
-								return_dir = true;
-						}
+						bool return_dir = checkBD(filelist[selected]);
 						if(!return_dir && (!Multi_Select) && S_ISDIR(filelist[selected].Mode) && !Dir_Mode)
 						{
 #ifdef ENABLE_INTERNETRADIO
@@ -1081,7 +1086,8 @@ bool CFileBrowser::exec(const char * const dirname)
 		for(unsigned int i = 0; i < filelist.size();i++)
 			if(filelist[i].Marked)
 			{
-				if(S_ISDIR(filelist[i].Mode)) {
+				bool return_dir = checkBD(filelist[i]);
+				if(!return_dir && S_ISDIR(filelist[i].Mode)) {
 					if (!progress) {
 						progress = new CProgressWindow();
 						progress->setTitle(LOCALE_FILEBROWSER_SCAN);

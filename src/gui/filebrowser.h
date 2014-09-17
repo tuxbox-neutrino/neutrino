@@ -191,6 +191,7 @@ class CFileBrowser
 		void paintFoot();
 		void paintSMSKey();
 		void recursiveDelete(const char* file);
+		bool checkBD(CFile &file);
 
 	protected:
 		void commonInit();

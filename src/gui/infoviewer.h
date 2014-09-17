@@ -160,7 +160,7 @@ class CInfoViewer
 
 	void	showMovieTitle(const int playState, const t_channel_id &channel_id, const std::string &title,
 				const std::string &g_file_epg, const std::string &g_file_epg1,
-				const int duration, const int curr_pos);
+				const int duration, const int curr_pos, const int repeat_mode);
 
 	void	start();
 	void	showEpgInfo();

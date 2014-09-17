@@ -67,6 +67,8 @@ class CMoviePlayerGui : public CMenuTarget
 		    REW         =  6
 		};
 
+	enum repeat_mode_enum { REPEAT_OFF = 0, REPEAT_TRACK = 1, REPEAT_ALL = 2 };
+
  private:
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
@@ -91,6 +93,7 @@ class CMoviePlayerGui : public CMenuTarget
 	unsigned short apids[MAX_PLAYBACK_PIDS];
 	unsigned short ac3flags[MAX_PLAYBACK_PIDS];
 	unsigned short currentapid, currentac3;
+	repeat_mode_enum repeat_mode;
 
 	/* subtitles vars */
 	unsigned short numsubs;
@@ -107,6 +110,7 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isHTTP;
 	bool isUPNP;
 	bool isWebTV;
+	bool isYT;
 	bool showStartingHint;
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
@@ -119,6 +123,8 @@ class CMoviePlayerGui : public CMenuTarget
 	bool stopped;
 	CFileBrowser * filebrowser;
 	CFileFilter tsfilefilter;
+	CFileList filelist;
+	CFileList::iterator filelist_it;
 	std::string Path_local;
 	int menu_ret;
 	bool autoshot_done;
@@ -144,7 +150,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void restoreNeutrino();
 
 	void showHelpTS(void);
-	void callInfoViewer(/*const int duration, const int pos*/);
+	void callInfoViewer();
 	void fillPids();
 	bool getAudioName(int pid, std::string &apidtitle);
 	void getCurrentAudioName( bool file_player, std::string &audioname);
@@ -163,6 +169,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void parsePlaylist(CFile *file);
 	bool mountIso(CFile *file);
 	void makeFilename();
+	bool prepareFile(CFile *file);
 	void makeScreenShot(bool autoshot = false, bool forcover = false);
 
 	void Cleanup();
