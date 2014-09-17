@@ -205,6 +205,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->vtxtpid = false;
 	plugin_data->showpig = false;
 	plugin_data->needoffset = false;
+	plugin_data->shellwindow = false;
 	plugin_data->hide = false;
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
 
@@ -264,6 +265,10 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		else if (cmd == "needoffsets")
 		{
 			plugin_data->needoffset = atoi(parm);
+		}
+		else if (cmd == "shellwindow")
+		{
+			plugin_data->shellwindow = atoi(parm);
 		}
 		else if (cmd == "hide")
 		{
@@ -331,6 +336,27 @@ void CPlugins::startPlugin(const char * const name)
 
 }
 
+void CPlugins::popenScriptPlugin(const char * script)
+{
+	pid_t pid = 0;
+	FILE *f = my_popen(pid, script, "r");
+	if (f != NULL)
+	{
+		char *output=NULL;
+		size_t len = 0;
+		while ((getline(&output, &len, f)) != -1)
+			scriptOutput += output;
+		pclose(f);
+		int s;
+		while (waitpid(pid, &s, WNOHANG)>0);
+		kill(pid, SIGTERM);
+		if (output)
+			free(output);
+	}
+	else
+		printf("[CPlugins] can't execute %s\n",script);
+}
+
 void CPlugins::startScriptPlugin(int number)
 {
 	const char *script = plugin_list[number].pluginfile.c_str();
@@ -345,8 +371,13 @@ void CPlugins::startScriptPlugin(int number)
 	// workaround for manually messed up permissions
 	if (access(script, X_OK))
 		chmod(script, 0755);
-	CShellWindow(script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE);
-	scriptOutput = "";
+	if (plugin_list[number].shellwindow)
+	{
+		CShellWindow(script, CShellWindow::VERBOSE | CShellWindow::ACKNOWLEDGE);
+		scriptOutput = "";
+	}
+	else
+		popenScriptPlugin(script);
 }
 
 void CPlugins::startLuaPlugin(int number)

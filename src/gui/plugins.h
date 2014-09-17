@@ -81,6 +81,7 @@ class CPlugins
 			int posx, posy, sizex, sizey;
 			bool showpig;
 			bool needoffset;
+			bool shellwindow;
 			bool hide;
 			bool operator< (const plugin& a) const
 			{
@@ -129,6 +130,7 @@ class CPlugins
 		void startPlugin(const char * const filename);		// start plugins by filename
 		void startPlugin_by_name(const std::string & name);	// start plugins by "name=" in .cfg
 		void startScriptPlugin(int number);
+		void popenScriptPlugin(const char * script);
 		void startLuaPlugin(int number);
 		bool hasPlugin(CPlugins::p_type_t type);
 
