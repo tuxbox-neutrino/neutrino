@@ -368,6 +368,16 @@ CMovieBrowser::~CMovieBrowser()
 	m_vHandlePlayList.clear();
 	m_vHandleSerienames.clear();
 
+	clearListLines();
+
+	if (CChannelLogo) {
+		delete CChannelLogo;
+		CChannelLogo = NULL;
+	}
+}
+
+void CMovieBrowser::clearListLines()
+{
 	for(int i = 0; i < LF_MAX_ROWS; i++)
 	{
 		m_browserListLines.lineArray[i].clear();
@@ -376,11 +386,7 @@ CMovieBrowser::~CMovieBrowser()
 		m_FilterLines.lineArray[i].clear();
 	}
 	m_browserListLines.Icon.clear();
-
-	if (CChannelLogo) {
-		delete CChannelLogo;
-		CChannelLogo = NULL;
-	}
+	m_browserListLines.marked.clear();
 }
 
 void CMovieBrowser::fileInfoStale(void)
@@ -402,14 +408,7 @@ void CMovieBrowser::fileInfoStale(void)
 	m_vHandlePlayList.clear();
 	m_vHandleSerienames.clear();
 
-	for(int i = 0; i < LF_MAX_ROWS; i++)
-	{
-		m_browserListLines.lineArray[i].clear();
-		m_recordListLines.lineArray[i].clear();
-		m_playListLines.lineArray[i].clear();
-		m_FilterLines.lineArray[i].clear();
-	}
-	m_browserListLines.Icon.clear();
+	clearListLines();
 }
 
 void CMovieBrowser::init(void)
@@ -978,13 +977,7 @@ int CMovieBrowser::exec(const char* path)
 	m_vHandleRecordList.clear();
 	m_vHandlePlayList.clear();
 
-	for(int i = 0; i < LF_MAX_ROWS; i++)
-	{
-		m_browserListLines.lineArray[i].clear();
-		m_recordListLines.lineArray[i].clear();
-		m_playListLines.lineArray[i].clear();
-	}
-	m_browserListLines.Icon.clear();
+	clearListLines();
 
 	m_selectedDir = path;
 
@@ -1058,6 +1051,16 @@ int CMovieBrowser::exec(const char* path)
 			}
 			else if(msg == CRCInput::RC_ok)
 			{
+				for(unsigned int i = 0; i < m_vMovieInfo.size(); i++) {
+					if (m_vMovieInfo[i].marked) {
+						TRACE("[mb] has selected\n");
+						res = true;
+						break;
+					}
+				}
+				if (res)
+					break;
+
 				m_currentStartPos = 0;
 
 				if(m_movieSelectionHandler != NULL)
@@ -1238,6 +1241,19 @@ CFile* CMovieBrowser::getSelectedFile(void)
 		return(&m_movieSelectionHandler->file);
 	else
 		return(NULL);
+}
+
+bool CMovieBrowser::getSelectedFiles(CFileList &flist, MI_MOVIE_LIST &mlist)
+{
+	flist.clear();
+	mlist.clear();
+	for(unsigned int i = 0; i < m_vMovieInfo.size(); i++) {
+		if (m_vMovieInfo[i].marked) {
+			flist.push_back(m_vMovieInfo[i].file);
+			mlist.push_back(m_vMovieInfo[i]);
+		}
+	}
+	return (!flist.empty());
 }
 
 std::string CMovieBrowser::getScreenshotName(std::string movie)
@@ -1589,8 +1605,9 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 		m_browserListLines.lineArray[row].clear();
 		m_browserListLines.rowWidth[row] = m_settings.browserRowWidth[row];
 		m_browserListLines.lineHeader[row]= g_Locale->getText(m_localizedItemName[m_settings.browserRowItem[row]]);
-		m_browserListLines.Icon.clear();
 	}
+	m_browserListLines.Icon.clear();
+	m_browserListLines.marked.clear();
 	m_vHandleBrowserList.clear();
 
 	if(m_vMovieInfo.empty())
@@ -1634,6 +1651,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 			m_browserListLines.Icon.push_back(NEUTRINO_ICON_REC);
 		else
 			m_browserListLines.Icon.push_back("");
+		m_browserListLines.marked.push_back(m_vHandleBrowserList[handle]->marked);
 	}
 	m_pcBrowser->setLines(&m_browserListLines);
 
@@ -2001,6 +2019,12 @@ bool CMovieBrowser::onButtonPressBrowserList(neutrino_msg_t msg)
 	else if (msg == CRCInput::RC_right)
 	{
 		m_pcBrowser->scrollPageDown(1);
+	}
+	else if (msg == CRCInput::RC_play)
+	{
+		m_movieSelectionHandler->marked = !m_movieSelectionHandler->marked;
+		m_pcBrowser->setSelectedMarked(m_movieSelectionHandler->marked);
+		m_pcBrowser->scrollLineDown(1);
 	}
 	else
 	{

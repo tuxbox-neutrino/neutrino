@@ -114,7 +114,8 @@ class CMoviePlayerGui : public CMenuTarget
 	bool showStartingHint;
 	CMovieBrowser* moviebrowser;
 	MI_MOVIE_INFO * p_movie_info;
-	MI_MOVIE_INFO mi;
+	MI_MOVIE_INFO movie_info;
+	MI_MOVIE_LIST milist;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
 	/* playback from file */
@@ -173,6 +174,9 @@ class CMoviePlayerGui : public CMenuTarget
 	void makeScreenShot(bool autoshot = false, bool forcover = false);
 
 	void Cleanup();
+	void ClearFlags();
+	void ClearQueue();
+	void EnableClockAndMute(bool enable);
 	static void *ShowStartHint(void *arg);
 	static void* bgPlayThread(void *arg);
 

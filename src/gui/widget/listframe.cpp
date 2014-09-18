@@ -140,8 +140,8 @@ CListFrame::CListFrame(	LF_LINES* lines)
 	//TRACE("[CListFrame] new\r\n");
 	initVar();
 
- 	if(lines != NULL)
- 	{
+	if(lines != NULL)
+	{
 		m_pLines = lines;
 		m_nNrOfRows = lines->rows;
 		if(m_nNrOfRows > LF_MAX_ROWS)
@@ -415,43 +415,11 @@ void CListFrame::refreshList(void)
 	if(  m_nNrOfLines <= 0)
 		return;
 
-	int y = m_cFrameListRel.iY + TEXT_BORDER_WIDTH ;
 	for(int line = m_nCurrentLine;
 			line < m_nNrOfLines && line < m_nCurrentLine + m_nLinesPerPage;
 			line++)
 	{
-		uint32_t color = LIST_FONT_COLOR;
-		// draw line
-		if(line == m_nSelectedLine && m_showSelection == true)
-		{
-			color = LIST_FONT_COLOR_SELECTED;
-			frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX,
-					y+m_cFrame.iY, m_cFrameListRel.iWidth,
-					m_nFontListHeight,  LIST_BACKGROUND_COLOR_SELECTED,
-					RADIUS_LARGE);
-		}
-		int width;
-		int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
-		y += m_nFontListHeight;
-
-		int xDiff = paintListIcon(x, y, line);
-
-		int net_width = m_cFrameListRel.iWidth - ROW_BORDER_WIDTH * (m_pLines->rows - 1);
-		for(int row = 0; row < m_pLines->rows; row++)
-		{
-			width = m_pLines->rowWidth[row] * net_width / 100 ;
-			if(width > m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH)
-			{
-				width = m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH;
-				//TRACE("   normalize width to %d , x:%d \r\n",width,x);
-			}
-			if (row > 0)
-				xDiff = 0;
-			m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
-					width-xDiff, m_pLines->lineArray[row][line].c_str(),
-					color);
-			x += width + ROW_BORDER_WIDTH;
-		}
+		refreshLine(line);
 	}
 }
 
@@ -463,23 +431,30 @@ void CListFrame::refreshLine(int line)
 	if((line < m_nCurrentLine) && (line > m_nCurrentLine + m_nLinesPerPage))
 		return;
 
-	uint32_t color;
+	uint32_t color, bgcolor;
 	int rel_line = line - m_nCurrentLine;
 	int y = m_cFrameListRel.iY + TEXT_BORDER_WIDTH + (rel_line*m_nFontListHeight);
+	int radius = 0;
 
+	bool marked = (!m_pLines->marked.empty() && m_pLines->marked[line]);
 	if(line == m_nSelectedLine && m_showSelection == true)
 	{
-		color = LIST_FONT_COLOR_SELECTED;
-		frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
-				m_cFrameListRel.iWidth, m_nFontListHeight, LIST_BACKGROUND_COLOR_SELECTED,
-				RADIUS_LARGE);
+		color = marked ? COL_MENUCONTENTINACTIVE_TEXT : LIST_FONT_COLOR_SELECTED;
+		bgcolor = marked ? COL_MENUCONTENTSELECTED_PLUS_2 : LIST_BACKGROUND_COLOR_SELECTED;
+		radius = RADIUS_LARGE;
+	}
+	else if (marked) {
+		color   = COL_MENUCONTENT_TEXT;
+		bgcolor = COL_MENUCONTENT_PLUS_2;
 	}
 	else
 	{
 		color = LIST_FONT_COLOR;
-		frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
-				m_cFrameListRel.iWidth, m_nFontListHeight, LIST_BACKGROUND_COLOR);
+		bgcolor = LIST_BACKGROUND_COLOR;
 	}
+	frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
+			m_cFrameListRel.iWidth, m_nFontListHeight, bgcolor, radius);
+
 	int width;
 	int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
 	y += m_nFontListHeight;
@@ -490,7 +465,7 @@ void CListFrame::refreshLine(int line)
 	for(int row = 0; row < m_pLines->rows; row++)
 	{
 		width = std::min(m_pLines->rowWidth[row] * net_width / 100,
-				 m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH);
+				m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH);
 		if (row > 0)
 			xDiff = 0;
 		m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
@@ -667,6 +642,14 @@ bool CListFrame::setSelectedLine(int selection)
 	//TRACE(" selected line: %d,%d,%d \r\n",m_nSelectedLine,m_nCurrentPage,m_nCurrentLine);
 
 	return (result);
+}
+
+void CListFrame::setSelectedMarked(bool enable)
+{
+	if (!m_pLines->marked.empty() && m_nSelectedLine < (int) m_pLines->marked.size()) {
+		m_pLines->marked[m_nSelectedLine] = enable;
+		refreshLine(m_nSelectedLine);
+	}
 }
 
 void CListFrame::hide(void)

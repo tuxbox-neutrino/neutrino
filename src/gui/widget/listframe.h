@@ -64,6 +64,7 @@ typedef struct
 	std::vector<std::string> lineArray[LF_MAX_ROWS];
 	int rowWidth[LF_MAX_ROWS];
 	std::vector<std::string> Icon;
+	std::vector<bool> marked;
 }LF_LINES;
 
 class CListFrame  
@@ -139,6 +140,7 @@ class CListFrame
 		bool	setLines(LF_LINES* lines);
 		bool	setTitle(char* title);
 		bool    setSelectedLine(int selection);
+		void	setSelectedMarked(bool enable);
 		void	hide(void);
 		void	paint(void);
 

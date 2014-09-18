@@ -925,6 +925,7 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 	movie_info->tfile.clear();
 	movie_info->ytdate.clear();
 	movie_info->ytid.clear();
+	movie_info->marked = false;
 }
 
 /************************************************************************
