@@ -181,13 +181,14 @@ AC_ARG_ENABLE(pip,
 	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
 
 
-AC_ARG_ENABLE(testmenu,
-       AS_HELP_STRING(--enable-testmenu,include test menu in neutrino main menu))
+AC_ARG_ENABLE(testing,
+       AS_HELP_STRING(--enable-testing,include devel code parts for neutrino tests))
 
-AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
-if test "$enable_testmenu" = "yes"; then
-	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
+AM_CONDITIONAL(ENABLE_TESTING,test "$enable_testing" = "yes")
+if test "$enable_testing" = "yes"; then
+	AC_DEFINE(ENABLE_TESTING,1,[include devel code parts for neutrino tests - not recommended for general users!])
 fi
+
 
 if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then

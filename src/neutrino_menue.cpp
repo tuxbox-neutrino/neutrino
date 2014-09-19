@@ -71,7 +71,7 @@
 #include "gui/sleeptimer.h"
 #include "gui/update_menue.h"
 #include "gui/streaminfo2.h"
-#ifdef ENABLE_TEST_MENU
+#ifdef ENABLE_TESTING
 #include "gui/test_menu.h"
 #endif
 #include "gui/update.h"
@@ -301,7 +301,7 @@ void CNeutrinoApp::InitMenuMain()
 		}
 	}
 
-#ifdef ENABLE_TEST_MENU
+#ifdef ENABLE_TESTING
 	personalize.addItem(MENU_MAIN, new CMenuForwarder("Test menu", true, NULL, new CTestMenu()), NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 #endif
 }
