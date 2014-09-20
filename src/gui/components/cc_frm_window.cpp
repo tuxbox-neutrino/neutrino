@@ -200,6 +200,7 @@ void CComponentsWindow::initHeader()
 		ccw_head->setCaption(ccw_caption, ccw_align_mode);
 		ccw_head->setContextButton(ccw_buttons);
 		ccw_head->setCorner(corner_rad, CORNER_TOP);
+		ccw_head->setPaintGradient(g_settings.gradiant);
 	}
 }
 
