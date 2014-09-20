@@ -382,14 +382,17 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 
 #define F_MUL 0x7FFF
 
-void Font::paintFontPixel(fb_pixel_t *td, uint8_t fg_trans, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, fb_pixel_t bg_col, int faktor, uint8_t index)
+void Font::paintFontPixel(fb_pixel_t *td, uint8_t fg_red, uint8_t fg_green, uint8_t fg_blue, int faktor, uint8_t index)
 {
-	int korr_t = ((bg_col & 0xFF000000) >> 24) - fg_trans;
+	fb_pixel_t bg_col = *td;
+	if (bg_col == (fb_pixel_t)0)
+		bg_col = 0xE0808080;
+	uint8_t bg_trans =  (bg_col & 0xFF000000) >> 24;
 	int korr_r = ((bg_col & 0x00FF0000) >> 16) - fg_red;
 	int korr_g = ((bg_col & 0x0000FF00) >>  8) - fg_green;
 	int korr_b =  (bg_col & 0x000000FF)        - fg_blue;
 
-	*td =   ((g_settings.contrast_fonts && (index > 128)) ? 0xFF000000 : (((fg_trans + ((korr_t*faktor)/F_MUL)) << 24) & 0xFF000000)) |
+	*td =   ((g_settings.contrast_fonts && (index > 128)) ? 0xFF000000 : (((bg_trans == 0) ? 0xFF : bg_trans) << 24) & 0xFF000000) |
 		(((fg_red   + ((korr_r*faktor)/F_MUL)) << 16) & 0x00FF0000) |
 		(((fg_green + ((korr_g*faktor)/F_MUL)) <<  8) & 0x0000FF00) |
 		 ((fg_blue  + ((korr_b*faktor)/F_MUL))        & 0x000000FF);
@@ -473,7 +476,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 	FT_Vector kerning;
 	int pen1=-1; // "pen" positions for kerning, pen2 is "x"
 	static fb_pixel_t old_bgcolor    = 0, old_fgcolor = 0;
-	static uint8_t fg_trans          = 0, fg_red = 0, fg_green = 0, fg_blue = 0;
+	static uint8_t bg_trans          = 0, fg_red = 0, fg_green = 0, fg_blue = 0;
 	static bool olduseFullBg         = false;
 	static fb_pixel_t colors[256]    = {0};
 	static int faktor[256]           = {0};
@@ -499,14 +502,13 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		olduseFullBg = useFullBg;
 		fontRecsInit = true;
 
-		fg_trans   =  (fg_color & 0xFF000000) >> 24;
+		bg_trans   =  (bg_color & 0xFF000000) >> 24;
 		fg_red     =  (fg_color & 0x00FF0000) >> 16;
 		fg_green   =  (fg_color & 0x0000FF00) >>  8;
 		fg_blue    =   fg_color & 0x000000FF;
 
-		int korr_t=0, korr_r=0, korr_g=0, korr_b=0;
+		int korr_r=0, korr_g=0, korr_b=0;
 		if (!useFullBg) {
-			korr_t = ((bg_color & 0xFF000000) >> 24) - fg_trans;
 			korr_r = ((bg_color & 0x00FF0000) >> 16) - fg_red;
 			korr_g = ((bg_color & 0x0000FF00) >>  8) - fg_green;
 			korr_b =  (bg_color & 0x000000FF)        - fg_blue;
@@ -518,7 +520,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 			if (useFullBg)
 				faktor[i]   = _faktor;
 			else
-				colors[i] =  ((g_settings.contrast_fonts && (i > 128)) ? 0xFF000000 : (((fg_trans + ((korr_t*_faktor)/F_MUL)) << 24) & 0xFF000000)) |
+				colors[i] =  ((g_settings.contrast_fonts && (i > 128)) ? 0xFF000000 : (((bg_trans == 0) ? 0xFF : bg_trans) << 24) & 0xFF000000) |
 					     (((fg_red   + ((korr_r*_faktor)/F_MUL)) << 16) & 0x00FF0000) |
 					     (((fg_green + ((korr_g*_faktor)/F_MUL)) <<  8) & 0x0000FF00) |
 					      ((fg_blue  + ((korr_b*_faktor)/F_MUL))        & 0x000000FF);
@@ -585,24 +587,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 		int h       = glyph->height;
 		int pitch   = glyph->pitch;
 		if (ap>-1) {
-			fb_pixel_t *bg_buf = NULL;
-			if (useFullBg) {
-				// save background of the char
-				bg_buf = new fb_pixel_t[h * (w+spread_by)];
-				uint8_t *pos = d;
-				fb_pixel_t *bkpos = bg_buf;
-				/* the GXA seems to do it's job asynchonously, so we need to wait until
-				   it's ready, otherwise the font will sometimes "be overwritten" with
-				   background color or bgcolor will be wrong */
-				frameBuffer->waitForIdle("Font::RenderString 2");
-				for (int j = 0; j < h; j++) {
-					fb_pixel_t *dest = (fb_pixel_t*)pos;
-					for (int i = 0; i < (w + spread_by); i++)
-						*(bkpos++) = *(dest++);
-					pos += stride;
-				}
-			}
-
 			for (int ay = 0; ay < h; ay++) {
 				fb_pixel_t * td = (fb_pixel_t *)d;
 				int ax;
@@ -611,7 +595,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 						/* do not paint the backgroundcolor (*s = 0) */
 						if(*s != 0) {
 							if (useFullBg)
-								paintFontPixel(td, fg_trans, fg_red, fg_green, fg_blue, bg_buf[ax*ay], faktor[*s], *s);
+								paintFontPixel(td, fg_red, fg_green, fg_blue, faktor[*s], *s);
 							else
 								*td = colors[*s];
 						}
@@ -626,7 +610,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 						/* do not paint the backgroundcolor (lcolor = 0) */
 						if(lcolor != 0) {
 							if (useFullBg)
-								paintFontPixel(td, fg_trans, fg_red, fg_green, fg_blue, bg_buf[ax*ay], faktor[lcolor], (uint8_t)lcolor);
+								paintFontPixel(td, fg_red, fg_green, fg_blue, faktor[lcolor], (uint8_t)lcolor);
 							else
 								*td = colors[lcolor];
 						}
@@ -636,9 +620,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const f
 				s += pitch - ax;
 				d += stride;
 			}
-			if (bg_buf != NULL)
-				delete[] bg_buf;
-			bg_buf = NULL;
 		}
 		x += glyph->xadvance + 1;
 		if (pen1 > x)
