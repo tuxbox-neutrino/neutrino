@@ -104,6 +104,10 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
+
+	col_body_gradient = g_settings.gradiant;
+	setColBodyGradient(CColorGradient::gradientDark2Light2Dark, CFrameBuffer::gradientVertical, CColorGradient::light);
+
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
 	fr_thickness 	= 3;
