@@ -76,7 +76,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	col_frame	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	paintGradient	= false;
+	col_body_gradient	= false;
 
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;

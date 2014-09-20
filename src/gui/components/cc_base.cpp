@@ -64,8 +64,8 @@ CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
-	gradientBuf		= NULL;
-	paintGradient		= false;
+	cc_gradientBuf		= NULL;
+	col_body_gradient	= false;
 }
 
 CComponents::~CComponents()
@@ -202,7 +202,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 			}
 			else {
 				if(cc_allow_paint) {
-					if  (paintGradient && (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX) && (v_fbdata[i].data != NULL)) {
+					if  (col_body_gradient && (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX) && (v_fbdata[i].data != NULL)) {
 						// color gradient
 						gradientData_t *gradientData = static_cast<gradientData_t*> (v_fbdata[i].data);
 						if (gradientData->boxBuf == NULL)
@@ -318,7 +318,7 @@ void CComponents::setFrameThickness(const int& thickness, const int& thickness_s
 }
 
 
-void CComponents::setPaintGradient(bool do_paint_gradient)
+void CComponents::enableColBodyGradient(bool do_paint_gradient)
 {
-	paintGradient = g_settings.gradiant ? do_paint_gradient : false;
+	col_body_gradient = g_settings.gradiant ? do_paint_gradient : false;
 }

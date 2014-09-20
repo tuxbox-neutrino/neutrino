@@ -98,6 +98,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	col_body 	= COL_MENUHEAD_PLUS_0;
+	col_body_gradient	= g_settings.gradiant;
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
 
@@ -115,7 +116,6 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_icon_w		= 0;
 	cch_text_x		= cch_offset;
 	cch_buttons_space	= cch_offset;
-	paintGradient		= g_settings.gradiant;
 
 	addContextButton(buttons);
 	initCCItems();
@@ -126,8 +126,8 @@ CComponentsHeader::~CComponentsHeader()
 {
 	dprintf(DEBUG_DEBUG, "[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
 	v_cch_btn.clear();
-	if (gradientBuf)
-		free(gradientBuf);
+	if (cc_gradientBuf)
+		free(cc_gradientBuf);
 }
 
 void CComponentsHeader::setCaption(const std::string& caption, const int& align_mode)
@@ -391,11 +391,11 @@ void CComponentsHeader::initCaption()
 
 void CComponentsHeader::initGradient()
 {
-	if (gradientBuf == NULL) {
+	if (cc_gradientBuf == NULL) {
 		CColorGradient ccGradient;
-		gradientBuf = ccGradient.gradientOneColor(col_body, NULL, height, CColorGradient::gradientLight2Dark, CColorGradient::light);
+		cc_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, height, CColorGradient::gradientLight2Dark, CColorGradient::light);
 	}
-	cc_gradientData.gradientBuf = gradientBuf;
+	cc_gradientData.gradientBuf = cc_gradientBuf;
 	cc_gradientData.direction = CFrameBuffer::gradientVertical;
 	cc_gradientData.mode = CFrameBuffer::pbrg_noOption;
 
@@ -419,7 +419,7 @@ void CComponentsHeader::initCCItems()
 	initCaption();
 
 	//init color gradient
-	if (paintGradient)
+	if (col_body_gradient)
 		initGradient();
 }
 	

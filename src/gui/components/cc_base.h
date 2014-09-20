@@ -81,9 +81,9 @@ class CComponents : public CComponentsSignals, public COSDFader
 		///property: contains data for gradiant handling
 		gradientData_t cc_gradientData;
 		///gradiant pixel buffer
-		fb_pixel_t *gradientBuf;
-		///property: true component can paint gradient, see also setPaintGradient()
-		bool paintGradient;
+		fb_pixel_t *cc_gradientBuf;
+		///property: true component can paint gradient, see also enableColBodyGradient()
+		bool col_body_gradient;
 
 		///property: true=component has shadow
 		bool shadow;
@@ -187,7 +187,7 @@ class CComponents : public CComponentsSignals, public COSDFader
 		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
 		///set color gradient on/off
-		virtual void setPaintGradient(bool do_paint_gradient);
+		virtual void enableColBodyGradient(bool do_paint_gradient);
 
 		///get frame color
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};
