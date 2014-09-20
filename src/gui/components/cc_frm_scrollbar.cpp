@@ -73,17 +73,17 @@ void CComponentsScrollBar::initVarSbForm(const int& count)
 {
 	cc_item_type 	= CC_ITEMTYPE_FRM_SCROLLBAR;
 	fr_thickness	= 0;
-	
+
 	append_x_offset = 0;
 	append_y_offset = 2;
-	
+
 	sb_up_obj 	= sb_down_obj = NULL;
 	sb_segments_obj = NULL;
-	sb_up_icon	= frameBuffer->getIconBasePath() + NEUTRINO_ICON_BUTTON_TOP;
-	sb_up_icon	+= ".png";
-	sb_down_icon	= frameBuffer->getIconBasePath() + NEUTRINO_ICON_BUTTON_DOWN;
-	sb_down_icon	+= ".png";
-	
+
+	string ftype = ".png";
+	sb_up_icon	= frameBuffer->getIconBasePath() + NEUTRINO_ICON_BUTTON_TOP + ftype;
+	sb_down_icon	= frameBuffer->getIconBasePath() + NEUTRINO_ICON_BUTTON_DOWN + ftype;
+
 	sb_segments_count = count;
 	sb_mark_id	= 0;
 
@@ -163,10 +163,15 @@ void CComponentsScrollBar::initSegments()
 		}
 
 		//set color for marked id
-		if (sb_mark_id == id)
+		if (sb_mark_id == id){
 			item->setColorBody(COL_MENUCONTENTSELECTED_PLUS_0);
-		else
-			item->setColorBody(COL_MENUCONTENT_PLUS_1);		
+			item->enableColBodyGradient(true);
+			item->setColBodyGradient(CColorGradient::gradientDark2Light2Dark, CFrameBuffer::gradientHorizontal);
+		}
+		else{
+			item->setColorBody(COL_MENUCONTENT_PLUS_1);
+			item->enableColBodyGradient(false);
+		}
 	}
 
 	//set corner types
