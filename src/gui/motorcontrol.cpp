@@ -42,7 +42,7 @@
 #include <gui/widget/messagebox.h>
 #include <system/settings.h>
 #include <driver/screen_max.h>
-
+#include <driver/neutrinofonts.h>
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 #include <zapit/scannit.h>
@@ -71,12 +71,12 @@ void CMotorControl::Init(void)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	mheight     = 30;
 
 	satfindpid = -1;
 
 	width = w_max(720, 0);
-	mheight = mheight - 2;
+	m_font  = *CNeutrinoFonts::getInstance()->getDynFont(width, mheight);
 	height = hheight + (24 * mheight) - 5;
 	height = h_max(height, 0);
 
@@ -365,19 +365,19 @@ void CMotorControl::paintLine(int px, int *py, int pwidth, const char *txt)
 {
 	frameBuffer->paintBoxRel(px, *py, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
 	*py += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
+	m_font->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintLine(int px, int py, int pwidth, const char *txt)
 {
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT_TEXT);
+	m_font->RenderString(px, py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintLine(int ix, int tx, int *py, int pwidth, const char *icon, const char *txt)
 {
 	frameBuffer->paintIcon(icon, ix, *py, mheight);
 	*py += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(tx, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
+	m_font->RenderString(tx, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char * /*txt*/)
@@ -389,11 +389,11 @@ void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char 
 	frameBuffer->paintHLineRel(xpos, pwidth - 20, *pypos - (th >> 1) + 1, COL_MENUCONTENT_PLUS_1);
 
 #if 0
-	int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(txt);
+	int stringwidth = m_font->getRenderWidth(txt);
 	int stringstartposX = 0;
 	stringstartposX = (xpos + (pwidth >> 1)) - (stringwidth >> 1);
 	frameBuffer->paintBoxRel(stringstartposX - 5, *pypos - mheight, stringwidth + 10, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, *pypos, stringwidth, txt, COL_MENUCONTENT_TEXT);
+	m_font->RenderString(stringstartposX, *pypos, stringwidth, txt, COL_MENUCONTENT_TEXT);
 #endif
 }
 
@@ -403,7 +403,7 @@ void CMotorControl::paintStatus()
 	char buf2[256];
 
 	int xpos1 = x + 10;
-	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
+	int xpos2 = xpos1 + 10 + m_font->getRenderWidth(g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
 	int width2 = width - (xpos2 - xpos1) - 10;
 	int width1 = width - 10;
 
@@ -466,7 +466,7 @@ void CMotorControl::paintMenu()
 	ypos = y + hheight + (mheight >> 1) - 10;
 
 	int xpos1 = x + 10;
-	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("(7/yellow)");
+	int xpos2 = xpos1 + 10 + m_font->getRenderWidth("(7/yellow)");
 	int width2 = width - (xpos2 - xpos1) - 10;
 
 #if 1
@@ -589,8 +589,8 @@ void CMotorControl::showSNR ()
 {
 	if (signalbox == NULL){
 		int xpos1 = x + 10;
-		//signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
-		signalbox = new CSignalBox(xpos1, y + height - (mheight*2*3)/2 - 5, width - 2*(xpos1-x), (g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight()*2*3)/2, frontend, true);
+		//signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), m_font->getHeight(), frontend, false);
+		signalbox = new CSignalBox(xpos1, y + height - (mheight*2*3)/2 - 5, width - 2*(xpos1-x), (m_font->getHeight()*2*3)/2, frontend, true);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);
