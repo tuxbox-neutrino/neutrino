@@ -29,6 +29,7 @@
 #include "cc_item_picture.h"
 #include "cc_item_text.h"
 #include "cc_frm_icons.h"
+#include <driver/colorgradient.h>
 
 //! Sub class of CComponentsForm. Shows a header with prepared items.
 /*!
@@ -47,6 +48,9 @@ class CComponentsHeader : public CComponentsForm
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+
+		fb_pixel_t *gradientBuf;
+		bool paintGradient;
 
 	protected:
 		///object: icon object, see also setIcon()
@@ -92,6 +96,8 @@ class CComponentsHeader : public CComponentsForm
 		void initCaption();
 		///sub: init context button object
 		void initButtons();
+		///sub: init color gradient
+		void initGradient();
 
 	public:
 		enum
@@ -197,6 +203,9 @@ class CComponentsHeader : public CComponentsForm
 
 		///paint header
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		//set color gradient an/off
+		virtual void setPaintGradient(bool g) { paintGradient = g; };
 };
 
 //! Sub class of CComponentsHeader.
