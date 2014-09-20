@@ -67,6 +67,10 @@ void CComponentsItem::initParent(CComponentsForm* parent)
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(bool do_save_bg)
 {
+	//init color gradient
+	if (col_body_gradient)
+		initBodyGradient();
+
 	clearFbData();
 
 	int th = fr_thickness;
@@ -229,4 +233,15 @@ void CComponentsItem::setFocus(bool focus)
 		}
 	}
 	cc_has_focus = focus;
+}
+
+void CComponentsItem::initBodyGradient()
+{
+	if (cc_gradientBuf == NULL) {
+		CColorGradient ccGradient;
+		cc_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, height, CColorGradient::gradientLight2Dark, CColorGradient::light);
+	}
+	cc_gradientData.gradientBuf = cc_gradientBuf;
+	cc_gradientData.direction = CFrameBuffer::gradientVertical;
+	cc_gradientData.mode = CFrameBuffer::pbrg_noOption;
 }

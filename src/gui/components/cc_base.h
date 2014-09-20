@@ -336,6 +336,9 @@ class CComponentsItem : public CComponents
 		virtual void setHeightP(const uint8_t& h_percent);
 		///set item width, parameter as uint8_t, as percent value related to current width of parent form or screen
 		virtual void setWidthP(const uint8_t& w_percent);
+
+		///sub: init body color gradient
+		virtual void initBodyGradient();
 };
 
 #endif

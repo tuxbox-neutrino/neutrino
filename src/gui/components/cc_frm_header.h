@@ -93,8 +93,6 @@ class CComponentsHeader : public CComponentsForm
 		void initCaption();
 		///sub: init context button object
 		void initButtons();
-		///sub: init color gradient
-		void initGradient();
 
 	public:
 		enum

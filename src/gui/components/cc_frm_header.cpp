@@ -389,17 +389,6 @@ void CComponentsHeader::initCaption()
 	}
 }
 
-void CComponentsHeader::initGradient()
-{
-	if (cc_gradientBuf == NULL) {
-		CColorGradient ccGradient;
-		cc_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, height, CColorGradient::gradientLight2Dark, CColorGradient::light);
-	}
-	cc_gradientData.gradientBuf = cc_gradientBuf;
-	cc_gradientData.direction = CFrameBuffer::gradientVertical;
-	cc_gradientData.mode = CFrameBuffer::pbrg_noOption;
-}
-
 void CComponentsHeader::initCCItems()
 {
 	//set size
@@ -413,10 +402,6 @@ void CComponentsHeader::initCCItems()
 
 	//init text
 	initCaption();
-
-	//init color gradient
-	if (col_body_gradient)
-		initGradient();
 }
 	
 void CComponentsHeader::paint(bool do_save_bg)
