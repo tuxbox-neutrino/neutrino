@@ -115,9 +115,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_icon_w		= 0;
 	cch_text_x		= cch_offset;
 	cch_buttons_space	= cch_offset;
-
-	gradientBuf		= NULL;
-	paintGradient		= false;
+	paintGradient		= g_settings.gradiant;
 
 	addContextButton(buttons);
 	initCCItems();

@@ -49,9 +49,6 @@ class CComponentsHeader : public CComponentsForm
 					fb_pixel_t color_body = COL_MENUHEAD_PLUS_0,
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
-		fb_pixel_t *gradientBuf;
-		bool paintGradient;
-
 	protected:
 		///object: icon object, see also setIcon()
 		CComponentsPicture * cch_icon_obj;
@@ -203,9 +200,6 @@ class CComponentsHeader : public CComponentsForm
 
 		///paint header
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-
-		//set color gradient an/off
-		virtual void setPaintGradient(bool g) { paintGradient = g; };
 };
 
 //! Sub class of CComponentsHeader.

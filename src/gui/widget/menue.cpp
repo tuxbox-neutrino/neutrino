@@ -1099,7 +1099,6 @@ void CMenuWidget::paint()
 
 	// paint head
 	CComponentsHeader header(x, y, width + sb_width, hheight, getName(), iconfile);
-	header.setPaintGradient(g_settings.gradiant);
 	header.setShadowOnOff(CC_SHADOW_ON);
 	header.setOffset(10);
 	header.paint(CC_SAVE_SCREEN_NO);

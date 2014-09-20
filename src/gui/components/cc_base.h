@@ -78,6 +78,13 @@ class CComponents : public CComponentsSignals, public COSDFader
 		///property: color of frame if component is selected, Note: fr_thickness_sel must be set
 		fb_pixel_t col_frame_sel;
 
+		///property: contains data for gradiant handling
+		gradientData_t cc_gradientData;
+		///gradiant pixel buffer
+		fb_pixel_t *gradientBuf;
+		///property: true component can paint gradient, see also setPaintGradient()
+		bool paintGradient;
+
 		///property: true=component has shadow
 		bool shadow;
 		///property: width of shadow
@@ -179,6 +186,8 @@ class CComponents : public CComponentsSignals, public COSDFader
 		///set all basic framebuffer element colors at once
 		///Note: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
+		///set color gradient on/off
+		virtual void setPaintGradient(bool do_paint_gradient);
 
 		///get frame color
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};
@@ -186,7 +195,7 @@ class CComponents : public CComponentsSignals, public COSDFader
 		inline virtual fb_pixel_t getColorBody(){return col_body;};
 		///get shadow color
 		inline virtual fb_pixel_t getColorShadow(){return col_shadow;};
-		
+
 		///set corner types
 		///Possible corner types are defined in CFrameBuffer (see: driver/framebuffer.h)
 		///Note: default values are given from settings
@@ -248,8 +257,6 @@ class CComponentsItem : public CComponents
 		///Pointer to the form object in which this item is embedded.
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
 		CComponentsForm *cc_parent;
-
-		gradientData_t cc_gradientData;
 
 		///hides item, arg: no_restore=true causes no restore of background, but clean up pixel buffer if required
 		void hideCCItem(bool no_restore = false);
