@@ -590,6 +590,11 @@ int COsdSetup::showOsdSetup()
 	mfWindowSize->setHint("", LOCALE_MENU_HINT_WINDOW_SIZE);
 	osd_menu->addItem(mfWindowSize);
 
+	// color gradient
+	mc = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT, &g_settings.gradiant, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, this );
+	mc->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
+	osd_menu->addItem(mc);
+
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
 	// scrambled
@@ -1113,6 +1118,10 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 			g_InfoViewer = new CInfoViewer;
 		g_InfoViewer->changePB();
 		return false;
+	}
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLOR_GRADIENT)) {
+		osd_menu->hide();
+		return true;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_PRESET)) {
 		int preset = * (int *) data;
