@@ -166,6 +166,9 @@ void CComponentsText::initCCText()
 		ct_old_col_text = ct_col_text;
 	}
 
+	//ensure clean font rendering on transparency background
+	ct_textbox->setTextRenderModeFullBG(!paint_bg);
+
 	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] init text: %s [x %d, y %d, w %d, h %d]\n", __func__, __LINE__, ct_text.c_str(), this->iX, this->iY, this->iWidth, this->iHeight);
 }
 

@@ -398,10 +398,6 @@ void CComponentsHeader::initGradient()
 	cc_gradientData.gradientBuf = cc_gradientBuf;
 	cc_gradientData.direction = CFrameBuffer::gradientVertical;
 	cc_gradientData.mode = CFrameBuffer::pbrg_noOption;
-
-	CTextBox* ctb = cch_text_obj->getCTextBoxObject();
-	if (ctb)
-		ctb->setTextRenderModeFullBG(true);
 }
 
 void CComponentsHeader::initCCItems()
