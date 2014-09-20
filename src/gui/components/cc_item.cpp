@@ -51,6 +51,7 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 	cc_item_selected 	= false;
 	cc_page_number		= 0;
 	cc_has_focus		= true;
+	cc_gradientData.gradientBuf = NULL;
 	initParent(parent);
 }
 
@@ -88,12 +89,15 @@ void CComponentsItem::paintInit(bool do_save_bg)
 		iy = cc_yr;
 	}
 	
+	cc_gradientData.boxBuf = NULL;
+	cc_gradientData.mode = CFrameBuffer::pbrg_noFree;
+	void* gradientData = (cc_gradientData.gradientBuf == NULL) ? NULL : &cc_gradientData;
 	comp_fbdata_t fbdata[] =
 	{
 		{CC_FBDATA_TYPE_BGSCREEN,	ix,	iy, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
 		{CC_FBDATA_TYPE_SHADOW_BOX, 	ix+sw,	iy+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow
 		{CC_FBDATA_TYPE_FRAME,		ix,	iy, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},//frame
-		{CC_FBDATA_TYPE_BOX,		ix+th,  iy+th,  width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	NULL},//body
+		{CC_FBDATA_TYPE_BOX,		ix+th,  iy+th,  width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	gradientData},//body
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++) {

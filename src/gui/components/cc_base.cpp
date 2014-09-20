@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_base.h"
+#include <cs_api.h>
 #include <system/debug.h>
 using namespace std;
 
@@ -197,9 +198,20 @@ void CComponents::paintFbItems(bool do_save_bg)
 					}
 				}
 			}
-			else
-				if(cc_allow_paint)
-					frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
+			else {
+				if(cc_allow_paint) {
+					if  ((v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX) && (v_fbdata[i].data != NULL)) {
+						// color gradient
+						gradientData_t *gradientData = static_cast<gradientData_t*> (v_fbdata[i].data);
+						if (gradientData->boxBuf == NULL)
+							gradientData->boxBuf = frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, 0, gradientData, v_fbdata[i].r, corner_type);
+						else
+//							frameBuffer->blit2FB(gradientData->boxBuf, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].x, v_fbdata[i].y);
+							frameBuffer->blitBox2FB(gradientData->boxBuf, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].x, v_fbdata[i].y);
+					} else
+						frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
+				}
+			}
 		}
 	}
 
@@ -272,9 +284,16 @@ void CComponents::kill(const fb_pixel_t& bg_color, const int& corner_radius)
 //clean old screen buffer
 void CComponents::clearFbData()
 {
-	for(size_t i =0; i< v_fbdata.size() ;i++)
+	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
+
+		if (v_fbdata[i].data && (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)) {
+			gradientData_t *gradientData = static_cast<gradientData_t*> (v_fbdata[i].data);
+			if (gradientData->boxBuf)
+				cs_free_uncached(gradientData->boxBuf);
+		}
+	}
 	v_fbdata.clear();
 }
 

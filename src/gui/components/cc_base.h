@@ -249,6 +249,8 @@ class CComponentsItem : public CComponents
 		///Is typically the type CComponentsForm or derived classes, default intialized with NULL
 		CComponentsForm *cc_parent;
 
+		gradientData_t cc_gradientData;
+
 		///hides item, arg: no_restore=true causes no restore of background, but clean up pixel buffer if required
 		void hideCCItem(bool no_restore = false);
 		
