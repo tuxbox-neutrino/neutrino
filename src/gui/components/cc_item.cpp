@@ -52,6 +52,9 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 	cc_page_number		= 0;
 	cc_has_focus		= true;
 	cc_gradientData.gradientBuf = NULL;
+	cc_body_gradient_mode 	= CColorGradient::gradientLight2Dark;
+	cc_body_gradient_intensity = CColorGradient::light;
+	cc_body_gradient_direction = CFrameBuffer::gradientVertical;
 	initParent(parent);
 }
 
@@ -237,11 +240,12 @@ void CComponentsItem::setFocus(bool focus)
 
 void CComponentsItem::initBodyGradient()
 {
-	if (cc_gradientBuf == NULL) {
+	if (cc_body_gradientBuf == NULL) {
 		CColorGradient ccGradient;
-		cc_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, height, CColorGradient::gradientLight2Dark, CColorGradient::light);
+		int gsize = cc_body_gradient_direction == CFrameBuffer::gradientVertical ? height : width;
+		cc_body_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity);
 	}
-	cc_gradientData.gradientBuf = cc_gradientBuf;
-	cc_gradientData.direction = CFrameBuffer::gradientVertical;
+	cc_gradientData.gradientBuf = cc_body_gradientBuf;
+	cc_gradientData.direction = cc_body_gradient_direction;
 	cc_gradientData.mode = CFrameBuffer::pbrg_noOption;
 }

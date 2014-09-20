@@ -99,6 +99,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	col_shadow	= color_shadow;
 	col_body 	= COL_MENUHEAD_PLUS_0;
 	col_body_gradient	= g_settings.gradiant;
+	cc_body_gradient_direction = CFrameBuffer::gradientVertical;
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
 
@@ -126,8 +127,6 @@ CComponentsHeader::~CComponentsHeader()
 {
 	dprintf(DEBUG_DEBUG, "[~CComponentsHeader]   [%s - %d] delete...\n", __func__, __LINE__);
 	v_cch_btn.clear();
-	if (cc_gradientBuf)
-		free(cc_gradientBuf);
 }
 
 void CComponentsHeader::setCaption(const std::string& caption, const int& align_mode)

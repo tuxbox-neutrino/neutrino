@@ -64,7 +64,7 @@ CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
-	cc_gradientBuf		= NULL;
+	cc_body_gradientBuf	= NULL;
 	col_body_gradient	= false;
 }
 
@@ -73,6 +73,8 @@ CComponents::~CComponents()
 	hide();
 	clearSavedScreen();
 	clearFbData();
+	if (cc_body_gradientBuf)
+		free(cc_body_gradientBuf);
 }
 
 void CComponents::clearSavedScreen()

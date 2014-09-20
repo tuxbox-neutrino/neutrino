@@ -34,6 +34,7 @@
 #include <driver/pictureviewer/pictureviewer.h>
 #include <gui/widget/icons.h>
 #include <driver/fade.h>
+#include <driver/colorgradient.h>
 /// Basic component class.
 /*!
 Basic attributes and member functions for component sub classes
@@ -81,9 +82,15 @@ class CComponents : public CComponentsSignals, public COSDFader
 		///property: contains data for gradiant handling
 		gradientData_t cc_gradientData;
 		///gradiant pixel buffer
-		fb_pixel_t *cc_gradientBuf;
+		fb_pixel_t *cc_body_gradientBuf;
 		///property: true component can paint gradient, see also enableColBodyGradient()
 		bool col_body_gradient;
+		///property: background gradient mode
+		int cc_body_gradient_mode;
+		///property: background gradient intensity
+		int cc_body_gradient_intensity;
+		///property: background gradient direction
+		int cc_body_gradient_direction;
 
 		///property: true=component has shadow
 		bool shadow;
@@ -188,6 +195,11 @@ class CComponents : public CComponentsSignals, public COSDFader
 		inline virtual void setColorAll(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
 		///set color gradient on/off
 		virtual void enableColBodyGradient(bool do_paint_gradient);
+		///set color gradient properties, possible parameter values for mode and intensity to find in CColorGradient, in driver/framebuffer.h>
+		virtual void setColBodyGradient(const int& mode, const int& direction, const int& intensity = CColorGradient::normal)
+						{ cc_body_gradient_mode = mode;
+						  cc_body_gradient_direction = direction;
+						  cc_body_gradient_intensity=intensity;};
 
 		///get frame color
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};

@@ -148,7 +148,7 @@ class CFrameBuffer
 		bool calcCorners(int *ofs, int *ofl, int *ofr, const int& dy, const int& line, const int& radius, const int& type);
 
 	public:
-
+		///gradient direction
 		enum {
 			gradientHorizontal,
 			gradientVertical

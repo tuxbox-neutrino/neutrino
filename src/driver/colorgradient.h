@@ -33,7 +33,7 @@ class CColorGradient
 		inline uint8_t limitChar(int c);
 
 	public:
-
+		///gradient mode
 		enum {
 			gradientDark2Light,
 			gradientLight2Dark,
@@ -41,6 +41,7 @@ class CColorGradient
 			gradientLight2Dark2Light
 		};
 
+		///intensity
 		enum {
 			light,
 			normal
