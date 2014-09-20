@@ -120,6 +120,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	logo_off = 0;
 	pig_on_win = false;
 	CChannelLogo = NULL;
+	headerNew = true;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -1774,7 +1775,10 @@ void CChannelList::showChannelLogo()
 	if(g_settings.channellist_show_channellogo){
 		int logo_w_max = full_width / 4;
 		if (CChannelLogo) {
-			CChannelLogo->hide();
+			if (headerNew)
+				CChannelLogo->clearSavedScreen();
+			else
+				CChannelLogo->hide();
 			delete CChannelLogo;
 		}
 		CChannelLogo = new CComponentsChannelLogo(0, 0, logo_w_max, theight,
@@ -1782,6 +1786,7 @@ void CChannelList::showChannelLogo()
 		CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
 		CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
 		CChannelLogo->paint();
+		headerNew = false;
 	}
 }
 
@@ -2174,6 +2179,7 @@ void CChannelList::paintHead()
 	else
 		headerClockWidth = 0;
 	logo_off = headerClockWidth + 10;
+	headerNew = true;
 }
 
 void CChannelList::paint()

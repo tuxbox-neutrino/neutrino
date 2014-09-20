@@ -105,6 +105,7 @@ private:
 	int ChannelList_Rec;
 
 	CComponentsChannelLogo* CChannelLogo;
+	bool headerNew;
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
