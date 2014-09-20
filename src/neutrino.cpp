@@ -515,6 +515,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	CThemes::getTheme(configfile);
 
+	g_settings.gradiant = (configfile.getBool( "gradiant", false ))? 1 : 0;
+
 	//personalize
 	g_settings.personalize_pincode = configfile.getString( "personalize_pincode", "0000" );
 	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++)//settings.h, settings.cpp
@@ -1021,6 +1023,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("widget_fade"          , g_settings.widget_fade          );
 
 	CThemes::setTheme(configfile);
+
+	configfile.setBool( "gradiant", (g_settings.gradiant!=0)?true:false );
 
 	//personalize
 	configfile.setString("personalize_pincode", g_settings.personalize_pincode);

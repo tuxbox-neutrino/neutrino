@@ -352,6 +352,7 @@ struct SNeutrinoSettings
 	int colored_events_channellist;
 	int colored_events_infobar;
 	int contrast_fonts;
+	int gradiant;
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8
