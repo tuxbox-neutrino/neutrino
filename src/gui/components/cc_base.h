@@ -89,6 +89,12 @@ class CComponents : public CComponentsSignals, public COSDFader
 		int cc_body_gradient_mode;
 		///property: background gradient intensity
 		int cc_body_gradient_intensity;
+		///property: background gradient intensity value min
+		uint8_t cc_body_gradient_intensity_v_min;
+		///property: background gradient intensity value max
+		uint8_t cc_body_gradient_intensity_v_max;
+		///property: background gradient saturation
+		uint8_t cc_body_gradient_saturation;
 		///property: background gradient direction
 		int cc_body_gradient_direction;
 
@@ -196,10 +202,13 @@ class CComponents : public CComponentsSignals, public COSDFader
 		///set color gradient on/off
 		virtual void enableColBodyGradient(bool do_paint_gradient);
 		///set color gradient properties, possible parameter values for mode and intensity to find in CColorGradient, in driver/framebuffer.h>
-		virtual void setColBodyGradient(const int& mode, const int& direction, const int& intensity = CColorGradient::normal)
+		virtual void setColBodyGradient(const int& mode, const int& direction, const int& intensity = CColorGradient::normal, uint8_t v_min=0x40, uint8_t v_max=0xE0, uint8_t s=0xC0)
 						{ cc_body_gradient_mode = mode;
 						  cc_body_gradient_direction = direction;
-						  cc_body_gradient_intensity=intensity;};
+						  cc_body_gradient_intensity=intensity;
+						  cc_body_gradient_intensity_v_min=v_min;
+						  cc_body_gradient_intensity_v_max=v_max;
+						  cc_body_gradient_saturation=s; };
 
 		///get frame color
 		inline virtual fb_pixel_t getColorFrame(){return col_frame;};

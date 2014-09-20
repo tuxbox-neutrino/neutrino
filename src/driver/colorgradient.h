@@ -44,14 +44,15 @@ class CColorGradient
 		///intensity
 		enum {
 			light,
-			normal
+			normal,
+			extended
 		};
 
 		CColorGradient();
 		~CColorGradient();
 //		static CColorGradient* getInstance();
 
-		fb_pixel_t* gradientOneColor(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity=normal);
+		fb_pixel_t* gradientOneColor(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity=normal, uint8_t v_min=0x40, uint8_t v_max=0xE0, uint8_t s=0xC0);
 		fb_pixel_t* gradientColorToTransparent(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity=normal);
 
 };

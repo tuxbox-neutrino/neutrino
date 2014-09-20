@@ -92,7 +92,7 @@ fb_pixel_t* CColorGradient::gradientColorToTransparent(fb_pixel_t col, fb_pixel_
 	return gradientBuf;
 }
 
-fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity)
+fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradientBuf, int bSize, int mode, int intensity, uint8_t v_min, uint8_t v_max, uint8_t s)
 {
 
 	if (gradientBuf == NULL) {
@@ -105,25 +105,30 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 	memset((void*)gradientBuf, '\0', bSize * sizeof(fb_pixel_t));
 
 	HsvColor hsv;
-	uint8_t min_v=0, max_v=0, min_s=0, max_s=0;
-	uint8_t start_v=0 , end_v=0, start_s=0, end_s=0;
+	uint8_t min_v=0, max_v=0, col_s=0;
+	uint8_t start_v=0 , end_v=0;
 
 	uint8_t tr = SysColor2Hsv(col, &hsv);
 	bool noSaturation = (hsv.s <= (float)0.05);
 
-	switch (intensity) {
-		case light:
-			min_v   = limitChar((int)(hsv.v * 255 - hsv.v * 255/30));
-			max_v   = 0xE0;
-			min_s   = limitChar((int)((hsv.s * 255) / 1.5));
-			max_s   = 0xE0;
-			break;
-		case normal:
-			min_v   = limitChar((int)(hsv.v * 255 - hsv.v * 255/3));
-			max_v   = 0xFF;
-			min_s   = limitChar((int)((hsv.s * 255) / 2.5));
-			max_s   = 0xFF;
-			break;
+	if (intensity == extended) {
+		min_v   = v_min;
+		max_v   = v_max;
+		col_s   = s;
+	}
+	else {
+		switch (intensity) {
+			case light:
+				min_v   = 0x40;
+				max_v   = 0xE0;
+				col_s   = (noSaturation) ? 0 : 0xC0;
+				break;
+			case normal:
+				min_v   = 0x00;
+				max_v   = 0xFF;
+				col_s   = (noSaturation) ? 0 : 0xC0;
+				break;
+		}
 	}
 
 	switch (mode) {
@@ -131,15 +136,11 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 		case gradientDark2Light2Dark:
 			start_v = min_v;
 			end_v   = max_v;
-			start_s = max_s;
-			end_s   = min_s;
 			break;
 		case gradientLight2Dark:
 		case gradientLight2Dark2Light:
 			start_v = max_v;
 			end_v   = min_v;
-			start_s = min_s;
-			end_s   = max_s;
 			break;
 		default:
 			return 0;
@@ -149,16 +150,11 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 
 	int v  = start_v; int v_ = v;
 	float factor_v = ((float)end_v - (float)v) / (float)bSize1;
-	int s  = start_s; int s_ = s;
-	float factor_s = ((float)end_s - (float)s) / (float)bSize1;
 
 	for (int i = 0; i < bSize1; i++) {
 		v = v_ + (int)(factor_v * (float)i);
 		hsv.v = (float)limitChar(v) / (float)255;
-		if (!noSaturation) {
-			s = s_ + (int)(factor_s * (float)i);
-			hsv.s = (float)limitChar(s) / (float)255;
-		}
+		hsv.s = (float)col_s / (float)255;
 		gradientBuf[i] = Hsv2SysColor(&hsv, tr);
 	}
 
@@ -167,10 +163,7 @@ fb_pixel_t* CColorGradient::gradientOneColor(fb_pixel_t col, fb_pixel_t *gradien
 		for (int i = 0; i < bSize1; i++) {
 			v = v_ + (int)(factor_v * (float)i);
 			hsv.v = (float)limitChar(v) / (float)255;
-			if (!noSaturation) {
-				s = s_ + (int)(factor_s * (float)i);
-				hsv.s = (float)limitChar(s) / (float)255;
-			}
+			hsv.s = (float)col_s / (float)255;
 			gradientBuf[bSize-i-1] = Hsv2SysColor(&hsv, tr);
 		}
 	}

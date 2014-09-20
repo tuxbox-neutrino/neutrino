@@ -54,6 +54,9 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 	cc_gradientData.gradientBuf = NULL;
 	cc_body_gradient_mode 	= CColorGradient::gradientLight2Dark;
 	cc_body_gradient_intensity = CColorGradient::light;
+	cc_body_gradient_intensity_v_min = 0x40;
+	cc_body_gradient_intensity_v_max = 0xE0;
+	cc_body_gradient_saturation = 0xC0;
 	cc_body_gradient_direction = CFrameBuffer::gradientVertical;
 	initParent(parent);
 }
@@ -243,7 +246,7 @@ void CComponentsItem::initBodyGradient()
 	if (cc_body_gradientBuf == NULL) {
 		CColorGradient ccGradient;
 		int gsize = cc_body_gradient_direction == CFrameBuffer::gradientVertical ? height : width;
-		cc_body_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity);
+		cc_body_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity, cc_body_gradient_intensity_v_min, cc_body_gradient_intensity_v_max, cc_body_gradient_saturation);
 	}
 	cc_gradientData.gradientBuf = cc_body_gradientBuf;
 	cc_gradientData.direction = cc_body_gradient_direction;
