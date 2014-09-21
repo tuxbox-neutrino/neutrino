@@ -747,6 +747,9 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 		}
 		else
 			StringReplace(FilenameTemplate,"%I","no_info");
+	} else {
+		StringReplace(FilenameTemplate,"%T","no_title");
+		StringReplace(FilenameTemplate,"%I","no_info");
 	}
 }
 
