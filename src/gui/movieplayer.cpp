@@ -255,12 +255,12 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 #endif
 	else if (actionKey == "upnp") {
 		isUPNP = true;
-		is_file_player = false;
+		is_file_player = true;
 		PlayFile();
 	}
 	else if (actionKey == "http") {
 		isHTTP = true;
-		is_file_player = false;
+		is_file_player = true;
 		PlayFile();
 	}
 	else {
