@@ -24,6 +24,7 @@
 
 #include <string>
 #include <vector>
+#include <OpenThreads/Mutex>
 
 /* zapit */
 #include "zapittypes.h"
@@ -36,6 +37,8 @@ class CZapitClient:public CBasicClient
  private:
 	virtual unsigned char   getVersion   () const;
 	virtual const    char * getSocketName() const;
+
+	OpenThreads::Mutex mutex;
 
  public:
 	enum events
