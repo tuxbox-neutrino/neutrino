@@ -553,7 +553,7 @@ void CComponentsForm::setSelectedItem(int item_id)
 	size_t count = v_cc_items.size();
 	int id = item_id;
 
-	if (id > (count-1) || id < 0 || (count == 0)){
+	if (id > (int)(count-1) || id < 0 || (count == 0)){
 		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid parameter item_id = %u, available items = %u, allowed values are: 0...%u! \n", 	__func__, 
 																				__LINE__, 
 																				item_id, 
@@ -567,7 +567,7 @@ void CComponentsForm::setSelectedItem(int item_id)
 		if (id < 0)
 			id = count-1;
 		//jump to 1st item, if id is out of range, avoids also possible segfault
-		if (id > (count-1))
+		if (id > (int)(count-1))
 			id = 0;
 	}
 
