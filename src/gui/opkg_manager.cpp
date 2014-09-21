@@ -87,6 +87,7 @@ COPKGManager::COPKGManager()
 	list_installed_done = false;
 	list_upgradeable_done = false;
 	expert_mode = false;
+	CFileHelpers::createDir("/tmp/.opkg");
 }
 
 COPKGManager::~COPKGManager()
