@@ -428,6 +428,7 @@ void CListFrame::refreshLine(int line)
 	if( frameBuffer == NULL) return;
 	if( m_nNrOfLines <= 0) return;
 
+	//TRACE("[CListFrame]->refreshLine: %d\r\n", line);
 	if((line < m_nCurrentLine) && (line > m_nCurrentLine + m_nLinesPerPage))
 		return;
 
@@ -538,7 +539,6 @@ void CListFrame::scrollPageDown(const int pages)
 	else
 		setSelectedLine(m_nNrOfLines - 1);
 	//TRACE("[CListFrame]  m_nCurrentLine: %d, m_nCurrentPage: %d \r\n",m_nCurrentLine,m_nCurrentPage);
-	refresh();
 }
 
 void CListFrame::scrollPageUp(const int pages)
@@ -548,14 +548,14 @@ void CListFrame::scrollPageUp(const int pages)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	if(m_nCurrentPage - pages > 1)
+	if(m_nCurrentPage - pages >= 0)
 		setSelectedLine(m_nSelectedLine - pages * m_nLinesPerPage);
 	else if (m_nSelectedLine == 0)
 		setSelectedLine(m_nNrOfLines - 1);
 	else
 		setSelectedLine(0);
+
 	//TRACE("[CListFrame]  m_nCurrentLine: %d, m_nCurrentPage: %d \r\n",m_nCurrentLine,m_nCurrentPage);
-	refresh();
 }
 
 void CListFrame::refresh(void)
@@ -606,11 +606,20 @@ bool CListFrame::setSelectedLine(int selection)
 		selection = m_nNrOfLines - 1;
 	if (selection < 0)
 		selection = 0;
+
+	int old_page = m_nCurrentPage;
+	int old_selected = m_nSelectedLine;
 	m_nSelectedLine = selection;
 	m_nCurrentPage =  selection / m_nLinesPerPage;
 	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-	refreshList();
-	refreshScroll();  //NEW
+	if (m_nCurrentPage != old_page) {
+		refreshList();
+		refreshScroll();
+	} else {
+		refreshLine(old_selected);
+		refreshLine(m_nSelectedLine);
+	}
+
 	result = true;
 	//TRACE(" selected line: %d,%d,%d \r\n",m_nSelectedLine,m_nCurrentPage,m_nCurrentLine);
 
