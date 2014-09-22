@@ -176,6 +176,7 @@ typedef struct
 } MI_MOVIE_INFO;
 
 typedef std::vector<MI_MOVIE_INFO> MI_MOVIE_LIST;
+typedef std::vector<MI_MOVIE_INFO*> P_MI_MOVIE_LIST;
 
 class CMovieInfo
 {

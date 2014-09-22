@@ -1243,14 +1243,14 @@ CFile* CMovieBrowser::getSelectedFile(void)
 		return(NULL);
 }
 
-bool CMovieBrowser::getSelectedFiles(CFileList &flist, MI_MOVIE_LIST &mlist)
+bool CMovieBrowser::getSelectedFiles(CFileList &flist, P_MI_MOVIE_LIST &mlist)
 {
 	flist.clear();
 	mlist.clear();
-	for(unsigned int i = 0; i < m_vMovieInfo.size(); i++) {
-		if (m_vMovieInfo[i].marked) {
-			flist.push_back(m_vMovieInfo[i].file);
-			mlist.push_back(m_vMovieInfo[i]);
+	for(unsigned int i = 0; i < m_vHandleBrowserList.size(); i++) {
+		if (m_vHandleBrowserList[i]->marked) {
+			flist.push_back(m_vHandleBrowserList[i]->file);
+			mlist.push_back(m_vHandleBrowserList[i]);
 		}
 	}
 	return (!flist.empty());
