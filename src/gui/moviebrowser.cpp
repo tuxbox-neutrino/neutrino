@@ -387,6 +387,18 @@ void CMovieBrowser::clearListLines()
 	}
 	m_browserListLines.Icon.clear();
 	m_browserListLines.marked.clear();
+	m_recordListLines.marked.clear();
+	m_playListLines.marked.clear();
+}
+
+void CMovieBrowser::clearSelection()
+{
+	for (unsigned i = 0; i < m_vMovieInfo.size(); i++)
+		m_vMovieInfo[i].marked = false;
+
+	m_pcBrowser->clearMarked();
+	m_pcLastPlay->clearMarked();
+	m_pcLastRecord->clearMarked();
 }
 
 void CMovieBrowser::fileInfoStale(void)
@@ -1247,10 +1259,17 @@ bool CMovieBrowser::getSelectedFiles(CFileList &flist, P_MI_MOVIE_LIST &mlist)
 {
 	flist.clear();
 	mlist.clear();
-	for(unsigned int i = 0; i < m_vHandleBrowserList.size(); i++) {
-		if (m_vHandleBrowserList[i]->marked) {
-			flist.push_back(m_vHandleBrowserList[i]->file);
-			mlist.push_back(m_vHandleBrowserList[i]);
+	P_MI_MOVIE_LIST *handle_list = &m_vHandleBrowserList;
+
+	if (m_windowFocus == MB_FOCUS_LAST_PLAY)
+		handle_list = &m_vHandlePlayList;
+	if (m_windowFocus == MB_FOCUS_LAST_RECORD)
+		handle_list = &m_vHandleRecordList;
+
+	for(unsigned int i = 0; i < handle_list->size(); i++) {
+		if ((*handle_list)[i]->marked) {
+			flist.push_back((*handle_list)[i]->file);
+			mlist.push_back((*handle_list)[i]);
 		}
 	}
 	return (!flist.empty());
@@ -1489,6 +1508,7 @@ void CMovieBrowser::refreshLastPlayList(void) //P2
 		m_playListLines.rowWidth[row] = m_settings.lastPlayRowWidth[row];
 		m_playListLines.lineHeader[row]= g_Locale->getText(m_localizedItemName[m_settings.lastPlayRow[row]]);
 	}
+	m_recordListLines.marked.clear();
 	m_vHandlePlayList.clear();
 
 	if(m_vMovieInfo.empty()) {
@@ -1523,6 +1543,7 @@ void CMovieBrowser::refreshLastPlayList(void) //P2
 			}
 			m_playListLines.lineArray[row].push_back(string_item);
 		}
+		m_playListLines.marked.push_back(m_vHandleBrowserList[handle]->marked);
 	}
 	m_pcLastPlay->setLines(&m_playListLines);
 
@@ -1547,6 +1568,7 @@ void CMovieBrowser::refreshLastRecordList(void) //P2
 		m_recordListLines.rowWidth[row] = m_settings.lastRecordRowWidth[row];
 		m_recordListLines.lineHeader[row]= g_Locale->getText(m_localizedItemName[m_settings.lastRecordRow[row]]);
 	}
+	m_recordListLines.marked.clear();
 	m_vHandleRecordList.clear();
 
 	if(m_vMovieInfo.empty()) {
@@ -1581,6 +1603,7 @@ void CMovieBrowser::refreshLastRecordList(void) //P2
 			}
 			m_recordListLines.lineArray[row].push_back(string_item);
 		}
+		m_recordListLines.marked.push_back(m_vHandleBrowserList[handle]->marked);
 	}
 
 	m_pcLastRecord->setLines(&m_recordListLines);
@@ -2058,6 +2081,12 @@ bool CMovieBrowser::onButtonPressLastPlayList(neutrino_msg_t msg)
 	{
 		m_pcLastPlay->scrollPageDown(1);
 	}
+	else if (msg == CRCInput::RC_play)
+	{
+		m_movieSelectionHandler->marked = !m_movieSelectionHandler->marked;
+		m_pcLastPlay->setSelectedMarked(m_movieSelectionHandler->marked);
+		m_pcLastPlay->scrollLineDown(1);
+	}
 	else
 	{
 		// default
@@ -2089,6 +2118,12 @@ bool CMovieBrowser::onButtonPressLastRecordList(neutrino_msg_t msg)
 	else if (msg == CRCInput::RC_right)
 	{
 		m_pcLastRecord->scrollPageDown(1);
+	}
+	else if (msg == CRCInput::RC_play)
+	{
+		m_movieSelectionHandler->marked = !m_movieSelectionHandler->marked;
+		m_pcLastRecord->setSelectedMarked(m_movieSelectionHandler->marked);
+		m_pcLastRecord->scrollLineDown(1);
 	}
 	else
 	{
@@ -2303,6 +2338,7 @@ void CMovieBrowser::onSetGUIWindow(MB_GUI gui)
 	else if(gui == MB_GUI_LAST_PLAY)
 	{
 		TRACE("[mb] last play \r\n");
+		clearSelection();
 		// Paint these frames ...
 		m_showLastRecordFiles = true;
 		m_showLastPlayFiles = true;
@@ -2324,6 +2360,7 @@ void CMovieBrowser::onSetGUIWindow(MB_GUI gui)
 	else if(gui == MB_GUI_LAST_RECORD)
 	{
 		TRACE("[mb] last record \r\n");
+		clearSelection();
 		// Paint these frames ...
 		m_showLastRecordFiles = true;
 		m_showLastPlayFiles = true;
@@ -2391,6 +2428,8 @@ void CMovieBrowser::onSetGUIWindowPrev(void)
 void CMovieBrowser::onSetFocus(MB_FOCUS new_focus)
 {
 	//TRACE("[mb]->onSetFocus %d \r\n",new_focus);
+	clearSelection();
+
 	m_windowFocus = new_focus;
 	if(m_windowFocus == MB_FOCUS_BROWSER)
 	{

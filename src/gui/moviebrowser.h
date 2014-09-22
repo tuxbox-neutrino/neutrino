@@ -435,6 +435,7 @@ class CMovieBrowser : public CMenuTarget
 
 		neutrino_locale_t getFeedLocale(void);
 		void clearListLines();
+		void clearSelection();
 };
 
 // Class to show Moviebrowser Information, to be used by menu

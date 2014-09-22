@@ -141,6 +141,12 @@ class CListFrame
 		bool	setTitle(char* title);
 		bool    setSelectedLine(int selection);
 		void	setSelectedMarked(bool enable);
+		void	clearMarked()
+			{
+				if (m_pLines)
+					for (unsigned i = 0; i < m_pLines->marked.size(); i++)
+						m_pLines->marked[i] = false;
+			}
 		void	hide(void);
 		void	paint(void);
 
