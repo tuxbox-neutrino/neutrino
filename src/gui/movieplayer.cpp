@@ -690,11 +690,8 @@ bool CMoviePlayerGui::PlayFileStart(void)
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 
 	if (p_movie_info) {
-		if (timeshift != TSHIFT_MODE_OFF) {
-		// p_movie_info may be invalidated by CRecordManager while we're still using it. Create and use a copy.
-			movie_info = *p_movie_info;
-			p_movie_info = &movie_info;
-		}
+		movie_info = *p_movie_info;
+		p_movie_info = &movie_info;
 
 		duration = p_movie_info->length * 60 * 1000;
 		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, currentapid, currentac3 == 1);
