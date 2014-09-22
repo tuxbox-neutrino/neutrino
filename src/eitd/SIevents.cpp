@@ -234,11 +234,13 @@ void SIevent::parse(Event &event)
 		{
 			const ContentDescriptor * d = (ContentDescriptor *) *dit;
 			const ContentClassificationList *clist = d->getClassifications();
-			ssize_t off = classifications.reserve(clist->size() * 2);
-			for (ContentClassificationConstIterator cit = clist->begin(); cit != clist->end(); ++cit)
-				off = classifications.set(off,
-							  (*cit)->getContentNibbleLevel1() << 4 | (*cit)->getContentNibbleLevel2(),
-							  (*cit)->getUserNibble1() << 4 | (*cit)->getUserNibble2());
+			if (clist->size()) {
+				ssize_t off = classifications.reserve(clist->size() * 2);
+				for (ContentClassificationConstIterator cit = clist->begin(); cit != clist->end(); ++cit)
+					off = classifications.set(off,
+								  (*cit)->getContentNibbleLevel1() << 4 | (*cit)->getContentNibbleLevel2(),
+								  (*cit)->getUserNibble1() << 4 | (*cit)->getUserNibble2());
+			}
 			break;
 		}
 		case COMPONENT_DESCRIPTOR:
@@ -301,21 +303,21 @@ void SIevent::parseDescriptors(const uint8_t *des, unsigned len)
 	while(len>=sizeof(struct descr_generic_header)) {
 		desc=(struct descr_generic_header *)des;
 		/*printf("Type: %s\n", decode_descr(desc->descriptor_tag)); */
-		if(desc->descriptor_tag==0x4D)
+		if(desc->descriptor_tag==SHORT_EVENT_DESCRIPTOR)
 			parseShortEventDescriptor((const uint8_t *)desc, len);
-		else if(desc->descriptor_tag==0x4E)
+		else if(desc->descriptor_tag==EXTENDED_EVENT_DESCRIPTOR)
 			parseExtendedEventDescriptor((const uint8_t *)desc, len);
-		else if(desc->descriptor_tag==0x54)
+		else if(desc->descriptor_tag==CONTENT_DESCRIPTOR)
 			parseContentDescriptor((const uint8_t *)desc, len);
-		else if(desc->descriptor_tag==0x50)
+		else if(desc->descriptor_tag==COMPONENT_DESCRIPTOR)
 			parseComponentDescriptor((const uint8_t *)desc, len);
-		else if(desc->descriptor_tag==0x55)
+		else if(desc->descriptor_tag==PARENTAL_RATING_DESCRIPTOR)
 			parseParentalRatingDescriptor((const uint8_t *)desc, len);
-		else if(desc->descriptor_tag==0x4A) {
+		else if(desc->descriptor_tag==LINKAGE_DESCRIPTOR) {
 			parseLinkageDescriptor((const uint8_t *)desc, len);
 		}
 #if 0
-		else if(desc->descriptor_tag==0x69)
+		else if(desc->descriptor_tag==PDC_DESCRIPTOR)
 			parsePDCDescriptor((const char *)desc, e, len);
 #endif
 		if((unsigned)(desc->descriptor_length+2)>len)
@@ -396,6 +398,8 @@ void SIevent::parseContentDescriptor(const uint8_t *buf, unsigned maxlen)
 {
 	struct descr_generic_header *cont=(struct descr_generic_header *)buf;
 	if(cont->descriptor_length+sizeof(struct descr_generic_header)>maxlen)
+		return;
+	if(!cont->descriptor_length)
 		return;
 	ssize_t off = classifications.reserve(cont->descriptor_length);
 	classifications.set(off, buf + sizeof(struct descr_generic_header), cont->descriptor_length);

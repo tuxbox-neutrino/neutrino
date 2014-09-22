@@ -382,14 +382,18 @@ class SIevent
 			SIeventClassifications& operator = (const SIeventClassifications& c)
 			{
 				if (this != &c) {
-					if (data)
+					size = 0;
+					if (data) {
 						free(data);
+						data = NULL;
+					}
 					if (c.data) {
 						data = (uint8_t *) malloc(c.size);
-						memcpy(data, c.data, c.size);
-					} else
-						data = NULL;
-					size = c.size;
+						if (data) {
+							memcpy(data, c.data, c.size);
+							size = c.size;
+						}
+					}
 				}
 				return *this;
 			}
@@ -397,12 +401,8 @@ class SIevent
 			SIeventClassifications(const SIeventClassifications& c)
 			{
 				if (this != &c) {
-					if (c.data) {
-						data = (uint8_t *) malloc(c.size);
-						memcpy(data, c.data, c.size);
-					} else
-						data = NULL;
-					size = c.size;
+					data = NULL;
+					*this = c;
 				}
 			}
 
@@ -419,7 +419,7 @@ class SIevent
 
 			bool operator!=(const SIeventClassifications& c) const
 			{
-				return *this == c;
+				return *this != c;
 			}
 
 			SIeventClassifications()
@@ -430,52 +430,61 @@ class SIevent
 
 			~SIeventClassifications()
 			{
-				if (data) free(data);
+				if (data)
+					free(data);
 			}
 
 			void get(std::string &contentClassifications, std::string &userClassifications) const
 			{
 				contentClassifications.clear();
 				userClassifications.clear();
-				uint8_t *d = data;
-				unsigned int z = size & ~1;
-				for (unsigned int i = 0; i < z; i += 2) {
-					contentClassifications.append(1, (char)(*d++));
-					userClassifications.append(1, (char)(*d++));
+				if (size) {
+					uint8_t *d = data, *e = data + size;
+					uint8_t cc[size/2], uc[size/2];
+					for (unsigned int i = 0; d < e; i++) {
+						cc[i] = *d++;
+						uc[i] = *d++;
+					}
+					contentClassifications.assign((char *) cc, size/2);
+					userClassifications.assign((char *) uc, size/2);
 				}
 			}
 
 			ssize_t reserve(unsigned int r)
 			{
-				size_t off = size;
+				if (r & 1)
+					return -1;
 
-				if (off) {
+				if (size) {
 					uint8_t * _data = (uint8_t *) realloc(data, size + r);
 					if (!_data)
 						return -1;
 					data = _data;
-				} else
+				} else {
 					data = (uint8_t *) malloc(r);
+					if (!data)
+						return -1;
+				}
+				size_t off = size;
 				size += r;
 				return off;
 			}
 
 			ssize_t set(ssize_t off, uint8_t content, uint8_t user)
 			{
-				if (off < -1 || off + 2 >= (ssize_t) size)
+				if (off < 0 || off + 2 > (ssize_t) size)
 					return -1;
 				data[off++] = content;
 				data[off++] = user;
 				return off;
 			}
 
-			ssize_t set(ssize_t off, const uint8_t *_data, size_t _size)
+			ssize_t set(ssize_t off, const uint8_t *_data, size_t len)
 			{
-				if (off < -1 || off + _size >= size)
+				if (len & 1 || off < 0 || off + len > size)
 					return -1;
-				memcpy (data + off, _data, _size);
-				size += _size;
-				return size;
+				memcpy (data + off, _data, len);
+				return off + len;
 			}
 		};
 
