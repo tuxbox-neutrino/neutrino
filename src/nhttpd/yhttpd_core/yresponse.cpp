@@ -135,7 +135,7 @@ bool CWebserverResponse::SendResponse() {
 	// Send static file 
 	if (Connection->HookHandler.status == HANDLED_SENDFILE
 			&& !Connection->RequestCanceled) {
-		bool cache = true;
+		bool cache = !Connection->HookHandler.cached;
 		//		if(Connection->HookHandler.UrlData["path"] == "/tmp/")//TODO: un-cachable dirs
 		//			cache = false;
 		Write(Connection->HookHandler.BuildHeader(cache));

@@ -301,7 +301,7 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 
 			strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&mod_time));
 			result += string_printf("Last-Modified: %s\r\n", timeStr);
-			if (status == HANDLED_SENDFILE) {
+			if (status == HANDLED_SENDFILE && !cached) {
 				result += string_printf("Accept-Ranges: bytes\r\n");
 				result += string_printf("Content-Length: %lld\r\n", RangeEnd - RangeStart + 1);
 				if (httpStatus == HTTP_PARTIAL_CONTENT)
