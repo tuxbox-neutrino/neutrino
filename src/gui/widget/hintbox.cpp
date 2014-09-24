@@ -130,11 +130,7 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 
 CHintBox::~CHintBox(void)
 {
-	if (window != NULL)
-	{
-		delete window;
-		window = NULL;
-	}
+	hide();
 	free(message);
 }
 
