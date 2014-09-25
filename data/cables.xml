@@ -1438,4 +1438,28 @@
 	<cable name="Ziggo Groningen" satfeed="true" flags="9" nid="9700">
 		<transponder frequency="369000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
 	</cable>
+	<cable name="Ziggo noord-holland" satfeed="true" flags="9" nid="8888">
+		<transponder frequency="514000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
+	</cable>
+	<cable name="Ziggo Zuid-holland" satfeed="true" flags="9" nid="5555">
+		<transponder frequency="372000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
+	</cable>
+	<cable name="Upc Brabant" satfeed="true" flags="9" nid="43144">
+		<transponder frequency="164000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+	</cable>
+	<cable name="Upc Flevoland" satfeed="true" flags="9" nid="43138">
+		<transponder frequency="164000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+	</cable>
+	<cable name="Upc Friesland" satfeed="true" flags="9" nid="43140">
+		<transponder frequency="164000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+	</cable>
+	<cable name="Upc Gelderland" satfeed="true" flags="9" nid="43142">
+		<transponder frequency="164000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+	</cable>
+	<cable name="Upc Noord-Holland" satfeed="true" flags="9" nid="43136">
+		<transponder frequency="164000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+	</cable>
+	<cable name="Upc Zuid-Holland" satfeed="true" flags="9" nid="43146">
+		<transponder frequency="164000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+	</cable>
 </cables>
