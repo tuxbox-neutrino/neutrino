@@ -242,13 +242,13 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	else if (actionKey == "fileplayback") {
 	}
 	else if (actionKey == "timeshift") {
-		timeshift = TSHIFT_MODE_TEMPORARY;
+		timeshift = TSHIFT_MODE_ON;
 	}
 	else if (actionKey == "ptimeshift") {
-		timeshift = TSHIFT_MODE_PERMANENT;
+		timeshift = TSHIFT_MODE_PAUSE;
 	}
 	else if (actionKey == "rtimeshift") {
-		timeshift = TSHIFT_MODE_PAUSE;
+		timeshift = TSHIFT_MODE_REWIND;
 	}
 #if 0 // TODO ?
 	else if (actionKey == "bookmarkplayback") {
@@ -724,7 +724,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 		if(timeshift != TSHIFT_MODE_OFF) {
 			startposition = -1;
 			int i;
-			int towait = (timeshift == 1) ? TIMESHIFT_SECONDS+1 : TIMESHIFT_SECONDS;
+			int towait = (timeshift == TSHIFT_MODE_ON) ? TIMESHIFT_SECONDS+1 : TIMESHIFT_SECONDS;
 			for(i = 0; i < 500; i++) {
 				playback->GetPosition(position, duration);
 				startposition = (duration - position);
@@ -735,12 +735,12 @@ bool CMoviePlayerGui::PlayFileStart(void)
 
 				usleep(20000);
 			}
-			if (timeshift == TSHIFT_MODE_PAUSE) {
+			if (timeshift == TSHIFT_MODE_REWIND) {
 				startposition = duration;
 			} else {
 				if (g_settings.timeshift_pause)
 					playstate = CMoviePlayerGui::PAUSE;
-				if (timeshift == TSHIFT_MODE_TEMPORARY)
+				if (timeshift == TSHIFT_MODE_ON)
 					startposition = 0;
 				else
 					startposition = duration - TIMESHIFT_SECONDS*1000;
@@ -751,7 +751,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 			playback->SetPosition(startposition, true);
 
 		/* playback->Start() starts paused */
-		if (timeshift == TSHIFT_MODE_PAUSE) {
+		if (timeshift == TSHIFT_MODE_REWIND) {
 			speed = -1;
 			playback->SetSpeed(-1);
 			playstate = CMoviePlayerGui::REW;

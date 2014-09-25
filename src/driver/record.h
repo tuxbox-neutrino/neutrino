@@ -52,9 +52,9 @@
 #define RECORD_MAX_COUNT 8
 
 #define TSHIFT_MODE_OFF		0
-#define TSHIFT_MODE_TEMPORARY	1
-#define TSHIFT_MODE_PERMANENT	2
-#define TSHIFT_MODE_PAUSE	3
+#define TSHIFT_MODE_ON		1
+#define TSHIFT_MODE_PAUSE	2
+#define TSHIFT_MODE_REWIND	3
 
 //FIXME
 enum record_error_msg_t
