@@ -2155,6 +2155,12 @@ void CChannelList::paintHead()
 	CComponentsHeader header(x, y, full_width, theight, name /*no header icon*/);
 	header.paint(CC_SAVE_SCREEN_NO);
 
+	if (headerClock != NULL) {
+		headerClock->clearSavedScreen();
+		delete headerClock;
+		headerClock = NULL;
+	}
+
 	if (g_Sectionsd->getIsTimeSet()) {
 		if (headerClock == NULL) {
 			headerClock = new CComponentsFrmClock(0, 0, 0, 0, "%H:%M", true);

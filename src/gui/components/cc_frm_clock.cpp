@@ -305,7 +305,7 @@ bool CComponentsFrmClock::stopThread()
 			return false;
 		}
 	}
-	kill();
+	hide();
 	cl_thread = 0;
 	return true;
 }
