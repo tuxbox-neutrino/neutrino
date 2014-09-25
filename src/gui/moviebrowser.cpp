@@ -1370,7 +1370,10 @@ void CMovieBrowser::refreshMovieInfo(void)
 			pb_hdd_offset = 0;
 		static uint64_t old_EpgId = 0;
 		if (CChannelLogo && (old_EpgId != m_movieSelectionHandler->epgEpgId >>16)) {
-			CChannelLogo->hide();
+			if (newHeader)
+				CChannelLogo->clearSavedScreen();
+			else
+				CChannelLogo->hide();
 			delete CChannelLogo;
 		}
 		if (old_EpgId != m_movieSelectionHandler->epgEpgId >>16) {
@@ -1385,6 +1388,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 			CChannelLogo->setXPos(lx - pb_hdd_offset);
 			CChannelLogo->setYPos(ly);
 			CChannelLogo->paint();
+			newHeader = false;
 		}
 
 		if(logo_ok) {
@@ -1729,6 +1733,7 @@ void CMovieBrowser::refreshTitle(void)
 	
 	CComponentsHeader header(x, y, w, h, title.c_str(), NEUTRINO_ICON_MOVIEPLAYER);
 	header.paint(CC_SAVE_SCREEN_NO);
+	newHeader = true;
 
 	info_hdd_level(true);
 }

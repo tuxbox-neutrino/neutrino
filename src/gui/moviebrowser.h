@@ -307,6 +307,7 @@ class CMovieBrowser : public CMenuTarget
 		bool m_showLastPlayFiles;
 		bool m_showMovieInfo;
 		bool m_showFilter;
+		bool newHeader;
 
 		MI_MOVIE_INFO* m_movieSelectionHandler;
 		int m_currentStartPos;
