@@ -116,7 +116,7 @@ static void XML_ADD_TAG_UNSIGNED(std::string &_xml_text_, const char *_tag_name_
 	_xml_text_ += ">\n";
 }
 
-static void XML_ADD_TAG_LONG(std::string &_xml_text_, const char *_tag_name_, long int _tag_content_)
+static void XML_ADD_TAG_LONG(std::string &_xml_text_, const char *_tag_name_, uint64_t _tag_content_)
 {
 	_xml_text_ += "\t\t<";
 	_xml_text_ += _tag_name_;
