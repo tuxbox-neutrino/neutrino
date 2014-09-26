@@ -431,7 +431,7 @@ void CDBoxInfoWidget::paint()
 	ypos += mheight;
 
 	int ypos_mem = ypos;
-
+	int pbw_fix = 0;
 	int pbw = width - offsetw - 10;
 	if (pbw > 8) /* smaller progressbar is not useful ;) */
 	{
@@ -508,12 +508,14 @@ void CDBoxInfoWidget::paint()
 				int rw = fm->getRenderWidth(tmp);
 				maxWidth[column] = std::max(maxWidth[column], rw);
 				space = widths[column] - rw;
+                               if( (mpOffset + rw + space) > offsetw)
+					pbw_fix =  ((mpOffset + rw + space + 10) - offsetw);
 			}
 			fm->RenderString(x + mpOffset + space, ypos+ mheight, width, tmp, COL_MENUCONTENT_TEXT);
 		}
-		if (pbw > 8) /* smaller progressbar is not useful ;) */
+		if (pbw-pbw_fix > 8) /* smaller progressbar is not useful ;) */
 		{
-			CProgressBar pb(x+offsetw, ypos+mheight/4, pbw, mheight/2);
+			CProgressBar pb(x+offsetw+pbw_fix, ypos+mheight/4, pbw-pbw_fix, mheight/2);
 			pb.setType(CProgressBar::PB_REDRIGHT);
 			pb.setValues(memstat[row][MEMINFO_TOTAL] ? (memstat[row][MEMINFO_USED] * 100) / memstat[row][MEMINFO_TOTAL] : 0, 100);
 			pb.paint(false);
@@ -577,9 +579,9 @@ void CDBoxInfoWidget::paint()
 					if ((*it).second && icon_w>0 && icon_h>0)
 						frameBuffer->paintIcon(crm->RecordingStatus() ? NEUTRINO_ICON_REC:NEUTRINO_ICON_REC_GRAY, x + nameWidth - icon_w + width_i/2, ypos + (mheight/2 - icon_h/2));
 				}
-				if (pbw > 8) /* smaller progressbar is not useful ;) */
+				if (pbw-pbw_fix > 8) /* smaller progressbar is not useful ;) */
 				{
-					CProgressBar pb(x+offsetw, ypos+mheight/4, pbw, mheight/2);
+					CProgressBar pb(x+offsetw+pbw_fix, ypos+mheight/4, pbw-pbw_fix, mheight/2);
 					pb.setType(CProgressBar::PB_REDRIGHT);
 					pb.setValues(percent_used, 100);
 					pb.paint(false);
