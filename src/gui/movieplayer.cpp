@@ -818,9 +818,9 @@ void CMoviePlayerGui::PlayFileLoop(void)
 #endif
 				/* in case ffmpeg report incorrect values */
 				int posdiff = duration - position;
-				if ((posdiff > 0) && (posdiff < 1000) && timeshift == TSHIFT_MODE_OFF)
+				if ((posdiff > 0) && (posdiff < 2000) && timeshift == TSHIFT_MODE_OFF)
 				{
-					int delay = (filelist_it != filelist.end()) ? 5 : 10;
+					int delay = (filelist_it != filelist.end() || repeat_mode != REPEAT_OFF) ? 5 : 10;
 					if (++eof > delay) {
 						at_eof = true;
 						break;
