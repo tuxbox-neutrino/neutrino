@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
 #include <time.h>

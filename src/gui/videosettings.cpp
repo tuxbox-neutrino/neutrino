@@ -577,7 +577,7 @@ void CVideoSettings::nextMode(void)
 					break;
 				i++;
 				if (i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT) {
-					CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
+					CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName(), g_RemoteControl->getCurrentChannelNumber());
 					return;
 				}
 			}
@@ -594,7 +594,7 @@ void CVideoSettings::nextMode(void)
 		else
 			break;
 	}
-	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
+	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName(), g_RemoteControl->getCurrentChannelNumber());
 	//ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 }
 

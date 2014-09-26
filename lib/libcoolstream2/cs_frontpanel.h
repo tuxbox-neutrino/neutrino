@@ -61,7 +61,8 @@ typedef enum {
 	FP_FLAG_SCROLL_DELAY		= 0x08,	/* delayed scroll start */
 	FP_FLAG_ALIGN_LEFT		= 0x10,	/* align the text in display from the left (default) */
 	FP_FLAG_ALIGN_RIGHT		= 0x20,	/* align the text in display from the right (arabic) */
-	FP_FLAG_UPDATE_SCROLL_POS	= 0x40,	/* update the current position for scrolling */
+	FP_FLAG_UPDATE_SCROLL_POS	= 0x40,	/* update the current position for scrolling (internal use only) */
+	FP_FLAG_USER			= 0x80,	/* user flags set (internal use only) */
 } fp_flag;
 
 typedef struct {
@@ -101,6 +102,27 @@ typedef struct {
 	unsigned short		cmd;
 } fp_standby_cmd_data_t;
 
+typedef enum {
+	FP_DISPLAY_TEXT_NONE	= 0,
+	FP_DISPLAY_TEXT_LIMITED,
+	FP_DISPLAY_TEXT_ALL,
+} fp_display_text_type_t;
+
+typedef enum {
+	FP_DISPLAY_TYPE_NONE	= 0,
+	FP_DISPLAY_TYPE_VFD,
+	FP_DISPLAY_TYPE_OLED,
+	FP_DISPLAY_TYPE_LED_SEGMENT
+} fp_display_type_t;
+
+typedef struct {
+	fp_display_type_t	display_type;
+	unsigned short		xres, yres;
+	unsigned int		segment_count;
+	fp_display_text_type_t	text_support;
+	bool			number_support;
+} fp_display_caps_t;
+
 #define IOC_FP_SET_BRIGHT	_IOW(0xDE,  1, unsigned char)	/* set the display brighness in 16 steps between 0 to 15 */
 #define IOC_FP_CLEAR_ALL	_IOW(0xDE,  2, unsigned int)	/* clear the entire display (both text and icons) */
 #define IOC_FP_SET_TEXT		_IOW(0xDE,  3, char*)		/* set a text to be displayed on the display. If arg == NULL, the text is cleared */
@@ -112,5 +134,8 @@ typedef struct {
 #define IOC_FP_LED_CTRL		_IOW(0xDE,  9, unsigned char)   /* control the Frontpanles LED's (NEO and above only) */
 #define IOC_FP_GET_WAKEUP	_IOW(0xDE, 10, fp_wakeup_data_t *) /* get wakeup data (NEO and above only) */
 #define IOC_FP_STANDBY_CMD	_IOW(0xDE, 11, fp_standby_cmd_data_t *) /* get wakeup data (NEO and above only) */
+#define IOC_FP_SET_NUMBER	_IOW(0xDE, 12, unsigned int) /* set number in display (integer) */
+#define IOC_FP_SET_COLON	_IOW(0xDE, 13, unsigned char) /* set colon in display (if supported) */
+#define IOC_FP_GET_DISPLAY_CAPS	_IOW(0xDE, 14, fp_display_caps_t *) /* get display caps */
 
 #endif /* __CS_FRONTPANEL_H__ */

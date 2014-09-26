@@ -1358,7 +1358,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		//chanready = 1;
 		showSNR ();
 		// show failure..!
-		CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')');
+		CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
 		printf ("zap failed!\n");
 		showFailure ();
 		CVFD::getInstance ()->showPercentOver (255);
@@ -1368,7 +1368,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		showSNR ();
 		if ((*(t_channel_id *) data) == channel_id) {
 			// show failure..!
-			CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')');
+			CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')', g_RemoteControl->getCurrentChannelNumber());
 			printf ("zap failed!\n");
 			showFailure ();
 			CVFD::getInstance ()->showPercentOver (255);

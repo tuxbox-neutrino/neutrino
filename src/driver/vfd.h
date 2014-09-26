@@ -76,9 +76,15 @@ class CVFD
 
 
 	private:
+#ifdef BOXMODEL_APOLLO
+		fp_display_caps_t		caps;
+#endif
 		MODES				mode;
 
 		std::string			servicename;
+		int				service_number;
+		bool				support_text;
+		bool				support_numbers;
 		char				volume;
 		unsigned char			percentOver;
 		bool				muted;
@@ -103,6 +109,7 @@ class CVFD
 
 		~CVFD();
 		bool has_lcd;
+		bool has_led_segment;
 		void setlcdparameter(void);
 		void setled(void);
 		void setled(bool on_off);
@@ -112,7 +119,7 @@ class CVFD
 
 		void setMode(const MODES m, const char * const title = "");
 
-		void showServicename(const std::string & name); // UTF-8
+		void showServicename(const std::string & name, int number = -1); // UTF-8
 		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
@@ -147,6 +154,7 @@ class CVFD
 		void Clear();
 		void ShowIcon(fp_icon icon, bool show);
 		void ShowText(const char *str);
+		void ShowNumber(int number);
 		void wake_up();
 		MODES getMode(void) { return mode; };
 #ifdef LCD_UPDATE
