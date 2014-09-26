@@ -40,6 +40,8 @@ CComponentsTimer::CComponentsTimer( const int& interval)
 {
 	tm_thread 		= 0;
 	tm_interval		= interval;
+
+	sl = sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
 	startTimer();
 }
 
@@ -81,6 +83,9 @@ bool CComponentsTimer::startTimer()
 		}
 	}
 	dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
+
+	//ensure kill of thread on any restart of neutrino
+	CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl);
 	return  true;
 }
 
@@ -99,6 +104,8 @@ bool CComponentsTimer::stopTimer()
 	}
 	if (thres == 0){
 		tm_thread = 0;
+		//ensure disconnect of unused slot
+		sl.disconnect();
 		return true;
 	}
 

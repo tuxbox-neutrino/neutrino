@@ -50,6 +50,8 @@ class CComponentsTimer : public sigc::trackable
 		static void* initTimerThread(void *arg);
 		///mutex for timer
 		OpenThreads::Mutex mutex;
+		///slot for signals
+		sigc::slot0<bool> sl;
 
 	public:
 		///class constructor, parameter interval sets the interval in seconds, default value=1 (1 sec)
