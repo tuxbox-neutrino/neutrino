@@ -136,6 +136,7 @@ install_DATA += \
 	icon_movieplayer.png \
 	icon_red.png \
 	icon_yellow.png \
+	icon_ytplay.png \
 	important.png \
 	info.png \
 	info_small.png \
