@@ -263,8 +263,7 @@ class CMovieBrowser : public CMenuTarget
 		int Dirs_Selectable; // for FileBrowser compatibility, not used in MovieBrowser
 
 	private: // Variables
-		//CFBWindow* m_pcWindow;
-		CFrameBuffer * m_pcWindow;
+		CFrameBuffer * framebuffer;
 
 		CListFrame* m_pcBrowser;
 		CListFrame* m_pcLastPlay;
@@ -298,7 +297,7 @@ class CMovieBrowser : public CMenuTarget
 		unsigned int m_currentRecordSelection;
 		unsigned int m_currentPlaySelection;
 		unsigned int m_currentFilterSelection;
- 		unsigned int m_prevBrowserSelection;
+		unsigned int m_prevBrowserSelection;
 		unsigned int m_prevRecordSelection;
 		unsigned int m_prevPlaySelection;
 
@@ -337,7 +336,6 @@ class CMovieBrowser : public CMenuTarget
 		std::vector<std::string> PicExts;
 		std::string getScreenshotName(std::string movie);
 
-		//bool restart_mb_timeout;
 		int menu_ret;
 
 		cYTFeedParser ytparser;
@@ -359,7 +357,6 @@ class CMovieBrowser : public CMenuTarget
 		void refreshYTMenu();
 
 	public:  // Functions //////////////////////////////////////////////////////////7
-		CMovieBrowser(const char* path); //P1
 		CMovieBrowser(); //P1
 		~CMovieBrowser(); //P1
 		int exec(const char* path); //P1
@@ -373,24 +370,21 @@ class CMovieBrowser : public CMenuTarget
 		void fileInfoStale(void); // call this function to force the Moviebrowser to reload all movie information from HD
 
 		bool readDir(const std::string & dirname, CFileList* flist);
-		bool readDir_vlc(const std::string & dirname, CFileList* flist);
-		bool readDir_std(const std::string & dirname, CFileList* flist);
 
 		bool delFile(CFile& file);
-		bool delFile_vlc(CFile& file);
-		bool delFile_std(CFile& file);
 		int  getMenuRet() { return menu_ret; }
 		int  getMode() { return show_mode; }
-		void  setMode(int mode) { show_mode = mode; }
+		void setMode(int mode) {
+			if (show_mode != mode)
+				m_file_info_stale = true;
+			show_mode = mode; 
+		}
 
 	private: //Functions
 		///// MovieBrowser init ///////////////
 		void init(void); //P1
 		void initGlobalSettings(void); //P1
 		void initFrames(void);
-#if 0
-		void initDevelopment(void); //P1 for development testing only
-#endif
 		void initRows(void);
 		void reinit(void); //P1
 
@@ -403,7 +397,6 @@ class CMovieBrowser : public CMenuTarget
 		void refreshBrowserList(void); //P1
 		void refreshFilterList(void); //P1
 		void refreshMovieInfo(void); //P1
-		void refreshBookmarkList(void); // P3
 		int refreshFoot(bool show = true); //P2
 		void refreshTitle(void); //P2
 		void refreshInfo(void); // P2
@@ -416,8 +409,9 @@ class CMovieBrowser : public CMenuTarget
 		bool onButtonPressLastPlayList(neutrino_msg_t msg); // P2
 		bool onButtonPressLastRecordList(neutrino_msg_t msg); // P2
 		bool onButtonPressFilterList(neutrino_msg_t msg); // P2
-		bool onButtonPressBookmarkList(neutrino_msg_t msg); // P3
 		bool onButtonPressMovieInfoList(neutrino_msg_t msg); // P2
+		void markItem(CListFrame *list);
+		void scrollBrowserItem(bool next, bool page);
 		void onSetFocus(MB_FOCUS new_focus); // P2
 		void onSetFocusNext(void); // P2
 		void onSetFocusPrev(void); // P2
