@@ -735,7 +735,7 @@ bool CMovieInfo::parseXmlQuickFix(std::string &_text, MI_MOVIE_INFO * movie_info
 					}
 				}
 			}
-			printf("MOVIE INFO: apid %d type %d name %s selected %d\n", audio_pids.epgAudioPid, audio_pids.atype, audio_pids.epgAudioPidName.c_str(), audio_pids.selected);
+			//printf("MOVIE INFO: apid %d type %d name %s selected %d\n", audio_pids.epgAudioPid, audio_pids.atype, audio_pids.epgAudioPidName.c_str(), audio_pids.selected);
 			movie_info->audioPids.push_back(audio_pids);
 		}
 		/* parse bookmarks */
@@ -907,7 +907,7 @@ bool CMovieInfo::loadFile(CFile & file, std::string &buffer)
 	int fd = open(file.Name.c_str(), O_RDONLY);
 	if (fd == -1)		// cannot open file, return!!!!!
 	{
-		TRACE("[mi] loadXml: cannot open (%s)\r\n", file.getFileName().c_str());
+		TRACE("[mi] loadXml: cannot open (%s)\r\n", file.Name.c_str());
 		return false;
 	}
 	struct stat st;
@@ -917,7 +917,7 @@ bool CMovieInfo::loadFile(CFile & file, std::string &buffer)
 	}
 	char buf[st.st_size];
 	if (st.st_size != read(fd, buf, st.st_size)) {
-		TRACE("[mi] loadXml: cannot read (%s)\r\n", file.getFileName().c_str());
+		TRACE("[mi] loadXml: cannot read (%s)\r\n", file.Name.c_str());
 		result = false;
 	} else
 		buffer = std::string(buf, st.st_size);
