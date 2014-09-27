@@ -156,7 +156,7 @@ class MI_MOVIE_INFO
 	std::string serieName;  	// user defines series name
 
 	time_t dateOfLastPlay; 		// last play date of movie in seconds since 1970
-	char dirItNr;  				// handle for quick directory path access only, this is not saved in xml, might be used by the owner of the movie info struct
+	int  dirItNr;  				// handle for quick directory path access only, this is not saved in xml, might be used by the owner of the movie info struct
 	int  genreMajor;            // see showEPG class for more info, usually filled by EPG
 	char genreMinor;			// genreMinor not used so far			
 	int  length;                // movie length in minutes, usually filled by EPG

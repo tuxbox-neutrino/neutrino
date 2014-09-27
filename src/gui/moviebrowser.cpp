@@ -549,6 +549,7 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowWidth[4] = m_defaultRowWidth[m_settings.browserRowItem[4]]; 		//30;
 	m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]]; 		//30;
 
+	m_settings.ts_only = 1;
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
 	m_settings.ytorderby = cYTFeedParser::ORDERBY_PUBLISHED;
 	m_settings.ytresults = 10;
@@ -668,6 +669,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->lastRecordMaxItems = configfile.getInt32("mb_lastRecordMaxItems", NUMBER_OF_MOVIES_LAST);
 	settings->browser_serie_mode = configfile.getInt32("mb_browser_serie_mode", 0);
 	settings->serie_auto_create = configfile.getInt32("mb_serie_auto_create", 0);
+	settings->ts_only = configfile.getInt32("mb_ts_only", 1);
 
 	settings->sorting.item = (MB_INFO_ITEM)configfile.getInt32("mb_sorting_item", MB_INFO_RECORDDATE);
 	settings->sorting.direction = (MB_DIRECTION)configfile.getInt32("mb_sorting_direction", MB_DIRECTION_UP);
@@ -730,6 +732,7 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setInt32("mb_lastRecordMaxItems", settings->lastRecordMaxItems);
 	configfile.setInt32("mb_browser_serie_mode", settings->browser_serie_mode);
 	configfile.setInt32("mb_serie_auto_create", settings->serie_auto_create);
+	configfile.setInt32("mb_ts_only", settings->ts_only);
 
 	configfile.setInt32("mb_gui", settings->gui);
 
@@ -935,6 +938,8 @@ int CMovieBrowser::exec(const char* path)
 	refreshTitle();
 	refreshFoot();
 	refreshLCD();
+	if (m_settings.gui == MB_GUI_FILTER)
+		m_settings.gui = MB_GUI_MOVIE_INFO;
 	onSetGUIWindow(m_settings.gui);
 
 	bool loop = true;
@@ -1180,12 +1185,17 @@ bool CMovieBrowser::getSelectedFiles(CFileList &flist, P_MI_MOVIE_LIST &mlist)
 	return (!flist.empty());
 }
 
-std::string CMovieBrowser::getScreenshotName(std::string movie)
+std::string CMovieBrowser::getScreenshotName(std::string movie, bool is_dir)
 {
 	std::string ext;
 	std::string ret;
+	size_t found;
 
-	size_t found = movie.find_last_of(".");
+	if (is_dir)
+		found = movie.size();
+	else
+		found = movie.find_last_of(".");
+
 	if (found == string::npos)
 		return "";
 
@@ -1193,7 +1203,7 @@ std::string CMovieBrowser::getScreenshotName(std::string movie)
 	while (it < PicExts.end()) {
 		ret = movie;
 		ext = *it;
-		ret.replace(found, ext.length(), ext);
+		ret.replace(found, ret.length() - found, ext);
 		++it;
 		if (!access(ret, F_OK))
 			return ret;
@@ -1215,7 +1225,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 	if (show_mode == MB_SHOW_YT) {
 		fname = m_movieSelectionHandler->tfile;
 	} else {
-		fname = getScreenshotName(m_movieSelectionHandler->file.Name);
+		fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
 		if ((fname.empty()) && (m_movieSelectionHandler->file.Name.length() > 18)) {
 			std::string cover = m_movieSelectionHandler->file.Name;
 			cover.replace((cover.length()-18),15,""); //covername without yyyymmdd_hhmmss
@@ -1269,7 +1279,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 		newHeader = false;
 	}
 
-	if (logo_ok) {
+	if (m_settings.gui == MB_GUI_MOVIE_INFO && logo_ok) {
 		lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
 		g_PicViewer->DisplayImage(fname, lx+2, ly+1, flogo_w, flogo_h, CFrameBuffer::TM_NONE);
@@ -1822,7 +1832,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	} else if (msg == CRCInput::RC_favorites) {
 		if (m_movieSelectionHandler != NULL) {
 			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, "Remove screenshot ?", CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
-				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
+				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
 				if (fname != "")
 					unlink(fname.c_str());
 				refresh();
@@ -2055,7 +2065,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skip
 			hintBox->paint();
 			delFile(movieSelectionHandler.file);
 
-			std::string fname = getScreenshotName(movieSelectionHandler.file.Name);
+			std::string fname = getScreenshotName(movieSelectionHandler.file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
 			if (!fname.empty())
 				unlink(fname.c_str());
 
@@ -2299,6 +2309,53 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 	TRACE("[mb] Dir%d, Files:%d\n", (int)m_dirNames.size(), (int)m_vMovieInfo.size());
 }
 
+static const char * const ext_list[] =
+{
+	"avi", "mkv", "mpg", "mpeg", "m2ts", "mp4", "mov", "flv", "iso"
+};
+
+static int ext_list_size = sizeof(ext_list) / sizeof (char *);
+
+bool CMovieBrowser::supportedExtension(CFile &file)
+{
+	std::string::size_type idx = file.getFileName().rfind('.');
+
+	if (idx == std::string::npos)
+		return false;
+
+	std::string ext = file.getFileName().substr(idx+1);
+	bool result = (ext == "ts");
+	if (!result && !m_settings.ts_only) {
+		for (int i = 0; i < ext_list_size; i++) {
+			if (ext == ext_list[i]) {
+				result = true;
+				break;
+			}
+		}
+	}
+	return result;
+}
+
+bool CMovieBrowser::addFile(CFile &file, int dirItNr)
+{
+	if (!S_ISDIR(file.Mode) && !supportedExtension(file)) {
+		//TRACE("[mb] not supported file: '%s'\n", file.Name.c_str());
+		return false;
+	}
+
+	MI_MOVIE_INFO movieInfo;
+
+	movieInfo.file = file;
+	if(!m_movieInfo.loadMovieInfo(&movieInfo)) {
+		movieInfo.epgChannel = string(g_Locale->getText(LOCALE_MOVIEPLAYER_HEAD));
+		movieInfo.epgTitle = file.getFileName();
+	}
+	movieInfo.dirItNr = dirItNr;
+	//TRACE("addFile dir [%s] : [%s]\n", m_dirNames[movieInfo.dirItNr].c_str(), movieInfo.file.Name.c_str());
+	m_vMovieInfo.push_back(movieInfo);
+	return true;
+}
+
 /************************************************************************
 Note: this function is used recursive, do not add any return within the body due to the recursive counter
 ************************************************************************/
@@ -2308,7 +2365,6 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 
 	static int recursive_counter = 0; // recursive counter to be used to avoid hanging
 	bool result = false;
-	int file_found_in_dir = false;
 
 	if (recursive_counter > 10)
 	{
@@ -2317,8 +2373,7 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 	}
 
 	/* check if directory was already searched once */
-	int size = m_dirNames.size();
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < (int) m_dirNames.size(); i++)
 	{
 		if (strcmp(m_dirNames[i].c_str(),dirname.c_str()) == 0)
 		{
@@ -2327,51 +2382,33 @@ bool CMovieBrowser::loadTsFileNamesFromDir(const std::string & dirname)
 			return (false);
 		}
 	}
+	/* FIXME hack to fix movie dir path on recursive scan.
+	   dirs without files but with subdirs with files will be shown in path filter */
+	m_dirNames.push_back(dirname);
+	int dirItNr = m_dirNames.size() - 1;
+
 	/* !!!!!! no return statement within the body after here !!!!*/
 	recursive_counter++;
 
 	CFileList flist;
 	if (readDir(dirname, &flist) == true)
 	{
-		MI_MOVIE_INFO movieInfo;
 		for (unsigned int i = 0; i < flist.size(); i++)
 		{
-			if (S_ISDIR(flist[i].Mode))
-			{
-				flist[i].Name += '/';
-				//TRACE("[mb] Dir: '%s'\n",movieInfo.file.Name.c_str());
-				loadTsFileNamesFromDir(flist[i].Name);
-			}
-			else
-			{
-				int test=flist[i].getFileName().find(".ts",flist[i].getFileName().length()-3);
-				if (test == -1)
-				{
-					//TRACE("[mb] other file: '%s'\n",movieInfo.file.Name.c_str());
-				}
-				else
-				{
-					movieInfo.clear();
-					movieInfo.file.Name = flist[i].Name;
-					if (m_movieInfo.loadMovieInfo(&movieInfo)) { //FIXME atm we show only ts+xml (records) here
-						movieInfo.file.Mode = flist[i].Mode;
-						movieInfo.file.Size = flist[i].Size;
-						movieInfo.file.Time = flist[i].Time;
-						if (file_found_in_dir == false)
-						{
-							// first file in directory found, add directory to list
-							m_dirNames.push_back(dirname);
-							file_found_in_dir = true;
-							//TRACE("[mb] new dir: :%s\n",dirname);
-						}
-						movieInfo.dirItNr = m_dirNames.size()-1;
-						m_vMovieInfo.push_back(movieInfo);
-					}
-				}
+			if (S_ISDIR(flist[i].Mode)) {
+				if (m_settings.ts_only || !CFileBrowser::checkBD(flist[i])) {
+					flist[i].Name += '/';
+					result |= loadTsFileNamesFromDir(flist[i].Name);
+				} else
+					result |= addFile(flist[i], dirItNr);
+			} else {
+				result |= addFile(flist[i], dirItNr);
 			}
 		}
-		result = true;
+		//result = true;
 	}
+	if (!result)
+		m_dirNames.pop_back();
 
 	recursive_counter--;
 	return (result);
@@ -2742,7 +2779,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	return res;
 }
 
-bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
+bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /* movie_info */, bool calledExternally)
 {
 	/* first clear screen */
 	framebuffer->paintBackground();
@@ -2830,6 +2867,9 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
 	optionsMenu.addItem(GenericMenuSeparatorLine);
 	optionsMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_HIDE_SERIES,       (int*)(&m_settings.browser_serie_mode), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true));
 	optionsMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_SERIE_AUTO_CREATE, (int*)(&m_settings.serie_auto_create), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true));
+	int ts_only = m_settings.ts_only;
+	optionsMenu.addItem( new CMenuOptionChooser(LOCALE_MOVIEBROWSER_TS_ONLY,           (int*)(&m_settings.ts_only), MESSAGEBOX_YES_NO_OPTIONS, MESSAGEBOX_YES_NO_OPTIONS_COUNT, true ));
+
 	//optionsMenu.addItem(GenericMenuSeparator);
 
 	/********************************************************************/
@@ -2870,16 +2910,19 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
 			m_settings.browserRowWidth[i] = 1;
 	}
 
-	if (dirMenu.isChanged())
-		loadMovies();
+	if (!calledExternally) {
+		if (ts_only != m_settings.ts_only || dirMenu.isChanged())
+			loadMovies();
 
-	updateSerienames();
-	refreshBrowserList();
-	refreshLastPlayList();
-	refreshLastRecordList();
-	refreshFilterList();
-	refreshMovieInfo();
-	refresh();
+		updateSerienames();
+		refreshBrowserList();
+		refreshLastPlayList();
+		refreshLastRecordList();
+		refreshFilterList();
+		refreshMovieInfo();
+		refresh();
+	} else
+		saveSettings(&m_settings);
 
 	for (i = 0; i < MB_MAX_DIRS; i++)
 		delete notifier[i];

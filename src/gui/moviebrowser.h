@@ -209,6 +209,7 @@ typedef struct
 
 	int reload;
 	int remount;
+	int ts_only;
 
 	int browser_serie_mode;
 	int serie_auto_create;
@@ -334,7 +335,7 @@ class CMovieBrowser : public CMenuTarget
 		int movieInfoUpdateAllIfDestEmptyOnly;
 
 		std::vector<std::string> PicExts;
-		std::string getScreenshotName(std::string movie);
+		std::string getScreenshotName(std::string movie, bool is_dir = false);
 
 		int menu_ret;
 
@@ -429,7 +430,7 @@ class CMovieBrowser : public CMenuTarget
 		void getStorageInfo(void); // P3
 
 		///// Menu ////////////////////////////////////
-		bool showMenu(MI_MOVIE_INFO* movie_info); // P2
+		bool showMenu(MI_MOVIE_INFO* movie_info, bool calledExternally = false); // P2
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int  showStartPosSelectionMenu(void); // P2
 
@@ -458,6 +459,8 @@ class CMovieBrowser : public CMenuTarget
 		neutrino_locale_t getFeedLocale(void);
 		void clearListLines();
 		void clearSelection();
+		bool supportedExtension(CFile &file);
+		bool addFile(CFile &file, int dirItNr);
 };
 
 // Class to show Moviebrowser Information, to be used by menu

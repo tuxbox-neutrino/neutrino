@@ -341,6 +341,13 @@ void CMoviePlayerGui::fillPids()
 	if (p_movie_info == NULL)
 		return;
 
+	vpid = p_movie_info->epgVideoPid;
+	vtype = p_movie_info->VideoType;
+	/* FIXME: better way to detect TS recording */
+	if (!vpid) {
+		is_file_player = true;
+		return;
+	}
 	numpida = 0; currentapid = 0;
 	if (!p_movie_info->audioPids.empty()) {
 		currentapid = p_movie_info->audioPids[0].epgAudioPid;
@@ -355,8 +362,6 @@ void CMoviePlayerGui::fillPids()
 			currentac3 = p_movie_info->audioPids[i].atype;
 		}
 	}
-	vpid = p_movie_info->epgVideoPid;
-	vtype = p_movie_info->VideoType;
 }
 
 void CMoviePlayerGui::Cleanup()
@@ -432,6 +437,7 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 	numpida = 0; currentapid = 0;
 	currentspid = -1;
 	numsubs = 0;
+	autoshot_done = 0;
 	file_name = file->Name;
 	if (isMovieBrowser) {
 		if (filelist_it != filelist.end()) {
@@ -444,10 +450,10 @@ bool CMoviePlayerGui::prepareFile(CFile *file)
 		}
 		fillPids();
 	}
+	if (file->getType() == CFile::FILE_ISO)
+		ret = mountIso(file);
 	else if (file->getType() == CFile::FILE_PLAYLIST)
 		parsePlaylist(file);
-	else if (file->getType() == CFile::FILE_ISO)
-		ret = mountIso(file);
 
 	if (ret)
 		makeFilename();
@@ -747,7 +753,7 @@ bool CMoviePlayerGui::PlayFileStart(void)
 			}
 			printf("******************* Timeshift %d, position %d, seek to %d seconds\n", timeshift, position, startposition/1000);
 		}
-		if (!is_file_player && startposition >= 0)//FIXME no jump for file at start yet
+		if (/* !is_file_player && */ startposition >= 0)//FIXME no jump for file at start yet
 			playback->SetPosition(startposition, true);
 
 		/* playback->Start() starts paused */
@@ -1014,7 +1020,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 			ClearQueue();
 			g_RCInput->postMsg(msg, data);
 		} else if (msg == CRCInput::RC_timeout || msg == NeutrinoMessages::EVT_TIMER) {
-			if (playstate == CMoviePlayerGui::PLAY && (position >= 300000 || (duration<300000 && (position>(duration /2)))))
+			if (playstate == CMoviePlayerGui::PLAY && (position >= 300000 || (duration < 300000 && (position > (duration /2)))))
 				makeScreenShot(true);
 		} else if (msg == CRCInput::RC_favorites) {
 			makeScreenShot(false, true);
@@ -1036,7 +1042,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, (int) p_movie_info);
 	playstate = CMoviePlayerGui::STOPPED;
 	handleMovieBrowser((neutrino_msg_t) g_settings.mpkey_stop, position);
-	if ((duration - position) > 600000)
+	if (position >= 300000 || (duration < 300000 && (position > (duration /2))))
 		makeScreenShot(true);
 
 	if (at_eof && filelist.size() > 0) {
@@ -1955,11 +1961,8 @@ bool CMoviePlayerGui::mountIso(CFile *file)
 
 void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 {
-	if (autoshot) {
-		if (autoshot_done || !g_settings.auto_cover)
-			return;
-		autoshot_done = true;
-	}
+	if (autoshot && (autoshot_done || !g_settings.auto_cover))
+		return;
 
 	bool cover = autoshot || g_settings.screenshot_cover || forcover;
 	char ending[(sizeof(int)*2) + 6] = ".jpg";
@@ -1967,6 +1970,9 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 		snprintf(ending, sizeof(ending) - 1, "_%x.jpg", position);
 
 	std::string fname = file_name;
+	if (p_movie_info)
+		fname = p_movie_info->file.Name;
+
 	std::string::size_type pos = fname.find_last_of('.');
 	if (pos != std::string::npos) {
 		fname.replace(pos, fname.length(), ending);
@@ -1975,6 +1981,7 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 
 	if (autoshot && !access(fname.c_str(), F_OK)) {
 		printf("CMoviePlayerGui::makeScreenShot: cover [%s] already exist..\n", fname.c_str());
+		autoshot_done = true;
 		return;
 	}
 
@@ -1987,6 +1994,7 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 
 	CScreenShot * sc = new CScreenShot(fname);
 	if (cover) {
+		sc->EnableOSD(false);
 		sc->EnableVideo(true);
 	}
 	if (autoshot || forcover) {

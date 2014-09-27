@@ -1621,6 +1621,7 @@ const char * locale_real_names[] =
 	"moviebrowser.short_title",
 	"moviebrowser.start_head",
 	"moviebrowser.start_record_start",
+	"moviebrowser.ts_only",
 	"moviebrowser.update_if_dest_empty_only",
 	"moviebrowser.use_dir",
 	"moviebrowser.use_movie_dir",
