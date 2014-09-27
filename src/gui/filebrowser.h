@@ -191,7 +191,6 @@ class CFileBrowser
 		void paintFoot();
 		void paintSMSKey();
 		void recursiveDelete(const char* file);
-		bool checkBD(CFile &file);
 
 	protected:
 		void commonInit();
@@ -238,6 +237,7 @@ class CFileBrowser
 				return Path;
 			}
 		int  getMenuRet() { return menu_ret; }
+		static bool checkBD(CFile &file);
 
 //		size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 	private:
