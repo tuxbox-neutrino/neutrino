@@ -55,6 +55,9 @@ void CPictureViewer::add_format (int (*picsize) (const char *, int *, int *, int
 
 void CPictureViewer::getSupportedImageFormats(std::vector<std::string>& exts)
 {
+#ifdef FBV_SUPPORT_JPEG
+	exts.push_back(".jpg");
+#endif
 #ifdef FBV_SUPPORT_PNG
 	exts.push_back(".png");
 #endif
@@ -62,7 +65,6 @@ void CPictureViewer::getSupportedImageFormats(std::vector<std::string>& exts)
 	exts.push_back(".gif");
 #endif
 #ifdef FBV_SUPPORT_JPEG
-	exts.push_back(".jpg");
 	exts.push_back(".jpeg");
 #endif
 #ifdef FBV_SUPPORT_BMP
