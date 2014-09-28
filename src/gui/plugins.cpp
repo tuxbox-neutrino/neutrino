@@ -208,6 +208,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->shellwindow = false;
 	plugin_data->hide = false;
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
+	plugin_data->integration = CPlugins::I_TYPE_DISABLED;
 
 	for (int i = 0; i < linecount; i++)
 	{
@@ -241,6 +242,10 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		else if (cmd == "type")
 		{
 			plugin_data->type = getPluginType(atoi(parm));
+		}
+		else if (cmd == "integration")
+		{
+			plugin_data->integration = getPluginIntegration(atoi(parm));
 		}
 		else if (cmd == "needfb")
 		{
@@ -516,5 +521,34 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 		return P_TYPE_LUA;
 	default:
 		return P_TYPE_DISABLED;
+	}
+}
+
+CPlugins::i_type_t CPlugins::getPluginIntegration(int integration)
+{
+	switch (integration)
+	{
+	case INTEGRATION_TYPE_DISABLED:
+		return I_TYPE_DISABLED;
+		break;
+	/*
+	case INTEGRATION_TYPE_MAIN:
+		return I_TYPE_MAIN;
+		break;
+	*/
+	case INTEGRATION_TYPE_MULTIMEDIA:
+		return I_TYPE_MULTIMEDIA;
+		break;
+	case INTEGRATION_TYPE_SETTING:
+		return I_TYPE_SETTING;
+		break;
+	case INTEGRATION_TYPE_SERVICE:
+		return I_TYPE_SERVICE;
+		break;
+	case INTEGRATION_TYPE_INFORMATION:
+		return I_TYPE_INFORMATION;
+		break;
+	default:
+		return I_TYPE_DISABLED;
 	}
 }

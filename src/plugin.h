@@ -44,4 +44,17 @@ typedef enum plugin_type
 }
 plugin_type_t;
 
+typedef enum integration_type
+{
+	INTEGRATION_TYPE_DISABLED	= 0,
+	/*
+	INTEGRATION_TYPE_MAIN		= 1,
+	*/
+	INTEGRATION_TYPE_MULTIMEDIA	= 2,
+	INTEGRATION_TYPE_SETTING	= 3,
+	INTEGRATION_TYPE_SERVICE	= 4,
+	INTEGRATION_TYPE_INFORMATION	= 5
+}
+integration_type_t;
+
 #endif

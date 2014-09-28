@@ -56,6 +56,18 @@ class CPlugins
 	}
 	p_type_t;
 
+	typedef enum i_type
+	{
+		I_TYPE_DISABLED		= 0x1,
+		/*
+		I_TYPE_MAIN		= 0x2,
+		*/
+		I_TYPE_MULTIMEDIA	= 0x4,
+		I_TYPE_SETTING		= 0x8,
+		I_TYPE_SERVICE		= 0x10,
+		I_TYPE_INFORMATION	= 0x20
+	}
+	i_type_t;
 
 	private:
 
@@ -73,6 +85,7 @@ class CPlugins
 			std::string description;         // UTF-8 encoded
 			std::string depend;
 			CPlugins::p_type_t type;
+			CPlugins::i_type_t integration;
 			
 			bool fb;
 			bool rc;
@@ -100,6 +113,7 @@ class CPlugins
 		bool plugin_exists(const std::string & filename);
 		int find_plugin(const std::string & filename);
 		CPlugins::p_type_t getPluginType(int type);
+		CPlugins::i_type_t getPluginIntegration(int integration);
 	public:
 		CPlugins();
 		~CPlugins();
@@ -119,6 +133,7 @@ class CPlugins
 		inline const char *        getFileName         (const int number) const { return plugin_list[number].filename.c_str()  ; }
 		inline const std::string & getDescription      (const int number) const { return plugin_list[number].description       ; }
 		inline       int           getType             (const int number) const { return plugin_list[number].type              ; }
+		inline       int           getIntegration      (const int number) const { return plugin_list[number].integration       ; }
 		inline       bool          isHidden            (const int number) const { return plugin_list[number].hide              ; }
 		inline       int           getIndex            (const int number) const { return plugin_list[number].index             ; }
 		inline     neutrino_msg_t  getKey              (const int number) const { return (neutrino_msg_t)plugin_list[number].key; }
