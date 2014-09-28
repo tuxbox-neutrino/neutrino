@@ -137,11 +137,9 @@ CChannelList::~CChannelList()
 		cc_minitv = NULL;
 	}
 	if (headerClock) {
-		headerClock->Stop();
-		if (headerClock->isPainted())
-			headerClock->hide();
-		if (headerClock->isClockRun())
-			headerClock->stopThread();
+		headerClock->clearSavedScreen();
+		delete headerClock;
+		headerClock = NULL;
 	}
 
 	if (CChannelLogo) {
@@ -1020,7 +1018,7 @@ void CChannelList::hide()
 	}
 	if (headerClock) {
 		if (headerClock->Stop())
-			headerClock->kill();
+			headerClock->hide();
 	}
 	frameBuffer->paintBackgroundBoxRel(x, y, full_width, height + info_height);
 	clearItem2DetailsLine();
