@@ -103,6 +103,11 @@ int CInfoMenu::showMenu()
 		mf->setHint(NEUTRINO_ICON_HINT_CI, LOCALE_MENU_HINT_CI);
 		info->addItem(mf);
 	}
+
+	//add I_TYPE_INFORMATION plugins
+	CPluginsExec pluginsExec;
+	info->integratePlugins(&pluginsExec, CPlugins::I_TYPE_INFORMATION);
+
 	int res = info->exec(NULL, "");
 	delete info;
 	return res;
