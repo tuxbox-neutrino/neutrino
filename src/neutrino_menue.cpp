@@ -124,6 +124,14 @@ void CNeutrinoApp::InitMenu()
 	CMediaPlayerMenu::getInstance()->initMenuMedia(new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, MENU_WIDTH), &personalize);
 
 	personalize.addPersonalizedItems();
+
+	//add I_TYPE_SETTING plugins
+	CMenuWidget &menuSettings = personalize.getWidget(MENU_SETTINGS);
+	menuSettings.integratePlugins(&pluginsExec, CPlugins::I_TYPE_SETTING);
+
+	//add I_TYPE_SERVICE plugins
+	CMenuWidget &menuService = personalize.getWidget(MENU_SERVICE);
+	menuService.integratePlugins(&pluginsExec, CPlugins::I_TYPE_SERVICE);
 }
 
 //init main menu
