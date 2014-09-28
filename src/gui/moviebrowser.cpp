@@ -65,6 +65,7 @@
 #include <driver/record.h>
 #include <system/helpers.h>
 #include <system/ytcache.h>
+#include <zapit/debug.h>
 
 #include <timerdclient/timerdclient.h>
 #include <system/hddstat.h>
@@ -2311,7 +2312,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 
 static const char * const ext_list[] =
 {
-	"avi", "mkv", "mpg", "mpeg", "m2ts", "mp4", "mov", "flv", "iso"
+	"avi", "mkv", "mp4", "flv", "mov", "mpg", "mpeg", "m2ts", "iso"
 };
 
 static int ext_list_size = sizeof(ext_list) / sizeof (char *);
@@ -2327,10 +2328,8 @@ bool CMovieBrowser::supportedExtension(CFile &file)
 	bool result = (ext == "ts");
 	if (!result && !m_settings.ts_only) {
 		for (int i = 0; i < ext_list_size; i++) {
-			if (ext == ext_list[i]) {
-				result = true;
-				break;
-			}
+			if (!strcasecmp(ext.c_str(), ext_list[i]))
+				return true;
 		}
 	}
 	return result;
