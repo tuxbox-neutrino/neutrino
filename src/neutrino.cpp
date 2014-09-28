@@ -3167,6 +3167,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		}
 
 
+		delete cHddStat::getInstance();
 		delete CRecordManager::getInstance();
 
 		dprintf(DEBUG_INFO, "exit\n");
