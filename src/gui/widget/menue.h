@@ -42,6 +42,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/color.h>
+#include <gui/plugins.h>
 #include <gui/components/cc.h>
 #include <string>
 #include <vector>
@@ -556,6 +557,7 @@ class CMenuWidget : public CMenuTarget
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual const char *getName();
+		virtual void integratePlugins(void *pluginsExec, CPlugins::i_type_t integration);
 		void setSelected(const int &Preselected){ preselected = Preselected; };
 		int getSelected()const { return selected; };
 		void move(int xoff, int yoff);

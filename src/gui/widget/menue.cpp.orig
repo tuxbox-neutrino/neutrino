@@ -39,7 +39,7 @@
 
 #include <neutrino_menue.h>
 #include <driver/fade.h>
-#include <driver/display.h>
+#include <driver/vfd.h>
 #include <system/helpers.h>
 
 #include <cctype>
@@ -560,6 +560,7 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	has_hints	= false;
 	hint_painted	= false;
 	hint_height	= 0;
+	hheight 	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fbutton_count	= 0;
 	fbutton_labels	= NULL;
 	fbutton_width	= 0;
@@ -644,7 +645,7 @@ CMenuItem* CMenuWidget::getItem(const uint& item_id)
 	return NULL;
 }
 
-const char *CMenuWidget::getName()
+const char* CMenuWidget::getName()
 {
 	if (name != NONEXISTANT_LOCALE)
 		return g_Locale->getText(name);
@@ -695,7 +696,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		saveScreen();
 	}
 	paint();
-	frameBuffer->blit();
+
 
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -730,7 +731,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						paint();
 						break;
 				}
-				frameBuffer->blit();
+
 				continue;
 			}
 			for (unsigned int i= 0; i< items.size(); i++) {
@@ -926,7 +927,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			// recalculate timeout for RC-keys
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 		}
-		frameBuffer->blit();
+
 	}
 	while ( msg!=CRCInput::RC_timeout );
 	hide();
@@ -956,30 +957,6 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	return retval;
 }
 
-void CMenuWidget::integratePlugins(void *pluginsExec, CPlugins::i_type_t integration)
-{
-	CPluginsExec *_pluginsExec = static_cast<CPluginsExec*>(pluginsExec);
-	bool separatorline = false;
-	char id_plugin[5];
-	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
-	for (unsigned int count = 0; count < number_of_plugins; count++)
-	{
-		if (g_PluginList->getIntegration(count) == integration)
-		{
-			if (!separatorline)
-			{
-				addItem(GenericMenuSeparatorLine);
-				separatorline = true;
-			}
-			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
-			sprintf(id_plugin, "%d", count);
-			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), true, NULL, _pluginsExec, id_plugin);
-			fw_plugin->setHint("", g_PluginList->getDescription(count));
-			addItem(fw_plugin);
-		}
-	}
-}
-
 void CMenuWidget::hide()
 {
 	if(savescreen && background)
@@ -989,7 +966,7 @@ void CMenuWidget::hide()
 		//paintHint(-1);
 	}
 	paintHint(-1);
-	frameBuffer->blit();
+
 
 	/* setActive() paints item for hidden parent menu, if called from child menu */
 	for (unsigned int count = 0; count < items.size(); count++) 
@@ -1051,7 +1028,6 @@ void CMenuWidget::calcSize()
 	if (neededWidth > width-48) {
 		width= neededWidth+ 49;
 	}
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 
 	int heightCurrPage=0;
 	page_start.clear();
@@ -1121,6 +1097,11 @@ void CMenuWidget::paint()
 	calcSize();
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
 
+	int w_body = width + sb_width;
+	int y_body = y + hheight;
+	int y_body_end = y + height;
+	int h_body = height - hheight + RADIUS_LARGE;
+
 	// paint head
 	CComponentsHeader header(x, y, width + sb_width, hheight, getName(), iconfile);
 	header.setShadowOnOff(CC_SHADOW_ON);
@@ -1128,15 +1109,18 @@ void CMenuWidget::paint()
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	// paint body shadow
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y + hheight + SHADOW_OFFSET, width + sb_width, height - hheight + (fbutton_count ? fbutton_height : RADIUS_LARGE), COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y_body+SHADOW_OFFSET, w_body, h_body, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	// paint body background
-	frameBuffer->paintBoxRel(x, y+hheight, width + sb_width, height-hheight + RADIUS_LARGE, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y_body, w_body, h_body, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, (fbutton_count ? 0 /*CORNER_NONE*/ : CORNER_BOTTOM));
 
 	item_start_y = y+hheight;
 	paintItems();
 	washidden = false;
-	if (fbutton_count)
-		::paintButtons(x, y + height, width + sb_width, fbutton_count, fbutton_labels, width, fbutton_height);
+	if (fbutton_count){
+		CComponentsFooter footer(x, y_body_end, w_body, fbutton_height, 0, NULL, true);
+		footer.setButtonLabels(fbutton_labels, fbutton_count, 0, (w_body/max(fbutton_count, 2)-1)-20);
+		footer.paint(CC_SAVE_SCREEN_NO);
+	}
 }
 
 void CMenuWidget::setMenuPos(const int& menu_width)
@@ -1323,7 +1307,7 @@ void CMenuWidget::paintHint(int pos)
 		return;
 	
 	int iheight = item->getHeight();
-	int rad = RADIUS_LARGE;
+	int rad = fbutton_height != 0 ? 0 : RADIUS_LARGE;
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos2 = y + height + fbutton_height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
 	int iwidth = width+sb_width;
@@ -1373,15 +1357,13 @@ void CMenuWidget::addKey(neutrino_msg_t key, CMenuTarget *menue, const std::stri
 	keyActionMap[key].action = action;
 }
 
+
 void CMenuWidget::setFooter(const struct button_label *_fbutton_labels, const int _fbutton_count, bool repaint)
 {
 	fbutton_count = _fbutton_count;
 	fbutton_labels = _fbutton_labels;
+	fbutton_height = hheight;//g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 6;  // init min buttonbar height
 
-	fbutton_width = 0;
-	fbutton_height = 0;
-	if (fbutton_count)
-		paintButtons(fbutton_labels, fbutton_count, 0, 0, 0, 0, 0, false, &fbutton_width, &fbutton_height);
 	if (repaint)
 		paint();
 }
