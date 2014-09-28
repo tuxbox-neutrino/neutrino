@@ -259,6 +259,10 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
  		//adding personalized items
 		personalize->addPersonalizedItems();
 		
+		//add I_TYPE_MULTIMEDIA plugins
+		CPluginsExec pluginsExec;
+		media->integratePlugins(&pluginsExec, CPlugins::I_TYPE_MULTIMEDIA);
+
 		res = media->exec(NULL, "");
 		delete media;
 		delete moviePlayer;
