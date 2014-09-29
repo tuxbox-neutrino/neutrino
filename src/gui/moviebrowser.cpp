@@ -877,7 +877,6 @@ int CMovieBrowser::exec(const char* path)
 	menu_ret = menu_return::RETURN_REPAINT;
 
 	TRACE("[mb]->%s\n", __func__);
-	int timeout = -1;
 	int returnDefaultOnTimeout = true;
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
@@ -895,17 +894,10 @@ int CMovieBrowser::exec(const char* path)
 
 	m_selectedDir = path;
 
-	if (paint() == false)
-		return menu_ret;// paint failed due to less memory, exit
-
-	if (timeout == -1)
-		timeout = g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER];
-
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
-
 	if (m_settings.remount == true)
 	{
 		TRACE("[mb] remount\n");
+		/* FIXME: add hintbox ? */
 		//umount automount dirs
 		for (int i = 0; i < NETWORK_NFS_NR_OF_ENTRIES; i++)
 		{
@@ -915,36 +907,13 @@ int CMovieBrowser::exec(const char* path)
 		CFSMounter::automount();
 	}
 
-	clearSelection();
-	if (m_file_info_stale == true) {
-		loadMovies();
-	} else {
-		refreshBrowserList();
-		refreshLastPlayList();
-		refreshLastRecordList();
-		refreshFilterList();
-	}
-
-	// get old movie selection and set position in windows
-	m_currentBrowserSelection = m_prevBrowserSelection;
-	m_currentRecordSelection = m_prevRecordSelection;
-	m_currentPlaySelection = m_prevPlaySelection;
-
-	m_pcBrowser->setSelectedLine(m_currentBrowserSelection);
-	m_pcLastRecord->setSelectedLine(m_currentRecordSelection);
-	m_pcLastPlay->setSelectedLine(m_currentPlaySelection);
-
-	updateMovieSelection();
-
-	refreshTitle();
-	refreshFoot();
-	refreshLCD();
-	if (m_settings.gui == MB_GUI_FILTER)
-		m_settings.gui = MB_GUI_MOVIE_INFO;
-	onSetGUIWindow(m_settings.gui);
+	if (paint() == false)
+		return menu_ret;// paint failed due to less memory, exit
 
 	bool loop = true;
 	bool result;
+	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER];
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(timeout);
 	while (loop)
 	{
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
@@ -1123,11 +1092,34 @@ int CMovieBrowser::paint(void)
 
 		return (false);
 	}
-	//onSetGUIWindow(m_settings.gui);
-	//refreshTitle();
-	//refreshFoot();
-	//refreshLCD();
-	//refresh();
+
+	clearSelection();
+	if (m_file_info_stale == true) {
+		loadMovies();
+	} else {
+		refreshBrowserList();
+		refreshLastPlayList();
+		refreshLastRecordList();
+		refreshFilterList();
+	}
+
+	// get old movie selection and set position in windows
+	m_currentBrowserSelection = m_prevBrowserSelection;
+	m_currentRecordSelection = m_prevRecordSelection;
+	m_currentPlaySelection = m_prevPlaySelection;
+
+	m_pcBrowser->setSelectedLine(m_currentBrowserSelection);
+	m_pcLastRecord->setSelectedLine(m_currentRecordSelection);
+	m_pcLastPlay->setSelectedLine(m_currentPlaySelection);
+
+	updateMovieSelection();
+
+	refreshTitle();
+	refreshFoot();
+	refreshLCD();
+	if (m_settings.gui == MB_GUI_FILTER)
+		m_settings.gui = MB_GUI_MOVIE_INFO;
+	onSetGUIWindow(m_settings.gui);
 	return (true);
 }
 
@@ -1280,7 +1272,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 		newHeader = false;
 	}
 
-	if (m_settings.gui == MB_GUI_MOVIE_INFO && logo_ok) {
+	if (m_settings.gui != MB_GUI_FILTER && logo_ok) {
 		lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 		ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
 		g_PicViewer->DisplayImage(fname, lx+2, ly+1, flogo_w, flogo_h, CFrameBuffer::TM_NONE);
@@ -2824,6 +2816,8 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /* movie_info */, bool calledExterna
 
 	/********************************************************************/
 	/**  optionsMenuBrowser  **************************************************/
+	int oldRowNr = m_settings.browserRowNr;
+	int oldFrameHeight = m_settings.browserFrameHeight;
 	CIntInput playMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,      (int *)&m_settings.lastPlayMaxItems,    3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	CIntInput recMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,     (int *)&m_settings.lastRecordMaxItems,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	CIntInput browserFrameUserIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int *)&m_settings.browserFrameHeight,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
@@ -2910,15 +2904,25 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /* movie_info */, bool calledExterna
 
 	if (!calledExternally) {
 		if (ts_only != m_settings.ts_only || dirMenu.isChanged())
-			loadMovies();
+			loadMovies(false);
 
-		updateSerienames();
-		refreshBrowserList();
-		refreshLastPlayList();
-		refreshLastRecordList();
-		refreshFilterList();
-		refreshMovieInfo();
-		refresh();
+		if (oldRowNr != m_settings.browserRowNr || oldFrameHeight != m_settings.browserFrameHeight) {
+			initFrames();
+			hide();
+			paint();
+		} else {
+			updateSerienames();
+			refreshBrowserList();
+			refreshLastPlayList();
+			refreshLastRecordList();
+			refreshFilterList();
+			refreshMovieInfo();
+			refreshTitle();
+			refreshFoot();
+			refreshLCD();
+		}
+		/* FIXME: refreshXXXList -> setLines -> CListFrame::refresh, too */
+		//refresh();
 	} else
 		saveSettings(&m_settings);
 
