@@ -1633,11 +1633,10 @@ int CMovieBrowser::refreshFoot(bool show)
 	};
 	int cnt = sizeof(footerButtons) / sizeof(button_label_ext);
 
-	int h;
-	int res = paintButtons(footerButtons, cnt, 0, 0, 0, 0, 0, false, NULL, &h);
 	if (show)
-		paintButtons(footerButtons + offset, cnt - offset, m_cBoxFrame.iX+m_cBoxFrameFootRel.iX, m_cBoxFrame.iHeight - h, m_cBoxFrameFootRel.iWidth, h, m_cBoxFrameFootRel.iWidth);
-	return res;
+		return paintButtons(footerButtons + offset, cnt - offset, m_cBoxFrame.iX+m_cBoxFrameFootRel.iX, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iWidth, m_cBoxFrameFootRel.iHeight, m_cBoxFrameFootRel.iWidth);
+	else
+		return paintButtons(footerButtons, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
 }
 
 bool CMovieBrowser::onButtonPress(neutrino_msg_t msg)
