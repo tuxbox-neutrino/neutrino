@@ -516,9 +516,9 @@ bool CMoviePlayerGui::SelectFile()
 		EnableClockAndMute(true);
 	} else { // filebrowser
 		EnableClockAndMute(false);
-		if (filebrowser->exec(Path_local.c_str()) == true) {
+		while (ret == false && filebrowser->exec(Path_local.c_str()) == true) {
 			Path_local = filebrowser->getCurrentDir();
-			CFile *file = filebrowser->getSelectedFile();
+			CFile *file = NULL;
 			filelist = filebrowser->getSelectedFiles();
 			filelist_it = filelist.end();
 			if (filelist.size() > 0) {
@@ -529,8 +529,8 @@ bool CMoviePlayerGui::SelectFile()
 				is_file_player = true;
 				ret = prepareFile(file);
 			}
-		} else
-			menu_ret = filebrowser->getMenuRet();
+		}
+		menu_ret = filebrowser->getMenuRet();
 		EnableClockAndMute(true);
 	}
 	g_settings.network_nfs_moviedir = Path_local;
