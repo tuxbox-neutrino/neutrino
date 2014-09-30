@@ -81,8 +81,8 @@ bool CComponentsTimer::startTimer()
 			dprintf(DEBUG_NORMAL,"[CComponentsTimer]    [%s]  pthread_create  %s\n", __func__, strerror(errno));
 			return false;
 		}
+		dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
 	}
-	dprintf(DEBUG_INFO,"[CComponentsTimer]    [%s]  timer thread [%lu] created with interval = %d\n", __func__, tm_thread, tm_interval);
 
 	//ensure kill of thread on any restart of neutrino
 	CNeutrinoApp::getInstance()->OnBeforeRestart.connect(sl);
