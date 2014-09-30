@@ -380,7 +380,7 @@ void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 	CFileList::iterator file = allfiles.begin();
 	for(; file != allfiles.end() ; file++)
 	{
-		if(Filter != NULL && (!S_ISDIR(file->Mode)) && use_filter)
+		if(Filter != NULL && !file->isDir() && use_filter)
 		{
 			if(!Filter->matchFilter(file->Name))
 			{
@@ -398,10 +398,9 @@ void CFileBrowser::ChangeDir(const std::string & filename, int selection)
 				}
 			}
 		}
-		if(Dir_Mode && (!S_ISDIR(file->Mode)))
-		{
+		if(Dir_Mode && !file->isDir())
 			continue;
-		}
+
 		filelist.push_back(*file);
 	}
 	// sort result
@@ -747,7 +746,7 @@ bool CFileBrowser::readDir_std(const std::string & dirname, CFileList* flist)
 
 bool CFileBrowser::checkBD(CFile &file)
 {
-	if (S_ISDIR(file.Mode)) {
+	if (file.isDir()) {
 		std::string bdmv = file.Name + "/BDMV/index.bdmv";
 		if (access(bdmv.c_str(), F_OK) == 0)
 			return true;
@@ -801,19 +800,18 @@ bool CFileBrowser::exec(const char * const dirname)
 			paintSMSKey();
 		}
 
-		if (msg == CRCInput::RC_yellow)
+		if (msg == CRCInput::RC_yellow || msg == CRCInput::RC_play)
 		{
 			if ((Multi_Select) && (selected < filelist.size()))
 			{
 				if(filelist[selected].getFileName() != "..")
 				{
-					if( (S_ISDIR(filelist[selected].Mode) && Dirs_Selectable) || !S_ISDIR(filelist[selected].Mode) )
+					if(!filelist[selected].isDir() || Dirs_Selectable)
 					{
 						filelist[selected].Marked = !filelist[selected].Marked;
-						paintItem(selected - liststart);
+						msg_repeatok = CRCInput::RC_down;	// jump to next item
 					}
 				}
-				msg_repeatok = CRCInput::RC_down;	// jump to next item
 			}
 		}
 		if (msg_repeatok == CRCInput::RC_up)
@@ -866,7 +864,7 @@ bool CFileBrowser::exec(const char * const dirname)
 		{
 			if (!(filelist.empty()))
 			{
-				if (S_ISDIR(filelist[selected].Mode))
+				if (filelist[selected].isDir())
 				{
 #ifdef ENABLE_INTERNETRADIO
 					if (m_Mode == ModeSC) {
@@ -888,7 +886,7 @@ bool CFileBrowser::exec(const char * const dirname)
 			if (m_Mode == ModeSC)
 			{
 				for(unsigned int i = 0; i < filelist.size();i++) {
-					if (S_ISDIR(filelist[i].Mode) && filelist[i].getFileName() == "..") {
+					if (filelist[i].isDir() && filelist[i].getFileName() == "..") {
 						ChangeDir(filelist[i].Url);
 						break;
 					}
@@ -975,6 +973,19 @@ bool CFileBrowser::exec(const char * const dirname)
 		{
 			if (!(filelist.empty()))
 			{
+				bool has_selected = false;
+				if (Multi_Select) {
+					for(unsigned int i = 0; i < filelist.size();i++) {
+						if(filelist[i].Marked) {
+							has_selected = true;
+							break;
+						}
+					}
+				}
+				if (has_selected) {
+					res = true;
+					break;
+				}
 				if (filelist[selected].getFileName() == "..")
 				{
 #ifdef ENABLE_INTERNETRADIO
@@ -993,48 +1004,29 @@ bool CFileBrowser::exec(const char * const dirname)
 							if (pos != std::string::npos) {
 								ChangeDir("..");
 							}
-#if 0 // quick fix for #253, i dont think we ever need to return "/" as selected -- focus
-							else {
-								loop = false;
-								res = true;
-								filelist[selected].Name = "/";
-							}
-#endif
 						}
 					}
 				}
 				else
 				{
-					std::string filename = filelist[selected].Name;
-					if ( filename.length() > 1 )
+					bool return_dir = Hide_records && checkBD(filelist[selected]);
+					if(!return_dir && filelist[selected].isDir() && !Dir_Mode)
 					{
-						bool return_dir = Hide_records && checkBD(filelist[selected]);
-						if(!return_dir && (!Multi_Select) && S_ISDIR(filelist[selected].Mode) && !Dir_Mode)
-						{
 #ifdef ENABLE_INTERNETRADIO
-							if (m_Mode == ModeSC)
-								ChangeDir(filelist[selected].Url);
-							else
-#endif
-							{
-								selections.push_back(selected);
-								ChangeDir(filelist[selected].Name);
-							}
-						}
+						if (m_Mode == ModeSC)
+							ChangeDir(filelist[selected].Url);
 						else
+#endif
 						{
-							bool has_selected = false;
-							for(unsigned int i = 0; i < filelist.size();i++) {
-								if(filelist[i].Marked) {
-									has_selected = true;
-									break;
-								}
-							}
-							if (!has_selected)
-								filelist[selected].Marked = true;
-							loop = false;
-							res = true;
+							selections.push_back(selected);
+							ChangeDir(filelist[selected].Name);
 						}
+					}
+					else
+					{
+						filelist[selected].Marked = true;
+						loop = false;
+						res = true;
 					}
 				}
 			}
@@ -1087,7 +1079,7 @@ bool CFileBrowser::exec(const char * const dirname)
 			if(filelist[i].Marked)
 			{
 				bool return_dir = Hide_records && checkBD(filelist[i]);
-				if(!return_dir && S_ISDIR(filelist[i].Mode)) {
+				if(!return_dir && filelist[i].isDir()) {
 					if (!progress) {
 						progress = new CProgressWindow();
 						progress->setTitle(LOCALE_FILEBROWSER_SCAN);
@@ -1164,14 +1156,14 @@ void CFileBrowser::addRecursiveDir(CFileList * re_filelist, std::string rpath, b
 			std::string basename = tmplist[i].Name.substr(tmplist[i].Name.rfind('/')+1);
 			if( basename != ".." )
 			{
-				if(Filter != NULL && (!S_ISDIR(tmplist[i].Mode)) && use_filter)
+				if(Filter != NULL && (!tmplist[i].isDir()) && use_filter)
 				{
 					if(!Filter->matchFilter(tmplist[i].Name))
 					{
 						continue;
 					}
 				}
-				if(!S_ISDIR(tmplist[i].Mode))
+				if(!tmplist[i].isDir())
 					re_filelist->push_back(tmplist[i]);
 				else
 					addRecursiveDir(re_filelist,tmplist[i].Name, false, progress);
@@ -1312,7 +1304,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 			fnt_item->RenderString(x + width - sz_w - 25, ypos+ fheight, sz_w, tmpstr, color);
 		}
 
-		if( S_ISDIR(actual_file->Mode) )
+		if(actual_file->isDir())
 		{
 			char timestring[18];
 			time_t rawtime;
@@ -1441,7 +1433,7 @@ void CFileBrowser::paintFoot()
 		 *       shift its place :-( */
 		num_buttons = 1;
 		//OK-Button
-		if ((filelist[selected].getType() != CFile::FILE_UNKNOWN) || S_ISDIR(filelist[selected].Mode))
+		if ((filelist[selected].getType() != CFile::FILE_UNKNOWN) || filelist[selected].isDir())
 		{
 			idx = 0;
 			num_buttons++;
