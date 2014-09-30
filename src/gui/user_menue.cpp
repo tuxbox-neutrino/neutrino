@@ -309,7 +309,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				if (g_settings.personalize[SNeutrinoSettings::P_UMENU_PLUGIN_TYPE_LUA])
 					show = show || g_PluginList->getType(count) == CPlugins::P_TYPE_LUA;
 
-				if (show && !g_PluginList->isHidden(count))
+				if (show && !g_PluginList->isHidden(count) && (g_PluginList->getIntegration(count) == CPlugins::I_TYPE_DISABLED))
 				{
 					sprintf(id, "%d", count);
 					menu_items++;

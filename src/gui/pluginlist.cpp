@@ -109,7 +109,7 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 	int shortcut = 1;
 
 	for(int count = 0; count < nop; count++) {
-		if ((g_PluginList->getType(count) & pluginlisttype) && !g_PluginList->isHidden(count)) {
+		if ((g_PluginList->getType(count) & pluginlisttype) && !g_PluginList->isHidden(count) && (g_PluginList->getIntegration(count) == CPlugins::I_TYPE_DISABLED)) {
 			CMenuForwarder *f = new CMenuForwarder(std::string(g_PluginList->getName(count)), true, "", this, to_string(count).c_str(), CRCInput::convertDigitToKey(shortcut++));
 			//TODO: use hint-icons; header-icons are to small
 			f->setHint("", g_PluginList->getDescription(count));
