@@ -42,7 +42,8 @@ CComponentsTimer::CComponentsTimer( const int& interval)
 	tm_interval		= interval;
 
 	sl = sigc::mem_fun(*this, &CComponentsTimer::stopTimer);
-	startTimer();
+	if (interval > 0)
+		startTimer();
 }
 
 CComponentsTimer::~CComponentsTimer()
