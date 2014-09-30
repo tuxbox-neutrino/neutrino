@@ -964,7 +964,7 @@ void CMenuWidget::integratePlugins(void *pluginsExec, CPlugins::i_type_t integra
 	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
 	for (unsigned int count = 0; count < number_of_plugins; count++)
 	{
-		if (g_PluginList->getIntegration(count) == integration)
+		if ((g_PluginList->getIntegration(count) == integration) && !g_PluginList->isHidden(count))
 		{
 			if (!separatorline)
 			{
