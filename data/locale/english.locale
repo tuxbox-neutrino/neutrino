@@ -1882,7 +1882,6 @@ recordingmenu.multimenu.info_stop_all %d of %d recordings will be stopped.
 recordingmenu.multimenu.rec_akt record current channel
 recordingmenu.multimenu.stop_all stop all recordings
 recordingmenu.multimenu.timeshift Timeshift
-recordingmenu.multimenu.timeshift.stop Stop timeshift?
 recordingmenu.off off
 recordingmenu.record_is_not_running No record is running!
 recordingmenu.record_is_running Record is running!
