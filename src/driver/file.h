@@ -48,41 +48,43 @@
 
 class CFile
 {
-public:
-	enum FileType
-	{
-		FILE_UNKNOWN = 0,
-		FILE_AAC,
-		FILE_AVI,
-		FILE_ASF,
-		FILE_DIR,
-		FILE_ISO,
-		FILE_TEXT,
-		FILE_CDR,
-		FILE_MP3,
-		FILE_MKV,
-		FILE_OGG,
-		FILE_WAV,
-		FILE_FLAC,
-		FILE_XML,
-		FILE_PLAYLIST,
-		STREAM_AUDIO,
-		FILE_PICTURE,
-		STREAM_PICTURE
-	};
+	private:
+		mutable int Type;
+	public:
+		enum FileType
+		{
+			FILE_UNKNOWN = 0,
+			FILE_AAC,
+			FILE_AVI,
+			FILE_ASF,
+			FILE_DIR,
+			FILE_ISO,
+			FILE_TEXT,
+			FILE_CDR,
+			FILE_MP3,
+			FILE_MKV,
+			FILE_OGG,
+			FILE_WAV,
+			FILE_FLAC,
+			FILE_XML,
+			FILE_PLAYLIST,
+			STREAM_AUDIO,
+			FILE_PICTURE,
+			STREAM_PICTURE
+		};
 
-	FileType	getType(void) const;
-	std::string	getFileName(void) const;
-	std::string	getPath(void) const;
-	bool		isDir(void) { return S_ISDIR(Mode); };
+		FileType	getType(void) const;
+		std::string	getFileName(void) const;
+		std::string	getPath(void) const;
+		bool		isDir(void) { return S_ISDIR(Mode); };
 
-	CFile();
-	off_t Size;
-	std::string Name;
-	std::string Url;
-	mode_t Mode;
-	bool Marked;
-	time_t Time;
+		CFile();
+		off_t Size;
+		std::string Name;
+		std::string Url;
+		mode_t Mode;
+		bool Marked;
+		time_t Time;
 };
 
 typedef std::vector<CFile> CFileList;
