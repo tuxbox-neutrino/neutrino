@@ -540,8 +540,8 @@ filebrowser.scan Scaning folder
 filebrowser.select Select
 filebrowser.showrights Show file rights
 filebrowser.sort.date (date)
-filebrowser.sort.name (filename)
-filebrowser.sort.namedirsfirst (filename2)
+filebrowser.sort.name (name)
+filebrowser.sort.namedirsfirst (name, dir first)
 filebrowser.sort.size (Size)
 filebrowser.sort.type (type)
 filesystem.is.utf8 file system
