@@ -1973,6 +1973,13 @@ void CMoviePlayerGui::makeScreenShot(bool autoshot, bool forcover)
 	if (p_movie_info)
 		fname = p_movie_info->file.Name;
 
+	/* quick check we have file and not url as file name */
+	if (fname.c_str()[0] != '/') {
+		if (autoshot)
+			autoshot_done = true;
+		return;
+	}
+
 	std::string::size_type pos = fname.find_last_of('.');
 	if (pos != std::string::npos) {
 		fname.replace(pos, fname.length(), ending);
