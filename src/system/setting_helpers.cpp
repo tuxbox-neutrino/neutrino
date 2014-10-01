@@ -374,7 +374,10 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_PluginList->startPlugin(sel);
 	}
 
-	return menu_return::RETURN_EXIT;
+	if (g_PluginList->getIntegration(sel) == CPlugins::I_TYPE_DISABLED)
+		return menu_return::RETURN_EXIT;
+
+	return menu_return::RETURN_REPAINT;
 }
 
 int CMoviePluginChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
