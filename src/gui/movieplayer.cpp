@@ -377,7 +377,7 @@ void CMoviePlayerGui::Cleanup()
 	vpid = 0;
 	vtype = 0;
 
-	startposition = 0;
+	startposition = -1;
 	is_file_player = false;
 	p_movie_info = NULL;
 	autoshot_done = false;
