@@ -73,6 +73,7 @@ void CZapitChannel::Init()
 {
 	//caPmt = NULL;
 	rawPmt = NULL;
+	pmtLen = 0;
 	type = 0;
 	number = 0;
 	scrambled = 0;
