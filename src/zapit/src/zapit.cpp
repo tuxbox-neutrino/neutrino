@@ -1359,7 +1359,6 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner, TP.feparams.polarization);
 				live_fe->setInput(satellitePosition, TP.feparams.frequency,  TP.feparams.polarization);
 				live_fe->driveToSatellitePosition(satellitePosition);
-				break;
 			} else if (CFrontend::isCable(TP.feparams.delsys)) {
 				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.frequency, TP.feparams.symbol_rate, TP.feparams.fec_inner);
 			} else if (CFrontend::isTerr(TP.feparams.delsys)) {
