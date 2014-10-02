@@ -155,13 +155,8 @@ void CServiceScan::ReportFastScan(FrontendParameters &feparams,  t_satellite_pos
 		return;
 
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
-	uint32_t actual_polarisation = ((feparams.symbol_rate/1000) << 16)
-		| (feparams.fec_inner << 8) | (uint)feparams.polarization;
-	uint32_t actual_freq = feparams.frequency;
-
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, satname.c_str(), satname.size() + 1);
-	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
-	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &feparams, sizeof(FrontendParameters));
 }
 
 bool CServiceScan::FastscanTune(int id)

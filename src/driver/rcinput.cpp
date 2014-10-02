@@ -993,10 +993,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg  = NeutrinoMessages::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS;
 								*data = *(unsigned*) p;
 								break;
-							case CZapitClient::EVT_SCAN_REPORT_FREQUENCY:
-								*msg = NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCY;
-								*data = *(unsigned*) p;
-								break;
 							case CZapitClient::EVT_SCAN_FOUND_A_CHAN:
 								*msg = NeutrinoMessages::EVT_SCAN_FOUND_A_CHAN;
 								break;

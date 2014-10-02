@@ -659,21 +659,10 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 #endif
 void CServiceScan::SendTransponderInfo(transponder &t)
 {
-	uint32_t  actual_freq = t.feparams.frequency;
-
-	if (CFrontend::isCable(t.feparams.delsys) ||
-	    CFrontend::isTerr(t.feparams.delsys))
-		actual_freq /= 1000;
-	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
-
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
-
-	if (CFrontend::isSat(t.feparams.delsys)) {
-		uint32_t actual_polarisation = ((t.feparams.symbol_rate/1000) << 16) | (t.feparams.fec_inner << 8) | (uint)t.feparams.polarization;
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
-	}
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &t.feparams, sizeof(FrontendParameters));
 }
 
 void CServiceScan::ChannelFound(uint8_t service_type, std::string providerName, std::string serviceName)

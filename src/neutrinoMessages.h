@@ -97,11 +97,10 @@ struct NeutrinoMessages {
 #endif
 		EVT_SCAN_FAILED                          = CRCInput::RC_Events + 29,
 		EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS = CRCInput::RC_Events + 30,
- 		EVT_SCAN_REPORT_FREQUENCY                = CRCInput::RC_Events + 31,
+
  		EVT_SCAN_FOUND_RADIO_CHAN                = CRCInput::RC_Events + 32,
  		EVT_SCAN_FOUND_DATA_CHAN                 = CRCInput::RC_Events + 33,
  		EVT_SCAN_FOUND_TV_CHAN                   = CRCInput::RC_Events + 34,
- 		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_Events + 36,
  		EVT_ZAP_MOTOR                            = CRCInput::RC_Events + 37,
  		/* sectionsd */
 		EVT_SERVICES_UPD                         = CRCInput::RC_Events + 38,
@@ -162,7 +161,8 @@ struct NeutrinoMessages {
 
 		EVT_HOTPLUG                              = CRCInput::RC_WithData + 26, /* data: char */
 		EVT_FORMAT_DRIVE                         = CRCInput::RC_WithData + 27, /* data: char */
-		EVT_WEBTV_ZAP_COMPLETE                   = CRCInput::RC_WithData + 28  /* data: (t_channel_id *) */
+		EVT_WEBTV_ZAP_COMPLETE                   = CRCInput::RC_WithData + 28,  /* data: (t_channel_id *) */
+ 		EVT_SCAN_REPORT_FREQUENCYP               = CRCInput::RC_WithData + 29
 	};
 	enum
 	{

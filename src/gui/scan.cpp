@@ -74,7 +74,6 @@ CScanTs::CScanTs(delivery_system_t DelSys)
 	frameBuffer = CFrameBuffer::getInstance();
 	radar = 0;
 	total = done = 0;
-	freqready = 0;
 	delsys = DelSys;
 	signalbox = NULL;
 	memset(&TP, 0, sizeof(TP)); // valgrind
@@ -402,25 +401,18 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			CVFD::getInstance()->showMenuText(0, str, -1, true);
 			break;
 
-		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCY:
-			freqready = 1;
-			sprintf(buffer, "%u", data);
-			xpos_frequency = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(buffer)+2;
-			paintLine(xpos2, ypos_frequency, xpos_frequency, buffer);
-			paintRadar();
-			break;
-
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCYP:
 			{
-				int pol = data & 0xFF;
-				int fec = (data >> 8) & 0xFF;
-				int rate = (data >> 16) & 0xFFFF;
-				//int delsys = (data >> 24)
+				FrontendParameters *feparams = (FrontendParameters*) data;
 				char * f, *s, *m;
-				CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
-				frontend->getDelSys(fec, (fe_modulation_t)0, f, s, m); // FIXME
-				snprintf(buffer,sizeof(buffer), " %c %d %s %s %s", transponder::pol(pol), rate, f, s, m);
-				paintLine(xpos2 + xpos_frequency, ypos_frequency, w - xpos_frequency - (7*fw), buffer);
+
+				CFrontend::getDelSys(feparams->delsys, feparams->fec_inner, feparams->modulation,  f, s, m);
+				uint32_t freq = feparams->frequency/1000;
+				if (CFrontend::isSat(feparams->delsys))
+					snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", freq, transponder::pol(feparams->polarization), feparams->symbol_rate/1000, f, s, m);
+				else
+					snprintf(buffer,sizeof(buffer), "%u %d %s %s", freq, feparams->symbol_rate/1000, s, m);
+				paintLine(xpos2, ypos_frequency, w - (7*fw), buffer);
 			}
 			break;
 
@@ -493,7 +485,6 @@ void CScanTs::hide()
 	//frameBuffer->loadPal("radiomode.pal", 18, COL_MAXFREE);
 	//frameBuffer->paintBackgroundBoxRel(0, 0, 720, 576);
 	frameBuffer->paintBackground();
-	freqready = 0;
 }
 
 void CScanTs::paintLineLocale(int px, int * py, int pwidth, const neutrino_locale_t l)
