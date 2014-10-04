@@ -39,7 +39,8 @@ class CShellWindow
 		enum shellwindow_modes
 		{
 			VERBOSE 	= 1,
-			ACKNOWLEDGE 	= 2
+			ACKNOWLEDGE 	= 2,
+			ACKNOWLEDGE_MSG	= 4
 		};
 		CShellWindow(const std::string &cmd, const int mode = 0, int *res = NULL);
 		~CShellWindow();

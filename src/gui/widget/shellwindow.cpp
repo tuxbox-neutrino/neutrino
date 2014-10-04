@@ -34,7 +34,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <driver/framebuffer.h>
 #include <gui/widget/textbox.h>
@@ -43,6 +42,7 @@
 #include <fcntl.h>
 #include <system/helpers.h>
 #include <gui/components/cc.h>
+#include <gui/widget/messagebox.h>
 #include <errno.h>
 
 CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res) {
@@ -189,23 +189,34 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 
 CShellWindow::~CShellWindow()
 {
-	if (textBox && (mode & ACKNOWLEDGE)) {
-		int b_width = 150;
-		int b_height = 35;
-		int xpos = frameBuffer->getScreenWidth() - b_width;
-		int ypos = frameBuffer->getScreenHeight() - b_height;
+	if (textBox){
+		bool exit = false;
+		if (mode & ACKNOWLEDGE){
+			int b_width = 150;
+			int b_height = 35;
+			int xpos = frameBuffer->getScreenWidth() - b_width;
+			int ypos = frameBuffer->getScreenHeight() - b_height;
 
-		CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_OK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
-		btn.paint();
+			CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_OK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
+			btn.paint();
+		}
+		else if (mode & ACKNOWLEDGE_MSG){
+			DisplayInfoMessage("...ready. Please press OK");
+			exit = true;
+		}
 
 		frameBuffer->blit();
 
 		neutrino_msg_t msg;
 		neutrino_msg_data_t data;
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
-		do
-			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
-		while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
+
+		if (!exit)
+		{
+			do
+				g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
+			while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
+		}
 
 		frameBuffer->Clear();
 		frameBuffer->blit();
