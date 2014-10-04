@@ -140,7 +140,7 @@ int COPKGManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			std::string loc = g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE);
 			char rs[strlen(loc.c_str()) + 20];
 			snprintf(rs, sizeof(rs), loc.c_str(), r);
-			DisplayInfoMessage(rs);
+			DisplayErrorMessage(rs);
 		} else
 			installed = true;
 		refreshMenu();
@@ -166,7 +166,7 @@ int COPKGManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			std::string err = g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL);
 			char rs[strlen(err.c_str()) + 20];
 			snprintf(rs, sizeof(rs), err.c_str(), r);
-			DisplayInfoMessage(rs);
+			DisplayErrorMessage(rs);
 		} else
 				installed = true;
 		refreshMenu();
@@ -268,7 +268,7 @@ int COPKGManager::showMenu()
 		std::string loc = g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE);
 		char rs[strlen(loc.c_str()) + 20];
 		snprintf(rs, sizeof(rs), loc.c_str(), r);
-		DisplayInfoMessage(rs);
+		DisplayErrorMessage(rs);
 	}
 
 	getPkgData(OM_LIST);
@@ -357,7 +357,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 
 	FILE *f = popen(pkg_types[pkg_content_id].c_str(), "r");
 	if (!f) {
-		DisplayInfoMessage("Command failed");
+		DisplayErrorMessage("Command failed");
 		return;
 	}
 
