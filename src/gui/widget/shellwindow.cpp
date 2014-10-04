@@ -205,8 +205,6 @@ CShellWindow::~CShellWindow()
 			exit = true;
 		}
 
-		frameBuffer->blit();
-
 		neutrino_msg_t msg;
 		neutrino_msg_data_t data;
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -217,9 +215,6 @@ CShellWindow::~CShellWindow()
 				g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 			while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
 		}
-
-		frameBuffer->Clear();
-		frameBuffer->blit();
 	}
 	if (textBox) {
 		textBox->hide();
