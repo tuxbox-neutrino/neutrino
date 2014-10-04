@@ -42,12 +42,16 @@ class CShellWindow
 			ACKNOWLEDGE 	= 2,
 			ACKNOWLEDGE_MSG	= 4
 		};
-		CShellWindow(const std::string &cmd, const int mode = 0, int *res = NULL);
+		CShellWindow(const std::string &Command, const int Mode = 0, int* Res = NULL);
 		~CShellWindow();
 	private:
 		int mode;
+		std::string command;
+		int* res;
 		CFrameBuffer *frameBuffer;
 		CTextBox *textBox;
+		void exec();
+		void showResult();
 };
 
 #endif

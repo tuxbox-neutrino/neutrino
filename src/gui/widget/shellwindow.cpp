@@ -41,15 +41,24 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <system/helpers.h>
-#include <gui/components/cc.h>
 #include <gui/widget/messagebox.h>
 #include <errno.h>
 
-CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res) {
-	pid_t pid;
-	textBox = NULL;
+CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res)
+{
+	textBox 	= NULL;
+	frameBuffer 	= CFrameBuffer::getInstance();
+
+	command 	= Command;
+	mode 		= Mode;
+	res 		= Res;
+
+	exec();
+}
+
+void CShellWindow::exec()
+{
 	std::string cmd;
-	mode = _mode;
 	if (!(mode & VERBOSE)){
 		cmd = "PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin ; export PATH ; " + command + " 2>/dev/null >&2";
 		int r = system(cmd.c_str());
@@ -62,6 +71,7 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 		return;
 	}
 
+	pid_t pid;
 	cmd = command + " 2>&1";
 	FILE *f = my_popen(pid, cmd.c_str(), "r");
 	if (!f) {
@@ -70,7 +80,6 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 		return;
 	}
 	Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
-	frameBuffer = CFrameBuffer::getInstance();
 	unsigned int lines_max = frameBuffer->getScreenHeight() / font->getHeight();
 	list<std::string> lines;
 	CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenY(), frameBuffer->getScreenWidth(), frameBuffer->getScreenHeight());
@@ -185,9 +194,11 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 		else
 			*res = WEXITSTATUS(s);
 	}
+
+	showResult();
 }
 
-CShellWindow::~CShellWindow()
+void CShellWindow::showResult()
 {
 	if (textBox){
 		bool exit = false;
@@ -201,7 +212,10 @@ CShellWindow::~CShellWindow()
 			btn.paint();
 		}
 		else if (mode & ACKNOWLEDGE_MSG){
-			DisplayInfoMessage("...ready. Please press OK");
+			if (*res == -1)
+				DisplayErrorMessage("Please press button");
+			else
+				DisplayInfoMessage("...ready. Please press OK");
 			exit = true;
 		}
 
@@ -215,9 +229,13 @@ CShellWindow::~CShellWindow()
 				g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 			while (msg != CRCInput::RC_ok && msg != CRCInput::RC_home && msg != CRCInput::RC_timeout);
 		}
-	}
-	if (textBox) {
+
 		textBox->hide();
-		delete textBox;
 	}
+}
+
+CShellWindow::~CShellWindow()
+{
+	if (textBox)
+		delete textBox;
 }
