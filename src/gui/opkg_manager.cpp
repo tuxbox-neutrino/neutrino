@@ -51,7 +51,7 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <alloca.h>
-
+#include <errno.h>
 /* later this can be changed to just "opkg" */
 #define OPKG_CL "opkg-cl"
 
@@ -70,10 +70,10 @@ enum
 
 static const std::string pkg_types[OM_MAX] =
 {
-	OPKG_CL " list",
-	OPKG_CL " list-installed",
-	OPKG_CL " list-upgradable",
-	OPKG_CL " update",
+	OPKG_CL " list ",
+	OPKG_CL " list-installed ",
+	OPKG_CL " list-upgradable ",
+	OPKG_CL " update ",
 	OPKG_CL " upgrade ",
 	OPKG_CL " remove ",
 	OPKG_CL " info ",
@@ -137,10 +137,7 @@ int COPKGManager::exec(CMenuTarget* parent, const std::string &actionKey)
 			parent->hide();
 		int r = execCmd(actionKey, true, true);
 		if (r) {
-			std::string loc = g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE);
-			char rs[strlen(loc.c_str()) + 20];
-			snprintf(rs, sizeof(rs), loc.c_str(), r);
-			DisplayErrorMessage(rs);
+			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPGRADE), strerror(errno), actionKey);
 		} else
 			installed = true;
 		refreshMenu();
@@ -163,10 +160,7 @@ int COPKGManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		int r = execCmd(pkg_types[OM_INSTALL] + force + actionKey, true, true);
 		if (r) {
-			std::string err = g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL);
-			char rs[strlen(err.c_str()) + 20];
-			snprintf(rs, sizeof(rs), err.c_str(), r);
-			DisplayErrorMessage(rs);
+			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + force + actionKey);
 		} else
 				installed = true;
 		refreshMenu();
@@ -265,10 +259,7 @@ int COPKGManager::showMenu()
 
 	int r = execCmd(pkg_types[OM_UPDATE]);
 	if (r) {
-		std::string loc = g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE);
-		char rs[strlen(loc.c_str()) + 20];
-		snprintf(rs, sizeof(rs), loc.c_str(), r);
-		DisplayErrorMessage(rs);
+		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE), strerror(errno), pkg_types[OM_UPDATE]);
 	}
 
 	getPkgData(OM_LIST);
@@ -357,7 +348,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 
 	FILE *f = popen(pkg_types[pkg_content_id].c_str(), "r");
 	if (!f) {
-		DisplayErrorMessage("Command failed");
+		showError("Internal Error", strerror(errno), pkg_types[pkg_content_id]);
 		return;
 	}
 
@@ -422,4 +413,12 @@ fprintf(stderr, "execCmd(%s)\n", cmdstr);
 			return r;
 		return WEXITSTATUS(r);
 	}
+}
+
+void COPKGManager::showError(const char* local_msg, char* sys_msg, const string& command)
+{
+	string msg = local_msg ? string(local_msg) + "\n" : "";
+	msg += string(sys_msg) + ":\n";
+	msg += command;
+	DisplayErrorMessage(msg.c_str());
 }
