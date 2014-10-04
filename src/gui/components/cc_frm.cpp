@@ -423,6 +423,7 @@ void CComponentsForm::paintCCItems()
 				continue;
 		}
 
+		//move item x-position, if we have a frame on parent, TODO: other constellations not considered at the moment
 		w_parent_frame = xpos <= fr_thickness ? fr_thickness : 0;
 
 		//set required x-position to item:
@@ -442,6 +443,7 @@ void CComponentsForm::paintCCItems()
 			auto_x = (cc_item->getRealXPos() + w_item);
 		}
 
+		//move item y-position, if we have a frame on parent, TODO: other constellations not considered at the moment
 		w_parent_frame = ypos <= fr_thickness ? fr_thickness : 0;
 
 		//set required y-position to item
@@ -459,6 +461,13 @@ void CComponentsForm::paintCCItems()
 		else{
 			cc_item->setRealYPos(this_y + ypos + w_parent_frame);
 			auto_y = (cc_item->getRealYPos() + h_item);
+		}
+
+		//reduce corner radius, if we have a frame around parent item, ensure matching corners inside of embedded item, this avoids ugly unpainted spaces between frame and item border
+		//TODO: other constellations not considered at the moment
+		if (w_parent_frame){
+			if(xpos <= fr_thickness || ypos <= fr_thickness)
+				cc_item->setCorner(max(0, cc_item->getCornerRadius()-w_parent_frame), cc_item->getCornerType());
 		}
 
 		//These steps check whether the element can be painted into the container.
