@@ -404,7 +404,7 @@ fprintf(stderr, "execCmd(%s)\n", cmdstr);
 	if (verbose) {
 		cmd += " 2>&1";
 		int res;
-		CShellWindow(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE : 0), &res);
+		CShellWindow(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res);
 		return res;
 	} else {
 		cmd += " 2>/dev/null >&2";
