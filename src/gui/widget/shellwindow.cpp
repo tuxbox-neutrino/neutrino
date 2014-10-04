@@ -146,8 +146,9 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 						txt += *it;
 					}
 					if (((lines_read == lines_max) && (lastPaint + 100000 < now)) || (lastPaint + 250000 < now)) {
-						textBox->setText(&txt);
-						textBox->paint();
+						textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
+						if (!textBox->isPainted())
+							textBox->paint();
 						lines_read = 0;
 						lastPaint = now;
 						dirty = false;
@@ -161,8 +162,9 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 		gettimeofday(&tv,NULL);
 		now = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
 		if (!ok || (r < 1 && dirty && lastPaint + 250000 < now)) {
-			textBox->setText(&txt);
-			textBox->paint();
+			textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
+			if (!textBox->isPainted())
+				textBox->paint();
 			lastPaint = now;
 			dirty = false;
 		}
