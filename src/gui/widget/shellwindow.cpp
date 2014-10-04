@@ -42,6 +42,7 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <system/helpers.h>
+#include <gui/components/cc.h>
 #include <errno.h>
 
 CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res) {
@@ -170,6 +171,9 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 		}
 	} while(ok);
 
+	txt += "\n...ready";
+	textBox->setText(&txt, textBox->getWindowsPos().iWidth, false);
+
 	fclose(f);
 	int s;
 	errno = 0;
@@ -186,17 +190,14 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 CShellWindow::~CShellWindow()
 {
 	if (textBox && (mode & ACKNOWLEDGE)) {
-		int iw, ih;
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &iw, &ih);
-		Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
-		int b_width = font->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_OK)) + 36 + ih + (RADIUS_LARGE / 2);
-		int fh = font->getHeight();
-		int b_height = std::max(fh, ih) + 8 + (RADIUS_LARGE / 2);
+		int b_width = 150;
+		int b_height = 35;
 		int xpos = frameBuffer->getScreenWidth() - b_width;
 		int ypos = frameBuffer->getScreenHeight() - b_height;
-		frameBuffer->paintBoxRel(xpos, ypos, b_width, b_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE);
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
-		font->RenderString(xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), b_width - (iw + 21), g_Locale->getText(LOCALE_MESSAGEBOX_OK), COL_MENUCONTENT_TEXT);
+
+		CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_OK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
+		btn.paint();
+
 		frameBuffer->blit();
 
 		neutrino_msg_t msg;
