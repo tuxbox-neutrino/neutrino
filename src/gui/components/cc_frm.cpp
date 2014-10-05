@@ -622,9 +622,14 @@ CComponentsItem* CComponentsForm::getSelectedItemObject()
 
 void CComponentsForm::ScrollPage(int direction, bool do_paint)
 {
+	if (getPageCount() == 1){
+		cur_page = 0;
+		return;
+	}
+
 	OnBeforeScrollPage();
 
-	int target_page_id = (int)getPageCount() - 1;
+	int target_page_id = (int)page_count - 1;
 	int target_page = (int)cur_page;
 	
 	if (direction == SCROLL_P_DOWN)
