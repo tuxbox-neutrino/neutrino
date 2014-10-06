@@ -974,7 +974,7 @@ void CMenuWidget::integratePlugins(void *pluginsExec, CPlugins::i_type_t integra
 			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
 			sprintf(id_plugin, "%d", count);
 			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), true, NULL, _pluginsExec, id_plugin);
-			fw_plugin->setHint("", g_PluginList->getDescription(count));
+			fw_plugin->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 			addItem(fw_plugin);
 		}
 	}

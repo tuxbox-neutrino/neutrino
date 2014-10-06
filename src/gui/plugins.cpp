@@ -122,6 +122,7 @@ void CPlugins::scanDir(const char *dir)
 			fname += '/';
 			new_plugin.cfgfile = fname.append(new_plugin.filename);
 			new_plugin.cfgfile.append(".cfg");
+			new_plugin.plugindir = dir;
 			bool plugin_ok = parseCfg(&new_plugin);
 			if (plugin_ok)
 			{
@@ -209,6 +210,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->hide = false;
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
 	plugin_data->integration = CPlugins::I_TYPE_DISABLED;
+	plugin_data->hinticon = plugin_data->filename + "_hint";
 
 	for (int i = 0; i < linecount; i++)
 	{
@@ -238,6 +240,10 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		else if (cmd == "depend")
 		{
 			plugin_data->depend = parm;
+		}
+		else if (cmd == "hinticon")
+		{
+			plugin_data->hinticon = parm;
 		}
 		else if (cmd == "type")
 		{
@@ -287,6 +293,10 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	}
 
 	inFile.close();
+
+	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->hinticon + ".png";
+	if (access(_hintIcon.c_str(), F_OK) == 0)
+		plugin_data->hinticon = _hintIcon;
 
 	overrideType(plugin_data, g_settings.plugins_disabled, P_TYPE_DISABLED) ||
 	overrideType(plugin_data, g_settings.plugins_game, P_TYPE_GAME) ||

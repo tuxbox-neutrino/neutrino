@@ -80,6 +80,8 @@ class CPlugins
 			int key;
 			std::string cfgfile;
 			std::string pluginfile;
+			std::string plugindir;
+			std::string hinticon;
 			int version;
 			std::string name;                // UTF-8 encoded
 			std::string description;         // UTF-8 encoded
@@ -130,6 +132,8 @@ class CPlugins
 		inline       int           getNumberOfPlugins  (void            ) const { return plugin_list.size()                    ; }
 		inline const char *        getName             (const int number) const { return plugin_list[number].name.c_str()      ; }
 		inline const char *        getPluginFile       (const int number) const { return plugin_list[number].pluginfile.c_str(); }
+		inline const char *        getPluginDir        (const int number) const { return plugin_list[number].plugindir.c_str() ; }
+		inline const char *        getHintIcon         (const int number) const { return plugin_list[number].hinticon.c_str()  ; }
 		inline const char *        getFileName         (const int number) const { return plugin_list[number].filename.c_str()  ; }
 		inline const std::string & getDescription      (const int number) const { return plugin_list[number].description       ; }
 		inline       int           getType             (const int number) const { return plugin_list[number].type              ; }
