@@ -317,7 +317,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					keyhelper.get(&key,&icon, d_key);
 					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, id, key, icon);
-					menu_item->setHint("", g_PluginList->getDescription(count));
+					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 
 					menu->addItem(menu_item, false);
 					cnt++;
