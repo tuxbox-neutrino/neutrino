@@ -1066,6 +1066,8 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		std::string newname = std::string(ICONDIR_VAR) + filename + ".png";
 		if (access(newname.c_str(), F_OK))
 			newname = iconBasePath + filename + ".png";
+		if (filename.find("/", 0) != std::string::npos)
+			newname = filename;
 		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
 		data = g_PicViewer->getIcon(newname, &width, &height);
