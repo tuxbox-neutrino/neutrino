@@ -35,6 +35,9 @@
 #include <string>
 #include <driver/pictureviewer/pictureviewer.h>
 
+#define NO_SCALE false
+#define SCALE true
+
 //! Sub class of CComponentsItem. Shows box with image with assigned attributes.
 /*!
 Picture is usable as an object like each other CCItems.
@@ -51,13 +54,15 @@ class CComponentsPicture : public CComponentsItem
  
 		///indicate that image was sucessful painted
 		bool is_image_painted;
-		///image is defined only by name without full path, handling as icon, not as scalable image, default = false
-		bool is_icon;
+
 		///sets that image may be painted, default = false
 		bool do_paint;
 
 		///set the transparency of pictures (default = CFrameBuffer::TM_NONE)
 		int image_transparent;
+
+		///set internel paint mode to allow/disallow scale an image, value is assigned with constructor, if defined dimensions w and h = 0, then image scale is enabled
+		bool do_scale;
 
 		void init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const std::string& image_name,
@@ -66,7 +71,8 @@ class CComponentsPicture : public CComponentsItem
 				fb_pixel_t color_frame,
 				fb_pixel_t color_background,
 				fb_pixel_t color_shadow,
-				int transparent);
+				int transparent,
+				bool allow_scale);
 
 		///initialize all required attributes
 		void initCCItem();
@@ -80,6 +86,7 @@ class CComponentsPicture : public CComponentsItem
 		void SetTransparent(int t){ image_transparent = t; }
 
 	public:
+		///constructor for image objects, use this for scaled images, scaling dimensions are defined with parameters w (width) and h (height)
 		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
 					CComponentsForm *parent = NULL,
@@ -89,6 +96,7 @@ class CComponentsPicture : public CComponentsItem
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
 
+		///constructor for image objects, use this for non scaled images, dimensions are defined by image size
 		CComponentsPicture( 	const int &x_pos, const int &y_pos,
 					const std::string& image_name,
 					CComponentsForm *parent = NULL,
@@ -98,9 +106,9 @@ class CComponentsPicture : public CComponentsItem
 					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
 					int transparent = CFrameBuffer::TM_NONE);
 
-		///sets an image name (unscaled icons only), full image path or url to an iamge file (scalable)
+		///sets an image name (unscaled icons only), full image path or url to an image file
 		virtual void setPicture(const std::string& picture_name);
-		///sets an image name (unscaled icons only), full image path or url to an iamge file (scalable)
+		///sets an image name (unscaled icons only), full image path or url to an image file
 		virtual void setPicture(const char* picture_name);
 
 		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.

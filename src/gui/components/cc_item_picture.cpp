@@ -47,7 +47,7 @@ CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, cons
 					bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, w, h, image_path, parent, has_shadow, color_frame, color_background, color_shadow, transparent);
+	init(x_pos, y_pos, w, h, image_path, parent, has_shadow, color_frame, color_background, color_shadow, transparent, SCALE);
 }
 
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
@@ -56,14 +56,15 @@ CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
 					bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent);
+	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent, NO_SCALE);
 }
 
 void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const string& image_name,
 				CComponentsForm *parent,
 				bool has_shadow,
-				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
+				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent,
+				bool allow_scale)
 {
 	//CComponents, CComponentsItem
 	cc_item_type 	= CC_ITEMTYPE_PICTURE;
@@ -81,12 +82,12 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 
 	//CComponentsPicture
 	pic_name 	= image_name;
-	is_icon		= false;
 
 	is_image_painted= false;
 	do_paint	= true;
 
 	image_transparent = transparent;
+	do_scale	= allow_scale;
 
 	g_PicViewer->getSupportedImageFormats(v_ext);
 	v_ext.resize(unique(v_ext.begin(), v_ext.end()) - v_ext.begin());
@@ -114,23 +115,24 @@ void CComponentsPicture::initCCItem()
 	//handle size
 	int w_pic = width;
 	int h_pic = height;
-	
+
 	if (pic_name.empty())
 		return;
 
 	//check for path or name, set icon or image with full path
 	string::size_type pos = pic_name.find("/", 0);
-	is_icon = (pos == string::npos);
+	if (pos == string::npos)
+		do_scale = false;
 
-	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: detected image file: is_icon: %d (pos= %d), pic_name=%s\n", __func__, is_icon, pos, pic_name.c_str());
+	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: detected image file: do_scale: %d (pos= %d), pic_name=%s\n", __func__, do_scale, pos, pic_name.c_str());
 
 	//get current image size
 	getImageSize(&w_pic, &h_pic);
 
 	//for icons (names without explicit path) set dimensions of "this" to current image...//TODO: centering image/icon
-	if (is_icon){
-		width = w_pic;
-		height = max(h_pic, height);
+	if (!do_scale){
+		width 	= max(w_pic, width);
+		height 	= max(h_pic, height);
 	}
 	else{ //defined values in constructor or defined via setters defined, have priority, value 0 is not allowed
 		if (width == 0)
@@ -140,7 +142,7 @@ void CComponentsPicture::initCCItem()
 	}
 
 	//resize/scale image if required, if no icon mode detected, use real image size
-	if (!is_icon){
+	if (do_scale){
 		if (width != w_pic || height != h_pic) {
 			g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
 			width  = w_pic;
@@ -164,7 +166,7 @@ void CComponentsPicture::initPosition(int *x_position, int *y_position)
 
 void CComponentsPicture::getImageSize(int* width_image, int *height_image)
 {
-	if (!is_icon)
+	if (do_scale)
 		g_PicViewer->getSize(pic_name.c_str(), width_image, height_image);
 	else
 		frameBuffer->getIconSize(pic_name.c_str(), width_image, height_image);
@@ -184,7 +186,7 @@ void CComponentsPicture::paintPicture()
 	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: paint image file: pic_name=%s\n", __func__, pic_name.c_str());
 	if (cc_allow_paint){
 		frameBuffer->SetTransparent(image_transparent);
-		if (!is_icon)
+		if (do_scale)
 			is_image_painted = g_PicViewer->DisplayImage(pic_name, x_pic, y_pic, width, height);
 		else
 			is_image_painted = frameBuffer->paintIcon(pic_name, x_pic, y_pic, height, 1, do_paint, paint_bg, col_body);
