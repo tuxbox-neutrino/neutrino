@@ -56,18 +56,27 @@ class CComponentsInfoBox : public CComponentsText
 		void paintPicture();
 		///property: path or name of displayed image
 		std::string pic_name;
-		
+
+		///set scale mode of image
+		bool scale_image;
+
 	public:
 		///object: internal used CTextBox object
 		CComponentsText * cctext;
 
-		CComponentsInfoBox(	const int& x_pos = 0, const int& y_pos = 0, const int& w = 800, const int& h = 600,
+		CComponentsInfoBox(	const int& x_pos = 0,
+					const int& y_pos = 0,
+					const int& w = 800,
+					const int& h = 600,
 					std::string info_text = "",
 					const int mode = CTextBox::AUTO_WIDTH,
 					Font* font_text = NULL,
 					CComponentsForm *parent = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_text = COL_MENUCONTENT_TEXT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_text = COL_MENUCONTENT_TEXT,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6,
+					fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0,
+					fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		
 		~CComponentsInfoBox();
 
