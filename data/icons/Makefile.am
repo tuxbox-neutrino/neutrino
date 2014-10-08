@@ -110,6 +110,7 @@ install_DATA += \
 	hint_osd.png \
 	hint_personalize.png \
 	hint_picview.png \
+	hint_plugin.png \
 	hint_protection.png \
 	hint_radiomode.png \
 	hint_reboot.png \

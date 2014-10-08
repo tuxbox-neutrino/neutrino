@@ -210,7 +210,11 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->hide = false;
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
 	plugin_data->integration = CPlugins::I_TYPE_DISABLED;
-	plugin_data->hinticon = plugin_data->filename + "_hint";
+	plugin_data->hinticon = NEUTRINO_ICON_HINT_PLUGIN;
+
+	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->filename + "_hint.png";
+	if (access(_hintIcon.c_str(), F_OK) == 0)
+		plugin_data->hinticon = _hintIcon;
 
 	for (int i = 0; i < linecount; i++)
 	{
@@ -294,7 +298,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 
 	inFile.close();
 
-	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->hinticon + ".png";
+	_hintIcon = plugin_data->plugindir + "/" + plugin_data->hinticon + ".png";
 	if (access(_hintIcon.c_str(), F_OK) == 0)
 		plugin_data->hinticon = _hintIcon;
 
