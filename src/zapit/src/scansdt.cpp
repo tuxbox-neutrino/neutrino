@@ -171,8 +171,10 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					freq_id, satellitePosition, original_network_id, transport_stream_id);
 			ZapitChannelList satChannelList;
 			CServiceManager::getInstance()->GetAllTransponderChannels(satChannelList, tpid);
-			for (zapit_list_it_t oldI = satChannelList.begin(); oldI != satChannelList.end(); ++oldI)
+			for (zapit_list_it_t oldI = satChannelList.begin(); oldI != satChannelList.end(); ++oldI) {
+				(*oldI)->flags &= ~CZapitChannel::UPDATED;
 				(*oldI)->flags |= CZapitChannel::REMOVED;
+			}
 		}
 
 #ifdef DEBUG_SDT
