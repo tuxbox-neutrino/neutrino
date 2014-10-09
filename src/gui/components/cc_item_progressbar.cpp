@@ -91,7 +91,7 @@ void CProgressBar::initDimensions()
 	if (pb_value < 0)
 		pb_value = 0;
 	if (pb_value > pb_max_value)
-		pb_max_value = pb_value;
+		pb_value = pb_max_value;
 
 	//assign start positions x/y active bar
 	//NOTE: real values are only reqiured, if we paint active/passive bar with own render methodes or not embedded cc-items
