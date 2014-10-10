@@ -222,7 +222,10 @@ CNeutrinoApp::CNeutrinoApp()
 	lockStandbyCall         = false;
 	current_muted		= 0;
 	recordingstatus		= 0;
-	g_channel_list_changed	= false;
+	channels_changed	= false;
+	favorites_changed	= false;
+	bouquets_changed	= false;
+	channels_init		= false;
 	channellist_visible	= false;
 }
 
@@ -1457,7 +1460,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 		if (!b->bHidden) {
-			if (b->getTvChannels(zapitList) /* || b->bUser */) {
+			if (b->getTvChannels(zapitList)|| b->bFav) {
 				if(b->bUser)
 					tmp = TVfavList->addBouquet(b);
 				else
@@ -1466,7 +1469,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp->channelList->SetChannelList(&zapitList);
 				tvi++;
 			}
-			if (b->getRadioChannels(zapitList) /* || b->bUser */) {
+			if (b->getRadioChannels(zapitList)|| b->bFav) {
 				if(b->bUser)
 					tmp = RADIOfavList->addBouquet(b);
 				else
@@ -1504,34 +1507,30 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 
 	switch(newmode) {
 		case LIST_MODE_FAV:
-			if(mode == mode_radio) {
+			if(mode == mode_radio)
 				bouquetList = RADIOfavList;
-			} else {
+			else
 				bouquetList = TVfavList;
-			}
 			break;
 		case LIST_MODE_SAT:
-			if(mode == mode_radio) {
+			if(mode == mode_radio)
 				bouquetList = RADIOsatList;
-			} else {
+			else
 				bouquetList = TVsatList;
-			}
 			break;
 		case LIST_MODE_ALL:
-			if(mode == mode_radio) {
+			if(mode == mode_radio)
 				bouquetList = RADIOallList;
-			} else {
+			else
 				bouquetList = TVallList;
-			}
 			break;
 		default:
 			newmode = LIST_MODE_PROV;
 		case LIST_MODE_PROV:
-			if(mode == mode_radio) {
+			if(mode == mode_radio)
 				bouquetList = RADIObouquetList;
-			} else {
+			else
 				bouquetList = TVbouquetList;
-			}
 			break;
 	}
 	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
@@ -1548,7 +1547,7 @@ void CNeutrinoApp::SetChannelMode(int newmode)
 			if(g_settings.channellist_sort_mode == CChannelList::SORT_CH_NUMBER)
 				bouquetList->Bouquets[i]->channelList->SortChNumber();
 		}
-		channelList->adjustToChannelID(CZapit::getInstance()->GetCurrentChannelID());
+		adjustToChannelID(CZapit::getInstance()->GetCurrentChannelID());
 	}
 	lastChannelMode = newmode;
 }
@@ -2061,6 +2060,12 @@ void CNeutrinoApp::numericZap(int msg)
 	StopSubtitles();
 	int res = channelList->numericZap( msg );
 	StartSubtitles(res < 0);
+	if (res >= 0 && CRCInput::isNumeric(msg)) {
+		if (g_settings.channellist_numeric_adjust && first_mode_found >= 0) {
+			SetChannelMode(first_mode_found);
+			channelList->getLastChannels().set_mode(channelList->getActiveChannel_ChannelID());
+		}
+	}
 }
 
 void CNeutrinoApp::showInfo()
@@ -2275,6 +2280,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if (CRCInput::isNumeric(msg)) {
 				numericZap( msg );
+
 			}
 			/* FIXME ??? */
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
@@ -2366,22 +2372,16 @@ int CNeutrinoApp::showChannelList(const neutrino_msg_t _msg, bool from_menu)
 
 	StopSubtitles();
 
-_show:
+//_show:
 	int nNewChannel = -1;
 	int old_b = bouquetList->getActiveBouquetNumber();
 	t_channel_id old_id = 0;
 	if(!bouquetList->Bouquets.empty())
 		old_id = bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->getActiveChannel_ChannelID();
-	//int old_mode = g_settings.channel_mode;
-	int old_mode = GetChannelMode();
-	printf("************************* ZAP START: bouquetList %p size %d old_b %d\n", bouquetList, (int)bouquetList->Bouquets.size(), old_b);fflush(stdout);
 
-#if 0
-	int old_num = 0;
-	if(!bouquetList->Bouquets.empty()) {
-		old_num = bouquetList->Bouquets[old_b]->channelList->getSelected();
-	}
-#endif
+	int old_mode = GetChannelMode();
+	printf("CNeutrinoApp::showChannelList: bouquetList %p size %d old_b %d\n", bouquetList, (int)bouquetList->Bouquets.size(), old_b);fflush(stdout);
+
 	//_show:
 	if(msg == CRCInput::RC_ok)
 	{
@@ -2401,51 +2401,52 @@ _show:
 		nNewChannel = bouquetList->exec(true);
 	}
 _repeat:
-	printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
+	printf("CNeutrinoApp::showChannelList: nNewChannel %d\n", nNewChannel);fflush(stdout);
 	//CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-	if(nNewChannel == -1) { // restore orig. bouquet and selected channel on cancel
+	if(nNewChannel == CHANLIST_CANCEL) { // restore orig. bouquet and selected channel on cancel
 		/* FIXME if mode was changed while browsing,
 		 * other modes selected bouquet not restored */
 		SetChannelMode(old_mode);
 		bouquetList->activateBouquet(old_b, false);
-#if 0
+
 		if(!bouquetList->Bouquets.empty())
-			bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->setSelected(old_num);
-#endif
-		if(!bouquetList->Bouquets.empty()) {
-			bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->adjustToChannelID(old_id, false);
-		}
+			bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->adjustToChannelID(old_id);
+
 		StartSubtitles(mode == mode_tv);
 	}
-	else if(nNewChannel == -3) { // list mode changed
-		printf("************************* ZAP NEW MODE: bouquetList %p size %d\n", bouquetList, (int)bouquetList->Bouquets.size());fflush(stdout);
+	else if(nNewChannel == CHANLIST_CHANGE_MODE) { // list mode changed
+		printf("CNeutrinoApp::showChannelList: newmode: bouquetList %p size %d\n", bouquetList, (int)bouquetList->Bouquets.size());fflush(stdout);
 		nNewChannel = bouquetList->exec(true);
 		goto _repeat;
 	}
-	//else if(nNewChannel == -4)
-	if(g_channel_list_changed)
-	{
-		/* don't change bouquet after adding a channel to favorites */
-		if (nNewChannel != -5)
-			SetChannelMode(old_mode);
-		g_channel_list_changed = false;
-		if(old_b_id < 0) old_b_id = old_b;
-		//g_Zapit->saveBouquets();
-		/* lets do it in sync */
-		CHintBox chb(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT));
-		chb.paint();
-		CServiceManager::getInstance()->SaveServices(true, true);
-		g_bouquetManager->saveBouquets();
-		g_bouquetManager->saveUBouquets();
-		g_bouquetManager->renumServices();
-		channelsInit(/*true*/);
-		chb.hide();
+	if (channels_changed || favorites_changed || bouquets_changed || channels_init) {
+		neutrino_locale_t loc = channels_init ? LOCALE_SERVICEMENU_RELOAD_HINT : LOCALE_BOUQUETEDITOR_SAVINGCHANGES;
+		CHintBox* hintBox= new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(loc));
+		hintBox->paint();
+
+		if (favorites_changed)
+			g_bouquetManager->saveUBouquets();
+
+		if (channels_changed)
+			CServiceManager::getInstance()->SaveServices(true);
+
+		if (bouquets_changed)
+			g_bouquetManager->saveBouquets();
+
+		if (channels_init) {
+			g_bouquetManager->renumServices();
+			channelsInit(/*true*/);
+		}
+
+		favorites_changed = false;
+		channels_changed = false;
+		bouquets_changed = false;
+		channels_init = false;
+
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
-		bouquetList->activateBouquet(old_b_id, false);
-		msg = CRCInput::RC_ok;
-		goto _show;
+		adjustToChannelID(live_channel_id);//FIXME what if deleted ?
+		delete hintBox;
 	}
 
 	channellist_visible = false;
@@ -2769,7 +2770,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		printf("NeutrinoMessages::EVT_SERVICESCHANGED\n");fflush(stdout);
 		channelsInit();
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
+		adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		if(old_b_id >= 0) {
 			bouquetList->activateBouquet(old_b_id, false);
 			old_b_id = -1;
@@ -2780,7 +2781,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		channelsInit();
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
+		adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::EVT_RECORDMODE ) {
@@ -4169,7 +4170,7 @@ void CNeutrinoApp::SDT_ReloadChannels()
 	//g_Zapit->reinitChannels();
 	channelsInit();
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
+	adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 	if(old_b_id >= 0) {
 		bouquetList->activateBouquet(old_b_id, false);
 		old_b_id = -1;
@@ -4330,4 +4331,64 @@ void CNeutrinoApp::CheckFastScan(bool standby, bool reload)
 				CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 		}
 	}
+}
+
+bool CNeutrinoApp::adjustToChannelID(const t_channel_id channel_id)
+{
+	int old_mode = lastChannelMode;
+	int new_mode = old_mode;
+	bool has_channel = false;
+	first_mode_found = -1;
+
+	if (!channelList->adjustToChannelID(channel_id))
+		return false;
+
+	channelList->getLastChannels().store (channel_id);
+	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv
+			|| CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_webtv) {
+		has_channel = TVfavList->adjustToChannelID(channel_id);
+		if (has_channel && first_mode_found < 0)
+			first_mode_found = LIST_MODE_FAV;
+		if(!has_channel && old_mode == LIST_MODE_FAV)
+			new_mode = LIST_MODE_PROV;
+
+		has_channel = TVbouquetList->adjustToChannelID(channel_id);
+		if (has_channel && first_mode_found < 0)
+			first_mode_found = LIST_MODE_PROV;
+		if(!has_channel && old_mode == LIST_MODE_PROV)
+			new_mode = LIST_MODE_SAT;
+
+		has_channel = TVsatList->adjustToChannelID(channel_id);
+		if (has_channel && first_mode_found < 0)
+			first_mode_found = LIST_MODE_SAT;
+		if(!has_channel && old_mode == LIST_MODE_SAT)
+			new_mode = LIST_MODE_ALL;
+
+		has_channel = TVallList->adjustToChannelID(channel_id);
+	}
+	else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
+		has_channel = RADIOfavList->adjustToChannelID(channel_id);
+		if (has_channel && first_mode_found < 0)
+			first_mode_found = LIST_MODE_FAV;
+		if(!has_channel && old_mode == LIST_MODE_FAV)
+			new_mode = LIST_MODE_PROV;
+
+		has_channel = RADIObouquetList->adjustToChannelID(channel_id);
+		if (has_channel && first_mode_found < 0)
+			first_mode_found = LIST_MODE_PROV;
+		if(!has_channel && old_mode == LIST_MODE_PROV)
+			new_mode = LIST_MODE_SAT;
+
+		has_channel = RADIOsatList->adjustToChannelID(channel_id);
+		if (has_channel && first_mode_found < 0)
+			first_mode_found = LIST_MODE_SAT;
+		if(!has_channel && old_mode == LIST_MODE_SAT)
+			new_mode = LIST_MODE_ALL;
+
+		has_channel = RADIOallList->adjustToChannelID(channel_id);
+	}
+	if(old_mode != new_mode)
+		CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
+
+	return true;
 }
