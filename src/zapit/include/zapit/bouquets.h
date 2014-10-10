@@ -60,6 +60,7 @@ class CZapitBouquet
 	void sortBouquetByNumber(void);
 	bool getTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 	bool getRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+	bool getChannels(ZapitChannelList &list, bool tv, int flags = CZapitChannel::PRESENT);
 };
 
 typedef vector<CZapitBouquet *> BouquetList;

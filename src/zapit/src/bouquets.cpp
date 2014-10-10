@@ -183,6 +183,16 @@ bool CZapitBouquet::getRadioChannels(ZapitChannelList &list, int flags)
 	return (!list.empty());
 }
 
+bool CZapitBouquet::getChannels(ZapitChannelList &list, bool tv, int flags)
+{
+	list.clear();
+	ZapitChannelList *current = tv ? &tvChannels : &radioChannels;
+	for (ZapitChannelList::iterator it = current->begin(); it != current->end(); ++it) {
+		if ((*it)->flags & flags)
+			list.push_back(*it);
+	}
+	return (!list.empty());
+}
 #if 0
 size_t CZapitBouquet::recModeRadioSize(const transponder_id_t transponder_id)
 {
@@ -248,7 +258,12 @@ void CBouquetManager::saveBouquets(void)
 {
 	FILE * bouq_fd;
 
+	printf("CBouquetManager::saveBouquets: %s\n", BOUQUETS_XML);
 	bouq_fd = fopen(BOUQUETS_XML, "w");
+	if (!bouq_fd) {
+		perror(BOUQUETS_XML);
+		return;
+	}
 	fprintf(bouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
@@ -268,7 +283,12 @@ void CBouquetManager::saveUBouquets(void)
 {
 	FILE * ubouq_fd;
 
+	printf("CBouquetManager::saveUBouquets: %s\n", UBOUQUETS_XML);
 	ubouq_fd = fopen(UBOUQUETS_XML, "w");
+	if (!ubouq_fd) {
+		perror(BOUQUETS_XML);
+		return;
+	}
 	fprintf(ubouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
