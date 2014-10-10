@@ -39,7 +39,7 @@ void CLastChannel::clear (void)
 // -- Store only if channel != last channel and time store delay is large enough
 // forceStoreToLastChannels default to false
 
-void CLastChannel::store (int channel, t_channel_id channel_id, bool /* forceStoreToLastChannels */)
+void CLastChannel::store (t_channel_id channel_id)
 {
 	struct timeval  tv;
 	unsigned long lastTimestamp(0);
@@ -58,7 +58,7 @@ void CLastChannel::store (int channel, t_channel_id channel_id, bool /* forceSto
 		this->lastChannels.pop_front();
 
 	/* push new channel to the head */
-	_LastCh newChannel = {channel, channel_id, tv.tv_sec, CNeutrinoApp::getInstance()->GetChannelMode()};
+	_LastCh newChannel = {/*channel,*/ channel_id, tv.tv_sec, CNeutrinoApp::getInstance()->GetChannelMode()};
 
 	this->lastChannels.push_front(newChannel);
 
