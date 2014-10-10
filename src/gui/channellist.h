@@ -54,12 +54,34 @@ enum {
 	LIST_MODE_LAST
 };
 
+enum {
+	CHANLIST_CANCEL = -1,
+	CHANLIST_CANCEL_ALL = -2,
+	CHANLIST_CHANGE_MODE = -3,
+	CHANLIST_NO_RESTORE = -4
+};
+
+class CBouquet;
+
 class CChannelList
 {
 private:
+	enum state_
+	{
+		beDefault,
+		beMoving
+	} move_state;
+
+	bool edit_state;
+
 	CFrameBuffer		*frameBuffer;
 	CComponentsPIP		*cc_minitv;
 	unsigned int		selected, selected_in_new_mode;
+	unsigned int            origPosition;
+	unsigned int            newPosition;
+	bool			channelsChanged;
+	bool			favoritesChanged;
+
 	unsigned int		tuned;
 	t_channel_id		selected_chid;
 	CLastChannel		lastChList;
@@ -75,7 +97,9 @@ private:
 	int			ffheight;
 
 	std::string             name;
-	ZapitChannelList	chanlist;
+	ZapitChannelList	channels;
+	ZapitChannelList	*chanlist;
+	CBouquet		*bouquet;
 	CZapProtection* 	zapProtection;
 	CComponentsDetailLine 	*dline;
 
@@ -100,7 +124,6 @@ private:
 	bool displayNext;
 	bool displayList;
 	bool pig_on_win;
-	int  first_mode_found;
 
 	int ChannelList_Rec;
 
@@ -131,22 +154,31 @@ private:
 	void processTextToArray(std::string text, int screening = 0);
 	int  getPrevNextBouquet(bool next);
 
+	void editMode(bool enable);
+	void beginMoveChannel();
+	void finishMoveChannel();
+	void cancelMoveChannel();
+	void internalMoveChannel(unsigned int fromPosition, unsigned int toPosition);
+	void deleteChannel();
+	void addChannel();
+	void saveChanges();
+
+	friend class CBouquet;
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false);
 	~CChannelList();
 
-	void SetChannelList(ZapitChannelList* channels);
-	void addChannel(CZapitChannel* chan, int num = 0);
-	void putChannel(CZapitChannel* chan);
+	void SetChannelList(ZapitChannelList* zlist);
+	void addChannel(CZapitChannel* chan);
 
 	CZapitChannel* getChannel(int number);
 	CZapitChannel* getChannel(t_channel_id channel_id);
 	CZapitChannel* getChannelFromIndex( uint32_t index) {
-		if (chanlist.size() > index) return chanlist[index];
+		if ((*chanlist).size() > index) return (*chanlist)[index];
 		else return NULL;
 	};
 	CZapitChannel* operator[]( uint32_t index) {
-		if (chanlist.size() > index) return chanlist[index];
+		if ((*chanlist).size() > index) return (*chanlist)[index];
 		else return NULL;
 	};
 	int getKey(int);
@@ -164,7 +196,7 @@ public:
 	void zapToChannel(CZapitChannel *channel, bool force = false);
 	void virtual_zap_mode(bool up);
 	bool zapTo_ChannelID(const t_channel_id channel_id, bool force = false);
-	bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
+	bool adjustToChannelID(const t_channel_id channel_id);
 	bool showInfo(int pos, int epgpos = 0);
 	void updateEvents(unsigned int from, unsigned int to);
 	int 	numericZap(int key);
@@ -180,13 +212,11 @@ public:
 	int getSize() const;
 	bool isEmpty() const;
 	int getSelectedChannelIndex() const;
-	void setSize(int newsize);
 	int doChannelMenu(void);
 	void SortAlpha(void);
 	void SortSat(void);
 	void SortTP(void);
 	void SortChNumber(void);
-	void ClearList(void);
 	bool SameTP(t_channel_id channel_id);
 	bool SameTP(CZapitChannel * channel = NULL);
 	CLastChannel & getLastChannels() { return lastChList; }
@@ -202,7 +232,7 @@ public:
 		SORT_CH_NUMBER,
 		SORT_MAX
 	};
-	unsigned Size() { return chanlist.size(); }
+	unsigned Size() { return (*chanlist).size(); }
 
 };
 #endif
