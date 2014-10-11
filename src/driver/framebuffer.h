@@ -48,6 +48,7 @@ typedef struct gradientData_t
 	int mode;
 } gradientData_struct_t;
 
+#define CORNER_NONE		0x0
 #define CORNER_TOP_LEFT		0x1
 #define CORNER_TOP_RIGHT	0x2
 #define CORNER_TOP		0x3
