@@ -124,7 +124,7 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 	}
 	else
 	{
-		if (Channels[itemNr]->flags & CZapitChannel::NOT_PRESENT)
+		if (itemNr < getItemCount() && (Channels[itemNr]->flags & CZapitChannel::NOT_PRESENT))
 			color = COL_MENUCONTENTINACTIVE_TEXT;
 		else
 			color = COL_MENUCONTENT_TEXT;
