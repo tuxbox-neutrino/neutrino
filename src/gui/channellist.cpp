@@ -342,6 +342,7 @@ int CChannelList::doChannelMenu(void)
 		t_channel_id channel_id = empty ? 0 : (*chanlist)[selected]->channel_id;
 		bool tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;
 		CBouquetList *blist = tvmode ? TVfavList : RADIOfavList;
+		bool fav_found = true;
 		switch(select) {
 		case 0: // edit mode
 			editMode(true);
@@ -351,35 +352,52 @@ int CChannelList::doChannelMenu(void)
 			bouquet_id = AllFavBouquetList->exec(false);
 			hide();
 			if(bouquet_id < 0)
-				return 0;
+				return -1;
 
 			if (AllFavBouquetList->Bouquets[bouquet_id]->zapitBouquet) {
 				CZapitBouquet *zapitBouquet = AllFavBouquetList->Bouquets[bouquet_id]->zapitBouquet;
 				CZapitChannel *ch = zapitBouquet->getChannelByChannelID(channel_id);
 				if (ch == NULL) {
+					fav_found = false;
 					zapitBouquet->addService((*chanlist)[selected]);
 					for (unsigned n = 0; n < blist->Bouquets.size(); n++) {
 						if (blist->Bouquets[n]->zapitBouquet == zapitBouquet) {
 							zapitBouquet->getChannels(blist->Bouquets[n]->channelList->channels, tvmode);
 							saveChanges();
+							fav_found = true;
 							break;
 						}
 					}
 				}
 			}
+			if (!fav_found) {
+				CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+				CNeutrinoApp::getInstance()->MarkChannelsInit();
+			}
 			ret = 1;
 			break;
 		case 2: // add to my favorites
-			for (unsigned n = 0; n < blist->Bouquets.size(); n++) {
-				if (blist->Bouquets[n]->zapitBouquet && blist->Bouquets[n]->zapitBouquet->bFav) {
-					CZapitChannel *ch = blist->Bouquets[n]->zapitBouquet->getChannelByChannelID(channel_id);
+			for (unsigned n = 0; n < AllFavBouquetList->Bouquets.size(); n++) {
+				if (AllFavBouquetList->Bouquets[n]->zapitBouquet && AllFavBouquetList->Bouquets[n]->zapitBouquet->bFav) {
+					CZapitChannel *ch = AllFavBouquetList->Bouquets[n]->zapitBouquet->getChannelByChannelID(channel_id);
 					if (ch == NULL) {
-						blist->Bouquets[n]->zapitBouquet->addService((*chanlist)[selected]);
-						blist->Bouquets[n]->zapitBouquet->getChannels(blist->Bouquets[n]->channelList->channels, tvmode);
-						saveChanges();
+						AllFavBouquetList->Bouquets[n]->zapitBouquet->addService((*chanlist)[selected]);
+						fav_found = false;
 					}
 					break;
 				}
+			}
+			for (unsigned n = 0; n < blist->Bouquets.size() && !fav_found; n++) {
+				if (blist->Bouquets[n]->zapitBouquet && blist->Bouquets[n]->zapitBouquet->bFav) {
+					blist->Bouquets[n]->zapitBouquet->getChannels(blist->Bouquets[n]->channelList->channels, tvmode);
+					saveChanges();
+					fav_found = true;
+					break;
+				}
+			}
+			if (!fav_found) {
+				CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+				CNeutrinoApp::getInstance()->MarkChannelsInit();
 			}
 			ret = 1;
 			break;
@@ -2317,6 +2335,8 @@ void CChannelList::editMode(bool enable)
 			channelsChanged = false;
 			bouquet->zapitBouquet->getChannels(channels, tvmode);
 			saveChanges();
+			if ((*chanlist).empty())
+				CNeutrinoApp::getInstance()->MarkChannelsInit();
 		}
 		if (selected >= chanlist->size())
 			selected = chanlist->empty() ? 0 : (chanlist->size() - 1);
