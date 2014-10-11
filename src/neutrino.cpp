@@ -1460,7 +1460,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 		if (!b->bHidden) {
-			if (b->getTvChannels(zapitList)|| b->bFav) {
+			if (b->getTvChannels(zapitList) /*|| b->bFav */) {
 				if(b->bUser)
 					tmp = TVfavList->addBouquet(b);
 				else
@@ -1469,7 +1469,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp->channelList->SetChannelList(&zapitList);
 				tvi++;
 			}
-			if (b->getRadioChannels(zapitList)|| b->bFav) {
+			if (b->getRadioChannels(zapitList) /* || b->bFav */) {
 				if(b->bUser)
 					tmp = RADIOfavList->addBouquet(b);
 				else
