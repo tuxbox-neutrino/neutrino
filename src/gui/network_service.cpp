@@ -187,9 +187,7 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 		if ( (services[i].name == "Telnet") && useinetd)
 			active = false;
 		
-		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut), "");
-		if (active)
-			shortcut++;
+		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut++), "");
 
 		mc->setHint(services[i].icon, services[i].hint);
 		setup->addItem(mc);
