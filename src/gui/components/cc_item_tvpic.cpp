@@ -101,6 +101,10 @@ void CComponentsPIP::paint(bool do_save_bg)
 	}
 	else{ //paint an alternate image if no tv mode available
 		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, NULL, false, col_frame, col_frame);
+		pic.doPaintBg(false);
+		int w, h;
+		pic.getSize(&w, &h);
+		pic.setPos(pig_x + pig_w/2-w/2, pig_y + pig_h/2-h/2);
 		pic.setCorner(corner_rad, corner_type);
 		pic.paint(CC_SAVE_SCREEN_NO);
 	}
