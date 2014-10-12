@@ -111,11 +111,17 @@ class CComponentsPicture : public CComponentsItem
 		///sets an image name (unscaled icons only), full image path or url to an image file
 		virtual void setPicture(const char* picture_name);
 
+		///handle image size
+		virtual void getSize(int* width_image, int *height_image);
+		///return width of component
+		virtual int getWidth();
+		///return height of component
+		virtual int getHeight();
+
+		virtual void doScale(bool scale = true){do_scale = scale;}
+
 		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
 		virtual inline bool isPicPainted(){return is_image_painted;};
-
-		///handle image size
-		void getImageSize(int* width_image, int *height_image);
 
 		///paint item
 		virtual void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
@@ -136,6 +142,8 @@ class CComponentsChannelLogo : public CComponentsPicture
 		
 		///indicates that logo is available, after paint or new instance, value = false
 		bool has_logo;
+
+		void init(const uint64_t& channelId, const std::string& channelName, bool allow_scale);
 
 	public:
 		CComponentsChannelLogo( const int &x_pos, const int &y_pos, const int &w, const int &h,

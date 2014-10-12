@@ -42,12 +42,12 @@ using namespace std;
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsItem
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos, const int &w, const int &h,
-					const std::string& image_path,
+					const std::string& image_name,
 					CComponentsForm *parent,
 					bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow, int transparent)
 {
-	init(x_pos, y_pos, w, h, image_path, parent, has_shadow, color_frame, color_background, color_shadow, transparent, SCALE);
+	init(x_pos, y_pos, w, h, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent, SCALE);
 }
 
 CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
@@ -58,6 +58,7 @@ CComponentsPicture::CComponentsPicture(	const int &x_pos, const int &y_pos,
 {
 	init(x_pos, y_pos, 0, 0, image_name, parent, has_shadow, color_frame, color_background, color_shadow, transparent, NO_SCALE);
 }
+
 
 void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w, const int &h,
 				const string& image_name,
@@ -72,25 +73,20 @@ void CComponentsPicture::init(	const int &x_pos, const int &y_pos, const int &w,
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
+	width		= w;
 	height		= h;
-	width 		= w;
+	pic_name 	= image_name;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
 	col_frame 	= color_frame;
 	col_body	= color_background;
 	col_shadow	= color_shadow;
-
-	//CComponentsPicture
-	pic_name 	= image_name;
+	do_scale	= allow_scale;
 
 	is_image_painted= false;
 	do_paint	= true;
-
 	image_transparent = transparent;
-	do_scale	= allow_scale;
 
-	g_PicViewer->getSupportedImageFormats(v_ext);
-	v_ext.resize(unique(v_ext.begin(), v_ext.end()) - v_ext.begin());
 	initCCItem();
 	initParent(parent);
 }
@@ -112,64 +108,65 @@ void CComponentsPicture::setPicture(const char* picture_name)
 
 void CComponentsPicture::initCCItem()
 {
+	if (pic_name.empty()){
+		dprintf(DEBUG_NORMAL, "[CComponentsPicture] %s: no image file assigned...\n", __func__);
+		return;
+	}
+
 	//handle size
 	int w_pic = width;
 	int h_pic = height;
-
-	if (pic_name.empty())
-		return;
 
 	//check for path or name, set icon or image with full path
 	string::size_type pos = pic_name.find("/", 0);
 	if (pos == string::npos)
 		do_scale = false;
 
-	dprintf(DEBUG_INFO, "[CComponentsPicture] %s: detected image file: do_scale: %d (pos= %d), pic_name=%s\n", __func__, do_scale, pos, pic_name.c_str());
-
-	//get current image size
-	getImageSize(&w_pic, &h_pic);
-
-	//for icons (names without explicit path) set dimensions of "this" to current image...//TODO: centering image/icon
-	if (!do_scale){
-		width 	= max(w_pic, width);
-		height 	= max(h_pic, height);
-	}
-	else{ //defined values in constructor or defined via setters defined, have priority, value 0 is not allowed
-		if (width == 0)
-			width = w_pic;
-		if (height == 0)
-			height = h_pic;
-	}
-
-	//resize/scale image if required, if no icon mode detected, use real image size
-	if (do_scale){
-		if (width != w_pic || height != h_pic) {
+	if (!do_scale || (w_pic == 0 || w_pic == 0)){
+		if (!pic_name.empty())
+			frameBuffer->getIconSize(pic_name.c_str(), &width, &height);
+	}else{
+		g_PicViewer->getSize(pic_name.c_str(), &w_pic, &h_pic);
+		if (width != w_pic || height != h_pic)
 			g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
-			width  = w_pic;
-			height = h_pic;
-		}
 	}
 }
 
 void CComponentsPicture::initPosition(int *x_position, int *y_position)
 {
-	//using of real x/y values to paint images if this picture object is bound in a parent form
 	*x_position = x;
 	*y_position = y;
 
-	if (cc_parent){
+	if (cc_parent){ //using of real x/y values to paint images if this picture object is bound in a parent form
 		*x_position = cc_xr;
 		*y_position = cc_yr;
 	}
 }
 
 
-void CComponentsPicture::getImageSize(int* width_image, int *height_image)
+void CComponentsPicture::getSize(int* width_image, int *height_image)
 {
-	if (do_scale)
-		g_PicViewer->getSize(pic_name.c_str(), width_image, height_image);
-	else
+	initCCItem();
+	if (do_scale){
+		*width_image = width;
+		*height_image = height;
+	}else{
 		frameBuffer->getIconSize(pic_name.c_str(), width_image, height_image);
+	}
+}
+
+int CComponentsPicture::getWidth()
+{
+	int w, h;
+	getSize(&w, &h);
+	return w;
+}
+
+int CComponentsPicture::getHeight()
+{
+	int w, h;
+	getSize(&w, &h);
+	return h;
 }
 
 void CComponentsPicture::paintPicture()
@@ -217,8 +214,7 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 						"", parent, has_shadow,
 						color_frame, color_background, color_shadow, transparent)
 {
-	setChannel(channelId, channelName);
-	alt_pic_name = "";
+	init(channelId, channelName, SCALE);
 }
 
 CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_pos,
@@ -231,11 +227,15 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 						"", parent, has_shadow,
 						color_frame, color_background, color_shadow, transparent)
 {
-	setChannel(channelId, channelName);
-	alt_pic_name = "";
+	init(channelId, channelName, NO_SCALE);
 }
 
-
+void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& channelName, bool allow_scale)
+{
+	setChannel(channelId, channelName);
+	do_scale = allow_scale;
+	alt_pic_name = "";
+}
 void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
 {
 	alt_pic_name = picture_name;

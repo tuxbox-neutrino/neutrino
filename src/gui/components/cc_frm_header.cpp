@@ -205,7 +205,7 @@ void CComponentsHeader::initIcon()
 		//get dimensions of header icon
 		int iw = 0;
 		int ih = 0;
-		cch_icon_obj->getImageSize(&iw, &ih);
+		cch_icon_obj->getSize(&iw, &ih);
 		dprintf(DEBUG_INFO, "[CComponentsHeader]\n    [%s - %d] init icon size: iw = %d, ih = %d\n", __func__, __LINE__, iw, ih);
 		cch_icon_obj->setWidth(iw);
 		cch_icon_obj->setHeight(ih);
