@@ -1666,6 +1666,7 @@ void CChannelList::showChannelLogo()
 		CChannelLogo = new CComponentsChannelLogo(0, 0, logo_w_max, theight,
 							  (*chanlist)[selected]->getName(), (*chanlist)[selected]->channel_id);
 		if (CChannelLogo->hasLogo()) {
+			CChannelLogo->doScale(theight < CChannelLogo->getHeight());
 			CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
 			CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
 			CChannelLogo->paint();
