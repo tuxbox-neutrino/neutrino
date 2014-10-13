@@ -149,6 +149,8 @@ static bool timerd_thread_started = false;
 
 void * nhttpd_main_thread(void *data);
 
+void * luaserver_main_thread(void *data);
+
 //#define DISABLE_SECTIONSD
 
 extern cVideo * videoDecoder;
@@ -1947,6 +1949,10 @@ TIMER_START();
 	if (!pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL))
 		pthread_detach (nhttpd_thread);
 
+	pthread_t luaserver_thread;
+	pthread_create (&luaserver_thread, NULL, luaserver_main_thread, (void *) NULL);
+	pthread_detach(luaserver_thread);
+
 	CStreamManager::getInstance()->Start();
 
 #ifndef DISABLE_SECTIONSD
@@ -2106,8 +2112,19 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 	//cCA::GetInstance()->Ready(true);
 
+	sem_init(&lua_may_run, 0, 0);
+	sem_init(&lua_did_run, 0, 0);
+
 	while( true ) {
+		sem_post(&lua_may_run);
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
+		sem_wait(&lua_may_run);
+		if (!sem_trywait(&lua_did_run)) {
+			if (msg != CRCInput::RC_timeout)
+				g_RCInput->postMsg(msg, data);
+			while (!sem_trywait(&lua_did_run));
+			continue;
+		}
 
 		if( ( mode == mode_tv ) ||  ( mode == mode_radio )  || ( mode == mode_webtv ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
@@ -4295,6 +4312,11 @@ void CNeutrinoApp::Cleanup()
 	delete CEitManager::getInstance();
 	printf("cleanup 6\n");fflush(stdout);
 	delete CVFD::getInstance();
+
+	// FIXME -- wait for luaserver threads to terminate?
+	sem_destroy(&lua_may_run);
+	sem_destroy(&lua_did_run);
+
 #ifdef __UCLIBC__
 	malloc_stats(NULL);
 #else

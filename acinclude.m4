@@ -140,6 +140,9 @@ TUXBOX_APPS_DIRECTORY_ONE(libdir,LIBDIR,libdir,/lib,/tuxbox,
 TUXBOX_APPS_DIRECTORY_ONE(plugindir,PLUGINDIR,libdir,/lib,/tuxbox/plugins,
 	[--with-plugindir=PATH   ],[where to find the plugins])
 
+TUXBOX_APPS_DIRECTORY_ONE(luaplugindir,LUAPLUGINDIR,libdir,/lib,/tuxbox/luaplugins,
+	[--with-luaplugindir=PATH   ],[where to find Lua plugins])
+
 TUXBOX_APPS_DIRECTORY_ONE(ucodedir,UCODEDIR,localstatedir,/var,/tuxbox/ucodes,
 	[--with-ucodedir=PATH    ],[where to find the ucodes])
 
@@ -167,6 +170,7 @@ AC_SUBST(GAMESDIR)
 AC_SUBST(LIBDIR)
 AC_SUBST(MNTDIR)
 AC_SUBST(PLUGINDIR)
+AC_SUBST(LUAPLUGINDIR)
 AC_SUBST(UCODEDIR)
 AC_SUBST(THEMESDIR)
 AC_SUBST(ICONSDIR)

@@ -9,7 +9,8 @@ SUBDIRS = \
 	xmltree \
 	libtuxtxt \
 	libiw \
-	libdvbsub
+	libdvbsub \
+	luaclient
 
 if ENABLE_UPNP
 SUBDIRS += \
