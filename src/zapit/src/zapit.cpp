@@ -1586,8 +1586,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_BQ_SET_LOCKSTATE: {
 		CZapitMessages::commandBouquetState msgBouquetLockState;
 		CBasicServer::receive_data(connfd, &msgBouquetLockState, sizeof(msgBouquetLockState)); // bouquet & channel number are already starting at 0!
-		if (msgBouquetLockState.bouquet < g_bouquetManager->Bouquets.size())
-			g_bouquetManager->Bouquets[msgBouquetLockState.bouquet]->bLocked = msgBouquetLockState.state;
+		g_bouquetManager->setBouquetLock(msgBouquetLockState.bouquet, msgBouquetLockState.state);
 		break;
 	}
 

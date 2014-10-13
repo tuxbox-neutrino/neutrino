@@ -570,10 +570,41 @@ void CBouquetManager::deleteBouquet(const CZapitBouquet* bouquet)
 		BouquetList::iterator it = find(Bouquets.begin(), Bouquets.end(), bouquet);
 
 		if (it != Bouquets.end()) {
+			if ((*it)->bLocked) {
+				ZapitChannelList *channels = &(*it)->tvChannels;
+				for(unsigned int i = 0; i < channels->size(); i++)
+					((*channels)[i])->bLockCount--;
+
+				channels = &(*it)->radioChannels;
+				for(unsigned int i = 0; i < channels->size(); i++)
+					((*channels)[i])->bLockCount--;
+			}
+
 			Bouquets.erase(it);
 			delete bouquet;
 		}
 	}
+}
+
+void CBouquetManager::setBouquetLock(const unsigned int id, bool state)
+{
+	if (id < Bouquets.size())
+		setBouquetLock(Bouquets[id], state);
+}
+
+void CBouquetManager::setBouquetLock(CZapitBouquet* bouquet, bool state)
+{
+	bouquet->bLocked = state;
+        int add = bouquet->bLocked * 2 - 1;
+
+        ZapitChannelList *channels = &bouquet->tvChannels;
+        for(unsigned int i = 0; i < channels->size(); i++)
+                ((*channels)[i])->bLockCount += add;
+
+        channels = &bouquet->radioChannels;
+        for(unsigned int i = 0; i < channels->size(); i++)
+                ((*channels)[i])->bLockCount += add;
+
 }
 
 #if 0

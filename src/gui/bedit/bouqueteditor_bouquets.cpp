@@ -430,16 +430,6 @@ void CBEBouquetWidget::deleteBouquet()
 	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
 		return;
 
-	if ((*Bouquets)[selected]->bLocked) {
-		ZapitChannelList *channels = &(*Bouquets)[selected]->tvChannels;
-		for(unsigned int i = 0; i < channels->size(); i++)
-			((*channels)[i])->bLockCount--;
-
-		channels = &(*Bouquets)[selected]->radioChannels;
-		for(unsigned int i = 0; i < channels->size(); i++)
-			((*channels)[i])->bLockCount--;
-	}
-
 	g_bouquetManager->deleteBouquet(selected);
 	Bouquets = &g_bouquetManager->Bouquets;
 	if (selected >= Bouquets->size())
@@ -528,18 +518,8 @@ void CBEBouquetWidget::switchHideBouquet()
 void CBEBouquetWidget::switchLockBouquet()
 {
 	bouquetsChanged = true;
-	(*Bouquets)[selected]->bLocked = !(*Bouquets)[selected]->bLocked;
+	g_bouquetManager->setBouquetLock((*Bouquets)[selected], !(*Bouquets)[selected]->bLocked);
 	paint();
-
-	int add = (*Bouquets)[selected]->bLocked * 2 - 1;
-
-	ZapitChannelList *channels = &(*Bouquets)[selected]->tvChannels;
-	for(unsigned int i = 0; i < channels->size(); i++)
-		((*channels)[i])->bLockCount += add;
-
-	channels = &(*Bouquets)[selected]->radioChannels;
-	for(unsigned int i = 0; i < channels->size(); i++)
-		((*channels)[i])->bLockCount += add;
 }
 
 std::string CBEBouquetWidget::inputName(const char * const defaultName, const neutrino_locale_t caption)

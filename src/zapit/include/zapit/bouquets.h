@@ -123,6 +123,8 @@ class CBouquetManager
 		void deletePosition(t_satellite_position satellitePosition);
 
 		void sortBouquets(void);
+		void setBouquetLock(const unsigned int id, bool state);
+		void setBouquetLock(CZapitBouquet* bouquet, bool state);
 };
 
 /*
