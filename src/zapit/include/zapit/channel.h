@@ -184,6 +184,7 @@ class CZapitChannel
 		casys_map_t			camap;
 
 		unsigned int			bLockCount;
+		bool				bLocked;
 
 		int				number;
 		CChannelEvent			currentEvent,nextEvent;
@@ -275,6 +276,7 @@ class CZapitChannel
 		{
 			return (((uint64_t)(sat+freq*4) << 48) | ((uint64_t) tsid << 32) | ((uint64_t)onid << 16) | (uint64_t)sid);
 		};
+		bool Locked() { return (bLocked || !!bLockCount); }
 };
 
 struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>

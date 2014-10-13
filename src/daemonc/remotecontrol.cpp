@@ -151,7 +151,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				is_video_started = true;
 				if (channel) {
 					current_channel_name = channel->getName();
-					if (!!channel->bLockCount != g_settings.parentallock_defaultlocked)
+					if (channel->Locked() != g_settings.parentallock_defaultlocked)
 						stopvideo();
 				}
 				CVFD::getInstance()->showServicename(current_channel_name); // UTF-8

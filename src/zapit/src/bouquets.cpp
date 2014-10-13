@@ -412,6 +412,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				GET_ATTR(channel_node, "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);
 				GET_ATTR(channel_node, "t", SCANF_TRANSPORT_STREAM_ID_TYPE, transport_stream_id);
 				GET_ATTR(channel_node, "frq", SCANF_SATELLITE_POSITION_TYPE, freq);
+				bool clock = xmlGetNumericAttribute(channel_node, "l", 10);
 				if(freq > 20000)
 					freq = freq/1000;
 
@@ -431,6 +432,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 #endif
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
+					chan->bLocked = clock;
 
 					newBouquet->addService(chan);
 				} else if (bUser) {
@@ -438,6 +440,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 							satellitePosition, freq);
 					CServiceManager::getInstance()->AddChannel(chan);
 					chan->flags = CZapitChannel::NOT_FOUND;
+					chan->bLocked = clock;
 					newBouquet->addService(chan);
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}

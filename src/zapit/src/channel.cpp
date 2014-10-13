@@ -90,6 +90,7 @@ void CZapitChannel::Init()
 	flags = 0;
 	delsys = DVB_S;
 	bLockCount = 0;
+	bLocked = 0;
 }
 
 CZapitChannel::~CZapitChannel(void)
@@ -350,27 +351,27 @@ void CZapitChannel::dumpBouquetXml(FILE * fd)
 
 	if(write_names) {
 		if (url.empty())
-			fprintf(fd, "\t\t<S i=\"%x\" n=\"%s\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
+			fprintf(fd, "\t\t<S i=\"%x\" n=\"%s\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\" l=\"%d\"/>\n",
 					getServiceId(),
 					convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
 					getTransportStreamId(),
 					getOriginalNetworkId(),
 					getSatellitePosition(),
-					getFreqId());
+					getFreqId(), bLocked ? 1 : 0);
 		else
-			fprintf(fd, "\t\t<S n=\"%s\" u=\"%s\"/>\n",
+			fprintf(fd, "\t\t<S n=\"%s\" u=\"%s\" l=\"%d\"/>\n",
 					convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-					convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
+					convert_UTF8_To_UTF8_XML(url.c_str()).c_str(), bLocked ? 1 : 0);
 	} else {
 		if (url.empty())
-			fprintf(fd, "\t\t<S i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
+			fprintf(fd, "\t\t<S i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\" l=\"%d\"/>\n",
 					getServiceId(),
 					getTransportStreamId(),
 					getOriginalNetworkId(),
 					getSatellitePosition(),
-					getFreqId());
+					getFreqId(), bLocked ? 1 : 0);
 		else
-			fprintf(fd, "\t\t<S u=\"%s\"/>\n",
-					convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
+			fprintf(fd, "\t\t<S u=\"%s\" l=\"%d\"/>\n",
+					convert_UTF8_To_UTF8_XML(url.c_str()).c_str(), bLocked ? 1 : 0);
 	}
 }
