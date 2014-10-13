@@ -32,6 +32,7 @@ class CLuaServer
 
 		static void *luaserver_thread(void *arg);
 		static void *luaserver_main_thread(void *);
+		static void *luaclient_watchdog(void *);
 		static bool luaserver_parse_command(CBasicMessage::Header &rmsg, int connfd);
 		static void Lock();
 		static void UnLock();

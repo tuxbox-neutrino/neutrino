@@ -114,7 +114,10 @@ bool CLuaServer::Block(const neutrino_msg_t msg, const neutrino_msg_data_t data)
 class luaserver_data
 {
 	public:
+		CLuaInstance *lua;
+		bool died;
 		int fd;
+
 		std::vector<std::string> argv;
 		std::string script;
 
@@ -122,6 +125,7 @@ class luaserver_data
 			fd = dup(_fd);
 			fcntl(fd, F_SETFD, FD_CLOEXEC);
 			script = _script;
+			died = false;
 		}
 		~luaserver_data(void) {
 			close(fd);
@@ -138,6 +142,21 @@ void CLuaServer::UnLock(void)
 	pthread_mutex_unlock(&mutex);
 }
 
+void *CLuaServer::luaclient_watchdog(void *arg) {
+	set_threadname(__func__);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	luaserver_data *lsd = (class luaserver_data *)arg;
+
+	struct pollfd pfd;
+	pfd.fd = lsd->fd;
+	pfd.events = pfd.revents = 0;
+	poll(&pfd, 1, -1);
+	lsd->lua->abortScript();
+	lsd->died = true;
+	pthread_exit(NULL);
+}
+
 void *CLuaServer::luaserver_thread(void *arg) {
 	set_threadname(__func__);
 	Lock();
@@ -149,28 +168,35 @@ void *CLuaServer::luaserver_thread(void *arg) {
 
 	luaserver_data *lsd = (class luaserver_data *)arg;
 
+	pthread_t wdthr;
+	pthread_create (&wdthr, NULL, luaclient_watchdog, (void *) lsd);
+
 	CLuaInstance lua;
+	lsd->lua = &lua;
 	std::string result_code;
 	std::string result_string;
 	std::string error_string;
 	lua.runScript(lsd->script.c_str(), &lsd->argv, &result_code, &result_string, &error_string);
-	size_t result_code_len = result_code.length() + 1;
-	size_t result_string_len = result_string.length() + 1;
-	size_t error_string_len = error_string.length() + 1;
-	size_t size = result_code_len + result_string_len + error_string_len;
-	char result[size + sizeof(size)];
-	char *rp = result;
-	memcpy(rp, &size, sizeof(size));
-	rp += sizeof(size);
-	size += sizeof(size);
-	memcpy(rp, result_code.c_str(), result_code_len);
-	rp += result_code_len;
-	memcpy(rp, result_string.c_str(), result_string_len);
-	rp += result_string_len;
-	memcpy(rp, error_string.c_str(), error_string_len);
-	rp += error_string_len;
-	CBasicServer::send_data(lsd->fd, result, size);
-
+	pthread_cancel(wdthr);
+	pthread_join(wdthr, NULL);
+	if (!lsd->died) {
+		size_t result_code_len = result_code.length() + 1;
+		size_t result_string_len = result_string.length() + 1;
+		size_t error_string_len = error_string.length() + 1;
+		size_t size = result_code_len + result_string_len + error_string_len;
+		char result[size + sizeof(size)];
+		char *rp = result;
+		memcpy(rp, &size, sizeof(size));
+		rp += sizeof(size);
+		size += sizeof(size);
+		memcpy(rp, result_code.c_str(), result_code_len);
+		rp += result_code_len;
+		memcpy(rp, result_string.c_str(), result_string_len);
+		rp += result_string_len;
+		memcpy(rp, error_string.c_str(), error_string_len);
+		rp += error_string_len;
+		CBasicServer::send_data(lsd->fd, result, size);
+	}
 	delete lsd;
 	Lock();
 	if (instance) {
