@@ -22,13 +22,17 @@
 For testing try:
 
 cat <<EOT > /lib/tuxbox/luaplugins/test.lua
+#!/bin/luaclient
+
 for i,v in ipairs(arg) do
 	print(tostring(i) .. "\t" .. tostring(v))
 end
 return "ok"
 EOT
 
-luaclient test a b c d
+chmod +x /lib/tuxbox/luaplugins/test.lua
+
+/lib/tuxbox/luaplugins/test.lua a b c d
 #endif
 
 #include <config.h>
