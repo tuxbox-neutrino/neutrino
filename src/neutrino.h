@@ -34,7 +34,6 @@
 #define __neutrino__
 
 #include <configfile.h>
-#include <semaphore.h>
 
 #include <neutrinoMessages.h>
 #include "driver/framebuffer.h"
@@ -172,9 +171,6 @@ public:
 	CChannelList			*TVchannelList;
 	CChannelList			*RADIOchannelList;
 	CChannelList			*channelList;
-
-	sem_t				lua_may_run;
-	sem_t				lua_did_run;
 
 	static CNeutrinoApp* getInstance();
 

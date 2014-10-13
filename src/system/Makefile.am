@@ -39,6 +39,7 @@ libneutrino_system_a_SOURCES = \
 	hddstat.cpp \
 	httptool.cpp \
 	lastchannel.cpp \
+	luaserver.cpp \
 	localize.cpp \
 	helpers.cpp \
 	ping.cpp \
