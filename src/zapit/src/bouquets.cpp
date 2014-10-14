@@ -426,10 +426,8 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					chan = CServiceManager::getInstance()->FindChannel(chid);
 				if (chan != NULL) {
 					DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
-#if 0
 					if(bUser && (name2.length() > 1))
-						chan->setName(name2);
-#endif
+						chan->setUserName(name2);
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;
@@ -517,7 +515,8 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	sort(unusedChannels.begin(), unusedChannels.end(), CmpChannelByChName());
 
 	// TODO: use locales
-	remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
+	if (remainChannels == NULL)
+		remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
 	remainChannels->bOther = true;
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
@@ -531,10 +530,16 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 
 void CBouquetManager::renumServices()
 {
+#if 0
 	if(remainChannels)
 		deleteBouquet(remainChannels);
 
 	remainChannels = NULL;
+#endif
+	if(remainChannels) {
+		remainChannels->tvChannels.clear();
+		remainChannels->radioChannels.clear();
+	}
 
 	makeRemainingChannelsBouquet();
 }

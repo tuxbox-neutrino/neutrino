@@ -117,6 +117,7 @@ class CZapitChannel
 	private:
 		/* channel name */
 		std::string name;
+		std::string uname;
 
 		/* WebTV */
 		std::string url;
@@ -215,7 +216,7 @@ class CZapitChannel
 
 
 		/* get methods - read and write variables */
-		const std::string&	getName(void)			const { return name; }
+		const std::string&	getName(void)			const { return (!uname.empty() ? uname : name); }
 		const std::string&	getUrl(void)			const { return url; }
 		const std::string&	getDesc(void)			const { return desc; }
 		t_satellite_position	getSatellitePosition(void)	const { return satellitePosition; }
@@ -240,7 +241,8 @@ class CZapitChannel
 
 		/* set methods */
 		void setServiceType(const unsigned char pserviceType)	{ serviceType = pserviceType; }
-		inline void setName(const std::string pName)            { name = pName; }
+		inline void setName(const std::string &pName)            { name = pName; }
+		inline void setUserName(const std::string &pName)            { uname = pName; }
 		void setAudioChannel(unsigned char pAudioChannel)	{ if (pAudioChannel < audioChannels.size()) currentAudioChannel = pAudioChannel; }
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
