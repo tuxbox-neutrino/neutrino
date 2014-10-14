@@ -161,7 +161,8 @@ private:
 	void internalMoveChannel(unsigned int fromPosition, unsigned int toPosition);
 	void deleteChannel();
 	void addChannel();
-	void saveChanges();
+	void lockChannel();
+	void saveChanges(bool fav = true);
 
 	friend class CBouquet;
 public:

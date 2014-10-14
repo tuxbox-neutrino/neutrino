@@ -306,20 +306,15 @@ int CChannelList::doChannelMenu(void)
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	bool empty = (*chanlist).empty();
-	/* Allow bouquet manipulation only if the bouquet is unlocked. Without this,
-	 * a channel could be added/removed to/from an unlocked bouquet and so made
-	 * accessible. */
-	if (!empty && g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED &&
-	    !!(*chanlist)[selected]->bLockCount != g_settings.parentallock_defaultlocked)
-		unlocked = ((*chanlist)[selected]->last_unlocked_time + 3600 > time_monotonic());
+	bool allow_edit = (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bUser);
 
 	int i = 0;
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, unlocked && !vlist, NULL, selector, cnt, CRCInput::RC_red), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, allow_edit, NULL, selector, cnt, CRCInput::RC_red), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ADD_TO_BOUQUET, !empty && unlocked, NULL, selector, cnt, CRCInput::RC_green), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ADD_TO_BOUQUET, !empty, NULL, selector, cnt, CRCInput::RC_green), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, !empty && unlocked, NULL, selector, cnt, CRCInput::RC_yellow), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, !empty, NULL, selector, cnt, CRCInput::RC_yellow), old_selected == i++);
 
 	bool reset_enabled = empty ? false : (*chanlist)[selected]->flags & CZapitChannel::NEW;
 	snprintf(cnt, sizeof(cnt), "%d", i);
@@ -345,7 +340,27 @@ int CChannelList::doChannelMenu(void)
 		bool fav_found = true;
 		switch(select) {
 		case 0: // edit mode
-			editMode(true);
+			if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED) {
+				if (g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT] == CPersonalizeGui::PERSONALIZE_MODE_PIN) {
+					unlocked = false;
+				} else if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked) {
+					/* on locked bouquet, enough to check any channel */
+					unlocked = ((*chanlist)[selected]->last_unlocked_time + 3600 > time_monotonic());
+				} else {
+					/* check all locked channels for last_unlocked_time, overwrite only if already unlocked */
+					for (unsigned int j = 0 ; j < (*chanlist).size(); j++) {
+						if ((*chanlist)[j]->bLocked)
+							unlocked = unlocked && ((*chanlist)[j]->last_unlocked_time + 3600 > time_monotonic());
+					}
+				}
+				if (!unlocked) {
+					CZapProtection *zp = new CZapProtection(g_settings.parentallock_pincode, 0x100);
+					unlocked = zp->check();
+					delete zp;
+				}
+			}
+			if (unlocked)
+				editMode(true);
 			ret = -1;
 			break;
 		case 1: // add to
@@ -630,6 +645,7 @@ int CChannelList::show()
 				cancelMoveChannel();
 			} else if (edit_state) {
 				editMode(false);
+				paintHead();
 				paint();
 			} else {
 				res = CHANLIST_CANCEL;
@@ -848,15 +864,20 @@ int CChannelList::show()
 				loop = false;
 			}
 		}
-		else if (!empty && !edit_state && msg == CRCInput::RC_blue )
+		else if (!empty && msg == CRCInput::RC_blue )
 		{
-			if (g_settings.channellist_additional)
-				displayList = !displayList;
-			else
-				displayNext = !displayNext;
+			if (edit_state) {
+				if (move_state != beMoving)
+					lockChannel();
+			} else {
+				if (g_settings.channellist_additional)
+					displayList = !displayList;
+				else
+					displayNext = !displayNext;
 
-			paintHead(); // update button bar
-			paint();
+				paintHead(); // update button bar
+				paint();
+			}
 		}
 		else if (msg == CRCInput::RC_green )
 		{
@@ -1028,7 +1049,8 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			/* data >= 0x100: pre-locked bouquet -> remember unlock time */
 			(*chanlist)[selected]->last_unlocked_time = time_monotonic();
 			int bnum = bouquetList->getActiveBouquetNumber();
-			if (bnum >= 0)
+			/* unlock only real locked bouquet, not whole satellite or all channels! */
+			if (bnum >= 0 && bouquetList->Bouquets[bnum]->zapitBouquet && bouquetList->Bouquets[bnum]->zapitBouquet->bLocked)
 			{
 				/* unlock the whole bouquet */
 				int i;
@@ -1172,7 +1194,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel, bool force)
 		}
 
 		selected_chid = channel->getChannelID();
-		g_RemoteControl->zapTo_ChannelID(selected_chid, channel->getName(), (!!channel->bLockCount == g_settings.parentallock_defaultlocked));
+		g_RemoteControl->zapTo_ChannelID(selected_chid, channel->getName(), (channel->Locked() == g_settings.parentallock_defaultlocked));
 		CNeutrinoApp::getInstance()->adjustToChannelID(channel->getChannelID());
 	}
 	if(new_zap_mode != 2 /* not active */) {
@@ -1670,12 +1692,13 @@ struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
 	{ NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, NONEXISTANT_LOCALE}
 };
 
-#define NUM_LIST_BUTTONS_EDIT 3
+#define NUM_LIST_BUTTONS_EDIT 4
 const struct button_label SChannelListButtons_Edit[NUM_LIST_BUTTONS_EDIT] =
 {
         { NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE     },
         { NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD        },
-        { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE       }
+        { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE       },
+        { NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_BOUQUETEDITOR_LOCK       }
 };
 
 void CChannelList::paintButtonBar(bool is_current)
@@ -1876,10 +1899,13 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 		int icon_space = r_icon_w+s_icon_w;
 
 		//channel numbers
+		int icon_w = 0, icon_h = 0;
 		if (curr == selected && move_state == beMoving) {
-			int icon_w = 0, icon_h = 0;
 			frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5+numwidth-icon_w, ypos, fheight);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 5 + numwidth - icon_w, ypos, fheight);
+		} else if (edit_state && chan->bLocked) {
+			frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icon_w, &icon_h);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 5 + numwidth - icon_w, ypos, fheight);
 		} else if (g_settings.channellist_show_numbers) {
 			int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
@@ -1989,6 +2015,11 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 void CChannelList::paintHead()
 {
 	CComponentsHeader header(x, y, full_width, theight, name /*no header icon*/);
+	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked)
+		header.setIcon(NEUTRINO_ICON_LOCK);
+	if (edit_state)
+		header.setCaption(std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name);
+
 	header.paint(CC_SAVE_SCREEN_NO);
 
 	if (headerClock != NULL) {
@@ -2027,8 +2058,11 @@ void CChannelList::paintHead()
 void CChannelList::paint()
 {
 	int icon_w = 0, icon_h = 0;
+	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr());
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icon_w, &icon_h);
-	numwidth = std::max(icon_w, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr()));
+	numwidth = std::max(icon_w, (int) numwidth);
+	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icon_w, &icon_h);
+	numwidth = std::max(icon_w, (int) numwidth);
 
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
@@ -2318,10 +2352,13 @@ void CChannelList::processTextToArray(std::string text, int screening) // UTF-8
 	addTextToArray( aktLine + aktWord, screening );
 }
 
-void CChannelList::saveChanges()
+void CChannelList::saveChanges(bool fav)
 {
 	g_bouquetManager->renumServices();
-	CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+	if (fav)
+		CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+	else
+		CNeutrinoApp::getInstance()->MarkBouquetsChanged();
 }
 
 void CChannelList::editMode(bool enable)
@@ -2340,7 +2377,7 @@ void CChannelList::editMode(bool enable)
 		if (channelsChanged) {
 			channelsChanged = false;
 			bouquet->zapitBouquet->getChannels(channels, tvmode);
-			saveChanges();
+			saveChanges(bouquet->zapitBouquet->bUser);
 			if ((*chanlist).empty())
 				CNeutrinoApp::getInstance()->MarkChannelsInit();
 		}
@@ -2434,3 +2471,12 @@ void CChannelList::addChannel()
         paint();
 }
 
+void CChannelList::lockChannel()
+{
+	(*chanlist)[selected]->bLocked = !(*chanlist)[selected]->bLocked;
+	CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+	if (selected + 1 < (*chanlist).size())
+		g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_down, 0);
+	else
+		paintItem(selected - liststart);
+}
