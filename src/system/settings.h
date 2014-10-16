@@ -698,8 +698,8 @@ struct SNeutrinoSettings
 		ITEM_RECORD = 8,
 		ITEM_MOVIEPLAYER_MB = 9,
 		ITEM_TIMERLIST = 10,
-		ITEM_FAVORITS = 12,
 		ITEM_VTXT = 11,
+		ITEM_FAVORITS = 12,
 		ITEM_TECHINFO = 13,
 		ITEM_REMOTE = 14,
 		ITEM_PLUGIN_TYPES = 15,
@@ -717,6 +717,8 @@ struct SNeutrinoSettings
 		ITEM_HDDMENU = 26,
 		ITEM_AUDIOPLAY = 27,
 		ITEM_INETPLAY = 28,
+		ITEM_NETSETTINGS = 29,
+		ITEM_SWUPDATE = 30,
 
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;

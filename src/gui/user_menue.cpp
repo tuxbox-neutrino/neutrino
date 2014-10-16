@@ -67,6 +67,9 @@
 #include <mymenu.h>
 
 #include <gui/widget/icons.h>
+#include <gui/network_setup.h>
+#include <gui/update_menue.h>
+#include <gui/hdd_menu.h>
 
 #include <driver/radiotext.h>
 #include <driver/record.h>
@@ -406,8 +409,18 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			break;
 		case SNeutrinoSettings::ITEM_HDDMENU:
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, neutrino, "hddmenu", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, CHDDMenuHandler::getInstance(), NULL, key, icon);
 			menu_item->setHint(NEUTRINO_ICON_HINT_HDD, LOCALE_MENU_HINT_HDD);
+			break;
+		case SNeutrinoSettings::ITEM_NETSETTINGS:
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_MAINSETTINGS_NETWORK, true, NULL, CNetworkSetup::getInstance(), NULL, key, icon);
+			menu_item->setHint(NEUTRINO_ICON_HINT_NETWORK, LOCALE_MENU_HINT_NETWORK);
+			break;
+		case SNeutrinoSettings::ITEM_SWUPDATE:
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuDForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate(), NULL, key, icon);
+			menu_item->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_SW_UPDATE);
 			break;
 		case -1: // plugin
 		    {
