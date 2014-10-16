@@ -2210,7 +2210,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					CRecordManager::getInstance()->StartTimeshift();
 			}
 			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder) {
+				InfoClock->enableInfoClock(false);
 				numericZap( msg );
+				InfoClock->enableInfoClock(true);
 			}
 #ifdef ENABLE_PIP
 			else if (msg == (neutrino_msg_t) g_settings.key_pip_close) {
