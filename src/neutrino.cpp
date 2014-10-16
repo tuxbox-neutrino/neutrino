@@ -3869,6 +3869,9 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 	}
 	else if(actionKey=="restart") {
+		//usage of slots from any classes
+		OnBeforeRestart();
+
 		if (recordingstatus)
 			DisplayErrorMessage(g_Locale->getText(LOCALE_SERVICEMENU_RESTART_REFUSED_RECORDING));
 		else {

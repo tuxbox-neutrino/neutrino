@@ -39,7 +39,7 @@
 #include "gui/personalize.h"
 #include "gui/user_menue.h"
 #include <timerdclient/timerdtypes.h>
-
+#include <sigc++/signal.h>
 #include <string>
 
 #define ANNOUNCETIME (1 * 60)
@@ -57,7 +57,7 @@ class CFrameBuffer;
 class CConfigFile;
 class CScanSettings;
 
-class CNeutrinoApp : public CMenuTarget, CChangeObserver
+class CNeutrinoApp : public CMenuTarget, CChangeObserver, sigc::trackable
 {
 public:
 	enum
@@ -228,6 +228,8 @@ public:
 	void stopPlayBack(bool lock = false);
 	bool adjustToChannelID(const t_channel_id channel_id);
 	void screensaver(bool);
+	//signal/event handler before restart of neutrino gui
+	sigc::signal<bool> OnBeforeRestart;
 };
 #endif
 
