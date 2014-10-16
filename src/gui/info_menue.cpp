@@ -106,7 +106,7 @@ int CInfoMenu::showMenu()
 
 	//add I_TYPE_INFORMATION plugins
 	CPluginsExec pluginsExec;
-	info->integratePlugins(&pluginsExec, CPlugins::I_TYPE_INFORMATION);
+	info->integratePlugins(&pluginsExec, CPlugins::I_TYPE_INFORMATION, 1);
 
 	int res = info->exec(NULL, "");
 	delete info;
