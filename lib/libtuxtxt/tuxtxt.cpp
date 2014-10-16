@@ -1922,7 +1922,7 @@ int Init(int source)
 
 	/* config defaults */
 	screenmode = 0;
-	screen_mode1 = 0;
+	screen_mode1 = 1;
 	color_mode   = 10;
 	trans_mode   = 1;
 	menulanguage = 1;	/* english */
