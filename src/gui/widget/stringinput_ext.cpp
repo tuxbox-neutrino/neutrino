@@ -290,10 +290,10 @@ void CExtendedInput::hide()
 
 void CExtendedInput::paint()
 {
-	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	CComponentsHeader header(x, y, width, hheight, g_Locale->getText(name));
+	header.paint(CC_SAVE_SCREEN_NO);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2), y+ hheight, width- offset, g_Locale->getText(name), COL_MENUHEAD_TEXT);
+	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	int tmp_y = y+ hheight+ offset+ input_h+ offset;
 

@@ -423,6 +423,12 @@ void CMsgBox::refreshTitle(void)
 	// first check if title is configured
 	if(	!(m_nMode & TITLE)) return;
 
+	CComponentsHeader header(m_cBoxFrameTitleRel.iX+m_cBoxFrame.iX,
+							m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY,
+							m_cBoxFrameTitleRel.iWidth,
+							m_cBoxFrameTitleRel.iHeight, m_cTitle, m_cIcon);
+	header.paint(CC_SAVE_SCREEN_NO);
+#if 0
 	// draw the background
 	m_pcWindow->paintBoxRel(	m_cBoxFrameTitleRel.iX+m_cBoxFrame.iX,
 							m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY,
@@ -454,6 +460,7 @@ void CMsgBox::refreshTitle(void)
 								m_cTitle.c_str(),
 								COL_MENUHEAD_TEXT);
 	}
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////

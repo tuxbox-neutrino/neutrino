@@ -274,7 +274,11 @@ void CHintBoxExt::refresh(bool toround)
 		m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
 		bgPainted = true;
 	}
-	
+
+	std::string title_text = (m_caption == NONEXISTANT_LOCALE) ? m_captionString : g_Locale->getText(m_caption);
+	CComponentsHeader header(m_window->x, m_window->y, m_width, m_theight, title_text, m_iconfile);
+	header.paint(CC_SAVE_SCREEN_NO);
+#if 0
 	// title bar
 	m_window->paintBoxRel(0, 0, m_width, m_theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
 	
@@ -296,7 +300,7 @@ void CHintBoxExt::refresh(bool toround)
 	
 	// title text
 	m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], x_text, m_theight, m_width, title_text, COL_MENUHEAD_TEXT);
-
+#endif
 	// background of text panel
 	m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, toround ? RADIUS_LARGE : 0, CORNER_BOTTOM);//round
 
