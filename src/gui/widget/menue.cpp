@@ -1075,7 +1075,7 @@ void CMenuWidget::calcSize()
 
 	iconOffset= 0;
 	for (unsigned int i= 0; i< items.size(); i++)
-		if (items[i]->iconName && (/*!g_settings.menu_numbers_as_icons ||*/ !CRCInput::isNumeric(items[i]->directKey)))
+		if (items[i]->iconName /*&& !g_settings.menu_numbers_as_icons*/)
 		{
 			int w, h;
 			frameBuffer->getIconSize(items[i]->iconName, &w, &h);
