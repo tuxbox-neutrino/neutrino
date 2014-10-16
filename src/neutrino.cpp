@@ -286,7 +286,7 @@ static SNeutrinoSettings::usermenu_t usermenu_default[] = {
 	{ CRCInput::RC_red,             "2,3,4,13",                             "",     "red"           },
 	{ CRCInput::RC_green,           "6",                                    "",     "green"         },
 	{ CRCInput::RC_yellow,          "7",                                    "",     "yellow"        },
-	{ CRCInput::RC_blue,            "12,11,20,21,19,14,15",                 "",     "blue"          },
+	{ CRCInput::RC_blue,            "12,11,20,21,19,14,29,30,15",           "",     "blue"          },
 	{ CRCInput::RC_play,            "9",                                    "",     "5"             },
 	{ CRCInput::RC_audio,           "27",                                   "",     "6"             },
 #if 0
@@ -3730,10 +3730,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		frameBuffer->Clear();
 		CMediaPlayerMenu * media = CMediaPlayerMenu::getInstance();
 		media->exec(NULL, actionKey);
-		return menu_return::RETURN_EXIT_ALL;
-	}
-	else if(actionKey == "hddmenu") {
-		CHDDMenuHandler::getInstance()->exec(NULL, "");
 		return menu_return::RETURN_EXIT_ALL;
 	}
 	else if(actionKey=="restart") {
