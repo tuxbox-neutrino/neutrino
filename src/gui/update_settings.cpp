@@ -45,10 +45,9 @@
 #include <system/debug.h>
 
 
-CUpdateSettings::CUpdateSettings(CMenuForwarder * update_item)
+CUpdateSettings::CUpdateSettings()
 {
 	width = w_max (40, 10);
-	updateItem = update_item;
 #ifdef USE_SMS_INPUT
 	input_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""$%&/()=?-. ");
 #endif
