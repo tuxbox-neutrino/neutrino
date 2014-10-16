@@ -494,6 +494,7 @@ CMenuWidget::CMenuWidget()
 	details_line	= NULL;
 	info_box	= NULL;
 	show_details_line = true;
+	nextShortcut	= 1;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
@@ -564,6 +565,7 @@ void CMenuWidget::Init(const std::string &Icon, const int mwidth, const mn_widge
 	fbutton_labels	= NULL;
 	fbutton_width	= 0;
 	fbutton_height	= 0;
+	nextShortcut	= 1;
 }
 
 void CMenuWidget::move(int xoff, int yoff)

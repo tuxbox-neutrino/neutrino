@@ -973,8 +973,10 @@ void CPersonalizeGui::addPersonalizedItems()
 					allow_sep = true;
 
 					//generate shortcut for next item
-					if (add_shortcut)
+					if (add_shortcut) {
 						short_cut++;
+						v_item[i].widget->setNextShortcut(short_cut);
+					}
 				}
 				else if (p_mode == PERSONALIZE_MODE_NOTVISIBLE)
 				{

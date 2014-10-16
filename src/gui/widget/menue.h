@@ -520,6 +520,7 @@ class CMenuWidget : public CMenuTarget
 		bool			from_wizard;
 		bool			fade;
 		bool			washidden;
+		int			nextShortcut;
 
 		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
@@ -577,6 +578,8 @@ class CMenuWidget : public CMenuTarget
 		void addKey(neutrino_msg_t key, CMenuTarget *menue, const std::string &action);
 		void setFooter(const struct button_label *_fbutton_label, const int _fbutton_count, bool repaint = false);
 		void suppressDetailsLine(bool suppress = true){show_details_line = suppress ? false : true;};
+		void setNextShortcut(int sc) { nextShortcut = sc; };
+		int getNextShortcut() { return nextShortcut; };
 };
 
 class CPINProtection
