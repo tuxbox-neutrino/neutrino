@@ -74,6 +74,8 @@ class CComponentsButton : public CComponentsFrmChain
 
 		///property: text color
 		fb_pixel_t cc_btn_capt_col;
+		///property: text color for disabled button
+		fb_pixel_t cc_btn_capt_disable_col;
 		///object: text font
 		Font* cc_btn_font;
 		///object: dynamic font object handler
@@ -126,7 +128,7 @@ class CComponentsButton : public CComponentsFrmChain
 					fb_pixel_t color_frame = COL_DARK_GRAY, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		///set text color
-		virtual void setButtonTextColor(fb_pixel_t caption_color){cc_btn_capt_col = caption_color;};
+		virtual void setButtonTextColor(fb_pixel_t text_color, fb_pixel_t text_color_disabled = COL_MENUCONTENTINACTIVE_TEXT){cc_btn_capt_col = text_color; cc_btn_capt_disable_col = text_color_disabled;}
 
 		///set caption: parameter as string
 		virtual void setCaption(const std::string& text);

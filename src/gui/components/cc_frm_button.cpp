@@ -115,7 +115,8 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	append_y_offset = 0;
 	corner_rad	= RADIUS_MID;
 	
-	cc_btn_capt_col	= COL_MENUCONTENT_TEXT;
+	cc_btn_capt_col	= COL_INFOBAR_SHADOW_TEXT;
+	cc_btn_capt_disable_col = COL_MENUCONTENTINACTIVE_TEXT;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;
 	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
@@ -204,7 +205,7 @@ void CComponentsButton::initCaption()
 		cc_btn_capt_obj->forceTextPaint(); //here required;
 
 		//set color
-		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? COL_MENUCONTENT_TEXT : COL_MENUCONTENTINACTIVE_TEXT);
+		cc_btn_capt_obj->setTextColor(this->cc_item_enabled ? cc_btn_capt_col : cc_btn_capt_disable_col);
 
 		//corner of text item
 		cc_btn_capt_obj->setCorner(corner_rad-fr_thickness, corner_type);
