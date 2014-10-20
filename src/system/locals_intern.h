@@ -576,6 +576,7 @@ const char * locale_real_names[] =
 	"filesystem.is.utf8.option.utf8",
 	"flashupdate.actionreadflash",
 	"flashupdate.apply_settings",
+	"flashupdate.autocheck",
 	"flashupdate.cantopenfile",
 	"flashupdate.cantopenmtd",
 	"flashupdate.checkupdate_internet",
