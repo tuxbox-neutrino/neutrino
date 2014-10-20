@@ -85,6 +85,7 @@
 #include "gui/sleeptimer.h"
 #include "gui/start_wizard.h"
 #include "gui/update_ext.h"
+#include "gui/update.h"
 #include "gui/videosettings.h"
 #include "gui/audio_select.h"
 
@@ -338,9 +339,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		checkParentallocked.close();
 	}
 	g_settings.easymenu = configfile.getInt32("easymenu", 0);
+	g_settings.softupdate_autocheck = configfile.getBool("softupdate_autocheck" , false);
 	/* if file present and no config file found, force easy mode */
-	if (erg && !access("/var/etc/.easymenu", F_OK))
+	if (erg && !access("/var/etc/.easymenu", F_OK)) {
 		g_settings.easymenu = 1;
+		g_settings.softupdate_autocheck = 1;
+	}
 	dprintf(DEBUG_NORMAL, "g_settings.easymenu %d\n", g_settings.easymenu);
 
 	// video
@@ -1168,6 +1172,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
 	configfile.setInt32 ("softupdate_name_mode_apply", g_settings.softupdate_name_mode_apply);
 	configfile.setInt32 ("softupdate_name_mode_backup", g_settings.softupdate_name_mode_backup);
+	configfile.setBool("softupdate_autocheck", g_settings.softupdate_autocheck);
 
 	configfile.setInt32("flashupdate_createimage_add_uldr",   g_settings.flashupdate_createimage_add_uldr);
 	configfile.setInt32("flashupdate_createimage_add_u_boot", g_settings.flashupdate_createimage_add_u_boot);
@@ -2009,6 +2014,7 @@ TIMER_START();
 		startwizard.exec(NULL, "");
 	}
 
+	InitZapper();
 	if(loadSettingsErg) {
 		hintBox->hide();
 		dprintf(DEBUG_INFO, "config file or options missing\n");
@@ -2023,7 +2029,7 @@ TIMER_START();
 	delete hdd;
 
 	cCA::GetInstance()->Ready(true);
-	InitZapper();
+	//InitZapper();
 
 	SHTDCNT::getInstance()->init();
 
@@ -2034,6 +2040,17 @@ TIMER_START();
 	cHddStat::getInstance();
 
 TIMER_STOP("################################## after all ##################################");
+	if (g_settings.softupdate_autocheck) {
+		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET));
+		hintBox->paint();
+		CFlashUpdate flash;
+		if(flash.checkOnlineVersion()) {
+			hintBox->hide();
+			//flash.enableNotify(false);
+			flash.exec(NULL, "inet");
+		}
+		delete hintBox;
+	}
 	RealRun(personalize.getWidget(0)/**main**/);
 
 	ExitRun(true, (cs_get_revision() > 7));
