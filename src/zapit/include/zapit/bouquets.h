@@ -26,11 +26,18 @@ typedef tallchans::iterator tallchans_iterator;
 typedef vector<CZapitChannel*> ZapitChannelList;
 typedef ZapitChannelList::iterator zapit_list_it_t;
 
+#define DEFAULT_BQ_ID	0
+#define DEFAULT_BQ_HIDDEN    false
+#define DEFAULT_BQ_LOCKED    false
+#define DEFAULT_BQ_OTHER    false
+#define DEFAULT_BQ_SCANEPG    false
+
 class CZapitBouquet
 {
 	public:
 
 	std::string Name;
+	bq_id_t	 BqID;
 	bool        bHidden;
 	bool        bLocked;
 	bool        bUser;
@@ -42,7 +49,7 @@ class CZapitBouquet
 	ZapitChannelList radioChannels;
 	ZapitChannelList tvChannels;
 
-	inline CZapitBouquet(const std::string name) { Name = name; bHidden = false; bLocked = false; bUser = false; bOther = false; bScanEpg = false; }
+	inline CZapitBouquet(const std::string name) { Name = name; BqID=DEFAULT_BQ_ID; bHidden = DEFAULT_BQ_HIDDEN; bLocked = DEFAULT_BQ_LOCKED; bUser = false; bOther = DEFAULT_BQ_OTHER; bScanEpg = DEFAULT_BQ_SCANEPG; }
 
 	void addService(CZapitChannel* newChannel);
 

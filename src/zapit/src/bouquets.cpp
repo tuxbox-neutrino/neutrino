@@ -225,8 +225,12 @@ CBouquetManager::~CBouquetManager()
 void CBouquetManager::writeBouquetHeader(FILE * bouq_fd, uint32_t i, const char * bouquetName)
 {
 //printf("[bouquets] writing bouquet header: %s\n", bouquetName);
-	fprintf(bouq_fd, "\t<Bouquet name=\"%s\" hidden=\"%d\" locked=\"%d\" epg=\"%d\">\n",
-			bouquetName, Bouquets[i]->bHidden ? 1 : 0, Bouquets[i]->bLocked ? 1 : 0, Bouquets[i]->bScanEpg ? 1 : 0);
+	fprintf(bouq_fd, "\t<Bouquet name=\"%s\"", bouquetName);
+	if (Bouquets[i]->BqID!=DEFAULT_BQ_ID) fprintf(bouq_fd, " bqID=\"%04x\"", Bouquets[i]->BqID); // optional_attribute > default=0
+	if (Bouquets[i]->bHidden!=DEFAULT_BQ_HIDDEN) fprintf(bouq_fd, " hidden=\"%d\"", Bouquets[i]->bHidden ? 1 : 0);
+	if (Bouquets[i]->bLocked!=DEFAULT_BQ_LOCKED) fprintf(bouq_fd, " locked=\"%d\"", Bouquets[i]->bLocked ? 1 : 0);
+	if (Bouquets[i]->bScanEpg!=DEFAULT_BQ_SCANEPG) fprintf(bouq_fd, " epg=\"%d\"", Bouquets[i]->bScanEpg ? 1 : 0);
+	fprintf(bouq_fd, ">\n");
 }
 
 void CBouquetManager::writeBouquetFooter(FILE * bouq_fd)
@@ -396,6 +400,8 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				name = const_cast<char*>("Unknown");
 
 			CZapitBouquet* newBouquet = addBouquet(name, bUser);
+			// per default in contructor: newBouquet->BqID = 0; //set to default, override if bqID exists
+			GET_ATTR(search, "bqID", SCANF_BOUQUET_ID_TYPE, newBouquet->BqID);
 			char* hidden = xmlGetAttribute(search, "hidden");
 			char* locked = xmlGetAttribute(search, "locked");
 			char* scanepg = xmlGetAttribute(search, "epg");
