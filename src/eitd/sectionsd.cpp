@@ -1030,6 +1030,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 "Current time: %s"
 		 "Hours to cache: %ld\n"
 		 "Hours to cache extended text: %ld\n"
+		 "Events to cache: %u\n"
 		 "Events are old %ldmin after their end time\n"
 		 "Number of cached services: %u\n"
 		 "Number of cached nvod-services: %u\n"
@@ -1043,7 +1044,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 ""
 #endif
 		 ,ctime(&zeit),
-		 secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices
+		 secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), max_events, oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
 	printf("%s\n", stati);

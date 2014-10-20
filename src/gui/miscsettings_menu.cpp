@@ -274,17 +274,8 @@ int CMiscMenue::showMiscSettingsMenu()
 
 	int res = misc_menue.exec(NULL, "");
 
-	g_settings.epg_cache = atoi(epg_cache.c_str());
-	g_settings.epg_extendedcache = atoi(epg_extendedcache.c_str());
-	g_settings.epg_old_events = atoi(epg_old_events.c_str());
-	g_settings.epg_max_events = atoi(epg_max_events.c_str());
-
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
-#if 0
-	if(cs_get_revision() > 7)
-		delete miscNotifier;
-#endif
 	delete miscEpgNotifier;
 	delete miscEpgScanNotifier;
 	return res;
