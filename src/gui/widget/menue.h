@@ -82,6 +82,13 @@ class CChangeObserver
 		}
 };
 
+class CActivateObserver
+{
+	public:
+		virtual ~CActivateObserver(){}
+		virtual void activateNotify(const neutrino_locale_t /*OptionName*/) {}
+};
+
 class CMenuTarget
 {
 	protected:
@@ -113,6 +120,7 @@ class CMenuItem
 		std::string nameString;
 		neutrino_locale_t desc;
 		std::string descString;
+		CActivateObserver * actObserv;
 	public:
 		int		height;
 		bool		active;
@@ -180,6 +188,8 @@ class CMenuItem
 		virtual void setDescription(const std::string& text);
 		virtual void setDescription(const neutrino_locale_t text);
 		virtual int getDescriptionHeight(void);
+		void setActivateObserver(CActivateObserver * Observ) { actObserv = Observ; }
+		void activateNotify(void);
 };
 
 class CMenuSeparator : public CMenuItem

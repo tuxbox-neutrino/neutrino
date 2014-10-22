@@ -87,6 +87,7 @@ CMenuItem::CMenuItem(bool Active, neutrino_msg_t DirectKey, const char * const I
 	directKeyOK	= true;
 	selected_iconName = NULL;
 	height = 0;
+	actObserv	= NULL;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -451,6 +452,12 @@ int CMenuItem::getHeight(void)
 {
 	height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight() + getDescriptionHeight();
 	return height;
+}
+
+void CMenuItem::activateNotify()
+{
+	if (actObserv)
+		actObserv->activateNotify(name);
 }
 
 //small helper class to manage values e.g.: handling needed but deallocated widget objects
@@ -822,6 +829,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						if (pos < page_start[current_page + 1] && pos >= page_start[current_page]) {
 							/* in current page */
 							items[selected]->paint(false);
+							item->activateNotify();
 							item->paint(true);
 							paintHint(pos);
 							selected = pos;
@@ -1215,19 +1223,15 @@ void CMenuWidget::paintItems()
 		    (count < page_start[current_page + 1]))
 		{
 			item->init(x, ypos, width, iconOffset);
-			if( (item->isSelectable()) && (selected==-1) )
-			{		
-				paintHint(count);
-				ypos = item->paint(true);
+
+			if (item->isSelectable() && selected == -1)
 				selected = count;
+
+			if (selected == count) {
+				item->activateNotify();
+				paintHint(count);
 			}
-			else
-			{
-				bool sel = selected==((signed int) count) ;
-				if(sel)
-					paintHint(count);
-				ypos = item->paint(sel);
-			}
+			ypos = item->paint(selected == count);
 		}
 		else
 		{
