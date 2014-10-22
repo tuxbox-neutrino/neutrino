@@ -2062,6 +2062,7 @@ sleeptimerbox.title2 Inaktivitätstimer
 streaminfo.aratio Verhältnis
 streaminfo.aratio_unknown unbekannt
 streaminfo.audiotype Audiotyp
+streaminfo.audiotype_unknown unbekannt
 streaminfo.average_bitrate Durchschnitt
 streaminfo.bitrate Bitrate
 streaminfo.framerate Bildrate

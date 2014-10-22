@@ -1735,6 +1735,7 @@ sleeptimerbox.title2 Inactiviteit uitschakel timer
 streaminfo.aratio Aspect Ratio
 streaminfo.aratio_unknown Onbekend
 streaminfo.audiotype Audiotype
+streaminfo.audiotype_unknown onbekend
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: onbekend

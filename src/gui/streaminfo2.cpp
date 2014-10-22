@@ -554,12 +554,33 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	sprintf (buf, "%s:", g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE));
 	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT);
 
-	if(type == 0) {
+	if(type == AUDIO_FMT_MPEG) {
 		const char *mpegmodes[4] = { "stereo", "joint_st", "dual_ch", "single_ch" };
 		sprintf (buf, "MPEG %s (%d)", mpegmodes[mode], freq);
-	} else {
+	} else if (type == AUDIO_FMT_DOLBY_DIGITAL || type == AUDIO_FMT_DD_PLUS) {
 		const char *ddmodes[8] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
-		sprintf (buf, "DD %s (%d)", ddmodes[mode], freq);
+		sprintf (buf, "%s %s (%d)",
+			 (type == AUDIO_FMT_DOLBY_DIGITAL) ? "DD" : "DD+",
+			 ddmodes[mode],
+			 freq);
+	} else if (type == AUDIO_FMT_AAC || type == AUDIO_FMT_AAC_PLUS) {
+		const char *aacmodes[10] = {
+			"N/S",
+			"Mono",
+			"L/R",
+			"L/C/R",
+			"L/C/R/SR/SL",
+			"L/C/R/SR/SL/S",
+			"L/R/RL/RR",
+			"L/C/R/S",
+			"L/R/SL/SR",
+			"Dual-Mono"
+		};
+		sprintf (buf, "%s %s (%d)",
+			 (type == AUDIO_FMT_AAC) ? "AAC" : "AAC+",
+			 aacmodes[mode], freq);
+	} else {
+		sprintf (buf, "%s (%d)", g_Locale->getText(LOCALE_STREAMINFO_AUDIOTYPE_UNKNOWN), freq);
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR_TEXT);
 
