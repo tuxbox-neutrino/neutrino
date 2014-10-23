@@ -1449,9 +1449,11 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_FASTDISEQC);
 	fast_ScanMenu->addItem(mf);
 
-	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue);
-	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
-	fast_ScanMenu->addItem(mf);
+	if (!g_settings.easymenu) {
+		mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "sfast", CRCInput::RC_blue);
+		mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+		fast_ScanMenu->addItem(mf);
+	}
 }
 
 int CScanSetup::showFastscanDiseqcSetup()
