@@ -71,6 +71,7 @@ CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, cons
 
 void CZapitChannel::Init()
 {
+	uname = DEFAULT_CH_UNAME;
 	//caPmt = NULL;
 	rawPmt = NULL;
 	pmtLen = 0;
@@ -90,7 +91,7 @@ void CZapitChannel::Init()
 	flags = 0;
 	delsys = DVB_S;
 	bLockCount = 0;
-	bLocked = 0;
+	bLocked = DEFAULT_CH_LOCKED;
 }
 
 CZapitChannel::~CZapitChannel(void)
@@ -328,50 +329,49 @@ void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
 {
 	if(action) {
 		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n", action,
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
 				getServiceType(), scrambled, number, flags);
 
 	} else if(getPidsFlag()) {
 		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
 				getVideoPid(), getPreAudioPid(),
 				getPcrPid(), getPmtPid(), getTeletextPid(),
 				getServiceType(true), type, scrambled, number, flags);
 	} else {
 		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceId(), convert_UTF8_To_UTF8_XML(name.c_str()).c_str(),
 				getServiceType(true), scrambled, number, flags);
 	}
 }
 
-void CZapitChannel::dumpBouquetXml(FILE * fd)
+void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 {
-	//bool write_names = bUser ? true : config.getBool("writeChannelsNames", true);
-	bool write_names = 1;
+	fprintf(fd, "\t\t<S");
 
-	if(write_names) {
-		if (url.empty())
-			fprintf(fd, "\t\t<S i=\"%x\" n=\"%s\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\" l=\"%d\"/>\n",
-					getServiceId(),
-					convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-					getTransportStreamId(),
-					getOriginalNetworkId(),
-					getSatellitePosition(),
-					getFreqId(), bLocked ? 1 : 0);
-		else
-			fprintf(fd, "\t\t<S n=\"%s\" u=\"%s\" l=\"%d\"/>\n",
-					convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-					convert_UTF8_To_UTF8_XML(url.c_str()).c_str(), bLocked ? 1 : 0);
-	} else {
-		if (url.empty())
-			fprintf(fd, "\t\t<S i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\" l=\"%d\"/>\n",
-					getServiceId(),
-					getTransportStreamId(),
-					getOriginalNetworkId(),
-					getSatellitePosition(),
-					getFreqId(), bLocked ? 1 : 0);
-		else
-			fprintf(fd, "\t\t<S u=\"%s\" l=\"%d\"/>\n",
-					convert_UTF8_To_UTF8_XML(url.c_str()).c_str(), bLocked ? 1 : 0);
+	// references
+	if (url.empty())
+		fprintf(fd, " i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"",getServiceId(), getTransportStreamId(), getOriginalNetworkId(), getSatellitePosition(), getFreqId());
+	else
+		fprintf(fd, " u=\"%s\"",convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
+
+	// service descriptors
+	// TODO : manage configuration: write names (if nessessary or wanted) f.e. =>0=never 1=ubouquets 2=bouquets 3=both
+	bool write_names =  false; //config.getBool("writeChannelsNames", true);
+	if (bUser || !url.empty()) {
+		if (write_names)
+			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
+		//fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
+	else {
+		if (write_names)
+			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
+	}
+
+	// usecase optional attributes
+	if (bUser && !uname.empty()) fprintf(fd, " un=\"%s\"", convert_UTF8_To_UTF8_XML(uname.c_str()).c_str());
+	// TODO : be sure to save bouquets.xml after "l"L is changed only in ubouquets.xml (set dirty_bit ?)
+	if (bLocked!=DEFAULT_CH_LOCKED) fprintf(fd," l=\"%d\"", bLocked ? 1 : 0);
+
+	fprintf(fd, "/>\n");
 }

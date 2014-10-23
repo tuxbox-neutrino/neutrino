@@ -238,22 +238,22 @@ void CBouquetManager::writeBouquetFooter(FILE * bouq_fd)
 	fprintf(bouq_fd, "\t</Bouquet>\n");
 }
 
-void CBouquetManager::writeChannels(FILE * bouq_fd, ZapitChannelList &list)
+void CBouquetManager::writeChannels(FILE * bouq_fd, ZapitChannelList &list, bool bUser)
 {
 	for(zapit_list_it_t it = list.begin(); it != list.end(); it++)
-		(*it)->dumpBouquetXml(bouq_fd);
+		(*it)->dumpBouquetXml(bouq_fd, bUser);
 }
 
-void CBouquetManager::writeBouquetChannels(FILE * bouq_fd, uint32_t i, bool /*bUser*/)
+void CBouquetManager::writeBouquetChannels(FILE * bouq_fd, uint32_t i, bool bUser)
 {
-	writeChannels(bouq_fd, Bouquets[i]->tvChannels);
-	writeChannels(bouq_fd, Bouquets[i]->radioChannels);
+	writeChannels(bouq_fd, Bouquets[i]->tvChannels, bUser);
+	writeChannels(bouq_fd, Bouquets[i]->radioChannels, bUser);
 }
 
-void CBouquetManager::writeBouquet(FILE * bouq_fd, uint32_t i)
+void CBouquetManager::writeBouquet(FILE * bouq_fd, uint32_t i,bool  bUser)
 {
 	writeBouquetHeader(bouq_fd, i, convert_UTF8_To_UTF8_XML(Bouquets[i]->Name.c_str()).c_str());
-	writeBouquetChannels(bouq_fd, i);
+	writeBouquetChannels(bouq_fd, i, Bouquets[i]->bUser);
 	writeBouquetFooter(bouq_fd);
 }
 
@@ -273,7 +273,7 @@ void CBouquetManager::saveBouquets(void)
 		if (Bouquets[i] != remainChannels) {
 			DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]->bUser);
 			if(!Bouquets[i]->bUser) {
-				writeBouquet(bouq_fd, i);
+				writeBouquet(bouq_fd, i,false);
 			}
 		}
 	}
@@ -297,7 +297,7 @@ void CBouquetManager::saveUBouquets(void)
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
 			if(Bouquets[i]->bUser) {
-				writeBouquet(ubouq_fd, i);
+				writeBouquet(ubouq_fd, i, true);
 			}
 		}
 	}
@@ -415,6 +415,10 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				name = xmlGetAttribute(channel_node, "n");
 				if (name)
 					name2 = name;
+				std::string uname;
+				char *uName = xmlGetAttribute(channel_node, "un");
+				if (uName)
+					uname = uName;
 				char *url = xmlGetAttribute(channel_node, "u");
 				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
 				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
@@ -435,8 +439,8 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					chan = CServiceManager::getInstance()->FindChannel(chid);
 				if (chan != NULL) {
 					DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
-					if(bUser && (name2.length() > 1))
-						chan->setUserName(name2);
+					if(bUser && !(uname.empty()))
+						chan->setUserName(uname);
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
 					chan->bLocked = clock;

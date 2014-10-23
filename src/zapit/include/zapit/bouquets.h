@@ -83,8 +83,8 @@ class CBouquetManager
 		void writeBouquetHeader          (FILE * bouq_fd, uint32_t i, const char * bouquetName);
 		void writeBouquetFooter          (FILE * bouq_fd);
 		void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);
-		void writeChannels(FILE * bouq_fd, ZapitChannelList &list);
-		void writeBouquet(FILE * bouq_fd, uint32_t i);
+		void writeChannels(FILE * bouq_fd, ZapitChannelList &list, bool bUser);
+		void writeBouquet(FILE * bouq_fd, uint32_t i, bool bUser);
 
 	public:
 		CBouquetManager() { remainChannels = NULL; };

@@ -35,6 +35,9 @@
 #include "types.h"
 //#include <zapit/audio.h>
 
+#define DEFAULT_CH_LOCKED   false
+#define DEFAULT_CH_UNAME    ""
+
 typedef struct audio_map_set {
         unsigned short apid;
         int mode;
@@ -117,6 +120,7 @@ class CZapitChannel
 	private:
 		/* channel name */
 		std::string name;
+		/* TODO : Enable different unames in different bouquets ( generated bouquetID ? ) */
 		std::string uname;
 
 		/* WebTV */
@@ -268,7 +272,7 @@ class CZapitChannel
 		void setChannelSub(int subIdx);
 
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
-		void dumpBouquetXml(FILE * fd);
+		void dumpBouquetXml(FILE * fd, bool bUser);
 		void setRecordDemux(uint8_t num) { record_demux = num; };
 		void setPipDemux(uint8_t num) { pip_demux = num; };
 		int  getRecordDemux() { return record_demux; };
