@@ -405,7 +405,10 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
 			channel_node = search->xmlChildrenNode;
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
-				std::string  name2 = xmlGetAttribute(channel_node, "n");
+				std::string name2;
+				name = xmlGetAttribute(channel_node, "n");
+				if (name)
+					name2 = name;
 				char *url = xmlGetAttribute(channel_node, "u");
 				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
 				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
