@@ -372,8 +372,9 @@ void CVFD::showTime(bool force)
 					ShowText(timestr);
 				} else if (support_numbers && has_led_segment) {
 					ShowNumber((t->tm_hour*100) + t->tm_min);
-					if (fd >= 0)
-						ioctl(fd, IOC_FP_SET_COLON, 0x01);
+#ifdef BOXMODEL_APOLLO
+					ioctl(fd, IOC_FP_SET_COLON, 0x01);
+#endif
 				}
 			}
 		}
@@ -547,8 +548,10 @@ void CVFD::setMode(const MODES m, const char * const title)
 	if(fd < 0) return;
 
 	// Clear colon in display if it is still there
+#ifdef BOXMODEL_APOLLO
 	if (support_numbers && has_led_segment)
 		ioctl(fd, IOC_FP_SET_COLON, 0x00);
+#endif
 
 	if(mode == MODE_AUDIO)
 		ShowIcon(FP_ICON_MP3, false);
@@ -796,11 +799,13 @@ void CVFD::ShowNumber(int number)
 	if (number < 0)
 		return;
 	
+#ifdef BOXMODEL_APOLLO
 	int ret = ioctl(fd, IOC_FP_SET_NUMBER, number);
 	if(ret < 0) {
 		support_numbers = false;
 		perror("IOC_FP_SET_NUMBER");
 	}
+#endif
 }
 
 #ifdef VFD_UPDATE
