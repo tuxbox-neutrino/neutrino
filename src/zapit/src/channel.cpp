@@ -21,7 +21,11 @@
  */
 
 #include <cstdio>
+#include <zapit/zapit.h>
 #include <zapit/channel.h>
+
+extern Zapit_config zapitCfg;
+
 
 CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq)
 {
@@ -347,6 +351,10 @@ void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
 
 void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 {
+	// TODO : gui->manage configuration: write names (if nessessary or wanted) 
+	// menu > installation > Servicesscan > under 'Bouquet' => "Write DVB-names in bouquets:" f.e. =>0=never 1=ubouquets 2=bouquets 3=both
+	int write_names =  zapitCfg.writeChannelsNames;
+
 	fprintf(fd, "\t\t<S");
 
 	// references
@@ -356,15 +364,13 @@ void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 		fprintf(fd, " u=\"%s\"",convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
 
 	// service descriptors
-	// TODO : manage configuration: write names (if nessessary or wanted) f.e. =>0=never 1=ubouquets 2=bouquets 3=both
-	bool write_names =  false; //config.getBool("writeChannelsNames", true);
 	if (bUser || !url.empty()) {
-		if (write_names)
+		if ((write_names==0x01) || (write_names==0x03))
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 		//fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
 	else {
-		if (write_names)
+		if ((write_names==0x02) || (write_names==0x03))
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
 
