@@ -1357,7 +1357,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
 		info_box->setFrameThickness(2);
 		info_box->removeLineBreaks(str);
-		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT], COL_MENUCONTENT_TEXT);
 		info_box->setCorner(RADIUS_LARGE);
 		info_box->syncSysColors();
 		info_box->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
