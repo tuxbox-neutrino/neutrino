@@ -137,22 +137,25 @@ void CComponentsInfoBox::paint(bool do_save_bg)
  	if (!ct_text.empty()){
  		if (cctext)
 			delete cctext;
-		
-		cctext = new CComponentsText();
-		cctext->setText(ct_text, ct_text_mode, ct_font);
-		cctext->doPaintTextBoxBg(ct_paint_textbg);
-		cctext->doPaintBg(false);
-		cctext->setTextColor(ct_col_text);
-		cctext->enableTboxSaveScreen(save_tbox_screen);
-
-		//calculate vars for x-position and dimensions
-		int tx = x_offset + x_text + pic_w;
-		int tw = width - x_offset - pic_w - 2*fr_thickness;
-		int th = height-2*fr_thickness;
-		cctext->setDimensionsAll(tx, y_text, tw, th);
-
-		//paint, but set visibility mode
-		cctext->allowPaint(cc_allow_paint);
-		cctext->paint(CC_SAVE_SCREEN_NO);
+		cctext = NULL;
 	}
+
+	if (cctext == NULL)
+		cctext = new CComponentsText();
+
+	cctext->setText(ct_text, ct_text_mode, ct_font);
+	cctext->doPaintTextBoxBg(ct_paint_textbg);
+	cctext->doPaintBg(false);
+	cctext->setTextColor(ct_col_text);
+	cctext->enableTboxSaveScreen(save_tbox_screen);
+
+	//calculate vars for x-position and dimensions
+	int tx = x_offset + x_text + pic_w;
+	int tw = width - x_offset - pic_w - 2*fr_thickness;
+	int th = height-2*fr_thickness;
+	cctext->setDimensionsAll(tx, y_text, tw, th);
+
+	//paint, but set visibility mode
+	cctext->allowPaint(cc_allow_paint);
+	cctext->paint(CC_SAVE_SCREEN_NO);
 }
