@@ -2378,7 +2378,7 @@ void CChannelList::editMode(bool enable)
 			channelsChanged = false;
 			bouquet->zapitBouquet->getChannels(channels, tvmode);
 			saveChanges(bouquet->zapitBouquet->bUser);
-			if ((*chanlist).empty())
+			if (!g_settings.show_empty_favorites && (*chanlist).empty())
 				CNeutrinoApp::getInstance()->MarkChannelsInit();
 		}
 		if (selected >= chanlist->size())

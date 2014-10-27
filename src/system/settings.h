@@ -192,6 +192,7 @@ struct SNeutrinoSettings
 	int make_new_list;
 	int make_removed_list;
 	int keep_channel_numbers;
+	int show_empty_favorites;
 	int avsync;
 	int clockrec;
 	int rounded_corners;
