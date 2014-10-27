@@ -250,6 +250,7 @@ channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
 channellist.show_channellogo Show channel logos
 channellist.show_channelnumber Show channel numbers
+channellist.show_empty_favs Show empty favorites bouquets
 channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
@@ -920,6 +921,7 @@ menu.hint_channellist_mode_radio Use the selected channel list mode on startup i
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Show channel logos in channel list
 menu.hint_channellist_show_channelnumber Show channel number in channel list
+menu.hint_channellist_show_empty_favs Show / hide empty bouquets in favorites
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_clock_background Show clock with theme's background color
