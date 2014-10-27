@@ -533,8 +533,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	remainChannels->bOther = true;
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
-		if (!IS_WEBTV((*it)->getChannelID()))
-			remainChannels->addService(*it);
+		remainChannels->addService(*it);
 	}
 
 	renumChannels(remainChannels->tvChannels, i);
