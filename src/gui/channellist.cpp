@@ -306,7 +306,7 @@ int CChannelList::doChannelMenu(void)
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	bool empty = (*chanlist).empty();
-	bool allow_edit = (bouquet && bouquet->zapitBouquet /*&& bouquet->zapitBouquet->bUser*/);
+	bool allow_edit = (bouquet && bouquet->zapitBouquet && !bouquet->zapitBouquet->bOther);
 
 	int i = 0;
 	snprintf(cnt, sizeof(cnt), "%d", i);
