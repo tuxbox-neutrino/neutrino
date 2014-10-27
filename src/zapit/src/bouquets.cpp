@@ -250,7 +250,7 @@ void CBouquetManager::writeBouquetChannels(FILE * bouq_fd, uint32_t i, bool bUse
 	writeChannels(bouq_fd, Bouquets[i]->radioChannels, bUser);
 }
 
-void CBouquetManager::writeBouquet(FILE * bouq_fd, uint32_t i,bool  bUser)
+void CBouquetManager::writeBouquet(FILE * bouq_fd, uint32_t i, bool /* bUser */)
 {
 	writeBouquetHeader(bouq_fd, i, convert_UTF8_To_UTF8_XML(Bouquets[i]->Name.c_str()).c_str());
 	writeBouquetChannels(bouq_fd, i, Bouquets[i]->bUser);
