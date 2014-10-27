@@ -415,6 +415,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.make_new_list = configfile.getInt32("make_new_list", 1);
 	g_settings.make_removed_list = configfile.getInt32("make_removed_list", 1);
 	g_settings.keep_channel_numbers = configfile.getInt32("keep_channel_numbers", 0);
+	g_settings.show_empty_favorites = configfile.getInt32("show_empty_favorites", 0);
 
 	//misc
 	g_settings.power_standby = configfile.getInt32( "power_standby", 0);
@@ -942,6 +943,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "make_new_list", g_settings.make_new_list);
 	configfile.setInt32( "make_removed_list", g_settings.make_removed_list);
 	configfile.setInt32( "keep_channel_numbers", g_settings.keep_channel_numbers);
+	configfile.setInt32( "show_empty_favorites", g_settings.show_empty_favorites);
 	//led
 	configfile.setInt32( "led_tv_mode", g_settings.led_tv_mode);
 	configfile.setInt32( "led_standby_mode", g_settings.led_standby_mode);
@@ -1334,7 +1336,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 	int tvi = 0, ri = 0;
 
-	ZapitChannelList zapitList;
+	ZapitChannelList zapitList, webtvList;
 
 	/* all TV channels */
 	CServiceManager::getInstance()->GetAllTvChannels(zapitList);
@@ -1402,20 +1404,16 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		}
 		/* all WebTV channels */
 		if (g_settings.make_webtv_list) {
-			if (CServiceManager::getInstance()->GetAllWebTVChannels(zapitList)) {
+			if (CServiceManager::getInstance()->GetAllWebTVChannels(webtvList)) {
 				/* all channels */
 				CBouquet* webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
-				webtvBouquet->channelList->SetChannelList(&zapitList);
+				webtvBouquet->channelList->SetChannelList(&webtvList);
 				TVallList->Bouquets.push_back(webtvBouquet);
-				/* provider */
-				webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
-				webtvBouquet->channelList->SetChannelList(&zapitList);
-				TVbouquetList->Bouquets.push_back(webtvBouquet);
 				/* "satellite" */
 				webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
-				webtvBouquet->channelList->SetChannelList(&zapitList);
+				webtvBouquet->channelList->SetChannelList(&webtvList);
 				TVsatList->Bouquets.push_back(webtvBouquet);
-				printf("[neutrino] got %d WebTV channels\n", (int)zapitList.size()); fflush(stdout);
+				printf("[neutrino] got %d WebTV channels\n", (int)webtvList.size()); fflush(stdout);
 			}
 		}
 		/* all HD channels */
@@ -1467,7 +1465,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 		CZapitBouquet *b = g_bouquetManager->Bouquets[i];
 		if (!b->bHidden) {
-			if (b->getTvChannels(zapitList) /*|| b->bFav */) {
+			if (b->getTvChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
 				if(b->bUser)
 					tmp = TVfavList->addBouquet(b);
 				else
@@ -1476,7 +1474,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp->channelList->SetChannelList(&zapitList);
 				tvi++;
 			}
-			if (b->getRadioChannels(zapitList) /* || b->bFav */) {
+			if (b->getRadioChannels(zapitList) || (g_settings.show_empty_favorites && b->bUser)) {
 				if(b->bUser)
 					tmp = RADIOfavList->addBouquet(b);
 				else
@@ -1488,6 +1486,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 			if(b->bUser)
 				AllFavBouquetList->addBouquet(b);
 		}
+	}
+	if (!webtvList.empty()) {
+		/* provider */
+		CBouquet* webtvBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_WEBTV), false, true);
+		webtvBouquet->channelList->SetChannelList(&webtvList);
+		TVbouquetList->Bouquets.push_back(webtvBouquet);
 	}
 	printf("[neutrino] got %d TV and %d RADIO bouquets\n", tvi, ri); fflush(stdout);
 	TIMER_STOP("[neutrino] took");
