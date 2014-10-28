@@ -332,7 +332,7 @@ int CChannelList::doChannelMenu(void)
 	delete selector;
 
 	if(select >= 0) {
-		signed int bouquet_id = 0;
+		//signed int bouquet_id = 0;
 		old_selected = select;
 		t_channel_id channel_id = empty ? 0 : (*chanlist)[selected]->channel_id;
 		bool tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;
@@ -364,31 +364,8 @@ int CChannelList::doChannelMenu(void)
 			ret = -1;
 			break;
 		case 1: // add to
-			bouquet_id = AllFavBouquetList->exec(false);
-			hide();
-			if(bouquet_id < 0)
+			if (!addChannelToBouquet())
 				return -1;
-
-			if (AllFavBouquetList->Bouquets[bouquet_id]->zapitBouquet) {
-				CZapitBouquet *zapitBouquet = AllFavBouquetList->Bouquets[bouquet_id]->zapitBouquet;
-				CZapitChannel *ch = zapitBouquet->getChannelByChannelID(channel_id);
-				if (ch == NULL) {
-					fav_found = false;
-					zapitBouquet->addService((*chanlist)[selected]);
-					for (unsigned n = 0; n < blist->Bouquets.size(); n++) {
-						if (blist->Bouquets[n]->zapitBouquet == zapitBouquet) {
-							zapitBouquet->getChannels(blist->Bouquets[n]->channelList->channels, tvmode);
-							saveChanges();
-							fav_found = true;
-							break;
-						}
-					}
-				}
-			}
-			if (!fav_found) {
-				CNeutrinoApp::getInstance()->MarkFavoritesChanged();
-				CNeutrinoApp::getInstance()->MarkChannelsInit();
-			}
 			ret = 1;
 			break;
 		case 2: // add to my favorites
@@ -896,6 +873,10 @@ int CChannelList::show()
 					paint();
 				}
 			}
+		}
+		else if (!empty && edit_state && move_state != beMoving && msg == CRCInput::RC_forward )
+		{
+			moveChannelToBouquet();
 		}
 #ifdef ENABLE_PIP
 		else if (!empty && ((msg == CRCInput::RC_play) || (msg == (neutrino_msg_t) g_settings.key_pip_close))) {
@@ -1692,13 +1673,14 @@ struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
 	{ NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, NONEXISTANT_LOCALE}
 };
 
-#define NUM_LIST_BUTTONS_EDIT 4
+#define NUM_LIST_BUTTONS_EDIT 5
 const struct button_label SChannelListButtons_Edit[NUM_LIST_BUTTONS_EDIT] =
 {
         { NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE     },
         { NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD        },
         { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE       },
-        { NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_BOUQUETEDITOR_LOCK       }
+        { NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_BOUQUETEDITOR_LOCK       },
+        { NEUTRINO_ICON_BUTTON_FORWARD  , LOCALE_BOUQUETEDITOR_MOVE_TO }
 };
 
 void CChannelList::paintButtonBar(bool is_current)
@@ -2425,14 +2407,14 @@ void CChannelList::internalMoveChannel( unsigned int fromPosition, unsigned int 
 	paint();
 }
 
-void CChannelList::deleteChannel()
+void CChannelList::deleteChannel(bool ask)
 {
 	if (selected >= chanlist->size())
 		return;
 	if (!bouquet || !bouquet->zapitBouquet)
 		return;
 
-	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
+	if (ask && ShowMsg(LOCALE_FILEBROWSER_DELETE, (*chanlist)[selected]->getName(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
 		return;
 
 	bouquet->zapitBouquet->removeService((*chanlist)[selected]->channel_id);
@@ -2479,4 +2461,51 @@ void CChannelList::lockChannel()
 		g_RCInput->postMsg((neutrino_msg_t) CRCInput::RC_down, 0);
 	else
 		paintItem(selected - liststart);
+}
+
+bool CChannelList::addChannelToBouquet()
+{
+	bool fav_found = true;
+	signed int bouquet_id = AllFavBouquetList->exec(false);
+	hide();
+	if(bouquet_id < 0)
+		return false;
+
+	t_channel_id channel_id = (*chanlist)[selected]->channel_id;
+	bool tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;
+	CBouquetList *blist = tvmode ? TVfavList : RADIOfavList;
+	if (AllFavBouquetList->Bouquets[bouquet_id]->zapitBouquet) {
+		CZapitBouquet *zapitBouquet = AllFavBouquetList->Bouquets[bouquet_id]->zapitBouquet;
+		CZapitChannel *ch = zapitBouquet->getChannelByChannelID(channel_id);
+		if (ch == NULL) {
+			fav_found = false;
+			zapitBouquet->addService((*chanlist)[selected]);
+			for (unsigned n = 0; n < blist->Bouquets.size(); n++) {
+				if (blist->Bouquets[n]->zapitBouquet == zapitBouquet) {
+					zapitBouquet->getChannels(blist->Bouquets[n]->channelList->channels, tvmode);
+					saveChanges();
+					fav_found = true;
+					break;
+				}
+			}
+		} else {
+			ShowMsg(LOCALE_EXTRA_ADD_TO_BOUQUET, LOCALE_EXTRA_CHALREADYINBQ, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+			return false;
+		}
+	}
+	if (!fav_found) {
+		CNeutrinoApp::getInstance()->MarkFavoritesChanged();
+		CNeutrinoApp::getInstance()->MarkChannelsInit();
+	}
+	return true;
+}
+
+void CChannelList::moveChannelToBouquet()
+{
+	if (addChannelToBouquet())
+		deleteChannel(false);
+	else
+		paint();
+
+	paintHead();
 }
