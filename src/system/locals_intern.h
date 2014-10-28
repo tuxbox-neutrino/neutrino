@@ -215,6 +215,7 @@ const char * locale_real_names[] =
 	"bouqueteditor.hide",
 	"bouqueteditor.lock",
 	"bouqueteditor.move",
+	"bouqueteditor.move_to",
 	"bouqueteditor.name",
 	"bouqueteditor.newbouquetname",
 	"bouqueteditor.rename",

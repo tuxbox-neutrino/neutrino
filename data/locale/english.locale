@@ -188,6 +188,7 @@ bouqueteditor.discardingchanges Discarding changes. Please be patient.
 bouqueteditor.hide Hide
 bouqueteditor.lock Lock
 bouqueteditor.move Move
+bouqueteditor.move_to Move to
 bouqueteditor.name Bouquet editor
 bouqueteditor.newbouquetname New name of bouquets
 bouqueteditor.rename Rename
