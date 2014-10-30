@@ -109,7 +109,7 @@ void CComponentsPicture::setPicture(const char* picture_name)
 void CComponentsPicture::initCCItem()
 {
 	if (pic_name.empty()){
-		dprintf(DEBUG_NORMAL, "[CComponentsPicture] %s: no image file assigned...\n", __func__);
+		dprintf(DEBUG_INFO, "[CComponentsPicture] %s - %d : no image file assigned...\n",  __func__, __LINE__);
 		return;
 	}
 
@@ -193,6 +193,8 @@ void CComponentsPicture::paintPicture()
 
 void CComponentsPicture::paint(bool do_save_bg)
 {
+	if (pic_name.empty())
+		return;
 	paintInit(do_save_bg);
 	paintPicture();
 }
