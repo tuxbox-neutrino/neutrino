@@ -106,17 +106,17 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	col_shadow	= color_shadow;
 
 	col_body_gradient = g_settings.gradiant;
-	setColBodyGradient(CColorGradient::gradientDark2Light2Dark, CFrameBuffer::gradientVertical, CColorGradient::light);
+	setColBodyGradient(CColorGradient::gradientLight2Dark, CFrameBuffer::gradientVertical, CColorGradient::light);
 
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
 	fr_thickness 	= 3;
 	append_x_offset = 6;
 	append_y_offset = 0;
-	corner_rad	= RADIUS_MID;
+	corner_rad	= 0;
 	
-	cc_btn_capt_col	= COL_INFOBAR_SHADOW_TEXT;
-	cc_btn_capt_disable_col = COL_MENUCONTENTINACTIVE_TEXT;
+	cc_btn_capt_col		= col_body_gradient ? COL_BUTTON_TEXT_ENABLED : COL_INFOBAR_SHADOW_TEXT;
+	cc_btn_capt_disable_col = col_body_gradient ? COL_BUTTON_TEXT_DISABLED : COL_MENUCONTENTINACTIVE_TEXT;
 	cc_btn_icon_obj	= NULL;
 	cc_btn_capt_obj = NULL;
 	cc_btn_dy_font  = CNeutrinoFonts::getInstance();
