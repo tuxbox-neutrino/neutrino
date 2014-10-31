@@ -1894,6 +1894,9 @@ TIMER_START();
 
 	/* create decoders, read channels */
 	bool zapit_init = CZapit::getInstance()->Start(&ZapStart_arg);
+	//get zapit config for writeChannelsNames
+	CZapit::getInstance()->GetConfig(zapitCfg);
+
 	// init audio settings
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	//audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);

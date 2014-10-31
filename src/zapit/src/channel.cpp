@@ -351,26 +351,25 @@ void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
 
 void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 {
-	// TODO : gui->manage configuration: write names (if nessessary or wanted) 
+	// TODO : gui->manage configuration: writeChannelsNames (if nessessary or wanted) in zapit.conf
 	// menu > installation > Servicesscan > under 'Bouquet' => "Write DVB-names in bouquets:" f.e. =>0=never 1=ubouquets 2=bouquets 3=both
 	int write_names =  zapitCfg.writeChannelsNames;
 
 	fprintf(fd, "\t\t<S");
 
-	// references
+	// references (mandatory)
 	if (url.empty())
 		fprintf(fd, " i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"",getServiceId(), getTransportStreamId(), getOriginalNetworkId(), getSatellitePosition(), getFreqId());
 	else
 		fprintf(fd, " u=\"%s\"",convert_UTF8_To_UTF8_XML(url.c_str()).c_str());
 
-	// service descriptors
+	// service names
 	if (bUser || !url.empty()) {
-		if ((write_names==0x01) || (write_names==0x03))
+		if ((write_names & 0x01) ==0x01)
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
-		//fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
 	else {
-		if ((write_names==0x02) || (write_names==0x03))
+		if ((write_names & 0x02) == 0x02)
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
 
