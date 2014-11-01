@@ -82,7 +82,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;
 
-	btn_contour	= false;
+	btn_contour	= g_settings.gradiant;
 	ccf_btn_font	= NULL;
 	chain		= NULL;
 
