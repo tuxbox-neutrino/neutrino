@@ -1653,7 +1653,9 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 			CSectionsdClient::LinkageDescriptorList desc;
 			CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
 			CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
-			if (CEitManager::getInstance()->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey,desc))
+
+			if (currentNextInfo.flags & CSectionsdClient::epgflags::current_has_linkagedescriptors &&
+			    CEitManager::getInstance()->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey, desc))
 			{
 				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(current_channel);
 				t_satellite_position satellitePosition = channel->getSatellitePosition();
@@ -1668,6 +1670,19 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 						   (desc[i].name).c_str());
 				}
 			}
+		}
+		else if (!hh->ParamList["subchannel"].empty())
+		{
+			t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
+			CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
+			CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
+			if (currentNextInfo.flags & CSectionsdClient::epgflags::current_has_linkagedescriptors)
+			{
+				NeutrinoAPI->ZapToSubService(hh->ParamList["subchannel"].c_str());
+				hh->SendOk();
+			}
+			else
+				hh->SendError();
 		}
 		else if (hh->ParamList["name"] != "")
 		{
