@@ -655,7 +655,27 @@ int CScanSetup::showScanMenu()
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_BOUQUET);
 	settings->addItem(mc);
 
+	//bouquet write_names selection
+	const short SCANTS_BOUQUET_WRITENAMES_COUNT = 4;
+	const CMenuOptionChooser::keyval SCANTS_BOUQUET_WRITENAMES[SCANTS_BOUQUET_WRITENAMES_COUNT] =
+	{
+		{ CBouquetManager::BWN_NEVER		, LOCALE_SCANTS_BOUQUET_WRITENAMES_NEVER     	},
+		{ CBouquetManager::BWN_UBOUQUETS    	, LOCALE_SCANTS_BOUQUET_WRITENAMES_UBOUQUETS   	},
+		{ CBouquetManager::BWN_BOUQUETS     	, LOCALE_SCANTS_BOUQUET_WRITENAMES_BOUQUETS    	},
+		{ CBouquetManager::BWN_EVER        	, LOCALE_SCANTS_BOUQUET_WRITENAMES_EVER    	}
+	};
+
+	int tmp_writeChannelsNames = zapitCfg.writeChannelsNames;
+	mc = new CMenuOptionChooser(LOCALE_SCANTS_BOUQUET_WRITENAMES, (int *)&zapitCfg.writeChannelsNames, SCANTS_BOUQUET_WRITENAMES, SCANTS_BOUQUET_WRITENAMES_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true);
+	mc->setHint("", LOCALE_MENU_HINT_SCAN_BOUQUET_WRITENAMES);
+	settings->addItem(mc);
+
 	int res = settings->exec(NULL, "");
+	//set write_names if changed
+	if(zapitCfg.writeChannelsNames != tmp_writeChannelsNames){
+		CZapit::getInstance()->SetConfig(&zapitCfg);
+		g_Zapit->saveBouquets();
+	}
 
 	delete satOnOff;
 	delete settings;

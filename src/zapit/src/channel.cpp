@@ -365,11 +365,11 @@ void CZapitChannel::dumpBouquetXml(FILE * fd, bool bUser)
 
 	// service names
 	if (bUser || !url.empty()) {
-		if ((write_names & 0x01) ==0x01)
+		if ((write_names & CBouquetManager::BWN_UBOUQUETS) == CBouquetManager::BWN_UBOUQUETS)
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
 	else {
-		if ((write_names & 0x02) == 0x02)
+		if ((write_names & CBouquetManager::BWN_BOUQUETS) == CBouquetManager::BWN_BOUQUETS)
 			fprintf(fd, " n=\"%s\"", convert_UTF8_To_UTF8_XML(name.c_str()).c_str());
 	}
 

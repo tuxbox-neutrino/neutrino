@@ -132,6 +132,13 @@ class CBouquetManager
 		void sortBouquets(void);
 		void setBouquetLock(const unsigned int id, bool state);
 		void setBouquetLock(CZapitBouquet* bouquet, bool state);
+		//bouquet writeChannelsNames selection options
+		enum{
+			BWN_NEVER,
+			BWN_UBOUQUETS,
+			BWN_BOUQUETS,
+			BWN_EVER
+		};
 };
 
 /*

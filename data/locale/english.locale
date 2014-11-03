@@ -1203,6 +1203,7 @@ menu.hint_scan_auto Auto-scan selected provider
 menu.hint_scan_autoall Scan several selected providers at once
 menu.hint_scan_autoall_select Add selected satellites to scan
 menu.hint_scan_bouquet Update: add to current bouquets, erase:\nremove old bouquets, leave: dont add or change
+menu.hint_scan_bouquet_writenames Write services names to bouquets \n never > fovourites only > providers only > both
 menu.hint_scan_bw Select the channel bandwidth
 menu.hint_scan_cable Select cable network to scan
 menu.hint_scan_cable_simple Cable scan with optional\nprovider channel numbering
@@ -1995,6 +1996,11 @@ scants.bouquet_erase erase old
 scants.bouquet_leave leave current
 scants.bouquet_satellite Satellite-Bouquet
 scants.bouquet_update update
+scants.bouquet_writenames Write service names to bouquets
+scants.bouquet_writenames_bouquets providers
+scants.bouquet_writenames_ever both
+scants.bouquet_writenames_never never
+scants.bouquet_writenames_ubouquets favourites
 scants.channel Channel:
 scants.failed Transponderscan failed!
 scants.finished Transponderscan finished successfully!
