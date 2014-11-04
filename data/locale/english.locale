@@ -809,7 +809,7 @@ lcdcontroler.brightnessdeepstandby DeepStandby Brightness
 lcdcontroler.brightnessstandby Standby Brightness
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
-lcdmenu.head VFD Settings
+lcdmenu.head VFD/LED Settings
 lcdmenu.lcdcontroler Brightness
 lcdmenu.scroll Enable text scroll
 lcdmenu.statusline status line
@@ -863,7 +863,7 @@ mainsettings.audio Audio
 mainsettings.head Settings
 mainsettings.keybinding Key Setup
 mainsettings.language Language / Timezone
-mainsettings.lcd VFD-Display
+mainsettings.lcd Front-Panel
 mainsettings.manage Manage settings
 mainsettings.misc Extended settings
 mainsettings.multimedia Multimedia
@@ -1314,7 +1314,7 @@ menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
 menu.hint_upnp Universal Plug and Play Browser
-menu.hint_vfd Frontpanel LEDS, VFD options
+menu.hint_vfd Frontpanel LEDs, VFD options
 menu.hint_vfd_brightness Working brightness 
 menu.hint_vfd_brightness_setup Configure frontpanel display brightness\nfor different modes
 menu.hint_vfd_brightnessdeepstandby Brightness in deep-standby mode

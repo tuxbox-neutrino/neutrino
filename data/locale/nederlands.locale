@@ -807,7 +807,7 @@ lcdcontroler.brightnessdeepstandby Deep Standby helderheid
 lcdcontroler.brightnessstandby Standby Helderheid
 lcdmenu.dim_brightness Helderheid na dim timeout
 lcdmenu.dim_time Dim timeout
-lcdmenu.head VFD Instellingen
+lcdmenu.head VFD/LED Instellingen
 lcdmenu.lcdcontroler Helderheid
 lcdmenu.scroll Enable tekst scroll
 lcdmenu.statusline statuslijn
@@ -861,7 +861,7 @@ mainsettings.audio Audio
 mainsettings.head Instellingen
 mainsettings.keybinding Sneltoetsen aanpassen
 mainsettings.language Taal / Tijdzone
-mainsettings.lcd Display instellingen
+mainsettings.lcd Voorpaneel instellingen
 mainsettings.manage Beheer instellingen
 mainsettings.misc Diverse instellingen
 mainsettings.multimedia Multimedia
@@ -1310,7 +1310,7 @@ menu.hint_tools Start tools
 menu.hint_tvmode Schakel ontvanger in TV modus
 menu.hint_tvradio_switch Schakelen tussen TV en Radio modus
 menu.hint_upnp Universal Plug and Play Browser
-menu.hint_vfd Voorpaneel LEDS, VFD opties
+menu.hint_vfd Voorpaneel LEDs, VFD opties
 menu.hint_vfd_brightness Helderheid in gebruik
 menu.hint_vfd_brightness_setup Configureer helderheid van het display
 menu.hint_vfd_brightnessdeepstandby Helderheid in deep-standby modus

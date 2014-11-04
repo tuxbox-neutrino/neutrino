@@ -807,7 +807,7 @@ lcdcontroler.brightnessdeepstandby Deep-Standby
 lcdcontroler.brightnessstandby Standby
 lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
-lcdmenu.head VFD Einstellungen
+lcdmenu.head VFD/LED Einstellungen
 lcdmenu.lcdcontroler Helligkeit
 lcdmenu.scroll Laufschrift
 lcdmenu.statusline Statuszeile
@@ -861,7 +861,7 @@ mainsettings.audio Audio
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten
 mainsettings.language Sprache
-mainsettings.lcd VFD-Display
+mainsettings.lcd Front-Panel
 mainsettings.manage Einstellungen verwalten
 mainsettings.misc Erweiterte Einstellungen
 mainsettings.multimedia Multimedia
