@@ -6,9 +6,10 @@ version.h:
 	echo '#define BUILT_DATE "'`date`'"' > $@
 	@if test -d $(top_srcdir)/.git ; then \
 		pushd $(top_srcdir) ; \
-		GITDESCRIBE=$$(git describe --always --dirty || echo 'VCS failed') ; \
+		GITBRANCH=$$(git rev-parse --abbrev-ref HEAD) ; \
+		GITDESCRIBE=$$(git describe --always --tags --dirty || echo 'VCS failed') ; \
 		popd ; \
-		echo '#define VCS "'$${GITDESCRIBE}'"' >> $@ ; \
+		echo '#define VCS "'$${GITDESCRIBE} [$${GITBRANCH}]'"' >> $@ ; \
 	fi
 noinst_HEADERS = version.h
 .PHONY: version.h
