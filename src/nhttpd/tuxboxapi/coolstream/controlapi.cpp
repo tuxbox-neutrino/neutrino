@@ -1655,11 +1655,13 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 			CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
 			if (CEitManager::getInstance()->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey,desc))
 			{
+				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(current_channel);
+				t_satellite_position satellitePosition = channel->getSatellitePosition();
 				for(unsigned int i=0; i< desc.size(); i++)
 				{
 					t_channel_id sub_channel_id =
-						CREATE_CHANNEL_ID(
-							desc[i].serviceId, desc[i].originalNetworkId, desc[i].transportStreamId);
+						      ((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
+						      (uint64_t) CREATE_CHANNEL_ID(desc[i].serviceId, desc[i].originalNetworkId, desc[i].transportStreamId);
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 						   " %s\n",
 						   sub_channel_id,
