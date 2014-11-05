@@ -2031,53 +2031,52 @@ bool CMovieBrowser::onButtonPressMovieInfoList(neutrino_msg_t msg)
 void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler, bool skipAsk)
 {
 	//TRACE("[onDeleteFile] ");
+#if 0
 	int test= movieSelectionHandler.file.Name.find(".ts", movieSelectionHandler.file.Name.length()-3);
-	if (test == -1)
-	{
+	if (test == -1) {
 		// not a TS file, return!!!!!
 		TRACE("show_ts_info: not a TS file ");
+		return;
+	}
+#endif
+	std::string msg = g_Locale->getText(LOCALE_FILEBROWSER_DODELETE1);
+	msg += "\n ";
+	if (movieSelectionHandler.file.Name.length() > 40)
+	{
+		msg += movieSelectionHandler.file.Name.substr(0,40);
+		msg += "...";
 	}
 	else
+		msg += movieSelectionHandler.file.Name;
+
+	msg += "\n ";
+	msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
+	if ((skipAsk) || (ShowMsg(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes))
 	{
-		std::string msg = g_Locale->getText(LOCALE_FILEBROWSER_DODELETE1);
-		msg += "\n ";
-		if (movieSelectionHandler.file.Name.length() > 40)
-		{
-			msg += movieSelectionHandler.file.Name.substr(0,40);
-			msg += "...";
-		}
-		else
-			msg += movieSelectionHandler.file.Name;
+		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
+		hintBox->paint();
+		delFile(movieSelectionHandler.file);
 
-		msg += "\n ";
-		msg += g_Locale->getText(LOCALE_FILEBROWSER_DODELETE2);
-		if ((skipAsk) || (ShowMsg(LOCALE_FILEBROWSER_DELETE, msg, CMessageBox::mbrYes, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes))
-		{
-			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MOVIEBROWSER_DELETE_INFO));
-			hintBox->paint();
-			delFile(movieSelectionHandler.file);
+		std::string fname = getScreenshotName(movieSelectionHandler.file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
+		if (!fname.empty())
+			unlink(fname.c_str());
 
-			std::string fname = getScreenshotName(movieSelectionHandler.file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
-			if (!fname.empty())
-				unlink(fname.c_str());
+		CFile file_xml = movieSelectionHandler.file;
+		if (m_movieInfo.convertTs2XmlName(file_xml.Name))
+			unlink(file_xml.Name.c_str());
 
-			CFile file_xml = movieSelectionHandler.file;
-			if (m_movieInfo.convertTs2XmlName(file_xml.Name))
-				unlink(file_xml.Name.c_str());
+		delete hintBox;
+		g_RCInput->clearRCMsg();
 
-			delete hintBox;
-			g_RCInput->clearRCMsg();
+		m_vMovieInfo.erase((std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
+		TRACE("List size: %d\n", (int)m_vMovieInfo.size());
 
-			m_vMovieInfo.erase((std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
-			TRACE("List size: %d\n", (int)m_vMovieInfo.size());
-
-			updateSerienames();
-			refreshBrowserList();
-			refreshLastPlayList();
-			refreshLastRecordList();
-			refreshMovieInfo();
-			refresh();
-		}
+		updateSerienames();
+		refreshBrowserList();
+		refreshLastPlayList();
+		refreshLastRecordList();
+		refreshMovieInfo();
+		refresh();
 	}
 }
 
