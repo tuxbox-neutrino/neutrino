@@ -383,8 +383,6 @@ void CMoviePlayerGui::Cleanup()
 	p_movie_info = NULL;
 	autoshot_done = false;
 	currentaudioname = "Unk";
-	info_1 = "";
-	info_2 = "";
 }
 
 void CMoviePlayerGui::ClearFlags()
@@ -469,6 +467,8 @@ bool CMoviePlayerGui::SelectFile()
 	menu_ret = menu_return::RETURN_REPAINT;
 
 	Cleanup();
+	info_1 = "";
+	info_2 = "";
 	pretty_name.clear();
 	file_name.clear();
 
