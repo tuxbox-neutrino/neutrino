@@ -69,6 +69,8 @@ class CComponentsFooter : public CComponentsHeader
 
 		///show button frame and background, default false
 		bool btn_contour;
+		///enable/disable button frame in icon color, predefined for red, green, yellow and blue, default disabled
+		bool btn_auto_frame_col;
 
 		///property: set font for label caption, see also setButtonFont()
 		Font* ccf_btn_font;
@@ -94,6 +96,9 @@ class CComponentsFooter : public CComponentsHeader
 		void setButtonLabels(const std::vector<button_label_l>v_content, const int& chain_width, const int& label_width);
 		///add button labels with string label type as content, parameter 1 as vector, chain_width as int, label width as int
 		void setButtonLabels(const std::vector<button_label_s>v_content, const int& chain_width, const int& label_width);
+
+		///enable/disable button frame in icon color, predefined for red, green, yellow and blue
+		inline void enableButtonFrameColor(bool enable = true){btn_auto_frame_col = enable;}
 
 		///add button labels with old label type, count as size_t, chain_width as int, label width as int
 		///NOTE: for compatibility with older button handler find in gui/widget/buttons.h, if possible, don't use this

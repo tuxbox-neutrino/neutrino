@@ -77,6 +77,7 @@ void CComponentsFooter::initVarFooter(	const int& x_pos, const int& y_pos, const
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	col_body_gradient	= false;
+	btn_auto_frame_col	= false;
 
 	corner_rad	= RADIUS_LARGE;
 	corner_type	= CORNER_BOTTOM;
@@ -146,14 +147,19 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 		btn->setButtonResult(content[i].btn_result);
 		btn->setButtonAlias(content[i].btn_alias);
 
-		if (btn_name == NEUTRINO_ICON_BUTTON_RED)
-			btn->setColorFrame(COL_DARK_RED);
-		if (btn_name == NEUTRINO_ICON_BUTTON_GREEN)
-			btn->setColorFrame(COL_DARK_GREEN);
-		if (btn_name == NEUTRINO_ICON_BUTTON_YELLOW)
-			btn->setColorFrame(COL_OLIVE);
-		if (btn_name == NEUTRINO_ICON_BUTTON_BLUE)
-			btn->setColorFrame(COL_DARK_BLUE);
+		//set button frames to icon color, predefined for available color buttons
+		if (btn_auto_frame_col){
+			fb_pixel_t f_col = btn->getColorFrame();
+			if (btn_name == NEUTRINO_ICON_BUTTON_RED)
+				f_col = COL_DARK_RED;
+			if (btn_name == NEUTRINO_ICON_BUTTON_GREEN)
+				f_col = COL_DARK_GREEN;
+			if (btn_name == NEUTRINO_ICON_BUTTON_YELLOW)
+				f_col = COL_OLIVE;
+			if (btn_name == NEUTRINO_ICON_BUTTON_BLUE)
+				f_col = COL_DARK_BLUE;
+			btn->setColorFrame(f_col);
+		}
 
 		chain->addCCItem(btn);
 
