@@ -469,6 +469,7 @@ void CLuaInstance::runScript(const char *fileName, const char *arg0, ...)
 		if (i >= 64) {
 			fprintf(stderr, "CLuaInstance::runScript: too many arguments!\n");
 			args.clear();
+			va_end(list);
 			return;
 		}
 		args.push_back(temp);

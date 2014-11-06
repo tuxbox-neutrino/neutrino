@@ -382,7 +382,7 @@ void CDBoxInfoWidget::paint()
 	now -= info.uptime;
 	std::string str_boot(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
 
-	char ubuf[80] = { 0 };
+	char ubuf[256] = { 0 };
 	char sbuf[256] = { 0 };
         int updays, uphours, upminutes;
 
@@ -392,14 +392,14 @@ void CDBoxInfoWidget::paint()
         upminutes %= 60;
 
         if (updays) {
-                snprintf(ubuf, sizeof(sbuf), "%d day%s, ", updays, (updays != 1) ? "s" : "");
+                snprintf(ubuf, sizeof(ubuf), "%d day%s, ", updays, (updays != 1) ? "s" : "");
                 strcat(sbuf, ubuf);
         }
         if (uphours) {
-                snprintf(ubuf, sizeof(sbuf), "%d hour%s, ", uphours, (uphours != 1) ? "s" : "");
+                snprintf(ubuf, sizeof(ubuf), "%d hour%s, ", uphours, (uphours != 1) ? "s" : "");
                 strcat(sbuf, ubuf);
         }
-        snprintf(ubuf,sizeof(sbuf), "%d minute%s", upminutes, (upminutes != 1) ? "s" : "");
+        snprintf(ubuf,sizeof(ubuf), "%d minute%s", upminutes, (upminutes != 1) ? "s" : "");
         strcat(sbuf, ubuf);
 
 	snprintf(ubuf, sizeof(ubuf), "%s: ", g_Locale->getText(LOCALE_EXTRA_DBOXINFO_LOAD));
