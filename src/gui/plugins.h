@@ -88,7 +88,7 @@ class CPlugins
 			std::string depend;
 			CPlugins::p_type_t type;
 			CPlugins::i_type_t integration;
-			
+#if 0
 			bool fb;
 			bool rc;
 			bool lcd;
@@ -96,6 +96,7 @@ class CPlugins
 			int posx, posy, sizex, sizey;
 			bool showpig;
 			bool needoffset;
+#endif
 			bool shellwindow;
 			bool hide;
 			bool operator< (const plugin& a) const
