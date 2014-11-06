@@ -433,19 +433,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				if (pname && (std::string(pname) == *it)) {
 					keyhelper.get(&key,&icon);
 					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, this, pname, key, icon);
-					const std::string hint = g_PluginList->getDescription(count);
-					if (hint != "") {
-						const char *hint_icon = NULL;
-						switch(g_PluginList->getType(count)) {
-							case CPlugins::P_TYPE_GAME:
-								hint_icon = NEUTRINO_ICON_HINT_GAMES;
-							break;
-							case CPlugins::P_TYPE_SCRIPT:
-								hint_icon = NEUTRINO_ICON_HINT_SCRIPTS;
-							break;
-						}
-						menu_item->setHint(hint_icon, hint);
-					}
+					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 					break;
 				}
 			}
