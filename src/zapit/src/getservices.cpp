@@ -1242,7 +1242,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		if(ccI == allchans.end()) {
 			WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "add");
 		} else {
-			if(strcmp(cI->second.getName().c_str(), ccI->second.getName().c_str()) || cI->second.scrambled != ccI->second.scrambled) {
+			if(strcmp(cI->second.getRealname().c_str(), ccI->second.getRealname().c_str()) || cI->second.scrambled != ccI->second.scrambled) {
 				cI->second.number = ccI->second.number;
 				WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "replace");
 			}

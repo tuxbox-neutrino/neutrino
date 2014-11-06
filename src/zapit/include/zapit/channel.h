@@ -221,6 +221,7 @@ class CZapitChannel
 
 		/* get methods - read and write variables */
 		const std::string&	getName(void)			const { return (!uname.empty() ? uname : name); }
+		const std::string&	getRealname(void)		const { return name; }
 		const std::string&	getUrl(void)			const { return url; }
 		const std::string&	getDesc(void)			const { return desc; }
 		t_satellite_position	getSatellitePosition(void)	const { return satellitePosition; }
