@@ -312,10 +312,10 @@ struct CmpChannelByFreq: public std::binary_function <const CZapitChannel * cons
 
 	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
 	{
-		if(c1->getFreqId() == c2->getFreqId())
+		if((c1->getTransponderId() == c2->getTransponderId()) && ((uint64_t)c1->getFreqId() <<32 | c1->polarization <<16 | c1->getSatellitePosition()) == ((uint64_t)c2->getFreqId()<<32 | c2->polarization <<16| c2->getSatellitePosition()))
 			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
 		else
-			return c1->getFreqId() < c2->getFreqId();
+			return ((uint64_t)c1->getFreqId()<<32 | c1->polarization <<16 | c1->getSatellitePosition()) < ((uint64_t)c2->getFreqId()<<32 | c2->polarization <<16 | c2->getSatellitePosition());
 		;
 	};
 };
