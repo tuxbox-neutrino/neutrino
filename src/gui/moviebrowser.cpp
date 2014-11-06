@@ -1267,6 +1267,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 	if (CChannelLogo && CChannelLogo->hasLogo()) {
 		lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-CChannelLogo->getWidth()-10;
 		ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-CChannelLogo->getHeight())/2;
+		CChannelLogo->doScale(m_cBoxFrameTitleRel.iHeight < CChannelLogo->getHeight());
 		CChannelLogo->setXPos(lx - pb_hdd_offset);
 		CChannelLogo->setYPos(ly);
 		CChannelLogo->paint();
