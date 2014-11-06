@@ -173,7 +173,7 @@ void CVolumeBar::initVolumeBarItems()
 //init current icon object
 void CVolumeBar::initVolumeBarIcon()
 {
-	vb_icon = new CComponentsPicture(vb_icon_x, 0, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
+	vb_icon = new CComponentsPicture(vb_icon_x, CC_CENTERED, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
 
 	vb_icon->setColorBody(col_body);
 	vb_icon->setCorner(cornerRad(), CORNER_LEFT);
