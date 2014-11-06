@@ -1673,10 +1673,8 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 		}
 		else if (!hh->ParamList["subchannel"].empty())
 		{
-			t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
-			CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-			CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
-			if (currentNextInfo.flags & CSectionsdClient::epgflags::current_has_linkagedescriptors)
+			extern CRemoteControl * g_RemoteControl;
+			if (!g_RemoteControl->subChannels.empty())
 			{
 				NeutrinoAPI->ZapToSubService(hh->ParamList["subchannel"].c_str());
 				hh->SendOk();
