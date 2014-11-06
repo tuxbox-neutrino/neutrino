@@ -213,6 +213,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	plugin_data->type = CPlugins::P_TYPE_DISABLED;
 	plugin_data->integration = CPlugins::I_TYPE_DISABLED;
 	plugin_data->hinticon = NEUTRINO_ICON_HINT_PLUGIN;
+	plugin_data->description = " "; //FIXME: To show empty desc as a menu hint the string may not be empty
 
 	std::string _hintIcon = plugin_data->plugindir + "/" + plugin_data->filename + "_hint.png";
 	if (access(_hintIcon.c_str(), F_OK) == 0)
