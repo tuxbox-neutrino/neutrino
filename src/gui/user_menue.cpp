@@ -272,22 +272,28 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_STREAMINFO, LOCALE_MENU_HINT_STREAMINFO);
 			break;
 		case SNeutrinoSettings::ITEM_GAMES:
-			keyhelper.get(&key,&icon);
+			neutrino_msg_t d_key = g_PluginList->getKey(count);
+			keyhelper.get(&key,&icon, d_key);
 			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_GAMES, g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME), NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME), "-1", key, icon );
 			menu_item->setHint(NEUTRINO_ICON_HINT_GAMES, LOCALE_MENU_HINT_GAMES);
 			break;
                 case SNeutrinoSettings::ITEM_TOOLS:
-                        keyhelper.get(&key,&icon);
+			neutrino_msg_t d_key = g_PluginList->getKey(count);
+			keyhelper.get(&key,&icon, d_key);
                         menu_item = new CMenuDForwarder(LOCALE_MAINMENU_TOOLS, g_PluginList->hasPlugin(CPlugins::P_TYPE_TOOL), NULL, new CPluginList(LOCALE_MAINMENU_TOOLS,CPlugins::P_TYPE_TOOL), "-1", key, icon );
+			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
                         break;
 		case SNeutrinoSettings::ITEM_SCRIPTS:
-			keyhelper.get(&key,&icon);
+			neutrino_msg_t d_key = g_PluginList->getKey(count);
+			keyhelper.get(&key,&icon, d_key);
 			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_SCRIPTS, g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT), NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT), "-1", key, icon );
 			menu_item->setHint(NEUTRINO_ICON_HINT_SCRIPTS, LOCALE_MENU_HINT_SCRIPTS);
 			break;
 		case SNeutrinoSettings::ITEM_LUA:
-			keyhelper.get(&key,&icon);
+			neutrino_msg_t d_key = g_PluginList->getKey(count);
+			keyhelper.get(&key,&icon, d_key);
 			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_LUA, g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA), NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA), "-1", key, icon );
+			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 		{
@@ -433,7 +439,8 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				const char *pname = g_PluginList->getFileName(count);
 				if (pname && (std::string(pname) == *it) && !g_PluginList->isHidden(count)) {
 					sprintf(id, "%d", count);
-					keyhelper.get(&key,&icon);
+					neutrino_msg_t d_key = g_PluginList->getKey(count);
+					keyhelper.get(&key,&icon, d_key);
 					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, id, key, icon);
 					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 					break;
