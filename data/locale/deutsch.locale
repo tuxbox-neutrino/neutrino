@@ -188,6 +188,7 @@ bouqueteditor.discardingchanges Änderungen werden verworfen. Bitte warten ...
 bouqueteditor.hide Verstecken
 bouqueteditor.lock Sperren
 bouqueteditor.move Bewegen
+bouqueteditor.move_to Bewegen zu
 bouqueteditor.name Bouquet-Verwaltung
 bouqueteditor.newbouquetname Neuer Name des Bouquets
 bouqueteditor.rename Umbenennen
@@ -250,6 +251,7 @@ channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.show_channellogo Senderlogos zeigen
 channellist.show_channelnumber Kanalnummern zeigen
+channellist.show_empty_favs Zeige leere Favoriten-Bouquets
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -920,6 +922,7 @@ menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
 menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
+menu.hint_channellist_show_empty_favs Zeigt oder versteckt leere Bouquets in den Favoriten
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
