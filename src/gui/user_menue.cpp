@@ -296,8 +296,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
 			if (!number_of_plugins)
 				continue;
-			char id[5];
-			int cnt = 0;
 			for (unsigned int count = 0; count < number_of_plugins; count++)
 			{
 #if 0
@@ -316,16 +314,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 				if (show && !g_PluginList->isHidden(count) && (g_PluginList->getIntegration(count) == CPlugins::I_TYPE_DISABLED))
 				{
-					sprintf(id, "%d", count);
 					menu_items++;
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, id, key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, to_string(count).c_str(), key, icon);
 					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 
 					menu->addItem(menu_item, false);
-					cnt++;
 				}
 			}
 			menu_item = NULL;
@@ -429,15 +425,13 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			int number_of_plugins = g_PluginList->getNumberOfPlugins();
 			if (!number_of_plugins)
 				continue;
-			char id[5];
 			int count = 0;
 			for(; count < number_of_plugins; count++) {
 				const char *pname = g_PluginList->getFileName(count);
 				if (pname && (std::string(pname) == *it) && !g_PluginList->isHidden(count)) {
-					sprintf(id, "%d", count);
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, id, key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, to_string(count).c_str(), key, icon);
 					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 					break;
 				}
