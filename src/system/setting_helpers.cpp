@@ -387,6 +387,9 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_PluginList->startPlugin(sel);
 	}
 
+	if (!g_PluginList->getScriptOutput().empty())
+		ShowMsg(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_SHELL);
+
 	if (g_PluginList->getIntegration(sel) == CPlugins::I_TYPE_DISABLED)
 		return menu_return::RETURN_EXIT;
 
