@@ -850,71 +850,42 @@ void CNeutrinoEventList::paintDescription(int index)
 
 void CNeutrinoEventList::paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {
-	CComponentsHeader*      header  = NULL;
-	CComponentsChannelLogo* midLogo = NULL;
-	CComponentsText*        midText = NULL;
-	CComponentsText*        lText   = NULL;
-	CComponentsText*        rText   = NULL;
-
 	int font_mid = SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE;
 	int font_lr  = SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE;
 
-	header = new CComponentsHeader(x, y, full_width, theight);
-	header->paint(CC_SAVE_SCREEN_NO);
+	CComponentsFrmChain header(x, y, full_width, theight);
+	header.enableColBodyGradient(g_settings.gradiant);
+	header.setCorner(RADIUS_LARGE, CORNER_TOP);
 
-	int logo_w_max = full_width / 4;
-	int name_w = 0;
 	int x_off = 10;
-	int y_off = std::max((theight - g_Font[font_lr]->getHeight()) / 2, 0);
-	int x_pos = x;
-	int y_pos = y;
-	int mid_width = full_width * 40 / 100; // 40%
-	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
+	int mid_width = header.getWidth() * 40 / 100; // 40%
+	int side_width = ((header.getWidth() - mid_width) / 2) - (2 * x_off);
 
-	midLogo = new CComponentsChannelLogo(0, 0, logo_w_max, theight, _channelname, _channel_id);
+	CComponentsChannelLogo* midLogo = new CComponentsChannelLogo(CC_CENTERED, CC_CENTERED, _channelname, _channel_id);
 	if (midLogo->hasLogo()) {
-		int logo_w = midLogo->getWidth();
-		midLogo->setXPos(x + (full_width - logo_w) / 2);
-		midLogo->setYPos(y + (theight - midLogo->getHeight()) / 2);
-		midLogo->paint();
+		header.addCCItem(midLogo);
 		// recalc widths
-		mid_width = logo_w;
-		side_width = ((full_width - mid_width) / 2) - (4 * x_off);
+		side_width = ((full_width - midLogo->getWidth()) / 2) - (4 * x_off);
 	}
 	else {
-		name_w = g_Font[font_mid]->getRenderWidth(_channelname);
-		x_pos = x + (full_width - std::min(name_w, mid_width))/2;
-		y_pos = y;
-		midText = new CComponentsText(x_pos, y_pos, mid_width, theight, _channelname, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_mid]);
+		delete midLogo;
+		CComponentsText *midText = new CComponentsText(CC_CENTERED, CC_CENTERED, mid_width, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		midText->doPaintBg(false);
-		midText->setTextColor(COL_MENUHEAD_TEXT);
-		midText->paint(CC_SAVE_SCREEN_NO);
 	}
 
 	if (!_channelname_prev.empty()) {
-		x_pos = x + x_off;
-		y_pos = y + y_off;
-		lText = new CComponentsText(x_pos, y_pos, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr]);
+		CComponentsText *lText = new CComponentsText(x_off, CC_CENTERED, side_width, theight, _channelname_prev, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		lText->doPaintBg(false);
-		lText->setTextColor(COL_MENUHEAD_TEXT);
-		lText->paint(CC_SAVE_SCREEN_NO);
 	}
 
 	if (!_channelname_next.empty()) {
-		name_w = g_Font[font_lr]->getRenderWidth(_channelname_next);
-		x_pos = x + full_width - std::min(name_w, side_width) - x_off;
-		y_pos = y + y_off;
-		rText = new CComponentsText(x_pos, y_pos, std::min(name_w, side_width), theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr]);
+		int name_w = std::min(g_Font[font_lr]->getRenderWidth(_channelname_next), side_width);
+		int x_pos = header.getWidth() - name_w - x_off;
+		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->doPaintBg(false);
-		rText->setTextColor(COL_MENUHEAD_TEXT);
-		rText->paint(CC_SAVE_SCREEN_NO);
 	}
 
-	if (rText)   delete rText;
-	if (lText)   delete lText;
-	if (midText) delete midText;
-	if (midLogo) delete midLogo;
-	if (header)  delete header;
+	header.paint(CC_SAVE_SCREEN_NO);
 }
 
 void CNeutrinoEventList::paint(t_channel_id channel_id)
