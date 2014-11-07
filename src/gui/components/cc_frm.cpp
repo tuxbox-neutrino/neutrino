@@ -549,14 +549,14 @@ void CComponentsForm::setPageCount(const u_int8_t& pageCount)
 
 u_int8_t CComponentsForm::getPageCount()
 {
-	u_int8_t num = 0;
+	u_int8_t num = 1;
 	for(size_t i=0; i<v_cc_items.size(); i++){
 		u_int8_t item_num = v_cc_items[i]->getPageNumber();
 		num = max(item_num, num);
 	}
 
 	//convert type, possible -Wconversion warnings!
-	page_count = static_cast<u_int8_t>(num + 1);
+	page_count = static_cast<u_int8_t>(num);
 
 	return page_count;
 }
