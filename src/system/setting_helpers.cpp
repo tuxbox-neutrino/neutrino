@@ -369,6 +369,9 @@ int CNVODChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
 
 int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 {
+	if (actionKey.empty())
+		return menu_return::RETURN_NONE;
+
 	//printf("CPluginsExec exec: %s\n", actionKey.c_str());
 	int sel= atoi(actionKey.c_str());
 

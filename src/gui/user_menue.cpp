@@ -427,12 +427,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			int number_of_plugins = g_PluginList->getNumberOfPlugins();
 			if (!number_of_plugins)
 				continue;
+			char id[5];
 			int count = 0;
 			for(; count < number_of_plugins; count++) {
 				const char *pname = g_PluginList->getFileName(count);
-				if (pname && (std::string(pname) == *it)) {
+				if (pname && (std::string(pname) == *it) && !g_PluginList->isHidden(count)) {
+					sprintf(id, "%d", count);
 					keyhelper.get(&key,&icon);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, this, pname, key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, id, key, icon);
 					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 					break;
 				}
@@ -579,12 +581,4 @@ bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 	}
 	
 	return false;
-}
-
-int CUserMenu::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
-{
-	if (actionKey == "")
-		return menu_return::RETURN_NONE;
-	g_PluginList->startPlugin(actionKey.c_str());
-	return menu_return::RETURN_EXIT;
 }
