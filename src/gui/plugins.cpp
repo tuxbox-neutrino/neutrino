@@ -199,7 +199,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	{};
 
 	plugin_data->index = sindex++;
-	plugin_data->key = 0; //CRCInput::RC_nokey
+	plugin_data->key = CRCInput::RC_nokey;
 #if 0
 	plugin_data->fb = false;
 	plugin_data->rc = false;
@@ -232,9 +232,9 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		{
 			plugin_data->index = atoi(parm);
 		}
-		else if (cmd == "pluginversion")
+		else if (cmd == "key")
 		{
-			plugin_data->key = atoi(parm);
+			plugin_data->key = getPluginKey(parm);
 		}
 		else if (cmd == "name")
 		{
@@ -570,4 +570,18 @@ CPlugins::i_type_t CPlugins::getPluginIntegration(int integration)
 	default:
 		return I_TYPE_DISABLED;
 	}
+}
+
+neutrino_msg_t CPlugins::getPluginKey(std::string key)
+{
+	if (key == "red")
+		return CRCInput::RC_red;
+	else if (key == "green")
+		return CRCInput::RC_green;
+	else if (key == "yellow")
+		return CRCInput::RC_yellow;
+	else if (key == "blue")
+		return CRCInput::RC_blue;
+	else /* (key == "auto") */
+		return CRCInput::RC_nokey;
 }
