@@ -87,6 +87,10 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 	if (parent)
 		parent->hide();
 
+	CColorKeyHelper keyhelper;
+	neutrino_msg_t key = CRCInput::RC_nokey;
+	const char * dummy = NULL;
+
 	number = -1;
 	if (actionKey != "")
 		number = atoi(actionKey.c_str());
@@ -106,11 +110,11 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	int nop = g_PluginList->getNumberOfPlugins();
 
-	int shortcut = 1;
-
 	for(int count = 0; count < nop; count++) {
 		if ((g_PluginList->getType(count) & pluginlisttype) && !g_PluginList->isHidden(count) && (g_PluginList->getIntegration(count) == CPlugins::I_TYPE_DISABLED)) {
-			CMenuForwarder *f = new CMenuForwarder(std::string(g_PluginList->getName(count)), true, "", this, to_string(count).c_str(), CRCInput::convertDigitToKey(shortcut++));
+			neutrino_msg_t d_key = g_PluginList->getKey(count);
+			keyhelper.get(&key, &dummy, d_key);
+			CMenuForwarder *f = new CMenuForwarder(std::string(g_PluginList->getName(count)), true, NULL, this, to_string(count).c_str(), key);
 			f->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 			m.addItem(f);
 		}

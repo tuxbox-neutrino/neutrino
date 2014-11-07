@@ -80,7 +80,7 @@ class CUserMenu : public CChangeObserver
 };
 
 
-// This is just a quick helper for the usermenu only.
+// This is just a quick helper for the usermenu and pluginlist.
 class CColorKeyHelper
 {
 	private:
