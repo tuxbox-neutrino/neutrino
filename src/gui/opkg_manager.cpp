@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012 T. Graf 'dbt'
+	Copyright (C) 2012-2014 T. Graf 'dbt'
 	www.dbox2-tuning.net
 
 	Adaptions:
@@ -54,6 +54,7 @@
 #include <errno.h>
 /* later this can be changed to just "opkg" */
 #define OPKG_CL "opkg-cl"
+#define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=/tmp/.opkg "
 
 using namespace std;
 
@@ -76,10 +77,10 @@ static const string pkg_types[OM_MAX] =
 	OPKG_CL " list-installed ",
 	OPKG_CL " list-upgradable ",
 	OPKG_CL " update ",
-	OPKG_CL " upgrade ",
-	OPKG_CL " remove ",
+	OPKG_CL OPKG_CL_CONFIG_OPTIONS " upgrade ",
+	OPKG_CL OPKG_CL_CONFIG_OPTIONS " remove ",
 	OPKG_CL " info ",
-	OPKG_CL " install "
+	OPKG_CL OPKG_CL_CONFIG_OPTIONS " install "
 };
 
 COPKGManager::COPKGManager()
