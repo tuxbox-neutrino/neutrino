@@ -1230,12 +1230,12 @@ void CMoviePlayerGui::selectAudioPid()
 		APIDSelector.addItem(item, defpid);
 	}
 
+	int percent[numpida];
 	if (p_movie_info && numpida <= p_movie_info->audioPids.size()) {
 		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
 
 		CVolume::getInstance()->SetCurrentChannel(p_movie_info->epgId);
 		CVolume::getInstance()->SetCurrentPid(currentapid);
-		int percent[numpida];
 		for (uint i=0; i < numpida; i++) {
 			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
 			APIDSelector.addItem(new CMenuOptionNumberChooser(p_movie_info->audioPids[i].epgAudioPidName,
