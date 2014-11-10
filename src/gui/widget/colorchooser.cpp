@@ -245,10 +245,9 @@ void CColorChooser::hide()
 
 void CColorChooser::paint()
 {
-	//frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, RADIUS_MID, CORNER_TOP); //round
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD_TEXT);
-	//frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0);
+	CComponentsHeader header(x, y, width, hheight, g_Locale->getText(name));
+	header.paint(CC_SAVE_SCREEN_NO);
+
 	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);//round
 
 	for (int i = 0; i < 4; i++)
