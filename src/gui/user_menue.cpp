@@ -151,7 +151,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	// define classes
 	CSubChannelSelectMenu subchanselect;
-	CPluginsExec plugins;
 	CNeutrinoApp * neutrino	= CNeutrinoApp::getInstance();
 	
 	std::string txt = g_settings.usermenu[button]->title;
@@ -318,7 +317,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, to_string(count).c_str(), key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
 					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 
 					menu->addItem(menu_item, false);
@@ -329,7 +328,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_VTXT:
 			keyhelper.get(&key,&icon, feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_VTXT]].key); //CRCInput::RC_blue
-			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, &plugins, "teletext", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, CPluginsExec::getInstance(), "teletext", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_IMAGEINFO:
@@ -431,7 +430,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 				if (pname && (std::string(pname) == *it) && !g_PluginList->isHidden(count)) {
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, to_string(count).c_str(), key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
 					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 					break;
 				}

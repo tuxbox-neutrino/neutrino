@@ -67,4 +67,11 @@ class CPluginChooser : public CPluginList
 		int run ();
 };
 
+class CPluginsExec : public CMenuTarget
+{
+	public:
+		static CPluginsExec* getInstance();
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+};
+
 #endif

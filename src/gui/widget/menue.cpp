@@ -35,6 +35,7 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
+#include <gui/pluginlist.h>
 #include <gui/widget/stringinput.h>
 
 #include <neutrino_menue.h>
@@ -966,11 +967,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	return retval;
 }
 
-void CMenuWidget::integratePlugins(void *pluginsExec, CPlugins::i_type_t integration, const unsigned int shortcut)
+void CMenuWidget::integratePlugins(CPlugins::i_type_t integration, const unsigned int shortcut)
 {
-	CPluginsExec *_pluginsExec = static_cast<CPluginsExec*>(pluginsExec);
 	bool separatorline = false;
-	char id_plugin[5];
 	unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
 	unsigned int sc = shortcut;
 	for (unsigned int count = 0; count < number_of_plugins; count++)
@@ -983,9 +982,8 @@ void CMenuWidget::integratePlugins(void *pluginsExec, CPlugins::i_type_t integra
 				separatorline = true;
 			}
 			printf("[neutrino] integratePlugins: add %s\n", g_PluginList->getName(count));
-			sprintf(id_plugin, "%d", count);
 			neutrino_msg_t dk = (shortcut != CRCInput::RC_nokey) ? CRCInput::convertDigitToKey(sc++) : CRCInput::RC_nokey;
-			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), true, NULL, _pluginsExec, id_plugin, dk);
+			CMenuForwarder *fw_plugin = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), dk);
 			fw_plugin->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 			addItem(fw_plugin);
 		}

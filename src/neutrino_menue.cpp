@@ -129,12 +129,12 @@ void CNeutrinoApp::InitMenu()
 	unsigned int nextShortcut;
 	CMenuWidget &menuSettings = personalize.getWidget(MENU_SETTINGS);
 	nextShortcut = (unsigned int)menuSettings.getNextShortcut();
-	menuSettings.integratePlugins(&pluginsExec, CPlugins::I_TYPE_SETTING, nextShortcut);
+	menuSettings.integratePlugins(CPlugins::I_TYPE_SETTING, nextShortcut);
 
 	//add I_TYPE_SERVICE plugins
 	CMenuWidget &menuService = personalize.getWidget(MENU_SERVICE);
 	nextShortcut = (unsigned int)menuService.getNextShortcut();
-	menuService.integratePlugins(&pluginsExec, CPlugins::I_TYPE_SERVICE, nextShortcut);
+	menuService.integratePlugins(CPlugins::I_TYPE_SERVICE, nextShortcut);
 }
 
 //init main menu

@@ -74,7 +74,6 @@ public:
 	
 
 private:
-	CPluginsExec pluginsExec;
 	CFrameBuffer * frameBuffer;
 
 	CConfigFile			configfile;
