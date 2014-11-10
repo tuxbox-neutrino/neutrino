@@ -55,6 +55,8 @@
 /* later this can be changed to just "opkg" */
 #define OPKG_CL "opkg-cl"
 
+using namespace std;
+
 enum
 {
 	OM_LIST,
@@ -68,7 +70,7 @@ enum
 	OM_MAX
 };
 
-static const std::string pkg_types[OM_MAX] =
+static const string pkg_types[OM_MAX] =
 {
 	OPKG_CL " list ",
 	OPKG_CL " list-installed ",
@@ -94,7 +96,7 @@ COPKGManager::~COPKGManager()
 {
 }
 
-int COPKGManager::exec(CMenuTarget* parent, const std::string &actionKey)
+int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
@@ -145,11 +147,11 @@ int COPKGManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
-	std::map<string, struct pkg>::iterator it = pkg_map.find(actionKey);
+	map<string, struct pkg>::iterator it = pkg_map.find(actionKey);
 	if (it != pkg_map.end()) {
 		if (parent)
 			parent->hide();
-		std::string force = "";
+		string force = "";
 		if (it->second.installed && !it->second.upgradable) {
 			char l[200];
 			snprintf(l, sizeof(l), g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_REINSTALL), actionKey.c_str());
@@ -225,7 +227,7 @@ void COPKGManager::updateMenu()
 	bool upgradesAvailable = false;
 	getPkgData(OM_LIST_INSTALLED);
 	getPkgData(OM_LIST_UPGRADEABLE);
-	for (std::map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
 		if (badpackage(it->second.name))
 			continue;
 		it->second.forwarder->iconName_Info_right = "";
@@ -280,7 +282,7 @@ int COPKGManager::showMenu()
 	menu->addKey(CRCInput::RC_red, this, "rc_red");
 
 	pkg_vec.clear();
-	for (std::map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
 		if (badpackage(it->second.name))
 			continue;
 		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
@@ -334,14 +336,14 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 			if (list_installed_done)
 				return;
 			list_installed_done = true;
-			for (std::map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++)
+			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++)
 				it->second.installed = false;
 			break;
 		case OM_LIST_UPGRADEABLE:
 			if (list_upgradeable_done)
 				return;
 			list_upgradeable_done = true;
-			for (std::map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++)
+			for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++)
 				it->second.upgradable = false;
 			break;
 	}
@@ -361,7 +363,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 		std::string line(buf);
 		trim(line);
 
-		std::string name = getBlankPkgName(line);
+		string name = getBlankPkgName(line);
 
 		switch (pkg_content_id) {
 			case OM_LIST: {
@@ -369,13 +371,13 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 				break;
 			}
 			case OM_LIST_INSTALLED: {
-				std::map<string, struct pkg>::iterator it = pkg_map.find(name);
+				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
 					it->second.installed = true;
 				break;
 			}
 			case OM_LIST_UPGRADEABLE: {
-				std::map<string, struct pkg>::iterator it = pkg_map.find(name);
+				map<string, struct pkg>::iterator it = pkg_map.find(name);
 				if (it != pkg_map.end())
 					it->second.upgradable = true;
 				break;
@@ -389,7 +391,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 	pclose(f);
 }
 
-std::string COPKGManager::getBlankPkgName(const std::string& line)
+string COPKGManager::getBlankPkgName(const string& line)
 {
 	size_t l_pos = line.find(" ");
 	if (l_pos != string::npos)
@@ -400,7 +402,7 @@ std::string COPKGManager::getBlankPkgName(const std::string& line)
 int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 {
 fprintf(stderr, "execCmd(%s)\n", cmdstr);
-	std::string cmd(cmdstr);
+	string cmd(cmdstr);
 	if (verbose) {
 		cmd += " 2>&1";
 		int res;
