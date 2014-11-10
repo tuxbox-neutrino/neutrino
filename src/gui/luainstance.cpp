@@ -1018,7 +1018,6 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 	lua_pushstring(L, optionValue);
 	lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
-	lua_pop(L, 2);
 	return (((int)res == menu_return::RETURN_REPAINT) || ((int)res == menu_return::RETURN_EXIT_REPAINT));
 }
 
