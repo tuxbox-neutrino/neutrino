@@ -76,7 +76,7 @@ static const string pkg_types[OM_MAX] =
 	OPKG_CL " list ",
 	OPKG_CL " list-installed ",
 	OPKG_CL " list-upgradable ",
-	OPKG_CL " update ",
+	OPKG_CL " -A update ",
 	OPKG_CL OPKG_CL_CONFIG_OPTIONS " upgrade ",
 	OPKG_CL OPKG_CL_CONFIG_OPTIONS " remove ",
 	OPKG_CL " info ",
