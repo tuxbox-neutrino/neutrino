@@ -3745,8 +3745,10 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		CMoviePlayerGui::getInstance().exec(NULL, actionKey);
 		if(_mode == NeutrinoMessages::mode_radio )
 			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+#if 0
 		else if (_mode == mode_webtv)
 			tvMode(true);
+#endif
 		return menu_return::RETURN_EXIT_ALL;
 	}
 	else if(actionKey=="audioplayer" || actionKey == "inetplayer") {

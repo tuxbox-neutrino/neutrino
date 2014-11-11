@@ -179,8 +179,10 @@ void CMoviePlayerGui::cutNeutrino()
 	if (!isWebTV)
 		g_Sectionsd->setPauseScanning(true);
 
-	m_LastMode = (CNeutrinoApp::getInstance()->getMode() | NeutrinoMessages::norezap);
-printf("%s: save mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_mask);fflush(stdout);
+	m_LastMode = (CNeutrinoApp::getInstance()->getMode() /*| NeutrinoMessages::norezap*/);
+	if (isWebTV)
+		m_LastMode |= NeutrinoMessages::norezap;
+	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
 	int new_mode = NeutrinoMessages::norezap | (isWebTV ? NeutrinoMessages::mode_webtv : NeutrinoMessages::mode_ts);
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, new_mode);
 }
@@ -199,10 +201,11 @@ void CMoviePlayerGui::restoreNeutrino()
 	g_Zapit->unlockPlayBack();
 	g_Sectionsd->setPauseScanning(false);
 
-printf("%s: restore mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_mask);fflush(stdout);
+	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
+#if 0
 	if (m_LastMode == NeutrinoMessages::mode_tv)
 		g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x200, false);
-
+#endif
 	if (m_LastMode != NeutrinoMessages::mode_unknown)
 		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
 
@@ -213,7 +216,7 @@ printf("%s: restore mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_ma
 			CZapit::getInstance()->Rezap();
 	}
 #endif
-printf("%s: restoring done.\n", __func__);fflush(stdout);
+	printf("%s: restoring done.\n", __func__);fflush(stdout);
 }
 
 int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)

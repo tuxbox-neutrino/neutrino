@@ -210,7 +210,7 @@ public:
 	int  hasChannelID(t_channel_id channel_id);
 	void setSelected( int nChannelNr); // for adjusting bouquet's channel list after numzap or quickzap
 
-	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
+	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data, bool pip = false);
 
 	int getSize() const;
 	bool isEmpty() const;
