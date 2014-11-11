@@ -898,7 +898,7 @@ const char * CPLPINInput::getHint1(void)
 	}
 }
 
-#define borderwidth 4
+#define borderwidth SHADOW_OFFSET // FIXME: do we need border around ??
 
 int CPLPINInput::exec( CMenuTarget* parent, const std::string & )
 {
