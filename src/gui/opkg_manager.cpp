@@ -250,6 +250,27 @@ void COPKGManager::updateMenu()
 		menu->setFooter(COPKGManagerFooterButtons, COPKGManagerFooterButtonCount);
 }
 
+bool COPKGManager::hasUpdates()
+{
+	if (!hasOpkgSupport())
+		return false;
+
+	bool ret = false;
+
+	getPkgData(OM_LIST);
+	getPkgData(OM_LIST_UPGRADEABLE);
+
+	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++){
+		if (it->second.upgradable){
+			dprintf(DEBUG_INFO,  "[neutrino opkg] Update packages available...\n");
+			ret = true;
+		}
+	}
+
+	pkg_map.clear();
+	return ret;
+}
+
 void COPKGManager::refreshMenu() {
 	list_installed_done = false,
 	list_upgradeable_done = false;

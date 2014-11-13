@@ -86,5 +86,6 @@ class COPKGManager : public CMenuTarget
 
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		static bool hasOpkgSupport();
+		bool hasUpdates();
 };
 #endif
