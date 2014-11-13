@@ -47,7 +47,7 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <unistd.h>
-#include <stdio.h>
+
 #include <poll.h>
 #include <fcntl.h>
 #include <alloca.h>
@@ -370,7 +370,8 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 			break;
 	}
 
-	FILE *f = popen(pkg_types[pkg_content_id].c_str(), "r");
+	pid_t pid = 0;
+	FILE *f = my_popen(pid, pkg_types[pkg_content_id].c_str(), "r");
 	if (!f) {
 		showError("Internal Error", strerror(errno), pkg_types[pkg_content_id]);
 		return;
