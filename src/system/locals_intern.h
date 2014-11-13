@@ -583,6 +583,7 @@ const char * locale_real_names[] =
 	"flashupdate.cantopenmtd",
 	"flashupdate.checkupdate_internet",
 	"flashupdate.checkupdate_local",
+	"flashupdate.copy_image",
 	"flashupdate.createimage",
 	"flashupdate.createimage_add_env",
 	"flashupdate.createimage_add_kernel",
