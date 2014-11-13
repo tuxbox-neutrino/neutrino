@@ -586,9 +586,9 @@ flashupdate.fileis0bytes die Dateigröße ist 0 Byte
 flashupdate.fileselector Datei-Auswahl
 flashupdate.flashreadyreboot Das Image wurde erfolgreich geflasht.\nIhre Box wird jetzt neu gestartet.
 flashupdate.getinfofile lade Versioninfo
-flashupdate.getinfofileerror kann Info nicht laden
+flashupdate.getinfofileerror Kann Aktualisierungs-Info nicht laden!
 flashupdate.getupdatefile lade Update
-flashupdate.getupdatefileerror kann Update nicht laden
+flashupdate.getupdatefileerror Kann Aktualisierung nicht laden!
 flashupdate.globalprogress Gesamtstatus:
 flashupdate.head Aktualisierung
 flashupdate.md5check Imageprüfung

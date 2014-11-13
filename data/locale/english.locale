@@ -586,9 +586,9 @@ flashupdate.fileis0bytes the filesize is 0 Bytes
 flashupdate.fileselector File-Selector
 flashupdate.flashreadyreboot The image was successfully flashed.\nThe box will be rebooted now.
 flashupdate.getinfofile getting versioninfo
-flashupdate.getinfofileerror can't get versioninfo
+flashupdate.getinfofileerror Can't get update versioninfo!
 flashupdate.getupdatefile getting update
-flashupdate.getupdatefileerror can't get update
+flashupdate.getupdatefileerror Can't get update!
 flashupdate.globalprogress Global Progress:
 flashupdate.head Software Update
 flashupdate.md5check checking image
