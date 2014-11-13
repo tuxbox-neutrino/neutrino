@@ -3199,15 +3199,15 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		}
 
 
-		delete cHddStat::getInstance();
-		delete CRecordManager::getInstance();
-
 		dprintf(DEBUG_INFO, "exit\n");
 		StopSubtitles();
 		stopPlayBack();
 
 		frameBuffer->paintBackground();
 		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/shutdown.jpg");
+
+		delete cHddStat::getInstance();
+		delete CRecordManager::getInstance();
 
 		CEpgScan::getInstance()->Stop();
 		if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/) {

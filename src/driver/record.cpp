@@ -809,6 +809,9 @@ CRecordManager::~CRecordManager()
 	}
 	nextmap.clear();
 	durations.clear();
+	sm.lock();
+	manager = NULL;
+	sm.unlock();
 }
 
 CRecordManager * CRecordManager::getInstance()
