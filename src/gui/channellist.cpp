@@ -157,12 +157,11 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 	if ((*chanlist).empty())
 		return;
 
-	if (from > (*chanlist).size() || from >= to)
-		return;
-
-
 	if (to == 0 || to > (*chanlist).size())
 		to = (*chanlist).size();
+
+	if (from > (*chanlist).size() || from >= to)
+		return;
 
 	size_t chanlist_size = to - from;
 
