@@ -242,7 +242,7 @@ channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben
 channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
-channellist.numeric_adjust Numeric zap adjust
+channellist.numeric_adjust Bei numerischem Zap Kanalliste nachführen
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.remember Zuletzt verwendete
@@ -1126,7 +1126,7 @@ menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
 menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
-menu.hint_numeric_adjust Adjust channel list mode on numeric zap
+menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
 menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
