@@ -2286,7 +2286,7 @@ void CMenuProgressbar::init(const neutrino_locale_t Loc, const std::string &Text
 	name = Loc;
 	nameString = Text;
 	scale.setDimensionsAll(0, 0, 100, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight()/2);
-	scale.setValue(100);
+	scale.setValues(100, 100);
 }
 
 int CMenuProgressbar::paint(bool selected)
