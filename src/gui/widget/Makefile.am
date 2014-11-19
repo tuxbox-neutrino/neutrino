@@ -32,6 +32,7 @@ libneutrino_gui_widget_a_SOURCES = \
 	hintbox.cpp \
 	hintboxext.cpp \
 	keychooser.cpp \
+	keyboard_input.cpp \
 	listbox.cpp \
 	listframe.cpp \
 	menue.cpp \

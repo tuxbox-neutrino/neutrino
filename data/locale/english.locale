@@ -2087,8 +2087,11 @@ streaming.dir_not_writable The recording directory is not writable.\nRecording w
 streaming.overflow Record buffer overflow, consider to stop some records
 streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
+stringinput.backspace Backspace
 stringinput.caps caps / no caps
 stringinput.clear clear all
+stringinput.insert Insert
+stringinput.save Save
 subtitles.charset Charset
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
