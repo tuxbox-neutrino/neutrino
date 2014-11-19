@@ -41,6 +41,7 @@
 #include <system/setting_helpers.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/widget/messagebox.h>
 #include <driver/screen_max.h>
 
@@ -156,7 +157,7 @@ int CThemes::Show()
 	
 	readThemes(themes);
 
-	CStringInputSMS nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789- ");
+	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name, 30);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
 	if (mkdirhier(USERDIR) && errno != EEXIST) {

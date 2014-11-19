@@ -38,6 +38,7 @@
 #include <gui/filebrowser.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/keyboard_input.h>
 
 #include <driver/screen_max.h>
 #include <system/helpers.h>
@@ -89,7 +90,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (fileBrowser.exec("/var/tuxbox") == true)
 		{
 			std::string fname = "neutrino.conf";
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, &fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname, 30);
 			sms->exec(NULL, "");
 
 			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;

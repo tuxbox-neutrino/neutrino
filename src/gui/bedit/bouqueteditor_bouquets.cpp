@@ -45,6 +45,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/keyboard_input.h>
 #include <zapit/client/zapittools.h>
 
 extern CBouquetManager *g_bouquetManager;
@@ -526,7 +527,7 @@ std::string CBEBouquetWidget::inputName(const char * const defaultName, const ne
 {
 	std::string Name = defaultName;
 
-	CStringInputSMS * nameInput = new CStringInputSMS(caption, &Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
+	CKeyboardInput * nameInput = new CKeyboardInput(caption, &Name, 29);
 	nameInput->exec(this, "");
 	delete nameInput;
 
