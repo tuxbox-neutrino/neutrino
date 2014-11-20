@@ -2087,8 +2087,11 @@ streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufn
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
 streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
-stringinput.caps Groß-/Kleinbuchstaben
+stringinput.backspace Rücklöschen
+stringinput.caps Groß / Klein
 stringinput.clear Alles löschen
+stringinput.insert Einfügen
+stringinput.save Speichern
 subtitles.charset Zeichensatz
 subtitles.head Untertitel
 subtitles.stop Untertitel aus
