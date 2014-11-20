@@ -1369,16 +1369,16 @@ int CEventFinderMenu::showMenu(void)
 
 	CMenuForwarder* mf2	= new CMenuForwarder(LOCALE_EVENTFINDER_HISTORY, true, NULL, this, "#history", CRCInput::RC_yellow);
 	CMenuOptionNumberChooser* moc1 = new CMenuOptionNumberChooser(LOCALE_EVENTFINDER_MAX_HISTORY, &g_settings.epg_search_history_max, true, 0, 50, NULL);
-	searchMenu.addItem(GenericMenuSeparatorLine);
 
 	searchMenu.addItem(GenericMenuSeparator);
+	searchMenu.addItem(GenericMenuBack);
+	searchMenu.addItem(GenericMenuSeparatorLine);
 	searchMenu.addItem(mf0);
+	searchMenu.addItem(mf1);
 	searchMenu.addItem(GenericMenuSeparatorLine);
 	searchMenu.addItem(mo0);
 	searchMenu.addItem(m_search_channelname_mf);
 	searchMenu.addItem(mo1);
-	searchMenu.addItem(GenericMenuSeparatorLine);
-	searchMenu.addItem(mf1);
 	searchMenu.addItem(GenericMenuSeparatorLine);
 	searchMenu.addItem(mf2);
 	searchMenu.addItem(moc1);
