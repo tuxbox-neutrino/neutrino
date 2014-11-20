@@ -248,6 +248,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 						 *cancel = false;
 				 }
 				 else if(erg==CMessageBox::mbrCancel){
+					 timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 				 }
 			} else {
 				//keine änderungen - beenden ok
