@@ -267,11 +267,11 @@ int CNetworkSetup::showNetworkSetup()
 	m5->setHint("", LOCALE_MENU_HINT_NET_NAMESERVER);
 	m8->setHint("", LOCALE_MENU_HINT_NET_HOSTNAME);
 
-	dhcpDisable[0] = m1;
-	dhcpDisable[1] = m2;
-	dhcpDisable[2] = m3;
-	dhcpDisable[3] = m4;
-	dhcpDisable[4] = m5;
+	dhcpDisable.Add(m1);
+	dhcpDisable.Add(m2);
+	dhcpDisable.Add(m3);
+	dhcpDisable.Add(m4);
+	dhcpDisable.Add(m5);
 
 	CMenuOptionChooser* o2 = new CMenuOptionChooser(LOCALE_NETWORKMENU_DHCP, &network_dhcp, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 	o2->setHint("", LOCALE_MENU_HINT_NET_DHCP);
@@ -312,9 +312,9 @@ int CNetworkSetup::showNetworkSetup()
 		m10->setHint("", LOCALE_MENU_HINT_NET_PASS);
 		m11->setHint("", LOCALE_MENU_HINT_NET_SSID_SCAN);
 
-		wlanEnable[0] = m9;
-		wlanEnable[1] = m10;
-		wlanEnable[2] = m11;
+		wlanEnable.Add(m9);
+		wlanEnable.Add(m10);
+		wlanEnable.Add(m11);
 
 		networkSettings->addItem( m11);	//ssid scan
 		networkSettings->addItem( m9);	//ssid
@@ -384,6 +384,8 @@ int CNetworkSetup::showNetworkSetup()
 			break;
 	}
 
+	dhcpDisable.Clear();
+	wlanEnable.Clear();
 	delete networkSettings;
 	delete sectionsdConfigNotifier;
 	return ret;
@@ -655,15 +657,10 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * Data)
 
 		changeNotify(LOCALE_NETWORKMENU_DHCP, &CNetworkConfig::getInstance()->inet_static);
 
-		int ecnt = sizeof(wlanEnable) / sizeof(CMenuForwarder*);
-		for(int i = 0; i < ecnt; i++)
-			wlanEnable[i]->setActive(CNetworkConfig::getInstance()->wireless);
+		wlanEnable.Activate(CNetworkConfig::getInstance()->wireless);
 	} else if(locale == LOCALE_NETWORKMENU_DHCP) {
 		CNetworkConfig::getInstance()->inet_static = (network_dhcp == NETWORK_DHCP_OFF);
-		int ecnt = sizeof(dhcpDisable) / sizeof(CMenuForwarder*);
-
-		for(int i = 0; i < ecnt; i++)
-			dhcpDisable[i]->setActive(CNetworkConfig::getInstance()->inet_static);
+		dhcpDisable.Activate(CNetworkConfig::getInstance()->inet_static);
 	}
 	return false;
 }
