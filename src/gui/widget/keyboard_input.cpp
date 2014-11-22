@@ -191,7 +191,7 @@ CKeyboardInput::CKeyboardInput(const neutrino_locale_t Name, std::string* Value,
 	observ = Observ;
 	hint_1 = Hint_1;
 	hint_2 = Hint_2;
-	inputString = new CInputString(inputSize);
+	inputString = NULL;
 	layout = NULL;
 	selected = 0;
 	caps = 0;
@@ -204,14 +204,14 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 	name = NONEXISTANT_LOCALE;
 	head = Name;
 	valueString = Value;
-	inputSize =  Size;
+	inputSize = Size;
 
 	iconfile = Icon ? Icon : "";
 
 	observ = Observ;
 	hint_1 = Hint_1;
 	hint_2 = Hint_2;
-	inputString = new CInputString(inputSize);
+	inputString = NULL;
 	layout = NULL;
 	selected = 0;
 	caps = 0;
@@ -221,7 +221,6 @@ CKeyboardInput::CKeyboardInput(const std::string &Name, std::string *Value, int 
 
 CKeyboardInput::~CKeyboardInput()
 {
-	delete inputString;
 }
 
 #define BORDER_OFFSET 20
@@ -248,6 +247,12 @@ void CKeyboardInput::init()
 
 	width = std::max(iwidth, kwidth);
 	width = std::min(width, (int) frameBuffer->getScreenWidth());
+
+	if (!inputSize || (iwidth > width)) { /* auto calc inputSize */
+		inputSize = (width - 2*offset) / input_w;
+		iwidth = inputSize*input_w + 2*offset;
+	}
+	inputString = new CInputString(inputSize);
 
 	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(head);
 	if (!(iconfile.empty()))
@@ -595,6 +600,9 @@ int CKeyboardInput::exec(CMenuTarget* parent, const std::string &)
 		hide();
 
 	*valueString = inputString->getValue();
+
+	delete inputString;
+	inputString = NULL;
 
 	if ((observ) && (msg == CRCInput::RC_red))
 		observ->changeNotify(name, (void *) valueString->c_str());
