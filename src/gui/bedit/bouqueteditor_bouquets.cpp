@@ -527,7 +527,7 @@ std::string CBEBouquetWidget::inputName(const char * const defaultName, const ne
 {
 	std::string Name = defaultName;
 
-	CKeyboardInput * nameInput = new CKeyboardInput(caption, &Name, 29);
+	CKeyboardInput * nameInput = new CKeyboardInput(caption, &Name);
 	nameInput->exec(this, "");
 	delete nameInput;
 

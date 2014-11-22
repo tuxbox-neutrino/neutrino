@@ -108,7 +108,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		fileBrowser.Dir_Mode = true;
 		if (fileBrowser.exec("/var/tuxbox") == true) {
 			std::string fname = "keys.conf";
-			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname, 30);
+			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVEKEYS, &fname);
 			sms->exec(NULL, "");
 			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;
 			printf("[neutrino keybind_setup] save keys: %s\n", sname.c_str());

@@ -90,7 +90,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (fileBrowser.exec("/var/tuxbox") == true)
 		{
 			std::string fname = "neutrino.conf";
-			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname, 30);
+			CKeyboardInput * sms = new CKeyboardInput(LOCALE_EXTRA_SAVECONFIG, &fname);
 			sms->exec(NULL, "");
 
 			std::string sname = fileBrowser.getSelectedFile()->Name + "/" + fname;

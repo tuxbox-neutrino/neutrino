@@ -157,7 +157,7 @@ int CThemes::Show()
 	
 	readThemes(themes);
 
-	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name, 30);
+	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
 	if (mkdirhier(USERDIR) && errno != EEXIST) {

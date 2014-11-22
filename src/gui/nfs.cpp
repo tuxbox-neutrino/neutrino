@@ -251,20 +251,20 @@ int CNFSMountGui::menuEntry(int nr)
 	mountMenuEntryW.addIntroItems();
 
 	CIPInput ipInput(LOCALE_NFS_IP, &g_settings.network_nfs[nr].ip, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CKeyboardInput dirInput(LOCALE_NFS_DIR, &g_settings.network_nfs[nr].dir, 30);
+	CKeyboardInput dirInput(LOCALE_NFS_DIR, &g_settings.network_nfs[nr].dir);
 
 	CMenuOptionChooser *automountInput= new CMenuOptionChooser(LOCALE_NFS_AUTOMOUNT, &g_settings.network_nfs[nr].automount, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 
-	CKeyboardInput options1Input(LOCALE_NFS_MOUNT_OPTIONS, &g_settings.network_nfs[nr].mount_options1, 30);
+	CKeyboardInput options1Input(LOCALE_NFS_MOUNT_OPTIONS, &g_settings.network_nfs[nr].mount_options1);
 	CMenuForwarder *options1_fwd = new CMenuForwarder(LOCALE_NFS_MOUNT_OPTIONS, true, NULL, &options1Input);
 
-	CKeyboardInput options2Input(LOCALE_NFS_MOUNT_OPTIONS, &g_settings.network_nfs[nr].mount_options2, 30);
+	CKeyboardInput options2Input(LOCALE_NFS_MOUNT_OPTIONS, &g_settings.network_nfs[nr].mount_options2);
 	CMenuForwarder *options2_fwd = new CMenuForwarder(LOCALE_NFS_MOUNT_OPTIONS, true, NULL, &options2Input);
 
-	CKeyboardInput userInput(LOCALE_NFS_USERNAME, &g_settings.network_nfs[nr].username, 30);
+	CKeyboardInput userInput(LOCALE_NFS_USERNAME, &g_settings.network_nfs[nr].username);
 	CMenuForwarder *username_fwd = new CMenuForwarder(LOCALE_NFS_USERNAME, (g_settings.network_nfs[nr].type != (int)CFSMounter::NFS), NULL, &userInput);
 
-	CKeyboardInput passInput(LOCALE_NFS_PASSWORD, &g_settings.network_nfs[nr].password, 30);
+	CKeyboardInput passInput(LOCALE_NFS_PASSWORD, &g_settings.network_nfs[nr].password);
 	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (g_settings.network_nfs[nr].type != (int)CFSMounter::NFS), NULL, &passInput);
 
 	CMACInput macInput(LOCALE_RECORDINGMENU_SERVER_MAC, &g_settings.network_nfs[nr].mac, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);

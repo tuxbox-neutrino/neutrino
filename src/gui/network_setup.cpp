@@ -244,7 +244,7 @@ int CNetworkSetup::showNetworkSetup()
 	CIPInput networkSettings_NameServer(LOCALE_NETWORKMENU_NAMESERVER, &network_nameserver, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 
 	//hostname
-	CKeyboardInput networkSettings_Hostname(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 30, NULL, NULL, LOCALE_NETWORKMENU_HOSTNAME_HINT1, LOCALE_NETWORKMENU_HOSTNAME_HINT2);
+	CKeyboardInput networkSettings_Hostname(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 0, NULL, NULL, LOCALE_NETWORKMENU_HOSTNAME_HINT1, LOCALE_NETWORKMENU_HOSTNAME_HINT2);
 
 	//auto start
 	CMenuOptionChooser* o1 = new CMenuOptionChooser(LOCALE_NETWORKMENU_SETUPONSTARTUP, &network_automatic_start, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -301,9 +301,9 @@ int CNetworkSetup::showNetworkSetup()
 	if(ifcount > 1) // if there is only one, its probably wired
 	{
 		//ssid
-		CKeyboardInput * networkSettings_ssid = new CKeyboardInput(LOCALE_NETWORKMENU_SSID, &network_ssid, 30);
+		CKeyboardInput * networkSettings_ssid = new CKeyboardInput(LOCALE_NETWORKMENU_SSID, &network_ssid);
 		//key
-		CKeyboardInput * networkSettings_key = new CKeyboardInput(LOCALE_NETWORKMENU_PASSWORD, &network_key, 30);
+		CKeyboardInput * networkSettings_key = new CKeyboardInput(LOCALE_NETWORKMENU_PASSWORD, &network_key);
 		CMenuForwarder *m9 = new CMenuDForwarder(LOCALE_NETWORKMENU_SSID      , networkConfig->wireless, network_ssid , networkSettings_ssid );
 		CMenuForwarder *m10 = new CMenuDForwarder(LOCALE_NETWORKMENU_PASSWORD , networkConfig->wireless, network_key , networkSettings_key );
 		CMenuForwarder *m11 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID_SCAN , networkConfig->wireless, NULL, this, "scanssid");
@@ -394,7 +394,7 @@ int CNetworkSetup::showNetworkSetup()
 void CNetworkSetup::showNetworkNTPSetup(CMenuWidget *menu_ntp)
 {
 	//prepare ntp input
-	CKeyboardInput * networkSettings_NtpServer = new CKeyboardInput(LOCALE_NETWORKMENU_NTPSERVER, &g_settings.network_ntpserver, 30, sectionsdConfigNotifier, NULL, LOCALE_NETWORKMENU_NTPSERVER_HINT1, LOCALE_NETWORKMENU_NTPSERVER_HINT2);
+	CKeyboardInput * networkSettings_NtpServer = new CKeyboardInput(LOCALE_NETWORKMENU_NTPSERVER, &g_settings.network_ntpserver, 0, sectionsdConfigNotifier, NULL, LOCALE_NETWORKMENU_NTPSERVER_HINT1, LOCALE_NETWORKMENU_NTPSERVER_HINT2);
 
 	CStringInput * networkSettings_NtpRefresh = new CStringInput(LOCALE_NETWORKMENU_NTPREFRESH, &g_settings.network_ntprefresh, 3,LOCALE_NETWORKMENU_NTPREFRESH_HINT1, LOCALE_NETWORKMENU_NTPREFRESH_HINT2 , "0123456789 ", sectionsdConfigNotifier);
 

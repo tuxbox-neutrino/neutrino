@@ -208,7 +208,7 @@ int CUserMenuSetup::showSetup()
 	ums->addIntroItems();
 
 	int old_key = g_settings.usermenu[button]->key;
-	CKeyboardInput name(LOCALE_USERMENU_NAME, &g_settings.usermenu[button]->title, 20);
+	CKeyboardInput name(LOCALE_USERMENU_NAME, &g_settings.usermenu[button]->title);
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_USERMENU_NAME, true, NULL, &name);
 
 	ums->addItem(mf);
