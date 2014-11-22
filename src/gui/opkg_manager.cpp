@@ -271,6 +271,14 @@ bool COPKGManager::hasUpdates()
 	return ret;
 }
 
+void COPKGManager::doUpdate()
+{
+	int r = execCmd(pkg_types[OM_UPDATE]);
+	if (r) {
+		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE), strerror(errno), pkg_types[OM_UPDATE]);
+	}
+}
+
 void COPKGManager::refreshMenu() {
 	list_installed_done = false,
 	list_upgradeable_done = false;
@@ -280,11 +288,7 @@ void COPKGManager::refreshMenu() {
 int COPKGManager::showMenu()
 {
 	installed = false;
-
-	int r = execCmd(pkg_types[OM_UPDATE]);
-	if (r) {
-		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE), strerror(errno), pkg_types[OM_UPDATE]);
-	}
+	doUpdate();
 
 	getPkgData(OM_LIST);
 	getPkgData(OM_LIST_UPGRADEABLE);
