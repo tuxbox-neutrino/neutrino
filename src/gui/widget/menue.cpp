@@ -1326,7 +1326,7 @@ void CMenuWidget::paintHint(int pos)
 	}
 	
 	if (item->hint == NONEXISTANT_LOCALE && item->hintText.empty())
-		return;
+		item->hintText = " ";
 	
 	int iheight = item->getHeight();
 	int rad = RADIUS_LARGE;
