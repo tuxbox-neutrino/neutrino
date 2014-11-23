@@ -1947,9 +1947,7 @@ TIMER_START();
 
 	/* later on, we'll crash anyway, so tell about it. */
 	if (! zapit_init)
-		ShowMsg(LOCALE_MESSAGEBOX_INFO,
-				"Zapit initialization failed.\nThis is a fatal error, sorry.",
-				CMessageBox::mbrBack, CMessageBox::mbBack);
+		DisplayErrorMessage("Zapit initialization failed. This is a fatal error, sorry.");
 
 	InitZapitClient();
 	g_Zapit->setStandby(false);
