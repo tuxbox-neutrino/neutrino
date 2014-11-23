@@ -411,7 +411,7 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 		}
 	}
 
-	pclose(f);
+	fclose(f);
 }
 
 string COPKGManager::getBlankPkgName(const string& line)
