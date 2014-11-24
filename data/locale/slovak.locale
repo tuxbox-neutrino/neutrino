@@ -1842,9 +1842,9 @@ opkg.button.expert_on Expertný mód
 opkg.button.info Informácia balíčka
 opkg.button.install Inštalovať balíček
 opkg.button.uninstall Odstrániť balíček
-opkg.failure.install Chyba inštalácie (%d)
-opkg.failure.update Chyba aktualizácie (%d)
-opkg.failure.upgrade Chyba aktualizovania (%d)
+opkg.failure.install inštalácia zlyhala
+opkg.failure.update aktualizácie zlyhala
+opkg.failure.upgrade Upgrade zlyhalo
 opkg.messagebox.reinstall Preinštalovať %s?
 opkg.messagebox.remove Odstrániť %s?
 opkg.success.install Inštalácia v poriadku, reštart Neutrina bude žiadúci.

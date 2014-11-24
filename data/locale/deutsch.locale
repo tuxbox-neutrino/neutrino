@@ -1860,9 +1860,9 @@ opkg.button.expert_on Experten-Modus
 opkg.button.info Paket-Informationen
 opkg.button.install Paket installieren
 opkg.button.uninstall Paket entfernen
-opkg.failure.install Installation fehlgeschlagen (%d)
-opkg.failure.update Update fehlgeschlagen (%d)
-opkg.failure.upgrade Upgrade fehlgeschlagen (%d)
+opkg.failure.install Installation fehlgeschlagen
+opkg.failure.update Update fehlgeschlagen
+opkg.failure.upgrade Upgrade fehlgeschlagen
 opkg.messagebox.reinstall %s erneut installieren?
 opkg.messagebox.remove %s entfernen?
 opkg.success.install Installation erfolgreich, Neustart von Neutrino kann erforderlich sein.

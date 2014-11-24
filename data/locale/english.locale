@@ -1860,9 +1860,9 @@ opkg.button.expert_on Expert mode
 opkg.button.info Package information
 opkg.button.install Install package
 opkg.button.uninstall Uninstall package
-opkg.failure.install Install failed (%d)
-opkg.failure.update Update failed (%d)
-opkg.failure.upgrade Upgrade failed (%d)
+opkg.failure.install Install failed
+opkg.failure.update Update failed
+opkg.failure.upgrade Upgrade failed
 opkg.messagebox.reinstall Re-install %s?
 opkg.messagebox.remove Remove %s?
 opkg.success.install Install successful, restart of Neutrino might be required.

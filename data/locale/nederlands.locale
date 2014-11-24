@@ -1751,9 +1751,9 @@ opkg.button.expert_on Expert modus
 opkg.button.info Pakket info
 opkg.button.install Installeer pakket
 opkg.button.uninstall Deinstaleer pakket
-opkg.failure.install installatie mislukt (%d)
-opkg.failure.update Update mislukt (%d)
-opkg.failure.upgrade Upgrade mislukt (%d)
+opkg.failure.install installatie mislukt
+opkg.failure.update Update mislukt
+opkg.failure.upgrade Upgrade mislukt
 opkg.messagebox.reinstall Herinstalleer %s?
 opkg.messagebox.remove Wissen%s?
 opkg.success.install installatie succesvol, herstart van Neutrino mogelijk vereist.
