@@ -201,23 +201,29 @@ void CShellWindow::exec()
 void CShellWindow::showResult()
 {
 	if (textBox){
+		bool show_button = false;
 		bool exit = false;
-		if (mode & ACKNOWLEDGE){
-			int b_width = 150;
-			int b_height = 35;
-			int xpos = frameBuffer->getScreenWidth() - b_width;
-			int ypos = frameBuffer->getScreenHeight() - b_height;
 
-			CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_OK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
-			btn.paint();
+		if (mode & ACKNOWLEDGE){
+			show_button = true;
 		}
 		else if (mode & ACKNOWLEDGE_MSG){
 			if (*res != 0){
 				DisplayErrorMessage("Please press button");
+				show_button = true;
 			}else{
 				DisplayInfoMessage("...ready. Please press OK");
 				exit = true;
 			}
+		}
+
+		if (show_button){
+			int b_width = 150;
+			int b_height = 35;
+			int xpos = frameBuffer->getScreenWidth() - b_width;
+			int ypos = frameBuffer->getScreenHeight() - b_height;
+			CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_OK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
+			btn.paint();
 		}
 
 		neutrino_msg_t msg;
