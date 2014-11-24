@@ -212,11 +212,12 @@ void CShellWindow::showResult()
 			btn.paint();
 		}
 		else if (mode & ACKNOWLEDGE_MSG){
-			if (*res == -1)
+			if (*res != 0){
 				DisplayErrorMessage("Please press button");
-			else
+			}else{
 				DisplayInfoMessage("...ready. Please press OK");
-			exit = true;
+				exit = true;
+			}
 		}
 
 		neutrino_msg_t msg;
