@@ -30,6 +30,7 @@
 #include <system/set_threadname.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
@@ -1160,6 +1161,35 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 	return menu_return::RETURN_REPAINT;
 }
 
+CLuaMenuKeyboardinput::CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2) : CLuaMenuForwarder(_L, _luaAction, _luaId)
+{
+	name = _name;
+	value = _value;
+	size = _size;
+	icon = _icon;
+	observ = _observ;
+	help = _help;
+	help2 = _help2;
+}
+
+int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
+{
+	CKeyboardInput *i;
+	i = new CKeyboardInput((char *)name, value, size, observ, icon, help, help2);
+	i->exec(NULL, "");
+	delete i;
+	if (!luaAction.empty()){
+		lua_pushglobaltable(L);
+		lua_getfield(L, -1, luaAction.c_str());
+		lua_remove(L, -2);
+		lua_pushstring(L, luaId.c_str());
+		lua_pushstring(L, value->c_str());
+		lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
+		lua_pop(L, 2);
+	}
+	return menu_return::RETURN_REPAINT;
+}
+
 int CLuaInstance::MenuNew(lua_State *L)
 {
 	CMenuWidget *m;
@@ -1350,6 +1380,14 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			CLuaMenuStringinput *stringinput = new CLuaMenuStringinput(L, action, id, b->name.c_str(), &b->str_val, size, valid_chars, m->observ, icon, sms);
 			mi = new CMenuForwarder(b->name, enabled, b->str_val, stringinput, NULL/*ActionKey*/, directkey, icon, right_icon);
 			m->targets.push_back(stringinput);
+		} else if (type == "keyboardinput") {
+			b->str_val = value;
+			int size = 0;		tableLookup(L, "size", size);
+			std::string help = "";	tableLookup(L, "help", help);
+			std::string help2 = "";	tableLookup(L, "help2", help2);
+			CLuaMenuKeyboardinput *keyboardinput = new CLuaMenuKeyboardinput(L, action, id, b->name.c_str(), &b->str_val, size, m->observ, icon, help, help2);
+			mi = new CMenuForwarder(b->name, enabled, b->str_val, keyboardinput, NULL/*ActionKey*/, directkey, icon, right_icon);
+			m->targets.push_back(keyboardinput);
 		} else if (type == "filebrowser") {
 			b->str_val = value;
 			int dirMode = 0; tableLookup(L, "dir_mode", dirMode);
