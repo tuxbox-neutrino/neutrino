@@ -271,12 +271,14 @@ bool COPKGManager::hasUpdates()
 	return ret;
 }
 
-void COPKGManager::doUpdate()
+int COPKGManager::doUpdate()
 {
 	int r = execCmd(pkg_types[OM_UPDATE]);
-	if (r) {
-		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE), strerror(errno), pkg_types[OM_UPDATE]);
+	if (r == -1) {
+		DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
+// 		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE), strerror(errno), pkg_types[OM_UPDATE]);
 	}
+	return r;
 }
 
 void COPKGManager::refreshMenu() {
@@ -428,26 +430,55 @@ string COPKGManager::getBlankPkgName(const string& line)
 
 int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 {
-fprintf(stderr, "execCmd(%s)\n", cmdstr);
-	string cmd(cmdstr);
+	fprintf(stderr, "execCmd(%s)\n", cmdstr);
+	string cmd = string(cmdstr);
+	int res = 0;
+	bool has_err = false;
+	string err_msg = "";
 	if (verbose) {
 		cmd += " 2>&1";
-		int res;
 		CShellWindow(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res);
-		return res;
 	} else {
-		cmd += " 2>/dev/null >&2";
-		int r = my_system(3, "/bin/sh", "-c", cmd.c_str());
-		if (r == -1)
-			return r;
-		return WEXITSTATUS(r);
+		cmd += " 2>&1";
+		pid_t pid = 0;
+		FILE *f = my_popen(pid, cmd.c_str(), "r");
+		if (!f) {
+			showError("OPKG-Error!", strerror(errno), cmd);
+			return -1;
+		}
+		char buf[256];
+		while (fgets(buf, sizeof(buf), f))
+		{
+			string line(buf);
+			trim(line);
+			dprintf(DEBUG_INFO,  "[neutrino opkg] %s [error %d]\n", line.c_str(), has_err);
+
+			//check for collected errors and build a message for screen if errors available
+			if (has_err){
+				dprintf(DEBUG_NORMAL,  "[neutrino opkg] %s \n", line.c_str());
+				size_t pos1 = line.find(" * opkg_");
+				string str = line.substr(pos1, line.length()-pos1);
+				err_msg += str.replace(pos1, 8,"") + "\n";
+			}else{
+				size_t pos2 = line.find("Collected errors:");
+				if (pos2 != string::npos)
+					has_err = true;
+			}
+		}
+		fclose(f);
 	}
+	if (has_err){
+		DisplayErrorMessage(err_msg.c_str());
+		return -1;
+	}
+
+	return res;
 }
 
-void COPKGManager::showError(const char* local_msg, char* sys_msg, const string& command)
+void COPKGManager::showError(const char* local_msg, char* err_msg, const string& command)
 {
 	string msg = local_msg ? string(local_msg) + "\n" : "";
-	msg += string(sys_msg) + ":\n";
+	msg += string(err_msg) + ":\n";
 	msg += command;
 	DisplayErrorMessage(msg.c_str());
 }
