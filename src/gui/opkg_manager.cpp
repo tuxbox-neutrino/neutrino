@@ -43,7 +43,7 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/shellwindow.h>
 #include <driver/screen_max.h>
-
+#include <gui/filebrowser.h>
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <unistd.h>
@@ -133,6 +133,27 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 	if (actionKey == "rc_red") {
 		expert_mode = !expert_mode;
 		updateMenu();
+		return res;
+	}
+	if (actionKey == "local_package") {
+		if (parent)
+			parent->hide();
+		CFileFilter fileFilter;
+		fileFilter.addFilter("opk");
+
+		CFileBrowser fileBrowser;
+		fileBrowser.Filter = &fileFilter;
+
+		if (fileBrowser.exec(g_settings.update_dir.c_str()))
+		{
+		string pgk_name = fileBrowser.getSelectedFile()->Name;
+		int r = execCmd(pkg_types[OM_INSTALL] + pgk_name, true, true);
+		if (r) {
+			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pgk_name);
+		} else
+			installed = true;
+		refreshMenu();
+		}
 		return res;
 	}
 	if(actionKey == pkg_types[OM_UPGRADE]) {
@@ -298,9 +319,16 @@ int COPKGManager::showMenu()
 	menu = new CMenuWidget(g_Locale->getText(LOCALE_SERVICEMENU_UPDATE), NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
 	menu->addIntroItems(LOCALE_OPKG_TITLE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_BACK, CMenuWidget::BRIEF_HINT_YES);
 
+	//upgrade all installed packages
 	upgrade_forwarder = new CMenuForwarder(LOCALE_OPKG_UPGRADE, true, NULL , this, pkg_types[OM_UPGRADE].c_str(), CRCInput::RC_red);
 	upgrade_forwarder->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_UPGRADE);
 	menu->addItem(upgrade_forwarder);
+
+	//select and install local package
+	CMenuForwarder *local;
+	local = new CMenuForwarder("Install Local Package" , true, NULL, this, "local_package", CRCInput::RC_green);
+	menu->addItem(local);
+
 	menu->addItem(GenericMenuSeparatorLine);
 
 	menu_offset = menu->getItemsCount();
