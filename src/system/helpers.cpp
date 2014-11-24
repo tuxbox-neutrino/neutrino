@@ -340,7 +340,7 @@ std::string find_executable(const char *name)
 	if (tmpPath)
 		path = strdupa(tmpPath);
 	else
-		path = strdupa("/bin:/usr/bin:/sbin:/usr/sbin");
+		path = strdupa("/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin");
 	if (name[0] == '/') { /* full path given */
 		if (!access(name, X_OK) && !stat(name, &s) && S_ISREG(s.st_mode))
 			return std::string(name);
