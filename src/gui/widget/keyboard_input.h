@@ -95,6 +95,7 @@ class CKeyboardInput : public CMenuTarget
 		std::string  head;
 		neutrino_locale_t name;
 		neutrino_locale_t hint_1, hint_2;
+		std::string hintText_1, hintText_2;
 		std::string iconfile;
 		int          inputSize;
 		int          selected;
@@ -126,6 +127,7 @@ class CKeyboardInput : public CMenuTarget
 	public:
 		CKeyboardInput(const neutrino_locale_t Name, std::string* Value, int Size = 0, CChangeObserver* Observ = NULL, const char * const Icon = NULL, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE);
 		CKeyboardInput(const std::string      &Name, std::string* Value, int Size = 0, CChangeObserver* Observ = NULL, const char * const Icon = NULL, const neutrino_locale_t Hint_1 = NONEXISTANT_LOCALE, const neutrino_locale_t Hint_2 = NONEXISTANT_LOCALE);
+		CKeyboardInput(const std::string      &Name, std::string* Value, int Size = 0, CChangeObserver* Observ = NULL, const char * const Icon = NULL, std::string HintText_1 = "", std::string HintText_2 = "");
 		~CKeyboardInput();
 
 		void hide();
