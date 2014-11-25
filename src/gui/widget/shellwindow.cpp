@@ -43,6 +43,7 @@
 #include <system/helpers.h>
 #include <gui/widget/messagebox.h>
 #include <errno.h>
+#include <system/debug.h>
 
 CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res)
 {
@@ -67,18 +68,21 @@ void CShellWindow::exec()
 				*res = r;
 			else
 				*res = WEXITSTATUS(r);
+			dprintf(DEBUG_NORMAL,  "[CShellWindow] [%s - %d]  Error! system returns: %d command: %s\n", __func__, __LINE__, *res, cmd.c_str());
 		}
 		return;
 	}
 
-	pid_t pid;
+	pid_t pid = 0;
 	cmd = command + " 2>&1";
 	FILE *f = my_popen(pid, cmd.c_str(), "r");
 	if (!f) {
 		if (res)
 			*res = -1;
+		dprintf(DEBUG_NORMAL,  "[CShellWindow] [%s - %d]  Error! my_popen returns: %d command: %s\n", __func__, __LINE__, *res, cmd.c_str());
 		return;
 	}
+
 	Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
 	unsigned int lines_max = frameBuffer->getScreenHeight() / font->getHeight();
 	list<std::string> lines;
