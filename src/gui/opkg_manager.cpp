@@ -288,7 +288,7 @@ bool COPKGManager::hasUpdates()
 
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++){
 		if (it->second.upgradable){
-			dprintf(DEBUG_INFO,  "[neutrino opkg] Update packages available...\n");
+			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update packages available...\n", __func__, __LINE__);
 			ret = true;
 		}
 	}
@@ -366,16 +366,15 @@ int COPKGManager::showMenu()
 
 bool COPKGManager::hasOpkgSupport()
 {
-	string deps[] = {"/etc/opkg/opkg.conf", "/var/lib/opkg", ""};
+	string deps[] = {"/etc/opkg/opkg.conf", "/var/lib/opkg"};
 
 	if (find_executable(OPKG_CL).empty()) {
-		dprintf(DEBUG_INFO, "[neutrino opkg] did not find " OPKG_CL " executable\n");
+		dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]" OPKG_CL " executable not found\n", __func__, __LINE__);
 		return false;
 	}
-	for (size_t i = 0; !deps[i].empty(); i++) {
-		dprintf(DEBUG_INFO,  "[neutrino opkg] check if %s is available...\n", deps[i].c_str());
+	for(size_t i=0; i<sizeof(deps)/sizeof(deps[0]) ;i++){
 		if(access(deps[i].c_str(), R_OK) !=0) {
-			dprintf(DEBUG_INFO,  "[neutrino opkg] %s not found\n", deps[i].c_str());
+			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d] %s not found\n", __func__, __LINE__, deps[i].c_str());
 			return false;
 		}
 	}
@@ -385,7 +384,7 @@ bool COPKGManager::hasOpkgSupport()
 
 void COPKGManager::getPkgData(const int pkg_content_id)
 {
-	dprintf(DEBUG_INFO, "COPKGManager: executing %s\n", pkg_types[pkg_content_id].c_str());
+	dprintf(DEBUG_INFO, "[COPKGManager] [%s - %d] executing %s\n", __func__, __LINE__, pkg_types[pkg_content_id].c_str());
 
 	switch (pkg_content_id) {
 		case OM_LIST:
@@ -469,7 +468,7 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 	bool has_err = false;
 	string err_msg = "";
 	if (verbose) {
-		cmd += " 2>&1";
+// 		cmd += " 2>&1";
 		CShellWindow(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res);
 	} else {
 		cmd += " 2>&1";
@@ -484,11 +483,11 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 		{
 			string line(buf);
 			trim(line);
-			dprintf(DEBUG_INFO,  "[neutrino opkg] %s [error %d]\n", line.c_str(), has_err);
+			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  %s [error %d]\n", __func__, __LINE__, line.c_str(), has_err);
 
 			//check for collected errors and build a message for screen if errors available
 			if (has_err){
-				dprintf(DEBUG_NORMAL,  "[neutrino opkg] %s \n", line.c_str());
+				dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  %s \n", __func__, __LINE__, line.c_str());
 				size_t pos1 = line.find(" * opkg_");
 				string str = line.substr(pos1, line.length()-pos1);
 				err_msg += str.replace(pos1, 8,"") + "\n";
