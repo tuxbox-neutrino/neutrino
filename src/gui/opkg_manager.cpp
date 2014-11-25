@@ -139,8 +139,11 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 	if (actionKey == "local_package") {
 		if (parent)
 			parent->hide();
+
 		CFileFilter fileFilter;
-		fileFilter.addFilter("opk");
+		string filters[] = {"opk", "ipk"};
+		for(size_t i=0; i<sizeof(filters)/sizeof(filters[0]) ;i++)
+			fileFilter.addFilter(filters[i]);
 
 		CFileBrowser fileBrowser;
 		fileBrowser.Filter = &fileFilter;
