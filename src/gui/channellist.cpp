@@ -119,7 +119,6 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 
 CChannelList::~CChannelList()
 {
-	chanlist->clear();
 	if(dline){
 		delete dline;
 		dline = NULL;

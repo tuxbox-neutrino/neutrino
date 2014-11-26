@@ -1363,13 +1363,11 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 		TVallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
 		tmp = TVallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-		delete tmp->channelList;
-		tmp->channelList = new CChannelList(*TVchannelList);
+		tmp->channelList->SetChannelList(&TVchannelList->getChannels());
 
 		RADIOallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
 		tmp = RADIOallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-		delete tmp->channelList;
-		tmp->channelList = new CChannelList(*RADIOchannelList);
+		tmp->channelList->SetChannelList(&RADIOchannelList->getChannels());
 
 		if(TVsatList) delete TVsatList;
 		TVsatList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_SATS));

@@ -236,6 +236,7 @@ public:
 		SORT_MAX
 	};
 	unsigned Size() { return (*chanlist).size(); }
+	ZapitChannelList &getChannels() { return channels; };
 
 };
 #endif
