@@ -885,6 +885,22 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				updateLcd();
 				if (timeshift == TSHIFT_MODE_OFF)
 					callInfoViewer();
+			} else if (filelist.size() > 0) {
+				CFileBrowser playlist;
+				CFile *pfile = NULL;
+				pfile = &(*filelist_it);
+				if (playlist.playlist_manager(filelist, std::distance( filelist.begin(), filelist_it )))
+				{
+					playstate = CMoviePlayerGui::STOPPED;
+					CFile *sfile = NULL;
+					for (filelist_it = filelist.begin(); filelist_it != filelist.end(); ++filelist_it)
+					{
+						pfile = &(*filelist_it);
+						sfile = playlist.getSelectedFile();
+						if ( (sfile->getFileName() == pfile->getFileName()) && (sfile->getPath() == pfile->getPath()))
+							break;
+					}
+				}
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
 			if (playstate == CMoviePlayerGui::PAUSE) {

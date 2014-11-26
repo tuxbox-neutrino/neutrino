@@ -532,6 +532,7 @@ favorites.copy Copy bouquet to Favorites
 favorites.finalhint \nUse the bouqueteditor to modify your favorites.\n
 favorites.menueadd add channel to favorites
 favorites.nobouquets Favorites are available with activated Bouquets only.
+filebrowser.add Add
 filebrowser.delete Delete
 filebrowser.denydirectoryleave Absolute start directory
 filebrowser.dodelete1 Delete
@@ -541,6 +542,7 @@ filebrowser.filter.inactive Filter off
 filebrowser.head Filebrowser
 filebrowser.mark Mark
 filebrowser.nextpage Next Page
+filebrowser.pm Playlist Manager
 filebrowser.prevpage Prev. Page
 filebrowser.scan Scaning folder
 filebrowser.select Select
