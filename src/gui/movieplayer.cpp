@@ -886,6 +886,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				if (timeshift == TSHIFT_MODE_OFF)
 					callInfoViewer();
 			} else if (filelist.size() > 0) {
+				EnableClockAndMute(false);
 				CFileBrowser playlist;
 				CFile *pfile = NULL;
 				pfile = &(*filelist_it);
@@ -901,6 +902,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 							break;
 					}
 				}
+				EnableClockAndMute(true);
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
 			if (playstate == CMoviePlayerGui::PAUSE) {
