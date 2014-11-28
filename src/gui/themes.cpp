@@ -51,6 +51,7 @@
 #include "themes.h"
 
 #define THEMEDIR DATADIR "/neutrino/themes/"
+#define THEMEDIR_VAR "/var/tuxbox/themes/"
 #define USERDIR "/var" THEMEDIR
 #define FILE_PREFIX ".theme"
 
@@ -81,7 +82,7 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile((char*)((std::string)USERDIR + themeFile + FILE_PREFIX).c_str());
+				readFile((char*)((std::string)THEMEDIR_VAR + themeFile + FILE_PREFIX).c_str());
 			} 
 			else
 				readFile((char*)((std::string)THEMEDIR + themeFile + FILE_PREFIX).c_str());
@@ -103,7 +104,7 @@ void CThemes::readThemes(CMenuWidget &themes)
 {
 	struct dirent **themelist;
 	int n;
-	const char *pfade[] = {THEMEDIR, USERDIR};
+	const char *pfade[] = {THEMEDIR, THEMEDIR_VAR};
 	bool hasCVSThemes, hasUserThemes;
 	hasCVSThemes = hasUserThemes = false;
 	std::string userThemeFile = "";
@@ -146,6 +147,8 @@ void CThemes::readThemes(CMenuWidget &themes)
 
 int CThemes::Show()
 {
+	move_userDir();
+
 	std::string file_name = "";
 
 	CMenuWidget themes (LOCALE_COLORMENU_MENUCOLORS, NEUTRINO_ICON_SETTINGS, width);
@@ -160,21 +163,21 @@ int CThemes::Show()
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
-	if (mkdirhier(USERDIR) && errno != EEXIST) {
-		printf("[neutrino theme] error creating %s\n", USERDIR);
+	if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST) {
+		printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
 	}
-	if (access(USERDIR, F_OK) == 0 ) {
+	if (access(THEMEDIR_VAR, F_OK) == 0 ) {
 		themes.addItem(GenericMenuSeparatorLine);
 		themes.addItem(m1);
 	} else {
 		delete m1;
-		printf("[neutrino theme] error accessing %s\n", USERDIR);
+		printf("[neutrino theme] error accessing %s\n", THEMEDIR_VAR);
 	}
 
 	int res = themes.exec(NULL, "");
 
 	if (file_name.length() > 0) {
-		saveFile((char*)((std::string)USERDIR + file_name + FILE_PREFIX).c_str());
+		saveFile((char*)((std::string)THEMEDIR_VAR + file_name + FILE_PREFIX).c_str());
 	}
 
 	if (hasThemeChanged) {
@@ -334,4 +337,38 @@ void CThemes::getTheme(CConfigFile &configfile)
 	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
 	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );
 	t.clock_Digit_blue = configfile.getInt32( "clock_Digit_blue", t.menu_Content_Text_blue );
+}
+
+void CThemes::move_userDir()
+{
+	if (access(USERDIR, F_OK) == 0)
+	{
+		if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST)
+		{
+			printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
+			return;
+		}
+		struct dirent **themelist;
+		int n = scandir(USERDIR, &themelist, 0, alphasort);
+		if (n < 0)
+		{
+			perror("loading themes: scandir");
+			return;
+		}
+		else
+		{
+			for (int count = 0; count < n; count++)
+			{
+				const char *file = themelist[count]->d_name;
+				if (strcmp(file, ".") == 0 || strcmp(file, "..") == 0)
+					continue;
+				const char *dest = (char*)((std::string)USERDIR + file).c_str();
+				const char *target = (char*)((std::string)THEMEDIR_VAR + file).c_str();
+				printf("[neutrino theme] moving %s to %s\n", dest, target);
+				rename(dest, target);
+			}
+		}
+		printf("[neutrino theme] removing %s\n", USERDIR);
+		remove(USERDIR);
+	}
 }
