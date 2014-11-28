@@ -38,12 +38,14 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <stdarg.h>
+#include <algorithm>
 #include <mntent.h>
 #include <linux/hdreg.h>
 #include <linux/fs.h>
-
+#include "debug.h"
 #include <system/helpers.h>
 #include <gui/update_ext.h>
+using namespace std;
 
 void mySleep(int sec) {
 	struct timeval timeout;
@@ -215,7 +217,7 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	}
 	return(fp);
 }
-
+#if 0
 int mkdirhier(const char *pathname, mode_t mode)
 {
 	int res = -1;
@@ -236,7 +238,7 @@ int mkdirhier(const char *pathname, mode_t mode)
 		res = 0;
 	return res;
 }
-
+# endif
 
 int safe_mkdir(const char * path)
 {
@@ -671,32 +673,25 @@ bool CFileHelpers::copyDir(const char *Src, const char *Dst, bool backupMode)
 	return true;
 }
 
-bool CFileHelpers::createDir(const char *Dir, mode_t mode)
+int CFileHelpers::createDir(string& Dir, mode_t mode)
 {
-	char dirPath[PATH_MAX];
-	DIR *dir;
-	if ((dir = opendir(Dir)) != NULL) {
-		closedir(dir);
-		errno = EEXIST;
-		return false;
-	}
-
-	int ret = -1;
-	while (ret == -1) {
-		strcpy(dirPath, Dir);
-		ret = mkdir(dirPath, mode);
-		if ((errno == ENOENT) && (ret == -1)) {
-			char * pos = strrchr(dirPath,'/');
-			if (pos != NULL) {
-				pos[0] = '\0';
-				createDir(dirPath, mode);
-			}
+	struct stat st;
+	int res = 0;
+	for(string::iterator iter = Dir.begin() ; iter != Dir.end();) {
+		string::iterator newIter = find(iter, Dir.end(), '/' );
+		string newPath = string( Dir.begin(), newIter );
+		if( !newPath.empty() && stat(newPath.c_str(), &st) != 0) {
+			res = mkdir( newPath.c_str(), mode);
+			if (errno == EEXIST)
+				res = 0;
+			if(res != 0)
+				dprintf(DEBUG_NORMAL, "[CFileHelpers %s] creating directory %s: %s\n", __func__, newPath.c_str(), strerror(errno));
 		}
-		else
-			return !ret || (errno == EEXIST);
+		iter = newIter;
+		if(newIter != Dir.end())
+			++ iter;
 	}
-	errno = 0;
-	return true;
+	return res;
 }
 
 bool CFileHelpers::removeDir(const char *Dir)

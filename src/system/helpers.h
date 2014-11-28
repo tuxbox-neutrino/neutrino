@@ -44,8 +44,8 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type);
 
 int safe_mkdir(const char * path);
 inline int safe_mkdir(std::string path) { return safe_mkdir(path.c_str()); }
-int mkdirhier(const char *pathname, mode_t mode = 0755);
-inline int mkdirhier(std::string path, mode_t mode = 0755) { return mkdirhier(path.c_str(), mode); }
+//int mkdirhier(const char *pathname, mode_t mode = 0755);
+//inline int mkdirhier(std::string path, mode_t mode = 0755) { return mkdirhier(path.c_str(), mode); }
 off_t file_size(const char *filename);
 bool file_exists(const char *filename);
 void wakeup_hdd(const char *hdd_dir);
@@ -88,7 +88,8 @@ class CFileHelpers
 
 		bool copyFile(const char *Src, const char *Dst, mode_t mode);
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
-		bool createDir(const char *Dir, mode_t mode);
+		static int createDir(std::string& Dir, mode_t mode = 755);
+		static int createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}
 		bool removeDir(const char *Dir);
 };
 

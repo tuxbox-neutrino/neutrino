@@ -163,8 +163,9 @@ int CThemes::Show()
 	CKeyboardInput nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
-	if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST) {
+	if (CFileHelpers::createDir(THEMEDIR_VAR) && errno != EEXIST) {
 		printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
+
 	}
 	if (access(THEMEDIR_VAR, F_OK) == 0 ) {
 		themes.addItem(GenericMenuSeparatorLine);
@@ -343,7 +344,7 @@ void CThemes::move_userDir()
 {
 	if (access(USERDIR, F_OK) == 0)
 	{
-		if (mkdirhier(THEMEDIR_VAR) && errno != EEXIST)
+		if (CFileHelpers::createDir(THEMEDIR_VAR) && errno != EEXIST)
 		{
 			printf("[neutrino theme] error creating %s\n", THEMEDIR_VAR);
 			return;
