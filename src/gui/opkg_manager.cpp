@@ -331,7 +331,8 @@ int COPKGManager::showMenu()
 
 	//select and install local package
 	CMenuForwarder *local;
-	local = new CMenuForwarder("Install Local Package" , true, NULL, this, "local_package", CRCInput::RC_green);
+	local = new CMenuForwarder(LOCALE_OPKG_INSTALL_LOCAL_PACKAGE, true, NULL, this, "local_package", CRCInput::RC_green);
+	local->setHint(NEUTRINO_ICON_HINT_SW_UPDATE, LOCALE_MENU_HINT_OPKG_INSTALL_LOCAL_PACKAGE);
 	menu->addItem(local);
 
 	menu->addItem(GenericMenuSeparatorLine);

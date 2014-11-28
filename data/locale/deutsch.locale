@@ -1195,7 +1195,8 @@ menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der
 menu.hint_next Weiter zum nächsten Menü.\nDie Taste 'Menü' schließt alle Menüs
 menu.hint_next_brief Weiter zum nächsten Menü
 menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
-menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
+menu.hint_opkg Software-Pakete installieren oder vorhandene aktualisieren
+menu.hint_opkg_install_local_package Paket von USB-Stick, SD oder Freigabe installieren.
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
@@ -1863,6 +1864,7 @@ opkg.button.uninstall Paket entfernen
 opkg.failure.install Installation fehlgeschlagen
 opkg.failure.update Update fehlgeschlagen
 opkg.failure.upgrade Upgrade fehlgeschlagen
+opkg.install.local.package Installiere lokales Paket
 opkg.messagebox.reinstall %s erneut installieren?
 opkg.messagebox.remove %s entfernen?
 opkg.success.install Installation erfolgreich, Neustart von Neutrino kann erforderlich sein.
