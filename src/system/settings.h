@@ -608,6 +608,9 @@ struct SNeutrinoSettings
 	int flashupdate_createimage_add_spare;
 	int flashupdate_createimage_add_kernel;
 
+	std::string	update_dir;
+	std::string	update_dir_opkg;
+
 	//BouquetHandling
 	int bouquetlist_mode;
 
@@ -725,7 +728,7 @@ struct SNeutrinoSettings
 	int	sms_channel;
 	std::string	font_file;
 	std::string	ttx_font_file;
-	std::string	update_dir;
+
 	// USERMENU
 	typedef enum
 	{

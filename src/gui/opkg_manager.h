@@ -57,7 +57,7 @@ class COPKGManager : public CMenuTarget
 		bool installed;
 		bool expert_mode;
 		int menu_offset;
-		std::string local_dir;
+		std::string *local_dir;
 
 		int execCmd(const char* cmdstr, bool verbose = false, bool acknowledge = false);
 		int execCmd(std::string cmdstr, bool verbose = false, bool acknowledge = false) {

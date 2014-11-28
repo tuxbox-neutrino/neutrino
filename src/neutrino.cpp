@@ -766,7 +766,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.font_file = configfile.getString("font_file", FONTDIR"/neutrino.ttf");
 	g_settings.ttx_font_file = configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf");
 	ttx_font_file = g_settings.ttx_font_file.c_str();
+
 	g_settings.update_dir = configfile.getString("update_dir", "/tmp");
+	g_settings.update_dir_opkg = configfile.getString("update_dir_opkg", g_settings.update_dir);
 
 	// parentallock
 	if (!parentallocked) {
@@ -1239,6 +1241,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("softupdate_proxypassword" , g_settings.softupdate_proxypassword );
 
 	configfile.setString("update_dir", g_settings.update_dir);
+	configfile.setString("update_dir_opkg", g_settings.update_dir_opkg);
+
 	configfile.setString("font_file", g_settings.font_file);
 	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
 

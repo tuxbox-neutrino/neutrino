@@ -90,7 +90,7 @@ COPKGManager::COPKGManager()
 	list_installed_done = false;
 	list_upgradeable_done = false;
 	expert_mode = false;
-	local_dir = g_settings.update_dir.c_str();
+	local_dir = &g_settings.update_dir_opkg;
 	CFileHelpers::createDir("/tmp/.opkg");
 }
 
@@ -148,11 +148,11 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		CFileBrowser fileBrowser;
 		fileBrowser.Filter = &fileFilter;
 
-		if (fileBrowser.exec(local_dir.c_str()))
+		if (fileBrowser.exec((*local_dir).c_str()))
 		{
 			string pgk_name = fileBrowser.getSelectedFile()->Name;
 			int r = execCmd(pkg_types[OM_INSTALL] + pgk_name, true, true);
-			local_dir = fileBrowser.getCurrentDir();
+			*local_dir = fileBrowser.getCurrentDir();
 			if (r) {
 				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pgk_name);
 			} else
