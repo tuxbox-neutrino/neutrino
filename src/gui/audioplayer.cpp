@@ -1141,7 +1141,7 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *nametag, 
 				listPos++;
 				// show status
 				int global = 100*listPos / maxProgress;
-				progress.showGlobalStatus(global);
+				progress.showStatus(global);
 #ifdef LCD_UPDATE
 				CVFD::getInstance()->showProgressBar(global, "read xmldata...");
 				CVFD::getInstance()->setMode(CVFD::MODE_PROGRESSBAR);
@@ -1237,7 +1237,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 				currentProgress++;
 				// show status
 				int global = 100*currentProgress/maxProgress;
-				progress.showGlobalStatus(global);
+				progress.showStatus(global);
 				progress.showStatusMessageUTF(files->Name);
 #ifdef LCD_UPDATE
 				CVFD::getInstance()->showProgressBar(global, "read metadata...");
@@ -1431,7 +1431,7 @@ bool CAudioPlayerGui::openSCbrowser(void)
 				currentProgress++;
 				// show progress
 				int global = 100*currentProgress/maxProgress;
-				progress.showGlobalStatus(global);
+				progress.showStatus(global);
 				progress.showStatusMessageUTF(files->Name);
 #ifdef LCD_UPDATE
 				CVFD::getInstance()->showProgressBar(global, "read metadata...");
@@ -2502,7 +2502,7 @@ void CAudioPlayerGui::buildSearchTree()
 			it!=m_playlist.end(); ++it)
 	{
 		listPos++;
-		progress.showGlobalStatus(100*listPos / maxProgress);
+		progress.showStatus(100*listPos / maxProgress);
 		progress.showStatusMessageUTF(it->Filename);
 		unsigned char firstChar = getFirstChar(*it);
 		const std::pair<CTitle2Pos::iterator,bool> item =
