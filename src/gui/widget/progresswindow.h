@@ -37,8 +37,9 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		unsigned int global_progress;
 		unsigned int local_progress;
 		int w_bar_frame;
-
+		int h_height;
 		void Init();
+		void fitItems();
 
 	public:
 
@@ -53,6 +54,7 @@ class CProgressWindow : public CComponentsWindow, public CMenuTarget
 		unsigned int getGlobalStatus(void);
 		void showLocalStatus(const unsigned int prog);
 		void showStatusMessageUTF(const std::string & text); // UTF-8
+		void paint(bool do_save_bg = true);
 };
 
 

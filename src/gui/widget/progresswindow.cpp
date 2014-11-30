@@ -82,7 +82,8 @@ void CProgressWindow::Init()
 	addWindowItem(global_bar);
 	y_item += 2*h_pbar;
 
-	height = y_item + ccw_head->getHeight();
+	h_height = ccw_head->getHeight();
+	height = y_item + h_height;
 
 	setCenterPos();
 }
@@ -94,6 +95,18 @@ void CProgressWindow::setTitle(const neutrino_locale_t title)
 #ifdef VFD_UPDATE
 	CVFD::getInstance()->showProgressBar2(-1,NULL,-1,g_Locale->getText(ccw_caption)); // set global text in VFD
 #endif // VFD_UPDATE
+}
+
+//if header is disabled we need new position for body items
+void CProgressWindow::fitItems()
+{
+	if (ccw_show_header)
+		return;
+
+	for(size_t i=0; i<ccw_body->size() ;i++){
+		int y_item = ccw_body->getCCItem(i)->getYPos() + h_height - 10;
+		ccw_body->getCCItem(i)->setYPos(y_item);
+	}
 }
 
 void CProgressWindow::showStatus(const unsigned int prog)
@@ -176,4 +189,10 @@ int CProgressWindow::exec(CMenuTarget* parent, const std::string & /*actionKey*/
 	paint();
 
 	return menu_return::RETURN_REPAINT;
+}
+
+void CProgressWindow::paint(bool do_save_bg)
+{
+	fitItems();
+	CComponentsWindow::paint(do_save_bg);
 }
