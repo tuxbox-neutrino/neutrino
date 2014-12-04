@@ -581,9 +581,12 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 
 	memset(modes, 0, sizeof(int)*VIDEO_STD_MAX+1);
 
-	for(i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
+	for(i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+#ifdef BOXMODEL_APOLLO
+		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_auto_modes[i];
+#else
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
-	}
+#endif
 	videoDecoder->SetAutoModes(modes);
 	return false;
 }

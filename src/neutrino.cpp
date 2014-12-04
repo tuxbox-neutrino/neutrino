@@ -398,6 +398,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.enabled_video_modes[3] = 1; // 720p 50Hz
 	g_settings.enabled_video_modes[4] = 1; // 1080i 50Hz
 
+	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
+		sprintf(cfg_key, "enabled_auto_mode_%d", i);
+		g_settings.enabled_auto_modes[i] = configfile.getInt32(cfg_key, 1);
+	}
+
 	g_settings.cpufreq = configfile.getInt32("cpufreq", 0);
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
@@ -935,6 +940,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
 		sprintf(cfg_key, "enabled_video_mode_%d", i);
 		configfile.setInt32(cfg_key, g_settings.enabled_video_modes[i]);
+	}
+	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
+		sprintf(cfg_key, "enabled_auto_mode_%d", i);
+		configfile.setInt32(cfg_key, g_settings.enabled_auto_modes[i]);
 	}
 	configfile.setInt32( "cpufreq", g_settings.cpufreq);
 	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);

@@ -1347,6 +1347,7 @@ menu.hint_video_dbdr MPEG2 enhancement filters
 menu.hint_video_format TV aspect ratio
 menu.hint_video_mode HDMI output video mode
 menu.hint_video_modes VF key will cycle between enabled modes 
+menu.hint_video_modes_auto Enable modes to auto-select based on content
 menu.hint_video_pip Picture in picture size and position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
@@ -2251,6 +2252,7 @@ videomenu.dbdr_both de-block+de-ring
 videomenu.dbdr_deblock de-block
 videomenu.dbdr_none none
 videomenu.enabled_modes VF key enabled modes
+videomenu.enabled_modes_auto Auto-select enabled modes
 videomenu.fullscreen Full screen
 videomenu.hdmi_cec CSTLink (HDMI-CEC)
 videomenu.hdmi_cec_mode Receiver to use
