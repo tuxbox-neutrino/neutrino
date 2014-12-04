@@ -219,6 +219,7 @@ struct SNeutrinoSettings
 	// EPG
 	int epg_save;
 	int epg_save_standby;
+	int epg_read;
 	int epg_cache;
 	int epg_old_events;
 	int epg_max_events;
