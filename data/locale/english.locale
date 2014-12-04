@@ -956,6 +956,7 @@ menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cach
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
 menu.hint_epg_read Read saved EPG data after boot from an external device
 menu.hint_epg_save Save cached EPG data to an external device
+menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
 menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
@@ -1390,6 +1391,7 @@ miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they ti
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_read Restore EPG on boot
 miscsettings.epg_save Save EPG on shutdown
+miscsettings.epg_save_frequently Save EPG frequently
 miscsettings.epg_save_standby Save EPG on soft standby
 miscsettings.epg_scan EPG scan mode
 miscsettings.epg_scan_always Always

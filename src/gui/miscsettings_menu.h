@@ -44,6 +44,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		COnOffNotifier* miscEpgScanNotifier;
 		CMenuOptionChooser * epg_save;
 		CMenuOptionChooser * epg_save_standby;
+		CMenuOptionChooser * epg_save_frequently;
 		CMenuOptionChooser * epg_read;
 		CMenuForwarder * epg_dir;
 		int width;

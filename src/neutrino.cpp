@@ -512,6 +512,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 	g_settings.epg_save_standby = configfile.getBool("epg_save_standby", true);
+	g_settings.epg_save_frequently = configfile.getInt32("epg_save_frequently", false);
 	g_settings.epg_read = configfile.getBool("epg_read", g_settings.epg_save);
 	g_settings.epg_scan = configfile.getInt32("epg_scan", CEpgScan::SCAN_CURRENT);
 	g_settings.epg_scan_mode = configfile.getInt32("epg_scan_mode", CEpgScan::MODE_OFF);
@@ -1019,6 +1020,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	// epg
 	configfile.setBool("epg_save", g_settings.epg_save);
 	configfile.setBool("epg_save_standby", g_settings.epg_save_standby);
+	configfile.setInt32("epg_save_frequently", g_settings.epg_save_frequently);
 	configfile.setBool("epg_read", g_settings.epg_read);
 	configfile.setInt32("epg_scan", g_settings.epg_scan);
 	configfile.setInt32("epg_scan_mode", g_settings.epg_scan_mode);
@@ -1674,6 +1676,7 @@ void CNeutrinoApp::MakeSectionsdConfig(CSectionsdClient::epg_config& config)
 	config.epg_old_events           = g_settings.epg_old_events;
 	config.epg_max_events           = g_settings.epg_max_events;
 	config.epg_extendedcache        = g_settings.epg_extendedcache;
+	config.epg_save_frequently      = g_settings.epg_save ? g_settings.epg_save_frequently : 0;
 	config.epg_dir                  = g_settings.epg_dir;
 	config.network_ntpserver        = g_settings.network_ntpserver;
 	config.network_ntprefresh       = atoi(g_settings.network_ntprefresh.c_str());
