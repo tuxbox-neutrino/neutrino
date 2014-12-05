@@ -373,6 +373,9 @@ function bt_set_value(_bt_name, _text)
 }
 /*dbox*/
 /*expermental*/
+function reload_neutrino_conf() {
+	loadSyncURL("/control/reloadsetup");
+}
 function dbox_rcsim(_key){
 	loadSyncURL("/control/rcem?" + _key);
 }

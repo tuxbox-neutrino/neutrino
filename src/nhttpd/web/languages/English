@@ -29,6 +29,7 @@ management=Management
 uninstaller=Uninstaller
 send=send
 cancel=cancel
+apply=Apply changes
 answer=Answer
 reboot=reboot
 shutdown=shutdown
@@ -215,6 +216,7 @@ set.sync_with_neutrino=Synchronization with Neutrino
 
 =======Settings General & Menue
 set.menue.webserver=Webserver
+set.menue.epg=EPG
 set.menue.timer_settings=Timer Settings
 set.menue.zapit=Zapit
 set.menue.backup_restore=Backup &amp; Restore
