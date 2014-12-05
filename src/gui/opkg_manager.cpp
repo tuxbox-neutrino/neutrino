@@ -131,7 +131,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		execCmd(pkg_types[OM_INFO] + pkg_vec[selected]->name, true, true);
 		return res;
 	}
-	if (actionKey == "rc_red") {
+	if (actionKey == "rc_yellow") {
 		expert_mode = !expert_mode;
 		updateMenu();
 		return res;
@@ -199,13 +199,13 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 #define COPKGManagerFooterButtonCount 3
 static const struct button_label COPKGManagerFooterButtons[COPKGManagerFooterButtonCount] = {
-	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_OPKG_BUTTON_EXPERT_ON },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_OPKG_BUTTON_EXPERT_ON },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_OPKG_BUTTON_INFO },
 	{ NEUTRINO_ICON_BUTTON_OKAY,	   LOCALE_OPKG_BUTTON_INSTALL }
 };
 #define COPKGManagerFooterButtonCountExpert 4
 static const struct button_label COPKGManagerFooterButtonsExpert[COPKGManagerFooterButtonCountExpert] = {
-	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_OPKG_BUTTON_EXPERT_OFF },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_OPKG_BUTTON_EXPERT_OFF },
 	{ NEUTRINO_ICON_BUTTON_INFO_SMALL, LOCALE_OPKG_BUTTON_INFO },
 	{ NEUTRINO_ICON_BUTTON_OKAY,	   LOCALE_OPKG_BUTTON_INSTALL },
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_OPKG_BUTTON_UNINSTALL }
@@ -341,7 +341,7 @@ int COPKGManager::showMenu()
 
 	menu->addKey(CRCInput::RC_info, this, "rc_info");
 	menu->addKey(CRCInput::RC_blue, this, "rc_blue");
-	menu->addKey(CRCInput::RC_red, this, "rc_red");
+	menu->addKey(CRCInput::RC_yellow, this, "rc_yellow");
 
 	pkg_vec.clear();
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
