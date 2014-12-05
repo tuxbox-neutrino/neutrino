@@ -21,7 +21,6 @@ function do_init()
 	obj_set_radio_value('p_games', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_games;1~cache=}");
 	obj_set_radio_value('p_audioplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_audioplayer;1~cache=}");
 	obj_set_radio_value('p_inetradio', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_inetradio;1~cache=}");
-	obj_set_radio_value('p_esound', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_esound;1~cache=}");
 	obj_set_radio_value('p_movieplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_movieplayer;1~cache=}");
 	obj_set_radio_value('p_picviewer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pictureviewer;1~cache=}");
 	obj_set_radio_value('p_pinstatus', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pinstatus;0~cache=}");
@@ -132,13 +131,6 @@ function do_init()
 					<input type="radio" name="p_inetradio" value="0"/>nicht sichtbar&nbsp;
 					<input type="radio" name="p_inetradio" value="1"/>sichtbar&nbsp;
 					<input type="radio" name="p_inetradio" value="2"/>PIN
-				</td>
-			</tr>
-			<tr><td>Esound Soundserver</td>
-				<td>
-					<input type="radio" name="p_esound" value="0"/>nicht sichtbar&nbsp;
-					<input type="radio" name="p_esound" value="1"/>sichtbar&nbsp;
-					<input type="radio" name="p_esound" value="2"/>PIN
 				</td>
 			</tr>
 			<tr><td>Movieplayer</td>

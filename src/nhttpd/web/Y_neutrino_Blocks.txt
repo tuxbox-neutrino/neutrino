@@ -1305,49 +1305,6 @@ start-block~neutrino_direct_recording_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_permissions_0;{=recording_dir_permissions_0=}~save=}
 end-block~neutrino_direct_recording_save_settings
 
-# ------- Neutrino form-data: esound -------------------------------
-start-block~neutrino_form-data_esound
-<div class="work_box">
-	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Esound_Soundserver=}{=var-set:menu=Esound Soundserver=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
-	<div class="work_box_body">
-	<form name="f" action="/y/cgi">
-		<table cellspacing="0" border="0" cellpadding="2" width="100%">
-			<tr>
-				<td width="35%">Esound Port</td>
-				<td><input type="text" name="esound_port" size="5" maxlength="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;esound_port~open=}" title="esound port"/>&nbsp;default: 16001</td>
-			</tr>
-		</table>
-		<br/>
-		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
-		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_esound_save_settings;nix"/>
-		<input type="hidden" name="form" value="{=form=}"/>
-		{=include-block:Y_neutrino_Blocks.txt;neutrino_form_submit;nothing=}
-	</form>
-	</div>
-</div>
-
-<script type="text/javascript">
-//<![CDATA[
-function form_init()
-{
-}
-
-function do_submit()
-{
-	show_waitbox(true);
-	document.f.submit();
-}
-form_init();
-//]]>
-</script>
-end-block~neutrino_form-data_esound
-
-# ------- yWeb save Settings
-start-block~neutrino_esound_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;esound_port;{=esound_port=}=}
-end-block~neutrino_esound_save_settings
-
 # ------- list possible directorys for records
 start-block~neutrino_list_record_dirs
 <select name="rec_dir" id="rec_dir" class="y_live_button">

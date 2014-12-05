@@ -92,11 +92,6 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>
-					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound=}
-					{=var-set:m_link_text={=L:set.menue.esound_server=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				<li>
 					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording=}
 					{=var-set:m_link_text={=L:set.menue.direct_recording=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
