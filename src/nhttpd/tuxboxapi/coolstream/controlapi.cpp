@@ -174,7 +174,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"gettime", 		&CControlAPI::GetTimeCGI,		"text/plain"},
 	{"info", 			&CControlAPI::InfoCGI,			"text/plain"},
 	{"version", 		&CControlAPI::VersionCGI,		""},
-	{"reloadsetup", 	&CControlAPI::ReloadNutrinoSetupfCGI,		""},
+	{"reloadsetup", 	&CControlAPI::ReloadNeutrinoSetupCGI,		""},
 	{"reloadplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
 	{"screenshot", 		&CControlAPI::ScreenshotCGI,		""},
 	// boxcontrol - devices
@@ -1561,7 +1561,7 @@ void CControlAPI::VersionCGI(CyhookHandler *hh)
 	hh->SendFile("/.version");
 }
 //-----------------------------------------------------------------------------
-void CControlAPI::ReloadNutrinoSetupfCGI(CyhookHandler *hh)
+void CControlAPI::ReloadNeutrinoSetupCGI(CyhookHandler *hh)
 {
 	NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD);
 	hh->SendOk();

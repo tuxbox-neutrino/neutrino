@@ -82,7 +82,7 @@ private:
 	void GetBouquetsCGI(CyhookHandler *hh);
 	void EpgCGI(CyhookHandler *hh);
 	void VersionCGI(CyhookHandler *hh);
-	void ReloadNutrinoSetupfCGI(CyhookHandler *hh);
+	void ReloadNeutrinoSetupCGI(CyhookHandler *hh);
 	void ReloadPluginsCGI(CyhookHandler *hh);
 	void ScreenshotCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
