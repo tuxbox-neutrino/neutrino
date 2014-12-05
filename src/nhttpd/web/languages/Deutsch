@@ -30,6 +30,7 @@ save=Speichern
 save_all=Alle &Auml;nderungen speichern
 cancel=Abbrechen
 apply=&Auml;nderungen anwenden
+apply_desc=Liest die Konfigurationsdatei von Neutrino neu ein
 answer=Antwort
 reboot=Neustart
 shutdown=Ausschalten
