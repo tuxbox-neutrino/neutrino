@@ -107,11 +107,6 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>
-					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions=}
-					{=var-set:m_link_text={=L:set.menue.boot_options=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				<li>
 					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse=}
 					{=var-set:m_link_text={=L:set.menue.others=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
