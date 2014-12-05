@@ -2999,6 +2999,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(tmp1 != g_settings.make_hd_list || tmp2 != g_settings.make_webtv_list)
 			g_Zapit->reinitChannels();
 
+		SendSectionsdConfig();
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::STANDBY_TOGGLE ) {
