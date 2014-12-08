@@ -145,6 +145,7 @@ bool CScanSettings::loadSettings(const char * const fileName)
 	sat_TP_rate = configfile.getString("sat_TP_rate", "27500000");
 	sat_TP_mod = configfile.getInt32("sat_TP_mod", QPSK);
 	sat_TP_delsys = configfile.getInt32("sat_TP_delsys", DVB_S);
+	sat_TP_pilot = configfile.getInt32("sat_TP_pilot", ZPILOT_AUTO_SW);
 
 	cableName     = configfile.getString("cableName", cableName);
 	cable_TP_mod  = configfile.getInt32("cable_TP_mod", QAM_64);
@@ -202,6 +203,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setString("sat_TP_rate", sat_TP_rate);
 	configfile.setInt32("sat_TP_delsys", sat_TP_delsys);
 	configfile.setInt32("sat_TP_mod", sat_TP_mod);
+	configfile.setInt32("sat_TP_pilot", sat_TP_pilot);
 
 	configfile.setString("cableName", cableName);
 	configfile.setInt32("cable_TP_fec", cable_TP_fec);

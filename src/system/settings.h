@@ -846,6 +846,7 @@ class CScanSettings
 		std::string	sat_TP_rate;
 		int		sat_TP_delsys;
 		int		sat_TP_mod;
+		int		sat_TP_pilot;
 
 		std::string	cableName;
 		int		cable_TP_mod;

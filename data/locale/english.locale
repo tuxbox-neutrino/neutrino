@@ -493,6 +493,9 @@ extra.tp_mod_4_nr QAM/4-NR
 extra.tp_mod_64 QAM/64
 extra.tp_mod_8 8PSK
 extra.tp_mod_auto QAM/AUTO
+extra.tp_pilot Pilot
+extra.tp_pilot_auto Auto (HW)
+extra.tp_pilot_auto_sw Auto (SW)
 extra.tp_pol Polarization
 extra.tp_pol_h H
 extra.tp_pol_l L
@@ -1258,6 +1261,7 @@ menu.hint_scan_motorpos Select stored position number for this satellite,\nignor
 menu.hint_scan_nid Enter decimal network ID
 menu.hint_scan_nit Add transpoders from network information
 menu.hint_scan_pids Scan and save audio/video/PMT PIDs
+menu.hint_scan_pilot Select pilot parameter
 menu.hint_scan_pol Select transponder polarization
 menu.hint_scan_rate Enter transponder symbol rate
 menu.hint_scan_reset_numbers Reset exising channel numbers\nand re-number channels after scan
