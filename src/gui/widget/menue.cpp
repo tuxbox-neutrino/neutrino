@@ -38,7 +38,7 @@
 #include <gui/pluginlist.h>
 #include <gui/widget/stringinput.h>
 
-#include <neutrino_menue.h>
+
 #include <driver/fade.h>
 #include <driver/display.h>
 #include <system/helpers.h>

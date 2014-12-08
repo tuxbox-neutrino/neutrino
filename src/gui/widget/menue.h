@@ -46,6 +46,7 @@
 #include <gui/components/cc.h>
 #include <string>
 #include <vector>
+#include <neutrino_menue.h>
 extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
