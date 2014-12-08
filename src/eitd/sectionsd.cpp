@@ -100,7 +100,7 @@ static bool messaging_zap_detected = false;
 //NTP-Config
 #define CONF_FILE CONFIGDIR "/neutrino.conf"
 
-std::string ntp_system_cmd_prefix = "/sbin/ntpdate ";
+std::string ntp_system_cmd_prefix = find_executable("ntpdate") + " ";
 
 std::string ntp_system_cmd;
 std::string ntpserver;
@@ -2147,8 +2147,16 @@ bool CEitManager::Start()
 	max_events = config.epg_max_events;
 	epg_save_frequently = config.epg_save_frequently;
 
-	if (find_executable("ntpdate").empty())
-		ntp_system_cmd_prefix = "ntpd -n -q -p ";
+	if (find_executable("ntpdate").empty()){
+		ntp_system_cmd_prefix = find_executable("ntpd");
+		if (!ntp_system_cmd_prefix.empty()){
+			ntp_system_cmd_prefix += " -n -q -p ";
+		}
+		else{
+			printf("[sectionsd] NTP Error: time sync not possible, ntpdate/ntpd not found\n");
+			ntpenable = false;
+		}
+	}
 
 	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
