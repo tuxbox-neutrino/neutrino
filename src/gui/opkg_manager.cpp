@@ -191,7 +191,7 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 			force = "--force-reinstall ";
 		}
 		int r = execCmd(pkg_types[OM_INSTALL] + force + actionKey, true, true);
-		DisplayInfoMessage(actionKey.c_str());
+
 		if (r) {
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + force + actionKey);
 		} else
@@ -385,7 +385,6 @@ int COPKGManager::showMenu()
 		if (badpackage(it->second.name))
 			continue;
 		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
-		getPkgInfo(it->second.name, "Size");
 		it->second.forwarder->setHint("", it->second.desc);
 		menu->addItem(it->second.forwarder);
 		pkg_vec.push_back(&it->second);
@@ -397,7 +396,7 @@ int COPKGManager::showMenu()
 
 	menu->hide ();
 
-	if (installed)
+	if (!has_err && installed)
 		DisplayInfoMessage(g_Locale->getText(LOCALE_OPKG_SUCCESS_INSTALL));
 	delete menu;
 	return res;
@@ -544,12 +543,15 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 	fprintf(stderr, "execCmd(%s)\n", cmdstr);
 	string cmd = string(cmdstr);
 	int res = 0;
-	bool has_err = false;
+	has_err = false;
 	tmp_str.clear();
-	string err_msg = "";
+	err_msg = "";
 	if (verbose) {
-// 		cmd += " 2>&1";
-		CShellWindow(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res);
+		sigc::slot1<void, string&> sl;
+		sl = sigc::mem_fun(*this, &COPKGManager::handleShellOutput);
+		CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res, false);
+		shell.OnShellOutputLoop.connect(sl);
+		shell.exec();
 	} else {
 		cmd += " 2>&1";
 		pid_t pid = 0;
@@ -564,41 +566,49 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 			string line(buf);
 			trim(line);
 			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  %s [error %d]\n", __func__, __LINE__, line.c_str(), has_err);
-
-			//check for collected errors and build a message for screen if errors available
-			if (has_err){
-				dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  cmd: %s\nresult: %s\n", __func__, __LINE__, cmd.c_str(), line.c_str());
-				size_t pos1 = line.find(" * ");
-				if (pos1 != string::npos){
-					string str = line.substr(pos1, line.length()-pos1);
-					err_msg += str.replace(pos1, 3,"") + "\n";
-				}
-				size_t pos01 = line.find("wget returned 4");
-				//find obvious errors
-				if (pos01 != string::npos)
-					err_msg = "Network error! Online update not possible.";
-			}else{
-				size_t pos2 = line.find("Collected errors:");
-				if (pos2 != string::npos)
-					has_err = true;
-			}
-			if (!has_err)
-				tmp_str += line + "\n";
+			handleShellOutput(line);
 		}
 		fclose(f);
 	}
 	if (has_err){
-		DisplayErrorMessage(err_msg.c_str());
+// 		if (!verbose)
+// 			DisplayErrorMessage(err_msg.c_str());
 		return -1;
 	}
 
 	return res;
 }
 
-void COPKGManager::showError(const char* local_msg, char* err_msg, const string& command)
+void COPKGManager::handleShellOutput(string& cur_line)
+{
+	//check for collected errors and build a message for screen if errors available
+	if (has_err){
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, cur_line.c_str());
+		size_t pos1 = cur_line.find(" * ");
+		if (pos1 != string::npos){
+			string str = cur_line.substr(pos1, cur_line.length()-pos1);
+			err_msg += str.replace(pos1, 3,"") + "\n";
+		}
+		
+		//find obvious errors
+		//download error:
+		size_t pos01 = cur_line.find("wget returned 4");
+		if (pos01 != string::npos)
+			err_msg = "Network error! Online update not possible. Please check your network connection!\n";
+	}else{
+		size_t pos2 = cur_line.find("Collected errors:");
+		if (pos2 != string::npos)
+			has_err = true;
+	}
+	if (!has_err)
+		tmp_str += cur_line + "\n";
+}
+
+void COPKGManager::showError(const char* local_msg, char* err_message, const string& command)
 {
 	string msg = local_msg ? string(local_msg) + "\n" : "";
-	msg += string(err_msg) + ":\n";
+	msg += err_msg + "\n";
+	msg += string(err_message) + ":\n";
 	msg += command;
 	DisplayErrorMessage(msg.c_str());
 }

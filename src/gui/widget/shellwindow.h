@@ -32,9 +32,18 @@
 
 #include <string>
 #include <gui/widget/textbox.h>
+#include <sigc++/signal.h>
 
-class CShellWindow
+class CShellWindow : public sigc::trackable
 {
+	private:
+		int mode;
+		std::string command;
+		int* res;
+		CFrameBuffer *frameBuffer;
+		CTextBox *textBox;
+		void showResult();
+
 	public:
 		enum shellwindow_modes
 		{
@@ -42,16 +51,35 @@ class CShellWindow
 			ACKNOWLEDGE 	= 2,
 			ACKNOWLEDGE_MSG	= 4
 		};
-		CShellWindow(const std::string &Command, const int Mode = 0, int* Res = NULL);
+		CShellWindow(const std::string &Command, const int Mode = 0, int* Res = NULL, bool auto_exec = true);
 		~CShellWindow();
-	private:
-		int mode;
-		std::string command;
-		int* res;
-		CFrameBuffer *frameBuffer;
-		CTextBox *textBox;
 		void exec();
-		void showResult();
+
+		/*!
+		signal/event handler runs on loop in exec method
+		this allows to use the shell output lines in other objects eg. for evaluation of error or status data
+		example for implamentation in your class:
+		...your code...
+			//assuming in your class is declared a member function named YourMemberFunction(std::string& arg), parameter is a string as rev:
+			//Tis function should handle the shell output!
+
+			//declare a slot with return value as 'void' and parameter as 'string', here by rev!
+			sigc::slot1<void, string&> sl;
+
+			//fill the slot with your member function in your class that do evaluate the output lines
+			sl = sigc::mem_fun(*this, &CYourClass::YourMemberFunction);
+
+			//create the CShellWindow object in verbose mode, important: parameter 'auto_exec' must be set to 'false', so it is possible to connect the slot before engages the exec() methode
+			CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res, false);
+
+			//connect slot
+			shell.OnShellOutputLoop.connect(sl);
+
+			//now exec...
+			shell.exec();
+		...other code...
+		*/
+		sigc::signal<void, std::string&> OnShellOutputLoop;
 };
 
 #endif

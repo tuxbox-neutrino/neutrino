@@ -1196,7 +1196,7 @@ menu.hint_next Continue to next menu\nPress menu key to close all menus
 menu.hint_next_brief Continue to next menu
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
 menu.hint_opkg Install or update software packages
-menu.hint_opkg_install_local_package Install package from USB, SD or share.
+menu.hint_opkg_install_local_package Install package from USB, SD, share or local directory.
 menu.hint_opkg_upgrade Updates all installed packages to the most recent version available
 menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
 menu.hint_osd_language Select OSD language

@@ -46,7 +46,7 @@
 #include <errno.h>
 #include <system/debug.h>
 
-CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res)
+CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res, bool auto_exec)
 {
 	textBox 	= NULL;
 	frameBuffer 	= CFrameBuffer::getInstance();
@@ -55,7 +55,8 @@ CShellWindow::CShellWindow(const std::string &Command, const int Mode, int *Res)
 	mode 		= Mode;
 	res 		= Res;
 
-	exec();
+	if (auto_exec)
+		exec();
 }
 
 void CShellWindow::exec()
@@ -152,6 +153,10 @@ void CShellWindow::exec()
 						lines.push_back(line);
 						incomplete = true;
 					}
+
+					//callback for line handler
+					std::string s_output = std::string((output));
+					OnShellOutputLoop(s_output);
 					if (lines.size() > lines_max)
 						lines.pop_front();
 					txt = "";

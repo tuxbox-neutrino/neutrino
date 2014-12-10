@@ -58,6 +58,9 @@ class COPKGManager : public CMenuTarget
 		bool expert_mode;
 		int menu_offset;
 		std::string *local_dir;
+		
+		bool has_err;
+		std::string err_msg;
 
 		int execCmd(const char* cmdstr, bool verbose = false, bool acknowledge = false);
 		int execCmd(std::string cmdstr, bool verbose = false, bool acknowledge = false) {
@@ -73,6 +76,7 @@ class COPKGManager : public CMenuTarget
 		bool badpackage(std::string &s);
 		void showError(const char* local_msg, char* err_msg, const std::string& command);
 		int doUpdate();
+		void handleShellOutput(std::string& cur_line);
 
 		struct pkg {
 			std::string name;
