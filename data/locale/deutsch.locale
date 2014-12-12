@@ -653,12 +653,12 @@ fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
 fontmenu.other Andere
-fontmenu.scaling Schriftgrössenfaktor
+fontmenu.scaling Schriftgrößenfaktor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertikal (in %)
 fontmenu.scaling_y_hint2 Vertikal (in %) min 50 / max 200
-fontmenu.sizes Schriftgrössen
+fontmenu.sizes Schriftgrößen
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
 fontsize.channellist_descr Beschreibung
@@ -1565,7 +1565,7 @@ moviebrowser.info_prodyear Jahr
 moviebrowser.info_quality Qualität
 moviebrowser.info_recorddate Aufnahmedatum
 moviebrowser.info_serie Serie
-moviebrowser.info_size Dateigrösse (MB)
+moviebrowser.info_size Dateigröße (MB)
 moviebrowser.info_title Titel
 moviebrowser.info_videoformat Bild
 moviebrowser.last_play_max_items Zeilen 'zuletzt aufgenommen'
@@ -1609,7 +1609,7 @@ moviebrowser.short_prodyear Jahr
 moviebrowser.short_quality Qualität
 moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
-moviebrowser.short_size Grösse
+moviebrowser.short_size Größe
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
