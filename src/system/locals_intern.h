@@ -1894,6 +1894,7 @@ const char * locale_real_names[] =
 	"opkg.install.local.package",
 	"opkg.messagebox.reinstall",
 	"opkg.messagebox.remove",
+	"opkg.messagebox.size.error",
 	"opkg.messagebox.updates.available",
 	"opkg.success.install",
 	"opkg.title",

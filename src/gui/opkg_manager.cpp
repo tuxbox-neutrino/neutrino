@@ -48,7 +48,7 @@
 #include <system/debug.h>
 #include <system/helpers.h>
 #include <unistd.h>
-
+#include <sys/vfs.h>
 #include <poll.h>
 #include <fcntl.h>
 #include <alloca.h>
@@ -190,12 +190,38 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 				return res;
 			force = "--force-reinstall ";
 		}
-		int r = execCmd(pkg_types[OM_INSTALL] + force + actionKey, true, true);
 
-		if (r) {
-			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + force + actionKey);
-		} else
-			installed = true;
+		//get package size
+		string s_pkgsize = getPkgInfo(actionKey, "Size");
+		std::istringstream s(s_pkgsize);
+		u_int64_t pkg_size;
+		s >> pkg_size;
+
+		//get available size
+		//TODO: Check writability!
+		struct statfs root_fs;
+		statfs("/",&root_fs);
+		u_int64_t free_size = root_fs.f_bfree*root_fs.f_bsize;
+		dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [package size=%lld (free size: %lld)]\n", __func__, __LINE__, actionKey.c_str(), pkg_size, free_size);
+
+		//only for sure, it's more secure for users to abort installation if is available size too small
+		//TODO: Package size is not really the same like required/recommended size, because of unknown compression factor, some possible options like cache, different tmp-dir size eg. are still not considered.
+		u_int64_t rec_size = pkg_size/2*3;
+		if (free_size < rec_size){
+			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld required size=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, pkg_size, rec_size);
+			DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_SIZE_ERROR));
+		}else{
+			string cmd = pkg_types[OM_INSTALL] + force + actionKey;
+			int r = execCmd(cmd, true, true);
+			string cur_version = getPkgInfo(actionKey, "Version");
+			dprintf(DEBUG_NORMAL, "[COPKGManager] [%s - %d]  %s: current version = %s\n", __func__, __LINE__, actionKey.c_str(), cur_version.c_str());
+			if (r){
+				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), cmd);
+			}else{
+				installed = true;
+			}
+		}
+
 		refreshMenu();
 	}
 	return res;

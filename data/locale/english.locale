@@ -1867,6 +1867,7 @@ opkg.failure.upgrade Upgrade failed
 opkg.install.local.package Install local package
 opkg.messagebox.reinstall Re-install %s?
 opkg.messagebox.remove Remove %s?
+opkg.messagebox.size.error Not enough free memory available for this package!
 opkg.messagebox.updates.available Updates available!
 opkg.success.install Install successful, restart of Neutrino might be required.
 opkg.title Package Management
