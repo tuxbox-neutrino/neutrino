@@ -190,7 +190,7 @@ typedef enum
 	MB_SHOW_YT
 } MB_SHOW_MODE;
 
-#define MB_MAX_ROWS 6
+#define MB_MAX_ROWS LF_MAX_ROWS
 #define MB_MAX_DIRS 5
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
 typedef struct
@@ -222,13 +222,13 @@ typedef struct
 	// to be added to config later
 	int lastPlayMaxItems;
 	int lastPlayRowNr;
-	MB_INFO_ITEM lastPlayRow[MB_MAX_ROWS];
-	int lastPlayRowWidth[MB_MAX_ROWS];
+	MB_INFO_ITEM lastPlayRow[2];
+	int lastPlayRowWidth[2];
 
 	int lastRecordMaxItems;
 	int lastRecordRowNr;
-	MB_INFO_ITEM lastRecordRow[MB_MAX_ROWS];
-	int lastRecordRowWidth[MB_MAX_ROWS];
+	MB_INFO_ITEM lastRecordRow[2];
+	int lastRecordRowWidth[2];
 	int ytmode;
 	int ytorderby;
 	int ytresults;

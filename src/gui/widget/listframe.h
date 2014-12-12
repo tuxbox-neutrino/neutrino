@@ -56,7 +56,7 @@
 #include <gui/widget/textbox.h>
 #include <driver/fb_window.h>
 
-#define LF_MAX_ROWS 6
+#define LF_MAX_ROWS 9
 typedef struct
 {
 	int rows;

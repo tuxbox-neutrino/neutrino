@@ -362,15 +362,19 @@ CMovieBrowser::~CMovieBrowser()
 
 void CMovieBrowser::clearListLines()
 {
-	for (int i = 0; i < LF_MAX_ROWS; i++)
+	for (int i = 0; i < MB_MAX_ROWS; i++)
 	{
 		m_browserListLines.lineArray[i].clear();
-		m_recordListLines.lineArray[i].clear();
-		m_playListLines.lineArray[i].clear();
 		m_FilterLines.lineArray[i].clear();
 	}
 	m_browserListLines.Icon.clear();
 	m_browserListLines.marked.clear();
+
+	for (int i = 0; i < 2; i++)
+	{
+		m_recordListLines.lineArray[i].clear();
+		m_playListLines.lineArray[i].clear();
+	}
 	m_recordListLines.marked.clear();
 	m_playListLines.marked.clear();
 }
@@ -543,6 +547,9 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowItem[3] = MB_INFO_SIZE;
 	m_settings.browserRowItem[4] = MB_INFO_LENGTH;
 	m_settings.browserRowItem[5] = MB_INFO_INFO1;
+	m_settings.browserRowItem[6] = MB_INFO_MAX_NUMBER;
+	m_settings.browserRowItem[7] = MB_INFO_MAX_NUMBER;
+	m_settings.browserRowItem[8] = MB_INFO_MAX_NUMBER;
 
 	m_settings.browserRowWidth[0] = m_defaultRowWidth[m_settings.browserRowItem[0]];		//300;
 	m_settings.browserRowWidth[1] = m_defaultRowWidth[m_settings.browserRowItem[1]]; 		//100;
@@ -550,6 +557,9 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowWidth[3] = m_defaultRowWidth[m_settings.browserRowItem[3]]; 		//50;
 	m_settings.browserRowWidth[4] = m_defaultRowWidth[m_settings.browserRowItem[4]]; 		//30;
 	m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]]; 		//30;
+	m_settings.browserRowWidth[6] = m_defaultRowWidth[m_settings.browserRowItem[6]];
+	m_settings.browserRowWidth[7] = m_defaultRowWidth[m_settings.browserRowItem[7]];
+	m_settings.browserRowWidth[8] = m_defaultRowWidth[m_settings.browserRowItem[8]];
 
 	m_settings.ts_only = 1;
 	m_settings.ytmode = cYTFeedParser::MOST_POPULAR;
@@ -620,33 +630,17 @@ void CMovieBrowser::initRows(void)
 	m_settings.lastPlayRowNr = 2;
 	m_settings.lastPlayRow[0] = MB_INFO_TITLE;
 	m_settings.lastPlayRow[1] = MB_INFO_PREVPLAYDATE;
-	m_settings.lastPlayRow[2] = MB_INFO_MAX_NUMBER;
-	m_settings.lastPlayRow[3] = MB_INFO_MAX_NUMBER;
-	m_settings.lastPlayRow[4] = MB_INFO_MAX_NUMBER;
-	m_settings.lastPlayRow[5] = MB_INFO_MAX_NUMBER;
 	/* the "last played" / "last recorded" windows have only half the width, so
-	   multiply the relative width with 2 and add some fixed value for slack */
+	   multiply the relative width with 2 */
 	m_settings.lastPlayRowWidth[1] = m_defaultRowWidth[m_settings.lastPlayRow[1]] * 2 + 1;
 	m_settings.lastPlayRowWidth[0] = 100 - m_settings.lastPlayRowWidth[1];
-	m_settings.lastPlayRowWidth[2] = m_defaultRowWidth[m_settings.lastPlayRow[2]];
-	m_settings.lastPlayRowWidth[3] = m_defaultRowWidth[m_settings.lastPlayRow[3]];
-	m_settings.lastPlayRowWidth[4] = m_defaultRowWidth[m_settings.lastPlayRow[4]];
-	m_settings.lastPlayRowWidth[5] = m_defaultRowWidth[m_settings.lastPlayRow[5]];
 
 	/***** Last Record List **************/
 	m_settings.lastRecordRowNr = 2;
 	m_settings.lastRecordRow[0] = MB_INFO_TITLE;
 	m_settings.lastRecordRow[1] = MB_INFO_RECORDDATE;
-	m_settings.lastRecordRow[2] = MB_INFO_MAX_NUMBER;
-	m_settings.lastRecordRow[3] = MB_INFO_MAX_NUMBER;
-	m_settings.lastRecordRow[4] = MB_INFO_MAX_NUMBER;
-	m_settings.lastRecordRow[5] = MB_INFO_MAX_NUMBER;
 	m_settings.lastRecordRowWidth[1] = m_defaultRowWidth[m_settings.lastRecordRow[1]] * 2 + 1;
 	m_settings.lastRecordRowWidth[0] = 100 - m_settings.lastRecordRowWidth[1];
-	m_settings.lastRecordRowWidth[2] = m_defaultRowWidth[m_settings.lastRecordRow[2]];
-	m_settings.lastRecordRowWidth[3] = m_defaultRowWidth[m_settings.lastRecordRow[3]];
-	m_settings.lastRecordRowWidth[4] = m_defaultRowWidth[m_settings.lastRecordRow[4]];
-	m_settings.lastRecordRowWidth[5] = m_defaultRowWidth[m_settings.lastRecordRow[5]];
 }
 
 void CMovieBrowser::defaultSettings(MB_SETTINGS* /*settings*/)
