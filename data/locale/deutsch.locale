@@ -1544,12 +1544,13 @@ moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
 moviebrowser.info_file Datei
-moviebrowser.info_filename Name
+moviebrowser.info_filename Dateiname
 moviebrowser.info_genre_major Genre
-moviebrowser.info_genre_minor Genre
+moviebrowser.info_genre_minor Genre (untergeordnet)
 moviebrowser.info_head Film Informationen
 moviebrowser.info_head_update Inhalte in allen sichtbaren Filminfos speichern
 moviebrowser.info_info1 Info 1
+moviebrowser.info_info2 Info 2
 moviebrowser.info_length Spieldauer (Min)
 moviebrowser.info_parental_lockage FSK
 moviebrowser.info_parental_lockage_0year immer
@@ -1567,7 +1568,7 @@ moviebrowser.info_recorddate Aufnahmedatum
 moviebrowser.info_serie Serie
 moviebrowser.info_size Dateigröße (MB)
 moviebrowser.info_title Titel
-moviebrowser.info_videoformat Bild
+moviebrowser.info_videoformat Bildformat
 moviebrowser.last_play_max_items Zeilen 'zuletzt aufgenommen'
 moviebrowser.last_record_max_items Zeilen 'zuletzt gesehen'
 moviebrowser.load_default Lade Voreinstellung

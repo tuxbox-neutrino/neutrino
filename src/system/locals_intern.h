@@ -1577,6 +1577,7 @@ const char * locale_real_names[] =
 	"moviebrowser.info_head",
 	"moviebrowser.info_head_update",
 	"moviebrowser.info_info1",
+	"moviebrowser.info_info2",
 	"moviebrowser.info_length",
 	"moviebrowser.info_parental_lockage",
 	"moviebrowser.info_parental_lockage_0year",

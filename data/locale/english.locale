@@ -1507,7 +1507,7 @@ moviebrowser.book_position Position:
 moviebrowser.book_type Jump (<0 back , >0 for):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward jump over
-moviebrowser.browser_frame_high Browser hight [%]
+moviebrowser.browser_frame_high Browser height [%]
 moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
@@ -1544,12 +1544,13 @@ moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
-moviebrowser.info_filename Name
+moviebrowser.info_filename Filename
 moviebrowser.info_genre_major Genre
-moviebrowser.info_genre_minor Genre
+moviebrowser.info_genre_minor Genre (minor)
 moviebrowser.info_head Film Information
 moviebrowser.info_head_update Save changes in all movie info files
 moviebrowser.info_info1 Info 1
+moviebrowser.info_info2 Info 2
 moviebrowser.info_length Length (Min)
 moviebrowser.info_parental_lockage Parental Lock age
 moviebrowser.info_parental_lockage_0year always
