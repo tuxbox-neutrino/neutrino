@@ -64,7 +64,7 @@ class CComponentsTimer : public sigc::trackable
 		bool stopTimer();
 
 		///returns true, if timer is running in thread
-		bool isRun() const {return tm_thread == 0 ? false:true;};
+		bool isRun() const {return tm_thread;};
 		///set another interval in seconds
 		void setTimerIntervall(const int& seconds){tm_interval = seconds;};
 
