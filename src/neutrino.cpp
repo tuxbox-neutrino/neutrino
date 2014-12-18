@@ -2498,6 +2498,12 @@ _repeat:
 		adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		delete hintBox;
 	}
+	if (g_settings.easymenu) {
+		CBouquetList * blist = (mode == mode_radio) ? RADIOfavList : TVfavList;
+		t_channel_id live_channel_id = channelList->getActiveChannel_ChannelID();
+		if (blist->hasChannelID(live_channel_id))
+			SetChannelMode(LIST_MODE_FAV);
+	}
 
 	channellist_visible = false;
 	if (!from_menu)
