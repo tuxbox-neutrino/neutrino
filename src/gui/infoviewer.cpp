@@ -104,8 +104,6 @@ CInfoViewer::CInfoViewer ()
 	ChanNameY = 0;
 	ChanWidth = 0;
 	ChanHeight = 0;
-	time_left_width = 0;
-	time_dot_width = 0;
 	time_width = 0;
 	time_height = 0;
 	lastsnr = 0;
@@ -218,10 +216,11 @@ void CInfoViewer::start ()
 	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;	//oberkante schatten?
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
+	int digit_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getMaxDigitWidth();
+	int dot_width = max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":"),
+			    g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(" "));
+	time_width = (digit_width * 4) + dot_width;
 	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
-	time_left_width = 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getWidth(); /* still a kludge */
-	time_dot_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
-	time_width = time_left_width* 2+ time_dot_width;
 
 	if (clock) {
 		delete clock;
@@ -253,10 +252,10 @@ void CInfoViewer::paintTime (bool show_dot)
 	if (!gotTime)
 		return;
 
-	int clock_x = BoxEndX - time_width - LEFT_OFFSET;
-	int clock_y = ChanNameY;
-	int clock_w = time_width + LEFT_OFFSET;
+	int clock_w = time_width;
 	int clock_h = time_height;
+	int clock_x = BoxEndX - 10 - clock_w;
+	int clock_y = ChanNameY;
 
 	if (clock == NULL){
 		clock = new CComponentsFrmClock();
@@ -527,7 +526,7 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	if (g_settings.infobar_show_channellogo > 1)
 		ChannelLogoMode = showChannelLogo(channel_id, 0);
 	if (ChannelLogoMode == 0 || ChannelLogoMode == 3 || ChannelLogoMode == 4)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 ,ChannelName, COL_INFOBAR_TEXT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 ,ChannelName, COL_INFOBAR_TEXT);
 
 	// show_Data
 	if (CMoviePlayerGui::getInstance().file_prozent > 100)
@@ -772,7 +771,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 			fb_pixel_t color = COL_INFOBAR_TEXT;
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanNameX + 10 + ChanNumWidth, ChanNameY + time_height,
-				BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth,
+				BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 - ChanNumWidth,
 				ChannelName, color /*COL_INFOBAR_TEXT*/);
 			//provider name
 			if(g_settings.infobar_show_channeldesc && pname){
@@ -789,7 +788,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 						+ g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getDigitOffset());
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
 					ChanNameX + 10 + ChanNumWidth + chname_width, tmpY,
-					BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth - chname_width,
+					BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 10 - ChanNumWidth - chname_width,
 					prov_name, color /*COL_INFOBAR_TEXT*/);
 			}
 
@@ -1979,7 +1978,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	int logo_x = 0, logo_y = 0;
 	int res = 0;
 	int start_x = ChanNameX;
-	int chan_w = BoxEndX- (start_x+ 20)- time_width- 15;
+	int chan_w = BoxEndX- (start_x+ 20)- time_width- LEFT_OFFSET - 10;
 
 	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h);
 
