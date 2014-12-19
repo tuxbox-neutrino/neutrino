@@ -130,6 +130,7 @@ CInfoViewer::~CInfoViewer()
 
 void CInfoViewer::Init()
 {
+	initClock();
 	BoxStartX = BoxStartY = BoxEndX = BoxEndY = 0;
 	recordModeActive = false;
 	is_visible = false;
@@ -216,16 +217,9 @@ void CInfoViewer::start ()
 	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;	//oberkante schatten?
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
-	int digit_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getMaxDigitWidth();
-	int dot_width = max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":"),
-			    g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(" "));
-	time_width = (digit_width * 4) + dot_width;
-	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
-
-	if (clock) {
-		delete clock;
-		clock = NULL;
-	}
+	initClock();
+	time_height = clock->getHeight();
+	time_width = clock->getWidth();
 }
 
 void CInfoViewer::changePB()
@@ -244,6 +238,23 @@ void CInfoViewer::changePB()
 	timescale->setType(CProgressBar::PB_TIMESCALE);
 }
 
+void CInfoViewer::initClock()
+{
+	if (clock == NULL){
+		clock = new CComponentsFrmClock();
+		clock->doPaintBg(false);
+	}
+
+	clock->setColorBody(COL_INFOBAR_PLUS_0);
+	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
+	clock->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
+	clock->setClockAlignment(CC_ALIGN_RIGHT | CC_ALIGN_HOR_CENTER);
+	clock->refresh();
+
+	clock->setPos(BoxEndX - 10 - clock->getWidth(), ChanNameY);
+	clock->setTextColor(COL_INFOBAR_TEXT);
+}
+
 void CInfoViewer::paintTime (bool show_dot)
 {
 	if (!gotTime)
@@ -252,23 +263,7 @@ void CInfoViewer::paintTime (bool show_dot)
 	if (!gotTime)
 		return;
 
-	int clock_w = time_width;
-	int clock_h = time_height;
-	int clock_x = BoxEndX - 10 - clock_w;
-	int clock_y = ChanNameY;
-
-	if (clock == NULL){
-		clock = new CComponentsFrmClock();
-		clock->doPaintBg(false);
-	}
-
-	clock->setColorBody(COL_INFOBAR_PLUS_0);
-	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
-	clock->setDimensionsAll(clock_x, clock_y, clock_w, clock_h);
-	clock->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
 	clock->setClockFormat(show_dot ? "%H:%M" : "%H %M");
-	clock->setTextColor(COL_INFOBAR_TEXT);
-
 	clock->paint(CC_SAVE_SCREEN_NO);
 }
 

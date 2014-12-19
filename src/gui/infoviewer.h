@@ -115,8 +115,8 @@ class CInfoViewer
 			  const char *runningStart = NULL, const char *runningRest = NULL,
 			  const char *nextStart = NULL, const char *nextDuration = NULL,
 			  bool update_current = true, bool update_next = true);
+	void initClock();
 	void paintTime( bool show_dot );
-	
 	void showRecordIcon(const bool show);
 	void showIcon_Tuner() const;
 
