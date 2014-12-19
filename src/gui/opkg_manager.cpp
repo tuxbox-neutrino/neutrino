@@ -42,6 +42,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/shellwindow.h>
+#include <gui/widget/progresswindow.h>
 #include <driver/screen_max.h>
 #include <gui/filebrowser.h>
 #include <system/debug.h>
@@ -68,6 +69,7 @@ enum
 	OM_REMOVE,
 	OM_INFO,
 	OM_INSTALL,
+	OM_STATUS,
 	OM_MAX
 };
 
@@ -80,7 +82,8 @@ static const string pkg_types[OM_MAX] =
 	OPKG_CL OPKG_CL_CONFIG_OPTIONS " upgrade ",
 	OPKG_CL OPKG_CL_CONFIG_OPTIONS " remove ",
 	OPKG_CL " info ",
-	OPKG_CL OPKG_CL_CONFIG_OPTIONS " install "
+	OPKG_CL OPKG_CL_CONFIG_OPTIONS " install ",
+	OPKG_CL " status ",
 };
 
 COPKGManager::COPKGManager()
@@ -188,10 +191,11 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 			force = "--force-reinstall ";
 		}
 		int r = execCmd(pkg_types[OM_INSTALL] + force + actionKey, true, true);
+		DisplayInfoMessage(actionKey.c_str());
 		if (r) {
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + force + actionKey);
 		} else
-				installed = true;
+			installed = true;
 		refreshMenu();
 	}
 	return res;
@@ -279,24 +283,53 @@ void COPKGManager::updateMenu()
 	}
 }
 
-bool COPKGManager::hasUpdates()
+bool COPKGManager::checkUpdates(const std::string & package_name, bool show_progress)
 {
 	if (!hasOpkgSupport())
 		return false;
+
+	doUpdate();
 
 	bool ret = false;
 
 	getPkgData(OM_LIST);
 	getPkgData(OM_LIST_UPGRADEABLE);
 
+	size_t i = 0;
+	CProgressWindow status;
+	status.showHeader(false);
+
+	if (show_progress){
+		status.paint();
+		status.showStatus(i);
+	}
+
 	for (map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++){
-		if (it->second.upgradable){
-			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update packages available...\n", __func__, __LINE__);
-			ret = true;
+		dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update check for...%s\n", __func__, __LINE__, it->second.name.c_str());
+		if (show_progress){
+			status.showStatusMessageUTF(it->second.name);
+			status.showStatus(100*i /  pkg_map.size());
 		}
+
+		if (it->second.upgradable){
+			dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  Update packages available for...%s\n", __func__, __LINE__, it->second.name.c_str());
+			if (!package_name.empty() && package_name == it->second.name){
+				ret = true;
+				break;
+			}else
+				ret = true;
+		}
+		i++;
+	}
+
+	if (show_progress){
+		status.showGlobalStatus(100);
+		status.showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_READY)); // UTF-8
+		status.hide();
 	}
 
 	pkg_map.clear();
+
 	return ret;
 }
 
@@ -305,9 +338,9 @@ int COPKGManager::doUpdate()
 	int r = execCmd(pkg_types[OM_UPDATE]);
 	if (r == -1) {
 		DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
-// 		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE), strerror(errno), pkg_types[OM_UPDATE]);
+		return r;
 	}
-	return r;
+	return 0;
 }
 
 void COPKGManager::refreshMenu() {
@@ -319,7 +352,8 @@ void COPKGManager::refreshMenu() {
 int COPKGManager::showMenu()
 {
 	installed = false;
-	doUpdate();
+	if (checkUpdates())
+		DisplayInfoMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_UPDATES_AVAILABLE));
 
 	getPkgData(OM_LIST);
 	getPkgData(OM_LIST_UPGRADEABLE);
@@ -351,6 +385,7 @@ int COPKGManager::showMenu()
 		if (badpackage(it->second.name))
 			continue;
 		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
+		getPkgInfo(it->second.name, "Size");
 		it->second.forwarder->setHint("", it->second.desc);
 		menu->addItem(it->second.forwarder);
 		pkg_vec.push_back(&it->second);
@@ -429,10 +464,12 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 		trim(line);
 
 		string name = getBlankPkgName(line);
+		if (name.empty())
+			continue;
 
 		switch (pkg_content_id) {
 			case OM_LIST: {
-				pkg_map[name] = pkg(name, line);
+				pkg_map[name] = pkg(name, line, line);
 				break;
 			}
 			case OM_LIST_INSTALLED: {
@@ -458,10 +495,48 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 
 string COPKGManager::getBlankPkgName(const string& line)
 {
-	size_t l_pos = line.find(" ");
-	if (l_pos != string::npos)
-		return line.substr(0, l_pos);
-	return line;
+	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  line: %s\n", __func__, __LINE__, line.c_str());
+
+	//check for error relevant contents and return an empty string if found
+	size_t pos0 = line.find("Collected errors:");
+	size_t pos01 = line.find(" * ");
+	if (pos0 != string::npos || pos01 != string::npos)
+		return "";
+
+	//split line and use name as return value
+	size_t pos1 = line.find(" ");
+	if (pos1 != string::npos)
+		return line.substr(0, pos1);
+
+	return "";
+}
+
+string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key)
+{
+	tmp_str.clear();
+	execCmd(pkg_types[OM_INFO] + pkg_name, false, true);
+	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
+
+	return getKeyInfo(tmp_str, pkg_key, ":");
+}
+
+string COPKGManager::getKeyInfo(const string& input, const std::string& key, const string& delimiters)
+{
+	string s = input;
+	size_t pos1 = s.find(key);
+	if (pos1 != string::npos){
+		size_t pos2 = s.find(delimiters, pos1)+ delimiters.length();
+		if (pos2 != string::npos){
+			size_t pos3 = s.find("\n", pos2);
+			if (pos3 != string::npos){
+				string ret = s.substr(pos2, pos3-pos2);
+				return trim(ret, " ");
+			}
+			else
+				dprintf(DEBUG_INFO, "[COPKGManager] [%s - %d]  Error: [key: %s] missing end of line...\n", __func__, __LINE__, key.c_str());
+		}
+	}
+	return "";
 }
 
 int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
@@ -470,6 +545,7 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 	string cmd = string(cmdstr);
 	int res = 0;
 	bool has_err = false;
+	tmp_str.clear();
 	string err_msg = "";
 	if (verbose) {
 // 		cmd += " 2>&1";
@@ -491,15 +567,23 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 
 			//check for collected errors and build a message for screen if errors available
 			if (has_err){
-				dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  %s \n", __func__, __LINE__, line.c_str());
-				size_t pos1 = line.find(" * opkg_");
-				string str = line.substr(pos1, line.length()-pos1);
-				err_msg += str.replace(pos1, 8,"") + "\n";
+				dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  cmd: %s\nresult: %s\n", __func__, __LINE__, cmd.c_str(), line.c_str());
+				size_t pos1 = line.find(" * ");
+				if (pos1 != string::npos){
+					string str = line.substr(pos1, line.length()-pos1);
+					err_msg += str.replace(pos1, 3,"") + "\n";
+				}
+				size_t pos01 = line.find("wget returned 4");
+				//find obvious errors
+				if (pos01 != string::npos)
+					err_msg = "Network error! Online update not possible.";
 			}else{
 				size_t pos2 = line.find("Collected errors:");
 				if (pos2 != string::npos)
 					has_err = true;
 			}
+			if (!has_err)
+				tmp_str += line + "\n";
 		}
 		fclose(f);
 	}

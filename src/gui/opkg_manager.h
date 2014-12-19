@@ -42,7 +42,7 @@ class COPKGManager : public CMenuTarget
 {
 	private:
 		int width;
-
+		std::string tmp_str;
 		CFrameBuffer *frameBuffer;
 
 		struct pkg;
@@ -64,7 +64,9 @@ class COPKGManager : public CMenuTarget
 			return execCmd(cmdstr.c_str(), verbose, acknowledge);
 		};
 		void getPkgData(const int pkg_content_id);
-		static std::string getBlankPkgName(const std::string& line);
+		std::string getBlankPkgName(const std::string& line);
+		std::string getPkgInfo(const std::string& pkg_name, const std::string& pkg_key);
+		std::string getKeyInfo(const std::string& input, const std::string& pkg_info_key, const std::string& delimiters);
 		int showMenu();
 		void updateMenu();
 		void refreshMenu();
@@ -74,13 +76,14 @@ class COPKGManager : public CMenuTarget
 
 		struct pkg {
 			std::string name;
+			std::string version;
 			std::string desc;
 			bool installed;
 			bool upgradable;
 			CMenuForwarder *forwarder;
 			pkg() { }
-			pkg(std::string &_name, std::string &_desc)
-				: name(_name), desc(_desc), installed(false), upgradable(false) { }
+			pkg(std::string &_name, std::string &_version, std::string &_desc)
+				: name(_name), version(_version), desc(_desc), installed(false), upgradable(false) { }
 		};
 	public:
 		COPKGManager();
@@ -88,6 +91,6 @@ class COPKGManager : public CMenuTarget
 
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		static bool hasOpkgSupport();
-		bool hasUpdates();
+		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = true);
 };
 #endif

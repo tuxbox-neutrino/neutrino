@@ -1758,6 +1758,7 @@ opkg.failure.upgrade Upgrade mislukt
 opkg.install.local.package Installeer lokale pakket
 opkg.messagebox.reinstall Herinstalleer %s?
 opkg.messagebox.remove Wissen%s?
+opkg.messagebox.updates.available Updates beschikbare!
 opkg.success.install installatie succesvol, herstart van Neutrino mogelijk vereist.
 opkg.title Pakket management
 opkg.upgrade Upgrade geïnstalleerd pakketten

@@ -1867,6 +1867,7 @@ opkg.failure.upgrade Upgrade fehlgeschlagen
 opkg.install.local.package Installiere lokales Paket
 opkg.messagebox.reinstall %s erneut installieren?
 opkg.messagebox.remove %s entfernen?
+opkg.messagebox.updates.available Aktualisierungen verfügbar!
 opkg.success.install Installation erfolgreich, Neustart von Neutrino kann erforderlich sein.
 opkg.title Paketverwaltung
 opkg.upgrade Installierte Pakete aktualisieren

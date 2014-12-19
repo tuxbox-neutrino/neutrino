@@ -1848,6 +1848,7 @@ opkg.failure.upgrade Upgrade zlyhalo
 opkg.install.local.package Nainštalujte miestne balíček
 opkg.messagebox.reinstall Preinštalovať %s?
 opkg.messagebox.remove Odstrániť %s?
+opkg.messagebox.updates.available Aktualizácia k dispozícii!
 opkg.success.install Inštalácia v poriadku, reštart Neutrina bude žiadúci.
 opkg.title Správa balíčkov
 opkg.upgrade Aktualizovanie inštalovaných balíčkov
