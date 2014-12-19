@@ -1760,7 +1760,7 @@ opkg.messagebox.reinstall Herinstalleer %s?
 opkg.messagebox.remove Wissen%s?
 opkg.messagebox.size.error Onvoldoende geheugen beschikbaar voor dit pakket!
 opkg.messagebox.updates.available Updates beschikbare!
-opkg.success.install installatie succesvol, herstart van Neutrino mogelijk vereist.
+opkg.success.install installatie succesvol!\n herstart van Neutrino mogelijk vereist. Nu opnieuw opstarten?
 opkg.title Pakket management
 opkg.upgrade Upgrade geïnstalleerd pakketten
 options.default Herstel standaardwaarden

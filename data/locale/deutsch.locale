@@ -1869,7 +1869,7 @@ opkg.messagebox.reinstall %s erneut installieren?
 opkg.messagebox.remove %s entfernen?
 opkg.messagebox.size.error Nicht genügend freier Speicher für Paketinstallation verfügbar!
 opkg.messagebox.updates.available Aktualisierungen verfügbar!
-opkg.success.install Installation erfolgreich, Neustart von Neutrino kann erforderlich sein.
+opkg.success.install Installation erfolgreich!\nNeustart von Neutrino kann erforderlich sein. Jetzt neu starten?
 opkg.title Paketverwaltung
 opkg.upgrade Installierte Pakete aktualisieren
 options.default Voreinstellungen benutzen
