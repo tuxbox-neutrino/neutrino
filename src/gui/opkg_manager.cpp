@@ -621,6 +621,11 @@ void COPKGManager::handleShellOutput(string& cur_line)
 		size_t pos01 = cur_line.find("wget returned 4");
 		if (pos01 != string::npos)
 			err_msg = "Network error! Online update not possible. Please check your network connection!\n";
+
+		//duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS, NOTE: if found first cache option in the opkg.conf file, this will be preferred
+		pos01 = cur_line.find("Duplicate option cache");
+		if (pos01 != string::npos)
+			has_err = false;
 	}else{
 		size_t pos2 = cur_line.find("Collected errors:");
 		if (pos2 != string::npos)
