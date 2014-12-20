@@ -48,7 +48,7 @@
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
-
+#include <gui/opkg_manager.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 
@@ -436,10 +436,23 @@ printf("[update] mode is %d\n", softupdate_mode);
 		else {
 			hide();
 			printf("flash/package-file not found: %s\n", filename.c_str());
-			ShowHint(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE)); // UTF-8
+			DisplayErrorMessage(g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE));
 			return false;
 		}
 		hide();
+
+		//package install:
+		if (file_selected->getType() == CFile::FILE_PKG_PACKAGE){
+			COPKGManager opkg;
+			if (opkg.hasOpkgSupport()){
+				int msgres = ShowMsg(LOCALE_MESSAGEBOX_INFO, "Start installation?", CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_UPDATE, 700); // UTF-8
+				if (msgres == CMessageBox::mbrYes){
+					if (!opkg.installPackage(UpdatesBrowser.getSelectedFile()->Name))
+						DisplayErrorMessage("Installation failed!");
+				}
+			}
+			return false;
+		}
 		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
 		if(ptr) {
