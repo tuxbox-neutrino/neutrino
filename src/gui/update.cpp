@@ -435,7 +435,7 @@ printf("[update] mode is %d\n", softupdate_mode);
 			fclose(fd);
 		else {
 			hide();
-			printf("flash-file not found: %s\n", filename.c_str());
+			printf("flash/package-file not found: %s\n", filename.c_str());
 			ShowHint(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENFILE)); // UTF-8
 			return false;
 		}
