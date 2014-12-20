@@ -440,13 +440,18 @@ printf("[update] mode is %d\n", softupdate_mode);
 			return false;
 		}
 		hide();
+		//set internal filetype
 		char const * ptr = rindex(filename.c_str(), '.');
 		if(ptr) {
 			ptr++;
-			if(!strcmp(ptr, "bin")) fileType = 'A';
-			else if(!strcmp(ptr, "txt")) fileType = 'T';
-			else if(!allow_flash) return false;
-			else fileType = 0;
+			if(!strcmp(ptr, "bin"))
+				fileType = 'A';
+			else if(!strcmp(ptr, "txt"))
+				fileType = 'T';
+			else if(!allow_flash)
+				return false;
+			else
+				fileType = 0;
 #ifdef DEBUG
 			printf("[update] manual file type: %s %c\n", ptr, fileType);
 #endif
