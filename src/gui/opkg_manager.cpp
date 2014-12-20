@@ -153,13 +153,10 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 
 		if (fileBrowser.exec((*local_dir).c_str()))
 		{
-			string pgk_name = fileBrowser.getSelectedFile()->Name;
-			int r = execCmd(pkg_types[OM_INSTALL] + pgk_name, true, true);
+			string pkg_name = fileBrowser.getSelectedFile()->Name;
+			installPackage(pkg_name);
+
 			*local_dir = fileBrowser.getCurrentDir();
-			if (r) {
-				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pgk_name);
-			} else
-				installed = true;
 		refreshMenu();
 		}
 		return res;
@@ -669,4 +666,18 @@ void COPKGManager::showError(const char* local_msg, char* err_message, const str
 	msg += string(err_message) + ":\n";
 	msg += command;
 	DisplayErrorMessage(msg.c_str());
+}
+
+bool COPKGManager::installPackage(const std::string& pkg_name)
+{
+	int r = execCmd(pkg_types[OM_INSTALL] + pkg_name, true, true);
+
+	if (r){
+		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
+		return false;
+	}
+	else
+		installed = true;
+
+	return true;
 }
