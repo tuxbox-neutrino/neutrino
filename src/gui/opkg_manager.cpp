@@ -429,11 +429,11 @@ int COPKGManager::showMenu()
 		*/
 		//restart neutrino: user decision
 		if(!access( "/tmp/.restart", F_OK)){
-			int msg = ShowMsg(LOCALE_OPKG_TITLE, g_Locale->getText(LOCALE_OPKG_SUCCESS_INSTALL), CMsgBox::mbrNo,
-			CMsgBox::mbYesNo,
+			int msg = ShowMsg(LOCALE_OPKG_TITLE, g_Locale->getText(LOCALE_OPKG_SUCCESS_INSTALL), CMessageBox::mbrNo,
+			CMessageBox::mbYes | CMessageBox::mbNo,
 			NEUTRINO_ICON_QUESTION,
 			width);
-			if (msg == CMsgBox::mbrYes)
+			if (msg == CMessageBox::mbrYes)
 				exit_action = "restart";
 		}
 		//restart neutrino: forced

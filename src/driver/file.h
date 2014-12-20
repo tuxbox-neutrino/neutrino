@@ -71,7 +71,9 @@ class CFile
 			FILE_PLAYLIST,
 			STREAM_AUDIO,
 			FILE_PICTURE,
-			STREAM_PICTURE
+			STREAM_PICTURE,
+			FILE_BIN_PACKAGE,
+			FILE_PKG_PACKAGE
 		};
 
 		FileType	getType(void) const;
