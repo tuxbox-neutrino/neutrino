@@ -410,8 +410,10 @@ printf("[update] mode is %d\n", softupdate_mode);
 
 		CFileFilter UpdatesFilter;
 		if(allow_flash) UpdatesFilter.addFilter(FILEBROWSER_UPDATE_FILTER);
-		UpdatesFilter.addFilter("bin");
-		UpdatesFilter.addFilter("txt");
+
+		string filters[] = {"bin", "txt", "opk", "ipk"};
+		for(size_t i=0; i<sizeof(filters)/sizeof(filters[0]) ;i++)
+			UpdatesFilter.addFilter(filters[i]);
 
 		UpdatesBrowser.Filter = &UpdatesFilter;
 
