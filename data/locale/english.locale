@@ -1432,6 +1432,8 @@ messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?
 messagebox.error Error
+messagebox.feature_not_supported Funkcia nie je podporovaná.
+messagebox.feature_not_supported Feature is not supported. Please contact your firmware provider!
 messagebox.info Information
 messagebox.no No
 messagebox.ok Ok
@@ -1872,6 +1874,7 @@ opkg.messagebox.updates.available Updates available!
 opkg.success.install Install successful!\n restart of Neutrino might be required. Restart now?
 opkg.title Package Management
 opkg.upgrade Upgrade installed packages
+opkg.warning_3rdparty_packages 3rd party packages could damage your system! Are you sure install this package?
 options.default Reset to defaults
 options.fb framebuffer
 options.hint_default Reset the values to their defaults

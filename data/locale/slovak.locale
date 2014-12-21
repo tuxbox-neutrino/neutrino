@@ -1423,6 +1423,7 @@ messagebox.back späť
 messagebox.cancel zruš
 messagebox.discard Zruš zmeny?
 messagebox.error Chyba
+messagebox.feature_not_supported Funkcia nie je podporovaná!
 messagebox.info Správa
 messagebox.no nie
 messagebox.ok ok
@@ -1853,6 +1854,7 @@ opkg.messagebox.updates.available Aktualizácia k dispozícii!
 opkg.success.install inštalácia úspešne!\n Môže byť potrebné reštart neutríno. Teraz reštartovať?
 opkg.title Správa balíčkov
 opkg.upgrade Aktualizovanie inštalovaných balíčkov
+opkg.warning_3rdparty_packages Zahraničné balíčky by mohli poškodiť systém! Si si istý, že inštaláciu tohto balíka?
 options.default obnov predvolené
 options.fb FRAMEBUFFER
 options.hint_default Nastaviť prednastavené hodnoty

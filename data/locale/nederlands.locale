@@ -1364,6 +1364,7 @@ messagebox.back Terug
 messagebox.cancel Annuleer 
 messagebox.discard Wijzigingen ongedaan maken?
 messagebox.error Foutmelding
+messagebox.feature_not_supported Functie wordt niet ondersteund. Neem contact op met uw firmware provider!
 messagebox.info Informatie
 messagebox.no Nee
 messagebox.ok Ok
@@ -1763,6 +1764,7 @@ opkg.messagebox.updates.available Updates beschikbare!
 opkg.success.install installatie succesvol!\n herstart van Neutrino mogelijk vereist. Nu opnieuw opstarten?
 opkg.title Pakket management
 opkg.upgrade Upgrade geïnstalleerd pakketten
+opkg.warning_3rdparty_packages 3rd party pakketten kan uw systeem beschadigen! Bent u zeker dat dit pakket te installeren?
 options.default Herstel standaardwaarden
 options.fb framebuffer
 options.hint_default Reset de waardes naar standaard waardes

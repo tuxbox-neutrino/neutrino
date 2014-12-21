@@ -1432,6 +1432,7 @@ messagebox.back Zurück
 messagebox.cancel Abbruch
 messagebox.discard Wollen Sie die Änderungen verwerfen?
 messagebox.error Fehler
+messagebox.feature_not_supported Funktion wird nicht unterstützt. Bitte wenden Sie sich an Ihren Firmware-Anbieter!
 messagebox.info Information
 messagebox.no Nein
 messagebox.ok OK
@@ -1872,6 +1873,7 @@ opkg.messagebox.updates.available Aktualisierungen verfügbar!
 opkg.success.install Installation erfolgreich!\nNeustart von Neutrino kann erforderlich sein. Jetzt neu starten?
 opkg.title Paketverwaltung
 opkg.upgrade Installierte Pakete aktualisieren
+opkg.warning_3rdparty_packages Drittanbieter-Pakete könnten Ihr System beschädigen! Sind Sie sicher, dieses Paket zu installieren?
 options.default Voreinstellungen benutzen
 options.fb framebuffer
 options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.
