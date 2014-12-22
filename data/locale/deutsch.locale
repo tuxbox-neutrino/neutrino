@@ -1503,6 +1503,7 @@ moviebrowser.book_movieend Filmende:
 moviebrowser.book_moviestart Filmstart:
 moviebrowser.book_name Name:
 moviebrowser.book_new Neue Markierung
+moviebrowser.book_no_end Keine Endmarkierung gefunden
 moviebrowser.book_position Position:
 moviebrowser.book_type Sprung (<0 zurück, >0 vor):
 moviebrowser.book_type_backward Wiederholung
@@ -1513,7 +1514,15 @@ moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
 moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
 moviebrowser.cache_dir Cache-Verzeichnis
+moviebrowser.copies Kopiere Sprungmarken vom Film in neue Dateien?
+moviebrowser.copy Kopiere Sprungmarken vom Film in neue Datei?
+moviebrowser.copy_failed Fehler beim Kopieren. Sind Sprungmarken und genug freier Speicher vorhanden?
+moviebrowser.copying Kopiere Sprungmarken, bitte warten ...
+moviebrowser.cut Schneide Sprungmarken aus dem Film?
+moviebrowser.cut_failed Fehler beim Schneiden. Sind Sprungmarken und genug freier Speicher vorhanden?
+moviebrowser.cutting Schneide Film, bitte warten ...
 moviebrowser.delete_info Lösche Dateien, bitte warten...
+moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
@@ -1614,6 +1623,10 @@ moviebrowser.short_size Größe
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
+moviebrowser.truncate Film kürzen?
+moviebrowser.truncate_failed Fehler beim Kürzen des Films
+moviebrowser.truncate_failed_playing Kürzen des Films während der Wiedergabe nicht möglich.
+moviebrowser.truncating Kürze Film, bitte warten ...
 moviebrowser.ts_only Nur Aufnahmen zeigen
 moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden

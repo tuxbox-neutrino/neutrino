@@ -1508,6 +1508,7 @@ moviebrowser.book_movieend Movie end:
 moviebrowser.book_moviestart User Movie start:
 moviebrowser.book_name Name:
 moviebrowser.book_new New Bookmark
+moviebrowser.book_no_end No end bookmark defined
 moviebrowser.book_position Position:
 moviebrowser.book_type Jump (<0 back , >0 for):
 moviebrowser.book_type_backward Repeat
@@ -1518,7 +1519,15 @@ moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
 moviebrowser.browser_row_width Row width (% of screenwidth)
 moviebrowser.cache_dir Cache directory
+moviebrowser.copies Copy jumps from movie to new files?
+moviebrowser.copy Copy jumps from movie to new file?
+moviebrowser.copy_failed Copy failed, are there jump bookmarks and enough free space?
+moviebrowser.copying Coping, please wait ...
+moviebrowser.cut Cut jumps from movie?
+moviebrowser.cut_failed Cut failed, are there jump bookmarks and enough free space?
+moviebrowser.cutting Cutting movie, please wait ...
 moviebrowser.delete_info Delete files, please wait...
+moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark change
@@ -1619,6 +1628,10 @@ moviebrowser.short_size MB
 moviebrowser.short_title Title
 moviebrowser.start_head Start movie from:
 moviebrowser.start_record_start Movie start
+moviebrowser.truncate Truncate movie?
+moviebrowser.truncate_failed Truncate failed.
+moviebrowser.truncate_failed_playing Impossible to truncate playing movie.
+moviebrowser.truncating Truncating movie, please wait ...
 moviebrowser.ts_only Show recordings only
 moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
