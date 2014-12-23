@@ -563,68 +563,109 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 	std::string yresult;
 	static bool init_iso=true;
 	bool idx_as_id=true;
-
+	unsigned int selected_apid = 0;
+	t_channel_id current_channel_id = 0;
+	CZapitChannel * channel = NULL;
 	if(para == "apid")
 		idx_as_id=false;
+	else if(!para.empty() && ("channel="== para.substr(0,8))){
+		if (sscanf(para.c_str(), "channel=%llx:audio=%i:", &current_channel_id,&selected_apid) == 2) {
+			if(current_channel_id != 0 && CZapit::getInstance()->GetCurrentChannelID() != current_channel_id){
+				channel = CServiceManager::getInstance()->FindChannel(current_channel_id);
+			}
+		}
+	}
 	if(init_iso)
 	{
 		if(_initialize_iso639_map())
 			init_iso=false;
 	}
-	bool eit_not_ok=true;
-	CZapitClient::responseGetPIDs pids;
+	if (channel){//check audio pid if current_channel != vlc live channel
+		//wait for channel lock
+		for (int i = 0; i < 30 && channel->getAudioChannelCount()==0;i++){
+			usleep(100000);
+		}
+		for (unsigned int i = 0; i <  channel->getAudioChannelCount(); i++) {
+			CZapitAudioChannel::ZapitAudioChannelType atype = channel->getAudioChannel(i)->audioChannelType;
+			std::string a_desc;
+			if(!(init_iso)){
+				a_desc = _getISO639Description( channel->getAudioChannel(i)->description.c_str() );
+			}else{
+				a_desc = channel->getAudioChannel(i)->description.c_str();
+			}
+			if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::EAC3) {
+				yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",i
+				, (i==selected_apid) ? "selected=\"selected\"" : ""
+				, a_desc.c_str()
+				,"(EAC3)");
+			} else {
+				yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",i
+				, (i==selected_apid) ? "selected=\"selected\"" : ""
+				,a_desc.c_str()
+				,atype?"(AC3)":" ");
+			}
+		}
+	}
+	if( yresult.empty()){
+		bool eit_not_ok=true;
+		if(current_channel_id==0)
+			current_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
-	CSectionsdClient::ComponentTagList tags;
-	pids.PIDs.vpid=0;
-	NeutrinoAPI->Zapit->getPIDS(pids);
+		CZapitClient::responseGetPIDs pids;
+		CSectionsdClient::ComponentTagList tags;
+		pids.PIDs.vpid=0;
+		NeutrinoAPI->Zapit->getPIDS(pids);
 
-	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
-	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	CEitManager::getInstance()->getCurrentNextServiceKey(current_channel, currentNextInfo);
-	if (CEitManager::getInstance()->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
-	{
-		for (unsigned int i=0; i< tags.size(); i++)
+		CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
+		CEitManager::getInstance()->getCurrentNextServiceKey(current_channel_id, currentNextInfo);
+		if (CEitManager::getInstance()->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
 		{
-			for (unsigned short j=0; j< pids.APIDs.size(); j++)
+			unsigned int tag = 0;
+			for (unsigned int i=0; i< tags.size(); i++)
 			{
-				if ( pids.APIDs[j].component_tag == tags[i].componentTag )
+				for (unsigned short j=0; j< pids.APIDs.size(); j++)
 				{
- 					if(!tags[i].component.empty())
+					if ( pids.APIDs[j].component_tag == tags[i].componentTag )
 					{
-						if(!(isalnum(tags[i].component[0])))
-							tags[i].component=tags[i].component.substr(1,tags[i].component.length()-1);
-						yresult += string_printf("<option value=%05u>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,tags[i].component.c_str());
-					}
-					else
-					{
-						if(!(init_iso))
+						if(!tags[i].component.empty())
 						{
-							strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
+							if(!(isalnum(tags[i].component[0])))
+								tags[i].component=tags[i].component.substr(1,tags[i].component.length()-1);
+							yresult += string_printf("<option value=%05u %s>%s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,(tag==selected_apid) ? "selected=\"selected\"" : "",tags[i].component.c_str());
+							tag++;
 						}
-			 			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
+						else
+						{
+							if(!(init_iso))
+							{
+								strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
+							}
+							yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",idx_as_id ? j : pids.APIDs[j].pid,(j==selected_apid) ? "selected=\"selected\"" : "",std::string(pids.APIDs[j].desc).c_str(),pids.APIDs[j].is_ac3 ? " (AC3)": pids.APIDs[j].is_aac ? "(AAC)" : pids.APIDs[j].is_eac3 ? "(EAC3)" : " ");
+						}
+						eit_not_ok=false;
+						break;
 					}
-					eit_not_ok=false;
-					break;
 				}
 			}
 		}
-	}
-	if(eit_not_ok)
-	{
-		unsigned short i = 0;
-		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); ++it)
+		if(eit_not_ok)
 		{
-			if(!(init_iso))
+			unsigned short i = 0;
+			for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); ++it)
 			{
-				strcpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ) );
+				if(!(init_iso))
+				{
+					strcpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ) );
+				}
+				yresult += string_printf("<option value=%05u %s>%s %s</option>\r\n",
+							 idx_as_id ? i : it->pid, (i==selected_apid) ? "selected=\"selected\"" : "",pids.APIDs[i].desc,
+							 pids.APIDs[i].is_ac3 ? " (AC3)": pids.APIDs[i].is_aac ? "(AAC)" : pids.APIDs[i].is_eac3 ? "(EAC3)" : " ");
+				i++;
 			}
-			yresult += string_printf("<option value=%05u>%s %s</option>\r\n",idx_as_id ? i : it->pid,pids.APIDs[i].desc,pids.APIDs[i].is_ac3 ? " (AC3)": pids.APIDs[i].is_aac ? "(AAC)" : pids.APIDs[i].is_eac3 ? "(EAC3)" : " ");
-			i++;
 		}
+		if(pids.APIDs.empty())
+			yresult = "00000"; // shouldnt happen, but print at least one apid
 	}
-
-	if(pids.APIDs.empty())
-		yresult = "00000"; // shouldnt happen, but print at least one apid
 	return yresult;
 }
 
