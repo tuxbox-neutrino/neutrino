@@ -733,11 +733,9 @@ void CRemoteControl::stopvideo()
 	if ( is_video_started )
 	{
 		is_video_started= false;
-#if HAVE_TRIPLEDRAGON
 		/* we need stopPlayback to blank video,
 		   lockPlayback prevents it from being inadvertently starting */
 		g_Zapit->stopPlayBack();
-#endif
 		g_Zapit->lockPlayBack();
 	}
 }
