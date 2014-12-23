@@ -972,15 +972,11 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 static void commandserviceStopped(int connfd, char * /* data */, const unsigned /* dataLength */)
 {
 	xprintf("[sectionsd] commandserviceStopped\n");
-	sendEmptyResponse(connfd, NULL, 0);
-	threadCN.lock();
-	threadEIT.lock();
-	threadCN.closefd();
-	threadEIT.closefd();
-	threadCN.unlock();
-	threadEIT.unlock();
-	threadCN.stopUpdate();
 	current_channel_id = 0;
+	sendEmptyResponse(connfd, NULL, 0);
+	threadEIT.stop();
+	threadCN.stop();
+	threadCN.stopUpdate();
 	xprintf("[sectionsd] commandserviceStopped done\n");
 }
 
@@ -1585,8 +1581,12 @@ void CSectionThread::run()
 			xprintf("%s: skipping to next filter %d from %d (timeouts %d)\n",
 				name.c_str(), filter_index+1, (int)filters.size(), timeoutsDMX);
 #endif
+			if (timeoutsDMX == -3)
+				sendToSleepNow = true;
+			else
+				need_change = true;
+
 			timeoutsDMX = 0;
-			need_change = true;
 		}
 		if (zeit > lastChanged + skipTime) {
 #ifdef DEBUG_SECTION_THREADS

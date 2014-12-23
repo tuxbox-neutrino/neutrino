@@ -283,7 +283,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	lock();
 	if (!isOpen()) {
 		unlock();
-		timeouts = -1;
+		timeouts = -3;
 		return -1;
 	}
 
