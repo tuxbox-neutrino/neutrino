@@ -161,6 +161,18 @@ bool CScreenSaver::ReadDir()
 
 			str += "/";
 			str += (*dirpointer).d_name;
+
+			if ((std::string) dir_name == DATADIR "/neutrino/icons")
+			{
+				/*
+				  backward compatiblity:
+				  just add the standard mp3-?.jpg pictures
+				  to get the same behavior as usual
+				*/
+				if (str.find("/mp3-") == string::npos)
+					continue;
+			}
+
 			v_bg_files.push_back(str);
 		}
 	}
