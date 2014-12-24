@@ -114,12 +114,21 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 bool CScreenSaver::ReadDir()
 {
-	char* dir_name = (char *) g_settings.screensaver_dir.c_str();
+	std::string d = g_settings.screensaver_dir;
+	if (d.length() > 1)
+	{
+		//remove trailing slash
+		std::string::iterator it = d.end() - 1;
+		if (*it == '/')
+			d.erase(it);
+	}
+
+	char *dir_name = (char *) d.c_str();
 	struct dirent *dirpointer;
 	DIR *dir;
 	char curr_ext[5];
 	int curr_lenght;
-	char* p;
+	char *p;
 	bool ret = false;
 
 	v_bg_files.clear();
