@@ -322,6 +322,11 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		chooserDir(g_settings.screenshot_dir, true, action_str);
 		return res;
 	}
+	else if(actionKey=="screensaver_dir") {
+		const char *action_str = "screensaver";
+		chooserDir(g_settings.screensaver_dir, false, action_str);
+		return res;
+	}
 	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
 		for (int i = 0; i < FONT_GROUP_COUNT; i++) {
 			if (actionKey == font_sizes_groups[i].actionkey) {
@@ -606,6 +611,13 @@ int COsdSetup::showOsdSetup()
 	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
 	osd_menu->addItem(mc);
+
+	osd_menu->addItem(GenericMenuSeparatorLine);
+
+	// screensaver_dir
+	mf = new CMenuForwarder(LOCALE_SCREENSAVER_DIR, true, g_settings.screensaver_dir, this, "screensaver_dir");
+	mf->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DIR);
+	osd_menu->addItem(mf);
 
 	int oldVolumeSize = g_settings.volume_size;
 	int oldInfoClockSize = g_settings.infoClockFontSize;
