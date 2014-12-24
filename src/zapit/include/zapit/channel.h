@@ -315,7 +315,7 @@ struct CmpChannelByFreq: public std::binary_function <const CZapitChannel * cons
 		if((c1->getTransponderId() == c2->getTransponderId()) && ((uint64_t)c1->getFreqId() <<32 | c1->polarization <<16 | c1->getSatellitePosition()) == ((uint64_t)c2->getFreqId()<<32 | c2->polarization <<16| c2->getSatellitePosition()))
 			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
 		else
-			return ((uint64_t)c1->getFreqId()<<32 | c1->polarization <<16 | abs(c1->getSatellitePosition())) < ((uint64_t)c2->getFreqId()<<32 | c2->polarization <<16 | abs(c2->getSatellitePosition()));
+			return ((int64_t)c1->getSatellitePosition() <<32 | c1->getFreqId()<<16 | c1->polarization ) < ((int64_t)c2->getSatellitePosition() << 32 | c2->getFreqId()<<16 | c2->polarization);		;
 		;
 	};
 };
