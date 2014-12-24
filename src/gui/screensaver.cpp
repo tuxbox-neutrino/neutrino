@@ -45,6 +45,7 @@ CScreenSaver::CScreenSaver()
 {
 	thrScreenSaver 	= 0;
 	m_frameBuffer 	= CFrameBuffer::getInstance();
+	m_viewer	= new CPictureViewer();
 	index 		= 0;
 }
 
@@ -53,6 +54,8 @@ CScreenSaver::~CScreenSaver()
 	if(thrScreenSaver)
 		pthread_cancel(thrScreenSaver);
 	thrScreenSaver = 0;
+
+	delete m_viewer;
 }
 
 
@@ -69,6 +72,18 @@ CScreenSaver* CScreenSaver::getInstance()
 void CScreenSaver::Start()
 {
 	CAudioMute::getInstance()->enableMuteIcon(false);
+
+	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
+	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
+
+	if (g_settings.video_Format == 3)
+		m_viewer->SetAspectRatio(16.0/9);
+	else
+		m_viewer->SetAspectRatio(4.0/3);
+
+	m_viewer->Cleanup();
+
+	videoDecoder->StopPicture();
 
 	if(!thrScreenSaver)
 	{
@@ -91,6 +106,7 @@ void CScreenSaver::Stop()
 		pthread_cancel(thrScreenSaver);
 	thrScreenSaver = 0;
 
+	m_frameBuffer->paintBackground(); //clear entire screen
 	CAudioMute::getInstance()->enableMuteIcon(true);
 }
 
@@ -144,15 +160,14 @@ bool CScreenSaver::ReadDir()
 	{
 		curr_lenght = strlen((*dirpointer).d_name);
 		string str = dir_name;
-//		printf("%d\n",curr_lenght);
+		//printf("%d\n",curr_lenght);
 		if(curr_lenght > 4)
 		{
 			strncpy(curr_ext,(*dirpointer).d_name+(curr_lenght-4),5);
 
 			for (p = curr_ext; *p; ++p)
 				*p = (char)tolower(*p);
-//			printf("%s\n",curr_ext);
-
+			//printf("%s\n",curr_ext);
 			if((strcmp(".jpg",curr_ext))
 				//|| (strcmp(".png",curr_ext))
 				//|| (strcmp(".bmp",curr_ext))
@@ -204,11 +219,10 @@ void CScreenSaver::PaintPicture()
 		return;
 	}
 
-	printf("[CScreenSaver] ShowPicture: %s\n", v_bg_files.at(index).c_str());
-	videoDecoder->StopPicture();
-	videoDecoder->ShowPicture(v_bg_files.at(index).c_str());
-	index++;
+	printf("[CScreenSaver] PaintPicture: %s\n", v_bg_files.at(index).c_str());
+	m_viewer->ShowImage(v_bg_files.at(index).c_str(), false /*unscaled*/);
 
+	index++;
 	if(index ==  v_bg_files.size())
 		index = 0;
 }

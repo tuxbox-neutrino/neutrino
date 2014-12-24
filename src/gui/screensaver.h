@@ -39,6 +39,7 @@ class CScreenSaver
 		static void*	ScreenSaverPrg(void *arg);
 		vector<string> 	v_bg_files;
 		unsigned int 	index;
+		CPictureViewer	*m_viewer;
 
 		bool ReadDir();
 		void PaintPicture();
