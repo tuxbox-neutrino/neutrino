@@ -20,6 +20,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/libupnpclient \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@HWLIB_CFLAGS@
 

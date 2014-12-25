@@ -16,6 +16,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/libmd5sum \
 	-I$(top_srcdir)/lib/xmltree \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	@HWLIB_CFLAGS@
 

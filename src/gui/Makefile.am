@@ -27,6 +27,7 @@ AM_CPPFLAGS += \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
+	@SIGC_CFLAGS@ \
 	@CURL_CFLAGS@ \
 	@LUA_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
