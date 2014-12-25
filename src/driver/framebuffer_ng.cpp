@@ -50,6 +50,9 @@
 #include <cnxtfb.h>
 #endif
 #if HAVE_TRIPLEDRAGON
+#ifdef SCALE
+#undef SCALE
+#endif
 #include <tdgfx/stb04gfx.h>
 extern int gfxfd;
 #endif
