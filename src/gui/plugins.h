@@ -32,8 +32,6 @@
 #ifndef __plugins__
 #define __plugins__
 
-#include <gui/widget/menue.h>
-
 #include <driver/framebuffer.h>
 #include <system/localize.h>
 
