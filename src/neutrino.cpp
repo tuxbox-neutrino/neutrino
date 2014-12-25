@@ -1718,7 +1718,6 @@ void CNeutrinoApp::SendSectionsdConfig(void)
 void CNeutrinoApp::InitZapper()
 {
 	struct stat my_stat;
-	g_channel_list_changed = false;
 
 	g_InfoViewer->start();
 	if (g_settings.epg_save){
@@ -2008,18 +2007,6 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-	switch (CFEManager::getInstance()->getLiveFE()->getInfo()->type) {
-		case FE_QPSK:
-			g_info.delivery_system = DVB_S;
-			break;
-		case FE_OFDM:
-			g_info.delivery_system = DVB_T;
-			break;
-		case FE_QAM:
-		default:
-			g_info.delivery_system = DVB_C;
-			break;
-	}
 #if HAVE_COOL_HARDWARE
 	/* only SAT-hd1 before rev 8 has fan */
 	g_info.has_fan = (cs_get_revision()  < 8 && CFEManager::getInstance()->getFE(0)->hasSat());
