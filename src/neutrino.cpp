@@ -475,9 +475,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.progressbar_gradient = configfile.getBool("progressbar_gradient", true );
 	g_settings.progressbar_design =  configfile.getInt32("progressbar_design", CProgressBar::PB_COLOR);
-	bool pb_color = configfile.getBool("progressbar_color", true );
-	if (!pb_color)
-		g_settings.progressbar_design = CProgressBar::PB_MONO;
 	g_settings.progressbar_timescale_red = configfile.getInt32("progressbar_timescale_red", 0);
 	g_settings.progressbar_timescale_green = configfile.getInt32("progressbar_timescale_green", 100);
 	g_settings.progressbar_timescale_yellow = configfile.getInt32("progressbar_timescale_yellow", 70);

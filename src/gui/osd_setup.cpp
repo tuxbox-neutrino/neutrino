@@ -598,13 +598,6 @@ int COsdSetup::showOsdSetup()
 	mfWindowSize->setHint("", LOCALE_MENU_HINT_WINDOW_SIZE);
 	osd_menu->addItem(mfWindowSize);
 
-#ifdef CHECK_MERGE
-	// color progress bar
-	int pb_color = g_settings.progressbar_color ? g_settings.progressbar_design : -1;
-	mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_PROGRESSBAR_DESIGN_LONG, &pb_color, PROGRESSBAR_COLOR_OPTIONS, PROGRESSBAR_COLOR_OPTION_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_PROGRESSBAR_COLOR);
-	osd_menu->addItem(mc);
-#endif
 	// color gradient
 	mc = new CMenuOptionChooser(LOCALE_COLOR_GRADIENT, &g_settings.gradiant, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, this );
 	mc->setHint("", LOCALE_MENU_HINT_COLOR_GRADIENT);
@@ -627,12 +620,6 @@ int COsdSetup::showOsdSetup()
 
 	int res = osd_menu->exec(NULL, "");
 
-	if (pb_color == -1)
-		g_settings.progressbar_color = 0;
-	else {
-		g_settings.progressbar_color = 1;
-		g_settings.progressbar_design = pb_color;
-	}
 	if (oldVolumeSize != g_settings.volume_size)
 		CVolumeHelper::getInstance()->refresh();
 
