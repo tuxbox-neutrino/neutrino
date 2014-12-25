@@ -1292,6 +1292,7 @@ menu.hint_scrambled_message Show scrambled message, when channel cannot be decod
 menu.hint_screen_setup Configure screen margins
 menu.hint_screensaver_dir Select directory in which the screensaver has to start.
 menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
+menu.hint_screensaver_setup Configure screensaver options for audioplayer
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
@@ -2058,8 +2059,9 @@ scants.startnow start scan
 scants.test Test signal
 scants.transponders Transponders:
 scrambled_channel Scrambled channel
-screensaver.dir Screensaver directory
-screensaver.timeout Screensaver timeout
+screensaver.dir Directory
+screensaver.menu Screensaver
+screensaver.timeout Timeout
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Count
