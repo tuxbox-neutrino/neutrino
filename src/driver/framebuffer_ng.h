@@ -39,6 +39,15 @@
 
 typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 
+typedef struct gradientData_t
+{
+	fb_pixel_t* gradientBuf;
+	fb_pixel_t* boxBuf;
+	bool direction;
+	int mode;
+} gradientData_struct_t;
+
+#define CORNER_NONE		0x0
 #define CORNER_TOP_LEFT		0x1
 #define CORNER_TOP_RIGHT	0x2
 #define CORNER_TOP		0x3
@@ -123,6 +132,12 @@ class CFrameBuffer
 		int m_transparent_default, m_transparent;
 		CFbAccel *accel;
 
+		inline void paintHLineRelInternal2Buf(const int& x, const int& dx, const int& y, const int& box_dx, const fb_pixel_t& col, fb_pixel_t* buf);
+		void paintShortHLineRelInternal(const int& x, const int& dx, const int& y, const fb_pixel_t& col);
+#if 0
+		int  limitRadius(const int& dx, const int& dy, int& radius);
+		void setCornerFlags(const int& type);
+#endif
 	public:
 		fb_pixel_t realcolor[256];
 
@@ -136,6 +151,16 @@ class CFrameBuffer
 		void init(const char * const fbDevice = "/dev/fb0");
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 
+		enum {
+			gradientHorizontal,
+			gradientVertical
+		};
+
+		enum {
+			pbrg_noOption = 0x00,
+			pbrg_noPaint  = 0x01,
+			pbrg_noFree   = 0x02
+		};
 
 		int getFileHandle() const; //only used for plugins (games) !!
 		t_fb_var_screeninfo *getScreenInfo();
@@ -170,6 +195,9 @@ class CFrameBuffer
 			};
 		void paintPixel(int x, int y, const fb_pixel_t col);
 
+		fb_pixel_t* paintBoxRel2Buf(const int dx, const int dy, const fb_pixel_t col, fb_pixel_t* buf = NULL, int radius = 0, int type = CORNER_ALL);
+		fb_pixel_t* paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, gradientData_t *gradientData, int radius = 0, int type = CORNER_ALL);
+
 		void paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius = 0, int type = CORNER_ALL);
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col) { paintBoxRel(xa, ya, xb - xa, yb - ya, col); }
 		inline void paintBox(int xa, int ya, int xb, int yb, const fb_pixel_t col, int radius, int type) { paintBoxRel(xa, ya, xb - xa, yb - ya, col, radius, type); }
@@ -185,6 +213,7 @@ class CFrameBuffer
 
 
 		void setIconBasePath(const std::string & iconPath);
+		std::string getIconBasePath(){return iconBasePath;};
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */
@@ -226,7 +255,7 @@ class CFrameBuffer
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
-		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
+		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 
 		void mark(int x, int y, int dx, int dy);
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
