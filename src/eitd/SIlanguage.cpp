@@ -32,12 +32,35 @@
 #include <pthread.h>
 #include <fstream>
 
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+#include <OpenThreads/ScopedLock>
+
 #include <sectionsdclient/sectionsdclient.h>
 
 #include "SIlanguage.hpp"
 
-std::vector<std::string> SIlanguage::languages;
-pthread_mutex_t SIlanguage::languages_lock = PTHREAD_MUTEX_INITIALIZER;
+static OpenThreads::Mutex languages_lock;
+static std::vector<std::string> languages;
+
+static OpenThreads::Mutex langIndexMutex;
+std::vector<std::string> langIndex;
+
+static const std::string languageOFF = "OFF";
+
+unsigned int getLangIndex(const std::string &lang)
+{
+	unsigned int ix = 0;
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(langIndexMutex);
+	if (!langIndex.size())
+		langIndex.push_back(languageOFF);
+	for (std::vector<std::string>::iterator it = langIndex.begin(); it != langIndex.end(); ++it, ++ix)
+		if (*it == lang)
+			return ix;
+	langIndex.push_back(lang);
+	return ix;
+}
+
 
 /*
 ALL = Show all available languages
@@ -49,22 +72,26 @@ ALL_ALL = Show all wanted languages if possible. If not found show all available
 //CSectionsdClient::SIlanguageMode_t SIlanguage::mode = CSectionsdClient::ALL;
 CSectionsdClient::SIlanguageMode_t SIlanguage::mode = CSectionsdClient::FIRST_ALL;
 
-void SIlanguage::filter(const std::map<std::string, std::string>& s, int max, std::string& retval)
+void SIlanguage::filter(const std::list<SILangData>& s, SILangData::SILangDataIndex textIndex, int max, std::string& retval)
 {
-	pthread_mutex_lock(&languages_lock);
 	// languages cannot get iterated through
 	// if another thread is updating it simultaneously
 	int count = max;
 
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(languages_lock);
 	if (mode != CSectionsdClient::ALL) {
 		for (std::vector<std::string>::const_iterator it = languages.begin() ;
 				it != languages.end() ; ++it) {
-			std::map<std::string,std::string>::const_iterator text;
-			if ((text = s.find(*it)) != s.end()) {
+			std::list<SILangData>::const_iterator text;
+			unsigned int lang = getLangIndex(*it);
+			for (text = s.begin(); text != s.end() && text->lang != lang; ++text);
+			if (text != s.end()) {
+				if (text->text[textIndex].empty())
+					continue;
 				if (count != max) {
 					retval.append(" \n");
 				}
-				retval.append(text->second);
+				retval.append(text->text[textIndex]);
 				if (--count == 0) break;
 				if (mode == CSectionsdClient::FIRST_FIRST ||
 						mode == CSectionsdClient::FIRST_ALL) {
@@ -77,12 +104,14 @@ void SIlanguage::filter(const std::map<std::string, std::string>& s, int max, st
 	if (retval.length() == 0) {
 		// return all available languages
 		if (s.begin() != s.end()) {
-			for (std::map<std::string, std::string>::const_iterator it = s.begin() ;
+			for (std::list<SILangData>::const_iterator it = s.begin() ;
 					it != s.end() ; ++it) {
+				if (it->text[textIndex].empty())
+					continue;
 				if (it != s.begin()) {
 					retval.append(" \n");
 				}
-				retval.append(it->second);
+				retval.append(it->text[textIndex]);
 				if (--max == 0) break;
 				if (mode == CSectionsdClient::FIRST_FIRST ||
 						mode == CSectionsdClient::ALL_FIRST) {
@@ -91,13 +120,12 @@ void SIlanguage::filter(const std::map<std::string, std::string>& s, int max, st
 			}
 		}
 	}
-	pthread_mutex_unlock(&languages_lock);
 }
 
 
 bool SIlanguage::loadLanguages()
 {
-	pthread_mutex_lock(&languages_lock);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(languages_lock);
 	std::ifstream file(LANGUAGEFILE);
 	std::string word;
 	CSectionsdClient::SIlanguageMode_t tmpMode = CSectionsdClient::FIRST_ALL;
@@ -125,20 +153,18 @@ bool SIlanguage::loadLanguages()
 	if (tmpLang.empty()) tmpLang.push_back("OFF");
 	languages = tmpLang;
 	mode = tmpMode;
-	pthread_mutex_unlock(&languages_lock);
 	return true;
 
 error:
 	tmpLang.push_back("OFF");
 	languages = tmpLang;
 	mode = tmpMode;
-	pthread_mutex_unlock(&languages_lock);
 	return false;
 }
 
 bool SIlanguage::saveLanguages()
 {
-	pthread_mutex_lock(&languages_lock);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(languages_lock);
 	std::ofstream file(LANGUAGEFILE);
 	switch(mode) {
 	case CSectionsdClient::ALL:
@@ -171,26 +197,22 @@ bool SIlanguage::saveLanguages()
 	file.close();
 	if (file.fail()) goto error;
 
-	pthread_mutex_unlock(&languages_lock);
 	return true;
 
 error:
-	pthread_mutex_unlock(&languages_lock);
 	return false;
 }
 
 void SIlanguage::setLanguages(const std::vector<std::string>& newLanguages)
 {
-	pthread_mutex_lock(&languages_lock);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(languages_lock);
 	languages = newLanguages;
-	pthread_mutex_unlock(&languages_lock);
 }
 
 std::vector<std::string> SIlanguage::getLanguages()
 {
-	pthread_mutex_lock(&languages_lock);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(languages_lock);
 	std::vector<std::string> retval(languages);  // Store it before unlock
-	pthread_mutex_unlock(&languages_lock);
 	return retval;
 }
 

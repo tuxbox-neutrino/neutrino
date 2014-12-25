@@ -135,13 +135,18 @@ bool CWebserverResponse::SendResponse() {
 	// Send static file 
 	if (Connection->HookHandler.status == HANDLED_SENDFILE
 			&& !Connection->RequestCanceled) {
-		bool cache = true;
+		bool cache = !Connection->HookHandler.cached;
 		//		if(Connection->HookHandler.UrlData["path"] == "/tmp/")//TODO: un-cachable dirs
 		//			cache = false;
 		Write(Connection->HookHandler.BuildHeader(cache));
 		if (Connection->Method != M_HEAD)
-			Sendfile(Connection->Request.UrlData["url"]);
+			Sendfile(Connection->Request.UrlData["url"], Connection->HookHandler.RangeStart,
+				(Connection->HookHandler.RangeStart == 0 && Connection->HookHandler.RangeEnd == -1) ? -1 : Connection->HookHandler.RangeEnd - Connection->HookHandler.RangeStart + 1);
 		return true;
+	}
+	if (Connection->HookHandler.status == HANDLED_SENDFILE && Connection->HookHandler.httpStatus == HTTP_REQUEST_RANGE_NOT_SATISFIABLE) {
+		SendError(Connection->HookHandler.httpStatus);
+		return false;
 	}
 
 	// arrived here? = error!
@@ -193,13 +198,13 @@ bool CWebserverResponse::WriteLn(char const *text) {
 }
 
 //-----------------------------------------------------------------------------
-bool CWebserverResponse::Sendfile(std::string filename) {
+bool CWebserverResponse::Sendfile(std::string filename, off_t start, off_t end) {
 	if (Connection->RequestCanceled)
 		return false;
 	int filed = open(filename.c_str(), O_RDONLY);
 	if (filed != -1) //can access file?
 	{
-		if (!Connection->sock->SendFile(filed))
+		if (!Connection->sock->SendFile(filed, start, end))
 			Connection->RequestCanceled = true;
 		close(filed);
 	}

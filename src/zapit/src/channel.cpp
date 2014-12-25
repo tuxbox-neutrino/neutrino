@@ -50,10 +50,30 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 	Init();
 }
 
+// For WebTV ...
+CZapitChannel::CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc)
+{
+	if (!p_name || !p_url)
+		return;
+	name = std::string(p_name);
+	url = std::string(p_url);
+	if (p_desc)
+		desc = std::string(p_desc);
+	channel_id = p_channel_id;
+	service_id = 0;
+	transport_stream_id = 0;
+	original_network_id = 0;
+	serviceType = ST_DIGITAL_TELEVISION_SERVICE;
+	satellitePosition = 0;
+	freq = 0;
+	Init();
+}
+
 void CZapitChannel::Init()
 {
 	//caPmt = NULL;
 	rawPmt = NULL;
+	pmtLen = 0;
 	type = 0;
 	number = 0;
 	scrambled = 0;
@@ -68,7 +88,9 @@ void CZapitChannel::Init()
 	pip_demux = 2;
 	polarization = 0;
 	flags = 0;
-	deltype = FE_QPSK;
+	delsys = DVB_S;
+	bLockCount = 0;
+	bLocked = 0;
 }
 
 CZapitChannel::~CZapitChannel(void)
@@ -328,18 +350,28 @@ void CZapitChannel::dumpBouquetXml(FILE * fd)
 	bool write_names = 1;
 
 	if(write_names) {
-		fprintf(fd, "\t\t<S i=\"%x\" n=\"%s\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
-				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-				getTransportStreamId(),
-				getOriginalNetworkId(),
-				getSatellitePosition(),
-				getFreqId());
+		if (url.empty())
+			fprintf(fd, "\t\t<S i=\"%x\" n=\"%s\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\" l=\"%d\"/>\n",
+					getServiceId(),
+					convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+					getTransportStreamId(),
+					getOriginalNetworkId(),
+					getSatellitePosition(),
+					getFreqId(), bLocked ? 1 : 0);
+		else
+			fprintf(fd, "\t\t<S n=\"%s\" u=\"%s\" l=\"%d\"/>\n",
+					convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+					convert_UTF8_To_UTF8_XML(url.c_str()).c_str(), bLocked ? 1 : 0);
 	} else {
-		fprintf(fd, "\t\t<S i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
-				getServiceId(),
-				getTransportStreamId(),
-				getOriginalNetworkId(),
-				getSatellitePosition(),
-				getFreqId());
+		if (url.empty())
+			fprintf(fd, "\t\t<S i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\" l=\"%d\"/>\n",
+					getServiceId(),
+					getTransportStreamId(),
+					getOriginalNetworkId(),
+					getSatellitePosition(),
+					getFreqId(), bLocked ? 1 : 0);
+		else
+			fprintf(fd, "\t\t<S u=\"%s\" l=\"%d\"/>\n",
+					convert_UTF8_To_UTF8_XML(url.c_str()).c_str(), bLocked ? 1 : 0);
 	}
 }

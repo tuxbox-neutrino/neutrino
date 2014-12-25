@@ -55,7 +55,7 @@ typedef struct user_menu_data_t
 } user_menu_data_struct;
 
 #define COL_BUTTONMAX SNeutrinoSettings::BUTTON_MAX
-static user_menu_data_t user_menu[COL_BUTTONMAX]=
+static user_menu_data_t user_menu[COL_BUTTONMAX] =
 {
 	{LOCALE_INFOVIEWER_EVENTLIST	, CRCInput::RC_red	, NEUTRINO_ICON_BUTTON_RED	, NEUTRINO_ICON_RED,	-1},
 	{LOCALE_INFOVIEWER_LANGUAGES	, CRCInput::RC_green	, NEUTRINO_ICON_BUTTON_GREEN	, NEUTRINO_ICON_GREEN, 	-1},
@@ -63,20 +63,21 @@ static user_menu_data_t user_menu[COL_BUTTONMAX]=
 	{LOCALE_INFOVIEWER_STREAMINFO	, CRCInput::RC_blue	, NEUTRINO_ICON_BUTTON_BLUE	, NEUTRINO_ICON_FEATURES, -1}
 };
 
-// #define COL_BUTTONMAX SNeutrinoSettings::BUTTON_MAX
 // const neutrino_msg_t col_key_helper_msg_def[COL_BUTTONMAX]={CRCInput::RC_red,CRCInput::RC_green,CRCInput::RC_yellow,CRCInput::RC_blue};
 // const char * col_key_helper_icon_def[COL_BUTTONMAX]={NEUTRINO_ICON_BUTTON_RED,NEUTRINO_ICON_BUTTON_GREEN,NEUTRINO_ICON_BUTTON_YELLOW,NEUTRINO_ICON_BUTTON_BLUE};
 
-class CUserMenu : public CChangeObserver
+class CUserMenu : public CChangeObserver, CMenuTarget
 {	
 	private:		
 		int width;
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
+		int exec(CMenuTarget* parent, const std::string & actionKey);
 				
 	public:
 		CUserMenu();
 		~CUserMenu();
-		bool showUserMenu(int button);
+		bool showUserMenu(neutrino_msg_t msg);
+		static const char *getUserMenuButtonName(int button, bool &active);
 };
 
 

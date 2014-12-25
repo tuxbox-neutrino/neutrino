@@ -35,13 +35,19 @@
 using namespace std;
 
 //sub class CComponentsInfoBox from CComponentsItem
-CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos, const int& y_pos, const int& w, const int& h,
+CComponentsInfoBox::CComponentsInfoBox(	const int& x_pos,
+					const int& y_pos,
+					const int& w,
+					const int& h,
 					std::string info_text,
 					const int mode,
 					Font* font_text,
 					CComponentsForm *parent,
 					bool has_shadow,
-					fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+					fb_pixel_t color_text,
+					fb_pixel_t color_frame,
+					fb_pixel_t color_body,
+					fb_pixel_t color_shadow)
 {
 	cc_item_type = CC_ITEMTYPE_TEXT_INFOBOX;
 
@@ -75,7 +81,7 @@ CComponentsInfoBox::~CComponentsInfoBox()
 
 void CComponentsInfoBox::setPicture(const std::string& picture_name)
 {
-	pic_name = picture_name;
+	pic_name 	= picture_name;
 }
 
 void CComponentsInfoBox::setPicture(const char* picture_name)
@@ -98,7 +104,7 @@ void CComponentsInfoBox::paintPicture()
 		return;
 
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, 0, "");
+	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, "");
 	
 	//define icon
 	pic->setPicture(pic_name);

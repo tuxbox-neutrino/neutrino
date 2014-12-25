@@ -27,6 +27,7 @@
 #include "ysocket.h"
 #include "yconnection.h"
 #include "yrequest.h"
+#include <system/set_threadname.h>
 
 //=============================================================================
 // Initialization of static variables
@@ -48,7 +49,7 @@ CWebserver::CWebserver() {
 	FD_ZERO(&read_fds);
 	fdmax = 0;
 	open_connections = 0;
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
+#ifdef Y_CONFIG_FEATURE_THREADING
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 #endif
@@ -117,6 +118,7 @@ CWebserver::~CWebserver() {
 #define MAX_TIMEOUTS_TO_CLOSE 10
 #define MAX_TIMEOUTS_TO_TEST 100
 bool CWebserver::run(void) {
+	set_threadname(__func__);
 	if (!listenSocket.listen(port, HTTPD_MAX_CONNECTIONS)) {
 		if (port != 80) {
 			fprintf(stderr, "[yhttpd] Socket cannot bind and listen on port %d Abort.\n", port);
@@ -414,13 +416,13 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 	newConn->ySock = newSock;
 	newConn->ySock->handling = true;
 	newConn->WebserverBackref = this;
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
+#ifdef Y_CONFIG_FEATURE_THREADING
 	newConn->is_treaded = is_threading;
 #else
 	newConn->is_treaded = false;
 #endif
 	int index = -1;
-#ifdef Y_CONFIG_BUILD_AS_DAEMON
+#ifdef Y_CONFIG_FEATURE_THREADING
 	if(is_threading)
 	{
 		pthread_mutex_lock( &mutex );
@@ -444,7 +446,7 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 
 		// start connection Thread
 		if(pthread_create(&Connection_Thread_List[index], &attr, WebThread, (void *)newConn) != 0)
-		dperror("Could not create Connection-Thread\n");
+			dperror("Could not create Connection-Thread\n");
 	}
 	else // non threaded
 #endif

@@ -148,7 +148,7 @@ bool CCam::setCaPmt(bool update)
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
 {
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask,
-			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawlen);
+			rawpmt ? cabuf : NULL, rawpmt ? calen : 0, rawpmt, rawpmt ? rawlen : 0);
 }
 
 int CCam::makeMask(int demux, bool add)
@@ -200,6 +200,9 @@ void CCamManager::StopCam(t_channel_id channel_id, CCam *cam)
 
 bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start, bool force_update)
 {
+	if (IS_WEBTV(channel_id))
+		return false;
+
 	CCam * cam;
 	int oldmask, newmask;
 	int demux = DEMUX_SOURCE_0;

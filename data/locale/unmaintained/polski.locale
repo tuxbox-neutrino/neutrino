@@ -1117,7 +1117,7 @@ sleeptimerbox.title Wyłącznik czasowy
 streaminfo.aratio Proporcje
 streaminfo.aratio_unknown Proporcje: nieznane
 streaminfo.audiotype Format dźwięku
-streaminfo.bitrate Szybkość transmisji:
+streaminfo.bitrate Szybkość transmisji
 streaminfo.framerate Klatek/s
 streaminfo.framerate_unknown Klatek/s: brak danych
 streaminfo.head Informacje o strumieniu

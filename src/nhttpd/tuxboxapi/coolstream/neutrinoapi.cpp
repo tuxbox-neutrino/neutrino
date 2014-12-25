@@ -29,6 +29,7 @@
 #include <gui/color.h>
 #include <gui/widget/icons.h>
 #include <gui/customcolor.h>
+#include <gui/movieplayer.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/frontend_c.h>
 #include <video.h>
@@ -187,6 +188,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 		return;
 	}
 
+	CMoviePlayerGui::getInstance().stopPlayBack();
 	if (Zapit->zapTo_serviceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
 		Sectionsd->setServiceChanged(channel_id, false);
 }
@@ -200,6 +202,7 @@ void CNeutrinoAPI::ZapToSubService(const char * const target)
 		SCANF_CHANNEL_ID_TYPE,
 		&channel_id);
 
+	CMoviePlayerGui::getInstance().stopPlayBack();
 	if (Zapit->zapTo_subServiceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
 		Sectionsd->setServiceChanged(channel_id, false);
 }

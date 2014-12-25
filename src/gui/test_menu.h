@@ -46,13 +46,14 @@ class CTestMenu : public CMenuTarget
 		CComponentsForm *form;
 		CComponentsText *txt;
 		CComponentsHeader *header;
-		CComponentsHeader *footer;
+		CComponentsFooter *footer;
 		CComponentsIconForm *iconform;
 		CComponentsWindow *window;
 		CComponentsButton *button;
 		CComponentsFrmClock *clock ,*clock_r;
 		CComponentsChannelLogo* chnl_pic;
 		CComponentsExtTextForm* text_ext;
+		CComponentsScrollBar* scrollbar;
 		int width, selected;
 
 		int showTestMenu();

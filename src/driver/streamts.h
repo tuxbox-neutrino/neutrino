@@ -96,6 +96,7 @@ class CStreamManager : public OpenThreads::Thread
 		bool Start(int port = 0);
 		bool Stop();
 		bool StopStream(t_channel_id channel_id = 0);
+		bool StopStream(CFrontend * fe);
 		bool StreamStatus(t_channel_id channel_id = 0);
 		bool SetPort(int newport);
 		int GetPort() { return port; }

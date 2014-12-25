@@ -47,6 +47,8 @@ typedef enum fs_operator {
 #define FAST_SCAN_HD 2
 #define FAST_SCAN_ALL 3
 
+#define FAST_TUNE_TPS		2
+
 typedef struct fast_scan_operator {
 	int id;
 	unsigned short pid;

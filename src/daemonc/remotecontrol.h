@@ -74,6 +74,7 @@ class CRemoteControl
 //	unsigned int            current_programm_timer;
 	uint64_t		zap_completion_timeout;
 	std::string             current_channel_name;
+	int			current_channel_num;
 	t_channel_id            current_sub_channel_id;
 
 	void getNVODs();
@@ -101,7 +102,7 @@ public:
 	bool                          is_video_started;
 
 	CRemoteControl();
-	void zapTo_ChannelID(const t_channel_id channel_id, const std::string & channame, const bool start_video = true); // UTF-8
+	void zapTo_ChannelID(const t_channel_id channel_id, const std::string & channame, int channum, const bool start_video = true); // UTF-8
 	void startvideo();
 	void stopvideo();
 	void queryAPIDs();
@@ -116,6 +117,7 @@ public:
 
 	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 	inline const std::string & getCurrentChannelName(void) const { return current_channel_name; }
+	inline const int & getCurrentChannelNumber(void) const { return current_channel_num; }
 };
 
 

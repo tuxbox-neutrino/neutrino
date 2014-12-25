@@ -67,6 +67,7 @@ class CBouquet
 			bLocked = locked;
 			satellitePosition = INVALID_SAT_POSITION;
 			channelList = new CChannelList(Name, false, vlist);
+			channelList->bouquet = this;
 		}
 
 		~CBouquet()

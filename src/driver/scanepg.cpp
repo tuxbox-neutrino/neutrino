@@ -85,7 +85,7 @@ void CEpgScan::AddBouquet(CChannelList * clist)
 {
 	for (unsigned i = 0; i < clist->Size(); i++) {
 		CZapitChannel * chan = clist->getChannelFromIndex(i);
-		if (scanned.find(chan->getTransponderId()) == scanned.end())
+		if (!IS_WEBTV(chan->getChannelID()) && scanned.find(chan->getTransponderId()) == scanned.end())
 			scanmap.insert(eit_scanmap_pair_t(chan->getTransponderId(), chan->getChannelID()));
 	}
 }
@@ -172,17 +172,18 @@ void CEpgScan::AddTransponders()
 			AddBouquet(bouquetList->Bouquets[current_bnum]->channelList);
 			INFO("Added bouquet #%d, scan map size: %zd", current_bnum, scanmap.size());
 		}
-	} else {
+	} else if (g_settings.epg_scan == SCAN_FAV) {
 		AddFavorites();
 	}
 }
 
 bool CEpgScan::CheckMode()
 {
-	if (!g_settings.epg_scan
+	bool webtv = IS_WEBTV(CZapit::getInstance()->GetCurrentChannelID());
+	if ((g_settings.epg_scan_mode == CEpgScan::MODE_OFF)
 			|| (standby && !(g_settings.epg_scan_mode & MODE_STANDBY))
 			|| (!standby && !(g_settings.epg_scan_mode & MODE_LIVE))
-			|| (!standby && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
+			|| (!standby && !webtv && (CFEManager::getInstance()->getEnabledCount() <= 1))) {
 		return false;
 	}
 	return true;
@@ -201,7 +202,7 @@ void CEpgScan::Start(bool instandby)
 
 void CEpgScan::Stop()
 {
-	if (!g_settings.epg_scan)
+	if (g_settings.epg_scan_mode == CEpgScan::MODE_OFF)
 		return;
 
 	INFO("stopping %s scan...", standby ? "standby" : "live");
@@ -244,6 +245,11 @@ int CEpgScan::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		scan_in_progress = true;
 		AddTransponders();
 		INFO("EVT_ZAP_COMPLETE, scan map size: %zd\n", scanmap.size());
+#if 0
+		t_channel_id chid = *(t_channel_id *)data;
+		if (IS_WEBTV(chid))
+			Next();
+#endif
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_EIT_COMPLETE) {
@@ -303,15 +309,10 @@ void CEpgScan::EnterStandby()
 
 void CEpgScan::Next()
 {
-	bool locked = false;
+	bool llocked = false, plocked = false;
 
 	next_chid = 0;
-#if 0
-	if (!g_settings.epg_scan)
-		return;
-	if (!CheckMode())
-		return;
-#endif
+
 	if (!standby && CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby)
 		return;
 	if (CRecordManager::getInstance()->RecordingStatus() || CStreamManager::getInstance()->StreamStatus())
@@ -336,13 +337,18 @@ void CEpgScan::Next()
 	CFrontend *pip_fe = NULL;
 #endif
 	if (!standby) {
-		locked = true;
-		live_fe = CZapit::getInstance()->GetLiveFrontend();
-		CFEManager::getInstance()->lockFrontend(live_fe);
+		bool webtv = IS_WEBTV(CZapit::getInstance()->GetCurrentChannelID());
+		if (!webtv) {
+			llocked = true;
+			live_fe = CZapit::getInstance()->GetLiveFrontend();
+			CFEManager::getInstance()->lockFrontend(live_fe);
+		}
 #ifdef ENABLE_PIP
 		pip_fe = CZapit::getInstance()->GetPipFrontend();
-		if (pip_fe && pip_fe != live_fe)
+		if (pip_fe /* && pip_fe != live_fe*/) {
+			plocked = true;
 			CFEManager::getInstance()->lockFrontend(pip_fe);
+		}
 #endif
 	}
 _repeat:
@@ -365,13 +371,13 @@ _repeat:
 	if (!next_chid && ((g_settings.epg_scan == SCAN_SEL) && AddSelected()))
 		goto _repeat;
 
-	if (locked) {
+	if (llocked)
 		CFEManager::getInstance()->unlockFrontend(live_fe);
 #ifdef ENABLE_PIP
-		if (pip_fe && pip_fe != live_fe)
-			CFEManager::getInstance()->unlockFrontend(pip_fe);
+	if (plocked)
+		CFEManager::getInstance()->unlockFrontend(pip_fe);
 #endif
-	}
+
 	CFEManager::getInstance()->Unlock();
 	if (next_chid)
 		g_Zapit->zapTo_epg(next_chid, standby);

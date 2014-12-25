@@ -36,7 +36,7 @@
 
 
 
-CTimeOSD::CTimeOSD():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", true, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
+CTimeOSD::CTimeOSD():CComponentsFrmClock( 0, 0, 0, 50, "%H:%M:%S", false, NULL, CC_SHADOW_ON, COL_LIGHT_GRAY, COL_MENUCONTENT_PLUS_0,COL_MENUCONTENTDARK_PLUS_0)
 {
 	Init();
 }
@@ -70,6 +70,8 @@ void CTimeOSD::Init()
 	corner_rad = (g_settings.rounded_corners) ? std::max(height/10, CORNER_RADIUS_SMALL) : 0;
 
 	initCCLockItems();
+
+	timescale.setType(CProgressBar::PB_TIMESCALE);
 }
 
 #if 0 //if hide() or kill() required, it's recommended to use it separately
@@ -83,7 +85,13 @@ CTimeOSD::~CTimeOSD()
 void CTimeOSD::initTimeString()
 {
 	struct tm t;
-	strftime((char*) &cl_timestr, sizeof(cl_timestr), cl_format_str.c_str(), gmtime_r(&m_time_show, &t));
+	if (m_mode == MODE_DESC) {
+		char tt[20];
+		strftime(tt, sizeof(tt), cl_format_str, gmtime_r(&m_time_show, &t));
+		snprintf(cl_timestr, sizeof(cl_timestr), "-%s", tt);
+	}
+	else
+		strftime(cl_timestr, sizeof(cl_timestr), cl_format_str, gmtime_r(&m_time_show, &t));
 }
 
 void CTimeOSD::show(time_t time_show, bool force)
@@ -104,8 +112,6 @@ void CTimeOSD::updatePos(int position, int duration)
 		percent = 0;
 
 	timescale.setProgress(x, y + height/4, width, height/2, percent, 100);
-	timescale.setBlink();
-	timescale.setRgb(0, 100, 70);
 	timescale.paint();
 	frameBuffer->blit();
 }
@@ -132,6 +138,7 @@ void CTimeOSD::switchMode(int position, int duration)
 	switch (m_mode) {
 		case MODE_ASC:
 			m_mode = MODE_DESC;
+			CComponents::kill();
 			break;
 		case MODE_DESC:
 			m_mode = MODE_BAR;

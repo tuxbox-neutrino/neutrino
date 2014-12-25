@@ -56,10 +56,21 @@
 #include <zapit/femanager.h>
 #include <gui/widget/messagebox.h>
 #include <gui/buildinfo.h>
+#include <gui/widget/buttons.h>
+#include <system/helpers.h>
 
 #if HAVE_COOL_HARDWARE
 extern int cs_test_card(int unit, char * str);
 #endif
+
+#define TestButtonsCount 4
+const struct button_label TestButtons[/*TestButtonsCount*/] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED   	, LOCALE_STRINGINPUT_CAPS  	},
+	{ NEUTRINO_ICON_BUTTON_GREEN	, LOCALE_STRINGINPUT_CLEAR 	},
+	{ NEUTRINO_ICON_BUTTON_YELLOW	, LOCALE_MESSAGEBOX_INFO	},
+	{ NEUTRINO_ICON_BUTTON_BLUE	, LOCALE_STRINGINPUT_CLEAR	}
+};
 
 
 CTestMenu::CTestMenu()
@@ -77,6 +88,7 @@ CTestMenu::CTestMenu()
 	button = NULL;
 	clock = clock_r = NULL;
 	text_ext = NULL;
+	scrollbar = NULL;
 }
 
 CTestMenu::~CTestMenu()
@@ -95,6 +107,7 @@ CTestMenu::~CTestMenu()
 	delete clock_r;
 	delete chnl_pic;
 	delete text_ext;
+	delete scrollbar;
 }
 
 static int test_pos[4] = { 130, 192, 282, 360 };
@@ -309,7 +322,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		printf("22kon: fe %d sat pos %d\n", fnum, test_pos[fnum]);
 		scansettings.sat_TP_freq = "12000000";
 		scansettings.satName =  CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
-		CScanTs scanTs(FE_QPSK);
+		CScanTs scanTs(ALL_SAT);
 		scanTs.exec(NULL, "test");
 		return res;
 	}
@@ -319,7 +332,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		printf("22koff: fe %d sat pos %d\n", fnum, test_pos[fnum]);
 		scansettings.sat_TP_freq = "11000000";
 		scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
-		CScanTs scanTs(FE_QPSK);
+		CScanTs scanTs(ALL_SAT);
 		scanTs.exec(NULL, "test");
 		return res;
 	}
@@ -327,44 +340,40 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	{
 		int fnum = atoi(actionKey.substr(4, 1).c_str());
 		printf("scan: fe %d sat pos %d\n", fnum, test_pos[fnum]);
+		delivery_system_t delsys = ALL_SAT;
 
 		CFrontend *frontend = CFEManager::getInstance()->getFE(fnum);
-		switch (frontend->getInfo()->type) {
-			case FE_QPSK:
-				scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
-				scansettings.sat_TP_freq = (fnum & 1) ? "12439000": "12538000";
-				scansettings.sat_TP_rate = (fnum & 1) ? "2500000" : "41250000";
-				scansettings.sat_TP_fec  = (fnum & 1) ? FEC_3_4 : FEC_1_2;
-				scansettings.sat_TP_pol  = (fnum & 1) ? 0 : 1;
-				break;
-			case FE_QAM:
-				{
-					unsigned count = CFEManager::getInstance()->getFrontendCount();
-					for (unsigned i = 0; i < count; i++) {
-						CFrontend * fe = CFEManager::getInstance()->getFE(i);
-						if (fe->isCable())
-							fe->setMode(CFrontend::FE_MODE_UNUSED);
-					}
-					frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
-					scansettings.cableName     = "CST Berlin";
-					scansettings.cable_TP_freq = "474000";
-					scansettings.cable_TP_rate = "6875000";
-					scansettings.cable_TP_fec  = 1;
-					scansettings.cable_TP_mod  = 5;
-				}
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				return res;
+		if (frontend->hasSat()) {
+			scansettings.satName = CServiceManager::getInstance()->GetSatelliteName(test_pos[fnum]);
+			scansettings.sat_TP_freq = to_string((fnum & 1) ? /*12439000*/ 3951000 : 4000000);
+			scansettings.sat_TP_rate = to_string((fnum & 1) ? /*2500*1000*/ 9520*1000 : 27500*1000);
+			scansettings.sat_TP_fec = FEC_3_4; //(fnum & 1) ? FEC_3_4 : FEC_1_2;
+			scansettings.sat_TP_pol = (fnum & 1) ? 1 : 0;
+		} else if (frontend->hasCable()) {
+			unsigned count = CFEManager::getInstance()->getFrontendCount();
+			for (unsigned i = 0; i < count; i++) {
+				CFrontend * fe = CFEManager::getInstance()->getFE(i);
+				if (fe->hasCable())
+					fe->setMode(CFrontend::FE_MODE_UNUSED);
+			}
+			frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
+			scansettings.cableName     = "CST Berlin";
+			scansettings.cable_TP_freq = "474000";
+			scansettings.cable_TP_rate = "6875000";
+			scansettings.cable_TP_fec  = 1;
+			scansettings.cable_TP_mod  = 5;
+			delsys = ALL_CABLE;
+		} else {
+			return res;
 		}
 
-		CScanTs scanTs(frontend->getInfo()->type);
+		CScanTs scanTs(delsys);
 		scanTs.exec(NULL, "manual");
 		return res;
 	}
 	else if (actionKey == "button"){
 		if (button == NULL)
-			button = new CComponentsButtonRed(100, 100, 100, 40, "Test");
+			button = new CComponentsButtonRed(100, 100, 100, 50, "Test");
 
 		if (!button->isPainted()){
 			if (button->isSelected())
@@ -374,7 +383,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			button->paint();
 		}else			
 			button->hide();
-		
+
 		return res;
 	}
 	else if (actionKey == "circle"){
@@ -399,7 +408,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "picture"){
 		if (pic == NULL)
-			pic = new CComponentsPicture (100, 100, 200, 200, DATADIR "/neutrino/icons/mp3-5.jpg");
+			pic = new CComponentsPicture (100, 100, 200, 100, DATADIR "/neutrino/icons/mp3-5.jpg");
 
 		if (!pic->isPainted() && !pic->isPicPainted())
 			pic->paint();
@@ -409,7 +418,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	else if (actionKey == "channellogo"){
 		if (chnl_pic == NULL)
-			chnl_pic = new CComponentsChannelLogo(100, 100, 200, 200, 0, "ProSieben");
+			chnl_pic = new CComponentsChannelLogo(100, 100, "ProSieben", 0);
 
 		if (!chnl_pic->isPainted() && !chnl_pic->isPicPainted())
 			chnl_pic->paint();
@@ -425,10 +434,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		form->setFrameThickness(2);
 		form->setColorFrame(COL_WHITE);
 
-		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, 0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
+		CComponentsPicture *ptmp = new CComponentsPicture(0, 0, NEUTRINO_ICON_BUTTON_YELLOW);
 		ptmp->setWidth(28);
 		ptmp->setHeight(28);
-		ptmp->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 		ptmp->setColorBody(COL_BLUE);
 		ptmp->setCorner(RADIUS_MID, CORNER_TOP_LEFT);
 		form->addCCItem(ptmp);
@@ -538,17 +546,47 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "footer"){
 		int hh = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 		if (footer == NULL){
-			footer = new CComponentsFooter (100, 50, 500, hh, CComponentsHeader::CC_BTN_HELP | CComponentsHeader::CC_BTN_EXIT | CComponentsHeader::CC_BTN_MENU, NULL, true);
-			int start = 5, btnw =90, btnh = 37;
-			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, btnh, "Button1"));
-			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, btnh, "Button2"));
-			footer->addCCItem(new CComponentsButtonYellow(start+=btnw, 0, btnw, btnh, "Button3"));
-			footer->addCCItem(new CComponentsButtonBlue(start+=btnw, 0, btnw, btnh, "Button4"));
+			footer = new CComponentsFooter (100, 30, 1000, hh, CComponentsFooter::CC_BTN_HELP | CComponentsFooter::CC_BTN_EXIT | CComponentsFooter::CC_BTN_MENU |CComponentsFooter::CC_BTN_MUTE_ZAP_ACTIVE, NULL, true);
+			//int start = 5, btnw =90, btnh = 37;
+			footer->setButtonFont(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]);
+			footer->setIcon(NEUTRINO_ICON_INFO);
+
+			//add button labels with conventional button label struct
+			footer->setButtonLabels(TestButtons, TestButtonsCount, 0, footer->getWidth()/6);
+
+			//also possible: use directly button name and as 2nd parameter string or locale as text
+//			footer->setButtonLabel(NULL, "Test", 0, 250);
+
+			//also possible: use Button objects
+// 			footer->addCCItem(new CComponentsButtonRed(start, 0, btnw, btnh, "Button1"));
+// 			footer->addCCItem(new CComponentsButtonGreen(start+=btnw, 0, btnw, btnh, "Button2"));
+// 			footer->addCCItem(new CComponentsButtonYellow(start+=btnw, 0, btnw, btnh, "Button3"));
+// 			footer->addCCItem(new CComponentsButtonBlue(start+=btnw, 0, btnw, btnh, "Button4"));
 		}
+
 		if (!footer->isPainted())
 			footer->paint();
 		else
 			footer->hide();
+		return res;
+	}
+	else if (actionKey == "scrollbar"){
+		if (scrollbar == NULL)
+			scrollbar = new CComponentsScrollBar(50, 100, 20, 400, 1);
+		
+		if (scrollbar->isPainted()){
+			if (scrollbar->getMarkID() == scrollbar->getSegmentCount()){
+				scrollbar->hide();
+				scrollbar->setSegmentCount(scrollbar->getSegmentCount()+1);
+			}
+			else{
+				scrollbar->setMarkID(scrollbar->getMarkID()+1);
+				scrollbar->paint();
+			}
+		}
+		else
+			scrollbar->paint();
+
 		return res;
 	}
 	else if (actionKey == "iconform"){
@@ -592,8 +630,9 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		if (window == NULL){
 			window = new CComponentsWindow();
 			window->setWindowCaption("|.....................|");
-			window->setDimensionsAll(50, 50, 1000, 500);
+			window->setDimensionsAll(50, 50, 500, 500);
 			window->setWindowIcon(NEUTRINO_ICON_INFO);
+			window->setShadowOnOff(true);
 
 			CComponentsShapeCircle *c10 = new CComponentsShapeCircle(0, 0, 28);
 			CComponentsShapeCircle *c11 = new CComponentsShapeCircle(0, CC_APPEND, 28);
@@ -603,25 +642,35 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			c11->setColorBody(COL_GREEN);
 			c12->setColorBody(COL_YELLOW);
 			c13->setColorBody(COL_BLUE);
-			
+
 			window->getBodyObject()->setAppendOffset(0,50);
 			window->addWindowItem(c10);
 			window->addWindowItem(c11);
 			window->addWindowItem(c12);
 			window->addWindowItem(c13);
+
+			CComponentsShapeCircle *c14 = new CComponentsShapeCircle(20, 20, 100);
+			c14->setColorBody(COL_RED);
+			c14->setPageNumber(1);
+			window->addWindowItem(c14);
 		}
 		else{
 			window->setWindowIcon(NEUTRINO_ICON_LOCK);
 			window->setWindowCaption("Test");
 		}
-
-
-		
-		if (!window->isPainted())
-			window->paint();
-		else
-			window->hide();
-
+#if 0
+		if (!window->isPainted()){
+			window->paint(); //if no other page has been defined, 1st page always painted
+		}
+		else{
+#endif			//or paint direct a defined page
+			if (window->getCurrentPage() == 1)
+				window->paintPage(0);
+			else
+				window->paintPage(1);
+#if 0
+		}
+#endif
 		return res;
 	}
 	else if (actionKey == "running_clock"){	
@@ -693,7 +742,7 @@ int CTestMenu::showTestMenu()
 	
 	//hardware
 	CMenuWidget * w_hw = new CMenuWidget("Hardware Test", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_HARDWARE);
-	w_test.addItem(new CMenuForwarder(w_hw->getName().c_str(), true, NULL, w_hw));
+	w_test.addItem(new CMenuForwarder(w_hw->getName(), true, NULL, w_hw));
 	showHWTests(w_hw);
 	
 	//buttons
@@ -701,7 +750,7 @@ int CTestMenu::showTestMenu()
 	
 	//components
 	CMenuWidget * w_cc = new CMenuWidget("OSD-Components Demo", NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_TESTMENU_COMPONENTS);
-	w_test.addItem(new CMenuForwarder(w_cc->getName().c_str(), true, NULL, w_cc));
+	w_test.addItem(new CMenuForwarder(w_cc->getName(), true, NULL, w_cc));
 	showCCTests(w_cc);
 	
 	//buildinfo
@@ -740,6 +789,7 @@ void CTestMenu::showCCTests(CMenuWidget *widget)
 	widget->addItem(new CMenuForwarder("Icon-Form", true, NULL, this, "iconform"));
 	widget->addItem(new CMenuForwarder("Window", true, NULL, this, "window"));
 	widget->addItem(new CMenuForwarder("Text-Extended", true, NULL, this, "text_ext"));
+	widget->addItem(new CMenuForwarder("Scrollbar", true, NULL, this, "scrollbar"));
 }
 
 void CTestMenu::showHWTests(CMenuWidget *widget)
@@ -765,19 +815,21 @@ void CTestMenu::showHWTests(CMenuWidget *widget)
 		char title[100];
 		char scan[100];
 		sprintf(scan, "scan%d", i);
-		if (frontend->getInfo()->type == FE_QPSK) {
-			sprintf(title, "Satellite tuner %d: Scan %s", i+1, (i & 1) ? "12439-02500-H-5/6" : "12538-41250-V-1/2");
-		} else if (frontend->getInfo()->type == FE_QAM) {
+		if (frontend->hasSat()) {
+			sprintf(title, "Satellite tuner %d: Scan %s", i+1, (i & 1) ? /*"12439-02500-H-5/6"*/"3951-9520-V-3/4" : "4000-27500-V-3/4");
+		} else if (frontend->hasCable()) {
 			sprintf(title, "Cable tuner %d: Scan 474-6875-QAM-256", i+1);
 		} else
 			continue;
 
 		widget->addItem(new CMenuForwarder(title, true, NULL, this, scan));
-		if (frontend->getInfo()->type == FE_QPSK) {
+		if (frontend->hasSat()) {
 			frontend->setMode(CFrontend::FE_MODE_INDEPENDENT);
 
 			satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 			satmap[test_pos[i]].configured = 1;
+			satmap[test_pos[i]].lnbOffsetLow = 5150;
+			satmap[test_pos[i]].lnbOffsetHigh = 5150;
 			frontend->setSatellites(satmap);
 			if (i == 0) {
 				widget->addItem(new CMenuForwarder("Tuner 1: 22 Khz ON", true, NULL, this, "22kon0"));

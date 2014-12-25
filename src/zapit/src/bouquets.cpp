@@ -110,6 +110,8 @@ void CZapitBouquet::addService(CZapitChannel* newChannel)
 			radioChannels.push_back(newChannel);
 			break;
 	}
+	if (bLocked)
+		newChannel->bLockCount++;
 }
 
 void CZapitBouquet::removeService(CZapitChannel* oldChannel)
@@ -128,6 +130,8 @@ void CZapitBouquet::removeService(CZapitChannel* oldChannel)
 				break;
 		}
 
+		if (bLocked)
+			oldChannel->bLockCount--;
 		(*channels).erase(remove(channels->begin(), channels->end(), oldChannel), channels->end());
 	}
 }
@@ -179,6 +183,16 @@ bool CZapitBouquet::getRadioChannels(ZapitChannelList &list, int flags)
 	return (!list.empty());
 }
 
+bool CZapitBouquet::getChannels(ZapitChannelList &list, bool tv, int flags)
+{
+	list.clear();
+	ZapitChannelList *current = tv ? &tvChannels : &radioChannels;
+	for (ZapitChannelList::iterator it = current->begin(); it != current->end(); ++it) {
+		if ((*it)->flags & flags)
+			list.push_back(*it);
+	}
+	return (!list.empty());
+}
 #if 0
 size_t CZapitBouquet::recModeRadioSize(const transponder_id_t transponder_id)
 {
@@ -244,7 +258,12 @@ void CBouquetManager::saveBouquets(void)
 {
 	FILE * bouq_fd;
 
+	printf("CBouquetManager::saveBouquets: %s\n", BOUQUETS_XML);
 	bouq_fd = fopen(BOUQUETS_XML, "w");
+	if (!bouq_fd) {
+		perror(BOUQUETS_XML);
+		return;
+	}
 	fprintf(bouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
@@ -264,7 +283,12 @@ void CBouquetManager::saveUBouquets(void)
 {
 	FILE * ubouq_fd;
 
+	printf("CBouquetManager::saveUBouquets: %s\n", UBOUQUETS_XML);
 	ubouq_fd = fopen(UBOUQUETS_XML, "w");
+	if (!ubouq_fd) {
+		perror(BOUQUETS_XML);
+		return;
+	}
 	fprintf(ubouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i] != remainChannels) {
@@ -381,39 +405,43 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 			newBouquet->bScanEpg = scanepg ? (strcmp(scanepg, "1") == 0) : false;
 			channel_node = search->xmlChildrenNode;
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
-				std::string  name2 = xmlGetAttribute(channel_node, "n");
+				std::string name2;
+				name = xmlGetAttribute(channel_node, "n");
+				if (name)
+					name2 = name;
+				char *url = xmlGetAttribute(channel_node, "u");
 				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
 				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
 				GET_ATTR(channel_node, "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);
 				GET_ATTR(channel_node, "t", SCANF_TRANSPORT_STREAM_ID_TYPE, transport_stream_id);
 				GET_ATTR(channel_node, "frq", SCANF_SATELLITE_POSITION_TYPE, freq);
+				bool clock = xmlGetNumericAttribute(channel_node, "l", 10);
 				if(freq > 20000)
 					freq = freq/1000;
 
 				CZapitChannel* chan;
-				t_channel_id chid = CREATE_CHANNEL_ID64;
+				t_channel_id chid = create_channel_id64(service_id, original_network_id, transport_stream_id,
+									satellitePosition, freq, url);
 				/* FIXME to load old cable settings with new cable "positions" started from 0xF00 */
-				if(bUser || CFEManager::getInstance()->cableOnly())
+				if(!url && (bUser || CFEManager::getInstance()->cableOnly()))
 					chan = CServiceManager::getInstance()->FindChannelFuzzy(chid, satellitePosition, freq);
 				else
 					chan = CServiceManager::getInstance()->FindChannel(chid);
 				if (chan != NULL) {
 					DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
-#if 0
 					if(bUser && (name2.length() > 1))
-						chan->setName(name2);
-#endif
+						chan->setUserName(name2);
 					if(!bUser)
 						chan->pname = (char *) newBouquet->Name.c_str();
+					chan->bLocked = clock;
 
-					chan->bAlwaysLocked = newBouquet->bLocked;
 					newBouquet->addService(chan);
 				} else if (bUser) {
 					chan = new CZapitChannel(name2, CREATE_CHANNEL_ID64, 1 /*service_type*/,
 							satellitePosition, freq);
 					CServiceManager::getInstance()->AddChannel(chan);
 					chan->flags = CZapitChannel::NOT_FOUND;
-					chan->bAlwaysLocked = newBouquet->bLocked;
+					chan->bLocked = clock;
 					newBouquet->addService(chan);
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}
@@ -490,11 +518,13 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	sort(unusedChannels.begin(), unusedChannels.end(), CmpChannelByChName());
 
 	// TODO: use locales
-	remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
+	if (remainChannels == NULL)
+		remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
 	remainChannels->bOther = true;
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
-		remainChannels->addService(*it);
+		if (!IS_WEBTV((*it)->getChannelID()))
+			remainChannels->addService(*it);
 	}
 
 	renumChannels(remainChannels->tvChannels, i);
@@ -503,10 +533,16 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 
 void CBouquetManager::renumServices()
 {
+#if 0
 	if(remainChannels)
 		deleteBouquet(remainChannels);
 
 	remainChannels = NULL;
+#endif
+	if(remainChannels) {
+		remainChannels->tvChannels.clear();
+		remainChannels->radioChannels.clear();
+	}
 
 	makeRemainingChannelsBouquet();
 }
@@ -546,10 +582,41 @@ void CBouquetManager::deleteBouquet(const CZapitBouquet* bouquet)
 		BouquetList::iterator it = find(Bouquets.begin(), Bouquets.end(), bouquet);
 
 		if (it != Bouquets.end()) {
+			if ((*it)->bLocked) {
+				ZapitChannelList *channels = &(*it)->tvChannels;
+				for(unsigned int i = 0; i < channels->size(); i++)
+					((*channels)[i])->bLockCount--;
+
+				channels = &(*it)->radioChannels;
+				for(unsigned int i = 0; i < channels->size(); i++)
+					((*channels)[i])->bLockCount--;
+			}
+
 			Bouquets.erase(it);
 			delete bouquet;
 		}
 	}
+}
+
+void CBouquetManager::setBouquetLock(const unsigned int id, bool state)
+{
+	if (id < Bouquets.size())
+		setBouquetLock(Bouquets[id], state);
+}
+
+void CBouquetManager::setBouquetLock(CZapitBouquet* bouquet, bool state)
+{
+	bouquet->bLocked = state;
+        int add = bouquet->bLocked * 2 - 1;
+
+        ZapitChannelList *channels = &bouquet->tvChannels;
+        for(unsigned int i = 0; i < channels->size(); i++)
+                ((*channels)[i])->bLockCount += add;
+
+        channels = &bouquet->radioChannels;
+        for(unsigned int i = 0; i < channels->size(); i++)
+                ((*channels)[i])->bLockCount += add;
+
 }
 
 #if 0

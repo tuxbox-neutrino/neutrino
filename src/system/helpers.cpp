@@ -215,6 +215,28 @@ FILE* my_popen( pid_t& pid, const char *cmdstring, const char *type)
 	return(fp);
 }
 
+int mkdirhier(const char *pathname, mode_t mode)
+{
+	int res = -1;
+	if (!pathname || !*pathname)
+		return res;
+	char path[strlen(pathname) + 1];
+	strcpy(path, pathname);
+	char *p = path;
+	while ((p = strchr(p + 1, '/'))) {
+		*p = 0;
+		res = mkdir(path, mode);
+		if (res < 0 && errno != EEXIST)
+			break;
+		*p = '/';
+	}
+	res = mkdir(path, mode);
+	if (errno == EEXIST)
+		res = 0;
+	return res;
+}
+
+
 int safe_mkdir(const char * path)
 {
 	struct statfs s;
@@ -392,6 +414,20 @@ std::string trim(std::string &str, const std::string &trimChars /*= " \n\r\t"*/)
 	return result.erase(0, result.find_first_not_of(trimChars));
 }
 
+std::string strftime(const char *format, const struct tm *tm)
+{
+	char buf[4096];
+	*buf = 0;
+	strftime(buf, sizeof(buf), format, tm);
+	return std::string(buf);
+}
+
+std::string strftime(const char *format, time_t when, bool gm)
+{
+	struct tm *t = gm ? gmtime(&when) : localtime(&when);
+	return strftime(format, t);
+}
+
 time_t toEpoch(std::string &date)
 {
 	struct tm t;
@@ -473,7 +509,7 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	unlink(Dst);
 	if ((fd1 = open(Src, O_RDONLY)) < 0)
 		return false;
-	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, 0666)) < 0) {
+	if ((fd2 = open(Dst, O_WRONLY | O_CREAT, mode)) < 0) {
 		close(fd1);
 		return false;
 	}
@@ -501,7 +537,6 @@ bool CFileHelpers::copyFile(const char *Src, const char *Dst, mode_t mode)
 	close(fd1);
 	close(fd2);
 
-	chmod(Dst, mode);
 	return true;
 }
 
@@ -723,3 +758,56 @@ bool split_config_string(const std::string &str, std::map<std::string,std::strin
 	}
 	return !smap.empty();
 }
+
+std::vector<std::string> split(const std::string &s, char delim)
+{
+	std::vector<std::string> vec;
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim))
+		vec.push_back(item);
+	return vec;
+}
+
+std::string to_string(int i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(unsigned int i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(unsigned long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(long long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+
+std::string to_string(unsigned long long i)
+{
+	std::stringstream s;
+	s << i;
+	return s.str();
+}
+

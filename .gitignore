@@ -27,6 +27,7 @@ INSTALL
 .*.swp
 
 ### editor crap
+*.orig
 *.rej
 *~
 

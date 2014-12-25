@@ -62,7 +62,7 @@ class cYTVideoInfo
 		bool ret;
 
 		void Dump();
-		std::string GetUrl(int fmt = 0, bool mandatory = true);
+		std::string GetUrl(int *fmt = NULL, bool mandatory = true);
 		
 };
 
@@ -138,7 +138,7 @@ class cYTFeedParser
 		bool GetVideoUrls();
 		bool DownloadThumbnails();
 		void Dump();
-		void Cleanup(bool delete_thumbnails = true);
+		void Cleanup(bool delete_thumbnails = false);
 
 		yt_video_list_t &GetVideoList() { return videos; }
 		bool Parsed() { return parsed; }
@@ -151,6 +151,7 @@ class cYTFeedParser
 		void SetRegion(std::string reg) { region = reg; }
 		void SetMaxResults(int count) { max_results = count; }
 		void SetConcurrentDownloads(int count) { concurrent_downloads = count; }
+		void SetThumbnailDir(std::string &_thumbnail_dir);
 };
 
 #endif

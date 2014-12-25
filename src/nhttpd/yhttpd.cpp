@@ -12,6 +12,8 @@
 #include <syscall.h>
 #include <stdio.h>
 
+#include <system/set_threadname.h>
+#include <system/helpers.h>
 // yhttpd
 #include "yconfig.h"
 #include <ylogging.h>
@@ -118,6 +120,7 @@ void thread_cleanup (void *p)
 
 #ifndef Y_CONFIG_BUILD_AS_DAEMON
 void * nhttpd_main_thread(void *) {
+	set_threadname(__func__);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	aprintf("Webserver %s tid %ld\n", WEBSERVERNAME, syscall(__NR_gettid));
@@ -130,7 +133,9 @@ void * nhttpd_main_thread(void *) {
 	}
 	/* we pthread_cancel this thread from the main thread, but still want to clean up */
 	pthread_cleanup_push(thread_cleanup, yhttpd);
+#ifndef Y_CONFIG_FEATURE_THREADING
 	yhttpd->flag_threading_off = true;
+#endif
 
 	yhttpd->hooks_attach();
 	yhttpd->ReadConfig();
@@ -333,6 +338,7 @@ bool Cyhttpd::Configure() {
 // Main Webserver call
 //-----------------------------------------------------------------------------
 void Cyhttpd::run() {
+	set_threadname(__func__);
 	if (webserver) {
 		if (flag_threading_off)
 			webserver->is_threading = false;
@@ -456,7 +462,7 @@ void Cyhttpd::ReadConfig(void) {
 	log_level_printf(3, "ReadConfig Start\n");
 	CConfigFile *Config = new CConfigFile(',');
 	bool have_config = false;
-	if (access(HTTPD_CONFIGFILE, 4) == 0)
+	if (access(HTTPD_CONFIGFILE, R_OK) == 0)
 		have_config = true;
 	Config->loadConfig(HTTPD_CONFIGFILE);
 	// convert old config files
@@ -544,16 +550,16 @@ void Cyhttpd::ReadConfig(void) {
 
 	// Check location of logos
 	if (Config->getString("Tuxbox.LogosURL", "") == "") {
-		if (access(std::string(ConfigList["WebsiteMain.override_directory"] + "/logos").c_str(), 4) == 0) {
+		if (access(ConfigList["WebsiteMain.override_directory"] + "/logos", R_OK) == 0) {
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.override_directory"] + "/logos");
 			have_config = false; //save config
 		}
-		else if (access(std::string(ConfigList["WebsiteMain.directory"] + "/logos").c_str(), 4) == 0){
+		else if (access(ConfigList["WebsiteMain.directory"] + "/logos", R_OK) == 0){
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.directory"] + "/logos");
 			have_config = false; //save config
 		}
 #ifdef Y_CONFIG_USE_HOSTEDWEB
-		else if (access(std::string(ConfigList["WebsiteMain.hosted_directory"] + "/logos").c_str(), 4) == 0){
+		else if (access(ConfigList["WebsiteMain.hosted_directory"] + "/logos", R_OK) == 0){
 			Config->setString("Tuxbox.LogosURL", ConfigList["WebsiteMain.hosted_directory"] + "/logos");
 			have_config = false; //save config
 		}

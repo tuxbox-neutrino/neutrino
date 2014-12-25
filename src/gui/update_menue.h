@@ -40,7 +40,6 @@ class CSoftwareUpdate : public CMenuTarget
 {
 	private:
 		int width;
-		CMenuForwarder * update_item;
 		int showSoftwareUpdate();
 		void showSoftwareUpdateExpert(CMenuWidget *w_mtd_expert);
 		

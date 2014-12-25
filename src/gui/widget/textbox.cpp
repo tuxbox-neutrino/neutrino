@@ -146,7 +146,6 @@ void CTextBox::initVar(void)
 
 	m_showTextFrame = 0;
 	m_nNrOfNewLine = 0;
-	m_nMaxLineWidth = 0;
 
 	m_cText	= "";
 	m_nMode = m_old_nMode 	= SCROLL;
@@ -184,6 +183,8 @@ void CTextBox::initVar(void)
 	m_nBgRadiusType 	= m_old_nBgRadiusType = CORNER_ALL;
 
 	m_cLineArray.clear();
+
+	m_renderMode		= 0;
 
 // 	max_width 		= 0;
 }
@@ -395,7 +396,7 @@ void CTextBox::refreshTextLineArray(void)
 			aktWord = m_cText.substr(pos_prev, pos - pos_prev + 1);
 
 			//calculate length of current found word
-			aktWordWidth = m_pcFontText->getRenderWidth(aktWord, true);
+			aktWordWidth = m_pcFontText->getRenderWidth(aktWord);
 
 			//set next start pos
 			pos_prev = pos + 1;
@@ -628,18 +629,19 @@ void CTextBox::refreshText(void)
 	{
 		//calculate centered xpos
 		if( m_nMode & CENTER ){
-			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true))>>1) - text_Hborder_width;
+			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i]))>>1) - text_Hborder_width;
 		}
 		else if ( m_nMode & RIGHT ){
-			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true)) - text_Hborder_width*2);
+			x_center = ((m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i])) - text_Hborder_width*2);
 			if ( m_nMode & SCROLL )
 				x_center -= SCROLL_FRAME_WIDTH;
 		}
+		x_center = std::max(x_center, 0);
 
 		//TRACE("[CTextBox] %s Line %d m_cFrame.iX %d m_cFrameTextRel.iX %d\r\n", __FUNCTION__, __LINE__, m_cFrame.iX, m_cFrameTextRel.iX);
 		m_pcFontText->RenderString(m_cFrame.iX + m_cFrameTextRel.iX + text_Hborder_width + x_center,
 					y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
-					m_textColor, 0, true); // UTF-8
+					m_textColor, 0, m_renderMode | Font::IS_UTF8);
 		m_old_cText = m_cText;
 		y += m_nFontTextHeight;
 	}

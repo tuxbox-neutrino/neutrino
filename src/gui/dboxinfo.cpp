@@ -45,6 +45,8 @@
 #include <driver/fade.h>
 #include <driver/record.h>
 
+#include <zapit/femanager.h>
+
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
 #include <system/sysload.h>
@@ -53,28 +55,25 @@
 #include <iostream>
 #include <fstream>
 
-static const int FSHIFT = 16;		/* nr of bits of precision */
-#define FIXED_1		(1<<FSHIFT)	/* 1.0 as fixed-point */
-#define LOAD_INT(x)	((x) >> FSHIFT)
-#define LOAD_FRAC(x)	LOAD_INT(((x) & (FIXED_1-1)) * 100)
-
 CDBoxInfoWidget::CDBoxInfoWidget()
 {
+	fm = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	ft = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	frameBuffer = CFrameBuffer::getInstance();
-	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	hheight     = ft->getHeight();
+	mheight     = fm->getHeight();
 	mheight += mheight & 1;
 	width = 0;
 	height = 0;
 	x = 0;
 	y = 0;
 
-	fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
-	sizeWidth = 6 * g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth()
-		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL), true); ;//9999.99 MiB
-	percWidth = 3 * g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getMaxDigitWidth()
-		    + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("%", true); //100%
-	nameWidth = fontWidth * 10;
+	fontWidth = fm->getWidth();
+	sizeWidth = 6 * fm->getMaxDigitWidth()
+		    + fm->getRenderWidth(std::string(" MiB") + g_Locale->getText(LOCALE_UNIT_DECIMAL)); ;//9999.99 MiB
+	percWidth = 3 * fm->getMaxDigitWidth()
+		    + fm->getRenderWidth("%"); //100%
+	nameWidth = fontWidth * 17;
 }
 
 int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
@@ -83,7 +82,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	{
 		parent->hide();
 	}
-	COSDFader fader(g_settings.menu_Content_alpha);
+	COSDFader fader(g_settings.theme.menu_Content_alpha);
 	fader.StartFadeIn();
 
 	paint();
@@ -106,8 +105,8 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
-		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-			if(fader.Fade())
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetFadeTimer())) {
+			if(fader.FadeDone())
 				doLoop = false;
 		}
 		else if((msg == NeutrinoMessages::EVT_TIMER) && (data == updateTimer)) {
@@ -153,7 +152,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	}
 
 	hide();
-	fader.Stop();
+	fader.StopFade();
 	g_RCInput->killTimer(updateTimer);
 	return res;
 }
@@ -201,16 +200,19 @@ static std::string bytes2string(uint64_t bytes, bool binary)
 
 void CDBoxInfoWidget::paint()
 {
-	const int head_info_lines = 3;
-	const char *head_info[head_info_lines] = {"Uptime", "Load average", "Current load"};
-
 	height = hheight;
 	height += mheight/2;	// space
 	int cpuload_y0 = height;
-	int head_info_ypos = height;
-	height += mheight*head_info_lines;	// head info lines
+	height += mheight;	// boot time
+	height += mheight;	// time
+	height += mheight;	// uptime
+	height += mheight;	// load
 	int cpuload_y1 = height;
 	height += mheight/2;	// space
+
+	int frontend_count = CFEManager::getInstance()->getFrontendCount();
+	if (frontend_count > 2)
+		height += mheight * (frontend_count - 2);
 
 	int icon_w = 0, icon_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_REC, &icon_w, &icon_h);
@@ -223,14 +225,19 @@ void CDBoxInfoWidget::paint()
 #define MEMINFO_RAM 0
 #define MEMINFO_SWAP 1
 #define MEMINFO_ROWS 2
-	unsigned long memstat[MEMINFO_ROWS][MEMINFO_COLUMNS] = { { 0, 0, 0 }, { 0, 0, 0 } }; // total, used, free
-	const char *memtype[MEMINFO_ROWS] = { "RAM", "Swap" };
+	unsigned long long memstat[MEMINFO_ROWS][MEMINFO_COLUMNS] = { { 0, 0, 0 }, { 0, 0, 0 } }; // total, used, free
+	const char *memtype[MEMINFO_ROWS] = { g_Locale->getText(LOCALE_EXTRA_DBOXINFO_RAM), g_Locale->getText(LOCALE_EXTRA_DBOXINFO_SWAP) };
 	FILE *procmeminfo = fopen("/proc/meminfo", "r");
 	if (procmeminfo) {
 		char buf[80], a[80];
-		unsigned long v;
+		long long unsigned v;
 		while (fgets(buf, sizeof(buf), procmeminfo)) {
-			if (2 == sscanf(buf, "%[^:]: %lu", a, &v)) {
+			char unit[10];
+			*unit = 0;
+			if ((3 == sscanf(buf, "%[^:]: %llu %s", a, &v, unit))
+			 || (2 == sscanf(buf, "%[^:]: %llu", a, &v))) {
+				if (*unit == 'k')
+					v <<= 10;
 				if (!strcasecmp(a, "MemTotal"))
 					memstat[MEMINFO_RAM][MEMINFO_TOTAL] += v;
 				else if (!strcasecmp(a, "MemFree"))
@@ -281,18 +288,26 @@ void CDBoxInfoWidget::paint()
 				bool is_rec = (st.st_dev == rec_st.st_dev);
 				mounts[mountpoint] = is_rec;
 				int icon_space = is_rec ? 10 + icon_w : 0;
-				const char *mnt = mountpoint.c_str();
-				nameWidth = std::max(nameWidth, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(basename((char *)mnt), true) + icon_space + 10);
+				nameWidth = std::max(nameWidth, fm->getRenderWidth(mountpoint, true) + icon_space + 10);
 			}
 		}
 		in.close();
+	}
+	int satWidth = nameWidth;
+	for (int i = 0; i < frontend_count; i++) {
+		CFrontend *fe = CFEManager::getInstance()->getFE(i);
+		if (fe) {
+			std::string s = to_string(i) + ": " + fe->getName();
+			satWidth = std::max(satWidth, fm->getRenderWidth(s));
+		}
 	}
 
 	height += mheight;			// header
 	height += mounts.size() * mheight;	// file systems
 	height += mheight/2;			// space
 
-	int offsetw = nameWidth+ (sizeWidth+10)*3 +10+percWidth+10;
+	//int offsetw = satWidth+ (sizeWidth+10)*3 +10+percWidth+10;
+	int offsetw = satWidth+ (sizeWidth)*3 +percWidth;
 	width = offsetw + 10 + 120;
 
 	int diff = frameBuffer->getScreenWidth() - width;
@@ -347,76 +362,76 @@ void CDBoxInfoWidget::paint()
 
 	ypos += hheight + mheight/2;
 
-	int head_info_rw = 0;
-	for (int line = 0; line < head_info_lines; line++) {
-		head_info_rw = std::max(head_info_rw, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_info[line], true));
-	}
-
-	int dw = offsetw - 3*10 - head_info_rw;
-	int buf_size=256;
-	char ubuf[buf_size];
-	char sbuf[buf_size];
-	memset(sbuf, 0, 256);
-
-	struct sysinfo info;
-	sysinfo(&info);
-
-	//get uptime
-#if 0
-	struct tm *current_time;
-	time_t current_secs;
-	time(&current_secs);
-	current_time = localtime(&current_secs);
-
-	snprintf( ubuf,buf_size, "%02d:%02d%s  up ",
-		  current_time->tm_hour%12 ? current_time->tm_hour%12 : 12,
-		  current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
-	strcat(sbuf, ubuf);
-#endif
-
-	int updays, uphours, upminutes;
-
-	updays = (int) info.uptime / (60*60*24);
-	upminutes = (int) info.uptime / 60;
-	uphours = (upminutes / 60) % 24;
-	upminutes %= 60;
-
-	if (updays) {
-		snprintf(ubuf,buf_size, "%d day%s, ", updays, (updays != 1) ? "s" : "");
-		strcat(sbuf, ubuf);
-	}
-	if (uphours) {
-		snprintf(ubuf,buf_size,"%d hour%s, ", uphours, (uphours != 1) ? "s" : "");
-		strcat(sbuf, ubuf);
-	}
-	snprintf(ubuf,buf_size,"%d minute%s", upminutes, (upminutes != 1) ? "s" : "");
-	strcat(sbuf, ubuf);
-
-	//paint uptime
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 2*10 + head_info_rw, ypos+ mheight, dw, sbuf, COL_MENUCONTENT_TEXT);
-	ypos += mheight;
-
-	//get load avg
-	snprintf(ubuf,buf_size, "%ld.%02ld, %ld.%02ld, %ld.%02ld",
-		 LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]),
-		 LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
-		 LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
-
-	//paint load avg
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 2*10 + head_info_rw, ypos+ mheight, dw, ubuf, COL_MENUCONTENT_TEXT);
-	ypos += mheight;
-
-	//get current load
 	cSysLoad *sysload = cSysLoad::getInstance();
 	int data_last = sysload->data_last;
 
-	//paint current load
+	std::string str_now_title(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIME));
+	str_now_title += ": ";
+	std::string str_boot_title(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_BOOTTIME));
+	str_boot_title += ": ";
+	std::string str_up_title(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_UPTIME));
+	str_up_title += ": ";
+
+	int time_title_width = std::max(fm->getRenderWidth(str_now_title, true), fm->getRenderWidth(str_boot_title));
+	time_title_width = std::max(time_title_width, fm->getRenderWidth(str_up_title));
+
+	time_t now = time(NULL);
+	std::string str_now(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
+	struct sysinfo info;
+	sysinfo(&info);
+	now -= info.uptime;
+	std::string str_boot(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
+
+	char ubuf[80] = { 0 };
+	char sbuf[256] = { 0 };
+        int updays, uphours, upminutes;
+
+        updays = (int) info.uptime / (60*60*24);
+        upminutes = (int) info.uptime / 60;
+        uphours = (upminutes / 60) % 24;
+        upminutes %= 60;
+
+        if (updays) {
+                snprintf(ubuf, sizeof(sbuf), "%d day%s, ", updays, (updays != 1) ? "s" : "");
+                strcat(sbuf, ubuf);
+        }
+        if (uphours) {
+                snprintf(ubuf, sizeof(sbuf), "%d hour%s, ", uphours, (uphours != 1) ? "s" : "");
+                strcat(sbuf, ubuf);
+        }
+        snprintf(ubuf,sizeof(sbuf), "%d minute%s", upminutes, (upminutes != 1) ? "s" : "");
+        strcat(sbuf, ubuf);
+
+	snprintf(ubuf, sizeof(ubuf), "%s: ", g_Locale->getText(LOCALE_EXTRA_DBOXINFO_LOAD));
+	int time_width = fm->getRenderWidth(ubuf);
+	time_width = std::max(time_width, fm->getRenderWidth(str_now));
+	time_width = std::max(time_width, fm->getRenderWidth(str_boot));
+	time_width = std::max(time_width, fm->getRenderWidth(sbuf));
+
+	int time_width_total = time_title_width + time_width;
+
+	// boot time
+	fm->RenderString(x + offsetw - time_width_total - 10, ypos + mheight, time_title_width, str_boot_title, COL_MENUCONTENTINACTIVE_TEXT);
+	fm->RenderString(x + offsetw - time_width_total - 10 + time_title_width, ypos + mheight, time_width, str_boot, COL_MENUCONTENT_TEXT);
+	ypos += mheight;
+	// time now
+	fm->RenderString(x + offsetw - time_width_total - 10, ypos + mheight, time_title_width, str_now_title, COL_MENUCONTENTINACTIVE_TEXT);
+	fm->RenderString(x + offsetw - time_width_total - 10 + time_title_width, ypos + mheight, time_width, str_now, COL_MENUCONTENT_TEXT);
+	ypos += mheight;
+        // paint uptime
+	fm->RenderString(x + offsetw - time_width_total - 10, ypos + mheight, time_title_width, str_up_title, COL_MENUCONTENTINACTIVE_TEXT);
+	fm->RenderString(x + offsetw - time_width_total - 10 + time_title_width, ypos + mheight, time_width, sbuf, COL_MENUCONTENT_TEXT);
+        ypos += mheight;
+
 	if (data_last > -1) {
+		fm->RenderString(x + offsetw - time_width_total - 10, ypos + mheight, time_title_width, ubuf, COL_MENUCONTENTINACTIVE_TEXT);
 		snprintf(ubuf, sizeof(ubuf), "%d%s%d%%", data_last/10, g_Locale->getText(LOCALE_UNIT_DECIMAL), data_last%10);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 2*10 + head_info_rw, ypos+ mheight, dw, ubuf, COL_MENUCONTENT_TEXT);
+		fm->RenderString(x + offsetw - time_width_total - 10 + time_title_width, ypos + mheight, time_width, ubuf, COL_MENUCONTENT_TEXT);
 	}
 	ypos += mheight;
 
+	int ypos_mem = ypos;
+	int pbw_fix = 0;
 	int pbw = width - offsetw - 10;
 	if (pbw > 8) /* smaller progressbar is not useful ;) */
 	{
@@ -427,11 +442,25 @@ void CDBoxInfoWidget::paint()
 
 		int off = std::max(0, (int)sysload->data_avail - pbw);
 		for (unsigned int i = 0; i < sysload->data_avail - off; i++) {
-			if (sysload->data[i + off] > -1)
+			if ((sysload->data[i + off] * h / 1000) > 0)
 				frameBuffer->paintVLine(x+offsetw + i, cpuload_y1 - sysload->data[i + off] * h / 1000, cpuload_y1, COL_MENUCONTENT_PLUS_7);
 		}
 	}
 
+	ypos = y + hheight + mheight/2;
+
+        fm->RenderString(x + 10, ypos + mheight, width - 10, g_Locale->getText(LOCALE_EXTRA_DBOXINFO_FRONTEND), COL_MENUCONTENTINACTIVE_TEXT);
+	ypos += mheight;
+	for (int i = 0; i < frontend_count; i++) {
+		CFrontend *fe = CFEManager::getInstance()->getFE(i);
+		if (fe) {
+			std::string s = to_string(i) + ": " + fe->getName();
+			fm->RenderString(x+ 10, ypos+ mheight, width - 10, s, COL_MENUCONTENT_TEXT);
+			ypos += mheight;
+		}
+	}
+
+	ypos = std::max(ypos, ypos_mem);	
 	ypos += mheight/2;
 
 	int headOffset=0;
@@ -460,13 +489,13 @@ void CDBoxInfoWidget::paint()
 					tmp = memtype[row];
 					break;
 				case 1:
-					tmp = bytes2string(memstat[row][MEMINFO_TOTAL] << 10);
+					tmp = bytes2string(memstat[row][MEMINFO_TOTAL]);
 					break;
 				case 2:
-					tmp = bytes2string(memstat[row][MEMINFO_USED] << 10);
+					tmp = bytes2string(memstat[row][MEMINFO_USED]);
 					break;
 				case 3:
-					tmp = bytes2string(memstat[row][MEMINFO_FREE] << 10);
+					tmp = bytes2string(memstat[row][MEMINFO_FREE]);
 					break;
 				case 4:
 					tmp = to_string(memstat[row][MEMINFO_TOTAL] ? (memstat[row][MEMINFO_USED] * 100) / memstat[row][MEMINFO_TOTAL] : 0) + "%";
@@ -474,20 +503,19 @@ void CDBoxInfoWidget::paint()
 			}
 			mpOffset = offsets[column];
 			int space = 0;
-			int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
 			if (column > 0) {
+				int rw = fm->getRenderWidth(tmp);
+				maxWidth[column] = std::max(maxWidth[column], rw);
 				space = widths[column] - rw;
+                               if( (mpOffset + rw + space) > offsetw)
+					pbw_fix =  ((mpOffset + rw + space + 10) - offsetw);
 			}
-			maxWidth[column] = std::max(maxWidth[column], rw)+6;
-			if ((mpOffset + space + maxWidth[column]) > width)
-				maxWidth[column] = width - (mpOffset + space);
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, maxWidth[column], tmp, COL_MENUCONTENT_TEXT);
+			fm->RenderString(x + mpOffset + space, ypos+ mheight, width, tmp, COL_MENUCONTENT_TEXT);
 		}
-		if (pbw > 8) /* smaller progressbar is not useful ;) */
+		if (pbw-pbw_fix > 8) /* smaller progressbar is not useful ;) */
 		{
-			CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
-			pb.setBlink();
-			pb.setInvert();
+			CProgressBar pb(x+offsetw+pbw_fix, ypos+mheight/4, pbw-pbw_fix, mheight/2);
+			pb.setType(CProgressBar::PB_REDRIGHT);
 			pb.setValues(memstat[row][MEMINFO_TOTAL] ? (memstat[row][MEMINFO_USED] * 100) / memstat[row][MEMINFO_TOTAL] : 0, 100);
 			pb.paint(false);
 		}
@@ -498,7 +526,7 @@ void CDBoxInfoWidget::paint()
 	int ypos_mnt_head = ypos;
 	ypos += mheight;
 
-	int width_i = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("i", true);
+	int width_i = fm->getRenderWidth("i");
 	CRecordManager * crm		= CRecordManager::getInstance();
 
 	for (std::map<std::string, bool>::iterator it = mounts.begin(); it != mounts.end(); ++it) {
@@ -512,9 +540,9 @@ void CDBoxInfoWidget::paint()
 				//paint mountpoints
 				for (int column = 0; column < headSize; column++) {
 					std::string tmp;
-					const char *mnt;
 					mpOffset = offsets[column];
-					int _w = maxWidth[column];
+					const char *mnt;
+					int _w = width;
 					switch (column) {
 					case 0:
 						tmp = (*it).first;
@@ -542,22 +570,18 @@ void CDBoxInfoWidget::paint()
 					}
 					int space = 0;
 					if (column > 0) {
-						int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp, true);
+						int rw = fm->getRenderWidth(tmp);
 						maxWidth[column] = std::max(maxWidth[column], rw);
 						space = widths[column] - rw;
-						_w = rw;
 					}
-					if ((mpOffset + space + _w) > width)
-						_w = width - (mpOffset + space);
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset + space, ypos+ mheight, _w, tmp, COL_MENUCONTENT_TEXT);
+					fm->RenderString(x + mpOffset + space, ypos+ mheight, _w, tmp, COL_MENUCONTENT_TEXT);
 					if ((*it).second && icon_w>0 && icon_h>0)
 						frameBuffer->paintIcon(crm->RecordingStatus() ? NEUTRINO_ICON_REC:NEUTRINO_ICON_REC_GRAY, x + nameWidth - icon_w + width_i/2, ypos + (mheight/2 - icon_h/2));
 				}
-				if (pbw > 8) /* smaller progressbar is not useful ;) */
+				if (pbw-pbw_fix > 8) /* smaller progressbar is not useful ;) */
 				{
-					CProgressBar pb(x+offsetw, ypos+3, pbw, mheight-10);
-					pb.setBlink();
-					pb.setInvert();
+					CProgressBar pb(x+offsetw+pbw_fix, ypos+mheight/4, pbw-pbw_fix, mheight/2);
+					pb.setType(CProgressBar::PB_REDRIGHT);
 					pb.setValues(percent_used, 100);
 					pb.paint(false);
 				}
@@ -567,39 +591,50 @@ void CDBoxInfoWidget::paint()
 		if (ypos > y + height - mheight)	/* the screen is not high enough */
 			break;				/* todo: scrolling? */
 	}
-	// paint info heads
-	head_info_ypos += y;
-	for (int line = 0; line < head_info_lines; line++) {
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + 10, head_info_ypos + mheight*(line+1), head_info_rw, head_info[line], COL_MENUCONTENTINACTIVE_TEXT);
-	}
 	// paint mem head
-	const char *head_mem[headSize] = {"Memory", "Size", "Used", "Available", "Use"};
+	const char *head_mem[headSize] = {
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_MEMORY),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_SIZE),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_USED),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_AVAILABLE),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_USE)
+	};
+	int len4 = fm->getRenderWidth(head_mem[4]);
+	if (pbw > 8 && maxWidth[4] < len4) {
+		maxWidth[4] += 10 + pbw;
+		maxWidth[4] = std::min(maxWidth[4], len4);
+		widths[4] = maxWidth[4];
+	}
 	for (int column = 0; column < headSize; column++) {
 		headOffset = offsets[column];
 		int space = 0;
-		int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mem[column], true);
-		int _w = rw;
 		if (column > 0) {
+			int rw = fm->getRenderWidth(head_mem[column]);
 			if (rw > maxWidth[column])
 				space = widths[column] - rw;
 			else
 				space = widths[column] - maxWidth[column] + (maxWidth[column] - rw)/2;
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mem_head + mheight, _w, head_mem[column], COL_MENUCONTENTINACTIVE_TEXT);
+		fm->RenderString(x + headOffset + space, ypos_mem_head + mheight, width, head_mem[column], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 	// paint mount head
-	const char *head_mnt[headSize] = {"Filesystem", "Size", "Used", "Available", "Use"};
+	const char *head_mnt[headSize] = {
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_FILESYSTEM),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_SIZE),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_USED),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_AVAILABLE),
+		g_Locale->getText(LOCALE_EXTRA_DBOXINFO_USE)
+	};
 	for (int column = 0; column < headSize; column++) {
 		headOffset = offsets[column];
-		int space = 0;
-		int rw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head_mnt[column], true);
-		int _w = rw;
-		if (column > 0) {
+                int space = 0;
+                if (column > 0) {
+			int rw = fm->getRenderWidth(head_mnt[column]);
 			if (rw > maxWidth[column])
 				space = widths[column] - rw;
 			else
 				space = widths[column] - maxWidth[column] + (maxWidth[column] - rw)/2;
-		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset + space, ypos_mnt_head + mheight, _w, head_mnt[column], COL_MENUCONTENTINACTIVE_TEXT);
+                }
+		fm->RenderString(x + headOffset + space, ypos_mnt_head + mheight, width, head_mnt[column], COL_MENUCONTENTINACTIVE_TEXT);
 	}
 }

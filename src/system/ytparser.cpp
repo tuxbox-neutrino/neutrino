@@ -17,6 +17,10 @@
         Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -31,21 +35,26 @@
 #include <string>
 
 #include <OpenThreads/ScopedLock>
+#include "settings.h"
+#include "helpers.h"
 #include "set_threadname.h"
+#include <global.h>
 
 #include "ytparser.h"
+#include "ytcache.h"
 
 #if LIBCURL_VERSION_NUM < 0x071507
 #include <curl/types.h>
 #endif
 
 #define URL_TIMEOUT 60
+static int itags[] = { 37 /* 1080p MP4 */, 22 /* 720p MP4 */, 18 /* 270p/360p MP4 */, 0 };
 
 std::string cYTVideoUrl::GetUrl()
 {
 	std::string fullurl = url;
-	fullurl += "&signature=";
-	fullurl += sig;
+	//fullurl += "&signature=";
+	//fullurl += sig;
 	return fullurl;
 }
 
@@ -63,27 +72,28 @@ void cYTVideoInfo::Dump()
 	printf("===================================================================\n");
 }
 
-std::string cYTVideoInfo::GetUrl(int fmt, bool mandatory)
+std::string cYTVideoInfo::GetUrl(int *fmt, bool mandatory)
 {
+	int default_fmt = 0;
+	if (!*fmt)
+		fmt = &default_fmt;
+
 	yt_urlmap_iterator_t it;
 	if (fmt) {
-		if ((it = formats.find(fmt)) != formats.end())
+		if ((it = formats.find(*fmt)) != formats.end()) {
 			return it->second.GetUrl();
-		if (mandatory)
+		}
+		if (mandatory) {
+			*fmt = 0;
 			return "";
+		}
 	}
-	if ((it = formats.find(37)) != formats.end()) // 1080p MP4
-		return it->second.GetUrl();
-	if ((it = formats.find(22)) != formats.end()) // 720p MP4
-		return it->second.GetUrl();
-#if 0
-	if ((it = formats.find(35)) != formats.end()) // 480p FLV
-		return it->second.GetUrl();
-	if ((it = formats.find(34)) != formats.end()) // 360p FLV
-		return it->second.GetUrl();
-#endif
-	if ((it = formats.find(18)) != formats.end()) // 270p/360p MP4
-		return it->second.GetUrl();
+
+	for (int *fmtp = itags; *fmtp; fmtp++)
+		if ((it = formats.find(*fmtp)) != formats.end()) {
+			*fmt = *fmtp;
+			return it->second.GetUrl();
+		}
 	return "";
 }
 
@@ -124,6 +134,14 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
 	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
 
+	if(g_settings.softupdate_proxyserver != "") {
+		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if(g_settings.softupdate_proxyusername != "") {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
+
 	char cerror[CURL_ERROR_SIZE];
 	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
 
@@ -155,6 +173,14 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl
 	curl_easy_setopt(_curl_handle, CURLOPT_FAILONERROR, 1);
 	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
 	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
+
+	if(g_settings.softupdate_proxyserver != "") {
+		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
+		if(g_settings.softupdate_proxyusername != "") {
+			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
+			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
+		}
+	}
 
 	char cerror[CURL_ERROR_SIZE];
 	curl_easy_setopt(_curl_handle, CURLOPT_ERRORBUFFER, cerror);
@@ -393,8 +419,9 @@ bool cYTFeedParser::parseFeedXml(std::string &answer)
 
 bool cYTFeedParser::supportedFormat(int fmt)
 {
-	if((fmt == 37) || (fmt == 22) || (fmt == 18))
-		return true;
+	for (int *fmtp = itags; *fmtp; fmtp++)
+		if (*fmtp == fmt)
+			return true;
 	return false;
 }
 
@@ -593,7 +620,11 @@ bool cYTFeedParser::DownloadThumbnail(cYTVideoInfo &vinfo, CURL *_curl_handle)
 	bool found = false;
 	if (!vinfo.thumbnail.empty()) {
 		std::string fname = thumbnail_dir + "/" + vinfo.id + ".jpg";
-		found = !access(fname.c_str(), F_OK);
+		found = !access(fname, F_OK);
+		if (!found) {
+			for (int *fmtp = itags; *fmtp && !found; fmtp++)
+				found = cYTCache::getInstance()->getNameIfExists(fname, vinfo.id, *fmtp);
+		}
 		if (!found)
 			found = DownloadUrl(vinfo.thumbnail, fname, _curl_handle);
 		if (found)
@@ -669,6 +700,11 @@ void cYTFeedParser::Cleanup(bool delete_thumbnails)
 	videos.clear();
 	parsed = false;
 	feedmode = -1;
+}
+
+void cYTFeedParser::SetThumbnailDir(std::string &_thumbnail_dir)
+{
+	thumbnail_dir = _thumbnail_dir;
 }
 
 void cYTFeedParser::Dump()

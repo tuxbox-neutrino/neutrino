@@ -73,6 +73,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+#include <zapit/zapit.h>
 #include <video.h>
 extern cVideo * videoDecoder;
 extern CInfoClock *InfoClock;
@@ -187,14 +188,13 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (parent)
 		parent->hide();
 
+	// remember last mode
+	m_LastMode = CNeutrinoApp::getInstance()->getMode();
 	// tell neutrino we're in pic_mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_pic );
-	// remember last mode
-	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
 
 	if (!audioplayer) { // !!! why? !!!
-		//g_Zapit->setStandby(true);
-		g_Zapit->lockPlayBack();
+		CNeutrinoApp::getInstance()->stopPlayBack(true);
 
 		// blank background screen
 		videoDecoder->setBlank(true);
@@ -216,8 +216,8 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & actionKey)
 	m_viewer->Cleanup();
 
 	if (!audioplayer) { // !!! why? !!!
-		//g_Zapit->setStandby(false);
-		g_Zapit->unlockPlayBack();
+		//g_Zapit->unlockPlayBack();
+		CZapit::getInstance()->EnablePlayback(true);
 
 		// Start Sectionsd
 		g_Sectionsd->setPauseScanning(false);
@@ -696,7 +696,7 @@ void CPictureViewerGui::paintItem(int pos)
 		char timestring[18];
 		strftime(timestring, 18, "%d-%m-%Y %H:%M", gmtime(&playlist[liststart+pos].Date));
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(timestring);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, width-30 - w, tmp, color, fheight, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, width-30 - w, tmp, color, fheight);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+width-20-w,ypos+fheight, w, timestring, color, fheight);
 
 	}

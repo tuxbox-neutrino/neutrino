@@ -68,12 +68,6 @@
 
 class CBox
 {
-	protected:
-		int *pX;
-		int *pY;
-		int *pWidth;
-		int *pHeight;
-
 	public:
 		/* Constructor */
 		inline CBox(){iX=0; iY=0; iWidth=0; iHeight=0;};
@@ -140,11 +134,12 @@ class CTextBox
 		int m_nMaxTextWidth;
 
 		int m_nMode;
+		int m_renderMode;
 
 		int m_nNrOfPages;
 		int m_nNrOfLines;
 		int m_nNrOfNewLine;
-		int m_nMaxLineWidth;
+
 		int m_nLinesPerPage;
 		int m_nCurrentLine;
 		int m_nCurrentPage;
@@ -189,6 +184,7 @@ class CTextBox
 		void    setTextBorderWidth(int Hborder, int Vborder);
 		void	setTextFont(Font* font_text);
 		void	setTextMode(const int text_mode){m_nMode = text_mode;};
+		void	setTextRenderModeFullBG(bool mode){ m_renderMode = (mode) ? Font::FULLBG : 0; };
 		void	setBackGroundColor(CFBWindow::color_t textBackgroundColor){m_textBackgroundColor = textBackgroundColor;};
 		void	setWindowPos(const CBox* position){m_cFrame = *position;};
 		void 	setWindowMaxDimensions(const int width, const int height);
@@ -197,13 +193,13 @@ class CTextBox
 
 		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
 		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
-		inline	int	getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
+		inline	int	getMaxLineWidth(void)		{return(m_nMaxTextWidth);};
 		inline  int     getLines(void)			{return(m_nNrOfLines);};
 		inline  int     getLinesPerPage(void)		{return m_nLinesPerPage;};
 		inline  int     getPages(void)			{return(m_nNrOfPages);};
 		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
 		int  getFontTextHeight();
-		
+		inline int	getTextMode()			{return m_nMode;};
 		void paint (void);
 		void hide (void);
 };

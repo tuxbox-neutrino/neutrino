@@ -29,6 +29,7 @@
 #include "cc_item_picture.h"
 #include "cc_item_text.h"
 #include "cc_frm_icons.h"
+#include <driver/colorgradient.h>
 
 //! Sub class of CComponentsForm. Shows a header with prepared items.
 /*!
@@ -123,6 +124,8 @@ class CComponentsHeader : public CComponentsForm
 		virtual void setCaptionAlignment(const int& align_mode){cch_caption_align = align_mode;};
 		///set text font object for caption
 		virtual void setCaptionFont(Font* font);
+		///returns font object of title caption
+		virtual Font* getCaptionFont(){return cch_font;};
 		///set text color for caption
 		virtual void setCaptionColor(fb_pixel_t text_color){cch_col_text = text_color;};
 
@@ -150,15 +153,33 @@ class CComponentsHeader : public CComponentsForm
 		///sets a single context button icon or combined button icons to the header object, possible types are for example: CC_BTN_HELP, CC_BTN_INFO, CC_BTN_MENU, CC_BTN_EXIT
 		///existing buttons are removed
 		virtual void setContextButton(const int& buttons){removeContextButtons(); addContextButton(buttons);};
-		
+
+		///gets the embedded context button object, so it's possible to get access directly to its methods and properties
+		virtual CComponentsIconForm* getContextBtnObject() { return cch_btn_obj;};
+
 		enum
 		{
-			CC_BTN_HELP = 0x02,
-			CC_BTN_INFO = 0x04,
-			CC_BTN_MENU = 0x40,
-			CC_BTN_EXIT = 0x80
-
+			CC_BTN_HELP 			= 0x02,
+			CC_BTN_INFO 			= 0x04,
+			CC_BTN_MENU 			= 0x40,
+			CC_BTN_EXIT 			= 0x80,
+			CC_BTN_MUTE_ZAP_ACTIVE 		= 0x100,
+			CC_BTN_MUTE_ZAP_INACTIVE 	= 0x200,
+			CC_BTN_OKAY			= 0x400,
+			CC_BTN_MUTE			= 0x800,
+			CC_BTN_TOP			= 0x1000,
+			CC_BTN_DOWN			= 0x2000,
+			CC_BTN_RIGHT			= 0x4000,
+			CC_BTN_LEFT			= 0x8000,
+			CC_BTN_FORWARD			= 0x10000,
+			CC_BTN_BACKWARD			= 0x20000,
+			CC_BTN_PAUSE			= 0x40000,
+			CC_BTN_PLAY			= 0x80000,
+			CC_BTN_RECORD_ACTIVE		= 0x100000,
+			CC_BTN_RECORD_INACTIVE		= 0x200000,
+			CC_BTN_RECORD_STOP		= 0x400000
 		};
+
 		///set offset between icons within context button object
 		virtual void setButtonsSpace(const int buttons_space){cch_buttons_space = buttons_space;};
 

@@ -59,6 +59,9 @@
 
 #define MAKE_FE_KEY(adapter, number) ((adapter << 8) | (number & 0xFF))
 
+#define MAX_DELSYS 	8
+
+#if 0
 static inline fe_modulation_t dvbs_get_modulation(fe_code_rate_t fec)
 {
 	if((fec < FEC_S2_QPSK_1_2) || (fec < FEC_S2_8PSK_1_2))
@@ -74,6 +77,7 @@ static inline fe_delivery_system_t dvbs_get_delsys(fe_code_rate_t fec)
 	else
 		return SYS_DVBS2;
 }
+#endif
 
 static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 {
@@ -134,8 +138,11 @@ class CFrontend
 		int32_t lnbOffsetLow;
 		int32_t lnbOffsetHigh;
 		int32_t lnbSwitch;
+
 		/* current Transponderdata */
-		TP_params currentTransponder;
+		transponder currentTransponder;
+		uint8_t currentDiseqc;
+
 		bool slave;
 		fe_work_mode_t femode;
 		bool have_loop;
@@ -144,7 +151,12 @@ class CFrontend
 		fe_linkmap_t linkmap;
 		int fenumber;
 		bool standby;
-		bool buildProperties(const FrontendParameters*, struct dtv_properties &);
+
+		uint32_t			deliverySystemMask;
+		//fe_delivery_system_t deliverySystems[MAX_DELSYS];
+		//uint32_t numDeliverySystems;
+
+		bool				buildProperties(const FrontendParameters*, struct dtv_properties &);
 
 		FrontendParameters		getFrontend(void) const;
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
@@ -158,7 +170,7 @@ class CFrontend
 		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd, uint32_t ms = 15);
 		void				sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms);
 		int				setFrontend(const FrontendParameters *feparams, bool nowait = false);
-		void				setSec(const uint8_t sat_no, const uint8_t pol, const bool high_band);
+		void				setSec(const uint8_t pol, const bool high_band);
 		void				reset(void);
 		/* Private constructor */
 		CFrontend(int Number = 0, int Adapter = 0);
@@ -173,15 +185,21 @@ class CFrontend
 
 		~CFrontend(void);
 
-		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, int system = 0);
-		uint8_t				getDiseqcPosition(void) const		{ return currentTransponder.diseqc; }
+		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, delivery_system_t delsys);
+		static fe_hierarchy_t		getHierarchy(const uint8_t hierarchy);
+		static fe_transmit_mode_t	getTransmissionMode(const uint8_t transmission_mode);
+		static fe_bandwidth_t		getBandwidth(const uint8_t bandwidth);
+		static fe_guard_interval_t	getGuardInterval(const uint8_t guard_interval);
+		static fe_modulation_t		getConstellation(const uint8_t constellation);
+		static fe_rolloff_t		getRolloff(const uint8_t rolloff);
+		uint8_t				getDiseqcPosition(void) const		{ return currentDiseqc; }
 		uint8_t				getDiseqcRepeats(void) const		{ return (uint8_t) config.diseqcRepeats; }
 		diseqc_t			getDiseqcType(void) const		{ return (diseqc_t) config.diseqcType; }
-		uint32_t			getFrequency(void) const		{ return currentTransponder.feparams.dvb_feparams.frequency; }
+		uint32_t			getFrequency(void) const		{ return currentTransponder.getFrequency(); }
 		bool				getHighBand()				{ return (int) getFrequency() >= lnbSwitch; }
 		static fe_modulation_t		getModulation(const uint8_t modulation);
 		uint8_t				getPolarization(void) const;
-		const struct dvb_frontend_info *getInfo(void) const			{ return &info; };
+
 		bool				getRotorSwap()				{ return config.rotor_swap; }
 
 		uint32_t			getBitErrorRate(void) const;
@@ -190,6 +208,7 @@ class CFrontend
 		fe_status_t			getStatus(void) const;
 		uint32_t			getUncorrectedBlocks(void) const;
 		void				getDelSys(int f, int m, char * &fec, char * &sys, char * &mod);
+		void				getFEInfo(void);
 
 		int32_t				getCurrentSatellitePosition() { return currentSatellitePosition; }
 		int32_t				getRotorSatellitePosition() { return rotorSatellitePosition; }
@@ -211,9 +230,9 @@ class CFrontend
 		frontend_config_t&		getConfig() { return config; };
 		void				setConfig(frontend_config_t cfg) { setDiseqcType((diseqc_t) cfg.diseqcType); config = cfg; };
 
-		int				setParameters(TP_params *TP, bool nowait = 0);
-		int				tuneFrequency (FrontendParameters * feparams, uint8_t polarization, bool nowait = false);
-		const TP_params*		getParameters(void) const { return &currentTransponder; };
+		int				setParameters(transponder *TP, bool nowait = 0);
+		int				tuneFrequency (FrontendParameters * feparams, bool nowait = false);
+		const transponder*		getParameters(void) const { return &currentTransponder; };
 		void				setCurrentSatellitePosition(int32_t satellitePosition) {currentSatellitePosition = satellitePosition; }
 		void				setRotorSatellitePosition(int32_t satellitePosition) {rotorSatellitePosition = satellitePosition; }
 
@@ -224,18 +243,18 @@ class CFrontend
 		bool				retuneChannel(void);
 
 		fe_code_rate_t 			getCFEC ();
-		transponder_id_t		getTsidOnid() { return currentTransponder.TP_id; }
+		transponder_id_t		getTsidOnid() { return currentTransponder.getTransponderId(); }
 		bool				sameTsidOnid(transponder_id_t tpid)
 		{
-			return (currentTransponder.TP_id == 0)
-				|| (tpid == currentTransponder.TP_id);
+			return (currentTransponder.getTransponderId() == 0)
+				|| (tpid == currentTransponder.getTransponderId());
 		}
 		void 				setTsidOnid(transponder_id_t newid)
 		{
 			if (!usecount)
-				currentTransponder.TP_id = newid;
+				currentTransponder.setTransponderId(newid);
 		}
-		uint32_t 			getRate ();
+		uint32_t 			getRate () const;
 
 		void				Lock();
 		void				Unlock();
@@ -253,7 +272,7 @@ class CFrontend
 		satellite_map_t &		getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
 		int				getNumber() { return fenumber; };
-		static void			getDelSys(uint8_t type, int f, int m, char * &fec, char * &sys, char * &mod);
+		static void			getDelSys(delivery_system_t delsys, int f, int m, char * &fec, char * &sys, char * &mod);
 		fe_work_mode_t			getMode() { return femode; }
 		void				setMode(int mode) {femode = (fe_work_mode_t) mode; }
 		int				getMaster() { return masterkey; }
@@ -265,9 +284,26 @@ class CFrontend
 				return true;
 			return false;
 		}
-		bool				isCable() { return (info.type == FE_QAM); }
-		bool				isSat() { return (info.type == FE_QPSK); }
-		bool				isTerr() { return (info.type == FE_OFDM); }
+
+		static bool			isCable(delivery_system_t delsys);
+		static bool			isSat(delivery_system_t delsys);
+		static bool			isTerr(delivery_system_t delsys);
+		bool				hasCable(void);
+		bool				hasSat(void);
+		bool				hasTerr(void);
+		bool				isHybrid(void);
+		bool				supportsDelivery(delivery_system_t);
+		delivery_system_t		getCurrentDeliverySystem(void);
+		uint32_t			getSupportedDeliverySystems(void) const;
+		static uint32_t			getXMLDeliverySystem(delivery_system_t delsys);
+		static delivery_system_t	getZapitDeliverySystem(uint32_t);
+		static void getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsys, fe_modulation_t &mod, fe_code_rate_t & fec);
+		static fe_delivery_system_t	getFEDeliverySystem(delivery_system_t Delsys);
+		static uint32_t			getFEBandwidth(fe_bandwidth_t bandwidth);
+		const char*			getName(void) const { return info.name; }
+private:
+		// DEPRECATED
 		fe_type_t			getType() { return info.type; }
+		const struct dvb_frontend_info *getInfo(void) const			{ return &info; };
 };
 #endif /* __zapit_frontend_h__ */

@@ -76,7 +76,11 @@ void CComponentsIconForm::initVarIconForm(	const int &x_pos, const int &y_pos, c
 void CComponentsIconForm::addIcon(const std::string& icon_name)
 {
 	//create new cc-picture item object
-	CComponentsPicture *ccp = new CComponentsPicture(0, 0, 0, 0, icon_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
+	CComponentsPicture *ccp = new CComponentsPicture(chn_direction == CC_DIR_X ? CC_APPEND : CC_CENTERED,
+							chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED,
+							0, 0,
+							icon_name,
+							this);
 	ccp->doPaintBg(false);
 
 	initChainItems();
@@ -91,7 +95,10 @@ void CComponentsIconForm::addIcon(std::vector<std::string> icon_name)
 void CComponentsIconForm::insertIcon(const uint& icon_id, const std::string& icon_name)
 {
 	//create new cc-picture item object
-	CComponentsPicture *ccp = new CComponentsPicture(0, 0, 0, 0, icon_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
+	CComponentsPicture *ccp = new CComponentsPicture(chn_direction == CC_DIR_X ? CC_APPEND : CC_CENTERED,
+							chn_direction == CC_DIR_Y ? CC_APPEND : CC_CENTERED,
+							0, 0,
+							icon_name);
 	ccp->doPaintBg(false);
 
 	insertCCItem(icon_id, ccp);

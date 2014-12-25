@@ -79,7 +79,7 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	//calculate max width of LOCALS
 	offset = 0;
 	for (int i = 0; i < 4; i++) {
-		int tmpoffset = g_Font[font_info]->getRenderWidth(g_Locale->getText (colorchooser_names[i]));
+		int tmpoffset = g_Font[font_info]->getRenderWidth(g_Locale->getText(colorchooser_names[i]));
 		if (tmpoffset > offset) {
 			offset = tmpoffset;
 		}
@@ -247,7 +247,7 @@ void CColorChooser::paint()
 {
 	//frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0);
 	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, RADIUS_MID, CORNER_TOP); //round
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD_TEXT);
 	//frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);//round
 
@@ -267,5 +267,5 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY,px+offset+10,py+2+mheight/4);
 	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_VOLUMESLIDER2,px+offset+13+(*spos),py+mheight/4);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT_TEXT);
 }

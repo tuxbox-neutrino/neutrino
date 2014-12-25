@@ -94,16 +94,19 @@ void CComponentsFrmChain::initChainItems()
 	h_tmp = append_y_offset;
 
 	for (size_t i= 0; i< v_cc_items.size(); i++){
+		int x_item = v_cc_items[i]->getXPos();
+		int y_item = v_cc_items[i]->getYPos();
+
 		if (chn_direction & CC_DIR_X){
 			w_tmp += v_cc_items[i]->getWidth();
 			w_tmp += append_x_offset;
-			v_cc_items[i]->setPos(CC_APPEND, CC_CENTERED);
+			v_cc_items[i]->setPos(max(CC_APPEND, x_item), max(CC_CENTERED, y_item));
 		}
 
 		if (chn_direction & CC_DIR_Y){
 			h_tmp += v_cc_items[i]->getHeight();
 			h_tmp += append_y_offset;
-			v_cc_items[i]->setPos(CC_CENTERED, CC_APPEND);
+			v_cc_items[i]->setPos(max(CC_CENTERED, x_item), max(CC_APPEND, y_item));
 		}
 	}
 	width 	= max (w_tmp, width);

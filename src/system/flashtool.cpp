@@ -71,7 +71,7 @@ void CFlashTool::setMTDDevice( const std::string & mtddevice )
 	printf("flashtool.cpp: set mtd device to %s\n", mtddevice.c_str());
 }
 
-void CFlashTool::setStatusViewer( CProgress_StatusViewer* statusview )
+void CFlashTool::setStatusViewer( CProgressWindow* statusview )
 {
 	statusViewer = statusview;
 }
@@ -472,25 +472,37 @@ CFlashVersionInfo::CFlashVersionInfo(const std::string & versionString)
 
 	version = atoi(&releaseCycle[0]) * 100 + atoi(&releaseCycle[2]);
 	// recover date
+	struct tm tt;
+	memset(&tt, 0, sizeof(tt));
 	date[0] = versionString[10];
 	date[1] = versionString[11];
 	date[2] = '.';
+	tt.tm_mday = atoi(&date[0]);
+
 	date[3] = versionString[8];
 	date[4] = versionString[9];
 	date[5] = '.';
+	tt.tm_mon = atoi(&date[3]) - 1;
+
 	date[6] = versionString[4];
 	date[7] = versionString[5];
 	date[8] = versionString[6];
 	date[9] = versionString[7];
 	date[10] = 0;
+	tt.tm_year = atoi(&date[6]) - 1900;
 
 	// recover time stamp
 	time[0] = versionString[12];
 	time[1] = versionString[13];
 	time[2] = ':';
+	tt.tm_hour = atoi(&time[0]);
+
 	time[3] = versionString[14];
 	time[4] = versionString[15];
 	time[5] = 0;
+	tt.tm_min = atoi(&time[3]);
+
+	datetime = mktime(&tt);
 }
 
 const char *CFlashVersionInfo::getDate(void) const

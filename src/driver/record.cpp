@@ -164,7 +164,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel)
 	CGenPsi psi;
 	numpids = 0;
 	if (allpids.PIDs.vpid != 0){
-		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType ? EN_TYPE_AVC : EN_TYPE_VIDEO, 0);
+		psi.addPid(allpids.PIDs.vpid, recMovieInfo->VideoType == 1 ? EN_TYPE_AVC : recMovieInfo->VideoType == 2 ? EN_TYPE_HEVC : EN_TYPE_VIDEO, 0);
 		if (allpids.PIDs.pcrpid && (allpids.PIDs.pcrpid != allpids.PIDs.vpid)) {
 			psi.addPid(allpids.PIDs.pcrpid, EN_TYPE_PCR, 0);
 			apids[numpids++]=allpids.PIDs.pcrpid;
@@ -245,7 +245,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	struct stat test;
 	snprintf(buf,sizeof(buf), "%s.xml", filename);
 	if(stat(buf, &test) == 0){
-		cMovieInfo->clearMovieInfo(recMovieInfo);
+		recMovieInfo->clear();
 		snprintf(buf,sizeof(buf), "%s.ts", filename);
 		recMovieInfo->file.Name = buf;
 		cMovieInfo->loadMovieInfo(recMovieInfo);//restore user bookmark
@@ -552,7 +552,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 {
 	std::string info1, info2;
 
-	cMovieInfo->clearMovieInfo(recMovieInfo);
+	recMovieInfo->clear();
 
 	std::string tmpstring = channel->getName();
 
@@ -631,9 +631,11 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 	std::string ext_channel_name;
 	unsigned int pos;
 
+	safe_mkdir(Directory.c_str());
 	if(check_dir(Directory.c_str())) {
 		/* check if Directory and network_nfs_recordingdir the same */
 		if(g_settings.network_nfs_recordingdir != Directory) {
+			safe_mkdir(g_settings.network_nfs_recordingdir.c_str());
 			/* not the same, check network_nfs_recordingdir and return error if not ok */
 			if(check_dir(g_settings.network_nfs_recordingdir.c_str()))
 				return RECORD_INVALID_DIRECTORY;
@@ -745,6 +747,9 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 		}
 		else
 			StringReplace(FilenameTemplate,"%I","no_info");
+	} else {
+		StringReplace(FilenameTemplate,"%T","no_title");
+		StringReplace(FilenameTemplate,"%I","no_info");
 	}
 }
 
@@ -935,7 +940,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %" PRIx64 " epg: %" PRIx64 ", apidmode 0x%X\n", __func__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
-	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF)
+	if (g_settings.recording_type == CNeutrinoApp::RECORDING_OFF || IS_WEBTV(eventinfo->channel_id))
 		return false;
 
 #if 1 // FIXME test
@@ -1294,7 +1299,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 
 		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
 		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
-		if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
+		if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, rec_msg,
 			CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
@@ -1378,13 +1383,13 @@ bool CRecordManager::ShowMenu(void)
 
 	//record item
 	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true /*!status_rec*/, NULL,
-			this, "Record", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+			this, "Record", CRCInput::RC_red);
 	//if no recordings are running, set the focus to the record menu item
 	menu.addItem(iteml, rec_count == 0 ? true: false);
 
 	//timeshift item
 	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !status_ts, NULL,
-			this, "Timeshift", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+			this, "Timeshift", CRCInput::RC_yellow);
 	menu.addItem(iteml, false);
 
 	if(rec_count > 0)
@@ -1410,7 +1415,7 @@ bool CRecordManager::ShowMenu(void)
 			sprintf(cnt, "%d", i);
 			//define stop key if only one record is running, otherwise define shortcuts
 			neutrino_msg_t rc_key = CRCInput::convertDigitToKey(shortcut++);
-			std::string btn_icon = NEUTRINO_ICON_BUTTON_OKAY;
+			const char * btn_icon = NEUTRINO_ICON_BUTTON_OKAY;
 			if (rec_count == 1){
 				rc_key = CRCInput::RC_stop;
 				btn_icon = NEUTRINO_ICON_BUTTON_STOP;
@@ -1474,7 +1479,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id, const int recid)
 	if(inst == NULL)
 		return false;
 
-	if(ShowMsg(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
+	if(ShowMsg(LOCALE_SHUTDOWN_RECORDING_QUERY, title.c_str(),
 				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
 		mutex.lock();
 		if (recid)
@@ -1572,18 +1577,19 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 
 		/* if allocateFE was successful, full zapTo_serviceID 
 		 * needed, if record frontend same as live, and its on different TP */
-		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, channel_id);
+		bool found = (live_fe != frontend) || IS_WEBTV(live_channel_id) || SAME_TRANSPONDER(live_channel_id, channel_id);
+
+		/* stop all streams on that fe, if we going to change transponder */
+		if (!frontend->sameTsidOnid(channel->getTransponderId()))
+			CStreamManager::getInstance()->StopStream(frontend);
+
 		if(found) {
-			/* stop stream for this channel */
-			CStreamManager::getInstance()->StopStream(channel_id);
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
 			printf("%s found same tp, zapTo_record channel_id %" PRIx64 " result %d\n", __func__, channel_id, ret);
 		}
 		else {
 			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
 			StopAutoRecord(false);
-			/* stop all streams */
-			CStreamManager::getInstance()->StopStream();
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
 				mode_changed = true;

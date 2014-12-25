@@ -59,7 +59,6 @@ class CUpdateSettings : public CMenuTarget
 {
 	private:
 		int width;
-		CMenuForwarder * updateItem;
 		int initMenu();
 		
 		CFlashExpert *fe;
@@ -68,7 +67,7 @@ class CUpdateSettings : public CMenuTarget
 #endif
 	
 	public:	
-		CUpdateSettings(CMenuForwarder * update_item);
+		CUpdateSettings();
 		~CUpdateSettings();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };

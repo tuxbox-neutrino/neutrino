@@ -51,6 +51,7 @@
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
 #include <system/helpers.h>
+#include <system/hddstat.h>
 #include <daemonc/remotecontrol.h>
 #include <driver/radiotext.h>
 #include <driver/volume.h>
@@ -81,9 +82,6 @@ CInfoViewerBB::CInfoViewerBB()
 		pthread_detach(scrambledT);
 	}
 #endif
-	hddpercent		= 0;
-	hddperT			= 0;
-	hddperTflag		= false;
 	hddscale 		= NULL;
 	sysscale 		= NULL;
 	bbIconInfo[0].x = 0;
@@ -111,13 +109,6 @@ void CInfoViewerBB::Init()
 		bbButtonInfo[i].x   = -1;
 	}
 
-	// get HDD info in a separate thread
-	if (g_settings.infobar_show_sysfs_hdd && !hddperTflag) {
-		hddperTflag=true;
-		pthread_create(&hddperT, NULL, hddperThread, (void*) this);
-		pthread_detach(hddperT);
-	}
-
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() + 5;
 	setBBOffset();
 
@@ -129,11 +120,6 @@ CInfoViewerBB::~CInfoViewerBB()
 	if(scrambledT) {
 		pthread_cancel(scrambledT);
 		scrambledT = 0;
-	}
-	if (hddperTflag) {
-		pthread_cancel(hddperT);
-		hddperT = 0;
-		hddperTflag = false;
 	}
 	if (hddscale)
 		delete hddscale;
@@ -227,26 +213,35 @@ void CInfoViewerBB::getBBButtonInfo()
 	bbButtonMaxH = 0;
 	bbButtonMaxX = g_InfoViewer->ChanInfoX;
 	int bbButtonMaxW = 0;
+	int mode;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		int w = 0, h = 0;
+		bool active;
 		std::string text, icon;
 		switch (i) {
 		case CInfoViewerBB::BUTTON_EPG:
 			icon = NEUTRINO_ICON_BUTTON_RED;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
-			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_RED];
+			text = CUserMenu::getUserMenuButtonName(0, active);
+			if (!text.empty())
+				break;
+			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_RED]->title;
 			if (text.empty())
 				text = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
 			break;
 		case CInfoViewerBB::BUTTON_AUDIO:
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
-			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
+			text = CUserMenu::getUserMenuButtonName(1, active);
+			if (!text.empty())
+				break;
+			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_GREEN]->title;
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode() && !CMoviePlayerGui::getInstance().timeshift){
+			mode = CNeutrinoApp::getInstance()->getMode();
+			if ((mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv) && !CMoviePlayerGui::getInstance().timeshift) {
 				text = CMoviePlayerGui::getInstance().CurrentAudioName();
-			}else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
+			} else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
 				if (text.empty()){
 					text = g_RemoteControl->current_PIDs.APIDs[selected].desc;
@@ -256,14 +251,20 @@ void CInfoViewerBB::getBBButtonInfo()
 		case CInfoViewerBB::BUTTON_SUBS:
 			icon = NEUTRINO_ICON_BUTTON_YELLOW;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
-			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_YELLOW];
+			text = CUserMenu::getUserMenuButtonName(2, active);
+			if (!text.empty())
+				break;
+			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_YELLOW]->title;
 			if (text.empty())
 				text = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
 			break;
 		case CInfoViewerBB::BUTTON_FEAT:
 			icon = NEUTRINO_ICON_BUTTON_BLUE;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
-			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_BLUE];
+			text = CUserMenu::getUserMenuButtonName(3, active);
+			if (!text.empty())
+				break;
+			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_BLUE]->title;
 			if (text.empty())
 				text = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
 			break;
@@ -275,6 +276,7 @@ void CInfoViewerBB::getBBButtonInfo()
 		bbButtonInfo[i].h = h;
 		bbButtonInfo[i].text = text;
 		bbButtonInfo[i].icon = icon;
+		bbButtonInfo[i].active = active;
 	}
 	// Calculate position/size of buttons
 	minX = std::min(bbIconMinX, g_InfoViewer->ChanInfoX + (((g_InfoViewer->BoxEndX - g_InfoViewer->ChanInfoX) * 75) / 100));
@@ -387,10 +389,12 @@ void CInfoViewerBB::showBBButtons(const int modus)
 							__LINE__, i);
 					continue;
 				}
-				frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
+				if (bbButtonInfo[i].active) {
+					frameBuffer->paintIcon(bbButtonInfo[i].icon, bbButtonInfo[i].x, BBarY, InfoHeightY_Info);
 
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY, 
-				       bbButtonInfo[i].w - bbButtonInfo[i].cx, bbButtonInfo[i].text, COL_INFOBAR_TEXT, 0, true); // UTF-8
+					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bbButtonInfo[i].x + bbButtonInfo[i].cx, BBarFontY, 
+							bbButtonInfo[i].w - bbButtonInfo[i].cx, bbButtonInfo[i].text, COL_INFOBAR_TEXT);
+				}
 			}
 		}
 
@@ -642,23 +646,8 @@ void CInfoViewerBB::showSysfsHdd()
 			percent = (int)((u * 100ULL) / t);
 		showBarSys(percent);
 
-		if (check_dir(g_settings.network_nfs_recordingdir.c_str()) == 0)
-			showBarHdd(hddpercent);
-		else
-			showBarHdd(-1);
+		showBarHdd(cHddStat::getInstance()->getPercent());
 	}
-}
-
-void* CInfoViewerBB::hddperThread(void *arg)
-{
-	CInfoViewerBB *infoViewerBB = (CInfoViewerBB*) arg;
-	uint64_t t, u;
-	if (get_fs_usage(g_settings.network_nfs_recordingdir.c_str(), t, u))
-		infoViewerBB->hddpercent = (int)((u * 100ULL) / t);
-	else
-		infoViewerBB->hddpercent = 0;
-	infoViewerBB->hddperTflag=false;
-	pthread_exit(NULL);
 }
 
 void CInfoViewerBB::showBarSys(int percent)
@@ -836,17 +825,15 @@ void CInfoViewerBB::paintCA_bar(int left, int right)
 void CInfoViewerBB::changePB()
 {
 	hddwidth = frameBuffer->getScreenWidth(true) * ((g_settings.screen_preset == 1) ? 10 : 8) / 128; /* 80(CRT)/100(LCD) pix if screen is 1280 wide */
-	if (hddscale)
-		delete hddscale;
-	hddscale = new CProgressBar();
-	hddscale->setBlink();
-	hddscale->setInvert();
+	if (!hddscale) {
+		hddscale = new CProgressBar();
+		hddscale->setType(CProgressBar::PB_REDRIGHT);
+	}
 	
-	if (sysscale)
-		delete sysscale;
-	sysscale = new CProgressBar();
-	sysscale->setBlink();
-	sysscale->setInvert();
+	if (!sysscale) {
+		sysscale = new CProgressBar();
+		sysscale->setType(CProgressBar::PB_REDRIGHT);
+	}
 }
 
 void CInfoViewerBB::reset_allScala()
@@ -863,7 +850,7 @@ void CInfoViewerBB::setBBOffset()
 
 void* CInfoViewerBB::scrambledThread(void *arg)
 {
- 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 	CInfoViewerBB *infoViewerBB = static_cast<CInfoViewerBB*>(arg);
 	while(1) {
 		if (infoViewerBB->is_visible)

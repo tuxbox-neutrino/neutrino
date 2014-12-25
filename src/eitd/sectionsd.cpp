@@ -361,8 +361,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 		already_exists = false;
 
 	if ((already_exists) && (SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF)) {
-		si->second->contentClassification = evt.contentClassification;
-		si->second->userClassification = evt.userClassification;
+		si->second->classifications = evt.classifications;
 #ifdef USE_ITEM_DESCRIPTION
 		si->second->itemDescription = evt.itemDescription;
 		si->second->item = evt.item;
@@ -370,11 +369,11 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 		//si->second->vps = evt.vps;
 		if ((evt.getExtendedText().length() > 0) && !evt.times.empty() &&
 				(evt.times.begin()->startzeit < zeit + secondsExtendedTextCache))
-			si->second->setExtendedText("OFF",evt.getExtendedText().c_str());
+			si->second->setExtendedText(0 /*"OFF"*/,evt.getExtendedText());
 		if (evt.getText().length() > 0)
-			si->second->setText("OFF",evt.getText().c_str());
+			si->second->setText(0 /*"OFF"*/,evt.getText());
 		if (evt.getName().length() > 0)
-			si->second->setName("OFF",evt.getName().c_str());
+			si->second->setName(0 /*"OFF"*/,evt.getName());
 	}
 	else {
 
@@ -392,7 +391,7 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 		//Strip ExtendedDescription if too far in the future
 		if ((e->times.begin()->startzeit > zeit + secondsExtendedTextCache) &&
 				(SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF) && (zeit != 0))
-			e->setExtendedText("OFF","");
+			e->setExtendedText(0 /*"OFF"*/,"");
 
 		/*
 		 * this is test code, so indentation is deliberately wrong :-)
@@ -968,6 +967,20 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
 }
 
+static void commandserviceStopped(int connfd, char * /* data */, const unsigned /* dataLength */)
+{
+	xprintf("[sectionsd] commandserviceStopped\n");
+	sendEmptyResponse(connfd, NULL, 0);
+	threadCN.lock();
+	threadEIT.lock();
+	threadCN.closefd();
+	threadEIT.closefd();
+	threadCN.unlock();
+	threadEIT.unlock();
+	threadCN.stopUpdate();
+	xprintf("[sectionsd] commandserviceStopped done\n");
+}
+
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
 {
 	struct sectionsd::msgResponseHeader responseHeader;
@@ -1017,6 +1030,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 "Current time: %s"
 		 "Hours to cache: %ld\n"
 		 "Hours to cache extended text: %ld\n"
+		 "Events to cache: %u\n"
 		 "Events are old %ldmin after their end time\n"
 		 "Number of cached services: %u\n"
 		 "Number of cached nvod-services: %u\n"
@@ -1030,7 +1044,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 ""
 #endif
 		 ,ctime(&zeit),
-		 secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices
+		 secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), max_events, oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
 	printf("%s\n", stati);
@@ -1233,6 +1247,7 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandGetIsScanningActive,             "commandGetIsScanningActive"		},
 	{	commandGetIsTimeSet,                    "commandGetIsTimeSet"			},
 	{	commandserviceChanged,                  "commandserviceChanged"			},
+	{	commandserviceStopped,                  "commandserviceStopped"			},
 	{	commandRegisterEventClient,             "commandRegisterEventClient"		},
 	{	commandUnRegisterEventClient,           "commandUnRegisterEventClient"		},
 	{	commandFreeMemory,			"commandFreeMemory"			},
@@ -1798,7 +1813,7 @@ void CCNThread::beforeWait()
 	update_mutex.unlock();
 }
 
-void CCNThread::afterWait()
+void CCNThread::stopUpdate()
 {
 	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
 	update_mutex.lock();
@@ -1807,6 +1822,11 @@ void CCNThread::afterWait()
 		eitDmx->Close();
 	}
 	update_mutex.unlock();
+}
+
+void CCNThread::afterWait()
+{
+	stopUpdate();
 }
 
 void CCNThread::beforeSleep()
@@ -2602,8 +2622,7 @@ bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGD
 			epgdata->info1 = evt.getText();
 			epgdata->info2 = evt.getExtendedText();
 			/* FIXME printf("itemDescription: %s\n", evt.itemDescription.c_str()); */
-			epgdata->contentClassification = std::string(evt.contentClassification.data(), evt.contentClassification.length());
-			epgdata->userClassification = std::string(evt.userClassification.data(), evt.userClassification.length());
+			evt.classifications.get(epgdata->contentClassification, epgdata->userClassification);
 			epgdata->fsk = evt.getFSK();
 			epgdata->table_id = evt.table_id;
 
@@ -2664,8 +2683,7 @@ bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData
 		epgdata->info1 = evt.getText();
 		epgdata->info2 = evt.getExtendedText();
 		/* FIXME printf("itemDescription: %s\n", evt.itemDescription.c_str());*/
-		epgdata->contentClassification = std::string(evt.contentClassification.data(), evt.contentClassification.length());
-		epgdata->userClassification = std::string(evt.userClassification.data(), evt.userClassification.length());
+		evt.classifications.get(epgdata->contentClassification, epgdata->userClassification);
 		epgdata->fsk = evt.getFSK();
 		epgdata->table_id = evt.table_id;
 
@@ -2705,6 +2723,9 @@ showProfiling("sectionsd_getChannelEvents start");
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 	{
 		uniqueNow = (*e)->get_channel_id();
+		if (IS_WEBTV(uniqueNow))
+			continue;
+
 
 		if (uniqueNow != uniqueOld)
 		{
@@ -2763,7 +2784,7 @@ bool CEitManager::getComponentTagsUniqueKey(const event_id_t uniqueKey, CSection
 		ret = true;
 
 		for (SIcomponents::iterator cmp = eFirst->second->components.begin(); cmp != eFirst->second->components.end(); ++cmp) {
-			response.component = cmp->component;
+			response.component = cmp->getComponentName();
 			response.componentType = cmp->componentType;
 			response.componentTag = cmp->componentTag;
 			response.streamContent = cmp->streamContent;

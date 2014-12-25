@@ -40,6 +40,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/fade.h>
 #include <system/settings.h>
+#include <system/hddstat.h>
 #include "widget/menue.h"
 #include <gui/components/cc.h>
 #include <string>
@@ -83,6 +84,7 @@ class CInfoViewerBB
 			int h;
 			std::string icon;
 			std::string text;
+			bool active;
 		} bbButtonInfoStruct;
 
 		typedef struct
@@ -124,10 +126,6 @@ class CInfoViewerBB
 		void showBarSys(int percent = 0);
 		void showBarHdd(int percent = 0);
 
-		int		hddpercent;
-		pthread_t	hddperT;
-		static void*	hddperThread(void *arg);
-		bool		hddperTflag;
 		CInfoViewerBB();
 
 	public:

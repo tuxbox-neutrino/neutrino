@@ -5,6 +5,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <algorithm>
 
 // system
 #include <arpa/inet.h>
@@ -12,6 +13,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -227,7 +229,7 @@ bool CySocket::set_option(int typ, int option) {
 void CySocket::set_reuse_port() {
 #ifdef SO_REUSEPORT
 	if(!set_option(SOL_SOCKET, SO_REUSEPORT))
-	dperror("setsockopt(SO_REUSEPORT)\n");
+		dperror("setsockopt(SO_REUSEPORT)\n");
 #endif
 }
 
@@ -237,7 +239,7 @@ void CySocket::set_reuse_port() {
 void CySocket::set_reuse_addr() {
 #ifdef SO_REUSEADDR
 	if(!set_option(SOL_SOCKET, SO_REUSEADDR))
-	dperror("setsockopt(SO_REUSEADDR)\n");
+		dperror("setsockopt(SO_REUSEADDR)\n");
 #endif
 }
 
@@ -247,7 +249,7 @@ void CySocket::set_reuse_addr() {
 void CySocket::set_keep_alive() {
 #ifdef SO_KEEPALIVE
 	if(!set_option(SOL_SOCKET, SO_KEEPALIVE))
-	dperror("setsockopt(SO_KEEPALIVE)\n");
+		dperror("setsockopt(SO_KEEPALIVE)\n");
 #endif
 }
 
@@ -257,7 +259,7 @@ void CySocket::set_keep_alive() {
 void CySocket::set_tcp_nodelay() {
 #ifdef TCP_NODELAY
 	if(!set_option(IPPROTO_TCP, TCP_NODELAY))
-	dperror("setsockopt(SO_KEEPALIVE)\n");
+		dperror("setsockopt(SO_KEEPALIVE)\n");
 #endif
 }
 //=============================================================================
@@ -269,10 +271,10 @@ void CySocket::set_tcp_nodelay() {
 int CySocket::Read(char *buffer, unsigned int length) {
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	if(isSSLSocket)
-	return SSL_read(ssl, buffer, length);
+		return SSL_read(ssl, buffer, length);
 	else
 #endif
-	return ::read(sock, buffer, length);
+		return ::read(sock, buffer, length);
 }
 //-----------------------------------------------------------------------------
 // Send a buffer (normal or SSL)
@@ -281,7 +283,7 @@ int CySocket::Send(char const *buffer, unsigned int length) {
 	unsigned int len = 0;
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	if(isSSLSocket)
-	len = SSL_write(ssl, buffer, length);
+		len = SSL_write(ssl, buffer, length);
 	else
 #endif
 	len = ::send(sock, buffer, length, MSG_NOSIGNAL);
@@ -310,31 +312,48 @@ bool CySocket::CheckSocketOpen() {
 // BASIC Send File over Socket for FILE*
 // fd is an opened FILE-Descriptor
 //-----------------------------------------------------------------------------
-int CySocket::SendFile(int filed) {
+bool CySocket::SendFile(int filed, off_t start, off_t size) {
 	if (!isValid)
 		return false;
-#ifdef Y_CONFIG_HAVE_SENDFILE
 	// does not work with SSL !!!
-	off_t start = 0;
-	off_t end = lseek(filed,0,SEEK_END);
-	int written = 0;
-	if((written = ::sendfile(sock,filed,&start,end)) == -1)
-	{
-		perror("sendfile failed\n");
-		return false;
-	}
-	else
-	BytesSend += written;
-#else
-	char sbuf[1024];
-	unsigned int r = 0;
-	while ((r = read(filed, sbuf, 1024)) > 0) {
-		if (Send(sbuf, r) < 0) {
-			perror("sendfile failed\n");
-			return false;
+	struct stat st;
+	fstat(filed, &st);
+	off_t left = st.st_size - start;
+	off_t written = 0;
+	if (size > -1 && size < left)
+		left = size;
+#ifdef Y_CONFIG_HAVE_SENDFILE
+#ifdef Y_CONFIG_USE_OPEN_SSL
+	if(!isSSLSocket)
+#endif
+	while (left > 0) {
+		// split sendfile() transfer to smaller chunks to reduce memory-mapping requirements
+		if((written = ::sendfile(sock, filed, &start, std::min((off_t) 0x8000000LL, left))) == -1) {
+			if (errno != EPIPE)
+				perror("sendfile failed");
+			if (errno != EINVAL)
+				return false;
+			break;
+		} else {
+			BytesSend += written;
+			left -= written;
 		}
 	}
 #endif // Y_CONFIG_HAVE_SENDFILE
+	if (left > 0) {
+		::lseek(filed, start, SEEK_SET);
+
+		char sbuf[65536];
+		while (left && (written = read(filed, sbuf, std::min((off_t) sizeof(sbuf), left))) > 0) {
+			if (Send(sbuf, written) < 0) {
+				if (errno != EPIPE)
+					perror("send failed");
+				return false;
+			}
+			left -= written;
+		}
+	}
+
 	log_level_printf(9, "<Sock:SendFile>: Bytes:%ld\n", BytesSend);
 	return true;
 }
@@ -355,7 +374,7 @@ unsigned int CySocket::ReceiveFileGivenLength(int filed, unsigned int _length) {
 		u_long readarg = 0;
 #ifdef Y_CONFIG_USE_OPEN_SSL
 		if(isSSLSocket)
-		readarg = RECEIVE_BLOCK_LEN;
+			readarg = RECEIVE_BLOCK_LEN;
 		else
 #endif
 		{

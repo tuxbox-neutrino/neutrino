@@ -36,23 +36,22 @@
 
 #include <string>
 
- class CVfdSetup : public CMenuTarget, CChangeObserver
+ class CVfdSetup : public CMenuTarget, CChangeObserver, CActivateObserver
 {	
 	private:
 		int width;
 		
 		int showSetup();
-		void showBrightnessSetup(CMenuWidget *mn_widget);
+		int showBrightnessSetup();
 		void showLedSetup(CMenuWidget *mn_led_widget);
 		void showBacklightSetup(CMenuWidget *mn_led_widget);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
+		virtual void activateNotify(const neutrino_locale_t OptionName);
 		int brightness;
 		int brightnessstandby;
 		int brightnessdeepstandby;
 		
 		bool vfd_enabled; 
-		
-		CStringInput * dim_time;
 
 	public:
 		CVfdSetup();

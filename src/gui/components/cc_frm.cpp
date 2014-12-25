@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <system/debug.h>
+
 using namespace std;
 
 //-------------------------------------------------------------------------------------------------------
@@ -67,11 +68,117 @@ CComponentsForm::CComponentsForm(	const int x_pos, const int y_pos, const int w,
 
 	append_x_offset = 0;
 	append_y_offset = 0;
+	page_count	= 1;
+	cur_page	= 0;
+	sb 		= NULL;
+	w_sb		= 15;
+
+	page_scroll_mode = PG_SCROLL_M_UP_DOWN_KEY;
+
+	//connect page scroll slot
+	sigc::slot3<void, neutrino_msg_t&, neutrino_msg_data_t&, int&> sl = sigc::mem_fun(*this, &CComponentsForm::execPageScroll);
+	this->OnExec.connect(sl);
 }
 
 CComponentsForm::~CComponentsForm()
 {
 	clear();
+	delete sb;
+}
+
+int CComponentsForm::exec()
+{
+	dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] \n", __func__, __LINE__);
+	OnBeforeExec();
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
+
+	int res = menu_return::RETURN_REPAINT;
+
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(-1);
+
+	//required exit keys
+	msg_list_t exit_keys[2];
+	exit_keys[0].msg = CRCInput::RC_setup;
+	exit_keys[1].msg = CRCInput::RC_home;
+
+	bool exit_loop = false;
+	while (!exit_loop)
+	{
+		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+
+		//execute connected slots
+		OnExec(msg, data, res);
+
+		//exit loop
+		execExit(msg, data, res, exit_loop, exit_keys, 2);
+
+		if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
+		{
+			dprintf(DEBUG_INFO, "[CComponentsForm]   [%s - %d]  messages_return::cancel_all\n", __func__, __LINE__);
+			res  = menu_return::RETURN_EXIT_ALL;
+			exit_loop = EXIT;
+		}
+	}
+
+	OnAfterExec();
+	return res;
+}
+
+
+void CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const struct msg_list_t * const msg_list, const size_t& key_count, bool force_exit)
+{
+	for(size_t i = 0; i < key_count; i++){
+		if (execKey(msg, data, res, exit_loop, msg_list[i].msg, force_exit)){
+			break;
+		}
+	}
+}
+
+void CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const std::vector<neutrino_msg_t>& v_msg_list, bool force_exit)
+{
+	for(size_t i = 0; i < v_msg_list.size(); i++){
+		if (execKey(msg, data, res, exit_loop, v_msg_list[i], force_exit)){
+			break;
+		}
+	}
+}
+
+inline bool CComponentsForm::execKey(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const neutrino_msg_t& msg_val, bool force_exit)
+{
+	if (msg == msg_val){
+		OnExecMsg(msg, data, res);
+		if (force_exit)
+			exit_loop = EXIT;
+		return true;
+	}
+	return false;
+}
+
+
+void CComponentsForm::execPageScroll(neutrino_msg_t& msg, neutrino_msg_data_t& /*data*/, int& /*res*/)
+{
+	if (page_scroll_mode == PG_SCROLL_M_OFF)
+		return;
+
+	if (page_scroll_mode & PG_SCROLL_M_UP_DOWN_KEY){
+		if (msg == CRCInput::RC_page_up)
+			ScrollPage(SCROLL_P_DOWN);
+		if (msg == CRCInput::RC_page_down)
+			ScrollPage(SCROLL_P_UP);
+	}
+
+	if (page_scroll_mode & PG_SCROLL_M_LEFT_RIGHT_KEY){
+		if (msg == CRCInput::RC_left)
+			ScrollPage(SCROLL_P_DOWN);
+		if (msg == CRCInput::RC_right)
+			ScrollPage(SCROLL_P_UP);
+	}
+}
+
+void CComponentsForm::execExit(neutrino_msg_t& msg, neutrino_msg_data_t& data, int& res, bool& exit_loop, const struct msg_list_t * const msg_list, const size_t& key_count)
+{
+	execKey(msg, data, res, exit_loop, msg_list, key_count, true);
 }
 
 
@@ -106,6 +213,7 @@ void CComponentsForm::addCCItem(CComponentsItem* cc_Item)
 		//assign item index
 		int new_index = genIndex();
 		cc_Item->setIndex(new_index);
+		cc_Item->setFocus(true);
 
 		dprintf(DEBUG_DEBUG, "\t%s-%d parent index = %d, assigned index ======> %d\n", __func__, __LINE__, cc_item_index, new_index);
 
@@ -234,21 +342,69 @@ void CComponentsForm::paint(bool do_save_bg)
 	paintForm(do_save_bg);
 }
 
+bool CComponentsForm::isPageChanged()
+{
+	for(size_t i=0; i<v_cc_items.size(); i++){
+		if (v_cc_items[i]->getPageNumber() != cur_page)
+			return true;
+	}
+	return false;
+}
+
+void CComponentsForm::paintPage(const u_int8_t& page_number, bool do_save_bg)
+{
+	cur_page = page_number;
+	paint(do_save_bg);
+}
 
 void CComponentsForm::paintCCItems()
 {
 	size_t items_count 	= v_cc_items.size();
 
 	//using of real x/y values to paint items if this text object is bound in a parent form
-	int this_x = x, auto_x = x, this_y = y, auto_y = y;
+	int this_x = x, auto_x = x, this_y = y, auto_y = y, this_w = width;
 	if (cc_parent){
 		this_x = auto_x = cc_xr;
 		this_y = auto_y = cc_yr;
 	}
 
+	//init and handle scrollbar
+	getPageCount();
+	int y_sb = this_y+1;
+	int x_sb = this_x + width - w_sb;
+	int h_sb = height-2;
+	if (sb == NULL){
+		sb = new CComponentsScrollBar(x_sb, y_sb, w_sb, h_sb);
+	}else{
+		//clean background, if dimension of scrollbar was changed
+		if (w_sb != sb->getWidth())
+			sb->kill(col_body);
+
+		//set current dimensions and position
+		sb->setDimensionsAll(x_sb, y_sb, w_sb, h_sb);
+	}
+
+	if(page_count > 1){
+		sb->setSegmentCount(page_count);
+		sb->setMarkID(cur_page);
+		this_w = width - w_sb;
+		sb->paint(false);
+	}else{
+		if (sb->isPainted())
+			sb->kill(col_body);
+		this_w = width;
+	}
+
+	//detect if current page has changed, if true then kill items from screen
+	if(isPageChanged()){
+		this->killCCItems(col_body, true);
+	}
+
 	for(size_t i=0; i<items_count; i++){
 		//assign item object
 		CComponentsItem *cc_item = v_cc_items[i];
+
+		dprintf(DEBUG_INFO, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), cc_item->getPageNumber(), this->cur_page);
 
 		//get current dimension of item
 		int w_item = cc_item->getWidth();
@@ -259,10 +415,9 @@ void CComponentsForm::paintCCItems()
 		int ypos = cc_item->getYPos();
 
 		//check item for corrupt position, skip current item if found problems
-		//TODO: need a solution with possibility for scrolling
-		if (ypos > height || xpos > width){
-			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined width=%d \ndefinied y=%d, defined height=%d \n",
-				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, width, ypos, height);
+		if (ypos > height || xpos > this_w){
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] WARNING: item position is out of form size:\ndefinied x=%d, defined this_w=%d \ndefinied y=%d, defined height=%d \n",
+				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), xpos, this_w, ypos, height);
 			if (this->cc_item_type != CC_ITEMTYPE_FRM_CHAIN)
 				continue;
 		}
@@ -276,7 +431,7 @@ void CComponentsForm::paintCCItems()
 		}
 		//positionize vertical centered
 		else if (xpos == CC_CENTERED){
-			auto_x =  width/2 - cc_item->getWidth()/2;
+			auto_x =  this_w/2 - w_item/2;
 			cc_item->setRealXPos(this_x + auto_x);
 		}
 		else{
@@ -293,7 +448,7 @@ void CComponentsForm::paintCCItems()
 		}
 		//positionize hor centered
 		else if (ypos == CC_CENTERED){
-			auto_y =  height/2 - cc_item->getHeight()/2;
+			auto_y =  height/2 - h_item/2;
 			cc_item->setRealYPos(this_y + auto_y);
 		}
 		else{
@@ -301,12 +456,11 @@ void CComponentsForm::paintCCItems()
 			auto_y = (cc_item->getRealYPos() + h_item);
 		}
 
-
 		//These steps check whether the element can be painted into the container.
 		//Is it too wide or too high, it will be shortened and displayed in the log.
 		//This should be avoid!
 		//checkwidth and adapt if required
-		int right_frm = (cc_parent ? cc_xr : x) + width - 2*fr_thickness;
+		int right_frm = (cc_parent ? cc_xr : x) + this_w - 2*fr_thickness;
 		int right_item = cc_item->getRealXPos() + w_item;
 		int w_diff = right_item - right_frm;
 		int new_w = w_item - w_diff;
@@ -314,7 +468,7 @@ void CComponentsForm::paintCCItems()
 		right_item -= (new_w%2);
 		w_item -= (new_w%2);
 		if (right_item > right_frm){
-			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] width is too large, definied width=%d, possible width=%d \n",
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] this_w is too large, definied width=%d, possible width=%d \n",
 				__func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), w_item, new_w);
 			cc_item->setWidth(new_w);
 		}
@@ -328,7 +482,7 @@ void CComponentsForm::paintCCItems()
 		bottom_item -= (new_h%2);
 		h_item -= (new_h%2);
 		if (bottom_item > bottom_frm){
-			printf("[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
+			dprintf(DEBUG_INFO, "[CComponentsForm] %s: [form: %d] [item-index %d] [type=%d] height is too large, definied height=%d, possible height=%d \n",
 			       __func__, cc_item_index, cc_item->getIndex(), cc_item->getItemType(), h_item, new_h);
 			cc_item->setHeight(new_h);
 		}
@@ -339,8 +493,9 @@ void CComponentsForm::paintCCItems()
 		if (!this->cc_allow_paint)
 			cc_item->allowPaint(false);
 
-		//finally paint current item
-		cc_item->paint(CC_SAVE_SCREEN_NO);
+		//finally paint current item, but only required contents of page
+		if (cc_item->getPageNumber() == cur_page)
+			cc_item->paint(CC_SAVE_SCREEN_NO);
 
 		//restore defined old visibility mode of item after paint
 		cc_item->allowPaint(item_visible);
@@ -361,4 +516,112 @@ void CComponentsForm::hide(bool no_restore)
 
 	//hide body
 	hideCCItem(no_restore);
+}
+
+//erase or paint over rendered objects
+void CComponentsForm::killCCItems(const fb_pixel_t& bg_color, bool ignore_parent)
+{
+	for(size_t i=0; i<v_cc_items.size(); i++)
+		v_cc_items[i]->kill(bg_color, ignore_parent);
+}
+
+void CComponentsForm::setPageCount(const u_int8_t& pageCount)
+{
+	u_int8_t new_val = pageCount;
+	if (new_val <  page_count)
+		dprintf(DEBUG_NORMAL, "[CComponentsForm] %s:  current count (= %u) of pages higher than page_count (= %u) will be set, smaller value is ignored!\n", __func__, page_count, new_val) ;
+	page_count = max(new_val, page_count);
+}
+
+u_int8_t CComponentsForm::getPageCount()
+{
+	u_int8_t num = 0;
+	for(size_t i=0; i<v_cc_items.size(); i++){
+		u_int8_t item_num = v_cc_items[i]->getPageNumber();
+		num = max(item_num, num);
+	}
+
+	//convert type, possible -Wconversion warnings!
+	page_count = static_cast<u_int8_t>(num + 1);
+
+	return page_count;
+}
+
+
+void CComponentsForm::setSelectedItem(int item_id)
+{
+	size_t count = v_cc_items.size();
+	int id = item_id;
+
+	if (id > (int)(count-1) || id < 0 || (count == 0)){
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid parameter item_id = %u, available items = %u, allowed values are: 0...%u! \n", 	__func__, 
+																				__LINE__, 
+																				item_id, 
+																				count, 
+																				count==0 ? 0:count-1);
+		//exit if no item is available
+		if (count == 0)
+			return;
+
+		//jump to last item
+		if (id < 0)
+			id = count-1;
+		//jump to 1st item, if id is out of range, avoids also possible segfault
+		if (id > (int)(count-1))
+			id = 0;
+	}
+
+	for (size_t i= 0; i< count; i++)
+		v_cc_items[i]->setSelected(i == (size_t)id);
+
+	OnSelect();
+}
+
+void CComponentsForm::setSelectedItem(CComponentsItem* cc_item)
+{
+	int id = getCCItemId(cc_item);
+	if (id == -1){
+		dprintf(DEBUG_NORMAL, "[CComponentsForm]   [%s - %d] invalid item parameter, no object available\n", __func__,__LINE__);
+		return;
+	}
+	setSelectedItem(id);
+}
+
+int CComponentsForm::getSelectedItem()
+{
+	for (size_t i= 0; i< size(); i++)
+		if (getCCItem(i)->isSelected())
+			return static_cast<int>(i);
+	return -1;
+}
+
+CComponentsItem* CComponentsForm::getSelectedItemObject()
+{
+	int sel = getSelectedItem();
+	CComponentsItem* ret = NULL;
+	if (sel != -1)
+		ret = static_cast<CComponentsItem*>(this->getCCItem(sel));
+
+	return ret;
+}
+
+
+void CComponentsForm::ScrollPage(int direction, bool do_paint)
+{
+	OnBeforeScrollPage();
+
+	int target_page_id = (int)getPageCount() - 1;
+	int target_page = (int)cur_page;
+	
+	if (direction == SCROLL_P_DOWN)
+		target_page = target_page+1 > target_page_id ? 0 : target_page+1;	
+	else if	(direction == SCROLL_P_UP)
+		target_page = target_page-1 < 0 ? target_page_id : target_page-1;
+
+	if (do_paint)
+		paintPage((uint8_t)target_page);
+	else
+		cur_page = (uint8_t)target_page;
+
+	OnAfterScrollPage();
 }

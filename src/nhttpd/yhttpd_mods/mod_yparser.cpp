@@ -19,6 +19,7 @@
 #include <signal.h>
 // tuxbox
 #include <configfile.h>
+#include <system/helpers.h>
 // yhttpd
 #include <yconfig.h>
 #include <ytypes_globals.h>
@@ -423,7 +424,7 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 			std::string if_value, if_then, if_else;
 			if (ySplitString(ycmd_name, "~", if_value, if_then)) {
 				ySplitString(if_then, "~", if_then, if_else);
-				yresult = (access(if_value.c_str(), 4) == 0) ? if_then
+				yresult = (access(if_value, R_OK) == 0) ? if_then
 						: if_else;
 			}
 		} else if (ycmd_type == "include") {
@@ -731,7 +732,7 @@ std::string CyParser::func_do_reload_httpd_config(CyhookHandler *, std::string) 
 // y-func : Change httpd (process image) on the fly
 //-------------------------------------------------------------------------
 std::string CyParser::func_change_httpd(CyhookHandler *hh, std::string para) {
-	if (para != "" && access(para.c_str(), 4) == 0) {
+	if (para != "" && access(para, R_OK) == 0) {
 		hh->status = HANDLED_ABORT;
 		char * argv[2] = { (char *)para.c_str(), NULL };
 		int err = execvp(argv[0], argv); // no return if successful

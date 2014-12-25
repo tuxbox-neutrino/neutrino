@@ -76,6 +76,8 @@
 
 #include <fstream>
 
+#include <cs_api.h>
+
 extern int allow_flash;
 
 //#define gTmpPath "/var/update/"
@@ -93,6 +95,7 @@ extern int allow_flash;
 #else
 #define MTD_DEVICE_OF_UPDATE_PART      "/dev/mtd3"
 #endif
+int pinghost  (const std::string &hostname, std::string *ip = NULL);
 
 CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()
@@ -103,6 +106,7 @@ CFlashUpdate::CFlashUpdate()
 	if (sysfs.empty())
 		sysfs = MTD_DEVICE_OF_UPDATE_PART;
 	printf("Mtd partition to update: %s\n", sysfs.c_str());
+	notify = true;
 }
 
 
@@ -126,6 +130,61 @@ public:
 		}
 };
 
+bool CFlashUpdate::checkOnlineVersion()
+{
+	CHTTPTool httpTool;
+	std::string url;
+	std::string name;
+	std::string version;
+	std::string md5;
+	std::vector<std::string> updates_lists, urls, names, versions, descriptions, md5s;
+	int curVer, newVer;
+	bool newfound = false;
+
+	std::vector<CUpdateMenuTarget*> update_t_list;
+
+	CConfigFile _configfile('\t');
+	const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
+#ifdef DEBUG
+	printf("[update] file %s\n", g_settings.softupdate_url_file.c_str());
+#endif
+	CFlashVersionInfo curInfo(versionString);
+	curVer = curInfo.getVersion();
+	printf("current flash-version: %s (%d) date %s (%ld)\n", versionString, curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
+
+	std::ifstream urlFile(g_settings.softupdate_url_file.c_str());
+	if (urlFile >> url) {
+		/* extract domain name */
+		std::string::size_type startpos, endpos;
+		std::string host;
+		startpos = url.find("//");
+		if (startpos != std::string::npos) {
+			startpos += 2;
+			endpos    = url.find('/', startpos);
+			host = url.substr(startpos, endpos - startpos);
+		}
+		printf("[update] host %s\n", host.c_str());
+		if (host.empty() || (pinghost(host) != 1))
+			return false;
+		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20)) {
+			std::ifstream in(gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME);
+			while (in >> url >> version >> md5 >> std::ws) {
+				CFlashVersionInfo versionInfo(version);
+				newVer = versionInfo.getVersion();
+#ifdef DEBUG
+				printf("[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
+#endif
+				if(versionInfo.snapshot < '3' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime())) {
+					newfound = true;
+					printf("[update] found new image\n");
+					break;
+				}
+			}
+		}
+	}
+	return newfound;
+}
+
 //#define DEBUG
 bool CFlashUpdate::selectHttpImage(void)
 {
@@ -139,14 +198,11 @@ bool CFlashUpdate::selectHttpImage(void)
 	int selected = -1, listWidth = w_max (80, 10);
 	int curVer, newVer, newfound = 0;
 
-	std::vector<CUpdateMenuTarget*> update_t_list;
-
 	CConfigFile _configfile('\t');
 	const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
-	installedVersion = versionString;
 
 	CFlashVersionInfo curInfo(versionString);
-	printf("current flash-version: %s (%d)\n", installedVersion.c_str(), curInfo.getVersion());
+	printf("current flash-version: %s (%d) date %s (%ld)\n", versionString, curInfo.getVersion(), curInfo.getDate(), curInfo.getDateTime());
 	curVer = curInfo.getVersion();
 
 	httpTool.setStatusViewer(this);
@@ -213,9 +269,9 @@ bool CFlashUpdate::selectHttpImage(void)
 				CFlashVersionInfo versionInfo(versions[i]);
 				newVer = versionInfo.getVersion();
 #ifdef DEBUG
-				printf("[update] url %s version %s (%d) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, md5.c_str(), name.c_str());
+				printf("[update] url %s version %s (%d) timestamp %s (%ld) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, versionInfo.getDate(), versionInfo.getDateTime(), md5.c_str(), name.c_str());
 #endif
-				if(newVer > curVer)
+				if(versionInfo.snapshot < '3' && (newVer > curVer || versionInfo.getDateTime() > curInfo.getDateTime()))
 					newfound = 1;
 				if(!allow_flash && (versionInfo.snapshot < '3'))
 					enabled = false;
@@ -233,8 +289,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 				//SelectionWidget.addItem(new CMenuForwarder(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
 				CUpdateMenuTarget * up = new CUpdateMenuTarget(i, &selected);
-				update_t_list.push_back(up);
-				SelectionWidget.addItem(new CMenuForwarder(descriptions[i].c_str(), enabled, names[i].c_str(), up));
+				SelectionWidget.addItem(new CMenuDForwarder(descriptions[i].c_str(), enabled, names[i].c_str(), up));
 				i++;
 			}
 		}
@@ -247,15 +302,14 @@ bool CFlashUpdate::selectHttpImage(void)
 		ShowMsg(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR), CMessageBox::mbrOk, CMessageBox::mbOk); // UTF-8
 		return false;
 	}
-	if(newfound)
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_FOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
-	else
-		ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+	if (notify) {
+		if(newfound)
+			ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_FOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+		else
+			ShowMsg(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+	}
 
 	menu_ret = SelectionWidget.exec(NULL, "");
-
-	for (std::vector<CUpdateMenuTarget*>::iterator it = update_t_list.begin(); it != update_t_list.end(); ++it)
-		delete (*it);
 
 	if (selected == -1)
 		return false;
@@ -1044,13 +1098,6 @@ g_settings.flashupdate_createimage_add_spare = 0;
 	CMenuOptionChooser *m6 = new CMenuOptionChooser(LOCALE_FLASHUPDATE_CREATEIMAGE_ADD_KERNEL, &g_settings.flashupdate_createimage_add_kernel,
 								MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 
-
-	CMTDInfo *mtdInfo = CMTDInfo::getInstance();
-	const char *box = (mtdInfo->getMTDEraseSize(mtdInfo->findMTDsystem()) == 0x40000) ? "Trinity" : "Tank";
-	char mText[512] = {0};
-	snprintf(mText, sizeof(mText)-1, g_Locale->getText(LOCALE_FLASHUPDATE_CREATEIMAGE_OTHER), box);
-	CMenuOptionChooser *m7 = new CMenuOptionChooser(mText, &(cfe->createimage_other), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
-
 	rootfsSetup->addItem(m1); // create image
 	rootfsSetup->addItem(s1);
 	rootfsSetup->addItem(m2); // include uldr
@@ -1062,8 +1109,18 @@ g_settings.flashupdate_createimage_add_spare = 0;
 	rootfsSetup->addItem(m5); // include spare
 #endif
 	rootfsSetup->addItem(m6); // include kernel
-	rootfsSetup->addItem(GenericMenuSeparatorLine);
-	rootfsSetup->addItem(m7); // create image for other STB
+
+	if (cs_get_revision() != 12) { // not kronos
+		CMTDInfo *mtdInfo = CMTDInfo::getInstance();
+		const char *box = (mtdInfo->getMTDEraseSize(mtdInfo->findMTDsystem()) == 0x40000) ? "Trinity" : "Tank";
+		char mText[512] = {0};
+		snprintf(mText, sizeof(mText)-1, g_Locale->getText(LOCALE_FLASHUPDATE_CREATEIMAGE_OTHER), box);
+		CMenuOptionChooser *m7 = new CMenuOptionChooser(mText, &(cfe->createimage_other), MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+
+		rootfsSetup->addItem(GenericMenuSeparatorLine);
+		rootfsSetup->addItem(m7); // create image for other STB
+	} else
+		cfe->createimage_other = 0;
 
 	int res = rootfsSetup->exec (NULL, "");
 	delete rootfsSetup;

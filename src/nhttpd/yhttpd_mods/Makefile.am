@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	@FREETYPE_CFLAGS@ 
 
-AM_CPPFLAGS += -fno-rtti -fno-exceptions
+AM_CPPFLAGS += -fno-rtti -fno-exceptions -D_FILE_OFFSET_BITS=64
 
 noinst_LIBRARIES = libyhttpdmods.a
 

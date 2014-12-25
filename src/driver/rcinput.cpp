@@ -155,6 +155,7 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
+	firstKey = true;
 	longPressEnd = 0;
 
 	//select and setup remote control hardware
@@ -1001,10 +1002,6 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								*msg  = NeutrinoMessages::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS;
 								*data = *(unsigned*) p;
 								break;
-							case CZapitClient::EVT_SCAN_REPORT_FREQUENCY:
-								*msg = NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCY;
-								*data = *(unsigned*) p;
-								break;
 							case CZapitClient::EVT_SCAN_FOUND_A_CHAN:
 								*msg = NeutrinoMessages::EVT_SCAN_FOUND_A_CHAN;
 								break;
@@ -1083,6 +1080,10 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								break;
 							case CZapitClient::EVT_BACK_ZAP_COMPLETE:
 								*msg          = NeutrinoMessages::EVT_BACK_ZAP_COMPLETE;
+								*data = (neutrino_msg_data_t) p;
+								break;
+							case CZapitClient::EVT_WEBTV_ZAP_COMPLETE:
+								*msg          = NeutrinoMessages::EVT_WEBTV_ZAP_COMPLETE;
 								*data = (neutrino_msg_data_t) p;
 								break;
 							default:
@@ -1254,6 +1255,11 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();
+				if (firstKey) {
+					firstKey = false;
+					CTimerManager::getInstance()->cancelShutdownOnWakeup();
+				}
+
 				uint32_t trkey = translate(ev.code);
 #ifdef _DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());

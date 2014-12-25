@@ -31,6 +31,10 @@
 #include <config.h>
 #endif
 
+#include <OpenThreads/ScopedLock>
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+
 #include "cc_base.h"
 #include "cc_frm.h"
 
@@ -45,6 +49,7 @@ class CComponentsFrmClock : public CComponentsForm
 	private:
 		
 // 		bool cl_force_segment_paint;
+		bool may_blit;
 	
 	protected:
 		///thread
@@ -71,10 +76,10 @@ class CComponentsFrmClock : public CComponentsForm
 		///text color
 		int cl_col_text;
 		///time format
-		std::string cl_format_str;
+		const char *cl_format_str;
 		///time format for blink
-		std::string cl_blink_str;
-		///time string align, default allign is ver and hor centered
+		const char *cl_blink_str;
+		///time string align, default align is ver and hor centered
 		int cl_align;
 
 		///initialize clock contents  
@@ -83,11 +88,15 @@ class CComponentsFrmClock : public CComponentsForm
 		virtual void initTimeString();
 		///initialize of general alignment of timestring segments within form area
 		void initSegmentAlign(int* segment_width, int* segment_height);
+		//return current time string format
+		const char *getTimeFormat(time_t when) { return (when & 1) ? cl_format_str : cl_blink_str; }
 
 		///return pointer of font object
 		inline Font** getClockFont();
 
 	public:
+		OpenThreads::Mutex mutex;
+
 		CComponentsFrmClock( 	const int& x_pos = 1, const int& y_pos = 1, const int& w = 200, const int& h = 48,
 					const char* format_str = "%H:%M",
 					bool activ=false,
@@ -133,6 +142,9 @@ class CComponentsFrmClock : public CComponentsForm
 
 		///set clock activ/inactiv
 		virtual void setClockActiv(bool activ = true);
+
+		///enable/disable automatic blitting
+		void setBlit(bool _may_blit = true) { may_blit = _may_blit; }
 };
 
 #endif

@@ -42,7 +42,7 @@
 #include <gui/widget/messagebox.h>
 #include <system/settings.h>
 #include <driver/screen_max.h>
-
+#include <driver/neutrinofonts.h>
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 #include <zapit/scannit.h>
@@ -71,13 +71,13 @@ void CMotorControl::Init(void)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	mheight     = 30;
 
 	satfindpid = -1;
 
 	width = w_max(720, 0);
-	mheight = mheight - 2;
-	height = hheight + (22 * mheight) - 5;
+	m_font  = *CNeutrinoFonts::getInstance()->getDynFont(width, mheight);
+	height = hheight + (24 * mheight) - 5;
 	height = h_max(height, 0);
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
@@ -132,10 +132,12 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	g_Zapit->setScanSatelliteList(satList);
 	CZapit::getInstance()->SetLiveFrontend(frontend);
 
-	TP.feparams.dvb_feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
-	TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
-	TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t)scansettings.sat_TP_fec;
-	TP.polarization = scansettings.sat_TP_pol;
+	TP.feparams.frequency = atoi(scansettings.sat_TP_freq.c_str());
+	TP.feparams.symbol_rate = atoi(scansettings.sat_TP_rate.c_str());
+	TP.feparams.fec_inner = (fe_code_rate_t)scansettings.sat_TP_fec;
+	TP.feparams.polarization = scansettings.sat_TP_pol;
+	TP.feparams.delsys = (delivery_system_t) scansettings.sat_TP_delsys;
+	TP.feparams.modulation = (fe_modulation_t) scansettings.sat_TP_mod;
 
 	g_Zapit->tune_TP(TP);
 
@@ -166,6 +168,11 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 				last_snr = g_snr;
 		} else
 			wasgrow = 0;
+
+		if (msg == (neutrino_msg_t)g_settings.key_volumeup)
+			msg = CRCInput::RC_plus;
+		else if (msg == (neutrino_msg_t)g_settings.key_volumedown)
+			msg = CRCInput::RC_minus;
 
 		if (msg == CRCInput::RC_ok || msg == CRCInput::RC_0) {
 			printf("[motorcontrol] 0 key received... goto %s\n", installerMenue ? "userMenue" : "installerMenue");
@@ -358,19 +365,19 @@ void CMotorControl::paintLine(int px, int *py, int pwidth, const char *txt)
 {
 	frameBuffer->paintBoxRel(px, *py, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
 	*py += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
+	m_font->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintLine(int px, int py, int pwidth, const char *txt)
 {
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
+	m_font->RenderString(px, py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintLine(int ix, int tx, int *py, int pwidth, const char *icon, const char *txt)
 {
 	frameBuffer->paintIcon(icon, ix, *py, mheight);
 	*py += mheight;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(tx, *py, pwidth, txt, COL_MENUCONTENT_TEXT, 0, true);
+	m_font->RenderString(tx, *py, pwidth, txt, COL_MENUCONTENT_TEXT);
 }
 
 void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char * /*txt*/)
@@ -382,11 +389,11 @@ void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char 
 	frameBuffer->paintHLineRel(xpos, pwidth - 20, *pypos - (th >> 1) + 1, COL_MENUCONTENT_PLUS_1);
 
 #if 0
-	int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(txt);
+	int stringwidth = m_font->getRenderWidth(txt);
 	int stringstartposX = 0;
 	stringstartposX = (xpos + (pwidth >> 1)) - (stringwidth >> 1);
 	frameBuffer->paintBoxRel(stringstartposX - 5, *pypos - mheight, stringwidth + 10, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, *pypos, stringwidth, txt, COL_MENUCONTENT_TEXT);
+	m_font->RenderString(stringstartposX, *pypos, stringwidth, txt, COL_MENUCONTENT_TEXT);
 #endif
 }
 
@@ -396,7 +403,7 @@ void CMotorControl::paintStatus()
 	char buf2[256];
 
 	int xpos1 = x + 10;
-	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
+	int xpos2 = xpos1 + 10 + m_font->getRenderWidth(g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
 	int width2 = width - (xpos2 - xpos1) - 10;
 	int width1 = width - 10;
 
@@ -459,7 +466,7 @@ void CMotorControl::paintMenu()
 	ypos = y + hheight + (mheight >> 1) - 10;
 
 	int xpos1 = x + 10;
-	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("(7/yellow)");
+	int xpos2 = xpos1 + 10 + m_font->getRenderWidth("(7/yellow)");
 	int width2 = width - (xpos2 - xpos1) - 10;
 
 #if 1
@@ -582,7 +589,8 @@ void CMotorControl::showSNR ()
 {
 	if (signalbox == NULL){
 		int xpos1 = x + 10;
-		signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight(), frontend, false);
+		//signalbox = new CSignalBox(xpos1, y + height - mheight - 5, width - 2*(xpos1-x), m_font->getHeight(), frontend, false);
+		signalbox = new CSignalBox(xpos1, y + height - (mheight*2*3)/2 - 5, width - 2*(xpos1-x), (m_font->getHeight()*2*3)/2, frontend, true);
 		signalbox->setColorBody(COL_MENUCONTENT_PLUS_0);
 		signalbox->setTextColor(COL_MENUCONTENT_TEXT);
 		signalbox->doPaintBg(true);

@@ -67,7 +67,7 @@ void CExtendedInput::Init(void)
 
 	width = frameBuffer->getScreenWidth() / 100 * 45;
 
-	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name), true); // UTF-8
+	int tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name)); // UTF-8
 	width = std::max(width, tmp_w + offset);
 
 	bheight = input_h + 2*offset;
@@ -75,13 +75,13 @@ void CExtendedInput::Init(void)
 	{
 		if (hint_1 != NONEXISTANT_LOCALE)
 		{
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1), true);
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1));
 			width = std::max(width, tmp_w + 2*offset);
 			bheight += iheight;
 		}
 		if (hint_2 != NONEXISTANT_LOCALE)
 		{
-			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2), true);
+			tmp_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2));
 			width = std::max(width, tmp_w + 2*offset);
 			bheight += iheight;
 		}
@@ -152,6 +152,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	std::string oldval = *valueString;
 	std::string dispval = *valueString;
 	paint();
+	frameBuffer->blit();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
@@ -266,6 +267,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 				*cancel = true;
 			res = menu_return::RETURN_EXIT_ALL;
 		}
+		frameBuffer->blit();
 	}
 
 	hide();
@@ -283,14 +285,15 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 void CExtendedInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width, height);
+	frameBuffer->blit();
 }
 
 void CExtendedInput::paint()
 {
-	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	CComponentsHeader header(x, y, width, hheight, g_Locale->getText(name));
+	header.paint(CC_SAVE_SCREEN_NO);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ (offset/2), y+ hheight, width- offset, g_Locale->getText(name), COL_MENUHEAD_TEXT, 0, true); // UTF-8
+	frameBuffer->paintBoxRel(x, y + hheight, width, bheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	int tmp_y = y+ hheight+ offset+ input_h+ offset;
 
@@ -299,12 +302,12 @@ void CExtendedInput::paint()
 		if (hint_1 != NONEXISTANT_LOCALE)
 		{
 			tmp_y += iheight;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_1), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_1), COL_MENUCONTENT_TEXT);
 		}
 		if (hint_2 != NONEXISTANT_LOCALE)
 		{
 			tmp_y += iheight;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->RenderString(x+ offset, tmp_y, width- 2*offset, g_Locale->getText(hint_2), COL_MENUCONTENT_TEXT);
 		}
 		tmp_y += offset;
 	}
@@ -605,7 +608,7 @@ CTimeInput::CTimeInput(const neutrino_locale_t Name, std::string* Value, const n
 {
 	valueString = Value;
 	frameBuffer = CFrameBuffer::getInstance();
-#if 0
+#if 1
 	// As nobody else seems to use this class I feel free to make some minor (and mostly backwards-compatible)
 	// adjustments to make it suitable for movieplayer playtime selection ... --martii
 
@@ -689,7 +692,7 @@ void CIntInput::onBeforeExec()
 
 void CIntInput::onAfterExec()
 {
-	*myValue = atoi((*valueString).c_str());
+	*myValue = atoi(*valueString);
 }
 
 //-----------------------------#################################-------------------------------------------------------

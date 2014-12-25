@@ -29,10 +29,11 @@
 #include <driver/framebuffer.h>
 #include <system/localize.h>
 #include <driver/fontrenderer.h>
-
+#include <driver/rcinput.h>
 
 
 class CComponentsForm;
+class CComponentsScrollBar;
 
 ///cc item types
 typedef enum
@@ -60,6 +61,7 @@ typedef enum
 	CC_ITEMTYPE_BUTTON_YELLOW,
 	CC_ITEMTYPE_BUTTON_BLUE,
 	CC_ITEMTYPE_SLIDER,
+	CC_ITEMTYPE_FRM_SCROLLBAR,
 
 	CC_ITEMTYPES
 }CC_ITEMTYPES_T;
@@ -100,6 +102,13 @@ typedef struct comp_screen_data_t
 	int dy;
 	fb_pixel_t* pixbuf;
 } comp_screen_data_struct_t;
+
+//combination of rc messages with related icon
+typedef struct msg_list_t
+{
+	neutrino_msg_t 	msg;
+	const char* 	icon;
+} key_list_t;
 
 //align types
 enum

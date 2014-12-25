@@ -265,10 +265,11 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 	switch (stream_type) {
 	case 0x01:
 	case 0x02:
+	case 0x24:
 	case 0x1b: // AVC Video Stream (MPEG4 H264)
 		channel->setVideoPid(esinfo->getPid());
-		channel->type = (stream_type == 0x1b); //FIXME
-		DBG("vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
+		channel->type = (stream_type == 0x1b) ? 1 : (stream_type == 0x24) ? 2 : 0; //FIXME
+		printf("[pmt] vpid %04x stream %d type %d\n", esinfo->getPid(), stream_type, channel->type);
 		break;
 	case 0x03:
 	case 0x04:

@@ -26,13 +26,16 @@ libneutrino_system_a_SOURCES = \
 	debug.cpp \
 	flashtool.cpp \
 	fsmounter.cpp \
+	hddstat.cpp \
 	httptool.cpp \
 	lastchannel.cpp \
+	luaserver.cpp \
 	localize.cpp \
 	helpers.cpp \
-	ping.c \
+	ping.cpp \
 	settings.cpp \
 	sysload.cpp \
+	ytcache.cpp \
 	ytparser.cpp \
 	setting_helpers.cpp
 #	safe_system.c

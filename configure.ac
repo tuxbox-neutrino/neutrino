@@ -3,6 +3,7 @@ AM_INIT_AUTOMAKE([1.0.1 nostdinc])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
 TUXBOX_APPS
+TUXBOX_APPS_DVB
 TUXBOX_APPS_DIRECTORY
 TUXBOX_APPS_PKGCONFIG
 TUXBOX_BOXTYPE
@@ -116,6 +117,7 @@ PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
 		AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
 	])
 ])
+TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
 #TUXBOX_APPS_LIB_PKGCONFIG(CONNECTION,tuxbox-connection)
@@ -208,9 +210,12 @@ AC_ARG_ENABLE(pip,
 	[AC_DEFINE(ENABLE_PIP,1,[enable picture in picture support])])
 
 
-AM_CONDITIONAL(ENABLE_TEST_MENU,test "$enable_testmenu" = "yes")
-if test "$enable_testmenu" = "yes"; then
-	AC_DEFINE(ENABLE_TEST_MENU,1,[include test menu in neutrino main menu - not recommended for general users!])
+AC_ARG_ENABLE(testing,
+       AS_HELP_STRING(--enable-testing,include devel code parts for neutrino tests))
+
+AM_CONDITIONAL(ENABLE_TESTING,test "$enable_testing" = "yes")
+if test "$enable_testing" = "yes"; then
+	AC_DEFINE(ENABLE_TESTING,1,[include devel code parts for neutrino tests - not recommended for general users!])
 fi
 
 
@@ -274,6 +279,7 @@ lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
 lib/libiw/Makefile
+lib/luaclient/Makefile
 src/lcddisplay/Makefile
 src/nhttpd/Makefile
 src/nhttpd/web/Makefile

@@ -70,6 +70,7 @@ int mycasecmp(const void * a, const void * b)
 CFile::CFile()
   : Size( 0 ), Mode( 0 ), Marked( false ), Time( 0 )
 {
+	Type = -1;
 }
 
 CFile::FileType CFile::getType(void) const
@@ -77,18 +78,20 @@ CFile::FileType CFile::getType(void) const
 	if(S_ISDIR(Mode))
 		return FILE_DIR;
 
-	std::string::size_type ext_pos = Name.rfind('.');
+	if (Type < 0) {
+		Type = (int) FILE_UNKNOWN;
+		std::string::size_type ext_pos = Name.rfind('.');
 
-	if (ext_pos != std::string::npos)
-	{
-		const char * key = &(Name.c_str()[ext_pos + 1]);
+		if (ext_pos != std::string::npos) {
+			const char * key = &(Name.c_str()[ext_pos + 1]);
 
-		void * result = ::bsearch(&key, file_extension_list, sizeof(file_extension_list) / sizeof(const char *), sizeof(const char *), mycasecmp);
-		
-		if (result != NULL)
-			return file_type_list[(const char * *)result - (const char * *)&file_extension_list];
+			void * result = ::bsearch(&key, file_extension_list, sizeof(file_extension_list) / sizeof(const char *), sizeof(const char *), mycasecmp);
+
+			if (result != NULL)
+				Type = (int) file_type_list[(const char * *)result - (const char * *)&file_extension_list];
+		}
 	}
-	return FILE_UNKNOWN;
+	return (CFile::FileType) Type;
 }
 
 //------------------------------------------------------------------------

@@ -60,6 +60,7 @@ class CZapitBouquet
 	void sortBouquetByNumber(void);
 	bool getTvChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
 	bool getRadioChannels(ZapitChannelList &list, int flags = CZapitChannel::PRESENT);
+	bool getChannels(ZapitChannelList &list, bool tv, int flags = CZapitChannel::PRESENT);
 };
 
 typedef vector<CZapitBouquet *> BouquetList;
@@ -122,6 +123,8 @@ class CBouquetManager
 		void deletePosition(t_satellite_position satellitePosition);
 
 		void sortBouquets(void);
+		void setBouquetLock(const unsigned int id, bool state);
+		void setBouquetLock(CZapitBouquet* bouquet, bool state);
 };
 
 /*

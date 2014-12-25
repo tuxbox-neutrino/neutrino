@@ -870,16 +870,6 @@ start-block~neutrino_form-data_pictureviewer
 				<td>{=L:set.pv.start_dir=}</td>
 				<td><input type="text" name="network_nfs_picturedir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_picturedir~cache=}" /></td>
 			</tr>
-		{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-			<tr>
-				<td>{=L:set.pv.decoding_server_ip=}</td>
-				<td><input type="text" name="picviewer_decode_server_ip" size="15" maxlength="15" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_ip~cache=}" /></td>
-			</tr>
-			<tr>
-				<td>{=L:set.pv.decoding_server_port=}</td>
-				<td><input type="text" name="picviewer_decode_server_port" size="5" maxlength="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_port~cache=}" /></td>
-			</tr>
-		=}
 		</table>
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
@@ -916,8 +906,6 @@ start-block~neutrino_pictureviewer_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_scaling;{=picviewer_scaling=}~open=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_slide_time;{=picviewer_slide_time=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_picturedir;{=network_nfs_picturedir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_ip;{=picviewer_decode_server_ip=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_port;{=picviewer_decode_server_port=}~save=}
 end-block~neutrino_pictureviewer_save_settings
 
 # ------- Neutrino form-data: audioplayer -------------------------------

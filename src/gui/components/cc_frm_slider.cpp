@@ -110,7 +110,6 @@ void CComponentsSlider::initCCSlBody()
 
 	if (csl_body_obj){
 		csl_body_obj->setDimensionsAll(icon_x, icon_y, icon_w, icon_h);
-		csl_body_obj->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 	}
 }
 

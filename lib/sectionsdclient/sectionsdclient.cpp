@@ -170,6 +170,14 @@ void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bo
 	close_connection();
 }
 
+void CSectionsdClient::setServiceStopped()
+{
+	send(sectionsd::serviceStopped);
+
+	readResponse();
+	close_connection();
+}
+
 void CSectionsdClient::freeMemory()
 {
 	send(sectionsd::freeMemory);

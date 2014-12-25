@@ -30,6 +30,7 @@
 #define EN_TYPE_AVC		0x04
 #define EN_TYPE_DVBSUB		0x06
 #define EN_TYPE_AUDIO_EAC3	0x07
+#define EN_TYPE_HEVC		0x08
 
 class CGenPsi
 {

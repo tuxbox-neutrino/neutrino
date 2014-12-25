@@ -34,6 +34,7 @@
 
 #define ES_TYPE_MPEG12		0x02
 #define ES_TYPE_AVC		0x1b
+#define ES_TYPE_HEVC		0x24
 #define ES_TYPE_MPA		0x03
 #define ES_TYPE_EAC3		0x7a
 #define ES_TYPE_AC3		0x81
@@ -130,6 +131,10 @@ void CGenPsi::addPid(uint16_t pid, uint16_t pidtype, short isAC3, const char *da
 		case EN_TYPE_AVC:
 			pcrpid=vpid=pid;
 			vtype = ES_TYPE_AVC;
+			break;
+		case EN_TYPE_HEVC:
+			pcrpid=vpid=pid;
+			vtype = ES_TYPE_HEVC;
 			break;
 		case EN_TYPE_PCR:
 			pcrpid=pid;

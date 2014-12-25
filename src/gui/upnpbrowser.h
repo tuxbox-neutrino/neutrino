@@ -59,8 +59,11 @@ struct UPnPEntry
 	std::string	album;
 	std::string	albumArtURI;
 	std::string	children;
+	std::string	proto;
+	std::string	mime;
 	std::vector<UPnPResource> resources;
 	int		preferred;
+	int		type;
 };
 
 class CUpnpBrowserGui : public CMenuTarget
@@ -116,12 +119,12 @@ class CUpnpBrowserGui : public CMenuTarget
 	bool selectItem(std::string);
 	void paintItems(std::vector<UPnPEntry> *entry, unsigned int selected, unsigned int max, unsigned int offset);
 	void paintItem  (std::vector<UPnPEntry> *entry, unsigned int pos, unsigned int selected);
-	void paintItemInfo(std::vector<UPnPEntry> *entry, unsigned int selected);
-	void paintDetails(std::vector<UPnPEntry> *entry, unsigned int index, bool use_playing = false);
+	void paintItemInfo(UPnPEntry *entry);
+	void paintDetails(UPnPEntry *entry, bool use_playing = false);
 	void paintItem2DetailsLine (int pos);
 
 	void updateTimes(const bool force = false);
-	void playAudio(std::string name, std::string mime);
+	void playAudio(std::string name, int type);
 	void showPicture(std::string name);
 	void playVideo(std::string name, std::string url);
 };

@@ -175,7 +175,6 @@ void CVolumeBar::initVolumeBarIcon()
 {
 	vb_icon = new CComponentsPicture(vb_icon_x, 0, vb_icon_w, height, NEUTRINO_ICON_VOLUME);
 
-	vb_icon->setPictureAlign(CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER);
 	vb_icon->setColorBody(col_body);
 	vb_icon->setCorner(cornerRad(), CORNER_LEFT);
 
@@ -188,8 +187,7 @@ void CVolumeBar::initVolumeBarScale()
 {
 	vb_pb = new CProgressBar();
 
-	vb_pb->setInvert();
-	vb_pb->setBlink();
+	vb_pb->setType(CProgressBar::PB_REDRIGHT);
 	vb_pb->setRgb(85, 75, 100);
 	vb_pb->setFrameThickness(2);
 	vb_pb->setProgress(vb_pbx, vb_pby, vb_pbw, vb_pbh, *vb_vol, 100);

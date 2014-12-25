@@ -44,7 +44,6 @@ CBat::CBat(t_satellite_position spos, freq_id_t frq, int dnum)
 	satellitePosition = spos;
 	freq_id = frq;
 	dmxnum = dnum;
-	cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
 }
 
 CBat::~CBat()

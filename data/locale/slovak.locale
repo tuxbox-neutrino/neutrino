@@ -571,7 +571,6 @@ flashupdate.wrongbase Vaša verzia je odlišná.\nPokračovať?
 fontmenu.channellist Zoznam kanálov
 fontmenu.epg EPG
 fontmenu.eventlist Programový sprievodca
-fontmenu.gamelist Zoznam hier
 fontmenu.head Nastavenia písma
 fontmenu.infobar Informačná lišta
 fontmenu.menu Menu
@@ -596,8 +595,6 @@ fontsize.eventlist_itemlarge Veľké EPG
 fontsize.eventlist_itemsmall Malé EPG
 fontsize.eventlist_title Titul EPG
 fontsize.filebrowser_item Položka prehliadača súborov
-fontsize.gamelist_itemlarge Veľký zoznam hier
-fontsize.gamelist_itemsmall Malý zoznam hier
 fontsize.hint Inicializácia písma,\nprosím čakaj...
 fontsize.infobar_channame Názov kanálu
 fontsize.infobar_info Informácia na informačnej lište
@@ -862,7 +859,6 @@ menu.hint_font_gui Výber súboru písma pre GUI
 menu.hint_font_scaling Zvislé a vodorovné nastavenie globálnej mierky písma
 menu.hint_font_ttx Výber písma pre teletext
 menu.hint_fonts Konfigurácia písma GUI
-menu.hint_gamelist_fonts Zmena veľkosti písma zoznamu hier a skriptov
 menu.hint_games Zobrazenie zoznamu inštalovaných hier
 menu.hint_hdd Formátovanie/kontrola pevného disku
 menu.hint_hdd_apply Použitie parametrov uspania/stíšenia

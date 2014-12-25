@@ -316,7 +316,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	std::string timestr;
 	bool have_logos = false;
 
-	if(hh->WebserverConfigList["TUXBOX_LOGOS_URL"] != "" ||hh->WebserverConfigList["ExtrasDocumentRoot"] == "web" || (access((hh->WebserverConfigList["ExtrasDocumentRoot"]+"/logos").c_str(),4)==0) )
+	if(hh->WebserverConfigList["TUXBOX_LOGOS_URL"] != "" ||hh->WebserverConfigList["ExtrasDocumentRoot"] == "web" || (access(hh->WebserverConfigList["ExtrasDocumentRoot"]+"/logos",R_OK)==0) )
 		have_logos = true;
 	CZapitClient::BouquetChannelList::iterator channel = channellist->begin();
 	for (; channel != channellist->end();channel++)

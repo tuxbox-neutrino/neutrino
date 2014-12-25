@@ -114,7 +114,7 @@ void CBEChannelWidget::paintItem(int pos)
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
 	} else {
-		if(current < Channels->size() && ((*Channels)[current]->flags & CZapitChannel::NOT_FOUND ))
+		if(current < Channels->size() && ((*Channels)[current]->flags & CZapitChannel::NOT_PRESENT ))
 			color   = COL_MENUCONTENTINACTIVE_TEXT;// extra color for channels not found in service
 		else
 			color   = COL_MENUCONTENT_TEXT;
@@ -128,11 +128,13 @@ void CBEChannelWidget::paintItem(int pos)
 	}
 	if(current < Channels->size())
 	{
-		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, (*Channels)[current]->getName(), color, 0, true);
+		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, (*Channels)[current]->getName(), color);
 		//FIXME numwidth ? we not show chan numbers
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width- iconoffset- 20, (*Channels)[current]->getName(), color, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width- iconoffset- 20, (*Channels)[current]->getName(), color);
 		if((*Channels)[current]->scrambled)
 			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
+		else if (!(*Channels)[current]->getUrl().empty())
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x+width- 15 - 28, ypos, fheight);
 
 	}
 }
@@ -221,7 +223,7 @@ void CBEChannelWidget::paintDetails(int index)
 void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos1 = y + theight+0 + pos*fheight;
+	int ypos1 = y + theight+0 + pos*iheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
@@ -339,10 +341,10 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveChannel();
 			}
 		}
-		else if (msg==CRCInput::RC_up || msg==(neutrino_msg_t)g_settings.key_channelList_pageup)
+		else if (msg==CRCInput::RC_up || msg==(neutrino_msg_t)g_settings.key_pageup)
 		{
 			if (!(Channels->empty())) {
-                                int step = (msg == (neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+                                int step = (msg == (neutrino_msg_t)g_settings.key_pageup) ? listmaxshow : 1;  // browse or step 1
                                 int new_selected = selected - step;
 
                                 if (new_selected < 0) {
@@ -354,10 +356,10 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
                                 updateSelection(new_selected);
 			}
 		}
-		else if (msg==CRCInput::RC_down || msg==(neutrino_msg_t)g_settings.key_channelList_pagedown)
+		else if (msg==CRCInput::RC_down || msg==(neutrino_msg_t)g_settings.key_pagedown)
 		{
                         if (!(Channels->empty())) {
-                                int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+                                int step =  ((int) msg == g_settings.key_pagedown) ? listmaxshow : 1;  // browse or step 1
                                 int new_selected = selected + step;
                                 if (new_selected >= (int) Channels->size()) {
                                         if ((Channels->size() - listmaxshow -1 < selected) && (selected != (Channels->size() - 1)) && (step != 1))
@@ -464,7 +466,7 @@ void CBEChannelWidget::deleteChannel()
 
 void CBEChannelWidget::addChannel()
 {
-	CBEChannelSelectWidget* channelSelectWidget = new CBEChannelSelectWidget(caption, bouquet, mode);
+	CBEChannelSelectWidget* channelSelectWidget = new CBEChannelSelectWidget(caption, g_bouquetManager->Bouquets[bouquet], mode);
 
 	channelSelectWidget->exec(this, "");
 	if (channelSelectWidget->hasChanged())

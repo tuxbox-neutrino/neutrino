@@ -64,7 +64,7 @@ public:
 
 
 
-CKeyChooser::CKeyChooser(int * const Key, const neutrino_locale_t title, const std::string & Icon) : CMenuWidget(title, Icon)
+CKeyChooser::CKeyChooser(unsigned int * const Key, const neutrino_locale_t title, const std::string & Icon) : CMenuWidget(title, Icon)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	key = Key;
@@ -76,7 +76,7 @@ CKeyChooser::CKeyChooser(int * const Key, const neutrino_locale_t title, const s
 	addItem(GenericMenuSeparatorLine);
 	addItem(GenericMenuBack);
 	addItem(GenericMenuSeparatorLine);
-	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNEW , true, NULL, keyChooser));
+	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNEW, true, NULL, keyChooser));
 	addItem(new CMenuForwarder(LOCALE_KEYCHOOSERMENU_SETNONE, true, NULL, keyDeleter));
 }
 
@@ -96,7 +96,7 @@ void CKeyChooser::paint()
 }
 
 //*****************************
-CKeyChooserItem::CKeyChooserItem(const neutrino_locale_t Name, int * Key)
+CKeyChooserItem::CKeyChooserItem(const neutrino_locale_t Name, unsigned int * Key)
 {
 	name = Name;
 	key = Key;
@@ -117,7 +117,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 		parent->hide();
 
 	paint();
-
+	CFrameBuffer::getInstance()->blit();
 	g_RCInput->clearRCMsg();
 	g_RCInput->setLongPressAny(true);
 
@@ -147,6 +147,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 void CKeyChooserItem::hide()
 {
 	CFrameBuffer::getInstance()->paintBackgroundBoxRel(x, y, width, height);
+	CFrameBuffer::getInstance()->blit();
 }
 
 void CKeyChooserItem::paint()
@@ -157,11 +158,11 @@ void CKeyChooserItem::paint()
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 
 	int tmp;
-	width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name), true);
-	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT1), true);
+	width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(name));
+	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT1));
 	if (tmp > width)
 		width = tmp;
-	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT2), true);
+	tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_KEYCHOOSER_TEXT2));
 	if (tmp > width)
 		width = tmp;
 	width += 20;
@@ -172,12 +173,12 @@ void CKeyChooserItem::paint()
 
 	//frameBuffer->paintBoxRel(x, y          , width, hheight         , COL_MENUHEAD_PLUS_0   );
 	//frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, y          , width, hheight         , COL_MENUHEAD_PLUS_0   , RADIUS_LARGE, CORNER_TOP);//round
 	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+ 10, y+ hheight, width, g_Locale->getText(name), COL_MENUHEAD_TEXT, 0, true); // UTF-8
+	CComponentsHeader header(x, y, width, hheight, g_Locale->getText(name));
+	header.paint(CC_SAVE_SCREEN_NO);
 
 	//paint msg...
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, y+ hheight+ mheight, width, g_Locale->getText(LOCALE_KEYCHOOSER_TEXT1), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, y+ hheight+ mheight* 2, width, g_Locale->getText(LOCALE_KEYCHOOSER_TEXT2), COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, y+ hheight+ mheight, width, g_Locale->getText(LOCALE_KEYCHOOSER_TEXT1), COL_MENUCONTENT_TEXT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, y+ hheight+ mheight* 2, width, g_Locale->getText(LOCALE_KEYCHOOSER_TEXT2), COL_MENUCONTENT_TEXT);
 }

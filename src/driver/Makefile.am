@@ -22,6 +22,7 @@ libneutrino_driver_a_SOURCES = \
 	audiofile.cpp \
 	audiometadata.cpp \
 	audioplay.cpp \
+	colorgradient.cpp \
 	fade.cpp \
 	fb_window.cpp \
 	fbaccel.cpp \
@@ -34,7 +35,6 @@ libneutrino_driver_a_SOURCES = \
 	radiotools.cpp \
 	rcinput.cpp \
 	record.cpp \
-	ringbuffer.c \
 	scanepg.cpp \
 	screen_max.cpp \
 	screenshot.cpp \

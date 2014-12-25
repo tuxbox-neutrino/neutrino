@@ -110,6 +110,7 @@ install_DATA += \
 	hint_osd.png \
 	hint_personalize.png \
 	hint_picview.png \
+	hint_plugin.png \
 	hint_protection.png \
 	hint_radiomode.png \
 	hint_reboot.png \
@@ -136,6 +137,7 @@ install_DATA += \
 	icon_movieplayer.png \
 	icon_red.png \
 	icon_yellow.png \
+	icon_ytplay.png \
 	important.png \
 	info.png \
 	info_small.png \
@@ -159,6 +161,8 @@ install_DATA += \
 	mp_f-skip.png \
 	mp_pause.png \
 	mp_play.png \
+	mp_play_repeat_all.png \
+	mp_play_repeat_track.png \
 	mp3.jpg \
 	mp3.png \
 	mp3-0.jpg \

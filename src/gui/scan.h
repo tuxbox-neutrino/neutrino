@@ -57,7 +57,6 @@ class CScanTs : public CMenuTarget
 		int ypos_cur_satellite;
 		int ypos_transponder;
 		int ypos_frequency;
-		int xpos_frequency;
 		int ypos_provider;
 		int ypos_channel;
 		int ypos_service_numbers;
@@ -74,16 +73,15 @@ class CScanTs : public CMenuTarget
 		void paintRadar(void);
 		neutrino_msg_t handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data);
 		int greater_xpos(int xpos, const neutrino_locale_t txt);
-		bool freqready;
 		void showSNR();
 		void testFunc();
 		void prev_next_TP(bool);
 		TP_params TP;
-		int deltype;
+		delivery_system_t delsys;
 		std::string pname;
 
 	public:
-		CScanTs(int dtype = FE_QPSK);
+		CScanTs(delivery_system_t DelSys);
 		~CScanTs();
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);

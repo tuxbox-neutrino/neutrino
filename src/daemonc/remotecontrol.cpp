@@ -40,6 +40,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/infoviewer.h>
+#include <gui/movieplayer.h>
 
 #include <driver/record.h>
 #include <driver/abstime.h>
@@ -97,6 +98,7 @@ CRemoteControl::CRemoteControl()
 	current_channel_id = 	CZapit::getInstance()->GetCurrentChannelID();;
 	current_sub_channel_id = 0;
 	current_channel_name = 	"";
+	current_channel_num = -1;
 
 	zap_completion_timeout = 0;
 
@@ -123,6 +125,9 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 //printf("[neutrino] timeout EVT_ZAP current %llx data %llx\n", current_channel_id, *(t_channel_id *)data);
 			if ((*(t_channel_id *)data) != current_channel_id) {
 				g_InfoViewer->chanready = 0;
+				if (!IS_WEBTV(current_channel_id))
+					g_Sectionsd->setServiceStopped();
+				CMoviePlayerGui::getInstance().stopPlayBack();
 				g_Zapit->zapTo_serviceID_NOWAIT(current_channel_id );
 				//g_Sectionsd->setServiceChanged(current_channel_id, false);
 
@@ -152,10 +157,11 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				is_video_started = true;
 				if (channel) {
 					current_channel_name = channel->getName();
-					if (channel->bAlwaysLocked != g_settings.parentallock_defaultlocked)
+					current_channel_num = channel->number;
+					if (channel->Locked() != g_settings.parentallock_defaultlocked)
 						stopvideo();
 				}
-				CVFD::getInstance()->showServicename(current_channel_name); // UTF-8
+				CVFD::getInstance()->showServicename(current_channel_name, current_channel_num); // UTF-8
 				current_channel_id = new_id;
 
 				current_EPGid = 0;
@@ -172,7 +178,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				needs_nvods = (msg == NeutrinoMessages:: EVT_ZAP_ISNVOD);
 
 				//g_Sectionsd->setServiceChanged( current_channel_id, true );
-				CNeutrinoApp::getInstance()->channelList->adjustToChannelID(current_channel_id);
+				CNeutrinoApp::getInstance()->adjustToChannelID(current_channel_id);
 				if ( g_InfoViewer->is_visible )
 					g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR , 0 );
 			}
@@ -276,7 +282,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 
 		if ((*(t_channel_id *)data) == ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) ? current_channel_id : current_sub_channel_id))
 		{
-			CVFD::getInstance()->showServicename(current_channel_name); // UTF-8
+			CVFD::getInstance()->showServicename(current_channel_name, current_channel_num); // UTF-8
 			g_Zapit->getPIDS( current_PIDs );
 			//tuxtxt
 #if 1
@@ -305,7 +311,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 		if ((*(t_channel_id *)data) == current_channel_id)
 		{
 			needs_nvods = true;
-			CVFD::getInstance()->showServicename(std::string("[") + current_channel_name + ']'); // UTF-8
+			CVFD::getInstance()->showServicename(std::string("[") + current_channel_name + ']', current_channel_num); // UTF-8
 			if ( current_EPGid != 0)
 			{
 				getNVODs();
@@ -334,10 +340,12 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 	else if (msg == NeutrinoMessages::EVT_TUNE_COMPLETE) {
 		t_channel_id chid = *(t_channel_id *)data;
 printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016" PRIx64 ")\n", chid);
-		if(chid)
+		if(chid && !IS_WEBTV(chid))
 			g_Sectionsd->setServiceChanged( chid, true );
+#if 0
 		else
 			g_Sectionsd->setServiceChanged( current_channel_id, true );
+#endif
  		return messages_return::handled;
 	}
 	//else if (msg == NeutrinoMessages::EVT_ZAP_FAILED || msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED)
@@ -543,7 +551,7 @@ void CRemoteControl::processAPIDnames()
 									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (AAC)"))
 									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
-								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (EAC3)"))
+								else if (current_PIDs.APIDs[j].is_eac3 &&  !strstr(current_PIDs.APIDs[j].desc, " (EAC3)"))
 									strncat(current_PIDs.APIDs[j].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 							}
 							current_PIDs.APIDs[j].component_tag = -1;
@@ -613,6 +621,7 @@ const std::string & CRemoteControl::setSubChannel(const int numSub, const bool f
 	g_InfoViewer->chanready = 0;
 	g_RCInput->killTimer(scrambled_timer);
 
+	CMoviePlayerGui::getInstance().stopPlayBack();
 	g_Zapit->zapTo_subServiceID_NOWAIT( current_sub_channel_id );
 	// Houdini: to restart reading the private EPG when switching to a new option
 	//g_Sectionsd->setServiceChanged( current_sub_channel_id , true );
@@ -659,10 +668,11 @@ const std::string & CRemoteControl::subChannelDown(void)
   	}
 }
 
-void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::string & channame, const bool start_video) // UTF-8
+void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::string & channame, int channum, const bool start_video) // UTF-8
 {
 	current_channel_id = channel_id;
 	current_channel_name = channame;
+	current_channel_num = channum;
 //printf("zapTo_ChannelID: start_video: %d\n", start_video);
 	if (start_video)
 		startvideo();
@@ -693,6 +703,9 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		g_RCInput->killTimer(scrambled_timer);
 		//dvbsub_pause(true);
 		CZapit::getInstance()->Abort();
+		if (!IS_WEBTV(channel_id))
+			g_Sectionsd->setServiceStopped();
+		CMoviePlayerGui::getInstance().stopPlayBack();
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 
 		zap_completion_timeout = now + ZAP_GUARD_TIME;
@@ -732,5 +745,6 @@ void CRemoteControl::radioMode()
 
 void CRemoteControl::tvMode()
 {
+printf("CRemoteControl::tvMode\n");
 	g_Zapit->setMode( CZapitClient::MODE_TV );
 }

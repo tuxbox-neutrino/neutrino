@@ -140,8 +140,8 @@ CListFrame::CListFrame(	LF_LINES* lines)
 	//TRACE("[CListFrame] new\r\n");
 	initVar();
 
- 	if(lines != NULL)
- 	{
+	if(lines != NULL)
+	{
 		m_pLines = lines;
 		m_nNrOfRows = lines->rows;
 		if(m_nNrOfRows > LF_MAX_ROWS)
@@ -327,6 +327,8 @@ void CListFrame::onNewLineArray(void)
 		if(m_nCurrentLine >= m_nNrOfLines)
 		{
 			m_nCurrentPage = m_nNrOfPages - 1;
+			if (m_nCurrentPage < 0)
+				m_nCurrentPage = 0;
 			m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 		}
 		if(m_nSelectedLine >= m_nNrOfLines)
@@ -363,7 +365,7 @@ void CListFrame::refreshTitle(void)
 	m_pcFontTitle->RenderString(m_cFrameTitleRel.iX + TEXT_BORDER_WIDTH + m_cFrame.iX,
 			m_cFrameTitleRel.iY + m_cFrameTitleRel.iHeight + m_cFrame.iY,
 			m_cFrameTitleRel.iWidth - (TEXT_BORDER_WIDTH << 1),
-			m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
+			m_textTitle.c_str(), TITLE_FONT_COLOR);
 }
 
 void CListFrame::refreshScroll(void)
@@ -413,43 +415,11 @@ void CListFrame::refreshList(void)
 	if(  m_nNrOfLines <= 0)
 		return;
 
-	int y = m_cFrameListRel.iY + TEXT_BORDER_WIDTH ;
 	for(int line = m_nCurrentLine;
 			line < m_nNrOfLines && line < m_nCurrentLine + m_nLinesPerPage;
 			line++)
 	{
-		uint32_t color = LIST_FONT_COLOR;
-		// draw line
-		if(line == m_nSelectedLine && m_showSelection == true)
-		{
-			color = LIST_FONT_COLOR_SELECTED;
-			frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX,
-					y+m_cFrame.iY, m_cFrameListRel.iWidth,
-					m_nFontListHeight,  LIST_BACKGROUND_COLOR_SELECTED,
-					RADIUS_LARGE);
-		}
-		int width;
-		int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
-		y += m_nFontListHeight;
-
-		int xDiff = paintListIcon(x, y, line);
-
-		int net_width = m_cFrameListRel.iWidth - ROW_BORDER_WIDTH * (m_pLines->rows - 1);
-		for(int row = 0; row < m_pLines->rows; row++)
-		{
-			width = m_pLines->rowWidth[row] * net_width / 100 ;
-			if(width > m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH)
-			{
-				width = m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH;
-				//TRACE("   normalize width to %d , x:%d \r\n",width,x);
-			}
-			if (row > 0)
-				xDiff = 0;
-			m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
-					width-xDiff, m_pLines->lineArray[row][line].c_str(),
-					color, 0, true); // UTF-8
-			x += width + ROW_BORDER_WIDTH;
-		}
+		refreshLine(line);
 	}
 }
 
@@ -458,26 +428,34 @@ void CListFrame::refreshLine(int line)
 	if( frameBuffer == NULL) return;
 	if( m_nNrOfLines <= 0) return;
 
+	//TRACE("[CListFrame]->refreshLine: %d\r\n", line);
 	if((line < m_nCurrentLine) && (line > m_nCurrentLine + m_nLinesPerPage))
 		return;
 
-	uint32_t color;
+	uint32_t color, bgcolor;
 	int rel_line = line - m_nCurrentLine;
 	int y = m_cFrameListRel.iY + TEXT_BORDER_WIDTH + (rel_line*m_nFontListHeight);
+	int radius = 0;
 
+	bool marked = (!m_pLines->marked.empty() && m_pLines->marked[line]);
 	if(line == m_nSelectedLine && m_showSelection == true)
 	{
-		color = LIST_FONT_COLOR_SELECTED;
-		frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
-				m_cFrameListRel.iWidth, m_nFontListHeight, LIST_BACKGROUND_COLOR_SELECTED,
-				RADIUS_LARGE);
+		color = marked ? COL_MENUCONTENTINACTIVE_TEXT : LIST_FONT_COLOR_SELECTED;
+		bgcolor = marked ? COL_MENUCONTENTSELECTED_PLUS_2 : LIST_BACKGROUND_COLOR_SELECTED;
+		radius = RADIUS_LARGE;
+	}
+	else if (marked) {
+		color   = COL_MENUCONTENT_TEXT;
+		bgcolor = COL_MENUCONTENT_PLUS_2;
 	}
 	else
 	{
 		color = LIST_FONT_COLOR;
-		frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
-				m_cFrameListRel.iWidth, m_nFontListHeight, LIST_BACKGROUND_COLOR);
+		bgcolor = LIST_BACKGROUND_COLOR;
 	}
+	frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
+			m_cFrameListRel.iWidth, m_nFontListHeight, bgcolor, radius);
+
 	int width;
 	int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
 	y += m_nFontListHeight;
@@ -488,12 +466,12 @@ void CListFrame::refreshLine(int line)
 	for(int row = 0; row < m_pLines->rows; row++)
 	{
 		width = std::min(m_pLines->rowWidth[row] * net_width / 100,
-				 m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH);
+				m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH);
 		if (row > 0)
 			xDiff = 0;
 		m_pcFontList->RenderString(x+m_cFrame.iX+xDiff, y+m_cFrame.iY,
 				width-xDiff, m_pLines->lineArray[row][line].c_str(),
-				color, 0, true); // UTF-8
+				color);
 		x += width + ROW_BORDER_WIDTH;
 	}
 }
@@ -523,7 +501,7 @@ void CListFrame::refreshHeaderList(void)
 		}
 		m_pcFontHeaderList->RenderString(x+m_cFrame.iX, y+m_cFrame.iY,
 				width, m_pLines->lineHeader[row].c_str(),
-				HEADER_LIST_FONT_COLOR, 0, true); // UTF-8
+				HEADER_LIST_FONT_COLOR);
 		x += width + ROW_BORDER_WIDTH;
 	}
 }
@@ -535,21 +513,7 @@ void CListFrame::scrollLineDown(const int lines)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	if(m_nSelectedLine < m_nNrOfLines - 1) {
-		m_nSelectedLine++;
-		// check if the cursor moves out of the window
-		if(m_nSelectedLine - m_nCurrentLine > m_nLinesPerPage-1) {
-			// yes, scroll to next page
-			//TRACE("[CListFrame]  m_nSelectedLine: %d, \r\n",m_nSelectedLine);
-			scrollPageDown(1);
-		} else {
-			refreshLine(m_nSelectedLine-lines);
-			refreshLine(m_nSelectedLine);
-		}
-	} else {
-		setSelectedLine(0);
-	}
-
+	setSelectedLine((m_nSelectedLine + lines) % m_nNrOfLines);
 }
 
 void CListFrame::scrollLineUp(const int lines)
@@ -558,20 +522,7 @@ void CListFrame::scrollLineUp(const int lines)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	if(m_nSelectedLine > 0) {
-		m_nSelectedLine--;
-		// check if the cursor moves out of the window
-		if(m_nSelectedLine < m_nCurrentLine ) {
-			// yes, scroll to next page
-			//TRACE("[CListFrame]  m_nSelectedLine: %d, \r\n",m_nSelectedLine);
-			scrollPageUp(1);
-		} else {
-			refreshLine(m_nSelectedLine+lines);
-			refreshLine(m_nSelectedLine);
-		}
-	} else if(m_nSelectedLine == 0) {
-		setSelectedLine(m_nNrOfLines - 1);
-	}
+	setSelectedLine((m_nSelectedLine - lines + m_nNrOfLines) % m_nNrOfLines);
 }
 
 void CListFrame::scrollPageDown(const int pages)
@@ -582,20 +533,12 @@ void CListFrame::scrollPageDown(const int pages)
 	if( m_nNrOfLines <= 1) return;
 
 	if(m_nCurrentPage + pages < m_nNrOfPages)
-	{
-		m_nCurrentPage += pages;
-	}
+		setSelectedLine(m_nSelectedLine + pages * m_nLinesPerPage);
+	else if (m_nSelectedLine == m_nNrOfLines - 1)
+		setSelectedLine(0);
 	else
-	{
-		m_nCurrentPage = m_nNrOfPages - 1;
-	}
-	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-	if(m_nSelectedLine < m_nCurrentLine || m_nSelectedLine -m_nCurrentLine >= m_nLinesPerPage )
-	{
-		m_nSelectedLine = m_nCurrentLine;
-	}
+		setSelectedLine(m_nNrOfLines - 1);
 	//TRACE("[CListFrame]  m_nCurrentLine: %d, m_nCurrentPage: %d \r\n",m_nCurrentLine,m_nCurrentPage);
-	refresh();
 }
 
 void CListFrame::scrollPageUp(const int pages)
@@ -605,21 +548,14 @@ void CListFrame::scrollPageUp(const int pages)
 	if( !(m_nMode & SCROLL)) return;
 	if( m_nNrOfLines <= 1) return;
 
-	if(m_nCurrentPage - pages > 0)
-	{
-		m_nCurrentPage -= pages;
-	}
+	if(m_nCurrentPage - pages >= 0)
+		setSelectedLine(m_nSelectedLine - pages * m_nLinesPerPage);
+	else if (m_nSelectedLine == 0)
+		setSelectedLine(m_nNrOfLines - 1);
 	else
-	{
-		m_nCurrentPage = 0;
-	}
-	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
-	if(m_nSelectedLine < m_nCurrentLine || m_nSelectedLine - m_nCurrentLine >= m_nLinesPerPage )
-	{
-		m_nSelectedLine = m_nCurrentLine;
-	}
+		setSelectedLine(0);
+
 	//TRACE("[CListFrame]  m_nCurrentLine: %d, m_nCurrentPage: %d \r\n",m_nCurrentLine,m_nCurrentPage);
-	refresh();
 }
 
 void CListFrame::refresh(void)
@@ -666,18 +602,36 @@ bool CListFrame::setSelectedLine(int selection)
 {
 	//TRACE("[CListFrame]->setSelectedLine %d \r\n",selection);
 	bool result = false;
-	if(selection >= 0 && selection < m_nNrOfLines)
-	{
-		m_nSelectedLine = selection;
-		m_nCurrentPage =  selection / m_nLinesPerPage;
-		m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
+	if (selection >= m_nNrOfLines)
+		selection = m_nNrOfLines - 1;
+	if (selection < 0)
+		selection = 0;
+
+	int old_page = m_nCurrentPage;
+	int old_selected = m_nSelectedLine;
+	m_nSelectedLine = selection;
+	m_nCurrentPage =  selection / m_nLinesPerPage;
+	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
+	if (m_nCurrentPage != old_page) {
 		refreshList();
-		refreshScroll();  //NEW
-		result = true;
-		//TRACE(" selected line: %d,%d,%d \r\n",m_nSelectedLine,m_nCurrentPage,m_nCurrentLine);
+		refreshScroll();
+	} else {
+		refreshLine(old_selected);
+		refreshLine(m_nSelectedLine);
 	}
 
+	result = true;
+	//TRACE(" selected line: %d,%d,%d \r\n",m_nSelectedLine,m_nCurrentPage,m_nCurrentLine);
+
 	return (result);
+}
+
+void CListFrame::setSelectedMarked(bool enable)
+{
+	if (!m_pLines->marked.empty() && m_nSelectedLine < (int) m_pLines->marked.size()) {
+		m_pLines->marked[m_nSelectedLine] = enable;
+		refreshLine(m_nSelectedLine);
+	}
 }
 
 void CListFrame::hide(void)

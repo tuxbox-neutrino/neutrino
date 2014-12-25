@@ -117,6 +117,11 @@ class CZapitChannel
 	private:
 		/* channel name */
 		std::string name;
+		std::string uname;
+
+		/* WebTV */
+		std::string url;
+		std::string desc;
 
 		/* pids of this channel */
 		std::vector <CZapitAbsSub* > channelSubs;
@@ -173,12 +178,14 @@ class CZapitChannel
 			UPDATED		= 0x04,
 			NOT_FOUND	= 0x08,
 			PRESENT		= 0x05, // NEW + UPDATED
+			NOT_PRESENT	= 0x0A, // REMOVED + NOT_FOUND
 			FASTSCAN	= 0x10,
 			ANY		= 0xFF
 		} channel_flags_t;
 		casys_map_t			camap;
 
-		bool				bAlwaysLocked;
+		unsigned int			bLockCount;
+		bool				bLocked;
 
 		int				number;
 		CChannelEvent			currentEvent,nextEvent;
@@ -189,11 +196,12 @@ class CZapitChannel
 		bool				has_bouquet;
 		uint8_t				polarization;
 		int				flags;
-		int				deltype;
+		delivery_system_t		delsys;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
 		CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq);
+		CZapitChannel(const char *p_name, t_channel_id p_channel_id, const char *p_url, const char *p_desc);
 		~CZapitChannel(void);
 
 		/* get methods - read only variables */
@@ -208,7 +216,9 @@ class CZapitChannel
 
 
 		/* get methods - read and write variables */
-		const std::string&	getName(void)			const { return name; }
+		const std::string&	getName(void)			const { return (!uname.empty() ? uname : name); }
+		const std::string&	getUrl(void)			const { return url; }
+		const std::string&	getDesc(void)			const { return desc; }
 		t_satellite_position	getSatellitePosition(void)	const { return satellitePosition; }
 		unsigned char 		getAudioChannelCount(void)	{ return (unsigned char) audioChannels.size(); }
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
@@ -231,7 +241,8 @@ class CZapitChannel
 
 		/* set methods */
 		void setServiceType(const unsigned char pserviceType)	{ serviceType = pserviceType; }
-		inline void setName(const std::string pName)            { name = pName; }
+		inline void setName(const std::string &pName)            { name = pName; }
+		inline void setUserName(const std::string &pName)            { uname = pName; }
 		void setAudioChannel(unsigned char pAudioChannel)	{ if (pAudioChannel < audioChannels.size()) currentAudioChannel = pAudioChannel; }
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
@@ -267,6 +278,7 @@ class CZapitChannel
 		{
 			return (((uint64_t)(sat+freq*4) << 48) | ((uint64_t) tsid << 32) | ((uint64_t)onid << 16) | (uint64_t)sid);
 		};
+		bool Locked() { return (bLocked || !!bLockCount); }
 };
 
 struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>

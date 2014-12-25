@@ -36,12 +36,12 @@ class COSDFader
 		CFrameBuffer            *frameBuffer;
 	public:
 		COSDFader(unsigned char &alpha);
-		~COSDFader();
+		virtual ~COSDFader();
 
 		void StartFadeIn();
 		bool StartFadeOut();
-		void Stop();
-		bool Fade();
-		uint32_t GetTimer() { return fadeTimer; };
+		void StopFade();
+		bool FadeDone();
+		uint32_t GetFadeTimer() { return fadeTimer; };
 };
 #endif

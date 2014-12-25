@@ -35,6 +35,7 @@
 
 #include <gui/widget/menue.h>
 #include <driver/framebuffer.h>
+#include <driver/fontrenderer.h>
 #include <string>
 
 class CDBoxInfoWidget : public CMenuTarget
@@ -53,6 +54,8 @@ class CDBoxInfoWidget : public CMenuTarget
 		int nameWidth;
 
 		void paint();
+
+		Font *fm, *ft;
 
 	public:
 

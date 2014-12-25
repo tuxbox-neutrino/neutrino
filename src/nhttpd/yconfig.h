@@ -61,14 +61,15 @@
 #define Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL y	// Add Feature: every file can be accessed (use carefully: security!!)
 //#define Y_CONFIG_FEATURE_CHROOT y				// Add Feature: Use Change Root for Security
 //#define Y_CONFIG_FEATURE_HTTPD_USER y			// Add Feature: Set User for yhttpd-Process
-#define Y_CONFIG_BUILD_AS_DAEMON y				// Build as a Daemon with possibility for multi threading
+#define Y_CONFIG_BUILD_AS_DAEMON y				// Build as a Daemon
+#define Y_CONFIG_FEATURE_THREADING y				// Build with possibility for multi threading
 //-----------------------------------------------------------------------------
 // Define/Undefine Features forced by CONFIG_SYSTEM_xxx
 // Dependencies
 //-----------------------------------------------------------------------------
-#ifdef Y_CONFIG_USE_OPEN_SSL
-#undef Y_CONFIG_HAVE_SENDFILE					// Sendfile does not work for SSL
-#endif
+//#ifdef Y_CONFIG_USE_OPEN_SSL
+//#undef Y_CONFIG_HAVE_SENDFILE					// Sendfile does not work for SSL, but we'll fallback to send
+//#endif
 
 #if defined(CONFIG_SYSTEM_TUXBOX) || defined(CONFIG_SYSTEM_TUXBOX_COOLSTREAM)
 #define Y_CONFIG_FEATURE_UPLOAD y
@@ -98,7 +99,7 @@
 #define UPLOAD_TMP_FILE 				"/tmp/upload.tmp"
 #define CACHE_DIR						"/tmp/.cache"
 #define HTTPD_ERRORPAGE					"/Y_ErrorPage.yhtm"
-#define HTTPD_SENDFILE_EXT				"htm:text/html,html:text/html,xml:text/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/bmp,css:text/css,js:text/plain,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:application/octet-stream,tar:application/octet-stream,gz:text/x-gzip,ts:application/octet-stream"
+#define HTTPD_SENDFILE_EXT				"htm:text/html,html:text/html,xml:text/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/bmp,css:text/css,js:text/plain,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:application/octet-stream,tar:application/octet-stream,gz:text/x-gzip,ts:video/MP2T,mkv:video/x-matroska,avi:video/avi,mp3:audio/mpeg,ogg:audio/ogg"
 #define HTTPD_SENDFILE_ALL				"false"
 #define HTTPD_LANGUAGEDIR 				"languages"
 #define HTTPD_DEFAULT_LANGUAGE 			"English"

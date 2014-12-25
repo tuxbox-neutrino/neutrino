@@ -51,7 +51,6 @@
 #include <driver/screen_max.h>
 #include <driver/scanepg.h>
 
-#include <system/debug.h>
 #include <zapit/femanager.h>
 #include <eitd/sectionsd.h>
 
@@ -91,28 +90,6 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 		if(chooserDir(g_settings.plugin_hdd_dir, false, action_str))
 			g_PluginList->loadPlugins();
 
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "onekey_plugin")
-	{
-		CMenuWidget OneKeyPluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES);
-		OneKeyPluginSelector.addItem(GenericMenuSeparator);
-
-		char id[5];
-		int cnt = 0;
-		int enabled_count = 0;
-		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++)
-		{
-			if (!g_PluginList->isHidden(count))
-			{
-				sprintf(id, "%d", count);
-				enabled_count++;
-				OneKeyPluginSelector.addItem(new CMenuForwarder(g_PluginList->getName(count), true, NULL, new COnekeyPluginChangeExec(), id, CRCInput::convertDigitToKey(count)), (cnt == 0));
-				cnt++;
-			}
-		}
-
-		OneKeyPluginSelector.exec(NULL, "");
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "movieplayer_plugin")
@@ -203,7 +180,6 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 
 const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
 {
-	{ CEpgScan::SCAN_OFF,     LOCALE_OPTIONS_OFF },
 	{ CEpgScan::SCAN_CURRENT, LOCALE_MISCSETTINGS_EPG_SCAN_BQ },
 	{ CEpgScan::SCAN_FAV,     LOCALE_MISCSETTINGS_EPG_SCAN_FAV },
 	{ CEpgScan::SCAN_SEL,     LOCALE_MISCSETTINGS_EPG_SCAN_SEL },
@@ -212,8 +188,9 @@ const CMenuOptionChooser::keyval EPG_SCAN_OPTIONS[] =
 
 const CMenuOptionChooser::keyval EPG_SCAN_MODE_OPTIONS[] =
 {
-	{ CEpgScan::MODE_LIVE,     LOCALE_MISCSETTINGS_EPG_SCAN_LIVE },
+	{ CEpgScan::MODE_OFF,      LOCALE_OPTIONS_OFF },
 	{ CEpgScan::MODE_STANDBY,  LOCALE_MISCSETTINGS_EPG_SCAN_STANDBY },
+	{ CEpgScan::MODE_LIVE,     LOCALE_MISCSETTINGS_EPG_SCAN_LIVE },
 	{ CEpgScan::MODE_ALWAYS,   LOCALE_MISCSETTINGS_EPG_SCAN_ALWAYS }
 };
 #define EPG_SCAN_MODE_OPTION_COUNT (sizeof(EPG_SCAN_MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
@@ -242,14 +219,14 @@ int CMiscMenue::showMiscSettingsMenu()
 	//general
 	CMenuWidget misc_menue_general(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_GENERAL);
 	showMiscSettingsMenuGeneral(&misc_menue_general);
-	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, &misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, &misc_menue_general, NULL, CRCInput::RC_red);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_GENERAL);
 	misc_menue.addItem(mf);
 
 	//energy, shutdown
 	if (g_info.hw_caps->can_shutdown)
 	{
-		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, this, "energy", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf = new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, this, "energy", CRCInput::RC_green);
 		mf->setHint("", LOCALE_MENU_HINT_MISC_ENERGY);
 		misc_menue.addItem(mf);
 	}
@@ -257,14 +234,14 @@ int CMiscMenue::showMiscSettingsMenu()
 	//epg
 	CMenuWidget misc_menue_epg(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_EPG);
 	showMiscSettingsMenuEpg(&misc_menue_epg);
-	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, &misc_menue_epg, NULL, CRCInput::RC_yellow,NEUTRINO_ICON_BUTTON_YELLOW);
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, &misc_menue_epg, NULL, CRCInput::RC_yellow);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_EPG);
 	misc_menue.addItem(mf);
 
 	//filebrowser settings
 	CMenuWidget misc_menue_fbrowser(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_FILEBROWSER);
 	showMiscSettingsMenuFBrowser(&misc_menue_fbrowser);
-	mf = new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, &misc_menue_fbrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf = new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, &misc_menue_fbrowser, NULL, CRCInput::RC_blue);
 	mf->setHint("", LOCALE_MENU_HINT_MISC_FILEBROWSER);
 	misc_menue.addItem(mf);
 
@@ -304,18 +281,10 @@ int CMiscMenue::showMiscSettingsMenu()
 
 	int res = misc_menue.exec(NULL, "");
 
-	g_settings.epg_cache = atoi(epg_cache.c_str());
-	g_settings.epg_extendedcache = atoi(epg_extendedcache.c_str());
-	g_settings.epg_old_events = atoi(epg_old_events.c_str());
-	g_settings.epg_max_events = atoi(epg_max_events.c_str());
-
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
-#if 0
-	if (miscNotifier)
-		delete miscNotifier;
-#endif
 	delete miscEpgNotifier;
+	delete miscEpgScanNotifier;
 	return res;
 }
 
@@ -343,7 +312,7 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//fan speed
 	if (g_info.has_fan)
 	{
-		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF);
+		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
 		ms_general->addItem(mn);
 	}
@@ -352,10 +321,6 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir");
 	mf->setHint("", LOCALE_MENU_HINT_PLUGINS_HDD_DIR);
-	ms_general->addItem(mf);
-
-	mf = new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin, this, "onekey_plugin");
-	mf->setHint("", LOCALE_MENU_HINT_ONEKEY_PLUGIN);
 	ms_general->addItem(mf);
 
 	mf = new CMenuForwarder(LOCALE_MPKEY_PLUGIN, true, g_settings.movieplayer_plugin, this, "movieplayer_plugin");
@@ -468,32 +433,33 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 
 	miscEpgNotifier = new COnOffNotifier();
 	miscEpgNotifier->addItem(mc1);
-	//miscEpgNotifier->addItem(mf);
-	//miscEpgNotifier->addItem(mf1);
-	//miscEpgNotifier->addItem(mf2);
-	//miscEpgNotifier->addItem(mf3);
 	miscEpgNotifier->addItem(mf4);
 
 	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true,miscEpgNotifier);
 	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
 
-	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
-		true /*CFEManager::getInstance()->getEnabledCount() > 1*/);
+	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN_BOUQUETS, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
+		g_settings.epg_scan_mode != CEpgScan::MODE_OFF);
 	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
-	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS, EPG_SCAN_MODE_OPTION_COUNT,
-		CFEManager::getInstance()->getEnabledCount() > 1);
+	miscEpgScanNotifier = new COnOffNotifier();
+	miscEpgScanNotifier->addItem(mc2);
+
+	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS,
+		CFEManager::getInstance()->getEnabledCount() > 1 ? EPG_SCAN_MODE_OPTION_COUNT : 2, true, miscEpgScanNotifier);
 	mc3->setHint("", LOCALE_MENU_HINT_EPG_SCAN_MODE);
 
 	ms_epg->addItem(mc);
 	ms_epg->addItem(mc1);
+	ms_epg->addItem(mf4);
+	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mf);
 	ms_epg->addItem(mf1);
 	ms_epg->addItem(mf2);
 	ms_epg->addItem(mf3);
-	ms_epg->addItem(mf4);
-	ms_epg->addItem(mc2);
+	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mc3);
+	ms_epg->addItem(mc2);
 }
 
 //filebrowser settings
@@ -520,9 +486,16 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 	CMenuWidget * ms_chanlist = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
 	ms_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
 
+	bool tmp1 = g_settings.make_hd_list;
+	bool tmp2 = g_settings.make_webtv_list;
+
 	CMenuOptionChooser * mc;
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_HDLIST ,     &g_settings.make_hd_list            , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_MAKE_HDLIST);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_WEBTVLIST ,  &g_settings.make_webtv_list            , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_MAKE_WEBTVLIST);
 	ms_chanlist->addItem(mc);
 
 	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_NEWLIST,     &g_settings.make_new_list           , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -550,6 +523,8 @@ int CMiscMenue::showMiscSettingsMenuChanlist()
 	ms_chanlist->addItem(mc);
 	int res = ms_chanlist->exec(NULL, "");
 	delete ms_chanlist;
+	if (tmp1 != g_settings.make_hd_list|| tmp2 != g_settings.make_webtv_list)
+		g_Zapit->reinitChannels();
 	return res;
 }
 

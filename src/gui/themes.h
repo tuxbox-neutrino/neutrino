@@ -35,7 +35,7 @@ class CThemes : public CMenuTarget, CChangeObserver
 		CColorSetupNotifier *notifier;
 
 		int width;
-		int oldThemeValues[48];
+		SNeutrinoTheme oldTheme;
 
 		bool hasThemeChanged;
 
@@ -49,6 +49,8 @@ class CThemes : public CMenuTarget, CChangeObserver
 		CThemes();
 		void setupDefaultColors();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		static void setTheme(CConfigFile &configfile);
+		static void getTheme(CConfigFile &configfile);
 };
 
 #endif

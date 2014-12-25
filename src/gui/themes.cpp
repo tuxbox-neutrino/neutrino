@@ -32,10 +32,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <errno.h>
 #include <sys/wait.h>
 #include <global.h>
 #include <neutrino.h>
 #include "widget/menue.h"
+#include <system/helpers.h>
 #include <system/setting_helpers.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
@@ -150,20 +152,15 @@ int CThemes::Show()
 	themes.addIntroItems(LOCALE_COLORTHEMEMENU_HEAD2);
 	
 	//set default theme
-	themes.addItem(new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, NULL, this, "theme_neutrino", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	themes.addItem(new CMenuForwarder(LOCALE_COLORTHEMEMENU_NEUTRINO_THEME, true, NULL, this, "theme_neutrino", CRCInput::RC_red));
 	
 	readThemes(themes);
 
 	CStringInputSMS nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789- ");
-	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green);
 
-	// Don't show SAVE if UserDir does'nt exist
-	if ( access(USERDIR, F_OK) != 0 ) { // check for existance
-	// mkdir must be called for each subdir which does not exist 
-	//	mkdir (USERDIR, S_IRUSR | S_IREAD | S_IWUSR | S_IWRITE | S_IXUSR | S_IEXEC) == 0) {
-		if (system (((std::string)"mkdir -p " + USERDIR).c_str()) != 0) {
-			printf("[neutrino theme] error creating %s\n", USERDIR);
-		}
+	if (mkdirhier(USERDIR) && errno != EEXIST) {
+		printf("[neutrino theme] error creating %s\n", USERDIR);
 	}
 	if (access(USERDIR, F_OK) == 0 ) {
 		themes.addItem(GenericMenuSeparatorLine);
@@ -175,7 +172,7 @@ int CThemes::Show()
 
 	int res = themes.exec(NULL, "");
 
-	if (file_name.length() > 1) {
+	if (file_name.length() > 0) {
 		saveFile((char*)((std::string)USERDIR + file_name + FILE_PREFIX).c_str());
 	}
 
@@ -191,103 +188,9 @@ int CThemes::Show()
 void CThemes::rememberOldTheme(bool remember)
 {
 	if ( remember ) {
-		oldThemeValues[0]  = g_settings.menu_Head_alpha;
-		oldThemeValues[1]  = g_settings.menu_Head_red;
-		oldThemeValues[2]  = g_settings.menu_Head_green;
-		oldThemeValues[3]  = g_settings.menu_Head_blue;
-		oldThemeValues[4]  = g_settings.menu_Head_Text_alpha;
-		oldThemeValues[5]  = g_settings.menu_Head_Text_red;
-		oldThemeValues[6]  = g_settings.menu_Head_Text_green;
-		oldThemeValues[7]  = g_settings.menu_Head_Text_blue;
-		oldThemeValues[8]  = g_settings.menu_Content_alpha;
-		oldThemeValues[9]  = g_settings.menu_Content_red;
-		oldThemeValues[10] = g_settings.menu_Content_green;
-		oldThemeValues[11] = g_settings.menu_Content_blue;
-		oldThemeValues[12] = g_settings.menu_Content_Text_alpha;
-		oldThemeValues[13] = g_settings.menu_Content_Text_red;
-		oldThemeValues[14] = g_settings.menu_Content_Text_green;
-		oldThemeValues[15] = g_settings.menu_Content_Text_blue;
-		oldThemeValues[16] = g_settings.menu_Content_Selected_alpha;
-		oldThemeValues[17] = g_settings.menu_Content_Selected_red;
-		oldThemeValues[18] = g_settings.menu_Content_Selected_green;
-		oldThemeValues[19] = g_settings.menu_Content_Selected_blue;
-		oldThemeValues[20] = g_settings.menu_Content_Selected_Text_alpha;
-		oldThemeValues[21] = g_settings.menu_Content_Selected_Text_red;
-		oldThemeValues[22] = g_settings.menu_Content_Selected_Text_green;
-		oldThemeValues[23] = g_settings.menu_Content_Selected_Text_blue;
-		oldThemeValues[24] = g_settings.menu_Content_inactive_alpha;
-		oldThemeValues[25] = g_settings.menu_Content_inactive_red;
-		oldThemeValues[26] = g_settings.menu_Content_inactive_green;
-		oldThemeValues[27] = g_settings.menu_Content_inactive_blue;
-		oldThemeValues[28] = g_settings.menu_Content_inactive_Text_alpha;
-		oldThemeValues[29] = g_settings.menu_Content_inactive_Text_red;
-		oldThemeValues[30] = g_settings.menu_Content_inactive_Text_green;
-		oldThemeValues[31] = g_settings.menu_Content_inactive_Text_blue;
-		oldThemeValues[32] = g_settings.infobar_alpha;
-		oldThemeValues[33] = g_settings.infobar_red;
-		oldThemeValues[34] = g_settings.infobar_green;
-		oldThemeValues[35] = g_settings.infobar_blue;
-		oldThemeValues[36] = g_settings.infobar_Text_alpha;
-		oldThemeValues[37] = g_settings.infobar_Text_red;
-		oldThemeValues[38] = g_settings.infobar_Text_green;
-		oldThemeValues[39] = g_settings.infobar_Text_blue;
-		oldThemeValues[40] = g_settings.colored_events_alpha;
-		oldThemeValues[41] = g_settings.colored_events_red;
-		oldThemeValues[42] = g_settings.colored_events_green;
-		oldThemeValues[43] = g_settings.colored_events_blue;
-		oldThemeValues[44] = g_settings.clock_Digit_alpha;
-		oldThemeValues[45] = g_settings.clock_Digit_red;
-		oldThemeValues[46] = g_settings.clock_Digit_green;
-		oldThemeValues[47] = g_settings.clock_Digit_blue;
+		oldTheme = g_settings.theme;
 	} else {
-		g_settings.menu_Head_alpha 			= oldThemeValues[0];
-		g_settings.menu_Head_red 			= oldThemeValues[1];
-		g_settings.menu_Head_green 			= oldThemeValues[2];
-		g_settings.menu_Head_blue 			= oldThemeValues[3];
-		g_settings.menu_Head_Text_alpha 		= oldThemeValues[4];
-		g_settings.menu_Head_Text_red 			= oldThemeValues[5];
-		g_settings.menu_Head_Text_green 		= oldThemeValues[6];
-		g_settings.menu_Head_Text_blue 			= oldThemeValues[7];
-		g_settings.menu_Content_alpha 			= oldThemeValues[8];
-		g_settings.menu_Content_red 			= oldThemeValues[9];
-		g_settings.menu_Content_green 			= oldThemeValues[10];
-		g_settings.menu_Content_blue 			= oldThemeValues[11];
-		g_settings.menu_Content_Text_alpha 		= oldThemeValues[12];
-		g_settings.menu_Content_Text_red 		= oldThemeValues[13];
-		g_settings.menu_Content_Text_green 		= oldThemeValues[14];
-		g_settings.menu_Content_Text_blue 		= oldThemeValues[15];
-		g_settings.menu_Content_Selected_alpha 		= oldThemeValues[16];
-		g_settings.menu_Content_Selected_red 		= oldThemeValues[17];
-		g_settings.menu_Content_Selected_green 		= oldThemeValues[18];
-		g_settings.menu_Content_Selected_blue 		= oldThemeValues[19];
-		g_settings.menu_Content_Selected_Text_alpha 	= oldThemeValues[20];
-		g_settings.menu_Content_Selected_Text_red 	= oldThemeValues[21];
-		g_settings.menu_Content_Selected_Text_green 	= oldThemeValues[22];
-		g_settings.menu_Content_Selected_Text_blue 	= oldThemeValues[23];
-		g_settings.menu_Content_inactive_alpha 		= oldThemeValues[24];
-		g_settings.menu_Content_inactive_red 		= oldThemeValues[25];
-		g_settings.menu_Content_inactive_green 		= oldThemeValues[26];
-		g_settings.menu_Content_inactive_blue		= oldThemeValues[27];
-		g_settings.menu_Content_inactive_Text_alpha 	= oldThemeValues[28];
-		g_settings.menu_Content_inactive_Text_red 	= oldThemeValues[29];
-		g_settings.menu_Content_inactive_Text_green 	= oldThemeValues[30];
-		g_settings.menu_Content_inactive_Text_blue 	= oldThemeValues[31];
-		g_settings.infobar_alpha 			= oldThemeValues[32];
-		g_settings.infobar_red 				= oldThemeValues[33];
-		g_settings.infobar_green 			= oldThemeValues[34];
-		g_settings.infobar_blue 			= oldThemeValues[35];
-		g_settings.infobar_Text_alpha 			= oldThemeValues[36];
-		g_settings.infobar_Text_red 			= oldThemeValues[37];
-		g_settings.infobar_Text_green 			= oldThemeValues[38];
-		g_settings.infobar_Text_blue 			= oldThemeValues[39];
-		g_settings.colored_events_alpha			= oldThemeValues[40];
-		g_settings.colored_events_red 			= oldThemeValues[41];
-		g_settings.colored_events_green 		= oldThemeValues[42];
-		g_settings.colored_events_blue 			= oldThemeValues[43];
-		g_settings.clock_Digit_alpha 			= oldThemeValues[44];
-		g_settings.clock_Digit_red 			= oldThemeValues[45];
-		g_settings.clock_Digit_green 			= oldThemeValues[46];
-		g_settings.clock_Digit_blue 			= oldThemeValues[47];
+		g_settings.theme = oldTheme;
 
 		notifier = new CColorSetupNotifier;
 		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -300,54 +203,7 @@ void CThemes::readFile(char* themename)
 {
 	if(themefile.loadConfig(themename))
 	{
-		g_settings.menu_Head_alpha = themefile.getInt32( "menu_Head_alpha", 0x00 );
-		g_settings.menu_Head_red = themefile.getInt32( "menu_Head_red", 0x00 );
-		g_settings.menu_Head_green = themefile.getInt32( "menu_Head_green", 0x0A );
-		g_settings.menu_Head_blue = themefile.getInt32( "menu_Head_blue", 0x19 );
-		g_settings.menu_Head_Text_alpha = themefile.getInt32( "menu_Head_Text_alpha", 0x00 );
-		g_settings.menu_Head_Text_red = themefile.getInt32( "menu_Head_Text_red", 0x5f );
-		g_settings.menu_Head_Text_green = themefile.getInt32( "menu_Head_Text_green", 0x46 );
-		g_settings.menu_Head_Text_blue = themefile.getInt32( "menu_Head_Text_blue", 0x00 );
-		g_settings.menu_Content_alpha = themefile.getInt32( "menu_Content_alpha", 0x14 );
-		g_settings.menu_Content_red = themefile.getInt32( "menu_Content_red", 0x00 );
-		g_settings.menu_Content_green = themefile.getInt32( "menu_Content_green", 0x0f );
-		g_settings.menu_Content_blue = themefile.getInt32( "menu_Content_blue", 0x23 );
-		g_settings.menu_Content_Text_alpha = themefile.getInt32( "menu_Content_Text_alpha", 0x00 );
-		g_settings.menu_Content_Text_red = themefile.getInt32( "menu_Content_Text_red", 0x64 );
-		g_settings.menu_Content_Text_green = themefile.getInt32( "menu_Content_Text_green", 0x64 );
-		g_settings.menu_Content_Text_blue = themefile.getInt32( "menu_Content_Text_blue", 0x64 );
-		g_settings.menu_Content_Selected_alpha = themefile.getInt32( "menu_Content_Selected_alpha", 0x14 );
-		g_settings.menu_Content_Selected_red = themefile.getInt32( "menu_Content_Selected_red", 0x19 );
-		g_settings.menu_Content_Selected_green = themefile.getInt32( "menu_Content_Selected_green", 0x37 );
-		g_settings.menu_Content_Selected_blue = themefile.getInt32( "menu_Content_Selected_blue", 0x64 );
-		g_settings.menu_Content_Selected_Text_alpha = themefile.getInt32( "menu_Content_Selected_Text_alpha", 0x00 );
-		g_settings.menu_Content_Selected_Text_red = themefile.getInt32( "menu_Content_Selected_Text_red", 0x00 );
-		g_settings.menu_Content_Selected_Text_green = themefile.getInt32( "menu_Content_Selected_Text_green", 0x00 );
-		g_settings.menu_Content_Selected_Text_blue = themefile.getInt32( "menu_Content_Selected_Text_blue", 0x00 );
-		g_settings.menu_Content_inactive_alpha = themefile.getInt32( "menu_Content_inactive_alpha", 0x14 );
-		g_settings.menu_Content_inactive_red = themefile.getInt32( "menu_Content_inactive_red", 0x00 );
-		g_settings.menu_Content_inactive_green = themefile.getInt32( "menu_Content_inactive_green", 0x0f );
-		g_settings.menu_Content_inactive_blue = themefile.getInt32( "menu_Content_inactive_blue", 0x23 );
-		g_settings.menu_Content_inactive_Text_alpha = themefile.getInt32( "menu_Content_inactive_Text_alpha", 0x00 );
-		g_settings.menu_Content_inactive_Text_red = themefile.getInt32( "menu_Content_inactive_Text_red", 55 );
-		g_settings.menu_Content_inactive_Text_green = themefile.getInt32( "menu_Content_inactive_Text_green", 70 );
-		g_settings.menu_Content_inactive_Text_blue = themefile.getInt32( "menu_Content_inactive_Text_blue", 85 );
-		g_settings.infobar_alpha = themefile.getInt32( "infobar_alpha", 0x14 );
-		g_settings.infobar_red = themefile.getInt32( "infobar_red", 0x00 );
-		g_settings.infobar_green = themefile.getInt32( "infobar_green", 0x0e );
-		g_settings.infobar_blue = themefile.getInt32( "infobar_blue", 0x23 );
-		g_settings.infobar_Text_alpha = themefile.getInt32( "infobar_Text_alpha", 0x00 );
-		g_settings.infobar_Text_red = themefile.getInt32( "infobar_Text_red", 0x64 );
-		g_settings.infobar_Text_green = themefile.getInt32( "infobar_Text_green", 0x64 );
-		g_settings.infobar_Text_blue = themefile.getInt32( "infobar_Text_blue", 0x64 );
-		g_settings.colored_events_alpha = themefile.getInt32( "colored_events_alpha", 0x00 );
-		g_settings.colored_events_red = themefile.getInt32( "colored_events_red", 95 );
-		g_settings.colored_events_green = themefile.getInt32( "colored_events_green", 70 );
-		g_settings.colored_events_blue = themefile.getInt32( "colored_events_blue", 0 );
-		g_settings.clock_Digit_alpha = themefile.getInt32( "clock_Digit_alpha", g_settings.menu_Content_Text_alpha );
-		g_settings.clock_Digit_red = themefile.getInt32( "clock_Digit_red", g_settings.menu_Content_Text_red );
-		g_settings.clock_Digit_green = themefile.getInt32( "clock_Digit_green", g_settings.menu_Content_Text_green );
-		g_settings.clock_Digit_blue = themefile.getInt32( "clock_Digit_blue", g_settings.menu_Content_Text_blue );
+		getTheme(themefile);
 
 		notifier = new CColorSetupNotifier;
 		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -360,121 +216,121 @@ void CThemes::readFile(char* themename)
 
 void CThemes::saveFile(char * themename)
 {
-	themefile.setInt32( "menu_Head_alpha", g_settings.menu_Head_alpha );
-	themefile.setInt32( "menu_Head_red", g_settings.menu_Head_red );
-	themefile.setInt32( "menu_Head_green", g_settings.menu_Head_green );
-	themefile.setInt32( "menu_Head_blue", g_settings.menu_Head_blue );
-	themefile.setInt32( "menu_Head_Text_alpha", g_settings.menu_Head_Text_alpha );
-	themefile.setInt32( "menu_Head_Text_red", g_settings.menu_Head_Text_red );
-	themefile.setInt32( "menu_Head_Text_green", g_settings.menu_Head_Text_green );
-	themefile.setInt32( "menu_Head_Text_blue", g_settings.menu_Head_Text_blue );
-	themefile.setInt32( "menu_Content_alpha", g_settings.menu_Content_alpha );
-	themefile.setInt32( "menu_Content_red", g_settings.menu_Content_red );
-	themefile.setInt32( "menu_Content_green", g_settings.menu_Content_green );
-	themefile.setInt32( "menu_Content_blue", g_settings.menu_Content_blue );
-	themefile.setInt32( "menu_Content_Text_alpha", g_settings.menu_Content_Text_alpha );
-	themefile.setInt32( "menu_Content_Text_red", g_settings.menu_Content_Text_red );
-	themefile.setInt32( "menu_Content_Text_green", g_settings.menu_Content_Text_green );
-	themefile.setInt32( "menu_Content_Text_blue", g_settings.menu_Content_Text_blue );
-	themefile.setInt32( "menu_Content_Selected_alpha", g_settings.menu_Content_Selected_alpha );
-	themefile.setInt32( "menu_Content_Selected_red", g_settings.menu_Content_Selected_red );
-	themefile.setInt32( "menu_Content_Selected_green", g_settings.menu_Content_Selected_green );
-	themefile.setInt32( "menu_Content_Selected_blue", g_settings.menu_Content_Selected_blue );
-	themefile.setInt32( "menu_Content_Selected_Text_alpha", g_settings.menu_Content_Selected_Text_alpha );
-	themefile.setInt32( "menu_Content_Selected_Text_red", g_settings.menu_Content_Selected_Text_red );
-	themefile.setInt32( "menu_Content_Selected_Text_green", g_settings.menu_Content_Selected_Text_green );
-	themefile.setInt32( "menu_Content_Selected_Text_blue", g_settings.menu_Content_Selected_Text_blue );
-	themefile.setInt32( "menu_Content_inactive_alpha", g_settings.menu_Content_inactive_alpha );
-	themefile.setInt32( "menu_Content_inactive_red", g_settings.menu_Content_inactive_red );
-	themefile.setInt32( "menu_Content_inactive_green", g_settings.menu_Content_inactive_green );
-	themefile.setInt32( "menu_Content_inactive_blue", g_settings.menu_Content_inactive_blue );
-	themefile.setInt32( "menu_Content_inactive_Text_alpha", g_settings.menu_Content_inactive_Text_alpha );
-	themefile.setInt32( "menu_Content_inactive_Text_red", g_settings.menu_Content_inactive_Text_red );
-	themefile.setInt32( "menu_Content_inactive_Text_green", g_settings.menu_Content_inactive_Text_green );
-	themefile.setInt32( "menu_Content_inactive_Text_blue", g_settings.menu_Content_inactive_Text_blue );
-	themefile.setInt32( "infobar_alpha", g_settings.infobar_alpha );
-	themefile.setInt32( "infobar_red", g_settings.infobar_red );
-	themefile.setInt32( "infobar_green", g_settings.infobar_green );
-	themefile.setInt32( "infobar_blue", g_settings.infobar_blue );
-	themefile.setInt32( "infobar_Text_alpha", g_settings.infobar_Text_alpha );
-	themefile.setInt32( "infobar_Text_red", g_settings.infobar_Text_red );
-	themefile.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
-	themefile.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
-	themefile.setInt32( "colored_events_alpha", g_settings.colored_events_alpha );
-	themefile.setInt32( "colored_events_red", g_settings.colored_events_red );
-	themefile.setInt32( "colored_events_green", g_settings.colored_events_green );
-	themefile.setInt32( "colored_events_blue", g_settings.colored_events_blue );
-	themefile.setInt32( "clock_Digit_alpha", g_settings.clock_Digit_alpha );
-	themefile.setInt32( "clock_Digit_red", g_settings.clock_Digit_red );
-	themefile.setInt32( "clock_Digit_green", g_settings.clock_Digit_green );
-	themefile.setInt32( "clock_Digit_blue", g_settings.clock_Digit_blue );
+	setTheme(themefile);
 
 	if (!themefile.saveConfig(themename))
 		printf("[neutrino theme] %s write error\n", themename);
 }
 
-
-
 // setup default Colors
 void CThemes::setupDefaultColors()
 {
-	g_settings.menu_Head_alpha = 0x00;
-	g_settings.menu_Head_red   = 0x00;
-	g_settings.menu_Head_green = 0x0A;
-	g_settings.menu_Head_blue  = 0x19;
+	CConfigFile empty(':');
+	getTheme(empty);
+}
 
-	g_settings.menu_Head_Text_alpha = 0x00;
-	g_settings.menu_Head_Text_red   = 0x5f;
-	g_settings.menu_Head_Text_green = 0x46;
-	g_settings.menu_Head_Text_blue  = 0x00;
+void CThemes::setTheme(CConfigFile &configfile)
+{
+	SNeutrinoTheme &t = g_settings.theme;
+	configfile.setInt32( "menu_Head_alpha", t.menu_Head_alpha );
+	configfile.setInt32( "menu_Head_red", t.menu_Head_red );
+	configfile.setInt32( "menu_Head_green", t.menu_Head_green );
+	configfile.setInt32( "menu_Head_blue", t.menu_Head_blue );
+	configfile.setInt32( "menu_Head_Text_alpha", t.menu_Head_Text_alpha );
+	configfile.setInt32( "menu_Head_Text_red", t.menu_Head_Text_red );
+	configfile.setInt32( "menu_Head_Text_green", t.menu_Head_Text_green );
+	configfile.setInt32( "menu_Head_Text_blue", t.menu_Head_Text_blue );
+	configfile.setInt32( "menu_Content_alpha", t.menu_Content_alpha );
+	configfile.setInt32( "menu_Content_red", t.menu_Content_red );
+	configfile.setInt32( "menu_Content_green", t.menu_Content_green );
+	configfile.setInt32( "menu_Content_blue", t.menu_Content_blue );
+	configfile.setInt32( "menu_Content_Text_alpha", t.menu_Content_Text_alpha );
+	configfile.setInt32( "menu_Content_Text_red", t.menu_Content_Text_red );
+	configfile.setInt32( "menu_Content_Text_green", t.menu_Content_Text_green );
+	configfile.setInt32( "menu_Content_Text_blue", t.menu_Content_Text_blue );
+	configfile.setInt32( "menu_Content_Selected_alpha", t.menu_Content_Selected_alpha );
+	configfile.setInt32( "menu_Content_Selected_red", t.menu_Content_Selected_red );
+	configfile.setInt32( "menu_Content_Selected_green", t.menu_Content_Selected_green );
+	configfile.setInt32( "menu_Content_Selected_blue", t.menu_Content_Selected_blue );
+	configfile.setInt32( "menu_Content_Selected_Text_alpha", t.menu_Content_Selected_Text_alpha );
+	configfile.setInt32( "menu_Content_Selected_Text_red", t.menu_Content_Selected_Text_red );
+	configfile.setInt32( "menu_Content_Selected_Text_green", t.menu_Content_Selected_Text_green );
+	configfile.setInt32( "menu_Content_Selected_Text_blue", t.menu_Content_Selected_Text_blue );
+	configfile.setInt32( "menu_Content_inactive_alpha", t.menu_Content_inactive_alpha );
+	configfile.setInt32( "menu_Content_inactive_red", t.menu_Content_inactive_red );
+	configfile.setInt32( "menu_Content_inactive_green", t.menu_Content_inactive_green );
+	configfile.setInt32( "menu_Content_inactive_blue", t.menu_Content_inactive_blue );
+	configfile.setInt32( "menu_Content_inactive_Text_alpha", t.menu_Content_inactive_Text_alpha );
+	configfile.setInt32( "menu_Content_inactive_Text_red", t.menu_Content_inactive_Text_red );
+	configfile.setInt32( "menu_Content_inactive_Text_green", t.menu_Content_inactive_Text_green );
+	configfile.setInt32( "menu_Content_inactive_Text_blue", t.menu_Content_inactive_Text_blue );
+	configfile.setInt32( "infobar_alpha", t.infobar_alpha );
+	configfile.setInt32( "infobar_red", t.infobar_red );
+	configfile.setInt32( "infobar_green", t.infobar_green );
+	configfile.setInt32( "infobar_blue", t.infobar_blue );
+	configfile.setInt32( "infobar_Text_alpha", t.infobar_Text_alpha );
+	configfile.setInt32( "infobar_Text_red", t.infobar_Text_red );
+	configfile.setInt32( "infobar_Text_green", t.infobar_Text_green );
+	configfile.setInt32( "infobar_Text_blue", t.infobar_Text_blue );
+	configfile.setInt32( "colored_events_alpha", t.colored_events_alpha );
+	configfile.setInt32( "colored_events_red", t.colored_events_red );
+	configfile.setInt32( "colored_events_green", t.colored_events_green );
+	configfile.setInt32( "colored_events_blue", t.colored_events_blue );
+	configfile.setInt32( "clock_Digit_alpha", t.clock_Digit_alpha );
+	configfile.setInt32( "clock_Digit_red", t.clock_Digit_red );
+	configfile.setInt32( "clock_Digit_green", t.clock_Digit_green );
+	configfile.setInt32( "clock_Digit_blue", t.clock_Digit_blue );
+}
 
-	g_settings.menu_Content_alpha = 0x14;
-	g_settings.menu_Content_red   = 0x00;
-	g_settings.menu_Content_green = 0x0f;
-	g_settings.menu_Content_blue  = 0x23;
-
-	g_settings.menu_Content_Text_alpha = 0x00;
-	g_settings.menu_Content_Text_red   = 0x64;
-	g_settings.menu_Content_Text_green = 0x64;
-	g_settings.menu_Content_Text_blue  = 0x64;
-
-	g_settings.menu_Content_Selected_alpha = 0x14;
-	g_settings.menu_Content_Selected_red   = 0x19;
-	g_settings.menu_Content_Selected_green = 0x37;
-	g_settings.menu_Content_Selected_blue  = 0x64;
-
-	g_settings.menu_Content_Selected_Text_alpha  = 0x00;
-	g_settings.menu_Content_Selected_Text_red    = 0x00;
-	g_settings.menu_Content_Selected_Text_green  = 0x00;
-	g_settings.menu_Content_Selected_Text_blue   = 0x00;
-
-	g_settings.menu_Content_inactive_alpha = 0x14;
-	g_settings.menu_Content_inactive_red   = 0x00;
-	g_settings.menu_Content_inactive_green = 0x0f;
-	g_settings.menu_Content_inactive_blue  = 0x23;
-
-	g_settings.menu_Content_inactive_Text_alpha  = 0x00;
-	g_settings.menu_Content_inactive_Text_red    = 55;
-	g_settings.menu_Content_inactive_Text_green  = 70;
-	g_settings.menu_Content_inactive_Text_blue   = 85;
-
-	g_settings.infobar_alpha = 0x14;
-	g_settings.infobar_red   = 0x00;
-	g_settings.infobar_green = 0x0e;
-	g_settings.infobar_blue  = 0x23;
-
-	g_settings.infobar_Text_alpha = 0x00;
-	g_settings.infobar_Text_red   = 0x64;
-	g_settings.infobar_Text_green = 0x64;
-	g_settings.infobar_Text_blue  = 0x64;
-
-	g_settings.colored_events_alpha = 0x00;
-	g_settings.colored_events_red = 95;
-	g_settings.colored_events_green = 70;
-	g_settings.colored_events_blue = 0;
-
-	g_settings.clock_Digit_alpha = 0x00;
-	g_settings.clock_Digit_red   = 0x64;
-	g_settings.clock_Digit_green = 0x64;
-	g_settings.clock_Digit_blue  = 0x64;
+void CThemes::getTheme(CConfigFile &configfile)
+{
+	SNeutrinoTheme &t = g_settings.theme;
+	t.menu_Head_alpha = configfile.getInt32( "menu_Head_alpha", 0x00 );
+	t.menu_Head_red = configfile.getInt32( "menu_Head_red", 0x00 );
+	t.menu_Head_green = configfile.getInt32( "menu_Head_green", 0x0A );
+	t.menu_Head_blue = configfile.getInt32( "menu_Head_blue", 0x19 );
+	t.menu_Head_Text_alpha = configfile.getInt32( "menu_Head_Text_alpha", 0x00 );
+	t.menu_Head_Text_red = configfile.getInt32( "menu_Head_Text_red", 0x5f );
+	t.menu_Head_Text_green = configfile.getInt32( "menu_Head_Text_green", 0x46 );
+	t.menu_Head_Text_blue = configfile.getInt32( "menu_Head_Text_blue", 0x00 );
+	t.menu_Content_alpha = configfile.getInt32( "menu_Content_alpha", 0x14 );
+	t.menu_Content_red = configfile.getInt32( "menu_Content_red", 0x00 );
+	t.menu_Content_green = configfile.getInt32( "menu_Content_green", 0x0f );
+	t.menu_Content_blue = configfile.getInt32( "menu_Content_blue", 0x23 );
+	t.menu_Content_Text_alpha = configfile.getInt32( "menu_Content_Text_alpha", 0x00 );
+	t.menu_Content_Text_red = configfile.getInt32( "menu_Content_Text_red", 0x64 );
+	t.menu_Content_Text_green = configfile.getInt32( "menu_Content_Text_green", 0x64 );
+	t.menu_Content_Text_blue = configfile.getInt32( "menu_Content_Text_blue", 0x64 );
+	t.menu_Content_Selected_alpha = configfile.getInt32( "menu_Content_Selected_alpha", 0x14 );
+	t.menu_Content_Selected_red = configfile.getInt32( "menu_Content_Selected_red", 0x19 );
+	t.menu_Content_Selected_green = configfile.getInt32( "menu_Content_Selected_green", 0x37 );
+	t.menu_Content_Selected_blue = configfile.getInt32( "menu_Content_Selected_blue", 0x64 );
+	t.menu_Content_Selected_Text_alpha = configfile.getInt32( "menu_Content_Selected_Text_alpha", 0x00 );
+	t.menu_Content_Selected_Text_red = configfile.getInt32( "menu_Content_Selected_Text_red", 0x00 );
+	t.menu_Content_Selected_Text_green = configfile.getInt32( "menu_Content_Selected_Text_green", 0x00 );
+	t.menu_Content_Selected_Text_blue = configfile.getInt32( "menu_Content_Selected_Text_blue", 0x00 );
+	t.menu_Content_inactive_alpha = configfile.getInt32( "menu_Content_inactive_alpha", 0x14 );
+	t.menu_Content_inactive_red = configfile.getInt32( "menu_Content_inactive_red", 0x00 );
+	t.menu_Content_inactive_green = configfile.getInt32( "menu_Content_inactive_green", 0x0f );
+	t.menu_Content_inactive_blue = configfile.getInt32( "menu_Content_inactive_blue", 0x23 );
+	t.menu_Content_inactive_Text_alpha = configfile.getInt32( "menu_Content_inactive_Text_alpha", 0x00 );
+	t.menu_Content_inactive_Text_red = configfile.getInt32( "menu_Content_inactive_Text_red", 55 );
+	t.menu_Content_inactive_Text_green = configfile.getInt32( "menu_Content_inactive_Text_green", 70 );
+	t.menu_Content_inactive_Text_blue = configfile.getInt32( "menu_Content_inactive_Text_blue", 85 );
+	t.infobar_alpha = configfile.getInt32( "infobar_alpha", 0x14 );
+	t.infobar_red = configfile.getInt32( "infobar_red", 0x00 );
+	t.infobar_green = configfile.getInt32( "infobar_green", 0x0e );
+	t.infobar_blue = configfile.getInt32( "infobar_blue", 0x23 );
+	t.infobar_Text_alpha = configfile.getInt32( "infobar_Text_alpha", 0x00 );
+	t.infobar_Text_red = configfile.getInt32( "infobar_Text_red", 0x64 );
+	t.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );
+	t.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
+	t.colored_events_alpha = configfile.getInt32( "colored_events_alpha", 0x00 );
+	t.colored_events_red = configfile.getInt32( "colored_events_red", 95 );
+	t.colored_events_green = configfile.getInt32( "colored_events_green", 70 );
+	t.colored_events_blue = configfile.getInt32( "colored_events_blue", 0 );
+	t.clock_Digit_alpha = configfile.getInt32( "clock_Digit_alpha", t.menu_Content_Text_alpha );
+	t.clock_Digit_red = configfile.getInt32( "clock_Digit_red", t.menu_Content_Text_red );
+	t.clock_Digit_green = configfile.getInt32( "clock_Digit_green", t.menu_Content_Text_green );
+	t.clock_Digit_blue = configfile.getInt32( "clock_Digit_blue", t.menu_Content_Text_blue );
 }

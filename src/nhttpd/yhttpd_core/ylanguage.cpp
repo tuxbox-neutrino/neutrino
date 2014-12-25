@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <unistd.h>
 
+#include <system/helpers.h>
+
 // yhttpd
 #include <yconfig.h>
 #include <yhttpd.h>
@@ -109,9 +111,9 @@ std::string CLanguage::getTranslation(std::string id){
 std::string CLanguage::getLanguageDir(void){
 	std::string tmpfilename = "/"+Cyhttpd::ConfigList["Language.directory"],dir="";
 
-	if( access(std::string(Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename).c_str(),4) == 0)
+	if( access(Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename,R_OK) == 0)
 		dir = Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename;
-	else if(access(std::string(Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename).c_str(),4) == 0)
+	else if(access(Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename,R_OK) == 0)
 		dir = Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename;
 	return dir;
 }

@@ -32,6 +32,8 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh) {
 	std::string url = hh->UrlData["fullurl"];
 	if (CacheList.find(url) != CacheList.end()) // is in Cache. Rewrite URL or not modified
 	{
+		hh->cached = true;
+
 		pthread_mutex_lock(&mutex); // yeah, its mine
 
 		// Check if modified
@@ -82,7 +84,9 @@ THandleStatus CmodCache::Hook_SendResponse(CyhookHandler *hh) {
 	{
 		AddToCache(hh, url, hh->yresult, hh->HookVarList["CacheMimeType"],
 				category); // create cache file and add to cache list
+		hh->cached = true;
 		hh->ContentLength = (hh->yresult).length();
+		hh->RangeEnd = (hh->yresult).length()-1;
 		hh->SendFile(CacheList[url].filename); // Send as file
 		hh->ResponseMimeType = CacheList[url].mime_type; // remember mime
 	} else if (hh->UrlData["path"] == "/y/") // /y/ commands

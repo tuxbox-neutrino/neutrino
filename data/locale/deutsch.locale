@@ -128,6 +128,7 @@ audiomenu.pref_subs_head Untertitelwahl
 audiomenu.spdif_dd Dolby Digital über S/PDIF
 audiomenu.stereo stereo
 audiomenu.volume_adjust Lautstärke ändern, in %
+audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
 audioplayer.add_ic Icecast
@@ -175,7 +176,6 @@ audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
 audioplayer.title_artist Titel, Interpret
-audioplayerpicsettings.general Audioplayer/Bildbetrachter
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
@@ -201,6 +201,7 @@ bouquetname.hdtv HD Kanäle
 bouquetname.new Neue Kanäle
 bouquetname.other Unbekannter Provider
 bouquetname.removed Gelöschte Kanäle
+bouquetname.webtv WebTV Kanäle
 buildinfo.compiled_on Build Host
 buildinfo.compiled_with Compiler Version
 buildinfo.compiler_flags Compiler Flags
@@ -217,6 +218,8 @@ channellist.edit Bearbeiten
 channellist.epgtext_align_left links
 channellist.epgtext_align_right rechts
 channellist.extended Sendungsfortschritt anzeigen
+channellist.extended_colored mit farbigem Fortschrittsbalken
+channellist.extended_simple mit einfachem Fortschrittsbalken
 channellist.favs Favoriten
 channellist.foot Kanalinformationen
 channellist.foot_freq Tuning-Parameter
@@ -232,6 +235,7 @@ channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
+channellist.make_webtvlist Erzeuge Bouquet mit WebTV-Kanälen
 channellist.new_zap_mode Quickzap in Liste
 channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben
@@ -245,6 +249,7 @@ channellist.reset_all Entferne Markierung "Neu" für alle Kanäle
 channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.show_channellogo Senderlogos zeigen
+channellist.show_channelnumber Kanalnummern zeigen
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -264,6 +269,7 @@ clock_seconds Sekunden anzeigen
 clock_size_height Höhe der Anzeige
 clock_switch_off Uhr ausblenden
 clock_switch_on Uhr einblenden
+color.gradient Farbverlauf
 colorchooser.alpha alpha
 colorchooser.blue blau
 colorchooser.green grün
@@ -361,43 +367,47 @@ extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
 extra.dboxinfo Box-Info
+extra.dboxinfo_available Frei
+extra.dboxinfo_boottime Boot
+extra.dboxinfo_filesystem Dateisystem
+extra.dboxinfo_frontend Frontends
+extra.dboxinfo_load Last
+extra.dboxinfo_memory Speicher
+extra.dboxinfo_ram RAM
+extra.dboxinfo_size Gesamt
+extra.dboxinfo_swap Swap
+extra.dboxinfo_time Zeit
+extra.dboxinfo_timeformat %F, %H:%M:%S
+extra.dboxinfo_uptime Uptime
+extra.dboxinfo_use Nutzung
+extra.dboxinfo_used Benutzt
 extra.east Osten
-extra.fec_1_2 1/2 S1_QPSK
-extra.fec_2_3 2/3 S1_QPSK
-extra.fec_3_4 3/4 S1_QPSK
-extra.fec_5_6 5/6 S1_QPSK
-extra.fec_7_8 7/8 S1_QPSK
-extra.fec_auto Auto DVB-S
-extra.fec_auto_s2 Auto DVB-S2
-extra.fec_s2_8psk_1_2 1/2 S2_8PSK
-extra.fec_s2_8psk_2_3 2/3 S2_8PSK
-extra.fec_s2_8psk_3_4 3/4 S2_8PSK
-extra.fec_s2_8psk_3_5 3/5 S2_8PSK
-extra.fec_s2_8psk_4_5 4/5 S2_8PSK
-extra.fec_s2_8psk_5_6 5/6 S2_8PSK
-extra.fec_s2_8psk_7_8 7/8 S2_8PSK
-extra.fec_s2_8psk_8_9 8/9 S2_8PSK
-extra.fec_s2_8psk_9_10 9/10 S2_8PSK
-extra.fec_s2_qpsk_1_2 1/2 S2_QPSK
-extra.fec_s2_qpsk_2_3 2/3 S2_QPSK
-extra.fec_s2_qpsk_3_4 3/4 S2_QPSK
-extra.fec_s2_qpsk_3_5 3/5 S2_QPSK
-extra.fec_s2_qpsk_4_5 4/5 S2_QPSK
-extra.fec_s2_qpsk_5_6 5/6 S2_QPSK
-extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
-extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
-extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
+extra.fec_1_2 1/2
+extra.fec_2_3 2/3
+extra.fec_2_5 2/5
+extra.fec_3_4 3/4
+extra.fec_3_5 3/5
+extra.fec_4_5 4/5
+extra.fec_5_6 5/6
+extra.fec_7_8 7/8
+extra.fec_8_9 8/9
+extra.fec_9_10 9/10
+extra.fec_auto Auto
 extra.key_current_transponder Aktuelle Transponder Taste
 extra.key_format_mode Videoformat
+extra.key_help Hilfe-Taste
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
+extra.key_next43mode Nächstes Seitenformat
 extra.key_pic_mode Bildschirmformat
 extra.key_pic_size 4:3 Anzeigeverhalten
 extra.key_pip_close Stop/Start PiP
 extra.key_pip_setup PiP Konfiguration
 extra.key_pip_swap Umschalten PiP/live
 extra.key_plugin Schnellstart-Plugin
+extra.key_record Aufnahme-Taste
 extra.key_screenshot Screenshot Taste
+extra.key_switchformat Nächste Auflösung
 extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
@@ -423,20 +433,76 @@ extra.south Süden
 extra.start_tostandby Standby nach Boxstart
 extra.temp_timeshift Temporäres Timeshift
 extra.timeshift_pause Timeshift Pause
-extra.tp.pol_v V
+extra.tp_bandwidth Bandbreite
+extra.tp_bandwidth_10mhz 10Mhz
+extra.tp_bandwidth_1_712mhz 1.712Mhz
+extra.tp_bandwidth_5mhz 5Mhz
+extra.tp_bandwidth_6mhz 6Mhz
+extra.tp_bandwidth_7mhz 7Mhz
+extra.tp_bandwidth_8mhz 8Mhz
+extra.tp_bandwidth_auto Auto
+extra.tp_coderate_hp Informationsrate (HP)
+extra.tp_coderate_lp Informationsrate (LP)
+extra.tp_constellation Konstellation
+extra.tp_delsys Empfangssystem
+extra.tp_delsys_dss DSS
+extra.tp_delsys_dtmb DTMB
+extra.tp_delsys_dvbc DVB-C
+extra.tp_delsys_dvbc2 DVB-C2
+extra.tp_delsys_dvbs DVB-S
+extra.tp_delsys_dvbs2 DVB-S2
+extra.tp_delsys_dvbt DVB-T
+extra.tp_delsys_dvbt2 DVB-T2
+extra.tp_delsys_isdbc ISDB-C
+extra.tp_delsys_isdbs ISDB-S
+extra.tp_delsys_isdbt ISDB-T
+extra.tp_delsys_turbo Turbo
 extra.tp_fec FEC
 extra.tp_freq Frequenz
+extra.tp_gi Schutzintervall
+extra.tp_gi_19_128 19/128
+extra.tp_gi_19_256 19/256
+extra.tp_gi_1_128 1/128
+extra.tp_gi_1_16 1/16
+extra.tp_gi_1_32 1/32
+extra.tp_gi_1_4 1/4
+extra.tp_gi_1_8 1/8
+extra.tp_gi_auto Auto
+extra.tp_gi_pn420 PN420
+extra.tp_gi_pn595 PN595
+extra.tp_gi_pn945 PN945
+extra.tp_hierarchy Hierarchieinformation
+extra.tp_hierarchy_1 1
+extra.tp_hierarchy_2 2
+extra.tp_hierarchy_4 4
+extra.tp_hierarchy_auto Auto
+extra.tp_hierarchy_none None
 extra.tp_mod Modulation
 extra.tp_mod_128 QAM/128
 extra.tp_mod_16 QAM/16
 extra.tp_mod_256 QAM/256
 extra.tp_mod_32 QAM/32
+extra.tp_mod_4 QPSK
+extra.tp_mod_4_nr QAM/4-NR
 extra.tp_mod_64 QAM/64
+extra.tp_mod_8 8PSK
+extra.tp_mod_auto QAM/AUTO
 extra.tp_pol Polarisation
 extra.tp_pol_h H
 extra.tp_pol_l L
 extra.tp_pol_r R
+extra.tp_pol_v V
 extra.tp_rate Symbolrate
+extra.tp_transmit_mode Sendemodus
+extra.tp_transmit_mode_16k 16K
+extra.tp_transmit_mode_1k 1K
+extra.tp_transmit_mode_2k 2K
+extra.tp_transmit_mode_32k 32K
+extra.tp_transmit_mode_4k 4K
+extra.tp_transmit_mode_8k 8K
+extra.tp_transmit_mode_auto Auto
+extra.tp_transmit_mode_c1 C1
+extra.tp_transmit_mode_c3780 C3780
 extra.update_dir Lokales Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.volume_digits Lautstärkeanzeige Ziffern
@@ -483,6 +549,7 @@ filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
 flashupdate.apply_settings Sollen die aktuellen Einstellungen in das neue Image übernommen werden?
+flashupdate.autocheck Beim Start nach Updates suchen
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen
@@ -573,7 +640,6 @@ flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
 fontmenu.channellist Kanalliste
 fontmenu.epg EPG (Programmführer)
 fontmenu.eventlist Event-Liste
-fontmenu.gamelist Spiele-Liste
 fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
@@ -599,8 +665,6 @@ fontsize.eventlist_itemlarge Groß
 fontsize.eventlist_itemsmall Klein
 fontsize.eventlist_title Titel
 fontsize.filebrowser_item Dateibrowsereinträge
-fontsize.gamelist_itemlarge Groß
-fontsize.gamelist_itemsmall Klein
 fontsize.hint Schriftart wird initialisiert,\nbitte warten...
 fontsize.infobar_channame Kanalname
 fontsize.infobar_info Info
@@ -619,11 +683,11 @@ hdd_5min 5 min.
 hdd_60min 60 min.
 hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
-hdd_check_failed Festplattenprüfung fehlgeschlagen
+hdd_check_failed Datenträgerprüfung fehlgeschlagen
 hdd_check_format_bad Überprüfung von Datenträgern mit Format %s wird nicht unterstützt.
 hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
-hdd_format Formatiere Festplatte
+hdd_format Formatiere Datenträger
 hdd_format_failed Formatierung fehlgeschlagen! Stellen Sie sicher, dass der Datenträger nicht in Verwendung ist und versuchen Sie es erneut.
 hdd_format_warn Alle Daten auf dem Datenträger werden gelöscht! Formatierung starten?
 hdd_fs Dateisystem zum formatieren
@@ -631,15 +695,22 @@ hdd_fs_unknown unbekannt
 hdd_manage Laufwerke verwalten
 hdd_middle Mittel
 hdd_mount Mount
+hdd_mount_failed Fehler! Überprüfen Sie ihre Laufwerkseinstellungen.
+hdd_mount_ok Laufwerk bereit
 hdd_mount_umount Mount/Unmount
 hdd_noise Akustikkontrolle (AAM)
-hdd_not_found Keine Festplatte
+hdd_not_found Kein Datenträger
 hdd_removable_device Wechseldatenträger
+hdd_set_recdir Diesen Datenträger für die Aufnahme nutzen?
 hdd_settings Laufwerke
 hdd_sleep Ausschalten nach...
 hdd_slow Langsam
-hdd_umount Unmount
+hdd_statfs Füllstands-Abfrage
+hdd_statfs_always immer
+hdd_statfs_recording nur während Aufnahme
+hdd_umount Aushängen
 hdd_umount_warn Laufwerk aushängen
+hdd_umounted Laufwerk entfernt
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
 imageinfo.dokumentation Dokus:
@@ -657,11 +728,11 @@ infoviewer.epgwait Warte auf EPG-Informationen...
 infoviewer.eventlist EPG/Vorschau
 infoviewer.languages Tonwahl
 infoviewer.motor_moving Antennenpositionierung
-infoviewer.next später
+infoviewer.next Später
 infoviewer.nocurrent Keine Info zu laufendem Programm
 infoviewer.noepg Keine EPG-Information verfügbar
 infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar
-infoviewer.now jetzt
+infoviewer.now Jetzt
 infoviewer.selecttime Startzeiten
 infoviewer.streaminfo Erweiterungen
 infoviewer.subchan_disp_pos Unterkanalanzeige
@@ -683,6 +754,7 @@ keybindingmenu.cancel Kanalliste schließen
 keybindingmenu.channeldown Kanal runter
 keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
+keybindingmenu.edit Bearbeiten
 keybindingmenu.head Tasten-Belegungen bearbeiten
 keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.longkeypress_duration Langer Tastendruck
@@ -693,6 +765,7 @@ keybindingmenu.mode_left_right_key_tv_volume Lautstärkeregelung
 keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
 keybindingmenu.mode_left_right_key_tv_zap Umschalten
 keybindingmenu.modechange Moduswechsel
+keybindingmenu.navigation Navigation
 keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
 keybindingmenu.poweroff Standby EIN/AUS
@@ -712,6 +785,10 @@ keybindingmenu.special_active Sondertasten
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter
 keybindingmenu.tvradiomode Fernseh-/Radio-Modus
+keybindingmenu.video Video
+keybindingmenu.volume Lautstärke
+keybindingmenu.volumedown Leiser
+keybindingmenu.volumeup Lauter
 keybindingmenu.zaphistory Zapping-History Bouquet
 keychooser.head Neue Taste einstellen
 keychooser.text1 Bitte Taste drücken
@@ -749,6 +826,9 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
+lua.boolparam_deprecated1 Achtung!
+lua.boolparam_deprecated2 Die Verwendung von Zahl oder String
+lua.boolparam_deprecated3 für einen Boolean Parameter ist veraltet.\n                      Bitte nutzen Sie native Bool Werte zB:
 lua.function_deprecated1 Achtung!
 lua.function_deprecated2 Die Funktion
 lua.function_deprecated3 ist veraltet,\n                      bitte nutzen Sie
@@ -784,6 +864,7 @@ mainsettings.language Sprache
 mainsettings.lcd VFD-Display
 mainsettings.manage Einstellungen verwalten
 mainsettings.misc Erweiterte Einstellungen
+mainsettings.multimedia Multimedia
 mainsettings.network Netzwerk
 mainsettings.osd OSD
 mainsettings.recording Aufnahme
@@ -805,6 +886,7 @@ menu.hint_audio_srs Schalten Sie SRS TruVolume ein oder aus
 menu.hint_audio_srs_algo Stellen Sie die Betriebsarten von SRS TruVolume ein
 menu.hint_audio_srs_nmgr Schalten Sie den NoiseManager ein oder aus
 menu.hint_audio_srs_volume Legen Sie die Referenzlautstärke für SRS TruVolume fest
+menu.hint_audio_volstart Legen Sie die Einschaltlautstärke fest, die immer beim Starten eingestellt werden soll
 menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke immer schrittweise nach diesem Wert geändert
 menu.hint_audioplayer_defdir Wählen Sie das Startverzeichnis für den Audioplayer
 menu.hint_audioplayer_follow Das Auswählen eines aktuellen Titels in der Wiedergabeliste zulassen
@@ -837,6 +919,7 @@ menu.hint_channellist_mode Wählen Sie die Start-Kanalliste im TV-Modus
 menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
+menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
@@ -844,6 +927,7 @@ menu.hint_clock_mode Schalten Sie die Uhr ein oder aus
 menu.hint_clock_seconds Legen Sie fest, ob die Sekunden angezeigt werden sollen
 menu.hint_clock_size Stellen Sie die Größe der Uhr ein
 menu.hint_clock_textcolor Konfigurieren Sie die Farbe der Ziffern
+menu.hint_color_gradient Schaltet Farbverläufe für verschiedene Menüelemente ein/aus
 menu.hint_colors Konfigurieren Sie die Menü-Farben
 menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
@@ -859,8 +943,8 @@ menu.hint_epg_max_events Maxiale Anzahl der Events im Zwischenspeicher
 menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden) verworfen
 menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
 menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
-menu.hint_epg_scan Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist, im aktuellen Bouquet oder in allen Favoriten
-menu.hint_epg_scan_mode Wählen Sie den Modus für den EPG Scan aus.
+menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
+menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
 menu.hint_eventlist_additional Definiert, ob zusätzliche Informationen im Hauptfenster angezeigt werden sollen
 menu.hint_eventlist_fonts Ändern Sie die Schriftgröße in der Event-Liste
@@ -877,7 +961,6 @@ menu.hint_font_gui Wählen Sie die Schriftart für die Menüs
 menu.hint_font_scaling Legen Sie die vertikale und horizontale Skalierung der Menüschrift fest
 menu.hint_font_ttx Wählen Sie die Schriftart für den Teletext
 menu.hint_fonts Konfigurieren Sie die Schriftart und die Schriftgrößen für die Menüs
-menu.hint_gamelist_fonts Ändern die Schriftgrößen für die Spiele- und Script-Liste
 menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Datenträger
 menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
@@ -886,6 +969,7 @@ menu.hint_hdd_fmt Wählen Sie das Datenträgerformat aus
 menu.hint_hdd_format Erstellt eine Partition auf dem Datenträger und formatiert diese
 menu.hint_hdd_noise Setzen Sie Parameter für das Automatic Acoustic Management.\nNicht alle Laufwerke unterstützen diese Funktion
 menu.hint_hdd_sleep Dieser Wert definiert, nach wieviel Minuten die Festplatte bei Inaktivität in den Sleep-Modus geschaltet wird
+menu.hint_hdd_statfs Legen Sie fest, wann die Aufnahmeverzeichnis-Füllstandsanzeige im InfoViewer (und ggf. am VFD-Display) aktualisiert werden darf
 menu.hint_hdd_tools Formatieren Sie die gefundenen Datenträger bzw. überprüfen Sie deren Dateisystem
 menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
 menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
@@ -904,7 +988,6 @@ menu.hint_infobar_fonts Ändern Sie die Schriftgrößen in der Infobar
 menu.hint_infobar_logo Logo- und Signal-Optionen
 menu.hint_infobar_logo_dir Wählen Sie das Verzeichnis für die Senderlogos
 menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
-menu.hint_infobar_progressbar Wählt die Optionen des Fortschrittsbalken in der Infobar
 menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
 menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
 menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
@@ -955,6 +1038,7 @@ menu.hint_key_pip_swap Tastenzuordnung zum Umschalten PiP und aktuellem Kanal
 menu.hint_key_plugin Wählen Sie eine Taste für das Schnellstart-Plugin
 menu.hint_key_poweroff Wählen Sie eine Taste für den Standby und für das Verhalten für Standby und Deep-Standby
 menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
+menu.hint_key_record Konfigurieren Sie die Taste für den Aufnahmestart
 menu.hint_key_repeatblock Die Verzögerung nach einem Tastendruck bis die Box reagieren soll
 menu.hint_key_repeatblockgeneric Die Verzögerung zwischen den Tastewiederholungen bis die Box reagieren soll
 menu.hint_key_right Wählen Sie die Funktion für die Tasten 'links' und 'rechts' im TV/Radio-Modus
@@ -967,6 +1051,8 @@ menu.hint_key_subchannelup Weisen Sie eine Taste für das Weiterschalten in den 
 menu.hint_key_transponder Weisen Sie eine Taste für das Anzeigen der Transponder in der Kanalliste zu
 menu.hint_key_tvradiomode Wählen Sie eine Taste für das Umschalten zwischen TV- und Radio-Modus
 menu.hint_key_unlock Weisen Sie eine Taste zum Entriegeln zu, \nbetätigen Sie die Taste 'Rot' für 5 Sekunden
+menu.hint_key_volumedown Weisen Sie eine Taste für die Reduzierung der Lautstärke zu
+menu.hint_key_volumeup Weisen Sie eine Taste für die Erhöhung der Lautstärke zu
 menu.hint_keys Tastenbelegungen und Fernbedienungs-Abstimmung bearbeiten
 menu.hint_lang_pref Wählen Sie ihre bevorzugten Tonspuren und Untertitel-Sprachen
 menu.hint_language Menü-Sprache, Zeitzone, bevorzugte Tonspuren, Untertitel-Sprachen und mehr
@@ -984,6 +1070,7 @@ menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
 menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens 'neue Kanäle' erzeugt
 menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens 'gelöschte Kanäle' erzeugt
+menu.hint_make_webtvlist Bei aktiver Option wird ein Bouquet namens 'WebTV' erzeugt, in dem alle WebTV-Sender zusammengefasst sind
 menu.hint_manage_settings Sichern, Wiederherstellen und Auslieferungszustand wiederherstellen
 menu.hint_mb Ihre Aufnahmen
 menu.hint_media Abspielen von Musik, Internetradio und Filmen; Betrachten Sie Bilder
@@ -1003,6 +1090,7 @@ menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische Vergabe einer IP-Adresse im Netzwerk
 menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem unter /media/00upnp
+menu.hint_net_dropbear Aktivieren Sie SSH Zugriff zur Box
 menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Geben Sie die Gateway-Adresse des Routers ein
 menu.hint_net_hostname Ändern Sie den Hostnamen der Box
@@ -1035,13 +1123,13 @@ menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
 menu.hint_numeric_adjust Adjust channel list mode on numeric zap
-menu.hint_onekey_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste gestartet wird
 menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
 menu.hint_osd_language Wählen Sie ihre Menü-Sprache
 menu.hint_osd_preset Wählen Sie zwischen Röhren-TV (CRT) oder Flachbildschirm (LCD)
 menu.hint_osd_timing Einblendzeit, die das OSD auf dem TV angezeigt wird
+menu.hint_other_fonts Ändern Sie andere Schriftgrößen
 menu.hint_parentallock_changepin Geben Sie den 4-stelligen PIN-Code ein, der dann ggf. abgefragt wird
 menu.hint_parentallock_lockage Legen Sie fest, bei welcher Altersklasse die Abfrage der PIN erfolgt
 menu.hint_parentallock_menu Menüs mit PIN Code sichern
@@ -1059,7 +1147,15 @@ menu.hint_plugins_hdd_dir Auswahl des Verzeichnisses zum Laden der Plugins von e
 menu.hint_power_leds Konfiguriert das Verhalten der LEDs an der Power-Taste
 menu.hint_pref_lang Wählen Sie ihre bevorzugte Tonspur und EPG-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
 menu.hint_pref_subs Wählen Sie ihre bevorzugte Untertitel-Sprache,\ndie Einstellung 'none' deaktiviert diese Option
+menu.hint_progressbar Wählen Sie die Optionen für die Fortschrittsbalken-Anzeige
 menu.hint_progressbar_color Erscheinungsbild der Fortschrittsbalken auswählen
+menu.hint_progressbar_gradient Fügt dem Fortschrittsbalken einen vertikalen Helligkeitsverlauf hinzu.
+menu.hint_progressbar_infobar_position Wählt die Optionen des Fortschrittsbalkens in der Infobar
+menu.hint_progressbar_preview Mit der OK-Taste können Sie den Stand des Fortschrittsbalkens ändern
+menu.hint_progressbar_timescale_green Hier können Sie den grünen Farbanteil bunter Fortschrittsbalken anpassen
+menu.hint_progressbar_timescale_invert Wählen Sie den Farbverlauf
+menu.hint_progressbar_timescale_red Hier können Sie den roten Farbanteil bunter Fortschrittsbalken anpassen
+menu.hint_progressbar_timescale_yellow Hier können Sie den gelben Farbanteil bunter Fortschrittsbalken anpassen
 menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
 menu.hint_radiomode Schaltet zum Radio-Modus
 menu.hint_reboot Startet die Box neu\nDer Neustart erfolgt ohne Bestätigung!
@@ -1068,6 +1164,7 @@ menu.hint_record_apid_alt Sind weitere Tonspuren verfügbar, dann können diese 
 menu.hint_record_apid_std Schließt bei einer Aufnahme die durch den Sender definierte Tonspur 'Standard' in die Aufnahme ein bzw. aus
 menu.hint_record_apids Konfigurieren Sie die Tonspuren für die Aufnahme
 menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
+menu.hint_record_auto_cover Automatisch ein Film-Vorschaubild beim Abspielen erzeugen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals in ein eigenes Verzeichnis
 menu.hint_record_data Daten-Spuren (Teletext, Untertitel) für die Aufnahme
 menu.hint_record_data_dvbsub Untertitel-Spur zu Aufnahme hinzufügen
@@ -1103,9 +1200,11 @@ menu.hint_scan_auto Automatischer Suchlauf ausgewählter Anbieter
 menu.hint_scan_autoall Automatischer Suchlauf aller ausgewählten Anbieter
 menu.hint_scan_autoall_select Suchlauf nur in ausgewählten Satelliten
 menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: neue werden in 'Andere' angefügt
+menu.hint_scan_bw Wählen Sie die Bandbreite
 menu.hint_scan_cable Wählen Sie ihr Kabelnetz für den Suchlauf
 menu.hint_scan_cable_simple Kabel-Suchlauf mit optionaler Anbieter- und Kanal-Nummerierung
 menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
+menu.hint_scan_delsys Wählen Sie das Empfangssystem für diesen Kanal/Transponder.
 menu.hint_scan_diseqc Wählen Sie das DiSEqC-Schalter-Eingangssignal für diesen Satelliten
 menu.hint_scan_diseqcorder Diseqc command order for cascaded switches
 menu.hint_scan_diseqcrepeat DiSEqC-Wiederholungen für kaskadierte Schaltungen
@@ -1122,6 +1221,8 @@ menu.hint_scan_fesetup Konfigurieren des oder der Tuner
 menu.hint_scan_fetimeout Maximale Wartezeit auf das Signal in 1/10 Sekunden
 menu.hint_scan_freq Geben Sie eine Transponder-Frequenz ein
 menu.hint_scan_fta Lassen Sie nur frei empfangbare (nicht-verschlüsselte) Programme suchen
+menu.hint_scan_gi Wählen Sie den Schutzintervall für diesen terrestrischen Kanal
+menu.hint_scan_hierarchy Wählen Sie die Hierarchie für diesen terrestrischen Kanal
 menu.hint_scan_ladirection Wählen Sie ihre Breitengrad-Ausrichtung
 menu.hint_scan_latitude Geben Sie ihren Breitengrad ein
 menu.hint_scan_lnbconfig Konfigurieren Sie LNB-Parameter für diesen Satelliten
@@ -1158,6 +1259,7 @@ menu.hint_scan_setup_fe Konfigurieren Sie ihre ausgewählten Tuner
 menu.hint_scan_start Startet die Kanalsuche mit den angegebenen Parametern.\nMit der Taste 'Exit' kann abgebrochen werden
 menu.hint_scan_test Testen Sie das Signal für diesen Transponder
 menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder für den Suchlauf
+menu.hint_scan_transmit_mode Wählen Sie den Übertragungsmodus für diesen terrestrischen Kanal
 menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
 menu.hint_scan_usals USALS Optionen
 menu.hint_scan_usals_repeat Geben Sie die USALS-Wiederholungen für den Rotor ein
@@ -1207,6 +1309,7 @@ menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tools Werkzeuge ausführen
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
+menu.hint_upnp Universal Plug and Play Browser
 menu.hint_vfd Frontdisplay und Power-LEDs
 menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb 
 menu.hint_vfd_brightness_setup Konfiguriert die Helligkeit des Frontdisplays für verschiedene Modi
@@ -1236,6 +1339,7 @@ menu.hint_volume Wählen Sie die Anzeigeoptionen für die Lautstärke
 menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein- oder ausschalten
 menu.hint_volume_pos Wählen Sie die Position der Lautstärkeanzeige aus
 menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
+menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
@@ -1273,6 +1377,7 @@ miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.epg_scan Hintergrundscan EPG
 miscsettings.epg_scan_always Immer
+miscsettings.epg_scan_bouquets Zu scannende Bouquets
 miscsettings.epg_scan_bq Aktuelles Bouquet
 miscsettings.epg_scan_fav Alle Favoriten
 miscsettings.epg_scan_live Bei eingeschalteter Box
@@ -1305,17 +1410,26 @@ miscsettings.infoclock Uhr
 miscsettings.progressbar Fortschrittsbalken
 miscsettings.progressbar_color Farbe
 miscsettings.progressbar_design Design
-miscsettings.progressbar_design_0 farbige Punkte
-miscsettings.progressbar_design_1 farbige vertikale Linien
-miscsettings.progressbar_design_2 farbige horizontale Linien
+miscsettings.progressbar_design_0 Punkte
+miscsettings.progressbar_design_1 vertikale Balken
+miscsettings.progressbar_design_2 horizontale Balken
 miscsettings.progressbar_design_3 Farbverlauf
 miscsettings.progressbar_design_4 monochrom
-miscsettings.progressbar_design_long Progressbardesign
+miscsettings.progressbar_design_long Design
+miscsettings.progressbar_gradient 3D-Effekt
 miscsettings.progressbar_infobar_position Position
 miscsettings.progressbar_infobar_position_0 Standard
 miscsettings.progressbar_infobar_position_1 unterhalb Kanalname
 miscsettings.progressbar_infobar_position_2 unterhalb Kanalname (schmal)
 miscsettings.progressbar_infobar_position_3 zwischen EPG-Events (schmal)
+miscsettings.progressbar_preview Vorschau
+miscsettings.progressbar_timescale Zeitskala
+miscsettings.progressbar_timescale_green Grün
+miscsettings.progressbar_timescale_green_red von Grün nach Rot
+miscsettings.progressbar_timescale_invert Farbverlauf
+miscsettings.progressbar_timescale_red Rot
+miscsettings.progressbar_timescale_red_green von Rot nach Grün
+miscsettings.progressbar_timescale_yellow Gelb
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
@@ -1380,6 +1494,7 @@ moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
 moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
+moviebrowser.cache_dir Cache-Verzeichnis
 moviebrowser.delete_info Lösche Dateien, bitte warten...
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
@@ -1410,6 +1525,7 @@ moviebrowser.hint_newbook_backward Neue Wiederholung\n 'blue' für Endposition
 moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
+moviebrowser.info_file Datei
 moviebrowser.info_filename Name
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre
@@ -1479,12 +1595,20 @@ moviebrowser.short_size Grösse
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
+moviebrowser.ts_only Nur Aufnahmen zeigen
 moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden
 moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
+moviebrowser.yt_cache Downloads
+moviebrowser.yt_cache_add Download von\n%s\nwird eingeplant.
+moviebrowser.yt_cancel Alle abbrechen
+moviebrowser.yt_cancel_transfer Download abbrechen?
+moviebrowser.yt_clear Liste leeren
+moviebrowser.yt_completed Vollständige Downloads
 moviebrowser.yt_concurrent_connections Gleichzeitige Verbindungen
-moviebrowser.yt_error Fehler beim laden des Youtube Feed
+moviebrowser.yt_error Fehler beim Laden des Youtube-Feeds
+moviebrowser.yt_failed Fehlgeschlagene Downloads
 moviebrowser.yt_history Frühere Suchen
 moviebrowser.yt_max_history Max. Anzahl früherer Suchen
 moviebrowser.yt_max_results Max. Anzahl der zu holenden Feeds
@@ -1496,6 +1620,7 @@ moviebrowser.yt_orderby.published Veröffentlichungszeitpunkt
 moviebrowser.yt_orderby.rating Bewertung
 moviebrowser.yt_orderby.relevance Relevanz
 moviebrowser.yt_orderby.viewcount Zahl der Views
+moviebrowser.yt_pending Anstehende Downloads
 moviebrowser.yt_pref_quality Bevorzugte Qualität
 moviebrowser.yt_prev_results Vorherige Ergebnisse
 moviebrowser.yt_recently_featured Vor kurzem empfohlen
@@ -1530,6 +1655,8 @@ movieplayer.ytplayback Youtube-Feed Wiedergabe
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
+mpkey.goto Zeiteingabe
+mpkey.next_repeat_mode Nächster Wiederholungs-Modus
 mpkey.pause Pause
 mpkey.play Play
 mpkey.plugin Movieplayer-Plugin
@@ -1585,6 +1712,7 @@ nfs.mountnow Jetzt mounten
 nfs.mountok Mount erfolgreich
 nfs.mounttimeout Mount-Fehler: Timeout
 nfs.password Passwort
+nfs.refresh_mac MAC-Adresse feststellen
 nfs.remount Verzeichnisse erneut mounten
 nfs.type Typ
 nfs.type_cifs CIFS
@@ -1614,6 +1742,7 @@ opkg.title Paketverwaltung
 opkg.upgrade Installierte Pakete aktualisieren
 options.default Voreinstellungen benutzen
 options.fb framebuffer
+options.hint_default Setzen Sie die Werte auf die Voreinstellung zurück.
 options.ntp_off DVB
 options.ntp_on NTP
 options.null null
@@ -1717,6 +1846,11 @@ pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Externes Plugin-Verz.
 plugins.result Pluginausgabe
+plugintype.disabled Deaktiviert
+plugintype.game Spiel
+plugintype.lua Lua-Plugin
+plugintype.script Skript
+plugintype.tool Werkzeug
 rclock.lockmsg Die Fernbedienung wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
@@ -1732,6 +1866,7 @@ recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
 recordingmenu.apids_std Standard Tonspur aufnehmen
+recordingmenu.auto_cover Autom. Film-Vorschaubild
 recordingmenu.data_pids Daten-Spuren
 recordingmenu.defdir Aufnahmeverzeichnis
 recordingmenu.dvbsub_pids Untertitel aufnehmen
@@ -1803,6 +1938,11 @@ satsetup.fastscan_prov_tvv_sd TV Vlaanderen (SD)
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
 satsetup.fastscan_update Auto-Update
+satsetup.fe_delsys_mode Modus des Empfangssystems
+satsetup.fe_delsys_mode_auto Auto
+satsetup.fe_delsys_mode_cable Kabel
+satsetup.fe_delsys_mode_sat Satellit
+satsetup.fe_delsys_mode_terrestrial Terrestrisch
 satsetup.fe_mode Tuner Modus
 satsetup.fe_mode_independent Independent
 satsetup.fe_mode_link_loop Loop
@@ -1843,6 +1983,7 @@ sc.waiting Warte auf Antwort
 scants.abort_body Scanvorgang wirklich abbrechen?
 scants.abort_header breche Scan ab...
 scants.actcable Kabelnetz:
+scants.acthybrid Hybrid:
 scants.actsatellite Satellit:
 scants.actterrestrial Terrestrisch:
 scants.bouquet Bouquets
@@ -1910,7 +2051,7 @@ settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 settings.restore Image-Einstellungen: Wiederherstellen
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
-shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
+shutdown.recording_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Die Box wird in 1 Min. in Standby-Betrieb gehen.\nStandby-Betrieb abbrechen?
 sleeptimerbox.hint1 Ausschaltzeit in Minuten (000 = aus)
@@ -1921,6 +2062,7 @@ sleeptimerbox.title2 Inaktivitätstimer
 streaminfo.aratio Verhältnis
 streaminfo.aratio_unknown unbekannt
 streaminfo.audiotype Audiotyp
+streaminfo.audiotype_unknown unbekannt
 streaminfo.average_bitrate Durchschnitt
 streaminfo.bitrate Bitrate
 streaminfo.framerate Bildrate
@@ -2029,6 +2171,7 @@ unicable.lnb Unicable Eingang
 unicable.qrg Unicable Frequenz
 unicable.scr Unicable SCR
 unit.decimal ,
+unit.long.years Jahre
 unit.short.hour h
 unit.short.millisecond ms
 unit.short.minute min
@@ -2047,6 +2190,9 @@ usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
 usermenu.item_plugin_types Plugin-Typen
 usermenu.item_vtxt Teletext
+usermenu.items Menüpunkte
+usermenu.key Taste
+usermenu.key_select Taste zuweisen
 usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwende Standardname:\n
 usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!
 usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü angelegt!\nDer Menüname wird daher zurückgesetzt!
@@ -2105,6 +2251,10 @@ videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videomode Videosystem
+webtv.head WebTV
+webtv.xml WebTV-XML-Dateien
+webtv.xml.add XML-Datei hinzufügen
+webtv.xml.del XML-Datei entfernen
 window_size Fenstergröße in %
 wizard.initial_settings Grundeinstellungen gefunden
 wizard.install_settings Kanalliste für Astra 19.2°E installieren?
@@ -2116,6 +2266,7 @@ wizard.setup_type_hint Wählen Sie einfache Grundeinstellungen oder erweiterte A
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
 wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer CST. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nBeachten Sie: Ihre CST Set-Top-Box lässt sich bequem per Webinterface\nsteuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nAchten Sie darauf, dass Ihre Gerät nicht von aussen zugänglich ist,\nda sonst ein Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
 word.from ab
+word.in in
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio

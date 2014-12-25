@@ -42,6 +42,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CSectionsdConfigNotifier* sectionsdConfigNotifier;
 		//COnOffNotifier* miscNotifier;
 		COnOffNotifier* miscEpgNotifier;
+		COnOffNotifier* miscEpgScanNotifier;
 		int width;
 		std::string epg_cache;
 		std::string epg_extendedcache;

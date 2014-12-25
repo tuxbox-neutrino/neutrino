@@ -224,6 +224,11 @@ realloc:
 			if (ret <= 0)
 				break;
 			switch(event->cmd) {
+				case SIOCGIWAP:
+					count++;
+					networks.push_back(network);
+					printf("          Network %d:\n", count+1);
+					break;
 				case SIOCGIWESSID:
 					{
 						char essid[IW_ESSID_MAX_SIZE+1];
@@ -233,14 +238,12 @@ realloc:
 						if(event->u.essid.flags)
 						{
 							printf("                    ESSID:\"%s\"\n", essid);
-							network.ssid = essid;
+							networks[count].ssid = essid;
 						}
 						else {
 							printf("                    ESSID:off/any/hidden\n");
-							network.ssid = "(hidden)";
+							networks[count].ssid = "(hidden)";
 						}
-						count++;
-						networks.push_back(network);
 					}
 
 					break;

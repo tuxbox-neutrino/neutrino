@@ -33,6 +33,7 @@
 #include <config.h>
 #endif
 
+#include <unistd.h>
 #include <global.h>
 #include <neutrino.h>
 #include "bouqueteditor_chanselect.h"
@@ -47,7 +48,7 @@
 
 extern CBouquetManager *g_bouquetManager;
 
-CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsigned int Bouquet, CZapitClient::channelsMode Mode)
+CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, CZapitBouquet* Bouquet, CZapitClient::channelsMode Mode)
 	:CListBox(Caption.c_str())
 {
 	int icol_w, icol_h;
@@ -70,6 +71,7 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsi
 	ButtonHeight = std::max(footerHeight, icol_h+4);
 
 	liststart = 0;
+	channellist_sort_mode = SORT_ALPHA;
 	bouquetChannels = NULL;
 	dline = NULL;
 	ibox = new CComponentsInfoBox();
@@ -122,7 +124,11 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 	}
 	else
 	{
-		color   = COL_MENUCONTENT_TEXT;
+		if (itemNr < getItemCount() && (Channels[itemNr]->flags & CZapitChannel::NOT_PRESENT))
+			color = COL_MENUCONTENTINACTIVE_TEXT;
+		else
+			color = COL_MENUCONTENT_TEXT;
+
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
@@ -130,18 +136,15 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 	if(itemNr < getItemCount())
 	{
 		if( isChannelInBouquet(itemNr))
-		{
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x+10, ypos, iheight);
-		}
 		else
-		{
-			//frameBuffer->paintBoxRel(x+8, ypos+4, NEUTRINO_ICON_BUTTON_GREEN_WIDTH, fheight-4, bgcolor);
 			frameBuffer->paintBoxRel(x+10, ypos, iconoffset, iheight, bgcolor);
-		}
-		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8, ypos+ fheight, width - (8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8 + 8), Channels[itemNr]->getName(), color, 0, true);
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width - 20 - iconoffset, Channels[itemNr]->getName(), color, 0, true);
+
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width - 20 - iconoffset, Channels[itemNr]->getName(), color);
 		if(Channels[itemNr]->scrambled)
 			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
+		else if (!Channels[itemNr]->getUrl().empty())
+			frameBuffer->paintIcon(NEUTRINO_ICON_STREAMING, x+width- 15 - 28, ypos, fheight);
 	}
 }
 
@@ -151,14 +154,44 @@ void CBEChannelSelectWidget::onOkKeyPressed()
 		return;
 	setModified();
 	if (isChannelInBouquet(selected))
-		g_bouquetManager->Bouquets[bouquet]->removeService(Channels[selected]->channel_id);
+		bouquet->removeService(Channels[selected]);
 	else
-		CZapit::getInstance()->addChannelToBouquet( bouquet, Channels[selected]->channel_id);
+		bouquet->addService(Channels[selected]);
 
-	bouquetChannels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
+	bouquetChannels = mode == CZapitClient::MODE_TV ? &(bouquet->tvChannels) : &(bouquet->radioChannels);
 
 	paintItem( selected, selected - liststart, false);
 	g_RCInput->postMsg( CRCInput::RC_down, 0 );
+}
+
+void CBEChannelSelectWidget::onRedKeyPressed()
+{
+	if (selected >= Channels.size())
+		return;
+
+	channellist_sort_mode++;
+	if(channellist_sort_mode > SORT_END)
+		channellist_sort_mode = 0;
+	switch(channellist_sort_mode)
+	{
+		case SORT_ALPHA:
+			sort(Channels.begin(), Channels.end(), CmpChannelByChName());
+		break;
+		case SORT_FREQ:
+			sort(Channels.begin(), Channels.end(), CmpChannelByFreq());
+		break;
+		case SORT_SAT:
+			sort(Channels.begin(), Channels.end(), CmpChannelBySat());
+		break;
+		case SORT_CH_NUMBER:
+			sort(Channels.begin(), Channels.end(), CmpChannelByChNum());
+		break;
+		default:
+			sort(Channels.begin(), Channels.end(), CmpChannelByChName());
+		break;	  
+	}
+	paintFoot();
+	paint();
 }
 
 int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & actionKey)
@@ -174,14 +207,14 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 		x = ConnectLineBox_Width;
 	y = getScreenStartY(height + info_height);
 
-	bouquetChannels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
+	bouquetChannels = mode == CZapitClient::MODE_TV ? &(bouquet->tvChannels) : &(bouquet->radioChannels);
 
 	Channels.clear();
-	if (mode == CZapitClient::MODE_RADIO) {
+	if (mode == CZapitClient::MODE_RADIO)
 		CServiceManager::getInstance()->GetAllRadioChannels(Channels);
-	} else {
+	else
 		CServiceManager::getInstance()->GetAllTvChannels(Channels);
-	}
+
 	sort(Channels.begin(), Channels.end(), CmpChannelByChName());
 
 	return CListBox::exec(parent, actionKey);
@@ -189,21 +222,36 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 
 const struct button_label CBEChannelSelectButtons[] =
 {
+	{ NEUTRINO_ICON_BUTTON_RED,  LOCALE_CHANNELLIST_FOOT_SORT_ALPHA},
 	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_BOUQUETEDITOR_SWITCH },
 	{ NEUTRINO_ICON_BUTTON_HOME, LOCALE_BOUQUETEDITOR_RETURN }
 };
 
 void CBEChannelSelectWidget::paintFoot()
 {
-	::paintButtons(x, y + (height-footerHeight), width, 2, CBEChannelSelectButtons, width, footerHeight);
+	const short numbuttons = sizeof(CBEChannelSelectButtons)/sizeof(CBEChannelSelectButtons[0]);
+	struct button_label Button[numbuttons];
+	for (int i = 0; i < numbuttons; i++)
+		Button[i] = CBEChannelSelectButtons[i];
 
-#if 0
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 3* ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_SWITCH), COL_INFOBAR_TEXT, 0, true); // UTF-8
-
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HOME, x+width - ButtonWidth+ 8, y+height+1);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width - ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_RETURN), COL_INFOBAR_TEXT, 0, true); // UTF-8
-#endif
+	switch (channellist_sort_mode) {
+		case SORT_ALPHA:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
+		break;
+		case SORT_FREQ:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_FREQ;
+		break;
+		case SORT_SAT:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_SAT;
+		break;
+		case SORT_CH_NUMBER:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_CHNUM;
+		break;
+		default:
+			Button[0].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
+		break;
+	}
+	::paintButtons(x, y + (height-footerHeight), width, numbuttons, Button, width, footerHeight);
 }
 
 std::string CBEChannelSelectWidget::getInfoText(int index)
@@ -240,7 +288,7 @@ void CBEChannelSelectWidget::paintDetails(int index)
 void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos1 = y + theight+0 + pos*fheight;
+	int ypos1 = y + theight+0 + pos*iheight;
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
@@ -265,3 +313,9 @@ void CBEChannelSelectWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 	}
 }
 
+void CBEChannelSelectWidget::hide()
+{
+  	if (dline)
+		dline->kill(); //kill details line
+	CListBox::hide();
+}

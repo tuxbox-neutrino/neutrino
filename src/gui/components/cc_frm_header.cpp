@@ -98,6 +98,8 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	col_body 	= COL_MENUHEAD_PLUS_0;
+	col_body_gradient	= g_settings.gradiant;
+	cc_body_gradient_direction = CFrameBuffer::gradientVertical;
 	cch_text	= caption;
 	cch_icon_name	= icon_name;
 
@@ -109,7 +111,7 @@ void CComponentsHeader::initVarHeader(	const int& x_pos, const int& y_pos, const
 	cch_btn_obj		= NULL;
 	cch_col_text		= COL_MENUHEAD_TEXT;
 	cch_caption_align	= CTextBox::NO_AUTO_LINEBREAK;
-	cch_items_y 		= 0;
+	cch_items_y 		= CC_CENTERED;
 	cch_offset		= 8;
 	cch_icon_x 		= cch_offset;
 	cch_icon_w		= 0;
@@ -177,6 +179,7 @@ void CComponentsHeader::setIcon(const char* icon_name)
 void CComponentsHeader::setIcon(const std::string& icon_name)
 {
 	cch_icon_name 	= icon_name;
+	initIcon();
 }
 
 void CComponentsHeader::initIcon()
@@ -194,7 +197,7 @@ void CComponentsHeader::initIcon()
 	//create instance for cch_icon_obj and add to container at once
 	if (cch_icon_obj == NULL){
 		dprintf(DEBUG_DEBUG, "[CComponentsHeader]\n    [%s - %d] init header icon: %s\n", __func__, __LINE__, cch_icon_name.c_str());
-		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, this);
+		cch_icon_obj = new CComponentsPicture(cch_icon_x, cch_items_y, 0, 0, cch_icon_name, this);
 	}
 
 	//set properties for icon object
@@ -202,7 +205,8 @@ void CComponentsHeader::initIcon()
 		//get dimensions of header icon
 		int iw = 0;
 		int ih = 0;
-		cch_icon_obj->getPictureSize(&iw, &ih);
+		cch_icon_obj->getImageSize(&iw, &ih);
+		dprintf(DEBUG_INFO, "[CComponentsHeader]\n    [%s - %d] init icon size: iw = %d, ih = %d\n", __func__, __LINE__, iw, ih);
 		cch_icon_obj->setWidth(iw);
 		cch_icon_obj->setHeight(ih);
 		cch_icon_obj->doPaintBg(false);
@@ -221,8 +225,8 @@ void CComponentsHeader::initIcon()
 		//global adapt height
 		height = max(height, cch_icon_obj->getHeight());
 
-		//re-align height of icon object
-		cch_icon_obj->setHeight(height);
+// 		//re-align height of icon object
+// 		cch_icon_obj->setHeight(height);
 	}
 }
 
@@ -248,6 +252,36 @@ void CComponentsHeader::addContextButton(const int& buttons)
 		addContextButton(NEUTRINO_ICON_BUTTON_INFO);
 	if (buttons & CC_BTN_MENU)
 		addContextButton(NEUTRINO_ICON_BUTTON_MENU);
+	if (buttons & CC_BTN_MUTE_ZAP_ACTIVE )
+		addContextButton(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE);
+	if (buttons & CC_BTN_MUTE_ZAP_INACTIVE )
+		addContextButton(NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE);
+	if (buttons & CC_BTN_OKAY)
+		addContextButton(NEUTRINO_ICON_BUTTON_OKAY);
+	if (buttons & CC_BTN_MUTE)
+		addContextButton(NEUTRINO_ICON_BUTTON_MUTE);
+	if (buttons & CC_BTN_TOP)
+		addContextButton(NEUTRINO_ICON_BUTTON_TOP);
+	if (buttons & CC_BTN_DOWN)
+		addContextButton(NEUTRINO_ICON_BUTTON_DOWN);
+	if (buttons & CC_BTN_RIGHT)
+		addContextButton(NEUTRINO_ICON_BUTTON_RIGHT);
+	if (buttons & CC_BTN_LEFT)
+		addContextButton(NEUTRINO_ICON_BUTTON_LEFT);
+	if (buttons & CC_BTN_FORWARD)
+		addContextButton(NEUTRINO_ICON_BUTTON_FORWARD);
+	if (buttons & CC_BTN_BACKWARD)
+		addContextButton(NEUTRINO_ICON_BUTTON_BACKWARD);
+	if (buttons & CC_BTN_PAUSE)
+		addContextButton(NEUTRINO_ICON_BUTTON_PAUSE);
+	if (buttons & CC_BTN_PLAY)
+		addContextButton(NEUTRINO_ICON_BUTTON_PLAY);
+	if (buttons & CC_BTN_RECORD_ACTIVE)
+		addContextButton(NEUTRINO_ICON_BUTTON_RECORD_ACTIVE);
+	if (buttons & CC_BTN_RECORD_INACTIVE)
+		addContextButton(NEUTRINO_ICON_BUTTON_RECORD_INACTIVE);
+	if (buttons & CC_BTN_RECORD_STOP)
+		addContextButton(NEUTRINO_ICON_BUTTON_STOP);
 }
 
 void CComponentsHeader::removeContextButtons()
@@ -255,7 +289,7 @@ void CComponentsHeader::removeContextButtons()
 	dprintf(DEBUG_DEBUG, "[CComponentsHeader]\t    [%s - %d] removing %zu context buttons...\n", __func__, __LINE__, v_cch_btn.size());
 	v_cch_btn.clear();
 	if (cch_btn_obj)
-		cch_btn_obj->clear();;
+		cch_btn_obj->clear();
 }
 
 void CComponentsHeader::initButtons()
@@ -337,7 +371,7 @@ void CComponentsHeader::initCaption()
 		if (cch_caption_align == CTextBox::CENTER)
 			cch_text_x = CC_CENTERED;
 		cch_text_obj->setDimensionsAll(cch_text_x, cch_items_y, cc_text_w, height);
-		cch_text_obj->doPaintBg(true);
+		cch_text_obj->doPaintBg(false);
 		cch_text_obj->setText(cch_text, cch_caption_align, cch_font);
 		cch_text_obj->forceTextPaint(); //here required
 		cch_text_obj->setTextColor(cch_col_text);

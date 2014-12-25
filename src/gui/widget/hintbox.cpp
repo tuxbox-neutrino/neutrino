@@ -106,15 +106,14 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 	else
 		iconfile = "";
 
-	//nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(caption), true); // UTF-8
-	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(caption, true); // UTF-8
+	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(caption);
 
 	if (nw > width)
 		width = nw;
 
 	for (std::vector<char *>::const_iterator it = line.begin(); it != line.end(); ++it)
 	{
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it, true); // UTF-8
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it);
 		maxLineWidth = std::max(maxLineWidth, w);
 		nw = additional_width + w;
 		if (nw > width)
@@ -131,11 +130,7 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 
 CHintBox::~CHintBox(void)
 {
-	if (window != NULL)
-	{
-		delete window;
-		window = NULL;
-	}
+	hide();
 	free(message);
 }
 
@@ -172,6 +167,10 @@ void CHintBox::refresh(void)
 	window->paintBoxRel(width - 20, borderwidth, borderwidth + 20, height - borderwidth - 20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP); // right
 	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); // bottom
 
+	CComponentsHeader header(window->x, window->y, width, theight, caption, iconfile);
+	header.paint(CC_SAVE_SCREEN_NO);
+
+#if 0
 	//window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
 	window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
 
@@ -181,12 +180,12 @@ void CHintBox::refresh(void)
 		CFrameBuffer::getInstance()->getIconSize(iconfile.c_str(), &iw, &ih);
 		//window->paintIcon(iconfile.c_str(), 8, 5);
 		window->paintIcon(iconfile.c_str(), 10, 0, theight);
-		//window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), COL_MENUHEAD_TEXT, 0, true); // UTF-8
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, caption, COL_MENUHEAD_TEXT, 0, true); // UTF-8
+		//window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), COL_MENUHEAD_TEXT);
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, caption, COL_MENUHEAD_TEXT);
 	}
 	else
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, caption, COL_MENUHEAD_TEXT, 0, true); // UTF-8
-
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, caption, COL_MENUHEAD_TEXT);
+#endif
 	//window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0);
 	window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 
@@ -194,7 +193,7 @@ void CHintBox::refresh(void)
 	int ypos  = theight + (fheight >> 1);
 
 	for (std::vector<char *>::const_iterator it = line.begin() + (entries_per_page * current_page); ((it != line.end()) && (count > 0)); ++it, count--)
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], textStartX, (ypos += fheight), width, *it, COL_MENUCONTENT_TEXT, 0, true); // UTF-8
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], textStartX, (ypos += fheight), width, *it, COL_MENUCONTENT_TEXT);
 
 	if (entries_per_page < line.size())
 	{
@@ -285,7 +284,7 @@ int ShowHint(const char * const Caption, const char * const Text, const int Widt
 			res = messages_return::handled;
 			break;
 		}
-		else if((msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
+		else if((msg == (neutrino_msg_t) g_settings.key_switchformat) || (msg == (neutrino_msg_t) g_settings.key_next43mode)) {
 			res = messages_return::cancel_all;
 			g_RCInput->postMsg(msg, data);
 		}

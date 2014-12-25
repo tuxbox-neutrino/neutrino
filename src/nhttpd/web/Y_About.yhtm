@@ -10,10 +10,10 @@
 	<div class="work_box_body">
 		<table border="0" cellpadding="2" cellspacing="4">
 		<tr>
-			<td width="144" valign="bottom"><a href="http://www.yjogol.com" target="_blank"><img border="0" src="images/yjogol.gif" alt="yjogol"/></a></td>
+			<td width="144" valign="bottom"><img border="0" src="images/yjogol.gif" alt="yjogol"/></td>
 			<td valign="bottom" style="font-size:18pt;">yWeb</td>
 		</tr><tr>			
-			<td valign="top"><a href="http://www.yjogol.com" class="exlink" target="_blank">www.yjogol.com</a></td>
+			<td valign="top">&nbsp;</td>
 			<td valign="top">
 				{=ini-get:{=var-get:vf=};version=} - {=ini-get:{=var-get:vf=};date=} - {=ini-get:{=var-get:vf=};type=}<br/><br/>
 				{=ini-get:{=var-get:vf=};info=}<br/><br/><br/>

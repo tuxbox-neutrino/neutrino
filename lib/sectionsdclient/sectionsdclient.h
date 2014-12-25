@@ -191,6 +191,7 @@ class CSectionsdClient : private CBasicClient
 	bool getIsTimeSet();
 	void setPauseScanning(const bool doPause);
 	void setServiceChanged(const t_channel_id channel_id, const bool requestEvent, int dnum = 0);
+	void setServiceStopped();
 
 	bool getIsScanningActive();
 

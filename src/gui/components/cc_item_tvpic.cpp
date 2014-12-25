@@ -95,11 +95,12 @@ void CComponentsPIP::paint(bool do_save_bg)
 	if (!cc_allow_paint)
 		return;
 	
-	if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv){
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	if(mode == NeutrinoMessages::mode_tv || mode == NeutrinoMessages::mode_webtv) {
 		videoDecoder->Pig(pig_x, pig_y, pig_w, pig_h, screen_w, screen_h);
 	}
 	else{ //paint an alternate image if no tv mode available
-		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, NULL, false, col_frame, col_frame);
+		CComponentsPicture pic = CComponentsPicture (pig_x, pig_y, pig_w, pig_h, pic_name, NULL, false, col_frame, col_frame);
 		pic.setCorner(corner_rad, corner_type);
 		pic.paint(CC_SAVE_SCREEN_NO);
 	}

@@ -390,7 +390,7 @@ int CVideoSettings::showVideoSetup()
 				videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
 			//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 
-			vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
+			vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red);
 			vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
 		}
 	}
@@ -687,7 +687,7 @@ void CVideoSettings::nextMode(void)
 					break;
 				i++;
 				if (i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT) {
-					CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
+					CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName(), g_RemoteControl->getCurrentChannelNumber());
 					return;
 				}
 			}
@@ -704,7 +704,7 @@ void CVideoSettings::nextMode(void)
 		else
 			break;
 	}
-	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
+	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName(), g_RemoteControl->getCurrentChannelNumber());
 	//ShowHint(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 }
 

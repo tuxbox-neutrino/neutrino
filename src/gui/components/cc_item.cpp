@@ -49,6 +49,15 @@ CComponentsItem::CComponentsItem(CComponentsForm* parent)
 	cc_item_index 		= CC_NO_INDEX;
 	cc_item_enabled 	= true;
 	cc_item_selected 	= false;
+	cc_page_number		= 0;
+	cc_has_focus		= true;
+	cc_gradientData.gradientBuf = NULL;
+	cc_body_gradient_mode 	= CColorGradient::gradientLight2Dark;
+	cc_body_gradient_intensity = CColorGradient::light;
+	cc_body_gradient_intensity_v_min = 0x40;
+	cc_body_gradient_intensity_v_max = 0xE0;
+	cc_body_gradient_saturation = 0xC0;
+	cc_body_gradient_direction = CFrameBuffer::gradientVertical;
 	initParent(parent);
 }
 
@@ -64,6 +73,10 @@ void CComponentsItem::initParent(CComponentsForm* parent)
 // If backround is not required, it's possible to override this with variable paint_bg=false, use doPaintBg(true/false) to set this!
 void CComponentsItem::paintInit(bool do_save_bg)
 {
+	//init color gradient
+	if (col_body_gradient)
+		initBodyGradient();
+
 	clearFbData();
 
 	int th = fr_thickness;
@@ -82,16 +95,19 @@ void CComponentsItem::paintInit(bool do_save_bg)
 	//if item is bound on a parent form, we must use real x/y values and from parent form as reference
 	int ix = x, iy = y;
 	if (cc_parent){
-		ix = cc_xr + cc_parent->getFrameThickness();
-		iy = cc_yr + cc_parent->getFrameThickness();
+		ix = cc_xr;
+		iy = cc_yr;
 	}
 	
+	cc_gradientData.boxBuf = NULL;
+	cc_gradientData.mode = CFrameBuffer::pbrg_noFree;
+	void* gradientData = (cc_gradientData.gradientBuf == NULL) ? NULL : &cc_gradientData;
 	comp_fbdata_t fbdata[] =
 	{
 		{CC_FBDATA_TYPE_BGSCREEN,	ix,	iy, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
 		{CC_FBDATA_TYPE_SHADOW_BOX, 	ix+sw,	iy+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},//shadow
 		{CC_FBDATA_TYPE_FRAME,		ix,	iy, 	width, 		height, 	col_frame_cur, 	corner_rad, 	th, 	NULL,	NULL},//frame
-		{CC_FBDATA_TYPE_BOX,		ix+th,  iy+th,  width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	NULL},//body
+		{CC_FBDATA_TYPE_BOX,		ix+th,  iy+th,  width-2*th,     height-2*th,    col_body,       rad, 		0, 	NULL, 	gradientData},//body
 	};
 
 	for(size_t i =0; i< (sizeof(fbdata) / sizeof(fbdata[0])) ;i++) {
@@ -131,6 +147,19 @@ void CComponentsItem::hideCCItem(bool no_restore)
 void CComponentsItem::hide(bool no_restore)
 {
 	hideCCItem(no_restore);
+}
+
+//erase or paint over rendered objects
+void CComponentsItem::kill(const fb_pixel_t& bg_color, bool ignore_parent)
+{
+	if(cc_parent == NULL){
+		CComponents::kill(bg_color, this->corner_rad);
+	}else{
+		if(ignore_parent)
+			CComponents::kill(bg_color, this->corner_rad);
+		else
+			CComponents::kill(cc_parent->getColorBody(), cc_parent->getCornerRadius());
+	}
 }
 
 //synchronize colors for forms
@@ -193,10 +222,33 @@ void CComponentsItem::setCenterPos(int along_mode)
 
 void CComponentsItem::setHeightP(const uint8_t& h_percent)
 {
-	height = cc_parent ? h_percent*cc_parent->getWidth()/100 : h_percent*frameBuffer->getScreenWidth()/100;
+	height = cc_parent ? h_percent*cc_parent->getHeight()/100 : h_percent*frameBuffer->getScreenHeight(true)/100;
 }
 
 void CComponentsItem::setWidthP(const uint8_t& w_percent)
 {
-	width = cc_parent ? w_percent*cc_parent->getHeight()/100 : w_percent*frameBuffer->getScreenHeight()/100;
+	width = cc_parent ? w_percent*cc_parent->getWidth()/100 : w_percent*frameBuffer->getScreenWidth(true)/100;
+}
+
+void CComponentsItem::setFocus(bool focus)
+{
+	if(cc_parent){
+		for(size_t i=0; i<cc_parent->size(); i++){
+			if (focus)
+				cc_parent->getCCItem(i)->setFocus(false);
+		}
+	}
+	cc_has_focus = focus;
+}
+
+void CComponentsItem::initBodyGradient()
+{
+	if (cc_body_gradientBuf == NULL) {
+		CColorGradient ccGradient;
+		int gsize = cc_body_gradient_direction == CFrameBuffer::gradientVertical ? height : width;
+		cc_body_gradientBuf = ccGradient.gradientOneColor(col_body, NULL, gsize, cc_body_gradient_mode, cc_body_gradient_intensity, cc_body_gradient_intensity_v_min, cc_body_gradient_intensity_v_max, cc_body_gradient_saturation);
+	}
+	cc_gradientData.gradientBuf = cc_body_gradientBuf;
+	cc_gradientData.direction = cc_body_gradient_direction;
+	cc_gradientData.mode = CFrameBuffer::pbrg_noOption;
 }

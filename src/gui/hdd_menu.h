@@ -25,8 +25,8 @@
 #ifndef __hdd_menu__
 #define __hdd_menu__
 
-
 #include "widget/menue.h"
+#include <gui/widget/hintbox.h>
 
 using namespace std;
 
@@ -53,6 +53,8 @@ class CHDDMenuHandler : public CMenuTarget
 		std::string mount;
 		std::string umount;
 		bool show_menu;
+		bool in_menu;
+		bool lock_refresh;
 		std::map<std::string, std::string> devtitle;
 		struct hdd_s {
 			std::string devname;
@@ -88,6 +90,9 @@ class CHDDMenuHandler : public CMenuTarget
 		int checkDevice(std::string dev);
 		int formatDevice(std::string dev);
 		void showError(neutrino_locale_t err);
+		bool scanDevices();
+		void showHint(std::string &messsage);
+		void setRecordPath(std::string &dev);
 		CHDDMenuHandler();
 
 	public:

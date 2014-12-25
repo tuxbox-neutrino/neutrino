@@ -38,12 +38,12 @@
 #define  MAXDATA     (MAXPKT-HDRLEN-TIMLEN)
 #define  DEF_TIMEOUT 5
 
-int   ident = 0;
-int   timo  = 2;
-int   rrt;
-int   sock;
+static int   ident = 0;
+static int   timo  = 2;
+static int   rrt;
+static int   sock = -1;
 
-int 
+static int 
 in_checksum( u_short *buf, int len )
 {
   register long sum = 0;
@@ -97,7 +97,7 @@ send_ping( const char *host, struct sockaddr_in *taddr )
     return -1;
   }
 
-  if(( sock = socket( AF_INET, SOCK_RAW, proto->p_proto )) < 0 ){
+  if((sock < 0) && ( sock = socket( AF_INET, SOCK_RAW, proto->p_proto )) < 0 ){
 #ifdef  DEBUG
   perror( "sock" );
 #endif/*DEBUG*/
@@ -117,6 +117,7 @@ send_ping( const char *host, struct sockaddr_in *taddr )
   perror( "sock" );
 #endif/*DEBUG*/
     close( sock );
+    sock = -1;
     return -2;
   }
   if( ss != len ){
@@ -124,13 +125,14 @@ send_ping( const char *host, struct sockaddr_in *taddr )
   perror( "malformed packet" );
 #endif/*DEBUG*/
     close( sock );
+    sock = -1;
     return -2;
   }
 
   return 0;
 }
 
-int 
+static int 
 recv_ping( struct sockaddr_in *taddr )
 {
   int len;
@@ -188,7 +190,7 @@ recv_ping( struct sockaddr_in *taddr )
  * returns an int value for the difference
  * between now and starttime in milliseconds.
  */
-int
+static int
 elapsed_time( struct timeval *starttime ){
   struct timeval *newtime;
   int elapsed;
@@ -209,12 +211,15 @@ elapsed_time( struct timeval *starttime ){
   return( elapsed );
 } 
 
-int 
-myping( const char *hostname, int t )
+static int 
+myping(const std::string &hostname, int t, struct sockaddr_in *sa = NULL)
 {
   int err;
-  struct sockaddr_in sa;
+  struct sockaddr_in _sa;
   struct timeval mytime;
+
+  if (!sa)
+	sa = &_sa;
  
   ident = getpid() & 0xFFFF;
 
@@ -222,34 +227,42 @@ myping( const char *hostname, int t )
   else         timo = t;
 
   (void) gettimeofday( &mytime, (struct timezone *)NULL); 
-  if(( err = send_ping( hostname, &sa )) < 0 ){
+  if(( err = send_ping( hostname.c_str(), sa )) < 0 ){
     return err;
   }
   do{
     if(( rrt = elapsed_time( &mytime )) > timo * 1000 ){
       close( sock );
+      sock = -1;
       return 0;
     }
-  } while( recv_ping( &sa ));
+  } while( recv_ping(sa));
   close( sock ); 
+  sock = -1;
 
   return 1;
 }
 
 int
-pinghost( const char *hostname )
+pinghost(const std::string &hostname, std::string *ip)
 {
-  return myping( hostname, 0 );
+	struct sockaddr_in sa;
+	int res = myping( hostname, 0, &sa);
+	if (ip) {
+		char *p = inet_ntoa(sa.sin_addr);
+		*ip = p ? std::string(p) : "";
+	}
+	return res;
 }
 
 int
-pingthost( const char *hostname, int t )
+pingthost(const std::string &hostname, int t)
 {
   return myping( hostname, t );
 }
 
 int
-tpinghost( const char *hostname )
+tpinghost(const std::string &hostname)
 {
   int ret;
 
@@ -260,7 +273,7 @@ tpinghost( const char *hostname )
 } 
 
 int
-tpingthost( const char *hostname, int t )
+tpingthost(const std::string &hostname, int t )
 {
   int ret;
 

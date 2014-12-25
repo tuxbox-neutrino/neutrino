@@ -31,11 +31,12 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc_base.h"
+#include <cs_api.h>
 #include <system/debug.h>
 using namespace std;
 
 //abstract basic class CComponents
-CComponents::CComponents()
+CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 {
 	x = saved_screen.x 	= 0;
 	y = saved_screen.y 	= 0;
@@ -50,6 +51,7 @@ CComponents::CComponents()
 	col_frame_sel 		= COL_MENUCONTENTSELECTED_PLUS_0;
 	corner_type 		= CORNER_ALL;
 	corner_rad		= 0;
+	cc_tag			= NULL;
 	shadow			= CC_SHADOW_OFF;
 	shadow_w		= SHADOW_OFFSET;
 	fr_thickness		= 0;
@@ -62,6 +64,8 @@ CComponents::CComponents()
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	saved_screen.pixbuf 	= NULL;
+	cc_body_gradientBuf	= NULL;
+	col_body_gradient	= false;
 }
 
 CComponents::~CComponents()
@@ -69,6 +73,8 @@ CComponents::~CComponents()
 	hide();
 	clearSavedScreen();
 	clearFbData();
+	if (cc_body_gradientBuf)
+		free(cc_body_gradientBuf);
 }
 
 void CComponents::clearSavedScreen()
@@ -151,6 +157,7 @@ void CComponents::paintFbItems(bool do_save_bg)
 
 		//some elements can be assembled from lines and must be handled as one unit (see details line),
 		//so all individual backgrounds of boxes must be saved and painted in "firstpaint mode"
+#if 0
 		if (firstPaint){
 
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
@@ -162,7 +169,10 @@ void CComponents::paintFbItems(bool do_save_bg)
 			else
 				firstPaint = false;
 		}
-		
+#endif
+		if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
+			v_fbdata[i].pixbuf = getScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+
 		//paint all fb relevant basic parts (frame and body) with all specified properties, paint_bg must be true
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN && paint_bg){
 			if (fbtype == CC_FBDATA_TYPE_FRAME) {
@@ -192,9 +202,20 @@ void CComponents::paintFbItems(bool do_save_bg)
 					}
 				}
 			}
-			else
-				if(cc_allow_paint)
-					frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
+			else {
+				if(cc_allow_paint) {
+					if  (col_body_gradient && (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX) && (v_fbdata[i].data != NULL)) {
+						// color gradient
+						gradientData_t *gradientData = static_cast<gradientData_t*> (v_fbdata[i].data);
+						if (gradientData->boxBuf == NULL)
+							gradientData->boxBuf = frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, 0, gradientData, v_fbdata[i].r, corner_type);
+						else
+//							frameBuffer->blit2FB(gradientData->boxBuf, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].x, v_fbdata[i].y);
+							frameBuffer->blitBox2FB(gradientData->boxBuf, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].x, v_fbdata[i].y);
+					} else
+						frameBuffer->paintBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].color, v_fbdata[i].r, corner_type);
+				}
+			}
 		}
 	}
 
@@ -227,11 +248,38 @@ inline void CComponents::hide()
 	is_painted = false;
 }
 
-//erase rendered objects
-void CComponents::kill()
+//erase or paint over rendered objects
+void CComponents::kill(const fb_pixel_t& bg_color, const int& corner_radius)
 {
-	for(size_t i =0; i< v_fbdata.size() ;i++) 
-		frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);	
+	for(size_t i =0; i< v_fbdata.size() ;i++){
+#if 0
+		if (bg_color != COL_BACKGROUND_PLUS_0)
+#endif
+			int r =  v_fbdata[i].r;
+			if (corner_radius > -1)
+				r = corner_radius;
+			frameBuffer->paintBoxRel(v_fbdata[i].x,
+						 v_fbdata[i].y,
+						 v_fbdata[i].dx,
+						 v_fbdata[i].dy,
+						 bg_color,
+						 r,
+						 corner_type);
+			if (v_fbdata[i].frame_thickness)
+					frameBuffer->paintBoxFrame(v_fbdata[i].x,
+								   v_fbdata[i].y,
+								   v_fbdata[i].dx,
+								   v_fbdata[i].dy,
+								   v_fbdata[i].frame_thickness,
+								   bg_color,
+								   r,
+								   corner_type);
+
+#if 0
+		else
+			frameBuffer->paintBackgroundBoxRel(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy);
+#endif
+	}
 	clearFbData();
 	firstPaint = true;
 	is_painted = false;
@@ -240,9 +288,16 @@ void CComponents::kill()
 //clean old screen buffer
 void CComponents::clearFbData()
 {
-	for(size_t i =0; i< v_fbdata.size() ;i++)
+	for(size_t i =0; i< v_fbdata.size() ;i++) {
 		if (v_fbdata[i].pixbuf)
 			delete[] v_fbdata[i].pixbuf;
+
+		if (v_fbdata[i].data && (v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BOX)) {
+			gradientData_t *gradientData = static_cast<gradientData_t*> (v_fbdata[i].data);
+			if (gradientData->boxBuf)
+				cs_free_uncached(gradientData->boxBuf);
+		}
+	}
 	v_fbdata.clear();
 }
 
@@ -254,4 +309,18 @@ inline void CComponents::setXPos(const int& xpos)
 inline void CComponents::setYPos(const int& ypos)
 {
 	y = ypos;
+}
+
+void CComponents::setFrameThickness(const int& thickness, const int& thickness_sel)
+{
+	fr_thickness = thickness;
+
+	if (fr_thickness_sel != thickness_sel)
+		fr_thickness_sel = thickness_sel;
+}
+
+
+void CComponents::enableColBodyGradient(bool do_paint_gradient)
+{
+	col_body_gradient = g_settings.gradiant ? do_paint_gradient : false;
 }

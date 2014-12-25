@@ -64,15 +64,15 @@ int CZapitSetup::showMenu()
 	zapit->addIntroItems(LOCALE_ZAPITSETUP_INFO);
 	COnOffNotifier* miscZapitNotifier = new COnOffNotifier(1);
 	//zapit
-	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscZapitNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, miscZapitNotifier, CRCInput::RC_red);
 	mc->setHint("", LOCALE_MENU_HINT_LAST_USE);
 
 	CSelectChannelWidget select;
 
-	CMenuForwarder 	*zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN );
+	CMenuForwarder 	*zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green);
 	zapit1->setHint("", LOCALE_MENU_HINT_LAST_TV);
 
-	CMenuForwarder 	*zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW );
+	CMenuForwarder 	*zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow);
 	zapit2->setHint("", LOCALE_MENU_HINT_LAST_RADIO);
 
 	#define CHANNEL_LIST_MODE_OPTION_COUNT 5
@@ -84,9 +84,9 @@ int CZapitSetup::showMenu()
 		, { LIST_MODE_ALL,	LOCALE_CHANNELLIST_HEAD		}
 	};
 
-	CMenuOptionChooser *channel_mode = new CMenuOptionChooser(LOCALE_ZAPITSETUP_CHANNELMODE, &g_settings.channel_mode_initial, CHANNEL_LIST_MODE_OPTIONS, CHANNEL_LIST_MODE_OPTION_COUNT, true, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1);
+	CMenuOptionChooser *channel_mode = new CMenuOptionChooser(LOCALE_ZAPITSETUP_CHANNELMODE, &g_settings.channel_mode_initial, CHANNEL_LIST_MODE_OPTIONS, CHANNEL_LIST_MODE_OPTION_COUNT, true, NULL, CRCInput::RC_1);
 	channel_mode->setHint("", LOCALE_MENU_HINT_CHANNELLIST_MODE);
-	CMenuOptionChooser *channel_mode_radio = new CMenuOptionChooser(LOCALE_ZAPITSETUP_CHANNELMODE_RADIO, &g_settings.channel_mode_initial_radio, CHANNEL_LIST_MODE_OPTIONS, CHANNEL_LIST_MODE_OPTION_COUNT, true, NULL, CRCInput::RC_2, NEUTRINO_ICON_BUTTON_2);
+	CMenuOptionChooser *channel_mode_radio = new CMenuOptionChooser(LOCALE_ZAPITSETUP_CHANNELMODE_RADIO, &g_settings.channel_mode_initial_radio, CHANNEL_LIST_MODE_OPTIONS, CHANNEL_LIST_MODE_OPTION_COUNT, true, NULL, CRCInput::RC_2);
 	channel_mode_radio->setHint("", LOCALE_MENU_HINT_CHANNELLIST_MODE_RADIO);
 
 	miscZapitNotifier->addItem(zapit1);
@@ -178,7 +178,9 @@ int CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode
 			char cChannelId[60] = {0};
 			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode==CZapitClient::MODE_TV)?'T':'R', channel->number, channel->channel_id);
 
-			CMenuForwarder * chan_item = new CMenuForwarder(channel->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL, channel->scrambled ?NEUTRINO_ICON_SCRAMBLED:NULL);
+			CMenuForwarder * chan_item = new CMenuForwarder(channel->getName(), true, NULL, this,
+				(std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL,
+				channel->scrambled ? NEUTRINO_ICON_SCRAMBLED: (channel->getUrl().empty() ? NULL : NEUTRINO_ICON_STREAMING));
 			chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			mwtv->addItem(chan_item);
 
