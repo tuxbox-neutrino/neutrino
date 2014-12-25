@@ -2055,7 +2055,7 @@ scants.test Empfangstest
 scants.transponders Transponder:
 scrambled_channel Verschlüsselung aktiv
 screensaver.dir Verzeichnis
-screensaver.timeout Wartezeit
+screensaver.timeout Bilderwechsel
 screensaver.setup Bildschirmschoner
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links

@@ -2061,7 +2061,7 @@ scants.transponders Transponders:
 scrambled_channel Scrambled channel
 screensaver.dir Directory
 screensaver.menu Screensaver
-screensaver.timeout Timeout
+screensaver.timeout Change pictures
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Count
