@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2011 CoolStream International Ltd
-	Copyright (C) 2012,2013 Stefan Seyfried
+	Copyright (C) 2012,2013,2014 Stefan Seyfried
 
 	License: GPLv2
 
@@ -403,7 +403,6 @@ void CFEManager::linkFrontends(bool init)
 	INFO("linking..");
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	enabled_count = 0;
-	have_sat = have_cable = have_terr = false;
 	unused_demux = 0;
 	int demuxes[MAX_DMX_UNITS];
 	for(unsigned i = 0; i < MAX_DMX_UNITS; i++)
@@ -459,13 +458,6 @@ void CFEManager::linkFrontends(bool init)
 		if (femode != CFrontend::FE_MODE_UNUSED)
 		{
 			enabled_count++;
-			delivery_system_t d = fe->getCurrentDeliverySystem();
-			if (fe->isSat(d))
-				have_sat = true;
-			else if (fe->isCable(d))
-				have_cable = true;
-			else if (fe->isTerr(d))
-				have_terr = true;
 			if ((fe->fenumber + 1) < (int) MAX_DMX_UNITS)
 				demuxes[fe->fenumber + 1] = 1;
 		}
