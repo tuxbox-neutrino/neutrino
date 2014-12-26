@@ -1825,10 +1825,6 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	if (dline != NULL)
 		dline->kill();
 
-	// clear infobox
-	if (ibox != NULL)
-		ibox->kill();
-
 	// paint Line if detail info (and not valid list pos) and info box
 	if (!m_playlist.empty() && (pos >= 0))
 	{
@@ -1839,39 +1835,41 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		dline->paint(false);
 
 		// paint id3 infobox
-		if (ibox == NULL)
+		if (ibox == NULL){
 			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height);
-		ibox->setCorner(RADIUS_LARGE);
-		ibox->setYPos(ypos2);
-		ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
-		ibox->setFrameThickness(2);
-		ibox->paint(false);
+			ibox->setFrameThickness(2);
+			ibox->setCorner(RADIUS_LARGE);
+			ibox->setYPos(ypos2);
+			ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+			ibox->forceTextPaint(false);
+		}
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
-				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK_TEXT);
-		std::string tmp;
+		//title
+		std::string text_info = m_playlist[m_selected].MetaData.title;
+
+		//date, genre
 		if (m_playlist[m_selected].MetaData.genre.empty())
-			tmp = m_playlist[m_selected].MetaData.date;
+			text_info = m_playlist[m_selected].MetaData.date;
 		else if (m_playlist[m_selected].MetaData.date.empty())
-			tmp = m_playlist[m_selected].MetaData.genre;
+			text_info = m_playlist[m_selected].MetaData.genre;
 		else
 		{
-			tmp = m_playlist[m_selected].MetaData.genre;
-			tmp += " / ";
-			tmp += m_playlist[m_selected].MetaData.date;
+			text_info = m_playlist[m_selected].MetaData.genre;
+			text_info += " / ";
+			text_info += m_playlist[m_selected].MetaData.date;
 		}
-		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(tmp) + 10;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + m_width - w - 5, ypos2 + 2 + 1*m_fheight,
-				w, tmp, COL_MENUCONTENTDARK_TEXT);
-		tmp = m_playlist[m_selected].MetaData.artist;
+
+		//artist, album
+		text_info = m_playlist[m_selected].MetaData.artist;
 		if (!(m_playlist[m_selected].MetaData.album.empty()))
 		{
-			tmp += " (";
-			tmp += m_playlist[m_selected].MetaData.album;
-			tmp += ')';
+			text_info += " (";
+			text_info += m_playlist[m_selected].MetaData.album;
+			text_info += ')';
 		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2*m_fheight - 2, m_width - 20,
-				tmp, COL_MENUCONTENTDARK_TEXT);
+
+		ibox->setText(text_info, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO], COL_MENUCONTENT_TEXT);
+		ibox->paint(false);
 	}
 	else
 	{
