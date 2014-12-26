@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 CoolStream International Ltd
- * Copyright (C) 2012 Stefan Seyfried
+ * Copyright (C) 2012,2014 Stefan Seyfried
  *
  * License: GPLv2
  *
@@ -162,7 +162,7 @@ void transponder::dump(std::string label)
 				getFEParams()->modulation,
 				getFEParams()->delsys);
 	} else if (CFrontend::isTerr(feparams.delsys)) {
-		printf("%s tp-id %016llx freq %d bw %d coderate_HP %d coderate_LP %d const %d guard %d %d\n", label.c_str(),
+		printf("%s tp-id %016" PRIx64 " freq %d bw %d coderate_HP %d coderate_LP %d const %d guard %d %d\n", label.c_str(),
 				transponder_id,
 				getFEParams()->frequency,
 				getFEParams()->bandwidth,
