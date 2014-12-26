@@ -354,7 +354,7 @@ class CMovieBrowser : public CMenuTarget
 		std::vector<MI_MOVIE_INFO> yt_completed;
 		std::vector<MI_MOVIE_INFO> yt_failed;
 		void loadYTitles(int mode, std::string search = "", std::string id = "");
-		bool showYTMenu(void);
+		bool showYTMenu(bool calledExternally = false);
 		void refreshYTMenu();
 
 	public:  // Functions //////////////////////////////////////////////////////////7
@@ -430,7 +430,7 @@ class CMovieBrowser : public CMenuTarget
 		void getStorageInfo(void); // P3
 
 		///// Menu ////////////////////////////////////
-		bool showMenu(MI_MOVIE_INFO* movie_info, bool calledExternally = false); // P2
+		bool showMenu(bool calledExternally = false);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int  showStartPosSelectionMenu(void); // P2
 

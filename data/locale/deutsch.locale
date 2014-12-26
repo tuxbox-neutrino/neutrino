@@ -885,6 +885,7 @@ menu.back Zurück
 menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
 menu.hint_aplay Audioplayer
+menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen und mehr
 menu.hint_audio_adjust_vol_ac3 Lautstärkeanpassung für AC3-Tonspuren
 menu.hint_audio_adjust_vol_clear Alle gespeicherten Werte für AC3- und PCM-Tonspuren löschen
@@ -1101,6 +1102,7 @@ menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, St
 menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
+menu.hint_moviebrowser_setup Legen Sie Auswahl- und Anzeigeoptionen des MovieBrowsers fest
 menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste im Movieplayer-Modus gestartet wird
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische Vergabe einer IP-Adresse im Netzwerk
@@ -1152,6 +1154,7 @@ menu.hint_parentallock_prompt Legen Sie fest, wann die Eingabe einer PIN erfolge
 menu.hint_personalize Personalisieren Sie ihre Menüs und konfigurieren Sie ihre Benutzermenüs
 menu.hint_pictureviewer_defdir Wählen Sie das Startverzeichnis für den Bildbetrachter
 menu.hint_pictureviewer_scaling Stellen Sie die Bildauflösung ein
+menu.hint_pictureviewer_setup Konfigurieren Sie die Bildbetrachter-Optionen
 menu.hint_pictureviewer_slide_time Ändern Sie den Diashow-Intervall.\nStandardmäßig sind 10 Sekunden eingstellt
 menu.hint_picview Bilder anzeigen
 menu.hint_plugin_type_games Legt fest, ob Spiele im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
@@ -1358,6 +1361,7 @@ menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
+menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter (Menü zum Beenden)
 messagebox.back Zurück

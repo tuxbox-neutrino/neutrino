@@ -888,6 +888,7 @@ menu.back Back
 menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
 menu.hint_aplay Audio player
+menu.hint_aplay_setup Change title display, start directory, screen saver and more
 menu.hint_audio Audio output, DD\nSRS True volume options
 menu.hint_audio_adjust_vol_ac3 Channel specific volume adjustment for AC3 streams
 menu.hint_audio_adjust_vol_clear Clear all saved values for PCM and AC3 streams
@@ -1104,6 +1105,7 @@ menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leav
 menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
+menu.hint_moviebrowser_setup Set selection and display options.
 menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
@@ -1155,6 +1157,7 @@ menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN c
 menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
 menu.hint_pictureviewer_defdir Default picture viewer directory
 menu.hint_pictureviewer_scaling Picture scaling algorithm
+menu.hint_pictureviewer_setup Configure pictureviewer behavior
 menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
 menu.hint_picview View pictures
 menu.hint_plugin_type_games Show games in usermenu at selection 'Plugin types'
@@ -1363,6 +1366,7 @@ menu.hint_volume_size Select volume indicator height
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_ytplay Play selected youtube feeds
+menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next (press Menu to quit)
 messagebox.back Back

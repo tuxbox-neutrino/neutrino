@@ -863,6 +863,16 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
 			m_movieSelectionHandler->bookmarks.user[i].pos =0;
 		}
 	}
+	else if(actionKey == "show_menu")
+	{
+		showMenu(true);
+	}
+	else if(actionKey == "show_ytmenu")
+	{
+		showYTMenu(true);
+		saveSettings(&m_settings);
+	}
+
 	return returnval;
 }
 
@@ -1746,7 +1756,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		if (show_mode == MB_SHOW_YT)
 			showYTMenu();
 		else
-			showMenu(m_movieSelectionHandler);
+			showMenu();
 
 	}
 	else if (msg == CRCInput::RC_text || msg == CRCInput::RC_radio) {
@@ -2764,7 +2774,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 	return res;
 }
 
-bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /* movie_info */, bool calledExternally)
+bool CMovieBrowser::showMenu(bool calledExternally)
 {
 	/* first clear screen */
 	framebuffer->paintBackground();
@@ -2864,19 +2874,22 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /* movie_info */, bool calledExterna
 	CMovieHelp* movieHelp = new CMovieHelp();
 	CNFSSmallMenu* nfs =    new CNFSSmallMenu();
 
-	CMenuWidget mainMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
-	mainMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_MAIN_HEAD);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD, (m_movieSelectionHandler != NULL), NULL, this,   "show_movie_info_menu",    CRCInput::RC_red));
-	mainMenu.addItem(GenericMenuSeparatorLine);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_EPGPLUS_OPTIONS,                    true, NULL, &optionsMenu,NULL,                                  CRCInput::RC_green));
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_yellow));
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,       true, NULL, this,        "reload_movie_info",                   CRCInput::RC_blue));
-	//mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_NFS_HEAD,       true, NULL, nfs,         NULL,                                  CRCInput::RC_setup));
-	mainMenu.addItem(GenericMenuSeparatorLine);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_HELP_HEAD,        true, NULL, movieHelp,   NULL,                                  CRCInput::RC_help));
-	//mainMenu.addItem(GenericMenuSeparator);
+	if (!calledExternally) {
+		CMenuWidget mainMenu(LOCALE_MOVIEBROWSER_HEAD, NEUTRINO_ICON_MOVIEPLAYER);
+		mainMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_MAIN_HEAD);
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_HEAD, (m_movieSelectionHandler != NULL), NULL, this,   "show_movie_info_menu",    CRCInput::RC_red));
+		mainMenu.addItem(GenericMenuSeparatorLine);
+		mainMenu.addItem(new CMenuForwarder(LOCALE_EPGPLUS_OPTIONS,                    true, NULL, &optionsMenu,NULL,                                  CRCInput::RC_green));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD, true, NULL, &dirMenu,    NULL,                                  CRCInput::RC_yellow));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES,       true, NULL, this,        "reload_movie_info",                   CRCInput::RC_blue));
+		//mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_NFS_HEAD,       true, NULL, nfs,         NULL,                                  CRCInput::RC_setup));
+		mainMenu.addItem(GenericMenuSeparatorLine);
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_MENU_HELP_HEAD,        true, NULL, movieHelp,   NULL,                                  CRCInput::RC_help));
+		//mainMenu.addItem(GenericMenuSeparator);
 
-	mainMenu.exec(NULL, " ");
+		mainMenu.exec(NULL, " ");
+	} else
+		optionsMenu.exec(NULL, "");
 
 	// post menu handling
 	if (m_parentalLock != MB_PARENTAL_LOCK_OFF_TMP)
@@ -3441,7 +3454,7 @@ int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 	return menu_return::RETURN_EXIT;
 }
 
-bool CMovieBrowser::showYTMenu()
+bool CMovieBrowser::showYTMenu(bool calledExternally)
 {
 	framebuffer->paintBackground();
 
@@ -3452,30 +3465,36 @@ bool CMovieBrowser::showYTMenu()
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	char cnt[5];
-	for (unsigned i = 0; i < YT_FEED_OPTION_COUNT; i++) {
-		sprintf(cnt, "%d", YT_FEED_OPTIONS[i].key);
-		mainMenu.addItem(new CMenuForwarder(YT_FEED_OPTIONS[i].value, true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1)), m_settings.ytmode == (int) YT_FEED_OPTIONS[i].key);
+	if (!calledExternally) {
+		for (unsigned i = 0; i < YT_FEED_OPTION_COUNT; i++) {
+			sprintf(cnt, "%d", YT_FEED_OPTIONS[i].key);
+			mainMenu.addItem(new CMenuForwarder(YT_FEED_OPTIONS[i].value, true, NULL, selector, cnt, CRCInput::convertDigitToKey(i + 1)), m_settings.ytmode == (int) YT_FEED_OPTIONS[i].key);
+		}
+		mainMenu.addItem(GenericMenuSeparatorLine);
+
+		bool enabled = (!m_vMovieInfo.empty()) && (m_movieSelectionHandler != NULL);
+		sprintf(cnt, "%d", cYTFeedParser::RELATED);
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_RELATED, enabled, NULL, selector, cnt, CRCInput::RC_red));
+
+		mainMenu.addItem(GenericMenuSeparatorLine);
 	}
-	mainMenu.addItem(GenericMenuSeparatorLine);
-
-	bool enabled = (!m_vMovieInfo.empty()) && (m_movieSelectionHandler != NULL);
-	sprintf(cnt, "%d", cYTFeedParser::RELATED);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_RELATED, enabled, NULL, selector, cnt, CRCInput::RC_red));
-
-	mainMenu.addItem(GenericMenuSeparatorLine);
 
 	std::string search = m_settings.ytsearch;
 	CKeyboardInput stringInput(LOCALE_MOVIEBROWSER_YT_SEARCH, &search);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_SEARCH, true, search, &stringInput, NULL, CRCInput::RC_green));
-	mainMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_YT_ORDERBY, &m_settings.ytorderby, YT_ORDERBY_OPTIONS, YT_ORDERBY_OPTION_COUNT, true, NULL, CRCInput::RC_nokey, "", true));
-	sprintf(cnt, "%d", cYTFeedParser::SEARCH);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, selector, cnt, CRCInput::RC_yellow));
+	if (!calledExternally) {
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_SEARCH, true, search, &stringInput, NULL, CRCInput::RC_green));
+		mainMenu.addItem(new CMenuOptionChooser(LOCALE_MOVIEBROWSER_YT_ORDERBY, &m_settings.ytorderby, YT_ORDERBY_OPTIONS, YT_ORDERBY_OPTION_COUNT, true, NULL, CRCInput::RC_nokey, "", true));
+		sprintf(cnt, "%d", cYTFeedParser::SEARCH);
+		mainMenu.addItem(new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, selector, cnt, CRCInput::RC_yellow));
+	}
 
 	CYTHistory ytHistory(m_settings, search);
-	if (m_settings.ytsearch_history_size > 0)
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_HISTORY, true, NULL, &ytHistory, "", CRCInput::RC_blue));
+	if (!calledExternally) {
+		if (m_settings.ytsearch_history_size > 0)
+			mainMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_HISTORY, true, NULL, &ytHistory, "", CRCInput::RC_blue));
 
-	mainMenu.addItem(GenericMenuSeparatorLine);
+		mainMenu.addItem(GenericMenuSeparatorLine);
+	}
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_RESULTS, &m_settings.ytresults, true, 10, 50, NULL));
 	mainMenu.addItem(new CMenuOptionNumberChooser(LOCALE_MOVIEBROWSER_YT_MAX_HISTORY, &m_settings.ytsearch_history_max, true, 10, 50, NULL));
 
@@ -3524,8 +3543,18 @@ bool CMovieBrowser::showYTMenu()
 	delete selector;
 
 	bool reload = false;
-	printf("MovieBrowser::showYTMenu(): selected: %d\n", select);
 	int newmode = -1;
+	if (rstr != m_settings.ytregion) {
+		m_settings.ytregion = rstr;
+		if (newmode < 0)
+			newmode = m_settings.ytmode;
+		reload = true;
+		printf("change region to %s\n", m_settings.ytregion.c_str());
+	}
+	if (calledExternally)
+		return true;
+
+	printf("MovieBrowser::showYTMenu(): selected: %d\n", select);
 	if (select >= 0) {
 		newmode = select;
 		if (select == cYTFeedParser::RELATED) {
@@ -3565,13 +3594,7 @@ bool CMovieBrowser::showYTMenu()
 			reload = true;
 		}
 	}
-	if (rstr != m_settings.ytregion) {
-		m_settings.ytregion = rstr;
-		if (newmode < 0)
-			newmode = m_settings.ytmode;
-		reload = true;
-		printf("change region to %s\n", m_settings.ytregion.c_str());
-	}
+
 	if (reload) {
 		CHintBox loadBox(LOCALE_MOVIEPLAYER_YTPLAYBACK, g_Locale->getText(LOCALE_MOVIEBROWSER_SCAN_FOR_MOVIES));
 		loadBox.paint();
