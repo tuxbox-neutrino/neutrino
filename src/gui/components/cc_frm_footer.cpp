@@ -135,7 +135,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 
 		//ignore item, if no text and icon are defined;
 		if (txt.empty() && btn_name.empty()){
-			dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  ignore item [%d], no icon and text defined!\n", __func__, __LINE__, i);
+			dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  ignore item [%zu], no icon and text defined!\n", __func__, __LINE__, i);
 			continue;
 		}
 
@@ -169,7 +169,7 @@ void CComponentsFooter::setButtonLabels(const struct button_label_s * const cont
 	int w_rest = max(w_chain - w_used, 0);
 	int btn_offset = w_rest / chain->size();
 	chain->setAppendOffset(btn_offset, 0);
-	dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  btn_offset = %d, w_rest = %d, w_chain  = %d, w_used = %d, chain->size() = %u\n", __func__, __LINE__, btn_offset, w_rest, w_chain, w_used, chain->size());
+	dprintf(DEBUG_INFO, "[CComponentsFooter]   [%s - %d]  btn_offset = %d, w_rest = %d, w_chain  = %d, w_used = %d, chain->size() = %zu\n", __func__, __LINE__, btn_offset, w_rest, w_chain, w_used, chain->size());
 
 	//set x position of 1st button object inside chain, this is centering button objects inside chain
 	int x_1st_btn = btn_offset/2;
