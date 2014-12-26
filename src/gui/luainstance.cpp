@@ -790,7 +790,7 @@ int CLuaInstance::strSub(lua_State *L)
 		return 1;
 	}
 	const char *s1;
-	int pos=0, len=std::string::npos;
+	int pos = 0, len = (int)std::string::npos;
 	std::string ret="";
 	s1 = luaL_checkstring(L, 2);
 	pos = luaL_checkint(L, 3);
