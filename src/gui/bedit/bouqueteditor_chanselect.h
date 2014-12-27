@@ -52,7 +52,7 @@ class CBEChannelSelectWidget : public CListBox
 		bool isChannelInBouquet( int index);
 		CComponentsDetailLine *dline;
 		CComponentsInfoBox *ibox;
-
+		CComponentsFooter footer;
 		uint	getItemCount();
 		void paintItem(uint32_t itemNr, int paintNr, bool selected);
 		void paintDetails(int index);

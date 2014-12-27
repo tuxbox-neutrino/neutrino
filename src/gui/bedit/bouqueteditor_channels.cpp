@@ -44,7 +44,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include "bouqueteditor_chanselect.h"
-#include <gui/widget/buttons.h>
+#include <gui/components/cc.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keyboard_input.h>
@@ -73,7 +73,7 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
-	footerHeight= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6;
+	footerHeight= footer.getHeight();
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
 	iheight = std::max(fheight, icol_h+2);
@@ -196,7 +196,8 @@ const struct button_label CBEChannelWidgetButtons[6] =
 
 void CBEChannelWidget::paintFoot()
 {
-	::paintButtons(x, y + (height-footerHeight), width, 6, CBEChannelWidgetButtons, width, footerHeight);
+	size_t numbuttons = sizeof(CBEChannelWidgetButtons)/sizeof(CBEChannelWidgetButtons[0]);
+	footer.paintButtons(x, y + (height-footerHeight), width, footerHeight, numbuttons, CBEChannelWidgetButtons, width/numbuttons-20);
 }
 
 std::string CBEChannelWidget::getInfoText(int index)
