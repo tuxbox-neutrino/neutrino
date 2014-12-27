@@ -179,7 +179,7 @@ void CBEChannelWidget::paint()
 
 void CBEChannelWidget::paintHead()
 {
-	CComponentsHeader header(x, y, width, theight, caption);
+	CComponentsHeader header(x, y, width, theight, caption, "" /*no header icon*/, CComponentsHeader::CC_BTN_EXIT);
 	header.paint(CC_SAVE_SCREEN_NO);
 }
 
