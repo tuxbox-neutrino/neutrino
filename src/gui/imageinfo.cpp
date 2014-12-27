@@ -185,7 +185,8 @@ void CImageInfo::ShowWindow()
 		cc_win->setWindowHeaderButtons(CComponentsHeader::CC_BTN_MENU | CComponentsHeader::CC_BTN_EXIT);
 		footer = cc_win->getFooterObject();
 		int h_footer = footer->getHeight();
-		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, h_footer-h_footer/4, LOCALE_BUILDINFO_MENU, footer, false , true, false, footer->getColorBody(), footer->getColorBody());
+		fb_pixel_t btn_col = g_settings.gradiant ?  COL_BUTTON_BODY : footer->getColorBody();
+		btn_red = new CComponentsButtonRed(10, CC_CENTERED, 250, h_footer-h_footer/4, LOCALE_BUILDINFO_MENU, footer, false , true, false, footer->getColorBody(), btn_col);
 	}
 
 	//prepare minitv
