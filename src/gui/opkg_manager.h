@@ -97,5 +97,6 @@ class COPKGManager : public CMenuTarget
 		static bool hasOpkgSupport();
 		bool checkUpdates(const std::string & package_name = std::string(), bool show_progress = true);
 		bool installPackage(const std::string& pkg_name);
+		bool checkSize(const std::string& pkg_name);
 };
 #endif
