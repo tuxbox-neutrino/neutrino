@@ -32,7 +32,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <pthread.h>
-#include <algorithm>    // std::sort
+#include <algorithm>    // sort
 #include <ctype.h>
 #include "audiomute.h"
 #include "screensaver.h"
@@ -40,6 +40,7 @@
 #include <video.h>
 extern cVideo * videoDecoder;
 
+using namespace std;
 
 CScreenSaver::CScreenSaver()
 {
@@ -130,11 +131,11 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 
 bool CScreenSaver::ReadDir()
 {
-	std::string d = g_settings.screensaver_dir;
+	string d = g_settings.screensaver_dir;
 	if (d.length() > 1)
 	{
 		//remove trailing slash
-		std::string::iterator it = d.end() - 1;
+		string::iterator it = d.end() - 1;
 		if (*it == '/')
 			d.erase(it);
 	}
@@ -177,7 +178,7 @@ bool CScreenSaver::ReadDir()
 			str += "/";
 			str += (*dirpointer).d_name;
 
-			if ((std::string) dir_name == DATADIR "/neutrino/icons")
+			if ((string) dir_name == DATADIR "/neutrino/icons")
 			{
 				/*
 				  backward compatiblity:
