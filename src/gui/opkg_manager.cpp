@@ -154,7 +154,8 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 		if (fileBrowser.exec((*local_dir).c_str()))
 		{
 			string pkg_name = fileBrowser.getSelectedFile()->Name;
-			installPackage(pkg_name);
+			if (!installPackage(pkg_name))
+				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
 
 			*local_dir = fileBrowser.getCurrentDir();
 		refreshMenu();
@@ -641,22 +642,25 @@ void COPKGManager::handleShellOutput(string& cur_line)
 	//check for collected errors and build a message for screen if errors available
 	if (has_err){
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, cur_line.c_str());
+
 		size_t pos1 = cur_line.find(" * ");
-		if (pos1 != string::npos){
+
+		//trivial errors:
+		//duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS, NOTE: if found first cache option in the opkg.conf file, this will be preferred
+		if (cur_line.find("Duplicate option cache") != string::npos){
+			has_err = true;
+		}
+		else if (pos1 != string::npos){
 			string str = cur_line.substr(pos1, cur_line.length()-pos1);
 			err_msg += str.replace(pos1, 3,"") + "\n";
+			has_err = true;
 		}
-		
 		//find obvious errors
 		//download error:
-		size_t pos01 = cur_line.find("wget returned 4");
-		if (pos01 != string::npos)
+		else if (cur_line.find("wget returned 4") != string::npos){
 			err_msg = "Network error! Online update not possible. Please check your network connection!\n";
-
-		//duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS, NOTE: if found first cache option in the opkg.conf file, this will be preferred
-		pos01 = cur_line.find("Duplicate option cache");
-		if (pos01 != string::npos)
-			has_err = false;
+			has_err = true;
+		}
 	}else{
 		size_t pos2 = cur_line.find("Collected errors:");
 		if (pos2 != string::npos)
@@ -680,7 +684,7 @@ bool COPKGManager::installPackage(const std::string& pkg_name)
 	int r = execCmd(pkg_types[OM_INSTALL] + pkg_name, true, true);
 
 	if (r){
-		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
+// 		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
 		return false;
 	}
 	else
