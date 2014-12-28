@@ -455,7 +455,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		return;
 
 	transponder t;
-	CServiceManager::getInstance()->GetTransponder(channel->getTransponderId(), t);
+	//CServiceManager::getInstance()->GetTransponder(channel->getTransponderId(), t);
+	t = *frontend->getParameters();
 
 	int array[6]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO)),

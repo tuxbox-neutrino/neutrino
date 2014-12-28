@@ -35,6 +35,9 @@
 #include "types.h"
 //#include <zapit/audio.h>
 
+#define DEFAULT_CH_LOCKED   false
+#define DEFAULT_CH_UNAME    ""
+
 typedef struct audio_map_set {
         unsigned short apid;
         int mode;
@@ -117,6 +120,7 @@ class CZapitChannel
 	private:
 		/* channel name */
 		std::string name;
+		/* TODO : Enable different unames in different bouquets ( generated bouquetID ? ) */
 		std::string uname;
 
 		/* WebTV */
@@ -217,6 +221,7 @@ class CZapitChannel
 
 		/* get methods - read and write variables */
 		const std::string&	getName(void)			const { return (!uname.empty() ? uname : name); }
+		const std::string&	getRealname(void)		const { return name; }
 		const std::string&	getUrl(void)			const { return url; }
 		const std::string&	getDesc(void)			const { return desc; }
 		t_satellite_position	getSatellitePosition(void)	const { return satellitePosition; }
@@ -268,7 +273,7 @@ class CZapitChannel
 		void setChannelSub(int subIdx);
 
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
-		void dumpBouquetXml(FILE * fd);
+		void dumpBouquetXml(FILE * fd, bool bUser);
 		void setRecordDemux(uint8_t num) { record_demux = num; };
 		void setPipDemux(uint8_t num) { pip_demux = num; };
 		int  getRecordDemux() { return record_demux; };
@@ -307,10 +312,10 @@ struct CmpChannelByFreq: public std::binary_function <const CZapitChannel * cons
 
 	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
 	{
-		if(c1->getFreqId() == c2->getFreqId())
+		if((c1->getTransponderId() == c2->getTransponderId()) && ((uint64_t)c1->getFreqId() <<32 | c1->polarization <<16 | c1->getSatellitePosition()) == ((uint64_t)c2->getFreqId()<<32 | c2->polarization <<16| c2->getSatellitePosition()))
 			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
 		else
-			return c1->getFreqId() < c2->getFreqId();
+			return ((int64_t)c1->getSatellitePosition() <<32 | c1->getFreqId()<<16 | c1->polarization ) < ((int64_t)c2->getSatellitePosition() << 32 | c2->getFreqId()<<16 | c2->polarization);		;
 		;
 	};
 };

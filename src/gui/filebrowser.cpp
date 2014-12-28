@@ -598,6 +598,7 @@ bool CFileBrowser::exec(const char * const dirname)
 	bool res = false;
 	menu_ret = menu_return::RETURN_REPAINT;
 
+	playlistmode = false;
 #ifdef ENABLE_INTERNETRADIO
 	if (m_Mode == ModeSC) {
 		m_baseurl = base;
@@ -906,6 +907,187 @@ bool CFileBrowser::exec(const char * const dirname)
 	return res;
 }
 
+bool CFileBrowser::playlist_manager(CFileList &playlist, unsigned int playing)
+{
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
+
+	bool res = false;
+	menu_ret = menu_return::RETURN_REPAINT;
+
+	filelist = playlist;
+	playlistmode = true;
+
+	fontInit();
+	paintHead();
+	selected = playing;
+
+	unsigned int oldselected = selected;
+
+	paint();
+	paintFoot();
+
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER]);
+
+	bool loop=true;
+	while (loop)
+	{
+		frameBuffer->blit();
+		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+		neutrino_msg_t msg_repeatok = msg & ~CRCInput::RC_Repeat;
+
+		if (msg <= CRCInput::RC_MaxRC)
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER]);
+
+		if(!CRCInput::isNumeric(msg))
+		{
+			m_SMSKeyInput.resetOldKey();
+			paintSMSKey();
+		}
+		if (msg == CRCInput::RC_home)
+		{
+			loop = false;
+		}
+		else if (msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::SHUTDOWN ||
+				msg == NeutrinoMessages::SLEEPTIMER)
+		{
+			menu_ret = menu_return::RETURN_EXIT_ALL;
+			loop = false;
+			g_RCInput->postMsg(msg, data);
+		}
+		else if (msg == CRCInput::RC_timeout)
+		{
+			selected = oldselected;
+			loop = false;
+		}
+		else if (msg > CRCInput::RC_MaxRC)
+		{
+			if (CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all) {
+				menu_ret = menu_return::RETURN_EXIT_ALL;
+				loop = false;
+			}
+		}
+		if ((filelist.empty()))
+			continue;
+
+		if (msg_repeatok == CRCInput::RC_up)
+		{
+			unsigned int prevselected=selected;
+			unsigned int prevliststart = liststart;
+			if (selected)
+				selected --;
+			else
+				selected = filelist.size() - 1;
+			liststart = (selected/listmaxshow)*listmaxshow;
+			if(prevliststart != liststart)
+			{
+				paint();
+			}
+			else
+			{
+				paintItem(prevselected - prevliststart);
+				paintItem(selected - liststart);
+			}
+		}
+		else if (msg_repeatok == CRCInput::RC_down)
+		{
+			unsigned int prevselected=selected;
+			unsigned int prevliststart = liststart;
+			selected = (selected + 1) % filelist.size();
+			liststart = (selected/listmaxshow)*listmaxshow;
+			if(prevliststart != liststart)
+			{
+				paint();
+			}
+			else
+			{
+				paintItem(prevselected - prevliststart);
+				paintItem(selected - liststart);
+			}
+		}
+		else if (msg == (neutrino_msg_t) g_settings.key_pagedown)
+		{
+			unsigned int last = filelist.size() - 1;
+			if (selected != last && selected + listmaxshow >= filelist.size()) {
+				selected = last;
+			} else {
+				selected = (selected == last) ? 0 : selected + listmaxshow;
+				liststart = (selected / listmaxshow) * listmaxshow;
+			}
+			paint();
+		}
+		else if (msg == (neutrino_msg_t) g_settings.key_pageup)
+		{
+			if (selected && selected < listmaxshow) {
+				selected = 0;
+			} else {
+				selected = selected ? selected - listmaxshow : filelist.size() - 1;
+				liststart = (selected/listmaxshow)*listmaxshow;
+			}
+			paint();
+		}
+		else if (msg == CRCInput::RC_red)
+		{
+			if (filelist.size() > 1)
+			{
+				filelist.erase(filelist.begin()+selected);
+				if (selected) selected --;
+			}
+			paint();
+		}
+		else if (msg == CRCInput::RC_green)
+		{
+			CFileBrowser *addfiles = new CFileBrowser;
+			addfiles->Hide_records = true;
+			addfiles->Multi_Select = true;
+			addfiles->Dirs_Selectable = true;
+			addfiles->exec(g_settings.network_nfs_moviedir.c_str());
+			CFileList tmplist = addfiles->getSelectedFiles();
+			filelist.insert( filelist.end(), tmplist.begin(), tmplist.end() );
+			tmplist.clear();
+			delete addfiles;
+			paintHead();
+			paint();
+			paintFoot();
+		}
+		else if (msg == CRCInput::RC_yellow )
+		{
+			if (++g_settings.filebrowser_sortmethod >= FILEBROWSER_NUMBER_OF_SORT_VARIANTS)
+				g_settings.filebrowser_sortmethod = 0;
+
+			sort(filelist.begin(), filelist.end(), sortBy[g_settings.filebrowser_sortmethod]);
+
+			paint();
+			paintFoot();
+		}
+		else if (msg == CRCInput::RC_blue )
+		{
+			std::random_shuffle ( filelist.begin(), filelist.end() );
+			selected = 0;
+			paint();
+			paintFoot();
+		}
+		else if (msg == CRCInput::RC_ok)
+		{
+			filelist[selected].Marked = true;
+			loop = false;
+			res = true;
+		}
+		else if (CRCInput::isNumeric(msg_repeatok))
+		{
+			SMSInput(msg_repeatok);
+		}
+	}
+
+	hide();
+	frameBuffer->blit();
+
+	playlist = filelist;
+
+	return res;
+}
+
 void CFileBrowser::addRecursiveDir(CFileList * re_filelist, std::string rpath, bool bRootCall, CProgressWindow * progress)
 {
 	neutrino_msg_t      msg;
@@ -1116,7 +1298,7 @@ void CFileBrowser::paintHead()
 		l = asprintf(&l_name, "%s %s", g_Locale->getText(LOCALE_AUDIOPLAYER_ADD_SC), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
 	else
 #endif
-		l = asprintf(&l_name, "%s %s", g_Locale->getText(LOCALE_FILEBROWSER_HEAD), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
+		l = asprintf(&l_name, "%s %s", g_Locale->getText(playlistmode ? LOCALE_FILEBROWSER_PM : LOCALE_FILEBROWSER_HEAD), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
 
 	if (l < 1) /* at least 1 for the " " space */
 	{
@@ -1177,6 +1359,8 @@ const struct button_label FileBrowserFilterButton[2] =
 
 int CFileBrowser::paintFoot(bool show)
 {
+	int cnt,res;
+
 	std::string sort_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_SORT);
 	sort_text += g_Locale->getText(sortByNames[g_settings.filebrowser_sortmethod]);
 
@@ -1191,6 +1375,15 @@ int CFileBrowser::paintFoot(bool show)
 	if (Filter != NULL && use_filter)
 		f_loc = LOCALE_FILEBROWSER_FILTER_ACTIVE;
 
+	button_label_ext footerButtons_pm[] = {
+		{ NEUTRINO_ICON_BUTTON_RED,		LOCALE_FILEBROWSER_DELETE,	NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_GREEN,		LOCALE_FILEBROWSER_ADD,	NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_YELLOW,		NONEXISTANT_LOCALE,		sort_text.c_str(),	sort_text_len,	false },
+		{ NEUTRINO_ICON_BUTTON_BLUE,		LOCALE_AUDIOPLAYER_SHUFFLE,				NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_OKAY,		LOCALE_FILEBROWSER_SELECT,	NULL,			0,		false },
+		{ NEUTRINO_ICON_BUTTON_PLAY,		LOCALE_FILEBROWSER_MARK,	NULL,			0,		false },
+	};
+
 	button_label_ext footerButtons[] = {
 		{ NEUTRINO_ICON_BUTTON_RED,		NONEXISTANT_LOCALE,		sort_text.c_str(),	sort_text_len,	false },
 		{ NEUTRINO_ICON_BUTTON_OKAY,		LOCALE_FILEBROWSER_SELECT,	NULL,			0,		false },
@@ -1198,17 +1391,28 @@ int CFileBrowser::paintFoot(bool show)
 		{ NEUTRINO_ICON_BUTTON_PLAY,		LOCALE_FILEBROWSER_MARK,	NULL,			0,		false },
 		{ NEUTRINO_ICON_BUTTON_BLUE,		f_loc,				NULL,			0,		false },
 	};
-	int cnt = sizeof(footerButtons) / sizeof(button_label_ext);
+
+	if (playlistmode) {
+		cnt = sizeof(footerButtons_pm) / sizeof(button_label_ext);
+		if (!show)
+			return paintButtons(footerButtons_pm, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
+	} else {
+		cnt = sizeof(footerButtons) / sizeof(button_label_ext);
+		if (!show)
+			return paintButtons(footerButtons, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
+	}
+
 	int fowidth = width - skwidth;
 
-	if (!show)
-		return paintButtons(footerButtons, cnt, 0, 0, 0, 0, 0, false, NULL, NULL);
 
 	if (filelist.empty()) {
 		frameBuffer->paintBoxRel(x, y + height - foheight, width, foheight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
 		return foheight;
 	}
-	int res = paintButtons(footerButtons, Filter ? cnt : cnt - 1, x, y + height - foheight, width, foheight, fowidth);
+	if (playlistmode)
+		res = paintButtons(footerButtons_pm, Filter ? cnt : cnt - 1, x, y + height - foheight, width, foheight, fowidth);
+	else
+		res = paintButtons(footerButtons, Filter ? cnt : cnt - 1, x, y + height - foheight, width, foheight, fowidth);
 	paintSMSKey();
 	return res;
 }

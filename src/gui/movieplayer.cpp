@@ -51,6 +51,8 @@
 #include <eitd/edvbstring.h>
 #include <system/helpers.h>
 
+#include <src/mymenu.h>
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
@@ -206,8 +208,10 @@ void CMoviePlayerGui::cutNeutrino()
 	g_Zapit->setStandby(true);
 #endif
 
-	m_LastMode = (CNeutrinoApp::getInstance()->getMode() | NeutrinoMessages::norezap);
-printf("%s: save mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_mask);fflush(stdout);
+	m_LastMode = (CNeutrinoApp::getInstance()->getMode() /*| NeutrinoMessages::norezap*/);
+	if (isWebTV)
+		m_LastMode |= NeutrinoMessages::norezap;
+	printf("%s: save mode %x\n", __func__, m_LastMode);fflush(stdout);
 	int new_mode = NeutrinoMessages::norezap | (isWebTV ? NeutrinoMessages::mode_webtv : NeutrinoMessages::mode_ts);
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, new_mode);
 }
@@ -227,13 +231,15 @@ void CMoviePlayerGui::restoreNeutrino()
 	if (isUPNP)
 		return;
 
-	g_Zapit->unlockPlayBack();
+	//g_Zapit->unlockPlayBack();
+	CZapit::getInstance()->EnablePlayback(true);
 	g_Sectionsd->setPauseScanning(false);
 
-printf("%s: restore mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_mask);fflush(stdout);
+	printf("%s: restore mode %x\n", __func__, m_LastMode);fflush(stdout);
+#if 0
 	if (m_LastMode == NeutrinoMessages::mode_tv)
 		g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x200, false);
-
+#endif
 	if (m_LastMode != NeutrinoMessages::mode_unknown)
 		CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
 
@@ -244,7 +250,7 @@ printf("%s: restore mode %d\n", __func__, m_LastMode & NeutrinoMessages::mode_ma
 			CZapit::getInstance()->Rezap();
 	}
 #endif
-printf("%s: restoring done.\n", __func__);fflush(stdout);
+	printf("%s: restoring done.\n", __func__);fflush(stdout);
 }
 
 int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
@@ -414,8 +420,6 @@ void CMoviePlayerGui::Cleanup()
 	p_movie_info = NULL;
 	autoshot_done = false;
 	currentaudioname = "Unk";
-	info_1 = "";
-	info_2 = "";
 }
 
 void CMoviePlayerGui::ClearFlags()
@@ -500,6 +504,8 @@ bool CMoviePlayerGui::SelectFile()
 	menu_ret = menu_return::RETURN_REPAINT;
 
 	Cleanup();
+	info_1 = "";
+	info_2 = "";
 	pretty_name.clear();
 	file_name.clear();
 
@@ -912,6 +918,24 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				updateLcd();
 				if (timeshift == TSHIFT_MODE_OFF)
 					callInfoViewer();
+			} else if (filelist.size() > 0) {
+				EnableClockAndMute(false);
+				CFileBrowser playlist;
+				CFile *pfile = NULL;
+				pfile = &(*filelist_it);
+				if (playlist.playlist_manager(filelist, std::distance( filelist.begin(), filelist_it )))
+				{
+					playstate = CMoviePlayerGui::STOPPED;
+					CFile *sfile = NULL;
+					for (filelist_it = filelist.begin(); filelist_it != filelist.end(); ++filelist_it)
+					{
+						pfile = &(*filelist_it);
+						sfile = playlist.getSelectedFile();
+						if ( (sfile->getFileName() == pfile->getFileName()) && (sfile->getPath() == pfile->getPath()))
+							break;
+					}
+				}
+				EnableClockAndMute(true);
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_pause) {
 			if (playstate == CMoviePlayerGui::PAUSE) {
@@ -1262,12 +1286,12 @@ void CMoviePlayerGui::selectAudioPid()
 		APIDSelector.addItem(item, defpid);
 	}
 
+	int percent[numpida];
 	if (p_movie_info && numpida <= p_movie_info->audioPids.size()) {
 		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
 
 		CVolume::getInstance()->SetCurrentChannel(p_movie_info->epgId);
 		CVolume::getInstance()->SetCurrentPid(currentapid);
-		int percent[numpida];
 		for (uint i=0; i < numpida; i++) {
 			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
 			APIDSelector.addItem(new CMenuOptionNumberChooser(p_movie_info->audioPids[i].epgAudioPidName,
@@ -1275,7 +1299,13 @@ void CMoviePlayerGui::selectAudioPid()
 						0, 999, CVolume::getInstance()));
 		}
 	}
-
+	if (!g_settings.easymenu) {
+		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE));
+		extern CAudioSetupNotifier     * audioSetupNotifier;
+		APIDSelector.addItem( new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
+					OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
+					true, audioSetupNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN) );
+	}
 	APIDSelector.exec(NULL, "");
 	delete selector;
 	printf("CMoviePlayerGui::selectAudioPid: selected %d (%x) current %x\n", select, (select >= 0) ? apids[select] : -1, currentapid);

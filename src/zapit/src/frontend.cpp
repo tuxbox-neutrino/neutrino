@@ -1116,6 +1116,20 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 		fec = FEC_AUTO;
 		break;
 	}
+	switch(feparams->pilot) {
+		case ZPILOT_ON:
+			pilot = PILOT_ON;
+			break;
+		case ZPILOT_OFF:
+			pilot = PILOT_OFF;
+			break;
+		case ZPILOT_AUTO:
+			pilot = PILOT_AUTO;
+			break;
+		case ZPILOT_AUTO_SW:
+		default:
+			break;
+	}
 
 	int nrOfProps	= 0;
 
@@ -1129,7 +1143,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			cmdseq.props[MODULATION].u.data	= feparams->modulation;
 			cmdseq.props[ROLLOFF].u.data	= feparams->rolloff;
 			cmdseq.props[PILOTS].u.data	= pilot;
-			
+			printf("[fe%d] tuner pilot %d (feparams %d)\n", fenumber, pilot, feparams->pilot);
 		} else {
 			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
 			nrOfProps	= FE_DVBS_PROPS;

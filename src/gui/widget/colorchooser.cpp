@@ -95,11 +95,28 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	value[VALUE_G]     = G;
 	value[VALUE_B]     = B;
 	value[VALUE_ALPHA] = Alpha;
+
+	chooser_gradient = gradient_none;
 }
 
 void CColorChooser::setColor()
 {
-	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, getColor());
+	fb_pixel_t col = getColor();
+	int x_col = x+offset+160;
+	int y_col = y+hheight+5;
+	int w_col = mheight*4;
+	int h_col = mheight*4-10;
+
+	if ((g_settings.gradiant) && ((chooser_gradient == gradient_head_body) || (chooser_gradient == gradient_head_text))) {
+		CComponentsHeader header(x_col, y_col+((h_col-hheight)/2), w_col, hheight, "Head");
+		if (chooser_gradient == gradient_head_body)
+			header.setColorBody(col);
+		else if (chooser_gradient == gradient_head_text)
+			header.setCaptionColor(col);
+		header.paint(CC_SAVE_SCREEN_NO);
+	}
+	else
+		frameBuffer->paintBoxRel(x_col+2, y_col+2, w_col-4 , h_col-4, col);
 }
 
 fb_pixel_t CColorChooser::getColor()
@@ -245,18 +262,19 @@ void CColorChooser::hide()
 
 void CColorChooser::paint()
 {
-	//frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, RADIUS_MID, CORNER_TOP); //round
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD_TEXT);
-	//frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0);
+	CComponentsHeader header(x, y, width, hheight, g_Locale->getText(name));
+	header.paint(CC_SAVE_SCREEN_NO);
+
 	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);//round
 
 	for (int i = 0; i < 4; i++)
 		paintSlider(x + 10, y + hheight + mheight * i, value[i], colorchooser_names[i], iconnames[i], (i == 0));
 
-	//color preview
-	frameBuffer->paintBoxRel(x+offset+160,y+hheight+5,    mheight*4,   mheight*4-10, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, 254);
+	if ((!g_settings.gradiant) || ((chooser_gradient != gradient_head_body) && (chooser_gradient != gradient_head_text))) {
+		//color preview
+		frameBuffer->paintBoxRel(x+offset+160,y+hheight+5,    mheight*4,   mheight*4-10, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, 254);
+	}
 }
 
 void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutrino_locale_t text, const char * const iconname, const bool selected)

@@ -65,7 +65,6 @@ private:
 	void ExecCGI(CyhookHandler *hh);
 	void SystemCGI(CyhookHandler *hh);
 	void StandbyCGI(CyhookHandler *hh);
-	void EsoundCGI(CyhookHandler *hh);
 	void RCCGI(CyhookHandler *hh);
 	void GetDateCGI(CyhookHandler *hh);
 	void GetTimeCGI(CyhookHandler *hh);
@@ -83,7 +82,7 @@ private:
 	void GetBouquetsCGI(CyhookHandler *hh);
 	void EpgCGI(CyhookHandler *hh);
 	void VersionCGI(CyhookHandler *hh);
-	void ReloadNutrinoSetupfCGI(CyhookHandler *hh);
+	void ReloadNeutrinoSetupCGI(CyhookHandler *hh);
 	void ReloadPluginsCGI(CyhookHandler *hh);
 	void ScreenshotCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);

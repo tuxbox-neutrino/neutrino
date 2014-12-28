@@ -61,6 +61,11 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_epg=}
+					{=var-set:m_link_text={=L:set.menue.epg=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
 					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record=}
 					{=var-set:m_link_text={=L:set.menue.recording=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
@@ -87,11 +92,6 @@ function init(){
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>
-					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound=}
-					{=var-set:m_link_text={=L:set.menue.esound_server=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				<li>
 					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording=}
 					{=var-set:m_link_text={=L:set.menue.direct_recording=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
@@ -104,11 +104,6 @@ function init(){
 				<li>
 					{=var-set:m_link_href=Y_Settings_buttons.yhtm=}
 					{=var-set:m_link_text={=L:set.menue.key_settings=}=}
-					{=include-block:Y_Blocks.txt;management_link=}
-				</li>
-				<li>
-					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions=}
-					{=var-set:m_link_text={=L:set.menue.boot_options=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
 				<li>

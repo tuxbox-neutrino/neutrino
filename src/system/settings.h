@@ -184,12 +184,16 @@ struct SNeutrinoSettings
 	int hdmi_dd;
 	int spdif_dd;
 	int analog_out;
+	int audio_volume_percent_ac3;
+	int audio_volume_percent_pcm;
+
 	//video
 	int video_dbdr;
 	int hdmi_cec_mode;
 	int hdmi_cec_view_on;
 	int hdmi_cec_standby;
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
+	int enabled_auto_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;
 	int standby_cpufreq;
 	int make_hd_list;
@@ -197,6 +201,7 @@ struct SNeutrinoSettings
 	int make_new_list;
 	int make_removed_list;
 	int keep_channel_numbers;
+	int show_empty_favorites;
 	int avsync;
 	int clockrec;
 	int rounded_corners;
@@ -220,6 +225,8 @@ struct SNeutrinoSettings
 	// EPG
 	int epg_save;
 	int epg_save_standby;
+	int epg_save_frequently;
+	int epg_read;
 	int epg_cache;
 	int epg_old_events;
 	int epg_max_events;
@@ -572,6 +579,7 @@ struct SNeutrinoSettings
 	int parentallock_prompt;
 	int parentallock_lockage;
 	int parentallock_defaultlocked;
+	int parentallock_zaptime;
 	std::string parentallock_pincode;
 
 
@@ -843,6 +851,7 @@ class CScanSettings
 		std::string	sat_TP_rate;
 		int		sat_TP_delsys;
 		int		sat_TP_mod;
+		int		sat_TP_pilot;
 
 		std::string	cableName;
 		int		cable_TP_mod;

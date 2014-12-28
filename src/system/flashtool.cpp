@@ -206,7 +206,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 		CFileHelpers fh;
 		printf("##### [CFlashTool::program] copy flashfile to %s\n", flashfile.c_str());
 		if(statusViewer)
-			statusViewer->showStatusMessageUTF("Copy Image");
+			statusViewer->showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_COPY_IMAGE));
 		fh.copyFile(filename.c_str(), flashfile.c_str(), 0644);
 		sync();
 		if(statusViewer)

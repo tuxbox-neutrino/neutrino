@@ -43,6 +43,7 @@
 #include <gui/plugins.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/widget/keychooser.h>
 #include <gui/widget/messagebox.h>
 
@@ -208,7 +209,7 @@ int CUserMenuSetup::showSetup()
 	ums->addIntroItems();
 
 	int old_key = g_settings.usermenu[button]->key;
-	CStringInputSMS name(LOCALE_USERMENU_NAME, &g_settings.usermenu[button]->title, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäöüß/- "/*, notify*/);
+	CKeyboardInput name(LOCALE_USERMENU_NAME, &g_settings.usermenu[button]->title);
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_USERMENU_NAME, true, NULL, &name);
 
 	ums->addItem(mf);

@@ -61,7 +61,7 @@ void CProgressWindow::Init()
 	status_txt->setDimensionsAll(x_item, y_item, w_item, h_txt);
 	status_txt->setColorBody(col_body);
 	addWindowItem(status_txt);
-	y_item += h_txt;
+	y_item += h_txt + 10;
 
 	//create local_bar object
 	local_bar = new CProgressBar();
@@ -83,7 +83,7 @@ void CProgressWindow::Init()
 	addWindowItem(global_bar);
 	y_item += 2*h_pbar;
 
-	height = y_item + ccw_head->getHeight() + 10;
+	height = y_item + ccw_head->getHeight();
 
 	setCenterPos();
 }

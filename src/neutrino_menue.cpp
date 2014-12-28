@@ -125,12 +125,12 @@ void CNeutrinoApp::InitMenu()
 	unsigned int nextShortcut;
 	CMenuWidget &menuSettings = personalize.getWidget(MENU_SETTINGS);
 	nextShortcut = (unsigned int)menuSettings.getNextShortcut();
-	menuSettings.integratePlugins(&pluginsExec, CPlugins::I_TYPE_SETTING, nextShortcut);
+	menuSettings.integratePlugins(CPlugins::I_TYPE_SETTING, nextShortcut);
 
 	//add I_TYPE_SERVICE plugins
 	CMenuWidget &menuService = personalize.getWidget(MENU_SERVICE);
 	nextShortcut = (unsigned int)menuService.getNextShortcut();
-	menuService.integratePlugins(&pluginsExec, CPlugins::I_TYPE_SERVICE, nextShortcut);
+	menuService.integratePlugins(CPlugins::I_TYPE_SERVICE, nextShortcut);
 }
 
 //init main menu
@@ -425,11 +425,9 @@ void CNeutrinoApp::InitMenuSettings()
 	}
 
 	// lcd
-	if (CVFD::getInstance()->has_lcd) {
-		mf = new CMenuForwarder(LOCALE_MAINSETTINGS_LCD, true, NULL, new CVfdSetup());
-		mf->setHint(NEUTRINO_ICON_HINT_VFD, LOCALE_MENU_HINT_VFD);
-		personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
-	}
+	mf = new CMenuForwarder(LOCALE_MAINSETTINGS_LCD, true, NULL, new CVfdSetup());
+	mf->setHint(NEUTRINO_ICON_HINT_VFD, LOCALE_MENU_HINT_VFD);
+	personalize.addItem(MENU_SETTINGS, mf, &g_settings.personalize[SNeutrinoSettings::P_MSET_VFD]);
 
 	// drive settings
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) {

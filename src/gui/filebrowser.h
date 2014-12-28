@@ -187,6 +187,7 @@ class CFileBrowser
 		int  paintFoot(bool show = true);
 		void paintSMSKey();
 		void recursiveDelete(const char* file);
+		bool playlistmode;
 
 	protected:
 		void commonInit();
@@ -220,6 +221,7 @@ class CFileBrowser
 		~CFileBrowser();
 
 		bool		exec(const char * const dirname);
+		bool		playlist_manager(CFileList &playlist,unsigned int playing);
 		CFile		*getSelectedFile();
 		
 		inline const CFileList & getSelectedFiles(void) const

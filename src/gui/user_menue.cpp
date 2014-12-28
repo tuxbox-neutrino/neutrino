@@ -152,7 +152,6 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 	// define classes
 	CSubChannelSelectMenu subchanselect;
-	CPluginsExec plugins;
 	CNeutrinoApp * neutrino	= CNeutrinoApp::getInstance();
 	
 	std::string txt = g_settings.usermenu[button]->title;
@@ -278,8 +277,9 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			menu_item->setHint(NEUTRINO_ICON_HINT_GAMES, LOCALE_MENU_HINT_GAMES);
 			break;
                 case SNeutrinoSettings::ITEM_TOOLS:
-                        keyhelper.get(&key,&icon);
+			keyhelper.get(&key,&icon);
                         menu_item = new CMenuDForwarder(LOCALE_MAINMENU_TOOLS, g_PluginList->hasPlugin(CPlugins::P_TYPE_TOOL), NULL, new CPluginList(LOCALE_MAINMENU_TOOLS,CPlugins::P_TYPE_TOOL), "-1", key, icon );
+			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
                         break;
 		case SNeutrinoSettings::ITEM_SCRIPTS:
 			keyhelper.get(&key,&icon);
@@ -289,14 +289,13 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		case SNeutrinoSettings::ITEM_LUA:
 			keyhelper.get(&key,&icon);
 			menu_item = new CMenuDForwarder(LOCALE_MAINMENU_LUA, g_PluginList->hasPlugin(CPlugins::P_TYPE_LUA), NULL, new CPluginList(LOCALE_MAINMENU_LUA,CPlugins::P_TYPE_LUA), "-1", key, icon );
+			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_PLUGIN_TYPES:
 		{
 			unsigned int number_of_plugins = (unsigned int) g_PluginList->getNumberOfPlugins();
 			if (!number_of_plugins)
 				continue;
-			char id[5];
-			int cnt = 0;
 			for (unsigned int count = 0; count < number_of_plugins; count++)
 			{
 #if 0
@@ -315,16 +314,14 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 
 				if (show && !g_PluginList->isHidden(count) && (g_PluginList->getIntegration(count) == CPlugins::I_TYPE_DISABLED))
 				{
-					sprintf(id, "%d", count);
 					menu_items++;
 					neutrino_msg_t d_key = g_PluginList->getKey(count);
 					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
 					keyhelper.get(&key,&icon, d_key);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, &plugins, id, key, icon);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
 					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 
 					menu->addItem(menu_item, false);
-					cnt++;
 				}
 			}
 			menu_item = NULL;
@@ -332,7 +329,7 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 		}
 		case SNeutrinoSettings::ITEM_VTXT:
 			keyhelper.get(&key,&icon, feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_VTXT]].key); //CRCInput::RC_blue
-			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, &plugins, "teletext", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, CPluginsExec::getInstance(), "teletext", key, icon);
 			// FIXME menu_item->setHint("", NONEXISTANT_LOCALE);
 			break;
 		case SNeutrinoSettings::ITEM_IMAGEINFO:
@@ -431,22 +428,11 @@ bool CUserMenu::showUserMenu(neutrino_msg_t msg)
 			int count = 0;
 			for(; count < number_of_plugins; count++) {
 				const char *pname = g_PluginList->getFileName(count);
-				if (pname && (std::string(pname) == *it)) {
-					keyhelper.get(&key,&icon);
-					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, this, pname, key, icon);
-					const std::string hint = g_PluginList->getDescription(count);
-					if (hint != "") {
-						const char *hint_icon = NULL;
-						switch(g_PluginList->getType(count)) {
-							case CPlugins::P_TYPE_GAME:
-								hint_icon = NEUTRINO_ICON_HINT_GAMES;
-							break;
-							case CPlugins::P_TYPE_SCRIPT:
-								hint_icon = NEUTRINO_ICON_HINT_SCRIPTS;
-							break;
-						}
-						menu_item->setHint(hint_icon, hint);
-					}
+				if (pname && (std::string(pname) == *it) && !g_PluginList->isHidden(count)) {
+					neutrino_msg_t d_key = g_PluginList->getKey(count);
+					keyhelper.get(&key,&icon, d_key);
+					menu_item = new CMenuForwarder(g_PluginList->getName(count), true, NULL, CPluginsExec::getInstance(), to_string(count).c_str(), key, icon);
+					menu_item->setHint(g_PluginList->getHintIcon(count), g_PluginList->getDescription(count));
 					break;
 				}
 			}
@@ -592,12 +578,4 @@ bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 	}
 	
 	return false;
-}
-
-int CUserMenu::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
-{
-	if (actionKey == "")
-		return menu_return::RETURN_NONE;
-	g_PluginList->startPlugin(actionKey.c_str());
-	return menu_return::RETURN_EXIT;
 }

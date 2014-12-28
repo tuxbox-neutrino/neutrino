@@ -103,6 +103,20 @@ class CLuaMenuStringinput : public CLuaMenuForwarder
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
+class CLuaMenuKeyboardinput : public CLuaMenuForwarder
+{
+	private:
+		std::string *value;
+		const char *name;
+		const char *icon;
+		int size;
+		CChangeObserver *observ;
+		std::string help, help2;
+	public:
+		CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2);
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+};
+
 class CLuaHintbox
 {
 	public:

@@ -29,6 +29,8 @@ management=Management
 uninstaller=Uninstaller
 send=send
 cancel=cancel
+apply=apply changes
+apply_desc=reload neutrino configfile
 answer=Answer
 reboot=reboot
 shutdown=shutdown
@@ -215,6 +217,7 @@ set.sync_with_neutrino=Synchronization with Neutrino
 
 =======Settings General & Menue
 set.menue.webserver=Webserver
+set.menue.epg=EPG
 set.menue.timer_settings=Timer Settings
 set.menue.zapit=Zapit
 set.menue.backup_restore=Backup &amp; Restore
@@ -224,7 +227,6 @@ set.menue.parental=Parental
 set.menue.direct_recording=Direct Recording
 set.menue.recording=Recording
 set.menue.audio_player=Audioplayer
-set.menue.esound_server=Esound Server
 set.menue.movieplayer=Movieplayer
 set.menue.pictureviewer=Picture Viewer
 set.menue.lcd_display=LC-Display

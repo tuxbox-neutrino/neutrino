@@ -50,6 +50,7 @@ class CColorChooser : public CMenuTarget
 		int hheight,mheight; // head/menu font height
 		int offset;
 		int font_info;
+		int chooser_gradient;
 
 		unsigned char * value[4]; // r, g, b, alpha
 
@@ -68,7 +69,13 @@ class CColorChooser : public CMenuTarget
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		fb_pixel_t getColor(void);
-
+		enum
+		{
+			gradient_none,
+			gradient_head_body,
+			gradient_head_text
+		};
+		void setGradient(int gradient = gradient_none) { chooser_gradient = gradient; };
 };
 
 

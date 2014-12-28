@@ -268,6 +268,15 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_POL[SATSETUP_SCANTP_POL_COUNT] 
 	{ 3, LOCALE_EXTRA_TP_POL_R }
 };
 
+#define SATSETUP_SCANTP_PILOT_COUNT 4
+const CMenuOptionChooser::keyval SATSETUP_SCANTP_PILOT[SATSETUP_SCANTP_PILOT_COUNT] =
+{
+	{ ZPILOT_ON,      LOCALE_OPTIONS_ON },
+	{ ZPILOT_OFF,     LOCALE_OPTIONS_OFF },
+	{ ZPILOT_AUTO,    LOCALE_EXTRA_TP_PILOT_AUTO },
+	{ ZPILOT_AUTO_SW, LOCALE_EXTRA_TP_PILOT_AUTO_SW }
+};
+
 #define OPTIONS_SOUTH0_NORTH1_OPTION_COUNT 2
 const CMenuOptionChooser::keyval OPTIONS_SOUTH0_NORTH1_OPTIONS[OPTIONS_SOUTH0_NORTH1_OPTION_COUNT] =
 {
@@ -657,7 +666,27 @@ int CScanSetup::showScanMenu()
 	mc->setHint("", LOCALE_MENU_HINT_SCAN_BOUQUET);
 	settings->addItem(mc);
 
+	//bouquet write_names selection
+	const short SCANTS_BOUQUET_WRITENAMES_COUNT = 4;
+	const CMenuOptionChooser::keyval SCANTS_BOUQUET_WRITENAMES[SCANTS_BOUQUET_WRITENAMES_COUNT] =
+	{
+		{ CBouquetManager::BWN_NEVER		, LOCALE_SCANTS_BOUQUET_WRITENAMES_NEVER     	},
+		{ CBouquetManager::BWN_UBOUQUETS    	, LOCALE_SCANTS_BOUQUET_WRITENAMES_UBOUQUETS   	},
+		{ CBouquetManager::BWN_BOUQUETS     	, LOCALE_SCANTS_BOUQUET_WRITENAMES_BOUQUETS    	},
+		{ CBouquetManager::BWN_EVER        	, LOCALE_SCANTS_BOUQUET_WRITENAMES_EVER    	}
+	};
+
+	int tmp_writeChannelsNames = zapitCfg.writeChannelsNames;
+	mc = new CMenuOptionChooser(LOCALE_SCANTS_BOUQUET_WRITENAMES, (int *)&zapitCfg.writeChannelsNames, SCANTS_BOUQUET_WRITENAMES, SCANTS_BOUQUET_WRITENAMES_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true);
+	mc->setHint("", LOCALE_MENU_HINT_SCAN_BOUQUET_WRITENAMES);
+	settings->addItem(mc);
+
 	int res = settings->exec(NULL, "");
+	//set write_names if changed
+	if(zapitCfg.writeChannelsNames != tmp_writeChannelsNames){
+		CZapit::getInstance()->SetConfig(&zapitCfg);
+		g_Zapit->saveBouquets();
+	}
 
 	delete satOnOff;
 	delete settings;
@@ -1619,6 +1648,7 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 	CMenuOptionChooser	*tm = NULL;
 	CMenuForwarder		*Freq = NULL;
 	CMenuForwarder		*Rate = NULL;
+	CMenuOptionChooser	*pilot = NULL;
 	if (r_system == ALL_SAT) {
 		delsys = new CMenuOptionChooser(LOCALE_EXTRA_TP_DELSYS, (int *)&scansettings.sat_TP_delsys, SATSETUP_SCANTP_DELSYS, SATSETUP_SCANTP_DELSYS_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
 		delsys->setHint("", LOCALE_MENU_HINT_SCAN_DELSYS);
@@ -1634,6 +1664,8 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 		fec->setHint("", LOCALE_MENU_HINT_SCAN_FEC);
 		pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_POL, (int *)&scansettings.sat_TP_pol, SATSETUP_SCANTP_POL, SATSETUP_SCANTP_POL_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 		pol->setHint("", LOCALE_MENU_HINT_SCAN_POL);
+		pilot = new CMenuOptionChooser(LOCALE_EXTRA_TP_PILOT, (int *)&scansettings.sat_TP_pilot, SATSETUP_SCANTP_PILOT, SATSETUP_SCANTP_PILOT_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+		pilot->setHint("", LOCALE_MENU_HINT_SCAN_PILOT);
 	} else if (r_system == ALL_CABLE) {
 		delsys = new CMenuOptionChooser(LOCALE_EXTRA_TP_DELSYS, (int *)&scansettings.cable_TP_delsys, CABLESETUP_SCANTP_DELSYS, CABLESETUP_SCANTP_DELSYS_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
 		delsys->setHint("", LOCALE_MENU_HINT_SCAN_DELSYS);
@@ -1692,6 +1724,8 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 		options_menu->addItem(tm);
 	if (pol)
 		options_menu->addItem(pol);
+	if (pilot)
+		options_menu->addItem(pilot);
 
 	return shortCut;
 }
@@ -1982,6 +2016,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 			scansettings.sat_TP_pol = tmpI->second.feparams.polarization;
 			scansettings.sat_TP_delsys = tmpI->second.feparams.delsys;
 			scansettings.sat_TP_mod = tmpI->second.feparams.modulation;
+			scansettings.sat_TP_pilot = tmpI->second.feparams.pilot;
 		}
 		else if (CFrontend::isCable(tmpI->second.feparams.delsys)) {
 			scansettings.cable_TP_freq = to_string(tmpI->second.feparams.frequency);

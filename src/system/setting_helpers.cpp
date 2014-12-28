@@ -369,29 +369,6 @@ int CNVODChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
 	return menu_return::RETURN_EXIT;
 }
 
-int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
-{
-	//printf("CPluginsExec exec: %s\n", actionKey.c_str());
-	int sel= atoi(actionKey.c_str());
-
-	if(parent != NULL)
-		parent->hide();
-
-	if(actionKey == "teletext") {
-		g_RCInput->postMsg(CRCInput::RC_timeout, 0);
-		g_RCInput->postMsg(CRCInput::RC_text, 0);
-	}
-	else if (sel>=0)
-	{
-		g_PluginList->startPlugin(sel);
-	}
-
-	if (g_PluginList->getIntegration(sel) == CPlugins::I_TYPE_DISABLED)
-		return menu_return::RETURN_EXIT;
-
-	return menu_return::RETURN_REPAINT;
-}
-
 int CMoviePluginChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	int sel= atoi(actionKey.c_str());
@@ -635,7 +612,11 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 					i, VIDEOMENU_VIDEOMODE_OPTIONS[i].key, VIDEO_STD_MAX);
 			continue;
 		}
+#ifdef BOXMODEL_APOLLO
+		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_auto_modes[i];
+#else
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
+#endif
 	}
 	videoDecoder->SetAutoModes(modes);
 	return false;

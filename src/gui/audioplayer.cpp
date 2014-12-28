@@ -65,6 +65,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
+#include <gui/widget/keyboard_input.h>
 
 #include "gui/pictureviewer.h"
 extern CPictureViewer * g_PicViewer;
@@ -2607,7 +2608,7 @@ void CAudioPlayerGui::savePlaylist()
 		absPlaylistDir += file->getFileName();
 
 		const int filenamesize = 30;
-		std::string filename;
+		std::string filename = "playlist";
 
 		if (file->getType() == CFile::FILE_PLAYLIST)
 		{
@@ -2624,12 +2625,7 @@ void CAudioPlayerGui::savePlaylist()
 		{
 			// query for filename
 			this->hide();
-			CStringInputSMS filenameInput(LOCALE_AUDIOPLAYER_PLAYLIST_NAME,
-						      &filename,
-						      filenamesize - 1,
-						      LOCALE_AUDIOPLAYER_PLAYLIST_NAME_HINT1,
-						      LOCALE_AUDIOPLAYER_PLAYLIST_NAME_HINT2,
-						      "abcdefghijklmnopqrstuvwxyz0123456789-.,:!?/ ");
+			CKeyboardInput filenameInput(LOCALE_AUDIOPLAYER_PLAYLIST_NAME, &filename, filenamesize - 1, NULL, NULL, LOCALE_AUDIOPLAYER_PLAYLIST_NAME_HINT1, LOCALE_AUDIOPLAYER_PLAYLIST_NAME_HINT2);
 			filenameInput.exec(NULL, "");
 			// refresh view
 			this->paint();

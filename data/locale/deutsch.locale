@@ -128,6 +128,10 @@ audiomenu.pref_subs_head Untertitelwahl
 audiomenu.spdif_dd Dolby Digital über S/PDIF
 audiomenu.stereo stereo
 audiomenu.volume_adjust Lautstärke ändern, in %
+audiomenu.volume_adjustment Lautstärkeanpassung pro Kanal
+audiomenu.volume_adjustment_ac3 AC3-Tonspuren
+audiomenu.volume_adjustment_clear Gespeicherte Werte löschen
+audiomenu.volume_adjustment_pcm PCM-Tonspuren
 audiomenu.volume_start Einschaltlautstärke
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
@@ -188,6 +192,7 @@ bouqueteditor.discardingchanges Änderungen werden verworfen. Bitte warten ...
 bouqueteditor.hide Verstecken
 bouqueteditor.lock Sperren
 bouqueteditor.move Bewegen
+bouqueteditor.move_to Bewegen zu
 bouqueteditor.name Bouquet-Verwaltung
 bouqueteditor.newbouquetname Neuer Name des Bouquets
 bouqueteditor.rename Umbenennen
@@ -241,7 +246,7 @@ channellist.new_zap_mode_active aktiv
 channellist.new_zap_mode_allow erlauben
 channellist.new_zap_mode_off aus
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
-channellist.numeric_adjust Numeric zap adjust
+channellist.numeric_adjust Bei numerischem Zap Kanalliste nachführen
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.remember Zuletzt verwendete
@@ -250,6 +255,7 @@ channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.show_channellogo Senderlogos zeigen
 channellist.show_channelnumber Kanalnummern zeigen
+channellist.show_empty_favs Zeige leere Favoriten-Bouquets
 channellist.since seit
 channellist.start Start
 ci.clock CI Takt (Mhz)
@@ -526,6 +532,7 @@ favorites.copy Kopiere Bouquet zu Favoriten
 favorites.finalhint \nVersehentlich hinzugefügte Kanäle können mit\nder Bouquetverwaltung korrigiert werden.\n
 favorites.menueadd Kanal Favoriten hinzufügen
 favorites.nobouquets Favoriten sind nur mit aktivierten Bouquets möglich.
+filebrowser.add Hinzufügen
 filebrowser.delete Löschen
 filebrowser.denydirectoryleave Startverzeichnis absolut
 filebrowser.dodelete1 Soll
@@ -535,6 +542,7 @@ filebrowser.filter.inactive Filter aus
 filebrowser.head Dateibrowser
 filebrowser.mark Markieren
 filebrowser.nextpage Seite vor
+filebrowser.pm Playlist Manager
 filebrowser.prevpage Seite zurück
 filebrowser.scan Durchsuche Verzeichnisse
 filebrowser.select Auswählen
@@ -554,6 +562,7 @@ flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann MTD nicht öffnen
 flashupdate.checkupdate_internet Online nach Updates suchen
 flashupdate.checkupdate_local Lokales Update
+flashupdate.copy_image Kopiere Image in den Arbeitsspeicher
 flashupdate.createimage Image speichern
 flashupdate.createimage_add_env 'env' hinzufügen
 flashupdate.createimage_add_kernel 'kernel' hinzufügen
@@ -644,12 +653,12 @@ fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontmenu.menu Menü
 fontmenu.other Andere
-fontmenu.scaling Schriftgrössenfaktor
+fontmenu.scaling Schriftgrößenfaktor
 fontmenu.scaling_x Horizontal (in %)
 fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertikal (in %)
 fontmenu.scaling_y_hint2 Vertikal (in %) min 50 / max 200
-fontmenu.sizes Schriftgrössen
+fontmenu.sizes Schriftgrößen
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
 fontsize.channellist_descr Beschreibung
@@ -807,7 +816,7 @@ lcdcontroler.brightnessdeepstandby Deep-Standby
 lcdcontroler.brightnessstandby Standby
 lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
-lcdmenu.head VFD Einstellungen
+lcdmenu.head VFD/LED Einstellungen
 lcdmenu.lcdcontroler Helligkeit
 lcdmenu.scroll Laufschrift
 lcdmenu.statusline Statuszeile
@@ -861,7 +870,7 @@ mainsettings.audio Audio
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten
 mainsettings.language Sprache
-mainsettings.lcd VFD-Display
+mainsettings.lcd Front-Panel
 mainsettings.manage Einstellungen verwalten
 mainsettings.misc Erweiterte Einstellungen
 mainsettings.multimedia Multimedia
@@ -876,7 +885,11 @@ menu.back Zurück
 menu.cancel Abbrechen
 menu.hint_a_pic Konfigurieren Sie den Audioplayer und den Bildbetrachter
 menu.hint_aplay Audioplayer
+menu.hint_aplay_setup Ändern Sie Audioplayer-Einstellungen wie Titel-Anzeige, Startverzeichnis oder Bildschirmschoner.
 menu.hint_audio Audio-Ausgang, Dolby Digital und SRS TruVolume Optionen und mehr
+menu.hint_audio_adjust_vol_ac3 Lautstärkeanpassung für AC3-Tonspuren
+menu.hint_audio_adjust_vol_clear Alle gespeicherten Werte für AC3- und PCM-Tonspuren löschen
+menu.hint_audio_adjust_vol_pcm Lautstärkeanpassung für PCM-Tonspuren
 menu.hint_audio_analog_mode Wählen Sie den Modus des Ausgangssignals für den CINCH-Anschluss
 menu.hint_audio_avsync Diese Funktion synchronisiert Bild und Ton
 menu.hint_audio_dd Ist diese Option aktiviert, wird automatisch auf Dolby Digital Ton geschalten, sobald dieser verfügbar ist
@@ -920,6 +933,7 @@ menu.hint_channellist_mode_radio Wählen Sie die Start-Kanalliste im Radio-Modus
 menu.hint_channellist_setup Wählen Sie die Anzeigeoptionen für die Kanalliste
 menu.hint_channellist_show_channellogo Zeigt Senderlogos in der Kanalliste.
 menu.hint_channellist_show_channelnumber Zeigt Kanalnummer in der Kanalliste.
+menu.hint_channellist_show_empty_favs Zeigt oder versteckt leere Bouquets in den Favoriten
 menu.hint_channels Kanalliste öffnen
 menu.hint_ci Conditional-Access-Menü zum Einrichten Ihres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_clock_background Lassen Sie die Uhr mit Hintergrund anzeigen
@@ -941,8 +955,10 @@ menu.hint_epg_extendedcache Maximum in Stunden, die die EPG-Daten bzw. die Event
 menu.hint_epg_fonts Ändern Sie die Schriftgrößen der EPG-Details
 menu.hint_epg_max_events Maxiale Anzahl der Events im Zwischenspeicher
 menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden) verworfen
-menu.hint_epg_save Speichert die EPG-Daten auf einem externen Datenträger und läd es von dort nach einen Neustart
-menu.hint_epg_save_standby Speichert die EPG-Daten auch im Standby-Modus
+menu.hint_epg_read Liest nach einem Neustart die EPG-Daten von einem externen Datenträger wieder ein
+menu.hint_epg_save Speichert die EPG-Daten beim Herunterfahren auf einem externen Datenträger
+menu.hint_epg_save_frequently Speichert die EPG-Daten in regelmäßigen Abständen auf einem externen Datenträger
+menu.hint_epg_save_standby Speichert die EPG-Daten auch, wenn in den Standby-Modus geschalten wird
 menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
 menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
 menu.hint_event_textcolor Ändern Sie die Farbe für farbige Events in der Kanalliste und der Infobar
@@ -1086,6 +1102,7 @@ menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser, St
 menu.hint_misc_general Standby-, Teletext- und Rotor-Einstellungen, Pluginverzeichnis auf externem Datenträger
 menu.hint_misc_zapit Verwaltung der Start-Kanäle für den TV/Radio-Modus
 menu.hint_movie Wiedergabe von Filmen
+menu.hint_moviebrowser_setup Legen Sie Auswahl- und Anzeigeoptionen des MovieBrowsers fest
 menu.hint_movieplayer_plugin Wählen Sie ein Plugin, das mit einer Schnellstart-Taste im Movieplayer-Modus gestartet wird
 menu.hint_net_broadcast Ändern Sie die Broadcast-Adresse.\nWenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische Vergabe einer IP-Adresse im Netzwerk
@@ -1122,7 +1139,7 @@ menu.hint_net_ushare Freigabe verbundener Datenträger über UPnP
 menu.hint_net_xupnpd Freigabe von Live Channels über UPNP
 menu.hint_network IP-Adresse, Gateway, DNS, Zeit-Sync, Netzwerk-Freigaben, Dienste und mehr
 menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-Taste wird mit den Hoch/Runter-Tasten direkt umgeschalten
-menu.hint_numeric_adjust Adjust channel list mode on numeric zap
+menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
 menu.hint_opkg Hier können Sie neue Software-Pakete installieren oder vorhandene aktualisieren
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
@@ -1137,6 +1154,7 @@ menu.hint_parentallock_prompt Legen Sie fest, wann die Eingabe einer PIN erfolge
 menu.hint_personalize Personalisieren Sie ihre Menüs und konfigurieren Sie ihre Benutzermenüs
 menu.hint_pictureviewer_defdir Wählen Sie das Startverzeichnis für den Bildbetrachter
 menu.hint_pictureviewer_scaling Stellen Sie die Bildauflösung ein
+menu.hint_pictureviewer_setup Konfigurieren Sie die Bildbetrachter-Optionen
 menu.hint_pictureviewer_slide_time Ändern Sie den Diashow-Intervall.\nStandardmäßig sind 10 Sekunden eingstellt
 menu.hint_picview Bilder anzeigen
 menu.hint_plugin_type_games Legt fest, ob Spiele im Benutzermenü unter der Rubrik 'Plugin-Typen' gezeigt werden sollen
@@ -1200,6 +1218,7 @@ menu.hint_scan_auto Automatischer Suchlauf ausgewählter Anbieter
 menu.hint_scan_autoall Automatischer Suchlauf aller ausgewählten Anbieter
 menu.hint_scan_autoall_select Suchlauf nur in ausgewählten Satelliten
 menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: neue werden in 'Andere' angefügt
+menu.hint_scan_bouquet_writenames Originale Programmnamen in Bouquets speichern \nNie > nur Favoriten > nur Anbieter > Beide
 menu.hint_scan_bw Wählen Sie die Bandbreite
 menu.hint_scan_cable Wählen Sie ihr Kabelnetz für den Suchlauf
 menu.hint_scan_cable_simple Kabel-Suchlauf mit optionaler Anbieter- und Kanal-Nummerierung
@@ -1342,6 +1361,7 @@ menu.hint_volume_size Wählen Sie die Höhe der Lautstärkeanzeige
 menu.hint_webtv_setup Hier konfigurierte WebTV-Kanäle finden Sie in der Kanalverwaltung.
 menu.hint_window_size Kanalliste, EPG-Infos und einige andere Fenster werden mit diesem Faktor skaliert
 menu.hint_ytplay Wiedergabe von ausgewählten Youtube Feeds
+menu.hint_ytplay_setup Konfigurieren Sie YouTube-spezifische Optionen wie maximale Ergebnisse bei Suchen oder Cache-Verzeichnis
 menu.hint_zap_cycle Wählen Sie, ob nur innerhalb des aktiven Bouquets umgeschaltet werden kann
 menu.next Weiter (Menü zum Beenden)
 messagebox.back Zurück
@@ -1373,7 +1393,9 @@ miscsettings.epg_max_events_hint2 Standard 6000, 0 (ohne Limit)
 miscsettings.epg_old_events EPG verwerfen nach (Std.)
 miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
+miscsettings.epg_read Gespeicherte EPG-Daten einlesen
 miscsettings.epg_save EPG zwischenspeichern
+miscsettings.epg_save_frequently EPG regelmäßig speichern
 miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.epg_scan Hintergrundscan EPG
 miscsettings.epg_scan_always Immer
@@ -1485,6 +1507,7 @@ moviebrowser.book_movieend Filmende:
 moviebrowser.book_moviestart Filmstart:
 moviebrowser.book_name Name:
 moviebrowser.book_new Neue Markierung
+moviebrowser.book_no_end Keine Endmarkierung gefunden
 moviebrowser.book_position Position:
 moviebrowser.book_type Sprung (<0 zurück, >0 vor):
 moviebrowser.book_type_backward Wiederholung
@@ -1495,7 +1518,15 @@ moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
 moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
 moviebrowser.cache_dir Cache-Verzeichnis
+moviebrowser.copies Kopiere Sprungmarken vom Film in neue Dateien?
+moviebrowser.copy Kopiere Sprungmarken vom Film in neue Datei?
+moviebrowser.copy_failed Fehler beim Kopieren. Sind Sprungmarken und genug freier Speicher vorhanden?
+moviebrowser.copying Kopiere Sprungmarken, bitte warten ...
+moviebrowser.cut Schneide Sprungmarken aus dem Film?
+moviebrowser.cut_failed Fehler beim Schneiden. Sind Sprungmarken und genug freier Speicher vorhanden?
+moviebrowser.cutting Schneide Film, bitte warten ...
 moviebrowser.delete_info Lösche Dateien, bitte warten...
+moviebrowser.delete_screenshot Lösche Screenshot?
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
@@ -1526,12 +1557,13 @@ moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Kanal
 moviebrowser.info_file Datei
-moviebrowser.info_filename Name
+moviebrowser.info_filename Dateiname
 moviebrowser.info_genre_major Genre
-moviebrowser.info_genre_minor Genre
+moviebrowser.info_genre_minor Genre (untergeordnet)
 moviebrowser.info_head Film Informationen
 moviebrowser.info_head_update Inhalte in allen sichtbaren Filminfos speichern
 moviebrowser.info_info1 Info 1
+moviebrowser.info_info2 Info 2
 moviebrowser.info_length Spieldauer (Min)
 moviebrowser.info_parental_lockage FSK
 moviebrowser.info_parental_lockage_0year immer
@@ -1547,9 +1579,9 @@ moviebrowser.info_prodyear Jahr
 moviebrowser.info_quality Qualität
 moviebrowser.info_recorddate Aufnahmedatum
 moviebrowser.info_serie Serie
-moviebrowser.info_size Dateigrösse (MB)
+moviebrowser.info_size Dateigröße (MB)
 moviebrowser.info_title Titel
-moviebrowser.info_videoformat Bild
+moviebrowser.info_videoformat Bildformat
 moviebrowser.last_play_max_items Zeilen 'zuletzt aufgenommen'
 moviebrowser.last_record_max_items Zeilen 'zuletzt gesehen'
 moviebrowser.load_default Lade Voreinstellung
@@ -1591,10 +1623,14 @@ moviebrowser.short_prodyear Jahr
 moviebrowser.short_quality Qualität
 moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
-moviebrowser.short_size Grösse
+moviebrowser.short_size Größe
 moviebrowser.short_title Titel
 moviebrowser.start_head Film starten von Position:
 moviebrowser.start_record_start Aufnahmestart
+moviebrowser.truncate Film kürzen?
+moviebrowser.truncate_failed Fehler beim Kürzen des Films
+moviebrowser.truncate_failed_playing Kürzen des Films während der Wiedergabe nicht möglich.
+moviebrowser.truncating Kürze Film, bitte warten ...
 moviebrowser.ts_only Nur Aufnahmen zeigen
 moviebrowser.update_if_dest_empty_only Übernehmen nur wenn Ziel leer
 moviebrowser.use_dir Verzeichnis verwenden
@@ -1768,6 +1804,7 @@ parentallock.never Nie
 parentallock.onsignal Bei gesendeter Vorsperre
 parentallock.parentallock Jugendschutz
 parentallock.prompt PIN-Eingabe
+parentallock.zaptime Zap-Zeit für vorgesperrte Bouquets (Minuten)
 personalize.access Zugangsoptionen
 personalize.apply_settings Änderungen übernehmen?
 personalize.button_auto Auto
@@ -1992,6 +2029,11 @@ scants.bouquet_erase löschen
 scants.bouquet_leave nicht ändern
 scants.bouquet_satellite Satelliten-Bouquet
 scants.bouquet_update erneuern
+scants.bouquet_writenames Originalnamen in Bouquets schreiben
+scants.bouquet_writenames_bouquets nur Anbieter
+scants.bouquet_writenames_ever Beide
+scants.bouquet_writenames_never Nie
+scants.bouquet_writenames_ubouquets nur Favoriten
 scants.channel Kanal:
 scants.failed Kanalsuche fehlgeschlagen!
 scants.finished Kanalsuche erfolgreich beendet!
@@ -2076,8 +2118,11 @@ streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufn
 streaming.overflow Aufnahme-Puffer Überlauf! Bitte ggf. einige Aufnahmen beenden.
 streaming.slow System oder Datenträger zu langsam! Bitte ggf. einige Aufnahmen beenden.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
-stringinput.caps Groß-/Kleinbuchstaben
+stringinput.backspace Rücklöschen
+stringinput.caps Groß / Klein
 stringinput.clear Alles löschen
+stringinput.insert Einfügen
+stringinput.save Speichern
 subtitles.charset Zeichensatz
 subtitles.head Untertitel
 subtitles.stop Untertitel aus

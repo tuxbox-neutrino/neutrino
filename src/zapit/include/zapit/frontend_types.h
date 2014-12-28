@@ -79,6 +79,13 @@ typedef enum {
 	ALL_TERR = ZAPIT_DM_TERR,
 } delivery_system_t;
 
+typedef enum {
+	ZPILOT_ON,
+	ZPILOT_OFF,
+	ZPILOT_AUTO,
+	ZPILOT_AUTO_SW
+} zapit_pilot_t;
+
 typedef struct {
 	delivery_system_t	delsys;
 	uint32_t		frequency;
@@ -94,7 +101,7 @@ typedef struct {
 	fe_code_rate_t		code_rate_HP;
 	fe_code_rate_t		code_rate_LP;
 
-	fe_pilot_t		pilot;
+	zapit_pilot_t		pilot;
 	fe_rolloff_t		rolloff;
 
 	enum fe_interleaving	interleaving;

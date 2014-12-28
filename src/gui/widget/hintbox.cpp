@@ -42,11 +42,23 @@ CHintBox::CHintBox(const neutrino_locale_t Caption, const char * const Text, con
 	init(caption_tmp, Text, Width, Icon);
 }
 
+CHintBox::CHintBox(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width, const char * const Icon)
+{
+	const char * caption_tmp = g_Locale->getText(Caption);
+	const char * text_tmp = g_Locale->getText(Text);
+	init(caption_tmp, text_tmp, Width, Icon);
+}
+
 CHintBox::CHintBox(const char * const Caption, const char * const Text, const int Width, const char * const Icon)
 {
 	init(Caption, Text, Width, Icon);
 }
 
+CHintBox::CHintBox(const char * const Caption, const neutrino_locale_t Text, const int Width, const char * const Icon)
+{
+	const char * text_tmp = g_Locale->getText(Text);
+	init(Caption, text_tmp, Width, Icon);
+}
 void CHintBox::init(const char * const Caption, const char * const Text, const int Width, const char * const Icon)
 {
 	char * begin;

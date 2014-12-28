@@ -128,6 +128,10 @@ audiomenu.pref_subs_head Subtitle language preferences
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.stereo stereo
 audiomenu.volume_adjust Volume adjustment, in %
+audiomenu.volume_adjustment Channel specific volume adjustment
+audiomenu.volume_adjustment_ac3 AC3 streams
+audiomenu.volume_adjustment_clear Clear saved values
+audiomenu.volume_adjustment_pcm PCM streams
 audiomenu.volume_start Start volume
 audiomenu.volume_step Volume step
 audioplayer.add Add
@@ -188,6 +192,7 @@ bouqueteditor.discardingchanges Discarding changes. Please be patient.
 bouqueteditor.hide Hide
 bouqueteditor.lock Lock
 bouqueteditor.move Move
+bouqueteditor.move_to Move to
 bouqueteditor.name Bouquet editor
 bouqueteditor.newbouquetname New name of bouquets
 bouqueteditor.rename Rename
@@ -250,6 +255,7 @@ channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
 channellist.show_channellogo Show channel logos
 channellist.show_channelnumber Show channel numbers
+channellist.show_empty_favs Show empty favorites bouquets
 channellist.since since
 channellist.start starts
 ci.clock CI clock (Mhz)
@@ -487,6 +493,9 @@ extra.tp_mod_4_nr QAM/4-NR
 extra.tp_mod_64 QAM/64
 extra.tp_mod_8 8PSK
 extra.tp_mod_auto QAM/AUTO
+extra.tp_pilot Pilot
+extra.tp_pilot_auto Auto (HW)
+extra.tp_pilot_auto_sw Auto (SW)
 extra.tp_pol Polarization
 extra.tp_pol_h H
 extra.tp_pol_l L
@@ -526,6 +535,7 @@ favorites.copy Copy bouquet to Favorites
 favorites.finalhint \nUse the bouqueteditor to modify your favorites.\n
 favorites.menueadd add channel to favorites
 favorites.nobouquets Favorites are available with activated Bouquets only.
+filebrowser.add Add
 filebrowser.delete Delete
 filebrowser.denydirectoryleave Absolute start directory
 filebrowser.dodelete1 Delete
@@ -535,6 +545,7 @@ filebrowser.filter.inactive Filter off
 filebrowser.head Filebrowser
 filebrowser.mark Mark
 filebrowser.nextpage Next Page
+filebrowser.pm Playlist Manager
 filebrowser.prevpage Prev. Page
 filebrowser.scan Scaning folder
 filebrowser.select Select
@@ -554,6 +565,7 @@ flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open MTD
 flashupdate.checkupdate_internet Check for online updates
 flashupdate.checkupdate_local Local update
+flashupdate.copy_image Copy Image to main memory
 flashupdate.createimage Save image
 flashupdate.createimage_add_env Add 'env' to image
 flashupdate.createimage_add_kernel Add 'kernel' to image
@@ -807,7 +819,7 @@ lcdcontroler.brightnessdeepstandby DeepStandby Brightness
 lcdcontroler.brightnessstandby Standby Brightness
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
-lcdmenu.head VFD Settings
+lcdmenu.head VFD/LED Settings
 lcdmenu.lcdcontroler Brightness
 lcdmenu.scroll Enable text scroll
 lcdmenu.statusline status line
@@ -861,7 +873,7 @@ mainsettings.audio Audio
 mainsettings.head Settings
 mainsettings.keybinding Key Setup
 mainsettings.language Language / Timezone
-mainsettings.lcd VFD-Display
+mainsettings.lcd Front-Panel
 mainsettings.manage Manage settings
 mainsettings.misc Extended settings
 mainsettings.multimedia Multimedia
@@ -876,7 +888,11 @@ menu.back Back
 menu.cancel Cancel
 menu.hint_a_pic Configure audio player and picture viewer
 menu.hint_aplay Audio player
+menu.hint_aplay_setup Change title display, start directory, screen saver and more
 menu.hint_audio Audio output, DD\nSRS True volume options
+menu.hint_audio_adjust_vol_ac3 Channel specific volume adjustment for AC3 streams
+menu.hint_audio_adjust_vol_clear Clear all saved values for PCM and AC3 streams
+menu.hint_audio_adjust_vol_pcm Channel specific volume adjustment for PCM streams
 menu.hint_audio_analog_mode Select audio channel to use\nstereo, mono-left, mono-right
 menu.hint_audio_avsync A/V sync
 menu.hint_audio_dd Auto-switch to DolbyDigital audio pid,\nif available
@@ -920,6 +936,7 @@ menu.hint_channellist_mode_radio Use the selected channel list mode on startup i
 menu.hint_channellist_setup Configure channel list GUI options
 menu.hint_channellist_show_channellogo Show channel logos in channel list
 menu.hint_channellist_show_channelnumber Show channel number in channel list
+menu.hint_channellist_show_empty_favs Show / hide empty bouquets in favorites
 menu.hint_channels Open channel list
 menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
 menu.hint_clock_background Show clock with theme's background color
@@ -941,7 +958,9 @@ menu.hint_epg_extendedcache Maximum hours to cache extended\nevents descriptions
 menu.hint_epg_fonts Change EPG details window font sizes
 menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cache will remove future events
 menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
-menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
+menu.hint_epg_read Read saved EPG data after boot from an external device
+menu.hint_epg_save Save cached EPG data to an external device
+menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
 menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
@@ -1086,6 +1105,7 @@ menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leav
 menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
 menu.hint_misc_zapit Initial TV/Radio channels
 menu.hint_movie Play movies
+menu.hint_moviebrowser_setup Set selection and display options.
 menu.hint_movieplayer_plugin Choose a plugin that's executed with the one touch key in movieplayer mode
 menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
 menu.hint_net_dhcp Use DHCP server to auto-configure
@@ -1137,6 +1157,7 @@ menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN c
 menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
 menu.hint_pictureviewer_defdir Default picture viewer directory
 menu.hint_pictureviewer_scaling Picture scaling algorithm
+menu.hint_pictureviewer_setup Configure pictureviewer behavior
 menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
 menu.hint_picview View pictures
 menu.hint_plugin_type_games Show games in usermenu at selection 'Plugin types'
@@ -1200,6 +1221,7 @@ menu.hint_scan_auto Auto-scan selected provider
 menu.hint_scan_autoall Scan several selected providers at once
 menu.hint_scan_autoall_select Add selected satellites to scan
 menu.hint_scan_bouquet Update: add to current bouquets, erase:\nremove old bouquets, leave: dont add or change
+menu.hint_scan_bouquet_writenames Write services names to bouquets \n never > fovourites only > providers only > both
 menu.hint_scan_bw Select the channel bandwidth
 menu.hint_scan_cable Select cable network to scan
 menu.hint_scan_cable_simple Cable scan with optional\nprovider channel numbering
@@ -1242,6 +1264,7 @@ menu.hint_scan_motorpos Select stored position number for this satellite,\nignor
 menu.hint_scan_nid Enter decimal network ID
 menu.hint_scan_nit Add transpoders from network information
 menu.hint_scan_pids Scan and save audio/video/PMT PIDs
+menu.hint_scan_pilot Select pilot parameter
 menu.hint_scan_pol Select transponder polarization
 menu.hint_scan_rate Enter transponder symbol rate
 menu.hint_scan_reset_numbers Reset exising channel numbers\nand re-number channels after scan
@@ -1310,7 +1333,7 @@ menu.hint_tools Run tools
 menu.hint_tvmode Switch box to TV mode
 menu.hint_tvradio_switch Switches between TV and Radio mode
 menu.hint_upnp Universal Plug and Play Browser
-menu.hint_vfd Frontpanel LEDS, VFD options
+menu.hint_vfd Frontpanel LEDs, VFD options
 menu.hint_vfd_brightness Working brightness 
 menu.hint_vfd_brightness_setup Configure frontpanel display brightness\nfor different modes
 menu.hint_vfd_brightnessdeepstandby Brightness in deep-standby mode
@@ -1331,6 +1354,7 @@ menu.hint_video_dbdr MPEG2 enhancement filters
 menu.hint_video_format TV aspect ratio
 menu.hint_video_mode HDMI output video mode
 menu.hint_video_modes VF key will cycle between enabled modes 
+menu.hint_video_modes_auto Enable modes to auto-select based on content
 menu.hint_video_pip Picture in picture size and position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
@@ -1342,6 +1366,7 @@ menu.hint_volume_size Select volume indicator height
 menu.hint_webtv_setup WebTV channels configured here will be available in the standard channel lists.
 menu.hint_window_size Channellist, EPG-infos and some other windows are scaled by this factor
 menu.hint_ytplay Play selected youtube feeds
+menu.hint_ytplay_setup Configure YouTube-specific options, e.g. an upper limit for search results
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next (press Menu to quit)
 messagebox.back Back
@@ -1373,8 +1398,10 @@ miscsettings.epg_max_events_hint2 normaly 6000, 0 to disable limit
 miscsettings.epg_old_events EPG remove after (std.)
 miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they timed out?
 miscsettings.epg_old_events_hint2 Set in hours
-miscsettings.epg_save Save/Restore epg on reboot
-miscsettings.epg_save_standby Save epg on soft standby
+miscsettings.epg_read Restore EPG on boot
+miscsettings.epg_save Save EPG on shutdown
+miscsettings.epg_save_frequently Save EPG frequently
+miscsettings.epg_save_standby Save EPG on soft standby
 miscsettings.epg_scan EPG scan mode
 miscsettings.epg_scan_always Always
 miscsettings.epg_scan_bouquets EPG scan bouquets
@@ -1485,17 +1512,26 @@ moviebrowser.book_movieend Movie end:
 moviebrowser.book_moviestart User Movie start:
 moviebrowser.book_name Name:
 moviebrowser.book_new New Bookmark
+moviebrowser.book_no_end No end bookmark defined
 moviebrowser.book_position Position:
 moviebrowser.book_type Jump (<0 back , >0 for):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward jump over
-moviebrowser.browser_frame_high Browser hight [%]
+moviebrowser.browser_frame_high Browser height [%]
 moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
 moviebrowser.browser_row_width Row width (% of screenwidth)
 moviebrowser.cache_dir Cache directory
+moviebrowser.copies Copy jumps from movie to new files?
+moviebrowser.copy Copy jumps from movie to new file?
+moviebrowser.copy_failed Copy failed, are there jump bookmarks and enough free space?
+moviebrowser.copying Coping, please wait ...
+moviebrowser.cut Cut jumps from movie?
+moviebrowser.cut_failed Cut failed, are there jump bookmarks and enough free space?
+moviebrowser.cutting Cutting movie, please wait ...
 moviebrowser.delete_info Delete files, please wait...
+moviebrowser.delete_screenshot Delete screenshot?
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark change
@@ -1526,12 +1562,13 @@ moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_file File
-moviebrowser.info_filename Name
+moviebrowser.info_filename Filename
 moviebrowser.info_genre_major Genre
-moviebrowser.info_genre_minor Genre
+moviebrowser.info_genre_minor Genre (minor)
 moviebrowser.info_head Film Information
 moviebrowser.info_head_update Save changes in all movie info files
 moviebrowser.info_info1 Info 1
+moviebrowser.info_info2 Info 2
 moviebrowser.info_length Length (Min)
 moviebrowser.info_parental_lockage Parental Lock age
 moviebrowser.info_parental_lockage_0year always
@@ -1595,6 +1632,10 @@ moviebrowser.short_size MB
 moviebrowser.short_title Title
 moviebrowser.start_head Start movie from:
 moviebrowser.start_record_start Movie start
+moviebrowser.truncate Truncate movie?
+moviebrowser.truncate_failed Truncate failed.
+moviebrowser.truncate_failed_playing Impossible to truncate playing movie.
+moviebrowser.truncating Truncating movie, please wait ...
 moviebrowser.ts_only Show recordings only
 moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.use_dir Use directory
@@ -1768,6 +1809,7 @@ parentallock.never never
 parentallock.onsignal on broadcasted lock
 parentallock.parentallock Parental lock
 parentallock.prompt prompt for PIN
+parentallock.zaptime Zap time for locked bouquets (minutes)
 personalize.access Access options
 personalize.apply_settings Apply changes?
 personalize.button_auto auto
@@ -1992,6 +2034,11 @@ scants.bouquet_erase erase old
 scants.bouquet_leave leave current
 scants.bouquet_satellite Satellite-Bouquet
 scants.bouquet_update update
+scants.bouquet_writenames Write service names to bouquets
+scants.bouquet_writenames_bouquets providers
+scants.bouquet_writenames_ever both
+scants.bouquet_writenames_never never
+scants.bouquet_writenames_ubouquets favourites
 scants.channel Channel:
 scants.failed Transponderscan failed!
 scants.finished Transponderscan finished successfully!
@@ -2076,8 +2123,11 @@ streaming.dir_not_writable The recording directory is not writable.\nRecording w
 streaming.overflow Record buffer overflow, consider to stop some records
 streaming.slow System/hdd too slow, consider to stop some records
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
+stringinput.backspace Backspace
 stringinput.caps caps / no caps
 stringinput.clear clear all
+stringinput.insert Insert
+stringinput.save Save
 subtitles.charset Charset
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
@@ -2223,6 +2273,7 @@ videomenu.dbdr_both de-block+de-ring
 videomenu.dbdr_deblock de-block
 videomenu.dbdr_none none
 videomenu.enabled_modes VF key enabled modes
+videomenu.enabled_modes_auto Auto-select enabled modes
 videomenu.fullscreen Full screen
 videomenu.hdmi_cec CSTLink (HDMI-CEC)
 videomenu.hdmi_cec_mode Receiver to use

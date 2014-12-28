@@ -190,7 +190,7 @@ typedef enum
 	MB_SHOW_YT
 } MB_SHOW_MODE;
 
-#define MB_MAX_ROWS 6
+#define MB_MAX_ROWS LF_MAX_ROWS
 #define MB_MAX_DIRS 5
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
 typedef struct
@@ -222,13 +222,13 @@ typedef struct
 	// to be added to config later
 	int lastPlayMaxItems;
 	int lastPlayRowNr;
-	MB_INFO_ITEM lastPlayRow[MB_MAX_ROWS];
-	int lastPlayRowWidth[MB_MAX_ROWS];
+	MB_INFO_ITEM lastPlayRow[2];
+	int lastPlayRowWidth[2];
 
 	int lastRecordMaxItems;
 	int lastRecordRowNr;
-	MB_INFO_ITEM lastRecordRow[MB_MAX_ROWS];
-	int lastRecordRowWidth[MB_MAX_ROWS];
+	MB_INFO_ITEM lastRecordRow[2];
+	int lastRecordRowWidth[2];
 	int ytmode;
 	int ytorderby;
 	int ytresults;
@@ -354,7 +354,7 @@ class CMovieBrowser : public CMenuTarget
 		std::vector<MI_MOVIE_INFO> yt_completed;
 		std::vector<MI_MOVIE_INFO> yt_failed;
 		void loadYTitles(int mode, std::string search = "", std::string id = "");
-		bool showYTMenu(void);
+		bool showYTMenu(bool calledExternally = false);
 		void refreshYTMenu();
 
 	public:  // Functions //////////////////////////////////////////////////////////7
@@ -430,7 +430,7 @@ class CMovieBrowser : public CMenuTarget
 		void getStorageInfo(void); // P3
 
 		///// Menu ////////////////////////////////////
-		bool showMenu(MI_MOVIE_INFO* movie_info, bool calledExternally = false); // P2
+		bool showMenu(bool calledExternally = false);
 		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int  showStartPosSelectionMenu(void); // P2
 

@@ -26,6 +26,9 @@
 #include <stdint.h>
 #include <inttypes.h>
 
+typedef uint16_t bq_id_t;
+#define SCANF_BOUQUET_ID_TYPE "%hx"
+
 typedef uint16_t freq_id_t;
 typedef uint16_t t_service_id;
 #define SCANF_SERVICE_ID_TYPE "%hx"

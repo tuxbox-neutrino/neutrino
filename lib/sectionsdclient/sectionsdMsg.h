@@ -101,6 +101,7 @@ struct sectionsd
 		int epg_extendedcache;
 //		std::string network_ntpserver;
 //		std::string epg_dir;
+		int epg_save_frequently;
 	};
 
 };

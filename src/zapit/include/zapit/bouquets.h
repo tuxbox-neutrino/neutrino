@@ -26,11 +26,18 @@ typedef tallchans::iterator tallchans_iterator;
 typedef vector<CZapitChannel*> ZapitChannelList;
 typedef ZapitChannelList::iterator zapit_list_it_t;
 
+#define DEFAULT_BQ_ID	0
+#define DEFAULT_BQ_HIDDEN    false
+#define DEFAULT_BQ_LOCKED    false
+#define DEFAULT_BQ_OTHER    false
+#define DEFAULT_BQ_SCANEPG    false
+
 class CZapitBouquet
 {
 	public:
 
 	std::string Name;
+	bq_id_t	 BqID;
 	bool        bHidden;
 	bool        bLocked;
 	bool        bUser;
@@ -42,7 +49,7 @@ class CZapitBouquet
 	ZapitChannelList radioChannels;
 	ZapitChannelList tvChannels;
 
-	inline CZapitBouquet(const std::string name) { Name = name; bHidden = false; bLocked = false; bUser = false; bOther = false; bScanEpg = false; }
+	inline CZapitBouquet(const std::string name) { Name = name; BqID=DEFAULT_BQ_ID; bHidden = DEFAULT_BQ_HIDDEN; bLocked = DEFAULT_BQ_LOCKED; bUser = false; bOther = DEFAULT_BQ_OTHER; bScanEpg = DEFAULT_BQ_SCANEPG; }
 
 	void addService(CZapitChannel* newChannel);
 
@@ -76,8 +83,8 @@ class CBouquetManager
 		void writeBouquetHeader          (FILE * bouq_fd, uint32_t i, const char * bouquetName);
 		void writeBouquetFooter          (FILE * bouq_fd);
 		void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);
-		void writeChannels(FILE * bouq_fd, ZapitChannelList &list);
-		void writeBouquet(FILE * bouq_fd, uint32_t i);
+		void writeChannels(FILE * bouq_fd, ZapitChannelList &list, bool bUser);
+		void writeBouquet(FILE * bouq_fd, uint32_t i, bool bUser);
 
 	public:
 		CBouquetManager() { remainChannels = NULL; };
@@ -125,6 +132,13 @@ class CBouquetManager
 		void sortBouquets(void);
 		void setBouquetLock(const unsigned int id, bool state);
 		void setBouquetLock(CZapitBouquet* bouquet, bool state);
+		//bouquet writeChannelsNames selection options
+		enum{
+			BWN_NEVER,
+			BWN_UBOUQUETS,
+			BWN_BOUQUETS,
+			BWN_EVER
+		};
 };
 
 /*

@@ -76,7 +76,7 @@ class CPlugins
 		{
 			int index;
 			std::string filename;
-			int key;
+			neutrino_msg_t key;
 			std::string cfgfile;
 			std::string pluginfile;
 			std::string plugindir;
@@ -87,7 +87,7 @@ class CPlugins
 			std::string depend;
 			CPlugins::p_type_t type;
 			CPlugins::i_type_t integration;
-			
+#if 0
 			bool fb;
 			bool rc;
 			bool lcd;
@@ -95,6 +95,7 @@ class CPlugins
 			int posx, posy, sizex, sizey;
 			bool showpig;
 			bool needoffset;
+#endif
 			bool shellwindow;
 			bool hide;
 			bool operator< (const plugin& a) const
@@ -115,6 +116,7 @@ class CPlugins
 		int find_plugin(const std::string & filename);
 		CPlugins::p_type_t getPluginType(int type);
 		CPlugins::i_type_t getPluginIntegration(int integration);
+		neutrino_msg_t getPluginKey(std::string key="auto");
 	public:
 		CPlugins();
 		~CPlugins();
@@ -139,7 +141,7 @@ class CPlugins
 		inline       int           getIntegration      (const int number) const { return plugin_list[number].integration       ; }
 		inline       bool          isHidden            (const int number) const { return plugin_list[number].hide              ; }
 		inline       int           getIndex            (const int number) const { return plugin_list[number].index             ; }
-		inline     neutrino_msg_t  getKey              (const int number) const { return (neutrino_msg_t)plugin_list[number].key; }
+		inline      neutrino_msg_t getKey              (const int number) const { return plugin_list[number].key               ; }
 
 		void setType (const int number, int t) { plugin_list[number].type = (CPlugins::p_type_t) t ; }
 		bool overrideType(plugin *plugin_data, std::string &setting, p_type type);

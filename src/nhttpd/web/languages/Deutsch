@@ -29,6 +29,8 @@ send=Senden
 save=Speichern
 save_all=Alle &Auml;nderungen speichern
 cancel=Abbrechen
+apply=&Auml;nderungen anwenden
+apply_desc=Liest die Konfigurationsdatei von Neutrino neu ein
 answer=Antwort
 reboot=Neustart
 shutdown=Ausschalten
@@ -212,6 +214,7 @@ set.sync_with_neutrino=Zur Synchronisation mit Neutrino
 
 ========Settings General & Menue
 set.menue.webserver=Webserver
+set.menue.epg=EPG
 set.menue.timer_settings=Timer Einstellungen
 set.menue.zapit=Zapit
 set.menue.backup_restore=Sichern und Wiederherstellen
@@ -221,7 +224,6 @@ set.menue.parental=Jugendschutz
 set.menue.direct_recording=Direktaufnahme
 set.menue.recording=Aufnahme
 set.menue.audio_player=Audioplayer
-set.menue.esound_server=Esound Server
 set.menue.movieplayer=Movieplayer
 set.menue.pictureviewer=Bildbetrachter
 set.menue.lcd_display=LC-Display

@@ -159,10 +159,12 @@ private:
 	void finishMoveChannel();
 	void cancelMoveChannel();
 	void internalMoveChannel(unsigned int fromPosition, unsigned int toPosition);
-	void deleteChannel();
+	void deleteChannel(bool ask = true);
 	void addChannel();
 	void lockChannel();
 	void saveChanges(bool fav = true);
+	bool addChannelToBouquet();
+	void moveChannelToBouquet();
 
 	friend class CBouquet;
 public:
@@ -208,7 +210,7 @@ public:
 	int  hasChannelID(t_channel_id channel_id);
 	void setSelected( int nChannelNr); // for adjusting bouquet's channel list after numzap or quickzap
 
-	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
+	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data, bool pip = false);
 
 	int getSize() const;
 	bool isEmpty() const;
@@ -234,6 +236,7 @@ public:
 		SORT_MAX
 	};
 	unsigned Size() { return (*chanlist).size(); }
+	ZapitChannelList &getChannels() { return channels; };
 
 };
 #endif

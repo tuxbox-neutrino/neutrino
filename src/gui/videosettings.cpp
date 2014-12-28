@@ -106,15 +106,17 @@ int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	return res;
 }
 
-#define VIDEOMENU_43MODE_OPTION_COUNT 4
-const CMenuOptionChooser::keyval VIDEOMENU_43MODE_OPTIONS[VIDEOMENU_43MODE_OPTION_COUNT] =
+const CMenuOptionChooser::keyval VIDEOMENU_43MODE_OPTIONS[] =
 {
 	{ DISPLAY_AR_MODE_PANSCAN, LOCALE_VIDEOMENU_PANSCAN },
+#ifndef BOXMODEL_APOLLO
 	{ DISPLAY_AR_MODE_PANSCAN2, LOCALE_VIDEOMENU_PANSCAN2 },
+#endif
 	{ DISPLAY_AR_MODE_LETTERBOX, LOCALE_VIDEOMENU_LETTERBOX },
 	{ DISPLAY_AR_MODE_NONE, LOCALE_VIDEOMENU_FULLSCREEN }
 	//{ 2, LOCALE_VIDEOMENU_AUTO } // whatever is this auto mode, it seems its totally broken
 };
+#define VIDEOMENU_43MODE_OPTION_COUNT (sizeof(VIDEOMENU_43MODE_OPTIONS)/sizeof(CMenuOptionChooser::keyval))
 
 #define VIDEOMENU_VIDEOSIGNAL_TD_OPTION_COUNT 2
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_TD_OPTIONS[VIDEOMENU_VIDEOSIGNAL_TD_OPTION_COUNT] =
@@ -337,7 +339,7 @@ int CVideoSettings::showVideoSetup()
 	else if (system_rev > 0x06)
 	{
 #ifdef ANALOG_MODE
-		if (system_rev == 9 || system_rev == 11) { // Tank, Trinity.
+		if (system_rev == 9 || system_rev == 11 || system_rev == 12) { // Tank, Trinity, Zee2
 			vs_analg_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TANK_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TANK_OPTION_COUNT, true, this);
 			vs_analg_ch->setHint("", LOCALE_MENU_HINT_VIDEO_ANALOG_MODE);
 		} else 
@@ -370,6 +372,10 @@ int CVideoSettings::showVideoSetup()
 
 	CMenuOptionChooser *vs_dbdropt_ch = NULL;
 	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
+#ifdef BOXMODEL_APOLLO
+	CMenuForwarder * vs_automodes_fw = NULL;
+	CMenuWidget automodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
+#endif
 	CAutoModeNotifier anotify;
 	CMenuForwarder *vs_videomodes_fw = NULL;
 	if (!g_settings.easymenu) {
@@ -388,10 +394,19 @@ int CVideoSettings::showVideoSetup()
 			for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 				if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key != -1)
 				videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
-			//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 
 			vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red);
 			vs_videomodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES);
+
+#ifdef BOXMODEL_APOLLO
+			automodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES_AUTO);
+
+			for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT - 1; i++)
+				automodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_auto_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
+
+			vs_automodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES_AUTO, true, NULL, &automodes, NULL, CRCInput::RC_green);
+			vs_automodes_fw->setHint("", LOCALE_MENU_HINT_VIDEO_MODES_AUTO);
+#endif
 		}
 	}
 
@@ -420,6 +435,9 @@ int CVideoSettings::showVideoSetup()
 			videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
 		if (vs_videomodes_fw != NULL)
 			videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
+#ifdef BOXMODEL_APOLLO
+		videosetup->addItem(vs_automodes_fw);	  //video auto modes submenue
+#endif
 	}
 
 #ifdef BOXMODEL_APOLLO
@@ -605,14 +623,14 @@ void CVideoSettings::next43Mode(void)
 	neutrino_locale_t text;
 	int curmode = 0;
 
-	for (int i = 0; i < VIDEOMENU_43MODE_OPTION_COUNT; i++) {
+	for (int i = 0; i < (int) VIDEOMENU_43MODE_OPTION_COUNT; i++) {
 		if (VIDEOMENU_43MODE_OPTIONS[i].key == g_settings.video_43mode) {
 			curmode = i;
 			break;
 		}
 	}
 	curmode++;
-	if (curmode >= VIDEOMENU_43MODE_OPTION_COUNT)
+	if (curmode >= (int) VIDEOMENU_43MODE_OPTION_COUNT)
 		curmode = 0;
 
 	text =  VIDEOMENU_43MODE_OPTIONS[curmode].value;

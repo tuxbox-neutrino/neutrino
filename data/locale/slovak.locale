@@ -719,7 +719,7 @@ lcdcontroler.brightnessdeepstandby Jas v hlbokom spánku
 lcdcontroler.brightnessstandby Jas v spánku
 lcdmenu.dim_brightness Jas po zhasnutí
 lcdmenu.dim_time Čas zhasnutia
-lcdmenu.head Nastavenie VFD
+lcdmenu.head Nastavenie VFD/LED
 lcdmenu.lcdcontroler Jas
 lcdmenu.scroll Povoliť pohyb textu
 lcdmenu.statusline Stavový riadok
@@ -767,7 +767,7 @@ mainsettings.audio Zvuk
 mainsettings.head Nastavenia
 mainsettings.keybinding Nastavenia kláves
 mainsettings.language Jazyk / Časové pásmo
-mainsettings.lcd Zobrazovač VFD
+mainsettings.lcd Zobrazovač VFD / LED
 mainsettings.manage Spravovanie nastavení
 mainsettings.misc Iné nastavenia
 mainsettings.network Sieť

@@ -382,7 +382,7 @@ void CDBoxInfoWidget::paint()
 	now -= info.uptime;
 	std::string str_boot(strftime(g_Locale->getText(LOCALE_EXTRA_DBOXINFO_TIMEFORMAT), now));
 
-	char ubuf[80] = { 0 };
+	char ubuf[256] = { 0 };
 	char sbuf[256] = { 0 };
         int updays, uphours, upminutes;
 

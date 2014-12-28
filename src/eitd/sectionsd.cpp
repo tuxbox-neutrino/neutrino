@@ -71,6 +71,7 @@ static bool notify_complete = false;
 /* period to clean cached sections and force restart sections read */
 #define META_HOUSEKEEPING_COUNT (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 #define STANDBY_HOUSEKEEPING_COUNT (60 * 60) / HOUSEKEEPING_SLEEP
+#define EPG_SAVE_FREQUENTLY_COUNT (60 * 60) / HOUSEKEEPING_SLEEP
 
 // Timeout bei tcp/ip connections in ms
 #define READ_TIMEOUT_IN_SECONDS  2
@@ -82,6 +83,7 @@ static bool notify_complete = false;
 // number of timeouts after which we stop waiting for an EIT version number
 #define TIMEOUTS_EIT_VERSION_WAIT	(2 * CHECK_RESTART_DMX_AFTER_TIMEOUTS)
 
+static unsigned int epg_save_frequently;
 static long secondsToCache;
 static long secondsExtendedTextCache;
 static long oldEventsAre;
@@ -970,13 +972,10 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 static void commandserviceStopped(int connfd, char * /* data */, const unsigned /* dataLength */)
 {
 	xprintf("[sectionsd] commandserviceStopped\n");
+	current_channel_id = 0;
 	sendEmptyResponse(connfd, NULL, 0);
-	threadCN.lock();
-	threadEIT.lock();
-	threadCN.closefd();
-	threadEIT.closefd();
-	threadCN.unlock();
-	threadEIT.unlock();
+	threadEIT.stop();
+	threadCN.stop();
 	threadCN.stopUpdate();
 	xprintf("[sectionsd] commandserviceStopped done\n");
 }
@@ -1108,6 +1107,7 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 	oldEventsAre = (long)(pmsg->epg_old_events)*60L*60L;
 	secondsExtendedTextCache = (long)(pmsg->epg_extendedcache)*60L*60L;
 	max_events = pmsg->epg_max_events;
+	epg_save_frequently = pmsg->epg_save_frequently;
 	unlockEvents();
 
 	bool time_wakeup = false;
@@ -1593,8 +1593,12 @@ void CSectionThread::run()
 			xprintf("%s: skipping to next filter %d from %d (timeouts %d)\n",
 				name.c_str(), filter_index+1, (int)filters.size(), timeoutsDMX);
 #endif
+			if (timeoutsDMX == -3)
+				sendToSleepNow = true;
+			else
+				need_change = true;
+
 			timeoutsDMX = 0;
-			need_change = true;
 		}
 		if (zeit > lastChanged + skipTime) {
 #ifdef DEBUG_SECTION_THREADS
@@ -2048,7 +2052,7 @@ static void print_meminfo(void)
 //---------------------------------------------------------------------
 static void *houseKeepingThread(void *)
 {
-	int count = 0, scount = 0;
+	int count = 0, scount = 0, ecount = 0;
 
 	dprintf("housekeeping-thread started.\n");
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
@@ -2080,6 +2084,23 @@ static void *houseKeepingThread(void *)
 		dprintf("housekeeping.\n");
 
 		removeOldEvents(oldEventsAre); // alte Events
+
+		ecount++;
+		if (ecount == EPG_SAVE_FREQUENTLY_COUNT)
+		{
+			if (epg_save_frequently > 0)
+			{
+				std::string d = epg_dir;
+				if (d.length() > 1)
+				{
+					std::string::iterator it = d.end() - 1;
+					if (*it == '/')
+						d.erase(it);
+				}
+				writeEventsToFile((char *)d.c_str());
+			}
+			ecount = 0;
+		}
 
 		readLockEvents();
 		dprintf("Number of sptr events (event-ID): %u\n", (unsigned)mySIeventsOrderUniqueKey.size());
@@ -2134,6 +2155,7 @@ bool CEitManager::Start()
 	secondsExtendedTextCache = config.epg_extendedcache*60L*60L; //hours
 	oldEventsAre = config.epg_old_events*60L*60L; //hours
 	max_events = config.epg_max_events;
+	epg_save_frequently = config.epg_save_frequently;
 
 	if (find_executable("ntpdate").empty())
 		ntp_system_cmd_prefix = "ntpd -n -q -p ";

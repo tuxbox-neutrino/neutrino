@@ -213,7 +213,7 @@ void CInfoViewerBB::getBBButtonInfo()
 	bbButtonMaxH = 0;
 	bbButtonMaxX = g_InfoViewer->ChanInfoX;
 	int bbButtonMaxW = 0;
-	int mode;
+	int mode = NeutrinoMessages::mode_unknown;
 	for (int i = 0; i < CInfoViewerBB::BUTTON_MAX; i++) {
 		int w = 0, h = 0;
 		bool active;
@@ -233,13 +233,13 @@ void CInfoViewerBB::getBBButtonInfo()
 			icon = NEUTRINO_ICON_BUTTON_GREEN;
 			frameBuffer->getIconSize(icon.c_str(), &w, &h);
 			text = CUserMenu::getUserMenuButtonName(1, active);
-			if (!text.empty())
+			mode = CNeutrinoApp::getInstance()->getMode();
+			if (!text.empty() && mode < NeutrinoMessages::mode_audio)
 				break;
 			text = g_settings.usermenu[SNeutrinoSettings::BUTTON_GREEN]->title;
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			mode = CNeutrinoApp::getInstance()->getMode();
-			if ((mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv) && !CMoviePlayerGui::getInstance().timeshift) {
+			if ((mode == NeutrinoMessages::mode_ts || mode == NeutrinoMessages::mode_webtv || mode == NeutrinoMessages::mode_audio) && !CMoviePlayerGui::getInstance().timeshift) {
 				text = CMoviePlayerGui::getInstance().CurrentAudioName();
 			} else if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;

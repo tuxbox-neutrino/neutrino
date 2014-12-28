@@ -41,10 +41,10 @@
 #include <driver/record.h>
 #include <driver/display.h>
 
-static cHddStat *instance = NULL;
-
 cHddStat *cHddStat::getInstance(void)
 {
+	static cHddStat *instance = NULL;
+
 	if (!instance)
 		instance = new cHddStat;
 	return instance;

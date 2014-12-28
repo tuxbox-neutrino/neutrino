@@ -126,6 +126,7 @@ int my_system(int argc, const char *arg, ...)
 		if (i == argv_max)
 		{
 			fprintf(stderr, "my_system: too many arguments!\n");
+			va_end(args);
 			return -1;
 		}
 		argv[i] = va_arg(args, const char *);

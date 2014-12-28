@@ -89,8 +89,6 @@ class CInfoViewer
 	//uint32_t           fadeTimer;
 	COSDFader	fader;
 
-	int time_left_width;
-	int time_dot_width;
 	int time_width;
 	int time_height;
 	int info_time_width;
@@ -117,8 +115,8 @@ class CInfoViewer
 			  const char *runningStart = NULL, const char *runningRest = NULL,
 			  const char *nextStart = NULL, const char *nextDuration = NULL,
 			  bool update_current = true, bool update_next = true);
+	void initClock();
 	void paintTime( bool show_dot );
-	
 	void showRecordIcon(const bool show);
 	void showIcon_Tuner() const;
 

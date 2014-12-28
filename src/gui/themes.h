@@ -44,6 +44,7 @@ class CThemes : public CMenuTarget, CChangeObserver
 		void saveFile(char* themename);
 		void readThemes(CMenuWidget &);
 		void rememberOldTheme(bool remember);
+		void move_userDir();
 
 	public:
 		CThemes();

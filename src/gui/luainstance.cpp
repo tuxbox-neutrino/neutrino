@@ -30,6 +30,7 @@
 #include <system/set_threadname.h>
 #include <gui/widget/msgbox.h>
 #include <gui/widget/messagebox.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/filebrowser.h>
 #include <gui/movieplayer.h>
 #include <driver/pictureviewer/pictureviewer.h>
@@ -469,6 +470,7 @@ void CLuaInstance::runScript(const char *fileName, const char *arg0, ...)
 		if (i >= 64) {
 			fprintf(stderr, "CLuaInstance::runScript: too many arguments!\n");
 			args.clear();
+			va_end(list);
 			return;
 		}
 		args.push_back(temp);
@@ -1046,7 +1048,6 @@ bool CLuaMenuChangeObserver::changeNotify(lua_State *L, const std::string &luaAc
 	lua_pushstring(L, optionValue);
 	lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
 	double res = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0;
-	lua_pop(L, 2);
 	return (((int)res == menu_return::RETURN_REPAINT) || ((int)res == menu_return::RETURN_EXIT_REPAINT));
 }
 
@@ -1189,6 +1190,35 @@ int CLuaMenuStringinput::exec(CMenuTarget* /*parent*/, const std::string & /*act
 	return menu_return::RETURN_REPAINT;
 }
 
+CLuaMenuKeyboardinput::CLuaMenuKeyboardinput(lua_State *_L, std::string _luaAction, std::string _luaId, const char *_name, std::string *_value, int _size, CChangeObserver *_observ, const char *_icon, std::string _help, std::string _help2) : CLuaMenuForwarder(_L, _luaAction, _luaId)
+{
+	name = _name;
+	value = _value;
+	size = _size;
+	icon = _icon;
+	observ = _observ;
+	help = _help;
+	help2 = _help2;
+}
+
+int CLuaMenuKeyboardinput::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
+{
+	CKeyboardInput *i;
+	i = new CKeyboardInput((char *)name, value, size, observ, icon, help, help2);
+	i->exec(NULL, "");
+	delete i;
+	if (!luaAction.empty()){
+		lua_pushglobaltable(L);
+		lua_getfield(L, -1, luaAction.c_str());
+		lua_remove(L, -2);
+		lua_pushstring(L, luaId.c_str());
+		lua_pushstring(L, value->c_str());
+		lua_pcall(L, 2 /* two args */, 1 /* one result */, 0);
+		lua_pop(L, 2);
+	}
+	return menu_return::RETURN_REPAINT;
+}
+
 int CLuaInstance::MenuNew(lua_State *L)
 {
 	CMenuWidget *m;
@@ -1241,9 +1271,9 @@ int CLuaInstance::MenuAddKey(lua_State *L)
 
 	std::string action;	tableLookup(L, "action", action);
 	std::string id;		tableLookup(L, "id", id);
-	lua_Integer directkey = CRCInput::RC_nokey;
+	lua_Unsigned directkey = CRCInput::RC_nokey;
 	tableLookup(L, "directkey", directkey);
-	if (action != "" && directkey != (int) CRCInput::RC_nokey) {
+	if (action != "" && directkey != CRCInput::RC_nokey) {
 		CLuaMenuForwarder *forwarder = new CLuaMenuForwarder(L, action, id);
 		m->m->addKey(directkey, forwarder, action);
 		m->targets.push_back(forwarder);
@@ -1303,7 +1333,8 @@ int CLuaInstance::MenuAddItem(lua_State *L)
                         m->tofree.push_back(icon);
                 }
 
-		lua_Integer directkey = CRCInput::RC_nokey, pulldown = false;
+		lua_Unsigned directkey = CRCInput::RC_nokey;
+		lua_Integer pulldown = false;
 		tableLookup(L, "directkey", directkey);
 		tableLookup(L, "pulldown", pulldown);
 
@@ -1382,6 +1413,14 @@ int CLuaInstance::MenuAddItem(lua_State *L)
 			CLuaMenuStringinput *stringinput = new CLuaMenuStringinput(L, action, id, b->name.c_str(), &b->str_val, size, valid_chars, m->observ, icon, sms);
 			mi = new CMenuForwarder(b->name, enabled, b->str_val, stringinput, NULL/*ActionKey*/, directkey, icon, right_icon);
 			m->targets.push_back(stringinput);
+		} else if (type == "keyboardinput") {
+			b->str_val = value;
+			lua_Integer size = 0;	tableLookup(L, "size", size);
+			std::string help = "";	tableLookup(L, "help", help);
+			std::string help2 = "";	tableLookup(L, "help2", help2);
+			CLuaMenuKeyboardinput *keyboardinput = new CLuaMenuKeyboardinput(L, action, id, b->name.c_str(), &b->str_val, size, m->observ, icon, help, help2);
+			mi = new CMenuForwarder(b->name, enabled, b->str_val, keyboardinput, NULL/*ActionKey*/, directkey, icon, right_icon);
+			m->targets.push_back(keyboardinput);
 		} else if (type == "filebrowser") {
 			b->str_val = value;
 			lua_Integer dirMode = 0;
