@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <poll.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <system/helpers.h>
 #include <gui/widget/messagebox.h>
 #include <errno.h>
@@ -195,6 +196,7 @@ void CShellWindow::exec()
 	int r = waitpid(pid, &s, 0);
 
 	if (res) {
+		dprintf(DEBUG_NORMAL,  "[CShellWindow] [%s - %d]  res=%d, error[%d]: %s\n", __func__, __LINE__, *res, errno, strerror(errno));
 		if (r == -1)
 			*res = errno;
 		else
