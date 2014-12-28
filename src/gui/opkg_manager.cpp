@@ -629,8 +629,6 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 		fclose(f);
 	}
 	if (has_err){
-// 		if (!verbose)
-// 			DisplayErrorMessage(err_msg.c_str());
 		return -1;
 	}
 
@@ -639,32 +637,49 @@ int COPKGManager::execCmd(const char *cmdstr, bool verbose, bool acknowledge)
 
 void COPKGManager::handleShellOutput(string& cur_line)
 {
+	size_t pos2 = cur_line.find("Collected errors:");
+	if (pos2 != string::npos)
+		has_err = true;
+
 	//check for collected errors and build a message for screen if errors available
 	if (has_err){
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  result: %s\n", __func__, __LINE__, cur_line.c_str());
 
-		size_t pos1 = cur_line.find(" * ");
-
 		//trivial errors:
-		//duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS, NOTE: if found first cache option in the opkg.conf file, this will be preferred
+		/*duplicate option cache: option is defined in OPKG_CL_CONFIG_OPTIONS,
+		 * NOTE: if found first cache option in the opkg.conf file, this will be preferred and it's not really an error!
+		*/
 		if (cur_line.find("Duplicate option cache") != string::npos){
-			has_err = true;
+			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: Duplicate option cache, please check opkg config file!\n", __func__, __LINE__);
+			has_err = false;
 		}
-		else if (pos1 != string::npos){
-			string str = cur_line.substr(pos1, cur_line.length()-pos1);
-			err_msg += str.replace(pos1, 3,"") + "\n";
-			has_err = true;
-		}
+
 		//find obvious errors
 		//download error:
-		else if (cur_line.find("wget returned 4") != string::npos){
-			err_msg = "Network error! Online update not possible. Please check your network connection!\n";
+		if (cur_line.find("opkg_download:") != string::npos){
+			err_msg += "Network error! Please check your network connection!\n";
 			has_err = true;
 		}
-	}else{
-		size_t pos2 = cur_line.find("Collected errors:");
-		if (pos2 != string::npos)
+		//install errors:
+		if (cur_line.find("opkg_install_pkg") != string::npos){
+			err_msg += "Update not possible!\n";
 			has_err = true;
+		}
+		if (cur_line.find("opkg_install_cmd") != string::npos){
+			err_msg += "Cannot install package!\n";
+			has_err = true;
+		}
+		if (has_err)
+			return;
+
+		//add unknown errors:
+		size_t pos1 = cur_line.find(" * ");
+		if (pos1 != string::npos){
+			string str = cur_line.substr(pos1, cur_line.length()-pos1);
+			err_msg += str.replace(pos1, 3,"") + "\n";
+			return;
+		}
+
 	}
 	if (!has_err)
 		tmp_str += cur_line + "\n";
@@ -684,6 +699,7 @@ bool COPKGManager::installPackage(const std::string& pkg_name)
 	int r = execCmd(pkg_types[OM_INSTALL] + pkg_name, true, true);
 
 	if (r){
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  error[%d]: %s\n", __func__, __LINE__, errno, strerror(errno));
 // 		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
 		return false;
 	}
