@@ -1271,8 +1271,14 @@ void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DIR);
 	menu_screensaver->addItem(mf);
 
+	// screensaver delay
+	CMenuOptionNumberChooser* nc = new CMenuOptionNumberChooser(LOCALE_SCREENSAVER_DELAY, &g_settings.screensaver_delay, true, 0, 999, NULL, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+	nc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE));
+	nc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DELAY);
+	menu_screensaver->addItem(nc);
+
 	// screensaver timeout
-	CMenuOptionNumberChooser* nc = new CMenuOptionNumberChooser(LOCALE_SCREENSAVER_TIMEOUT, &g_settings.screensaver_timeout, true, 10, 60);
+	nc = new CMenuOptionNumberChooser(LOCALE_SCREENSAVER_TIMEOUT, &g_settings.screensaver_timeout, true, 0, 60);
 	nc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND));
 	nc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_TIMEOUT);
 	menu_screensaver->addItem(nc);

@@ -173,7 +173,6 @@ audioplayer.receiving_list Receiving list, please wait
 audioplayer.repeat_on enable repeat mode
 audioplayer.rewind rewind
 audioplayer.save_playlist save play list
-audioplayer.screensaver_timeout screensaver timeout
 audioplayer.select_title_by_name search title by name (SMS)
 audioplayer.show_playlist Show Playlist
 audioplayer.shuffle shuffle
@@ -911,7 +910,6 @@ menu.hint_audioplayer_order Change playlist sort order
 menu.hint_audioplayer_playlist Show playlist items
 menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
 menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
-menu.hint_audioplayer_screensaver Set screensaver timeout, in minutes
 menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
@@ -1290,7 +1288,8 @@ menu.hint_scan_usalsall Use USALS for all satellites on this frontend
 menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
 menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
 menu.hint_screen_setup Configure screen margins
-menu.hint_screensaver_dir Select directory in which the screensaver has to start.
+menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start
+menu.hint_screensaver_dir Select directory in which the screensaver has to start
 menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
 menu.hint_screensaver_setup Configure screensaver options for audioplayer
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
@@ -2059,6 +2058,7 @@ scants.startnow start scan
 scants.test Test signal
 scants.transponders Transponders:
 scrambled_channel Scrambled channel
+screensaver.delay Delay
 screensaver.dir Directory
 screensaver.menu Screensaver
 screensaver.timeout Change pictures

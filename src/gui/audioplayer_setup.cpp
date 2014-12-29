@@ -125,11 +125,6 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_PLAYLIST);
 	audioplayerSetup->addItem(mc);
 
-	CMenuOptionNumberChooser *cc = new CMenuOptionNumberChooser(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, &g_settings.audioplayer_screensaver, true, 0, 999, NULL, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
-	cc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE));
-	cc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER);
-	audioplayerSetup->addItem(cc);
-
 	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO, &g_settings.audioplayer_highprio, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
 	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_HIGHPRIO);
 	audioplayerSetup->addItem(mc);

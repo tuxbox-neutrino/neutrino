@@ -173,7 +173,6 @@ audioplayer.receiving_list Liste wird empfangen, bitte warten...
 audioplayer.repeat_on Repeatmodus aktivieren
 audioplayer.rewind schneller Rückl.
 audioplayer.save_playlist Playlist speichern
-audioplayer.screensaver_timeout Bildschirmschoner
 audioplayer.select_title_by_name Titelsuche nach Name (SMS)
 audioplayer.show_playlist Playlist anzeigen
 audioplayer.shuffle Zufällig
@@ -908,7 +907,6 @@ menu.hint_audioplayer_order Ändern der Sortierreihenfolge der Wiedergabeliste
 menu.hint_audioplayer_playlist Aktiviert die Anzeige der Titel in der Wiedergabeliste
 menu.hint_audioplayer_repeat Aktiviert das Wiederholen der Wiedergabeliste, wenn das Ende erreicht ist
 menu.hint_audioplayer_sc_metadata Aktiviert das Anzeigen der Audio-Metadaten
-menu.hint_audioplayer_screensaver Aktiviert den Bildschirmschoner nach dieser Zeit (Minuten)
 menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Playliste
 menu.hint_auto_lang Wählen Sie, ob automatisch ihre bevorzugte Tonspur ausgewählt wird, wenn sie vorhanden ist
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
@@ -1286,6 +1284,7 @@ menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
 menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
+menu.hint_screensaver_delay Legen sie die Zeit (in Minuten) fest, nach der der Bildschirmschoner starten soll
 menu.hint_screensaver_dir Wählen Sie das Verzeichnis, in dem die Bilder für Ihren Bildschirmschoner gespeichert sind
 menu.hint_screensaver_timeout Wählen Sie Die Wartezeit bis zum Bilderwechsel des Bildschirmschoners
 menu.hint_screensaver_setup Konfigurieren Sie die Optionen des Bildschirmschoners für den Audioplayer
@@ -2054,9 +2053,10 @@ scants.startnow Kanalsuche starten
 scants.test Empfangstest
 scants.transponders Transponder:
 scrambled_channel Verschlüsselung aktiv
+screensaver.delay Verzögerung
 screensaver.dir Verzeichnis
+screensaver.menu Bildschirmschoner
 screensaver.timeout Bilderwechsel
-screensaver.setup Bildschirmschoner
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
 screenshot.count Anzahl

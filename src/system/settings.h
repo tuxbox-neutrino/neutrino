@@ -207,6 +207,7 @@ struct SNeutrinoSettings
 	int easymenu;
 
 	//screen saver
+	int screensaver_delay;
 	std::string screensaver_dir;
 	int screensaver_timeout;
 
@@ -656,7 +657,6 @@ struct SNeutrinoSettings
 	//audioplayer
 	int   audioplayer_display;
 	int   audioplayer_follow;
-	int   audioplayer_screensaver;
 	int   audioplayer_highprio;
 	int   audioplayer_select_title_by_name;
 	int   audioplayer_repeat_on;

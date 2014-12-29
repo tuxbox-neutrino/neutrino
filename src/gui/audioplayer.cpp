@@ -373,9 +373,9 @@ int CAudioPlayerGui::show()
 
 		if ( msg == CRCInput::RC_timeout  || msg == NeutrinoMessages::EVT_TIMER)
 		{
-			int timeout = time(NULL) - m_idletime;
-			int screensaver_timeout = g_settings.audioplayer_screensaver;
-			if (screensaver_timeout != 0 && timeout > screensaver_timeout*60 && !m_screensaver)
+			int delay = time(NULL) - m_idletime;
+			int screensaver_delay = g_settings.screensaver_delay;
+			if (screensaver_delay != 0 && delay > screensaver_delay*60 && !m_screensaver)
 				screensaver(true);
 		}
 		else
