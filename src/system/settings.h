@@ -206,6 +206,9 @@ struct SNeutrinoSettings
 	int radiotext_enable;
 	int easymenu;
 
+	//screen saver
+	std::string screensaver_dir;
+
 	//vcr
 	int vcr_AutoSwitch;
 

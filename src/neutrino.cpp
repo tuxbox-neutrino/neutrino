@@ -496,6 +496,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.subs_charset = configfile.getString("subs_charset", "CP1252");
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
 
+	//screen saver
+	g_settings.screensaver_dir = configfile.getString("screensaver_dir", DATADIR "/neutrino/icons/");
+
 	//vcr
 	g_settings.vcr_AutoSwitch = configfile.getBool("vcr_AutoSwitch"       , true );
 
@@ -1019,6 +1022,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setString(cfg_key, g_settings.pref_subs[i]);
 	}
 	configfile.setString("subs_charset", g_settings.subs_charset);
+
+	//screen saver
+	configfile.setString("screensaver_dir", g_settings.screensaver_dir);
 
 	//vcr
 	configfile.setBool("vcr_AutoSwitch"       , g_settings.vcr_AutoSwitch       );

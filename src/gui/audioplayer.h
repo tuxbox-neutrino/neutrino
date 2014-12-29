@@ -140,7 +140,6 @@ class CAudioPlayerGui : public CMenuTarget
 	int            m_idletime;
 	bool          m_screensaver;
 	bool          m_inetmode;
-	uint32_t       stimer;
 	CComponentsDetailLine *dline;
 	CComponentsInfoBox *ibox;
 

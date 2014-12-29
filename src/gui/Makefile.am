@@ -97,6 +97,7 @@ libneutrino_gui_a_SOURCES = \
 	record_setup.cpp \
 	scan.cpp \
 	scan_setup.cpp \
+	screensaver.cpp \
 	screensetup.cpp \
 	settings_manager.cpp \
 	sleeptimer.cpp \
