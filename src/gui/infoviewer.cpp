@@ -248,7 +248,7 @@ void CInfoViewer::initClock()
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
 	clock->setCorner(RADIUS_LARGE, CORNER_TOP_RIGHT);
 	clock->setClockFont(SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME);
-	clock->setClockAlignment(CC_ALIGN_RIGHT | CC_ALIGN_HOR_CENTER);
+	clock->setClockAlignment(CC_ALIGN_RIGHT | CC_ALIGN_BOTTOM);
 	clock->refresh();
 
 	clock->setPos(BoxEndX - 10 - clock->getWidth(), ChanNameY);
