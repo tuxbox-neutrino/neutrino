@@ -343,7 +343,7 @@ int CAudioPlayerGui::show()
 
 	while (loop)
 	{
-		updateMetaData(m_screensaver);
+		updateMetaData();
 
 		updateTimes();
 
@@ -2026,7 +2026,7 @@ int CAudioPlayerGui::getNext()
 	return ret;
 }
 
-void CAudioPlayerGui::updateMetaData(bool screen_saver)
+void CAudioPlayerGui::updateMetaData()
 {
 	bool updateMeta = false;
 	bool updateLcd = false;
@@ -2056,13 +2056,13 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 			info << " / " << meta.samplerate/1000 << "." << (meta.samplerate/100)%10 <<"kHz";
 
 		m_metainfo = meta.type_info + info.str();
-		updateMeta = !screen_saver;
+		updateMeta = !m_screensaver;
 
 		if (!meta.artist.empty() && meta.artist != m_curr_audiofile.MetaData.artist)
 		{
 			m_curr_audiofile.MetaData.artist = meta.artist;
 
-			if ( !screen_saver)
+			if (!m_screensaver)
 				updateScreen = true;
 			updateLcd = true;
 		}
@@ -2071,7 +2071,7 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 		{
 			m_curr_audiofile.MetaData.title = meta.title;
 
-			if ( !screen_saver)
+			if (!m_screensaver)
 				updateScreen = true;
 			updateLcd = true;
 		}
