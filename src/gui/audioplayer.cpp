@@ -384,6 +384,11 @@ int CAudioPlayerGui::show()
 			if (m_screensaver)
 			{
 				screensaver(false);
+
+				videoDecoder->StopPicture();
+				videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
+				paint();
+
 				if (msg <= CRCInput::RC_MaxRC) {
 					// ignore first keypress - just quit the screensaver
 					g_RCInput->clearRCMsg();
@@ -706,11 +711,11 @@ int CAudioPlayerGui::show()
 			picture->exec(this, "audio");
 			delete picture;
 			pictureviewer = false;
+			screensaver(false);
 			videoDecoder->setBlank(true);
 			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 			CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 			paintLCD();
-			screensaver(false);
 		}
 		else if (msg == CRCInput::RC_help)
 		{
@@ -2212,9 +2217,6 @@ void CAudioPlayerGui::screensaver(bool on)
 	{
 		CScreenSaver::getInstance()->Stop();
 		m_screensaver = false;
-		videoDecoder->StopPicture();
-		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
-		paint();
 		m_idletime = time(NULL);
 	}
 }
