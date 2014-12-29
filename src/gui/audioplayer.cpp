@@ -2082,7 +2082,8 @@ void CAudioPlayerGui::updateMetaData()
 			updateLcd = true;
 		}
 
-		paintCover();
+		if (!m_screensaver)
+			paintCover();
 	}
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
 		updateLcd = true;
