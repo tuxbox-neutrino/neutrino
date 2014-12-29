@@ -121,11 +121,17 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 	PScreenSaver->ReadDir(); //TODO kill Screensaver if false
 	PScreenSaver->m_frameBuffer->Clear();
 
-	while(1)
+	if (g_settings.screensaver_timeout)
 	{
-		PScreenSaver->PaintPicture();
-		sleep(g_settings.screensaver_timeout);
+		while(1)
+		{
+			PScreenSaver->PaintPicture();
+			sleep(g_settings.screensaver_timeout);
+		}
 	}
+	else
+		PScreenSaver->PaintPicture(); //just paint first found picture
+
 	return 0;
 }
 
