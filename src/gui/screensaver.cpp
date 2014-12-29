@@ -123,7 +123,7 @@ void* CScreenSaver::ScreenSaverPrg(void* arg)
 	while(1)
 	{
 		PScreenSaver->PaintPicture();
-		sleep(10);
+		sleep(g_settings.screensaver_timeout);
 	}
 	return 0;
 }

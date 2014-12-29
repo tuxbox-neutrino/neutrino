@@ -1287,6 +1287,7 @@ menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv,
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screensaver_dir Wählen Sie das Verzeichnis, in dem die Bilder für Ihren Bildschirmschoner gespeichert sind
+menu.hint_screensaver_timeout Wählen Sie Die Wartezeit bis zum Bilderwechsel des Bildschirmschoners
 menu.hint_screenshot_count Wählen Sie, wie viele Screenshots erstellt werden sollen
 menu.hint_screenshot_cover Während der Wiedergabe von Aufnahmen kann ein Screenshot für die Vorschau im Moviebrowser erstellt werden
 menu.hint_screenshot_dir Wählen Sie das Verzeichnis zum Speichern der Screenshots
@@ -2053,6 +2054,7 @@ scants.test Empfangstest
 scants.transponders Transponder:
 scrambled_channel Verschlüsselung aktiv
 screensaver.dir Bildschirmschoner-Verzeichnis
+screensaver.timeout Bildschirmschoner-Wartezeit
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
 screenshot.count Anzahl

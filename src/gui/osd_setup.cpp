@@ -619,6 +619,12 @@ int COsdSetup::showOsdSetup()
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DIR);
 	osd_menu->addItem(mf);
 
+	// screensaver timeout
+	CMenuOptionNumberChooser* nc = new CMenuOptionNumberChooser(LOCALE_SCREENSAVER_TIMEOUT, &g_settings.screensaver_timeout, true, 10, 60);
+	nc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND));
+	nc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_TIMEOUT);
+	osd_menu->addItem(nc);
+
 	int oldVolumeSize = g_settings.volume_size;
 	int oldInfoClockSize = g_settings.infoClockFontSize;
 
