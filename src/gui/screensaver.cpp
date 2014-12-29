@@ -37,6 +37,9 @@
 #include "audiomute.h"
 #include "screensaver.h"
 
+#include <gui/infoclock.h>
+extern CInfoClock *InfoClock;
+
 #include <video.h>
 extern cVideo * videoDecoder;
 
@@ -73,6 +76,7 @@ CScreenSaver* CScreenSaver::getInstance()
 void CScreenSaver::Start()
 {
 	CAudioMute::getInstance()->enableMuteIcon(false);
+	InfoClock->enableInfoClock(false);
 
 	m_viewer->SetScaling((CPictureViewer::ScalingMode)g_settings.picviewer_scaling);
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
@@ -108,6 +112,7 @@ void CScreenSaver::Stop()
 	thrScreenSaver = 0;
 
 	m_frameBuffer->paintBackground(); //clear entire screen
+	InfoClock->enableInfoClock(true);
 	CAudioMute::getInstance()->enableMuteIcon(true);
 }
 
