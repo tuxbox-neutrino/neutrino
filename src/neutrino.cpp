@@ -82,6 +82,7 @@
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
+#include "gui/screensaver.h"
 #include "gui/sleeptimer.h"
 #include "gui/start_wizard.h"
 #include "gui/update_ext.h"
@@ -2135,6 +2136,21 @@ void CNeutrinoApp::showInfo()
 	StartSubtitles();
 }
 
+void CNeutrinoApp::screensaver(bool on)
+{
+	if (on)
+	{
+		m_screensaver = true;
+		CScreenSaver::getInstance()->Start();
+	}
+	else
+	{
+		CScreenSaver::getInstance()->Stop();
+		m_screensaver = false;
+		m_idletime = time(NULL);
+	}
+}
+
 void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 {
 	neutrino_msg_t      msg;
@@ -2159,11 +2175,41 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 	CLuaServer *luaServer = CLuaServer::getInstance();
 
+	m_idletime	= time(NULL);
+	m_screensaver	= false;
+
 	while( true ) {
 		luaServer->UnBlock();
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 		if (luaServer->Block(msg, data))
 			continue;
+
+		if (mode == mode_radio) {
+			if ( msg == CRCInput::RC_timeout  || msg == NeutrinoMessages::EVT_TIMER)
+			{
+				int delay = time(NULL) - m_idletime;
+				int screensaver_delay = g_settings.screensaver_delay;
+				if (screensaver_delay !=0 && delay > screensaver_delay*60 && !m_screensaver)
+					screensaver(true);
+			}
+			else
+			{
+				m_idletime = time(NULL);
+				if (m_screensaver)
+				{
+					screensaver(false);
+
+					videoDecoder->StopPicture();
+					videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+
+					if (msg <= CRCInput::RC_MaxRC) {
+						// ignore first keypress - just quit the screensaver
+						g_RCInput->clearRCMsg();
+						continue;
+					}
+				}
+			}
+		}
 
 		if( ( mode == mode_tv ) ||  ( mode == mode_radio )  || ( mode == mode_webtv ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {

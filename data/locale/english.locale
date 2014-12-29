@@ -1291,7 +1291,7 @@ menu.hint_screen_setup Configure screen margins
 menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
 menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
-menu.hint_screensaver_setup Configure screensaver options for audioplayer
+menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
