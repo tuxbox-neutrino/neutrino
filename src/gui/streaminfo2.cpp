@@ -556,16 +556,19 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	g_Font[font_info]->RenderString (xpos, ypos, box_width, buf, COL_INFOBAR_TEXT);
 
 	if(type == AUDIO_FMT_MPEG) {
-		const char *mpegmodes[4] = { "stereo", "joint_st", "dual_ch", "single_ch" };
-		sprintf (buf, "MPEG %s (%d)", mpegmodes[mode], freq);
+		const int max_mode = 4;
+		const char *mpegmodes[max_mode] = { "stereo", "joint_st", "dual_ch", "single_ch" };
+		sprintf (buf, "MPEG %s (%d)", (mode > max_mode) ?"unk":mpegmodes[mode], freq);
 	} else if (type == AUDIO_FMT_DOLBY_DIGITAL || type == AUDIO_FMT_DD_PLUS) {
-		const char *ddmodes[8] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
+		const int max_mode = 8;
+		const char *ddmodes[max_mode] = { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
 		sprintf (buf, "%s %s (%d)",
 			 (type == AUDIO_FMT_DOLBY_DIGITAL) ? "DD" : "DD+",
-			 ddmodes[mode],
+			 (mode > max_mode) ?"unk": ddmodes[mode],
 			 freq);
 	} else if (type == AUDIO_FMT_AAC || type == AUDIO_FMT_AAC_PLUS) {
-		const char *aacmodes[10] = {
+		const int max_mode = 10;
+		const char *aacmodes[max_mode] = {
 			"N/S",
 			"Mono",
 			"L/R",
@@ -579,7 +582,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		};
 		sprintf (buf, "%s %s (%d)",
 			 (type == AUDIO_FMT_AAC) ? "AAC" : "AAC+",
-			 aacmodes[mode], freq);
+			 (mode > max_mode) ?"unk":aacmodes[mode], freq);
 	} else {
 		sprintf (buf, "%s (%d)", g_Locale->getText(LOCALE_STREAMINFO_AUDIOTYPE_UNKNOWN), freq);
 	}
