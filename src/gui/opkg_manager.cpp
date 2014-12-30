@@ -219,13 +219,17 @@ bool COPKGManager::checkSize(const string& pkg_name)
 	struct statfs root_fs;
 	statfs("/",&root_fs);
 	u_int64_t free_size = root_fs.f_bfree*root_fs.f_bsize;
-	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [package size=%lld (free size: %lld)]\n", __func__, __LINE__, pkg_name.c_str(), pkg_size, free_size);
-
 	//only for sure, it's more secure for users to abort installation if is available size too small
-	//TODO: Package size is not really the same like required/recommended size, because of unknown compression factor, some possible options like cache, different tmp-dir size eg. are still not considered.
-	u_int64_t rec_size = pkg_size/2*3;
-	if (free_size < rec_size){
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld required size=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, pkg_size, rec_size);
+	/*
+	 * FIXME: Package size is not really the same like required/recommended size, because of unknown compression factor of package, possible options like cache, different tmp-dir size,
+	 * size of required dependencies eg. are still not considered.
+	 * Experience values are nearly to factor 2.1 to 2.5 related to package size. That's generously but not 100% sure!
+	*/
+	float pkg_raw_size = float(pkg_size);
+	u_int64_t req_size = u_int64_t(pkg_raw_size*2.5);
+	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [required size=%lld (free size: %lld)]\n", __func__, __LINE__, pkg_name.c_str(), req_size, free_size);
+	if (free_size < req_size){
+		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld package size=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, pkg_size, req_size);
 		return false;
 	}
 	return true;
