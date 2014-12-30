@@ -368,7 +368,8 @@ int COPKGManager::doUpdate()
 {
 	int r = execCmd(pkg_types[OM_UPDATE]);
 	if (r == -1) {
-		DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE));
+		string msg = string(g_Locale->getText(LOCALE_OPKG_FAILURE_UPDATE)) + "\n" + err_msg;
+		DisplayErrorMessage(msg.c_str());
 		return r;
 	}
 	return 0;
@@ -669,6 +670,10 @@ void COPKGManager::handleShellOutput(string& cur_line)
 			err_msg += "Cannot install package!\n";
 			has_err = true;
 		}
+		if (cur_line.find("No space left on device") != string::npos){
+			err_msg += "Not enough space available!\n";
+			has_err = true;
+		}
 		if (has_err)
 			return;
 
@@ -677,9 +682,10 @@ void COPKGManager::handleShellOutput(string& cur_line)
 		if (pos1 != string::npos){
 			string str = cur_line.substr(pos1, cur_line.length()-pos1);
 			err_msg += str.replace(pos1, 3,"") + "\n";
-			return;
+			has_err = true;
 		}
-
+		if (has_err)
+			return;
 	}
 	if (!has_err)
 		tmp_str += cur_line + "\n";
