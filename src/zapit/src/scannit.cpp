@@ -326,6 +326,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	FrontendParameters feparams;
 	memset(&feparams, 0, sizeof(feparams));
 	feparams.polarization = sd->getPolarization();
+	feparams.pilot = ZPILOT_AUTO;
 
 	switch (modulation_system) {
 	case 0: // DVB-S

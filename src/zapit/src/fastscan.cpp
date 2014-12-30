@@ -163,6 +163,7 @@ void CServiceScan::ReportFastScan(FrontendParameters &feparams,  t_satellite_pos
 bool CServiceScan::FastscanTune(int id)
 {
 	FrontendParameters feparams;
+	feparams.pilot = ZPILOT_AUTO;
 	bool res = true;
 
 	memset(&feparams, 0, sizeof(feparams));
@@ -646,6 +647,7 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 			original_network_id = (buffer[pos + 2] << 8) | buffer[pos + 3];
 			transport_descriptors_length = ((buffer[pos + 4] & 0x0F) << 8) | buffer[pos + 5];
 			FrontendParameters feparams;
+			feparams.pilot = ZPILOT_AUTO;
 			t_satellite_position satellitePosition = 0;
 			freq_id_t freq = 0;
 
