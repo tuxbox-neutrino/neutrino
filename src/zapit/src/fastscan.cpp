@@ -107,6 +107,7 @@ bool CServiceScan::TestDiseqcConfig(int num)
 			feparams.delsys = diseqc_test[i].delsys;
 			feparams.modulation = diseqc_test[i].modulation;
 			feparams.polarization = diseqc_test[i].polarization;
+			feparams.pilot = ZPILOT_AUTO;
 
 			int old_diseqc = satmap[diseqc_test[i].position].diseqc;
 			satmap[diseqc_test[i].position].diseqc = diseqc;
