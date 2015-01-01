@@ -199,6 +199,18 @@ void SIevent::parse(Event &event)
 	if (start_time && duration)
 		times.insert(SItime(start_time, duration));
 	const DescriptorList &dlist = *event.getDescriptors();
+
+	int countExtandetText = 0, appendcheck = 0;
+	for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit){
+		switch ((*dit)->getTag()) {
+			case EXTENDED_EVENT_DESCRIPTOR:
+				countExtandetText++;
+			break;
+			default:
+			break;
+		}
+	}
+	appendcheck = countExtandetText;
 	for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit) {
 	    switch ((*dit)->getTag()) {
 		case SHORT_EVENT_DESCRIPTOR:
@@ -227,7 +239,8 @@ void SIevent::parse(Event &event)
 				item.append("\n");
 			}
 #endif
-			appendExtendedText(getLangIndex(lang), stringDVBUTF8(d->getText(), table, tsidonid));
+			appendExtendedText(getLangIndex(lang), stringDVBUTF8(d->getText(), table, tsidonid),(appendcheck > countExtandetText),(countExtandetText==1));
+			countExtandetText--;
 			break;
 		}
 		case CONTENT_DESCRIPTOR:
@@ -556,17 +569,22 @@ void SIevent::appendExtendedText(const std::string &lang, const std::string &tex
 	appendExtendedText(getLangIndex(lang), text, append);
 }
 
-void SIevent::appendExtendedText(unsigned int lang, const std::string &text, bool append)
+void SIevent::appendExtendedText(unsigned int lang, const std::string &text, bool append, bool endappend)
 {
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode())
 		lang = 0;
 
 	for (std::list<SILangData>::iterator it = langData.begin(); it != langData.end(); ++it)
 		if (it->lang == lang) {
-			if (append)
+			if (append){
 				it->text[SILangData::langExtendedText] += text;
-			else
+				if(endappend && it->text[SILangData::langExtendedText].capacity() > it->text[SILangData::langExtendedText].size()){
+					it->text[SILangData::langExtendedText].reserve();
+				}
+			}
+			else{
 				it->text[SILangData::langExtendedText] = text;
+			}
 			return;
 		}
 
