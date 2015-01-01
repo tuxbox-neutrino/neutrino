@@ -352,12 +352,12 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 		si->second->item = evt.item;
 #endif
 		//si->second->vps = evt.vps;
-		if ((evt.getExtendedText().length() > 0) && !evt.times.empty() &&
+		if ((!evt.getExtendedText().empty()) && !evt.times.empty() &&
 				(evt.times.begin()->startzeit < zeit + secondsExtendedTextCache))
 			si->second->setExtendedText(0 /*"OFF"*/,evt.getExtendedText());
-		if (evt.getText().length() > 0)
+		if (!evt.getText().empty())
 			si->second->setText(0 /*"OFF"*/,evt.getText());
-		if (evt.getName().length() > 0)
+		if (!evt.getName().empty())
 			si->second->setName(0 /*"OFF"*/,evt.getName());
 	}
 	else {
@@ -2293,7 +2293,7 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 	// service Found
 	readLockEvents();
 	int serviceIDfound = 0;
-	if (search_text.length())
+	if (!search_text.empty())
 		std::transform(search_text.begin(), search_text.end(), search_text.begin(), tolower);
 
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)

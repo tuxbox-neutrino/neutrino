@@ -426,7 +426,7 @@ void *insertEventsfromFile(void * data)
 					node = node->xmlNextNode;
 				}
 
-				if (contentClassification.size()) {
+				if (!contentClassification.empty()) {
 					ssize_t off = e.classifications.reserve(2 * contentClassification.size());
 					if (off > -1)
 						for (unsigned i = 0; i < contentClassification.size(); i++)
