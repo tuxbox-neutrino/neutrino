@@ -250,19 +250,13 @@ void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 		dline->setYPos(ypos1a);
 		
 		//infobox
-		if (ibox == NULL)
+		if (ibox == NULL){
 			ibox = new CComponentsInfoBox();
-
-		if (ibox->isPainted())
-			ibox->hide(CC_SAVE_SCREEN_NO);
-		
-		ibox->setDimensionsAll(x, ypos2, width, info_height);
-		ibox->setFrameThickness(2);
-#if 0			
-		ibox->paint(false,true);
-#endif
-		ibox->setCorner(RADIUS_LARGE);
-		ibox->setShadowOnOff(CC_SHADOW_OFF);
+			ibox->setDimensionsAll(x, ypos2, width, info_height);
+			ibox->setFrameThickness(2);
+			ibox->setCorner(RADIUS_LARGE);
+			ibox->setShadowOnOff(CC_SHADOW_OFF);
+		}
 	}
 }
 
