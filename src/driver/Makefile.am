@@ -12,6 +12,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
+	@SIGC_CFLAGS@ \
 	@FREETYPE_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
