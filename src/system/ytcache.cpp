@@ -307,7 +307,7 @@ void cYTCache::cancelAll(MI_MOVIE_INFO::miSource source)
 	{
 		OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 		cancelled = false;
-		if (pending.size() > 0) {
+		if (!pending.empty()) {
 			if (pthread_create(&thread, NULL, downloadThread, this)) {
 				perror("pthread_create");
 				return;
@@ -344,7 +344,7 @@ std::vector<MI_MOVIE_INFO> cYTCache::getPending(MI_MOVIE_INFO::miSource source, 
 	for (std::vector<MI_MOVIE_INFO>::iterator it = pending.begin(); it != pending.end(); ++it)
 		if ((*it).source == source)
 			res.push_back(*it);
-	if (res.size() > 0 && pending.front().source == source) {
+	if (!res.empty() && pending.front().source == source) {
 		if (p_dltotal)
 			*p_dltotal = dltotal;
 		if (p_dlnow)

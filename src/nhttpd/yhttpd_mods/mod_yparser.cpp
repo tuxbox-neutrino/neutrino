@@ -181,7 +181,7 @@ void CyParser::cgi(CyhookHandler *hh) {
 			yresult = cgi_file_parsing(hh, htmlfilename, ydebug);
 	} else
 		printf("[CyParser] Y-cgi:no parameter given\n");
-	if (yresult.length() <= 0)
+	if (yresult.empty())
 		hh->SetError(HTTP_NOT_IMPLEMENTED, HANDLED_NOT_IMPLEMENTED);
 	else
 		hh->addResult(yresult, HANDLED_READY);
@@ -249,7 +249,7 @@ void CyParser::ParseAndSendFile(CyhookHandler *hh) {
 	}
 	// parsing given file
 	yresult += cgi_file_parsing(hh, hh->UrlData["path"]+hh->UrlData["filename"], ydebug);
-	if (yresult.length() <= 0)
+	if (yresult.empty())
 		hh->SetError(HTTP_NOT_IMPLEMENTED, HANDLED_NOT_IMPLEMENTED);
 	else {
 		hh->addResult(yresult, HANDLED_READY);
@@ -582,7 +582,7 @@ std::string CyParser::YWeb_cgi_include_block(std::string filename,
 				blockname.c_str());
 	}
 	pthread_mutex_unlock(&yParser_mutex);
-	if (yfile.length() != 0) {
+	if (!yfile.empty()) {
 		std::string t = "start-block~" + blockname;
 		std::string::size_type start, end;
 		if ((start = yfile.find(t)) != std::string::npos) {

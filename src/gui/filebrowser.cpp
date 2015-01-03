@@ -1196,7 +1196,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 	colwidth3 = fnt_item->getRenderWidth("222.222G");
 	colwidth1 = width - 35 - colwidth2 - colwidth3 - 10;
 
-	if ( actual_file->Name.length() > 0 )
+	if ( !actual_file->Name.empty() )
 	{
 		if (curr == selected)
 			CVFD::getInstance()->showMenuText(0, FILESYSTEM_ENCODING_TO_UTF8_STRING(actual_file->getFileName()).c_str(), -1, true); // UTF-8

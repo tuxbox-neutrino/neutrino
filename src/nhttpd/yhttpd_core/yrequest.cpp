@@ -534,7 +534,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
 				}
 				log_level_printf(2,"<POST Boundary> read file (already:%d all:%d)\n", _readbytes, content_len);
 			}
-			while((_readbytes < content_len) && (tmp_line.length() != 0));
+			while((_readbytes < content_len) && (!tmp_line.empty()));
 			content_len -= _readbytes;
 			close(fd);
 			log_level_printf(2,"<POST Boundary> read file End\n");

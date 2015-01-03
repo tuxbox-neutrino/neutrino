@@ -528,7 +528,7 @@ bool CMoviePlayerGui::SelectFile()
 			CFile *file = NULL;
 			filelist = filebrowser->getSelectedFiles();
 			filelist_it = filelist.end();
-			if (filelist.size() > 0) {
+			if (!filelist.empty()) {
 				filelist_it = filelist.begin();
 				file = &(*filelist_it);
 			}
@@ -852,7 +852,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 			ClearQueue();
-		} else if ((filelist.size() > 0 && msg == (neutrino_msg_t) CRCInput::RC_right)) {
+		} else if ((!filelist.empty() && msg == (neutrino_msg_t) CRCInput::RC_right)) {
 			if (filelist_it < (filelist.end() - 1)) {
 				++filelist_it;
 				playstate = CMoviePlayerGui::STOPPED;
@@ -885,7 +885,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				updateLcd();
 				if (timeshift == TSHIFT_MODE_OFF)
 					callInfoViewer();
-			} else if (filelist.size() > 0) {
+			} else if (!filelist.empty()) {
 				EnableClockAndMute(false);
 				CFileBrowser playlist;
 				CFile *pfile = NULL;
@@ -1065,7 +1065,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	if (position >= 300000 || (duration < 300000 && (position > (duration /2))))
 		makeScreenShot(true);
 
-	if (at_eof && filelist.size() > 0) {
+	if (at_eof && !filelist.empty()) {
 		if (filelist_it != filelist.end() && repeat_mode != REPEAT_TRACK)
 			++filelist_it;
 
@@ -1097,7 +1097,7 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 	stopped = true;
 	printf("%s: stopped\n", __func__);
-	if (filelist.size() > 0 && filelist_it != filelist.end()) {
+	if (!filelist.empty() && filelist_it != filelist.end()) {
 		pretty_name.clear();
 		prepareFile(&(*filelist_it));
 	}

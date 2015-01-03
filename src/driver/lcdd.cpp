@@ -466,8 +466,8 @@ void CLCD::showTextScreen(const std::string & big, const std::string & small, co
 				cname[namelines] = splitString(title, LCD_COLS, fonts.channelname, dumb, big_utf8);
 				title = removeLeadingSpaces(title.substr(cname[namelines].length()));
 				namelines++;
-			} while (title.length() > 0 && namelines < maxnamelines);
-			if (title.length() == 0)
+			} while (!title.empty() && namelines < maxnamelines);
+			if (title.empty())
 				break;
 			dumb = !dumb;	// retry with dumb splitting;
 			if (!dumb)	// second retry -> get out;
@@ -491,11 +491,11 @@ void CLCD::showTextScreen(const std::string & big, const std::string & small, co
 				title = removeLeadingSpaces(title.substr(event[eventlines].length()));
 				/* DrDish TV appends a 0x0a to the EPG title. We could strip it in sectionsd...
 				   ...instead, strip all control characters at the end of the text for now */
-				if (event[eventlines].length() > 0 && event[eventlines].at(event[eventlines].length() - 1) < ' ')
+				if (!event[eventlines].empty() && event[eventlines].at(event[eventlines].length() - 1) < ' ')
 					event[eventlines].erase(event[eventlines].length() - 1);
 				eventlines++;
-			} while (title.length() >0 && eventlines < maxeventlines);
-			if (title.length() == 0)
+			} while (!title.empty() && eventlines < maxeventlines);
+			if (title.empty())
 				break;
 			dumb = !dumb;	// retry with dumb splitting;
 			if (!dumb)	// second retry -> get out;

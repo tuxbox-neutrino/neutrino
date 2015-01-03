@@ -179,7 +179,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 		if (!strcmp(node->GetType(),"URLBase"))
 		{
 			urlbase = std::string(node->GetData());
-			if ((urlbase.length() > 0) && (urlbase[urlbase.length()-1] == '/'))
+			if ((!urlbase.empty() ) && (urlbase[urlbase.length()-1] == '/'))
 				urlbase.erase(urlbase.length()-1);
 		}
 

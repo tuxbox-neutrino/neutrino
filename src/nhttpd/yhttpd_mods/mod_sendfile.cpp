@@ -202,7 +202,7 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 //-----------------------------------------------------------------------------
 int CmodSendfile::OpenFile(CyhookHandler *, std::string fullfilename) {
 	int fd = -1;
-	if (fullfilename.length() > 0) {
+	if (!fullfilename.empty()) {
 		fd = open(fullfilename.c_str(), O_RDONLY | O_LARGEFILE);
 		if (fd <= 0) {
 			aprintf("cannot open file %s: ", fullfilename.c_str());

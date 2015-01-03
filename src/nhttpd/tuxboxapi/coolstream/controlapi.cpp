@@ -1402,7 +1402,7 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 					hh->printf("\t\t<info2>%s</info2>\n",ZapitTools::UTF8_to_UTF8XML(epg.info2.c_str()).c_str());
 					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 						hh->printf("\t\t<fsk>%u</fsk>\n", longepg.fsk);
-						if (longepg.contentClassification.length()> 0){
+						if (!longepg.contentClassification.empty()){
 							genere = GetGenre(longepg.contentClassification[0]);
 							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
 							hh->printf("\t\t<genre>%s</genre>\n", genere.c_str());
@@ -1436,7 +1436,7 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 						hh->WriteLn(epg.info2);
 					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 						hh->printf("fsk:%u\n", longepg.fsk);
-						if (longepg.contentClassification.length()> 0){
+						if (!longepg.contentClassification.empty()){
 							genere = GetGenre(longepg.contentClassification[0]);
 							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
 							hh->WriteLn(genere);
