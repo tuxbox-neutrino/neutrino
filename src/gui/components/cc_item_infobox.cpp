@@ -113,8 +113,6 @@ void CComponentsInfoBox::paintPicture()
 	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
 
-	if (col_body_gradient)
-		pic->doPaintBg(false);
 	//paint, but set visibility mode
 	pic->allowPaint(cc_allow_paint);
 	pic->paint(CC_SAVE_SCREEN_NO);	
@@ -122,8 +120,6 @@ void CComponentsInfoBox::paintPicture()
 
 void CComponentsInfoBox::paint(bool do_save_bg)
 {
-	col_body_gradient       = g_settings.gradiant;
-
 	paintInit(do_save_bg);
 	paintPicture();
 
