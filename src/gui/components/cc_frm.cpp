@@ -410,7 +410,7 @@ void CComponentsForm::paintCCItems()
 		//assign item object
 		CComponentsItem *cc_item = v_cc_items[i];
 
-		dprintf(DEBUG_INFO, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), cc_item->getPageNumber(), this->cur_page);
+		dprintf(DEBUG_DEBUG, "[CComponentsForm] %s: page_count = %u, item_page = %u, cur_page = %u\n", __func__, getPageCount(), cc_item->getPageNumber(), this->cur_page);
 
 		//get current position of item
 		int xpos = cc_item->getXPos();
