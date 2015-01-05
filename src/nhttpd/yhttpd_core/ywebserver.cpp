@@ -413,6 +413,10 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 
 	// create arguments
 	TWebserverConnectionArgs *newConn = new TWebserverConnectionArgs;
+	if (!newConn) {
+		dperror("CWebserver TWebserverConnectionArgs error!\n");
+		return false;
+	}
 	newConn->ySock = newSock;
 	newConn->ySock->handling = true;
 	newConn->WebserverBackref = this;
@@ -457,24 +461,29 @@ bool CWebserver::handle_connection(CySocket *newSock) {
 // Webserver-Thread for each connection
 //-------------------------------------------------------------------------
 void *WebThread(void *args) {
-	CWebserverConnection *con;
-	CWebserver *ws;
 	TWebserverConnectionArgs *newConn = (TWebserverConnectionArgs *) args;
-	ws = newConn->WebserverBackref;
+	if (!newConn) {
+		dperror("WebThread called without arguments!\n");
+		return NULL;
+	}
 
 	bool is_threaded = newConn->is_treaded;
 	if (is_threaded)
-		log_level_printf(1, "++ Thread 0x06%X gestartet\n",
-				(int) pthread_self());
-
-	if (!newConn) {
-		dperror("WebThread called without arguments!\n");
-		if (newConn->is_treaded)
-			pthread_exit( NULL);
-	}
+		log_level_printf(1, "++ Thread 0x06%X gestartet\n", (int) pthread_self());
 
 	// (1) create & init Connection
-	con = new CWebserverConnection(ws);
+	CWebserver *ws = newConn->WebserverBackref;
+	if (!ws) {
+		dperror("WebThread CWebserver error!\n");
+		return NULL;
+	}
+
+	CWebserverConnection *con = new CWebserverConnection(ws);
+	if (!con) {
+		dperror("WebThread CWebserverConnection error!\n");
+		return NULL;
+	}
+
 	con->Request.UrlData["clientaddr"] = newConn->ySock->get_client_ip(); // TODO:here?
 	con->sock = newConn->ySock; // give socket reference
 	newConn->ySock->handling = true; // dont handle this socket now be webserver main loop
@@ -485,9 +494,9 @@ void *WebThread(void *args) {
 	// (3) end connection handling
 #ifdef Y_CONFIG_FEATURE_KEEP_ALIVE
 	if(!con->keep_alive)
-	log_level_printf(2,"FD SHOULD CLOSE sock:%d!!!\n",con->sock->get_socket());
+		log_level_printf(2,"FD SHOULD CLOSE sock:%d!!!\n",con->sock->get_socket());
 	else
-	ws->addSocketToMasterSet(con->sock->get_socket()); // add to master set
+		ws->addSocketToMasterSet(con->sock->get_socket()); // add to master set
 #else
 	delete newConn->ySock;
 #endif
