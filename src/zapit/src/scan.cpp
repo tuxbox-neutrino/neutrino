@@ -514,6 +514,7 @@ void CServiceScan::SaveServices()
 	if(flags & SCAN_RESET_NUMBERS)
 		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
 	/* first save bouquets, next load to re-number */
+	g_bouquetManager->saveUBouquets();
 	g_bouquetManager->saveBouquets();
 	printf("[scan] save bouquets done\n");
 	/* load and renumber */
