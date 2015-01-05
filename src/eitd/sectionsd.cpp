@@ -1733,7 +1733,7 @@ void CEitThread::beforeSleep()
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
-	if (scanning) {
+	if (scanning && current_channel_id) {
 		eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
 				CEventServer::INITID_SECTIONSD,
 				&current_service,
