@@ -2185,6 +2185,17 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			continue;
 
 		if (mode == mode_radio) {
+			bool ignored_msg = (
+				/* radio screensaver will ignore this msgs */
+				   msg == NeutrinoMessages::EVT_CURRENTEPG
+				|| msg == NeutrinoMessages::EVT_NEXTEPG
+				|| msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG
+				|| msg == NeutrinoMessages::EVT_TIMESET
+				|| msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS
+				|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES
+				|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
+				|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
+			);
 			if ( msg == CRCInput::RC_timeout  || msg == NeutrinoMessages::EVT_TIMER)
 			{
 				int delay = time(NULL) - m_idletime;
@@ -2192,11 +2203,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if (screensaver_delay !=0 && delay > screensaver_delay*60 && !m_screensaver)
 					screensaver(true);
 			}
-			else
+			else if (!ignored_msg)
 			{
 				m_idletime = time(NULL);
 				if (m_screensaver)
 				{
+					printf("[neutrino] CSreenSaver stop; msg: %X\n", msg);
 					screensaver(false);
 
 					videoDecoder->StopPicture();
