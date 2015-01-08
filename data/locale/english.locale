@@ -1288,7 +1288,7 @@ menu.hint_scan_usalsall Use USALS for all satellites on this frontend
 menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
 menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
 menu.hint_screen_setup Configure screen margins
-menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start
+menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
 menu.hint_screensaver_dir Select directory in which the screensaver has to start
 menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
 menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
@@ -2061,6 +2061,7 @@ scrambled_channel Scrambled channel
 screensaver.delay Delay
 screensaver.dir Directory
 screensaver.menu Screensaver
+screensaver.off Screensaver off
 screensaver.timeout Change pictures
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left

@@ -2088,6 +2088,7 @@ const char * locale_real_names[] =
 	"screensaver.delay",
 	"screensaver.dir",
 	"screensaver.menu",
+	"screensaver.off",
 	"screensaver.timeout",
 	"screensetup.lowerright",
 	"screensetup.upperleft",

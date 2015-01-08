@@ -1284,7 +1284,7 @@ menu.hint_scan_usalsall Verwenden Sie USALS für alle Satelliten an diesem Tuner
 menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelliten,\nwenn aktiv, wird Rotorposition ignoriert
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung, wenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
-menu.hint_screensaver_delay Legen sie die Zeit (in Minuten) fest, nach der der Bildschirmschoner starten soll
+menu.hint_screensaver_delay Legen sie die Zeit (in Minuten) fest, nach der der Bildschirmschoner starten soll oder schaltet ihn aus
 menu.hint_screensaver_dir Wählen Sie das Verzeichnis, in dem die Bilder für Ihren Bildschirmschoner gespeichert sind
 menu.hint_screensaver_timeout Wählen Sie Die Wartezeit bis zum Bilderwechsel des Bildschirmschoners
 menu.hint_screensaver_setup Konfigurieren Sie die Optionen des Bildschirmschoners für den Audioplayer und den Radio-Modus
@@ -2056,6 +2056,7 @@ scrambled_channel Verschlüsselung aktiv
 screensaver.delay Verzögerung
 screensaver.dir Verzeichnis
 screensaver.menu Bildschirmschoner
+screensaver.off Bildschirmschoner aus
 screensaver.timeout Bilderwechsel
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
