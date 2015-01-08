@@ -180,11 +180,8 @@ bool CScreenSaver::ReadDir()
 			for (p = curr_ext; *p; ++p)
 				*p = (char)tolower(*p);
 			//printf("%s\n",curr_ext);
-			if((strcmp(".jpg",curr_ext))
-				//|| (strcmp(".png",curr_ext))
-				//|| (strcmp(".bmp",curr_ext))
-			)
-			continue;
+			if (strcmp(".jpg",curr_ext) && strcmp(".png",curr_ext))
+				continue;
 
 			str += "/";
 			str += (*dirpointer).d_name;
