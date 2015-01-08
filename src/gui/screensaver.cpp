@@ -156,7 +156,6 @@ bool CScreenSaver::ReadDir()
 	DIR *dir;
 	char curr_ext[5];
 	int curr_lenght;
-	char *p;
 	bool ret = false;
 
 	v_bg_files.clear();
@@ -177,10 +176,8 @@ bool CScreenSaver::ReadDir()
 		{
 			strncpy(curr_ext,(*dirpointer).d_name+(curr_lenght-4),5);
 
-			for (p = curr_ext; *p; ++p)
-				*p = (char)tolower(*p);
 			//printf("%s\n",curr_ext);
-			if (strcmp(".jpg",curr_ext) && strcmp(".png",curr_ext))
+			if (strcasecmp(".jpg",curr_ext) && strcasecmp(".png",curr_ext))
 				continue;
 
 			str += "/";
