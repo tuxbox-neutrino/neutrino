@@ -915,6 +915,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	if (cmd->dnum) {
 		/* dont wakeup EIT, if we have max events allready */
 		if (max_events == 0  || (mySIeventsOrderUniqueKey.size() < max_events)) {
+			current_channel_id = uniqueServiceKey;
 			writeLockMessaging();
 			messaging_zap_detected = true;
 			unlockMessaging();
