@@ -3882,7 +3882,10 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if(actionKey == "channels")
 		return showChannelList(CRCInput::RC_ok, true);
 	else if(actionKey == "standby")
+	{
 		g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
+		return menu_return::RETURN_EXIT_ALL;
+	}
 	else if(actionKey == "easyswitch") {
 		INFO("easyswitch\n");
 		CParentalSetup pin;
