@@ -44,6 +44,8 @@ class CAudioMute : public CComponentsPicture
 		void AudioMute(int newValue, bool isEvent= false);
 		void doPaintMuteIcon(bool mode) { do_paint_mute_icon = mode; }
 		void enableMuteIcon(bool enable);
+
+		bool getStatus(void) { return do_paint_mute_icon; }
 };
 
 #endif // __CAUDIOMUTE__
