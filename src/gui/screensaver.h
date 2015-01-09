@@ -33,11 +33,14 @@ class CScreenSaver
 {
 	private:
 		CFrameBuffer 	*m_frameBuffer;
+		CPictureViewer	*m_viewer;
 		pthread_t	thrScreenSaver;
 		static void*	ScreenSaverPrg(void *arg);
 		vector<string> 	v_bg_files;
 		unsigned int 	index;
-		CPictureViewer	*m_viewer;
+
+		bool		status_mute;
+		bool		status_clock;
 
 		bool ReadDir();
 		void PaintPicture();
