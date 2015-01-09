@@ -47,6 +47,8 @@ class CInfoClock : public CComponentsFrmClock
 		bool 		StopClock();
 		bool		enableInfoClock(bool enable);
 		void		ClearDisplay();
+
+		bool		getStatus(void) { return paintClock; }
 };
 
 #endif
