@@ -157,7 +157,7 @@ CUPnPDevice::CUPnPDevice(std::string url)
 	head = result.substr(0,pos);
 	body = result.substr(pos+4);
 
-	if (body == "")
+	if (body.empty())
 		throw std::runtime_error(std::string("desc body empty"));
 
 	if (!check_response(head, charset, rcode))

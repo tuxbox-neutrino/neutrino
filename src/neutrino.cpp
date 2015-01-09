@@ -737,11 +737,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_proxyusername = configfile.getString("softupdate_proxyusername", "" );
 	g_settings.softupdate_proxypassword = configfile.getString("softupdate_proxypassword", "" );
 	//
-	if (g_settings.softupdate_proxyserver == "")
+	if (g_settings.softupdate_proxyserver.empty())
 		unsetenv("http_proxy");
 	else {
 		std::string proxy = "http://";
-		if (g_settings.softupdate_proxyusername != "")
+		if (!g_settings.softupdate_proxyusername.empty())
 			proxy += g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword + "@";
 		proxy += g_settings.softupdate_proxyserver;
 		setenv("http_proxy", proxy.c_str(), 1);
@@ -810,7 +810,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_search_history.clear();
 	for(int i = 0; i < g_settings.epg_search_history_size; i++) {
 		std::string s = configfile.getString("epg_search_history_" + to_string(i));
-		if (s != "")
+		if (!s.empty())
 			g_settings.epg_search_history.push_back(configfile.getString("epg_search_history_" + to_string(i), ""));
 	}
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();

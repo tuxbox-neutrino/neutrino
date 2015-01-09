@@ -122,12 +122,12 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 		MTDBuf = NULL;
 	}
 
-	if (msg2 == "")
+	if (msg2.empty())
 		snprintf(buf, sizeof(buf), "%s\n", msg1.c_str());
 	else 
 		snprintf(buf, sizeof(buf), "%s %s\n", msg1.c_str(), msg2.c_str());
 
-	if ((msg1 != "") || (msg2 != "")) {
+	if ((!msg1.empty()) || (!msg2.empty())) {
 		mtdRamError = buf;
 		WRITE_UPDATE_LOG("ERROR: %s", buf);
 		printf(mtdRamError.c_str());
@@ -176,7 +176,7 @@ bool CExtUpdate::applySettings(std::string & filename, int mode)
 	bool ret = applySettings();
 	DBG_TIMER_STOP("Image editing")
 	if (!ret) {
-		if ((mtdRamError != "") && (!flashErrorFlag))
+		if ((!mtdRamError.empty()) && (!flashErrorFlag))
 			DisplayErrorMessage(mtdRamError.c_str());
 
 		// error, delete image file
@@ -297,7 +297,7 @@ bool CExtUpdate::applySettings()
 	}
 	fclose(f1);
 
-	if (mtdRamFilename == "")
+	if (mtdRamFilename.empty())
 		return ErrorReset(RESET_UNLOAD, "no mtdram test device found");
 	else {
 		// check mtdRamSize / mtdRamEraseSize
@@ -416,7 +416,7 @@ int fileSelect(const struct dirent *entry)
 	if ((strcmp(entry->d_name, ".") == 0) || (strcmp(entry->d_name, "..") == 0))
 		return 0;
 	else
-		if ((Wildcard != "") && (fnmatch(Wildcard.c_str(), entry->d_name, FNM_FILE_NAME)))
+		if ((!Wildcard.empty()) && (fnmatch(Wildcard.c_str(), entry->d_name, FNM_FILE_NAME)))
 			return 0;
 		else
 			return 1;
@@ -515,13 +515,13 @@ bool CExtUpdate::readConfig(const std::string & line)
 {
 	std::string tmp1 = line;
 	if (findConfigEntry(tmp1, "Log")) {
-		if (tmp1 != "")
+		if (!tmp1.empty())
 			fLogEnabled = atoi(tmp1.c_str());
 		return true;
 	}
 	tmp1 = line;
 	if (findConfigEntry(tmp1, "LogFile")) {
-		if (tmp1 != "")
+		if (!tmp1.empty())
 			fLogfile = tmp1;
 		return true;
 	}

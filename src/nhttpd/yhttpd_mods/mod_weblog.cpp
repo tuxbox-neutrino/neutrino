@@ -63,7 +63,7 @@ THandleStatus CmWebLog::Hook_ReadConfig(CConfigFile *Config, CStringList &) {
 }
 //-----------------------------------------------------------------------------
 bool CmWebLog::OpenLogFile() {
-	if (WebLogFilename == "")
+	if (WebLogFilename.empty())
 		return false;
 	if (WebLogFile == NULL) {
 		bool isNew = false;

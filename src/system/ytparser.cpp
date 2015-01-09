@@ -134,9 +134,9 @@ bool cYTFeedParser::getUrl(std::string &url, std::string &answer, CURL *_curl_ha
 	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
 	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
 
-	if(g_settings.softupdate_proxyserver != "") {
+	if(!g_settings.softupdate_proxyserver.empty()) {
 		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if(g_settings.softupdate_proxyusername != "") {
+		if(!g_settings.softupdate_proxyusername.empty()) {
 			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
 			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
 		}
@@ -174,9 +174,9 @@ bool cYTFeedParser::DownloadUrl(std::string &url, std::string &file, CURL *_curl
 	curl_easy_setopt(_curl_handle, CURLOPT_TIMEOUT, URL_TIMEOUT);
 	curl_easy_setopt(_curl_handle, CURLOPT_NOSIGNAL, (long)1);
 
-	if(g_settings.softupdate_proxyserver != "") {
+	if(!g_settings.softupdate_proxyserver.empty()) {
 		curl_easy_setopt(_curl_handle, CURLOPT_PROXY, g_settings.softupdate_proxyserver.c_str());
-		if(g_settings.softupdate_proxyusername != "") {
+		if(!g_settings.softupdate_proxyusername.empty()) {
 			std::string tmp = g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword;
 			curl_easy_setopt(_curl_handle, CURLOPT_PROXYUSERPWD, tmp.c_str());
 		}

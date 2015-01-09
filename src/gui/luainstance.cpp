@@ -1243,7 +1243,7 @@ int CLuaInstance::MenuAddKey(lua_State *L)
 	std::string action;	tableLookup(L, "action", action);
 	std::string id;		tableLookup(L, "id", id);
 	lua_Unsigned directkey = CRCInput::RC_nokey; tableLookup(L, "directkey", directkey);
-	if ((action != "") && (directkey != CRCInput::RC_nokey)) {
+	if ((!action.empty()) && (directkey != CRCInput::RC_nokey)) {
 		CLuaMenuForwarder *forwarder = new CLuaMenuForwarder(L, action, id);
 		m->m->addKey(directkey, forwarder, action);
 		m->targets.push_back(forwarder);
@@ -1772,22 +1772,22 @@ int CLuaInstance::CWindowNew(lua_State *L)
 		CComponentsFooter* footer = (*udata)->w->getFooterObject();
 		if (footer) {
 			int btnCount = 0;
-			if (btnRed    != "") btnCount++;
-			if (btnGreen  != "") btnCount++;
-			if (btnYellow != "") btnCount++;
-			if (btnBlue   != "") btnCount++;
+			if (!btnRed.empty()) btnCount++;
+			if (!btnGreen.empty()) btnCount++;
+			if (!btnYellow.empty()) btnCount++;
+			if (!btnBlue.empty()) btnCount++;
 			if (btnCount) {
 				fb_pixel_t col = footer->getColorBody();
 				int btnw = (dx-20) / btnCount;
 				int btnh = footer->getHeight();
 				int start = 10;
-				if (btnRed != "")
+				if (!btnRed.empty())
 					footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, 0, false , true, false, col, col));
-				if (btnGreen != "")
+				if (!btnGreen.empty())
 					footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, 0, false , true, false, col, col));
-				if (btnYellow != "")
+				if (!btnYellow.empty())
 					footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, 0, false , true, false, col, col));
-				if (btnBlue != "")
+				if (!btnBlue.empty())
 					footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, 0, false , true, false, col, col));
 			}
 		}

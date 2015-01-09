@@ -99,9 +99,9 @@ void CLanguage::setLanguage(std::string _language){
 //-----------------------------------------------------------------------------
 std::string CLanguage::getTranslation(std::string id){
 	std::string trans=ConfigLanguage->getString(id,"");
-	if(trans=="")
+	if(trans.empty())
 		trans=NeutrinoLanguage->getString(id,"");
-	if(trans=="")
+	if(trans.empty())
 		trans=DefaultLanguage->getString(id,"");
 	return trans;
 }

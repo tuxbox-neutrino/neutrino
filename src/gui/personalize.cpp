@@ -412,27 +412,27 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 		g_settings.plugins_lua = "";
 		for (int i = 0; i < pcount; i++) {
 			if (pltype[i] & CPlugins::P_TYPE_DISABLED) {
-				if (g_settings.plugins_disabled != "")
+				if (!g_settings.plugins_disabled.empty())
 					g_settings.plugins_disabled += ",";
 				g_settings.plugins_disabled +=  g_PluginList->getFileName(i);
 				g_PluginList->setType(i, CPlugins::P_TYPE_DISABLED);
 			} else if (pltype[i] & CPlugins::P_TYPE_GAME) {
-				if (g_settings.plugins_game != "")
+				if (!g_settings.plugins_game.empty())
 					g_settings.plugins_game += ",";
 				g_settings.plugins_game +=  g_PluginList->getFileName(i);
 				g_PluginList->setType(i, CPlugins::P_TYPE_GAME);
 			} else if (pltype[i] & CPlugins::P_TYPE_TOOL) {
-				if (g_settings.plugins_tool != "")
+				if (!g_settings.plugins_tool.empty())
 					g_settings.plugins_tool += ",";
 				g_settings.plugins_tool +=  g_PluginList->getFileName(i);
 				g_PluginList->setType(i, CPlugins::P_TYPE_TOOL);
 			} else if (pltype[i] & CPlugins::P_TYPE_SCRIPT) {
-				if (g_settings.plugins_script != "")
+				if (!g_settings.plugins_script.empty())
 					g_settings.plugins_script += ",";
 				g_settings.plugins_script +=  g_PluginList->getFileName(i);
 				g_PluginList->setType(i, CPlugins::P_TYPE_SCRIPT);
 			} else if (pltype[i] & CPlugins::P_TYPE_LUA) {
-				if (g_settings.plugins_lua != "")
+				if (!g_settings.plugins_lua.empty())
 					g_settings.plugins_lua += ",";
 				g_settings.plugins_lua +=  g_PluginList->getFileName(i);
 				g_PluginList->setType(i, CPlugins::P_TYPE_LUA);

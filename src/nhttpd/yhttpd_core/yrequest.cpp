@@ -59,7 +59,7 @@ bool CWebserverRequest::HandleRequest(void) {
 		start_line = Connection->sock->ReceiveLine();
 		if (!Connection->sock->isValid)
 			return false;
-		if (start_line == "") // Socket empty
+		if (start_line.empty()) // Socket empty
 		{
 			log_level_printf(1, "HandleRequest: End of line not found\n");
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
@@ -82,7 +82,7 @@ bool CWebserverRequest::HandleRequest(void) {
 			return false;
 		}
 
-		if (tmp_line == "") {
+		if (tmp_line.empty()) {
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
 		}
@@ -252,7 +252,7 @@ bool CWebserverRequest::HandlePost() {
 	std::string raw_header = "", tmp_line = "";
 	do {
 		tmp_line = Connection->sock->ReceiveLine();
-		if (tmp_line == "") // Socket empty
+		if (tmp_line.empty()) // Socket empty
 		{
 			log_level_printf(1,
 					"HandleRequest: (Header) End of line not found: %s\n",
@@ -266,7 +266,7 @@ bool CWebserverRequest::HandlePost() {
 
 	// read meesage body
 	unsigned int content_len = 0;
-	if (HeaderList["Content-Length"] != "")
+	if (!HeaderList["Content-Length"].empty())
 		content_len = atoi(HeaderList["Content-Length"].c_str());
 
 	// Get Rest of Request from Socket

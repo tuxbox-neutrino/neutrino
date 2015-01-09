@@ -1244,7 +1244,7 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
-	if(actionkey =="")
+	if(actionkey.empty())
 	{
 		if(parent != NULL)
 			parent->hide();

@@ -2264,7 +2264,7 @@ int CLockedMenuForwarder::exec(CMenuTarget* parent)
 
 int CMenuSelectorTarget::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
-	if (actionKey != "")
+	if (!actionKey.empty())
 		*m_select = atoi(actionKey);
 	else
 		*m_select = -1;

@@ -75,7 +75,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 #endif //Y_CONFIG_USE_HOSTEDWEB
 
 	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
-	if (((mime != "") || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
+	if (((!mime.empty()) || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
 			&& !(hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh")) {
 		//TODO: Check allowed directories / actually in GetFileName
 		// build filename
@@ -97,7 +97,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 
 			// check If-Modified-Since
 			time_t if_modified_since = (time_t) - 1;
-			if (hh->HeaderList["If-Modified-Since"] != "") {
+			if (!hh->HeaderList["If-Modified-Since"].empty()) {
 				struct tm mod;
 				if (strptime(hh->HeaderList["If-Modified-Since"].c_str(),
 						RFC1123FMT, &mod) != NULL) {
@@ -116,7 +116,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 			if (modified) {
 				hh->RangeStart = 0;
 				hh->RangeEnd = hh->ContentLength - 1;
-				const char *range = (hh->HeaderList["Range"] == "") ? NULL : hh->HeaderList["Range"].c_str();
+				const char *range = (hh->HeaderList["Range"].empty()) ? NULL : hh->HeaderList["Range"].c_str();
 				if ((range &&
 				     (2 != sscanf(range, "bytes=%lld-%lld", &hh->RangeStart, &hh->RangeEnd)) &&
 				     (1 != sscanf(range, "bytes=%lld-", &hh->RangeStart)))

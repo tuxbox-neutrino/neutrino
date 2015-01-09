@@ -712,7 +712,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 	settings->ytsearch_history.clear();
 	for (int i = 0; i < settings->ytsearch_history_size; i++) {
 		std::string s = configfile.getString("mb_ytsearch_history_" + to_string(i));
-		if (s != "")
+		if (!s.empty())
 			settings->ytsearch_history.push_back(configfile.getString("mb_ytsearch_history_" + to_string(i), ""));
 	}
 	settings->ytsearch_history_size = settings->ytsearch_history.size();
@@ -1723,7 +1723,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 			CRecordInstance* inst = CRecordManager::getInstance()->getRecordInstance(m_movieSelectionHandler->file.Name);
 			if (inst != NULL) {
 				std::string delName = m_movieSelectionHandler->epgTitle;
-				if (delName == "")
+				if (delName.empty())
 					delName = m_movieSelectionHandler->file.getFileName();
 				char buf1[1024];
 				snprintf(buf1, sizeof(buf1), g_Locale->getText(LOCALE_MOVIEBROWSER_ASK_REC_TO_DELETE), delName.c_str());
@@ -1830,7 +1830,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 		if (m_movieSelectionHandler != NULL) {
 			if (ShowMsg(LOCALE_MESSAGEBOX_INFO, LOCALE_MOVIEBROWSER_DELETE_SCREENSHOT, CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 				std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name, S_ISDIR(m_movieSelectionHandler->file.Mode));
-				if (fname != "")
+				if (!fname.empty())
 					unlink(fname.c_str());
 				refresh();
 			}
@@ -3310,7 +3310,7 @@ int CYTCacheSelectorTarget::exec(CMenuTarget* /*parent*/, const std::string & ac
 		cYTCache::getInstance()->cancel(&movieBrowser->yt_pending[selected - movieBrowser->yt_pending_offset]);
 	} else if (actionKey == "rc_spkr" && movieBrowser->yt_completed_offset && selected >= movieBrowser->yt_completed_offset && selected < movieBrowser->yt_completed_end) {
 		cYTCache::getInstance()->remove(&movieBrowser->yt_completed[selected - movieBrowser->yt_completed_offset]);
-	} else if (actionKey == "") {
+	} else if (actionKey.empty()) {
 		if (movieBrowser->yt_pending_offset && selected >= movieBrowser->yt_pending_offset && selected < movieBrowser->yt_pending_end) {
 			if (ShowMsg (LOCALE_MOVIEBROWSER_YT_CACHE, g_Locale->getText(LOCALE_MOVIEBROWSER_YT_CANCEL_TRANSFER), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes)
 				cYTCache::getInstance()->cancel(&movieBrowser->yt_pending[selected - movieBrowser->yt_pending_offset]);
@@ -3427,7 +3427,7 @@ CYTHistory::CYTHistory(MB_SETTINGS &_settings, std::string &_search)
 
 int CYTHistory::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	if (actionKey == "") {
+	if (actionKey.empty()) {
 		if (parent)
 			parent->hide();
 		CMenuWidget* m = new CMenuWidget(LOCALE_MOVIEBROWSER_YT_HISTORY, NEUTRINO_ICON_MOVIEPLAYER, width);
@@ -3750,7 +3750,7 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	int returnval = menu_return::RETURN_REPAINT;
 
-	if (actionKey == "")
+	if (actionKey.empty())
 	{
 		if (parent)
 			parent->hide();
