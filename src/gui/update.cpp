@@ -169,6 +169,7 @@ bool CFlashUpdate::checkOnlineVersion()
 		if (httpTool.downloadFile(url, gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME, 20)) {
 			std::ifstream in(gTmpPath LIST_OF_UPDATES_LOCAL_FILENAME);
 			while (in >> url >> version >> md5 >> std::ws) {
+				std::getline(in, name);
 				CFlashVersionInfo versionInfo(version);
 				newVer = versionInfo.getVersion();
 #ifdef DEBUG
@@ -988,7 +989,7 @@ void CFlashExpertSetup::readMTDPart(int mtd, const std::string &fileName)
 	sync();
 }
 
-//#define UBOOT_BIN
+#define UBOOT_BIN
 //#define SPARE_BIN
 
 int CFlashExpertSetup::exec(CMenuTarget* parent, const std::string &actionKey)
