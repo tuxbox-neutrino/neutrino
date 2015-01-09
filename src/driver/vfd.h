@@ -128,7 +128,7 @@ class CVFD
 		void showMenuText(const int position, const char * text, const int highlight = -1, const bool utf_encoded = false);
 		void showAudioTrack(const std::string & artist, const std::string & title, const std::string & album);
 		void showAudioPlayMode(AUDIOMODES m=AUDIO_MODE_PLAY);
-		void showAudioProgress(const char perc, bool isMuted);
+		void showAudioProgress(const unsigned char perc);
 		void setBrightness(int);
 		int getBrightness();
 

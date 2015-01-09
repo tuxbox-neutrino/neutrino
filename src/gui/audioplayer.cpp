@@ -837,7 +837,7 @@ int CAudioPlayerGui::show()
 				ret = menu_return::RETURN_EXIT_ALL;
 				loop = false;
 			}
-			paintLCD();
+			//paintLCD();
 		}
 	}
 	hide();
@@ -2162,9 +2162,9 @@ void CAudioPlayerGui::updateTimes(const bool force)
 				}
 			}
 		}
-		if ((updatePlayed || updateTotal) && m_time_total != 0)
+		if ((updatePlayed || updateTotal) && m_curr_audiofile.FileType != CFile::STREAM_AUDIO && m_time_total != 0)
 		{
-			CVFD::getInstance()->showAudioProgress(100 * m_time_played / m_time_total, CNeutrinoApp::getInstance()->isMuted());
+			CVFD::getInstance()->showAudioProgress(100 * m_time_played / m_time_total);
 		}
 	}
 }
@@ -2175,20 +2175,14 @@ void CAudioPlayerGui::paintLCD()
 	{
 	case CAudioPlayerGui::STOP:
 		CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_STOP);
-		CVFD::getInstance()->showAudioProgress(0, CNeutrinoApp::getInstance()->isMuted());
+		CVFD::getInstance()->showAudioProgress(0);
 		break;
 	case CAudioPlayerGui::PLAY:
 		CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_PLAY);
-
 		CVFD::getInstance()->showAudioTrack(m_curr_audiofile.MetaData.artist, m_curr_audiofile.MetaData.title,
 						    m_curr_audiofile.MetaData.album);
 		if (m_curr_audiofile.FileType != CFile::STREAM_AUDIO && m_time_total != 0)
-			CVFD::getInstance()->showAudioProgress(100 * m_time_played / m_time_total, CNeutrinoApp::getInstance()->isMuted());
-
-#ifdef INCLUDE_UNUSED_STUFF
-		else
-			CVFD::getInstance()->showAudioProgress(100 * CAudioPlayer::getInstance()->getScBuffered() / 65536, CNeutrinoApp::getInstance()->isMuted());
-#endif /* INCLUDE_UNUSED_STUFF */
+			CVFD::getInstance()->showAudioProgress(100 * m_time_played / m_time_total);
 		break;
 	case CAudioPlayerGui::PAUSE:
 		CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_PAUSE);
