@@ -2166,7 +2166,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 		}
 		if ((updatePlayed || updateTotal) && m_curr_audiofile.FileType != CFile::STREAM_AUDIO && m_time_total != 0)
 		{
-			CVFD::getInstance()->showAudioProgress(100 * m_time_played / m_time_total);
+			CVFD::getInstance()->showAudioProgress(uint8_t(100 * m_time_played / m_time_total));
 		}
 	}
 }
@@ -2184,7 +2184,7 @@ void CAudioPlayerGui::paintLCD()
 		CVFD::getInstance()->showAudioTrack(m_curr_audiofile.MetaData.artist, m_curr_audiofile.MetaData.title,
 						    m_curr_audiofile.MetaData.album);
 		if (m_curr_audiofile.FileType != CFile::STREAM_AUDIO && m_time_total != 0)
-			CVFD::getInstance()->showAudioProgress(100 * m_time_played / m_time_total);
+			CVFD::getInstance()->showAudioProgress(uint8_t(100 * m_time_played / m_time_total));
 		break;
 	case CAudioPlayerGui::PAUSE:
 		CVFD::getInstance()->showAudioPlayMode(CVFD::AUDIO_MODE_PAUSE);
@@ -2327,7 +2327,7 @@ void CAudioPlayerGui::getFileInfoToDisplay(std::string &fileInfo, CAudiofileExt 
 	{
 		fileInfo += "Unknown";
 	}
-	file.firstChar = tolower(fileInfo[0]);
+	file.firstChar = (char)tolower(fileInfo[0]);
 	//info += fileInfo;
 }
 
