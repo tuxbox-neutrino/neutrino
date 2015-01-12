@@ -694,7 +694,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			} else if (event.status & FE_TIMEDOUT) {
 				if(timedout < timer_msec)
 					timedout = timer_msec;
-				printf("[fe%d] ############################## FE_TIMEDOUT (max %d)\n", fenumber, timedout);
+				printf("[fe%d] ############################## FE_TIMEDOUT (max %u)\n", fenumber, timedout);
 				/*break;*/
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
