@@ -448,7 +448,12 @@ printf("CVFD::showVolume: %d, bar %d\n", (int) vol, pp);
 
 void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update*/, const MODES origin)
 {
+
+	static int ppold = 0;
 	if(!has_lcd) return;
+
+	percentOver = perc;
+
 	if (mode == MODE_AUDIO && origin != MODE_AUDIO) // exclusive access for audio mode
 		return;
 
@@ -464,8 +469,9 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 		else
 			pp = (int) round((double) perc * (double) 8 / (double) 100);
 		if(pp > 8) pp = 8;
+
+		if(pp != ppold) {
 //printf("CVFD::showPercentOver: %d, bar %d\n", (int) perc, pp);
-		if(pp != percentOver) {
 			int i;
 			int j = 0x00000200;
 			for(i = 0; i < pp; i++) {
@@ -476,7 +482,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 				ShowIcon((fp_icon) j, false);
 				j /= 2;
 			}
-			percentOver = pp;
+			ppold = pp;
 		}
 	}
 }
