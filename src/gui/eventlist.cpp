@@ -661,6 +661,10 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			g_RCInput->postMsg (msg, 0);
 			res = menu_return::RETURN_EXIT_ALL;
 			loop = false;
+		} else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
+			g_RCInput->postMsg(msg, data);
+			loop = false;
+			res = menu_return::RETURN_EXIT_ALL;
 		}
 		else
 		{

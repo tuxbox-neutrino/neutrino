@@ -563,6 +563,10 @@ int CBouquetList::show(bool bShowChannelList)
 				int new_selected = (chn - 1) % Bouquets.size(); // is % necessary (i.e. can firstselected be > Bouquets.size()) ?
 				updateSelection(new_selected);
 			}
+		} else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
+			g_RCInput->postMsg(msg, data);
+			loop = false;
+			res = CHANLIST_CANCEL_ALL;
 		} else if (msg > CRCInput::RC_MaxRC) {
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 				loop = false;

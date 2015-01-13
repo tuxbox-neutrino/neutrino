@@ -970,6 +970,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						msg = 0;
 					} else
 						loop = false;
+				} else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
+					g_RCInput->postMsg(msg, data);
+					loop = false;
+					res = menu_return::RETURN_EXIT_ALL;
 				}
 				else
 				{
