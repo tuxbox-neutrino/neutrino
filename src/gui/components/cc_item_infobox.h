@@ -57,9 +57,6 @@ class CComponentsInfoBox : public CComponentsText
 		///property: path or name of displayed image
 		std::string pic_name;
 
-		///set scale mode of image
-		bool scale_image;
-
 	public:
 		///object: internal used CTextBox object
 		CComponentsText * cctext;

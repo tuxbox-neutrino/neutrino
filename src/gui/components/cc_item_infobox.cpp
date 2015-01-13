@@ -95,8 +95,11 @@ void CComponentsInfoBox::setPicture(const char* picture_name)
 void CComponentsInfoBox::paintPicture()
 {
 	//ensure empty pic object
-	if (pic)
+	if (pic){
+		if (pic->isPicPainted())
+			pic->kill();
 		delete pic;
+	}
 	pic = NULL;
 
 	//exit if no image definied
@@ -104,14 +107,12 @@ void CComponentsInfoBox::paintPicture()
 		return;
 
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, "");
-	
-	//define icon
-	pic->setPicture(pic_name);
+	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, height-2*fr_thickness, pic_name); //NOTE: icons do not scale!
 
-	//fit icon into infobox
-	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
+
+	//fit icon into frame
+	pic->setYPos(y+(height/2-pic->getHeight()/2));
 
 	//paint, but set visibility mode
 	pic->allowPaint(cc_allow_paint);
