@@ -379,9 +379,9 @@ void CProgressBarCache::applyGradient(fb_pixel_t *b)
 			if (v != last_old) {
 				last_old = v;
 				double s = sin((y + .5) * M_PI / pb_height) * .8 + .2;
-				float fr = ((last_old >> 16) & 0xff) * s + 0.5;
-				float fg = ((last_old >>  8) & 0xff) * s + 0.5;
-				float fb = ((last_old      ) & 0xff) * s + 0.5;
+				float fr = float(((last_old >> 16) & 0xff) * s + 0.5);
+				float fg = float(((last_old >>  8) & 0xff) * s + 0.5);
+				float fb = float(((last_old      ) & 0xff) * s + 0.5);
 				last_new = (last_old & 0xFF000000)
 					| ((unsigned int)fr << 16)
 					| ((unsigned int)fg <<  8)
