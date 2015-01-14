@@ -113,22 +113,23 @@ void CComponentsPicture::initCCItem()
 		return;
 	}
 
-	//handle size
-	int w_pic = width;
-	int h_pic = height;
-
-	//check for path or name, set icon or image with full path
+	//check for path or name, set icon or image with full path, has no path, then use as icon and disble scale mode
 	string::size_type pos = pic_name.find("/", 0);
 	if (pos == string::npos)
 		do_scale = false;
 
-	if (!do_scale || (w_pic == 0 || w_pic == 0)){
-		if (!pic_name.empty())
-			frameBuffer->getIconSize(pic_name.c_str(), &width, &height);
-	}else{
-		g_PicViewer->getSize(pic_name.c_str(), &w_pic, &h_pic);
-		if (width != w_pic || height != h_pic)
-			g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
+	//initial internal size
+	int w_pic = width;
+	int h_pic = height;
+
+	if (!do_scale){
+		//use image/icon size as object dimension values
+		frameBuffer->getIconSize(pic_name.c_str(), &width, &height);
+	}
+	else{
+		//if initialized dimension values = 0, set current object dimension values to real image size otherwise use defined size
+		g_PicViewer->getSize(pic_name.c_str(), (width == 0 ? &width : &w_pic), (height == 0 ? &height : &h_pic));
+		g_PicViewer->rescaleImageDimensions(&w_pic, &h_pic, width, height);
 	}
 }
 
@@ -234,17 +235,18 @@ CComponentsChannelLogo::CComponentsChannelLogo( const int &x_pos, const int &y_p
 
 void CComponentsChannelLogo::init(const uint64_t& channelId, const std::string& channelName, bool allow_scale)
 {
+	alt_pic_name = "";
 	setChannel(channelId, channelName);
 	do_scale = allow_scale;
-	alt_pic_name = "";
 }
 void CComponentsChannelLogo::setAltLogo(const std::string& picture_name)
 {
 	alt_pic_name = picture_name;
 	channel_id = 0;
 	channel_name = "";
-	has_logo = true;
-	initCCItem();
+	has_logo = !alt_pic_name.empty();
+	if (has_logo)
+		initCCItem();
 }
 
 void CComponentsChannelLogo::setAltLogo(const char* picture_name)
@@ -263,9 +265,18 @@ void CComponentsChannelLogo::setChannel(const uint64_t& channelId, const std::st
 
 	has_logo = g_PicViewer->GetLogoName(channel_id, channel_name, pic_name, &dummy, &dummy);
 
-	if (!has_logo)
+	if (!has_logo)//no logo was found, use altrenate icon or logo
 		pic_name = alt_pic_name;
-	
+
+	//if logo or alternate image still not available, set has logo to false
+	has_logo = !pic_name.empty();
+
+	//refresh object
 	initCCItem();
+
+	//set has_logo to false if no dimensions were detected
+	if (width && height)
+		has_logo = true;
+
 	doPaintBg(false);
 }

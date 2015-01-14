@@ -86,7 +86,7 @@ class CComponentsPicture : public CComponentsItem
 		void SetTransparent(int t){ image_transparent = t; }
 
 	public:
-		///constructor for image objects, use this for scaled images, scaling dimensions are defined with parameters w (width) and h (height)
+		///constructor for image objects, use this for scaled images, scaling dimensions are defined with parameters w (width) and h (height), only values >0 causes scale of image
 		CComponentsPicture( 	const int &x_pos, const int &y_pos, const int &w, const int &h,
 					const std::string& image_name,
 					CComponentsForm *parent = NULL,
@@ -118,7 +118,14 @@ class CComponentsPicture : public CComponentsItem
 		///return height of component
 		virtual int getHeight();
 
-		virtual void doScale(bool scale = true){do_scale = scale;}
+		///set width of object and image, value >0 causes scale of image
+		virtual void setWidth(const int& w){CComponentsItem::setWidth(w), do_scale = true; initCCItem();}
+		///set height of object and image, value >0 causes scale of image
+		virtual void setHeight(const int& h){CComponentsItem::setHeight(h), do_scale = true; initCCItem();}
+		///set width of object and image related to current screen size, see also CComponentsItem::setWidthP(), parameter as uint8_t
+		virtual void setWidthP(const uint8_t& w_percent){CComponentsItem::setWidthP(w_percent), do_scale = true; initCCItem();}
+		///set height of object and image related to current screen size, see also CComponentsItem::setHeightP(), parameter as uint8_t
+		virtual void setHeightP(const uint8_t& h_percent){CComponentsItem::setHeightP(h_percent), do_scale = true; initCCItem();}
 
 		///return paint mode of internal image, true=image was painted, please do not to confuse with isPainted()! isPainted() is related to item itself.
 		virtual inline bool isPicPainted(){return is_image_painted;};
