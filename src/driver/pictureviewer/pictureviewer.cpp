@@ -3,14 +3,14 @@
 #include <neutrino.h>
 #include "pictureviewer.h"
 #include "pv_config.h"
-
+#include <system/debug.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <curl/curl.h>
-
+#include <errno.h>
 #include <cs_api.h>
 
 #ifdef FBV_SUPPORT_GIF
@@ -170,7 +170,7 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 		}
 		m_NextPic_Buffer = (unsigned char *) malloc (x * y * 3);
 		if (m_NextPic_Buffer == NULL) {
-			printf ("DecodeImage: Error: malloc\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc, %s\n", __func__, __LINE__, strerror(errno));
 			return false;
 		}
 		//      dbout("---Decoding Start(%d/%d)\n",x,y);
@@ -207,11 +207,11 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			else
 				m_NextPic_YPan = 0;
 		} else {
-			printf ("Unable to read file !\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: Unable to read file !, %s\n", __func__, __LINE__, strerror(errno));
 			free (m_NextPic_Buffer);
 			m_NextPic_Buffer = (unsigned char *) malloc (3);
 			if (m_NextPic_Buffer == NULL) {
-				printf ("DecodeImage: Error: malloc\n");
+				dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc, %s\n", __func__, __LINE__, strerror(errno));
 				return false;
 			}
 			memset (m_NextPic_Buffer, 0, 3);
@@ -223,14 +223,14 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 			m_NextPic_YPan = 0;
 		}
 	} else {
-		printf ("Unable to read file or format not recognized!\n");
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Unable to read file or format not recognized!\n", __func__, __LINE__);
 		if (m_NextPic_Buffer != NULL) {
 			free (m_NextPic_Buffer);
 			m_NextPic_Buffer = NULL;
 		}
 		m_NextPic_Buffer = (unsigned char *) malloc (3);
 		if (m_NextPic_Buffer == NULL) {
-			printf ("DecodeImage: Error: malloc\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc, %s\n", __func__, __LINE__, strerror(errno));
 			return false;
 		}
 		memset (m_NextPic_Buffer, 0, 3);
@@ -436,7 +436,7 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 
 	fb_buffer = (unsigned char *) CFrameBuffer::getInstance()->convertRGB2FB (rgb_buffer, 1, 1);
 	if (fb_buffer == NULL) {
-		printf ("showBusy: Error: malloc 1\n");
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc\n", __func__, __LINE__);
 		return;
 	}
 	if (m_busy_buffer != NULL) {
@@ -445,7 +445,7 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 	}
 	m_busy_buffer = (unsigned char *) malloc (width * width * cpp);
 	if (m_busy_buffer == NULL) {
-		printf ("showBusy: Error: malloc 2: \n");
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Error: malloc\n", __func__, __LINE__);
 		return;
 	}
 	busy_buffer_wrk = m_busy_buffer;
@@ -625,22 +625,27 @@ bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, 
 	/* TODO: cache or check for same */
 	fb_pixel_t * data = getImage(name, width, height);
 
-	if (transp > CFrameBuffer::TM_EMPTY)
-		frameBuffer->SetTransparentDefault();
+	if (data){
+		if (transp > CFrameBuffer::TM_EMPTY)
+			frameBuffer->SetTransparentDefault();
 
-	if(data) {
-		frameBuffer->blit2FB(data, width, height, posx, posy);
-		cs_free_uncached(data);
-		return true;
+		if(data) {
+			frameBuffer->blit2FB(data, width, height, posx, posy);
+			cs_free_uncached(data);
+			return true;
+		}
 	}
 	return false;
 }
 
 fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, int *height, bool GetImage)
 {
+	if (access(name.c_str(), R_OK) == -1)
+		return NULL;
+
 	int x, y, load_ret, bpp = 0;
-	CFormathandler *fh;
-	unsigned char * buffer;
+	CFormathandler *fh = NULL;
+	unsigned char * buffer = NULL;
 	fb_pixel_t * ret = NULL;
 	std::string mode_str;
 
@@ -655,8 +660,8 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		buffer = (unsigned char *) malloc(x * y * 4);
 		if (buffer == NULL)
 		{
-		  	printf("%s: Error: malloc\n", mode_str.c_str());
-		  	return 0;
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode %s: Error: malloc\n", __func__, __LINE__, mode_str.c_str());
+			return NULL;
 		}
 #ifdef FBV_SUPPORT_PNG
 		if ((name.find(".png") == (name.length() - 4)) && (fh_png_id(name.c_str())))
@@ -664,13 +669,15 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		else
 #endif
 			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
+		dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] load_result: %d \n", __func__, __LINE__, load_ret);
+
 		if (load_ret == FH_ERROR_OK)
 		{
-//			printf("%s: decoded %s, %d x %d \n", mode_str.c_str(), name.c_str(), x, y);
+			dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] mode %s, decoded %s, (Pos: %d %d) ,bpp = %d \n", __func__, __LINE__, mode_str.c_str(), name.c_str(), x, y, bpp);
 			// resize only getImage
 			if ((GetImage) && (x != *width || y != *height))
 			{
-				printf("%s: resize  %s to %d x %d \n", mode_str.c_str(), name.c_str(), *width, *height);
+				dprintf(DEBUG_INFO,  "[CPictureViewer] [%s - %d] resize  %s to %d x %d \n", __func__, __LINE__, name.c_str(), *width, *height);
 				if (bpp == 4)
 					buffer = ResizeA(buffer, x, y, *width, *height);
 				else
@@ -684,11 +691,13 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.theme.infobar_alpha));
 			*width = x;
 			*height = y;
-		}else
-	  		printf("%s: Error decoding file %s\n", mode_str.c_str(), name.c_str());
+		}else{
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode %s: Error decoding file %s\n", __func__, __LINE__, mode_str.c_str(), name.c_str());
+			return NULL;
+		}
 		free(buffer);
   	}else
-		printf("%s: Error open file %s\n", mode_str.c_str(), name.c_str());
+		dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] mode: %s, file: %s Error: %s, buffer = %p (Pos: %d %d, Dim: %d x %d)\n", __func__, __LINE__, mode_str.c_str(), name.c_str(), strerror(errno), buffer, x, y, *width, *height);
 	return ret;
 }
 
@@ -711,7 +720,7 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 
 		if(cr == NULL)
 		{
-			printf("Resize Error: malloc\n");
+			dprintf(DEBUG_NORMAL,  "[CPictureViewer] [%s - %d] Resize Error: malloc\n", __func__, __LINE__);
 			return(orgin);
 		}
 	}else
