@@ -304,8 +304,8 @@ void CPictureViewer::Zoom (float factor)
 	int oldx = m_CurrentPic_X;
 	int oldy = m_CurrentPic_Y;
 	unsigned char *oldBuf = m_CurrentPic_Buffer;
-	m_CurrentPic_X = (int) (factor * m_CurrentPic_X);
-	m_CurrentPic_Y = (int) (factor * m_CurrentPic_Y);
+	m_CurrentPic_X = int(factor * (float)m_CurrentPic_X);
+	m_CurrentPic_Y = int(factor * (float)m_CurrentPic_Y);
 
 	m_CurrentPic_Buffer = Resize(m_CurrentPic_Buffer, oldx, oldy, m_CurrentPic_X, m_CurrentPic_Y, m_scaling);
 
@@ -379,7 +379,7 @@ CPictureViewer::CPictureViewer ()
 	fh_root = NULL;
 	m_scaling = COLOR;
 	//m_aspect = 4.0 / 3;
-	m_aspect = 16.0 / 9;
+	m_aspect = float(16.0 / 9.0);
 	m_CurrentPic_Name = "";
 	m_CurrentPic_Buffer = NULL;
 	m_CurrentPic_X = 0;
@@ -609,10 +609,10 @@ void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int m
 	aspect = (float)(*width) / (float)(*height);
 	if (((float)(*width) / (float)max_width) > ((float)(*height) / (float)max_height)) {
 		*width = max_width;
-		*height = (int)(max_width / aspect);
+		*height = int((float)max_width / aspect);
 	}else{
 		*height = max_height;
-		*width = (int)(max_height * aspect);
+		*width = int((float)max_height * aspect);
 	}
 }
 
@@ -776,7 +776,10 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 							r+=q[0]; g+=q[1]; b+=q[2]; a+=q[3];
 						}
 					}
-					p[0]=r/sq; p[1]=g/sq; p[2]=b/sq; p[3]=a/sq;
+					p[0]= uint8_t(r/sq);
+					p[1]= uint8_t(g/sq);
+					p[2]= uint8_t(b/sq);
+					p[3]= uint8_t(a/sq);
 				}
 			}
 		}else
@@ -795,7 +798,9 @@ unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy,
 							r+=q[0]; g+=q[1]; b+=q[2];
 						}
 					}
-					p[0]=r/sq; p[1]=g/sq; p[2]=b/sq;
+					p[0]= uint8_t(r/sq);
+					p[1]= uint8_t(g/sq);
+					p[2]= uint8_t(b/sq);
 				}
 			}
 		}
