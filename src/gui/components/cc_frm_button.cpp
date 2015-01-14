@@ -145,18 +145,25 @@ void CComponentsButton::initIcon()
 	if (cc_btn_icon_obj == NULL){
 		int w_icon = 0;
 		int h_icon = 0;
-		frameBuffer->getIconSize(cc_btn_icon.c_str(), &w_icon, &h_icon);
+		int y_icon = 0;
 
-		h_icon = min(height-2*fr_thickness, h_icon);
-// 		if (h_icon != h_max){
-// 			int ratio = h_icon/h_max;
-// 			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon;
-// 			cc_btn_icon += ".png";
-// 			w_icon = w_icon*ratio;
-// 		}
-		
-		int y_icon = height/2 - h_icon/2;
-		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, w_icon, h_icon, cc_btn_icon, this);
+		string::size_type pos = cc_btn_icon.find("/", 0);
+		if (pos == string::npos)
+			cc_btn_icon = frameBuffer->getIconBasePath() + cc_btn_icon + ".png";
+
+		cc_btn_icon_obj = new CComponentsPicture(fr_thickness, y_icon, cc_btn_icon, this);
+		h_icon = cc_btn_icon_obj->getHeight();
+
+		if (h_icon > (height-2*fr_thickness)){
+			cc_btn_icon_obj->setHeight(height*80/100);
+			uint8_t h_ratio = uint8_t(height*100/h_icon);
+			w_icon = h_ratio*cc_btn_icon_obj->getWidth()/100;
+			cc_btn_icon_obj->setWidth(w_icon);
+		}
+
+		y_icon = height/2 - cc_btn_icon_obj->getHeight()/2;
+
+		cc_btn_icon_obj->setYPos(y_icon);
 		cc_btn_icon_obj->doPaintBg(false);
 	}
 }
