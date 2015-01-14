@@ -423,8 +423,9 @@ std::string getNowTimeStr(const char* format)
 {
 	char tmpStr[256];
 	struct timeval tv;
+	struct tm t;
 	gettimeofday(&tv, NULL);        
-	strftime(tmpStr, sizeof(tmpStr), format, localtime(&tv.tv_sec));
+	strftime(tmpStr, sizeof(tmpStr), format, localtime_r(&tv.tv_sec, &t));
 	return (std::string)tmpStr;
 }
 
