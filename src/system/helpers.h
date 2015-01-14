@@ -52,7 +52,7 @@ void wakeup_hdd(const char *hdd_dir);
 int check_dir(const char * dir, bool allow_tmp = false);
 bool get_fs_usage(const char * dir, uint64_t &btotal, uint64_t &bused, long *bsize=NULL);
 bool get_mem_usage(unsigned long &total, unsigned long &free);
-void mySleep(int sec);
+int mySleep(int sec);
 
 std::string find_executable(const char *name);
 /* basically what "foo=`command`" does in the shell */

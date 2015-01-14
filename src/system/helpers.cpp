@@ -47,12 +47,12 @@
 #include <gui/update_ext.h>
 using namespace std;
 
-void mySleep(int sec) {
+int mySleep(int sec) {
 	struct timeval timeout;
 
 	timeout.tv_sec = sec;
 	timeout.tv_usec = 0;
-	select(0,0,0,0, &timeout);
+	return select(0,0,0,0, &timeout);
 }
 
 off_t file_size(const char *filename)
