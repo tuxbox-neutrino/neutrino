@@ -858,17 +858,30 @@ void CNeutrinoEventList::paintHead(t_channel_id _channel_id, std::string _channe
 	header.setCorner(RADIUS_LARGE, CORNER_TOP);
 
 	int x_off = 10;
-	int mid_width = header.getWidth() * 40 / 100; // 40%
-	int side_width = ((header.getWidth() - mid_width) / 2) - (2 * x_off);
+	int mid_width = full_width * 40 / 100; // 40%
+	int side_width = ((full_width - mid_width) / 2) - (2 * x_off);
 
-	CComponentsChannelLogo* midLogo = new CComponentsChannelLogo(CC_CENTERED, CC_CENTERED, _channelname, _channel_id);
+	//create an logo object
+	CComponentsChannelLogo* midLogo = new CComponentsChannelLogo(0, 0, _channelname, _channel_id, &header);
 	if (midLogo->hasLogo()) {
-		header.addCCItem(midLogo);
+		//if logo object has found a logo and was ititialized, the hand  it's size
+ 		int w_logo = midLogo->getWidth();
+
+		//scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
+		int h_logo = midLogo->getHeight();
+		if (h_logo > theight){
+			uint8_t h_ratio = uint8_t(theight*100/h_logo);
+			midLogo->setHeight(theight);
+			w_logo = h_ratio*w_logo/100;
+			midLogo->setWidth(w_logo);
+		}	
+		midLogo->setPos(CC_CENTERED, CC_CENTERED);
+
 		// recalc widths
-		side_width = ((full_width - midLogo->getWidth()) / 2) - (4 * x_off);
+		side_width = ((full_width - w_logo) / 2) - (4 * x_off);
 	}
 	else {
-		delete midLogo;
+		header.removeCCItem(midLogo); //remove/destroy logo object, if it is not available
 		CComponentsText *midText = new CComponentsText(CC_CENTERED, CC_CENTERED, mid_width, theight, _channelname, CTextBox::CENTER, g_Font[font_mid], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		midText->doPaintBg(false);
 	}
@@ -880,7 +893,7 @@ void CNeutrinoEventList::paintHead(t_channel_id _channel_id, std::string _channe
 
 	if (!_channelname_next.empty()) {
 		int name_w = std::min(g_Font[font_lr]->getRenderWidth(_channelname_next), side_width);
-		int x_pos = header.getWidth() - name_w - x_off;
+		int x_pos = full_width - name_w - x_off;
 		CComponentsText *rText = new CComponentsText(x_pos, CC_CENTERED, name_w, theight, _channelname_next, CTextBox::NO_AUTO_LINEBREAK, g_Font[font_lr], &header, CC_SHADOW_OFF, COL_MENUHEAD_TEXT);
 		rText->doPaintBg(false);
 	}

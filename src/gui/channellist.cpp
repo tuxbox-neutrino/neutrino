@@ -1663,13 +1663,19 @@ void CChannelList::showChannelLogo()
 				CChannelLogo->hide();
 			delete CChannelLogo;
 		}
-		CChannelLogo = new CComponentsChannelLogo(0, 0, logo_w_max, theight,
-							  (*chanlist)[selected]->getName(), (*chanlist)[selected]->channel_id);
-		if (CChannelLogo->hasLogo()) {
-			CChannelLogo->doScale(theight < CChannelLogo->getHeight());
-			CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
-			CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
-			CChannelLogo->paint();
+		CChannelLogo = new CComponentsChannelLogo(0, 0, (*chanlist)[selected]->getName(), (*chanlist)[selected]->channel_id);
+
+		if (CChannelLogo->hasLogo()){
+			int h_logo = CChannelLogo->getHeight();
+			if (h_logo > theight){ //scale image if required, TODO: move into an own handler, eg. header, so channel logo should be paint in header object
+				uint8_t h_ratio = uint8_t(theight*100/h_logo);
+				CChannelLogo->setHeight(theight);
+				int w_logo = h_ratio*CChannelLogo->getWidth()/100;
+				CChannelLogo->setWidth(min(w_logo, logo_w_max));
+				CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
+				CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
+				CChannelLogo->paint();
+			}
 		} else {
 			delete CChannelLogo;
 			CChannelLogo = NULL;
