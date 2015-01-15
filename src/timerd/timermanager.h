@@ -35,7 +35,7 @@
 #include <eventserver.h>
 #include <timerdclient/timerdtypes.h>
 
-#define CONFIGFILE CONFIGDIR "/timerd.conf"
+#define TIMERDCONFIGFILE CONFIGDIR "/timerd.conf"
 
 class CTimerEvent
 {
