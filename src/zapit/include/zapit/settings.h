@@ -31,7 +31,7 @@
 #define CONFIGDIR       "/var/tuxbox/config"
 #endif
 
-#define CONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
+#define ZAPITCONFIGFILE      CONFIGDIR "/zapit/zapit.conf"
 #define MOTORCONFIGFILE CONFIGDIR "/zapit/motor.conf"
 #define SATCONFIG CONFIGDIR "/zapit/sat.conf"
 #define SERVICES_XML    CONFIGDIR "/zapit/services.xml"

@@ -206,7 +206,7 @@ void CZapit::SaveSettings(bool write)
 		configfile.setInt32("motorRotationSpeed", config.motorRotationSpeed);
 #endif
 		if (configfile.getModifiedFlag())
-			configfile.saveConfig(CONFIGFILE);
+			configfile.saveConfig(ZAPITCONFIGFILE);
 	}
 }
 
@@ -303,8 +303,8 @@ void CZapit::ClearVolumeMap()
 
 void CZapit::LoadSettings()
 {
-	if (!configfile.loadConfig(CONFIGFILE))
-		WARN("%s not found", CONFIGFILE);
+	if (!configfile.loadConfig(ZAPITCONFIGFILE))
+		WARN("%s not found", ZAPITCONFIGFILE);
 
 	live_channel_id				= configfile.getInt64("lastChannel", 0);
 	lastChannelRadio			= configfile.getInt64("lastChannelRadio", 0);
