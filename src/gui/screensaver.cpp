@@ -87,9 +87,9 @@ void CScreenSaver::Start()
 	m_viewer->SetVisible(g_settings.screen_StartX, g_settings.screen_EndX, g_settings.screen_StartY, g_settings.screen_EndY);
 
 	if (g_settings.video_Format == 3)
-		m_viewer->SetAspectRatio(16.0/9);
+		m_viewer->SetAspectRatio(float(16.0/9));
 	else
-		m_viewer->SetAspectRatio(4.0/3);
+		m_viewer->SetAspectRatio(float(4.0/3));
 
 	m_viewer->Cleanup();
 
