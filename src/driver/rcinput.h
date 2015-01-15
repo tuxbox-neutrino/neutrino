@@ -154,7 +154,6 @@ class CRCInput
 
 		int		fd_max;
 		int		clickfd;
-		bool		firstKey;
 		__u16 rc_last_key;
 		void set_dsp();
 
@@ -284,6 +283,7 @@ class CRCInput
 
 		uint64_t repeat_block;
 		uint64_t repeat_block_generic;
+		bool		firstKey;
 		CRCInput();      //constructor - opens rc-device and starts needed threads
 		~CRCInput();     //destructor - closes rc-device
 
