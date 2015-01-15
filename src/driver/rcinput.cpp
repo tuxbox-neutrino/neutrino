@@ -1243,7 +1243,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();
-				if (firstKey) {
+				if (ev.value && firstKey) {
 					firstKey = false;
 					CTimerManager::getInstance()->cancelShutdownOnWakeup();
 				}
