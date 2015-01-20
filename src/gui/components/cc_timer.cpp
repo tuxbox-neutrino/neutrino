@@ -55,9 +55,6 @@ CComponentsTimer::~CComponentsTimer()
 //thread handle
 void* CComponentsTimer::initTimerThread(void *arg)
 {
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
-	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
-
 	CComponentsTimer *timer = static_cast<CComponentsTimer*>(arg);
 
 	//start loop
@@ -75,6 +72,9 @@ void* CComponentsTimer::initTimerThread(void *arg)
 bool CComponentsTimer::startTimer()
 {
 	void *ptr = static_cast<void*>(this);
+
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
+	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS,0);
 
 	if(!tm_thread) {
 		int res = pthread_create (&tm_thread, NULL, initTimerThread, ptr) ;
