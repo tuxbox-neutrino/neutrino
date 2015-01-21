@@ -3470,23 +3470,23 @@ void CNeutrinoApp::tvMode( bool rezap )
 		videoDecoder->Standby(false);
 	}
 
-	bool stopauto = (mode != mode_ts);
-	int oldmode = mode;
-	mode = mode_tv;
 #ifdef ENABLE_PIP
 	pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y,
 			g_settings.pip_width, g_settings.pip_height,
 			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 #endif
-	if(stopauto /*&& autoshift*/) {
+#if 0
+	if(mode != mode_ts /*&& autoshift*/) {
 		//printf("standby on: autoshift ! stopping ...\n");
 		CRecordManager::getInstance()->StopAutoRecord();
-		//recordingstatus = 0;
 	}
-	if (oldmode != mode_webtv) {
+#endif
+	if (mode != mode_webtv) {
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
 	}
+	mode = mode_tv;
+
 	g_RemoteControl->tvMode();
 	SetChannelMode(g_settings.channel_mode);
 	if( rezap ) {

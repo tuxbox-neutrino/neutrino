@@ -198,6 +198,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
 		bool StartAutoRecord();
 		bool StopAutoRecord(bool lock = true);
+		void StopAutoTimer();
 
 		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
 		const std::string GetFileName(const t_channel_id channel_id, bool timeshift = true);
