@@ -51,6 +51,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
+#include <gui/movieplayer.h>
 
 #include <system/settings.h>
 #include <gui/customcolor.h>
@@ -651,7 +652,11 @@ int CChannelList::show()
 			}
 		}
 		else if(!edit_state && !empty && msg == CRCInput::RC_stop ) { //stop recording
-			if(CRecordManager::getInstance()->RecordingStatus((*chanlist)[selected]->channel_id))
+			//if(CRecordManager::getInstance()->RecordingStatus((*chanlist)[selected]->channel_id))
+			int recmode = CRecordManager::getInstance()->GetRecordMode((*chanlist)[selected]->channel_id);
+			bool timeshift = recmode & CRecordManager::RECMODE_TSHIFT;
+			bool tsplay = CMoviePlayerGui::getInstance().timeshift;
+			if (recmode && !(timeshift && tsplay))
 			{
 				if (CRecordManager::getInstance()->AskToStop((*chanlist)[selected]->channel_id))
 				{
