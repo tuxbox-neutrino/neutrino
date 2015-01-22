@@ -301,7 +301,6 @@ int CMiscMenue::showMiscSettingsMenu()
 
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
-	delete miscEpgScanNotifier;
 	return res;
 }
 
@@ -457,16 +456,17 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	CMenuForwarder * mf3 = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, epg_max_events, miscSettings_epg_max_events);
 	mf3->setHint("", LOCALE_MENU_HINT_EPG_MAX_EVENTS);
 
-	CMenuOptionChooser * mc2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN_BOUQUETS, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
-		g_settings.epg_scan_mode != CEpgScan::MODE_OFF);
-	mc2->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
-
-	miscEpgScanNotifier = new COnOffNotifier();
-	miscEpgScanNotifier->addItem(mc2);
+	epg_scan = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN_BOUQUETS, &g_settings.epg_scan, EPG_SCAN_OPTIONS, EPG_SCAN_OPTION_COUNT,
+		g_settings.epg_scan_mode != CEpgScan::MODE_OFF && g_settings.epg_save_mode == 0);
+	epg_scan->setHint("", LOCALE_MENU_HINT_EPG_SCAN);
 
 	CMenuOptionChooser * mc3 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SCAN, &g_settings.epg_scan_mode, EPG_SCAN_MODE_OPTIONS,
-		CFEManager::getInstance()->getEnabledCount() > 1 ? EPG_SCAN_MODE_OPTION_COUNT : 2, true, miscEpgScanNotifier);
+		CFEManager::getInstance()->getEnabledCount() > 1 ? EPG_SCAN_MODE_OPTION_COUNT : 2, true, this);
 	mc3->setHint("", LOCALE_MENU_HINT_EPG_SCAN_MODE);
+
+	CMenuOptionChooser * mc4 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE_MODE, &g_settings.epg_save_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT,
+		true, this);
+	mc4->setHint("", LOCALE_MENU_HINT_EPG_SAVE_MODE);
 
 	ms_epg->addItem(epg_save);
 	ms_epg->addItem(epg_save_standby);
@@ -478,9 +478,10 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 	ms_epg->addItem(mf1);
 	ms_epg->addItem(mf2);
 	ms_epg->addItem(mf3);
+	ms_epg->addItem(mc4);
 	ms_epg->addItem(GenericMenuSeparatorLine);
 	ms_epg->addItem(mc3);
-	ms_epg->addItem(mc2);
+	ms_epg->addItem(epg_scan);
 }
 
 //filebrowser settings
@@ -600,6 +601,16 @@ bool CMiscMenue::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_READ))
 	{
 		epg_dir->setActive(g_settings.epg_save || g_settings.epg_read);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SCAN))
+	{
+		epg_scan->setActive(g_settings.epg_scan_mode != CEpgScan::MODE_OFF && g_settings.epg_save_mode == 0);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_EPG_SAVE_MODE))
+	{
+		g_settings.epg_scan = CEpgScan::SCAN_FAV;
+		epg_scan->setActive(g_settings.epg_scan_mode != CEpgScan::MODE_OFF && g_settings.epg_save_mode == 0);
+		ret = menu_return::RETURN_REPAINT;
 	}
 
 	return ret;

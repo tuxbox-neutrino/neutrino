@@ -43,6 +43,7 @@
 
 extern CBouquetList * bouquetList;
 extern CBouquetList * TVfavList;
+extern CBouquetList * RADIOfavList;
 extern CBouquetList * TVbouquetList;
  
 CEpgScan::CEpgScan()
@@ -64,6 +65,33 @@ CEpgScan * CEpgScan::getInstance()
 	if (inst == NULL)
 		inst = new CEpgScan();
 	return inst;
+}
+
+void CEpgScan::ConfigureEIT()
+{
+	CEitManager::getInstance()->clearChannelFilters();
+	if (g_settings.epg_save_mode == 0)
+		return;
+
+	int count = 0;
+
+	for (unsigned j = 0; j < TVfavList->Bouquets.size(); ++j) {
+		CChannelList * clist = TVfavList->Bouquets[j]->channelList;
+		for (unsigned i = 0; i < clist->Size(); i++) {
+			CZapitChannel * chan = clist->getChannelFromIndex(i);
+			CEitManager::getInstance()->addChannelFilter(chan->getOriginalNetworkId(), chan->getTransportStreamId(), chan->getServiceId());
+			count++;
+		}
+	}
+	for (unsigned j = 0; j < RADIOfavList->Bouquets.size(); ++j) {
+		CChannelList * clist = RADIOfavList->Bouquets[j]->channelList;
+		for (unsigned i = 0; i < clist->Size(); i++) {
+			CZapitChannel * chan = clist->getChannelFromIndex(i);
+			CEitManager::getInstance()->addChannelFilter(chan->getOriginalNetworkId(), chan->getTransportStreamId(), chan->getServiceId());
+			count++;
+		}
+	}
+	INFO("added %d channels to EIT white list\n", count);
 }
 
 void CEpgScan::Clear()

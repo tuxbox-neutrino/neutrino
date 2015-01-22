@@ -533,6 +533,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.epg_scan = CEpgScan::SCAN_CURRENT;
 		g_settings.epg_scan_mode = CEpgScan::MODE_OFF;
 	}
+	g_settings.epg_save_mode = configfile.getInt32("epg_save_mode", 0);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -1044,6 +1045,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("epg_read", g_settings.epg_read);
 	configfile.setInt32("epg_scan", g_settings.epg_scan);
 	configfile.setInt32("epg_scan_mode", g_settings.epg_scan_mode);
+	configfile.setInt32("epg_save_mode", g_settings.epg_save_mode);
 	configfile.setInt32("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setInt32("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setInt32("epg_old_events"           ,g_settings.epg_old_events );
@@ -1522,6 +1524,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	TIMER_STOP("[neutrino] took");
 
 	SetChannelMode(lastChannelMode);
+	CEpgScan::getInstance()->ConfigureEIT();
 
 	dprintf(DEBUG_DEBUG, "\nAll bouquets-channels received\n");
 }
@@ -2241,10 +2244,14 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					int old_ttx = g_settings.cacheTXT;
 					int old_epg = g_settings.epg_scan;
 					int old_mode = g_settings.epg_scan_mode;
+					int old_save_mode = g_settings.epg_save_mode;
 					mainMenu.exec(NULL, "");
 					InfoClock->enableInfoClock(true);
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
+
+					if (old_save_mode != g_settings.epg_save_mode)
+						CEpgScan::getInstance()->ConfigureEIT();
 					if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
 						if (g_settings.epg_scan_mode != CEpgScan::MODE_OFF)
 							CEpgScan::getInstance()->Start();

@@ -46,6 +46,7 @@ class CMiscMenue : public CMenuTarget, CChangeObserver
 		CMenuOptionChooser * epg_save_standby;
 		CMenuOptionChooser * epg_save_frequently;
 		CMenuOptionChooser * epg_read;
+		CMenuOptionChooser * epg_scan;
 		CMenuForwarder * epg_dir;
 		int width;
 		std::string epg_cache;
