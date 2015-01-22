@@ -525,13 +525,13 @@ extra.zapit_motor_speed Rychlost otáčení (10 = 1st/sek)
 extra.zapit_scanpids Vyhledávání s PIDy
 extra.zapit_sdt_changed Změněné kanály, načítám nastavení.
 fan_speed Rychlost CPU ventilátoru
-favorites.addchannel Aktuální kanál bude přidán \ do buketu "Oblíbené". \potrvá to několik vteřin ...
+favorites.addchannel Aktuální kanál bude přidán \ndo buketu "Oblíbené". \potrvá to několik vteřin ...
 favorites.bouquetname Oblíbené
-favorites.bqcreated Buket "Oblíbené" byl vytvořen ... \ n
-favorites.chadded Aktuální kanál byl přidán do oblíbených ... \ n
-favorites.chalreadyinbq Aktuální kanál se již nachází v oblíbených ... \ n
+favorites.bqcreated Buket "Oblíbené" byl vytvořen ... \n
+favorites.chadded Aktuální kanál byl přidán do oblíbených ... \n
+favorites.chalreadyinbq Aktuální kanál se již nachází v oblíbených ... \n
 favorites.copy Kopíruj buket do Oblíbených
-favorites.finalhint \ Použijte editor buketů pro dokončení \ změn v oblíbených. \ n
+favorites.finalhint \nPoužijte editor buketů pro dokončení \nzměn v oblíbených. \n
 favorites.menueadd Přidej kanál do oblíbených
 favorites.nobouquets Oblíbené jsou dostupné pouze při použití buketem.
 filebrowser.add Přidat
@@ -580,11 +580,11 @@ flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Hodina
 flashupdate.erasefailed Vymazání paměti FLASH se nepodařilo
 flashupdate.erasing Mazání paměti FLASH
-flashupdate.experimentalimage Vybraný IMAGE je testovací verzí \ může způsobit chybu zavádění po instalaci. \ n \ Opravdu chceš nainstalovat tuto verzi?
+flashupdate.experimentalimage Vybraný IMAGE je testovací verzí \nmůže způsobit chybu zavádění po instalaci. \n\nOpravdu chceš nainstalovat tuto verzi?
 flashupdate.expertfunctions Doplňkové funkce
 flashupdate.fileis0bytes Velikost souboru je 0 bajtů
 flashupdate.fileselector Výběr souboru
-flashupdate.flashreadyreboot Instalovaná IMAGE je správná. \ BOX se znovu spustí.
+flashupdate.flashreadyreboot Instalovaná IMAGE je správná. \nBOX se znovu spustí.
 flashupdate.getinfofile Získávání informace o verzi
 flashupdate.getinfofileerror Není možné zjistit verzi
 flashupdate.getupdatefile Získávání aktualizace
@@ -598,8 +598,8 @@ flashupdate.menu_apply_settings Povolit aplikování nastavení
 flashupdate.mkfs_create_image Vytvořit Image
 flashupdate.mkfs_preparing_files Připravit soubory a adresáře
 flashupdate.mkfs_using_sumtool Použít "sumtool"
-flashupdate.msgbox Zjištěný nový soubor: \ Datum:% s,% s \ BaseImage:% s \ nTyp:% s \ n \ Opravdu převzít a nainstalovat \ Tento soubor?
-flashupdate.msgbox_manual Zjištěný nový soubor: \ Datum:% s,% s \ BaseImage:% s \ Typ IMAGE:% s \ n \ Opravdu nainstalovat \ Tento soubor?
+flashupdate.msgbox Zjištěný nový soubor: \nDatum:%s,%s \nBaseImage:%s\nTyp:%s \n\nOpravdu převzít a nainstalovat \nTento soubor?
+flashupdate.msgbox_manual Zjištěný nový soubor: \nDatum:%s,%s \nBaseImage:%s \nTyp IMAGE:%s \n\nOpravdu nainstalovat \nTento soubor?
 flashupdate.mtdselector Výběr oddílu
 flashupdate.namemode1 Název souboru nastavení
 flashupdate.namemode1_default <Org.Název>+settings.img
@@ -628,18 +628,18 @@ flashupdate.read_volume_error Velkost disku %s \nnení možné zjistit!
 flashupdate.readflash Načtení celého IMAGE z paměti FLASH
 flashupdate.readflashmtd Uložení jedné particie
 flashupdate.ready Hotovo.
-flashupdate.reallyflashmtd Opravdu provést programování? \ n \ V případě výskytu chyby či nesprávného souboru \ box nenaběhne. \ n \ Název souboru:% s \ nCieľ:% s
-flashupdate.savesuccess IMAGE byl úspěšně uložen \ nako% s.
+flashupdate.reallyflashmtd Opravdu provést programování? \n\nV případě výskytu chyby či nesprávného souboru \nbox nenaběhne. \n\nNázev souboru:%s \nCieľ:% s
+flashupdate.savesuccess IMAGE byl úspěšně uložen \nako% s.
 flashupdate.selectimage Dostupné soubory
 flashupdate.settings Aktualizace nastavení
 flashupdate.titlereadflash Načtení paměti FLASH
 flashupdate.titlewriteflash Zapsání paměti FLASH
-flashupdate.update_with_settings_del_skipped Adresář [% s] nebyl vymazán. Zadání je přeskočeno.
-flashupdate.update_with_settings_error Chyba FLASH paměti! \ n \ Nový IMAGE má jen% ld KB (zbývá% ld KB) do konce. \ nedostatek místa pro dokončení operace. \ N \ nOperácia přerušena!
+flashupdate.update_with_settings_del_skipped Adresář [%s] nebyl vymazán. Zadání je přeskočeno.
+flashupdate.update_with_settings_error Chyba FLASH paměti! \n\nNový IMAGE má jen% ld KB (zbývá% ld KB) do konce. \nedostatek místa pro dokončení operace. \n\nOperácia přerušena!
 flashupdate.update_with_settings_processed IMAGE se zpracovává ...
 flashupdate.update_with_settings_skipped Adresář [% s] nebyl uložen. Zadání je přeskočeno.
-flashupdate.update_with_settings_successfully Nastavení úspěšně převzaty. \ IMAGE se může nahrát.
-flashupdate.update_with_settings_warning Pozor nahrávání! \ n \ Nové IMAGE má jen% ld KB (zbývá% ld KB) do konce. Pravděpodobně \ je málo místa na dokončení operace ... \ n \ nChcete pokračovat?
+flashupdate.update_with_settings_successfully Nastavení úspěšně převzaty. \nIMAGE se může nahrát.
+flashupdate.update_with_settings_warning Pozor nahrávání! \n\nNové IMAGE má jen %ld KB (zbývá%ld KB) do konce. Pravděpodobně \n je málo místa na dokončení operace ... \n\nChcete pokračovat?
 flashupdate.updatemode Způsob aktualizace
 flashupdate.updatemode_internet Internet
 flashupdate.updatemode_manual Lokální adresář
@@ -647,7 +647,7 @@ flashupdate.url_file Konfigurační soubor
 flashupdate.versioncheck Kontrola verze
 flashupdate.writeflash Zapsání celého IMAGE do paměti FLASH
 flashupdate.writeflashmtd Zapsání jedné oddílu
-flashupdate.wrongbase Vaše verze je odlišná. \ Pokračovat? 
+flashupdate.wrongbase Vaše verze je odlišná. \nPokračovat? 
 fontmenu.channellist Seznam kanálů
 fontmenu.epg EPG
 fontmenu.eventlist Programový průvodce
@@ -676,7 +676,7 @@ fontsize.eventlist_itemlarge Velké EPG
 fontsize.eventlist_itemsmall Malé EPG
 fontsize.eventlist_title Titul EPG
 fontsize.filebrowser_item Položka prohlížeče souborů
-fontsize.hint Inicializace písma, \ Prosím čekej ...
+fontsize.hint Inicializace písma, \nProsím čekej ...
 fontsize.infobar_channame Název kanálu
 fontsize.infobar_info Informace na informační liště
 fontsize.infobar_number Kanál na informační liště
@@ -786,7 +786,7 @@ keybindingmenu.remotecontrol_hardware_Coolstream CST
 keybindingmenu.remotecontrol_hardware_dbox d-box Nokia
 keybindingmenu.remotecontrol_hardware_msg_part1 Dálkové ovládání bylo změněno z '
 keybindingmenu.remotecontrol_hardware_msg_part2 'na'
-keybindingmenu.remotecontrol_hardware_msg_part3 \ Je to správné? \ Prosím potvrdit tento výběr do 15 sekund použitím nového ovladače. \ Jinak bude výběr vrácen.
+keybindingmenu.remotecontrol_hardware_msg_part3 \nJe to správné? \nProsím potvrdit tento výběr do 15 sekund použitím nového ovladače. \nJinak bude výběr vrácen.
 keybindingmenu.remotecontrol_hardware_philips Philips
 keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock Základní opoždění
@@ -880,7 +880,7 @@ mainsettings.network Síť
 mainsettings.osd Nastavení OSD
 mainsettings.recording Nahrávání
 mainsettings.savesettingsnow Uložení nastavení
-mainsettings.savesettingsnow_hint Ukládání nastavení, \ Prosím čekej ...
+mainsettings.savesettingsnow_hint Ukládání nastavení, \nProsím čekej ...
 mainsettings.timezone Časové pásmo
 mainsettings.video Obraz
 menu.back zpět
@@ -888,23 +888,23 @@ menu.cancel zrušit
 menu.hint_a_pic Nastavení přehrávače hudby a obrázkového prohlížeče
 menu.hint_aplay Přehrávač zvukových souborů
 menu.hint_aplay_setup Změna zobrazení titulu, předvolený adresář, spořič obrazovky a další
-menu.hint_audio Audio výstup, DD, SRS TrueVolume \ Volby
+menu.hint_audio Audio výstup, DD, SRS TrueVolume \nVolby
 menu.hint_audio_adjust_vol_ac3 Specifické nastavení hlasitosti pro AC3 proudy
 menu.hint_audio_adjust_vol_clear Vyčištění všech uložených hodnot pro PCM a AC3 proudy
 menu.hint_audio_adjust_vol_pcm Specifické nastavení hlasitosti pro PCM proudy
-menu.hint_audio_analog_mode Výběr zvukového kanálu pro \ stereo, mono-levý, mono-pravý
+menu.hint_audio_analog_mode Výběr zvukového kanálu pro \nstereo, mono-levý, mono-pravý
 menu.hint_audio_avsync A / V synchronizace
-menu.hint_audio_dd Automatické přepnutí na DolbyDigital zvukový pid, \ jestliže je dostupný
-menu.hint_audio_hdmi_dd DolbyDigital přes HDMI: \ ne - automatické dekódování pokud je podporováno zařízením, nuceně - ...
+menu.hint_audio_dd Automatické přepnutí na DolbyDigital zvukový pid, \njestliže je dostupný
+menu.hint_audio_hdmi_dd DolbyDigital přes HDMI: \nne - automatické dekódování pokud je podporováno zařízením, nuceně - ...
 menu.hint_audio_spdif_dd DolbyDigital přes optický výstup
-menu.hint_audio_srs SRS TruVolume ovládání hlasitosti \ použitím změn obsahu
+menu.hint_audio_srs SRS TruVolume ovládání hlasitosti \npoužitím změn obsahu
 menu.hint_audio_srs_algo Účinnost ovládání, jemná nebo klasická
 menu.hint_audio_srs_nmgr potlačovací šumu
 menu.hint_audio_srs_volume Referenční úroveň citlivosti
 menu.hint_audio_volstart Vždy naství zvolenou hodnotu hlasitosti při spuštění
 menu.hint_audio_volstep Zvýšení / snížení kroku pro klávesy VOL + / -
 menu.hint_audioplayer_defdir Přednastavený adresář přehrávače hudby
-menu.hint_audioplayer_follow Pohyb vybraného ukazatele seznamu přehrávání \ na aktuální přehrávanou píseň
+menu.hint_audioplayer_follow Pohyb vybraného ukazatele seznamu přehrávání \n na aktuální přehrávanou píseň
 menu.hint_audioplayer_highprio Zvýšení priority přehrávání
 menu.hint_audioplayer_order Změna třídění zóna přehrávání
 menu.hint_audioplayer_playlist Zobrazení položek seznamu přehrávání
@@ -913,7 +913,7 @@ menu.hint_audioplayer_sc_metadata Použije extrakci meta-dat z přehrávaného z
 menu.hint_audioplayer_title Použije SMS styl vyhledávání titulů v seznamu přehrávání
 menu.hint_auto_lang Automatické přepnutí zvuku na preferovaný jazyk
 menu.hint_auto_subs Automatické spuštění titulků pro preferovaný jazyk
-menu.hint_back Návrat do předchozí položky. \ Stisknutím MENU klávesy uzavře všechny položky
+menu.hint_back Návrat do předchozí položky. \nStisknutím MENU klávesy uzavře všechny položky
 menu.hint_back_brief Návrat do předcházející nabídky
 menu.hint_backlight Nastavení podsvícení tlačítek
 menu.hint_backup Záloha konfigurací a kanálů do vybraného adresáře
@@ -923,12 +923,12 @@ menu.hint_cache_txt Spuštění zachycování teletextu po přepnutí kanálu
 menu.hint_cec_mode CEC režim
 menu.hint_cec_standby Ováldanie externími CEC příkazů v připravenosti
 menu.hint_cec_view_on Ovládání externími CEC Příkazy při sledování
-menu.hint_channellist_additional Zobrazení doplňkových informací \ v hlavním boxu
+menu.hint_channellist_additional Zobrazení doplňkových informací \nv hlavním boxu
 menu.hint_channellist_colored Použití rozdílné barvy pro aktuální a následující událost
 menu.hint_channellist_epg_align Zarovnání EPG událostí
 menu.hint_channellist_extended Grafické zobrazení aktuální události
 menu.hint_channellist_fonts Změna velikosti písma seznamu kanálů
-menu.hint_channellist_foot Zobrazení dalších informací \ v dolním boxu
+menu.hint_channellist_foot Zobrazení dalších informací \nv dolním boxu
 menu.hint_channellist_mode Použít vybraný režim seznamu kanálů při spuštění když poslední režim je TV
 menu.hint_channellist_mode_radio Použít vybraný režim seznamu kanálů při spustění když poslední režim je Rádio
 menu.hint_channellist_setup Konfigurace GUI voleb seznamu Kanálů
@@ -936,7 +936,7 @@ menu.hint_channellist_show_channellogo Zobrazení loga stanic v seznamu kanálů
 menu.hint_channellist_show_channelnumber Zobrazení čísla kanálů v seznamu kanálů
 menu.hint_channellist_show_empty_favs Zobrazení / skrytí prázdných buketů v oblíbených
 menu.hint_channels Otevří seznam kanálů
-menu.hint_ci Nastavovací menu podmíněného přístupu \ Pro váš CI CAM nebo vloženou Conax kartu
+menu.hint_ci Nastavovací menu podmíněného přístupu \nPro váš CI CAM nebo vloženou Conax kartu
 menu.hint_clock_background Zobrazení hodín s barvami témat vzhledu
 menu.hint_clock_mode Zapnutí nebo vypnutí zobrazení hodin
 menu.hint_clock_seconds Zobrazení formátu času s vteřinami
@@ -951,23 +951,23 @@ menu.hint_dboxinfo Informace o procesoru a úložišti
 menu.hint_delete_channels Odstranění všech kanálů
 menu.hint_delete_removed Vymazání kanálů v buketu "Odstraněné kanály"
 menu.hint_epg_cache Maximum dní pro zachytávání dalších událostí
-menu.hint_epg_dir Výběr adresáře na disku nebo usb \ Pro uložení EPG.
-menu.hint_epg_extendedcache Maximální čas zachycování \ popisů doplňujících událostí
+menu.hint_epg_dir Výběr adresáře na disku nebo usb \nPro uložení EPG.
+menu.hint_epg_extendedcache Maximální čas zachycování \npopisů doplňujících událostí
 menu.hint_epg_fonts Změna velikosti písma okna EPG podrobností
-menu.hint_epg_max_events Maximum událostí zachycování. Po dosažení hranice \ EPG cache odstraní následující události
+menu.hint_epg_max_events Maximum událostí zachycování. Po dosažení hranice \nEPG cache odstraní následující události
 menu.hint_epg_old_events Hodiny po skončení události označení jak stará se má odstranit ze zachycování
 menu.hint_epg_read Načíta uložené EPG údaje po zavedení z externího zařízení
-menu.hint_epg_save Uložení zachyceného EPG na disk nebo usb \ a načtení po spuštění
+menu.hint_epg_save Uložení zachyceného EPG na disk nebo usb \na načtení po spuštění
 menu.hint_epg_save_frequently Uložení zachyceného EPG v pravidelných intervalech na externí zařízení
 menu.hint_epg_save_standby Uložení EPG v režimu připravenosti
 menu.hint_epg_scan Povolení prohledávání EPG na pozadí pokud je volný tuner
 menu.hint_epg_scan_mode Výběr výsledku příjímače pro spuštění prohledání EPG
-menu.hint_event_textcolor Změna barvy události pro nastavení barevnosti události \ v seznamu kanálů a stavovém řádku
-menu.hint_eventlist_additional Zobrazí podrobnější informace \ v hlavním okně
+menu.hint_event_textcolor Změna barvy události pro nastavení barevnosti události \nv seznamu kanálů a stavovém řádku
+menu.hint_eventlist_additional Zobrazí podrobnější informace \nv hlavním okně
 menu.hint_eventlist_fonts Změna velikosti písma seznamu událostí
 menu.hint_eventlist_setup Konfigurace GUI voleb seznamu událostí
-menu.hint_extended Správa napájení, volby ukládání / nahrání EPG \ HDMI-CEC, startovací kanál, volby přepínání
-menu.hint_factory Reset příjmače do výrobního stavu \ Příjmač musí rebotovat po resetu
+menu.hint_extended Správa napájení, volby ukládání / nahrání EPG \nHDMI-CEC, startovací kanál, volby přepínání
+menu.hint_factory Reset příjmače do výrobního stavu \nPříjmač musí rebotovat po resetu
 menu.hint_fade Postupné mizení GUI oken
 menu.hint_fan_speed Kontrola rychlosti ventilátoru
 menu.hint_filebrowser_denydirectoryleave Nepovolit prohlížeči souborů odejít z hlavního adresáře
@@ -984,7 +984,7 @@ menu.hint_hdd_apply Použití parametrů uspání / ztišení
 menu.hint_hdd_check Kontrola souborového systému (fsck)
 menu.hint_hdd_fmt Výběr formátu disku
 menu.hint_hdd_format Vytvoření HDD oddílu a její formátování
-menu.hint_hdd_noise Nastavení Automatic Acoustic Management \ Není podporováno u všech zařízení
+menu.hint_hdd_noise Nastavení Automatic Acoustic Management \n Není podporováno u všech zařízení
 menu.hint_hdd_sleep Výběr času zastavení disku při neaktivitě
 menu.hint_hdd_statfs Určí kdy úroveň zaplnění adresáře nahrávání v "infovieweri" a pokud je dostupné bude aktualizované na VFD
 menu.hint_hdd_tools Inicializace HDD, kontrola souborového systému
@@ -997,7 +997,7 @@ menu.hint_inactive_textcolor Změna barvy textu neaktivní položky
 menu.hint_inet_radio Internetové rádia
 menu.hint_info Informace o IMAGE, systému, streamu a podmíněném přístupu
 menu.hint_infobar_back Změna barvy podkladu informační lišty
-menu.hint_infobar_casys ano: zobrazí vše barevně, \ CA mini: jedna ikona zámku, CA mód: pouze aktivní systémy, ne: nezobrazí
+menu.hint_infobar_casys ano: zobrazí vše barevně, \nCA mini: jedna ikona zámku, CA mód: pouze aktivní systémy, ne: nezobrazí
 menu.hint_infobar_colored_event Použije jinou barvu pro aktuální nebo následující událost
 menu.hint_infobar_dd Zobrazení DolbyDigital ikony
 menu.hint_infobar_filesys Zobrazení úrovně obsazení paměti a disku
@@ -1012,34 +1012,34 @@ menu.hint_infobar_setup Nastavení vlastností informační lišty
 menu.hint_infobar_textcolor Změna barvy textu informační lišty
 menu.hint_infobar_tuner Zobrazení číselné ikony aktivního tuneru
 menu.hint_infoclock_setup Konfigurace GUI nastavení informačních hodín
-menu.hint_keep_numbers Zachovat čísla kanálů po následujícím vyhledávání \ na úpravě buketů
-menu.hint_key_addrecord Přiřazení klávesy pro přidání nahrávání časovače \ z programového průvodce
-menu.hint_key_addremind Přiřazení klávesy pro přidání přepnutí časovače \ z programového průvodce
-menu.hint_key_audio ano: 'AUDIO' klávesu spustí zobrazení přehrávání \ ne: 'AUDIO' klávesu zobrazí výběr zvuku
+menu.hint_keep_numbers Zachovat čísla kanálů po následujícím vyhledávání \n na úpravě buketů
+menu.hint_key_addrecord Přiřazení klávesy pro přidání nahrávání časovače \n z programového průvodce
+menu.hint_key_addremind Přiřazení klávesy pro přidání přepnutí časovače \n z programového průvodce
+menu.hint_key_audio ano: 'AUDIO' klávesu spustí zobrazení přehrávání \n ne: 'AUDIO' klávesu zobrazí výběr zvuku
 menu.hint_key_binding Předefinování kláves použitých pro příkazové operace
-menu.hint_key_bouquetdown Přidělení klávesy pro změnu seznamu kanálů \ do předchozího buketu
-menu.hint_key_bouquetup Přidělení klávesy pro změnu seznamu kanálů \ do následujícího buketu
+menu.hint_key_bouquetdown Přidělení klávesy pro změnu seznamu kanálů \n do předchozího buketu
+menu.hint_key_bouquetup Přidělení klávesy pro změnu seznamu kanálů \ndo následujícího buketu
 menu.hint_key_cancel Přidělení klávesy pro zavření GUI okna
-menu.hint_key_channel_sms Pokud zapnuto, číselné klávesy v seznamu kanálů \ jsou použity na hledání kanálu v SMS stylu
-menu.hint_key_channeldown Přiřazení klávesy pro rychlou změnu na předchozí \ kanál v seznamu kanálů
+menu.hint_key_channel_sms Pokud zapnuto, číselné klávesy v seznamu kanálů \njsou použity na hledání kanálu v SMS stylu
+menu.hint_key_channeldown Přiřazení klávesy pro rychlou změnu na předchozí \nkanál v seznamu kanálů
 menu.hint_key_channellist Konfigurace klávesových zkratek pro seznam kanálů
-menu.hint_key_channelup Přiřazení klávesy pro rychlou změnu na následující \ kanál v seznamu kanálů
+menu.hint_key_channelup Přiřazení klávesy pro rychlou změnu na následující \nkanál v seznamu kanálů
 menu.hint_key_format_mode_active Kláves pro vypnutí/zapnutí konverze obrazového formátu
 menu.hint_key_hardware Změna typu dálkového ovladače
-menu.hint_key_history Přiřazení klávesy pro zobrazení \ historie přepínání kanálu
-menu.hint_key_lastchannel Přiřazení klávesy pro rychlé přepnutí na \ předcházejíci kanál v historii
+menu.hint_key_history Přiřazení klávesy pro zobrazení \nhistorie přepínání kanálu
+menu.hint_key_lastchannel Přiřazení klávesy pro rychlé přepnutí na \npředcházejíci kanál v historii
 menu.hint_key_left_exit Povolí návrat do předchozího menu s klávesou 'vlevo'
 menu.hint_key_list_end Přiřazení klávesy pro skok na konec seznamu
 menu.hint_key_list_start Přiřazení klávesy pro skok na začátek seznamu
 menu.hint_key_load Nahraje klávesové zkratky ze souboru
 menu.hint_key_modechange Změna TV / Rádio režimu a klávesa připravenosti
 menu.hint_key_movieplayer Konfigurace klávesových zkratek pro přehrávač filmů
-menu.hint_key_mpaudio Přiřazení klávesy pro zobrazení výběru zvuku \ v režimu nahrávky
-menu.hint_key_mpbookmark Přiřazení klávesy pro vytvoření záložky \ POČ nahrávky
+menu.hint_key_mpaudio Přiřazení klávesy pro zobrazení výběru zvuku \nv režimu nahrávky
+menu.hint_key_mpbookmark Přiřazení klávesy pro vytvoření záložky \nPOČ nahrávky
 menu.hint_key_mpforward Přiřazení klávesy pro přetáčení vpřed nahrávky
 menu.hint_key_mppause Přiřazení klávesy pro pozastavení nahrávky
 menu.hint_key_mpplay Přiřazení klávesy pro pokračování nahrávky
-menu.hint_key_mpplugin Přiřazení klávesy pro spuštění vybraného doplňku \ POČ nahrávky
+menu.hint_key_mpplugin Přiřazení klávesy pro spuštění vybraného doplňku \nPOČ nahrávky
 menu.hint_key_mprewind Přiřazení klávesy pro přetáčení vzad nahrávky
 menu.hint_key_mpstop Přiřazení klávesy pro zastavení nahrávky
 menu.hint_key_mpsubtitle Přiřazení klávesy pro zobrazení titulků
@@ -1049,32 +1049,32 @@ menu.hint_key_pagedown Přiřazení klávesy pro zobrazení následující stran
 menu.hint_key_pageup Přiřazení klávesy pro zobrazení předchozí strany položek
 menu.hint_key_pic_mode_active Povolení/zakázání klávesy pro změnu formátu obrazu
 menu.hint_key_pic_size_active Povolení/zakázání klávesy pro změnu správneho zobrazení 4:3
-menu.hint_key_pip_close Přiřazení klávesy pro ukončení PiP \ nebo spuštění PIPu na aktuálním kanálu
+menu.hint_key_pip_close Přiřazení klávesy pro ukončení PiP \nebo spuštění PIPu na aktuálním kanálu
 menu.hint_key_pip_setup Přiřazení klávesy pro konfiguraci PiP
 menu.hint_key_pip_swap Přiřazení klávesy pro změnu PiP a živého kanálu
 menu.hint_key_plugin Přiřazení klávesy pro vykonání jednoho vyzkoušení doplnku
-menu.hint_key_poweroff Přiřazení klávesy pro změnu stavu napájení \ (připravenost / spánek <-> práce)
-menu.hint_key_quickzap Konfigurace klávesových zkratek pro rychlou \ změnu kanálu
+menu.hint_key_poweroff Přiřazení klávesy pro změnu stavu napájení \n(připravenost / spánek <-> práce)
+menu.hint_key_quickzap Konfigurace klávesových zkratek pro rychlou \nzměnu kanálu
 menu.hint_key_record Přiřadění klávesy pro spuštění nahrávání
-menu.hint_key_repeatblock Zpoždění po stisku klávesy a před \ prvním opakováním povelu
-menu.hint_key_repeatblockgeneric Prodleva mezi opakováním povelů \ počet stisků klávesy
+menu.hint_key_repeatblock Zpoždění po stisku klávesy a před \nprvním opakováním povelu
+menu.hint_key_repeatblockgeneric Prodleva mezi opakováním povelů \npočet stisků klávesy
 menu.hint_key_right Výběr 'vpravo' funkce v živém TV / Rádio režimu
 menu.hint_key_save Uloží klávesové zkratky do souboru
 menu.hint_key_screenshot Přiřazení klávesy pro uložení GUI / nebo zachycení obrazovky
 menu.hint_key_sort Přiřazení klávesy pro změnu třídění seznamu kanálů
 menu.hint_key_special_active Povolení/zákaz některých speciálních kláves
-menu.hint_key_subchanneldown Přiřazení klávesy pro rychlou změnu \ do předchozího subkanálu
-menu.hint_key_subchannelup Přiřazení klávesy pro rychlou změnu \ do následujícího subkanálu
-menu.hint_key_transponder Přiřazení tlačítka pro zobrazení seznamu kanálů \ z aktuálního transpondéru
+menu.hint_key_subchanneldown Přiřazení klávesy pro rychlou změnu \ndo předchozího subkanálu
+menu.hint_key_subchannelup Přiřazení klávesy pro rychlou změnu \ndo následujícího subkanálu
+menu.hint_key_transponder Přiřazení tlačítka pro zobrazení seznamu kanálů \nz aktuálního transpondéru
 menu.hint_key_tvradiomode Přiřazení tlačítka pro změnu TV <> Rádio režimu
-menu.hint_key_unlock Přiřazení klávesy pro odemknutí pole pokud je zamčené \ Pro odemčení stisknout 'RED', pak během 5 vteřin toto tlačítko
+menu.hint_key_unlock Přiřazení klávesy pro odemknutí pole pokud je zamčené \nPro odemčení stisknout 'RED', pak během 5 vteřin toto tlačítko
 menu.hint_key_volumedown Přiřazení klávesy pro snížení hlasitosti
 menu.hint_key_volumeup Přiřazení klávesy pro zvýšení hlasitosti
-menu.hint_keys Rychlost opakování dálkového ovladače \ Úprava vazeb tlačítek
+menu.hint_keys Rychlost opakování dálkového ovladače \nÚprava vazeb tlačítek
 menu.hint_lang_pref Konfigurace preferovaného zvuku, EPG a jazyku titulků
-menu.hint_language OSD jazyk, časové pásmo \ Preferovaný zvuk a jazyk titulků
-menu.hint_last_radio Spuštění příjmače na vybraném kanálu \ jestliže je poslední režim Rádio
-menu.hint_last_tv Spuštění příjmače na vybraném kanálu \ jestliže jeposlední režim TV
+menu.hint_language OSD jazyk, časové pásmo \nPreferovaný zvuk a jazyk titulků
+menu.hint_last_radio Spuštění příjmače na vybraném kanálu \njestliže je poslední režim Rádio
+menu.hint_last_tv Spuštění příjmače na vybraném kanálu \njestliže jeposlední režim TV
 menu.hint_last_use Spuštění příjmače na posledním použitém kanálu
 menu.hint_leds_blink Blikání LED v režimu spánku
 menu.hint_leds_deepstandby Stav LED v režimu spánku
@@ -1082,68 +1082,68 @@ menu.hint_leds_record Stav LED během nahrávání
 menu.hint_leds_standby Stav LED v režimu připravenosti
 menu.hint_leds_tv Funkční stav LED
 menu.hint_load Nahrání GUI nastavení ze souboru
-menu.hint_make_hdlist Automaticky vytvoří HD seznam kanálů na základě \ typu kanálu a názvu
+menu.hint_make_hdlist Automaticky vytvoří HD seznam kanálů na základě \ntypu kanálu a názvu
 menu.hint_lua Spustění doplnků
 menu.hint_make_hdlist Automaticky vytvoří HD seznam kanálů na základě\ntypu kanálu a názvu
 menu.hint_make_newlist Vytvoří seznam nedávno přidaných kanálů
 menu.hint_make_removedlist Vytvoří seznam nedávno odstraněných kanálů
 menu.hint_make_webtvlist Automaticky vytvoří WebTV seznam kanálů na základě\ntypu kanálu a názvu
-menu.hint_manage_settings Záloha, obnova, výchozí stav \ Výrobní nastavení příjmače
+menu.hint_manage_settings Záloha, obnova, výchozí stav \nVýrobní nastavení příjmače
 menu.hint_mb Vaše nahrávky
 menu.hint_media Přehrávání filmů a hudby, prohlížení obrázků
 menu.hint_menu_fonts Změna velikosti písma menu
-menu.hint_menu_hints Zobrazí tuto radu. Také lze taktéž změnit \ kdykoliv použitím 'HELP' tlačítka
+menu.hint_menu_hints Zobrazí tuto radu. Také lze taktéž změnit \nkdykoliv použitím 'HELP' tlačítka
 menu.hint_menu_pos Volba umístění menu
 menu.hint_menus Konfigurace voleb nabídky
 menu.hint_misc_cec HDMI-CEC volby
 menu.hint_misc_channellist HD / Nové / Odstraněny seznamy kanálů, cyklické přepnutí
-menu.hint_misc_energy Použití připravenosti, oddálené vypnutí \ časovače neaktivity
-menu.hint_misc_epg Volby uložení / nahrání EPG, volby zachycování EPG, \ EPG adresář uložení
-menu.hint_misc_filebrowser Kódování souborového systému, oprávnění souboru, \ zákaz odstranit adresáře
-menu.hint_misc_general Spuštění do připravenosti, zachytávání teletextu, změna motoru \ hdd adresář doplňků
+menu.hint_misc_energy Použití připravenosti, oddálené vypnutí \nčasovače neaktivity
+menu.hint_misc_epg Volby uložení / nahrání EPG, volby zachycování EPG, \nEPG adresář uložení
+menu.hint_misc_filebrowser Kódování souborového systému, oprávnění souboru, \nzákaz odstranit adresáře
+menu.hint_misc_general Spuštění do připravenosti, zachytávání teletextu, změna motoru \nhdd adresář doplňků
 menu.hint_misc_zapit Výchozí TV / Radio kanály
 menu.hint_movie Přehrávání filmů
 menu.hint_moviebrowser_setup Nastavení výběru a voleb zobrazení
 menu.hint_movieplayer_plugin Výběr doplnků pro ověření s jedním potvrzením klávesy v režimu přehrávače
 menu.hint_net_broadcast Zadání adresy vysílání, pokud neznáte použijte IP adresu s koncem .255
 menu.hint_net_dhcp Použije DHCP server pro automatickou konfiguraci
-menu.hint_net_djmount Připojení UPnP zařízení jako filesystem \ podle / media/00upnp
+menu.hint_net_djmount Připojení UPnP zařízení jako filesystem \npodle / media/00upnp
 menu.hint_net_dropbear Použití ssh přístupu do přijímače
 menu.hint_net_ftpd Použití přenosu souboru přes FTP
 menu.hint_net_gateway Vložení IP adresy brány směrovače
 menu.hint_net_hostname Změna host názvu příjímače
 menu.hint_net_if Výběr interface pro konfiguraci
 menu.hint_net_ipaddress Vložení IP adresy vašeho příjímače
-menu.hint_net_mount Konfigurace, připojení a odpojení síťového sdílení \ NFS a CIFS podpora
+menu.hint_net_mount Konfigurace, připojení a odpojení síťového sdílení \nNFS a CIFS podpora
 menu.hint_net_nameserver Zadání IP adresy DNS serveru
 menu.hint_net_netmask Zadání síťové masky, pokud neznáte použijte 255.255.255.0
 menu.hint_net_nfs_mount Konfigurace a připojení síťového sdílení
 menu.hint_net_nfs_umount Odpojení síťových sdílených připojení
 menu.hint_net_ntp Konfigurace synchronizace času
-menu.hint_net_ntpenable Použije synchronizaci času pomocí NTP protokolu \ Pokud NTP synchronizace není úspěšná, bude použito DVB
+menu.hint_net_ntpenable Použije synchronizaci času pomocí NTP protokolu \nPokud NTP synchronizace není úspěšná, bude použito DVB
 menu.hint_net_ntprefresh Časový interval synchronizace
 menu.hint_net_ntpserver Vložení názvu NTP serveru
 menu.hint_net_pass Vložení kryptovacího klíče (WPA-PSK)
-menu.hint_net_proxy Pokud používáte proxy přístup k internetu \ nastavte zde on-line aktualizaci software
-menu.hint_net_proxypass Proxy uživatelské heslo \ jestliže vyžaduje autorizaci
+menu.hint_net_proxy Pokud používáte proxy přístup k internetu \nastavte zde on-line aktualizaci software
+menu.hint_net_proxypass Proxy uživatelské heslo \njestliže vyžaduje autorizaci
 menu.hint_net_proxyserver Název proxy serveru
-menu.hint_net_proxyuser Proxy uživatelský název \ jestliže vyžaduje autorizaci
-menu.hint_net_services Konfigurace síťových služeb: \ nftp, Telnet, UPnP
+menu.hint_net_proxyuser Proxy uživatelský název \njestliže vyžaduje autorizaci
+menu.hint_net_services Konfigurace síťových služeb: \nftp, Telnet, UPnP
 menu.hint_net_setupnow Použití aktuálních nastavení
 menu.hint_net_setuponstartup Spuštění sítě v době spouštění příjmače
 menu.hint_net_show Zobrazení aktuálního síťového nastavení
-menu.hint_net_ssid Zadání SSID wireless sítě \ Pro připojení se k
+menu.hint_net_ssid Zadání SSID wireless sítě \nPro připojení se k
 menu.hint_net_ssid_scan Vyhledaní dostupných WLAN sítí
 menu.hint_net_telnet Použití telnet přihlášení do vašeho přijímače
-menu.hint_net_test Test síťového připojení: ping brány, \ název serveru a externí IP
+menu.hint_net_test Test síťového připojení: ping brány, \název serveru a externí IP
 menu.hint_net_ushare Sdílení připojeného HDD přes UPnP
 menu.hint_net_xupnpd Sdílení "Živých kanálů" přez uPnp
-menu.hint_network IP adresa, brána, DNS, Synch. času \ síťové sdílení a služby
-menu.hint_new_zap_mode Povolit přepnutí kanálu během procházení \ (přepnout režim s 'MUTE' v seznamu kanálů)
+menu.hint_network IP adresa, brána, DNS, Synch. času \nsíťové sdílení a služby
+menu.hint_new_zap_mode Povolit přepnutí kanálu během procházení \n(přepnout režim s 'MUTE' v seznamu kanálů)
 menu.hint_numeric_adjust Nastavení režimu seznamu kanálů na číselné přepnutí
 menu.hint_opkg Instalovat nebo aktualizovat programové balíčky
 menu.hint_opkg_upgrade Aktualizuje všechny instalované balíčky na poslední dostupnou verzi
-menu.hint_osd Barvy, písma, velikost obrazu \ Vzhled a možnosti GUI
+menu.hint_osd Barvy, písma, velikost obrazu \nVzhled a možnosti GUI
 menu.hint_osd_language Výběr OSD jazyka
 menu.hint_osd_preset Překonfigurování okrajů obrazovky pro CRT a LCD TV
 menu.hint_osd_timing Po této době se OSD stratí
@@ -1152,7 +1152,7 @@ menu.hint_parentallock_changepin Změna PIN kódu
 menu.hint_parentallock_lockage Výběr povoleného věku pro sledování
 menu.hint_parentallock_menu Zamknutí nabídek s pin kódem
 menu.hint_parentallock_prompt Konfigurace když se Neutrino-HD zeptá na PIN kód
-menu.hint_personalize Povolení / zakázání nebo Položky menu zabezpečení \ Konfigurace barevných tlačítek uživatelských nabídek
+menu.hint_personalize Povolení / zakázání nebo Položky menu zabezpečení \nKonfigurace barevných tlačítek uživatelských nabídek
 menu.hint_pictureviewer_defdir Výchozí adresář prohlížeče obrázků
 menu.hint_pictureviewer_scaling Algoritmus měřítka obrázku
 menu.hint_pictureviewer_setup Konfigurace správce obrázkového prohlížeče
@@ -1164,8 +1164,8 @@ menu.hint_plugin_type_scripts Zobrazí skripty v uživatelském menu při výbě
 menu.hint_plugin_type_tools Zobrazí nástroje v uživatelském menu při výběru 'Typu doplnků'
 menu.hint_plugins_hdd_dir Výběr adresáře pro nahrání doplňků
 menu.hint_power_leds Konfigurace chování LED podsvícení tlačítka napájení
-menu.hint_pref_lang Výběr preferovaných jayzka zvuku a EPG \ výběrem 'none' pro nepoužití
-menu.hint_pref_subs Výběr preferovaných jazyků titulků \ výběrem 'none' pro nepoužití
+menu.hint_pref_lang Výběr preferovaných jayzka zvuku a EPG \nvýběrem 'none' pro nepoužití
+menu.hint_pref_subs Výběr preferovaných jazyků titulků \nvýběrem 'none' pro nepoužití
 menu.hint_progressbar Výběr voleb pro ukazatel
 menu.hint_progressbar_color Zobrazení barevného ukazatele
 menu.hint_progressbar_gradient Přidání vertikálního jasového gradientu do stavového ukazatele
@@ -1175,61 +1175,61 @@ menu.hint_progressbar_timescale_green Výběr množství zelené v barevnosti in
 menu.hint_progressbar_timescale_invert Výběr preferovaného barevného přechodu
 menu.hint_progressbar_timescale_red Výběr množství červené v barevnosti infobaru
 menu.hint_progressbar_timescale_yellow Výběr množství žluté v barevnosti infobaru
-menu.hint_protection Ochrana obsahu PIN kódem \ Výchozí PIN 0000
+menu.hint_protection Ochrana obsahu PIN kódem \nVýchozí PIN 0000
 menu.hint_radiomode Přepne přijímač do rádio režimu
-menu.hint_reboot Reboot příjmače \ Bez potvrzování
+menu.hint_reboot Reboot příjmače \nBez potvrzování
 menu.hint_record_apid_ac3 Nahraje AC3 zvukové pidy
 menu.hint_record_apid_alt Nahraje ostatní zvukové pidy
 menu.hint_record_apid_std Nahraje první zvukový pid
 menu.hint_record_apids Konfigurace voleb zvukových pidů pro nahrávání
 menu.hint_record_apply Použije volby nahrávání
 menu.hint_record_auto_cover Automatické vytvoření náhledu pro filmový prohlížeč na nahraném přehrávaní
-menu.hint_record_chandir Vytvoří adresář s názvem kanálu \ Pro uložení nahrávky
+menu.hint_record_chandir Vytvoří adresář s názvem kanálu \nPro uložení nahrávky
 menu.hint_record_data Konfigurace datových služeb (TeleText, Titulky) pro nahrávání
 menu.hint_record_data_dvbsub Nahraje pid / stream s titulky
 menu.hint_record_data_vtxt Nahraje pid / stream s teletextem
 menu.hint_record_dir Výběr adresáře pro ukládání nahrávek
-menu.hint_record_end Zastavit nahrávání po max. čase nebo \ po době ukončení aktuální události
+menu.hint_record_end Zastavit nahrávání po max. čase nebo \npo době ukončení aktuální události
 menu.hint_record_filename_template Upravit dočasný název
 menu.hint_record_slow_warn Zobrazení upozornění, pokud nahrávací buffer je blízko k přeplnění
 menu.hint_record_startstop_msg Zobrazení zprávy o začátku/ukončení nahrávání při začátku anebo ukončení
-menu.hint_record_tdir Výběr adresáře pro uložení nahrávek časového posunu \ v režimu dočasného časového posunu
-menu.hint_record_time Čas nahrávání do konce jestliže \ se použije nahrávání s tlačítkem nahrávání (REC)
+menu.hint_record_tdir Výběr adresáře pro uložení nahrávek časového posunu \nv režimu dočasného časového posunu
+menu.hint_record_time Čas nahrávání do konce jestliže \nse použije nahrávání s tlačítkem nahrávání (REC)
 menu.hint_record_time_ts Délka časového posuvu před zastavením když\je použitý
-menu.hint_record_timeafter Zastavení nahrávání po ukonční události \ v minutách
-menu.hint_record_timebefore Spuštění nahrávání před zahájením události \ v minutách
+menu.hint_record_timeafter Zastavení nahrávání po ukonční události \nv minutách
+menu.hint_record_timebefore Spuštění nahrávání před zahájením události \nv minutách
 menu.hint_record_timer Konfigurace voleb časového nahrávání
 menu.hint_record_timeshift Konfigurace voleb časového posunu
 menu.hint_record_timeshift_auto Automatické spuštění časového posunu po změně kanálu, v sekundách
 menu.hint_record_timeshift_delete Smazání souborů časového posunu po jeho zastavení
 menu.hint_record_timeshift_pause Spuštění přehrávání časového posunu v pauza módě
-menu.hint_record_timeshift_temp Pokud NE, časový posun spuštěn jako \ nějaké přímé nahrávání
-menu.hint_record_zap Přepnutí na kanál nahrávání \ a zobrazení oznámení
-menu.hint_record_zap_pre_time Při přepnutí časovačů, změna kanálu před spuštěním události \ v minutách
-menu.hint_recording Volby nahrávání a časového posunu \ Zabezpečení časovače, volby zvukových pidů
+menu.hint_record_timeshift_temp Pokud NE, časový posun spuštěn jako \nějaké přímé nahrávání
+menu.hint_record_zap Přepnutí na kanál nahrávání \na zobrazení oznámení
+menu.hint_record_zap_pre_time Při přepnutí časovačů, změna kanálu před spuštěním události \nv minutách
+menu.hint_recording Volby nahrávání a časového posunu \nZabezpečení časovače, volby zvukových pidů
 menu.hint_reload_channels znovunačtení kanálů z paměti
 menu.hint_reload_plugins znovunačtení doplňků z paměti
-menu.hint_reset Resetování GUI nastavení do výchozích hodnot \ Konfigurace tuneru a kanálů bez změn
+menu.hint_reset Resetování GUI nastavení do výchozích hodnot \nKonfigurace tuneru a kanálů bez změn
 menu.hint_restore Obnova souborů z vybrané zálohy
-menu.hint_rotor_swap Výměna umístění motoru výchd / západ \ v ovládání motoru
+menu.hint_rotor_swap Výměna umístění motoru výchd / západ \nv ovládání motoru
 menu.hint_rounded_corners Kruhové vykreslování nebo zaoblené rohy oken
 menu.hint_save_settings Uložení všech nastavení do paměti
 menu.hint_saveas Uložení GUI nastavení do souboru
 menu.hint_scan_auto Prohledání vybraného satelitu
 menu.hint_scan_autoall Prohledání některých vybraných satelitů
 menu.hint_scan_autoall_select Přidá vybrané satelity do prohledávání
-menu.hint_scan_bouquet aktualizace: přidá aktuální bukety \ smaž všechny: odstraní staré bukety, beze změn: nepřidá nebo nezmění
+menu.hint_scan_bouquet aktualizace: přidá aktuální bukety \nsmaž všechny: odstraní staré bukety, beze změn: nepřidá nebo nezmění
 menu.hint_scan_bouquet_writenames Zapsání názvu služeb do buketů \n nikdy -> jen oblíbené -> jen poskytovatel -> oba
 menu.hint_scan_bw Výběr šířky pásma kanálu
 menu.hint_scan_cable Výběr kabelové sítě na prohledání
-menu.hint_scan_cable_simple Kabelové prohledávání s možností \ číslování kanálů poskytovatelem
-menu.hint_scan_commited Výběr potvrzeného vstupu pro \ Tento satelit
+menu.hint_scan_cable_simple Kabelové prohledávání s možností \nčíslování kanálů poskytovatelem
+menu.hint_scan_commited Výběr potvrzeného vstupu pro \nTento satelit
 menu.hint_scan_delsys Výběr odbavovacího systému pro tento kanál/TP
-menu.hint_scan_diseqc Výběr vstupu DiSEqC přepínače pro \ Tento satelit
+menu.hint_scan_diseqc Výběr vstupu DiSEqC přepínače pro \nTento satelit
 menu.hint_scan_diseqcorder Provede příkaz DiSEqC pro kaskádní přepínače
 menu.hint_scan_diseqcrepeat DiSEqC opakování pro kaskádní přepínače
-menu.hint_scan_diseqctype Výběr protokolu pokročilé 'pro DiSEqC přepínač \ můžete použít na nepotvrzené přepínače
-menu.hint_scan_fast CanalDigitaal / TéléSAT / TV Vlaanderen vyhledání poskytovatele \ POZOR: nastavení DiSEqC bude přepsáno
+menu.hint_scan_diseqctype Výběr protokolu pokročilé 'pro DiSEqC přepínač \nmůžete použít na nepotvrzené přepínače
+menu.hint_scan_fast CanalDigitaal / TéléSAT / TV Vlaanderen vyhledání poskytovatele \nPOZOR: nastavení DiSEqC bude přepsáno
 menu.hint_scan_fastdiseqc Spustit automatickou konfiguraci DiSEqC
 menu.hint_scan_fastprov Výběr poskytovatele pro vyhledávání
 menu.hint_scan_fasttype Výběr typu rychlého vyhledávání
@@ -1251,68 +1251,68 @@ menu.hint_scan_lofh Kmitočet oscilátoru horního pásma LNB
 menu.hint_scan_lofl Kmitočet oscilátoru spodního pásma LNB
 menu.hint_scan_lofs Kmitočet přepnutí pásma LNB
 menu.hint_scan_logical Použije číslování předvoleb poskytovatelem
-menu.hint_scan_logical_hd Pokud je dostupná SD a HD verze kanálu \ vloží HD na začátek seznamu
+menu.hint_scan_logical_hd Pokud je dostupná SD a HD verze kanálu \nvloží HD na začátek seznamu
 menu.hint_scan_longitude Zadání vaší zeměpisné délky
-menu.hint_scan_manual Použije vybrané parametry na \ manuální prohledání transpondéru
+menu.hint_scan_manual Použije vybrané parametry na \nmanuální prohledání transpondéru
 menu.hint_scan_mod Výběr modulace transpondéru
 menu.hint_scan_motor Možnosti motoru, satelitní vyhledávač
 menu.hint_scan_motor_18v Použije 18V při pohybu motoru
-menu.hint_scan_motor_speed Rychlost pohybu motoru v 1/10 stupně \ za vteřinu
-menu.hint_scan_motorpos Výběr čísla uložené pozice pro \ Tento satelit
+menu.hint_scan_motor_speed Rychlost pohybu motoru v 1/10 stupně \nza vteřinu
+menu.hint_scan_motorpos Výběr čísla uložené pozice pro \nTento satelit
 menu.hint_scan_nid Vložení network ID (dekadicky)
 menu.hint_scan_nit Přidání transpondérů ze síťové informace
 menu.hint_scan_pids Hledání a uložení audio / video / PMT pidů
 menu.hint_scan_pol Výběr parametru pilotu
 menu.hint_scan_pol Výběr polarizace transpondéru
 menu.hint_scan_rate Zadání symbolové rychlosti transpondéru
-menu.hint_scan_reset_numbers Resetování existujících čísel kanálů \ na přečíslování kanálů po vyhledání
+menu.hint_scan_reset_numbers Resetování existujících čísel kanálů \na přečíslování kanálů po vyhledání
 menu.hint_scan_satadd Přidání satelitů pro tento vstupní díl
 menu.hint_scan_satellite Výběr satelitu pro prohledávání
 menu.hint_scan_satenable Použije satelit pro tento vstupní díl
-menu.hint_scan_satfind Satelitní vyhledávač: manuální pohyb vašeho motoru \ Pro nastavení uložených pozic
+menu.hint_scan_satfind Satelitní vyhledávač: manuální pohyb vašeho motoru \nPro nastavení uložených pozic
 menu.hint_scan_satfind_start Spuštění Satelitního vyhledávače
 menu.hint_scan_satscan Procházení vybraného satelitu
 menu.hint_scan_satselect Výběr satelitu
 menu.hint_scan_satsetup Konfigurace voleb satelitu
-menu.hint_scan_savesettings Uložení konfigurace tuneru a nastavení prohledání \ Taktéž uložit, pokud spustíte hledání služeb
+menu.hint_scan_savesettings Uložení konfigurace tuneru a nastavení prohledání \nTaktéž uložit, pokud spustíte hledání služeb
 menu.hint_scan_scantype Výběr, jaké typy kanálů hledat
 menu.hint_scan_setup_fe Konfigurace voleb vybraného vstupního dílu
 menu.hint_scan_start Spuštění hledání. Můžete použít 'EXIT' tlačítko na zastavení
 menu.hint_scan_test Otestování signálu z tohoto transpondéru
 menu.hint_scan_tpselect Výběr transpondéru pro prohledání
 menu.hint_scan_transmit_mode Výběr režimu přenosu pro tento pozemní kanál
-menu.hint_scan_uncommited Výběr nepotvrzeného vstupu pro \ Tento satelit
+menu.hint_scan_uncommited Výběr nepotvrzeného vstupu pro \nTento satelit
 menu.hint_scan_usals USALS možnosti
-menu.hint_scan_usals_repeat Opakuje příkazy pohybu motoru USALS \ jestliže si myslíte, že pohyb je nestabilní
+menu.hint_scan_usals_repeat Opakuje příkazy pohybu motoru USALS \njestliže si myslíte, že pohyb je nestabilní
 menu.hint_scan_usalsall Nastavení USALS označení pro všechny satelity
-menu.hint_scan_useusals Použije USALS pro \ nTento satelit
+menu.hint_scan_useusals Použije USALS pro \nTento satelit
 menu.hint_scrambled_message Zobrazení zprávy kódování, pokud kanál nebyl dekódován
 menu.hint_screen_setup Konfigurace okrajů obrazu
 menu.hint_screensaver_delay Nastaví čas (v minútach) po kterém se spustí šetřič obrazovky
 menu.hint_screensaver_dir Výběr adresáře v kterém se spustí šetřič obrazovky
 menu.hint_screensaver_timeout Výběr času pro změnu obrázků v šetřiči obrazovky
 menu.hint_screensaver_setup Konfigurace vlastností šetřiče obrazovky pro přehrávač zvuku a režim rádia
-menu.hint_screenshot_count Pokud žádný GUI na obrazovce, může být uloženo 1-5 \ sériových nasnímání
-menu.hint_screenshot_cover ZAP: Pokud přehrává nahrávky, přepíše jedno \ zachycení do zobrazení v Prohlížeči filmů
+menu.hint_screenshot_count Pokud žádný GUI na obrazovce, může být uloženo 1-5 \nsériových nasnímání
+menu.hint_screenshot_cover ZAP: Pokud přehrává nahrávky, přepíše jedno \nzachycení do zobrazení v Prohlížeči filmů
 menu.hint_screenshot_dir Výběr adresáře pro uložení zachyceného obrázku
 menu.hint_screenshot_format Formát souboru pro uložení zachyceného obrázku
-menu.hint_screenshot_res Velikost pořízení: velikost obrazového rozměru aktuálního kanálu \ nebo velikost OSD (1280x720)
+menu.hint_screenshot_res Velikost pořízení: velikost obrazového rozměru aktuálního kanálu \nebo velikost OSD (1280x720)
 menu.hint_screenshot_scale Pro obraz + OSD snímání, měřítko z obrazového rozlišení
 menu.hint_screenshot_setup Konfigurace voleb pořízení obrázku
 menu.hint_screenshot_video Včetně živého obrazu v Pořízení snímku
 menu.hint_scripts Spustí zadání
 menu.hint_selected_back Změna barvy podkladu označené položky
 menu.hint_selected_text Změna barvy textu označené položky
-menu.hint_service Nastavení tuneru, vyhledání služeb, \ Úprava buketů, aktualizace software
+menu.hint_service Nastavení tuneru, vyhledání služeb, \nÚprava buketů, aktualizace software
 menu.hint_service_scan Nastavení tuneru, vyhledání služeb
 menu.hint_settings Konfigurace Neutrino-HD, síť, zvuk, obraz, OSD a jiné
 menu.hint_show_mute_icon Zobrazení ikony umlčení, pokud nastavení hlasitosti bude 0
-menu.hint_shutdown Přepne váš příjmač do spánku \ Bez potvrzování
-menu.hint_shutdown_count Čas přepnutí přijímače do spánku \ z režimu připravenosti
+menu.hint_shutdown Přepne váš příjmač do spánku \nBez potvrzování
+menu.hint_shutdown_count Čas přepnutí přijímače do spánku \nz režimu připravenosti
 menu.hint_shutdown_menu Přepne Váš přijímač do pohotovostního anebo hlubokého spánku, nastaví časovač vypnutí
-menu.hint_shutdown_rcdelay Použije režim spánku, pokud tlačítko zapnutí \ je stisknuto více než 1 sekundu
-menu.hint_shutdown_real Použije režim připravenosti \ Pokud se nepoužije, tlačítko zapnutí přepne příjmač do spánku
-menu.hint_sleeptimer Nastavení časovače pro přechod vašeho příjmače \ do režimu připravenosti
+menu.hint_shutdown_rcdelay Použije režim spánku, pokud tlačítko zapnutí \nje stisknuto více než 1 sekundu
+menu.hint_shutdown_real Použije režim připravenosti \nPokud se nepoužije, tlačítko zapnutí přepne příjmač do spánku
+menu.hint_sleeptimer Nastavení časovače pro přechod vašeho příjmače \ndo režimu připravenosti
 menu.hint_sleeptimer_min Přednastavené nastavení pro časovač vypnutí
 menu.hint_soft_restart Restartování Neutrino-HD bez rebootu
 menu.hint_softupdate_check Kontrola dostupných aktualizací, stažení a naprogramování firmware
@@ -1324,12 +1324,12 @@ menu.hint_softupdate_expert_write Zápis oddělených oddílů do paměti (U-Boo
 menu.hint_softupdate_settings Adresář lokální aktualizace a konfigurační soubor pro nastavení
 menu.hint_standby Přepne přijímač do pohotovostního režimu
 menu.hint_start_tostandby Zůstane v režimu připravenosti po spuštění
-menu.hint_streaminfo Aktuální informace kanálu: pidy, signál a kvalita, \ Bitrate graf
+menu.hint_streaminfo Aktuální informace kanálu: pidy, signál a kvalita, \nBitrate graf
 menu.hint_subchannel_pos Pozice menu výběru sub-kanálů
 menu.hint_sw_update Aktualizace software
-menu.hint_theme Výběr přednastavených barevných vzhledů \ Uložení nebo nahrání vzhledu ze souborů
-menu.hint_timeouts Konfigurace času zmizení GUI oken \ ve vteřinách
-menu.hint_timers Přidání / Odstranění / Upravení plánovaného \ nahrávání, připomínky atd..
+menu.hint_theme Výběr přednastavených barevných vzhledů \nUložení nebo nahrání vzhledu ze souborů
+menu.hint_timeouts Konfigurace času zmizení GUI oken \nve vteřinách
+menu.hint_timers Přidání / Odstranění / Upravení plánovaného \nahrávání, připomínky atd..
 menu.hint_timezone Výběr časového pásma
 menu.hint_tools Spuštění nástrojů
 menu.hint_tvmode Přepne přijímač do režimu TV
@@ -1337,7 +1337,7 @@ menu.hint_tvradio_switch Přepínání mezi TV a Rádio režimem
 menu.hint_upnp Univerzální Plug and Play prohližeč
 menu.hint_vfd LEDky předního panelu, VFD volby
 menu.hint_vfd_brightness Jas při práci
-menu.hint_vfd_brightness_setup Konfigurace jasu zobrazovače předního panelu \ Pro různé režimy
+menu.hint_vfd_brightness_setup Konfigurace jasu zobrazovače předního panelu \nPro různé režimy
 menu.hint_vfd_brightnessdeepstandby Jas v režimu spánku
 menu.hint_vfd_brightnessdim Jas automatického zatmavení
 menu.hint_vfd_brightnessstandby Jas v režimu připravenosti
@@ -1345,12 +1345,12 @@ menu.hint_vfd_defaults Obnoví přednastavené hodnoty jasu
 menu.hint_vfd_dimtime Čas automatického zatmavení, v sekundách
 menu.hint_vfd_infoline Vybrat si zobrazení na hlavním řádku VFD
 menu.hint_vfd_scroll Povolí nebo zakáže pohyb textu na VFD
-menu.hint_vfd_statusline Vybrat si krátké zobrazení na \ stavovém řádku VFD
-menu.hint_video Obrazový výstup, rozlišení, formát \ Poměr stran, volby režimu rychlého přepnutí
+menu.hint_vfd_statusline Vybrat si krátké zobrazení na \nstavovém řádku VFD
+menu.hint_video Obrazový výstup, rozlišení, formát \nPoměr stran, volby režimu rychlého přepnutí
 menu.hint_video_43mode Režim obrazovky pro 4:3 obsah na 16:9 TV
-menu.hint_video_analog_mode Výběr režimu analogového výstupu \ Pro SCART a CINCH konektory
+menu.hint_video_analog_mode Výběr režimu analogového výstupu \nPro SCART a CINCH konektory
 menu.hint_video_brightness Změna jasu obrázku
-menu.hint_video_cinch_mode Výběr režimu analogového výstupu pro \ kompozitní obrazový výstup
+menu.hint_video_cinch_mode Výběr režimu analogového výstupu pro \nkompozitní obrazový výstup
 menu.hint_video_contrast Změna kontrastu obrázku
 menu.hint_video_dbdr MPEG2 rozšířené filtry
 menu.hint_video_format Poměr TV obrazu
@@ -1505,7 +1505,7 @@ motorcontrol.store Ulož pozici motoru (a)
 motorcontrol.timed_mode čas pro režim kroku
 motorcontrol.user_menu Uživatelské menu
 motorcontrol.west_limit Nastav západní (soft) limit
-moviebrowser.ask_rec_to_delete Vymazání nahrávaných filmových stop! \ n [% s] \ skut provést?
+moviebrowser.ask_rec_to_delete Vymazání nahrávaných filmových stop! \n [%s] \n skut provést?
 moviebrowser.book_add Přidat záložku
 moviebrowser.book_clear_all Vyčisti vše
 moviebrowser.book_head Záložky
@@ -1556,11 +1556,11 @@ moviebrowser.head_filter Filtrování filmů podle kategorie:
 moviebrowser.head_playlist Poslední puštěný:
 moviebrowser.head_recordlist Poslední nahraný:
 moviebrowser.hide_series Skrýt serialy
-moviebrowser.hint_jumpbackward Skok vzad o 5s \ '0 'zruš
-moviebrowser.hint_jumpforward Skok vpřed o 5s \ '0 'zruš
-moviebrowser.hint_movieend Ukončení sledování za 5 s \ '0 'zruš
-moviebrowser.hint_newbook_backward Nový skok vzad \ 'MODRÝ' na konec
-moviebrowser.hint_newbook_forward Nový skok vpřed \ 'MODRÝ' na konec
+moviebrowser.hint_jumpbackward Skok vzad o 5s \n'0 'zruš
+moviebrowser.hint_jumpforward Skok vpřed o 5s \n'0 'zruš
+moviebrowser.hint_movieend Ukončení sledování za 5 s \n'0 'zruš
+moviebrowser.hint_newbook_backward Nový skok vzad \n'MODRÝ' na konec
+moviebrowser.hint_newbook_forward Nový skok vpřed \n'MODRÝ' na konec
 moviebrowser.info_audio Zvuk
 moviebrowser.info_channel Kanál
 moviebrowser.info_file Soubor
@@ -1680,11 +1680,11 @@ movieplayer.fileplayback Soubor přes VLC
 movieplayer.head Přehrávač filmů
 movieplayer.starting Spouští se přehrávání...
 movieplayer.titles Tituly
-movieplayer.toomanybookmarks Hodně záložek. \ Je třeba nejprve jednu vymazat.
+movieplayer.toomanybookmarks Hodně záložek. \nJe třeba nejprve jednu vymazat.
 movieplayer.tshelp1 Zastavení
 movieplayer.tshelp10 asi 10 min dozadu
 movieplayer.tshelp11 asi 10 min vpřed
-movieplayer.tshelp12 Nápověda: http://www.giggo.de/dbox2/movieplayer.html \ 
+movieplayer.tshelp12 Nápověda: http://www.giggo.de/dbox2/movieplayer.html \n
 movieplayer.tshelp2 Výbrer zvukové stopy
 movieplayer.tshelp3 Přerušení / Pokračování
 movieplayer.tshelp4 Vytvoří záložku
@@ -1832,7 +1832,7 @@ personalize.help_line6 s PIN-em. PIN je totožný pro všechny chráněné nabí
 personalize.help_line7 (neplatí pro věkové omezení).
 personalize.help_line8 Přednastavený PIN je: 0000
 personalize.menuconfiguration Konfigurace menu
-personalize.menudisabledhint Požadovaná nabídka je momentálně nepoužitá! \ Pro aktivaci prosim otevřete nabídku 'Osobní zohlednění' \ nalezenou v nabídce 'Nastavení'!
+personalize.menudisabledhint Požadovaná nabídka je momentálně nepoužitá! \nPro aktivaci prosim otevřete nabídku 'Osobní zohlednění' \nalezenou v nabídce 'Nastavení'!
 personalize.notprotected Ne
 personalize.notvisible Skryté
 personalize.pin PIN
@@ -1895,7 +1895,7 @@ plugintype.game Hra
 plugintype.lua Lua doplněk
 plugintype.script Skript
 plugintype.tool Nástroj
-rclock.lockmsg Váš ovladač boxu bude zablokován. \ n \ Pro odemknutí stiskněte [ČERVENÝ] \ na [MENU] na Vašem ovladači.
+rclock.lockmsg Váš ovladač boxu bude zablokován. \n\nPro odemknutí stiskněte [ČERVENÝ] \n na [MENU] na Vašem ovladači.
 rclock.menueadd Zamknutí DO
 rclock.title Zamknutí Dálkového Ovladače
 rclock.unlockmsg Ovladač opět funkční.
@@ -1921,7 +1921,7 @@ recordingmenu.file disk (soubor)
 recordingmenu.filename_template Dočasný název
 recordingmenu.filename_template_hint wildcards budou nahrazené
 recordingmenu.filename_template_hint2 %C = kanál, %T = název, %I = info, %d = datum, %t = čas
-recordingmenu.help Nahrávací zařízení: \ n -------------------------------------- \ server: \ potřebný streamovací SW na PC \ n \ (analog) VCR: \ potřebný VCR (druhý SCART) \ n \ disk (soubor): \ potřebné připojení síťového NFS adresáře \ nebo vnitřního HDD disuk \ NTS: použij SPTS režim (dBox2) \ PES : nepoužij SPTS režim (dBox2) \ n \ n \ nMaximálna velikost souboru: \ n --------------------- \ nNFS V2: 2 GB (2048 MB) \ NFS V3: téměř nekonečné (0 MB) \ NFAT: 2 GB (2048 MB) \ nFAT32: 4 GB (4096 MB) \ n \ Pro NFS (UDP) se doporučuje synchronizovaný zápis
+recordingmenu.help Nahrávací zařízení: \n -------------------------------------- \nserver:\npotřebný streamovací SW na PC \n\n(analog) VCR: \npotřebný VCR (druhý SCART) \n\n disk (soubor): \npotřebné připojení síťového NFS adresáře \nebo vnitřního HDD disuk \nNTS: použij SPTS režim (dBox2) \nPES : nepoužij SPTS režim (dBox2) \n\n\nMaximálna velikost souboru: \n--------------------- \nNFS V2: 2 GB (2048 MB) \n NFS V3: téměř nekonečné (0 MB) \nFAT: 2 GB (2048 MB) \nFAT32: 4 GB (4096 MB) \n\nPro NFS (UDP) se doporučuje synchronizovaný zápis
 recordingmenu.multimenu.ask_stop_all Skutečně zastavit všechny% d nahrávání?
 recordingmenu.multimenu.info_stop_all% dz% d Nahrávání budou zastavena.
 recordingmenu.multimenu.rec_akt nahrát aktuální kanál
@@ -2076,11 +2076,11 @@ screenshot.scale Poměr
 screenshot.tv TV rozlišení
 screenshot.video Obraz na pozadí
 servicemenu.getplugins Načtení doplňků
-servicemenu.getplugins_hint Načítání doplňků, \ Prosím čekej ...
+servicemenu.getplugins_hint Načítání doplňků, \nProsím čekej ...
 servicemenu.head Služby
 servicemenu.imageinfo Informace o IMAGE
 servicemenu.reload Načtení seznamu kanálů
-servicemenu.reload_hint Načítání seznamu kanálů, \ Prosím čekej ...
+servicemenu.reload_hint Načítání seznamu kanálů, \nProsím čekej ...
 servicemenu.restart Restart software
 servicemenu.restart_hint Restartování, prosím čekej ...
 servicemenu.restart_refused_recording restartování neumožněno, probíhá nahrávání
@@ -2092,8 +2092,8 @@ settings.help Nápověda
 settings.menu_hints Zobrazí rady nápovědy
 settings.menu_pos Umístění nabídky
 settings.menus Nabídky
-settings.missingoptionsconffile Nastavení Neutrina byla aktualizována. \ Nové možnosti budou mít přednastavené hodnoty.
-settings.noconffile Nenalezeno nastavení Neutrino. \ Použity budou přednastavené hodnoty.
+settings.missingoptionsconffile Nastavení Neutrina byla aktualizována. \nNové možnosti budou mít přednastavené hodnoty.
+settings.noconffile Nenalezeno nastavení Neutrino. \nPoužity budou přednastavené hodnoty.
 settings.pos_bottom_center spodní střed
 settings.pos_bottom_left levý spodní
 settings.pos_bottom_right pravý spodní
@@ -2103,9 +2103,9 @@ settings.pos_top_center vrchní střed
 settings.pos_top_left levý horní
 settings.pos_top_right pravý horní
 settings.restore Obnovení nastavení
-settings.restore_warn Budou nahrazeny všechna nastavení a restartuji se \ Pokračovat?
+settings.restore_warn Budou nahrazeny všechna nastavení a restartuji se \nPokračovat?
 shutdown.recoding_query Skutečně přerušit nahrávání?
-shutdowntimer.announce Vypnutí boxu za minutu. \ Zrušit vypnutí?
+shutdowntimer.announce Vypnutí boxu za minutu. \nZrušit vypnutí?
 sleeptimerbox.announce Do vypnutí zůstává minuta.
 sleeptimerbox.hint1 Čas do vypnutí v minutách (000 = vypnuto)
 sleeptimerbox.hint2 Po uplynutí tohoto času se vypnu.
@@ -2124,11 +2124,11 @@ streaminfo.head Technické informace
 streaminfo.not_available Nedostupné
 streaminfo.resolution rozlišení
 streaminfo.signal Parametry signálu
-streaming.busy Nahrávací proces aktivní. \ Pokud se zpráva zobrazuje a není nic nahráváno, \ restartujte Neutrino.
-streaming.dir_not_writable Do nahrávacího adresáře není možné nahrávat. \ Nahrávání nebude pracovat.
+streaming.busy Nahrávací proces aktivní. \nPokud se zpráva zobrazuje a není nic nahráváno, \nrestartujte Neutrino.
+streaming.dir_not_writable Do nahrávacího adresáře není možné nahrávat. \nNahrávání nebude pracovat.
 streaming.overflow Přetečení ochranného pásu nahrávání, zvažte zastavení některých nahrávání
 streaming.slow System / HDD je pomalý, zvažte zastavení některých nahrávání
-streaming.write_error Nahrávání bylo přerušeno \ neboť se objevila chybu během zapisovacího procesu.
+streaming.write_error Nahrávání bylo přerušeno \neboť se objevila chybu během zapisovacího procesu.
 stringinput.backspace Nazpět
 stringinput.caps velké / malé znaky
 stringinput.clear Všechno smaž
@@ -2140,16 +2140,16 @@ subtitles.head Titulky
 subtitles.stop Vypnout titulky
 terrestrialsetup.area Území
 terrestrialsetup.provider Pozemní poskytovatel
-timer.eventrecord.msg Událost je naplánována na nahrávání. \ Pro úpravu plánu otevřete časovač nahrávání.
+timer.eventrecord.msg Událost je naplánována na nahrávání. \nPro úpravu plánu otevřete časovač nahrávání.
 timer.eventrecord.title Plánovač nahrávání
-timer.eventtimed.msg Tento program je naplánován. \ BOX bude zapnut a \ přepnut na tento kanál ve stanoveném čase.
+timer.eventtimed.msg Tento program je naplánován. \nBOX bude zapnut a \npřepnut na tento kanál ve stanoveném čase.
 timer.eventtimed.title Plánovač událostí
 timerbar.channelswitch Přepni
 timerbar.recordevent Nahraj
 timerlist.alarmtime Čas spuštění
 timerlist.apids PIDy zvuku
 timerlist.apids_dflt Nahrávání normálních zvukových stop
-timerlist.ask_to_delete Smazání stop časovače aktuálního nahrávání! \ skutečně provést?
+timerlist.ask_to_delete Smazání stop časovače aktuálního nahrávání! \nskutečně provést?
 timerlist.bouquetselect Výběr buketu
 timerlist.channel Kanál
 timerlist.channelselect Výběr kanálu
@@ -2250,9 +2250,9 @@ usermenu.item_vtxt Teletext
 usermenu.items Položky menu
 usermenu.key Klávesa
 usermenu.key_select Přiřazená klávesa
-usermenu.msg_info_is_empty Nedefinovaný název pro toto menu! \ Použije se přednastavený název: \ n
-usermenu.msg_warning_name Máte více než jednu položku vytvořenou pro toto menu, \ ale žádný definovaný nový název pro toto menu. \ Měli byste vytvořit nový název!
-usermenu.msg_warning_no_items Nedefinované žádné položky! \ Resetovaný název menu!
+usermenu.msg_info_is_empty Nedefinovaný název pro toto menu! \nPoužije se přednastavený název: \n
+usermenu.msg_warning_name Máte více než jednu položku vytvořenou pro toto menu, \nale žádný definovaný nový název pro toto menu. \nMěli byste vytvořit nový název!
+usermenu.msg_warning_no_items Nedefinované žádné položky! \nResetovaný název menu!
 usermenu.name Název
 video_mode_ok Video režim pracuje správně?
 videomenu.43mode Zobrazení formátu 4:3
@@ -2322,7 +2322,7 @@ wizard.setup_easy Jednoduchá
 wizard.setup_type Typ instalace
 wizard.setup_type_hint Jednoduché nastavení pro CanalDigitaal/TĂ©lĂ©SAT/TV Vlaanderen nebo jednoduché kabelové vyhledávání
 wizard.welcome_head Vítejte v Průvodci nastavení
-wizard.welcome_text Další kroky provedou základní instalaci tohoto zařízení. \ Chcete pokračovat? \ Blahopřejeme k zakoupení CST. Následující \ nkroky tě provedou počáteční instalací nastavení přístroje. \ NPrajeme ti hodně radosti s tímto přijímačem! \ NĎaľší krok?
+wizard.welcome_text Další kroky provedou základní instalaci tohoto zařízení. \nChcete pokračovat? \nBlahopřejeme k zakoupení CST. Následující \nkroky tě provedou počáteční instalací nastavení přístroje. \nPrajeme ti hodně radosti s tímto přijímačem! \nĎaľší krok?
 word.from z
 word.in v
 zapit.scantype Vyhledávání kanálů
