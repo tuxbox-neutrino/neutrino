@@ -193,7 +193,7 @@ bouqueteditor.lock Lock
 bouqueteditor.move Move
 bouqueteditor.move_to Move to
 bouqueteditor.name Bouquet editor
-bouqueteditor.newbouquetname New name of bouquets
+bouqueteditor.newbouquetname New name
 bouqueteditor.rename Rename
 bouqueteditor.return ready
 bouqueteditor.savechanges? Do you want to save the changes?

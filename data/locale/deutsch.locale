@@ -193,7 +193,7 @@ bouqueteditor.lock Sperren
 bouqueteditor.move Bewegen
 bouqueteditor.move_to Bewegen zu
 bouqueteditor.name Bouquet-Verwaltung
-bouqueteditor.newbouquetname Neuer Name des Bouquets
+bouqueteditor.newbouquetname Neuer Name
 bouqueteditor.rename Umbenennen
 bouqueteditor.return Fertig
 bouqueteditor.savechanges? Sollen die Änderungen gespeichert werden?
