@@ -116,7 +116,7 @@ class CComponentsText : public CComponentsItem, public CBox
 		///send options for text font (size and type), color and mode (allignment)
 		virtual inline void setTextFont(Font* font_text){ct_font = font_text;};
 		///set text color
-		virtual inline void setTextColor(fb_pixel_t color_text){ ct_col_text = color_text;};
+		virtual void setTextColor(const fb_pixel_t& color_text);
 		///get text color
 		virtual inline fb_pixel_t getTextColor(){return ct_col_text;};
 		///set text alignment, also see textbox.h for possible alignment modes

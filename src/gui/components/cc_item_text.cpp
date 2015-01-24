@@ -187,7 +187,7 @@ void CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 	ct_text_mode = mode;
 	ct_font = font_text;
 	if (color_text != 0)
-		ct_col_text = color_text;
+		setTextColor(color_text);
 
 	dprintf(DEBUG_DEBUG, "[CComponentsText]   [%s - %d] ct_text: %s \n", __func__, __LINE__, ct_text.c_str());
 }
@@ -297,4 +297,11 @@ int CComponentsText::getTextLinesAutoHeight(const int& textMaxHeight, const int&
 	int ret = tb.getLinesPerPage();
 
 	return ret;
+}
+
+void CComponentsText::setTextColor(const fb_pixel_t& color_text)
+{
+	ct_col_text = color_text;
+	if (ct_textbox)
+		ct_textbox->setTextColor(ct_col_text);
 }
