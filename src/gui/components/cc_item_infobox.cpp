@@ -96,11 +96,9 @@ void CComponentsInfoBox::paintPicture()
 {
 	//ensure empty pic object
 	if (pic){
-		if (pic->isPicPainted())
-			pic->kill();
 		delete pic;
+		pic = NULL;
 	}
-	pic = NULL;
 
 	//exit if no image definied
 	if (pic_name.empty())
