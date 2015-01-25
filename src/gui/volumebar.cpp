@@ -48,7 +48,7 @@ void CVolumeBar::initVarVolumeBar()
 	col_body 	= COL_MENUCONTENT_PLUS_0;
 
 	vb_item_offset 	= 4;
-	height 		= 4*vb_item_offset; //default height
+	height 		= g_settings.volume_size; //default height
 
 	//assume volume value as pointer to global setting
 	vb_vol		= &g_settings.current_volume;
