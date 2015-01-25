@@ -371,6 +371,7 @@ void CGenPsi::build_pmt(uint8_t* buffer)
 		buffer[off++] = (/*descriptor_magazine_number*/ 0x01 & 0x06) | ((/*descriptor_type*/ 0x01 << 3) & 0xF8);
 		buffer[off++] = 0x00 ;		//Teletext_page_number
 	}
+	off--;
 	buffer[0x07] = off-3; // update section_length
 
 	// Put CRC in ts[0x29...0x2c]
