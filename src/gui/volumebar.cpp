@@ -89,13 +89,13 @@ void CVolumeBar::initVolumeBarSize()
 	vb_pbw 		= 200;
 	vb_pbh 		= height-4*vb_item_offset;
 
-	//adapt x-pos
-	vb_icon_x 	= vb_item_offset;
-	vb_pbx 		= vb_icon_x + vb_icon_w + vb_item_offset;
-	vb_digit_x	= vb_pbx + vb_pbw + vb_item_offset;
-
 	//result for width
 	width = (vb_icon_w + vb_pbw + vb_digit_w) + 4*vb_item_offset;
+
+	//adapt x-pos
+	vb_pbx 		= vb_item_offset + vb_icon_w + vb_item_offset;
+	vb_icon_x 	= vb_pbx/2 - vb_icon_w/2 + vb_item_offset;
+	vb_digit_x	= vb_pbx + vb_pbw + vb_item_offset;
 
 	// mute icon
 	cvh->getMuteIconDimensions(&mute_ax, &mute_ay, &mute_dx, &mute_dy);
