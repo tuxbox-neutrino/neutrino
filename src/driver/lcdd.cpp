@@ -900,13 +900,14 @@ void CLCD::showAudioPlayMode(AUDIOMODES m)
 	displayUpdate();
 }
 
-void CLCD::showAudioProgress(const char perc, bool isMuted)
+void CLCD::showAudioProgress(const char perc) //, bool isMuted)
 {
 	if (mode == MODE_AUDIO)
 	{
 		display.draw_fill_rect (11,53,73,61, CLCDDisplay::PIXEL_OFF);
 		int dp = perc * 61 / 100 + 12;
 		display.draw_fill_rect (11,54,dp,60, CLCDDisplay::PIXEL_ON);
+#if 0
 		if(isMuted)
 		{
 			if(dp > 12)
@@ -917,6 +918,7 @@ void CLCD::showAudioProgress(const char perc, bool isMuted)
 			else
 				display.draw_line (12,55,72,59, CLCDDisplay::PIXEL_ON);
 		}
+#endif
 		displayUpdate();
 	}
 }

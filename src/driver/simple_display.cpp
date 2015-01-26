@@ -364,7 +364,7 @@ void CLCD::showAudioPlayMode(AUDIOMODES)
 {
 }
 
-void CLCD::showAudioProgress(const char, bool)
+void CLCD::showAudioProgress(const char)
 {
 }
 
