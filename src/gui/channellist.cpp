@@ -52,10 +52,14 @@
 #include <gui/eventlist.h>
 #include <gui/infoviewer.h>
 #include <gui/osd_setup.h>
+#include <gui/components/cc.h>
+#include <gui/widget/stringinput.h>
+#include <gui/widget/keyboard_input.h>
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
+#include <gui/movieplayer.h>
 
 #include <system/settings.h>
 #include <gui/customcolor.h>
@@ -660,7 +664,11 @@ int CChannelList::show()
 			}
 		}
 		else if(!edit_state && !empty && msg == CRCInput::RC_stop ) { //stop recording
-			if(CRecordManager::getInstance()->RecordingStatus((*chanlist)[selected]->channel_id))
+			//if(CRecordManager::getInstance()->RecordingStatus((*chanlist)[selected]->channel_id))
+			int recmode = CRecordManager::getInstance()->GetRecordMode((*chanlist)[selected]->channel_id);
+			bool timeshift = recmode & CRecordManager::RECMODE_TSHIFT;
+			bool tsplay = CMoviePlayerGui::getInstance().timeshift;
+			if (recmode && !(timeshift && tsplay))
 			{
 				if (CRecordManager::getInstance()->AskToStop((*chanlist)[selected]->channel_id))
 				{
@@ -850,9 +858,9 @@ int CChannelList::show()
 		}
 		else if (!empty && msg == CRCInput::RC_blue )
 		{
-			if (edit_state) {
+			if (edit_state) { // rename
 				if (move_state != beMoving)
-					lockChannel();
+					renameChannel();
 			} else {
 				if (g_settings.channellist_additional)
 					displayList = !displayList;
@@ -880,6 +888,10 @@ int CChannelList::show()
 					paint();
 				}
 			}
+		}
+		else if (!empty && edit_state && move_state != beMoving && msg == CRCInput::RC_stop )
+		{
+			lockChannel();
 		}
 		else if (!empty && edit_state && move_state != beMoving && msg == CRCInput::RC_forward )
 		{
@@ -911,6 +923,10 @@ int CChannelList::show()
 
 			paintHead();
 			paint();
+		} else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
+			g_RCInput->postMsg(msg, data);
+			loop = false;
+			res = CHANLIST_CANCEL_ALL;
 		} else {
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 				loop = false;
@@ -1692,14 +1708,15 @@ struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
 	{ NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, NONEXISTANT_LOCALE}
 };
 
-#define NUM_LIST_BUTTONS_EDIT 5
+#define NUM_LIST_BUTTONS_EDIT 6
 const struct button_label SChannelListButtons_Edit[NUM_LIST_BUTTONS_EDIT] =
 {
         { NEUTRINO_ICON_BUTTON_RED   , LOCALE_BOUQUETEDITOR_DELETE     },
         { NEUTRINO_ICON_BUTTON_GREEN , LOCALE_BOUQUETEDITOR_ADD        },
         { NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE       },
-        { NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_BOUQUETEDITOR_LOCK       },
-        { NEUTRINO_ICON_BUTTON_FORWARD  , LOCALE_BOUQUETEDITOR_MOVE_TO }
+        { NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_BOUQUETEDITOR_RENAME },
+        { NEUTRINO_ICON_BUTTON_FORWARD  , LOCALE_BOUQUETEDITOR_MOVE_TO },
+        { NEUTRINO_ICON_BUTTON_STOP  , LOCALE_BOUQUETEDITOR_LOCK       }
 };
 
 void CChannelList::paintButtonBar(bool is_current)
@@ -2472,6 +2489,23 @@ void CChannelList::addChannel()
         paint();
 }
 
+void CChannelList::renameChannel()
+{
+	std::string newName= inputName((*chanlist)[selected]->getName().c_str(), LOCALE_BOUQUETEDITOR_NEWBOUQUETNAME);
+
+	if (newName != (*chanlist)[selected]->getName())
+	{
+		if(newName.empty())
+			(*chanlist)[selected]->setUserName("");
+		else
+			(*chanlist)[selected]->setUserName(newName);
+
+		channelsChanged = true;
+	}
+	paintHead();
+	paint();
+}
+
 void CChannelList::lockChannel()
 {
 	(*chanlist)[selected]->bLocked = !(*chanlist)[selected]->bLocked;
@@ -2527,4 +2561,16 @@ void CChannelList::moveChannelToBouquet()
 		paint();
 
 	paintHead();
+}
+
+std::string CChannelList::inputName(const char * const defaultName, const neutrino_locale_t caption)
+{
+	std::string Name = defaultName;
+
+	CKeyboardInput * nameInput = new CKeyboardInput(caption, &Name);
+	nameInput->exec(NULL, "");
+
+	delete nameInput;
+
+	return std::string(Name);
 }

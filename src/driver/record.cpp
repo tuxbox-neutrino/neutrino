@@ -723,7 +723,7 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 
 	std::string channel_name = channel->getName();
 	if (!(channel_name.empty())) {
-		strcpy(buf, UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
+		snprintf(buf, sizeof(buf), UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
 		ZapitTools::replace_char(buf);
 		StringReplace(FilenameTemplate,"%C",buf);
 	}
@@ -733,7 +733,7 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 	CShortEPGData epgdata;
 	if(CEitManager::getInstance()->getEPGidShort(epgid, &epgdata)) {
 		if (!(epgdata.title.empty())) {
-			strcpy(buf, epgdata.title.c_str());
+			snprintf(buf, sizeof(buf), epgdata.title.c_str());
 			ZapitTools::replace_char(buf);
 			StringReplace(FilenameTemplate,"%T",buf);
 		}
@@ -741,7 +741,7 @@ void CRecordInstance::MakeExtFileName(CZapitChannel * channel, std::string &File
 			StringReplace(FilenameTemplate,"%T","no_title");
 
 		if (!(epgdata.info1.empty())) {
-			strcpy(buf, epgdata.info1.c_str());
+			snprintf(buf, sizeof(buf), epgdata.info1.c_str());
 			ZapitTools::replace_char(buf);
 			StringReplace(FilenameTemplate,"%I",buf);
 		}
@@ -1050,6 +1050,11 @@ bool CRecordManager::StopAutoRecord(bool lock)
 	return (inst != NULL);
 }
 
+void CRecordManager::StopAutoTimer()
+{
+	g_RCInput->killTimer (shift_timer);
+}
+
 void CRecordManager::StartNextRecording()
 {
 	CTimerd::RecordingInfo * eventinfo = NULL;
@@ -1230,7 +1235,8 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 	else if ((msg == NeutrinoMessages::EVT_TIMER)) {
 		if(data == shift_timer) {
 			shift_timer = 0;
-			StartAutoRecord();
+			if (!FindTimeshift())
+				StartAutoRecord();
 			return messages_return::handled;
 		}
 		else if(data == check_timer) {
@@ -1265,11 +1271,13 @@ void CRecordManager::StartTimeshift()
 		std::string tmode = "ptimeshift"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		bool tstarted = false;
 		/* start temporary timeshift if enabled and not running, but dont start second record */
 		if (g_settings.temp_timeshift) {
 			if (!FindTimeshift()) {
 				res = StartAutoRecord();
 				tmode = "timeshift"; // record just started
+				tstarted = true;
 			}
 		}
 		else if (!RecordingStatus(live_channel_id)) {
@@ -1280,7 +1288,7 @@ void CRecordManager::StartTimeshift()
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
-			if(g_settings.temp_timeshift && !g_settings.auto_timeshift && autoshift)
+			if(g_settings.temp_timeshift && tstarted && autoshift)
 				ShowMenu();
 		}
 	}

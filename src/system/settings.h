@@ -211,6 +211,11 @@ struct SNeutrinoSettings
 	int radiotext_enable;
 	int easymenu;
 
+	//screen saver
+	int screensaver_delay;
+	std::string screensaver_dir;
+	int screensaver_timeout;
+
 	//vcr
 	int vcr_AutoSwitch;
 
@@ -234,6 +239,7 @@ struct SNeutrinoSettings
 	std::string epg_dir;
 	int epg_scan;
 	int epg_scan_mode;
+	int epg_save_mode;
 
 	int epg_search_history_size;
 	int epg_search_history_max;
@@ -657,7 +663,6 @@ struct SNeutrinoSettings
 	//audioplayer
 	int   audioplayer_display;
 	int   audioplayer_follow;
-	int   audioplayer_screensaver;
 	int   audioplayer_highprio;
 	int   audioplayer_select_title_by_name;
 	int   audioplayer_repeat_on;

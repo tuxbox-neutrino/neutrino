@@ -601,7 +601,7 @@ int CTimerList::show()
 					CEPGData epgdata;
 					CEitManager::getInstance()->getEPGid(timerlist[selected].epgID, timerlist[selected].epg_starttime, &epgdata);
 					memset(buf1, '\0', sizeof(buf1));
-					if (epgdata.title != "")
+					if (!epgdata.title.empty())
 						title = "(" + epgdata.title + ")\n";
 					snprintf(buf1, sizeof(buf1)-1, g_Locale->getText(LOCALE_TIMERLIST_ASK_TO_DELETE), title.c_str());
 					if(ShowMsg(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING, buf1,

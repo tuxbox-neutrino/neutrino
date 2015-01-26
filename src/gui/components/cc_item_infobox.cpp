@@ -100,7 +100,7 @@ void CComponentsInfoBox::paintPicture()
 	pic = NULL;
 
 	//exit if no image definied
-	if (pic_name == "")
+	if (pic_name.empty())
 		return;
 
 	//init pic object and set icon paint position

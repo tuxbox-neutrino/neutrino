@@ -116,12 +116,12 @@ bool CySocket::initSSL(void)
 		aprintf("ySocket:SSL Error: Create SSL_CTX_new : %s\n", ERR_error_string(ERR_get_error(), NULL) );
 		return false;
 	}
-	if(SSL_pemfile == "")
+	if(SSL_pemfile.empty())
 	{
 		aprintf("ySocket:SSL Error: no pemfile given\n");
 		return false;
 	}
-	if(SSL_CA_file != "") // have a CA?
+	if(!SSL_CA_file.empty()) // have a CA?
 	if(1 != SSL_CTX_load_verify_locations(SSL_ctx, SSL_CA_file.c_str(), NULL))
 	{
 		aprintf("ySocket:SSL Error: %s CA-File:%s\n",ERR_error_string(ERR_get_error(), NULL), SSL_CA_file.c_str());

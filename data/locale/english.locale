@@ -173,7 +173,6 @@ audioplayer.receiving_list Receiving list, please wait
 audioplayer.repeat_on enable repeat mode
 audioplayer.rewind rewind
 audioplayer.save_playlist save play list
-audioplayer.screensaver_timeout screensaver timeout
 audioplayer.select_title_by_name search title by name (SMS)
 audioplayer.show_playlist Show Playlist
 audioplayer.shuffle shuffle
@@ -194,7 +193,7 @@ bouqueteditor.lock Lock
 bouqueteditor.move Move
 bouqueteditor.move_to Move to
 bouqueteditor.name Bouquet editor
-bouqueteditor.newbouquetname New name of bouquets
+bouqueteditor.newbouquetname New name
 bouqueteditor.rename Rename
 bouqueteditor.return ready
 bouqueteditor.savechanges? Do you want to save the changes?
@@ -911,7 +910,6 @@ menu.hint_audioplayer_order Change playlist sort order
 menu.hint_audioplayer_playlist Show playlist items
 menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
 menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
-menu.hint_audioplayer_screensaver Set screensaver timeout, in minutes
 menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_auto_lang Auto-switch audio to preferred language
 menu.hint_auto_subs Auto-start subtitles for preferred language
@@ -961,6 +959,7 @@ menu.hint_epg_old_events Hours after event end time to consider\nevent old and r
 menu.hint_epg_read Read saved EPG data after boot from an external device
 menu.hint_epg_save Save cached EPG data to an external device
 menu.hint_epg_save_frequently Save cached EPG data in frequently intervals to an external device
+menu.hint_epg_save_mode Cache EPG only for channels present in favorite bouquets
 menu.hint_epg_save_standby Save EPG on soft standby mode
 menu.hint_epg_scan Select bouquets to scan epg, current on zap,\nall or selected favorites
 menu.hint_epg_scan_mode Enable background epg scan using free tuner
@@ -1290,6 +1289,10 @@ menu.hint_scan_usalsall Use USALS for all satellites on this frontend
 menu.hint_scan_useusals Use USALS for this satellite,\nif ON, rotor position ignored
 menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
 menu.hint_screen_setup Configure screen margins
+menu.hint_screensaver_delay Set the time (in minutes) after which the screensaver has to start or turn it off
+menu.hint_screensaver_dir Select directory in which the screensaver has to start
+menu.hint_screensaver_timeout Select the timeout to change pictures in screensavers
+menu.hint_screensaver_setup Configure screensaver options for audioplayer and radio mode
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
 menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
 menu.hint_screenshot_dir Select directory to save screenshots
@@ -1401,6 +1404,7 @@ miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_read Restore EPG on boot
 miscsettings.epg_save Save EPG on shutdown
 miscsettings.epg_save_frequently Save EPG frequently
+miscsettings.epg_save_mode Favorites only
 miscsettings.epg_save_standby Save EPG on soft standby
 miscsettings.epg_scan EPG scan mode
 miscsettings.epg_scan_always Always
@@ -2056,6 +2060,11 @@ scants.startnow start scan
 scants.test Test signal
 scants.transponders Transponders:
 scrambled_channel Scrambled channel
+screensaver.delay Delay
+screensaver.dir Directory
+screensaver.menu Screensaver
+screensaver.off Screensaver off
+screensaver.timeout Change pictures
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Count

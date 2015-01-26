@@ -323,7 +323,11 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	if (channel) {
 		channel->setName(serviceName);
 		channel->setServiceType(real_type);
-		channel->flags = CZapitChannel::UPDATED;
+		channel->freq = freq_id;
+		if (CServiceScan::getInstance()->SatHaveChannels() && (channel->flags & CZapitChannel::NOT_FOUND))
+			channel->flags = CZapitChannel::NEW;
+		else
+			channel->flags = CZapitChannel::UPDATED;
 	} else {
 		channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);

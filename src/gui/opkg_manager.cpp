@@ -96,7 +96,7 @@ int COPKGManager::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
 
-	if (actionKey == "") {
+	if (actionKey.empty()) {
 		if (parent)
 			parent->hide();
 		return showMenu();

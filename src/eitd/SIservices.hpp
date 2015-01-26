@@ -140,9 +140,9 @@ public:
 		printf("Service-ID: %hu\n", service_id);
 		printf("Service-Typ: %hhu\n", serviceTyp);
 #if 0 // unused
-		if(providerName.length())
+		if(!providerName.empty())
 			printf("Provider-Name: %s\n", providerName.c_str());
-		if(serviceName.length())
+		if(!serviceName.empty())
 			printf("Service-Name: %s\n", serviceName.c_str());
 #endif
 		for_each(nvods.begin(), nvods.end(), printSInvodReference());

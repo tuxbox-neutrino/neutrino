@@ -152,7 +152,6 @@ class CZapitChannel
 		t_transport_stream_id		transport_stream_id;
 		t_original_network_id		original_network_id;
 		t_satellite_position		satellitePosition;
-		freq_id_t			freq;
 
 		/* read/write properties (write possibility needed by scan) */
 		unsigned char			serviceType;
@@ -201,6 +200,7 @@ class CZapitChannel
 		uint8_t				polarization;
 		int				flags;
 		delivery_system_t		delsys;
+		freq_id_t			freq;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);

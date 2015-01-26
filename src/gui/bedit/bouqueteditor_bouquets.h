@@ -64,13 +64,6 @@ class CBEBouquetWidget : public CMenuTarget
 			beMoving
 		} state;
 
-		enum
-		{
-			beRename,
-			beHide,
-			beLock
-		} blueFunction;
-
 		unsigned int		selected;
 		unsigned int		origPosition;
 		unsigned int		newPosition;

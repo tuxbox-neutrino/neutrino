@@ -381,15 +381,14 @@ void CMoviePlayerGui::fillPids()
 
 	vpid = p_movie_info->epgVideoPid;
 	vtype = p_movie_info->VideoType;
-	/* FIXME: better way to detect TS recording */
-	if (!vpid) {
-		is_file_player = true;
-		return;
-	}
 	numpida = 0; currentapid = 0;
+	/* FIXME: better way to detect TS recording */
 	if (!p_movie_info->audioPids.empty()) {
 		currentapid = p_movie_info->audioPids[0].epgAudioPid;
 		currentac3 = p_movie_info->audioPids[0].atype;
+	} else if (!vpid) {
+		is_file_player = true;
+		return;
 	}
 	for (int i = 0; i < (int)p_movie_info->audioPids.size(); i++) {
 		apids[i] = p_movie_info->audioPids[i].epgAudioPid;
@@ -561,7 +560,7 @@ bool CMoviePlayerGui::SelectFile()
 			CFile *file = NULL;
 			filelist = filebrowser->getSelectedFiles();
 			filelist_it = filelist.end();
-			if (filelist.size() > 0) {
+			if (!filelist.empty()) {
 				filelist_it = filelist.begin();
 				file = &(*filelist_it);
 			}
@@ -885,7 +884,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_stop) {
 			playstate = CMoviePlayerGui::STOPPED;
 			ClearQueue();
-		} else if ((filelist.size() > 0 && msg == (neutrino_msg_t) CRCInput::RC_right)) {
+		} else if ((!filelist.empty() && msg == (neutrino_msg_t) CRCInput::RC_right)) {
 			if (filelist_it < (filelist.end() - 1)) {
 				++filelist_it;
 				playstate = CMoviePlayerGui::STOPPED;
@@ -918,7 +917,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 				updateLcd();
 				if (timeshift == TSHIFT_MODE_OFF)
 					callInfoViewer();
-			} else if (filelist.size() > 0) {
+			} else if (!filelist.empty()) {
 				EnableClockAndMute(false);
 				CFileBrowser playlist;
 				CFile *pfile = NULL;
@@ -1098,7 +1097,7 @@ void CMoviePlayerGui::PlayFileLoop(void)
 	if (position >= 300000 || (duration < 300000 && (position > (duration /2))))
 		makeScreenShot(true);
 
-	if (at_eof && filelist.size() > 0) {
+	if (at_eof && !filelist.empty()) {
 		if (filelist_it != filelist.end() && repeat_mode != REPEAT_TRACK)
 			++filelist_it;
 
@@ -1130,7 +1129,7 @@ void CMoviePlayerGui::PlayFileEnd(bool restore)
 
 	stopped = true;
 	printf("%s: stopped\n", __func__);
-	if (filelist.size() > 0 && filelist_it != filelist.end()) {
+	if (!filelist.empty() && filelist_it != filelist.end()) {
 		pretty_name.clear();
 		prepareFile(&(*filelist_it));
 	}
@@ -1994,7 +1993,7 @@ void CMoviePlayerGui::parsePlaylist(CFile *file)
 		if (strlen(cLine) > 0 && cLine[0]!='#')
 		{
 			char *url = NULL;
-			if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) ) {
+			if ((url = strstr(cLine, "http://")) || (url = strstr(cLine, "rtmp://")) || (url = strstr(cLine, "rtsp://")) || (url = strstr(cLine, "mmsh://")) ) {
 				if (url != NULL) {
 					printf("name %s [%d] url: %s\n", name, dur, url);
 					file_name = url;

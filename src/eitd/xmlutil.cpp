@@ -126,7 +126,7 @@ bool checkNoDVBTimelist(t_channel_id channel_id)
 	return false;
 }
 
-static void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
+void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
 {
 	if (!checkEPGFilter(onid, tsid, sid))
 	{
@@ -138,6 +138,18 @@ static void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid,
 		node->next = CurrentEPGFilter;
 		CurrentEPGFilter = node;
 	}
+}
+
+void clearEPGFilter()
+{
+	EPGFilter *filterptr = CurrentEPGFilter;
+	while (filterptr)
+	{
+		EPGFilter *filternext = filterptr->next;
+		delete filterptr;
+		filterptr = filternext;
+	}
+	CurrentEPGFilter = NULL;
 }
 
 static void addBlacklist(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
@@ -426,7 +438,7 @@ void *insertEventsfromFile(void * data)
 					node = node->xmlNextNode;
 				}
 
-				if (contentClassification.size()) {
+				if (!contentClassification.empty()) {
 					ssize_t off = e.classifications.reserve(2 * contentClassification.size());
 					if (off > -1)
 						for (unsigned i = 0; i < contentClassification.size(); i++)

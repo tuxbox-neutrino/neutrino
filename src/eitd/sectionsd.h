@@ -66,6 +66,8 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 		bool getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 		bool getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSectionsdClient::NVODTimesList& nvod_list);
 		void setLanguages(const std::vector<std::string>& newLanguages);
+		void addChannelFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid);
+		void clearChannelFilters(void);
 		unsigned getEventsCount();
 };
 

@@ -85,7 +85,7 @@ unsigned int getCountryIndex(const std::string &country)
 {
 	unsigned int ix = 0;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(countryMutex);
-	if (!countryVector.size()) {
+	if (countryVector.empty()) {
 		countryVector.push_back("DEU"); // 0
 		countryVector.push_back("FRA"); // 1
 		countryVector.push_back("ITA"); // 2
@@ -105,7 +105,7 @@ static std::map<std::string,unsigned int> componentMap;
 void SIcomponent::setComponent(const std::string &component_description)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(componentMutex);
-	if (!componentVector.size()) {
+	if (componentVector.empty()) {
 		componentMap[""] = 0;
 		componentVector.push_back("");
 	}
@@ -199,6 +199,18 @@ void SIevent::parse(Event &event)
 	if (start_time && duration)
 		times.insert(SItime(start_time, duration));
 	const DescriptorList &dlist = *event.getDescriptors();
+
+	int countExtandetText = 0, appendcheck = 0;
+	for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit){
+		switch ((*dit)->getTag()) {
+			case EXTENDED_EVENT_DESCRIPTOR:
+				countExtandetText++;
+			break;
+			default:
+			break;
+		}
+	}
+	appendcheck = countExtandetText;
 	for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit) {
 	    switch ((*dit)->getTag()) {
 		case SHORT_EVENT_DESCRIPTOR:
@@ -227,7 +239,8 @@ void SIevent::parse(Event &event)
 				item.append("\n");
 			}
 #endif
-			appendExtendedText(getLangIndex(lang), stringDVBUTF8(d->getText(), table, tsidonid));
+			appendExtendedText(getLangIndex(lang), stringDVBUTF8(d->getText(), table, tsidonid),(appendcheck > countExtandetText),(countExtandetText==1));
+			countExtandetText--;
 			break;
 		}
 		case CONTENT_DESCRIPTOR:
@@ -470,7 +483,7 @@ char SIevent::getFSK() const
 std::string SIevent::getName() const
 {
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode()) {
-		if (langData.size())
+		if (!langData.empty())
 			return langData.begin()->text[SILangData::langName];
 		return "";
 	} else {
@@ -508,7 +521,7 @@ void SIevent::setName(unsigned int lang, const std::string &name)
 std::string SIevent::getText() const
 {
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode()) {
-		if (langData.size())
+		if (!langData.empty())
 			return langData.begin()->text[SILangData::langText];
 		return "";
 	}
@@ -542,7 +555,7 @@ void SIevent::setText(unsigned int lang, const std::string &text)
 std::string SIevent::getExtendedText() const
 {
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode()) {
-		if (langData.size())
+		if (!langData.empty())
 			return langData.begin()->text[SILangData::langExtendedText];
 		return "";
 	}
@@ -556,17 +569,22 @@ void SIevent::appendExtendedText(const std::string &lang, const std::string &tex
 	appendExtendedText(getLangIndex(lang), text, append);
 }
 
-void SIevent::appendExtendedText(unsigned int lang, const std::string &text, bool append)
+void SIevent::appendExtendedText(unsigned int lang, const std::string &text, bool append, bool endappend)
 {
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode())
 		lang = 0;
 
 	for (std::list<SILangData>::iterator it = langData.begin(); it != langData.end(); ++it)
 		if (it->lang == lang) {
-			if (append)
+			if (append){
 				it->text[SILangData::langExtendedText] += text;
-			else
+				if(endappend && it->text[SILangData::langExtendedText].capacity() > it->text[SILangData::langExtendedText].size()){
+					it->text[SILangData::langExtendedText].reserve();
+				}
+			}
+			else{
 				it->text[SILangData::langExtendedText] = text;
+			}
 			return;
 		}
 
@@ -600,33 +618,33 @@ int SIevent::saveXML0(FILE *file) const
 int SIevent::saveXML2(FILE *file) const
 {
 	for (std::list<SILangData>::const_iterator i = langData.begin(); i != langData.end(); ++i) {
-		if (i->text[SILangData::langName].length()) {
+		if (!i->text[SILangData::langName].empty()) {
 			fprintf(file, "\t\t\t<name lang=\"%s\" string=\"", langIndex[i->lang].c_str());
 			saveStringToXMLfile(file, i->text[SILangData::langName].c_str());
 			fprintf(file, "\"/>\n");
 		}
 	}
 	for (std::list<SILangData>::const_iterator i = langData.begin(); i != langData.end(); ++i) {
-		if (i->text[SILangData::langText].length()) {
+		if (!i->text[SILangData::langText].empty()) {
 			fprintf(file, "\t\t\t<text lang=\"%s\" string=\"", langIndex[i->lang].c_str());
 			saveStringToXMLfile(file, i->text[SILangData::langText].c_str());
 			fprintf(file, "\"/>\n");
 		}
 	}
 #ifdef USE_ITEM_DESCRIPTION
-	if(item.length()) {
+	if(!item.empty()) {
 		fprintf(file, "\t\t\t<item string=\"");
 		saveStringToXMLfile(file, item.c_str());
 		fprintf(file, "\"/>\n");
 	}
-	if(itemDescription.length()) {
+	if(!itemDescription.empty()) {
 		fprintf(file, "\t\t\t<item_description string=\"");
 		saveStringToXMLfile(file, itemDescription.c_str());
 		fprintf(file, "\"/>\n");
 	}
 #endif
 	for (std::list<SILangData>::const_iterator i = langData.begin(); i != langData.end(); ++i) {
-		if (i->text[SILangData::langExtendedText].length()) {
+		if (!i->text[SILangData::langExtendedText].empty()) {
 			fprintf(file, "\t\t\t<extended_text lang=\"%s\" string=\"", langIndex[i->lang].c_str());
 			saveStringToXMLfile(file, i->text[SILangData::langExtendedText].c_str());
 			fprintf(file, "\"/>\n");
@@ -656,9 +674,9 @@ void SIevent::dump(void) const
 		printf("Service-ID: %hu\n", service_id);
 	printf("Event-ID: %hu\n", eventID);
 #ifdef USE_ITEM_DESCRIPTION
-	if(item.length())
+	if(!item.empty())
 		printf("Item: %s\n", item.c_str());
-	if(itemDescription.length())
+	if(!itemDescription.empty())
 		printf("Item-Description: %s\n", itemDescription.c_str());
 #endif
 	for (std::list<SILangData>::const_iterator it = langData.begin(); it != langData.end(); ++it) {
@@ -669,13 +687,13 @@ void SIevent::dump(void) const
 
 	std::string contentClassification, userClassification;
 	classifications.get(contentClassification, userClassification);
-	if(contentClassification.length()) {
+	if(!contentClassification.empty()) {
 		printf("Content classification:");
 		for(unsigned i=0; i<contentClassification.length(); i++)
 			printf(" 0x%02hhx", contentClassification[i]);
 		printf("\n");
 	}
-	if(userClassification.length()) {
+	if(!userClassification.empty()) {
 		printf("User classification:");
 		for(unsigned i=0; i<userClassification.length(); i++)
 			printf(" 0x%02hhx", userClassification[i]);

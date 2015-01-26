@@ -519,7 +519,7 @@ class SIevent
 		// Aus dem Extended Descriptor
 		std::string getExtendedText() const;
 		void appendExtendedText(const std::string &lang, const std::string &text, bool append = true);
-		void appendExtendedText(unsigned int lang, const std::string &text, bool append = true);
+		void appendExtendedText(unsigned int lang, const std::string &text, bool append = true, bool endappend = false);
 		void setExtendedText(const std::string &lang, const std::string &text) {
 			appendExtendedText(lang, text, false);
 		}

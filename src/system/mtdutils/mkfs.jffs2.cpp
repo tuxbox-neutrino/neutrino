@@ -1057,7 +1057,9 @@ struct filesystem_entry *CMkfsJFFS2::recursive_add_host_directory(
 			skipCheck = true;
 		}
 
-		if ((!skipCheck) && (sb.st_dev != dev_x[dev_jffs2]))		/* jffs2 */
+		if (strstr(targetpath, "/var_init") == targetpath)
+			return NULL;
+		if ((!skipCheck) && (sb.st_dev != dev_x[dev_jffs2]) && !(strstr(targetpath, "/var") == targetpath))		/* jffs2 */
 			return NULL;
 	}
 

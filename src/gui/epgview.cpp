@@ -516,7 +516,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	const int pic_h = 39;
 
-	if (text2 != "")
+	if (!text2.empty())
 		toph = 2 * topboxheight;
 	else
 		toph = topboxheight;
@@ -612,7 +612,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	}
 
 	// Show genre information
-	if (epgData.contentClassification.length()> 0)
+	if (!epgData.contentClassification.empty())
 		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_GENRE)) + ": " + GetGenre(epgData.contentClassification[0])); // UTF-8
 //	processTextToArray( epgData.userClassification.c_str() );
 
@@ -646,7 +646,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		headerPic = new CComponentsPicture(sx+10, sy + (toph-logo_h)/2, logo_w, logo_h, lname);
 		headerPic->doPaintBg(false);
 	}
-	std::string textAll = (text2 != "") ? text1 + "\n" + text2 : text1;
+	std::string textAll = (!text2.empty()) ? text1 + "\n" + text2 : text1;
 	headerText = new CComponentsText(sx+15+pic_offx, sy, ox-15-pic_offx, header_h, textAll, CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]);
 	headerText->doPaintBg(false);
 	headerText->setTextColor(COL_MENUHEAD_TEXT);
@@ -979,6 +979,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						msg = 0;
 					} else
 						loop = false;
+				} else if (msg == NeutrinoMessages::EVT_SERVICESCHANGED || msg == NeutrinoMessages::EVT_BOUQUETSCHANGED) {
+					g_RCInput->postMsg(msg, data);
+					loop = false;
+					res = menu_return::RETURN_EXIT_ALL;
 				}
 				else
 				{

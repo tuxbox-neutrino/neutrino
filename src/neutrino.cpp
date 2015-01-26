@@ -84,6 +84,7 @@
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
+#include "gui/screensaver.h"
 #include "gui/sleeptimer.h"
 #include "gui/start_wizard.h"
 #include "gui/update_ext.h"
@@ -118,6 +119,7 @@
 #include <system/sysload.h>
 
 #include <timerdclient/timerdclient.h>
+#include <timerd/timermanager.h>
 
 #include <zapit/debug.h>
 #include <zapit/zapit.h>
@@ -519,6 +521,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.subs_charset = configfile.getString("subs_charset", "CP1252");
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
 
+	//screen saver
+	g_settings.screensaver_delay = configfile.getInt32("screensaver_delay", 1);
+	g_settings.screensaver_dir = configfile.getString("screensaver_dir", DATADIR "/neutrino/icons/");
+	g_settings.screensaver_timeout = configfile.getInt32("screensaver_timeout", 10);
+
 	//vcr
 	g_settings.vcr_AutoSwitch = configfile.getBool("vcr_AutoSwitch"       , true );
 
@@ -549,6 +556,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		g_settings.epg_scan = CEpgScan::SCAN_CURRENT;
 		g_settings.epg_scan_mode = CEpgScan::MODE_OFF;
 	}
+	g_settings.epg_save_mode = configfile.getInt32("epg_save_mode", 0);
 	//widget settings
 	g_settings.widget_fade = false;
 	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
@@ -764,11 +772,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.softupdate_proxyusername = configfile.getString("softupdate_proxyusername", "" );
 	g_settings.softupdate_proxypassword = configfile.getString("softupdate_proxypassword", "" );
 	//
-	if (g_settings.softupdate_proxyserver == "")
+	if (g_settings.softupdate_proxyserver.empty())
 		unsetenv("http_proxy");
 	else {
 		std::string proxy = "http://";
-		if (g_settings.softupdate_proxyusername != "")
+		if (!g_settings.softupdate_proxyusername.empty())
 			proxy += g_settings.softupdate_proxyusername + ":" + g_settings.softupdate_proxypassword + "@";
 		proxy += g_settings.softupdate_proxyserver;
 		setenv("http_proxy", proxy.c_str(), 1);
@@ -807,7 +815,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	//Audio-Player
 	g_settings.audioplayer_display = configfile.getInt32("audioplayer_display",(int)CAudioPlayerGui::ARTIST_TITLE);
 	g_settings.audioplayer_follow  = configfile.getInt32("audioplayer_follow",0);
-	g_settings.audioplayer_screensaver = configfile.getInt32("audioplayer_screensaver", 1);
 	g_settings.audioplayer_highprio  = configfile.getInt32("audioplayer_highprio",0);
 	g_settings.audioplayer_select_title_by_name = configfile.getInt32("audioplayer_select_title_by_name",0);
 	g_settings.audioplayer_repeat_on = configfile.getInt32("audioplayer_repeat_on",0);
@@ -838,7 +845,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_search_history.clear();
 	for(int i = 0; i < g_settings.epg_search_history_size; i++) {
 		std::string s = configfile.getString("epg_search_history_" + to_string(i));
-		if (s != "")
+		if (!s.empty())
 			g_settings.epg_search_history.push_back(configfile.getString("epg_search_history_" + to_string(i), ""));
 	}
 	g_settings.epg_search_history_size = g_settings.epg_search_history.size();
@@ -1053,6 +1060,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	}
 	configfile.setString("subs_charset", g_settings.subs_charset);
 
+	//screen saver
+	configfile.setInt32("screensaver_delay", g_settings.screensaver_delay);
+	configfile.setString("screensaver_dir", g_settings.screensaver_dir);
+	configfile.setInt32("screensaver_timeout", g_settings.screensaver_timeout);
+
 	//vcr
 	configfile.setBool("vcr_AutoSwitch"       , g_settings.vcr_AutoSwitch       );
 
@@ -1066,6 +1078,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("epg_read", g_settings.epg_read);
 	configfile.setInt32("epg_scan", g_settings.epg_scan);
 	configfile.setInt32("epg_scan_mode", g_settings.epg_scan_mode);
+	configfile.setInt32("epg_save_mode", g_settings.epg_save_mode);
 	configfile.setInt32("epg_cache_time"           ,g_settings.epg_cache );
 	configfile.setInt32("epg_extendedcache_time"   ,g_settings.epg_extendedcache);
 	configfile.setInt32("epg_old_events"           ,g_settings.epg_old_events );
@@ -1263,7 +1276,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//Audio-Player
 	configfile.setInt32( "audioplayer_display", g_settings.audioplayer_display );
 	configfile.setInt32( "audioplayer_follow", g_settings.audioplayer_follow );
-	configfile.setInt32( "audioplayer_screensaver", g_settings.audioplayer_screensaver );
 	configfile.setInt32( "audioplayer_highprio", g_settings.audioplayer_highprio );
 	configfile.setInt32( "audioplayer_select_title_by_name", g_settings.audioplayer_select_title_by_name );
 	configfile.setInt32( "audioplayer_repeat_on", g_settings.audioplayer_repeat_on );
@@ -1545,6 +1557,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	TIMER_STOP("[neutrino] took");
 
 	SetChannelMode(lastChannelMode);
+	CEpgScan::getInstance()->ConfigureEIT();
 
 	dprintf(DEBUG_DEBUG, "\nAll bouquets-channels received\n");
 }
@@ -2201,6 +2214,21 @@ void CNeutrinoApp::showInfo()
 	StartSubtitles();
 }
 
+void CNeutrinoApp::screensaver(bool on)
+{
+	if (on)
+	{
+		m_screensaver = true;
+		CScreenSaver::getInstance()->Start();
+	}
+	else
+	{
+		CScreenSaver::getInstance()->Stop();
+		m_screensaver = false;
+		m_idletime = time(NULL);
+	}
+}
+
 void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 {
 	neutrino_msg_t      msg;
@@ -2225,11 +2253,53 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 	CLuaServer *luaServer = CLuaServer::getInstance();
 
+	m_idletime	= time(NULL);
+	m_screensaver	= false;
+
 	while( true ) {
 		luaServer->UnBlock();
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 		if (luaServer->Block(msg, data))
 			continue;
+
+		if (mode == mode_radio) {
+			bool ignored_msg = (
+				/* radio screensaver will ignore this msgs */
+				   msg == NeutrinoMessages::EVT_CURRENTEPG
+				|| msg == NeutrinoMessages::EVT_NEXTEPG
+				|| msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG
+				|| msg == NeutrinoMessages::EVT_TIMESET
+				|| msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS
+				|| msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES
+				|| msg == NeutrinoMessages::EVT_ZAP_GOTAPIDS
+				|| msg == NeutrinoMessages::EVT_ZAP_GOTPIDS
+			);
+			if ( msg == CRCInput::RC_timeout  || msg == NeutrinoMessages::EVT_TIMER)
+			{
+				int delay = time(NULL) - m_idletime;
+				int screensaver_delay = g_settings.screensaver_delay;
+				if (screensaver_delay !=0 && delay > screensaver_delay*60 && !m_screensaver)
+					screensaver(true);
+			}
+			else if (!ignored_msg)
+			{
+				m_idletime = time(NULL);
+				if (m_screensaver)
+				{
+					printf("[neutrino] CSreenSaver stop; msg: %X\n", msg);
+					screensaver(false);
+
+					videoDecoder->StopPicture();
+					videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+
+					if (msg <= CRCInput::RC_MaxRC) {
+						// ignore first keypress - just quit the screensaver
+						g_RCInput->clearRCMsg();
+						continue;
+					}
+				}
+			}
+		}
 
 		if( ( mode == mode_tv ) ||  ( mode == mode_radio )  || ( mode == mode_webtv ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
@@ -2248,10 +2318,14 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					int old_ttx = g_settings.cacheTXT;
 					int old_epg = g_settings.epg_scan;
 					int old_mode = g_settings.epg_scan_mode;
+					int old_save_mode = g_settings.epg_save_mode;
 					mainMenu.exec(NULL, "");
 					InfoClock->enableInfoClock(true);
 					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
+
+					if (old_save_mode != g_settings.epg_save_mode)
+						CEpgScan::getInstance()->ConfigureEIT();
 					if (old_epg != g_settings.epg_scan || old_mode != g_settings.epg_scan_mode) {
 						if (g_settings.epg_scan_mode != CEpgScan::MODE_OFF)
 							CEpgScan::getInstance()->Start();
@@ -2553,8 +2627,11 @@ _repeat:
 		CHintBox* hintBox= new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(loc));
 		hintBox->paint();
 
-		if (favorites_changed)
+		if (favorites_changed) {
 			g_bouquetManager->saveUBouquets();
+			if (!channels_init)
+				CEpgScan::getInstance()->ConfigureEIT();
+		}
 
 		if (channels_changed)
 			CServiceManager::getInstance()->SaveServices(true);
@@ -2760,8 +2837,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			/*       shuts down the system even if !g_settings.shutdown_real_rcdelay (see below)  */
 			gettimeofday(&standby_pressed_at, NULL);
 
-			if ((mode != mode_standby) && (g_settings.shutdown_real) && !recordingstatus) {
-				new_msg = NeutrinoMessages::SHUTDOWN;
+			if ((mode != mode_standby) && (g_settings.shutdown_real)) {
+				CRecordManager::getInstance()->StopAutoRecord();
+				if(CRecordManager::getInstance()->RecordingStatus()) {
+					new_msg = NeutrinoMessages::STANDBY_ON;
+					CTimerManager::getInstance()->wakeup = true;
+					g_RCInput->firstKey = false;
+				} else
+					new_msg = NeutrinoMessages::SHUTDOWN;
 			}
 			else {
 				new_msg = (mode == mode_standby) ? NeutrinoMessages::STANDBY_OFF : NeutrinoMessages::STANDBY_ON;
@@ -3537,23 +3620,23 @@ void CNeutrinoApp::tvMode( bool rezap )
 		videoDecoder->Standby(false);
 	}
 
-	bool stopauto = (mode != mode_ts);
-	int oldmode = mode;
-	mode = mode_tv;
 #ifdef ENABLE_PIP
 	pipDecoder->Pig(g_settings.pip_x, g_settings.pip_y,
 			g_settings.pip_width, g_settings.pip_height,
 			frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 #endif
-	if(stopauto /*&& autoshift*/) {
+#if 0
+	if(mode != mode_ts /*&& autoshift*/) {
 		//printf("standby on: autoshift ! stopping ...\n");
 		CRecordManager::getInstance()->StopAutoRecord();
-		//recordingstatus = 0;
 	}
-	if (oldmode != mode_webtv) {
+#endif
+	if (mode != mode_webtv) {
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
 	}
+	mode = mode_tv;
+
 	g_RemoteControl->tvMode();
 	SetChannelMode(g_settings.channel_mode);
 	if( rezap ) {
@@ -3989,7 +4072,10 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	else if(actionKey == "channels")
 		return showChannelList(CRCInput::RC_ok, true);
 	else if(actionKey == "standby")
+	{
 		g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
+		return menu_return::RETURN_EXIT_ALL;
+	}
 	else if(actionKey == "easyswitch") {
 		INFO("easyswitch\n");
 		CParentalSetup pin;

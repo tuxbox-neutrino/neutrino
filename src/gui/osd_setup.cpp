@@ -75,6 +75,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	colorSetupNotifier = new CColorSetupNotifier();
 	fontsizenotifier = new CFontSizeNotifier;
 	colorInfoclockNotifier = NULL;
+	screensaverNotifier = NULL;
 	osd_menu = NULL;
 	submenu_menus = NULL;
 	mfFontFile = NULL;
@@ -325,6 +326,11 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		chooserDir(g_settings.screenshot_dir, true, action_str);
 		return res;
 	}
+	else if(actionKey=="screensaver_dir") {
+		const char *action_str = "screensaver";
+		chooserDir(g_settings.screensaver_dir, false, action_str);
+		return res;
+	}
 	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
 		for (int i = 0; i < FONT_GROUP_COUNT; i++) {
 			if (actionKey == font_sizes_groups[i].actionkey) {
@@ -570,6 +576,13 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(mf);
 #endif
 
+	//screensaver
+	CMenuWidget osd_menu_screensaver(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSAVER);
+	showOsdScreensaverSetup(&osd_menu_screensaver);
+	mf = new CMenuForwarder(LOCALE_SCREENSAVER_MENU, true, NULL, &osd_menu_screensaver, NULL, CRCInput::convertDigitToKey(shortcut++));
+	mf->setHint("", LOCALE_MENU_HINT_SCREENSAVER_SETUP);
+	osd_menu->addItem(mf);
+
 	osd_menu->addItem(GenericMenuSeparatorLine);
 
 	//monitor
@@ -633,6 +646,7 @@ int COsdSetup::showOsdSetup()
 	}
 
 	delete colorInfoclockNotifier;
+	delete screensaverNotifier;
 	delete osd_menu;
 	return res;
 }
@@ -1273,6 +1287,31 @@ void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 	menu_screenshot->addItem(mc);
 }
 #endif
+
+void COsdSetup::showOsdScreensaverSetup(CMenuWidget *menu_screensaver)
+{
+	menu_screensaver->addIntroItems(LOCALE_SCREENSAVER_MENU);
+	screensaverNotifier = new COnOffNotifier();
+
+	// screensaver delay
+	CMenuOptionNumberChooser* nc = new CMenuOptionNumberChooser(LOCALE_SCREENSAVER_DELAY, &g_settings.screensaver_delay, true, 0, 999, screensaverNotifier, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_SCREENSAVER_OFF);
+	nc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE));
+	nc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DELAY);
+	menu_screensaver->addItem(nc);
+
+	// screensaver timeout
+	nc = new CMenuOptionNumberChooser(LOCALE_SCREENSAVER_TIMEOUT, &g_settings.screensaver_timeout, (g_settings.screensaver_delay != 0), 0, 60, NULL, CRCInput::RC_nokey, NULL, 0, 0, LOCALE_OPTIONS_OFF);
+	nc->setNumberFormat(std::string("%d ") + g_Locale->getText(LOCALE_UNIT_SHORT_SECOND));
+	nc->setHint("", LOCALE_MENU_HINT_SCREENSAVER_TIMEOUT);
+	menu_screensaver->addItem(nc);
+	screensaverNotifier->addItem(nc);
+
+	// screensaver_dir
+	CMenuForwarder *mf = new CMenuForwarder(LOCALE_SCREENSAVER_DIR, (g_settings.screensaver_delay != 0), g_settings.screensaver_dir, this, "screensaver_dir");
+	mf->setHint("", LOCALE_MENU_HINT_SCREENSAVER_DIR);
+	menu_screensaver->addItem(mf);
+	screensaverNotifier->addItem(mf);
+}
 
 void COsdSetup::paintWindowSize(int w, int h)
 {

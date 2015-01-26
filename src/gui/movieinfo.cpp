@@ -382,7 +382,7 @@ bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 	}
 
 	delete parser;
-	if (movie_info->epgInfo2 == "") {
+	if (movie_info->epgInfo2.empty()) {
 		movie_info->epgInfo2 = movie_info->epgInfo1;
 		//movie_info->epgInfo1 = "";
 	}
@@ -794,7 +794,7 @@ bool CMovieInfo::parseXmlQuickFix(std::string &_text, MI_MOVIE_INFO * movie_info
 		}
 	}
 
-	if (movie_info->epgInfo2 == "") {
+	if (movie_info->epgInfo2.empty()) {
 		movie_info->epgInfo2 = movie_info->epgInfo1;
 		//movie_info->epgInfo1 = "";
 	}

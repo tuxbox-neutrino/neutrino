@@ -161,6 +161,8 @@ private:
 	void internalMoveChannel(unsigned int fromPosition, unsigned int toPosition);
 	void deleteChannel(bool ask = true);
 	void addChannel();
+	void renameChannel();
+	std::string inputName(const char * const defaultName, const neutrino_locale_t caption);
 	void lockChannel();
 	void saveChanges(bool fav = true);
 	bool addChannelToBouquet();
@@ -237,6 +239,5 @@ public:
 	};
 	unsigned Size() { return (*chanlist).size(); }
 	ZapitChannelList &getChannels() { return channels; };
-
 };
 #endif

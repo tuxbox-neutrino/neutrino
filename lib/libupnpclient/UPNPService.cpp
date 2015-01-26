@@ -69,7 +69,7 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 		post << ">";
 		for (i = attribs.begin(); i != attribs.end(); ++i)
 		{
-			if (i->second == "")
+			if (i->second.empty())
 				post << "<" << i->first << "/>";
 			else
 			{
@@ -157,7 +157,7 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 			if (!strcmp(node->GetType(),"faultstring"))
 				faultstring=std::string(node->GetData()?node->GetData():"");
 		}
-		if (faultstring != "")
+		if (!faultstring.empty())
 			throw std::runtime_error(faultstring + " " + upnpcode + " " + upnpdesc);
 		else
 			throw std::runtime_error(std::string("XML: http error with unknown soap: ")+rcode);

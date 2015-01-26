@@ -140,7 +140,6 @@ class CAudioPlayerGui : public CMenuTarget
 	int            m_idletime;
 	bool          m_screensaver;
 	bool          m_inetmode;
-	uint32_t       stimer;
 	CComponentsDetailLine *dline;
 	CComponentsInfoBox *ibox;
 
@@ -164,7 +163,7 @@ class CAudioPlayerGui : public CMenuTarget
 	void rev(unsigned int seconds=0);
 	int getNext();
 	void GetMetaData(CAudiofileExt &File);
-	void updateMetaData(bool screen_saver = false);
+	void updateMetaData();
 	void updateTimes(const bool force = false);
 	void showMetaData();
 	void screensaver(bool on);

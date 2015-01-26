@@ -176,7 +176,7 @@ int CThemes::Show()
 
 	int res = themes.exec(NULL, "");
 
-	if (file_name.length() > 0) {
+	if (!file_name.empty()) {
 		saveFile((char*)((std::string)THEMEDIR_VAR + file_name + FILE_PREFIX).c_str());
 	}
 

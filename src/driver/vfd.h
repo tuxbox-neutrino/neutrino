@@ -125,11 +125,11 @@ class CVFD
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
 		void showVolume(const char vol, const bool perform_update = true);
-		void showPercentOver(const unsigned char perc, const bool perform_update = true);
+		void showPercentOver(const unsigned char perc, const bool perform_update = true, const MODES origin = MODE_TVRADIO);
 		void showMenuText(const int position, const char * text, const int highlight = -1, const bool utf_encoded = false);
 		void showAudioTrack(const std::string & artist, const std::string & title, const std::string & album);
 		void showAudioPlayMode(AUDIOMODES m=AUDIO_MODE_PLAY);
-		void showAudioProgress(const char perc, bool isMuted);
+		void showAudioProgress(const unsigned char perc);
 		void setBrightness(int);
 		int getBrightness();
 

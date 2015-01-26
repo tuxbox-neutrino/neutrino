@@ -24,8 +24,9 @@
 #include <unistd.h>
 #include <driver/genpsi.h>
 
-#define SIZE_TS_PKT			188
-#define OFS_HDR_2			5
+#define SIZE_TS_PKT		188
+#define TS_DATA_LEN		184
+#define OFS_HDR_2		5
 #define OFS_PMT_DATA		13
 #define OFS_STREAM_TAB		17
 #define SIZE_STREAM_TAB_ROW	5
@@ -272,99 +273,105 @@ void CGenPsi::build_pmt(uint8_t* buffer)
 	buffer[0x1c] = 0x11;
 	buffer[0x1d] = 0x01;
 	buffer[0x1e] = 0xfe;
-	off = 0x1e;
+	off = 0x1f;
 
 	// Audio streams
-	for (int index = 0; index < nba && index<10; index++)
+	for (int index = 0; index < nba; index++)
 	{
-		buffer[++off] = (atypes[index]==1)? ES_TYPE_AC3 : ES_TYPE_MPA;
-		buffer[++off] = apid[index]>>8;
-		buffer[++off] = apid[index]&0xff;
+		if ((atypes[index] == 1) && (off >= (TS_DATA_LEN - 17)))
+			break;
+		else if (off >= (TS_DATA_LEN - 11))
+			break;
+
+		buffer[off++] = (atypes[index]==1)? ES_TYPE_AC3 : ES_TYPE_MPA;
+		buffer[off++] = apid[index]>>8;
+		buffer[off++] = apid[index]&0xff;
 
 		if (atypes[index] == 1)//ES_TYPE_AC3
 		{
-			buffer[++off] = 0xf0;
-			buffer[++off] = 0x0c; // es info length
-			buffer[++off] = 0x05;
-			buffer[++off] = 0x04;
-			buffer[++off] = 0x41;
-			buffer[++off] = 0x43;
-			buffer[++off] = 0x2d;
-			buffer[++off] = 0x33;
+			buffer[off++] = 0xf0;
+			buffer[off++] = 0x0c; // es info length
+			buffer[off++] = 0x05;
+			buffer[off++] = 0x04;
+			buffer[off++] = 0x41;
+			buffer[off++] = 0x43;
+			buffer[off++] = 0x2d;
+			buffer[off++] = 0x33;
 		}
 		else
 		{
-			buffer[++off] = 0xf0;
-			buffer[++off] = 0x06; // es info length
+			buffer[off++] = 0xf0;
+			buffer[off++] = 0x06; // es info length
 		}
-		buffer[++off] = 0x0a; // iso639 descriptor tag
-		buffer[++off] = 0x04; // descriptor length
-		buffer[++off] = apid_lang[index][0];
-		buffer[++off] = apid_lang[index][1];
-		buffer[++off] = apid_lang[index][2];
-		buffer[++off] = 0x00; // audio type
+		buffer[off++] = 0x0a; // iso639 descriptor tag
+		buffer[off++] = 0x04; // descriptor length
+		buffer[off++] = apid_lang[index][0];
+		buffer[off++] = apid_lang[index][1];
+		buffer[off++] = apid_lang[index][2];
+		buffer[off++] = 0x00; // audio type
 	}
 	// eac3 audio
-	for (int index=0; index<neac3 && index<10; index++)
+	for (int index = 0; index < neac3 && off < (TS_DATA_LEN-18); index++)
 	{
-		buffer[++off] = 0x06;//pes private type;
-		buffer[++off] = 0xE0 | eac3_pid[index]>>8;
-		buffer[++off] = eac3_pid[index] & 0xFF;
-		buffer[++off] = 0xF0;
-		buffer[++off] = 0x0d;		// es info length
-		buffer[++off] = 0x52;
-		buffer[++off] = 0x01;
-		buffer[++off] = 0x5d;
-		buffer[++off] = 0x0a;		// iso639 descriptor tag
-		buffer[++off] = 0x04;		// descriptor length
-		buffer[++off] = eac3_lang[index][0];	//language code[0]
-		buffer[++off] = eac3_lang[index][1];	//language code[1]
-		buffer[++off] = eac3_lang[index][2];	//language code[2]
-		buffer[++off] = 0x01;
-		buffer[++off] = 0x7a;		//enhanced_AC-3_descriptor
-		buffer[++off] = 0x02;
-		buffer[++off] = 0x80;
-		buffer[++off] = 0xc5;
+		buffer[off++] = 0x06;//pes private type;
+		buffer[off++] = 0xE0 | eac3_pid[index]>>8;
+		buffer[off++] = eac3_pid[index] & 0xFF;
+		buffer[off++] = 0xF0;
+		buffer[off++] = 0x0d;		// es info length
+		buffer[off++] = 0x52;
+		buffer[off++] = 0x01;
+		buffer[off++] = 0x5d;
+		buffer[off++] = 0x0a;		// iso639 descriptor tag
+		buffer[off++] = 0x04;		// descriptor length
+		buffer[off++] = eac3_lang[index][0];	//language code[0]
+		buffer[off++] = eac3_lang[index][1];	//language code[1]
+		buffer[off++] = eac3_lang[index][2];	//language code[2]
+		buffer[off++] = 0x01;
+		buffer[off++] = 0x7a;		//enhanced_AC-3_descriptor
+		buffer[off++] = 0x02;
+		buffer[off++] = 0x80;
+		buffer[off++] = 0xc5;
 	}
 
 	// Subtitle streams
-	for (int index = 0; index < nsub && index<10; index++)
+	for (int index = 0; index < nsub && off < (TS_DATA_LEN-15); index++)
 	{
-		buffer[++off] = 0x06;//pes private type;
-		buffer[++off] = dvbsubpid[index]>>8;
-		buffer[++off] = dvbsubpid[index]&0xff;
-		buffer[++off] = 0xf0;
-		buffer[++off] = 0x0a; // es info length
-		buffer[++off] = 0x59; // DVB sub tag
-		buffer[++off] = 0x08; // descriptor length
-		buffer[++off] = dvbsublang[index][0];
-		buffer[++off] = dvbsublang[index][1];
-		buffer[++off] = dvbsublang[index][2];
-		buffer[++off] = 0x20;		//subtitle_stream.subtitling_type
-		buffer[++off] = 0x01>>8;		//composition_page_id
-		buffer[++off] = 0x01&0xff; 	//composition_page_id
-		buffer[++off] = 0x01>>8; 		//ancillary_page_id
-		buffer[++off] = 0x01&0xff;	//ancillary_page_id
+		buffer[off++] = 0x06;//pes private type;
+		buffer[off++] = dvbsubpid[index]>>8;
+		buffer[off++] = dvbsubpid[index]&0xff;
+		buffer[off++] = 0xf0;
+		buffer[off++] = 0x0a; // es info length
+		buffer[off++] = 0x59; // DVB sub tag
+		buffer[off++] = 0x08; // descriptor length
+		buffer[off++] = dvbsublang[index][0];
+		buffer[off++] = dvbsublang[index][1];
+		buffer[off++] = dvbsublang[index][2];
+		buffer[off++] = 0x20;		//subtitle_stream.subtitling_type
+		buffer[off++] = 0x01>>8;		//composition_page_id
+		buffer[off++] = 0x01&0xff; 	//composition_page_id
+		buffer[off++] = 0x01>>8; 		//ancillary_page_id
+		buffer[off++] = 0x01&0xff;	//ancillary_page_id
 	}
 	
 	// TeleText streams
-	if(vtxtpid){
-		buffer[++off] = 0x06;		//teletext stream type;
-		buffer[++off] = 0xE0 | vtxtpid>>8;
-		buffer[++off] = vtxtpid&0xff;
-		buffer[++off] = 0xf0;
-		buffer[++off] = 0x0A;		// ES_info_length
-		buffer[++off] = 0x52;		//DVB-DescriptorTag: 82 (0x52)  [= stream_identifier_descriptor]
-		buffer[++off] = 0x01;		// descriptor_length
-		buffer[++off] = 0x03;		//component_tag
-		buffer[++off] = 0x56;		// DVB teletext tag
-		buffer[++off] = 0x05;		// descriptor length
-		buffer[++off] = vtxtlang[0];	//language code[0]
-		buffer[++off] = vtxtlang[1];	//language code[1]
-		buffer[++off] = vtxtlang[2];	//language code[2]
-		buffer[++off] = (/*descriptor_magazine_number*/ 0x01 & 0x06) | ((/*descriptor_type*/ 0x01 << 3) & 0xF8);
-		buffer[++off] = 0x00 ;		//Teletext_page_number
+	if(vtxtpid && off < (TS_DATA_LEN-15)) {
+		buffer[off++] = 0x06;		//teletext stream type;
+		buffer[off++] = 0xE0 | vtxtpid>>8;
+		buffer[off++] = vtxtpid&0xff;
+		buffer[off++] = 0xf0;
+		buffer[off++] = 0x0A;		// ES_info_length
+		buffer[off++] = 0x52;		//DVB-DescriptorTag: 82 (0x52)  [= stream_identifier_descriptor]
+		buffer[off++] = 0x01;		// descriptor_length
+		buffer[off++] = 0x03;		//component_tag
+		buffer[off++] = 0x56;		// DVB teletext tag
+		buffer[off++] = 0x05;		// descriptor length
+		buffer[off++] = vtxtlang[0];	//language code[0]
+		buffer[off++] = vtxtlang[1];	//language code[1]
+		buffer[off++] = vtxtlang[2];	//language code[2]
+		buffer[off++] = (/*descriptor_magazine_number*/ 0x01 & 0x06) | ((/*descriptor_type*/ 0x01 << 3) & 0xF8);
+		buffer[off++] = 0x00 ;		//Teletext_page_number
 	}
+	off--;
 	buffer[0x07] = off-3; // update section_length
 
 	// Put CRC in ts[0x29...0x2c]

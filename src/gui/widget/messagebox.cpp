@@ -116,7 +116,7 @@ void CMessageBox::Init(const CMessageBox::result_ &Default, const uint32_t ShowB
 			ButtonDistance = (m_width - b_width * ButtonCount) / (ButtonCount + 1);
 
 	/* this is ugly: re-init (CHintBoxExt) to recalculate the number of lines and pages */
-	init(m_caption, m_captionString, m_width, m_iconfile == "" ? NULL : m_iconfile.c_str());
+	init(m_caption, m_captionString, m_width, m_iconfile.empty() ? NULL : m_iconfile.c_str());
 	m_height += m_bbheight;
 }
 

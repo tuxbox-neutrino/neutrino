@@ -17,7 +17,7 @@ THandleStatus CmAuth::Hook_PrepareResponse(CyhookHandler *hh) {
 	// dont check local calls or calls from NoAuthClient
 	if (authenticate) {
 		if ((hh->UrlData["clientaddr"]).find(IADDR_LOCAL) > 0
-			&& (no_auth_client == "" || (hh->UrlData["clientaddr"]).compare(no_auth_client) != 0))
+			&& (no_auth_client.empty() || (hh->UrlData["clientaddr"]).compare(no_auth_client) != 0))
 		{
 			if (!CheckAuth(hh)) {
 				hh->SetError(HTTP_UNAUTHORIZED);
@@ -50,7 +50,7 @@ THandleStatus CmAuth::Hook_ReadConfig(CConfigFile *Config,
 // check if given username an pssword are valid
 //-----------------------------------------------------------------------------
 bool CmAuth::CheckAuth(CyhookHandler *hh) {
-	if (hh->HeaderList["Authorization"] == "")
+	if (hh->HeaderList["Authorization"].empty())
 		return false;
 	std::string encodet = hh->HeaderList["Authorization"].substr(6,
 			hh->HeaderList["Authorization"].length() - 6);

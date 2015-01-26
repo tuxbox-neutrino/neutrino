@@ -83,6 +83,9 @@ private:
 	int                             network_dhcp;
 	int                             network_automatic_start;
 
+	int				m_idletime;
+	bool				m_screensaver;
+
 	int				mode;
 	int				lastMode;
 	bool				softupdate;
@@ -227,6 +230,7 @@ public:
 	void lockPlayBack(bool blank = true);
 	void stopPlayBack(bool lock = false);
 	bool adjustToChannelID(const t_channel_id channel_id);
+	void screensaver(bool);
 };
 #endif
 

@@ -46,6 +46,7 @@
 #include <eventserver.h>
 #include <driver/abstime.h>
 #include <system/helpers.h>
+#include <OpenThreads/ScopedLock>
 
 #include "eitd.h"
 #include "sectionsd.h"
@@ -125,6 +126,7 @@ static CEventServer *eventServer;
 /*static*/ pthread_rwlock_t eventsLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge events geschrieben und gelesen wird
 static pthread_rwlock_t servicesLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge services geschrieben und gelesen wird
 static pthread_rwlock_t messagingLock = PTHREAD_RWLOCK_INITIALIZER;
+OpenThreads::Mutex filter_mutex;
 
 static CTimeThread threadTIME;
 static CEitThread threadEIT;
@@ -250,7 +252,9 @@ static bool deleteEvent(const event_id_t uniqueKey)
 /* if cn == true (if called by cnThread), then myCurrentEvent and myNextEvent is updated, too */
 /*static*/ void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 {
+	filter_mutex.lock();
 	bool EPG_filtered = checkEPGFilter(evt.original_network_id, evt.transport_stream_id, evt.service_id);
+	filter_mutex.unlock();
 
 	/* more readable in "plain english":
 	   if current/next are not to be filtered and table_id is current/next -> continue
@@ -369,12 +373,12 @@ xprintf("addEvent: ch %012" PRIx64 " running %d (%s) got_CN %d\n", evt.get_chann
 		si->second->item = evt.item;
 #endif
 		//si->second->vps = evt.vps;
-		if ((evt.getExtendedText().length() > 0) && !evt.times.empty() &&
+		if ((!evt.getExtendedText().empty()) && !evt.times.empty() &&
 				(evt.times.begin()->startzeit < zeit + secondsExtendedTextCache))
 			si->second->setExtendedText(0 /*"OFF"*/,evt.getExtendedText());
-		if (evt.getText().length() > 0)
+		if (!evt.getText().empty())
 			si->second->setText(0 /*"OFF"*/,evt.getText());
-		if (evt.getName().length() > 0)
+		if (!evt.getName().empty())
 			si->second->setName(0 /*"OFF"*/,evt.getName());
 	}
 	else {
@@ -915,6 +919,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	if (cmd->dnum) {
 		/* dont wakeup EIT, if we have max events allready */
 		if (max_events == 0  || (mySIeventsOrderUniqueKey.size() < max_events)) {
+			current_channel_id = uniqueServiceKey;
 			writeLockMessaging();
 			messaging_zap_detected = true;
 			unlockMessaging();
@@ -1745,7 +1750,7 @@ void CEitThread::beforeSleep()
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
-	if (scanning) {
+	if (scanning && current_channel_id) {
 		eventServer->sendEvent(CSectionsdClient::EVT_EIT_COMPLETE,
 				CEventServer::INITID_SECTIONSD,
 				&current_service,
@@ -2164,6 +2169,8 @@ bool CEitManager::Start()
 		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
 	printf("[sectionsd] NTP: %s, server %s, command %s\n", ntpenable ? "enabled" : "disabled", ntpserver.c_str(), ntp_system_cmd_prefix.c_str());
 
+	readEPGFilter();
+
 	if (!sectionsd_server.prepare(SECTIONSD_UDS_NAME)) {
 		fprintf(stderr, "[sectionsd] failed to prepare basic server\n");
 		return false;
@@ -2208,7 +2215,6 @@ printf("SIevent size: %d\n", (int)sizeof(SIevent));
 
 	tzset(); // TZ auswerten
 
-	readEPGFilter();
 	readDVBTimeFilter();
 	readEncodingFile();
 
@@ -2314,7 +2320,7 @@ void CEitManager::getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEve
 	// service Found
 	readLockEvents();
 	int serviceIDfound = 0;
-	if (search_text.length())
+	if (!search_text.empty())
 		std::transform(search_text.begin(), search_text.end(), search_text.begin(), tolower);
 
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
@@ -2903,4 +2909,19 @@ unsigned CEitManager::getEventsCount()
 	unsigned anzEvents = mySIeventsOrderUniqueKey.size();
 	unlockEvents();
 	return anzEvents;
+}
+
+void CEitManager::addChannelFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> slock(filter_mutex);
+	epg_filter_except_current_next = true;
+	epg_filter_is_whitelist = true;
+	addEPGFilter(onid, tsid, sid);
+}
+
+void CEitManager::clearChannelFilters()
+{
+	OpenThreads::ScopedLock<OpenThreads::Mutex> slock(filter_mutex);
+	clearEPGFilter();
+	epg_filter_is_whitelist = false;
 }

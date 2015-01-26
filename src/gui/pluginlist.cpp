@@ -92,7 +92,7 @@ int CPluginList::exec(CMenuTarget* parent, const std::string &actionKey)
 	const char * dummy = NULL;
 
 	number = -1;
-	if (actionKey != "")
+	if (!actionKey.empty())
 		number = atoi(actionKey.c_str());
 
 	if (number > -1)

@@ -52,7 +52,7 @@ unsigned int getLangIndex(const std::string &lang)
 {
 	unsigned int ix = 0;
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(langIndexMutex);
-	if (!langIndex.size())
+	if (langIndex.empty())
 		langIndex.push_back(languageOFF);
 	for (std::vector<std::string>::iterator it = langIndex.begin(); it != langIndex.end(); ++it, ++ix)
 		if (*it == lang)
@@ -101,7 +101,7 @@ void SIlanguage::filter(const std::list<SILangData>& s, SILangData::SILangDataIn
 		}
 	}
 
-	if (retval.length() == 0) {
+	if (retval.empty()) {
 		// return all available languages
 		if (s.begin() != s.end()) {
 			for (std::list<SILangData>::const_iterator it = s.begin() ;

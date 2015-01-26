@@ -452,6 +452,8 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 					CServiceManager::getInstance()->AddChannel(chan);
 					chan->flags = CZapitChannel::NOT_FOUND;
 					chan->bLocked = clock;
+					if(!(uname.empty()))
+						chan->setUserName(uname);
 					newBouquet->addService(chan);
 					CServiceManager::getInstance()->SetServicesChanged(false);
 				}
