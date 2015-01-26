@@ -4,7 +4,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2007-2013 Stefan Seyfried
+	Copyright (C) 2007-2015 Stefan Seyfried
 
 	License: GPL
 
@@ -258,7 +258,6 @@ class CFrameBuffer
 		void blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff);
 
 		void mark(int x, int y, int dx, int dy);
-		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
 		enum 
 			{
