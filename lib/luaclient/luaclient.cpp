@@ -76,6 +76,7 @@ int main(int argc, char** argv)
 	int res = -1;
 	const char *fun = NULL;
 	char *resp = NULL;
+	char result[size];
 
         if (!client.Send(data, size)) {
 		fun = "Send failed";
@@ -85,7 +86,6 @@ int main(int argc, char** argv)
 		fun = "Recv (1) failed";
 		goto fail;
 	}
-	char result[size];
         if (!client.Recv(result, size)) {
 		fun = "Recv (2) failed";
 		goto fail;
