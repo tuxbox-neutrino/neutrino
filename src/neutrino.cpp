@@ -2549,8 +2549,11 @@ _repeat:
 		CHintBox* hintBox= new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(loc));
 		hintBox->paint();
 
-		if (favorites_changed)
+		if (favorites_changed) {
 			g_bouquetManager->saveUBouquets();
+			if (!channels_init)
+				CEpgScan::getInstance()->ConfigureEIT();
+		}
 
 		if (channels_changed)
 			CServiceManager::getInstance()->SaveServices(true);
