@@ -89,8 +89,16 @@ fi
 AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
 
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
-TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
-TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
+TUXBOX_APPS_LIB_PKGCONFIG(CURL,libcurl)
+TUXBOX_APPS_LIB_PKGCONFIG(FREETYPE,freetype2)
+# fallback to curl-config (which is ugly for cross-compilation)
+if test -z "$CURL_LIBS" -a -z "$CURL_CFLAGS"; then
+	TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
+fi
+# fallback to freetype-config (which is ugly for cross-compilation)
+if test -z "$FREETYPE_LIBS" -a -z "$FREETYPE_CFLAGS"; then
+	TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
+fi
 
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
