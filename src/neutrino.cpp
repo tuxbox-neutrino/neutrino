@@ -2286,7 +2286,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				m_idletime = time(NULL);
 				if (m_screensaver)
 				{
-					printf("[neutrino] CSreenSaver stop; msg: %X\n", msg);
+					printf("[neutrino] CSreenSaver stop; msg: %lX\n", msg);
 					screensaver(false);
 
 					videoDecoder->StopPicture();
