@@ -286,7 +286,7 @@ bool CFEManager::loadSettings()
 		satellite_map_t & satmap = fe->getSatellites();
 		satmap.clear();
 
-		satellite_map_t satlist = CServiceManager::getInstance()->SatelliteList();
+		satellite_map_t &satlist = CServiceManager::getInstance()->SatelliteList();
 		for(sat_iterator_t sit = satlist.begin(); sit != satlist.end(); ++sit)
 		{
 			if (!fe->supportsDelivery(sit->second.delsys))
@@ -314,6 +314,8 @@ bool CFEManager::loadSettings()
 
 			if(getSatelliteConfig(fe, satconfig))
 				satmap[position] = satconfig; // overwrite if exist
+			if (satconfig.use_in_scan)
+				sit->second.use_in_scan = satconfig.use_in_scan;
 
 		}
 	}
@@ -324,6 +326,7 @@ bool CFEManager::loadSettings()
 void CFEManager::saveSettings(bool write)
 {
 	configfile.clear();
+	satellite_map_t &satlist = CServiceManager::getInstance()->SatelliteList();
 	for(fe_map_iterator_t it = femap.begin(); it != femap.end(); it++) {
 		CFrontend * fe = it->second;
 		frontend_config_t & fe_config = fe->getConfig();
@@ -347,6 +350,9 @@ void CFEManager::saveSettings(bool write)
 		satellite_map_t satellites = fe->getSatellites();
 		for(sat_iterator_t sit = satellites.begin(); sit != satellites.end(); ++sit) {
 			if (sit->second.configured) {
+				sat_iterator_t tit = satlist.find(sit->first);
+				if (tit != satlist.end())
+					sit->second.use_in_scan = tit->second.use_in_scan;
 				satList.push_back(sit->first);
 				setSatelliteConfig(fe, sit->second);
 			}
