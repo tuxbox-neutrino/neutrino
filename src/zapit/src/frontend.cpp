@@ -3,7 +3,7 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
- * (C) 2007-2013 Stefan Seyfried
+ * (C) 2007-2013,2015 Stefan Seyfried
  * Copyright (C) 2011 CoolStream International Ltd 
  *
  * This program is free software; you can redistribute it and/or modify
@@ -552,8 +552,10 @@ fe_bandwidth_t CFrontend::getBandwidth(const uint8_t bandwidth)
 		return BANDWIDTH_7_MHZ;
 	case 0x02:
 		return BANDWIDTH_6_MHZ;
+#if _HAVE_DVB57
 	case 0x03:
 		return BANDWIDTH_5_MHZ;
+#endif
 	default:
 		return BANDWIDTH_AUTO; // AUTO
 	}
@@ -868,9 +870,11 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, char *&fec, ch
 		case QAM_256:
 			mod = (char *)"QAM_256";
 			break;
+#if _HAVE_DVB57
 		case QAM_4_NR:
 			mod = (char *)"QAM_4_NR";
 			break;
+#endif
 		case QPSK:
 			if (delsys == DVB_T || delsys == DVB_T2 || delsys == DTMB) {
 				mod = (char *)"QPSK"; // AKA QAM_4
@@ -921,9 +925,11 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, char *&fec, ch
 	case FEC_9_10:
 		fec = (char *)"9/10";
 		break;
+#if _HAVE_DVB57
 	case FEC_2_5:
-		fec = (char *)"2/3";
+		fec = (char *)"2/5";
 		break;
+#endif
 	default:
 		INFO("unknown FEC: %d!", f);
 	case FEC_AUTO:
@@ -946,9 +952,11 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 	case DVB_T:
 		delsys = SYS_DVBT;
 		break;
+#if _HAVE_DVB57
 	case DVB_T2:
 		delsys = SYS_DVBT2;
 		break;
+#endif
 	case DVB_C:
 		delsys = SYS_DVBC_ANNEX_A;
 		break;
@@ -964,15 +972,17 @@ fe_delivery_system_t CFrontend::getFEDeliverySystem(delivery_system_t Delsys)
 	case ISDBS:
 		delsys = SYS_ISDBS;
 		break;
-	case DTMB:
-		delsys = SYS_DTMB;
-		break;
 	case DSS:
 		delsys = SYS_DSS;
+		break;
+#if _HAVE_DVB57
+	case DTMB:
+		delsys = SYS_DTMB;
 		break;
 	case TURBO:
 		delsys = SYS_TURBO;
 		break;
+#endif
 	default:
 		delsys = SYS_UNDEFINED;
 		break;
@@ -1052,9 +1062,11 @@ uint32_t CFrontend::getFEBandwidth(fe_bandwidth_t bandwidth)
 	case BANDWIDTH_6_MHZ:
 		bandwidth_hz  = 6000000;
 		break;
+#if HAVE_DVBT2
 	case BANDWIDTH_5_MHZ:
 		bandwidth_hz  = 5000000;
 		break;
+#endif
 	}
 
 	return bandwidth_hz;
@@ -1107,9 +1119,11 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 	case FEC_9_10:
 		fec = FEC_9_10;
 		break;
+#if HAVE_DTMB
 	case FEC_2_5:
 		fec = FEC_2_5;
 		break;
+#endif
 	default:
 		INFO("[fe%d] unknown FEC: %d", fenumber, fec_inner);
 	case FEC_AUTO:

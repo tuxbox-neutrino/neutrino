@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 CoolStream International Ltd
+ * Copyright (C) 2013,2015 Stefan Seyfried
  *
  * License: GPLv2
  *
@@ -58,6 +59,18 @@
 #define ZAPIT_DS_IS_TERR(ds)	(((ds) & ZAPIT_DM_TERR) != 0)
 #define ZAPIT_DS_IS_CABLE(ds)	(((ds) & ZAPIT_DM_CABLE) != 0)
 #define ZAPIT_DS_BIT_MASK(ds)	((1 << (ds)) & ZAPIT_DS_MASK)
+
+/* compat stuff for building with older DVB-API versions */
+/* actually, DVB-T2 is available from API 5.3, and SYS_TURBO is available from 5.4,
+ * but all this is pretty much unused anyway, so we can stick it under one #define */
+#if ((DVB_API_VERSION > 5) || (DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR > 6))
+#define _HAVE_DVB57 1
+#else
+#warning DVB_API < 5.7 -- no DVB-T2/DTMB support.
+/* this is actually needed before 5.5, not 5.7, but this works for now */
+#define SYS_DVBC_ANNEX_A SYS_DVBC_ANNEX_AC
+#endif
+
 /* dvb transmission types */
 typedef enum {
 	UNKNOWN_DS = ZAPIT_DS_UNKNOWN,
@@ -103,9 +116,9 @@ typedef struct {
 
 	zapit_pilot_t		pilot;
 	fe_rolloff_t		rolloff;
-
+#if _HAVE_DVB57
 	enum fe_interleaving	interleaving;
-
+#endif
 	uint8_t			polarization;
 } FrontendParameters;
 
