@@ -231,10 +231,10 @@ if test "$BOXTYPE" = "coolstream"; then
 if test -e ${srcdir}/lib/libcoolstream/nevis_ir.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_NEVIS_IR_H,1,[Define to 1 if you have the <nevis_ir.h> header file.])
 fi
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream'
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream -I$(top_srcdir)/zapit/include/private'
 
 if test "$BOXMODEL" = "apollo"; then
-HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2'
+HWLIB_CFLAGS='-I$(top_srcdir)/lib/libcoolstream2 -I$(top_srcdir)/zapit/include/private'
 if test -e ${srcdir}/lib/libcoolstream2/cs_ir_generic.h; then
 	AC_DEFINE(HAVE_COOLSTREAM_CS_IR_GENERIC_H,1,[Define to 1 if you have the <cs_ir_generic.h> header file.])
 fi
