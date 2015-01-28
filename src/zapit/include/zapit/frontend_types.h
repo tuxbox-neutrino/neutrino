@@ -21,6 +21,7 @@
 #ifndef __FRONTEND_TYPES_H__
 #define __FRONTEND_TYPES_H__
 
+#include <config.h>
 #include <linux/dvb/version.h>
 #include <linux/dvb/frontend.h>
 
@@ -66,7 +67,11 @@
 #if ((DVB_API_VERSION > 5) || (DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR > 6))
 #define _HAVE_DVB57 1
 #else
+#if HAVE_SPARK_HARDWARE
 #warning DVB_API < 5.7 -- no DVB-T2/DTMB support.
+#else
+#error DVB_API < 5.7 => fix your toolchain
+#endif
 /* this is actually needed before 5.5, not 5.7, but this works for now */
 #define SYS_DVBC_ANNEX_A SYS_DVBC_ANNEX_AC
 #endif
