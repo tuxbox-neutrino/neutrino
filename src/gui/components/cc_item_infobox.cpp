@@ -105,7 +105,7 @@ void CComponentsInfoBox::paintPicture()
 		return;
 
 	//init pic object and set icon paint position
-	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, height-2*fr_thickness, pic_name); //NOTE: icons do not scale!
+	pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness, 0, min(48, height-2*fr_thickness), pic_name); //NOTE: icons do not scale!
 
 	pic->setColorBody(col_body);
 
