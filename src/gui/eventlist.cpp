@@ -566,22 +566,22 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			unsigned int tmp_channel = 0;
 			for(unsigned int channel = 0; channel < channel_nr; channel++)
 			{
-				channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
+				channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
 				if(channel_id_tmp == channel_id){
 					if ( msg==CRCInput::RC_right || msg==CRCInput::RC_forward ) {
 						channel = (channel+1) %channel_nr;
 					}else { //RC_rewind
 						channel = (channel == 0) ? channel_nr -1 : channel - 1;
 					}
-					_channel_id = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
+					_channel_id = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
 					current_channel_name = CServiceManager::getInstance()->GetServiceName(_channel_id);
 
 					tmp_channel = (channel == 0) ? channel_nr - 1 : channel - 1;
-					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->channel_id;
+					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->getChannelID();
 					prev_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
 
 					tmp_channel = (channel+1) %channel_nr;
-					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->channel_id;
+					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->getChannelID();
 					next_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
 					break;
 				}
@@ -1077,7 +1077,7 @@ bool CNeutrinoEventList::findEvents(void)
 			int channel_nr = bouquetList->Bouquets[m_search_bouquet_id]->channelList->getSize();
 			for(int channel = 0; channel < channel_nr; channel++)
 			{
-				channel_id = bouquetList->Bouquets[m_search_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
+				channel_id = bouquetList->Bouquets[m_search_bouquet_id]->channelList->getChannelFromIndex(channel)->getChannelID();
 				CEitManager::getInstance()->getEventsServiceKey(channel_id, evtlist, m_search_epg_item,m_search_keyword);
 			}
 		}
@@ -1089,7 +1089,7 @@ bool CNeutrinoEventList::findEvents(void)
 			std::vector<t_channel_id> v;
 			int channel_nr =  CNeutrinoApp::getInstance ()->channelList->getSize();//unique channelList TV or Radio
 			for(int channel = 0; channel < channel_nr; channel++){
-			    channel_id =  CNeutrinoApp::getInstance ()->channelList->getChannelFromIndex(channel)->channel_id;
+			    channel_id =  CNeutrinoApp::getInstance ()->channelList->getChannelFromIndex(channel)->getChannelID();
 			    v.push_back(channel_id);
 			}
 		

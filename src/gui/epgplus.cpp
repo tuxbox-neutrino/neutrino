@@ -549,9 +549,9 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 			CZapitChannel * channel = (*this->channelList)[i];
 
 			ChannelEntry *channelEntry = new ChannelEntry (channel, i, this->frameBuffer, this->footer, this->bouquetList, this->channelsTableX + 2, yPosChannelEntry, this->channelsTableWidth);
-//printf("Going to get getEventsServiceKey for %llx\n", (channel->channel_id & 0xFFFFFFFFFFFFULL));
+//printf("Going to get getEventsServiceKey for %llx\n", (channel->getChannelID() & 0xFFFFFFFFFFFFULL));
 			CChannelEventList channelEventList;
-			CEitManager::getInstance()->getEventsServiceKey(channel->channel_id, channelEventList);
+			CEitManager::getInstance()->getEventsServiceKey(channel->getChannelID(), channelEventList);
 //printf("channelEventList size %d\n", channelEventList.size());
 
 			int xPosEventEntry = this->eventsTableX;
@@ -562,13 +562,13 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 			//for (CChannelEventList::const_iterator It = channelEventList.begin(); (It != channelEventList.end()) && (It->startTime < (this->startTime + this->duration)); ++It)
 			for (CChannelEventList::const_iterator It = channelEventList.begin(); It != channelEventList.end(); ++It)
 			{
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** Check1 event %s event start %ld this start %ld\n", It->description.c_str(), It->startTime, (this->startTime + this->duration));
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** Check1 event %s event start %ld this start %ld\n", It->description.c_str(), It->startTime, (this->startTime + this->duration));
 				if (!(It->startTime < (this->startTime + this->duration)) )
 					continue;
 				if ((lastIt == channelEventList.end()) || (lastIt->startTime != It->startTime)) {
 					int startTimeDiff = It->startTime - this->startTime;
 					int endTimeDiff = this->startTime + time_t (this->duration) - It->startTime - time_t (It->duration);
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** Check event %s\n", It->description.c_str());
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** Check event %s\n", It->description.c_str());
 					if ((startTimeDiff >= 0) && (endTimeDiff >= 0)) {
 						// channel event fits completely in the visible part of time line
 						startTimeDiff = 0;
@@ -582,10 +582,10 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 						// channel event ends after visible part of the time line but starts in the visible part
 						startTimeDiff = 0;
 					} else if (startTimeDiff > 0) {	// channel event starts and ends after visible part of the time line => break the loop
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** break 1\n");
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** break 1\n");
 						break;
 					} else {				// channel event starts and ends after visible part of the time line => ignore the channel event
-//if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** continue 1 startTimeDiff %ld endTimeDiff %ld\n", startTimeDiff, endTimeDiff);
+//if(0x2bc000b004b7ULL == (channel->getChannelID() & 0xFFFFFFFFFFFFULL)) printf("*** continue 1 startTimeDiff %ld endTimeDiff %ld\n", startTimeDiff, endTimeDiff);
 						continue;
 					}
 
@@ -926,7 +926,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			} 
 			else if (msg == CRCInput::RC_ok) {
 				if (selectedChannelEntry)
-					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->channel_id);
+					CNeutrinoApp::getInstance()->channelList->zapTo_ChannelID(selectedChannelEntry->channel->getChannelID());
 				current_bouquet = bouquetList->getActiveBouquetNumber();
 			} 
 			else if (CRCInput::isNumeric (msg)) {
@@ -1109,7 +1109,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 						this->hide();
 
 						time_t startTime2 = (*It)->channelEvent.startTime;
-						res = g_EpgData->show (this->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.eventID, &startTime2);
+						res = g_EpgData->show (this->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.eventID, &startTime2);
 
 						if (res == menu_return::RETURN_EXIT_ALL) {
 							loop = false;
@@ -1286,7 +1286,7 @@ int EpgPlus::MenuTargetAddReminder::exec (CMenuTarget * /*parent*/, const std::s
 			&& (!(*It)->channelEvent.description.empty())
 	   ) {
 		if (g_Timerd->isTimerdAvailable()) {
-			g_Timerd->addZaptoTimerEvent (this->epgPlus->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.startTime - (g_settings.zapto_pre_time * 60), (*It)->channelEvent.startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, 0);
+			g_Timerd->addZaptoTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.startTime - (g_settings.zapto_pre_time * 60), (*It)->channelEvent.startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, 0);
 
 			ShowMsg (LOCALE_TIMER_EVENTTIMED_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTTIMED_MSG)
 				    , CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8
@@ -1309,7 +1309,7 @@ int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * /*parent*/, const std
 	   ) {
 		if (g_Timerd->isTimerdAvailable()) {
 
-			g_Timerd->addRecordTimerEvent (this->epgPlus->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime + (*It)->channelEvent.duration, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime - (ANNOUNCETIME + 120)
+			g_Timerd->addRecordTimerEvent (this->epgPlus->selectedChannelEntry->channel->getChannelID(), (*It)->channelEvent.startTime, (*It)->channelEvent.startTime + (*It)->channelEvent.duration, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime - (ANNOUNCETIME + 120)
 						       , TIMERD_APIDS_CONF, true);
 			ShowMsg (LOCALE_TIMER_EVENTRECORD_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTRECORD_MSG)
 				    , CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8

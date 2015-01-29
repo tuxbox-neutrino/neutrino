@@ -300,11 +300,11 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, st
 			CEPGData epg;
 			CZapitChannel * channel = channels[j];
 			char buf[100],id[20];
-			sprintf(id,PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS,channel->channel_id);
+			sprintf(id,PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS,channel->getChannelID());
 			std::string _sid = std::string(id);
 			sel = (_sid == achannel_id) ? "selected=\"selected\"" : "";
-			CEitManager::getInstance()->getActualEPGServiceKey(channel->channel_id, &epg);
-			sprintf(buf,"<option value=" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s>%.20s - %.30s</option>\n", channel->channel_id, sel.c_str(), channel->getName().c_str(),epg.title.c_str());
+			CEitManager::getInstance()->getActualEPGServiceKey(channel->getChannelID(), &epg);
+			sprintf(buf,"<option value=" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s>%.20s - %.30s</option>\n", channel->getChannelID(), sel.c_str(), channel->getName().c_str(),epg.title.c_str());
 			yresult += buf;
 		}
 	}
@@ -357,10 +357,10 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	{
 		CZapitChannel * channel = channels[j];
 		CChannelEvent *event;
-		event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
+		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
 
 		classname = (i++ & 1) ? 'a' : 'b';
-		if (channel->channel_id == current_channel)
+		if (channel->getChannelID() == current_channel)
 			classname = 'c';
 
 		std::string bouquetstr = (BouquetNr >= 0) ? ("&amp;bouquet=" + itoa(BouquetNr)) : "";
@@ -369,8 +369,8 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		if(have_logos)
 			yresult += string_printf("<td class=\"%c logo_cell\" width=\"44\" rowspan=\"2\"><a href=\"javascript:do_zap('"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"')\"><img class=\"channel_logo\" src=\"%s\"/></a></td>", classname, channel->channel_id,
-					(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id)).c_str());
+					"')\"><img class=\"channel_logo\" src=\"%s\"/></a></td>", classname, channel->getChannelID(),
+					(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->getChannelID())).c_str());
 
 		/* timer slider */
 		if(event && event->duration > 0)
@@ -408,16 +408,16 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				"','"
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"')\">%s</a>\n",
-				((channel->channel_id == current_channel) ? "<a name=\"akt\"></a>" : " "),
-				channel->channel_id,
+				((channel->getChannelID() == current_channel) ? "<a name=\"akt\"></a>" : " "),
+				channel->getChannelID(),
 				channel->number /* num + j */,
 				channel->getName().c_str(),
 				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
-				channel->channel_id,
-				channel->channel_id & 0xFFFFFFFFFFFFULL,
-				((NeutrinoAPI->ChannelListEvents[channel->channel_id]) ? "<img src=\"/images/elist.gif\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
+				channel->getChannelID(),
+				channel->getChannelID() & 0xFFFFFFFFFFFFULL,
+				((NeutrinoAPI->ChannelListEvents[channel->getChannelID()]) ? "<img src=\"/images/elist.gif\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
 
-		if (channel->channel_id == current_channel)
+		if (channel->getChannelID() == current_channel)
 			yresult += string_printf("\n&nbsp;&nbsp;<a href=\"javascript:do_streaminfo()\"><img src=\"/images/streaminfo.png\" alt=\"Streaminfo\" style=\"border: 0px\" /></a>");
 
 		yresult += string_printf("</td></tr></table>\n</td>\n</tr>\n");
@@ -425,7 +425,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		if (channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE)
 		{
 			CSectionsdClient::NVODTimesList nvod_list;
-			if (CEitManager::getInstance()->getNVODTimesServiceKey(channel->channel_id, nvod_list))
+			if (CEitManager::getInstance()->getNVODTimesServiceKey(channel->getChannelID(), nvod_list))
 			{
 				CZapitClient::subServiceList subServiceList;
 
@@ -465,10 +465,10 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			}
 		}
 
-		else if ((event = NeutrinoAPI->ChannelListEvents[channel->channel_id]))
+		else if ((event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()]))
 		{
 			bool has_current_next = true;
-			CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id, currentNextInfo);
+			CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
 			timestr = timeString(event->startTime);
 
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
@@ -1070,23 +1070,23 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	for (; !(cit.EndOfChannels()); cit++) {
 		if (((*cit)->flags & CZapitChannel::REMOVED) || (*cit)->flags & CZapitChannel::NOT_FOUND)
 			continue;
-		sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
+		sel = ((*cit)->getChannelID() == current_channel) ? "selected=\"selected\"" : "";
 		hh->ParamList["program_row"] +=
 			string_printf("<option value=\""
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"\" %s>%s</option>\n",
-				(*cit)->channel_id, sel.c_str(), (*cit)->getName().c_str());
+				(*cit)->getChannelID(), sel.c_str(), (*cit)->getName().c_str());
 	}
 	cit = g_bouquetManager->radioChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
 		if (((*cit)->flags & CZapitChannel::REMOVED) || (*cit)->flags & CZapitChannel::NOT_FOUND)
 			continue;
-		sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
+		sel = ((*cit)->getChannelID() == current_channel) ? "selected=\"selected\"" : "";
 		hh->ParamList["program_row"] +=
 			string_printf("<option value=\""
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"\" %s>%s</option>\n",
-				(*cit)->channel_id, sel.c_str(), (*cit)->getName().c_str());
+				(*cit)->getChannelID(), sel.c_str(), (*cit)->getName().c_str());
 	}
 	// recordingDir
 	hh->ParamList["RECORD_DIR_MAXLEN"] = itoa(RECORD_DIR_MAXLEN-1);
@@ -1174,7 +1174,7 @@ std::string  CNeutrinoYParser::func_set_bouquet_edit_form(CyhookHandler *hh, std
 				string_printf("<option value=\""
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"\">%s</option>\n",
-					(*channels)[j]->channel_id,
+					(*channels)[j]->getChannelID(),
 					(*channels)[j]->getName().c_str());
 		}
 		ZapitChannelList Channels;
@@ -1187,12 +1187,12 @@ std::string  CNeutrinoYParser::func_set_bouquet_edit_form(CyhookHandler *hh, std
 		sort(Channels.begin(), Channels.end(), CmpChannelByChName());
 
 		for (int i = 0; i < (int) Channels.size(); i++) {
-			if (!g_bouquetManager->existsChannelInBouquet(selected, Channels[i]->channel_id)){
+			if (!g_bouquetManager->existsChannelInBouquet(selected, Channels[i]->getChannelID())){
 				hh->ParamList["all_channels"] +=
 					string_printf("<option value=\""
 						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 						"\">%s</option>\n",
-						Channels[i]->channel_id,
+						Channels[i]->getChannelID(),
 						Channels[i]->getName().c_str());
 			}
 		}
