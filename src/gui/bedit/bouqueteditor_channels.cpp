@@ -437,7 +437,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			}
 		}
 */
-		else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode || CRCInput::RC_tv ) {
+		else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode || msg==CRCInput::RC_tv  ) {
 			if (mode == CZapitClient::MODE_TV)
 				mode = CZapitClient::MODE_RADIO;
 			else
