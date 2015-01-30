@@ -1,7 +1,7 @@
 #ifndef __sectionsdclient__
 #define __sectionsdclient__
 /*
-  Client-Interface für zapit  -   DBoxII-Project
+  Client-Interface for zapit  -   DBoxII-Project
 
   $Id: sectionsdclient.h,v 1.42 2007/01/12 22:57:57 houdini Exp $
 
@@ -221,8 +221,13 @@ class CEPGData
 	std::vector<std::string>		items;
 	char                            fsk;
 	unsigned char                   table_id;
+#ifdef FULL_CONTENT_CLASSIFICATION
 	std::string                     contentClassification;
 	std::string                     userClassification;
+#else
+	unsigned char contentClassification;
+	unsigned char userClassification;
+#endif
 
 	CEPGData()
 		{

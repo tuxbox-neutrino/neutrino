@@ -2629,7 +2629,12 @@ bool CEitManager::getEPGid(const event_id_t epgID, const time_t startzeit, CEPGD
 			epgdata->info1 = evt.getText();
 			epgdata->info2 = evt.getExtendedText();
 			/* FIXME printf("itemDescription: %s\n", evt.itemDescription.c_str()); */
+#ifdef FULL_CONTENT_CLASSIFICATION
 			evt.classifications.get(epgdata->contentClassification, epgdata->userClassification);
+#else
+			epgdata->contentClassification = evt.classifications.content;
+			epgdata->userClassification = evt.classifications.user;
+#endif
 			epgdata->fsk = evt.getFSK();
 			epgdata->table_id = evt.table_id;
 
@@ -2690,7 +2695,13 @@ bool CEitManager::getActualEPGServiceKey(const t_channel_id channel_id, CEPGData
 		epgdata->info1 = evt.getText();
 		epgdata->info2 = evt.getExtendedText();
 		/* FIXME printf("itemDescription: %s\n", evt.itemDescription.c_str());*/
+#ifdef FULL_CONTENT_CLASSIFICATION
 		evt.classifications.get(epgdata->contentClassification, epgdata->userClassification);
+#else
+		epgdata->contentClassification = evt.classifications.content;
+		epgdata->userClassification = evt.classifications.user;
+#endif
+
 		epgdata->fsk = evt.getFSK();
 		epgdata->table_id = evt.table_id;
 

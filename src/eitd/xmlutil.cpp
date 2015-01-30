@@ -439,10 +439,15 @@ void *insertEventsfromFile(void * data)
 				}
 
 				if (!contentClassification.empty()) {
+#ifdef FULL_CONTENT_CLASSIFICATION
 					ssize_t off = e.classifications.reserve(2 * contentClassification.size());
 					if (off > -1)
 						for (unsigned i = 0; i < contentClassification.size(); i++)
 							off = e.classifications.set(off, contentClassification.at(i), userClassification.at(i));
+#else
+					e.classifications.content = contentClassification.at(0);
+					e.classifications.user = userClassification.at(0);
+#endif
 				}
 				addEvent(e, 0);
 				ev_count++;

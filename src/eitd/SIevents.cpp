@@ -248,11 +248,17 @@ void SIevent::parse(Event &event)
 			const ContentDescriptor * d = (ContentDescriptor *) *dit;
 			const ContentClassificationList *clist = d->getClassifications();
 			if (clist->size()) {
+#ifdef FULL_CONTENT_CLASSIFICATION
 				ssize_t off = classifications.reserve(clist->size() * 2);
 				for (ContentClassificationConstIterator cit = clist->begin(); cit != clist->end(); ++cit)
 					off = classifications.set(off,
 								  (*cit)->getContentNibbleLevel1() << 4 | (*cit)->getContentNibbleLevel2(),
 								  (*cit)->getUserNibble1() << 4 | (*cit)->getUserNibble2());
+#else
+				ContentClassificationConstIterator cit = clist->begin();
+				classifications.content = (*cit)->getContentNibbleLevel1() << 4 | (*cit)->getContentNibbleLevel2();
+				classifications.user = (*cit)->getUserNibble1() << 4 | (*cit)->getUserNibble2();
+#endif
 			}
 			break;
 		}
@@ -414,8 +420,14 @@ void SIevent::parseContentDescriptor(const uint8_t *buf, unsigned maxlen)
 		return;
 	if(!cont->descriptor_length)
 		return;
+#ifdef FULL_CONTENT_CLASSIFICATION
 	ssize_t off = classifications.reserve(cont->descriptor_length);
 	classifications.set(off, buf + sizeof(struct descr_generic_header), cont->descriptor_length);
+#else
+	classifications.content = buf[sizeof(struct descr_generic_header)];
+	if (cont->descriptor_length > 1)
+		classifications.user = buf[sizeof(struct descr_generic_header)+1];
+#endif
 }
 
 void SIevent::parseComponentDescriptor(const uint8_t *buf, unsigned maxlen)
@@ -651,6 +663,7 @@ int SIevent::saveXML2(FILE *file) const
 		}
 	}
 	for_each(times.begin(), times.end(), saveSItimeXML(file));
+#ifdef FULL_CONTENT_CLASSIFICATION
 	std::string contentClassification, userClassification;
 	classifications.get(contentClassification, userClassification);
 	for(unsigned i=0; i<contentClassification.length(); i++) {
@@ -658,6 +671,11 @@ int SIevent::saveXML2(FILE *file) const
 		if(contentClassification[i] || userClassification[i])
 			fprintf(file, "\t\t\t<content class=\"%02x\" user=\"%02x\"/>\n", contentClassification[i], userClassification[i]);
 	}
+#else
+	if (classifications.content || classifications.user)
+		fprintf(file, "\t\t\t<content class=\"%02x\" user=\"%02x\"/>\n", classifications.content, classifications.user);
+#endif
+
 	for_each(components.begin(), components.end(), saveSIcomponentXML(file));
 	for_each(ratings.begin(), ratings.end(), saveSIparentalRatingXML(file));
 	for_each(linkage_descs.begin(), linkage_descs.end(), saveSIlinkageXML(file));
@@ -685,6 +703,7 @@ void SIevent::dump(void) const
 		printf("Extended-Text (%s): %s\n", langIndex[it->lang].c_str(), it->text[SILangData::langExtendedText].c_str());
 	}
 
+#ifdef FULL_CONTENT_CLASSIFICATION
 	std::string contentClassification, userClassification;
 	classifications.get(contentClassification, userClassification);
 	if(!contentClassification.empty()) {
@@ -699,6 +718,12 @@ void SIevent::dump(void) const
 			printf(" 0x%02hhx", userClassification[i]);
 		printf("\n");
 	}
+#else
+	if (classifications.content || classifications.user) {
+		printf("Content classification: 0x%02hhx\n", classifications.content);
+		printf("User classification: 0x%02hhx\n", classifications.user);
+	}
+#endif
 
 	for_each(times.begin(), times.end(), printSItime());
 	for_each(components.begin(), components.end(), printSIcomponent());
