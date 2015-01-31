@@ -183,6 +183,7 @@ uncoolinit_SOURCES = uncoolinit.cpp
 uncoolinit_LDADD = \
 	@AVFORMAT_LIBS@ \
 	@AVCODEC_LIBS@ \
+	@BLURAY_LIBS@ \
 	-lcoolstream-mt -lca-sc -lnxp \
 	-lOpenThreads -lrt
 endif
