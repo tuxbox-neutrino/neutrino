@@ -90,7 +90,7 @@ class CFileHelpers
 		bool copyDir(const char *Src, const char *Dst, bool backupMode=false);
 		static int createDir(std::string& Dir, mode_t mode = 755);
 		static int createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}
-		bool removeDir(const char *Dir);
+		static bool removeDir(const char *Dir);
 };
 
 std::string to_string(int);
