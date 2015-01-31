@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012-2014 T. Graf 'dbt'
+	Copyright (C) 2012-2015 T. Graf 'dbt'
 	www.dbox2-tuning.net
 
 	Adaptions:
@@ -189,17 +189,8 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 			force = "--force-reinstall ";
 		}
 
-		//check package size...cancel installation if size check failed
-		if (!checkSize(actionKey)){
-			DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_SIZE_ERROR));
-		}
-		else{
-			int r = execCmd(pkg_types[OM_INSTALL] + force + actionKey, true, true);
-			if (r)
-				showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + force + actionKey);
-			else
-				installed = true;
-		}
+		//install package with size check ...cancel installation if check failed
+		installPackage(actionKey, force);
 
 		refreshMenu();
 	}
@@ -709,17 +700,21 @@ void COPKGManager::showError(const char* local_msg, char* err_message, const str
 	DisplayErrorMessage(msg.c_str());
 }
 
-bool COPKGManager::installPackage(const std::string& pkg_name)
+bool COPKGManager::installPackage(const string& pkg_name, string options)
 {
-	int r = execCmd(pkg_types[OM_INSTALL] + pkg_name, true, true);
-
-	if (r){
-		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  error[%d]: %s\n", __func__, __LINE__, errno, strerror(errno));
-// 		showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_name);
-		return false;
+	//check package size...cancel installation if size check failed
+	if (!checkSize(pkg_name)){
+		DisplayErrorMessage(g_Locale->getText(LOCALE_OPKG_MESSAGEBOX_SIZE_ERROR));
 	}
-	else
-		installed = true;
+	else{
+		string opts = " " + options + " ";
+
+		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, true, true);
+		if (r)
+			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + opts + pkg_name);
+		else
+			installed = true;
+	}
 
 	return true;
 }
