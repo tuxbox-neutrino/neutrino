@@ -807,6 +807,8 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	int  yy = y;
 	//printf("CFrameBuffer::paintIcon: load %s\n", filename.c_str());fflush(stdout);
 
+	if (filename.empty())
+		return false; /* nothing to do */
 	/* we cache and check original name */
 	it = icon_cache.find(filename);
 	if(it == icon_cache.end()) {
