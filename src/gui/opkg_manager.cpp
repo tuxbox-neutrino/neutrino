@@ -56,6 +56,7 @@
 /* later this can be changed to just "opkg" */
 #define OPKG_CL "opkg-cl"
 #define OPKG_CL_CONFIG_OPTIONS " -V2 --tmp-dir=/tmp --cache=/tmp/.opkg "
+#define OPKG_TMP_DIR "/tmp/.opkg"
 
 using namespace std;
 
@@ -94,11 +95,12 @@ COPKGManager::COPKGManager()
 	list_upgradeable_done = false;
 	expert_mode = false;
 	local_dir = &g_settings.update_dir_opkg;
-	CFileHelpers::createDir("/tmp/.opkg");
+	CFileHelpers::createDir(OPKG_TMP_DIR);
 }
 
 COPKGManager::~COPKGManager()
 {
+	CFileHelpers::removeDir(OPKG_TMP_DIR);
 }
 
 int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
@@ -108,7 +110,9 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 	if (actionKey.empty()) {
 		if (parent)
 			parent->hide();
-		return showMenu();
+		int ret = showMenu();
+		CFileHelpers::removeDir(OPKG_TMP_DIR);
+		return ret;
 	}
 	int selected = menu->getSelected() - menu_offset;
 
