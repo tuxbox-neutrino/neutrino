@@ -82,27 +82,26 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 	struct timeval tv;
 	gettimeofday(&tv,NULL);
 	uint64_t lastPaint = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-	bool ok = true, nlseen = false, dirty = false, pushed = false;
+	bool ok = true, nlseen = false, dirty = false, incomplete = false;
 	char output[1024];
-	int off = 0;
 	std::string txt = "";
+	std::string line = "";
 
 	do {
 		uint64_t now;
 		fds.revents = 0;
 		int r = poll(&fds, 1, 300);
-
 		if (r > 0) {
 			if (!feof(f)) {
 				gettimeofday(&tv,NULL);
 				now = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
 
 				unsigned int lines_read = 0;
-				while (fgets(output + off, sizeof(output) - off, f)) {
-					char *outputp = output + off;
+				while (fgets(output, sizeof(output), f)) {
+					char *outputp = output;
 					dirty = true;
 
-					for (int i = off; output[i] && !nlseen; i++)
+					for (int i = 0; output[i] && !nlseen; i++)
 						switch (output[i]) {
 							case '\b':
 								if (outputp > output)
@@ -124,26 +123,26 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 
 					if (outputp < output + sizeof(output))
 						*outputp = 0;
+					line += std::string(output);
+					if (incomplete)
+						lines.pop_back();
 					if (nlseen) {
-						pushed = false;
+						lines.push_back(line);
+						line.clear();
 						nlseen = false;
-						off = 0;
+						incomplete = false;
 					} else {
-						off = strlen(output);
-						if (pushed)
-							lines.pop_back();
+						lines.push_back(line);
+						incomplete = true;
 					}
-					lines.push_back(std::string((output)));
-					pushed = true;
 					if (lines.size() > lines_max)
 						lines.pop_front();
 					txt = "";
 					bool first = true;
 					for (std::list<std::string>::const_iterator it = lines.begin(), end = lines.end(); it != end; ++it) {
-						if (first)
-							first = false;
-						else
+						if (!first)
 							txt += '\n';
+						first = false;
 						txt += *it;
 					}
 					if (((lines_read == lines_max) && (lastPaint + 100000 < now)) || (lastPaint + 250000 < now)) {
