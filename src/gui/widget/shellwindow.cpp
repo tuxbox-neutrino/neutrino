@@ -160,7 +160,7 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 
 		gettimeofday(&tv,NULL);
 		now = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-		if (r < 1 || dirty || lastPaint + 250000 < now) {
+		if (!ok || (r < 1 && dirty && lastPaint + 250000 < now)) {
 			textBox->setText(&txt);
 			textBox->paint();
 			lastPaint = now;
