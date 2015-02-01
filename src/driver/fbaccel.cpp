@@ -221,7 +221,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 		lbb_off = 0;
 	}
 	lbb = fb->lfb + lbb_sz;
-	bpafd = open("/dev/bpamem0", O_RDWR);
+	bpafd = open("/dev/bpamem0", O_RDWR | O_CLOEXEC);
 	if (bpafd < 0)
 	{
 		fprintf(stderr, "[neutrino] FB: cannot open /dev/bpamem0: %m\n");
@@ -245,7 +245,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 
 	char bpa_mem_device[30];
 	sprintf(bpa_mem_device, "/dev/bpamem%d", bpa_data.device_num);
-	bpafd = open(bpa_mem_device, O_RDWR);
+	bpafd = open(bpa_mem_device, O_RDWR | O_CLOEXEC);
 	if (bpafd < 0)
 	{
 		fprintf(stderr, "[neutrino] FB: cannot open secondary %s: %m\n", bpa_mem_device);
@@ -265,7 +265,7 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 
 #ifdef USE_NEVIS_GXA
 	/* Open /dev/mem for HW-register access */
-	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC);
+	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC);
 	if (devmem_fd < 0) {
 		perror("CFbAccel open /dev/mem");
 		goto error;
