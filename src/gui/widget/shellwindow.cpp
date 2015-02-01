@@ -7,6 +7,7 @@
 	Implementation:
 	Copyright (C) 2013 martii
 	gitorious.org/neutrino-mp/martiis-neutrino-mp
+	Copyright (C) 2015 Stefan Seyfried
 
 	License: GPL
 
@@ -33,13 +34,18 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <driver/framebuffer.h>
 #include <gui/widget/textbox.h>
 #include <stdio.h>
 #include <poll.h>
 #include <fcntl.h>
+#include <system/helpers.h>
+#include <errno.h>
 
 CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res) {
+	pid_t pid;
 	textBox = NULL;
 	std::string cmd;
 	mode = _mode;
@@ -56,7 +62,7 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 	}
 
 	cmd = command + " 2>&1";
-	FILE *f = popen(cmd.c_str(), "r");
+	FILE *f = my_popen(pid, cmd.c_str(), "r");
 	if (!f) {
 		if (res)
 			*res = -1;
@@ -163,13 +169,16 @@ CShellWindow::CShellWindow(const std::string &command, const int _mode, int *res
 		}
 	} while(ok);
 
-	int r = pclose(f);
+	fclose(f);
+	int s;
+	errno = 0;
+	int r = waitpid(pid, &s, 0);
 
 	if (res) {
 		if (r == -1)
-			*res = r;
+			*res = errno;
 		else
-			*res = WEXITSTATUS(r);
+			*res = WEXITSTATUS(s);
 	}
 }
 
