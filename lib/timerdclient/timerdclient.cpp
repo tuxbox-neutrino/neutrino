@@ -237,10 +237,53 @@ int CTimerdClient::addTimerEvent( CTimerEventTypes evType, void* data , int min,
 	addTimerEvent(evType,true,data,0,mktime(actTime),0);
 }
 */
+bool CTimerdClient::checkDouble(CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime,
+				  CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount)
+{
+	if (evType != CTimerd::TIMER_RECORD && evType != CTimerd::TIMER_ZAPTO)
+		return false;//skip check not zap and record timer
+
+	CTimerd::TimerList timerlist;
+	getTimerList(timerlist);
+	for (CTimerd::TimerList::iterator it = timerlist.begin(); it != timerlist.end();++it)
+	{
+		if ( (it->eventType == CTimerd::TIMER_RECORD || it->eventType == CTimerd::TIMER_ZAPTO ) &&
+			(it->alarmTime  == alarmtime && it->announceTime == announcetime && it->stopTime == stoptime && it->eventRepeat == evrepeat && it->repeatCount == repeatcount ) )
+		{
+			if( it->eventType == CTimerd::TIMER_ZAPTO )
+			{
+				CTimerd::EventInfo *ei=static_cast<CTimerd::EventInfo*>(data);
+				if( ei->channel_id == it->channel_id )
+				{
+					if(( ei->epgID != 0 && ei->epgID != it->epgID ) || ( ei->epg_starttime != 0 && it->epg_starttime != ei->epg_starttime) )
+					{
+						return false;//not double
+					}
+					return true;
+				}
+			}
+			else if(it->eventType == CTimerd::TIMER_RECORD)
+			{
+				CTimerd::RecordingInfo *ri=static_cast<CTimerd::RecordingInfo*>(data);
+				if(ri->channel_id == it->channel_id && ri->apids == it->apids && !strncmp(ri->recordingDir, it->recordingDir, RECORD_DIR_MAXLEN-1) )
+				{
+					if( ( ri->epgID != 0 && ri->epgID != it->epgID ) || ( ri->epg_starttime != 0 && it->epg_starttime != ri->epg_starttime) )
+					{
+						return false;//not double
+					}
+					return true;
+				}
+			}
+		}
+	}
+	return false;//not double
+}
 //-------------------------------------------------------------------------
 int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime,
 				  CTimerd::CTimerEventRepeat evrepeat, uint32_t repeatcount,bool forceadd)
 {
+	if(checkDouble(evType, data, announcetime,  alarmtime, stoptime, evrepeat,  repeatcount))//check if timer is add double
+		return -1;
 
 	if (!forceadd)
 	{

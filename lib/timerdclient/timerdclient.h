@@ -66,6 +66,7 @@ class CTimerdClient:private CBasicClient
 		bool isTimerdAvailable();			// check if timerd is running
 
 		CTimerd::TimerList getOverlappingTimers(time_t& announcetime, time_t& stoptime);
+		bool checkDouble(CTimerd::CTimerEventTypes evType, void* data, time_t announcetime, time_t alarmtime,time_t stoptime, CTimerd::CTimerEventRepeat /*evrepeat*/, uint32_t repeatcount);
 
 		int addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, time_t alarmtime,time_t announcetime = 0, time_t stoptime = 0,
 				   CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 0, bool forceadd=true);
