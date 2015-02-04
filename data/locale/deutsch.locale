@@ -1196,6 +1196,7 @@ menu.hint_next Weiter zum nächsten Menü.\nDie Taste 'Menü' schließt alle Men
 menu.hint_next_brief Weiter zum nächsten Menü
 menu.hint_numeric_adjust Bei numerischer Programmwahl die Kanalliste am neu gewählten Programm ausrichten
 menu.hint_opkg Software-Pakete installieren oder vorhandene aktualisieren
+menu.hint_opkg_feed_address_edit Bearbeiten von Feed-Adressen
 menu.hint_opkg_install_local_package Paket von USB-Stick, SD, Freigabe oder lokalem Ordner installieren.
 menu.hint_opkg_upgrade Aktualisiert alle installierten Pakete auf die neueste verfügbare Version
 menu.hint_osd Farben, Schriftarten, Anzeigegröße, Ansichtsoptionen der Menüs und mehr
@@ -1862,9 +1863,12 @@ opkg.button.expert_on Experten-Modus
 opkg.button.info Paket-Informationen
 opkg.button.install Paket installieren
 opkg.button.uninstall Paket entfernen
+opkg.enter.feed.address Bitte Adresse für Server-Feed oder lokalen Ordner eintragen!
+opkg.enter.feed.address.example Beispiel: http://pkg.nevis.neutrino-hd.com
 opkg.failure.install Installation fehlgeschlagen
 opkg.failure.update Update fehlgeschlagen
 opkg.failure.upgrade Upgrade fehlgeschlagen
+opkg.feed.addresses Feed-Adressen
 opkg.install.local.package Installiere lokales Paket
 opkg.messagebox.reinstall %s erneut installieren?
 opkg.messagebox.remove %s entfernen?

@@ -1139,6 +1139,7 @@ menu.hint_network IP adres, gateway, DNS, Tijd synchronisatie\nNetwerklocaties e
 menu.hint_new_zap_mode Schakelen van kanalen toestaan tijdens het browsen.\n(Schakelen tussen vensters met de 'Mute' toets)
 menu.hint_numeric_adjust Pas zenderlijst modus aan na numerieke zap
 menu.hint_opkg Installeer of update software pakketten
+menu.hint_opkg_feed_address_edit Bewerk server adressen!
 menu.hint_opkg_install_local_package Installatiepakket van USB, SD of netwerk.
 menu.hint_opkg_upgrade Update alle geinstalleerde pakketten naar de meest recente beschikbare versie
 menu.hint_osd Kleuren, Lettertypes, scherm afmeting\ngebruikersinterface vormgeving
@@ -1753,9 +1754,12 @@ opkg.button.expert_on Expert modus
 opkg.button.info Pakket info
 opkg.button.install Installeer pakket
 opkg.button.uninstall Deinstaleer pakket
+opkg.enter.feed.address Voer het adres van de server!
+opkg.enter.feed.address.example Voorbeeld: http://pkg.nevis.neutrino-hd.com
 opkg.failure.install installatie mislukt
 opkg.failure.update Update mislukt
 opkg.failure.upgrade Upgrade mislukt
+opkg.feed.addresses Feed adressen
 opkg.install.local.package Installeer lokale pakket
 opkg.messagebox.reinstall Herinstalleer %s?
 opkg.messagebox.remove Wissen%s?

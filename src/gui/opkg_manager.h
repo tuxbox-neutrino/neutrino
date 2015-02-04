@@ -5,7 +5,7 @@
 	OPKG-Manager Class for Neutrino-GUI
 
 	Implementation:
-	Copyright (C) 2012 T. Graf 'dbt'
+	Copyright (C) 2012-2015 T. Graf 'dbt'
 	www.dbox2-tuning.net
 
 	Adaptions:
@@ -33,10 +33,12 @@
 
 #include <gui/widget/menue.h>
 #include <driver/framebuffer.h>
-
+#include <configfile.h>
 #include <string>
 #include <vector>
 #include <map>
+
+#define OPKG_MAX_FEEDS 10
 
 class COPKGManager : public CMenuTarget
 {
@@ -44,8 +46,14 @@ class COPKGManager : public CMenuTarget
 		int width;
 		std::string tmp_str;
 		CFrameBuffer *frameBuffer;
-
+		CConfigFile opkg_conf;
+		void saveConfig();
+		void loadConfig();
 		struct pkg;
+
+		//config
+		std::string config_src[OPKG_MAX_FEEDS];
+		std::vector<std::string> config_dest;
 
 		std::map<std::string,pkg> pkg_map;
 		std::vector<pkg*> pkg_vec;
@@ -84,6 +92,7 @@ class COPKGManager : public CMenuTarget
 
 		std::string getKeyInfo(const std::string& input, const std::string& pkg_info_key, const std::string& delimiters);
 		int showMenu();
+		void showMenuConfigFeed(CMenuWidget *feed_menu);
 		void updateMenu();
 		void refreshMenu();
 		bool badpackage(std::string &s);
