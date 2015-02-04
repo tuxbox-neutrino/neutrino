@@ -120,7 +120,6 @@ std::string CPictureViewer::DownloadImage(std::string url)
 				curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
 				curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
 				curl_easy_setopt(ch, CURLOPT_URL, url.c_str());
-				curl_easy_setopt(ch, CURLOPT_NOSIGNAL,1);
 				curl_easy_setopt(ch, CURLOPT_CONNECTTIMEOUT, 3);
 				curl_easy_setopt(ch, CURLOPT_TIMEOUT, 4);
 				CURLcode res = curl_easy_perform(ch);
