@@ -111,15 +111,24 @@ std::string CPictureViewer::DownloadImage(std::string url)
 		FILE *tmpFile = fopen(tmpname.c_str(), "wb");
 		if (tmpFile) {
 			CURL *ch = curl_easy_init();
-			curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
-			curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
-			curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
-			curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
-			curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
-			curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
-			curl_easy_setopt(ch, CURLOPT_URL, url.c_str());
-			curl_easy_perform(ch);
-			curl_easy_cleanup(ch);
+			if(ch)
+			{
+				curl_easy_setopt(ch, CURLOPT_VERBOSE, 0L);
+				curl_easy_setopt(ch, CURLOPT_NOPROGRESS, 1L);
+				curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1L);
+				curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, NULL);
+				curl_easy_setopt(ch, CURLOPT_WRITEDATA, tmpFile);
+				curl_easy_setopt(ch, CURLOPT_FAILONERROR, 1L);
+				curl_easy_setopt(ch, CURLOPT_URL, url.c_str());
+				curl_easy_setopt(ch, CURLOPT_NOSIGNAL,1);
+				curl_easy_setopt(ch, CURLOPT_CONNECTTIMEOUT, 3);
+				curl_easy_setopt(ch, CURLOPT_TIMEOUT, 4);
+				CURLcode res = curl_easy_perform(ch);
+				if (res != CURLE_OK){
+					printf("[%s] curl_easy_perform() failed:%s\n",__func__, curl_easy_strerror(res));
+				}
+				curl_easy_cleanup(ch);
+			}
 			fclose(tmpFile);
 			url = true;
 		}
