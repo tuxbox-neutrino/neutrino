@@ -68,7 +68,20 @@ class COPKGManager : public CMenuTarget
 		};
 		void getPkgData(const int pkg_content_id);
 		std::string getBlankPkgName(const std::string& line);
-		std::string getPkgInfo(const std::string& pkg_name, const std::string& pkg_key);
+
+		/*
+		* Gets an info from opkg command info or status from a package via keywords as std::string
+		* 1st parameter is name of package as string eg. "gdb", without file extension or version data
+		* 2nd parameter needs a keyword like:
+		* Package, Version, Depends, Status, Section, Architecture, Maintainer, MD5Sum, Size, Filename, Source, Description
+		* These kewords are to find in the control package inside of the opkg package file and the package list.
+		* 3rd parameter sets the sub command status or info. For more details, take a look to the opkg commands via command line.
+		*/
+		std::string getPkgInfo(const std::string& pkg_name, const std::string& pkg_key, bool current_status = false);
+
+		//Does the same like getPkgInfo(), but only for status
+		std::string getPkgStatus(const std::string& pkg_name, const std::string& pkg_key){return getPkgInfo(pkg_name, pkg_key, true);}
+
 		std::string getKeyInfo(const std::string& input, const std::string& pkg_info_key, const std::string& delimiters);
 		int showMenu();
 		void updateMenu();

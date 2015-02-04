@@ -209,10 +209,13 @@ int COPKGManager::exec(CMenuTarget* parent, const string &actionKey)
 bool COPKGManager::checkSize(const string& pkg_name)
 {
 	//get package size
-	string s_pkgsize = getPkgInfo(pkg_name, "Size");
+	string s_pkgsize = getPkgInfo(pkg_name, "Size", false);
 	std::istringstream s(s_pkgsize);
 	u_int64_t pkg_size;
 	s >> pkg_size;
+
+	string status = getPkgInfo(pkg_name, "Status");
+	dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  Status of %s: %s\n", __func__, __LINE__, pkg_name.c_str(), status.c_str());
 
 	//get available size
 	//TODO: Check writability!
@@ -230,7 +233,9 @@ bool COPKGManager::checkSize(const string& pkg_name)
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d] Package: %s [required size=%lld (free size: %lld)]\n", __func__, __LINE__, pkg_name.c_str(), req_size, free_size);
 	if (free_size < req_size){
 		dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: size check freesize=%lld package size=%lld (recommended: %lld)\n", __func__, __LINE__, free_size, pkg_size, req_size);
-		return false;
+		//exit with false if package not installed, allready installed packages will be be removed before install, therefore it should be enough disk space available
+// 		if (status.empty())
+			return false;
 	}
 	return true;
 }
@@ -573,10 +578,10 @@ string COPKGManager::getBlankPkgName(const string& line)
 	return "";
 }
 
-string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key)
+string COPKGManager::getPkgInfo(const string& pkg_name, const string& pkg_key, bool current_status)
 {
 	tmp_str.clear();
-	execCmd(pkg_types[OM_INFO] + pkg_name, false, true);
+	execCmd(pkg_types[current_status ? OM_STATUS : OM_INFO] + pkg_name, false, true);
 	dprintf(DEBUG_INFO,  "[COPKGManager] [%s - %d]  [data: %s]\n", __func__, __LINE__, tmp_str.c_str());
 
 	return getKeyInfo(tmp_str, pkg_key, ":");
