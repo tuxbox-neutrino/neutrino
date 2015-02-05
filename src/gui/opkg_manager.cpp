@@ -75,6 +75,7 @@ enum
 	OM_INFO,
 	OM_INSTALL,
 	OM_STATUS,
+	OM_CONFIGURE,
 	OM_MAX
 };
 
@@ -89,6 +90,7 @@ static const string pkg_types[OM_MAX] =
 	OPKG_CL " info ",
 	OPKG_CL OPKG_CL_CONFIG_OPTIONS " install ",
 	OPKG_CL " status ",
+	OPKG_CL " configure "
 };
 
 COPKGManager::COPKGManager(): opkg_conf('\t')
@@ -724,7 +726,7 @@ void COPKGManager::showError(const char* local_msg, char* err_message, const str
 	DisplayErrorMessage(msg.c_str());
 }
 
-bool COPKGManager::installPackage(const string& pkg_name, string options)
+bool COPKGManager::installPackage(const string& pkg_name, string options, bool force_configure)
 {
 	//check package size...cancel installation if size check failed
 	if (!checkSize(pkg_name)){
@@ -734,10 +736,13 @@ bool COPKGManager::installPackage(const string& pkg_name, string options)
 		string opts = " " + options + " ";
 
 		int r = execCmd(pkg_types[OM_INSTALL] + opts + pkg_name, true, true);
-		if (r)
+		if (r){
 			showError(g_Locale->getText(LOCALE_OPKG_FAILURE_INSTALL), strerror(errno), pkg_types[OM_INSTALL] + opts + pkg_name);
-		else
+		}else{
+			if (force_configure)
+				execCmd(pkg_types[OM_CONFIGURE] + pkg_name, false, false);
 			installed = true;
+		}
 	}
 
 	return true;
