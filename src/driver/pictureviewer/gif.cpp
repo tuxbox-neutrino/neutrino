@@ -14,14 +14,20 @@
 extern "C" {
 #include <gif_lib.h>
 }
+#if GIFLIB_MAJOR >= 5 && GIFLIB_MINOR >= 1
+#define DGIFCLOSEFILE(x) { int _error; DGifCloseFile(x, &_error); }
+#else
+#define DGIFCLOSEFILE(x) DGifCloseFile(x)
+#endif
 	#include <signal.h>
 	#define min(a,b) ((a) < (b) ? (a) : (b))
 	#define gflush return(FH_ERROR_FILE);
-	#define grflush { DGifCloseFile(gft); return(FH_ERROR_FORMAT); }
-	#define mgrflush { free(lb); free(slb); DGifCloseFile(gft); return(FH_ERROR_FORMAT); }
+	#define grflush { DGIFCLOSEFILE(gft); return(FH_ERROR_FORMAT); }
+	#define mgrflush { free(lb); free(slb); DGIFCLOSEFILE(gft); return(FH_ERROR_FORMAT); }
+#if 0
 	#define agflush return(FH_ERROR_FORMAT);
 	#define agrflush { DGifCloseFile(gft); return(FH_ERROR_FORMAT); }
-
+#endif
 
 int fh_gif_id(const char *name)
 {
@@ -123,7 +129,7 @@ int fh_gif_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 		}
 	}
 	while( rt!= TERMINATE_RECORD_TYPE );
-	DGifCloseFile(gft);
+	DGIFCLOSEFILE(gft);
 	return(FH_ERROR_OK);
 }
 int fh_gif_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*wanted_height*/)
@@ -152,7 +158,7 @@ int fh_gif_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*w
 				px=gft->Image.Width;
 				py=gft->Image.Height;
 				*x=px; *y=py;
-				DGifCloseFile(gft);
+				DGIFCLOSEFILE(gft);
 				return(FH_ERROR_OK);
 				break;
 			case EXTENSION_RECORD_TYPE:
@@ -165,7 +171,7 @@ int fh_gif_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*w
 		}
 	}
 	while( rt!= TERMINATE_RECORD_TYPE );
-	DGifCloseFile(gft);
+	DGIFCLOSEFILE(gft);
 	return(FH_ERROR_FORMAT);
 }
 #endif
