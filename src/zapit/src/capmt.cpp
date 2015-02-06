@@ -30,9 +30,6 @@
 #include <zapit/debug.h>
 
 #include <ca_cs.h>
-#ifndef HAVE_COOL_HARDWARE
-#include <dmx_td.h>
-#endif
 
 #include <dvbsi++/program_map_section.h>
 #include <dvbsi++/ca_program_map_section.h>
