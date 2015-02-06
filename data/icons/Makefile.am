@@ -265,6 +265,7 @@ install_DATA += \
 	volumeslider2red.png \
 	vtxt.png \
 	vtxt_gray.png \
+	warning.png \
 	x_green.png \
 	x_white.png \
 	x_yellow.png \
