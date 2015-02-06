@@ -2432,7 +2432,7 @@ bool CMovieBrowser::readDir(const std::string & dirname, CFileList* flist)
 
 //			printf("file.Name: '%s', getFileName: '%s' getPath: '%s'\n",file.Name.c_str(),file.getFileName().c_str(),file.getPath().c_str());
 			if (my_stat((file.Name).c_str(),&statbuf) != 0)
-				perror("stat error");
+				fprintf(stderr, "stat '%s' error: %m\n", file.Name.c_str());
 			else
 			{
 				file.Mode = statbuf.st_mode;

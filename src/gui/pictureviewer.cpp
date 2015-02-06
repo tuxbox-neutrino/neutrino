@@ -450,7 +450,7 @@ int CPictureViewerGui::show()
 							pic.Type     = tmp.substr(tmp.rfind('.')+1);
 							struct stat statbuf;
 							if (stat(pic.Filename.c_str(),&statbuf) != 0)
-								printf("stat error");
+								fprintf(stderr, "stat '%s' error: %m\n", pic.Filename.c_str());
 							pic.Date     = statbuf.st_mtime;
 							playlist.push_back(pic);
 						}
