@@ -65,9 +65,9 @@
 #include <video_cs.h>
 #include <ca_cs.h>
 #endif
-#if USE_STB_HAL || HAVE_TRIPLEDRAGON
-#include <video_td.h>
-#include <audio_td.h>
+#if USE_STB_HAL
+#include <video_hal.h>
+#include <audio_hal.h>
 #endif
 
 #include <driver/abstime.h>
