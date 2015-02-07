@@ -782,6 +782,30 @@ bool COPKGManager::installPackage(const string& pkg_name, string options, bool f
 	return true;
 }
 
+bool COPKGManager::isInstalled(const string& pkg_name)
+{
+	string package = pkg_name;
+	package = getBaseName(package);
+
+	map<string, struct pkg>::iterator it = pkg_map.find(package);
+	if (it != pkg_map.end())
+		if (it->second.installed)
+			return true;
+	return false;
+}
+
+bool COPKGManager::isUpgradable(const string& pkg_name)
+{
+	string package = pkg_name;
+	package = getBaseName(package);
+
+	map<string, struct pkg>::iterator it = pkg_map.find(package);
+	if (it != pkg_map.end())
+		if (it->second.upgradable)
+			return true;
+	return false;
+}
+
 
 void COPKGManager::showMenuConfigFeed(CMenuWidget *feed_menu)
 {

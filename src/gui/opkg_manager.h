@@ -66,7 +66,7 @@ class COPKGManager : public CMenuTarget
 		bool expert_mode;
 		int menu_offset;
 		std::string *local_dir;
-		
+
 		bool has_err;
 		std::string err_msg;
 
@@ -76,6 +76,8 @@ class COPKGManager : public CMenuTarget
 		};
 		void getPkgData(const int pkg_content_id);
 		std::string getBlankPkgName(const std::string& line);
+		bool isInstalled(const std::string& pkg_name);
+		bool isUpgradable(const std::string& pkg_name);
 
 		/*
 		* Gets an info from opkg command info or status from a package via keywords as std::string
