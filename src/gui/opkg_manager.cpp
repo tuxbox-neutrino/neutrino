@@ -257,7 +257,7 @@ bool COPKGManager::checkSize(const string& pkg_name)
 		execCmd(pkg_types[OM_DOWNLOAD] + plain_pkg); //download package
 
 	//unpack package into test dir
-	string ar = "ar -x " + plain_pkg;
+	string ar = "ar -x " + plain_pkg + char(0x2a);
 	execCmd(ar);
 
 	//untar package into test directory
