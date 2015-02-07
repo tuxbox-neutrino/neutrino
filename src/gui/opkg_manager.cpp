@@ -224,6 +224,10 @@ bool COPKGManager::checkSize(const string& pkg_name)
 	string pkg_file = pkg_name;
 	string plain_pkg = getBaseName(pkg_file);
 
+	//exit check size if package already installed, because of auto remove of old stuff during installation
+	if (isInstalled(plain_pkg))
+		return true;
+
 	//get available root fs size
 	//TODO: Check writability!
 	struct statfs root_fs;
