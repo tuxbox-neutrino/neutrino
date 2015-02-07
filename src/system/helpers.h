@@ -91,6 +91,8 @@ class CFileHelpers
 		static int createDir(std::string& Dir, mode_t mode = 755);
 		static int createDir(const char *Dir, mode_t mode = 755){std::string dir = std::string(Dir);return createDir(dir, mode);}
 		static bool removeDir(const char *Dir);
+		static uint64_t getDirSize(const char *dir);
+		static uint64_t getDirSize(const std::string& dir){return getDirSize(dir.c_str());};
 };
 
 std::string to_string(int);

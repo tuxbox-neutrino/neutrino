@@ -722,6 +722,34 @@ bool CFileHelpers::removeDir(const char *Dir)
 	return true;
 }
 
+u_int64_t CFileHelpers::getDirSize(const char *dirname)
+{
+	DIR *d;
+	struct dirent *de;
+	struct stat buf;
+	int exists;
+	u_int64_t total_size = 0;
+
+	d = opendir(dirname);
+	if (d == NULL) {
+		perror("prsize");
+		return 0;
+	}
+
+	for (de = readdir(d); de != NULL; de = readdir(d)) {
+		exists = stat(de->d_name, &buf);
+		if (exists < 0) {
+			fprintf(stderr, "Couldn't stat %s\n", de->d_name);
+		} else {
+			total_size += buf.st_size;
+		}
+	}
+
+	closedir(d);
+
+	return total_size;
+}
+
 static int hdd_open_dev(const char * fname)
 {
 	FILE * fp;
