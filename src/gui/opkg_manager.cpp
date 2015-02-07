@@ -11,6 +11,7 @@
 	Adaptions:
 	Copyright (C) 2013 martii
 	gitorious.org/neutrino-mp/martiis-neutrino-mp
+	Copyright (C) 2015 Stefan Seyfried
 
 	License: GPL
 
@@ -51,8 +52,8 @@
 #include <fcntl.h>
 #include <alloca.h>
 
-#define OPKG_CL find_executable("opkg-cl")
-#define OPKG_KEY find_executable("opkg-key")
+/* later this can be changed to just "opkg" */
+#define OPKG_CL "opkg-cl"
 
 enum
 {
@@ -69,14 +70,14 @@ enum
 
 static const std::string pkg_types[OM_MAX] =
 {
-	OPKG_CL + " list",
-	OPKG_CL + " list-installed",
-	OPKG_CL + " list-upgradable",
-	OPKG_CL + " update",
-	OPKG_CL + " upgrade ",
-	OPKG_CL + " remove ",
-	OPKG_CL + " info ",
-	OPKG_CL + " install "
+	OPKG_CL " list",
+	OPKG_CL " list-installed",
+	OPKG_CL " list-upgradable",
+	OPKG_CL " update",
+	OPKG_CL " upgrade ",
+	OPKG_CL " remove ",
+	OPKG_CL " info ",
+	OPKG_CL " install "
 };
 
 COPKGManager::COPKGManager()
@@ -268,9 +269,13 @@ int COPKGManager::showMenu()
 
 bool COPKGManager::hasOpkgSupport()
 {
-	string deps[] = {OPKG_CL, OPKG_KEY, "/etc/opkg/opkg.conf", "/var/lib/opkg"};
+	string deps[] = {"/etc/opkg/opkg.conf", "/var/lib/opkg", ""};
 
-	for(size_t i=0; i<sizeof(deps)/sizeof(deps[0]) ;i++){
+	if (find_executable(OPKG_CL).empty()) {
+		dprintf(DEBUG_INFO, "[neutrino opkg] did not find " OPKG_CL " executable\n");
+		return false;
+	}
+	for (size_t i = 0; !deps[i].empty(); i++) {
 		dprintf(DEBUG_INFO,  "[neutrino opkg] check if %s is available...\n", deps[i].c_str());
 		if(access(deps[i].c_str(), R_OK) !=0) {
 			dprintf(DEBUG_INFO,  "[neutrino opkg] %s not found\n", deps[i].c_str());
