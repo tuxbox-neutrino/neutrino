@@ -372,7 +372,7 @@ fprintf(stderr, "execCmd(%s)\n", cmdstr);
 		return res;
 	} else {
 		cmd += " 2>/dev/null >&2";
-		int r = system(cmd.c_str());
+		int r = my_system(3, "/bin/sh", "-c", cmd.c_str());
 		if (r == -1)
 			return r;
 		return WEXITSTATUS(r);
