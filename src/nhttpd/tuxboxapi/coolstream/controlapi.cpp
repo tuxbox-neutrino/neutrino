@@ -832,13 +832,13 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
 	CChannelEvent *event;
-	event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
+	event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
 
 	if (event) {
 		int percentage = 100;
 		if (event->duration > 0)
 			percentage = 100 * (time(NULL) - event->startTime) / event->duration;
-		CEitManager::getInstance()->getCurrentNextServiceKey(channel->channel_id, currentNextInfo);
+		CEitManager::getInstance()->getCurrentNextServiceKey(channel->getChannelID(), currentNextInfo);
 		timestr = timeString(event->startTime);
 
 		firstEPG += hh->outPair("startTime", timestr, true);
@@ -857,7 +857,7 @@ std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChann
 		}
 	}
 
-	result += hh->outPair("isActiveChannel", (channel->channel_id == current_channel) ? "true" : "false", (!firstEPG.empty()));
+	result += hh->outPair("isActiveChannel", (channel->getChannelID() == current_channel) ? "true" : "false", (!firstEPG.empty()));
 	if(!firstEPG.empty()) {
 		result += hh->outCollection("firstEPG", firstEPG);
 	}
@@ -875,10 +875,10 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 	bool isEPGdetails = !(hh->ParamList["epg"].empty());
 	if (hh->outType == json || hh->outType == xml) {
 		result += hh->outPair("number", string_printf("%u", nr), true);
-		result += hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->channel_id), true);
-		result += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->channel_id&0xFFFFFFFFFFFFULL), true);
+		result += hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()), true);
+		result += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->getChannelID()&0xFFFFFFFFFFFFULL), true);
 		result += hh->outPair("name", hh->outValue(channel->getName()), true);
-		result += hh->outPair("logo", hh->outValue(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id)), true);
+		result += hh->outPair("logo", hh->outValue(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->getChannelID())), true);
 		result += hh->outPair("bouquetnr", string_printf("%d", bouquetNr), isEPGdetails);
 		if(isEPGdetails)
 			result += _GetBouquetActualEPGItem(hh, channel);
@@ -886,21 +886,21 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
 	}
 	else {
 		CChannelEvent *event;
-		event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
+		event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
 
 		if (event && isEPGdetails) {
 			result += string_printf("%u "
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					" %s (%s)\n",
 					nr,
-					channel->channel_id,
+					channel->getChannelID(),
 					channel->getName().c_str(), event->description.c_str());
 		} else {
 			result += string_printf("%u "
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					" %s\n",
 					nr,
-					channel->channel_id,
+					channel->getChannelID(),
 					channel->getName().c_str());
 		}
 	}
@@ -1296,7 +1296,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 
 			for (int j = 0, csize = (int) channels.size(); j < csize; j++) {
 				CZapitChannel * channel = channels[j];
-				res_channels += hh->outArrayItem("channel", channelEPGformated(hh, j + 1, channel->channel_id, max, stoptime), j<csize-1);
+				res_channels += hh->outArrayItem("channel", channelEPGformated(hh, j + 1, channel->getChannelID(), max, stoptime), j<csize-1);
 			}
 			if(all_bouquets) {
 				res_channels = hh->outPair("number", string_printf("%d", i + 1), true) +
@@ -1357,7 +1357,7 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 		std::vector<t_channel_id> v;
 		int channel_nr =  CNeutrinoApp::getInstance ()->channelList->getSize();//unique channelList TV or Radio
 		for(int channel = 0; channel < channel_nr; channel++){
-		    channel_id =  CNeutrinoApp::getInstance ()->channelList->getChannelFromIndex(channel)->channel_id;
+		    channel_id =  CNeutrinoApp::getInstance ()->channelList->getChannelFromIndex(channel)->getChannelID();
 		    v.push_back(channel_id);
 		}
 		std::map<t_channel_id, t_channel_id> ch_id_map;
@@ -1404,11 +1404,19 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 					hh->printf("\t\t<info2>%s</info2>\n",ZapitTools::UTF8_to_UTF8XML(epg.info2.c_str()).c_str());
 					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 						hh->printf("\t\t<fsk>%u</fsk>\n", longepg.fsk);
+#ifdef FULL_CONTENT_CLASSIFICATION
 						if (!longepg.contentClassification.empty()){
 							genere = GetGenre(longepg.contentClassification[0]);
 							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
 							hh->printf("\t\t<genre>%s</genre>\n", genere.c_str());
 						}
+#else
+						if (longepg.contentClassification) {
+							genere = GetGenre(longepg.contentClassification);
+							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
+							hh->printf("\t\t<genre>%s</genre>\n", genere.c_str());
+						}
+#endif
 					}
 					strftime(tmpstr, sizeof(tmpstr), "%Y-%m-%d", tmStartZeit );
 					hh->printf("\t\t<date>%s</date>\n", tmpstr);
@@ -1438,11 +1446,19 @@ void CControlAPI::EpgSearchCGI(CyhookHandler *hh, bool xml_forat )
 						hh->WriteLn(epg.info2);
 					if (CEitManager::getInstance()->getEPGid(eventIterator->eventID, eventIterator->startTime, &longepg)) {
 						hh->printf("fsk:%u\n", longepg.fsk);
+#ifdef FULL_CONTENT_CLASSIFICATION
 						if (!longepg.contentClassification.empty()){
 							genere = GetGenre(longepg.contentClassification[0]);
 							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
 							hh->WriteLn(genere);
 						}
+#else
+						if (longepg.contentClassification) {
+							genere = GetGenre(longepg.contentClassification);
+							genere = ZapitTools::UTF8_to_UTF8XML(genere.c_str());
+							hh->WriteLn(genere);
+						}
+#endif
 					}
 					hh->WriteLn("----------------------------------------------------------");
 
@@ -1493,15 +1509,15 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 		CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 		for (; !(cit.EndOfChannels()); cit++) {
 			CZapitChannel * channel = *cit;
-			event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
+			event = NeutrinoAPI->ChannelListEvents[channel->getChannelID()];
 			if (event) {
 				if (!isExt) {
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %llu %s\n", channel->channel_id, event->eventID, event->description.c_str());
+					" %llu %s\n", channel->getChannelID(), event->eventID, event->description.c_str());
 				}
 				else { // ext output
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %ld %u %llu %s\n", channel->channel_id, event->startTime, event->duration, event->eventID, event->description.c_str());
+					" %ld %u %llu %s\n", channel->getChannelID(), event->startTime, event->duration, event->eventID, event->description.c_str());
 				}
 			}
 		}
@@ -1769,14 +1785,14 @@ void CControlAPI::SendChannelList(CyhookHandler *hh, bool currentTP)
 	CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
 		CZapitChannel * channel = *cit;
-		if(!currentTP || (channel->channel_id >>16) == current_channel){
+		if(!currentTP || (channel->getChannelID() >>16) == current_channel){
 
-			size_t pos = std::find(v.begin(), v.end(), channel->channel_id) - v.begin();
+			size_t pos = std::find(v.begin(), v.end(), channel->getChannelID()) - v.begin();
 			if( pos < v.size() )
 				continue;
-			v.push_back(channel->channel_id);
+			v.push_back(channel->getChannelID());
 
-			hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s\n", channel->channel_id, channel->getName().c_str());
+			hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s\n", channel->getChannelID(), channel->getName().c_str());
 		}
 	}
 }

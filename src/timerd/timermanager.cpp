@@ -277,12 +277,24 @@ bool CTimerManager::stopEvent(int peventID)
 }
 
 //------------------------------------------------------------
+int CTimerManager::lockEvents()
+{
+	return pthread_mutex_lock(&tm_eventsMutex);
+}
+
+//------------------------------------------------------------
+int CTimerManager::unlockEvents()
+{
+	return pthread_mutex_unlock(&tm_eventsMutex);
+}
+
+//------------------------------------------------------------
+
 bool CTimerManager::listEvents(CTimerEventMap &Events)
 {
 	if(!&Events)
 		return false;
 
-	pthread_mutex_lock(&tm_eventsMutex);
 
 	Events.clear();
 	for (CTimerEventMap::iterator pos = events.begin(); pos != events.end(); ++pos)
@@ -290,7 +302,6 @@ bool CTimerManager::listEvents(CTimerEventMap &Events)
 		pos->second->Refresh();
 		Events[pos->second->eventID] = pos->second;
 	}
-	pthread_mutex_unlock(&tm_eventsMutex);
 	return true;
 }
 //------------------------------------------------------------
@@ -339,13 +350,19 @@ int CTimerManager::modifyEvent(int peventID, time_t announceTime, time_t alarmTi
 				break;
 			case CTimerd::TIMER_RECORD:
 			{
-				(static_cast<CTimerEvent_Record*>(event))->recordingDir = data.recordingDir;
-				(static_cast<CTimerEvent_Record*>(event))->getEpgId();
+				CTimerEvent_Record *event_record = static_cast<CTimerEvent_Record*>(event);
+				event_record->recordingDir = data.recordingDir;
+				event_record->eventInfo.epgID = 0;
+				event_record->eventInfo.epg_starttime = 0;
+				event_record->getEpgId();
 				break;
 			}
 			case CTimerd::TIMER_ZAPTO:
 			{
-				(static_cast<CTimerEvent_Zapto*>(event))->getEpgId(); 
+				CTimerEvent_Zapto *event_zapto = static_cast<CTimerEvent_Zapto*>(event);
+				event_zapto->eventInfo.epgID = 0;
+				event_zapto->eventInfo.epg_starttime = 0;
+				event_zapto->getEpgId();
 				break;
 			}
 			default:

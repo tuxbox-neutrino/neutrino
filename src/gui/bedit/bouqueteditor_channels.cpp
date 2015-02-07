@@ -436,7 +436,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			}
 		}
 */
-		else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode || CRCInput::RC_tv ) {
+		else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode || msg==CRCInput::RC_tv  ) {
 			if (mode == CZapitClient::MODE_TV)
 				mode = CZapitClient::MODE_RADIO;
 			else
@@ -455,7 +455,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			if (state == beDefault)
 			{
 				if (selected < Channels->size()) /* Channels.size() might be 0 */
-					g_Zapit->zapTo_serviceID((*Channels)[selected]->channel_id);
+					g_Zapit->zapTo_serviceID((*Channels)[selected]->getChannelID());
 
 			} else if (state == beMoving) {
 				finishMoveChannel();
@@ -494,7 +494,7 @@ void CBEChannelWidget::deleteChannel()
 	if (ShowMsg(LOCALE_FILEBROWSER_DELETE, (*Channels)[selected]->getName(), CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
 		return;
 
-	g_bouquetManager->Bouquets[bouquet]->removeService((*Channels)[selected]->channel_id);
+	g_bouquetManager->Bouquets[bouquet]->removeService((*Channels)[selected]->getChannelID());
 
 	Channels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
 

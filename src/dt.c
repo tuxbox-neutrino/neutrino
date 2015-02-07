@@ -129,14 +129,14 @@ int main(int argc, char **argv)
 		}
 		else if (sscanf(argv[x], "-ls%X", &b) == 1)
 		{
-		    if ((b > 0) || (b <= 8)) {
+		    if ((b > 0) && (b <= 8)) {
 			    if (ioctl(fd, IOC_FP_LED_CTRL, b | 0x80))
 			        perror("IOC_FP_LED_CTRL");
 		    }
 		}
 		else if (sscanf(argv[x], "-lc%X", &b) == 1)
 		{
-		    if ((b > 0) || (b <= 8)) {
+		    if ((b > 0) && (b <= 8)) {
 			    if (ioctl(fd, IOC_FP_LED_CTRL, b))
 			        perror("IOC_FP_LED_CTRL");
 		    }

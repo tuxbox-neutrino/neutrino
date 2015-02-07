@@ -580,8 +580,13 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			info2 = epgdata.info2;
 
 			recMovieInfo->parentalLockAge = epgdata.fsk;
+#ifdef FULL_CONTENT_CLASSIFICATION
 			if( !epgdata.contentClassification.empty() )
 				recMovieInfo->genreMajor = epgdata.contentClassification[0];
+#else
+			if(epgdata.contentClassification)
+				recMovieInfo->genreMajor = epgdata.contentClassification;
+#endif
 
 			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
 

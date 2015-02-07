@@ -176,7 +176,7 @@ int CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode
 		for(int j = 0; j < (int) channels.size(); j++) {
 			CZapitChannel * channel = channels[j];
 			char cChannelId[60] = {0};
-			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode==CZapitClient::MODE_TV)?'T':'R', channel->number, channel->channel_id);
+			snprintf(cChannelId, sizeof(cChannelId), "ZC%c:%d|%" PRIx64 "#", (mode==CZapitClient::MODE_TV)?'T':'R', channel->number, channel->getChannelID());
 
 			CMenuForwarder * chan_item = new CMenuForwarder(channel->getName(), true, NULL, this,
 				(std::string(cChannelId) + channel->getName()).c_str(), CRCInput::RC_nokey, NULL,
