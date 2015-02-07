@@ -37,6 +37,7 @@
 #include <sys/stat.h>
 #include <sys/swap.h>
 #include <sys/vfs.h>
+#include <sys/wait.h>
 #include <dirent.h>
 #include <dlfcn.h>
 #include <sys/mount.h>
@@ -197,6 +198,7 @@ void CHDDMenuHandler::getBlkIds()
 		hdd_list.push_back(hdd);
 	}
 	fclose(f);
+	waitpid(pid, NULL, 0); /* beware of the zombie apocalypse! */
 }
 
 std::string CHDDMenuHandler::getDefaultPart(std::string dev)
