@@ -37,9 +37,9 @@ const char *mdev_env[] =
 	"MDEV" ,
 	"DEVPATH" ,
 	"INTERFACE",
+	"DEVNAME",
+	NULL /* terminating entry */
 };
-
-#define ENV_SIZE (sizeof(mdev_env)/sizeof(char *))
 
 int main (int /*argc*/, char **argv)
 {
@@ -64,7 +64,7 @@ int main (int /*argc*/, char **argv)
 		goto _error;
 	}
 
-	for (unsigned i = 0; i < ENV_SIZE; i++) {
+	for (unsigned i = 0; mdev_env[i]; i++) {
 		char * s = getenv(mdev_env[i]);
 		if (s)
 			data += std::string(mdev_env[i]) + "=" + s + " ";

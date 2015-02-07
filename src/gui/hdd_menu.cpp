@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2010-2014 Stefan Seyfried
+	Copyright (C) 2010-2015 Stefan Seyfried
 	Copyright (C) 2013-2014 martii
 	Copyright (C) 2009-2014 CoolStream International Ltd
 
@@ -389,11 +389,18 @@ int CHDDMenuHandler::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t dat
 		if (!split_config_string(str, smap))
 			return messages_return::handled;
 
+		std::string dev;
 		std::map<std::string,std::string>::iterator it = smap.find("MDEV");
-		if (it == smap.end())
-			return messages_return::handled;
-
-		std::string dev = it->second;
+		if (it != smap.end())
+			dev = it->second;
+		else {
+			it = smap.find("DEVNAME");
+			if (it == smap.end())
+				return messages_return::handled;
+			dev = it->second;
+			if (dev.length() > 5)
+				dev = dev.substr(5); /* strip off /dev/ */
+		}
 		printf("CHDDMenuHandler::handleMsg: MDEV=%s\n", dev.c_str());
 		if (!filterDevName(dev.c_str()))
 			return messages_return::handled;
