@@ -724,28 +724,35 @@ bool CFileHelpers::removeDir(const char *Dir)
 
 u_int64_t CFileHelpers::getDirSize(const char *dirname)
 {
-	DIR *d;
-	struct dirent *de;
-	struct stat buf;
-	int exists;
-	u_int64_t total_size = 0;
+	DIR *dir;
+	char fullDirName[500];
+	struct dirent *dirPnt;
+	struct stat cur_file;
+	uint64_t total_size = 0;
 
-	d = opendir(dirname);
-	if (d == NULL) {
-		perror("prsize");
+	//open current dir
+	sprintf(fullDirName, "%s/", dirname);
+	if((dir = opendir(fullDirName)) == NULL) {
+		fprintf(stderr, "Couldn't open %s\n", fullDirName);
 		return 0;
 	}
 
-	for (de = readdir(d); de != NULL; de = readdir(d)) {
-		exists = stat(de->d_name, &buf);
-		if (exists < 0) {
-			fprintf(stderr, "Couldn't stat %s\n", de->d_name);
-		} else {
-			total_size += buf.st_size;
-		}
-	}
+	//go through the directory
+	while( (dirPnt = readdir(dir)) != NULL ) {
+		if(strcmp((*dirPnt).d_name, "..") == 0 || strcmp((*dirPnt).d_name, ".") == 0)
+			continue;
 
-	closedir(d);
+		//create current filepath
+		sprintf(fullDirName, "%s/%s", dirname, (*dirPnt).d_name);
+		if(stat(fullDirName, &cur_file) == -1)
+			continue;
+
+		if(cur_file.st_mode & S_IFREG) //file...
+			total_size += cur_file.st_size;
+		else if(cur_file.st_mode & S_IFDIR) //dir...
+			total_size += getDirSize(fullDirName);
+	}
+	closedir(dir);
 
 	return total_size;
 }
