@@ -68,7 +68,9 @@
 #define _HAVE_DVB57 1
 #else
 #if HAVE_SPARK_HARDWARE
+#ifdef WARN_DVBAPI
 #warning DVB_API < 5.7 -- no DVB-T2/DTMB support.
+#endif
 #else
 #error DVB_API < 5.7 => fix your toolchain
 #endif
