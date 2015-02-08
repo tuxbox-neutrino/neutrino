@@ -390,6 +390,14 @@ void CHDDMenuHandler::setRecordPath(std::string &dev)
 		printf("CHDDMenuHandler::setRecordPath: recordingdir already set to %s\n", newpath.c_str());
 		return;
 	}
+	/* don't annoy if the recordingdir is a symlink pointing to the 'right' location */
+	string readl = backtick("readlink -f " + g_settings.network_nfs_recordingdir);
+	readl = trim(readl);
+	if (newpath.compare(readl) == 0) {
+		printf("CHDDMenuHandler::%s: recordingdir is a symlink to %s\n",
+					__func__, newpath.c_str());
+		return;
+	}
 	bool old_menu = in_menu;
 	in_menu = false;
 	int res = ShowMsg(LOCALE_RECORDINGMENU_DEFDIR, LOCALE_HDD_SET_RECDIR, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
