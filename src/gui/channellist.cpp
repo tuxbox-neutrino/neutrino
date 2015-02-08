@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Copyright (C) 2007-2012 Stefan Seyfried
+	Copyright (C) 2007-2015 Stefan Seyfried
 
 	Kommentar:
 
@@ -1048,7 +1048,8 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data, 
 			(*chanlist)[selected]->last_unlocked_time = time_monotonic();
 			int bnum = bouquetList->getActiveBouquetNumber();
 			/* unlock only real locked bouquet, not whole satellite or all channels! */
-			if (bnum >= 0 && bouquetList->Bouquets[bnum]->zapitBouquet && bouquetList->Bouquets[bnum]->zapitBouquet->bLocked)
+			if (bnum >= 0 && bouquetList->Bouquets[bnum]->zapitBouquet &&
+			    bouquetList->Bouquets[bnum]->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
 			{
 				/* unlock the whole bouquet */
 				int i;
