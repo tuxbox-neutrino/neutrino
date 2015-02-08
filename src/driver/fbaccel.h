@@ -36,6 +36,10 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
 
+#if HAVE_SPARK_HARDWARE
+#define PARTIAL_BLIT 1
+#endif
+
 class CFrameBuffer;
 class CFbAccel
 	: public OpenThreads::Thread
@@ -57,6 +61,16 @@ class CFbAccel
 		bool blit_pending;
 		OpenThreads::Condition blit_cond;
 		OpenThreads::Mutex blit_mutex;
+#ifdef PARTIAL_BLIT
+		OpenThreads::Mutex to_blit_mutex;
+		struct {
+			int xs;
+			int ys;
+			int xe;
+			int ye;
+		} to_blit;
+		uint32_t last_xres;
+#endif
 	public:
 		fb_pixel_t *backbuffer;
 		fb_pixel_t *lbb;

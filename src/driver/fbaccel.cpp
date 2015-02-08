@@ -39,6 +39,7 @@
 #include <sys/mman.h>
 #include <memory.h>
 #include <math.h>
+#include <limits.h>
 
 #include <linux/kd.h>
 
@@ -261,6 +262,11 @@ CFbAccel::CFbAccel(CFrameBuffer *_fb)
 		bpafd = -1;
 		return;
 	}
+#ifdef PARTIAL_BLIT
+	to_blit.xs = to_blit.ys = INT_MAX;
+	to_blit.xe = to_blit.ye = 0;
+	last_xres = 0;
+#endif
 #endif
 
 #ifdef USE_NEVIS_GXA
@@ -460,10 +466,10 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 	bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
 	bltData.colour     = col;
 
+	mark(xx, yy, bltData.dst_right, bltData.dst_bottom);
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	if (ioctl(fb->fd, STMFBIO_BLT, &bltData ) < 0)
 		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", xx,yy,width,height,fb->stride);
-	// update_dirty(xx, yy, bltData.dst_right, bltData.dst_bottom);
 #else
 	int line = 0;
 	int swidth = fb->stride / sizeof(fb_pixel_t);
@@ -601,6 +607,7 @@ void CFbAccel::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 			paintPixel(x, y, col);
 		}
 	}
+	mark(xa, ya, xb, yb);
 	blit();
 #endif
 }
@@ -669,6 +676,7 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 	blt_data.srcMemSize = mem_sz;
 	blt_data.dstMemSize = fb->stride * fb->yRes + lbb_off;
 
+	mark(x, y, blt_data.dst_right, blt_data.dst_bottom);
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	ioctl(fb->fd, STMFBIO_SYNC_BLITTER);
 	if (fbbuff != backbuffer)
@@ -678,7 +686,6 @@ void CFbAccel::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t x
 
 	if (ioctl(fb->fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("CFbAccel blit2FB STMFBIO_BLT_EXTERN");
-	//update_dirty(x, y, blt_data.dst_right, blt_data.dst_bottom);
 	return;
 #else
 	fb_pixel_t *data = (fb_pixel_t *) fbbuff;
@@ -820,6 +827,7 @@ void CFbAccel::_blit()
 	printf("%s %ld\n", __func__, now - last);
 	last = now;
 #endif
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 #ifdef PARTIAL_BLIT
 	if (to_blit.xs == INT_MAX)
 		return;
@@ -862,12 +870,12 @@ void CFbAccel::_blit()
 		last_xres = s.xres;
 		bltData.src_left   = 0;
 		bltData.src_top    = 0;
-		bltData.src_right  = xRes;
-		bltData.src_bottom = yRes;
+		bltData.src_right  = fb->xRes;
+		bltData.src_bottom = fb->yRes;
 	}
 
-	double xFactor = (double)s.xres/(double)xRes;
-	double yFactor = (double)s.yres/(double)yRes;
+	double xFactor = (double)s.xres/(double)fb->xRes;
+	double yFactor = (double)s.yres/(double)fb->yRes;
 
 	int desXa = xFactor * bltData.src_left;
 	int desYa = yFactor * bltData.src_top;
@@ -897,7 +905,6 @@ void CFbAccel::_blit()
 		printf("CFbAccel::blit: values out of range desXb:%d desYb:%d\n",
 			bltData.dst_right, bltData.dst_bottom);
 
-	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 	if(ioctl(fb->fd, STMFBIO_SYNC_BLITTER) < 0)
 		perror("CFbAccel::blit ioctl STMFBIO_SYNC_BLITTER 1");
 	msync(lbb, fb->xRes * 4 * fb->yRes, MS_SYNC);
@@ -952,7 +959,23 @@ void CFbAccel::_blit()
 #ifdef PARTIAL_BLIT
 void CFbAccel::mark(int xs, int ys, int xe, int ye)
 {
-	update_dirty(xs, ys, xe, ye);
+	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
+	if (xs < to_blit.xs)
+		to_blit.xs = xs;
+	if (ys < to_blit.ys)
+		to_blit.ys = ys;
+	if (xe > to_blit.xe) {
+		if (xe >= (int)fb->xRes)
+			to_blit.xe = fb->xRes - 1;
+		else
+			to_blit.xe = xe;
+	}
+	if (ye > to_blit.ye) {
+		if (ye >= (int)fb->xRes)
+			to_blit.ye = fb->yRes - 1;
+		else
+			to_blit.ye = ye;
+	}
 }
 #else
 void CFbAccel::mark(int, int, int, int)

@@ -670,6 +670,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		line++;
 	}
 	checkFbArea(x, y, dx, dy, false);
+	accel->mark(x, y, x+dx, y+dy);
 }
 
 void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
@@ -783,6 +784,7 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 		d += stride;
 	}
 	close(lfd);
+	accel->mark(x, y, x + width, y + height);
 	accel->blit();
 	return true;
 }
@@ -1073,6 +1075,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 			bkpos += BACKGROUNDIMAGEWIDTH;
 		}
 		checkFbArea(x, y, dx, dy, false);
+		accel->mark(x, y, x + dx, y + dy);
 	}
 }
 
@@ -1088,6 +1091,7 @@ void CFrameBuffer::paintBackground()
 		for (int i = 0; i < 576; i++)
 			memmove(((uint8_t *)getFrameBufferPointer()) + i * stride, (background + i * BACKGROUNDIMAGEWIDTH), BACKGROUNDIMAGEWIDTH * sizeof(fb_pixel_t));
 		checkFbArea(0, 0, xRes, yRes, false);
+		accel->mark(0, 0, xRes, yRes);
 		accel->blit();
 	}
 	else
@@ -1138,6 +1142,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
+	accel->mark(x, y, x + dx, y + dy);
 	accel->blit();
 	checkFbArea(x, y, dx, dy, false);
 }
@@ -1238,6 +1243,7 @@ void CFrameBuffer::blitBox2FB(const fb_pixel_t* boxBuf, uint32_t width, uint32_t
 		fbp += swidth;
 		line++;
 	}
+	accel->mark(xoff, yoff, xoff + width, xoff + height);
 
 	checkFbArea(xoff, yoff, width, height, false);
 }
