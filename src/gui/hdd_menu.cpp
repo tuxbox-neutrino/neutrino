@@ -776,9 +776,11 @@ _show_menu:
 	}
 
 	if (!hdd_list.empty()) {
-		struct stat rec_st;
+		struct stat rec_st, root_st, dev_st;
 		memset(&rec_st, 0, sizeof(rec_st));
+		memset(&root_st, 0, sizeof(root_st));
 		stat(g_settings.network_nfs_recordingdir.c_str(), &rec_st);
+		stat("/", &root_st);
 
 		sort(hdd_list.begin(), hdd_list.end(), cmp_hdd_by_name());
 		mount = g_Locale->getText(LOCALE_HDD_MOUNT);
@@ -794,6 +796,13 @@ _show_menu:
 			}
 			std::string key = "m" + it->devname;
 			bool enabled = !rec_icon || !CNeutrinoApp::getInstance()->recordingstatus;
+			/* do not allow to unmount the rootfs, and skip filesystems without kernel support */
+			memset(&dev_st, 0, sizeof(dev_st));
+			if (stat(("/dev/" + it->devname).c_str(), &dev_st) != -1
+			    && dev_st.st_rdev == root_st.st_dev)
+				enabled = false;
+			else if (kernel_fs_list.find(it->fmt) == kernel_fs_list.end())
+				enabled = false;
 			it->cmf = new CMenuForwarder(it->desc, enabled, it->mounted ? umount : mount , this,
 					key.c_str(), CRCInput::convertDigitToKey(shortcut++), NULL, rec_icon);
 			hddmenu->addItem(it->cmf);
