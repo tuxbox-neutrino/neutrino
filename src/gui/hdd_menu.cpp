@@ -215,9 +215,36 @@ std::string CHDDMenuHandler::getFmtType(std::string name, std::string part)
 	return ret;
 }
 
+void CHDDMenuHandler::check_kernel_fs()
+{
+	char line[128]; /* /proc/filesystems lines are shorter */
+	kernel_fs_list.clear();
+	FILE *f = fopen("/proc/filesystems", "r");
+	if (! f) {
+		fprintf(stderr, "CHDDMenuHandler::%s: opening /proc/filesystems failed: %m\n", __func__);
+		return;
+	}
+	while (fgets(line, sizeof(line), f)) {
+		size_t l = strlen(line);
+		if (l > 0)
+			line[l - 1] = 0; /* remove \n */
+		char *tab = strchr(line, '\t');
+		if (! tab)	/* should not happen in any kernel I have seen */
+			continue;
+		tab++;
+		kernel_fs_list.insert(string(tab));
+	}
+	fclose(f);
+}
+
 void CHDDMenuHandler::check_dev_tools()
 {
 	for (unsigned i = 0; i < FS_MAX; i++) {
+		if (kernel_fs_list.find(devtools[i].fmt) == kernel_fs_list.end()) {
+			printf("%s: filesystem '%s' not supported by kernel\n",
+				__func__, devtools[i].fmt.c_str());
+			continue;
+		}
 		if (!access(devtools[i].fsck.c_str(), X_OK))
 			devtools[i].fsck_supported = true;
 		if (!access(devtools[i].mkfs.c_str(), X_OK))
@@ -682,6 +709,7 @@ int CHDDMenuHandler::doMenu()
 	show_menu = false;
 	in_menu = true;
 
+	check_kernel_fs();
 	check_dev_tools();
 
 _show_menu:
