@@ -361,6 +361,23 @@ std::string find_executable(const char *name)
 	return "";
 }
 
+std::string backtick(std::string command)
+{
+	char *buf = NULL;
+	size_t n = 0;
+	pid_t pid;
+	FILE *p = my_popen(pid, command.c_str(), "r");
+	if (! p)
+		return "";
+	std::string out = "";
+	while (getline(&buf, &n, p) >= 0)
+		out.append(std::string(buf));
+	free(buf);
+	fclose(p);
+	waitpid(pid, NULL, 0);
+	return out;
+}
+
 std::string _getPathName(std::string &path, std::string sep)
 {
 	size_t pos = path.find_last_of(sep);
