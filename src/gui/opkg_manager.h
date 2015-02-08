@@ -67,6 +67,7 @@ class COPKGManager : public CMenuTarget
 		int showMenu();
 		void updateMenu();
 		void refreshMenu();
+		bool badpackage(std::string &s);
 
 		struct pkg {
 			std::string name;

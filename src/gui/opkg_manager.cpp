@@ -187,12 +187,52 @@ static const struct button_label COPKGManagerFooterButtonsExpert[COPKGManagerFoo
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_OPKG_BUTTON_UNINSTALL }
 };
 
+/* TODO: this should go into a config file... */
+static std::string bad_pattern[] = {
+	"-dev$",
+	"-doc$",
+	"-dbg$",
+	"-ptest$",
+	"-staticdev$",
+	"-locale-",
+	"-charmap-",
+	"-gconv-",
+	"-localedata-",
+	"^locale-base-",
+	"^perl-module-",
+	""
+};
+
+bool COPKGManager::badpackage(std::string &s)
+{
+	int i;
+	for (i = 0; !bad_pattern[i].empty(); i++)
+	{
+		std::string p = bad_pattern[i];
+		size_t patlen = p.length() - 1;
+		/* poor man's regex :-) only supported are "^" and "$" */
+		if (p.substr(patlen, 1) == "$") { /* match at end */
+			if (s.rfind(p.substr(0, patlen)) == (s.length() - patlen))
+				return true;
+		} else if (p.substr(0, 1) == "^") { /* match at beginning */
+			if (s.find(p.substr(1)) == 0)
+				return true;
+		} else { /* match everywhere */
+			if (s.find(p) != std::string::npos)
+				return true;
+		}
+	}
+	return false;
+}
+
 void COPKGManager::updateMenu()
 {
 	bool upgradesAvailable = false;
 	getPkgData(OM_LIST_INSTALLED);
 	getPkgData(OM_LIST_UPGRADEABLE);
 	for (std::map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+		if (badpackage(it->second.name))
+			continue;
 		it->second.forwarder->iconName_Info_right = "";
 		it->second.forwarder->setActive(true);
 		if (it->second.upgradable) {
@@ -249,6 +289,8 @@ int COPKGManager::showMenu()
 
 	pkg_vec.clear();
 	for (std::map<string, struct pkg>::iterator it = pkg_map.begin(); it != pkg_map.end(); it++) {
+		if (badpackage(it->second.name))
+			continue;
 		it->second.forwarder = new CMenuForwarder(it->second.desc, true, NULL , this, it->second.name.c_str());
 		it->second.forwarder->setHint("", it->second.desc);
 		menu->addItem(it->second.forwarder);
@@ -322,6 +364,8 @@ void COPKGManager::getPkgData(const int pkg_content_id)
 
 	while (fgets(buf, sizeof(buf), f))
 	{
+		if (buf[0] == ' ')
+			continue; /* second, third, ... line of description will not be shown anyway */
 		std::string line(buf);
 		trim(line);
 
