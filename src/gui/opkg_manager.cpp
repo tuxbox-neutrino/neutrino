@@ -718,6 +718,13 @@ void COPKGManager::handleShellOutput(string& cur_line)
 			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: Duplicate option cache, please check opkg config file!\n", __func__, __LINE__);
 			has_err = false;
 		}
+		/*resolve_conffiles: already existent configfiles are not installed, but renamed in the same directory,
+		 * NOTE: It's not fine but not really bad. Files should be installed separate or user can change manually
+		*/
+		if (cur_line.find("Existing conffile") != string::npos){
+			dprintf(DEBUG_NORMAL,  "[COPKGManager] [%s - %d]  WARNING: Existing conffile(s) not changed!\n", __func__, __LINE__);
+			has_err = false;
+		}
 
 		//find obvious errors
 		//download error:
