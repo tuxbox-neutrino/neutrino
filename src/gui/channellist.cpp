@@ -343,16 +343,17 @@ int CChannelList::doChannelMenu(void)
 		switch(select) {
 		case 0: // edit mode
 			if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED) {
+				int pl_z = g_settings.parentallock_zaptime * 60;
 				if (g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT] == CPersonalizeGui::PERSONALIZE_MODE_PIN) {
 					unlocked = false;
 				} else if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked) {
 					/* on locked bouquet, enough to check any channel */
-					unlocked = ((*chanlist)[selected]->last_unlocked_time + 3600 > time_monotonic());
+					unlocked = ((*chanlist)[selected]->last_unlocked_time + pl_z > time_monotonic());
 				} else {
 					/* check all locked channels for last_unlocked_time, overwrite only if already unlocked */
 					for (unsigned int j = 0 ; j < (*chanlist).size(); j++) {
 						if ((*chanlist)[j]->bLocked)
-							unlocked = unlocked && ((*chanlist)[j]->last_unlocked_time + 3600 > time_monotonic());
+							unlocked = unlocked && ((*chanlist)[j]->last_unlocked_time + pl_z > time_monotonic());
 					}
 				}
 				if (!unlocked) {
