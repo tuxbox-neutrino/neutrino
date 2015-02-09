@@ -198,7 +198,7 @@ char transponder::pol(unsigned char p)
 std::string transponder::description()
 {
 	char buf[128] = {0};
-	char *f, *s, *m, *f2;
+	const char *f, *s, *m, *f2;
 
 	if (CFrontend::isSat(feparams.delsys)) {
 		CFrontend::getDelSys(feparams.delsys, getFEParams()->fec_inner, getFEParams()->modulation,  f, s, m);

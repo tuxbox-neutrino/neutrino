@@ -124,7 +124,7 @@ void CScanTs::testFunc()
 {
 	int w = x + width - xpos2;
 	char buffer[128];
-	char *f, *s, *m, *f2;
+	const char *f, *s, *m, *f2;
 
 	if (CFrontend::isSat(delsys)) {
 		CFrontend::getDelSys(TP.feparams.delsys, TP.feparams.fec_inner, TP.feparams.modulation, f, s, m);
@@ -412,7 +412,7 @@ neutrino_msg_t CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCYP:
 			{
 				FrontendParameters *feparams = (FrontendParameters*) data;
-				char * f, *s, *m;
+				const char *f, *s, *m;
 
 				CFrontend::getDelSys(feparams->delsys, feparams->fec_inner, feparams->modulation,  f, s, m);
 				uint32_t freq = feparams->frequency/1000;

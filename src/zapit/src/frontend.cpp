@@ -737,7 +737,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 	return event;
 }
 
-void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
+void CFrontend::getDelSys(int f, int m, const char *&fec, const char *&sys, const char *&mod)
 {
 	return getDelSys(getCurrentDeliverySystem(), f, m, fec, sys, mod);
 }
@@ -811,25 +811,25 @@ void CFrontend::getXMLDelsysFEC(fe_code_rate_t xmlfec, delivery_system_t & delsy
 	}
 }
 
-void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, char *&fec, char *&sys, char *&mod)
+void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, const char *&fec, const char *&sys, const char *&mod)
 {
 	switch (delsys) {
 	case DVB_S:
-		sys = (char *)"DVB";
-		mod = (char *)"QPSK";
+		sys = "DVB";
+		mod = "QPSK";
 		break;
 	case DVB_S2:
-		sys = (char *)"DVB-S2";
+		sys = "DVB-S2";
 		switch (m) {
 		case QPSK:
-			mod = (char *)"QPSK";
+			mod = "QPSK";
 			break;
 		case PSK_8:
-			mod = (char *)"8PSK";
+			mod = "8PSK";
 			break;
 		default:
 			printf("[frontend] unknown modulation %d!\n", m);
-			mod = (char *)"UNKNOWN";
+			mod = "UNKNOWN";
 		}
 		break;
 	case DVB_C:
@@ -837,103 +837,103 @@ void CFrontend::getDelSys(delivery_system_t delsys, int f, int m, char *&fec, ch
 	case DTMB:
 		switch(delsys) {
 		case DVB_C:
-			sys = (char *)"DVB-C(Annex A)";
+			sys = "DVB-C(Annex A)";
 			break;
 		case DVB_T:
-			sys = (char *)"DVB-T";
+			sys = "DVB-T";
 			break;
 		case DVB_T2:
-			sys = (char *)"DVB-T2";
+			sys = "DVB-T2";
 			break;
 		case DTMB:
-			sys = (char *)"DTMB";
+			sys = "DTMB";
 			break;
 		default:
 			printf("[frontend] unknown delsys %d!\n", delsys);
-			sys = (char *)"UNKNOWN";
+			sys = "UNKNOWN";
 			break;
 		}
 
 		switch (m) {
 		case QAM_16:
-			mod = (char *)"QAM_16";
+			mod = "QAM_16";
 			break;
 		case QAM_32:
-			mod = (char *)"QAM_32";
+			mod = "QAM_32";
 			break;
 		case QAM_64:
-			mod = (char *)"QAM_64";
+			mod = "QAM_64";
 			break;
 		case QAM_128:
-			mod = (char *)"QAM_128";
+			mod = "QAM_128";
 			break;
 		case QAM_256:
-			mod = (char *)"QAM_256";
+			mod = "QAM_256";
 			break;
 #if _HAVE_DVB57
 		case QAM_4_NR:
-			mod = (char *)"QAM_4_NR";
+			mod = "QAM_4_NR";
 			break;
 #endif
 		case QPSK:
 			if (delsys == DVB_T || delsys == DVB_T2 || delsys == DTMB) {
-				mod = (char *)"QPSK"; // AKA QAM_4
+				mod = "QPSK"; // AKA QAM_4
 				break;
 			}
 			/* fallthrouh for FE_QAM... */
 		case QAM_AUTO:
 		default:
-			mod = (char *)"QAM_AUTO";
+			mod = "QAM_AUTO";
 			break;
 		}
 		break;
 	default:
 		INFO("unknown delsys %d!", delsys);
-		sys = (char *)"UNKNOWN";
-		mod = (char *)"UNKNOWN";
+		sys = "UNKNOWN";
+		mod = "UNKNOWN";
 		break;
 	}
 
 	switch (f) {
 	case FEC_1_2:
-		fec = (char *)"1/2";
+		fec = "1/2";
 		break;
 	case FEC_2_3:
-		fec = (char *)"2/3";
+		fec = "2/3";
 		break;
 	case FEC_3_4:
-		fec = (char *)"3/4";
+		fec = "3/4";
 		break;
 	case FEC_4_5:
-		fec = (char *)"4/5";
+		fec = "4/5";
 		break;
 	case FEC_5_6:
-		fec = (char *)"5/6";
+		fec = "5/6";
 		break;
 	case FEC_6_7:
-		fec = (char *)"6/7";
+		fec = "6/7";
 		break;
 	case FEC_7_8:
-		fec = (char *)"7/8";
+		fec = "7/8";
 		break;
 	case FEC_8_9:
-		fec = (char *)"8/9";
+		fec = "8/9";
 		break;
 	case FEC_3_5:
-		fec = (char *)"3/5";
+		fec = "3/5";
 		break;
 	case FEC_9_10:
-		fec = (char *)"9/10";
+		fec = "9/10";
 		break;
 #if _HAVE_DVB57
 	case FEC_2_5:
-		fec = (char *)"2/5";
+		fec = "2/5";
 		break;
 #endif
 	default:
 		INFO("unknown FEC: %d!", f);
 	case FEC_AUTO:
-		fec = (char *)"AUTO";
+		fec = "AUTO";
 		break;
 	}
 }
@@ -1597,7 +1597,7 @@ int CFrontend::setParameters(transponder *TP, bool nowait)
 
 
 	freq		= (int) feparams.frequency;
-	char * f, *s, *m;
+	const char *f, *s, *m;
 	bool high_band;
 
 	switch (feparams.delsys) {
