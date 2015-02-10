@@ -627,7 +627,7 @@ void CLCD::showTime()
 			}
 			else
 			{
-				strftime((char*) &timestr, 20, "%H:%M", t);
+				strftime(timestr, 20, "%H:%M", t);
 				clearClock = 1;
 			}
 
