@@ -194,7 +194,7 @@ bool CZapitChannel::isHD()
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
 			return true;
 		case ST_DIGITAL_TELEVISION_SERVICE: {
-				  char * temp = (char *) name.c_str();
+				  const char *temp = name.c_str();
 				  int len = name.size();
 				  if((len > 1) && temp[len-2] == 'H' && temp[len-1] == 'D') {
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
