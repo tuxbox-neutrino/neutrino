@@ -133,9 +133,9 @@ void CThemes::readThemes(CMenuWidget &themes)
 					*pos = '\0';
 					if ( p == 1 ) {
 						userThemeFile = "{U}" + (std::string)file;
-						oj = new CMenuForwarder((char*)file, true, "", this, userThemeFile.c_str());
+						oj = new CMenuForwarder(file, true, "", this, userThemeFile.c_str());
 					} else
-						oj = new CMenuForwarder((char*)file, true, "", this, file);
+						oj = new CMenuForwarder(file, true, "", this, file);
 					themes.addItem( oj );
 				}
 				free(themelist[count]);
@@ -362,8 +362,8 @@ void CThemes::move_userDir()
 				const char *file = themelist[count]->d_name;
 				if (strcmp(file, ".") == 0 || strcmp(file, "..") == 0)
 					continue;
-				const char *dest = (char*)((std::string)USERDIR + file).c_str();
-				const char *target = (char*)((std::string)THEMEDIR_VAR + file).c_str();
+				const char *dest = ((std::string)USERDIR + file).c_str();
+				const char *target = ((std::string)THEMEDIR_VAR + file).c_str();
 				printf("[neutrino theme] moving %s to %s\n", dest, target);
 				rename(dest, target);
 			}
