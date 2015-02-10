@@ -672,7 +672,7 @@ void CInfoViewerBB::showBarHdd(int percent)
 	}
 }
 
-void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
+void CInfoViewerBB::paint_ca_icons(int caid, const char *icon, int &icon_space_offset)
 {
 	char buf[20];
 	int endx = g_InfoViewer->BoxEndX - 10;
@@ -748,8 +748,8 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 	}
 
 	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
-	const char * white = (char *) "white";
-	const char * yellow = (char *) "yellow";
+	const char *white = "white";
+	const char *yellow = "yellow";
 	int icon_space_offset = 0;
 
 	if(!g_InfoViewer->chanready) {
@@ -759,7 +759,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 		}
 		else if(g_settings.casystem_display == 0) {
 			for (int i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
-				paint_ca_icons(caids[i], (char *) white, icon_space_offset);
+				paint_ca_icons(caids[i], white, icon_space_offset);
 			}
 		}
 		return;
@@ -793,9 +793,9 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 					break;
 			}
 			if(g_settings.casystem_display == 0)
-				paint_ca_icons(caids[i], (char *) (found ? yellow : white), icon_space_offset);
+				paint_ca_icons(caids[i], (found ? yellow : white), icon_space_offset);
 			else if(found)
-				paint_ca_icons(caids[i], (char *) yellow, icon_space_offset);
+				paint_ca_icons(caids[i], yellow, icon_space_offset);
 		}
 	}
 }
