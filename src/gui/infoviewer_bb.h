@@ -40,7 +40,6 @@
 #include <driver/fontrenderer.h>
 #include <driver/fade.h>
 #include <system/settings.h>
-#include <system/hddstat.h>
 #include "widget/menue.h"
 #include <gui/components/cc.h>
 #include <string>
