@@ -33,6 +33,7 @@
 #include <config.h>
 #endif
 #include "infoviewer.h"
+#include "infoviewer_bb.h"
 
 #include <algorithm>
 
