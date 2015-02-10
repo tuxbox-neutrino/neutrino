@@ -133,6 +133,14 @@ int CHDDMenuHandler::filterDevName(const char * name)
 	return 0;
 }
 
+static string readlink(const char *path)
+{
+	char link[PATH_MAX + 1];
+	if (realpath(path, link))
+		return string(link);
+	return "";
+}
+
 bool CHDDMenuHandler::is_mounted(const char *dev)
 {
 	bool res = false;
@@ -143,7 +151,7 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 		snprintf(devpath, sizeof(devpath), "/dev/%s", dev);
 
 	char buffer[255];
-	string realdev = backtick("readlink -f " + string(devpath));
+	string realdev = readlink(devpath);
 	realdev = trim(realdev);
 	FILE *f = fopen("/proc/mounts", "r");
 	if(f) {
@@ -156,7 +164,7 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 			if (!strcmp(buffer, devpath)) /* default '/dev/sda1' mount */
 				res = true;
 			else {	/* now the case of '/dev/disk/by-label/myharddrive' mounts */
-				string realmount = backtick("readlink -f " + string(buffer));
+				string realmount = readlink(buffer);
 				if (realdev == trim(realmount))
 					res = true;
 			}
@@ -410,7 +418,7 @@ void CHDDMenuHandler::setRecordPath(std::string &dev)
 		return;
 	}
 	/* don't annoy if the recordingdir is a symlink pointing to the 'right' location */
-	string readl = backtick("readlink -f " + g_settings.network_nfs_recordingdir);
+	string readl = readlink(g_settings.network_nfs_recordingdir.c_str());
 	readl = trim(readl);
 	if (newpath.compare(readl) == 0) {
 		printf("CHDDMenuHandler::%s: recordingdir is a symlink to %s\n",
