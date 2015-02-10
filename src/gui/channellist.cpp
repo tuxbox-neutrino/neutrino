@@ -1298,7 +1298,7 @@ int CChannelList::numericZap(int key)
 
 	while(1) {
 		if (lastchan != chn) {
-			snprintf((char*) &valstr, sizeof(valstr), "%d", chn);
+			snprintf(valstr, sizeof(valstr), "%d", chn);
 
 			while(strlen(valstr) < maxchansize)
 				strcat(valstr,"-");   //"_"
@@ -1862,7 +1862,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 			title_offset=6;
 		}
 
-		snprintf((char*) tmp, sizeof(tmp), "%d", this->historyMode ? pos : chan->number);
+		snprintf(tmp, sizeof(tmp), "%d", this->historyMode ? pos : chan->number);
 
 		CChannelEvent *p_event=NULL;
 		if (displayNext)
@@ -1974,7 +1974,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 				{
 					struct		tm *pStartZeit = localtime(&p_event->startTime);
 
-					snprintf((char*) tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
+					snprintf(tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
 					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -prg_offset, tmp, tcolor);
 				}
 				else
@@ -2318,7 +2318,7 @@ void CChannelList::processTextToArray(std::string text, int screening) // UTF-8
 	std::string	aktWord = "";
 	int	aktWidth = 0;
 	text += ' ';
-	char* text_= (char*) text.c_str();
+	const char *text_= text.c_str();
 
 	while (*text_!=0)
 	{
