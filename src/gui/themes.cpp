@@ -82,10 +82,10 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 			if ( strstr(themeFile.c_str(), "{U}") != 0 ) 
 			{
 				themeFile.erase(0, 3);
-				readFile((char*)((std::string)THEMEDIR_VAR + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMEDIR_VAR + themeFile + FILE_PREFIX).c_str());
 			} 
 			else
-				readFile((char*)((std::string)THEMEDIR + themeFile + FILE_PREFIX).c_str());
+				readFile(((std::string)THEMEDIR + themeFile + FILE_PREFIX).c_str());
 		}
 		return res;
 	}
@@ -177,7 +177,7 @@ int CThemes::Show()
 	int res = themes.exec(NULL, "");
 
 	if (!file_name.empty()) {
-		saveFile((char*)((std::string)THEMEDIR_VAR + file_name + FILE_PREFIX).c_str());
+		saveFile(((std::string)THEMEDIR_VAR + file_name + FILE_PREFIX).c_str());
 	}
 
 	if (hasThemeChanged) {
@@ -203,7 +203,7 @@ void CThemes::rememberOldTheme(bool remember)
 	}
 }
 
-void CThemes::readFile(char* themename)
+void CThemes::readFile(const char *themename)
 {
 	if(themefile.loadConfig(themename))
 	{
@@ -218,7 +218,7 @@ void CThemes::readFile(char* themename)
 		printf("[neutrino theme] %s not found\n", themename);
 }
 
-void CThemes::saveFile(char * themename)
+void CThemes::saveFile(const char *themename)
 {
 	setTheme(themefile);
 
