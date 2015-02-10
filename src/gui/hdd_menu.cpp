@@ -139,25 +139,14 @@ bool CHDDMenuHandler::is_mounted(const char *dev)
 	else
 		snprintf(devpath, sizeof(devpath), "/dev/%s", dev);
 
+	int devpathlen = strlen(devpath);
 	char buffer[255];
-	string realdev = backtick("readlink -f " + string(devpath));
-	realdev = trim(realdev);
 	FILE *f = fopen("/proc/mounts", "r");
 	if(f) {
-		while (!res && fgets(buffer, sizeof(buffer), f)) {
-			if (buffer[0] != '/')
-				continue; /* only "real" devices are interesting */
-			char *p = strchr(buffer, ' ');
-			if (p)
-				*p = 0; /* terminate at first space, kernel-user ABI is fixed */
-			if (!strcmp(buffer, devpath)) /* default '/dev/sda1' mount */
+		while (!res && fgets(buffer, sizeof(buffer), f))
+			if (!strncmp(buffer, devpath, devpathlen)
+					&& (buffer[devpathlen] == ' ' || buffer[devpathlen] == '\t'))
 				res = true;
-			else {	/* now the case of '/dev/disk/by-label/myharddrive' mounts */
-				string realmount = backtick("readlink -f " + string(buffer));
-				if (realdev == trim(realmount))
-					res = true;
-			}
-		}
 		fclose(f);
 	}
 	printf("CHDDMenuHandler::is_mounted: dev [%s] is %s\n", devpath, res ? "mounted" : "not mounted");
