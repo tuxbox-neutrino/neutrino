@@ -3907,7 +3907,7 @@ static off64_t truncate_movie(MI_MOVIE_INFO * minfo)
 	char spart[255];
 	int part = 0, tpart = 0;
 	bool found = 0;
-	char * name = (char *) minfo->file.Name.c_str();
+	const char *name = minfo->file.Name.c_str();
 	off64_t size = minfo->file.Size;
 	int len = minfo->length;
 	int seconds = minfo->bookmarks.end;

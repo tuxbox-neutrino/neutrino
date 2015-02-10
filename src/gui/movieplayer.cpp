@@ -603,7 +603,7 @@ bool CMoviePlayerGui::PlayBackgroundStart(const std::string &file, const std::st
 		int agen[] = { 18, 16, 12, 6, 0 };
 		for (int i = 0; ages[i] && age < 0; i++) {
 			const char *n = name.c_str();
-			char *h = (char *) n;
+			const char *h = n;
 			while ((age < 0) && (h = strstr(h, ages[i])))
 				if ((h == n) || !isdigit(*(h - 1)))
 					age = agen[i];
