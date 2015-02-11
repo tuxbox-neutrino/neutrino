@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <gui/infoviewer.h>
 #include <gui/epgplus.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
