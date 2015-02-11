@@ -61,6 +61,7 @@
 #endif
 #include "pluginlist.h"
 #include "infoclock.h"
+#include "rc_lock.h"
 
 #include <global.h>
 #include <neutrino.h>
