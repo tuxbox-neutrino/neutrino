@@ -33,19 +33,12 @@
 #ifndef __neutrino__
 #define __neutrino__
 
-#include <configfile.h>
-
 #include <neutrinoMessages.h>
-#include "driver/framebuffer.h"
-#include "driver/neutrinofonts.h"
-#include "system/setting_helpers.h"
-#include "system/configure_network.h"
 #include "daemonc/remotecontrol.h"    /* st_rmsg      */
 #include "gui/channellist.h"          /* CChannelList */
 #include "gui/personalize.h"
-#include "gui/rc_lock.h"
 #include "gui/user_menue.h"
-#include "gui/timerlist.h"
+#include <timerdclient/timerdtypes.h>
 
 #include <string>
 
@@ -59,6 +52,10 @@
 
 extern const unsigned char genre_sub_classes[];            /* epgview.cpp */
 extern const neutrino_locale_t * genre_sub_classes_list[]; /* epgview.cpp */
+
+class CFrameBuffer;
+class CConfigFile;
+class CScanSettings;
 
 class CNeutrinoApp : public CMenuTarget, CChangeObserver
 {
