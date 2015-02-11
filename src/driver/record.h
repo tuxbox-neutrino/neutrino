@@ -27,14 +27,10 @@
 #include <map>
 #include <list>
 
-#include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdtypes.h>
 
 #include <neutrinoMessages.h>
 #include <gui/movieinfo.h>
-#include <zapit/channel.h>
-#include <zapit/client/zapittools.h>
-#include <zapit/femanager.h>
 
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
@@ -55,6 +51,8 @@
 #define TSHIFT_MODE_ON		1
 #define TSHIFT_MODE_PAUSE	2
 #define TSHIFT_MODE_REWIND	3
+
+class CFrontend;
 
 //FIXME
 enum record_error_msg_t
