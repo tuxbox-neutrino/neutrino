@@ -2024,7 +2024,7 @@ void CChannelList::paintItem(int pos, const bool firstpaint)
 void CChannelList::paintHead()
 {
 	CComponentsHeader header(x, y, full_width, theight, name /*no header icon*/);
-	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked)
+	if (bouquet && bouquet->zapitBouquet && bouquet->zapitBouquet->bLocked != g_settings.parentallock_defaultlocked)
 		header.setIcon(NEUTRINO_ICON_LOCK);
 	if (edit_state)
 		header.setCaption(std::string(g_Locale->getText(LOCALE_CHANNELLIST_EDIT)) + ": " + name);
