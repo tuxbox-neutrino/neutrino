@@ -2070,6 +2070,7 @@ CMenuForwarder::CMenuForwarder(const std::string& Text, const bool Active, const
 void CMenuForwarder::setOption(const std::string &Option)
 {
 	option_string = Option;
+	option_string_ptr = &option_string;
 }
 
 int CMenuForwarder::getWidth(void)
