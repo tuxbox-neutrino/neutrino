@@ -137,13 +137,13 @@ class CProgressBar : public CComponentsItem
 			PB_MATRIX,	/*  0 */
 			PB_LINES_V,	/*  1 */
 			PB_LINES_H,	/*  2 */
-			PB_COLOR,	/*  3 */
+			PB_COLOR	/*  3 */
 		};
 
 		enum pb_type_t {
 			PB_REDLEFT = 0,
 			PB_REDRIGHT,
-			PB_TIMESCALE,
+			PB_TIMESCALE
 		};
 
 		void setType(pb_type_t type);

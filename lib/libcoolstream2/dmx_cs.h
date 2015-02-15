@@ -27,7 +27,7 @@
 
 typedef enum {
 	DMX_TS = 0,
-	DMX_DMA,
+	DMX_DMA
 } DMX_TYPE;
 
 typedef enum {

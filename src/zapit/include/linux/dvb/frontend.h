@@ -141,7 +141,7 @@ typedef enum fe_status {
 	FE_HAS_SYNC		= 0x08,
 	FE_HAS_LOCK		= 0x10,
 	FE_TIMEDOUT		= 0x20,
-	FE_REINIT		= 0x40,
+	FE_REINIT		= 0x40
 } fe_status_t;
 
 typedef enum fe_spectral_inversion {
@@ -164,7 +164,7 @@ typedef enum fe_code_rate {
 	FEC_AUTO,
 	FEC_3_5,
 	FEC_9_10,
-	FEC_2_5,
+	FEC_2_5
 } fe_code_rate_t;
 
 
@@ -182,7 +182,7 @@ typedef enum fe_modulation {
 	APSK_16,
 	APSK_32,
 	DQPSK,
-	QAM_4_NR,
+	QAM_4_NR
 } fe_modulation_t;
 
 typedef enum fe_transmit_mode {
@@ -194,7 +194,7 @@ typedef enum fe_transmit_mode {
 	TRANSMISSION_MODE_16K,
 	TRANSMISSION_MODE_32K,
 	TRANSMISSION_MODE_C1,
-	TRANSMISSION_MODE_C3780,
+	TRANSMISSION_MODE_C3780
 } fe_transmit_mode_t;
 
 #if defined(__DVB_CORE__) || !defined (__KERNEL__)
@@ -205,7 +205,7 @@ typedef enum fe_bandwidth {
 	BANDWIDTH_AUTO,
 	BANDWIDTH_5_MHZ,
 	BANDWIDTH_10_MHZ,
-	BANDWIDTH_1_712_MHZ,
+	BANDWIDTH_1_712_MHZ
 } fe_bandwidth_t;
 #endif
 
@@ -220,7 +220,7 @@ typedef enum fe_guard_interval {
 	GUARD_INTERVAL_19_256,
 	GUARD_INTERVAL_PN420,
 	GUARD_INTERVAL_PN595,
-	GUARD_INTERVAL_PN945,
+	GUARD_INTERVAL_PN945
 } fe_guard_interval_t;
 
 
@@ -236,7 +236,7 @@ enum fe_interleaving {
 	INTERLEAVING_NONE,
 	INTERLEAVING_AUTO,
 	INTERLEAVING_240,
-	INTERLEAVING_720,
+	INTERLEAVING_720
 };
 
 #if defined(__DVB_CORE__) || !defined (__KERNEL__)
@@ -380,14 +380,14 @@ struct dvb_frontend_event {
 typedef enum fe_pilot {
 	PILOT_ON,
 	PILOT_OFF,
-	PILOT_AUTO,
+	PILOT_AUTO
 } fe_pilot_t;
 
 typedef enum fe_rolloff {
 	ROLLOFF_35, /* Implied value in DVB-S, default for DVB-S2 */
 	ROLLOFF_20,
 	ROLLOFF_25,
-	ROLLOFF_AUTO,
+	ROLLOFF_AUTO
 } fe_rolloff_t;
 
 typedef enum fe_delivery_system {
@@ -409,7 +409,7 @@ typedef enum fe_delivery_system {
 	SYS_DAB,
 	SYS_DVBT2,
 	SYS_TURBO,
-	SYS_DVBC_ANNEX_C,
+	SYS_DVBC_ANNEX_C
 } fe_delivery_system_t;
 
 /* backward compatibility */
@@ -421,31 +421,31 @@ typedef enum fe_delivery_system {
 enum atscmh_sccc_block_mode {
 	ATSCMH_SCCC_BLK_SEP      = 0,
 	ATSCMH_SCCC_BLK_COMB     = 1,
-	ATSCMH_SCCC_BLK_RES      = 2,
+	ATSCMH_SCCC_BLK_RES      = 2
 };
 
 enum atscmh_sccc_code_mode {
 	ATSCMH_SCCC_CODE_HLF     = 0,
 	ATSCMH_SCCC_CODE_QTR     = 1,
-	ATSCMH_SCCC_CODE_RES     = 2,
+	ATSCMH_SCCC_CODE_RES     = 2
 };
 
 enum atscmh_rs_frame_ensemble {
 	ATSCMH_RSFRAME_ENS_PRI   = 0,
-	ATSCMH_RSFRAME_ENS_SEC   = 1,
+	ATSCMH_RSFRAME_ENS_SEC   = 1
 };
 
 enum atscmh_rs_frame_mode {
 	ATSCMH_RSFRAME_PRI_ONLY  = 0,
 	ATSCMH_RSFRAME_PRI_SEC   = 1,
-	ATSCMH_RSFRAME_RES       = 2,
+	ATSCMH_RSFRAME_RES       = 2
 };
 
 enum atscmh_rs_code_mode {
 	ATSCMH_RSCODE_211_187    = 0,
 	ATSCMH_RSCODE_223_187    = 1,
 	ATSCMH_RSCODE_235_187    = 2,
-	ATSCMH_RSCODE_RES        = 3,
+	ATSCMH_RSCODE_RES        = 3
 };
 
 #define NO_STREAM_ID_FILTER	(~0U)

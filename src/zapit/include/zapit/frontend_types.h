@@ -76,7 +76,7 @@ typedef enum {
 	//
 	ALL_SAT = ZAPIT_DM_SAT,
 	ALL_CABLE = ZAPIT_DM_CABLE,
-	ALL_TERR = ZAPIT_DM_TERR,
+	ALL_TERR = ZAPIT_DM_TERR
 } delivery_system_t;
 
 typedef enum {

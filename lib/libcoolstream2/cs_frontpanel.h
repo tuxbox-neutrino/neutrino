@@ -62,7 +62,7 @@ typedef enum {
 	FP_FLAG_ALIGN_LEFT		= 0x10,	/* align the text in display from the left (default) */
 	FP_FLAG_ALIGN_RIGHT		= 0x20,	/* align the text in display from the right (arabic) */
 	FP_FLAG_UPDATE_SCROLL_POS	= 0x40,	/* update the current position for scrolling (internal use only) */
-	FP_FLAG_USER			= 0x80,	/* user flags set (internal use only) */
+	FP_FLAG_USER			= 0x80	/* user flags set (internal use only) */
 } fp_flag;
 
 typedef struct {
@@ -80,7 +80,7 @@ typedef enum {
 	FP_LED_3_ON		= 0x88,
 	FP_LED_1_OFF		= 0x01,
 	FP_LED_2_OFF		= 0x02,
-	FP_LED_3_OFF		= 0x08,
+	FP_LED_3_OFF		= 0x08
 } fp_led_ctrl_t;
 
 typedef struct {
@@ -105,7 +105,7 @@ typedef struct {
 typedef enum {
 	FP_DISPLAY_TEXT_NONE	= 0,
 	FP_DISPLAY_TEXT_LIMITED,
-	FP_DISPLAY_TEXT_ALL,
+	FP_DISPLAY_TEXT_ALL
 } fp_display_text_type_t;
 
 typedef enum {
