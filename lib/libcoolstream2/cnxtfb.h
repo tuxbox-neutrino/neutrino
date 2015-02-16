@@ -196,7 +196,9 @@ extern void cnxtfb_register_evnt_clbk(cnxtfb_notify pfnotify);
 #define FB_TEST_HW_ACCELERATION
 
 #define FBIOGET_CNXTFBHANDLE      0x4620
+#ifndef FBIO_WAITFORVSYNC
 #define FBIO_WAITFORVSYNC         0x4621
+#endif
 #define FBIO_STARTDISPLAY         0x4622
 #define FBIO_STOPDISPLAY          0x4623
 #define FBIO_SETBLENDMODE         0x4624
