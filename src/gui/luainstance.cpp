@@ -1771,25 +1771,33 @@ int CLuaInstance::CWindowNew(lua_State *L)
 	else {
 		CComponentsFooter* footer = (*udata)->w->getFooterObject();
 		if (footer) {
-			int btnCount = 0;
-			if (!btnRed.empty()) btnCount++;
-			if (!btnGreen.empty()) btnCount++;
-			if (!btnYellow.empty()) btnCount++;
-			if (!btnBlue.empty()) btnCount++;
-			if (btnCount) {
-				fb_pixel_t col = footer->getColorBody();
-				int btnw = (dx-20) / btnCount;
-				int btnh = footer->getHeight();
-				int start = 10;
-				if (!btnRed.empty())
-					footer->addCCItem(new CComponentsButtonRed(start, CC_CENTERED, btnw, btnh, btnRed, 0, false , true, false, col, col));
-				if (!btnGreen.empty())
-					footer->addCCItem(new CComponentsButtonGreen(start+=btnw, CC_CENTERED, btnw, btnh, btnGreen, 0, false , true, false, col, col));
-				if (!btnYellow.empty())
-					footer->addCCItem(new CComponentsButtonYellow(start+=btnw, CC_CENTERED, btnw, btnh, btnYellow, 0, false , true, false, col, col));
-				if (!btnBlue.empty())
-					footer->addCCItem(new CComponentsButtonBlue(start+=btnw, CC_CENTERED, btnw, btnh, btnBlue, 0, false , true, false, col, col));
+			vector<button_label_s> buttons;
+			if (!btnRed.empty()){
+				button_label_s btnSred;
+				btnSred.button 		= NEUTRINO_ICON_BUTTON_RED;
+				btnSred.text 		= btnRed;
+				buttons.push_back(btnSred);
 			}
+			if (!btnGreen.empty()){
+				button_label_s btnSgreen;
+				btnSgreen.button 	= NEUTRINO_ICON_BUTTON_GREEN;
+				btnSgreen.text		= btnGreen;
+				buttons.push_back(btnSgreen);
+			}
+			if (!btnYellow.empty()){
+				button_label_s btnSyellow;
+				btnSyellow.button 	= NEUTRINO_ICON_BUTTON_YELLOW;
+				btnSyellow.text 	= btnYellow;
+				buttons.push_back(btnSyellow);
+			}
+			if (!btnBlue.empty()){
+				button_label_s btnSblue;
+				btnSblue.button 	= NEUTRINO_ICON_BUTTON_YELLOW;
+				btnSblue.text 		= btnBlue;
+				buttons.push_back(btnSblue);
+			}
+			if(!buttons.empty())
+				footer->setButtonLabels(buttons, dx-20, (dx-20) / (buttons.size()+1));
 		}
 	}
 
