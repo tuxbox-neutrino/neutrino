@@ -1099,10 +1099,25 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 			//printf("paintIcon: error while loading icon: %s\n", newname.c_str());
 			return false;
 		}
-		read(lfd, &header, sizeof(struct rawHeader));
+
+		ssize_t s = read(lfd, &header, sizeof(struct rawHeader));
+		if (s < 0) {
+			perror("read");
+			return false;
+		}
+
+		if (s < (ssize_t) sizeof(rawHeader)){
+			printf("paintIcon: error while loading icon: %s, header too small\n", newname.c_str());
+			return false;
+		}
+
 
 		tmpIcon.width = width  = (header.width_hi  << 8) | header.width_lo;
 		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
+		if (!width || !height) {
+			printf("paintIcon: error while loading icon: %s, wrong dimensions (%dHx%dW)\n", newname.c_str(), height, width);
+			return false;
+		}
 
 		int dsize = width*height*sizeof(fb_pixel_t);
 
