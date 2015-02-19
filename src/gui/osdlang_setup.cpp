@@ -178,7 +178,6 @@ void COsdLangSetup::showLanguageSetup(CMenuWidget *osdl_setup)
 {
 	struct dirent **namelist;
 	int n;
-	//		printf("scanning locale dir now....(perhaps)\n");
 	const char *pfad[] = {DATADIR "/neutrino/locale", CONFIGDIR "/locale"};
 
 	osdl_setup->addIntroItems();
