@@ -190,7 +190,7 @@ static void addNoDVBTimelist(t_original_network_id onid, t_transport_stream_id t
 	}
 }
 
-void readEPGFilter(void)
+bool readEPGFilter(void)
 {
 	xmlDocPtr filter_parser = parseXmlFile(epg_filter_dir.c_str());
 
@@ -223,6 +223,7 @@ void readEPGFilter(void)
 		}
 	}
 	xmlFreeDoc(filter_parser);
+	return (CurrentEPGFilter != NULL);
 }
 
 void readDVBTimeFilter(void)

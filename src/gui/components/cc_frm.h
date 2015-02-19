@@ -123,7 +123,7 @@ class CComponentsForm : public CComponentsItem
 		{
 			PG_SCROLL_M_UP_DOWN_KEY 	= 1,
 			PG_SCROLL_M_LEFT_RIGHT_KEY 	= 2,
-			PG_SCROLL_M_OFF		 	= 4,
+			PG_SCROLL_M_OFF		 	= 4
 		};
 		///enable/disable page scroll, parameter1 default enabled for up/down keys
 		virtual void enablePageScroll(const int& mode = PG_SCROLL_M_UP_DOWN_KEY){page_scroll_mode = mode;};

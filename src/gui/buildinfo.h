@@ -66,7 +66,7 @@ class CBuildInfo :  public CMenuTarget, public CComponentsWindow
 			BI_TYPE_ID_CREATOR,
 #endif
 
-			BI_TYPE_IDS,
+			BI_TYPE_IDS
 		};
 
 		CBuildInfo();

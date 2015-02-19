@@ -447,8 +447,14 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 
 					newBouquet->addService(chan);
 				} else if (bUser) {
-					chan = new CZapitChannel(name2, CREATE_CHANNEL_ID64, 1 /*service_type*/,
-							satellitePosition, freq);
+					if (url) {
+						chid = create_channel_id64(0, 0, 0, 0, 0, url);
+						chan = new CZapitChannel(name2.c_str(), chid, url, NULL);
+					}
+					else
+						chan = new CZapitChannel(name2, CREATE_CHANNEL_ID64, 1 /*service_type*/,
+								satellitePosition, freq);
+
 					CServiceManager::getInstance()->AddChannel(chan);
 					chan->flags = CZapitChannel::NOT_FOUND;
 					chan->bLocked = clock;

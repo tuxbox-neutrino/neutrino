@@ -32,7 +32,7 @@ typedef enum {
 	// Output types
 	ANALOG_xD_SCART		= (1 << 8), // Output is SCART
 	ANALOG_xD_CINCH		= (1 << 9), // Output is Cinch
-	ANALOG_xD_BOTH		= (3 << 8), // Output cannot individually control scart, cinch outputs
+	ANALOG_xD_BOTH		= (3 << 8) // Output cannot individually control scart, cinch outputs
 					    // due to limited amount of DACs (ie TANK, Trinity)
 } analog_mode_t;
 

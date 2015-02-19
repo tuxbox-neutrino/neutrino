@@ -33,7 +33,7 @@ enum CS_LOG_MODULE {
 	CS_LOG_POWER_CLK,
 	CS_LOG_MEM,
 	CS_LOG_API,
-	CS_LOG_CA,
+	CS_LOG_CA
 };
 
 // Initialization

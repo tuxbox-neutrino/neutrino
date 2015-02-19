@@ -77,7 +77,7 @@ void CComponentsFrmChain::setDirection(int direction)
 {
 	chn_direction = direction;
 	initChainItems();
-};
+}
 
 void CComponentsFrmChain::initChainItems()
 {

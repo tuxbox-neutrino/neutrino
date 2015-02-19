@@ -492,6 +492,9 @@ extra.tp_mod_4_nr QAM/4-NR
 extra.tp_mod_64 QAM/64
 extra.tp_mod_8 8PSK
 extra.tp_mod_auto QAM/AUTO
+extra.tp_pilot Pilot
+extra.tp_pilot_auto Auto (HW)
+extra.tp_pilot_auto_sw Auto (SW)
 extra.tp_pol Polarisation
 extra.tp_pol_h H
 extra.tp_pol_l L
@@ -956,6 +959,7 @@ menu.hint_epg_old_events Veraltete EPG-Daten werden nach dieser Zeit (in Stunden
 menu.hint_epg_read Liest nach einem Neustart die EPG-Daten von einem externen Datenträger wieder ein
 menu.hint_epg_save Speichert die EPG-Daten beim Herunterfahren auf einem externen Datenträger
 menu.hint_epg_save_frequently Speichert die EPG-Daten in regelmäßigen Abständen auf einem externen Datenträger
+menu.hint_epg_save_mode Speichert die EPG-Daten nur für Sender, die in die Favoriten aufgenommen sind
 menu.hint_epg_save_standby Speichert die EPG-Daten auch, wenn in den Standby-Modus geschalten wird
 menu.hint_epg_scan Zu scannende Bouquets wählen. Aktuelles Bouquet beim Umschalten, markierte Bouquets oder alle Favoriten
 menu.hint_epg_scan_mode Aktivieren Sie den Hintergrundscan der EPG-Daten, wenn ein freier Tuner vorhanden ist
@@ -1259,6 +1263,7 @@ menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für die
 menu.hint_scan_nid Geben Sie ihre Kabelnetzwerk-ID in dezimal ein
 menu.hint_scan_nit Lassen Sie Transponder über gesendete NIT-Daten (Network Information Table) hinzufügen
 menu.hint_scan_pids Duchsucht und speichert auch die Audio-, Video- und PMT-PIDs
+menu.hint_scan_pilot Wählen Sie den Pilot-Parameter
 menu.hint_scan_pol Wählen Sie eine Transponder-Polarisation
 menu.hint_scan_rate Geben Sie eine Transponder-Symbolrate ein
 menu.hint_scan_reset_numbers Zurücksetzen der existierender Kanal-Nummern und Umnummerierung nach einen Suchlauf
@@ -1352,6 +1357,7 @@ menu.hint_video_dbdr Verwendeter MPEG2 Filter
 menu.hint_video_format Wählen Sie das Bildschirmformat ihres Fernsehgerätes
 menu.hint_video_mode Wählen Sie den Modus des Ausgangssignals für den HDMI-Anschluss
 menu.hint_video_modes Definiert, welche Videosysteme mit der VF-Taste der Fernbedienung ausgewählt werden können
+menu.hint_video_modes_auto Definiert, welche Videosysteme automatisch ausgewählt werden können
 menu.hint_video_pip Bild in Bild Größe und Position
 menu.hint_video_saturation Change picture saturation
 menu.hint_video_scart_mode Wählen Sie den Modus des Ausgangssignals für den SCART-Anschluss
@@ -1398,6 +1404,7 @@ miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_read Gespeicherte EPG-Daten einlesen
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.epg_save_frequently EPG regelmäßig speichern
+miscsettings.epg_save_mode Nur Favoriten
 miscsettings.epg_save_standby EPG speichern in Standby-Modus
 miscsettings.epg_scan Hintergrundscan EPG
 miscsettings.epg_scan_always Immer
@@ -2275,6 +2282,7 @@ videomenu.dbdr_both deBlock & deRing
 videomenu.dbdr_deblock deBlock
 videomenu.dbdr_none aus
 videomenu.enabled_modes Videosysteme auf der VF-Taste
+videomenu.enabled_modes_auto Videosysteme für autom. Wahl
 videomenu.fullscreen Vollbild
 videomenu.hdmi_cec CSTLink (HDMI-CEC)
 videomenu.hdmi_cec_mode Receiver verwenden
