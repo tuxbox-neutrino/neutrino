@@ -162,6 +162,7 @@ int CPluginsExec::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (actionKey == "teletext") {
 		g_RCInput->postMsg(CRCInput::RC_timeout, 0);
 		g_RCInput->postMsg(CRCInput::RC_text, 0);
+		return menu_return::RETURN_EXIT;
 	}
 	else if (sel >= 0)
 		g_PluginList->startPlugin(sel);
