@@ -59,7 +59,7 @@
 //#define DEBUG_SDT_THREAD
 //#define DEBUG_TIME_THREAD
 
-#define DEBUG_SECTION_THREADS
+//#define DEBUG_SECTION_THREADS
 //#define DEBUG_CN_THREAD
 
 /*static*/ bool reader_ready = true;

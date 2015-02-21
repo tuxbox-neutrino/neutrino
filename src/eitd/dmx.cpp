@@ -47,7 +47,8 @@
 //#define DEBUG_DEMUX 1 // debug start/close/change
 //#define DEBUG_CACHED_SECTIONS 1
 //#define DEBUG_COMPLETE_SECTIONS 1
-#define DEBUG_COMPLETE 1
+//#define DEBUG_COMPLETE 1
+//#define DEBUG_SKIP_LOOPED 1
 
 //static MyDMXOrderUniqueKey myDMXOrderUniqueKey;
 
@@ -460,9 +461,11 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 #endif
 	}
 	//debug
+#ifdef DEBUG_SKIP_LOOPED
 	if(timeouts == -1) {
 		xcprintf("	%s: skipped looped", name.c_str());
 	}
+#endif
 
 	if(complete) {
 		seenSections.clear();
