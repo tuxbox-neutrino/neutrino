@@ -661,7 +661,6 @@ CFrontend * CFEManager::allocateFE(CZapitChannel * channel, bool forrecord)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> m_lock(mutex);
 
-	fedebug = 1;
 	if (forrecord)
 		fedebug = 1;
 	CFrontend * frontend = getFrontend(channel);

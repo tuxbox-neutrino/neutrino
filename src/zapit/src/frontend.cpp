@@ -694,6 +694,8 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 		}
 
 		if (pfd.revents & (POLLIN | POLLPRI)) {
+			//FE_TIMER_STOP("poll has event after");
+			timer_msec = time_monotonic_ms() - timer_start; /* FE_TIMER_STOP does this :( */
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
 			ret = ioctl(fd, FE_GET_EVENT, &event);
@@ -704,7 +706,6 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			//printf("[fe%d] poll events %d status %x\n", fenumber, pfd.revents, event.status);
 			if (event.status == 0) /* some drivers always deliver an empty event after tune */
 				continue;
-			//FE_TIMER_STOP("poll has event after");
 
 			if (event.status & FE_HAS_LOCK) {
 				INFO("[fe%d] ******** FE_HAS_LOCK: freq %lu", fenumber, (long unsigned int)event.parameters.frequency);
@@ -1157,7 +1158,7 @@ bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_p
 			cmdseq.props[MODULATION].u.data	= feparams->modulation;
 			cmdseq.props[ROLLOFF].u.data	= feparams->rolloff;
 			cmdseq.props[PILOTS].u.data	= pilot;
-			printf("[fe%d] tuner pilot %d (feparams %d)\n", fenumber, pilot, feparams->pilot);
+			if (zapit_debug) printf("[fe%d] tuner pilot %d (feparams %d)\n", fenumber, pilot, feparams->pilot);
 		} else {
 			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
 			nrOfProps	= FE_DVBS_PROPS;
@@ -1278,12 +1279,12 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 		return;
 	}
 
-	printf("[fe%d] tone %s\n", fenumber, toneMode == SEC_TONE_ON ? "on" : "off");
-	FE_TIMER_INIT();
-	FE_TIMER_START();
+	if (zapit_debug) printf("[fe%d] tone %s\n", fenumber, toneMode == SEC_TONE_ON ? "on" : "off");
+	//FE_TIMER_INIT();
+	//FE_TIMER_START();
 	if (fop(ioctl, FE_SET_TONE, toneMode) == 0) {
 		currentToneMode = toneMode;
-		FE_TIMER_STOP("FE_SET_TONE took");
+		//FE_TIMER_STOP("FE_SET_TONE took");
 		usleep(1000 * ms);
 	}
 }
@@ -1296,7 +1297,7 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 	if (currentVoltage == voltage)
 		return;
 
-	printf("[fe%d] voltage %s\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
+	if (zapit_debug) printf("[fe%d] voltage %s\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
 	if (config.diseqcType == DISEQC_UNICABLE && voltage != SEC_VOLTAGE_OFF) {
 		/* see my comment in secSetTone... */
 		currentVoltage = voltage; /* need to know polarization for unicable */
@@ -1702,7 +1703,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	if ((config.diseqcType == NO_DISEQC) || sat_no < 0)
 		return;
 
-	printf("[fe%d] diseqc input  %d -> %d\n", fenumber, currentDiseqc, sat_no);
+	if (zapit_debug) printf("[fe%d] diseqc input  %d -> %d\n", fenumber, currentDiseqc, sat_no);
 	currentDiseqc = sat_no;
 	if (slave)
 		return;
@@ -1859,7 +1860,7 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 		if (sit != satellites.end())
 			old_position = sit->second.motor_position;
 
-		printf("[fe%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", fenumber, rotorSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
+		if (zapit_debug) printf("[fe%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", fenumber, rotorSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
 
 		if (rotorSatellitePosition == satellitePosition)
 			return 0;
