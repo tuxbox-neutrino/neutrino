@@ -56,6 +56,7 @@ class CFbAccel
 #endif /* USE_NEVIS_GXA */
 		void setColor(fb_pixel_t col);
 		void run(void);
+		void blit(void);
 		void _blit(void);
 		bool blit_thread;
 		bool blit_pending;
@@ -84,7 +85,6 @@ class CFbAccel
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp);
 		void waitForIdle(void);
 		void mark(int x, int y, int dx, int dy);
-		void blit();
 		void update();
 #ifdef USE_NEVIS_GXA
 		void setupGXA(void);

@@ -785,7 +785,6 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	}
 	close(lfd);
 	accel->mark(x, y, x + width, y + height);
-	accel->blit();
 	return true;
 }
 
@@ -1092,7 +1091,6 @@ void CFrameBuffer::paintBackground()
 			memmove(((uint8_t *)getFrameBufferPointer()) + i * stride, (background + i * BACKGROUNDIMAGEWIDTH), BACKGROUNDIMAGEWIDTH * sizeof(fb_pixel_t));
 		checkFbArea(0, 0, xRes, yRes, false);
 		accel->mark(0, 0, xRes, yRes);
-		accel->blit();
 	}
 	else
 	{
@@ -1143,7 +1141,6 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		bkpos += dx;
 	}
 	accel->mark(x, y, x + dx, y + dy);
-	accel->blit();
 	checkFbArea(x, y, dx, dy, false);
 }
 
