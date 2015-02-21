@@ -395,6 +395,7 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 			*fbs = col;
 			fbs += DEFAULT_XRES;
 		}
+		mark(x , y, x + 1, y + dy);
 		return;
 	}
 	if (dy == 1) {
@@ -403,6 +404,7 @@ void CFbAccel::paintRect(const int x, const int y, const int dx, const int dy, c
 		fb_pixel_t *fbe = fbs + dx;
 		while (fbs < fbe)
 			*fbs++ = col;
+		mark(x , y, x + dx, y + 1);
 		return;
 	}
 
