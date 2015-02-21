@@ -98,7 +98,7 @@ void CComponentsFrmClock::initTimeString()
 	struct tm t;
 	time_t ltime;
 	ltime=time(NULL);
-	strftime((char*) &cl_timestr, sizeof(cl_timestr), getTimeFormat(ltime), localtime_r(&ltime, &t));
+	strftime(cl_timestr, sizeof(cl_timestr), getTimeFormat(ltime), localtime_r(&ltime, &t));
 }
 
 // How does it works?
