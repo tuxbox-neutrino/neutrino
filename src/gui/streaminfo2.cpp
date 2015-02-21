@@ -1,6 +1,9 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
+	(C) 2004-2009 tuxbox project contributors
+
+	(C) 2011-2012,2015 Stefan Seyfried
 
 	License: GPL
 
@@ -33,6 +36,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <driver/abstime.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -125,21 +129,19 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	
 	neutrino_msg_t msg;
 	uint64_t maxb, minb, lastb, tmp_rate;
-	unsigned int current_pmt_version= pmt_version;
+	unsigned int current_pmt_version = (unsigned int)-1;
 	int cnt = 0;
-	char tmp_str[150];
 	int delay_counter = 0;
 	const int delay = 15;
 	int offset = g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE));
 	int sw = g_Font[font_info]->getRenderWidth ("99999.999");
 	maxb = minb = lastb = tmp_rate = 0;
+	string br_str = string(g_Locale->getText(LOCALE_STREAMINFO_BITRATE)) + ":";
+	string avg_str = "(" + string(g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE)) + ")";
+	int dheight = g_Font[font_info]->getHeight ();
+	int dx1 = x + 10;
 	ts_setup ();
 	while (1) {
-		neutrino_msg_data_t data;
-
-		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(10);
-		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
-
 		signal.sig = frontend->getSignalStrength() & 0xFFFF;
 		signal.snr = frontend->getSignalNoiseRatio() & 0xFFFF;
 		signal.ber = frontend->getBitErrorRate();
@@ -149,16 +151,16 @@ int CStreamInfo2::doSignalStrengthLoop ()
 			
 			if (cnt < 12)
 				cnt++;
-			int dheight = g_Font[font_info]->getHeight ();
-			int dx1 = x + 10;
 
-			if(delay_counter > delay + 1){
+			if (++delay_counter > delay){
 				CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 				if(channel)
 					pmt_version = channel->getPmtVersion();
-				if(pmt_version != current_pmt_version){
-					delay_counter = 0;
-				}
+				delay_counter = 0;
+			}
+			if (pmt_version != current_pmt_version) {
+				current_pmt_version = pmt_version;
+				paint_techinfo(x + 10, y + hheight + 5);
 			}
 			if (ret && (lastb != bit_s)) {
 				lastb = bit_s;
@@ -169,21 +171,14 @@ int CStreamInfo2::doSignalStrengthLoop ()
 					rate.min_short_average = minb = bit_s;
 
 				char currate[150];
-				sprintf(tmp_str, "%s:",g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
-				g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_INFOBAR_TEXT);
 				sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
 				frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
 				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset , average_bitrate_pos, sw - 10, currate, COL_INFOBAR_TEXT);
-				sprintf(tmp_str, "(%s)",g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE));
-				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, tmp_str, COL_INFOBAR_TEXT);
+				g_Font[font_info]->RenderString(dx1, average_bitrate_pos, offset+10, br_str, COL_INFOBAR_TEXT);
+				g_Font[font_info]->RenderString(dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, avg_str, COL_INFOBAR_TEXT);
 
 			}
 			showSNR ();
-			if(pmt_version != current_pmt_version && delay_counter > delay){
-				current_pmt_version = pmt_version;
-				paint_techinfo (x + 10, y+ hheight +5);
-			}
-			delay_counter++;
 		}
 		rate.short_average = abit_s;
 		if (signal.max_ber < signal.ber)
@@ -209,6 +204,10 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		signal.old_sig = signal.sig;
 		signal.old_snr = signal.snr;
 		signal.old_ber = signal.ber;
+
+		neutrino_msg_data_t data;
+		/* rate limiting is done in update_rate */
+		g_RCInput->getMsg_us(&msg, &data, 0);
 
 		// switch paint mode
 		if (msg == CRCInput::RC_red || msg == CRCInput::RC_blue || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow) {
@@ -874,11 +873,17 @@ int CStreamInfo2::update_rate ()
 		return 0;
 
 	int ret = 0;
-	int timeout = 100;
-
-	int b_len = dmx->Read(dmxbuf, TS_BUF_SIZE, timeout);
-	//printf("ts: read %d\n", b_len);
-
+	int timeout = 10;
+	int b_len = 0;
+	time_t start = time_monotonic_ms();
+	/* always sample for ~100ms */
+	while (time_monotonic_ms() - start < 100)
+	{
+		ret = dmx->Read(dmxbuf, TS_BUF_SIZE, timeout);
+		if (ret >= 0)
+			b_len += ret;
+	}
+	//printf("ts: read %d time %d\n", b_len, time_monotonic_ms() - start);
 	long b = b_len;
 	if (b <= 0)
 		return 0;
@@ -905,8 +910,8 @@ int CStreamInfo2::update_rate ()
 
 	last_tv.tv_sec = tv.tv_sec;
 	last_tv.tv_usec = tv.tv_usec;
-	ret = 1;
-	return ret;
+
+	return 1;
 }
 
 int CStreamInfo2::ts_close ()
