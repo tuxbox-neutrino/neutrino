@@ -493,13 +493,16 @@ void CRemoteControl::processAPIDnames()
 		if((pref_idx >= 0) && (pref_idx < pref_ac3_idx))
 			pref_ac3_found = -1;
 	}
-
+#ifdef APID_DEBUG
 	if (! current_PIDs.APIDs.empty())
 		printf("Neutrino: ");
+#endif
 	for(unsigned int count=0; count< current_PIDs.APIDs.size(); count++)
 	{
 		const char *iso = getISO639Description(current_PIDs.APIDs[count].desc);
+#ifdef APID_DEBUG
 		printf("apid=%04x/%s/%s ", current_PIDs.APIDs[count].pid, current_PIDs.APIDs[count].desc, iso);
+#endif
 		if ( current_PIDs.APIDs[count].component_tag != 0xFF )
 		{
 			has_unresolved_ctags= true;
@@ -525,9 +528,10 @@ void CRemoteControl::processAPIDnames()
 		else if (current_PIDs.APIDs[count].is_eac3 &&  !strstr(current_PIDs.APIDs[count].desc, " (EAC3)"))
 			strncat(current_PIDs.APIDs[count].desc, " (EAC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
+#ifdef APID_DEBUG
 	if (! current_PIDs.APIDs.empty())
 		printf("\n");
-
+#endif
 	if ( has_unresolved_ctags )
 	{
 		if ( current_EPGid != 0 )
@@ -562,16 +566,24 @@ void CRemoteControl::processAPIDnames()
 			}
 		}
 	}
+#ifdef APID_DEBUG
 	printf("Neutrino: pref_found %d pref_ac3_found %d ac3_found %d\n", pref_found, pref_ac3_found, ac3_found);
+#endif
 	if(pref_ac3_found >= 0) {
+#ifdef APID_DEBUG
 		printf("Neutrino: set apid name= %s pid= %X\n", current_PIDs.APIDs[pref_ac3_found].desc, current_PIDs.APIDs[pref_ac3_found].pid);
+#endif
 		setAPID(pref_ac3_found);
 	} else if(pref_found >= 0) {
+#ifdef APID_DEBUG
 		printf("Neutrino: set apid name= %s pid= %X\n", current_PIDs.APIDs[pref_found].desc, current_PIDs.APIDs[pref_found].pid);
+#endif
 		setAPID(pref_found);
 	}
 	else if(ac3_found >= 0) {
+#ifdef APID_DEBUG
 		printf("Neutrino: set apid name= %s pid= %X\n", current_PIDs.APIDs[ac3_found].desc, current_PIDs.APIDs[ac3_found].pid);
+#endif
 		setAPID(ac3_found);
 	}
 	else if ( current_PIDs.PIDs.selected_apid >= current_PIDs.APIDs.size() )
