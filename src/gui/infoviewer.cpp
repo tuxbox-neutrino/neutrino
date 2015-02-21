@@ -711,7 +711,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		const int channel_number_width =(g_settings.infobar_show_channellogo == 6) ? 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum) : 0;
 		ChannelLogoMode = showChannelLogo(channel_id,channel_number_width); // get logo mode, paint channel logo if adjusted
 		logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
-		fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
+		//fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 		int ChanNumYPos = BoxStartY + ChanHeight;
 		if (g_settings.infobar_sat_display) {
@@ -1981,7 +1981,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 
 	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h);
 
-	fprintf(stderr, "%s: logo_available: %d file: %s\n", __FUNCTION__, logo_available, strAbsIconPath.c_str());
+	//fprintf(stderr, "%s: logo_available: %d file: %s\n", __FUNCTION__, logo_available, strAbsIconPath.c_str());
 
 	if (! logo_available)
 		return 0;
