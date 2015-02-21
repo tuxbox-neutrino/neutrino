@@ -2756,7 +2756,7 @@ void CEitManager::getChannelEvents(CChannelEventList &eList, t_channel_id *chidl
 	bool found_already = true;
 	time_t azeit = time(NULL);
 
-showProfiling("sectionsd_getChannelEvents start");
+	// showProfiling("sectionsd_getChannelEvents start");
 	readLockEvents();
 
 	/* !!! FIX ME: if the box starts on a channel where there is no EPG sent, it hangs!!!	*/
@@ -2803,7 +2803,7 @@ showProfiling("sectionsd_getChannelEvents start");
 		}
 	}
 
-showProfiling("sectionsd_getChannelEvents end");
+	// showProfiling("sectionsd_getChannelEvents end");
 	unlockEvents();
 }
 
