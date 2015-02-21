@@ -154,7 +154,7 @@ off64_t CMovieCut::getSecondSize(MI_MOVIE_INFO * minfo)
 		duration = len * 60 * 1000;
 
 	off64_t mssize = ((float)s.st_size / (float)duration);
-	printf("CMovieCut::%s: [%s] bytes per second: %lld\n", __func__, minfo->file.Name.c_str(),  mssize*1000);
+	printf("CMovieCut::%s: [%s] bytes per second: %" PRId64 "\n", __func__, minfo->file.Name.c_str(),  mssize*1000);
 	return mssize*1000;
 }
 
@@ -166,7 +166,7 @@ bool CMovieCut::truncateMovie(MI_MOVIE_INFO * minfo)
 
 	off64_t newsize = secsize * minfo->bookmarks.end;
 
-	printf("CMovieCut::%s: [%s] truncate to %d sec, new size %lld\n", __func__, minfo->file.Name.c_str(), minfo->bookmarks.end, newsize);
+	printf("CMovieCut::%s: [%s] truncate to %d sec, new size %" PRId64 "\n", __func__, minfo->file.Name.c_str(), minfo->bookmarks.end, newsize);
 	if (truncate(minfo->file.Name.c_str(), newsize)) {
 		perror(minfo->file.Name.c_str());
 		return false;
@@ -216,7 +216,7 @@ off64_t CMovieCut::fake_read(int fd, unsigned char *buf, size_t size, off64_t fs
 	off64_t cur = lseek64(fd, 0, SEEK_CUR);
 
 	buf[0] = 0x47;
-	if((cur + size) > fsize)
+	if ((cur + (off64_t)size) > fsize)
 		return(fsize - cur);
 	else
 		return size;
@@ -429,7 +429,7 @@ bool CMovieCut::cutMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 			if (r > 0) {
 				int wptr = 0;
 				if (r != toread) 
-					printf("CMovieCut::%s: short read at %" PRId64 ": %d\n", __func__, offset, r);
+					printf("CMovieCut::%s: short read at %" PRId64 ": %d\n", __func__, offset, (int)r);
 				if (buf[0] != 0x47)
 					printf("CMovieCut::%s: buffer not aligned at %" PRId64 "\n", __func__, offset);
 				if (need_gop) {
@@ -584,7 +584,7 @@ bool CMovieCut::copyMovie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 			if (r > 0) {
 				int wptr = 0;
 				if (r != toread)
-					printf("****** short read ? %d\n", r);
+					printf("****** short read ? %d\n", (int)r);
 				if (buf[0] != 0x47)
 					printf("copy: buffer not aligned at %" PRId64 "\n", offset);
 				if (need_gop) {
