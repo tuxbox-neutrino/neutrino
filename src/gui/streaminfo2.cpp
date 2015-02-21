@@ -700,12 +700,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 #define NUM_CAIDS 11
 void CStreamInfo2::paintCASystem(int xpos, int ypos)
 {
-	unsigned short i, ypos1 = 0;
+	unsigned short i;
 	int box_width = width*2/3-10;
-	if(box_h2 > 0)
-	{
-		frameBuffer->paintBoxRel (0, ypos+(iheight*2), box_width, box_h2, COL_MENUHEAD_PLUS_0);
-	}
+	if (box_h2 > 0)
+		frameBuffer->paintBox(0, ypos+(iheight*2), box_width, box_h2, COL_MENUHEAD_PLUS_0);
 
 	std::string casys[NUM_CAIDS]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	bool caids[NUM_CAIDS];
@@ -782,6 +780,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				cryptsysteme = false;
 			}
 			ypos += sheight;
+			if (ypos > max_height) {
+				ypos -= sheight;
+				break;
+			}
 			int width_txt = 0, index = 0;
 			const char *tok = " ";
 			std::string::size_type last_pos = casys[ca_id].find_first_not_of(tok, 0);
@@ -800,8 +802,8 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			}
 		}
 	}
-	if(box_h2 == 0)
-		box_h2 = ypos - ypos1;
+	if (box_h2 < ypos)
+		box_h2 = ypos;
 }
 
 /*
