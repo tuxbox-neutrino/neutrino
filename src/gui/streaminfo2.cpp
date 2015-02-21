@@ -133,11 +133,11 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	int cnt = 0;
 	int delay_counter = 0;
 	const int delay = 15;
-	int offset = g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE));
-	int sw = g_Font[font_info]->getRenderWidth ("99999.999");
+	int sw = g_Font[font_info]->getRenderWidth("99999");
 	maxb = minb = lastb = tmp_rate = 0;
 	string br_str = string(g_Locale->getText(LOCALE_STREAMINFO_BITRATE)) + ":";
 	string avg_str = "(" + string(g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE)) + ")";
+	int offset = g_Font[font_info]->getRenderWidth(avg_str);
 	int dheight = g_Font[font_info]->getHeight ();
 	int dx1 = x + 10;
 	ts_setup ();
@@ -160,7 +160,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 			}
 			if (pmt_version != current_pmt_version) {
 				current_pmt_version = pmt_version;
-				paint_techinfo(x + 10, y + hheight + 5);
+				paint_techinfo(dx1, y + hheight + 5);
 			}
 			if (ret && (lastb != bit_s)) {
 				lastb = bit_s;
@@ -171,12 +171,11 @@ int CStreamInfo2::doSignalStrengthLoop ()
 					rate.min_short_average = minb = bit_s;
 
 				char currate[150];
-				sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
+				sprintf(currate, "%u", rate.short_average / 1000);
+				g_Font[font_info]->RenderString(dx1, average_bitrate_pos, width/2, br_str, COL_INFOBAR_TEXT);
+				g_Font[font_info]->RenderString(dx1+average_bitrate_offset+sw+10 , average_bitrate_pos, offset, avg_str, COL_INFOBAR_TEXT);
 				frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
-				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset , average_bitrate_pos, sw - 10, currate, COL_INFOBAR_TEXT);
-				g_Font[font_info]->RenderString(dx1, average_bitrate_pos, offset+10, br_str, COL_INFOBAR_TEXT);
-				g_Font[font_info]->RenderString(dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, avg_str, COL_INFOBAR_TEXT);
-
+				g_Font[font_info]->RenderString(dx1+average_bitrate_offset, average_bitrate_pos, sw, currate, COL_INFOBAR_TEXT);
 			}
 			showSNR ();
 		}
