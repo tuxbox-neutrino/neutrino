@@ -2965,10 +2965,12 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	int off = startPosSelectionMenu.getItemsCount();
+	bool got_start_pos = false;
 
 	if (m_movieSelectionHandler->bookmarks.start != 0)
 	{
-		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, true, start_pos));
+		got_start_pos = true;
+		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, true, start_pos), true);
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.start;
 	}
 	if (m_movieSelectionHandler->bookmarks.lastPlayStop != 0)
@@ -2977,7 +2979,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.lastPlayStop;
 	}
 
-	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL), true);
+	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL), got_start_pos ? false : true);
 	position[menu_nr++] = 0;
 
 	for (int i = 0; i < MI_MOVIE_BOOK_USER_MAX && menu_nr < MAX_NUMBER_OF_BOOKMARK_ITEMS; i++)
