@@ -424,7 +424,7 @@ void CStreamInfo2::paint (int /*mode*/)
 		pip->paint();
 
 		paint_techinfo (xpos, ypos);
-		paint_signal_fe_box (width - width/3 - 10, (y + 10 + height/3 + hheight), width/3, height/3 + hheight);
+		paint_signal_fe_box (width - width/3 - 10, y + 10 + height/3, width/3, height/3 + hheight);
 	} else {
 		// --  small PIG, small signal graph
 		// -- paint backround, title pig, etc.
@@ -703,7 +703,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 	unsigned short i;
 	int box_width = width*2/3-10;
 	if (box_h2 > 0)
-		frameBuffer->paintBox(0, ypos+(iheight*2), box_width, box_h2, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBox(0, ypos, box_width, box_h2, COL_MENUHEAD_PLUS_0);
 
 	std::string casys[NUM_CAIDS]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	bool caids[NUM_CAIDS];
@@ -770,7 +770,6 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 	}
 
 	spaceoffset+=4;
-	ypos += iheight*2;
 	bool cryptsysteme = true;
 	for(int ca_id = 0; ca_id < NUM_CAIDS; ca_id++){
 		if(caids[ca_id] == true){
@@ -929,8 +928,14 @@ int CStreamInfo2::ts_close ()
 
 void CStreamInfo2::showSNR ()
 {
+	/* sig_text_y + sheight + 4 + 5 is upper limit of ber/snr/sig numbers
+	 * sheight*3 is 3x sig numbers + 1/2 sheight */
+	int snr_y = sig_text_y + 4+5 + sheight*9 / 2;
+	int snr_h = 50;
+	if (snr_y + snr_h > max_height - 10)
+		return;
 	if (signalbox == NULL){
-		signalbox = new CSignalBox(x + 10, yypos, 240, 50, frontend);
+		signalbox = new CSignalBox(sigBox_x, snr_y, 240, snr_h, frontend);
 		signalbox->setColorBody(COL_MENUHEAD_PLUS_0);
 		signalbox->setTextColor(COL_INFOBAR_TEXT);
 		signalbox->doPaintBg(true);
