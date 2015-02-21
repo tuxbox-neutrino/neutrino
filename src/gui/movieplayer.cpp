@@ -1470,16 +1470,23 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_HEAD, !isMovieBrowser, NULL, &cSelectedMenuBookStart[0]));
 			bookStartMenu.addItem(GenericMenuSeparatorLine);
 #endif
+			const char *unit_short_minute = g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE);
 			char play_pos[32];
-			snprintf(play_pos, sizeof(play_pos), "%3d %s", p_movie_info->bookmarks.lastPlayStop/60, g_Locale->getText(LOCALE_UNIT_SHORT_MINUTE));
-			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, isMovieBrowser, play_pos, &cSelectedMenuBookStart[1]));
+			snprintf(play_pos, sizeof(play_pos), "%3d %s", p_movie_info->bookmarks.lastPlayStop/60, unit_short_minute);
+			char start_pos[32] = {0};
+			if (p_movie_info->bookmarks.start != 0)
+				snprintf(start_pos, sizeof(start_pos), "%3d %s", p_movie_info->bookmarks.start/60, unit_short_minute);
+			char end_pos[32] = {0};
+			if (p_movie_info->bookmarks.end != 0)
+				snprintf(end_pos, sizeof(end_pos), "%3d %s", p_movie_info->bookmarks.end/60, unit_short_minute);
 
+			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, isMovieBrowser, play_pos, &cSelectedMenuBookStart[1]));
 			bookStartMenu.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MOVIEBROWSER_BOOK_ADD));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_NEW, isMovieBrowser, NULL, &cSelectedMenuBookStart[2]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE_FORWARD, isMovieBrowser, NULL, &cSelectedMenuBookStart[3]));
 			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_TYPE_BACKWARD, isMovieBrowser, NULL, &cSelectedMenuBookStart[4]));
-			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, isMovieBrowser, NULL, &cSelectedMenuBookStart[5]));
-			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND, isMovieBrowser, NULL, &cSelectedMenuBookStart[6]));
+			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, isMovieBrowser, start_pos, &cSelectedMenuBookStart[5]));
+			bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND, isMovieBrowser, end_pos, &cSelectedMenuBookStart[6]));
 
 			// no, nothing else to do, we open a new bookmark menu
 			new_bookmark.name = "";	// use default name
@@ -1533,7 +1540,7 @@ void CMoviePlayerGui::handleMovieBrowser(neutrino_msg_t msg, int /*position*/)
 			} else if (cSelectedMenuBookStart[6].selected == true) {
 				/* Moviebrowser movie end bookmark */
 				p_movie_info->bookmarks.end = play_sec;
-				TRACE("[mp]  New movie end pos: %d\r\n", p_movie_info->bookmarks.start);
+				TRACE("[mp]  New movie end pos: %d\r\n", p_movie_info->bookmarks.end);
 				cMovieInfo.saveMovieInfo(*p_movie_info);	/* save immediately in xml file */
 			}
 		}
