@@ -1568,7 +1568,7 @@ static void* reader_thread(void * /*arg*/)
 void tuxtx_pause_subtitle(bool pause)
 {
 	if(!pause) {
-		printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
+		//printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
 		if(!reader_running && sub_pid && sub_page)
 			tuxtx_main(0, sub_pid, sub_page);
@@ -1605,8 +1605,8 @@ void tuxtx_set_pid(int pid, int page, const char * cc)
 	sub_page = page;
 
 	cfg_national_subset = GetNationalSubset(cc);
-	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 #if 0
+	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 	ttx_paused = 1;
 	if(sub_pid && sub_page)
 		tuxtx_main(0, sub_pid, sub_page);

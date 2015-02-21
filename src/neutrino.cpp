@@ -4389,7 +4389,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 
 void CNeutrinoApp::StopSubtitles()
 {
-	printf("[neutrino] %s\n", __FUNCTION__);
+	//printf("[neutrino] %s\n", __FUNCTION__);
 	int ttx, dvbpid, ttxpid, ttxpage;
 
 	dvbpid = dvbsub_getpid();
@@ -4405,7 +4405,7 @@ void CNeutrinoApp::StopSubtitles()
 
 void CNeutrinoApp::StartSubtitles(bool show)
 {
-	printf("%s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
+	//printf("%s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
 	if(!show)
 		return;
 	dvbsub_start(0);
