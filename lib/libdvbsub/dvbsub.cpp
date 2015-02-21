@@ -52,7 +52,7 @@ static void clear_queue();
 int dvbsub_init() {
 	int trc;
 
-	sub_debug.set_level(3);
+	sub_debug.set_level(2);
 
 	reader_running = true;
 	dvbsub_stopped = 1;
@@ -105,8 +105,8 @@ int dvbsub_start(int pid)
 			pid_change_req = 1;
 		}
 	}
-printf("[dvb-sub] ***************************************** start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
 #if 0
+printf("[dvb-sub] ***************************************** start, stopped %d pid %x\n", dvbsub_stopped, dvbsub_pid);
 	while(!dvbsub_stopped)
 		usleep(10);
 #endif

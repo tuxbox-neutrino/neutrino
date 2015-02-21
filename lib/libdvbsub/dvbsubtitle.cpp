@@ -26,7 +26,7 @@ extern "C" {
 #include "Debug.hpp"
 
 // Set these to 'true' for debug output:
-static bool DebugConverter = true;
+static bool DebugConverter = false;
 
 #define dbgconverter(a...) if (DebugConverter) sub_debug.print(Debug::VERBOSE, a)
 
