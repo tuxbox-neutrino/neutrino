@@ -1825,7 +1825,15 @@ void * CFrameBuffer::int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, 
 {
 	unsigned long i;
 	unsigned int *fbbuff;
-	unsigned long count = x * y;
+	unsigned long count;
+
+	if (!x || !y) {
+		printf("convertRGB2FB%s: Error: invalid dimensions (%luX x %luY)\n",
+		       ((alpha) ? " (Alpha)" : ""), x, y);
+		return NULL;
+	}
+
+	count = x * y;
 
 	fbbuff = (unsigned int *) cs_malloc_uncached(count * sizeof(unsigned int));
 	if(fbbuff == NULL) {
