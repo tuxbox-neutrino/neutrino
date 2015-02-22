@@ -1048,7 +1048,7 @@ int CHDDMenuHandler::formatDevice(std::string dev)
 		snprintf(cmd, sizeof(cmd), "%s -f -uM %s", sfdisk.c_str(), devname.c_str());
 		strcpy(cmd2, "0,\n;\n;\n;\ny\n");
 	} else if (! fdisk.empty()) {
-		snprintf(cmd, sizeof(cmd), "%s -u /dev/%s", fdisk.c_str(), devname.c_str());
+		snprintf(cmd, sizeof(cmd), "%s -u %s", fdisk.c_str(), devname.c_str());
 		strcpy(cmd2, "o\nn\np\n1\n2048\n\nw\n");
 	} else {
 		/* cannot do anything */
