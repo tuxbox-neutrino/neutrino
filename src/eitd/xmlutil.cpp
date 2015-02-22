@@ -562,11 +562,10 @@ _done:
 	write_indexxml_footer(indexfile);
 	fclose(indexfile);
 
-	printf("[sectionsd] Writing Information finished\n");
-
 	filename  = (std::string)epgdir + "/index.xml";
-
 	rename(tmpname.c_str(), filename.c_str());
 
+	sync();
+	printf("[sectionsd] Writing Information finished\n");
 	return ;
 }
