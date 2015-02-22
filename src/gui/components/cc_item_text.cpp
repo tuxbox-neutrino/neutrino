@@ -184,8 +184,10 @@ void CComponentsText::setText(const std::string& stext, const int mode, Font* fo
 {
 	ct_old_text = ct_text;
 	ct_text = stext;
-	ct_text_mode = mode;
-	ct_font = font_text;
+	if (mode != ~CTextBox::AUTO_WIDTH)
+		ct_text_mode = mode;
+	if (font_text)
+		ct_font = font_text;
 	if (color_text != 0)
 		setTextColor(color_text);
 
