@@ -62,8 +62,11 @@ void *cSysLoad::Run(void *arg)
 			while (getline(in, line)) {
 				unsigned long _stat_user, _stat_nice, _stat_system, _stat_idle;
 				if (4 == sscanf(line.c_str(), "cpu %lu %lu %lu %lu", &_stat_user, &_stat_nice, &_stat_system, &_stat_idle)) {
+					unsigned long _stat_total = _stat_user + _stat_nice + _stat_system + _stat_idle;
 					if (stat_total) {
-						unsigned long div = _stat_user + _stat_nice + _stat_system + _stat_idle - stat_total;
+						unsigned long div = _stat_total - stat_total;
+						if (!div) // prevent division by zero if previous stat_total is equal to new.
+							break;
 						caller->data_last = (int)(1000 - 1000 * (_stat_idle - stat_idle) / div);
 						if (caller->data_avail < caller->data_size) {
 							caller->data[caller->data_avail++] = caller->data_last;
@@ -73,7 +76,7 @@ void *cSysLoad::Run(void *arg)
 						}
 					}
 					stat_idle = _stat_idle;
-					stat_total = _stat_user + _stat_nice + _stat_system + _stat_idle;
+					stat_total = _stat_total;
 					break;
 				}
 			}
