@@ -227,14 +227,14 @@ t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_nam
 //-------------------------------------------------------------------------
 // Get functions
 //-------------------------------------------------------------------------
-
+#if 0 /* unused funktion*/
 bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 {
 	char /* *key,*/ *tmpptr, buf[100];
 	long value;
 	int pos = 0;
 
-	memset(bitInfo, 0, sizeof(bitInfo));
+	memset(bitInfo, 0, 10);
 
 	FILE *fd = fopen("/proc/bus/bitstream", "rt");
 
@@ -261,7 +261,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 
 	return true;
 }
-
+#endif
 //-------------------------------------------------------------------------
 
 bool CNeutrinoAPI::GetChannelEvents(void)
