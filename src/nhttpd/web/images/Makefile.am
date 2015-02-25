@@ -47,12 +47,12 @@ install_DATA =	accept.png \
 		radio.png \
 		rc_cst_v1.jpg \
 		rc_cst_v2.jpg \
-		rc_cst_v3.jpg \
-		rc_cst_v4.jpg \
-		rc_cst_v5.jpg \
-		rc_cst_v6.jpg \
-		rc_dbox_nokia_old.jpg \
-		rc_dbox_philips.jpg \
+		rc_cst_v3.png \
+		rc_cst_v4.png \
+		rc_cst_v5.png \
+		rc_cst_v6.png \
+		rc_dbox_nokia_old.png \
+		rc_dbox_philips.png \
 		record.png \
 		reload.png \
 		remove.png \

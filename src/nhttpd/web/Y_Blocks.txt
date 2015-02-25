@@ -642,14 +642,14 @@ end-block~rc_cst_v2
 # ------ Remote CST V3 (ZEE, NEO2)
 start-block~rc_cst_v3
 {=var-set:rcu=rc_cst_v3=}
-<img src="images/rc_cst_v3.jpg" usemap="#rc" alt="remote" />
+<img src="images/rc_cst_v3.png" usemap="#rc" alt="remote" />
 {=include-block:Y_Blocks.txt;map_rc_cst_v3_v4=}
 end-block~rc_cst_v3
 
 # ------ Remote CST V4 (NEO TWIN)
 start-block~rc_cst_v4
 {=var-set:rcu=rc_cst_v4=}
-<img src="images/rc_cst_v4.jpg" usemap="#rc" alt="remote" />
+<img src="images/rc_cst_v4.png" usemap="#rc" alt="remote" />
 {=include-block:Y_Blocks.txt;map_rc_cst_v3_v4=}
 end-block~rc_cst_v4
 
@@ -732,7 +732,7 @@ end-block~map_rc_cst_v3_v4
 
 # ------- Remote CST V5 (TANK)
 start-block~rc_cst_v5
-<img src="images/rc_cst_v5.jpg" usemap="#rc" alt="remote" />
+<img src="images/rc_cst_v5.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="circle" href="javascript:rcsim('KEY_POWER')" coords="50,42,14" alt="standby" title="{=L:rc.key_power=}" />
 
@@ -795,7 +795,7 @@ end-block~rc_cst_v5
 
 # ------- Remote CST V6 (TRINITY)
 start-block~rc_cst_v6
-<img src="images/rc_cst_v6.jpg" usemap="#rc" alt="remote" />
+<img src="images/rc_cst_v6.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="circle" coords="94,50,16" alt="standby" href="javascript:rcsim('KEY_POWER')" title="{=L:rc.key_power=}" />
   <area shape="circle" coords="150,68,13" alt="mute" href="javascript:rcsim('KEY_MUTE')" title="{=L:rc.key_mute=}" />
@@ -861,7 +861,7 @@ end-block~rc_cst_v6
 
 # ------- Remote d-Box Nokia old
 start-block~rc_dbox_nokia_old
-<img src="images/rc_dbox_nokia_old.jpg" usemap="#rc" alt="remote" />
+<img src="images/rc_dbox_nokia_old.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="rect" href="javascript:rcsim('KEY_SETUP')" coords="7,95,45,109" />
   <area shape="circle" href="javascript:rcsim('KEY_7')" coords="60,102,10" />
@@ -894,7 +894,7 @@ end-block~rc_dbox_nokia_old
 
 # ------- Remote d-Box Philips/Sagem
 start-block~rc_dbox_philips
-<img src="images/rc_dbox_philips.jpg" usemap="#rc" alt="remote" />
+<img src="images/rc_dbox_philips.png" usemap="#rc" alt="remote" />
 <map name="rc" id="rc">
   <area shape="poly" href="javascript:rcsim('KEY_RIGHT')" coords="100,117,100,180,67,146,100,116" />
   <area shape="poly" href="javascript:rcsim('KEY_DOWN')" coords="36,181,101,180,66,146" />
