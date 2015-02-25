@@ -43,7 +43,7 @@ button[ytype]{
 button[ytype="save"]{background-image:url(/images/save.png);}
 button[ytype="saveall"]{background-image:url(/images/saveall.png);}
 button[ytype="cancel"]{background-image:url(/images/cross.png);}
-button[ytype="refresh"],button[ytype="reboot"]{background-image:url(/images/reload.gif);}
+button[ytype="refresh"],button[ytype="reboot"]{background-image:url(/images/reload.png);}
 button[ytype="record"]{background-image:url(/images/record.png);}
 button[ytype="zap"]{background-image:url(/images/zap.png);}
 button[ytype="timeup"]{background-image:url(/images/time_up.png);}
@@ -53,7 +53,7 @@ button[ytype="snapshot"]{background-image:url(/images/snapshot.png);}
 button[ytype="clearshot"]{background-image:url(/images/remove.png);}
 button[ytype="switchrc"]{background-image:url(/images/fb.png);}
 button[ytype="go"]{background-image:url(/images/accept.png);}
-button[ytype="download"]{background-image:url(/images/wget.gif);}
+button[ytype="download"]{background-image:url(/images/wget.png);}
 button[ytype="clear"]{background-image:url(/images/remove.png);}
 button[ytype="add"]{background-image:url(/images/new.png);}
 button[ytype="delete"]{background-image:url(/images/remove.png);}

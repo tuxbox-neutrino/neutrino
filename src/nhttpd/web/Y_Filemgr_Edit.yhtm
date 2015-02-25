@@ -52,7 +52,7 @@ function ni(){
 				<td title="cut text"><a href="javascript:ni()"><img src="/images/cut.gif"/></a></td>
 				<td title="paste item"><a href="javascript:ni()"><img src="/images/paste.gif"/></a></td>
 -->
-				<td title="reload"><a href='javascript:do_reload()'><img src="/images/reload.gif"/></a></td>
+				<td title="reload"><a href='javascript:do_reload()'><img src="/images/reload.png"/></a></td>
 				<td title="close without save"><a href='javascript:window.close()'><img src="/images/cross.png"/></a></td>
 			</tr>
 			</table>

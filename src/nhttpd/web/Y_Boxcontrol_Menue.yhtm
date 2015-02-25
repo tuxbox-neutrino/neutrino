@@ -195,7 +195,7 @@ function get_data(){
 			</span>
 			<span class="control_icon" title="{=L:bc.menue.switch_to_tv=}">
 				<a href="javascript:set_mode('tv');">
-					<img src="/images/live.gif">
+					<img src="/images/live.png">
 				</a>
 			</span>
 			<span class="control_icon" title="{=L:bc.menue.switch_to_radio=}">
