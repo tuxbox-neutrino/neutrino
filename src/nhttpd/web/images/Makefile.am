@@ -68,7 +68,6 @@ install_DATA =	accept.png \
 		timer.gif \
 		time_up.png \
 		transcode.png \
-		tux.gif \
 		tux-yweb.png \
 		udp_switch_off.png \
 		udp_switch_on.png \
