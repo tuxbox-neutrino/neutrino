@@ -1,5 +1,5 @@
 {=include-block:Y_Blocks.txt;head=}
-<link rel="stylesheet" type="text/css" href="/Y_Ext_Filemgr.css"/>
+<link rel="stylesheet" type="text/css" href="/Y_Filemgr.css"/>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/effects.js"></script>
@@ -553,7 +553,7 @@ function do_download(){
 }
 function do_edit(){
 	if($F('ftype') != "d")
-		window.open("/Y_Ext_Filemgr_Edit.yhtm?file="+explorer.build_fname(),"edit", "width=800,height=600,resizable=yes");
+		window.open("/Y_Filemgr_Edit.yhtm?file="+explorer.build_fname(),"edit", "width=800,height=600,resizable=yes");
 	else
 		alert("you can not edit a directory");
 }
@@ -693,7 +693,7 @@ function ni() {
 					<tr><td align="right">
 						<input type="hidden" name="dummy" value="/"/>
 						<input type="hidden" name="path" value="/"/>
-						<input type="hidden" name="tmpl" value="/Y_Ext_Filemgr.yhtm"/>
+						<input type="hidden" name="tmpl" value="/Y_Filemgr.yhtm"/>
 						<input type="hidden" name="execute" value=""/>
 			
 						<input type="button" value="upload" name="su" onclick="do_upload()"/>

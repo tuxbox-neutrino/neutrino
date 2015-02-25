@@ -109,3 +109,23 @@ install_DATA =	accept.png \
 		yjogol.gif \
 		y.png \
 		zap.png
+
+# file manager
+install_DATA +=	chmod.png \
+		copy.gif \
+		cut.png \
+		dir_up.gif \
+		download.png \
+		film.png \
+		folder_add.png \
+		ftype_file.png \
+		ftype_folder.png \
+		ftype_link.png \
+		home.png \
+		package.png \
+		page_edit.png \
+		paste.gif \
+		picture.png \
+		text.png \
+		upload.png \
+		work.gif

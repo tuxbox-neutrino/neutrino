@@ -423,6 +423,8 @@ tools.command=Command
 tools.cmd.enter_command=enter command to execute
 tools.cmd.execute_command=execute shell command
 tools.boot_logo=Boot Logo
+tools.filemgr_desc=organize files and directorys
+tools.filemgr=File manager
 
 =========== LIVE Menue
 live.heading=Live/Timer

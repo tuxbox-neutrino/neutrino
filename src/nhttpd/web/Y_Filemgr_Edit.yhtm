@@ -1,5 +1,5 @@
 {=include-block:Y_Blocks.txt;head=}
-<link rel="stylesheet" type="text/css" href="/Y_Ext_Filemgr.css"/>
+<link rel="stylesheet" type="text/css" href="/Y_Filemgr.css"/>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript">
@@ -56,9 +56,9 @@ function ni(){
 				<td title="close without save"><a href='javascript:window.close()'><img src="/images/cross.png"/></a></td>
 			</tr>
 			</table>
-	<form name="f" accept-charset="UTF-8" action="/y/cgi?execute=include-block:Y_Ext_Filemgr_blocks.txt;edit_save_settings;nix" method="POST">
+	<form name="f" accept-charset="UTF-8" action="/y/cgi?execute=include-block:Y_Filemgr_blocks.txt;edit_save_settings;nix" method="POST">
 		<textarea id="txt" name="editfile" cols="100" rows="31"  wrap="off" title="Editor" style="width:100%;background : white; font : 'Courier New',medium  monospace; color : #333333;">{=include:{=file=}=}</textarea>
-		<input type="hidden" name="tmpl" value="Y_Ext_Filemgr_Edit.yhtm"/>
+		<input type="hidden" name="tmpl" value="Y_Filemgr_Edit.yhtm"/>
 		<input type="hidden" name="file" value="{=file=}"/>
 	</form>
 	</div>
