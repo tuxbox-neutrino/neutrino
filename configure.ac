@@ -125,6 +125,13 @@ PKG_CHECK_MODULES([LUA], [lua >= 5.2], echo "lua >= 5.2 found", [
 		AC_DEFINE(STATIC_LUAPOSIX,1,[Define to 1 for static lua build.])
 	])
 ])
+
+if test "$BOXTYPE" = "coolstream" ||
+   test "$BOXTYPE" = "tripledragon" ||
+   test "$BOXTYPE" = "spark"; then
+	AC_DEFINE(SCREENSHOT,1,[Define to 1 if the platform supports screenshots])
+fi
+
 TUXBOX_APPS_LIB_PKGCONFIG(SIGC,sigc++-2.0)
 
 #TUXBOX_APPS_LIB_PKGCONFIG(CONFIGFILE,tuxbox-configfile)
