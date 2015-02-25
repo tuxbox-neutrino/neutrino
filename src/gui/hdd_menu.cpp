@@ -1200,7 +1200,7 @@ _remount:
 			safe_mkdir(cmd);
 			snprintf(cmd, sizeof(cmd), "%s/plugins", dst.c_str());
 			safe_mkdir(cmd);
-			sync();
+			// sync();
 #if HAVE_TRIPLEDRAGON
 		/* on the tripledragon, we mount via fstab, so we need to add an
 		   fstab entry for dst */

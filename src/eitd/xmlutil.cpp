@@ -565,7 +565,7 @@ _done:
 	filename  = (std::string)epgdir + "/index.xml";
 	rename(tmpname.c_str(), filename.c_str());
 
-	sync();
+	// sync();
 	printf("[sectionsd] Writing Information finished\n");
 	return ;
 }
