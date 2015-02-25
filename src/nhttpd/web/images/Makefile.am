@@ -9,7 +9,7 @@ install_DATA =	accept.png \
 		arrowright.png \
 		arrowup.gif \
 		arrowup.png \
-		audiobar.gif \
+		audiobar.png \
 		blank.gif \
 		check_green.gif \
 		chmod.gif \
@@ -90,7 +90,7 @@ install_DATA =	accept.png \
 		time_up.png \
 		transcode.png \
 		tux.gif \
-		tux-yweb.gif \
+		tux-yweb.png \
 		udp_switch_off.png \
 		udp_switch_on.png \
 		unlock.gif \
@@ -106,7 +106,6 @@ install_DATA =	accept.png \
 		wait.gif \
 		wget.gif \
 		x_red.gif \
-		yjogol.gif \
 		y.png \
 		zap.png
 

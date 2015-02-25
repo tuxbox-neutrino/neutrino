@@ -16,7 +16,7 @@ function do_streaminfo() {
 //]]>
 </script>
 </head>
-<body>
+<body class="iframe">
 <table class="bouquetitemlist">
 {=func:get_bouquets_with_epg {=bouquet=}=}
 </table>

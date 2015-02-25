@@ -11,7 +11,7 @@ function show_info(_desc, _info1, _info2){
 </script>
 </head>
 <a href="javascript:window.history.back()"><u>{=L:back=}</u></a>
-<body>
+<body class="iframe">
 	<div class="y_epg_info">
 		<div id="description">&nbsp;</div>
 		<div id="info1">&nbsp;</div>

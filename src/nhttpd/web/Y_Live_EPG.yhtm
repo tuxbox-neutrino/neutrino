@@ -101,7 +101,7 @@ function _show_epg()
 //]]>
 </script>
 </head>
-<body onload="show_epg()">
+<body onload="show_epg()" class="iframe">
 {=var-set:wait_text={=L:get_epg=}=}{=include-block:Y_Blocks.txt;snip_show_wait=}
 	<table id="epglist" class="y_invisible_table" cellpadding="4" cellspacing="0" width="100%">
 	<thead align="left">

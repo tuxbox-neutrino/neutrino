@@ -552,7 +552,7 @@ tr {
 .y_text_boxcontrol_table {
 	width:114px;
 	height: 23px;
-	background: url('/images/audiobar.gif') no-repeat 1px 1px;
+	background: url('/images/audiobar.png') no-repeat 1px 1px;
 	padding: 1px;
 	margin-top: 10px;
 	border: #FF8e42 solid 1px;
@@ -581,6 +581,12 @@ tr {
 	margin-top: 5px;
 	margin-bottom: -1px;
 }
+#audiobar_right,
+#sigbar_right,
+#snrbar_right {
+	background-color: #ffffff;
+}
+
 .y_epg_info {
 	border: 1px solid #CCCCCC;
 	background-color: white;
