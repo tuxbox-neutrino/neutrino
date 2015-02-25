@@ -46,7 +46,7 @@ install_DATA =	accept.png \
 		properties.png \
 		radio.png \
 		rc_cst_v1.jpg \
-		rc_cst_v2.jpg \
+		rc_cst_v2.png \
 		rc_cst_v3.png \
 		rc_cst_v4.png \
 		rc_cst_v5.png \
