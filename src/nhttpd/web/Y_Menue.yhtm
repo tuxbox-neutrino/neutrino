@@ -101,8 +101,10 @@ function vlc() {
 						title="{=L:main.tools_desc=}">{=L:main.tools=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_settings"
 						title="{=L:main.settings_desc=}">{=L:main.settings=}</a></li>
+					<!-- unused
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_ext"
 						title="{=L:main.extensions_desc=}">{=L:main.extensions=}</a></li>
+					-->
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_info"
 						title="{=L:main.info_desc=}">{=L:main.info=}</a></li>
 				</ul>
