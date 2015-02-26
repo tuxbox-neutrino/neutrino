@@ -364,13 +364,19 @@ do_installer()
 			rm -f $y_install # clean up
 			if [ -s "$y_out_html" ] #html - output?
 			then
-				echo '<html><head><link rel="stylesheet" type="text/css" href="/Y_Main.css">'
-				echo "<meta http-equiv='refresh' content='0; $y_out_html'></head>"
+				echo '<html><head>'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Main.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_User.css">'
+				echo "<meta http-equiv='refresh' content='0; $y_out_html'>"
+				echo '</head>'
 				echo "<body><a href='$y_out_html'>If automatic forwarding does not go.</a>"
 				echo '</body></html>'
 #				cat $y_out_html
 			else
-				echo '<html><head><link rel="stylesheet" type="text/css" href="/Y_Main.css"></head>'
+				echo '<html><head>'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Main.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_User.css">'
+				echo '</head>'
 				echo '<body>'
 				echo "$o"
 				echo '</body></html>'
