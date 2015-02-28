@@ -1082,7 +1082,7 @@ menu.hint_leds_deepstandby Definiert den Status der Power-LEDs im Deep-Standby
 menu.hint_leds_record Definiert, ob die Power-LEDs blinken sollen, wenn eine Aufnahme aktiv ist
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Modus
-menu.hint_load Laden der Neutrino-HD-Einstellungen aus einer Datei
+menu.hint_load Laden der Neutrino Einstellungen aus einer Datei
 menu.hint_longkeypress_duration Tasten, die länger als die angegebene Zeit betätigt werden, werden als "langer Tastendruck" behandelt.
 menu.hint_lua Plugins ausführen
 menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt, in dem alle HD-Sender zusammengefasst sind
@@ -1210,12 +1210,12 @@ menu.hint_record_zap_pre_time Stellen Sie eine Vorlaufzeit in Minuten für den U
 menu.hint_recording Aufnahme-, Timeshift- und Timer-Optionen, Einstellung von aufzunehmenden Tonspuren
 menu.hint_reload_channels Kanallisten neu laden, um Änderungen wirksam zu machen
 menu.hint_reload_plugins Plugins neu laden, um Änderungen wirksam zu machen
-menu.hint_reset Zurücksetzen von Neutrino-HD-Einstellungen auf Standardwerte. Tuner-Einstellungen und Kanäle bleiben erhalten
+menu.hint_reset Zurücksetzen von Neutrino Einstellungen auf Standardwerte. Tuner-Einstellungen und Kanäle bleiben erhalten
 menu.hint_restore Wiederherstellen von vorher erstellten Sicherungen
 menu.hint_rotor_swap Tauschen der Rotordrehrichtung Ost/West in den Motor-Einstellungen
 menu.hint_rounded_corners Aktiviert die Darstellung abgerundeter Ecken für die Menüs
 menu.hint_save_settings Speichert ihre Einstellungen
-menu.hint_saveas Speichern der Neutrino-HD-Einstellungen in eine Datei
+menu.hint_saveas Speichern der Neutrino Einstellungen in eine Datei
 menu.hint_scan_auto Automatischer Suchlauf ausgewählter Anbieter
 menu.hint_scan_autoall Automatischer Suchlauf aller ausgewählten Anbieter
 menu.hint_scan_autoall_select Suchlauf nur in ausgewählten Satelliten
@@ -1306,7 +1306,7 @@ menu.hint_selected_back Ändern Sie die Hintergrundfarbe für ausgewählte Fenst
 menu.hint_selected_text Ändern Sie die Textfarbe für ausgewählte Fensterinhalte
 menu.hint_service Sendersuchlauf, Bouquet-Verwaltung, Software-Aktualisierung und mehr
 menu.hint_service_scan Automatischer / manueller Service Suchlauf
-menu.hint_settings Konfigurieren von Neutrino-HD,\nNetzwerk, Video, Audio, OSD und mehr
+menu.hint_settings Konfigurieren von Neutrino,\nNetzwerk, Video, Audio, OSD und mehr
 menu.hint_show_mute_icon Definiert, ob bei einem Lautstärkewert von 0 das Stumm-Symbol eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus oder schalten Sie die Box komplett aus
 menu.hint_shutdown_count Die Zeit zum Herunterfahren in den Deep-Standby, wenn die Box im Standby-Modus ist
@@ -1315,7 +1315,7 @@ menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn die Power-Taste län
 menu.hint_shutdown_real Aktiviert den Standby-Modus. Ist diese Option deaktiviert, fährt die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\nDie Box fährt dann in den Standby-Modus
 menu.hint_sleeptimer_min Voreinstellung der Zeitschaltuhr auf Ihrer Box
-menu.hint_soft_restart Neustarten von Neutrino-HD, ohne die Box neu zu starten
+menu.hint_soft_restart Neustarten von Neutrino, ohne die Box neu zu starten
 menu.hint_softupdate_check Im Internet nach verfügbaren Updates suchen, herunterladen und installieren
 menu.hint_softupdate_check_local Lokal nach verfügbaren Updates suchen und installieren
 menu.hint_softupdate_createimage_menu Sicherung der aktuellen Software inklusive aller Einstellungen
@@ -1327,7 +1327,7 @@ menu.hint_standby Receiver in den Standby Modus versetzen
 menu.hint_start_tostandby Aktiviert den Standby-Modus direkt nach dem Starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen über PIDs, SNR-Verhältnis, Bitrate und mehr
 menu.hint_subchannel_pos Wählen Sie die Anzeigeposition der Unterkanäle aus
-menu.hint_sw_update Neutrino-HD aktualisieren, Image sichern und wiederherstellen
+menu.hint_sw_update Neutrino aktualisieren, Image sichern und wiederherstellen
 menu.hint_theme Wählen Sie ein vordefiniertes Farbschema, speichern oder laden Sie ihre eigenen Farbschemata
 menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder Infofenster sich automatisch schließen (0 deaktiviert)
 menu.hint_timers Hinzufügen, entfernen und bearbeiten geplanter Aufnahmen oder anderer Timer

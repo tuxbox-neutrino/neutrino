@@ -1151,7 +1151,7 @@ menu.hint_other_fonts Zmena veľkostí ďaľšieho písma
 menu.hint_parentallock_changepin Zmena PIN kódu
 menu.hint_parentallock_lockage Výber povoleného veku pre sledovanie
 menu.hint_parentallock_menu Zamknutie ponúk s pin kódom
-menu.hint_parentallock_prompt Konfigurácia keď sa Neutrino-HD opýta na PIN kód
+menu.hint_parentallock_prompt Konfigurácia keď sa Neutrino opýta na PIN kód
 menu.hint_personalize Povolenie/zakázanie alebo Položky menu zabezpečenia\nKonfigurácia farebných tlačítok uživateľských ponúk
 menu.hint_pictureviewer_defdir Východzí adresár prehliadača obrázkov
 menu.hint_pictureviewer_scaling Algoritmus mierky obrázku
@@ -1300,7 +1300,7 @@ menu.hint_selected_back Zmena farby podkladu označenej položky
 menu.hint_selected_text Zmena farby textu označenej položky
 menu.hint_service Nastavenie tuneru, vyhľadanie služieb,\núprava buketov, aktualizácia software
 menu.hint_service_scan Nastavenie tuneru, vyhľadanie služieb
-menu.hint_settings Konfigurácia Neutrino-HD, sieť, zvuk, obraz, OSD a iné
+menu.hint_settings Konfigurácia Neutrino, sieť, zvuk, obraz, OSD a iné
 menu.hint_show_mute_icon Zobrazenie ikony umlčania, ak nastavenie hlasitosťi bude 0
 menu.hint_shutdown Prepne váš príjmač do spánku\nBez potvrdzovania
 menu.hint_shutdown_count Čas prepnutia príjmača do spánku\nz režimu pripravenosti
@@ -1309,7 +1309,7 @@ menu.hint_shutdown_rcdelay Použije režim spánku, ak tlačítko zapnutia\nje s
 menu.hint_shutdown_real Použije režim pripravenosti\nAk sa nepoužije, tlačítko zapnutia prepne príjmač do spánku
 menu.hint_sleeptimer Nastavenie časovača pre prechod vašeho príjmača\ndo režimu pripravenosti
 menu.hint_sleeptimer_min Prednastavené nastavenia pre časovač vypnutia
-menu.hint_soft_restart Reštartovanie Neutrino-HD bez rebootu
+menu.hint_soft_restart Reštartovanie Neutrino bez rebootu
 menu.hint_softupdate_check Kontrola dostupných aktualizácií, stiahnutie a naprogramovanie firmware
 menu.hint_softupdate_check_local Výber a programovanie firmware z lokálneho súboru
 menu.hint_softupdate_createimage_menu Zálohovanie aktuálneho firmware vrátane všetkých nastavení
