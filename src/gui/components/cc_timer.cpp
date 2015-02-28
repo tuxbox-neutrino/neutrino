@@ -61,8 +61,8 @@ void* CComponentsTimer::initTimerThread(void *arg)
 	while(timer) {
 		timer->mutex.lock();
 		timer->OnTimer();
-		timer->mutex.unlock();
 		mySleep(timer->tm_interval);
+		timer->mutex.unlock();
 	}
 
 	return 0;
