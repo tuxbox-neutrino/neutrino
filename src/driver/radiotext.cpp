@@ -79,6 +79,7 @@
 
 #include <global.h>
 #include <system/settings.h>
+#include <system/set_threadname.h>
 #include <neutrino.h>
 #include <gui/color.h>
 
@@ -2369,6 +2370,7 @@ void CRadioText::setPid(uint inPid)
 
 void CRadioText::run()
 {
+	set_threadname("n:radiotext");
 	uint current_pid = 0;
 
 	printf("CRadioText::run: ###################### Starting thread ######################\n");

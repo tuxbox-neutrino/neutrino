@@ -120,7 +120,7 @@ void thread_cleanup (void *p)
 
 #ifndef Y_CONFIG_BUILD_AS_DAEMON
 void * nhttpd_main_thread(void *) {
-	set_threadname(__func__);
+	set_threadname("yweb:main_thread");
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	aprintf("Webserver %s tid %ld\n", WEBSERVERNAME, syscall(__NR_gettid));
@@ -338,7 +338,7 @@ bool Cyhttpd::Configure() {
 // Main Webserver call
 //-----------------------------------------------------------------------------
 void Cyhttpd::run() {
-	set_threadname(__func__);
+	set_threadname("yweb:run");
 	if (webserver) {
 		if (flag_threading_off)
 			webserver->is_threading = false;

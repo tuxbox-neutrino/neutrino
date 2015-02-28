@@ -71,6 +71,7 @@
 #endif
 
 #include <driver/abstime.h>
+#include <system/set_threadname.h>
 #include <libdvbsub/dvbsub.h>
 #include <OpenThreads/ScopedLock>
 #include <libtuxtxt/teletext.h>
@@ -2595,6 +2596,7 @@ void CZapit::run()
 #if HAVE_SPARK_HARDWARE
 	bool v_stopped = false;
 #endif
+	set_threadname("zap:main");
 	printf("[zapit] starting... tid %ld\n", syscall(__NR_gettid));
 
 	abort_zapit = 0;
@@ -2793,6 +2795,7 @@ void CZapitSdtMonitor::run()
 	t_satellite_position            satellitePosition = 0;
 	freq_id_t                       freq = 0;
 	transponder_id_t 		tpid = 0;
+	set_threadname("zap:sdtmonitor");
 
 	tcur = time(0);
 	//tstart = time(0);

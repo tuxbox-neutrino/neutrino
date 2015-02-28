@@ -56,6 +56,7 @@
 #include <driver/streamts.h>
 #include <driver/record.h>
 #include <driver/genpsi.h>
+#include <system/set_threadname.h>
 
 /* experimental mode:
  * stream not possible, if record running
@@ -163,6 +164,7 @@ void CStreamInstance::RemoveClient(int clientfd)
 void CStreamInstance::run()
 {
 	printf("CStreamInstance::run: %" PRIx64 "\n", channel_id);
+	set_threadname("n:streaminstance");
 
 	CZapitChannel * tmpchan = CServiceManager::getInstance()->FindChannel(channel_id);
 	if (!tmpchan)
@@ -539,6 +541,7 @@ void CStreamManager::run()
 	int poll_timeout = -1;
 
 	printf("Starting STREAM thread keeper, tid %ld\n", syscall(__NR_gettid));
+	set_threadname("n:streammanager");
 
 	while (running) {
 		mutex.lock();

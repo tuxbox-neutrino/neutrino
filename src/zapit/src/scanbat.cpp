@@ -29,6 +29,7 @@
 #include <dvbsi++/private_data_specifier_descriptor.h>
 #include <math.h>
 #include <eitd/edvbstring.h>
+#include <system/set_threadname.h>
 
 #define DEBUG_BAT
 #define DEBUG_BAT_UNUSED
@@ -68,6 +69,7 @@ bool CBat::Stop()
 
 void CBat::run()
 {
+	set_threadname("zap:bat");
 	if(Parse())
 		printf("[scan] BAT finished.\n");
 	else
