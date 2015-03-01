@@ -132,7 +132,6 @@ select {
 					<select name="start_page" title="{=L:start_page=}">
 						<option value="bouquets" selected="selected">{=L:bc.menue.bouquets=}</option>
 						<option value="control">{=L:bc.menue.control=}</option>
-						<option value="remote">{=L:bc.menue.remote=}</option>
 						<option value="none">{=L:empty=}</option>
 					</select>
 				</td>
