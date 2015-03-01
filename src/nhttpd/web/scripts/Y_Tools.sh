@@ -7,48 +7,40 @@
 . ./_Y_Globals.sh
 . ./_Y_Library.sh
 # ===========================================================
-# Settings : Skins
+# Settings : Styles
 # ===========================================================
 # -----------------------------------------------------------
-# Skin List [Function inactive]
+# Style List
 # -----------------------------------------------------------
-skin_get()
+style_get()
 {
 	check_Y_Web_conf
-	active_skin=`config_get_value_direct $y_config_Y_Web 'skin'`
+	active_style=`config_get_value_direct $y_config_Y_Web 'style'`
 	html_option_list=""
-	skin_list=`find $y_path_httpd -name 'Y_Main-*'`
-	for f in $skin_list
+	style_list=`find $y_path_httpd/styles -name 'Y_Dist-*'`
+	for f in $style_list
 	do
-		skin=`echo "$f"|sed -e s/^.*Y_Main-//g|sed -e s/.css//g`
-		if [ "$skin" = "$active_skin" ]
+		style=$(echo "$f" | sed -e s/^.*Y_Dist-//g | sed -e s/.css//g)
+		sname=${style//_/ } # replace '_' with ' '
+		if [ "$style" = "$active_style" ]
 		then
-			selec="selected"
+			sel="selected='selected'"
 		else
-			selec=""
+			sel=""
 		fi
-		opt="<option $selec value='$skin'>$skin</option>"
+		opt="<option value='$style' $sel>$sname</option>"
 		html_option_list="$html_option_list $opt"
 	done
 	echo "$html_option_list"
 }
 # -----------------------------------------------------------
-# Set Skin: override css   $1=Skin-Name [Function inactive]
+# Set Style: override Y_Main.css   $1=Style-Name
 # -----------------------------------------------------------
-skin_set()
+style_set()
 {
 	cd $y_path_httpd
-	cp Y_Main-$1.css Y_Main.css
-	if [ -e global-$1.css ]
-	then
-		cp global-$1.css global.css
-	else
-		cp global-Standard.css global.css
-	fi
-	config_set_value_direct $y_config_Y_Web 'skin' $1
-
-	msg="Skin changed - Now browsers Refresh/actualization explain"
-	y_format_message_html
+	cp styles/Y_Dist-$1.css Y_Dist.css
+	#config_set_value_direct $y_config_Y_Web 'style' $1
 }
 # -----------------------------------------------------------
 # Image Backup - build form
@@ -366,6 +358,7 @@ do_installer()
 			then
 				echo '<html><head>'
 				echo '<link rel="stylesheet" type="text/css" href="/Y_Main.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Dist.css">'
 				echo '<link rel="stylesheet" type="text/css" href="/Y_User.css">'
 				echo "<meta http-equiv='refresh' content='0; $y_out_html'>"
 				echo '</head>'
@@ -375,6 +368,7 @@ do_installer()
 			else
 				echo '<html><head>'
 				echo '<link rel="stylesheet" type="text/css" href="/Y_Main.css">'
+				echo '<link rel="stylesheet" type="text/css" href="/Y_Dist.css">'
 				echo '<link rel="stylesheet" type="text/css" href="/Y_User.css">'
 				echo '</head>'
 				echo '<body>'
@@ -531,8 +525,8 @@ restart_neutrino()
 #debug
 # echo "call:$*" >> "/tmp/debug.txt"
 case "$1" in
-	skin_set)				skin_set $2 ;;
-	skin_get)				skin_get ;;
+	style_set)			style_set $2 ;;
+	style_get)			style_get ;;
 	image_upload)			image_upload ;;
 	image_backup)			image_backup_mtd $2; echo "/tmp/flash_mtd$2.img" ;;
 	image_flash)			shift 1; flash_mtd $* ;;

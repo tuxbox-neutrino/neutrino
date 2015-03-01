@@ -5,8 +5,25 @@
 //<![CDATA[
 function do_submit(){
 	show_waitbox(true);
+	do_reload = false;
+	style_new = document.f.style.value;
+	if (style_old != style_new)
+	{
+		do_reload = true;
+		loadSyncURL("/control/exec?Y_Tools&style_set&" + style_new);
+	}
 	yhttpd_cache_clear("");
 	document.f.submit();
+	if (do_reload == true)
+	{
+		alert("Style changed. Maybe you'll have to reload this site.");
+		/* ugly mess */
+		top.top_main.prim_menu.location.reload();
+		top.top_main.base.sec_menu.location.reload();
+		//FIXME top.top_main.base.work.location.reload();
+		top.top_left.location.reload();
+		top.top_right.location.reload();
+	}
 }
 function do_init(){
 	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;0~open=}";
@@ -34,9 +51,16 @@ function do_init(){
 		case "control": sel=1; break;
 	}
 	document.f.start_page.selectedIndex = sel;
+	style_old = "{=ini-get:/var/tuxbox/config/Y-Web.conf;style~cache=}";
 }
 //]]>
 </script>
+<style type="text/css">
+input[type="text"],
+select {
+	width: 220px;
+}
+</style>
 </head>
 <body onload="do_init()">
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
@@ -104,11 +128,22 @@ function do_init(){
 			</tr>
 			<tr>
 				<td>{=L:set.yweb.start_page=}</td>
-				<td colspan="3">	<select name="start_page" title="{=L:start_page=}">
-					<option value="bouquets" selected="selected">{=L:bc.menue.bouquets=}</option>
-					<option value="control">{=L:bc.menue.control=}</option>
-					<option value="none">{=L:empty=}</option>
-					</select></td>
+				<td colspan="3">
+					<select name="start_page" title="{=L:start_page=}">
+						<option value="bouquets" selected="selected">{=L:bc.menue.bouquets=}</option>
+						<option value="control">{=L:bc.menue.control=}</option>
+						<option value="remote">{=L:bc.menue.remote=}</option>
+						<option value="none">{=L:empty=}</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Styles</td>
+				<td>
+					<select name="style" title="Style">
+						{=script:Y_Tools style_get=}
+					</select>
+				</td>
 			</tr>
 		</table>
 		<br/>
@@ -118,7 +153,6 @@ function do_init(){
 	</form>
 	</div>
 </div>
-
 </body>
 </html>
 {=include-block:Y_Blocks.txt;management_check_bottom=}

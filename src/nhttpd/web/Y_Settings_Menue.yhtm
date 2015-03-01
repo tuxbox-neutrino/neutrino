@@ -44,7 +44,6 @@ function init(){
 					{=var-set:m_link_text={=L:set.menue.timer_settings=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
-				<!--<li><a title="change layout skin" target="work" href="Y_Settings_Skin.yhtm">Skins</a></li>-->
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">Neutrino</div>

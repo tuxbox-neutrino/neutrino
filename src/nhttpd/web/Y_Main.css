@@ -306,6 +306,10 @@ tr {
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
+.work_box .work_box {
+	margin: 0;
+	padding: 0;
+}
 .work_box_head {
 	margin: 0;
 	padding: 0;
