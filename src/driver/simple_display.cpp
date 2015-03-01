@@ -386,6 +386,7 @@ void CLCD::setMode(const MODES m, const char * const)
 		break;
 	case MODE_SHUTDOWN:
 		showclock = false;
+		showTime();
 		Clear();
 		break;
 	case MODE_STANDBY:
