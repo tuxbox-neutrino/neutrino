@@ -59,7 +59,6 @@ install_DATA =	channels.js \
 		Y_Settings_neutrino_forms.yhtm \
 		Y_Settings_nhttpd.yhtm \
 		Y_Settings_personalize.yhtm \
-		Y_Settings_Skin.yhtm \
 		Y_Settings_Timer.yhtm \
 		Y_Settings_umount_liste.yhtm \
 		Y_Settings_video_audio.yhtm \
