@@ -1,4 +1,4 @@
-SUBDIRS = images scripts languages
+SUBDIRS = images scripts languages styles
 
 installdir = $(DATADIR)/neutrino/httpd
 
@@ -20,6 +20,7 @@ install_DATA =	channels.js \
 		Y_Boxcontrol_Channellist.yhtm \
 		Y_Boxcontrol_Menue.yhtm \
 		Y_Boxcontrol_Messages.yhtm \
+		Y_Dist.css \
 		Y_Dyn_Pages.yhtm \
 		Y_EPG.js \
 		Y_EPG_Plus.yhtm \
