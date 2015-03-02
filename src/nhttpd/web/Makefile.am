@@ -96,7 +96,6 @@ install_DATA =	channels.js \
 # file manager
 install_DATA +=	accordion.js \
 		effects.js \
-		Y_Filemgr.css \
 		Y_Filemgr.yhtm \
 		Y_Filemgr_Edit.yhtm \
 		Y_Filemgr_blocks.txt

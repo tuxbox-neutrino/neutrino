@@ -1,5 +1,4 @@
 {=include-block:Y_Blocks.txt;head=}
-<link rel="stylesheet" type="text/css" href="/Y_Filemgr.css"/>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/effects.js"></script>
