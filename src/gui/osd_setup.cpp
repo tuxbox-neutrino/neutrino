@@ -1136,8 +1136,8 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		return false;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLOR_GRADIENT)) {
-		osd_menu->hide();
-		return true;
+		osd_menu->paint();
+		return false;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_PRESET)) {
 		int preset = * (int *) data;
