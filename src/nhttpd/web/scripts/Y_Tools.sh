@@ -15,20 +15,33 @@
 style_get()
 {
 	check_Y_Web_conf
-	active_style=`config_get_value_direct $y_config_Y_Web 'style'`
+	active_style=$(config_get_value_direct $y_config_Y_Web 'style')
+
+	y_path_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.directory')
+	y_path_override_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.override_directory')
+
+	style_list=""
+	style_list="$style_list $(find $y_path_override_directory/styles -name 'Y_Dist-*')"
+	style_list="$style_list $(find $y_path_directory/styles -name 'Y_Dist-*')"
+
+	f_list=""
 	html_option_list=""
-	style_list=`find $y_path_httpd/styles -name 'Y_Dist-*'`
 	for f in $style_list
 	do
+		echo $f_list | grep ${f##*/}
+		if [ $? == 0 ]; then
+			continue
+		fi
+		f_list="$f_list ${f##*/}"
+
 		style=$(echo "$f" | sed -e s/^.*Y_Dist-//g | sed -e s/.css//g)
-		sname=${style//_/ } # replace '_' with ' '
 		if [ "$style" = "$active_style" ]
 		then
 			sel="selected='selected'"
 		else
 			sel=""
 		fi
-		opt="<option value='$style' $sel>$sname</option>"
+		opt="<option value='$style' $sel>${style//_/ }</option>"
 		html_option_list="$html_option_list $opt"
 	done
 	echo "$html_option_list"
@@ -38,8 +51,15 @@ style_get()
 # -----------------------------------------------------------
 style_set()
 {
-	cd $y_path_httpd
-	cp styles/Y_Dist-$1.css Y_Dist.css
+	y_path_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.directory')
+	y_path_override_directory=$(config_get_value_direct $y_config_nhttpd 'WebsiteMain.override_directory')
+
+	cd $y_path_directory
+	if [ -e $y_path_override_directory/styles/Y_Dist-$1.css ]; then
+		cp $y_path_override_directory/styles/Y_Dist-$1.css Y_Dist.css
+	else
+		cp $y_path_directory/styles/Y_Dist-$1.css Y_Dist.css
+	fi
 	#config_set_value_direct $y_config_Y_Web 'style' $1
 }
 # -----------------------------------------------------------
