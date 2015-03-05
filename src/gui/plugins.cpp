@@ -200,6 +200,8 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 
 	plugin_data->index = sindex++;
 	plugin_data->key = CRCInput::RC_nokey;
+	plugin_data->name = "";
+	plugin_data->description = "";
 #if 0
 	plugin_data->fb = false;
 	plugin_data->rc = false;
@@ -235,13 +237,23 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		{
 			plugin_data->key = getPluginKey(parm);
 		}
-		else if (cmd == "name")
+		else if (cmd == "name." + g_settings.language)
 		{
 			plugin_data->name = parm;
 		}
-		else if (cmd == "desc")
+		else if (cmd == "name")
+		{
+			if (plugin_data->name.empty())
+				plugin_data->name = parm;
+		}
+		else if (cmd == "desc." + g_settings.language)
 		{
 			plugin_data->description = parm;
+		}
+		else if (cmd == "desc")
+		{
+			if (plugin_data->description.empty())
+				plugin_data->description = parm;
 		}
 		else if (cmd == "depend")
 		{
@@ -301,6 +313,9 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	}
 
 	inFile.close();
+
+	if (plugin_data->name.empty())
+		plugin_data->name = plugin_data->filename;
 
 	_hintIcon = plugin_data->plugindir + "/" + plugin_data->hinticon + ".png";
 	if (access(_hintIcon.c_str(), F_OK) == 0)
