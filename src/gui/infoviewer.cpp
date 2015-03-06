@@ -243,7 +243,7 @@ void CInfoViewer::initClock()
 {
 	if (clock == NULL){
 		clock = new CComponentsFrmClock();
-		clock->doPaintBg(false);
+		clock->doPaintBg(true);
 	}
 
 	clock->setColorBody(COL_INFOBAR_PLUS_0);
