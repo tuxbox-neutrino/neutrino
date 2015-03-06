@@ -114,6 +114,7 @@ class CComponents : public CComponentsSignals, public COSDFader
 		bool is_painted;
 		///mode: true=activate rendering of basic elements (frame, shadow and body)
 		bool paint_bg;
+		bool save_tbox_screen;
 		///mode:  true=allows painting of item, see also allowPaint()
 		bool cc_allow_paint;
 
@@ -245,6 +246,8 @@ class CComponents : public CComponentsSignals, public COSDFader
 		virtual bool isPainted(){return is_painted;}
 		///allows paint of elementary item parts (shadow, frame and body), similar as background, set it usually to false, if item used in a form
 		virtual void doPaintBg(bool do_paint){paint_bg = do_paint;};
+		// enable/disable CTextBox screen saving on paint
+		virtual void enableTboxSaveScreen(bool enable){ save_tbox_screen = enable; };
 
 		///allow/disalows paint of item and its contents, but initialize of other properties are not touched
 		///this can be understood as a counterpart to isPainted(), but before paint and value of is_painted is modified temporarily till next paint of item //TODO: is this sufficiently?

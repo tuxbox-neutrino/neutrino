@@ -60,6 +60,7 @@ CComponents::CComponents() : COSDFader(g_settings.theme.menu_Content_alpha)
 	firstPaint		= true;
 	is_painted		= false;
 	paint_bg		= true;
+	save_tbox_screen	= false;
 	cc_allow_paint		= true;
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
