@@ -77,7 +77,6 @@ neutrino_LDADD = \
 	gui/widget/libneutrino_gui_widget.a \
 	gui/widget/libneutrino_gui_widget2.a \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
-	system/libneutrino_system.a \
 	$(MTDUTILSLIBS) \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
@@ -93,6 +92,7 @@ neutrino_LDADD = \
 	nhttpd/tuxboxapi/coolstream/libnhttpd_tuxboxapi.a \
 	nhttpd/yhttpd_mods/libyhttpdmods.a \
 	nhttpd/yhttpd_core/libyhttpd.a \
+	system/libneutrino_system.a \
 	$(top_builddir)/lib/sectionsdclient/libsectionsdclient.a \
 	$(top_builddir)/lib/timerdclient/libtimerdclient.a \
 	$(top_builddir)/src/zapit/lib/libzapitclient.a \

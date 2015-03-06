@@ -45,6 +45,7 @@ libneutrino_system_a_SOURCES = \
 	helpers.cpp \
 	ping.cpp \
 	settings.cpp \
+	stacktrace.cpp \
 	sysload.cpp \
 	ytcache.cpp \
 	ytparser.cpp \
