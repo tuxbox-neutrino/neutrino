@@ -155,6 +155,13 @@ class CComponentsText : public CComponentsItem, public CBox
 
 		///returns count of lines from a text box page
 		virtual int getTextLinesAutoHeight(const int& textMaxHeight, const int& textWidth, const int& mode);
+		// overload function from cc_base CComponents
+		void enableTboxSaveScreen(bool mode)
+		{
+			save_tbox_screen = mode;
+			if (ct_textbox)
+				ct_textbox->enableSaveScreen(mode);
+		}
 };
 
 
