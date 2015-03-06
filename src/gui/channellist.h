@@ -135,9 +135,11 @@ private:
 	void paintItem2DetailsLine (int pos);
 	void paintItem(int pos,const bool firstpaint = false);
 	bool updateSelection(int newpos);
-	void paint();
+	void paintBody();
 	void paintHead();
 	void paintButtonBar(bool is_current);
+	void updateVfd();
+	void paint();
 	void hide();
 	void showChannelLogo();
 	void calcSize();
