@@ -147,6 +147,7 @@ class CTextBox
 		int  m_nBgRadius;
 		int  m_nBgRadiusType;
 		bool m_nPaintBackground;
+		bool m_SaveScreen;
 
 		Font* m_pcFontText;
 		int m_nFontTextHeight;
@@ -178,6 +179,7 @@ class CTextBox
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);
 		void    enableBackgroundPaint(bool mode = true){m_nPaintBackground = mode;};
+		void    enableSaveScreen(bool mode = true){m_SaveScreen = mode;};
 		bool	setText(const std::string* newText, int max_width = 0, bool force_repaint = true);
 		void 	setTextColor(fb_pixel_t color_text){ m_textColor = color_text;};
 		void	setBackGroundRadius(const int radius, const int type = CORNER_ALL){m_nBgRadius = radius; m_nBgRadiusType = type;};

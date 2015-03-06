@@ -73,7 +73,7 @@
 CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 		   const CBox* position, CFBWindow::color_t textBackgroundColor)
 {
-	//TRACE("[CTextBox] new\r\n");
+	//TRACE("[CTextBox] new %d\n", __LINE__);
 	initVar();
 
 	if(text != NULL)
@@ -109,7 +109,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 
 CTextBox::CTextBox(const char * text)
 {
-	//TRACE("[CTextBox] new\r\n");
+	//TRACE("[CTextBox] new %d\r", __LINE__);
 	initVar();
 
 	if(text != NULL)
@@ -123,7 +123,7 @@ CTextBox::CTextBox(const char * text)
 
 CTextBox::CTextBox()
 {
-	//TRACE("[CTextBox] new\r\n");
+	//TRACE("[CTextBox] new %d\n", __LINE__);
 	initVar();
 
 	//Initialise the window frames first and than refresh text line array
@@ -134,7 +134,7 @@ CTextBox::~CTextBox()
 {
 	//TRACE("[CTextBox] del\r\n");
 	m_cLineArray.clear();
-	hide();
+	//hide();
 	delete[] m_bgpixbuf;
 }
 
@@ -179,6 +179,7 @@ void CTextBox::initVar(void)
 	m_textColor		= COL_MENUCONTENT_TEXT;
 	m_old_textColor 	= 0;
 	m_nPaintBackground 	= true;
+	m_SaveScreen		= false;
 	m_nBgRadius		= m_old_nBgRadius = 0;
 	m_nBgRadiusType 	= m_old_nBgRadiusType = CORNER_ALL;
 
@@ -562,14 +563,14 @@ void CTextBox::refreshText(void)
 	//destroy pixel buffer on changed property values
 	if (has_changed){
 		if (m_bgpixbuf){
-			//TRACE("[CTextBox] %s destroy ol pixel buffer, has changes%d\r\n", __FUNCTION__, __LINE__);
+			//TRACE("[CTextBox] %s destroy ol pixel buffer, has changes %d\r\n", __FUNCTION__, __LINE__);
 			delete[] m_bgpixbuf;
 			m_bgpixbuf = NULL;
 		}
 	}
 
 	//save screen only if no paint of background required
-	if (!m_nPaintBackground){
+	if (!m_nPaintBackground && m_SaveScreen) {
 		if (m_bgpixbuf == NULL){
 			//TRACE("[CTextBox] %s save bg %d\r\n", __FUNCTION__, __LINE__);
 			m_bgpixbuf= new fb_pixel_t[dx * dy];
