@@ -143,6 +143,7 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		cctext->doPaintTextBoxBg(ct_paint_textbg);
 		cctext->doPaintBg(false);
 		cctext->setTextColor(ct_col_text);
+		cctext->enableTboxSaveScreen(save_tbox_screen);
 
 		//calculate vars for x-position and dimensions
 		int tx = x_offset + x_text + pic_w;
