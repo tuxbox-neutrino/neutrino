@@ -100,6 +100,17 @@ void CTimeOSD::show(time_t time_show, bool force)
 	if (!force && (m_mode == MODE_HIDE || m_time_show == time_show))
 		return;
 	m_time_show = time_show;
+
+	syncSysColors();
+
+	paint_bg = true;
+	if (g_settings.infoClockBackground)
+		setColorBody(COL_MENUCONTENT_PLUS_0);
+	else
+		setColorBody(COL_BACKGROUND_PLUS_0);
+
+	setShadowOnOff(g_settings.infoClockBackground);
+
 	paint(false);
 }
 

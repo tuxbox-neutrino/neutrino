@@ -71,7 +71,13 @@ void CInfoClock::Init()
 	else
 		setTextColor(COL_INFOCLOCK_TEXT);
 
-	paint_bg = g_settings.infoClockBackground;
+	paint_bg = true;
+	if (g_settings.infoClockBackground)
+		setColorBody(COL_MENUCONTENT_PLUS_0);
+	else
+		setColorBody(COL_BACKGROUND_PLUS_0);
+
+	setShadowOnOff(g_settings.infoClockBackground);
 
 	if (g_settings.infoClockSeconds)
 		setClockFormat("%H:%M:%S");

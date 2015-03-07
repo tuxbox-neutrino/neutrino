@@ -376,6 +376,7 @@ void CComponentsHeader::initCaption()
 		cch_text_obj->forceTextPaint(); //here required
 		cch_text_obj->setTextColor(cch_col_text);
 		cch_text_obj->setColorBody(col_body);
+		cch_text_obj->enableTboxSaveScreen(save_tbox_screen);
 
 		//corner of text item
 		cch_text_obj->setCorner(corner_rad-fr_thickness, corner_type);

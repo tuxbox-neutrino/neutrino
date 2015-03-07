@@ -174,7 +174,7 @@ function get_data(){
 			<table class="y_text_boxcontrol_table" cellspacing="0" cellpadding="0" title="{=L:bc.menue.volumen_display=}">
 			<tr>
 			<td id="audiobar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="."/></td>
-			<td id="audiobar_right" width="0%" bgcolor="white"><img src="/images/blank.gif" height="1" width="0" alt="."/></td>
+			<td id="audiobar_right" width="0%"><img src="/images/blank.gif" height="1" width="0" alt="."/></td>
 			</tr>
 			</table>
 			<br/>
@@ -195,7 +195,7 @@ function get_data(){
 			</span>
 			<span class="control_icon" title="{=L:bc.menue.switch_to_tv=}">
 				<a href="javascript:set_mode('tv');">
-					<img src="/images/live.gif">
+					<img src="/images/live.png">
 				</a>
 			</span>
 			<span class="control_icon" title="{=L:bc.menue.switch_to_radio=}">
@@ -214,7 +214,7 @@ function get_data(){
 			<table class="y_text_boxcontrol_table_progress" cellspacing="0" cellpadding="0" title="{=L:bc.menue.sig_display=}">
 			<tr>
 			<td id="sigbar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
-			<td id="sigbar_right" width="0%" bgcolor="white"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			<td id="sigbar_right" width="0%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
 			</tr>
 			</table>
 		</center>
@@ -223,7 +223,7 @@ function get_data(){
 			<table class="y_text_boxcontrol_table_progress" cellspacing="0" cellpadding="0" title="{=L:bc.menue.snr_display=}">
 			<tr>
 			<td id="snrbar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
-			<td id="snrbar_right" width="0%" bgcolor="white"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
+			<td id="snrbar_right" width="0%"><img src="/images/blank.gif" height="1" width="0" alt="." /></td>
 			</tr>
 			</table>
 		</center>

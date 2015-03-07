@@ -105,6 +105,7 @@ void CComponentsExtTextForm::initLabel()
 	if (ccx_label_obj == NULL){
 		ccx_label_obj = new CComponentsLabel();
 		ccx_label_obj->doPaintBg(false);
+		ccx_label_obj->enableTboxSaveScreen(save_tbox_screen);
 	}	
 
 	//add label object
@@ -127,6 +128,7 @@ void CComponentsExtTextForm::initText()
 	if (ccx_text_obj == NULL){
 		ccx_text_obj = new CComponentsText();
 		ccx_text_obj->doPaintBg(false);
+		ccx_text_obj->enableTboxSaveScreen(save_tbox_screen);
 	}
 
 	//add text object

@@ -1,4 +1,4 @@
-SUBDIRS = images scripts languages
+SUBDIRS = images scripts languages styles
 
 installdir = $(DATADIR)/neutrino/httpd
 
@@ -20,6 +20,7 @@ install_DATA =	channels.js \
 		Y_Boxcontrol_Channellist.yhtm \
 		Y_Boxcontrol_Menue.yhtm \
 		Y_Boxcontrol_Messages.yhtm \
+		Y_Dist.css \
 		Y_Dyn_Pages.yhtm \
 		Y_EPG.js \
 		Y_EPG_Plus.yhtm \
@@ -59,7 +60,6 @@ install_DATA =	channels.js \
 		Y_Settings_neutrino_forms.yhtm \
 		Y_Settings_nhttpd.yhtm \
 		Y_Settings_personalize.yhtm \
-		Y_Settings_Skin.yhtm \
 		Y_Settings_Timer.yhtm \
 		Y_Settings_umount_liste.yhtm \
 		Y_Settings_video_audio.yhtm \
@@ -85,9 +85,17 @@ install_DATA =	channels.js \
 		Y_Tools_Timer_Sync.js \
 		Y_Tools_Timer_Sync.yhtm \
 		Y_Tools_tvshot.yhtm \
+		Y_User.css \
 		Y_Version.txt \
 		Y_VLC.js \
 		Y_Wait.yhtm \
 		ywidget.css \
 		ywidget.js \
 		Y_yweb.js
+
+# file manager
+install_DATA +=	accordion.js \
+		effects.js \
+		Y_Filemgr.yhtm \
+		Y_Filemgr_Edit.yhtm \
+		Y_Filemgr_blocks.txt

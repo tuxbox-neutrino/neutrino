@@ -90,7 +90,7 @@ function view_transcode_mode(){
 			<button id="epg" class="y_live_button" type="button" title="{=L:live.view_epg=}" onclick="view_epg()" disabled="disabled">
 				<img src="/images/epg.png"/></button>
 			<button id="epg_reload" class="y_live_button" type="button" title="{=L:live.reload=}" onclick="view_epg_reload()">
-				<img src="/images/reload.gif"/></button>
+				<img src="/images/reload.png"/></button>
 		</td></tr>
 		<tr id="subsRow" style="display:none">
 			<td>

@@ -126,7 +126,7 @@ class CComponentsFrmClock : public CComponentsForm
 		///stop ticking clock thread, returns true on success, if false causes log output
 		virtual bool stopThread();
 
-		virtual bool Start();
+		virtual bool Start(bool do_save_bg = CC_SAVE_SCREEN_NO);
 		virtual bool Stop();
 
 		///returns true, if clock is running in thread

@@ -201,7 +201,7 @@ void CImageInfo::ShowWindow()
 	InitInfoText(getLicenseText());
 
 	//paint window
-	cc_win->paint();
+	cc_win->paint(CC_SAVE_SCREEN_NO);
 }
 
 //prepare minitv
@@ -368,6 +368,7 @@ void CImageInfo::InitInfoText(const std::string& text)
 		cc_lic = new CComponentsInfoBox(CC_CENTERED, CC_APPEND, w_body-2*item_offset, h_txt);
 	cc_lic->setSpaceOffset(1);
 	cc_lic->setText(text, CTextBox::TOP | CTextBox::AUTO_WIDTH | CTextBox::SCROLL, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
+	cc_lic->doPaintTextBoxBg(true);
 
 	//add text to container
 	if (!cc_lic->isAdded())
@@ -381,12 +382,12 @@ void CImageInfo::ScrollLic(bool scrollDown)
 		//get the textbox instance from infobox object and use CTexBbox scroll methods
 		CTextBox* ctb = cc_lic->cctext->getCTextBoxObject();
 		if (ctb) {
-			ctb->enableBackgroundPaint(true);
+			//ctb->enableBackgroundPaint(true);
 			if (scrollDown)
 				ctb->scrollPageDown(1);
 			else
 				ctb->scrollPageUp(1);
-			ctb->enableBackgroundPaint(false);
+			//ctb->enableBackgroundPaint(false);
 		}
 	}
 }
@@ -395,7 +396,7 @@ void CImageInfo::hide()
 {
 	printf("[CImageInfo]   [%s - %d] hide...\n", __FUNCTION__, __LINE__);
 	if (cc_win){
-		cc_win->hide();
+		cc_win->kill();
 		Clean();
 	}
 }

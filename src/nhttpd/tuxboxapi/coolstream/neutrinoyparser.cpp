@@ -415,7 +415,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
 				channel->getChannelID(),
 				channel->getChannelID() & 0xFFFFFFFFFFFFULL,
-				((NeutrinoAPI->ChannelListEvents[channel->getChannelID()]) ? "<img src=\"/images/elist.gif\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
+				((NeutrinoAPI->ChannelListEvents[channel->getChannelID()]) ? "<img src=\"/images/elist.png\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
 
 		if (channel->getChannelID() == current_channel)
 			yresult += string_printf("\n&nbsp;&nbsp;<a href=\"javascript:do_streaminfo()\"><img src=\"/images/streaminfo.png\" alt=\"Streaminfo\" style=\"border: 0px\" /></a>");

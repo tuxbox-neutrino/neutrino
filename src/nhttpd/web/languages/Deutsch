@@ -420,6 +420,8 @@ tools.command=Kommando
 tools.cmd.enter_command=Auszuführendes Kommando eingeben
 tools.cmd.execute_command=Kommando ausführen
 tools.boot_logo=Boot Logo
+tools.filemgr_desc=Dateien und Verzeichnisse organisieren
+tools.filemgr=Dateimanager
 
 =========== LIVE Menue
 live.heading=Live/Timer

@@ -167,6 +167,7 @@ void CComponentsButton::initCaption()
 		if (cc_btn_capt_obj == NULL){
 			cc_btn_capt_obj = new CComponentsLabel();
 			cc_btn_capt_obj->doPaintBg(false);
+			cc_btn_capt_obj->enableTboxSaveScreen(save_tbox_screen);
 			addCCItem(cc_btn_capt_obj);
 		}
 	}else{

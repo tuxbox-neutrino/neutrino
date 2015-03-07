@@ -23,7 +23,6 @@ function init(){
 		<div class="y_menu_sec_section">{=L:main.tools=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_tools">
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstreamm~
 				<li>
 					{=if-empty:{=var-get:automount=}~
 					<a href="javascript:void(0)" class="disabled" title="{=L:tools.not_installed=}">{=L:tools.automount=}</a>
@@ -40,7 +39,12 @@ function init(){
 					{=var-set:m_link_text={=L:tools.mounts=}=}
 					{=include-block:Y_Blocks.txt;management_link=}
 				</li>
-			~=}
+				<li>
+					{=var-set:m_link_href=Y_Filemgr.yhtm=}
+					{=var-set:m_link_desc={=L:tools.filemgr_desc=}=}
+					{=var-set:m_link_text={=L:tools.filemgr=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 				<li>
 					{=if-empty:{=var-get:ether-wake=}~
 					<a href="javascript:void(0)" class="disabled" title="{=L:tools.not_installed=}">{=L:tools.wake_on_lan=}</a>
