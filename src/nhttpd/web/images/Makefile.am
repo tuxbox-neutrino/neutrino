@@ -31,12 +31,14 @@ install_DATA =	accept.png \
 		ftype_link.gif \
 		fullscreen.png \
 		help.gif \
+		hidden.png \
 		info.png \
 		inlink.gif \
 		live.png \
 		live_popup.png \
 		livelock.png \
 		liveunlock.png \
+		lock.png \
 		modify.png \
 		new.png \
 		ok.gif \
@@ -71,6 +73,8 @@ install_DATA =	accept.png \
 		tux-yweb.png \
 		udp_switch_off.png \
 		udp_switch_on.png \
+		unlock.png \
+		visible.png \
 		vlc.png \
 		volumedown.png \
 		volumemute.png \
