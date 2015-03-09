@@ -1841,6 +1841,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		ibox->setCorner(RADIUS_LARGE);
 		ibox->setYPos(ypos2);
 		ibox->setColorBody(COL_MENUCONTENTDARK_PLUS_0);
+		ibox->setFrameThickness(2);
 		ibox->paint(false);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
