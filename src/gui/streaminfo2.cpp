@@ -702,7 +702,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 {
 	unsigned short i;
 	int box_width = width*2/3-10;
-	if (box_h2 > 0)
+	if (box_h2 > ypos+(iheight*2))
 		frameBuffer->paintBox(0, ypos+(iheight*2), box_width, box_h2, COL_MENUHEAD_PLUS_0);
 
 	std::string casys[NUM_CAIDS]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
