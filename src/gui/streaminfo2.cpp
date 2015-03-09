@@ -421,7 +421,7 @@ void CStreamInfo2::paint (int /*mode*/)
 
 		if (pip == NULL)
 			pip = new CComponentsPIP(width-width/3-10, y+10, 33);
-		pip->paint();
+		pip->paint(CC_SAVE_SCREEN_NO);
 
 		paint_techinfo (xpos, ypos);
 		paint_signal_fe_box (width - width/3 - 10, (y + 10 + height/3 + hheight), width/3, height/3 + hheight);
