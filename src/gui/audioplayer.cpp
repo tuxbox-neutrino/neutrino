@@ -716,6 +716,7 @@ int CAudioPlayerGui::show()
 			videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 			CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 			paintLCD();
+			update = true;
 		}
 		else if (msg == CRCInput::RC_help)
 		{
