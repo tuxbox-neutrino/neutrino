@@ -20,31 +20,37 @@ open(masterfile, $masterfilename) || die("Could not open master file");
 open(localefile, $localefilename) || die("Could not open locale file");
 open(outfile, ">" . $outfilename) || die("Could not open output file");
 
+%master = {};
+%locale = {};
+
 while (<masterfile>) {
-    $masterline = $_;
-    ($masterkey) = /([^ ]+)/;
-    ($junk, $mastertext) = /([^ ]+)[ ]+([^\n]+)/;
-    if ($last_was_ok) {
-	$localeline = <localefile>;
-	chop $localeline;
-	($localekey) = ($localeline =~ /([^ ]+)/,$localline);
-	($junk, $localetext) = ($localeline =~ /([^ ]+)[ ]+([^\n]+)/);
-    };
-    if ($masterkey eq $localekey) {
-	print outfile $localeline, "\n";
-	$last_was_ok = 1;
+    # master hash
+    $line = $_;
+    ($key) = /([^ ]+)/;
+    ($junk, $text) = /([^ ]+)[ ]+([^\n]+)/;
+    $master{$key} = $text;
+}
+
+while (<localefile>) {
+    # locale hash
+    $line = $_;
+    ($key) = /([^ ]+)/;
+    ($junk, $text) = /([^ ]+)[ ]+([^\n]+)/;
+    $locale{$key} = $text;
+}
+
+foreach $term (sort keys %master) {
+    if (exists $locale{$term}) {
+        print outfile $term,  " ", $locale{$term}, "\n";
     } else {
-	$no_errors++;
-	#print "|", $masterkey, "|", $mastertext, "|", $localekey, "|", $localetext, "|\n";
-	print outfile $masterkey, " TRANSLATE ", $mastertext, "\n";
-	$last_was_ok = 0;
+        # not found
+        $no_errors++;
+        print outfile $term,  " TRANSLATE ", $master{$term}, "\n";
     }
 }
 
-close(outfile);
-
-print "There were ", $no_errors, " error(s) in ", $localefilename, ".\n";
-
-if ($no_errors == 0) {
+if ($no_errors == 0) {}
     unlink($outfilename);
+} else {
+    print "There were ", $no_errors, " error(s) in ", $localefilename, ".\n";
 }
