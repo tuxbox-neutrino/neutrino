@@ -140,8 +140,6 @@ void CBookmarkManager::readBookmarkFile() {
 			bookmarks.push_back(CBookmark(bookmarkname, bookmarkurl, bookmarktime));
 		}
 	}
-	else
-		bookmarkfile.clear();
 }
 
 //------------------------------------------------------------------------
@@ -149,6 +147,7 @@ void CBookmarkManager::writeBookmarkFile() {
 
 	printf("CBookmarkManager: Writing bookmark file\n");
 
+	bookmarkfile.clear();
 	unsigned int bookmarkcount = 0;
 	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); ++it, bookmarkcount++)
 	{
