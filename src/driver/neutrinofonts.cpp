@@ -117,7 +117,7 @@ void CNeutrinoFonts::SetupDynamicFonts(bool initRenderClass/*=true*/)
 		dynFontStyle[0] = g_dynFontRenderer->AddFont(fontDescr.filename.c_str());
 
 		fontDescr.name = g_dynFontRenderer->getFamily(fontDescr.filename.c_str());
-		dprintf(DEBUG_NORMAL, " dynamic font family: %s\n", fontDescr.name.c_str());
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] dynamic font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		dynFontStyle[1] = "Bold Regular";
 
 		g_dynFontRenderer->AddFont(fontDescr.filename.c_str(), true);  // make italics
@@ -135,14 +135,14 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.size_offset = fontDescr.size_offset;
 		old_fontDescr.filename = fontDescr.filename;
 		fontDescr.filename = "";
-		dprintf(DEBUG_NORMAL, "font file: %s\n", g_settings.font_file.c_str());
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] font file: %s\n", __func__, __LINE__, g_settings.font_file.c_str());
 		if (access(g_settings.font_file.c_str(), F_OK)) {
 			if (!access(FONTDIR"/neutrino.ttf", F_OK)) {
 				fontDescr.filename = FONTDIR"/neutrino.ttf";
 				g_settings.font_file = fontDescr.filename;
 			}
 			else {
-				fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");
+				fprintf( stderr,"[CNeutrinoFonts] [%s - %d] font file [%s] not found\n neutrino exit\n", __func__, __LINE__, FONTDIR"/neutrino.ttf");
 				_exit(0);
 			}
 		}
@@ -154,7 +154,7 @@ void CNeutrinoFonts::SetupNeutrinoFonts(bool initRenderClass/*=true*/)
 		old_fontDescr.name = fontDescr.name;
 		fontDescr.name = "";
 		fontDescr.name = g_fontRenderer->getFamily(fontDescr.filename.c_str());
-		dprintf(DEBUG_NORMAL, "standard font family: %s\n", fontDescr.name.c_str());
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d] standard font family: %s\n", __func__, __LINE__, fontDescr.name.c_str());
 		fontStyle[1] = "Bold Regular";
 
 		g_fontRenderer->AddFont(fontDescr.filename.c_str(), true);  // make italics
@@ -209,10 +209,11 @@ void CNeutrinoFonts::refreshDynFont(int dx, int dy, std::string text, int style,
 	Font *dynFont	= g_dynFontRenderer->getFont(fontDescr.name.c_str(), dynFontStyle[style].c_str(), dynSize);
 	dyn_font->font = dynFont;
 	dyn_font->size = dynSize;
-	if (dyn_font->size != dynSize)
-		printf("##### [%s] change %s_font size old %d to new %d, index: %u\n", __FUNCTION__, (isShare)?"share":"dyn", oldSize, dyn_font->size, index);
-	else
-		printf("##### [%s] refresh %s_font size %d, index: %u\n", __FUNCTION__, (isShare)?"share":"dyn", dyn_font->size, index);
+	if (dyn_font->size != dynSize){
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d]  change %s_font size old %d to new %d, index: %u\n", __func__, __LINE__, (isShare)?"share":"dyn", oldSize, dyn_font->size, index);
+	}else{
+		dprintf(DEBUG_NORMAL, "[CNeutrinoFonts] [%s - %d]  refresh %s_font size %d, index: %u\n",__func__, __LINE__, (isShare)?"share":"dyn", dyn_font->size, index);
+	}
 }
 
 int CNeutrinoFonts::getFontHeight(Font* fnt)
