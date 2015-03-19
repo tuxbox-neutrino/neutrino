@@ -3213,7 +3213,8 @@ void ConfigMenu(int Init)
 
 							for (i1=hotindex; i1<maxhotlist; i1++) /* move rest of list */
 							{
-								hotlist[i1] = hotlist[i1+1];
+								if(i1+1<maxhotlist)
+									hotlist[i1] = hotlist[i1+1];
 							}
 							maxhotlist--;
 							if (hotindex > maxhotlist)
