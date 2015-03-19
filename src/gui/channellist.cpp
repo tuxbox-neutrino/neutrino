@@ -1672,10 +1672,10 @@ void CChannelList::showChannelLogo()
 				CChannelLogo->setHeight(theight);
 				int w_logo = h_ratio*CChannelLogo->getWidth()/100;
 				CChannelLogo->setWidth(min(w_logo, logo_w_max));
-				CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
-				CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
-				CChannelLogo->paint();
 			}
+			CChannelLogo->setXPos(x + full_width - logo_off - CChannelLogo->getWidth());
+			CChannelLogo->setYPos(y + (theight - CChannelLogo->getHeight()) / 2);
+			CChannelLogo->paint();
 		} else {
 			delete CChannelLogo;
 			CChannelLogo = NULL;
