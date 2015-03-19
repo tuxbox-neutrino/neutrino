@@ -166,6 +166,7 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 	if (fh) {
 		if (m_NextPic_Buffer != NULL) {
 			free (m_NextPic_Buffer);
+			m_NextPic_Buffer = NULL;
 		}
 		m_NextPic_Buffer = (unsigned char *) malloc (x * y * 3);
 		if (m_NextPic_Buffer == NULL) {
@@ -225,6 +226,7 @@ bool CPictureViewer::DecodeImage (const std::string & _name, bool showBusySign, 
 		printf ("Unable to read file or format not recognized!\n");
 		if (m_NextPic_Buffer != NULL) {
 			free (m_NextPic_Buffer);
+			m_NextPic_Buffer = NULL;
 		}
 		m_NextPic_Buffer = (unsigned char *) malloc (3);
 		if (m_NextPic_Buffer == NULL) {
@@ -264,8 +266,8 @@ bool CPictureViewer::ShowImage (const std::string & filename, bool unscaled)
 		free (m_CurrentPic_Buffer);
 		m_CurrentPic_Buffer = NULL;
 	}
-	DecodeImage (filename, true, unscaled);
-	DisplayNextImage ();
+	if (DecodeImage (filename, true, unscaled))
+		DisplayNextImage ();
 	//  dbout("Show Image }\n");
 	return true;
 }
