@@ -3366,7 +3366,7 @@ void CMovieBrowser::refreshYTMenu()
 		yt_menue->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_YT_CANCEL, true, NULL, ytcache_selector, "cancel_all"));
 		yt_menue->addItem(GenericMenuSeparator);
 		std::string progress;
-		if (dlstart && dltotal && dlnow) {
+		if (dlstart && (int64_t)dltotal && (int64_t)dlnow) {
 			time_t done = time(NULL) - dlstart;
 			time_t left = ((dltotal - dlnow) * done)/dlnow;
 			progress = "(" + to_string(done) + "s/" + to_string(left) + "s)";
