@@ -1164,10 +1164,12 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *nametag, 
 						}
 						child = child->xmlNextNode;
 					}
-					if 	(strcmp("audio/mpeg", type) == 0) 	skip = false;
-					else if (strcmp("application/ogg", type) == 0) 	skip = false;
-					else if (strcmp("mp3", type) == 0) 		skip = false;
-					else if (strcmp("application/mp3", type) == 0) 	skip = false;
+					if(type){
+						if 	(strcmp("audio/mpeg", type) == 0) 	skip = false;
+						else if (strcmp("application/ogg", type) == 0) 	skip = false;
+						else if (strcmp("mp3", type) == 0) 		skip = false;
+						else if (strcmp("application/mp3", type) == 0) 	skip = false;
+					}
 				} else {
 					url = xmlGetAttribute(element, urltag);
 					name = xmlGetAttribute(element, nametag);
