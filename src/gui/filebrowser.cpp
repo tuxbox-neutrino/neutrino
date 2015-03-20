@@ -481,7 +481,9 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 					CFile file;
 					if (xml_decode == 1) {
 						file.Mode = S_IFDIR + 0777 ;
-						file.Name = xmlGetAttribute(element, "name");
+						const char *eptr = xmlGetAttribute(element, "name");
+						if(eptr)
+							file.Name = eptr;
 						file.Url = sc_get_genre + file.Name;
 						file.Size = 0;
 						file.Time = 0;
@@ -498,8 +500,14 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 								ptr = xmlGetAttribute(element, "mt");
 								if (ptr && (strcmp(ptr, "audio/mpeg")==0)) {
 									file.Mode = S_IFREG + 0777 ;
-									file.Name = xmlGetAttribute(element, "name");
-									file.Url = sc_tune_in_base + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, "id") + (std::string)"&k=" + g_settings.shoutcast_dev_id;
+									const char *aptr = xmlGetAttribute(element, "name");
+									if(aptr)
+										file.Name = aptr;
+									const char *idptr = xmlGetAttribute(element, "id");
+									std::string id;
+									if(idptr)
+										id = idptr;
+									file.Url = sc_tune_in_base + tunein_base + (std::string)"?id=" + id + (std::string)"&k=" + g_settings.shoutcast_dev_id;
 									//printf("adding %s (%s)\n", file.Name.c_str(), file.Url.c_str());
 									ptr = xmlGetAttribute(element, "br");
 									if (ptr) {

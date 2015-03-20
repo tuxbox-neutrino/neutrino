@@ -146,15 +146,21 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 		{
 			if (!strcmp(xmlGetName(search), "zone"))
 			{
-				std::string name = xmlGetAttribute(search, "name");
-				std::string zone = xmlGetAttribute(search, "zone");
+				const char* zptr = xmlGetAttribute(search, "zone");
+				std::string zone;
+				if(zptr)
+					zone = zptr;
 				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
 				if (access("/usr/share/zoneinfo/" + zone, R_OK))
 					printf("[neutrino] timezone file '%s' not installed\n", zone.c_str());
 				else
 				{
-					tzSelect->addOption(name);
-					found = true;
+					const char* ptr = xmlGetAttribute(search, "name");
+					if(ptr){
+						std::string name = ptr;
+						tzSelect->addOption(name);
+						found = true;
+					}
 				}
 			}
 			search = search->xmlNextNode;
@@ -171,7 +177,6 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 
 	return tzSelect;
 }
-
 
 //shows locale setup for language selection
 void COsdLangSetup::showLanguageSetup(CMenuWidget *osdl_setup)

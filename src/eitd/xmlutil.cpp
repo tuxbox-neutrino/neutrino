@@ -271,12 +271,15 @@ void deleteOldfileEvents(char *epgdir)
 		filter = filter->xmlChildrenNode;
 
 		while (filter) {
-			filename = xmlGetAttribute(filter, "name");
-			file = epgdir;
-			file +="/";
-			file +=filename;
-			unlink(file.c_str());
-			filter = filter->xmlNextNode;
+			const char * name = xmlGetAttribute(filter, "name");
+			if(name){
+				filename=name;
+				file = epgdir;
+				file +="/";
+				file +=filename;
+				unlink(file.c_str());
+				filter = filter->xmlNextNode;
+			}
 		}
 		xmlFreeDoc(filter_parser);
 	}
@@ -313,7 +316,10 @@ void *insertEventsfromFile(void * data)
 	eventfile = xmlDocGetRootElement(index_parser)->xmlChildrenNode;
 
 	while (eventfile) {
-		filename = xmlGetAttribute(eventfile, "name");
+		const char * name = xmlGetAttribute(eventfile, "name");
+		if(name)
+			filename=name;
+
 		epgname = epg_dir + filename;
 		if (!(event_parser = parseXmlFile(epgname.c_str()))) {
 			dprintf("unable to open %s for reading\n", epgname.c_str());

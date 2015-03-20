@@ -453,9 +453,14 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
                 xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
                 while (search) {
                         if (!strcmp(xmlGetName(search), "zone")) {
-				name = xmlGetAttribute(search, "name");
+				const char *nptr = xmlGetAttribute(search, "name");
+				if(nptr)
+					name = nptr;
+
 				if(g_settings.timezone == name) {
-					zone = xmlGetAttribute(search, "zone");
+					const char *zptr = xmlGetAttribute(search, "zone");
+					if(zptr)
+						zone = zptr;
 					if (!access("/usr/share/zoneinfo/" + zone, R_OK))
 						found = true;
 					break;

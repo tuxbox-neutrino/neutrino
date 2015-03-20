@@ -443,7 +443,10 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 	while ((node = xmlGetNextOccurence(node, "S")) != NULL) {
 		*have_ptr = 1;
 		t_service_id service_id = xmlGetNumericAttribute(node, "i", 16);
-		std::string name = xmlGetAttribute(node, "n");
+		std::string name;
+		const char *nptr = xmlGetAttribute(node, "n");
+		if(nptr)
+			name = nptr;
 		uint8_t service_type = xmlGetNumericAttribute(node, "t", 16);
 		uint16_t vpid = xmlGetNumericAttribute(node, "v", 16);
 		uint16_t apid = xmlGetNumericAttribute(node, "a", 16);
