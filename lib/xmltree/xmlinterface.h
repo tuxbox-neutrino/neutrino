@@ -41,8 +41,8 @@
 #ifdef USE_LIBXML
 #include <libxml/parser.h>
 #define xmlNextNode next
-inline char*      xmlGetAttribute     (xmlNodePtr cur, const char * s) { return (char *)xmlGetProp(cur, (const xmlChar *)s); };
-inline char*      xmlGetName          (xmlNodePtr cur)                 { return (char *)(cur->name); };
+inline const char*      xmlGetAttribute     (xmlNodePtr cur, const char * s) { return (const char *)xmlGetProp(cur, (const xmlChar *)s); };
+inline const char*      xmlGetName          (xmlNodePtr cur)                 { return (const char *)(cur->name); };
 
 #else  /* use libxmltree */
 #include "xmltree.h"
@@ -52,9 +52,9 @@ typedef XMLTreeNode*   xmlNodePtr;
 #define xmlNextNode     GetNext()
 inline xmlNodePtr xmlDocGetRootElement(xmlDocPtr  doc)                 { return doc->RootNode(); }
 inline void       xmlFreeDoc          (xmlDocPtr  doc)                 { delete doc; }
-inline char*      xmlGetAttribute     (xmlNodePtr cur, const char *s)  { return cur->GetAttributeValue(s); }
-inline char*      xmlGetName          (xmlNodePtr cur)                 { return cur->GetType();  }
-inline char*      xmlGetData          (xmlNodePtr cur)                 { return cur->GetData();  }
+inline const char*      xmlGetAttribute     (xmlNodePtr cur, const char *s)  { return cur->GetAttributeValue(s); }
+inline const char*      xmlGetName          (xmlNodePtr cur)                 { return cur->GetType();  }
+inline const char*      xmlGetData          (xmlNodePtr cur)                 { return cur->GetData();  }
 #endif /* USE_LIBXML */
 
 

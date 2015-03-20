@@ -252,7 +252,7 @@ bool cYTFeedParser::saveToFile(const char * name, std::string str)
 std::string cYTFeedParser::getXmlName(xmlNodePtr node)
 {
 	std::string result;
-	char * name = xmlGetName(node);
+	const char * name = xmlGetName(node);
 	if (name)
 		result = name;
 	return result;
@@ -261,7 +261,7 @@ std::string cYTFeedParser::getXmlName(xmlNodePtr node)
 std::string cYTFeedParser::getXmlAttr(xmlNodePtr node, const char * attr)
 {
 	std::string result;
-	char * value = xmlGetAttribute(node, attr);
+	const char * value = xmlGetAttribute(node, attr);
 	if (value)
 		result = value;
 	return result;
@@ -270,7 +270,7 @@ std::string cYTFeedParser::getXmlAttr(xmlNodePtr node, const char * attr)
 std::string cYTFeedParser::getXmlData(xmlNodePtr node)
 {
 	std::string result;
-	char * value = xmlGetData(node);
+	const char * value = xmlGetData(node);
 	if (value)
 		result = value;
 	return result;

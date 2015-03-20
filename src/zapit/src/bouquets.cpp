@@ -43,7 +43,7 @@ extern CBouquetManager *g_bouquetManager;
 
 #define GET_ATTR(node, name, fmt, arg)                                  \
         do {                                                            \
-                char * ptr = xmlGetAttribute(node, name);               \
+                const char * ptr = xmlGetAttribute(node, name);               \
                 if ((ptr == NULL) || (sscanf(ptr, fmt, &arg) <= 0))     \
                         arg = 0;                                        \
         }                                                               \
@@ -395,16 +395,16 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 		INFO("reading bouquets from %s", fname);
 
 		while ((search = xmlGetNextOccurence(search, "Bouquet")) != NULL) {
-			char * name = xmlGetAttribute(search, "name");
+			const char * name = xmlGetAttribute(search, "name");
 			if(name == NULL)
 				name = const_cast<char*>("Unknown");
 
 			CZapitBouquet* newBouquet = addBouquet(name, bUser);
 			// per default in contructor: newBouquet->BqID = 0; //set to default, override if bqID exists
 			GET_ATTR(search, "bqID", SCANF_BOUQUET_ID_TYPE, newBouquet->BqID);
-			char* hidden = xmlGetAttribute(search, "hidden");
-			char* locked = xmlGetAttribute(search, "locked");
-			char* scanepg = xmlGetAttribute(search, "epg");
+			const char* hidden = xmlGetAttribute(search, "hidden");
+			const char* locked = xmlGetAttribute(search, "locked");
+			const char* scanepg = xmlGetAttribute(search, "epg");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
 			newBouquet->bFav = (strcmp(name, "favorites") == 0);
@@ -416,10 +416,10 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				if (name)
 					name2 = name;
 				std::string uname;
-				char *uName = xmlGetAttribute(channel_node, "un");
+				const char *uName = xmlGetAttribute(channel_node, "un");
 				if (uName)
 					uname = uName;
-				char *url = xmlGetAttribute(channel_node, "u");
+				const char *url = xmlGetAttribute(channel_node, "u");
 				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
 				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
 				GET_ATTR(channel_node, "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);

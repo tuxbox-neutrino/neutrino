@@ -462,7 +462,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			flags = CZapitChannel::UPDATED;
 
 		t_channel_id chid = CREATE_CHANNEL_ID64;
-		char *ptr = xmlGetAttribute(node, "action");
+		const char *ptr = xmlGetAttribute(node, "action");
 		bool remove = ptr ? (!strcmp(ptr, "remove") || !strcmp(ptr, "replace")) : false;
 		bool add    = ptr ? (!strcmp(ptr, "add")    || !strcmp(ptr, "replace")) : true;
 		if (remove) {
@@ -541,12 +541,12 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 		std::string delivery_name = xmlGetName(search);
 
 		if (delivery_name == "cable") {
-			char *name = xmlGetAttribute(search, "name");
+			const char *name = xmlGetAttribute(search, "name");
 			satellitePosition = GetSatellitePosition(name);
 			delsys = ALL_CABLE;
 		}
 		else if (delivery_name == "terrestrial") {
-			char *name = xmlGetAttribute(search, "name");
+			const char *name = xmlGetAttribute(search, "name");
 			satellitePosition = GetSatellitePosition(name);
 			delsys = ALL_TERR;
 		}
@@ -560,7 +560,7 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 		}
 #if 0
 		//t_satellite_position satellitePosition = xmlGetSignedNumericAttribute(search, "position", 10);
-		char * name = xmlGetAttribute(search, "name");
+		const char * name = xmlGetAttribute(search, "name");
 		t_satellite_position satellitePosition = GetSatellitePosition(name);
 #endif
 		DBG("going to parse dvb-%c provider %s\n", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
@@ -797,7 +797,7 @@ void CServiceManager::SaveMotorPositions()
 }
 #endif
 
-bool CServiceManager::InitSatPosition(t_satellite_position position, char * name, bool force, delivery_system_t delsys, uint16_t nid)
+bool CServiceManager::InitSatPosition(t_satellite_position position, const char * name, bool force, delivery_system_t delsys, uint16_t nid)
 {
 	if(force || (satellitePositions.find(position) == satellitePositions.end())) {
 		satellitePositions[position].position = position;
@@ -833,15 +833,15 @@ bool CServiceManager::LoadScanXml(delivery_system_t delsys)
 			std::string delivery_name = xmlGetName(search);
 			if (delivery_name == "sat") {
 				position = xmlGetSignedNumericAttribute(search, "position", 10);
-				char * name = xmlGetAttribute(search, "name");
+				const char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name, false, ALL_SAT);
 			} else if (delivery_name == "terrestrial") {
-				char * name = xmlGetAttribute(search, "name");
+				const char * name = xmlGetAttribute(search, "name");
 				position = fake_pos++;
 				position &= 0x0EFF;
 				InitSatPosition(position, name, false, ALL_TERR);
 			} else if(delivery_name == "cable") {
-				char * name = xmlGetAttribute(search, "name");
+				const char * name = xmlGetAttribute(search, "name");
 				position = fake_pos++;
 				InitSatPosition(position, name, false, ALL_CABLE, xmlGetNumericAttribute(search, "nid", 0));
 			} else {
@@ -910,7 +910,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	if (parser != NULL) {
 		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
 		while (search) {
-			char * name = xmlGetAttribute(search, "name");
+			const char * name = xmlGetAttribute(search, "name");
 			t_satellite_position position;
 			std::string delivery_name = xmlGetName(search);
 			if (delivery_name == "sat") {
@@ -947,9 +947,9 @@ bool CServiceManager::LoadServices(bool only_current)
 				xmlNodePtr l1 = l0->xmlChildrenNode;
 				if (l1) {
 					while ((xmlGetNextOccurence(l1, "webtv"))) {
-						char *title = xmlGetAttribute(l1, "title");
-						char *url = xmlGetAttribute(l1, "url");
-						char *desc = xmlGetAttribute(l1, "description");
+						const char *title = xmlGetAttribute(l1, "title");
+						const char *url = xmlGetAttribute(l1, "url");
+						const char *desc = xmlGetAttribute(l1, "description");
 						if (title && url) {
 							t_channel_id chid = create_channel_id64(0, 0, 0, 0, 0, url);
 							CZapitChannel * channel = new CZapitChannel(title, chid, url, desc);
@@ -1299,8 +1299,8 @@ bool CServiceManager::LoadProviderMap()
 			replace.original_network_id = xmlGetNumericAttribute(node, "on", 16);
 			replace.frequency = xmlGetNumericAttribute(node, "frq", 0);
 
-			char * name = xmlGetAttribute(node, "name");
-			char * newname = xmlGetAttribute(node, "newname");
+			const char * name = xmlGetAttribute(node, "name");
+			const char * newname = xmlGetAttribute(node, "newname");
 			if(name)
 				replace.name = name;
 			if(newname)

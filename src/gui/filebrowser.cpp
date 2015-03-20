@@ -439,7 +439,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 		xmlDocPtr answer_parser = parseXml(answer.c_str());
 
 		if (answer_parser != NULL) {
-			char *ptr;
+			const char *ptr = NULL;
 			unsigned char xml_decode = 0;
 			xmlNodePtr element = xmlDocGetRootElement(answer_parser);
 
@@ -458,7 +458,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", (int)answer.size());
 				file.Time = 0;
 				flist->push_back(file);
 			} else {
-				char * tunein_base = NULL;
+				const char * tunein_base = NULL;
 
 				if (xml_decode == 1) {
 					CFile file;

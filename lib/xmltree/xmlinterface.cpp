@@ -47,7 +47,7 @@
 
 unsigned long xmlGetNumericAttribute(const xmlNodePtr node, const char *name, const int base)
 {
-	char *ptr = xmlGetAttribute(node, name);
+	const char *ptr = xmlGetAttribute(node, name);
 
 	if (!ptr)
 		return 0;
@@ -57,7 +57,7 @@ unsigned long xmlGetNumericAttribute(const xmlNodePtr node, const char *name, co
 
 long xmlGetSignedNumericAttribute(const xmlNodePtr node, const char *name, const int base)
 {
-	char *ptr = xmlGetAttribute(node, name);
+	const char *ptr = xmlGetAttribute(node, name);
 
 	if (!ptr)
 		return 0;
