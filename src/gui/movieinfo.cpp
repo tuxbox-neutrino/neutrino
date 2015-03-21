@@ -619,8 +619,8 @@ std::string decodeXmlSpecialChars(std::string s)
 	strReplace(s,"&amp;","&");
 	strReplace(s,"&quot;","\"");
 	strReplace(s,"&apos;","\'");
-	strReplace(s,"&#x0a;","\n'");
-	strReplace(s,"&#x0d;","\n'");
+	strReplace(s,"&#x0a;","\n");
+	strReplace(s,"&#x0d;","\n");
 	return s;
 }
 
