@@ -85,11 +85,11 @@ void CShellWindow::exec()
 	}
 
 	Font *font = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO];
-	int h_shell = frameBuffer->getScreenHeight(true)-1;
-	int w_shell = frameBuffer->getScreenWidth(true)-1;
+	int h_shell = frameBuffer->getScreenHeight();
+	int w_shell = frameBuffer->getScreenWidth();
 	unsigned int lines_max = h_shell / font->getHeight();
 	list<std::string> lines;
-	CBox textBoxPosition(1, 1, w_shell, h_shell);
+	CBox textBoxPosition(frameBuffer->getScreenX(), frameBuffer->getScreenX(), w_shell, h_shell);
 	textBox = new CTextBox(cmd.c_str(), font, CTextBox::BOTTOM, &textBoxPosition);
 	struct pollfd fds;
 	fds.fd = fileno(f);
