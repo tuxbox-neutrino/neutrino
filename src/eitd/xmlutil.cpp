@@ -29,8 +29,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <string>
+#include <sys/stat.h>
 
 #include <xmltree/xmlinterface.h>
 #include <zapit/client/zapittools.h>
@@ -258,7 +258,7 @@ void readDVBTimeFilter(void)
 	}
 }
 
-void deleteOldfileEvents(char *epgdir)
+void deleteOldfileEvents(const char *epgdir)
 {
 	std::string indexname = std::string(epgdir) + "/index.xml";
 	xmlDocPtr filter_parser = parseXmlFile(indexname.c_str());
@@ -515,8 +515,13 @@ static void write_indexxml_footer(FILE *fd)
 	fprintf(fd, "</dvbepgfiles>\n");
 }
 
-void writeEventsToFile(char *epgdir)
+void writeEventsToFile(const char *epgdir)
 {
+	struct stat my_stat;
+	if(stat(epgdir, &my_stat) != 0){
+		return;
+	}
+
 	FILE * indexfile = NULL;
 	FILE * eventfile = NULL;
 	std::string filename("");
