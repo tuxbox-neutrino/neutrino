@@ -47,9 +47,9 @@ class CShellWindow : public sigc::trackable
 	public:
 		enum shellwindow_modes
 		{
-			VERBOSE 	= 1,
-			ACKNOWLEDGE 	= 2,
-			ACKNOWLEDGE_MSG	= 4
+			VERBOSE 		= 1,
+			ACKNOWLEDGE 		= 2,
+			ACKNOWLEDGE_EVENT	= 4
 		};
 		CShellWindow(const std::string &Command, const int Mode = 0, int* Res = NULL, bool auto_exec = true);
 		~CShellWindow();
@@ -79,7 +79,36 @@ class CShellWindow : public sigc::trackable
 			shell.exec();
 		...other code...
 		*/
-		sigc::signal<void, std::string&> OnShellOutputLoop;
+		sigc::signal<void, std::string&, int*, bool*> OnShellOutputLoop;
+
+		/*!
+		signal/event handler runs after task is finished.
+		NOTE: works only with ACKNOWLEDGE_EVENT mode
+		After executed task comes a default messages (see method showResult()), but with these slots it is possible to use other messages
+		or any desired action without any touching this class.
+		Example for implementation in foreign class let show an alternate message than default message:
+		...your code...
+			//assuming in your foreign class is declared a member function named YourMemberFunction() without return value and int* as parmeter This method should run
+			instead the default message.
+
+			//declare a slot with return value as 'void' and wihout any parameter
+			sigc::slot<void, int*> sl;
+
+			//fill the slot with your member function in your class with your action
+			sl = sigc::mem_fun(*this, &CYourClass::YourMemberFunction);
+
+			//create the CShellWindow object in verbose mode, important: parameter 'auto_exec' must be set to 'false', so it is possible to connect the slot before engages the exec() methode
+			CShellWindow shell(cmd, (verbose ? CShellWindow::VERBOSE : 0) | (acknowledge ? CShellWindow::ACKNOWLEDGE_MSG : 0), &res, false);
+
+			//connect slot
+			shell1.OnResultError.connect(sl);
+
+			//now exec...
+			shell.exec();
+		...other code...
+		*/
+		sigc::signal<void, int*> OnResultError;
+		sigc::signal<void, int*> OnResultOk;
 };
 
 #endif

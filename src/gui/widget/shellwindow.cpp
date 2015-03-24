@@ -156,7 +156,8 @@ void CShellWindow::exec()
 
 					//callback for line handler
 					std::string s_output = std::string((output));
-					OnShellOutputLoop(s_output);
+					OnShellOutputLoop(s_output, res, &ok);
+					dprintf(DEBUG_NORMAL,  "[CShellWindow] [%s - %d]  res=%d ok=%d\n", __func__, __LINE__, *res, ok);
 					if (lines.size() > lines_max)
 						lines.pop_front();
 					txt = "";
@@ -200,12 +201,14 @@ void CShellWindow::exec()
 	errno = 0;
 	int r = waitpid(pid, &s, 0);
 
-	if (res) {
-		dprintf(DEBUG_NORMAL,  "[CShellWindow] [%s - %d]  res=%d, error[%d]: %s\n", __func__, __LINE__, *res, errno, strerror(errno));
-		if (r == -1)
-			*res = errno;
-		else
-			*res = WEXITSTATUS(s);
+	if (res){
+		//if res value was generated inside signal, then use foreign res from signal instead own res value
+		if (OnShellOutputLoop.empty()){
+			if (r == -1)
+				*res = errno;
+			else
+				*res = WEXITSTATUS(s);
+		}
 	}
 
 	showResult();
@@ -220,12 +223,14 @@ void CShellWindow::showResult()
 		if (mode & ACKNOWLEDGE){
 			show_button = true;
 		}
-		else if (mode & ACKNOWLEDGE_MSG){
+		else if (mode & ACKNOWLEDGE_EVENT){
 			if (*res != 0){
-				DisplayErrorMessage("Please press button");
+				OnResultError(res);
+				if (OnResultError.empty())
+					DisplayErrorMessage("Error while execution of task. Please see window for details!");
 				show_button = true;
 			}else{
-				DisplayInfoMessage("...ready. Please press OK");
+				OnResultOk(res);
 				exit = true;
 			}
 		}
@@ -235,7 +240,7 @@ void CShellWindow::showResult()
 			int b_height = 35;
 			int xpos = frameBuffer->getScreenWidth() - b_width;
 			int ypos = frameBuffer->getScreenHeight() - b_height;
-			CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_OK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
+			CComponentsButton btn(xpos, ypos, b_width, b_height, LOCALE_MESSAGEBOX_BACK, NEUTRINO_ICON_BUTTON_OKAY, NULL, true, true);
 			btn.paint();
 		}
 
