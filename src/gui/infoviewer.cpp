@@ -4,6 +4,9 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Bugfixes/cleanups (C) 2007-2013,2015 Stefan Seyfried
+	(C) 2008 Novell, Inc. Author: Stefan Seyfried
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -254,18 +257,8 @@ void CInfoViewer::initClock()
 
 	clock->setPos(BoxEndX - 10 - clock->getWidth(), ChanNameY);
 	clock->setTextColor(COL_INFOBAR_TEXT);
-}
-
-void CInfoViewer::paintTime (bool show_dot)
-{
-	if (!gotTime)
-		gotTime = timeset;
-
-	if (!gotTime)
-		return;
-
-	clock->setClockFormat(show_dot ? "%H:%M" : "%H %M");
-	clock->paint(CC_SAVE_SCREEN_NO);
+	clock->setClockFormat("%H:%M");
+	clock->setClockBlink("%H %M");
 }
 
 void CInfoViewer::showRecordIcon (const bool show)
@@ -512,7 +505,8 @@ void CInfoViewer::showMovieTitle(const int playState, const t_channel_id &Channe
 	paintBackground(COL_INFOBAR_PLUS_0);
 
 	bool show_dot = true;
-	paintTime (show_dot);
+	if (timeset)
+		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecordIcon (show_dot);
 	show_dot = !show_dot;
 
@@ -693,7 +687,8 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	paintBackground(col_NumBox);
 
 	bool show_dot = true;
-	paintTime (show_dot);
+	if (timeset)
+		clock->paint(CC_SAVE_SCREEN_NO);
 	showRecordIcon (show_dot);
 	show_dot = !show_dot;
 
@@ -900,7 +895,8 @@ void CInfoViewer::loop(bool show_dot)
 				res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id)) {
 			showSNR ();
-			paintTime (show_dot);
+			if (timeset)
+				clock->paint(CC_SAVE_SCREEN_NO);
 			showRecordIcon (show_dot);
 			show_dot = !show_dot;
 			showInfoFile();
