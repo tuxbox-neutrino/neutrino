@@ -35,7 +35,7 @@
 #include <driver/neutrinofonts.h>
 #include <driver/rcinput.h>
 
-#define COL_BUTTON_BODY COL_DARK_GRAY
+#define COL_BUTTON_BODY COL_INFOBAR_SHADOW_PLUS_1
 #define COL_BUTTON_TEXT_ENABLED COL_BLACK
 #define COL_BUTTON_TEXT_DISABLED COL_LIGHT_GRAY
 

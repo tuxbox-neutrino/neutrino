@@ -101,12 +101,12 @@ void CComponentsButton::initVarButton(	const int& x_pos, const int& y_pos, const
 	height	 	= h;
 	shadow		= has_shadow;
 	shadow_w	= SHADOW_OFFSET;
-	col_frame 	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
 
-	col_body_gradient = g_settings.gradiant;
+	col_body_gradient = false/*g_settings.gradiant*/; //gradient is prepared for use but disabled at the moment till some other parts of gui parts are provide gradient
 	setColBodyGradient(CColorGradient::gradientLight2Dark, CFrameBuffer::gradientVertical, CColorGradient::light);
+	col_frame 	= color_frame;
+	col_body	= col_body_gradient? COL_DARK_GRAY : color_body;
+	col_shadow	= color_shadow;
 
 	cc_item_enabled  = enabled;
 	cc_item_selected = selected;
