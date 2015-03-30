@@ -191,7 +191,7 @@ typedef enum
 } MB_SHOW_MODE;
 
 #define MB_MAX_ROWS LF_MAX_ROWS
-#define MB_MAX_DIRS 5
+#define MB_MAX_DIRS NETWORK_NFS_NR_OF_ENTRIES
 /* MB_SETTINGS to be stored in g_settings anytime ....*/
 typedef struct
 {
@@ -538,14 +538,13 @@ typedef enum
 	DIR_STATE_DISABLED = 4
 } DIR_STATE;
 
-#define MAX_DIR 10
 class CDirMenu : public CMenuWidget
 {
 	private:
 		std::vector<MB_DIR>* dirList;
-		DIR_STATE dirState[MAX_DIR];
-		std::string dirOptionText[MAX_DIR];
-		int dirNfsMountNr[MAX_DIR];
+		DIR_STATE dirState[MB_MAX_DIRS];
+		std::string dirOptionText[MB_MAX_DIRS];
+		int dirNfsMountNr[MB_MAX_DIRS];
 		bool changed;
 
 		void updateDirState(void);

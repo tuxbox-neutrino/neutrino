@@ -3727,10 +3727,10 @@ CDirMenu::CDirMenu(std::vector<MB_DIR>* dir_list)
 	if (dirList->empty())
 		return;
 
-	for (i = 0; i < MAX_DIR; i++)
+	for (i = 0; i < MB_MAX_DIRS; i++)
 		dirNfsMountNr[i] = -1;
 
-	for (i = 0; i < dirList->size() && i < MAX_DIR; i++)
+	for (i = 0; i < dirList->size() && i < MB_MAX_DIRS; i++)
 	{
 		for (int nfs = 0; nfs < NETWORK_NFS_NR_OF_ENTRIES; nfs++)
 		{
@@ -3764,7 +3764,7 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		printf("[CDirMenu].exec %s\n",actionKey.c_str());
 		int number = atoi(actionKey.c_str());
-		if (number < MAX_DIR)
+		if (number < MB_MAX_DIRS)
 		{
 			if (dirState[number] == DIR_STATE_SERVER_DOWN)
 			{
@@ -3814,7 +3814,7 @@ void CDirMenu::updateDirState(void)
 	unsigned int drivefree = 0;
 	struct statfs s;
 
-	for (unsigned int i = 0; i < dirList->size() && i < MAX_DIR; i++)
+	for (unsigned int i = 0; i < dirList->size() && i < MB_MAX_DIRS; i++)
 	{
 		dirOptionText[i] = "UNBEKANNT";
 		dirState[i] = DIR_STATE_UNKNOWN;
@@ -3881,7 +3881,7 @@ int CDirMenu::show(void)
 	dirMenu.addIntroItems(LOCALE_MOVIEBROWSER_MENU_DIRECTORIES_HEAD);
 
 	updateDirState();
-	for (unsigned int i = 0; i < dirList->size() && i < MAX_DIR; i++)
+	for (unsigned int i = 0; i < dirList->size() && i < MB_MAX_DIRS; i++)
 	{
 		snprintf(tmp, sizeof(tmp),"%d",i);
 		dirMenu.addItem(new CMenuForwarder ((*dirList)[i].name.c_str(), (dirState[i] != DIR_STATE_UNKNOWN), dirOptionText[i], this, tmp));
