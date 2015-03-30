@@ -129,7 +129,7 @@ function get_data(){
 //]]>
 </script>
 </head>
-{=var-set:lcshot={=if-file-exists:/bin/lcshot~true~{=if-file-exists:/var/bin/lcshot~true~false=}=}=}
+{=var-set:lcshot={=find-exec:lcshot=}=}
 <body>
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>{=L:main.boxcontrol=}</h2></div>
@@ -150,7 +150,7 @@ function get_data(){
 				</li>
 				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li>
-					{=if-equal:{=var-get:lcshot=}~true~
+					{=if-empty:{=var-get:lcshot=}~
 					<a target="work" title="{=L:bc.menue.lcd_screenshot_desc=}" href="Y_Tools_lcshot.yhtm">{=L:bc.menue.lcd_screenshot=}</a>
 					~
 					<a href="javascript:void(0)" class="disabled" title="{=L:bc.menue.lcd_screenshot_desc_ni=}">{=L:bc.menue.lcd_screenshot=}</a>

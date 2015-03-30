@@ -1,4 +1,4 @@
-{=var-set:fbshot={=if-file-exists:/bin/fbshot~true~{=if-file-exists:/var/bin/fbshot~true~false=}=}=}
+{=var-set:fbshot={=find-exec:fbshot=}=}
 
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
@@ -43,8 +43,8 @@ function do_snapshot() {
 		filename = id("filename").value;
 	}
 
-	if ({=var-get:fbshot=} == true && enableVideo == 0)
-		dbox_exec_tools("fbshot fb /tmp/"+filename+".png");
+	if ("{=var-get:fbshot=}" != "" && enableVideo == 0)
+		dbox_exec_tools("{=var-get:fbshot=} fb /tmp/"+filename+".png");
 	else
 		loadSyncURL("/control/screenshot?name="+filename+"&osd="+enableOSD+"&video="+enableVideo);
 

@@ -21,7 +21,7 @@ function do_image_upload_ready()
 </script>
 </head>
 <body>
-{=var-set:fcp={=if-file-exists:/sbin/fcp~true~{=if-file-exists:/var/bin/fcp~true~{=if-file-exists:/bin/fcp~true~false=}=}=}=}
+{=var-set:fcp={=find-exec:fcp=}=}
 {=var-set:wait_text=Image wird hochgeladen (upload image).=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div id="wait_flash" class="ydiagfree" style="left: 100px; position: absolute; top: 100px; display: none;">
 <div class="y_wait_box_visible">
@@ -74,7 +74,9 @@ function do_image_upload_ready()
 		{=var-set:help_url=Help-Tools-Image=}{=var-set:menu=Image flashen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<b><font size="2">Partition mtd {=mtd=}</font><br/>{=mtd_text=}</b>
-	{=if-equal:{=var-get:fcp=}~true~
+	{=if-empty:{=var-get:fcp=}~
+		<h2><br/><br/><br/><b><font color="#FF0000">fcp ist nicht installiert!</font></b></h2>
+	~
 		<form method="post" name="f" id="f" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;image_upload" target="out">
 			<p>
 			<input type="file" name="file" size="40"/><br/>
@@ -82,8 +84,6 @@ function do_image_upload_ready()
 			<button type="button" ytype="flash" title="upload and flash" name="su" onclick="do_submit()">Image flashen</button><br/>
 			</p>
 		</form>
-	~
-		<h2><br/><br/><br/><b><font color="#FF0000">fcp ist nicht installiert!</font></b></h2>
 	=}
 	</div>
 </div>
