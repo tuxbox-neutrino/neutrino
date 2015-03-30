@@ -371,8 +371,9 @@ std::string CyParser::cgi_cmd_parsing(CyhookHandler *hh,
 //	ini-set:<filename>;<varname>;<value>[~open|save|cache]
 //	if-empty:<value>~<then>~<else>
 //	if-equal:<left_value>~<right_value>~<then>~<else> (left_value == right_value?)
-//	if-not-equal:<left_value>~<right_value>~<then>~<else> (left_val!e == right_value?)
+//	if-not-equal:<left_value>~<right_value>~<then>~<else> (left_value == right_value?)
 //	if-file-exists:<filename>~<then>~<else>
+//	find-exec:<filename>
 //	include-block:<filename>;<block-name>[;<default-text>]
 //	var-get:<varname>
 //	var-set:<varname>=<varvalue>
@@ -427,6 +428,8 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 				yresult = (access(if_value, R_OK) == 0) ? if_then
 						: if_else;
 			}
+		} else if (ycmd_type == "find-exec") {
+			yresult = find_executable(ycmd_name.c_str());
 		} else if (ycmd_type == "include") {
 			std::string ytmp;
 			std::fstream fin(ycmd_name.c_str(), std::fstream::in);
