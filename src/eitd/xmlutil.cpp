@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include <sys/stat.h>
+#include <system/helpers.h>
 
 #include <xmltree/xmlinterface.h>
 #include <zapit/client/zapittools.h>
@@ -517,8 +517,7 @@ static void write_indexxml_footer(FILE *fd)
 
 void writeEventsToFile(const char *epgdir)
 {
-	struct stat my_stat;
-	if(stat(epgdir, &my_stat) != 0){
+	if(check_dir(epgdir)){
 		return;
 	}
 
