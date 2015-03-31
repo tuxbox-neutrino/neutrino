@@ -114,7 +114,7 @@ void CComponentsText::initCCText()
 {
 	//set default font, if is no font definied
 	if (ct_font == NULL)
-		ct_font = *CNeutrinoFonts::getInstance()->getDynFont(width, height, ct_text, ct_text_style)/*g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]*/;
+		ct_font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
 
 	//define height from font size
 	height 	= max(height, ct_font->getHeight());
