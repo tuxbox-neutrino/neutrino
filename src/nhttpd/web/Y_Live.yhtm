@@ -150,7 +150,7 @@ function view_transcode_mode(){
 </div>
 <script type="text/javascript">
 //<![CDATA[
-	haveUDP = ("{=if-file-exists:/sbin/udpstreamts~true~{=if-file-exists:/var/bin/udpstreamts~true~false=}=}" == "true");
+	haveUDP = ("{=find-exec:udpstreamts=}" != "");
 	isUDP = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;udp;false=}" == "true");
 	Mode = "{=mode=}";
 	LiveTyp = "{=typ=}";
