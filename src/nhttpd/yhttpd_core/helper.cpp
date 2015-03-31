@@ -229,7 +229,7 @@ std::string encodeString(std::string decodedString) {
 			if (isalnum(one_char))
 				*newString++ = one_char;
 			else
-				newString += sprintf(newString, "&#%d;",
+				newString += snprintf(newString,result.length(), "&#%d;",
 						(unsigned char) one_char);
 		}
 

@@ -1958,7 +1958,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 							"Unknown TV-Channel" : "Unknown Radio-Channel");
 			}
 			else
-				sprintf(zAddData, PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id);
+				snprintf(zAddData,sizeof(zAddData), PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id);
 
 			zAddData[22]=0;
 
@@ -1966,7 +1966,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 
 		case CTimerd::TIMER_STANDBY:
 			if (!send_id)
-				sprintf(zAddData,"Standby: %s",(timer->standby_on ? "ON" : "OFF"));
+				snprintf(zAddData,sizeof(zAddData),"Standby: %s",(timer->standby_on ? "ON" : "OFF"));
 			break;
 
 		case CTimerd::TIMER_REMIND :

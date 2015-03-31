@@ -300,11 +300,11 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *, st
 			CEPGData epg;
 			CZapitChannel * channel = channels[j];
 			char buf[100],id[20];
-			sprintf(id,PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS,channel->getChannelID());
+			snprintf(id,sizeof(id),PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS,channel->getChannelID());
 			std::string _sid = std::string(id);
 			sel = (_sid == achannel_id) ? "selected=\"selected\"" : "";
 			CEitManager::getInstance()->getActualEPGServiceKey(channel->getChannelID(), &epg);
-			sprintf(buf,"<option value=" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s>%.20s - %.30s</option>\n", channel->getChannelID(), sel.c_str(), channel->getName().c_str(),epg.title.c_str());
+			snprintf(buf,sizeof(buf),"<option value=" PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " %s>%.20s - %.30s</option>\n", channel->getChannelID(), sel.c_str(), channel->getName().c_str(),epg.title.c_str());
 			yresult += buf;
 		}
 	}
