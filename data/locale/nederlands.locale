@@ -10,7 +10,7 @@ EPGPlus.bypage_mode Per pagina
 EPGPlus.head Programmagids overzicht (EPG Plus)
 EPGPlus.next_bouquet Volgende favorietenlijst
 EPGPlus.options Opties
-EPGPlus.page_down Pagina omlaag
+EPGPlus.page_down Pagina omlaag                                                        
 EPGPlus.page_up Pagina omhoog
 EPGPlus.prev_bouquet Vorige favorietenlijst
 EPGPlus.record Opnemen
@@ -731,7 +731,7 @@ infoviewer.motor_moving Schotel positionering
 infoviewer.next Volgende
 infoviewer.nocurrent Geen informatie beschikbaar over huidige programma
 infoviewer.noepg EPG is niet beschikbaar
-infoviewer.notavailable Kanaal niet beschikbaar
+infoviewer.notavailable Geen of slecht antennesignaal
 infoviewer.now Nu
 infoviewer.selecttime Tijd selectie
 infoviewer.streaminfo Mogelijkheden
@@ -865,7 +865,7 @@ mainsettings.lcd Voorpaneel instellingen
 mainsettings.manage Beheer instellingen
 mainsettings.misc Diverse instellingen
 mainsettings.multimedia Multimedia
-mainsettings.network Netwerk
+mainsettings.network Netwerk instellingen
 mainsettings.osd OSD instellingen
 mainsettings.recording Opnemen
 mainsettings.savesettingsnow Instellingen opslaan
@@ -1111,9 +1111,9 @@ menu.hint_net_proxypass Proxy wachtwoord\n(indien autorisatie vereist is)
 menu.hint_net_proxyserver Proxy servernaam
 menu.hint_net_proxyuser Proxy gebruikersnaam\n(indien autorisatie vereist is)
 menu.hint_net_services Configureer netwerkdiensten\n(Telnet, FTP, uPNP)
-menu.hint_net_setupnow Huidige instellingen toepassen
-menu.hint_net_setuponstartup Start netwerk tijdens het opstarten
-menu.hint_net_show Huidige netwerk instellingen weergeven
+menu.hint_net_setupnow Netwerk herstarten
+menu.hint_net_setuponstartup Netwerk interface
+menu.hint_net_show Netwerk instellingen weergeven
 menu.hint_net_ssid SSID van draadloos netwerk waarmee u \nverbinding wilt maken invoeren
 menu.hint_net_ssid_scan Zoek beschikbare WLAN netwerken
 menu.hint_net_telnet Telnet login op uw ontvanger inschakelen
@@ -1666,18 +1666,18 @@ mpkey.subtitle Ondertitels
 mpkey.time Tijd weergeven
 networkmenu.apply_settings Wijzigingen worden toegepast... 
 networkmenu.apply_settings_now Wilt u de instellingen toepassen?
-networkmenu.broadcast Uitzending
+networkmenu.broadcast broadcast adres
 networkmenu.dhcp DHCP
 networkmenu.error_no_address Adres ontbreekt
 networkmenu.gateway Standaard gateway
-networkmenu.hostname Hostname
+networkmenu.hostname Hostnaam
 networkmenu.hostname_hint1 Hostnaam invoeren
 networkmenu.hostname_hint2 Opnieuw opstarten na wijzigingen
 networkmenu.inactive_network Netwerk inactief!
 networkmenu.ipaddress IP adres
-networkmenu.mount Bewerk netwerk locaties
+networkmenu.mount Beheer netwerklocaties
 networkmenu.nameserver Naamserver
-networkmenu.netmask Netmasker
+networkmenu.netmask Subnetmasker
 networkmenu.ntpenable Synchronisatie via
 networkmenu.ntprefresh NTP/DVB verversen
 networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync in minuten
@@ -1685,20 +1685,20 @@ networkmenu.ntprefresh_hint2 Ontvanger dient herstart te worden of EPG gereset
 networkmenu.ntpserver NTP-Server
 networkmenu.ntpserver_hint1 NTP-Server voorbeeld: ntp1.ptb.de
 networkmenu.ntpserver_hint2 Ontvanger dient herstart te worden of EPG gereset
-networkmenu.ntptitle Time-Synchronisatie
+networkmenu.ntptitle Tijd-Synchronisatie
 networkmenu.password Pre-Shared Key (PSK)
 networkmenu.reset_settings_now Wilt u de vorige instellingen herstellen?
 networkmenu.select_if Interface
 networkmenu.services Netwerk diensten
-networkmenu.setupnow Netwerk instellingen toepassen
-networkmenu.setuponstartup Netwerk bij het opstarten instellen
-networkmenu.show Actieve Netwerk instellingen weergeven
+networkmenu.setupnow Netwerk herstarten
+networkmenu.setuponstartup Netwerk interface
+networkmenu.show Netwerk instellingen tonen
 networkmenu.ssid Netwerk naam (SSID)
-networkmenu.ssid_scan WLAN netwoek scan
+networkmenu.ssid_scan WLAN netwerk scan
 networkmenu.ssid_scan_error Geen WLAN netwerken gevonden.
 networkmenu.ssid_scan_wait WLAN netwerk scan is bezig...
-networkmenu.test Netwerk nu testen 
-neutrino_starting Neutrino-HD wordt opgestart...
+networkmenu.test Netwerktest uitvoeren 
+neutrino_starting Een moment geduld a.u.b...
 nfs.alreadymounted directory reeds gekoppeld
 nfs.automount Koppelen tijdens het opstarten
 nfs.dir directory/locatie
@@ -2024,7 +2024,7 @@ screenshot.tv TV resolutie
 screenshot.video Video in de achtergrond
 servicemenu.getplugins Herlaad plugins
 servicemenu.getplugins_hint Plugins worden geladen,\nmoment geduld alstublieft.
-servicemenu.head Installatie
+servicemenu.head Installatie / Software update
 servicemenu.imageinfo Firmware info
 servicemenu.reload Herlaad kanalenlijst 
 servicemenu.reload_hint Kanalenlijst wordt geladen,\nmoment geduld alstublieft.
@@ -2239,7 +2239,7 @@ videomenu.pip PiP instelling
 videomenu.pip_error PiP start mislukt
 videomenu.saturation Verzadiging
 videomenu.scart Scart
-videomenu.screensetup Scherm instellicingen
+videomenu.screensetup Scherm instellingen
 videomenu.sdosd SD OSD
 videomenu.sharpness Scherpheid
 videomenu.tv-scart Video
