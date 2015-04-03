@@ -2983,6 +2983,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		int fd = (int) data;
 		printf("NeutrinoMessages::EVT_STREAM_START: fd %d\n", fd);
 		wakeupFromStandby();
+		if (g_Radiotext)
+			g_Radiotext->setPid(0);
 
 		if (!CStreamManager::getInstance()->AddClient(fd)) {
 			close(fd);
