@@ -1663,7 +1663,7 @@ void CChannelList::showChannelLogo()
 				CChannelLogo->hide();
 			delete CChannelLogo;
 		}
-		CChannelLogo = new CComponentsChannelLogo(0, 0, (*chanlist)[selected]->getName(), (*chanlist)[selected]->channel_id);
+		CChannelLogo = new CComponentsChannelLogoScalable(0, 0, (*chanlist)[selected]->getName(), (*chanlist)[selected]->channel_id);
 
 		if (CChannelLogo->hasLogo()){
 			int h_logo = CChannelLogo->getHeight();
