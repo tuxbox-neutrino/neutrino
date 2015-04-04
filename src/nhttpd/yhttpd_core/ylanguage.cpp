@@ -103,6 +103,8 @@ std::string CLanguage::getTranslation(std::string id){
 		trans=NeutrinoLanguage->getString(id,"");
 	if(trans.empty())
 		trans=DefaultLanguage->getString(id,"");
+	if (trans.empty())
+		trans = "# " + id + " #";
 	return trans;
 }
 //-----------------------------------------------------------------------------
