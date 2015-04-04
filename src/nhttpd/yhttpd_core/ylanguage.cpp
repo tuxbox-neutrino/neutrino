@@ -76,7 +76,7 @@ void CLanguage::setLanguage(std::string _language){
 	ConfigLanguage->loadConfig(language_dir + "/" + _language);
 	DefaultLanguage->loadConfig(language_dir + "/" + HTTPD_DEFAULT_LANGUAGE);
 
-	const char * path[2] = { CONFIGDIR "/locale/", DATADIR "/neutrino/locale/"};
+	const char * path[2] = { "/var/tuxbox/locale/", DATADIR "/neutrino/locale/"};
 	for (int i = 0; i < 2; i++)
 	{
 		std::string filename = path[i];
